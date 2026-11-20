@@ -1,0 +1,197 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 258
+# Author: iustus
+# Date: 2007-01-10T17:23:19.236245Z
+# Coverage: full
+# Message:
+#   units with cargo (like carriers with airplanes), now fogbust properly (airplanes do not know to do fogbusting recon yet)
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@257
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@258
+@@ -1838,14 +1838,11 @@
+ 
+ bool CvSelectionGroup::hasCargo()
+ {
+-	CLLNode<IDInfo>* pUnitNode;
+-	CvUnit* pLoopUnit;
+-
+-	pUnitNode = headUnitNode();
++	CLLNode<IDInfo>* pUnitNode = headUnitNode();
+ 
+ 	while (pUnitNode != NULL)
+ 	{
+-		pLoopUnit = ::getUnit(pUnitNode->m_data);
++		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 		pUnitNode = nextUnitNode(pUnitNode);
+ 
+ 		if (pLoopUnit->hasCargo())
+@@ -1857,6 +1854,21 @@
+ 	return false;
+ }
+ 
++int CvSelectionGroup::getCargo() const
++{
++	int iCargoCount = 0;
++
++	CLLNode<IDInfo>* pUnitNode = headUnitNode();
++	while (pUnitNode != NULL)
++	{
++		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++		pUnitNode = nextUnitNode(pUnitNode);
++
++		iCargoCount += pLoopUnit->getCargo();
++	}
++
++	return iCargoCount;
++}
+ 
+ bool CvSelectionGroup::canAllMove()
+ {
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.h@257
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.h@258
+@@ -51,8 +51,9 @@
+ 	bool isCargoBusy();
+ 	int baseMoves();																																										// Exposed to Python
+ 	bool isWaiting() const;																																							// Exposed to Python
+-	bool isFull();																																											// Exposed to Python
++	bool isFull();																																										// Exposed to Python
+ 	bool hasCargo();																																										// Exposed to Python
++	int getCargo() const;
+ 	DllExport bool canAllMove();																																				// Exposed to Python
+ 	bool canAnyMove();																																									// Exposed to Python
+ 	bool hasMoved();																																										// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@257
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@258
+@@ -67,6 +67,9 @@
+ 
+ 	m_eUnitAIType = eUnitAI;
+ 	
++	m_iCachedObserverCount = -1;
++	m_bCacheObserverCount = false;
++
+ 	m_iLastJoinGroupTurn = -1;
+ }
+ 
+@@ -7134,13 +7137,31 @@
+ }
+ 
+ // value of a plot for fogbusting
+-int CvUnitAI::AI_fogbustPlotValue(const CvPlot* pPlot, int iObserverChange) const
++int CvUnitAI::AI_fogbustPlotValue(const CvPlot* pPlot, int iObserverChange)
+ {
+ 	int iValue = 0;
+ 	
+-	int iNumUnits = getGroup()->getNumUnits();
++	int iNumObservers;
++
++	// if we want to use cache, and its valid, use it
++	if (m_bCacheObserverCount && m_iCachedObserverCount >= 0)
++	{
++		iNumObservers = m_iCachedObserverCount;
++	}
++	// otherwise, calculate the count
++	else
++	{
++		iNumObservers = getGroup()->getNumUnits() + getGroup()->getCargo();
++
++		// if we want to cache the count, do so
++		if (m_bCacheObserverCount)
++		{
++			m_iCachedObserverCount = iNumObservers;
++		}
++	}
++
+ 	int iNewVisibilityCount = pPlot->getVisibilityCount(GET_PLAYER(getOwnerINLINE()).getTeam()) + iObserverChange;
+-	if (iNewVisibilityCount <= iNumUnits)
++	if (iNewVisibilityCount <= iNumObservers)
+ 	{
+ 		iValue ++;
+ 
+@@ -7166,6 +7187,14 @@
+ // determines the change in fogbusting plot values by moving to new plot
+ void CvUnitAI::AI_fogbustPlotDifference(CvPlot* pNewPlot, CLinkList<CvPlot*>& visiblePlotList, int& iFogbustingPlotsWeLose, int& iFogbustingPlotsWeGain)
+ {
++	// turn on the cache if its off
++	bool bCacheActivated = false;
++	if (!m_bCacheObserverCount)
++	{
++		m_bCacheObserverCount = true;
++		m_iCachedObserverCount = -1;
++	}
++
+ 	TeamTypes eTeam = GET_PLAYER(getOwnerINLINE()).getTeam();
+ 
+ 	int iRange = visibilityRange();
+@@ -7194,6 +7223,13 @@
+ 	for (CLLNode<CvPlot*>* pNode = newVisiblePlotList.head(); (pNode != NULL); pNode = newVisiblePlotList.next(pNode))
+ 	{
+ 		iFogbustingPlotsWeGain += AI_fogbustPlotValue(pNode->m_data, /*iObserverChange*/ +1);
++	}
++
++	// turn off the cache if we activated it
++	if (bCacheActivated)
++	{
++		m_bCacheObserverCount = false;
++		m_iCachedObserverCount = -1;
+ 	}
+ }
+ 
+@@ -7212,6 +7248,10 @@
+ 	
+ 	int iRange = visibilityRange();
+ 	bool bSeaUnit = (getDomainType() == DOMAIN_SEA);
++
++	// turn on the cache
++	m_bCacheObserverCount = true;
++	m_iCachedObserverCount = -1;
+ 
+ 	// are we already busting fog? check all the plots visible to us
+ 	int iOurTerritoryCount = 0;
+@@ -7509,6 +7549,10 @@
+ 			}
+ 		}
+ 	}
++
++	// turn off the cache
++	m_bCacheObserverCount = false;
++	m_iCachedObserverCount = -1;
+ 
+ 	if (pBestPlot != NULL)
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@257
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@258
+@@ -52,7 +52,10 @@
+ 
+ 	int m_iBirthmark;
+ 
+-  UnitAITypes m_eUnitAIType;
++	UnitAITypes m_eUnitAIType;
++
++	int m_iCachedObserverCount;
++	bool m_bCacheObserverCount;
+ 
+ 	void AI_animalMove();
+ 	void AI_settleMove();
+@@ -121,7 +124,7 @@
+ 	bool AI_greatWork();
+ 	bool AI_offensiveAirlift();
+ 	bool AI_protect(int iOddsThreshold);
+-	int AI_fogbustPlotValue(const CvPlot* pPlot, int iObserverChange = 0) const;
++	int AI_fogbustPlotValue(const CvPlot* pPlot, int iObserverChange = 0);
+ 	void AI_fogbustPlotDifference(CvPlot* pNewPlot, CLinkList<CvPlot*>& visiblePlotList, int& iFogbustingPlotsWeLose, int& iFogbustingPlotsWeGain);
+ 	bool AI_fogbust();
+ 	bool AI_patrol();
+

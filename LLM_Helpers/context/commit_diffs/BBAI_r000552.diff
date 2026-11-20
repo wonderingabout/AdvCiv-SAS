@@ -1,0 +1,90 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 552
+# Author: jdog5000
+# Date: 2010-04-30T20:06:05.216924Z
+# Coverage: full
+# Message:
+#   Fix PA bug
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@551
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@552
+@@ -5087,6 +5087,8 @@
+ 
+ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnablesUnitWonder ) const
+ {
++	// BBAI TODO: effectively war plan if total war odds high enough
++	//GET_TEAM(getTeam()).AI_getWarRands(iMaxWarRand, iLimitedWarRand, iDogpileWarRand);
+ 	bool bWarPlan = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
+ 	bool bCapitalAlone = (GC.getGameINLINE().getElapsedGameTurns() > 0) ? AI_isCapitalAreaAlone() : false;
+ 	int iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+@@ -10972,6 +10974,7 @@
+ 
+ 	CvCivicInfo& kCivic = GC.getCivicInfo(eCivic);
+ 
++	// BBAI TODO: effectively war plan if total war odds high enough
+ 	bWarPlan = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
+ 
+ 	iConnectedForeignCities = countPotentialForeignTradeCitiesConnected();
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@551
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@552
+@@ -871,22 +871,31 @@
+ 
+ 	for (iI = 0; iI < GC.getNumTechInfos(); iI++)
+ 	{
+-		if (GET_TEAM(eTeam).getResearchProgress((TechTypes)iI) > getResearchProgress((TechTypes)iI))
+-		{
+-			setResearchProgress(((TechTypes)iI), GET_TEAM(eTeam).getResearchProgress((TechTypes)iI), getLeaderID());
+-		}
+-
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       07/06/09                                jdog5000      */
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       04/29/10                                jdog5000      */
+ /*                                                                                              */
+ /* Bugfix                                                                                       */
+ /************************************************************************************************/
+ /* original bts code
++		if (GET_TEAM(eTeam).getResearchProgress((TechTypes)iI) > getResearchProgress((TechTypes)iI))
++		{
++			setResearchProgress(((TechTypes)iI), GET_TEAM(eTeam).getResearchProgress((TechTypes)iI), getLeaderID());
++		}
++
+ 		if (GET_TEAM(eTeam).isNoTradeTech((TechTypes)iI))
+ 		{
+ 			setNoTradeTech(((TechTypes)iI), true);
+ 		}
+ */
++		// Overflow from techs this team already has can cause bugged behavior
++		if( !isHasTech((TechTypes)iI) )
++		{
++			if (GET_TEAM(eTeam).getResearchProgress((TechTypes)iI) > getResearchProgress((TechTypes)iI))
++			{
++				setResearchProgress(((TechTypes)iI), GET_TEAM(eTeam).getResearchProgress((TechTypes)iI), getLeaderID());
++			}
++		}
++
+ 		// Clear no tech trade if it is false for other team
+ 		// Fixes bug where if, with no tech brokering, team A trades a tech to team B, then later joins B in
+ 		// a permanent alliance.  Previous code would block the AB alliance from "brokering" the tech, even
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@551
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@552
+@@ -2788,6 +2788,8 @@
+ 	iTotalWarThreshold /= 3;
+ 	iTotalWarThreshold += bAggressive ? 1 : 0;
+ }
++
++// BBAI TODO: Total war odds function, so that can be checked elsewhere
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+

@@ -3,6 +3,8 @@
 //			 Mustafa Thamer
 //  PURPOSE: Group of functions to load in the xml files for Civilization 4
 //  Copyright (c) 2003 Firaxis Games, Inc. All rights reserved.
+// <!-- custom: CvGameCoreDLL.h already supplies CvGameCoreUtils.h for the structured legacy-log helper, so keep the redundant direct include removed.
+// The same include-plus-trailing-comment layout reproduced fastdep's access violation in CvGlobals.cpp; this translation unit was not independently shown to crash. See KI#38.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 #include "CvGameCoreDLL.h"
 #include "CvXMLLoadUtility.h"
 #include "CvInfo_Misc.h"
@@ -21,16 +23,18 @@ void CvXMLLoadUtility::errorMessage(char const* szMessage, XMLErrorTypes eErrTyp
 	#endif
 }
 
-void CvXMLLoadUtility::logMsg(char* format, ...)
+// <!-- custom: Added szRecord to route the inherited printf-style xml.log payload through the shared structured formatter; callers supply the stable XML_* record key while format/varargs remain unchanged. (ChatGPT-5.6-Sol) -->
+void CvXMLLoadUtility::logMsg(char const* szRecord, char* format, ...)
 {
 	static char buf[kBufSize];
-	//_vsnprintf(buf, kBufSize-4, format, (char*)(&format+1));
-	// <advc.cppstd>
+	// <!-- custom: Take AdvCiv's portable varargs setup (advc.cppstd, 616238930) so the formatter does not depend on argument stack layout. See KI#1099. (GPT-6.2-Sol) -->
 	va_list args;
 	va_start(args, format);
 	_vsnprintf(buf, kBufSize-4, format, args);
-	va_end(args); // </advc.cppstd>
-	gDLL->logMsg("xml.log", buf);
+	va_end(args);
+	// <!-- custom: VC2003 _vsnprintf can leave truncated output unterminated; force a terminator before the structured wrapper treats buf as a C string. (ChatGPT-5.6-Sol) -->
+	buf[kBufSize - 4] = '\0';
+	logSASCiv4LegacyLogRow("xml.log", szRecord, buf);
 }
 
 bool CvXMLLoadUtility::CreateFXml()
@@ -322,13 +326,13 @@ bool CvXMLLoadUtility::LoadCivXml(FXml* pFXml, const TCHAR* szFilename)
 	CvString szPath = szFilename;
 	if (!gDLL->fileManagerEnabled())
 		szPath = "Assets//" + szPath;
-	logMsg("Loading XML file %s\n", szPath.c_str());
+	logMsg("XML_FILE_LOAD", "phase=BEGIN path=%s\n", szPath.c_str());
 	if (!gDLL->getXMLIFace()->LoadXml(pFXml, szPath))
 	{
-		logMsg("Load XML file %s FAILED\n", szPath.c_str());
+		logMsg("XML_FILE_LOAD", "phase=END outcome=FAILED path=%s\n", szPath.c_str());
 		return false;
 	}
-	logMsg("Load XML file %s SUCCEEDED\n", szPath.c_str());
+	logMsg("XML_FILE_LOAD", "phase=END outcome=SUCCEEDED path=%s\n", szPath.c_str());
 	CvGlobals::getInstance().setCurrentXMLFile(szFilename);
 	return true; // success
 }

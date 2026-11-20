@@ -104,6 +104,26 @@ void CyInfoPythonInterface2()
 		.def("getFreeUnits", &CvHandicapInfo::getFreeUnits, "int ()")
 		.def("getUnitCostPercent", &CvHandicapInfo::getUnitCostPercent, "int ()")
 		.def("getResearchPercent", &CvHandicapInfo::getResearchPercent, "int ()")
+
+		// <!-- custom: expose additional CvHandicapInfo getters for the Sevopedia handicap chart. (GPT-5.2-Codex) -->
+		.def("getAIResearchPercent", &CvHandicapInfo::getAIResearchPercent, "int ()")
+		.def("getBuildTimePercent", &CvHandicapInfo::getBuildTimePercent, "int ()")
+		.def("getBaseGrowthThresholdPercent", &CvHandicapInfo::getBaseGrowthThresholdPercent, "int ()")
+		.def("getGPThresholdPercent", &CvHandicapInfo::getGPThresholdPercent, "int ()")
+		.def("getAIGPThresholdPercent", &CvHandicapInfo::getAIGPThresholdPercent, "int ()")
+		.def("getCultureLevelPercent", &CvHandicapInfo::getCultureLevelPercent, "int ()")
+		.def("getTrainPercent", &CvHandicapInfo::getTrainPercent, "int ()")
+		.def("getConstructPercent", &CvHandicapInfo::getConstructPercent, "int ()")
+		.def("getCreatePercent", &CvHandicapInfo::getCreatePercent, "int ()")
+		.def("getAdvancedStartPointsMod", &CvHandicapInfo::getAdvancedStartPointsMod, "int ()")
+		.def("getAIAttitudeChangePercent", &CvHandicapInfo::getAIAttitudeChangePercent, "int ()")
+		.def("getAIHandicapIncrementTurns", &CvHandicapInfo::getAIHandicapIncrementTurns, "int ()")
+		.def("getForeignCultureStrength", &CvHandicapInfo::getForeignCultureStrength, "int ()")
+		.def("getBarbarianCityAttackBonus", &CvHandicapInfo::getBarbarianCityAttackBonus, "int ()")
+		.def("getSeaBarbarianBonus", &CvHandicapInfo::getSeaBarbarianBonus, "int ()")
+		.def("getSeaBarbarianExtraMoves", &CvHandicapInfo::getSeaBarbarianExtraMoves, "int ()")
+		// <!-- custom: End - expose additional CvHandicapInfo getters for the Sevopedia handicap chart. (GPT-5.2-Codex) -->
+
 		.def("getDistanceMaintenancePercent", &CvHandicapInfo::getDistanceMaintenancePercent, "int ()")
 		.def("getNumCitiesMaintenancePercent", &CvHandicapInfo::getNumCitiesMaintenancePercent, "int ()")
 		.def("getMaxNumCitiesMaintenance", &CvHandicapInfo::getMaxNumCitiesMaintenance, "int ()")
@@ -175,6 +195,11 @@ void CyInfoPythonInterface2()
 		.def("getBuildPercent", &CvGameSpeedInfo::getBuildPercent, "int ()")
 		.def("getImprovementPercent", &CvGameSpeedInfo::getImprovementPercent, "int ()")
 		.def("getGreatPeoplePercent", &CvGameSpeedInfo::getGreatPeoplePercent, "int ()")
+
+		// <!-- custom: expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+		.def("getCulturePercent", &CvGameSpeedInfo::getCulturePercent, "int ()")
+		// <!-- custom: End - expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+
 		.def("getAnarchyPercent", &CvGameSpeedInfo::getAnarchyPercent, "int ()")
 		.def("getBarbPercent", &CvGameSpeedInfo::getBarbPercent, "int ()")
 		.def("getFeatureProductionPercent", &CvGameSpeedInfo::getFeatureProductionPercent, "int ()")
@@ -188,6 +213,20 @@ void CyInfoPythonInterface2()
 		.def("getInflationOffset", &CvGameSpeedInfo::getInflationOffset, "int ()")
 		.def("getInflationPercent", &CvGameSpeedInfo::getInflationPercent, "int ()")
 		.def("getVictoryDelayPercent", &CvGameSpeedInfo::getVictoryDelayPercent, "int ()")
+
+		// <!-- custom: End - expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+		.def("getAIMemoryRandPercent", &CvGameSpeedInfo::getAIMemoryRandPercent, "int ()")
+		.def("getAIContactRandPercent", &CvGameSpeedInfo::getAIContactRandPercent, "int ()")
+		.def("getAIContactDelayPercent", &CvGameSpeedInfo::getAIContactDelayPercent, "int ()")
+		.def("getFullTradeCreditPercent", &CvGameSpeedInfo::getFullTradeCreditPercent, "int ()")
+		.def("getRevoltDivPercent", &CvGameSpeedInfo::getRevoltDivPercent, "int ()")
+		.def("getReligionSpreadDivPercent", &CvGameSpeedInfo::getReligionSpreadDivPercent, "int ()")
+		.def("getEventRollSidesPercent", &CvGameSpeedInfo::getEventRollSidesPercent, "int ()")
+		.def("getVoteIntervalPercent", &CvGameSpeedInfo::getVoteIntervalPercent, "int ()")
+		.def("getUnitCostPercent", &CvGameSpeedInfo::getUnitCostPercent, "int ()")
+		.def("getExtraFreeOutsideUnits", &CvGameSpeedInfo::getExtraFreeOutsideUnits, "int ()")
+		// <!-- custom: End - expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+
 		.def("getNumTurnIncrements", &CvGameSpeedInfo::getNumTurnIncrements, "int ()")
 
 		.def("getGameTurnInfo", &CvGameSpeedInfo::getGameTurnInfo, python::return_value_policy<python::reference_existing_object>(), "GameTurnInfo ()")

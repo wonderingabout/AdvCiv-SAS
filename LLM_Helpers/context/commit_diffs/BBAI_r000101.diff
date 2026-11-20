@@ -1,0 +1,167 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 101
+# Author: iustus
+# Date: 2006-11-18T20:14:13.689740Z
+# Coverage: full
+# Message:
+#   DEBUG_AI_UPDATE_GROUPS: added some more logging (all pushed missions)
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.h@100
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.h@101
+@@ -325,41 +325,68 @@
+ {
+ 	switch (eActivityType)
+ 	{
+-	case NO_ACTIVITY:
+-		szString = L"NO_ACTIVITY";
+-		break;
+-
+-	case ACTIVITY_AWAKE:
+-		szString = L"ACTIVITY_AWAKE";
+-		break;
+-
+-	case ACTIVITY_HOLD:
+-		szString = L"ACTIVITY_HOLD";
+-		break;
+-
+-	case ACTIVITY_SLEEP:
+-		szString = L"ACTIVITY_SLEEP";
+-		break;
+-
+-	case ACTIVITY_HEAL:
+-		szString = L"ACTIVITY_HEAL";
+-		break;
+-
+-	case ACTIVITY_SENTRY:
+-		szString = L"xxx";
+-		break;
+-
+-	case ACTIVITY_INTERCEPT:
+-		szString = L"ACTIVITY_SENTRY";
+-		break;
+-
+-	case ACTIVITY_MISSION:
+-		szString = L"ACTIVITY_MISSION";
+-		break;
+-
+-	default:
+-		szString = CvWString::format(L"UNKOWN_ACTIVITY(%d)", eActivityType);
+-		break;
++	case NO_MISSION: szString = L"NO_ACTIVITY"; break;
++
++	case ACTIVITY_AWAKE: szString = L"ACTIVITY_AWAKE"; break;
++	case ACTIVITY_HOLD: szString = L"ACTIVITY_HOLD"; break;
++	case ACTIVITY_SLEEP: szString = L"ACTIVITY_SLEEP"; break;
++	case ACTIVITY_HEAL: szString = L"ACTIVITY_HEAL"; break;
++	case ACTIVITY_SENTRY: szString = L"ACTIVITY_SENTRY"; break;
++	case ACTIVITY_INTERCEPT: szString = L"ACTIVITY_SENTRY"; break;
++	case ACTIVITY_MISSION: szString = L"ACTIVITY_MISSION"; break;
++
++	default: szString = CvWString::format(L"UNKNOWN_ACTIVITY(%d)", eActivityType); break;
++	}
++}
++
++inline void getMissionTypeString(CvWString& szString, MissionTypes eMissionType)
++{
++	switch (eMissionType)
++	{
++	case NO_MISSION: szString = L"NO_MISSION"; break;
++
++	case MISSION_MOVE_TO: szString = L"MISSION_MOVE_TO"; break;
++	case MISSION_ROUTE_TO: szString = L"MISSION_ROUTE_TO"; break;
++	case MISSION_MOVE_TO_UNIT: szString = L"MISSION_MOVE_TO_UNIT"; break;
++	case MISSION_SKIP: szString = L"MISSION_SKIP"; break;
++	case MISSION_SLEEP: szString = L"MISSION_SLEEP"; break;
++	case MISSION_FORTIFY: szString = L"MISSION_FORTIFY"; break;
++	case MISSION_AIRPATROL: szString = L"MISSION_AIRPATROL"; break;
++	case MISSION_HEAL: szString = L"MISSION_HEAL"; break;
++	case MISSION_SENTRY: szString = L"MISSION_SENTRY"; break;
++	case MISSION_AIRLIFT: szString = L"MISSION_AIRLIFT"; break;
++	case MISSION_NUKE: szString = L"MISSION_NUKE"; break;
++	case MISSION_RECON: szString = L"MISSION_RECON"; break;
++	case MISSION_AIRBOMB: szString = L"MISSION_AIRBOMB"; break;
++	case MISSION_BOMBARD: szString = L"MISSION_BOMBARD"; break;
++	case MISSION_PILLAGE: szString = L"MISSION_PILLAGE"; break;
++	case MISSION_SABOTAGE: szString = L"MISSION_SABOTAGE"; break;
++	case MISSION_DESTROY: szString = L"MISSION_DESTROY"; break;
++	case MISSION_STEAL_PLANS: szString = L"MISSION_STEAL_PLANS"; break;
++	case MISSION_FOUND: szString = L"MISSION_FOUND"; break;
++	case MISSION_SPREAD: szString = L"MISSION_SPREAD"; break;
++	case MISSION_JOIN: szString = L"MISSION_JOIN"; break;
++	case MISSION_CONSTRUCT: szString = L"MISSION_CONSTRUCT"; break;
++	case MISSION_DISCOVER: szString = L"MISSION_DISCOVER"; break;
++	case MISSION_HURRY: szString = L"MISSION_HURRY"; break;
++	case MISSION_TRADE: szString = L"MISSION_TRADE"; break;
++	case MISSION_GREAT_WORK: szString = L"MISSION_GREAT_WORK"; break;
++	case MISSION_GOLDEN_AGE: szString = L"MISSION_GOLDEN_AGE"; break;
++	case MISSION_BUILD: szString = L"MISSION_BUILD"; break;
++	case MISSION_LEAD: szString = L"MISSION_LEAD"; break;
++
++	case MISSION_BEGIN_COMBAT: szString = L"MISSION_BEGIN_COMBAT"; break;
++	case MISSION_END_COMBAT: szString = L"MISSION_END_COMBAT"; break;
++	case MISSION_AIRSTRIKE: szString = L"MISSION_AIRSTRIKE"; break;
++	case MISSION_SURRENDER: szString = L"MISSION_SURRENDER"; break;
++	case MISSION_CAPTURED: szString = L"MISSION_CAPTURED"; break;
++	case MISSION_IDLE: szString = L"MISSION_IDLE"; break;
++	case MISSION_DIE: szString = L"MISSION_DIE"; break;
++	case MISSION_DAMAGE: szString = L"MISSION_DAMAGE"; break;
++	case MISSION_MULTI_SELECT: szString = L"MISSION_MULTI_SELECT"; break;
++	case MISSION_MULTI_DESELECT: szString = L"MISSION_MULTI_DESELECT"; break;
++
++	default: szString = CvWString::format(L"UNKOWN_MISSION(%d)", eMissionType); break;
+ 	}
+ }
+ 
+@@ -380,6 +407,7 @@
+ }
+ #else
+ #define getActivityTypeString(x)
++#define getMissionTypeString(x)
+ #define ShortenID(x)
+ #define DEBUGLOG(x)
+ #endif
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@100
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@101
+@@ -333,6 +333,34 @@
+ 	AI_setMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
+ 
+ 	insertAtEndMissionQueue(mission, !bAppend);
++
++#ifdef DEBUG_AI_UPDATE_GROUPS
++	// debugging
++	if (true)
++	{
++		CvWString szMissionString;
++		getMissionTypeString(szMissionString, eMission);
++
++		CvWString szUnitString;
++		CvUnit* pHeadUnit = getHeadUnit();
++		if (pHeadUnit != NULL)
++		{
++			CvWString szUnitName = GC.getUnitInfo(pHeadUnit->getUnitType()).getDescription();
++			szUnitString.Format(L"%s(%d)", szUnitName.GetCString(), ShortenID(pHeadUnit->getID()));
++		}
++		else
++			szUnitString.Format(L"--no unit--");
++
++
++		CvWString szActivityString;
++		getActivityTypeString(szActivityString, m_eActivityType);
++
++		DEBUGLOG("    pushMission(%S): group(%d,%S), lead by %S [size %d%s%s]\n", szMissionString.GetCString(),
++			ShortenID(getID()), szActivityString.GetCString(), szUnitString.GetCString(), getNumUnits(), 
++			AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
++			isForceUpdate() ? ",WILL_FORCE_UPDATE" : "");
++	}
++#endif
+ 
+ 	if (bManual)
+ 	{
+

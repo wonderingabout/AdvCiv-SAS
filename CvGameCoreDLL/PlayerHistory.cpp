@@ -35,28 +35,12 @@ void PlayerHistory::set(int iTurn, int iValue)
 }
 
 
-void PlayerHistory::read(FDataStreamBase* pStream, PlayerTypes eOwner, bool bLegacy)
+// <!-- custom: AdvCiv's bLegacy branch converted sparse turn/value pairs from before advc.004s.
+// CvPlayer has requested the vector layout since KI#46, so read the stored samples directly. See KI#46.2. (GPT-6.2-Sol) -->
+void PlayerHistory::read(FDataStreamBase* pStream, PlayerTypes eOwner)
 {
 	m_eOwner = eOwner;
 	FAssert(size() == 0);
-	if (bLegacy)
-	{
-		size_t iSize;
-		pStream->Read(&iSize);
-		// Temporarily disable moving average
-		int iMovingAvgSamples = m_iMovingAvgSamples;
-		m_iMovingAvgSamples = 0;
-		for (size_t i = 0; i < iSize; i++)
-		{
-			int iTurn;
-			int iValue;
-			pStream->Read(&iTurn);
-			pStream->Read(&iValue);
-			set(iTurn, iValue);
-		}
-		m_iMovingAvgSamples = iMovingAvgSamples;
-		return;
-	}
 	int iSize;
 	pStream->Read(&iSize);
 	if (iSize > 0)

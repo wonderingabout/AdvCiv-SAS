@@ -1,4 +1,5 @@
 #include "CvGameCoreDLL.h"
+#include "SASSaveStreamFormat.h" // <!-- custom: Use the same compile-time write markers as the session diagnostic registry, avoiding duplicated version literals. (GPT-6.1-Sol) -->
 #include "CvPlayer.h"
 #include "CvAgents.h"
 #include "CoreAI.h"
@@ -15,13 +16,77 @@
 #include "CvDiploParameters.h"
 #include "CvPopupInfo.h"
 #include "CvGameTextMgr.h"
+#include "CvGameCoreUtils.h" // <!-- custom: Needed directly for shared gameplay utilities such as atWar and setListHelp; do not rely on transitive core includes. (GPT-5.5 + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 #include "RiseFall.h"
 #include "AdvCiv4lerts.h"
 #include "CvBugOptions.h"
 #include "CvDLLFlagEntityIFaceBase.h" // BBAI
 #include "BBAILog.h"
-#include "RiseFall.h" // advc.708: Needed only for savegame compatibility
+#include "CitySiteEvaluator.h" // <!-- custom: Known-water-bonus queries for cached coastal comparisons avoid replaying found-value scoring. See KI#505.2. (GPT-6.1-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Structured player/diplomacy rows are logged to SASGameRecord_*.log, separate from BBAI diagnostics. (GPT-5.5) -->
+// <!-- custom: The second RiseFall.h include was added here for advc.708 old-save migration.
+// SAS removed that migration, and the first include still supplies the Rise and Fall scoring and turn hooks. See KI#1098.2. (GPT-6.2-Sol) -->
 #include "SelfMod.h" // advc.092b
+
+namespace
+{
+	// <!-- custom: At the appropriate player/city turn boundary, SASGameRecord keeps one compact all-city no-target outcome while the dedicated BBAI category adds legality and strategic context only for an actual anomaly.
+	// This helper performs no RNG calls; level-3 candidate scans are cold because ordinary production and disorder return before them. See KI#51. (GPT-5.6-Sol) -->
+	void logSASProductionNoTargetBoundary(CvCity const& kCity, char const* szPhase)
+	{
+		if (kCity.isProduction() || kCity.isDisorder())
+			return;
+		PlayerTypes const ePlayer = kCity.getOwner();
+		CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+		if (gGameRecordLogLevel >= 2) logSASGameRecordCityProductionNoTarget(kCity, szPhase);
+		if (gProductionNoTargetLogLevel >= 2)
+		{
+			int iLegalUnits = -1;
+			int iLegalBuildings = -1;
+			int iLegalProjects = -1;
+			int iLegalProcesses = -1;
+			if (gProductionNoTargetLogLevel >= 3)
+			{
+				// <!-- custom: These four level-3 scans are intentionally duplicated at AI_chooseProduction's abnormal final fall-through.
+				// Both sites are cold; keeping the simple counters local avoids a cross-file diagnostic API with no hot-path or gameplay benefit. See KI#51. (GPT-5.6-Sol) -->
+				iLegalUnits = 0;
+				for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
+				{
+					if (kCity.canTrain((UnitTypes)iI))
+						iLegalUnits++;
+				}
+				iLegalBuildings = 0;
+				for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+				{
+					if (kCity.canConstruct((BuildingTypes)iI))
+						iLegalBuildings++;
+				}
+				iLegalProjects = 0;
+				for (int iI = 0; iI < GC.getNumProjectInfos(); iI++)
+				{
+					if (kCity.canCreate((ProjectTypes)iI))
+						iLegalProjects++;
+				}
+				iLegalProcesses = 0;
+				for (int iI = 0; iI < GC.getNumProcessInfos(); iI++)
+				{
+					if (kCity.canMaintain((ProcessTypes)iI))
+						iLegalProcesses++;
+				}
+			}
+			CvCityAI const& kCityAI = kCity.AI();
+			logBBAI("PRODUCTION_NO_TARGET_BOUNDARY turn=%d player=%d civ=%s city=%S cityId=%d phase=%s human=%d humanDisabled=%d productionAutomated=%d chooseProductionDirty=%d gameState=%d population=%d rawProduction=%d overflowProduction=%d legalUnits=%d legalBuildings=%d legalProjects=%d legalProcesses=%d danger=%d focusWar=%d areaAI=%d primaryArea=%d financialTrouble=%d anarchyTurns=%d occupation=%d occupationTimer=%d happySurplus=%d healthSurplus=%d foodDifference=%d",
+				GC.getGame().getGameTurn(), ePlayer, GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getID(),
+				szPhase, kPlayer.isHuman(), kPlayer.isHumanDisabled(), kCity.isProductionAutomated(), kCity.isChooseProductionDirty(),
+				(int)GC.getGame().getGameState(), kCity.getPopulation(), kCity.getCurrentProductionDifference(false, false, true),
+				kCity.getOverflowProduction(), iLegalUnits, iLegalBuildings, iLegalProjects, iLegalProcesses, kCityAI.AI_isDanger(),
+				kPlayer.AI_isFocusWar(), (int)kCity.getArea().getAreaAIType(kCity.getTeam()), kPlayer.AI_isPrimaryArea(kCity.getArea()),
+				kPlayer.AI_isFinancialTrouble(), kPlayer.getAnarchyTurns(), kCity.isOccupation(), kCity.getOccupationTimer(),
+				kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(), kCity.foodDifference());
+		}
+	}
+
+}
 
 // advc.003u: Statics moved from CvPlayerAI
 CvPlayerAI** CvPlayer::m_aPlayers = NULL;
@@ -110,18 +175,28 @@ bool CvPlayer::initOtherData()
 	setAlive(true);
 	changePersonalityType(); // advc.003q: Use BBAI subroutine
 
-	changeBaseFreeUnits(GC.getDefineINT("INITIAL_BASE_FREE_UNITS"));
-	changeBaseFreeMilitaryUnits(GC.getDefineINT("INITIAL_BASE_FREE_MILITARY_UNITS"));
-	changeFreeUnitsPopulationPercent(GC.getDefineINT("INITIAL_FREE_UNITS_POPULATION_PERCENT"));
-	changeFreeMilitaryUnitsPopulationPercent(GC.getDefineINT("INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT"));
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+    static const int iINITIAL_BASE_FREE_UNITS                        = GC.getDefineINT("INITIAL_BASE_FREE_UNITS");
+    static const int iINITIAL_BASE_FREE_MILITARY_UNITS               = GC.getDefineINT("INITIAL_BASE_FREE_MILITARY_UNITS");
+    static const int iINITIAL_FREE_UNITS_POPULATION_PERCENT          = GC.getDefineINT("INITIAL_FREE_UNITS_POPULATION_PERCENT");
+    static const int iINITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT = GC.getDefineINT("INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT");
+    static const int iINITIAL_GOLD_PER_UNIT                          = GC.getDefineINT("INITIAL_GOLD_PER_UNIT");
+    static const int iINITIAL_TRADE_ROUTES                           = GC.getDefineINT("INITIAL_TRADE_ROUTES");
+    static const int iINITIAL_STATE_RELIGION_HAPPINESS               = GC.getDefineINT("INITIAL_STATE_RELIGION_HAPPINESS");
+    static const int iINITIAL_NON_STATE_RELIGION_HAPPINESS           = GC.getDefineINT("INITIAL_NON_STATE_RELIGION_HAPPINESS");
+
+	changeBaseFreeUnits(iINITIAL_BASE_FREE_UNITS);
+	changeBaseFreeMilitaryUnits(iINITIAL_BASE_FREE_MILITARY_UNITS);
+	changeFreeUnitsPopulationPercent(iINITIAL_FREE_UNITS_POPULATION_PERCENT);
+	changeFreeMilitaryUnitsPopulationPercent(iINITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT);
 	changeGoldPerUnit(
 			/*	kekm.14: (advc: had been implemented in getGoldPerUnit,
 				getGoldPerMilitaryUnit; the latter seems entirely unnecessary.) */
 			isBarbarian() ? 0 :
-			GC.getDefineINT("INITIAL_GOLD_PER_UNIT"));
-	changeTradeRoutes(GC.getDefineINT("INITIAL_TRADE_ROUTES"));
-	changeStateReligionHappiness(GC.getDefineINT("INITIAL_STATE_RELIGION_HAPPINESS"));
-	changeNonStateReligionHappiness(GC.getDefineINT("INITIAL_NON_STATE_RELIGION_HAPPINESS"));
+			iINITIAL_GOLD_PER_UNIT);
+	changeTradeRoutes(iINITIAL_TRADE_ROUTES );
+	changeStateReligionHappiness(iINITIAL_STATE_RELIGION_HAPPINESS);
+	changeNonStateReligionHappiness(iINITIAL_NON_STATE_RELIGION_HAPPINESS);
 
 	FOR_EACH_ENUM2(Yield, eYield)
 		changeTradeYieldModifier(eYield, GC.getInfo(eYield).getTradeModifier());
@@ -180,7 +255,7 @@ void CvPlayer::initInGame(PlayerTypes eID)
 			/*	advc.003q: The new team should have only one player, so
 				multiple declarations of war should be impossible here. */
 			FAssert(!kTarget.isAtWar(getTeam()));
-			kTarget.declareWar(getTeam(), false, WARPLAN_LIMITED);
+			kTarget.declareWar(getTeam(), false, WARPLAN_LIMITED, true, NO_PLAYER, false, WAR_DECLARATION_GAME_SETUP);
 		}
 	} // BETTER_BTS_AI_MOD END
 
@@ -419,6 +494,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_iInflationModifier = 0;
 	m_iChoosingFreeTechCount = 0; // K-Mod
 	m_iNewMessages = 0; // advc.106b
+	m_iNewTechCompletionMessages = 0; // <!-- custom: Reset the non-serialized Turn Log completion-message count with its parent count. See KI#1030. (GPT-5.6-Sol) -->
 	m_iButtonPopupsRelaunching = 0; // advc.004x
 	m_uiStartTime = 0;
 	m_eReminderPending = NO_CIVIC; // advc.004x
@@ -616,10 +692,16 @@ void CvPlayer::processTraits(int iChange)
 
 	// advc.003q: setCivics code removed; a change in traits should not reset civics.
 
+	updateFoundingUnitExtraCosts();
+}
+
+// <!-- custom: Centralize the duplicated founding-unit surcharge rebuild so every controller/handicap-dependent transition can refresh the same cache. See KI#771. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvPlayer::updateFoundingUnitExtraCosts()
+{
 	CvCivilization const& kCiv = getCivilization(); // advc.003w
 	for (int i = 0; i < kCiv.getNumUnits(); i++)
 	{
-		UnitTypes eUnit = kCiv.unitAt(i);
+		UnitTypes const eUnit = kCiv.unitAt(i);
 		if (GC.getInfo(eUnit).isFound())
 			setUnitExtraCost(kCiv.unitClass(eUnit), getNewCityProductionValue());
 	}
@@ -640,7 +722,8 @@ void CvPlayer::changePersonalityType()
 
 	int iBestValue = 0;
 	LeaderHeadTypes eBestPersonality = NO_LEADER;
-	int const iBARBARIAN_LEADER = GC.getDefineINT("BARBARIAN_LEADER"); // advc.opt
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iBARBARIAN_LEADER = GC.getDefineINT("BARBARIAN_LEADER"); // advc.opt
 	FOR_EACH_ENUM2(LeaderHead, eLoopPersonality)
 	{
 		if (eLoopPersonality == iBARBARIAN_LEADER) // XXX minor civ???
@@ -688,17 +771,11 @@ void CvPlayer::resetCivTypeEffects(/* advc.003q: */ bool bInit)
 			}
 		}
 	}
-	for (int i = 0; i < kCiv.getNumUnits(); i++)
-	{
-		UnitTypes eUnit = kCiv.unitAt(i);
-		if (GC.getInfo(eUnit).isFound())
-			setUnitExtraCost(kCiv.unitClass(eUnit), getNewCityProductionValue());
-	}
+	updateFoundingUnitExtraCosts();
 }
 
 // for switching the leaderhead of this player
-void CvPlayer::changeLeader(LeaderHeadTypes eNewLeader,
-	bool bChangeName) // advc.tsl
+void CvPlayer::changeLeader(LeaderHeadTypes eNewLeader, bool bChangeName) // advc.tsl
 {
 	LeaderHeadTypes const eOldLeader = getLeaderType();
 
@@ -720,6 +797,10 @@ void CvPlayer::changeLeader(LeaderHeadTypes eNewLeader,
 
 	// Set new personality
 	changePersonalityType();
+	// <!-- custom: True Starts replaces leaders after UWAI initialization.
+	// Refresh its derived trait flags once the new traits and personality are installed, without reinitializing persistent UWAI state. See KI#558. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (isAlive() && !isBarbarian() && !isMinorCiv())
+		AI().uwai().getCache().reportLeaderChanged();
 
 	if (isAlive() || isEverAlive())
 	{
@@ -761,20 +842,22 @@ void CvPlayer::setIsHuman(bool bNewValue, /* advc.127c: */ bool bUpdateAI)
 	else uninitAlerts(); // </advc.210>
 	if (bUpdateAI)
 		AI().AI_setHuman(bNewValue);
+	// <!-- custom: `isHuman()` affects the cached new-city production value; refresh after installing the final controller state. See KI#771. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	updateFoundingUnitExtraCosts();
 }
 // CHANGE_PLAYER: END
 // CHANGE_PLAYER, 05/09/09, jdog5000: START
 // for changing the civilization of this player
-void CvPlayer::changeCiv(CivilizationTypes eNewCiv,
-	bool bChangeDescr, bool bForceColorUpdate) // advc.tsl
+void CvPlayer::changeCiv(CivilizationTypes eNewCiv, bool bChangeDescr, bool bForceColorUpdate) // advc.tsl
 {
 	CivilizationTypes eOldCiv = getCivilizationType();
 	if (eOldCiv == eNewCiv /* advc.tsl: */ && !bForceColorUpdate)
 		return;
 
 	PlayerColorTypes eColor = (PlayerColorTypes)GC.getInfo(eNewCiv).getDefaultPlayerColor();
-	PlayerColorTypes const eBarbarianColor = (PlayerColorTypes)GC.getInfo((CivilizationTypes)
-			GC.getDefineINT("BARBARIAN_CIVILIZATION")).getDefaultPlayerColor();
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const CivilizationTypes eBARBARIAN_CIVILIZATION = (CivilizationTypes)GC.getDefineINT("BARBARIAN_CIVILIZATION");
+	const PlayerColorTypes eBarbarianColor = (PlayerColorTypes)GC.getInfo(eBARBARIAN_CIVILIZATION).getDefaultPlayerColor();
 	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
 	{
 		CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)i);
@@ -968,10 +1051,13 @@ void CvPlayer::initFreeUnits()
 		// Starting visibility
 		if (pStartingPlot != NULL)
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const int iADVANCED_START_SIGHT_RANGE = GC.getDefineINT("ADVANCED_START_SIGHT_RANGE");
+
 			/*  advc.108: BtS code moved into a new function (b/c I need the same
 				behavior elsewhere). */
 			GET_TEAM(getID()).revealSurroundingPlots(*pStartingPlot,
-					GC.getDefineINT("ADVANCED_START_SIGHT_RANGE"));
+					iADVANCED_START_SIGHT_RANGE);
 		}
 	}
 	else
@@ -1125,8 +1211,11 @@ void CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 	// <advc.108> Centered on the Settler, not on the starting plot.
 	if(bFound)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iSTART_SIGHT_RANGE = GC.getDefineINT("START_SIGHT_RANGE");
+
 		GET_TEAM(getID()).revealSurroundingPlots(*pBestPlot,
-				GC.getDefineINT("START_SIGHT_RANGE"));
+				iSTART_SIGHT_RANGE);
 	} // </advc.108>
 	initUnit(eUnit, pBestPlot->getX(), pBestPlot->getY(), eUnitAI);
 }
@@ -1226,8 +1315,7 @@ public:
 	(instead of one best starting area)."
 	Caveat: I've duplicated much of the body in CvGameTextMgr::setPlotHelpDebug_Ctrl
 	for a Debug-mode breakdown of the area values. */
-std::vector<std::pair<int,int> > CvPlayer::findStartingAreas(
-	bool* pbFoundByMapScript) const // advc.027
+std::vector<std::pair<int,int> > CvPlayer::findStartingAreas(bool* pbFoundByMapScript) const // advc.027
 {
 	PROFILE_FUNC();
 	// <advc.027>
@@ -1288,9 +1376,9 @@ std::vector<std::pair<int,int> > CvPlayer::findStartingAreas(
 }
 
 
-CvPlot* CvPlayer::findStartingPlot(
-	// advc.027: (bRandomize param replaced with m_bRandomWBStart)
-	bool* pbPlotFoundByMapScript, bool* pbAreaFoundByMapScript)
+// advc.027: (bRandomize param replaced with m_bRandomWBStart)
+// <!-- custom: hoisted from multiline signature before `pbPlotFoundByMapScript` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+CvPlot* CvPlayer::findStartingPlot(bool* pbPlotFoundByMapScript, bool* pbAreaFoundByMapScript)
 {
 	PROFILE_FUNC();
 	// <advc.027>
@@ -1329,8 +1417,9 @@ CvPlot* CvPlayer::findStartingPlot(
 		areasByValue = findStartingAreas( // kekm.35
 				pbAreaFoundByMapScript); // advc.027
 	}
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	// <advc.opt> Compute this upfront for kekm.35
-	int const iStartingRange = GC.getDefineINT("ADVANCED_START_SIGHT_RANGE");
+	static const int iStartingRange = GC.getDefineINT("ADVANCED_START_SIGHT_RANGE");
 	EagerEnumMap<PlotNumTypes,bool> abPlotTaken;
 	FOR_EACH_ENUM(PlotNum)
 	{
@@ -1455,8 +1544,7 @@ CvPlotGroup* CvPlayer::initPlotGroup(CvPlot* pPlot)
 }
 
 
-CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bUpdatePlotGroups,
-	int iOccupationTimer) // advc.ctr
+CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bUpdatePlotGroups, int iOccupationTimer) // advc.ctr
 {
 	//PROFILE_FUNC(); // advc.003o
 	CvCityAI* pCity = m_cities.AI_add(); // advc.003u: was = addCity()
@@ -1475,13 +1563,26 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bUpdatePlotGrou
 }
 
 // (advc: Some comments added)
-void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool bUpdatePlotGroups,
-	bool bPeaceDeal, bool bForFree) // advc.ctr
+void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool bUpdatePlotGroups, bool bPeaceDeal, bool bForFree) // advc.ctr
 {
 	PROFILE_FUNC(); // advc: Rare but slow
+
+	// <!-- custom: not const to solve compile error -->
+	// 1>..\CvPlayer.cpp(1883): error C2662: 'CvGame::setHolyCity' : cannot convert 'this' pointer from 'const CvGame' to 'CvGame &'
+	// 1>          Conversion loses qualifiers
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame& kGame = GC.getGame();
+
 	FAssert(!bConquest || !bTrade); // advc: mutually exclusive
 	// advc.ctr: bForFree isn't meaningful for conquests
 	FAssert(!bForFree || bTrade);
+	// <!-- custom: Bracket the complete synchronous city-transfer operation so old-city removal, recreated-city plot state, CITY_ACQUIRED/context rows and an immediate AI/auto raze share one causal `tx`.
+	// The generic scope self-joins an already-active transaction and is pre-gated at the same level that records city lifecycle consequences. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int const iSASGameRecordLogLevel = gGameRecordLogLevel;
+	bool const bLogSASCityAcquisition = (iSASGameRecordLogLevel >= 2);
+	SASGameRecordTransactionScope kSASCityAcquisitionTransaction("CITY_ACQUISITION", bLogSASCityAcquisition);
+	// <!-- custom: The level-3 cause is narrower than the level-2 transaction and identifies the recreated city plot's immediate ownership mechanism. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	SASGameRecordPlotOwnerChangeCauseScope kSASCityAcquisitionOwnerCause(SAS_PLOT_OWNER_CAUSE_CITY_ACQUISITION, iSASGameRecordLogLevel >= 3 && kGame.isFinalInitialized());
 	CvPlot& kCityPlot = *pOldCity->plot();
 	// Kill ICBMs
 	//CLinkList<IDInfo> oldUnits; ... // advc: Deleted; unnecessary.
@@ -1532,12 +1633,19 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 	else if (pOldCity->getOriginalOwner() == getID())
 		GET_PLAYER(pOldCity->getOriginalOwner()).changeCitiesLost(-1);
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	if (bConquest) // City-captured announcements, replay msg
 	{
 		CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_CAPTURED_CITY", pOldCity->getNameKey()));
 		gDLL->UI().addMessage(getID(), true, -1, szBuffer, pOldCity->getPlot(),
 				"AS2D_CITYCAPTURE", MESSAGE_TYPE_MAJOR_EVENT, ARTFILEMGR.getInterfaceArtPath(
-				"WORLDBUILDER_CITY_EDIT"), GC.getColorType("GREEN"));
+				"WORLDBUILDER_CITY_EDIT"), eColorGreen);
 		CvWString szName;
 		szName.Format(L"%s (%s)", pOldCity->getName().GetCString(), GET_PLAYER(pOldCity->getOwner()).getReplayName());
 		CvWString szCapturedBy(gDLL->getText("TXT_KEY_MISC_CITY_CAPTURED_BY",
@@ -1553,11 +1661,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 				gDLL->UI().addMessage(kObs.getID(), false, -1, szCapturedBy, pOldCity->getPlot(),
 						"AS2D_CITYCAPTURED", /* advc.106b: */ MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY,
 						ARTFILEMGR.getInterfaceArtPath("WORLDBUILDER_CITY_EDIT"),
-						GC.getColorType("RED"));
+						eColorRed);
 			}
 		}
 		GC.getGame().addReplayMessage(pOldCity->getPlot(), REPLAY_MESSAGE_MAJOR_EVENT,
-				getID(), szCapturedBy, GC.getColorType("WARNING_TEXT"));
+				getID(), szCapturedBy, eColorWarningText);
 	} // <advc.ctr> City-ceded announcement, replay msg
 	else if (bTrade &&  // CvCity::liberate handles liberation announcement and replay msg.
 		pOldCity->getLiberationPlayer() != getID())
@@ -1593,11 +1701,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 				gDLL->UI().addMessage(kObs.getID(), false, -1, szHasCeded, kCityPlot,
 						NULL, /* advc.106b: */ MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY,
 						ARTFILEMGR.getInterfaceArtPath("WORLDBUILDER_CITY_EDIT"),
-						GC.getColorType("HIGHLIGHT_TEXT"));
+						eColorHighlightText);
 			}
 		}
-		GC.getGame().addReplayMessage(kCityPlot, REPLAY_MESSAGE_MAJOR_EVENT,
-				getID(), szHasCeded, GC.getColorType("HIGHLIGHT_TEXT"));
+		kGame.addReplayMessage(kCityPlot, REPLAY_MESSAGE_MAJOR_EVENT,
+				getID(), szHasCeded, eColorHighlightText);
 	} // </advc.ctr>
 
 	// Capture gold
@@ -1695,19 +1803,33 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 				pOldCity->getBuildingHealthChange(eBuildingClass));
 	}
 
+	// <!-- custom: AdvCiv extended traded-city culture conversion to the full city radius, but the old city was deleted before outer-ring working priority was consulted.
+	// Preserve each conversion amount while the traded city can still be the default working city, then apply it at the original post-deletion point. See KI#783. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	std::vector<int> aiCultureConvertedUponTrade;
+	if (bTrade)
+	{
+		for (CityPlotIter it(kCityPlot); it.hasNext(); ++it)
+		{
+			aiCultureConvertedUponTrade.push_back(cultureConvertedUponCityTrade(kCityPlot, *it, eOldOwner, getID()));
+		}
+	}
+
 	pOldCity->kill(false, /* advc.001: */ false); // Don't bump units yet
 	pOldCity = NULL; // advc: Mustn't be accessed past this point
 
 	if (bTrade) // Repercussions of cession: tile culture, war success (city culture: further down)
 	{
 		// <advc.ctr>
+		// <!-- custom: Apply the conversion amounts captured before the old city was deleted; matching iterator counts ensure each saved outer-ring decision reaches the same plot. See KI#783. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		size_t iCityPlot = 0;
 		for (CityPlotIter it(kCityPlot); it.hasNext(); ++it)
 		{
-			int iConvertedCulture = cultureConvertedUponCityTrade(
-					kCityPlot, *it, eOldOwner, getID());
+			FAssert(iCityPlot < aiCultureConvertedUponTrade.size());
+			int const iConvertedCulture = aiCultureConvertedUponTrade[iCityPlot++];
 			it->changeCulture(eOldOwner, -iConvertedCulture, false);
 			it->changeCulture(getID(), iConvertedCulture, false);
 		}
+		FAssert(iCityPlot == aiCultureConvertedUponTrade.size());
 		// BtS code replaced by the loop above // </advc.ctr>
 		/*for (int iDX = -1; iDX <= 1; iDX++) {
 			for (int iDY = -1; iDY <= 1; iDY++) {
@@ -1850,14 +1972,14 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 		if (abHasReligion.get(eReligion))
 			kNewCity.setHasReligion(eReligion, true, false);
 		if (abHolyCity.get(eReligion))
-			GC.getGame().setHolyCity(eReligion, &kNewCity, false);
+			kGame.setHolyCity(eReligion, &kNewCity, false);
 	}
 	FOR_EACH_ENUM2(Corporation, eCorp)
 	{
 		if (abHasCorporation.get(eCorp))
 			kNewCity.setHasCorporation(eCorp, true, false);
 		if (abHeadquarters.get(eCorp))
-			GC.getGame().setHeadquarters(eCorp, &kNewCity, false);
+			kGame.setHeadquarters(eCorp, &kNewCity, false);
 	}
 
 	if (bTrade)
@@ -1877,9 +1999,17 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 	if (bConquest) // Set occupation timer, bump units
 	{
 		int iTeamCulturePercent = kNewCity.calculateTeamCulturePercent(getTeam());
-		if (iTeamCulturePercent < GC.getDefineINT("OCCUPATION_CULTURE_PERCENT_THRESHOLD"))
+
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iOCCUPATION_CULTURE_PERCENT_THRESHOLD = GC.getDefineINT("OCCUPATION_CULTURE_PERCENT_THRESHOLD");
+
+		if (iTeamCulturePercent < iOCCUPATION_CULTURE_PERCENT_THRESHOLD)
 		{
-			int iPopPercent = GC.getDefineINT("OCCUPATION_TURNS_POPULATION_PERCENT");
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const int iOCCUPATION_TURNS_POPULATION_PERCENT = GC.getDefineINT("OCCUPATION_TURNS_POPULATION_PERCENT");
+			static const int iBASE_OCCUPATION_TURNS = GC.getDefineINT("BASE_OCCUPATION_TURNS");	
+
+			int iPopPercent = iOCCUPATION_TURNS_POPULATION_PERCENT;
 			kNewCity.changeOccupationTimer(
 					/*  advc.023: Population size as upper bound, and iPopPercent set to
 						0 through XML. (Im multiplying by 1+100*iPopPercent so that the
@@ -1887,7 +2017,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 						NB: iTeamCulturePercent is city culture, not tile culture;
 						only relevant when a city is reconquered. */
 					std::min(kNewCity.getPopulation() * (1 + iPopPercent * 100),
-					((GC.getDefineINT("BASE_OCCUPATION_TURNS") +
+					((iBASE_OCCUPATION_TURNS +
 					((kNewCity.getPopulation() * iPopPercent) / 100)) *
 					(100 - iTeamCulturePercent)) / 100));
 		}
@@ -1905,7 +2035,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 	} // </advc.001f>
 	kNewCity.updateEspionageVisibility(false);
 	if (bUpdatePlotGroups)
-		GC.getGame().updatePlotGroups();
+		kGame.updatePlotGroups();
 
 	// Notify observers ...
 	// <advc.104>
@@ -1913,7 +2043,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 		it->AI_cityCreated(kNewCity); // </advc.104>
 	CvEventReporter::getInstance().cityAcquired(
 			eOldOwner, getID(), &kNewCity, bConquest, bTrade);
-	if (gPlayerLogLevel >= 1) logBBAI("  Player %d (%S) acquires city %S bConq %d bTrade %d", getID(), getCivilizationDescription(0), kNewCity.getName(0).GetCString(), bConquest, bTrade); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+	if (gPlayerLogLevel >= 1) logBBAI("CITY_ACQUIRED turn=%d player=%d civ=%s city=%S cityId=%d oldOwner=%d conquest=%d trade=%d",
+		kGame.getGameTurn(), getID(), GC.getInfo(getCivilizationType()).getType(), getSASDiagnosticQuoted(kNewCity.getName(0).GetCString()).GetCString(), kNewCity.getID(), eOldOwner, bConquest, bTrade); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 
 	// Allow razing, disbanding
 	if (bConquest)
@@ -1931,7 +2062,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 							kNewCity.getPlot(), "AS2D_CITYRAZE",
 							MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY, // advc.106b
 							ARTFILEMGR.getInterfaceArtPath("WORLDBUILDER_CITY_EDIT"),
-							GC.getColorType("GREEN"));
+							eColorGreen);
 				}
 				kNewCity.doTask(TASK_RAZE);
 			}
@@ -2038,8 +2169,7 @@ void CvPlayer::keepCity(CvCity& kCity)
 }
 
 // advc.ctr:
-int CvPlayer::cultureConvertedUponCityTrade(CvPlot const& kCityPlot, CvPlot const& kPlot,
-	PlayerTypes eOldOwner, PlayerTypes eNewOwner, bool bIgnorePriority) const
+int CvPlayer::cultureConvertedUponCityTrade(CvPlot const& kCityPlot, CvPlot const& kPlot, PlayerTypes eOldOwner, PlayerTypes eNewOwner, bool bIgnorePriority) const
 {
 	bool bConvert = false;
 	if (bIgnorePriority)
@@ -2088,10 +2218,11 @@ CvWString CvPlayer::getNewCityName() const
 	for (CLLNode<CvWString>* pNode = headCityNameNode();
 		pNode != NULL && szName.empty(); pNode = nextCityNameNode(pNode))
 	{
-		szName = gDLL->getText(pNode->m_data); // (temp use of the buffer)
-		if (isCityNameValid(szName, true))
+		// <!-- custom: Retired KI#161's empty-entry guard, a tentative crash fix made without a matching PDB; base AdvCiv 1.14 had none. See KI#161 and KI#136. (ChatGPT-5.5 + GPT-5.5 + Claude code Opus 5.5) -->
+		// <!-- custom: Validate the stored city-name key, not its current translation.
+		// The validity helper also compares current display text, preserving manual duplicate-name checks while making past-name identity language-independent. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (isCityNameValid(pNode->m_data, true))
 			szName = pNode->m_data;
-		else szName.clear(); // clear the buffer if the name is not valid!
 	}
 	/*	Note: unfortunately, the name-skipping system in getCivilizationCityName
 		does not apply here. */
@@ -2122,33 +2253,45 @@ CvWString CvPlayer::getNewCityName() const
 
 void CvPlayer::getCivilizationCityName(CvWString& szBuffer, CivilizationTypes eCivilization) const
 {
+	// <!-- custom: Retired KI#161's invalid-civilization, no-city-name and empty-key guards, restoring base AdvCiv 1.14 behavior: tentative crash fixes made without a matching PDB.
+	// The no-name early return also skipped base's SyncRandNum call.
+	// kCiv and iNumCityNames only cache the inherited repeated lookups. See KI#161 and KI#136. (ChatGPT-5.5 + GPT-5.5 + Claude code Opus 5.5) -->
+	CvCivilizationInfo const& kCiv = GC.getInfo(eCivilization);
+	int const iNumCityNames = kCiv.getNumCityNames();
+
 	int iRandOffset=-1;
 	/*if (isBarbarian() || isMinorCiv())
 		iRandOffset = SyncRandNum(GC.getInfo(eCivilization).getNumCityNames());
 	else iRandOffset = 0;*/ // BtS
 	// K-Mod
 	if (eCivilization != getCivilizationType() || isBarbarian() || isMinorCiv())
-		iRandOffset = SyncRandNum(GC.getInfo(eCivilization).getNumCityNames());
+		iRandOffset = SyncRandNum(iNumCityNames);
 	else
 	{	// note: the explicit city names list is checked before this function is called.
 		iRandOffset = std::max(0, getPlayerRecord()->getNumCitiesBuilt() - getNumCityNames());
 	} // K-Mod end
 
-	for (int i = 0; i < GC.getInfo(eCivilization).getNumCityNames(); i++)
+	for (int i = 0; i < iNumCityNames; i++)
 	{
-		int iLoopName = (i + iRandOffset) % GC.getInfo(eCivilization).getNumCityNames();
-		CvWString szName = gDLL->getText(GC.getInfo(eCivilization).getCityNames(iLoopName));
-		if (isCityNameValid(szName, true))
+		int const iLoopName = (i + iRandOffset) % iNumCityNames;
+		std::string const szCityNameKey = kCiv.getCityNames(iLoopName);
+		// <!-- custom: Keep the canonical XML text key as the generated-name identity.
+		// Translating before validation made the past/former-city registry language-dependent. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		CvWString const szNameKey(szCityNameKey);
+		if (isCityNameValid(szNameKey, true))
 		{
-			szBuffer = GC.getInfo(eCivilization).getCityNames(iLoopName);
+			szBuffer = szCityNameKey;
 			break;
 		}
 	}
 }
 
 
-bool CvPlayer::isCityNameValid(CvWString& szName, bool bTestPast) const
+bool CvPlayer::isCityNameValid(CvWString const& szName, bool bTestPast) const
 {
+	// <!-- custom: Compare both stable stored identity and current rendered text.
+	// Canonical keys remain reserved across language changes, while literal/manual names still cannot duplicate what the player currently sees. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvWString const szDisplayName = gDLL->getObjectText(szName, 0, true);
 	if (bTestPast) // (advc.005c: renamed from "bTestDestroyed")
 	{
 		if (GC.getGame().isPastCityName(szName))
@@ -2158,7 +2301,7 @@ bool CvPlayer::isCityNameValid(CvWString& szName, bool bTestPast) const
 		{
 			FOR_EACH_CITY(pLoopCity, *it)
 			{
-				if (pLoopCity->getName() == szName)
+				if (szName == pLoopCity->getNameKey() || pLoopCity->getName() == szDisplayName)
 					return false;
 			}
 		}
@@ -2167,25 +2310,28 @@ bool CvPlayer::isCityNameValid(CvWString& szName, bool bTestPast) const
 
 	FOR_EACH_CITY(pLoopCity, *this)
 	{
-		if (pLoopCity->getName() == szName)
+		if (szName == pLoopCity->getNameKey() || pLoopCity->getName() == szDisplayName)
 			return false;
 	}
 	return true;
 }
 
 
-CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
-	DirectionTypes eFacingDirection)
+CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection)
 {
 	//PROFILE_FUNC(); // advc.003o
 
+	// <!-- custom: The inherited Partisans event passed NO_UNIT when the player's capital had no valid conscript.
+	// Reject invalid creation before allocating a unit-container entry; allocation first left a reset unit behind after the Python-visible C++ exception and caused multiple later crashes. See KI#524.6. (GPT-5.6-Sol) -->
+	FAssert(eUnit != NO_UNIT);
+	if (eUnit == NO_UNIT)
+		return NULL;
 	CvUnitAI* pUnit = m_units.AI_add(); // advc.003u: was = addUnit()
 	if (pUnit == NULL)
 	{
 		FAssertMsg(pUnit != NULL, "FLTA failed to allocate storage");
 		return NULL;
 	}
-	FAssert(eUnit != NO_UNIT);
 	pUnit->init(pUnit->getID(), eUnit, (UnitAITypes)
 			(eUnitAI == NO_UNITAI ? GC.getInfo(eUnit).getDefaultUnitAIType() : eUnitAI),
 			getID(), iX, iY, eFacingDirection);
@@ -2264,12 +2410,12 @@ void CvPlayer::disbandUnit(bool bAnnounce)
 			iValue *= 8;
 			break;
 
-		case UNITAI_PROPHET:
-		case UNITAI_ARTIST:
-		case UNITAI_SCIENTIST:
-		case UNITAI_GENERAL:
-		case UNITAI_MERCHANT:
-		case UNITAI_ENGINEER:
+		case UNITAI_GREAT_PROPHET:
+		case UNITAI_GREAT_ARTIST:
+		case UNITAI_GREAT_SCIENTIST:
+		case UNITAI_GREAT_GENERAL:
+		case UNITAI_GREAT_MERCHANT:
+		case UNITAI_GREAT_ENGINEER:
 		case UNITAI_GREAT_SPY: // K-Mod
 			break;
 
@@ -2333,12 +2479,15 @@ void CvPlayer::disbandUnit(bool bAnnounce)
 	FAssert(!pBestUnit->isGoldenAge());
 	if (bAnnounce) // advc.001: Param was unused (since Vanilla Civ 4)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 		wchar szBuffer[1024];
 		swprintf(szBuffer, gDLL->getText("TXT_KEY_MISC_UNIT_DISBANDED_NO_MONEY",
 				pBestUnit->getNameKey()).GetCString());
 		gDLL->UI().addMessage(getID(), false, -1, szBuffer, pBestUnit->getPlot(),
 				"AS2D_UNITDISBANDED", MESSAGE_TYPE_MINOR_EVENT, pBestUnit->getButton(),
-				GC.getColorType("RED"));
+				eColorRed);
 	}
 	pBestUnit->kill(false);
 
@@ -2353,9 +2502,7 @@ void CvPlayer::killUnits()
 
 
 // advc.154: Cut from cycleSelectionGroups except for the non-const parts
-CvSelectionGroup* CvPlayer::getNextGroupInCycle(CvUnit* pUnit, bool bForward,
-	bool bWorkers, bool* pbWrap,
-	std::set<int>* pCycledGroups) const
+CvSelectionGroup* CvPlayer::getNextGroupInCycle(CvUnit* pUnit, bool bForward, bool bWorkers, bool* pbWrap, std::set<int>* pCycledGroups) const
 {
 	FAssert(isActive() && isHuman());
 	LOCAL_REF(bool, bWrap, pbWrap, false); // K-Mod
@@ -2447,8 +2594,7 @@ CvSelectionGroup* CvPlayer::getNextGroupInCycle(CvUnit* pUnit, bool bForward,
 
 // XXX should pUnit be a CvSelectionGroup???
 // Returns the next unit in the cycle...
-CvSelectionGroup* CvPlayer::cycleSelectionGroups(CvUnit* pUnit, bool bForward,
-	bool bWorkers, bool* pbWrap)
+CvSelectionGroup* CvPlayer::cycleSelectionGroups(CvUnit* pUnit, bool bForward, bool bWorkers, bool* pbWrap)
 {
 	FAssert(isActive() && isHuman());
 	if (pbWrap != NULL)
@@ -2488,10 +2634,17 @@ void CvPlayer::setHumanDisabled(bool bNewVal)
 {
 	if (bNewVal == m_bDisableHuman)
 		return;
+	// <!-- custom: AUTOPLAY_BEGIN/END is recorded before the controller changes.
+	// At level 3, bracket the actual shared setHumanDisabled path so later mutations can be tied to the handoff rather than inferred from the autoplay request. See KI#203.2. (ChatGPT-5.6-Sol) -->
+	bool const bRecordControlHandoff = (gGameRecordLogLevel >= 3 && beginSASGameRecordControlHandoff(AI(), bNewVal));
 	m_bDisableHuman = bNewVal;
 	m_bAutoPlayJustEnded = true;
 	updateHuman();
 	AI().AI_setHuman(!bNewVal);
+	// <!-- custom: AI Auto Play changes isHuman() through setHumanDisabled/updateHuman rather than setIsHuman, so refresh the same controller-dependent founding-unit surcharge cache fixed by KI#771.
+	// Otherwise entering or leaving autoplay can retain the previous human/AI Settler production cost. See KI#771.2 for the replay and pre-K-Mod lineage. (ChatGPT-5.6-Sol + GPT-6.1-Sol + Claude code Opus 5.5) -->
+	updateFoundingUnitExtraCosts();
+	if (bRecordControlHandoff) finishSASGameRecordControlHandoff(AI());
 	if (isActive())
 	{
 		CvWString szReplayText;
@@ -2502,11 +2655,17 @@ void CvPlayer::setHumanDisabled(bool bNewVal)
 			szReplayText = gDLL->getText("TXT_KEY_AUTO_PLAY_STARTED");
 		}
 		else szReplayText = gDLL->getText("TXT_KEY_AUTO_PLAY_ENDED");
+
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getID(), szReplayText, GC.getColorType("HIGHLIGHT_TEXT"));
+				getID(), szReplayText, eColorHighlightText);
 	}
 	if (!bNewVal)
+	{
 		m_iNewMessages = 0; // Don't open Event Log when coming out of Auto Play
+		m_iNewTechCompletionMessages = 0; // <!-- custom: The paired completion count belongs to the same discarded autoplay window. See KI#1030. (GPT-5.6-Sol) -->
+	}
 }
 
 // <advc.127>
@@ -2540,10 +2699,13 @@ void CvPlayer::updateHuman()
 // K-Mod:
 static bool concealUnknownCivs()
 {
-	return (GC.getGame().getActiveTeam() != NO_TEAM &&
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
+	return (kGame.getActiveTeam() != NO_TEAM &&
 			//gDLL->getChtLvl() == 0
 			// advc.135c: Replacing the above (which doesn't work in multiplayer)
-			!GC.getGame().isDebugMode() &&
+			!kGame.isDebugMode() &&
 			!gDLL->GetWorldBuilderMode());
 }
 
@@ -2556,20 +2718,35 @@ void CvPlayer::setSavingReplay(bool b)
 
 const wchar* CvPlayer::getName(uint uiForm) const
 {
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	if (GC.getInitCore().getLeaderName(getID(), uiForm).empty() ||
-		(GC.getGame().isMPOption(MPOPTION_ANONYMOUS) && isAlive() &&
-		GC.getGame().getGameState() == GAMESTATE_ON))
+		(kGame.isMPOption(MPOPTION_ANONYMOUS) && isAlive() &&
+		kGame.getGameState() == GAMESTATE_ON))
 	{
 		return GC.getInfo(getLeaderType()).getDescription(uiForm);
 	}
 	// <advc.106i>
 	if (m_bSavingReplay)
 	{
-		CvWString const szKey = "TXT_KEY_REPLAY_PREFIX";
-		CvWString szPrefix = gDLL->getText(szKey);
-		// No prefix if the key isn't present
-		if(szKey.compare(szPrefix) == 0)
-			szPrefix = L"";
+		// <!-- custom: Replay filenames keep the central branded mod identity and now add the compact practical version when known, making replay/Hall-of-Fame files source-identifiable without noisy SHA/dirty details in the filename. (ChatGPT-5.6-Sol) -->
+		CvWString szPrefix;
+		ModName const& kMod = GC.getModName();
+		CvWString szModAndVersion(kMod.getDisplayName());
+		char const* szVersion = kMod.getVersion();
+		if (szVersion != NULL && szVersion[0] != '\0')
+		{
+			if (!szModAndVersion.empty())
+				szModAndVersion += L" ";
+			szModAndVersion += CvWString(szVersion);
+		}
+		if (!szModAndVersion.empty())
+		{
+			szPrefix = L"[";
+			szPrefix += szModAndVersion;
+			szPrefix += L"]";
+		}
 		static CvWString szName; // Important to put the assignment on a separate line
 		szName = szPrefix + GC.getInitCore().getLeaderName(getID(), uiForm);
 		return szName;
@@ -2810,11 +2987,16 @@ void CvPlayer::doTurn()
 	if (isHuman() && //getStartOfTurnMessageLimit() >= 0 && // The message should be helpful even if the log doesn't auto-open
 		kGame.getElapsedGameTurns() > 0 && !m_listGameMessages.empty())
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorLightGrey = (ColorTypes)GC.getColorType("LIGHT_GREY");
 		gDLL->UI().addMessage(getID(), false, 0, gDLL->getText("TXT_KEY_END_TURN_MSG"), 0,
-				MESSAGE_TYPE_EOT, 0, GC.getColorType("LIGHT_GREY"));
+				MESSAGE_TYPE_EOT, 0, eColorLightGrey);
 	}
 	if (isHuman())
+	{
 		m_iNewMessages = 0;
+		m_iNewTechCompletionMessages = 0; // <!-- custom: Start both interturn message counts together. See KI#1030. (GPT-5.6-Sol) -->
+	}
 	/*  This way, NewMessages is never reset for non-humans. It is reset in
 		setHumanDisabled though, i.e. when coming out of AI Auto Play. */
 	if (isHuman() && isActive())
@@ -2829,6 +3011,7 @@ void CvPlayer::doTurn()
 	//doUpdateCacheOnTurn(); // advc: removed
 	kGame.verifyDeals();
 	AI().AI_doTurnPre();
+	if (gGameRecordLogLevel > 0) updateSASGameRecordPlayerTurnState(getID());
 
 	if (getRevolutionTimer() > 0)
 		changeRevolutionTimer(-1);
@@ -2851,8 +3034,23 @@ void CvPlayer::doTurn()
 	doResearch();
 	doEspionagePoints();
 
+	// <!-- custom: Research valuation can populate neutral construction values before AI_doCommerce/AI_doCivics/AI_doReligion change their inputs, and doResearch above can complete the newly valued technology.
+	// Establish a fresh cache boundary immediately before city turns so production cannot consume those earlier values.
+	// This intentionally supplements rather than replaces K-Mod's pre-research clear. See KI#821. (ChatGPT-5.6-Sol) -->
+	AI().AI_ClearConstructionValueCache();
+
+	// <!-- custom: Manual human cities are sampled before end-turn production processing, after the player had the opportunity to choose; sampling afterward would misclassify a normal item completed during doProduction while its new popup awaits input.
+	// AI-controlled and production-automated cities are sampled afterward so their chooser and emergency-building logic get their opportunity first.
+	// Both phases feed one broad SASGameRecord outcome and one dedicated BBAI diagnostic without duplicate same-city rows. See KI#51. (GPT-5.6-Sol) -->
+	bool const bLogProductionNoTargetBoundary = ((gGameRecordLogLevel >= 2 || gProductionNoTargetLogLevel >= 2) && !isBarbarian());
+	bool const bLogManualHumanProduction = (bLogProductionNoTargetBoundary && isHuman() && !isHumanDisabled());
 	FOR_EACH_CITY_VAR(pLoopCity, *this)
+	{
+		bool const bManualHumanProduction = (bLogManualHumanProduction && !pLoopCity->isProductionAutomated());
+		if (bManualHumanProduction) logSASProductionNoTargetBoundary(*pLoopCity, "PLAYER_TURN_INPUT_END");
 		pLoopCity->doTurn();
+		if (bLogProductionNoTargetBoundary && !bManualHumanProduction) logSASProductionNoTargetBoundary(*pLoopCity, "CITY_TURN_END");
+	}
 
 	if (getGoldenAgeTurns() > 0)
 		changeGoldenAgeTurns(-1);
@@ -3212,6 +3410,22 @@ void CvPlayer::updateMilitaryHappinessUnits()
 		pCity->updateMilitaryHappinessUnits();
 }
 
+// <!-- custom: Movement maintains this cache incrementally, but team reassignment can change every stationary unit's supply status at once. See KI#781. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvPlayer::updateNumOutsideUnits()
+{
+	int iNumOutsideUnits = 0;
+	FOR_EACH_UNIT(pUnit, *this)
+	{
+		CvPlot const& kPlot = pUnit->getPlot();
+		if (pUnit->getTeam() != kPlot.getTeam() && (kPlot.getTeam() == NO_TEAM ||
+			!GET_TEAM(kPlot.getTeam()).isVassal(pUnit->getTeam())))
+		{
+			iNumOutsideUnits++;
+		}
+	}
+	changeNumOutsideUnits(iNumOutsideUnits - getNumOutsideUnits());
+}
+
 void CvPlayer::updateTimers()
 {
 	FOR_EACH_GROUP_VAR(pLoopSelectionGroup, *this)
@@ -3299,9 +3513,13 @@ int CvPlayer::calculateScore(bool bFinal, bool bVictory) const
 
 	if (!isAlive() || GET_TEAM(getTeam()).getNumMembers() <= 0)
 		return 0;
+
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	// <advc.707>
-	if(GC.getGame().isOption(GAMEOPTION_RISE_FALL) && bFinal)
-		return GC.getGame().getRiseFall().getNormalizedFinalScore();
+	if(kGame.isOption(GAMEOPTION_RISE_FALL) && bFinal)
+		return kGame.getRiseFall().getNormalizedFinalScore();
 	// </advc.707>
 	/*  <advc.003y> Ported from CvGameUtils.py; callback disabled by default.
 		Apart from CvGame::getScoreComponent, the auxiliary functions were already
@@ -3310,7 +3528,7 @@ int CvPlayer::calculateScore(bool bFinal, bool bVictory) const
 	static int const iSCORE_LAND_FACTOR = GC.getDefineINT("SCORE_LAND_FACTOR");
 	static int const iSCORE_TECH_FACTOR = GC.getDefineINT("SCORE_TECH_FACTOR");
 	static int const iSCORE_WONDER_FACTOR = GC.getDefineINT("SCORE_WONDER_FACTOR");
-	CvGame const& kGame = GC.getGame();
+
 	int iPopulationScore = kGame.getScoreComponent(getPopScore(), kGame.getInitPopulation(),
 			kGame.getMaxPopulation(), iSCORE_POPULATION_FACTOR, true, bFinal, bVictory);
 	int iLandScore = kGame.getScoreComponent(getLandScore(), kGame.getInitLand(),
@@ -3367,8 +3585,7 @@ int CvPlayer::upgradeAllXPChange(UnitTypes eUpgradeUnit, UnitTypes eFromUnit) co
 }
 
 
-int CvPlayer::countReligionSpreadUnits(CvArea const* pArea,
-	ReligionTypes eReligion, /* BBAI: */ bool bIncludeTraining) const
+int CvPlayer::countReligionSpreadUnits(CvArea const* pArea, ReligionTypes eReligion, /* BBAI: */ bool bIncludeTraining) const
 {
 	PROFILE_FUNC();
 
@@ -3386,6 +3603,9 @@ int CvPlayer::countReligionSpreadUnits(CvArea const* pArea,
 	{
 		FOR_EACH_CITY(pLoopCity, *this)
 		{
+			// <!-- custom: Match the completed-unit half and the corporation sibling: a missionary being trained on another land area cannot cover this area's missing religion target. See KI#774. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (!pLoopCity->isArea(*pArea))
+				continue;
 			UnitTypes eUnit = pLoopCity->getProductionUnit();
 			if (eUnit != NO_UNIT)
 			{
@@ -3398,8 +3618,7 @@ int CvPlayer::countReligionSpreadUnits(CvArea const* pArea,
 	return iCount;
 }
 
-int CvPlayer::countCorporationSpreadUnits(CvArea const* pArea,
-	CorporationTypes eCorporation, /* BBAI: */ bool bIncludeTraining) const
+int CvPlayer::countCorporationSpreadUnits(CvArea const* pArea, CorporationTypes eCorporation, /* BBAI: */ bool bIncludeTraining) const
 {
 	PROFILE_FUNC();
 
@@ -3495,8 +3714,7 @@ int CvPlayer::countNumCitiesConnectedToCapital() const
 }
 
 // K-Mod:
-bool CvPlayer::doesImprovementConnectBonus(ImprovementTypes eImprovement,
-	BonusTypes eBonus) const
+bool CvPlayer::doesImprovementConnectBonus(ImprovementTypes eImprovement, BonusTypes eBonus) const
 {
 	return GET_TEAM(getTeam()).doesImprovementConnectBonus(eImprovement, eBonus);
 }
@@ -3555,10 +3773,13 @@ void CvPlayer::contact(PlayerTypes ePlayer)
 	if (!canContact(ePlayer) || isTurnDone())
 		return;
 
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	if (GET_PLAYER(ePlayer).isHuman())
 	{
-		if (GC.getGame().isPbem() || GC.getGame().isHotSeat() ||
-			(GC.getGame().isPitboss() && !gDLL->isConnected(GET_PLAYER(ePlayer).getNetID())))
+		if (kGame.isPbem() || kGame.isHotSeat() ||
+			(kGame.isPitboss() && !gDLL->isConnected(GET_PLAYER(ePlayer).getNetID())))
 		{
 			if (gDLL->isMPDiplomacy())
 				gDLL->beginMPDiplomacy(ePlayer, false, false);
@@ -3582,7 +3803,7 @@ void CvPlayer::contact(PlayerTypes ePlayer)
 		FAssert(pDiplo != NULL);
 		if (GC.ctrlKey())
 			pDiplo->setDiploComment(GC.getAIDiploCommentType("TRADING"));
-		gDLL->UI().setDiploQueue(pDiplo, GC.getGame().getActivePlayer());
+		gDLL->UI().setDiploQueue(pDiplo, kGame.getActivePlayer());
 	}
 }
 
@@ -3590,6 +3811,13 @@ void CvPlayer::contact(PlayerTypes ePlayer)
 void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer, int iData1, int iData2)
 {
 	FAssertMsg(ePlayer != getID(), "shouldn't call this function on ourselves");
+	// <!-- custom: Capture relationship state only for real resolved diplomacy interactions at SASGameRecord level 2+; speculative AI offer evaluation stays elsewhere.
+	// Cache threshold booleans rather than the raw level, and only ask for level 3 after level 2 is active. (ChatGPT-5.6-Sol) -->
+	bool const bLogSASDiplo = (gGameRecordLogLevel >= 2);
+	bool const bLogVerboseSASDiplo = (bLogSASDiplo && gGameRecordLogLevel >= 3);
+	bool const bLogResolvedSASDiplo = (bLogSASDiplo && isSASGameRecordResolvedDiploInteraction(eDiploEvent));
+	SASGameRecordDiploRelationState kSASDiploBefore;
+	if (bLogResolvedSASDiplo) captureSASGameRecordDiploRelationState(getID(), ePlayer, kSASDiploBefore);
 
 	switch (eDiploEvent)
 	{
@@ -3646,9 +3874,11 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
 
 	case DIPLOEVENT_DEMAND_WAR:
 		FAssertMsg(GET_PLAYER(ePlayer).getTeam() != getTeam(), "shouldn't call this function on our own team");
-		if (gTeamLogLevel >= 2) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
-			logBBAI("    Team %d (%S) declares war on team %d due to DIPLOEVENT", getTeam(), getCivilizationDescription(0), ePlayer);
-		GET_TEAM(getTeam()).declareWar(GET_PLAYER(ePlayer).getTeam(), false, WARPLAN_LIMITED);
+		if (gWarLogLevel >= 2) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+			logBBAI("DIPLO_EVENT_WAR_DECLARATION turn=%d event=DEMAND_WAR sourcePlayer=%d sourceCiv=%s sourceTeam=%d targetPlayer=%d targetCiv=%s targetTeam=%d warPlan=%s",
+				GC.getGame().getGameTurn(), getID(), GC.getInfo(getCivilizationType()).getType(), getTeam(), ePlayer, GC.getInfo(GET_PLAYER(ePlayer).getCivilizationType()).getType(),
+				GET_PLAYER(ePlayer).getTeam(), getSASWarPlanType(WARPLAN_LIMITED));
+		GET_TEAM(getTeam()).declareWar(GET_PLAYER(ePlayer).getTeam(), false, WARPLAN_LIMITED, true, NO_PLAYER, false, WAR_DECLARATION_DIPLOMACY);
 		break;
 
 	case DIPLOEVENT_CONVERT:
@@ -3682,8 +3912,10 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
 		AI().AI_rememberEvent(ePlayer, MEMORY_ACCEPTED_JOIN_WAR);
 		// advc.146:
 		GET_TEAM(getTeam()).signPeaceTreaty(TEAMID(ePlayer));
-		if (gTeamLogLevel >= 2) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
-			logBBAI("    Team %d (%S) declares war on team %d due to DIPLOEVENT", getTeam(), getCivilizationDescription(0), ePlayer);
+		if (gWarLogLevel >= 2) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+			logBBAI("DIPLO_EVENT_WAR_DECLARATION turn=%d event=JOIN_WAR requesterPlayer=%d requesterCiv=%s hiredPlayer=%d hiredCiv=%s sourceTeam=%d targetTeam=%d warPlan=%s",
+				GC.getGame().getGameTurn(), getID(), GC.getInfo(getCivilizationType()).getType(), ePlayer, GC.getInfo(GET_PLAYER(ePlayer).getCivilizationType()).getType(),
+				GET_PLAYER(ePlayer).getTeam(), iData1, getSASWarPlanType(WARPLAN_DOGPILE));
 		GET_TEAM(ePlayer).declareWar((TeamTypes)iData1, false, WARPLAN_DOGPILE,
 				true, getID()); // advc.100
 		for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
@@ -3746,6 +3978,7 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
 		break;
 
 	case DIPLOEVENT_RESEARCH_TECH:
+		if (bLogSASDiplo) noteSASGameRecordResearchTargetChangeCause(getID(), RESEARCH_TARGET_CHANGE_DIPLO_RESEARCH_COORDINATION);
 		pushResearch((TechTypes)iData1, true);
 		break;
 
@@ -3754,10 +3987,14 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
 		CvCityAI* pCity = GET_PLAYER((PlayerTypes)iData1).AI_getCity(iData2);
 		if (pCity != NULL)
 		{
-			pCity->getArea().AI_setTargetCity(getID(),
-					// advc.001: Set no target if the requested target isn't revealed
-					pCity->isRevealed(getTeam()) ? pCity : NULL);
+			CvArea& kTargetArea = pCity->getArea();
+			CvCityAI const* pOldTarget = (bLogSASDiplo ? kTargetArea.AI_getTargetCity(getID()) : NULL);
+			// advc.001: Set no target if the requested target isn't revealed
+			CvCityAI* pNewTarget = (pCity->isRevealed(getTeam()) ? pCity : NULL);
+			kTargetArea.AI_setTargetCity(getID(), pNewTarget);
 			AI().AI_setCityTargetTimer(GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH)); // K-Mod
+			// <!-- custom: The generic DIPLOEVENT_TARGET_CITY action already preserves the requested city id; this row records only the effective per-area target-state change after the visibility rule above. (ChatGPT-5.6-Sol) -->
+			if (bLogSASDiplo && pOldTarget != pNewTarget) logSASGameRecordAITargetCityChanged(AI(), kTargetArea, pOldTarget, pNewTarget, SAS_AI_TARGET_CITY_DIPLO_COORDINATION);
 		}
 		break;
 	} // K-Mod
@@ -3782,6 +4019,14 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
 		FAssert(false);
 		break;
 	}
+
+	if (bLogResolvedSASDiplo)
+	{
+		SASGameRecordDiploRelationState kSASDiploAfter;
+		captureSASGameRecordDiploRelationState(getID(), ePlayer, kSASDiploAfter);
+		logSASGameRecordResolvedDiploInteraction(getID(), eDiploEvent, ePlayer, iData1, kSASDiploBefore, kSASDiploAfter);
+	}
+	else if (bLogSASDiplo && (bLogVerboseSASDiplo || !isSASGameRecordLowValueDiploEvent(eDiploEvent))) logSASGameRecordDiploEventAction(getID(), eDiploEvent, ePlayer, iData1, iData2);
 }
 
 
@@ -3886,8 +4131,7 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
 	{
 		FAssertBounds(0, MAX_CIV_TEAMS, item.m_iData);
 		TeamTypes eTargetTeam = (TeamTypes)item.m_iData;
-		if (kToTeam.isHasMet(eTargetTeam) && //kOurTeam.isHasMet(eTargetTeam) && // advc: redundant
-			kOurTeam.isAtWar(eTargetTeam))
+		if (kToTeam.isHasMet(eTargetTeam) && /*kOurTeam.isHasMet(eTargetTeam) && // advc: redundant*/ kOurTeam.isAtWar(eTargetTeam))
 		{
 			bValid = true;
 		}
@@ -3897,12 +4141,16 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
 	{
 		FAssertBounds(0, MAX_CIV_TEAMS, item.m_iData);
 		TeamTypes eTargetTeam = (TeamTypes)item.m_iData;
-		// <advc.104> (correction from SAS)
-		bool bVassalStatusValid = (!GET_TEAM(eTargetTeam).isAVassal() ||
-				(getUWAI().isEnabled() && !GET_TEAM(eTargetTeam).isCapitulated()));
-		if (bVassalStatusValid && // </advc.104>
-			kOurTeam.isHasMet(eTargetTeam) && kToTeam.isHasMet(eTargetTeam) &&
-			kOurTeam.canDeclareWar(eTargetTeam))
+		CvTeam const& kTargetTeam = GET_TEAM(eTargetTeam);
+		// <!-- custom: BtS's universal vassal-target gate made AdvCiv/UWAI's explicit voluntary-vassal joint-war selection unreachable even though UWAI prices and denies the master coalition correctly.
+		// Permit voluntary vassals only under full UWAI; keep capitulated targets and legacy/background modes blocked because legacy valuation still uses the raw vassal. See KI#373. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		bool const bValidTargetStatus = (!kTargetTeam.isAVassal() || (getUWAI().isEnabled() && !kTargetTeam.isCapitulated()));
+		// <!-- custom: The inherited check allowed a vassal sponsor to hire war against its own master coalition, or against a coalition defensively allied with that master; the declaration cascade then made the hireling attack its sponsor too.
+		// Compare canonical master teams so direct masters and sibling vassals are covered while KI#373's foreign voluntary-vassal targets remain valid. See KI#612. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		TeamTypes const eSponsorMaster = kToTeam.getMasterTeam();
+		TeamTypes const eTargetMaster = kTargetTeam.getMasterTeam();
+		bool const bValidSponsorRelation = (eSponsorMaster != eTargetMaster && !GET_TEAM(eSponsorMaster).isDefensivePact(eTargetMaster));
+		if (bValidTargetStatus && bValidSponsorRelation && kOurTeam.isHasMet(eTargetTeam) && kToTeam.isHasMet(eTargetTeam) && kOurTeam.canDeclareWar(eTargetTeam))
 		{
 			bValid = true;
 		}
@@ -3913,13 +4161,8 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
 		//PROFILE("CvPlayer::canTradeItem.EMBARGO");
 		FAssertBounds(0, MAX_CIV_TEAMS, item.m_iData);
 		TeamTypes eTargetTeam = (TeamTypes)item.m_iData;
-		if (!kOurTeam.isHuman() &&
-			kOurTeam.isHasMet(eTargetTeam) && kToTeam.isHasMet(eTargetTeam) &&
-			canStopTradingWithTeam(eTargetTeam) &&
-			// <advc.130f>
-			(!GET_PLAYER(eWhoTo).isTradingWithTeam(eTargetTeam, true) ||
-			(kOurTeam.isCapitulated() && kOurTeam.isVassal(kToTeam.getID()))))
-			// </advc.130f>
+		// <advc.130f>
+		if (!kOurTeam.isHuman() && kOurTeam.isHasMet(eTargetTeam) && kToTeam.isHasMet(eTargetTeam) && canStopTradingWithTeam(eTargetTeam) && (!GET_PLAYER(eWhoTo).isTradingWithTeam(eTargetTeam, true) || (kOurTeam.isCapitulated() && kOurTeam.isVassal(kToTeam.getID())))) // </advc.130f>
 		{
 			bValid = true;
 		}
@@ -3977,17 +4220,21 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
 bool CvPlayer::canPossiblyTradeItem(PlayerTypes eWhoTo, TradeableItems eItemType) const
 {
 	PROFILE_FUNC();
+
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	CvTeam const& kOurTeam = GET_TEAM(getTeam());
 	CvTeam const& kToTeam = GET_TEAM(eWhoTo);
 	switch (eItemType)
 	{
 	case TRADE_TECHNOLOGIES:
-		return (!GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING) &&
+		return (!kGame.isOption(GAMEOPTION_NO_TECH_TRADING) &&
 				(kOurTeam.isTechTrading() || kToTeam.isTechTrading()));
 	case TRADE_RESOURCES: return canTradeNetworkWith(eWhoTo);
 	case TRADE_CITIES:
 		return (GET_PLAYER(eWhoTo).canReceiveTradeCity() &&
-				GC.getGame().getMaxCityElimination() <= 0);
+				kGame.getMaxCityElimination() <= 0);
 	case TRADE_GOLD:
 	case TRADE_GOLD_PER_TURN:
 		return (kOurTeam.isGoldTrading() || kToTeam.isGoldTrading());
@@ -4405,8 +4652,10 @@ void CvPlayer::killAllDeals()
 
 void CvPlayer::findNewCapital()
 {
-	BuildingTypes const eCapitalBuilding = getCivilization().getBuilding((BuildingClassTypes)
-			GC.getDefineINT("CAPITAL_BUILDINGCLASS"));
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const BuildingClassTypes eCAPITAL_BUILDINGCLASS = (BuildingClassTypes)GC.getDefineINT("CAPITAL_BUILDINGCLASS");
+
+	BuildingTypes const eCapitalBuilding = getCivilization().getBuilding(eCAPITAL_BUILDINGCLASS);
 	if (eCapitalBuilding == NO_BUILDING)
 		return;
 
@@ -4494,7 +4743,20 @@ void CvPlayer::raze(CvCity& kCity) // advc: param was CvCity*
 
 	FAssert(kCity.getOwner() == getID());
 
+	// <!-- custom: Pre-gate rare city-raze diagnostics before any logging-only context gathering.
+	// The recorder captures the live city here and finalizes after disband so the same row contains exact consequences rather than a before-only estimate.
+	// A later/manual raze starts its own causal transaction, while a synchronous AI/auto raze during acquireCity joins the existing CITY_ACQUISITION transaction. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bLogSASCityRaze = (gGameRecordLogLevel >= 2);
+	SASGameRecordTransactionScope kSASCityRazeTransaction("CITY_RAZE", bLogSASCityRaze);
+	if (bLogSASCityRaze) beginSASGameRecordCityRaze(&kCity, getID());
+
 	AI().AI_processRazeMemory(kCity); // advc.003n: Moved into subroutine
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
 	wchar szBuffer[1024];
 	swprintf(szBuffer, gDLL->getText("TXT_KEY_MISC_DESTROYED_CITY",
@@ -4502,7 +4764,7 @@ void CvPlayer::raze(CvCity& kCity) // advc: param was CvCity*
 	gDLL->UI().addMessage(getID(), true, -1, szBuffer, kCity.getPlot(),
 			"AS2D_CITYRAZE", MESSAGE_TYPE_MAJOR_EVENT,
 			ARTFILEMGR.getInterfaceArtPath("WORLDBUILDER_CITY_EDIT"),
-			GC.getColorType("GREEN"));
+			eColorGreen);
 
 	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 	{
@@ -4517,18 +4779,19 @@ void CvPlayer::raze(CvCity& kCity) // advc: param was CvCity*
 					"AS2D_CITYRAZED",
 					MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY, // advc.106b
 					ARTFILEMGR.getInterfaceArtPath("WORLDBUILDER_CITY_EDIT"),
-					GC.getColorType("RED"));
+					eColorRed);
 		}
 	}
 
 	swprintf(szBuffer, gDLL->getText("TXT_KEY_MISC_CITY_RAZED_BY",
 			kCity.getNameKey(), getCivilizationDescriptionKey()).GetCString());
 	GC.getGame().addReplayMessage(kCity.getPlot(), REPLAY_MESSAGE_MAJOR_EVENT,
-			getID(), szBuffer, GC.getColorType("WARNING_TEXT"));
+			getID(), szBuffer, eColorWarningText);
 
 	kCity.doPartisans(); // advc.003y
 	CvEventReporter::getInstance().cityRazed(&kCity, getID());
 	disband(kCity);
+	if (bLogSASCityRaze) endSASGameRecordCityRaze(getID());
 	// <advc.130w> (Cf. the end of acquireCity)
 	for (PlayerAIIter<MAJOR_CIV,KNOWN_TO> itOther(getTeam());
 		itOther.hasNext(); ++itOther)
@@ -4542,7 +4805,8 @@ void CvPlayer::disband(CvCity& kCity) // advc: param was CvCity*
 {
 	if (getNumCities() == 1)
 		setFoundedFirstCity(false);
-	GC.getGame().addPastCityName(kCity.getName());
+	// <!-- custom: Preserve the disbanded city's raw canonical key or literal name in the past-name registry; a translated display string is not stable identity. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	GC.getGame().addPastCityName(kCity.getNameKey());
 	kCity.kill(true);
 }
 
@@ -4568,7 +4832,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	if (kGoody.getExperience() > 0)
 	{
 		if (pUnit == NULL || !pUnit->canAcquirePromotionAny() ||
-			//(GC.getGame().getElapsedGameTurns() < 10)
+			//(kGame.getElapsedGameTurns() < 10)
 			bVeryVeryEarlyGame) // advc.314
 		{
 			return false;
@@ -4615,8 +4879,8 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		return false;
 	/*  Moved up and added the era clause; a single free unit in the Medieval
 		era isn't going to be a problem. */
-	bool bEarlyMP = (GC.getGame().isGameMultiPlayer() &&
-			GC.getGame().getCurrentEra() < 2);
+	bool bEarlyMP = (kGame.isGameMultiPlayer() &&
+			kGame.getCurrentEra() < 2);
 	// No free unit from Spy when hut guarded
 	if (!kGoody.isBad() && (kGoody.getUnitClassType() != NO_UNITCLASS ||
 		kGoody.getMinBarbarians() > 0) && pPlot->isVisibleEnemyUnit(getID()) &&
@@ -4655,7 +4919,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		// BarbarianUnitClass has a different use now when !isBad
 		kGoody.isBad()) // </advc.314>
 	{
-		if (GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+		if (kGame.isOption(GAMEOPTION_NO_BARBARIANS))
 			return false;
 
 		if (getNumCities() == 0)
@@ -4705,8 +4969,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 }
 
 
-void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
-	bool bNoRecursion) // advc.314
+void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit, bool bNoRecursion) // advc.314
 {
 	CvWString szBuffer;
 	CvWString szTempBuffer;
@@ -4716,6 +4979,13 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
 	CvGoodyInfo const& kGoody = GC.getInfo(eGoody);
 	CvGame const& kGame = GC.getGame();
 	// </advc>
+	// <!-- custom: Goody outcomes are rare, but their randomized realized effects can materially alter early selfplay.
+	// Gate all logging-only measurements at level 2+, query level 3 only after that gate succeeds, and preserve the entry recursion flag before AdvCiv may reuse bNoRecursion for an upgraded free-unit result. (ChatGPT-5.6-Sol) -->
+	bool const bLogGoodyOutcome = (gGameRecordLogLevel >= 2);
+	bool const bLogGoodyDetails = (bLogGoodyOutcome && gGameRecordLogLevel >= 3);
+	bool const bFollowupOutcome = bNoRecursion;
+	SASGameRecordGoodyResult kGameRecordResult;
+	if (bLogGoodyOutcome) kGameRecordResult.bFollowupOutcome = bFollowupOutcome;
 	szBuffer = kGoody.getDescription();
 
 	// <advc.314>
@@ -4726,6 +4996,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
 	/*  Meaning that an upgraded version of kGoody should be used, or, if there
 		is none, that an additional outcome should be rolled. */
 	bool bUpgrade = SyncRandSuccess(rUpgradeProb);
+	if (bLogGoodyOutcome) kGameRecordResult.bUpgradeRoll = bUpgrade;
 	// </advc.314>
 	int iGold = kGoody.getGold() +
 			SyncRandNum(kGoody.getGoldRand1()) +
@@ -4733,6 +5004,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
 	//iGold  = (iGold * GC.getInfo(kGame.getGameSpeedType()).getGrowthPercent()) / 100;
 	// advc.314: Replacing the above
 	iGold = (iGold * kGame.goodyHutEffectFactor()).round();
+	if (bLogGoodyOutcome && !kGoody.isTech()) kGameRecordResult.iGold = iGold;
 	if (iGold != 0 &&
 		// advc.314: isTech means that iGold is the research progress
 		!kGoody.isTech())
@@ -4771,15 +5043,27 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
 		for (PlotCircleIter it(*pBestPlot, iMapRange, false); it.hasNext(); ++it)
 		{
 			if (SyncRandSuccess100(kGoody.getMapProb()))
+			{
+				bool const bWasRevealed = (bLogGoodyOutcome && it->isRevealed(getTeam()));
 				it->setRevealed(getTeam(), true, false, NO_TEAM, true);
+				if (bLogGoodyOutcome && !bWasRevealed && it->isRevealed(getTeam())) kGameRecordResult.iNewlyRevealedPlots++;
+			}
 		}
 	}
 
 	if (pUnit != NULL)
+	{
+		int const iExperienceBefore = (bLogGoodyOutcome ? pUnit->getExperience() : 0);
 		pUnit->changeExperience(kGoody.getExperience());
+		if (bLogGoodyOutcome) kGameRecordResult.iExperienceGained = pUnit->getExperience() - iExperienceBefore;
+	}
 
 	if (pUnit != NULL)
+	{
+		int const iDamageBefore = (bLogGoodyOutcome ? pUnit->getDamage() : 0);
 		pUnit->changeDamage(-(kGoody.getHealing()));
+		if (bLogGoodyOutcome) kGameRecordResult.iDamageHealed = iDamageBefore - pUnit->getDamage();
+	}
 
 	if (kGoody.isTech())
 	{
@@ -4801,17 +5085,29 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
 		FAssert(eBestTech != NO_TECH);
 		// <advc.314> Most of the code from here on is modified
 		CvTeam& kOurTeam = GET_TEAM(getTeam());
+		if (bLogGoodyOutcome)
+		{
+			kGameRecordResult.eTech = eBestTech;
+			kGameRecordResult.iTechRewardValue = iGold;
+			kGameRecordResult.iTechProgressBefore = kOurTeam.getResearchProgress(eBestTech);
+			kGameRecordResult.iTechCost = kOurTeam.getResearchCost(eBestTech);
+		}
 		if (iGold <= 0 || fixp(0.8) * kOurTeam.getResearchLeft(eBestTech) <= iGold)
 		{
-			kOurTeam.setHasTech(eBestTech, true, getID(), true, true);
+			kOurTeam.setHasTech(eBestTech, true, getID(), true, true, false, TECH_ACQUISITION_GOODY);
 			if(isSignificantDiscovery(eBestTech))
 				kOurTeam.setNoTradeTech(eBestTech, true);
 		}
 		else
 		{
-			kOurTeam.changeResearchProgress(eBestTech, iGold, getID());
+			kOurTeam.changeResearchProgress(eBestTech, iGold, getID(), TECH_ACQUISITION_GOODY);
 			szBuffer = gDLL->getText("TXT_KEY_MISC_PROGRESS_TOWARDS_TECH", iGold,
 					GC.getInfo(eBestTech).getDescription());
+		}
+		if (bLogGoodyOutcome)
+		{
+			kGameRecordResult.iTechProgressAfter = kOurTeam.getResearchProgress(eBestTech);
+			kGameRecordResult.bTechCompleted = kOurTeam.isHasTech(eBestTech);
 		}
 	}
 	std::vector<UnitTypes> aeBestUnits;
@@ -4864,6 +5160,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
 			if (bUpgrade && kGoody.getBarbarianUnitClass() != NO_UNITCLASS)
 			{
 				eUnitClass = (UnitClassTypes)kGoody.getBarbarianUnitClass();
+				if (bLogGoodyOutcome) kGameRecordResult.bUpgradeApplied = true;
 				// Upgrade applied, don't roll an additional outcome.
 				bNoRecursion = true;
 			}
@@ -4887,8 +5184,28 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
 						GC.getInfo(eLoopUnit).getDescription());
 				addGoodyMsg(szBuffer, *pPlot, kGoody.getSound());
 				szBuffer.clear();
+				int iPromotionsBefore = 0;
+				if (bLogGoodyOutcome)
+				{
+					FOR_EACH_ENUM(Promotion)
+					{
+						if (pNewUnit->isHasPromotion(eLoopPromotion))
+							iPromotionsBefore++;
+					}
+				}
 				if (pNewUnit->canAcquirePromotionAny())
 					promoteFreeUnit(*pNewUnit, rUpgradeProb);
+				if (bLogGoodyOutcome)
+				{
+					int iPromotionsAfter = 0;
+					FOR_EACH_ENUM(Promotion)
+					{
+						if (pNewUnit->isHasPromotion(eLoopPromotion))
+							iPromotionsAfter++;
+					}
+					kGameRecordResult.iFreePromotionsGranted += std::max(0, iPromotionsAfter - iPromotionsBefore);
+					kGameRecordResult.apFreeUnits.push_back(pNewUnit);
+				}
 			}
 		}
 	}
@@ -4933,9 +5250,10 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
 					FAssert(eLoopUnit != NO_UNIT);
 					if(eLoopUnit != NO_UNIT)
 					{
-						GET_PLAYER(BARBARIAN_PLAYER).initUnit(eLoopUnit,
-								pAdj->getX(), pAdj->getY(),
-								(pAdj->isWater() ? UNITAI_ATTACK_SEA : UNITAI_ATTACK));
+						CvUnit* pBarbarian = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eLoopUnit, pAdj->getX(), pAdj->getY(), (pAdj->isWater() ? UNITAI_ATTACK_SEA : UNITAI_ATTACK));
+						if (bLogGoodyOutcome && pBarbarian != NULL)
+							kGameRecordResult.apBarbarianUnits.push_back(pBarbarian);
+						if (bLogGoodyDetails) logSASGameRecordBarbarianSpawn(pBarbarian, "GOODY_HUT");
 						iBarbCount++;
 					}
 					if ((iPass > 0 && iBarbCount >= iMinBarbs) || iBarbCount >= iMaxBarbs)
@@ -4949,6 +5267,11 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
 		{	// Give the unit a chance to run away
 			pUnit->changeMoves(-std::min(GC.getMOVE_DENOMINATOR(), pUnit->getMoves()));
 		}*/
+	}
+	if (bLogGoodyOutcome)
+	{
+		kGameRecordResult.bAdditionalOutcomeAttempted = (bUpgrade && !bNoRecursion);
+		logSASGameRecordGoodyReceived(getID(), pPlot, pUnit, eGoody, kGameRecordResult);
 	}
 	if(bUpgrade && !bNoRecursion)
 		doGoody(pPlot, pUnit, eGoody); // </advc.314>
@@ -4968,7 +5291,9 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit, /* advc.314: */ GoodyTypes 
 		FAssertMsg(pPlot->isOwned(), "Barbarians should remove hut only when receiving a city");
 		return;
 	} // </advc>
-	int const iAttempts = GC.getDefineINT("NUM_DO_GOODY_ATTEMPTS"); // advc.opt
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iAttempts = GC.getDefineINT("NUM_DO_GOODY_ATTEMPTS"); // advc.opt
+	bool bReceivedGoody = false;
 	for (int i = 0; i < iAttempts; i++)
 	{
 		if (GC.getInfo(getHandicapType()).getNumGoodies() <= 0)
@@ -4985,11 +5310,13 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit, /* advc.314: */ GoodyTypes 
 		if (canReceiveGoody(pPlot, eGoody, pUnit))
 		{
 			receiveGoody(pPlot, eGoody, pUnit, /* advc.314: */ eTaboo != NO_GOODY);
+			bReceivedGoody = true;
 			// advc (note): pUnit can be NULL here, but a CyUnit for Python can still be created.
 			CvEventReporter::getInstance().goodyReceived(getID(), pPlot, pUnit, eGoody);
 			break;
 		}
 	}
+	if (gGameRecordLogLevel >= 2 && !bReceivedGoody) logSASGameRecordGoodyNoOutcome(getID(), pPlot, pUnit, eTaboo, iAttempts);
 }
 
 
@@ -4999,8 +5326,7 @@ bool CvPlayer::canFound(int iX, int iY, bool bTestVisible) const
 }
 
 
-bool CvPlayer::canFound(CvPlot const& kPlot, bool bTestVisible,
-	/* <advc.181> */ bool bIgnoreFoW) const
+bool CvPlayer::canFound(CvPlot const& kPlot, bool bTestVisible, /* <advc.181> */ bool bIgnoreFoW) const
 {
 	if (!bIgnoreFoW)
 	{
@@ -5027,20 +5353,95 @@ bool CvPlayer::canFound(CvPlot const& kPlot, bool bTestVisible,
 }
 
 
+// <!-- custom: Removing CitySiteEvaluator::log() also removed its selected/next/coastal summaries.
+// Restore shortlist comparisons from cached values before founding mutates the map, identifying them as cached rather than fresh or path-adjusted scores.
+// Only player-known water resources are counted; this helper performs no scoring, pathfinding or RNG and its caller gates it at Found level 2. See KI#505.2. (GPT-6.1-Sol) -->
+// <!-- custom: Cached-alternative evidence accompanies founding any city, so the caller gates this shared helper with the phase-routed Found level before scanning or formatting. (ChatGPT-5.6-Sol + GPT-6.1-Sol + Claude code Opus 5.5) -->
+static void logBBAIFoundCachedAlternatives(CvPlayerAI const& kPlayer, CvPlot const& kSelected)
+{
+	FAssert(getSASBBAIFoundLogLevel(kPlayer.getID()) >= 2);
+	int const iSelectedCachedValue = kSelected.getFoundValue(kPlayer.getID());
+	int const iMinWaterSize = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
+	bool const bSelectedCoastal = kSelected.isCoastalLand(iMinWaterSize);
+	int const iSelectedKnownWaterBonuses = bSelectedCoastal ? CitySiteEvaluator::countWaterBonuses(kSelected, kPlayer.getTeam(), false) : 0;
+	CvPlot const* apAlternatives[2] = { NULL, NULL };
+	int aiCachedValues[2] = { -1, -1 };
+	int iCoastalKnownWaterBonuses = 0;
+	for (int iSite = 0; iSite < kPlayer.AI_getNumCitySites(); iSite++)
+	{
+		CvPlot const& kSite = kPlayer.AI_getCitySite(iSite);
+		if (&kSite == &kSelected)
+			continue;
+		int const iCachedValue = kSite.getFoundValue(kPlayer.getID());
+		if (iCachedValue > aiCachedValues[0])
+		{
+			apAlternatives[0] = &kSite;
+			aiCachedValues[0] = iCachedValue;
+		}
+		if (iCachedValue <= aiCachedValues[1] || !kSite.isCoastalLand(iMinWaterSize))
+			continue;
+		int const iKnownWaterBonuses = CitySiteEvaluator::countWaterBonuses(kSite, kPlayer.getTeam(), false);
+		if (iKnownWaterBonuses > 0)
+		{
+			apAlternatives[1] = &kSite;
+			aiCachedValues[1] = iCachedValue;
+			iCoastalKnownWaterBonuses = iKnownWaterBonuses;
+		}
+	}
+	for (int iKind = 0; iKind < 2; iKind++)
+	{
+		CvPlot const* pAlternative = apAlternatives[iKind];
+		logBBAI("FOUND_SITE_CACHED_COMPARISON turn=%d player=%d selected=%d,%d source=MAINTAINED_CITY_SITE_CACHE kind=%s selectedCached=%d selectedCoastal=%d selectedKnownWaterBonuses=%d citySites=%d hasAlternative=%d alternative=%d,%d alternativeCached=%d cachedDelta=%d alternativeKnownWaterBonuses=%d sameAsBestListed=%d",
+			GC.getGame().getGameTurn(), kPlayer.getID(), kSelected.getX(), kSelected.getY(), iKind == 0 ? "BEST_LISTED" : "COASTAL_WATER_BONUS",
+			iSelectedCachedValue, bSelectedCoastal, iSelectedKnownWaterBonuses, kPlayer.AI_getNumCitySites(), pAlternative != NULL,
+			pAlternative == NULL ? -1 : pAlternative->getX(), pAlternative == NULL ? -1 : pAlternative->getY(), aiCachedValues[iKind],
+			pAlternative == NULL ? 0 : aiCachedValues[iKind] - iSelectedCachedValue,
+			iKind == 1 ? iCoastalKnownWaterBonuses : -1, pAlternative != NULL && pAlternative == apAlternatives[0]);
+	}
+}
+
 void CvPlayer::found(int iX, int iY)
 {
 	if (!canFound(iX, iY))
 		return;
-	// <advc.031c>
-	if (gFoundLogLevel > 0 && !isHuman() &&
-		// (advc.108 forces founding in place in scenarios)
-		(getNumCities() > 0 || !GC.getGame().isScenario()))
+
+	// <!-- custom: moved up for more caching -->
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+	// <!-- custom: Resolved before initCity, so the capital's own rows stay 1ST. (Claude code Opus 5.5) -->
+	int const iFoundLogLevel = getSASBBAIFoundLogLevel(getID());
+	// <!-- custom: Founding can synchronously assign the city tile and adjacent culture before CITY_BUILT-style rows appear.
+	// Keep the whole post-initialization operation joinable; the direct city-tile assignment reports CITY_FOUNDING while nested border recalculation reports its immediate CULTURE_UPDATE mechanism. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int const iSASGameRecordLogLevel = gGameRecordLogLevel;
+	bool const bLogSASCityFounding = (iSASGameRecordLogLevel >= 2 && kGame.isFinalInitialized());
+	SASGameRecordTransactionScope kSASCityFoundingTransaction("CITY_FOUNDING", bLogSASCityFounding);
+	SASGameRecordPlotOwnerChangeCauseScope kSASCityFoundingOwnerCause(SAS_PLOT_OWNER_CAUSE_CITY_FOUNDING, iSASGameRecordLogLevel >= 3 && bLogSASCityFounding);
+	// <!-- custom: Mark every actual city founded on a resource before initCity changes the plot.
+	// The following AI found-value trace explains the choice for nonhuman players; this concise row makes human, AI and Barbarian cases searchable and distinguishes a resource the founder could see from an unrevealed one. (GPT-5.6-Sol) -->
+	if (iFoundLogLevel > 0)
 	{
-		AI().logFoundValue(GC.getMap().getPlot(iX, iY));
-	} // </advc.031c>
+		CvPlot const& kFoundPlot = GC.getMap().getPlot(iX, iY);
+		BonusTypes const eFoundBonus = kFoundPlot.getBonusType();
+		if (eFoundBonus != NO_BONUS)
+		{
+			logBBAI("CITY_FOUNDED_ON_BONUS turn=%d player=%d civilization=%s barbarian=%d human=%d plot=%d,%d bonus=%s visibleToFounder=%d",
+				kGame.getGameTurn(), getID(), GC.getInfo(getCivilizationType()).getType(), isBarbarian(), isHuman(), iX, iY,
+				GC.getInfo(eFoundBonus).getType(), kFoundPlot.getBonusType(getTeam()) == eFoundBonus);
+		}
+	}
+
+	// <!-- custom: Log the cached site value before founding mutates the map.
+	// Real evaluation traces are emitted where the AI computes them; founding no longer replays scoring with different planned-site context.
+	// A cached value is not a freshly recomputed first-city score. See KI#505.2. (GPT-6.1-Sol) -->
+	if (iFoundLogLevel > 0) logBBAI("FOUND_SITE_FOUNDED turn=%d year=%d player=%d site=%d,%d cachedValue=%d minFoundValue=%d firstCity=%d human=%d",
+		kGame.getGameTurn(), kGame.getGameTurnYear(), getID(), iX, iY,
+		GC.getMap().getPlot(iX, iY).getFoundValue(getID()), AI().AI_getMinFoundValue(), getNumCities() <= 0, isHuman());
+	if (iFoundLogLevel >= 2 && !isBarbarian()) logBBAIFoundCachedAlternatives(AI(), GC.getMap().getPlot(iX, iY));
+	// <!-- custom: SASGameRecord keeps only the already-cached strategic site list/value context here, before initCity changes the plot and surrounding city state.
+	// Detailed CitySiteEvaluator component reasoning remains in Found/BBAI diagnostics. (ChatGPT-5.6-Sol) -->
+	if (bLogSASCityFounding) logSASGameRecordCityFoundingSite(*this, GC.getMap().getPlot(iX, iY));
 	CvCity* pCity = initCity(iX, iY, true, true);
 	FAssertMsg(pCity != NULL, "City is not assigned a valid value");
-	CvGame const& kGame = GC.getGame();
 
 	if (isBarbarian())
 	{
@@ -5141,11 +5542,48 @@ void CvPlayer::found(int iX, int iY)
 	} // </advc.210c>
 	if (!CvPlot::isAllFog()) // advc.706: Suppress name-city popup
 		CvEventReporter::getInstance().cityBuilt(pCity);
-	if (gPlayerLogLevel > 0 || /* advc.031c: */ gFoundLogLevel > 0) logBBAI("  Player %d (%S) founds new city %S at %d, %d", getID(), getCivilizationDescription(0), pCity->getName(0).GetCString(), iX, iY); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+	if (gPlayerLogLevel > 0 || /* advc.031c: */ iFoundLogLevel > 0) logBBAI("CITY_FOUNDED turn=%d player=%d civ=%s city=%S cityId=%d plot=%d,%d firstCity=%d barbarian=%d human=%d",
+		kGame.getGameTurn(), getID(), GC.getInfo(getCivilizationType()).getType(), getSASDiagnosticQuoted(pCity->getName(0).GetCString()).GetCString(), pCity->getID(), iX, iY,
+		getNumCities() == 1, isBarbarian(), isHuman()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 }
 
 
-bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost) const
+// <!-- custom: Prospective evaluation can value technologies several steps deep, so include a unit technology when it is the candidate or a guaranteed prerequisite of that candidate.
+// Every AND branch is required; an OR ancestry contributes only when every still-possible alternative requires the same technology.
+// Treating the union of OR branches as simultaneously known incorrectly granted units from mutually exclusive research paths.
+// NO_TECH remains strictly current-state-only. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static bool SAS_isTechKnownOrGuaranteedPrerequisiteOf(TeamTypes eTeam, TechTypes eRequiredTech, TechTypes eAssumeTech)
+{
+	if (eRequiredTech == NO_TECH)
+		return true;
+	if (GET_TEAM(eTeam).isHasTech(eRequiredTech) || eRequiredTech == eAssumeTech)
+		return true;
+	if (eAssumeTech == NO_TECH || GET_TEAM(eTeam).isHasTech(eAssumeTech))
+		return false;
+	CvTechInfo const& kAssumeTech = GC.getInfo(eAssumeTech);
+	for (int i = 0; i < kAssumeTech.getNumAndTechPrereqs(); i++)
+	{
+		if (SAS_isTechKnownOrGuaranteedPrerequisiteOf(eTeam, eRequiredTech, kAssumeTech.getPrereqAndTechs(i)))
+			return true;
+	}
+	int const iNumOrPrereqs = kAssumeTech.getNumOrTechPrereqs();
+	if (iNumOrPrereqs <= 0)
+		return false;
+	for (int i = 0; i < kAssumeTech.getNumOrTechPrereqs(); i++)
+	{
+		TechTypes const eOrPrereq = kAssumeTech.getPrereqOrTechs(i);
+		if (GET_TEAM(eTeam).isHasTech(eOrPrereq) ||
+			!SAS_isTechKnownOrGuaranteedPrerequisiteOf(eTeam, eRequiredTech, eOrPrereq))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+
+// <!-- custom: eAssumeTech is normally NO_TECH; prospective building valuation passes its candidate technology so units unlocked by it or its guaranteed prerequisites can satisfy domain applicability without changing team state. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, TechTypes eAssumeTech) const
 {
 	//PROFILE_FUNC(); // advc.003o
 	UnitClassTypes const eUnitClass = GC.getInfo(eUnit).getUnitClassType();
@@ -5159,22 +5597,35 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 	if (isOneCityChallenge() && GC.getInfo(eUnit).isFound())
 		return false;
 
-	if (!GET_TEAM(getTeam()).isHasTech((TechTypes)GC.getInfo(eUnit).getPrereqAndTech()))
+	// <!-- custom: Apply the candidate/guaranteed-prerequisite assumption independently to every required unit technology; other missing technologies still reject the unit. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TechTypes const ePrereqAndTech = (TechTypes)GC.getInfo(eUnit).getPrereqAndTech();
+	if (!SAS_isTechKnownOrGuaranteedPrerequisiteOf(getTeam(), ePrereqAndTech, eAssumeTech))
 		return false;
 
 	for (int i = 0; i < GC.getInfo(eUnit).getNumPrereqAndTechs(); i++)
 	{
-		if (!GET_TEAM(getTeam()).isHasTech(GC.getInfo(eUnit).getPrereqAndTechs(i)))
+		TechTypes const ePrereqAndTech = GC.getInfo(eUnit).getPrereqAndTechs(i);
+		if (!SAS_isTechKnownOrGuaranteedPrerequisiteOf(getTeam(), ePrereqAndTech, eAssumeTech))
 			return false;
 	}
+
+	// <!-- custom: ObsoleteTech stops training once known; default NONE. (GPT-5.2-Codex) -->
+	// <!-- custom: Apply the same candidate/guaranteed-prerequisite context to ObsoleteTech; otherwise prospective applicability could count a unit that disappears before the evaluated building technology is reached. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TechTypes const eObsoleteTech = GC.getInfo(eUnit).getObsoleteTech();
+	if (eObsoleteTech != NO_TECH && SAS_isTechKnownOrGuaranteedPrerequisiteOf(getTeam(), eObsoleteTech, eAssumeTech))
+		return false;
 
 	if (GC.getInfo(eUnit).getStateReligion() != NO_RELIGION)
 	{
 		if (getStateReligion() != GC.getInfo(eUnit).getStateReligion())
 			return false;
 	}
+
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	// <advc> Some checks moved to CvGame
-	if (!GC.getGame().canTrain(eUnit, bIgnoreCost, bTestVisible))
+	if (!kGame.canTrain(eUnit, bIgnoreCost, bTestVisible))
 		return false; // </advc>
 
 	/*if (GET_TEAM(getTeam()).isUnitClassMaxedOut(eUnitClass))
@@ -5187,7 +5638,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 
 	if (!bTestVisible)
 	{
-		if (GC.getGame().isUnitClassMaxedOut(eUnitClass,
+		if (kGame.isUnitClassMaxedOut(eUnitClass,
 			GET_TEAM(getTeam()).getUnitClassMaking(eUnitClass) + (bContinue ? -1 : 0)))
 		{
 			return false;
@@ -5210,9 +5661,12 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 
 bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreTech) const
 {
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	/*  advc: Global checks moved into new function. These are all fast (now that
 		CivTeamsEverAlive is cached). */
-	if(!GC.getGame().canConstruct(eBuilding, bIgnoreCost, bTestVisible))
+	if(!kGame.canConstruct(eBuilding, bIgnoreCost, bTestVisible))
 		return false;
 
 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
@@ -5265,7 +5719,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 			return false;
 	}
 	// <kekm.19> (advc: simplified)
-	if (kBuilding.isCapital() && GC.getGame().getGameState() == GAMESTATE_ON &&
+	if (kBuilding.isCapital() && kGame.getGameState() == GAMESTATE_ON &&
 		GET_TEAM(getTeam()).isAnyVictoryCountdown()) // advc.opt
 	{
 		return false;
@@ -5297,7 +5751,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 	{
 		int iTeamMaking = kOurTeam.getBuildingClassMaking(eBuildingClass);
 		int iTeamMakingCont = iTeamMaking + (bContinue ? -1 : 0);
-		if (GC.getGame().isBuildingClassMaxedOut(eBuildingClass, iTeamMakingCont))
+		if (kGame.isBuildingClassMaxedOut(eBuildingClass, iTeamMakingCont))
 			return false;
 		if (kOurTeam.isBuildingClassMaxedOut(eBuildingClass, iTeamMakingCont))
 			return false;
@@ -5330,9 +5784,12 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 	if (!GET_TEAM(getTeam()).isHasTech(GC.getInfo(eProject).getTechPrereq()))
 		return false;
 
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	if (GC.getInfo(eProject).getVictoryPrereq() != NO_VICTORY)
 	{
-		if (!GC.getGame().isVictoryValid(GC.getInfo(eProject).getVictoryPrereq()))
+		if (!kGame.isVictoryValid(GC.getInfo(eProject).getVictoryPrereq()))
 			return false;
 		if (isMinorCiv())
 			return false;
@@ -5344,7 +5801,7 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 		}
 	}
 
-	if (GC.getGame().isProjectMaxedOut(eProject))
+	if (kGame.isProjectMaxedOut(eProject))
 		return false;
 
 	if (GET_TEAM(getTeam()).isProjectMaxedOut(eProject))
@@ -5352,7 +5809,7 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 
 	if (!bTestVisible)
 	{
-		if (GC.getGame().isProjectMaxedOut(eProject,
+		if (kGame.isProjectMaxedOut(eProject,
 			GET_TEAM(getTeam()).getProjectMaking(eProject) + (bContinue ? -1 : 0)))
 		{
 			return false;
@@ -5362,7 +5819,7 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 		{
 			return false;
 		}
-		if (GC.getGame().isNoNukes() && GC.getInfo(eProject).isAllowsNukes())
+		if (kGame.isNoNukes() && GC.getInfo(eProject).isAllowsNukes())
 		{
 			return false; // advc.opt
 			/*FOR_EACH_ENUM(Unit) {
@@ -5371,7 +5828,7 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 			}*/
 		}
 		if (GC.getInfo(eProject).getAnyoneProjectPrereq() != NO_PROJECT &&
-			GC.getGame().getProjectCreatedCount(
+			kGame.getProjectCreatedCount(
 			GC.getInfo(eProject).getAnyoneProjectPrereq()) == 0)
 		{
 			return false;
@@ -5440,13 +5897,72 @@ bool CvPlayer::isProductionMaxedProject(ProjectTypes eProject) const
 }
 
 
-int CvPlayer::getProductionNeeded(UnitTypes eUnit,
-	int iExtraInstances) const // advc.104
+// <!-- custom: Read one Barbarian catch-up percentage per loaded era, from the define named after its era type (ERA_ANCIENT -> <prefix>ANCIENT_PCT).
+// The earlier civilian-unit rule hardcoded a seven-entry table and used 100% for every era once a modmod changed the era count; deriving the names from the loaded eras means an added era only needs its own define.
+// A missing define reports through getDefineINT's assertion and uses the ordinary 100% cost. (Claude code Opus 5.5) -->
+static void SAS_readBarbarianEraCostPercents(char const* szDefinePrefix, std::vector<int>& aiEraCostPercent)
 {
+	FOR_EACH_ENUM(Era)
+	{
+		char const* const szEraType = GC.getInfo(eLoopEra).getType();
+		FAssertMsg(strncmp(szEraType, "ERA_", 4) == 0, szEraType);
+		aiEraCostPercent.push_back(GC.getDefineINT(CvString::format("%s%s_PCT", szDefinePrefix, szEraType + 4).c_str(), 100));
+	}
+}
+
+// <!-- custom: Cached on first use because getProductionNeeded runs often for AI production choices; eras and defines are loaded by then, and SAS define edits currently require restarting Civ4. (Claude code Opus 5.5) -->
+static int SAS_getBarbarianCivilianUnitCostPercent(EraTypes eEra)
+{
+	static std::vector<int> aiEraCostPercent;
+	if (aiEraCostPercent.empty())
+		SAS_readBarbarianEraCostPercents("SAS_BARB_CIVILIAN_COST_", aiEraCostPercent);
+	FAssertBounds(0, (int)aiEraCostPercent.size(), eEra);
+	return aiEraCostPercent[eEra];
+}
+
+static int SAS_getBarbarianRegularBuildingCostPercent(EraTypes eEra)
+{
+	static std::vector<int> aiEraCostPercent;
+	if (aiEraCostPercent.empty())
+		SAS_readBarbarianEraCostPercents("SAS_BARB_REG_BLDG_COST_", aiEraCostPercent);
+	FAssertBounds(0, (int)aiEraCostPercent.size(), eEra);
+	return aiEraCostPercent[eEra];
+}
+
+// <!-- custom: Replace cost-only Barbarian civilian-unit clones with one generic, current-era catch-up rule.
+// Apply this to the base XML-equivalent cost before the ordinary game-speed/start-era/handicap modifiers.
+// Military-production units are deliberately excluded: Barbarians still have to pay their ordinary military costs and generate pressure through production rather than this civilian catch-up aid. (ChatGPT-5.6-Sol + Claude code Opus 5.5) -->
+static int SAS_getBarbarianCivilianUnitCost(CvPlayer const& kPlayer, CvUnitInfo const& kUnit)
+{
+	static const bool bSAS_BARB_CIVILIAN_COST_CATCH_ON = GC.getDefineBOOL("SAS_BARB_CIVILIAN_COST_CATCH_ON");
+	int const iBaseCost = kUnit.getProductionCost();
+	if (!bSAS_BARB_CIVILIAN_COST_CATCH_ON || !kPlayer.isBarbarian() || iBaseCost <= 0 || kUnit.isMilitaryProduction())
+		return iBaseCost;
+	return (iBaseCost * SAS_getBarbarianCivilianUnitCostPercent(kPlayer.getCurrentEra()) + 50) / 100;
+}
+
+// <!-- custom: Barbarian catch-up for regular buildings, mirroring the civilian-unit rule; it replaces cost-only Barbarian Walls/Castle/Lighthouse/Granary copies (iCost 5), so modmod buildings receive it without new copies.
+// Applied to the base XML cost before the ordinary modifiers.
+// World, team and national wonders (isLimited) keep their ordinary cost: Barbarians once completed world wonders before other players, so a discount would work against SAS_BARB_WORLD_WONDER_ON. See KI#3. (Claude code Opus 5.5) -->
+static int SAS_getBarbarianRegularBuildingCost(CvPlayer const& kPlayer, CvBuildingInfo const& kBuilding)
+{
+	static const bool bSAS_BARB_REG_BLDG_COST_CATCH_ON = GC.getDefineBOOL("SAS_BARB_REG_BLDG_COST_CATCH_ON");
+	int const iBaseCost = kBuilding.getProductionCost();
+	if (!bSAS_BARB_REG_BLDG_COST_CATCH_ON || !kPlayer.isBarbarian() || iBaseCost <= 0 || kBuilding.isLimited())
+		return iBaseCost;
+	return (iBaseCost * SAS_getBarbarianRegularBuildingCostPercent(kPlayer.getCurrentEra()) + 50) / 100;
+}
+
+int CvPlayer::getProductionNeeded(UnitTypes eUnit, int iExtraInstances) const // advc.104
+{
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	UnitClassTypes eUnitClass = GC.getInfo(eUnit).getUnitClassType();
 	FAssert(NO_UNITCLASS != eUnitClass);
 
-	int iProductionNeeded = GC.getInfo(eUnit).getProductionCost();
+	// <!-- custom: Was GC.getInfo(eUnit).getProductionCost(); Barbarians get the civilian-unit catch-up described at SAS_getBarbarianCivilianUnitCost. (Claude code Opus 5.5) -->
+	int iProductionNeeded = SAS_getBarbarianCivilianUnitCost(*this, GC.getInfo(eUnit));
 
 	iProductionNeeded *= 100 + (GC.getInfo(eUnitClass).getInstanceCostModifier() *
 			(getUnitClassCount(eUnitClass) + /* advc.104: */ iExtraInstances));
@@ -5456,22 +5972,31 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit,
 	iProductionNeeded *= iUNIT_PRODUCTION_PERCENT;
 	iProductionNeeded /= 100;
 
-	iProductionNeeded *= GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent();
+	iProductionNeeded *= GC.getInfo(kGame.getGameSpeedType()).getTrainPercent();
 	iProductionNeeded /= 100;
 
-	iProductionNeeded *= GC.getInfo(GC.getGame().getStartEra()).getTrainPercent();
+	iProductionNeeded *= GC.getInfo(kGame.getStartEra()).getTrainPercent();
 	iProductionNeeded /= 100;
 	/*  <advc.107> Code moved into auxiliary function b/c I need this modifier
 		in AI_getTotalFloatingDefendersNeeded. */
 	iProductionNeeded = (iProductionNeeded *
 			trainingModifierFromHandicap(GC.getInfo(eUnitClass).isWorldUnit())).
-			roundToMultiple(/* advc.251: */ isHuman() ? 5 : 1);
+			// <!-- custom: very annoying, do not round to multiples of 5 please...
+			// Ancient macemen 18 hammers cost 20, and swordsman 42 costs 40 while swordsman 43 costs 45, it is a mess and hard to balance.
+			// Meanwhile, AIs have per 1 costs like 22, 17, 38, and it seems this is where we need to change it as chatgpt 5 explained to me, check if accurate, see known issue as of now 67 for details; Also what's even more annoying is that the price change only applies to the human player, so AIs effectively have a different price than the human player, very very annoying and no setting to manage this outside of DLL.
+			// Since i find it nonsensical and don't care about pretty numbers in this case at least, disabled it entirely -->
+			// Short answer: for your use-case, they’re the same. Use .round() for clarity.
+			// Semantics: roundToMultiple(1) means “round to the nearest multiple of 1," i.e. the nearest integer. That’s exactly what .round() does. For positive values (your costs are positive), they’ll return the same integer.
+			// roundToMultiple(/* advc.251: */ isHuman() ? 5 : 1);
+			round();
 	// </advc.107>
 	// advc.251 (comment): See getNewCityProductionValue
 	iProductionNeeded += getUnitExtraCost(eUnitClass);
 
-	int iPyMod = GC.getPythonCaller()->unitCostMod(getID(), eUnit);
-	if (iPyMod > 0)
+	int const iPyMod = GC.getPythonCaller()->unitCostMod(getID(), eUnit);
+	// <!-- custom: AdvCiv practical 1648 changed the inherited application threshold from > 1 to > 0, making the former non-override value 1 reduce many units to the one-hammer minimum.
+	// Match K-Mod and the current building-cost sibling. See KI#603. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (iPyMod > 1)
 	{
 		iProductionNeeded *= iPyMod;
 		iProductionNeeded /= 100;
@@ -5483,7 +6008,8 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit,
 int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 {
 	CvGame const& kGame = GC.getGame(); // advc
-	int iProductionNeeded = GC.getInfo(eBuilding).getProductionCost();
+	// <!-- custom: Was GC.getInfo(eBuilding).getProductionCost(); Barbarians get the regular-building catch-up described at SAS_getBarbarianRegularBuildingCost. (Claude code Opus 5.5) -->
+	int iProductionNeeded = SAS_getBarbarianRegularBuildingCost(*this, GC.getInfo(eBuilding));
 
 	static int const iBUILDING_PRODUCTION_PERCENT = GC.getDefineINT("BUILDING_PRODUCTION_PERCENT"); // advc.opt
 	iProductionNeeded *= iBUILDING_PRODUCTION_PERCENT;
@@ -5497,7 +6023,9 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 	// <advc.251>
 	iProductionNeeded = (iProductionNeeded * per100(
 			GC.getInfo(getHandicapType()).getConstructPercent())).
-			roundToMultiple(isHuman() ? 5 : 1);
+			// <!-- custom: see known issue as of now 67 for details -->
+			// roundToMultiple(isHuman() ? 5 : 1);
+			round();
 	if (!isHuman()) // Barbarians too
 	{
 		CvHandicapInfo const& h = GC.getInfo(kGame.getHandicapType());
@@ -5517,9 +6045,11 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 {
 	CvGame const& kGame = GC.getGame();
-	// <advc.251>
-	int const iBaseCost = GC.getInfo(eProject).getProductionCost();
-	int iProductionNeeded = iBaseCost; // </advc.251>
+	// <!-- custom: see known issue as of now 67 for details -->
+	// // <advc.251>
+	// int const iBaseCost = GC.getInfo(eProject).getProductionCost();
+	// int iProductionNeeded = iBaseCost; // </advc.251>
+	int iProductionNeeded = GC.getInfo(eProject).getProductionCost();
 
 	static int const iPROJECT_PRODUCTION_PERCENT = GC.getDefineINT("PROJECT_PRODUCTION_PERCENT"); // advc.opt
 	iProductionNeeded *= iPROJECT_PRODUCTION_PERCENT;
@@ -5533,7 +6063,10 @@ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 	// <advc.251>
 	iProductionNeeded = (iProductionNeeded *
 			per100(GC.getInfo(getHandicapType()).getCreatePercent())).
-			roundToMultiple(isHuman() ? (iBaseCost > 500 ? 50 : 5) : 1);
+			// <!-- custom: see known issue as of now 67 for details, below comment by chatgpt 5, check if accurate -->
+			// Yep—you can make projects round to 1 as well. It’s safe and keeps parity with units/buildings if you’ve already switched those.
+			// roundToMultiple(isHuman() ? (iBaseCost > 500 ? 50 : 5) : 1);
+			round();
 	if (!isHuman() && !isBarbarian())
 	{
 		CvHandicapInfo const& h = GC.getInfo(kGame.getHandicapType());
@@ -5626,13 +6159,16 @@ int CvPlayer::getProductionModifier(ProjectTypes eProject) const
 // advc.107: Cut from getProductionNeeded; refactored.
 scaled CvPlayer::trainingModifierFromHandicap(bool bWorldClass) const
 {
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	// <advc.251>
 	scaled r = per100(GC.getInfo(getHandicapType()).getTrainPercent());
 	if (!isHuman()) // Apply this also to Barbarians // </advc.251>
 	{
-		CvHandicapInfo& kGameHandicap = GC.getInfo(GC.getGame().getHandicapType());
+		CvHandicapInfo& kGameHandicap = GC.getInfo(kGame.getHandicapType());
 		int iAIPercent = //h.getAIPerEraModifier() * getCurrentEra()
-				GC.getGame().AIHandicapAdjustment();
+				kGame.AIHandicapAdjustment();
 		if(bWorldClass)
 			iAIPercent += kGameHandicap.getAIWorldTrainPercent();
 		else iAIPercent += kGameHandicap.getAITrainPercent();
@@ -5641,8 +6177,7 @@ scaled CvPlayer::trainingModifierFromHandicap(bool bWorldClass) const
 	return std::max(r, per100(1));
 }
 
-int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding,
-	BuildingClassTypes ePrereqBuildingClass, int iExtra) const
+int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingClassTypes ePrereqBuildingClass, int iExtra) const
 {
 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
 
@@ -5788,8 +6323,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, CvArea& kAr
 }
 
 
-bool CvPlayer::canBuild(CvPlot const& kPlot, BuildTypes eBuild, bool bTestEra,
-	bool bTestVisible, /* advc.181: */ bool bIgnoreFoW) const
+bool CvPlayer::canBuild(CvPlot const& kPlot, BuildTypes eBuild, bool bTestEra, bool bTestVisible, /* advc.181: */ bool bIgnoreFoW) const
 {
 	//PROFILE_FUNC(); // advc.003o
 	if (!kPlot.canBuild(eBuild, getID(), bTestVisible,
@@ -5839,8 +6373,7 @@ int CvPlayer::getBuildCost(CvPlot const& kPlot, BuildTypes eBuild) const  // adv
 }
 
 
-RouteTypes CvPlayer::getBestRoute(CvPlot const* pPlot,
-	BuildTypes* peBestBuild) const // advc.121
+RouteTypes CvPlayer::getBestRoute(CvPlot const* pPlot, BuildTypes* peBestBuild) const // advc.121
 {
 	PROFILE_FUNC();
 
@@ -5889,8 +6422,7 @@ int CvPlayer::getImprovementUpgradeRate() const
 }
 
 
-int CvPlayer::calculateTotalYield(YieldTypes eYield,
-	bool bExludeCitiesInDisorder) const // advc.001 (for Financial Advisor)
+int CvPlayer::calculateTotalYield(YieldTypes eYield, bool bExludeCitiesInDisorder) const // advc.001 (for Financial Advisor)
 {
 	PROFILE_FUNC();
 
@@ -5993,13 +6525,29 @@ int CvPlayer::calculatePollution(PollutionFlags ePollution) const
 	int iTotal = 0;
 	int iBuildingWeight = 0, iBonusWeight = 0, iPowerWeight = 0, iPopWeight = 0;
 	if (ePollution & POLLUTION_BUILDINGS)
-		iBuildingWeight = GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT");
+	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iGLOBAL_WARMING_BUILDING_WEIGHT = GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT");
+		iBuildingWeight = iGLOBAL_WARMING_BUILDING_WEIGHT;
+	}
 	if (ePollution & POLLUTION_BONUSES)
-		iBonusWeight = GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT");
+	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iGLOBAL_WARMING_BONUS_WEIGHT = GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT");
+		iBonusWeight = iGLOBAL_WARMING_BONUS_WEIGHT;
+	}
 	if (ePollution & POLLUTION_POWER)
-		iPowerWeight = GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT");
+	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iGLOBAL_WARMING_POWER_WEIGHT = GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT");
+		iPowerWeight = iGLOBAL_WARMING_POWER_WEIGHT;
+	}
 	if (ePollution & POLLUTION_POPULATION)
-		iPopWeight = GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT");
+	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iGLOBAL_WARMING_POPULATION_WEIGHT = GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT");
+		iPopWeight = iGLOBAL_WARMING_POPULATION_WEIGHT;
+	}
 
 	FOR_EACH_CITY(pCity, *this)
 	{
@@ -6026,19 +6574,22 @@ void CvPlayer::setGwPercentAnger(int iNewValue)
 // K-Mod: Cut from calculateUnitCost
 int CvPlayer::getUnitCostMultiplier() const
 {
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	int iMultiplier = 100;
 	iMultiplier *= GC.getInfo(getHandicapType()).getUnitCostPercent();
 	iMultiplier /= 100;
 	if (!isHuman() && !isBarbarian())
 	{
-		iMultiplier *= GC.getInfo(GC.getGame().getHandicapType()).getAIUnitCostPercent();
+		iMultiplier *= GC.getInfo(kGame.getHandicapType()).getAIUnitCostPercent();
 		iMultiplier /= 100;
 		// advc.251: Gold costs are no longer adjusted to handicap
-		/*iMultiplier *= std::max(0, ((GC.getInfo(GC.getGame().getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
+		/*iMultiplier *= std::max(0, ((GC.getInfo(kGame.getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
 		iMultiplier /= 100;*/
 	}
 	// <advc.252>
-	iMultiplier *= GC.getInfo(GC.getGame().getGameSpeedType()).get(
+	iMultiplier *= GC.getInfo(kGame.getGameSpeedType()).get(
 			CvGameSpeedInfo::UnitCostPercent);
 	iMultiplier /= 100;
 	iMultiplier *= GC.getInfo(GC.getMap().getWorldSize()).get(
@@ -6049,10 +6600,13 @@ int CvPlayer::getUnitCostMultiplier() const
 }
 
 
-int CvPlayer::calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& iPaidUnits,
-	int& iPaidMilitaryUnits, int& iUnitCost, int& iMilitaryCost, int& iExtraCost,
-	int iExtraPop, int iExtraUnits) const // advc.004b
+// <!-- custom: Add `iExtraMilitaryUnits` to the detailed overload because AdvCiv's `iExtraUnits` prospective total-unit delta also changed military support, including for Settlers and Workers.
+// Keep the populations distinct as they are at runtime. See KI#769. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+int CvPlayer::calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& iPaidUnits, int& iPaidMilitaryUnits, int& iUnitCost, int& iMilitaryCost, int& iExtraCost, int iExtraPop, int iExtraUnits, int iExtraMilitaryUnits) const // advc.004b
 {
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	iFreeUnits = GC.getInfo(getHandicapType()).getFreeUnits();
 
 	iFreeUnits += getBaseFreeUnits();
@@ -6070,10 +6624,8 @@ int CvPlayer::calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& i
 		}
 	}*/ // BtS - Hidden AI bonus removed by BBAI.
 
-	iPaidUnits = std::max(0, getNumUnits() - iFreeUnits +
-			iExtraUnits); // advc.004b
-	iPaidMilitaryUnits = std::max(0, getNumMilitaryUnits() - iFreeMilitaryUnits +
-			iExtraUnits); // advc.004b
+	iPaidUnits = std::max(0, getNumUnits() - iFreeUnits + iExtraUnits); // advc.004b
+	iPaidMilitaryUnits = std::max(0, getNumMilitaryUnits() - iFreeMilitaryUnits + iExtraMilitaryUnits); // advc.004b
 	//iSupport = 0;
 	/*iBaseUnitCost = iPaidUnits * getGoldPerUnit();
 	iMilitaryCost = iPaidMilitaryUnits * getGoldPerMilitaryUnit();
@@ -6082,9 +6634,9 @@ int CvPlayer::calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& i
 	iSupport *= GC.getInfo(getHandicapType()).getUnitCostPercent();
 	iSupport /= 100;
 	if (!isHuman() && !isBarbarian()) {
-		iSupport *= GC.getInfo(GC.getGame().getHandicapType()).getAIUnitCostPercent();
+		iSupport *= GC.getInfo(kGame.getHandicapType()).getAIUnitCostPercent();
 		iSupport /= 100;
-		iSupport *= std::max(0, ((GC.getInfo(GC.getGame().getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
+		iSupport *= std::max(0, ((GC.getInfo(kGame.getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
 		iSupport /= 100;
 	}*/ // BtS
 	// K-Mod. GoldPerUnit, etc, are now done as percentages.
@@ -6096,7 +6648,7 @@ int CvPlayer::calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& i
 	if (!isHuman() && !isBarbarian())
 	{
 		iMilitaryCost = (iMilitaryCost * per100(
-				GC.getInfo(GC.getGame().getHandicapType()).getAIUnitSupplyPercent())).
+				GC.getInfo(kGame.getHandicapType()).getAIUnitSupplyPercent())).
 				round();
 	} // </advc.912b>
 	iExtraCost = getExtraUnitCost() / 100;
@@ -6109,19 +6661,16 @@ int CvPlayer::calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& i
 }
 
 
-int CvPlayer::calculateUnitCost(
-	int iExtraPop, int iExtraUnits) const // advc.004b
+// <!-- custom: Add and forward `iExtraMilitaryUnits` through the convenience overload so callers can project total-unit and military-support changes independently. See KI#769. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+int CvPlayer::calculateUnitCost(int iExtraPop, int iExtraUnits, int iExtraMilitaryUnits) const // advc.004b
 {
 	if(isAnarchy())
 		return 0;
 
 	/*  advc (note): Several distinct variables need to be passed b/c
 		calculateUnitCost uses them for intermediate results */
-	int iFreeUnits, iFreeMilitaryUnits, iPaidUnits, iPaidMilitaryUnits,
-			iMilitaryCost, iBaseUnitCost, iExtraCost;
-	return calculateUnitCost(iFreeUnits, iFreeMilitaryUnits, iPaidUnits, iPaidMilitaryUnits,
-			iBaseUnitCost, iMilitaryCost, iExtraCost,
-			iExtraPop, iExtraUnits); // advc.004b
+	int iFreeUnits, iFreeMilitaryUnits, iPaidUnits, iPaidMilitaryUnits, iMilitaryCost, iBaseUnitCost, iExtraCost;
+	return calculateUnitCost(iFreeUnits, iFreeMilitaryUnits, iPaidUnits, iPaidMilitaryUnits, iBaseUnitCost, iMilitaryCost, iExtraCost, iExtraPop, iExtraUnits, iExtraMilitaryUnits); // advc.004b
 }
 
 int CvPlayer::calculateUnitSupply(/* advc.004b: */ int iExtraOutsideUnits) const
@@ -6133,15 +6682,18 @@ int CvPlayer::calculateUnitSupply(/* advc.004b: */ int iExtraOutsideUnits) const
 			iExtraOutsideUnits); // advc.004b
 }
 
-int CvPlayer::calculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost,
-		int iExtraOutsideUnits) const // advc.004b
+int CvPlayer::calculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost, int iExtraOutsideUnits) const // advc.004b
 {
-	static int iINITIAL_FREE_OUTSIDE_UNITS = GC.getDefineINT("INITIAL_FREE_OUTSIDE_UNITS"); // advc.opt
-	static int iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT = GC.getDefineINT("INITIAL_OUTSIDE_UNIT_GOLD_PERCENT"); // advc.opt
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iINITIAL_FREE_OUTSIDE_UNITS = GC.getDefineINT("INITIAL_FREE_OUTSIDE_UNITS"); // advc.opt
+	static const int iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT = GC.getDefineINT("INITIAL_OUTSIDE_UNIT_GOLD_PERCENT"); // advc.opt
 
 	int iFreeOutsideUnits = iINITIAL_FREE_OUTSIDE_UNITS +
 			// <advc.252>
-			GC.getInfo(GC.getGame().getGameSpeedType()).get(
+			GC.getInfo(kGame.getGameSpeedType()).get(
 			CvGameSpeedInfo::ExtraFreeOutsideUnits); // </advc.252>
 	iPaidUnits = std::max(0, getNumOutsideUnits()
 			+ iExtraOutsideUnits // advc.004b
@@ -6152,10 +6704,10 @@ int CvPlayer::calculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost,
 	int iSupply = iBaseSupplyCost;
 	if (!isHuman() && !isBarbarian())
 	{
-		iSupply *= GC.getInfo(GC.getGame().getHandicapType()).getAIUnitSupplyPercent();
+		iSupply *= GC.getInfo(kGame.getHandicapType()).getAIUnitSupplyPercent();
 		iSupply /= 100;
 		// advc.250d: Commented out
-		/*iSupply *= std::max(0, ((GC.getInfo(GC.getGame().getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
+		/*iSupply *= std::max(0, ((GC.getInfo(kGame.getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
 		iSupply /= 100;*/
 	}
 	FAssert(iSupply >= 0);
@@ -6192,7 +6744,7 @@ int CvPlayer::calculateInflationRate() const
 	{
 		int iAIModifier = GC.getInfo(kGame.getHandicapType()).getAIInflationPercent();
 		// advc.251: Gold costs are no longer adjusted to handicap
-		/*iAIModifier *= std::max(0, ((GC.getInfo(GC.getGame().getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
+		/*iAIModifier *= std::max(0, ((GC.getInfo(kGame.getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
 		iAIModifier /= 100;*/
 		iModifier += iAIModifier - 100;
 	}
@@ -6226,8 +6778,9 @@ int CvPlayer::calculateInflatedCosts() const
 	return iNetGold;
 }*/
 
-int CvPlayer::calculateResearchModifier(TechTypes eTech,  // <advc.910>
-		int* piFromOtherKnown, int* piFromPaths, int* piFromTeam) const
+// <advc.910>
+// <!-- custom: hoisted from multiline signature between `eTech` and `piFromOtherKnown` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvPlayer::calculateResearchModifier(TechTypes eTech, int* piFromOtherKnown, int* piFromPaths, int* piFromTeam) const
 {
 	LOCAL_REF(int, iFromOtherKnown, piFromOtherKnown, 0);
 	LOCAL_REF(int, iFromPaths, piFromPaths, 0);
@@ -6285,7 +6838,8 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech,  // <advc.910>
 		int const iPossibleKnownCount = TeamIter<CIV_ALIVE>::count();
 		if (iPossibleKnownCount > 0)
 		{
-			static int iTECH_COST_TOTAL_KNOWN_TEAM_MODIFIER = GC.getDefineINT("TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER"); // advc.opt
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const int iTECH_COST_TOTAL_KNOWN_TEAM_MODIFIER = GC.getDefineINT("TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER"); // advc.opt
 			iFromOtherKnown += // advc.910
 				(iTECH_COST_TOTAL_KNOWN_TEAM_MODIFIER * iKnownCount) / iPossibleKnownCount;
 		}
@@ -6467,8 +7021,7 @@ TechTypes CvPlayer::getDiscoveryTech(UnitTypes eUnit) const
 }
 
 
-bool CvPlayer::canResearch(TechTypes eTech, bool bTrade,
-	bool bFree) const // K-Mod (advc.004x: disused)
+bool CvPlayer::canResearch(TechTypes eTech, bool bTrade, bool bFree) const // K-Mod (advc.004x: disused)
 {
 	if (GC.getPythonCaller()->canResearchOverride(getID(), eTech, bTrade))
 		return true;
@@ -6485,6 +7038,9 @@ bool CvPlayer::canResearch(TechTypes eTech, bool bTrade,
 	if (GET_TEAM(getTeam()).isHasTech(eTech))
 		return false;
 
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	bool bFoundPossible = false;
 	bool bFoundValid = false;
 	for (int i = 0; i < GC.getInfo(eTech).getNumOrTechPrereqs(); i++)
@@ -6494,7 +7050,7 @@ bool CvPlayer::canResearch(TechTypes eTech, bool bTrade,
 		bFoundPossible = true;
 		if (GET_TEAM(getTeam()).isHasTech(ePrereq))
 		{
-			if (!bTrade || GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING) ||
+			if (!bTrade || kGame.isOption(GAMEOPTION_NO_TECH_BROKERING) ||
 				!GET_TEAM(getTeam()).isNoTradeTech(ePrereq))
 			{
 				bFoundValid = true;
@@ -6511,14 +7067,14 @@ bool CvPlayer::canResearch(TechTypes eTech, bool bTrade,
 		TechTypes const ePrereq = GC.getInfo(eTech).getPrereqAndTechs(i);
 		if (!GET_TEAM(getTeam()).isHasTech(ePrereq))
 			return false;
-		if (bTrade && !GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING) &&
+		if (bTrade && !kGame.isOption(GAMEOPTION_NO_TECH_BROKERING) &&
 			GET_TEAM(getTeam()).isNoTradeTech(ePrereq))
 		{
 			return false;
 		}
 	}
 	// <advc.307> Don't allow Barbarians to innovate
-	if (isBarbarian() && GC.getGame().countKnownTechNumTeams(eTech) <= 0)
+	if (isBarbarian() && kGame.countKnownTechNumTeams(eTech) <= 0)
 		return false; // </advc.307>
 
 	if (!canEverResearch(eTech))
@@ -6625,8 +7181,7 @@ bool CvPlayer::canSeeTech(PlayerTypes eOther) const
 
 /*	advc: To get rid of some duplicate K-Mod code in canSeeResearch, canSeeDemographics.
 	bDemographics = true checks the latter, bDemographics=false the former. */
-bool CvPlayer::canSeeIntel(PlayerTypes ePlayer, bool bDemographics,
-	bool bCheckPoints) const // advc.085
+bool CvPlayer::canSeeIntel(PlayerTypes ePlayer, bool bDemographics, bool bCheckPoints) const // advc.085
 {
 	CvPlayer const& kOther = GET_PLAYER(ePlayer);
 
@@ -6734,8 +7289,11 @@ bool CvPlayer::canDoCivics(CivicTypes eCivic) const
 	if (eCivic == NO_CIVIC)
 		return true; // UNOFFICIAL_PATCH: END
 
-	if (GC.getGame().isForceCivicOption(GC.getInfo(eCivic).getCivicOptionType()))
-		return GC.getGame().isForceCivic(eCivic);
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
+	if (kGame.isForceCivicOption(GC.getInfo(eCivic).getCivicOptionType()))
+		return kGame.isForceCivic(eCivic);
 
 	if (GC.getPythonCaller()->canDoCivicOverride(getID(), eCivic))
 		return true;
@@ -6748,7 +7306,7 @@ bool CvPlayer::canDoCivics(CivicTypes eCivic) const
 	if (GC.getPythonCaller()->cannotDoCivicOverride(getID(), eCivic))
 		return false;
 	// <advc.912d>
-	if(GC.getGame().isOption(GAMEOPTION_NO_SLAVERY) && isHuman())
+	if(kGame.isOption(GAMEOPTION_NO_SLAVERY) && isHuman())
 	{
 		FOR_EACH_ENUM(Hurry)
 		{
@@ -6783,12 +7341,16 @@ bool CvPlayer::canRevolution(CivicMap const& kNewCivics) const
 {
 	if (isAnarchy() || getRevolutionTimer() > 0)
 		return false;
+
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	//if (aeNewCivics == NULL) {...} // advc.enum: Moved into new function canDoAnyRevolution
 	FOR_EACH_ENUM(CivicOption)
 	{
-		if (GC.getGame().isForceCivicOption(eLoopCivicOption))
+		if (kGame.isForceCivicOption(eLoopCivicOption))
 		{
-			if (!GC.getGame().isForceCivic(kNewCivics.get(eLoopCivicOption)))
+			if (!kGame.isForceCivic(kNewCivics.get(eLoopCivicOption)))
 				return false;
 		}
 		if (getCivics(eLoopCivicOption) != kNewCivics.get(eLoopCivicOption))
@@ -6926,8 +7488,10 @@ void CvPlayer::convert(ReligionTypes eReligion, /* <advc.001v> */ bool bForce)
 	int const iAnarchyLength = getReligionAnarchyLength();
 	changeAnarchyTurns(iAnarchyLength);
 	setLastStateReligion(eReligion);
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iMIN_CONVERSION_TURNS = GC.getDefineINT("MIN_CONVERSION_TURNS");
 	setConversionTimer(std::max(1, ((100 + getAnarchyModifier()) *
-			GC.getDefineINT("MIN_CONVERSION_TURNS")) / 100) + iAnarchyLength);
+			iMIN_CONVERSION_TURNS) / 100) + iAnarchyLength);
 	// <advc.004x>
 	if (isActive())
 	{
@@ -6987,6 +7551,11 @@ void CvPlayer::foundReligion(ReligionTypes eReligion, ReligionTypes eSlotReligio
 
 	int iBestValue = 0;
 	CvCity* pBestCity = NULL;
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const int iFOUND_RELIGION_CITY_RAND = GC.getDefineINT("FOUND_RELIGION_CITY_RAND");
+
 	FOR_EACH_CITY_VAR(pLoopCity, *this)
 	{
 		if (bStarting && pLoopCity->isHolyCity())
@@ -6994,7 +7563,7 @@ void CvPlayer::foundReligion(ReligionTypes eReligion, ReligionTypes eSlotReligio
 
 		int iValue = 10;
 		iValue += pLoopCity->getPopulation();
-		iValue += SyncRandNum(GC.getDefineINT("FOUND_RELIGION_CITY_RAND"));
+		iValue += SyncRandNum(iFOUND_RELIGION_CITY_RAND);
 		iValue /= pLoopCity->getReligionCount() + 1;
 		if (pLoopCity->isCapital())
 			iValue /= 8;
@@ -7042,8 +7611,7 @@ int CvPlayer::countHeadquarters() const
 }
 
 
-int CvPlayer::countCorporations(CorporationTypes eCorporation,
-	CvArea const* pArea) const // K-Mod
+int CvPlayer::countCorporations(CorporationTypes eCorporation, CvArea const* pArea) const // K-Mod
 {
 	int iCount = 0;
 	FOR_EACH_CITY(pLoopCity, *this)
@@ -7060,15 +7628,23 @@ int CvPlayer::countCorporations(CorporationTypes eCorporation,
 
 void CvPlayer::foundCorporation(CorporationTypes eCorporation)
 {
-	if (GC.getGame().isCorporationFounded(eCorporation))
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
+	if (kGame.isCorporationFounded(eCorporation))
 		return;
 
 	CvCorporationInfo const& kCorp = GC.getInfo(eCorporation);
 	bool const bStarting = (kCorp.getTechPrereq() == NO_TECH ||
-			GC.getInfo(kCorp.getTechPrereq()).getEra() < GC.getGame().getStartEra());
+			GC.getInfo(kCorp.getTechPrereq()).getEra() < kGame.getStartEra());
 
 	int iBestValue = 0;
 	CvCity* pBestCity = NULL;
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const int iFOUND_CORPORATION_CITY_RAND = GC.getDefineINT("FOUND_CORPORATION_CITY_RAND");
+
 	FOR_EACH_CITY_VAR(pLoopCity, *this)
 	{
 		if (bStarting && pLoopCity->isHeadquarters())
@@ -7080,7 +7656,7 @@ void CvPlayer::foundCorporation(CorporationTypes eCorporation)
 			iValue += 10 * pLoopCity->getNumBonuses(
 					GC.getInfo(eCorporation).getPrereqBonus(i));
 		}
-		iValue += SyncRandNum(GC.getDefineINT("FOUND_CORPORATION_CITY_RAND"));
+		iValue += SyncRandNum(iFOUND_CORPORATION_CITY_RAND);
 		iValue /= (pLoopCity->getCorporationCount() + 1);
 		iValue = std::max(1, iValue);
 		if (iValue > iBestValue)
@@ -7094,14 +7670,16 @@ void CvPlayer::foundCorporation(CorporationTypes eCorporation)
 }
 
 
-int CvPlayer::getCivicAnarchyLength(CivicMap const& kNewCivics,
-	bool bIgnoreGoldenAge) const // advc.132
+int CvPlayer::getCivicAnarchyLength(CivicMap const& kNewCivics, bool bIgnoreGoldenAge) const // advc.132
 {
 	int const iMaxAnarchyTurns = getMaxAnarchyTurns(); // advc
 	if (iMaxAnarchyTurns == 0)
 		return 0;
 	if(/* <advc.132> */ !bIgnoreGoldenAge && /* </advc.132> */ isGoldenAge())
 		return 0;
+
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
 
 	int iAnarchyLength = 0;
 	bool bChange = false;
@@ -7127,10 +7705,10 @@ int CvPlayer::getCivicAnarchyLength(CivicMap const& kNewCivics,
 	if(iAnarchyLength == 0)
 		return 0;
 
-	iAnarchyLength *= GC.getInfo(GC.getGame().getGameSpeedType()).getAnarchyPercent();
+	iAnarchyLength *= GC.getInfo(kGame.getGameSpeedType()).getAnarchyPercent();
 	iAnarchyLength /= 100;
 
-	iAnarchyLength *= GC.getInfo(GC.getGame().getStartEra()).getAnarchyPercent();
+	iAnarchyLength *= GC.getInfo(kGame.getStartEra()).getAnarchyPercent();
 	iAnarchyLength /= 100;
 
 	return range(iAnarchyLength, 1, iMaxAnarchyTurns);
@@ -7155,16 +7733,18 @@ int CvPlayer::getReligionAnarchyLength(/* advc.132: */ bool ignoreGoldenAge) con
 	if(iAnarchyLength == 0)
 		return 0;
 
-	iAnarchyLength *= GC.getInfo(GC.getGame().getGameSpeedType()).getAnarchyPercent();
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
+	iAnarchyLength *= GC.getInfo(kGame.getGameSpeedType()).getAnarchyPercent();
 	iAnarchyLength /= 100;
 
-	iAnarchyLength *= GC.getInfo(GC.getGame().getStartEra()).
+	iAnarchyLength *= GC.getInfo(kGame.getStartEra()).
 			getAnarchyPercent();
 	iAnarchyLength /= 100;
 
 	return range(iAnarchyLength, 1, getMaxAnarchyTurns());
 }
-
 
 
 int CvPlayer::unitsRequiredForGoldenAge() const
@@ -7239,6 +7819,7 @@ void CvPlayer::killGoldenAgeUnits(CvUnit* pUnitAlive)
 		if (pBestUnit != NULL)
 		{
 			abUnitUsed.set(pBestUnit->getUnitType(), true);
+			if (gGameRecordLogLevel >= 2) logSASGameRecordGreatPersonGoldenAgeConsumed(pBestUnit);
 			pBestUnit->kill(true);
 			//play animations
 			if (pBestUnit->getPlot().isActiveVisible(false))
@@ -7276,8 +7857,10 @@ int CvPlayer::greatPeopleThreshold(bool bMilitary) const
 	iThreshold /= 100;
 	// <advc.251>
 	iThreshold = (per100(1) * iThreshold * GC.getInfo(
-			getHandicapType()).getGPThresholdPercent()).roundToMultiple(
-			isHuman() ? 5 : 1);
+			// <!-- custom: see known issue as of now 67 for details -->
+			// getHandicapType()).getGPThresholdPercent()).roundToMultiple(
+			// isHuman() ? 5 : 1);
+			getHandicapType()).getGPThresholdPercent()).round();
 	if (!isHuman() && !isBarbarian())
 	{
 		iThreshold = intdiv::round(iThreshold * GC.getInfo(
@@ -7319,12 +7902,7 @@ void CvPlayer::setStartingPlot(CvPlot* pNewValue, bool bUpdateStartDist)
 		m_pStartingPlot = NULL;
 	else
 	{
-		// <advc.031c>
-		if (gFoundLogLevel > 0 && !GC.getInitCore().getScenario() &&
-			m_pStartingPlot == NULL)
-		{
-			AI().logFoundValue(*pNewValue, true);
-		} // </advc.031c>
+		if (getSASBBAIFoundLogLevel(getID()) > 0) logBBAI("FOUND_SITE_START_ASSIGNED turn=%d player=%d site=%d,%d", GC.getGame().getGameTurn(), getID(), pNewValue->getX(), pNewValue->getY());
 		m_pStartingPlot = pNewValue;
 
 		getStartingPlot()->getArea().changeNumStartingPlots(1);
@@ -7445,9 +8023,13 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 
 	CvWString szBuffer;
 
-	bool const bOldGoldenAge = isGoldenAge();
+	// <!-- custom: Reuse the already-needed old turn count to derive old Golden-Age state instead of calling the inline isGoldenAge/getGoldenAgeTurns path a second time solely for recorder context. (ChatGPT-5.6-Sol) -->
+	int const iOldGoldenAgeTurns = getGoldenAgeTurns();
+	bool const bOldGoldenAge = (iOldGoldenAgeTurns > 0);
 	m_iGoldenAgeTurns += iChange;
 	FAssert(getGoldenAgeTurns() >= 0);
+
+	if (gGameRecordLogLevel >= 2 && iChange > 0 && bOldGoldenAge && isGoldenAge()) logSASGameRecordGoldenAgeTurnsChanged(getID(), iChange, iOldGoldenAgeTurns, getGoldenAgeTurns());
 
 	if (bOldGoldenAge != isGoldenAge())
 	{
@@ -7461,11 +8043,15 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 
 		updateYield();
 
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: code/performance optimization: hoist -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 		if (isGoldenAge())
 		{
 			szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_GOLDEN_AGE_BEGINS", getNameKey());
 			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szBuffer,
-					GC.getColorType("HIGHLIGHT_TEXT"));
+					eColorHighlightText);
 
 			CvEventReporter::getInstance().goldenAge(getID());
 		}
@@ -7483,7 +8069,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 					gDLL->UI().addMessage(kObs.getID(), kObs.getID() == getID(), -1,
 							szBuffer, "AS2D_GOLDAGESTART",
 							MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY, // advc.106b
-							NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+							NULL, eColorHighlightText,
 							// advc.127b:
 							getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 				}
@@ -7491,7 +8077,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 				{
 					szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_GOLDEN_AGE_ENDED", getNameKey());
 					gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer, "AS2D_GOLDAGEEND",
-							MESSAGE_TYPE_MINOR_EVENT, NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+							MESSAGE_TYPE_MINOR_EVENT, NULL, eColorHighlightText,
 							// advc.127b:
 							getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 				}
@@ -7542,6 +8128,7 @@ void CvPlayer::changeAnarchyTurns(int iChange) // advc: Refactored
 	FAssert(getAnarchyTurns() >= 0);
 	if (bOldAnarchy == isAnarchy())
 		return;
+	if (gGameRecordLogLevel >= 2) logSASGameRecordAnarchy(getID(), isAnarchy());
 
 	if (isActive())
 	{
@@ -7561,10 +8148,12 @@ void CvPlayer::changeAnarchyTurns(int iChange) // advc: Refactored
 
 	if (isAnarchy())
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
 		gDLL->UI().addMessage(getID(), true, -1,
 				gDLL->getText("TXT_KEY_MISC_REVOLUTION_HAS_BEGUN").GetCString(), "AS2D_REVOLTSTART",
 				MESSAGE_TYPE_MINOR_EVENT, // advc.106b: was MAJOR
-				NULL, GC.getColorType("WARNING_TEXT"),
+				NULL, eColorWarningText,
 				getCapitalX(getTeam()), getCapitalY(getTeam())); // advc.127b
 	}
 	else
@@ -7594,7 +8183,9 @@ void CvPlayer::changeAnarchyTurns(int iChange) // advc: Refactored
 
 void CvPlayer::updateMaxAnarchyTurns()
 {
-	int iBestValue = GC.getDefineINT("MAX_ANARCHY_TURNS");
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iMAX_ANARCHY_TURNS = GC.getDefineINT("MAX_ANARCHY_TURNS");
+	int iBestValue = iMAX_ANARCHY_TURNS;
 	FOR_EACH_ENUM2(Trait, eTrait)
 	{
 		if (hasTrait(eTrait) && GC.getInfo(eTrait).getMaxAnarchy() >= 0)
@@ -7612,16 +8203,27 @@ void CvPlayer::changeAnarchyModifier(int iChange)
 
 	/*setRevolutionTimer(std::max(0, ((100 + iChange) * getRevolutionTimer()) / 100));
 	setConversionTimer(std::max(0, ((100 + iChange) * getConversionTimer()) / 100));*/ // BtS
-	// K-Mod. The original code is wrong, and it is missing the anarchy length change.
-	changeRevolutionTimer(getRevolutionTimer() * iChange /
-			std::max(1, 100 + getAnarchyModifier()));
-	changeConversionTimer(getConversionTimer() * iChange /
-			std::max(1, 100 + getAnarchyModifier()));
-	changeAnarchyTurns(getAnarchyTurns() * iChange /
-			std::max(1, 100 + getAnarchyModifier()));
-	// K-Mod end
-
+	// <!-- custom: K-Mod's proportional correction is valid only while the old scale is positive; substituting 1 at -100% turns SAS's ordinary one-turn minimum into -99 or 101 when its two -100% wonders are gained or lost.
+	// Preserve the proportional result above -100%, including a zero-clamped crossing, but treat an already singular timer as the clamped minimum under the new modifier.
+	// Normal active anarchy is zero there and needs no invented rescaling. See KI#790. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int const iOldScale = 100 + getAnarchyModifier();
+	int const iNewScale = std::max(0, iOldScale + iChange);
+	if (iOldScale > 0)
+	{
+		int const iScaleChange = iNewScale - iOldScale;
+		changeRevolutionTimer(getRevolutionTimer() * iScaleChange / iOldScale);
+		changeConversionTimer(getConversionTimer() * iScaleChange / iOldScale);
+		changeAnarchyTurns(getAnarchyTurns() * iScaleChange / iOldScale);
+	}
 	m_iAnarchyModifier += iChange;
+	if (iOldScale <= 0)
+	{
+		static const int iMIN_CONVERSION_TURNS = GC.getDefineINT("MIN_CONVERSION_TURNS");
+		if (getRevolutionTimer() > 0)
+			setRevolutionTimer(getMinTurnsBetweenRevolutions());
+		if (getConversionTimer() > 0)
+			setConversionTimer(std::max(1, ((100 + getAnarchyModifier()) * iMIN_CONVERSION_TURNS) / 100));
+	}
 }
 
 
@@ -8163,18 +8765,21 @@ void CvPlayer::updateWarWearinessPercentAnger()
 
 int CvPlayer::getModifiedWarWearinessPercentAnger(int iWarWearinessPercentAnger) const
 {
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	static int const iBASE_WAR_WEARINESS_MULTIPLIER = GC.getDefineINT("BASE_WAR_WEARINESS_MULTIPLIER"); // advc.opt
 	iWarWearinessPercentAnger *= iBASE_WAR_WEARINESS_MULTIPLIER;
 
-	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) ||
-		GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+	if (kGame.isOption(GAMEOPTION_ALWAYS_WAR) ||
+		kGame.isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 	{
 		static int const iFORCED_WAR_WAR_WEARINESS_MODIFIER = GC.getDefineINT("FORCED_WAR_WAR_WEARINESS_MODIFIER"); // advc.opt
 		iWarWearinessPercentAnger *= std::max(0, iFORCED_WAR_WAR_WEARINESS_MODIFIER + 100);
 		iWarWearinessPercentAnger /= 100;
 	}
 
-	if (GC.getGame().isGameMultiPlayer())
+	if (kGame.isGameMultiPlayer())
 	{
 		static int const iMULTIPLAYER_WAR_WEARINESS_MODIFIER = GC.getDefineINT("MULTIPLAYER_WAR_WEARINESS_MODIFIER"); // advc.opt
 		iWarWearinessPercentAnger *= std::max(0, iMULTIPLAYER_WAR_WEARINESS_MODIFIER + 100);
@@ -8187,11 +8792,11 @@ int CvPlayer::getModifiedWarWearinessPercentAnger(int iWarWearinessPercentAnger)
 
 	if (!isHuman() && !isBarbarian() && !isMinorCiv())
 	{
-		iWarWearinessPercentAnger *= GC.getInfo(GC.getGame().getHandicapType()).
+		iWarWearinessPercentAnger *= GC.getInfo(kGame.getHandicapType()).
 				getAIWarWearinessPercent();
 		iWarWearinessPercentAnger /= 100;
 		// advc.251: No longer adjusted to handicap
-		/*iWarWearinessPercentAnger *= std::max(0, ((GC.getInfo(GC.getGame().getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
+		/*iWarWearinessPercentAnger *= std::max(0, ((GC.getInfo(kGame.getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
 		iWarWearinessPercentAnger /= 100;*/
 	}
 
@@ -8590,9 +9195,24 @@ void CvPlayer::setCombatExperience(int iExperience)
 		// create great person
 		CvCity const* pBestCity = NULL;
 		int iBestValue = MAX_INT;
+		bool bSafeCityExists = false;
+		FOR_EACH_CITY(pLoopCity, *this)
+		{
+			if (pLoopCity->AI().AI_isSafe())
+			{
+				bSafeCityExists = true;
+				break;
+			}
+		}
+		// <!-- custom: Base AdvCiv's automatic Great-General birth-city selection ignored city safety, so a newly earned defenseless General could spawn directly into a besieged city even when safe cities existed.
+		// Prefer the normal rank/random scoring among safe cities whenever possible; if every city is unsafe, retain the original fallback and still create the General.
+		// Keep the original SyncRandNum call for every city before filtering so this safety correction does not change RNG consumption.
+		// This directly matches 6 of 7 reviewed KI#204 losses. (ChatGPT-5.6-Sol) -->
 		FOR_EACH_CITY(pLoopCity, *this)
 		{
 			int iValue = 4 * SyncRandNum(getNumCities());
+			if (bSafeCityExists && !pLoopCity->AI().AI_isSafe())
+				continue;
 			FOR_EACH_ENUM(Yield)
 				iValue += pLoopCity->findYieldRateRank(eLoopYield);
 			iValue += pLoopCity->findPopulationRank();
@@ -8670,8 +9290,18 @@ uint CvPlayer::getTotalTimePlayed() const
 
 void CvPlayer::setAlive(bool bNewValue)
 {
+	// <!-- custom: SASGameRecord checks intentionally stay inside the mutually exclusive alive/eliminated branches below.
+	// Hoisting one recorder-level query here would charge every setAlive call while never serving both branches on the same call. (ChatGPT-5.6-Sol) -->
 	if (isAlive() == bNewValue)
 		return;
+	// <!-- custom: AdvCiv tried to refresh former enemies' cached war-weariness anger after elimination, but final-team death had already cleared every war before its isAtWar test.
+	// Snapshot the affected living players before that teardown and refresh them afterward, before their next city/economy processing. See KI#794. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	std::vector<PlayerTypes> aeFormerWarEnemies;
+	if (!bNewValue && GET_TEAM(getTeam()).getAliveCount() == 1)
+	{
+		for (PlayerIter<MAJOR_CIV,ENEMY_OF> itEnemy(getTeam()); itEnemy.hasNext(); ++itEnemy)
+			aeFormerWarEnemies.push_back(itEnemy->getID());
+	}
 	/*	<advc.003m> Moved up b/c, once the team's AliveCount is set to 0,
 		at-war status is lost. Need that for lifting blockades.
 		Not sure about killing cities (there should be none anyway).
@@ -8697,9 +9327,21 @@ void CvPlayer::setAlive(bool bNewValue)
 		GC.getAgents().playerRevived(getID());
 		// <advc.104r> (UWAI data gets deleted upon death)
 		if (getUWAI().isEnabled())
+		{
+			// <!-- custom: Dead-at-load players have no deserialized UWAI owner/cache.
+			// Initializing the revived player before updating that cache fixed the reproducible crash when exiting WorldBuilder after giving that player a unit. See KI#475.3. (GPT-5.6-Sol) -->
+			getUWAI().initRevivedPlayerInGame(getID());
 			getUWAI().processNewPlayerInGame(getID()); // </advc.104r>
+		}
 	}
 	// </advc.agent>
+	// <!-- custom: AdvCiv made vassal-city maintenance depend on the number of living master-team members, but defeat/revival changed that cached divisor without refreshing surviving teammates.
+	// AgentIterator membership has reached its new state here, so restore the maintenance invariant symmetrically. See KI#792. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (kGame.isFinalInitialized() && !isBarbarian())
+	{
+		for (MemberIter it(getTeam()); it.hasNext(); ++it)
+			it->updateMaintenance();
+	}
 	// Report event to Python
 	CvEventReporter::getInstance().setPlayerAlive(getID(), bNewValue);
 
@@ -8710,6 +9352,8 @@ void CvPlayer::setAlive(bool bNewValue)
 			m_bEverAlive = true;
 			GET_TEAM(getTeam()).changeEverAliveCount(1);
 		}
+		// <!-- custom: Initial slots are already described by GAME_RECORD_PLAYER_SETUP; log later alive transitions explicitly so colonies, revivals, or unusual player appearances are visible instead of only changing alive/ever-alive counts. (GPT-5.5) -->
+		if (gGameRecordLogLevel >= 2 && !isBarbarian() && (bEverAlive || kGame.getElapsedGameTurns() > 0)) logSASGameRecordPlayerAliveChanged(getID(), bEverAlive);
 		if (getNumCities() <= 0)
 			setFoundedFirstCity(false);
 		updatePlotGroups();
@@ -8728,21 +9372,18 @@ void CvPlayer::setAlive(bool bNewValue)
 		}
 	}
 	else
-	{	// <advc.001> CvTeam::makePeace does this, but here they've missed it.
-		FOR_EACH_ENUM(CivPlayer)
-		{
-			CvPlayer& kWarEnemy = GET_PLAYER((PlayerTypes)eLoopCivPlayer);
-			if (kWarEnemy.isAlive() && kWarEnemy.getID() != getID() &&
-				!kWarEnemy.isMinorCiv() && GET_TEAM(kWarEnemy.getTeam()).isAtWar(getTeam()))
-			{
-				kWarEnemy.updateWarWearinessPercentAnger();
-			}
-		} // </advc.001>
+	{
+		// <!-- custom: Apply the pre-teardown snapshot after final-team death has ended the wars; this replaces AdvCiv's ineffective post-teardown discovery loop above. See KI#794. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		for (size_t i = 0; i < aeFormerWarEnemies.size(); i++)
+			GET_PLAYER(aeFormerWarEnemies[i]).updateWarWearinessPercentAnger();
 		clearResearchQueue();
 		clearPopups(); // advc
 		//killUnits(); // advc.003m: Moved up
 		killCities();
 		killAllDeals();
+		// <!-- custom: SASGameRecord logs explicit player lifecycle rows because elimination was otherwise only inferable from city captures and missing later snapshots, which made autoplay/LLM review needlessly brittle.
+		// Log after cleanup so remaining city/unit counts are final. (GPT-5.5) -->
+		if (gGameRecordLogLevel >= 2 && bEverAlive && !isBarbarian()) logSASGameRecordPlayerEliminated(getID());
 
 		setTurnActive(false);
 
@@ -8756,6 +9397,10 @@ void CvPlayer::setAlive(bool bNewValue)
 		{
 			if (!isBarbarian())
 			{
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+				// <!-- custom: code/performance optimization: hoist -->
+				static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
+
 				CvWString szBuffer
 					//= gDLL->getText("TXT_KEY_MISC_CIV_DESTROYED", getCivilizationAdjectiveKey());
 					// advc.099: Replacing the above
@@ -8766,11 +9411,11 @@ void CvPlayer::setAlive(bool bNewValue)
 					{
 						gDLL->UI().addMessage((PlayerTypes)iI, false, -1, szBuffer,
 								"AS2D_CIVDESTROYED", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-								GC.getColorType("WARNING_TEXT"));
+								eColorWarningText);
 					}
 				}
 				kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-						getID(), szBuffer, GC.getColorType("WARNING_TEXT"));
+						getID(), szBuffer, eColorWarningText);
 				// <advc.104>
 				if ((getUWAI().isEnabled() || getUWAI().isEnabled(true)) && !isMinorCiv())
 					AI().uwai().uninit(); // </advc.104>
@@ -8834,6 +9479,7 @@ void CvPlayer::verifyAlive()
 			{
 				setIsHuman(false);
 				setAlive(false);
+				// <!-- custom: cache repetitive call -->
 				GC.getGame().changeHumanPlayer(eNextAlive);
 				GET_PLAYER(eNextAlive).setHumanDisabled(true);
 				return;
@@ -8873,8 +9519,14 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 	if (isTurnActive() == bNewValue)
 		return;
 
+	// <!-- custom: The first real turn activation after control returns to a human can run lifecycle work that an immediate later AI Auto Play restart does not replay.
+	// Bracket only that rare activation at level 3; ordinary player turns keep the existing zero-cost path. See KI#203.2. (ChatGPT-5.6-Sol) -->
+	bool const bRecordControlHandoffTurnActivation = (gGameRecordLogLevel >= 3 && bNewValue && bDoTurn && beginSASGameRecordControlHandoffTurnActivation(AI(), bDoTurn));
 	m_bTurnActive = bNewValue;
 	CvGame& kGame = GC.getGame();
+	// <!-- custom: Runtime player timing follows this native sequential-turn lifecycle rather than Python begin/end-player callbacks, which miss the long active movement interval.
+	// Pre-gate the optional diagnostics so Runtime-off gameplay adds no player metadata/timestamp work. (ChatGPT-5.6-Sol) -->
+	if (isSASRuntimeStatusEnabled() && bDoTurn && isTurnActive()) updateSASRuntimeStatusPlayerTurnStarted(getID());
 	if (isTurnActive())
 	{
 		FAssert(isAlive());
@@ -8884,7 +9536,8 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 		// </advc.001x>
 		// K-Mod
 		AI().AI_updateCacheData();
-		onTurnLogging(); // bbai logging
+		// <!-- custom: Player-turn logging is pure diagnostics; skip the function call and its final-initialization query entirely when the cached PLAYER category is disabled. (ChatGPT-5.6-Sol) -->
+		if (gPlayerLogLevel > 0) onTurnLogging(); // bbai logging
 		// K-Mod end
 		GC.getLogger().logTurnActive(getID()); // advc.003t
 
@@ -8954,7 +9607,8 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 						/*  Make sure that Python events like Civ4lerts are
 							triggered before processing messages. Don't consider
 							those to be in-between-turn messages, however. */
-						GC.getGame().setInBetweenTurns(false);
+						// <!-- custom: used cached kGame here too -->
+						kGame.setInBetweenTurns(false);
 						CyArgsList pyArgs;
 						pyArgs.add(kGame.getTurnSlice());
 						CvEventReporter::getInstance().genericEvent("gameUpdate", pyArgs.makeFunctionArgs());
@@ -8983,9 +9637,18 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 				kGame.cycleSelectionGroups_delayed(1, false);
 			gDLL->UI().setDirty(SelectionCamera_DIRTY_BIT, true);
 		}
+		// <!-- custom: Activation/setup is complete; the player now remains active through AI movement or human input until the native deactivation path below. (ChatGPT-5.6-Sol) -->
+		if (isSASRuntimeStatusEnabled() && bDoTurn) updateSASRuntimeStatusPlayerTurnMain(getID());
+		if (bRecordControlHandoffTurnActivation) finishSASGameRecordControlHandoffTurnActivation(AI());
 	}
 	else
 	{
+		// <!-- custom: Start ending timing before inherited cleanup/doTurn. A bDoTurn=false deactivation is not an ordinary completed turn; clear any matching measurement as interrupted. (ChatGPT-5.6-Sol) -->
+		if (isSASRuntimeStatusEnabled())
+		{
+			if (bDoTurn) updateSASRuntimeStatusPlayerTurnEnding(getID());
+			else updateSASRuntimeStatusPlayerTurnEnded(getID(), false);
+		}
 		GC.getLogger().logTurnActive(getID()); // advc.003t
 
 		if (isActive())
@@ -9012,6 +9675,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 				{
 					kGame.setHotPbemBetweenTurns(true);
 				}
+
+				// <!-- custom: Finish this measurement before the inherited code can recursively activate the next player; otherwise the next start would overwrite the just-ended civilization's context. (ChatGPT-5.6-Sol) -->
+				if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusPlayerTurnEnded(getID(), true);
 
 				if (kGame.isSimultaneousTeamTurns())
 				{
@@ -9056,108 +9722,102 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 	(Based on BETTER_BTS_AI_MOD, 10/26/09, jdog5000 - AI logging.) */
 void CvPlayer::onTurnLogging() const
 {
-	if (gPlayerLogLevel > 0)
+	// <!-- custom: Caller pre-gates PLAYER logging.
+	// During new-game construction, the first active-player callback can precede starting technologies/cities and therefore describes a half-built state.
+	// Finalized INITIAL_* rows cover setup provenance; keep inherited turn logging for actual gameplay and loaded saves. (ChatGPT-5.6-Sol) -->
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized())
+		return;
+
+	int const iGameTurn = kGame.getGameTurn();
+	logBBAI("PLAYER_TURN_STATUS turn=%d year=%d player=%d civ=%s action=SET_ACTIVE",
+		iGameTurn, kGame.getGameTurnYear(), getID(), GC.getInfo(getCivilizationType()).getType());
+
+	// advc.007: Interval was 25
+	if (iGameTurn > 0 && !isBarbarian() && (iGameTurn % gScoreLogInterval) == 0)
 	{
-		logBBAI("Player %d (%S) setTurnActive for turn %d (%d %s)", getID(), getCivilizationDescription(0), GC.getGame().getGameTurn(), std::abs(GC.getGame().getGameTurnYear()), GC.getGame().getGameTurnYear()>0 ? "AD" : "BC");
+		// <!-- custom: Replace the translated multi-line score tooltip plus overlapping prose summary with one raw numeric row. (ChatGPT-5.6-Sol) -->
+		logBBAI("PLAYER_SCORE_SUMMARY turn=%d player=%d civ=%s totalScore=%d populationScore=%d totalPopulation=%d landScore=%d techScore=%d wonderScore=%d",
+			iGameTurn, getID(), GC.getInfo(getCivilizationType()).getType(), calculateScore(), getPopScore(false), getTotalPopulation(),
+			getLandScore(false), getTechScore(), getWondersScore());
 
-		if (GC.getGame().getGameTurn() > 0 && !isBarbarian() &&
-			// advc.007: Interval was 25
-			(GC.getGame().getGameTurn() % gScoreLogInterval) == 0)
+		int iEconomy = 0;
+		int iProduction = 0;
+		int iAgri = 0;
+		int iCount = 0;
+		for (int iI = 1; iI <= 5; iI++)
 		{
-			CvWStringBuffer szBuffer;
-			GAMETEXT.setScoreHelp(szBuffer, getID());
-			logBBAI("%S", szBuffer);
-
-			int iGameTurn = GC.getGame().getGameTurn();
-			logBBAI("  Total Score: %d, Population Score: %d (%d total pop), Land Score: %d, Tech Score: %d, Wonder Score: %d", calculateScore(), getPopScore(false), getTotalPopulation(), getLandScore(false), getTechScore(), getWondersScore());
-
-			int iEconomy = 0;
-			int iProduction = 0;
-			int iAgri = 0;
-			int iCount = 0;
-			for (int iI = 1; iI <= 5; iI++)
+			if (iGameTurn - iI >= 0)
 			{
-				if (iGameTurn - iI >= 0)
-				{
-					iEconomy += getHistory(PLAYER_HISTORY_ECONOMY, iGameTurn - iI);
-					iProduction += getHistory(PLAYER_HISTORY_INDUSTRY, iGameTurn - iI);
-					iAgri += getHistory(PLAYER_HISTORY_AGRICULTURE, iGameTurn - iI);
-					iCount++;
-				}
+				iEconomy += getHistory(PLAYER_HISTORY_ECONOMY, iGameTurn - iI);
+				iProduction += getHistory(PLAYER_HISTORY_INDUSTRY, iGameTurn - iI);
+				iAgri += getHistory(PLAYER_HISTORY_AGRICULTURE, iGameTurn - iI);
+				iCount++;
 			}
-			iEconomy /= std::max(1, iCount);
-			iProduction /= std::max(1, iCount);
-			iAgri /= std::max(1, iCount);
-
-			logBBAI("  Economy avg: %d,  Industry avg: %d,  Agriculture avg: %d", iEconomy, iProduction, iAgri);
 		}
+		iEconomy /= std::max(1, iCount);
+		iProduction /= std::max(1, iCount);
+		iAgri /= std::max(1, iCount);
+
+		logBBAI("PLAYER_ECONOMY_SUMMARY turn=%d player=%d civ=%s sampleTurns=%d economyAverage=%d industryAverage=%d agricultureAverage=%d",
+			iGameTurn, getID(), GC.getInfo(getCivilizationType()).getType(), iCount, iEconomy, iProduction, iAgri);
 	}
 
 	if (gPlayerLogLevel >= 2)
 	{
-		CvWStringBuffer szBuffer;
+		logBBAI("PLAYER_STATUS turn=%d player=%d civ=%s team=%d cities=%d population=%d power=%d bestKnownTechScorePercent=%d financialTrouble=%d",
+			iGameTurn, getID(), GC.getInfo(getCivilizationType()).getType(), getTeam(), getNumCities(), getTotalPopulation(), getPower(),
+			GET_TEAM(getTeam()).getBestKnownTechScorePercent(), AI().AI_isFinancialTrouble());
 
-		logBBAI("    Player %d (%S) has %d cities, %d pop, %d power, %d tech percent", getID(), getCivilizationDescription(0), getNumCities(), getTotalPopulation(), getPower(), GET_TEAM(getTeam()).getBestKnownTechScorePercent());
-		if (AI().AI_isFinancialTrouble())
-			logBBAI("    Financial trouble!");
-
-		szBuffer.append(CvWString::format(L"    Team %d has met: ", getTeam()));
-
+		CvWStringBuffer szMetTeams;
+		CvWStringBuffer szVassalTeams;
+		CvWStringBuffer szWarTeams;
+		CvWStringBuffer szWarPlanTeams;
 		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
 		{
-			if (iI != getTeam() && GET_TEAM(getTeam()).isHasMet((TeamTypes)iI))
-			{
-				if (GET_TEAM((TeamTypes)iI).isAlive())
-					szBuffer.append(CvWString::format(L"%d,", iI));
-			}
+			if (iI != getTeam() && GET_TEAM(getTeam()).isHasMet((TeamTypes)iI) && GET_TEAM((TeamTypes)iI).isAlive())
+				szMetTeams.append(CvWString::format(L"%d,", iI));
 		}
 
 		if (GET_TEAM(getTeam()).getVassalCount() > 0)
 		{
-			szBuffer.append(CvWString::format(L";  vassals: "));
-
 			for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
 			{
-				if (iI != getTeam() && GET_TEAM((TeamTypes)iI).isVassal(getTeam()))
-				{
-					if (GET_TEAM((TeamTypes)iI).isAlive())
-						szBuffer.append(CvWString::format(L"%d,", iI));
-				}
+				if (iI != getTeam() && GET_TEAM((TeamTypes)iI).isVassal(getTeam()) && GET_TEAM((TeamTypes)iI).isAlive())
+					szVassalTeams.append(CvWString::format(L"%d,", iI));
 			}
 		}
 
-		if (GET_TEAM(getTeam()).getNumWars(false) > 0 &&
-			!isBarbarian()) // advc.007
+		if (GET_TEAM(getTeam()).getNumWars(false) > 0 && !isBarbarian()) // advc.007
 		{
-			szBuffer.append(CvWString::format(L";  at war with: "));
-
-			for(int iI = 0; iI < MAX_CIV_TEAMS; iI++)
-			{
-				if(iI != getTeam() && GET_TEAM(getTeam()).isAtWar((TeamTypes)iI))
-				{
-					if (GET_TEAM((TeamTypes)iI).isAlive())
-						szBuffer.append(CvWString::format(L"%d,", iI));
-				}
-			}
-		}
-
-		if (GET_TEAM(getTeam()).AI_isAnyWarPlan() &&
-			isBarbarian()) // advc.007
-		{
-			szBuffer.append(CvWString::format(L";  planning war with: "));
 			for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
 			{
-				if (iI != getTeam() && !GET_TEAM(getTeam()).isAtWar((TeamTypes)iI) && GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) != NO_WARPLAN)
+				if (iI != getTeam() && GET_TEAM(getTeam()).isAtWar((TeamTypes)iI) && GET_TEAM((TeamTypes)iI).isAlive())
+					szWarTeams.append(CvWString::format(L"%d,", iI));
+			}
+		}
+
+		if (GET_TEAM(getTeam()).AI_isAnyWarPlan() && isBarbarian()) // advc.007
+		{
+			for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+			{
+				if (iI != getTeam() && !GET_TEAM(getTeam()).isAtWar((TeamTypes)iI) &&
+					GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) != NO_WARPLAN && GET_TEAM((TeamTypes)iI).isAlive())
 				{
-					if (GET_TEAM((TeamTypes)iI).isAlive())
-						szBuffer.append(CvWString::format(L"%d,", iI));
+					szWarPlanTeams.append(CvWString::format(L"%d,", iI));
 				}
 			}
 		}
 
-		logBBAI("%S", szBuffer.getCString());
-		szBuffer.clear();
-		if (GET_TEAM(getTeam()).AI_isAnyWarPlan()) logBBAI("    Enemy power perc: %d (%d with others reduction)", GET_TEAM(getTeam()).AI_getEnemyPowerPercent(), GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true));
+		// <!-- custom: The modernization draft labelled the one pre-keyed relations fragment civ=, so 1,721 rows in a T201 Huge run read civ=metTeams=...; each team list is now its own named field. (Claude code Opus 5.5) -->
+		logBBAI("PLAYER_TEAM_RELATIONS turn=%d player=%d civ=%s team=%d metTeams=%S vassalTeams=%S warTeams=%S warPlanTeams=%S",
+			iGameTurn, getID(), GC.getInfo(getCivilizationType()).getType(), getTeam(), getSASDiagnosticQuoted(szMetTeams.getCString()).GetCString(), getSASDiagnosticQuoted(szVassalTeams.getCString()).GetCString(), getSASDiagnosticQuoted(szWarTeams.getCString()).GetCString(), getSASDiagnosticQuoted(szWarPlanTeams.getCString()).GetCString());
+		if (GET_TEAM(getTeam()).AI_isAnyWarPlan())
+		{
+			logBBAI("PLAYER_WAR_POWER_STATUS turn=%d player=%d civ=%s team=%d enemyPowerPercent=%d enemyPowerPercentAdjusted=%d",
+				iGameTurn, getID(), GC.getInfo(getCivilizationType()).getType(), getTeam(), GET_TEAM(getTeam()).AI_getEnemyPowerPercent(),
+				GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true));
+		}
 	}
 }
 
@@ -9198,8 +9858,11 @@ void CvPlayer::setEndTurn(bool bNewValue)
 
 bool CvPlayer::isTurnDone() const
 {
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	// if this returns true, popups and diplomacy will wait to appear until next turn
-	if (!GC.getGame().isPbem() && !GC.getGame().isHotSeat())
+	if (!kGame.isPbem() && !kGame.isHotSeat())
 		return false;
 	if (!isHuman())
 		return true;
@@ -9256,10 +9919,12 @@ void CvPlayer::setStrike(bool bNewValue)
 		{
 			if (isActive())
 			{
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+				static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
 				gDLL->UI().addMessage(getID(), false, -1,
 						gDLL->getText("TXT_KEY_MISC_UNITS_ON_STRIKE").GetCString(),
 						"AS2D_STRIKE", MESSAGE_TYPE_MINOR_EVENT, NULL,
-						GC.getColorType("WARNING_TEXT"));
+						eColorWarningText);
 				gDLL->UI().setDirty(GameData_DIRTY_BIT, true);
 			}
 		}
@@ -9269,13 +9934,16 @@ void CvPlayer::setStrike(bool bNewValue)
 
 HandicapTypes CvPlayer::getHandicapType() const
 {
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	// <advc.127>
 	if (isHumanDisabled() && // <advc.706>
 		// With R&F, Ctrl+Shift+X still leads to Auto Play with AI handicap.
-		(!GC.getGame().isOption(GAMEOPTION_RISE_FALL) ||
-		!GC.getGame().getRiseFall().hasRetired())) // </advc.706>
+		(!kGame.isOption(GAMEOPTION_RISE_FALL) ||
+		!kGame.getRiseFall().hasRetired())) // </advc.706>
 	{
-		return GC.getGame().getAIHandicap();
+		return kGame.getAIHandicap();
 	} // </advc.127>
 	return GC.getInitCore().getHandicap(getID());
 }
@@ -9305,7 +9973,10 @@ void CvPlayer::setCurrentEra(EraTypes eNewValue)
 	m_eCurrentEra = eNewValue;
 	AI().AI_updateEraFactor(); // advc.erai
 
-	if (GC.getGame().getActiveTeam() != NO_TEAM)
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
+	if (kGame.getActiveTeam() != NO_TEAM)
 	{
 		CvMap const& kMap = GC.getMap();
 		for (int i = 0; i < kMap.numPlots(); i++)
@@ -9313,7 +9984,7 @@ void CvPlayer::setCurrentEra(EraTypes eNewValue)
 			CvPlot& kPlot = kMap.getPlotByIndex(i);
 			kPlot.updateGraphicEra();
 			if (kPlot.getRevealedImprovementType(
-				GC.getGame().getActiveTeam(), true) != NO_IMPROVEMENT)
+				kGame.getActiveTeam(), true) != NO_IMPROVEMENT)
 			{
 				if (kPlot.getOwner() == getID() ||
 					(!kPlot.isOwned() && isActive()))
@@ -9346,10 +10017,10 @@ void CvPlayer::setCurrentEra(EraTypes eNewValue)
 		GC.getPythonCaller()->callScreenFunction("updateCameraStartDistance");
 	}
 
-	if (isHuman() && getCurrentEra() != GC.getGame().getStartEra() &&
-		!GC.getGame().isNetworkMultiPlayer())
+	if (isHuman() && getCurrentEra() != kGame.getStartEra() &&
+		!kGame.isNetworkMultiPlayer())
 	{
-		if (GC.getGame().isFinalInitialized() && !gDLL->GetWorldBuilderMode())
+		if (kGame.isFinalInitialized() && !gDLL->GetWorldBuilderMode())
 		{
 			CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_PYTHON_SCREEN);
 			if (pInfo != NULL)
@@ -9359,17 +10030,27 @@ void CvPlayer::setCurrentEra(EraTypes eNewValue)
 				addPopup(pInfo);
 			}
 		}
-	} // <advc.106>
-	if (GC.getDefineBOOL("SHOW_ENTERED_ERA_IN_REPLAY"))
+	}// <advc.106>
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const bool bShowEnteredEraInReplay = GC.getDefineBOOL("SHOW_ENTERED_ERA_IN_REPLAY");
+
+	if (bShowEnteredEraInReplay)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorAltHighlightText = (ColorTypes)GC.getColorType("ALT_HIGHLIGHT_TEXT");
+
 		CvWString szBuffer = gDLL->getText("TXT_KEY_SOMEONE_ENTERED_ERA",
 				getNameKey(), GC.getInfo(eNewValue).getTextKeyWide());
+		// <!-- custom: do not cache all to kGame due to compile error -->
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getID(), szBuffer, GC.getColorType("ALT_HIGHLIGHT_TEXT"));
+				getID(), szBuffer, eColorAltHighlightText);
 	} // </advc.106>
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iREPLAY_TEXTURE_ERA = GC.getDefineINT("REPLAY_TEXTURE_ERA");
 	// <advc.106n> Save pre-Industrial minimap terrain for replay
-	if (GC.getGame().isFinalInitialized() &&
-		getCurrentEra() >= GC.getDefineINT("REPLAY_TEXTURE_ERA"))
+	if (kGame.isFinalInitialized() &&
+		getCurrentEra() >= iREPLAY_TEXTURE_ERA)
 	{
 		CvMap& kMap = GC.getMap();
 		if (kMap.getReplayTexture() == NULL)
@@ -9382,26 +10063,36 @@ void CvPlayer::setLastStateReligion(ReligionTypes eNewReligion)
 {
 	if (getLastStateReligion() == eNewReligion)
 		return;
+
+	// <!-- custom: do not cache all to const due to compile error -->
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame& kGame = GC.getGame();
+
 	FAssert(!isBarbarian()); // advc.003n
 	// religion visibility now part of espionage
-	//GC.getGame().updateCitySight(false, true);
+	//kGame.updateCitySight(false, true);
 
 	ReligionTypes const eOldReligion = getLastStateReligion();
+	// <!-- custom: Religious-building commerce depends on the player's effective state-religion identity, but BtS changed that identity without invalidating the city caches.
+	// Retain it across the mutation and rebuild only when the effective identity changes. See KI#799. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	ReligionTypes const eOldEffectiveReligion = getStateReligion();
 	m_eLastStateReligion = eNewReligion;
+	if (eOldEffectiveReligion != getStateReligion())
+		updateBuildingCommerce();
 
 	// religion visibility now part of espionage
-	//GC.getGame().updateCitySight(true, true);
+	//kGame.updateCitySight(true, true);
 
 	updateMaintenance();
 	updateReligionHappiness();
 	updateReligionCommerce();
 
-	GC.getGame().updateSecretaryGeneral();
+	kGame.updateSecretaryGeneral();
 
-	GC.getGame().AI_makeAssignWorkDirty();
+	kGame.AI_makeAssignWorkDirty();
 	gDLL->UI().setDirty(Score_DIRTY_BIT, true);
 
-	if (!GC.getGame().isFinalInitialized())
+	if (!kGame.isFinalInitialized())
 		return;
 
 	if (!isBarbarian() &&
@@ -9438,7 +10129,7 @@ void CvPlayer::setLastStateReligion(ReligionTypes eNewReligion)
 						getCapitalY(kObs.getTeam(), true)); // </advc.127b>
 			}
 		}
-		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szBuffer);
+		kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szBuffer);
 	}
 	// advc.064d: Production of religious buildings and units may no longer be valid
 	verifyCityProduction();
@@ -9470,6 +10161,11 @@ void CvPlayer::setParent(PlayerTypes eParent)
 	if(m_eParent == eParent)
 		return; // advc.opt
 	m_eParent = eParent;
+
+	// <!-- custom: do not cache all to const due to compile error -->
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame& kGame = GC.getGame();
+
 	// <advc.opt>
 	FAssert(isAlive());
 	/*  Wouldn't be too difficult to support NO_PLAYER, but it's not currently used -
@@ -9477,11 +10173,11 @@ void CvPlayer::setParent(PlayerTypes eParent)
 	FAssert(eParent != NO_PLAYER);
 	if(!isAlive() || eParent == NO_PLAYER)
 		return;
-	GC.getGame().changeCivPlayersEverAlive(-1);
+	kGame.changeCivPlayersEverAlive(-1);
 	/*  Might later break free and find a permanent ally, but, upon creation,
 		the colonial vassal is going to be in a singleton team. */
 	FAssert(GET_TEAM(getTeam()).getNumMembers() == 1);
-	GC.getGame().changeCivTeamsEverAlive(-1);
+	kGame.changeCivTeamsEverAlive(-1);
 	// </advc.opt>
 }
 
@@ -9721,6 +10417,16 @@ bool CvPlayer::setCommercePercent(CommerceTypes eCommerce, int iNewValue, bool b
 	if (iOldValue == iNewValue)
 		return false;
 
+	// <!-- custom: Revision 151 records the active human's authoritative commerce allocation only when detailed GameRecord diagnostics are enabled.
+	// Capture the before vector here because this setter can rebalance several flexible commerce types; disabled/AI paths and action-trace-off diagnostics avoid the extra loop entirely. (ChatGPT-5.6-Sol) -->
+	bool const bLogSASCommerceChange = (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled() && GC.getGame().isFinalInitialized() && isHuman() && isActive());
+	int aiSASOldCommercePercent[NUM_COMMERCE_TYPES];
+	if (bLogSASCommerceChange)
+	{
+		FOR_EACH_ENUM2(Commerce, eLoopCommerce)
+			aiSASOldCommercePercent[eLoopCommerce] = getCommercePercent(eLoopCommerce);
+	}
+
 	m_aiCommercePercent.set(eCommerce, iNewValue);
 
 	int iTotalCommercePercent = 0;
@@ -9798,6 +10504,7 @@ bool CvPlayer::setCommercePercent(CommerceTypes eCommerce, int iNewValue, bool b
 	}
 	// K-Mod end
 
+	if (bLogSASCommerceChange) logSASGameRecordCommercePercentChange(*this, eCommerce, bForce, aiSASOldCommercePercent);
 	return true;
 }
 
@@ -9860,6 +10567,9 @@ void CvPlayer::updateCommerceRates()
 			}
 		}
 		m_aiCommerceRate.add(eArgMax, iSign * 1);
+		// <!-- custom: Awarding one whole commerce changes the selected fractional residual by the opposite 100 hundredths.
+		// Update it before the next implicit-selection-sort pass instead of awarding every correction to the same stale maximum. See KI#767. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		aiError.add(eArgMax, -iSign * 100);
 	}
 	// <advc.004x>
 	static int const iBASE_RESEARCH_RATE = GC.getDefineINT("BASE_RESEARCH_RATE"); // advc.910
@@ -9911,7 +10621,9 @@ void CvPlayer::changeStateReligionBuildingCommerce(CommerceTypes eCommerce, int 
 	{
 		m_aiStateReligionBuildingCommerce.add(eCommerce, iChange);
 		FAssert(getStateReligionBuildingCommerce(eCommerce) >= 0);
-		updateCommerce(eCommerce);
+		// <!-- custom: The empire-wide bonus is an input to each city's cached building-commerce amount; updating only total commerce continued to read the stale cache. See KI#799. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		FOR_EACH_CITY_VAR(pLoopCity, *this)
+			pLoopCity->updateBuildingCommerce(eCommerce);
 	}
 }
 
@@ -9994,7 +10706,14 @@ void CvPlayer::setFeatAccomplished(FeatTypes eFeat, bool bNewValue)
 
 void CvPlayer::setOption(PlayerOptionTypes eOption, bool bNewValue)
 {
+	// <!-- custom: The initial rev150 audio-only test reported nine gameplay-option changes on closing Options: its GameStart baseline had read zeros before the EXE applied the profile options through CvGame::sendPlayerOptions.
+	// Log the authoritative CvPlayer transition here so startup synchronization and later changes are recorded when applied; configured preferences remain separate, and an options-screen exit no longer claims those effective changes.
+	// Pre-gate the old-value read so disabled SASGameRecord adds only one cached integer comparison to this rare option-application path. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	bool const bLogSASOption = (gGameRecordLogLevel > 0 && GC.getGame().isFinalInitialized() && getID() == GC.getGame().getActivePlayer());
+	bool bOldValue = false;
+	if (bLogSASOption) bOldValue = m_abOptions.get(eOption);
 	m_abOptions.set(eOption, bNewValue);
+	if (bLogSASOption && bOldValue != bNewValue) logSASGameRecordPlayerOptionChange(getID(), eOption, bOldValue, bNewValue);
 	/*	<advc.004z>, advc.001: At game start, colors and plot indicators get
 		updated before player options are set. Need to do another update after
 		the recommendations option has been set. And, actually, should always
@@ -10245,6 +10964,13 @@ void CvPlayer::changeHasCivicOptionCount(CivicOptionTypes eCivicOption, int iCha
 {
 	m_aiHasCivicOptionCount.add(eCivicOption, iChange);
 	FAssert(getHasCivicOptionCount(eCivicOption) >= 0);
+	// <!-- custom: Building-granted CivicOptions can make an otherwise unavailable civic legal.
+	// When the final source disappears, remove its processed effects immediately rather than after the next turn's economy and city processing. See KI#782. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (iChange < 0 && getHasCivicOptionCount(eCivicOption) == 0 &&
+		!canDoCivics(getCivics(eCivicOption)))
+	{
+		verifyCivics();
+	}
 }
 
 
@@ -10308,10 +11034,14 @@ void CvPlayer::changeHasReligionCount(ReligionTypes eReligion, int iChange)
 {
 	if (iChange != 0)
 	{
+		// <!-- custom: do not cache all to const due to compile error -->
+		// <!-- custom: performance optimization: cache repetitive calls -->
+		CvGame& kGame = GC.getGame();
+
 		m_aiHasReligionCount.add(eReligion, iChange);
 		FAssert(getHasReligionCount(eReligion) >= 0);
-		GC.getGame().updateBuildingCommerce();
-		GC.getGame().AI_makeAssignWorkDirty();
+		kGame.updateBuildingCommerce();
+		kGame.AI_makeAssignWorkDirty();
 	}
 }
 
@@ -10335,10 +11065,14 @@ void CvPlayer::changeHasCorporationCount(CorporationTypes eCorp, int iChange)
 {
 	if (iChange != 0)
 	{
+		// <!-- custom: do not cache all to const due to compile error -->
+		// <!-- custom: performance optimization: cache repetitive calls -->
+		CvGame& kGame = GC.getGame();
+
 		m_aiHasCorporationCount.add(eCorp, iChange);
 		FAssert(getHasCorporationCount(eCorp) >= 0);
-		GC.getGame().updateBuildingCommerce();
-		GC.getGame().AI_makeAssignWorkDirty();
+		kGame.updateBuildingCommerce();
+		kGame.AI_makeAssignWorkDirty();
 	}
 }
 
@@ -10407,8 +11141,7 @@ void CvPlayer::getCivics(CivicMap& kResult) const
 }
 
 
-int CvPlayer::getSingleCivicUpkeep(CivicTypes eCivic, bool bIgnoreAnarchy,
-	int iExtraCities) const // advc.004b
+int CvPlayer::getSingleCivicUpkeep(CivicTypes eCivic, bool bIgnoreAnarchy, int iExtraCities) const // advc.004b
 {
 	if (eCivic == NO_CIVIC)
 		return 0;
@@ -10456,8 +11189,7 @@ int CvPlayer::getSingleCivicUpkeep(CivicTypes eCivic, bool bIgnoreAnarchy,
 }
 
 
-int CvPlayer::getCivicUpkeep(CivicMap const* pCivics, bool bIgnoreAnarchy,
-	int iExtraCities) const // advc.004b
+int CvPlayer::getCivicUpkeep(CivicMap const* pCivics, bool bIgnoreAnarchy, int iExtraCities) const // advc.004b
 {
 	if (pCivics == NULL)
 		pCivics = &m_aeCivics;
@@ -10479,6 +11211,12 @@ void CvPlayer::setCivics(CivicOptionTypes eCivicOption, CivicTypes eNewValue)
 	if(eOldCivic == eNewValue)
 		return;
 
+	CvGame& kGame = GC.getGame();
+	// <!-- custom: Cache the post-initialization/non-Barbarian condition shared by SASGameRecord and religious-building commerce invalidation.
+	// Civic switches across the state-religion boundary change the player input used by every city's cached building commerce, so retain the old effective religion even when logging is disabled; setup calls still avoid the read. See KI#799. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bPostInitMajorCiv = (kGame.isFinalInitialized() && !isBarbarian());
+	bool const bLogCivicChange = (gGameRecordLogLevel >= 2 && bPostInitMajorCiv);
+	ReligionTypes const eOldEffectiveStateReligion = (bPostInitMajorCiv ? getStateReligion() : NO_RELIGION);
 	bool const bWasStateReligion = isStateReligion(); // advc.106
 
 	m_aeCivics.set(eCivicOption, eNewValue);
@@ -10486,13 +11224,18 @@ void CvPlayer::setCivics(CivicOptionTypes eCivicOption, CivicTypes eNewValue)
 		processCivics(eOldCivic, -1);
 	if (getCivics(eCivicOption) != NO_CIVIC)
 		processCivics(getCivics(eCivicOption), 1);
+	// <!-- custom: Rebuild once after both old and new civic effects are processed; refreshing each raw state-religion-count change would recompute the same cache twice. See KI#799. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (bPostInitMajorCiv && eOldEffectiveStateReligion != getStateReligion())
+		updateBuildingCommerce();
 
-	CvGame& kGame = GC.getGame();
 	kGame.updateSecretaryGeneral();
 	kGame.AI_makeAssignWorkDirty();
 
-	if(!kGame.isFinalInitialized() || /* advc.003n: */ isBarbarian())
+	if(!bPostInitMajorCiv) // advc.003n
 		return;
+	// <!-- custom: Periodic policy snapshots can hide short-lived or between-interval civic switches.
+	// Record every post-initialization old/new transition, including effective state-religion changes caused by civics that allow or prohibit one, together with current anarchy turns. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+	if (bLogCivicChange) logSASGameRecordCivicChanged(getID(), eCivicOption, eOldCivic, eNewValue, eOldEffectiveStateReligion, getStateReligion());
 
 	if (getCivics(eCivicOption) != NO_CIVIC &&
 		/* BtS code (which erroneously blocked the message for certain civic switches)
@@ -10537,7 +11280,9 @@ void CvPlayer::setCivics(CivicOptionTypes eCivicOption, CivicTypes eNewValue)
 			kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szBuffer);
 		}
 	} // K-Mod. (environmentalism can change this. It's nice to see the effects immediately.)
-	GC.getGame().updateGwPercentAnger();
+
+	// <!-- custom: use cached kGame -->
+	kGame.updateGwPercentAnger();
 	if (isMajorCiv()) // advc.003n
 	{	// <K-Mod>
 		for (PlayerAIIter<MAJOR_CIV,KNOWN_TO> itOther(getTeam()); // advc.003n
@@ -10561,6 +11306,8 @@ void CvPlayer::changeSpecialistExtraYield(SpecialistTypes eSpecialist, YieldType
 		m_aeeiSpecialistExtraYield.add(eSpecialist, eYield, iChange);
 		FAssert(getSpecialistExtraYield(eSpecialist, eYield) >= 0);
 		updateExtraSpecialistYield();
+		// <!-- custom: A completed building can change this player-wide specialist yield between sequential city production choices; invalidate the established city-rank cache after applying the new yields so the SAS top-production cache can detect and refresh that same-turn change. See KI#306. (GPT-5.6-Sol) -->
+		invalidateYieldRankCache(eYield);
 		AI_makeAssignWorkDirty();
 	}
 }
@@ -10999,6 +11746,11 @@ void CvPlayer::addMessage(CvTalkingHeadMessage const& kMessage)
 		gDLL->UI().clearEventMessages();
 	} // </advc.706>
 	m_listGameMessages.push_back(kMessage);
+	// <!-- custom: The inherited Python chat event receives only message text; the EXE-delivered archive object also retains sender and ChatTargetTypes.
+	// Record only MESSAGE_TYPE_CHAT insertions for the active player's archive, then let the recorder independently enforce ALL/TEAM/direct-player target scope before retaining metadata or optional text.
+	// This is archive evidence rather than proof that the EXE rendered the line, and repeated identical insertions remain distinct so a multiplayer test can reveal local-echo/receive behavior.
+	// Check the cached level and action-trace settings first so an inactive trace skips the message type and archive-owner checks. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled() && kMessage.getMessageType() == MESSAGE_TYPE_CHAT && isActive()) logSASGameRecordPlayerChat(getID(), kMessage);
 	// <advc.106b>
 	// Special treatment only for events in other civs' turns.
 	if (!kGame.isInBetweenTurns() && isActive())
@@ -11037,6 +11789,15 @@ void CvPlayer::addMessage(CvTalkingHeadMessage const& kMessage)
 	} // </advc.106b>
 }
 
+// <!-- custom: Mirror addMessage's interturn eligibility for the specific completion notice identified at its producer; unlike persistent NO_TECH, this proves that a discounted message exists. See KI#1030. (GPT-5.6-Sol) -->
+void CvPlayer::noteNewTechCompletionMessage()
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isInBetweenTurns() && isActive())
+		return;
+	m_iNewTechCompletionMessages++;
+}
+
 // <advc.106b>
 void CvPlayer::clearMessageCopies(std::vector<CvTalkingHeadMessage*>* pContainer)
 {
@@ -11066,6 +11827,9 @@ void CvPlayer::showMessageCopies(std::vector<CvTalkingHeadMessage*>* pContainer)
 
 void CvPlayer::postProcessMessages()
 {
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	/* Determining how many messages are being displayed:
 	   - showMissedMessages doesn't help, that's only for Hotseat games.
 	   - m_listGameMessages: Those are all messages in the log, and there is
@@ -11076,17 +11840,17 @@ void CvPlayer::postProcessMessages()
 		 (m_iNewMessages). */
 	/*  Don't show the log at game start (also: the BUG setting for the limit
 		isn't available at the start of the 0th turn) */
-	int iLimit = (GC.getGame().getElapsedGameTurns() <= 0 ? MAX_INT :
+	int iLimit = (kGame.getElapsedGameTurns() <= 0 ? MAX_INT :
 			getStartOfTurnMessageLimit());
-	/* Finishing a tech should generate a message, which is rather superfluous
-	   b/c of the splash screen. Don't want to suppress it b/c it should go
-	   into the log, but don't count it when deciding whether to open the log
-	   b/c the tech finished message doesn't take up much attention. */
-	if (getCurrentResearch() == NO_TECH)
-		m_iNewMessages--;
+	// <!-- custom: Update AdvC's adjacent explanation to describe the exact completion-notice tracking that replaces its NO_TECH heuristic. See KI#1030. (GPT-5.6-Sol) -->
+	// Finishing a tech generates a message that is rather superfluous b/c of the splash screen; keep it in the log, but don't count the actual completion notice when deciding whether to open the log.
+	// <!-- custom: AdvC inferred that notice from current research being NO_TECH, which stays true after the technology tree is exhausted and discounted unrelated messages.
+	// Track the real producer instead, including multiple genuine completion notices. See KI#1030. (GPT-5.6-Sol) -->
+	FAssert(m_iNewTechCompletionMessages <= m_iNewMessages);
+	int const iRelevantNewMessages = std::max(0, m_iNewMessages - m_iNewTechCompletionMessages);
 	// Don't open the Turn Log when there's only first-contact diplo
 	bool bRelevantDiplo = false;
-	if (!m_listDiplomacy.empty() && m_iNewMessages > 0)
+	if (!m_listDiplomacy.empty() && iRelevantNewMessages > 0)
 	{
 		TCHAR const* aszRelevantNonOffers[] = { "CANCEL_DEAL", "RELIGION_PRESSURE",
 			"CIVIC_PRESSURE", "JOIN_WAR", "STOP_TRADING",
@@ -11116,11 +11880,11 @@ void CvPlayer::postProcessMessages()
 			}
 		}
 	}
-	bool const bHotSeat = GC.getGame().isHotSeat();
-	if (!GC.getGame().getAIAutoPlay())
+	bool const bHotSeat = kGame.isHotSeat();
+	if (!kGame.getAIAutoPlay())
 	{
-		if (iLimit >= 0 && (m_iNewMessages > iLimit ||
-			(m_iNewMessages > 0 && bRelevantDiplo)))
+		if (iLimit >= 0 && (iRelevantNewMessages > iLimit ||
+			(iRelevantNewMessages > 0 && bRelevantDiplo)))
 		{
 			gDLL->UI().clearEventMessages();
 			/*  Show major events even if the Turn Log gets opened. As with
@@ -11142,8 +11906,10 @@ int CvPlayer::getStartOfTurnMessageLimit() const
 	if (!BUGOption::isEnabled("MainInterface__AutoOpenEventLog", true))
 		return -1;
 	int iR = BUGOption::getValue("MainInterface__MessageLimit", 3);
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iMESSAGE_LIMIT_WITHOUT_MPU = GC.getDefineINT("MESSAGE_LIMIT_WITHOUT_MPU");
 	if (!isOption(PLAYEROPTION_MINIMIZE_POP_UPS) &&
-		GC.getDefineINT("MESSAGE_LIMIT_WITHOUT_MPU") == 0)
+		iMESSAGE_LIMIT_WITHOUT_MPU == 0)
 	{
 		return -1;
 	}
@@ -11491,6 +12257,9 @@ void CvPlayer::addEspionageReminderMsg(TeamTypes eTarget, CvPlot const* pAt) con
 	}
 	std::sort(aieTargets.rbegin(), aieTargets.rend());
 	bool bFirst = true;
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
+
 	for (size_t i = 0; i < aieTargets.size(); i++)
 	{
 		setListHelp(szMsg,
@@ -11498,7 +12267,7 @@ void CvPlayer::addEspionageReminderMsg(TeamTypes eTarget, CvPlot const* pAt) con
 				GET_TEAM(aieTargets[i].second).getName().c_str(), L", ", bFirst);
 	}
 	gDLL->UI().addMessage(getID(), false, -1, szMsg, NULL,
-			MESSAGE_TYPE_INFO, NULL, GC.getColorType("WHITE"),
+			MESSAGE_TYPE_INFO, NULL, eColorWhite,
 			pAt == NULL ? -1 : pAt->getX(), pAt == NULL ? -1 : pAt->getY());
 }
 
@@ -11600,8 +12369,14 @@ void CvPlayer::doGold()
 
 	changeGold(iGoldChange);
 	bool bStrike = false;
+	bool bLogFinancialStrike = false;
+	int iGoldBefore = 0;
 	if (getGold() < 0)
 	{
+		// <!-- custom: Only inspect SASGameRecord level once the already-resolved treasury is negative, so ordinary doGold turns retain the original hot path.
+		// Reconstruct the pre-change treasury from the existing gold delta before the clamp; no extra gold calculation is performed. (ChatGPT-5.6-Sol) -->
+		bLogFinancialStrike = (gGameRecordLogLevel >= 2);
+		if (bLogFinancialStrike) iGoldBefore = getGold() - iGoldChange;
 		setGold(0);
 		if (!isBarbarian() && getNumCities() > 0)
 			bStrike = true;
@@ -11609,6 +12384,7 @@ void CvPlayer::doGold()
 
 	if (bStrike)
 	{
+		int const iUnitsBeforeDisband = (bLogFinancialStrike ? getNumUnits() : 0);
 		setStrike(true);
 		changeStrikeTurns(1);
 
@@ -11624,6 +12400,7 @@ void CvPlayer::doGold()
 					break;
 			}
 		}
+		if (bLogFinancialStrike) logSASGameRecordFinancialStrikeTurn(getID(), iGoldBefore, iGoldChange, getGold(), getStrikeTurns(), iUnitsBeforeDisband, getNumUnits());
 	}
 	else setStrike(false);
 }
@@ -11649,19 +12426,27 @@ void CvPlayer::doResearch()
 		TechTypes eCurrentTech = getCurrentResearch();
 		if (eCurrentTech == NO_TECH)
 		{
+			// <!-- custom: End-of-round summaries can legitimately show no current research after a technology was completed, another player claimed its first-discovery reward, or all technologies were learned.
+			// The research rate is stored as overflow in this branch rather than lost; log it to distinguish those cases from a failed AI choice. (GPT-5.6-Sol) -->
+			if (gPlayerLogLevel >= 2 && !isHuman() && !isBarbarian()) logBBAI("RESEARCH_NO_TARGET_OVERFLOW_STORED turn=%d player=%d civ=%s researchPercent=%d nominalResearchRate=%d existingOverflow=%d",
+				GC.getGame().getGameTurn(), getID(), GC.getInfo(getCivilizationType()).getType(), getCommercePercent(COMMERCE_RESEARCH),
+				calculateResearchRate(), getOverflowResearch());
 			int iOverflow = (100 * calculateResearchRate()) /
 					std::max(1, calculateResearchModifier(eCurrentTech));
 			changeOverflowResearch(iOverflow);
 		}
 		else
 		{
-			int iOverflowResearch = (getOverflowResearch() *
-					calculateResearchModifier(eCurrentTech)) / 100;
+			int const iResearchModifier = calculateResearchModifier(eCurrentTech);
+			int const iIncomingOverflowUnmodified = getOverflowResearch();
+			int const iOverflowResearch = (iIncomingOverflowUnmodified * iResearchModifier) / 100;
+			// K-Mod (replacing the minimum which used to be in calculateResearchRate)
+			int const iResearchRate = std::max(1, calculateResearchRate());
+			// <!-- custom: These values are already required by gameplay.
+			// Preserve their exact split only at SASGameRecord level 2+, before stored overflow is consumed, so a completion row can distinguish fresh research from carried overflow without a per-turn log row. (ChatGPT-5.6-Sol) -->
+			if (gGameRecordLogLevel >= 2) noteSASGameRecordResearchApplication(getID(), eCurrentTech, iResearchRate, iIncomingOverflowUnmodified, iOverflowResearch);
 			setOverflowResearch(0);
-			GET_TEAM(getTeam()).changeResearchProgress(eCurrentTech,
-					// K-Mod (replacing the minimum which used to be in calculateResearchRate)
-					std::max(1, calculateResearchRate()) +
-					iOverflowResearch, getID());
+			GET_TEAM(getTeam()).changeResearchProgress(eCurrentTech, iResearchRate + iOverflowResearch, getID(), TECH_ACQUISITION_RESEARCH);
 		}
 
 		if (bForceResearchChoice)
@@ -11745,9 +12530,7 @@ int CvPlayer::getEspionageSpending(TeamTypes eAgainstTeam) const
 	return iSpendingValue;
 }
 
-bool CvPlayer::canDoEspionageMission(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer,
-	CvPlot const* pPlot, int iExtraData, const CvUnit* pUnit,
-	bool bCheckPoints) const // advc.085
+bool CvPlayer::canDoEspionageMission(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvPlot const* pPlot, int iExtraData, const CvUnit* pUnit, bool bCheckPoints) const // advc.085
 {
 	if (getID() == eTargetPlayer || eTargetPlayer == NO_PLAYER ||
 		!GET_PLAYER(eTargetPlayer).isAlive() ||
@@ -11820,8 +12603,7 @@ bool CvPlayer::canSpy() const
 } // </advc.120d>
 
 
-int CvPlayer::getEspionageMissionCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer,
-	CvPlot const* pPlot, int iExtraData, const CvUnit* pSpyUnit) const
+int CvPlayer::getEspionageMissionCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvPlot const* pPlot, int iExtraData, const CvUnit* pSpyUnit) const
 {
 	int iMissionCost = getEspionageMissionBaseCost(
 			eMission, eTargetPlayer, pPlot, iExtraData, pSpyUnit);
@@ -11863,9 +12645,7 @@ int CvPlayer::adjustMissionCostToTeamSize(int iBaseCost, PlayerTypes eTargetPlay
 }
 
 
-int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer,
-	CvPlot const* pPlot, int iExtraData,
-	const CvUnit* pSpyUnit) const // advc (note): The unit is not currently a factor
+int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvPlot const* pPlot, int iExtraData, const CvUnit* pSpyUnit) const // advc (note): The unit is not currently a factor
 {
 	if (eMission == NO_ESPIONAGEMISSION) // K-Mod
 		return -1;
@@ -12215,9 +12995,7 @@ int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, Player
 
 /*	K-Mod. I've altered this function to give a generic answer
 	when NO_ESPIONAGEMISSION is passed. */
-int CvPlayer::getEspionageMissionCostModifier(EspionageMissionTypes eMission,
-	PlayerTypes eTargetPlayer, const CvPlot* pPlot, int iExtraData,
-	const CvUnit* pSpyUnit) const
+int CvPlayer::getEspionageMissionCostModifier(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot, int iExtraData, const CvUnit* pSpyUnit) const
 {
 	// <advc.opt>
 	static int const iESPIONAGE_CITY_POP_EACH_MOD = GC.getDefineINT("ESPIONAGE_CITY_POP_EACH_MOD");
@@ -12360,11 +13138,14 @@ int CvPlayer::getEspionageMissionCostModifier(EspionageMissionTypes eMission,
 }
 
 
-bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer,
-	CvPlot* pPlot, int iExtraData, CvUnit* pSpyUnit)
+bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvPlot* pPlot, int iExtraData, CvUnit* pSpyUnit)
 {
 	if (!canDoEspionageMission(eMission, eTargetPlayer, pPlot, iExtraData, pSpyUnit))
 		return false;
+
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	// advc (caveat): Important to get the cost before executing the mission
 	int const iMissionCost = getEspionageMissionCost(eMission,
 			eTargetPlayer, pPlot, iExtraData, pSpyUnit);
@@ -12410,9 +13191,10 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
 				pCity->getNumRealBuilding(eTargetBuilding) - 1);
 		bSomethingHappened = true;
 		bShowExplosion = true;
-		// K-Mod
-		if (!isHuman() || pCity->isProductionAutomated())
-			pCity->setChooseProductionDirty(true); // K-Mod end
+		// <!-- custom: K-Mod tested the spy owner's human status, so a human attacker suppressed the AI victim's intended production reconsideration.
+		// Test the sabotaged city owner instead. See KI#786. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (!GET_PLAYER(pCity->getOwner()).isHuman() || pCity->isProductionAutomated())
+			pCity->setChooseProductionDirty(true);
 	}
 
 	if (kMission.getDestroyProjectCostFactor() > 0 && pCity != NULL)
@@ -12432,9 +13214,10 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
 		pCity->setProduction(0);
 		bSomethingHappened = true;
 		bShowExplosion = true;
-		// K-Mod
-		if (!isHuman()) // not for automated cities
-			pCity->setChooseProductionDirty(true); // K-Mod end
+		// <!-- custom: Destroy Production inherited the same K-Mod wrong-owner test as building sabotage.
+		// Reconsider the victim's production for AI or automated target cities regardless of who owns the spy. See KI#786. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (!GET_PLAYER(pCity->getOwner()).isHuman() || pCity->isProductionAutomated())
+			pCity->setChooseProductionDirty(true);
 	}
 
 	if (kMission.getDestroyUnitCostFactor() > 0 && eTargetPlayer != NO_PLAYER)
@@ -12486,7 +13269,7 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
 		/*int iCultureAmount = kMission.getCityInsertCultureAmountFactor() * pCity->countTotalCultureTimes100();
 		iCultureAmount /= 10000;
 		iCultureAmount = std::max(1, iCultureAmount);
-		int iNumTurnsApplied = (GC.getDefineINT("GREAT_WORKS_CULTURE_TURNS") * GC.getInfo(GC.getGame().getGameSpeedType()).getUnitGreatWorkPercent()) / 100;
+		int iNumTurnsApplied = (GC.getDefineINT("GREAT_WORKS_CULTURE_TURNS") * GC.getInfo(kGame.getGameSpeedType()).getUnitGreatWorkPercent()) / 100;
 		for (int i = 0; i < iNumTurnsApplied; ++i)
 			pCity->changeCulture(getID(), iCultureAmount / iNumTurnsApplied, true, true);
 		if (iNumTurnsApplied > 0)
@@ -12529,7 +13312,9 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
 		pCity->changeOccupationTimer(kMission.getCityRevoltCounter());
 		bSomethingHappened = true;
 		bShowExplosion = true;
-		if (gUnitLogLevel >= 2 && !isHuman()) logBBAI("      Spy for player %d (%S) causes revolt in %S, owned by %S (%d)", getID(), getCivilizationDescription(0), pCity->getName().GetCString(), GET_PLAYER(pCity->getOwner()).getCivilizationDescription(0), pCity->getOwner());
+		if (gUnitLogLevel >= 2 && !isHuman()) logBBAI("ESPIONAGE_CITY_REVOLT turn=%d player=%d civ=%s mission=%s targetPlayer=%d targetCiv=%s city=%S cityId=%d duration=%d",
+			GC.getGame().getGameTurn(), getID(), GC.getInfo(getCivilizationType()).getType(), GC.getInfo(eMission).getType(), pCity->getOwner(),
+			GC.getInfo(GET_PLAYER(pCity->getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(pCity->getName().GetCString()).GetCString(), pCity->getID(), kMission.getCityRevoltCounter());
 	}
 
 	if (kMission.getStolenGoldPercent() > 0 && pCity != NULL)
@@ -12549,7 +13334,7 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
 		TechTypes eTech = (TechTypes)iExtraData;
 		szBuffer = gDLL->getText("TXT_KEY_ESPIONAGE_TARGET_TECH_BOUGHT",
 				GC.getInfo(eTech).getDescription()).GetCString();
-		GET_TEAM(getTeam()).setHasTech(eTech, true, getID(), false, true);
+		GET_TEAM(getTeam()).setHasTech(eTech, true, getID(), false, true, false, TECH_ACQUISITION_ESPIONAGE);
 		if(isSignificantDiscovery(eTech)) // advc.550e
 			GET_TEAM(getTeam()).setNoTradeTech(eTech, true);
 		bSomethingHappened = true;
@@ -12563,8 +13348,10 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
 				GC.getInfo(eCivic).getDescription()).GetCString();
 		GET_PLAYER(eTargetPlayer).setCivics(
 				GC.getInfo(eCivic).getCivicOptionType(), eCivic);
-		// advc: Revolution turns calculation moved into auxiliary function
-		GET_PLAYER(eTargetPlayer).setRevolutionTimer(getMinTurnsBetweenRevolutions());
+		// <!-- custom: AdvCiv moved the revolution-turn calculation into a player helper but invoked it on the spy owner.
+		// Use the target's modifier for the target's forced-civic cooldown. See KI#785. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		CvPlayer& kTargetPlayer = GET_PLAYER(eTargetPlayer);
+		kTargetPlayer.setRevolutionTimer(kTargetPlayer.getMinTurnsBetweenRevolutions());
 		bSomethingHappened = true;
 	}
 
@@ -12575,16 +13362,18 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
 		szBuffer = gDLL->getText("TXT_KEY_ESPIONAGE_TARGET_SWITCH_RELIGION",
 				GC.getInfo(eReligion).getDescription()).GetCString();
 		GET_PLAYER(eTargetPlayer).setLastStateReligion(eReligion);
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iMIN_CONVERSION_TURNS = GC.getDefineINT("MIN_CONVERSION_TURNS");
 		GET_PLAYER(eTargetPlayer).setConversionTimer(std::max(1,
 				((100 + GET_PLAYER(eTargetPlayer).getAnarchyModifier()) *
-				GC.getDefineINT("MIN_CONVERSION_TURNS")) / 100));
+				iMIN_CONVERSION_TURNS) / 100));
 		bSomethingHappened = true;
 	}
 
 	if (kMission.getPlayerAnarchyCounter() > 0 && eTargetPlayer != NO_PLAYER)
 	{
 		int iTurns = (kMission.getPlayerAnarchyCounter() *
-				GC.getInfo(GC.getGame().getGameSpeedType()).getAnarchyPercent()) / 100;
+				GC.getInfo(kGame.getGameSpeedType()).getAnarchyPercent()) / 100;
 		szBuffer = gDLL->getText("TXT_KEY_ESPIONAGE_TARGET_PLAYER_ANARCHY").GetCString();
 		GET_PLAYER(eTargetPlayer).changeAnarchyTurns(iTurns);
 		bSomethingHappened = true;
@@ -12595,7 +13384,7 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
 	{
 		szBuffer = gDLL->getText("TXT_KEY_ESPIONAGE_TARGET_COUNTERESPIONAGE").GetCString();
 		int iTurns = (kMission.getCounterespionageNumTurns() *
-				GC.getInfo(GC.getGame().getGameSpeedType()).getResearchPercent()) / 100;
+				GC.getInfo(kGame.getGameSpeedType()).getResearchPercent()) / 100;
 		GET_TEAM(getTeam()).changeCounterespionageTurnsLeftAgainstTeam(eTargetTeam, iTurns);
 		GET_TEAM(getTeam()).changeCounterespionageModAgainstTeam(
 				eTargetTeam, kMission.getCounterespionageMod());
@@ -12649,11 +13438,14 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
 		// advc.103: The city screen having opened is confirmation enough
 		if (!kMission.isInvestigateCity())
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+
 			gDLL->UI().addMessage(getID(), true, -1,
 					gDLL->getText("TXT_KEY_ESPIONAGE_MISSION_PERFORMED"),
 					"AS2D_POSITIVE_DINK", MESSAGE_TYPE_INFO,
 					ARTFILEMGR.getInterfaceArtPath("ESPIONAGE_BUTTON"),
-					GC.getColorType("GREEN"), iX, iY, true, true);
+					eColorGreen, iX, iY, true, true);
 		}
 	}
 	else if (isActive())
@@ -12680,8 +13472,12 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
 		if (eTargetPlayer != NO_PLAYER)
 		{	// <advc.120>
 			ColorTypes eColor = NO_COLOR;
-			if(bAggressiveMission)
-				eColor = GC.getColorType("RED");
+			if (bAggressiveMission)
+			{
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+				static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+				eColor = eColorRed;
+			}
 			// </advc.120>
 			gDLL->UI().addMessage(eTargetPlayer, /*true*/ false, // advc.120i
 					-1, szBuffer, "AS2D_DEAL_CANCELLED", MESSAGE_TYPE_INFO,
@@ -12706,11 +13502,28 @@ void CvPlayer::setEspionageSpendingWeightAgainstTeam(TeamTypes eTeam, int iValue
 }
 
 
-void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, int iY, int iData, bool bAdd,
-	int iData2) // advc.250c
+// <!-- custom: This is an applied-action persistence hook, not an optional logging hook: every successful Advanced Start action must reach it even with SGR disabled.
+// Its arguments (including pre-deletion IDs and budget transitions) are required by the saved World Advisor history, so gating the whole call on bLogSASAdvancedStart would lose that history.
+// Reuse the same payload for optional SGR output; the caller caches the level/action gate once, and no log formatting or diagnostic-only context is prepared unless it is true. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static void recordSASAdvancedStartApplied(CvPlayer const& kPlayer, bool bLogSASAdvancedStart, AdvancedStartActionTypes eAction, int iX, int iY, int iRequestedData, int iResolvedData, bool bAdd, int iQuotedCost, int iPointsBefore, int iGoldBefore, int iCityId, int iObjectId)
+{
+	GC.getGame().recordSASAdvancedStartHistory(kPlayer.getID(), eAction, iX, iY, iRequestedData, iResolvedData, bAdd, iQuotedCost, iPointsBefore, iGoldBefore, iCityId, iObjectId);
+	if (bLogSASAdvancedStart)
+		logSASGameRecordAdvancedStartResult(kPlayer, eAction, iX, iY, iRequestedData, iResolvedData, bAdd, iQuotedCost, iPointsBefore, iGoldBefore, iCityId, iObjectId);
+}
+
+void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, int iY, int iData, bool bAdd, int iData2) // advc.250c
 {
 	if (getAdvancedStartPoints() < 0)
 		return;
+	// <!-- custom: Advanced Start logging is event-driven and pre-gated once at the gameplay handler; successful mutation sites below reuse their already-computed cost/resolved target instead of rerunning legality or AI scoring for diagnostics.
+	// Applied-action history now also needs pre-action balances and removed-object IDs with logging disabled; sample IDs before deletion invalidates their objects.
+	// Only the optional SGR context/result output is controlled by this logging gate.
+	// The context row is one-shot per player/session and therefore captures the point/gold budget before that player's first setup action. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	bool const bLogSASAdvancedStart = (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled());
+	if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartContext(*this);
+	int const iSASAdvancedStartPointsBefore = getAdvancedStartPoints();
+	int const iSASAdvancedStartGoldBefore = getGold();
 
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
@@ -12736,6 +13549,10 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 		}
 	}
 
+	// <!-- custom: do not cache all to const due to compile error -->
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame& kGame = GC.getGame();
+
 	CvCity* pCity = (pPlot == NULL ? NULL : pPlot->getPlotCity()); // advc
 
 	switch (eAction)
@@ -12745,6 +13562,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 		setAdvancedStartPoints(-1);
 		if (isActive())
 			gDLL->UI().setInAdvancedStart(false);
+		recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, -1, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, -1, -1);
 
 		if (isHuman())
 		{
@@ -12762,12 +13580,18 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 		}
 		break;
 	case ADVANCEDSTARTACTION_AUTOMATE:
+	{
+		// <!-- custom: The Automate row is written once the AI has spent the points, after every buy it made, so the Changes tab, newest first, listed this summary above its own buys (the user, 2026-11-19); it now takes the place where the automation began. See KI#1100. (Claude code Opus 5.5) -->
+		int const iSASHistoryIndex = GC.getGame().getNumSASWorldChangesHistoryEntries();
 		if (isActive())
 			gDLL->UI().setBusy(true);
 		AI().AI_doAdvancedStart(true);
 		if (isActive())
 			gDLL->UI().setBusy(false);
+		recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, -1, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, -1, -1);
+		GC.getGame().moveLastSASWorldChangesHistoryEntryTo(iSASHistoryIndex);
 		break;
+	}
 	case ADVANCEDSTARTACTION_UNIT:
 	{
 		if(pPlot == NULL)
@@ -12783,7 +13607,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 			{	// <advc.250c>
 				UnitAITypes eUnitAI = (UnitAITypes)iData2;
 				// Based on MNAI (lfgr 01/2022): At least one defender per city
-				if (eUnitAI == NO_UNITAI && !GC.getGame().isOption(GAMEOPTION_SPAH) &&
+				if (eUnitAI == NO_UNITAI && !kGame.isOption(GAMEOPTION_SPAH) &&
 					GC.getInfo(eUnit).getUnitAIType(UNITAI_CITY_DEFENSE) &&
 					pPlot->plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE,
 					-1, getID()) <= 0)
@@ -12795,6 +13619,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				{
 					pUnit->finishMoves();
 					changeAdvancedStartPoints(-iCost);
+					recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eUnit, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), pUnit->getID());
 				}
 			}
 		}
@@ -12807,8 +13632,10 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				{
 					if (pUnit->getUnitType() == eUnit)
 					{
+						int const iRemovedUnitId = pUnit->getID();
 						pUnit->kill(false);
 						changeAdvancedStartPoints(iCost);
+						recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eUnit, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), iRemovedUnitId);
 						return;
 					}
 				}
@@ -12819,11 +13646,14 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				if (pNode != NULL)
 				{
 					CvUnit* pUnit = ::getUnit(pNode->m_data);
-					iCost = getAdvancedStartUnitCost(pUnit->getUnitType(), false,
+					UnitTypes const eRemovedUnit = pUnit->getUnitType();
+					int const iRemovedUnitId = pUnit->getID();
+					iCost = getAdvancedStartUnitCost(eRemovedUnit, false,
 							pPlot); // kekm.11
 					FAssertMsg(iCost != -1, "Trying to delete a unit which shouldn't exist");
 					pUnit->kill(false);
 					changeAdvancedStartPoints(iCost);
+					recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eRemovedUnit, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), iRemovedUnitId);
 				}
 			}
 		}
@@ -12870,7 +13700,9 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 			{
 				found(iX, iY);
 				changeAdvancedStartPoints(-std::min(iCost, getAdvancedStartPoints()));
-				GC.getGame().updateColoredPlots();
+				CvCity const* pFoundedCity = pPlot->getPlotCity();
+				recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pFoundedCity == NULL ? -1 : pFoundedCity->getID(), -1);
+				kGame.updateColoredPlots();
 				// advc.250c: Commented out
 				/*if (pCity != NULL) {
 					if (pCity->getPopulation() > 1)
@@ -12880,10 +13712,12 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 		}
 		else // Remove City from the map
 		{
+			int const iRemovedCityId = pPlot->getPlotCity()->getID();
 			pPlot->setRouteType(NO_ROUTE);
 			pPlot->getPlotCity()->kill(true);
 			pPlot->setImprovementType(NO_IMPROVEMENT);
 			changeAdvancedStartPoints(iCost);
+			recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, iRemovedCityId, -1);
 		}
 		if (isActive())
 			gDLL->UI().setDirty(Advanced_Start_DIRTY_BIT, true);
@@ -12925,6 +13759,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				pCity->setFood(pCity->growthThreshold() / 2);
 				pCity->setFoodKept((pCity->getFood() * pCity->getMaxFoodKeptPercent()) / 100);
 			}*/
+			recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pCity->getID(), -1);
 		}
 		break;
 	}	
@@ -12942,6 +13777,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 			{
 				pCity->setCulture(getID(), pCity->getCultureThreshold(), true, true);
 				changeAdvancedStartPoints(-iCost);
+				recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pCity->getID(), -1);
 			}
 		}	
 		else // Remove Culture from the city
@@ -12950,6 +13786,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 					pCity->getCultureLevel() - 1);
 			pCity->setCulture(getID(), CvCity::getCultureThreshold(eLevel), true, true);
 			changeAdvancedStartPoints(iCost);
+			recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pCity->getID(), -1);
 		}
 		break;
 	}	
@@ -12974,6 +13811,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 					pCity->setFoodKept((pCity->getFood() *
 							pCity->getMaxFoodKeptPercent()) / 100);
 				}
+				recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eBuilding, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pCity->getID(), -1);
 			}
 		}
 		else // Remove Building from the map
@@ -12986,6 +13824,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				pCity->setFoodKept((pCity->getFood() *
 						pCity->getMaxFoodKeptPercent()) / 100);
 			}
+			recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eBuilding, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pCity->getID(), -1);
 		}
 		/*	advc (note): This used to be executed even for pCity==NULL,
 			but I don't think that could've occurred. */
@@ -13008,6 +13847,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 			{
 				pPlot->setRouteType(eRoute);
 				changeAdvancedStartPoints(-iCost);
+				recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eRoute, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
 			}
 		}
 		else // Remove Route from the Plot
@@ -13021,6 +13861,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				return;
 			pPlot->setRouteType(NO_ROUTE);
 			changeAdvancedStartPoints(iCost);
+			recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eRoute, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
 		}
 		if (isActive())
 			gDLL->UI().setDirty(Advanced_Start_DIRTY_BIT, true);
@@ -13060,6 +13901,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				}
 				pPlot->setImprovementType(eImprovement);
 				changeAdvancedStartPoints(-iCost /* advc.mnai.: */ + iOldCost);
+				recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eImprovement, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
 			}
 		}
 		else // Remove Improvement from the Plot
@@ -13073,6 +13915,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				return;
 			pPlot->setImprovementType(NO_IMPROVEMENT);
 			changeAdvancedStartPoints(iCost);
+			recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eImprovement, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
 		}
 		if (isActive())
 			gDLL->UI().setDirty(Advanced_Start_DIRTY_BIT, true);
@@ -13089,14 +13932,16 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 		{
 			if (getAdvancedStartPoints() >= iCost)
 			{
-				GET_TEAM(getTeam()).setHasTech(eTech, true, getID(), false, false);
+				GET_TEAM(getTeam()).setHasTech(eTech, true, getID(), false, false, false, TECH_ACQUISITION_ADVANCED_START);
 				changeAdvancedStartPoints(-iCost);
+				recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eTech, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, -1, -1);
 			}
 		}
 		else // Remove Tech from the Team
 		{
 			GET_TEAM(getTeam()).setHasTech(eTech, false, getID(), false, false);
 			changeAdvancedStartPoints(iCost);
+			recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eTech, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, -1, -1);
 		}
 		if (isActive())
 			gDLL->UI().setDirty(Advanced_Start_DIRTY_BIT, true);
@@ -13116,15 +13961,17 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 			{
 				pPlot->setRevealed(getTeam(), true, true, NO_TEAM, true);
 				changeAdvancedStartPoints(-iCost);
+				recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
 			}
 		}
 		else // Remove Visibility from the Plot
 		{
 			pPlot->setRevealed(getTeam(), false, true, NO_TEAM, true);
 			changeAdvancedStartPoints(iCost);
+			recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
 		}
 		// advc.001 (from MNAI - lfgr fix 11/2021): I guess for the city circles
-		GC.getGame().updateColoredPlots();
+		kGame.updateColoredPlots();
 		break;
 	}
 	default:
@@ -13177,7 +14024,9 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot const*
 	else
 	{
 		CvCity* pCity = NULL;
-		if (GC.getDefineINT("ADVANCED_START_ALLOW_UNITS_OUTSIDE_CITIES") == 0)
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iADVANCED_START_ALLOW_UNITS_OUTSIDE_CITIES = GC.getDefineINT("ADVANCED_START_ALLOW_UNITS_OUTSIDE_CITIES");
+		if (iADVANCED_START_ALLOW_UNITS_OUTSIDE_CITIES == 0)
 		{
 			pCity = pPlot->getPlotCity();
 			if (pCity == NULL || pCity->getOwner() != getID())
@@ -13198,7 +14047,8 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot const*
 
 		if (bAdd)
 		{
-			int iMaxUnitsPerCity = GC.getDefineINT("ADVANCED_START_MAX_UNITS_PER_CITY");
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const int iMaxUnitsPerCity = GC.getDefineINT("ADVANCED_START_MAX_UNITS_PER_CITY");
 			if (iMaxUnitsPerCity >= 0)
 			{
 				if (GC.getInfo(eUnit).isMilitarySupport() &&
@@ -13305,10 +14155,12 @@ int CvPlayer::getAdvancedStartCityCost(bool bAdd, CvPlot const* pPlot) const
 			else return -1;
 		}
 
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: moved above as it was weirdly reused before if i may say as well -->
+		static const int iADVANCED_START_CITY_PLACEMENT_MAX_RANGE = GC.getDefineINT("ADVANCED_START_CITY_PLACEMENT_MAX_RANGE"); // advc.opt
 		// Is there a distance limit on how far a city can be placed from a player's start/another city?
-		if (GC.getDefineINT("ADVANCED_START_CITY_PLACEMENT_MAX_RANGE") > 0)
+		if (iADVANCED_START_CITY_PLACEMENT_MAX_RANGE > 0)
 		{
-			static int const iADVANCED_START_CITY_PLACEMENT_MAX_RANGE = GC.getDefineINT("ADVANCED_START_CITY_PLACEMENT_MAX_RANGE"); // advc.opt
 			PlayerTypes eClosestPlayer = NO_PLAYER;
 			int iClosestDistance = MAX_INT;
 			for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
@@ -13338,15 +14190,17 @@ int CvPlayer::getAdvancedStartCityCost(bool bAdd, CvPlot const* pPlot) const
 		}
 	}
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iADVANCED_START_CITY_COST_INCREASE = GC.getDefineINT("ADVANCED_START_CITY_COST_INCREASE");
 	// Increase cost if the XML defines that additional cities will cost more
-	if (GC.getDefineINT("ADVANCED_START_CITY_COST_INCREASE") != 0)
+	if (iADVANCED_START_CITY_COST_INCREASE != 0)
 	{
 		int iCities = getNumCities();
 		if (!bAdd)
 			iCities--;
 		if (iCities > 0)
 		{
-			iCost *= 100 + GC.getDefineINT("ADVANCED_START_CITY_COST_INCREASE") * iCities;
+			iCost *= 100 + iADVANCED_START_CITY_COST_INCREASE * iCities;
 			iCost /= 100;
 		}
 	} // <advc.250c> <kekm>
@@ -13370,11 +14224,13 @@ int CvPlayer::getAdvancedStartPopCost(bool bAdd, CvCity const* pCity) const
 {
 	if (getNumCities() <= 0)
 		return -1;
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iADVANCED_START_POPULATION_COST = GC.getDefineINT("ADVANCED_START_POPULATION_COST");
 	if (pCity == NULL)
 	{
 		return adjustAdvStartPtsToSpeed( // advc.250c
 				(getGrowthThreshold(1) *
-				GC.getDefineINT("ADVANCED_START_POPULATION_COST")) / 100);
+				iADVANCED_START_POPULATION_COST) / 100);
 	}
 	if (pCity->getOwner() != getID())
 		return -1;
@@ -13383,7 +14239,9 @@ int CvPlayer::getAdvancedStartPopCost(bool bAdd, CvCity const* pCity) const
 	if (!bAdd) // Need to have Population to remove it
 	{
 		iPopulation--;
-		if (iPopulation < GC.getDefineINT("INITIAL_CITY_POPULATION") +
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iINITIAL_CITY_POPULATION = GC.getDefineINT("INITIAL_CITY_POPULATION");
+		if (iPopulation < iINITIAL_CITY_POPULATION +
 			GC.getInfo(GC.getGame().getStartEra()).getFreePopulation())
 		{
 			return -1;
@@ -13391,16 +14249,18 @@ int CvPlayer::getAdvancedStartPopCost(bool bAdd, CvCity const* pCity) const
 	}
 
 	int iCost = (getGrowthThreshold(iPopulation) *
-			GC.getDefineINT("ADVANCED_START_POPULATION_COST")) / 100;
+			iADVANCED_START_POPULATION_COST) / 100;
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iADVANCED_START_POPULATION_COST_INCREASE = GC.getDefineINT("ADVANCED_START_POPULATION_COST_INCREASE");
 	// Increase cost if the XML defines that additional Pop will cost more
-	if (GC.getDefineINT("ADVANCED_START_POPULATION_COST_INCREASE") != 0)
+	if (iADVANCED_START_POPULATION_COST_INCREASE != 0)
 	{
 		iPopulation--;
 		if (iPopulation > 0)
 		{
 			iCost *= 100 + iPopulation *
-					GC.getDefineINT("ADVANCED_START_POPULATION_COST_INCREASE");
+					iADVANCED_START_POPULATION_COST_INCREASE;
 			iCost /= 100;
 		}
 	}
@@ -13413,7 +14273,9 @@ int CvPlayer::getAdvancedStartCultureCost(bool bAdd, CvCity const* pCity) const
 {
 	if (getNumCities() <= 0)
 		return -1;
-	int iCost = GC.getDefineINT("ADVANCED_START_CULTURE_COST");
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iADVANCED_START_CULTURE_COST = GC.getDefineINT("ADVANCED_START_CULTURE_COST");
+	int iCost = iADVANCED_START_CULTURE_COST;
 	if (iCost < 0)
 		return -1;
 	if (pCity == NULL)
@@ -13443,8 +14305,7 @@ int CvPlayer::getAdvancedStartCultureCost(bool bAdd, CvCity const* pCity) const
 }
 
 // Adding or removing a Building from a city
-int CvPlayer::getAdvancedStartBuildingCost(BuildingTypes eBuilding, bool bAdd,
-	CvCity const* pCity) const
+int CvPlayer::getAdvancedStartBuildingCost(BuildingTypes eBuilding, bool bAdd, CvCity const* pCity) const
 {
 	if (getNumCities() <= 0)
 		return -1;
@@ -13536,8 +14397,10 @@ int CvPlayer::getAdvancedStartRouteCost(RouteTypes eRoute, bool bAdd, CvPlot con
 	if (iCost < 0)
 		return -1; // cannot be purchased through Advanced Start
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iADVANCED_START_WORKER_BUILD_MODIFIER = GC.getDefineINT("ADVANCED_START_WORKER_BUILD_MODIFIER");
 	// <advc.250c>
-	iCost *= GC.getDefineINT("ADVANCED_START_WORKER_BUILD_MODIFIER");
+	iCost *= iADVANCED_START_WORKER_BUILD_MODIFIER;
 	iCost /= 100; // </advc.250c>
 
 	iCost *= GC.getInfo(GC.getGame().getGameSpeedType()).getBuildPercent();
@@ -13567,15 +14430,22 @@ int CvPlayer::getAdvancedStartRouteCost(RouteTypes eRoute, bool bAdd, CvPlot con
 			return -1;
 	}
 
-	// Tech requirement
+	// <!-- custom: BtS checked only the matching Build technology, so Advanced Start could place Railroad without its required connected Coal or Oil.
+	// For additions on a concrete plot, require any matching Build to pass the normal plot/build legality path; keep generic-price queries and removals independent of current plot resources. See KI#795. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool bFoundLegalBuild = false;
 	FOR_EACH_ENUM(Build)
 	{
-		if (GC.getInfo(eLoopBuild).getRoute() == eRoute)
+		CvBuildInfo const& kBuild = GC.getInfo(eLoopBuild);
+		if (kBuild.getRoute() != eRoute)
+			continue;
+		if (bAdd && pPlot != NULL ? canBuild(*pPlot, eLoopBuild) : GET_TEAM(getTeam()).isHasTech(kBuild.getTechPrereq()))
 		{
-			if (!GET_TEAM(getTeam()).isHasTech(GC.getInfo(eLoopBuild).getTechPrereq()))
-				return -1;
+			bFoundLegalBuild = true;
+			break;
 		}
 	}
+	if (!bFoundLegalBuild)
+		return -1;
 
 	// Increase cost if the XML defines that additional units will cost more
 	if (GC.getInfo(eRoute).getAdvancedStartCostIncrease() != 0)
@@ -13614,8 +14484,10 @@ int CvPlayer::getAdvancedStartImprovementCost(ImprovementTypes eImprovement, boo
 	if (iCost < 0)
 		return -1; // Cannot be purchased through Advanced Start
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iADVANCED_START_WORKER_BUILD_MODIFIER = GC.getDefineINT("ADVANCED_START_WORKER_BUILD_MODIFIER");
 	// <advc.250c>
-	iCost *= GC.getDefineINT("ADVANCED_START_WORKER_BUILD_MODIFIER");
+	iCost *= iADVANCED_START_WORKER_BUILD_MODIFIER;
 	iCost /= 100; // </advc.250c>
 
 	iCost *= GC.getInfo(GC.getGame().getGameSpeedType()).getBuildPercent();
@@ -13797,7 +14669,9 @@ int CvPlayer::getAdvancedStartVisibilityCost(bool bAdd, CvPlot const* pPlot) con
 	if (getNumCities() <= 0)
 		return -1;
 
-	int iCost = GC.getDefineINT("ADVANCED_START_VISIBILITY_COST");
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iADVANCED_START_VISIBILITY_COST = GC.getDefineINT("ADVANCED_START_VISIBILITY_COST");
+	int iCost = iADVANCED_START_VISIBILITY_COST;
 	// This denotes Visibility may not be purchased through Advanced Start
 	if (iCost == -1)
 		return -1;
@@ -13820,8 +14694,10 @@ int CvPlayer::getAdvancedStartVisibilityCost(bool bAdd, CvPlot const* pPlot) con
 			return -1;
 	}
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iADVANCED_START_VISIBILITY_COST_INCREASE = GC.getDefineINT("ADVANCED_START_VISIBILITY_COST_INCREASE");
 	// Increase cost if the XML defines that additional units will cost more
-	if (GC.getDefineINT("ADVANCED_START_VISIBILITY_COST_INCREASE") != 0)
+	if (iADVANCED_START_VISIBILITY_COST_INCREASE != 0)
 	{
 		int iVisible = -NUM_CITY_PLOTS; // advc.210c
 		for (int i = 0; i < GC.getMap().numPlots(); i++)
@@ -13836,7 +14712,7 @@ int CvPlayer::getAdvancedStartVisibilityCost(bool bAdd, CvPlot const* pPlot) con
 
 		if (iVisible > 0)
 		{
-			iCost *= 100 + GC.getDefineINT("ADVANCED_START_VISIBILITY_COST_INCREASE") * iVisible;
+			iCost *= 100 + iADVANCED_START_VISIBILITY_COST_INCREASE * iVisible;
 			iCost /= 100;
 		}
 	}
@@ -13853,6 +14729,10 @@ void CvPlayer::doWarnings()
 		//update glow
 		gDLL->getEntityIFace()->updateEnemyGlow(pLoopUnit->getEntity());
 	}
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
 	//update enemy units close to your territory
 	int iMaxCount = range(((getNumCities() + 4) / 7), 2, 5);
@@ -13877,7 +14757,7 @@ void CvPlayer::doWarnings()
 							pNearestCity->getNameKey()).GetCString());
 					gDLL->UI().addMessage(getID(), true, -1, szBuffer, kPlot,
 							"AS2D_ENEMY_TROOPS", MESSAGE_TYPE_INFO, pUnit->getButton(),
-							GC.getColorType("RED"));
+							eColorRed);
 					iMaxCount--;
 				}
 			}
@@ -13897,9 +14777,12 @@ void CvPlayer::verifyGoldCommercePercent()
 	}*/ // BtS
 	// K-Mod
 	bool bValid = isCommerceFlexible(COMMERCE_GOLD);
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const int iCOMMERCE_PERCENT_CHANGE_INCREMENTS = GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS");
 	while (bValid && getCommercePercent(COMMERCE_GOLD) < 100 && getGold() + calculateGoldRate() < 0)
 	{
-		bValid = changeCommercePercent(COMMERCE_GOLD, GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"));
+		bValid = changeCommercePercent(COMMERCE_GOLD, iCOMMERCE_PERCENT_CHANGE_INCREMENTS);
 	} // K-Mod end
 }
 
@@ -14073,7 +14956,10 @@ void CvPlayer::read(FDataStreamBase* pStream)
 {
 	reset();
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 	// <advc.027>
 	{	// (No longer stored as x,y)
@@ -14082,8 +14968,8 @@ void CvPlayer::read(FDataStreamBase* pStream)
 		pStream->Read(&iStartingY);
 		m_pStartingPlot = GC.getMap().plot(iStartingX, iStartingY);
 	}
-	if (uiFlag >= 14)
-		pStream->Read(&m_bRandomWBStart);
+
+	pStream->Read(&m_bRandomWBStart);
 	// </advc.027>
 	pStream->Read(&m_iTotalPopulation);
 	pStream->Read(&m_iTotalLand);
@@ -14092,9 +14978,10 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iGoldPerTurn);
 	pStream->Read(&m_iAdvancedStartPoints);
 	pStream->Read(&m_iGoldenAgeTurns);
+
 	// <advc.001x>
-	if (uiFlag >= 11)
-		pStream->Read(&m_iScheduledGoldenAges); // </advc.001x>
+	pStream->Read(&m_iScheduledGoldenAges); // </advc.001x>
+
 	pStream->Read(&m_iNumUnitGoldenAges);
 	pStream->Read(&m_iStrikeTurns);
 	pStream->Read(&m_iAnarchyTurns);
@@ -14128,19 +15015,13 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iFreeMilitaryUnitsPopulationPercent);
 	pStream->Read(&m_iGoldPerUnit);
 	pStream->Read(&m_iGoldPerMilitaryUnit);
-	// K-Mod
-	if (uiFlag < 3)
-	{
-		m_iGoldPerUnit *= 100;
-		m_iGoldPerMilitaryUnit *= 100;
-	}
-	// K-Mod end
+
 	pStream->Read(&m_iExtraUnitCost);
 	pStream->Read(&m_iNumMilitaryUnits);
 	pStream->Read(&m_iHappyPerMilitaryUnit);
 	// <advc.912c>
-	if(uiFlag >= 6)
-		pStream->Read(&m_iLuxuryModifier); // </advc.912c>
+
+	pStream->Read(&m_iLuxuryModifier); // </advc.912c>
 	pStream->Read(&m_iMilitaryFoodProductionCount);
 	pStream->Read(&m_iConscriptCount);
 	pStream->Read(&m_iMaxConscript);
@@ -14151,9 +15032,10 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iExpInBorderModifier);
 	pStream->Read(&m_iBuildingOnlyHealthyCount);
 	pStream->Read(&m_iDistanceMaintenanceModifier);
+
 	// <advc.912g>
-	if (uiFlag >= 20)
-		pStream->Read(&m_iColonyMaintenanceModifier); // </advc.912g>
+	pStream->Read(&m_iColonyMaintenanceModifier); // </advc.912g>
+
 	pStream->Read(&m_iNumCitiesMaintenanceModifier);
 	pStream->Read(&m_iCorporationMaintenanceModifier);
 	pStream->Read(&m_iTotalMaintenance);
@@ -14193,13 +15075,13 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iWondersScore);
 	pStream->Read(&m_iTechScore);
 	pStream->Read(&m_iCombatExperience);
+
 	// <advc.004x>
-	if(uiFlag >= 8)
-	{
-		int tmp=-1;
-		pStream->Read(&tmp);
-		m_eReminderPending = (CivicTypes)tmp;
-	} // </advc.004x>
+	int tmp=-1;
+	pStream->Read(&tmp);
+	m_eReminderPending = (CivicTypes)tmp;
+	// </advc.004x>
+
 	pStream->Read(&m_bAlive);
 	pStream->Read(&m_bEverAlive);
 	pStream->Read(&m_bTurnActive);
@@ -14208,19 +15090,14 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	pStream->Read(&m_bPbemNewTurn);
 	pStream->Read(&m_bExtendedGame);
 	pStream->Read(&m_bFoundedFirstCity);
+
 	// <advc.078>
-	if(uiFlag >= 9)
-		pStream->Read(&m_bAnyGPPEver); // </advc.078>
+	pStream->Read(&m_bAnyGPPEver); // </advc.078>
+
 	pStream->Read(&m_bStrike);
+
 	// K-Mod
-	if (uiFlag >= 4)
-		pStream->Read(&m_iChoosingFreeTechCount);
-	else if (uiFlag >= 2)
-	{
-		bool bFreeTech = false;
-		pStream->Read(&bFreeTech);
-		m_iChoosingFreeTechCount = bFreeTech ? 1 : 0;
-	}
+	pStream->Read(&m_iChoosingFreeTechCount);
 	// K-Mod end
 
 	pStream->Read((int*)&m_eID);
@@ -14231,197 +15108,77 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	updateTeamType(); //m_eTeamType not saved
 	updateHuman();
 
-	if (uiFlag >= 16)
-	{
-		m_aiSeaPlotYield.read(pStream);
-		m_aiYieldRateModifier.read(pStream);
-		m_aiCapitalYieldRateModifier.read(pStream);
-		m_aiExtraYieldThreshold.read(pStream);
-	}
-	else
-	{
-		m_aiSeaPlotYield.readArray<int>(pStream);
-		m_aiYieldRateModifier.readArray<int>(pStream);
-		m_aiCapitalYieldRateModifier.readArray<int>(pStream);
-		m_aiExtraYieldThreshold.readArray<int>(pStream);
-	}
+	m_aiSeaPlotYield.read(pStream);
+	m_aiYieldRateModifier.read(pStream);
+	m_aiCapitalYieldRateModifier.read(pStream);
+	m_aiExtraYieldThreshold.read(pStream);
+
 	// <advc.908a>
-	if (uiFlag >= 15)
-	{
-		if (uiFlag >= 16)
-			m_aiExtraYieldNaturalThreshold.read(pStream);
-		else m_aiExtraYieldNaturalThreshold.readArray<int>(pStream);
-	}
-	else
-	{
-		FOR_EACH_ENUM(Yield)
-		{
-			int iThresh = m_aiExtraYieldThreshold.get(eLoopYield);
-			if (iThresh > 0)
-				m_aiExtraYieldNaturalThreshold.set(eLoopYield, iThresh + 1);
-		}
-		m_aiExtraYieldThreshold.reset();
-	} // </advc.908a>
-	if (uiFlag >= 16)
-	{
-		m_aiTradeYieldModifier.read(pStream);
-		m_aiFreeCityCommerce.read(pStream);
-		m_aiCommercePercent.read(pStream);
-		m_aiCommerceRateTimes100.read(pStream);
-		// <advc.157>
-		if (uiFlag >= 17)
-			m_aiCommerceRate.read(pStream);
-		else updateCommerceRates(); // </advc.157>
-		m_aiCommerceRateModifier.read(pStream);
-		m_aiCapitalCommerceRateModifier.read(pStream);
-		m_aiStateReligionBuildingCommerce.read(pStream);
-		m_aiSpecialistExtraCommerce.read(pStream);
-		m_aiCommerceFlexibleCount.read(pStream);
-		m_aiGoldPerTurnByPlayer.read(pStream);
-		m_aiEspionageSpendingWeightAgainstTeam.read(pStream);
-		m_abFeatAccomplished.read(pStream);
-		m_abOptions.read(pStream);
-	}
-	else
-	{
-		m_aiTradeYieldModifier.readArray<int>(pStream);
-		m_aiFreeCityCommerce.readArray<int>(pStream);
-		m_aiCommercePercent.readArray<int>(pStream);
-		m_aiCommerceRateTimes100.readArray<int>(pStream);
-		m_aiCommerceRateModifier.readArray<int>(pStream);
-		m_aiCapitalCommerceRateModifier.readArray<int>(pStream);
-		m_aiStateReligionBuildingCommerce.readArray<int>(pStream);
-		m_aiSpecialistExtraCommerce.readArray<int>(pStream);
-		m_aiCommerceFlexibleCount.readArray<int>(pStream);
-		m_aiGoldPerTurnByPlayer.readArray<int>(pStream);
-		m_aiEspionageSpendingWeightAgainstTeam.readArray<int>(pStream);
-		m_abFeatAccomplished.readArray<bool>(pStream);
-		m_abOptions.readArray<bool>(pStream);
-	}
+	m_aiExtraYieldNaturalThreshold.read(pStream);
+	// </advc.908a>
+
+	m_aiTradeYieldModifier.read(pStream);
+	m_aiFreeCityCommerce.read(pStream);
+	m_aiCommercePercent.read(pStream);
+	m_aiCommerceRateTimes100.read(pStream);
+
+	// <advc.157>
+	m_aiCommerceRate.read(pStream);
+	// </advc.157>
+
+	m_aiCommerceRateModifier.read(pStream);
+	m_aiCapitalCommerceRateModifier.read(pStream);
+	m_aiStateReligionBuildingCommerce.read(pStream);
+	m_aiSpecialistExtraCommerce.read(pStream);
+	m_aiCommerceFlexibleCount.read(pStream);
+	m_aiGoldPerTurnByPlayer.read(pStream);
+	m_aiEspionageSpendingWeightAgainstTeam.read(pStream);
+	m_abFeatAccomplished.read(pStream);
+	m_abOptions.read(pStream);
+
 	pStream->ReadString(m_szScriptData);
-	if (uiFlag >= 16)
-	{
-		m_aiBonusExport.read(pStream);
-		m_aiBonusImport.read(pStream);
-		m_aiImprovementCount.read(pStream);
-		m_aiFreeBuildingCount.read(pStream);
-		m_aiExtraBuildingHappiness.read(pStream);
-		m_aiExtraBuildingHealth.read(pStream);
-		m_aiFeatureHappiness.read(pStream);
-		m_aiUnitClassCount.read(pStream);
-		m_aiUnitClassMaking.read(pStream);
-		m_aiBuildingClassCount.read(pStream);
-		m_aiBuildingClassMaking.read(pStream);
-		m_aiHurryCount.read(pStream);
-		m_aiSpecialBuildingNotRequiredCount.read(pStream);
-		m_aiHasCivicOptionCount.read(pStream);
-		m_aiNoCivicUpkeepCount.read(pStream);
-		if (uiFlag < 23)
-		{
-			ArrayEnumMap<ReligionTypes,int,char> aiHasReligionCountLegacy;
-			ArrayEnumMap<CorporationTypes,int,char> aiHasCorpCountLegacy;
-			aiHasReligionCountLegacy.read(pStream);
-			aiHasCorpCountLegacy.read(pStream);
-			/*	These legacy counts may have wrapped around, but we can't sort that out
-				until CvGame::onAllGameDataRead. */
-			FOR_EACH_ENUM(Religion)
-			{
-				m_aiHasReligionCount.set(eLoopReligion,
-						aiHasReligionCountLegacy.get(eLoopReligion));
-			}
-			FOR_EACH_ENUM(Corporation)
-			{
-				m_aiHasCorporationCount.set(eLoopCorporation,
-						aiHasCorpCountLegacy.get(eLoopCorporation));
-			}
-		}
-		else
-		{
-			m_aiHasReligionCount.read(pStream);
-			m_aiHasCorporationCount.read(pStream);
-		}
-		m_aiUpkeepCount.read(pStream);
-		m_aiSpecialistValidCount.read(pStream);
-		if (uiFlag >= 21)
-			m_abResearchingTech.read(pStream);
-		else LegacyArrayEnumMap<TechTypes,bool>::convert(m_abResearchingTech, pStream);
-	}
-	else
-	{
-		m_aiBonusExport.readArray<int>(pStream);
-		m_aiBonusImport.readArray<int>(pStream);
-		m_aiImprovementCount.readArray<int>(pStream);
-		m_aiFreeBuildingCount.readArray<int>(pStream);
-		m_aiExtraBuildingHappiness.readArray<int>(pStream);
-		m_aiExtraBuildingHealth.readArray<int>(pStream);
-		m_aiFeatureHappiness.readArray<int>(pStream);
-		m_aiUnitClassCount.readArray<int>(pStream);
-		m_aiUnitClassMaking.readArray<int>(pStream);
-		m_aiBuildingClassCount.readArray<int>(pStream);
-		m_aiBuildingClassMaking.readArray<int>(pStream);
-		m_aiHurryCount.readArray<int>(pStream);
-		m_aiSpecialBuildingNotRequiredCount.readArray<int>(pStream);
-		m_aiHasCivicOptionCount.readArray<int>(pStream);
-		m_aiNoCivicUpkeepCount.readArray<int>(pStream);
-		m_aiHasReligionCount.readArray<int>(pStream);
-		m_aiHasCorporationCount.readArray<int>(pStream);
-		m_aiUpkeepCount.readArray<int>(pStream);
-		m_aiSpecialistValidCount.readArray<int>(pStream);
-		m_abResearchingTech.readArray<bool>(pStream);
-	}
+
+	m_aiBonusExport.read(pStream);
+	m_aiBonusImport.read(pStream);
+	m_aiImprovementCount.read(pStream);
+	m_aiFreeBuildingCount.read(pStream);
+	m_aiExtraBuildingHappiness.read(pStream);
+	m_aiExtraBuildingHealth.read(pStream);
+	m_aiFeatureHappiness.read(pStream);
+	m_aiUnitClassCount.read(pStream);
+	m_aiUnitClassMaking.read(pStream);
+	m_aiBuildingClassCount.read(pStream);
+	m_aiBuildingClassMaking.read(pStream);
+	m_aiHurryCount.read(pStream);
+	m_aiSpecialBuildingNotRequiredCount.read(pStream);
+	m_aiHasCivicOptionCount.read(pStream);
+	m_aiNoCivicUpkeepCount.read(pStream);
+	m_aiHasReligionCount.read(pStream);
+	m_aiHasCorporationCount.read(pStream);
+	m_aiUpkeepCount.read(pStream);
+	m_aiSpecialistValidCount.read(pStream);
+
+	m_abResearchingTech.read(pStream);
+
 	// <advc.091>
-	if (uiFlag >= 12)
-	{
-		if (uiFlag >= 16)
-			m_abEverSeenDemographics.read(pStream);
-		else m_abEverSeenDemographics.readArray<bool>(pStream);
-	}
-	else if(isBarbarian()) // Once all players have been loaded
-	{
-		for (PlayerIter<CIV_ALIVE> itSpyPlayer; itSpyPlayer.hasNext(); ++itSpyPlayer)
-		{
-			for (PlayerIter<CIV_ALIVE> itTargetPlayer; itTargetPlayer.hasNext();
-				++itTargetPlayer)
-			{
-				itSpyPlayer->m_abEverSeenDemographics.set(itTargetPlayer->getID(),
-						itSpyPlayer->canSeeDemographics(itTargetPlayer->getID()));
-			}
-		}
-	} // </advc.091>
-	if (uiFlag >= 16)
-	{
-		if (uiFlag >= 21)
-			m_abLoyalMember.read(pStream);
-		else LegacyArrayEnumMap<VoteSourceTypes,bool,void*,true>::convert(m_abLoyalMember, pStream);
-		m_aeCivics.read(pStream);
-		m_aeeiSpecialistExtraYield.read(pStream);
-		m_aeeiImprovementYieldChange.read(pStream);
-	}
-	else
-	{
-		m_abLoyalMember.readArray<bool>(pStream);
-		m_aeCivics.readArray<int>(pStream);
-		m_aeeiSpecialistExtraYield.readArray<int>(pStream);
-		m_aeeiImprovementYieldChange.readArray<int>(pStream);
-	}
+	m_abEverSeenDemographics.read(pStream);
+	// </advc.091>
+
+	m_abLoyalMember.read(pStream);
+
+	m_aeCivics.read(pStream);
+	m_aeeiSpecialistExtraYield.read(pStream);
+	m_aeeiImprovementYieldChange.read(pStream);
+
 	// <advc> Future-proofing
 	if (isBarbarian())
 		m_abLoyalMember.setAll(false); // </advc>
-	// <advc.912g>
-	if (uiFlag < 20)
-	{
-		FOR_EACH_ENUM(Civic)
-		{
-			if (isCivic(eLoopCivic))
-			{
-				changeColonyMaintenanceModifier(GC.getInfo(eLoopCivic).
-						getColonyMaintenanceModifier());
-			}
-		}
-	} // </advc.912g>
+
 	m_groupCycle.Read(pStream);
 	m_researchQueue.Read(pStream);
 
+	// <!-- custom: lone bracket left as is as seemingly not related to the uiflag cleanup we are doing here -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	{
 		m_cityNames.clear();
 		CvWString szBuffer;
@@ -14493,11 +15250,14 @@ void CvPlayer::read(FDataStreamBase* pStream)
 			}
 		}
 	}
+
 	// <advc.004s>
 	FOR_EACH_ENUM(PlayerHistory)
 	{
 		PlayerHistory& kHist = m_playerHistory[eLoopPlayerHistory];
-		kHist.read(pStream, getID(), uiFlag < 13);
+		// <!-- custom: KI#46 already switched this caller to the vector layout.
+		// Remove the old-format argument with its only reader. See KI#46.2. (GPT-6.2-Sol) -->
+		kHist.read(pStream, getID());
 	} // </advc.004s>
 
 	{
@@ -14584,7 +15344,8 @@ void CvPlayer::read(FDataStreamBase* pStream)
 		}
 	}
 
-	if (uiFlag > 0)
+	// <!-- custom: adding lone brackets just in case as is seemingly done as a pattern here, after we have cleaned up the old conditional uiflag check hence its scope as well -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	{
 		m_triggersFired.clear();
 		uint iSize;
@@ -14594,18 +15355,6 @@ void CvPlayer::read(FDataStreamBase* pStream)
 			int iTrigger;
 			pStream->Read(&iTrigger);
 			m_triggersFired.push_back((EventTriggerTypes)iTrigger);
-		}
-	}
-	else
-	{
-		// yuck, hardcoded number of eventTriggers in the epic game in initial release
-		int iEventTriggers = std::min(176, GC.getNumEventTriggerInfos());
-		for (int i = 0; i < iEventTriggers; i++)
-		{
-			bool bTriggered;
-			pStream->Read(&bTriggered);
-			if (bTriggered)
-				m_triggersFired.push_back((EventTriggerTypes)i);
 		}
 	}
 
@@ -14623,20 +15372,11 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	}
 
 	pStream->Read(&m_iPopRushHurryCount);
+
 	// <advc.064b>
-	if(uiFlag >= 10)
-		pStream->Read(&m_iGoldRushHurryCount);
-	else
-	{
-		FOR_EACH_ENUM(Hurry)
-		{
-			if (GC.getInfo(eLoopHurry).getGoldPerProduction() > 0)
-			{
-				m_iGoldRushHurryCount = m_aiHurryCount.get(eLoopHurry);
-				break;
-			}
-		}
-	} // </advc.064b>
+	pStream->Read(&m_iGoldRushHurryCount);
+	// </advc.064b>
+
 	pStream->Read(&m_iInflationModifier);
 
 	if(!isAlive())
@@ -14648,66 +15388,6 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	if(kGame.isOption(GAMEOPTION_RISE_FALL) && kGame.getRiseFall().hasRetired())
 		kGame.getRiseFall().retire(); // </advc.706>
 	// <advc.908a>
-	if(uiFlag < 5 && !isBarbarian())
-	{
-		FOR_EACH_ENUM(Yield)
-			updateExtraYieldThresholds(eLoopYield);
-	} // </advc.908a>
-	// <advc.908c> Philosophical trait effect reduced by 20 points in AdvCiv 1.0
-	if (uiFlag < 15)
-	{
-		FOR_EACH_ENUM(Trait)
-		{
-			if (hasTrait(eLoopTrait) &&
-				GC.getInfo(eLoopTrait).getGreatPeopleRateModifier() == 80)
-			{
-				changeGreatPeopleRateModifier(-20);
-				break;
-			}
-		}
-	} // </advc.908c>
-	// <advc.912c>
-	if(uiFlag <= 6)
-	{
-		FOR_EACH_ENUM2(Civic, eCivic)
-		{
-			if (!isCivic(eCivic))
-				continue;
-			CvCivicInfo& kCivic = GC.getInfo(eCivic);
-			if (kCivic.getLuxuryModifier() <= 0)
-				continue;
-			int iPreviousHappyPer = (uiFlag < 6 ? 1 : 0);
-			int iPreviousLux =  (uiFlag < 6 ? 0 : 50);
-			changeHappyPerMilitaryUnit(kCivic.getHappyPerMilitaryUnit() -
-					iPreviousHappyPer);
-			changeLuxuryModifier(kCivic.getLuxuryModifier() - iPreviousLux);
-		}
-	} // </advc.912c>
-	// <advc>
-	if (uiFlag < 22)
-	{
-		FOR_EACH_ENUM(Commerce)
-		{
-			m_aiCommerceRateTimes100.set(eLoopCommerce, 0);
-			FOR_EACH_CITY(pCity, *this)
-			{
-				m_aiCommerceRateTimes100.add(eLoopCommerce,
-						pCity->getCommerceRateTimes100(eLoopCommerce));
-			}
-		}
-		updateCommerceRates();
-	} // </advc>
-	// <advc.708>
-	if (uiFlag < 19 && GC.getGame().isOption(GAMEOPTION_RISE_FALL) && isAlive())
-	{
-		if (!isMajorCiv())
-		{
-			// Don't update until all civ player handicaps have been set
-			if (isBarbarian())
-				GC.getGame().updateAIHandicap();
-		}
-		else GC.getGame().getRiseFall().setPlayerHandicap(getID(), isHuman(), true);
-	} // </advc.708>
 }
 
 // save object to a stream
@@ -14716,27 +15396,15 @@ void CvPlayer::write(FDataStreamBase* pStream)
 	PROFILE_FUNC(); // advc
 
 	REPRO_TEST_BEGIN_WRITE(CvString::format("PlayerPt1(%d)", getID()));
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag;
-	//uiFlag = 1; // BtS
-	//uiFlag = 5; // K-Mod
-	//uiFlag = 5; // advc.908a (I guess I broke compatibility here)
-	//uiFlag = 7; // advc.912c (6 used up for a test version)
-	//uiFlag = 8; // advc.004x
-	//uiFlag = 9; // advc.078
-	//uiFlag = 10; // advc.064b
-	//uiFlag = 11; // advc.001x
-	//uiFlag = 12; // advc.091
-	//uiFlag = 13; // advc.004s
-	//uiFlag = 14; // advc.027 (m_bRandomWBStart)
-	//uiFlag = 15; // advc.908a (separate tag for nerfed trait effect), advc.908c
-	//uiFlag = 16; // advc.enum: new enum map save behavior
-	//uiFlag = 17; // advc.157
-	//uiFlag = 18; // advc.251 (city maintenance changed in handicap XML)
-	//uiFlag = 19; // advc.708
-	//uiFlag = 20; // advc.912g
-	//uiFlag = 21; // advc.enum: Bugfix in bool-valued ArrayEnumMap
-	//uiFlag = 22; // advc: Bugs fixed with civ-wide special commerce rate cache
-	uiFlag = 23; // advc: Larger EnumMap for religion, corporation count
+
+	// <!-- custom: Reuse AdvCiv flag 23 for the widened religion and corporation counts.
+	// Read the writer flag from the shared registry so SASGameRecord reports the same layout the DLL writes. (GPT-6.1-Sol + GPT-6.2-Sol) -->
+	uiFlag = SASSaveStreamFormat::CV_PLAYER; // advc: Larger EnumMap for religion, corporation count
+
 	pStream->Write(uiFlag);
 
 	// <advc.027>
@@ -14859,7 +15527,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
 	pStream->Write(m_bFoundedFirstCity);
 	pStream->Write(m_bAnyGPPEver); // advc.078
 	pStream->Write(m_bStrike);
-	pStream->Write(m_iChoosingFreeTechCount); // K-Mod (bool for 2 <= uiFlag < 4. then int.)
+	pStream->Write(m_iChoosingFreeTechCount); // K-Mod
 
 	pStream->Write(m_eID);
 	pStream->Write(m_ePersonalityType);
@@ -15077,9 +15745,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
 	REPRO_TEST_END_WRITE();
 }
 
-void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit,
-	bool bIncrementThreshold, bool bIncrementExperience,
-	CvPlot& kAt) // advc: was iX,iY
+void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThreshold, bool bIncrementExperience, CvPlot& kAt) // advc: was iX, iY
 {
 	CvUnit* pGreatPeopleUnit = initUnit(eGreatPersonUnit, kAt.getX(), kAt.getY());
 	if (pGreatPeopleUnit == NULL)
@@ -15091,13 +15757,17 @@ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit,
 	if (bIncrementThreshold)
 	{
 		incrementGreatPeopleCreated();
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: code/performance optimization: hoist -->
+		static const int iGREAT_PEOPLE_THRESHOLD_INCREASE = GC.getDefineINT("GREAT_PEOPLE_THRESHOLD_INCREASE");
+		static const int iGREAT_PEOPLE_THRESHOLD_INCREASE_TEAM = GC.getDefineINT("GREAT_PEOPLE_THRESHOLD_INCREASE_TEAM");
 		changeGreatPeopleThresholdModifier(
-				GC.getDefineINT("GREAT_PEOPLE_THRESHOLD_INCREASE") *
+				iGREAT_PEOPLE_THRESHOLD_INCREASE *
 				((getGreatPeopleCreated() / 10) + 1));
 		for (MemberIter itMember(getTeam()); itMember.hasNext(); ++itMember)
 		{
 			itMember->changeGreatPeopleThresholdModifier(
-					GC.getDefineINT("GREAT_PEOPLE_THRESHOLD_INCREASE_TEAM") *
+					iGREAT_PEOPLE_THRESHOLD_INCREASE_TEAM *
 					((getGreatPeopleCreated() / 10) + 1));
 		}
 	}
@@ -15105,16 +15775,22 @@ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit,
 	if (bIncrementExperience)
 	{
 		incrementGreatGeneralsCreated();
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: code/performance optimization: hoist -->
+		static const int iGREAT_GENERALS_THRESHOLD_INCREASE = GC.getDefineINT("GREAT_GENERALS_THRESHOLD_INCREASE");
+		static const int iGREAT_GENERALS_THRESHOLD_INCREASE_TEAM = GC.getDefineINT("GREAT_GENERALS_THRESHOLD_INCREASE_TEAM");
 		changeGreatGeneralsThresholdModifier(
-				GC.getDefineINT("GREAT_GENERALS_THRESHOLD_INCREASE") *
+				iGREAT_GENERALS_THRESHOLD_INCREASE *
 				((getGreatGeneralsCreated() / 10) + 1));
 		for (MemberIter itMember(getTeam()); itMember.hasNext(); ++itMember)
 		{
 			itMember->changeGreatGeneralsThresholdModifier(
-					GC.getDefineINT("GREAT_GENERALS_THRESHOLD_INCREASE_TEAM") *
+					iGREAT_GENERALS_THRESHOLD_INCREASE_TEAM *
 					((getGreatGeneralsCreated() / 10) + 1));
 		}
 	}
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorUnitText = (ColorTypes)GC.getColorType("UNIT_TEXT");
 	// <advc.106>
 	CvPlayer const& kGPOwner = GET_PLAYER(kAt.getOwner());
 	// Use shorter message for replays
@@ -15122,7 +15798,7 @@ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit,
 			pGreatPeopleUnit->getReplayName().GetCString(),
 			kGPOwner.getCivilizationDescriptionKey()); // </advc.106>
 	GC.getGame().addReplayMessage(kAt, REPLAY_MESSAGE_MAJOR_EVENT,
-			getID(), szReplayMessage, GC.getColorType("UNIT_TEXT"));
+			getID(), szReplayMessage, eColorUnitText);
 	// Non-replay message
 	CvWString szMessage;
 	CvCity* pCity = kAt.getPlotCity();
@@ -15194,8 +15870,7 @@ void CvPlayer::resetEventOccured(EventTypes eEvent, bool bAnnounce)
 	}
 }
 
-void CvPlayer::setEventOccured(EventTypes eEvent, EventTriggeredData const& kEventTriggered,
-	bool bOthers)
+void CvPlayer::setEventOccured(EventTypes eEvent, EventTriggeredData const& kEventTriggered, bool bOthers)
 {
 	FAssertEnumBounds(eEvent);
 	m_mapEventsOccured[eEvent] = kEventTriggered;
@@ -15301,6 +15976,10 @@ void CvPlayer::setTriggerFired(EventTriggeredData const& kTriggeredData, bool bO
 		CvPlot* pPlot = GC.getMap().plot(kTriggeredData.m_iPlotX, kTriggeredData.m_iPlotY);
 		if (!kTriggeredData.m_szGlobalText.empty())
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			// <!-- custom: code/performance optimization: hoist -->
+			static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
+
 			// advc: Moved out of the loop
 			bool bMetOtherPlayer = (kTriggeredData.m_eOtherPlayer == NO_PLAYER ||
 					GET_TEAM(kTriggeredData.m_eOtherPlayer).isHasMet(getTeam()));
@@ -15321,7 +16000,7 @@ void CvPlayer::setTriggerFired(EventTriggeredData const& kTriggeredData, bool bO
 					{
 						gDLL->UI().addMessage(kLoopPlayer.getID(), false, -1,
 								kTriggeredData.m_szGlobalText, "AS2D_CIVIC_ADOPT",
-								MESSAGE_TYPE_MINOR_EVENT, NULL, GC.getColorType("WHITE"),
+								MESSAGE_TYPE_MINOR_EVENT, NULL, eColorWhite,
 								kTriggeredData.m_iPlotX, kTriggeredData.m_iPlotY, true, true);
 					}
 					else
@@ -15353,10 +16032,7 @@ void CvPlayer::setTriggerFired(EventTriggeredData const& kTriggeredData, bool bO
 }
 
 
-EventTriggeredData* CvPlayer::initTriggeredData(EventTriggerTypes eEventTrigger,
-	bool bFire, int iCityId, int iPlotX, int iPlotY, PlayerTypes eOtherPlayer,
-	int iOtherPlayerCityId, ReligionTypes eReligion, CorporationTypes eCorporation,
-	int iUnitId, BuildingTypes eBuilding)
+EventTriggeredData* CvPlayer::initTriggeredData(EventTriggerTypes eEventTrigger, bool bFire, int iCityId, int iPlotX, int iPlotY, PlayerTypes eOtherPlayer, int iOtherPlayerCityId, ReligionTypes eReligion, CorporationTypes eCorporation, int iUnitId, BuildingTypes eBuilding)
 {
 	CvEventTriggerInfo& kTrigger = GC.getInfo(eEventTrigger);
 
@@ -15782,6 +16458,9 @@ bool CvPlayer::canDoEvent(EventTypes eEvent, const EventTriggeredData& kTriggere
 		}
 	}
 
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	if (kEvent.getSpaceProductionModifier() != 0)
 	{
 		bool bValid = false;
@@ -15790,7 +16469,7 @@ bool CvPlayer::canDoEvent(EventTypes eEvent, const EventTriggeredData& kTriggere
 			CvProjectInfo& kProject = GC.getInfo(eProject);
 			if (kProject.isSpaceship() && kProject.getVictoryPrereq() != NO_VICTORY)
 			{
-				if (GC.getGame().isVictoryValid(kProject.getVictoryPrereq()))
+				if (kGame.isVictoryValid(kProject.getVictoryPrereq()))
 				{
 					bValid = true;
 					break;
@@ -15802,7 +16481,7 @@ bool CvPlayer::canDoEvent(EventTypes eEvent, const EventTriggeredData& kTriggere
 	}
 
 	if (kEvent.getEspionagePoints() > 0 &&
-		GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
+		kGame.isOption(GAMEOPTION_NO_ESPIONAGE))
 	{
 		return false;
 	}
@@ -15874,8 +16553,17 @@ bool CvPlayer::canDoEvent(EventTypes eEvent, const EventTriggeredData& kTriggere
 	}
 
 	CvUnit* pUnit = getUnit(kTriggeredData.m_iUnitId);
-	if (pUnit != NULL && !pUnit->canApplyEvent(eEvent))
+	// <!-- custom: BtS accepted a vanished target even when this EventInfo still had a concrete unit-local payload.
+	// Derive that requirement from every field consumed by CvUnit::applyEvent; contextual unit IDs remain optional for outcomes without such effects. See KI#809. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bRequiresUnit = (kEvent.isDisbandUnit() ||
+			kEvent.getUnitExperience() != 0 || kEvent.getUnitImmobileTurns() > 0 ||
+			kEvent.getUnitPromotion() != NO_PROMOTION ||
+			!CvWString(kEvent.getUnitNameKey()).empty());
+	if ((bRequiresUnit && pUnit == NULL) ||
+		(pUnit != NULL && !pUnit->canApplyEvent(eEvent)))
+	{
 		return false;
+	}
 
 	if (kEvent.getBonusRevealed() != NO_BONUS)
 	{
@@ -16005,27 +16693,35 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 {
 	FAssert(eEvent != NO_EVENT);
 
+	bool const bLogRandomEvent = (gGameRecordLogLevel >= 2);
 	EventTriggeredData* pTriggeredData = getEventTriggered(iEventTriggeredId);
+	int const iEventOccurredBefore = (bLogRandomEvent ? (getEventOccured(eEvent) != NULL) : -1);
 
 	if (pTriggeredData == NULL)
 	{
+		if (bLogRandomEvent) logSASGameRecordRandomEventApply(*this, eEvent, iEventTriggeredId, NULL, bUpdateTrigger, "REJECTED_MISSING_TRIGGER_DATA", -1, -1, iEventOccurredBefore);
 		deleteEventTriggered(iEventTriggeredId);
 		return;
 	}
 
-	if (bUpdateTrigger)
+	int const iTriggerFiredBefore = (bLogRandomEvent ? isTriggerFired(pTriggeredData->m_eTrigger) : -1);
+	// <!-- custom: Store the authoritative reply-time validation result so SASGameRecord records the same decision used by the repaired transaction below. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bCanDoEvent = canDoEvent(eEvent, *pTriggeredData);
+	if (!bCanDoEvent)
 	{
-		setTriggerFired(*pTriggeredData, true);
-	}
-
-	if (!canDoEvent(eEvent, *pTriggeredData))
-	{
+		if (bLogRandomEvent) logSASGameRecordRandomEventApply(*this, eEvent, iEventTriggeredId, pTriggeredData, bUpdateTrigger, "REJECTED_CAN_DO", 0, iTriggerFiredBefore, iEventOccurredBefore);
 		if (bUpdateTrigger)
 			deleteEventTriggered(iEventTriggeredId);
 		return;
 	}
 
+	// <!-- custom: BtS committed and globally propagated the trigger before authoritative reply-time validation.
+	// Mark it fired only after a stale choice has passed canDoEvent, matching AdvCiv's launchEventPopup cancellation contract. See KI#810. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (bUpdateTrigger)
+		setTriggerFired(*pTriggeredData, true);
+
 	setEventOccured(eEvent, *pTriggeredData);
+	if (bLogRandomEvent) logSASGameRecordRandomEventApply(*this, eEvent, iEventTriggeredId, pTriggeredData, bUpdateTrigger, "ACCEPTED", 1, iTriggerFiredBefore, iEventOccurredBefore);
 
 	CvEventInfo& kEvent = GC.getInfo(eEvent);
 	CvCity* pCity =	getCity(pTriggeredData->m_iCityId);
@@ -16040,10 +16736,25 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 				getCity(pTriggeredData->m_iOtherPlayerCityId);
 	}
 
+	// <!-- custom: Capture only native player-level EventInfo state that lacks another exact canonical result row.
+	// City-local happiness/health stays in the city result path; disabled/level-1 logging performs no extra player/team queries. (ChatGPT-5.6-Sol) -->
+	bool const bLogRandomEventPlayerResult = (bLogRandomEvent &&
+			(kEvent.getFreeUnitSupport() != 0 || kEvent.getInflationModifier() != 0 || kEvent.getSpaceProductionModifier() != 0 ||
+			(kEvent.getEspionagePoints() != 0 && pTriggeredData->m_eOtherPlayer != NO_PLAYER) || kEvent.getBonusRevealed() != NO_BONUS ||
+			(!kEvent.isCityEffect() && !kEvent.isOtherPlayerCityEffect() && (kEvent.getHappy() != 0 || kEvent.getHealth() != 0))));
+	SASGameRecordRandomEventPlayerState kSASRandomEventPlayerBefore;
+	if (bLogRandomEventPlayerResult)
+		kSASRandomEventPlayerBefore = SASGameRecordRandomEventPlayerState(*this, eEvent, pTriggeredData->m_eOtherPlayer);
+
 	// advc (note): This computation of iGold seems overcomplicated - but correct.
 	int const iRandomGold = getEventCost(eEvent, pTriggeredData->m_eOtherPlayer, true);
 	int iGold = getEventCost(eEvent, pTriggeredData->m_eOtherPlayer, false);
+	int const iGoldBase = iGold;
 	iGold += SyncRandNum(iRandomGold - iGold + 1);
+
+	// <!-- custom: getEventCost can be nonzero solely through iTechCostPercent even when iGold/iRandomGold are both zero.
+	// Gate on the already-computed endpoints/result so every realized EventInfo treasury transaction is visible without repeating tech selection or cost calculation. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (bLogRandomEvent && (iGoldBase != 0 || iRandomGold != 0 || iGold != 0)) logSASGameRecordRandomEventGoldResult(*this, eEvent, iEventTriggeredId, std::min(iGoldBase, iRandomGold), std::max(iGoldBase, iRandomGold), iGold, pTriggeredData->m_eOtherPlayer, kEvent.isGoldToPlayer());
 
 	if (iGold != 0)
 	{
@@ -16067,27 +16778,54 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 	{
 		TechTypes const eBestTech = getBestEventTech(eEvent,
 				pTriggeredData->m_eOtherPlayer);
+		int iResearchBefore = -1;
+		int iResearchAfter = -1;
+		int iTechCost = -1;
+		int iBeakers = 0;
+		int iCompleted = -1;
 		if (eBestTech != NO_TECH)
 		{
-			int const iBeakers = GET_TEAM(getTeam()).changeResearchProgressPercent(
-					eBestTech, kEvent.getTechPercent(), getID());
+			if (bLogRandomEvent)
+			{
+				iResearchBefore = GET_TEAM(getTeam()).getResearchProgress(eBestTech);
+				iTechCost = GET_TEAM(getTeam()).getResearchCost(eBestTech);
+			}
+			iBeakers = GET_TEAM(getTeam()).changeResearchProgressPercent(
+					eBestTech, kEvent.getTechPercent(), getID(), TECH_ACQUISITION_RANDOM_EVENT);
+			if (bLogRandomEvent)
+			{
+				iResearchAfter = GET_TEAM(getTeam()).getResearchProgress(eBestTech);
+				iCompleted = GET_TEAM(getTeam()).isHasTech(eBestTech);
+			}
 			if (iBeakers > 0)
-			{	// advc: Was effectively itMember(getID()); previously fixed by kmodx.
+			{	
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+				// <!-- custom: code/performance optimization: hoist -->
+				static const ColorTypes eColorTechText = (ColorTypes)GC.getColorType("TECH_TEXT");
+
+				// advc: Was effectively itMember(getID()); previously fixed by kmodx.
 				for (MemberIter itMember(getTeam()); itMember.hasNext(); ++itMember)
 				{
 					CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_PROGRESS_TOWARDS_TECH",
 							iBeakers, GC.getInfo(eBestTech).getTextKeyWide());
 					gDLL->UI().addMessage(itMember->getID(), false, -1, szBuffer, NULL,
-							MESSAGE_TYPE_MINOR_EVENT, NULL, GC.getColorType("TECH_TEXT"));
+							MESSAGE_TYPE_MINOR_EVENT, NULL, eColorTechText);
 				}
 			}
 		}
+		// <!-- custom: Record the actual dynamically selected research target/result without a second getBestEventTech call.
+		// A configured event with no valid target is kept as tech=NO_TECH and zero applied beakers. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (bLogRandomEvent) logSASGameRecordRandomEventTechResult(*this, eEvent, iEventTriggeredId, eBestTech, kEvent.getTechPercent(), iResearchBefore, iBeakers, iResearchAfter, iTechCost, iCompleted);
 	}
 
 	if (kEvent.isGoldenAge())
 		changeGoldenAgeTurns(getGoldenAgeLength());
 	if (kEvent.getInflationModifier() != 0)
+	{
 		m_iInflationModifier += kEvent.getInflationModifier();
+		// <!-- custom: EventInfo can change effective inflation between global clock updates; refresh the inflation-neutral corporation-maintenance cache before the next expense calculation. See KI#744. (GPT-5.6-Sol) -->
+		updateMaintenance();
+	}
 	if (kEvent.getSpaceProductionModifier() != 0)
 		changeSpaceProductionModifier(kEvent.getSpaceProductionModifier());
 	if (kEvent.getFreeUnitSupport() != 0)
@@ -16097,12 +16835,18 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 	{
 		if (pTriggeredData->m_eOtherPlayer != NO_PLAYER)
 		{
-			if (gTeamLogLevel >= 2) logBBAI("    Team %d (%S) declares war on team %d due to event", GET_PLAYER(pTriggeredData->m_eOtherPlayer).getTeam(), GET_PLAYER(pTriggeredData->m_eOtherPlayer).getCivilizationDescription(0), getTeam()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+			if (gWarLogLevel >= 2) logBBAI("EVENT_WAR_DECLARATION turn=%d event=%s triggerId=%d sourcePlayer=%d sourceCiv=%s sourceTeam=%d targetPlayer=%d targetCiv=%s targetTeam=%d",
+				GC.getGame().getGameTurn(), GC.getInfo(eEvent).getType(), iEventTriggeredId, pTriggeredData->m_eOtherPlayer,
+				GC.getInfo(GET_PLAYER(pTriggeredData->m_eOtherPlayer).getCivilizationType()).getType(), GET_PLAYER(pTriggeredData->m_eOtherPlayer).getTeam(),
+				getID(), GC.getInfo(getCivilizationType()).getType(), getTeam()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 			GET_TEAM(GET_PLAYER(pTriggeredData->m_eOtherPlayer).getTeam()).declareWar(getTeam(), false, WARPLAN_LIMITED,
 					true, NO_PLAYER, true); // advc.106g
 		}
 	}
 
+	// <!-- custom: do not cache kGame due to compile error -->
+	// 1>..\CvPlayer.cpp(16201): error C2663: 'CvGame::implementDeal' : 2 overloads have no legal conversion for 'this' pointer
+	// <!-- custom: performance optimization: cache repetitive calls -->
 	if (kEvent.getBonusGift() != NO_BONUS)
 	{
 		if (pTriggeredData->m_eOtherPlayer != NO_PLAYER)
@@ -16124,22 +16868,59 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 		bClear = (SyncRandNum(100) < kEvent.getClearEventChance(eLoopEvent));
 		if (!bClear)
 			continue;
+		int iClearScopePlayerSlots = (bLogRandomEvent ? 0 : -1);
+		int iClearScopeEverAlivePlayers = (bLogRandomEvent ? 0 : -1);
+		int iClearedOccurrences = (bLogRandomEvent ? 0 : -1);
+		char const* szClearScope = (bLogRandomEvent ? "PLAYER" : NULL);
+		TeamTypes eClearScopeTeam = NO_TEAM;
 		if (kEvent.isGlobal())
 		{
+			if (bLogRandomEvent) szClearScope = "GLOBAL";
 			for (PlayerIter<> itPlayer; itPlayer.hasNext(); ++itPlayer)
 			{
 				if (!itPlayer->isBarbarian())
+				{
+					if (bLogRandomEvent)
+					{
+						iClearScopePlayerSlots++;
+						if (itPlayer->isEverAlive()) iClearScopeEverAlivePlayers++;
+						if (itPlayer->getEventOccured(eLoopEvent) != NULL) iClearedOccurrences++;
+					}
 					itPlayer->resetEventOccured(eLoopEvent, itPlayer->getID() != getID());
+				}
 			}
 		}
 		else if (kEvent.isTeam())
 		{
+			if (bLogRandomEvent)
+			{
+				szClearScope = "TEAM";
+				eClearScopeTeam = getTeam();
+			}
 			for (MemberIter itMember(getTeam()); itMember.hasNext(); ++itMember)
 			{
+				if (bLogRandomEvent)
+				{
+					iClearScopePlayerSlots++;
+					if (itMember->isEverAlive()) iClearScopeEverAlivePlayers++;
+					if (itMember->getEventOccured(eLoopEvent) != NULL) iClearedOccurrences++;
+				}
 				itMember->resetEventOccured(eLoopEvent, itMember->getID() != getID());
 			}
 		}
-		else resetEventOccured(eLoopEvent, false);
+		else
+		{
+			if (bLogRandomEvent)
+			{
+				iClearScopePlayerSlots = 1;
+				iClearScopeEverAlivePlayers = (isEverAlive() ? 1 : 0);
+				iClearedOccurrences = (getEventOccured(eLoopEvent) != NULL ? 1 : 0);
+			}
+			resetEventOccured(eLoopEvent, false);
+		}
+		// <!-- custom: Log only a successful existing ClearEventChance roll, after the original reset scope has completed.
+		// Keep the actual reset-loop slot breadth separate from ever-alive civilizations so global scope is not misleading on 48-player DLLs; failed candidate rolls remain intentionally absent. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (bLogRandomEvent) logSASGameRecordRandomEventOccurrenceCleared(*this, eEvent, eLoopEvent, iEventTriggeredId, kEvent.getClearEventChance(eLoopEvent), szClearScope, eClearScopeTeam, iClearScopePlayerSlots, iClearScopeEverAlivePlayers, iClearedOccurrences);
 	}
 
 	if (pCity != NULL && kEvent.isCityEffect())
@@ -16149,6 +16930,24 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 
 	if (!kEvent.isCityEffect() && !kEvent.isOtherPlayerCityEffect())
 	{
+		// <!-- custom: Empire-scoped EventInfos can mutate every city without an individual city applyEvent call.
+		// Snapshot only when this EventInfo actually contains a city-relevant deterministic effect; ordinary gold/war/promotion/etc. events avoid the extra city scans. (ChatGPT-5.6-Sol) -->
+		bool const bLogRandomEventBuildingModifierResult = (bLogRandomEvent &&
+				(kEvent.getBuildingYieldChange().isAnyNonDefault() || kEvent.getBuildingCommerceChange().isAnyNonDefault() ||
+				kEvent.getBuildingHappyChange().isAnyNonDefault() || kEvent.getBuildingHealthChange().isAnyNonDefault()));
+		bool const bLogRandomEventEmpireCityResult = (bLogRandomEvent &&
+				(kEvent.getHappy() != 0 || kEvent.getHealth() != 0 || kEvent.getHurryAnger() != 0 || kEvent.getHappyTurns() != 0 ||
+				kEvent.getFood() != 0 || kEvent.getFoodPercent() != 0 || kEvent.getPopulationChange() != 0 || kEvent.getCulture() != 0 ||
+				bLogRandomEventBuildingModifierResult));
+		// <!-- custom: This empty vector must span the gameplay mutation below; accept its tiny stack-object construction at level 0/1 rather than adding heap/optional lifetime machinery.
+		// No city scan, reserve or element construction occurs unless recording is enabled. (ChatGPT-5.6-Sol) -->
+		std::vector<std::pair<int, SASGameRecordRandomEventCityState> > aSASRandomEventCityBefore;
+		if (bLogRandomEventEmpireCityResult)
+		{
+			FOR_EACH_CITY(pSASCity, *this)
+				aSASRandomEventCityBefore.push_back(std::make_pair(pSASCity->getID(), SASGameRecordRandomEventCityState(*pSASCity, eEvent)));
+		}
+
 		if (kEvent.getHappy() != 0)
 			changeExtraHappiness(kEvent.getHappy());
 		if (kEvent.getHealth() != 0)
@@ -16211,9 +17010,16 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 		if (kEvent.getMaxPillage() > 0)
 		{
 			FAssert(kEvent.getMaxPillage() >= kEvent.getMinPillage());
+			// <!-- custom: BtS treated the XML maximum as exclusive although event help advertises both endpoints as inclusive.
+			// Include the maximum for empire-scoped pillage outcomes. See KI#736. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			int const iPillage = kEvent.getMinPillage() +
-					SyncRandNum(kEvent.getMaxPillage() - kEvent.getMinPillage());
+					SyncRandNum(kEvent.getMaxPillage() - kEvent.getMinPillage() + 1);
 			int iDone = 0;
+
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			// <!-- custom: code/performance optimization: hoist -->
+			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 			for (int i = 0; i < iPillage; i++)
 			{
 				int const iRandOffset = SyncRandNum(GC.getMap().numPlots());
@@ -16230,13 +17036,19 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 								GC.getInfo(pPlot->getImprovementType()).getTextKeyWide());
 						gDLL->UI().addMessage(getID(), false, -1, szBuffer, *pPlot, "AS2D_PILLAGED",
 								MESSAGE_TYPE_INFO, GC.getInfo(pPlot->getImprovementType()).getButton(),
-								GC.getColorType("RED"));
+								eColorRed);
+						bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+						SASGameRecordPlotState kOldPlotState;
+						if (bLogPlotChange) kOldPlotState = SASGameRecordPlotState(*pPlot);
 						pPlot->setImprovementType(NO_IMPROVEMENT);
+						if (bLogPlotChange) recordSASGameRecordPlotChange(*pPlot, kOldPlotState, "randomEvents", "RANDOM_EVENT", true);
 						iDone++;
 						break;
 					}
 				}
 			}
+
+			if (bLogRandomEvent) logSASGameRecordRandomEventPillageResult("EMPIRE", getID(), getID(), -1, iEventTriggeredId, eEvent, kEvent.getMinPillage(), kEvent.getMaxPillage(), iPillage, iDone);
 
 			if (NO_PLAYER != pTriggeredData->m_eOtherPlayer)
 			{
@@ -16288,12 +17100,31 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 						pUnitCity = getCapital();
 					if (pUnitCity != NULL)
 					{
+						int iUnitsCreated = 0;
 						for (int i = 0; i < kEvent.getNumUnits(); i++)
-							initUnit(eUnit, pUnitCity->getX(), pUnitCity->getY());
+						{
+							CvUnit* pCreatedUnit = initUnit(eUnit, pUnitCity->getX(), pUnitCity->getY());
+							if (bLogRandomEvent && pCreatedUnit != NULL) iUnitsCreated++;
+						}
+						// <!-- custom: Event-created free units bypass ordinary city production, so preserve the realized resolved unit type/count and spawn location without adding another unit creation scan or changing initUnit order. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+						if (bLogRandomEvent && kEvent.getNumUnits() > 0) logSASGameRecordRandomEventFreeUnitsResult(getID(), getID(), eEvent, iEventTriggeredId, eUnitClass, eUnit, kEvent.getNumUnits(), iUnitsCreated, pUnitCity);
 					}
 				}
 			}
 		}
+
+		if (bLogRandomEventEmpireCityResult)
+		{
+			for (size_t i = 0; i < aSASRandomEventCityBefore.size(); i++)
+			{
+				CvCity const* pSASCity = getCity(aSASRandomEventCityBefore[i].first);
+				if (pSASCity == NULL)
+					continue;
+				SASGameRecordRandomEventCityState const kSASAfter(*pSASCity, eEvent);
+				logSASGameRecordRandomEventCityResult(getID(), getID(), iEventTriggeredId, eEvent, "EMPIRE", *pSASCity, aSASRandomEventCityBefore[i].second, kSASAfter);
+			}
+		}
+		if (bLogRandomEventBuildingModifierResult) logSASGameRecordRandomEventBuildingModifierResults(*this, eEvent, iEventTriggeredId, "EMPIRE", NULL);
 	}
 
 	CvPlot* pPlot = GC.getMap().plot(
@@ -16312,7 +17143,21 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 		if (pUnit != NULL)
 		{
 			FAssert(pUnit->canApplyEvent(eEvent));
-			pUnit->applyEvent(eEvent); // might kill the unit
+			bool const bLogRandomEventUnitResult = (bLogRandomEvent && kEvent.hasUnitLocalEffect());
+			if (bLogRandomEventUnitResult)
+			{
+				// <!-- custom: Keep both recorder snapshots wholly inside the enabled branch.
+				// The after-state still needs its sentinel default because applyEvent may disband the unit, but level 0/1 should not construct either recorder state at all.
+				// Both branches execute the same authoritative gameplay call exactly once. (ChatGPT-5.6-Sol) -->
+				int const iSASUnitId = pUnit->getID();
+				SASGameRecordRandomEventUnitState const kSASUnitBefore(*pUnit, eEvent);
+				pUnit->applyEvent(eEvent); // might kill the unit
+				CvUnit const* pSASUnitAfter = getUnit(iSASUnitId);
+				SASGameRecordRandomEventUnitState kSASUnitAfter;
+				if (pSASUnitAfter != NULL) kSASUnitAfter = SASGameRecordRandomEventUnitState(*pSASUnitAfter, eEvent);
+				logSASGameRecordRandomEventUnitResult(getID(), iEventTriggeredId, eEvent, kSASUnitBefore, kSASUnitAfter);
+			}
+			else pUnit->applyEvent(eEvent);
 		}
 	}
 	FOR_EACH_ENUM(UnitCombat)
@@ -16321,12 +17166,24 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 				kEvent.getUnitCombatPromotion(eLoopUnitCombat);
 		if (eEventPromo == NO_PROMOTION)
 			continue;
+		int const iSASFreePromotionBefore = (bLogRandomEvent ? isFreePromotion(eLoopUnitCombat, eEventPromo) : -1);
+		int iSASExistingUnitsNewlyPromoted = 0;
 		FOR_EACH_UNIT_VAR(pLoopUnit, *this)
 		{
 			if (pLoopUnit->getUnitCombatType() == eLoopUnitCombat)
+			{
+				bool const bSASHadPromotion = (bLogRandomEvent ? pLoopUnit->isHasPromotion(eEventPromo) : false);
 				pLoopUnit->setHasPromotion(eEventPromo, true);
+				if (bLogRandomEvent && !bSASHadPromotion && pLoopUnit->isHasPromotion(eEventPromo)) iSASExistingUnitsNewlyPromoted++;
+			}
 		}
 		setFreePromotion(eLoopUnitCombat, eEventPromo, true);
+		if (bLogRandomEvent)
+		{
+			int const iSASFreePromotionAfter = isFreePromotion(eLoopUnitCombat, eEventPromo);
+			if (iSASExistingUnitsNewlyPromoted > 0 || iSASFreePromotionBefore != iSASFreePromotionAfter)
+				logSASGameRecordRandomEventFreePromotionResult(*this, eEvent, iEventTriggeredId, "UNIT_COMBAT", eLoopUnitCombat, eEventPromo, iSASExistingUnitsNewlyPromoted, iSASFreePromotionBefore, iSASFreePromotionAfter);
+		}
 	}
 	FOR_EACH_ENUM(UnitClass)
 	{
@@ -16334,17 +17191,34 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 				kEvent.getUnitClassPromotion(eLoopUnitClass);
 		if (eEventPromo == NO_PROMOTION)
 			continue;
+		int const iSASFreePromotionBefore = (bLogRandomEvent ? isFreePromotion(eLoopUnitClass, eEventPromo) : -1);
+		int iSASExistingUnitsNewlyPromoted = 0;
 		FOR_EACH_UNIT_VAR(pLoopUnit, *this)
 		{
 			if (pLoopUnit->getUnitClassType() == eLoopUnitClass)
+			{
+				bool const bSASHadPromotion = (bLogRandomEvent ? pLoopUnit->isHasPromotion(eEventPromo) : false);
 				pLoopUnit->setHasPromotion(eEventPromo, true);
+				if (bLogRandomEvent && !bSASHadPromotion && pLoopUnit->isHasPromotion(eEventPromo)) iSASExistingUnitsNewlyPromoted++;
+			}
 		}
 		setFreePromotion(eLoopUnitClass, eEventPromo, true);
+		if (bLogRandomEvent)
+		{
+			int const iSASFreePromotionAfter = isFreePromotion(eLoopUnitClass, eEventPromo);
+			if (iSASExistingUnitsNewlyPromoted > 0 || iSASFreePromotionBefore != iSASFreePromotionAfter)
+				logSASGameRecordRandomEventFreePromotionResult(*this, eEvent, iEventTriggeredId, "UNIT_CLASS", eLoopUnitClass, eEventPromo, iSASExistingUnitsNewlyPromoted, iSASFreePromotionBefore, iSASFreePromotionAfter);
+		}
 	}
 	if (kEvent.getBonusRevealed() != NO_BONUS)
 	{
 		GET_TEAM(getTeam()).setForceRevealedBonus((BonusTypes)
 				kEvent.getBonusRevealed(), true);
+	}
+	if (bLogRandomEventPlayerResult)
+	{
+		SASGameRecordRandomEventPlayerState const kSASRandomEventPlayerAfter(*this, eEvent, pTriggeredData->m_eOtherPlayer);
+		logSASGameRecordRandomEventPlayerResult(*this, eEvent, iEventTriggeredId, pTriggeredData->m_eOtherPlayer, kSASRandomEventPlayerBefore, kSASRandomEventPlayerAfter);
 	}
 	{
 		std::vector<CvCity*> apSpreadReligionCities;
@@ -16600,13 +17474,16 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 				kTriggered.m_iTurn = (GC.getGame().getSpeedPercent() *
 						kEvent.getAdditionalEventTime(eLoopEvent)) / 100 +
 						GC.getGame().getGameTurn();
+				int const iRequestedDueTurn = (bLogRandomEvent ? kTriggered.m_iTurn : -1);
 				EventTriggeredData const* pExistingTriggered = getEventCountdown(eLoopEvent);
+				int const iPreviousDueTurn = (!bLogRandomEvent || pExistingTriggered == NULL ? -1 : pExistingTriggered->m_iTurn);
 				if (pExistingTriggered != NULL)
 				{
 					kTriggered.m_iTurn = std::min(kTriggered.m_iTurn,
 							pExistingTriggered->m_iTurn);
 				}
 				setEventCountdown(eLoopEvent, kTriggered);
+				if (bLogRandomEvent) logSASGameRecordRandomEventCountdownScheduled(*this, eEvent, eLoopEvent, iEventTriggeredId, iRequestedDueTurn, iPreviousDueTurn, kTriggered.m_iTurn);
 				bDeleteTrigger = false;
 			}
 		}
@@ -16718,19 +17595,40 @@ int CvPlayer::getEventCost(EventTypes eEvent, PlayerTypes eOtherPlayer, bool bRa
 
 void CvPlayer::doEvents()
 {
-	if (GC.getGame().isOption(GAMEOPTION_NO_EVENTS))
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
+	if (kGame.isOption(GAMEOPTION_NO_EVENTS))
 		return;
 	if (isBarbarian() || isMinorCiv())
 		return;
 
+	bool const bLogRandomEventExpiry = (gGameRecordLogLevel >= 2);
 	{ // advc: scope for iterator
 		CvEventMap::iterator it = m_mapEventsOccured.begin();
 		while (it != m_mapEventsOccured.end())
 		{
-			if (checkExpireEvent(it->first, it->second))
+			char const* szExpireReason = NULL;
+			if (checkExpireEvent(it->first, it->second, bLogRandomEventExpiry ? &szExpireReason : NULL))
 			{
-				expireEvent(it->first, it->second, true);
-				it = m_mapEventsOccured.erase(it);
+				if (bLogRandomEventExpiry)
+				{
+					// <!-- custom: Keep a logging-only copy so the lifecycle row is emitted after the durable occurrence has actually been erased, without changing expireEvent/checkExpireEvent semantics.
+					// The optional reason is filled by the same branch that returned true, not by re-running expiry logic. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					EventTypes const eExpiredEvent = it->first;
+					EventTriggeredData const kExpiredData = it->second;
+					expireEvent(eExpiredEvent, it->second, true);
+					it = m_mapEventsOccured.erase(it);
+					// <!-- custom: Ordinary non-quest occurrences age out after a few turns as housekeeping; do not duplicate virtually every normal event with a low-information timeout row.
+					// Quests and exceptional Python/target/rules expiry reasons remain narrated. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					if (szExpireReason == NULL || strcmp(szExpireReason, "NON_QUEST_TIMEOUT") != 0)
+						logSASGameRecordRandomEventExpired(*this, eExpiredEvent, kExpiredData, szExpireReason == NULL ? "UNKNOWN" : szExpireReason);
+				}
+				else
+				{
+					expireEvent(it->first, it->second, true);
+					it = m_mapEventsOccured.erase(it);
+				}
 			}
 			else
 			{
@@ -16739,17 +17637,21 @@ void CvPlayer::doEvents()
 		}
 	}
 	// <advc.252>
-	int const iSpeedAdjustPercent = GC.getInfo(GC.getGame().getGameSpeedType()).
+	int const iSpeedAdjustPercent = GC.getInfo(kGame.getGameSpeedType()).
 			get(CvGameSpeedInfo::EventRollSidesPercent); // </advc.252>
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iFIRST_EVENT_DELAY_TURNS = GC.getDefineINT("FIRST_EVENT_DELAY_TURNS");
 	bool bNewEventEligible = true;
-	if (GC.getGame().getElapsedGameTurns() /* <advc.252> */ * 100 <
-		GC.getDefineINT("FIRST_EVENT_DELAY_TURNS") * iSpeedAdjustPercent)
+	if (kGame.getElapsedGameTurns() /* <advc.252> */ * 100 <
+		iFIRST_EVENT_DELAY_TURNS * iSpeedAdjustPercent)
 		// </advc.252>
 	{
 		bNewEventEligible = false;
 	}
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iEVENT_PROBABILITY_ROLL_SIDES = GC.getDefineINT("EVENT_PROBABILITY_ROLL_SIDES");
 	if (bNewEventEligible &&
-		SyncRandNum(GC.getDefineINT("EVENT_PROBABILITY_ROLL_SIDES")
+		SyncRandNum(iEVENT_PROBABILITY_ROLL_SIDES
 		* iSpeedAdjustPercent) >= 100 * // advc.252
 		GC.getInfo(getCurrentEra()).getEventChancePerTurn())
 	{
@@ -16802,7 +17704,7 @@ void CvPlayer::doEvents()
 		EventTriggeredData const* pTriggeredData = getEventCountdown(eLoopEvent);
 		if (pTriggeredData != NULL)
 		{
-			if (GC.getGame().getGameTurn() >= pTriggeredData->m_iTurn)
+			if (kGame.getGameTurn() >= pTriggeredData->m_iTurn)
 			{
 				applyEvent(eLoopEvent, pTriggeredData->m_iId);
 				resetEventCountdown(eLoopEvent);
@@ -16860,8 +17762,7 @@ void CvPlayer::showForeignPromoGlow(bool b)
 	}
 }
 
-void CvPlayer::expireEvent(EventTypes eEvent,
-	EventTriggeredData const& kTriggeredData, bool bFail)
+void CvPlayer::expireEvent(EventTypes eEvent, EventTriggeredData const& kTriggeredData, bool bFail)
 {
 	FAssert(getEventOccured(eEvent) == &kTriggeredData);
 	FAssert(GC.getInfo(eEvent).isQuest() || GC.getGame().getGameTurn() - kTriggeredData.m_iTurn <= 4);
@@ -16883,23 +17784,34 @@ void CvPlayer::expireEvent(EventTypes eEvent,
 		}
 		if (bFail)
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 			gDLL->UI().addMessage(getID(), false, -1,
 					gDLL->getText(GC.getInfo(eEvent).getQuestFailTextKey()),
-					"AS2D_CIVIC_ADOPT", MESSAGE_TYPE_MINOR_EVENT, NULL, GC.getColorType("RED"));
+					"AS2D_CIVIC_ADOPT", MESSAGE_TYPE_MINOR_EVENT, NULL, eColorRed);
 		}
 	}
 }
 
-bool CvPlayer::checkExpireEvent(EventTypes eEvent,
-	EventTriggeredData const& kTriggeredData) const
+// <!-- custom: Add an optional diagnostics-only reason output while preserving the original Boolean result and branch order.
+// Ordinary gameplay callers use the NULL default, so only SASGameRecord's gated caller writes reason labels. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+bool CvPlayer::checkExpireEvent(EventTypes eEvent, EventTriggeredData const& kTriggeredData, char const** ppszReason) const
 {
+	if (ppszReason != NULL) *ppszReason = "NOT_EXPIRED";
 	if (GC.getPythonCaller()->checkExpireEvent(eEvent, kTriggeredData))
+	{
+		if (ppszReason != NULL) *ppszReason = "PYTHON_EXPIRE_CHECK";
 		return true;
+	}
 
 	CvEventInfo& kEvent = GC.getInfo(eEvent);
 
 	if (!kEvent.isQuest())
-		return (GC.getGame().getGameTurn() - kTriggeredData.m_iTurn > 2);
+	{
+		bool const bExpired = (GC.getGame().getGameTurn() - kTriggeredData.m_iTurn > 2);
+		if (bExpired && ppszReason != NULL) *ppszReason = "NON_QUEST_TIMEOUT";
+		return bExpired;
+	}
 
 	CvEventTriggerInfo& kTrigger = GC.getInfo(kTriggeredData.m_eTrigger);
 	FAssert(kTriggeredData.m_ePlayer != NO_PLAYER);
@@ -16908,31 +17820,41 @@ bool CvPlayer::checkExpireEvent(EventTypes eEvent,
 	if (kTrigger.isStateReligion() & kTrigger.isPickReligion() &&
 		kPlayer.getStateReligion() != kTriggeredData.m_eReligion)
 	{
+		if (ppszReason != NULL) *ppszReason = "STATE_RELIGION_CHANGED";
 		return true;
 	}
 	if (kTrigger.getCivic() != NO_CIVIC &&
 		!kPlayer.isCivic((CivicTypes)kTrigger.getCivic()))
 	{
+		if (ppszReason != NULL) *ppszReason = "CIVIC_CHANGED";
 		return true;
 	}
 	if (kTriggeredData.m_iCityId != -1 &&
-			kPlayer.getCity(kTriggeredData.m_iCityId) == NULL)
+		kPlayer.getCity(kTriggeredData.m_iCityId) == NULL)
+	{
+		if (ppszReason != NULL) *ppszReason = "CITY_MISSING";
 		return true;
+	}
 
 	if (kTriggeredData.m_iUnitId != -1 &&
 		kPlayer.getUnit(kTriggeredData.m_iUnitId) == NULL)
 	{
+		if (ppszReason != NULL) *ppszReason = "UNIT_MISSING";
 		return true;
 	}
 	if (kTriggeredData.m_eOtherPlayer != NO_PLAYER)
 	{
 		if (!GET_PLAYER(kTriggeredData.m_eOtherPlayer).isAlive())
+		{
+			if (ppszReason != NULL) *ppszReason = "OTHER_PLAYER_DEAD";
 			return true;
+		}
 
 		if (kTriggeredData.m_iOtherPlayerCityId != -1 &&
 			GET_PLAYER(kTriggeredData.m_eOtherPlayer).
 			getCity(kTriggeredData.m_iOtherPlayerCityId) == NULL)
 		{
+			if (ppszReason != NULL) *ppszReason = "OTHER_CITY_MISSING";
 			return true;
 		}
 	}
@@ -16942,13 +17864,15 @@ bool CvPlayer::checkExpireEvent(EventTypes eEvent,
 		for (int i = 0; i < kTrigger.getNumObsoleteTechs(); i++)
 		{
 			if (GET_TEAM(getTeam()).isHasTech((TechTypes)kTrigger.getObsoleteTech(i)))
+			{
+				if (ppszReason != NULL) *ppszReason = "OBSOLETE_TECH";
 				return true;
+			}
 		}
 	}
 
 	return false;
 }
-
 
 void CvPlayer::trigger(EventTriggerTypes eTrigger)
 {
@@ -16957,6 +17881,9 @@ void CvPlayer::trigger(EventTriggerTypes eTrigger)
 
 void CvPlayer::trigger(const EventTriggeredData& kData)
 {
+	// <!-- custom: This is the first actual-delivery boundary after random-event candidate construction/selection.
+	// Keep speculative trigger weights/candidates out of SASGameRecord and pre-gate all target-validity work at level 2+. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordRandomEventTriggered(*this, kData, isHuman() ? "HUMAN_POPUP" : "AI_IMMEDIATE");
 	if (isHuman())
 	{
 		CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_EVENT, kData.getID());
@@ -16967,6 +17894,7 @@ void CvPlayer::trigger(const EventTriggeredData& kData)
 		EventTypes eEvent = AI().AI_chooseEvent(kData.getID());
 		if (eEvent != NO_EVENT)
 			applyEvent(eEvent, kData.getID());
+		else if (gGameRecordLogLevel >= 2) logSASGameRecordRandomEventNoSelection(*this, kData, "AI_NO_EVENT_SELECTED");
 	}
 }
 
@@ -17076,22 +18004,26 @@ CvUnit* CvPlayer::pickTriggerUnit(EventTriggerTypes eTrigger, CvPlot* pPlot, boo
 
 int CvPlayer::getEventTriggerWeight(EventTriggerTypes eTrigger) const
 {
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	CvEventTriggerInfo const& kTrigger = GC.getInfo(eTrigger);
 
 	if (kTrigger.getMinDifficulty() != NO_HANDICAP)
 	{
-		if (GC.getInfo(GC.getGame().getHandicapType()).
-			getDifficulty() < 10 * // advc.250a
-			kTrigger.getMinDifficulty())
+		// <!-- custom: Compare XML iDifficulty scores instead of assuming enum index * 10. (ChatGPT-5.5) -->
+		if (GC.getInfo(kGame.getHandicapType()).getDifficulty() <
+			// 10 * kTrigger.getMinDifficulty()) // advc.250a
+			GC.getInfo((HandicapTypes)kTrigger.getMinDifficulty()).getDifficulty())
 		{
 			return 0;
 		}
 	}
 
-	if (kTrigger.isSinglePlayer() && GC.getGame().isGameMultiPlayer())
+	if (kTrigger.isSinglePlayer() && kGame.isGameMultiPlayer())
 		return 0;
 
-	if (!GC.getGame().isEventActive(eTrigger))
+	if (!kGame.isEventActive(eTrigger))
 		return 0;
 
 	if (kTrigger.getNumObsoleteTechs() > 0)
@@ -17326,6 +18258,9 @@ bool CvPlayer::getSplitEmpireLeaders(CivLeaderArray& kLeaders) const
 {
 	kLeaders.clear();
 
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	FOR_EACH_ENUM(Civilization)
 	{
 		if (getCivilizationType() == eLoopCivilization)
@@ -17351,7 +18286,7 @@ bool CvPlayer::getSplitEmpireLeaders(CivLeaderArray& kLeaders) const
 		FOR_EACH_ENUM(LeaderHead)
 		{
 			if (!GC.getInfo(eLoopCivilization).isLeaders(eLoopLeaderHead) &&
-				!GC.getGame().isOption(GAMEOPTION_LEAD_ANY_CIV))
+				!kGame.isOption(GAMEOPTION_LEAD_ANY_CIV))
 			{
 				continue;
 			}
@@ -17436,8 +18371,10 @@ bool CvPlayer::splitEmpire(CvArea& kArea) // advc: was iAreaId
 				GC.getInfo(eBestLeader).getTextKeyWide());
 		// advc.127b: Announcement loop moved down
 
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 		kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getID(), szMessage, GC.getColorType("HIGHLIGHT_TEXT"));
+				getID(), szMessage, eColorHighlightText);
 
 		// remove leftover culture from old recycled player
 		/*  BETTER_BTS_AI_MOD, Bugfix, 12/30/08, jdog5000: commented out
@@ -17457,7 +18394,7 @@ bool CvPlayer::splitEmpire(CvArea& kArea) // advc: was iAreaId
 		{
 			if (GET_TEAM(getTeam()).isHasTech(eLoopTech))
 			{
-				kNewTeam.setHasTech(eLoopTech, true, eNewPlayer, false, false);
+				kNewTeam.setHasTech(eLoopTech, true, eNewPlayer, false, false, false, TECH_ACQUISITION_INHERITANCE);
 				if (GET_TEAM(getTeam()).isNoTradeTech(eLoopTech) ||
 					(kGame.isOption(GAMEOPTION_NO_TECH_BROKERING) &&
 					isSignificantDiscovery(eLoopTech))) // advc.550e
@@ -17553,11 +18490,15 @@ bool CvPlayer::splitEmpire(CvArea& kArea) // advc: was iAreaId
 	GET_PLAYER(eNewPlayer).AI_updateAttitude(getID());
 	AI().AI_updateAttitude(eNewPlayer);
 	// K-Mod end
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const int iCOLONY_NUM_FREE_DEFENDERS = GC.getDefineINT("COLONY_NUM_FREE_DEFENDERS");
 	// <advc.104r>
 	for(size_t i = 0; i < apAcquiredCities.size(); i++)
 	{
-		for(int j = 0; j < GC.getDefineINT("COLONY_NUM_FREE_DEFENDERS"); j++)
-			apAcquiredCities[i]->initConscriptedUnit();
+		for(int j = 0; j < iCOLONY_NUM_FREE_DEFENDERS; j++)
+			// <!-- custom: Colony bootstrap deliberately reuses the conscript unit initializer for its shared unit setup, but these units are free defenders rather than population drafts; pass recorder-only provenance so SASGameRecord does not inflate conscription counts/material. (ChatGPT-5.6-Sol) -->
+			apAcquiredCities[i]->initConscriptedUnit(/* bColonyFreeDefender=*/true);
 	}
 	if (getUWAI().isEnabled())
 		getUWAI().processNewPlayerInGame(eNewPlayer); // </advc.104r>
@@ -17589,8 +18530,7 @@ bool CvPlayer::splitEmpire(CvArea& kArea) // advc: was iAreaId
 }
 
 
-bool CvPlayer::isValidTriggerReligion(const CvEventTriggerInfo& kTrigger,
-	CvCity const* pCity, ReligionTypes eReligion) const
+bool CvPlayer::isValidTriggerReligion(const CvEventTriggerInfo& kTrigger, CvCity const* pCity, ReligionTypes eReligion) const
 {
 	if (kTrigger.getNumReligionsRequired() > 0)
 	{
@@ -17632,8 +18572,7 @@ bool CvPlayer::isValidTriggerReligion(const CvEventTriggerInfo& kTrigger,
 }
 
 
-bool CvPlayer::isValidTriggerCorporation(CvEventTriggerInfo const& kTrigger,
-	CvCity const* pCity, CorporationTypes eCorporation) const
+bool CvPlayer::isValidTriggerCorporation(CvEventTriggerInfo const& kTrigger, CvCity const* pCity, CorporationTypes eCorporation) const
 {
 	if (kTrigger.getNumCorporationsRequired() > 0)
 	{
@@ -17687,6 +18626,9 @@ void CvPlayer::launch(VictoryTypes eVictory)
 
 	kTeam.finalizeProjectArtTypes();
 	kTeam.setVictoryCountdown(eVictory, kTeam.getVictoryDelay(eVictory));
+	// <!-- custom: Project completion alone did not reveal when a spaceship actually launched or when it would arrive.
+	// Record the explicit launch after its countdown is set so SASGameRecord can preserve the exact travel time, arrival turn, success chance, and component state. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordVictoryLaunched(getID(), eVictory);
 
 	//gDLL->getEngineIFace()->AddLaunch(getID());
 	// K-Mod. The spaceship launch causes pitboss to crash
@@ -17702,6 +18644,11 @@ void CvPlayer::launch(VictoryTypes eVictory)
 			kTeam.getName().GetCString()));
 	int iPlotX = -1;
 	int iPlotY = -1; // </advc.106>
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 	{
 		CvPlayer const& kObs = *it;
@@ -17715,11 +18662,11 @@ void CvPlayer::launch(VictoryTypes eVictory)
 			szBuffer = gDLL->getText("TXT_KEY_VICTORY_YOU_HAVE_LAUNCHED");
 		gDLL->UI().addMessage(kObs.getID(), true, -1, szBuffer, "AS2D_CULTURELEVEL",
 				MESSAGE_TYPE_MAJOR_EVENT, ARTFILEMGR.getMiscArtPath("SPACE_SHIP_BUTTON"),
-				GC.getColorType("HIGHLIGHT_TEXT"), iPlotX, iPlotY, true, true);
+				eColorHighlightText, iPlotX, iPlotY, true, true);
 	}
 	// <advc.106>
 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-			getID(), szMsg, GC.getColorType("HIGHLIGHT_TEXT"), iPlotX, iPlotY);
+			getID(), szMsg, eColorHighlightText, iPlotX, iPlotY);
 	// </advc.106>
 }
 
@@ -17755,8 +18702,7 @@ void CvPlayer::setFreePromotion(UnitCombatTypes eUnitCombat, PromotionTypes ePro
 }
 
 
-bool CvPlayer::isFreePromotion(UnitClassTypes eUnitClass,
-	PromotionTypes ePromotion) const
+bool CvPlayer::isFreePromotion(UnitClassTypes eUnitClass, PromotionTypes ePromotion) const
 {
 	for (size_t i = 0; i < m_aFreeUnitClassPromotions.size(); i++)
 	{
@@ -17770,8 +18716,7 @@ bool CvPlayer::isFreePromotion(UnitClassTypes eUnitClass,
 }
 
 
-void CvPlayer::setFreePromotion(UnitClassTypes eUnitClass,
-	PromotionTypes ePromotion, bool bFree)
+void CvPlayer::setFreePromotion(UnitClassTypes eUnitClass, PromotionTypes ePromotion, bool bFree)
 {
 	for (UnitClassPromotionArray::iterator it = m_aFreeUnitClassPromotions.begin();
 		it != m_aFreeUnitClassPromotions.end(); ++it)
@@ -17941,8 +18886,7 @@ int CvPlayer::getVotes(VoteTypes eVote, VoteSourceTypes eVoteSource) const
 	return iVotes;
 }
 
-bool CvPlayer::canDoResolution(VoteSourceTypes eVoteSource,
-	VoteSelectionSubData const& kData) const
+bool CvPlayer::canDoResolution(VoteSourceTypes eVoteSource, VoteSelectionSubData const& kData) const
 {
 	CvTeam const& kOurTeam = GET_TEAM(getTeam());
 	if (kData.ePlayer != NO_PLAYER && !kOurTeam.isHasMet(TEAMID(kData.ePlayer)))
@@ -18044,10 +18988,12 @@ bool CvPlayer::canDoResolution(VoteSourceTypes eVoteSource,
 	return true;
 }
 
-bool CvPlayer::canDefyResolution(VoteSourceTypes eVoteSource,
-	VoteSelectionSubData const& kData) const
+bool CvPlayer::canDefyResolution(VoteSourceTypes eVoteSource, VoteSelectionSubData const& kData) const
 {
-	if (GC.getGame().getSecretaryGeneral(eVoteSource) == getTeam())
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
+	if (kGame.getSecretaryGeneral(eVoteSource) == getTeam())
 		return false;
 
 	CvVoteInfo const& kVote = GC.getInfo(kData.eVote); // advc
@@ -18112,20 +19058,22 @@ bool CvPlayer::canDefyResolution(VoteSourceTypes eVoteSource,
 			return true;
 		}
 	}
-	else if (!GC.getGame().isTeamVote(kData.eVote))
+	else if (!kGame.isTeamVote(kData.eVote))
 		return true;
 
 	return false;
 }
 
 
-void CvPlayer::setDefiedResolution(VoteSourceTypes eVoteSource,
-	VoteSelectionSubData const& kData)
+void CvPlayer::setDefiedResolution(VoteSourceTypes eVoteSource, VoteSelectionSubData const& kData)
 {
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	// cities get unhappiness
 	FOR_EACH_CITY_VAR(pLoopCity, *this)
 	{
-		ReligionTypes eReligion = GC.getGame().getVoteSourceReligion(eVoteSource);
+		ReligionTypes eReligion = kGame.getVoteSourceReligion(eVoteSource);
 		if (eReligion == NO_RELIGION || pLoopCity->isHasReligion(eReligion))
 		{
 			int iAngerLength = pLoopCity->flatDefyResolutionAngerLength();
@@ -18138,8 +19086,7 @@ void CvPlayer::setDefiedResolution(VoteSourceTypes eVoteSource,
 }
 
 
-void CvPlayer::setEndorsedResolution(VoteSourceTypes eVoteSource,
-	VoteSelectionSubData const& kData)
+void CvPlayer::setEndorsedResolution(VoteSourceTypes eVoteSource, VoteSelectionSubData const& kData)
 {
 	setLoyalMember(eVoteSource, true);
 }
@@ -18147,9 +19094,12 @@ void CvPlayer::setEndorsedResolution(VoteSourceTypes eVoteSource,
 
 bool CvPlayer::isFullMember(VoteSourceTypes eVoteSource) const
 {
-	if (GC.getGame().getVoteSourceReligion(eVoteSource) != NO_RELIGION)
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
+	if (kGame.getVoteSourceReligion(eVoteSource) != NO_RELIGION)
 	{
-		if (getStateReligion() != GC.getGame().getVoteSourceReligion(eVoteSource))
+		if (getStateReligion() != kGame.getVoteSourceReligion(eVoteSource))
 			return false;
 	}
 
@@ -18337,8 +19287,7 @@ bool CvPlayer::canSpyDestroyProject(PlayerTypes eTarget, ProjectTypes eProject) 
 }
 
 // K-Mod: Moved out of getEspionageMissionBaseCost/ doEspionageMission
-int CvPlayer::getEspionageGoldQuantity(EspionageMissionTypes eMission,
-	PlayerTypes eTargetPlayer, CvCity const* pCity) const
+int CvPlayer::getEspionageGoldQuantity(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvCity const* pCity) const
 {
 	if (pCity == NULL || pCity->getOwner() != eTargetPlayer)
 		return 0;
@@ -18375,22 +19324,20 @@ void CvPlayer::forcePeace(PlayerTypes ePlayer)
 // advc.032:
 bool CvPlayer::resetDualDeal(PlayerTypes ePlayer, TradeableItems eDealType)
 {
-	int iGameTurn = GC.getGame().getGameTurn();
+	int const iGameTurn = GC.getGame().getGameTurn();
+	// <!-- custom: Open Borders, Defensive Pacts and forced peace are team agreements, but AdvCiv renewed only one player pair and only its first saved list.
+	// Refresh every matching proxy between the teams; this also finds a one-sided peace treaty without creating a second lifetime owner. See KI#606. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamTypes const eOtherTeam = TEAMID(ePlayer);
+	bool bFound = false;
 	FOR_EACH_DEAL_VAR(d)
 	{
-		if (d->isBetween(getID(), ePlayer))
+		if (d->isBetween(getTeam(), eOtherTeam) && d->hasTradeItem(eDealType))
 		{
-			FOR_EACH_TRADE_ITEM(d->getFirstList())
-			{
-				if(pItem->m_eItemType == eDealType)
-				{
-					d->setInitialGameTurn(iGameTurn);
-					return true; // Assume that there can be at most one deal of eDealType
-				}
-			}
+			d->setInitialGameTurn(iGameTurn);
+			bFound = true;
 		}
 	}
-	return false;
+	return bFound;
 }
 
 
@@ -18423,42 +19370,55 @@ int CvPlayer::getReligionPopulation(ReligionTypes eReligion) const
 
 int CvPlayer::getNewCityProductionValue() const
 {
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	int iValue = 0;
 	CvCivilization const& kCiv = getCivilization(); // advc.003w
 	for (int i = 0; i < kCiv.getNumBuildings(); i++)
 	{
 		BuildingTypes eBuilding = kCiv.buildingAt(i);
-		if(GC.getGame().isFreeStartEraBuilding(eBuilding)) // advc
+		if(kGame.isFreeStartEraBuilding(eBuilding)) // advc
 		{
 			iValue += (100 * getProductionNeeded(eBuilding)) /
 					std::max(1, 100 + getProductionModifier(eBuilding));
 		}
 	}
 
-	iValue *= 100 + GC.getDefineINT("NEW_CITY_BUILDING_VALUE_MODIFIER");
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iNEW_CITY_BUILDING_VALUE_MODIFIER = GC.getDefineINT("NEW_CITY_BUILDING_VALUE_MODIFIER");
+	iValue *= 100 + iNEW_CITY_BUILDING_VALUE_MODIFIER;
 	iValue /= 100;
 
-	iValue += (GC.getDefineINT("ADVANCED_START_CITY_COST") *
-			GC.getGame().getSpeedPercent()) / 100;
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iADVANCED_START_CITY_COST = GC.getDefineINT("ADVANCED_START_CITY_COST");
+	iValue += (iADVANCED_START_CITY_COST *
+			kGame.getSpeedPercent()) / 100;
 
-	int iPopulation = GC.getDefineINT("INITIAL_CITY_POPULATION") +
-			GC.getInfo(GC.getGame().getStartEra()).getFreePopulation();
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iINITIAL_CITY_POPULATION = GC.getDefineINT("INITIAL_CITY_POPULATION");
+	int iPopulation = iINITIAL_CITY_POPULATION +
+			GC.getInfo(kGame.getStartEra()).getFreePopulation();
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const int iADVANCED_START_POPULATION_COST = GC.getDefineINT("ADVANCED_START_POPULATION_COST");
 	for (int i = 1; i <= iPopulation; ++i)
 	{
 		iValue += (getGrowthThreshold(i) *
-				GC.getDefineINT("ADVANCED_START_POPULATION_COST")) / 100;
+				iADVANCED_START_POPULATION_COST) / 100;
 	}
 	// <advc.251>
 	iValue = (iValue *
 			// Apply production modifier half (b/c getGrowthThreshold is also dependent on handicap)
-			(1 + (trainingModifierFromHandicap(false) - 1) / 2)).roundToMultiple(isHuman() ? 5 : 1);
+			// <!-- custom: see known issue as of now 67 for details -->
+			// (1 + (trainingModifierFromHandicap(false) - 1) / 2)).roundToMultiple(isHuman() ? 5 : 1);
+			(1 + (trainingModifierFromHandicap(false) - 1) / 2)).round();
 	// </advc.251>
 	return iValue;
 }
 
 
-int CvPlayer::getGrowthThreshold(int iPopulation,
-	bool bIgnoreModifiers) const // advc.064b
+int CvPlayer::getGrowthThreshold(int iPopulation, bool bIgnoreModifiers) const // advc.064b
 {
 	CvGame const& kGame = GC.getGame(); // advc
 	// <advc.251>
@@ -18516,9 +19476,7 @@ UnitTypes CvPlayer::getTechFreeUnit(TechTypes eTech) const
 // BULL - Trade Hover:  // advc: _MOD_FRACTRADE removed
 /*  Adds the yield and count for each trade route with eWithPlayer to the
 	int references (out parameters). */
-void CvPlayer::calculateTradeTotals(YieldTypes eYield,
-	int& iDomesticYield, int& iDomesticRoutes, int& iForeignYield, int& iForeignRoutes,
-	PlayerTypes eWithPlayer) const
+void CvPlayer::calculateTradeTotals(YieldTypes eYield, int& iDomesticYield, int& iDomesticRoutes, int& iForeignYield, int& iForeignRoutes, PlayerTypes eWithPlayer) const
 {
 	FOR_EACH_CITY(pCity, *this)
 	{
@@ -18658,6 +19616,9 @@ void CvPlayer::buildTradeTable(PlayerTypes eOtherPlayer, CLinkList<TradeData>& k
 		kOurInventory.insertAtEnd(item);
 	} // </advc.104m>
 
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	//	Initial build of the inventory lists and buttons.
 	//	Go through all the possible headings
 	for (int i = NUM_BASIC_ITEMS; i < NUM_TRADEABLE_HEADINGS; i++)
@@ -18693,9 +19654,9 @@ void CvPlayer::buildTradeTable(PlayerTypes eOtherPlayer, CLinkList<TradeData>& k
 				/*  Hack: Check if we're expecting a renegotiate-popup from the EXE.
 					Don't want any resources in the canceled deal to be excluded
 					from the trade table. */
-				if (!bValid && !GC.getGame().isInBetweenTurns() &&
+				if (!bValid && !kGame.isInBetweenTurns() &&
 					// Probably too complicated to get this right with simultaneous turns
-					!GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
+					!kGame.isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
 				{
 					for (CLLNode<std::pair<PlayerTypes,BonusTypes> >* pNode =
 						m_cancelingExport.head(); pNode != NULL; pNode =
@@ -18800,8 +19761,25 @@ void CvPlayer::buildTradeTable(PlayerTypes eOtherPlayer, CLinkList<TradeData>& k
 
 /*	advc (note): This function doesn't use any CvPlayer members, but I suppose
 	that could change. Can't easily move it b/c of DllExport. */
-bool CvPlayer::getHeadingTradeString(PlayerTypes eOtherPlayer, TradeableItems eItem,
-	CvWString& szString, CvString& szIcon) const
+namespace
+{
+	void applySASDiploTradeFont(CvWString& szText)
+	{
+		// <!-- custom: diplomacy trade-table strings are composed in DLL and rendered by EXE widgets (not Python-managed table text), so apply SAS label scaling here at the source string. (GPT-5.3-Codex) -->
+		if (szText.empty())
+			return;
+		int const iSAS_UI_FONT_LABEL = GC.getDefineINT(CvGlobals::SAS_UI_FONT_LABEL);
+		if (iSAS_UI_FONT_LABEL < 1 || iSAS_UI_FONT_LABEL > 4)
+			return;
+		CvWString szWrapped;
+		szWrapped.Format(L"<font=%d>", iSAS_UI_FONT_LABEL);
+		szWrapped.append(szText);
+		szWrapped.append(L"</font>");
+		szText = szWrapped;
+	}
+}
+
+bool CvPlayer::getHeadingTradeString(PlayerTypes eOtherPlayer, TradeableItems eItem, CvWString& szString, CvString& szIcon) const
 {
 	szIcon.clear();
 
@@ -18844,14 +19822,13 @@ bool CvPlayer::getHeadingTradeString(PlayerTypes eOtherPlayer, TradeableItems eI
 		return false;
 	}
 	szString = gDLL->getText(szTag); // advc: Moved out of the cases
+	// <!-- custom: do not wrap trade-table headings with <font=...>; this EXE header widget can render font tags literally (e.g. "<font=4>Technology"), so keep headings unwrapped. (GPT-5.3-Codex) -->
 
 	return true;
 }
 
 
-bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer,
-	bool bShowingCurrent, const TradeData& zTradeData,
-	CvWString& szString, CvString& szIcon) const
+bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer, bool bShowingCurrent, const TradeData& zTradeData, CvWString& szString, CvString& szIcon) const
 {
 	szIcon.clear();
 	// <advc.072>
@@ -18879,6 +19856,7 @@ bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer,
 	} // </advc.072>
 	switch (zTradeData.m_eItemType)
 	{
+	// <!-- custom: diplomacy trade rows: prefix numeric gold entries with the gold char so amounts are scannable in list form. (GPT-5.3-Codex) -->
 	case TRADE_GOLD:
 		if (bOffer)
 		{
@@ -18890,6 +19868,8 @@ bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer,
 			szString = gDLL->getText("TXT_KEY_TRADE_GOLD_NUM",
 					AI().AI_maxGoldTrade(eRecipient));
 		}
+		szString = CvWString::format(L"%c %s",
+				GC.getInfo(COMMERCE_GOLD).getChar(), szString.GetCString());
 		break;
 	case TRADE_GOLD_PER_TURN:
 		if (bOffer)
@@ -18902,24 +19882,35 @@ bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer,
 			szString = gDLL->getText("TXT_KEY_TRADE_GOLD_PER_TURN_NUM",
 					AI().AI_maxGoldPerTurnTrade(eRecipient));
 		}
+		szString = CvWString::format(L"%c %s",
+				GC.getInfo(COMMERCE_GOLD).getChar(), szString.GetCString());
 		break;
 	case TRADE_MAPS:
+		// <!-- custom: for diplomacy rows, prefer the map symbol over the map-trading button so this reads as a concrete map exchange, not the abstract trade-enablement concept. (GPT-5.3-Codex) -->
 		szString = gDLL->getText("TXT_KEY_TRADE_WORLD_MAP_STRING");
+		szString = CvWString::format(L"%c %s",
+				gDLL->getSymbolID(MAP_CHAR), szString.GetCString());
 		break;
+	// <!-- custom: diplomacy trade rows: assign concrete treaty-state icons (vassal, open borders, defensive pact, permanent alliance) through szIcon so these entries render like other iconized trade rows. (GPT-5.3-Codex) -->
 	case TRADE_VASSAL:
 		szString = gDLL->getText("TXT_KEY_TRADE_VASSAL_STRING");
+		szIcon = ARTFILEMGR.getInterfaceArtPath("INTERFACE_TECH_VASSAL");
 		break;
 	case TRADE_SURRENDER:
 		szString = gDLL->getText("TXT_KEY_TRADE_CAPITULATE_STRING");
+		szIcon = ARTFILEMGR.getInterfaceArtPath("INTERFACE_TECH_VASSAL");
 		break;
 	case TRADE_OPEN_BORDERS:
 		szString = gDLL->getText("TXT_KEY_TRADE_OPEN_BORDERS_STRING");
+		szIcon = ARTFILEMGR.getInterfaceArtPath("INTERFACE_TECH_OPENBORDERS");
 		break;
 	case TRADE_DEFENSIVE_PACT:
 		szString = gDLL->getText("TXT_KEY_TRADE_DEFENSIVE_PACT_STRING");
+		szIcon = ARTFILEMGR.getInterfaceArtPath("INTERFACE_TECH_DEFENSIVEPACT");
 		break;
 	case TRADE_PERMANENT_ALLIANCE:
 		szString = gDLL->getText("TXT_KEY_TRADE_PERMANENT_ALLIANCE_STRING");
+		szIcon = ARTFILEMGR.getInterfaceArtPath("INTERFACE_TECH_PERMALLIANCE");
 		break;
 	case TRADE_PEACE_TREATY:
 		if(GET_TEAM(eRecipient).isAtWar(getTeam())) // advc.072
@@ -18977,30 +19968,51 @@ bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer,
 		}
 		break;
 	}
+	// <!-- custom: diplomacy target-team rows (make peace / declare war / embargo) use the target leader portrait button via szIcon.
+	// This keeps each row visually identifiable at a glance and reduces name-scanning when several red target names are listed.
+	// The icon is only assigned for valid alive leaders to avoid bad/no-player lookups. (GPT-5.3-Codex) -->
 	case TRADE_PEACE:
+	{
+		TeamTypes eTargetTeam = (TeamTypes)zTradeData.m_iData;
 		if (bOffer)
 		{
 			szString = gDLL->getText("TXT_KEY_TRADE_PEACE_WITH");
-			szString += GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
+			szString += GET_TEAM(eTargetTeam).getName();
 		}
-		else szString = GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
+		else szString = GET_TEAM(eTargetTeam).getName();
+		PlayerTypes eLeader = GET_TEAM(eTargetTeam).getLeaderID();
+		if (eLeader != NO_PLAYER && GET_PLAYER(eLeader).isAlive())
+			szIcon = GC.getInfo(GET_PLAYER(eLeader).getLeaderType()).getButton();
 		break;
+	}
 	case TRADE_WAR:
+	{
+		TeamTypes eTargetTeam = (TeamTypes)zTradeData.m_iData;
 		if (bOffer)
 		{
 			szString = gDLL->getText("TXT_KEY_TRADE_WAR_WITH");
-			szString += GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
+			szString += GET_TEAM(eTargetTeam).getName();
 		}
-		else szString = GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
+		else szString = GET_TEAM(eTargetTeam).getName();
+		PlayerTypes eLeader = GET_TEAM(eTargetTeam).getLeaderID();
+		if (eLeader != NO_PLAYER && GET_PLAYER(eLeader).isAlive())
+			szIcon = GC.getInfo(GET_PLAYER(eLeader).getLeaderType()).getButton();
 		break;
+	}
 	case TRADE_EMBARGO:
+	{
+		TeamTypes eTargetTeam = (TeamTypes)zTradeData.m_iData;
 		if (bOffer)
 		{
 			szString = gDLL->getText("TXT_KEY_TRADE_STOP_TRADING_WITH");
-			szString += L" " + GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
+			szString += L" " + GET_TEAM(eTargetTeam).getName();
 		}
-		else szString = GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
+		else szString = GET_TEAM(eTargetTeam).getName();
+		PlayerTypes eLeader = GET_TEAM(eTargetTeam).getLeaderID();
+		if (eLeader != NO_PLAYER && GET_PLAYER(eLeader).isAlive())
+			szIcon = GC.getInfo(GET_PLAYER(eLeader).getLeaderType()).getButton();
 		break;
+	}
 	case TRADE_CIVIC:
 		if (bOffer)
 		{
@@ -19034,19 +20046,23 @@ bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer,
 		szString.append(gDLL->getText("INTERFACE_CITY_TURNS",
 				pDeal->turnsToCancel()).GetCString());
 	} // </advc.072>
+	// <!-- custom: diplomacy trade-table rows are EXE-rendered from DLL strings, so wrap item text here to apply SAS label upscaling consistently. (GPT-5.3-Codex) -->
+	applySASDiploTradeFont(szString);
 	return true;
 }
 
 
-void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& kOurInventory,
-	CLinkList<TradeData> const& kOurOffer, CLinkList<TradeData> const& kTheirOffer) const
+void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& kOurInventory, CLinkList<TradeData> const& kOurOffer, CLinkList<TradeData> const& kTheirOffer) const
 {
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	/*	<advc> The diplo screen may apparently refuse to add items when the
 		net IDs aren't properly set (even in single-player mode).
 		(Seems that, in Hot Seat games, IDs are -1 except for the active player.) */
-	FAssert(!isHuman() || getNetID() >= 0 || GC.getGame().isHotSeat());
+	FAssert(!isHuman() || getNetID() >= 0 || kGame.isHotSeat());
 	FAssert(!GET_PLAYER(eOtherPlayer).isHuman() ||
-			GET_PLAYER(eOtherPlayer).getNetID() >= 0 || GC.getGame().isHotSeat());
+			GET_PLAYER(eOtherPlayer).getNetID() >= 0 || kGame.isHotSeat());
 	// </advc>
 	/*	<advc.ctr> None of the adjustments below (incl. the ones already present
 		in BtS) should be made when reviewing current deals. How to tell?
@@ -19087,6 +20103,11 @@ void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& k
 		if (bCurrentDeals)
 			return;
 	} // </advc.ctr>
+	// <!-- custom: Prevent the negotiation UI from offering team-status combinations that backend validation must reject: vassalage cannot coexist with a Permanent Alliance or Defensive Pact between the same teams.
+	// Check both offer directions because human deals may place the relationship item on either side. See KI#611 and KI#621. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bVassalOffered = (CvDeal::isVassalTrade(kOurOffer) || CvDeal::isVassalTrade(kTheirOffer));
+	bool const bPermanentAllianceOffered = (CvDeal::hasTradeItem(kOurOffer, TRADE_PERMANENT_ALLIANCE) || CvDeal::hasTradeItem(kTheirOffer, TRADE_PERMANENT_ALLIANCE));
+	bool const bDefensivePactOffered = (CvDeal::hasTradeItem(kOurOffer, TRADE_DEFENSIVE_PACT) || CvDeal::hasTradeItem(kTheirOffer, TRADE_DEFENSIVE_PACT));
 	FOR_EACH_TRADE_ITEM_VAR(kOurInventory)
 	{
 		pItem->m_bHidden = false;
@@ -19101,7 +20122,7 @@ void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& k
 			}
 		}
 		// Don't show technologies with no tech trading game option
-		if (GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING) &&
+		if (kGame.isOption(GAMEOPTION_NO_TECH_TRADING) &&
 			pItem->m_eItemType == TRADE_TECHNOLOGIES)
 		{
 			pItem->m_bHidden = true;
@@ -19128,6 +20149,11 @@ void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& k
 		case TRADE_VASSAL:
 		case TRADE_SURRENDER:
 		{
+			if (bPermanentAllianceOffered || bDefensivePactOffered)
+			{
+				pItem->m_bHidden = true;
+				break;
+			}
 			FOR_EACH_TRADE_ITEM2(pOfferItem, kTheirOffer)
 			{
 				// Don't show vassal deals if another type of vassal deal is on the table
@@ -19153,6 +20179,12 @@ void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& k
 			}
 			break;
 		}
+		// <!-- custom: Hide the alliance and pact counterparts after either side offers vassalage, complementing the vassal-item branch above. See KI#611 and KI#621. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		case TRADE_DEFENSIVE_PACT:
+		case TRADE_PERMANENT_ALLIANCE:
+			if (bVassalOffered)
+				pItem->m_bHidden = true;
+			break;
 		/*// <advc.004> Only one side can pay gold  [better keep all gold on display I guess]
 		case TRADE_GOLD:
 		case TRADE_GOLD_PER_TURN:
@@ -19310,9 +20342,9 @@ void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& k
 	mark it as m_bOffering=true.
 	(This is usually done somewhere in the game engine,
 	or when the offer list is being generated or something.) */
-void CvPlayer::markTradeOffers(CLinkList<TradeData>& kOurInventory,
-	// advc: Was const, but we do change the bOffering status.
-	CLinkList<TradeData>& kOurOffer) const
+// advc: Was const, but we do change the bOffering status.
+// <!-- custom: hoisted from multiline signature between `kOurInventory` and `kOurOffer` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvPlayer::markTradeOffers(CLinkList<TradeData>& kOurInventory, CLinkList<TradeData>& kOurOffer) const
 {
 	FOR_EACH_TRADE_ITEM_VAR2(pOfferItem, kOurOffer)
 	{
@@ -19359,8 +20391,7 @@ int CvPlayer::getMusicScriptId(PlayerTypes eForPlayer) const
 }
 
 
-void CvPlayer::getGlobeLayerColors(GlobeLayerTypes eGlobeLayerType, int iOption,
-	std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
+void CvPlayer::getGlobeLayerColors(GlobeLayerTypes eGlobeLayerType, int iOption, std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
 {
 	PROFILE_FUNC(); // advc.opt
 	CvGame const& kGame = GC.getGame();
@@ -19402,8 +20433,7 @@ void CvPlayer::getGlobeLayerColors(GlobeLayerTypes eGlobeLayerType, int iOption,
 }
 
 // Used by Globeview trade layer
-void CvPlayer::getTradeLayerColors(std::vector<NiColorA>& aColors,
-	std::vector<CvPlotIndicatorData>& aIndicators) const
+void CvPlayer::getTradeLayerColors(std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
 {
 	CvMap const& kMap = GC.getMap();
 	aColors.resize(kMap.numPlots(), NiColorA(0, 0, 0, 0));
@@ -19483,8 +20513,7 @@ void CvPlayer::getTradeLayerColors(std::vector<NiColorA>& aColors,
 }
 
 // Used by Globeview unit layer
-void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption,
-	std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
+void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption, std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
 {
 	// <advc.004z>
 	if(eOption == GLOBE_LAYER_UNIT_DUMMY)
@@ -19506,6 +20535,9 @@ void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption,
 	// build the trade group texture
 	typedef std::map<int, NiColor> GroupMap;
 	GroupMap mapColors;
+
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
 
 	// Loop through all the players  (advc: reduced indentation in the loops)
 	CvWStringBuffer szBuffer;
@@ -19601,13 +20633,13 @@ void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption,
 				{
 					UnitAITypes aePriorityList[] =
 					{
-						UNITAI_GENERAL, UNITAI_ARTIST, UNITAI_ENGINEER,
-						UNITAI_MERCHANT, UNITAI_GREAT_SPY, UNITAI_PROPHET,
-						UNITAI_SCIENTIST, UNITAI_SETTLE, UNITAI_SPY,
+						UNITAI_GREAT_GENERAL, UNITAI_GREAT_ARTIST, UNITAI_GREAT_ENGINEER,
+						UNITAI_GREAT_MERCHANT, UNITAI_GREAT_SPY, UNITAI_GREAT_PROPHET,
+						UNITAI_GREAT_SCIENTIST, UNITAI_SETTLE, UNITAI_SPY,
 						UNITAI_MISSIONARY, UNITAI_WORKER, UNITAI_WORKER_SEA
 					};
-					PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-					TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
+					PlayerTypes eActivePlayer = kGame.getActivePlayer();
+					TeamTypes eActiveTeam = kGame.getActiveTeam();
 					for (int j = 0; j < ARRAYSIZE(aePriorityList); j++)
 					{
 						// Use unit owner as tiebreaker
@@ -19722,8 +20754,7 @@ bool CvPlayer::showGoodyOnResourceLayer() const
 }
 
 // Used by Globeview resource layer
-void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption,
-	std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
+void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption, std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
 {
 	PROFILE_FUNC(); // (advc: Fine - not frequently called)
 	aColors.clear();
@@ -19731,13 +20762,17 @@ void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption,
 
 	CvWStringBuffer szBuffer;
 	CvMap const& kMap = GC.getMap();
+
+	// <!-- custom: performance optimization: cache repetitive calls -->
+	CvGame const& kGame = GC.getGame();
+
 	for (int i = 0; i < kMap.numPlots(); i++)
 	{
 		CvPlot const& kPlot = kMap.getPlotByIndex(i);
 		if(!kPlot.isRevealed(getTeam(), true))
 			continue;
 		BonusTypes eLoopBonus = kPlot.getBonusType(
-				(GC.getGame().isDebugMode()) ? NO_TEAM : getTeam());
+				(kGame.isDebugMode()) ? NO_TEAM : getTeam());
 		bool bOfInterest = false; // advc.004z
 		if (eLoopBonus != NO_BONUS)
 		{
@@ -19824,8 +20859,7 @@ void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption,
 }
 
 // Used by Globeview religion layer
-void CvPlayer::getReligionLayerColors(ReligionTypes eSelectedReligion,
-	std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
+void CvPlayer::getReligionLayerColors(ReligionTypes eSelectedReligion, std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
 {
 	aColors.resize(GC.getMap().numPlots(), NiColorA(0, 0, 0, 0));
 	aIndicators.clear();
@@ -19863,8 +20897,7 @@ void CvPlayer::getReligionLayerColors(ReligionTypes eSelectedReligion,
 }
 
 // Used by Globeview culture layer
-void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors,
-	std::vector<CvPlotIndicatorData>& aIndicators) const
+void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
 {	/*  advc.004z (comment): Can increase this for more precise color proportions,
 		but the color pattern used by the EXE makes higher values (e.g. 10) look strange. */
 	const int iColorsPerPlot = 4;
@@ -20009,7 +21042,7 @@ void CvPlayer::cheat(bool bCtrl, bool bAlt, bool bShift)
 {
 	//if (gDLL->getChtLvl() > 0)
 	if(GC.getGame().isDebugMode()) // advc.007b
-		GET_TEAM(getTeam()).setHasTech(getCurrentResearch(), true, getID(), true, false);
+		GET_TEAM(getTeam()).setHasTech(getCurrentResearch(), true, getID(), true, false, false, TECH_ACQUISITION_DEBUG);
 }
 
 
@@ -20017,7 +21050,11 @@ const CvArtInfoUnit* CvPlayer::getUnitArtInfo(UnitTypes eUnit, int iMeshGroup) c
 {
 	CivilizationTypes eCivilization = getCivilizationType();
 	if (eCivilization == NO_CIVILIZATION)
-		eCivilization = (CivilizationTypes)GC.getDefineINT("BARBARIAN_CIVILIZATION");
+	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const CivilizationTypes eBARBARIAN_CIVILIZATION = (CivilizationTypes)GC.getDefineINT("BARBARIAN_CIVILIZATION");
+		eCivilization = eBARBARIAN_CIVILIZATION;
+	}
 	// <advc.001> Redirect the call to the city owner
 	if(gDLL->UI().isCityScreenUp())
 	{
@@ -20296,8 +21333,7 @@ void CvPlayer::promoteFreeUnit(CvUnit& u, scaled pr)
 } // </advc.314>
 
 // advc.120f:
-void CvPlayer::announceEspionageToThirdParties(EspionageMissionTypes eMission,
-	PlayerTypes eTarget)
+void CvPlayer::announceEspionageToThirdParties(EspionageMissionTypes eMission, PlayerTypes eTarget)
 {
 	bool const bReligion = (GC.getInfo(eMission).
 			getSwitchReligionCostFactor() > 0);
@@ -20314,7 +21350,11 @@ void CvPlayer::announceEspionageToThirdParties(EspionageMissionTypes eMission,
 			iY = pCapital->getY();
 		}
 	}
-	if (GC.getDefineBOOL("ANNOUNCE_ESPIONAGE_REVOLUTION"))
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const bool bAnnounceEspionageRevolution = GC.getDefineBOOL("ANNOUNCE_ESPIONAGE_REVOLUTION");
+
+	if (bAnnounceEspionageRevolution)
 	{
 		for (PlayerIter<MAJOR_CIV,OTHER_KNOWN_TO> it(TEAMID(eTarget)); it.hasNext(); ++it)
 		{

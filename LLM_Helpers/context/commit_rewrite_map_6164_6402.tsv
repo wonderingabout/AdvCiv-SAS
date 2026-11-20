@@ -1,0 +1,240 @@
+practical	old_sha	new_sha	subject
+6164	d3b1b898221303a468a89be609009f1160047b3d	71cc52033acec4ecf76efa048ac7cc4980b8df94	(Fixed Base AdvCiv bug) UWAI random team-member selection mixed 0-based random indexes with iterator positions, biasing the first member and excluding the last (KI#207); add filtered commit-diff archaeology mirror
+6165	6b2c7382955cfce3d7bbf335dd2a254d1e48972f	505a3834090777e422fab748de2293db2ddda81e	(Fixed Base AdvCiv bug) Worst-enemy trade-memory optimization could forget a required recalculation when later teams overwrote its flag (KI#208)
+6166	eaf4c8ac19989a3465d21b8c0e3a756b718db497	61c686a4c63cbd4695b8293596245a5d3076e07f	(Fixed Base AdvCiv bug) Player reassignment saved random-leader status from the random-civilization flag, corrupting independent setup state (KI#209)
+6167	0e7098a6a6cec07557def9b7d04123286bbdda3f	fcccb4f5e7958e4480c4c615272fdd5458ec33ed	(Fixed Base AdvCiv bug) Vote-selection iterator refactor could pair a voting team with itself, creating bogus self first-contact state (KI#210)
+6168	cf1272d7fed57ee154d84305c2d1bb8937ae4e58	b4221a1bc7b4bde8b70cf0b5c36da70d26d8ed4b	(Fixed inherited K-Mod/Base AdvCiv bug) Terrain attack bonuses were reversed in AI attacker-strength estimates against unknown defenders (KI#211)
+6169	9968f036011c92f2efe25453562dfce7a80d28bf	56162f50f56599721700ede51900756e6354e8f7	(Fixed minor inherited K-Mod/Base AdvCiv bug) AI Barbarian attacker CombatDetails were written to the defender-barbarian field (KI#212)
+6170	79410b2dba3261084e6470d9829a3f5f7f644c7c	642bcd97e014dfb6de88a6e3ffd80c8d846979db	Fix inherited and AdvCiv-SAS AI archaeology findings (KI#213â€“217)
+6171	53ee909e9987fe076dd0c39d4d9a43ea3f4b2c60	83fa938c58323b22e06c078096ed65d3de369f9b	Fix inherited Base AdvCiv 1.12/1.14 PerfectMongoose and AdvCiv-SAS Military Summary archaeology findings (KI#218â€“220)
+6172	c36032deb5f5304de4eaecdd5ef5c9b6ad457381	a659595e27edee563cb05351930ee6b117807257	fix two AdvCiv-SAS battle-history capture attribution bugs (KI#221 and KI#222)
+6173	962e912da534375e395e8455063c35a6e65dbef4	b13a84fca3f2ceebecd7d7ea86428f6b1bffe912	fix KI#214 and advance AdvCiv-SAS source archaeology (AdvCiv-SAS irrigation-chain constrained routing)
+6174	c8903d21a66e9e152dd177307ab89496e51c10ef	ee06f100537f2c109209f75680051286e096e9a4	Fix 3 AdvCiv-SAS archaeology UI regressions
+6175	fa4a1468df17b864240e51089777f0cafc0aaefc	bc5728f1ca75f8bf978c8165d401aaef21fdbea8	Fix KI#224 World Advisor vassal map-information leak
+6176	b8a7805fe271571f27abbee904a8f1f31162b0d6	2fdee346e2d245da067b12f3c89ac3581f73f7a9	Fix KI#225 AdvCiv-SAS Event Trigger era grouping and advance archaeology
+6177	c99ab79e5b33b2cf72d67a7166dca9569bffdcb3	820f1a2e1ad634db894da29c93231ee2d806cc7f	Fix KI#228 AdvCiv-SAS aligned scoreboard scrolling and advance archaeology
+6178	0a96cdaa7520a1dc29cff42b3e124a7d581e4364	895c46242d97922f1cdb8dfc202f025031b1433e	Fix 2 AdvCiv-SAS archaeology UI regressions and advance archaeology (Hall of Fame and Sevopedia Leader item-width)
+6179	31becb027ab013df99546d43d0db5cc94df8d175	f9dfa9ad2d5510ffcb8f6f05975dad900b5f76cc	Fix 3 AdvCiv-SAS advisor archaeology regressions and advance archaeology (KI#231-KI#233)
+6180	fbd121d7fc5636bdf8413e05db7193d63aade5c4	a790e5648c526ebca479e032a55f0b2b917cef15	Fix KI#234 AdvCiv-SAS stale Espionage target state
+6181	26b2ac78844a4b8a6faecb841535ffb8ea9b48f8	2d23bedcccee859b059e02754687ba7ad1a7316d	Fix KI#236 inherited Executive requirement in Sevopedia Unit and record archaeology
+6182	f2ecb1334c434b3ca295720e328500332ddc1ad1	0d10b3650e9d5cd07a4cbb29c19870780506531d	Fix KI#235 AdvCiv-SAS Bomber hover and advance archaeology
+6183	df3da878022205a0dad9c0786146b27870a0e678	7cb3b48534037b09583df40f3a6d9e642c5558b9	Fix KI#237 and KI#237.2 inherited Great Person text fitting Base AdvCiv bug and K-Mod/BUG-era bug, and advance archaeology
+6184	49732aa36963d0a61c8dece3ef437afba1370785	6fc4f59e68ae614ef7aa25461f7d27d60f089e4e	Fix KI#238, KI#242 and KI#245 AdvCiv-SAS map capacity bugs and advance archaeology
+6185	9fb1f179a4c7a3e5be4d06c35ff1f159697f83ea	d2d788086d3d2698b7d4258976a626b07c7238fb	Fix KI#239 and KI#240 AdvCiv-SAS AI bonus-trade regressions
+6186	256402817cba360bf88618eba010f736a700fa17	cb59951210104f54164987e729175f8c625b16cc	Fix and beautify KI#241 AdvCiv-SAS Treaties rows and advance archaeology
+6187	e298fd84b883283604597c32ed008db0af2c4b90	4ff2a82860ab7053dde70f1917ec9e1b629c902f	Fix KI#254 and KI#255 inherited Peirce mapscript geometry issues and advance archaeology
+6188	b5704a24760c5a28dc857904491b307984f84814	8d8cba5f65e68b8367bbe283af39c922a37fa1fe	fix inherited KI#262 KI#263 KI#266 map-script bugs and expand archaeology tooling (with inherited map-scripts)
+6189	0bf9dc325c8ddf0782c9f2c66f87f7caa64fb5e4	8e31e7d01597f1a06cf2e87efcb3b92430e05050	fix KI#264 and KI#265 AdvCiv-SAS 48-slot map compatibility and advance archaeology
+6190	d88d352eda7c67843f49fc1ff2b76110366d9445	436c770dac1b1dbca5a16db038e49b2378b9c0ab	Fix BTG Lagoon/Cross map bugs and advance archaeology (KI#267-KI#270)
+6191	cbe0dcc89874e0c747e955697054df52ecee06c7	3c8606ef801be52e4d9ee4fe69e03e15b662e408	Fix BTG Grid/Cross region generation and starts (KI#247, KI#271-KI#274)
+6192	56468e94ffdc5fa497ba28b3f163ae0711f1dc4e	087f12a01ea8988a23ed442081523c0bb155f281	Fix inherited Random Script Map bugs and label (KI#275-KI#277, KI#275.2)
+6193	23b18a0b9beafd3692cb027d9e89b80d1087e3cb	0b66f4ec59449819e8ff274cc1aee75c2fb15628	Fix archaeology-found map-script world-size bugs (KI#278-KI#282.3)
+6194	7124c4091e36e6fc2fc9e881bb3b47b09f39a89b	e8f3ec1f381fc80a1380bd7a79db897115aa7965	Fix CyGlobalContext() map-generator and geometry bugs from archaeology (KI#283-KI#284.2, KI#287)
+6195	17fd484a2477b82f55adc629376a1050755e6d31	1acc103ee121a7e237e609d2f067cad3d5a7ea96	Fix Team Battleground geometry and starts through archaeology (KI#267, KI#288-KI#291)
+6196	e0531d2b1881ef71b346a7c35662bf0f8bfce9a5	6556c1c02bc873acf15325da8357e8c6eb7cec9f	Fix inherited Hub, Ring, and Wheel buffer overlap through archaeology (KI#292)
+6197	c5ddba4b9959d99974e6968cefc4c42708752c50	8ec727e9856b8b196db9d422eabf8b1c3d3e371d	Fix 8 inherited and AdvCiv-SAS map-script bugs through archaeology and complete AdvCiv-SAS runtime-source archaeology through practical 4345
+6198	acf8ca816e30af6037f6d5a15900197b72990957	d9654a2754ab67cb04e72f791ec502a2bb1fc07a	Add pre release doc info
+6199	b9f1242dbea9c1b4c109e9be9151f4f43c4f1445	313da85cd5e0949a90e61953f0287ebffe77fcf6	Update docs (pre-release)
+6200	0f2004eafc0455342f0e9d45240a83cc37fa24c2	9887bed3ce4addb2a03d5c21deba3f63a2b32852	Update 18 civs DLL
+6201	35f47117edc08141cca69f5ad72b89eae313bb92	166f24daf1428d9a15f09f57de01600ed24e274c	Update docs (post-release)
+6202	9bdcf754cc29a10155c8a055f5c35ce70f8fd1b6	841bfb4c3ae49f6d262e7881e5df5d7690f8578c	Reject KI#324 (was not a bug nor an issue after review), improve KI#323 first-strike display and fix KI#324.2 collateral eligibility
+6203	1c70b519b895777539f7349b90f5ea79a6793764	977152c163311d024eb1b7e66bf3544fde459c35	Fix KI#315-KI#317 AdvCiv-SAS AI civic valuation regressions
+6204	22dbe98a19a30f1c6dcb603f4aeb6abce4468ee1	6231a08737ad2e383e35e074f769cdce34c24a80	Fix minor inherited K-Mod OOS checksum issue (KI#326)
+6205	84a374d186d52f5bfcce473fb78d982d8cee12b7	702e4d7f29c587ef9a4b6fa53520cdeca910496a	Fix KI#318 and KI#320 AdvCiv-SAS CvCityAI regressions
+6206	5e3596ffe8c1a1edbfd853abca9080871cb6ea20	a9603c8529c2a22e4e3cb326f903812095160643	Fix KI#299, KI#301 and KI#302 AdvCiv-SAS Sevopedia regressions
+6207	fc3891082f8050f6d242374d32284e3b54f7ed3f	fb6e7fc7b670963dff36228446e1788d104c62f9	Fix KI#303, KI#308 and KI#308.2 AdvCiv-SAS specialist and culture displays
+6208	f7a1aedc0f624fa3e1f6bd6b328399dc11e44cf1	8a6db2049a531328936c4a0871efaefd3ba7815e	Fix KI#305 and KI#307 AdvCiv-SAS world-size and localization UI regressions
+6209	44713955887657e2a16d81203863e64e434d0e0f	06064b12e6faa14b92c672e6a09e125dd43ff37b	Fix KI#304 and KI#306 AdvCiv-SAS found-value and maintenance-cache regressions
+6210	ab5ef7e5180282494a4e13aa19fb797004a9464b	39ba7ab2d3de27f35948ad04d22c0a225f6c298d	Reject KI#311 and fix KI#309 AI valuation archaeology findings
+6211	47ddc58905f42ffb8724b436c976ccf33c6f572d	d0ff436c1dc604225935d2b64951124f5c679923	Fix KI#310 AdvCiv-SAS regression and KI#319 follow-up to inherited loop fix
+6212	53edf9c04ace37a663f557e03f32345e38f76ed1	e7cebfb3f68e0ff659b6962067abb0bb73d749c4	Fix KI#243/KI#244 inherited Water bugs and SAS caching interaction
+6213	69a7995381a9d294cec8c073924c21ebecdd3ebb	8dca41814686114631087dc66f3adad789d5ea30	Fix KI#248-KI#253 AdvCiv-SAS Grid bugs and inherited map-script freshwater checks
+6214	bd95b7c42a05f1df06ac066a467591d9d0494a87	19737a68f192f311b28dcd8ad5cda494044560a9	Fix KI#257-KI#261 inherited Planet/C2C bugs and AdvCiv-SAS regressions
+6215	fa8b8c3056a931f0048be554babac097689b3bee	a01728385a6601b1986af17b5353362d3aafb947	Fix KI#246, KI#256, KI#267 and KI#286 SAS and inherited map-script bugs
+6216	75beb2df87fadb690dc6a0d5bbb0f7ecebfc7f32	8dd7577e7c7b5b78a14054e5bf4a6f4fddfe478b	Fix KI#285 inherited pre-SAS AdvCiv starting-distance regression
+6217	c25b134088c5aac94c24a536e2bba2c2f5e6e7cc	8f6e4adb214d0a988084b1a7a86e1b91d5ccb4ed	Fix KI#300 and KI#322 AdvCiv-SAS Timeline and AIP regressions
+6218	621ce26dcafd4b8d8adbb7fceb69c4797bd3dfc2	9b78fc0e0e3348b68e444509fac68069bf023885	fix AdvCiv-SAS Worker and master/vassal AI bugs (KI#296, KI#312)
+6219	2479bbe9d18eb64353a07824a09927b60ad50e62	c8c3e11f7ce474ba1dd420cf555cd4ea21274ac6	fix AdvCiv-SAS BFC Artist cleanup and Earth Day mismatch (KI#313, KI#314)
+6220	06fe2cee73380c91dd9398dc406911ee8783f160	b3c833bceb511a81a508fda05d7b3efc4572d109	Fix AdvCiv-SAS KI#321 Sevopedia civilization availability labels ("All"->"AllR" (excluding civ-specific variants))
+6221	33a4e226dd3a3ea351e2246ccd804a875dfe4515	70fb4ba57d7ad8028604a329e55c62c92645c45f	Fix inherited BtS past city-name identity broadened by SAS (KI#325)
+6222	2540f0da0a21a94f0c1724002ba43028913a0df8	047fd3f5f9d01c3cc2a45159c838a0ffe8c860d0	Harden inherited BTG Grid/Cross fallbacks found by archaeology (KI#329)
+6223	6d0a6f7836dd2ec70f2211b96b71106faeff6b5a	63f7659892c0f5f3eb37ec44c45af1fc9db965d2	Fix minor inherited Planet/C2C getGridSize contract found by archaeology (KI#328)
+6224	db3a40e9a2f806fe44073051fc337a09bc668725	6eb6978ecb7fe34cfe67c08b37aa56e316a8f224	Reject hidden inherited BUG/K-Mod vote-poll repair after runtime review (KI#327)
+6225	df985a491633723d20a33b5bb17bfae346090c2b	5286fc13797d9abc5cef6655b0977f48016f9494	Organize source archaeology and add the C++ File Audit Album
+6226	4fccd9cf2ceee0049c019e36ad9ddf789281d05a	2763e46c4742a6f1757469dc56bc5332fbf7adcd	Fix inherited AdvCiv/AdvCiv-SAS battle-information leaks (KI#334, KI#335)
+6227	16a3f0a091f681eeb7452f947a98e25414f5fbfe	b14b077d6782013b1e5850224819e0da6f8de5af	Fix SAS tech-contact and inherited BUG/Base AdvCiv leader-hover bugs (KI#330, KI#332)
+6228	3b9f369bcf3b1d6f5cfd3fd03e0cb3a9673c8c76	2e35a0212c7aa2bdec7e2402f505646a69184205	Fix AdvCiv-SAS-only scrap-contract regression (KI#331)
+6229	bdc85d8fe988726615dd13658a90d5abff45f3c4	6f136ab2d0c704463b3ecd69883276240db775a0	Fix inherited AdvCiv/BtS starting-position bugs from C++ audit album C009 (KI#338-KI#340)
+6230	e3b7d0f9df1988e84a8b0c4b6eafd41ce4279386	946bb92966b5bdeb10552ac37309f61f98e18359	Fix inherited AdvCiv score and rare BtS Time Victory bugs (KI#341, KI#345)
+6231	e99af2ff997b86951a157ab8a3bb8127a989d611	5dba4057e84e0052f1793fb45d4bfe05a837bc81	Fix inherited CvGame edge cases and reconcile audit C010 (AdvCiv KI#342, BtS KI#344)
+6232	f41b1ebf4d27cc04d9c539e9ab8d6424102b1eb5	d12f1271d1ea2827db087f0c953f888f7571a521	Fix inherited BtS/AdvCiv CvPlot defects from audit C010 (KI#347-KI#349, KI#352)
+6233	be12700f651aff7b5c41287d2c93dce7ed9f95bd	828658a349f47e87b766d873b63d21e4fab436e1	Fix inherited AdvCiv hidden-nationality leak in nuke reports (KI#350)
+6234	a25aae7e41c4994203d042938b4a3e49ddf7da2d	d29d65355088fba9563f2a0b68ebe2cd145a75ec	Fix inherited BtS river-edit derived state (KI#351)
+6235	f22b50ca654bbb984d3af8f108a9de2b57428b7c	80a434cd895a6d2ad8e48da01bc1cdd72de0a85b	Fix inherited AdvCiv passable-area invalidation during K-Mod Ice melt (KI#346)
+6236	ba44769c7644aa0850dd2d49f12d02589a5ec6c8	b7535c87f11a33fd3864a99369d0155dc9ea5299	Fix inherited AdvCiv/BtS AP/UN replay privacy and voter grace bugs (KI#337, KI#343)
+6237	42e8a4dcc77811ab2a0addfbce80dd2cb39454f1	07fbfcae5eff5ea6ded8ce0373d7c0fbfdea1081	Reconcile C++ audit album through open CvTeamAI checkpoint C010-WIP3
+6238	4dd9bd3ff970359e1650824eecb4c1ea94b2441b	f0d50e744fdaf7299003c05971ba21f6c0a52df0	Correct CvCityAI KI issues and complete and clarify the KI#74 CFC review and cure (KI#48.3, KI#70, KI#74)
+6239	80cb8f4be721decb8bd82f744078160cabdd2460	cdbf743dc6205df661a65e2b34cd8e09c8a90600	Reconcile C++ audit album through open CvTeamAI checkpoint C010-WIP7
+6240	d8157f78d9783fa4636caaa1e6e892b7fa7bcf49	5f5b6105e4d672767be04ef277851703f6b53294	Fix inherited CvTeamAI vote, war and air-power defects (KI#353-KI#356)
+6241	6333073c6887b00ae4db60452c2821262e6cd71e	ba9f4317ad0b3aca0493243edc7ce6278b50c907	Fix inherited AdvCiv CvTeamAI refactor defects (KI#357-KI#360)
+6242	46d764ac5925abfa49ea2cf6c27d014a53e6f00a	06ee3f7174d2b834fc2319f6dab7ea6bc4e9c0d8	Reconcile C++ audit album through open CvTeamAI checkpoint C010-WIP12
+6243	c6f1f31d32118e782df57bcd16d58d067057fb21	6512cf0986df99c960b758abcfa3454f085653b5	Fix inherited K-Mod/BBAI and AdvCiv team-state defects (KI#361-KI#363)
+6244	9f56202d8b2f8e61dccf739f9e490fa8d69edc5e	acf6f3baea1fb700645fcb5133e130b4e61e2316	Complete inherited AdvCiv AI_preDeclareWar memory-population fix (KI#358) and reconcile CvTeamAI WIP22
+6245	fcc06285513c40242d5feabeac7f14c1a7e2c7a2	be1e58b394bd529fec88d32f6c878e821cbb7f05	Fix inherited team relationship-state defects (KI#366, KI#369-KI#370) and close CvTeamAI audit album C011
+6246	d6cfc845890830d65c054eeedb7acbdf3084637d	3c858051f0c56dc752543e3e66910814e4b59726	Fix inherited AdvCiv and BtS/AdvCiv joint-war brokerage defects (KI#372-KI#373)
+6247	90f42a0f7b134e33e7975afcd619ec2a9421eba4	075f5cd9f4378f254d9a151191d5431ca618d05f	Fix inherited AdvCiv war-plan and K-Mod WarSuccess coalition defects (KI#368, KI#371)
+6248	1cd79473b8b0a36f95c3b8d1ab1f780509a7ec0e	c366e5ea9df08e02de974f74df8558482187d0ce	Fix AdvCiv-SAS emergency-production priority and map-heaviness lifecycle bugs (KI#333, KI#336)
+6249	29bfab953357d15a26232d685b10dcb94c715ade	f2d72e7f90a8640dce6600f1afe0c85b62cb3887	Fix AdvCiv-SAS SASGameRecord/BBAI diagnostic defects from the C++ audit album (KI#374-KI#376), and reconcile ChatGPT-5.6-Sol's durable C012 album
+6250	2ac3faa2f6cb45cee0d417728410d325c32668ea	f0ee784b6444e9a0ebedb67722fa4b89f9e29314	Fix AdvCiv-SAS SASGameRecord defects from C++ audit C012 (KI#377-KI#382)
+6251	1b85d21477b2ba03435540cb41e457b73aa444ef	8eae1ddf6c0d2f6346d0184bec5e6a009edb4fb0	Fix KI#383-KI#384 and KI#386 widget regressions, reject KI#387, and reconcile C++ audit album WIP14
+6252	ad022a3fc9f270fdcb77b9a5cc872e30eb1e4643	7aaf0b6aa9fc0a5d7e7ff5a4d21490e6ce94b1df	Fix inherited BUG/K-Mod KI#391 and AdvCiv-SAS KI#392 from the C++ audit album; document KI#388-KI#390
+6253	11f991a437c677870e9a0fa6550312b2610c0f3d	a39bfdc68b5a84472dad4a7063a45cbb4829e69b	fix AdvCiv-SAS KI#129 and KI#388-KI#390 advisor/widget issues; close C013 audit album
+6254	eb56b5956e5c51b5dcfc2ce01d08bab0f24de952	3857fe21439ff7733fb2a36ebbf62432bae22340	fix inherited BUG/AdvCiv KI#395-KI#397 widget contracts; document C013 KI#393-KI#399
+6255	022e226beaed92c1c894fc3f5ec45973f0c9e299	b2b49c6674d9799de96672319dee7946c1089612	fix inherited BtS KI#399 Great General XP remainder loss
+6256	922024d6c18f3678ce6c0c0af742486b98d5100c	e95b703b659bce223a25312e872d530611246877	fix inherited BtS/AdvCiv KI#393 and AdvCiv KI#394 mission eligibility
+6257	620b428e205dd62f7d6d6df0c5f9cdbd1928a269	a9988472a760b01915cf7076c848ff8605bbdb8a	fix inherited BtS KI#398 group Espionage; close CvTeam C014 audit album
+6258	a5ebc9cc5aa3a4b0c9974fe26988c23d2d777998	19325626df83dcb96953e57073094b69a92302f8	fix inherited AdvCiv KI#412/KI#419 and BtS KI#422 reporting defects
+6259	6c23f9cd9ff73d60a53ac322f4b36fa5043294de	95f1e653ee460fd89fab84d5d8d17b5329f0b9b7	fix UWAI KI#424-KI#426 team weighting, target reach and trade-partner identity
+6260	9a772fb4a0b3d9178597b58499a294ac80a1be0b	8d0fe661ecd772cd1b63f2b86050d7c747b2e497	fix inherited Permanent Alliance state migration in KI#400-KI#403
+6261	9262c8f3bc3e9dbcad253a87777cd598870b0558	58563781c3401018e4d1aeab27df44d68acd83ee	fix inherited AdvCiv technology bookkeeping in KI#404-KI#405
+6262	9bd1a3124fa6cd6549fb22b6c7eabd4353d0ebb1	a19018fa021c1638c1dcf3e8a1ae7a46969fa587	docs: clarify KI#405 and reject KI#406-KI#407
+6263	4ba8e58230b1795449b97f56dc35d55030661b12	403929fe273f0bce131fc6bfd2ea15d57f688e6c	fix inherited CvTeam defects in KI#408-KI#411; reject KI#410 (about Advanced Start technology-refund)
+6264	42bfefebb0d8ff23cc16557afa96e1b5a9fde90c	fd7ae43c621809d7ef820de98a5c1ea13483b7b1	fix inherited Tech Share defects in KI#414 and KI#418
+6265	b10972a9750ecab1a39392043e237d9f3a81f416	007ac4a3db4bc38beee19e15285c9f1b8025ba39	fix inherited AdvCiv peace and war-weariness defects (KI#413, KI#415)
+6266	d8498752b960f27bfd4fc6d4086fbc4fc2287b8c	a95f6eec811dfacdee34b4a48eec1eff3bad81e0	fix inherited AdvCiv team-state regressions (KI#416, KI#417); reconcile C++ audit album C014-WIP24
+6267	52e0f9c06718fb444208840cf5cea7b7723267e0	fe0e4abbe4ef49a910bff90d7db2f02143855c53	fix inherited Permanent-Alliance state defects (KI#420, KI#421); reconcile C++ audit album C014-WIP28
+6268	3a42d6bd7fcebe7840eabdfd45156f9efde0c7cd	98142d25a5114685ee9a9aafc9923e8ddfba493d	fix inherited AdvCiv UWAI defects in trade, Domination and Kingmaking (KI#427-KI#429)
+6269	df46c1a092af599480297960cf46e3edfb18800d	619d8711290d47538e35a610e1b63c2be5a7a340	fix inherited AdvCiv UWAI coalition and reporting defects (KI#430, KI#431); reconcile C++ audit album C014-WIP30
+6270	5e2c3ee29931b1fd800b495a6746b7787ea41c09	94e2d279e8e473896374d06a9a55cbd57fb9b89b	fix inherited AdvCiv UWAI AP and war-anger defects (KI#434, KI#435); reconcile C++ audit album C015-WIP06
+6271	a165e6b5bc3fcd2fe6a27100cdffb060abc54334	e987f8de8fc28b24c5f854fedac9c9e61a0ea042	fix inherited AdvCiv UWAI Kingmaking ally/vassal asset attribution (KI#432)
+6272	202064cbf9db8a00ce0df4c0f36f8bc9027271cf	038724dba92df55c2b5268de4341f72ab2ac47c2	fix inherited AdvCiv UWAI KingMaking team-state modeling (KI#433)
+6273	fbfa1980878944454a6651fa11ad3f5cd401a4a0	e04fcd41a2b7a8a9bcfac37a5654a6f6baa9a1b8	fix inherited AdvCiv UWAI utility defects (KI#437-KI#439); reject KI#436 and reconcile C++ audit C015-WIP11
+6274	a70aa8b82f3882778f796887303851ca860f89bc	74a53043ed15c4e896fb99c4fe912d01593bdfc2	fix inherited AdvCiv UWAI revolt and capitulation defects (KI#441-KI#442); defer KI#440
+6275	25f8a52a03427b77239f9eb5574c318a23b90371	bd16fb397cec269fa99871050bd0186e3986c9d3	fix inherited AdvCiv UWAI startup clocks (KI#443-KI#444); reconcile C++ audit C015-WIP13
+6276	e7ba95276ec6d4e71dde05d31aa486fbac95f994	ecd30a6baa11145a3bddf0ed388005d64d377393	fix inherited AdvCiv UWAI Bellicosity team-loss accounting (KI#446); defer KI#445
+6277	e1937c810e903607cee13662f7fe094d16249430	d7387411d1b641ba3438a6a2bd2e84aaaf101221	fix inherited AdvCiv UWAI Hired Hand team obligations (KI#451); defer KI#447-KI#450 and reconcile C++ audit C015-WIP18
+6278	f78655dee8584e416e91fe21d01a45ce136be2f9	7e323809777443af4511886dff102992864ce868	fix inherited AdvCiv UWAI/C++ identity and lifetime defects (KI#454, KI#458, KI#462, KI#464); reconcile C++ audit C016
+6279	7bb2bef7dd181d59e024a87c9bf2db5041636001	aea34ce91dd437fcca7c295a35f8c76f0f7cd698	fix inherited AdvCiv UWAI/naval group-state defects (KI#465-KI#467); reconcile C++ audit album C016-WIP01
+6280	39f682650db32366a46c7e92ac87f130249ce152	0a95fa1d5f2eb949bd26fe05f3973ba8db14b5b0	fix inherited K-Mod/BtS/AdvCiv selection-group defects (KI#469-KI#471); defer KI#468
+6281	e723a687953b6c87a01e5803f32065df7c8f0c0d	bba057b69b4257ea4ffe8231ff8cd5690c6aef6e	fix inherited selection-group defects (KI#472-KI#475)
+6282	8e11138eb77ade8b5018c6432071fdac6027bb1c	7a984a8aa8bd0bc9f6f04c948060e971b94b64ba	fix inherited cross-transport cargo state leaks (KI#476-KI#477)
+6283	5b2c6d1a631e5a547a37ba9874e158bb5c539bed	150aff570abf30cecc35b4de93174a78195e63fe	Document .pdb and Debug-opt DLL usage and update workflows; fix KI#475.2 SAS regression and inherited KI#475.3/KI#478/KI#479 lifetime defects
+6284	1b4e679523d81a4fc649b908fa6c66133dce58a4	cd4d472c78ea7f61b80a19769c89584872bc6c2c	fix inherited Firaxis Vanilla Python queue ownership defect (KI#480)
+6285	596f462b86020a53e9fbdd60c2f20340fc83025c	9cf57813a9ef53be412a8d4a3794f7df2f964912	fix inherited AdvCiv UWAI asset accounting defects (KI#455-KI#456); reconcile C++ audit album C017-WIP12
+6286	9ccbadc10a3d347177f20280dffa7e7a095e23ad	38eeafba20d13b0f93e0f378aa3d257797bc152b	fix inherited AdvCiv UWAI team-scope duplication (KI#460-KI#461); reconcile audit C017-WIP13
+6287	ecaf8c9635a782366db5eb25755afec4bdf9926a	f23646b66d9644edbb8182ac046ff91fc823f2bc	fix inherited AdvCiv UWAI Distraction duplication (KI#449)
+6288	abb9f37910186a7aa23d2c7d20553d0f7115c4c9	b3989d03ac47d5e4cc8fdf0bd70139a36bd8f0aa	fix minor inherited AdvCiv UWAI peace-brokerage assertion (KI#520)
+6289	91ef8290158f00f2763477c5be090c8c6f11137b	fa6e8970f647ab9bad15f7634aa1569f7eab8b89	fix inherited city-site evaluation defects (KI#481-KI#483)
+6290	8c425f35a604352bf21a5c7787b997bcf7755eff	7302a07c38c6b0c510d2f0561aaf23401463e254	fix SAS future-BFC valuation and inherited AdvCiv liberation crash (KI#484-KI#486.2)
+6291	59c543e73f0a57ca7943000648c076cdf3d033d5	4641cf5d384f948c8f02fa28ad69b75c37050ec9	fix inherited K-Mod/AdvCiv and SAS city-site defects (KI#487-KI#490); reconcile C++ audit album C018-WIP03
+6292	6d1edf2784210a5b1fb9a17d88ff8ea80c274d92	61e14a5a947574a86bab81ad012addfa7097cc8d	fix SAS and inherited AdvCiv city-site defects (KI#503-KI#505); reconcile C++ audit C018-WIP04
+6293	feb52197ebe5881843e99f8e7c6593dc4e5234e0	617843aa2bc9c108530719f7783c6467b1c85ea7	fix inherited applyPartisans1 initUnit(NO_UNIT) crash chain and SAS/inherited KI#521-KI#524.6 defects; reconcile C++ audit album C019-WIP11
+6294	aff56f8a14b22e55bce60cf89d80486e837ea415	5e5f9ee12e9c993e2d754ba871f9df7bfd3d4773	fix inherited AdvCiv/K-Mod KI#527 and KI#534 debug assertion paths
+6295	5743741e72c07584e816095bc6c93237430e53da	f21aa3ba4a1f813fdf8898b278040ba6fa18a5d9	fix inherited AdvCiv UWAI KI#536-KI#537 cache invalidation defects
+6296	f270fd5119cbb91b7b143920e29cc49fa0530451	3e8eced21ad3f3f7db9eccf2ae46a233779b6de2	fix AdvCiv-SAS cross-layer KI#540-KI#541 and inherited AdvCiv UWAI KI#542
+6297	f8c67505275fe2718cfdb0b6e081cb9e8bc17ffe	7574ccf3a13543a7f2f6d87e124f2fa17db3fd5c	fix inherited AdvCiv UWAI KI#545-KI#546 ScaledNum regressions; reconcile C++ audit album C019-WIP18
+6298	9d4d2025224c368da0caf25f36af72925245ab4f	c909ca55d8f78e9915baad03f289c3bfcba691d1	fix inherited AdvCiv UWAI KI#547 and KI#550 city-cache lifecycle defects
+6299	a9dfd1d6a3662a42285a09dcfe4665914fbf724c	d91753ea58f0fa15a154ea12a36ca423043943d0	fix inherited AdvCiv UWAI KI#543 and BBAI/K-Mod/AdvCiv KI#544 war-side accounting
+6300	93f693718ad11b5ed4dd35e6ea26f67675e680a2	1f3e899b9d53f406e03e97d77e85ab3e571c0118	fix inherited AdvCiv UWAI KI#548 revival inventory and KI#552 bounty overflow
+6301	23b499c1082f6239e4c64e603b0609329645b001	5daa6b4076c0904abb5b106a783e6e35e8cf4c0a	fix inherited AdvCiv UWAI KI#549 secondary-colony naval reachability
+6302	85e31f0f418e23e1d703124291f0bc0016ca1f28	646137c86584e933b2306c9ff818d8cb5ad4659e	fix inherited AdvCiv UWAI KI#551 outsider Permanent Alliance state migration
+6303	d84067f8e3cf01a3499f7190daa4acdefa96b903	037cb43335d90a0ce9eb902d24be91c606f49ac7	fix inherited AdvCiv UWAI KI#538-KI#539 leader and Permanent Alliance cache migration; reconcile C019-C020 audit album
+6304	0da1373042c38b29f57003b324a2a0f17eb77845	2db0794b155e2623a2418bc397bb51ac9d2d656b	fix inherited AdvCiv OneArea placement (KI#564-KI#565); reconcile C020-WIP03 audit album
+6305	9df409cb7c40824008981977e4d01c95857e3a8e	76ac9bf1b390445a54efe043990e886d8a438ece	fix inherited AdvCiv/BtS map generation issues (KI#566-KI#568)
+6306	785c3854724391f7078672f3e715a9d32d9a593f	a841a39131b9ce77b6a2ff3c889b22a3b41e80b1	Fix inherited UWAI/Base AdvCiv military censuses (KI#560-561)
+6307	ef236d521789f668c74b8727d454df9d7e9173bf	a81b2d6806dbfed084f7bd0d301cd03ab53e965c	Fix inherited AdvCiv UWAI lifecycles (KI#558, KI#562) and extend the C++ audit album to C021-WIP03
+6308	cfa5d3c4b4b66769967603492cce29201ed5ec2d	17a619c1aa35060c3a0e9060499b98c274b05041	Fix KI#202 follow-up and inherited AdvCiv map-generation regressions (KI#569-572)
+6309	d16d1dc3b69d0f5e5176e8e416d9d0d1cd5767db	f7d92669e9c368b5633f9bcedd3d14dc4d4deb72	Fix inherited original UWAI capitulation and terminal-edge defects (KI#573-574) and advance the C++ File Audit Album through C021-WIP10
+6310	08450a1b7a0f378c047ddf980a11400b2cbb4e70	e168cd4ca3eafda8bd4c86d7403ba9fbce5d7d65	fix inherited InvasionGraph issues (KI#575, #576, #578, #579, #581, #583) and advance the C++ File Audit Album through C021-WIP13
+6311	4b49b30e2892ad8e5f2449938e4cc4ad723554ba	9afb3705fcb87fbb350e292a1e62320721d28d93	fix inherited UWAI branch-state issues (KI#587, KI#588)
+6312	259318c0012eaca33de4e47ab7e65d22469f9773	3f1f2c614b5b6f470352c5e93dfc2fca0e9f6241	fix inherited UWAI emergency-defender accounting (KI#589)
+6313	de9b7689efe8d3646be7e3777de9285ab4d89642	b34e95e9aecbebb7c1e0f47f62839fe80688cdc3	fix inherited UWAI and AdvCiv InvasionGraph arithmetic (KI#580, KI#582, KI#584, KI#585) and advance the C++ File Audit Album through C021-WIP16
+6314	34cf2a06a5dca595f28b49ee3418af110c155b12	269a539ee43d8358608c6fe9475da681d9a80a6a	fix inherited UWAI/AdvCiv city-loss state (KI#590, KI#592)
+6315	facc1c43d338f3a2a7b7781c078ba8553d3f9990	f2c966c30a3d5023d186fbde78093213fe1dc79c	fix KI#591 inherited UWAI mixed-route land-distance mismatch and advance the audit album through C021-WIP17
+6316	ede51428c932fdb50427ec869c0b1a60daac9118	ab64c5facf0cdaae817670cade73c973b65a7247	docs: complete and enforce the continuous KI#1-KI#595 ledger; reconcile the Audit Album through C023-WIP03
+6317	101b3d61d4522566874f47df3d82636de686a3f2	2d3cf8a9781cdaa642e039b1db4c76742c609ac5	fix 4 inherited AdvCiv UWAI defects and 1 SAS regression (KI#507, KI#508, KI#514, KI#516, KI#518); reconcile the Audit Album through C024
+6318	c3dfb0eeb70ad544aeb3c5ae6e0d21fab64988b0	55e439ef7f2e11fa7b6e36524b8568ff7f50bac0	Fix inherited AdvCiv replay colors (KI#595) and SAS Assert guards (KI#596)
+6319	5302aa102845237277788883d3b3ec6e534d1dbf	dc19e5ba06dc2bc2ea5bdad5abdab9f98f813756	Fix inherited collateral-team and BC calendar defects (KI#593-594); reconcile the Audit Album through C024-WIP13
+6320	967ddebac85f384e29e72363074d5e0e05fc56c4	07bae58ec8f9e760d5f9088d9310b4dee97aeb21	Fix inherited AdvCiv Python callback contracts (KI#597-599)
+6321	923ad6d6615664d4dd2e69c645db8754dcc37975	a90878c4167a80b3693f3209e101ec74ed5035b1	Fix inherited Python callback and event-help contracts (KI#600-603), reconcile the Audit Album through C025-WIP07
+6322	4328ebbfc2e7e4aec9422cb34c737dcc34f702c6	f5d92131c0b50d3d50e5e2192461442c0067d255	Fix inherited AdvCiv whole-deal treaty handling (KI#604, KI#606, KI#608)
+6323	4da63caa0943331fb86b21bc26eb0aac17d364bb	f0764625c232bdff75fd6c4384f14045a14e4773	Fix inherited AdvCiv deal-cancellation memory accumulation (KI#605); reconcile audit album through C025-WIP17
+6324	17ce64be24e83c42213628dcca443fada5007803	dbd181b1e81467cf322682dfe0751c5adc63619f	Fix inherited brokered-war master-coalition validation exposed by SAS (KI#612)
+6325	9215b8195fb90965e9659faea36cef54146803f9	edb19dba0f6db49f65061a983676fbf0a93c0d29	Fix inherited K-Mod/AdvCiv Permanent Alliance self-pact teardown (KI#613); reconcile audit album through C025-WIP19
+6326	f01ab37350771662d6384396fb681026240e5c4d	66b46c22d2485e744d2703f8c9a9773cb15ae16b	Centralize mod display name and loaded-folder handling; Update DLL
+6327	ee979d3ca2320b77bf42bfdf21b85aa560d91d6b	b6e40a8a0deece2a0338bc4a2886c0bf7a1c5249	docs: reconcile C++ audit through C030-WIP17
+6328	d1efa17916d02e0179e55ecc69e2eb9be4dd1d7a	98ee0c269abf6dc0459e4d8c5062ab0a39d38445	fix inherited KI#622 input handling and SAS KI#629 log identities; advance the C++ File Audit Album through C031-WIP10
+6329	0272b5d43d12bd839d985271a7c082bd7c405dea	7af4f8b8975ddfff0b65cd9d4551bc9a12d54d13	fix SAS KI#644-KI#645 bonus-trade valuation and advance C++ File Audit Album through C031-WIP14
+6330	1ba157249ec014ce6075672c01c7d3bf44323768	56410df6174ff4cefb5b3a3158aa9344f36ee4ae	fix SAS KI#646/KI#648-KI#649 and inherited K-Mod KI#650 civic logic
+6331	38bca26d13f9d5864da7f689c3c87ee8ddf5ab3c	ef38df3a122f304cd67db9d0286628c938f40691	fix inherited AdvCiv KI#653 and SAS KI#654 tech logic; reconcile audit album through C031-WIP47
+6332	2198dcb6637a51a788a8282771d73a2dd99fb2ac	ea1c8a63bfb24f337503074b4248769beb13bfac	fix inherited AdvCiv KI#655-KI#657 deal logic; reconcile audit album through C031-WIP53
+6333	e20f20033408500ee8eef2cb82fcc4676fd70548	83dbd447f9936109232e1556809180b9b318c096	fix inherited AdvCiv KI#658-KI#660 deal balancing, reconcile the C++ File Audit Album through C031-WIP56
+6334	a7397ac4e5c3f32c61246ddb0a9fdda6177910a7	72ac20c68f8484eb3623dd13d570ec5647530cac	fix inherited K-Mod/AdvCiv KI#662-KI#665 naval AI valuation and roles
+6335	8a23bfc827136aabe2dcf1860736e5189c6efb2d	d6f02f083bf117df3efb4feb199c4c7a1cd2436a	fix inherited BtS/AdvCiv KI#666-KI#668 AI counting and valuation, reconcile the C++ File Audit Album through C031-WIP59
+6336	4a78580b34b842e5b28112a657e46783ff55fe58	46b3c0158ff8b6c5a91f53d8d2dcdb9527c8c9a7	fix inherited AdvCiv/K-Mod KI#669-KI#670 attacker demand and path bounds
+6337	6bcfd141610c1ee94e7677807d7150777549ed74	325884264cc80ed986a99f00cb6fbc23eef0b591	fix inherited AdvCiv KI#673-KI#674 gold memory and rejected war trades
+6338	d37a3cae4a7172d4ffac8b8ce796847d6b5c50ff	8027e4713968747d7cf0ae9cf121ac4d4a3a3722	fix inherited BtS KI#676-KI#680 event valuation defects, reconcile the audit album ledger through C031-WIP61
+6339	165d5f0e5a2501b33793168fcd2dcf76ca6b252f	c269198c01d0980512f7f990c35f1931e6f52b78	fix inherited BtS event valuation defects (KI#681-KI#683)
+6340	729666eac45e63a68f6c109ff8e58dd8ab6d3fcc	cc6bdfad387f5596e46be12af251f96d4cf9df04	fix inherited BtS event valuation defects (KI#681-KI#683), reconcile the audit album through C031-WIP66
+6341	62b5dc6f7ec0cca2385d2c403325265fce53d1ba	af7b2517f8285b3838067dcfad8ddf3e453a11ae	fix inherited BtS deferred financial refresh; defer upgrade-cache repair (KI#687-KI#688), reconcile audit album through C031-WIP78
+6342	3d097af09dab788d320c0783e0f23c7fed92d663	2f5263ebc081cd2f6d833ce375947aa8907ae4d0	fix inherited BtS/AdvCiv Advanced Start defects (KI#689, KI#693-KI#695); reconcile audit album through C031-WIP84
+6343	369fcb36570028439ed3b5c9f6cfc90a413cad7d	bfa4dfdeef990a67279600891674d8716326b90d	Enhance SASGameRecord setup provenance and initialization ordering
+6344	0f535442c7b6a29ffa76fbde42c7c6c116e145e5	5e3689b3150a35040691eefa5ccfe101d4519f32	advance C++ audit album through C031-WIP91 (KI#710-KI#714)
+6345	f347850aecf3ce2e007da806dda0fad030c1a431	5a71f874e5c716d183338fbe07c30ee501b8ba65	Improve SASGameRecord timing and debug diagnostics
+6346	dd7260c29fb0c9570b8776b51bd6e8b61bd92dc0	8c083b1c53f6d0946ce994aca9983346c49e1a45	fix inherited AI valuation defects (KI#690-KI#691); reconcile audit album through C031-WIP103
+6347	62777b873e72f64ddae6cb49dad1335adf18874a	78378a2e3c9521680f9d478214c7e6c88617047b	Add shared DLL provenance and diagnostic timing helpers
+6348	199c266250d45340834067e7890153598f56653d	ab31e855ad60316ca16a1bdc269e12a1b27a3c20	fix inherited AdvCiv brag identity regression (KI#692); reconcile C++ audit album through C031-WIP109
+6349	381f18a68ba02b2bfd04a6836f7d94f6ab826e4b	150b5d0b7ad5071c80640a9727cd26af49953708	fix SAS victory-stage ordering regression (KI#696)
+6350	fafca54d3ad4a0201381bf55081706f96239500b	b9586eef875d0dc353d8c7955d604c115656e60b	fix SAS KI#698/KI#700 and inherited AdvCiv KI#699 Worker regressions; reconcile the C++ File Audit Album through C031-WIP115
+6351	0a2f58842d57230932629d197f27afcc7cdfa06f	9068ad28635d8be44965efadf9bce1738e1b412d	Normalize finalized initialization logging and refactor remove duplicated paths
+6352	0806b25991f708b15711101a9ed0a85bffb76c9e	b5ca2102f9e246d8d9dc5eec10f2766f4a4ea4be	fix inherited BtS/BBAI KI#701 and AdvCiv/BBAI KI#703 AI defects; defer SAS KI#702
+6353	01e542b3f690a391ac67849a8a442baf97c375cb	d8358a19dc29cdb44f55a05d298e2428c3d30eeb	Compact SASGameRecord initialization and timing output
+6354	f2b2210af1d2887428580c945a9ac8793a43261e	7465af69801a9970783ca0ef0344625213da17ec	fix inherited KI#704/KI#705/KI#707 naval AI and SAS KI#706 Worker ferry; reconcile the audit album through C031-WIP126
+6355	4d00c37883767d36d4f53757def9410b71af1bff	f00cdd56d428a07d313d20853e65d9d77822486a	fix inherited AdvCiv KI#708-KI#710 guard scope and Privateer healing regressions
+6356	f829a71d7a06f9a3d3d9e1fa0aa0d3b8b775b440	5234f5012d745b96fd83b8bf60d3031de69c2a01	fix inherited AdvCiv KI#528/KI#530/KI#531 human Bombard ordering
+6357	f565ff750581003e2baf3888d4f1ed50150a814d	3a8b85dab7557eff3b135533bdfec269d3a27cbd	Add automatic runtime version and source provenance tracking
+6358	648d51541ffb3bdb10544b408856ae8fda41e615	94f6359e28ab8c4b3cce757cff6ff148273fd9bf	Persist source version history in savegames
+6359	24e7da399462db7d6baac9d792493b5b96a806b1	53900c79d9bce7e38de188717497eff3ac44e32f	fix SAS KI#525/KI#526 group progress detection and reconcile the audit through KI#761; Update SASGameRecord_example.log and DLL; reconcile audit album through C031-WIP142
+6360	0109446362b828606d0775da4de28edfbe2ccc1f	03d1c56c629081c6fe5e75be4e5d66a5bc076f3f	fix SAS KI#532 and inherited BBAI/K-Mod KI#533 air attacker odds
+6361	ffa1459c414b063499122e948330fcc66d18cc18	e5f7cbd7732509d91278239e8f272a7beb477102	fix inherited AdvCiv KI#523 weighted attack odds, recount the very violent funny run, and refresh the SASGameRecord example
+6362	252790e0fe8497d0587dc0e4db747f71edae16b0	b8382180ceeaeb213c9160da0a429f7f35d1be65	fix inherited K-Mod KI#535 amphibious group-attack cancellation
+6363	095ec1e0a6a8f3f63f6327176764af7ba1923c55	8ce53179987a06a95ca1bb29ed58bea1e76157da	fix inherited AdvCiv KI#519 capitulation authorization lifetime
+6364	5defa6661d3b5fa45373483f84035a2402ecfe87	0e0e363586978907062550d1ea49cdb06cf30019	fix inherited AdvCiv KI#513 team-member land-target leakage
+6365	0cceadb04b98919f5d49fc4205fb82edab944850	ca2864d0773cb3925b6b7d55e9b096f105a77e88	fix inherited AdvCiv KI#512 total-war boundary and advance the C++ audit album through C031-WIP154
+6366	935c268718cf706f1c867ae574083dd3259e48bc	214a46457b09f1cd6862ae50754fd973b4d48a3f	Lower Debug-opt compilation CPU use with sequential nmake (KI#38.3)
+6367	15143ca656a102a8d7b9f0160863eaef0c9ae2e0	2e501d3b8e896967edc9fc47d4d3fd33a3d02a55	fix inherited AdvCiv KI#511 TOTAL-war switching and advance the C++ audit album through C031-WIP160
+6368	3dad78af1b282b19677af07b9f9964826f82e035	d3cea9d2ef7245201413685d1ef24a4bf488f8e6	fix inherited AdvCiv KI#517 diagnostic war reports and advance the C++ audit album through C031-WIP167
+6369	74ff42110039bbc64e84c0d06c3138b5f0e76636	99d491009b814bc727aeec8498395c0afd07b07b	fix inherited espionage AI KI#671/KI#672 and advance the C++ audit album through C031-WIP170
+6370	f7d4f9e1dd7724e5a69f7dd38173beeea6aa3e0c	045ed0caa45c474fa2ebccd9d568e8d470d21ee9	fix inherited AdvCiv peace-asset valuation KI#509/KI#510
+6371	b4420a70373624a5adfef35997506603f7e4fbde	bb7737726cc19bc64658b3a2379b4de9108c3496	fix AdvCiv-SAS victory-denial force-peace state in KI#515
+6372	c620ac1767d620b0181ec72d2f07c2f87b4bd265	a9d70f507ad2eb7a5d11c75ab528dceb1174b5fc	fix inherited K-Mod/AdvCiv assault-cargo defect amplified by SAS (KI#529)
+6373	6ecda0fbfb60911169d57db305673444b1465c1d	af4775625b506c76af4a5fa409c59f61b1907d29	fix inherited AdvCiv UWAI city-cache lifecycle defects (KI#554, KI#556, KI#557)
+6374	dc6619a08dabcdb908e5f69b4f142f511165259b	3d67a8f613e0da880e26f52c857749cb5e6a3fb3	Add SASFastSave lifecycle and autoplay saves; prefill autoplay default duration to max of the current gamespeed (e.g. 501 turns at normal, 1001 turns at marathon)
+6375	dda16ad23c82141480d7c2332486337245cce962	44c424bb081527ca0a3f149df9ad01accc70488a	fix inherited original-UWAI invasion scheduling (KI#577) and reconcile audit album through C031-WIP190
+6376	3d88509bcbf91cbfddb5c7fcd9eb09ebe5f625b2	a756120c74f3f1c1ca0c3c1be42c1b1db2ec15c1	fix AdvCiv deal attitude timing and inherited legacy war bundles (KI#619-KI#620)
+6377	384f64b1025e5965a163832084ddc247b53fe1ca	937346cbfc5c605b02bcac1062d183c2ff923d39	fix BtS/AdvCiv embargo valuation scope (KI#617-KI#618) and reconcile audit album through C031-WIP193
+6378	a42ec8427e8a014587e3bf7c7ed29e88c6913394	9a57473dd95af8028855d4cbe598cbb7f2f1faf4	Expose source version and save history in UI and replays
+6379	a9d62065eb5ad8b27c7c19f24698d05799d02e79	5d43e0ce2eedf80d37e56ab1026974d5f9379190	Expand SASGameRecord factual gameplay history (random civ/leader choice, team-merge, nuclear context)
+6380	40730df16580fd37dfc2e555b3f057a3cbc9b369	4cd378ab4d7a152f90a7b252f897cc0642091f58	Expand SASGameRecord resolved diplomacy history
+6381	917d6371d9d8d6f19890f14decb7ad88d76f97c1	c629781a52a463a4ef0be4dcce09f78450300db4	Complete SASGameRecord rejected-offer diplomacy history
+6382	d5e6f45165f040660a272117dc6cf7fc69e30ae3	ce3eb23439961915555570664aeb29623f3ed34e	Expand SASGameRecord research lifecycle history
+6383	47f76706f10c5daac6329d36f922274416635bc3	74cb52c7e2b93e737c6e20b8fa9f7d3e3fa9307f	docs: reconcile the C++ audit through C031-WIP225 and KI#814
+6384	af7ec02200d111308df7dad35c9a66e96bace021	7ca547151beb63f258d1062a4bdf84f56a5b79d0	Expand SASGameRecord goody and partial-research history, reconcile the C++ audit album through C031-WIP228
+6385	80f55585a6c67c31fd01d73bd4f4cfdfc984adb6	1a54feb6433383e3799f89b61f7fe1109affcee0	Expand SASGameRecord city-raze context
+6386	2eca97cd53f979a8ab3612efa9c8af07193baa02	620c9263a092fea95d93b83234e8301ea0a4eeb0	Unify shared LLM development context (as of now commit_diffs and mapscript_refs, between light-source ZIP and Codex commit_diffs sporadic generation)
+6387	c1d3201c8ac3dc2afe818efbf119e139cf068fe1	9a3e6c77ea986dc6b654a9b402bab8fc3f28c15d	Remove obsolete map_refs migration attributes
+6388	33e182769cdd17fc8ac603e340a7f89e4be68931	05d0ba68ffcfbaf0f3a30e8e6faddaf2a4e4c46a	KI#186.3 - (Fixed) AdvCiv-SAS regression: captured-city force-raze safeguards could pre-empt Base AdvCiv's Domination keep rule
+6389	18564d5fce01007260d5b21224be4ef8768b11ce	679d3f6b96e2c7e7eae819e002aac7de7ca3cc1e	KI#197.11 - (Improved / tuned) Offensive production floor could waste land output after a landmass was secured, while the excess land attack units would be very inefficient on naval-heavy maps (need more naval units rather for transport, defense, or offense) or if we control the entire landmass (e.g., vassals, team) (no need to overproduce on land-heavy for example, but need attack units even on e.g. Archipelago to conquer same landmass rivals
+6390	7de411952a697fd6b60d8849d2115c641167c8bb	041a6f470867001f47919c24bae1664a42f2d4cc	Expand SASGameRecord military quality and combat history
+6391	131708bf251bc72569db7b78d123ee58afbdff6b	00dcf84d8f7664a1cd5c88103e4a49803506f441	Expand SASGameRecord production lifecycle history
+6392	1cb77fc6e53dd1f89136ea264fcc32fb146de959	a44fa2d733e09d6065c434d1f2e361973948ccf8	Add SASGameRecord map density and rival context
+6393	140ac050ed6671d6dc16d0705fcd5a2d23694ab4	5e5e5463de7b3871bd5f4d50f48b2a5545293462	Add complete SASGameRecord diplomatic vote history
+6394	66f4304d3e7e333abb07d07ad93fd7958e2f8816	1ef349e7cf12b3be45f5b18f294cc74adac4ba42	Expand SASGameRecord consequential action history (e.g. city hurrying, pillaging, naval blockades, unit gifts, circumnavigation)
+6395	26b34d65ba7681f335e04aa291d8cf949156bc42	9aba56b2abaeb707d3ac5c7e194d24db7d2bfc70	Reconcile the C++ audit album through C031-WIP310, update context
+6396	712741b14193c0f10abd73dc424079c2d0bc301f	8abdbb31564245987390c96a182b14fc761d9e10	Complete SASGameRecord special-unit attempt provenance
+6397	2845e314cf7f615a066f7d66ddd98b76f34c7603	c8dd8a9a52e273e274234f58df2ea708cd9d959f	Add SASGameRecord trade market snapshots
+6398	1427d4b817a4b935f18e02ec4642b08457b030fa	1ffe3c616ef20ae99d343df6a4667363e9f8e77c	Expand SASGameRecord city population and state history
+6399	841855ecf88ffbee4da4a29d215e1cfd6645c182	11fb13b1d07d8d706b5a41b57409c57de60636c4	Optimize SASGameRecord overhead and gate log-only work
+6400	9252b585b6b45ed83bf1203e951709b358dfdad3	fe985cdfe4583ba1afdd53212a5efdb7025b25a6	Update SASGameRecord_example.log and context
+6401	2a77783a14066c54b98e985e8947d966c833657e	1087b6bcda0406c1a84d6f74cb730110d8f6da82	Improve first AI Settler timing and escort coordination
+6402	6211a79aaab34d5f516e14a9a1b1e8395b7579ae	492ad93e03c105fa7fe42b393e8a65f6d66e07be	Improve AI productive-feature timing and chopping (new AI_bestCityBuild Phase 0 and new or restored/tweaked AI_techValue feature to hammer on remove valuation in particular)

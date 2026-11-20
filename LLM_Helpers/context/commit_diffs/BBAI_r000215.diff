@@ -1,0 +1,166 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 215
+# Author: iustus
+# Date: 2006-12-19T19:07:12.634990Z
+# Coverage: full
+# Message:
+#   when in a land war, sea transports will unload if they could not find a target, and units will not load on transports
+#   also fixed a missing newline in some debug strings
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@214
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@215
+@@ -1245,14 +1245,14 @@
+ 				if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderMaxTurns))
+                 {
+ #ifdef DEBUG_CITY_BUILDS
+-				DEBUGLOG("%S: picked wonder of %d normalized turns (%d/%d)", getName().GetCString(), iWonderMaxTurns, 
++				DEBUGLOG("%S: picked wonder of %d normalized turns (%d/%d)\n", getName().GetCString(), iWonderMaxTurns, 
+ 					iWonderRoll, iWonderRand);
+ #endif
+                    return;
+                 }
+ 
+ #ifdef DEBUG_CITY_BUILDS
+-				DEBUGLOG("%S: failed to find wonder of %d normalized turns (%d/%d)", getName().GetCString(), iWonderMaxTurns, 
++				DEBUGLOG("%S: failed to find wonder of %d normalized turns (%d/%d)\n", getName().GetCString(), iWonderMaxTurns, 
+ 					iWonderRoll, iWonderRand);
+ #endif
+             }
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@214
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@215
+@@ -2098,23 +2098,34 @@
+ 
+ bool CvSelectionGroup::canBombard(const CvPlot* pPlot)
+ {
+-	CLLNode<IDInfo>* pUnitNode;
+-	CvUnit* pLoopUnit;
+-
+-	pUnitNode = headUnitNode();
+-
++	CLLNode<IDInfo>* pUnitNode = headUnitNode();
+ 	while (pUnitNode != NULL)
+ 	{
+-		pLoopUnit = ::getUnit(pUnitNode->m_data);
++		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 		pUnitNode = nextUnitNode(pUnitNode);
+ 
+-		if (pLoopUnit->canBombard(pPlot))
++		if (pLoopUnit != NULL && pLoopUnit->canBombard(pPlot))
+ 		{
+ 			return true;
+ 		}
+ 	}
+ 
+ 	return false;
++}
++
++void CvSelectionGroup::unloadAll()
++{
++	CLLNode<IDInfo>* pUnitNode = headUnitNode();
++	while (pUnitNode != NULL)
++	{
++		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++		pUnitNode = nextUnitNode(pUnitNode);
++
++		if (pLoopUnit != NULL)
++		{
++			pLoopUnit->unloadAll();
++		}
++	}
+ }
+ 
+ bool CvSelectionGroup::alwaysInvisible()
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.h@214
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.h@215
+@@ -64,6 +64,7 @@
+ 	bool canFight();																																										// Exposed to Python
+ 	bool canDefend();																																										// Exposed to Python
+ 	bool canBombard(const CvPlot* pPlot);
++	void unloadAll();
+ 	bool alwaysInvisible();																																							// Exposed to Python
+ 	int countNumUnitAIType(UnitAITypes eUnitAI);																												// Exposed to Python
+ 	bool hasWorker();																																										// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@214
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@215
+@@ -3491,14 +3491,25 @@
+ 
+ 	FAssert(AI_getUnitAIType() == UNITAI_ASSAULT_SEA);
+ 
+-	if (plot()->isCity())
+-	{
++	bool bLandWar = false;
++	bool bIsCity = plot()->isCity();
++	if (bIsCity)
++	{
++		AreaAITypes eAreaAIType = area()->getAreaAIType(getTeam());
++		bLandWar = ((eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) || (eAreaAIType == AREAAI_MASSING));
++
+ 		const int iMissionAICount = 5;
+ 		MissionAITypes aeMissionAI[iMissionAICount] = 
+ 			{MISSIONAI_GROUP, MISSIONAI_LOAD_ASSAULT, MISSIONAI_LOAD_SETTLER, MISSIONAI_LOAD_SPECIAL, MISSIONAI_ATTACK_SPY};
+ 		
+ 		if (GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(this, aeMissionAI, iMissionAICount) > 0)
+ 		{
++			// if we are at/preparing land war, and we have cargo, unload, even if full, since we are waiting for some unit to get here
++			if (bLandWar && getGroup()->hasCargo())
++			{
++				getGroup()->unloadAll();
++			}
++			
+ 			getGroup()->pushMission(MISSION_SKIP);
+ 			return;
+ 		}
+@@ -3538,6 +3549,15 @@
+ 	{
+ 		return;
+ 	}
++
++	// if we are in a city, and at/preparing land war, and we have cargo, unload, even if full, since AI_assaultSeaTransport already had its chance
++	if (bIsCity && bLandWar && getGroup()->hasCargo())
++	{
++		getGroup()->unloadAll();
++		getGroup()->pushMission(MISSION_SKIP);
++		return;
++	}
++
+ 
+ 	if (AI_pickup(UNITAI_ATTACK_CITY))
+ 	{
+@@ -4974,6 +4994,14 @@
+ 	{
+ 		getGroup()->pushMission(MISSION_SKIP);
+ 		return true;
++	}
++
++	// do not load transports if we are already in a land war
++	AreaAITypes eAreaAIType = area()->getAreaAIType(getTeam());
++	bool bLandWar = ((eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) || (eAreaAIType == AREAAI_MASSING));
++	if (bLandWar)
++	{
++		return false;
+ 	}
+ 
+ 	iBestValue = MAX_INT;
+@@ -8697,7 +8725,7 @@
+ 		{
+ 			if (atPlot(pBestAssaultPlot))
+ 			{
+-				unloadAll(); // XXX is this dangerous (not pushing a mission...) XXX air units?
++				getGroup()->unloadAll(); // XXX is this dangerous (not pushing a mission...) XXX air units?
+ 				return true;
+ 			}
+ 			else
+

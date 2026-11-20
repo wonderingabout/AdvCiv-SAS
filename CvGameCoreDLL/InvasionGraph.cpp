@@ -4,11 +4,15 @@
 #include "ArmamentForecast.h"
 #include "MilitaryAnalyst.h"
 #include "WarEvalParameters.h"
+#include "UWAILogMuteState.h" // <!-- custom: Concrete nested-mute state is needed because the graph queries and temporarily changes the shared mute depth; it owns no logger. See KI#505.3. (ChatGPT-5.6-Sol) -->
+#include "BBAILog.h" // <!-- custom: Level-3 WAR diagnostics trace why apparently feasible overseas invasions fail inside InvasionGraph. See KI#53.6. (ChatGPT-5.6-Sol) -->
 #include "CoreAI.h"
 #include "CvCity.h"
+#include "CvCivilization.h" // <!-- custom: Iterate the player's civilization-specific unit catalog for the gated no-candidate trainability diagnostic; calling its methods needs the concrete definition. See KI#537.2. (GPT-6.1-Sol) -->
 #include "CvPlot.h"
 #include "CvArea.h"
 #include "CvInfo_GameOption.h"
+#include "CvInfo_Terrain.h" // <!-- custom: Resource getType() calls need the complete CvBonusInfo definition; CvGlobals only forward-declares it, causing the observed VC2003 C2027/C2228 errors here (KI#537.2). (GPT-6.1-Sol) -->
 
 using std::vector;
 
@@ -17,31 +21,81 @@ namespace
 {
 	__inline scaled powerCorrect(scaled rMultiplier)
 	{
-		static scaled const rPOWER_ORRECTION = per100(GC.getDefineINT(
-				CvGlobals::POWER_CORRECTION));
+		static scaled const rPOWER_ORRECTION = per100(GC.getDefineINT(CvGlobals::POWER_CORRECTION));
 		return rMultiplier.pow(rPOWER_ORRECTION);
 	}
+
+	// <!-- custom: A missing UWAI representative does not mean every city lacks every military unit.
+	// Report the real capital used by the land representative scan, with separate player-level eligibility and full capital canTrain results; player eligibility excludes city/resource checks and is not a promise of city trainability.
+	// Scan only full-combat land types, once per node's detail report when Army/Home Guard has no representative, rather than during every hypothetical battle step or scanning all cities.
+	// Zero eligible/trainable types can be intentional mod-mod design; report availability without asserting that every city must build a military unit.
+	// SAS adds unit ObsoleteTech, absent from base AdvCiv: XML may retire a resource-free unit even while its replacement's resource requirements are unmet.
+	// Whether that leaves no suitable military types depends on the roster and prerequisites, not on whether the player still owns cities.
+	// A cityless player is also a distinct, potentially valid state: the row carries cities=0, capitalCityId=-1 and capitalTrainableTypeCount=-1 instead of treating a missing capital as zero available types.
+	// This diagnostic scope deliberately differs from UWAI's additional representative-ranking filters. See KI#537.2. (GPT-6.1-Sol) -->
+	void logSASInvasionTrainabilityContext(PlayerTypes eAgent, PlayerTypes ePlayer)
+	{
+		FAssert(gUWAIInvasionGraphLogLevel >= 3);
+		CvPlayerAI const& kOwner = GET_PLAYER(ePlayer);
+		CvCity const* pCapital = kOwner.getCapital();
+		CvCivilization const& kCiv = kOwner.getCivilization();
+		int iPlayerEligible = 0;
+		int iCapitalTrainable = 0;
+		CvString szPlayerEligible;
+		CvString szCapitalTrainable;
+		for (int i = 0; i < kCiv.getNumUnits(); i++)
+		{
+			UnitTypes const eUnit = kCiv.unitAt(i);
+			CvUnitInfo const& kUnit = GC.getInfo(eUnit);
+			if (kUnit.getDomainType() != DOMAIN_LAND || kUnit.getCombat() <= 0 || kUnit.getCombatLimit() < 100)
+				continue;
+			if (kOwner.canTrain(eUnit))
+			{
+				iPlayerEligible++;
+				szPlayerEligible += CvString::format("%s%s", szPlayerEligible.empty() ? "" : ",", kUnit.getType());
+			}
+			if (pCapital != NULL && pCapital->canTrain(eUnit, false, false, false, false, true))
+			{
+				iCapitalTrainable++;
+				szCapitalTrainable += CvString::format("%s%s", szCapitalTrainable.empty() ? "" : ",", kUnit.getType());
+			}
+		}
+		CvString szCapitalBonuses;
+		FOR_EACH_ENUM(Bonus)
+		{
+			int const iAvailable = kOwner.getNumAvailableBonuses(eLoopBonus);
+			if (iAvailable > 0)
+				szCapitalBonuses += CvString::format("%s%s:%d", szCapitalBonuses.empty() ? "" : ",", GC.getInfo(eLoopBonus).getType(), iAvailable);
+		}
+		logBBAI("UWAI_INVASION_GRAPH_TRAINABILITY_CONTEXT turn=%d agentPlayer=%d player=%d cities=%d capitalCityId=%d capital=%S capitalX=%d capitalY=%d scope=LAND_FULL_COMBAT playerEligibleTypeCount=%d capitalTrainableTypeCount=%d playerEligibleUnits=%s capitalTrainableUnits=%s capitalNetworkBonuses=%s",
+				GC.getGame().getGameTurn(), eAgent, ePlayer, kOwner.getNumCities(),
+				pCapital == NULL ? -1 : pCapital->getID(), getSASDiagnosticQuoted(pCapital == NULL ? NULL : pCapital->getName().GetCString()).GetCString(),
+				pCapital == NULL ? -1 : pCapital->getX(), pCapital == NULL ? -1 : pCapital->getY(),
+				iPlayerEligible, pCapital == NULL ? -1 : iCapitalTrainable, getSASDiagnosticOrDash(szPlayerEligible.GetCString()),
+				getSASDiagnosticOrDash(szCapitalTrainable.GetCString()), getSASDiagnosticOrDash(szCapitalBonuses.GetCString()));
+	}
+
 }
 
 
-InvasionGraph::InvasionGraph(MilitaryAnalyst& kMilitaryAnalyst,
-	PlyrSet const& kWarParties, bool bPeaceScenario)
+InvasionGraph::InvasionGraph(MilitaryAnalyst& kMilitaryAnalyst, PlyrSet const& kWarParties, bool bPeaceScenario)
+// <!-- custom: Share the MilitaryAnalyst evaluation's nested mute state; the graph itself owns no logger, formatter or file state. (ChatGPT-5.6-Sol) -->
 :	m_kMA(kMilitaryAnalyst), m_kWarParties(kWarParties),
-	m_kReport(m_kMA.evaluationParams().getReport()),
+	m_kLogMuteState(m_kMA.evaluationParams().getLogMuteState()),
 	m_bPeaceScenario(bPeaceScenario),
 	m_bLossesDone(false), m_bAllWarPartiesKnown(false), m_bFirstSimulateCall(true),
 	m_iTimeLimit(-1), m_eAgent(m_kMA.getAgentPlayer())
 {
-	m_kReport.log("Constructing invasion graph");
+	if (gUWAIInvasionGraphLogLevel >= 2 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_INVASION_GRAPH_BEGIN turn=%d agentPlayer=%d scenario=%s warPartyCount=%d",
+			GC.getGame().getGameTurn(), m_eAgent, m_bPeaceScenario ? "PEACE" : "WAR", (int)kWarParties.size());
 	// (Barbarians and dead players will remain NULL)
 	m_nodeMap.resize(MAX_PLAYERS, NULL);
 	for (PlyrSetIter it = kWarParties.begin(); it != kWarParties.end(); ++it)
 		m_nodeMap[*it] = new Node(*it, *this);
 	for (PlyrSetIter it = kWarParties.begin(); it != kWarParties.end(); ++it)
 		m_nodeMap[*it]->findAndLinkTarget();
-	if (kWarParties.empty())
-		m_kReport.log("(no civs are currently at war)");
-	m_kReport.logNewline();
+	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted() && kWarParties.empty()) logBBAI("UWAI_INVASION_GRAPH_NO_WAR_PARTIES turn=%d agentPlayer=%d scenario=%s",
+			GC.getGame().getGameTurn(), m_eAgent, m_bPeaceScenario ? "PEACE" : "WAR");
 }
 
 
@@ -52,8 +106,7 @@ InvasionGraph::~InvasionGraph()
 }
 
 
-void InvasionGraph::addFutureWarParties(PlyrSet const& kOurSide,
-	PlyrSet const& kOurFutureOpponents)
+void InvasionGraph::addFutureWarParties(PlyrSet const& kOurSide, PlyrSet const& kOurFutureOpponents)
 {
 	m_bAllWarPartiesKnown = true;
 	if (kOurSide.empty())
@@ -76,7 +129,8 @@ void InvasionGraph::addFutureWarParties(PlyrSet const& kOurSide,
 	/*	Finding targets for the new nodes doesn't necessarily suffice b/c
 		phase 1 may have erased edges which may become valid again after
 		the armament forecast. */
-	m_kReport.log("Done adding war parties");
+	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_INVASION_GRAPH_FUTURE_WAR_PARTIES_ADDED turn=%d agentPlayer=%d ourSideCount=%d futureOpponentCount=%d",
+			GC.getGame().getGameTurn(), m_eAgent, (int)kOurSide.size(), (int)kOurFutureOpponents.size());
 	updateTargets();
 }
 
@@ -98,7 +152,8 @@ void InvasionGraph::removeWar(PlyrSet const& kOurSide, PlyrSet const& kTheirSide
 		if (m_nodeMap[*it] != NULL)
 			m_nodeMap[*it]->removeWarOpponents(kOurSide);
 	}
-	m_kReport.log("Done removing war parties");
+	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_INVASION_GRAPH_WAR_REMOVED turn=%d agentPlayer=%d ourSideCount=%d theirSideCount=%d",
+			GC.getGame().getGameTurn(), m_eAgent, (int)kOurSide.size(), (int)kTheirSide.size());
 	updateTargets();
 	/*	Don't delete any nodes; even if no longer a war party, may want to
 		know their (peacetime) armament forecast. */
@@ -107,13 +162,13 @@ void InvasionGraph::removeWar(PlyrSet const& kOurSide, PlyrSet const& kTheirSide
 
 void InvasionGraph::updateTargets()
 {
-	m_kReport.log("War parties (may) have changed; reassigning targets");
+	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_INVASION_GRAPH_TARGET_REASSIGN_BEGIN turn=%d agentPlayer=%d",
+			GC.getGame().getGameTurn(), m_eAgent);
 	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 	{
 		if (m_nodeMap[it->getID()] != NULL)
 			m_nodeMap[it->getID()]->findAndLinkTarget();
 	}
-	m_kReport.logNewline();
 }
 
 
@@ -129,7 +184,8 @@ void InvasionGraph::addUninvolvedParties(PlyrSet const& kParties)
 
 
 InvasionGraph::Node::Node(PlayerTypes ePlayer, InvasionGraph const& kOuter)
-:	m_kOuter(kOuter), m_kReport(kOuter.m_kReport),
+// <!-- custom: Nodes share the outer graph's nested mute state; this reference carries no formatting or file state. (ChatGPT-5.6-Sol) -->
+:	m_kOuter(kOuter), m_kLogMuteState(kOuter.m_kLogMuteState),
 	m_eAgent(kOuter.m_eAgent), m_ePlayer(ePlayer),
 	// I.e. the agent is going to cheat by using info from other players' caches
 	m_kCache(GET_PLAYER(m_ePlayer).uwai().getCache()),
@@ -163,8 +219,7 @@ InvasionGraph::Node::Node(PlayerTypes ePlayer, InvasionGraph const& kOuter)
 	for (int i = 0; i < NUM_BRANCHES; i++)
 		m_arLostPower[i] = m_arShiftedPower[i] = 0;
 	initMilitary();
-	logPower("Present power");
-	m_kReport.logNewline();
+	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logPower("CURRENT");
 }
 
 
@@ -175,12 +230,17 @@ void InvasionGraph::Node::initMilitary()
 	vector<MilitaryBranch*> const& kCacheMilitary = m_kCache.getPowerValues();
 	MilitaryBranch::HomeGuard* pHomeGuard = new MilitaryBranch::HomeGuard(
 			*kCacheMilitary[HOME_GUARD]);
-	scaled rGuardRatio = pHomeGuard->initTotals(m_kCache.numNonNavalUnits(),
+	// <!-- custom: Use only conventional units for the same Home Guard ratio that partitions nuclear-free Army power.
+	// Apply it only to Army's conventional headcount, then retain every separately counted nuclear unit. See KI#561. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled const rGuardRatio = pHomeGuard->initTotals(m_kCache.numNonNavalUnits(),
 			kCacheMilitary[ARMY]->power() - kCacheMilitary[NUCLEAR]->power());
 	m_military.push_back(pHomeGuard);
 	MilitaryBranch::Army* pArmy = new MilitaryBranch::Army(*kCacheMilitary[ARMY]);
+	int const iNuclearUnits = kCacheMilitary[NUCLEAR]->numUnits();
+	int const iConventionalArmyUnits = kCacheMilitary[ARMY]->numUnits() - iNuclearUnits;
+	FAssert(iConventionalArmyUnits >= 0);
 	pArmy->setTotals(
-			(kCacheMilitary[ARMY]->numUnits() * (1 - rGuardRatio)).round(),
+			iNuclearUnits + (std::max(0, iConventionalArmyUnits) * (1 - rGuardRatio)).round(),
 			(1 - rGuardRatio) *
 			(kCacheMilitary[ARMY]->power() - kCacheMilitary[NUCLEAR]->power()) +
 			std::min(kCacheMilitary[NUCLEAR]->power(),
@@ -237,13 +297,10 @@ void InvasionGraph::Node::removeWarOpponents(PlyrSet const& kWarOpponents)
 }
 
 
-void InvasionGraph::Node::logPower(char const* szMsg) const
+// <!-- custom: szStage is emitted as the structured stage= field so callers pass stable tokens rather than prose prefixes. (ChatGPT-5.6-Sol) -->
+void InvasionGraph::Node::logPower(char const* szStage) const
 {
-	if (m_kReport.isMute())
-		return;
-	std::ostringstream out;
-	out << szMsg << " of " << m_kReport.leaderName(m_ePlayer)
-			<< "\n\np(.\n";
+	FAssert(gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	int iLogged = 0;
 	for (size_t i = 0; i < m_military.size(); i++)
 	{
@@ -254,14 +311,12 @@ void InvasionGraph::Node::logPower(char const* szMsg) const
 			FAssertMsg(iPow > -5, "More lost power than there was to begin with");
 			continue;
 		}
-		if (iLogged > 0)
-			out << ", ";
-		out << (*m_military[i]) << " " << iPow;
+		logBBAI("UWAI_INVASION_GRAPH_POWER turn=%d agentPlayer=%d player=%d stage=%s branch=%s power=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, szStage, m_military[i]->str(), iPow);
 		iLogged++;
 	}
-	m_kReport.log("%s", out.str().c_str());
-	if (iLogged == 0)
-		m_kReport.log("0");
+	if (iLogged == 0) logBBAI("UWAI_INVASION_GRAPH_POWER_NONE turn=%d agentPlayer=%d player=%d stage=%s",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, szStage);
 }
 
 
@@ -270,20 +325,22 @@ void InvasionGraph::Node::findAndLinkTarget()
 	PROFILE_FUNC();
 	PlayerTypes eTarget = NO_PLAYER;
 	bool bCanHaveTarget = true;
+	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	if (isEliminated() || hasCapitulated())
 	{
 		bCanHaveTarget = false;
-		m_kReport.log("(%s defeated in phase I)", m_kReport.leaderName(m_ePlayer));
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_TARGET_UNAVAILABLE turn=%d agentPlayer=%d player=%d reason=DEFEATED_OR_CAPITULATED",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer);
 	}
 	if (bCanHaveTarget)
 	{
 		eTarget = findTarget();
 		if (eTarget == NO_PLAYER)
 		{
-			if (m_warOpponents.empty())
-				m_kReport.log("%s has no war opponents.", m_kReport.leaderName(m_ePlayer));
-			else m_kReport.log("%s can't reach any of his/her war opponents.",
-				m_kReport.leaderName(m_ePlayer));
+			if (bLogInvasionDetail && m_warOpponents.empty()) logBBAI("UWAI_INVASION_GRAPH_TARGET_NONE_NO_WAR_OPPONENTS turn=%d agentPlayer=%d player=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer);
+			else if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_TARGET_NONE_UNREACHABLE turn=%d agentPlayer=%d player=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer);
 		}
 	}
 	if (eTarget == NO_PLAYER)
@@ -291,27 +348,26 @@ void InvasionGraph::Node::findAndLinkTarget()
 		if (m_pPrimaryTarget != NULL)
 		{
 			m_pPrimaryTarget->m_targetedBy.erase(m_ePlayer);
-			m_kReport.log("(no longer targeting %s)",
-					m_kReport.leaderName(m_pPrimaryTarget->m_ePlayer));
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_TARGET_CLEARED turn=%d agentPlayer=%d player=%d oldTarget=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, m_pPrimaryTarget->m_ePlayer);
 			m_pPrimaryTarget = NULL;
 		}
 		return;
 	}
-	m_kReport.log("%s assumes _%s_ to be the target of _%s_.",
-				m_kReport.leaderName(m_eAgent), m_kReport.leaderName(eTarget),
-				m_kReport.leaderName(m_ePlayer));
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_TARGET_ASSUMED turn=%d agentPlayer=%d player=%d target=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, eTarget);
 	if (m_pPrimaryTarget != NULL && m_pPrimaryTarget->m_ePlayer != eTarget)
 	{
 		m_pPrimaryTarget->m_targetedBy.erase(m_ePlayer);
-		m_kReport.log("(switching from %s)", m_kReport.leaderName(
-				m_pPrimaryTarget->m_ePlayer, 8));
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_TARGET_SWITCH turn=%d agentPlayer=%d player=%d oldTarget=%d newTarget=%d",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, m_pPrimaryTarget->m_ePlayer, eTarget);
 	}
 	m_pPrimaryTarget = m_kOuter.m_nodeMap[eTarget];
 	if (m_pPrimaryTarget == NULL)
 	{
 		FAssert(!GET_TEAM(m_eAgent).isHasMet(TEAMID(eTarget)));
-		m_kReport.log("%s hasn't met the above target yet, ignores it.",
-				m_kReport.leaderName(m_eAgent));
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_TARGET_IGNORED_UNMET turn=%d agentPlayer=%d player=%d target=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, eTarget);
 	}
 	else m_pPrimaryTarget->m_targetedBy.insert(m_ePlayer);
 }
@@ -377,8 +433,8 @@ PlayerTypes InvasionGraph::Node::findTarget(TeamTypes eExtra) const
 	}
 	if (eMostMissions != NO_PLAYER)
 	{
-		m_kReport.log("Target of %s determined based on unit missions.",
-				m_kReport.leaderName(m_ePlayer));
+		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_INVASION_GRAPH_TARGET_FROM_UNIT_MISSIONS turn=%d agentPlayer=%d player=%d target=%d missionCount=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, eMostMissions, iMaxMissions);
 		return eMostMissions;
 	}
 	// Fall back on bestTarget.
@@ -421,15 +477,14 @@ PlayerTypes InvasionGraph::Node::findBestTarget(TeamTypes eExtra) const
 	}
 	if (iSkipped > 0)
 	{
-		m_kReport.log("Skipped %d third-party cities (bias toward %s being targeted)",
-				iSkipped, m_kReport.leaderName(m_eAgent));
+		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_INVASION_GRAPH_TARGET_BIAS_SKIP turn=%d agentPlayer=%d player=%d skippedCities=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, iSkipped);
 	}
 	return eBestTarget;
 }
 
 
-bool InvasionGraph::Node::isValidTarget(UWAICache::City const& kCacheCity,
-	TeamTypes eExtra) const
+bool InvasionGraph::Node::isValidTarget(UWAICache::City const& kCacheCity, TeamTypes eExtra) const
 {
 	PlayerTypes const eOwner = kCacheCity.city().getOwner();
 	return (isValidTarget(eOwner, eExtra) &&
@@ -438,8 +493,7 @@ bool InvasionGraph::Node::isValidTarget(UWAICache::City const& kCacheCity,
 }
 
 
-bool InvasionGraph::Node::isValidTarget(PlayerTypes eTarget,
-	TeamTypes eExtra) const
+bool InvasionGraph::Node::isValidTarget(PlayerTypes eTarget, TeamTypes eExtra) const
 {
 	return !(eTarget == NO_PLAYER || (!m_abWarOpponent[eTarget] &&
 			(eExtra == NO_TEAM ||
@@ -486,10 +540,9 @@ void InvasionGraph::Node::resolveLossesRec()
 
 void InvasionGraph::Node::addConquest(UWAICache::City const& kConqCity)
 {
-	m_kReport.log("*%s* (%s) assumed to be *conquered* by %s",
-			m_kReport.cityName(kConqCity.city()),
-			m_kReport.leaderName(kConqCity.city().getOwner()),
-			m_kReport.leaderName(m_ePlayer));
+	if (gUWAIInvasionGraphLogLevel >= 1 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_INVASION_GRAPH_CITY_CONQUERED turn=%d agentPlayer=%d attacker=%d defender=%d city=%S cityX=%d cityY=%d",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kConqCity.city().getOwner(), getSASDiagnosticQuoted(kConqCity.city().getName().GetCString()).GetCString(),
+			kConqCity.city().getX(), kConqCity.city().getY());
 	m_conquests.push_back(&kConqCity);
 	// Advance cache index past the city just conquered
 	while (m_iCacheIndex < m_kCache.numCities())
@@ -522,47 +575,58 @@ void InvasionGraph::Node::logTypicalUnits()
 	/*if(m_military[HOME_GUARD] != NULL &&
 		m_military[HOME_GUARD]->getTypicalUnit() == NO_UNIT)
 		m_military[HOME_GUARD]->updateTypicalUnit();*/
-	if (m_kReport.isMute())
-		return;
+	FAssert(gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	// Log typical units only once per evaluation (they don't change)
 	if (m_kOuter.m_bPeaceScenario || (m_kOuter.m_bAllWarPartiesKnown &&
 		m_kOuter.m_kMA.evaluationParams().getPreparationTime() > 0))
 	{
 		return;
 	}
-	m_kReport.log("Typical unit ratings of *%s* (by military branch):",
-			m_kReport.leaderName(m_ePlayer));
-	m_kReport.log("\nbq."); // Textile block quote
+	bool bTrainabilityLogged = false;
 	for (size_t i = 0; i < m_military.size(); i++)
 	{
 		MilitaryBranch const& kBranch = *m_military[i];
 		UnitTypes const eUnit = kBranch.getTypicalUnit();
 		if (eUnit == NO_UNIT)
+		{
+			// <!-- custom: Detailed reporting is already caller-gated; collect this player's land/capital context only once even if both Home Guard and Army lack a representative. See KI#537.2. (GPT-6.1-Sol) -->
+			if (!bTrainabilityLogged && (kBranch.getID() == HOME_GUARD || kBranch.getID() == ARMY))
+			{
+				logSASInvasionTrainabilityContext(m_eAgent, m_ePlayer);
+				bTrainabilityLogged = true;
+			}
+			// <!-- custom: KI#537 made the no-current-candidate state explicit instead of retaining a stale typical unit.
+			// Keep high-detail UWAI diagnostics truthful by recording that state once per evaluation rather than silently omitting the branch.
+			// Read actual cached powers instead of printing assumed zeros, so a broken cache contract remains visible. See KI#537.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			int const iActualPow = kBranch.getTypicalPower().round();
+			int const iAgentPow = kBranch.getTypicalPower(TEAMID(m_eAgent)).round();
+			logBBAI("UWAI_INVASION_GRAPH_TYPICAL_UNIT turn=%d agentPlayer=%d player=%d branch=%s unit=NONE actualCost=-1 actualPower=%d agentEstimatedCost=-1 agentEstimatedPower=%d estimatePowerDiffers=%d branchUnits=%d branchPower=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kBranch.str(),
+					iActualPow, iAgentPow, iAgentPow != iActualPow, kBranch.numUnits(), kBranch.power().round());
 			continue;
+		}
 		CvUnitInfo const& kUnit = GC.getInfo(eUnit);
 		int const iActualCost = kUnit.getProductionCost();
 		int const iActualPow = kBranch.getTypicalPower().round();
-		m_kReport.log("%s: %d (%s, cost: %d)", kBranch.str(),
-				iActualPow, m_kReport.unitName(eUnit), iActualCost);
-		int iAgentCost = kBranch.getTypicalCost(TEAMID(m_eAgent)).round();
-		int iAgentPow = kBranch.getTypicalPower(TEAMID(m_eAgent)).round();
-		if (iAgentPow != iActualPow)
-		{
-			/*	(iAgentCost and iActualCost often won't match b/c iActualCost here
-				ignores handicap) */
-			m_kReport.log("(%s's estimate: %d cost, %d power)",
-					m_kReport.leaderName(m_eAgent), iAgentCost, iAgentPow);
-		}
+		int const iAgentCost = kBranch.getTypicalCost(TEAMID(m_eAgent)).round();
+		int const iAgentPow = kBranch.getTypicalPower(TEAMID(m_eAgent)).round();
+		/*	(iAgentCost and iActualCost often won't match b/c iActualCost here
+			ignores handicap) */
+		// <!-- custom: The branch's actual typical unit and the agent-view estimate describe one model input; keep both on one row instead of emitting a second row only when power differs. (ChatGPT-5.6-Sol) -->
+		logBBAI("UWAI_INVASION_GRAPH_TYPICAL_UNIT turn=%d agentPlayer=%d player=%d branch=%s unit=%s actualCost=%d actualPower=%d agentEstimatedCost=%d agentEstimatedPower=%d estimatePowerDiffers=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kBranch.str(), GC.getInfo(eUnit).getType(),
+				iActualCost, iActualPow, iAgentCost, iAgentPow, iAgentPow != iActualPow);
 	}
-	m_kReport.logNewline();
 }
 
 
 void InvasionGraph::Node::predictArmament(int iTurns, bool bNoUpgrading)
 {
+	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	if (isEliminated())
 	{
-		m_kReport.log("No armament for %s (eliminated)", m_kReport.leaderName(m_ePlayer));
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_ARMAMENT_SKIPPED turn=%d agentPlayer=%d player=%d reason=ELIMINATED",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer);
 		return;
 	}
 	// Target city assumed for the forecast (to decide on naval build-up)
@@ -578,22 +642,18 @@ void InvasionGraph::Node::predictArmament(int iTurns, bool bNoUpgrading)
 		if (!m_kOuter.m_bPeaceScenario && !m_kOuter.m_bAllWarPartiesKnown &&
 			!GET_TEAM(m_eAgent).isAtWar(eTarget))
 		{
-			m_kReport.setMute(true);
+			m_kLogMuteState.pushMute();
 			PlayerTypes eActualTarget = findTarget(eTarget);
 			pTargetCity = targetCity(eActualTarget);
-			m_kReport.setMute(false);
+			m_kLogMuteState.popMute();
 		}
 	}
-	m_kReport.logNewline();
 	ArmamentForecast forec(m_ePlayer, m_kOuter.m_kMA, m_military, iTurns,
 			m_kOuter.m_bPeaceScenario, bNoUpgrading,
 			!m_kOuter.m_bLossesDone, m_kOuter.m_bAllWarPartiesKnown,
 			pTargetCity, productionPortion());
 	m_rProductionInvested += forec.getProductionInvested();
-#if !DISABLE_UWAI_REPORT
-	logPower("Predicted power");
-	m_kReport.logNewline();
-#endif
+	if (bLogInvasionDetail) logPower("PREDICTED");
 }
 
 
@@ -613,16 +673,42 @@ scaled InvasionGraph::Node::productionPortion() const
 }
 
 
-SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
-	scaled rArmyPortionAttacker, bool bClashOnly,
-	/*	For calculating threat values when breaking cycles. Attacks against
-		lightly defended cities shouldn't result in larger threat values. */
-	bool bUniformGarrisons) const
+// <!-- custom: Subtract graph-local city losses from real-map area counts so later simulated battles cannot draw mobile Army or rallied garrisons from already-conquered cities. See KI#592. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+int InvasionGraph::Node::remainingCitiesInArea(CvArea const& kArea) const
+{
+	int iRemaining = kArea.getCitiesPerPlayer(m_ePlayer);
+	for (CitySetIter it = m_cityLosses.begin(); it != m_cityLosses.end(); ++it)
+	{
+		if (UWAICache::cvCityById(*it).isArea(kArea))
+			iRemaining--;
+	}
+	FAssert(iRemaining >= 0);
+	return std::max(0, iRemaining);
+}
+
+
+// For calculating threat values when breaking cycles. Attacks against lightly defended cities shouldn't result in larger threat values.
+// <!-- custom: hoisted from multiline signature between `bClashOnly` and `bUniformGarrisons` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rArmyPortionAttacker, bool bClashOnly, bool bUniformGarrisons) const
 {
 	PROFILE_FUNC();
 	UWAICache::City const* const pCacheCity = (bClashOnly ? NULL : targetCity());
 	if (pCacheCity == NULL && !bClashOnly)
+	{
+		// <!-- custom: A missing target city ends the simulated invasion before Fleet, Logistics or city-combat strength can matter.
+		// Log this rare terminal state for the evaluated agent/target pair so KI#53.6 can distinguish reachability/target-selection failures from pessimistic combat simulation. (ChatGPT-5.6-Sol) -->
+		WarEvalParameters const& kEvalParams = m_kOuter.m_kMA.evaluationParams();
+		CvTeamAI const& kAgentTeam = GET_TEAM(TEAMID(m_eAgent));
+		CvTeamAI const& kTargetTeam = GET_TEAM(kEvalParams.getTarget());
+		if (gWarLogLevel >= 3 && !m_kOuter.m_bPeaceScenario && m_ePlayer == m_eAgent && m_pPrimaryTarget != NULL &&
+			TEAMID(m_pPrimaryTarget->m_ePlayer) == kEvalParams.getTarget() && !kAgentTeam.isAtWar(kTargetTeam.getID()) &&
+			kTargetTeam.getDefensivePower(kAgentTeam.getID()) <= kAgentTeam.getPower(true) && m_military[LOGISTICS]->power() > 0)
+		{
+			logBBAI("WAR_NAVAL_INVASION_STEP turn=%d agentTeam=%d targetTeam=%d total=%d prepTurns=%d stage=NO_TARGET_CITY",
+				GC.getGame().getGameTurn(), TEAMID(m_eAgent), kEvalParams.getTarget(), kEvalParams.isTotal(), kEvalParams.getPreparationTime());
+		}
 		return NULL;
+	}
 	CvCity const* const pCity = (pCacheCity == NULL ? NULL : &pCacheCity->city());
 	Node& kDefender = *m_pPrimaryTarget;
 	int const iDefCities = GET_PLAYER(kDefender.m_ePlayer).getNumCities();
@@ -637,36 +723,43 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 		computing the army portions. */
 	/*	Adjust the portion of the army that is assumed to be absent,
 		i.e. 1 minus portion */
-	rArmyPortionDefender *= scaled::max(0, 1 - (1 - rArmyPortionDefender) *
+	// <!-- custom: AdvCiv practical 2923 accidentally changed these assignments to multiplication, squaring every partial portion at neutral ally confidence.
+	// Restore the original absent-portion adjustment. See KI#579. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	rArmyPortionDefender = scaled::max(0, 1 - (1 - rArmyPortionDefender) *
 			rConfAlliesAtt);
-	rArmyPortionAttacker *= scaled::max(0, 1 - (1 - rArmyPortionAttacker) *
+	rArmyPortionAttacker = scaled::max(0, 1 - (1 - rArmyPortionAttacker) *
 			rConfAlliesDef);
 	// No clash w/o mutual reachability
 	FAssert(!bClashOnly || (targetCity() != NULL && kDefender.targetCity() != NULL));
+	// <!-- custom: The UWAI gates are not needed by the missing-target terminal path above; cache them after that early return, immediately before the first combat diagnostic block rather than before its gameplay setup. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	bool const bLogInvasionSummary = (gUWAIInvasionGraphLogLevel >= 1 && !m_kLogMuteState.isMuted());
+	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	if (bClashOnly)
 	{
-		m_kReport.log("*Clash* of %s and %s",
-				m_kReport.leaderName(m_ePlayer),
-				m_kReport.leaderName(kDefender.m_ePlayer));
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_COMBAT_BEGIN turn=%d agentPlayer=%d attacker=%d defender=%d mode=CLASH",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer);
 	}
 	else
 	{
-		m_kReport.log("Attack on *%s* by %s",
-				m_kReport.cityName(*pCity), m_kReport.leaderName(m_ePlayer));
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_COMBAT_BEGIN_CITY turn=%d agentPlayer=%d attacker=%d defender=%d mode=CITY_ATTACK cityX=%d cityY=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+				pCity->getX(), pCity->getY());
 	}
-	m_kReport.log("Employing %d (%s) and %d (%s) percent of armies",
-			rArmyPortionAttacker.getPercent(), m_kReport.leaderName(m_ePlayer),
-			rArmyPortionDefender.getPercent(), m_kReport.leaderName(kDefender.m_ePlayer));
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_ARMY_PORTIONS turn=%d agentPlayer=%d attacker=%d defender=%d attackerPercent=%d defenderPercent=%d",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+			rArmyPortionAttacker.getPercent(), rArmyPortionDefender.getPercent());
 	// Only log if portions are non-trivial
 	if (rArmyPortionDefender != 0 && rArmyPortionDefender != 1 && rConfAlliesAtt != 1)
 	{
-		m_kReport.log("Confidence in allies of %s: %d percent",
-				m_kReport.leaderName(m_ePlayer), rConfAlliesAtt.getPercent());
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_ALLY_CONFIDENCE_ATTACKER turn=%d agentPlayer=%d attacker=%d defender=%d percent=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+				rConfAlliesAtt.getPercent());
 	}
 	if (rArmyPortionAttacker != 0 && rArmyPortionAttacker != 1 && rConfAlliesDef != 1)
 	{
-		m_kReport.log("Confidence in allies of %s: %d percent",
-				m_kReport.leaderName(kDefender.m_ePlayer), rConfAlliesDef.getPercent());
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_ALLY_CONFIDENCE_DEFENDER turn=%d agentPlayer=%d attacker=%d defender=%d percent=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+				rConfAlliesDef.getPercent());
 	}
 	SimulationStep& kStep = *new SimulationStep(m_ePlayer, pCacheCity);
 	scaled rArmyPowRaw = m_military[ARMY]->power() - m_arLostPower[ARMY];
@@ -721,6 +814,19 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 		else FErrorMsg("Shouldn't clash when not mutually reachable");
 	}
 	else bNaval = !canReachByLand(pCacheCity->getID(), false);
+	WarEvalParameters const& kEvalParams = m_kOuter.m_kMA.evaluationParams();
+	// <!-- custom: Keep the step-level naval diagnostic to a plausible weaker overseas target that the agent is not already fighting and for which Logistics exists.
+	// The actual cached deployment distance is logged rather than used as another filter, so a bad distance estimate cannot hide the failure we're trying to diagnose.
+	// Only the real defended city-attack step is logged below; zero-defense priority probes are intentionally skipped. See KI#53.6. (ChatGPT-5.6-Sol) -->
+	CvTeamAI const& kSASAgentTeam = GET_TEAM(TEAMID(m_eAgent));
+	CvTeamAI const& kSASTargetTeam = GET_TEAM(kEvalParams.getTarget());
+	bool const bSASLogNavalInvasionStep = (gWarLogLevel >= 3 && !m_kOuter.m_bPeaceScenario && m_ePlayer == m_eAgent && !bClashOnly && bNaval &&
+		TEAMID(kDefender.m_ePlayer) == kEvalParams.getTarget() && !kSASAgentTeam.isAtWar(kSASTargetTeam.getID()) &&
+		kSASTargetTeam.getDefensivePower(kSASAgentTeam.getID()) <= kSASAgentTeam.getPower(true) && m_military[LOGISTICS]->power() > 0);
+	scaled rSASFleetPow = 0, rSASDefFleetPow = 0, rSASCargoCap = 0, rSASSurvivingCargo = 0, rSASArmySize = 0;
+	scaled rNavalLandingRatio = 1;
+	scaled rSASNavalAreaBonus = 0;
+	bool bSASFleetWin = true;
 	bool bCanBombard = false;
 	bool bCanBombardFromSea = false;
 	bool bCanSoften = false;
@@ -760,9 +866,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 		rConfAttPers *= GET_PLAYER(m_ePlayer).uwai().confidenceAgainstHuman();
 	if (rConfAttPers != 1 || rConfDefPers != 1)
 	{
-		m_kReport.log("Personal confidence (%s/%s): %d/%d percent",
-				m_kReport.leaderName(m_ePlayer),
-				m_kReport.leaderName(kDefender.m_ePlayer),
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_PERSONAL_CONFIDENCE turn=%d agentPlayer=%d attacker=%d defender=%d attackerPercent=%d defenderPercent=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
 				rConfAttPers.getPercent(), rConfDefPers.getPercent());
 	}
 	scaled rConfAtt = rConfAttPers;
@@ -781,11 +886,9 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 			rConfDefLearned = (GET_PLAYER(kDefender.m_ePlayer).uwai().
 					warConfidenceLearned(m_ePlayer, false) - 1);
 		}
-		m_kReport.log("Learned confidence (%s/%s): %d/%d percent",
-					m_kReport.leaderName(m_ePlayer),
-					m_kReport.leaderName(kDefender.m_ePlayer),
-					rConfAttLearned.getPercent() + 100,
-					rConfDefLearned.getPercent() + 100);
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_LEARNED_CONFIDENCE turn=%d agentPlayer=%d attacker=%d defender=%d attackerPercent=%d defenderPercent=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+					rConfAttLearned.getPercent() + 100, rConfDefLearned.getPercent() + 100);
 		/*	To avoid extreme bias, don't multiply with rConf...Pers unless
 			learned and personal confidence contradict each other. */
 		if ((rConfAttLearned < 0) != (rConfAtt < 1) &&
@@ -819,6 +922,15 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 				(kDefender.m_military[FLEET]->power() - kDefender.m_arLostPower[FLEET]) *
 				rConfDef * rArmyPortionDefender;
 		rDefFleetPow.increaseTo(0);
+		// <!-- custom: The coastal defender brings combat-capable transports into this Fleet battle.
+		// Preserve their overlapping cargo-capacity loss for later naval invasions instead of making destroyed transports available again.
+		// This retains UWAI's existing cargo/Fleet dimensional approximation. See KI#587. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		scaled rDefLogisticsPortion = 0;
+		if (rDefFleetPow > 1)
+		{
+			rDefLogisticsPortion = (kDefender.m_military[LOGISTICS]->power()
+					- kDefender.m_arLostPower[LOGISTICS]) * rConfDef / rDefFleetPow;
+		}
 		/*	Don't factor in distance; naval units tend to be fast;
 			would have to use a special metric b/c City::getDistance is
 			for land units only. */
@@ -826,9 +938,6 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 		// bAtt=false: Defender has no mobility advantage at sea
 		std::pair<scaled,scaled> rrLossesWL = clashLossesWinnerLoser(rFleetPow,
 				rDefFleetPow, false, true);
-		/*	Losses in logistics don't matter b/c no naval landing
-			is attempted, and the cost (of having to rebuild units) is already
-			included in the fleet losses. */
 		scaled rLossesAtt, rLossesDef;
 		if (bAttWin)
 		{
@@ -839,12 +948,18 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 		{
 			rLossesAtt = rrLossesWL.second / rConfAtt;
 			rLossesDef = rrLossesWL.first / rConfDef;
-			m_kReport.log("Sea bombardment averted");
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_SEA_BOMBARDMENT_AVERTED turn=%d agentPlayer=%d attacker=%d defender=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer);
 			bCanBombardFromSea = false;
 		}
 		kStep.reducePower(m_ePlayer, FLEET, rLossesAtt);
 		kStep.reducePower(kDefender.m_ePlayer, FLEET, rLossesDef);
-		m_kReport.log("Losses from sea battle (A/D): %d/%d",
+		scaled rDefLogisticsLosses = rLossesDef * rDefLogisticsPortion;
+		rDefLogisticsLosses.decreaseTo(kDefender.m_military[LOGISTICS]->power()
+				- kDefender.m_arLostPower[LOGISTICS]);
+		kStep.reducePower(kDefender.m_ePlayer, LOGISTICS, rDefLogisticsLosses);
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_SEA_BATTLE_LOSSES_FLEET turn=%d agentPlayer=%d attacker=%d defender=%d attackerLoss=%d defenderLoss=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
 				rLossesAtt.round(), rLossesDef.round());
 	}
 	if (bCanBombardFromSea)
@@ -858,12 +973,10 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 	if (!bClashOnly)
 	{
 		if (bCavalryAttack)
-		{
 			rArmyPow = rCavPow;
-			m_kReport.log("Cavalry attack assumed; power: %d", rArmyPow.round());
-		}
-		else m_kReport.log("Attacker power: %d", rArmyPow.round());
-		m_kReport.log("Defending army's power: %d", rDefArmyPow.round());
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_FIELD_ARMY_POWER turn=%d agentPlayer=%d attacker=%d defender=%d attackerPower=%d defenderPower=%d cavalryAttack=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+				rArmyPow.round(), rDefArmyPow.round(), bCavalryAttack);
 	}
 	bool const bSneakAttack = isSneakAttack(kDefender, bClashOnly);
 	bool const bAttackerUnprepared = kDefender.isSneakAttack(*this, false);
@@ -889,8 +1002,9 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 			within our maximal time horizon, we'd have to conclude that no conquest
 			will ever happen, which is probably incorrect. Better to assume a
 			shorter distance in this case. */
+		// <!-- custom: Once the graph selects a land invasion, use its cached land duration rather than a faster sea route that would require Fleet and Logistics. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		rDeploymentDistAttacker = std::min(getUWAI().maxSeaDist(),
-				pCacheCity->getDistance());
+				bNaval ? pCacheCity->getDistance() : pCacheCity->getDistanceByLand());
 		/*	If this makes leaders with a high MaxWarMinAdjLand value assume
 			that they can't reach a very distant target -- OK. */
 		rDeploymentDistAttacker *= rMaxWarMinAdjLandFactor;
@@ -908,13 +1022,15 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 				rDeploymentDistAttacker *= fixp(0.6);
 				// Will have to wait for some units to heal then though
 				iHealTurns += 2;
-				m_kReport.log("Deployment distance reduced b/c of prior conquest");
+				if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_DEPLOYMENT_DISTANCE_REDUCED turn=%d agentPlayer=%d attacker=%d defender=%d reason=PRIOR_CONQUEST",
+						GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer);
 			}
 		}
 	}
 	else
 	{
-		scaled const rClashDist = clashDistance(kDefender);
+		// <!-- custom: Pass the selected mode so overland clashes use land distance while fleet-only clashes retain the mixed route. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		scaled const rClashDist = clashDistance(kDefender, bNaval);
 		// UWAICache::City::updateDistance should guarantee this for rival cities
 		FAssert(rClashDist.isPositive());
 		rDeploymentDistAttacker = rClashDist;
@@ -923,8 +1039,10 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 		if (rArmyPow + rDefArmyPow > 1)
 		{
 			rDeploymentDistAttacker *= rArmyPow / (rArmyPow + rDefArmyPow);
-			rDeploymentDistAttacker *= rMaxWarMinAdjLandFactor;
+			// <!-- custom: Practical 1341 applied the attacker's personality factor before deriving the defender's remaining physical distance, which could push the meeting point beyond the defender and make its distance negative.
+			// Split the bounded geometry first, then retain the personality effect only as attacker deployment effort. See KI#582. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			rDeploymentDistDefender -= rDeploymentDistAttacker;
+			rDeploymentDistAttacker *= rMaxWarMinAdjLandFactor;
 		}
 	}
 	int iDeployTurns = rDeploymentDistAttacker.round();
@@ -969,16 +1087,14 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 		iDeployTurns = (fixp(0.6) * iDeployTurns).uround();
 		rDeploymentDistAttacker *= fixp(0.75);
 	}
-	m_kReport.log("Deployment distances (%s/%s): %d/%d",
-				m_kReport.leaderName(m_ePlayer),
-				m_kReport.leaderName(kDefender.m_ePlayer),
-				rDeploymentDistAttacker.uround(),
-				rDeploymentDistDefender.uround());
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_DEPLOYMENT_DISTANCE turn=%d agentPlayer=%d attacker=%d defender=%d attackerDistance=%d defenderDistance=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+				rDeploymentDistAttacker.uround(), rDeploymentDistDefender.uround());
 	if (!bClashOnly) // Duration has no bearing on clashes
 	{
-		m_kReport.log("Deployment duration: %d%s", iDeployTurns,
-				(bSneakAttack ? " (sneak attack)" :
-				(bAttackerUnprepared ? " (attacker unprepared)" : "")));
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_DEPLOYMENT_DURATION turn=%d agentPlayer=%d attacker=%d defender=%d turns=%d sneakAttack=%d attackerUnprepared=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+				iDeployTurns, bSneakAttack, bAttackerUnprepared);
 	}
 	// Sea battle about naval landing
 	if (bNaval)
@@ -995,15 +1111,23 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 		// Reduced b/c not all transports are available for military purposes
 		scaled rCargoCap = fixp(0.73) *
 				(m_military[LOGISTICS]->power() - m_arLostPower[LOGISTICS]);
+		rSASFleetPow = rFleetPow;
+		rSASDefFleetPow = rDefFleetPow;
+		rSASCargoCap = rCargoCap;
 		scaled rLogisticsPortion = 0;
 		/*	Fixme: This logistics portion is way too small; rCargoCap counts
 			cargo space, whereas rFleetPow is a power rating (strength^1.7).
 			Means that Logistics losses aren't really counted. Will need to
 			track power and cargo separately for the Logistics branch to fix this. */
 		if (rFleetPow > 1)
-			rLogisticsPortion = rCargoCap / rFleetPow;
-		// Cargo units can go multiple times once the naval battle is won
-		rCargoCap *= 1 + 1 / scaled::max(2, rReinforcementDist);
+		{
+			// <!-- custom: Fleet battle losses are confidence-scaled, but Logistics records physical cargo capacity.
+			// Match the defender conversion by cancelling attacker confidence in this ratio. See KI#584. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			rLogisticsPortion = rCargoCap * rConfAtt / rFleetPow;
+		}
+		// <!-- custom: Repeat trips happen after the naval battle, so only surviving transports can make them.
+		// Retain the factor until Logistics losses have been removed. See KI#585. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		scaled const rRepeatTripFactor = 1 + 1 / scaled::max(2, rReinforcementDist);
 		scaled rLogisticsPortionDef;
 		if (rDefFleetPow > 1)
 		{
@@ -1025,6 +1149,7 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 				rFleetPowMult /= fixp(1.25);
 		}
 		bool const bAttWin = (rFleetPow > 1 && rFleetPowMult * rFleetPow > rDefFleetPow);
+		bSASFleetWin = bAttWin;
 		std::pair<scaled,scaled> rrLossesWL = clashLossesWinnerLoser(
 				rFleetPow, rDefFleetPow, false, true);
 		scaled rLossesAtt, rLossesDef;
@@ -1032,12 +1157,17 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 				TEAMID(m_eAgent));
 		if (m_military[ARMY]->getTypicalUnit() == NO_UNIT)
 		{
-			FAssertMsg(iAttCities <= 0, "No typical army unit found");
+			// <!-- custom: A city-owning player can legitimately have no currently trainable Army candidate after KI#537 clears stale branch state.
+			// Retain UWAI's Warrior-power fallback, but assert the corrected cache contract instead of the obsolete citylessness assumption.
+			// Failure-only message formatting names the simulated branch player and target city, which need not match the assertion logger's active player. See KI#537.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			FAssertMsg(rTypicalArmyUnitPow == 0, CvString::format("Missing typical Army unit has nonzero cached power: agentPlayer=%d branchPlayer=%d playerCities=%d simCityOwner=%d simCityId=%d simCity=%S (KI#537.2)",
+				m_eAgent, m_ePlayer, iAttCities, pCity == NULL ? -1 : pCity->getOwner(), pCity == NULL ? -1 : pCity->getID(), pCity == NULL ? L"-" : pCity->getName().GetCString()).c_str());
 			rTypicalArmyUnitPow = fixp(3.25); // That's a Warrior
 		}
 		/*	Tend to underestimate the head count b/c of outdated
 			units with power lower than typical. Hence the extra 20%. */
 		scaled rArmySize = fixp(1.2) * rArmyPow / rTypicalArmyUnitPow;
+		rSASArmySize = rArmySize;
 		if (bAttWin)
 		{
 			rLossesAtt = rrLossesWL.first / rConfAtt;
@@ -1059,15 +1189,21 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 			else
 			{
 				scaled rCargoSize = rCargoCap - rLogisticsLosses;
-				m_kReport.log("Naval landing succeeds with %d surviving cargo",
+				rCargoSize.increaseTo(0);
+				rCargoSize *= rRepeatTripFactor;
+				rSASSurvivingCargo = rCargoSize;
+				if (bLogInvasionSummary) logBBAI("UWAI_INVASION_GRAPH_NAVAL_LANDING_SUCCESS turn=%d agentPlayer=%d attacker=%d defender=%d survivingCargo=%d",
+						GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
 						rCargoSize.round());
 				if (rArmySize > 0)
 				{
 					scaled rLandingRatio = rCargoSize / rArmySize;
 					rLandingRatio.decreaseTo(1);
+					rNavalLandingRatio = rLandingRatio;
 					rArmyPow *= rLandingRatio;
 					rCavPow *= rLandingRatio;
-					m_kReport.log("Power of landing party: %d", rArmyPow.uround());
+					if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_NAVAL_LANDING_POWER turn=%d agentPlayer=%d attacker=%d defender=%d power=%d",
+							GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer, rArmyPow.uround());
 				}
 			}
 		}
@@ -1089,15 +1225,21 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 				kStep.reducePower(m_ePlayer, ARMY, rDrowned);
 				if (rArmyPow > 0)
 					kStep.reducePower(m_ePlayer, CAVALRY, rDrowned * rCavPow / rArmyPow);
-				m_kReport.log("Naval landing repelled");
+				if (bLogInvasionSummary) logBBAI("UWAI_INVASION_GRAPH_NAVAL_LANDING_REPELLED turn=%d agentPlayer=%d attacker=%d defender=%d",
+						GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer);
 			}
 			kStep.setSuccess(false);
 			kStep.setDuration(iDeployTurns + (bSneakAttack ? 0 : 2));
+			if (bSASLogNavalInvasionStep && rArmyPortionDefender > 0) logBBAI("WAR_NAVAL_INVASION_STEP turn=%d agentTeam=%d targetTeam=%d total=%d prepTurns=%d stage=LANDING_REPELLED targetCityX=%d targetCityY=%d cacheDistance=%d targetValue=%d armyPortionAttackerPercent=%d armyPortionDefenderPercent=%d attackerArmyPower=%d defenderArmyPower=%d attackerFleetPower=%d defenderFleetPower=%d cargoCapacity=%d armySize=%d duration=%d",
+				GC.getGame().getGameTurn(), TEAMID(m_eAgent), kEvalParams.getTarget(), kEvalParams.isTotal(), kEvalParams.getPreparationTime(),
+				pCity->getX(), pCity->getY(), pCacheCity->getDistance(), pCacheCity->getTargetValue(), rArmyPortionAttacker.getPercent(), rArmyPortionDefender.getPercent(),
+				rArmyPowRaw.uround(), rDefArmyPow.uround(), rSASFleetPow.uround(), rSASDefFleetPow.uround(), rSASCargoCap.uround(), rSASArmySize.uround(), kStep.getDuration());
 			return &kStep;
 		}
 		if (rLossesAtt > 0 || rLossesDef > 0)
 		{
-			m_kReport.log("Losses from sea battle (A/D): %d/%d",
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_SEA_BATTLE_LOSSES_LANDING turn=%d agentPlayer=%d attacker=%d defender=%d attackerLoss=%d defenderLoss=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
 					rLossesAtt.uround(), rLossesDef.uround());
 		}
 	}
@@ -1105,8 +1247,11 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 	scaled rDefDeploymentMod = scaled::max(
 			100 - 2 * rDeploymentDistDefender, 50) / 100;
 	rDefArmyPow *= rDefDeploymentMod;
-	rArmyPow *= scaled::max(
-			100 - fixp(1.55) * rDeploymentDistAttacker.pow(fixp(1.15)), 50) / 100;
+	// <!-- custom: Cavalry is an overlapping Army subset.
+	// Apply the attacker's deployment-availability factor to both branches so distance cannot leave more available Cavalry than total Army. See KI#588. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled const rAttDeploymentMod = scaled::max(100 - fixp(1.55) * rDeploymentDistAttacker.pow(fixp(1.15)), 50) / 100;
+	rArmyPow *= rAttDeploymentMod;
+	rCavPow *= rAttDeploymentMod;
 	// Units available in battle area
 	CvArea const* pBattleArea = NULL;
 	if (pCity != NULL)
@@ -1131,9 +1276,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 			CvCity const* pCapital = GET_PLAYER(m_ePlayer).getCapital();
 			if (!bNaval || bClashOnly)
 			{
-				// Fixme(?): getCitiesPerPlayer should be reduced based on lost cities
-				rAreaWeightAtt *= scaled(
-						pBattleArea->getCitiesPerPlayer(m_ePlayer),
+				// <!-- custom: Use the hypothetical remaining-city distribution rather than stale real-map CvArea ownership after simulated conquests. See KI#592. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				rAreaWeightAtt *= scaled(remainingCitiesInArea(*pBattleArea),
 						iRemainingCitiesAtt);
 				if (pCapital != NULL && pCapital->isArea(*pBattleArea))
 				{
@@ -1155,19 +1299,36 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 					different areas. */
 				if (GET_PLAYER(m_ePlayer).isHuman())
 					rAreaWeightAtt += fixp(0.25);
+				// <!-- custom: KI#53.6 Equal Islands diagnostics found that, after a successful naval landing with enough surviving cargo for essentially the full modeled army, this inherited multi-area proxy was still cutting the AI attacker's available Army to typically about 75% (and sometimes near 55%) before deployment-distance penalties.
+				// In 2,056 failed scheduled city attacks from otherwise favorable naval evaluations, the median landing ratio was 100% while the median area weight was 75%; a rounded-log sensitivity check found that the inherited human-style +25 percentage-point allowance, scaled by actual surviving lift, would reverse about 44% of those simulated city defeats.
+				// Apply only to the evaluating team and scale the allowance by the simulated landing ratio, so weak lift still preserves most of the inherited caution. (ChatGPT-5.6-Sol) -->
+				else if (TEAMID(m_ePlayer) == TEAMID(m_eAgent))
+				{
+					static const bool bSASNavalLogisticsDeploymentOptimize = GC.getDefineBOOL("SAS_UWAI_NAVAL_LOGISTICS_DEPLOYMENT_ON");
+					if (bSASNavalLogisticsDeploymentOptimize)
+					{
+						scaled const rOldAreaWeight = rAreaWeightAtt;
+						rAreaWeightAtt += fixp(0.25) * rNavalLandingRatio;
+						rAreaWeightAtt.decreaseTo(1);
+						rSASNavalAreaBonus = rAreaWeightAtt - rOldAreaWeight;
+					}
+				}
 				rAreaWeightAtt.clamp(fixp(0.5), 1);
 			}
 			if (rAreaWeightAtt < 1)
 			{
-				m_kReport.log("Area weight attacker: %d percent",
-						rAreaWeightAtt.getPercent());
+				if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_AREA_WEIGHT_ATTACKER turn=%d agentPlayer=%d attacker=%d defender=%d percent=%d",
+						GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer, rAreaWeightAtt.getPercent());
+				// <!-- custom: Cavalry is an overlapping Army sub-branch.
+				// AdvCiv weighted only the attacker's Army by battle area, breaking Cavalry <= Army even though its defender-side sibling was fixed.
+				// Scale both together. See KI#583. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				rArmyPow *= rAreaWeightAtt;
+				rCavPow *= rAreaWeightAtt;
 			}
 		}
 		if (iRemainingCitiesDef > 0)
 		{
-			rAreaWeightDef *= scaled(
-					pBattleArea->getCitiesPerPlayer(kDefender.m_ePlayer),
+			rAreaWeightDef *= scaled(kDefender.remainingCitiesInArea(*pBattleArea),
 					iRemainingCitiesDef);
 			CvCity const* pCapital = GET_PLAYER(kDefender.m_ePlayer).getCapital();
 			if (pCapital != NULL && pCapital->isArea(*pBattleArea))
@@ -1180,7 +1341,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 			rAreaWeightDef.clamp(fixp(1/3.), 1);
 			if (rAreaWeightDef != 1)
 			{
-				m_kReport.log("Area weight defender: %d percent",
+				if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_AREA_WEIGHT_DEFENDER turn=%d agentPlayer=%d attacker=%d defender=%d percent=%d",
+						GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
 						rAreaWeightDef.getPercent());
 				rDefArmyPow *= rAreaWeightDef;
 				rDefCavPow *= rAreaWeightDef;
@@ -1214,7 +1376,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 	if (!bDefenderOutnumbered || bClashOnly)
 	{
 		bool const bAttWin = (rArmyPowModified > rDefArmyPowModified);
-		m_kReport.log("Army clash with modified power (A/D): %d/%d",
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_CLASH_POWER turn=%d agentPlayer=%d attacker=%d defender=%d attackerPower=%d defenderPower=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
 				rArmyPowModified.uround(), rDefArmyPowModified.uround());
 		std::pair<scaled,scaled> rrLossesWL = clashLossesWinnerLoser(
 				rArmyPowModified, rDefArmyPowModified, !bClashOnly, false);
@@ -1241,21 +1404,25 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 				rArmyPowModified, rDefArmyPowModified);
 		if (bAttWin)
 		{
+			// <!-- custom: Clash results are measured from confidence- and combat-modified power.
+			// Convert all persistent and temporary casualties back to physical branch power before applying them. See KI#580. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			rLossesWinner /= rArmyModAttCorr * rConfAtt;
+			rLossesLoser /= rArmyModDefCorr * rConfDef;
+			rTempLosses /= rArmyModAttCorr * rConfAtt;
 			// Have tempLosses take effect immediately (not necessary if bClashOnly)
 			scaled rUnavail = rLossesWinner + rTempLosses;
 			rArmyPow -= rUnavail;
 			rCavPow -= rCavRatio * rUnavail;
 			// Remember the tempLosses
-			kStep.setTempLosses(rTempLosses / rArmyModAttCorr);
-			rLossesLoser /= rArmyModDefCorr;
-			rLossesWinner /= rArmyModAttCorr;
+			kStep.setTempLosses(rTempLosses);
 			kStep.reducePower(m_ePlayer, ARMY, rLossesWinner);
 			kStep.reducePower(kDefender.m_ePlayer, ARMY, rLossesLoser);
 			kStep.reducePower(m_ePlayer, CAVALRY, rLossesWinner * rCavRatio);
 			kStep.reducePower(kDefender.m_ePlayer, CAVALRY, rLossesLoser * rDefCavRatio);
 			if (!bClashOnly)
 			{
-				m_kReport.log("Defending army defeated; losses (A/D): %d/%d",
+				if (bLogInvasionSummary) logBBAI("UWAI_INVASION_GRAPH_FIELD_BATTLE_DEFENDER_DEFEATED turn=%d agentPlayer=%d attacker=%d defender=%d attackerLoss=%d defenderLoss=%d",
+						GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
 						rLossesWinner.round(), rLossesLoser.round());
 			}
 			else
@@ -1267,10 +1434,11 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 		else
 		{
 			FAssert(rArmyModAttCorr > 0 && rArmyModDefCorr > 0);
+			// <!-- custom: As in the attacker-win branch, remove both confidence and combat modifiers before storing physical Army, Cavalry and temporary losses. See KI#580. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			rLossesLoser /= rArmyModAttCorr * rConfAtt;
+			rLossesWinner /= rArmyModDefCorr * rConfDef;
 			if (bClashOnly) // No rTempLosses for repelled city attack
-				kStep.setTempLosses(rTempLosses / rArmyModDefCorr);
-			rLossesLoser /= rArmyModAttCorr;
-			rLossesWinner /= rArmyModDefCorr;
+				kStep.setTempLosses(rTempLosses / (rArmyModDefCorr * rConfDef));
 			kStep.reducePower(m_ePlayer, ARMY, rLossesLoser);
 			kStep.reducePower(kDefender.m_ePlayer, ARMY, rLossesWinner);
 			kStep .reducePower(m_ePlayer, CAVALRY, rLossesLoser * rCavRatio);
@@ -1278,8 +1446,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 			kStep.setSuccess(false);
 			if (!bClashOnly)
 			{
-				m_kReport.log("Attack repelled by defending army; "
-						"losses (A/D): %d/%d",
+				if (bLogInvasionSummary) logBBAI("UWAI_INVASION_GRAPH_FIELD_BATTLE_ATTACK_REPELLED turn=%d agentPlayer=%d attacker=%d defender=%d attackerLoss=%d defenderLoss=%d",
+						GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
 						rLossesLoser.uround(), rLossesWinner.uround());
 			}
 			return &kStep;
@@ -1322,7 +1490,10 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 			getTypicalPower(TEAMID(m_eAgent));
 	if (kDefender.m_military[HOME_GUARD]->getTypicalUnit() == NO_UNIT)
 	{
-		FAssertMsg(iDefCities <= 0, "No typical garrison unit found");
+		// <!-- custom: As for Army, KI#537 makes no-current-candidate a valid Home Guard state even while cities remain.
+		// Keep the inherited Warrior-power fallback and check only that the invalidated typical-power cache is zero; include the simulated defender and target city only when that invariant actually fails. See KI#537.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		FAssertMsg(rTypicalGarrisonPow == 0, CvString::format("Missing typical Home Guard unit has nonzero cached power: agentPlayer=%d branchPlayer=%d playerCities=%d simCityOwner=%d simCityId=%d simCity=%S (KI#537.2)",
+				m_eAgent, kDefender.m_ePlayer, iDefCities, pCity == NULL ? -1 : pCity->getOwner(), pCity == NULL ? -1 : pCity->getID(), pCity == NULL ? L"-" : pCity->getName().GetCString()).c_str());
 		rTypicalGarrisonPow = fixp(3.25); // That's a Warrior
 	}
 	// Fewer rallies if all spread thin
@@ -1347,10 +1518,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 			iRallyBound = 2;
 		if (pBattleArea != NULL)
 		{
-			/*	-1: garrison of c already counted as local.
-				Fixme(?): Should subtract lost cities in pBattleArea. */
-			iRallyBound = std::min(pBattleArea->getCitiesPerPlayer(
-					kDefender.m_ePlayer) - 1, iRallyBound);
+			// <!-- custom: The attacked city's garrison is already local; cap additional rallies by other simulated remaining cities in this area, excluding cities already conquered in the graph. See KI#592. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			iRallyBound = std::min(kDefender.remainingCitiesInArea(*pBattleArea) - 1, iRallyBound);
 			iRallyBound = std::min(iRemainingCitiesDef - 1, iRallyBound);
 			iRallyBound = std::max(0, iRallyBound);
 		}
@@ -1376,11 +1545,12 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 	scaled rFortificationMod = fixp(0.25);
 	MilitaryBranch const& kDefHomeGuard = *kDefender.m_military[HOME_GUARD];
 	bool bNoGuardUnit = (kDefHomeGuard.getTypicalUnit() == NO_UNIT);
-	FAssert(!bNoGuardUnit || iDefCities <= 0);
+	// <!-- custom: NO_UNIT is valid after KI#537; the fallback above keeps rally arithmetic defined, and no representative unit means no typical-unit city-defense modifier. See KI#537.2. (ChatGPT-5.6-Sol) -->
 	// For all garrisons
-	scaled rCityDefenderMod = (bNoGuardUnit ? 0 :
-			per100(GC.getInfo(kDefHomeGuard.getTypicalUnit()).getCityDefenseModifier()));
-	if (GET_PLAYER(kDefender.m_eAgent).uwai().getCache().hasDefensiveTrait())
+	scaled rCityDefenderMod = (bNoGuardUnit ? 0 : per100(GC.getInfo(kDefHomeGuard.getTypicalUnit()).getCityDefenseModifier()));
+	// <!-- custom: Every graph node shares m_eAgent, so the inherited check gave all city defenders the evaluating player's trait.
+	// Query the actual defender owner. See KI#581. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (GET_PLAYER(kDefender.m_ePlayer).uwai().getCache().hasDefensiveTrait())
 		rCityDefenderMod += fixp(0.3);
 	bool const bIgnoreCityDef = (m_military[ARMY]->getTypicalUnit() != NO_UNIT &&
 			GC.getInfo(m_military[ARMY]->getTypicalUnit()).isIgnoreBuildingDefense());
@@ -1410,7 +1580,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 		rPlotDef -= rBombDmg;
 	}
 	// Don't log bCanSoften - it's usually implied
-	else m_kReport.log("Can't bomb down defenses");
+	else if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_BOMBARDMENT_UNAVAILABLE turn=%d agentPlayer=%d attacker=%d defender=%d",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer);
 	// Assume 20 damage per turn
 	scaled rBombTurns = (bCanBombard ? rBombDmg / rBombPerTurn : 0);
 	/*	Walls and Castle slow down bombardment.
@@ -1448,7 +1619,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 		/*	If their army hasn't been engaged yet, expect the bulk of it to be
 			rallied to any attacked city */
 		rDefArmyPortion = std::max(rDefArmyPortion, fixp(0.75));
-		m_kReport.log("Assuming high portion of defending army b/c not clashed yet");
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_DEFENDER_PORTION_RAISED turn=%d agentPlayer=%d attacker=%d defender=%d reason=NO_PRIOR_CLASH minimumPercent=75",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer);
 	}
 	if (bDefenderOutnumbered)
 	{
@@ -1469,16 +1641,14 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 		rPowFromDefAdvantage /= fixp(1.55);
 	rGarrisonPow += rPowFromDefAdvantage;
 	scaled rDefenderPow = rGarrisonPow + rDefendingArmyPow;
-	m_kReport.log("City defender power: %d (%d from local garrisons, "
-			"%d from rallied garrisons, %d from retreated army"
-			" (%d percent), %d from defender advantage)",
-			rDefenderPow.uround(), rLocalGarrisonPow.uround(),
-			rRalliedGarrisonPow.uround(), rDefendingArmyPow.uround(),
-			rDefArmyPortion.getPercent(), rPowFromDefAdvantage.uround());
-	m_kReport.log("Besieger power: %d", rArmyPowModified.uround());
 	scaled rPowRatio = rArmyPowModified / scaled::max(1, rDefenderPow);
 	scaled rThreat = rPowRatio;
-	m_kReport.log("Power ratio (A/D): %d percent", rPowRatio.getPercent());
+	// <!-- custom: Defender composition and attacker/defender ratio are one city-combat power state; emit one row rather than repeating the same participants and defender total. (ChatGPT-5.6-Sol) -->
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_CITY_COMBAT_POWER turn=%d agentPlayer=%d attacker=%d defender=%d besiegerPower=%d defenderPower=%d localGarrisonPower=%d ralliedGarrisonPower=%d mobileArmyPower=%d mobileArmyPercent=%d defenderAdvantagePower=%d ratioPercent=%d",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+			rArmyPowModified.uround(), rDefenderPow.uround(), rLocalGarrisonPow.uround(),
+			rRalliedGarrisonPow.uround(), rDefendingArmyPow.uround(), rDefArmyPortion.getPercent(),
+			rPowFromDefAdvantage.uround(), rPowRatio.getPercent());
 	/*	Attacks on important cities may result in greater distraction for
 		the defender -- or perhaps not; attacks on remote cities could
 		be equally distracting ... */
@@ -1490,8 +1660,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 	if (bCanBombard || bCanSoften)
 		rBombTurns += iDeployTurns * fixp(0.2);
 	int const iBombTurns = (rBombTurns / std::max(fixp(0.75), rPowRatio)).round();
-	if (iBombTurns > 0)
-		m_kReport.log("Bombardment assumed to take %d turns", iBombTurns);
+	if (bLogInvasionDetail && iBombTurns > 0) logBBAI("UWAI_INVASION_GRAPH_BOMBARDMENT_DURATION turn=%d agentPlayer=%d attacker=%d defender=%d turns=%d",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer, iBombTurns);
 	// Faster conquest when defenders outnumbered
 	kStep.setDuration(iBombTurns + kStep.getDuration());
 	FAssert(rArmyModAttCorr > 0 && rConfAtt > 0);
@@ -1502,9 +1672,6 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 		scaled const rDefLossRatio = scaled::min(1, fixp(0.65) * rThreat.pow(fixp(1.5)));
 		kStep.reducePower(kDefender.m_ePlayer, ARMY, rDefLossRatio * rDefArmyPow * rDefArmyPortion);
 		kStep.reducePower(kDefender.m_ePlayer, CAVALRY, rDefLossRatio * rDefCavPow * rDefArmyPortion);
-		/*	Assume that not all emergency defenders were able to reach this city
-			(i.e. their true power is actually 2 * emergencyDefPow) */
-		kDefender.m_rEmergencyDefPow /= 2;
 		kStep.reducePower(kDefender.m_ePlayer, HOME_GUARD,
 				rDefLossRatio * rGuardPowUnmodified);
 		/*	These losses are a bit exaggerated I think, at least when threat is
@@ -1555,6 +1722,15 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 			kStep.reducePower(m_ePlayer, CAVALRY, rLossesAttArmy * rCavPow / rArmyPow);
 		kStep.setSuccess(false);
 	}
+	if (bSASLogNavalInvasionStep && rArmyPortionDefender > 0) logBBAI("WAR_NAVAL_INVASION_STEP turn=%d agentTeam=%d targetTeam=%d total=%d prepTurns=%d stage=CITY_ATTACK targetCityX=%d targetCityY=%d cacheDistance=%d targetValue=%d fleetWin=%d armyPortionAttackerPercent=%d armyPortionDefenderPercent=%d attackerArmyRawPower=%d defenderArmyPower=%d attackerFleetPower=%d defenderFleetPower=%d cargoCapacity=%d survivingCargo=%d armySize=%d landingRatioPercent=%d navalAreaBonusPercent=%d deploymentDistance=%d attackerDeploymentPercent=%d attackerAreaWeightPercent=%d defenderAreaWeightPercent=%d localGarrisonPower=%d ralliedGarrisonPower=%d mobileDefenderPower=%d mobileDefenderPortionPercent=%d canBombard=%d canSoften=%d bombardTurns=%d besiegerPower=%d cityDefenderPower=%d powerRatioPercent=%d duration=%d success=%d",
+		GC.getGame().getGameTurn(), TEAMID(m_eAgent), kEvalParams.getTarget(), kEvalParams.isTotal(), kEvalParams.getPreparationTime(),
+		pCity->getX(), pCity->getY(), pCacheCity->getDistance(), pCacheCity->getTargetValue(), bSASFleetWin,
+		rArmyPortionAttacker.getPercent(), rArmyPortionDefender.getPercent(), rArmyPowRaw.uround(), rDefArmyPow.uround(),
+		rSASFleetPow.uround(), rSASDefFleetPow.uround(), rSASCargoCap.uround(), rSASSurvivingCargo.uround(), rSASArmySize.uround(),
+		rNavalLandingRatio.getPercent(), rSASNavalAreaBonus.getPercent(), rDeploymentDistAttacker.uround(),
+		rAttDeploymentMod.getPercent(), rAreaWeightAtt.getPercent(), rAreaWeightDef.getPercent(), rLocalGarrisonPow.uround(),
+		rRalliedGarrisonPow.uround(), rDefendingArmyPow.uround(), rDefArmyPortion.getPercent(), bCanBombard, bCanSoften, iBombTurns,
+		rArmyPowModified.uround(), rDefenderPow.uround(), rPowRatio.getPercent(), kStep.getDuration(), kStep.isAttackerSuccessful());
 	return &kStep;
 }
 
@@ -1565,9 +1741,10 @@ bool InvasionGraph::Node::canReachByLand(PlotNumTypes eCityPlot, bool bFromCapit
 	UWAICache::City const* pCacheCity = m_kCache.lookupCity(eCityPlot);
 	if (pCacheCity == NULL) // Then even they don't know where it is
 		return false;
+	// <!-- custom: Match the land-reachability boolean and max-land-distance gate to the land-only duration, not the fastest mixed route. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	return (bFromCapital ?
 			pCacheCity->canReachByLandFromCapital() : pCacheCity->canReachByLand()) &&
-			(pCacheCity->getDistance() <= getUWAI().maxLandDist() ||
+			(pCacheCity->getDistanceByLand() <= getUWAI().maxLandDist() ||
 			!m_kCache.canTrainDeepSeaCargo());
 }
 
@@ -1614,32 +1791,34 @@ CvArea const* InvasionGraph::Node::clashArea(PlayerTypes eEnemy) const
 	return pClashArea;
 }
 
-// Ugh ...
-#define DECL_GET_VICTORY_STAGE(MixedCase, UPPER_CASE) \
-	int get##MixedCase##Stage(PlayerTypes ePlayer) \
-	{ \
-		CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer); \
-		if (kPlayer.AI_atVictoryStage(AI_VICTORY_##UPPER_CASE##1)) \
-			return 1; \
-		if (kPlayer.AI_atVictoryStage(AI_VICTORY_##UPPER_CASE##2)) \
-			return 2; \
-		if (kPlayer.AI_atVictoryStage(AI_VICTORY_##UPPER_CASE##3)) \
-			return 3; \
-		if (kPlayer.AI_atVictoryStage(AI_VICTORY_##UPPER_CASE##4)) \
-			return 4; \
-		return 0; \
-	}
-namespace
+// <!-- custom: City combat includes simulated emergency defenders beyond the original Home Guard branch.
+// Apply their casualties to availability without misreporting them as losses of the original military. See KI#589. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void InvasionGraph::Node::applyPowerLoss(MilitaryBranchTypes eBranch, scaled rLostPower)
 {
-	DECL_GET_VICTORY_STAGE(Domination, DOMINATION)
-	DECL_GET_VICTORY_STAGE(Conquest, CONQUEST)
+	if (eBranch != HOME_GUARD)
+	{
+		m_arLostPower[eBranch] += rLostPower;
+		m_arLostPower[eBranch].decreaseTo(m_military[eBranch]->power());
+		return;
+	}
+	scaled const rRemainingHomeGuard = scaled::max(0,
+			m_military[HOME_GUARD]->power() - m_arLostPower[HOME_GUARD]);
+	scaled const rHomeGuardLoss = scaled::min(rLostPower, rRemainingHomeGuard);
+	m_arLostPower[HOME_GUARD] += rHomeGuardLoss;
+	scaled rEmergencyLoss = rLostPower - rHomeGuardLoss;
+	rEmergencyLoss.decreaseTo(m_rEmergencyDefPow);
+	m_rEmergencyDefPow -= rEmergencyLoss;
 }
 
 
+// <!-- custom: Removed the inherited local stage-1-first helpers: victory-stage bits are cumulative, so every active higher stage returned 1.
+// The capitulation gate below now uses the shared highest-stage helpers. See KI#573. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 {
 	Node& kAttacker = *m_kOuter.m_nodeMap[kStep.getAttacker()];
 	bool bReportedLosses = false;
+	bool const bLogInvasionSummary = (gUWAIInvasionGraphLogLevel >= 1 && !m_kLogMuteState.isMuted());
+	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	for (int i = 0; i < NUM_BRANCHES; i++)
 	{
 		MilitaryBranchTypes const eBranch = (MilitaryBranchTypes)i;
@@ -1647,18 +1826,13 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 		scaled rLostPowerDef = kStep.getLostPower(m_ePlayer, eBranch);
 		if (rLostPowerAtt >= fixp(0.5) || rLostPowerDef >= fixp(0.5))
 		{
-			m_kReport.log("Losses in branch %s: %d (%s), %d (%s)",
-					m_military[eBranch]->str(),
-					rLostPowerAtt.uround(), m_kReport.leaderName(kAttacker.m_ePlayer),
-					rLostPowerDef.uround(), m_kReport.leaderName(m_ePlayer));
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_APPLY_BRANCH_LOSS turn=%d agentPlayer=%d attacker=%d defender=%d branch=%s attackerLoss=%d defenderLoss=%d",
+					GC.getGame().getGameTurn(), m_eAgent, kAttacker.m_ePlayer, m_ePlayer,
+					m_military[eBranch]->str(), rLostPowerAtt.uround(), rLostPowerDef.uround());
 			bReportedLosses = true;
 		}
-		m_arLostPower[eBranch] += rLostPowerDef;
-		m_arLostPower[eBranch].decreaseTo(
-				m_military[eBranch]->power());
-		kAttacker.m_arLostPower[eBranch] += rLostPowerAtt;
-		kAttacker.m_arLostPower[eBranch].decreaseTo(
-				kAttacker.m_military[eBranch]->power());
+		applyPowerLoss(eBranch, rLostPowerDef);
+		kAttacker.applyPowerLoss(eBranch, rLostPowerAtt);
 	}
 	// Remembered until end of phase
 	scaled rTempLosses = kStep.getTempLosses();
@@ -1668,11 +1842,12 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 		m_rTempArmyLosses += rTempLosses;
 	if (rTempLosses >= fixp(0.5))
 	{
-		m_kReport.log("Temporary army losses (damaged): %d", rTempLosses.uround());
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_APPLY_TEMP_LOSS turn=%d agentPlayer=%d attacker=%d defender=%d power=%d",
+				GC.getGame().getGameTurn(), m_eAgent, kAttacker.m_ePlayer, m_ePlayer, rTempLosses.uround());
 		bReportedLosses = true;
 	}
-	if (!bReportedLosses)
-		m_kReport.log("(no loss of milit. power on either side)");
+	if (bLogInvasionDetail && !bReportedLosses) logBBAI("UWAI_INVASION_GRAPH_APPLY_NO_POWER_LOSS turn=%d agentPlayer=%d attacker=%d defender=%d",
+			GC.getGame().getGameTurn(), m_eAgent, kAttacker.m_ePlayer, m_ePlayer);
 	if (kStep.isAttackerSuccessful())
 	{
 		if (kStep.isClashOnly())
@@ -1681,6 +1856,9 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 		{
 			UWAICache::City const& kStepCity = *kStep.getCity();
 			addCityLoss(kStepCity);
+			// <!-- custom: Node::step is also used for discarded priority, cycle and time-horizon probes, so halving emergency defense there mutated persistent state without an applied attack.
+			// Apply it only after an executed successful city conquest. See KI#576. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			m_rEmergencyDefPow /= 2;
 			int const iCurrentCities = GET_PLAYER(m_ePlayer).getNumCities();
 			if (m_cityLosses.size() == iCurrentCities)
 				setEliminated(true);
@@ -1691,21 +1869,25 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 				already implies that losses on the offensive front are recuperated
 				with units from the defensive front over time. */
 			m_rDistractionByConquest = 0;
+			// <!-- custom: The inherited comment says a third-party city loss stops this defender's own offensive, but only its defensive distraction was cleared.
+			// Remove the still-live outgoing edge unless it targets the attacker that took the city. See KI#590. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (m_pPrimaryTarget != NULL && m_pPrimaryTarget != &kAttacker)
+				changePrimaryTarget(NULL);
 			/*	This value is currently not read. See comment in resolveLosses.
 				The code here only counts time spent on successful city attacks;
 				might also want to count failed attacks or clashes. */
 			kAttacker.m_iWarTurnsSimulated += kStep.getDuration();
 			kAttacker.addConquest(kStepCity);
-			// The conquerer leaves part of his army behind to protect the city
-			scaled rUnitsLeftBehind = 2 + GET_PLAYER(m_ePlayer).AI_getCurrEraFactor();
+			// <!-- custom: The conqueror leaves its own units behind, but inherited UWAI converted their count using the victim's era and representative Army power.
+			// Use the attacker for both inputs and for the shifted state. See KI#575. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			scaled rUnitsLeftBehind = 2 + GET_PLAYER(kAttacker.m_ePlayer).AI_getCurrEraFactor();
 			if (GET_PLAYER(kAttacker.m_ePlayer).isHuman())
 				rUnitsLeftBehind = (2 * rUnitsLeftBehind) / 3;
-			scaled rPowLeftBehind = rUnitsLeftBehind *
-					m_military[ARMY]->getTypicalPower(TEAMID(m_eAgent));
+			scaled rPowLeftBehind = rUnitsLeftBehind * kAttacker.m_military[ARMY]->getTypicalPower(TEAMID(m_eAgent));
 			rPowLeftBehind.decreaseTo(kAttacker.m_military[ARMY]->power()
 					- kAttacker.m_arLostPower[ARMY]);
-			m_kReport.log("%d army power assumed to be left behind for defense",
-					rPowLeftBehind.uround());
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_GARRISON_LEFT_BEHIND turn=%d agentPlayer=%d attacker=%d defender=%d power=%d",
+					GC.getGame().getGameTurn(), m_eAgent, kAttacker.m_ePlayer, m_ePlayer, rPowLeftBehind.uround());
 			kAttacker.m_arLostPower[ARMY] += rPowLeftBehind;
 			/*	Don't want to add the power to guard b/c the newly conquered city
 				can't be attacked by third parties (nor reconquered) and doesn't
@@ -1714,13 +1896,14 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 			kAttacker.m_arShiftedPower[ARMY] += rPowLeftBehind;
 			CvTeamAI const& kAttTeam = GET_TEAM(kAttacker.m_ePlayer);
 			CvTeamAI const& kDefTeam = GET_TEAM(m_ePlayer);
+			AIVictoryStage const eAttackerVictoryStages = GET_PLAYER(kAttacker.m_ePlayer).AI_getVictoryStageHash();
 			if (!isEliminated() &&
 				GET_PLAYER(m_ePlayer).canPossiblyTradeItem(
 				kAttacker.m_ePlayer, TRADE_SURRENDER) &&
 				// Don't expect node to capitulate so long as it has vassals
 				kDefTeam.getVassalCount(TEAMID(m_eAgent)) <= 0 &&
-				getConquestStage(kAttacker.m_ePlayer) <=
-				getDominationStage(kAttacker.m_ePlayer))
+				getSASConquestVictoryStageLevel(eAttackerVictoryStages) <=
+				getSASDominationVictoryStageLevel(eAttackerVictoryStages))
 			{
 				int iConqueredByAtt = 0;
 				for (size_t i = 0; i < kAttacker.m_conquests.size(); i++)
@@ -1760,9 +1943,8 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 					if (iConqueredByAtt >= rCapitulationThresh.uround())
 					{
 						setCapitulated(TEAMID(kAttacker.m_ePlayer));
-						m_kReport.log("%s has *capitulated* to %s",
-								m_kReport.leaderName(m_ePlayer),
-								m_kReport.leaderName(kAttacker.m_ePlayer));
+						if (bLogInvasionSummary) logBBAI("UWAI_INVASION_GRAPH_CAPITULATION turn=%d agentPlayer=%d vassalPlayer=%d masterPlayer=%d",
+								GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kAttacker.m_ePlayer);
 					}
 				}
 			}
@@ -1777,8 +1959,8 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 						m_military[HOME_GUARD]->getTypicalPower(TEAMID(m_eAgent)) *
 						scaled(kStep.getDuration(),
 						GET_PLAYER(m_ePlayer).getMaxConscript() > 0 ? 2 : 3);
-				m_kReport.log("Emergency defender power for %s: %d",
-						m_kReport.leaderName(m_ePlayer), m_rEmergencyDefPow.round());
+				if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_EMERGENCY_DEFENDER_POWER turn=%d agentPlayer=%d player=%d power=%d",
+						GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, m_rEmergencyDefPow.round());
 			}
 		}
 	}
@@ -1787,13 +1969,15 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 	// Remove link if army eliminated
 	if (m_military[ARMY]->power() <= m_arLostPower[ARMY] && m_pPrimaryTarget != NULL)
 	{
-		m_kReport.log("Army of %s eliminated", m_kReport.leaderName(m_ePlayer));
+		if (bLogInvasionSummary) logBBAI("UWAI_INVASION_GRAPH_ARMY_ELIMINATED_DEFENDER turn=%d agentPlayer=%d player=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer);
 		changePrimaryTarget(NULL);
 	}
 	if (kAttacker.m_military[ARMY]->power() <= kAttacker.m_arLostPower[ARMY] &&
 		kAttacker.m_pPrimaryTarget != NULL)
 	{
-		m_kReport.log("Army of %s eliminated", m_kReport.leaderName(kAttacker.m_ePlayer));
+		if (bLogInvasionSummary) logBBAI("UWAI_INVASION_GRAPH_ARMY_ELIMINATED_ATTACKER turn=%d agentPlayer=%d player=%d",
+				GC.getGame().getGameTurn(), m_eAgent, kAttacker.m_ePlayer);
 		kAttacker.changePrimaryTarget(NULL);
 	}
 	kAttacker.m_bHasClashed = true;
@@ -1803,7 +1987,14 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 		very minor; could overstate the distractive effect of some small war party. */
 }
 
-#undef DECL_GET_VICTORY_STAGE
+// <!-- custom: City elimination or capitulation previously left this node in its target's reverse-adjacency set, allowing the defeated player to attack later in the same recursive simulation phase.
+// Enforce the terminal-node edge invariant at the state transition. See KI#574. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void InvasionGraph::Node::setEliminated(bool b)
+{
+	m_bEliminated = b;
+	if (b && m_pPrimaryTarget != NULL)
+		changePrimaryTarget(NULL);
+}
 
 void InvasionGraph::Node::setCapitulated(TeamTypes eMaster)
 {
@@ -1875,15 +2066,20 @@ UWAICache::City const* InvasionGraph::Node::targetCity(PlayerTypes eTargetOwner)
 
 void InvasionGraph::Node::resolveLosses()
 {
-	m_kReport.log("*Resolving losses of %s*", m_kReport.leaderName(m_ePlayer));
+	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_RESOLVE_LOSSES_BEGIN turn=%d agentPlayer=%d player=%d targetedByCount=%d",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, (int)m_targetedBy.size());
 	if (m_targetedBy.empty())
 	{
-		m_kReport.log("Targeted by no one - no losses");
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_RESOLVE_LOSSES_NONE turn=%d agentPlayer=%d player=%d reason=NO_ATTACKERS",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer);
 		return;
 	}
 	vector<SimulationStep*> apSteps(MAX_PLAYERS, NULL);
 	vector<int> aiTurnsSimulated(MAX_PLAYERS, 0);
 	vector<bool> abTargetingThis(MAX_PLAYERS, false);
+	// <!-- custom: An actual step outside this defender's horizon must not be selected repeatedly or abort unrelated concurrent invaders that can still act in time. See KI#577. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	vector<bool> abHorizonExcluded(MAX_PLAYERS, false);
 	/*	Reduces m_rDistractionByDefense to 70%. Otherwise it would be implied that
 		losses incurred from an attack by a third power lead to potential attackers
 		closing the gap at that front.
@@ -1897,16 +2093,19 @@ void InvasionGraph::Node::resolveLosses()
 	do {
 		for (PlyrSetIter it = m_targetedBy.begin(); it != m_targetedBy.end(); ++it)
 		{
+			if (abHorizonExcluded[*it])
+				continue;
 			InvasionGraph::Node& kInvader = *m_kOuter.m_nodeMap[*it];
-			m_kReport.log("Assessing invasion priority (att. duration) of %s",
-					m_kReport.leaderName(kInvader.m_ePlayer));
-			m_kReport.setMute(true);
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_PRIORITY_ASSESS turn=%d agentPlayer=%d defender=%d attacker=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kInvader.m_ePlayer);
+			m_kLogMuteState.pushMute();
 			apSteps[*it] = m_kOuter.m_nodeMap[*it]->step(0,
 					1 - (rInvaderDistractionMult * kInvader.m_rDistractionByDefense));
-			m_kReport.setMute(false);
-			if (apSteps[*it] != NULL)
-				m_kReport.log("Duration at least %d", apSteps[*it]->getDuration());
-			else m_kReport.log("Can't reach any city");
+			m_kLogMuteState.popMute();
+			if (bLogInvasionDetail && apSteps[*it] != NULL) logBBAI("UWAI_INVASION_GRAPH_PRIORITY_REACHABLE turn=%d agentPlayer=%d defender=%d attacker=%d duration=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, *it, apSteps[*it]->getDuration());
+			else if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_PRIORITY_UNREACHABLE turn=%d agentPlayer=%d defender=%d attacker=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, *it);
 			abTargetingThis[*it] = true;
 		}
 		int iShortestDuration = MAX_INT;
@@ -1916,6 +2115,8 @@ void InvasionGraph::Node::resolveLosses()
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 		{
 			PlayerTypes const eLoopPlayer = it->getID();
+			if (abHorizonExcluded[eLoopPlayer])
+				continue;
 			if (apSteps[eLoopPlayer] == NULL)
 			{
 				/*	Could remove the NULL entries during the iteration above
@@ -1950,16 +2151,10 @@ void InvasionGraph::Node::resolveLosses()
 			resolved next. */
 		for (PlayerIter<> it; it.hasNext(); ++it)
 			SAFE_DELETE(apSteps[it->getID()]);
-		/*	Shortest duration is an optimistic lower bound (ignoring defending
-			army). If the shortest duration exceeds the time limit, all actual
-			durations are going to exceed the time limit as well. */
+		// <!-- custom: Zero-defense probes determine priority and the defender split only.
+		// A naval probe can conquer and continue into a siege while the actual defended landing is repelled sooner, so its duration is not a valid lower bound for horizon pruning. See KI#577. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (eNextInvader == NO_PLAYER || rSumOfThreats <= 0)
 			break;
-		if (iTimeLimit >= 0 && iShortestDuration > iTimeLimit)
-		{
-			m_kReport.log("All steps exceed the time limit; none executed");
-			break;
-		}
 		InvasionGraph::Node& kInvader = *m_kOuter.m_nodeMap[eNextInvader];
 		SimulationStep& kNextStep = *kInvader.step(rNextInvaderThreat /
 				(rSumOfThreats + rPastThreat +
@@ -1967,13 +2162,25 @@ void InvasionGraph::Node::resolveLosses()
 				m_rDistractionByConquest),
 				1 - (rInvaderDistractionMult * kInvader.m_rDistractionByDefense));
 		int iActualDuration = kNextStep.getDuration();
+		bool const bStepFitsHorizon = (iTimeLimit < 0 || aiTurnsSimulated[eNextInvader] + iActualDuration <= iTimeLimit);
+		// <!-- custom: A plausible naval city attack can be predicted successfully yet still contribute no conquest if its duration falls outside MilitaryAnalyst's horizon.
+		// Record the scheduler decision separately from WAR_NAVAL_INVASION_STEP so KI#53.6 can distinguish combat pessimism from timing exclusion. (ChatGPT-5.6-Sol) -->
+		UWAICache::City const* const pSASStepCity = kNextStep.getCity();
+		WarEvalParameters const& kSASEvalParams = m_kOuter.m_kMA.evaluationParams();
+		CvTeamAI const& kSASAgentTeam = GET_TEAM(TEAMID(m_eAgent));
+		CvTeamAI const& kSASTargetTeam = GET_TEAM(kSASEvalParams.getTarget());
+		if (gWarLogLevel >= 3 && !m_kOuter.m_bPeaceScenario && eNextInvader == m_eAgent && pSASStepCity != NULL &&
+			TEAMID(m_ePlayer) == kSASEvalParams.getTarget() && !kSASAgentTeam.isAtWar(kSASTargetTeam.getID()) &&
+			kSASTargetTeam.getDefensivePower(kSASAgentTeam.getID()) <= kSASAgentTeam.getPower(true) &&
+			!kInvader.canReachByLand(pSASStepCity->getID(), false) && kInvader.m_military[LOGISTICS]->power() > 0)
+		{
+			logBBAI("WAR_NAVAL_INVASION_SCHEDULE turn=%d agentTeam=%d targetTeam=%d total=%d prepTurns=%d targetCityX=%d targetCityY=%d cacheDistance=%d duration=%d turnsAlready=%d timeLimit=%d fitsHorizon=%d success=%d threatPercent=%d",
+				GC.getGame().getGameTurn(), TEAMID(m_eAgent), kSASEvalParams.getTarget(), kSASEvalParams.isTotal(), kSASEvalParams.getPreparationTime(),
+				pSASStepCity->city().getX(), pSASStepCity->city().getY(), pSASStepCity->getDistance(), iActualDuration, aiTurnsSimulated[eNextInvader], iTimeLimit,
+				bStepFitsHorizon, kNextStep.isAttackerSuccessful(), kNextStep.getThreat().getPercent());
+		}
 		// Don't apply step if it would exceed the time limit
-		if (iTimeLimit < 0 || aiTurnsSimulated[eNextInvader] + iActualDuration
-			/*	Per-node time limit. Not sure if really needed. Would have to
-				toggle isTargeting and unset m_pPrimaryTarget as well in the
-				else branch (instead of breaking). */
-			//+ (*m_kOuter.m_nodeMap)[eNextInvader].m_iWarTurnsSimulated
-			<= iTimeLimit)
+		if (bStepFitsHorizon)
 		{
 			applyStep(kNextStep);
 			/*	If attack fails, the attacker doesn't get another step. However,
@@ -1983,16 +2190,17 @@ void InvasionGraph::Node::resolveLosses()
 				rPastThreat = rNextInvaderThreat;
 			else rPastThreat = 0;
 			aiTurnsSimulated[eNextInvader] += iActualDuration;
-			m_kReport.log("Now simulated %d invasion turns of %s",
-					aiTurnsSimulated[eNextInvader],
-					m_kReport.leaderName(eNextInvader));
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_STEP_APPLIED turn=%d agentPlayer=%d defender=%d attacker=%d simulatedTurns=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, eNextInvader, aiTurnsSimulated[eNextInvader]);
 			delete &kNextStep;
 		}
 		else
 		{
 			delete &kNextStep;
-			m_kReport.log("Simulation step exceeds time limit; not executed");
-			break;
+			// <!-- custom: Exclude only this over-horizon step for the current defender; continue scheduling other invaders whose actual steps may still fit. See KI#577. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			abHorizonExcluded[eNextInvader] = true;
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_STEP_EXCLUDED turn=%d agentPlayer=%d defender=%d attacker=%d reason=TIME_LIMIT timeLimit=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, eNextInvader, m_kOuter.m_iTimeLimit);
 		}
 	} while (!isEliminated());
 }
@@ -2002,17 +2210,18 @@ void InvasionGraph::Node::changePrimaryTarget(Node* pNewTarget)
 {
 	Node* const pOldTarget = m_pPrimaryTarget;
 	m_pPrimaryTarget = pNewTarget;
+	bool const bLogInvasionTargetChanges = (gUWAIInvasionGraphLogLevel >= 2 && !m_kLogMuteState.isMuted());
 	if (pNewTarget != NULL)
 	{
 		pNewTarget->m_targetedBy.insert(m_ePlayer);
-		m_kReport.log("%s now targets %s", m_kReport.leaderName(m_ePlayer),
-				m_kReport.leaderName(pNewTarget->m_ePlayer));
+		if (bLogInvasionTargetChanges) logBBAI("UWAI_INVASION_GRAPH_TARGET_SET turn=%d agentPlayer=%d player=%d target=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, pNewTarget->m_ePlayer);
 	}
 	if (pOldTarget != NULL)
 	{
 		pOldTarget->m_targetedBy.erase(m_ePlayer);
-		m_kReport.log("%s no longer targets %s", m_kReport.leaderName(m_ePlayer),
-				m_kReport.leaderName(pOldTarget->m_ePlayer));
+		if (bLogInvasionTargetChanges) logBBAI("UWAI_INVASION_GRAPH_TARGET_UNSET turn=%d agentPlayer=%d player=%d target=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, pOldTarget->m_ePlayer);
 	}
 }
 
@@ -2039,34 +2248,44 @@ void InvasionGraph::Node::clash(scaled rArmyPortion, scaled rTargetArmyPortion)
 	SimulationStep& kClashStep = *kTarget.step(rArmyPortion, rTargetArmyPortion, true);
 	applyStep(kClashStep);
 	// Army surviving clash and going after cities won't be available for defense
+	// <!-- custom: Inherited UWAI assigned each winner the opponent's independently computed Army portion, transferring asymmetric outside pressure to the wrong civilization.
+	// Preserve each node's portion for both conquest and defense distraction. See KI#578. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (kClashStep.isAttackerSuccessful())
 	{
-		kTarget.m_rDistractionByConquest = rArmyPortion;
-		m_rDistractionByDefense = rTargetArmyPortion;
+		kTarget.m_rDistractionByConquest = rTargetArmyPortion;
+		m_rDistractionByDefense = rArmyPortion;
 	}
 	else
 	{
-		m_rDistractionByConquest = rTargetArmyPortion;
-		kTarget.m_rDistractionByDefense = rArmyPortion;
+		m_rDistractionByConquest = rArmyPortion;
+		kTarget.m_rDistractionByDefense = rTargetArmyPortion;
 	}
 	delete &kClashStep;
 }
 
 
-scaled InvasionGraph::Node::clashDistance(InvasionGraph::Node const& kOther) const
+// <!-- custom: Accept the selected invasion mode so overland clashes use each side's available land-only deployment distance, while fleet-only clashes retain the mixed metric.
+// A non-fleet clash requires only one side to have a qualifying land route, so fall back per side to its valid mixed distance rather than averaging an unavailable -1 land sentinel. See KI#591 and KI#1044. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+scaled InvasionGraph::Node::clashDistance(InvasionGraph::Node const& kOther,
+	bool bNaval) const
 {
 	UWAICache::City const* pTargetCity = targetCity();
 	UWAICache::City const* pOtherTargetCity = kOther.targetCity();
 	// Clash half-way in the middle
 	if (pTargetCity != NULL && pOtherTargetCity != NULL)
-		return scaled(pTargetCity->getDistance() + pOtherTargetCity->getDistance(), 2);
+	{
+		int const iDistance = (!bNaval && pTargetCity->getDistanceByLand() >= 0 ?
+				pTargetCity->getDistanceByLand() : pTargetCity->getDistance());
+		int const iOtherDistance = (!bNaval && pOtherTargetCity->getDistanceByLand() >= 0 ?
+				pOtherTargetCity->getDistanceByLand() : pOtherTargetCity->getDistance());
+		return scaled(iDistance + iOtherDistance, 2);
+	}
 	FErrorMsg("Shouldn't clash if not mutually reachable");
 	return -1;
 }
 
 
-bool InvasionGraph::Node::isSneakAttack(InvasionGraph::Node const& kOther,
-	bool bClash) const
+bool InvasionGraph::Node::isSneakAttack(InvasionGraph::Node const& kOther, bool bClash) const
 {
 	if ((m_ePlayer != m_eAgent && (!bClash || kOther.m_ePlayer != m_eAgent)) ||
 		GET_TEAM(m_ePlayer).isAtWar(TEAMID(kOther.m_ePlayer)))
@@ -2126,18 +2345,18 @@ void InvasionGraph::simulate(int iTurns)
 		and subsequent steps underestimated. */
 	int const iInitialBuildUpTurns = intdiv::uround(iTurns, 2);
 	int const iConcurrentBuildUpTurns = iTurns - iInitialBuildUpTurns;
+	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 	{
 		PlayerTypes const ePlayer = it->getID();
 		if (m_nodeMap[ePlayer] != NULL)
 		{
-	#if !DISABLE_UWAI_REPORT
-			m_nodeMap[ePlayer]->logTypicalUnits();
-	#endif
+			if (bLogInvasionDetail) m_nodeMap[ePlayer]->logTypicalUnits();
 			m_nodeMap[ePlayer]->prepareForSimulation();
 		}
 	}
-	m_kReport.log("Simulating initial build-up (%d turns)", iInitialBuildUpTurns);
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_BUILDUP_INITIAL turn=%d agentPlayer=%d turns=%d",
+			GC.getGame().getGameTurn(), m_eAgent, iInitialBuildUpTurns);
 	// Assume that upgrades are done in the prolog, if any, and only in phase I.
 	simulateArmament(iInitialBuildUpTurns, !m_bFirstSimulateCall);
 	m_bFirstSimulateCall = false;
@@ -2148,10 +2367,11 @@ void InvasionGraph::simulate(int iTurns)
 		m_bLossesDone = true;
 	/*	Needed for estimating the war effort. Assumes reduced production output if
 		cities have been lost. */
-	m_kReport.log("Simulating concurrent build-up (%d turns)", iConcurrentBuildUpTurns);
-	m_kReport.setMute(true); // Some more build-up isn't very interesting
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_BUILDUP_CONCURRENT turn=%d agentPlayer=%d turns=%d",
+			GC.getGame().getGameTurn(), m_eAgent, iConcurrentBuildUpTurns);
+	m_kLogMuteState.pushMute(); // Some more build-up isn't very interesting
 	simulateArmament(iConcurrentBuildUpTurns, true);
-	m_kReport.setMute(false);
+	m_kLogMuteState.popMute();
 }
 
 
@@ -2194,10 +2414,10 @@ void InvasionGraph::simulateComponent(Node& kStart)
 		each rooted at a node within the cycle. (The edges point towards
 		the root.) If an edge is removed from the cycle, the remaining dag
 		has a single sink (out-degree 0). */
-	m_kReport.log("Simulating graph component starting at %s",
-			m_kReport.leaderName(kStart.getPlayer()));
-	if (kStart.isIsolated())
-		m_kReport.log("Isolated node; nothing to do for this component");
+	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
+	// <!-- custom: Isolation is an attribute of this component start, not a separate event; keep it on the begin row to avoid duplicate context. (ChatGPT-5.6-Sol) -->
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_COMPONENT_BEGIN turn=%d agentPlayer=%d startPlayer=%d isolated=%d",
+			GC.getGame().getGameTurn(), m_eAgent, kStart.getPlayer(), kStart.isIsolated());
 	vector<Node*> apForwardPath;
 	size_t uiStartOfCycle = kStart.findCycle(apForwardPath);
 	vector<Node*> aCycle;
@@ -2210,26 +2430,27 @@ void InvasionGraph::simulateComponent(Node& kStart)
 	}
 	if(!aCycle.empty())
 	{
-	#if !DISABLE_UWAI_REPORT
-		m_kReport.log("*Cycle*");
-		std::string szMsg;
-		for (size_t i = 0; i < aCycle.size(); i++)
+		if (bLogInvasionDetail)
 		{
-			szMsg += m_kReport.leaderName(aCycle[i]->getPlayer());
-			szMsg += " --> ";
+			for (size_t i = 0; i < aCycle.size(); i++)
+			{
+				PlayerTypes const eFrom = aCycle[i]->getPlayer();
+				PlayerTypes const eTo = aCycle[(i + 1) % aCycle.size()]->getPlayer();
+				logBBAI("UWAI_INVASION_GRAPH_CYCLE_EDGE turn=%d agentPlayer=%d player=%d target=%d",
+						GC.getGame().getGameTurn(), m_eAgent, eFrom, eTo);
+			}
 		}
-		m_kReport.log("%s\n", szMsg.c_str());
-	#endif
 		breakCycle(aCycle);
 	}
 	kStart.findSink().resolveLossesRec();
-	m_kReport.log("");
 }
 
 
 void InvasionGraph::breakCycle(vector<Node*> const& kCycle)
 {
-	m_kReport.log("Breaking a cycle of length %d", kCycle.size());
+	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_CYCLE_BREAK turn=%d agentPlayer=%d length=%d",
+			GC.getGame().getGameTurn(), m_eAgent, (int)kCycle.size());
 	/*	Treat the simplest case upfront: two nodes targeting each other,
 		and no further nodes involved. */
 	if (kCycle.size() == 2 && kCycle[0]->getTargetedBy().size() == 1 &&
@@ -2256,14 +2477,11 @@ void InvasionGraph::breakCycle(vector<Node*> const& kCycle)
 		PlyrSet const& kTargetedBy = kNode.getTargetedBy();
 		for (PlyrSetIter it = kTargetedBy.begin(); it != kTargetedBy.end(); ++it)
 		{
-			const char* szNodeName = m_kReport.leaderName(kNode.getPlayer());
-			m_kReport.log("Assessing threat of %s's army to %s's garrisons "
-					"(ignoring army of %s)",
-					m_kReport.leaderName(m_nodeMap[*it]->getPlayer()),
-					szNodeName, szNodeName);
-			m_kReport.setMute(true);
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_CYCLE_THREAT_ASSESS turn=%d agentPlayer=%d attacker=%d defender=%d ignoreDefenderArmy=1",
+					GC.getGame().getGameTurn(), m_eAgent, m_nodeMap[*it]->getPlayer(), kNode.getPlayer());
+			m_kLogMuteState.pushMute();
 			SimulationStep* pStep = m_nodeMap[*it]->step(0, 1, false, true);
-			m_kReport.setMute(false);
+			m_kLogMuteState.popMute();
 			if (pStep == NULL)
 			{
 				/*	Might be fine in some circumstances, but suggests inconsistent
@@ -2283,10 +2501,11 @@ void InvasionGraph::breakCycle(vector<Node*> const& kCycle)
 					willingness(m_nodeMap[*it]->getPlayer(), kNode.getPlayer());
 			if (!rThreat.approxEquals(rBaseThreat, fixp(0.005)))
 			{
-				m_kReport.log("Threat set to %d/%d percent (base/adjusted)",
-						rBaseThreat.getPercent(), rThreat.getPercent());
+				if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_CYCLE_THREAT_ADJUSTED turn=%d agentPlayer=%d attacker=%d defender=%d basePercent=%d adjustedPercent=%d",
+						GC.getGame().getGameTurn(), m_eAgent, m_nodeMap[*it]->getPlayer(), kNode.getPlayer(), rBaseThreat.getPercent(), rThreat.getPercent());
 			}
-			else m_kReport.log("Threat set to %d percent", rThreat.getPercent());
+			else if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_CYCLE_THREAT_UNCHANGED turn=%d agentPlayer=%d attacker=%d defender=%d basePercent=%d adjustedPercent=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_nodeMap[*it]->getPlayer(), kNode.getPlayer(), rBaseThreat.getPercent(), rThreat.getPercent());
 			rSumOfEnemyThreat += rThreat;
 			// Only relevant for kCycle.size() == 2
 			if (pStep->getAttacker() == kNode.getPrimaryTarget()->getPlayer())
@@ -2341,8 +2560,7 @@ scaled InvasionGraph::willingness(PlayerTypes eAggressor, PlayerTypes eTarget) c
 }
 
 
-SimulationStep::SimulationStep(PlayerTypes eAttacker,
-	UWAICache::City const* pContestedCity)
+SimulationStep::SimulationStep(PlayerTypes eAttacker, UWAICache::City const* pContestedCity)
 :	m_eAttacker(eAttacker), m_pContestedCity(pContestedCity),
 	m_iDuration(0), m_bSuccess(false)
 {
@@ -2351,8 +2569,7 @@ SimulationStep::SimulationStep(PlayerTypes eAttacker,
 }
 
 
-void SimulationStep::reducePower(PlayerTypes ePlayer,
-	MilitaryBranchTypes eBranch, scaled rSubtrahend)
+void SimulationStep::reducePower(PlayerTypes ePlayer, MilitaryBranchTypes eBranch, scaled rSubtrahend)
 {
 	FAssert(rSubtrahend >= 0);
 	rSubtrahend.increaseTo(0);
@@ -2362,8 +2579,7 @@ void SimulationStep::reducePower(PlayerTypes ePlayer,
 }
 
 
-scaled SimulationStep::getLostPower(PlayerTypes ePlayer,
-	MilitaryBranchTypes eBranch) const
+scaled SimulationStep::getLostPower(PlayerTypes ePlayer, MilitaryBranchTypes eBranch) const
 {
 	if (ePlayer == m_eAttacker)
 		return m_arLostPowerAttacker[eBranch];
@@ -2411,8 +2627,7 @@ scaled SimulationStep::getLostPower(PlayerTypes ePlayer,
 	(in addition to lossesWinner). */
 scaled const InvasionGraph::Node::m_rClashPortion = fixp(0.65);
 
-std::pair<scaled,scaled> InvasionGraph::Node::clashLossesWinnerLoser(
-	scaled rPowAtt, scaled rPowDef, bool bNearCity, bool bNaval)
+std::pair<scaled,scaled> InvasionGraph::Node::clashLossesWinnerLoser(scaled rPowAtt, scaled rPowDef, bool bNearCity, bool bNaval)
 {
 	scaled rLesserPow = std::min(rPowAtt, rPowDef);
 	scaled rGreaterPow = std::max(rPowAtt, rPowDef);

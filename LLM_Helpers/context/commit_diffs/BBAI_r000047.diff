@@ -1,0 +1,128 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 47
+# Author: blakeciv
+# Date: 2006-11-08T13:29:46.614057Z
+# Coverage: full
+# Message:
+#   Fixed culture pressure percent to deal with conquered lands better.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@46
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@47
+@@ -4855,52 +4855,66 @@
+         pLoopPlot = plotCity(getX_INLINE(), getY_INLINE(), iI);
+ 		if (pLoopPlot != NULL)
+ 		{
+-			iTempValue = pLoopPlot->calculateCulturePercent(getOwnerINLINE());
+-			if (iTempValue == 100)
+-			{
+-				//do nothing
+-			}
+-			else if ((iTempValue == 0) || (iTempValue > 75))
+-			{
+-				iValue++;
+-			}
+-			else
+-			{
+-				iTempValue = (100 - iTempValue);
+-				FAssert(iTempValue > 0);
+-				FAssert(iTempValue <= 100);
+-
+-				if (iI != CITY_HOME_PLOT)
+-				{
+-					iTempValue *= 4;
+-					iTempValue /= NUM_CITY_PLOTS;
+-				}
+-
+-				eNonObsoleteBonus = pLoopPlot->getNonObsoleteBonusType(getTeam());
+-
+-				if (eNonObsoleteBonus != NO_BONUS)
+-				{
+-					iTempValue += (GET_PLAYER(getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus) * ((GET_PLAYER(getOwnerINLINE()).getNumTradeableBonuses(eNonObsoleteBonus) == 0) ? 4 : 2));
+-				}
+-
+-				if (pLoopPlot->getTeam() == getTeam())
+-				{
+-					iTempValue /= (bGreatWork ? 10 : 2);
+-				}
+-				else
+-				{
+-					iTempValue *= 2;
+-					if (bGreatWork)
+-					{
+-						if (GET_PLAYER(getOwnerINLINE()).AI_getAttitude(pLoopPlot->getOwnerINLINE()) == ATTITUDE_FRIENDLY)
+-						{
+-							iValue /= 10;
+-						}
+-					}
+-				}
+-
+-				iValue += iTempValue;
+-			}
++		    if (pLoopPlot->getOwnerINLINE() == NO_PLAYER)
++		    {
++		        iValue++;
++		    }
++		    else
++		    {
++                iTempValue = pLoopPlot->calculateCulturePercent(getOwnerINLINE());
++                if (iTempValue == 100)
++                {
++                    //do nothing
++                }
++                else if ((iTempValue == 0) || (iTempValue > 75))
++                {
++                    iValue++;
++                }
++                else
++                {
++                    iTempValue = (100 - iTempValue);
++                    FAssert(iTempValue > 0);
++                    FAssert(iTempValue <= 100);
++
++                    if (iI != CITY_HOME_PLOT)
++                    {
++                        iTempValue *= 4;
++                        iTempValue /= NUM_CITY_PLOTS;
++                    }
++
++                    eNonObsoleteBonus = pLoopPlot->getNonObsoleteBonusType(getTeam());
++
++                    if (eNonObsoleteBonus != NO_BONUS)
++                    {
++                        iTempValue += (GET_PLAYER(getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus) * ((GET_PLAYER(getOwnerINLINE()).getNumTradeableBonuses(eNonObsoleteBonus) == 0) ? 4 : 2));
++                    }
++
++                    if ((iTempValue > 80) && (pLoopPlot->getOwnerINLINE() == getID()))
++                    {
++                        //captured territory special case
++                        iTempValue *= (100 - iTempValue);
++                        iTempValue /= 100;
++                    }
++
++                    if (pLoopPlot->getTeam() == getTeam())
++                    {
++                        iTempValue /= (bGreatWork ? 10 : 2);
++                    }
++                    else
++                    {
++                        iTempValue *= 2;
++                        if (bGreatWork)
++                        {
++                            if (GET_PLAYER(getOwnerINLINE()).AI_getAttitude(pLoopPlot->getOwnerINLINE()) == ATTITUDE_FRIENDLY)
++                            {
++                                iValue /= 10;
++                            }
++                        }
++                    }
++
++                    iValue += iTempValue;
++                }
++            }
+ 		}
+     }
+ 
+

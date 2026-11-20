@@ -3,14 +3,23 @@
 #ifndef CIV4_GAMECORE_UTILS_H
 #define CIV4_GAMECORE_UTILS_H
 
+#include "AIStrategies.h" // <!-- custom: getSAS*VictoryStageLevel helpers use AIVictoryStage bitfields. (GPT-5.5) -->
+#include <time.h> // <!-- custom: createSASUtcTimestamp accepts an already sampled time_t so a lifecycle identity and its filename can share one wall-clock reading. See KI#629. (GPT-5.6-Sol) -->
+
 class CvPlot;
 class CvCity;
 class CvCityAI; // advc.003u
+class CvTeamAI; // <!-- custom: SASWarPowerContext accepts a team-AI reference; forward-declare it instead of making this widely included utility header pull in the full CvTeamAI definition. (GPT-5.6-Sol) -->
 class CvUnit;
 class CvUnitAI; // advc.003u
 class CvSelectionGroup;
+class CvDeal;
+struct TradeData;
+template <class tVARTYPE> class CLinkList;
 class CvString;
+class CvWString;
 class CvRandom;
+class CvPopup; // <!-- custom: Runtime popup observations use only the opaque EXE popup identity; forward-declare it rather than pulling UI implementation into this widely included utility header. (ChatGPT-5.6-Sol) -->
 class FAStarNode;
 class FAStar;
 
@@ -71,11 +80,277 @@ template<typename T> void removeDuplicates(std::vector<T>& v)
 // advc.004w:
 void applyColorToString(CvWString& s, char const* szColor, bool bLink = false);
 
+// <!-- custom: Format one supplied time_t as second-precision UTC for stable diagnostic identities/filenames. See KI#629. (GPT-5.6-Sol) -->
+CvString createSASUtcTimestamp(const time_t kTime);
+// <!-- custom: Sample and format the current UTC time at second precision. See KI#629. (GPT-5.6-Sol) -->
+CvString createSASUtcTimestamp();
+// <!-- custom: Sample current UTC with milliseconds for event/snapshot timestamps that benefit from sub-second ordering. (ChatGPT-5.6-Sol) -->
+CvString createSASUtcTimestampMilliseconds();
+// <!-- custom: Add one structured SAS-owned row to an inherited fixed-name Civ4 log.
+// szLogFileName selects the target, szRecord is the stable greppable record name and szMessage is the already-formatted field payload; NULL szMessage is allowed as an empty payload.
+// bEngineTimestamp defaults to true to preserve the log's native EXE elapsed prefix; false suppresses that prefix for direct DLL rows in streams such as PythonDbg.log.
+// This does not intercept or rewrite EXE-owned rows. (ChatGPT-5.6-Sol) -->
+void logSASCiv4LegacyLogRow(char const* szLogFileName, char const* szRecord, char const* szMessage, bool bEngineTimestamp = true);
+// <!-- custom: Sample the shared Win32 monotonic millisecond clock for diagnostic durations; unlike UTC, OS clock corrections do not affect it. (ChatGPT-5.6-Sol) -->
+uint getSASMonotonicMilliseconds();
+// <!-- custom: Compute elapsed diagnostic milliseconds with unsigned subtraction so the established single timeGetTime rollover remains safe. (ChatGPT-5.6-Sol) -->
+uint getSASElapsedMilliseconds(uint uiStartMilliseconds, uint uiEndMilliseconds);
+// <!-- custom: Return the one DLL-process UTC identity shared by BBAI and SASGameRecord. See KI#629. (GPT-5.6-Sol) -->
+CvString const& getSASProcessUtcTimestamp();
+// <!-- custom: Return the actual Civ4BeyondSword.exe process creation UTC from GetProcessTimes, separate from the DLL-load identity above. (ChatGPT-5.6-Sol) -->
+CvString const& getSASExecutableProcessStartUtc();
+// <!-- custom: The same creation UTC for another process by ID, or unknown_time when it cannot be opened; SGR lists other Civ4 clients with it.
+// pNotAfter rejects a process created after that time: between a process-list snapshot and this lookup, the listed process can exit and Windows can reuse its ID, as Codex's 2026-11-11 review pointed out. (Claude Code Opus 5.5) -->
+CvString getSASProcessStartUtc(DWORD dwProcessId, FILETIME const* pNotAfter = NULL);
+// <!-- custom: Known status reasons are typed at call sites and iterable through NUM_SAS_RUNTIME_STATUS_REASONS; the same catalog generates their external JSON names. (GPT-6.1-Sol) -->
+enum SASRuntimeStatusReason
+{
+#define SAS_RUNTIME_STATUS_REASON(NAME) SAS_RUNTIME_STATUS_##NAME,
+// <!-- custom: Include the finite update-reason rows with an enum expansion; the publisher reuses these rows to generate its name table. (GPT-6.1-Sol) -->
+#include "SASRuntimeStatusReasons.h"
+#undef SAS_RUNTIME_STATUS_REASON
+	NUM_SAS_RUNTIME_STATUS_REASONS
+};
+
+// <!-- custom: Optional external-agent current-state artifact.
+// These transition-driven helpers update the compact JSON and append timed activity intervals to a per-process JSONL timeline only when SAS_RUNTIME_STATUS_ON is on; detailed UI/action evidence remains in SASGameRecord. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+// <!-- custom: Caller pre-gates skip status-only arguments/setup; publication remains independently default-off and does not use Civ4 INI logging masters. (GPT-6.1-Sol) -->
+// <!-- custom: Native lifecycle callers pre-gate these notifications; recorder entry guards additionally protect direct entry without collecting state or publishing while disabled.
+// The Python WorldBuilder bridge passes only a literal visibility bool and gates native queries inside CyGame; shutdown checks the cached flag directly to avoid a first XML read during teardown. (GPT-6.1-Sol) -->
+bool isSASRuntimeStatusEnabled();
+// <!-- custom: SAS diagnostic publishers share native root discovery, while assertion/status root handoff remains independent from historical log append handles. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
+bool getSASNativeDefaultRootDirectory(std::wstring& szRootDirectory);
+void setSASRuntimeStatusRootDirectory(std::wstring const& szRoot);
+// <!-- custom: Reset has one fixed reason; autoplay accepts a known update-reason enum rather than arbitrary string labels. (GPT-6.1-Sol) -->
+void updateSASRuntimeStatusNoGame();
+// <!-- custom: Observe existing EXE menu-scene requests once per no-game interval; neither this evidence nor loading-asset requests below imply a rendered frame or restart the activity clock. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void updateSASRuntimeStatusMainMenuSceneRequested();
+// <!-- custom: Positive CyInterface main-menu samples come only from explicit Python screen entry points; they strengthen menu evidence without frame polling or claiming the first rendered menu frame. (ChatGPT-5.6-Sol) -->
+void updateSASRuntimeStatusMainMenuState(bool bInMainMenu);
+void updateSASRuntimeStatusSessionStarted(bool bLoadedSave);
+// <!-- custom: Record the first existing loading-asset request within native new/load initialization without querying that asset for diagnostics. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void updateSASRuntimeStatusLoadingScreenAssetRequested();
+// <!-- custom: BUG extends the EXE PreGameStart callback during both new/load initialization; preserve that late lifecycle boundary separately from loading-asset requests and native-ready completion. (ChatGPT-5.6-Sol) -->
+void updateSASRuntimeStatusPreGameStart();
+void updateSASRuntimeStatusSessionReady();
+// <!-- custom: Native sequential-turn hooks measure one player's activation, main active interval and ending work without writing a row at each boundary.
+// ePlayer is the actual player being processed, not the UI active player; bCompleted=false clears an interrupted/non-turn deactivation and marks the in-memory turn summary incomplete.
+// Production callers pre-gate the function call and its arguments, including through an enclosing enabled block; callee early returns are additional safety, not a substitute for caller pre-gating.
+// Live slow-AI publication is separately throttled by Runtime GlobalDefines and can advance only when the game update loop regains control. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void updateSASRuntimeStatusPlayerTurnStarted(PlayerTypes ePlayer);
+void updateSASRuntimeStatusPlayerTurnMain(PlayerTypes ePlayer);
+void updateSASRuntimeStatusPlayerTurnEnding(PlayerTypes ePlayer);
+void updateSASRuntimeStatusPlayerTurnEnded(PlayerTypes ePlayer, bool bCompleted);
+void updateSASRuntimeStatusPlayerTurnProgress();
+// <!-- custom: End-turn readiness is event-driven from the existing UI message boundary; accepted requests capture one compact group/unit snapshot before sendTurnComplete.
+// Gameplay callers pre-gate the hooks and their arguments; the implementations retain defensive disabled guards.
+// Private counting/state stays in SASRuntimeStatus.cpp.
+// eControl is the engine control path, not physical input identity; Enter and the end-turn button can both reach CONTROL_FORCEENDTURN. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void updateSASRuntimeStatusEndTurnReady(PlayerTypes ePlayer, bool bReady);
+void updateSASRuntimeStatusEndTurnRequest(PlayerTypes ePlayer, ControlTypes eControl, bool bEndTurnMessage, bool bUIAnyMove, bool bSelectedUnitPresent, bool bForcePopup, bool bHasMovedUnit, bool bWaitEndTurnOption);
+void updateSASRuntimeStatusMissionSkip(PlayerTypes ePlayer);
+// <!-- custom: iCompletedTurn is the authoritative just-finished game turn; Runtime emits at most one compact sequential player-timing summary here before clearing the in-memory measurements. (ChatGPT-5.6-Sol) -->
+void updateSASRuntimeStatusTurnCompleted(int iCompletedTurn);
+void updateSASRuntimeStatusAutoPlay(SASRuntimeStatusReason eReason, SASAutoPlayEndCause eEndCause = SAS_AUTOPLAY_END_UNSPECIFIED);
+// <!-- custom: WorldBuilder mode and Python-screen visibility are separate observed boundaries: the EXE can toggle native mode before its Python UI is shown or hidden. (ChatGPT-5.6-Sol) -->
+void updateSASRuntimeStatusWorldBuilderMode(bool bEnabled);
+void updateSASRuntimeStatusWorldBuilderScreen(bool bVisible);
+// <!-- custom: Track confirmed Civilopedia visibility with menu/game origin and in-game active-player context; this overlay does not change the underlying activity timer. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void updateSASRuntimeStatusCivilopedia(bool bVisible, bool bInMainMenu);
+// <!-- custom: Translate the inherited Advanced Start action enum in common game utilities so consumers share its raw identity independently of SGR formatting. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASAdvancedStartActionType(AdvancedStartActionTypes eAction);
+// <!-- custom: Readable names for the existing engine game-state enum, reusable across diagnostic consumers. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASGameStateTypeName(GameStateTypes eState);
+// <!-- custom: Popup type labels are shared UI vocabulary, not runtime-recorder state; keep their declaration and implementation with the common game helpers. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASButtonPopupTypeName(ButtonPopupTypes eType);
+// <!-- custom: The confirmation popup stores an action ID in data1, distinct from its Yes/Cancel button ID.
+// Preserve the inherited 0..4 payload values while giving creation, dispatch, presentation and SGR one catalog; emit names from the same rows to prevent independent numeric/string mappings. (GPT-6.1-Sol) -->
+#define SAS_POPUP_CONFIRM_ACTION_ROWS(DO) \
+	DO(EXIT_TO_DESKTOP, 0) \
+	DO(RETURN_TO_MAIN_MENU, 1) \
+	DO(RETIRE, 2) \
+	DO(REGENERATE_MAP, 3) \
+	DO(WORLD_BUILDER, 4)
+enum SASPopupConfirmAction
+{
+#define SAS_POPUP_CONFIRM_ENUM(NAME, VALUE) SAS_POPUP_CONFIRM_##NAME = VALUE,
+	SAS_POPUP_CONFIRM_ACTION_ROWS(SAS_POPUP_CONFIRM_ENUM)
+#undef SAS_POPUP_CONFIRM_ENUM
+};
+// <!-- custom: Accept the raw popup payload so unknown values return NULL for the caller's numeric fallback instead of inventing a valid action. (GPT-6.1-Sol) -->
+char const* getSASPopupConfirmActionName(int iAction);
+// <!-- custom: K-Mod's MainMenuOptions was private to CvDLLButtonPopup.cpp; share its unchanged button IDs with SGR so readable menu choices cannot drift from creation/dispatch.
+// This catalog names existing UI protocol values, not recorder state or new gameplay settings; BUG Options remains K-Mod's inserted entry at 7. (GPT-6.1-Sol) -->
+#define SAS_POPUP_MENU_ACTION_ROWS(DO) \
+	DO(EXIT_TO_DESKTOP, 0) \
+	DO(RETURN_TO_MAIN_MENU, 1) \
+	DO(RETIRE, 2) \
+	DO(REGENERATE_MAP, 3) \
+	DO(LOAD_GAME, 4) \
+	DO(SAVE_GAME, 5) \
+	DO(OPTIONS, 6) \
+	DO(BUG_OPTIONS, 7) \
+	DO(WORLD_BUILDER, 8) \
+	DO(GAME_DETAILS, 9) \
+	DO(PLAYER_DETAILS, 10) \
+	DO(CANCEL, 11)
+enum SASPopupMenuAction
+{
+#define SAS_POPUP_MENU_ENUM(NAME, VALUE) SAS_POPUP_MENU_##NAME = VALUE,
+	SAS_POPUP_MENU_ACTION_ROWS(SAS_POPUP_MENU_ENUM)
+#undef SAS_POPUP_MENU_ENUM
+};
+// <!-- custom: Unknown menu IDs retain the caller's numeric fallback rather than being mislabeled as a known action. (GPT-6.1-Sol) -->
+char const* getSASPopupMenuActionName(int iAction);
+
+
+// <!-- custom: Share the existing civic prompt button IDs between creation, response dispatch and diagnostic names; changing one catalog updates every consumer while preserving the inherited values. (GPT-6.1-Sol) -->
+#define SAS_POPUP_CIVIC_CHOICE_ROWS(DO) \
+	DO(ADOPT_CIVIC, 0) \
+	DO(DECLINE_CIVIC, 1) \
+	DO(OPEN_POLICY_ADVISOR, 2)
+enum SASPopupCivicChoice
+{
+#define SAS_POPUP_CIVIC_ENUM(NAME, VALUE) SAS_POPUP_CIVIC_##NAME = VALUE,
+	SAS_POPUP_CIVIC_CHOICE_ROWS(SAS_POPUP_CIVIC_ENUM)
+#undef SAS_POPUP_CIVIC_ENUM
+};
+// <!-- custom: Return NULL for unknown button IDs so callers retain numeric evidence instead of inventing a valid choice. (GPT-6.1-Sol) -->
+char const* getSASPopupCivicChoiceName(int iButton);
+
+// <!-- custom: Share the existing religion prompt button IDs between creation, response dispatch and diagnostic names; changing one catalog updates every consumer while preserving the inherited values. (GPT-6.1-Sol) -->
+#define SAS_POPUP_RELIGION_CHOICE_ROWS(DO) \
+	DO(CONVERT, 0) \
+	DO(DECLINE_CONVERSION, 1)
+enum SASPopupReligionChoice
+{
+#define SAS_POPUP_RELIGION_ENUM(NAME, VALUE) SAS_POPUP_RELIGION_##NAME = VALUE,
+	SAS_POPUP_RELIGION_CHOICE_ROWS(SAS_POPUP_RELIGION_ENUM)
+#undef SAS_POPUP_RELIGION_ENUM
+};
+// <!-- custom: Return NULL for unknown button IDs so callers retain numeric evidence instead of inventing a valid choice. (GPT-6.1-Sol) -->
+char const* getSASPopupReligionChoiceName(int iButton);
+
+// <!-- custom: Native ButtonPopup focus/return callbacks are stronger than launch requests: focus records the EXE's native interaction callback, while response/cancellation closes that observed wait without changing the underlying play/autoplay/game-ended activity interval.
+// pPopup is used only as an in-process identity so a stale cancellation cannot close a different popup of the same type. (ChatGPT-5.6-Sol) -->
+void updateSASRuntimeStatusButtonPopupFocused(CvPopup const* pPopup, ButtonPopupTypes eType);
+void updateSASRuntimeStatusButtonPopupResolved(CvPopup const* pPopup, ButtonPopupTypes eType, int iButtonClicked, bool bCancelled);
+// <!-- custom: A GAMESTATE_OVER -> GAMESTATE_EXTENDED transition resumes live play after the end-game popup; preserve that instead of leaving external status at GAME_ENDED. (ChatGPT-5.6-Sol) -->
+void updateSASRuntimeStatusExtendedGameStarted();
+// <!-- custom: Menu/exit request boundaries are observable before EXE work; their completion is not inferred from the request. (GPT-6.1-Sol) -->
+void updateSASRuntimeStatusRequest(SASRuntimeStatusReason eReason);
+void updateSASRuntimeStatusGameEnded();
+void updateSASRuntimeStatusCleanExit();
+// <!-- custom: Identify the producer explicitly; filenames are output identities, not reliable log-family metadata. (GPT-6.1-Sol) -->
+enum SASDiagnosticLogFamily
+{
+	SAS_DIAGNOSTIC_LOG_OTHER,
+	SAS_DIAGNOSTIC_LOG_BBAI,
+	SAS_DIAGNOSTIC_LOG_GAME_RECORD
+};
+
+// <!-- custom: Submit each already-formatted BBAI/SASGameRecord line directly through a shared persistent file handle; queue only pre-root or failed output in bounded retry storage.
+// Prompt writes preserve successful rows across an ordinary process crash and permit live reads without forced disk flushes; literal percent signs bypass the EXE logger's second printf pass. See KI#375.3. (ChatGPT-5.6-Sol + GPT-5.6-Sol + GPT-6.1-Sol) -->
+// <!-- custom: The caller supplies its family so byte accounting survives renamed files and unrelated matching prefixes. (GPT-6.1-Sol) -->
+void logSASDiagnosticLiteralLine(char const* szLogName, char const* szLine, SASDiagnosticLogFamily eFamily);
+// <!-- custom: Supply BUG's resolved user root as Unicode rather than ANSI text so non-ASCII/CvAltRoot paths are preserved without being logged. (GPT-6.1-Sol) -->
+void setSASDiagnosticLogRootDirectory(wchar_t const* szRootDirectory);
+// <!-- custom: Retry pending diagnostic writes and return success/failure; ordinary checkpoints retain handles, while session release closes them.
+// bReleaseStorage closes session handles and releases drained retry storage; pre-BUG rollover waits for its authoritative root unless bTerminal permits fallback on final destruction.
+// Successful rows are written immediately; ordinary checkpoints retry pending output without forcing physical-disk durability. (GPT-6.1-Sol) -->
+bool flushSASDiagnosticLogs(bool bReleaseStorage = false, bool bTerminal = false);
+// <!-- custom: Serialize process-lifetime health for the shared BBAI/SASGameRecord writer without extra filesystem queries; pending-text bytes are queued payload, not total RAM use, and written-byte counters are bytes accepted by Windows rather than physical file sizes. (ChatGPT-5.6-Sol) -->
+CvString getSASDiagnosticWriterHealthFields();
+// <!-- custom: Serialize the canonical active-mod display/folder/path fields shared by diagnostic log headers. (ChatGPT-5.6-Sol) -->
+CvString getSASModContextFields();
+// <!-- custom: Serialize runtime source/version provenance shared by BBAI and SASGameRecord; dirty is tri-state (-1 unavailable, 0 verified clean, 1 tracked changes). (ChatGPT-5.6-Sol) -->
+CvString getSASSourceContextFields();
+// <!-- custom: Share the same cached source/branch ancestry as structured JSON for the standalone runtime view; detailed per-file dirty patches remain in SGR/build provenance rather than bloating every current-status rewrite.
+// Call only after the runtime enable gate: formatting and first-use diagnostic source capture belong to enabled output, with explicit detail availability. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+CvString getSASSourceRuntimeIdentityJson(bool bIndented = false);
+// <!-- custom: Compact player-facing source identity formatter shared by replay settings and future C++ UI surfaces; accepts either live ModName data or persisted save-history fields. (ChatGPT-5.6-Sol) -->
+CvWString getSASCompactSourceVersion(char const* szVersion, char const* szCommitHash, int iDirtyState);
+// <!-- custom: Combine the configured mod display name with the current cached runtime source identity for replay/UI surfaces. (ChatGPT-5.6-Sol) -->
+CvWString getSASRuntimeDisplayNameAndVersion();
+// <!-- custom: Serialize the low-cost loaded-DLL runtime identity used by failure-path diagnostics: build target, exact loaded binary fingerprint/times/version fields, and whether FAssert is compiled in; unlike the full context this does not inspect current build-tree intermediates. (ChatGPT-5.6-Sol) -->
+CvString getSASDllRuntimeContextFields();
+// <!-- custom: Serialize exact loaded-DLL build/binary provenance shared by diagnostic log headers, including numeric file/product resource versions when present plus embedded pre-build facts and independent current build-tree observations; copying only the DLL preserves its build evidence. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+CvString getSASDllContextFields();
+// <!-- custom: Share the cached loaded-module fingerprint/build identity with the standalone runtime JSON without requiring historical logging or exposing local paths. (GPT-6.1-Sol) -->
+// <!-- custom: Indented output nests beneath the status document's two-space field indentation; compact output keeps each JSONL transition on one physical line. (GPT-6.1-Sol) -->
+CvString getSASDllRuntimeIdentityJson(bool bIndented = false);
+// <!-- custom: Serialize exact Civ4 executable binary provenance independently from source/mod identity, through the same fingerprint/time/resource-version schema as the DLL. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+// <!-- custom: Executable identity includes the loaded PE Large Address Aware flag; this is address-space eligibility, not an integer-range or usable-memory guarantee. (GPT-6.1-Sol) -->
+CvString getSASExeContextFields();
+// <!-- custom: Serialize the Direct3D 9 module that Civ4 actually loaded after graphics initialization.
+// Binary identity/location can distinguish stock system D3D9 from EXE-directory wrappers such as GraphicsUpgrade/ReShade/DXVK without guessing from installed files; exact paths require the caller's explicit permission. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Replace the detail-level parameter with explicit path permission; the recorder owns the combined level/opt-in gate. (GPT-6.1-Sol) -->
+CvString getSASD3D9ContextFields(bool bIncludeExactPath);
+// <!-- custom: Serialize privacy-tiered installation provenance: low-detail distribution hints at level 2 and exact EXE/mod paths only at explicitly selected level 3. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Add independent exact-path permission so coarse distribution context remains available without absolute paths. (GPT-6.1-Sol) -->
+CvString getSASInstallContextFields(int iSystemContextLevel, bool bIncludeExactPaths);
+// <!-- custom: Quote/escape narrow diagnostic free text; NULL becomes the unquoted missing token "-". (ChatGPT-5.6-Sol) -->
+CvString getSASDiagnosticQuoted(char const* szValue);
+// <!-- custom: Wide-string counterpart of getSASDiagnosticQuoted with identical escaping and missing-value semantics. (ChatGPT-5.6-Sol) -->
+CvWString getSASDiagnosticQuoted(wchar const* szValue);
+// <!-- custom: Serialize an empty diagnostic list/value as "-" while preserving nonempty text unchanged. (ChatGPT-5.6-Sol) -->
+CvString getSASDiagnosticOrDash(CvString const& szValue);
+// <!-- custom: Borrow existing C strings for diagnostic fields, including optional XML audio scripts, without constructing a CvString just to handle an empty value. (GPT-6.1-Sol) -->
+inline char const* getSASDiagnosticOrDash(char const* szValue) { return szValue == NULL || szValue[0] == '\0' ? "-" : szValue; }
+// <!-- custom: XML type of an info enum for diagnostic rows, or "-" for its NO_ value, e.g. unitAI=UNITAI_SETTLE instead of unitAI=1; the same "-" convention as getSASDiagnosticQuoted.
+// BBAI rows logged such enums as numbers or as getUnitAIString labels like "no unitAI"; the XML type is stable across languages and mods. Templated so this header needs no info definitions.
+// CommerceTypes and YieldTypes also have loaded XML names. SGR building-effect lists once failed to compile when they called a missing yield-specific getter, so use this shared lookup for both.
+// Use getSASMissionTypeName for a raw MissionTypes ID from dispatch because this template does not check positive IDs against the table size.
+// MissionAITypes has no XML info table. Use getMissionAIString for its names. (Claude code Opus 5.5 + GPT-5.6-Sol + GPT-6.1-Sol) -->
+template<typename E> char const* getSASInfoTypeOrNone(E eType)
+{
+	return (eType < 0 ? "-" : GC.getInfo(eType).getType());
+}
+// <!-- custom: XML type of a raw int ID from a command or popup payload, or "-" when it is outside the table; the World Changes history and SGR each wrote this out per type with a hand-written `iData >= 0 && iData < GC.getNumUnitInfos()` test.
+// AdvCiv's checkEnumBounds takes the table size from the enum type, so a check cannot pair one table's count with another table's cast. (Claude code Opus 5.5) -->
+template<typename E> char const* getSASInfoTypeInBounds(int iData)
+{
+	E const eType = static_cast<E>(iData);
+	return (checkEnumBounds(eType) ? GC.getInfo(eType).getType() : "-");
+}
+// <!-- custom: A completed trade query can explicitly return NO_DENIAL, meaning the AI would trade, so this keeps that token rather than "-"; optional cancellation reasons use getSASInfoTypeOrNone for an absent denial.
+// Not getSASInfoTypeOrNone here: its "-" means no value, so a row would read "would trade" as unknown.
+// Callers that already skip NO_DENIAL print the same either way, but use this too so every denial reason goes through one formatter.
+// Moved from SGR's getSASGameRecordDenialType, since denial reasons are game vocabulary that BBAI trade rows can share; defined in the .cpp because a non-template needs the info definitions. (GPT-6.1-Sol + Claude Code Opus 5.5) -->
+char const* getSASDenialType(DenialTypes eDenial);
+// <!-- custom: Serialize one integer for shared diagnostic fields without recorder-specific wrappers. (ChatGPT-5.6-Sol) -->
+CvString getSASDiagnosticIntText(int iValue);
+// <!-- custom: Append one already-decoded diagnostic token with a caller-selected separator.
+// Keep semantic translators near the subsystem that owns their enum/bit layout; only this generic list plumbing belongs in shared GameCoreUtils. (ChatGPT-5.6-Sol) -->
+void appendSASDiagnosticListValue(CvString& szList, char const* szValue, char const* szSeparator = ",");
+// <!-- custom: Append one integer to a comma-separated diagnostic list through the shared token-list helper. (ChatGPT-5.6-Sol) -->
+void appendSASDiagnosticIntListValue(CvString& szList, int iValue);
+// <!-- custom: Construct the common timestamp/context/active-player diagnostic filename while each log retains its own rollover/session state. (ChatGPT-5.6-Sol) -->
+CvString getSASDiagnosticLogName(char const* szBaseName, CvString const& szTimestamp, CvString const& szContext, bool bTimestamped);
+// <!-- custom: Serialize authoritative finalized membership, identity, relations and trading capabilities for one initial team. (ChatGPT-5.6-Sol) -->
+CvString getSASInitialTeamStateFields(TeamTypes eTeam);
+// <!-- custom: Serialize exact finalized initial tech ownership/levels, handling ordinary and repeat technologies through their distinct Civ4 storage. (ChatGPT-5.6-Sol) -->
+CvString getSASInitialTeamTechFields(TeamTypes eTeam);
+// <!-- custom: Return the same exact technology payload without a team identifier so diagnostic callers can group teams with identical finalized technology sets. (GPT-5.6-Sol) -->
+CvString getSASInitialTeamTechLevelFields(TeamTypes eTeam);
+// <!-- custom: Serialize a team ID as TEAM_n, or "-" for NO_TEAM, for shared diagnostic payloads. (ChatGPT-5.6-Sol) -->
+CvString getSASTeamDiagnosticText(TeamTypes eTeam);
+// <!-- custom: Serialize the data payload of one diplomacy trade item using stable type/team/city identifiers where available. (ChatGPT-5.6-Sol) -->
+CvString getSASTradeDataText(TradeData const& kItem, PlayerTypes eFromPlayer);
+// <!-- custom: Serialize a complete diplomacy trade list as comma-separated TYPE:data entries, or "-" when empty. (ChatGPT-5.6-Sol) -->
+CvString getSASTradeListText(CLinkList<TradeData> const& kList, PlayerTypes eFromPlayer);
+// <!-- custom: Serialize one surviving finalized initial deal, including players/teams, age/cancel timing and both exact trade lists. (ChatGPT-5.6-Sol) -->
+CvString getSASInitialDealStateFields(CvDeal const& kDeal);
+// <!-- custom: Recognize only the simple reciprocal peace-deal shape that is safe to collapse in ordinary non-scenario Advanced Start. (ChatGPT-5.6-Sol) -->
+bool isSASCollapsibleAdvancedStartPeaceDeal(CvDeal const& kDeal);
+// <!-- custom: Summarize finalized starting deals, including collapsed Advanced Start peace counts/cancel windows and exact detail-row count. (ChatGPT-5.6-Sol) -->
+CvString getSASInitialDealSummaryFields(bool bDealDetailEnabled, int iLoggedDealRows);
+
 float colorDifference(NiColorA const& c1, NiColorA const& c2); // advc.002i
+HandicapTypes handicapFromDifficulty(int iDifficulty); // <!-- custom: map iDifficulty scores back to XML handicap entries after adding non-BtS handicap levels. (ChatGPT-5.5) -->
 
 // <advc> Replacing (unused) tables in CvGlobals for single-step rotation
-inline DirectionTypes rotateDirClockw(DirectionTypes eDir,
-	int i45DegRotations = 1) // Mustn't be less than -NUM_DIRECTION_TYPES
+inline DirectionTypes rotateDirClockw(DirectionTypes eDir, int i45DegRotations = 1) // Mustn't be less than -NUM_DIRECTION_TYPES
 {
 	/*	Could also try
 		return static_cast<DirectionTypes>((eDir + i45DegRotations) & (NUM_DIRECTION_TYPES - 1));
@@ -85,15 +360,8 @@ inline DirectionTypes rotateDirClockw(DirectionTypes eDir,
 			% NUM_DIRECTION_TYPES);
 }
 
-inline DirectionTypes rotateDirCounterClockw(DirectionTypes eDir,
-	int i45DegRotations = 1)
-{
-	return rotateDirClockw(eDir, -i45DegRotations);
-} // </advc>
-inline CardinalDirectionTypes getOppositeCardinalDirection(CardinalDirectionTypes eDir)		// Exposed to Python
-{
-	return (CardinalDirectionTypes)((eDir + 2) % NUM_CARDINALDIRECTION_TYPES);
-}
+inline DirectionTypes rotateDirCounterClockw(DirectionTypes eDir, int i45DegRotations = 1) { return rotateDirClockw(eDir, -i45DegRotations); } // </advc>
+inline CardinalDirectionTypes getOppositeCardinalDirection(CardinalDirectionTypes eDir) { return (CardinalDirectionTypes)((eDir + 2) % NUM_CARDINALDIRECTION_TYPES); } // Exposed to Python
 DirectionTypes cardinalDirectionToDirection(CardinalDirectionTypes eCard);					// Exposed to Python
 DllExport inline bool isCardinalDirection(DirectionTypes eDirection)						// Exposed to Python
 {
@@ -114,12 +382,74 @@ DllExport DirectionTypes estimateDirection(const CvPlot* pFromPlot, const CvPlot
 namespace hotkeyDescr
 {
 	CvWString keyStringFromKBCode(TCHAR const* szDescr);
-	CvWString hotKeyFromDescription(TCHAR const* szDescr,
-			bool bShift = false, bool bAlt = false, bool bCtrl = false);
+	CvWString hotKeyFromDescription(TCHAR const* szDescr, bool bShift = false, bool bAlt = false, bool bCtrl = false);
 }
 
 bool atWar(TeamTypes eTeamA, TeamTypes eTeamB);												// Exposed to Python
 //isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam); // advc: Use CvTeamAI::AI_mayAttack instead
+// <!-- custom: Share the XML thresholds, classifications and current/chosen-enemy snapshot used by SAS military-pressure policies across city, player, team and unit AI.
+// AI_getEnemyPowerPercent(true) is an aggregate comparison against known current/chosen enemies and returns 0 when none applies; a raw weak result therefore includes that sentinel, while relative-superiority callers must use the nonzero or at-war forms.
+// Keep player-level focus-war state and city/area danger separate because they are different strategic/tactical signals and have different scopes. (ChatGPT-5 + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+struct SASWarPowerContext
+{
+	explicit SASWarPowerContext(CvTeamAI const& kTeam);
+	static int enemyStrongThreshold();
+	static int enemyWeakThreshold();
+	static bool isEnemyStrong(int iEnemyPowerPercent);
+	static bool isEnemyWeak(int iEnemyPowerPercent);
+
+	int iEnemyPowerPercent;
+	bool bAtWar;
+	bool bEnemyStrong;
+	bool bEnemyWeakRaw;
+	bool bEnemyWeakNonZero;
+	bool bAtWarAndEnemyWeak;
+};
+char const* getSASDiploEventType(DiploEventTypes eDiploEvent); // <!-- custom: Shared raw enum-token text for DiploEventTypes because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
+char const* getSASContactType(ContactTypes eContact); // <!-- custom: Shared raw enum-token text for ContactTypes so diplomacy diagnostics can describe proactive contact classes without opaque enum integers. (ChatGPT-5.6-Sol) -->
+char const* getSASTradeItemType(TradeableItems eItem); // <!-- custom: Shared raw enum-token text for TradeableItems because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
+char const* getSASPlotType(PlotTypes ePlotType); // <!-- custom: Shared raw enum-token text for PlotTypes because static enum values have no CvInfo type strings; first used by SGR land-cover rows. (Claude code Opus 5.5) -->
+char const* getSASWarPlanType(WarPlanTypes eWarPlan); // <!-- custom: Shared raw enum-token text for WarPlanTypes because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
+char const* getSASGameType(GameType eType); // <!-- custom: Shared raw enum-token text for game/session diagnostics because GameType has no CvInfo type strings. (GPT-5.6-Sol) -->
+char const* getSASGameMode(GameMode eMode); // <!-- custom: Shared raw enum-token text for game/session diagnostics because GameMode has no CvInfo type strings. (GPT-5.6-Sol) -->
+char const* getSASCalendarType(CalendarTypes eCalendar); // <!-- custom: Shared raw enum-token text for calendar context because CalendarTypes has no CvInfo type strings. (GPT-5.6-Sol) -->
+char const* getSASWarDeclarationCause(WarDeclarationCause eCause); // <!-- custom: Shared stable labels for war-declaration origins so SASGameRecord and any later BBAI diagnostics do not duplicate the switch. (GPT-5.6-Sol) -->
+char const* getSASTechAcquisitionCause(TechAcquisitionCause eCause); // <!-- custom: Shared stable labels for technology-acquisition origins so callers pass semantic context instead of GameRecord guessing from ambiguous flags. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+char const* getSASResearchTargetChangeCause(ResearchTargetChangeCause eCause); // <!-- custom: Shared stable labels for factual research-target redirection causes so SASGameRecord and later diagnostics can reuse one vocabulary. (ChatGPT-5.6-Sol) -->
+char const* getSASAutoPlayEndCause(SASAutoPlayEndCause eCause); // <!-- custom: Shared stable labels for explicit AI Auto Play completion causes so later diagnostics can reuse the enum without depending on SASGameRecord. See KI#203. (GPT-5.6-Sol) -->
+char const* getSASMemoryType(MemoryTypes eMemory); // <!-- custom: Shared raw enum-token text for diplomatic memories because static enum values have no CvInfo type strings. (GPT-5.6-Sol) -->
+// <!-- custom: One shared iterable AIStrategy value/name vocabulary replaces both preprocessor/range-based iteration and duplicated diagnostic naming; friendly UI prose remains separate. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+struct SASAIStrategyDescriptor
+{
+	AIStrategy eStrategy;
+	char const* szType;
+};
+int getSASAIStrategyDescriptorCount();
+SASAIStrategyDescriptor const& getSASAIStrategyDescriptor(int iIndex);
+char const* getSASAIStrategyType(AIStrategy eStrategy); // <!-- custom: Shared raw enum-token text for AIStrategy because the static bitfield enum has no CvInfo type strings; the getter still queries the shared descriptor table, now generated with compile-time token stringification from the enum source list. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+// <!-- custom: One shared conversion for typed Found diagnostic contexts; called only from enabled diagnostic output. See KI#505.2. (GPT-6.1-Sol) -->
+char const* getSASFoundLogContextType(SASFoundLogContextTypes eContext);
+// <!-- custom: Share one bounds-checked mission label between SASGameRecord dispatch/state rows and BBAI. (GPT-6.1-Sol) -->
+char const* getSASMissionTypeName(MissionTypes eMission);
+// <!-- custom: Advanced Start target of one action for both the saved World Changes history and SGR rows, which kept identical copies in CvGame.cpp and SASGameRecordLog.cpp. (Claude code Opus 5.5) -->
+char const* getSASAdvancedStartTarget(AdvancedStartActionTypes eAction, int iData, char const*& szTargetKind);
+char const* getSASAreaAIType(AreaAITypes eAreaAI); // <!-- custom: Shared raw enum-token text for AreaAITypes so SASGameRecord and detailed AI diagnostics can describe theater posture without opaque enum integers. (ChatGPT-5.6-Sol) -->
+int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4); // <!-- custom: Shared victory-stage bitfield helper for compact AI victory diagnostics without repeating AI_atVictoryStage checks. (GPT-5.5) -->
+int getSASCultureVictoryStageLevel(AIVictoryStage eVictoryStageHash); // <!-- custom: Named wrappers avoid repeating four enum constants at every logging/evaluation call site. (GPT-5.5) -->
+int getSASSpaceVictoryStageLevel(AIVictoryStage eVictoryStageHash);
+int getSASConquestVictoryStageLevel(AIVictoryStage eVictoryStageHash);
+int getSASDominationVictoryStageLevel(AIVictoryStage eVictoryStageHash);
+int getSASDiplomacyVictoryStageLevel(AIVictoryStage eVictoryStageHash);
+int getSASTeamMaxVictoryStage(TeamTypes eTeam); // <!-- custom: Shared team-level wrapper for victory-denial logs and rules that need the highest current victory stage among team members. (GPT-5.5) -->
+int getSASTeamSpaceVictoryStage(TeamTypes eTeam); // <!-- custom: Shared team-level Space victory-stage helper for victory-denial rules that need Space-specific progress instead of the highest route-agnostic stage. (GPT-5.5) -->
+int getSASTeamSpaceshipPartsBuilt(TeamTypes eTeam); // <!-- custom: Shared spaceship-parts count for Space victory-denial rules and logs; using one helper keeps UWAI and peace-refusal thresholds consistent. (GPT-5.5) -->
+int getSASSpaceshipPartsRequired();
+int getSASTeamSpaceshipPartsPercent(TeamTypes eTeam);
+int getSASVictoryDelayTurnsFromNormalGameSpeed(int iNormalTurns); // <!-- custom: Scale Normal-speed victory-countdown turn gates with the same VictoryDelayPercent used by CvGame::victoryDelay. (GPT-5.6 Thinking) -->
+int getSASTeamStage3SpaceLeaderPartGap(TeamTypes eTeam);
+bool isSASTeamStage3SpaceVictoryThreat(TeamTypes eTeam); // <!-- custom: Stage-3 plus high spaceship completion near the Space-progress leader is a pre-countdown Space threat; save-file 450 Arabia reached the final countdown too late, and save-file 452 showed a raw 10-parts threshold could still fire too late. (GPT-5.5) -->
+bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown = NULL, int* piMaxVictoryStage = NULL); // <!-- custom: Shared by UWAI peace decisions and CvDeal's final guard so blocked victory-denial treaties are rejected before negotiation instead of returning false success. (GPT-5.6-Sol) -->
+bool isSASVictoryDenialPeaceBundleBlocked(TeamTypes eFirstTeam, TeamTypes eSecondTeam, CLinkList<TradeData> const& kFirstList, CLinkList<TradeData> const& kSecondList); // <!-- custom: A non-surrender peace treaty between teams at war that the victory-denial rule keeps from taking effect; lets the AI refuse it on the diplomacy screen as CvDeal would. See KI#1094. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 
 int estimateCollateralWeight(const CvPlot* pPlot, TeamTypes eAttackTeam, TeamTypes eDefenseTeam = NO_TEAM); // K-Mod
 
@@ -130,17 +460,13 @@ DllExport void setTradeItem(TradeData* pItem, TradeableItems eItemType = TRADE_I
 /*	advc: Unused. Thought about moving these to CvGameTextMgr,
 	but that'll lead to more header inclusions. */
 //void setListHelp(wchar* szBuffer, const wchar* szStart, const wchar* szItem, const wchar* szSeparator, bool bFirst);
-void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
-		wchar const* szSeparator, bool& bFirst); // advc: bool&
-void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem,
-		wchar const* szSeparator, bool& bFirst); // advc: bool&
+void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, bool& bFirst); // advc: bool&
+void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, bool& bFirst); // advc: bool&
 /*	<advc> Add variants for items that can go into one list only when a value
 	matches the most recently added item. (This stuff should really be wrapped
 	into a class.) */
-void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
-		wchar const* szSeparator, int& iLastListID, int iListID);
-void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem,
-		wchar const* szSeparator, int& iLastListID, int iListID); // </advc>
+void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, int& iLastListID, int iListID);
+void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, int& iLastListID, int iListID); // </advc>
 
 // PlotUnitFunc's...  (advc: Parameters iData1, iData2 renamed)
 bool PUF_isGroupHead(CvUnit const* pUnit, int iDummy1 = -1, int iDummy2 = -1);
@@ -224,6 +550,12 @@ namespace fmath
 
 int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed);
 int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed);
+
+// <!-- custom: City safety and retreat outcomes describe AI state shared by diagnostic sinks; keep their names outside recorder-specific formatting.
+// The BBAI mapper preserves existing text tokens while the structured mapper uses the same catalog's canonical label. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASCitySafetyTypeName(CitySafetyTypes eSafety);
+char const* getSASRetreatResultName(SASRetreatResult eResult);
+char const* getSASRetreatResultBBAIName(SASRetreatResult eResult);
 
 void getDirectionTypeString(CvWString& szString, DirectionTypes eDirectionType);
 void getCardinalDirectionTypeString(CvWString& szString, CardinalDirectionTypes eDirectionType);

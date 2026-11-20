@@ -1,0 +1,433 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 548
+# Author: jdog5000
+# Date: 2010-04-19T07:38:26.285409Z
+# Coverage: full
+# Message:
+#   Devel version 0.90r
+#   
+#   Reworked stack loading onto transports
+#   Improved escorts for assault transports
+#   Changed attack transport unloading to fit with walk/boat code
+#   New defensive pact options
+# Changed paths (10):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGlobals.cpp
+#   M /trunk/CvGameCoreDLL/CvGlobals.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.h
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@547
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@548
+@@ -4510,7 +4510,7 @@
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.90p");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.90r");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvGlobals.cpp
+--- /trunk/CvGameCoreDLL/CvGlobals.cpp@547
++++ /trunk/CvGameCoreDLL/CvGlobals.cpp@548
+@@ -222,7 +222,7 @@
+ // BBAI Options
+ ,m_bBBAI_AIR_COMBAT(false)
+ ,m_bBBAI_HUMAN_VASSAL_WAR_BUILD(false)
+-,m_bBBAI_ALLIANCE_OPTION(false)
++,m_iBBAI_DEFENSIVE_PACT_BEHAVIOR(0)
+ ,m_bBBAI_HUMAN_AS_VASSAL_OPTION(false)
+ 
+ // BBAI AI Variables
+@@ -2707,7 +2707,7 @@
+ // BBAI Options
+ 	m_bBBAI_AIR_COMBAT = !(getDefineINT("BBAI_AIR_COMBAT") == 0);
+ 	m_bBBAI_HUMAN_VASSAL_WAR_BUILD = !(getDefineINT("BBAI_HUMAN_VASSAL_WAR_BUILD") == 0);
+-	m_bBBAI_ALLIANCE_OPTION = !(getDefineINT("BBAI_ALLIANCE_OPTION") == 0);
++	m_iBBAI_DEFENSIVE_PACT_BEHAVIOR = getDefineINT("BBAI_DEFENSIVE_PACT_BEHAVIOR");
+ 	m_bBBAI_HUMAN_AS_VASSAL_OPTION = !(getDefineINT("BBAI_HUMAN_AS_VASSAL_OPTION") == 0);
+ 
+ // BBAI AI Variables
+@@ -3703,9 +3703,9 @@
+ 	return m_bBBAI_HUMAN_VASSAL_WAR_BUILD;
+ }
+ 
+-bool CvGlobals::getBBAI_ALLIANCE_OPTION()
+-{
+-	return m_bBBAI_ALLIANCE_OPTION;
++int CvGlobals::getBBAI_DEFENSIVE_PACT_BEHAVIOR()
++{
++	return m_iBBAI_DEFENSIVE_PACT_BEHAVIOR;
+ }
+ 
+ bool CvGlobals::getBBAI_HUMAN_AS_VASSAL_OPTION()
+
+Index: /trunk/CvGameCoreDLL/CvGlobals.h
+--- /trunk/CvGameCoreDLL/CvGlobals.h@547
++++ /trunk/CvGameCoreDLL/CvGlobals.h@548
+@@ -1202,13 +1202,13 @@
+ public:
+ 	bool getBBAI_AIR_COMBAT();
+ 	bool getBBAI_HUMAN_VASSAL_WAR_BUILD();
+-	bool getBBAI_ALLIANCE_OPTION();
++	int  getBBAI_DEFENSIVE_PACT_BEHAVIOR();
+ 	bool getBBAI_HUMAN_AS_VASSAL_OPTION();
+ 
+ protected:
+ 	bool m_bBBAI_AIR_COMBAT;
+ 	bool m_bBBAI_HUMAN_VASSAL_WAR_BUILD;
+-	bool m_bBBAI_ALLIANCE_OPTION;
++	int  m_iBBAI_DEFENSIVE_PACT_BEHAVIOR;
+ 	bool m_bBBAI_HUMAN_AS_VASSAL_OPTION;
+ 
+ // BBAI AI Variables
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@547
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@548
+@@ -3822,7 +3822,12 @@
+ 	return bContinue;
+ }
+ 
+-void CvSelectionGroup::setTransportUnit(CvUnit* pTransportUnit)
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      04/18/10                                jdog5000      */
++/*                                                                                              */
++/* General AI                                                                                   */
++/************************************************************************************************/
++void CvSelectionGroup::setTransportUnit(CvUnit* pTransportUnit, CvSelectionGroup** pOtherGroup)
+ {
+ 	// if we are loading
+ 	if (pTransportUnit != NULL)
+@@ -3841,13 +3846,12 @@
+ 		// if there is space, but not enough to fit whole group, then split us, and set on the new group
+ 		if (iCargoSpaceAvailable < getNumUnits())
+ 		{
+-			// BBAI TODO: Need to do something to get large groups to load into large waiting convoys of transports
+-			// BBAI TODO: Also, don't want large group to shatter when loading a bunch of units if head AI changes
+-			CvSelectionGroup* pSplitGroup = splitGroup(iCargoSpaceAvailable);
++			CvSelectionGroup* pSplitGroup = splitGroup(iCargoSpaceAvailable, NULL, pOtherGroup);
+ 			if (pSplitGroup != NULL)
+ 			{
+ 				pSplitGroup->setTransportUnit(pTransportUnit);
+ 			}
++
+ 			return;
+ 		}
+ 		
+@@ -3902,12 +3906,9 @@
+ 	}
+ }
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/08/09                                jdog5000      */
+-/*                                                                                              */
+-/* General AI                                                                                   */
+-/************************************************************************************************/
+-// Function for loading stranded units onto an offshore transport
++
++/// \brief Function for loading stranded units onto an offshore transport
++///
+ void CvSelectionGroup::setRemoteTransportUnit(CvUnit* pTransportUnit)
+ {
+ 	// if we are loading
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.h@547
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.h@548
+@@ -115,12 +115,12 @@
+ 	bool groupPathTo(int iX, int iY, int iFlags);
+ 	bool groupRoadTo(int iX, int iY, int iFlags);
+ 	bool groupBuild(BuildTypes eBuild);
+-	void setTransportUnit(CvUnit* pTransportUnit);
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      12/01/08                                jdog5000      */
+-/*                                                                                              */
+-/* General AI                                                                                   */
+-/************************************************************************************************/
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      04/18/10                                jdog5000      */
++/*                                                                                              */
++/* General AI                                                                                   */
++/************************************************************************************************/
++	void setTransportUnit(CvUnit* pTransportUnit, CvSelectionGroup** pOtherGroup = NULL);
+ 	void setRemoteTransportUnit(CvUnit* pTransportUnit);
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@547
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@548
+@@ -1632,7 +1632,7 @@
+ 		CvEventReporter::getInstance().changeWar(true, getID(), eTeam);
+ 
+ 
+-		if( !GC.getBBAI_ALLIANCE_OPTION() )
++		if( GC.getBBAI_DEFENSIVE_PACT_BEHAVIOR() > 0 )
+ 		{
+ 			cancelDefensivePacts();
+ 		}
+@@ -1645,7 +1645,7 @@
+ 				{
+ 					GET_TEAM((TeamTypes)iI).declareWar(getID(), bNewDiplo, WARPLAN_DOGPILE);
+ 				}
+-				else if( GET_TEAM((TeamTypes)iI).isDefensivePact(getID()))
++				else if( (GC.getBBAI_DEFENSIVE_PACT_BEHAVIOR() > 1) && GET_TEAM((TeamTypes)iI).isDefensivePact(getID()))
+ 				{
+ 					// For alliance option.  This teams pacts are canceled above if not using alliance option.
+ 					GET_TEAM((TeamTypes)iI).declareWar(eTeam, bNewDiplo, WARPLAN_DOGPILE);
+@@ -1653,7 +1653,7 @@
+ 			}
+ 		}
+ 
+-		if( !GC.getBBAI_ALLIANCE_OPTION() )
++		if( GC.getBBAI_DEFENSIVE_PACT_BEHAVIOR() > 0 )
+ 		{
+ 			GET_TEAM(eTeam).cancelDefensivePacts();
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@547
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@548
+@@ -2674,19 +2674,19 @@
+ 	int iNumMembers = getNumMembers();
+ 	int iNumVassals = getVassalCount();
+ 	
+-	iMaxWarRand *= iNumMembers;
+-	iMaxWarRand /= (iNumMembers + iNumVassals);
++	iMaxWarRand *= (2 + iNumMembers);
++	iMaxWarRand /= (2 + iNumMembers + iNumVassals);
+ 	
+ 	if (bFinalWar)
+ 	{
+ 	    iMaxWarRand /= 4;
+ 	}
+ 
+-	iLimitedWarRand *= iNumMembers;
+-	iLimitedWarRand /= (iNumMembers + iNumVassals);
++	iLimitedWarRand *= (2 + iNumMembers);
++	iLimitedWarRand /= (2 + iNumMembers + iNumVassals);
+ 	
+-	iDogpileWarRand *= iNumMembers;
+-	iDogpileWarRand /= (iNumMembers + iNumVassals);
++	iDogpileWarRand *= (2 + iNumMembers);
++	iDogpileWarRand /= (2 + iNumMembers + iNumVassals);
+ }
+ 
+ 
+@@ -2740,16 +2740,15 @@
+ 	iTotalWarThreshold = iHighUnitSpendingPercent * (bAggressive ? 3 : 2);
+ 	if( bDom3 )
+ 	{
++		iTotalWarThreshold *= 3;
++
++		iDogpileWarThreshold += 5;
++	}
++	else if( bConq2 )
++	{
+ 		iTotalWarThreshold *= 2;
+ 
+ 		iDogpileWarThreshold += 2;
+-	}
+-	else if( bConq2 )
+-	{
+-		iTotalWarThreshold *= 3;
+-		iTotalWarThreshold /= 2;
+-
+-		iDogpileWarThreshold += 1;
+ 	}
+ 	iTotalWarThreshold /= 3;
+ 	iTotalWarThreshold += bAggressive ? 1 : 0;
+
+Index: /trunk/CvGameCoreDLL/CvUnit.h
+--- /trunk/CvGameCoreDLL/CvUnit.h@547
++++ /trunk/CvGameCoreDLL/CvUnit.h@548
+@@ -769,6 +769,16 @@
+ 	virtual UnitAITypes AI_getUnitAIType() const = 0;																				// Exposed to Python
+ 	virtual void AI_setUnitAIType(UnitAITypes eNewValue) = 0;
+     virtual int AI_sacrificeValue(const CvPlot* pPlot) const = 0;
++
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      04/05/10                                jdog5000      */
++/*                                                                                              */
++/* Unit AI                                                                                      */
++/************************************************************************************************/
++	virtual bool AI_load(UnitAITypes eUnitAI, MissionAITypes eMissionAI, UnitAITypes eTransportedUnitAI = NO_UNITAI, int iMinCargo = -1, int iMinCargoSpace = -1, int iMaxCargoSpace = -1, int iMaxCargoOurUnitAI = -1, int iFlags = 0, int iMaxPath = MAX_INT, int iMaxTransportPath = MAX_INT) = 0;
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ protected:
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@547
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@548
+@@ -2927,7 +2927,7 @@
+ 		{
+ 			// BBAI TODO: Before heading out, check whether to wait to allow unit upgrades
+ 
+-			if (AI_goToTargetCity(MOVE_AVOID_ENEMY_WEIGHT_2, 4, pTargetCity))
++			if (AI_goToTargetCity(MOVE_AVOID_ENEMY_WEIGHT_2, 5, pTargetCity))
+ 			{
+ 				return;
+ 			}
+@@ -6206,13 +6206,18 @@
+ 	}
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/12/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      04/18/10                                jdog5000      */
+ /*                                                                                              */
+ /* Naval AI                                                                                     */
+ /************************************************************************************************/
+ 	// If nothing else useful to do, escort nearby large flotillas even if they're faster
+ 	// Gives Caravel escorts something to do during the Galleon/pre-Frigate era
+ 	if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ 4, /*iMinUnitAI*/ 3, /*bIgnoreFaster*/ false, false, false, 4, false, true))
++	{
++		return;
++	}
++
++	if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ 2, /*iMinUnitAI*/ -1, /*bIgnoreFaster*/ false, false, false, 1, false, true))
+ 	{
+ 		return;
+ 	}
+@@ -6420,7 +6425,7 @@
+ }
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/07/10                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      04/18/10                                jdog5000      */
+ /*                                                                                              */
+ /* Naval AI                                                                                     */
+ /************************************************************************************************/
+@@ -6607,6 +6612,18 @@
+ 
+ 		if( (iCargo > 0) && (iEscorts == 0) )
+ 		{
++			if (AI_group(UNITAI_ASSAULT_SEA,-1,-1,-1,/*bIgnoreFaster*/true,false,false,/*iMaxPath*/1,false,/*bCargoOnly*/true,false,MISSIONAI_ASSAULT))
++			{
++				return;
++			}
++
++			if( plot()->plotCount(PUF_isUnitAIType, UNITAI_ESCORT_SEA, -1, getOwnerINLINE(), NO_TEAM, PUF_isGroupHead, -1, -1) > 0 )
++			{
++				// Loaded but with no escort, wait for escorts in plot to join us
++				getGroup()->pushMission(MISSION_SKIP);
++				return;
++			}
++
+ 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+ 			if( (GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(this, &eMissionAIType, 1, getGroup(), 3) > 0) || (GET_PLAYER(getOwnerINLINE()).AI_getWaterDanger(plot(), 4, false) > 0) )
+ 			{
+@@ -6618,12 +6635,15 @@
+ 
+ 		if (bLandWar)
+ 		{
+-			if ( (iCargo > 0) && (eAreaAIType == AREAAI_DEFENSIVE || ((!bFull || iCargo < iTargetReinforcementSize) && getGroup()->isHasPathToAreaEnemyCity())) )
+-			{
+-				// Unload cargo when on defense or if small load of troops and can reach enemy city over land (generally less risky)
+-				getGroup()->unloadAll();
+-				getGroup()->pushMission(MISSION_SKIP);
+-				return;
++			if ( iCargo > 0 )
++			{
++				if( (eAreaAIType == AREAAI_DEFENSIVE) || (pCity != NULL && pCity->AI_isDanger()))
++				{
++					// Unload cargo when on defense or if small load of troops and can reach enemy city over land (generally less risky)
++					getGroup()->unloadAll();
++					getGroup()->pushMission(MISSION_SKIP);
++					return;
++				}
+ 			}
+ 
+ 			if ((iCargo >= iTargetReinforcementSize))
+@@ -9986,7 +10006,7 @@
+ }
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      04/01/10                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      04/18/10                                jdog5000      */
+ /*                                                                                              */
+ /* War tactics AI, Unit AI                                                                      */
+ /************************************************************************************************/
+@@ -10067,7 +10087,7 @@
+ 														{
+ 															if (generatePath(pLoopUnit->plot(), iFlags, true, &iPathTurns))
+ 															{
+-																if (iPathTurns <= iMaxPath)
++																if (iPathTurns <= iMaxPath || (iMaxPath == 0 && plot() == pLoopUnit->plot()))
+ 																{
+ 																	// prefer a transport that can hold as much of our group as possible 
+ 																	iValue = (std::max(0, iCurrentGroupSize - iCargoSpaceAvailable) * 5) + iPathTurns;
+@@ -10161,11 +10181,30 @@
+ 	{
+ 		if (atPlot(pBestUnit->plot()))
+ 		{
+-			getGroup()->setTransportUnit(pBestUnit); // XXX is this dangerous (not pushing a mission...) XXX air units?
++			CvSelectionGroup* pOtherGroup = NULL;
++			getGroup()->setTransportUnit(pBestUnit, &pOtherGroup); // XXX is this dangerous (not pushing a mission...) XXX air units?
++
++			// If part of large group loaded, then try to keep loading the rest
++			if( eUnitAI == UNITAI_ASSAULT_SEA && eMissionAI == MISSIONAI_LOAD_ASSAULT )
++			{
++				if( pOtherGroup != NULL && pOtherGroup->getNumUnits() > 0 )
++				{
++					if( pOtherGroup->getHeadUnitAI() == AI_getUnitAIType() )
++					{
++						pOtherGroup->getHeadUnit()->AI_load( eUnitAI, eMissionAI, eTransportedUnitAI, iMinCargo, iMinCargoSpace, iMaxCargoSpace, iMaxCargoOurUnitAI, iFlags, 0, iMaxTransportPath );
++					}
++					else if( eTransportedUnitAI == NO_UNITAI && iMinCargo < 0 && iMinCargoSpace < 0 && iMaxCargoSpace < 0 && iMaxCargoOurUnitAI < 0 )
++					{
++						pOtherGroup->getHeadUnit()->AI_load( eUnitAI, eMissionAI, NO_UNITAI, -1, -1, -1, -1, iFlags, 0, iMaxTransportPath );
++					}
++				}
++			}
++
+ 			return true;
+ 		}
+ 		else
+ 		{
++			// BBAI TODO: To split or not to split?
+ 			int iCargoSpaceAvailable = pBestUnit->cargoSpaceAvailable(getSpecialUnitType(), getDomainType());
+ 			FAssertMsg(iCargoSpaceAvailable > 0, "best unit has no space");
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@547
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@548
+@@ -23,6 +23,15 @@
+ 
+ 	bool AI_update();
+ 	bool AI_follow();
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      04/05/10                                jdog5000      */
++/*                                                                                              */
++/* Unit AI                                                                                      */
++/************************************************************************************************/
++	bool AI_load(UnitAITypes eUnitAI, MissionAITypes eMissionAI, UnitAITypes eTransportedUnitAI = NO_UNITAI, int iMinCargo = -1, int iMinCargoSpace = -1, int iMaxCargoSpace = -1, int iMaxCargoOurUnitAI = -1, int iFlags = 0, int iMaxPath = MAX_INT, int iMaxTransportPath = MAX_INT);
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ 	void AI_upgrade();
+ 
+@@ -113,7 +122,7 @@
+ */
+ 	bool AI_shadow(UnitAITypes eUnitAI, int iMax = -1, int iMaxRatio = -1, bool bWithCargoOnly = true, bool bOutsideCityOnly = false, int iMaxPath = MAX_INT);
+ 	bool AI_group(UnitAITypes eUnitAI, int iMaxGroup = -1, int iMaxOwnUnitAI = -1, int iMinUnitAI = -1, bool bIgnoreFaster = false, bool bIgnoreOwnUnitType = false, bool bStackOfDoom = false, int iMaxPath = MAX_INT, bool bAllowRegrouping = false, bool bWithCargoOnly = false, bool bInCityOnly = false, MissionAITypes eIgnoreMissionAIType = NO_MISSIONAI);
+-	bool AI_load(UnitAITypes eUnitAI, MissionAITypes eMissionAI, UnitAITypes eTransportedUnitAI = NO_UNITAI, int iMinCargo = -1, int iMinCargoSpace = -1, int iMaxCargoSpace = -1, int iMaxCargoOurUnitAI = -1, int iFlags = 0, int iMaxPath = MAX_INT, int iMaxTransportPath = MAX_INT);
++	//bool AI_load(UnitAITypes eUnitAI, MissionAITypes eMissionAI, UnitAITypes eTransportedUnitAI = NO_UNITAI, int iMinCargo = -1, int iMinCargoSpace = -1, int iMaxCargoSpace = -1, int iMaxCargoOurUnitAI = -1, int iFlags = 0, int iMaxPath = MAX_INT, int iMaxTransportPath = MAX_INT);
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+

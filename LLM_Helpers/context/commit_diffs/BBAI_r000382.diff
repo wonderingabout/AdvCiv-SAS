@@ -1,0 +1,759 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 382
+# Author: jdog5000
+# Date: 2008-08-18T01:30:51.666639Z
+# Coverage: full
+# Message:
+#   Update for 0.36
+# Changed paths (7):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.ncb
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.h
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.ncb
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@381
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@382
+@@ -3523,7 +3523,7 @@
+ 	/**																				*/
+ 	/********************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.35");
++	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.36");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szTempBuffer.Format(L"%S", "==========================");
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@381
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@382
+@@ -83,15 +83,16 @@
+ 	m_ppaaiSpecialistExtraYield = NULL;
+ 	m_ppaaiImprovementYieldChange = NULL;
+ 
+-	/********************************************************************************/
+-	/**		AI_AUTO_PLAY_MOD						1/1/08				jdog5000	*/
+-	/**																				*/
+-	/**																				*/
+-	/********************************************************************************/
++/*************************************************************************************************/
++/** AI_AUTO_PLAY                            09/01/07                                MRGENIE      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
+ 	m_bDisableHuman = false;
+-	/********************************************************************************/
+-	/**		AI_AUTO_PLAY_MOD						End								*/
+-	/********************************************************************************/
++/*************************************************************************************************/
++/** AI_AUTO_PLAY                            END                                                  */
++/*************************************************************************************************/
++
+ 	reset(NO_PLAYER, true);
+ }
+ 
+@@ -486,15 +487,16 @@
+ 	m_bFoundedFirstCity = false;
+ 	m_bStrike = false;
+ 
+-	/********************************************************************************/
+-	/**		AI_AUTO_PLAY_MOD						1/1/08				jdog5000	*/
+-	/**																				*/
+-	/**																				*/
+-	/********************************************************************************/
++/*************************************************************************************************/
++/** AI_AUTO_PLAY                            09/01/07                            MRGENIE          */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
+ 	m_bDisableHuman = false;
+-	/********************************************************************************/
+-	/**		AI_AUTO_PLAY_MOD						End								*/
+-	/********************************************************************************/
++/*************************************************************************************************/
++/** AI_AUTO_PLAY                            END                                                  */
++/*************************************************************************************************/
++
+ 
+ 	m_eID = eID;
+ 	updateTeamType();
+@@ -749,6 +751,424 @@
+ 		AI_reset(false);
+ 	}
+ }
++
++/*************************************************************************************************/
++/** CHANGE_PLAYER                          08/17/08                                jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++//
++// for logging
++//
++void CvPlayer::logMsg(char* format, ... )
++{
++	static char buf[2048];
++	_vsnprintf( buf, 2048-4, format, (char*)(&format+1) );
++	gDLL->logMsg("sdkDbg.log", buf);
++}
++
++/*************************************************************************************************/
++/** CHANGE_PLAYER                           END                                                  */
++/*************************************************************************************************/
++
++/*************************************************************************************************/
++/** CHANGE_PLAYER                          08/17/08                                jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++//
++// for stripping obsolete trait bonuses
++// for complete reset, use in conjunction with addTraitBonuses
++//
++void CvPlayer::clearTraitBonuses( )
++{
++	int iI, iJ;
++
++	FAssertMsg((GC.getNumTraitInfos() > 0), "GC.getNumTraitInfos() is less than or equal to zero but is expected to be larger than zero in CvPlayer::init");
++	for (iI = 0; iI < GC.getNumTraitInfos(); iI++)
++	{
++		if (hasTrait((TraitTypes)iI))
++		{
++			changeExtraHealth(-GC.getTraitInfo((TraitTypes)iI).getHealth());
++			changeExtraHappiness(-GC.getTraitInfo((TraitTypes)iI).getHappiness());
++
++			for (iJ = 0; iJ < GC.getNumBuildingInfos(); iJ++)
++			{
++				changeExtraBuildingHappiness((BuildingTypes)iJ, -GC.getBuildingInfo((BuildingTypes)iJ).getHappinessTraits(iI));
++			}
++
++			changeUpkeepModifier(-GC.getTraitInfo((TraitTypes)iI).getUpkeepModifier());
++			changeLevelExperienceModifier(-GC.getTraitInfo((TraitTypes)iI).getLevelExperienceModifier());
++			changeGreatPeopleRateModifier(-GC.getTraitInfo((TraitTypes)iI).getGreatPeopleRateModifier());
++			changeGreatGeneralRateModifier(-GC.getTraitInfo((TraitTypes)iI).getGreatGeneralRateModifier());
++			changeDomesticGreatGeneralRateModifier(-GC.getTraitInfo((TraitTypes)iI).getDomesticGreatGeneralRateModifier());
++
++			changeMaxGlobalBuildingProductionModifier(-GC.getTraitInfo((TraitTypes)iI).getMaxGlobalBuildingProductionModifier());
++			changeMaxTeamBuildingProductionModifier(-GC.getTraitInfo((TraitTypes)iI).getMaxTeamBuildingProductionModifier());
++			changeMaxPlayerBuildingProductionModifier(-GC.getTraitInfo((TraitTypes)iI).getMaxPlayerBuildingProductionModifier());
++
++			for (iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
++			{
++				changeTradeYieldModifier(((YieldTypes)iJ), -GC.getTraitInfo((TraitTypes)iI).getTradeYieldModifier(iJ));
++			}
++
++			for (iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
++			{
++				changeFreeCityCommerce(((CommerceTypes)iJ), -GC.getTraitInfo((TraitTypes)iI).getCommerceChange(iJ));
++				changeCommerceRateModifier(((CommerceTypes)iJ), -GC.getTraitInfo((TraitTypes)iI).getCommerceModifier(iJ));
++			}
++
++			for (iJ = 0; iJ < GC.getNumCivicOptionInfos(); iJ++)
++			{
++				if (GC.getCivicOptionInfo((CivicOptionTypes) iJ).getTraitNoUpkeep(iI))
++				{
++					changeNoCivicUpkeepCount(((CivicOptionTypes)iJ), -1);
++				}
++			}
++		}
++	}
++}
++
++//
++// for adding new trait bonuses
++//
++void CvPlayer::addTraitBonuses( )
++{
++	int iI, iJ;
++
++	FAssertMsg((GC.getNumTraitInfos() > 0), "GC.getNumTraitInfos() is less than or equal to zero but is expected to be larger than zero in CvPlayer::init");
++	for (iI = 0; iI < GC.getNumTraitInfos(); iI++)
++	{
++		if (hasTrait((TraitTypes)iI))
++		{
++			changeExtraHealth(GC.getTraitInfo((TraitTypes)iI).getHealth());
++			changeExtraHappiness(GC.getTraitInfo((TraitTypes)iI).getHappiness());
++
++			for (iJ = 0; iJ < GC.getNumBuildingInfos(); iJ++)
++			{
++				changeExtraBuildingHappiness((BuildingTypes)iJ, GC.getBuildingInfo((BuildingTypes)iJ).getHappinessTraits(iI));
++			}
++
++			changeUpkeepModifier(GC.getTraitInfo((TraitTypes)iI).getUpkeepModifier());
++			changeLevelExperienceModifier(GC.getTraitInfo((TraitTypes)iI).getLevelExperienceModifier());
++			changeGreatPeopleRateModifier(GC.getTraitInfo((TraitTypes)iI).getGreatPeopleRateModifier());
++			changeGreatGeneralRateModifier(GC.getTraitInfo((TraitTypes)iI).getGreatGeneralRateModifier());
++			changeDomesticGreatGeneralRateModifier(GC.getTraitInfo((TraitTypes)iI).getDomesticGreatGeneralRateModifier());
++
++			changeMaxGlobalBuildingProductionModifier(GC.getTraitInfo((TraitTypes)iI).getMaxGlobalBuildingProductionModifier());
++			changeMaxTeamBuildingProductionModifier(GC.getTraitInfo((TraitTypes)iI).getMaxTeamBuildingProductionModifier());
++			changeMaxPlayerBuildingProductionModifier(GC.getTraitInfo((TraitTypes)iI).getMaxPlayerBuildingProductionModifier());
++
++			for (iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
++			{
++				changeTradeYieldModifier(((YieldTypes)iJ), GC.getTraitInfo((TraitTypes)iI).getTradeYieldModifier(iJ));
++			}
++
++			for (iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
++			{
++				changeFreeCityCommerce(((CommerceTypes)iJ), GC.getTraitInfo((TraitTypes)iI).getCommerceChange(iJ));
++				changeCommerceRateModifier(((CommerceTypes)iJ), GC.getTraitInfo((TraitTypes)iI).getCommerceModifier(iJ));
++			}
++
++			for (iJ = 0; iJ < GC.getNumCivicOptionInfos(); iJ++)
++			{
++				if (GC.getCivicOptionInfo((CivicOptionTypes) iJ).getTraitNoUpkeep(iI))
++				{
++					changeNoCivicUpkeepCount(((CivicOptionTypes)iJ), 1);
++				}
++			}
++		}
++	}
++
++	updateMaxAnarchyTurns();
++
++	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
++	{
++		updateExtraYieldThreshold((YieldTypes)iI);
++	}
++}
++/*************************************************************************************************/
++/** CHANGE_PLAYER                           END                                                  */
++/*************************************************************************************************/
++
++/*************************************************************************************************/
++/** CHANGE_PLAYER                          08/17/08                                jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++//
++// for changing the personality of the player
++//
++void CvPlayer::changePersonalityType( )
++{
++	LeaderHeadTypes eBestPersonality;
++	int iValue;
++	int iBestValue;
++	int iI, iJ;
++
++	if (GC.getGameINLINE().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
++	{
++		if (!isBarbarian())
++		{
++			iBestValue = 0;
++			eBestPersonality = NO_LEADER;
++
++			for (iI = 0; iI < GC.getNumLeaderHeadInfos(); iI++)
++			{
++				if (iI != GC.getDefineINT("BARBARIAN_LEADER")) // XXX minor civ???
++				{
++					iValue = (1 + GC.getGameINLINE().getSorenRandNum(10000, "Choosing Personality"));
++
++					for (iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
++					{
++						if (GET_PLAYER((PlayerTypes)iJ).isAlive())
++						{
++							if (GET_PLAYER((PlayerTypes)iJ).getPersonalityType() == ((LeaderHeadTypes)iI))
++							{
++								iValue /= 2;
++							}
++						}
++					}
++
++					if (iValue > iBestValue)
++					{
++						iBestValue = iValue;
++						eBestPersonality = ((LeaderHeadTypes)iI);
++					}
++				}
++			}
++
++			if (eBestPersonality != NO_LEADER)
++			{
++				setPersonalityType(eBestPersonality);
++			}
++		}
++	}
++	else
++	{
++		setPersonalityType( getLeaderType() );
++	}
++}
++/*************************************************************************************************/
++/** CHANGE_PLAYER                           END                                                  */
++/*************************************************************************************************/
++
++/*************************************************************************************************/
++/** CHANGE_PLAYER                          08/17/08                                jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++//
++// reset state of event logic, unit prices
++//
++void CvPlayer::resetCivTypeEffects( )
++{
++	int iI;
++
++	if( !isAlive() ) 
++	{
++		for (iI = 0; iI < GC.getNumCivicOptionInfos(); iI++)
++		{
++			setCivics(((CivicOptionTypes)iI), ((CivicTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationInitialCivics(iI))));
++		}
++
++		for (iI = 0; iI < GC.getNumEventInfos(); iI++)
++		{
++			resetEventOccured((EventTypes)iI, false);
++		}
++
++		for (iI = 0; iI < GC.getNumEventTriggerInfos(); iI++)
++		{
++			resetTriggerFired((EventTriggerTypes)iI);
++		}
++	}
++
++	for (iI = 0; iI < GC.getNumUnitClassInfos(); ++iI)
++	{
++		UnitTypes eUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)));
++
++		if (NO_UNIT != eUnit)
++		{
++			if (GC.getUnitInfo(eUnit).isFound())
++			{
++				setUnitExtraCost((UnitClassTypes)iI, getNewCityProductionValue());
++			}
++		}
++	}
++}
++/*************************************************************************************************/
++/** CHANGE_PLAYER                           END                                                  */
++/*************************************************************************************************/
++
++/*************************************************************************************************/
++/** CHANGE_PLAYER                          08/17/08                                jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++//
++// for switching the leaderhead of this player
++//
++void CvPlayer::changeLeader( LeaderHeadTypes eNewLeader )
++{
++	LeaderHeadTypes eOldLeader = getLeaderType();
++
++	if( eOldLeader == eNewLeader )
++		return;
++
++	// Clear old traits
++	clearTraitBonuses();
++
++	GC.getInitCore().setLeader( getID(), eNewLeader );
++
++	// Add new traits
++	addTraitBonuses();
++
++	// Set new personality
++	changePersonalityType();
++
++	if( isAlive() || isEverAlive() )
++	{
++		gDLL->getInterfaceIFace()->setDirty(HighlightPlot_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(InfoPane_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(Flag_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(MinimapSection_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(Foreign_Screen_DIRTY_BIT, true);
++	}
++
++	AI_init();
++}
++/*************************************************************************************************/
++/** CHANGE_PLAYER                           END                                                  */
++/*************************************************************************************************/
++
++/*************************************************************************************************/
++/** CHANGE_PLAYER                          08/17/08                                jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++//
++// for changing the civilization of this player
++//
++void CvPlayer::changeCiv( CivilizationTypes eNewCiv )
++{
++	CivilizationTypes eOldCiv = getCivilizationType();
++	PlayerColorTypes eColor = (PlayerColorTypes)GC.getCivilizationInfo(eNewCiv).getDefaultPlayerColor();
++
++	if( eOldCiv == eNewCiv )
++		return;
++
++	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	{
++		if (eColor == NO_PLAYERCOLOR || (GET_PLAYER((PlayerTypes)iI).getPlayerColor() == eColor && iI != getID()) )
++		{
++			for (int iK = 0; iK < GC.getNumPlayerColorInfos(); iK++)
++			{
++				if (iK != GC.getCivilizationInfo((CivilizationTypes)GC.getDefineINT("BARBARIAN_CIVILIZATION")).getDefaultPlayerColor())
++				{
++					bool bValid = true;
++
++					for (int iL = 0; iL < MAX_CIV_PLAYERS; iL++)
++					{
++						if (GET_PLAYER((PlayerTypes)iL).getPlayerColor() == iK)
++						{
++							bValid = false;
++							break;
++						}
++					}
++
++					if (bValid)
++					{
++						eColor = (PlayerColorTypes)iK;
++						iI = MAX_CIV_PLAYERS;
++						break;
++					}
++				}
++			}
++		}
++	}
++
++	GC.getInitCore().setCiv( getID(), eNewCiv );
++	GC.getInitCore().setColor( getID(), eColor );
++
++	resetCivTypeEffects();
++
++	if( isAlive() )
++	{
++		// if the player is alive and showing on scoreboard, etc
++		// change colors, graphics, flags, units
++		GC.getInitCore().setFlagDecal( getID(), (CvWString)GC.getCivilizationInfo(eNewCiv).getFlagTexture() );
++		GC.getInitCore().setArtStyle( getID(), (ArtStyleTypes)GC.getCivilizationInfo(eNewCiv).getArtStyleType() );
++
++		EraTypes eEra = getCurrentEra();
++		bool bAuto = m_bDisableHuman;
++		m_bDisableHuman = true;
++		setCurrentEra((EraTypes)0);
++		setCurrentEra((EraTypes)(GC.getNumEraInfos()-1));
++
++		setCurrentEra(eEra);
++		m_bDisableHuman = bAuto;
++		gDLL->getInterfaceIFace()->makeInterfaceDirty();
++
++		// Need to force redraw
++		gDLL->getEngineIFace()->SetDirty(CultureBorders_DIRTY_BIT, true);
++		gDLL->getEngineIFace()->SetDirty(MinimapTexture_DIRTY_BIT, true);
++		gDLL->getEngineIFace()->SetDirty(GlobeTexture_DIRTY_BIT, true);
++		gDLL->getEngineIFace()->SetDirty(GlobePartialTexture_DIRTY_BIT, true);
++
++		gDLL->getInterfaceIFace()->setDirty(ColoredPlots_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(HighlightPlot_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(InfoPane_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(GlobeLayer_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(Flag_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(MinimapSection_DIRTY_BIT, true);
++		gDLL->getEngineIFace()->SetDirty(MinimapTexture_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(Foreign_Screen_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(SelectionSound_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(GlobeInfo_DIRTY_BIT, true);
++	}
++	else if( isEverAlive() )
++	{
++		// Not currently alive, but may show on some people's scoreboard
++		// or graphs
++		// change colors
++		gDLL->getInterfaceIFace()->setDirty(InfoPane_DIRTY_BIT, true);
++		gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
++	}
++
++	setupGraphical();
++}
++/*************************************************************************************************/
++/** CHANGE_PLAYER                           END                                                  */
++/*************************************************************************************************/
++
++/*************************************************************************************************/
++/** CHANGE_PLAYER                          08/17/08                                jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++//
++// for changing whether this player is human or not
++//
++void CvPlayer::setIsHuman( bool bNewValue )
++{
++	if( bNewValue == isHuman() )
++		return;
++
++	if( bNewValue )
++		GC.getInitCore().setSlotStatus( getID(), SS_TAKEN );
++	else
++		GC.getInitCore().setSlotStatus( getID(), SS_COMPUTER ); // or SS_OPEN for multiplayer?
++
++}
++/*************************************************************************************************/
++/** CHANGE_PLAYER                          END                                                  */
++/*************************************************************************************************/
+ 
+ 
+ //////////////////////////////////////
+@@ -13635,7 +14055,18 @@
+ 				szBuffer = gDLL->getText("TXT_KEY_ESPIONAGE_TARGET_CITY_CULTURE_INSERTED", pCity->getNameKey()).GetCString();				
+ 
+ 				int iCultureAmount = kMission.getCityInsertCultureAmountFactor() * pCity->countTotalCultureTimes100();
++				/********************************************************************************/
++				/**		BETTER_BTS_AI_MOD						8/16/08		Dresden & jdog5000	*/
++				/**																				*/
++				/**		Bugfix																	*/
++				/********************************************************************************/
++				/* original BTS code
+ 				iCultureAmount /= 10000;
++				*/
++				iCultureAmount /= 100;
++				/********************************************************************************/
++				/**		BETTER_BTS_AI_MOD						END								*/
++				/********************************************************************************/
+ 				iCultureAmount = std::max(1, iCultureAmount);
+ 
+ 				int iNumTurnsApplied = (GC.getDefineINT("GREAT_WORKS_CULTURE_TURNS") * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getUnitGreatWorkPercent()) / 100;
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.h
+--- /trunk/CvGameCoreDLL/CvPlayer.h@381
++++ /trunk/CvGameCoreDLL/CvPlayer.h@382
+@@ -35,6 +35,22 @@
+ 	DllExport void setupGraphical();
+ 	DllExport void reset(PlayerTypes eID = NO_PLAYER, bool bConstructorCall = false);
+ 
++/*************************************************************************************************/
++/** CHANGE_PLAYER                          08/17/08                                jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++	void logMsg(char* format, ... );
++	void clearTraitBonuses();
++	void addTraitBonuses();
++	void changePersonalityType();
++	void resetCivTypeEffects();
++	void changeLeader( LeaderHeadTypes eNewLeader );
++	void changeCiv( CivilizationTypes eNewCiv );
++	void setIsHuman( bool bNewValue );
++/*************************************************************************************************/
++/** CHANGE_PLAYER                           END                                                  */
++/*************************************************************************************************/
+ protected:
+ 
+ 	void uninit();
+@@ -68,16 +84,16 @@
+ 	DllExport CvSelectionGroup* cycleSelectionGroups(CvUnit* pUnit, bool bForward, bool bWorkers, bool* pbWrap);
+ 
+ 	bool hasTrait(TraitTypes eTrait) const;																																			// Exposed to Python						
+-	/********************************************************************************/
+-	/**		AI_AUTO_PLAY_MOD						7/9/08				jdog5000	*/
+-	/**																				*/
+-	/**																				*/
+-	/********************************************************************************/
++/*************************************************************************************************/
++/** AI_AUTO_PLAY                           07/09/08                                jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
+ 	void setHumanDisabled( bool newVal );
+ 	bool isHumanDisabled( );
+-	/********************************************************************************/
+-	/**		AI_AUTO_PLAY_MOD						End								*/
+-	/********************************************************************************/
++/*************************************************************************************************/
++/** AI_AUTO_PLAY                            END                                                  */
++/*************************************************************************************************/
+ 	DllExport bool isHuman() const;																																							// Exposed to Python						
+ 	DllExport void updateHuman();
+ 	DllExport bool isBarbarian() const;																																					// Exposed to Python						
+@@ -1151,15 +1167,16 @@
+ 	bool m_bFoundedFirstCity;
+ 	bool m_bStrike;
+ 	bool m_bHuman;
+-	/********************************************************************************/
+-	/**		AI_AUTO_PLAY_MOD						1/1/08				jdog5000	*/
+-	/**																				*/
+-	/**																				*/
+-	/********************************************************************************/
++
++/*************************************************************************************************/
++/** AI_AUTO_PLAY                            09/01/07                            MRGENIE          */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
+ 	bool m_bDisableHuman;				// Set to true to disable isHuman() check
+-	/********************************************************************************/
+-	/**		AI_AUTO_PLAY_MOD						End								*/
+-	/********************************************************************************/
++/*************************************************************************************************/
++/** AI_AUTO_PLAY                            END                                                  */
++/*************************************************************************************************/
+ 
+ 
+ 	PlayerTypes m_eID;
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@381
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@382
+@@ -7267,7 +7267,18 @@
+ 		return NO_DENIAL;
+ 	}
+ 
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						8/16/08				jdog5000	*/
++	/**																				*/
++	/**		Bugfix																	*/
++	/********************************************************************************/
++	/* original BTS code
+ 	if (getCivicPercentAnger(eCivic) > 0)
++	*/
++	if (getCivicPercentAnger(getCivics((CivicOptionTypes)(GC.getCivicInfo(eCivic).getCivicOptionType())),true) > getCivicPercentAnger(eCivic))
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						END								*/
++	/********************************************************************************/
+ 	{
+ 		return DENIAL_ANGER_CIVIC;
+ 	}
+@@ -10595,24 +10606,38 @@
+ 	if (isCommerceFlexible(COMMERCE_ESPIONAGE))
+ 	{
+ 		/********************************************************************************/
+-		/**		BETTER_BTS_AI_MOD						7/31/08				jdog5000	*/
++		/**		BETTER_BTS_AI_MOD						8/16/08				jdog5000	*/
+ 		/**																				*/
+-		/**		Bug Fix																	*/
++		/**		Espionage AI															*/
+ 		/********************************************************************************/
++		/* original BTS code
++		if (getCommercePercent(COMMERCE_ESPIONAGE) > 0)
++		{
++			setCommercePercent(COMMERCE_ESPIONAGE, 0);
++
++			for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
++			{
++				setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, 0);
++			}
++
++			bReset = true;
++		}
++		*/
++		
+ 		// Reset espionage spending always
+-		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
++		/*for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+ 		{
+ 			setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, 0);
+-		}
++		}*/
+ 
+ 		if (getCommercePercent(COMMERCE_ESPIONAGE) > 0)
+ 		{
+ 			setCommercePercent(COMMERCE_ESPIONAGE, 0);
+ 
+-			//for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+-			//{
+-			//	setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, 0);
+-			//}
++			for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
++			{
++				setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, 0);
++			}
+ 
+ 			bReset = true;
+ 		}
+@@ -10709,10 +10734,30 @@
+ 	if (isCommerceFlexible(COMMERCE_ESPIONAGE) && !bFirstTech)
+ 	{
+ 		/********************************************************************************/
+-		/**		BETTER_BTS_AI_MOD						7/31/08				jdog5000	*/
++		/**		BETTER_BTS_AI_MOD						8/16/08				jdog5000	*/
+ 		/**																				*/
+ 		/**		Espionage AI															*/
+ 		/********************************************************************************/
++		/* original BTS code
++		int iEspionageTargetRate = 0;
++
++		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
++		{
++			CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iTeam);
++			if (kLoopTeam.isAlive() && iTeam != getTeam() && !kLoopTeam.isVassal(getTeam()) && !GET_TEAM(getTeam()).isVassal((TeamTypes)iTeam))
++			{
++				int iTarget = (kLoopTeam.getEspionagePointsAgainstTeam(getTeam()) - GET_TEAM(getTeam()).getEspionagePointsAgainstTeam((TeamTypes)iTeam)) / 8;
++
++				iTarget -= GET_TEAM(getTeam()).AI_getAttitudeVal((TeamTypes)iTeam);
++
++				if (iTarget > 0)
++				{
++					iEspionageTargetRate += iTarget;
++					changeEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, iTarget);
++				}
++			}
++		}
++		*/
+ 		int iEspionageTargetRate = 0;
+ 
+ 		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@381
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@382
+@@ -8012,10 +8012,21 @@
+ 		iModifier += getKamikazePercent();
+ 	}
+ 
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						8/16/08		DanF5771 & jdog5000	*/
++	/**																				*/
++	/**		Bugfix																	*/
++	/********************************************************************************/
++	/* original BTS code
+ 	if (getExtraCombatPercent() != 0)
+ 	{
+ 		iModifier += getExtraCombatPercent();
+ 	}
++	*/
++	// ExtraCombatPercent already counted above
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						END								*/
++	/********************************************************************************/
+ 
+ 	if (NULL != pOther)
+ 	{
+@@ -11584,8 +11595,18 @@
+ 				iCollateralDamage = (GC.getDefineINT("COLLATERAL_COMBAT_DAMAGE") * (iCollateralStrength + iStrengthFactor)) / (iTheirStrength + iStrengthFactor);
+ 
+ 				int iModifier = getUnitInfo().getCollateralDamage() > 0 ? (100 + getExtraCollateralDamage()) : getExtraCollateralDamage();
++				/********************************************************************************/
++				/**		BETTER_BTS_AI_MOD						8/16/08		DanF5771 & jdog5000	*/
++				/**																				*/
++				/**		Bugfix																	*/
++				/********************************************************************************/
+ 				//iModifier -= pBestUnit->getCollateralDamageProtection();
+-				iModifier *= (100 - pBestUnit->getCollateralDamageProtection()) / 100;
++				iModifier *= (100 - pBestUnit->getCollateralDamageProtection());
++				iModifier /= 100;
++				/********************************************************************************/
++				/**		BETTER_BTS_AI_MOD						END								*/
++				/********************************************************************************/
++
+ 				if (pCity != NULL)
+ 				{
+ 					//iModifier += pCity->getAirModifier();
+

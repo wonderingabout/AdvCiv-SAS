@@ -1,0 +1,106 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 454
+# Author: jdog5000
+# Date: 2009-06-06T00:21:22.389840Z
+# Coverage: full
+# Message:
+#   0.76G
+#   
+#   Fix crash bug
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@453
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@454
+@@ -4270,7 +4270,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.76F");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.76G");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@453
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@454
+@@ -78,6 +78,11 @@
+ 	}
+ }
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      06/02/09                                jdog5000      */
++/**                                                                                              */
++/** General AI, Bugfix                                                                           */
++/*************************************************************************************************/
+ void CvSelectionGroupAI::AI_seperateNonAI(UnitAITypes eUnitAI)
+ {
+ 	CLLNode<IDInfo>* pEntityNode;
+@@ -114,7 +119,8 @@
+ 		if (pLoopUnit->AI_getUnitAIType() == eUnitAI)
+ 		{
+ 			pLoopUnit->joinGroup(NULL);
+-			if (plot()->getTeam() == getTeam())
++			// Was potential crash in use of plot() if group emptied
++			if (pLoopUnit->plot()->getTeam() == getTeam())
+ 			{
+ 				pLoopUnit->getGroup()->pushMission(MISSION_SKIP);
+ 			}
+@@ -122,11 +128,6 @@
+ 	}
+ }
+ 
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      06/02/09                                jdog5000      */
+-/**                                                                                              */
+-/** General AI                                                                                   */
+-/*************************************************************************************************/
+ void CvSelectionGroupAI::AI_seperateImpassable()
+ {
+ 	CLLNode<IDInfo>* pEntityNode;
+@@ -142,7 +143,7 @@
+ 		if( (kPlayer.AI_unitImpassableCount(pLoopUnit->getUnitType()) > 0) )
+ 		{
+ 			pLoopUnit->joinGroup(NULL);
+-			if (plot()->getTeam() == getTeam())
++			if (pLoopUnit->plot()->getTeam() == getTeam())
+ 			{
+ 				pLoopUnit->getGroup()->pushMission(MISSION_SKIP);
+ 			}
+@@ -164,7 +165,7 @@
+ 		if ((pLoopUnit->AI_getUnitAIType() == UNITAI_ASSAULT_SEA) && (pLoopUnit->getCargo() == 0))
+ 		{
+ 			pLoopUnit->joinGroup(NULL);
+-			if (plot()->getTeam() == getTeam())
++			if (pLoopUnit->plot()->getTeam() == getTeam())
+ 			{
+ 				pLoopUnit->getGroup()->pushMission(MISSION_SKIP);
+ 			}
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@453
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@454
+@@ -1786,7 +1786,7 @@
+ {
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      06/03/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      06/04/09                                jdog5000      */
+ /**                                                                                              */
+ /** Unit AI                                                                                      */
+ /*************************************************************************************************/
+@@ -1811,7 +1811,7 @@
+ 				// Shouldn't have groups of > 2 attack units
+ 				if( getGroup()->countNumUnitAIType(UNITAI_ATTACK) > 2 )
+ 				{
+-					getGroup()->AI_seperateAI(UNITAI_ATTACK); // will change group
++					getGroup()->AI_seperate(); // will change group
+ 
+ 					FAssert( eGroupAI == getGroup()->getHeadUnitAI() );
+ 				}
+

@@ -1,0 +1,232 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 570
+# Author: jdog5000
+# Date: 2010-05-17T06:01:25.176207Z
+# Coverage: full
+# Message:
+#   Fix city closeness bug
+#   Adjust raze calcs
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@569
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@570
+@@ -9670,6 +9670,13 @@
+ 	//unusually high transient production modifiers.
+ 	//Other yields don't have transient bonuses in quite the same way.
+ 
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       05/16/10                                jdog5000      */
++/*                                                                                              */
++/* City AI                                                                                      */
++/************************************************************************************************/
++	// Rounding can be a problem, particularly for small commerce amounts.  Added safe guards to make
++	// sure commerce is counted, even if just a tiny amount.
+ 	if (AI_isEmphasizeYield(YIELD_PRODUCTION))
+ 	{
+ 		iProductionValue *= 130;
+@@ -9681,15 +9688,17 @@
+ 			iFoodValue /= 100;
+ 		}
+ 		
+-		if (!AI_isEmphasizeYield(YIELD_COMMERCE))
++		if (!AI_isEmphasizeYield(YIELD_COMMERCE) && iCommerceValue > 0)
+ 		{
+ 			iCommerceValue *= 60;
+ 			iCommerceValue /= 100;
+-		}
+-		if (!AI_isEmphasizeYield(YIELD_FOOD))
++			iCommerceValue = std::max(1, iCommerceValue);
++		}
++		if (!AI_isEmphasizeYield(YIELD_FOOD) && iFoodValue > 0)
+ 		{
+ 			iFoodValue *= 75;
+ 			iFoodValue /= 100;
++			iFoodValue = std::max(1, iFoodValue);
+ 		}
+ 	}
+ 	if (AI_isEmphasizeYield(YIELD_FOOD))
+@@ -9706,50 +9715,61 @@
+ 	{
+ 		iCommerceValue *= 130;
+ 		iCommerceValue /= 100;
+-		if (!AI_isEmphasizeYield(YIELD_PRODUCTION))
++		if (!AI_isEmphasizeYield(YIELD_PRODUCTION) && iProductionValue > 0)
+ 		{
+ 			iProductionValue *= 75;
+ 			iProductionValue /= 100;
+-		}
+-		if (!AI_isEmphasizeYield(YIELD_FOOD))
++			iProductionValue = std::max(1,iProductionValue);
++		}
++		if (!AI_isEmphasizeYield(YIELD_FOOD) && iFoodValue > 0)
+ 		{
+ 			//Don't supress twice.
+ 			if (!AI_isEmphasizeYield(YIELD_PRODUCTION))
+ 			{
+ 				iFoodValue *= 80;
+ 				iFoodValue /= 100;
++				iFoodValue = std::max(1, iFoodValue);
+ 			}
+ 		}
+ 	}
+ 		
+-
+-	if (isFoodProduction())
+-	{
+-		iProductionValue *= 100 + (bWorkerOptimization ? 0 : AI_specialYieldMultiplier(YIELD_PRODUCTION));
+-		iProductionValue /= 100;		
+-	}
+-	else
+-	{
+-		iProductionValue *= iBaseProductionModifier;
+-		iProductionValue /= (iBaseProductionModifier + iExtraProductionModifier);
+-		
+-		iProductionValue += iSlaveryValue;
+-		iProductionValue *= (100 + (bWorkerOptimization ? 0 : AI_specialYieldMultiplier(YIELD_PRODUCTION)));
+-		
+-		iProductionValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_PRODUCTION);
+-	}
+-	
+-	iValue += iProductionValue;
+-	
+-	
+-	iCommerceValue *= (100 + (bWorkerOptimization ? 0 : AI_specialYieldMultiplier(YIELD_COMMERCE)));
+-	iCommerceValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_COMMERCE);
+-	iValue += iCommerceValue;
++	if( iProductionValue > 0 )
++	{
++		if (isFoodProduction())
++		{
++			iProductionValue *= 100 + (bWorkerOptimization ? 0 : AI_specialYieldMultiplier(YIELD_PRODUCTION));
++			iProductionValue /= 100;		
++		}
++		else
++		{
++			iProductionValue *= iBaseProductionModifier;
++			iProductionValue /= (iBaseProductionModifier + iExtraProductionModifier);
++			
++			iProductionValue += iSlaveryValue;
++			iProductionValue *= (100 + (bWorkerOptimization ? 0 : AI_specialYieldMultiplier(YIELD_PRODUCTION)));
++			
++			iProductionValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_PRODUCTION);
++		}
++	
++		iValue += std::max(1,iProductionValue);
++	}
++	
++	if( iCommerceValue > 0 )
++	{
++		iCommerceValue *= (100 + (bWorkerOptimization ? 0 : AI_specialYieldMultiplier(YIELD_COMMERCE)));
++		iCommerceValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_COMMERCE);
++		iValue += std::max(1, iCommerceValue);
++	}
+ //	
+-	iFoodValue *= 100;
+-	iFoodValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_FOOD);
+-	iValue += iFoodValue;
+-
++	if( iFoodValue > 0 )
++	{
++		iFoodValue *= 100;
++		iFoodValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_FOOD);
++		iValue += std::max(1, iFoodValue);
++	}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 	
+ 	return iValue;
+ }
+@@ -11590,14 +11610,15 @@
+ {
+ 	FAssert(GET_PLAYER(eIndex).isAlive());
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/31/10                              jdog5000        */
++/* BETTER_BTS_AI_MOD                      05/16/10                              jdog5000        */
+ /*                                                                                              */
+ /* War tactics AI                                                                               */
+ /************************************************************************************************/
+ /* original bts code
+ 	FAssert(eIndex != getID());
+ */
+-	FAssert((eIndex != getOwnerINLINE()) || (getGameTurnAcquired() == GC.getGameINLINE().getGameTurn()));
++	// No point checking player type against city ID ... Firaxis copy and paste error from
++	// CvPlayerAI version of this function
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -11622,7 +11643,7 @@
+ 	int iBestValue;
+ 
+ /********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD						6/17/08				jdog5000		*/
++/* 	BETTER_BTS_AI_MOD						5/16/10				jdog5000		*/
+ /* 																				*/
+ /* 	General AI, closeness changes												*/
+ /********************************************************************************/	
+@@ -11635,6 +11656,10 @@
+ 			iBestValue = 0;
+ 			for (pLoopCity = GET_PLAYER((PlayerTypes)iI).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iI).nextCity(&iLoop))
+ 			{
++				if( pLoopCity == this )
++				{
++					continue;
++				}
+ 
+ 				int iDistance = stepDistance(getX_INLINE(), getY_INLINE(), pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE());
+ 				
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@569
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@570
+@@ -4530,7 +4530,7 @@
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.50");
++	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.50+");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+@@ -4543,7 +4543,7 @@
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v1.00d");
++	szTempBuffer.Format(L"%S", "Better BTS AI v1.00e");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@569
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@570
+@@ -1664,7 +1664,7 @@
+ }
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      04/19/10                              jdog5000        */
++/* BETTER_BTS_AI_MOD                      05/16/10                              jdog5000        */
+ /*                                                                                              */
+ /* War tactics AI                                                                               */
+ /************************************************************************************************/
+@@ -1755,11 +1755,11 @@
+ 				// Distance related aspects
+ 				if (iCloseness > 0)
+ 				{
+-					iRazeValue -= iCloseness/2;
++					iRazeValue -= iCloseness;
+ 				}
+ 				else
+ 				{
+-					iRazeValue += 50;
++					iRazeValue += 40;
+ 
+ 					CvCity* pNearestTeamAreaCity = GC.getMapINLINE().findCity(pCity->getX_INLINE(), pCity->getY_INLINE(), NO_PLAYER, getTeam(), true, false, NO_TEAM, NO_DIRECTION, pCity);
+ 
+

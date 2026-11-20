@@ -1,0 +1,71 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 257
+# Author: iustus
+# Date: 2007-01-10T16:39:47.033303Z
+# Coverage: full
+# Message:
+#   groups fogbust properly now
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@256
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@257
+@@ -7138,8 +7138,9 @@
+ {
+ 	int iValue = 0;
+ 	
++	int iNumUnits = getGroup()->getNumUnits();
+ 	int iNewVisibilityCount = pPlot->getVisibilityCount(GET_PLAYER(getOwnerINLINE()).getTeam()) + iObserverChange;
+-	if (iNewVisibilityCount == 1)
++	if (iNewVisibilityCount <= iNumUnits)
+ 	{
+ 		iValue ++;
+ 
+@@ -7249,44 +7250,6 @@
+ 	}
+ 
+ 	bool bOurTerritoryInRange = (iOurTerritoryCount > 0);
+-
+-	// if still cannot find any plots owned by us, see if we can path through visible plots to our territory
+-	//CvCity* pPathCity = NULL;
+-	//if (!bOurTerritoryInRange && iPlotsWeFogbusting > 0)
+-	//{
+-	//	// search cities on this area for fog to bust
+-	//	int iLoop;
+-	//	for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); !bOurTerritoryInRange && pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+-	//	{
+-	//		if (pLoopCity->getArea() == getArea())
+-	//		{
+-	//			if (generatePath(pLoopCity->plot(), 0, true))
+-	//			{
+-	//				// walk the path, checking to make sure each plot is visible by us
+-	//				bool bPathVisible = true;
+-	//				FAStarNode* pNode = getPathLastNode();
+-	//				while (pNode != NULL && bPathVisible)
+-	//				{
+-	//					CvPlot* pPathPlot = GC.getMapINLINE().plotSorenINLINE(pNode->m_iX, pNode->m_iY);
+-	//					
+-	//					if (pPathPlot->getVisibilityCount(eTeam) <= 0)
+-	//					{
+-	//						bPathVisible = false;
+-	//					}
+-
+-	//					pNode = pNode->m_pParent;
+-	//				}
+-
+-	//				if (bPathVisible)
+-	//				{
+-	//					bOurTerritoryInRange = true;
+-	//					pPathCity = pLoopCity;
+-	//				}
+-	//			}
+-	//		}
+-	//	}
+-	//}
+-
+ 
+ 	// if we are fogbusting some plots or enemy nearby, check adjacent plots for even better fogbusting
+ 	if (iPlotsWeFogbusting > 0 || iEnemyPlots > 0)
+

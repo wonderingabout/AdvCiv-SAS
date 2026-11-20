@@ -1,0 +1,1378 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 5
+# Author: iustus
+# Date: 2006-10-15T01:16:58.045097Z
+# Coverage: summary-only
+# Message:
+#   Initial check in, Firaxis 1.61 drop (partial, boost part 4)
+# Changed paths (357):
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/dynamic_bitset
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/dynamic_bitset.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/dynamic_bitset/config.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/dynamic_bitset/dynamic_bitset.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/dynamic_bitset_fwd.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/enable_shared_from_this.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/filesystem
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/filesystem/config.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/filesystem/convenience.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/filesystem/exception.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/filesystem/fstream.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/filesystem/operations.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/filesystem/path.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/alt_sstream.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/alt_sstream_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/detail
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/detail/compat_workarounds.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/detail/config_macros.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/detail/msvc_disambiguater.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/detail/unset_macros.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/detail/workarounds_gcc-2_95.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/detail/workarounds_stlport.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/exceptions.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/feed_args.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/format_class.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/format_fwd.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/format_implementation.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/free_funcs.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/group.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/internals.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/internals_fwd.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/parsing.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/detail
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/detail/function_iterate.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/detail/gen_maybe_include.pl
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/detail/maybe_include.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/detail/prologue.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function0.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function1.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function10.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function2.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function3.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function4.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function5.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function6.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function7.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function8.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function9.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function_base.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function_template.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/gen_function_N.pl
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function_equal.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function_output_iterator.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/functional.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/generator_iterator.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/get_pointer.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/adjacency_iterator.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/adjacency_list.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/adjacency_list_io.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/adjacency_matrix.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/bandwidth.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/bc_clustering.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/bellman_ford_shortest_paths.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/betweenness_centrality.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/biconnected_components.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/breadth_first_search.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/circle_layout.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/connected_components.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/copy.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/create_condensation_graph.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/cuthill_mckee_ordering.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/dag_shortest_paths.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/depth_first_search.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/adj_list_edge_iterator.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/adjacency_list.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/array_binary_tree.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/bitset.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/bitset_adaptor.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/connected_components.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/edge.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/incidence_iterator.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/incremental_components.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/is_same.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/list_base.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/permutation.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/self_avoiding_walk.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/set_adaptor.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/shadow_iterator.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/dijkstra_shortest_paths.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/edge_connectivity.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/edge_list.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/edmunds_karp_max_flow.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/exception.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/filtered_graph.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/graph_archetypes.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/graph_as_tree.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/graph_concepts.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/graph_selectors.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/graph_test.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/graph_traits.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/graph_utility.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/graphviz.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/incremental_components.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/isomorphism.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/iteration_macros.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/iteration_macros_undef.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/johnson_all_pairs_shortest.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/kamada_kawai_spring_layout.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/kruskal_min_spanning_tree.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/leda_graph.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/matrix_as_graph.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/minimum_degree_ordering.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/named_function_params.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/neighbor_bfs.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/prim_minimum_spanning_tree.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/profile.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/properties.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/property_iter_range.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/push_relabel_max_flow.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/random.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/read_dimacs.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/relax.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/reverse_graph.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/sequential_vertex_coloring.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/sloan_ordering.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/smallest_last_ordering.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/stanford_graph.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/strong_components.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/subgraph.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/topological_sort.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/transitive_closure.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/transpose_graph.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/tree_traits.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/undirected_dfs.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/vector_as_graph.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/visitors.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/wavefront.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/implicit_cast.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/indirect_reference.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/integer
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/integer.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/integer/integer_mask.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/integer/static_log2.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/integer/static_min_max.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/integer_fwd.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/integer_traits.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/intrusive_ptr.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/io
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/io/ios_state.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/io_fwd.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/counting_iterator.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/detail
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/detail/any_conversion_eater.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/detail/config_def.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/detail/config_undef.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/detail/enable_if.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/detail/facade_iterator_category.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/detail/minimum_category.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/filter_iterator.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/indirect_iterator.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/interoperable.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/is_lvalue_iterator.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/is_readable_iterator.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/iterator_adaptor.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/iterator_archetypes.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/iterator_categories.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/iterator_concepts.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/iterator_facade.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/iterator_traits.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/new_iterator_tests.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/permutation_iterator.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/reverse_iterator.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/transform_iterator.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/zip_iterator.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator_adaptors.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/algorithm.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/bind.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/casts.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/closures.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/construct.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/control_structures.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/core.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/actions.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/arity_code.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/bind_functions.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/control_constructs_common.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/control_structures_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/function_adaptors.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/is_instance_of.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/lambda_config.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/lambda_functor_base.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/lambda_functors.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/lambda_fwd.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/lambda_traits.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/member_ptr.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/operator_actions.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/operator_lambda_func_base.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/operator_return_type_traits.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/operators.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/ret.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/return_type_traits.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/select_functions.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/exceptions.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/if.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/lambda.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/loops.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/numeric.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/switch.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/last_value.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lexical_cast.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/limits.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/logic
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/logic/tribool.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/logic/tribool_fwd.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/logic/tribool_io.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/common_factor.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/common_factor_ct.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/common_factor_rt.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/octonion.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/quaternion.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/special_functions
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/special_functions/acosh.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/special_functions/asinh.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/special_functions/atanh.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/special_functions/sinc.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/special_functions/sinhc.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math_fwd.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mem_fn.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/accumulate.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/advance.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/advance_fwd.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/alias.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/always.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/and.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/apply.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/apply_fwd.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/apply_wrap.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/arg.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/arg_fwd.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/arithmetic.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/as_sequence.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/assert.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/at.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/at_fwd.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/O1_size_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/adl_barrier.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/advance_backward.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/advance_forward.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/apply_1st.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/arg_typedef.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/arithmetic_op.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/arity.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/arity_spec.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/at_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/back_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/basic_bind.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/begin_end_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/clear_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/common_name_wknd.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/comparison_op.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/adl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/arrays.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/bind.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/compiler.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/ctps.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/dependent_nttp.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/dmc_ambiguous_ctps.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/dtp.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/eti.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/forwarding.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/gcc.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/has_apply.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/has_xxx.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/integral.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/intel.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/lambda.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/msvc.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/msvc_typename.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/nttp.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/operators.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/overload_resolution.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/preprocessor.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/static_constant.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/ttp.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/typeof.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/use_preprocessed.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/workaround.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/contains_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/count_args.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/count_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/empty_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/erase_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/erase_key_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/filter_iter.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/find_if_pred.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/fold_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/fold_impl_body.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/fold_op.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/fold_pred.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/front_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/full_lambda.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/has_apply.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/has_begin.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/has_key_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/has_rebind.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/has_size.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/has_tag.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/has_type.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/include_preprocessed.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/insert_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/insert_range_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/inserter_algorithm.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/integral_wrapper.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/is_msvc_eti_arg.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/iter_apply.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/iter_fold_if_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/iter_fold_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/iter_push_front.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/joint_iter.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/lambda_arity_param.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/lambda_no_ctps.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/lambda_spec.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/lambda_support.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/largest_int.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/logical_op.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/msvc_dtw.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/msvc_eti_base.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/msvc_is_class.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/msvc_never_true.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/msvc_type.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/na.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/na_assert.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/na_fwd.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/na_spec.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/nested_type_wknd.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/nttp_decl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/numeric_cast_utils.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/numeric_op.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/order_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/overload_names.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/partition_op.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/pop_back_impl.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/pop_front_impl.hpp
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/dynamic_bitset.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/dynamic_bitset/config.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/dynamic_bitset/dynamic_bitset.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/dynamic_bitset_fwd.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/enable_shared_from_this.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/filesystem/config.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/filesystem/convenience.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/filesystem/exception.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/filesystem/fstream.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/filesystem/operations.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/filesystem/path.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/alt_sstream.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/alt_sstream_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/detail/compat_workarounds.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/detail/config_macros.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/detail/msvc_disambiguater.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/detail/unset_macros.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/detail/workarounds_gcc-2_95.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/detail/workarounds_stlport.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/exceptions.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/feed_args.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/format_class.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/format_fwd.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/format_implementation.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/free_funcs.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/group.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/internals.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/internals_fwd.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/format/parsing.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/detail/function_iterate.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/detail/gen_maybe_include.pl
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/detail/maybe_include.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/detail/prologue.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function0.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function1.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function10.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function2.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function3.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function4.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function5.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function6.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function7.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function8.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function9.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function_base.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/function_template.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function/gen_function_N.pl
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function_equal.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/function_output_iterator.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/functional.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/generator_iterator.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/get_pointer.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/adjacency_iterator.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/adjacency_list.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/adjacency_list_io.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/adjacency_matrix.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/bandwidth.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/bc_clustering.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/bellman_ford_shortest_paths.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/betweenness_centrality.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/biconnected_components.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/breadth_first_search.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/circle_layout.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/connected_components.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/copy.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/create_condensation_graph.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/cuthill_mckee_ordering.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/dag_shortest_paths.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/depth_first_search.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/adj_list_edge_iterator.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/adjacency_list.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/array_binary_tree.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/bitset.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/bitset_adaptor.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/connected_components.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/edge.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/incidence_iterator.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/incremental_components.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/is_same.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/list_base.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/permutation.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/self_avoiding_walk.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/set_adaptor.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/detail/shadow_iterator.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/dijkstra_shortest_paths.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/edge_connectivity.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/edge_list.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/edmunds_karp_max_flow.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/exception.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/filtered_graph.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/graph_archetypes.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/graph_as_tree.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/graph_concepts.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/graph_selectors.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/graph_test.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/graph_traits.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/graph_utility.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/graphviz.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/incremental_components.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/isomorphism.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/iteration_macros.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/iteration_macros_undef.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/johnson_all_pairs_shortest.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/kamada_kawai_spring_layout.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/kruskal_min_spanning_tree.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/leda_graph.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/matrix_as_graph.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/minimum_degree_ordering.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/named_function_params.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/neighbor_bfs.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/prim_minimum_spanning_tree.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/profile.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/properties.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/property_iter_range.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/push_relabel_max_flow.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/random.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/read_dimacs.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/relax.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/reverse_graph.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/sequential_vertex_coloring.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/sloan_ordering.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/smallest_last_ordering.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/stanford_graph.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/strong_components.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/subgraph.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/topological_sort.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/transitive_closure.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/transpose_graph.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/tree_traits.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/undirected_dfs.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/vector_as_graph.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/visitors.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/graph/wavefront.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/implicit_cast.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/indirect_reference.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/integer.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/integer/integer_mask.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/integer/static_log2.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/integer/static_min_max.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/integer_fwd.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/integer_traits.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/intrusive_ptr.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/io/ios_state.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/io_fwd.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/counting_iterator.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/detail/any_conversion_eater.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/detail/config_def.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/detail/config_undef.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/detail/enable_if.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/detail/facade_iterator_category.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/detail/minimum_category.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/filter_iterator.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/indirect_iterator.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/interoperable.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/is_lvalue_iterator.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/is_readable_iterator.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/iterator_adaptor.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/iterator_archetypes.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/iterator_categories.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/iterator_concepts.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/iterator_facade.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/iterator_traits.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/new_iterator_tests.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/permutation_iterator.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/reverse_iterator.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/transform_iterator.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator/zip_iterator.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/iterator_adaptors.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/algorithm.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/bind.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/casts.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/closures.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/construct.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/control_structures.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/core.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/actions.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/arity_code.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/bind_functions.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/control_constructs_common.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/control_structures_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/function_adaptors.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/is_instance_of.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/lambda_config.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/lambda_functor_base.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/lambda_functors.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/lambda_fwd.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/lambda_traits.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/member_ptr.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/operator_actions.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/operator_lambda_func_base.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/operator_return_type_traits.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/operators.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/ret.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/return_type_traits.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/detail/select_functions.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/exceptions.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/if.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/lambda.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/loops.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/numeric.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lambda/switch.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/last_value.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/lexical_cast.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/limits.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/logic/tribool.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/logic/tribool_fwd.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/logic/tribool_io.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/common_factor.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/common_factor_ct.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/common_factor_rt.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/octonion.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/quaternion.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/special_functions/acosh.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/special_functions/asinh.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/special_functions/atanh.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/special_functions/sinc.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math/special_functions/sinhc.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/math_fwd.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mem_fn.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/accumulate.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/advance.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/advance_fwd.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/alias.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/always.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/and.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/apply.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/apply_fwd.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/apply_wrap.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/arg.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/arg_fwd.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/arithmetic.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/as_sequence.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/assert.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/at.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/at_fwd.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/O1_size_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/adl_barrier.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/advance_backward.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/advance_forward.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/apply_1st.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/arg_typedef.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/arithmetic_op.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/arity.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/arity_spec.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/at_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/back_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/basic_bind.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/begin_end_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/clear_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/common_name_wknd.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/comparison_op.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/adl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/arrays.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/bind.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/compiler.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/ctps.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/dependent_nttp.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/dmc_ambiguous_ctps.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/dtp.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/eti.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/forwarding.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/gcc.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/has_apply.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/has_xxx.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/integral.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/intel.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/lambda.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/msvc.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/msvc_typename.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/nttp.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/operators.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/overload_resolution.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/preprocessor.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/static_constant.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/ttp.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/typeof.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/use_preprocessed.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/config/workaround.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/contains_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/count_args.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/count_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/empty_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/erase_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/erase_key_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/filter_iter.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/find_if_pred.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/fold_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/fold_impl_body.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/fold_op.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/fold_pred.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/front_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/full_lambda.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/has_apply.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/has_begin.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/has_key_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/has_rebind.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/has_size.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/has_tag.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/has_type.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/include_preprocessed.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/insert_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/insert_range_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/inserter_algorithm.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/integral_wrapper.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/is_msvc_eti_arg.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/iter_apply.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/iter_fold_if_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/iter_fold_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/iter_push_front.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/joint_iter.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/lambda_arity_param.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/lambda_no_ctps.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/lambda_spec.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/lambda_support.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/largest_int.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/logical_op.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/msvc_dtw.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/msvc_eti_base.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/msvc_is_class.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/msvc_never_true.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/msvc_type.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/na.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/na_assert.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/na_fwd.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/na_spec.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/nested_type_wknd.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/nttp_decl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/numeric_cast_utils.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/numeric_op.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/order_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/overload_names.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/partition_op.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/pop_back_impl.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/mpl/aux_/pop_front_impl.hpp
+# Omitted: matches --summarize
+

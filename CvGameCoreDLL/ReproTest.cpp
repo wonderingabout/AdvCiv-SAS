@@ -2,6 +2,10 @@
 
 #include "CvGameCoreDLL.h"
 #include "ReproTest.h"
+
+// <!-- custom: Keep disabled reproducibility-test implementation out of normal DLL builds; ReproTest.h leaves ENABLE_REPRO_TEST commented by default. (ChatGPT-5.5) -->
+#ifdef ENABLE_REPRO_TEST
+
 #include "CvGame.h"
 #include "BBAILog.h"
 
@@ -28,11 +32,9 @@ ReproTest::ReproTest(int iTurns)
 	/*	For comparing logs, one will have to copy the part in between
 		"start" and "reloading" to a new file and the part between
 		"reloading" and "end"; then get a diff. */
-	#ifdef LOG_AI
-		logBBAI("ReproTest: start\n");
-	#endif
-	if (GC.isLogging())
-		gDLL->messageControlLog("ReproTest: start");
+	// <!-- custom: Base AdvCiv gated ReproTest BBAI output with compile-time LOG_AI; AdvCiv-SAS now uses XML-tunable BBAI log levels, so use the runtime gLogBBAI gate instead. (GPT-5.5?) -->
+	if (gLogBBAI) logBBAI("REPRO_TEST action=START");
+	if (GC.isLogging()) gDLL->messageControlLog("ReproTest: start");
 	kGame.setAIAutoPlay(m_iAutoPlayTurns, true);
 }
 
@@ -78,11 +80,9 @@ void ReproTest::endWrite(bool bFinal)
 			bool bDebugMode = kGame.isDebugMode();
 			m_bQuickLoadDone = true;
 			kGame.doControl(CONTROL_QUICK_LOAD);
-			#ifdef LOG_AI
-				logBBAI("ReproTest: reloading");
-			#endif
-			if (GC.isLogging())
-				gDLL->messageControlLog("ReproTest: reloading\n");
+			// <!-- custom: same runtime BBAI logging gate change as above. (GPT-5.5?) -->
+			if (gLogBBAI) logBBAI("REPRO_TEST action=RELOAD");
+			if (GC.isLogging()) gDLL->messageControlLog("ReproTest: reloading\n");
 			/*	Debug mode gets turned off after reload. Needs to be consistent
 				because, otherwise, CvPlayer::m_listGameMessages won't be reproducible. */
 			if (bDebugMode)
@@ -134,10 +134,10 @@ void ReproTest::endWrite(bool bFinal)
 	if (m_iPos == m_aObjectIDs.size() || (bCancelAfterFirstDifference && !bSame))
 	{
 		SAFE_DELETE(m_pReproTest);
-		#ifdef LOG_AI
-			logBBAI("ReproTest: done");
-		#endif
-		if (GC.isLogging())
-			gDLL->messageControlLog("ReproTest: done\n");
+		// <!-- custom: same runtime BBAI logging gate change as above. (GPT-5.5?) -->
+		if (gLogBBAI) logBBAI("REPRO_TEST action=DONE");
+		if (GC.isLogging()) gDLL->messageControlLog("ReproTest: done\n");
 	}
 }
+
+#endif

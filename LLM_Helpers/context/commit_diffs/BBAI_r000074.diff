@@ -1,0 +1,351 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 74
+# Author: blakeciv
+# Date: 2006-11-14T13:48:45.480432Z
+# Coverage: full
+# Message:
+#   Fixed a bug with AI_heal code which could result in crash or infinite loop. 
+#   Added AI strategy infrastructure and the AI Strategy "DAGGER".
+#   Tweaked code for valuing city attacker units (strong mounted units can now be city attackers).
+#   Tweaked promotion selection code to fix brain dead bugs, counter units should pick promotions which match thier strengths - Axes should be mostly Shock, Spears should avoid cover/shock.
+#   Increased the value of double-move 10fold, for more Aztec/Celt diversity.
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@73
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@74
+@@ -561,21 +561,19 @@
+ 	}
+ 	else
+ 	{
+-		if (bHasMetHuman)
+-		{
+-			if (!AI_isDefended(plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwnerINLINE()))) // XXX check for other team's units?
+-			{
+-				if (AI_chooseDefender())
+-				{
+-					return;
+-				}
+-
+-				if (AI_chooseUnit(UNITAI_ATTACK))
+-				{
+-					return;
+-				}
+-			}
+-		}
++        if (!AI_isDefended(plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwnerINLINE()))) // XXX check for other team's units?
++        {
++            if (AI_chooseDefender())
++            {
++                return;
++            }
++
++            if (AI_chooseUnit(UNITAI_ATTACK))
++            {
++                return;
++            }
++        }
++
+ 
+ 		if (plot()->plotCheck(PUF_isUnitAIType, UNITAI_SETTLE, -1, getOwnerINLINE()) != NULL)
+ 		{
+@@ -696,6 +694,21 @@
+ 		}
+ 	}
+ 
++    if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_DAGGER))
++    {
++        if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Train Unit") > 25)
++        {
++            if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Choose Unit") > 30)
++            {
++                AI_chooseUnit(UNITAI_ATTACK_CITY);
++            }
++            else
++            {
++                AI_chooseUnit(UNITAI_COUNTER);
++            }
++        }
++    }
++    
+ 	if (!bLandWar)
+ 	{
+ 		if (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) == 0)
+@@ -4722,9 +4735,6 @@
+ 						aiFinalYields[iJ] = 2*(pPlot->calculateNatureYield(((YieldTypes)iJ), getTeam(), bIgnoreFeature));
+ 						aiFinalYields[iJ] += (pPlot->calculateImprovementYieldChange(eFinalImprovement, ((YieldTypes)iJ), getOwnerINLINE(), false));
+ 						aiFinalYields[iJ] += (pPlot->calculateImprovementYieldChange(eImprovement, ((YieldTypes)iJ), getOwnerINLINE(), false));
+-
+-
+-
+ 						aiDiffYields[iJ] = (aiFinalYields[iJ] - (2 * pPlot->getYield(((YieldTypes)iJ))));
+ 					}
+ 
+@@ -4930,6 +4940,12 @@
+                             iValue *= (4 - (iHippyFactor / 100));
+                             iValue /= 4;
+                             iValue = max(0, iValue);
++                            
++                            if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_DAGGER))
++                            {
++                                iValue += 20;
++                                iValue *= 2;
++                            }
+ 
+                             if (iValue > 0)
+                             {
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@73
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@74
+@@ -1698,22 +1698,22 @@
+                 }
+             }
+ 
+-            for (int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
+-            {
+-                FlavorTypes eFlavor = (FlavorTypes)iI;
+-                int iFlavorValue = GET_PLAYER(pPlot->getOwnerINLINE()).AI_getFlavorValue(eFlavor);
+-                if (iFlavorValue > 0)
+-                {
+-                    szTempBuffer.Format(L"\n Flavor %d = %d", iI, iFlavorValue);
+-                    szString += szTempBuffer;
+-                }
+-            }
++
+ 
+             if (pPlot->getPlotCity() != NULL)
+             {
+                 szTempBuffer.Format(L"\n\nCulture Pressure Value = %d", pPlot->getPlotCity()->AI_calculateCulturePressure());
+                 szString+=szTempBuffer;
+             }
++            szString += NEWLINE;
++            
++            //AI strategies
++            if (GET_PLAYER(pPlot->getOwner()).AI_isDoStrategy(AI_STRATEGY_DAGGER))
++            {
++                szTempBuffer.Format(L"\n AI Dagger Strategy");
++                szString+=szTempBuffer;
++            }
++            
+ 	    }
+ 	    else
+ 	    {
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@73
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@74
+@@ -2566,16 +2566,19 @@
+ 
+ 												case UNITAI_ATTACK:
+ 													iMilitaryValue += ((bWarPlan) ? 600 : 300);
++													iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER ) ? 800 : 0);
+ 													iValue += 100;
+ 													break;
+ 
+ 												case UNITAI_ATTACK_CITY:
+ 													iMilitaryValue += ((bWarPlan) ? 800 : 400);
++													iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER ) ? 800 : 0);
+ 													iValue += 100;
+ 													break;
+ 
+ 												case UNITAI_COLLATERAL:
+ 													iMilitaryValue += ((bWarPlan) ? 600 : 300);
++													iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER ) ? 500 : 0);
+ 													break;
+ 
+ 												case UNITAI_PILLAGE:
+@@ -2588,6 +2591,7 @@
+ 
+ 												case UNITAI_COUNTER:
+ 													iMilitaryValue += ((bWarPlan) ? 600 : 300);
++													iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER ) ? 600 : 0);
+ 													break;
+ 
+ 												case UNITAI_CITY_DEFENSE:
+@@ -2909,8 +2913,13 @@
+ 													{
+ 														iReligionValue += 500;
+ 													}
+-
+-													iValue += (100 + iReligionValue);
++													
++													if (AI_isDoStrategy(AI_STRATEGY_DAGGER))
++													{
++													    iReligionValue /= 2;
++													}													
++
++													iValue += iReligionValue;
+ 												}
+ 											}
+ 										}
+@@ -5759,12 +5768,12 @@
+ 		break;
+ 
+ 	case UNITAI_ATTACK_CITY:
+-		iValue += (iCombatValue / 2);
++		iValue += iCombatValue;
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getCityAttackModifier()) / 100);
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getCollateralDamage()) / 200);
+-		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getMoves()) / 4);
++		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getMoves()) / 2);
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getWithdrawalProbability()) / 50);
+-		iValue += (GC.getUnitInfo(eUnit).getBombardRate() * 8);
++		iValue += (GC.getUnitInfo(eUnit).getBombardRate() * 16);
+ 		break;
+ 
+ 	case UNITAI_COLLATERAL:
+@@ -8848,6 +8857,10 @@
+ 
+ bool CvPlayerAI::AI_isDoStrategy(int iStrategy)
+ {
++    if (isHuman())
++    {
++        return false;
++    }
+     return (iStrategy & AI_getStrategyHash());
+ }
+ 
+@@ -8876,8 +8889,8 @@
+     
+     int iCurrentEra = getCurrentEra();
+     
+-    if (iCurrentEra <= (1+(iNonsense%2)))
+-	{
++    if (iCurrentEra <= (1+(iNonsense%2)) && (GET_TEAM(getTeam()).getHasMetCivCount(true) > 0))
++    {	    
+ 	    int iDagger = 0;
+ 	    iDagger += 5000 / max(100, (50 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand()));
+ 	    
+@@ -8952,9 +8965,10 @@
+             }
+         }
+         
++        iDagger += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 4 : 0);
+         iDagger += ((iNonsense % 8) * 10);
+         
+-        if (iDagger > 100)
++        if (iDagger >= 100)
+         {
+             m_iStrategyHash |= AI_STRATEGY_DAGGER;            
+         }        
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@73
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@74
+@@ -1548,7 +1548,7 @@
+     //stack attack
+     if (getGroup()->getNumUnits() > 1)
+     {
+-        if (AI_stackAttackCity(1, 150, true))
++        if (AI_stackAttackCity(1, 100, true))
+         {
+             return ;
+         }
+@@ -3979,7 +3979,7 @@
+ 		}
+ 		else
+ 		{
+-			iValue += 1;
++			iValue += 10;
+ 		}
+ 	}
+ 
+@@ -4128,6 +4128,7 @@
+ 		iValue += (iTemp / 8);
+ 	}
+ 
++    //XXX increase the value of medic in enemy territory if no existing medic...
+ 	iTemp = GC.getPromotionInfo(ePromotion).getSameTileHealChange() + getSameTileHeal();
+ 	if ((AI_getUnitAIType() == UNITAI_COUNTER) ||
+ 		  (AI_getUnitAIType() == UNITAI_CITY_DEFENSE) ||
+@@ -4172,7 +4173,7 @@
+ 	}
+ 	else if (AI_getUnitAIType() == UNITAI_ATTACK)
+ 	{
+-		iValue += (iTemp / 2);
++		iValue += (iTemp / 4);
+ 	}
+ 	else
+ 	{
+@@ -4316,7 +4317,7 @@
+ 			}
+ 			else
+ 			{
+-				iValue += 1;
++				iValue += 10;
+ 			}
+ 		}
+ 	}
+@@ -4351,17 +4352,25 @@
+ 			}
+ 			else
+ 			{
+-				iValue += 1;
++				iValue += 10;
+ 			}
+ 		}
+ 	}
+ 
+ 	for (iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
+ 	{
+-		iTemp = GC.getPromotionInfo(ePromotion).getUnitCombatModifierPercent(iI) + getExtraUnitCombatModifier((UnitCombatTypes)iI);
++		iTemp = GC.getPromotionInfo(ePromotion).getUnitCombatModifierPercent(iI);
+ 		if (AI_getUnitAIType() == UNITAI_COUNTER)
+ 		{
+-			iValue += (iTemp * 1);
++			if (getExtraUnitCombatModifier((UnitCombatTypes)iI) <= 0)
++			{
++			    iValue += iTemp / 2;			    
++			}
++			else
++			{
++			    iTemp *= 100 + (2 * getExtraUnitCombatModifier((UnitCombatTypes)iI));
++			    iValue += iTemp / 100;
++			}
+ 		}
+ 		else if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
+ 			       (AI_getUnitAIType() == UNITAI_RESERVE))
+@@ -5510,18 +5519,21 @@
+ 
+ 	bRetreat = false;
+ 
+-	iMaxPath = min(iMaxPath, 9);
++	iMaxPath = min(iMaxPath, 2);
+ 	
+     if (getGroup()->getNumUnits() == 1)
+ 	{
+-        if (plot()->isCity() || (healTurns(plot()) <= iMaxPath))
++	    if (getDamage() > 0)
+         {
+-            if (!(isAlwaysHeal()))
++            if (plot()->isCity() || (healTurns(plot()) <= iMaxPath))
+             {
+-                getGroup()->pushMission(MISSION_SKIP);
+-                return true;
++                if (!(isAlwaysHeal()))
++                {
++                    getGroup()->pushMission(MISSION_SKIP);
++                    return true;
++                }
++                return false;
+             }
+-            return false;
+         }
+ 	}
+ 
+@@ -5550,7 +5562,7 @@
+ 				{
+ 					if (pLoopUnit->healTurns(pLoopUnit->plot()) <= iMaxPath)
+ 					{
+-                        pLoopUnit->joinGroup(NULL);
++                        //pLoopUnit->joinGroup(NULL);
+ 					}
+ 				}
+ 			}
+

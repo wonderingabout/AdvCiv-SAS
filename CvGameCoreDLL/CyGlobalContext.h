@@ -30,6 +30,19 @@ public:
 	static CyGlobalContext& getInstance();		// singleton accessor
 
 	bool isDebugBuild() const;
+	// <!-- custom: Expose AdvCiv's centralized branded display name and dynamically detected actual folder/path to Python without conflating the two identities. (ChatGPT-5.6-Sol) -->
+	const char* getModDisplayName() const;
+	const char* getModFolderName() const;
+	const char* getModPathInRoot() const;
+	// <!-- custom: Expose the same lazy ModName source/version resolver to Python so BUG/UI code never implements its own Git/archive detection. (ChatGPT-5.6-Sol) -->
+	const char* getModVersion() const;
+	const char* getModCommitHash() const;
+	const char* getModBranch() const;
+	const char* getModCommitDate() const;
+	const char* getModSourceMetadataType() const;
+	int getModSourceDirtyState() const;
+	int getModSourceDirtyFileCount() const;
+	const char* getModSourceDirtyFiles() const;
 	CyGame* getCyGame() const;
 	CyMap* getCyMap() const;
 	CyPlayer* getCyPlayer(int idx);
@@ -97,6 +110,9 @@ public:
 
 	int getInfoTypeForString(const char* szInfoType) const;
 	int getTypesEnum(const char* szType) const;
+	// <!-- custom: begin - expose 3D audio script ID -> AS3D_... reverse lookup to Python for Sevopedia media previews. See KI#141. (GPT-5.5?) -->
+	const char* getAudio3DScriptName(int iScriptId) const;
+	// <!-- custom: end - See KI#141. (GPT-5.5?) -->
 
 	int getNumPlayerColorInfos() const { return kGlobals.getNumPlayerColorInfos(); }
 	CvPlayerColorInfo* getPlayerColorInfo(int i) const;

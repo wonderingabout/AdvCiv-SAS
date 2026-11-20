@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 200
+# Author: iustus
+# Date: 2006-12-18T18:30:34.298600Z
+# Coverage: full
+# Message:
+#   fixed assert typo, code was right, assert was checking wrong thing
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvExtraSaveData.cpp
+
+Index: /trunk/CvGameCoreDLL/CvExtraSaveData.cpp
+--- /trunk/CvGameCoreDLL/CvExtraSaveData.cpp@199
++++ /trunk/CvGameCoreDLL/CvExtraSaveData.cpp@200
+@@ -372,7 +372,7 @@
+ 				break;
+ 
+ 			case EXTRASAVEDATA_PLAYER:
+-				FAssertMsg(iTeamIndex < MAX_PLAYERS, "too many players in extra saved data");
++				FAssertMsg(iPlayerIndex < MAX_PLAYERS, "too many players in extra saved data");
+ 				FAssertMsg(nodeHeader.iID >= 0 && nodeHeader.iID < MAX_PLAYERS, "player header has player out of range in extra saved data");
+ 				FAssertMsg(nodeHeader.iCount <= EXTRASAVEDATA_MAX_PLAYER_VALUES, "more player values than max in extra saved data");
+ 				
+

@@ -1,0 +1,451 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 343
+# Author: iustus
+# Date: 2007-02-07T09:36:26.946958Z
+# Coverage: full
+# Message:
+#   new city governor fixes, starvation code works right, various other minor bugfixes in new code, still disabled for now (until 1.0 goes final)
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@342
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@343
+@@ -858,184 +858,185 @@
+ 				
+ 				// start from the best citizen, working downward (list is sorted worst to best, so do in reverse order)
+ 				// looking for a citizen that is not worked, we will then search for a better citizen that is less food to swap
+-				for (CvCitizensReverseIterator ir = governorCitizens.rbegin(); 
+-					iPopulationAssignable > 0 && iFoodDifference < iMinDifference && ir != governorCitizens.rend(); ++ir)
+-				{
+-					CvGovernorCitizen* pCitizen = getCitizen(ir);
+-					int iFood = pCitizen->iFood;
+-
+-					int iCount = pCitizen->iCount;
+-					int iCannotChangeCount = min(iCount, max(pCitizen->iInitialCount, pCitizen->iForcedCount));
+-					int iCanChangeCount = iCount - iCannotChangeCount;
+-					int iCanChangeMax = pCitizen->iMax - iCannotChangeCount;
+-
+-					// is this the worst food we can remove? (once we remove one, do not look at lower values for low food)
+-					if (!bRemovedFirst && iCanChangeCount > 0 && (iLowestFood < 0 || iFood < iLowestFood))
+-					{
+-						iLowestFood = iFood;
+-						irLowestFood = ir;
+-					}
+-
+-					// if we are at the top of the list, then there are no better ones we can swap in
+-					// (since we always start lower and look for higher food)
+-					if (ir == governorCitizens.rbegin())
+-					{
++				for (CvCitizensReverseIterator ir = governorCitizens.rbegin(); iFoodDifference < iMinDifference && ir != governorCitizens.rend(); ++ir)
++				{
++					iTotalChangeCount += swapHigherFoodCitizen(ir, iFoodDifference, iMinDifference, iLowestFood, irLowestFood, governorWork, governorCitizens);
++				}
++			}
++		}
++	}
++	
++	return iTotalChangeCount;
++}
++
++int CvCityAI::swapHigherFoodCitizen(CvCitizensReverseIterator ir, int& iFoodDifference, int iMinDifference, int& iLowestFood, CvCitizensReverseIterator& irLowestFood, CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens)
++{
++	int iTotalChangeCount = 0;
++	
++	CvGovernorCitizen* pCitizen = getCitizen(ir);
++	int iFood = pCitizen->iFood;
++
++	int iCount = pCitizen->iCount;
++	int iCannotChangeCount = min(iCount, max(pCitizen->iInitialCount, pCitizen->iForcedCount));
++	int iCanChangeCount = iCount - iCannotChangeCount;
++	int iCanChangeMax = pCitizen->iMax - iCannotChangeCount;
++
++	// is this the worst food we can remove? (once we remove one, do not look at lower values for low food)
++	if (iCanChangeCount > 0 && (iLowestFood < 0 || iFood < iLowestFood))
++	{
++		iLowestFood = iFood;
++		irLowestFood = ir;
++	}
++
++	// if we are at the top of the list, then there are no better ones we can swap in
++	// (since we always start lower and look for higher food)
++	if (ir == governorCitizens.rbegin())
++	{
++		return 0;
++	}
++		
++	// is this one we can increase food by swapping in?
++	int iMoveCount = (iCanChangeMax - iCanChangeCount);
++	if (iFood > 0 && iFood > iLowestFood && iMoveCount > 0)
++	{
++		// if we are not starving, then set a cap on how much of a worse citizen we will use
++		int iMaxValue = (iFoodDifference > 0) ? ((getCitizenValue(ir) * 135) / 100) : MAX_INT;
++		
++		// remove points to the citizen we will remove one (or more) of
++		CvCitizensReverseIterator irRemove = governorCitizens.rend();
++		
++		// if we are one greater than the lowest food, start with the cached lowest food
++		if ((iFood == iLowestFood + 1) && getCitizenValue(irLowestFood) <= iMaxValue)
++		{
++			irRemove = irLowestFood;
++		}
++		
++		// when/if we search for the worst citizen we are working that has less food starting just above this one
++		CvCitizensReverseIterator irSearch = ir;
++
++		// if we at start, we in trouble. should never happen
++		FAssert(irSearch != governorCitizens.rbegin());
++
++		// while we still have more of this one we can potentially work, and not done searching
++		while (iFoodDifference < iMinDifference && iMoveCount > 0 && irSearch != governorCitizens.rbegin())
++		{
++			// search for the worst citizen we are working that has less food
++			if (irRemove == governorCitizens.rend())
++			{
++				// do the search
++				bool bDone = false;
++				while (!bDone)
++				{
++					// first decrement, then check to see whether we are at the beginning, if so, this is the last one to check
++					bDone = (--irSearch == governorCitizens.rbegin());
++
++					// if the value is too high, then stop (only will happen when not starving)
++					if (getCitizenValue(irSearch) > iMaxValue)
++					{
++						break;
++					}
++					
++					CvGovernorCitizen* pSearchCitizen = getCitizen(irSearch);
++
++					iCount = pSearchCitizen->iCount;
++					iCannotChangeCount = min(iCount, max(pSearchCitizen->iInitialCount, pSearchCitizen->iForcedCount));
++					iCanChangeCount = iCount - iCannotChangeCount;
++					// can we remove at least one citizen from this one?
++					if (iCanChangeCount > 0)
++					{
++						int iSearchFood = pSearchCitizen->iFood;
++						// is this one low enough food? then we done
++						if (iSearchFood < iFood)
++						{
++							irRemove = irSearch;
++							break;
++						}
++						// otherwise, update lowest food cached value
++						else if (iLowestFood < 0 || iSearchFood < iLowestFood)
++						{
++							iLowestFood = iSearchFood;
++							irLowestFood = irSearch;
++						}
++					}
++				}
++			}
++			
++			// did we find a match?
++			if (irRemove != governorCitizens.rend())
++			{
++				CvGovernorCitizen* pRemoveCitizen = getCitizen(irRemove);
++
++				iCount = pRemoveCitizen->iCount;
++				iCannotChangeCount = min(iCount, max(pRemoveCitizen->iInitialCount, pRemoveCitizen->iForcedCount));
++				iCanChangeCount = iCount - iCannotChangeCount;
++				
++				FAssert(iCanChangeCount > 0);
++
++				// how many will we move?
++				int iChangeCount = min(iCanChangeCount, iMoveCount);
++
++				// if we are at the cached lowest food, and we cannot reduce this item any further
++				// then 'clear' the cache, so we do not try to use it again later
++				if (irRemove == irLowestFood && iCanChangeCount <= iChangeCount)
++				{
++					iLowestFood = -1;
++				}
++				
++				// check to see if we would be removing a free specialist
++				if (!pCitizen->bIsSpecialist && pRemoveCitizen->bIsSpecialist)
++				{
++					iChangeCount = min(iChangeCount, governorWork.iWorkingSpecialists - governorWork.iTotalFreeSpecialists);
++
++					// if we would be removing a free specialist, bail, continue through search loop
++					if (iChangeCount <= 0)
++					{
++						irRemove = governorCitizens.rend();
+ 						continue;
+ 					}
+-						
+-					// is this one we can increase food by swapping in?
+-					int iMoveCount = (pCitizen->bIsSpecialist) ? (iCanChangeMax - iCanChangeCount) : min(iPopulationAssignable, iCanChangeMax - iCanChangeCount);
+-					if (iFood > iLowestFood && iMoveCount > 0)
+-					{
+-						// if we are not starving, then set a cap on how much of a worse citizen we will use
+-						int iMaxValue = (iFoodDifference > 0) ? ((getCitizenValue(ir) * 135) / 100) : MAX_INT;
+-						
+-						// remove points to the citizen we will remove one (or more) of
+-						CvCitizensReverseIterator irRemove = governorCitizens.rend();
+-						
+-						// if we are one greater than the lowest food, start with the cached lowest food
+-						if ((iFood == iLowestFood + 1) && getCitizenValue(irLowestFood) <= iMaxValue)
+-						{
+-							irRemove = irLowestFood;
+-							iLowestFood = -1;
+-						}
+-						
+-						// when/if we search for the worst citizen we are working that has less food
+-						CvCitizensReverseIterator irSearch;
+-						// if we have already removed one, then search start is there
+-						if (bRemovedFirst)
+-						{
+-							irSearch = irFirstRemove;
+-						}
+-						// otherwise start search here
+-						else
+-						{
+-							irSearch = ir;
+-						}
+-
+-						// if we at start, we in trouble. should never happen
+-						FAssert(irSearch != governorCitizens.rbegin());
+-
+-						// while we still have more of this one we can potentially work, and not done searching
+-						while (iPopulationAssignable > 0 && iFoodDifference < iMinDifference && 
+-							iMoveCount > 0 && irSearch != governorCitizens.rbegin())
+-						{
+-							// search for the worst citizen we are working that has less food
+-							if (irRemove == governorCitizens.rend())
+-							{
+-								// do the search
+-								bool bDone = false;
+-								while (!bDone)
+-								{
+-									// if we to the first one, post decrement, then we done
+-									bDone = (--irSearch == governorCitizens.rbegin());
+-
+-									// if the value is too high, then stop (only used when not starving)
+-									if (getCitizenValue(irSearch) > iMaxValue)
+-									{
+-										break;
+-									}
+-									
+-									CvGovernorCitizen* pSearchCitizen = getCitizen(irSearch);
+-
+-									iCount = pSearchCitizen->iCount;
+-									iCannotChangeCount = min(iCount, max(pSearchCitizen->iInitialCount, pSearchCitizen->iForcedCount));
+-									iCanChangeCount = iCount - iCannotChangeCount;
+-									// can we remove at least one citizen from this one?
+-									if (iCanChangeCount > 0)
+-									{
+-										int iSearchFood = pSearchCitizen->iFood;
+-										// is this one low enough food? then we done
+-										if (iSearchFood < iFood)
+-										{
+-											irRemove = irSearch;
+-											break;
+-										}
+-										// otherwise, update lowest food cached value
+-										else if (iLowestFood < 0 || iSearchFood < iLowestFood)
+-										{
+-											iLowestFood = iSearchFood;
+-											irLowestFood = irSearch;
+-										}
+-									}
+-								}
+-							}
+-							
+-							// did we find a match?
+-							if (irRemove != governorCitizens.rend())
+-							{
+-								CvGovernorCitizen* pRemoveCitizen = getCitizen(irRemove);
+-
+-								iCount = pRemoveCitizen->iCount;
+-								iCannotChangeCount = min(iCount, max(pRemoveCitizen->iInitialCount, pRemoveCitizen->iForcedCount));
+-								iCanChangeCount = iCount - iCannotChangeCount;
+-								
+-								FAssert(iCanChangeCount > 0);
+-
+-								// how many will we move?
+-								int iChangeCount = min(iCanChangeCount, iMoveCount);
+-
+-								// check to see if we would be removing a free specialist
+-								if (!pCitizen->bIsSpecialist && pRemoveCitizen->bIsSpecialist)
+-								{
+-									iChangeCount = min(iChangeCount, governorWork.iWorkingSpecialists - governorWork.iTotalFreeSpecialists);
+-
+-									// if we would be removing a free specialist, bail, continue through search loop
+-									if (iChangeCount <= 0)
+-									{
+-										irRemove = governorCitizens.rend();
+-										continue;
+-									}
+-								}
+-							
+-								// do the swap
+-								pCitizen->iCount += iChangeCount;
+-								pRemoveCitizen->iCount -= iChangeCount;
+-
+-								iPopulationAssignable -= iChangeCount;
+-								iMoveCount -= iChangeCount;
+-								iTotalChangeCount += iChangeCount;
+-
+-								FAssert(pRemoveCitizen->iFood < iFood);
+-								iFoodDifference += (iFood - pRemoveCitizen->iFood) * iChangeCount;
+-								
+-								// are both not the same, either both specialist or both not specialist?
+-								if (pCitizen->bIsSpecialist != pRemoveCitizen->bIsSpecialist)
+-								{
+-									// we are adding a specialist
+-									if (pCitizen->bIsSpecialist)
+-									{
+-										governorWork.iWorkingSpecialists += iChangeCount;
+-										governorWork.iWorkingPlots -= iChangeCount;
+-									}
+-									// we are removing a specialist
+-									else
+-									{
+-										governorWork.iWorkingSpecialists -= iChangeCount;
+-										governorWork.iWorkingPlots += iChangeCount;
+-									}
+-								}
+-
+-								// if this the first remove, remember it
+-								if (!bRemovedFirst)
+-								{
+-									bRemovedFirst = true;
+-									irFirstRemove = irRemove;
+-									irFirstRemove++;	// we want the iterator to point one past it, so we can predecrement it first
+-								}
+-
+-								// clear remove, so we can search again
+-								irRemove = governorCitizens.rend();
+-							}
+-						}
+-					}
+-				}
+-			}
+-		}
+-	}
+-	
++				}
++			
++				// do the swap
++				pCitizen->iCount += iChangeCount;
++				pRemoveCitizen->iCount -= iChangeCount;
++
++				FAssert(pRemoveCitizen->iFood < iFood);
++				iFoodDifference += (iFood - pRemoveCitizen->iFood) * iChangeCount;
++				
++				// are both not the same, either both specialist or both not specialist?
++				if (pCitizen->bIsSpecialist != pRemoveCitizen->bIsSpecialist)
++				{
++					// we are adding a specialist
++					if (pCitizen->bIsSpecialist)
++					{
++						governorWork.iWorkingSpecialists += iChangeCount;
++						governorWork.iWorkingPlots -= iChangeCount;
++					}
++					// we are removing a specialist
++					else
++					{
++						governorWork.iWorkingSpecialists -= iChangeCount;
++						governorWork.iWorkingPlots += iChangeCount;
++					}
++				}
++
++				// check to see if there is a more valueble, lower food one than the one we just swapped, to swap for that one
++				int iRecursiveChangeCount = swapHigherFoodCitizen(irRemove, iFoodDifference, iMinDifference, iLowestFood, irLowestFood, governorWork, governorCitizens);
++				
++				// the change count is the max of the two counts (so we do not count a double swap as two)
++				iTotalChangeCount += max(iChangeCount, iRecursiveChangeCount);
++
++				// clear remove, so we can search again
++				irRemove = governorCitizens.rend();
++
++				// recalc move count (recursive call to swapHigherFoodCitizen might have changed it)
++				iMoveCount = (pCitizen->iMax - pCitizen->iCount);
++			}
++		}
++	}
++
+ 	return iTotalChangeCount;
+ }
++
+ 
+ int CvCityAI::AI_countCitizenFood(CvSortedCitizens& governorCitizens)
+ {
+@@ -1112,8 +1113,8 @@
+ 				iPopulationToAssign -= iCannotChangeCount;
+ 			}
+ 
+-			// if we can assign more of this citizen, add it to our list
+-			if (citizen.iCount < citizen.iMax)
++			// if we can assign some changable amount of this citizen
++			if (citizen.iMax > 0)
+ 			{
+ 				foodSortedCitizens.insert(std::make_pair(citizen.iFood, citizen));
+ 			}
+@@ -1125,11 +1126,11 @@
+ 	governorWork.iFreeSpecialistsAssignable = iFreeSpecialistsLeft;
+ 
+ 	// grab the highest food items
+-	for (CvCitizensReverseIterator ir = foodSortedCitizens.rbegin(); iPopulationToAssign > 0 && ir != governorCitizens.rend(); ++ir)
++	for (CvCitizensReverseIterator ir = foodSortedCitizens.rbegin(); iPopulationToAssign > 0 && ir != foodSortedCitizens.rend(); ++ir)
+ 	{
+ 		CvGovernorCitizen* pCitizen = getCitizen(ir);
+ 
+-		int iAssignCount = min(pCitizen->iMax - pCitizen->iCount, iPopulationToAssign);
++		int iAssignCount = min(pCitizen->iMax, iPopulationToAssign);
+ 		FAssert(iAssignCount > 0);
+ 		FAssert(pCitizen->iFood > 0);
+ 		
+@@ -1163,6 +1164,7 @@
+ 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+ 	
+ 	bool bEmphasizeFood = AI_isEmphasizeYield(YIELD_FOOD);
++	bool bEmphasizeProduction = AI_isEmphasizeYield(YIELD_PRODUCTION);
+ 	bool bFoodIsProduction = isFoodProduction();
+ 	bool bCanPopRush = kPlayer.canPopRush();
+ 	int iNumCities = kPlayer.getNumCities();
+@@ -1239,7 +1241,7 @@
+ 			else
+ 			{
+ 				int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+-				int iFoodToGrow = growthThreshold();
++				int iFoodToGrow = max(1, (growthThreshold() * (100 - getMaxFoodKeptPercent())) / 100);
+ 
+ 				// if we can pop rush, value food more
+ 				if (bCanPopRush)
+@@ -1258,6 +1260,10 @@
+ 					}
+ 
+ 					int iSlaveryValue = (2 * iProductionWeight * iBestProductionPerPopulation) / (iFoodToGrow * iConsumtionPerPop);
++					if (bEmphasizeProduction)
++					{
++						iSlaveryValue *= 16;
++					}
+ 
+ 					governorValues.yieldValues.aiYield[YIELD_FOOD] += iSlaveryValue;
+ 					governorValues.bGrowPastHappy = true;
+@@ -1320,7 +1326,7 @@
+ 		governorValues.yieldValues.aiYield[YIELD_PRODUCTION] /= (iBaseProductionModifier + iExtraProductionModifier);
+ 	}
+ 	
+-	if (AI_isEmphasizeYield(YIELD_PRODUCTION))
++	if (bEmphasizeProduction)
+ 	{
+ 		governorValues.yieldValues.aiYield[YIELD_PRODUCTION] *= 16;
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@342
++++ /trunk/CvGameCoreDLL/CvCityAI.h@343
+@@ -273,6 +273,8 @@
+ 	int AI_workLessCitizens(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens, int iCountToRemove);
+ 	int AI_foodAdjustCitizens(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens, CvGovernorValues& governorValues);
+ 
++	int swapHigherFoodCitizen(CvCitizensReverseIterator ir, int& iFoodDifference, int iMinDifference, int& iLowestFood, CvCitizensReverseIterator& irLowestFood, CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens);
++
+ 	int AI_countCitizenFood(CvSortedCitizens& governorCitizens);
+ 	int AI_countMaximumCitizenFood(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens);
+ 
+

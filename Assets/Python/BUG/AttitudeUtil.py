@@ -9,87 +9,40 @@
 ##
 ## Author: Ruff_hi, EmperorFool
 
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
+# <!-- custom: Consolidate this dependency at the shared SASVisualUtils/SASTextScale boundary instead of retaining the retired overlapping visual-resource helper imports. (ChatGPT-5.6-Sol) -->
+import SASVisualUtils as SASVisuals
 import BugUtil
-import FontUtil
 import PlayerUtil
 import re
 
 NUM_ATTITUDES = 5
 
-DEFAULT_COLORS = (
-	"COLOR_RED", 
-	"COLOR_CYAN", 
-	"COLOR_CLEAR", 
-	"COLOR_GREEN", 
-	"COLOR_YELLOW",
-)
+DEFAULT_COLORS = ("COLOR_RED", "COLOR_CYAN", "COLOR_CLEAR", "COLOR_GREEN", "COLOR_YELLOW")
 
-ATTITUDE_KEYS = (
-	"furious", 
-	"annoyed", 
-	"cautious", 
-	"pleased", 
-	"friendly", 
-)
-ATTITUDE_COLORS = None
-ATTITUDE_ICONS = None
 
 # These are also defaults; XML will override
-ATTITUDE_MODIFIERS = (
-	"TXT_KEY_MISC_ATTITUDE_LAND_TARGET",
-	"TXT_KEY_MISC_ATTITUDE_WAR",
-	"TXT_KEY_MISC_ATTITUDE_PEACE",
-	"TXT_KEY_MISC_ATTITUDE_SAME_RELIGION",
-	"TXT_KEY_MISC_ATTITUDE_DIFFERENT_RELIGION",
-	"TXT_KEY_MISC_ATTITUDE_BONUS_TRADE",
-	"TXT_KEY_MISC_ATTITUDE_OPEN_BORDERS",
-	"TXT_KEY_MISC_ATTITUDE_DEFENSIVE_PACT",
-	"TXT_KEY_MISC_ATTITUDE_RIVAL_DEFENSIVE_PACT",
-	"TXT_KEY_MISC_ATTITUDE_RIVAL_VASSAL",
-	"TXT_KEY_MISC_ATTITUDE_SHARE_WAR",
-	"TXT_KEY_MISC_ATTITUDE_FAVORITE_CIVIC",
-	"TXT_KEY_MISC_ATTITUDE_TRADE",
-	"TXT_KEY_MISC_ATTITUDE_RIVAL_TRADE",
-	"TXT_KEY_MISC_ATTITUDE_FREEDOM",
-	"TXT_KEY_MISC_ATTITUDE_EXTRA_GOOD",
-# Show Hidden Attitudes in BULL
-	"TXT_KEY_MISC_ATTITUDE_FIRST_IMPRESSION",
-	"TXT_KEY_MISC_ATTITUDE_TEAM_SIZE",
-	"TXT_KEY_MISC_ATTITUDE_BETTER_RANK",
-	"TXT_KEY_MISC_ATTITUDE_WORSE_RANK",
-	#"TXT_KEY_MISC_ATTITUDE_LOW_RANK", # advc.sha: Not used
-	"TXT_KEY_MISC_ATTITUDE_LOST_WAR",
-)
+# "Show Hidden Attitudes in BULL" section starts at TXT_KEY_MISC_ATTITUDE_FIRST_IMPRESSION; TXT_KEY_MISC_ATTITUDE_LOW_RANK omitted (advc.sha: not used)
+ATTITUDE_MODIFIERS = ("TXT_KEY_MISC_ATTITUDE_LAND_TARGET", "TXT_KEY_MISC_ATTITUDE_WAR", "TXT_KEY_MISC_ATTITUDE_PEACE", "TXT_KEY_MISC_ATTITUDE_SAME_RELIGION", "TXT_KEY_MISC_ATTITUDE_DIFFERENT_RELIGION", "TXT_KEY_MISC_ATTITUDE_BONUS_TRADE", "TXT_KEY_MISC_ATTITUDE_OPEN_BORDERS", "TXT_KEY_MISC_ATTITUDE_DEFENSIVE_PACT", "TXT_KEY_MISC_ATTITUDE_RIVAL_DEFENSIVE_PACT", "TXT_KEY_MISC_ATTITUDE_RIVAL_VASSAL", "TXT_KEY_MISC_ATTITUDE_SHARE_WAR", "TXT_KEY_MISC_ATTITUDE_FAVORITE_CIVIC", "TXT_KEY_MISC_ATTITUDE_TRADE", "TXT_KEY_MISC_ATTITUDE_RIVAL_TRADE", "TXT_KEY_MISC_ATTITUDE_FREEDOM", "TXT_KEY_MISC_ATTITUDE_EXTRA_GOOD", "TXT_KEY_MISC_ATTITUDE_FIRST_IMPRESSION", "TXT_KEY_MISC_ATTITUDE_TEAM_SIZE", "TXT_KEY_MISC_ATTITUDE_BETTER_RANK", "TXT_KEY_MISC_ATTITUDE_WORSE_RANK", "TXT_KEY_MISC_ATTITUDE_LOST_WAR")
 MODIFIER_STRING_TO_KEY = None
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-
 ## Initialization
 
 def init (colors=DEFAULT_COLORS, modifiers=None):
-	"""Initializes this module, raising ConfigError if any problems occur."""
-	# create font icons for each attitude level
-	global ATTITUDE_ICONS
-	ATTITUDE_ICONS = [FontUtil.getChar(key) for key in ATTITUDE_KEYS]
-	if len(ATTITUDE_ICONS) != NUM_ATTITUDES:
-		raise BugUtil.ConfigError("Failed to create attitude icons")
-	
-	# convert colors to type IDs
-	if len(colors) != NUM_ATTITUDES:
-		raise BugUtil.ConfigError("Expected %d colors" % NUM_ATTITUDES)
-	global ATTITUDE_COLORS
-	ATTITUDE_COLORS = map(gc.getInfoTypeForString, colors)
-	invalidCount = ATTITUDE_COLORS.count(-1)
-	if invalidCount > 0:
-		invalid = []
-		for id, color in zip(ATTITUDE_COLORS, colors):
-			if id == -1:
-				invalid.append(color)
-		raise BugUtil.ConfigError("Given %d invalid colors: %s" % (invalidCount, str(invalid)))
+	# <!-- custom: Preserve the inherited init contract: this module still raises ConfigError when initialization cannot establish valid shared attitude resources. (ChatGPT-5.6-Sol) -->
+	# <!-- custom: Store the five attitude glyph/color resources in SASVisualUtils rather than rebuilding parallel module globals here.
+	# XML still owns the configurable color tuple. (ChatGPT-5.6-Sol) -->
+	SASVisuals.Attitude.configure(colors)
 
 	# init modifiers, overriding default list as necessary
 	if modifiers is not None and (isinstance(modifiers, list) or isinstance(modifiers, tuple)):
@@ -97,44 +50,43 @@ def init (colors=DEFAULT_COLORS, modifiers=None):
 		ATTITUDE_MODIFIERS = tuple(modifiers)
 	initModifiers()
 
-
 ## Attitude
 
 def hasAttitude (nPlayer, nTarget):
-	"""Returns True if nTarget can see nPlayer's attitude toward them."""
-	return (nPlayer != -1 and nTarget != -1 and nPlayer != nTarget
-	        and gc.getTeam(gc.getPlayer(nPlayer).getTeam()).isHasMet(gc.getPlayer(nTarget).getTeam()))
+	# Returns True if nTarget can see nPlayer's attitude toward them.
+	return (nPlayer != -1 and nTarget != -1 and nPlayer != nTarget and gc.getTeam(gc.getPlayer(nPlayer).getTeam()).isHasMet(gc.getPlayer(nTarget).getTeam()))
 
 def getAttitudeString (nPlayer, nTarget):
-	"""Returns the full hover text with attitude modifiers nPlayer has toward nTarget."""
+	# Returns the full hover text with attitude modifiers nPlayer has toward nTarget.
 	if hasAttitude(nPlayer, nTarget):
 		return CyGameTextMgr().getAttitudeString(nPlayer, nTarget)
 	return None
 
 def getAttitudeCategory (nPlayer, nTarget):
-	"""Returns the attitude level nPlayer has toward nTarget [0,4]."""
+	# Returns the attitude level nPlayer has toward nTarget [0,4].
 	if hasAttitude(nPlayer, nTarget):
 		return gc.getPlayer(nPlayer).AI_getAttitude(nTarget)
 	return None
 
 def getAttitudeColor (nPlayer, nTarget):
-	"""Returns the color of the attitude nPlayer has toward nTarget."""
+	# Returns the color of the attitude nPlayer has toward nTarget.
 	iCategory = getAttitudeCategory(nPlayer, nTarget)
 	if iCategory is not None:
-		return ATTITUDE_COLORS[iCategory]
+		return SASVisuals.Attitude.getColor(iCategory)
 	return -1
 
 def getAttitudeIcon (nPlayer, nTarget):
-	"""Returns the font icon of the attitude nPlayer has toward nTarget."""
+	# Returns the font icon of the attitude nPlayer has toward nTarget.
 	iCategory = getAttitudeCategory(nPlayer, nTarget)
 	if iCategory is not None:
-		return ATTITUDE_ICONS[iCategory]
+		return SASVisuals.Attitude.getIcon(iCategory)
 	return ""
 
 def getAttitudeCount (nPlayer, nTarget):
-	"""Returns the total attitude modifiers nPlayer has toward nTarget."""
+	# Returns the total attitude modifiers nPlayer has toward nTarget.
 	sAttStr = getAttitudeString(nPlayer, nTarget)
-	if sAttStr == None:
+	# <!-- custom: use "is" not "==" when checking None (ruff). Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+	if sAttStr is None:
 		#return
 		return 0 # advc.001 (from Inthegrave's mod, fixed by Toffer)
 	nAtt = 0
@@ -145,24 +97,24 @@ def getAttitudeCount (nPlayer, nTarget):
 		nAtt += int (ltPlusAndMinuses[i][:-2])
 	return nAtt
 
-
 def getAttitudeText (nPlayer, nTarget, bNumber, bSmily, bWorstEnemy, bWarPeace, bWarTrades): # advc.152: bWarTrades added
-	"""Returns a string describing the attitude nPlayer has toward nTarget."""
+	# Returns a string describing the attitude nPlayer has toward nTarget.
+	#
 	nAttitude = getAttitudeCount (nPlayer, nTarget)
-	if nAttitude == None:
+	if nAttitude is None:
 		return None
-	
+
 	szText = []
 	if bSmily:
 		szText.append(getAttitudeIcon(nPlayer, nTarget))
 	if bNumber:
 		szText.append(BugUtil.colorText(u"%+d" % nAttitude, getAttitudeColor(nPlayer, nTarget)))
-	
+
 	szIcons = u""
 	pPlayer = gc.getPlayer(nPlayer)
 	pTarget = gc.getPlayer(nTarget)
 	if bWorstEnemy and isWorstEnemy(pPlayer, pTarget):
-		szIcons += FontUtil.getChar("angrypop")
+		szIcons += SASVisuals.Font.ANGRY_POP_CHAR
 	# <advc.152>
 	bPeace = False
 	# Moved from the bWarPeace branch:
@@ -173,7 +125,7 @@ def getAttitudeText (nPlayer, nTarget, bNumber, bSmily, bWorstEnemy, bWarPeace, 
 	# </advc.152>
 	if bWarPeace:
 		if pTeam.isAtWar(nTargetTeam):
-			szIcons += FontUtil.getChar("war")
+			szIcons += SASVisuals.DynamicFont.WAR_CHAR
 		elif gc.getGame().getActiveTeam() in (nTeam, nTargetTeam):
 			bPeace = False
 			if pTeam.isForcePeace(nTargetTeam):
@@ -184,18 +136,19 @@ def getAttitudeText (nPlayer, nTarget, bNumber, bSmily, bWorstEnemy, bWarPeace, 
 						bPeace = True
 						break
 			if bPeace:
-				szIcons += FontUtil.getChar("peace")
+				szIcons += SASVisuals.DynamicFont.PEACE_CHAR
 	# <advc.152>
 	if bWarTrades and not bPeace and nTargetTeam != gc.getGame().getActiveTeam()and nTeam != gc.getGame().getActiveTeam() and nTeam != nTargetTeam and not pTeam.isAtWar(nTargetTeam) and not pTeam.isHuman() and pTeam.AI_declareWarTrade(nTargetTeam, gc.getGame().getActiveTeam()) == -1:
-		szIcons += FontUtil.getChar("occupation")
+		szIcons += SASVisuals.Font.OCCUPATION_CHAR
 	# </advc.152>
 	if szIcons:
 		szText.append(szIcons)
-	
+
 	return u" ".join(szText)
 
 def initModifiers (argsList=None):
-	""" Creates the dictionary that maps strings to modifier keys. """
+	# Creates the dictionary that maps strings to modifier keys.
+	#
 	global MODIFIER_STRING_TO_KEY
 	MODIFIER_STRING_TO_KEY = {}
 	for sKey in ATTITUDE_MODIFIERS:
@@ -216,13 +169,14 @@ def initModifiers (argsList=None):
 	#BugUtil.debug(u"initModifiers() MODIFIER_STRING_TO_KEY = %s" % str(MODIFIER_STRING_TO_KEY))
 
 class Attitude:
-	""" Holds summary of attitude that this player has toward target player.
+	# Holds summary of attitude that this player has toward target player.
+	#
+	# If the two IDs are the same or the two players have not met, the
+	# class will be filled with generic default values. We also check to see
+	# that the active player has met both players, and the accessor functions
+	# will react differently depending on if this is the case. 
+	#
 
-	If the two IDs are the same or the two players have not met, the
-	class will be filled with generic default values. We also check to see
-	that the active player has met both players, and the accessor functions
-	will react differently depending on if this is the case. 
-	"""
 	def __init__ (self, iThisPlayer, iTargetPlayer):
 		pActiveTeam = gc.getTeam(gc.getActivePlayer().getTeam())
 		iThisTeam = gc.getPlayer(iThisPlayer).getTeam()
@@ -257,66 +211,67 @@ class Attitude:
 		BugUtil.debug(u"%s"  % (self))
 
 	def __str__ (self):
-		""" String representation of class instance. """
-		return (u"Attitude { 'iThisPlayer': %d, 'iTargetPlayer': %d, 'iAttitudeSum': %d, 'eAttitudeType': %d, 'bHasActiveMetBoth': %s,\n 'iAttitudeModifiers': %s,\n 'sAttitudeString': %s }" 
-				% (self.iThisPlayer, self.iTargetPlayer, self.iAttitudeSum, self.eAttitudeType,
-				   self.bHasActiveMetBoth, str(self.iAttitudeModifiers), self.sAttitudeString))
+		# String representation of class instance.
+		#
+		return (u"Attitude { 'iThisPlayer': %d, 'iTargetPlayer': %d, 'iAttitudeSum': %d, 'eAttitudeType': %d, 'bHasActiveMetBoth': %s,\n 'iAttitudeModifiers': %s,\n 'sAttitudeString': %s }" % (self.iThisPlayer, self.iTargetPlayer, self.iAttitudeSum, self.eAttitudeType, self.bHasActiveMetBoth, str(self.iAttitudeModifiers), self.sAttitudeString))
 
 	def hasModifier (self, sKey):
-		""" Does the attitude contain given modifier? """
+		# Does the attitude contain given modifier?
+		#
 		if self.bHasActiveMetBoth:
 			return (sKey in self.iAttitudeModifiers)
 		return False
 
 	def getModifier (self, sKey):
-		""" Returns integer value of given attitude modifer. """
+		# Returns integer value of given attitude modifer.
+		#
 		if self.bHasActiveMetBoth:
 			if sKey in self.iAttitudeModifiers:
 				return self.iAttitudeModifiers[sKey]
 		return 0
 
 	def hasAttitude (self):
-		""" Does this player have any attitude toward the target? """
+		# Does this player have any attitude toward the target?
 		if self.bHasActiveMetBoth:
 			return (not self.eAttitudeType == AttitudeTypes.NO_ATTITUDE)
 		return False
 
 	def getCount (self):
-		""" Returns total (visible) count of attitude modifiers. """
+		# Returns total (visible) count of attitude modifiers.
 		if self.bHasActiveMetBoth:
 			return self.iAttitudeSum
 		return 0
 
 	def getCategory (self):
-		""" Returns attitude category as an AttitudeTypes enum. """
+		# Returns attitude category as an AttitudeTypes enum.
 		if self.bHasActiveMetBoth:
 			return self.eAttitudeType
 		return AttitudeTypes.NO_ATTITUDE
 
 	def getString (self):
-		""" Returns full diplomacy text string. """
+		# Returns full diplomacy text string.
 		if self.bHasActiveMetBoth:
 			return self.sAttitudeString
 		return ""
 
 	def getIcon (self):
-		""" Returns smilie icon string based on attitude type. """
+		# Returns smilie icon string based on attitude type.
 		if self.bHasActiveMetBoth:
 			eCategory = self.getCategory()
 			if eCategory != AttitudeTypes.NO_ATTITUDE:
-				return ATTITUDE_ICONS[int(eCategory)]
+				return SASVisuals.Attitude.getIcon(int(eCategory))
 		return ""
 
 	def getColor (self):
-		""" Returns the color of the attitude this player has toward target. """
+		# Returns the color of the attitude this player has toward target.
 		if self.bHasActiveMetBoth:
 			eCategory = self.getCategory()
 			if eCategory != AttitudeTypes.NO_ATTITUDE:
-				return ATTITUDE_COLORS[int(eCategory)]
+				return SASVisuals.Attitude.getColor(int(eCategory))
 		return -1
-	
+
 	def getText (self, bNumber, bSmily, bWorstEnemy, bWarPeace):
-		""" Returns a string describing the attitude this player has toward target. """
+		# Returns a string describing the attitude this player has toward target.
 		if self.bHasActiveMetBoth:
 			nAttitude = self.getCount()
 
@@ -339,7 +294,7 @@ class Attitude:
 			pThisPlayer = gc.getPlayer(self.iThisPlayer)
 			pTargetPlayer = gc.getPlayer(self.iTargetPlayer)
 			if bWorstEnemy and isWorstEnemy(pThisPlayer, pTargetPlayer):
-				szText +=  u"%c" %(CyGame().getSymbolID(FontSymbols.ANGRY_POP_CHAR))
+				szText +=  u"%s" %(SASVisuals.Font.ANGRY_POP_CHAR)
 
 			if bWarPeace:
 				iThisTeam = pThisPlayer.getTeam()
@@ -347,7 +302,7 @@ class Attitude:
 				iTargetTeam = pTargetPlayer.getTeam()
 				pTargetTeam = gc.getTeam(iTargetTeam)
 				if pThisTeam.isAtWar(iTargetTeam):
-					szText += u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar() + 25)
+					szText += SASVisuals.DynamicFont.WAR_CHAR
 				elif gc.getGame().getActiveTeam() in (iThisTeam, iTargetTeam):
 					bPeace = False
 					if pThisTeam.isForcePeace(iTargetTeam):
@@ -358,11 +313,10 @@ class Attitude:
 								bPeace = True
 								break
 					if bPeace:
-						szText += u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar() + 26)
-		
+						szText += SASVisuals.DynamicFont.PEACE_CHAR
+
 			return szText
 		return ""
-	
 
 ## Worst Enemy
 ##
@@ -370,17 +324,15 @@ class Attitude:
 ## CyPlayer.getWorstEnemyName() returns the names of everyone on their hated team separated by slashes (/).
 
 def isWorstEnemy(playerOrID, enemyOrID):
-	"""
-	Returns True if <enemy> is one of the worst enemies of <player>'s team.
-	"""
+	# Returns True if <enemy> is one of the worst enemies of <player>'s team.
+	#
 	player, team = PlayerUtil.getPlayerAndTeam(playerOrID)
 	enemy, enemyTeam = PlayerUtil.getPlayerAndTeam(enemyOrID)
 	return not team.isHuman() and team.getID() != enemyTeam.getID() and getWorstEnemyTeam(player) == enemyTeam.getID()
 
 def getWorstEnemies(playerOrID):
-	"""
-	Returns a list containing the player IDs that are worst enemies of <player>'s team.
-	"""
+	# Returns a list containing the player IDs that are worst enemies of <player>'s team.
+	#
 	eTeam = getWorstEnemyTeam(playerOrID)
 	enemies = []
 	if eTeam != -1:
@@ -389,11 +341,10 @@ def getWorstEnemies(playerOrID):
 	return enemies
 
 def getWorstEnemyTeam(playerOrID):
-	"""
-	Returns the team ID that is the worst enemy of <player>'s team.
-	
-	If <player>'s team has no worst enemy, returns -1.
-	"""
+	# Returns the team ID that is the worst enemy of <player>'s team.
+	#
+	# If <player>'s team has no worst enemy, returns -1.
+	#
 	player, team = PlayerUtil.getPlayerAndTeam(playerOrID)
 	if not team.isHuman():
 		worstEnemyName = player.getWorstEnemyName()
@@ -404,15 +355,14 @@ def getWorstEnemyTeam(playerOrID):
 	return -1
 
 def getWorstEnemyTeams():
-	"""
-	Returns a dictionary of the team IDs that are each team's worst enemy.
-	
-	The key is team ID; the value is the worst enemy team ID.
-	If a team has no worst enemy, -1 is stored as its value.
-	Ignores dead, human, barbarian, and minor teams.
-	
-	Loops over players because CyTeam does not have getWorstEnemyName().
-	"""
+	# Returns a dictionary of the team IDs that are each team's worst enemy.
+	#	
+	# The key is team ID; the value is the worst enemy team ID.
+	# If a team has no worst enemy, -1 is stored as its value.
+	# Ignores dead, human, barbarian, and minor teams.
+	#
+	# Loops over players because CyTeam does not have getWorstEnemyName().
+	#
 	namesToID = {}
 	for team in PlayerUtil.teams(alive=True, barbarian=False, minor=False):
 		namesToID[team.getName()] = team.getID()

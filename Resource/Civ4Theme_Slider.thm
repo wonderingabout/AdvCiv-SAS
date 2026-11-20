@@ -33,7 +33,7 @@ with GFC_Control_Slider
 	{
 		// Child layout function
 		GFC_Control_Update_ChildLayout	=	GFC_CtrlTheme_Bitmap_Control_Slider_Update_ChildLayout;
-										
+
 		GFC_Control_Renderer_Control	=	GFC_CtrlTheme_Bitmap_Control_Slider_Renderer_Control;
 
 		with .Renderer					
@@ -42,7 +42,7 @@ with GFC_Control_Slider
 			.TextItem							=	GFC_CtrlTheme_Bitmap_Control_Slider_Renderer_TextItem;
 			.ImageItem							=	GFC_CtrlTheme_Bitmap_Control_Slider_Renderer_ImageItem;
 		}									
-												
+
 		// Child controls							
 		with .Child									
 		{										
@@ -55,7 +55,7 @@ with GFC_Control_Slider
 			.HPopupMenu							=	GFC_CtrlTheme_Bitmap_Control_Slider_Child_HPopupMenu;	
 			.VPopupMenu							=	GFC_CtrlTheme_Bitmap_Control_Slider_Child_VPopupMenu;
 		}									
-												
+
 		// Child styles							
 		with .StyleId							
 		{									
@@ -78,7 +78,7 @@ with GFC_Control_Slider
 			.TopLayer							=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-												
+
 			// Control flag change masks		
 			.Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_ACTIVE, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
 		}
@@ -95,17 +95,17 @@ with GFC_Control_Slider
 			.HTrack_VAlign						=	GFlags(GSliderCtrl, GFC_CF_SLIDER_VCENTER);
 			.VTrack_HAlign						=	GFlags(GSliderCtrl, GFC_CF_SLIDER_HCENTER);
 			.VTrack_VAlign						=	GFlags(GSliderCtrl, GFC_CF_SLIDER_TOP);
-														
+
 			.Items_Recalc						=	GFlags(GSliderCtrl);
 			.HGrip_Align						=	GFlags(GSliderCtrl, GFC_CF_SLIDER_GRIP_CENTER);
 			.VGrip_Align						=	GFlags(GSliderCtrl, GFC_CF_SLIDER_GRIP_CENTER);
-												
+
 			.HItems_Align						=	GFlags(GSliderCtrl, GFC_CF_SLIDER_ITEMS_TOPLEFT);
 			.VItems_Align						=	GFlags(GSliderCtrl, GFC_CF_SLIDER_ITEMS_TOPLEFT);
 
 			.SnapTo_OnDrop						=	0;	//GFlags(GSliderCtrl, GFC_CF_SLIDER_SNAPTO_ONDROP);
 			.SnapTo_OnDrag						=	0;	//GFlags(GSliderCtrl, GFC_CF_SLIDER_SNAPTO_ONDRAG);
-												
+
 			// Slider flag change masks			
 			//.SliderMask_InvalidateControl		=	GFlags(GSliderCtrl);
 		}
@@ -114,17 +114,17 @@ with GFC_Control_Slider
 		{
 			.LineUnits							=	1;	
 			.PageUnits							=	10;
-													
+
 			.SnapToValue						=	4;
 			.SnapToPercent 						=	25;  
-						
+
 			// Default control sizes
 			.HDefault							=	GSize(140,30);
 			.VDefault							=	GSize(30,140);
-											
+
 			.HMargin							=	GRectMargin(0,0,0,0);
 			.VMargin							=	GRectMargin(0,0,0,0);
-			
+
 			// Grip sizes
 			.HGrip								=	GSize(14,28);
 			.VGrip								=	GSize(28,14);	
@@ -132,17 +132,17 @@ with GFC_Control_Slider
 			.VGripOffset						=	GPoint(0,0);	
 			.HGripInset							=	GRectMargin(0,0,2,0);
 			.VGripInset							=	GRectMargin(0,0,0,2);	
-															
+
 			// Item set offset (number of units from track)													
 			.HItemsOffset						=	GPoint(0,11);
 			.VItemsOffset						=	GPoint(11,0);
-						
+
 			// Tick item size
 			.HTickItem							=	GSize(2,10);
 			.VTickItem							=	GSize(10,2);
 			.HTickItemMinor						=	GSize(2,5);
 			.VTickItemMinor						=	GSize(5,2);
-		
+
 			// Tick item margin
 			.HTickItemMargin					=	GRectMargin(6,0,6,0);
 			.VTickItemMargin					=	GRectMargin(0,0,0,0);
@@ -161,18 +161,18 @@ with GFC_Control_Slider
 			.HTrackGripMargin					=	GRectMargin(5,1,5,1);
 			.VTrackGripMargin					=	GRectMargin(1,1,1,1);
 		}
-		
+
 		with .Delay
 		{
 			.TrackStepping_First				=	250;	
 			.TrackStepping_Repeat				=	90;
 		}										
-												
+
 		with .Color									
 		{										
 			.Inner								=	GFC_Control_Color_Surface;
 			.Fill								=	SF_CtrlTheme_Civ4_Control_Color_SliderFill;
-												
+
 			.Text_Default						=	GFC_Control_Color_Text_Default;
 			.Text_Disable						=	GFC_Control_Color_Text_Disable;
 			.Text_Winoff						=	.Text_Default;
@@ -195,7 +195,7 @@ with GFC_Control_Slider
 		with .Combine						
 		{								
 			.Inner								=	GFC_Control_Combine_Surface;
-												
+
 			.Text_Default_Dest					=	GFC_Control_Combine_Text_Default_Dest;
 			.Text_Default_Factor				=	GFC_Control_Combine_Text_Default_Factor;
 			.Text_Disable_Dest					=	GFC_Control_Combine_Text_Disable_Dest;
@@ -215,7 +215,7 @@ with GFC_Control_Slider
 			.Tick_Winoff						=	GFC_Control_Combine_Text_Disable_Dest;
 			.Tick_WinoffDisable					=	GFC_Control_Combine_Text_Disable_Factor;
 		}
-		
+
 		with .Cursor
 		{	
 			.HTrackLeft							=	GFC_Control_Cursor_Arrow;
@@ -223,7 +223,7 @@ with GFC_Control_Slider
 			.VTrackTop							=	GFC_Control_Cursor_Arrow;
 			.VTrackDown							=	GFC_Control_Cursor_Arrow;
 		}											
-														
+
 		with .Font										
 		{											
 			.Text								=	SF_CtrlTheme_Civ4_Control_Font_Size3_Normal;
@@ -231,7 +231,7 @@ with GFC_Control_Slider
 
 
 		// ******* Initialize all the Bitmap theme Slider properties to avoid inheritance problems
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Slider
 		{
 			with .Skin
@@ -350,19 +350,19 @@ with GFC_Control_Slider
 		map GFC_Control			=	GFC_Control_DefaultControl_Style;
 	}	// end GFC_Control_DefaultSlider_Style
 
-	
+
 	// ** Grips
-	
+
 	// Horizontal grip - button style
 	style SF_CtrlTheme_Civ4_Control_Slider_HGripButton_Normal_Style
 	{
 		GFC_Control_Renderer_Control			=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;
-													
+
 		GFC_Control_Flag_Mask_InvalidateControl	=	GFlags(GCtrl, GFC_CF_ACTIVE, GFC_CF_WINDOWACTIVE, GFC_CF_DISABLED, GFC_CF_TRANSPARENT);
 
 		GFC_Control_Button_Flag_TrackedPress	=	GFlags(GButtonCtrl, GFC_CF_BUTTON_TRACKEDPRESS);
 		GFC_Control_Button_Flag_DownOffset		=	GFlags(GButtonCtrl);
-	
+
 		with GFC_CtrlTheme_Bitmap_Control_Button_Skin
 		{
 			.Default
@@ -451,9 +451,9 @@ with GFC_Control_Slider
 	style SF_CtrlTheme_Civ4_Control_Slider_HGripButton_PointedUp_Style
 	{
 		GFC_Control_Renderer_Control				=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;
-													
+
 		GFC_Control_Flag_Mask_InvalidateControl			=	GFlags(GCtrl, GFC_CF_ACTIVE, GFC_CF_WINDOWACTIVE, GFC_CF_DISABLED, GFC_CF_TRANSPARENT);
-		
+
 		GFC_Control_Button_Flag_TrackedPress		=	GFlags(GButtonCtrl, GFC_CF_BUTTON_TRACKEDPRESS);
 		GFC_Control_Button_Flag_DownOffset			=	0;
 
@@ -545,9 +545,9 @@ with GFC_Control_Slider
 	style SF_CtrlTheme_Civ4_Control_Slider_HGripButton_PointedDown_Style
 	{
 		GFC_Control_Renderer_Control				=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;
-													
+
 		GFC_Control_Flag_Mask_InvalidateControl			=	GFlags(GCtrl, GFC_CF_ACTIVE, GFC_CF_WINDOWACTIVE, GFC_CF_DISABLED, GFC_CF_TRANSPARENT);
-		
+
 		GFC_Control_Button_Flag_TrackedPress		=	GFlags(GButtonCtrl, GFC_CF_BUTTON_TRACKEDPRESS);
 		GFC_Control_Button_Flag_DownOffset			=	0;
 
@@ -640,12 +640,12 @@ with GFC_Control_Slider
 	style SF_CtrlTheme_Civ4_Control_Slider_VGripButton_Normal_Style
 	{
 		GFC_Control_Renderer_Control			=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;
-													
+
 		GFC_Control_Flag_Mask_InvalidateControl	=	GFlags(GCtrl, GFC_CF_ACTIVE, GFC_CF_WINDOWACTIVE, GFC_CF_DISABLED, GFC_CF_TRANSPARENT);
 
 		GFC_Control_Button_Flag_TrackedPress	=	GFlags(GButtonCtrl, GFC_CF_BUTTON_TRACKEDPRESS);
 		GFC_Control_Button_Flag_DownOffset		=	GFlags(GButtonCtrl);
-	
+
 		with GFC_CtrlTheme_Bitmap_Control_Button_Skin
 		{
 			.Default
@@ -734,9 +734,9 @@ with GFC_Control_Slider
 	style SF_CtrlTheme_Civ4_Control_Slider_VGripButton_PointedLeft_Style
 	{
 		GFC_Control_Renderer_Control				=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;
-													
+
 		GFC_Control_Flag_Mask_InvalidateControl			=	GFlags(GCtrl, GFC_CF_ACTIVE, GFC_CF_WINDOWACTIVE, GFC_CF_DISABLED, GFC_CF_TRANSPARENT);
-		
+
 		GFC_Control_Button_Flag_TrackedPress		=	GFlags(GButtonCtrl, GFC_CF_BUTTON_TRACKEDPRESS);
 		GFC_Control_Button_Flag_DownOffset			=	0;
 
@@ -829,9 +829,9 @@ with GFC_Control_Slider
 	style SF_CtrlTheme_Civ4_Control_Slider_VGripButton_PointedRight_Style
 	{
 		GFC_Control_Renderer_Control				=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;
-													
+
 		GFC_Control_Flag_Mask_InvalidateControl			=	GFlags(GCtrl, GFC_CF_ACTIVE, GFC_CF_WINDOWACTIVE, GFC_CF_DISABLED, GFC_CF_TRANSPARENT);
-		
+
 		GFC_Control_Button_Flag_TrackedPress		=	GFlags(GButtonCtrl, GFC_CF_BUTTON_TRACKEDPRESS);
 		GFC_Control_Button_Flag_DownOffset			=	0;
 
@@ -925,7 +925,7 @@ with GFC_Control_Slider
 
 	GFC_Control_StandardSlider_Style
 	{
-		
+
 		// Child styles
 		with .StyleId
 		{
@@ -933,14 +933,14 @@ with GFC_Control_Slider
 			.HGrip					=	GPropertyId(SF_CtrlTheme_Civ4_Control_Slider_HGripButton_Normal_Style);	
 		}
 
-		
+
 		// ** DragGrip, Track and Item Skins
 
 		with GFC_CtrlTheme_Bitmap_Control_Slider_Skin
 		{		
-			
+
 			// ***** Slider Track skin
-			
+
 			with .HTrack
 			{
 				with .Border
@@ -955,7 +955,7 @@ with GFC_Control_Slider
 					.Winoff					=	.Default;
 					.WinoffDisable			=	.Disable;
 				}
-			
+
 				with .Inner
 				{
 					.Default
@@ -986,7 +986,7 @@ with GFC_Control_Slider
 					.WinoffRollover			=	.Rollover;
 					.WinoffDisable			=	.Disable;
 				}
-			
+
 				with .Fill
 				{
 					.Default
@@ -1027,7 +1027,7 @@ with GFC_Control_Slider
 					.WinoffRollover			=	.Rollover;
 					.WinoffDisable			=	.Disable;
 				}
-							
+
 				with .FillColor
 				{
 					.Default
@@ -1069,7 +1069,7 @@ with GFC_Control_Slider
 					.WinoffDisable			=	.Disable;
 				}
 			}
-			
+
 			with .VTrack
 			{
 				with .Border
@@ -1084,7 +1084,7 @@ with GFC_Control_Slider
 					.Winoff					=	.Default;
 					.WinoffDisable			=	.Disable;
 				}
-			
+
 				with .Inner
 				{
 					.Default
@@ -1115,7 +1115,7 @@ with GFC_Control_Slider
 					.WinoffRollover			=	.Rollover;
 					.WinoffDisable			=	.Disable;
 				}
-			
+
 				with .Fill
 				{
 					.Default
@@ -1156,7 +1156,7 @@ with GFC_Control_Slider
 					.WinoffRollover			=	.Rollover;
 					.WinoffDisable			=	.Disable;
 				}
-							
+
 				with .FillColor
 				{
 					.Default
@@ -1265,7 +1265,7 @@ with GFC_Control_Slider
 		map GFC_CtrlTheme_Bitmap_Control_Slider					=	GFC_Control_DefaultSlider_Style;
 		map GFC_Control											=	GFC_Control_DefaultSlider_Style;
 	}
-	
+
 
 
 	GFC_Control_PointedUpSlider_Style
@@ -1290,7 +1290,7 @@ with GFC_Control_Slider
 			.HGripOffset			=	GPoint(0,0);
 			.VGripOffset			=	GPoint(0,0);
 		}
-		
+
 		map SF_CtrlTheme_Civ4_Control_Slider					=	GFC_Control_StandardSlider_Style;
 		map GFC_CtrlTheme_Bitmap_Control_Slider					=	GFC_Control_StandardSlider_Style;
 		map GFC_Control											=	GFC_Control_StandardSlider_Style;
@@ -1320,11 +1320,11 @@ with GFC_Control_Slider
 			.HGripOffset			=	GPoint(0,0);
 			.VGripOffset			=	GPoint(0,0);
 		}
-		
+
 		map SF_CtrlTheme_Civ4_Control_Slider					=	GFC_Control_StandardSlider_Style;
 		map GFC_CtrlTheme_Bitmap_Control_Slider					=	GFC_Control_StandardSlider_Style;
 		map GFC_Control											=	GFC_Control_StandardSlider_Style;
 	}
-	
+
 }	// end of GFC_Control_Slider
 

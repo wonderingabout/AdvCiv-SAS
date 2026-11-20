@@ -25,7 +25,8 @@ enum PlayerTypes
 	/*  advc.056 (note): Scenario (WB) files are now compatible so long
 		as the player ids in the WB file don't exceed MAX_CIV_PLAYERS in the DLL.
 		Savegames are still incompatible. */
-	MAX_CIV_PLAYERS = 18,
+	MAX_CIV_PLAYERS = 48,
+	// MAX_CIV_PLAYERS = 18,
 	BARBARIAN_PLAYER = MAX_CIV_PLAYERS,
 	MAX_PLAYERS
 };
@@ -61,22 +62,29 @@ DEFINE_INCREMENT_OPERATORS(CivTeamTypes);
 // This generates most of the enums with associated XML data
 DO_FOR_EACH_DYN_INFO_TYPE(MAKE_INFO_ENUM)
 
-/*  The order of the enums is mostly as in BtS (i.e. arbitrary) except that the
-	info enums are generated upfront and enums that don't support FOR_EACH_ENUM
-	have been moved to the end. */ // </advc.enum>
+// The order of the enums is mostly as in BtS (i.e. arbitrary) except that the
+// info enums are generated upfront and enums that don't support FOR_EACH_ENUM
+// have been moved to the end. // </advc.enum>
 
-/*  advc: WorldSize and Flavor are special -- there are hardcoded values, but it's
-	still possible to add values through XML only.
-	(The harcoded world sizes are used by map scripts and random events.) */
+// advc: WorldSize and Flavor are special -- there are hardcoded values, but it's
+// still possible to add values through XML only.
+// (The hardcoded world sizes are used by map scripts and random events.)
+// <!-- custom: Keep WorldSizeTypes aligned with CIV4WorldInfo.xml so C++ and Python enum values match runtime XML indices.
+// New Arena is inserted before Duel and new SAS24/32/40/48 extend beyond Huge, so the old BtS-only Duel..Huge enum made constants such as WORLDSIZE_HUGE point at the wrong XML row. (ChatGPT-5.5) -->
 enum WorldSizeTypes
 {
 	NO_WORLDSIZE = -1,
+	WORLDSIZE_ARENA,
 	WORLDSIZE_DUEL,
 	WORLDSIZE_TINY,
 	WORLDSIZE_SMALL,
 	WORLDSIZE_STANDARD,
 	WORLDSIZE_LARGE,
 	WORLDSIZE_HUGE,
+	WORLDSIZE_SAS24,
+	WORLDSIZE_SAS32,
+	WORLDSIZE_SAS40,
+	WORLDSIZE_SAS48,
 };
 
 enum FlavorTypes
@@ -510,6 +518,24 @@ ENUM_START(Widget, WIDGET)
 	WIDGET_CYCLE_UNIT, // advc.154
 	WIDGET_EXAMINE_CITY, // advc.186b (for BULL - Zoom City Details)
 	WIDGET_HELP_NO_FEAR_FOR_SAFETY, // advc.500c
+	WIDGET_POWER_RATIO_INFO_SCREEN, // <!-- custom: Appended to preserve existing EXE-facing WidgetTypes values. See KI#388. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	WIDGET_HELP_FINANCE_UNIT_COST_AND_SUPPLY, // <!-- custom: Appended to preserve existing EXE-facing WidgetTypes values. See KI#390. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: BtS has no route widget, so Sevopedia route links first used WIDGET_PYTHON, as Middle-earth's PlatyPedia does, and then a BUG custom widget; their Python hover appeared only in a loaded game, never in the main-menu Sevopedia, and multilist clicks did not arrive.
+	// A native widget gets its hover from the DLL and its click from executeAction everywhere, like the other pedia jumps.
+	// Realism Invictus adds its own WIDGET_PEDIA_JUMP_TO_ROUTE (and ERA and TRAIT) this way, which showed us the approach; Caveman2Cosmos's Pedia does the same for routes and traits.
+	// Appended to preserve existing EXE-facing WidgetTypes values. See KI#113. (Claude code Opus 5.5) -->
+	WIDGET_PEDIA_JUMP_TO_ROUTE,
+	// <!-- custom: Append chart links to preserve EXE-facing widget IDs.
+	// The payload is the EraInfo or EventTriggerInfo ID. See KI#113. (GPT-6.1-Sol) -->
+	WIDGET_PEDIA_JUMP_TO_ERA,
+	WIDGET_PEDIA_JUMP_TO_EVENT_TRIGGER,
+	// <!-- custom: Vote links used WIDGET_PYTHON, whose Python hover showed only in a loaded game.
+	// The payload is the VoteInfo ID. See KI#113. (Claude code Opus 5.5) -->
+	WIDGET_PEDIA_JUMP_TO_VOTE,
+	// <!-- custom: Build links borrowed WIDGET_HELP_IMPROVEMENT, whose own click opens an Improvement page, so Python rerouted clicks; Trait links used WIDGET_PYTHON.
+	// Build payload: the BuildInfo ID, then the unlocking tech or -1; Trait payload: the TraitInfo ID. See KI#113. (Claude code Opus 5.5) -->
+	WIDGET_PEDIA_JUMP_TO_BUILD,
+	WIDGET_PEDIA_JUMP_TO_TRAIT,
 ENUM_END(Widget, WIDGET)
 
 ENUM_START(ButtonPopup, BUTTONPOPUP)
@@ -825,12 +851,12 @@ ENUM_START(UnitAI, UNITAI)
 	UNITAI_CITY_SPECIAL,
 	UNITAI_EXPLORE,
 	UNITAI_MISSIONARY,
-	UNITAI_PROPHET,
-	UNITAI_ARTIST,
-	UNITAI_SCIENTIST,
-	UNITAI_GENERAL,
-	UNITAI_MERCHANT,
-	UNITAI_ENGINEER,
+	UNITAI_GREAT_PROPHET,
+	UNITAI_GREAT_ARTIST,
+	UNITAI_GREAT_SCIENTIST,
+	UNITAI_GREAT_GENERAL,
+	UNITAI_GREAT_MERCHANT,
+	UNITAI_GREAT_ENGINEER,
 	UNITAI_GREAT_SPY, // K-Mod
 	UNITAI_SPY,
 	UNITAI_ICBM,
@@ -1040,13 +1066,14 @@ ENUM_START(Control, CONTROL)
 	CONTROL_MOUSE_FLYING_CAMERA,
 	CONTROL_TOP_DOWN_CAMERA,
 	CONTROL_CIVILOPEDIA,
-	CONTROL_RELIGION_SCREEN,
-	CONTROL_CORPORATION_SCREEN,
+	// <!-- custom: Religion/Corporation controls removed; those screens are planned as Civics tabs. (GPT-5.3-Codex) -->
 	CONTROL_CIVICS_SCREEN,
 	CONTROL_FOREIGN_SCREEN,
-	CONTROL_FINANCIAL_SCREEN,
+	CONTROL_FOREIGN_DIPLOMACY_SCREEN,
 	CONTROL_MILITARY_SCREEN,
 	CONTROL_TECH_CHOOSER,
+	// <!-- custom: F7 is available after Religion/Corporation were integrated into Policy Advisor. (GPT-5.5) -->
+	CONTROL_WORLD_ADVISOR_SCREEN,
 	CONTROL_TURN_LOG,
 	CONTROL_CHAT_ALL,
 	CONTROL_CHAT_TEAM,
@@ -1112,6 +1139,111 @@ ENUM_START(Function, FUNC)
 	FUNC_EULERKEY,	// = NiAnimationKey::EULERKEY,
 	FUNC_STEPKEY,	// = NiAnimationKey::STEPKEY,
 ENUM_END(Function, FUNC)
+
+// <!-- custom: DLL-only shared metadata for the direct or cascading origin of a declaration of war.
+// This is not an XML-indexed, Python-exposed, savegame-serialized, or gameplay-evaluated enum. (GPT-5.6-Sol) -->
+// <!-- custom: Generate this SAS-owned cause enum and its existing schema labels from one list instead of maintaining both separately; preserve numeric order and any valid UNKNOWN state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+#define SAS_WAR_DECLARATION_CAUSE_ROWS(DO) \
+	DO(WAR_DECLARATION_DIRECT, DIRECT) \
+	DO(WAR_DECLARATION_GAME_SETUP, GAME_SETUP) \
+	DO(WAR_DECLARATION_ALWAYS_WAR, ALWAYS_WAR) \
+	DO(WAR_DECLARATION_PERMANENT_ALLIANCE, PERMANENT_ALLIANCE) \
+	DO(WAR_DECLARATION_DEFENSIVE_PACT, DEFENSIVE_PACT) \
+	DO(WAR_DECLARATION_VASSAL_ALIGNMENT, VASSAL_ALIGNMENT) \
+	DO(WAR_DECLARATION_DIPLOMACY, DIPLOMACY) \
+	DO(WAR_DECLARATION_VOTE, DIPLOMATIC_VOTE) \
+	DO(WAR_DECLARATION_NUCLEAR_ATTACK, NUCLEAR_ATTACK)
+enum WarDeclarationCause
+{
+#define SAS_DIAGNOSTIC_ENUM(NAME, LABEL) NAME,
+	SAS_WAR_DECLARATION_CAUSE_ROWS(SAS_DIAGNOSTIC_ENUM)
+#undef SAS_DIAGNOSTIC_ENUM
+};
+
+// <!-- custom: DLL-only acquisition metadata carried to GameRecord when a technology is completed or granted.
+// This is not XML-indexed, Python-exposed, savegame-serialized, or gameplay-evaluated; Python/script callers that cannot provide reliable context remain UNKNOWN. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+// <!-- custom: Generate this SAS-owned cause enum and its existing schema labels from one list instead of maintaining both separately; preserve numeric order and any valid UNKNOWN state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+#define SAS_TECH_ACQUISITION_CAUSE_ROWS(DO) \
+	DO(TECH_ACQUISITION_UNKNOWN, UNKNOWN) \
+	DO(TECH_ACQUISITION_RESEARCH, RESEARCH) \
+	DO(TECH_ACQUISITION_TRADE, TRADE) \
+	DO(TECH_ACQUISITION_FREE_CHOICE, FREE_CHOICE) \
+	DO(TECH_ACQUISITION_GOODY, GOODY) \
+	DO(TECH_ACQUISITION_GREAT_PERSON, GREAT_PERSON) \
+	DO(TECH_ACQUISITION_ESPIONAGE, ESPIONAGE) \
+	DO(TECH_ACQUISITION_RANDOM_EVENT, RANDOM_EVENT) \
+	DO(TECH_ACQUISITION_TECH_SHARE, TECH_SHARE) \
+	DO(TECH_ACQUISITION_TEAM_MERGE, TEAM_MERGE) \
+	DO(TECH_ACQUISITION_INHERITANCE, INHERITANCE) \
+	DO(TECH_ACQUISITION_ADVANCED_START, ADVANCED_START) \
+	DO(TECH_ACQUISITION_BARBARIAN_RESEARCH, BARBARIAN_RESEARCH) \
+	DO(TECH_ACQUISITION_GAME_SETUP, GAME_SETUP) \
+	DO(TECH_ACQUISITION_DEBUG, DEBUG)
+enum TechAcquisitionCause
+{
+#define SAS_DIAGNOSTIC_ENUM(NAME, LABEL) NAME,
+	SAS_TECH_ACQUISITION_CAUSE_ROWS(SAS_DIAGNOSTIC_ENUM)
+#undef SAS_DIAGNOSTIC_ENUM
+};
+
+// <!-- custom: DLL-only shared metadata for why an already selected research target is intentionally reconsidered or replaced.
+// This is not XML-indexed, Python-exposed, savegame-serialized, or itself an AI decision; SASGameRecord uses it now and other diagnostics can reuse the same factual cause vocabulary. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Generate this SAS-owned cause enum and its existing schema labels from one list instead of maintaining both separately; preserve numeric order and any valid UNKNOWN state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+#define SAS_RESEARCH_TARGET_CHANGE_CAUSE_ROWS(DO) \
+	DO(RESEARCH_TARGET_CHANGE_UNKNOWN, UNKNOWN) \
+	DO(RESEARCH_TARGET_CHANGE_GREAT_PERSON_REEVALUATION, GREAT_PERSON_REEVALUATION) \
+	DO(RESEARCH_TARGET_CHANGE_FIRST_DISCOVERY_PERK_INVALIDATION, FIRST_DISCOVERY_PERK_INVALIDATION) \
+	DO(RESEARCH_TARGET_CHANGE_DIPLO_RESEARCH_COORDINATION, DIPLO_RESEARCH_COORDINATION) \
+	DO(RESEARCH_TARGET_CHANGE_PLAYER_RESEARCH_COMMAND, PLAYER_RESEARCH_COMMAND) \
+	DO(RESEARCH_TARGET_CHANGE_FREE_TECH_REEVALUATION, FREE_TECH_REEVALUATION)
+enum ResearchTargetChangeCause
+{
+#define SAS_DIAGNOSTIC_ENUM(NAME, LABEL) NAME,
+	SAS_RESEARCH_TARGET_CHANGE_CAUSE_ROWS(SAS_DIAGNOSTIC_ENUM)
+#undef SAS_DIAGNOSTIC_ENUM
+};
+
+// <!-- custom: Typed Found diagnostic context; labels describe the caller only and never select scoring rules.
+// Not exposed to Python or serialized.
+// Convert to text only while emitting a log row. See KI#505.2. (GPT-6.1-Sol) -->
+// <!-- custom: Generate this shared diagnostic enum and its existing log labels from one list; preserve numeric order and explicit sentinel handling. (GPT-6.1-Sol) -->
+#define SAS_FOUND_LOG_CONTEXT_ROWS(DO) \
+	DO(SAS_FOUND_LOG_EVALUATION, EVALUATION) \
+	DO(SAS_FOUND_LOG_AI_SITE_REFRESH, AI_SITE_REFRESH) \
+	DO(SAS_FOUND_LOG_SETTLER_FIRST_CITY, SETTLER_FIRST_CITY) \
+	DO(SAS_FOUND_LOG_SETTLER_FOG_SCOUT, SETTLER_FOG_SCOUT) \
+	DO(SAS_FOUND_LOG_SETTLER_CURRENT_SITE, SETTLER_CURRENT_SITE) \
+	DO(SAS_FOUND_LOG_UI_PREVIEW, UI_PREVIEW) \
+	DO(SAS_FOUND_LOG_BARBARIAN_COMPARISON, BARBARIAN_COMPARISON) \
+	DO(SAS_FOUND_LOG_SETTLER_TRUE_MAP_COMPARISON, SETTLER_TRUE_MAP_COMPARISON) \
+	DO(SAS_FOUND_LOG_RECORD_KNOWN_MAP_COMPARISON, RECORD_KNOWN_MAP_COMPARISON) \
+	DO(SAS_FOUND_LOG_RECORD_TRUE_MAP_COMPARISON, RECORD_TRUE_MAP_COMPARISON)
+enum SASFoundLogContextTypes
+{
+#define SAS_DIAGNOSTIC_ENUM(NAME, LABEL) NAME,
+	SAS_FOUND_LOG_CONTEXT_ROWS(SAS_DIAGNOSTIC_ENUM)
+#undef SAS_DIAGNOSTIC_ENUM
+};
+
+// <!-- custom: Explicit source for ending AI Auto Play, shared between the DLL, Python controller, and SASGameRecord.
+// This is runtime control/diagnostic metadata, not XML-indexed or savegame-serialized. See KI#203. (GPT-5.6-Sol) -->
+// <!-- custom: Generate this shared diagnostic enum and its existing log labels from one list; preserve numeric order and explicit sentinel handling. (GPT-6.1-Sol) -->
+#define SAS_AUTOPLAY_END_CAUSE_ROWS(DO) \
+	DO(SAS_AUTOPLAY_END_SCHEDULED, SCHEDULED) \
+	DO(SAS_AUTOPLAY_END_USER_INTERRUPTED, USER_INTERRUPTED) \
+	DO(SAS_AUTOPLAY_END_VICTORY, VICTORY) \
+	DO(SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED, ACTIVE_PLAYER_DEFEATED) \
+	DO(SAS_AUTOPLAY_END_DESYNC, DESYNC) \
+	DO(SAS_AUTOPLAY_END_ASSERTION, ASSERTION) \
+	DO(SAS_AUTOPLAY_END_RISE_FALL, RISE_FALL) \
+	DO(SAS_AUTOPLAY_END_OTHER, OTHER)
+enum SASAutoPlayEndCause
+{
+	SAS_AUTOPLAY_END_UNSPECIFIED = -1,
+#define SAS_DIAGNOSTIC_ENUM(NAME, LABEL) NAME,
+	SAS_AUTOPLAY_END_CAUSE_ROWS(SAS_DIAGNOSTIC_ENUM)
+#undef SAS_DIAGNOSTIC_ENUM
+};
 
 enum TradeableItems
 {
@@ -1257,6 +1389,22 @@ ENUM_START(DiplomacyPower, DIPLOMACYPOWER)
 	DIPLOMACYPOWER_EQUAL,
 	DIPLOMACYPOWER_STRONGER,
 ENUM_END(DiplomacyPower, DIPLOMACYPOWER)
+// <!-- custom: AI_retreatToCity's realized branch is shared by BBAI and SASGameRecord, so use one typed vocabulary rather than compare emitted strings.
+// These diagnostic outcomes are not serialized; preserve the existing BBAI spelling alongside the structured label in this catalog. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+#define SAS_RETREAT_RESULT_ROWS(DO) \
+	DO(WAIT_SAFE_CITY, "wait-safe-city") \
+	DO(WAIT, "wait") \
+	DO(RETREAT_MISSION_ISSUED, "retreat") \
+	DO(SCRAP_SELECTED, "scrap") \
+	DO(STAY_NO_SAFE_CITY, "stay-no-safe-city") \
+	DO(FAIL_NO_CITY, "fail-no-city")
+enum SASRetreatResult
+{
+#define SAS_RETREAT_RESULT_ENUM(NAME, BBAI_NAME) SAS_RETREAT_RESULT_##NAME,
+	SAS_RETREAT_RESULT_ROWS(SAS_RETREAT_RESULT_ENUM)
+#undef SAS_RETREAT_RESULT_ENUM
+};
+
 // <advc.139>
 ENUM_START(CitySafety, CITYSAFETY)
 	CITYSAFETY_EVACUATING,
@@ -1265,10 +1413,15 @@ ENUM_START(CitySafety, CITYSAFETY)
 	CITYSAFETY_PERFECT, // for advc.ctr
 ENUM_END(CitySafety, CITYSAFETY) // </advc.139>
 
+/* <!-- custom: new unit combat types and modifying existing ones --> */
 ENUM_START(Feat, FEAT)
-	FEAT_UNITCOMBAT_ARCHER,
-	FEAT_UNITCOMBAT_MOUNTED,
-	FEAT_UNITCOMBAT_MELEE,
+	FEAT_UNITCOMBAT_ARCHER_BOW_SHORT,
+	FEAT_UNITCOMBAT_ARCHER_BOW_LONG,
+	FEAT_UNITCOMBAT_ARCHER_CROSSBOW,
+	FEAT_UNITCOMBAT_MOUNTED_MELEE,
+	FEAT_UNITCOMBAT_MOUNTED_RANGED,
+	FEAT_UNITCOMBAT_MELEE_POLEARM,
+	FEAT_UNITCOMBAT_MELEE_SHOCK,
 	FEAT_UNITCOMBAT_SIEGE,
 	FEAT_UNITCOMBAT_GUN,
 	FEAT_UNITCOMBAT_ARMOR,
@@ -1543,6 +1696,27 @@ ENUM_START(AdvancedStartAction, ADVANCEDSTARTACTION)
 	ADVANCEDSTARTACTION_VISIBILITY,
 	ADVANCEDSTARTACTION_AUTOMATE,
 ENUM_END(AdvancedStartAction, ADVANCEDSTARTACTION)
+
+// <!-- custom: Ordered persisted setup/edit history classifies applied Advanced Start and WorldBuilder mutations for save serialization and World Advisor presentation.
+// These stable source/category tokens organize individual durable actions; SASGameRecord may add richer runtime/session evidence but is not the save-history source of truth. (ChatGPT-5.6-Sol) -->
+enum SASWorldChangesHistorySource
+{
+	SAS_WORLD_CHANGES_HISTORY_ADVANCED_START = 0,
+	SAS_WORLD_CHANGES_HISTORY_WORLD_BUILDER,
+	NUM_SAS_WORLD_CHANGES_HISTORY_SOURCES
+};
+
+enum SASWorldChangesHistoryCategory
+{
+	SAS_WORLD_CHANGES_HISTORY_MAP = 0,
+	SAS_WORLD_CHANGES_HISTORY_CITY,
+	SAS_WORLD_CHANGES_HISTORY_UNIT,
+	SAS_WORLD_CHANGES_HISTORY_PLAYER,
+	SAS_WORLD_CHANGES_HISTORY_TEAM,
+	SAS_WORLD_CHANGES_HISTORY_GAME,
+	SAS_WORLD_CHANGES_HISTORY_VISIBILITY,
+	NUM_SAS_WORLD_CHANGES_HISTORY_CATEGORIES
+};
 
 ENUM_START(AnimationPath, ANIMATIONPATH)
 	ANIMATIONPATH_NONE = -1,

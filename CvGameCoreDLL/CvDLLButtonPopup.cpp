@@ -14,6 +14,7 @@
 #include "CvInfo_All.h"
 #include "CvGameTextMgr.h"
 #include "CvMessageControl.h"
+#include "SASGameRecordLog.h" // <!-- custom: Needed for the unattended-AI popup notice and pre-dispatch player-choice recording. (GPT-5.6-Sol + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 
 
 #define PASSWORD_DEFAULT (L"*****")
@@ -24,21 +25,7 @@ namespace
 {
 	/*	K-Mod: In the original code, arbitrary integers are used
 		to express the options of the main menu. */
-	enum MainMenuOptions
-	{
-		MM_EXIT_TO_DESKTOP,
-		MM_EXIT_TO_MAIN_MENU,
-		MM_RETIRE,
-		MM_REGENERATE_MAP,
-		MM_LOAD_GAME,
-		MM_SAVE_GAME,
-		MM_OPTIONS,
-		MM_BUG_OPTIONS, // new in K-Mod
-		MM_ENTER_WB,
-		MM_GAME_DETAILS,
-		MM_PLAYER_DETAILS,
-		MM_CANCEL,
-	};
+	// <!-- custom: K-Mod's menu IDs now live in SASPopupMenuAction, shared with diagnostic decoding; keep the inherited numeric button protocol unchanged. (GPT-6.1-Sol) -->
 	// advc:
 	__inline PlayerTypes getActivePlayer()
 	{
@@ -79,6 +66,8 @@ void CvDLLButtonPopup::OnAltExecute(CvPopup& popup, const PopupReturn& popupRetu
 	{
 		*pInfo = info;
 		m_kUI.addPopup(pInfo);
+		// <!-- custom: Alt-execute requeues the same popup information before cancelling only the old UI object.
+		// Do not record a player cancellation/choice for this internal replacement; the replacement popup's focus refreshes runtime wait identity. (ChatGPT-5.6-Sol) -->
 		m_kUI.popupSetAsCancelled(&popup);
 	}
 }
@@ -88,31 +77,41 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 {
 	CvGame& kGame = GC.getGame();
 	FAssert(getActivePlayer() != NO_PLAYER); // K-Mod
+	// <!-- custom: This is the generic native response boundary for ButtonPopup buttons.
+	// Record the response before gameplay dispatch so a crash/failure afterward does not erase the player's observed choice; specialized gameplay rows remain authoritative for realized results.
+	// Privacy: pass only the numeric button plus the existing descriptor; the recorder never reads free-form popup/edit-box text and withholds unreviewed generic descriptor payload. (ChatGPT-5.6-Sol) -->
+	int const iButtonClicked = pPopupReturn->getButtonClicked();
+	ButtonPopupTypes const ePopupType = info.getButtonPopupType();
+	if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusButtonPopupResolved(pPopup, ePopupType, iButtonClicked, false);
+	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerPopupChoice(info, iButtonClicked);
 
-	switch (info.getButtonPopupType())
+	switch (ePopupType)
 	{
 	case BUTTONPOPUP_TEXT:
 		break;
 
+	// <!-- custom: Name the inherited confirmation-action payloads from the shared catalog; these are not the popup's Yes/Cancel button IDs. (GPT-6.1-Sol) -->
 	case BUTTONPOPUP_CONFIRM_MENU:
 		if (pPopupReturn->getButtonClicked() == 0)
 		{
 			switch (info.getData1())
 			{
-			case 0:
+			case SAS_POPUP_CONFIRM_EXIT_TO_DESKTOP:
+				// <!-- custom: Record the confirmed in-game Exit to Desktop request before handing control to the EXE; window-close/forced termination are not inferred from this UI route. (GPT-6.1-Sol) -->
+				if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusRequest(SAS_RUNTIME_STATUS_EXIT_REQUESTED);
 				gDLL->SetDone(true);
 				break;
-			case 1:
+			case SAS_POPUP_CONFIRM_RETURN_TO_MAIN_MENU:
 				kGame.exitToMenu();
 				break;
-			case 2:
+			case SAS_POPUP_CONFIRM_RETIRE:
 				//kGame.doControl(CONTROL_RETIRE);
 				kGame.retire(); // K-Mod
 				break;
-			case 3:
+			case SAS_POPUP_CONFIRM_REGENERATE_MAP:
 				kGame.regenerateMap();
 				break;
-			case 4:
+			case SAS_POPUP_CONFIRM_WORLD_BUILDER:
 				//kGame.doControl(CONTROL_WORLD_BUILDER);
 				kGame.enterWorldBuilder(); // K-Mod
 				break;
@@ -120,73 +119,78 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 		}
 		break;
 
+	// <!-- custom: Queue the same named confirmation actions used by their handler and diagnostic decoder; retained commented-out BtS examples use the names too. (GPT-6.1-Sol) -->
 	case BUTTONPOPUP_MAIN_MENU:
 		// K-Mod. The following section use to be a long chain of "else if" statements.
 		// It was making me sad, so I rewrote it as a switch. (and also inserted a BUG options item.)
 		switch (pPopupReturn->getButtonClicked())
 		{
-		case MM_EXIT_TO_DESKTOP:
+		case SAS_POPUP_MENU_EXIT_TO_DESKTOP:
 			{
 				CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
 				if (pInfo != NULL)
 				{
-					pInfo->setData1(0);
+					pInfo->setData1(SAS_POPUP_CONFIRM_EXIT_TO_DESKTOP);
 					m_kUI.addPopup(pInfo, getActivePlayer(), true);
 				}
 			}
 			break;
-		case MM_EXIT_TO_MAIN_MENU:
+		case SAS_POPUP_MENU_RETURN_TO_MAIN_MENU:
 			{
 				CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
 				if (pInfo != NULL)
 				{
-					pInfo->setData1(1);
+					pInfo->setData1(SAS_POPUP_CONFIRM_RETURN_TO_MAIN_MENU);
 					m_kUI.addPopup(pInfo, getActivePlayer(), true);
 				}
 			}
 			break;
-		case MM_RETIRE:
-			/*{ CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
-			if (NULL != pInfo) {
-				pInfo->setData1(2);
-				m_kUI.addPopup(pInfo, getActivePlayer(), true);
-			} }*/ // BtS
+		case SAS_POPUP_MENU_RETIRE:
+			// <!-- custom: Retain the disabled BtS confirmation example using the shared named action rather than its old numeric literal. (GPT-6.1-Sol)
+			// { CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
+			// if (NULL != pInfo) {
+			// pInfo->setData1(SAS_POPUP_CONFIRM_RETIRE);
+			// m_kUI.addPopup(pInfo, getActivePlayer(), true);
+			// } }
+			// -->
 			kGame.doControl(CONTROL_RETIRE); // K-Mod
 			break;
-		case MM_REGENERATE_MAP:
+		case SAS_POPUP_MENU_REGENERATE_MAP:
 			{
 				CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
 				if (pInfo != NULL)
 				{
-					pInfo->setData1(3);
+					pInfo->setData1(SAS_POPUP_CONFIRM_REGENERATE_MAP);
 					m_kUI.addPopup(pInfo, getActivePlayer(), true);
 				}
 			}
 			break;
-		case MM_LOAD_GAME:
+		case SAS_POPUP_MENU_LOAD_GAME:
 			kGame.doControl(CONTROL_LOAD_GAME);
 			break;
-		case MM_SAVE_GAME:
+		case SAS_POPUP_MENU_SAVE_GAME:
 			kGame.doControl(CONTROL_SAVE_NORMAL);
 			break;
-		case MM_OPTIONS:
+		case SAS_POPUP_MENU_OPTIONS:
 			GC.getPythonCaller()->showPythonScreen("OptionsScreen");
 			break;
-		case MM_BUG_OPTIONS:
+		case SAS_POPUP_MENU_BUG_OPTIONS:
 			GC.getPythonCaller()->showPythonScreen("BugOptionsScreen");
 			break;
-		case MM_ENTER_WB:
-			/*{ CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
-				if (pInfo != NULL) {
-					pInfo->setData1(4);
-					m_kUI.addPopup(pInfo, getActivePlayer(), true);
-			} }*/ // BtS
+		case SAS_POPUP_MENU_WORLD_BUILDER:
+			// <!-- custom: Retain the disabled BtS confirmation example using the shared named action rather than its old numeric literal. (GPT-6.1-Sol)
+			// { CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
+			// if (pInfo != NULL) {
+			// pInfo->setData1(SAS_POPUP_CONFIRM_WORLD_BUILDER);
+			// m_kUI.addPopup(pInfo, getActivePlayer(), true);
+			// } }
+			// -->
 			kGame.doControl(CONTROL_WORLD_BUILDER); // K-Mod
 			break;
-		case MM_GAME_DETAILS:
+		case SAS_POPUP_MENU_GAME_DETAILS:
 			kGame.doControl(CONTROL_ADMIN_DETAILS);
 			break;
-		case MM_PLAYER_DETAILS:
+		case SAS_POPUP_MENU_PLAYER_DETAILS:
 			kGame.doControl(CONTROL_DETAILS);
 			break;
 		default: // cancel
@@ -245,6 +249,8 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 					iCount--;
 					if (iCount == 0)
 					{
+						// <!-- custom: Record the target selected by the real popup handler before dispatch; its button is an eligible-unit ordinal, not a unit ID, so do not reconstruct eligibility for logging. (GPT-6.1-Sol) -->
+						if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPopupUnitTarget(info, pPopupReturn->getButtonClicked(), *pUnit);
 						kGame.selectionListGameNetMessage(GAMEMESSAGE_DO_COMMAND, COMMAND_LOAD_UNIT,
 								pUnit->getOwner(), pUnit->getID());
 						break;
@@ -269,6 +275,8 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 				iCount--;
 				if (iCount == 0)
 				{
+					// <!-- custom: Record the target selected by the real popup handler before dispatch; its button is an eligible-unit ordinal, not a unit ID, so do not reconstruct eligibility for logging. (GPT-6.1-Sol) -->
+					if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPopupUnitTarget(info, pPopupReturn->getButtonClicked(), *pUnit);
 					kGame.selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION,
 							MISSION_LEAD, pUnit->getID());
 					break;
@@ -367,20 +375,23 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 		}
 		break;
 	}
+	// <!-- custom: Use the prompt's shared named IDs, also used by its creation and SGR stringifier, rather than independently interpreting numeric buttons. (GPT-6.1-Sol) -->
 	case BUTTONPOPUP_CHANGECIVIC:
-		if (pPopupReturn->getButtonClicked() == 0)
+		if (pPopupReturn->getButtonClicked() == SAS_POPUP_CIVIC_ADOPT_CIVIC)
 		{
 			CivicMap aeNewCivics;
 			GET_PLAYER(getActivePlayer()).getCivics(aeNewCivics);
 			aeNewCivics.set((CivicOptionTypes)info.getData1(), (CivicTypes)info.getData2());
 			CvMessageControl::getInstance().sendUpdateCivics(aeNewCivics);
 		}
-		else if (pPopupReturn->getButtonClicked() == 2)
-			GC.getPythonCaller()->showPythonScreen("CivicsScreen");
+		else if (pPopupReturn->getButtonClicked() == SAS_POPUP_CIVIC_OPEN_POLICY_ADVISOR)
+			// <!-- custom: renamed Python civics screen entrypoint to PolicyAdvisorScreen while keeping gameplay behavior unchanged. (GPT-5.3-Codex) -->
+			GC.getPythonCaller()->showPythonScreen("PolicyAdvisorScreen");
 		break;
 
+	// <!-- custom: Use the prompt's shared named IDs, also used by its creation and SGR stringifier, rather than independently interpreting numeric buttons. (GPT-6.1-Sol) -->
 	case BUTTONPOPUP_CHANGERELIGION:
-		if (pPopupReturn->getButtonClicked() == 0)
+		if (pPopupReturn->getButtonClicked() == SAS_POPUP_RELIGION_CONVERT)
 			CvMessageControl::getInstance().sendConvert((ReligionTypes)info.getData1());
 		break;
 
@@ -511,6 +522,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 			{
 			case CONTROL_WORLD_BUILDER:
 				m_kUI.setWorldBuilder(!gDLL->GetWorldBuilderMode());
+				if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusWorldBuilderMode(gDLL->GetWorldBuilderMode());
 				break;
 			case CONTROL_ADMIN_DETAILS:
 				m_kUI.showAdminDetails();
@@ -694,12 +706,16 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 
 void CvDLLButtonPopup::OnFocus(CvPopup* pPopup, CvPopupInfo &info)
 {
+	ButtonPopupTypes const ePopupType = info.getButtonPopupType();
 	if (m_kUI.popupIsDying(pPopup))
+	{
+		if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusButtonPopupResolved(pPopup, ePopupType, -1, true);
 		return;
+	}
 
 	FAssert(getActivePlayer() != NO_PLAYER); // K-Mod
 
-	switch (info.getButtonPopupType())
+	switch (ePopupType)
 	{
 	case BUTTONPOPUP_CHOOSETECH:
 		if (info.getData1() == 0)
@@ -786,6 +802,13 @@ void CvDLLButtonPopup::OnFocus(CvPopup* pPopup, CvPopupInfo &info)
 		break;
 	// K-Mod end
 	}
+	// <!-- custom: Focus is stronger evidence than queue/launch: only publish the awaiting-interaction state after popup-specific staleness checks have had their chance to cancel it. (ChatGPT-5.6-Sol) -->
+	if (isSASRuntimeStatusEnabled() && ePopupType != BUTTONPOPUP_PYTHON_SCREEN)
+	{
+		// <!-- custom: BUTTONPOPUP_PYTHON_SCREEN is a dummy queue object whose launch path returns false after handing off to a full Python screen; never publish it as a visible native popup even if an EXE callback reaches this shared focus path. (ChatGPT-5.6-Sol) -->
+		if (m_kUI.popupIsDying(pPopup)) updateSASRuntimeStatusButtonPopupResolved(pPopup, ePopupType, -1, true);
+		else updateSASRuntimeStatusButtonPopupFocused(pPopup, ePopupType);
+	}
 }
 
 // returns false if popup is not launched
@@ -794,6 +817,14 @@ bool CvDLLButtonPopup::launchButtonPopup(CvPopup* pPopup, CvPopupInfo &info)
 	ButtonPopupTypes const eType = info.getButtonPopupType();
 	// <advc.706>
 	CvGame& kGame = GC.getGame();
+	// <!-- custom: BUTTONPOPUP_TEXT has only an informational body and its OK handler performs no action.
+	// While AI Auto Play is active, optionally omit only this safe type so unattended runs continue; never auto-accept any popup that represents a gameplay or session decision. See KI#203. (GPT-5.6-Sol) -->
+	static const bool bSASAutoDismissAutoPlayInformationalPopups = (GC.getDefineINT("SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON") > 0);
+	if (bSASAutoDismissAutoPlayInformationalPopups && kGame.getAIAutoPlay() > 0 && eType == BUTTONPOPUP_TEXT)
+	{
+		if (gGameRecordLogLevel >= 2) logSASGameRecordAutoPlayPopupDismissed("BUTTONPOPUP_TEXT");
+		return false;
+	}
 	if (kGame.isOption(GAMEOPTION_RISE_FALL))
 	{
 		if(eType == BUTTONPOPUP_RF_CHOOSECIV)
@@ -1295,8 +1326,9 @@ bool CvDLLButtonPopup::launchChangeReligionPopup(CvPopup* pPopup, CvPopupInfo &i
 	{
 		szBuffer += gDLL->getText("TXT_KEY_POPUP_TURNS_OF_ANARCHY", iAnarchyLength);
 	}
-	m_kUI.popupAddGenericButton(pPopup, szBuffer, NULL, 0);
-	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_NO_CONVERSION").c_str());
+	// <!-- custom: Give both buttons their existing IDs explicitly from the shared catalog; the former implicit second ID must not drift from response decoding if construction is edited. (GPT-6.1-Sol) -->
+	m_kUI.popupAddGenericButton(pPopup, szBuffer, NULL, SAS_POPUP_RELIGION_CONVERT);
+	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_NO_CONVERSION").c_str(), NULL, SAS_POPUP_RELIGION_DECLINE_CONVERSION);
 	m_kUI.popupSetPopupType(pPopup, POPUPEVENT_RELIGION,
 			ARTFILEMGR.getInterfaceArtPath("INTERFACE_POPUPBUTTON_RELIGION"));
 	m_kUI.popupLaunch(pPopup, false, POPUPSTATE_MINIMIZED);
@@ -1401,7 +1433,11 @@ bool CvDLLButtonPopup::launchRazeCityPopup(CvPopup* pPopup, CvPopupInfo &info)
 		FAssert(false);
 		return false;
 	}
-	if (GC.getDefineINT("PLAYER_ALWAYS_RAZES_CITIES") != 0)
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const bool bPlayerAlwaysRazesCities = (GC.getDefineINT("PLAYER_ALWAYS_RAZES_CITIES") != 0);
+
+	if (bPlayerAlwaysRazesCities)
 	{
 		kPlayer.raze(*pNewCity);
 		return false;
@@ -1645,7 +1681,8 @@ bool CvDLLButtonPopup::launchChangeCivicsPopup(CvPopup* pPopup, CvPopupInfo &inf
 					szBuffer += gDLL->getText("TXT_KEY_POPUP_TURNS_OF_ANARCHY",
 							iAnarchyLength);
 				}
-				m_kUI.popupAddGenericButton(pPopup, szBuffer, NULL, 0, WIDGET_GENERAL);
+				// <!-- custom: Explicit shared button IDs retain AdvCiv's optional adoption button and its existing 0/1/2 protocol even when adoption is omitted. (GPT-6.1-Sol) -->
+				m_kUI.popupAddGenericButton(pPopup, szBuffer, NULL, SAS_POPUP_CIVIC_ADOPT_CIVIC, WIDGET_GENERAL);
 			} // advc.004o
 		}
 		else
@@ -1658,10 +1695,11 @@ bool CvDLLButtonPopup::launchChangeCivicsPopup(CvPopup* pPopup, CvPopupInfo &inf
 			m_kUI.popupSetBodyString(pPopup, gDLL->getText("TXT_KEY_POPUP_FIRST_REVOLUTION"));
 		}
 
+		// <!-- custom: Retain these explicit shared IDs independently of whether the optional adoption button was shown; list position is not the button protocol. (GPT-6.1-Sol) -->
 		m_kUI.popupAddGenericButton(pPopup,
-				gDLL->getText("TXT_KEY_POPUP_OLD_WAYS_BEST").c_str(), NULL, 1, WIDGET_GENERAL);
+				gDLL->getText("TXT_KEY_POPUP_OLD_WAYS_BEST").c_str(), NULL, SAS_POPUP_CIVIC_DECLINE_CIVIC, WIDGET_GENERAL);
 		m_kUI.popupAddGenericButton(pPopup,
-				gDLL->getText("TXT_KEY_POPUP_SEE_BIG_PICTURE").c_str(), NULL, 2, WIDGET_GENERAL);
+				gDLL->getText("TXT_KEY_POPUP_SEE_BIG_PICTURE").c_str(), NULL, SAS_POPUP_CIVIC_OPEN_POLICY_ADVISOR, WIDGET_GENERAL);
 		m_kUI.popupSetPopupType(pPopup,
 				POPUPEVENT_CIVIC, ARTFILEMGR.getInterfaceArtPath("INTERFACE_POPUPBUTTON_CIVICS"));
 		m_kUI.popupLaunch(pPopup, false, POPUPSTATE_MINIMIZED);
@@ -1927,11 +1965,13 @@ bool CvDLLButtonPopup::launchLeadUnitPopup(CvPopup* pPopup, CvPopupInfo &info)
 
 bool CvDLLButtonPopup::launchDoEspionagePopup(CvPopup* pPopup, CvPopupInfo &info)
 {
-	CvUnit* pUnit = m_kUI.getHeadSelectedUnit();
+	// <!-- custom: Use an eligible selected Spy rather than the arbitrary selection head, then resolve each listed mission against every selected Spy because their stationary discounts and affordability can differ. See KI#398. See KI#1058. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvSelectionGroup const* pSelectionGroup = m_kUI.getSelectionList();
+	CvUnit const* pUnit = (pSelectionGroup == NULL ? NULL : pSelectionGroup->getEspionageUnit());
 	if (pUnit == NULL)
 		return false;
 
-	CvPlot* pPlot = pUnit->plot();
+	CvPlot const* pPlot = pUnit->plot();
 	if (pPlot == NULL)
 		return false;
 
@@ -1941,9 +1981,10 @@ bool CvDLLButtonPopup::launchDoEspionagePopup(CvPopup* pPopup, CvPopupInfo &info
 	for (int i = 0; i < GC.getNumEspionageMissionInfos(); i++)
 	{
 		EspionageMissionTypes eLoopMission = (EspionageMissionTypes)i;
-		if (GC.getInfo(eLoopMission).isPassive() ||
-				!GET_PLAYER(pUnit->getOwner()).canDoEspionageMission(
-				eLoopMission, pPlot->getOwner(), pPlot, -1, pUnit))
+		if (GC.getInfo(eLoopMission).isPassive())
+			continue;
+		CvUnit const* pMissionUnit = pSelectionGroup->getEspionageUnit(eLoopMission);
+		if (pMissionUnit == NULL)
 			continue;
 
 		if (GC.getInfo(eLoopMission).isTwoPhases())
@@ -1956,7 +1997,7 @@ bool CvDLLButtonPopup::launchDoEspionagePopup(CvPopup* pPopup, CvPopupInfo &info
 		else
 		{
 			int iCost = GET_PLAYER(pUnit->getOwner()).getEspionageMissionCost(
-					eLoopMission, pPlot->getOwner(), pPlot, -1, pUnit);
+					eLoopMission, pPlot->getOwner(), pPlot, -1, pMissionUnit);
 			if (iCost > 0)
 			{
 				szBuffer = gDLL->getText("TXT_KET_ESPIONAGE_MISSION_COST",
@@ -1978,7 +2019,9 @@ bool CvDLLButtonPopup::launchDoEspionagePopup(CvPopup* pPopup, CvPopupInfo &info
 
 bool CvDLLButtonPopup::launchDoEspionageTargetPopup(CvPopup* pPopup, CvPopupInfo &info)
 {
-	CvUnit* pSpyUnit = m_kUI.getHeadSelectedUnit();
+	// <!-- custom: Re-resolve selected Spies for the chosen mission and each exact target instead of letting one generic Spy hide targets usable by another. See KI#398. See KI#1058. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvSelectionGroup const* pSelectionGroup = m_kUI.getSelectionList();
+	CvUnit const* pSpyUnit = (pSelectionGroup == NULL ? NULL : pSelectionGroup->getEspionageUnit());
 	if (pSpyUnit == NULL)
 		return false;
 	CvPlot const& kPlot = pSpyUnit->getPlot();
@@ -2001,14 +2044,14 @@ bool CvDLLButtonPopup::launchDoEspionageTargetPopup(CvPopup* pPopup, CvPopupInfo
 		{
 			for (int iBuilding = 0; iBuilding < GC.getNumBuildingInfos(); ++iBuilding)
 			{
-				if (kPlayer.canDoEspionageMission(
-					eMission, eTargetPlayer, &kPlot, iBuilding, pSpyUnit))
+				CvUnit const* pTargetSpy = pSelectionGroup->getEspionageUnit(eMission, iBuilding);
+				if (pTargetSpy != NULL)
 				{
 					CvBuildingInfo& kBuilding = GC.getInfo((BuildingTypes)iBuilding);
 					if (pCity->getNumRealBuilding((BuildingTypes)iBuilding) > 0)
 					{
 						int iCost = kPlayer.getEspionageMissionCost(
-								eMission, eTargetPlayer, &kPlot, iBuilding, pSpyUnit);
+								eMission, eTargetPlayer, &kPlot, iBuilding, pTargetSpy);
 						CvWString szBuffer = gDLL->getText("TXT_KET_ESPIONAGE_MISSION_COST",
 								kBuilding.getDescription(), iCost);
 						m_kUI.popupAddGenericButton(pPopup, szBuffer, kBuilding.getButton(),
@@ -2024,18 +2067,19 @@ bool CvDLLButtonPopup::launchDoEspionageTargetPopup(CvPopup* pPopup, CvPopupInfo
 		{
 			if (pTargetUnit == NULL)
 				continue;
-			if (kPlayer.canDoEspionageMission(
-				eMission, eTargetPlayer, &kPlot, pTargetUnit->getUnitType(), pSpyUnit) &&
-				pTargetUnit->getTeam() == TEAMID(eTargetPlayer))
+			if (pTargetUnit->getTeam() != TEAMID(eTargetPlayer))
+				continue;
+			CvUnit const* pTargetSpy = pSelectionGroup->getEspionageUnit(eMission, pTargetUnit->getID());
+			if (pTargetSpy != NULL)
 			{
 				int iCost = kPlayer.getEspionageMissionCost(eMission, eTargetPlayer,
-							&kPlot, pTargetUnit->getUnitType(), pSpyUnit);
+							&kPlot, pTargetUnit->getID(), pTargetSpy);
 					CvWString szBuffer = gDLL->getText("TXT_KET_ESPIONAGE_MISSION_COST",
 							pTargetUnit->getUnitInfo().getDescription(), iCost);
-					m_kUI.popupAddGenericButton(pPopup, szBuffer,
-							pTargetUnit->getButton(), pTargetUnit->getID(),
-							WIDGET_HELP_ESPIONAGE_COST, eMission,
-							pTargetUnit->getUnitType());
+				m_kUI.popupAddGenericButton(pPopup, szBuffer,
+						pTargetUnit->getButton(), pTargetUnit->getID(),
+						WIDGET_HELP_ESPIONAGE_COST, eMission,
+						pTargetUnit->getID());
 			}
 		}
 	}
@@ -2043,13 +2087,13 @@ bool CvDLLButtonPopup::launchDoEspionageTargetPopup(CvPopup* pPopup, CvPopupInfo
 	{
 		FOR_EACH_ENUM(Project)
 		{
-			if (kPlayer.canDoEspionageMission(
-				eMission, eTargetPlayer, &kPlot, eLoopProject, pSpyUnit) &&
+			CvUnit const* pTargetSpy = pSelectionGroup->getEspionageUnit(eMission, eLoopProject);
+			if (pTargetSpy != NULL &&
 				GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).getProjectCount(
 				eLoopProject) > 0)
 			{
 				int iCost = kPlayer.getEspionageMissionCost(
-						eMission, eTargetPlayer, &kPlot, eLoopProject, pSpyUnit);
+						eMission, eTargetPlayer, &kPlot, eLoopProject, pTargetSpy);
 				CvWString szBuffer = gDLL->getText("TXT_KET_ESPIONAGE_MISSION_COST",
 						GC.getInfo(eLoopProject).getDescription(), iCost);
 				m_kUI.popupAddGenericButton(pPopup, szBuffer,
@@ -2062,11 +2106,11 @@ bool CvDLLButtonPopup::launchDoEspionageTargetPopup(CvPopup* pPopup, CvPopupInfo
 	{
 		FOR_EACH_ENUM(Tech)
 		{
-			if (kPlayer.canDoEspionageMission(
-				eMission, eTargetPlayer, &kPlot, eLoopTech, pSpyUnit))
+			CvUnit const* pTargetSpy = pSelectionGroup->getEspionageUnit(eMission, eLoopTech);
+			if (pTargetSpy != NULL)
 			{
 				int iCost = kPlayer.getEspionageMissionCost(
-						eMission, eTargetPlayer, &kPlot, eLoopTech, pSpyUnit);
+						eMission, eTargetPlayer, &kPlot, eLoopTech, pTargetSpy);
 				CvTechInfo& kTech = GC.getInfo(eLoopTech);
 				CvWString szBuffer = gDLL->getText("TXT_KET_ESPIONAGE_MISSION_COST",
 						kTech.getDescription(), iCost);
@@ -2079,11 +2123,11 @@ bool CvDLLButtonPopup::launchDoEspionageTargetPopup(CvPopup* pPopup, CvPopupInfo
 	{
 		FOR_EACH_ENUM(Civic)
 		{
-			if (kPlayer.canDoEspionageMission(
-				eMission, eTargetPlayer, &kPlot, eLoopCivic, pSpyUnit))
+			CvUnit const* pTargetSpy = pSelectionGroup->getEspionageUnit(eMission, eLoopCivic);
+			if (pTargetSpy != NULL)
 			{
 				int iCost = kPlayer.getEspionageMissionCost(
-						eMission, eTargetPlayer, &kPlot, eLoopCivic, pSpyUnit);
+						eMission, eTargetPlayer, &kPlot, eLoopCivic, pTargetSpy);
 				CvCivicInfo& kCivic = GC.getInfo(eLoopCivic);
 				CvWString szBuffer = gDLL->getText("TXT_KET_ESPIONAGE_MISSION_COST",
 						kCivic.getDescription(), iCost);
@@ -2096,11 +2140,11 @@ bool CvDLLButtonPopup::launchDoEspionageTargetPopup(CvPopup* pPopup, CvPopupInfo
 	{
 		FOR_EACH_ENUM(Religion)
 		{
-			if (kPlayer.canDoEspionageMission(
-				eMission, eTargetPlayer, &kPlot, eLoopReligion, pSpyUnit))
+			CvUnit const* pTargetSpy = pSelectionGroup->getEspionageUnit(eMission, eLoopReligion);
+			if (pTargetSpy != NULL)
 			{
 				int iCost = kPlayer.getEspionageMissionCost(
-						eMission, eTargetPlayer, &kPlot, eLoopReligion, pSpyUnit);
+						eMission, eTargetPlayer, &kPlot, eLoopReligion, pTargetSpy);
 				CvReligionInfo& kReligion = GC.getInfo(eLoopReligion);
 				CvWString szBuffer = gDLL->getText("TXT_KET_ESPIONAGE_MISSION_COST",
 						kReligion.getDescription(), iCost);
@@ -2118,15 +2162,16 @@ bool CvDLLButtonPopup::launchDoEspionageTargetPopup(CvPopup* pPopup, CvPopupInfo
 	return true;
 }
 
-/*	K-Mod. I've changed the code so that my MainMenuOptions enum types
-	are used for the 'generic button' numbers used in this function.
-	eg. I've changed this:
-	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_EXIT_TO_DESKTOP").c_str(), NULL,
-		0, WIDGET_GENERAL, 0, 0, true, POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
-	to this:
-	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_EXIT_TO_DESKTOP").c_str(), NULL,
-		MM_EXIT_TO_DESKTOP, WIDGET_GENERAL, MM_EXIT_TO_DESKTOP, 0, true, POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
-	*/
+// <!-- custom: Preserve K-Mod's rationale/example below, updated to the shared SASPopupMenuAction names replacing its private MainMenuOptions enum.
+// K-Mod. I've changed the code so that my MainMenuOptions enum types
+// are used for the 'generic button' numbers used in this function.
+// eg. I've changed this:
+// m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_EXIT_TO_DESKTOP").c_str(), NULL,
+// 0, WIDGET_GENERAL, 0, 0, true, POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
+// to this:
+// m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_EXIT_TO_DESKTOP").c_str(), NULL,
+// SAS_POPUP_MENU_EXIT_TO_DESKTOP, WIDGET_GENERAL, SAS_POPUP_MENU_EXIT_TO_DESKTOP, 0, true, POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
+// (K-Mod + GPT-6.1-Sol) -->
 bool CvDLLButtonPopup::launchMainMenuPopup(CvPopup* pPopup, CvPopupInfo &info)
 {
 	m_kUI.popupSetStyle(pPopup, "Window_NoTitleBar_Style");
@@ -2137,20 +2182,20 @@ bool CvDLLButtonPopup::launchMainMenuPopup(CvPopup* pPopup, CvPopupInfo &info)
 	m_kUI.popupAddSeparator(pPopup);
 
 	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_EXIT_TO_DESKTOP").c_str(),
-			NULL, MM_EXIT_TO_DESKTOP, WIDGET_GENERAL, MM_EXIT_TO_DESKTOP, 0, true,
+			NULL, SAS_POPUP_MENU_EXIT_TO_DESKTOP, WIDGET_GENERAL, SAS_POPUP_MENU_EXIT_TO_DESKTOP, 0, true,
 			POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 
 	if (!m_kUI.isDebugMenuCreated())
 	{
 		m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_EXIT_TO_MAIN_MENU").c_str(),
-				NULL, MM_EXIT_TO_MAIN_MENU, WIDGET_GENERAL, MM_EXIT_TO_MAIN_MENU, 0, true,
+				NULL, SAS_POPUP_MENU_RETURN_TO_MAIN_MENU, WIDGET_GENERAL, SAS_POPUP_MENU_RETURN_TO_MAIN_MENU, 0, true,
 				POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	}
 
 	if (GC.getGame().canDoControl(CONTROL_RETIRE))
 	{
 		m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_RETIRE").c_str(),
-				NULL, MM_RETIRE, WIDGET_GENERAL, MM_RETIRE, 0, true,
+				NULL, SAS_POPUP_MENU_RETIRE, WIDGET_GENERAL, SAS_POPUP_MENU_RETIRE, 0, true,
 				POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	}
 
@@ -2189,7 +2234,7 @@ bool CvDLLButtonPopup::launchMainMenuPopup(CvPopup* pPopup, CvPopupInfo &info)
 		{
 			m_kUI.popupAddGenericButton(pPopup,
 					gDLL->getText("TXT_KEY_POPUP_REGENERATE_MAP").c_str(),
-					NULL, MM_REGENERATE_MAP, WIDGET_GENERAL, MM_REGENERATE_MAP, 0,
+					NULL, SAS_POPUP_MENU_REGENERATE_MAP, WIDGET_GENERAL, SAS_POPUP_MENU_REGENERATE_MAP, 0,
 					true, POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 		}
 	}
@@ -2197,46 +2242,46 @@ bool CvDLLButtonPopup::launchMainMenuPopup(CvPopup* pPopup, CvPopupInfo &info)
 	if (GC.getGame().canDoControl(CONTROL_LOAD_GAME))
 	{
 		m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_LOAD_GAME").c_str(),
-				NULL, MM_LOAD_GAME, WIDGET_GENERAL, MM_LOAD_GAME, 0, true,
+				NULL, SAS_POPUP_MENU_LOAD_GAME, WIDGET_GENERAL, SAS_POPUP_MENU_LOAD_GAME, 0, true,
 				POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	}
 	if (GC.getGame().canDoControl(CONTROL_SAVE_NORMAL))
 	{
 		m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_SAVE_GAME").c_str(),
-				NULL, MM_SAVE_GAME, WIDGET_GENERAL, MM_SAVE_GAME, 0, true,
+				NULL, SAS_POPUP_MENU_SAVE_GAME, WIDGET_GENERAL, SAS_POPUP_MENU_SAVE_GAME, 0, true,
 				POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	}
 	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_OPTIONS").c_str(),
-			NULL, MM_OPTIONS, WIDGET_GENERAL, MM_OPTIONS, 0, true,
+			NULL, SAS_POPUP_MENU_OPTIONS, WIDGET_GENERAL, SAS_POPUP_MENU_OPTIONS, 0, true,
 			POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	// K-Mod: The BUG options menu!
 	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_BUG_OPT_TITLE").c_str(),
-			NULL, MM_BUG_OPTIONS, WIDGET_GENERAL, MM_BUG_OPTIONS, 0, true,
+			NULL, SAS_POPUP_MENU_BUG_OPTIONS, WIDGET_GENERAL, SAS_POPUP_MENU_BUG_OPTIONS, 0, true,
 			POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 
 	if (GC.getGame().canDoControl(CONTROL_WORLD_BUILDER))
 	{
 		m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_ENTER_WB").c_str(),
-				NULL, MM_ENTER_WB, WIDGET_GENERAL, MM_ENTER_WB, 0, true,
+				NULL, SAS_POPUP_MENU_WORLD_BUILDER, WIDGET_GENERAL, SAS_POPUP_MENU_WORLD_BUILDER, 0, true,
 				POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	}
 
 	if (GC.getGame().canDoControl(CONTROL_ADMIN_DETAILS))
 	{
 		m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_GAME_DETAILS").c_str(),
-				NULL, MM_GAME_DETAILS, WIDGET_GENERAL, MM_GAME_DETAILS, 0, true,
+				NULL, SAS_POPUP_MENU_GAME_DETAILS, WIDGET_GENERAL, SAS_POPUP_MENU_GAME_DETAILS, 0, true,
 				POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	}
 
 	if (GC.getGame().canDoControl(CONTROL_DETAILS))
 	{
 		m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_DETAILS_TITLE").c_str(),
-				NULL, MM_PLAYER_DETAILS, WIDGET_GENERAL, MM_PLAYER_DETAILS, 0, true,
+				NULL, SAS_POPUP_MENU_PLAYER_DETAILS, WIDGET_GENERAL, SAS_POPUP_MENU_PLAYER_DETAILS, 0, true,
 				POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	}
 
 	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_CANCEL").c_str(),
-			NULL, MM_CANCEL, WIDGET_GENERAL, MM_CANCEL, 0, true,
+			NULL, SAS_POPUP_MENU_CANCEL, WIDGET_GENERAL, SAS_POPUP_MENU_CANCEL, 0, true,
 			POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	m_kUI.popupLaunch(pPopup, false, POPUPSTATE_IMMEDIATE);
 
@@ -2250,29 +2295,28 @@ bool CvDLLButtonPopup::launchConfirmMenu(CvPopup *pPopup, CvPopupInfo &info)
 	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_NO").c_str(), NULL, 1, WIDGET_GENERAL);
 	m_kUI.popupLaunch(pPopup, false, POPUPSTATE_IMMEDIATE);*/ // BtS
 
-	// K-Mod. The confirmation box should actually tell the user what they are being asked to confirm!
-	// Note: the text here should correspond to the functionality defined by CvDLLButtonPopup::OnOkClicked.
-	// (It's unfortunate that there's no enum defined for the different options... but I don't feel like fixing that now.)
+	// <!-- custom: K-Mod made the confirmation box name the action being confirmed, with text matching CvDLLButtonPopup::OnOkClicked.
+	// Its former note about lacking an enum is superseded by SASPopupConfirmAction, shared with dispatch and SGR; preserve that inherited question/body behavior. (GPT-6.1-Sol) -->
 	m_kUI.popupSetBodyString(pPopup, gDLL->getText("TXT_KEY_POPUP_ARE_YOU_SURE").c_str());
 	switch (info.getData1())
 	{
-	case 0:
+	case SAS_POPUP_CONFIRM_EXIT_TO_DESKTOP:
 		m_kUI.popupAddGenericButton(pPopup,
 				gDLL->getText("TXT_KEY_POPUP_EXIT_TO_DESKTOP").c_str(), NULL, 0, WIDGET_GENERAL);
 		break;
-	case 1:
+	case SAS_POPUP_CONFIRM_RETURN_TO_MAIN_MENU:
 		m_kUI.popupAddGenericButton(pPopup,
 				gDLL->getText("TXT_KEY_POPUP_EXIT_TO_MAIN_MENU").c_str(), NULL, 0, WIDGET_GENERAL);
 		break;
-	case 2:
+	case SAS_POPUP_CONFIRM_RETIRE:
 		m_kUI.popupAddGenericButton(pPopup,
 				gDLL->getText("TXT_KEY_POPUP_RETIRE").c_str(), NULL, 0, WIDGET_GENERAL);
 		break;
-	case 3:
+	case SAS_POPUP_CONFIRM_REGENERATE_MAP:
 		m_kUI.popupAddGenericButton(pPopup,
 				gDLL->getText("TXT_KEY_POPUP_REGENERATE_MAP").c_str(), NULL, 0, WIDGET_GENERAL);
 		break;
-	case 4:
+	case SAS_POPUP_CONFIRM_WORLD_BUILDER:
 		m_kUI.popupAddGenericButton(pPopup,
 				gDLL->getText("TXT_KEY_POPUP_ENTER_WB").c_str(), NULL, 0, WIDGET_GENERAL);
 		break;
@@ -2654,8 +2698,10 @@ bool CvDLLButtonPopup::launchEventPopup(CvPopup* pPopup, CvPopupInfo &info)
 		CvPlot* pPlot = GC.getMap().plot(pTriggeredData->m_iPlotX, pTriggeredData->m_iPlotY);
 		if (NULL != pPlot)
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
 			gDLL->getEngineIFace()->addColoredPlot(pPlot->getX(), pPlot->getY(),
-					GC.getInfo(GC.getColorType("WARNING_TEXT")).getColor(),
+					GC.getInfo(eColorWarningText).getColor(),
 					PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
 			m_kUI.lookAt(pPlot->getPoint(), CAMERALOOKAT_NORMAL);
 		}

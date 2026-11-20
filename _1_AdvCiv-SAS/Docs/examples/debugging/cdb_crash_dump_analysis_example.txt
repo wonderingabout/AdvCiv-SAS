@@ -1,0 +1,277 @@
+
+************* Path validation summary **************
+Response                         Time (ms)     Location
+OK                                             C:\Users\PC\Downloads\AdvCiv-SAS_LLM\crash_dumps\20261113_small_t148_reload_plotgroups
+Deferred                                       srv*
+Opened log file 'dump_analysis.txt'
+
+************* Preparing the environment for Debugger Extensions Gallery repositories **************
+   ExtensionRepository : Implicit
+   UseExperimentalFeatureForNugetShare : true
+   AllowNugetExeUpdate : true
+   NonInteractiveNuget : true
+   AllowNugetMSCredentialProviderInstall : true
+   AllowParallelInitializationOfLocalRepositories : true
+
+   -- Configuring repositories
+      ----> Repository : LocalInstalled, Enabled: true
+      ----> Repository : UserExtensions, Enabled: true
+
+>>>>>>>>>>>>> Preparing the environment for Debugger Extensions Gallery repositories completed, duration 0.000 seconds
+
+************* Waiting for Debugger Extensions Gallery to Initialize **************
+
+>>>>>>>>>>>>> Waiting for Debugger Extensions Gallery to Initialize completed, duration 0.031 seconds
+   ----> Repository : UserExtensions, Enabled: true, Packages count: 0
+   ----> Repository : LocalInstalled, Enabled: true, Packages count: 46
+
+Microsoft (R) Windows Debugger Version 10.0.29680.1004 X86
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+
+Loading Dump File [C:\Users\PC\Downloads\AdvCiv-SAS_LLM\crash_dumps\20261113_small_t148_reload_plotgroups\Civ4BeyondSword.exe.dmp]
+User Mini Dump File: Only registers, stack and portions of memory are available
+
+
+************* Path validation summary **************
+Response                         Time (ms)     Location
+OK                                             C:\Users\PC\Downloads\AdvCiv-SAS_LLM\crash_dumps\20261113_small_t148_reload_plotgroups
+Deferred                                       srv*
+Symbol search path is: C:\Users\PC\Downloads\AdvCiv-SAS_LLM\crash_dumps\20261113_small_t148_reload_plotgroups;srv*
+Executable search path is: 
+Windows 8 Version 9200 MP (16 procs) Free x86 compatible
+Product: WinNt, suite: SingleUserTS
+Debug session time: Fri Nov 13 18:45:01.000 2026 (UTC + 1:00)
+System Uptime: not available
+Process Uptime: 0 days 0:05:14.000
+.NatVis script successfully loaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\atlmfc.natvis'
+NatVis script successfully loaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\concurrency.natvis'
+NatVis script successfully loaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\cpp_rest.natvis'
+NatVis script successfully loaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\ObjectiveC.natvis'
+NatVis script successfully loaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\stl.natvis'
+NatVis script successfully loaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\Windows.Data.Json.natvis'
+NatVis script successfully loaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\Windows.Devices.Geolocation.natvis'
+NatVis script successfully loaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\Windows.Devices.Sensors.natvis'
+NatVis script successfully loaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\Windows.Media.natvis'
+NatVis script successfully loaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\windows.natvis'
+NatVis script successfully loaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\winrt.natvis'
+...............................................................
+..............................................................
+This dump file has an exception of interest stored in it.
+The stored exception information can be accessed via .ecxr
+(3bbc.29e0): Access violation - code c0000005 (first/second chance not available)
+ReadVirtual() failed in GetXStateConfiguration() first read attempt (error == 0.)
+Invalid mini-dump Miscellaneous information in InitializeConfiguration()
+For analysis of this file, run !analyze -v
+eax=00000000 ebx=4fccdad8 ecx=ffffffff edx=02ee0000 esi=4fccdab0 edi=4fccdb08
+eip=77cc411c esp=0019e55c ebp=0019e568 iopl=0         nv up ei pl nz na pe nc
+cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000206
+ntdll!NtGetContextThread+0xc:
+77cc411c c20800          ret     8
+0:000> lmvm CvGameCoreDLL; .ecxr; kb 6; !analyze -v; q
+start    end        module name
+06080000 06e8a000   CvGameCoreDLL   (deferred)             
+    Mapped memory image file: c:\users\pc\downloads\advciv-sas_llm\crash_dumps\20261113_small_t148_reload_plotgroups\CvGameCoreDLL.dll
+    Image path: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\CvGameCoreDLL.dll
+    Image name: CvGameCoreDLL.dll
+    Timestamp:        Fri Nov 13 18:36:00 2026 (6AF74A80)
+    CheckSum:         00000000
+    ImageSize:        00E0A000
+    Mapping Form:     Loaded
+    Translations:     0000.04b0 0000.04e4 0409.04b0 0409.04e4
+    Information from resource tables:
+*** WARNING: Unable to verify checksum for CvGameCoreDLL.dll
+eax=51a00e30 ebx=00000023 ecx=ffffffff edx=02ee0000 esi=0d26c764 edi=00000000
+eip=0692e475 esp=0019fce4 ebp=00000000 iopl=0         nv up ei ng nz na pe nc
+cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00010286
+CvGameCoreDLL!FFreeListTrashArray<CvPlotGroup,CvPlotGroup>::removeAll+0x45:
+0692e475 8b11            mov     edx,dword ptr [ecx]  ds:002b:ffffffff=????????
+ChildEBP RetAddr      Args to Child              
+0019fce8 0692fdd0     00000000 0d26c408 064374ac CvGameCoreDLL!FFreeListTrashArray<CvPlotGroup,CvPlotGroup>::removeAll+0x45
+0019fcf4 064374ac     060a9cc6 0d26c408 00b85a88 CvGameCoreDLL!FFreeListTrashArray<CvPlotGroup,CvPlotGroup>::uninit+0x10
+0019fd08 0645d0ea     0000001d 00b85a88 00000000 CvGameCoreDLL!CvPlayer::uninit+0x12c
+0019fde0 77a6b467     776a0a48 77604d50 060cfb42 CvGameCoreDLL!CvPlayer::reset+0xa
+0019fe38 77b206db     0019fe80 7c34240d 7c37a3a8 KERNELBASE!InitOnceExecuteOnce+0x17
+0019fe80 7c3a1e88     00000000 000000fa 00000000 KERNELBASE!SetCurrentDirectoryA+0x8b
+.............................................................*** WARNING: Unable to verify checksum for CvGameCoreDLL.dll
+...
+..............................................................
+*******************************************************************************
+*                                                                             *
+*                        Exception Analysis                                   *
+*                                                                             *
+*******************************************************************************
+
+
+KEY_VALUES_STRING: 1
+
+    Key  : AV.Type
+    Value: Read
+
+    Key  : Analysis.CPU.mSec
+    Value: 1765
+
+    Key  : Analysis.Elapsed.mSec
+    Value: 2242
+
+    Key  : Analysis.IO.Other.Mb
+    Value: 0
+
+    Key  : Analysis.IO.Read.Mb
+    Value: 2
+
+    Key  : Analysis.IO.Write.Mb
+    Value: 0
+
+    Key  : Analysis.Init.CPU.mSec
+    Value: 265
+
+    Key  : Analysis.Init.Elapsed.mSec
+    Value: 429
+
+    Key  : Analysis.Memory.CommitPeak.Mb
+    Value: 182
+
+    Key  : Analysis.Version.DbgEng
+    Value: 10.0.29680.1004
+
+    Key  : Analysis.Version.Description
+    Value: 10.2608.26.1 x86fre
+
+    Key  : Analysis.Version.Ext
+    Value: 1.2608.26.1
+
+    Key  : Failure.Bucket
+    Value: INVALID_POINTER_READ_c0000005_CvGameCoreDLL.dll!FFreeListTrashArray_CvPlotGroup,CvPlotGroup_::removeAll
+
+    Key  : Failure.Exception.Code
+    Value: 0xc0000005
+
+    Key  : Failure.Exception.IP.Address
+    Value: 0x692e475
+
+    Key  : Failure.Exception.IP.Module
+    Value: CvGameCoreDLL
+
+    Key  : Failure.Exception.IP.Offset
+    Value: 0x8ae475
+
+    Key  : Failure.Hash
+    Value: {245fba9f-48d8-e30b-529e-1ccdebdbb1c8}
+
+    Key  : Failure.ProblemClass.Primary
+    Value: INVALID_POINTER_READ
+
+    Key  : Faulting.IP.Type
+    Value: Paged
+
+    Key  : Timeline.Process.Start.DeltaSec
+    Value: 314
+
+    Key  : WER.OS.Platform
+    Value: Windows
+
+    Key  : WER.OS.Version
+    Value: 6.2.9200.0
+
+    Key  : WER.Process.Name
+    Value: Civ4BeyondSword.exe
+
+    Key  : WER.Process.Version
+    Value: 3.1.9.0
+
+
+FILE_IN_CAB:  Civ4BeyondSword.exe.dmp
+
+APPLICATION_VERIFIER_FLAGS:  0
+
+CONTEXT:  (.ecxr)
+.ecxr
+eax=51a00e30 ebx=00000023 ecx=ffffffff edx=02ee0000 esi=0d26c764 edi=00000000
+eip=0692e475 esp=0019fce4 ebp=00000000 iopl=0         nv up ei ng nz na pe nc
+cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00010286
+CvGameCoreDLL!FFreeListTrashArray<CvPlotGroup,CvPlotGroup>::removeAll+0x45:
+0692e475 8b11            mov     edx,dword ptr [ecx]  ds:002b:ffffffff=????????
+.cxr
+Resetting default scope
+
+EXCEPTION_RECORD:  (.exr -1)
+.exr -1
+ExceptionAddress: 0692e475 (CvGameCoreDLL!FFreeListTrashArray<CvPlotGroup,CvPlotGroup>::removeAll+0x00000045)
+   ExceptionCode: c0000005 (Access violation)
+  ExceptionFlags: 00000000
+NumberParameters: 2
+   Parameter[0]: 00000000
+   Parameter[1]: ffffffff
+Attempt to read from address ffffffff
+
+PROCESS_NAME:  Civ4BeyondSword.exe
+
+READ_ADDRESS:  ffffffff 
+
+ERROR_CODE: (NTSTATUS) 0xc0000005 - L'instruction   0x%p emploie l'adresse m moire 0x%p. L' tat de la m moire ne peut pas  tre %s.
+
+EXCEPTION_CODE: (NTSTATUS) 0xc0000005 - L'instruction   0x%p emploie l'adresse m moire 0x%p. L' tat de la m moire ne peut pas  tre %s.
+
+EXCEPTION_CODE_STR:  c0000005
+
+EXCEPTION_PARAMETER1:  00000000
+
+EXCEPTION_PARAMETER2:  ffffffff
+
+STACK_TEXT:  
+0019fce8 0692fdd0     00000000 0d26c408 064374ac CvGameCoreDLL!FFreeListTrashArray<CvPlotGroup,CvPlotGroup>::removeAll+0x45
+0019fcf4 064374ac     060a9cc6 0d26c408 00b85a88 CvGameCoreDLL!FFreeListTrashArray<CvPlotGroup,CvPlotGroup>::uninit+0x10
+0019fd08 0645d0ea     0000001d 00b85a88 00000000 CvGameCoreDLL!CvPlayer::uninit+0x12c
+0019fde0 77a6b467     776a0a48 77604d50 060cfb42 CvGameCoreDLL!CvPlayer::reset+0xa
+0019fe38 77b206db     0019fe80 7c34240d 7c37a3a8 KERNELBASE!InitOnceExecuteOnce+0x17
+0019fe80 7c3a1e88     00000000 000000fa 00000000 KERNELBASE!SetCurrentDirectoryA+0x8b
+0019ff70 7760fcc9     00257000 7760fcb0 0019ffdc msvcp71!std::basic_string<char,std::char_traits<char>,std::allocator<char> >::basic_string<char,std::char_traits<char>,std::allocator<char> >+0x11
+0019ff80 77cb82ae     00257000 ca8ea2f2 00000000 kernel32!BaseThreadInitThunk+0x19
+0019ffdc 77cb827e     ffffffff 77cd93b3 00000000 ntdll!__RtlUserThreadStart+0x2f
+0019ffec 00000000     00fad2f0 00257000 00000000 ntdll!_RtlUserThreadStart+0x1b
+
+
+STACK_COMMAND: ~0s; .ecxr ; kb
+
+IP_IN_PAGED_CODE: 
+CvGameCoreDLL!FFreeListTrashArray<CvPlotGroup,CvPlotGroup>::removeAll+45
+0692e475 8b11            mov     edx,dword ptr [ecx]
+
+FAULTING_SOURCE_LINE:  c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\ffreelisttrasharray.cpp
+
+FAULTING_SOURCE_FILE:  c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\ffreelisttrasharray.cpp
+
+FAULTING_SOURCE_LINE_NUMBER:  198
+
+SYMBOL_NAME:  CvGameCoreDLL!FFreeListTrashArray<CvPlotGroup,CvPlotGroup>::removeAll+45
+
+MODULE_NAME: CvGameCoreDLL
+
+IMAGE_NAME:  CvGameCoreDLL.dll
+
+FAILURE_BUCKET_ID:  INVALID_POINTER_READ_c0000005_CvGameCoreDLL.dll!FFreeListTrashArray_CvPlotGroup,CvPlotGroup_::removeAll
+
+OS_VERSION:  6.2.9200.0
+
+OSPLATFORM_TYPE:  x86
+
+OSNAME:  Windows 8
+
+FAILURE_ID_HASH:  {245fba9f-48d8-e30b-529e-1ccdebdbb1c8}
+
+Followup:     MachineOwner
+---------
+
+quit:
+NatVis script unloaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\atlmfc.natvis'
+NatVis script unloaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\concurrency.natvis'
+NatVis script unloaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\cpp_rest.natvis'
+NatVis script unloaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\ObjectiveC.natvis'
+NatVis script unloaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\stl.natvis'
+NatVis script unloaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\Windows.Data.Json.natvis'
+NatVis script unloaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\Windows.Devices.Geolocation.natvis'
+NatVis script unloaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\Windows.Devices.Sensors.natvis'
+NatVis script unloaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\Windows.Media.natvis'
+NatVis script unloaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\windows.natvis'
+NatVis script unloaded from 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2611.4001.0_x64__8wekyb3d8bbwe\x86\Visualizers\winrt.natvis'

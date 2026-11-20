@@ -1,0 +1,422 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 98
+# Author: iustus
+# Date: 2006-11-18T06:20:59.340518Z
+# Coverage: full
+# Message:
+#   Added the missing AI_Defines.h file, and cleaned up the VS project when building the debug version
+# Changed paths (3):
+#   M /branches/vanilla/CvGameCoreDLL
+#   A /branches/vanilla/CvGameCoreDLL/AI_Defines.h
+#   M /branches/vanilla/CvGameCoreDLL/CvGameCoreDLL.vcproj
+
+Index: /branches/vanilla/CvGameCoreDLL/AI_Defines.h
+--- /dev/null
++++ /branches/vanilla/CvGameCoreDLL/AI_Defines.h@98
+@@ -0,0 +1,16 @@
++#ifndef AI_DEFINES_H
++#define AI_DEFINES_H
++
++#define AI_DEFAULT_STRATEGY             (0x00000001)
++#define AI_STRATEGY_DAGGER              (0x00000002)
++#define AI_STRATEGY_SLEDGEHAMMER        (0x00000004)
++#define AI_STRATEGY_CASTLE              (0x00000008)
++#define AI_STRATEGY_FASTMOVERS          (0x00000010)
++#define AI_STRATEGY_SLOWMOVERS          (0x00000020)
++#define AI_STRATEGY_CULTURE1            (0x00000040)  //religions and wonders
++#define AI_STRATEGY_CULTURE2            (0x00000080)  //mass culture buildings
++#define AI_STRATEGY_CULTURE3            (0x00000100)  //culture slider
++
++
++#endif // AI_DEFINES_H
++
+
+Index: /branches/vanilla/CvGameCoreDLL/CvGameCoreDLL.vcproj
+--- /branches/vanilla/CvGameCoreDLL/CvGameCoreDLL.vcproj@97
++++ /branches/vanilla/CvGameCoreDLL/CvGameCoreDLL.vcproj@98
+@@ -393,6 +393,71 @@
+ 			<Tool
+ 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+ 		</Configuration>
++		<Configuration
++			Name="Debug with Release exe|Win32"
++			OutputDirectory="$(ConfigurationName)"
++			IntermediateDirectory="$(ConfigurationName)"
++			ConfigurationType="2"
++			CharacterSet="2">
++			<Tool
++				Name="VCCLCompilerTool"
++				Optimization="0"
++				GlobalOptimizations="FALSE"
++				EnableIntrinsicFunctions="FALSE"
++				OmitFramePointers="FALSE"
++				OptimizeForProcessor="3"
++				AdditionalIncludeDirectories="&quot;Boost-1.32.0\include&quot;;Python24\include"
++				PreprocessorDefinitions="WIN32;NDEBUG;FASSERT_ENABLE;_WINDOWS;_USRDLL;CVGAMECOREDLL_EXPORTS"
++				MinimalRebuild="FALSE"
++				ExceptionHandling="TRUE"
++				BasicRuntimeChecks="3"
++				RuntimeLibrary="2"
++				BufferSecurityCheck="FALSE"
++				EnableFunctionLevelLinking="TRUE"
++				RuntimeTypeInfo="TRUE"
++				UsePrecompiledHeader="3"
++				PrecompiledHeaderThrough="CvGameCoreDLL.h"
++				ProgramDataBaseFileName="$(IntDir)/vc70.pdb"
++				WarningLevel="3"
++				Detect64BitPortabilityProblems="FALSE"
++				DebugInformationFormat="4"
++				CallingConvention="0"/>
++			<Tool
++				Name="VCCustomBuildTool"/>
++			<Tool
++				Name="VCLinkerTool"
++				AdditionalDependencies="boost_python-vc71-mt-1_32.lib  winmm.lib"
++				OutputFile="../Assets/CvGameCoreDLL.dll"
++				LinkIncremental="2"
++				AdditionalLibraryDirectories="Python24\libs;&quot;boost-1.32.0\libs\&quot;"
++				GenerateDebugInformation="TRUE"
++				ProgramDatabaseFile="$(OutDir)/CvGameCoreDLL.pdb"
++				SubSystem="2"
++				OptimizeReferences="0"
++				EnableCOMDATFolding="0"
++				ImportLibrary="$(OutDir)/CvGameCoreDLL.lib"
++				TargetMachine="1"/>
++			<Tool
++				Name="VCMIDLTool"/>
++			<Tool
++				Name="VCPostBuildEventTool"/>
++			<Tool
++				Name="VCPreBuildEventTool"/>
++			<Tool
++				Name="VCPreLinkEventTool"/>
++			<Tool
++				Name="VCResourceCompilerTool"/>
++			<Tool
++				Name="VCWebServiceProxyGeneratorTool"/>
++			<Tool
++				Name="VCXMLDataGeneratorTool"/>
++			<Tool
++				Name="VCWebDeploymentTool"/>
++			<Tool
++				Name="VCManagedWrapperGeneratorTool"/>
++			<Tool
++				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
++		</Configuration>
+ 	</Configurations>
+ 	<References>
+ 	</References>
+@@ -439,6 +504,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="1"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="1"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvArea.cpp">
+@@ -478,6 +549,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvArtFileMgr.cpp">
+@@ -520,6 +597,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvCityAI.cpp">
+@@ -559,6 +642,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvDeal.cpp">
+@@ -598,6 +687,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvDiploParameters.cpp">
+@@ -643,6 +738,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvDLLPython.cpp">
+@@ -688,6 +789,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvGame.cpp">
+@@ -727,6 +834,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvGameAI.cpp">
+@@ -766,6 +879,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvGameCoreDLL.cpp">
+@@ -805,6 +924,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvGameCoreUtils.cpp">
+@@ -850,6 +975,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvHallOfFameInfo.cpp">
+@@ -892,6 +1023,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvInfoWater.cpp">
+@@ -937,6 +1074,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvMapGenerator.cpp">
+@@ -976,6 +1119,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvPlayer.cpp">
+@@ -1015,6 +1164,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvPlayerAI.cpp">
+@@ -1054,6 +1209,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvPlot.cpp">
+@@ -1093,6 +1254,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvPlotGroup.cpp">
+@@ -1132,6 +1299,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvPopupInfo.cpp">
+@@ -1177,6 +1350,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvReplayInfo.cpp">
+@@ -1222,6 +1401,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvSelectionGroupAI.cpp">
+@@ -1270,6 +1455,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvTeamAI.cpp">
+@@ -1309,6 +1500,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvUnit.cpp">
+@@ -1348,6 +1545,12 @@
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+ 				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvUnitAI.cpp">
+@@ -1383,6 +1586,12 @@
+ 				</FileConfiguration>
+ 				<FileConfiguration
+ 					Name="Debug Final Release|Win32">
++					<Tool
++						Name="VCCLCompilerTool"
++						UsePrecompiledHeader="3"/>
++				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug with Release exe|Win32">
+ 					<Tool
+ 						Name="VCCLCompilerTool"
+ 						UsePrecompiledHeader="3"/>
+

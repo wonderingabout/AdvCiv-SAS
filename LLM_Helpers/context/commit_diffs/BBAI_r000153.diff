@@ -1,0 +1,40 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 153
+# Author: iustus
+# Date: 2006-12-08T06:25:21.903014Z
+# Coverage: full
+# Message:
+#   fixed bug in 2.08 pop rush code. There is a round off bug which can cause a pop rush to not complete the next turn
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@152
++++ /trunk/CvGameCoreDLL/CvCity.cpp@153
+@@ -4326,7 +4326,8 @@
+ 
+ int CvCity::getHurryCost(bool bExtra, int iProductionLeft, int iHurryModifier, int iModifier) const
+ {
+-	int iProduction = (iProductionLeft * iHurryModifier) / 100;
++	// round up
++	int iProduction = ((iProductionLeft * iHurryModifier) + (100 - 1)) / 100;
+ 
+ 	if (bExtra)
+ 	{
+@@ -4334,11 +4335,9 @@
+ 		if (iExtraProduction > 0)
+ 		{
+ 			int iAdjustedProd = iProduction * iProduction;
+-			iProduction = iAdjustedProd / iExtraProduction;
+-			if (iAdjustedProd % iExtraProduction > 0)  // round up
+-			{
+-				++iProduction;
+-			}
++			
++			// round up
++			iProduction = (iAdjustedProd + (iExtraProduction - 1)) / iExtraProduction;
+ 		}
+ 	}
+ 
+

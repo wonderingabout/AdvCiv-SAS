@@ -1,0 +1,609 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 514
+# Author: jdog5000
+# Date: 2009-12-08T08:22:49.807871Z
+# Coverage: full
+# Message:
+#   0.83d beta release
+#   
+#   Merged in UP 1.4
+#   Fixed denial test for human as vassal option
+#   Rush defenses when in trouble
+# Changed paths (9):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvCity.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.h
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@513
++++ /trunk/CvGameCoreDLL/CvCity.cpp@514
+@@ -482,6 +482,16 @@
+ 	m_bLayoutDirty = false;
+ 	m_bPlundered = false;
+ 
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       12/07/09                         denev & jdog5000     */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++	m_bPopProductionProcess = false;
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
++
+ 	m_eOwner = eOwner;
+ 	m_ePreviousOwner = NO_PLAYER;
+ 	m_eOriginalOwner = eOwner;
+@@ -7608,7 +7618,7 @@
+ 				
+ 				//Stop Build Culture
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       07/17/09                                jdog5000      */
++/* UNOFFICIAL_PATCH                       12/07/09                         denev & jdog5000     */
+ /*                                                                                              */
+ /* Bugfix, Odd behavior                                                                         */
+ /************************************************************************************************/
+@@ -7629,7 +7639,8 @@
+ 					{
+ 						if (GC.getProcessInfo(getProductionProcess()).getProductionToCommerceModifier(COMMERCE_CULTURE) > 0)
+ 						{
+-							popOrder(0, false, true);						
++							//popOrder(0, false, true);
++							m_bPopProductionProcess = true;
+ 						}
+ 					}
+ 				}
+@@ -11704,6 +11715,19 @@
+ 
+ 	if (isProductionProcess())
+ 	{
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       12/07/09                         denev & jdog5000     */
++/*                                                                                              */
++/* Bugfix, Odd behavior                                                                         */
++/************************************************************************************************/
++		if (m_bPopProductionProcess)
++		{
++			popOrder(0, false, true);
++			m_bPopProductionProcess = false;
++		}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 		return;
+ 	}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvCity.h
+--- /trunk/CvGameCoreDLL/CvCity.h@513
++++ /trunk/CvGameCoreDLL/CvCity.h@514
+@@ -1062,6 +1062,15 @@
+ 	bool m_bInfoDirty;
+ 	bool m_bLayoutDirty;
+ 	bool m_bPlundered;
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       12/07/09                         denev & jdog5000     */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++	bool m_bPopProductionProcess;
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 
+ 	PlayerTypes m_eOwner;
+ 	PlayerTypes m_ePreviousOwner;
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@513
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@514
+@@ -7466,6 +7466,100 @@
+ 				}
+ 			}
+ 
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      12/07/09                                jdog5000      */
++/*                                                                                              */
++/* City AI                                                                                      */
++/************************************************************************************************/
++			// Rush defenses when in big trouble
++			if ( (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE) && GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true) > 150 )
++			{
++				if( eProductionUnit != NO_UNIT && GC.getGameINLINE().AI_combatValue(eProductionUnit) > 33 && getProduction() > 0 )
++				{
++					if( (iHurryPopulation > 0) && (iHurryAngerLength == 0 || getHurryAngerTimer() < 2) && (iHurryPopulation < 3 && iHurryPopulation < getPopulation()/3))
++					{
++						bool bWait = true;
++
++						if( GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_TURTLE) )
++						{
++							bWait = false;
++						}
++						else if( (3*(getPopulation() - iHurryPopulation)) < getHighestPopulation()*2 )
++						{
++							bWait = true;
++						}
++						else if( GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble() )
++						{
++							bWait = true;
++						}
++						else
++						{
++							for( int iJ = 0; iJ < MAX_CIV_TEAMS; iJ++ )
++							{
++								if( GET_TEAM((TeamTypes)iJ).isAlive() && !GET_TEAM((TeamTypes)iJ).isMinorCiv() )
++								{
++									if( GET_TEAM(getTeam()).isAtWar((TeamTypes)iJ) && GET_TEAM(getTeam()).AI_getAtWarCounter((TeamTypes)iJ) < 10 )
++									{
++										bWait = false;
++										break;
++									}
++								}
++							}
++						}
++
++						if( !bWait )
++						{
++							if( gCityLogLevel >= 2 )
++							{
++								logBBAI("      City %S hurry pop at %d to rush defenses for recent attack", getName().GetCString(), iHurryPopulation );
++							}
++							hurry((HurryTypes)iI);
++							break;
++						}
++					}
++					else
++					{
++						if( !(GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble()) )
++						{
++							int iHurryGold = hurryGold((HurryTypes)iI);
++							if( iHurryGold > 0 && iHurryAngerLength == 0 )
++							{
++								bool bDanger = AI_isDanger();
++								bool bWait = true;
++
++								if( GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_TURTLE) )
++								{
++									if( (bDanger ? 5 : 8)*iHurryGold < GET_PLAYER(getOwnerINLINE()).getGold() )
++									{
++										bWait = false;
++									}
++								}
++								else
++								{
++									if( (bDanger ? 8 : 12)*iHurryGold < GET_PLAYER(getOwnerINLINE()).getGold() )
++									{
++										bWait = false;
++									}
++								}
++
++								if( !bWait )
++								{
++									if( gCityLogLevel >= 2 )
++									{
++										logBBAI("      City %S hurry gold at %d to rush defenses for recent attack", getName().GetCString(), iHurryGold );
++									}
++									hurry((HurryTypes)iI);
++									break;
++								}
++							}
++						}
++					}
++				}
++			}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
++
+ 			if ((iHurryAngerLength == 0) && (iHurryPopulation == 0))
+ 			{
+ 				if (GET_PLAYER(getOwnerINLINE()).AI_avoidScience())
+@@ -7475,6 +7569,7 @@
+ 						iMinTurns = std::min(iMinTurns, 10);
+ 					}
+ 				}
++
+ 				if (eProductionBuilding != NO_BUILDING)
+ 				{
+ 					int iValuePerTurn = AI_buildingValueThreshold(eProductionBuilding, BUILDINGFOCUS_GOLD | BUILDINGFOCUS_MAINTENANCE | BUILDINGFOCUS_PRODUCTION);
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@513
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@514
+@@ -1226,6 +1226,30 @@
+ 		}
+ 	}
+ 
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       12/07/09                            Emperor Fool      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++	// Free Tech Popup Fix
++	if (widgetDataStruct.m_iData2 > 0)
++	{
++		CvPlayer& kPlayer = GET_PLAYER(GC.getGameINLINE().getActivePlayer());
++
++		if (!kPlayer.isChoosingFreeTech())
++		{
++			gDLL->getInterfaceIFace()->addMessage(GC.getGameINLINE().getActivePlayer(), true, GC.getEVENT_MESSAGE_TIME(), gDLL->getText("TXT_KEY_CHEATERS_NEVER_PROSPER"), NULL, MESSAGE_TYPE_MAJOR_EVENT);
++			return;
++		}
++		else
++		{
++			kPlayer.setChoosingFreeTech(false);
++		}
++	}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
++
+ 	CvMessageControl::getInstance().sendResearch(((TechTypes)widgetDataStruct.m_iData1), widgetDataStruct.m_iData2, bShift);
+ }
+ 
+@@ -4384,12 +4408,22 @@
+ 		case TRADE_MAPS:
+ 			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_MAPS"));
+ 			break;
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      12/07/09                                jdog5000      */
++/*                                                                                              */
++/* Diplomacy                                                                                    */
++/************************************************************************************************/
+ 		case TRADE_SURRENDER:
+ 			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_CAPITULATE"));
++			eWhoDenies = (widgetDataStruct.m_bOption ? eWhoFrom : NO_PLAYER);
+ 			break;
+ 		case TRADE_VASSAL:
+ 			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_VASSAL"));
++			eWhoDenies = (widgetDataStruct.m_bOption ? eWhoFrom : NO_PLAYER);
+ 			break;
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 		case TRADE_OPEN_BORDERS:
+ 			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_OPEN_BORDERS"));
+ 			break;
+@@ -4410,7 +4444,45 @@
+ 
+ 		if (eDenial != NO_DENIAL)
+ 		{
+-			szTempBuffer.Format(L"%s: " SETCOLR L"%s" ENDCOLR, GET_PLAYER(eWhoDenies).getName(), TEXT_COLOR("COLOR_WARNING_TEXT"), GC.getDenialInfo(eDenial).getDescription());
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      12/07/09                                jdog5000      */
++/*                                                                                              */
++/* Diplomacy                                                                                    */
++/************************************************************************************************/
++			if( eWhoDenies == NO_PLAYER )
++			{
++				switch(eDenial)
++				{
++				case DENIAL_POWER_US:
++					eDenial = DENIAL_POWER_YOU;
++					break;
++				case DENIAL_POWER_YOU:
++					eDenial = DENIAL_POWER_US;
++					break;
++				case DENIAL_WAR_NOT_POSSIBLE_US:
++					eDenial = DENIAL_WAR_NOT_POSSIBLE_YOU;
++					break;
++				case DENIAL_WAR_NOT_POSSIBLE_YOU:
++					eDenial = DENIAL_WAR_NOT_POSSIBLE_US;
++					break;
++				case DENIAL_PEACE_NOT_POSSIBLE_US:
++					eDenial = DENIAL_PEACE_NOT_POSSIBLE_YOU;
++					break;
++				case DENIAL_PEACE_NOT_POSSIBLE_YOU:
++					eDenial = DENIAL_PEACE_NOT_POSSIBLE_US;
++					break;
++				default :
++					break;
++				}
++				szTempBuffer.Format(L"%s: " SETCOLR L"%s" ENDCOLR, GET_PLAYER(eWhoTo).getName(), TEXT_COLOR("COLOR_WARNING_TEXT"), GC.getDenialInfo(eDenial).getDescription());
++			}
++			else
++			{
++				szTempBuffer.Format(L"%s: " SETCOLR L"%s" ENDCOLR, GET_PLAYER(eWhoDenies).getName(), TEXT_COLOR("COLOR_WARNING_TEXT"), GC.getDenialInfo(eDenial).getDescription());
++			}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(szTempBuffer);
+ 		}
+@@ -4436,12 +4508,12 @@
+ 	CvWString szTempBuffer;
+ 
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                      10/22/09                                jdog5000       */
++/* UNOFFICIAL_PATCH                      12/07/09                                jdog5000       */
+ /*                                                                                              */
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.31");
++	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.40");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+@@ -4449,12 +4521,12 @@
+ /* UNOFFICIAL_PATCH                       END                                                   */
+ /************************************************************************************************/
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/29/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      12/07/09                                jdog5000      */
+ /*                                                                                              */
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.85 pre-release");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.83d");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@513
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@514
+@@ -7722,9 +7722,23 @@
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_ESPIONAGE_DEFENSE_MOD", kBuilding.getEspionageDefenseModifier()));
+-
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       12/07/09                      Afforess & jdog5000     */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++/* original BTS code
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_EXPOSE_SPIES"));
++*/		
++		if (kBuilding.getEspionageDefenseModifier() > 0)
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_EXPOSE_SPIES"));
++		}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 	}
+ 
+ 	setYieldChangeHelp(szBuffer, gDLL->getText("TXT_KEY_BUILDING_WATER_PLOTS").c_str(), L": ", L"", kBuilding.getSeaPlotYieldChangeArray());
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@513
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@514
+@@ -109,6 +109,17 @@
+ 	m_bDisableHuman = false;
+ /************************************************************************************************/
+ /* AI_AUTO_PLAY_MOD                        END                                                  */
++/************************************************************************************************/
++
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       12/07/09                            Emperor Fool      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++	// Free Tech Popup Fix
++	m_bChoosingFreeTech = false;
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
+ /************************************************************************************************/
+ 
+ 	reset(NO_PLAYER, true);
+@@ -784,6 +795,17 @@
+ /* AI_AUTO_PLAY_MOD                        END                                                  */
+ /************************************************************************************************/
+ 
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       12/07/09                            Emperor Fool      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++	// Free Tech Popup Fix
++	m_bChoosingFreeTech = false;
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
++
+ 	m_eID = eID;
+ 	updateTeamType();
+ 	updateHuman();
+@@ -3862,10 +3884,41 @@
+ 
+ 	return false;
+ }
+-
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       12/07/09                            Emperor Fool      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++// Free Tech Popup Fix
++bool CvPlayer::isChoosingFreeTech() const
++{
++	return m_bChoosingFreeTech;
++}
++
++void CvPlayer::setChoosingFreeTech(bool bValue)
++{
++	m_bChoosingFreeTech = bValue;
++}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 
+ void CvPlayer::chooseTech(int iDiscover, CvWString szText, bool bFront)
+ {
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       12/07/09                            Emperor Fool      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++	// Free Tech Popup Fix
++	if (iDiscover > 0)
++	{
++		setChoosingFreeTech(true);
++	}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
++
+ 	CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CHOOSETECH);
+ 	if (NULL != pInfo)
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.h
+--- /trunk/CvGameCoreDLL/CvPlayer.h@513
++++ /trunk/CvGameCoreDLL/CvPlayer.h@514
+@@ -159,6 +159,18 @@
+ 	DllExport bool hasReadyUnit(bool bAny = false) const;
+ 	DllExport bool hasAutoUnit() const;
+ 	DllExport bool hasBusyUnit() const;
++
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       12/07/09                            Emperor Fool      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++	// Free Tech Popup Fix
++	bool isChoosingFreeTech() const;
++	void setChoosingFreeTech(bool bValue);
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 
+ 	DllExport void chooseTech(int iDiscover = 0, CvWString szText = "", bool bFront = false);				// Exposed to Python
+ 
+@@ -1216,6 +1228,16 @@
+ /* AI_AUTO_PLAY_MOD                        END                                                  */
+ /************************************************************************************************/
+ 
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       12/07/09                            Emperor Fool      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++	// Free Tech Popup Fix
++	bool m_bChoosingFreeTech;
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 
+ 	PlayerTypes m_eID;
+ 	LeaderHeadTypes m_ePersonalityType;
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@513
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@514
+@@ -15173,12 +15173,22 @@
+ 						iBestArrival = iCountdown;
+ 						eBestTeam = (TeamTypes)iTeam;
+ 					}
+-
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      12/07/09                       r_rolo1 & jdog5000     */
++/*                                                                                              */
++/*                                                                                              */
++/************************************************************************************************/
++/* original BTS code
+ 					if (iCountdown < GET_TEAM(getTeam()).getVictoryDelay(eVictory) && kTeam.getLaunchSuccessRate(eVictory) == 100)
+ 					{
+ 						bLaunch = false;
+ 						break;
+ 					}
++*/
++					// Other civs capital could still be captured, might as well send spaceship
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 				}
+ 			}
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@513
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@514
+@@ -1822,10 +1822,18 @@
+ 		}
+ 	}
+ 
+-	if (isHuman())
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      12/07/09                                jdog5000      */
++/*                                                                                              */
++/* Diplomacy                                                                                    */
++/************************************************************************************************/
++	if (isHuman() && kMasterTeam.isHuman())
+ 	{
+ 		return NO_DENIAL;
+ 	}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ 	int iAttitudeModifier = 0;
+ 
+@@ -2086,21 +2094,32 @@
+ 	else
+ 	{
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      12/07/09                                jdog5000      */
+ /*                                                                                              */
+ /* Diplomacy AI                                                                                 */
+ /************************************************************************************************/
+ /* original BTS code
+ 		if (AI_getWarSuccess(eTeam) + 4 * GC.getDefineINT("WAR_SUCCESS_CITY_CAPTURING") > GET_TEAM(eTeam).AI_getWarSuccess(getID()))
++		{
++			return DENIAL_JOKING;
++		}
+ */
+ 		// Scale better for small empires, particularly necessary if WAR_SUCCESS_CITY_CAPTURING > 10
+ 		if (AI_getWarSuccess(eTeam) + std::min(getNumCities(), 4) * GC.getDefineINT("WAR_SUCCESS_CITY_CAPTURING") > GET_TEAM(eTeam).AI_getWarSuccess(getID()))
++		{
++			return DENIAL_JOKING;
++		}
++
++		if( !kMasterTeam.isHuman() )
++		{
++			if( !(GET_TEAM(kMasterTeam.getID()).AI_acceptSurrender(getID())) )
++			{
++				return DENIAL_JOKING;
++			}
++		}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-		{
+-			return DENIAL_JOKING;
+-		}
+ 	}
+ 	
+ 	return NO_DENIAL;
+@@ -2176,6 +2195,16 @@
+ bool CvTeamAI::AI_acceptSurrender( TeamTypes eSurrenderTeam )
+ {
+ 	PROFILE_FUNC();
++
++	if( isHuman() )
++	{
++		return true;
++	}
++
++	if( !isAtWar(eSurrenderTeam) )
++	{
++		return true;
++	}
+ 
+ 	// BBAI TODO:  Need better impending space victory detector ... I think this only catches launched spaceships
+ 	// Is surrender team going to win by spaceship?
+

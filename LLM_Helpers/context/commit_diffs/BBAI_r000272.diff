@@ -1,0 +1,375 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 272
+# Author: iustus
+# Date: 2007-01-16T14:14:44.536445Z
+# Coverage: full
+# Message:
+#   some faster algorithms for fogbusting, added some more temporary asserts
+#   redid way aircraft on automated carriers works
+#   staggered out automated explorers a bit, so they do not all go all at once, causing a huge lag (this will be much much faster once the asserts are gone)
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvPlotRegion.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/CvPlotRegion.h
+--- /trunk/CvGameCoreDLL/CvPlotRegion.h@271
++++ /trunk/CvGameCoreDLL/CvPlotRegion.h@272
+@@ -43,10 +43,62 @@
+ template <class _RegionClass>
+ void regionUnion(_RegionClass& regionToAddTo, const _RegionClass& regionToAdd)
+ { 
++#ifndef check_our_work
++	_RegionClass addToCopy = regionToAddTo;
++#endif
++
++	// loop both until finished adding (both are in sorted order)
++	_RegionClass::iterator itAddTo = regionToAddTo.begin();
++	_RegionClass::const_iterator itAdd = regionToAdd.begin();
++	while (itAdd != regionToAdd.end())
++	{
++		bool bAtAddToEnd = (itAddTo == regionToAddTo.end());
++
++		XYCoords addXY = getXYCoords(itAdd);
++		XYCoords addToXY;
++		if (!bAtAddToEnd)
++		{
++			addToXY = getXYCoords(itAddTo);
++		}
++		
++		// if not at addTo end and addTo less, increment addTo and loop again
++		if (!bAtAddToEnd && addToXY < addXY)
++		{
++			itAddTo++;
++		}
++		// if at addTo end or addTo more, insert here, increment add and loop again
++		else if (bAtAddToEnd || addXY < addToXY)
++		{
++			regionToAddTo.insert(itAddTo, (*itAdd));
++			itAdd++;
++		}
++		// otherwise they must be equal, it is in both, increment both
++		else
++		{
++			FAssert(!bAtAddToEnd);
++			FAssert(addToXY == addXY);
++			itAddTo++;
++			itAdd++;
++		}
++	}
++
++#ifndef check_our_work
+ 	for (_RegionClass::const_iterator it = regionToAdd.begin(); it != regionToAdd.end(); it++)
+ 	{
+-		regionToAddTo.insert((*it));
+-	}
++		addToCopy.insert((*it));
++	}
++
++	FAssert(addToCopy.size() == regionToAddTo.size());
++
++	_RegionClass::const_iterator itCopy = addToCopy.begin();
++	for (_RegionClass::const_iterator it = regionToAddTo.begin(); it != regionToAddTo.end(); it++)
++	{
++		FAssert(*itCopy == *it);
++		FAssert(itCopy != addToCopy.end());
++
++		itCopy++;
++	}
++#endif
+ }
+ 
+ // subtract removes all plots in regionToSubtract from regionToSubtractFrom (non-symetrical difference) 
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@271
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@272
+@@ -3164,6 +3164,7 @@
+ 					if (pTransportUnit != NULL && pTransportUnit->getGroup() == this)
+ 					{
+ 						pCargoUnit->getGroup()->setAutomateType(NO_AUTOMATE);
++						pCargoUnit->getGroup()->setActivityType(ACTIVITY_AWAKE);
+ 					}
+ 				}
+ 			}
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@271
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@272
+@@ -150,6 +150,26 @@
+ 			break;
+ 
+ 		case AUTOMATE_EXPLORE:
++			// stagger explorer units a bit, so they do not all go at start of turn and cause more lag
++			{
++				static int s_iLastAutomatedTurn = -1;
++				static int s_iLastAutomatedTurnSlice = 0;
++				
++				int iCurrentTurn = GC.getGameINLINE().getElapsedGameTurns();
++				int iCurrentTurnSlice = GC.getGameINLINE().getTurnSlice();
++
++				if (iCurrentTurn == s_iLastAutomatedTurn && (iCurrentTurnSlice - s_iLastAutomatedTurnSlice) < 2)
++				{
++					// bail, wait a slice
++					getGroup()->setActivityType(ACTIVITY_SLEEP);
++					getGroup()->setForceUpdate(true);
++					break;
++				}
++
++				s_iLastAutomatedTurn = iCurrentTurn;
++				s_iLastAutomatedTurnSlice = iCurrentTurnSlice;
++			}
++
+ 			switch (getDomainType())
+ 			{
+ 			case DOMAIN_SEA:
+@@ -157,13 +177,18 @@
+ 				break;
+ 
+ 			case DOMAIN_AIR:
++				// if we are cargo (on a carrier), hold if the carrier is not done moving yet
++				pTransportUnit = getTransportUnit();
++				if (pTransportUnit != NULL)
++				{
++					if (pTransportUnit->isAutomated() && pTransportUnit->canMove() && pTransportUnit->getGroup()->getActivityType() != ACTIVITY_HOLD)
++					{
++						getGroup()->pushMission(MISSION_SKIP);
++						break;
++					}
++				}
++				
+ 				AI_exploreAirMove();
+-
+-				// after we move, if we on a carrier, turn off automation, so we after the carrier again next turn
+-				if (isCargo())
+-				{
+-					getGroup()->setAutomateType(NO_AUTOMATE);
+-				}
+ 				break;
+ 
+ 			case DOMAIN_LAND:
+@@ -190,6 +215,7 @@
+ 						if (pCargoUnit->canMove())
+ 						{
+ 							pCargoUnit->getGroup()->setAutomateType(AUTOMATE_EXPLORE);
++							pCargoUnit->getGroup()->setActivityType(ACTIVITY_AWAKE);
+ 						}
+ 					}
+ 				}
+@@ -7236,6 +7262,8 @@
+ // if pVisibleRegion != NULL it is used to check adjacent, rather than plotRegion
+ int CvUnitAI::AI_fogbustRegionValue(const CvPlotRegion& plotRegion, bool* pbAdjacentOurTerritory, const CvPlotRegion* pVisibleRegion) const
+ {
++	PROFILE_FUNC();
++
+ 	int iTotalValue = 0;
+ 
+ 	bool bAdjacentOurTerritory = false;
+@@ -7251,7 +7279,7 @@
+ 
+ 		if (pLoopPlot->getOwnerINLINE() == ePlayer)
+ 		{
+-			bAdjacentOurTerritory = true;;
++			bAdjacentOurTerritory = true;
+ 		}
+ 	}
+ 	
+@@ -7286,6 +7314,8 @@
+ // if pVisibleRegion != NULL it is used to check adjacent, rather than plotRegion
+ int CvUnitAI::AI_fogbustDataRegionValue(const CvPlotDataRegion& plotRegion, bool bRegionIsVisible, bool* pbAdjacentOurTerritory, const CvPlotDataRegion* pVisibleRegion) const
+ {
++	PROFILE_FUNC();
++
+ 	int iTotalValue = 0;
+ 
+ 	bool bAdjacentOurTerritory = false;
+@@ -7334,6 +7364,119 @@
+ // determines the change in fogbusting plot values by moving to new plot, returns whether new plot is adjacent our territory
+ bool CvUnitAI::AI_fogbustPlotDifference(const CvPlot* pNewPlot, const CvPlotDataRegion& visiblePlotRegion, int& iFogbustingLostValue, int& iFogbustingGainedValue) const
+ {
++	PROFILE_FUNC();
++
++	bool bAdjacentOurTerritory = false;
++	
++	PlayerTypes ePlayer = getOwnerINLINE();
++
++	// get list of visible plots at new location
++	CvPlotDataRegion newVisiblePlotRegion;
++	getGroup()->buildVisibilityRegion(newVisiblePlotRegion, pNewPlot);
++
++	// loop until finished with both (both are in sorted order)
++	CvPlotDataRegionConstIterator itOld = visiblePlotRegion.begin();
++	CvPlotDataRegionConstIterator itNew = newVisiblePlotRegion.begin();
++	while (true)
++	{
++		bool bOldValid = (itOld != visiblePlotRegion.end());
++		bool bNewValid = (itNew != newVisiblePlotRegion.end());
++
++		// if done with both, then stop
++		if (!bOldValid && !bNewValid)
++		{
++			break;
++		}
++		
++		XYCoords oldXY, newXY;
++		if (bOldValid)
++		{
++			oldXY = getXYCoords(itOld);
++		}
++		
++		if (bNewValid)
++		{
++			newXY = getXYCoords(itNew);
++		}
++		
++		// if old valid and either new finished or old less, then it is not in the new list
++		if (bOldValid && (!bNewValid || oldXY < newXY))
++		{
++			CvPlot* pLoopPlot = GC.getMapINLINE().plotSorenINLINE(oldXY.iX, oldXY.iY);
++			iFogbustingLostValue +=  AI_fogbustPlotValue(pLoopPlot, getRegionValue(itOld));
++
++			// increment old
++			itOld++;
++		}
++		// if new valid and either old finished or new less, then it is not in the old list
++		else if (bNewValid && (!bOldValid || newXY < oldXY))
++		{
++			CvPlot* pLoopPlot = GC.getMapINLINE().plotSorenINLINE(newXY.iX, newXY.iY);
++			iFogbustingGainedValue +=  AI_fogbustPlotValue(pLoopPlot, /*iNumObservers*/ 0);
++
++			// check for our territory
++			if (pLoopPlot->getOwnerINLINE() == ePlayer)
++			{
++				bAdjacentOurTerritory = true;
++			}
++			
++			// increment new
++			itNew++;
++		}
++		// otherwise they must be equal, it is in both
++		else
++		{
++			FAssert(bOldValid);
++			FAssert(bNewValid);
++			FAssert(oldXY == newXY);
++
++			// check for our territory
++			CvPlot* pLoopPlot = GC.getMapINLINE().plotSorenINLINE(newXY.iX, newXY.iY);
++			if (pLoopPlot->getOwnerINLINE() == ePlayer)
++			{
++				bAdjacentOurTerritory = true;
++			}
++
++			// increment both
++			itOld++;
++			itNew++;
++		}
++	}
++
++	// check the plots just outside our visibility for plots that we own (range 2, since owned plots have a 1 visibility)
++	if (!bAdjacentOurTerritory)
++	{
++		CvPlotDataRegion adjacentPlotRegion;
++		findAdjacentPlots(newVisiblePlotRegion, adjacentPlotRegion, /*bIncludeOriginal*/ false, /*iRange*/ 2);
++		for (CvPlotDataRegionConstIterator it = adjacentPlotRegion.begin(); !bAdjacentOurTerritory && it != adjacentPlotRegion.end(); it++)
++		{
++			XYCoords xy(getXYCoords(it));
++			CvPlot* pLoopPlot = GC.getMapINLINE().plotSorenINLINE(xy.iX, xy.iY);
++
++			if (pLoopPlot->getOwnerINLINE() == ePlayer)
++			{
++				bAdjacentOurTerritory = true;
++			}
++		}
++	}
++
++#ifdef FASSERT_ENABLE
++	int iOldFogbustingLostValue, iOldFogbustingGainedValue;
++	bool bOldAdjacent = oldAI_fogbustPlotDifference(pNewPlot, visiblePlotRegion, iOldFogbustingLostValue, iOldFogbustingGainedValue);
++	
++	FAssert(bOldAdjacent == bAdjacentOurTerritory);
++	FAssert(iOldFogbustingLostValue == iFogbustingLostValue);
++	FAssert(iOldFogbustingGainedValue == iFogbustingGainedValue);
++#endif
++
++	return bAdjacentOurTerritory;
++}
++
++// determines the change in fogbusting plot values by moving to new plot, returns whether new plot is adjacent our territory
++bool CvUnitAI::oldAI_fogbustPlotDifference(const CvPlot* pNewPlot, const CvPlotDataRegion& visiblePlotRegion, int& iFogbustingLostValue, int& iFogbustingGainedValue) const
++{
++	PROFILE_FUNC();
++
+ 	// copy full visible list, will remove all the plots that intersect later
+ 	CvPlotDataRegion noLongerVisibleRegion = visiblePlotRegion;
+ 	
+@@ -7380,7 +7523,7 @@
+ 	bool bOurTerritoryInRange;
+ 	int iFogbustingCurrentValue = AI_fogbustDataRegionValue(visiblePlotRegion, /*bRegionIsVisible*/ true, &bOurTerritoryInRange);
+ 
+-	// count enemy plots and our territory in visible range
++	// count enemy plots in visible range
+ 	int iEnemyPlots = 0;
+ 	for (CvPlotDataRegionConstIterator it = visiblePlotRegion.begin(); it != visiblePlotRegion.end(); it++)
+ 	{
+@@ -7399,6 +7542,7 @@
+ 	{
+ 		m_iAutomatedAbortTurn = iGameTurn;
+ 		getGroup()->setAutomateType(NO_AUTOMATE);
++		getGroup()->setActivityType(ACTIVITY_AWAKE);
+ 		return true;
+ 	}
+ 
+@@ -7692,6 +7836,12 @@
+ 			}
+ 			while (pCheckPlot == NULL && --iRange > 0);
+ 
++			// skip pass two if we already had to move much)
++			if (iRange < (airRange() / 2))
++			{
++				iRangeDivisor = 256;
++			}
++
+ 			if (pCheckPlot != NULL && canReconAt(pLaunchPlot, pCheckPlot->getX_INLINE(), pCheckPlot->getY_INLINE()))
+ 			{
+ 				// build region of visible plots at recon location
+@@ -7700,6 +7850,12 @@
+ 
+ 				// find fogbusting value for this recon location
+ 				int iValue = AI_fogbustRegionValue(reconPlotRegion);
++
++				// skip pass two if we have a non-zero value
++				if (iValue > 0)
++				{
++					iRangeDivisor = 256;
++				}
+ 
+ 				// check for visible enemy if we will abort
+ 				if (bAbortIfEnemyFound)
+@@ -7767,9 +7923,11 @@
+ 	{
+ 		m_iAutomatedAbortTurn = iGameTurn;
+ 		getGroup()->setAutomateType(NO_AUTOMATE);
++		getGroup()->setActivityType(ACTIVITY_AWAKE);
+ 		if (pCarrierUnit != NULL && pCarrierUnit->m_iAutomatedAbortTurn != iGameTurn)
+ 		{
+ 			pCarrierUnit->getGroup()->setAutomateType(NO_AUTOMATE);
++			pCarrierUnit->getGroup()->setActivityType(ACTIVITY_AWAKE);
+ 		}
+ 
+ 		bPushedMission = true;
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@271
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@272
+@@ -129,6 +129,7 @@
+ 	int AI_fogbustRegionValue(const CvPlotRegion& plotRegion, bool* pbAdjacentOurTerritory = NULL, const CvPlotRegion* pVisibleRegion = NULL) const;
+ 	int AI_fogbustDataRegionValue(const CvPlotDataRegion& plotRegion, bool bRegionIsVisible = true, bool* pbAdjacentOurTerritory = NULL, const CvPlotDataRegion* pVisibleRegion = NULL) const;
+ 	bool AI_fogbustPlotDifference(const CvPlot* pNewPlot, const CvPlotDataRegion& visiblePlotRegion, int& iFogbustingLostValue, int& iFogbustingGainedValue) const;
++	bool oldAI_fogbustPlotDifference(const CvPlot* pNewPlot, const CvPlotDataRegion& visiblePlotRegion, int& iFogbustingLostValue, int& iFogbustingGainedValue) const;
+ 	bool AI_fogbust();
+ 	bool AI_airFogbust();
+ 	bool AI_patrol();
+

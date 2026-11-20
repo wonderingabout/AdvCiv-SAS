@@ -1,0 +1,69 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 310
+# Author: iustus
+# Date: 2007-01-27T21:40:45.398108Z
+# Coverage: full
+# Message:
+#   explore code: dont use cache when adding random factor, dont add random factor for explore(), respect bNoRandom inside AI_getBestExplorePlot
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@309
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@310
+@@ -8582,11 +8582,15 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-	// try to use cached value (it is -1 if there is no cached value)
+-	int iCachedValue = GC.getMapINLINE().getCachedExploreValue(pPlot, this);
+-	if (iCachedValue >= 0)
+-	{
+-		return iCachedValue;
++	// check cache if we not generating a random modifier
++	if (!bAddRandom)
++	{
++		// try to use cached value (it is -1 if there is no cached value)
++		int iCachedValue = GC.getMapINLINE().getCachedExploreValue(pPlot, this);
++		if (iCachedValue >= 0)
++		{
++			return iCachedValue;
++		}
+ 	}
+ 	
+ 	// calculate the value
+@@ -8751,8 +8755,12 @@
+ 		}
+ 	}
+ 	
+-	// update cache
+-	GC.getMapINLINE().setCachedExploreValue(pPlot, this, iValue);
++	// save to cache if we not generating a random modifier
++	if (!bAddRandom)
++	{
++		// update cache
++		GC.getMapINLINE().setCachedExploreValue(pPlot, this, iValue);
++	}
+ 
+ 	return iValue;
+ }
+@@ -8908,7 +8916,7 @@
+ 							{
+ 								abCheckedPlot[iCheckPlotNum] = true;
+ 								
+-								int iValue = AI_explorePlotValue(pCheckPlot, /*bAddRandom*/ true);
++								int iValue = AI_explorePlotValue(pCheckPlot, /*bAddRandom*/ false);
+ 								if (iValue > 0)
+ 								{
+ 									if (!(pCheckPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+@@ -9032,7 +9040,7 @@
+ 										// add the value of the plots we actually moving to this turn
+ 										iValue += AI_exploreTurnPathValue();
+ 										
+-										if (iValue > iBestValue || (iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI_getBestExplorePlot")))
++										if (iValue > iBestValue || (!bNoRandom && iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI_getBestExplorePlot")))
+ 										{
+ 											iBestValue = iValue;
+ 											pBestPlot = getPathEndTurnPlot();
+

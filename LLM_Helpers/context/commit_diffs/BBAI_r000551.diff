@@ -1,0 +1,284 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 551
+# Author: jdog5000
+# Date: 2010-04-28T19:44:16.297494Z
+# Coverage: full
+# Message:
+#   Fix issue with ATTACK_CITY capturing barb cities
+#   Fix ATTACK_CITY stacks stuck on foreign continents not moving
+#   Stacks now may wait for promotions before heading out on attacks
+#   Fix issues with AI units stuck in ACTVITY_SLEEP from change player/auto play
+#   Boost medic promotions
+# Changed paths (7):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@550
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@551
+@@ -3663,11 +3663,14 @@
+ 
+ 		// team power (if agressive, we use higher value)
+ 		int iTeamPower = kTeam.getPower(true);
+-		if (bAggressive)
++		if (bAggressive && kTeam.getAnyWarPlanCount(true) == 0)
+ 		{
+ 			iTeamPower *= 4;
+ 			iTeamPower /= 3;
+ 		}
++
++		iTeamPower *= (100 - kTeam.AI_getEnemyPowerPercent());
++		iTeamPower /= 100;
+ 		
+ 		// we will put the values into an array, then sort it for display
+ 		int iBestPossibleMaxWarPass = MAX_INT;
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@550
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@551
+@@ -1363,6 +1363,14 @@
+ 									}
+ 								}
+ 							}
++						}
++
++						// activity
++						ActivityTypes eActivityType = (ActivityTypes) pHeadGroup->getActivityType();
++						if (eActivityType != NO_ACTIVITY)
++						{
++							getActivityTypeString(szTempString, eActivityType);
++							szString.append(CvWString::format(SETCOLR L"\n%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szTempString.GetCString()));
+ 						}
+ 					}
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@550
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@551
+@@ -4229,6 +4229,15 @@
+ 	CvPlot* pPlot;
+ 
+ 	FAssert(getOwnerINLINE() != NO_PLAYER);
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      04/28/10                                jdog5000      */
++/*                                                                                              */
++/* Unit AI                                                                                      */
++/************************************************************************************************/
++	FAssert(isHuman() || getHeadUnit()->isCargo() || eNewValue != ACTIVITY_SLEEP);
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ 	ActivityTypes eOldActivity = getActivityType();
+ 
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@550
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@551
+@@ -199,6 +199,19 @@
+ 		return false;
+ 	}
+ 
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      04/28/10                                jdog5000      */
++/*                                                                                              */
++/* Unit AI                                                                                      */
++/************************************************************************************************/
++	if( !(isHuman()) && !(getHeadUnit()->isCargo()) && getActivityType() == ACTIVITY_SLEEP )
++	{
++		setForceUpdate(true);
++	}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
++
+ 	if (isForceUpdate())
+ 	{
+ 		clearMissionQueue(); // XXX ???
+@@ -322,6 +335,16 @@
+ 					pushMission(MISSION_SKIP);
+ 				}
+ 			}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      04/28/10                                jdog5000      */
++/*                                                                                              */
++/* Unit AI                                                                                      */
++/************************************************************************************************/
++			// AI should never put units to sleep, how does this ever happen?
++			FAssert( getHeadUnit()->isCargo() || getActivityType() != ACTIVITY_SLEEP );
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 		}
+ 	}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@550
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@551
+@@ -4497,7 +4497,7 @@
+ 	}
+ 
+ 	// if no war plans, consider starting one!
+-	if (getAnyWarPlanCount(true) == 0 || iEnemyPowerPercent < 40)
++	if (getAnyWarPlanCount(true) == 0 || iEnemyPowerPercent < 45)
+ 	{
+ 		bool bAggressive = GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI);
+ 		
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@550
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@551
+@@ -2662,7 +2662,7 @@
+ 	else
+ 	{
+ 		// BBAI TODO: Find some way of reliably targetting nearby cities with less defense ...
+-		pTargetCity = AI_pickTargetCity();
++		pTargetCity = AI_pickTargetCity(0, MAX_INT, bHuntBarbs);
+ 	}
+ 
+ 	if( pTargetCity != NULL )
+@@ -2959,7 +2959,33 @@
+ 		}
+ 		else if (bLandWar && pTargetCity != NULL)
+ 		{
+-			// BBAI TODO: Before heading out, check whether to wait to allow unit upgrades
++			// Before heading out, check whether to wait to allow unit upgrades
++			if( bInCity && plot()->getOwnerINLINE() == getOwnerINLINE() )
++			{
++				if( !(GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble()) )
++				{
++					// Check if stack has units which can upgrade
++					int iNeedUpgradeCount = 0;
++
++					CLLNode<IDInfo>* pUnitNode = getGroup()->headUnitNode();
++					while (pUnitNode != NULL)
++					{
++						CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++						pUnitNode = getGroup()->nextUnitNode(pUnitNode);
++
++						if( pLoopUnit->getUpgradeCity(false) != NULL )
++						{
++							iNeedUpgradeCount++;
++
++							if( 8*iNeedUpgradeCount > getGroup()->getNumUnits() )
++							{
++								getGroup()->pushMission(MISSION_SKIP);
++								return;
++							}
++						}
++					}
++				}
++			}
+ 
+ 			if (AI_goToTargetCity(MOVE_AVOID_ENEMY_WEIGHT_2, 5, pTargetCity))
+ 			{
+@@ -3080,6 +3106,18 @@
+ 	if( getGroup()->isStranded() )
+ 	{
+ 		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
++		{
++			return;
++		}
++
++		if( !isHuman() && plot()->isCoastalLand() && GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(this, MISSIONAI_PICKUP) > 0 )
++		{
++			// If no other desireable actions, wait for pickup
++			getGroup()->pushMission(MISSION_SKIP);
++			return;
++		}
++
++		if (AI_patrol())
+ 		{
+ 			return;
+ 		}
+@@ -9223,11 +9261,20 @@
+ 		iValue += (iTemp / 8);
+ 	}
+ 
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      04/26/10                                jdog5000      */
++/*                                                                                              */
++/* Unit AI                                                                                      */
++/************************************************************************************************/
+ 	iTemp = GC.getPromotionInfo(ePromotion).getEnemyHealChange();	
+ 	if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
++		(AI_getUnitAIType() == UNITAI_PILLAGE) ||
+ 		(AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
+ 		(AI_getUnitAIType() == UNITAI_PARADROP) ||
+ 		(AI_getUnitAIType() == UNITAI_PIRATE_SEA))
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 	{
+ 		iValue += (iTemp / 4);
+ 	}
+@@ -9251,9 +9298,19 @@
+ 		iValue += (iTemp / 8);
+ 	}
+ 
+-
+-    if (getDamage() > 0)
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      04/26/10                                jdog5000      */
++/*                                                                                              */
++/* Unit AI                                                                                      */
++/************************************************************************************************/
++    if ( getDamage() > 0 || ((AI_getBirthmark() % 8 == 0) && (AI_getUnitAIType() == UNITAI_COUNTER || 
++															AI_getUnitAIType() == UNITAI_PILLAGE ||
++															AI_getUnitAIType() == UNITAI_ATTACK_CITY ||
++															AI_getUnitAIType() == UNITAI_RESERVE )) )
+     {
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+         iTemp = GC.getPromotionInfo(ePromotion).getSameTileHealChange() + getSameTileHeal();
+         iExtra = getSameTileHeal();
+         
+@@ -14112,7 +14169,7 @@
+ /* War tactics AI, Efficiency                                                                   */
+ /************************************************************************************************/
+ // Returns target city
+-CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns )
++CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBarbs )
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -14146,7 +14203,7 @@
+ 
+ 	if (pBestCity == NULL)
+ 	{
+-		for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++		for (iI = 0; iI < (bHuntBarbs ? MAX_PLAYERS : MAX_CIV_PLAYERS); iI++)
+ 		{
+ 			if (GET_PLAYER((PlayerTypes)iI).isAlive() && ::isPotentialEnemy(getTeam(), GET_PLAYER((PlayerTypes)iI).getTeam()))
+ 			{
+@@ -14203,7 +14260,7 @@
+ 									iValue *= 1000;
+ 
+ 									// If city is minor civ, less interesting
+-									if( GET_PLAYER(pLoopCity->getOwnerINLINE()).isMinorCiv() )
++									if( GET_PLAYER(pLoopCity->getOwnerINLINE()).isMinorCiv() || GET_PLAYER(pLoopCity->getOwnerINLINE()).isBarbarian() )
+ 									{
+ 										iValue /= 2;
+ 									}
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@550
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@551
+@@ -176,7 +176,7 @@
+ /*                                                                                              */
+ /* War tactics AI                                                                               */
+ /************************************************************************************************/
+-	CvCity* AI_pickTargetCity(int iFlags = 0, int iMaxPath = MAX_INT);
++	CvCity* AI_pickTargetCity(int iFlags = 0, int iMaxPath = MAX_INT, bool bHuntBarbs = false);
+ 	bool AI_goToTargetCity(int iFlags = 0, int iMaxPath = MAX_INT, CvCity* pTargetCity = NULL);
+ 	bool AI_goToTargetBarbCity(int iMaxPath = 10);
+ 	bool AI_pillageAroundCity(CvCity* pTargetCity, int iBonusValueThreshold = 0, int iMaxPathTurns = MAX_INT);
+

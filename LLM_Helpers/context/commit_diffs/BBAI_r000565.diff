@@ -1,0 +1,437 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 565
+# Author: jdog5000
+# Date: 2010-05-16T08:19:17.121886Z
+# Coverage: full
+# Message:
+#   Fix space victory level 4 bugs
+#   Fix new civic war plan detector
+#   Faster war declarations against victory 4 enemies
+#   Much improved/fixed war plan debug display
+#   Some barb attack unit improvements
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@564
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@565
+@@ -3685,6 +3685,7 @@
+ 
+ 			bool	bValid;
+ 			bool	bIsLandTarget;
++			bool	bIsVictory4;
+ 			bool	bIsAnyCapitalAreaAlone;
+ 			bool	bAdjacentCheckPassed;
+ 			bool	bIsMaxWarNearbyPowerRatio;
+@@ -3714,7 +3715,10 @@
+ 						
+ 						int iLoopTeamPower = kLoopTeam.getDefensivePower();
+ 						bool bIsLandTarget = kTeam.AI_isLandTarget(eLoopTeam);
+-						aStartWarInfo[iTeamIndex].bIsLandTarget = bIsLandTarget; 
++						aStartWarInfo[iTeamIndex].bIsLandTarget = bIsLandTarget;
++
++						bool bIsVictory4 = kTeam.AI_isAnyMemberDoVictoryStrategyLevel4();
++						aStartWarInfo[iTeamIndex].bIsVictory4 = bIsVictory4;
+ 
+ 						int iNoWarAttitudeProb = kTeam.AI_noWarAttitudeProb(kTeam.AI_getAttitude(eLoopTeam));
+ 						aStartWarInfo[iTeamIndex].iNoWarAttitudeProb = iNoWarAttitudeProb;
+@@ -3745,11 +3749,11 @@
+ 
+ 								// check to see which max war pass, if any is valid for this loop team
+ 								int iPossibleMaxWarPass = MAX_INT;
+-								if (bIsMaxWarNearbyPowerRatio && bAdjacentCheckPassed)
++								if (bIsMaxWarNearbyPowerRatio && (bAdjacentCheckPassed || bIsVictory4))
+ 								{
+ 									iPossibleMaxWarPass = 0;
+ 								}
+-								else if (bIsMaxWarNearbyPowerRatio && (bIsLandTarget || bIsAnyCapitalAreaAlone))
++								else if (bIsMaxWarNearbyPowerRatio && (bIsLandTarget || bIsAnyCapitalAreaAlone || bIsVictory4))
+ 								{
+ 									iPossibleMaxWarPass = 1;
+ 								}
+@@ -3792,7 +3796,7 @@
+ 							int iNoWarChance = std::max(0, iNoWarAttitudeProb + 20 - (bAggressive ? 10 : 0) - (bFinancesProDogpileWar ? 10 : 0));
+ 							if (iNoWarChance < 100)
+ 							{
+-								int iDogpilePower = 0;
++								int iDogpilePower = iTeamPower;
+ 								for (int iTeamIndex2 = 0; iTeamIndex2 < MAX_CIV_TEAMS; iTeamIndex2++)
+ 								{
+ 									TeamTypes eDogpileLoopTeam = (TeamTypes) iTeamIndex2;
+@@ -3830,6 +3834,14 @@
+ 			}
+ 		}
+ 
++		if( bFinancesOpposeWar )
++		{
++			szBuffer.append(CvWString::format(SETCOLR L"## Finances oppose war%s%s%s\n" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
++				bFinancesProTotalWar ? L", pro Total" : L"",
++				bFinancesProLimitedWar ? L", pro Limited" : L"",
++				bFinancesProDogpileWar ? L", pro Dogpile" : L""));
++		}
++
+ 		// display total war items, sorting the list
+ 		bHadAny = false;
+ 		bFirst = true;
+@@ -3877,16 +3889,18 @@
+ 						
+ 						if (aStartWarInfo[iTeamIndex].iPossibleMaxWarPass <= iBestPossibleMaxWarPass)
+ 						{
+-							szBuffer.append(CvWString::format(SETCOLR L" %d%% %s war (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"),
++							szBuffer.append(CvWString::format(SETCOLR L" %d%% %s%s war (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"),
+ 								iTeamWarPercentage,
++								(aStartWarInfo[iTeamIndex].bIsVictory4) ? L"**" : L"",
+ 								(aStartWarInfo[iTeamIndex].bIsLandTarget) ? L"land" : L"sea",
+ 								aStartWarInfo[iTeamIndex].iStartWarValue, 
+ 								kLoopTeam.getName().GetCString()));
+ 						}
+ 						else
+ 						{
+-							szBuffer.append(CvWString::format(SETCOLR L" (%d%% %s war (%d) with %s [%s%s])\n" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
++							szBuffer.append(CvWString::format(SETCOLR L" (%d%% %s%s war (%d) with %s [%s%s])\n" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
+ 								iTeamWarPercentage,
++								(aStartWarInfo[iTeamIndex].bIsVictory4) ? L"**" : L"",
+ 								(aStartWarInfo[iTeamIndex].bIsLandTarget) ? L"land" : L"sea",
+ 								aStartWarInfo[iTeamIndex].iStartWarValue, 
+ 								kLoopTeam.getName().GetCString(),
+@@ -3947,8 +3961,9 @@
+ 						int iNoWarChance = std::max(0, aStartWarInfo[iTeamIndex].iNoWarAttitudeProb + 10 - (bAggressive ? 10 : 0) - (bFinancesProLimitedWar ? 10 : 0));
+ 						int iTeamWarPercentage = (100 - iNoWarChance);
+ 						
+-						szBuffer.append(CvWString::format(SETCOLR L" %d%% %s war (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"),
++						szBuffer.append(CvWString::format(SETCOLR L" %d%% %s%s war (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"),
+ 							iTeamWarPercentage,
++							(aStartWarInfo[iTeamIndex].bIsVictory4) ? L"**" : L"",
+ 							(aStartWarInfo[iTeamIndex].bIsLandTarget) ? L"land" : L"sea",
+ 							aStartWarInfo[iTeamIndex].iStartWarValue, 
+ 							GET_TEAM((TeamTypes) iTeamIndex).getName().GetCString()));
+@@ -4008,15 +4023,29 @@
+ 						
+ 						if( aStartWarInfo[iTeamIndex].bEnoughDogpilePower )
+ 						{
+-							szBuffer.append(CvWString::format(SETCOLR L" %d%% %s war (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"),
+-								iTeamWarPercentage,
+-								(aStartWarInfo[iTeamIndex].bIsLandTarget) ? L"land" : L"sea",
+-								aStartWarInfo[iTeamIndex].iStartWarValue, 
+-								GET_TEAM((TeamTypes) iTeamIndex).getName().GetCString()));
++							if( (aStartWarInfo[iTeamIndex].bIsLandTarget) || (aStartWarInfo[iTeamIndex].bIsVictory4) )
++							{
++								szBuffer.append(CvWString::format(SETCOLR L" %d%% %s%s war (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"),
++									iTeamWarPercentage,
++									(aStartWarInfo[iTeamIndex].bIsVictory4) ? L"**" : L"",
++									L"land",
++									aStartWarInfo[iTeamIndex].iStartWarValue, 
++									GET_TEAM((TeamTypes) iTeamIndex).getName().GetCString()));
++							}
++							else
++							{
++								szBuffer.append(CvWString::format(SETCOLR L" %d%% %s%s war (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
++									iTeamWarPercentage,
++									(aStartWarInfo[iTeamIndex].bIsVictory4) ? L"**" : L"",
++									L"sea",
++									aStartWarInfo[iTeamIndex].iStartWarValue, 
++									GET_TEAM((TeamTypes) iTeamIndex).getName().GetCString()));
++							}
+ 						}
+ 						else
+ 						{
+-							szBuffer.append(CvWString::format(SETCOLR L" Lack power for %s war (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"),
++							szBuffer.append(CvWString::format(SETCOLR L" Lack power for %s%s war (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
++								(aStartWarInfo[iTeamIndex].bIsVictory4) ? L"**" : L"",
+ 								(aStartWarInfo[iTeamIndex].bIsLandTarget) ? L"land" : L"sea",
+ 								aStartWarInfo[iTeamIndex].iStartWarValue, 
+ 								GET_TEAM((TeamTypes) iTeamIndex).getName().GetCString()));
+@@ -4513,7 +4542,7 @@
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v1.00c");
++	szTempBuffer.Format(L"%S", "Better BTS AI v1.00d");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@564
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@565
+@@ -10938,7 +10938,7 @@
+ /************************************************************************************************/		
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      05/14/10                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      05/15/10                                jdog5000      */
+ /*                                                                                              */
+ /* Civic AI, Victory Strategy AI                                                                */
+ /************************************************************************************************/
+@@ -10992,9 +10992,9 @@
+ 		{
+ 			if( GET_TEAM((TeamTypes)iTeam).isAlive() && !GET_TEAM((TeamTypes)iTeam).isMinorCiv() )
+ 			{
+-				if( GET_TEAM(getTeam()).isAtWar((TeamTypes)iTeam) )
+-				{
+-					if( GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) == WARPLAN_TOTAL )
++				if( GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) != NO_WARPLAN )
++				{
++					if( GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) == WARPLAN_TOTAL || GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) == WARPLAN_PREPARING_TOTAL )
+ 					{
+ 						bWarPlan = true;
+ 						break;
+@@ -16121,6 +16121,7 @@
+ 
+ 	int iHighCultureCount = 0;
+ 	int iCloseToLegendaryCount = 0;
++	int iLegendaryCount = 0;
+ 		
+ 	int iLoop;
+ 	CvCity* pLoopCity;
+@@ -16138,7 +16139,19 @@
+ 			{
+ 				iCloseToLegendaryCount++;
+ 			}
+-		}
++
++			// is already there?
++			if( pLoopCity->getCulture(getID()) > pLoopCity->getCultureThreshold(GC.getGameINLINE().culturalVictoryCultureLevel()) )
++			{
++				iLegendaryCount++;
++			}
++		}
++	}
++
++	if( iLegendaryCount >= GC.getGameINLINE().culturalVictoryNumCultureCities() )
++	{
++		// Already won, keep playing culture heavy but do some tech to keep pace if human wants to keep playing
++		return 3;
+ 	}
+ 
+ 	if( iCloseToLegendaryCount >= GC.getGameINLINE().culturalVictoryNumCultureCities() )
+@@ -16310,10 +16323,22 @@
+ 			{
+ 				for( int iTeam = 0; iTeam < MAX_CIV_TEAMS; iTeam++ )
+ 				{
+-					if( GET_TEAM((TeamTypes)iTeam).getVictoryCountdown(eSpace) <= GET_TEAM(getTeam()).getVictoryCountdown(eSpace) )
+-					{
+-						bOtherLaunched = true;
+-						break;
++					if( iTeam != getTeam() )
++					{
++						if( GET_TEAM((TeamTypes)iTeam).getVictoryCountdown(eSpace) >= 0 )
++						{
++							if( GET_TEAM((TeamTypes)iTeam).getVictoryCountdown(eSpace) < GET_TEAM(getTeam()).getVictoryCountdown(eSpace) )
++							{
++								bOtherLaunched = true;
++								break;
++							}
++
++							if( GET_TEAM((TeamTypes)iTeam).getVictoryCountdown(eSpace) == GET_TEAM(getTeam()).getVictoryCountdown(eSpace) && (iTeam < getTeam()) )
++							{
++								bOtherLaunched = true;
++								break;
++							}
++						}
+ 					}
+ 				}
+ 			}
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@564
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@565
+@@ -1186,14 +1186,19 @@
+ 		// Prioritize targets closer to victory
+ 		if( bConq4 || bAggressive )
+ 		{
++			iValue *= 3;
++			iValue /= 2;
++		}
++
++		if( GET_TEAM(eTeam).AI_isAnyMemberDoVictoryStrategyLevel4() )
++		{
+ 			iValue *= 2;
+-		}
+-
+-		if( GET_TEAM(eTeam).AI_isAnyMemberDoVictoryStrategyLevel4() )
+-		{
+-			iValue *= 2;
+-
+-			if( bConq4 || bAggressive || AI_isAnyMemberDoVictoryStrategyLevel3() )
++
++			if( bConq4 || bAggressive )
++			{
++				iValue *= 4;
++			}
++			else if( AI_isAnyMemberDoVictoryStrategyLevel3() )
+ 			{
+ 				iValue *= 2;
+ 			}
+@@ -4304,8 +4309,15 @@
+ 					
+ 					iTimeModifier *= 50 + GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getTrainPercent();
+ 					iTimeModifier /= 150;
++
++					if( GET_TEAM((TeamTypes)iI).AI_isAnyMemberDoVictoryStrategyLevel4() )
++					{
++						iTimeModifier /= 4;
++					}
++
+ 					FAssert(iTimeModifier >= 0);
+ 				}
++
+ 				if (AI_getWarPlan((TeamTypes)iI) == WARPLAN_ATTACKED_RECENT)
+ 				{
+ 					FAssert(isAtWar((TeamTypes)iI));
+@@ -4363,7 +4375,7 @@
+ 							}
+ 						}
+ 
+-						if ( (bAreaValid && iEnemyPowerPercent < 140) || (!bShareValid && iEnemyPowerPercent < 110))
++						if ( (bAreaValid && iEnemyPowerPercent < 140) || (!bShareValid && iEnemyPowerPercent < 110) || GET_TEAM((TeamTypes)iI).AI_isAnyMemberDoVictoryStrategyLevel4() )
+ 						{
+ 							if( gTeamLogLevel >= 1 )
+ 							{
+@@ -4675,9 +4687,9 @@
+ 												FAssertMsg(!(GET_TEAM((TeamTypes)iI).isBarbarian()), "Expected to not be declaring war on the barb civ");
+ 												FAssertMsg(iI != getID(), "Expected not to be declaring war on self (DOH!)");
+ 
+-												if ((iPass > 1) || AI_isLandTarget((TeamTypes)iI) || AI_isAnyCapitalAreaAlone())
++												if ((iPass > 1) || AI_isLandTarget((TeamTypes)iI) || AI_isAnyCapitalAreaAlone() || GET_TEAM((TeamTypes)iI).AI_isAnyMemberDoVictoryStrategyLevel4())
+ 												{
+-													if ((iPass > 0) || (AI_calculateAdjacentLandPlots((TeamTypes)iI) >= ((getTotalLand() * AI_maxWarMinAdjacentLandPercent()) / 100)))
++													if ((iPass > 0) || (AI_calculateAdjacentLandPlots((TeamTypes)iI) >= ((getTotalLand() * AI_maxWarMinAdjacentLandPercent()) / 100)) || GET_TEAM((TeamTypes)iI).AI_isAnyMemberDoVictoryStrategyLevel4())
+ 													{
+ 														iValue = AI_startWarVal((TeamTypes)iI);
+ 
+@@ -4811,7 +4823,7 @@
+ 									{
+ 										if (GET_TEAM((TeamTypes)iI).getAtWarCount(true) > 0)
+ 										{
+-											if (AI_isLandTarget((TeamTypes)iI))
++											if (AI_isLandTarget((TeamTypes)iI) || GET_TEAM((TeamTypes)iI).AI_isAnyMemberDoVictoryStrategyLevel4())
+ 											{
+ 												iDogpilePower = iOurPower;
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@564
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@565
+@@ -1851,14 +1851,27 @@
+ 		return;
+ 	}
+ 
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      05/15/10                                jdog5000      */
++/*                                                                                              */
++/* Barbarian AI                                                                                 */
++/************************************************************************************************/
+ 	if (plot()->isGoody())
+ 	{
+-		if (plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwnerINLINE()) == 1)
++		if (AI_anyAttack(1, 90))
++		{
++			return;
++		}
++
++		if (plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwnerINLINE()) == 1 && getGroup()->getNumUnits() == 1)
+ 		{
+ 			getGroup()->pushMission(MISSION_SKIP);
+ 			return;
+ 		}
+ 	}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/		
+ 
+ 	if (GC.getGameINLINE().getSorenRandNum(2, "AI Barb") == 0)
+ 	{
+@@ -1887,10 +1900,28 @@
+ 
+ 		if (area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE)
+ 		{
+-			if (AI_goToTargetCity())
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      05/15/10                                jdog5000      */
++/*                                                                                              */
++/* Barbarian AI                                                                                 */
++/************************************************************************************************/
++			if (AI_groupMergeRange(UNITAI_ATTACK, 1, true, true, true))
+ 			{
+ 				return;
+ 			}
++
++			if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 3, true, true, true))
++			{
++				return;
++			}
++			
++			if (AI_goToTargetCity(0, 12))
++			{
++				return;
++			}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/		
+ 		}
+ 	}
+ 	else if (GC.getGameINLINE().getNumCivCities() > (GC.getGameINLINE().countCivPlayersAlive() * 3))
+@@ -1912,10 +1943,28 @@
+ 
+ 		if (area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE)
+ 		{
+-			if (AI_goToTargetCity())
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      05/15/10                                jdog5000      */
++/*                                                                                              */
++/* Barbarian AI                                                                                 */
++/************************************************************************************************/
++			if (AI_groupMergeRange(UNITAI_ATTACK, 1, true, true, true))
+ 			{
+ 				return;
+ 			}
++
++			if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 3, true, true, true))
++			{
++				return;
++			}
++			
++			if (AI_goToTargetCity(0, 12))
++			{
++				return;
++			}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/		
+ 		}
+ 	}
+ 	else if (GC.getGameINLINE().getNumCivCities() > (GC.getGameINLINE().countCivPlayersAlive() * 2))
+@@ -2725,6 +2774,11 @@
+ 	{
+ 		int iStepDistToTarget = stepDistance(pTargetCity->getX_INLINE(), pTargetCity->getY_INLINE(), getX_INLINE(), getY_INLINE());
+ 		int iAttackRatio = std::max(100, GC.getBBAI_ATTACK_CITY_STACK_RATIO());
++
++		if( isBarbarian() )
++		{
++			iAttackRatio = 80;
++		}
+ 
+ 		int iComparePostBombard = 0;
+ 		// AI gets a 1-tile sneak peak to compensate for lack of memory
+@@ -12621,6 +12675,15 @@
+ 									{
+ 										// pick the unit with the highest current strength
+ 										int iCombatStrength = pLoopUnit->currCombatStr(NULL, NULL);
++
++										iCombatStrength *= 30 + pLoopUnit->getExperience();
++										iCombatStrength /= 30;
++
++										if( GC.getUnitClassInfo(pLoopUnit->getUnitClassType()).getMaxGlobalInstances() > -1 )
++										{
++											iCombatStrength *= 1 + GC.getUnitClassInfo(pLoopUnit->getUnitClassType()).getMaxGlobalInstances();
++											iCombatStrength /= std::max(1, GC.getUnitClassInfo(pLoopUnit->getUnitClassType()).getMaxGlobalInstances());
++										}
+ 
+ 										if (iCombatStrength > iBestStrength)
+ 										{
+

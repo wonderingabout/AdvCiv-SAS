@@ -1,0 +1,11 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 378
+# Author: jdog5000
+# Date: 2008-08-07T05:55:50.658222Z
+# Coverage: full
+# Message:
+#   Better BTS AI sources initial load, starting from release version 0.35
+# Changed paths (1):
+#   A /trunk/CvGameCoreDLL
+

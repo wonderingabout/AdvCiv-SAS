@@ -1,0 +1,528 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 524
+# Author: jdog5000
+# Date: 2010-02-21T21:07:56.180773Z
+# Coverage: full
+# Message:
+#   New AI raze city logic
+#   Some AI city tweaks from Afforess
+#   AI war decision logic plays better with minor civs
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@523
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@524
+@@ -1676,7 +1676,7 @@
+ 				int iSettlerSeaNeeded = std::min(iNumWaterAreaCitySites, ((iTotalCities + 4) / 8) + 1);
+ 				if (kPlayer.getCapitalCity() != NULL)
+ 				{
+-					int iOverSeasColonies = iTotalCities - kPlayer.getCapitalCity()->area()->getCitiesPerPlayer(getOwnerINLINE());;
++					int iOverSeasColonies = iTotalCities - kPlayer.getCapitalCity()->area()->getCitiesPerPlayer(getOwnerINLINE());
+ 					int iLoop = 2;
+ 					int iExtras = 0;
+ 					while (iOverSeasColonies >= iLoop)
+@@ -3520,6 +3520,15 @@
+ 				}
+ 				
+ 				int iBuildingHappiness = kBuilding.getHappiness();
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      01/17/10                                Afforess      */
++/*                                                                                              */
++/* City AI                                                                                      */
++/************************************************************************************************/
++				iBuildingHappiness += GET_PLAYER(getOwnerINLINE()).getExtraBuildingHappiness(eBuilding);
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 				if (iBuildingHappiness != 0)
+ 				{
+ 					iValue += (std::min(iBuildingHappiness, iAngryPopulation) * 10) 
+@@ -3586,6 +3595,19 @@
+ 					{
+ 						iValue += (std::min(-(GC.getDefineINT("DIRTY_POWER_HEALTH_CHANGE")), iBadHealth) * 8);
+ 					}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      01/17/10                      Afforess & jdog5000     */
++/*                                                                                              */
++/* City AI                                                                                      */
++/************************************************************************************************/
++					// Dirty Power is dirty, subtract value would have added above
++					else if (kBuilding.isDirtyPower())
++					{
++						iValue -= (std::min(-(GC.getDefineINT("DIRTY_POWER_HEALTH_CHANGE")), iBadHealth) * 8);
++					}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 				}
+ 
+ 				if (kBuilding.isNoUnhealthyPopulation())
+@@ -3603,6 +3625,15 @@
+ 				}
+ 
+ 				int iBuildingHealth = kBuilding.getHealth();
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      01/17/10                                Afforess      */
++/*                                                                                              */
++/* City AI                                                                                      */
++/************************************************************************************************/
++				iBuildingHealth += GET_PLAYER(getOwnerINLINE()).getExtraBuildingHealth(eBuilding);
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 				if (iBuildingHealth != 0)
+ 				{
+ 					iValue += (std::min(iBuildingHealth, iBadHealth) * 12)
+@@ -6155,7 +6186,7 @@
+ 		iExtraFoodForGrowth ++;
+ 	}
+ 
+-	int iFoodDifference = iFoodTotal - ((iTargetSize * GC.getFOOD_CONSUMPTION_PER_POPULATION()) + iExtraFoodForGrowth);;
++	int iFoodDifference = iFoodTotal - ((iTargetSize * GC.getFOOD_CONSUMPTION_PER_POPULATION()) + iExtraFoodForGrowth);
+ 	
+ 	iDesiredFoodChange = -iFoodDifference + std::max(0, -iHealth);
+ 	if (iTargetSize > getPopulation())
+@@ -7015,7 +7046,7 @@
+ 		iExtraFoodForGrowth ++;
+ 	}
+ 
+-	int iFoodDifference = iFoodTotal - ((iTargetSize * GC.getFOOD_CONSUMPTION_PER_POPULATION()) + iExtraFoodForGrowth);;
++	int iFoodDifference = iFoodTotal - ((iTargetSize * GC.getFOOD_CONSUMPTION_PER_POPULATION()) + iExtraFoodForGrowth);
+ 	
+ 	int iDesiredFoodChange = -iFoodDifference + std::max(0, -iHealth);
+ 	if (iTargetSize > getPopulation())
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@523
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@524
+@@ -786,16 +786,6 @@
+ 	m_bStrike = false;
+ 
+ /************************************************************************************************/
+-/* AI_AUTO_PLAY_MOD                        09/01/07                            MRGENIE          */
+-/*                                                                                              */
+-/*                                                                                              */
+-/************************************************************************************************/
+-	m_bDisableHuman = false;
+-/************************************************************************************************/
+-/* AI_AUTO_PLAY_MOD                        END                                                  */
+-/************************************************************************************************/
+-
+-/************************************************************************************************/
+ /* UNOFFICIAL_PATCH                       12/07/09                             EmperorFool      */
+ /*                                                                                              */
+ /* Bugfix                                                                                       */
+@@ -805,6 +795,18 @@
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                        END                                                  */
+ /************************************************************************************************/
++
++
++/************************************************************************************************/
++/* AI_AUTO_PLAY_MOD                        09/01/07                            MRGENIE          */
++/*                                                                                              */
++/*                                                                                              */
++/************************************************************************************************/
++	m_bDisableHuman = false;
++/************************************************************************************************/
++/* AI_AUTO_PLAY_MOD                        END                                                  */
++/************************************************************************************************/
++
+ 
+ 	m_eID = eID;
+ 	updateTeamType();
+@@ -14692,7 +14694,7 @@
+ 
+ 				if (hasHolyCity(eReligion))
+ 				{
+-					iReligionModifier += GC.getDefineINT("ESPIONAGE_CITY_HOLY_CITY_MOD");;
++					iReligionModifier += GC.getDefineINT("ESPIONAGE_CITY_HOLY_CITY_MOD");
+ 				}
+ 			}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@523
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@524
+@@ -1646,117 +1646,199 @@
+ 	}
+ }
+ 
+-
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/17/10                              jdog5000        */
++/*                                                                                              */
++/* War tactics AI                                                                               */
++/************************************************************************************************/
+ void CvPlayerAI::AI_conquerCity(CvCity* pCity)
+ {
+-	CvCity* pNearestCity;
+ 	bool bRaze = false;
+ 	int iRazeValue;
+ 	int iI;
+ 
+ 	if (canRaze(pCity))
+ 	{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/20/09                              jdog5000        */
+-/*                                                                                              */
+-/* War tactics AI                                                                               */
+-/************************************************************************************************/
+ 	    iRazeValue = 0;
+ 
+-		// Scenarios ...
+-		//if (GC.getGameINLINE().getElapsedGameTurns() > 20 )
+-		{
+-			if (getNumCities() > 4)
+-			{
+-				if (!(pCity->isHolyCity()) && !(pCity->hasActiveWorldWonder()))
+-				{
+-					pNearestCity = GC.getMapINLINE().findCity(pCity->getX_INLINE(), pCity->getY_INLINE(), NO_PLAYER, getTeam(), true, false, NO_TEAM, NO_DIRECTION, pCity);
+-
+-					bool bPrevOwnerBarb = (pCity->getPreviousOwner() == BARBARIAN_PLAYER);
+-					if (pNearestCity == NULL)
+-					{
+-						if (pCity->getPreviousOwner() != NO_PLAYER && !bPrevOwnerBarb)
+-						{
+-							if (GET_TEAM(GET_PLAYER(pCity->getPreviousOwner()).getTeam()).countNumCitiesByArea(pCity->area()) > 3)
++		if ( (pCity->isHolyCity()) || (pCity->hasActiveWorldWonder()))
++		{
++			// BBAI TODO: Is there any circumstance under which razing is a good idea here?
++			if( gPlayerLogLevel >= 1 )
++			{
++				logBBAI("    Player %d (%S) decides not to raze holy/wonder city %S", getID(), getCivilizationDescription(0), pCity->getName().GetCString() );
++			}
++		}
++		else if( getNumCities() < 4 )
++		{
++			// BBAI TODO: Is there any circumstance under which razing is a good idea here?
++			if( gPlayerLogLevel >= 1 )
++			{
++				logBBAI("    Player %d (%S) decides not to raze %S because they have few cities", getID(), getCivilizationDescription(0), pCity->getName().GetCString() );
++			}
++		}
++		else if( AI_isDoVictoryStrategy(AI_VICTORY_DOMINATION3) )
++		{
++			// Do not raze, going for domination
++			if( gPlayerLogLevel >= 1 )
++			{
++				logBBAI("    Player %d (%S) decides not to raze %S because they're going for domination", getID(), getCivilizationDescription(0), pCity->getName().GetCString() );
++			}
++		}
++		else
++		{
++			bool bFinancialTrouble = AI_isFinancialTrouble();
++			bool bBarbCity = (pCity->getPreviousOwner() == BARBARIAN_PLAYER) && (pCity->getOriginalOwner() == BARBARIAN_PLAYER);
++			bool bPrevOwnerBarb = (pCity->getPreviousOwner() == BARBARIAN_PLAYER);
++			
++			int iCloseness = pCity->AI_playerCloseness(getID());
++
++			// BBAI TODO: Highly valuable resource??
++			
++			if (GET_TEAM(getTeam()).countNumCitiesByArea(pCity->area()) == 0)
++			{
++				// Conquered city in new continent/island
++				int iBestValue;
++
++				if( pCity->area()->getNumCities() == 1 && AI_getNumAreaCitySites(pCity->area()->getID(), iBestValue) == 0 )
++				{
++					// Probably small island
++					if( iCloseness == 0 )
++					{
++						// Safe to raze these now that AI can do pick up ...
++						iRazeValue += GC.getLeaderHeadInfo(getPersonalityType()).getRazeCityProb();
++					}
++				}
++				else
++				{
++					// At least medium sized island
++					if( iCloseness == 0 )
++					{
++						if( bFinancialTrouble )
++						{
++							// Raze if we might start incuring colony maintenance
++							iRazeValue = 100;
++						}
++						else
++						{
++							// BBAI TODO: What's right way to measure risk of losing city?
++							if (pCity->getPreviousOwner() != NO_PLAYER && !bPrevOwnerBarb)
+ 							{
+-								iRazeValue += 30;
++								if (GET_TEAM(GET_PLAYER(pCity->getPreviousOwner()).getTeam()).countNumCitiesByArea(pCity->area()) > 3)
++								{
++									if( GET_TEAM(getTeam()).getPower(false)*9 < GET_TEAM(GET_PLAYER(pCity->getPreviousOwner()).getTeam()).getPower(true)*10 )
++									{
++										iRazeValue = 100;
++									}
++									else
++									{
++										iRazeValue += GC.getLeaderHeadInfo(getPersonalityType()).getRazeCityProb();
++									}
++								}
+ 							}
+ 						}
+ 					}
++				}
++			}
++			else
++			{
++				// Distance related aspects
++				if (iCloseness > 0)
++				{
++					iRazeValue -= iCloseness;
++				}
++				else
++				{
++					iRazeValue += 50;
++
++					CvCity* pNearestTeamAreaCity = GC.getMapINLINE().findCity(pCity->getX_INLINE(), pCity->getY_INLINE(), NO_PLAYER, getTeam(), true, false, NO_TEAM, NO_DIRECTION, pCity);
++
++					if( pNearestTeamAreaCity == NULL )
++					{
++						// Shouldn't happen
++						iRazeValue += 30;
++					}
+ 					else
+ 					{
+-						int iDistance = plotDistance(pCity->getX_INLINE(), pCity->getY_INLINE(), pNearestCity->getX_INLINE(), pNearestCity->getY_INLINE());
+-						if ( iDistance > 12)
+-						{
+-							iRazeValue += iDistance * (bPrevOwnerBarb ? 3 : 2);
+-						}
+-					}
+-
+-					if (pCity->area()->getCitiesPerPlayer(getID()) > 0)
+-					{
+-						if (AI_isFinancialTrouble())
+-						{
+-							iRazeValue += std::max(0, (70 - 15 * pCity->getPopulation()));
+-						}
+-					}
+-                
+-			        if (getStateReligion() != NO_RELIGION)
+-					{
+-                        if (pCity->isHasReligion(getStateReligion()))
+-                        {
+-							if (GET_TEAM(getTeam()).hasShrine(getStateReligion()))
++						int iDistance = plotDistance(pCity->getX_INLINE(), pCity->getY_INLINE(), pNearestTeamAreaCity->getX_INLINE(), pNearestTeamAreaCity->getY_INLINE());
++						iDistance -= DEFAULT_PLAYER_CLOSENESS + 2;
++						if ( iDistance > 0 )
++						{
++							iRazeValue += iDistance * (bBarbCity ? 8 : 5);
++						}
++					}
++				}
++
++				if (bFinancialTrouble)
++				{
++					iRazeValue += std::max(0, (70 - 15 * pCity->getPopulation()));
++				}
++
++				// Scale down for organized
++				for (iI = 0; iI < GC.getNumTraitInfos(); iI++)
++				{
++					if (hasTrait((TraitTypes)iI))
++					{
++						iRazeValue *= (100 - (GC.getTraitInfo((TraitTypes)iI).getUpkeepModifier()));
++						iRazeValue /= 100;
++
++						if( (GC.getTraitInfo((TraitTypes)iI).getUpkeepModifier() > 0) && gPlayerLogLevel >= 1 )
++						{
++							logBBAI("      Reduction for upkeep modifier %d", (GC.getTraitInfo((TraitTypes)iI).getUpkeepModifier()) );
++						}
++					}
++				}
++
++				// Non-distance related aspects
++				iRazeValue += GC.getLeaderHeadInfo(getPersonalityType()).getRazeCityProb();
++	                
++				if (getStateReligion() != NO_RELIGION)
++				{
++					if (pCity->isHasReligion(getStateReligion()))
++					{
++						if (GET_TEAM(getTeam()).hasShrine(getStateReligion()))
++						{
++							iRazeValue -= 50;
++
++							if( gPlayerLogLevel >= 1 )
+ 							{
+-								iRazeValue -= 50;                            
++								logBBAI("      Reduction for state religion with shrine" );
+ 							}
+-							else
++						}
++						else
++						{
++							iRazeValue -= 10;
++
++							if( gPlayerLogLevel >= 1 )
+ 							{
+-								iRazeValue -= 10;
++								logBBAI("      Reduction for state religion" );
+ 							}
+ 						}
+ 					}
+-                    
+-                    int iCloseness = pCity->AI_playerCloseness(getID());
+-                    if (iCloseness > 0)
+-                    {
+-                    	iRazeValue -= 25;
+-                    	iRazeValue -= iCloseness * 2;
+-					}
+-                    else
+-                    {
+-                    	iRazeValue += 60;
+-					}
+-
+-					if (pCity->area()->getCitiesPerPlayer(getID()) > 0)
+-					{
+-						if (pCity->getPreviousOwner() != BARBARIAN_PLAYER)
+-						{
+-                            iRazeValue += GC.getLeaderHeadInfo(getPersonalityType()).getRazeCityProb();
+-						}
+-					}
++				}
++			}
++
++			if( gPlayerLogLevel >= 1 )
++			{
++				if( bBarbCity ) logBBAI("      %S is a barb city", pCity->getName().GetCString() );
++				if( bPrevOwnerBarb ) logBBAI("      %S was last owned by barbs", pCity->getName().GetCString() );
++				logBBAI("      %S has area cities %d, closeness %d, bFinTrouble %d", pCity->getName().GetCString(), GET_TEAM(getTeam()).countNumCitiesByArea(pCity->area()), iCloseness, bFinancialTrouble );
++			}
++		}
++
++		if( gPlayerLogLevel >= 1 )
++		{
++			logBBAI("    Player %d (%S) has odds %d to raze city %S", getID(), getCivilizationDescription(0), iRazeValue, pCity->getName().GetCString() );
++		}
+ 					
+-					if (iRazeValue > 0)
+-					{
+-					    for (iI = 0; iI < GC.getNumTraitInfos(); iI++)
+-					    {
+-                            if (hasTrait((TraitTypes)iI))
+-                            {
+-                                iRazeValue *= (100 - (GC.getTraitInfo((TraitTypes)iI).getUpkeepModifier()));
+-                                iRazeValue /= 100;
+-							}
+-						}
+-
+-                        if (GC.getGameINLINE().getSorenRandNum(100, "AI Raze City") < iRazeValue)
+-						{
+-							bRaze = true;
+-							pCity->doTask(TASK_RAZE);
+-						}
+-					}
+-				}
+-			}
+-		}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++		if (iRazeValue > 0)
++		{
++            if (GC.getGameINLINE().getSorenRandNum(100, "AI Raze City") < iRazeValue)
++			{
++				bRaze = true;
++				pCity->doTask(TASK_RAZE);
++			}
++		}		
+ 	}
+ 
+ 	if (!bRaze)
+@@ -1775,6 +1857,9 @@
+ /************************************************************************************************/
+ 	}
+ }
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ 
+ bool CvPlayerAI::AI_acceptUnit(CvUnit* pUnit) const
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@523
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@524
+@@ -1877,7 +1877,7 @@
+ 		GET_TEAM(eTeam).makeHasMet(getID(), bNewDiplo);
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      11/08/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      02/20/10                                jdog5000      */
+ /*                                                                                              */
+ /* AI logging                                                                                   */
+ /************************************************************************************************/
+@@ -1885,7 +1885,7 @@
+ 		{
+ 			if( GC.getGameINLINE().isFinalInitialized() )
+ 			{
+-				if( eTeam != getID() )
++				if( eTeam != getID() && isAlive() && GET_TEAM(eTeam).isAlive() )
+ 				{
+ 					logBBAI("    Team %d (%S) meets team %d (%S)", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTeam, GET_PLAYER(GET_TEAM(eTeam).getLeaderID()).getCivilizationDescription(0) );
+ 				}
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@523
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@524
+@@ -2161,7 +2161,7 @@
+ }
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/10/10                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      02/18/10                                jdog5000      */
+ /*                                                                                              */
+ /* War Strategy AI                                                                              */
+ /************************************************************************************************/
+@@ -2203,12 +2203,13 @@
+ 	{
+ 		if( iI != getID() )
+ 		{
+-			if( GET_TEAM((TeamTypes)iI).isAlive() )
++			if( GET_TEAM((TeamTypes)iI).isAlive() && isHasMet((TeamTypes)iI) )
+ 			{
+ 				if( isAtWar((TeamTypes)iI) )
+ 				{
+ 					int iTempPower = 220 * GET_TEAM((TeamTypes)iI).getPower(false);
+ 					iTempPower /= (AI_hasCitiesInPrimaryArea((TeamTypes)iI) ? 2 : 3);
++					iTempPower /= (GET_TEAM((TeamTypes)iI).isMinorCiv() ? 3 : 1);
+ 					iTempPower /= std::max(1, (bConsiderOthers ? GET_TEAM((TeamTypes)iI).getAtWarCount(true,true) : 1));
+ 					iEnemyPower += iTempPower;
+ 				}
+@@ -3953,7 +3954,7 @@
+ 
+ 	for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 	{
+-		if (GET_TEAM((TeamTypes)iI).isAlive())
++		if (GET_TEAM((TeamTypes)iI).isAlive() && isHasMet((TeamTypes)iI))
+ 		{
+ 			if (AI_getWarPlan((TeamTypes)iI) != NO_WARPLAN)
+ 			{
+@@ -3969,7 +3970,7 @@
+ 					
+ 					iTimeModifier *= 50 + GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getTrainPercent();
+ 					iTimeModifier /= 150;
+-					FAssert(iTimeModifier > 0);
++					FAssert(iTimeModifier >= 0);
+ 				}
+ 				if (AI_getWarPlan((TeamTypes)iI) == WARPLAN_ATTACKED_RECENT)
+ 				{
+@@ -4629,7 +4630,7 @@
+ 					int iCombatRatio = (GC.getUnitInfo(eLoopUnit).getCombat() * 100) / std::max(1, GC.getGameINLINE().getBestLandUnitCombat());
+ 					if (iCombatRatio > 50)
+ 					{
+-						iValue += ((bWarPlan ? 100 : 50) * (iCombatRatio - 40)) / 50;;
++						iValue += ((bWarPlan ? 100 : 50) * (iCombatRatio - 40)) / 50;
+ 					}
+ 
+ 					switch (GC.getUnitInfo(eLoopUnit).getDefaultUnitAIType())
+

@@ -2,6 +2,7 @@
 #include "CvInfo_Misc.h"
 #include "CvXMLLoadUtility.h"
 #include "CvGameTextMgr.h" // for CvGameText::read
+#include "CvGameCoreUtils.h" // <!-- custom: Passive EXE-facing menu/loading getters publish runtime presentation evidence without calling those getters just for diagnostics. (ChatGPT-5.6-Sol) -->
 
 // advc: Better leave these alone b/c they're DLLExports
 CvUnitFormationInfo::CvUnitFormationInfo() {}
@@ -1192,6 +1193,7 @@ bool CvGameText::read(CvXMLLoadUtility* pXML, const std::string& language_name)
 		int iNumLanguages = getNumLanguages();
 		if (iNumLanguages <= 0)
 		{
+			// <!-- custom: doesn't seem safe or easy or worth changing this, as also discussed with chatgpt 5, so not changing this, check if accurate -->
 			iNumLanguages = std::min(gDLL->getXMLIFace()->GetNumSiblings(pXML->GetXML()), GC.getDefineINT("MAX_NUM_LANGUAGES"));
 			setNumLanguages(iNumLanguages);
 		}
@@ -1827,26 +1829,92 @@ bool CvGraphicOptionInfo::read(CvXMLLoadUtility* pXML)
 
 std::string CvMainMenuInfo::getScene() const
 {
+	// <!-- custom: The EXE-facing scene request is positive opening-menu evidence; unlike CvGame::reset, it is not also a pre-new/load teardown boundary.
+	// Assertion logging deduplicates repeated shader/scene requests within one menu visit and remains lazy when no assertion fails. (ChatGPT-5.6-Sol) -->
+	#if defined(FASSERT_ENABLE) && defined(WIN32)
+	startSASAssertionLogForMainMenu();
+	#endif
+	if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusMainMenuSceneRequested();
 	return m_szScene;
 }
 
 std::string CvMainMenuInfo::getSceneNoShader() const
 {
+	// <!-- custom: Track the shaderless opening-menu request too; the shared observer deduplicates it with getScene so one menu visit advances the assertion context only once. (GPT-6.1-Sol) -->
+	#if defined(FASSERT_ENABLE) && defined(WIN32)
+	startSASAssertionLogForMainMenu();
+	#endif
+	if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusMainMenuSceneRequested();
 	return m_szSceneNoShader;
 }
 
 std::string CvMainMenuInfo::getSoundtrack() const
 {
-	return m_szSoundtrack;
+	// <!-- custom: opening-menu music shuffle toggle; if disabled, preserve vanilla behavior and return XML soundtrack as-is. (GPT-5.3-Codex) -->
+	static const bool bSASMainMenuOpeningMusicShuffleEnable = GC.getDefineBOOL("SAS_MENU_MUSIC_SHUFFLE_ON");
+	if (!bSASMainMenuOpeningMusicShuffleEnable)
+		return m_szSoundtrack;
+
+	// <!-- custom: only randomize for the configured trigger script (e.g. AS2D_OPENING_MENU), so other menu profiles keep their own soundtrack untouched. (GPT-5.3-Codex) -->
+	static const CvString szSASMainMenuOpeningMusicShuffleTriggerScript = GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_TRIGGER_SCRIPT");
+	if (m_szSoundtrack != szSASMainMenuOpeningMusicShuffleTriggerScript.c_str())
+		return m_szSoundtrack;
+
+	// <!-- custom: shuffle-bag state: aszAllScripts = configured pool, aszRemainingScripts = not yet played in current cycle. (GPT-5.3-Codex) -->
+	static bool bInit = false;
+	static std::vector<CvString> aszAllScripts;
+	static std::vector<CvString> aszRemainingScripts;
+	if (!bInit)
+	{
+		const CvString aszCandidates[] =
+		{
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_1"),
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_2"),
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_3"),
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_4"),
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_5"),
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_6"),
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_7"),
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_8"),
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_9")
+		};
+		for (size_t i = 0; i < sizeof(aszCandidates) / sizeof(aszCandidates[0]); i++)
+		{
+			if (aszCandidates[i].empty() ||
+				aszCandidates[i].CompareNoCase("NONE") == 0)
+			{
+				continue;
+			}
+			aszAllScripts.push_back(aszCandidates[i]);
+		}
+		// <!-- custom: safety fallback: if all configured slots are NONE/empty, use trigger script so opening menu still has music. (GPT-5.3-Codex) -->
+		if (aszAllScripts.empty())
+			aszAllScripts.push_back(szSASMainMenuOpeningMusicShuffleTriggerScript);
+		aszRemainingScripts = aszAllScripts;
+		bInit = true;
+	}
+	// <!-- custom: refill bag only after all tracks were consumed once; this prevents repeats within a cycle. (GPT-5.3-Codex) -->
+	if (aszRemainingScripts.empty())
+		aszRemainingScripts = aszAllScripts;
+
+	// <!-- custom: pick uniformly from remaining bag, then erase picked script; this implements non-repeating random order per cycle. (GPT-5.3-Codex) -->
+	int const iPick = GC.getASyncRand().get(
+			static_cast<int>(aszRemainingScripts.size()),
+			"SAS main menu opening music shuffle ASYNC");
+	CvString const szPickedScript = aszRemainingScripts[iPick];
+	aszRemainingScripts.erase(aszRemainingScripts.begin() + iPick);
+	return szPickedScript;
 }
 
 std::string CvMainMenuInfo::getLoading() const
 {
+	if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusLoadingScreenAssetRequested();
 	return m_szLoading;
 }
 
 std::string CvMainMenuInfo::getLoadingSlideshow() const
 {
+	if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusLoadingScreenAssetRequested();
 	return m_szLoadingSlideshow;
 }
 

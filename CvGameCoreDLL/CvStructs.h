@@ -36,7 +36,8 @@ struct IDInfo
 			for quite some time. It's fine currently and not likely to break I think. */
 		//FAssert(iID != FFreeList::INVALID_INDEX || eOwner == BARBARIAN_PLAYER);
 	}
-	void validateOwner(); // advc.opt
+	// <!-- custom: Current writers serialize the owner supplied by construction or reset (advc.opt).
+	// IDInfo::validateOwner only converted NO_PLAYER from older saves. See KI#46.2. (GPT-6.2-Sol) -->
 	bool isIDSet() const { return iID != FFreeList::INVALID_INDEX; } // advc
 
 	PlayerTypes eOwner;
@@ -48,10 +49,7 @@ struct IDInfo
 	}
 	// K-Mod
 	bool operator!= (const IDInfo& info) const { return !(*this==info); }
-	bool operator< (const IDInfo& a) const
-	{
-		return eOwner < a.eOwner || (eOwner == a.eOwner && iID < a.iID);
-	} // K-Mod end
+	bool operator< (const IDInfo& a) const { return eOwner < a.eOwner || (eOwner == a.eOwner && iID < a.iID); } // K-Mod end
 
 	void reset()
 	{
@@ -86,9 +84,9 @@ struct MissionData				// Exposed to Python
 	int iPushTurn;
 	bool bModified; // advc.011b
 };
-// <advc.011b> Needed for savegame compatibility
-struct MissionDataLegacy { MissionTypes eMissionType; int iData1; int iData2;
-	MovementFlags eFlags; int iPushTurn; }; // </advc.011b>
+
+// <!-- custom: Removed MissionDataLegacy (advc.011b), the old queue record that lacked bModified.
+// SAS reads the current MissionData layout. See KI#46.2. (GPT-6.2-Sol) -->
 
 struct TradeData					// Exposed to Python
 {

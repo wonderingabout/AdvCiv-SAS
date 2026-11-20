@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# Build check: SASGameRecord must be disabled by default and its single public revision label must match the maintained history.
+# Runtime/schema correctness belongs to compilation, gameplay tests, log inspection and code review rather than source-shape regex contracts.
+
+from pathlib import Path
+import argparse
+import re
+import sys
+
+# <!-- custom: Resolve repository/shared-helper paths from this subject subfolder after the workflow-tool reorganization. (GPT-6.1-Sol) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+
+# <!-- custom: add_staged_argument and read_staged_bytes let --staged check the Git index instead of the working tree. (Claude code Opus 5.5) -->
+from xml_defines import add_staged_argument, get_default_repo_root, read_global_define_ints, read_staged_bytes, require_int_values
+# <!-- custom: Require the same nonempty explanation as runtime history without duplicating Markdown-entry validation. (GPT-6.1-Sol) -->
+from revision_history import change_errors
+# <!-- custom: The shipped recorder values moved to LLM_Helpers/diagnostics/define_values.py so toggle_dev_diagnostics.py reads the same list. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "LLM_Helpers" / "diagnostics"))
+from define_values import EXPECTED_GAME_RECORD_DEFAULTS
+
+
+REVISION_DEFINES = Path("Assets/XML/GlobalDefines_advciv_sas.xml")
+REVISION_SOURCE = Path("CvGameCoreDLL/SASGameRecordLog.cpp")
+REVISION_HISTORY = Path("_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md")
+
+
+def latest_history_revision(history_text: str) -> tuple[int | None, list[str]]:
+    for line in history_text.splitlines():
+        if not line.startswith("### Revision "):
+            continue
+        match = re.match(r"### Revision (\d+) - SAS practical (\d+)\b", line)
+        if match is None:
+            return None, [f"{REVISION_HISTORY}: malformed newest revision heading: {line}"]
+        return int(match.group(1)), []
+    return None, [f"{REVISION_HISTORY}: no revision heading found"]
+
+
+# <!-- custom: Accept the already-parsed Define map from main so this check shares the same shipped-default read; focused tests/direct callers may omit it and let the helper load XML itself. (ChatGPT-5.6-Sol) -->
+# <!-- custom: Added staged: with --staged, the history and source are read from the index too, so the revision check sees one consistent commit candidate rather than mixing staged and working-tree files. (Claude code Opus 5.5) -->
+def check_revision(repo_root: Path, defines: dict[str, int] | None = None, staged: bool = False) -> list[str]:
+    failures: list[str] = []
+    if not staged:
+        for relative in (REVISION_DEFINES, REVISION_SOURCE, REVISION_HISTORY):
+            if not (repo_root / relative).is_file():
+                failures.append(f"missing SASGameRecord revision file: {relative}")
+    if failures:
+        return failures
+
+    if defines is None:
+        defines = read_global_define_ints(repo_root, staged)
+    if staged:
+        history = read_staged_bytes(repo_root, REVISION_HISTORY.as_posix()).decode("utf-8", "replace")
+        source = read_staged_bytes(repo_root, REVISION_SOURCE.as_posix()).decode("utf-8", "replace")
+    else:
+        history = (repo_root / REVISION_HISTORY).read_text(encoding="utf-8", errors="replace")
+        source = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+    revision = defines.get("SAS_SGR_REVISION")
+    if revision is None:
+        failures.append("SAS_SGR_REVISION: missing define")
+    elif revision <= 0:
+        failures.append(f"SAS_SGR_REVISION: expected positive revision, found {revision}")
+
+    history_revision, errors = latest_history_revision(history)
+    failures.extend(errors)
+    failures.extend(change_errors(history))
+    if revision is not None and history_revision is not None and revision != history_revision:
+        failures.append(f"revision mismatch: SAS_SGR_REVISION={revision}, newest history={history_revision}")
+
+    # <!-- custom: The revision is a label, not compatibility/runtime branching.
+    # Keep only the minimal wiring contract that SOURCE_CONTEXT reads that one Define directly. (ChatGPT-5.6-Sol) -->
+    if 'GAME_RECORD_SOURCE_CONTEXT recordRevision=%d %s' not in source or 'GC.getDefineINT("SAS_SGR_REVISION")' not in source:
+        failures.append(f"{REVISION_SOURCE}: source-context row no longer emits the shared SAS_SGR_REVISION label")
+    return failures
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Check SASGameRecord disabled default and public revision synchronization.")
+    parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
+    add_staged_argument(parser)
+    args = parser.parse_args()
+
+    defines = read_global_define_ints(args.repo_root, args.staged)
+    failures = require_int_values(defines, EXPECTED_GAME_RECORD_DEFAULTS)
+    failures.extend(check_revision(args.repo_root, defines, args.staged))
+    if failures:
+        print("FAIL SASGameRecord minimal safety checks")
+        for failure in failures:
+            print(f"  - {failure}")
+        return 1
+    print("PASS SASGameRecord minimal safety checks: logging disabled by default; revision Define/history/source-context synchronized" + (" (staged)" if args.staged else ""))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

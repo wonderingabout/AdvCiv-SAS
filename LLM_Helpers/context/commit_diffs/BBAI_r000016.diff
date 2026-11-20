@@ -1,0 +1,14 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 16
+# Author: iustus
+# Date: 2006-10-31T10:39:36.712831Z
+# Coverage: full
+# Message:
+#   Added a bunch of build targets to ignore list
+# Changed paths (4):
+#   M /branches/firaxis
+#   M /branches/firaxis/CvGameCoreDLL
+#   M /tags/Firaxis1.61
+#   M /tags/Firaxis1.61/CvGameCoreDLL
+

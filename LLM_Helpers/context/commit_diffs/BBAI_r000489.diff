@@ -1,0 +1,3199 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 489
+# Author: jdog5000
+# Date: 2009-09-20T23:45:09.252982Z
+# Coverage: full
+# Message:
+#   (no message)
+# Changed paths (15):
+#   M /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+#   M /trunk/Better BTS AI/Assets/Python/Optional/AIAutoPlay.py
+#   A /trunk/Better BTS AI/Assets/XML/GameInfo
+#   A /trunk/Better BTS AI/Assets/XML/GameInfo/CIV4EraInfos.xml
+#   A /trunk/Better BTS AI/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+#   A /trunk/Better BTS AI/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+#   M /trunk/Better BTS AI/Assets/XML/GlobalDefinesAlt.xml
+#   M /trunk/Better BTS AI/Assets/XML/Text/CIV4GameText_AIAutoPlay.xml
+#   D /trunk/Better BTS AI/Better BTS AI sources for 0.78.zip
+#   D /trunk/Better BTS AI/Better BTS AI sources for 0.80.zip
+#   A /trunk/Better BTS AI/Better BTS AI sources for 0.81.zip
+#   M /trunk/Better BTS AI/changelog.txt
+#   A /trunk/Better BTS AI/efficiency notes.txt
+#   M /trunk/Better BTS AI/readme.txt
+#   M /trunk/Better BTS AI/todo and ideas.txt
+
+Index: /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/Assets/Python/Optional/AIAutoPlay.py
+--- /trunk/Better BTS AI/Assets/Python/Optional/AIAutoPlay.py@488
++++ /trunk/Better BTS AI/Assets/Python/Optional/AIAutoPlay.py@489
+@@ -135,8 +135,8 @@
+             toKillPlayer.killUnits()
+             toKillPlayer.setIsHuman(False)
+             #success = game.changePlayer( toKillPlayer.getID(), toKillPlayer.getCivilizationType(), toKillPlayer.getLeaderType(), -1, False, False )
+-            toKillPlayer.setNewPlayerAlive(False)
+-            toKillPlayer.setFoundedFirstCity(True)
++            #toKillPlayer.setNewPlayerAlive(False)
++            #toKillPlayer.setFoundedFirstCity(True)
+ 
+     def onBeginPlayerTurn( self, argsList ) :
+         iGameTurn, iPlayer = argsList
+@@ -190,10 +190,10 @@
+             CvUtil.pyPrint('Launching pick human popup')
+             popup.launch()
+ 
+-            gc.getActivePlayer().setNewPlayerAlive( True )
++            #gc.getActivePlayer().setNewPlayerAlive( True )
+             iSettler = CvUtil.findInfoTypeNum(gc.getUnitInfo,gc.getNumUnitInfos(),'UNIT_SETTLER')
+             gc.getActivePlayer().initUnit( iSettler, 0, 0, UnitAITypes.NO_UNITAI, DirectionTypes.DIRECTION_SOUTH )
+-            gc.getActivePlayer().setFoundedFirstCity( False )
++            #gc.getActivePlayer().setFoundedFirstCity( False )
+             gc.getActivePlayer().setIsHuman( True )
+ 
+         CvUtil.pyPrint('CDP: Setting autoplay to 0')
+
+Index: /trunk/Better BTS AI/Assets/XML/GameInfo/CIV4EraInfos.xml
+--- /dev/null
++++ /trunk/Better BTS AI/Assets/XML/GameInfo/CIV4EraInfos.xml@489
+@@ -0,0 +1,482 @@
++<?xml version="1.0"?>
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- EraInfo - This structure describes the name and soundtracks for each era. -->
++<!-- -->
++<!-- MODDERS: Removing ERA's can cause problems if you are not careful. If you must remove them, you need to do the following: -->
++<!-- 1. Clean up the references to the ERA's in CIV4BuildingInfos -->
++<!-- 2. Clean up the references to the ERA's in CIV4TechInfos -->
++<!-- 3. Clean up the references to the ERA's in CIV4LeaderHeadInfos -->
++<!-- 4. Clean up the references to the ERA's in CIV4CityLSystem -->
++<!-- 5. Clean up the references to the ERA's in CIV4PlotLSystem -->
++<!-- Good luck! -->
++<Civ4EraInfos xmlns="x-schema:CIV4GameInfoSchema.xml">
++	<EraInfos>
++		<EraInfo>
++			<Type>ERA_ANCIENT</Type>
++			<Description>TXT_KEY_ERA_ANCIENT</Description>
++			<Strategy>TXT_KEY_ERA_ANCIENT_STRATEGY</Strategy>
++			<bNoGoodies>0</bNoGoodies>
++			<bNoAnimals>0</bNoAnimals>
++			<bNoBarbUnits>0</bNoBarbUnits>
++			<bNoBarbCities>0</bNoBarbCities>
++			<iAdvancedStartPoints>600</iAdvancedStartPoints>
++			<iStartingUnitMultiplier>1</iStartingUnitMultiplier>
++			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingWorkerUnits>0</iStartingWorkerUnits>
++			<iStartingExploreUnits>1</iStartingExploreUnits>
++			<iStartingGold>0</iStartingGold>
++			<iFreePopulation>0</iFreePopulation>
++			<iStartPercent>0</iStartPercent>
++			<iGrowthPercent>100</iGrowthPercent>
++			<iTrainPercent>100</iTrainPercent>
++			<iConstructPercent>100</iConstructPercent>
++			<iCreatePercent>100</iCreatePercent>
++			<iResearchPercent>100</iResearchPercent>
++			<!-- BBAI start: effectively modify cost for all techs from this era. Default: 0 -->
++			<iTechCostModifier>0</iTechCostModifier>
++			<!-- BBAI end -->
++			<iBuildPercent>100</iBuildPercent>
++			<iImprovementPercent>100</iImprovementPercent>
++			<iGreatPeoplePercent>100</iGreatPeoplePercent>
++			<iCulturePercent>100</iCulturePercent>
++			<iAnarchyPercent>50</iAnarchyPercent>
++			<iEventChancePerTurn>1</iEventChancePerTurn>
++			<iSoundtrackSpace>0</iSoundtrackSpace>
++			<bFirstSoundtrackFirst>0</bFirstSoundtrackFirst>
++			<EraInfoSoundtracks>
++				<EraInfoSoundtrack>AS2D_ANCIENT_SOUNDTRACK_1</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_ANCIENT_SOUNDTRACK_2</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_ANCIENT_SOUNDTRACK_3</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_ANCIENT_SOUNDTRACK_4</EraInfoSoundtrack>
++			</EraInfoSoundtracks>
++			<CitySoundscapes>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_SMALL</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_ANCIENT_SMALL_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_MEDIUM</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_ANCIENT_SMALL_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_LARGE</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_ANCIENT_LARGE_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++			</CitySoundscapes>
++			<AudioUnitVictoryScript>AS2D_VICTORY_EARLY</AudioUnitVictoryScript>
++			<AudioUnitDefeatScript>AS2D_LOSS_EARLY</AudioUnitDefeatScript>
++		</EraInfo>
++		<EraInfo>
++			<Type>ERA_CLASSICAL</Type>
++			<Description>TXT_KEY_ERA_CLASSICAL</Description>
++			<Strategy>TXT_KEY_ERA_CLASSICAL_STRATEGY</Strategy>
++			<bNoGoodies>0</bNoGoodies>
++			<bNoAnimals>1</bNoAnimals>
++			<bNoBarbUnits>0</bNoBarbUnits>
++			<bNoBarbCities>0</bNoBarbCities>
++			<iAdvancedStartPoints>1200</iAdvancedStartPoints>
++			<iStartingUnitMultiplier>1</iStartingUnitMultiplier>
++			<iStartingDefenseUnits>1</iStartingDefenseUnits>
++			<iStartingWorkerUnits>1</iStartingWorkerUnits>
++			<iStartingExploreUnits>1</iStartingExploreUnits>
++			<iStartingGold>10</iStartingGold>
++			<iFreePopulation>0</iFreePopulation>
++			<iStartPercent>10</iStartPercent>
++			<iGrowthPercent>100</iGrowthPercent>
++			<iTrainPercent>100</iTrainPercent>
++			<iConstructPercent>100</iConstructPercent>
++			<iCreatePercent>100</iCreatePercent>
++			<iResearchPercent>90</iResearchPercent>
++			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 0 -->
++			<iTechCostModifier>0</iTechCostModifier>
++			<!-- BBAI end -->
++			<iBuildPercent>100</iBuildPercent>
++			<iImprovementPercent>100</iImprovementPercent>
++			<iGreatPeoplePercent>100</iGreatPeoplePercent>
++			<iCulturePercent>100</iCulturePercent>
++			<iAnarchyPercent>50</iAnarchyPercent>
++			<iEventChancePerTurn>2</iEventChancePerTurn>
++			<iSoundtrackSpace>400</iSoundtrackSpace>
++			<bFirstSoundtrackFirst>0</bFirstSoundtrackFirst>
++			<EraInfoSoundtracks>
++				<EraInfoSoundtrack>AS2D_SONG_ALEXANDER</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_VIKING</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_ROME</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_PELOPONNESIAN</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_CIV_III_MID_ROME</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_CIV_III_ANC_EUROPE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_CIV_III_ANC_ROME</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_CIV_III_MID_EUROPE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_CIV_III_MOD_CELTIC</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_CONQUESTS_FANTASY1</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_CONQUESTS_FANTASY2</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_CONQUESTS_ROMAN</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_DIP_EC_EARLY_PEACE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_DIP_EC_EARLY_WAR</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_DIP_EU_LATE_PEACE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_DIP_EU_LATE_WAR</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_DIP_GR_EARLY_PEACE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_BARBARIAN</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_DIP_GR_EARLY_WAR</EraInfoSoundtrack>
++			</EraInfoSoundtracks>
++			<CitySoundscapes>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_SMALL</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_ANCIENT_SMALL_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_MEDIUM</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_ANCIENT_SMALL_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_LARGE</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_ANCIENT_LARGE_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++			</CitySoundscapes>
++			<AudioUnitVictoryScript>AS2D_VICTORY_EARLY</AudioUnitVictoryScript>
++			<AudioUnitDefeatScript>AS2D_LOSS_EARLY</AudioUnitDefeatScript>
++		</EraInfo>
++		<EraInfo>
++			<Type>ERA_MEDIEVAL</Type>
++			<Description>TXT_KEY_ERA_MEDIEVAL</Description>
++			<Strategy>TXT_KEY_ERA_MEDIEVAL_STRATEGY</Strategy>
++			<bNoGoodies>1</bNoGoodies>
++			<bNoAnimals>1</bNoAnimals>
++			<bNoBarbUnits>0</bNoBarbUnits>
++			<bNoBarbCities>0</bNoBarbCities>
++			<iAdvancedStartPoints>1800</iAdvancedStartPoints>
++			<iStartingUnitMultiplier>2</iStartingUnitMultiplier>
++			<iStartingDefenseUnits>2</iStartingDefenseUnits>
++			<iStartingWorkerUnits>1</iStartingWorkerUnits>
++			<iStartingExploreUnits>1</iStartingExploreUnits>
++			<iStartingGold>25</iStartingGold>
++			<iFreePopulation>0</iFreePopulation>
++			<iStartPercent>25</iStartPercent>
++			<iGrowthPercent>100</iGrowthPercent>
++			<iTrainPercent>100</iTrainPercent>
++			<iConstructPercent>100</iConstructPercent>
++			<iCreatePercent>100</iCreatePercent>
++			<iResearchPercent>80</iResearchPercent>
++			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 4 -->
++			<iTechCostModifier>4</iTechCostModifier>
++			<!-- BBAI end -->
++			<iBuildPercent>100</iBuildPercent>
++			<iImprovementPercent>100</iImprovementPercent>
++			<iGreatPeoplePercent>100</iGreatPeoplePercent>
++			<iCulturePercent>100</iCulturePercent>
++			<iAnarchyPercent>40</iAnarchyPercent>
++			<iEventChancePerTurn>4</iEventChancePerTurn>
++			<iSoundtrackSpace>200</iSoundtrackSpace>
++			<bFirstSoundtrackFirst>0</bFirstSoundtrackFirst>
++			<EraInfoSoundtracks>
++				<EraInfoSoundtrack>AS2D_ALLEGRI_MISERERE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_ANONYMOUS_AY_SANTA_MARIA</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_ANONYMOUS_LA_GAMBA</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BRUMEL_GLORIA</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_CHANT_DEUS</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_CHANT_LAUDATE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_CHANT_REGEN</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_DE_LA_TORRE_ALTA</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_DESPREZ_EL_GRILLO</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_DESPREZ_LAMENT</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_LASSUS_ALMA_REDEMPTORIS</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_OCKEGHEM_INTEMERATA</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_OCKEGHEM_KYRIE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_ORTIZ_RECERCADA</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_PALESTRINA_CREDO</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_PALESTRINA_GLORIA</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_PRAETORIUS_BALLET</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_PRAETORIUS_BRANSLE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_PRAETORIUS_VOLTE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SHEPPARD_MEDIA_VITA</EraInfoSoundtrack>
++			</EraInfoSoundtracks>
++			<CitySoundscapes>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_SMALL</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_MIDDLE_SMALL_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_MEDIUM</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_MIDDLE_SMALL_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_LARGE</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_MIDDLE_LARGE_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++			</CitySoundscapes>
++			<AudioUnitVictoryScript>AS2D_VICTORY_MIDDLE</AudioUnitVictoryScript>
++			<AudioUnitDefeatScript>AS2D_LOSS_MIDDLE</AudioUnitDefeatScript>
++		</EraInfo>
++		<EraInfo>
++			<Type>ERA_RENAISSANCE</Type>
++			<Description>TXT_KEY_ERA_RENAISSANCE</Description>
++			<Strategy>TXT_KEY_ERA_RENAISSANCE_STRATEGY</Strategy>
++			<bNoGoodies>1</bNoGoodies>
++			<bNoAnimals>1</bNoAnimals>
++			<bNoBarbUnits>1</bNoBarbUnits>
++			<bNoBarbCities>0</bNoBarbCities>
++			<iAdvancedStartPoints>2700</iAdvancedStartPoints>
++			<iStartingUnitMultiplier>2</iStartingUnitMultiplier>
++			<iStartingDefenseUnits>2</iStartingDefenseUnits>
++			<iStartingWorkerUnits>1</iStartingWorkerUnits>
++			<iStartingExploreUnits>1</iStartingExploreUnits>
++			<iStartingGold>50</iStartingGold>
++			<iFreePopulation>1</iFreePopulation>
++			<iStartPercent>37</iStartPercent>
++			<iGrowthPercent>90</iGrowthPercent>
++			<iTrainPercent>90</iTrainPercent>
++			<iConstructPercent>90</iConstructPercent>
++			<iCreatePercent>90</iCreatePercent>
++			<iResearchPercent>70</iResearchPercent>
++			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 9 -->
++			<iTechCostModifier>9</iTechCostModifier>
++			<!-- BBAI end -->
++			<iBuildPercent>90</iBuildPercent>
++			<iImprovementPercent>90</iImprovementPercent>
++			<iGreatPeoplePercent>90</iGreatPeoplePercent>
++			<iCulturePercent>90</iCulturePercent>
++			<iAnarchyPercent>40</iAnarchyPercent>
++			<iEventChancePerTurn>4</iEventChancePerTurn>
++			<iSoundtrackSpace>160</iSoundtrackSpace>
++			<bFirstSoundtrackFirst>0</bFirstSoundtrackFirst>
++			<EraInfoSoundtracks>
++				<EraInfoSoundtrack>AS2D_BACH_ALLEGRO</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BACH_ALLEGRO_ASSAI</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BACH_ALLEMANDE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BACH_BOUREE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BACH_BRANDENBURG_2_3</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BACH_BRANDENBURG_3_1</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BACH_BRANDENBURG_4_1</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BACH_BRANDENBURG_6_1</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BACH_BRANDENBURG_6_3</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BACH_GIGUE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BACH_LARGO</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BACH_MENUET</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BACH_SARABANDE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BEETHOVEN_ALLEGRETTO</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BEETHOVEN_ANDANTE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BEETHOVEN_ROMANCE_1</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_MOZART_ADAGIO</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_MOZART_ANDANTE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_MOZART_ROMANCE</EraInfoSoundtrack>
++			</EraInfoSoundtracks>
++			<CitySoundscapes>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_SMALL</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_MIDDLE_SMALL_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_MEDIUM</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_MIDDLE_SMALL_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_LARGE</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_MIDDLE_LARGE_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++			</CitySoundscapes>
++			<AudioUnitVictoryScript>AS2D_VICTORY_MIDDLE</AudioUnitVictoryScript>
++			<AudioUnitDefeatScript>AS2D_LOSS_MIDDLE</AudioUnitDefeatScript>
++		</EraInfo>
++		<EraInfo>
++			<Type>ERA_INDUSTRIAL</Type>
++			<Description>TXT_KEY_ERA_INDUSTRIAL</Description>
++			<Strategy>TXT_KEY_ERA_INDUSTRIAL_STRATEGY</Strategy>
++			<bNoGoodies>1</bNoGoodies>
++			<bNoAnimals>1</bNoAnimals>
++			<bNoBarbUnits>1</bNoBarbUnits>
++			<bNoBarbCities>0</bNoBarbCities>
++			<iAdvancedStartPoints>4000</iAdvancedStartPoints>
++			<iStartingUnitMultiplier>3</iStartingUnitMultiplier>
++			<iStartingDefenseUnits>3</iStartingDefenseUnits>
++			<iStartingWorkerUnits>2</iStartingWorkerUnits>
++			<iStartingExploreUnits>2</iStartingExploreUnits>
++			<iStartingGold>100</iStartingGold>
++			<iFreePopulation>2</iFreePopulation>
++			<iStartPercent>50</iStartPercent>
++			<iGrowthPercent>80</iGrowthPercent>
++			<iTrainPercent>80</iTrainPercent>
++			<iConstructPercent>80</iConstructPercent>
++			<iCreatePercent>80</iCreatePercent>
++			<iResearchPercent>60</iResearchPercent>
++			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 14 -->
++			<iTechCostModifier>14</iTechCostModifier>
++			<!-- BBAI end -->
++			<iBuildPercent>80</iBuildPercent>
++			<iImprovementPercent>80</iImprovementPercent>
++			<iGreatPeoplePercent>80</iGreatPeoplePercent>
++			<iCulturePercent>80</iCulturePercent>
++			<iAnarchyPercent>34</iAnarchyPercent>
++			<iEventChancePerTurn>6</iEventChancePerTurn>
++			<iSoundtrackSpace>120</iSoundtrackSpace>
++			<bFirstSoundtrackFirst>0</bFirstSoundtrackFirst>
++			<EraInfoSoundtracks>
++				<EraInfoSoundtrack>AS2D_BEETHOVEN_5_2</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BEETHOVEN_6_1</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BEETHOVEN_6_2</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BRAHMS_3_2</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BRAHMS_3_3</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BRAHMS_HUNGARIAN_1</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BRAHMS_HUNGARIAN_3</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_BRAHMS_HUNGARIAN_16</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_DVORAK_9_2</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_DVORAK_AMERICAN_1</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_DVORAK_SLAVONIC_3</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_DVORAK_SLAVONIC_7</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_DVORAK_SLAVONIC_10</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_DVORAK_SLAVONIC_12</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_RIMSKY_KORSAKOV_SCHEHERAZADE_3</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SAINT_SAENS_ALLEGRETTO</EraInfoSoundtrack>
++			</EraInfoSoundtracks>
++			<CitySoundscapes>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_SMALL</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_MIDDLE_SMALL_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_MEDIUM</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_MIDDLE_SMALL_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_LARGE</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_MIDDLE_LARGE_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++			</CitySoundscapes>
++			<AudioUnitVictoryScript>AS2D_VICTORY_MIDDLE</AudioUnitVictoryScript>
++			<AudioUnitDefeatScript>AS2D_LOSS_MIDDLE</AudioUnitDefeatScript>
++		</EraInfo>
++		<EraInfo>
++			<Type>ERA_MODERN</Type>
++			<Description>TXT_KEY_ERA_MODERN</Description>
++			<Strategy>TXT_KEY_ERA_MODERN_STRATEGY</Strategy>
++			<bNoGoodies>1</bNoGoodies>
++			<bNoAnimals>1</bNoAnimals>
++			<bNoBarbUnits>1</bNoBarbUnits>
++			<bNoBarbCities>1</bNoBarbCities>
++			<iAdvancedStartPoints>5500</iAdvancedStartPoints>
++			<iStartingUnitMultiplier>3</iStartingUnitMultiplier>
++			<iStartingDefenseUnits>3</iStartingDefenseUnits>
++			<iStartingWorkerUnits>2</iStartingWorkerUnits>
++			<iStartingExploreUnits>2</iStartingExploreUnits>
++			<iStartingGold>200</iStartingGold>
++			<iFreePopulation>3</iFreePopulation>
++			<iStartPercent>65</iStartPercent>
++			<iGrowthPercent>70</iGrowthPercent>
++			<iTrainPercent>70</iTrainPercent>
++			<iConstructPercent>70</iConstructPercent>
++			<iCreatePercent>70</iCreatePercent>
++			<iResearchPercent>50</iResearchPercent>
++			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 18 -->
++			<iTechCostModifier>18</iTechCostModifier>
++			<!-- BBAI end -->
++			<iBuildPercent>70</iBuildPercent>
++			<iImprovementPercent>70</iImprovementPercent>
++			<iGreatPeoplePercent>70</iGreatPeoplePercent>
++			<iCulturePercent>70</iCulturePercent>
++			<iAnarchyPercent>34</iAnarchyPercent>
++			<iEventChancePerTurn>8</iEventChancePerTurn>
++			<iSoundtrackSpace>80</iSoundtrackSpace>
++			<bFirstSoundtrackFirst>0</bFirstSoundtrackFirst>
++			<EraInfoSoundtracks>
++				<EraInfoSoundtrack>AS2D_ANFORTAS_WOUND</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_CHAIRMAN_DANCES</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_CHCONNE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_CHRISTIAN_ZEAL</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_COMMON_TONES</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_GRAND_PIANOLA_1</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_GRAND_PIANOLA_2</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_HARMONIELEHRE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_HYMING_SLEWS</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_LOOPS_AND_VERSES</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_MEISTER_ECKHARDT</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SHAKING_AND_TREMBLING</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_THE_PEOPLE_ARE_HEROES</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_TROMBA_LONTANA</EraInfoSoundtrack>
++			</EraInfoSoundtracks>
++			<CitySoundscapes>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_SMALL</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_LATE_SMALL_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_MEDIUM</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_LATE_SMALL_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_LARGE</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_LATE_LARGE_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++			</CitySoundscapes>
++			<AudioUnitVictoryScript>AS2D_VICTORY_LATE</AudioUnitVictoryScript>
++			<AudioUnitDefeatScript>AS2D_LOSS_LATE</AudioUnitDefeatScript>
++		</EraInfo>
++		<EraInfo>
++			<Type>ERA_FUTURE</Type>
++			<Description>TXT_KEY_ERA_FUTURE</Description>
++			<Strategy>TXT_KEY_ERA_FUTURE_STRATEGY</Strategy>
++			<bNoGoodies>1</bNoGoodies>
++			<bNoAnimals>1</bNoAnimals>
++			<bNoBarbUnits>1</bNoBarbUnits>
++			<bNoBarbCities>1</bNoBarbCities>
++			<iAdvancedStartPoints>7000</iAdvancedStartPoints>
++			<iStartingUnitMultiplier>3</iStartingUnitMultiplier>
++			<iStartingDefenseUnits>3</iStartingDefenseUnits>
++			<iStartingWorkerUnits>3</iStartingWorkerUnits>
++			<iStartingExploreUnits>2</iStartingExploreUnits>
++			<iStartingGold>400</iStartingGold>
++			<iFreePopulation>4</iFreePopulation>
++			<iStartPercent>80</iStartPercent>
++			<iGrowthPercent>60</iGrowthPercent>
++			<iTrainPercent>60</iTrainPercent>
++			<iConstructPercent>60</iConstructPercent>
++			<iCreatePercent>60</iCreatePercent>
++			<iResearchPercent>40</iResearchPercent>
++			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 18 -->
++			<iTechCostModifier>18</iTechCostModifier>
++			<!-- BBAI end -->
++			<iBuildPercent>60</iBuildPercent>
++			<iImprovementPercent>60</iImprovementPercent>
++			<iGreatPeoplePercent>60</iGreatPeoplePercent>
++			<iCulturePercent>60</iCulturePercent>
++			<iAnarchyPercent>34</iAnarchyPercent>
++			<iEventChancePerTurn>10</iEventChancePerTurn>
++			<iSoundtrackSpace>40</iSoundtrackSpace>
++			<bFirstSoundtrackFirst>0</bFirstSoundtrackFirst>
++			<EraInfoSoundtracks>
++				<EraInfoSoundtrack>AS2D_ANFORTAS_WOUND</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_CHAIRMAN_DANCES</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_CHCONNE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_CHRISTIAN_ZEAL</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_COMMON_TONES</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_GRAND_PIANOLA_1</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_GRAND_PIANOLA_2</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_HARMONIELEHRE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_HYMING_SLEWS</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_LOOPS_AND_VERSES</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_MEISTER_ECKHARDT</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SHAKING_AND_TREMBLING</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_THE_PEOPLE_ARE_HEROES</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_TROMBA_LONTANA</EraInfoSoundtrack>
++			</EraInfoSoundtracks>
++			<CitySoundscapes>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_SMALL</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_LATE_SMALL_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_MEDIUM</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_LATE_SMALL_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++				<CitySoundscape>
++					<CitySizeType>CITYSIZE_LARGE</CitySizeType>
++					<SoundscapeScript>ASSS_CITY_LATE_LARGE_SELECT_AMB</SoundscapeScript>
++				</CitySoundscape>
++			</CitySoundscapes>
++			<AudioUnitVictoryScript>AS2D_VICTORY_LATE</AudioUnitVictoryScript>
++			<AudioUnitDefeatScript>AS2D_LOSS_LATE</AudioUnitDefeatScript>
++		</EraInfo>
++	</EraInfos>
++</Civ4EraInfos>
++
+
+Index: /trunk/Better BTS AI/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+--- /dev/null
++++ /trunk/Better BTS AI/Assets/XML/GameInfo/CIV4GameInfoSchema.xml@489
+@@ -0,0 +1,1356 @@
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Game Info Schema -->
++<Schema xmlns="urn:schemas-microsoft-com:xml-data" xmlns:dt="urn:schemas-microsoft-com:datatypes">
++	<ElementType name="WorldSize" content="textOnly"/>
++	<ElementType name="iDefaultPlayers" content="textOnly" dt:type="int"/>
++	<ElementType name="iUnitNameModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iTargetNumCities" content="textOnly" dt:type="int"/>
++	<ElementType name="iNumFreeBuildingBonuses" content="textOnly" dt:type="int"/>
++	<ElementType name="iBuildingClassPrereqModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iMaxConscriptModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iWarWearinessModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iGridWidth" content="textOnly" dt:type="int"/>
++	<ElementType name="iGridHeight" content="textOnly" dt:type="int"/>
++	<ElementType name="iTerrainGrainChange" content="textOnly" dt:type="int"/>
++	<ElementType name="iFeatureGrainChange" content="textOnly" dt:type="int"/>
++	<ElementType name="iResearchPercent" content="textOnly" dt:type="int"/>
++	<!-- BBAI start: effectively modify cost for all techs from an era. -->
++	<ElementType name="iTechCostModifier" content="textOnly" dt:type="int"/>
++	<!-- BBAI end -->
++	<ElementType name="iTradeProfitPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iDistanceMaintenancePercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iNumCitiesMaintenancePercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iColonyMaintenancePercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iCorporationMaintenancePercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iNumCitiesAnarchyPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iDesertPercentChange" content="textOnly" dt:type="int"/>
++	<ElementType name="iJungleLatitude" content="textOnly" dt:type="int"/>
++	<ElementType name="iHillRange" content="textOnly" dt:type="int"/>
++	<ElementType name="iPeakPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="fSnowLatitudeChange" content="textOnly"/>
++	<ElementType name="fTundraLatitudeChange" content="textOnly"/>
++	<ElementType name="fGrassLatitudeChange" content="textOnly"/>
++	<ElementType name="fDesertBottomLatitudeChange" content="textOnly"/>
++	<ElementType name="fDesertTopLatitudeChange" content="textOnly"/>
++	<ElementType name="fIceLatitude" content="textOnly"/>
++	<ElementType name="fRandIceLatitude" content="textOnly"/>
++	<ElementType name="iAdvancedStartPointsMod" content="textOnly" dt:type="int"/>
++	<ElementType name="ClimateInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="iDesertPercentChange"/>
++		<element type="iJungleLatitude"/>
++		<element type="iHillRange"/>
++		<element type="iPeakPercent"/>
++		<element type="fSnowLatitudeChange"/>
++		<element type="fTundraLatitudeChange"/>
++		<element type="fGrassLatitudeChange"/>
++		<element type="fDesertBottomLatitudeChange"/>
++		<element type="fDesertTopLatitudeChange"/>
++		<element type="fIceLatitude"/>
++		<element type="fRandIceLatitude"/>
++	</ElementType>
++	<ElementType name="iSeaLevelChange" content="textOnly" dt:type="int"/>
++	<ElementType name="SeaLevelInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="iSeaLevelChange"/>
++	</ElementType>
++	<ElementType name="WorldInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Help"/>
++		<element type="iDefaultPlayers"/>
++		<element type="iUnitNameModifier"/>
++		<element type="iTargetNumCities"/>
++		<element type="iNumFreeBuildingBonuses"/>
++		<element type="iBuildingClassPrereqModifier"/>
++		<element type="iMaxConscriptModifier"/>
++		<element type="iWarWearinessModifier"/>
++		<element type="iGridWidth"/>
++		<element type="iGridHeight"/>
++		<element type="iTerrainGrainChange"/>
++		<element type="iFeatureGrainChange"/>
++		<element type="iResearchPercent"/>
++		<element type="iTradeProfitPercent"/>
++		<element type="iDistanceMaintenancePercent"/>
++		<element type="iNumCitiesMaintenancePercent"/>
++		<element type="iColonyMaintenancePercent"/>
++		<element type="iCorporationMaintenancePercent"/>
++		<element type="iNumCitiesAnarchyPercent"/>
++		<element type="iAdvancedStartPointsMod"/>
++	</ElementType>
++	<ElementType name="WorldInfos" content="eltOnly">
++		<element type="WorldInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="ClimateInfos" content="eltOnly">
++		<element type="ClimateInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="SeaLevelInfos" content="eltOnly">
++		<element type="SeaLevelInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Description" content="textOnly"/>
++	<ElementType name="Adjective" content="textOnly"/>
++	<ElementType name="Help" content="textOnly"/>
++	<ElementType name="Strategy" content="textOnly"/>
++	<ElementType name="Civilopedia" content="textOnly"/>
++	<ElementType name="TechPrereq" content="textOnly"/>
++	<ElementType name="iProductionToCommerceModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="ProductionToCommerceModifiers" content="eltOnly">
++		<element type="iProductionToCommerceModifier" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="ProcessType" content="textOnly"/>
++	<ElementType name="Button" content="textOnly"/>
++	<ElementType name="ProcessInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Strategy"/>
++		<element type="TechPrereq"/>
++		<element type="ProductionToCommerceModifiers"/>
++		<element type="Button"/>
++	</ElementType>
++	<ElementType name="iPopulationThreshold" content="textOnly" dt:type="int"/>
++	<ElementType name="bCityVoting" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bCivVoting" content="textOnly" dt:type="boolean"/>
++	<ElementType name="iMinVoters" content="textOnly" dt:type="int"/>
++	<ElementType name="iStateReligionVotePercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iTradeRoutes" content="textOnly" dt:type="int"/>
++	<ElementType name="bSecretaryGeneral" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bVictory" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bFreeTrade" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bNoNukes" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bDefensivePact" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bOpenBorders" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bForcePeace" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bForceNoTrade" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bForceWar" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bAssignCity" content="textOnly" dt:type="boolean"/>
++	<ElementType name="CivicType" content="textOnly"/>
++	<ElementType name="bForce" content="textOnly" dt:type="boolean"/>
++	<ElementType name="ForceCivic" content="eltOnly">
++		<element type="CivicType"/>
++		<element type="bForce"/>
++	</ElementType>
++	<ElementType name="ForceCivics" content="eltOnly">
++		<element type="ForceCivic" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="DiploVoteType" content="textOnly"/>
++	<ElementType name="DiploVote" content="eltOnly">
++		<element type="DiploVoteType"/>
++		<element type="bValid"/>
++	</ElementType>
++	<ElementType name="DiploVotes" content="eltOnly">
++		<element type="DiploVote" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="VoteInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="iPopulationThreshold"/>
++		<element type="bCityVoting"/>
++		<element type="bCivVoting"/>
++		<element type="iMinVoters"/>
++		<element type="iStateReligionVotePercent"/>
++		<element type="iTradeRoutes"/>
++		<element type="bSecretaryGeneral"/>
++		<element type="bVictory"/>
++		<element type="bFreeTrade"/>
++		<element type="bNoNukes"/>
++		<element type="bDefensivePact"/>
++		<element type="bOpenBorders"/>
++		<element type="bForcePeace"/>
++		<element type="bForceNoTrade"/>
++		<element type="bForceWar"/>
++		<element type="bAssignCity"/>
++		<element type="ForceCivics"/>
++		<element type="DiploVotes"/>
++	</ElementType>
++	<ElementType name="ProcessInfos" content="eltOnly">
++		<element type="ProcessInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="VoteInfos" content="eltOnly">
++		<element type="VoteInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Type" content="textOnly"/>
++	<ElementType name="FreeUnitClass" content="textOnly"/>
++	<ElementType name="iSpreadFactor" content="textOnly" dt:type="int"/>
++	<ElementType name="iSpreadCost" content="textOnly" dt:type="int"/>
++	<ElementType name="iMaintenance" content="textOnly" dt:type="int"/>
++	<ElementType name="iGlobalReligionCommerce" content="textOnly" dt:type="int"/>
++	<ElementType name="GlobalReligionCommerces" content="eltOnly">
++		<element type="iGlobalReligionCommerce" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="iHolyCityCommerce" content="textOnly" dt:type="int"/>
++	<ElementType name="HolyCityCommerces" content="eltOnly">
++		<element type="iHolyCityCommerce" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="iStateReligionCommerce" content="textOnly" dt:type="int"/>
++	<ElementType name="StateReligionCommerces" content="eltOnly">
++		<element type="iStateReligionCommerce" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="iHeadquarterCommerce" content="textOnly" dt:type="int"/>
++	<ElementType name="HeadquarterCommerces" content="eltOnly">
++		<element type="iHeadquarterCommerce" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="iCommerceProduced" content="textOnly" dt:type="int"/>
++	<ElementType name="CommercesProduced" content="eltOnly">
++		<element type="iCommerceProduced" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="iYieldProduced" content="textOnly" dt:type="int"/>
++	<ElementType name="YieldsProduced" content="eltOnly">
++		<element type="iYieldProduced" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="BonusProduced" content="textOnly"/>
++	<ElementType name="TechButton" content="textOnly"/>
++	<ElementType name="GenericTechButton" content="textOnly"/>
++	<ElementType name="MovieFile" content="textOnly"/>
++	<ElementType name="MovieSound" content="textOnly"/>
++	<ElementType name="Sound" content="textOnly"/>
++	<ElementType name="ReligionInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Adjective"/>
++		<element type="Civilopedia"/>
++		<element type="TechPrereq"/>
++		<element type="FreeUnitClass"/>
++		<element type="iFreeUnits"/>
++		<element type="iSpreadFactor"/>
++		<element type="GlobalReligionCommerces"/>
++		<element type="HolyCityCommerces"/>
++		<element type="StateReligionCommerces"/>
++		<element type="Button"/>
++		<element type="TechButton"/>
++		<element type="GenericTechButton"/>
++		<element type="MovieFile"/>
++		<element type="MovieSound"/>
++		<element type="Sound"/>
++		<element type="iOrderPriority" minOccurs="0"/>
++	</ElementType>
++	<ElementType name="ReligionInfos" content="eltOnly">
++		<element type="ReligionInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="CorporationInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Civilopedia"/>
++		<element type="TechPrereq"/>
++		<element type="FreeUnitClass"/>
++		<element type="iSpreadFactor"/>
++		<element type="iSpreadCost"/>
++		<element type="iMaintenance"/>
++		<element type="PrereqBonuses"/>
++		<element type="HeadquarterCommerces"/>
++		<element type="BonusProduced"/>
++		<element type="CommercesProduced"/>
++		<element type="YieldsProduced"/>
++		<element type="Button"/>
++		<element type="MovieFile"/>
++		<element type="MovieSound"/>
++		<element type="Sound"/>
++		<element type="iOrderPriority" minOccurs="0"/>
++	</ElementType>
++	<ElementType name="CorporationInfos" content="eltOnly">
++		<element type="CorporationInfo" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="HintInfo" content="eltOnly">
++		<element type="Description"/>
++	</ElementType>
++	<ElementType name="HintInfos" content="eltOnly">
++		<element type="HintInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="iMonthIncrement" content="textOnly" dt:type="int"/>
++	<ElementType name="iTurnsPerIncrement" content="textOnly" dt:type="int"/>
++	<ElementType name="GameTurnInfo" content="eltOnly">
++		<element type="iMonthIncrement"/>
++		<element type="iTurnsPerIncrement"/>
++	</ElementType>
++	<ElementType name="GameTurnInfos" content="eltOnly">
++		<element type="GameTurnInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="iGold" content="textOnly" dt:type="int"/>
++	<ElementType name="iGoldRand1" content="textOnly" dt:type="int"/>
++	<ElementType name="iGoldRand2" content="textOnly" dt:type="int"/>
++	<ElementType name="iMapOffset" content="textOnly" dt:type="int"/>
++	<ElementType name="iMapRange" content="textOnly" dt:type="int"/>
++	<ElementType name="iMapProb" content="textOnly" dt:type="int"/>
++	<ElementType name="iExperience" content="textOnly" dt:type="int"/>
++	<ElementType name="iHealing" content="textOnly" dt:type="int"/>
++	<ElementType name="iDamagePrereq" content="textOnly" dt:type="int"/>
++	<ElementType name="bTech" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bBad" content="textOnly" dt:type="boolean"/>
++	<ElementType name="UnitClass" content="textOnly"/>
++	<ElementType name="BarbarianClass" content="textOnly"/>
++	<ElementType name="iBarbarianUnitProb" content="textOnly" dt:type="int"/>
++	<ElementType name="iMinBarbarians" content="textOnly" dt:type="int"/>
++	<ElementType name="GoodyInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Sound"/>
++		<element type="iGold"/>
++		<element type="iGoldRand1"/>
++		<element type="iGoldRand2"/>
++		<element type="iMapOffset"/>
++		<element type="iMapRange"/>
++		<element type="iMapProb"/>
++		<element type="iExperience"/>
++		<element type="iHealing"/>
++		<element type="iDamagePrereq"/>
++		<element type="bTech"/>
++		<element type="bBad"/>
++		<element type="UnitClass"/>
++		<element type="BarbarianClass"/>
++		<element type="iBarbarianUnitProb"/>
++		<element type="iMinBarbarians"/>
++	</ElementType>
++	<ElementType name="GoodyInfos" content="eltOnly">
++		<element type="GoodyInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Name" content="textOnly"/>
++	<ElementType name="iFreeWinsVsBarbs" content="textOnly" dt:type="int"/>
++	<ElementType name="iAnimalAttackProb" content="textOnly" dt:type="int"/>
++	<ElementType name="iStartingLocPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iFreeUnits" content="textOnly" dt:type="int"/>
++	<ElementType name="iUnitCostPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iMaxNumCitiesMaintenance" content="textOnly" dt:type="int"/>
++	<ElementType name="iMaxColonyMaintenance" content="textOnly" dt:type="int"/>
++	<ElementType name="iCivicUpkeepPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iFeatureProductionPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iUnitDiscoverPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iUnitHurryPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iUnitTradePercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iUnitGreatWorkPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iGoldenAgePercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iHurryPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iHurryConscriptAngerPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iInflationPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iHealthBonus" content="textOnly" dt:type="int"/>
++	<ElementType name="iHappyBonus" content="textOnly" dt:type="int"/>
++	<ElementType name="iAttitudeChange" content="textOnly" dt:type="int"/>
++	<ElementType name="iNoTechTradeModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iTechTradeKnownModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iUnownedTilesPerGameAnimal" content="textOnly" dt:type="int"/>
++	<ElementType name="iUnownedTilesPerBarbarianUnit" content="textOnly" dt:type="int"/>
++	<ElementType name="iUnownedWaterTilesPerBarbarianUnit" content="textOnly" dt:type="int"/>
++	<ElementType name="iUnownedTilesPerBarbarianCity" content="textOnly" dt:type="int"/>
++	<ElementType name="iBarbarianCreationTurnsElapsed" content="textOnly" dt:type="int"/>
++	<ElementType name="iBarbarianCityCreationTurnsElapsed" content="textOnly" dt:type="int"/>
++	<ElementType name="iBarbarianCityCreationProb" content="textOnly" dt:type="int"/>
++	<ElementType name="iAnimalBonus" content="textOnly" dt:type="int"/>
++	<ElementType name="iBarbarianBonus" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIAnimalBonus" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIBarbarianBonus" content="textOnly" dt:type="int"/>
++	<ElementType name="iStartingDefenseUnits" content="textOnly" dt:type="int"/>
++	<ElementType name="iStartingWorkerUnits" content="textOnly" dt:type="int"/>
++	<ElementType name="iStartingExploreUnits" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIStartingUnitMultiplier" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIStartingDefenseUnits" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIStartingWorkerUnits" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIStartingExploreUnits" content="textOnly" dt:type="int"/>
++	<ElementType name="iBarbarianDefenders" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIDeclareWarProb" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIWorkRateModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIGrowthPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iAITrainPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIWorldTrainPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIConstructPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIWorldConstructPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iAICreatePercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIWorldCreatePercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iAICivicUpkeepPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIUnitCostPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIUnitSupplyPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIUnitUpgradePercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIInflationPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIWarWearinessPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIPerEraModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIAdvancedStartPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="GoodyType" content="textOnly"/>
++	<ElementType name="Goodies" content="eltOnly">
++		<element type="GoodyType" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="TechType" content="textOnly"/>
++	<ElementType name="bFreeTech" content="textOnly" dt:type="boolean"/>
++	<ElementType name="FreeTech" content="eltOnly">
++		<element type="TechType"/>
++		<element type="bFreeTech"/>
++	</ElementType>
++	<ElementType name="FreeTechs" content="eltOnly">
++		<element type="FreeTech" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="AIFreeTechs" content="eltOnly">
++		<element type="FreeTech" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="HandicapInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Help"/>
++		<element type="iFreeWinsVsBarbs"/>
++		<element type="iAnimalAttackProb"/>
++		<element type="iStartingLocPercent"/>
++		<element type="iAdvancedStartPointsMod"/>
++		<element type="iGold"/>
++		<element type="iFreeUnits"/>
++		<element type="iUnitCostPercent"/>
++		<element type="iResearchPercent"/>
++		<element type="iDistanceMaintenancePercent"/>
++		<element type="iNumCitiesMaintenancePercent"/>
++		<element type="iMaxNumCitiesMaintenance"/>
++		<element type="iColonyMaintenancePercent"/>
++		<element type="iMaxColonyMaintenance"/>
++		<element type="iCorporationMaintenancePercent"/>
++		<element type="iCivicUpkeepPercent"/>
++		<element type="iInflationPercent"/>
++		<element type="iHealthBonus"/>
++		<element type="iHappyBonus"/>
++		<element type="iAttitudeChange"/>
++		<element type="iNoTechTradeModifier"/>
++		<element type="iTechTradeKnownModifier"/>
++		<element type="iUnownedTilesPerGameAnimal"/>
++		<element type="iUnownedTilesPerBarbarianUnit"/>
++		<element type="iUnownedWaterTilesPerBarbarianUnit"/>
++		<element type="iUnownedTilesPerBarbarianCity"/>
++		<element type="iBarbarianCreationTurnsElapsed"/>
++		<element type="iBarbarianCityCreationTurnsElapsed"/>
++		<element type="iBarbarianCityCreationProb"/>
++		<element type="iAnimalBonus"/>
++		<element type="iBarbarianBonus"/>
++		<element type="iAIAnimalBonus"/>
++		<element type="iAIBarbarianBonus"/>
++		<element type="iStartingDefenseUnits"/>
++		<element type="iStartingWorkerUnits"/>
++		<element type="iStartingExploreUnits"/>
++		<element type="iAIStartingUnitMultiplier"/>
++		<element type="iAIStartingDefenseUnits"/>
++		<element type="iAIStartingWorkerUnits"/>
++		<element type="iAIStartingExploreUnits"/>
++		<element type="iBarbarianDefenders"/>
++		<element type="iAIDeclareWarProb"/>
++		<element type="iAIWorkRateModifier"/>
++		<element type="iAIGrowthPercent"/>
++		<element type="iAITrainPercent"/>
++		<element type="iAIWorldTrainPercent"/>
++		<element type="iAIConstructPercent"/>
++		<element type="iAIWorldConstructPercent"/>
++		<element type="iAICreatePercent"/>
++		<element type="iAIWorldCreatePercent"/>
++		<element type="iAICivicUpkeepPercent"/>
++		<element type="iAIUnitCostPercent"/>
++		<element type="iAIUnitSupplyPercent"/>
++		<element type="iAIUnitUpgradePercent"/>
++		<element type="iAIInflationPercent"/>
++		<element type="iAIWarWearinessPercent"/>
++		<element type="iAIPerEraModifier"/>
++		<element type="iAIAdvancedStartPercent"/>
++		<element type="Goodies" maxOccurs="*"/>
++		<element type="FreeTechs" maxOccurs="*"/>
++		<element type="AIFreeTechs" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="HandicapInfos" content="eltOnly">
++		<element type="HandicapInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="bTargetScore" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bEndScore" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bConquest" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bDiploVote" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bPermanent" content="textOnly" dt:type="boolean"/>
++	<ElementType name="iPopulationPercentLead" content="textOnly" dt:type="int"/>
++	<ElementType name="iLandPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iMinLandPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iReligionPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="CityCulture" content="textOnly"/>
++	<ElementType name="iNumCultureCities" content="textOnly" dt:type="int"/>
++	<ElementType name="iTotalCultureRatio" content="textOnly" dt:type="int"/>
++	<ElementType name="VictoryMovie" content="textOnly"/>
++	<ElementType name="VictoryInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Civilopedia"/>
++		<element type="bTargetScore"/>
++		<element type="bEndScore"/>
++		<element type="bConquest"/>
++		<element type="bDiploVote"/>
++		<element type="bPermanent"/>
++		<element type="iPopulationPercentLead"/>
++		<element type="iLandPercent"/>
++		<element type="iMinLandPercent"/>
++		<element type="iReligionPercent"/>
++		<element type="CityCulture"/>
++		<element type="iNumCultureCities"/>
++		<element type="iTotalCultureRatio"/>
++		<element type="iVictoryDelayTurns"/>
++		<element type="VictoryMovie"/>
++	</ElementType>
++	<ElementType name="VictoryInfos" content="eltOnly">
++		<element type="VictoryInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="VictoryPrereq" content="textOnly"/>
++	<ElementType name="AnyonePrereqProject" content="textOnly"/>
++	<ElementType name="iMaxGlobalInstances" content="textOnly" dt:type="int"/>
++	<ElementType name="iMaxTeamInstances" content="textOnly" dt:type="int"/>
++	<ElementType name="iCost" content="textOnly" dt:type="int"/>
++	<ElementType name="iNukeInterception" content="textOnly" dt:type="int"/>
++	<ElementType name="iTechShare" content="textOnly" dt:type="int"/>
++	<ElementType name="EveryoneSpecialUnit" content="textOnly"/>
++	<ElementType name="EveryoneSpecialBuilding" content="textOnly"/>
++	<ElementType name="bSpaceship" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bAllowsNukes" content="textOnly" dt:type="boolean"/>
++	<ElementType name="ProjectType" content="textOnly"/>
++	<ElementType name="iNeeded" content="textOnly" dt:type="int"/>
++	<ElementType name="PrereqProject" content="eltOnly">
++		<element type="ProjectType"/>
++		<element type="iNeeded"/>
++	</ElementType>
++	<ElementType name="PrereqProjects" content="eltOnly">
++		<element type="PrereqProject" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="VictoryType" content="textOnly"/>
++	<ElementType name="iThreshold" content="textOnly" dt:type="int"/>
++	<ElementType name="VictoryThreshold" content="eltOnly">
++		<element type="VictoryType"/>
++		<element type="iThreshold"/>
++	</ElementType>
++	<ElementType name="VictoryThresholds" content="eltOnly">
++		<element type="VictoryThreshold" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="VictoryMinThreshold" content="eltOnly">
++		<element type="VictoryType"/>
++		<element type="iThreshold"/>
++	</ElementType>
++	<ElementType name="VictoryMinThresholds" content="eltOnly">
++		<element type="VictoryMinThreshold" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="iVictoryDelayTurns" content="textOnly" dt:type="int"/>
++	<ElementType name="iVictoryDelayPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iSuccessRate" content="textOnly" dt:type="int"/>
++	<ElementType name="PrereqBonuses" content="eltOnly">
++		<element type="BonusType" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="BonusType" content="textOnly"/>
++	<ElementType name="iProductonModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="BonusProductionModifier" content="eltOnly">
++		<element type="BonusType"/>
++		<element type="iProductonModifier"/>
++	</ElementType>
++	<ElementType name="BonusProductionModifiers" content="eltOnly">
++		<element type="BonusProductionModifier" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="CreateSound" content="textOnly"/>
++	<ElementType name="MovieDefineTag" content="textOnly"/>
++	<ElementType name="ProjectInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Civilopedia"/>
++		<element type="Strategy"/>
++		<element type="VictoryPrereq"/>
++		<element type="TechPrereq"/>
++		<element type="AnyonePrereqProject" minOccurs="0"/>
++		<element type="iMaxGlobalInstances"/>
++		<element type="iMaxTeamInstances"/>
++		<element type="iCost"/>
++		<element type="iNukeInterception"/>
++		<element type="iTechShare"/>
++		<element type="EveryoneSpecialUnit"/>
++		<element type="EveryoneSpecialBuilding"/>
++		<element type="bSpaceship"/>
++		<element type="bAllowsNukes"/>
++		<element type="Button"/>
++		<element type="PrereqProjects"/>
++		<element type="VictoryThresholds"/>
++		<element type="VictoryMinThresholds"/>
++		<element type="iVictoryDelayPercent"/>
++		<element type="iSuccessRate"/>
++		<element type="BonusProductionModifiers"/>
++		<element type="CreateSound"/>
++		<element type="MovieDefineTag"/>
++	</ElementType>
++	<ElementType name="ProjectInfos" content="eltOnly">
++		<element type="ProjectInfo" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="iGoldPerProduction" content="textOnly" dt:type="int"/>
++	<ElementType name="iProductionPerPopulation" content="textOnly" dt:type="int"/>
++	<ElementType name="bAnger" content="textOnly" dt:type="boolean"/>
++	<ElementType name="HurryInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="iGoldPerProduction"/>
++		<element type="iProductionPerPopulation"/>
++		<element type="bAnger"/>
++		<element type="Button"/>
++	</ElementType>
++	<ElementType name="HurryInfos" content="eltOnly">
++		<element type="HurryInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="iInitialPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iInitialHappiness" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIWeightPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="bFlexiblePercent" content="textOnly" dt:type="boolean"/>
++	<ElementType name="CommerceInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="iInitialPercent"/>
++		<element type="iInitialHappiness"/>
++		<element type="iAIWeightPercent"/>
++		<element type="bFlexiblePercent"/>
++		<element type="Button"/>
++	</ElementType>
++	<ElementType name="CommerceInfos" content="eltOnly">
++		<element type="CommerceInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="CivicOptionType" content="textOnly"/>
++	<ElementType name="CivicOptionDescription" content="textOnly"/>
++	<ElementType name="TraitType" content="textOnly"/>
++	<ElementType name="bTraitNoUpkeep" content="textOnly" dt:type="boolean"/>
++	<ElementType name="TraitNoUpkeep" content="eltOnly">
++		<element type="TraitType"/>
++		<element type="bTraitNoUpkeep"/>
++	</ElementType>
++	<ElementType name="TraitNoUpkeeps" content="eltOnly">
++		<element type="TraitNoUpkeep" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="CivicOptionInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="TraitNoUpkeeps"/>
++	</ElementType>
++	<ElementType name="CivicOptionInfos" content="eltOnly">
++		<element type="CivicOptionInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="iAnarchyLength" content="textOnly" dt:type="int"/>
++	<ElementType name="iAIWeight" content="textOnly" dt:type="int"/>
++	<ElementType name="iGreatPeopleRateModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iGreatGeneralRateModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iDomesticGreatGeneralRateModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iStateReligionGreatPeopleRateModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iDistanceMaintenanceModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iNumCitiesMaintenanceModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iCorporationMaintenanceModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iExtraHealth" content="textOnly" dt:type="int"/>
++	<ElementType name="iFreeExperience" content="textOnly" dt:type="int"/>
++	<ElementType name="iWorkerSpeedModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iImprovementUpgradeRateModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iMilitaryProductionModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iBaseFreeUnits" content="textOnly" dt:type="int"/>
++	<ElementType name="iBaseFreeMilitaryUnits" content="textOnly" dt:type="int"/>
++	<ElementType name="iFreeUnitsPopulationPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iFreeMilitaryUnitsPopulationPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iGoldPerUnit" content="textOnly" dt:type="int"/>
++	<ElementType name="iGoldPerMilitaryUnit" content="textOnly" dt:type="int"/>
++	<ElementType name="iHappyPerMilitaryUnit" content="textOnly" dt:type="int"/>
++	<ElementType name="bMilitaryFoodProduction" content="textOnly" dt:type="boolean"/>
++	<ElementType name="iMaxConscript" content="textOnly" dt:type="int"/>
++	<ElementType name="bNoUnhealthyPopulation" content="textOnly" dt:type="boolean"/>
++	<ElementType name="iExpInBorderModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="bBuildingOnlyHealthy" content="textOnly" dt:type="boolean"/>
++	<ElementType name="iLargestCityHappiness" content="textOnly" dt:type="int"/>
++	<ElementType name="iFreeSpecialist" content="textOnly" dt:type="int"/>
++	<ElementType name="bNoForeignTrade" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bNoCorporations" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bNoForeignCorporations" content="textOnly" dt:type="boolean"/>
++	<ElementType name="iCivicPercentAnger" content="textOnly" dt:type="int"/>
++	<ElementType name="bStateReligion" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bNoNonStateReligionSpread" content="textOnly" dt:type="boolean"/>
++	<ElementType name="iStateReligionHappiness" content="textOnly" dt:type="int"/>
++	<ElementType name="iNonStateReligionHappiness" content="textOnly" dt:type="int"/>
++	<ElementType name="iStateReligionUnitProductionModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iStateReligionBuildingProductionModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="iStateReligionFreeExperience" content="textOnly" dt:type="int"/>
++	<ElementType name="Upkeep" content="textOnly"/>
++	<ElementType name="iYield" content="textOnly" dt:type="int"/>
++	<ElementType name="YieldModifiers" content="eltOnly">
++		<element type="iYield" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="CapitalYieldModifiers" content="eltOnly">
++		<element type="iYield" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="TradeYieldModifiers" content="eltOnly">
++		<element type="iYield" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="iCommerce" content="textOnly" dt:type="int"/>
++	<ElementType name="CommerceModifiers" content="eltOnly">
++		<element type="iCommerce" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="CapitalCommerceModifiers" content="eltOnly">
++		<element type="iCommerce" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="SpecialistExtraCommerces" content="eltOnly">
++		<element type="iCommerce" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="HurryType" content="textOnly"/>
++	<ElementType name="bHurry" content="textOnly" dt:type="boolean"/>
++	<ElementType name="Hurry" content="eltOnly">
++		<element type="HurryType"/>
++		<element type="bHurry"/>
++	</ElementType>
++	<ElementType name="Hurrys" content="eltOnly">
++		<element type="Hurry" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="SpecialBuildingType" content="textOnly"/>
++	<ElementType name="bNotRequired" content="textOnly" dt:type="boolean"/>
++	<ElementType name="SpecialBuildingNotRequired" content="eltOnly">
++		<element type="SpecialBuildingType"/>
++		<element type="bNotRequired"/>
++	</ElementType>
++	<ElementType name="SpecialBuildingNotRequireds" content="eltOnly">
++		<element type="SpecialBuildingNotRequired" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="SpecialistType" content="textOnly"/>
++	<ElementType name="bValid" content="textOnly" dt:type="boolean"/>
++	<ElementType name="SpecialistValid" content="eltOnly">
++		<element type="SpecialistType"/>
++		<element type="bValid"/>
++	</ElementType>
++	<ElementType name="SpecialistValids" content="eltOnly">
++		<element type="SpecialistValid" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="BuildingType" content="textOnly"/>
++	<ElementType name="iHappinessChange" content="textOnly" dt:type="int"/>
++	<ElementType name="BuildingHappinessChange" content="eltOnly">
++		<element type="BuildingType"/>
++		<element type="iHappinessChange"/>
++	</ElementType>
++	<ElementType name="BuildingHappinessChanges" content="eltOnly">
++		<element type="BuildingHappinessChange" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="iHealthChange" content="textOnly" dt:type="int"/>
++	<ElementType name="BuildingHealthChange" content="eltOnly">
++		<element type="BuildingType"/>
++		<element type="iHealthChange"/>
++	</ElementType>
++	<ElementType name="BuildingHealthChanges" content="eltOnly">
++		<element type="BuildingHealthChange" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="FeatureType" content="textOnly"/>
++	<ElementType name="FeatureHappinessChange" content="eltOnly">
++		<element type="FeatureType"/>
++		<element type="iHappinessChange"/>
++	</ElementType>
++	<ElementType name="FeatureHappinessChanges" content="eltOnly">
++		<element type="FeatureHappinessChange" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="ImprovementType" content="textOnly"/>
++	<ElementType name="ImprovementYields" content="eltOnly">
++		<element type="iYield" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="ImprovementYieldChange" content="eltOnly">
++		<element type="ImprovementType"/>
++		<element type="ImprovementYields"/>
++	</ElementType>
++	<ElementType name="ImprovementYieldChanges" content="eltOnly">
++		<element type="ImprovementYieldChange" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="WeLoveTheKing" content="textOnly"/>
++	<ElementType name="CivicInfo" content="eltOnly">
++		<element type="CivicOptionType"/>
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Civilopedia"/>
++		<element type="Strategy"/>
++		<element type="Help" minOccurs="0"/>
++		<element type="Button"/>
++		<element type="TechPrereq"/>
++		<element type="iAnarchyLength"/>
++		<element type="Upkeep"/>
++		<element type="iAIWeight"/>
++		<element type="iGreatPeopleRateModifier"/>
++		<element type="iGreatGeneralRateModifier"/>
++		<element type="iDomesticGreatGeneralRateModifier"/>
++		<element type="iStateReligionGreatPeopleRateModifier"/>
++		<element type="iDistanceMaintenanceModifier"/>
++		<element type="iNumCitiesMaintenanceModifier"/>
++		<element type="iCorporationMaintenanceModifier"/>
++		<element type="iExtraHealth"/>
++		<element type="iFreeExperience"/>
++		<element type="iWorkerSpeedModifier"/>
++		<element type="iImprovementUpgradeRateModifier"/>
++		<element type="iMilitaryProductionModifier"/>
++		<element type="iBaseFreeUnits"/>
++		<element type="iBaseFreeMilitaryUnits"/>
++		<element type="iFreeUnitsPopulationPercent"/>
++		<element type="iFreeMilitaryUnitsPopulationPercent"/>
++		<element type="iGoldPerUnit"/>
++		<element type="iGoldPerMilitaryUnit"/>
++		<element type="iHappyPerMilitaryUnit"/>
++		<element type="bMilitaryFoodProduction"/>
++		<element type="iMaxConscript"/>
++		<element type="bNoUnhealthyPopulation"/>
++		<element type="iExpInBorderModifier"/>
++		<element type="bBuildingOnlyHealthy"/>
++		<element type="iLargestCityHappiness"/>
++		<element type="iWarWearinessModifier"/>
++		<element type="iFreeSpecialist"/>
++		<element type="iTradeRoutes"/>
++		<element type="bNoForeignTrade"/>
++		<element type="bNoCorporations"/>
++		<element type="bNoForeignCorporations"/>
++		<element type="iCivicPercentAnger"/>
++		<element type="bStateReligion"/>
++		<element type="bNoNonStateReligionSpread"/>
++		<element type="iStateReligionHappiness"/>
++		<element type="iNonStateReligionHappiness"/>
++		<element type="iStateReligionUnitProductionModifier"/>
++		<element type="iStateReligionBuildingProductionModifier"/>
++		<element type="iStateReligionFreeExperience"/>
++		<element type="YieldModifiers"/>
++		<element type="CapitalYieldModifiers"/>
++		<element type="TradeYieldModifiers"/>
++		<element type="CommerceModifiers"/>
++		<element type="CapitalCommerceModifiers"/>
++		<element type="SpecialistExtraCommerces"/>
++		<element type="Hurrys"/>
++		<element type="SpecialBuildingNotRequireds"/>
++		<element type="SpecialistValids"/>
++		<element type="BuildingHappinessChanges"/>
++		<element type="BuildingHealthChanges"/>
++		<element type="FeatureHappinessChanges"/>
++		<element type="ImprovementYieldChanges"/>
++		<element type="WeLoveTheKing"/>
++	</ElementType>
++	<ElementType name="CivicInfos" content="eltOnly">
++		<element type="CivicInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="iGrowthPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iTrainPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iConstructPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iCreatePercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iBuildPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iImprovementPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iGreatPeoplePercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iCulturePercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iAnarchyPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iEventChancePerTurn" content="textOnly" dt:type="int"/>
++	<ElementType name="iBarbPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iInflationOffset" content="textOnly" dt:type="int"/>
++	<ElementType name="GameSpeedInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Help"/>
++		<element type="iGrowthPercent"/>
++		<element type="iTrainPercent"/>
++		<element type="iConstructPercent"/>
++		<element type="iCreatePercent"/>
++		<element type="iResearchPercent"/>
++		<element type="iBuildPercent"/>
++		<element type="iImprovementPercent"/>
++		<element type="iGreatPeoplePercent"/>
++		<element type="iCulturePercent"/>
++		<element type="iAnarchyPercent"/>
++		<element type="iBarbPercent"/>
++		<element type="iFeatureProductionPercent"/>
++		<element type="iUnitDiscoverPercent"/>
++		<element type="iUnitHurryPercent"/>
++		<element type="iUnitTradePercent"/>
++		<element type="iUnitGreatWorkPercent"/>
++		<element type="iGoldenAgePercent"/>
++		<element type="iHurryPercent"/>
++		<element type="iHurryConscriptAngerPercent"/>
++		<element type="iInflationPercent"/>
++		<element type="iInflationOffset"/>
++		<element type="iVictoryDelayPercent"/>
++		<element type="GameTurnInfos"/>
++	</ElementType>
++	<ElementType name="GameSpeedInfos" content="eltOnly">
++		<element type="GameSpeedInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="iBaseTime" content="textOnly" dt:type="int"/>
++	<ElementType name="iCityBonus" content="textOnly" dt:type="int"/>
++	<ElementType name="iUnitBonus" content="textOnly" dt:type="int"/>
++	<ElementType name="iFirstTurnMultiplier" content="textOnly" dt:type="int"/>
++	<ElementType name="TurnTimerInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="iBaseTime"/>
++		<element type="iCityBonus"/>
++		<element type="iUnitBonus"/>
++		<element type="iFirstTurnMultiplier"/>
++	</ElementType>
++	<ElementType name="TurnTimerInfos" content="eltOnly">
++		<element type="TurnTimerInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="CursorPath" content="textOnly"/>
++	<ElementType name="CursorInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="CursorPath"/>
++	</ElementType>
++	<ElementType name="CursorInfos" content="eltOnly">
++		<element type="CursorInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="bAvoidGrowth" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bGreatPeople" content="textOnly" dt:type="boolean"/>
++	<ElementType name="EmphasizeInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Strategy"/>
++		<element type="Button"/>
++		<element type="bAvoidGrowth"/>
++		<element type="bGreatPeople"/>
++		<element type="YieldModifiers"/>
++		<element type="CommerceModifiers"/>
++	</ElementType>
++	<ElementType name="EmphasizeInfos" content="eltOnly">
++		<element type="EmphasizeInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="iPopulationPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iCityPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="UpkeepInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Strategy"/>
++		<element type="iPopulationPercent"/>
++		<element type="iCityPercent"/>
++	</ElementType>
++	<ElementType name="UpkeepInfos" content="eltOnly">
++		<element type="UpkeepInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="iCityDefenseModifier" content="textOnly" dt:type="int"/>
++	<ElementType name="GameSpeedType" content="textOnly"/>
++	<ElementType name="SpeedThreshold" content="eltOnly">
++		<element type="GameSpeedType"/>
++		<element type="iThreshold"/>
++	</ElementType>
++	<ElementType name="SpeedThresholds" content="eltOnly">
++		<element type="SpeedThreshold" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="CultureLevelInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="iCityDefenseModifier"/>
++	</ElementType>
++	<ElementType name="CultureLevelInfos" content="eltOnly">
++		<element type="CultureLevelInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Commerces" content="eltOnly">
++		<element type="iCommerce" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="FlavorType" content="textOnly"/>
++	<ElementType name="iFlavor" content="textOnly" dt:type="int"/>
++	<ElementType name="Flavor" content="eltOnly">
++		<element type="FlavorType"/>
++		<element type="iFlavor"/>
++	</ElementType>
++	<ElementType name="Flavors" content="eltOnly">
++		<element type="Flavor" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="GreatPeopleUnitClass" content="textOnly"/>
++	<ElementType name="HotKey" content="textOnly"/>
++	<ElementType name="Texture" content="textOnly"/>
++	<ElementType name="Yields" content="eltOnly">
++		<element type="iYield" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="bAltDown" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bShiftDown" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bCtrlDown" content="textOnly" dt:type="boolean"/>
++	<ElementType name="iHotKeyPriority" content="textOnly" dt:type="int"/>
++	<ElementType name="HotKeyAlt" content="textOnly"/>
++	<ElementType name="bAltDownAlt" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bShiftDownAlt" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bCtrlDownAlt" content="textOnly" dt:type="boolean"/>
++	<ElementType name="iHotKeyPriorityAlt" content="textOnly" dt:type="int"/>
++	<ElementType name="iOrderPriority" content="textOnly" dt:type="int"/>
++	<ElementType name="bVisible" content="textOnly" dt:type="boolean"/>
++	<ElementType name="iGreatPeopleRateChange" content="textOnly" dt:type="int"/>
++	<ElementType name="SpecialistInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Civilopedia"/>
++		<element type="Strategy"/>
++		<element type="Help"/>
++		<element type="Texture"/>
++		<element type="bVisible"/>
++		<element type="GreatPeopleUnitClass"/>
++		<element type="iGreatPeopleRateChange"/>
++		<element type="Yields"/>
++		<element type="Commerces"/>
++		<element type="iExperience"/>
++		<element type="Flavors"/>
++		<element type="HotKey"/>
++		<element type="bAltDown"/>
++		<element type="bShiftDown"/>
++		<element type="bCtrlDown"/>
++		<element type="iHotKeyPriority"/>
++		<element type="iOrderPriority" minOccurs="0"/>
++		<element type="Button" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="SpecialistInfos" content="eltOnly">
++		<element type="SpecialistInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="CivilizationType" content="textOnly"/>
++	<ElementType name="bCivilizationType" content="textOnly" dt:type="boolean"/>
++	<ElementType name="Civilization" content="eltOnly">
++		<element type="CivilizationType"/>
++		<element type="bCivilizationType"/>
++	</ElementType>
++	<ElementType name="Civilizations" content="eltOnly">
++		<element type="Civilization" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="LeaderType" content="textOnly"/>
++	<ElementType name="bLeaderType" content="textOnly" dt:type="boolean"/>
++	<ElementType name="Leader" content="eltOnly">
++		<element type="LeaderType"/>
++		<element type="bLeaderType"/>
++	</ElementType>
++	<ElementType name="Leaders" content="eltOnly">
++		<element type="Leader" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="AttitudeType" content="textOnly"/>
++	<ElementType name="bAttitudeType" content="textOnly" dt:type="boolean"/>
++	<ElementType name="Attitude" content="eltOnly">
++		<element type="AttitudeType"/>
++		<element type="bAttitudeType"/>
++	</ElementType>
++	<ElementType name="Attitudes" content="eltOnly">
++		<element type="Attitude" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="DiplomacyPowerType" content="textOnly"/>
++	<ElementType name="bDiplomacyPowerType" content="textOnly" dt:type="boolean"/>
++	<ElementType name="DiplomacyPower" content="eltOnly">
++		<element type="DiplomacyPowerType"/>
++		<element type="bDiplomacyPowerType"/>
++	</ElementType>
++	<ElementType name="DiplomacyPowers" content="eltOnly">
++		<element type="DiplomacyPower" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Text" content="textOnly"/>
++	<ElementType name="DiplomacyText" content="eltOnly">
++		<element type="Text" minOccurs="1" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Response" content="eltOnly">
++		<element type="Civilizations"/>
++		<element type="Leaders"/>
++		<element type="Attitudes"/>
++		<element type="DiplomacyPowers"/>
++		<element type="DiplomacyText"/>
++	</ElementType>
++	<ElementType name="Responses" content="eltOnly">
++		<element type="Response" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="DiplomacyInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Responses" minOccurs="1" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="DiplomacyInfos" content="eltOnly">
++		<element type="DiplomacyInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="bNoGoodies" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bNoAnimals" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bNoBarbUnits" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bNoBarbCities" content="textOnly" dt:type="boolean"/>
++	<ElementType name="iStartingUnitMultiplier" content="textOnly" dt:type="int"/>
++	<ElementType name="iStartingGold" content="textOnly" dt:type="int"/>
++	<ElementType name="iFreePopulation" content="textOnly" dt:type="int"/>
++	<ElementType name="iStartPercent" content="textOnly" dt:type="int"/>
++	<ElementType name="iSoundtrackSpace" content="textOnly" dt:type="int"/>
++	<ElementType name="bFirstSoundtrackFirst" content="textOnly" dt:type="boolean"/>
++	<ElementType name="EraInfoSoundtrack" content="textOnly"/>
++	<ElementType name="EraInfoSoundtracks" content="eltOnly">
++		<element type="EraInfoSoundtrack" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="SoundscapeScript" content="textOnly"/>
++	<ElementType name="CitySizeType" content="textOnly"/>
++	<ElementType name="CitySoundscape" content="eltOnly">
++		<element type="CitySizeType"/>
++		<element type="SoundscapeScript"/>
++	</ElementType>
++	<ElementType name="CitySoundscapes" content="eltOnly">
++		<element type="CitySoundscape" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="AudioUnitVictoryScript" content="textOnly"/>
++	<ElementType name="AudioUnitDefeatScript" content="textOnly"/>
++	<ElementType name="iAdvancedStartPoints" content="textOnly" dt:type="int"/>
++	<ElementType name="EraInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Strategy"/>
++		<element type="bNoGoodies"/>
++		<element type="bNoAnimals"/>
++		<element type="bNoBarbUnits"/>
++		<element type="bNoBarbCities"/>
++		<element type="iAdvancedStartPoints"/>
++		<element type="iStartingUnitMultiplier"/>
++		<element type="iStartingDefenseUnits"/>
++		<element type="iStartingWorkerUnits"/>
++		<element type="iStartingExploreUnits"/>
++		<element type="iStartingGold"/>
++		<element type="iFreePopulation"/>
++		<element type="iStartPercent"/>
++		<element type="iGrowthPercent"/>
++		<element type="iTrainPercent"/>
++		<element type="iConstructPercent"/>
++		<element type="iCreatePercent"/>
++		<element type="iResearchPercent"/>
++		<!-- BBAI start: effectively modify cost for all techs from an era. -->
++		<element type="iTechCostModifier"/>
++		<!-- BBAI end -->
++		<element type="iBuildPercent"/>
++		<element type="iImprovementPercent"/>
++		<element type="iGreatPeoplePercent"/>
++		<element type="iCulturePercent"/>
++		<element type="iAnarchyPercent"/>
++		<element type="iEventChancePerTurn"/>
++		<element type="iSoundtrackSpace"/>
++		<element type="bFirstSoundtrackFirst"/>
++		<element type="EraInfoSoundtracks"/>
++		<element type="CitySoundscapes"/>
++		<element type="AudioUnitVictoryScript"/>
++		<element type="AudioUnitDefeatScript"/>
++	</ElementType>
++	<ElementType name="EraInfos" content="eltOnly">
++		<element type="EraInfo" minOccurs="1" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="bDefault" content="textOnly" dt:type="boolean"/>
++	<ElementType name="GameOptionInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Help"/>
++		<element type="bDefault"/>
++		<element type="bVisible"/>
++	</ElementType>
++	<ElementType name="GameOptionInfos" content="eltOnly">
++		<element type="GameOptionInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="MPOptionInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Help"/>
++		<element type="bDefault"/>
++	</ElementType>
++	<ElementType name="MPOptionInfos" content="eltOnly">
++		<element type="MPOptionInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="ForceControlInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Help"/>
++		<element type="bDefault"/>
++	</ElementType>
++	<ElementType name="ForceControlInfos" content="eltOnly">
++		<element type="ForceControlInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="PlayerOptionInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Help"/>
++		<element type="bDefault"/>
++	</ElementType>
++	<ElementType name="PlayerOptionInfos" content="eltOnly">
++		<element type="PlayerOptionInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="GraphicOptionInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="Help"/>
++		<element type="bDefault"/>
++	</ElementType>
++	<ElementType name="bIsPassive" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bIsTwoPhases" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bTargetsCity" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bSelectPlot" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bSeeDemographics" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bNoActiveMissions" content="textOnly" dt:type="boolean"/>
++	<ElementType name="iVisibilityLevel" content="textOnly" dt:type="int"/>
++	<ElementType name="bDestroyImprovement" content="textOnly" dt:type="boolean"/>
++	<ElementType name="iDifficultyMod" content="textOnly" dt:type="int"/>
++	<ElementType name="bInvestigateCity" content="textOnly" dt:type="boolean"/>
++	<ElementType name="bSeeResearch" content="textOnly" dt:type="boolean"/>
++	<ElementType name="iDestroyBuildingCostFactor" content="textOnly" dt:type="int"/>
++	<ElementType name="iDestroyUnitCostFactor" content="textOnly" dt:type="int"/>
++	<ElementType name="iDestroyProjectCostFactor" content="textOnly" dt:type="int"/>
++	<ElementType name="iDestroyProductionCostFactor" content="textOnly" dt:type="int"/>
++	<ElementType name="iBuyUnitCostFactor" content="textOnly" dt:type="int"/>
++	<ElementType name="iBuyCityCostFactor" content="textOnly" dt:type="int"/>
++	<ElementType name="iStealTreasuryTypes" content="textOnly" dt:type="int"/>
++	<ElementType name="iCityInsertCultureAmountFactor" content="textOnly" dt:type="int"/>
++	<ElementType name="iCityInsertCultureCostFactor" content="textOnly" dt:type="int"/>
++	<ElementType name="iCityPoisonWaterCounter" content="textOnly" dt:type="int"/>
++	<ElementType name="iCityUnhappinessCounter" content="textOnly" dt:type="int"/>
++	<ElementType name="iCityRevoltCounter" content="textOnly" dt:type="int"/>
++	<ElementType name="iBuyTechCostFactor" content="textOnly" dt:type="int"/>
++	<ElementType name="iSwitchCivicCostFactor" content="textOnly" dt:type="int"/>
++	<ElementType name="iSwitchReligionCostFactor" content="textOnly" dt:type="int"/>
++	<ElementType name="iPlayerAnarchyCounter" content="textOnly" dt:type="int"/>
++	<ElementType name="iCounterespionageNumTurns" content="textOnly" dt:type="int"/>
++	<ElementType name="iCounterespionageMod" content="textOnly" dt:type="int"/>
++	<ElementType name="EspionageMissionInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="iCost"/>
++		<element type="bIsPassive"/>
++		<element type="bIsTwoPhases"/>
++		<element type="bTargetsCity"/>
++		<element type="bSelectPlot"/>
++		<element type="TechPrereq"/>
++		<element type="iVisibilityLevel"/>
++		<element type="bInvestigateCity"/>
++		<element type="bSeeDemographics"/>
++		<element type="bNoActiveMissions"/>
++		<element type="bSeeResearch"/>
++		<element type="bDestroyImprovement"/>
++		<element type="iDifficultyMod"/>
++		<element type="iDestroyBuildingCostFactor"/>
++		<element type="iDestroyUnitCostFactor"/>
++		<element type="iDestroyProjectCostFactor"/>
++		<element type="iDestroyProductionCostFactor"/>
++		<element type="iBuyUnitCostFactor"/>
++		<element type="iBuyCityCostFactor"/>
++		<element type="iStealTreasuryTypes"/>
++		<element type="iCityInsertCultureAmountFactor"/>
++		<element type="iCityInsertCultureCostFactor"/>
++		<element type="iCityPoisonWaterCounter"/>
++		<element type="iCityUnhappinessCounter"/>
++		<element type="iCityRevoltCounter"/>
++		<element type="iBuyTechCostFactor"/>
++		<element type="iSwitchCivicCostFactor"/>
++		<element type="iSwitchReligionCostFactor"/>
++		<element type="iPlayerAnarchyCounter"/>
++		<element type="iCounterespionageNumTurns"/>
++		<element type="iCounterespionageMod"/>
++	</ElementType>
++	<ElementType name="EspionageMissionInfos" content="eltOnly">
++		<element type="EspionageMissionInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="PopupText" content="textOnly"/>
++	<ElementType name="SecretaryGeneralText" content="textOnly"/>
++	<ElementType name="iVoteInterval" content="textOnly" dt:type="int"/>
++	<ElementType name="FreeSpecialist" content="textOnly"/>
++	<ElementType name="Civic" content="textOnly"/>
++	<ElementType name="SpecialBuilding" content="textOnly"/>
++	<ElementType name="YieldType" content="textOnly"/>
++	<ElementType name="iExtraYield" content="textOnly"/>
++	<ElementType name="ReligionYields" content="eltOnly">
++		<element type="iYield" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="ReligionCommerces" content="eltOnly">
++		<element type="iCommerce" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="VoteSourceInfo" content="eltOnly">
++		<element type="Type"/>
++		<element type="Description"/>
++		<element type="PopupText"/>
++		<element type="SecretaryGeneralText"/>
++		<element type="iVoteInterval"/>
++		<element type="FreeSpecialist"/>
++		<element type="Civic"/>
++		<element type="ReligionYields"/>
++		<element type="ReligionCommerces"/>
++	</ElementType>
++	<ElementType name="VoteSourceInfos" content="eltOnly">
++		<element type="VoteSourceInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="GraphicOptionInfos" content="eltOnly">
++		<element type="GraphicOptionInfo" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4EraInfos" content="eltOnly">
++		<element type="EraInfos" minOccurs="1" maxOccurs="1"/>
++	</ElementType>
++	<ElementType name="Civ4WorldInfo" content="eltOnly">
++		<element type="WorldInfos"/>
++	</ElementType>
++	<ElementType name="Civ4ClimateInfo" content="eltOnly">
++		<element type="ClimateInfos"/>
++	</ElementType>
++	<ElementType name="Civ4SeaLevelInfo" content="eltOnly">
++		<element type="SeaLevelInfos"/>
++	</ElementType>
++	<ElementType name="Civ4ProcessInfo" content="eltOnly">
++		<element type="ProcessInfos"/>
++	</ElementType>
++	<ElementType name="Civ4VoteInfo" content="eltOnly">
++		<element type="VoteInfos"/>
++	</ElementType>
++	<ElementType name="Civ4ReligionInfo" content="eltOnly">
++		<element type="ReligionInfos"/>
++	</ElementType>
++	<ElementType name="Civ4CorporationInfo" content="eltOnly">
++		<element type="CorporationInfos"/>
++	</ElementType>
++	<ElementType name="Civ4Hints" content="eltOnly">
++		<element type="HintInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4GameTurnInfo" content="eltOnly">
++		<element type="GameTurnInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4GoodyInfo" content="eltOnly">
++		<element type="GoodyInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4HandicapInfo" content="eltOnly">
++		<element type="HandicapInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4VictoryInfo" content="eltOnly">
++		<element type="VictoryInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4ProjectInfo" content="eltOnly">
++		<element type="ProjectInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4HurryInfo" content="eltOnly">
++		<element type="HurryInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4CommerceInfo" content="eltOnly">
++		<element type="CommerceInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4CivicOptionInfos" content="eltOnly">
++		<element type="CivicOptionInfos" minOccurs="0" maxOccurs="1"/>
++	</ElementType>
++	<ElementType name="Civ4CivicInfos" content="eltOnly">
++		<element type="CivicInfos" minOccurs="0" maxOccurs="1"/>
++	</ElementType>
++	<ElementType name="Civ4GameSpeedInfo" content="eltOnly">
++		<element type="GameSpeedInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4TurnTimerInfo" content="eltOnly">
++		<element type="TurnTimerInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4CursorInfo" content="eltOnly">
++		<element type="CursorInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4EmphasizeInfo" content="eltOnly">
++		<element type="EmphasizeInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4UpkeepInfo" content="eltOnly">
++		<element type="UpkeepInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4CultureLevelInfo" content="eltOnly">
++		<element type="CultureLevelInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4SpecialistInfos" content="eltOnly">
++		<element type="SpecialistInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4DiplomacyInfos" content="eltOnly">
++		<element type="DiplomacyInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4GameOptionInfos" content="eltOnly">
++		<element type="GameOptionInfos" minOccurs="0" maxOccurs="1"/>
++	</ElementType>
++	<ElementType name="Civ4MPOptionInfos" content="eltOnly">
++		<element type="MPOptionInfos" minOccurs="0" maxOccurs="1"/>
++	</ElementType>
++	<ElementType name="Civ4ForceControlInfos" content="eltOnly">
++		<element type="ForceControlInfos" minOccurs="0" maxOccurs="1"/>
++	</ElementType>
++	<ElementType name="Civ4PlayerOptionInfos" content="eltOnly">
++		<element type="PlayerOptionInfos" minOccurs="0" maxOccurs="1"/>
++	</ElementType>
++	<ElementType name="Civ4GraphicOptionInfos" content="eltOnly">
++		<element type="GraphicOptionInfos" minOccurs="0" maxOccurs="1"/>
++	</ElementType>
++	<ElementType name="Civ4EspionageMissionInfo" content="eltOnly">
++		<element type="EspionageMissionInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4GameInfo" content="eltOnly">
++		<element type="WorldInfos"/>
++		<element type="ClimateInfos"/>
++		<element type="SeaLevelInfos"/>
++		<element type="ProcessInfos"/>
++		<element type="ReligionInfos"/>
++		<element type="HintInfos" minOccurs="0" maxOccurs="*"/>
++		<element type="GameTurnInfos" minOccurs="0" maxOccurs="*"/>
++		<element type="GoodyInfos" minOccurs="0" maxOccurs="*"/>
++		<element type="HandicapInfos" minOccurs="0" maxOccurs="*"/>
++		<element type="HurryInfos" minOccurs="0" maxOccurs="*"/>
++		<element type="CommerceInfos" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
++	<ElementType name="Civ4VoteSourceInfos" content="eltOnly">
++		<element type="VoteSourceInfos"/>
++	</ElementType>
++</Schema>
++
+
+Index: /trunk/Better BTS AI/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+--- /dev/null
++++ /trunk/Better BTS AI/Assets/XML/GameInfo/CIV4HandicapInfo.xml@489
+@@ -0,0 +1,856 @@
++<?xml version="1.0"?>
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Handicap Infos -->
++<Civ4HandicapInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
++	<HandicapInfos>
++		<HandicapInfo>
++			<Type>HANDICAP_SETTLER</Type>
++			<Description>TXT_KEY_HANDICAP_SETTLER</Description>
++			<Help>TXT_KEY_HANDICAP_SETTLER_HELP</Help>
++			<iFreeWinsVsBarbs>5</iFreeWinsVsBarbs>
++			<iAnimalAttackProb>25</iAnimalAttackProb>
++			<iStartingLocPercent>10</iStartingLocPercent>
++			<iAdvancedStartPointsMod>150</iAdvancedStartPointsMod>
++			<iGold>0</iGold>
++			<iFreeUnits>24</iFreeUnits>
++			<iUnitCostPercent>20</iUnitCostPercent>
++			<iResearchPercent>60</iResearchPercent>
++			<iDistanceMaintenancePercent>45</iDistanceMaintenancePercent>
++			<iNumCitiesMaintenancePercent>40</iNumCitiesMaintenancePercent>
++			<iMaxNumCitiesMaintenance>4</iMaxNumCitiesMaintenance>
++			<iColonyMaintenancePercent>60</iColonyMaintenancePercent>
++			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
++			<iCorporationMaintenancePercent>60</iCorporationMaintenancePercent>
++			<iCivicUpkeepPercent>50</iCivicUpkeepPercent>
++			<iInflationPercent>60</iInflationPercent>
++			<iHealthBonus>4</iHealthBonus>
++			<iHappyBonus>6</iHappyBonus>
++			<iAttitudeChange>2</iAttitudeChange>
++			<iNoTechTradeModifier>100</iNoTechTradeModifier>
++			<iTechTradeKnownModifier>-100</iTechTradeKnownModifier>
++			<iUnownedTilesPerGameAnimal>100</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerBarbarianUnit>150</iUnownedTilesPerBarbarianUnit>
++			<iUnownedWaterTilesPerBarbarianUnit>750</iUnownedWaterTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianCity>160</iUnownedTilesPerBarbarianCity>
++			<iBarbarianCreationTurnsElapsed>50</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>55</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationProb>4</iBarbarianCityCreationProb>
++			<iAnimalBonus>-70</iAnimalBonus>
++			<iBarbarianBonus>-40</iBarbarianBonus>
++			<iAIAnimalBonus>-40</iAIAnimalBonus>
++			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
++			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingWorkerUnits>0</iStartingWorkerUnits>
++			<iStartingExploreUnits>0</iStartingExploreUnits>
++			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
++			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
++			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
++			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
++			<iBarbarianDefenders>1</iBarbarianDefenders>
++			<iAIDeclareWarProb>25</iAIDeclareWarProb>
++			<iAIWorkRateModifier>0</iAIWorkRateModifier>
++			<iAIGrowthPercent>160</iAIGrowthPercent>
++			<iAITrainPercent>160</iAITrainPercent>
++			<iAIWorldTrainPercent>160</iAIWorldTrainPercent>
++			<iAIConstructPercent>160</iAIConstructPercent>
++			<iAIWorldConstructPercent>160</iAIWorldConstructPercent>
++			<iAICreatePercent>160</iAICreatePercent>
++			<iAIWorldCreatePercent>160</iAIWorldCreatePercent>
++			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
++			<iAIUnitCostPercent>100</iAIUnitCostPercent>
++			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
++			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<iAIInflationPercent>100</iAIInflationPercent>
++			<iAIWarWearinessPercent>100</iAIWarWearinessPercent>
++			<iAIPerEraModifier>0</iAIPerEraModifier>
++			<iAIAdvancedStartPercent>100</iAIAdvancedStartPercent>
++			<Goodies>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_MAP</GoodyType>
++				<GoodyType>GOODY_SETTLER</GoodyType>
++				<GoodyType>GOODY_SETTLER</GoodyType>
++				<GoodyType>GOODY_WARRIOR</GoodyType>
++				<GoodyType>GOODY_WARRIOR</GoodyType>
++				<GoodyType>GOODY_SCOUT</GoodyType>
++				<GoodyType>GOODY_WORKER</GoodyType>
++				<GoodyType>GOODY_WORKER</GoodyType>
++				<GoodyType>GOODY_EXPERIENCE</GoodyType>
++				<GoodyType>GOODY_HEALING</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++			</Goodies>
++			<FreeTechs>
++				<FreeTech>
++					<TechType>TECH_THE_WHEEL</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<FreeTech>
++					<TechType>TECH_AGRICULTURE</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<FreeTech>
++					<TechType>TECH_MINING</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++			</FreeTechs>
++			<AIFreeTechs/>
++		</HandicapInfo>
++		<HandicapInfo>
++			<Type>HANDICAP_CHIEFTAIN</Type>
++			<Description>TXT_KEY_HANDICAP_CHIEFTAIN</Description>
++			<Help>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Help>
++			<iFreeWinsVsBarbs>4</iFreeWinsVsBarbs>
++			<iAnimalAttackProb>50</iAnimalAttackProb>
++			<iStartingLocPercent>20</iStartingLocPercent>
++			<iAdvancedStartPointsMod>130</iAdvancedStartPointsMod>
++			<iGold>0</iGold>
++			<iFreeUnits>18</iFreeUnits>
++			<iUnitCostPercent>30</iUnitCostPercent>
++			<iResearchPercent>75</iResearchPercent>
++			<iDistanceMaintenancePercent>55</iDistanceMaintenancePercent>
++			<iNumCitiesMaintenancePercent>50</iNumCitiesMaintenancePercent>
++			<iMaxNumCitiesMaintenance>4</iMaxNumCitiesMaintenance>
++			<iColonyMaintenancePercent>80</iColonyMaintenancePercent>
++			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
++			<iCorporationMaintenancePercent>80</iCorporationMaintenancePercent>
++			<iCivicUpkeepPercent>60</iCivicUpkeepPercent>
++			<iInflationPercent>70</iInflationPercent>
++			<iHealthBonus>3</iHealthBonus>
++			<iHappyBonus>5</iHappyBonus>
++			<iAttitudeChange>1</iAttitudeChange>
++			<iNoTechTradeModifier>90</iNoTechTradeModifier>
++			<iTechTradeKnownModifier>-50</iTechTradeKnownModifier>
++			<iUnownedTilesPerGameAnimal>80</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerBarbarianUnit>100</iUnownedTilesPerBarbarianUnit>
++			<iUnownedWaterTilesPerBarbarianUnit>600</iUnownedWaterTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianCity>150</iUnownedTilesPerBarbarianCity>
++			<iBarbarianCreationTurnsElapsed>45</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>50</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationProb>5</iBarbarianCityCreationProb>
++			<iAnimalBonus>-60</iAnimalBonus>
++			<iBarbarianBonus>-30</iBarbarianBonus>
++			<iAIAnimalBonus>-40</iAIAnimalBonus>
++			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
++			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingWorkerUnits>0</iStartingWorkerUnits>
++			<iStartingExploreUnits>0</iStartingExploreUnits>
++			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
++			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
++			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
++			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
++			<iBarbarianDefenders>1</iBarbarianDefenders>
++			<iAIDeclareWarProb>50</iAIDeclareWarProb>
++			<iAIWorkRateModifier>0</iAIWorkRateModifier>
++			<iAIGrowthPercent>130</iAIGrowthPercent>
++			<iAITrainPercent>130</iAITrainPercent>
++			<iAIWorldTrainPercent>130</iAIWorldTrainPercent>
++			<iAIConstructPercent>130</iAIConstructPercent>
++			<iAIWorldConstructPercent>130</iAIWorldConstructPercent>
++			<iAICreatePercent>130</iAICreatePercent>
++			<iAIWorldCreatePercent>130</iAIWorldCreatePercent>
++			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
++			<iAIUnitCostPercent>100</iAIUnitCostPercent>
++			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
++			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<iAIInflationPercent>90</iAIInflationPercent>
++			<iAIWarWearinessPercent>90</iAIWarWearinessPercent>
++			<iAIPerEraModifier>0</iAIPerEraModifier>
++			<iAIAdvancedStartPercent>100</iAIAdvancedStartPercent>
++			<Goodies>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_MAP</GoodyType>
++				<GoodyType>GOODY_SETTLER</GoodyType>
++				<GoodyType>GOODY_SETTLER</GoodyType>
++				<GoodyType>GOODY_WARRIOR</GoodyType>
++				<GoodyType>GOODY_WARRIOR</GoodyType>
++				<GoodyType>GOODY_SCOUT</GoodyType>
++				<GoodyType>GOODY_WORKER</GoodyType>
++				<GoodyType>GOODY_WORKER</GoodyType>
++				<GoodyType>GOODY_EXPERIENCE</GoodyType>
++				<GoodyType>GOODY_HEALING</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++			</Goodies>
++			<FreeTechs>
++				<FreeTech>
++					<TechType>TECH_THE_WHEEL</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<FreeTech>
++					<TechType>TECH_AGRICULTURE</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++			</FreeTechs>
++			<AIFreeTechs/>
++		</HandicapInfo>
++		<HandicapInfo>
++			<Type>HANDICAP_WARLORD</Type>
++			<Description>TXT_KEY_HANDICAP_WARLORD</Description>
++			<Help>TXT_KEY_HANDICAP_WARLORD_HELP</Help>
++			<iFreeWinsVsBarbs>3</iFreeWinsVsBarbs>
++			<iAnimalAttackProb>75</iAnimalAttackProb>
++			<iStartingLocPercent>30</iStartingLocPercent>
++			<iAdvancedStartPointsMod>110</iAdvancedStartPointsMod>
++			<iGold>0</iGold>
++			<iFreeUnits>12</iFreeUnits>
++			<iUnitCostPercent>40</iUnitCostPercent>
++			<iResearchPercent>90</iResearchPercent>
++			<iDistanceMaintenancePercent>65</iDistanceMaintenancePercent>
++			<iNumCitiesMaintenancePercent>60</iNumCitiesMaintenancePercent>
++			<iMaxNumCitiesMaintenance>5</iMaxNumCitiesMaintenance>
++			<iColonyMaintenancePercent>90</iColonyMaintenancePercent>
++			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
++			<iCorporationMaintenancePercent>90</iCorporationMaintenancePercent>
++			<iCivicUpkeepPercent>70</iCivicUpkeepPercent>
++			<iInflationPercent>80</iInflationPercent>
++			<iHealthBonus>2</iHealthBonus>
++			<iHappyBonus>4</iHappyBonus>
++			<iAttitudeChange>0</iAttitudeChange>
++			<iNoTechTradeModifier>80</iNoTechTradeModifier>
++			<iTechTradeKnownModifier>-25</iTechTradeKnownModifier>
++			<iUnownedTilesPerGameAnimal>60</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerBarbarianUnit>80</iUnownedTilesPerBarbarianUnit>
++			<iUnownedWaterTilesPerBarbarianUnit>550</iUnownedWaterTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianCity>140</iUnownedTilesPerBarbarianCity>
++			<iBarbarianCreationTurnsElapsed>40</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>45</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationProb>5</iBarbarianCityCreationProb>
++			<iAnimalBonus>-50</iAnimalBonus>
++			<iBarbarianBonus>-20</iBarbarianBonus>
++			<iAIAnimalBonus>-40</iAIAnimalBonus>
++			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
++			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingWorkerUnits>0</iStartingWorkerUnits>
++			<iStartingExploreUnits>0</iStartingExploreUnits>
++			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
++			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
++			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
++			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
++			<iBarbarianDefenders>1</iBarbarianDefenders>
++			<iAIDeclareWarProb>75</iAIDeclareWarProb>
++			<iAIWorkRateModifier>0</iAIWorkRateModifier>
++			<iAIGrowthPercent>110</iAIGrowthPercent>
++			<iAITrainPercent>110</iAITrainPercent>
++			<iAIWorldTrainPercent>110</iAIWorldTrainPercent>
++			<iAIConstructPercent>110</iAIConstructPercent>
++			<iAIWorldConstructPercent>110</iAIWorldConstructPercent>
++			<iAICreatePercent>110</iAICreatePercent>
++			<iAIWorldCreatePercent>110</iAIWorldCreatePercent>
++			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
++			<iAIUnitCostPercent>100</iAIUnitCostPercent>
++			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
++			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<iAIInflationPercent>80</iAIInflationPercent>
++			<iAIWarWearinessPercent>80</iAIWarWearinessPercent>
++			<iAIPerEraModifier>0</iAIPerEraModifier>
++			<iAIAdvancedStartPercent>100</iAIAdvancedStartPercent>
++			<Goodies>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_MAP</GoodyType>
++				<GoodyType>GOODY_MAP</GoodyType>
++				<GoodyType>GOODY_SETTLER</GoodyType>
++				<GoodyType>GOODY_WARRIOR</GoodyType>
++				<GoodyType>GOODY_WARRIOR</GoodyType>
++				<GoodyType>GOODY_SCOUT</GoodyType>
++				<GoodyType>GOODY_WORKER</GoodyType>
++				<GoodyType>GOODY_EXPERIENCE</GoodyType>
++				<GoodyType>GOODY_HEALING</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++			</Goodies>
++			<FreeTechs>
++				<FreeTech>
++					<TechType>TECH_THE_WHEEL</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++			</FreeTechs>
++			<AIFreeTechs/>
++		</HandicapInfo>
++		<HandicapInfo>
++			<Type>HANDICAP_NOBLE</Type>
++			<Description>TXT_KEY_HANDICAP_NOBLE</Description>
++			<Help>TXT_KEY_HANDICAP_NOBLE_HELP</Help>
++			<iFreeWinsVsBarbs>2</iFreeWinsVsBarbs>
++			<iAnimalAttackProb>85</iAnimalAttackProb>
++			<iStartingLocPercent>40</iStartingLocPercent>
++			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
++			<iGold>0</iGold>
++			<iFreeUnits>8</iFreeUnits>
++			<iUnitCostPercent>50</iUnitCostPercent>
++			<iResearchPercent>100</iResearchPercent>
++			<iDistanceMaintenancePercent>75</iDistanceMaintenancePercent>
++			<iNumCitiesMaintenancePercent>70</iNumCitiesMaintenancePercent>
++			<iMaxNumCitiesMaintenance>5</iMaxNumCitiesMaintenance>
++			<iColonyMaintenancePercent>100</iColonyMaintenancePercent>
++			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
++			<iCorporationMaintenancePercent>100</iCorporationMaintenancePercent>
++			<iCivicUpkeepPercent>80</iCivicUpkeepPercent>
++			<iInflationPercent>90</iInflationPercent>
++			<iHealthBonus>2</iHealthBonus>
++			<iHappyBonus>4</iHappyBonus>
++			<iAttitudeChange>-1</iAttitudeChange>
++			<iNoTechTradeModifier>70</iNoTechTradeModifier>
++			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
++			<iUnownedTilesPerGameAnimal>50</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerBarbarianUnit>60</iUnownedTilesPerBarbarianUnit>
++			<iUnownedWaterTilesPerBarbarianUnit>500</iUnownedWaterTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianCity>130</iUnownedTilesPerBarbarianCity>
++			<iBarbarianCreationTurnsElapsed>35</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>40</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationProb>6</iBarbarianCityCreationProb>
++			<iAnimalBonus>-40</iAnimalBonus>
++			<iBarbarianBonus>-10</iBarbarianBonus>
++			<iAIAnimalBonus>-40</iAIAnimalBonus>
++			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
++			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingWorkerUnits>0</iStartingWorkerUnits>
++			<iStartingExploreUnits>0</iStartingExploreUnits>
++			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
++			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
++			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
++			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
++			<iBarbarianDefenders>2</iBarbarianDefenders>
++			<iAIDeclareWarProb>100</iAIDeclareWarProb>
++			<iAIWorkRateModifier>0</iAIWorkRateModifier>
++			<iAIGrowthPercent>100</iAIGrowthPercent>
++			<iAITrainPercent>100</iAITrainPercent>
++			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
++			<iAIConstructPercent>100</iAIConstructPercent>
++			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
++			<iAICreatePercent>100</iAICreatePercent>
++			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
++			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
++			<iAIUnitCostPercent>100</iAIUnitCostPercent>
++			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
++			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<iAIInflationPercent>80</iAIInflationPercent>
++			<iAIWarWearinessPercent>80</iAIWarWearinessPercent>
++			<iAIPerEraModifier>0</iAIPerEraModifier>
++			<iAIAdvancedStartPercent>100</iAIAdvancedStartPercent>
++			<Goodies>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_MAP</GoodyType>
++				<GoodyType>GOODY_MAP</GoodyType>
++				<GoodyType>GOODY_WARRIOR</GoodyType>
++				<GoodyType>GOODY_WARRIOR</GoodyType>
++				<GoodyType>GOODY_SCOUT</GoodyType>
++				<GoodyType>GOODY_EXPERIENCE</GoodyType>
++				<GoodyType>GOODY_EXPERIENCE</GoodyType>
++				<GoodyType>GOODY_HEALING</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++			</Goodies>
++			<FreeTechs/>
++			<AIFreeTechs/>
++		</HandicapInfo>
++		<HandicapInfo>
++			<Type>HANDICAP_PRINCE</Type>
++			<Description>TXT_KEY_HANDICAP_PRINCE</Description>
++			<Help>TXT_KEY_HANDICAP_PRINCE_HELP</Help>
++			<iFreeWinsVsBarbs>1</iFreeWinsVsBarbs>
++			<iAnimalAttackProb>90</iAnimalAttackProb>
++			<iStartingLocPercent>50</iStartingLocPercent>
++			<iAdvancedStartPointsMod>95</iAdvancedStartPointsMod>
++			<iGold>0</iGold>
++			<iFreeUnits>6</iFreeUnits>
++			<iUnitCostPercent>60</iUnitCostPercent>
++			<iResearchPercent>110</iResearchPercent>
++			<iDistanceMaintenancePercent>85</iDistanceMaintenancePercent>
++			<iNumCitiesMaintenancePercent>80</iNumCitiesMaintenancePercent>
++			<iMaxNumCitiesMaintenance>6</iMaxNumCitiesMaintenance>
++			<iColonyMaintenancePercent>110</iColonyMaintenancePercent>
++			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
++			<iCorporationMaintenancePercent>110</iCorporationMaintenancePercent>
++			<iCivicUpkeepPercent>90</iCivicUpkeepPercent>
++			<iInflationPercent>95</iInflationPercent>
++			<iHealthBonus>2</iHealthBonus>
++			<iHappyBonus>4</iHappyBonus>
++			<iAttitudeChange>-1</iAttitudeChange>
++			<iNoTechTradeModifier>60</iNoTechTradeModifier>
++			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
++			<iUnownedTilesPerGameAnimal>40</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerBarbarianUnit>50</iUnownedTilesPerBarbarianUnit>
++			<iUnownedWaterTilesPerBarbarianUnit>450</iUnownedWaterTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianCity>120</iUnownedTilesPerBarbarianCity>
++			<iBarbarianCreationTurnsElapsed>30</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>35</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationProb>6</iBarbarianCityCreationProb>
++			<iAnimalBonus>-30</iAnimalBonus>
++			<iBarbarianBonus>-5</iBarbarianBonus>
++			<iAIAnimalBonus>-40</iAIAnimalBonus>
++			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
++			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingWorkerUnits>0</iStartingWorkerUnits>
++			<iStartingExploreUnits>0</iStartingExploreUnits>
++			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
++			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
++			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
++			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
++			<iBarbarianDefenders>2</iBarbarianDefenders>
++			<iAIDeclareWarProb>100</iAIDeclareWarProb>
++			<iAIWorkRateModifier>10</iAIWorkRateModifier>
++			<iAIGrowthPercent>100</iAIGrowthPercent>
++			<iAITrainPercent>95</iAITrainPercent>
++			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
++			<iAIConstructPercent>95</iAIConstructPercent>
++			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
++			<iAICreatePercent>95</iAICreatePercent>
++			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
++			<iAICivicUpkeepPercent>95</iAICivicUpkeepPercent>
++			<iAIUnitCostPercent>95</iAIUnitCostPercent>
++			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
++			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<iAIInflationPercent>80</iAIInflationPercent>
++			<iAIWarWearinessPercent>80</iAIWarWearinessPercent>
++			<iAIPerEraModifier>-1</iAIPerEraModifier>
++			<iAIAdvancedStartPercent>110</iAIAdvancedStartPercent>
++			<Goodies>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_MAP</GoodyType>
++				<GoodyType>GOODY_MAP</GoodyType>
++				<GoodyType>GOODY_WARRIOR</GoodyType>
++				<GoodyType>GOODY_WARRIOR</GoodyType>
++				<GoodyType>GOODY_SCOUT</GoodyType>
++				<GoodyType>GOODY_EXPERIENCE</GoodyType>
++				<GoodyType>GOODY_EXPERIENCE</GoodyType>
++				<GoodyType>GOODY_HEALING</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++			</Goodies>
++			<FreeTechs/>
++			<AIFreeTechs/>
++		</HandicapInfo>
++		<HandicapInfo>
++			<Type>HANDICAP_MONARCH</Type>
++			<Description>TXT_KEY_HANDICAP_MONARCH</Description>
++			<Help>TXT_KEY_HANDICAP_MONARCH_HELP</Help>
++			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
++			<iAnimalAttackProb>90</iAnimalAttackProb>
++			<iStartingLocPercent>60</iStartingLocPercent>
++			<iAdvancedStartPointsMod>90</iAdvancedStartPointsMod>
++			<iGold>0</iGold>
++			<iFreeUnits>4</iFreeUnits>
++			<iUnitCostPercent>70</iUnitCostPercent>
++			<iResearchPercent>115</iResearchPercent>
++			<iDistanceMaintenancePercent>90</iDistanceMaintenancePercent>
++			<iNumCitiesMaintenancePercent>85</iNumCitiesMaintenancePercent>
++			<iMaxNumCitiesMaintenance>6</iMaxNumCitiesMaintenance>
++			<iColonyMaintenancePercent>120</iColonyMaintenancePercent>
++			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
++			<iCorporationMaintenancePercent>120</iCorporationMaintenancePercent>
++			<iCivicUpkeepPercent>95</iCivicUpkeepPercent>
++			<iInflationPercent>100</iInflationPercent>
++			<iHealthBonus>2</iHealthBonus>
++			<iHappyBonus>4</iHappyBonus>
++			<iAttitudeChange>-1</iAttitudeChange>
++			<iNoTechTradeModifier>50</iNoTechTradeModifier>
++			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
++			<iUnownedTilesPerGameAnimal>35</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerBarbarianUnit>40</iUnownedTilesPerBarbarianUnit>
++			<iUnownedWaterTilesPerBarbarianUnit>400</iUnownedWaterTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianCity>110</iUnownedTilesPerBarbarianCity>
++			<iBarbarianCreationTurnsElapsed>25</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>30</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationProb>7</iBarbarianCityCreationProb>
++			<iAnimalBonus>-20</iAnimalBonus>
++			<iBarbarianBonus>0</iBarbarianBonus>
++			<iAIAnimalBonus>-40</iAIAnimalBonus>
++			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
++			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingWorkerUnits>0</iStartingWorkerUnits>
++			<iStartingExploreUnits>0</iStartingExploreUnits>
++			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
++			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
++			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
++			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
++			<iBarbarianDefenders>3</iBarbarianDefenders>
++			<iAIDeclareWarProb>100</iAIDeclareWarProb>
++			<iAIWorkRateModifier>20</iAIWorkRateModifier>
++			<iAIGrowthPercent>95</iAIGrowthPercent>
++			<iAITrainPercent>90</iAITrainPercent>
++			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
++			<iAIConstructPercent>90</iAIConstructPercent>
++			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
++			<iAICreatePercent>90</iAICreatePercent>
++			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
++			<iAICivicUpkeepPercent>90</iAICivicUpkeepPercent>
++			<iAIUnitCostPercent>90</iAIUnitCostPercent>
++			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
++			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<iAIInflationPercent>80</iAIInflationPercent>
++			<iAIWarWearinessPercent>75</iAIWarWearinessPercent>
++			<iAIPerEraModifier>-2</iAIPerEraModifier>
++			<iAIAdvancedStartPercent>120</iAIAdvancedStartPercent>
++			<Goodies>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_MAP</GoodyType>
++				<GoodyType>GOODY_MAP</GoodyType>
++				<GoodyType>GOODY_WARRIOR</GoodyType>
++				<GoodyType>GOODY_WARRIOR</GoodyType>
++				<GoodyType>GOODY_SCOUT</GoodyType>
++				<GoodyType>GOODY_EXPERIENCE</GoodyType>
++				<GoodyType>GOODY_EXPERIENCE</GoodyType>
++				<GoodyType>GOODY_HEALING</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++			</Goodies>
++			<FreeTechs/>
++			<AIFreeTechs>
++				<FreeTech>
++					<TechType>TECH_ARCHERY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++			</AIFreeTechs>
++		</HandicapInfo>
++		<HandicapInfo>
++			<Type>HANDICAP_EMPEROR</Type>
++			<Description>TXT_KEY_HANDICAP_EMPEROR</Description>
++			<Help>TXT_KEY_HANDICAP_EMPEROR_HELP</Help>
++			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
++			<iAnimalAttackProb>90</iAnimalAttackProb>
++			<iStartingLocPercent>70</iStartingLocPercent>
++			<iAdvancedStartPointsMod>85</iAdvancedStartPointsMod>
++			<iGold>0</iGold>
++			<iFreeUnits>3</iFreeUnits>
++			<iUnitCostPercent>80</iUnitCostPercent>
++			<iResearchPercent>120</iResearchPercent>
++			<iDistanceMaintenancePercent>95</iDistanceMaintenancePercent>
++			<iNumCitiesMaintenancePercent>90</iNumCitiesMaintenancePercent>
++			<iMaxNumCitiesMaintenance>7</iMaxNumCitiesMaintenance>
++			<iColonyMaintenancePercent>130</iColonyMaintenancePercent>
++			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
++			<iCorporationMaintenancePercent>130</iCorporationMaintenancePercent>
++			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
++			<iInflationPercent>100</iInflationPercent>
++			<iHealthBonus>2</iHealthBonus>
++			<iHappyBonus>4</iHappyBonus>
++			<iAttitudeChange>-1</iAttitudeChange>
++			<iNoTechTradeModifier>40</iNoTechTradeModifier>
++			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
++			<iUnownedTilesPerGameAnimal>30</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerBarbarianUnit>35</iUnownedTilesPerBarbarianUnit>
++			<iUnownedWaterTilesPerBarbarianUnit>350</iUnownedWaterTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianCity>100</iUnownedTilesPerBarbarianCity>
++			<iBarbarianCreationTurnsElapsed>20</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>25</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationProb>7</iBarbarianCityCreationProb>
++			<iAnimalBonus>-10</iAnimalBonus>
++			<iBarbarianBonus>0</iBarbarianBonus>
++			<iAIAnimalBonus>-40</iAIAnimalBonus>
++			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
++			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingWorkerUnits>0</iStartingWorkerUnits>
++			<iStartingExploreUnits>0</iStartingExploreUnits>
++			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
++			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
++			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
++			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
++			<iBarbarianDefenders>3</iBarbarianDefenders>
++			<iAIDeclareWarProb>100</iAIDeclareWarProb>
++			<iAIWorkRateModifier>50</iAIWorkRateModifier>
++			<iAIGrowthPercent>90</iAIGrowthPercent>
++			<iAITrainPercent>85</iAITrainPercent>
++			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
++			<iAIConstructPercent>85</iAIConstructPercent>
++			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
++			<iAICreatePercent>85</iAICreatePercent>
++			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
++			<iAICivicUpkeepPercent>85</iAICivicUpkeepPercent>
++			<iAIUnitCostPercent>85</iAIUnitCostPercent>
++			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
++			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<iAIInflationPercent>80</iAIInflationPercent>
++			<iAIWarWearinessPercent>70</iAIWarWearinessPercent>
++			<iAIPerEraModifier>-3</iAIPerEraModifier>
++			<iAIAdvancedStartPercent>135</iAIAdvancedStartPercent>
++			<Goodies>
++				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_MAP</GoodyType>
++				<GoodyType>GOODY_MAP</GoodyType>
++				<GoodyType>GOODY_WARRIOR</GoodyType>
++				<GoodyType>GOODY_SCOUT</GoodyType>
++				<GoodyType>GOODY_EXPERIENCE</GoodyType>
++				<GoodyType>GOODY_HEALING</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++			</Goodies>
++			<FreeTechs/>
++			<AIFreeTechs>
++				<FreeTech>
++					<TechType>TECH_HUNTING</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<FreeTech>
++					<TechType>TECH_ARCHERY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++			</AIFreeTechs>
++		</HandicapInfo>
++		<HandicapInfo>
++			<Type>HANDICAP_IMMORTAL</Type>
++			<Description>TXT_KEY_HANDICAP_IMMORTAL</Description>
++			<Help>TXT_KEY_HANDICAP_IMMORTAL_HELP</Help>
++			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
++			<iAnimalAttackProb>90</iAnimalAttackProb>
++			<iStartingLocPercent>80</iStartingLocPercent>
++			<iAdvancedStartPointsMod>80</iAdvancedStartPointsMod>
++			<iGold>0</iGold>
++			<iFreeUnits>2</iFreeUnits>
++			<iUnitCostPercent>90</iUnitCostPercent>
++			<iResearchPercent>125</iResearchPercent>
++			<iDistanceMaintenancePercent>100</iDistanceMaintenancePercent>
++			<iNumCitiesMaintenancePercent>95</iNumCitiesMaintenancePercent>
++			<iMaxNumCitiesMaintenance>7</iMaxNumCitiesMaintenance>
++			<iColonyMaintenancePercent>140</iColonyMaintenancePercent>
++			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
++			<iCorporationMaintenancePercent>140</iCorporationMaintenancePercent>
++			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
++			<iInflationPercent>100</iInflationPercent>
++			<iHealthBonus>2</iHealthBonus>
++			<iHappyBonus>4</iHappyBonus>
++			<iAttitudeChange>-1</iAttitudeChange>
++			<iNoTechTradeModifier>30</iNoTechTradeModifier>
++			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
++			<iUnownedTilesPerGameAnimal>25</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerBarbarianUnit>30</iUnownedTilesPerBarbarianUnit>
++			<iUnownedWaterTilesPerBarbarianUnit>300</iUnownedWaterTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianCity>90</iUnownedTilesPerBarbarianCity>
++			<iBarbarianCreationTurnsElapsed>15</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>20</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationProb>8</iBarbarianCityCreationProb>
++			<iAnimalBonus>-5</iAnimalBonus>
++			<iBarbarianBonus>0</iBarbarianBonus>
++			<iAIAnimalBonus>-40</iAIAnimalBonus>
++			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
++			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingWorkerUnits>0</iStartingWorkerUnits>
++			<iStartingExploreUnits>0</iStartingExploreUnits>
++			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
++			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
++			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
++			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
++			<iBarbarianDefenders>4</iBarbarianDefenders>
++			<iAIDeclareWarProb>100</iAIDeclareWarProb>
++			<iAIWorkRateModifier>75</iAIWorkRateModifier>
++			<iAIGrowthPercent>85</iAIGrowthPercent>
++			<iAITrainPercent>80</iAITrainPercent>
++			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
++			<iAIConstructPercent>80</iAIConstructPercent>
++			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
++			<iAICreatePercent>80</iAICreatePercent>
++			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
++			<iAICivicUpkeepPercent>80</iAICivicUpkeepPercent>
++			<iAIUnitCostPercent>80</iAIUnitCostPercent>
++			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
++			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<iAIInflationPercent>80</iAIInflationPercent>
++			<iAIWarWearinessPercent>60</iAIWarWearinessPercent>
++			<iAIPerEraModifier>-4</iAIPerEraModifier>
++			<iAIAdvancedStartPercent>150</iAIAdvancedStartPercent>
++			<Goodies>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_MAP</GoodyType>
++				<GoodyType>GOODY_MAP</GoodyType>
++				<GoodyType>GOODY_WARRIOR</GoodyType>
++				<GoodyType>GOODY_SCOUT</GoodyType>
++				<GoodyType>GOODY_EXPERIENCE</GoodyType>
++				<GoodyType>GOODY_HEALING</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++			</Goodies>
++			<FreeTechs/>
++			<AIFreeTechs>
++				<FreeTech>
++					<TechType>TECH_AGRICULTURE</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<FreeTech>
++					<TechType>TECH_HUNTING</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<FreeTech>
++					<TechType>TECH_ARCHERY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++			</AIFreeTechs>
++		</HandicapInfo>
++		<HandicapInfo>
++			<Type>HANDICAP_DEITY</Type>
++			<Description>TXT_KEY_HANDICAP_DEITY</Description>
++			<Help>TXT_KEY_HANDICAP_DEITY_HELP</Help>
++			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
++			<iAnimalAttackProb>90</iAnimalAttackProb>
++			<iStartingLocPercent>90</iStartingLocPercent>
++			<iAdvancedStartPointsMod>75</iAdvancedStartPointsMod>
++			<iGold>0</iGold>
++			<iFreeUnits>1</iFreeUnits>
++			<iUnitCostPercent>100</iUnitCostPercent>
++			<iResearchPercent>130</iResearchPercent>
++			<iDistanceMaintenancePercent>100</iDistanceMaintenancePercent>
++			<iNumCitiesMaintenancePercent>100</iNumCitiesMaintenancePercent>
++			<iMaxNumCitiesMaintenance>8</iMaxNumCitiesMaintenance>
++			<iColonyMaintenancePercent>150</iColonyMaintenancePercent>
++			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
++			<iCorporationMaintenancePercent>150</iCorporationMaintenancePercent>
++			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
++			<iInflationPercent>100</iInflationPercent>
++			<iHealthBonus>2</iHealthBonus>
++			<iHappyBonus>4</iHappyBonus>
++			<iAttitudeChange>-1</iAttitudeChange>
++			<iNoTechTradeModifier>20</iNoTechTradeModifier>
++			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
++			<iUnownedTilesPerGameAnimal>20</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerBarbarianUnit>25</iUnownedTilesPerBarbarianUnit>
++			<iUnownedWaterTilesPerBarbarianUnit>250</iUnownedWaterTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianCity>80</iUnownedTilesPerBarbarianCity>
++			<iBarbarianCreationTurnsElapsed>10</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>15</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationProb>8</iBarbarianCityCreationProb>
++			<iAnimalBonus>0</iAnimalBonus>
++			<iBarbarianBonus>0</iBarbarianBonus>
++			<iAIAnimalBonus>-40</iAIAnimalBonus>
++			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
++			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingWorkerUnits>0</iStartingWorkerUnits>
++			<iStartingExploreUnits>0</iStartingExploreUnits>
++			<iAIStartingUnitMultiplier>1</iAIStartingUnitMultiplier>
++			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
++			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
++			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
++			<iBarbarianDefenders>4</iBarbarianDefenders>
++			<iAIDeclareWarProb>100</iAIDeclareWarProb>
++			<iAIWorkRateModifier>100</iAIWorkRateModifier>
++			<iAIGrowthPercent>80</iAIGrowthPercent>
++			<iAITrainPercent>60</iAITrainPercent>
++			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
++			<iAIConstructPercent>60</iAIConstructPercent>
++			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
++			<iAICreatePercent>60</iAICreatePercent>
++			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
++			<iAICivicUpkeepPercent>60</iAICivicUpkeepPercent>
++			<iAIUnitCostPercent>60</iAIUnitCostPercent>
++			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
++			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<iAIInflationPercent>80</iAIInflationPercent>
++			<iAIWarWearinessPercent>50</iAIWarWearinessPercent>
++			<iAIPerEraModifier>-5</iAIPerEraModifier>
++			<iAIAdvancedStartPercent>170</iAIAdvancedStartPercent>
++			<Goodies>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
++				<GoodyType>GOODY_MAP</GoodyType>
++				<GoodyType>GOODY_WARRIOR</GoodyType>
++				<GoodyType>GOODY_SCOUT</GoodyType>
++				<GoodyType>GOODY_EXPERIENCE</GoodyType>
++				<GoodyType>GOODY_HEALING</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++			</Goodies>
++			<FreeTechs/>
++			<AIFreeTechs>
++				<FreeTech>
++					<TechType>TECH_THE_WHEEL</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<FreeTech>
++					<TechType>TECH_AGRICULTURE</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<FreeTech>
++					<TechType>TECH_HUNTING</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<FreeTech>
++					<TechType>TECH_ARCHERY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++			</AIFreeTechs>
++		</HandicapInfo>
++	</HandicapInfos>
++</Civ4HandicapInfo>
++
+
+Index: /trunk/Better BTS AI/Assets/XML/GlobalDefinesAlt.xml
+--- /trunk/Better BTS AI/Assets/XML/GlobalDefinesAlt.xml@488
++++ /trunk/Better BTS AI/Assets/XML/GlobalDefinesAlt.xml@489
+@@ -29,7 +29,7 @@
+ 		Tech Diffusion modifies this to take into account relationships, so tech diffuses fastest through open borders. 
+ 		In addition, it enables a kind of tech welfare to keep the civs who are far behind technologically relevant. -->
+ 		<DefineName>TECH_DIFFUSION_ENABLE</DefineName>
+-		<iDefineIntVal>1</iDefineIntVal>
++		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Tech Diffusion: Power of research rate increase based on number of teams you know who already know the tech you're researching. -->
+@@ -42,22 +42,23 @@
+ 		<iDefineIntVal>88</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+-		<!-- Tech Diffusion: Power of tech welfare assitance.  Default: 30 -->
++		<!-- Tech Diffusion: Power of tech welfare assitance.  BBAI default: 30, for plain BTS: 0 -->
+ 		<DefineName>TECH_DIFFUSION_WELFARE_MODIFIER</DefineName>
+ 		<iDefineIntVal>30</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+-		<!-- Research rate boost for knowing first OR tech prereq.  In vanilla BTS this is effectively 20, reduced to slow tech rate.  Default: 10 -->
++		<!-- Research rate boost for knowing first OR tech prereq.  In vanilla BTS this is effectively 20, reducing the cost of most techs on the tech tree.  BBAI default: 20, for plain BTS: 20 -->
+ 		<DefineName>TECH_COST_FIRST_KNOWN_PREREQ_MODIFIER</DefineName>
+-		<iDefineIntVal>10</iDefineIntVal>
++		<iDefineIntVal>20</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Research rate boost for knowing additional OR tech prereqs.  In vanilla BTS this is 20.  Default: 20 -->
+ 		<DefineName>TECH_COST_KNOWN_PREREQ_MODIFIER</DefineName>
+ 		<iDefineIntVal>20</iDefineIntVal>
+ 	</Define>
++	<!-- BBAI has also introduced a tech cost modifier by era, which can be found in CIV4EraInfos.xml -->
+ 	<Define>
+-		<!-- This variable allows the throttling of tech research rate for all civs, so 5 makes everyone's research 5% faster, -5 makes it 5% slower. -->
++		<!-- This variable allows the throttling of research rates, effectively changing the cost of all techs: so 5 makes techs effectively cost 5% more, -5 makes costs 5% lower. -->
+ 		<DefineName>TECH_COST_MODIFIER</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+
+Index: /trunk/Better BTS AI/Assets/XML/Text/CIV4GameText_AIAutoPlay.xml
+--- /trunk/Better BTS AI/Assets/XML/Text/CIV4GameText_AIAutoPlay.xml@488
++++ /trunk/Better BTS AI/Assets/XML/Text/CIV4GameText_AIAutoPlay.xml@489
+@@ -1,9 +1,8 @@
+-<?xml version="1.0" encoding="ISO-8859-1"?>
+-<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by XMLSPY 2004 Professional Ed. Release 2, Installed Multi + SMP for 3 users (Firaxis Games) -->
+-<!-- Sid Meier's Civilization 4 -->
+-<!-- Copyright Firaxis Games 2005 -->
++<?xml version="1.0"?>
++<!-- Sid Meier's Civilization 4 Beyond the Sword -->
++<!-- Modified by the RevolutionDCM Team -->
++<!-- Game Text -->
+ <!-- -->
+-<!-- Game Text - New -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+ 	<TEXT>
+ 		<Tag>TXT_KEY_AIAUTOPLAY_CANCEL</Tag>
+
+Index: /trunk/Better BTS AI/Better BTS AI sources for 0.78.zip
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/Better BTS AI sources for 0.80.zip
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/Better BTS AI sources for 0.81.zip
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/changelog.txt
+--- /trunk/Better BTS AI/changelog.txt@488
++++ /trunk/Better BTS AI/changelog.txt@489
+@@ -1,3 +1,69 @@
++_________________________
++
++Better BTS AI v0.80
++
++Added in Unofficial Patch v 1.10
++
++Bugfix
++- Fixed bug (introduced) in CvPlayerAI::AI_diploVote where getMasterPower() was used incorrectly
++- Fixed bug in CvPlayerAI::AI_civicValue where part of logic for valuing trade routes was actually applied to all civics
++- Fixed bug (introduced) in CvTeamAI::AI_getWarSuccessCapitulationRatio where wrong form of getTeam was used (bug had minimal effect)
++
++Victory strategy AI
++- Added new hash variable infrastructure to store AI strategies for going for victory in save games
++- Added framework for computing when AI should go for various victory strategies based on combination of game state and personality/traits
++- Added victory strategy flags
++
++War strategy AI
++- When considering whether to accept capitulation, AI is now okay with its vassals capturing cities from enemy, but will still accept capitulation to block other civs from capturing many enemy cities
++- AI now will accept capitulation if its doing badly in other wars, to lose an enemy and gain an ally
++- AI no longer auto accepts capitulation if it has other wars, if it's doing very well then it may keep fighting
++- AI is now more willing to finish off very small civs rather than accept their capitulation, war mongers in particular
++- When AI is close to cultural or space victory, it now defends the cities crucial to victory much more
++- Added CvTeamAI::AI_getEnemyPowerPercent() to compute relative power of enemies
++
++City AI
++- Blocked circumstance where small AI city with nothing else to do could start building spaceship parts, even if it would take forever
++- AI cities now more likely to build gold instead of research, since generally get more research from pushing up research slider
++- Introduced a couple new functions to compute quantities used in determining which plots to work which are of broader interest, like city target size, weights on different yield types, etc
++- Cultural victory cities now will not distract themselves with filling needs for aircraft when not on defensive
++- AI at peace will now have cities which give air experience fill more needed aircraft slots
++- Changes to AI's determination of the desired size of its cities when choosing tile improvements.  No longer effected by espionage missions, much less effected by bad health from industrialization. (helps stop cottage/workshop changes)
++- Adjusted AI drafting strategy to match new valuation of Nationhood as a civic.  AI will now draft more aggressively if it's in big trouble overall, or if it has citizens working worthless tiles.
++- Fixed major cause of cycling between cottages and workshops in CvCityAI::AI_bestPlotBuild.  AI now consistently values cottages as average between cottage and town, removing asymmetry that led to cycling.
++
++Gold AI
++- When making gold hurry decisions, AI now considers how much money it needs to save for unit upgrades
++
++Civic AI
++- Adjusted meaning of AI_bestCivic, it now gives the civic with the highest value of the CivicOptionType instead of first weighting the current civic higher.  Works logically in the couple places where this function is used by the AI.
++- Using new meaning of AI_bestCivic, the AI now can easily consider more reasons for holding back on civics changes.
++- Adjusted AI valuing of legal civics to make AI run nationhood when in or preparing for a tough war (previously rarely happened).  Made Free Speech a little less appealing so that civs who do not yet have the towns to benefit from it won't all jump to it.
++
++Barbarian AI
++- Barb player no longer wastes CPU time considering changing sliders, civics, or religion
++- Barb cities will now replace defenders to the initial handicap number, instead of being content with fewer
++
++General AI
++- Added CvTeam::getCurrentMasterPower to get current military power of master of a vassal
++- Modified CvTeam::getAtWarCount to optionally ignore war with vassals
++- Added Maniac's code for supporting canMoveAllTerrain transports in mods
++
++Tech Diffusion
++- Revamped existing Civ4 system for increasing tech rate based on how many civs you know who already have what you're researching.  New system increases tech diffusion rates based on open borders and vassal agreements, as well as fixing a dependence on the total number of civs on the map.
++- Added a tech welfare system to boost research rates of technologically backwards civs to help keep them relevant to the game.  Designed to keep tech stragglers from being quite as far behind, without making living off tech welfare a viable strategy.
++- Tech diffusion is equal for AI and human players in the same circumstance, but has been setup such that if one player (usually the human player) starts to pull far ahead in tech then all others will start to get a boost so that the game remains interesting.  The other civs will still be behind, but hopefully not too far.
++
++Customization
++- Added several setting to control the new tech diffusion logic to GlobalDefinesAlt.xml
++- Exposed additional research rate controls to GlobalDefinesAlt.xml.  Since AI tech rates have improved, some tech timing balancing has been done through these settings and customization of research rates is now very easy.
++
++Debug
++- Changed and improved debug display for players, long lists of units, and cities
++- In debug mode, plots where AI is planning on changing from one improvement type to another are now highlighted to help track down issues with oscillation in improvements
++- In debug mode, debug plot circles now updated at end of each player's turn, so they can be watched while in automation
++- Many additions in CvCityAI to aid debug display
++
+ _________________________
+ 
+ Better BTS AI v0.78
+
+Index: /trunk/Better BTS AI/efficiency notes.txt
+--- /dev/null
++++ /trunk/Better BTS AI/efficiency notes.txt@489
+@@ -0,0 +1,77 @@
++Units are the main time consumer, taking about half of time on Standard map.  Some notables:
++
++Path generation takes 1/2 of unit movement time, several thousand calls
++
++Naval units also take a lot of time compared to land counterparts, reserve and explore sea move is also quite high
++CvUnitAI::AI_blockade is damn slow because of changes caused to plot groups I think
++
++Path flag to avoid enemy territory adds about 10% to path finding time
++
++New BBAI functions which need help/to check out:
++CvPlot::isHasPathToEnemyCity - now rarely used, little cost.  Can replace remaining usage?
++CvSelectionGroup::isHasPathToAreaPlayerCity - Check late game cost, mid game looks good
++CvUnitAI::AI_pickupStranded - Now much less demanding
++
++CvUnitAI::AI_spreadReligion and CvUnitAI::AI_spreadCorporation, now way faster ... are they still working right?
++
++
++Other expensive/heavily used AI functions
++CvCityAI::AI_plotValue - called repeatedly when choosing citizens
++CvUnitAI::AI_pickup - can this be faster?
++CvUnitAI::AI_spyMove - what are the slow parts?  lots of evaluation/pathing in CvUnitAI::AI_cityOffenseSpy?
++CvPlotGroup::recalculatePlots and CvPlayer::updatePlotGroups - most time spent doing thousands of path planning calls to check plot group sizes
++CvUnitAI::AI_exploreSeaMove - very slow per unit on large maps
++CvUnitAI::AI_pirateBlockade - big memory allocation, loops over all plots with path finding
++CvUnit::canMoveInto - called by pathValid, accounts for a little less than 1/3 of path planning time, called millions of times in late game
++CvPlayerAI::AI_doDiplo - why???
++CvTeamAI::AI_calculateAdjacentLandPlots
++
++
++RevDCM:
++Python callback can add up to 2 secs to turn times on Large maps
++Python portions of the mod add 2 - 4 secs to turn times on Large maps
++
++From car:
++
++CvUnitAI and CvUnit:
++Cache upgrade types (.2 sec)
++
++CvTeamAI:
++Cache land target? (.5 sec) - if cached, could then be used to determine whether attack stacks walk or boat
++Store team members in list (check)
++
++CvPlayer:
++Cache attitude value (.5 sec) - gets up to 9% with 18 civs!!!
++-> Need to recache when plots change hands?
++AI_getCloseBordersAttitude
++
++Compiler options???
++Compare compile for size versus compile for speed
++
++Default: O2 Og Default Oi Default Const Neither Oy No G7 No
++Better?  O1 Ot any suitable inline
++
++
++Test procedure:
++1.  Load scenario save as Mongols
++2.  Automate 3 turns untimed (to allow memory allocation for things not load from WB save)
++3.  Automate 25 turns timed
++
++Results:
++
++BBAI 0.80			18m 48 sec
++BBAI 0.81e			15m 17 sec
++BBAI 0.81e O1		14m 40 sec
++BBAI 0.81e O1 Ot	14m 25 sec
++CAR v0.2			10m 10 sec
++UP 1.1				13m 25 sec
++
++war2
++BBAI 0.81e O1 Ot	14m 00 sec
++BBAI 0.81e O1		14m 08 sec
++BBAI 0.81e O2		15m 14 sec  15m 27 sec
++UP O1 Os			14m 19 sec	19m 06 sec (china goof)
++UP O1 Ot			12m 45 sec
++UP O2				11m 44 Sec
++
++BBAI 0.81j O2		14m 23 sec
+
+Index: /trunk/Better BTS AI/readme.txt
+--- /trunk/Better BTS AI/readme.txt@488
++++ /trunk/Better BTS AI/readme.txt@489
+@@ -40,6 +40,9 @@
+ - TECH_DIFFUSION_WELFARE:  These settings are an extension of tech diffusion which give an extra percentage boost to the research rate of civs who are significantly behind in tech.  It has been designed to keep most smaller civs technologically relevant, while not opening the door for free-loaders.  Defaults to ON.
+ - TECH_COST:  These settings provide additional control over the rate of tech research.  Since AI research rates are increasing in BBAI, these variables have been exposed to allow customization research rates.
+ 
++In addition, BBAI includes a new system for easily scaling tech costs by era.  The idea is that tech rates can be easily scaled for all later era techs to adjust for the AI's better handling of its economy.  In CIV4EraInfos.xml, adjust the values for iTechCostModifier.
++
++
+ [B]Merge instructions[/B]
+ _________________________
+ 
+@@ -66,66 +69,58 @@
+ 
+ The full change log from plain BTS is in changelog.txt, only the most recent changes are listed below.  There are hundreds of places where AI logic has been overhauled, tweaked, or better integrated with other pieces.
+ 
+-New in Better BTS AI v0.80
++New in Better BTS AI 0.81
+ 
+-Added in Unofficial Patch v 1.10
++Added Unofficial Patch 1.2
+ 
+ Bugfix
+-- Fixed bug (introduced) in CvPlayerAI::AI_diploVote where getMasterPower() was used incorrectly
+-- Fixed bug in CvPlayerAI::AI_civicValue where part of logic for valuing trade routes was actually applied to all civics
+-- Fixed bug (introduced) in CvTeamAI::AI_getWarSuccessCapitulationRatio where wrong form of getTeam was used (bug had minimal effect)
++- Fixed rare issue (introduced) with assault transports causing endless turns
++- Fixed bug (introduced) causing assault transports to oscillate in and out of cities under certain circumstances
++- Fixed bug causing AI to build only half as many workers as it wanted, then build too many under rare circumstances
+ 
+-Victory strategy AI
+-- Added new hash variable infrastructure to store AI strategies for going for victory in save games
+-- Added framework for computing when AI should go for various victory strategies based on combination of game state and personality/traits
+-- Added victory strategy flags
++AI bonuses
++- Removed a hidden AI bonus for extra support free troops which favored larger empires
++
++Efficiency
++- Most calls to CvPlayerAI::AI_getPlotDanger really just need boolean, added new CvPlayerAI::AI_getAnyPlotDanger which is faster
++- New cache system for CvPlayerAI::AI_getAnyPlotDanger and CvPlayerAI::AI_getPlotDanger for plots verified safe or plots known to be border plots
++- Improved efficiency and reduced usage of costly new functions, CvPlot::isHasPathToEnemyCity and CvPlot::isHasPathToPlayerCity
++- Added CvSelectionGroup::isHasPathToAreaPlayerCity and CvSelectionGroup::isHasPathToAreaEnemyCity, faster versions of prior plot-based functions
++- Stranded status for groups is now cached
++- Small speed up for earlier rejection of paths to cities/plots in other land areas
++- Re-ordered sections in pathValid to reduce expensive calls
++- Greatly increased efficiency of BBAI function CvUnitAI::AI_assaultSeaReinforce
++- Adapted the getAttitudeVal cache system from CAR, significant turn time improvement on maps with many players
+ 
+ War strategy AI
+-- When considering whether to accept capitulation, AI is now okay with its vassals capturing cities from enemy, but will still accept capitulation to block other civs from capturing many enemy cities
+-- AI now will accept capitulation if its doing badly in other wars, to lose an enemy and gain an ally
+-- AI no longer auto accepts capitulation if it has other wars, if it's doing very well then it may keep fighting
+-- AI is now more willing to finish off very small civs rather than accept their capitulation, war mongers in particular
+-- When AI is close to cultural or space victory, it now defends the cities crucial to victory much more
+-- Added CvTeamAI::AI_getEnemyPowerPercent() to compute relative power of enemies
++- AI now considers whether team they're planning war against is already engaged, speeds up planning phase if that's the case
+ 
+-City AI
+-- Blocked circumstance where small AI city with nothing else to do could start building spaceship parts, even if it would take forever
+-- AI cities now more likely to build gold instead of research, since generally get more research from pushing up research slider
+-- Introduced a couple new functions to compute quantities used in determining which plots to work which are of broader interest, like city target size, weights on different yield types, etc
+-- Cultural victory cities now will not distract themselves with filling needs for aircraft when not on defensive
+-- AI at peace will now have cities which give air experience fill more needed aircraft slots
+-- Changes to AI's determination of the desired size of its cities when choosing tile improvements.  No longer effected by espionage missions, much less effected by bad health from industrialization. (helps stop cottage/workshop changes)
+-- Adjusted AI drafting strategy to match new valuation of Nationhood as a civic.  AI will now draft more aggressively if it's in big trouble overall, or if it has citizens working worthless tiles.
+-- Fixed major cause of cycling between cottages and workshops in CvCityAI::AI_bestPlotBuild.  AI now consistently values cottages as average between cottage and town, removing asymmetry that led to cycling.
++War tactics AI
++- AI a little more selective about sending attack units after barb cities
++- AI more likely to raze barb cities far from its empire
+ 
+-Gold AI
+-- When making gold hurry decisions, AI now considers how much money it needs to save for unit upgrades
++Tech Diffusion
++- Added new era-based tech cost modifier to re-pace tech progress
+ 
+-Civic AI
+-- Adjusted meaning of AI_bestCivic, it now gives the civic with the highest value of the CivicOptionType instead of first weighting the current civic higher.  Works logically in the couple places where this function is used by the AI.
+-- Using new meaning of AI_bestCivic, the AI now can easily consider more reasons for holding back on civics changes.
+-- Adjusted AI valuing of legal civics to make AI run nationhood when in or preparing for a tough war (previously rarely happened).  Made Free Speech a little less appealing so that civs who do not yet have the towns to benefit from it won't all jump to it.
++Customization
++- Added iTechCostModifier to CIV4EraInfos.xml, allowing easy per era scaling of tech costs
++
++Unit AI
++- Improved AI_protect with a max path length designator and weighting by path length
++- Stranded units with no useful actions to take now check whether to load into transports, fixing issue with picking up stranded units in foreign cities
++
++Naval AI
++- Improved and fixed bugs in blockade breaking code (still needs to be better though ...)
++- Greatly reduced chances for naval vessels to sail en masse around entire continents to deal with single enemy ship
++- Transports will no longer consider switching unit types when they happen to be in someone else's city
++- Fixed issue with picking up units stranded in foreign cities
++
++Settler AI
++- Fixed issue where transport mostly full of workers would idle infinitely unsuccessfully trying to pick up a settler
++- When units are dropped off in new lands with settlers, they will now stay with the settler instead of often leaving, then returning to the new city after it's undefended for a turn
+ 
+ Barbarian AI
+-- Barb player no longer wastes CPU time considering changing sliders, civics, or religion
+-- Barb cities will now replace defenders to the initial handicap number, instead of being content with fewer
+-
+-General AI
+-- Added CvTeam::getCurrentMasterPower to get current military power of master of a vassal
+-- Modified CvTeam::getAtWarCount to optionally ignore war with vassals
+-- Added Maniac's code for supporting canMoveAllTerrain transports in mods
+-
+-Tech Diffusion
+-- Revamped existing Civ4 system for increasing tech rate based on how many civs you know who already have what you're researching.  New system increases tech diffusion rates based on open borders and vassal agreements, as well as fixing a dependence on the total number of civs on the map.
+-- Added a tech welfare system to boost research rates of technologically backwards civs to help keep them relevant to the game.  Designed to keep tech stragglers from being quite as far behind, without making living off tech welfare a viable strategy.
+-- Tech diffusion is equal for AI and human players in the same circumstance, but has been setup such that if one player (usually the human player) starts to pull far ahead in tech then all others will start to get a boost so that the game remains interesting.  The other civs will still be behind, but hopefully not too far.
+-
+-Customization
+-- Added several setting to control the new tech diffusion logic to GlobalDefinesAlt.xml
+-- Exposed additional research rate controls to GlobalDefinesAlt.xml.  Since AI tech rates have improved, some tech timing balancing has been done through these settings and customization of research rates is now very easy.
+-
+-Debug
+-- Changed and improved debug display for players, long lists of units, and cities
+-- In debug mode, plots where AI is planning on changing from one improvement type to another are now highlighted to help track down issues with oscillation in improvements
+-- In debug mode, debug plot circles now updated at end of each player's turn, so they can be watched while in automation
+-- Many additions in CvCityAI to aid debug display
++- Barb now more likely to send out small naval invasion fleet if it has one (happens on Terra maps now sometimes ...)
++- Barb attack city stacks will now attack colonists much more readily (mostly on Terra maps)
++- Barb cities now build more attack units, especially when in danger or when colonists are invading the new world
++- Barb cities much less zealous about building workers
+
+Index: /trunk/Better BTS AI/todo and ideas.txt
+--- /trunk/Better BTS AI/todo and ideas.txt@488
++++ /trunk/Better BTS AI/todo and ideas.txt@489
+@@ -7,6 +7,7 @@
+ 
+ Espionage AI
+ - Check out Super Spies AI
++- Spies trigger revolt when troops have city surrounded
+ 
+ Victory Strategy
+ - Effect civic choices
+@@ -19,23 +20,15 @@
+ City AI:
+ - Better logic (centralized) for determining when to relocate capital
+ x Rework "early" city hunting stack logic
+-x Build CARRIER_AIR if at war based on empty slots, regardless of area ai
+-x Block more superfluous builds in defensive areas (executives)
+-x Build gold vs research
+-x Production multiplier change from debug function?
+ - Gold rush defense when threatened and unprepared
++- Strike: no units
+ 
+ War strategy AI:
+ - Target cities to stop potential victory - capital for space, high culture cities for cultural.  Use war declaration code as a guide for how to determine if other player is close
+ - Consider closeness to cultural victory?
+-x Double war success if captured capital
+-x Cut preparing time in 2 if have 50% more power?
+-x Allow destruction of tiny civs more often (instead of accepting capitulation) even if others capture some cities
+-x Make AI okay with having its vassals capture some enemy cities instead of accepting capitulation
+ 
+ Unit AI:
+ - Check calculations of which cities fall under blockade, AI privateer positioning choices
+-x Privateers: move in the shadows
+ x Attack stacks should stage in coastal cities if in assault areas
+ - If sending an attack load with no attack city units, change at least one unit ai
+ - Don't send attack city stack with just seige ...
+@@ -47,28 +40,31 @@
+ - Adjust anyAttack odds threshold up if more enemy units than friendly units?
+ 
+ Naval AI:
+-x Have AI transfer troops from Assault to Defensive and Offensive areas if it is out-gunned
+ - Block transports from grouping with transports running MISSIONAI_ASSAULT
+ - When transport heads out on assault mission, clear missions for all those coming to join with it
+ - Escorts for picking up stranded
+ - AttackSea have pretty low attack odds threshold ... how to coordinate buildup of naval strength to take out strong enemy units?
+ - Keep transport groups out of recently captured cities
+-- Escorts start with transports better
++- Escorts start with transports better, by having transports start mission ai but not leave until they have escorts under many circumstances
++- Pickup stranded not block if others are going if path length is short
+ 
+ Great people AI
+ - If losing war or on defensive, up value of Golden Age (so can switch to drafting civics easily)
+ 
++Missionary AI
++- When to build missionaries
++- Where to send them
++
+ Civics AI
+-x If in tough war, up value of civics which allow drafting, whipping, or buying?
+-x If preparing for war against a tough opponent, up value of above as well
++- If in tough war, up value of civics which allow whipping, or buying?
++- If preparing for war against a tough opponent, up value of above as well
+ 
+ Barbarian AI:
+-- Build smallish attack stacks?
+-x No financial trouble
+-x Short circuit logic which doesn't apply
+-- Terra barbs attack invaders effectively?
+-- How to block Courthouses, other useless buildings?
+-- Naval assaults with fewer units
++x Build smallish attack stacks?
++x Terra barbs attack invaders effectively?
++x How to block Courthouses, other useless buildings?
++x Naval assaults with fewer units than full civs
++- Terra maps have good balance?
+ 
+ Diplomacy:
+ - How do losing/weak civs ask for help in war?
+@@ -112,3 +108,5 @@
+ Player/Team:  war/peace, tech trades, meet, city founding, strategies, financial trouble, disband
+ City:  build decision, hurry
+ Analysis:  population, GNP, production, power
++
++Don't expand water areas through ice?  Looks safe, global warming never changes sea ice
+

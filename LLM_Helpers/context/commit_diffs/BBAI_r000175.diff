@@ -1,0 +1,697 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 175
+# Author: iustus
+# Date: 2006-12-12T10:24:08.042005Z
+# Coverage: full
+# Message:
+#   AI_bestTech tweaked the values of techs that give improvements for bonus resources
+#   AI_bonusVal updated to be a bit more accurate about things. For example, iron should no longer be valuable when you are past needing it for anything. Bug causing coal to be super valuable fixed.
+#   under chipotle, alt-shift over a plot with a bonus will show the AI_bonusVal for each living player
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@174
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@175
+@@ -1951,18 +1951,29 @@
+ 
+ 				szTempBuffer.Format(L"\nvalue = %d\njuggle value = %d\nmagic value = %d", iValue, iJuggleValue, iMagicValue);
+ 				szString+=szTempBuffer;
+-				
+-
+-
+-				//int iCityPlotIndex = pCity->getCityPlotIndex(pPlot);
+-				//if (iCityPlotIndex != -1)
+-				//{
+-				//	int iDeltaX = GC.getCityPlotX()[iCityPlotIndex];
+-				//	int iDeltaY = GC.getCityPlotY()[iCityPlotIndex];
+-
+-				//	szTempBuffer.Format(L"\n%d:(%d, %d)", iCityPlotIndex, iDeltaX, iDeltaY);
+-				//	szString+=szTempBuffer;
+-				//}
++			}
++		}
++	
++		// calc some bonus info
++		if (GC.getGameINLINE().isDebugMode())
++		{
++			eBonus = pPlot->getBonusType();
++		}
++		else
++		{
++			eBonus = pPlot->getBonusType(GC.getGameINLINE().getActiveTeam());
++		}
++		if (eBonus != NO_BONUS)
++		{
++			szString += CvWString::format(L"\n%s values:", GC.getBonusInfo(eBonus).getDescription());
++			
++			for (int iPlayerIndex = 0; iPlayerIndex < MAX_PLAYERS; iPlayerIndex++)
++			{
++				CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes) iPlayerIndex);
++				if (kLoopPlayer.isAlive())
++				{
++					szString += CvWString::format(L"\n %s: %d", kLoopPlayer.getName(), kLoopPlayer.AI_bonusVal(eBonus));
++				}
+ 			}
+ 		}
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@174
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@175
+@@ -2554,15 +2554,18 @@
+ 
+ 	pCapitalCity = getCapitalCity();
+ 
+-	bool bWarPlan = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
++	CvTeam& kTeam = GET_TEAM(getTeam());
++
++	bool bWarPlan = (kTeam.getAnyWarPlanCount(true) > 0);
+ 	bool bCapitalAlone = (GC.getGameINLINE().getElapsedGameTurns() > 0) ? AI_isCapitalAreaAlone() : false;
+ 	bool bFinancialTrouble = AI_isFinancialTrouble();
+ 
+-	int iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+-	int iCoastalCities = countNumCoastalCities();
++	int iHasMetCount = kTeam.getHasMetCivCount(true);
++	int iCoastalCityCount = countNumCoastalCities();
+ 	int iConnectedForeignCities = countPotentialForeignTradeCitiesConnected();
+ 
+-	int iCityCount = GET_TEAM(getTeam()).getNumCities();
++	int iCityCount = getNumCities();
++	int iTeamCityCount = kTeam.getNumCities();
+ 
+ 	int iBestValue = 0;
+ 	TechTypes eBestTech = NO_TECH;
+@@ -2588,7 +2591,7 @@
+ 	    BonusClassTypes eBonusClass = (BonusClassTypes)GC.getBonusInfo((BonusTypes)iI).getBonusClassType();
+ 	    if (eRevealTech != NO_TECH)
+ 	    {
+-	        if ((GET_TEAM(getTeam()).isHasTech(eRevealTech)))
++	        if ((kTeam.isHasTech(eRevealTech)))
+ 	        {
+ 	            paiBonusClassRevealed[eBonusClass]++;
+ 	        }
+@@ -2621,7 +2624,7 @@
+ 			{
+ 				if (canEverResearch((TechTypes)iI))
+ 				{
+-					if (!(GET_TEAM(getTeam()).isHasTech((TechTypes)iI)))
++					if (!(kTeam.isHasTech((TechTypes)iI)))
+ 					{
+ 						if (GC.getTechInfo((TechTypes)iI).getEra() <= (getCurrentEra() + 1))
+ 						{
+@@ -2635,11 +2638,11 @@
+ 								int iRandomMax = 2000;
+ 								iValue += iRandomFactor;
+ 
+-								iValue += GET_TEAM(getTeam()).getResearchProgress((TechTypes)iI);
++								iValue += kTeam.getResearchProgress((TechTypes)iI);
+ 
+ 								if (GC.getTechInfo((TechTypes)iI).isExtraWaterSeeFrom())
+ 								{
+-									if (iCoastalCities > 0)
++									if (iCoastalCityCount > 0)
+ 									{
+ 										iValue += 100;
+ 
+@@ -2701,7 +2704,7 @@
+ 									{
+ 										iValue += 500;
+ 
+-										if (iCoastalCities > 0)
++										if (iCoastalCityCount > 0)
+ 										{
+ 											iValue += 400;
+ 										}
+@@ -2740,7 +2743,7 @@
+ 
+ 								if (GC.getTechInfo((TechTypes)iI).isWaterWork())
+ 								{
+-									iValue += (600 * iCoastalCities);
++									iValue += (600 * iCoastalCityCount);
+ 								}
+ 
+ 								iValue += (GC.getTechInfo((TechTypes)iI).getFeatureProductionModifier() * 2);
+@@ -2781,7 +2784,7 @@
+ 												iValue += (countPotentialForeignTradeCities(pCapitalCity->area()) * 100);
+ 											}
+ 
+-											if (iCoastalCities > 0)
++											if (iCoastalCityCount > 0)
+ 											{
+ 												iValue += ((bCapitalAlone) ? 950 : 350);
+ 											}
+@@ -2874,48 +2877,43 @@
+ 											{
+ 												iBonusValue = 0;
+ 
+-												iBonusValue += ((kImprovement.isImprovementBonusMakesValid(iK)) ? 30 : 0);
+-												iBonusValue += ((kImprovement.isImprovementBonusTrade(iK)) ? 60 : 0);
++												iBonusValue += ((kImprovement.isImprovementBonusMakesValid(iK)) ? 450 : 0);
++												iBonusValue += ((kImprovement.isImprovementBonusTrade(iK)) ? (45 * AI_bonusVal((BonusTypes) iK)) : 0);
+ 
+ 												if (iBonusValue > 0)
+ 												{
+-													iBonusValue *= AI_bonusVal((BonusTypes) iK);
+-												}
+-												
+-												for (iL = 0; iL < NUM_YIELD_TYPES; iL++)
+-												{
+-													iTempValue = 0;
+-
+-													iTempValue += (kImprovement.getImprovementBonusYield(iK, iL) * 300);
+-													iTempValue += (kImprovement.getIrrigatedYieldChange(iL) * 200);
+-
+-													// land food bonuses are more valueble
+-													if (iL == YIELD_FOOD && !kImprovement.isWater())
++													for (iL = 0; iL < NUM_YIELD_TYPES; iL++)
+ 													{
+-														iTempValue *= 3;
+-														iTempValue /= 2;
++														iTempValue = 0;
++
++														iTempValue += (kImprovement.getImprovementBonusYield(iK, iL) * 300);
++														iTempValue += (kImprovement.getIrrigatedYieldChange(iL) * 200);
++
++														// land food bonuses are more valueble
++														if (iL == YIELD_FOOD && !kImprovement.isWater())
++														{
++															iTempValue *= 4;
++															iTempValue /= 3;
++														}
++														// otherwise, devalue the bonus slightly
++														else
++														{
++															iTempValue *= 3;
++															iTempValue /= 4;
++														}
++
++														iTempValue *= AI_yieldWeight((YieldTypes)iL);
++														iTempValue /= 100;
++
++														iBonusValue += iTempValue;
+ 													}
+-													// otherwise, devalue the bonus slightly
+-													else
+-													{
+-														iTempValue *= 3;
+-														iTempValue /= 4;
+-													}
+-
+-													iTempValue *= AI_yieldWeight((YieldTypes)iL);
+-													iTempValue /= 100;
+-
+-													iBonusValue += iTempValue;
+-												}
+-
+-												if (iBonusValue > 0)
+-												{
++
+ 													iNumBonuses = countOwnedBonuses((BonusTypes) iK);
+ 
+ 													if (iNumBonuses > 0)
+ 													{
+ 														iBonusValue *= (iNumBonuses + 3);
+-														iBonusValue /= kImprovement.isWater() ? 4 : 2;	// water resources are worth less
++														iBonusValue /= kImprovement.isWater() ? 6 : 3;	// water resources are worth less
+ 
+ 														iImprovementValue += iBonusValue;
+ 													}
+@@ -2925,7 +2923,7 @@
+ 											// if water improvement, weight by coastal cities (weight the whole build)
+ 											if (kImprovement.isWater())
+ 											{
+-												iImprovementValue *= iCoastalCities;
++												iImprovementValue *= iCoastalCityCount;
+ 												iImprovementValue /= max(1, iCityCount/2);
+ 											}
+ 											
+@@ -3148,7 +3146,7 @@
+ 													break;
+ 
+ 												case UNITAI_WORKER_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														// note, workboat improvements are already counted in the improvement section above
+ 														iUnitValue += iBaseUnitValue;
+@@ -3156,7 +3154,7 @@
+ 													break;
+ 
+ 												case UNITAI_ATTACK_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														iMilitaryValue += ((bWarPlan) ? 200 : 100);
+ 														iMilitaryValue += 100;
+@@ -3165,7 +3163,7 @@
+ 													break;
+ 
+ 												case UNITAI_RESERVE_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														iMilitaryValue += ((bWarPlan) ? 100 : 50);
+ 														iUnitValue += iBaseUnitValue;
+@@ -3173,7 +3171,7 @@
+ 													break;
+ 
+ 												case UNITAI_ESCORT_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														iMilitaryValue += ((bWarPlan) ? 100 : 50);
+ 														iUnitValue += iBaseUnitValue;
+@@ -3181,14 +3179,14 @@
+ 													break;
+ 
+ 												case UNITAI_EXPLORE_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														iUnitValue += ((bCapitalAlone) ? 1800 : 600) + iBaseUnitValue;
+ 													}
+ 													break;
+ 
+ 												case UNITAI_ASSAULT_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														iMilitaryValue += ((bWarPlan || bCapitalAlone) ? 400 : 200);
+ 														iUnitValue += iBaseUnitValue;
+@@ -3196,21 +3194,21 @@
+ 													break;
+ 
+ 												case UNITAI_SETTLER_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														iUnitValue += ((bWarPlan || bCapitalAlone) ? 200 : 100) + iBaseUnitValue;
+ 													}
+ 													break;
+ 
+ 												case UNITAI_MISSIONARY_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														iUnitValue += 100 + iBaseUnitValue;
+ 													}
+ 													break;
+ 
+ 												case UNITAI_SPY_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														iMilitaryValue += 100;
+ 														iUnitValue += iBaseUnitValue;
+@@ -3218,7 +3216,7 @@
+ 													break;
+ 
+ 												case UNITAI_CARRIER_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														iMilitaryValue += ((bWarPlan) ? 100 : 50);
+ 														iUnitValue += iBaseUnitValue;
+@@ -3236,7 +3234,7 @@
+ 													break;
+ 
+ 												case UNITAI_CARRIER_AIR:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														iMilitaryValue += ((bWarPlan) ? 100 : 50);
+ 														iUnitValue += iBaseUnitValue;
+@@ -3322,10 +3320,10 @@
+ 									{
+ 										if (isTechRequiredForBuilding(((TechTypes)iI), eLoopBuilding))
+ 										{
+-											CvBuildingInfo& kBuilding = GC.getBuildingInfo(eLoopBuilding);
++											CvBuildingInfo& kLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
+ 											int iBuildingValue = 0;
+ 											
+-											if (kBuilding.getSpecialBuildingType() != NO_BUILDING)
++											if (kLoopBuilding.getSpecialBuildingType() != NO_BUILDING)
+ 											{
+ 												iBuildingValue += ((bCapitalAlone) ? 100 : 25);
+ 											}
+@@ -3335,9 +3333,9 @@
+ 											}
+ 
+ 											//the granary effect is SO powerful it deserves special code
+-											if (kBuilding.getFoodKept() > 0)
++											if (kLoopBuilding.getFoodKept() > 0)
+ 											{
+-												iBuildingValue += (15 * kBuilding.getFoodKept());
++												iBuildingValue += (15 * kLoopBuilding.getFoodKept());
+ 											}
+ 
+ 											iBuildingValue += 100;
+@@ -3351,29 +3349,29 @@
+                                             if (AI_isDoStrategy(AI_STRATEGY_CULTURE2))
+                                             {
+                                                 int iMultiplier = ((isWorldWonderClass((BuildingClassTypes)iJ) || isNationalWonderClass((BuildingClassTypes)iJ)) ? 1 : 3);
+-                                                iBuildingValue += (150 * kBuilding.getCommerceChange(COMMERCE_CULTURE)) * iMultiplier;
+-                                                iBuildingValue += kBuilding.getCommerceModifier(COMMERCE_CULTURE) * 4 * iMultiplier ;
++                                                iBuildingValue += (150 * kLoopBuilding.getCommerceChange(COMMERCE_CULTURE)) * iMultiplier;
++                                                iBuildingValue += kLoopBuilding.getCommerceModifier(COMMERCE_CULTURE) * 4 * iMultiplier ;
+                                             }
+ 											
+ 											if (bFinancialTrouble)
+ 											{
+-												iBuildingValue += kBuilding.getMaintenanceModifier() * 15;
+-												iBuildingValue += kBuilding.getYieldModifier(YIELD_COMMERCE) * 8;
+-												iBuildingValue += kBuilding.getCommerceModifier(COMMERCE_GOLD) * 15;
++												iBuildingValue += kLoopBuilding.getMaintenanceModifier() * 15;
++												iBuildingValue += kLoopBuilding.getYieldModifier(YIELD_COMMERCE) * 8;
++												iBuildingValue += kLoopBuilding.getCommerceModifier(COMMERCE_GOLD) * 15;
+ 											}
+ 
+ 											// if this is a religious building, its not as useful
+-											ReligionTypes eReligion = (ReligionTypes) kBuilding.getReligionType();
++											ReligionTypes eReligion = (ReligionTypes) kLoopBuilding.getReligionType();
+ 											if (eReligion != NO_RELIGION)
+ 											{
+ 											    
+ 												// reduce by a factor based on how many cities we have with that relgion
+-												if (iCityCount > 0)
++												if (iTeamCityCount > 0)
+ 												{
+-													int iCitiesWithReligion = GET_TEAM(getTeam()).getHasReligionCount(eReligion);
++													int iCitiesWithReligion = kTeam.getHasReligionCount(eReligion);
+ 													
+ 													iBuildingValue *= (4 + iCitiesWithReligion);
+-													iBuildingValue /= (4 + iCityCount);
++													iBuildingValue /= (4 + iTeamCityCount);
+ 												}
+ 
+ 												// if this building requires a religion, then only count it as 1/7th as much
+@@ -3382,7 +3380,7 @@
+                                                 iBuildingValue /= max (1, GC.getNumReligionInfos());
+ 											}
+ 
+-											if (kBuilding.getPrereqAndTech() == iI)
++											if (kLoopBuilding.getPrereqAndTech() == iI)
+ 											{
+ 												if (iPathLength <= 1)
+ 												{
+@@ -3416,9 +3414,9 @@
+ 											}
+ 
+ 											// if water building, weight by coastal cities
+-											if (kBuilding.isWater())
++											if (kLoopBuilding.isWater())
+ 											{
+-												iBuildingValue *= iCoastalCities;
++												iBuildingValue *= iCoastalCityCount;
+ 												iBuildingValue /= max(1, iCityCount/2);
+ 											}
+ 											// if land building, is it the best?
+@@ -5287,6 +5285,28 @@
+ 
+ 	iValue += (GC.getBonusInfo(eBonus).getHappiness() * 100);
+ 	iValue += (GC.getBonusInfo(eBonus).getHealth() * 100);
++	
++	CvTeam& kTeam = GET_TEAM(getTeam());
++	int iTeamCityCount = kTeam.getNumCities();
++
++	CvCity* pCapital = getCapitalCity();
++	int iCityCount = getNumCities();
++	int iCoastalCityCount = countNumCoastalCities();
++	
++	// find the first coastal city
++	CvCity* pCoastalCity = NULL;
++	if (iCoastalCityCount > 0)
++	{
++		int iLoop;
++		for (CvCity* pLoopCity = firstCity(&iLoop); pCoastalCity == NULL && pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++		{
++			if (pLoopCity->isCoastal(GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN")))
++			{
++				pCoastalCity = pLoopCity;
++			}
++		}
++	}
++
+ 
+ 	for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+ 	{
+@@ -5294,33 +5314,64 @@
+ 
+ 		if (eLoopUnit != NO_UNIT)
+ 		{
++			CvUnitInfo& kLoopUnit = GC.getUnitInfo(eLoopUnit);
++
+ 			iTempValue = 0;
+ 
+-			if (GC.getUnitInfo(eLoopUnit).getPrereqAndBonus() == eBonus)
++			if (kLoopUnit.getPrereqAndBonus() == eBonus)
+ 			{
+ 				iTempValue += 50;
+ 			}
+ 
+ 			for (iJ = 0; iJ < GC.getNUM_UNIT_PREREQ_OR_BONUSES(); iJ++)
+ 			{
+-				if (GC.getUnitInfo(eLoopUnit).getPrereqOrBonuses(iJ) == eBonus)
++				if (kLoopUnit.getPrereqOrBonuses(iJ) == eBonus)
+ 				{
+ 					iTempValue += 40;
+ 				}
+ 			}
+ 
+-			iTempValue += (GC.getUnitInfo(eLoopUnit).getBonusProductionModifier(eBonus) / 10);
++			// if this bonus produces this unit faster, value based on how much the unit costs
++			if (kLoopUnit.getBonusProductionModifier(eBonus))
++			{
++				int iModifierValue = kLoopUnit.getProductionCost();
++				iModifierValue *= kLoopUnit.getBonusProductionModifier(eBonus);
++				iModifierValue /= 1024;
++	
++				iTempValue += iModifierValue;
++			}
+ 
+ 			if (iTempValue > 0)
+ 			{
++				bool bIsWater = (kLoopUnit.getDomainType() == DOMAIN_SEA);
++				
++				// if water unit, weight by coastal cities
++				if (bIsWater)
++				{
++					iTempValue *= min(iCoastalCityCount * 2, iCityCount);	// double coastal cities, cap at total cities
++					iTempValue /= max(1, iCityCount);
++				}
++
+ 				if (canTrain(eLoopUnit))
+ 				{
+-					iTempValue *= 2;
+-				}
+-
+-				if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() != NO_TECH)
+-				{
+-					iDiff = abs(GC.getTechInfo((TechTypes)(GC.getUnitInfo(eLoopUnit).getPrereqAndTech())).getEra() - getCurrentEra());
++					// is it a water unit and no coastal cities or our coastal city cannot build because its obsolete
++					if ((bIsWater && (pCoastalCity == NULL || (pCoastalCity->allUpgradesAvailable(eLoopUnit) != NO_UNIT))) ||
++						// or our capital cannot build because its obsolete (we can already build all its upgrades)
++						(pCapital->allUpgradesAvailable(eLoopUnit) != NO_UNIT))
++					{
++						// its worthless
++						iTempValue = 2;
++					}
++					// otherwise, value units we could build if we had this bonus double
++					else
++					{
++						iTempValue *= 2;
++					}
++				}
++
++				if (kLoopUnit.getPrereqAndTech() != NO_TECH)
++				{
++					iDiff = abs(GC.getTechInfo((TechTypes)(kLoopUnit.getPrereqAndTech())).getEra() - getCurrentEra());
+ 
+ 					if (iDiff == 0)
+ 					{
+@@ -5344,33 +5395,94 @@
+ 
+ 		if (eLoopBuilding != NO_BUILDING)
+ 		{
++			CvBuildingInfo& kLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
++			
+ 			iTempValue = 0;
+ 
+-			if (GC.getBuildingInfo(eLoopBuilding).getPrereqAndBonus() == eBonus)
++			if (kLoopBuilding.getPrereqAndBonus() == eBonus)
+ 			{
+ 				iTempValue += 30;
+ 			}
+ 
+ 			for (iJ = 0; iJ < GC.getNUM_BUILDING_PREREQ_OR_BONUSES(); iJ++)
+ 			{
+-				if (GC.getBuildingInfo(eLoopBuilding).getPrereqOrBonuses(iJ) == eBonus)
++				if (kLoopBuilding.getPrereqOrBonuses(iJ) == eBonus)
+ 				{
+ 					iTempValue += 20;
+ 				}
+ 			}
+-
+-			iTempValue += (GC.getBuildingInfo(eLoopBuilding).getBonusProductionModifier(eBonus) / 10);
+-
++			
++			// if this bonus produces this building faster, value based on how much the building costs
++			if (kLoopBuilding.getBonusProductionModifier(eBonus))
++			{
++				int iModifierValue = kLoopBuilding.getProductionCost();
++				iModifierValue *= kLoopBuilding.getBonusProductionModifier(eBonus);
++				iModifierValue /= 4096;
++	
++				iTempValue += iModifierValue;
++			}
++			
+ 			if (iTempValue > 0)
+ 			{
+-				if (canConstruct(eLoopBuilding))
++				// determine whether we have the tech for this building
++				bool bHasTechForBuilding = true;
++				if (!(kTeam.isHasTech((TechTypes)(kLoopBuilding.getPrereqAndTech()))))
++				{
++					bHasTechForBuilding = false;
++				}
++				for (int iPrereqIndex = 0; bHasTechForBuilding && iPrereqIndex < GC.getDefineINT("NUM_BUILDING_AND_TECH_PREREQS"); iPrereqIndex++)
++				{
++					if (kLoopBuilding.getPrereqAndTechs(iPrereqIndex) != NO_TECH)
++					{
++						if (!(kTeam.isHasTech((TechTypes)(kLoopBuilding.getPrereqAndTechs(iPrereqIndex)))))
++						{
++							bHasTechForBuilding = false;
++						}
++					}
++				}
++				
++				bool bIsStateReligion = (((ReligionTypes) kLoopBuilding.getStateReligion()) != NO_RELIGION);
++				bool bCanConstruct = canConstruct(eLoopBuilding, false, false, true);
++				
++				// bCanNeverBuild when true is accurate, it may be false in some cases where we will never be able to build 
++				bool bCanNeverBuild = (bHasTechForBuilding && !bCanConstruct && !bIsStateReligion);
++
++				// if we can never build this, it is worthless
++				if (bCanNeverBuild)
++				{
++					iTempValue = 1;
++				}
++				// double value if we can build it right now
++				else if (bCanConstruct)
+ 				{
+ 					iTempValue *= 2;
+ 				}
+-
+-				if (GC.getBuildingInfo(eLoopBuilding).getPrereqAndTech() != NO_TECH)
+-				{
+-					iDiff = abs(GC.getTechInfo((TechTypes)(GC.getBuildingInfo(eLoopBuilding).getPrereqAndTech())).getEra() - getCurrentEra());
++				
++				// if this is a religious building, its not as useful
++				ReligionTypes eReligion = (ReligionTypes) kLoopBuilding.getReligionType();
++				if (eReligion != NO_RELIGION)
++				{
++					// reduce by a factor based on how many cities we have with that relgion 
++					// 1/3 our cities with this religion is full value
++					if (iTeamCityCount > 0)
++					{
++						int iCitiesWithReligion = kTeam.getHasReligionCount(eReligion);
++						
++						iTempValue *= min(iCitiesWithReligion * 3, iTeamCityCount);
++						iTempValue /= max(1, iTeamCityCount);
++					}
++				}
++
++				// if water building, weight by coastal cities
++				if (kLoopBuilding.isWater())
++				{
++					iTempValue *= iCoastalCityCount;
++					iTempValue /= max(1, iCityCount/2);
++				}
++
++				if (kLoopBuilding.getPrereqAndTech() != NO_TECH)
++				{
++					iDiff = abs(GC.getTechInfo((TechTypes)(kLoopBuilding.getPrereqAndTech())).getEra() - getCurrentEra());
+ 
+ 					if (iDiff == 0)
+ 					{
+@@ -5390,18 +5502,37 @@
+ 
+ 	for (iI = 0; iI < GC.getNumProjectInfos(); iI++)
+ 	{
+-		iTempValue = (GC.getProjectInfo((ProjectTypes)iI).getBonusProductionModifier(eBonus) / 10);
+-
++		ProjectTypes eProject = (ProjectTypes) iI;
++		CvProjectInfo& kLoopProject = GC.getProjectInfo(eProject);
++		iTempValue = 0;
++
++		// if this bonus produces this project faster, value based on how much the project costs
++		if (kLoopProject.getBonusProductionModifier(eBonus))
++		{
++			int iModifierValue = kLoopProject.getProductionCost();
++			iModifierValue *= kLoopProject.getBonusProductionModifier(eBonus);
++			iModifierValue /= 4096;
++
++			iTempValue += iModifierValue;
++		}
++		
+ 		if (iTempValue > 0)
+ 		{
+-			if (canCreate((ProjectTypes)iI))
++			bool bMaxedOut = (GC.getGameINLINE().isProjectMaxedOut(eProject) || kTeam.isProjectMaxedOut(eProject));
++
++			if (bMaxedOut)
++			{
++				// project worthless
++				iTempValue = 1;
++			}
++			else if (canCreate(eProject))
+ 			{
+ 				iTempValue *= 2;
+ 			}
+ 
+-			if (GC.getProjectInfo((ProjectTypes)iI).getTechPrereq() != NO_TECH)
+-			{
+-				iDiff = abs(GC.getTechInfo((TechTypes)(GC.getProjectInfo((ProjectTypes)iI).getTechPrereq())).getEra() - getCurrentEra());
++			if (kLoopProject.getTechPrereq() != NO_TECH)
++			{
++				iDiff = abs(GC.getTechInfo((TechTypes)(kLoopProject.getTechPrereq())).getEra() - getCurrentEra());
+ 
+ 				if (iDiff == 0)
+ 				{
+@@ -5423,20 +5554,19 @@
+ 	{
+         RouteTypes eRoute = (RouteTypes)(GC.getBuildInfo((BuildTypes)iI).getRoute());
+ 
+-
+-        if ((eRoute != NO_ROUTE) && (GC.getRouteInfo(eRoute).getPrereqBonus() == eBonus))
++		if ((eRoute != NO_ROUTE) && (GC.getRouteInfo(eRoute).getPrereqBonus() == eBonus))
+         {
+-            if ((eBestRoute != NO_ROUTE) && (GC.getRouteInfo(getBestRoute()).getValue() <= GC.getRouteInfo(eRoute).getValue()))
+-            {
+-                iTempValue = 100;
+-            }
+-            else
+-            {
+-                iTempValue += 40;
+-            }
+-        }
+-
+-        iValue += iTempValue;
++			if ((eBestRoute != NO_ROUTE) && (GC.getRouteInfo(getBestRoute()).getValue() <= GC.getRouteInfo(eRoute).getValue()))
++			{
++				iTempValue = 160;
++			}
++			else
++			{
++				iTempValue = 40;
++			}
++
++			iValue += iTempValue;
++		}
+     }
+ 
+ 	iValue /= 10;
+

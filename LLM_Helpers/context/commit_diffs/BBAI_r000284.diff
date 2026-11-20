@@ -1,0 +1,42 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 284
+# Author: iustus
+# Date: 2007-01-22T14:25:10.874886Z
+# Coverage: full
+# Message:
+#   chipotle changes: added unit cost percentage and gold to upgrade all units when alt over city, debug mode doesnt show UnitAI if a modifier key is down
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@283
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@284
+@@ -488,7 +488,7 @@
+ 		}
+ 	}*/
+ 
+-	if (GC.getGameINLINE().isDebugMode())
++	if (GC.getGameINLINE().isDebugMode() && !bAlt && !bShift)
+ 	{
+ 		FAssertMsg(pUnit->AI_getUnitAIType() != NO_UNITAI, "pUnit's AI type expected to != NO_UNITAI");
+ 		szTempBuffer.Format(L" (%s)", GC.getUnitAIInfo(pUnit->AI_getUnitAIType()).getDescription());
+@@ -2034,9 +2034,14 @@
+                 szTempBuffer.Format(L"\nWater World Percent = %d", pCity->AI_calculateWaterWorldPercent());
+                 szString+=szTempBuffer;                
+ 
+-                szTempBuffer.Format(L"\nNeeded defenders = %d", pCity->AI_neededDefenders());
+-                szString+=szTempBuffer;                
+-				
++				CvPlayerAI& kPlayer = GET_PLAYER(pCity->getOwnerINLINE());
++				int iUnitCost = kPlayer.calculateUnitCost();
++				int iTotalCosts = kPlayer.calculatePreInflatedCosts();
++				int iUnitCostPercentage = (iUnitCost * 100) / max(1, iTotalCosts);
++				szString += CvWString::format(L"\nUnit cost percentage: %d (%d / %d)", iUnitCostPercentage, iUnitCost, iTotalCosts);
++
++				szString += CvWString::format(L"\nUpgrade all units: %d gold", kPlayer.AI_goldToUpgradeAllUnits());
++
+ 				szString += CvWString::format(L"\n\nRanks:");
+ 				szString += CvWString::format(L"\nPopulation:%d", pCity->findPopulationRank());
+ 				
+

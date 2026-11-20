@@ -1,0 +1,139 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 286
+# Author: iustus
+# Date: 2007-01-23T21:05:09.432708Z
+# Coverage: full
+# Message:
+#   fixed assert bug num units < num selection groups (give them another chance to delete empty ones)
+#   fixed bug in sacrifice value, multiplied value by 128, so division does not result in zero values
+#   sea escort, carrier sea and sea reserve units fogbust
+#   sea escort units that are carrying attack or city attack units convert to sea assault unit (if group head)
+#   
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@285
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@286
+@@ -2664,6 +2664,15 @@
+ 	{
+ 		pLoopSelectionGroup->updateTimers(); // could destroy the selection group...
+ 	}
++	
++	// if a unit was busy, perhaps it was not quite deleted yet, give it one more try
++	if (getNumSelectionGroups() > getNumUnits())
++	{
++		for(pLoopSelectionGroup = firstSelectionGroup(&iLoop); pLoopSelectionGroup; pLoopSelectionGroup = nextSelectionGroup(&iLoop))
++		{
++			pLoopSelectionGroup->doDelayedDeath(); // could destroy the selection group...
++		}
++	}
+ 
+ 	FAssertMsg(getNumSelectionGroups() <= getNumUnits(), "The number of Units is expected not to exceed the number of Selection Groups");
+ }
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@285
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@286
+@@ -407,10 +407,8 @@
+ 				{
+ 					if (bForce || pLoopUnit->canMoveInto(pPlot, true))
+ 					{
+-
+                         iValue = pLoopUnit->AI_sacrificeValue(pPlot);
+ 						FAssertMsg(iValue > 0, "iValue is expected to be greater than 0");
+-
+ 
+ 						if (iValue > iBestValue)
+ 						{
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@285
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@286
+@@ -913,11 +913,11 @@
+ 		// Mildly stupid sacrifice value - favors interceptors since they deal damage to intercepting aircraft
+ 		// Devalues units that are expensive and/or injured
+ 		// Feel free to make this smarter...  ~Penjo 19Nov2006
+-		iValue = 100 * (100 + currInterceptionProbability());
++		iValue = 128 * (100 + currInterceptionProbability());
+ 		iValue /= max(1, (1 + GC.getUnitInfo(getUnitType()).getProductionCost()));
+ 		iValue /= getDamage() + 1;
+ 	} else {
+-		iValue  = (currEffectiveStr(pPlot, ((pPlot == NULL) ? NULL : this)));
++		iValue  = 128 * (currEffectiveStr(pPlot, ((pPlot == NULL) ? NULL : this)));
+ 		iValue *= (100 + iCollateralDamageValue);
+ 		iValue /= (100 + cityDefenseModifier());
+ 		iValue *= (100 + withdrawalProbability());
+@@ -3446,6 +3446,11 @@
+ 		return;
+ 	}
+ 
++	if (AI_fogbust())
++	{
++		return;
++	}
++
+ 	if (AI_patrol())
+ 	{
+ 		return;
+@@ -3470,6 +3475,32 @@
+ {
+ 	PROFILE_FUNC();
+ 
++	// if we have cargo, possibly convert to UNITAI_ASSAULT_SEA (this will most often happen with galleons)
++	// note, this should not happen when we are not the group head, so escort galleons are fine joining a group, just not as head
++	if (hasCargo() && (getUnitAICargo(UNITAI_ATTACK_CITY) > 0 || getUnitAICargo(UNITAI_ATTACK) > 0))
++	{
++		// non-zero AI_unitValue means that UNITAI_ASSAULT_SEA is valid for this unit (that is the check used everywhere)
++		if (GET_PLAYER(getOwnerINLINE()).AI_unitValue(getUnitType(), UNITAI_ASSAULT_SEA, NULL) > 0)
++		{
++			// save old group, so we can merge it back in
++			CvSelectionGroup* pOldGroup = getGroup();
++
++			// this will remove this unit from the current group
++			AI_setUnitAIType(UNITAI_ASSAULT_SEA);
++
++			// merge back the rest of the group into the new group
++			CvSelectionGroup* pNewGroup = getGroup();
++			if (pOldGroup != pNewGroup)
++			{
++				pOldGroup->mergeIntoGroup(pNewGroup);
++			}
++
++			// perform assault sea action
++			AI_assaultSeaMove();
++			return;
++		}
++	}
++	
+ 	if (AI_heal(30, 1))
+ 	{
+ 		return;
+@@ -3541,6 +3572,11 @@
+ 	}
+ 
+ 	if (AI_heal())
++	{
++		return;
++	}
++
++	if (AI_fogbust())
+ 	{
+ 		return;
+ 	}
+@@ -3947,6 +3983,11 @@
+ 	}
+ 
+ 	if (AI_group(UNITAI_CARRIER_SEA, -1, /*iMaxOwnUnitAI*/ 1))
++	{
++		return;
++	}
++
++	if (AI_fogbust())
+ 	{
+ 		return;
+ 	}
+

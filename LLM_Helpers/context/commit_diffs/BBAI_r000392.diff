@@ -1,0 +1,186 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 392
+# Author: jdog5000
+# Date: 2008-10-13T17:35:04.249241Z
+# Coverage: full
+# Message:
+#   0.40 revision j
+#   
+#   See source code for specific updates
+# Changed paths (4):
+#   M /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+#   M /trunk/Better BTS AI/Assets/Python/AIAutoPlay.py
+#   M /trunk/Better BTS AI/readme.txt
+#   M /trunk/Better BTS AI/todo and ideas.txt
+
+Index: /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/Assets/Python/AIAutoPlay.py
+--- /trunk/Better BTS AI/Assets/Python/AIAutoPlay.py@391
++++ /trunk/Better BTS AI/Assets/Python/AIAutoPlay.py@392
+@@ -204,8 +204,8 @@
+             game.setActivePlayer( pPlayer.getID(), False )
+             pPlayer.setIsHuman( True )
+ 
+-        for idx in range(0,gc.getMAX_CIV_TEAMS()) :
+-            pPlayer.setEspionageSpendingWeightAgainstTeam(idx, pPlayer.getEspionageSpendingWeightAgainstTeam(idx)/10)
++        #for idx in range(0,gc.getMAX_CIV_TEAMS()) :
++        #    pPlayer.setEspionageSpendingWeightAgainstTeam(idx, pPlayer.getEspionageSpendingWeightAgainstTeam(idx)/10)
+ 
+ 
+     def onKbdEvent( self, argsList ) :
+@@ -303,7 +303,7 @@
+ 
+             headUnit = pGroup.getHeadUnit()
+             #CvUtil.pyPrint( "%s fortTurns %d"%(headUnit.getName(),headUnit.getFortifyTurns()) )
+-            if( headUnit.getFortifyTurns() > 0 ) :
++            if( headUnit.getFortifyTurns() > 0 and headUnit.getDomainType() == DomainTypes.DOMAIN_LAND ) :
+                 if( headUnit.isHurt() ) :
+                     #CvUtil.pyPrint( "%s is hurt"%(headUnit.getName()) )
+                     #pGroup.setActivityType(ActivityTypes.ACTIVITY_HEAL)
+
+Index: /trunk/Better BTS AI/readme.txt
+--- /trunk/Better BTS AI/readme.txt@391
++++ /trunk/Better BTS AI/readme.txt@392
+@@ -31,7 +31,7 @@
+ Ctrl+Shift+L    ChangePlayer    Open popup to switch which player the human controls.
+ 
+ 
+-Better BTS AI v0.37 Changelog
++Better BTS AI v0.40 Changelog
+ _________________________
+ 
+ Bugfix
+@@ -43,6 +43,7 @@
+ - Fixed bug introduced in unofficial patch causing immunity to collateral damage
+ - Fixed bug with espionage mission to spread culture to an enemy city
+ - Fixed bug causing combat promotions to be counted twice for aircraft
++- Fixed bug (introduced) in consideration of plot defense when selecting bases for offensive air units
+ 
+ War strategy AI
+ - Modified how closeness is used for determining who to attack, different settings for regular and Aggressive AI
+@@ -54,15 +55,25 @@
+ - When doing invasions, AI will now be more likely to have cities with free air experience fill vacancies on carriers
+ - When doing invasions, AI will now have cities with high production or free sea experience more often fill needs for aircraft carriers
+ - When doing invasions, if AI has at least 50% of its possible missile capacity it will no longer always build missiles
++- Rewrote CvCityAI::AI_isAirDefended so that it considers unit damage, movement, AI type and can also count land units
+ 
+ Espionage AI
+-- Blocked out places for future changes
++- When a spy has waited in a city but has no mission available, they are now more likely to move around and explore instead of sitting
++- Revamped desired Espionage rate and priority weighting calculations, AI now always update weights, relations play a larger role
++- Neutral priority weighting is now 10 instead of 0, differentiates between 
++- When AI starts preparing for war against another player they will heavily shift their espionage spending towards that player
++- AI will attempt to gain passive mission levels against adversaries
++
++Gold AI
++- AI now has a budget for troop upgrades each turn based on how much gold it wants to have, it won't spend more than this budget on non-critical units when at peace
++- AI now prioritizes upgrading escort ships to same extent as transports
+ 
+ Naval AI
+ - Modified bombard behavior.  Priority remains on supporting player's ground troops, if none then consider supporting other troops with common enemy and spreading out stacks to increase reach of blockade.
+ - Modified and expanded Solver's changes to retreat from city/fort AI to be more specialized for various unit AI types, only move if there's a real threat
+ - Increased city danger threshold so enemy ships do not runaway so easily
+ - Damaged ships will stay in city unless city is highly threatened
++- Galleons assigned escort roles before Frigates are available will now change their UnitAI type to assault transport instead of getting stuck in their role after better escorts come along
+ 
+ Air AI
+ - Modified and expanded Solver's changes to retreat from city/fort AI to be more specialized for various unit AI types, only move if there's a real threat
+@@ -74,15 +85,32 @@
+ - AI bombers will no longer consider basing in undefended forts even if the fort is unthreatened
+ - AI bombers will now consider moving to a city with two defenders (down from requiring 3), change made because of added threat logic and should allow AI to now use almost all of its cities as airbases
+ - Fixed bug introduced in Unofficial Patch 0.19 causing bombers to skip their turns whenever an interceptor was around
++- Many improvements to better handle damaged planes in threatened cities
++- Added two functions for defensive airstrikes to make both air defense and offense units more directly aid in defending cities from enemy stacks
++- AI air defense units wake from airpatrol every turn, re-decide roles/need
++- AI air defense units now consider how many other air defense units there are in the city and guarantee air defense
++- Air defense units with Interceptor promotions now will be more likely to patrol when city is threatened
++- Added new function for weighting bases for attack air units with new consideration for supporting offensive stacks and defending endangered cities, plus keeping planes safe from sneak attacks when at peace
++- When at war forts are now more likely to be used as offensive bases, though cities are still preferred
++- AI will again consider basing attack planes in teammate's territory (plot defense considerations effectively disabled this in many circumstances in earlier versions of mod)
++- AI will now consider basing attack planes in vassal territory, though it will only use them if it owns no good base cities or forts itself
++- Attack air units will now pull out of cities/forts if the defenders leave
++- Airstrikes will no longer target enemies in adjacent territory when the territory is only adjacent to owned water tiles
+ 
+ Barbarian AI
+ - Barb ships will now often blockade cities for a few turns before moving on if they have no nearby targets
+ - Barb ships trapped by ice or around 1-tile islands are now removed so more can spawn
++- Barb ship spawn rate throttled so they don't swamp the seas before players build navies
++- Improved barb ship blockade decisions so they stick around for a while but will then should actually move to another area
++- Barb ships less suicidal, more oppurtunistic
++- Reduced range in which barb ships detect unprotected resources by 25%
+ 
+ General AI
+ - Modified city closeness calculations to use population from both cities, not just pop of the other city
+ - Created functions for determining when cities share the same water area (lake, ocean)
+-- Partial implementation of a new A* solver for determining closeness, does not yet affect calculations
++- Removed the unused partial implementation of a new A* solver for closeness
++- A bonus which enables the civ's unique unit is now valued more
++- Added function to calculate plot strength of teammates and (if desired) vassals
+ 
+ Combat Mechanics
+ - Blocked out location for potential changes to air combat
+
+Index: /trunk/Better BTS AI/todo and ideas.txt
+--- /trunk/Better BTS AI/todo and ideas.txt@391
++++ /trunk/Better BTS AI/todo and ideas.txt@392
+@@ -6,38 +6,44 @@
+ - AP/UN votes cancelling when new player created by colony
+ - AP leader not reselected if sitting leader switches to Free Religion
+ 
+-Combat mechanics
+-- Revamp air combat, specifically to make air v air different than air v ground
+-
+ Espionage AI
+-- Always reset spending
+-- Make relations a bigger part of spending decisions
+-- Drive spending based on new factors like war plans, desired espionage levels
++x Always reset spending
++x Make relations a bigger part of spending decisions
++x Drive spending based on new factors like war plans, desired espionage levels
+ 
+ Air AI:
+-- Defensive airstrikes: target stacks adjacent to cities before doing regular airstrike check (which has a strong preference for boats)
+-- airOffensiveCity: position planes to better support attacking troops
++x Defensive airstrikes: target stacks adjacent to cities before doing regular airstrike check (which has a strong preference for boats)
++x airOffensiveCity: position planes to better support attacking troops
++- Defensive city, spread out more
++x Airstrike adjacent land only
++
++City AI:
++- Increase odds of building planes in cities which give experience
++- Build fighters in response to enemy attack aircraft count, city need for air defenders
+ 
+ War strategy AI:
+ - Target cities to stop potential victory - capital for space, high culture cities for cultural.  Use war declaration code as a guide for how to determine if other player is close
+ 
+ Unit AI:
+-- Tell Galleon escorts in modern era to change unit AI, get upgraded (see code for sea explorers)
++x Tell Galleon escorts in later eras to change unit AI, get upgraded (see code for sea explorers)
+ - Have transports run in smaller groups or at < full capacity when reinforcing existing troops/cities
+ - Transports (particularly with settlers) stalling if target location taken when on the way
++- City defense axemen don't upgrade to Macemen since Macemen don't have that UNITAI ... switch to city counter under some circumstances?
+ 
+ -----------------------------------------------------------
+ 
+ Bigger picture avenues to pursue:
+ 
+-Add in easier autoplay, changeplayer when in debug mode
+-
+ Are there any remaining bottlenecks for invasions/reinforcements?
+ 
+-Colonizing the new world:  make AI prioritize generating settlers, defense, SETTLER_SEA_AI transports ... 
++Colonizing the new world:  make AI prioritize generating settlers, defense, SETTLER_SEA AI transports ... 
+ 
+ Stack strength assesment?
+ 
+ Vassals: when will vassals break free?  Under what circumstances will AI reject vassal offer to pursue conquest?  Will victim then try to vassal to another player?
+ 
+ War allies:  how do losing/weak civs ask for help?
++
++Reorganize unit upgrade AI, loop through cities and upgrade city defenses beyond just one unit ... maybe upgrade number needed defenders.  Then upgrade transports and escorts.  Then, if planning war, upgrade offensive units.  Then, if plenty of money, upgrade all units.
++
++Air combat mechanics: make air v air difference than ground v air?
+

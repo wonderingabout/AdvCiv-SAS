@@ -1,0 +1,102 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 429
+# Author: jdog5000
+# Date: 2009-01-20T06:29:39.406192Z
+# Coverage: full
+# Message:
+#   0.60
+#   
+#   Final tweaks for release of development version
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.ncb
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.ncb
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@428
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@429
+@@ -5679,7 +5679,7 @@
+ /********************************************************************************/
+ 
+ /********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						01/12/09			jdog5000	*/
++/**		BETTER_BTS_AI_MOD						01/19/09			jdog5000	*/
+ /**																				*/
+ /**		Naval AI																*/
+ /********************************************************************************/
+@@ -5804,6 +5804,22 @@
+ 			if( (bFull && iCargo > cargoSpace()) || (iCargo >= iTargetReinforcementSize) )
+ 			{
+ 				bReinforce = true;
++			}
++		}
++
++		if( !bAttack && !bReinforce && (plot()->getTeam() == getTeam()) )
++		{
++			if( iEscorts > 3 && iEscorts > (2*getGroup()->countNumUnitAIType(UNITAI_ASSAULT_SEA)) )
++			{
++				// If we have too many escorts, try freeing some for others
++				getGroup()->AI_seperateAI(UNITAI_ATTACK_SEA);
++				getGroup()->AI_seperateAI(UNITAI_RESERVE_SEA);
++
++				iEscorts = getGroup()->countNumUnitAIType(UNITAI_ESCORT_SEA);
++				if( iEscorts > 3 && iEscorts > (2*getGroup()->countNumUnitAIType(UNITAI_ASSAULT_SEA)) )
++				{
++					getGroup()->AI_seperateAI(UNITAI_ESCORT_SEA);
++				}
+ 			}
+ 		}
+ 
+@@ -14741,6 +14757,7 @@
+ 						int iPathTurns;
+ 						if (generatePath(pLoopPlot, MOVE_AVOID_ENEMY_WEIGHT_3, true, &iPathTurns))
+ 						{
++							CvPlot* pEndTurnPlot = getPathEndTurnPlot();
+ 							int iAssaultsHere = 0;
+ 							int iMinAssaultTurns = MAX_INT;
+ 							int iLoop;
+@@ -14859,7 +14876,7 @@
+ 									if (iValue > iBestValue)
+ 									{
+ 										iBestValue = iValue;
+-										pBestPlot = getPathEndTurnPlot();
++										pBestPlot = pEndTurnPlot;
+ 										pBestAssaultPlot = pLoopPlot;
+ 									}
+ 								}
+@@ -17703,7 +17720,7 @@
+ 		if (AI_plotValid(pLoopCity->plot()))
+ 		{
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/18/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      01/19/09                                jdog5000      */
+ /**                                                                                              */
+ /** Naval AI                                                                                     */
+ /*************************************************************************************************/
+@@ -17781,8 +17798,17 @@
+ 									if( (iValue > iBestValue) && (iPathTurns <= iMaxPath) )
+ 									{
+ 										iBestValue = iValue;
+-										pBestPlot = pLoopCity->plot();
++										// Do one turn along path, then reevaluate
++										// Causes update of destination based on troop movement
++										//pBestPlot = pLoopCity->plot();
++										pBestPlot = getPathEndTurnPlot();
+ 										pBestPickupPlot = pLoopCity->plot();
++
++										if( pBestPlot == NULL || atPlot(pBestPlot) )
++										{
++											FAssert(false);
++											pBestPlot = pBestPickupPlot;
++										}
+ 									}
+ 								}
+ 							}
+

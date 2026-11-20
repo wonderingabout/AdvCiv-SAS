@@ -1,0 +1,170 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 500
+# Author: jdog5000
+# Date: 2009-10-23T05:31:18.902711Z
+# Coverage: full
+# Message:
+#   Update to UP 1.3
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@499
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@500
+@@ -4436,12 +4436,12 @@
+ 	CvWString szTempBuffer;
+ 
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                      09/17/09                                jdog5000       */
++/* UNOFFICIAL_PATCH                      10/22/09                                jdog5000       */
+ /*                                                                                              */
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.30 pre-release");
++	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.30");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@499
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@500
+@@ -4842,7 +4842,18 @@
+ 		break;
+ 
+ 	case TRADE_CIVIC:
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       10/22/09                          denev & jdog5000    */
++/*                                                                                              */
++/* Diplomacy                                                                                    */
++/************************************************************************************************/
++/* original bts code
+ 		if (!(GET_TEAM(getTeam()).isHuman()))
++*/
++		if (!(GET_TEAM(getTeam()).isHuman()) || (getTeam() == GET_PLAYER(eWhoTo).getTeam()))
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 		{
+ 			if (GET_PLAYER(eWhoTo).isCivic((CivicTypes)(item.m_iData)))
+ 			{
+@@ -4858,7 +4869,18 @@
+ 		break;
+ 
+ 	case TRADE_RELIGION:
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       10/22/09                          denev & jdog5000    */
++/*                                                                                              */
++/* Diplomacy                                                                                    */
++/************************************************************************************************/
++/* original bts code
+ 		if (!(GET_TEAM(getTeam()).isHuman()))
++*/
++		if (!(GET_TEAM(getTeam()).isHuman()) || (getTeam() == GET_PLAYER(eWhoTo).getTeam()))
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 		{
+ 			if (GET_PLAYER(eWhoTo).getStateReligion() == ((ReligionTypes)(item.m_iData)))
+ 			{
+@@ -7742,7 +7764,7 @@
+ 		return 1;
+ 	}
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
++/* UNOFFICIAL_PATCH                        END                                                  */
+ /************************************************************************************************/	
+ 
+ 	if (GC.getGameINLINE().isForceCivicOption((CivicOptionTypes)(GC.getCivicInfo(eCivic).getCivicOptionType())))
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@499
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@500
+@@ -10534,7 +10534,7 @@
+ 		return 1;
+ 	}
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
++/* UNOFFICIAL_PATCH                        END                                                  */
+ /************************************************************************************************/	
+ 
+ 	CvCivicInfo& kCivic = GC.getCivicInfo(eCivic);
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@499
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@500
+@@ -476,10 +476,28 @@
+ 			{
+ 				if (GET_TEAM(getTeam()).isHasTech((TechTypes)(GC.getBonusInfo((BonusTypes) iI).getTechReveal())))
+ 				{
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       10/22/09                                jdog5000      */
++/*                                                                                              */
++/* Gamespeed scaling                                                                            */
++/************************************************************************************************/
++/* original bts code
+ 					if (GC.getImprovementInfo(getImprovementType()).getImprovementBonusDiscoverRand(iI) > 0)
+ 					{
+ 						if (GC.getGameINLINE().getSorenRandNum(GC.getImprovementInfo(getImprovementType()).getImprovementBonusDiscoverRand(iI), "Bonus Discovery") == 0)
+ 						{
++*/
++					int iOdds = GC.getImprovementInfo(getImprovementType()).getImprovementBonusDiscoverRand(iI);
++					iOdds *= GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getResearchPercent();
++					iOdds /= 100;
++
++					if( iOdds > 0 )
++					{
++						if( GC.getGameINLINE().getSorenRandNum(iOdds, "Bonus Discovery") == 0)
++						{
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 							setBonusType((BonusTypes)iI);
+ 
+ 							pCity = GC.getMapINLINE().findCity(getX_INLINE(), getY_INLINE(), getOwnerINLINE(), NO_TEAM, false);
+@@ -8461,7 +8479,19 @@
+ 
+ 		if (iProbability > 0)
+ 		{
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       10/22/09                                jdog5000      */
++/*                                                                                              */
++/* Gamespeed scaling                                                                            */
++/************************************************************************************************/
++/* original bts code
+ 			if (GC.getGameINLINE().getSorenRandNum(10000, "Feature Disappearance") < iProbability)
++*/
++			int iOdds = (10000*GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getFeatureProductionPercent())/100;
++			if (GC.getGameINLINE().getSorenRandNum(iOdds, "Feature Disappearance") < iProbability)
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 			{
+ 				setFeatureType(NO_FEATURE);
+ 			}
+@@ -8512,7 +8542,19 @@
+ 
+ 							if (iProbability > 0)
+ 							{
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       10/22/09                                jdog5000      */
++/*                                                                                              */
++/* Gamespeed scaling                                                                            */
++/************************************************************************************************/
++/* original bts code
+ 								if (GC.getGameINLINE().getSorenRandNum(10000, "Feature Growth") < iProbability)
++*/
++								int iOdds = (10000*GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getFeatureProductionPercent())/100;
++								if( GC.getGameINLINE().getSorenRandNum(iOdds, "Feature Growth") < iProbability )
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 								{
+ 									setFeatureType((FeatureTypes)iI);
+ 
+

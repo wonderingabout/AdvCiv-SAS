@@ -1,14 +1,15 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
 import CvMainInterface
 import CvTechChooser
 import CvForeignAdvisor
-import CvExoticForeignAdvisor
-import CvReligionScreen
-import CvCorporationScreen
-import CvCivicsScreen
+import CvForeignDiplomacyAdvisor
+import CvPolicyAdvisorScreen
 import CvVictoryScreen
-import CvEspionageAdvisor
 
 import CvOptionsScreen
 import CvReplayScreen
@@ -20,6 +21,7 @@ import CvDawnOfMan
 import CvTechSplashScreen
 import CvTopCivs
 import CvInfoScreen
+import CvWorldAdvisorScreen
 
 import CvIntroMovieScreen
 import CvVictoryMovieScreen
@@ -27,9 +29,7 @@ import CvWonderMovieScreen
 import CvEraMovieScreen
 import CvSpaceShipScreen
 
-# BUG - Sevopedia - start
-import SevoScreenEnums
-# BUG - Sevopedia - end
+# <!-- custom: SevoScreenEnums.py was removed; its IDs now live in class SevoScreenEnums in CvScreenEnums.py and arrive through the existing import below, so the separate module import is unnecessary. (GPT-6.1-Sol) -->
 
 import CvWorldBuilderScreen
 import CvWorldBuilderDiplomacyScreen
@@ -45,9 +45,20 @@ import CvScreenUtilsInterface
 import ScreenInput as PyScreenInput
 from CvScreenEnums import *
 from CvPythonExtensions import *
+import SASDefineGuard
+# <!-- custom: getAdvisorScoreboardSpace and the label font size give the space an open advisor leaves the scoreboard; see getOpenAdvisorScoreboardSpace. (Claude code Opus 5.5) -->
+from SASUtils import getAdvisorScoreboardSpace
+import SASTextScale
+# <!-- custom: Major advisor/screen entry points are Python-owned, so revision 151 records their fixed screen IDs here rather than guessing from DLL widgets.
+# Emit SHOW_REQUEST before drawing: a drawing failure otherwise loses its causal row, and interfaceScreen may return without actually opening.
+# This is intent, not visibility confirmation. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+import SASGameRecordActions
+import SASPopupChoices # <!-- custom: The Python popup handlers use named IDs from the catalog that creates their buttons, avoiding a second numeric convention in gameplay dispatch. (GPT-6.1-Sol) -->
+# <!-- custom: Structured interface diagnostics now use CvUtil.pyPrintRecord, so the former BugUtil-only writer import is no longer needed; the same shared stream layer still supplies row timestamps. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 # K-Mod
 import BugOptionsScreen
 def showBugOptionsScreen(argsList=None):
+	SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_BUG_OPTIONS, SASGameRecordActions.SHOW_REQUEST)
 	BugOptionsScreen.showOptionsScreen()
 # K-Mod end
 
@@ -55,26 +66,34 @@ g_bIsScreenActive = -1
 
 def toggleSetNoScreens():
 	global g_bIsScreenActive
-	print "SCREEN OFF"
+	# <!-- custom: Name the last notified screen on OFF as context; this callback reports no screens, not a verified per-screen close event. (GPT-6.1-Sol) -->
+	CvUtil.pyPrintRecord("SCREEN_OFF", "previousScreenId=%d previousScreenType=%s" % (g_bIsScreenActive, getSASScreenName(g_bIsScreenActive, bUsingSevopedia)))
 	g_bIsScreenActive = -1
+	# <!-- custom: Real menu/game Sevopedia tests emitted this EXE no-screens notification without a recorded onClose hide edge.
+	# Observe that lifecycle boundary directly; querying isActive here could still see the old flag during dispatch.
+	# The native helper ignores duplicate hides and preserves the last overlay's menu/player context. (GPT-6.1-Sol) -->
+	game = CyGame()
+	if game.isSASRuntimeStatusRecordingEnabled():
+		game.updateSASRuntimeStatusCivilopedia(False, False)
 
 def toggleSetScreenOn(argsList):
 	global g_bIsScreenActive
-	print "%s SCREEN TURNED ON" %(argsList[0],)
+	# <!-- custom: Screen IDs alone require a source lookup; reuse the canonical enum names while preserving the ID and the existing notification semantics.
+	# Use record=SCREEN_TURNED_ON so the diagnostic kind is searchable by the same key=value convention as its screen fields. (GPT-6.1-Sol) -->
+	CvUtil.pyPrintRecord("SCREEN_TURNED_ON", "screenId=%d screenType=%s" % (argsList[0], getSASScreenName(argsList[0], bUsingSevopedia)))
 	g_bIsScreenActive = argsList[0]
 
 # BUG - Options - start
 # advc.009b: Renamed from "init"; now called via BugScreenInit.py.
 def initBugAdvisors():
 	createDomesticAdvisor()
-	createFinanceAdvisor()
 	createMilitaryAdvisor()
 	createCivilopedia()
 	createTechSplash()
 # BUG - Options - end
 
 #diplomacyScreen = CvDiplomacy.CvDiplomacy()
-	
+
 mainInterface = CvMainInterface.CvMainInterface()
 def showMainInterface():
 	mainInterface.interfaceScreen()
@@ -91,109 +110,179 @@ def numPlotListButtons():
 techChooser = CvTechChooser.CvTechChooser()
 def showTechChooser():
 	if (-1 != CyGame().getActivePlayer()):
+		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_TECH_CHOOSER, SASGameRecordActions.SHOW_REQUEST)
 		techChooser.interfaceScreen()
 
 hallOfFameScreen = CvHallOfFameScreen.CvHallOfFameScreen(HALL_OF_FAME)
 def showHallOfFame(argsList):
 	hallOfFameScreen.interfaceScreen(argsList[0])
 
-civicScreen = CvCivicsScreen.CvCivicsScreen()
-def showCivicsScreen():
-	if (-1 != CyGame().getActivePlayer()):
-		civicScreen.interfaceScreen()
+# <!-- custom: While a marked advisor (see isScoreboardSpaceAdvisor) is open the scoreboard may shorten leader names to fit beside it, so redraw it when one opens, and in onClose when it closes, as the Tech Advisor does; mainInterface tells whether that changes anything.
+# A first version redrew for any advisor these show functions open, including BUG's own Domestic and Military advisors, which carry no marker (Claude code Opus 5.5 + GPT-6.2-Sol). -->
+def redrawScoreboardForAdvisor(advisor, bOpening=True):
+	if not getattr(advisor, "SAS_LEAVES_SCOREBOARD_SPACE", False):
+		return
+	iSpace = 0
+	if bOpening:
+		iSpace = getAdvisorScoreboardSpace(CyGInterfaceScreen("MainInterface", MAIN_INTERFACE).getXResolution(), SASTextScale.getSASUIFontLabel())
+	if mainInterface.isScoreboardRedrawNeededForAdvisor(bOpening, iSpace):
+		CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, True)
 
-religionScreen = CvReligionScreen.CvReligionScreen()
+# <!-- custom: Which screens leave the scoreboard the space getAdvisorScoreboardSpace gives: those whose screen object in HandleInputMap carries SAS_LEAVES_SCOREBOARD_SPACE, so no separate list of screen IDs can miss one; the advisor_scoreboard_space CI check makes each advisor calling getAdvisorScoreboardSpace carry it.
+# BUG's Customizable Domestic Advisor and BUG Military Advisor, both off by default, share their screen IDs but size themselves, so they carry no marker; neither does the Tech Advisor, whose space getOpenAdvisorScoreboardSpace reads apart.
+# The Policy and Foreign Diplomacy advisors also stand in for the Religion, Corporation and Espionage screen IDs; isScreenUp reports the ID shown, which these never are.
+# A list of screen IDs, first kept in CvMainInterface.py, was replaced by this marker: the layout leaves the space, and the SAS and BUG advisors share an ID while leaving different room, which a list would need exceptions for (the user, 2026-11-20). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+def isScoreboardSpaceAdvisor(eScreen):
+	return getattr(HandleInputMap.get(eScreen), "SAS_LEAVES_SCOREBOARD_SPACE", False)
+
+# <!-- custom: isScreenUp takes the screen ID alone, while CyGInterfaceScreen.isActive also needs a name that the Foreign advisors vary per tab; for these advisors it turned false on close, unlike for the Tech Advisor. (Claude code Opus 5.5) -->
+def isScoreboardSpaceAdvisorUp():
+	for eScreen in HandleInputMap.keys():
+		if isScoreboardSpaceAdvisor(eScreen) and CyInterface().isScreenUp(eScreen):
+			return True
+	return False
+
+# <!-- custom: The space the open advisor leaves the scoreboard on the screen's right, or None with none open; the main interface fits the scoreboard into it.
+# It is queried at each scoreboard draw, so the engine stays the source of truth for which screen is open (Claude code Opus 5.5 + GPT-6.2-Sol).
+# isScreenUp(TECH_CHOOSER) stays true after the Tech Advisor closes, so a first version cut names to its room on the map and beside other advisors too; isActive reports it correctly, as the earlier right-aligned names used. (Claude code Opus 5.5) -->
+def getOpenAdvisorScoreboardSpace():
+	if CyGInterfaceScreen("TechChooser", TECH_CHOOSER).isActive():
+		return techChooser.iRightSpaceForScoreboard
+	if isScoreboardSpaceAdvisorUp():
+		return getAdvisorScoreboardSpace(CyGInterfaceScreen("MainInterface", MAIN_INTERFACE).getXResolution(), SASTextScale.getSASUIFontLabel())
+	return None
+
+policyAdvisorScreen = CvPolicyAdvisorScreen.CvPolicyAdvisorScreen()
+# <!-- custom: canonical policy advisor screen entrypoint. (GPT-5.3-Codex) -->
+def showPolicyAdvisorScreen():
+	if (-1 != CyGame().getActivePlayer()):
+		# <!-- custom: preserve last visited Policy tab on reopen, matching tabbed-advisor behavior used elsewhere. (GPT-5.3-Codex) -->
+		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_POLICY_ADVISOR, SASGameRecordActions.SHOW_REQUEST)
+		redrawScoreboardForAdvisor(policyAdvisorScreen)
+		policyAdvisorScreen.interfaceScreen()
+
+# <!-- custom: Religion advisor is integrated as a native Policy advisor tab; open Policy tab index for Religion instead of standalone CvReligionScreen. (GPT-5.3-Codex) -->
 def showReligionScreen():
 	if (-1 != CyGame().getActivePlayer()):
-		religionScreen.interfaceScreen()
+		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_POLICY_ADVISOR, SASGameRecordActions.SHOW_REQUEST, policyAdvisorScreen.PAGE_RELIGION)
+		redrawScoreboardForAdvisor(policyAdvisorScreen)
+		policyAdvisorScreen.interfaceScreen([policyAdvisorScreen.PAGE_RELIGION])
 
-corporationScreen = CvCorporationScreen.CvCorporationScreen()
+# <!-- custom: Corporation advisor is integrated as a native Policy advisor tab; open Policy tab index for Corporation instead of standalone CvCorporationScreen. (GPT-5.3-Codex) -->
 def showCorporationScreen():
 	if (-1 != CyGame().getActivePlayer()):
-		corporationScreen.interfaceScreen()
+		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_POLICY_ADVISOR, SASGameRecordActions.SHOW_REQUEST, policyAdvisorScreen.PAGE_CORPORATION)
+		redrawScoreboardForAdvisor(policyAdvisorScreen)
+		policyAdvisorScreen.interfaceScreen([policyAdvisorScreen.PAGE_CORPORATION])
 
 optionsScreen = CvOptionsScreen.CvOptionsScreen()
 def showOptionsScreen():
+	# <!-- custom: Options is available from the EXE main menu; sample its state only on this explicit screen entry instead of polling frames.
+	# The cached native gate precedes the diagnostic-only interface query. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	game = CyGame()
+	if game.isSASRuntimeStatusRecordingEnabled():
+		game.updateSASRuntimeStatusMainMenuState(CyInterface().isInMainMenu())
+	SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_OPTIONS, SASGameRecordActions.SHOW_REQUEST)
 	optionsScreen.interfaceScreen()
 
-#foreignAdvisor = CvForeignAdvisor.CvForeignAdvisor()
-foreignAdvisor = CvExoticForeignAdvisor.CvExoticForeignAdvisor()
+# <!-- custom: split Foreign advisors: canonical Foreign (F4) is the trade cluster, while diplomacy/intel is the derivative F3 slot shell. (GPT-5.3-Codex) -->
+foreignAdvisor = CvForeignAdvisor.CvForeignAdvisor()
+foreignDiplomacyAdvisor = CvForeignDiplomacyAdvisor.CvForeignDiplomacyAdvisor()
+FOREIGN_DIPLOMACY_TABS = (foreignDiplomacyAdvisor.SCREEN_DICT["RELATIONS"], foreignDiplomacyAdvisor.SCREEN_DICT["GLANCE"], foreignDiplomacyAdvisor.SCREEN_DICT["INFO"], foreignDiplomacyAdvisor.SCREEN_DICT["ESPIONAGE"])
 def showForeignAdvisorScreen(argsList):
 	if (-1 != CyGame().getActivePlayer()):
-		foreignAdvisor.interfaceScreen(argsList[0])
+		iScreen = -1
+		if type(argsList) in [list, tuple]:
+			if len(argsList) > 0:
+				iScreen = argsList[0]
+		else:
+			iScreen = argsList
+		# <!-- custom: tab clicks from both Foreign shells are routed by the DLL through showForeignAdvisorScreen(iTab) using WIDGET_FOREIGN_ADVISOR.
+		# Keep canonical Foreign defaulting to trade (F4); only diplomacy/intel tab ids route to the F3 shell. (GPT-5.3-Codex) -->
+		if iScreen in FOREIGN_DIPLOMACY_TABS:
+			SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_FOREIGN_DIPLOMACY_ADVISOR, SASGameRecordActions.SHOW_REQUEST, iScreen)
+			redrawScoreboardForAdvisor(foreignDiplomacyAdvisor)
+			foreignDiplomacyAdvisor.interfaceScreen(iScreen)
+		else:
+			SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_FOREIGN_ADVISOR, SASGameRecordActions.SHOW_REQUEST, iScreen)
+			redrawScoreboardForAdvisor(foreignAdvisor)
+			foreignAdvisor.interfaceScreen(iScreen)
 
-# BUG - Finance Advisor - start
-##	
-# K-Mod, 18/dec/10, karadoc
-# I've disabled this option. We always use the 'economics advisor' now.	
-# (but the way I've done it is a kludge)
-##
-financeAdvisor = None
-def createFinanceAdvisor():
-	"""Creates the correct Finance Advisor based on an option."""
-	global financeAdvisor
-	if financeAdvisor is None:
-		import EconomicsAdvisor
-		financeAdvisor = EconomicsAdvisor.EconomicsAdvisor()
-#		if (AdvisorOpt.isBugFinanceAdvisor()):
-#			import BugFinanceAdvisor
-#			financeAdvisor = BugFinanceAdvisor.BugFinanceAdvisor()
-#		else:
-#			import CvFinanceAdvisor
-#			financeAdvisor = CvFinanceAdvisor.CvFinanceAdvisor()
-		HandleInputMap[FINANCE_ADVISOR] = financeAdvisor
-# BUG - Finance Advisor - end
-			
-def showFinanceAdvisor():
+def showForeignDiplomacyAdvisor():
 	if (-1 != CyGame().getActivePlayer()):
-		financeAdvisor.interfaceScreen()
+		# <!-- custom: open F3 with the advisor's persisted tab state (same behavior as F4): -1 reuses last visited tab, and falls back to default only on first open. (GPT-5.4) -->
+		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_FOREIGN_DIPLOMACY_ADVISOR, SASGameRecordActions.SHOW_REQUEST, -1)
+		redrawScoreboardForAdvisor(foreignDiplomacyAdvisor)
+		foreignDiplomacyAdvisor.interfaceScreen(-1)
 
 # BUG - CustDomAdv - start
 domesticAdvisor = None
+domesticAdvisorUsesBUG = None
 def createDomesticAdvisor():
-	"""Creates the correct Domestic Advisor based on an option."""
 	global domesticAdvisor
-	if domesticAdvisor is None:
-		if (CustDomAdvOpt.isEnabled()):
-			import CvCustomizableDomesticAdvisor
-			domesticAdvisor = CvCustomizableDomesticAdvisor.CvCustomizableDomesticAdvisor()
-		else:
-			import CvDomesticAdvisor
-			domesticAdvisor = CvDomesticAdvisor.CvDomesticAdvisor()
-		HandleInputMap[DOMESTIC_ADVISOR] = domesticAdvisor
+	global domesticAdvisorUsesBUG
+	bUseBUG = CustDomAdvOpt.isEnabled()
+	# <!-- custom: Fix: Domestic and Military advisor variant options are live BUG settings, but cached screen objects previously kept using the old variant until restarting Civ4.
+	# Rebuild on option changes so F1/F5 switch immediately.
+	# Religion did not need this path after moving into Policy Advisor. See KI#123. (GPT-5.5) -->
+	if domesticAdvisor is not None and domesticAdvisorUsesBUG == bUseBUG:
+		return
+	if (bUseBUG):
+		import CvCustomizableDomesticAdvisor
+		# <!-- custom: Fix KI#123 follow-up Python error: CDA stores its position-cache flag at module level, so the rebuilt advisor object skipped createPositions and raised missing nScreenX. See KI#123. (GPT-5.5) -->
+		CvCustomizableDomesticAdvisor.forcePositionCalc()
+		domesticAdvisor = CvCustomizableDomesticAdvisor.CvCustomizableDomesticAdvisor()
+	else:
+		import CvDomesticAdvisor
+		domesticAdvisor = CvDomesticAdvisor.CvDomesticAdvisor()
+	domesticAdvisorUsesBUG = bUseBUG
+	HandleInputMap[DOMESTIC_ADVISOR] = domesticAdvisor
 # BUG - CustDomAdv - end
 
 # advc.003y: Default value for unused param added to simplify calls from the DLL
 def showDomesticAdvisor(argsList=None):
 	if (-1 != CyGame().getActivePlayer()):
+		createDomesticAdvisor()
+		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_DOMESTIC_ADVISOR, SASGameRecordActions.SHOW_REQUEST)
+		redrawScoreboardForAdvisor(domesticAdvisor)
 		domesticAdvisor.interfaceScreen()
 
 # BUG - Military Advisor - start
 militaryAdvisor = None
+militaryAdvisorUsesBUG = None
 def createMilitaryAdvisor():
-	"""Creates the correct Military Advisor based on an option."""
 	global militaryAdvisor
-	if militaryAdvisor is None:
-		if (AdvisorOpt.isBUG_MA()):
-			import CvBUGMilitaryAdvisor
-			militaryAdvisor = CvBUGMilitaryAdvisor.CvMilitaryAdvisor(MILITARY_ADVISOR)
-		else:
-			import CvMilitaryAdvisor
-			militaryAdvisor = CvMilitaryAdvisor.CvMilitaryAdvisor(MILITARY_ADVISOR)
-		HandleInputMap[MILITARY_ADVISOR] = militaryAdvisor
+	global militaryAdvisorUsesBUG
+	bUseBUG = AdvisorOpt.isBUG_MA()
+	if militaryAdvisor is not None and militaryAdvisorUsesBUG == bUseBUG:
+		return
+	if (bUseBUG):
+		import CvBUGMilitaryAdvisor
+		militaryAdvisor = CvBUGMilitaryAdvisor.CvMilitaryAdvisor(MILITARY_ADVISOR)
+	else:
+		import CvMilitaryAdvisor
+		militaryAdvisor = CvMilitaryAdvisor.CvMilitaryAdvisor(MILITARY_ADVISOR)
+	militaryAdvisorUsesBUG = bUseBUG
+	HandleInputMap[MILITARY_ADVISOR] = militaryAdvisor
 
 def showMilitaryAdvisor():
 	if (-1 != CyGame().getActivePlayer()):
+		createMilitaryAdvisor()
 		if (AdvisorOpt.isBUG_MA()):
 			# TODO: move to CvBUGMilitaryAdvisor.interfaceScreen()
 			militaryAdvisor.IconGridActive = False
+		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_MILITARY_ADVISOR, SASGameRecordActions.SHOW_REQUEST)
+		redrawScoreboardForAdvisor(militaryAdvisor)
 		militaryAdvisor.interfaceScreen()
 # BUG - Military Advisor - end
 
-espionageAdvisor = CvEspionageAdvisor.CvEspionageAdvisor()
 def showEspionageAdvisor():
 	if (-1 != CyGame().getActivePlayer()):
-		espionageAdvisor.interfaceScreen()
+		# <!-- custom: Espionage screen is integrated into CvForeignAdvisor; open its Espionage tab instead of a separate advisor instance. (GPT-5.3-Codex) -->
+		iTab = foreignDiplomacyAdvisor.SCREEN_DICT["ESPIONAGE"]
+		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_FOREIGN_DIPLOMACY_ADVISOR, SASGameRecordActions.SHOW_REQUEST, iTab)
+		redrawScoreboardForAdvisor(foreignDiplomacyAdvisor)
+		foreignDiplomacyAdvisor.interfaceScreen(iTab)
 
 dawnOfMan = CvDawnOfMan.CvDawnOfMan(DAWN_OF_MAN)
 def showDawnOfMan(argsList):
@@ -202,11 +291,11 @@ def showDawnOfMan(argsList):
 introMovie = CvIntroMovieScreen.CvIntroMovieScreen()
 def showIntroMovie(argsList):
 	introMovie.interfaceScreen()
-	
+
 victoryMovie = CvVictoryMovieScreen.CvVictoryMovieScreen()
 def showVictoryMovie(argsList):
 	victoryMovie.interfaceScreen(argsList[0])
-	
+
 wonderMovie = CvWonderMovieScreen.CvWonderMovieScreen()
 def showWonderMovie(argsList):
 	wonderMovie.interfaceScreen(argsList[0], argsList[1], argsList[2])
@@ -214,12 +303,12 @@ def showWonderMovie(argsList):
 eraMovie = CvEraMovieScreen.CvEraMovieScreen()
 def showEraMovie(argsList):
 	eraMovie.interfaceScreen(argsList[0])
-	
+
 spaceShip = CvSpaceShipScreen.CvSpaceShipScreen()
 def showSpaceShip(argsList):
 	if (-1 != CyGame().getActivePlayer()):
 		spaceShip.interfaceScreen(argsList[0])
-	
+
 replayScreen = CvReplayScreen.CvReplayScreen(REPLAY_SCREEN)
 def showReplay(argsList):
 	if argsList[0] > -1:
@@ -243,7 +332,18 @@ def showInfoScreen(argsList):
 	if (-1 != CyGame().getActivePlayer()):
 		iTabID = argsList[0]
 		iEndGame = argsList[1]
+		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_INFO_SCREEN, SASGameRecordActions.SHOW_REQUEST, iTabID, iEndGame)
+		redrawScoreboardForAdvisor(infoScreen)
 		infoScreen.showScreen(-1, iTabID, iEndGame)
+
+# <!-- custom: F7 is available after Religion/Corporation were integrated into Policy Advisor. (GPT-5.5) -->
+worldAdvisorScreen = CvWorldAdvisorScreen.CvWorldAdvisorScreen(WORLD_ADVISOR)
+# <!-- custom: argsList=None because the engine invokes this both bare (keyboard hotkey) and with an argsList (e.g. on screen close/reopen); without the default, the latter raises "takes no arguments (1 given)". (Claude code Opus 4.7) -->
+def showWorldAdvisorScreen(argsList=None):
+	if (-1 != CyGame().getActivePlayer()):
+		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_WORLD_ADVISOR, SASGameRecordActions.SHOW_REQUEST)
+		redrawScoreboardForAdvisor(worldAdvisorScreen)
+		worldAdvisorScreen.showScreen()
 
 debugInfoScreen = CvDebugInfoScreen.CvDebugInfoScreen()
 def showDebugInfoScreen():
@@ -252,7 +352,8 @@ def showDebugInfoScreen():
 # BUG - Tech Splash Screen - start
 techSplashScreen = None
 def createTechSplash():
-	"""Creates the correct Tech Splash Screen based on an option."""
+	# Creates the correct Tech Splash Screen based on an option.
+	#
 	global techSplashScreen
 	if techSplashScreen is None:
 		if (TechWindowOpt.isDetailedView()):
@@ -281,6 +382,8 @@ def showTechSplash(argsList):
 victoryScreen = CvVictoryScreen.CvVictoryScreen(VICTORY_SCREEN)
 def showVictoryScreen():
 	if (-1 != CyGame().getActivePlayer()):
+		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_VICTORY_SCREEN, SASGameRecordActions.SHOW_REQUEST)
+		redrawScoreboardForAdvisor(victoryScreen)
 		victoryScreen.interfaceScreen()
 
 # BUG - Sevopedia - start
@@ -288,7 +391,9 @@ def showVictoryScreen():
 pediaMainScreen = None
 bUsingSevopedia = False
 def createCivilopedia():
-	"""Creates the correct Civilopedia based on an option."""
+	# Creates the correct Civilopedia based on an option.
+	#
+	SASDefineGuard.verify_or_raise("CvScreensInterface.createCivilopedia")
 	global pediaMainScreen
 	global bUsingSevopedia
 	if pediaMainScreen is None:
@@ -322,7 +427,7 @@ def createCivilopedia():
 								PEDIA_RELIGION : pediaMainScreen,
 								PEDIA_CORPORATION : pediaMainScreen,
 								PEDIA_HISTORY : pediaMainScreen,
-								
+
 								SevoScreenEnums.PEDIA_MAIN		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_TECHS		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_UNITS		: pediaMainScreen,
@@ -332,13 +437,15 @@ def createCivilopedia():
 								SevoScreenEnums.PEDIA_PROMOTION_TREE	: pediaMainScreen,
 								SevoScreenEnums.PEDIA_BUILDINGS		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_NATIONAL_WONDERS	: pediaMainScreen,
-								SevoScreenEnums.PEDIA_GREAT_WONDERS	: pediaMainScreen,
+								SevoScreenEnums.PEDIA_WORLD_WONDERS	: pediaMainScreen,
 								SevoScreenEnums.PEDIA_PROJECTS		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_SPECIALISTS	: pediaMainScreen,
 								SevoScreenEnums.PEDIA_TERRAINS		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_FEATURES		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_BONUSES		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_IMPROVEMENTS	: pediaMainScreen,
+								SevoScreenEnums.PEDIA_BUILDS		: pediaMainScreen,
+								SevoScreenEnums.PEDIA_ROUTES		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_CIVS		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_LEADERS		: pediaMainScreen,
 								# SevoScreenEnums.PEDIA_TRAITS		: pediaMainScreen,
@@ -349,6 +456,8 @@ def createCivilopedia():
 								SevoScreenEnums.PEDIA_BTS_CONCEPTS	: pediaMainScreen,
 								SevoScreenEnums.PEDIA_HINTS		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_SHORTCUTS		: pediaMainScreen,
+								SevoScreenEnums.PEDIA_MOVIES		: pediaMainScreen,
+								SevoScreenEnums.PEDIA_MUSIC		: pediaMainScreen,
 							})
 		global HandleNavigationMap
 		HandleNavigationMap = {
@@ -370,7 +479,7 @@ def createCivilopedia():
 							PEDIA_HISTORY : pediaMainScreen,
 							PEDIA_RELIGION : pediaMainScreen,
 							PEDIA_CORPORATION : pediaMainScreen,
-							
+
 							SevoScreenEnums.PEDIA_MAIN		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_TECHS		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_UNITS		: pediaMainScreen,
@@ -380,13 +489,15 @@ def createCivilopedia():
 							SevoScreenEnums.PEDIA_PROMOTION_TREE	: pediaMainScreen,
 							SevoScreenEnums.PEDIA_BUILDINGS		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_NATIONAL_WONDERS	: pediaMainScreen,
-							SevoScreenEnums.PEDIA_GREAT_WONDERS	: pediaMainScreen,
+							SevoScreenEnums.PEDIA_WORLD_WONDERS	: pediaMainScreen,
 							SevoScreenEnums.PEDIA_PROJECTS		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_SPECIALISTS	: pediaMainScreen,
 							SevoScreenEnums.PEDIA_TERRAINS		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_FEATURES		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_BONUSES		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_IMPROVEMENTS	: pediaMainScreen,
+							SevoScreenEnums.PEDIA_BUILDS		: pediaMainScreen,
+							SevoScreenEnums.PEDIA_ROUTES		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_CIVS		 	: pediaMainScreen,
 							SevoScreenEnums.PEDIA_LEADERS		: pediaMainScreen,
 							# SevoScreenEnums.PEDIA_TRAITS		: pediaMainScreen,
@@ -397,6 +508,8 @@ def createCivilopedia():
 							SevoScreenEnums.PEDIA_BTS_CONCEPTS	: pediaMainScreen,
 							SevoScreenEnums.PEDIA_HINTS			: pediaMainScreen,
 							SevoScreenEnums.PEDIA_SHORTCUTS		: pediaMainScreen,
+							SevoScreenEnums.PEDIA_MOVIES			: pediaMainScreen,
+							SevoScreenEnums.PEDIA_MUSIC			: pediaMainScreen,
 						}
 
 def linkToPedia(argsList):
@@ -404,7 +517,19 @@ def linkToPedia(argsList):
 
 def pediaShow():
 	createCivilopedia()
-	return pediaMainScreen.pediaShow()
+	# <!-- custom: Preserve menu context before the overlay changes presentation, but skip diagnostic-only UI queries when recording is disabled.
+	# A positive sample proves EXE main-menu state at this callback, not initial menu-arrival time. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	game = CyGame()
+	bRecordRuntime = game.isSASRuntimeStatusRecordingEnabled()
+	bInMainMenu = False
+	if bRecordRuntime:
+		bInMainMenu = CyInterface().isInMainMenu()
+		game.updateSASRuntimeStatusMainMenuState(bInMainMenu)
+	result = pediaMainScreen.pediaShow()
+	# <!-- custom: Both standard Civilopedia and Sevopedia expose getScreen().isActive(); report the overlay and its menu/game context only after the show path confirms it active. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	if bRecordRuntime and pediaMainScreen.getScreen().isActive():
+		game.updateSASRuntimeStatusCivilopedia(True, bInMainMenu)
+	return result
 
 def pediaBack():
 	return pediaMainScreen.back()
@@ -484,6 +609,46 @@ def pediaJumpToImprovement(argsList):
 	else:
 		pediaMainScreen.pediaJump(PEDIA_IMPROVEMENT, argsList[0], True)
 
+def pediaJumpToRoute(argsList):
+	iRoute = argsList[0]
+	# <!-- custom: This module has no global gc, so the Tech Advisor click raised NameError: global name 'gc' is not defined; other functions here call CyGlobalContext() directly. See KI#113. (Claude code Opus 5.5) -->
+	if bUsingSevopedia and 0 <= iRoute < CyGlobalContext().getNumRouteInfos():
+		return pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_ROUTES, iRoute, True, False)
+	return 0
+
+def pediaJumpToEra(argsList):
+	iEra = argsList[0]
+	if bUsingSevopedia and 0 <= iEra < CyGlobalContext().getNumEraInfos():
+		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_ERA_CHART, iEra, True, False)
+
+# <!-- custom: Target of the native WIDGET_PEDIA_JUMP_TO_TRAIT. See KI#113. (Claude code Opus 5.5) -->
+def pediaJumpToTrait(argsList):
+	iTrait = argsList[0]
+	if bUsingSevopedia and 0 <= iTrait < CyGlobalContext().getNumTraitInfos():
+		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_TRAITS, iTrait, True, False)
+
+# <!-- custom: Target of the native WIDGET_PEDIA_JUMP_TO_VOTE. See KI#113. (Claude code Opus 5.5) -->
+def pediaJumpToVote(argsList):
+	iVote = argsList[0]
+	if bUsingSevopedia and 0 <= iVote < CyGlobalContext().getNumVoteInfos():
+		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_VOTES, iVote, True, False)
+
+def pediaJumpToEventTrigger(argsList):
+	iTrigger = argsList[0]
+	if bUsingSevopedia and 0 <= iTrigger < CyGlobalContext().getNumEventTriggerInfos():
+		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_EVENT_TRIGGERS, iTrigger, True, False)
+
+def pediaJumpToBuild(argsList):
+	if (bUsingSevopedia):
+		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_BUILDS, argsList[0], True, False)
+	else:
+		# <!-- custom: Standard Civilopedia has no Build page, and BuildTypes IDs are unrelated to ImprovementTypes IDs.
+		# Redirect only improvement-producing Builds through their real ImprovementTypes value; unsupported route/feature-removal Builds now stay on the current screen instead of opening an unrelated Improvement. See KI#301. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		# <!-- custom: Same missing gc as pediaJumpToRoute; this path runs only without Sevopedia. (Claude code Opus 5.5) -->
+		iImprovement = CyGlobalContext().getBuildInfo(argsList[0]).getImprovement()
+		if iImprovement >= 0:
+			pediaMainScreen.pediaJump(PEDIA_IMPROVEMENT, iImprovement, True)
+
 def pediaJumpToCiv(argsList):
 	if (bUsingSevopedia):
 		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_CIVS, argsList[0], True, False)
@@ -534,10 +699,16 @@ def getWorldBuilderScreen():
 	return worldBuilderScreen
 
 def showWorldBuilderScreen():
+	SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_WORLD_BUILDER, SASGameRecordActions.SHOW_REQUEST)
 	worldBuilderScreen.interfaceScreen()
+	# <!-- custom: This show/hide-only exception sends a literal bool to the native gate; asking Python to query that native flag would itself cross the bridge.
+	# Keep diagnostic collection/computed arguments caller-pre-gated; this notification does neither, and C++ checks before WorldBuilder/Advanced Start queries. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	CyGame().updateSASRuntimeStatusWorldBuilderScreen(True)
 
 def hideWorldBuilderScreen():
 	worldBuilderScreen.killScreen()
+	CyGame().updateSASRuntimeStatusWorldBuilderScreen(False)
+	SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_WORLD_BUILDER, SASGameRecordActions.HIDE)
 
 def WorldBuilderToggleUnitEditCB():
 	worldBuilderScreen.toggleUnitEditCB()
@@ -570,11 +741,27 @@ def WorldBuilderRevealTabModeCB():
 def WorldBuilderDiplomacyModeCB():
 	worldBuilderScreen.diplomacyModeCB()
 
+# <!-- custom: Inherited revealAll loops through CyPlot.setRevealed once per map tile.
+# Mark this known bulk editor operation so native history counts actual changed plots, collapses a successful loop to one row, preserves a partial-exception row, and emits nothing for a no-op; suppression is always cleared. (ChatGPT-5.6-Sol) -->
 def WorldBuilderRevealAllCB():
-	worldBuilderScreen.revealAll(True)
+	game = CyGame()
+	game.beginSASWorldBuilderBulkEdit()
+	bCompleted = False
+	try:
+		worldBuilderScreen.revealAll(True)
+		bCompleted = True
+	finally:
+		game.endSASWorldBuilderBulkReveal(worldBuilderScreen.m_iCurrentTeam, True, bCompleted)
 
 def WorldBuilderUnRevealAllCB():
-	worldBuilderScreen.revealAll(False)
+	game = CyGame()
+	game.beginSASWorldBuilderBulkEdit()
+	bCompleted = False
+	try:
+		worldBuilderScreen.revealAll(False)
+		bCompleted = True
+	finally:
+		game.endSASWorldBuilderBulkReveal(worldBuilderScreen.m_iCurrentTeam, False, bCompleted)
 
 def WorldBuilderHandleUnitCB( argsList ):
 	worldBuilderScreen.handleUnitCB(argsList)
@@ -602,13 +789,13 @@ def WorldBuilderHandleAllPlotsCB( argsList ):
 
 def WorldBuilderHandleUnitEditExperienceCB( argsList ):
 	worldBuilderScreen.handleUnitEditExperienceCB(argsList)
-	
+
 def WorldBuilderHandleUnitEditLevelCB( argsList ):
 	worldBuilderScreen.handleUnitEditLevelCB(argsList)
-	
+
 def WorldBuilderHandleUnitEditNameCB( argsList ):
 	worldBuilderScreen.handleUnitEditNameCB(argsList)
-	
+
 def WorldBuilderHandleCityEditPopulationCB( argsList ):
 	worldBuilderScreen.handleCityEditPopulationCB(argsList)
 
@@ -629,6 +816,8 @@ def WorldBuilderHandleCityEditNameCB( argsList ):
 
 def WorldBuilderHandleLandmarkTextCB( argsList ):
 	worldBuilderScreen.handleLandmarkTextCB(argsList)
+	# <!-- custom: WorldBuilder landmark text has an explicit Python apply callback; observe immediately afterward so editor captions do not wait until the next turn/save boundary. (ChatGPT-5.6-Sol) -->
+	if SASGameRecordActions.isEnabled(): SASGameRecordActions.observeMapAnnotations(mainInterface.getHiddenMapAnnotationSignsForSave(), "WORLD_BUILDER_LANDMARK")
 
 def WorldBuilderHandleUnitEditPullDownCB( argsList ):
 	worldBuilderScreen.handleUnitEditPullDownCB(argsList)
@@ -676,59 +865,62 @@ def WorldBuilderGetHighlightPlot(argsList):
 	return worldBuilderScreen.getHighlightPlot(argsList)
 
 def WorldBuilderOnAdvancedStartBrushSelected(argsList):
-	iList,iIndex,iTab = argsList;
-	print("WB Advanced Start brush selected, iList=%d, iIndex=%d, type=%d" %(iList,iIndex,iTab))	
+	iList,iIndex,iTab = argsList
+	# <!-- custom: One WB_BRUSH_SELECTED record family makes brush messages searchable; mode distinguishes the callback and tabId names the former ambiguous type field. (GPT-6.1-Sol) -->
+	CvUtil.pyPrintRecord("WB_BRUSH_SELECTED", "mode=ADVANCED_START listId=%d index=%d tabId=%d" % (iList, iIndex, iTab))
 	if (iTab == worldBuilderScreen.m_iASTechTabID):
 		showTechChooser()
 	elif (iTab == worldBuilderScreen.m_iASCityTabID and iList == worldBuilderScreen.m_iASAutomateListID):
 		CyMessageControl().sendAdvancedStartAction(AdvancedStartActionTypes.ADVANCEDSTARTACTION_AUTOMATE, worldBuilderScreen.m_iCurrentPlayer, -1, -1, -1, true)
-		
+
 	if (worldBuilderScreen.setCurrentAdvancedStartIndex(iIndex)):
 		if (worldBuilderScreen.setCurrentAdvancedStartList(iList)):
 			return 1
 	return 0
 
 def WorldBuilderOnNormalPlayerBrushSelected(argsList):
-	iList,iIndex,iTab = argsList;
-	print("WB brush selected, iList=%d, iIndex=%d, type=%d" %(iList,iIndex,iTab))	
+	iList,iIndex,iTab = argsList
+	# <!-- custom: Identify the player-brush callback within the shared WB_BRUSH_SELECTED family. (GPT-6.1-Sol) -->
+	CvUtil.pyPrintRecord("WB_BRUSH_SELECTED", "mode=PLAYER listId=%d index=%d tabId=%d" % (iList, iIndex, iTab))
 	if (worldBuilderScreen.setCurrentNormalPlayerIndex(iIndex)):
 		return 1
 	return 0
 
 def WorldBuilderOnNormalMapBrushSelected(argsList):
-	iList,iIndex,iTab = argsList;
-	print("WB brush selected, iList=%d, iIndex=%d, type=%d" %(iList,iIndex,iTab))	
+	iList,iIndex,iTab = argsList
+	# <!-- custom: Identify the map-brush callback within the shared WB_BRUSH_SELECTED family. (GPT-6.1-Sol) -->
+	CvUtil.pyPrintRecord("WB_BRUSH_SELECTED", "mode=MAP listId=%d index=%d tabId=%d" % (iList, iIndex, iTab))
 	if (worldBuilderScreen.setCurrentNormalMapIndex(iIndex)):
 		if (worldBuilderScreen.setCurrentNormalMapList(iList)):
 			return 1
 	return 0
 
 def WorldBuilderOnWBEditBrushSelected(argsList):
-	iList,iIndex,iTab = argsList;
+	iList,iIndex,iTab = argsList
 	if (worldBuilderScreen.setEditButtonClicked(iIndex)):
 		return 1
 	return 0
 
 def WorldBuilderOnWBEditReligionSelected(argsList):
-	iList,iIndex,iTab = argsList;
+	iList,iIndex,iTab = argsList
 	if (worldBuilderScreen.setEditReligionSelected(iIndex)):
 		return 1
 	return 0
 
 def WorldBuilderOnWBEditHolyCitySelected(argsList):
-	iList,iIndex,iTab = argsList;
+	iList,iIndex,iTab = argsList
 	if (worldBuilderScreen.setEditHolyCitySelected(iIndex)):
 		return 1
 	return 0
 
 def WorldBuilderOnWBEditCorporationSelected(argsList):
-	iList,iIndex,iTab = argsList;
+	iList,iIndex,iTab = argsList
 	if (worldBuilderScreen.setEditCorporationSelected(iIndex)):
 		return 1
 	return 0
 
 def WorldBuilderOnWBEditHeadquartersSelected(argsList):
-	iList,iIndex,iTab = argsList;
+	iList,iIndex,iTab = argsList
 	if (worldBuilderScreen.setEditHeadquartersSelected(iIndex)):
 		return 1
 	return 0
@@ -840,15 +1032,17 @@ def WorldBuilderHasHeadquarters(argsList):
 
 def WorldBuilderHandleDiploPlayerDropdownCB( argsList ):
 	worldBuilderScreen.handleDiploPlayerDropdownCB(argsList)
-	
+
 ##### WORLDBUILDER DIPLOMACY SCREEN #####
 
 worldBuilderDiplomacyScreen = CvWorldBuilderDiplomacyScreen.CvWorldBuilderDiplomacyScreen()
 def showWorldBuilderDiplomacyScreen():
+	SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_WORLD_BUILDER_DIPLOMACY, SASGameRecordActions.SHOW_REQUEST)
 	worldBuilderDiplomacyScreen.interfaceScreen()
 
 def hideWorldBuilderDiplomacyScreen():
 	worldBuilderDiplomacyScreen.killScreen()
+	SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_WORLD_BUILDER_DIPLOMACY, SASGameRecordActions.HIDE)
 
 def handleWorldBuilderDiplomacyPlayerPullDownCB(argsList):
 	worldBuilderDiplomacyScreen.handlePlayerPullDownCB(int(argsList[0]))
@@ -876,7 +1070,7 @@ def movieDone(argsList):
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().movieDone(argsList)):
 		return
-	
+
 	if (argsList[0] == INTRO_MOVIE_SCREEN):
 		introMovie.hideScreen()
 
@@ -887,17 +1081,17 @@ def leftMouseDown (argsList):
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().leftMouseDown(argsList)):
 		return
-	
+
 	if ( argsList[0] == WORLDBUILDER_SCREEN ):
 		worldBuilderScreen.leftMouseDown(argsList[1:])
 		return 1
 	return 0
-		
+
 def rightMouseDown (argsList):
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().rightMouseDown(argsList)):
 		return
-	
+
 	if ( argsList[0] == WORLDBUILDER_SCREEN ):
 		worldBuilderScreen.rightMouseDown(argsList)
 		return 1
@@ -907,20 +1101,21 @@ def mouseOverPlot (argsList):
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().mouseOverPlot(argsList)):
 		return
-	
+
 	if (WORLDBUILDER_SCREEN == argsList[0]):
 		worldBuilderScreen.mouseOverPlot(argsList)
 
 def handleInput (argsList):
-	' handle input is called when a screen is up '
+	# handle input is called when a screen is up
+	#
 	inputClass = PyScreenInput.ScreenInput(argsList)
-	
+
 	# allows overides for mods
 	ret = CvScreenUtilsInterface.getScreenUtils().handleInput( (inputClass.getPythonFile(),inputClass) )
 
 	# get the screen that is active from the HandleInputMap Dictionary
 	screen = HandleInputMap.get( inputClass.getPythonFile() )
-	
+
 	# call handle input on that screen
 	if ( screen and not ret):
 		return screen.handleInput(inputClass)
@@ -930,26 +1125,36 @@ def update (argsList):
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().update(argsList)):
 		return
-	
+
 	if (HandleInputMap.has_key(argsList[0])):
 		screen = HandleInputMap.get(argsList[0])
 		screen.update(argsList[1])
 
 def onClose (argsList):
+	# <!-- custom: Record the engine's close callback even when a screen has no custom onClose handler.
+	# Numeric registered screen IDs avoid a duplicate screen-name registry; this records the callback, not a guarantee that an override closed the screen. (GPT-6.1-Sol) -->
+	if argsList[0] in HandleInputMap:
+		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_PYTHON_SCREEN, SASGameRecordActions.CLOSE_CALLBACK, argsList[0])
 	# allows overides for mods
-	if (CvScreenUtilsInterface.getScreenUtils().onClose(argsList)):
-		return
-
-	if (HandleCloseMap.has_key(argsList[0])):
+	bHandled = CvScreenUtilsInterface.getScreenUtils().onClose(argsList)
+	if not bHandled and argsList[0] in HandleCloseMap:
 		screen = HandleCloseMap.get(argsList[0])
 		screen.onClose()
-		
+	redrawScoreboardForAdvisor(HandleInputMap.get(argsList[0]), False)
+	# <!-- custom: All standard/Sevopedia page IDs share the pedia object, but a close callback alone does not prove it hidden.
+	# Preserve override dispatch, then confirm the screen inactive before clearing the observed overlay; an override may have kept it open.
+	# This event-driven probe is gated before screen queries and never polls frames. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	game = CyGame()
+	if game.isSASRuntimeStatusRecordingEnabled() and pediaMainScreen is not None and HandleInputMap.get(argsList[0]) is pediaMainScreen:
+		if not pediaMainScreen.getScreen().isActive():
+			game.updateSASRuntimeStatusCivilopedia(False, False)
+
 # Forced screen update
 def forceScreenUpdate (argsList):
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().forceScreenUpdate(argsList)):
 		return
-		
+
 	# Tech chooser update (forced from net message)
 	if ( argsList[0] == TECH_CHOOSER ):
 		techChooser.updateTechRecords(false)
@@ -968,7 +1173,7 @@ def forceScreenRedraw (argsList):
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().forceScreenRedraw(argsList)):
 		return
-	
+
 	# Main Interface Screen
 	if ( argsList[0] == MAIN_INTERFACE ):
 		mainInterface.redraw()
@@ -979,12 +1184,11 @@ def forceScreenRedraw (argsList):
 	elif ( argsList[0] == TECH_CHOOSER ):
 		techChooser.updateTechRecords(true)
 
-
 def minimapClicked (argsList):
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().minimapClicked(argsList)):
 		return
-	
+
 	if (MILITARY_ADVISOR == argsList[0]):
 		militaryAdvisor.minimapClicked()
 	return
@@ -998,7 +1202,8 @@ def handleBack(screens):
 		if (HandleNavigationMap.has_key(iScreen)):
 			screen = HandleNavigationMap.get( iScreen )
 			screen.back()
-	print "Mouse BACK"
+	# <!-- custom: This callback receives a navigation request; its token does not assume mouse input or successful page movement. (GPT-6.1-Sol) -->
+	CvUtil.pyPrintRecord("SCREEN_BACK_REQUEST")
 	return 0
 
 def handleForward(screens):
@@ -1006,7 +1211,8 @@ def handleForward(screens):
 		if (HandleNavigationMap.has_key(iScreen)):
 			screen = HandleNavigationMap.get( iScreen )
 			screen.forward()
-	print "Mouse FWD"
+	# <!-- custom: Match the backward-request token without attributing the request to a particular input device. (GPT-6.1-Sol) -->
+	CvUtil.pyPrintRecord("SCREEN_FORWARD_REQUEST")
 	return 0
 
 def refreshMilitaryAdvisor (argsList):
@@ -1018,7 +1224,7 @@ def refreshMilitaryAdvisor (argsList):
 		militaryAdvisor.drawCombatExperience()
 	elif (argsList[0] <= 0):
 		militaryAdvisor.refreshSelectedUnit(-argsList[0], argsList[1])
-	
+
 def updateMusicPath (argsList):
     szPathName = argsList[0]
     optionsScreen.updateMusicPath(szPathName)
@@ -1034,7 +1240,7 @@ def updateCameraStartDistance(): # Called by DLL and by InputUtil.updateCameraSt
 	gc = CyGlobalContext()
 	if choice == 0:
 		gc.updateCameraStartDistance(False)
-	# If these constants are changed, then they should also be changed in TXT_KEY_BUG_OPT_MAININTERFACE__DEFAULTCAMDISTANCE_HOVER (BUG Main Interface Options.xml).
+	# If these constants are changed, then they should also be changed in TXT_KEY_BUG_OPT_MAININTERFACE__DEFAULTCAMDISTANCE_HOVER (BUG_Main_Interface_Options.xml).
 	elif choice == 1:
 		newVal = 2200
 	elif choice == 2:
@@ -1052,18 +1258,23 @@ def cityWarningOnClickedCallback(argsList):
 	iData1 = argsList[1]
 	iData2 = argsList[2]
 	iData3 = argsList[3]
+	# <!-- custom: This known Python callback supplies the choice meaning hidden by the generic native popup row; observe reviewed IDs before dispatch, without reading displayed text or changing the handler.
+	# Gate before diagnostic-only context collection. (GPT-6.1-Sol) -->
+	if SASGameRecordActions.isEnabled():
+		SASGameRecordActions.logCityRecommendationResponse(CyGlobalContext(), iButtonId, iData1, iData2, iData3)
 	iData4 = argsList[4]
 	szText = argsList[5]
 	bOption1 = argsList[6]
 	bOption2 = argsList[7]
 	city = CyGlobalContext().getPlayer(CyGlobalContext().getGame().getActivePlayer()).getCity(iData1)
 	if (not city.isNone()):
-		if (iButtonId == 0):
+		# <!-- custom: Dispatch the same named choice IDs assigned by button construction; no logging state participates in this gameplay decision. (GPT-6.1-Sol) -->
+		if (iButtonId == SASPopupChoices.CITY_RECOMMENDATION.ACCEPT_RECOMMENDATION):
 			if (city.isProductionProcess()):
 				CyMessageControl().sendPushOrder(iData1, iData2, iData3, False, False, False)
 			else:
 				CyMessageControl().sendPushOrder(iData1, iData2, iData3, False, True, False)
-		elif (iButtonId == 2):
+		elif (iButtonId == SASPopupChoices.CITY_RECOMMENDATION.EXAMINE_CITY):
 			CyInterface().selectCity(city, False)
 
 def cityWarningOnFocusCallback(argsList):
@@ -1076,15 +1287,20 @@ def liberateOnClickedCallback(argsList):
 	iData1 = argsList[1]
 	iData2 = argsList[2]
 	iData3 = argsList[3]
+	# <!-- custom: This known Python callback supplies the choice meaning hidden by the generic native popup row; observe reviewed IDs before dispatch, without reading displayed text or changing the handler.
+	# Gate before diagnostic-only context collection. (GPT-6.1-Sol) -->
+	if SASGameRecordActions.isEnabled():
+		SASGameRecordActions.logCityDispositionResponse(iButtonId, iData1, False)
 	iData4 = argsList[4]
 	szText = argsList[5]
 	bOption1 = argsList[6]
 	bOption2 = argsList[7]
 	city = CyGlobalContext().getPlayer(CyGlobalContext().getGame().getActivePlayer()).getCity(iData1)
 	if (not city.isNone()):
-		if (iButtonId == 0):
+		# <!-- custom: Dispatch the same named choice IDs assigned by button construction; no logging state participates in this gameplay decision. (GPT-6.1-Sol) -->
+		if (iButtonId == SASPopupChoices.LIBERATION.ACCEPT_LIBERATION):
 			CyMessageControl().sendDoTask(iData1, TaskTypes.TASK_LIBERATE, 0, -1, False, False, False, False)
-		elif (iButtonId == 2):
+		elif (iButtonId == SASPopupChoices.LIBERATION.EXAMINE_CITY):
 			CyInterface().selectCity(city, False)
 
 def colonyOnClickedCallback(argsList):
@@ -1092,15 +1308,20 @@ def colonyOnClickedCallback(argsList):
 	iData1 = argsList[1]
 	iData2 = argsList[2]
 	iData3 = argsList[3]
+	# <!-- custom: This known Python callback supplies the choice meaning hidden by the generic native popup row; observe reviewed IDs before dispatch, without reading displayed text or changing the handler.
+	# Gate before diagnostic-only context collection. (GPT-6.1-Sol) -->
+	if SASGameRecordActions.isEnabled():
+		SASGameRecordActions.logCityDispositionResponse(iButtonId, iData1, True)
 	iData4 = argsList[4]
 	szText = argsList[5]
 	bOption1 = argsList[6]
 	bOption2 = argsList[7]
 	city = CyGlobalContext().getPlayer(CyGlobalContext().getGame().getActivePlayer()).getCity(iData1)
 	if (not city.isNone()):
-		if (iButtonId == 0):
+		# <!-- custom: Dispatch the same named choice IDs assigned by button construction; no logging state participates in this gameplay decision. (GPT-6.1-Sol) -->
+		if (iButtonId == SASPopupChoices.COLONY.ACCEPT_COLONY):
 			CyMessageControl().sendEmpireSplit(CyGlobalContext().getGame().getActivePlayer(), city.area().getID())
-		elif (iButtonId == 2):
+		elif (iButtonId == SASPopupChoices.COLONY.EXAMINE_CITY):
 			CyInterface().selectCity(city, False)
 
 def featAccomplishedOnClickedCallback(argsList):
@@ -1108,18 +1329,29 @@ def featAccomplishedOnClickedCallback(argsList):
 	iData1 = argsList[1]
 	iData2 = argsList[2]
 	iData3 = argsList[3]
+	# <!-- custom: This known Python callback supplies the choice meaning hidden by the generic native popup row; observe reviewed IDs before dispatch, without reading displayed text or changing the handler.
+	# Gate before diagnostic-only context collection. (GPT-6.1-Sol) -->
+	if SASGameRecordActions.isEnabled():
+		SASGameRecordActions.logFeatResponse(iButtonId, iData1, iData2)
 	iData4 = argsList[4]
 	szText = argsList[5]
 	bOption1 = argsList[6]
 	bOption2 = argsList[7]
-	
-	if (iButtonId == 1):
+
+	# <!-- custom: Dispatch the same named choice IDs assigned by button construction; no logging state participates in this gameplay decision. (GPT-6.1-Sol) -->
+	if (iButtonId == SASPopupChoices.FEAT.REQUEST_FEAT_DETAILS):
 		if (iData1 == FeatTypes.FEAT_TRADE_ROUTE):
 			showDomesticAdvisor(())
-		elif ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER) and (iData1 <= FeatTypes.FEAT_UNIT_SPY)):
+		# <!-- custom: new unit combat types -->
+		elif ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT) and (iData1 <= FeatTypes.FEAT_UNIT_SPY)):
+			showMilitaryAdvisor()
+		elif ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG) and (iData1 <= FeatTypes.FEAT_UNIT_SPY)):
+			showMilitaryAdvisor()
+		elif ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW) and (iData1 <= FeatTypes.FEAT_UNIT_SPY)):
 			showMilitaryAdvisor()
 		elif ((iData1 >= FeatTypes.FEAT_COPPER_CONNECTED) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
-			showForeignAdvisorScreen([0])
+			# <!-- custom: resource-connected feat now belongs to the Foreign Trade cluster; open Bonuses tab there. (GPT-5.3-Codex) -->
+			showForeignAdvisorScreen([foreignAdvisor.SCREEN_DICT["BONUS"]])
 		elif ((iData1 == FeatTypes.FEAT_NATIONAL_WONDER)):
 			# 2 is for the wonder tab...
 			showInfoScreen([2, 0])
@@ -1137,13 +1369,16 @@ def featAccomplishedOnFocusCallback(argsList):
 	szText = argsList[4]
 	bOption1 = argsList[5]
 	bOption2 = argsList[6]
-	
-	CyInterface().playGeneralSound("AS2D_FEAT_ACCOMPLISHED")
-	if ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
-		CyInterface().lookAtCityOffset(iData2)
-		
-	return 0
 
+	CyInterface().playGeneralSound("AS2D_FEAT_ACCOMPLISHED")
+	# <!-- custom: implementing our new unit combat types, for example archery units: archers bow short, archers bow long, archers crossbow i am not sure exactly what this code does except play a sound and why it does to some unit combat types and not others, but for now for simplicity and such i am just going to change the combat type here too.
+	# Adding the crossbows too, i don't know if this is safe considering they were not added before, but testing to see what happens, maybe it works.
+	# (?) -->
+	#if ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
+	#	CyInterface().lookAtCityOffset(iData2)
+	if (( (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT) or (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG) or (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW) ) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
+		CyInterface().lookAtCityOffset(iData2)
+	return 0
 
 #######################################################################################
 ## Handle Close Map
@@ -1159,12 +1394,14 @@ HandleCloseMap = {  DAWN_OF_MAN : dawnOfMan,
 #######################################################################################
 HandleInputMap = {  MAIN_INTERFACE : mainInterface,
 #					DOMESTIC_ADVISOR : domesticAdvisor,
-					RELIGION_SCREEN : religionScreen,
-					CORPORATION_SCREEN : corporationScreen,
-					CIVICS_SCREEN : civicScreen,
+					# <!-- custom: route RELIGION_SCREEN input to Policy advisor because Religion is now a native Policy tab. (GPT-5.3-Codex) -->
+					RELIGION_SCREEN : policyAdvisorScreen,
+					# <!-- custom: route CORPORATION_SCREEN input to Policy advisor because Corporation is now a native Policy tab. (GPT-5.3-Codex) -->
+					CORPORATION_SCREEN : policyAdvisorScreen,
+					POLICY_ADVISOR_SCREEN : policyAdvisorScreen,
 					TECH_CHOOSER : techChooser,
 					FOREIGN_ADVISOR : foreignAdvisor,
-#					FINANCE_ADVISOR : financeAdvisor,
+					FOREIGN_DIPLOMACY_ADVISOR : foreignDiplomacyAdvisor,
 #					MILITARY_ADVISOR : militaryAdvisor,
 					DAWN_OF_MAN : dawnOfMan,
 					WONDER_MOVIE_SCREEN : wonderMovie,
@@ -1173,19 +1410,21 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
 					INTRO_MOVIE_SCREEN : introMovie,
 					OPTIONS_SCREEN : optionsScreen,
 					INFO_SCREEN : infoScreen,
+					WORLD_ADVISOR : worldAdvisorScreen,
 					REPLAY_SCREEN : replayScreen,
 					VICTORY_SCREEN : victoryScreen,
 					TOP_CIVS : topCivs,
 					HALL_OF_FAME : hallOfFameScreen,
 					VICTORY_MOVIE_SCREEN : victoryMovie,
-					ESPIONAGE_ADVISOR : espionageAdvisor,
+					# <!-- custom: route Espionage advisor input to diplomacy shell because Espionage is now a native Foreign Diplomacy tab. (GPT-5.3-Codex) -->
+					ESPIONAGE_ADVISOR : foreignDiplomacyAdvisor,
 					DAN_QUAYLE_SCREEN : danQuayleScreen,
 					WORLDBUILDER_SCREEN : worldBuilderScreen,
 					WORLDBUILDER_DIPLOMACY_SCREEN : worldBuilderDiplomacyScreen,
 					DEBUG_INFO_SCREEN : debugInfoScreen,
 					# advc.gfd:
 					GAMEFONT_DISPLAY_SCREEN : GameFontDisplay.GameFontDisplay(),
-				
+
 				# add new screens here
 				}
 
@@ -1201,3 +1440,4 @@ AdvisorOpt = BugCore.game.Advisors
 CustDomAdvOpt = BugCore.game.CustDomAdv
 TechWindowOpt = BugCore.game.TechWindow
 # BUG - Options - end
+

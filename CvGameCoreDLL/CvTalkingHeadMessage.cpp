@@ -2,10 +2,7 @@
 #include "CvTalkingHeadMessage.h"
 #include "CvGame.h"
 
-CvTalkingHeadMessage::CvTalkingHeadMessage(int iMessageTurn, int iLen,
-	LPCWSTR pszDesc, LPCTSTR pszSound, InterfaceMessageTypes eType,
-	LPCTSTR pszIcon, ColorTypes eColor, int iX, int iY,
-	bool bShowOffScreenArrows, bool bShowOnScreenArrows) :
+CvTalkingHeadMessage::CvTalkingHeadMessage(int iMessageTurn, int iLen, LPCWSTR pszDesc, LPCTSTR pszSound, InterfaceMessageTypes eType, LPCTSTR pszIcon, ColorTypes eColor, int iX, int iY, bool bShowOffScreenArrows, bool bShowOnScreenArrows) :
 m_iTurn(iMessageTurn),
 m_szDescription(pszDesc),
 m_szSound(pszSound),

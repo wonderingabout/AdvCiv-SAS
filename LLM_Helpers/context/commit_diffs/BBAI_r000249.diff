@@ -1,0 +1,506 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 249
+# Author: iustus
+# Date: 2007-01-07T13:37:31.809137Z
+# Coverage: full
+# Message:
+#   Explorers:
+#   - Follow rivers when possible
+#   - Explore near the capital first when there is only one city
+#   - Explore areas surrounding bonus resources
+#   - Explore other civ territories
+#   - Sea units will more directly attempt circumnavigation
+# Changed paths (6):
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.h
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@248
++++ /trunk/CvGameCoreDLL/CvGame.cpp@249
+@@ -5214,6 +5214,32 @@
+ 	m_bCircumnavigated = true;
+ }
+ 
++bool CvGame::circumnavigationAvailable() const
++{
++	if (isCircumnavigated())
++	{
++		return false;
++	}
++
++	if (GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES") == 0)
++	{
++		return false;
++	}
++
++	CvMap& kMap = GC.getMapINLINE();
++
++	if (!(kMap.isWrapXINLINE()) && !(kMap.isWrapYINLINE()))
++	{
++		return false;
++	}
++
++	if (kMap.getLandPlots() > ((kMap.numPlotsINLINE() * 2) / 3))
++	{
++		return false;
++	}
++
++	return true;
++}
+ 
+ bool CvGame::isDiploVote() const
+ {
+
+Index: /trunk/CvGameCoreDLL/CvGame.h
+--- /trunk/CvGameCoreDLL/CvGame.h@248
++++ /trunk/CvGameCoreDLL/CvGame.h@249
+@@ -233,6 +233,7 @@
+ 
+ 	DllExport bool isCircumnavigated() const;																// Exposed to Python
+ 	DllExport void makeCircumnavigated();																		// Exposed to Python
++	bool circumnavigationAvailable() const;
+ 
+ 	DllExport bool isDiploVote() const;																			// Exposed to Python
+ 	DllExport void makeDiploVote();																					// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@248
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@249
+@@ -2164,6 +2164,17 @@
+                 }
+             }
+         }
++		
++		// explore value
++		if (gDLL->getInterfaceIFace()->getLengthSelectionList() > 0)
++		{
++			CvUnitAI* pHeadUnit = static_cast<CvUnitAI*>(gDLL->getInterfaceIFace()->getSelectionList()->getHeadUnit());
++			if (pHeadUnit != NULL)
++			{
++				int iExploreValue = pHeadUnit->AI_explorePlotValue(pPlot);
++				szString += CvWString::format(SETCOLR L"\n\nExplore Value: %d" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), iExploreValue);
++			}
++		}
+ 	}
+ 	else if (bShift && bAlt && (gDLL->getChtLvl() > 0))
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@248
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@249
+@@ -4452,22 +4452,7 @@
+ 		return;
+ 	}
+ 
+-	if (GC.getGameINLINE().isCircumnavigated())
+-	{
+-		return;
+-	}
+-
+-	if (GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES") == 0)
+-	{
+-		return;
+-	}
+-
+-	if (!(GC.getMapINLINE().isWrapXINLINE()) && !(GC.getMapINLINE().isWrapYINLINE()))
+-	{
+-		return;
+-	}
+-
+-	if (GC.getMapINLINE().getLandPlots() > ((GC.getMapINLINE().numPlotsINLINE() * 2) / 3))
++	if (!GC.getGameINLINE().circumnavigationAvailable())
+ 	{
+ 		return;
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@248
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@249
+@@ -7574,81 +7574,188 @@
+ 	return false;
+ }
+ 
++int CvUnitAI::AI_explorePlotValue(const CvPlot* pPlot)
++{
++	PROFILE_FUNC();
++
++	int iValue = 0;
++	int iExtraValue = 0;
++	
++	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
++
++	CvPlot* pStartPlot = plot();
++	bool bStartOnRiver = pStartPlot->isRiver();
++	bool bDestinationRiver = false;
++
++	if (pPlot->isRevealedGoody(getTeam()))
++	{
++		iValue += 200000;
++	}
++
++	BonusTypes ePlotBonus = NO_BONUS;
++	int iBonusValue = 0;
++
++	if (!(pPlot->isRevealed(getTeam(), false)))
++	{
++		iValue += 10000;
++	}
++	else
++	{
++		ePlotBonus = pPlot->getNonObsoleteBonusType(getTeam());
++		if (ePlotBonus != NO_BONUS)
++		{
++			iBonusValue = 10 * kPlayer.AI_bonusVal(ePlotBonus);
++		}
++		
++		// try to explore other civs
++		if (pPlot->isOwned() && pPlot->getOwnerINLINE() != getOwnerINLINE())
++		{
++			iExtraValue += 2000;
++		}
++
++		// try to follow rivers when possible
++		if (pPlot->isRiver())
++		{
++			iExtraValue += 2000 + (pStartPlot->getRiverID() == pPlot->getRiverID()) ? 5000 : 0;
++			bDestinationRiver = true;
++		}
++
++	}
++
++	for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
++	{
++		PROFILE("AI_explorePlotValue 1");
++
++		CvPlot* pAdjacentPlot = plotDirection(pPlot->getX_INLINE(), pPlot->getY_INLINE(), ((DirectionTypes)iJ));
++
++		if (pAdjacentPlot != NULL)
++		{
++			if (!(pAdjacentPlot->isRevealed(getTeam(), false)))
++			{
++				// unrevealed plots next to revealed bonus resources are worth more
++				iValue += 1000 + ((ePlotBonus != NO_BONUS) ? iBonusValue : 0);
++			}
++			else
++			{
++				// try to follow rivers when possible
++				if (pAdjacentPlot->isRiver())
++				{
++					iExtraValue += 2000 + (pStartPlot->getRiverID() == pAdjacentPlot->getRiverID()) ? 2000 : 0;
++					bDestinationRiver = true;
++				}
++
++				// try to explore other civs
++				if (pAdjacentPlot->isOwned() && pAdjacentPlot->getOwnerINLINE() != getOwnerINLINE())
++				{
++					iExtraValue += 2000;
++				}
++
++				// explore coasts
++				if (pPlot->isWater() != pAdjacentPlot->isWater())
++				{
++					iExtraValue += 2500;
++				}
++			}
++		}
++	}
++
++	if (iValue > 0)
++	{
++		PROFILE("AI_explorePlotValue 2");
++
++		// random factor
++		iValue += GC.getGameINLINE().getSorenRandNum(3000, "AI explorePlotValue");
++
++		// add bonus values (for rivers, civ boundries, etc)
++		iValue += iExtraValue;
++		
++		// if not following river, explore area around capital first
++		if (!bDestinationRiver && getDomainType() == DOMAIN_LAND && kPlayer.getNumCities() == 1)
++		{
++			CvCity* pCapital = kPlayer.getCapitalCity();
++			if (pCapital != NULL && pCapital->getArea() == getArea())
++			{
++				CvPlot* pCapitalPlot = pCapital->plot();
++
++				int iDistance = plotDistance(pCapitalPlot->getX_INLINE(), pCapitalPlot->getY_INLINE(), pPlot->getX_INLINE(), pPlot->getY_INLINE());
++				if (iDistance > 8)
++				{
++					iValue /= (iDistance > 16) ? 5 : 3;
++				}
++			}
++		}
++		
++		// circumnavigation 
++		if (getDomainType() == DOMAIN_SEA && GC.getGameINLINE().circumnavigationAvailable())
++		{
++			// try to go all one direction in x axis (reproducable randomness based on unitID)
++			if (GC.getMapINLINE().isWrapXINLINE())
++			{
++				int iPreferDirection = ((getID() % 2) < 1) ? -1 : 1;
++				int iDX = dxWrap(pPlot->getX_INLINE() - pStartPlot->getX_INLINE());
++				int iModifier = iPreferDirection * iDX;
++
++				if (iModifier > 0)
++				{
++					iValue *= max(iModifier, 8);
++				}
++				else if (iModifier < 0)
++				{
++					iValue /= max(-(iModifier*4), 32);
++				}
++			}
++
++			// try to go all one direction in y axis (reproducable randomness based on unitID)
++			if (GC.getMapINLINE().isWrapYINLINE())
++			{
++				int iPreferDirection = ((getID() % 4) < 2) ? -1 : 1;
++				int iDY = dyWrap(pPlot->getY_INLINE() - pStartPlot->getY_INLINE());
++				int iModifier = iPreferDirection * iDY;
++
++				if (iModifier > 0)
++				{
++					iValue *= min(iModifier, 8);
++				}
++				else if (iModifier < 0)
++				{
++					iValue /= min(-(iModifier*4), 32);
++				}
++			}
++		}
++		
++	}
++
++	return iValue;
++}
+ 
+ // Returns true if a mission was pushed...
+ bool CvUnitAI::AI_explore()
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvPlot* pLoopPlot;
+-	CvPlot* pAdjacentPlot;
+-	CvPlot* pBestPlot;
+-	CvPlot* pBestExplorePlot;
+-	int iPathTurns;
+-	int iValue;
+-	int iBestValue;
+-	int iI, iJ;
+-
+-	iBestValue = 0;
+-	pBestPlot = NULL;
+-	pBestExplorePlot = NULL;
+-
+-	for (iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
++	int iBestValue = 0;
++	CvPlot* pBestPlot = NULL;
++	CvPlot* pBestExplorePlot = NULL;
++
++	for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+ 	{
+ 		PROFILE("AI_explore 1");
+ 
+-		pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++		CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+ 
+ 		if (AI_plotValid(pLoopPlot))
+ 		{
+-			iValue = 0;
+-
+-			if (pLoopPlot->isRevealedGoody(getTeam()))
+-			{
+-				iValue += 100000;
+-			}
+-
+-			if (!(pLoopPlot->isRevealed(getTeam(), false)))
+-			{
+-				iValue += 10000;
+-			}
+-
+-			// XXX is this too slow?
+-			for (iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
+-			{
+-				PROFILE("AI_explore 2");
+-
+-				pAdjacentPlot = plotDirection(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), ((DirectionTypes)iJ));
+-
+-				if (pAdjacentPlot != NULL)
+-				{
+-					if (!(pAdjacentPlot->isRevealed(getTeam(), false)))
+-					{
+-						iValue += 1000;
+-					}
+-				}
+-			}
+-
++			int iValue = AI_explorePlotValue(pLoopPlot);
++				
+ 			if (iValue > 0)
+ 			{
+ 				if (!(pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+ 				{
+ 					if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_EXPLORE, getGroup(), 3) == 0)
+ 					{
++						int iPathTurns;
+ 						if (!atPlot(pLoopPlot) && generatePath(pLoopPlot, MOVE_NO_ENEMY_TERRITORY, true, &iPathTurns))
+ 						{
+-							iValue += GC.getGameINLINE().getSorenRandNum(10000, "AI Explore");
+-
+-							if (pLoopPlot->isAdjacentToLand())
+-							{
+-								iValue += 10000;
+-							}
+-
+-							if (pLoopPlot->isOwned())
+-							{
+-								iValue += 5000;
+-							}
+-
+ 							iValue /= (iPathTurns + 1);
+ 
+ 							if (iValue > iBestValue)
+@@ -7680,88 +7787,47 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvPlot* pLoopPlot;
+-	CvPlot* pAdjacentPlot;
+-	CvPlot* pBestPlot;
+-	CvPlot* pBestExplorePlot;
+-	int iSearchRange;
+-	int iPathTurns;
+-	int iValue;
+-	int iBestValue;
+-	int iDX, iDY;
+-	int iI;
+-
+-	iSearchRange = AI_searchRange(iRange);
+-
+-	iBestValue = 0;
+-	pBestPlot = NULL;
+-	pBestExplorePlot = NULL;
+-
+-	for (iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
+-	{
+-		for (iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
++	int iSearchRange = AI_searchRange(iRange);
++
++	int iBestValue = 0;
++	CvPlot* pBestPlot = NULL;
++	CvPlot* pBestExplorePlot = NULL;
++
++	for (int iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
++	{
++		for (int iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
+ 		{
+ 			PROFILE("AI_exploreRange 1");
+ 
+-			pLoopPlot	= plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++			CvPlot* pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+ 
+ 			if (pLoopPlot != NULL)
+ 			{
+ 				if (AI_plotValid(pLoopPlot))
+ 				{
+-					iValue = 0;
+-
+-					if (pLoopPlot->isRevealedGoody(getTeam()))
+-					{
+-						iValue += 100000;
+-					}
+-
+-					if (!(pLoopPlot->isRevealed(getTeam(), false)))
+-					{
+-						iValue += 10000;
+-					}
+-
+-					for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+-					{
+-						PROFILE("AI_exploreRange 2");
+-
+-						pAdjacentPlot = plotDirection(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), ((DirectionTypes)iI));
+-
+-						if (pAdjacentPlot != NULL)
+-						{
+-							if (!(pAdjacentPlot->isRevealed(getTeam(), false)))
+-							{
+-								iValue += 1000;
+-							}
+-						}
+-					}
++					int iValue = AI_explorePlotValue(pLoopPlot);
+ 
+ 					if (iValue > 0)
+ 					{
+ 						if (!(pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+ 						{
+-							PROFILE("AI_exploreRange 3");
++							PROFILE("AI_exploreRange 2");
+ 
+ 							if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_EXPLORE, getGroup(), 3) == 0)
+ 							{
+-								PROFILE("AI_exploreRange 4");
+-
++								PROFILE("AI_exploreRange 3");
++								
++								int iPathTurns;
+ 								if (!atPlot(pLoopPlot) && generatePath(pLoopPlot, MOVE_NO_ENEMY_TERRITORY, true, &iPathTurns))
+ 								{
+ 									if (iPathTurns <= iRange)
+ 									{
+-										iValue += GC.getGameINLINE().getSorenRandNum(10000, "AI Explore");
+-
+-										if (pLoopPlot->isAdjacentToLand())
++										// diagonal directions are the most efficient at sea
++										if (getDomainType() == DOMAIN_SEA && iDX == iDY)
+ 										{
+-											iValue += 10000;
++											iValue *= 2;
+ 										}
+-
+-										if (pLoopPlot->isOwned())
+-										{
+-											iValue += 5000;
+-										}
+-
++										
+ 										if (iValue > iBestValue)
+ 										{
+ 											iBestValue = iValue;
+@@ -7780,7 +7846,7 @@
+ 
+ 	if ((pBestPlot != NULL) && (pBestExplorePlot != NULL))
+ 	{
+-		PROFILE("AI_exploreRange 5");
++		PROFILE("AI_exploreRange 4");
+ 
+ 		FAssert(!atPlot(pBestPlot));
+ 		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), MOVE_NO_ENEMY_TERRITORY, false, false, MISSIONAI_EXPLORE, pBestExplorePlot);
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@248
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@249
+@@ -124,6 +124,7 @@
+ 	bool AI_safety();
+ 	bool AI_hide();
+ 	bool AI_goody(int iRange);
++	int AI_explorePlotValue(const CvPlot* pPlot);
+ 	bool AI_explore();
+ 	bool AI_exploreRange(int iRange);
+ 	bool AI_targetCity();
+@@ -185,6 +186,8 @@
+     
+     bool AI_artistCultureVictoryMove();
+ 
++	// added so under cheat mode we can call protected functions for testing
++	friend class CvGameTextMgr;
+ };
+ 
+ #endif
+

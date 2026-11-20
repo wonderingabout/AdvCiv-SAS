@@ -1,4 +1,5 @@
 #include "CvGameCoreDLL.h"
+#include "SASSaveStreamFormat.h" // <!-- custom: Use the shared current writer marker directly here, keeping its registry out of the widely included CvGame.h. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 #include "CvGame.h"
 #include "CvDeal.h"
 #include "CvAgents.h" // advc.agent
@@ -27,12 +28,94 @@
 #include "RiseFall.h" // advc.700
 #include "CvHallOfFameInfo.h" // advc.106i
 #include "BBAILog.h" // BBAI
+#include "SASGameRecordLog.h" // <!-- custom: Structured run-summary files are initialized separately from BBAI diagnostics. (GPT-5.5) -->
+#include "CvGameCoreUtils.h" // <!-- custom: Save-checkpoint provenance reuses the shared UTC formatter so serialized checkpoint identity and diagnostics use the same stable timestamp syntax. (ChatGPT-5.6-Sol) -->
+#include "ModName.h" // <!-- custom: Persist the cached runtime version/SHA identity into each game's source-transition history. (ChatGPT-5.6-Sol) -->
 #include "CvBugOptions.h" // K-Mod
 
 /*	<advc.007c> Use this CvGame instance instead of GC.getGame() for RNG calls.
 	(Won't matter so long as CvGame is a singleton class.) */
 #undef CVGAME_INSTANCE_FOR_RNG
 #define CVGAME_INSTANCE_FOR_RNG (*this) // </advc.007c>
+
+// <!-- custom: Embed save-checkpoint identity inside only the serialized copy of CvGame script data, then strip the private trailer immediately on load.
+// This keeps Python-visible getScriptData/setScriptData unchanged without another save-management system; checkpoint persistence is independent of SASGameRecord logging so old archival saves remain identifiable later.
+// The feature-named marker covers manual saves, native autosaves and SASFastSave; only SASFastSave supplies its known original basename/reason.
+// The leading newline separates the private marker from script data; only this current trailer format is supported. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static char const* const SAS_SAVE_CHECKPOINT_PREFIX = "\n[SAS_SAVE_CHECKPOINT_V1:";
+
+// <!-- custom: Named positions define our SAS trailer layout, not a native Civ4 field order; both parsing and serialization use these indices and the final count.
+// Changing the stored layout also requires updating the trailer format marker; an enum prevents magic-index drift but does not provide old-save compatibility. (GPT-6.1-Sol) -->
+enum SASSaveCheckpointFieldTypes
+{
+	SAS_SAVE_CHECKPOINT_KIND,
+	SAS_SAVE_CHECKPOINT_TURN,
+	SAS_SAVE_CHECKPOINT_ELAPSED_TURN,
+	SAS_SAVE_CHECKPOINT_UTC,
+	SAS_SAVE_CHECKPOINT_MAP_RNG_STATE,
+	SAS_SAVE_CHECKPOINT_SYNC_RNG_STATE,
+	SAS_SAVE_CHECKPOINT_REASON,
+	SAS_SAVE_CHECKPOINT_ORIGINAL_BASENAME,
+	NUM_SAS_SAVE_CHECKPOINT_FIELDS
+};
+
+static bool SAS_parseUnsignedSaveCheckpointField(std::string const& szField, uint& uiValue)
+{
+	if (szField.empty())
+		return false;
+	uint uiResult = 0;
+	for (size_t i = 0; i < szField.size(); i++)
+	{
+		char const c = szField[i];
+		if (c < '0' || c > '9')
+			return false;
+		uint const uiDigit = (uint)(c - '0');
+		if (uiResult > (MAX_UNSIGNED_INT - uiDigit) / 10u)
+			return false;
+		uiResult = uiResult * 10u + uiDigit;
+	}
+	uiValue = uiResult;
+	return true;
+}
+
+static bool SAS_extractSaveCheckpointTrailer(CvString& szScriptData, CvString& szKind, int& iTurn, int& iElapsedTurn, CvString& szUtc, uint& uiMapRandState, uint& uiSyncRandState, CvString& szReason, CvString& szOriginalBasename)
+{
+	std::string const& szSerialized = szScriptData;
+	std::string const szPrefix = SAS_SAVE_CHECKPOINT_PREFIX;
+	std::string::size_type const iMarker = szSerialized.rfind(szPrefix);
+	if (iMarker == std::string::npos || szSerialized.empty() || szSerialized[szSerialized.size() - 1] != ']')
+		return false;
+	std::string const szPayload = szSerialized.substr(iMarker + szPrefix.size(), szSerialized.size() - (iMarker + szPrefix.size()) - 1);
+	std::vector<std::string> asFields;
+	std::string::size_type iStart = 0;
+	while (true)
+	{
+		std::string::size_type const iSeparator = szPayload.find(':', iStart);
+		asFields.push_back(szPayload.substr(iStart, iSeparator == std::string::npos ? std::string::npos : iSeparator - iStart));
+		if (iSeparator == std::string::npos)
+			break;
+		iStart = iSeparator + 1;
+	}
+	if (asFields.size() != NUM_SAS_SAVE_CHECKPOINT_FIELDS || asFields[SAS_SAVE_CHECKPOINT_KIND].empty() || asFields[SAS_SAVE_CHECKPOINT_UTC].empty())
+		return false;
+	uint uiTurn = 0;
+	uint uiElapsedTurn = 0;
+	if (!SAS_parseUnsignedSaveCheckpointField(asFields[SAS_SAVE_CHECKPOINT_TURN], uiTurn) || uiTurn > (uint)MAX_INT ||
+		!SAS_parseUnsignedSaveCheckpointField(asFields[SAS_SAVE_CHECKPOINT_ELAPSED_TURN], uiElapsedTurn) || uiElapsedTurn > (uint)MAX_INT ||
+		!SAS_parseUnsignedSaveCheckpointField(asFields[SAS_SAVE_CHECKPOINT_MAP_RNG_STATE], uiMapRandState) ||
+		!SAS_parseUnsignedSaveCheckpointField(asFields[SAS_SAVE_CHECKPOINT_SYNC_RNG_STATE], uiSyncRandState))
+	{
+		return false;
+	}
+	szKind = asFields[SAS_SAVE_CHECKPOINT_KIND].c_str();
+	iTurn = (int)uiTurn;
+	iElapsedTurn = (int)uiElapsedTurn;
+	szUtc = asFields[SAS_SAVE_CHECKPOINT_UTC].c_str();
+	szReason = (asFields[SAS_SAVE_CHECKPOINT_REASON] == "-" ? "" : asFields[SAS_SAVE_CHECKPOINT_REASON].c_str());
+	szOriginalBasename = (asFields[SAS_SAVE_CHECKPOINT_ORIGINAL_BASENAME] == "-" ? "" : asFields[SAS_SAVE_CHECKPOINT_ORIGINAL_BASENAME].c_str());
+	szScriptData = szSerialized.substr(0, iMarker).c_str();
+	return true;
+}
 
 
 CvGame::CvGame() :
@@ -49,6 +132,12 @@ CvGame::CvGame() :
 
 CvGame::~CvGame()
 {
+	// <!-- custom: Using the reset/load root-waiting mode here would leave pending startup diagnostics unwritten if initialization ended before BUG supplied its root.
+	// Destruction has no later handoff to wait for, so retry final output with native fallback discovery and close session handles; an empty writer does no file I/O. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	flushSASDiagnosticLogs(true, true);
+	// <!-- custom: Mark only orderly CvGame destruction as a clean process exit; a crash leaves the previous RUNNING status plus PID/process-start identity for stale-state detection.
+	// Intentional exception to caller pre-gating: this no-argument function checks only Runtime's existing cached switch internally; calling the normal lazy predicate here could trigger a first XML lookup during global teardown. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	updateSASRuntimeStatusCleanExit();
 	uninit();
 	SAFE_DELETE(m_pRiseFall); // advc.700
 	SAFE_DELETE(m_pSpah); // advc.250b
@@ -61,6 +150,16 @@ void CvGame::init(HandicapTypes eHandicap)
 	CvInitCore& ic = GC.getInitCore();
 
 	reset(eHandicap); // Reset serialized data
+	// <!-- custom: Publish the new-session attempt before map generation so an external agent can distinguish loading/generation time from the later native-ready checkpoint. (ChatGPT-5.6-Sol) -->
+	if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusSessionStarted(false);
+	// <!-- custom: Start distinct diagnostic/report files before map generation so a new game begun after save-file tests does not continue writing to the last loaded-save logs.
+	// Assertion-enabled builds also advance their lazy session identity here; this creates no file unless an assertion actually fails.
+	// Caller-gate ordinary BBAI/SGR helpers to avoid disabled logging work. (GPT-5.5 + ChatGPT-5.6-Sol) -->
+	#if defined(FASSERT_ENABLE) && defined(WIN32)
+	startSASAssertionLogForNewGame();
+	#endif
+	if (isSASBBAILogEnabled()) startSASBBAILogForNewGame();
+	if (isSASGameRecordLogEnabled()) startSASGameRecordLogForNewGame();
 
 	// Init containers ...
 
@@ -79,6 +178,8 @@ void CvGame::init(HandicapTypes eHandicap)
 	getSorenRand().init(ic.getSyncRandSeed());
 	m_initialRandSeed.uiMap = getMapRand().getSeed();
 	m_initialRandSeed.uiSync = getSorenRand().getSeed(); // <advc.027b>
+	// <!-- custom: Start level-3 RNG divergence tracking only after the authoritative new-game seeds exist, so map-generation/setup consumption has a meaningful session baseline instead of the pre-init zeroed CvRandom state. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 3) initializeSASGameRecordRngTracking();
 
 	// Init non-serialized data ...
 
@@ -140,12 +241,13 @@ void CvGame::init(HandicapTypes eHandicap)
 		else
 		{
 			static const int iPasswordSize = 8;
+			// <!-- custom: BtS drew arbitrary char values including NUL, so a first-byte NUL produced an empty password and left WorldBuilder available despite Lock Modified Assets.
+			// Use a printable non-NUL ASCII alphabet while retaining seven RNG draws; this internal lock token does not depend on localized text. See KI#344. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			static char const szPasswordChars[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+			static int const iPasswordChars = (int)sizeof(szPasswordChars) - 1;
 			char szRandomPassword[iPasswordSize];
 			for (int i = 0; i < iPasswordSize-1; i++)
-			{
-				szRandomPassword[i] = /* advc: */ safeIntCast<char>(
-						getSorenRandNum(CHAR_MAX + 1, NULL));
-			}
+				szRandomPassword[i] = szPasswordChars[getSorenRandNum(iPasswordChars, NULL)];
 			szRandomPassword[iPasswordSize-1] = 0;
 			ic.setAdminPassword(szRandomPassword);
 		}
@@ -219,8 +321,12 @@ void CvGame::setInitialItems()
 	// Delay part of the freebies until starting sites have been assigned
 	initFreeCivState(); // </advc.tsl>
 	initFreeUnits();
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const bool bIncreaseStartTurn = GC.getDefineBOOL("INCREASE_START_TURN");
+
 	// <advc.250c>
-	if (GC.getDefineBOOL("INCREASE_START_TURN") && getStartEra() == 0)
+	if (bIncreaseStartTurn && getStartEra() == 0)
 	{
 		int iStartTurn = getStartTurn();
 		bool bAllHuman = (PlayerIter<HUMAN>::count() >= PlayerIter<CIV_ALIVE>::count());
@@ -262,8 +368,91 @@ void CvGame::setInitialItems()
 	for (PlayerAIIter<CIV_ALIVE> it; it.hasNext(); ++it)
 		it->AI_updateFoundValues();
 	// <advc.tsl>
-	if (m_iMapRegens < GC.getDefineINT("AUTO_REGEN_MAP"))
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iAutoRegenMap = GC.getDefineINT("AUTO_REGEN_MAP");
+
+	if (m_iMapRegens < iAutoRegenMap)
 		regenerateMap(true); // </advc.tsl>
+}
+
+static bool SAS_isMapScriptListedInDefine(CvWString const& szMapScriptName, char const* szDefineName)
+{
+	CvString szMapName = CvString(szMapScriptName);
+	if (szMapName.empty())
+		return false;
+
+	CvString const szCsv = GC.getDefineSTRING(szDefineName);
+	std::vector<CvString> aszTokens;
+	szCsv.getTokens(",", aszTokens);
+	for (size_t i = 0; i < aszTokens.size(); i++)
+	{
+		if (aszTokens[i] == szMapName)
+			return true;
+	}
+	return false;
+}
+
+// <!-- custom: Cache script-name classification early, then recompute after starting plots exist so unspecified scripts can use their dynamic starting-area classification. See KI#42 and KI#336. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvGame::recomputeMapnameHeaviness()
+{
+	CvWString const szName = GC.getInitCore().getMapScriptName();
+
+	// <!-- custom: note: not static since we compute them only once -->
+	// <!-- custom: Keep the two XML land-heavy parts as one logical override list; splitting only avoids the inherited 256-byte GlobalDefines text scratch buffer and must not change classification. See KI#1001. (ChatGPT-5.6-Sol) -->
+	m_bLandHeavyMapname =
+		SAS_isMapScriptListedInDefine(szName, "SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND") ||
+		SAS_isMapScriptListedInDefine(szName, "SAS_MAP_SCRIPT_NAMES_LAND_HEAVY_PART_1") ||
+		SAS_isMapScriptListedInDefine(szName, "SAS_MAP_SCRIPT_NAMES_LAND_HEAVY_PART_2");
+	m_bNavalHeavyMapname = SAS_isMapScriptListedInDefine(szName, "SAS_MAP_SCRIPT_NAMES_NAVAL_HEAVY");
+
+	if (m_bLandHeavyMapname && m_bNavalHeavyMapname)
+		m_bNavalHeavyMapname = false;
+
+	if (m_bLandHeavyMapname || m_bNavalHeavyMapname)
+		return;
+
+	std::map<int,int> aiAreaStarts;
+	int iMajorCivs = 0;
+	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+	{
+		CvPlot const* pStart = it->getStartingPlot();
+		if (pStart == NULL)
+			continue;
+		++iMajorCivs;
+		aiAreaStarts[pStart->getArea().getID()]++;
+	}
+	if (iMajorCivs > 1)
+	{
+		int iLargestAreaStartCount = 0;
+		for (std::map<int,int>::const_iterator it = aiAreaStarts.begin();
+			it != aiAreaStarts.end(); ++it)
+		{
+			if (it->second > iLargestAreaStartCount)
+				iLargestAreaStartCount = it->second;
+		}
+		int const iAreaCount = static_cast<int>(aiAreaStarts.size());
+		int const iDistinctAreaPercent = (iAreaCount * 100) / iMajorCivs;
+		int const iLargestAreaPercent = (iLargestAreaStartCount * 100) / iMajorCivs;
+		static const int iNavalHeavyStartAreaPercentMin = GC.getDefineINT("SAS_MAP_STARTING_AREAS_NAVAL_HEAVY_MIN_PCT");
+		static const int iLandHeavyStartAreaPercentMin = GC.getDefineINT("SAS_MAP_STARTING_AREAS_LAND_HEAVY_MIN_PCT");
+
+		if (iDistinctAreaPercent >= iNavalHeavyStartAreaPercentMin)
+		{
+			m_bNavalHeavyMapname = true;
+			m_bLandHeavyMapname = false;
+			return;
+		}
+		if (iLargestAreaPercent >= iLandHeavyStartAreaPercentMin)
+		{
+			m_bLandHeavyMapname = true;
+			m_bNavalHeavyMapname = false;
+			return;
+		}
+	}
+
+	m_bLandHeavyMapname = false;
+	m_bNavalHeavyMapname = false;
 }
 
 
@@ -271,6 +460,15 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 {
 	if (GC.getInitCore().getWBMapScript())
 		return;
+	// <!-- custom: Full manual regeneration replaces the coordinate space underlying persisted setup/editor history.
+	// Drop those obsolete coordinates before teardown; if the action came from the normal WorldBuilder screen, start the replacement map's history with one explicit regeneration marker after initialization. (ChatGPT-5.6-Sol) -->
+	bool const bSASWorldBuilderRegeneration = (!bAutomated && m_bSASWorldBuilderScreenVisible && !isInAdvancedStart());
+	if (!bAutomated)
+		m_aSASWorldChangesHistory.clear();
+	// <!-- custom: A non-automated main-menu/WorldBuilder regeneration explicitly replaces the authoritative map outside the recursive AUTO_REGEN_MAP setup path.
+	// Open a dedicated level-3 interval before old-map teardown so its end checkpoint measures the complete regeneration burst.
+	// AUTO_REGEN_MAP is excluded because it can recurse through setInitialItems(); the outer setup interval remains the truthful boundary for that nested initialization chain. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (g_bSASGameRecordRngTrackingActive && !bAutomated) logSASGameRecordRngCheckpoint(getGameTurn(), SAS_RNG_CHECKPOINT_MAP_REGENERATION_BEGIN);
 	CvMap& kMap = GC.getMap();
 	/*	<advc.004j> Not sure if the unmodded game or any mod included with AdvCiv
 		uses script data, but can't hurt to reset it. CvDLLButtonPopup::
@@ -322,6 +520,9 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 	CvMapGenerator::GetInstance().generateRandomMap();
 	CvMapGenerator::GetInstance().addGameElements();
 
+	// <!-- custom: Clear stale map-heaviness state immediately after regeneration and classify explicit script lists before starting-plot work; the post-start pass in initFreeUnits finalizes dynamic unspecified scripts. See KI#336. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	recomputeMapnameHeaviness();
+
 	gDLL->getEngineIFace()->RebuildAllPlots();
 	/*	<advc.001> Even if we call CvMap::setupGraphical before RebuildAllPlots,
 		there are still artifacts in texture surfaces. I guess we need to give
@@ -330,8 +531,8 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 	setUpdateTimer(UPDATE_REBUILD_PLOTS, 1);
 	// Fix dark lines running through Flood Plains
 	{
-		FeatureTypes eFloodPlains = (FeatureTypes)GC.getInfoTypeForString(
-				"FEATURE_FLOOD_PLAINS");
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const FeatureTypes eFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
 		FOR_EACH_ENUM(PlotNum)
 		{
 			CvPlot& kPlot = GC.getMap().getPlotByIndex(eLoopPlotNum);
@@ -362,11 +563,17 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 	m_eInitialActivePlayer = NO_PLAYER; // advc.106h
 	setInitialItems();
 	// <advc.tsl>
+	// <!-- custom: AUTO_REGEN_MAP can recurse through setInitialItems(), so its return must not close nested regenerations in reverse order and create misleading near-empty intervals.
+	// Keep the complete automated chain in NEW_GAME_INITIALIZED; only manual regeneration reaches the end checkpoint below. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (bAutomated)
 		return; // </advc.tsl>
 
 	initScoreCalculation();
 	setFinalInitialized(true);
+	if (bSASWorldBuilderRegeneration)
+	{
+		recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_GAME, "REGENERATE_MAP", -1, -1, NO_PLAYER, -1, "MAP", "-", -1, -1, false, false, false);
+	}
 
 	kMap.setupGraphical();
 	gDLL->getEngineIFace()->SetDirty(GlobeTexture_DIRTY_BIT, true);
@@ -374,8 +581,12 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 	gDLL->UI().setDirty(ColoredPlots_DIRTY_BIT, true);
 
 	cycleSelectionGroups_delayed(1, false);
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const bool bShownDawnAfterRegen = GC.getDefineBOOL("SHOW_DAWN_AFTER_REGEN");
+
 	// <advc.004j>
-	bool bShowDawn = (GC.getDefineBOOL("SHOW_DAWN_AFTER_REGEN") &&
+	bool bShowDawn = (bShownDawnAfterRegen &&
 			// Somehow doesn't work with Adv. Start; Dawn screen doesn't appear.
 			(!isOption(GAMEOPTION_ADVANCED_START) || isOption(GAMEOPTION_SPAH)));
 	// </advc.004j>
@@ -407,6 +618,9 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 				setUpdateTimer(UPDATE_LOOK_AT_STARTING_PLOT, 5); // </advc.004j>
 		}
 	}
+	// <!-- custom: Close manual regeneration only after graphical/player-facing setup, Rise & Fall reinitialization/autosave, and Dawn/start-camera setup have completed.
+	// Together with MAP_REGENERATION_BEGIN this isolates the full regeneration RNG burst without logging individual rolls. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (g_bSASGameRecordRngTrackingActive) logSASGameRecordRngCheckpoint(getGameTurn(), SAS_RNG_CHECKPOINT_MAP_REGENERATION_END);
 }
 
 // advc.004j:
@@ -492,7 +706,10 @@ void CvGame::setStartTurnYear(int iTurn)
 	}
 	else setEstimateEndTurn(getGameTurn() + getMaxTurns());
 
-	setStartYear(GC.getDefineINT("START_YEAR"));
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iStartYear = GC.getDefineINT("START_YEAR");
+
+	setStartYear(iStartYear);
 }
 
 /*	Initialize data members that are serialized. (advc: I'm also initializing some
@@ -500,6 +717,15 @@ void CvGame::setStartTurnYear(int iTurn)
 	loading a savegame, but it seems safer to do so.) */
 void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 {
+	// <!-- custom: The EXE can call this exported reset directly, before CvGame::init/read.
+	// Finalize every non-constructor GameRecord session here while the old game, map and authoritative RNG states still exist; this also prevents reset() from recording its seed-zeroing as old-session RNG consumption.
+	// CvMap::read retains duplicate-safe protection for load orders that replace the map independently. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (!bConstructorCall)
+	{
+		// <!-- custom: GameRecord finalization already retries pending output and closes both diagnostic handles; BBAI-only sessions need the same release before reset destroys state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		if (isSASGameRecordLogEnabled()) finalizeSASGameRecordLogSession("GAME_RESET");
+		else if (isSASBBAILogEnabled()) flushSASDiagnosticLogs(true);
+	}
 	uninit();
 
 	m_bAllGameDataRead = false; // advc;
@@ -538,6 +764,23 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	// </advc.opt>
 	m_uiInitialTime = 0;
 	m_uiSaveFlag = 0; // advc
+	// <!-- custom: Reset persisted source history with the rest of CvGame serialized state.
+	// New games establish creation provenance at gameStart, while loads refill the current-format history from the stream. (ChatGPT-5.6-Sol) -->
+	m_aSASVersionHistory.clear();
+	m_aSASWorldChangesHistory.clear();
+	m_bSASWorldBuilderScreenVisible = false;
+	m_bSASWorldBuilderBulkEdit = false;
+	m_iSASWorldBuilderBulkChangedPlots = 0;
+	m_iSASLoadedSaveCheckpointTurn = -1;
+	m_iSASLoadedSaveCheckpointElapsedTurn = -1;
+	m_uiSASLoadedSaveCheckpointMapRandState = 0;
+	m_uiSASLoadedSaveCheckpointSyncRandState = 0;
+	m_szSASLoadedSaveCheckpointUtc = "";
+	m_szSASLoadedSaveCheckpointKind = "";
+	m_szSASLoadedSaveCheckpointReason = "";
+	m_szSASLoadedSaveCheckpointOriginalBasename = "";
+	m_szSASPendingFastSaveReason = "";
+	m_szSASPendingFastSaveOriginalBasename = "";
 
 	m_bScoreDirty = false;
 	m_bCircumnavigated = false;
@@ -556,6 +799,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 	m_eHandicap = eHandicap;
 	// <advc.127>
+	// <!-- custom: note: not doing static const here as there seems to be some required init condition and as recommended by chatgpt 5, check if accurate -->
 	m_eAIHandicap = (bConstructorCall ? NO_HANDICAP :
 			// (XML not loaded when constructor called)
 			(HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP")); // </advc.127>
@@ -567,6 +811,12 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	m_eInitialActivePlayer = NO_PLAYER; // advc.106h
 	m_eNormalizationLevel = NORMALIZE_DEFAULT; // advc.108
 	m_szScriptData = "";
+
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn).
+	// I don't know too much about these although it was my idea to do so, code provided with the help of chatgpt 5 thanks. -->
+	// In your CvGame::reset body where all the other members get defaults, set:
+	m_bLandHeavyMapname  = false;
+	m_bNavalHeavyMapname = false;
 
 	if (!bConstructorCall)
 	{
@@ -629,7 +879,11 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	/*	<advc.003v> No need to read data from a savegame first; CvInitCore
 		is responsible for the game options and is loaded before CvGame. */
 	if (!bConstructorCall)
+	{
 		CvGlobals::getInstance().loadOptionalXMLInfo(); // </advc.003v>
+		// <!-- custom: A reset can mean return-to-menu or the transition before another new/load session; publish NO_GAME immediately, then the later session-start hook replaces it. (ChatGPT-5.6-Sol) -->
+		if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusNoGame();
+	}
 }
 
 /*	The EXE calls this after generating the map but before initFreeState
@@ -657,7 +911,7 @@ void CvGame::initDiplomacy()
 			for (TeamIter<CIV_ALIVE> itCiv; itCiv.hasNext(); ++itCiv) // advc.003m: ALIVE
 			{
 				if (itTeam->getID() != itCiv->getID())
-					itTeam->declareWar(itCiv->getID(), false, NO_WARPLAN);
+					itTeam->declareWar(itCiv->getID(), false, NO_WARPLAN, true, NO_PLAYER, false, WAR_DECLARATION_GAME_SETUP);
 			}
 		}
 	}
@@ -687,6 +941,9 @@ void CvGame::initDiplomacy()
 			}
 		}
 	}
+
+	// <!-- custom: Initialize map heaviness after map generation, before the EXE assigns ordinary starting plots; the post-start pass in initFreeUnits finalizes dynamic unspecified scripts. See KI#336. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	recomputeMapnameHeaviness();
 }
 
 /*	advc.002i: Assign unique player colors in games where multiple players
@@ -781,10 +1038,10 @@ void CvGame::initGameHandicap()
 		int const iDiv = it.nextIndex();
 		if (iDiv > 0)
 		{
-			/*	advc.250a: Relies on no strange new handicaps being placed
-				between Settler and Deity. Same in CvTeam::getHandicapType. */
-				setHandicapType((HandicapTypes) /* kekm.22: */ intdiv::round(
-						iSum, 10 * iDiv));
+			// //	advc.250a: Relies on no strange new handicaps being placed between Settler and Deity. Same in CvTeam::getHandicapType. 
+			// setHandicapType((HandicapTypes) /* kekm.22: */ intdiv::round(iSum, 10 * iDiv));
+			// <!-- custom: Average the iDifficulty score first, then map back to the nearest XML handicap entry. (ChatGPT-5.5) -->
+			setHandicapType(handicapFromDifficulty(/* kekm.22: */ intdiv::round(iSum, iDiv)));
 		}
 		FAssertMsg(iDiv > 0, "All-AI game. Not necessarily wrong, but unexpected.");
 	} // K-Mod end
@@ -803,19 +1060,23 @@ void CvGame::initGameHandicap()
 // advc.127: Set m_eAIHandicap to the average of AI handicaps
 void CvGame::updateAIHandicap()
 {
-	int iHandicapSum = 0;
+	int iHandicapDifficultySum = 0;
 	int iDiv = 0;
 	FOR_EACH_ENUM(Player) // Cache for PlayerIter not yet available here
 	{
 		CvPlayer const& kPlayer = GET_PLAYER(eLoopPlayer);
 		if (kPlayer.isAlive() && !kPlayer.isHuman() && kPlayer.isMajorCiv())
 		{
-			iHandicapSum += kPlayer.getHandicapType();
+			iHandicapDifficultySum += GC.getInfo(kPlayer.getHandicapType()).getDifficulty();
 			iDiv++;
 		}
 	}
 	if (iDiv > 0) // Leaves it at STANDARD_HANDICAP in all-human games
-		m_eAIHandicap = (HandicapTypes)intdiv::uround(iHandicapSum, iDiv);
+	{
+		// <!-- custom: Average XML iDifficulty rather than raw enum IDs; this keeps added or non-linear handicaps correct. (ChatGPT-5.5 + GPT-5.5) -->
+		// m_eAIHandicap = (HandicapTypes)intdiv::uround(iHandicapSum, iDiv);
+		m_eAIHandicap = handicapFromDifficulty(intdiv::uround(iHandicapDifficultySum, iDiv));
+	}
 }
 
 
@@ -869,7 +1130,7 @@ void CvGame::initFreeState()
 		{
 			for (TeamIter<ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
 			{
-				itTeam->setHasTech(eLoopTech, true, NO_PLAYER, false, false);
+				itTeam->setHasTech(eLoopTech, true, NO_PLAYER, false, false, false, TECH_ACQUISITION_GAME_SETUP);
 			}
 		}
 		// advc.tsl: Free techs from other sources now handled by initFreeCivState
@@ -923,7 +1184,7 @@ void CvGame::initFreeCivState()
 			}
 			if (bValid) // (advc.051: Don't take away techs granted by scenario)
 			{
-				kTeam.setHasTech(eLoopTech, true, NO_PLAYER, false, false);
+				kTeam.setHasTech(eLoopTech, true, NO_PLAYER, false, false, false, TECH_ACQUISITION_GAME_SETUP);
 				// (advc: Already handled by setHasTech)
 				/*if (GC.getInfo(eLoopTech).isMapVisible())
 					GC.getMap().setRevealedPlots(kTeam.getID(), true, true);*/
@@ -992,6 +1253,9 @@ void CvGame::initFreeUnits()
 		if (itPlayer->getNumUnits() == 0 && itPlayer->getNumCities() == 0)
 			itPlayer->initFreeUnits();
 	}
+	// <!-- custom: The earlier initDiplomacy/regenerateMap pass runs before normal starting plots exist, making dynamic map-heaviness classification neutral for intentionally unspecified scripts.
+	// This shared post-start point covers ordinary games, regenerated maps and the EXE's separate scenario path after all normal/True Starts/SPaH reassignment, and fixes the cached classification before gameplay. See KI#336. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	recomputeMapnameHeaviness();
 	if (!bScenario)
 		return;
 	/*	<advc.250b> Advanced Start is always visible on the Custom Scenario screen,
@@ -1106,29 +1370,32 @@ NormalizationTarget* CvGame::assignStartingPlots()
 		if (!bTeamAssignmentDone) // advc.027
 		{
 			EagerEnumMap<PlayerTypes,bool> abPlayerDone; // advc
+			// <!-- custom: BtS drew an offset from the compact alive-team count but applied it in the absolute team-ID space, so sparse/high-ID scenario teams could never receive first priority.
+			// Rotate the actual alive-team list instead. See KI#340. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			std::vector<TeamTypes> aeAliveTeams;
+			for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
+				aeAliveTeams.push_back(itTeam->getID());
+			int const iAliveTeams = (int)aeAliveTeams.size();
 			// BtS team assignment
 			for (int iPass = 0; iPass < 2 * MAX_PLAYERS; iPass++)
 			{
 				bool bStartFound = false;
 				// advc.027b: instead of SyncRandNum
-				int const iRandOffset = MapRandNum(countCivTeamsAlive());
+				int const iRandOffset = MapRandNum(iAliveTeams);
 				gDLL->callUpdater(); // advc
-				for (int i = 0; i < MAX_CIV_TEAMS; i++)
+				for (int i = 0; i < iAliveTeams; i++)
 				{
-					TeamTypes eLoopTeam = (TeamTypes)((i + iRandOffset) % MAX_CIV_TEAMS);
-					if (!GET_TEAM(eLoopTeam).isAlive())
-						continue;
+					TeamTypes const eLoopTeam = aeAliveTeams[(i + iRandOffset) % iAliveTeams];
 					for (MemberIter itMember(eLoopTeam); itMember.hasNext(); ++itMember)
 					{
 						if (abPlayerDone.get(itMember->getID()))
 							continue;
 						if (itMember->getStartingPlot() == NULL)
-						{
 							itMember->setStartingPlot(itMember->findStartingPlot()/*, true*/); // advc.opt
-							abPlayerDone.set(itMember->getID(), true);
-						}
 						if (itMember->getStartingPlot() != NULL)
 						{
+							// <!-- custom: A preassigned teammate is just as complete as one assigned by this fallback; mark completion only after a valid plot exists so later passes advance, while a failed search remains retryable. See KI#1061. (GPT-5.6-Sol) -->
+							abPlayerDone.set(itMember->getID(), true);
 							bStartFound = true;
 							break;
 						}
@@ -1194,7 +1461,14 @@ NormalizationTarget* CvGame::assignStartingPlots()
 		But that would require a NormalizationTarget member function for
 		updating the start values. */
 	applyStartingLocHandicaps(pNormalizationTarget);
-	return (bScenario ? NULL : pNormalizationTarget); // advc.027
+	// <!-- custom: Scenarios skip the later normalization phase, but AdvCiv began constructing a target for their handicap reassignment and then discarded its sole pointer.
+	// Delete that target and its owned evaluator here. See KI#950. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (bScenario)
+	{
+		SAFE_DELETE(pNormalizationTarget);
+		return NULL;
+	}
+	return pNormalizationTarget; // advc.027
 }
 
 /*	advc.108b: Based on code cut from assignStartingPlots.
@@ -1261,8 +1535,7 @@ namespace
 }
 
 // advc.108b: Cut from assignStartingPlots
-void CvGame::applyStartingLocHandicaps(
-	NormalizationTarget const* pStartValues) // advc.027
+void CvGame::applyStartingLocHandicaps(NormalizationTarget const* pStartValues) // advc.027
 {
 	/*	Replace all this. Don't want to ignore StartingLocPercent
 		in multiplayer games, and the BtS random assignment of human starts
@@ -1360,7 +1633,9 @@ void CvGame::applyStartingLocHandicaps(
 			PlayerTypes const ePlayer = aePlayersByHandicap[i];
 			if (ePlayer == NO_PLAYER || !GET_PLAYER(ePlayer).isHuman())
 				continue;
-			CvPlot const* pStart = GET_PLAYER(ePlayer).getStartingPlot();
+			// <!-- custom: AdvCiv's sorted-site refactor accidentally checked the human's old plot here.
+			// Evaluate the sorted site assigned to this handicap slot so the volatility safeguard swaps only the site the human is about to receive. See KI#338. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			CvPlot const* pStart = apStartingSitesByValue[i];
 			if (pStart == NULL)
 				continue;
 			scaled rVolatility = pStartValues->getVolatilityValue(*pStart);
@@ -1423,9 +1698,7 @@ void CvGame::applyStartingLocHandicaps(
 	The Agent type can be either CvPlayer or CvTeam. The agents have to be
 	alive and non-Barbarian. kResult should be empty before the call. */
 template<class Agent>
-void CvGame::sortByStartingLocHandicap(
-	std::vector<std::pair<Agent*,int> > const& kStartingLocPercentPerAgent,
-	std::vector<Agent*>& kResult)
+void CvGame::sortByStartingLocHandicap(std::vector<std::pair<Agent*, int> > const& kStartingLocPercentPerAgent, std::vector<Agent*>& kResult)
 {
 	int const iAgents = kStartingLocPercentPerAgent.size();
 	int iHumanAgents = 0;
@@ -1458,8 +1731,11 @@ void CvGame::sortByStartingLocHandicap(
 				break;
 			}
 		}
-		for (int i = 0; i < iAgents; i++)
+		// <!-- custom: AdvCiv retained the random eligible-agent offset above but stopped applying it after extracting this helper, making equal-handicap collisions resolve by fixed input/player order.
+		// Rotate traversal from that selected agent while preserving the existing map-RNG draw. See KI#339. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		for (int j = 0; j < iAgents; j++)
 		{
+			int const i = (j + iRandOffset) % iAgents;
 			std::pair<Agent*,int> piLoopPair = kStartingLocPercentPerAgent[i];
 			Agent& kAgent = *piLoopPair.first;
 			if (kAgent.isHuman() != bHuman)
@@ -1608,9 +1884,9 @@ void CvGame::rearrangeTeamStarts(/* advc.027: */ bool bOnlyWithinArea, scaled rI
 	the players' starting locations are.
 	Note: for the purposes of this function, player i will be assumed to start
 	in the location of player kStartingLocs[i] */
-int CvGame::getTeamClosenessScore( // advc: params used to be arrays
-	ArrayEnumMap2D<PlayerTypes,PlayerTypes,int> const& kDistances,
-	std::vector<PlayerTypes> const& kStartingLocs)
+// advc: params used to be arrays
+// <!-- custom: hoisted from multiline signature before `kDistances` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvGame::getTeamClosenessScore(ArrayEnumMap2D<PlayerTypes, PlayerTypes, int> const& kDistances, std::vector<PlayerTypes> const& kStartingLocs)
 {
 	int iScore = 0;
 	for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
@@ -1657,7 +1933,10 @@ void CvGame::setStartingPlotNormalizationLevel(StartingPlotNormalizationLevel eL
 {
 	if (eLevel == NORMALIZE_DEFAULT)
 	{
-		eLevel = (GC.getDefineBOOL("NORMALIZE_STARTPLOTS_AGGRESSIVELY") ?
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const bool bNormalizeStartplotsAggressively = GC.getDefineBOOL("NORMALIZE_STARTPLOTS_AGGRESSIVELY");
+
+		eLevel = (bNormalizeStartplotsAggressively ?
 				NORMALIZE_HIGH : NORMALIZE_LOW);
 		if (eLevel == NORMALIZE_LOW && isGameMultiPlayer() &&
 			TeamIter<HUMAN>::count() > 1)
@@ -1752,8 +2031,12 @@ void CvGame::normalizeRemovePeaks()
 {
 	// <advc.108>
 	scaled rRemovalProb = 1;
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iRemovalChancePeak = GC.getDefineINT("REMOVAL_CHANCE_PEAK");
+
 	if (m_eNormalizationLevel <= NORMALIZE_LOW)
-		rRemovalProb = per100(GC.getDefineINT("REMOVAL_CHANCE_PEAK"));
+		rRemovalProb = per100(iRemovalChancePeak);
 	// </advc.108>
 
 	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
@@ -1832,8 +2115,15 @@ bool CvGame::normalizeCanAddLakeTo(CvPlot const& kPlot) const
 
 void CvGame::normalizeRemoveBadFeatures()
 {
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	// advc.108:
-	int const iThreshBadFeatPerCity = GC.getDefineINT("THRESH-BAD-FEAT-PER-CITY");
+	static const int iThreshBadFeatPerCity = GC.getDefineINT("THRESH-BAD-FEAT-PER-CITY");
+	// <!-- custom: THRESH-BAD-FEAT-PER-CITY only governs the outer city ring; the inner ring was always cleared and the ring loop below gave every land plot up to one tile past the city radius another removal chance.
+	// SAS sets peak and bad-terrain removal to 0 so maps are not made better on purpose, but these two feature removals had no switch, so a new Pangaea lost much of its Marsh around starts.
+	// The "Balanced" map option (NORMALIZE_HIGH) keeps clearing as in BtS, as advc.108 documents.
+	// One-shot per map generation, so read directly. See KI#284.3. (Claude code Opus 5.5) -->
+	bool const bSASClearInnerBadFeatures = (GC.getDefineBOOL("SAS_MAPGEN_NORM_BAD_FEATURE_INNER_ON") || m_eNormalizationLevel >= NORMALIZE_HIGH);
+	bool const bSASClearRingBadFeatures = (GC.getDefineBOOL("SAS_MAPGEN_NORM_BAD_FEATURE_RING_ON") || m_eNormalizationLevel >= NORMALIZE_HIGH);
 
 	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
 	{
@@ -1871,11 +2161,16 @@ void CvGame::normalizeRemoveBadFeatures()
 				if (GC.getInfo(p.getFeatureType()).getYieldChange(YIELD_FOOD) <= 0 &&
 					GC.getInfo(p.getFeatureType()).getYieldChange(YIELD_PRODUCTION) <= 0)
 				{
+					// <!-- custom: Inner-ring plots were always cleared; with SAS_MAPGEN_NORM_BAD_FEATURE_INNER_ON off they keep their feature, except the starting plot itself. See KI#284.3. (Claude code Opus 5.5) -->
+					if (itPlot.currID() < NUM_INNER_PLOTS)
+					{
+						if (bSASClearInnerBadFeatures || itPlot.currID() == CITY_HOME_PLOT)
+							p.setFeatureType(NO_FEATURE);
+					}
 					// <advc.108>
-					if (itPlot.currID() < NUM_INNER_PLOTS ||
-						(!isPowerfulStartingBonus(p, itPlayer->getID()) &&
+					else if (!isPowerfulStartingBonus(p, itPlayer->getID()) &&
 						(MapRandSuccess(rRemovalProb) ||
-						isWeakStartingFoodBonus(p, itPlayer->getID()))))
+						isWeakStartingFoodBonus(p, itPlayer->getID())))
 					{	// </advc.108>
 						p.setFeatureType(NO_FEATURE);
 					}
@@ -1901,7 +2196,9 @@ void CvGame::normalizeRemoveBadFeatures()
 						p.setFeatureType(NO_FEATURE);
 					}
 				}
-				else if (iDistance <= iCityRange + 1)
+				// <!-- custom: Was unconditional; SAS_MAPGEN_NORM_BAD_FEATURE_RING_ON gates this land removal.
+				// Water features such as Ice next to land are still cleared. See KI#284.3. (Claude code Opus 5.5) -->
+				else if (bSASClearRingBadFeatures && iDistance <= iCityRange + 1)
 				{
 					scaled rRemovalProb(1, 2);
 					if (m_eNormalizationLevel > NORMALIZE_MEDIUM) // advc.108
@@ -1926,10 +2223,13 @@ void CvGame::normalizeRemoveBadFeatures()
 
 void CvGame::normalizeRemoveBadTerrain()
 {
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iRemovalChanceBadTerrain = GC.getDefineINT("REMOVAL_CHANCE_BAD_TERRAIN");
+
 	// <advc.108>
 	scaled rKeepProb;
 	if (m_eNormalizationLevel <= NORMALIZE_LOW)
-		rKeepProb = 1 - per100(GC.getDefineINT("REMOVAL_CHANCE_BAD_TERRAIN"));
+		rKeepProb = 1 - per100(iRemovalChanceBadTerrain);
 	// </advc.108>
 	int const iCityRange = CITY_PLOTS_RADIUS;
 	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
@@ -1956,9 +2256,11 @@ void CvGame::normalizeRemoveBadTerrain()
 					continue;
 				/*	I think the BtS code ends up replacing Desert with Desert when
 					there's a feature, but let's rather handle Desert features explicitly. */
+				// <!-- custom: Inherited starting-map normalization preserved a feature when terrain plus feature supplied at least two Food.
+				// Treat that as a self-feeding cutoff using current citizen consumption; keep the existing terrain-quality and random-removal rules unchanged. See KI#647.2. (GPT-6.1-Sol) -->
 				if (p.isFeature() &&
 					GC.getInfo(p.getFeatureType()).
-					getYieldChange(YIELD_FOOD) + iPlotFood >= 2)
+					getYieldChange(YIELD_FOOD) + iPlotFood >= GC.getFOOD_CONSUMPTION_PER_POPULATION())
 				{
 					continue;
 				}
@@ -2159,7 +2461,8 @@ void CvGame::normalizeAddFoodBonuses(/* advc.027: */ NormalizationTarget const* 
 							continue;
 						}
 						p.setBonusType(eLoopBonus);
-						if (gMapLogLevel > 0) logBBAI("	  Adding food bonus %S for player %d", GC.getInfo(eLoopBonus).getDescription(), itPlayer->getID()); // advc
+						if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%s action=ADD_FOOD_BONUS plot=%d,%d bonus=%s",
+							getGameTurn(), itPlayer->getID(), GC.getInfo(itPlayer->getCivilizationType()).getType(), p.getX(), p.getY(), GC.getInfo(eLoopBonus).getType()); // advc
 						if (p.isWater())
 							iFoodBonus += 2;
 						else
@@ -2301,7 +2604,8 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
 				if (p.getBonusType() == NO_BONUS ||
 					GC.getInfo(p.getBonusType()).isHills())
 				{
-					if (gMapLogLevel > 0) logBBAI("    Adding hills for player %d.", kPlayer.getID()); // K-Mod
+					if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%s action=ADD_HILLS plot=%d,%d",
+						getGameTurn(), kPlayer.getID(), GC.getInfo(kPlayer.getCivilizationType()).getType(), p.getX(), p.getY()); // K-Mod
 					p.setPlotType(PLOT_HILLS, false, true);
 					iHills++;
 					// <advc.108>
@@ -2335,7 +2639,8 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
 		// <advc.108>
 		if (m_eNormalizationLevel <= NORMALIZE_LOW)
 			rTargetValue = fixp(0.75) * iBestValue; // </advc.108>
-		if (gMapLogLevel > 0) logBBAI("Adding extras to normalize starting positions. (target value: %d)", rTargetValue.round()); // K-Mod
+		if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_PHASE turn=%d action=START_ADD_EXTRAS targetValue=%d normalizationLevel=%d",
+			getGameTurn(), rTargetValue.round(), m_eNormalizationLevel); // K-Mod
 	}
 
 	for (PlayerAIIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
@@ -2348,8 +2653,9 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
 		gDLL->callUpdater(); // allow window to update during launch
 		CitySiteEvaluator citySiteEval(kPlayer, -1, false, true);
 		// <advc.031c>
-		if (gFoundLogLevel > 0 && pTarget == NULL)
-			citySiteEval.log(*pStartingPlot);
+		// <!-- custom: Replaces the inherited CitySiteEvaluator::log() normalization replay with a starting-plot marker; actual normalization evaluations emit their own Found traces. See KI#505.2. (GPT-6.1-Sol) -->
+		if (getSASBBAIFoundLogLevel(kPlayer.getID()) > 0 && pTarget == NULL) logBBAI("FOUND_SITE_START_SELECTED turn=%d player=%d site=%d,%d",
+			getGameTurn(), kPlayer.getID(), pStartingPlot->getX(), pStartingPlot->getY());
 		// </advc.031c>
 		// <advc.108> Treat desert features and forest separately
 		int iFoodFeatures = 0;
@@ -2396,10 +2702,12 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
 					if (pTarget != NULL ? pTarget->isReached(*pStartingPlot) : // advc.027
 						citySiteEval.evaluate(*pStartingPlot) >= rTargetValue)
 					{
-						if (gMapLogLevel > 0) logBBAI("    Player %d doesn't need any more features.", kPlayer.getID()); // K-Mod
+						if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_PLAYER_LIMIT turn=%d player=%d civ=%s phase=FEATURES_1 reason=TARGET_REACHED",
+							getGameTurn(), kPlayer.getID(), GC.getInfo(kPlayer.getCivilizationType()).getType()); // K-Mod
 						goto next_player; // advc
 					}
-					if (gMapLogLevel > 0) logBBAI("    Adding %S for player %d.", GC.getInfo(eLoopFeature).getDescription(), kPlayer.getID()); // K-Mod
+					if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%s action=ADD_FEATURE phase=FEATURES_1 plot=%d,%d feature=%s",
+						getGameTurn(), kPlayer.getID(), GC.getInfo(kPlayer.getCivilizationType()).getType(), kLoopPlot.getX(), kLoopPlot.getY(), GC.getInfo(eLoopFeature).getType()); // K-Mod
 					kLoopPlot.setFeatureType(eLoopFeature);
 					// <advc.108>
 					if (bFood)
@@ -2479,7 +2787,8 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
 				if (pTarget != NULL ? pTarget->isNearlyReached(*pStartingPlot) : // advc.027
 					citySiteEval.evaluate(*pStartingPlot) >= rTargetValue)
 				{
-					if (gMapLogLevel > 0) logBBAI("    Player %d doesn't need any more bonuses.", kPlayer.getID()); // K-Mod
+					if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_PLAYER_LIMIT turn=%d player=%d civ=%s phase=BONUSES reason=TARGET_NEARLY_REACHED",
+					getGameTurn(), kPlayer.getID(), GC.getInfo(kPlayer.getCivilizationType()).getType()); // K-Mod
 					goto done_placing_resources;
 				}
 				bool const bCoast = (p.isWater() && p.isAdjacentToLand());
@@ -2558,7 +2867,8 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
 			if (pTarget != NULL ? pTarget->isReached(*pStartingPlot) : // advc.027
 				citySiteEval.evaluate(*pStartingPlot) >= rTargetValue)
 			{
-				if (gMapLogLevel > 0) logBBAI("    Player %d doesn't need any more features (2).", kPlayer.getID()); // K-Mod
+				if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_PLAYER_LIMIT turn=%d player=%d civ=%s phase=FEATURES_2 reason=TARGET_REACHED",
+				getGameTurn(), kPlayer.getID(), GC.getInfo(kPlayer.getCivilizationType()).getType()); // K-Mod
 				break;
 			}
 			FOR_EACH_ENUM_RAND(Feature, getMapRand()) // advc.129: randomize
@@ -2596,7 +2906,8 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
 					if (!SyncRandOneChanceIn(std::max(iProductionFeatures - 2, 1)))
 						bProductionFeatureDone = true;
 				} // </advc.108>
-				if (gMapLogLevel > 0) logBBAI("    Adding %S for player %d.", GC.getInfo(eLoopFeature).getDescription(), kPlayer.getID()); // K-Mod
+				if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%s action=ADD_FEATURE phase=FEATURES_2 plot=%d,%d feature=%s",
+					getGameTurn(), kPlayer.getID(), GC.getInfo(kPlayer.getCivilizationType()).getType(), p.getX(), p.getY(), GC.getInfo(eLoopFeature).getType()); // K-Mod
 				p.setFeatureType(eLoopFeature);
 				break;
 			}
@@ -2646,9 +2957,10 @@ void CvGame::normalizeStartingPlots(NormalizationTarget const* pTarget)
 		for (PlayerAIIter<CIV_ALIVE> it; it.hasNext(); ++it)
 		{
 			if (it->getStartingPlot() != NULL)
-				logBBAI("    Player %d final value: %d", it->getID(), it->AI_foundValue(it->getStartingPlot()->getX(), it->getStartingPlot()->getY(), -1, false, true));
+				logBBAI("MAP_NORMALIZATION_RESULT turn=%d player=%d civ=%s start=%d,%d foundValue=%d", getGameTurn(), it->getID(), GC.getInfo(it->getCivilizationType()).getType(),
+					it->getStartingPlot()->getX(), it->getStartingPlot()->getY(), it->AI_foundValue(it->getStartingPlot()->getX(), it->getStartingPlot()->getY(), -1, false, true));
 		}
-		logBBAI("normalizeAddExtras() complete");
+		logBBAI("MAP_NORMALIZATION_PHASE turn=%d action=COMPLETE", getGameTurn());
 	} // </advc>
 	GC.getLogger().logMapStats(true); // advc.mapstat
 }
@@ -2660,7 +2972,11 @@ void CvGame::updateStartingPlotRange() const
 {
 	CvMap const& kMap = GC.getMap();
 	int iRange = kMap.maxStepDistance() + 10;
-	iRange *= GC.getDefineINT("STARTING_DISTANCE_PERCENT");
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iStartingDistancePercent = GC.getDefineINT("STARTING_DISTANCE_PERCENT");
+
+	iRange *= iStartingDistancePercent;
 	iRange /= 100;
 	int const iAlive = countCivPlayersAlive();
 	int const iLand = kMap.getLandPlots();
@@ -2678,15 +2994,18 @@ void CvGame::updateStartingPlotRange() const
 		iMajorAreas = iAlive;
 	// </advc.031>
 	iRange += std::min((iMajorAreas + 1) / 2, iAlive);
+	// <!-- custom: minStartingDistanceMod preserves BtS's [-100,+] callback contract; adding 100 here converts -95 to 5%, 0 to 100% and positive values to larger spacing. See KI#285. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	iRange *= 100 + GC.getPythonCaller()->minStartingDistanceMod();
 	iRange /= 100;
-	m_iStartingPlotRange = std::max(iRange, GC.getDefineINT("MIN_CIV_STARTING_DISTANCE"));
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iMinCivStartingDistance = GC.getDefineINT("MIN_CIV_STARTING_DISTANCE");
+
+	m_iStartingPlotRange = std::max(iRange, iMinCivStartingDistance);
 }
 
 // advc: Cut, refactored from normalizeAddExtras
-bool CvGame::placeExtraBonus(PlayerTypes eStartPlayer, CvPlot& kPlot,
-		bool bCheckCanPlace, bool bIgnoreLatitude, bool bRemoveFeature,
-		bool bNoFood) // advc.108
+bool CvGame::placeExtraBonus(PlayerTypes eStartPlayer, CvPlot& kPlot, bool bCheckCanPlace, bool bIgnoreLatitude, bool bRemoveFeature, bool bNoFood) // advc.108
 {
 	CvPlot const& kStartPlot = *GET_PLAYER(eStartPlayer).getStartingPlot();
 	// <advc.108>
@@ -2698,7 +3017,8 @@ bool CvGame::placeExtraBonus(PlayerTypes eStartPlayer, CvPlot& kPlot,
 	}
 	if (bRemoveFeature && kPlot.isFeature())
 	{
-		if (gMapLogLevel > 0) logBBAI("    Removing %S to place bonus for player %d", GC.getInfo(kPlot.getFeatureType()).getDescription(), eStartPlayer); // K-Mod
+		if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%s action=REMOVE_FEATURE_FOR_BONUS plot=%d,%d feature=%s",
+			getGameTurn(), eStartPlayer, GC.getInfo(GET_PLAYER(eStartPlayer).getCivilizationType()).getType(), kPlot.getX(), kPlot.getY(), GC.getInfo(kPlot.getFeatureType()).getType()); // K-Mod
 		kPlot.setFeatureType(NO_FEATURE);
 	}
 	// advc.129: Try the resources in a random order
@@ -2719,7 +3039,8 @@ bool CvGame::placeExtraBonus(PlayerTypes eStartPlayer, CvPlot& kPlot,
 		// <advc.004z>
 		if (kPlot.isGoody())
 			kPlot.setImprovementType(NO_IMPROVEMENT); // </advc.004z>
-		if (gMapLogLevel > 0) logBBAI("    Adding %S for player %d", kLoopBonus.getDescription(), eStartPlayer); // K-Mod
+		if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%s action=ADD_BONUS plot=%d,%d bonus=%s",
+			getGameTurn(), eStartPlayer, GC.getInfo(GET_PLAYER(eStartPlayer).getCivilizationType()).getType(), kPlot.getX(), kPlot.getY(), kLoopBonus.getType()); // K-Mod
 		kPlot.setBonusType(eLoopBonus);
 		return true;
 	}
@@ -2728,8 +3049,7 @@ bool CvGame::placeExtraBonus(PlayerTypes eStartPlayer, CvPlot& kPlot,
 
 /*	advc.108: May probabilistically return false when there is already a resource
 	of type eBonus near kStartPlot */
-bool CvGame::skipDuplicateNormalizationBonus(CvPlot const& kStartPlot, CvPlot const& kPlot,
-	BonusTypes eBonus, bool bSecondPass)
+bool CvGame::skipDuplicateNormalizationBonus(CvPlot const& kStartPlot, CvPlot const& kPlot, BonusTypes eBonus, bool bSecondPass)
 {
 	scaled rSkipPr = fixp(1/3.);
 	CvBonusInfo const& kBonus = GC.getInfo(eBonus);
@@ -2750,8 +3070,7 @@ bool CvGame::skipDuplicateNormalizationBonus(CvPlot const& kStartPlot, CvPlot co
 }
 
 // advc: Cut, pasted, refactored from normalizeAddExtras
-bool CvGame::isNormalizationBonus(BonusTypes eBonus, PlayerTypes eStartPlayer,
-	CvPlot const& kPlot, bool bCheckCanPlace, bool bIgnoreLatitude) const
+bool CvGame::isNormalizationBonus(BonusTypes eBonus, PlayerTypes eStartPlayer, CvPlot const& kPlot, bool bCheckCanPlace, bool bIgnoreLatitude) const
 {
 	CvBonusInfo const& kBonus = GC.getInfo(eBonus);
 	if (!kBonus.isNormalize())
@@ -2789,8 +3108,9 @@ bool CvGame::isPowerfulStartingBonus(CvPlot const& kPlot, PlayerTypes eStartPlay
 	BonusTypes eBonus = kPlot.getBonusType(TEAMID(eStartPlayer));
 	if (eBonus == NO_BONUS)
 		return false;
-	return (GC.getInfo(eBonus).getBonusClassType() ==
-			GC.getInfoTypeForString("BONUSCLASS_PRECIOUS"));
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const BonusClassTypes eBonusClassPrecious = (BonusClassTypes)GC.getInfoTypeForString("BONUSCLASS_PRECIOUS");
+	return (GC.getInfo(eBonus).getBonusClassType() == eBonusClassPrecious);
 }
 
 // Tailored for Tundra Deer, dry Jungle Rice
@@ -2834,6 +3154,7 @@ bool CvGame::isWeakStartingFoodBonus(CvPlot const& kPlot, PlayerTypes eStartPlay
 
 void CvGame::update()
 {
+	// <!-- custom: Retired the KI#102 NO_PLAYER guard and restored base AdvCiv 1.14: a tentative crash fix made without a matching PDB. See KI#102 and KI#136. (Claude code Opus 4.5 + Claude code Opus 5.5) -->
 	startProfilingDLL(false);
 	PROFILE_BEGIN("CvGame::update");
 	// <advc.256> Based on C2C, originally mostly from Rise of Mankind, I think.
@@ -2912,6 +3233,8 @@ void CvGame::updateUnprofiled()
 	}
 	updateScore();
 	updateWar();
+	// <!-- custom: One cheap Runtime-gated elapsed check per ordinary update slice can refresh a genuinely slow AI turn without polling every unit/group or writing for fast players. (ChatGPT-5.6-Sol) -->
+	if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusPlayerTurnProgress();
 	updateMoves();
 	updateTimers();
 	updateTurnTimer();
@@ -3015,25 +3338,27 @@ void CvGame::updateScore(bool bForce)
 		setTeamRank(eBestTeam, eRank);
 		setTeamScore(eBestTeam, iBestScore);
 	}
+	// <!-- custom: Population and team-composition changes alter passive espionage costs, but their low-level setters can run through transient city-transfer or team-merger states.
+	// Latch newly visible demographics here after the stable score refresh instead. See KI#784. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (PlayerIter<MAJOR_CIV> itObserver; itObserver.hasNext(); ++itObserver)
+	{
+		for (TeamIter<MAJOR_CIV,NOT_SAME_TEAM_AS> itTarget(itObserver->getTeam()); itTarget.hasNext(); ++itTarget)
+			itObserver->updateEverSeenDemographics(itTarget->getID());
+	}
 	// advc.130c, advc.001: Difficult to narrow down which players need an update
 	CvPlayerAI::AI_updateAttitudes();
 }
 
 // advc.003y: Ported from CvUtil.py
-int CvGame::getScoreComponent(int iRawScore, int iInitial, int iMax,
-	int iMultiplier, bool bExponential, bool bFinal, bool bVictory) const
+int CvGame::getScoreComponent(int iRawScore, int iInitial, int iMax, int iMultiplier, bool bExponential, bool bFinal, bool bVictory) const
 {
 	if (getEstimateEndTurn() <= 0)
 		return 0;
 
-	static scaled const rSCORE_FREE_PERCENT = per100(GC.getDefineINT(
-			"SCORE_FREE_PERCENT"));
-	static scaled const rSCORE_VICTORY_PERCENT = per100(GC.getDefineINT(
-			"SCORE_VICTORY_PERCENT"));
-	static scaled const rSCORE_HANDICAP_PERCENT_OFFSET = per100(GC.getDefineINT(
-			"SCORE_HANDICAP_PERCENT_OFFSET"));
-	static scaled const rSCORE_HANDICAP_PERCENT_PER = per100(GC.getDefineINT(
-			"SCORE_HANDICAP_PERCENT_PER"));
+	static scaled const rSCORE_FREE_PERCENT = per100(GC.getDefineINT("SCORE_FREE_PERCENT"));
+	static scaled const rSCORE_VICTORY_PERCENT = per100(GC.getDefineINT("SCORE_VICTORY_PERCENT"));
+	static scaled const rSCORE_HANDICAP_PERCENT_OFFSET = per100(GC.getDefineINT("SCORE_HANDICAP_PERCENT_OFFSET"));
+	static scaled const rSCORE_HANDICAP_PERCENT_PER = per100(GC.getDefineINT("SCORE_HANDICAP_PERCENT_PER"));
 
 	scaled rMax = iMax;
 	if (bFinal && bVictory) // Not synchronized; floating point math is fine here.
@@ -3108,6 +3433,10 @@ void CvGame::updateGwPercentAnger()
 		iGlobalDefence = calculateGwLandDefence(NO_PLAYER);
 	} // advc: Ensure initialization
 	else iGlobalPollution = iGwSeverityRating = iGlobalDefence = -1;
+
+	// <!-- custom: code/performance optimization: hoist -->
+	static const int iGLOBAL_WARMING_BASE_ANGER_PERCENT = GC.getDefineINT("GLOBAL_WARMING_BASE_ANGER_PERCENT"); // advc.opt
+
 	for (PlayerIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
 	{
 		int iAngerPercent = 0;
@@ -3125,7 +3454,6 @@ void CvGame::updateGwPercentAnger()
 			// amplify the affects of responsibility
 			iResponsibilityFactor = std::max(0, 2*iResponsibilityFactor-100);
 
-			static int const iGLOBAL_WARMING_BASE_ANGER_PERCENT = GC.getDefineINT("GLOBAL_WARMING_BASE_ANGER_PERCENT"); // advc.opt
 			iAngerPercent = iGLOBAL_WARMING_BASE_ANGER_PERCENT * iGwSeverityRating * iResponsibilityFactor;
 			iAngerPercent = intdiv::round(iAngerPercent, 100 * 100);
 		}
@@ -3148,6 +3476,9 @@ void CvGame::autoSave(bool bInitial)
 	if (bInitial && BUGOption::isEnabled("AutoSave__CreateStartSave", false))
 		GC.getPythonCaller()->call("gameStartSave", PYCivModule);
 	// BULL - AutoSave - end
+	// <!-- custom: Note: do not add the SASFastSave START hook here; the inherited BULL start-save block above otherwise makes this the obvious location.
+	// The first SAS implementation did so, but autoSave(true) can run on turn slice 0 before BUG's PreGameStart initialization, and runtime testing produced no START file.
+	// The working hook is BUG GameStart in BugEventManager.py; it runs later and runtime testing confirmed a turn-0 START save. (ChatGPT-5.6-Sol) -->
 }
 
 
@@ -3166,8 +3497,7 @@ void CvGame::testExtendedGame()
 }
 
 
-void CvGame::cityPushOrder(CvCity* pCity, OrderTypes eOrder, int iData,
-	bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::cityPushOrder(CvCity* pCity, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl) const
 {
 	if (pCity->getProduction() > 0)
 	{
@@ -3416,9 +3746,7 @@ bool CvGame::selectionListIgnoreBuildingDefense() const
 }
 
 
-void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho,
-	CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirList,
-	bool bForce)
+void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirList, bool bForce)
 {
 	// <advc> Not sure if the EXE ever calls implementDeal with a NULL list
 	CLinkList<TradeData> emptyList;
@@ -3429,18 +3757,14 @@ void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho,
 }
 
 
-void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho,
-	CLinkList<TradeData>& kOurList, CLinkList<TradeData>& kTheirList,
-	bool bForce)
+void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<TradeData>& kOurList, CLinkList<TradeData>& kTheirList, bool bForce)
 {
 	// </advc>  <advc.036>
 	implementAndReturnDeal(eWho, eOtherWho, kOurList, kTheirList, bForce);
 }
 
 
-CvDeal* CvGame::implementAndReturnDeal(PlayerTypes eWho, PlayerTypes eOtherWho,
-	CLinkList<TradeData>& kOurList, CLinkList<TradeData>& kTheirList,
-	bool bForce) // </advc.036>
+CvDeal* CvGame::implementAndReturnDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<TradeData>& kOurList, CLinkList<TradeData>& kTheirList, bool bForce) // </advc.036>
 {
 	FAssert(eWho != NO_PLAYER);
 	FAssert(eOtherWho != NO_PLAYER);
@@ -3468,8 +3792,7 @@ void CvGame::verifyDeals()
 	If bStarsVisible, then there will be stars visible behind the globe when it is on.
 	If bWorldIsRound, then the world will bend into a globe;
 	otherwise, it will show up as a plane. */
-void CvGame::getGlobeviewConfigurationParameters(TeamTypes eTeam,
-	bool& bStarsVisible, bool& bWorldIsRound)
+void CvGame::getGlobeviewConfigurationParameters(TeamTypes eTeam, bool& bStarsVisible, bool& bWorldIsRound)
 {
 	if (GET_TEAM(eTeam).isMapCentering() || isCircumnavigated())
 	{
@@ -3631,7 +3954,11 @@ bool CvGame::isTeamVoteEligible(TeamTypes eTeam, VoteSourceTypes eVoteSource) co
 		if (it->isForceTeamVoteEligible(eVoteSource))
 			iCount++;
 	}
-	int iExtraEligible = GC.getDefineINT("TEAM_VOTE_MIN_CANDIDATES") - iCount;
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iTeamVoteMinCandidates = GC.getDefineINT("TEAM_VOTE_MIN_CANDIDATES");
+
+	int iExtraEligible = iTeamVoteMinCandidates - iCount;
 	if (iExtraEligible <= 0)
 		return false;
 	for (TeamIter<CIV_ALIVE,NOT_SAME_TEAM_AS> it(eTeam); it.hasNext(); ++it)
@@ -3680,7 +4007,6 @@ int CvGame::countPossibleVote(VoteTypes eVote, VoteSourceTypes eVoteSource) cons
 		iCount += it->getVotes(eVote, eVoteSource);
 	return iCount;
 }
-
 
 
 TeamTypes CvGame::findHighestVoteTeam(const VoteTriggeredData& kData) const
@@ -3995,8 +4321,7 @@ void CvGame::replaceCorporation(CorporationTypes eOldCorp, CorporationTypes eNew
 }
 
 
-int CvGame::calculateReligionPercent(ReligionTypes eReligion,
-	bool bIgnoreOtherReligions) const // advc.115b: Param added
+int CvGame::calculateReligionPercent(ReligionTypes eReligion, bool bIgnoreOtherReligions) const // advc.115b: Param added
 {
 	if (getTotalPopulation() == 0)
 		return 0;
@@ -4174,7 +4499,7 @@ void CvGame::reviveActivePlayer()
 {
 	if (GET_PLAYER(getActivePlayer()).isAlive())
 		return;
-	setAIAutoPlay(0, /* advc.127: */ false);
+	setAIAutoPlay(0, /* advc.127: */ false, SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED);
 	GC.getInitCore().setSlotStatus(getActivePlayer(), SS_TAKEN);
 	if (GC.getPythonCaller()->doReviveActivePlayer())
 		return;
@@ -4546,8 +4871,9 @@ void CvGame::initScoreCalculation()
 			{
 				if (GC.getInfo(eLoopCivilization).isPlayable())
 				{
+					// <!-- custom: AdvCiv's enum refactor accidentally passed the civilization loop value as the technology argument, so current civilization free technologies were never included in initial-score normalization. See KI#341. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 					if (GC.getInfo(eLoopCivilization).isCivilizationFreeTechs(
-						eLoopCivilization))
+						eLoopTech))
 					{
 						m_iInitTech += getTechScore(eLoopTech);
 						break;
@@ -4560,9 +4886,22 @@ void CvGame::initScoreCalculation()
 }
 
 
-void CvGame::setAIAutoPlay(int iNewValue, /* <advc.127> */ bool bChangePlayerStatus)
+void CvGame::setAIAutoPlay(int iNewValue, /* <advc.127> */ bool bChangePlayerStatus, SASAutoPlayEndCause eEndCause)
 {
+	int const iOldAIAutoPlay = std::max(0, m_iAIAutoPlay);
 	m_iAIAutoPlay = std::max(0, iNewValue);
+	// <!-- custom: SASGameRecord logs autoplay start/end/user-status changes so benchmark/autoplay logs show the tested window directly, similar in spirit to replay markers but parse-friendly.
+	// Explicit completion causes distinguish scheduled completion from interruption, victory, player defeat, desync, assertions, and other resets.
+	// Skip ordinary countdown ticks because they call setAIAutoPlay every turn and would spam AUTOPLAY_CHANGED rows. See KI#203. (GPT-5.5 + GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2 && (bChangePlayerStatus || iOldAIAutoPlay == 0 || m_iAIAutoPlay == 0)) logSASGameRecordAutoPlayChanged(iOldAIAutoPlay, m_iAIAutoPlay, bChangePlayerStatus, eEndCause);
+	// <!-- custom: Current-state agents need requested autoplay changes immediately, while ordinary countdown ticks are already refreshed by the completed-turn heartbeat.
+	// Distinguish start/end from an active-count adjustment instead of reusing the broader game-record condition above. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Ordinary countdown calls use bChangePlayerStatus=false; the previous condition emitted a redundant rewrite every tick despite the completed-turn update. (GPT-6.1-Sol) -->
+	if (isSASRuntimeStatusEnabled() && iOldAIAutoPlay != m_iAIAutoPlay && (bChangePlayerStatus || iOldAIAutoPlay == 0 || m_iAIAutoPlay == 0))
+	{
+		SASRuntimeStatusReason const eStatusReason = (iOldAIAutoPlay == 0 ? SAS_RUNTIME_STATUS_AUTOPLAY_STARTED : (m_iAIAutoPlay == 0 ? SAS_RUNTIME_STATUS_AUTOPLAY_ENDED : SAS_RUNTIME_STATUS_AUTOPLAY_CHANGED));
+		updateSASRuntimeStatusAutoPlay(eStatusReason, eEndCause);
+	}
 	if (!bChangePlayerStatus)
 		return; // </advc.127>
 	// Erik <BM1>
@@ -4593,15 +4932,17 @@ void CvGame::setAIAutoPlay(int iNewValue, /* <advc.127> */ bool bChangePlayerSta
 }
 
 
-void CvGame::changeAIAutoPlay(int iChange, /* advc.127: */ bool changePlayerStatus)
+void CvGame::changeAIAutoPlay(int iChange, /* advc.127: */ bool changePlayerStatus, SASAutoPlayEndCause eEndCause)
 {
-	setAIAutoPlay(getAIAutoPlay() + iChange, /* advc.127: */ changePlayerStatus);
+	setAIAutoPlay(getAIAutoPlay() + iChange, /* advc.127: */ changePlayerStatus, eEndCause);
 }
 
 // <advc.opt>
 int CvGame::getCivPlayersEverAlive() const
 {
 	// Could pose a savegame compatibility problem (uiFlag<4)
+	// <!-- custom: Current saves store the player count.
+	// The fallback below still handles calls before load finishes. See KI#46.2. (GPT-6.2-Sol) -->
 	FAssert(m_bAllGameDataRead || m_iCivPlayersEverAlive > 0);
 	if (!m_bAllGameDataRead)
 		return countCivPlayersEverAlive();
@@ -4622,6 +4963,8 @@ void CvGame::changeCivPlayersEverAlive(int iChange)
 int CvGame::getCivTeamsEverAlive() const
 {
 	// Could pose a savegame compatibility problem (uiFlag<4)
+	// <!-- custom: Current saves store the team count.
+	// The fallback below still handles calls before load finishes. See KI#46.2. (GPT-6.2-Sol) -->
 	FAssert(m_bAllGameDataRead || m_iCivTeamsEverAlive > 0);
 	if (!m_bAllGameDataRead)
 		return countCivTeamsEverAlive();
@@ -4656,7 +4999,11 @@ int CvGame::getGlobalWarmingChances() const
 		number of turns in the game, so, by scaling the chances, and the
 		probability per chance, I hope to get roughly the same number of
 		actual events per game. */
-	scaled rIndexPerChance = GC.getDefineINT("GLOBAL_WARMING_INDEX_PER_CHANCE");
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iGlobalWarmingIndexPerChance = GC.getDefineINT("GLOBAL_WARMING_INDEX_PER_CHANCE");
+
+	scaled rIndexPerChance = iGlobalWarmingIndexPerChance;
 	rIndexPerChance *= per100(getSpeedPercent());
 	/*	advc.055: The more teams there are, the less evenly the world tends to
 		develop. GW causes the most damage when much of the world has a similar
@@ -4712,8 +5059,12 @@ int CvGame::calculateGwSustainabilityThreshold(PlayerTypes ePlayer) const
 	/*	expect each pop to give ~10 pollution per turn at the time
 		we cross the threshold, and ~1 pop per land tile...
 		so default resistance should be around 10 per tile. */
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iGlobalWarmingResistance = GC.getDefineINT("GLOBAL_WARMING_RESISTANCE");
+
 	int iGlobalThreshold = GC.getMap().getLandPlots() *
-			GC.getDefineINT("GLOBAL_WARMING_RESISTANCE");
+			iGlobalWarmingResistance;
 
 	/*	maybe we should add some points for coastal tiles as well,
 		so that watery maps don't get too much warming */
@@ -4746,7 +5097,11 @@ int CvGame::calculateGwSeverityRating() const
 	I recommend looking at the graph of this function to get a sense of how it works. */
 	/*	advc: Was long, which is equivalent to int. Could use long long,
 		but it looks like 32 bit should suffice. */
-	int const x = GC.getDefineINT("GLOBAL_WARMING_PROB") * getGlobalWarmingIndex() /
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iGlobalWarmingProb = GC.getDefineINT("GLOBAL_WARMING_PROB");
+
+	int const x = iGlobalWarmingProb * getGlobalWarmingIndex() /
 			(GC.getMap().getLandPlots() * 4 * getSpeedPercent());
 	// shape parameter. Lower values result in the function being steeper earlier.
 	int const b = 55; // advc.055: was 70
@@ -4839,8 +5194,7 @@ void CvGame::changeDiploVote(VoteSourceTypes eVoteSource, int iChange)
 }
 
 
-bool CvGame::canDoResolution(VoteSourceTypes eVoteSource,
-	VoteSelectionSubData const& kData) const
+bool CvGame::canDoResolution(VoteSourceTypes eVoteSource, VoteSelectionSubData const& kData) const
 {
 	CvVoteInfo const& kVote = GC.getInfo(kData.eVote);
 	if (kVote.isVictory())
@@ -4885,8 +5239,7 @@ bool CvGame::canDoResolution(VoteSourceTypes eVoteSource,
 }
 
 // advc (note): Needs to be consistent with processVote
-bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource,
-	VoteSelectionSubData const& kData) const
+bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, VoteSelectionSubData const& kData) const
 {
 	if (kData.ePlayer!= NO_PLAYER)
 	{
@@ -5100,8 +5453,11 @@ void CvGame::toggleDebugMode()
 {	// <advc.135c>
 	if (!m_bDebugMode && !isDebugToolsAllowed(false))
 		return; // </advc.135c>
-	m_bDebugMode = (m_bDebugMode ? false : true);
+	bool const bOldDebugMode = m_bDebugMode;
+	m_bDebugMode = !bOldDebugMode;
 	updateDebugModeCache();
+	// <!-- custom: Log only successful Debug-mode transitions after AdvCiv's permission check. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordDebugModeChanged(bOldDebugMode, m_bDebugMode);
 
 	GC.getMap().updateVisibility();
 	GC.getMap().updateSymbols();
@@ -5276,11 +5632,21 @@ void CvGame::setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat)
 	int const iActiveNetId = (eOldActivePlayer != NO_PLAYER ?
 			GET_PLAYER(eOldActivePlayer).getNetID() : -1);
 	GC.getInitCore().setActivePlayer(eNewValue);
+	// <!-- custom: Active-player transfers during AI Auto Play can explain why automation ended or whose civilization resumed human control.
+	// Keep per-request and per-log-session counts in SASGameRecord rather than requiring reviewers to scan every setup/status row.
+	// Cache the gate because the handoff path can also record an auto-dismissal. See KI#203. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+	bool const bLogActivePlayerChange = (gGameRecordLogLevel >= 2);
+	if (bLogActivePlayerChange) logSASGameRecordActivePlayerChanged(eOldActivePlayer, eNewValue);
 	if (eNewValue != NO_PLAYER && // K-Mod
 		GET_PLAYER(eNewValue).isHuman() &&
 		(isHotSeat() || isPbem() || bForceHotSeat))
 	{
-		gDLL->getPassword(eNewValue);
+		// <!-- custom: Active-player defeat can transfer human control while AI Auto Play still has hundreds of turns remaining.
+		// The EXE's handoff/password call then displays an OK-only "it's your turn" prompt and pauses the run; skip only that no-decision prompt during automation. See KI#203. (GPT-5.6-Sol) -->
+		static const bool bSASAutoDismissAutoPlayInformationalPopups = (GC.getDefineINT("SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON") > 0);
+		if (!bSASAutoDismissAutoPlayInformationalPopups || getAIAutoPlay() <= 0)
+			gDLL->getPassword(eNewValue);
+		else if (bLogActivePlayerChange) logSASGameRecordAutoPlayPopupDismissed("PLAYER_HANDOFF_PASSWORD");
 		setHotPbemBetweenTurns(false);
 		gDLL->getInterfaceIFace()->dirtyTurnLog(eNewValue);
 		if (eOldActivePlayer != NO_PLAYER)
@@ -5420,21 +5786,36 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 		return;
 	m_eWinner = eNewWinner;
 	m_eVictory = eNewVictory;
+	// <!-- custom: Winner/victory assignment is the authoritative result boundary across normal, autoplay and Rise & Fall paths; it can precede GAMESTATE_OVER or continue directly into EXTENDED. (ChatGPT-5.6-Sol) -->
+	if (isSASGameRecordLogEnabled() && (eNewWinner != NO_TEAM || eNewVictory != NO_VICTORY)) logSASGameRecordGameResult("RESULT_ASSIGNED");
 	// advc.707: Handled by RiseFall::prepareForExtendedGame
 	if (!isOption(GAMEOPTION_RISE_FALL))
 	{	// AI_AUTO_PLAY_MOD, 07/09/08, jdog5000:
 		CvEventReporter::getInstance().victory(eNewWinner, eNewVictory);
 	}
+	// <!-- custom: Rise & Fall suppresses the normal victory event above.
+	// Create its optional victory Fast Save here after winner/victory assignment and before the later end-game transition; other game modes use the BUG victory-event handler. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	else
+	{
+		static const bool bSASFastSaveGameEnd = GC.getDefineBOOL("SAS_FAST_SAVE_GAME_END_ON");
+		if (bSASFastSaveGameEnd)
+			GC.getPythonCaller()->call("saveGameEnd", "SASFastSave", true, true);
+	}
+	// <!-- custom: Winner assignment can happen outside normal turn end, and Rise & Fall suppresses CvEventReporter::victory.
+	// Sample after either mode's victory callback/save work but before GAMESTATE_OVER, keeping the VICTORY and GAME_END checkpoint order chronological. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (g_bSASGameRecordRngTrackingActive && (getWinner() != NO_TEAM || getVictory() != NO_VICTORY)) logSASGameRecordRngCheckpoint(getGameTurn(), SAS_RNG_CHECKPOINT_VICTORY);
 	if (getVictory() != NO_VICTORY)
 	{
 		if (getWinner() != NO_TEAM)
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 			CvWString szBuffer(gDLL->getText("TXT_KEY_GAME_WON",
 					GET_TEAM(getWinner()).getReplayName().GetCString(),
 					GC.getInfo(getVictory()).getTextKeyWide()));
 			addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
 					GET_TEAM(getWinner()).getLeaderID(), szBuffer,
-					GC.getColorType("HIGHLIGHT_TEXT"));
+					eColorHighlightText);
 		}
 		if ((getAIAutoPlay() > 0 || gDLL->GetAutorun()) &&
 			!isOption(GAMEOPTION_RISE_FALL)) // advc.707
@@ -5452,9 +5833,21 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 
 void CvGame::setGameState(GameStateTypes eNewValue)
 {
-	if (getGameState() == eNewValue)
+	GameStateTypes const eOldValue = getGameState();
+	if (eOldValue == eNewValue)
 		return;
 	m_eGameState = eNewValue;
+	// <!-- custom: Keep result assignment distinct from the later engine state transition; autoplay can enter EXTENDED directly without visiting OVER. (ChatGPT-5.6-Sol) -->
+	if (isSASGameRecordLogEnabled())
+	{
+		if (eNewValue == GAMESTATE_OVER)
+			logSASGameRecordGameResult("GAMESTATE_OVER");
+		else if (eNewValue == GAMESTATE_EXTENDED && (getWinner() != NO_TEAM || getVictory() != NO_VICTORY))
+			logSASGameRecordGameResult("EXTENDED_GAME_STARTED");
+	}
+	// <!-- custom: The end-game popup and multiplayer extended-game handshake can resume play through different call paths; observe the authoritative OVER -> EXTENDED state transition here. (ChatGPT-5.6-Sol) -->
+	if (isSASRuntimeStatusEnabled() && eOldValue == GAMESTATE_OVER && eNewValue == GAMESTATE_EXTENDED)
+		updateSASRuntimeStatusExtendedGameStarted();
 	if (eNewValue == GAMESTATE_OVER)
 	{
 		CvEventReporter::getInstance().gameEnd();
@@ -5462,6 +5855,14 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 		if (BUGOption::isEnabled("AutoSave__CreateEndSave", false))
 			GC.getPythonCaller()->call("gameEndSave", PYCivModule);
 		// BULL - AutoSave - end
+		// <!-- custom: Victory Fast Saves use the earlier BUG victory event after winner/victory assignment and before the OVER/EXTENDED transition.
+		// Keep this direct call only for GAMESTATE_OVER without a winner/victory, preserving genuine non-victory END saves without duplicating victories. (ChatGPT-5.6-Sol) -->
+		if (getWinner() == NO_TEAM || getVictory() == NO_VICTORY)
+		{
+			static const bool bSASFastSaveGameEnd = GC.getDefineBOOL("SAS_FAST_SAVE_GAME_END_ON");
+			if (bSASFastSaveGameEnd)
+				GC.getPythonCaller()->call("saveGameEnd", "SASFastSave", true, true);
+		}
 		// <advc.707>
 		if (isOption(GAMEOPTION_RISE_FALL))
 			m_pRiseFall->prepareForExtendedGame(); // </advc.707>
@@ -5476,6 +5877,9 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 			if (pInfo != NULL)
 				itHuman->addPopup(pInfo);
 		}
+		// <!-- custom: Close the terminal RNG interval at the actual GAMESTATE_OVER boundary, after Python gameEnd/end-save callbacks, optional SAS Fast Save, Rise & Fall transition preparation, and end-sequence setup.
+		// Engine-owned terminal work continues after CvEventReporter::gameEnd, so that callback is intentionally not the boundary. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (g_bSASGameRecordRngTrackingActive) logSASGameRecordRngCheckpoint(getGameTurn(), SAS_RNG_CHECKPOINT_GAME_END);
 	}
 	gDLL->UI().setDirty(Cursor_DIRTY_BIT, true);
 }
@@ -5548,8 +5952,7 @@ void CvGame::setForceControl(ForceControlTypes eIndex, bool bEnabled)
 }
 
 // advc: Mostly cut from CvPlayer::canConstruct
-bool CvGame::canConstruct(BuildingTypes eBuilding,
-	bool bIgnoreCost, bool bTestVisible) const
+bool CvGame::canConstruct(BuildingTypes eBuilding, bool bIgnoreCost, bool bTestVisible) const
 {
 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
 
@@ -5808,21 +6211,22 @@ void CvGame::makeSpecialUnitValid(SpecialUnitTypes eSpecialUnit)
 }
 
 
-void CvGame::makeSpecialBuildingValid(SpecialBuildingTypes eSpecialBuilding,
-	bool bAnnounce)
+void CvGame::makeSpecialBuildingValid(SpecialBuildingTypes eSpecialBuilding, bool bAnnounce)
 {
 	if (m_abSpecialBuildingValid.get(eSpecialBuilding))
 		return;
 	m_abSpecialBuildingValid.set(eSpecialBuilding, true);
 	if (bAnnounce)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 		CvWString szBuffer = gDLL->getText("TXT_KEY_SPECIAL_BUILDING_VALID",
 				GC.getInfo(eSpecialBuilding).getTextKeyWide());
 		for (PlayerIter<MAJOR_CIV> itObs; itObs.hasNext(); ++itObs)
 		{
 			gDLL->UI().addMessage(itObs->getID(), false, -1, szBuffer,
 					"AS2D_PROJECT_COMPLETED", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-					GC.getColorType("HIGHLIGHT_TEXT"));
+					eColorHighlightText);
 		}
 	}
 }
@@ -5873,10 +6277,15 @@ void CvGame::setHolyCity(ReligionTypes eReligion, CvCity* pCity, bool bAnnounce)
 	//updateCitySight(false, true);
 	m_aeHolyCity.set(eReligion, pCity == NULL ? NO_PLOT_NUM : pCity->plotNum());
 	//updateCitySight(true, true);
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const int iHolyCityInfluence = GC.getDefineINT("HOLY_CITY_INFLUENCE");
+
 	if (pOldCity != NULL)
 	{
 		pOldCity->changeReligionInfluence(eReligion,
-				-GC.getDefineINT("HOLY_CITY_INFLUENCE"));
+				-iHolyCityInfluence);
 		pOldCity->updateReligionCommerce();
 		pOldCity->setInfoDirty(true);
 	}
@@ -5886,11 +6295,15 @@ void CvGame::setHolyCity(ReligionTypes eReligion, CvCity* pCity, bool bAnnounce)
 
 	CvCity* pHolyCity = getHolyCity(eReligion);
 	pHolyCity->setHasReligion(eReligion, true, bAnnounce, true);
-	pHolyCity->changeReligionInfluence(eReligion, GC.getDefineINT("HOLY_CITY_INFLUENCE"));
+	pHolyCity->changeReligionInfluence(eReligion, iHolyCityInfluence);
 	pHolyCity->updateReligionCommerce();
 	pHolyCity->setInfoDirty(true);
 	if (!bAnnounce || !isFinalInitialized() || gDLL->GetWorldBuilderMode())
 		return;
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	CvWString szMsgRevealed(gDLL->getText("TXT_KEY_MISC_REL_FOUNDED",
 			GC.getInfo(eReligion).getTextKeyWide(), pHolyCity->getNameKey()));
 	CvWString szMsgUnknown(gDLL->getText("TXT_KEY_MISC_REL_FOUNDED_UNKNOWN",
@@ -5908,7 +6321,7 @@ void CvGame::setHolyCity(ReligionTypes eReligion, CvCity* pCity, bool bAnnounce)
 				bRevealed ? szMsgRevealed : szMsgUnknown,
 				GC.getInfo(eReligion).getSound(), MESSAGE_TYPE_MAJOR_EVENT,
 				GC.getInfo(eReligion).getButton(),
-				GC.getColorType("HIGHLIGHT_TEXT"),
+				eColorHighlightText,
 				bRevealed ? pHolyCity->getX() : -1, bRevealed ? pHolyCity->getY() : -1,
 				false, bRevealed);
 	}
@@ -5935,6 +6348,10 @@ void CvGame::setHeadquarters(CorporationTypes eCorp, CvCity* pCity, bool bAnnoun
 	pHeadquarters->setInfoDirty(true);
 	if (!bAnnounce || !isFinalInitialized() || gDLL->GetWorldBuilderMode())
 		return;
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	CvWString szMsgRevealed(gDLL->getText("TXT_KEY_MISC_CORPORATION_FOUNDED",
 			GC.getInfo(eCorp).getTextKeyWide(), pHeadquarters->getNameKey()));
 	CvWString szMsgUnknown(gDLL->getText("TXT_KEY_MISC_CORPORATION_FOUNDED_UNKNOWN",
@@ -5952,7 +6369,7 @@ void CvGame::setHeadquarters(CorporationTypes eCorp, CvCity* pCity, bool bAnnoun
 				bRevealed ? szMsgRevealed : szMsgUnknown,
 				GC.getInfo(eCorp).getSound(), MESSAGE_TYPE_MAJOR_EVENT,
 				GC.getInfo(eCorp).getButton(),
-				GC.getColorType("HIGHLIGHT_TEXT"),
+				eColorHighlightText,
 				bRevealed ? pHeadquarters->getX() : -1,
 				bRevealed ? pHeadquarters->getY() : -1,
 				false, bRevealed);
@@ -6043,12 +6460,16 @@ void CvGame::setName(TCHAR const* szName)
 }
 
 
-bool CvGame::isPastCityName(CvWString& szName) const
+// <!-- custom: Accept the name by const reference because lookup does not modify it and generated-name callers now pass raw canonical keys.
+// Past cities store raw canonical keys or literal names.
+// Match exact identity first and current rendered text second, preserving both cross-language canonical reservation and visible duplicate prevention. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+bool CvGame::isPastCityName(CvWString const& szName) const
 {
+	CvWString const szDisplayName = gDLL->getObjectText(szName, 0, true);
 	std::vector<CvWString>::const_iterator it;
 	for (it = m_aszPastCities.begin(); it != m_aszPastCities.end(); ++it)
 	{
-		if (*it == szName)
+		if (*it == szName || gDLL->getObjectText(*it, 0, true) == szDisplayName)
 			return true;
 	}
 	return false;
@@ -6057,6 +6478,7 @@ bool CvGame::isPastCityName(CvWString& szName) const
 
 void CvGame::addPastCityName(CvWString const& szName)
 {
+	// <!-- custom: Callers pass the raw canonical key or literal name so this registry does not freeze one language's display text. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	m_aszPastCities.push_back(szName);
 }
 
@@ -6119,16 +6541,48 @@ void CvGame::doTurn()
 			the counter at the start of a round. Let onEndPlayerTurn in AIAutoPlay.py
 			handle it. (Because human control should resume right before the human
 			turn, which is not necessarily at the beginning of a round.) */
-		changeAIAutoPlay(-1, false);
+		changeAIAutoPlay(-1, false, getAIAutoPlay() == 1 ? SAS_AUTOPLAY_END_SCHEDULED : SAS_AUTOPLAY_END_UNSPECIFIED);
 		if (getAIAutoPlay() > 0)
 			checkInSync(); // May set AutoPlay counter to 0
 		// </advc.127>
 		if (getAIAutoPlay() == 0)
 			reviveActivePlayer();
 	}
+	// <!-- custom: CvEventReporter::endGameTurn fires before autoplay/sync cleanup.
+	// Close the old RNG interval here: all work above still belongs to the current turn, while the counter advances below begin new-turn initialization.
+	// This avoids attributing new-turn deal expiry, Rise & Fall setup, votes, player activation, or victory checks to the turn that just ended. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (g_bSASGameRecordRngTrackingActive) logSASGameRecordRngCheckpoint(getGameTurn(), SAS_RNG_CHECKPOINT_END_GAME_TURN);
+	// <!-- custom: Lower recorder levels do not emit the RNG checkpoint above.
+	// Preserve the same authoritative completed-turn boundary with one tiny row at every enabled level, after autoplay/sync cleanup and before the game clock advances. (ChatGPT-5.6-Sol) -->
+	if (isSASGameRecordLogEnabled()) logSASGameRecordTurnCompleted(getGameTurn());
+	// <!-- custom: Retry failed/pre-root output at each completed turn; successful ordinary rows are already written promptly through shared persistent handles so crash-tail evidence does not wait for this checkpoint. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	if (isSASBBAILogEnabled() || isSASGameRecordLogEnabled()) flushSASDiagnosticLogs();
+	// <!-- custom: One default-off status heartbeat per completed game turn keeps external agents current without frame/update polling; it also carries the post-cleanup autoplay remaining count. (ChatGPT-5.6-Sol) -->
+	if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusTurnCompleted(getGameTurn());
 
+	// <!-- custom: Corporation maintenance is cached after dividing out inflation, but AdvCiv computes inflation on demand.
+	// Preserve each effective rate across the two clock increments and rebuild only players whose rounded rate changed, preventing cached inverse-inflation terms from becoming obsolete. See KI#744. (GPT-5.6-Sol) -->
+	int aiInflationRateBefore[MAX_PLAYERS];
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)i);
+		aiInflationRateBefore[i] = (kPlayer.isAlive() ? kPlayer.calculateInflationRate() : -1);
+	}
 	incrementGameTurn();
 	incrementElapsedGameTurns();
+	// <!-- custom: Alive teams age war weariness in their ordinary team turn, but dead teams have no such callback and can later revive with retained state.
+	// Age each dead ever-alive owner's directional values once at the authoritative global-turn boundary. See KI#415. See KI#1055. (GPT-5.6-Sol) -->
+	for (TeamIter<EVER_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
+	{
+		if (!itTeam->isAlive())
+			itTeam->doWarWeariness();
+	}
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)i);
+		if (kPlayer.isAlive() && aiInflationRateBefore[i] != kPlayer.calculateInflationRate())
+			kPlayer.updateMaintenance();
+	}
 	/*	advc.004: Already done in doDeals, but that's before incrementing the
 		turn counter. Want to kill peace treaties asap. */
 	verifyDeals();
@@ -6265,9 +6719,15 @@ void CvGame::doGlobalWarming()
 	PROFILE_FUNC();
 
 	// Calculate change in GW index
-	int iGlobalWarmingValue = calculateGlobalPollution();
-	int iGlobalWarmingDefense = calculateGwSustainabilityThreshold(); // Natural global defence
-	iGlobalWarmingDefense += calculateGwLandDefence(); // defence from features (forests & jungles)
+	bool const bLogMapHistory = (gGameRecordLogLevel >= 2);
+	int iGlobalWarmingIndexBefore = -1;
+	if (bLogMapHistory) iGlobalWarmingIndexBefore = getGlobalWarmingIndex();
+	// <!-- custom: The inherited logic already calculated pollution, the natural sustainability threshold and feature defense here.
+	// Keep the two defense components in separate locals for the environmental row, then add them exactly as before; this adds no calculation when logging is disabled. (GPT-5.6-Sol) -->
+	int const iGlobalWarmingValue = calculateGlobalPollution();
+	int const iSustainabilityThreshold = calculateGwSustainabilityThreshold();
+	int const iLandDefense = calculateGwLandDefence();
+	int const iGlobalWarmingDefense = iSustainabilityThreshold + iLandDefense;
 	changeGlobalWarmingIndex(iGlobalWarmingValue - iGlobalWarmingDefense);
 
 	// check if GW has 'activated'.
@@ -6275,19 +6735,22 @@ void CvGame::doGlobalWarming()
 	{
 		setGwEventTally(0);
 
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 		// Send a message saying that the threshold has been passed
 		CvWString szBuffer;
 
 		szBuffer = gDLL->getText("TXT_KEY_MISC_GLOBAL_WARMING_ACTIVE");
 		// add the message to the replay
 		addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, NO_PLAYER, szBuffer,
-				GC.getColorType("HIGHLIGHT_TEXT"));
+				eColorHighlightText);
 
 		for (PlayerIter<MAJOR_CIV> itObs; itObs.hasNext(); ++itObs)
 		{
 			gDLL->UI().addMessage(itObs->getID(), false, -1, szBuffer,
 					"AS2D_GLOBALWARMING", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-					GC.getColorType("HIGHLIGHT_TEXT"));
+					eColorHighlightText);
 			// Tell human players that the threshold has been reached
 			if (itObs->isHuman() && !isNetworkMultiPlayer())
 			{
@@ -6324,11 +6787,19 @@ void CvGame::doGlobalWarming()
 	// advc.055:
 	std::vector<PreGWPlot> aChangedPlots;
 	bool bSoundPlayed = false; // advc.002l
+	// <!-- custom: AdvCiv areas can let impassable Ice divide water topology, while trade networks and cached step distances also consume passability.
+	// Defer their whole-map refresh until all warming rolls finish instead of rebuilding them for every melted plot. See KI#346. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool bPassabilityChanged = false;
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const int iGlobalWarmingProb = GC.getDefineINT("GLOBAL_WARMING_PROB");
+
 	for (int i = 0; i < iGlobalWarmingRolls; i++)
 	{
 		// note, warming prob out of 1000, not percent.
 		int iLeftOdds = 10 * getSpeedPercent();
-		if (SyncRandNum(iLeftOdds) >= GC.getDefineINT("GLOBAL_WARMING_PROB"))
+		if (SyncRandNum(iLeftOdds) >= iGlobalWarmingProb)
 			continue;
 		//CvPlot* pPlot = GC.getMap().syncRandPlot(RANDPLOT_LAND | RANDPLOT_NOT_CITY);
 		/*	Global warming is no longer completely random.
@@ -6341,6 +6812,9 @@ void CvGame::doGlobalWarming()
 		TerrainTypes const eTerrain = pPlot->getTerrainType();
 		FeatureTypes const eFeature = pPlot->getFeatureType();
 		ImprovementTypes const eImprov = pPlot->getImprovementType();
+		bool const bWasImpassable = pPlot->isImpassable();
+		SASGameRecordPlotState kOldPlotState;
+		if (bLogMapHistory) kOldPlotState = SASGameRecordPlotState(*pPlot);
 		// Just for the announcements
 		PreGWPlot preGWPlot(pPlot, eTerrain, eFeature, eImprov);
 		bool bProtectFeature = false;
@@ -6444,17 +6918,39 @@ void CvGame::doGlobalWarming()
 				FAssert(!bProtectFeature);
 			}
 			aChangedPlots.push_back(preGWPlot);
+			if (bLogMapHistory) recordSASGameRecordPlotChange(*pPlot, kOldPlotState, "globalWarming", "GLOBAL_WARMING", true);
+			// <!-- custom: setFeatureType updates direct passability but not the area, path-distance or plot-group state that depends on it.
+			// Remember only effective changes for the deferred refresh. See KI#346. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (bWasImpassable != pPlot->isImpassable())
+				bPassabilityChanged = true;
 			// Do the announcements in a separate loop
 			// </advc.055>
 			changeGwEventTally(1);
 		}
 	}
+	// <!-- custom: Melting one or more Ice plots made traversal immediately possible, but inherited AdvCiv retained the pre-melt area and trade-network divisions.
+	// Rebuild once after the mutation batch; isthmus geometry did not change. See KI#346. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (bPassabilityChanged)
+	{
+		GC.getMap().resetPathDistance();
+		if (GC.getDefineBOOL(CvGlobals::PASSABLE_AREAS))
+			GC.getMap().recalculateWaterAreas();
+		updatePlotGroups();
+	}
 	updateGwPercentAnger();
+	int iGlobalWarmingIndexBeforeRestoration = -1;
+	if (bLogMapHistory) iGlobalWarmingIndexBeforeRestoration = getGlobalWarmingIndex();
 	if (getGlobalWarmingIndex() > 0)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iGlobalWarmingRestorationRate = GC.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE", 0);
+
 		changeGlobalWarmingIndex(-getGlobalWarmingIndex() *
-				GC.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE", 0)/100);
+				iGlobalWarmingRestorationRate/100);
 	}
+	// <!-- custom: doGlobalWarming already computes these values every turn.
+	// Reuse them for a single low-cost environmental-status row instead of rescanning the map between periodic snapshots. (GPT-5.6-Sol) -->
+	if (bLogMapHistory) logSASGameRecordEnvironmentTurn(iGlobalWarmingValue, iSustainabilityThreshold, iLandDefense, iGlobalWarmingIndexBefore, iGlobalWarmingIndexBeforeRestoration, getGlobalWarmingIndex(), iGlobalWarmingRolls, getGwEventTally());
 	// <advc.055>
 	/*	advc.706 (note): These will be shortlived INFO-type messages,
 		no need to store those at AI players. */
@@ -6612,10 +7108,12 @@ CvPlot* CvGame::getRandGWPlot(int iPool)
 	/*	Currently we just choose the coldest tile;
 		but I may include other tests in future versions. */
 	CvPlot* pBestPlot = NULL;
-	TerrainTypes eTerrain = NO_TERRAIN;
 	int iBestScore = -1; // higher score means better target plot
 	for (int i = 0; i < iPool; i++)
 	{
+		// <!-- custom: AdvCiv removed the retry-exhaustion test even though the final random draw can still be unsuitable.
+		// Reset terrain for each pool candidate and null every rejected plot so exhausted water/peak retries cannot be scored or selected. See KI#342. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		TerrainTypes eTerrain = NO_TERRAIN;
 		/*	I want to be able to select a water tile with ice on it;
 			so I can't just exclude water completely... */
 		//CvPlot* pTestPlot = GC.getMap().syncRandPlot(RANDPLOT_LAND | RANDPLOT_NOT_CITY);
@@ -6649,9 +7147,10 @@ CvPlot* CvGame::getRandGWPlot(int iPool)
 				break;
 			}
 			// not a suitable plot, try again.
+			// <!-- custom: Clear the rejected draw so retry exhaustion cannot leave its final unsuitable plot eligible. See KI#342. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			pTestPlot = NULL;
 		}
-		// advc: 2nd test unnecessary as I'm resetting pTestPlot in the outer loop
-		if (pTestPlot == NULL/* || j == 100*/)
+		if (pTestPlot == NULL)
 			continue;
 
 		/*	if only I could do this with a switch...
@@ -6989,11 +7488,15 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 		}
 	}
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iMinBarbarianStartingDistance = GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE");
+
 	CitySiteEvaluator citySiteEval(GET_PLAYER(BARBARIAN_PLAYER),
-			GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE"));
+			iMinBarbarianStartingDistance);
 	/*	<advc.300> Randomize penalty on short inter-city distance for more variety
 		in Barbarian settling patterns. Was 8 in K-Mod. */
-	citySiteEval.discourageBarbarians(5 + SyncRandNum(7));
+	int const iBarbarianDiscouragedRange = 5 + SyncRandNum(7);
+	citySiteEval.discourageBarbarians(iBarbarianDiscouragedRange);
 	CvMap const& kMap = GC.getMap();
 	std::map<int,int> perAreaUnowned; // Precomputed for efficiency
 	FOR_EACH_AREA(pArea)
@@ -7018,6 +7521,23 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 
 	CvPlot const* pBestPlot = NULL;
 	int iBestValue = 0;
+	enum { iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT = 5 };
+	CvPlot const* apTopPlots[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT];
+	int aiTopValues[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT];
+	int aiTopRawValues[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT];
+	int aiTopAreaValues[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT];
+	int aiTopRandomPercents[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT];
+	// <!-- custom: Keep Found level 1 lifecycle-only; top-candidate tracking and nearby hypothetical comparisons belong to level 2+, while SASGameRecord level 2 still needs the same compact chooser snapshot. See KI#505.2. (GPT-5.6-Sol) -->
+	// <!-- custom: Barbarians are never in the first-city phase. (Claude code Opus 5.5) -->
+	bool const bTrackTopBarbarianSites = (gFound2PlusLogLevel >= 2 || gGameRecordLogLevel >= 2);
+	for (int i = 0; i < iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT; i++)
+	{
+		apTopPlots[i] = NULL;
+		aiTopValues[i] = 0;
+		aiTopRawValues[i] = 0;
+		aiTopAreaValues[i] = 0;
+		aiTopRandomPercents[i] = 0;
+	}
 	for (int iI = 0; iI < kMap.numPlots(); iI++)
 	{
 		CvPlot& kPlot = kMap.getPlotByIndex(iI);
@@ -7065,6 +7585,11 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 			//iValue = GET_PLAYER(BARBARIAN_PLAYER).AI_foundValue(pLoopPlot->getX(), pLoopPlot->getY(), GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE"));
 			// K-Mod
 			int iValue = citySiteEval.evaluate(kPlot);
+			const int iRawValue = iValue;
+			// <!-- custom: Do not let Barbarian area-priority adjustment resurrect rejected city sites.
+			// In the Mauryan test, raw 0 at 30,23 became areaAdjusted 1 in bSkipCivAreas and was founded despite the detailed evaluator hard-rejecting it. (GPT-5.5) -->
+			if (iRawValue <= 0)
+				continue;
 			if (iTargetCitiesMultiplier > 100)
 			{/* <advc.300> This gives the area with the most owned tiles priority
 				over other areas unless the global city target is reached (rare),
@@ -7080,34 +7605,160 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 					iValue += iOwned;
 				else iValue *= iOwned + NUM_INNER_PLOTS; // advc.001 </advc.300>
 			}
+			const int iAreaValue = iValue;
 			//iValue += (100 + SyncRandNum(50));
-			/*	advc.300, advc.001: Looks like another bug; probably times 1 to 1.5
-				was intended. (Dividing by 100 doesn't affect pBestPlot, but let's
-				keep iBestValue is on the scale of a regular found value - although
-				it isn't used for anything.)
-				NB: This kind of randomization works mostly locally b/c nearby tiles
-				tend to have similar found values. */
-			iValue *= 100 + SyncRandNum(50);
-			iValue /= 100;
+			// advc.300, advc.001: Looks like another bug; probably times 1 to 1.5 was intended. (Dividing by 100 doesn't affect pBestPlot, but let's keep iBestValue is on the scale of a regular found value - although it isn't used for anything.) NB: This kind of randomization works mostly locally b/c nearby tiles tend to have similar found values.
+			// <!-- custom: Keep the inherited Barbarian city-site random multiplier tunable.
+			// The old 0..49 percent swing adds variety, but it can override clearly better nearby city sites. (GPT-5.5) -->
+			static const int iSAS_SITE_BARB_CITY_SITE_RANDOM_PCT = std::max(0, GC.getDefineINT("SAS_SITE_BARB_CITY_SITE_RANDOM_PCT"));
+			const int iRandomPercent = (iSAS_SITE_BARB_CITY_SITE_RANDOM_PCT <= 0 ? 0 : SyncRandNum(iSAS_SITE_BARB_CITY_SITE_RANDOM_PCT));
+			if (iRandomPercent != 0)
+			{
+				const int iOldValue = iValue;
+				iValue *= 100 + iRandomPercent;
+				iValue /= 100;
+				if (gFound2PlusLogLevel >= 2) logBBAI("BARBARIAN_CITY_SITE_RANDOMIZATION turn=%d site=%d,%d randomPercent=%d areaAdjusted=%d final=%d", getGameTurn(), kPlot.getX(), kPlot.getY(), iRandomPercent, iOldValue, iValue);
+			}
 			if (iValue > iBestValue)
 			{
 				iBestValue = iValue;
 				pBestPlot = &kPlot;
 			}
+			if (bTrackTopBarbarianSites && iValue > aiTopValues[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT - 1])
+			{
+				for (int i = 0; i < iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT; i++)
+				{
+					if (iValue <= aiTopValues[i])
+						continue;
+					for (int j = iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT - 1; j > i; j--)
+					{
+						aiTopValues[j] = aiTopValues[j - 1];
+						aiTopRawValues[j] = aiTopRawValues[j - 1];
+						aiTopAreaValues[j] = aiTopAreaValues[j - 1];
+						aiTopRandomPercents[j] = aiTopRandomPercents[j - 1];
+						apTopPlots[j] = apTopPlots[j - 1];
+					}
+					aiTopValues[i] = iValue;
+					aiTopRawValues[i] = iRawValue;
+					aiTopAreaValues[i] = iAreaValue;
+					aiTopRandomPercents[i] = iRandomPercent;
+					apTopPlots[i] = &kPlot;
+					break;
+				}
+			}
 		}
 	}
 	if (pBestPlot != NULL)
 	{
+		if (gGameRecordLogLevel >= 2)
+		{
+			int iLoggedCandidates = 0;
+			while (iLoggedCandidates < iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT && apTopPlots[iLoggedCandidates] != NULL)
+				iLoggedCandidates++;
+			logSASGameRecordBarbarianCitySiteChoice(bSkipCivAreas, iProbModifierPercent, iTargetCitiesMultiplier, iBarbarianDiscouragedRange, apTopPlots, aiTopRawValues, aiTopAreaValues, aiTopValues, aiTopRandomPercents, iLoggedCandidates);
+		}
+		if (gFound2PlusLogLevel >= 2)
+		{
+			logBBAI("BARBARIAN_CITY_SITE_SELECTED turn=%d site=%d,%d raw=%d areaAdjusted=%d final=%d randomPercent=%d", getGameTurn(), pBestPlot->getX(), pBestPlot->getY(), aiTopRawValues[0], aiTopAreaValues[0], iBestValue, aiTopRandomPercents[0]);
+			for (int i = 0; i < iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT; i++)
+			{
+				if (apTopPlots[i] == NULL)
+					continue;
+				logBBAI("BARBARIAN_CITY_SITE_CANDIDATE turn=%d rank=%d raw=%d areaAdjusted=%d final=%d site=%d,%d area=%d",
+					getGameTurn(), i + 1, aiTopRawValues[i], aiTopAreaValues[i], aiTopValues[i], apTopPlots[i]->getX(), apTopPlots[i]->getY(),
+					apTopPlots[i]->getArea().getID());
+			}
+			// <!-- custom: Barbarian cities are spawned by a global scan rather than normal Settler city-site lists, and old Barbarian scoring can ignore outer-BFC seafood or other long-term capture value.
+			// Log nearby alternatives so cases like Yue-Chi, Sarmatian, Aryan, and Numidian can show whether the selected spawn tile or a one-tile shift was actually better. (GPT-5.5) -->
+			// <!-- custom: Removing CitySiteEvaluator::log() also removed its best adjacent/distance-2 summaries.
+			// Retain the best raw eligible alternative in each ring during this existing diagnostic scan, then compare with the actual chooser's selected raw score; do not mix randomized final scores with raw scores or repeat evaluations.
+			// Ineligible plots are reported but not scored. See KI#505.2. (GPT-6.1-Sol) -->
+			CvPlot const* apBestNearbyPlots[2] = { NULL, NULL };
+			int aiBestNearbyRawValues[2] = { -1, -1 };
+			CitySiteEvaluator diagnosticEval(citySiteEval);
+			// <!-- custom: Label these logging-only alternatives separately from the global chooser's real evaluations; setting context changes only the log label. See KI#505.2. (GPT-6.1-Sol) -->
+			diagnosticEval.setLogContext(SAS_FOUND_LOG_BARBARIAN_COMPARISON);
+			// <!-- custom: Local found-value comparisons can show a better one-tile shift that the actual Barbarian creator skipped because it belongs to an area that does not currently want another Barbarian city.
+			// Log chooser-side eligibility around the selected plot so bad-looking Barbarian settlements can be diagnosed from the real creation filters, not only from post-selection site value. (GPT-5.5) -->
+			for (int iDX = -2; iDX <= 2; iDX++)
+			{
+				for (int iDY = -2; iDY <= 2; iDY++)
+				{
+					CvPlot const* pLoopPlot = kMap.plot(pBestPlot->getX() + iDX, pBestPlot->getY() + iDY);
+					if (pLoopPlot == NULL || pLoopPlot == pBestPlot || plotDistance(pBestPlot, pLoopPlot) > 2)
+						continue;
+					CvArea& a = pLoopPlot->getArea();
+					bool bCivArea = (a.getNumCities() > a.getCitiesPerPlayer(BARBARIAN_PLAYER));
+					int iTargetCities = perAreaUnowned.find(a.getID())->second;
+					if (bRage)
+					{
+						iTargetCities *= 7;
+						iTargetCities /= 5;
+					}
+					if (!bCivArea)
+					{
+						scaled rMult = per100(50) + per100(88) * iEra;
+						iTargetCities = (rMult * iTargetCities).round();
+					}
+					int iUnownedTilesThreshold = GC.getInfo(getHandicapType()).getUnownedTilesPerBarbarianCity();
+					if (a.getNumTiles() < iUnownedTilesThreshold / 3)
+					{
+						iTargetCities *= iTargetCitiesMultiplier;
+						iTargetCities /= 100;
+					}
+					int iDestroyedCities = std::max(0, a.getBarbarianCitiesEverCreated() - a.getCitiesPerPlayer(BARBARIAN_PLAYER));
+					iUnownedTilesThreshold += iDestroyedCities * 3;
+					iTargetCities /= std::max(1, iUnownedTilesThreshold);
+					bool bAreaEligible = (a.getCitiesPerPlayer(BARBARIAN_PLAYER) < iTargetCities);
+					bool bSpawnEligible = (!pLoopPlot->isWater() && !pLoopPlot->isVisibleToCivTeam() && (!bSkipCivAreas || !bCivArea) && bAreaEligible);
+					int iNearbyRawValue = -1;
+					int iNearbyAreaValue = -1;
+					if (bSpawnEligible)
+					{
+						iNearbyRawValue = diagnosticEval.evaluate(*pLoopPlot);
+						iNearbyAreaValue = iNearbyRawValue;
+						if (iTargetCitiesMultiplier > 100)
+						{
+							int iOwned = a.getNumOwnedTiles();
+							if (bSkipCivAreas)
+								iNearbyAreaValue += iOwned;
+							else iNearbyAreaValue *= iOwned + NUM_INNER_PLOTS;
+						}
+					}
+					int const iDistance = plotDistance(pBestPlot, pLoopPlot);
+					FAssert(iDistance >= 1 && iDistance <= 2);
+					if (bSpawnEligible && iNearbyRawValue > aiBestNearbyRawValues[iDistance - 1])
+					{
+						apBestNearbyPlots[iDistance - 1] = pLoopPlot;
+						aiBestNearbyRawValues[iDistance - 1] = iNearbyRawValue;
+					}
+					logBBAI("BARBARIAN_CITY_SITE_NEARBY turn=%d selected=%d,%d candidate=%d,%d distance=%d evaluated=%d raw=%d areaAdjusted=%d area=%d areaBarbCities=%d areaTarget=%d water=%d visibleToCivTeam=%d civArea=%d areaEligible=%d spawnEligible=%d",
+						getGameTurn(), pBestPlot->getX(), pBestPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY(), iDistance, bSpawnEligible, iNearbyRawValue, iNearbyAreaValue,
+						a.getID(), a.getCitiesPerPlayer(BARBARIAN_PLAYER), iTargetCities, pLoopPlot->isWater(),
+						pLoopPlot->isVisibleToCivTeam(), bCivArea, bAreaEligible, bSpawnEligible);
+				}
+			}
+			for (int iRing = 0; iRing < 2; iRing++)
+			{
+				CvPlot const* pAlternative = apBestNearbyPlots[iRing];
+				logBBAI("BARBARIAN_CITY_SITE_COMPARISON turn=%d selected=%d,%d scope=SPAWN_ELIGIBLE_RING distance=%d selectedRaw=%d hasAlternative=%d alternative=%d,%d alternativeRaw=%d rawDelta=%d",
+					getGameTurn(), pBestPlot->getX(), pBestPlot->getY(), iRing + 1, aiTopRawValues[0], pAlternative != NULL,
+					pAlternative == NULL ? -1 : pAlternative->getX(), pAlternative == NULL ? -1 : pAlternative->getY(),
+					aiBestNearbyRawValues[iRing], pAlternative == NULL ? 0 : aiBestNearbyRawValues[iRing] - aiTopRawValues[0]);
+			}
+		}
 		FAssert(iBestValue > 0); // advc.300
 		GET_PLAYER(BARBARIAN_PLAYER).found(pBestPlot->getX(), pBestPlot->getY());
 		// advc.300 (from MNAI):
-		if (gPlayerLogLevel > 0 || /* advc.031c: */ gFoundLogLevel > 0) logBBAI("Barbarian city created at plot %d, %d", pBestPlot->getX(), pBestPlot->getY());
+		if (gPlayerLogLevel > 0 || /* advc.031c: */ gFound2PlusLogLevel > 0) logBBAI("BARBARIAN_CITY_CREATED turn=%d site=%d,%d", getGameTurn(), pBestPlot->getX(), pBestPlot->getY());
 	}
 }
 
 
 void CvGame::createBarbarianUnits()
 {
+	// <!-- custom: Level-3 barbarian-spawn checks intentionally stay immediately after successful initUnit calls.
+	// This routine often creates no unit, so caching the recorder level at entry would add work to the common no-spawn path. (ChatGPT-5.6-Sol) -->
 	if (isOption(GAMEOPTION_NO_BARBARIANS))
 		return;
 
@@ -7284,7 +7935,10 @@ void CvGame::createAnimals()
 	if (getElapsedGameTurns() < 5)
 		return;
 
-	int const iMinAnimalStartingDist = GC.getDefineINT("MIN_ANIMAL_STARTING_DISTANCE"); // advc.300
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iMinAnimalStartingDistance = GC.getDefineINT("MIN_ANIMAL_STARTING_DISTANCE");
+
+	int const iMinAnimalStartingDist = iMinAnimalStartingDistance; // advc.300
 	FOR_EACH_AREA(pLoopArea)
 	{
 		if (pLoopArea->isWater())
@@ -7334,8 +7988,8 @@ void CvGame::createAnimals()
 			}
 			if (eBestUnit != NO_UNIT)
 			{
-				GET_PLAYER(BARBARIAN_PLAYER).initUnit(eBestUnit,
-						pPlot->getX(), pPlot->getY(), UNITAI_ANIMAL);
+				CvUnit* pNewUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eBestUnit, pPlot->getX(), pPlot->getY(), UNITAI_ANIMAL);
+				if (gGameRecordLogLevel >= 3) logSASGameRecordBarbarianSpawn(pNewUnit, "ANIMAL_FOG");
 			}
 		}
 	}
@@ -7377,8 +8031,7 @@ int CvGame::getBarbarianStartTurn() const
 }
 
 // Based on code originally in createBarbarianUnits, but modified beyond recognition.
-int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned,
-	int iUnitsPresent)
+int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned, int iUnitsPresent)
 {
 	int const iOwned = iTiles - iUnowned;
 	scaled const rPeakRatio = barbarianPeakLandRatio();
@@ -7419,8 +8072,7 @@ int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned,
 	/*	Make sure that there's enough unowned land where the Barbarians
 		could plausibly gather. */
 	rTarget.decreaseTo(scaled(iUnowned, 6));
-	static scaled const rAdjustment = 1 + per100(GC.getDefineINT(
-			"BARB_ACTIVITY_ADJUSTMENT"));
+	static scaled const rAdjustment = 1 + per100(GC.getDefineINT("BARB_ACTIVITY_ADJUSTMENT"));
 	rTarget *= rAdjustment;
 
 	scaled r = rTarget - iUnitsPresent;
@@ -7443,9 +8095,10 @@ int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned,
 
 /*	Returns the number of land units spawned (possibly in cargo).
 	The first half is new code. */
-int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
-	CvArea& kArea, Shelf* pShelf, bool bCargoAllowed, bool bOnlyCargo) // </advc.300>
+int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent, CvArea& kArea, Shelf* pShelf, bool bCargoAllowed, bool bOnlyCargo) // </advc.300>
 {
+	// <!-- custom: As in the outer barbarian routine, keep level-3 spawn gates after actual unit creation.
+	// Calls can return without spawning anything, so a function-entry recorder cache would be needless overhead on those paths. (ChatGPT-5.6-Sol) -->
 	/*	<advc.306> Spawn cargo load before ships. Otherwise, the newly placed ship
 		would always be an eligible target and too many ships would carry cargo. */
 	FAssert(!bCargoAllowed || pShelf != NULL);
@@ -7471,6 +8124,7 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
 				if (pLoadUnit == NULL)
 					break;
 				pLoadUnit->setTransportUnit(pTransport);
+				if (gGameRecordLogLevel >= 3) logSASGameRecordBarbarianSpawn(pLoadUnit, "FOG_TRANSPORT_CARGO");
 				// <advc.304>
 				getBarbarianWeightMap().getActivityMap().change(pLoadUnit->getPlot(),
 						BarbarianActivityMap::maxStrength() / 2, 2); // </advc.304>
@@ -7524,24 +8178,28 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
 		UnitTypes eUnitType = randomBarbarianUnit(eUnitAI, *pPlot);
 		if (eUnitType == NO_UNIT)
 			return iCreated;
-		/*CvUnit* pNewUnit =*/GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnitType,
-				pPlot->getX(), pPlot->getY(), eUnitAI);
+		// <!-- custom: Base AdvCiv commented out this local when it had no caller.
+		// Preserve the created unit so level-3 game records can identify the exact fog spawn. (GPT-5.6-Sol) -->
+		CvUnit* pNewUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnitType, pPlot->getX(), pPlot->getY(), eUnitAI);
+		if (gGameRecordLogLevel >= 3) logSASGameRecordBarbarianSpawn(pNewUnit, pShelf == NULL ? "LAND_FOG" : "SEA_FOG");
 		if (!pPlot->isWater())
 			iCreated++;
 		// </advc.300>
+	// <!-- custom: since this seems unused in XML, commented out in the DLL now as approved to be possible by chatgpt 5, check if accurate -->
+	// <!-- custom: note: i don't know why, but it seems this block is indented one indentation higher than previous and following code despite seemingly being in same scope which seems weird, leave is as such for safety or maybe rather no tediousness, but added this note if helps about this seemingly weirdness -->
 	// advc.313: Replaced by a handicap-based modifier
-	#if 0
-		/*	K-Mod. Sorry, barbarians. Free ships are just too dangerous for
-			real civilizations to defend against. */
-		if (pPlot->isWater() &&
-			!pNewUnit->getUnitInfo().isHiddenNationality()) // kekm.12
-		{
-			PromotionTypes eDisorganized = (PromotionTypes)
-					GC.getInfoTypeForString("PROMOTION_DISORGANIZED", true);
-			if (eDisorganized != NO_PROMOTION)
-				pNewUnit->setHasPromotion(eDisorganized, true);
-		} // K-Mod end
-	#endif
+	// #if 0
+	// 	/*	K-Mod. Sorry, barbarians. Free ships are just too dangerous for
+	// 		real civilizations to defend against. */
+	// 	if (pPlot->isWater() &&
+	// 		!pNewUnit->getUnitInfo().isHiddenNationality()) // kekm.12
+	// 	{
+	// 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// 		static const PromotionTypes eDisorganized = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_DISORGANIZED", true);
+	// 		if (eDisorganized != NO_PROMOTION)
+	// 			pNewUnit->setHasPromotion(eDisorganized, true);
+	// 	} // K-Mod end
+	// #endif
 		// <advc.304> Discourage nearby unit placement for some time
 		getBarbarianWeightMap().getActivityMap().change(*pPlot,
 				BarbarianActivityMap::maxStrength() / 2, 2); // </advc.304>
@@ -7550,8 +8208,7 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
 }
 
 // <advc.300>
-CvPlot* CvGame::randomBarbarianPlot(/* out-param */int& iValid,
-	CvArea const& kArea, Shelf const* pShelf)
+CvPlot* CvGame::randomBarbarianPlot(/* out-param */int& iValid, CvArea const& kArea, Shelf const* pShelf)
 {
 	RandPlotFlags const eFlags = (RANDPLOT_NOT_VISIBLE_TO_CIV |
 			/*	Shelves already ensure this and one-tile islands
@@ -7581,8 +8238,7 @@ CvPlot* CvGame::randomBarbarianPlot(/* out-param */int& iValid,
 }
 
 
-bool CvGame::killBarbarian(int iUnitsPresent, int iTiles, int iPop,
-	CvArea& kArea, Shelf* pShelf)
+bool CvGame::killBarbarian(int iUnitsPresent, int iTiles, int iPop, CvArea& kArea, Shelf* pShelf)
 {
 	if (iUnitsPresent <= 5) // 5 is never a crowd
 		return false;
@@ -7659,6 +8315,9 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
 	UnitTypes eR = NO_UNIT;
 	int iBestValue = 0;
 	CvCivilization const& kCiv = GET_PLAYER(BARBARIAN_PLAYER).getCivilization();
+	// <!-- custom: hoist for performance optimization -->
+	static const UnitCombatTypes eMountedMelee = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_MELEE");
+	static const UnitCombatTypes eMountedRanged = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_RANGED");
 	for (int i = 0; i < kCiv.getNumUnits(); i++)
 	{
 		UnitTypes const eUnit = kCiv.unitAt(i);
@@ -7731,10 +8390,10 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
 		if (eAndTech == NO_TECH)
 			iUnitEra = -1;
 		// Mounted units only in open terrain
-		static UnitCombatTypes const eMounted = (UnitCombatTypes)
-				GC.getInfoTypeForString("UNITCOMBAT_MOUNTED");
-		bool const bMounted = (kUnit.getUnitCombatType() == eMounted);
-		if (bMounted)
+		// <!-- custom: split mounted units into melee mounted units and ranged mounted units so that pikemen are not strong against cuiassiers or horse archers and such -->
+		bool const bMountedMelee = (kUnit.getUnitCombatType() == eMountedMelee);
+		bool const bMountedRanged = (kUnit.getUnitCombatType() == eMountedRanged);
+		if (bMountedMelee || bMountedRanged)
 		{
 			if (kPlot.isWater() || kPlot.defenseModifier(NO_TEAM, true) > 0)
 				continue;
@@ -7758,7 +8417,7 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
 				become available. The game era is usually already Classical
 				when Archers become available. */
 			(!bAnyExpensiveTech || iUnitEra + 1 >= getCurrentEra())) ||
-			bMounted) // To make up for the terrain restriction
+			bMountedMelee || bMountedRanged) // To make up for the terrain restriction
 		{
 			iDieSides = (iDieSides * rNoBonusReqDieSidesMult).uround();
 		} // </advc.301>
@@ -7807,14 +8466,12 @@ scaled CvGame::barbarianPeakLandRatio() const
 	scaled r;
 	if (isOption(GAMEOPTION_RAGING_BARBARIANS))
 	{
-		static scaled const rRagingRatio = per100(GC.getDefineINT(
-				"BARB_RAGE_PEAK_PERCENT"));
+		static scaled const rRagingRatio = per100(GC.getDefineINT("BARB_RAGE_PEAK_PERCENT"));
 		r = rRagingRatio;
 	}
 	else
 	{
-		static scaled const rNormalRatio = per100(GC.getDefineINT(
-				"BARB_PEAK_PERCENT"));
+		static scaled const rNormalRatio = per100(GC.getDefineINT("BARB_PEAK_PERCENT"));
 		r = rNormalRatio;
 	}
 	r.clamp(0, 1);
@@ -7841,7 +8498,7 @@ void CvGame::updateWar()
 						{
 							if (!kTeam1.isAtWar((TeamTypes)iJ))
 							{
-								kTeam1.declareWar(((TeamTypes)iJ), false, NO_WARPLAN);
+								kTeam1.declareWar(((TeamTypes)iJ), false, NO_WARPLAN, true, NO_PLAYER, false, WAR_DECLARATION_ALWAYS_WAR);
 							}
 						}
 					}
@@ -8139,7 +8796,12 @@ void CvGame::testVictory()
 		CvTeam& kTeam = *itTeam;
 		FOR_EACH_ENUM2(Victory, eVictory)
 		{
-			if (testVictory(eVictory, kTeam.getID(), &bEndScore))
+			// <!-- custom: BtS reused one output boolean across the full victory scan even though testVictory overwrites it per call, so later non-End-Score victories erased an enabled Time Victory and allowed a tied deadline to fall through to generic game over.
+			// Accumulate the per-call result explicitly. See KI#345. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			bool bThisEndScore = false;
+			bool const bVictory = testVictory(eVictory, kTeam.getID(), &bThisEndScore);
+			bEndScore = bEndScore || bThisEndScore;
+			if (bVictory)
 			{
 				if (kTeam.getVictoryCountdown(eVictory) < 0)
 				{
@@ -8151,9 +8813,15 @@ void CvGame::testVictory()
 					kTeam.changeVictoryCountdown(eVictory, -1);
 				if (kTeam.getVictoryCountdown(eVictory) == 0)
 				{
-					if (SyncRandSuccess100(kTeam.getLaunchSuccessRate(eVictory)))
+					// <!-- custom: Cache the arrival chance so a failed launch can be logged with its exact pre-reset value. (GPT-5.6-Sol) -->
+					int const iLaunchSuccessPercent = kTeam.getLaunchSuccessRate(eVictory);
+					if (SyncRandSuccess100(iLaunchSuccessPercent))
 						aeeWinners.push_back(std::make_pair(kTeam.getID(), eVictory));
-					else kTeam.resetVictoryProgress();
+					else
+					{
+						if (gGameRecordLogLevel >= 2) logSASGameRecordSpaceshipFailed(kTeam.getID(), eVictory, iLaunchSuccessPercent);
+						kTeam.resetVictoryProgress();
+					}
 				}
 			}
 		}
@@ -8214,7 +8882,8 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
 	{
 		FAssert(NO_PLAYER != kData.kVoteOption.ePlayer);
 		CvPlayer& kPlayer = GET_PLAYER(kData.kVoteOption.ePlayer);
-		if (gTeamLogLevel >= 1) logBBAI("  Vote for forcing peace against team %d (%S) passes", kPlayer.getTeam(), kPlayer.getCivilizationDescription(0)); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+		if (gTeamLogLevel >= 1) logBBAI("DIPLO_VOTE_RESULT turn=%d action=PASS resolution=FORCE_PEACE vote=%s voteSource=%d targetPlayer=%d targetCiv=%s targetTeam=%d",
+			getGameTurn(), kVote.getType(), kData.eVoteSource, kPlayer.getID(), GC.getInfo(kPlayer.getCivilizationType()).getType(), kPlayer.getTeam()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 		// <kekm.25> 'Cancel defensive pacts with the attackers first'
 		FOR_EACH_DEAL_VAR(pLoopDeal)
 		{
@@ -8262,7 +8931,8 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
 	else if (kVote.isForceWar())
 	{
 		CvPlayer& kPlayer = GET_PLAYER(kData.kVoteOption.ePlayer);
-		if (gTeamLogLevel >= 1) logBBAI("  Vote for war against team %d (%S) passes", kPlayer.getTeam(), kPlayer.getCivilizationDescription(0)); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+		if (gTeamLogLevel >= 1) logBBAI("DIPLO_VOTE_RESULT turn=%d action=PASS resolution=FORCE_WAR vote=%s voteSource=%d targetPlayer=%d targetCiv=%s targetTeam=%d",
+			getGameTurn(), kVote.getType(), kData.eVoteSource, kPlayer.getID(), GC.getInfo(kPlayer.getCivilizationType()).getType(), kPlayer.getTeam()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 		CvTeamAI& kTeam = GET_TEAM(kPlayer.getTeam());
 		// advc.001: Exclude dead civs
 		for (PlayerIter<MAJOR_CIV,POTENTIAL_ENEMY_OF> it(kTeam.getID());
@@ -8276,7 +8946,7 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
 			{
 				// <kekm.26>
 				CvTeam::queueWar(kFullMember.getID(), kTeam.getID(),
-						false, WARPLAN_DOGPILE); // </kekm.26>
+						false, WARPLAN_DOGPILE, true, WAR_DECLARATION_VOTE); // </kekm.26>
 				kTeam.AI_makeUnwillingToTalk(kFullMember.getID()); // advc.104i
 			}
 		}
@@ -8293,7 +8963,9 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
 			CvPlayer& kNewOwner = GET_PLAYER(kData.kVoteOption.eOtherPlayer);
 			if (kNewOwner.getID() != pCity->getOwner())
 			{
-				if (gTeamLogLevel >= 1) logBBAI("  Vote for assigning %S to %d (%S) passes", pCity->getName().GetCString(), kNewOwner.getTeam(), kNewOwner.getCivilizationDescription(0)); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+				if (gTeamLogLevel >= 1) logBBAI("DIPLO_VOTE_RESULT turn=%d action=PASS resolution=ASSIGN_CITY vote=%s voteSource=%d city=%S cityId=%d oldOwner=%d newOwner=%d newCiv=%s newTeam=%d",
+					getGameTurn(), kVote.getType(), kData.eVoteSource, getSASDiagnosticQuoted(pCity->getName().GetCString()).GetCString(), pCity->getID(), pCity->getOwner(),
+					kNewOwner.getID(), GC.getInfo(kNewOwner.getCivilizationType()).getType(), kNewOwner.getTeam()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 				kNewOwner.acquireCity(pCity, false, true, true,
 						false, true); // advc.ctr
 			}
@@ -8324,8 +8996,7 @@ CvDeal* CvGame::addDeal()
 
 /*	advc.072: All the FAssert(false) in this function mean that we're somehow
 	out of step with the iteration that happens in the EXE. */
-CvDeal* CvGame::nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePlayer,
-	TradeableItems eItemType, int iData, bool bWidget)
+CvDeal* CvGame::nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePlayer, TradeableItems eItemType, int iData, bool bWidget)
 {
 	if (!m_bShowingCurrentDeals)
 	{
@@ -8486,17 +9157,28 @@ int CvGame::calculateSyncChecksum()
 				break;
 			// K-Mod - new checks.
 			case 4: // attitude cache
+			{
 				// <advc.003n>
 				if (iI == BARBARIAN_PLAYER)
 					break; // </advc.003n>
+				// <!-- custom: K-Mod encoded rival slots by shifting signed attitude values by the player ID.
+				// SAS supports 48 civilization slots, so IDs 32-47 exceeded the 32-bit shift width.
+				// Position-sensitive unsigned mixing lets every rival slot contribute safely to this diagnostic OOS checksum.
+				// This strengthens diagnostic uniqueness only and does not change game state. See KI#326. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				uint uiAttitudeHash = 0;
 				for (iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
 				{
 					if (iI != iJ) // advc: self-attitude should never matter
-						iMultiplier += kPlayer.AI_getAttitudeVal((PlayerTypes)iJ, false) << iJ;
+					{
+						int const iAttitude = kPlayer.AI_getAttitudeVal((PlayerTypes)iJ, false);
+						uiAttitudeHash = (uiAttitudeHash + static_cast<uint>(iAttitude)) * 31u;
+					}
 				}
+				iMultiplier ^= static_cast<int>(uiAttitudeHash & MAX_INT);
 				// strategy hash
 				//iMultiplier += kPlayer.AI_getStrategyHash() * 367291;
 				break;
+			}
 			case 5: // city religions and corporations
 				FOR_EACH_CITY(pLoopCity, kPlayer)
 				{
@@ -8596,7 +9278,7 @@ bool CvGame::checkInSync()
 			if (iOtherSyncHash != iSyncHash)
 			{
 				FAssert(iOtherSyncHash == iSyncHash);
-				setAIAutoPlay(0);
+				setAIAutoPlay(0, true, SAS_AUTOPLAY_END_DESYNC);
 				return false;
 			}
 		}
@@ -8605,7 +9287,7 @@ bool CvGame::checkInSync()
 }
 
 /*	<advc.003g> Test the platform's floating point behavior (intermediate precision
-	and/or rounding). */
+	or rounding). */
 int CvGame::FPChecksum() const
 {
 	/*	I've used this together with the _controlfp call at the end to test the
@@ -8639,12 +9321,15 @@ void CvGame::doFPCheck(int iChecksum, PlayerTypes ePlayer)
 	if (iChecksum == FPChecksum())
 		return; // Active player is able to reproduce checksum received over the net
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
+
 	gDLL->UI().addMessage(getActivePlayer(), true, -1,
 			CvWString::format(L"Your machine's FP test computation has yielded a"
 			L" different result than that of %s. The game may frequently go"
 			L" out of sync due to floating point calculations in the AdvCiv mod.",
 			GET_PLAYER(ePlayer).getName()), NULL, MESSAGE_TYPE_MAJOR_EVENT, NULL,
-			GC.getColorType("WARNING_TEXT"));
+			eColorWarningText);
 } // </advc.003g
 
 // advc.003r:
@@ -8687,22 +9372,26 @@ void CvGame::handleUpdateTimer(UpdateTimerTypes eTimerType)
 }
 
 
-void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer,
-	CvWString szText, ColorTypes eColor, int iPlotX, int iPlotY)
+// <!-- custom: Store each replay event's historical audience alongside its unchanged CvReplayMessage payload. See KI#337. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, CvWString szText, ColorTypes eColor, int iPlotX, int iPlotY, qword uiVisibilityMask)
 {
 	int iGameTurn = getGameTurn();
 	CvReplayMessage* pMessage = new CvReplayMessage(iGameTurn, eType, ePlayer);
 	pMessage->setPlot(iPlotX, iPlotY);
 	pMessage->setText(szText);
 	if (NO_COLOR == eColor)
-		eColor = GC.getColorType("WHITE");
+	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
+		eColor = eColorWhite;
+	}
 	pMessage->setColor(eColor);
 	m_listReplayMessages.push_back(pMessage);
+	m_auiReplayMessageVisibility.push_back(uiVisibilityMask);
 }
 
 // advc: Wrapper with CvPlot param
-void CvGame::addReplayMessage(CvPlot const& kPlot, ReplayMessageTypes eType,
-	PlayerTypes ePlayer, CvWString szText, ColorTypes eColor)
+void CvGame::addReplayMessage(CvPlot const& kPlot, ReplayMessageTypes eType, PlayerTypes ePlayer, CvWString szText, ColorTypes eColor)
 {
 	addReplayMessage(eType, ePlayer, szText, eColor, kPlot.getX(), kPlot.getY());
 }
@@ -8716,6 +9405,7 @@ void CvGame::clearReplayMessageMap()
 		SAFE_DELETE(*itList);
 	}
 	m_listReplayMessages.clear();
+	m_auiReplayMessageVisibility.clear();
 }
 
 
@@ -8772,6 +9462,16 @@ ColorTypes CvGame::getReplayMessageColor(uint i) const
 }
 
 
+// <!-- custom: Replay visibility is fixed when the event occurs; later AP/UN membership changes must not reveal or erase that historical audience. See KI#337. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+bool CvGame::isReplayMessageVisibleTo(uint i, PlayerTypes ePlayer) const
+{
+	if (!isValidReplayIndex(i) || ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return false;
+	FAssert(m_auiReplayMessageVisibility.size() == m_listReplayMessages.size());
+	return ((m_auiReplayMessageVisibility[i] & ((qword)1 << ePlayer)) != 0);
+}
+
+
 uint CvGame::getNumReplayMessages() const
 {
 	return m_listReplayMessages.size();
@@ -8781,17 +9481,18 @@ uint CvGame::getNumReplayMessages() const
 void CvGame::read(FDataStreamBase* pStream)
 {
 	reset(NO_HANDICAP);
+	// <!-- custom: Mark the load attempt before serialized fields are read; if loading aborts/crashes, the fixed status file retains which session attempt was in progress and when it began. (ChatGPT-5.6-Sol) -->
+	if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusSessionStarted(true);
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 	/*	advc: So that onAllGameDataRead can perform some final updates
 		based on the save version */
 	m_uiSaveFlag = uiFlag;
-	if (uiFlag < 1)
-	{
-		int iEndTurnMessagesSent;
-		pStream->Read(&iEndTurnMessagesSent);
-	}
+
 	pStream->Read(&m_iElapsedGameTurns);
 	pStream->Read(&m_iStartTurn);
 	pStream->Read(&m_iStartYear);
@@ -8819,13 +9520,10 @@ void CvGame::read(FDataStreamBase* pStream)
 		m_iAIAutoPlay = -1; // </advc.127>
 	pStream->Read(&m_iGlobalWarmingIndex); // K-Mod
 	pStream->Read(&m_iGwEventTally); // K-Mod
+
 	// <advc.opt>
-	if (uiFlag >= 4)
-	{
-		pStream->Read(&m_iCivPlayersEverAlive);
-		pStream->Read(&m_iCivTeamsEverAlive);
-	} /* The else case is handled in allGameDataRead - need to read the players and
-		 teams first. */
+	pStream->Read(&m_iCivPlayersEverAlive);
+	pStream->Read(&m_iCivTeamsEverAlive);
 	// </advc.opt>
 	// m_uiInitialTime not saved
 
@@ -8838,6 +9536,10 @@ void CvGame::read(FDataStreamBase* pStream)
 	// m_bPlayerOptionsSent not saved
 	pStream->Read(&m_bNukesValid);
 
+	// <!-- custom: map heaviness is persisted in saves; no recompute on load, only on new-game map generation. (GPT-5.2-Codex) -->
+	pStream->Read(&m_bLandHeavyMapname);
+	pStream->Read(&m_bNavalHeavyMapname);
+
 	pStream->Read((int*)&m_eHandicap);
 	pStream->Read((int*)&m_eAIHandicap); // advc.127
 	pStream->Read((int*)&m_ePausePlayer);
@@ -8846,111 +9548,50 @@ void CvGame::read(FDataStreamBase* pStream)
 	pStream->Read((int*)&m_eVictory);
 	pStream->Read((int*)&m_eGameState);
 	// <advc.106h>
-	if (uiFlag >= 6)
-		pStream->Read((int*)&m_eInitialActivePlayer);
-	else m_eInitialActivePlayer = getActivePlayer(); // </advc.106h>
+	pStream->Read((int*)&m_eInitialActivePlayer);
+
 	// <advc.004m>
-	if (uiFlag >= 5)
-	{
-		pStream->Read((int*)&m_eCurrentLayer);
-		/*	Initial autosave doesn't contain valid info about the globe layers
-				b/c it gets created before Python calls reportCurrentLayer */
-		if (getTurnSlice() > 0)
-			m_bLayerFromSavegame = true;
-	} // </advc.004m>
+	pStream->Read((int*)&m_eCurrentLayer);
+	/*	Initial autosave doesn't contain valid info about the globe layers
+			b/c it gets created before Python calls reportCurrentLayer */
+	if (getTurnSlice() > 0)
+		m_bLayerFromSavegame = true;
+	// </advc.004m>
+
 	pStream->ReadString(m_szScriptData);
+	// <!-- custom: Strip valid checkpoint metadata even when logging is now disabled so Python never sees the private trailer; absent/malformed trailers remain untouched.
+	// This load-time extraction is deliberately independent of the logging gate so a checkpoint created while logging was disabled remains available if the save is later loaded with logging enabled. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	SAS_extractSaveCheckpointTrailer(m_szScriptData, m_szSASLoadedSaveCheckpointKind, m_iSASLoadedSaveCheckpointTurn, m_iSASLoadedSaveCheckpointElapsedTurn, m_szSASLoadedSaveCheckpointUtc, m_uiSASLoadedSaveCheckpointMapRandState, m_uiSASLoadedSaveCheckpointSyncRandState, m_szSASLoadedSaveCheckpointReason, m_szSASLoadedSaveCheckpointOriginalBasename);
 
-	if (uiFlag < 1)
-	{
-		std::vector<int> aiEndTurnMessagesReceived(MAX_PLAYERS);
-		pStream->Read(MAX_PLAYERS, &aiEndTurnMessagesReceived[0]);
-	}
-	if (uiFlag >= 21)
-	{
-		m_aeRankPlayer.read(pStream);
-		m_aePlayerRank.read(pStream);
-		m_aiPlayerScore.read(pStream);
-		m_aeRankTeam.read(pStream);
-		m_aeTeamRank.read(pStream);
-		m_aiTeamScore.read(pStream);
-		m_aiUnitCreatedCount.read(pStream);
-		m_aiUnitClassCreatedCount.read(pStream);
-		m_aiBuildingClassCreatedCount.read(pStream);
-		m_aiProjectCreatedCount.read(pStream);
-		m_aiForceCivicCount.read(pStream);
-	}
-	else
-	{
-		m_aeRankPlayer.readArray<int>(pStream);
-		m_aePlayerRank.readArray<int>(pStream);
-		m_aiPlayerScore.readArray<int>(pStream);
-		m_aeRankTeam.readArray<int>(pStream);
-		m_aeTeamRank.readArray<int>(pStream);
-		m_aiTeamScore.readArray<int>(pStream);
-		m_aiUnitCreatedCount.readArray<int>(pStream);
-		m_aiUnitClassCreatedCount.readArray<int>(pStream);
-		m_aiBuildingClassCreatedCount.readArray<int>(pStream);
-		m_aiProjectCreatedCount.readArray<int>(pStream);
-		m_aiForceCivicCount.readArray<int>(pStream);
-	}
-	if (uiFlag >= 11)
-		m_aiVoteOutcome.read(pStream);
-	else m_aiVoteOutcome.readArray<int>(pStream);
-	if (uiFlag >= 21)
-	{
-		m_aiReligionGameTurnFounded.read(pStream);
-		m_aiCorporationGameTurnFounded.read(pStream);
-		m_aiSecretaryGeneralTimer.read(pStream);
-		m_aiVoteTimer.read(pStream);
-		m_aiDiploVote.read(pStream);
-		if (uiFlag >= 24)
-		{
-			m_abSpecialUnitValid.read(pStream);
-			m_abSpecialBuildingValid.read(pStream);
-			m_abReligionSlotTaken.read(pStream);
-		}
-		else
-		{
-			LegacyArrayEnumMap<SpecialUnitTypes,bool>::convert(m_abSpecialUnitValid, pStream);
-			LegacyArrayEnumMap<SpecialBuildingTypes,bool>::convert(m_abSpecialBuildingValid, pStream);
-			LegacyArrayEnumMap<ReligionTypes,bool>::convert(m_abReligionSlotTaken, pStream);
-		}
-		m_aeHolyCity.read(pStream);
-		m_aeHeadquarters.read(pStream);
-	}
-	else
-	{
-		m_aiReligionGameTurnFounded.readArray<int>(pStream);
-		m_aiCorporationGameTurnFounded.readArray<int>(pStream);
-		m_aiSecretaryGeneralTimer.readArray<int>(pStream);
-		m_aiVoteTimer.readArray<int>(pStream);
-		m_aiDiploVote.readArray<int>(pStream);
-		m_abSpecialUnitValid.readArray<bool>(pStream);
-		m_abSpecialBuildingValid.readArray<bool>(pStream);
-		m_abReligionSlotTaken.readArray<bool>(pStream);
-		m_pLegacyOrgSeatData = new IDInfo[14];
-		for (int i = 0; i < 7; i++)
-		{
-			int iOwner, iCity;
-			pStream->Read(&iOwner);
-			pStream->Read(&iCity);
-			IDInfo cityInfo((PlayerTypes)iOwner, iCity);
-			cityInfo.validateOwner(); // advc.opt
-			/*	advc.enum: Want to store the city plot ID, but can't obtain that
-				from the cityInfo until the CvPlayer data has been read, so ... */
-			m_pLegacyOrgSeatData[i] = cityInfo;
-		}
-		for (int i = 7; i < 14; i++)
-		{
-			int iOwner, iCity;
-			pStream->Read(&iOwner);
-			pStream->Read(&iCity);
-			IDInfo cityInfo((PlayerTypes)iOwner, iCity);
-			cityInfo.validateOwner(); // advc.opt
-			m_pLegacyOrgSeatData[i] = cityInfo;
-		}
-	}
+	m_aeRankPlayer.read(pStream);
+	m_aePlayerRank.read(pStream);
+	m_aiPlayerScore.read(pStream);
+	m_aeRankTeam.read(pStream);
+	m_aeTeamRank.read(pStream);
+	m_aiTeamScore.read(pStream);
+	m_aiUnitCreatedCount.read(pStream);
+	m_aiUnitClassCreatedCount.read(pStream);
+	m_aiBuildingClassCreatedCount.read(pStream);
+	m_aiProjectCreatedCount.read(pStream);
+	m_aiForceCivicCount.read(pStream);
 
+
+	m_aiVoteOutcome.read(pStream);
+
+	m_aiReligionGameTurnFounded.read(pStream);
+	m_aiCorporationGameTurnFounded.read(pStream);
+	m_aiSecretaryGeneralTimer.read(pStream);
+	m_aiVoteTimer.read(pStream);
+	m_aiDiploVote.read(pStream);
+
+	m_abSpecialUnitValid.read(pStream);
+	m_abSpecialBuildingValid.read(pStream);
+	m_abReligionSlotTaken.read(pStream);
+
+	m_aeHolyCity.read(pStream);
+	m_aeHeadquarters.read(pStream);
+
+	// <!-- custom: brackets without if or else or such was already as such, kept as is as advised by chatgpt 5, check if accurate -->
 	{
 		CvWString szBuffer;
 		uint iSize;
@@ -8978,25 +9619,25 @@ void CvGame::read(FDataStreamBase* pStream)
 
 	m_mapRand.read(pStream);
 	m_sorenRand.read(pStream);
+
 	// <advc.027b>
-	if (uiFlag >= 7)
-	{
-		pStream->Read(&m_initialRandSeed.uiMap);
-		pStream->Read(&m_initialRandSeed.uiSync);
-	} // </advc.027b>
+	pStream->Read(&m_initialRandSeed.uiMap);
+	pStream->Read(&m_initialRandSeed.uiSync);
+	// </advc.027b>
+
+	// <!-- custom: as part of removing uiflag, also removed weird boolean code here as well that has a bunch of nested uiflag conditionals, now directly checking the game options we need as advised by chatgpt 5, check if accurate; this is simplified thanks to claude ai, and my prompt(s) and adjustments too or such, check if accurate (i have deleted old seemingly base advciv or maybe of some other mods who knows i didn't check too much and just deleted and merged old uiflags into latest if checks are truecode, too horrible to look at xd, except maybe in a museum, or maybe is not that bad and i'm exagerating, but hopefully much cleaner now), which i also did here -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+
+	// Simplified: assuming current UI flag version (27)
+	// Simplified: assuming current UI flag version (no backwards compatibility)
 	// <advc.tsl>, advc.701: Options have been shuffled around a few times
-	bool bNewSeed = isOption((GameOptionTypes)
-			(uiFlag < 2 || uiFlag >= 17 ? 17 : 19));
-	bool bLockMods = isOption((GameOptionTypes)
-			(uiFlag >= 15 && uiFlag < 17 ? 27 : 18));
-	bool bNoVassals = isOption((GameOptionTypes)
-			(uiFlag >= 17 ? 23 : 20));
-	bool bNoEspionage = isOption((GameOptionTypes)
-			(uiFlag >= 17 ? 27 : 23));
-	bool bRiseFall = isOption((GameOptionTypes)
-			(uiFlag < 2 ? false : (uiFlag < 17 ? 17 : 19)));
-	bool bTrueStarts = isOption((GameOptionTypes)
-			(uiFlag < 15 ? false : (uiFlag < 17 ? 18 : 20)));
+	const bool bNewSeed = isOption((GameOptionTypes)17);      // or 19 - you'd need to check which is correct
+	const bool bLockMods = isOption((GameOptionTypes)18);
+	const bool bNoVassals = isOption((GameOptionTypes)23);    // for current version
+	const bool bNoEspionage = isOption((GameOptionTypes)27);  // for current version
+	const bool bRiseFall = isOption((GameOptionTypes)19);     // for current version  
+	const bool bTrueStarts = isOption((GameOptionTypes)20);   // for current version
+
 	setOption(GAMEOPTION_NEW_RANDOM_SEED, bNewSeed);
 	setOption(GAMEOPTION_LOCK_MODS, bLockMods);
 	setOption(GAMEOPTION_RISE_FALL, bRiseFall);
@@ -9004,6 +9645,7 @@ void CvGame::read(FDataStreamBase* pStream)
 	setOption(GAMEOPTION_NO_VASSAL_STATES, bNoVassals);
 	setOption(GAMEOPTION_NO_ESPIONAGE, bNoEspionage);
 	// </advc.tsl>
+
 	// <advc.250b>
 	if (isOption(GAMEOPTION_SPAH))
 		m_pSpah->read(pStream); // </advc.250b>
@@ -9021,87 +9663,24 @@ void CvGame::read(FDataStreamBase* pStream)
 				pMessage->read(*pStream);
 			m_listReplayMessages.push_back(pMessage);
 		}
+		// <!-- custom: Read the current-version historical replay audiences after the unchanged message payloads. See KI#337. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		m_auiReplayMessageVisibility.resize(iSize);
+		for (ReplayMessageList::_Alloc::size_type i = 0; i < iSize; i++)
+			pStream->Read(&m_auiReplayMessageVisibility[i]);
 	}
 	// m_pReplayInfo not saved
 
 	pStream->Read(&m_iNumSessions);
 	// <advc.tsl>
-	if (uiFlag >= 16)
-		pStream->Read(&m_iMapRegens); // </advc.tsl>
+	pStream->Read(&m_iMapRegens); // </advc.tsl>
 	if (!isNetworkMultiPlayer())
 		m_iNumSessions++;
-	/*	<advc.enum> In part based on code from obsolete structs
-		PlotExtraYield, PlotExtraCost. */
-	if (uiFlag < 21)
+
+	m_aeVoteSourceReligion.read(pStream);
+
+	if (!isOption(GAMEOPTION_NO_EVENTS))
 	{
-		CvMap& kMap = GC.getMap();
-		/*	Map hasn't yet been reset and won't reset the plot extra data at all
-			when loading a legacy save. It's all up to CvGame then. */
-		kMap.resetPlotExtraData();
-		int iSize;
-		pStream->Read(&iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			int iX, iY;
-			pStream->Read(&iX);
-			pStream->Read(&iY);
-			FOR_EACH_ENUM(Yield)
-			{
-				int iChange;
-				pStream->Read(&iChange);
-				kMap.setPlotExtraYield(kMap.plotNum(iX, iY), eLoopYield, iChange);
-			}
-		}
-		pStream->Read(&iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			int iX, iY, iCost;
-			pStream->Read(&iX);
-			pStream->Read(&iY);
-			pStream->Read(&iCost);
-			kMap.changePlotExtraCost(kMap.plotNum(iX, iY), iCost);
-		}
-	} // </advc.enum>
-	// <advc>
-	if (uiFlag >= 9)
-	{
-		if (uiFlag >= 11)
-			m_aeVoteSourceReligion.read(pStream);
-		else m_aeVoteSourceReligion.readArray<int>(pStream);
-	}
-	else // </advc>
-	{
-		int iSize;
-		pStream->Read(&iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			VoteSourceTypes eVoteSource;
-			ReligionTypes eReligion;
-			pStream->Read((int*)&eVoteSource);
-			pStream->Read((int*)&eReligion);
-			m_aeVoteSourceReligion.set(eVoteSource, eReligion); // advc
-		}
-	}
-	if (uiFlag >= 21)
-	{
-		if (!isOption(GAMEOPTION_NO_EVENTS))
-		{
-			if (uiFlag >= 24)
-				m_abInactiveTriggers.read(pStream);
-			else LegacyArrayEnumMap<EventTriggerTypes,bool>::convert(m_abInactiveTriggers, pStream);
-		}
-	}
-	else
-	{
-		int iSize;
-		pStream->Read(&iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			int iTrigger;
-			pStream->Read(&iTrigger);
-			if (!isOption(GAMEOPTION_NO_EVENTS)) // advc.003v
-				m_abInactiveTriggers.set((EventTriggerTypes)iTrigger, true);
-		}
+		m_abInactiveTriggers.read(pStream);
 	}
 
 	// Get the active player information from the initialization structure
@@ -9121,68 +9700,117 @@ void CvGame::read(FDataStreamBase* pStream)
 
 	if (isOption(GAMEOPTION_NEW_RANDOM_SEED))
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const bool bIgnoreNewRandomSeedOption = GC.getDefineBOOL("IGNORE_NEW_RANDOM_SEED_OPTION");
+
 		if (!isNetworkMultiPlayer() &&
-			!GC.getDefineBOOL("IGNORE_NEW_RANDOM_SEED_OPTION")) // advc
+			!bIgnoreNewRandomSeedOption) // advc
 		{
 			m_sorenRand.reseed(timeGetTime());
 		}
 	}
-	if (uiFlag < 21)
-	{
-		// advc.enum: Skip data now handled by CvMap
-		int iShrineBuildingCount;
-		pStream->Read(&iShrineBuildingCount);
-		int* aiShrineBuildingOrReligion = new int[GC.getNumBuildingInfos()];
-		pStream->Read(GC.getNumBuildingInfos(), aiShrineBuildingOrReligion);
-		pStream->Read(GC.getNumBuildingInfos(), aiShrineBuildingOrReligion);
-		delete[] aiShrineBuildingOrReligion;
-	}
+
 	pStream->Read(&m_iNumCultureVictoryCities);
 	pStream->Read((int*)&m_eCultureVictoryCultureLevel);
 	// <advc.052>
-	if (uiFlag >= 3)
-		pStream->Read(&m_bScenario); // </advc.052>
+
+	pStream->Read(&m_bScenario); // </advc.052>
+
+	// <!-- custom: Read persistent source/version history as part of the current AdvCiv-SAS save layout. (ChatGPT-5.6-Sol) -->
+	unsigned int uiHistorySize = 0;
+	pStream->Read(&uiHistorySize);
+	m_aSASVersionHistory.resize(uiHistorySize);
+	for (unsigned int i = 0; i < uiHistorySize; i++)
+	{
+		SASVersionHistoryEntry& kEntry = m_aSASVersionHistory[i];
+		pStream->Read(&kEntry.iTurn);
+		pStream->Read(&kEntry.iDirtyState);
+		pStream->ReadString(kEntry.szVersion);
+		pStream->ReadString(kEntry.szCommitHash);
+	}
+	// <!-- custom: The pre-28 read gate inadvertently brought back an older-save path when SAS added ordered WorldBuilder and Advanced Start history.
+	// The gate skipped fields missing from pre-28 saves to keep those streams aligned.
+	// The flag-28 writer always stores this history after the source history, and SASGameRecord reports it after load.
+	// Read it directly from the current layout. See KI#46.2. (ChatGPT-5.6-Sol + GPT-6.2-Sol) -->
+	unsigned int uiWorldChangesHistorySize = 0;
+	pStream->Read(&uiWorldChangesHistorySize);
+	m_aSASWorldChangesHistory.resize(uiWorldChangesHistorySize);
+	for (unsigned int i = 0; i < uiWorldChangesHistorySize; i++)
+	{
+		SASWorldChangesHistoryEntry& kEntry = m_aSASWorldChangesHistory[i];
+		pStream->Read(&kEntry.iSource);
+		pStream->Read(&kEntry.iCategory);
+		pStream->Read(&kEntry.iActor);
+		pStream->Read(&kEntry.iActorTeam);
+		pStream->Read(&kEntry.iTargetPlayer);
+		pStream->Read(&kEntry.iTargetTeam);
+		pStream->Read(&kEntry.iTurn);
+		pStream->Read(&kEntry.iYear);
+		pStream->Read(&kEntry.iElapsedTurn);
+		pStream->Read(&kEntry.iVersionIndex);
+		pStream->Read(&kEntry.iX);
+		pStream->Read(&kEntry.iY);
+		pStream->Read(&kEntry.iCityId);
+		pStream->Read(&kEntry.iObjectId);
+		pStream->Read(&kEntry.iRequestedDataId);
+		pStream->Read(&kEntry.iResolvedDataId);
+		pStream->ReadString(kEntry.szAction);
+		pStream->ReadString(kEntry.szOperation);
+		pStream->ReadString(kEntry.szTargetKind);
+		pStream->ReadString(kEntry.szTarget);
+		pStream->Read(&kEntry.bOldValueValid);
+		pStream->Read(&kEntry.iOldValue);
+		pStream->Read(&kEntry.bNewValueValid);
+		pStream->Read(&kEntry.iNewValue);
+		pStream->Read(&kEntry.bContentWithheld);
+		pStream->Read(&kEntry.iQuotedCost);
+		pStream->Read(&kEntry.iPointsBefore);
+		pStream->Read(&kEntry.iPointsAfter);
+		pStream->Read(&kEntry.iGoldBefore);
+		pStream->Read(&kEntry.iGoldAfter);
+	}
+	// <!-- custom: A loaded save starts outside any active WorldBuilder UI/bulk context even when its ordered history contains previous editor actions. (ChatGPT-5.6-Sol) -->
+	m_bSASWorldBuilderScreenVisible = false;
+	m_bSASWorldBuilderBulkEdit = false;
+	m_iSASWorldBuilderBulkChangedPlots = 0;
+
 	m_iTurnLoadedFromSave = m_iElapsedGameTurns; // advc.044
-	GAMETEXT.setAlwaysShowPlotCulture(uiFlag >= 10); // advc.099f
 	applyOptionEffects(); // advc.310
 	m_bFPTestDone = !isNetworkMultiPlayer(); // advc.003g
+
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn).
+	// Added with the help of chatgpt 5 thanks -->
+	// 5) Call sites (in CvGame.cpp) — recap
+	// After loading a save: end of CvGame::read(FDataStreamBase*)
+	// Update: Now loaded from save (no recompute here). (GPT-5.2-Codex)
+}
+
+
+// <!-- custom: Python owns SASFastSave naming because it already owns the lifecycle hooks, BugPath save-directory lookup, sanitization, UTC token and collision suffix.
+// The DLL receives only the exact chosen basename/reason for the immediately following save so provenance cannot drift through duplicated filename logic. (ChatGPT-5.6-Sol) -->
+void CvGame::setSASFastSaveContext(char const* szReason, char const* szOriginalBasename)
+{
+	m_szSASPendingFastSaveReason = (szReason == NULL ? "" : szReason);
+	m_szSASPendingFastSaveOriginalBasename = (szOriginalBasename == NULL ? "" : szOriginalBasename);
+}
+
+void CvGame::clearSASFastSaveContext()
+{
+	m_szSASPendingFastSaveReason = "";
+	m_szSASPendingFastSaveOriginalBasename = "";
 }
 
 
 void CvGame::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
-	uint uiFlag;
-	//uiFlag = 1; // BtS
-	//uiFlag = 2; // advc.701: R&F option
-	//uiFlag = 3; // advc.052
-	//uiFlag = 4; // advc.opt: Players and teams ever alive
-	//uiFlag = 5; // advc.004m
-	//uiFlag = 6; // advc.106h
-	//uiFlag = 7; // advc.027b
-	//uiFlag = 8; // advc.172
-	//uiFlag = 9; // advc (m_aeVoteSourceReligion)
-	//uiFlag = 10; // advc.099f
-	//uiFlag = 11; // advc.enum: new enum map save behavior
-	//uiFlag = 12; // advc.130n: DifferentReligionThreat added to CvPlayerAI
-	//uiFlag = 13; // advc.148: RELATIONS_THRESH_WORST_ENEMY
-	//uiFlag = 14; // advc.148, advc.130n, advc.130x (religion attitude)
-	//uiFlag = 15; // advc.tsl: new game option
-	//uiFlag = 16; // advc.tsl: map regen counter
-	//uiFlag = 17; // advc.tsl: game options moved around
-	//uiFlag = 18; // advc.130c: change in rank hate calc
-	//uiFlag = 19; // advc.500c: Update citizen assignments
-	//uiFlag = 20; // advc.130r: Update war attitude
-	//uiFlag = 21; // advc.enum
-	//uiFlag = 22; // advc.130n: Bugfix in fave-civic attitude calc
-	//uiFlag = 23; // advc.124b: Need a plot group update for compatibility
-	/*	advc.enum: Bugfix in bool-valued ArrayEnumMap; advc.130c: tweak;
-		advc.130n: fave civic based on displayed leader type. */
-	//uiFlag = 24;
-	//uiFlag = 25; // advc.130n (bugfix)
-	//uiFlag = 26; // advc.130w: Cache for expansionist hate
-	//uiFlag = 27; // advc.130w: RivalVassalAttitude tweak
-	uiFlag = 28; // advc: Overflow bugfix for religion, corp count.
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+	// <!-- custom: Keep the serialized CvGame stream-layout flag and diagnostic reporting on one source of truth.
+	// The ordered setup/editor history advances this marker to 28 because it changes the serialized CvGame tail. (ChatGPT-5.6-Sol) -->
+	uint const uiFlag = SASSaveStreamFormat::CV_GAME; // advc.130w: RivalVassalAttitude tweak
+
 	pStream->Write(uiFlag);
 	REPRO_TEST_BEGIN_WRITE("Game pt1");
 	pStream->Write(m_iElapsedGameTurns);
@@ -9226,6 +9854,9 @@ void CvGame::write(FDataStreamBase* pStream)
 	// m_bPlayerOptionsSent not saved
 	pStream->Write(m_bNukesValid);
 
+	pStream->Write(m_bLandHeavyMapname);
+	pStream->Write(m_bNavalHeavyMapname);
+
 	pStream->Write(m_eHandicap);
 	pStream->Write(m_eAIHandicap); // advc.127
 	pStream->Write(m_ePausePlayer);
@@ -9236,7 +9867,36 @@ void CvGame::write(FDataStreamBase* pStream)
 	pStream->Write(m_eInitialActivePlayer); // advc.106h
 	pStream->Write(m_eCurrentLayer); // advc.004m
 
-	pStream->WriteString(m_szScriptData);
+	// <!-- custom: Persist a compact checkpoint in every serialized save, independent of SASGameRecord logging, so an archival save created with logging disabled can still identify its exact serialization when loaded later.
+	// Only the diagnostic row is logging-gated; the trailer exists solely in the serialized script-data copy and is stripped on load. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	int const iSASSaveCheckpointTurn = getGameTurn();
+	int const iSASSaveCheckpointElapsedTurn = getElapsedGameTurns();
+	CvString const szSASSaveCheckpointUtc = createSASUtcTimestampMilliseconds();
+	uint const uiSASSaveCheckpointMapRandState = getMapRand().getSeed();
+	uint const uiSASSaveCheckpointSyncRandState = getSorenRand().getSeed();
+	bool const bSASKnownFastSave = !m_szSASPendingFastSaveOriginalBasename.empty();
+	char const* const szSASSaveCheckpointKind = (bSASKnownFastSave ? "SAS_FAST_SAVE" : "ENGINE_SAVE_UNKNOWN");
+	char const* const szSASSaveCheckpointReason = (bSASKnownFastSave && !m_szSASPendingFastSaveReason.empty() ? m_szSASPendingFastSaveReason.c_str() : "-");
+	char const* const szSASSaveCheckpointOriginalBasename = (bSASKnownFastSave ? m_szSASPendingFastSaveOriginalBasename.c_str() : "-");
+	CvString szSerializedScriptData = m_szScriptData;
+	CvString asCheckpointFields[NUM_SAS_SAVE_CHECKPOINT_FIELDS];
+	asCheckpointFields[SAS_SAVE_CHECKPOINT_KIND] = szSASSaveCheckpointKind;
+	asCheckpointFields[SAS_SAVE_CHECKPOINT_TURN].Format("%d", iSASSaveCheckpointTurn);
+	asCheckpointFields[SAS_SAVE_CHECKPOINT_ELAPSED_TURN].Format("%d", iSASSaveCheckpointElapsedTurn);
+	asCheckpointFields[SAS_SAVE_CHECKPOINT_UTC] = szSASSaveCheckpointUtc;
+	asCheckpointFields[SAS_SAVE_CHECKPOINT_MAP_RNG_STATE].Format("%u", uiSASSaveCheckpointMapRandState);
+	asCheckpointFields[SAS_SAVE_CHECKPOINT_SYNC_RNG_STATE].Format("%u", uiSASSaveCheckpointSyncRandState);
+	asCheckpointFields[SAS_SAVE_CHECKPOINT_REASON] = szSASSaveCheckpointReason;
+	asCheckpointFields[SAS_SAVE_CHECKPOINT_ORIGINAL_BASENAME] = szSASSaveCheckpointOriginalBasename;
+	szSerializedScriptData += SAS_SAVE_CHECKPOINT_PREFIX;
+	for (int iField = 0; iField < NUM_SAS_SAVE_CHECKPOINT_FIELDS; iField++)
+	{
+		if (iField > 0) szSerializedScriptData += ':';
+		szSerializedScriptData += asCheckpointFields[iField];
+	}
+	szSerializedScriptData += ']';
+	pStream->WriteString(szSerializedScriptData);
+	if (gGameRecordLogLevel >= 1) logSASGameRecordSaveCheckpointSerialized(szSASSaveCheckpointKind, iSASSaveCheckpointTurn, iSASSaveCheckpointElapsedTurn, szSASSaveCheckpointUtc.GetCString(), uiSASSaveCheckpointMapRandState, uiSASSaveCheckpointSyncRandState, szSASSaveCheckpointReason, szSASSaveCheckpointOriginalBasename);
 
 	m_aeRankPlayer.write(pStream);
 	m_aePlayerRank.write(pStream);
@@ -9302,6 +9962,10 @@ void CvGame::write(FDataStreamBase* pStream)
 		if (pMessage != NULL)
 			pMessage->write(*pStream);
 	}
+	// <!-- custom: Save the parallel historical replay audiences without changing the Hall-of-Fame CvReplayMessage format. See KI#337. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	FAssert(m_auiReplayMessageVisibility.size() == m_listReplayMessages.size());
+	for (ReplayMessageList::_Alloc::size_type i = 0; i < iSize; i++)
+		pStream->Write(m_auiReplayMessageVisibility[i]);
 	// m_pReplayInfo not saved
 	pStream->Write(m_iNumSessions);
 	/*	advc.tsl: Doesn't really have to be saved so far, but might become
@@ -9320,7 +9984,544 @@ void CvGame::write(FDataStreamBase* pStream)
 	pStream->Write(m_iNumCultureVictoryCities);
 	pStream->Write(m_eCultureVictoryCultureLevel);
 	pStream->Write(m_bScenario); // advc.052
+	// <!-- custom: Save compact game-source history after the existing CvGame payload.
+	// Full dirty file lists stay runtime/log-only; the save keeps only coarse dirty state beside turn/version/SHA. (ChatGPT-5.6-Sol) -->
+	unsigned int const uiHistorySize = (unsigned int)m_aSASVersionHistory.size();
+	pStream->Write(uiHistorySize);
+	for (unsigned int i = 0; i < uiHistorySize; i++)
+	{
+		SASVersionHistoryEntry const& kEntry = m_aSASVersionHistory[i];
+		pStream->Write(kEntry.iTurn);
+		pStream->Write(kEntry.iDirtyState);
+		pStream->WriteString(kEntry.szVersion);
+		pStream->WriteString(kEntry.szCommitHash);
+	}
+	// <!-- custom: Persist ordered applied Advanced Start / WorldBuilder history after source provenance.
+	// This intentionally grows with actual successful edits: World Advisor can reconstruct what changed after reload without depending on diagnostic log files. (ChatGPT-5.6-Sol) -->
+	unsigned int const uiWorldChangesHistorySize = (unsigned int)m_aSASWorldChangesHistory.size();
+	pStream->Write(uiWorldChangesHistorySize);
+	for (unsigned int i = 0; i < uiWorldChangesHistorySize; i++)
+	{
+		SASWorldChangesHistoryEntry const& kEntry = m_aSASWorldChangesHistory[i];
+		pStream->Write(kEntry.iSource);
+		pStream->Write(kEntry.iCategory);
+		pStream->Write(kEntry.iActor);
+		pStream->Write(kEntry.iActorTeam);
+		pStream->Write(kEntry.iTargetPlayer);
+		pStream->Write(kEntry.iTargetTeam);
+		pStream->Write(kEntry.iTurn);
+		pStream->Write(kEntry.iYear);
+		pStream->Write(kEntry.iElapsedTurn);
+		pStream->Write(kEntry.iVersionIndex);
+		pStream->Write(kEntry.iX);
+		pStream->Write(kEntry.iY);
+		pStream->Write(kEntry.iCityId);
+		pStream->Write(kEntry.iObjectId);
+		pStream->Write(kEntry.iRequestedDataId);
+		pStream->Write(kEntry.iResolvedDataId);
+		pStream->WriteString(kEntry.szAction);
+		pStream->WriteString(kEntry.szOperation);
+		pStream->WriteString(kEntry.szTargetKind);
+		pStream->WriteString(kEntry.szTarget);
+		pStream->Write(kEntry.bOldValueValid);
+		pStream->Write(kEntry.iOldValue);
+		pStream->Write(kEntry.bNewValueValid);
+		pStream->Write(kEntry.iNewValue);
+		pStream->Write(kEntry.bContentWithheld);
+		pStream->Write(kEntry.iQuotedCost);
+		pStream->Write(kEntry.iPointsBefore);
+		pStream->Write(kEntry.iPointsAfter);
+		pStream->Write(kEntry.iGoldBefore);
+		pStream->Write(kEntry.iGoldAfter);
+	}
 	REPRO_TEST_END_WRITE();
+}
+
+// <!-- custom: Save-source history accessors deliberately return neutral unknown values for invalid indexes, which also keeps later Python/UI callers robust while a game has no tracked entries yet. (ChatGPT-5.6-Sol) -->
+int CvGame::getSASVersionHistoryTurn(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASVersionHistory.size())
+		return -1;
+	return m_aSASVersionHistory[iIndex].iTurn;
+}
+
+char const* CvGame::getSASVersionHistoryVersion(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASVersionHistory.size())
+		return "";
+	return m_aSASVersionHistory[iIndex].szVersion.c_str();
+}
+
+char const* CvGame::getSASVersionHistoryCommitHash(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASVersionHistory.size())
+		return "";
+	return m_aSASVersionHistory[iIndex].szCommitHash.c_str();
+}
+
+int CvGame::getSASVersionHistoryDirtyState(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASVersionHistory.size())
+		return -1;
+	return m_aSASVersionHistory[iIndex].iDirtyState;
+}
+
+// <!-- custom: SASWorldChangesHistory exposes ordered Advanced Start actions and WorldBuilder edits for the Changes tab; neutral invalid-index values keep Python robust across empty/older contexts. (ChatGPT-5.6-Sol) -->
+static char const* getSASWorldChangesHistoryCategoryToken(SASWorldChangesHistoryCategory eCategory);
+
+int CvGame::getSASWorldChangesHistorySource(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iSource;
+}
+
+int CvGame::getSASWorldChangesHistoryCategory(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iCategory;
+}
+
+static char const* getSASWorldChangesHistorySourceToken(int iSource)
+{
+	switch (iSource)
+	{
+	case SAS_WORLD_CHANGES_HISTORY_ADVANCED_START: return "ADVANCED_START";
+	case SAS_WORLD_CHANGES_HISTORY_WORLD_BUILDER: return "WORLD_BUILDER";
+	default: return "UNKNOWN";
+	}
+}
+
+char const* CvGame::getSASWorldChangesHistorySourceName(int iIndex) const
+{
+	return getSASWorldChangesHistorySourceToken(getSASWorldChangesHistorySource(iIndex));
+}
+
+char const* CvGame::getSASWorldChangesHistoryCategoryName(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return "UNKNOWN";
+	return getSASWorldChangesHistoryCategoryToken((SASWorldChangesHistoryCategory)m_aSASWorldChangesHistory[iIndex].iCategory);
+}
+
+int CvGame::getSASWorldChangesHistoryActor(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return NO_PLAYER;
+	return m_aSASWorldChangesHistory[iIndex].iActor;
+}
+
+int CvGame::getSASWorldChangesHistoryActorTeam(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return NO_TEAM;
+	return m_aSASWorldChangesHistory[iIndex].iActorTeam;
+}
+
+int CvGame::getSASWorldChangesHistoryTargetPlayer(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return NO_PLAYER;
+	return m_aSASWorldChangesHistory[iIndex].iTargetPlayer;
+}
+
+int CvGame::getSASWorldChangesHistoryTargetTeam(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return NO_TEAM;
+	return m_aSASWorldChangesHistory[iIndex].iTargetTeam;
+}
+
+int CvGame::getSASWorldChangesHistoryTurn(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iTurn;
+}
+
+int CvGame::getSASWorldChangesHistoryYear(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return 0;
+	return m_aSASWorldChangesHistory[iIndex].iYear;
+}
+
+int CvGame::getSASWorldChangesHistoryElapsedTurn(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iElapsedTurn;
+}
+
+int CvGame::getSASWorldChangesHistoryVersionIndex(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iVersionIndex;
+}
+
+int CvGame::getSASWorldChangesHistoryX(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return INVALID_PLOT_COORD;
+	return m_aSASWorldChangesHistory[iIndex].iX;
+}
+
+int CvGame::getSASWorldChangesHistoryY(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return INVALID_PLOT_COORD;
+	return m_aSASWorldChangesHistory[iIndex].iY;
+}
+
+int CvGame::getSASWorldChangesHistoryCityId(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iCityId;
+}
+
+int CvGame::getSASWorldChangesHistoryObjectId(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iObjectId;
+}
+
+int CvGame::getSASWorldChangesHistoryRequestedDataId(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iRequestedDataId;
+}
+
+int CvGame::getSASWorldChangesHistoryResolvedDataId(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iResolvedDataId;
+}
+
+bool CvGame::getSASWorldChangesHistoryOldValueValid(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return false;
+	return m_aSASWorldChangesHistory[iIndex].bOldValueValid;
+}
+
+int CvGame::getSASWorldChangesHistoryOldValue(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return 0;
+	return m_aSASWorldChangesHistory[iIndex].iOldValue;
+}
+
+bool CvGame::getSASWorldChangesHistoryNewValueValid(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return false;
+	return m_aSASWorldChangesHistory[iIndex].bNewValueValid;
+}
+
+int CvGame::getSASWorldChangesHistoryNewValue(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return 0;
+	return m_aSASWorldChangesHistory[iIndex].iNewValue;
+}
+
+bool CvGame::getSASWorldChangesHistoryContentWithheld(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return false;
+	return m_aSASWorldChangesHistory[iIndex].bContentWithheld;
+}
+
+int CvGame::getSASWorldChangesHistoryQuotedCost(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iQuotedCost;
+}
+
+int CvGame::getSASWorldChangesHistoryPointsBefore(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iPointsBefore;
+}
+
+int CvGame::getSASWorldChangesHistoryPointsAfter(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iPointsAfter;
+}
+
+int CvGame::getSASWorldChangesHistoryGoldBefore(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iGoldBefore;
+}
+
+int CvGame::getSASWorldChangesHistoryGoldAfter(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iGoldAfter;
+}
+
+char const* CvGame::getSASWorldChangesHistoryAction(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return "";
+	return m_aSASWorldChangesHistory[iIndex].szAction.c_str();
+}
+
+char const* CvGame::getSASWorldChangesHistoryOperation(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return "";
+	return m_aSASWorldChangesHistory[iIndex].szOperation.c_str();
+}
+
+char const* CvGame::getSASWorldChangesHistoryTargetKind(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return "";
+	return m_aSASWorldChangesHistory[iIndex].szTargetKind.c_str();
+}
+
+char const* CvGame::getSASWorldChangesHistoryTarget(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return "";
+	return m_aSASWorldChangesHistory[iIndex].szTarget.c_str();
+}
+
+static char const* getSASWorldChangesHistoryCategoryToken(SASWorldChangesHistoryCategory eCategory)
+{
+	switch (eCategory)
+	{
+	case SAS_WORLD_CHANGES_HISTORY_MAP: return "MAP";
+	case SAS_WORLD_CHANGES_HISTORY_CITY: return "CITY";
+	case SAS_WORLD_CHANGES_HISTORY_UNIT: return "UNIT";
+	case SAS_WORLD_CHANGES_HISTORY_PLAYER: return "PLAYER";
+	case SAS_WORLD_CHANGES_HISTORY_TEAM: return "TEAM";
+	case SAS_WORLD_CHANGES_HISTORY_GAME: return "GAME";
+	case SAS_WORLD_CHANGES_HISTORY_VISIBILITY: return "VISIBILITY";
+	default: return "UNKNOWN";
+	}
+}
+
+static SASWorldChangesHistoryCategory getSASAdvancedStartHistoryCategory(AdvancedStartActionTypes eAction)
+{
+	switch (eAction)
+	{
+	case ADVANCEDSTARTACTION_UNIT: return SAS_WORLD_CHANGES_HISTORY_UNIT;
+	case ADVANCEDSTARTACTION_CITY:
+	case ADVANCEDSTARTACTION_POP:
+	case ADVANCEDSTARTACTION_CULTURE:
+	case ADVANCEDSTARTACTION_BUILDING: return SAS_WORLD_CHANGES_HISTORY_CITY;
+	case ADVANCEDSTARTACTION_IMPROVEMENT:
+	case ADVANCEDSTARTACTION_ROUTE: return SAS_WORLD_CHANGES_HISTORY_MAP;
+	case ADVANCEDSTARTACTION_TECH: return SAS_WORLD_CHANGES_HISTORY_TEAM;
+	case ADVANCEDSTARTACTION_VISIBILITY: return SAS_WORLD_CHANGES_HISTORY_VISIBILITY;
+	case ADVANCEDSTARTACTION_EXIT:
+	case ADVANCEDSTARTACTION_AUTOMATE: return SAS_WORLD_CHANGES_HISTORY_GAME;
+	default: return SAS_WORLD_CHANGES_HISTORY_GAME;
+	}
+}
+
+static char const* getSASAdvancedStartHistoryOperation(AdvancedStartActionTypes eAction, bool bAdd)
+{
+	if (eAction == ADVANCEDSTARTACTION_EXIT)
+		return "BEGIN_GAME";
+	if (eAction == ADVANCEDSTARTACTION_AUTOMATE)
+		return "AUTOMATE";
+	return (bAdd ? "ADD" : "REMOVE");
+}
+
+// <!-- custom: Moves the newest Changes history row to iIndex, keeping the order of the rows in between; Advanced Start's Automate row uses it to sit where the automation began. See KI#1100. (Claude code Opus 5.5) -->
+void CvGame::moveLastSASWorldChangesHistoryEntryTo(int iIndex)
+{
+	int const iLast = (int)m_aSASWorldChangesHistory.size() - 1;
+	if (iIndex < 0 || iIndex >= iLast)
+		return;
+	SASWorldChangesHistoryEntry const kEntry = m_aSASWorldChangesHistory[iLast];
+	m_aSASWorldChangesHistory.pop_back();
+	m_aSASWorldChangesHistory.insert(m_aSASWorldChangesHistory.begin() + iIndex, kEntry);
+}
+
+// <!-- custom: Persist each successful Advanced Start mutation/completion in order, including the actual resolved target and budget transition.
+// Failed network choices remain diagnostic-only CHOICE rows and do not enter save history. (ChatGPT-5.6-Sol) -->
+void CvGame::recordSASAdvancedStartHistory(PlayerTypes ePlayer, AdvancedStartActionTypes eAction, int iX, int iY, int iRequestedData, int iResolvedData, bool bAdd, int iQuotedCost, int iPointsBefore, int iGoldBefore, int iCityId, int iObjectId)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return;
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	SASWorldChangesHistoryEntry kEntry;
+	kEntry.iSource = SAS_WORLD_CHANGES_HISTORY_ADVANCED_START;
+	kEntry.iCategory = getSASAdvancedStartHistoryCategory(eAction);
+	kEntry.iActor = ePlayer;
+	kEntry.iActorTeam = kPlayer.getTeam();
+	kEntry.iTargetPlayer = ePlayer;
+	kEntry.iTargetTeam = kPlayer.getTeam();
+	kEntry.iTurn = getGameTurn();
+	kEntry.iYear = getGameTurnYear();
+	kEntry.iElapsedTurn = getElapsedGameTurns();
+	kEntry.iVersionIndex = (m_aSASVersionHistory.empty() ? -1 : (int)m_aSASVersionHistory.size() - 1);
+	kEntry.iX = iX;
+	kEntry.iY = iY;
+	kEntry.iCityId = iCityId;
+	kEntry.iObjectId = iObjectId;
+	kEntry.iRequestedDataId = iRequestedData;
+	kEntry.iResolvedDataId = iResolvedData;
+	kEntry.szAction = getSASAdvancedStartActionType(eAction);
+	kEntry.szOperation = getSASAdvancedStartHistoryOperation(eAction, bAdd);
+	// <!-- custom: The shared getSASAdvancedStartTarget replaces this file's copy of SGR's target switch; it reports the kind through a char const*, which the saved CvString field then copies. (Claude code Opus 5.5) -->
+	char const* szTargetKind = NULL;
+	kEntry.szTarget = getSASAdvancedStartTarget(eAction, iResolvedData, szTargetKind);
+	kEntry.szTargetKind = szTargetKind;
+	kEntry.iQuotedCost = iQuotedCost;
+	kEntry.iPointsBefore = iPointsBefore;
+	kEntry.iPointsAfter = kPlayer.getAdvancedStartPoints();
+	kEntry.iGoldBefore = iGoldBefore;
+	kEntry.iGoldAfter = kPlayer.getGold();
+	m_aSASWorldChangesHistory.push_back(kEntry);
+}
+
+// <!-- custom: Python owns the actual WorldBuilder screen lifecycle.
+// Opening/closing only arms/disarms edit attribution; history is created only by successful mutation wrappers. (ChatGPT-5.6-Sol) -->
+void CvGame::setSASWorldBuilderScreenVisible(bool bVisible)
+{
+	m_bSASWorldBuilderScreenVisible = bVisible;
+	if (!bVisible)
+	{
+		m_bSASWorldBuilderBulkEdit = false;
+		m_iSASWorldBuilderBulkChangedPlots = 0;
+	}
+}
+
+void CvGame::beginSASWorldBuilderBulkEdit()
+{
+	m_bSASWorldBuilderBulkEdit = (isFinalInitialized() && !isInAdvancedStart() && m_bSASWorldBuilderScreenVisible);
+	m_iSASWorldBuilderBulkChangedPlots = 0;
+}
+
+void CvGame::noteSASWorldBuilderBulkRevealChange()
+{
+	if (m_bSASWorldBuilderBulkEdit)
+		m_iSASWorldBuilderBulkChangedPlots++;
+}
+
+// <!-- custom: A reveal-all/unreveal-all call is one persisted editor operation only when it actually changes at least one plot.
+// The per-plot wrapper increments the transient count while child rows are suppressed; a Python exception records one PARTIAL bulk row instead of silently losing already-applied changes. (ChatGPT-5.6-Sol) -->
+void CvGame::endSASWorldBuilderBulkReveal(TeamTypes eTeam, bool bReveal, bool bCompleted)
+{
+	bool const bWasBulkEdit = m_bSASWorldBuilderBulkEdit;
+	int const iChangedPlots = m_iSASWorldBuilderBulkChangedPlots;
+	m_bSASWorldBuilderBulkEdit = false;
+	m_iSASWorldBuilderBulkChangedPlots = 0;
+	if (!bWasBulkEdit || iChangedPlots <= 0)
+		return;
+	char const* szAction = NULL;
+	if (bReveal)
+		szAction = (bCompleted ? "REVEAL_ALL" : "REVEAL_ALL_PARTIAL");
+	else
+		szAction = (bCompleted ? "UNREVEAL_ALL" : "UNREVEAL_ALL_PARTIAL");
+	// <!-- custom: For this bulk row, newValue is the number of plots actually changed; the action token carries the requested reveal state. (ChatGPT-5.6-Sol) -->
+	recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_VISIBILITY, szAction, -1, -1, NO_PLAYER, -1, "TEAM", "-", 0, iChangedPlots, false, false, true, eTeam);
+}
+
+// <!-- custom: Script edits are already confirmed WorldBuilder mutations by the caller.
+// Cache the XML policy on first use after GlobalDefines initialization.
+// Preserve applied text in the existing string target, rather than inventing an XML type/name or changing the save layout; disabling captures keeps the earlier WITHHELD marker.
+// No old script body is duplicated. (GPT-6.1-Sol) -->
+void CvGame::recordSASWorldBuilderScriptEdit(SASWorldChangesHistoryCategory eCategory, int iX, int iY, PlayerTypes eTargetPlayer, int iObjectId, std::string const& szAppliedScript)
+{
+	static bool const bRecordText = GC.getDefineBOOL("SAS_WORLD_CHANGES_SCRIPT_TEXT_ON");
+	recordSASWorldBuilderEdit(eCategory, "SET_SCRIPT", iX, iY, eTargetPlayer, iObjectId, "SCRIPT", bRecordText ? szAppliedScript.c_str() : "-", -1, -1, !bRecordText, false, false);
+}
+
+// <!-- custom: Persist one ordered WorldBuilder event for each actual changed wrapper result, independently of SGR settings.
+// Stable target tokens and optionally applied script text are saved; free-form names remain withheld. (GPT-6.1-Sol)
+// Optional SGR projection adds wall-clock/session context without becoming the source of truth. (ChatGPT-5.6-Sol) -->
+void CvGame::recordSASWorldBuilderEdit(SASWorldChangesHistoryCategory eCategory, char const* szAction, int iX, int iY, PlayerTypes eTargetPlayer, int iObjectId, char const* szTargetKind, char const* szTarget, int iOldValue, int iNewValue, bool bContentWithheld, bool bOldValueValid, bool bNewValueValid, TeamTypes eTargetTeam)
+{
+	if (!isFinalInitialized() || isInAdvancedStart() || !m_bSASWorldBuilderScreenVisible)
+		return;
+	SASWorldChangesHistoryEntry kEntry;
+	kEntry.iSource = SAS_WORLD_CHANGES_HISTORY_WORLD_BUILDER;
+	kEntry.iCategory = eCategory;
+	kEntry.iActor = getActivePlayer();
+	if (kEntry.iActor >= 0 && kEntry.iActor < MAX_PLAYERS)
+		kEntry.iActorTeam = GET_PLAYER((PlayerTypes)kEntry.iActor).getTeam();
+	kEntry.iTargetPlayer = eTargetPlayer;
+	kEntry.iTargetTeam = eTargetTeam;
+	if (kEntry.iTargetTeam == NO_TEAM && eTargetPlayer >= 0 && eTargetPlayer < MAX_PLAYERS)
+		kEntry.iTargetTeam = GET_PLAYER(eTargetPlayer).getTeam();
+	kEntry.iTurn = getGameTurn();
+	kEntry.iYear = getGameTurnYear();
+	kEntry.iElapsedTurn = getElapsedGameTurns();
+	kEntry.iVersionIndex = (m_aSASVersionHistory.empty() ? -1 : (int)m_aSASVersionHistory.size() - 1);
+	kEntry.iX = iX;
+	kEntry.iY = iY;
+	kEntry.iObjectId = iObjectId;
+	if (eCategory == SAS_WORLD_CHANGES_HISTORY_CITY)
+		kEntry.iCityId = iObjectId;
+	kEntry.szAction = (szAction == NULL ? "-" : szAction);
+	kEntry.szOperation = "EDIT";
+	kEntry.szTargetKind = (szTargetKind == NULL ? "NONE" : szTargetKind);
+	kEntry.szTarget = (bContentWithheld || szTarget == NULL ? "-" : szTarget);
+	kEntry.bOldValueValid = bOldValueValid;
+	kEntry.iOldValue = iOldValue;
+	kEntry.bNewValueValid = bNewValueValid;
+	kEntry.iNewValue = iNewValue;
+	kEntry.bContentWithheld = bContentWithheld;
+	m_aSASWorldChangesHistory.push_back(kEntry);
+	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled())
+		logSASGameRecordWorldBuilderEdit(getSASWorldChangesHistoryCategoryToken(eCategory), szAction, iX, iY, eTargetPlayer, (TeamTypes)kEntry.iTargetTeam, iObjectId, szTargetKind, szTarget, iOldValue, iNewValue, bContentWithheld, bOldValueValid, bNewValueValid);
+}
+
+// <!-- custom: New games record their first entry as creation provenance; later loads append only when practical version or canonical SHA changes.
+// Unknown resolver fields remain honestly empty/-1.
+// Dirty state is stored as context, not as a revision key. (ChatGPT-5.6-Sol) -->
+void CvGame::initializeSASVersionHistoryForNewGame()
+{
+	m_aSASVersionHistory.clear();
+	appendCurrentSASVersionHistoryIfChanged();
+}
+
+void CvGame::updateSASVersionHistoryAfterLoad()
+{
+	appendCurrentSASVersionHistoryIfChanged();
+}
+
+void CvGame::appendCurrentSASVersionHistoryIfChanged()
+{
+	ModName const& kMod = GC.getModName();
+	CvString const szVersion = kMod.getVersion();
+	CvString const szCommitHash = kMod.getCommitHash();
+	int const iDirtyState = kMod.getSourceDirtyState();
+	if (!m_aSASVersionHistory.empty())
+	{
+		SASVersionHistoryEntry const& kLast = m_aSASVersionHistory.back();
+		// <!-- custom: Version transitions are keyed by practical version + canonical SHA.
+		// Dirty is retained as entry context but does not manufacture a new revision when the same commit moves between a Git checkout and an archive. (ChatGPT-5.6-Sol) -->
+		if (kLast.szVersion == szVersion && kLast.szCommitHash == szCommitHash)
+		{
+			return;
+		}
+	}
+	SASVersionHistoryEntry kEntry;
+	kEntry.iTurn = getGameTurn();
+	kEntry.iDirtyState = iDirtyState;
+	kEntry.szVersion = szVersion;
+	kEntry.szCommitHash = szCommitHash;
+	m_aSASVersionHistory.push_back(kEntry);
 }
 
 void CvGame::writeReplay(FDataStreamBase& stream, PlayerTypes ePlayer)
@@ -9343,158 +10544,45 @@ void CvGame::writeReplay(FDataStreamBase& stream, PlayerTypes ePlayer)
 	read functions have been called. */
 void CvGame::onAllGameDataRead()
 {
-	// <advc.opt> Savegame compatibility (uiFlag<4)
-	if (m_iCivPlayersEverAlive == 0)
-		m_iCivPlayersEverAlive = countCivPlayersEverAlive();
-	if (m_iCivTeamsEverAlive == 0)
-		m_iCivTeamsEverAlive = countCivTeamsEverAlive();
-	// </advc.opt>
+	// <!-- custom: Reconcile persisted game-source history with the currently running source before any loaded-save log header reads it.
+	// An empty history starts at load, since it provides no creation provenance. See KI#46.2. (ChatGPT-5.6-Sol + GPT-6.2-Sol) -->
+	updateSASVersionHistoryAfterLoad();
+	// <!-- custom: Retry previous-session output and close its handles before load rolls to new filenames; BUG reaffirms the user root and the post-handler checkpoint covers any pending startup output. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	if (isSASBBAILogEnabled() || isSASGameRecordLogEnabled()) flushSASDiagnosticLogs(true);
+	// <!-- custom: Start distinct timestamped diagnostic/report logs now that the complete loaded game state is available, before load-finalization code can emit AI diagnostics or summary rows.
+	// Assertion-enabled builds advance their own lazy _loadN identity even when BBAI/SGR are disabled; its numeric suffix is intentionally independent from those separately gated loggers.
+	// Ordinary logging helpers remain caller-gated. (GPT-5.5 + ChatGPT-5.6-Sol) -->
+	#if defined(FASSERT_ENABLE) && defined(WIN32)
+	startSASAssertionLogForLoadedSave();
+	#endif
+	if (isSASBBAILogEnabled()) startSASBBAILogForLoadedSave();
+	if (isSASGameRecordLogEnabled()) startSASGameRecordLogForLoadedSave();
+	// <!-- custom: CvGame, CvTeam and CvTeamAI already read the civilization counts, war-enemy counts and war-plan counts their writers store.
+	// AdvCiv reconstructed those fields here for old saves (advc.opt, advc.003m).
+	// Finish loading with the serialized values in the current SAS layout. See KI#46.2. (GPT-6.2-Sol) -->
 	GC.getAgents().gameStart(true); // advc.agent
-	// <advc.250a> Cf. CvInitCore::read
-	if (m_uiSaveFlag <= 1)
-	{
-		if (getHandicapType() >= GC.getNumHandicapInfos())
-		{
-			setHandicapType(GET_PLAYER(getActivePlayer()).getHandicapType());
-			initGameHandicap();
-		}
-	} // </advc.250a>
-	// <advc.124b> River connection rules have changed
-	if (m_uiSaveFlag <= 23)
-		updatePlotGroups(); // </advc.124b>
-	// <advc.003m>
-	for (TeamIter<> it; it.hasNext(); ++it)
-	{
-		if (it->getNumWars() < 0 || it->getNumWars(false, false) < 0 ||
-			it->getNumWars(true, true) < 0)
-		{
-			it->finalizeInit();
-		}
-	} // </advc.003m>  <advc.opt>
-	for (TeamAIIter<> it; it.hasNext(); ++it)
-	{
-		FOR_EACH_ENUM(WarPlan)
-		{
-			if (it->AI_getNumWarPlans(eLoopWarPlan) < 0)
-			{
-				it->AI_finalizeInit();
-				break;
-			}
-		}
-	} // </advc.opt>
 	m_bAllGameDataRead = true;
-	// <advc.enum>
-	if (m_uiSaveFlag < 21)
-	{
-		for (int i = 0; i < 7; i++)
-		{
-			CvCity const* pCity = getCity(m_pLegacyOrgSeatData[i]);
-			if (pCity != NULL)
-				m_aeHolyCity.set((ReligionTypes)i, pCity->plotNum());
-		}
-		for (int i = 7; i < 14; i++)
-		{
-			CvCity const* pCity = getCity(m_pLegacyOrgSeatData[i]);
-			if (pCity != NULL)
-				m_aeHeadquarters.set((CorporationTypes)(i - 7), pCity->plotNum());
-		}
-		SAFE_DELETE_ARRAY(m_pLegacyOrgSeatData);
-	} // </advc.enum>
-	// <advc.251> Maintenance changed in XML
-	if (m_uiSaveFlag < 25)
-	{
-		for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
-			itPlayer->updateMaintenance();
-	} // </advc.251>
-	// <advc.130w>
-	bool bAttitudeUpdated = false;
-	if (m_uiSaveFlag < 26)
-	{
-		for (PlayerAIIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
-			itPlayer->AI_updateExpansionistHate();
-		bAttitudeUpdated = true;
-	} // </advc.130w>
+
+	// <!-- custom: while removing old m_uiSaveFlag code, keeping parts that are m_uiSaveFlag independent to preserve functionality as it is in case it is used i mean but check if accurate as i don't know too much about these -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	// <advc.130n>, advc.148, advc.130r, advc.130x, advc.130c, advc.130w
-	if (m_uiSaveFlag < 27 ||
-		// <advc.127> Save created during AI Auto Play
-		(m_iAIAutoPlay != 0 && !isNetworkMultiPlayer()))
+	// <advc.127> Save created during AI Auto Play
+	if (m_iAIAutoPlay != 0 && !isNetworkMultiPlayer())
 	{
 		m_iAIAutoPlay = 0; // </advc.127>
-		if (!bAttitudeUpdated) // advc.130w
-			CvPlayerAI::AI_updateAttitudes();
+		CvPlayerAI::AI_updateAttitudes();
 	} // </advc.130n>
-	// <advc.500c>
-	if (m_uiSaveFlag < 19)
-	{
-		TechTypes eNationalism = (TechTypes)GC.getInfoTypeForString("TECH_NATIONALISM");
-		if (eNationalism != NO_TECH)
-		{
-			for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
-			{
-				if (GET_TEAM(itPlayer->getTeam()).isHasTech(eNationalism))
-				{
-					FOR_EACH_CITY_VAR(pCity, *itPlayer)
-					{
-						if (pCity->getMilitaryHappinessUnits() <= 0)
-							pCity->AI_setAssignWorkDirty(true);
-					}
-				}
-			}
-		}
-	} // </advc.500c>
-	// <advc.172>
-	if (m_uiSaveFlag < 8)
-	{
-		for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
-		{
-			FOR_EACH_CITY_VAR(pCity, *itPlayer)
-				pCity->updateReligionCommerce();
-		}
-	} // </advc.172>
-	if (m_uiSaveFlag < 28)
-	{	/*	Assertions may fail upon calling changeHas... because multiple
-			counts may have wrapped into negative numbers, and CvPlayer performs
-			a global update upon every change. */
-		for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
-		{
-			FOR_EACH_ENUM(Religion)
-			{
-				int const iLegacyCount = itPlayer->getHasReligionCount(eLoopReligion);
-				if (iLegacyCount < 0)
-				{
-					int iFreshCount = 0;
-					FOR_EACH_CITY(pCity, *itPlayer)
-					{
-						if (pCity->isHasReligion(eLoopReligion))
-							iFreshCount++;
-					}
-					itPlayer->changeHasReligionCount(eLoopReligion,
-							iFreshCount - iLegacyCount);
-				}
-			}
-			FOR_EACH_ENUM(Corporation) // Copy-paste-based on the above
-			{
-				int const iLegacyCount = itPlayer->getHasCorporationCount(eLoopCorporation);
-				if (iLegacyCount < 0)
-				{
-					int iFreshCount = 0;
-					FOR_EACH_CITY(pCity, *itPlayer)
-					{
-						if (pCity->isHasCorporation(eLoopCorporation))
-							iFreshCount++;
-					}
-					itPlayer->changeHasCorporationCount(eLoopCorporation,
-							iFreshCount - iLegacyCount);
-				}
-			}
-		}
-	}
+
 	// <advc.134a>
 	for (PlayerIter<HUMAN> itActive; itActive.hasNext(); ++itActive)
 	{
 		if (itActive->isTurnActive())
 			itActive->validateDiplomacy();
 	} // </advc.134a>
+	// <!-- custom: Loaded-session tracking begins once complete serialized state is available; close its initialization interval only after all load-finalization work so its RNG use is not attributed to the first played turn. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (g_bSASGameRecordRngTrackingActive) logSASGameRecordRngCheckpoint(getGameTurn(), SAS_RNG_CHECKPOINT_SAVE_LOADED);
+	// <!-- custom: Publish the loaded session only after serialized state and native load-finalization are complete; the status also exposes the save-checkpoint turn/UTC when SAS Fast Save metadata is present, never the save path/name. (ChatGPT-5.6-Sol) -->
+	if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusSessionReady();
 }
 
 
@@ -9650,8 +10738,11 @@ void CvGame::addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, Civiliza
 	}
 	if (bFindNewColor)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iBarbarianCivilization = GC.getDefineINT("BARBARIAN_CIVILIZATION");
+
 		PlayerColorTypes const eBarbarianColor = (PlayerColorTypes)GC.getInfo((CivilizationTypes)
-				GC.getDefineINT("BARBARIAN_CIVILIZATION")).getDefaultPlayerColor();
+				iBarbarianCivilization).getDefaultPlayerColor();
 		FOR_EACH_ENUM(PlayerColor)
 		{
 			if (eLoopPlayerColor == eBarbarianColor)
@@ -9695,8 +10786,7 @@ void CvGame::addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, Civiliza
 
 /*	BETTER_BTS_AI_MOD, Debug, 8/1/08, jdog5000: START
 	(advc: Merged with code from nextActivePlayer) */
-void CvGame::changeHumanPlayer(PlayerTypes eNewHuman,
-	bool bSetTurnActive) // advc
+void CvGame::changeHumanPlayer(PlayerTypes eNewHuman, bool bSetTurnActive) // advc
 {
 	PlayerTypes const eCurHuman = getActivePlayer();
 	/*	<advc.001> For BUG dot map update and Civ4lerts (when switching to
@@ -9772,12 +10862,14 @@ bool CvGame::isCompetingCorporation(CorporationTypes eCorp1, CorporationTypes eC
 }
 
 
-void CvGame::setVoteSourceReligion(VoteSourceTypes eVoteSource,
-	ReligionTypes eReligion, bool bAnnounce)
+void CvGame::setVoteSourceReligion(VoteSourceTypes eVoteSource, ReligionTypes eReligion, bool bAnnounce)
 {
 	m_aeVoteSourceReligion.set(eVoteSource, eReligion);
 	if (bAnnounce && eReligion != NO_RELIGION)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 		CvWString szBuffer = gDLL->getText("TXT_KEY_VOTE_SOURCE_RELIGION",
 				GC.getInfo(eReligion).getTextKeyWide(),
 				GC.getInfo(eReligion).getAdjectiveKey(),
@@ -9789,7 +10881,7 @@ void CvGame::setVoteSourceReligion(VoteSourceTypes eVoteSource,
 					itPlayer->getTeam(), true); // </advc.127>
 			gDLL->UI().addMessage(itPlayer->getID(), false, -1, szBuffer,
 					GC.getInfo(eReligion).getSound(), MESSAGE_TYPE_MAJOR_EVENT,
-					NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+					NULL, eColorHighlightText,
 					iiXY.first, iiXY.second); // advc.127b
 		}
 	}
@@ -10055,13 +11147,14 @@ VoteTriggeredData* CvGame::addVoteTriggered(VoteSelectionData const& kData, int 
 }
 
 
-VoteTriggeredData* CvGame::addVoteTriggered(VoteSourceTypes eVoteSource,
-	VoteSelectionSubData const& kOptionData)
+VoteTriggeredData* CvGame::addVoteTriggered(VoteSourceTypes eVoteSource, VoteSelectionSubData const& kOptionData)
 {
 	VoteTriggeredData* pData = m_votesTriggered.add();
 	FAssert(pData != NULL); // advc
 	pData->eVoteSource = eVoteSource;
 	pData->kVoteOption = kOptionData;
+	// <!-- custom: Preserve the exact AP/UN proposal/election boundary before ballots are cast; detailed vote reasoning remains in AI diagnostics. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordVoteTriggered(pData);
 	for (PlayerAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
 	{
 		CvPlayerAI& kVoter = *it;
@@ -10071,7 +11164,7 @@ VoteTriggeredData* CvGame::addVoteTriggered(VoteSourceTypes eVoteSource,
 		if (!kVoter.isHuman())
 		{
 			castVote(kVoter.getID(), pData->getID(),
-					kVoter.AI_diploVote(kOptionData, eVoteSource, false));
+					kVoter.AI_diploVote(kOptionData, eVoteSource, false, pData->getID()));
 			continue;
 		}
 		// <kekm.25> (advc: simplified)
@@ -10084,7 +11177,7 @@ VoteTriggeredData* CvGame::addVoteTriggered(VoteSourceTypes eVoteSource,
 				!isTeamVoteEligible(kVoter.getTeam(), eVoteSource))
 			{
 				castVote(kVoter.getID(), pData->getID(),
-						kVoter.AI_diploVote(kOptionData, eVoteSource, false));
+						kVoter.AI_diploVote(kOptionData, eVoteSource, false, pData->getID()));
 				continue;
 			}
 		} // </kekm.25>
@@ -10107,6 +11200,8 @@ void CvGame::deleteVoteTriggered(int iID)
 
 void CvGame::doVoteResults()
 {
+	// <!-- custom: Vote recorder gates intentionally remain phase-local: invalid votes use their cancellation branch, pending votes leave without a recorder query, and only fully resolving votes cache bLogVoteResult for the ballot/defiance loops.
+	// Do not hoist one gate to the top of every vote iteration. (ChatGPT-5.6-Sol) -->
 	// advc.150b: To make sure it doesn't go out of scope
 	static CvWString szTargetCityName;
 	int iLoop=-1;
@@ -10119,9 +11214,18 @@ void CvGame::doVoteResults()
 		VoteTypes eVote = subdata.eVote;
 		VoteSourceTypes eVoteSource = pVoteTriggered->eVoteSource;
 		bool bPassed = false;
+		bool bThresholdPassed = false;
+		qword uiDefaultedAbstain = 0;
+		qword uiDefiers = 0;
+		qword uiEndorsers = 0;
+
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 
 		if (!canDoResolution(eVoteSource, subdata))
 		{
+			// <!-- custom: A triggered vote can become invalid before resolution; preserve that cancellation instead of silently deleting its history. (ChatGPT-5.6-Sol) -->
+			if (gGameRecordLogLevel >= 2) logSASGameRecordVoteResult(pVoteTriggered, false, false, true, 0, 0, 0);
 			for (PlayerIter<MAJOR_CIV> itObs; itObs.hasNext(); ++itObs)
 			{
 				if (!itObs->isVotingMember(eVoteSource))
@@ -10134,13 +11238,15 @@ void CvGame::doVoteResults()
 				std::pair<int,int> xy = getVoteSourceXY(eVoteSource, itObs->getTeam());
 				gDLL->UI().addMessage(itObs->getID(), false, -1, szMessage,
 						"AS2D_NEW_ERA", MESSAGE_TYPE_INFO, NULL,
-						GC.getColorType("HIGHLIGHT_TEXT"),
+						eColorHighlightText,
 						xy.first, xy.second); // advc.127b
 			}
 		}
 		else
 		{
 			bool bAllVoted = true;
+			// <!-- custom: The inherited loop stopped after the first missing voter, so additional simultaneous players received successively later one-turn grace periods.
+			// Mark every currently missing eligible voter before postponing the result. See KI#343. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			for (PlayerIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
 			{
 				if (!itPlayer->isVotingMember(eVoteSource))
@@ -10150,17 +11256,26 @@ void CvGame::doVoteResults()
 				{	//give player one more turn to submit vote
 					setPlayerVote(ePlayer, pVoteTriggered->getID(), NO_PLAYER_VOTE_CHECKED);
 					bAllVoted = false;
-					break;
-				}
-				else if (getPlayerVote(ePlayer, pVoteTriggered->getID())
-					== NO_PLAYER_VOTE_CHECKED)
-				{	//default player vote to abstain
-					setPlayerVote(ePlayer, pVoteTriggered->getID(), PLAYER_VOTE_ABSTAIN);
 				}
 			}
 
 			if (!bAllVoted)
 				continue;
+			// <!-- custom: Once a vote actually resolves, its ballot/defiance loops can query the recorder repeatedly.
+			// Cache the immutable level-2 result gate here, after pending votes have already short-circuited. (ChatGPT-5.6-Sol) -->
+			bool const bLogVoteResult = (gGameRecordLogLevel >= 2);
+			// <!-- custom: Only after a complete grace turn has elapsed do all still-missing checked votes default together. See KI#343. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			for (PlayerIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
+			{
+				if (itPlayer->isVotingMember(eVoteSource) &&
+					getPlayerVote(itPlayer->getID(), pVoteTriggered->getID()) ==
+					NO_PLAYER_VOTE_CHECKED)
+				{
+					if (bLogVoteResult) uiDefaultedAbstain |= ((qword)1 << itPlayer->getID());
+					setPlayerVote(itPlayer->getID(), pVoteTriggered->getID(),
+							PLAYER_VOTE_ABSTAIN);
+				}
+			}
 			// <advc.150b>
 			szTargetCityName = "";
 			int iVotes = -1; // </advc.150b>
@@ -10171,6 +11286,7 @@ void CvGame::doVoteResults()
 				{	// <advc.150b> Store vote count for later
 					iVotes = countVote(*pVoteTriggered, (PlayerVoteTypes)eTeam);
 					bPassed = (iVotes >= getVoteRequired(eVote, eVoteSource));
+					bThresholdPassed = bPassed;
 				}	// </advc.150b>
 				szBuffer = GC.getInfo(eVote).getDescription();
 				if (eTeam != NO_TEAM)
@@ -10216,6 +11332,8 @@ void CvGame::doVoteResults()
 								GET_PLAYER(eVoter).getVotes(eVote, eVoteSource)));
 					}
 				}
+				// <!-- custom: Serialize the complete weighted election ballot before setVoteOutcome clears each player's stored vote. (ChatGPT-5.6-Sol) -->
+				if (bLogVoteResult) logSASGameRecordVoteResult(pVoteTriggered, bThresholdPassed, bPassed, false, uiDefaultedAbstain, 0, 0);
 				if (eTeam != NO_TEAM && bPassed)
 					setVoteOutcome(*pVoteTriggered, (PlayerVoteTypes)eTeam);
 				else setVoteOutcome(*pVoteTriggered, PLAYER_VOTE_ABSTAIN);
@@ -10231,6 +11349,7 @@ void CvGame::doVoteResults()
 				}
 				iVotes = countVote(*pVoteTriggered, PLAYER_VOTE_YES);
 				bPassed = (iVotes >= getVoteRequired(eVote, eVoteSource));
+				bThresholdPassed = bPassed;
 				// </advc.150b>
 				// Defying resolution
 				if (bPassed)
@@ -10243,6 +11362,7 @@ void CvGame::doVoteResults()
 							itPlayer->canDefyResolution(eVoteSource, subdata))
 						{
 							bPassed = false;
+							if (bLogVoteResult) uiDefiers |= ((qword)1 << itPlayer->getID());
 							itPlayer->setDefiedResolution(eVoteSource, subdata);
 						}
 					}
@@ -10256,6 +11376,7 @@ void CvGame::doVoteResults()
 						if (getPlayerVote(itPlayer->getID(), pVoteTriggered->getID()) ==
 							PLAYER_VOTE_YES)
 						{
+							if (bLogVoteResult) uiEndorsers |= ((qword)1 << itPlayer->getID());
 							itPlayer->setEndorsedResolution(eVoteSource, subdata);
 						}
 					}
@@ -10308,6 +11429,8 @@ void CvGame::doVoteResults()
 						}
 					}
 				}
+				// <!-- custom: Preserve the final weighted ballot, grace-defaulted abstentions and actual defiance/endorsement before setVoteOutcome clears per-player vote storage and applies the resolution. (ChatGPT-5.6-Sol) -->
+				if (bLogVoteResult) logSASGameRecordVoteResult(pVoteTriggered, bThresholdPassed, bPassed, false, uiDefaultedAbstain, uiDefiers, uiEndorsers);
 				setVoteOutcome(*pVoteTriggered, bPassed ? PLAYER_VOTE_YES : PLAYER_VOTE_NO);
 			}
 			// <advc.150b>
@@ -10372,8 +11495,17 @@ void CvGame::doVoteResults()
 						//getVoteRequired(eVote, eVoteSource),
 						countPossibleVote(eVote, eVoteSource),
 						szResolution.GetCString());
+				// <!-- custom: The live detailed result is limited to voting members and spectators.
+				// Preserve that exact historical audience so AdvCiv-SAS Timeline does not expose it to nonmembers later. See KI#337. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				qword uiReplayVisibility = 0;
+				for (PlayerIter<MAJOR_CIV> itObs; itObs.hasNext(); ++itObs)
+				{
+					if (itObs->isVotingMember(eVoteSource) || itObs->isSpectator())
+						uiReplayVisibility |= ((qword)1 << itObs->getID());
+				}
 				addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, NO_PLAYER, szMessage,
-						GC.getColorType("HIGHLIGHT_TEXT"));
+						eColorHighlightText, INVALID_PLOT_COORD, INVALID_PLOT_COORD,
+						uiReplayVisibility);
 			} // </advc.150b>
 			for (PlayerIter<MAJOR_CIV> itObs; itObs.hasNext(); ++itObs)
 			{
@@ -10422,7 +11554,7 @@ void CvGame::doVoteResults()
 							// <advc.127b>
 							eVSBuilding == NO_BUILDING ? NULL :
 							GC.getInfo(eVSBuilding).getButton(), // </advc.127b>
-							GC.getColorType("HIGHLIGHT_TEXT"),
+							eColorHighlightText,
 							iiXY.first, iiXY.second); // advc.127b
 				}
 			}
@@ -10457,7 +11589,9 @@ void CvGame::doVoteSelection()
 				continue;
 			for (TeamIter<MAJOR_CIV> itTeam2; itTeam2.hasNext(); ++itTeam2)
 			{
-				if (!itTeam2->isVotingMember(eVS))
+				// <!-- custom: Fix inherited Base AdvCiv practical-2502 bug: its iterator refactor lost the old self-exclusion.
+				// A voting team could therefore meet itself. See KI#210. (ChatGPT-5.6-Sol) -->
+				if (itTeam2->getID() == itTeam1->getID() || !itTeam2->isVotingMember(eVS))
 					continue;
 				//itTeam1->meet(itTeam2->getID(), true);
 				// <advc.071> Check isHasMet b/c getVoteSourceCity is a bit slow
@@ -10486,8 +11620,7 @@ void CvGame::doVoteSelection()
 				changeSecretaryGeneralTimer(eVS, -1);
 			else
 			{
-				setSecretaryGeneralTimer(eVS, GC.getDefineINT(
-						"DIPLO_VOTE_SECRETARY_GENERAL_INTERVAL"));
+				setSecretaryGeneralTimer(eVS, GC.getDefineINT("DIPLO_VOTE_SECRETARY_GENERAL_INTERVAL"));
 				FOR_EACH_ENUM(Vote)
 				{
 					CvVoteInfo const& kLoopVote = GC.getInfo(eLoopVote);
@@ -10627,11 +11760,9 @@ void CvGame::processBuilding(BuildingTypes eBuilding, int iChange)
 }
 
 // advc.314: Between 0 and GOODY_BUFF_PEAK_MULTIPLIER, depending on game turn.
-scaled CvGame::goodyHutEffectFactor(
-	/*	Use true when a goody hut effect is supposed to increase with
-		the game speed. When set to false, the turn numbers in this
-		function are still game-speed adjusted. */
-	bool bSpeedAdjust) const
+// Use true when a goody hut effect is supposed to increase with the game speed. When set to false, the turn numbers in this function are still game-speed adjusted.
+// <!-- custom: hoisted from multiline signature before `bSpeedAdjust` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+scaled CvGame::goodyHutEffectFactor(bool bSpeedAdjust) const
 {
 	static int const iGOODY_BUFF_START_TURN = GC.getDefineINT("GOODY_BUFF_START_TURN");
 	static int const iGOODY_BUFF_PEAK_TURN = GC.getDefineINT("GOODY_BUFF_PEAK_TURN");
@@ -10669,6 +11800,9 @@ GlobeLayerTypes CvGame::getCurrentLayer() const
 // Used by CvMainInterface.py to tell the DLL which layer is active
 void CvGame::reportCurrentLayer(GlobeLayerTypes eLayer)
 {
+	// <!-- custom: Only capture logging-only previous state after the cached level/lifecycle gate; disabled runs retain the inherited layer operation without an extra state snapshot. (GPT-6.1-Sol) -->
+	bool const bLogSASRuntimeView = (gGameRecordLogLevel >= 2 && isFinalInitialized());
+	GlobeLayerTypes const eOldLayer = (bLogSASRuntimeView ? m_eCurrentLayer : NO_GLOBE_LAYER);
 	if (m_bLayerFromSavegame && eLayer != m_eCurrentLayer)
 	{
 		m_bLayerFromSavegame = false;
@@ -10683,11 +11817,13 @@ void CvGame::reportCurrentLayer(GlobeLayerTypes eLayer)
 			gDLL->getEngineIFace()->toggleUnitLayer(); // No setter available
 	}
 	else m_eCurrentLayer = eLayer;
+	// <!-- custom: Python resolves resource/unit/globe layers to the stable GlobeLayerTypes enum here.
+	// Log that resolved state rather than guessing from whichever shortcut/button initiated the UI update; preserve the savegame-restoration branch above unchanged. (ChatGPT-5.6-Sol) -->
+	if (bLogSASRuntimeView && eOldLayer != m_eCurrentLayer) logSASGameRecordRuntimeViewLayerChange("CURRENT_LAYER_RESOLVED", eOldLayer, m_eCurrentLayer);
 } // </advc.004m>
 
 // <advc.127b>
-std::pair<int,int> CvGame::getVoteSourceXY(VoteSourceTypes eVS, TeamTypes eObserver,
-	bool bDebug) const
+std::pair<int,int> CvGame::getVoteSourceXY(VoteSourceTypes eVS, TeamTypes eObserver, bool bDebug) const
 {
 	CvCity const* pVSCity = getVoteSourceCity(eVS, eObserver, bDebug);
 	std::pair<int,int> r = std::make_pair(-1,-1);

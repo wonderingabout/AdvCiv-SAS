@@ -1,0 +1,27 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 304
+# Author: iustus
+# Date: 2007-01-27T01:07:44.769253Z
+# Coverage: full
+# Message:
+#   pillage units will fogbust
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@303
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@304
+@@ -2053,6 +2053,11 @@
+ 	}
+ 
+ 	if (AI_offensiveAirlift())
++	{
++		return;
++	}
++
++	if (AI_fogbust())
+ 	{
+ 		return;
+ 	}
+

@@ -1,0 +1,18 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 471
+# Author: jdog5000
+# Date: 2009-06-17T04:56:52.687228Z
+# Coverage: full
+# Message:
+#   (no message)
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.ncb
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.ncb
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+

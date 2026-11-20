@@ -1,0 +1,253 @@
+<?xml version="1.0"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
+<!-- Sid Meier's Civilization 4 -->
+<!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
+<!-- -->
+<!-- Religion -->
+<!-- custom: Long_Comments_XML.txt #139 -->
+<!-- custom: File order: SAS reordered religions on 2025-05-22 into historical founding order (Paganism, Hinduism, Judaism, Daoism, Buddhism, Christianity, Islam); BtS and base AdvCiv start with Judaism, Christianity, Islam.
+The Sevopedia groups religions by era and shows this order within each era; missionaries in CIV4UnitInfos.xml and religion buildings in CIV4BuildingInfos.xml follow it too.
+The game gives each religion its GameFont icon and holy-city icon in this order, so reordering needs the glyphs in Assets/Res/Fonts/GameFont.tga and GameFont_75.tga moved too; both match this order (checked on their editor previews, 2026-11-05).
+The order is not tied to founding techs, so a tech move needs no reorder; xml_display_order.py checks the glyph and asset order. See KI#1073. (Claude code Opus 5.5) -->
+<Civ4ReligionInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
+	<ReligionInfos>
+		<ReligionInfo>
+			<Type>RELIGION_PAGANISM</Type>
+			<Description>TXT_KEY_RELIGION_PAGANISM</Description>
+			<Adjective>TXT_KEY_RELIGION_PAGANISM_ADJECTIVE</Adjective>
+			<Civilopedia>TXT_KEY_RELIGION_PAGANISM_PEDIA</Civilopedia>
+			<!-- custom: Long_Comments_XML.txt #318 -->
+			<TechPrereq>TECH_POLYTHEISM</TechPrereq>
+			<FreeUnitClass>UNITCLASS_PAGAN_MISSIONARY</FreeUnitClass>
+			<iFreeUnits>1</iFreeUnits>
+			<iSpreadFactor>100</iSpreadFactor>
+			<GlobalReligionCommerces>
+				<iGlobalReligionCommerce>1</iGlobalReligionCommerce>
+				<iGlobalReligionCommerce>0</iGlobalReligionCommerce>
+				<iGlobalReligionCommerce>0</iGlobalReligionCommerce>
+			</GlobalReligionCommerces>
+			<HolyCityCommerces>
+				<iHolyCityCommerce>0</iHolyCityCommerce>
+				<iHolyCityCommerce>0</iHolyCityCommerce>
+				<iHolyCityCommerce>4</iHolyCityCommerce>
+			</HolyCityCommerces>
+			<StateReligionCommerces>
+				<iStateReligionCommerce>0</iStateReligionCommerce>
+				<iStateReligionCommerce>0</iStateReligionCommerce>
+				<iStateReligionCommerce>1</iStateReligionCommerce>
+			</StateReligionCommerces>
+			<Button>Art/AdvCiv_SAS/Religions/Paganism/Baalism.dds</Button>
+			<!-- custom: TechButton/GenericTechButton were Baalism.dds, a religion picture; RELIGION_PAGANISM is founded by Polytheism in AdvCiv-SAS, so the choose-tech popup and tech bar showed the wrong picture.
+			Use the founding tech's own button. See KI#1072.2. (Claude code Opus 5.5) -->
+			<TechButton>,Art/Interface/Buttons/TechTree/Polytheism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,6</TechButton>
+			<GenericTechButton>,Art/Interface/Buttons/TechTree/Polytheism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,6</GenericTechButton>
+			<MovieFile>Art/AdvCiv_SAS/Religions/Paganism/nif_found/Generic_Found.nif</MovieFile>
+			<MovieSound>AS2D_BUILD_PAGAN_MOVIE</MovieSound>
+			<Sound>AS2D_BUILD_PAGAN</Sound>
+		</ReligionInfo>
+		<!-- custom: Move Hinduism from Monarchy to Calendar as an earlier religious alternative that can affect more of the game without requiring a larger ancient-tech rework. (GPT-5.6-Sol) -->
+		<ReligionInfo>
+			<Type>RELIGION_HINDUISM</Type>
+			<Description>TXT_KEY_RELIGION_HINDUISM</Description>
+			<Adjective>TXT_KEY_RELIGION_HINDUISM_ADJECTIVE</Adjective>
+			<Civilopedia>TXT_KEY_RELIGION_HINDUISM_PEDIA</Civilopedia>
+			<!-- custom: Long_Comments_XML.txt #316 -->
+			<TechPrereq>TECH_CALENDAR</TechPrereq>
+			<FreeUnitClass>UNITCLASS_HINDU_MISSIONARY</FreeUnitClass>
+			<iFreeUnits>0</iFreeUnits>
+			<iSpreadFactor>100</iSpreadFactor>
+			<GlobalReligionCommerces>
+				<iGlobalReligionCommerce>1</iGlobalReligionCommerce>
+				<iGlobalReligionCommerce>0</iGlobalReligionCommerce>
+				<iGlobalReligionCommerce>0</iGlobalReligionCommerce>
+			</GlobalReligionCommerces>
+			<HolyCityCommerces>
+				<iHolyCityCommerce>0</iHolyCityCommerce>
+				<iHolyCityCommerce>0</iHolyCityCommerce>
+				<iHolyCityCommerce>4</iHolyCityCommerce>
+			</HolyCityCommerces>
+			<StateReligionCommerces>
+				<iStateReligionCommerce>0</iStateReligionCommerce>
+				<iStateReligionCommerce>0</iStateReligionCommerce>
+				<iStateReligionCommerce>1</iStateReligionCommerce>
+			</StateReligionCommerces>
+			<Button>Art/Interface/Buttons/Religions/Hinduism.dds</Button>
+			<!-- custom: TechButton/GenericTechButton were the BtS Hinduism.dds button, drawn for Polytheism; RELIGION_HINDUISM is founded by Calendar in AdvCiv-SAS, so the choose-tech popup and tech bar showed the wrong picture.
+			Use the founding tech's own button. See KI#1072.2. (Claude code Opus 5.5) -->
+			<TechButton>,Art/Interface/Buttons/TechTree/Calendar.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,9</TechButton>
+			<GenericTechButton>,Art/Interface/Buttons/TechTree/Calendar.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,9</GenericTechButton>
+			<MovieFile>Art/Movies/Religion/Hinduism/Hin_Found.nif</MovieFile>
+			<MovieSound>AS2D_BUILD_HINDU_MOVIE</MovieSound>
+			<Sound>AS2D_BUILD_HINDU</Sound>
+		</ReligionInfo>
+		<ReligionInfo>
+			<Type>RELIGION_JUDAISM</Type>
+			<Description>TXT_KEY_RELIGION_JUDAISM</Description>
+			<Adjective>TXT_KEY_RELIGION_JUDAISM_ADJECTIVE</Adjective>
+			<Civilopedia>TXT_KEY_RELIGION_JUDAISM_PEDIA</Civilopedia>
+			<!-- custom: Distribute religions across distinct research paths and make more of them early enough to shape diplomacy and spread: Judaism at Code of Laws, Christianity at Monotheism, and Islam at Navigation. (GPT-5.6-Sol) -->
+			<TechPrereq>TECH_CODE_OF_LAWS</TechPrereq>
+			<FreeUnitClass>UNITCLASS_JEWISH_MISSIONARY</FreeUnitClass>
+			<iFreeUnits>0</iFreeUnits>
+			<iSpreadFactor>100</iSpreadFactor>
+			<GlobalReligionCommerces>
+				<iGlobalReligionCommerce>1</iGlobalReligionCommerce>
+				<iGlobalReligionCommerce>0</iGlobalReligionCommerce>
+				<iGlobalReligionCommerce>0</iGlobalReligionCommerce>
+			</GlobalReligionCommerces>
+			<HolyCityCommerces>
+				<iHolyCityCommerce>0</iHolyCityCommerce>
+				<iHolyCityCommerce>0</iHolyCityCommerce>
+				<iHolyCityCommerce>4</iHolyCityCommerce>
+			</HolyCityCommerces>
+			<StateReligionCommerces>
+				<iStateReligionCommerce>0</iStateReligionCommerce>
+				<iStateReligionCommerce>0</iStateReligionCommerce>
+				<iStateReligionCommerce>1</iStateReligionCommerce>
+			</StateReligionCommerces>
+			<Button>Art/Interface/Buttons/Religions/Jewish.dds</Button>
+			<!-- custom: TechButton/GenericTechButton were the BtS Judaism.dds button, drawn for Monotheism; RELIGION_JUDAISM is founded by Code of Laws in AdvCiv-SAS, so the choose-tech popup and tech bar showed the wrong picture.
+			Use the founding tech's own button. See KI#1072.2. (Claude code Opus 5.5) -->
+			<TechButton>,Art/Interface/Buttons/TechTree/Code of Laws.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,2</TechButton>
+			<GenericTechButton>,Art/Interface/Buttons/TechTree/Code of Laws.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,2</GenericTechButton>
+			<MovieFile>Art/Movies/Religion/Judaism/Jud_Found.nif</MovieFile>
+			<MovieSound>AS2D_BUILD_JEWISH_MOVIE</MovieSound>
+			<Sound>AS2D_BUILD_JEWISH</Sound>
+		</ReligionInfo>
+		<ReligionInfo>
+			<Type>RELIGION_TAOISM</Type>
+			<Description>TXT_KEY_RELIGION_TAOISM</Description>
+			<Adjective>TXT_KEY_RELIGION_TAOISM_ADJECTIVE</Adjective>
+			<Civilopedia>TXT_KEY_RELIGION_TAOISM_PEDIA</Civilopedia>
+			<!-- custom: was TECH_PHILOSOPHY -->
+			<TechPrereq>TECH_PAPER</TechPrereq>
+			<FreeUnitClass>UNITCLASS_TAOIST_MISSIONARY</FreeUnitClass>
+			<iFreeUnits>1</iFreeUnits>
+			<iSpreadFactor>100</iSpreadFactor>
+			<GlobalReligionCommerces>
+				<iGlobalReligionCommerce>1</iGlobalReligionCommerce>
+				<iGlobalReligionCommerce>0</iGlobalReligionCommerce>
+				<iGlobalReligionCommerce>0</iGlobalReligionCommerce>
+			</GlobalReligionCommerces>
+			<HolyCityCommerces>
+				<iHolyCityCommerce>0</iHolyCityCommerce>
+				<iHolyCityCommerce>0</iHolyCityCommerce>
+				<iHolyCityCommerce>4</iHolyCityCommerce>
+			</HolyCityCommerces>
+			<StateReligionCommerces>
+				<iStateReligionCommerce>0</iStateReligionCommerce>
+				<iStateReligionCommerce>0</iStateReligionCommerce>
+				<iStateReligionCommerce>1</iStateReligionCommerce>
+			</StateReligionCommerces>
+			<Button>Art/Interface/Buttons/Religions/Taoism.dds</Button>
+			<!-- custom: TechButton/GenericTechButton were the BtS Taoism.dds button, drawn for Philosophy; RELIGION_TAOISM is founded by Paper in AdvCiv-SAS, so the choose-tech popup and tech bar showed the wrong picture.
+			Use the founding tech's own button. See KI#1072.2. (Claude code Opus 5.5) -->
+			<TechButton>,Art/Interface/Buttons/TechTree/Paper.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,6</TechButton>
+			<GenericTechButton>,Art/Interface/Buttons/TechTree/Paper.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,6</GenericTechButton>
+			<MovieFile>Art/Movies/Religion/Taoism/Tao_Found.nif</MovieFile>
+			<MovieSound>AS2D_BUILD_TAOIST_MOVIE</MovieSound>
+			<Sound>AS2D_BUILD_TAOIST</Sound>
+		</ReligionInfo>
+		<ReligionInfo>
+			<Type>RELIGION_BUDDHISM</Type>
+			<Description>TXT_KEY_RELIGION_BUDDHISM</Description>
+			<Adjective>TXT_KEY_RELIGION_BUDDHISM_ADJECTIVE</Adjective>
+			<Civilopedia>TXT_KEY_RELIGION_BUDDHISM_PEDIA</Civilopedia>
+			<TechPrereq>TECH_MEDITATION</TechPrereq>
+			<FreeUnitClass>UNITCLASS_BUDDHIST_MISSIONARY</FreeUnitClass>
+			<iFreeUnits>0</iFreeUnits>
+			<iSpreadFactor>100</iSpreadFactor>
+			<GlobalReligionCommerces>
+				<iGlobalReligionCommerce>1</iGlobalReligionCommerce>
+				<iGlobalReligionCommerce>0</iGlobalReligionCommerce>
+				<iGlobalReligionCommerce>0</iGlobalReligionCommerce>
+			</GlobalReligionCommerces>
+			<HolyCityCommerces>
+				<iHolyCityCommerce>0</iHolyCityCommerce>
+				<iHolyCityCommerce>0</iHolyCityCommerce>
+				<iHolyCityCommerce>4</iHolyCityCommerce>
+			</HolyCityCommerces>
+			<StateReligionCommerces>
+				<iStateReligionCommerce>0</iStateReligionCommerce>
+				<iStateReligionCommerce>0</iStateReligionCommerce>
+				<iStateReligionCommerce>1</iStateReligionCommerce>
+			</StateReligionCommerces>
+			<Button>Art/Interface/Buttons/Religions/Buddhism.dds</Button>
+			<TechButton>Art/Interface/Buttons/TechTree/Buddhism.dds</TechButton>
+			<GenericTechButton>,Art/Interface/Buttons/TechTree/Buddhism.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,3</GenericTechButton>
+			<MovieFile>Art/Movies/Religion/Buddhism/Bud_Found.nif</MovieFile>
+			<MovieSound>AS2D_BUILD_BUDDHIST_MOVIE</MovieSound>
+			<Sound>AS2D_BUILD_BUDDHIST</Sound>
+		</ReligionInfo>
+		<ReligionInfo>
+			<Type>RELIGION_CHRISTIANITY</Type>
+			<Description>TXT_KEY_RELIGION_CHRISTIANITY</Description>
+			<Adjective>TXT_KEY_RELIGION_CHRISTIANITY_ADJECTIVE</Adjective>
+			<Civilopedia>TXT_KEY_RELIGION_CHRISTIANITY_PEDIA</Civilopedia>
+			<TechPrereq>TECH_MONOTHEISM</TechPrereq>
+			<FreeUnitClass>UNITCLASS_CHRISTIAN_MISSIONARY</FreeUnitClass>
+			<iFreeUnits>1</iFreeUnits>
+			<iSpreadFactor>100</iSpreadFactor>
+			<GlobalReligionCommerces>
+				<iGlobalReligionCommerce>1</iGlobalReligionCommerce>
+				<iGlobalReligionCommerce>0</iGlobalReligionCommerce>
+				<iGlobalReligionCommerce>0</iGlobalReligionCommerce>
+			</GlobalReligionCommerces>
+			<HolyCityCommerces>
+				<iHolyCityCommerce>0</iHolyCityCommerce>
+				<iHolyCityCommerce>0</iHolyCityCommerce>
+				<iHolyCityCommerce>4</iHolyCityCommerce>
+			</HolyCityCommerces>
+			<StateReligionCommerces>
+				<iStateReligionCommerce>0</iStateReligionCommerce>
+				<iStateReligionCommerce>0</iStateReligionCommerce>
+				<iStateReligionCommerce>1</iStateReligionCommerce>
+			</StateReligionCommerces>
+			<Button>Art/Interface/Buttons/Religions/Christian.dds</Button>
+			<!-- custom: TechButton/GenericTechButton were the BtS Christianity.dds button, drawn for Theology; RELIGION_CHRISTIANITY is founded by Monotheism in AdvCiv-SAS, so the choose-tech popup and tech bar showed the wrong picture.
+			Use the founding tech's own button. See KI#1072.2. (Claude code Opus 5.5) -->
+			<TechButton>,Art/Interface/Buttons/TechTree/Monotheism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,11</TechButton>
+			<GenericTechButton>,Art/Interface/Buttons/TechTree/Monotheism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,11</GenericTechButton>
+			<MovieFile>Art/Movies/Religion/Christianity/Chr_Found.nif</MovieFile>
+			<MovieSound>AS2D_BUILD_CHRISTIAN_MOVIE</MovieSound>
+			<Sound>AS2D_BUILD_CHRISTIAN</Sound>
+		</ReligionInfo>
+		<ReligionInfo>
+			<Type>RELIGION_ISLAM</Type>
+			<Description>TXT_KEY_RELIGION_ISLAM</Description>
+			<Adjective>TXT_KEY_RELIGION_ISLAM_ADJECTIVE</Adjective>
+			<Civilopedia>TXT_KEY_RELIGION_ISLAM_PEDIA</Civilopedia>
+			<TechPrereq>TECH_NAVIGATION</TechPrereq>
+			<FreeUnitClass>UNITCLASS_ISLAMIC_MISSIONARY</FreeUnitClass>
+			<iFreeUnits>1</iFreeUnits>
+			<iSpreadFactor>100</iSpreadFactor>
+			<GlobalReligionCommerces>
+				<iGlobalReligionCommerce>1</iGlobalReligionCommerce>
+				<iGlobalReligionCommerce>0</iGlobalReligionCommerce>
+				<iGlobalReligionCommerce>0</iGlobalReligionCommerce>
+			</GlobalReligionCommerces>
+			<HolyCityCommerces>
+				<iHolyCityCommerce>0</iHolyCityCommerce>
+				<iHolyCityCommerce>0</iHolyCityCommerce>
+				<iHolyCityCommerce>4</iHolyCityCommerce>
+			</HolyCityCommerces>
+			<StateReligionCommerces>
+				<iStateReligionCommerce>0</iStateReligionCommerce>
+				<iStateReligionCommerce>0</iStateReligionCommerce>
+				<iStateReligionCommerce>1</iStateReligionCommerce>
+			</StateReligionCommerces>
+			<Button>Art/Interface/Buttons/Religions/Islam.dds</Button>
+			<!-- custom: TechButton/GenericTechButton were the BtS Islam.dds button, drawn for Divine Right; RELIGION_ISLAM is founded by Navigation in AdvCiv-SAS, so the choose-tech popup and tech bar showed the wrong picture.
+			Use the founding tech's own button. See KI#1072.2. (Claude code Opus 5.5) -->
+			<TechButton>Art/AdvCiv_SAS/Techs/Navigation/cartography.dds</TechButton>
+			<GenericTechButton>Art/AdvCiv_SAS/Techs/Navigation/cartography.dds</GenericTechButton>
+			<MovieFile>Art/Movies/Religion/Islam/Isl_Found.nif</MovieFile>
+			<MovieSound>AS2D_BUILD_ISLAMIC_MOVIE</MovieSound>
+			<Sound>AS2D_BUILD_ISLAMIC</Sound>
+		</ReligionInfo>
+	</ReligionInfos>
+</Civ4ReligionInfo>

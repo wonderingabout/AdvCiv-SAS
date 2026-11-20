@@ -35,6 +35,8 @@ StartPointsAsHandicap::~StartPointsAsHandicap() {
 
 void StartPointsAsHandicap::reset() {
 
+	// <!-- custom: Map regeneration/reinitialization starts a new SPaH disclosure state; only an actual later randomization sets it again. See KI#1032. (GPT-5.6-Sol) -->
+	randPoints = false;
 	for(size_t i = 0; i < civs.size(); i++)
 		SAFE_DELETE(civs[i]);
 	civs.clear();
@@ -218,6 +220,9 @@ void StartPointsAsHandicap::randomizePoints() {
 	int middleAIIndex = nHuman + nAI / 2;
 	if(nAI < 4)
 		return;
+	// <!-- custom: AdvC already serialized and displayed this flag but never set it, hiding that configured point values were randomized.
+	// Set it only once the randomization path can execute. See KI#1032. (GPT-5.6-Sol) -->
+	randPoints = true;
 	// Special pair [n-2],[2] (a sort of wrap-around)
 	bounce(nCivs - 2, nHuman + 1);
 	if(nAI < 6)

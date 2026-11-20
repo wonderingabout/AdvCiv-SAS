@@ -16,6 +16,7 @@
 #include "CvGameTextMgr.h"
 #include "CvMessageControl.h"
 #include "CvBugOptions.h"
+#include "SASGameRecordLog.h" // <!-- custom: Native view-control transitions and city-circle submissions are recorded at their actual application points; avoid inferring live UI state from configured values or rescoring plots for diagnostics. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 #include "SelfMod.h" // advc.092b
 #include <fstream> // advc.003d
 
@@ -54,12 +55,26 @@ void CvGame::updateColoredPlots()
 		pHeadSelectedUnit->updateFoundingBorder();
 	// </advc.004h>
 
+	// <!-- custom: Capture the native circle submissions themselves, before any purchase; callback frequency is UI-driven rather than once per turn.
+	// Gate diagnostic context/collection first.
+	// The recorder suppresses unchanged sets and reuses costs/path decisions below, so it adds no diagnostic map scan or pathfinding.
+	// WorldBuilder/Python-owned overlays are excluded; debug all-player site circles are observed separately from the active-player recommendations.
+	// These are native draw requests rather than proof of a rendered frame. (GPT-6.1-Sol) -->
+	bool const bLogSASCityRecommendations = (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled() && getActivePlayer() != NO_PLAYER && (!gDLL->GetWorldBuilderMode() || kUI.isInAdvancedStart()));
+	if (bLogSASCityRecommendations) beginSASGameRecordCityRecommendations(getActivePlayer(), kUI.isInAdvancedStart(), (!kUI.isInAdvancedStart() && kUI.getHeadSelectedCity() == NULL && pHeadSelectedUnit != NULL && pHeadSelectedUnit->isFound()) ? pHeadSelectedUnit->getID() : -1);
+	// <!-- custom: The separate offer catalog performs gated quote queries only for changed setup state or target context; circle collection itself still reuses native draw computations. (GPT-6.1-Sol) -->
+	if (bLogSASCityRecommendations && kUI.isInAdvancedStart()) logSASGameRecordAdvancedStartOffers(GET_PLAYER(getActivePlayer()), kUI.getMouseOverPlot(), false);
+
 	CvMap const& kMap = GC.getMap();
+	bool bLogSASDebugCitySites = false;
 	// BETTER_BTS_AI_MOD, Debug, 06/25/09, jdog5000: START
 	if (isDebugMode())
 	{
 		if (kUI.isShowYields() && !gDLL->GetWorldBuilderMode()) // advc.007
 		{
+			// <!-- custom: This all-player shortlist overlay is independent of the ordinary unit-recommendation option and selected Settler.
+			// Observe its existing draw submissions under a separate source/owner identity; Worker debug circles remain disabled below. (GPT-6.1-Sol) -->
+			if (bLogSASCityRecommendations) bLogSASDebugCitySites = true;
 			// City circles for debugging
 			for (PlayerAIIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
 			{
@@ -70,33 +85,42 @@ void CvGame::updateColoredPlots()
 							GC.getInfo(GC.getInfo(itPlayer->getPlayerColor()).
 							getColorTypePrimary()).getColor(),
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
+					if (bLogSASCityRecommendations) addSASGameRecordDebugCitySite(itPlayer->getID(), kSite, i + 1);
 				}
 			}
-			// Plot improvement replacement circles for debugging
-			FOR_EACH_ENUM(PlotNum)
-			{
-				CvPlot& kPlot = kMap.getPlotByIndex(eLoopPlotNum);
-				CvCityAI const* pWorkingCity = kPlot.AI_getWorkingCity();
-				ImprovementTypes eImprovement = kPlot.getImprovementType();
-				if (pWorkingCity != NULL && eImprovement != NO_IMPROVEMENT)
-				{
-					CityPlotTypes ePlot = pWorkingCity->getCityPlotIndex(kPlot);
-					//int iBuildValue = pWorkingCity->AI_getBestBuildValue(ePlot);
-					BuildTypes eBestBuild = pWorkingCity->AI_getBestBuild(ePlot);
-					if (eBestBuild != NO_BUILD)
-					{
-						if (GC.getInfo(eBestBuild).getImprovement() != NO_IMPROVEMENT &&
-							eImprovement != GC.getInfo(eBestBuild).getImprovement())
-						{
-							kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
-									GC.getInfo(GC.getColorType("RED")).getColor(),
-									PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
-						}
-					}
-				}
-			}
+			// <!-- custom: even in debugging (if i understood it correctly), these are confusing and needlessly taking computing power too, we use CvUnitAI::AI_bestCityBuild now anyway instead to choose our best plots to build on and all for AI workers, so try to gradually remove old code influence, while increasing performance if we can do so as well or functionality -->
+			// // Plot improvement replacement circles for debugging
+			// FOR_EACH_ENUM(PlotNum)
+			// {
+			// 	CvPlot& kPlot = kMap.getPlotByIndex(eLoopPlotNum);
+			// 	CvCityAI const* pWorkingCity = kPlot.AI_getWorkingCity();
+			// 	ImprovementTypes eImprovement = kPlot.getImprovementType();
+			// 	if (pWorkingCity != NULL && eImprovement != NO_IMPROVEMENT)
+			// 	{
+			// 		CityPlotTypes ePlot = pWorkingCity->getCityPlotIndex(kPlot);
+			// 		//int iBuildValue = pWorkingCity->AI_getBestBuildValue(ePlot);
+			// 		BuildTypes eBestBuild = pWorkingCity->AI_getBestBuild(ePlot);
+			// 		if (eBestBuild != NO_BUILD)
+			// 		{
+			// 			if (GC.getInfo(eBestBuild).getImprovement() != NO_IMPROVEMENT &&
+			// 				eImprovement != GC.getInfo(eBestBuild).getImprovement())
+			// 			{
+			// 				kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
+			// 						GC.getInfo(GC.getColorType("RED")).getColor(),
+			// 						PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
+			// 			}
+			// 		}
+			// 	}
+			// }
 		}
 	} // BETTER_BTS_AI_MOD: END
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+	static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
+	static const ColorTypes eColorYellow = (ColorTypes)GC.getColorType("YELLOW");
 
 	// City circles when in Advanced Start
 	if (kUI.isInAdvancedStart())
@@ -104,34 +128,38 @@ void CvGame::updateColoredPlots()
 		FOR_EACH_ENUM(PlotNum)
 		{
 			CvPlot& kPlot = kMap.getPlotByIndex(eLoopPlotNum);
-			if (GET_PLAYER(getActivePlayer()).getAdvancedStartCityCost(true, &kPlot) > 0)
+			// <!-- custom: Reuse the draw branch's existing cost for SGR instead of querying it again. (GPT-6.1-Sol) -->
+			int const iCityCost = GET_PLAYER(getActivePlayer()).getAdvancedStartCityCost(true, &kPlot);
+			if (iCityCost > 0)
 			{
-				bool bStartingPlot = false;
+				PlayerTypes eStartingPlayer = NO_PLAYER;
 				FOR_EACH_ENUM(Player)
 				{
 					CvPlayer const& kPlayer = GET_PLAYER(eLoopPlayer);
 					if (kPlayer.isAlive() && getActiveTeam() == kPlayer.getTeam() &&
 						&kPlot == kPlayer.getStartingPlot())
 					{
-						bStartingPlot = true;
+						eStartingPlayer = eLoopPlayer;
 						break;
 					}
 				}
-				if (bStartingPlot)
+				if (eStartingPlayer != NO_PLAYER)
 				{
 					kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
-							GC.getInfo(GC.getColorType("WARNING_TEXT")).getColor(),
+							GC.getInfo(eColorWarningText).getColor(),
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+					if (bLogSASCityRecommendations) addSASGameRecordCityRecommendation(kPlot, iCityCost, eStartingPlayer);
 				}
 				else if (GET_PLAYER(getActivePlayer()).AI_isPlotCitySite(kPlot))
 				{
 					kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
-							GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
+							GC.getInfo(eColorHighlightText).getColor(),
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+					if (bLogSASCityRecommendations) addSASGameRecordCityRecommendation(kPlot, iCityCost);
 				}
 				if (kPlot.isRevealed(getActiveTeam()))
 				{
-					NiColorA color(GC.getInfo(GC.getColorType("WHITE")).getColor());
+					NiColorA color(GC.getInfo(eColorWhite).getColor());
 					color.a = 0.4f;
 					kEngine.fillAreaBorderPlot(kPlot.getX(), kPlot.getY(),
 							color, AREA_BORDER_LAYER_CITY_RADIUS);
@@ -145,7 +173,7 @@ void CvGame::updateColoredPlots()
 	{
 		if (kUI.isCityScreenUp())
 		{
-			NiColorA color(GC.getInfo(GC.getColorType("WHITE")).getColor());
+			NiColorA color(GC.getInfo(eColorWhite).getColor());
 			color.a = 0.7f; // advc: Moved out of the loop below
 			for (WorkingPlotIter it(*pHeadSelectedCity); it.hasNext(); ++it)
 			{
@@ -168,15 +196,20 @@ void CvGame::updateColoredPlots()
 				if (pRallyPlot != NULL)
 				{
 					kEngine.addColoredPlot(pRallyPlot->getX(), pRallyPlot->getY(),
-							GC.getInfo(GC.getColorType("YELLOW")).getColor(),
+							GC.getInfo(eColorYellow).getColor(),
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
 				}
 			}
 		} // <advc>
+		if (bLogSASCityRecommendations) endSASGameRecordCityRecommendations(-1, bLogSASDebugCitySites);
 		return;
 	}
 	if (pHeadSelectedUnit == NULL)
+	{
+		// <!-- custom: Finalize an empty/Advanced Start circle set even when no unit is selected. (GPT-6.1-Sol) -->
+		if (bLogSASCityRecommendations) endSASGameRecordCityRecommendations(-1, bLogSASDebugCitySites);
 		return; // </advc>
+	}
 
 	if (gDLL->getGraphicOption(GRAPHICOPTION_CITY_RADIUS))
 	{
@@ -190,7 +223,7 @@ void CvGame::updateColoredPlots()
 				{
 					if (kPlot.getWorkingCity() != NULL)
 					{
-						NiColorA color(GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")
+						NiColorA color(GC.getInfo(eColorHighlightText
 								/*(GC.getInfo(GET_PLAYER(pHeadSelectedUnit->getOwner()).getPlayerColor()).getColorTypePrimary())*/
 								).getColor());
 						color.a = 1.0f;
@@ -226,7 +259,7 @@ void CvGame::updateColoredPlots()
 					&kTargetPlot, pHeadSelectedUnit->getTeam(), iMaxAirRange,
 					pHeadSelectedUnit->getFacingDirection(true))*/))
 				{
-					NiColorA color(GC.getInfo(GC.getColorType("YELLOW")).getColor());
+					NiColorA color(GC.getInfo(eColorYellow).getColor());
 					color.a = 0.5f;
 					kEngine.fillAreaBorderPlot(kTargetPlot.getX(), kTargetPlot.getY(),
 							color, AREA_BORDER_LAYER_RANGED);
@@ -234,39 +267,45 @@ void CvGame::updateColoredPlots()
 			}
 		}
 	}
-	if (!GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS) ||
-		!GET_PLAYER(getActivePlayer()).isHuman()) // advc.127
+
+	// <!-- custom: Reuse the inherited display gate for both drawing and the observation summary, so no visible city circles can be distinguished from recommendations suppressed by the player's option.
+	// Advanced Start uses its earlier independent draw branch; preserve that behavior and the current UI preference. (GPT-6.1-Sol) -->
+	bool const bUnitRecommendationsEnabled = (!GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS) || !GET_PLAYER(getActivePlayer()).isHuman()); // advc.127
+	if (bUnitRecommendationsEnabled)
 	{
-		CvUnitAI const& kRecommendUnit = pHeadSelectedUnit->AI(); // advc.003u
-		if (kRecommendUnit.AI_getUnitAIType() == UNITAI_WORKER ||
-			kRecommendUnit.AI_getUnitAIType() == UNITAI_WORKER_SEA)
-		{
-			if (kRecommendUnit.getPlot().getOwner() == kRecommendUnit.getOwner())
-			{
-				CvCityAI* pCity = kRecommendUnit.getPlot().AI_getWorkingCity();
-				if (pCity != NULL)
-				{
-					CvPlot* pBestPlot = NULL;
-					if (kRecommendUnit.AI_bestCityBuild(*pCity, &pBestPlot) &&
-						pCity->AI_getBestBuildValue(pCity->getCityPlotIndex(*pBestPlot)) > 1)
-					{
-						FAssert(pBestPlot != NULL);
-						kEngine.addColoredPlot(pBestPlot->getX(), pBestPlot->getY(),
-								GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
-								PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
-						CvPlot* pNextBestPlot = NULL;
-						if (kRecommendUnit.AI_bestCityBuild(*pCity, &pNextBestPlot, NULL, pBestPlot) &&
-							pCity->AI_getBestBuildValue(pCity->getCityPlotIndex(*pNextBestPlot)) > 1)
-						{
-							FAssert(pNextBestPlot != NULL);
-							kEngine.addColoredPlot(pNextBestPlot->getX(), pNextBestPlot->getY(),
-									GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
-									PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
-						}
-					}
-				}
-			}
-		}
+		// <!-- custom: also disable worker plot to improve recommendations, we save computation this way, reduce the interference of old very inefficient and perhaps needlessly computationally expensive, on top of tiles shown not necessarily being the best as well.
+		// We only want to see city sites and such and not have too many needless circles that are confusing as well on top of using needless computing power; located code spot to remove thanks to claude ai after i found first one above in this function -->
+		// CvUnitAI const& kRecommendUnit = pHeadSelectedUnit->AI(); // advc.003u
+		// if (kRecommendUnit.AI_getUnitAIType() == UNITAI_WORKER ||
+		// 	kRecommendUnit.AI_getUnitAIType() == UNITAI_WORKER_SEA)
+		// {
+		// 	if (kRecommendUnit.getPlot().getOwner() == kRecommendUnit.getOwner())
+		// 	{
+		// 		CvCityAI* pCity = kRecommendUnit.getPlot().AI_getWorkingCity();
+		// 		if (pCity != NULL)
+		// 		{
+		// 			CvPlot* pBestPlot = NULL;
+		// 			if (kRecommendUnit.AI_bestCityBuild(*pCity, &pBestPlot) &&
+		// 				pCity->AI_getBestBuildValue(pCity->getCityPlotIndex(*pBestPlot)) > 1)
+		// 			{
+		// 				FAssert(pBestPlot != NULL);
+		// 				kEngine.addColoredPlot(pBestPlot->getX(), pBestPlot->getY(),
+		// 						GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
+		// 						PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+		// 				CvPlot* pNextBestPlot = NULL;
+		// 				if (kRecommendUnit.AI_bestCityBuild(*pCity, &pNextBestPlot, NULL, pBestPlot) &&
+		// 					pCity->AI_getBestBuildValue(pCity->getCityPlotIndex(*pNextBestPlot)) > 1)
+		// 				{
+		// 					FAssert(pNextBestPlot != NULL);
+		// 					kEngine.addColoredPlot(pNextBestPlot->getX(), pNextBestPlot->getY(),
+		// 							GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
+		// 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
+
 		/*	K-Mod. I've rearranged the following code a bit, so that it is more efficient, and so that
 			it shows city sites within 7 turns, rather than just the ones in 4 plot range.
 			the original code has been deleted, because it was quite bulky. */
@@ -289,8 +328,9 @@ void CvGame::updateColoredPlots()
 					if (sitePath.getPathTurns() + i > iMaxPathTurns + 1)
 						continue; // </advc.004>
 					kEngine.addColoredPlot(kSite.getX(), kSite.getY(),
-							GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
+							GC.getInfo(eColorHighlightText).getColor(),
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+					if (bLogSASCityRecommendations && !kUI.isInAdvancedStart()) addSASGameRecordCityRecommendation(kSite, -1);
 				}
 			}
 		}
@@ -306,6 +346,7 @@ void CvGame::updateColoredPlots()
 			// just a smaller range.
 			sitePath.setGroup(*pHeadSelectedUnit->getGroup(), NO_MOVEMENT_FLAGS,
 					iRange, GC.getMOVE_DENOMINATOR());
+
 			for (SquareIter it(*pHeadSelectedUnit, iRange); it.hasNext(); ++it)
 			{
 				CvPlot const& kLoopPlot = *it;
@@ -315,7 +356,7 @@ void CvGame::updateColoredPlots()
 					if (sitePath.generatePath(kLoopPlot))
 					{
 						kEngine.addColoredPlot(kLoopPlot.getX(), kLoopPlot.getY(),
-								GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
+								GC.getInfo(eColorHighlightText).getColor(),
 								PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
 					}
 				}
@@ -348,6 +389,7 @@ void CvGame::updateColoredPlots()
 			}
 		}
 	}
+	if (bLogSASCityRecommendations) endSASGameRecordCityRecommendations(bUnitRecommendationsEnabled ? 1 : 0, bLogSASDebugCitySites);
 }
 
 
@@ -358,12 +400,17 @@ void CvGame::updateBlockadedPlots()
 	CvDLLEngineIFaceBase& kEngine = *gDLL->getEngineIFace(); // advc
 	kEngine.clearAreaBorderPlots(AREA_BORDER_LAYER_BLOCKADED);
 	CvMap const& kMap = GC.getMap();
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorBlack = (ColorTypes)GC.getColorType("BLACK");
+
 	for (int i = 0; i < kMap.numPlots(); ++i)
 	{
 		CvPlot& kPlot = kMap.getPlotByIndex(i);
 		if (kPlot.getBlockadedCount(getActiveTeam()) > 0 && kPlot.isRevealed(getActiveTeam()))
 		{
-			NiColorA color(GC.getInfo(GC.getColorType("BLACK")).getColor());
+			NiColorA color(GC.getInfo(eColorBlack).getColor());
 			color.a = 0.35f;
 			kEngine.fillAreaBorderPlot(kPlot.getX(), kPlot.getY(), color, AREA_BORDER_LAYER_BLOCKADED);
 		}
@@ -378,6 +425,7 @@ void CvGame::updateBlockadedPlots()
 
 void CvGame::updateSelectionList()
 {
+	// <!-- custom: Retired KI#107's isFinalInitialized guard, restoring base AdvCiv 1.14: a crash fix made without a matching PDB, so a recurrence should be traced with a Debug-opt dump. See KI#107 and KI#136. (Claude code Opus 4.6 + Claude code Opus 5.5) -->
 	CvDLLInterfaceIFaceBase& kUI = gDLL->UI();
 	CvUnit* pHeadSelectedUnit = kUI.getHeadSelectedUnit();
 	// <advc.004k> (Needed for dealing with all units becoming unselected)
@@ -413,6 +461,7 @@ void CvGame::updateSelectionList()
 
 void CvGame::updateTestEndTurn()
 {
+	// <!-- custom: Retired KI#107's isFinalInitialized guard, restoring base AdvCiv 1.14: a crash fix made without a matching PDB, so a recurrence should be traced with a Debug-opt dump. See KI#107 and KI#136. (Claude code Opus 4.6 + Claude code Opus 5.5) -->
 	if (!GET_PLAYER(getActivePlayer()).isTurnActive())
 		return;
 	// <advc.003g>
@@ -424,7 +473,11 @@ void CvGame::updateTestEndTurn()
 	if (kUI.isEndTurnMessage())
 	{
 		if (GET_PLAYER(getActivePlayer()).hasReadyUnit(bAny))
+		// <!-- custom: Observe the applied UI transition only when Runtime is enabled; the gameplay flag still changes first. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		{
 			kUI.setEndTurnMessage(false);
+			if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusEndTurnReady(getActivePlayer(), false);
+		}
 		return;
 	}
 	if (GET_PLAYER(getActivePlayer()).hasBusyUnit() ||
@@ -455,6 +508,8 @@ void CvGame::updateTestEndTurn()
 		!kUI.isHasMovedUnit() || isHotSeat() || isPbem())
 	{
 		kUI.setEndTurnMessage(true);
+		// <!-- custom: Observe the existing flag change above; only the Runtime notification below is added, with no per-frame diagnostic unit scan. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusEndTurnReady(getActivePlayer(), true);
 		return;
 	}
 	if (kUI.getEndTurnCounter() > 0)
@@ -467,8 +522,7 @@ void CvGame::updateTestEndTurn()
 }
 
 // advc: Merge of two BtS functions that had largely the same body
-CvUnit* CvGame::getPlotUnits(CvPlot const* pPlot,
-	std::vector<CvUnit*>* pPlotUnits, int iIndex) const
+CvUnit* CvGame::getPlotUnits(CvPlot const* pPlot, std::vector<CvUnit*>* pPlotUnits, int iIndex) const
 {
 	PROFILE_FUNC();
 
@@ -561,9 +615,9 @@ void CvGame::cycleCities(bool bForward, bool bAdd) const
 }
 
 // advc.154: Extracted the const part out of cycleSelectionGroups
-CvSelectionGroup* CvGame::getNextGroupInCycle(bool bForward, bool bWorkers,
-	bool& bWrap, CvUnit*& pCycleUnit, // out-params
-	std::set<int>* pCycledGroups) const
+// out-params
+// <!-- custom: hoisted from multiline signature between `pCycleUnit` and `pCycledGroups` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+CvSelectionGroup* CvGame::getNextGroupInCycle(bool bForward, bool bWorkers, bool& bWrap, CvUnit*& pCycleUnit, std::set<int>* pCycledGroups) const
 {
 	bWrap = false;
 	pCycleUnit = gDLL->UI().getHeadSelectedUnit();
@@ -854,8 +908,7 @@ void CvGame::selectionListMove(CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl
 }
 
 
-void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, int iData4,
-	int iFlags, bool bAlt, bool bShift) const
+void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, int iData4, int iFlags, bool bAlt, bool bShift) const
 {
 	int aiPyData[] = { iData2, iData3, iData4 };
 	if (GC.getPythonCaller()->cannotSelectionListNetOverride((GameMessageTypes)
@@ -994,8 +1047,7 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 }
 
 
-void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3, int iData4,
-	bool bOption, bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3, int iData4, bool bOption, bool bAlt, bool bShift, bool bCtrl) const
 {
 	for (CLLNode<IDInfo> const* pSelectedCityNode = gDLL->UI().headSelectedCitiesNode();
 		pSelectedCityNode != NULL;
@@ -1057,6 +1109,7 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible, bool
 {
 	PROFILE_FUNC();
 
+	// <!-- custom: Retired KI#107's isFinalInitialized guard, restoring base AdvCiv 1.14: a crash fix made without a matching PDB, so a recurrence should be traced with a Debug-opt dump. See KI#107 and KI#136. (Claude code Opus 4.6 + Claude code Opus 5.5) -->
 	bool const bShift = GC.shiftKey();
 
 	if (GC.getPythonCaller()->cannotHandleActionOverride(pPlot, iAction, bTestVisible))
@@ -1123,12 +1176,14 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible, bool
 
 void CvGame::setupActionCache() const
 {
+	// <!-- custom: Retired KI#100's null-selection guards here and in this file's action handling, restoring base AdvCiv 1.14: a crash fix made without a matching PDB, so a recurrence should be traced with a Debug-opt dump. See KI#100 and KI#136. (Claude code Opus 4.5 + GPT-5.2-Codex + Claude code Opus 5.5) -->
 	gDLL->UI().getSelectionList()->setupActionCache();
 }
 
 
 void CvGame::handleAction(int iAction)
 {
+	// <!-- custom: Retired KI#107's isFinalInitialized guard, restoring base AdvCiv 1.14: a crash fix made without a matching PDB, so a recurrence should be traced with a Debug-opt dump. See KI#107 and KI#136. (Claude code Opus 4.6 + Claude code Opus 5.5) -->
 	bool const bAlt = GC.altKey();
 	bool const bShift = GC.shiftKey();
 
@@ -1267,13 +1322,14 @@ bool CvGame::canDoControl(ControlTypes eControl) const
 	case CONTROL_DOMESTIC_SCREEN:
 	case CONTROL_VICTORY_SCREEN:
 	case CONTROL_CIVILOPEDIA:
-	case CONTROL_RELIGION_SCREEN:
-	case CONTROL_CORPORATION_SCREEN:
+	// <!-- custom: CONTROL_RELIGION_SCREEN / CONTROL_CORPORATION_SCREEN removed; those screens are planned as Civics tabs. (GPT-5.3-Codex) -->
 	case CONTROL_CIVICS_SCREEN:
 	case CONTROL_FOREIGN_SCREEN:
-	case CONTROL_FINANCIAL_SCREEN:
+	case CONTROL_FOREIGN_DIPLOMACY_SCREEN:
 	case CONTROL_MILITARY_SCREEN:
 	case CONTROL_TECH_CHOOSER:
+	// <!-- custom: F7 is available after Religion/Corporation were integrated into Policy Advisor. (GPT-5.5) -->
+	case CONTROL_WORLD_ADVISOR_SCREEN:
 	case CONTROL_DIPLOMACY:
 	case CONTROL_HALL_OF_FAME:
 	case CONTROL_INFO:
@@ -1354,11 +1410,21 @@ bool CvGame::canDoControl(ControlTypes eControl) const
 
 void CvGame::doControl(ControlTypes eControl)
 {
+	// <!-- custom: Share one level/initialization snapshot within this control invocation; revision-150 runtime-view state stays available even when the revision-151+ action trace is independently disabled.
+	// The action switch is read only after the level-2 gate succeeds, while level 0 avoids both the lifecycle query and supporting-switch read. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
+	bool const bLogSASRuntimeView = (gGameRecordLogLevel >= 2 && isFinalInitialized());
+	bool const bLogSASControl = (bLogSASRuntimeView && isSASGameRecordActionTraceEnabled());
 	if (!canDoControl(eControl))
+	{
+		// <!-- custom: The first draft lost requests rejected before the switch; the initial fix covered only turn controls.
+		// Use the same recorder-owned vocabulary for every traced rejected/accepted control, so save/load/camera rejections cannot silently disappear. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		if (bLogSASControl) logSASGameRecordControlRequest(eControl, false);
 		return;
+	}
 	// <advc>
 	CvDLLInterfaceIFaceBase& kUI = gDLL->UI();
 	CvDLLEngineIFaceBase& kEngine = *gDLL->getEngineIFace();
+	// <!-- custom: Check the cached level before the live initialization state so disabled controls do no logging-only lifecycle queries; individual state getters below are sampled only at level 2+ after initialization, except Grid whose old value is already needed to toggle it. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	CvUnit* pHeadSelectedUnit = kUI.getHeadSelectedUnit();
 	CvPlot* pSelectionPlot = kUI.getSelectionPlot();
 	// </advc>
@@ -1481,17 +1547,43 @@ void CvGame::doControl(ControlTypes eControl)
 		kUI.setLastSelectedUnit(NULL);
 		break;
 	}
+	// <!-- custom: Revision 151 logs a small causal control vocabulary before its consequence; `accepted` means this handler passed its immediate gate, not that a later save/load/turn operation necessarily completed.
+	// Keep these hooks level-2 pre-gated and separate from existing resulting-state rows. (ChatGPT-5.6-Sol) -->
 	case CONTROL_ENDTURN:
 	case CONTROL_ENDTURN_ALT:
-		if (kUI.isEndTurnMessage())
+	{
+		bool const bAccepted = kUI.isEndTurnMessage();
+		if (bLogSASControl) logSASGameRecordControlRequest(eControl, bAccepted);
+		if (bAccepted)
+		{
+			if (isSASRuntimeStatusEnabled())
+			{
+				PlayerTypes const ePlayer = getActivePlayer();
+				bool const bSelectedUnit = (kUI.getHeadSelectedUnit() != NULL);
+				bool const bUIAnyMove = (bSelectedUnit && !GET_PLAYER(ePlayer).isOption(PLAYEROPTION_NO_UNIT_CYCLING));
+				// <!-- custom: Capture the accepted request before sendTurnComplete can deactivate the player.
+				// The control enum is authoritative; do not infer Enter versus end-turn-widget origin. (ChatGPT-5.6-Sol) -->
+				updateSASRuntimeStatusEndTurnRequest(ePlayer, eControl, kUI.isEndTurnMessage(), bUIAnyMove, bSelectedUnit, kUI.isForcePopup(), kUI.isHasMovedUnit(), GET_PLAYER(ePlayer).isOption(PLAYEROPTION_WAIT_END_TURN));
+			}
 			CvMessageControl::getInstance().sendTurnComplete();
+		}
 		break;
+	}
 
 	case CONTROL_FORCEENDTURN:
+		if (bLogSASControl) logSASGameRecordControlRequest(eControl, true);
+		if (isSASRuntimeStatusEnabled())
+		{
+			PlayerTypes const ePlayer = getActivePlayer();
+			bool const bSelectedUnit = (kUI.getHeadSelectedUnit() != NULL);
+			bool const bUIAnyMove = (bSelectedUnit && !GET_PLAYER(ePlayer).isOption(PLAYEROPTION_NO_UNIT_CYCLING));
+			updateSASRuntimeStatusEndTurnRequest(ePlayer, eControl, kUI.isEndTurnMessage(), bUIAnyMove, bSelectedUnit, kUI.isForcePopup(), kUI.isHasMovedUnit(), GET_PLAYER(ePlayer).isOption(PLAYEROPTION_WAIT_END_TURN));
+		}
 		CvMessageControl::getInstance().sendTurnComplete();
 		break;
 
 	case CONTROL_AUTOMOVES:
+		if (bLogSASControl) logSASGameRecordControlRequest(eControl, true);
 		CvMessageControl::getInstance().sendAutoMoves();
 		break;
 
@@ -1503,17 +1595,33 @@ void CvGame::doControl(ControlTypes eControl)
 		kUI.setInterfaceMode(INTERFACEMODE_SIGN);
 		break;
 
+	// <!-- custom: These controls have cheap authoritative getters immediately after the native toggle.
+	// Record only real state changes at level 2+; resource/unit layers are resolved separately by CvGame::reportCurrentLayer. (ChatGPT-5.6-Sol) -->
 	case CONTROL_GRID:
-		kEngine.SetGridMode(!kEngine.GetGridMode());
+	{
+		bool const bOldValue = kEngine.GetGridMode();
+		kEngine.SetGridMode(!bOldValue);
+		if (bLogSASRuntimeView) logSASGameRecordRuntimeViewBoolChange("CONTROL_GRID", "grid", bOldValue, kEngine.GetGridMode());
 		break;
+	}
 
 	case CONTROL_BARE_MAP:
+	{
+		bool bOldValue = false;
+		if (bLogSASRuntimeView) bOldValue = kUI.isBareMapMode();
 		kUI.toggleBareMapMode();
+		if (bLogSASRuntimeView) logSASGameRecordRuntimeViewBoolChange("CONTROL_BARE_MAP", "bareMap", bOldValue, kUI.isBareMapMode());
 		break;
+	}
 
 	case CONTROL_YIELDS:
+	{
+		bool bOldValue = false;
+		if (bLogSASRuntimeView) bOldValue = kUI.isShowYields();
 		kUI.toggleYieldVisibleMode();
+		if (bLogSASRuntimeView) logSASGameRecordRuntimeViewBoolChange("CONTROL_YIELDS", "yields", bOldValue, kUI.isShowYields());
 		break;
+	}
 
 	case CONTROL_RESOURCE_ALL:
 		kEngine.toggleResourceLayer();
@@ -1524,14 +1632,25 @@ void CvGame::doControl(ControlTypes eControl)
 		break;
 
 	case CONTROL_GLOBELAYER:
+	{
+		bool bOldValue = false;
+		if (bLogSASRuntimeView) bOldValue = kEngine.isGlobeviewUp();
 		kEngine.toggleGlobeview();
+		if (bLogSASRuntimeView) logSASGameRecordRuntimeViewBoolChange("CONTROL_GLOBELAYER", "globeView", bOldValue, kEngine.isGlobeviewUp());
 		break;
+	}
 
 	case CONTROL_SCORES:
+	{
+		bool bOldValue = false;
+		if (bLogSASRuntimeView) bOldValue = kUI.isScoresVisible();
 		kUI.toggleScoresVisible();
+		if (bLogSASRuntimeView) logSASGameRecordRuntimeViewBoolChange("CONTROL_SCORES", "scores", bOldValue, kUI.isScoresVisible());
 		break;
+	}
 
 	case CONTROL_LOAD_GAME:
+		if (bLogSASControl) logSASGameRecordControlRequest(eControl, true);
 		gDLL->LoadGame();
 		break;
 
@@ -1552,29 +1671,37 @@ void CvGame::doControl(ControlTypes eControl)
 			CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
 			if (pInfo != NULL)
 			{
-				pInfo->setData1(2);
+				// <!-- custom: Share the confirmation action ID with popup dispatch and its diagnostics while preserving the inherited payload value. (GPT-6.1-Sol) -->
+				pInfo->setData1(SAS_POPUP_CONFIRM_RETIRE);
 				kUI.addPopup(pInfo, getActivePlayer(), true);
 			}
 		} // K-Mod end
 		break;
 
 	case CONTROL_SAVE_GROUP:
+		if (bLogSASControl) logSASGameRecordControlRequest(eControl, true);
 		gDLL->SaveGame(SAVEGAME_GROUP);
 		break;
 
 	case CONTROL_SAVE_NORMAL:
+		if (bLogSASControl) logSASGameRecordControlRequest(eControl, true);
 		gDLL->SaveGame(SAVEGAME_NORMAL);
 		break;
 
 	case CONTROL_QUICK_SAVE:
-		if (!isNetworkMultiPlayer()) // SP only!
+	{
+		bool const bAccepted = !isNetworkMultiPlayer(); // SP only!
+		if (bLogSASControl) logSASGameRecordControlRequest(eControl, bAccepted);
+		if (bAccepted)
 		{
 			CvEventReporter::getInstance().preQuickSave(); // advc.106l
 			gDLL->QuickSave();
 		}
 		break;
+	}
 
 	case CONTROL_QUICK_LOAD:
+		if (bLogSASControl) logSASGameRecordControlRequest(eControl, !isNetworkMultiPlayer());
 		if (isNetworkMultiPlayer()) // SP only!
 			break;
 		// <advc.003d>
@@ -1602,58 +1729,80 @@ void CvGame::doControl(ControlTypes eControl)
 		gDLL->QuickLoad();
 		break;
 
+	// <!-- custom: Revision 151 pairs the existing camera control requests with authoritative Boolean result changes for modes that expose cheap getters.
+	// Cycle-flying-mode and camera rotation remain request-only because they have no equivalent Boolean result contract. (ChatGPT-5.6-Sol) -->
 	case CONTROL_ORTHO_CAMERA:
-		kEngine.SetOrthoCamera(!kEngine.GetOrthoCamera());
+	{
+		bool const bOldValue = kEngine.GetOrthoCamera();
+		if (bLogSASControl) logSASGameRecordControlRequest(eControl, true);
+		kEngine.SetOrthoCamera(!bOldValue);
+		if (bLogSASControl) logSASGameRecordCameraBoolChange(eControl, bOldValue, kEngine.GetOrthoCamera());
 		break;
+	}
 
 	case CONTROL_CYCLE_CAMERA_FLYING_MODES:
+		if (bLogSASControl) logSASGameRecordControlRequest(eControl, true);
 		kEngine.CycleFlyingMode(1);
 		break;
 
 	case CONTROL_ISOMETRIC_CAMERA_LEFT:
+		if (bLogSASControl) logSASGameRecordControlRequest(eControl, true);
 		kEngine.MoveBaseTurnLeft();
 		break;
 
 	case CONTROL_ISOMETRIC_CAMERA_RIGHT:
+		if (bLogSASControl) logSASGameRecordControlRequest(eControl, true);
 		kEngine.MoveBaseTurnRight();
 		break;
 
 	case CONTROL_FLYING_CAMERA:
-		kEngine.SetFlying(!kEngine.GetFlying());
+	{
+		// <!-- custom: With CivilizationIV.ini allowflying=0, Ctrl+Alt+F reached this handler and logged accepted requests but GetFlying reported no change.
+		// Setting allowflying=1 and restarting Civ4 produced flying=0>1 and 1>0; request acceptance alone does not prove the EXE applied a camera mode.
+		// Users who do not use Flying Camera can leave allowflying=0; that recorded preference does not mean the enabled-mode transition hook was untested. (GPT-6.1-Sol) -->
+		bool const bOldValue = kEngine.GetFlying();
+		if (bLogSASControl) logSASGameRecordControlRequest(eControl, true);
+		kEngine.SetFlying(!bOldValue);
+		if (bLogSASControl) logSASGameRecordCameraBoolChange(eControl, bOldValue, kEngine.GetFlying());
 		break;
+	}
 
 	case CONTROL_MOUSE_FLYING_CAMERA:
-		kEngine.SetMouseFlying(!kEngine.GetMouseFlying());
+	{
+		bool const bOldValue = kEngine.GetMouseFlying();
+		if (bLogSASControl) logSASGameRecordControlRequest(eControl, true);
+		kEngine.SetMouseFlying(!bOldValue);
+		if (bLogSASControl) logSASGameRecordCameraBoolChange(eControl, bOldValue, kEngine.GetMouseFlying());
 		break;
+	}
 
 	case CONTROL_TOP_DOWN_CAMERA:
-		kEngine.SetSatelliteMode(!kEngine.GetSatelliteMode());
+	{
+		bool const bOldValue = kEngine.GetSatelliteMode();
+		if (bLogSASControl) logSASGameRecordControlRequest(eControl, true);
+		kEngine.SetSatelliteMode(!bOldValue);
+		if (bLogSASControl) logSASGameRecordCameraBoolChange(eControl, bOldValue, kEngine.GetSatelliteMode());
 		break;
+	}
 
 	case CONTROL_CIVILOPEDIA:
 		GC.getPythonCaller()->callScreenFunction("pediaShow");
 		break;
 
-	case CONTROL_RELIGION_SCREEN:
-		GET_PLAYER(getActivePlayer()).killAll(BUTTONPOPUP_CHANGERELIGION); // advc.004x
-		GC.getPythonCaller()->showPythonScreen("ReligionScreen");
-		break;
-
-	case CONTROL_CORPORATION_SCREEN:
-		GC.getPythonCaller()->showPythonScreen("CorporationScreen");
-		break;
-
+	// <!-- custom: control handlers for Religion/Corporation removed after control enum cleanup. (GPT-5.3-Codex) -->
 	case CONTROL_CIVICS_SCREEN:
 		GET_PLAYER(getActivePlayer()).killAll(BUTTONPOPUP_CHANGECIVIC); // advc.004x
-		GC.getPythonCaller()->showPythonScreen("CivicsScreen");
+		// <!-- custom: renamed Python civics screen entrypoint to PolicyAdvisorScreen while keeping control id for compatibility. (GPT-5.3-Codex) -->
+		GC.getPythonCaller()->showPythonScreen("PolicyAdvisorScreen");
 		break;
 
 	case CONTROL_FOREIGN_SCREEN:
 		GC.getPythonCaller()->showForeignAdvisorScreen();
 		break;
 
-	case CONTROL_FINANCIAL_SCREEN:
-		GC.getPythonCaller()->showPythonScreen("FinanceAdvisor");
+	case CONTROL_FOREIGN_DIPLOMACY_SCREEN:
+		// <!-- custom: F3 control opens the Foreign Diplomacy advisor shell. (GPT-5.3-Codex) -->
+		GC.getPythonCaller()->showPythonScreen("ForeignDiplomacyAdvisor");
 		break;
 
 	case CONTROL_MILITARY_SCREEN:
@@ -1662,6 +1811,11 @@ void CvGame::doControl(ControlTypes eControl)
 
 	case CONTROL_TECH_CHOOSER:
 		GC.getPythonCaller()->showPythonScreen("TechChooser");
+		break;
+
+	// <!-- custom: F7 World Advisor. (GPT-5.5) -->
+	case CONTROL_WORLD_ADVISOR_SCREEN:
+		GC.getPythonCaller()->showPythonScreen("WorldAdvisorScreen");
 		break;
 
 	case CONTROL_TURN_LOG:
@@ -1692,9 +1846,16 @@ void CvGame::doControl(ControlTypes eControl)
 		GC.getPythonCaller()->showInfoScreen(0, getGameState() != GAMESTATE_ON);
 		break;
 
+	// <!-- custom: The action-filtering draft left this second globe-view path behind the action switch, suppressing its revision-150 runtime-state row when actions were disabled.
+	// Use the independent runtime-view gate for both old-state capture and output, matching CONTROL_GLOBELAYER/Grid/Yields. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	case CONTROL_GLOBE_VIEW:
+	{
+		bool bOldValue = false;
+		if (bLogSASRuntimeView) bOldValue = kEngine.isGlobeviewUp();
 		kEngine.toggleGlobeview();
+		if (bLogSASRuntimeView) logSASGameRecordRuntimeViewBoolChange("CONTROL_GLOBE_VIEW", "globeView", bOldValue, kEngine.isGlobeviewUp());
 		break;
+	}
 
 	case CONTROL_DETAILS:
 		kUI.showDetails();
@@ -1728,7 +1889,8 @@ void CvGame::doControl(ControlTypes eControl)
 			CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
 			if (pInfo != NULL)
 			{
-				pInfo->setData1(4);
+				// <!-- custom: Share the confirmation action ID with popup dispatch and its diagnostics while preserving the inherited payload value. (GPT-6.1-Sol) -->
+				pInfo->setData1(SAS_POPUP_CONFIRM_WORLD_BUILDER);
 				kUI.addPopup(pInfo, getActivePlayer(), true);
 			}
 		} // K-Mod end
@@ -1801,6 +1963,7 @@ void CvGame::enterWorldBuilder()
 		m_bFeignSP = true;
 		gDLL->setChtLvl(1); // </advc.135c>
 		gDLL->UI().setWorldBuilder(!gDLL->GetWorldBuilderMode());
+		if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusWorldBuilderMode(gDLL->GetWorldBuilderMode());
 		m_bFeignSP = false; // advc.135c
 	}
 	else
@@ -1818,14 +1981,21 @@ void CvGame::enterWorldBuilder()
 	In case that there's something we want to do beforehand. */
 void CvGame::exitToMenu()
 {
+	// <!-- custom: Time the observed return request before entering EXE menu work; a later reset is distinct from confirmed menu arrival. (GPT-6.1-Sol) -->
+	if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusRequest(SAS_RUNTIME_STATUS_RETURN_TO_MENU_REQUESTED);
 	gDLL->UI().exitingToMainMenu();
 }
 
 // advc:
 void CvGame::setGlobeView(bool b)
 {
-	if (gDLL->getEngineIFace()->isGlobeviewUp() != b)
+	bool const bOldValue = gDLL->getEngineIFace()->isGlobeviewUp();
+	if (bOldValue != b)
+	{
 		gDLL->getEngineIFace()->toggleGlobeview();
+		// <!-- custom: Rise & Fall can change globe state through this wrapper rather than a ControlTypes command; sample the actual post-toggle value only behind the level/initialization gate so this path is tracked without polling. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		if (gGameRecordLogLevel >= 2 && isFinalInitialized()) logSASGameRecordRuntimeViewBoolChange("SET_GLOBE_VIEW", "globeView", bOldValue, gDLL->getEngineIFace()->isGlobeviewUp());
+	}
 }
 
 
@@ -1835,9 +2005,12 @@ void CvGame::getGlobeLayers(std::vector<CvGlobeLayerData>& aLayers) const
 	kUnit.m_strName = "UNITS";
 	kUnit.m_strButtonHelpTag = "TXT_KEY_GLOBELAYER_UNITS";
 	kUnit.m_strButtonStyle = "Button_HUDGlobeUnit_Style";
-	kUnit.m_iNumOptions =
-			(GC.getDefineINT("SHOW_UNIT_LAYER_OPTIONS") <= 0 ? 0 : // advc.004z
-			NUM_UNIT_OPTION_TYPES);
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iNumOptionsCalculated = ((GC.getDefineINT("SHOW_UNIT_LAYER_OPTIONS") <= 0 ? 0 : // advc.004z
+			NUM_UNIT_OPTION_TYPES));
+
+	kUnit.m_iNumOptions = iNumOptionsCalculated;
 	kUnit.m_bGlobeViewRequired = false;
 	aLayers.push_back(kUnit);
 
@@ -1877,8 +2050,7 @@ void CvGame::getGlobeLayers(std::vector<CvGlobeLayerData>& aLayers) const
 }
 
 
-void CvGame::startFlyoutMenu(CvPlot const* pPlot,
-	std::vector<CvFlyoutMenuData>& aFlyoutItems) const
+void CvGame::startFlyoutMenu(CvPlot const* pPlot, std::vector<CvFlyoutMenuData>& aFlyoutItems) const
 {
 	aFlyoutItems.clear();
 
@@ -2178,10 +2350,11 @@ ColorTypes CvGame::getPlotHighlightColor(CvPlot* pPlot) const
 {
 	if (pPlot == NULL)
 		return NO_COLOR;
-	ColorTypes const eDefaultColor = GC.getColorType("GREEN");
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eDefaultColor = GC.getColorType("GREEN");
 	if (gDLL->GetWorldBuilderMode())
 		return eDefaultColor;
-	ColorTypes const eNegativeColor = GC.getColorType("DARK_GREY");
+	static const ColorTypes eNegativeColor = GC.getColorType("DARK_GREY");
 
 	switch (gDLL->UI().getInterfaceMode())
 	{
@@ -2224,7 +2397,11 @@ bool CvGame::updateNukeAreaOfEffect(CvPlot const* pCenter) const
 	{
 		return false;
 	}
-	NiColorA const& kColor = GC.getInfo(GC.getColorType("YELLOW")).getColor();
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorYellow = (ColorTypes)GC.getColorType("YELLOW");
+	NiColorA const& kColor = GC.getInfo(eColorYellow).getColor();
+
 	for (SquareIter itPlot(*pCenter, pNuke->nukeRange()); itPlot.hasNext(); ++itPlot)
 	{
 		gDLL->getEngineIFace()->fillAreaBorderPlot(itPlot->getX(), itPlot->getY(),
@@ -2239,14 +2416,15 @@ void CvGame::updateSeaPatrolColors(CvUnit const& kSelectedUnit)
 	gDLL->getEngineIFace()->clearAreaBorderPlots(AREA_BORDER_LAYER_PATROLLED);
 	if (!kSelectedUnit.isSeaPatrolling())
 		return;
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorCityBlue = (ColorTypes)GC.getInfoTypeForString("COLOR_CITY_BLUE");
 	for (SquareIter itPlot(kSelectedUnit, GC.getMAX_SEA_PATROL_RANGE(), false);
 		itPlot.hasNext(); ++itPlot)
 	{
 		if (kSelectedUnit.canReachBySeaPatrol(*itPlot))
 		{
-			gDLL->getEngineIFace()->fillAreaBorderPlot(itPlot->getX(), itPlot->getY(),
-					GC.getInfo((ColorTypes)GC.getInfoTypeForString("COLOR_CITY_BLUE")).
-					getColor(), AREA_BORDER_LAYER_PATROLLED);
+			gDLL->getEngineIFace()->fillAreaBorderPlot(itPlot->getX(), itPlot->getY(), GC.getInfo(eColorCityBlue).getColor(), AREA_BORDER_LAYER_PATROLLED);
 		}
 	}
 }
@@ -2321,7 +2499,7 @@ void CvGame::cheatSpaceship() const
 			//cheat required techs
 			TechTypes eRequiredTech = kProject.getTechPrereq();
 			if (!kTeam.isHasTech(eRequiredTech))
-				kTeam.setHasTech(eRequiredTech, true, getActivePlayer(), true, true);
+				kTeam.setHasTech(eRequiredTech, true, getActivePlayer(), true, true, false, TECH_ACQUISITION_DEBUG);
 
 			//cheat one space component
 			if (kTeam.getProjectCount(eProject) < kProject.getMaxTeamInstances())
@@ -2436,7 +2614,11 @@ int CvGame::getNextSoundtrack(EraTypes eLastEra, int iLastSoundtrack) const
 	if (kCurrentEra.getNumSoundtracks() == 1 ||
 		(eLastEra != eCurEra && kCurrentEra.isFirstSoundtrackFirst()))
 	{
-		return kCurrentEra.getSoundtracks(0);
+		int const iSelectedSoundtrack = kCurrentEra.getSoundtracks(0);
+		// <!-- custom: Record the existing EXE-facing soundtrack return after selection; this is selection evidence, not proof that the audio engine started playback.
+		// Reuse the chosen ID/script so diagnostics make no extra async RNG draw. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2) logSASGameRecordSoundtrackSelection(eCurEra, eLastEra, 0, iSelectedSoundtrack, iLastSoundtrack, kCurrentEra.getSoundtrackScriptName(0), kCurrentEra.getNumSoundtracks() == 1 ? "ONLY_TRACK" : "FIRST_OF_ERA");
+		return iSelectedSoundtrack;
 	}
 	//return kCurrentEra.getSoundtracks(GC.getASyncRand().get(kCurrentEra.getNumSoundtracks(), "Pick Song ASYNC"));
 	/*	<advc.002o> Perhaps was meant to be implemented this way? Why else handle
@@ -2448,10 +2630,34 @@ int CvGame::getNextSoundtrack(EraTypes eLastEra, int iLastSoundtrack) const
 		if (iTrack != iLastSoundtrack)
 			aiTracks.push_back(iTrack);
 	}
-	if (aiTracks.empty())
+	bool const bNoAlternativeResolvedId = aiTracks.empty();
+	if (bNoAlternativeResolvedId)
 		aiTracks.push_back(iLastSoundtrack);
-	return aiTracks[GC.getASyncRand().get(
-			aiTracks.size(), "Pick Song ASYNC")]; // </advc.002o>
+	int const iSelectedChoice = GC.getASyncRand().get(aiTracks.size(), "Pick Song ASYNC");
+	int const iSelectedSoundtrack = aiTracks[iSelectedChoice]; // </advc.002o>
+	if (gGameRecordLogLevel >= 2)
+	{
+		int iSelectedIndex = -1;
+		if (!bNoAlternativeResolvedId)
+		{
+			int iEligibleIndex = 0;
+			for (int i = 0; i < kCurrentEra.getNumSoundtracks(); i++)
+			{
+				if (kCurrentEra.getSoundtracks(i) == iLastSoundtrack)
+					continue;
+				if (iEligibleIndex == iSelectedChoice)
+				{
+					iSelectedIndex = i;
+					break;
+				}
+				iEligibleIndex++;
+			}
+		}
+		// <!-- custom: The fallback returns the previous resolved ID without selecting an XML slot, so leave its slot and script unknown. (GPT-6.1-Sol) -->
+		logSASGameRecordSoundtrackSelection(eCurEra, eLastEra, iSelectedIndex, iSelectedSoundtrack, iLastSoundtrack,
+			iSelectedIndex < 0 ? NULL : kCurrentEra.getSoundtrackScriptName(iSelectedIndex), bNoAlternativeResolvedId ? "REPEAT_ONLY_RESOLVED_ID" : "RANDOM_EXCLUDING_PREVIOUS");
+	}
+	return iSelectedSoundtrack;
 }
 
 
@@ -2464,16 +2670,22 @@ int CvGame::getSoundtrackSpace() const
 
 bool CvGame::isSoundtrackOverride(CvString& strSoundtrack) const
 {
-	if (GC.getDefineINT("VICTORY_SOUNDTRACK_AVAILABLE") != 0)
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const bool bVICTORY_SOUNDTRACK_AVAILABLE = (GC.getDefineINT("VICTORY_SOUNDTRACK_AVAILABLE") != 0);
+
+	if (bVICTORY_SOUNDTRACK_AVAILABLE)
 	{
 		if (getGameState() == GAMESTATE_EXTENDED || getGameState() == GAMESTATE_OVER)
 		{
-			if (getWinner() == getActiveTeam())
-				strSoundtrack = "AS2D_VICTORY";
-			else strSoundtrack = "AS2D_DEFEAT";
+			bool const bVictory = (getWinner() == getActiveTeam());
+			strSoundtrack = bVictory ? "AS2D_VICTORY" : "AS2D_DEFEAT";
+			// <!-- custom: Victory/defeat state can persist while the EXE queries this override repeatedly.
+			// Record only a new/changed override return so a polling detail cannot flood the game record. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			if (gGameRecordLogLevel >= 2) updateSASGameRecordSoundtrackOverride(true, strSoundtrack.GetCString(), bVictory ? "VICTORY" : "DEFEAT");
 			return true;
 		}
 	}
+	if (gGameRecordLogLevel >= 2) updateSASGameRecordSoundtrackOverride(false, NULL, NULL);
 	return false;
 }
 
@@ -2707,8 +2919,7 @@ void CvGame::setCityBarWidth(bool bWide)
 }
 
 
-void CvGame::handleCityScreenPlotPicked(CvCity* pCity, CvPlot* pPlot,
-	bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::handleCityScreenPlotPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const
 {
 	if (pCity == NULL || pPlot == NULL)
 	{
@@ -2728,8 +2939,7 @@ void CvGame::handleCityScreenPlotPicked(CvCity* pCity, CvPlot* pPlot,
 }
 
 
-void CvGame::handleCityScreenPlotDoublePicked(CvCity* pCity, CvPlot* pPlot,
-	bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::handleCityScreenPlotDoublePicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const
 {
 	if (pCity != NULL && pCity->plot() == pPlot)
 	{
@@ -2742,8 +2952,7 @@ void CvGame::handleCityScreenPlotDoublePicked(CvCity* pCity, CvPlot* pPlot,
 }
 
 
-void CvGame::handleCityScreenPlotRightPicked(CvCity* pCity, CvPlot* pPlot,
-	bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::handleCityScreenPlotRightPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const
 {
 	if (pCity == NULL || pPlot == NULL)
 	{
@@ -2772,8 +2981,7 @@ void CvGame::handleCityScreenPlotRightPicked(CvCity* pCity, CvPlot* pPlot,
 }
 
 
-void CvGame::handleCityPlotRightPicked(CvCity* pCity, CvPlot* pPlot,
-	bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::handleCityPlotRightPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const
 {
 	if (pPlot == NULL)
 		return;
@@ -2875,6 +3083,13 @@ int CvGame::getScreenHeight() const
 // advc.004n:
 void CvGame::onCityScreenChange()
 {
+	// <!-- custom: The EXE state-change detector above is the authoritative city-screen transition point; record it here so unexpected autoplay/UI entries can be reconstructed without Python polling. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled() && isFinalInitialized())
+	{
+		CvCity const* pSASCity = gDLL->UI().getHeadSelectedCity();
+		logSASGameRecordScreenAction("CITY_SCREEN", (m_bCityScreenUp ? "SHOW" : "HIDE"),
+			(pSASCity == NULL ? -1 : pSASCity->getOwner()), (pSASCity == NULL ? -1 : pSASCity->getID()));
+	}
 	changePlotListShift(-getPlotListShift());
 	/*	To fix a BtS issue with the bottom rows of the plot list
 		being empty after having shifted the plot list on the city screen.
@@ -2885,6 +3100,8 @@ void CvGame::onCityScreenChange()
 		map excerpt on the city screen better. */
 	if (m_bCityScreenUp)
 	{
+		static float const fSASCityScreenCameraNorthBias = GC.getDefineINT("SAS_CITY_CAMERA_NORTH_BIAS_PCT") / 100.0f;
+		static float const fSASCityScreenCameraNorthBiasHUDBonus = GC.getDefineINT("SAS_CITY_CAMERA_NORTH_BIAS_HUD_BONUS_PCT") / 100.0f;
 		CvPlot const* pCityPlot = gDLL->UI().getSelectionPlot();
 		if (pCityPlot != NULL)
 		{
@@ -2894,9 +3111,10 @@ void CvGame::onCityScreenChange()
 			{
 				NiPoint3 nOneNorth = pOneNorth->getPoint();
 				NiPoint3 nCity = pCityPlot->getPoint();
-				float const fDisplWeight = 0.23f +
+				// <!-- custom: keep city-screen camera north shift tunable via SAS defines so city UI can reclaim bottom room (e.g. multi-row city panels) without showing tiles beyond BFC. (GPT-5.3-Codex) -->
+				float const fDisplWeight = fSASCityScreenCameraNorthBias +
 						(BUGOption::isEnabled("MainInterface__EnlargeHUD", true) ?
-						0.03f : 0);
+						fSASCityScreenCameraNorthBiasHUDBonus : 0);
 				NiPoint3 nLookAt(nCity.x,
 						nCity.y + fDisplWeight * (nOneNorth.y - nCity.y), nCity.z);
 				gDLL->UI().lookAt(nLookAt, CAMERALOOKAT_CITY_ZOOM_IN);

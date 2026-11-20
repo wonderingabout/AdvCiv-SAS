@@ -1,0 +1,142 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 138
+# Author: iustus
+# Date: 2006-12-01T09:56:20.493498Z
+# Coverage: full
+# Message:
+#   governor tweaks:
+#    - if in slavery, should always grow one over the happy cap
+#    - will fill bar to 85% before stagnating (although will slow down if there are better tiles)
+#    - AIs will only starve to 80% intentionally (rather than 50%)
+#    - unless doing so will cause a city to grow when it is not desirable, higher food tiles should be preferred over lower food tiles
+#   really fixed can pop rush cache on load from save
+#   
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@137
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@138
+@@ -304,6 +304,13 @@
+ 		{
+ 			iHappinessLevel += ((GC.getDefineINT("NO_MILITARY_PERCENT_ANGER") * (getPopulation() + 1)) / GC.getDefineINT("PERCENT_ANGER_DIVISOR"));
+ 		}
++		
++		// if we can pop rush, we want to grow one over the cap
++		if (GET_PLAYER(getOwnerINLINE()).canPopRush())
++		{
++			iHappinessLevel++;
++		}
++
+ 		
+ 		// if we have angry citizens
+ 		if (iHappinessLevel < 0)
+@@ -4760,7 +4767,7 @@
+ 		int iStarvingAllowance = 0;
+ 		if (bAvoidGrowth && !isHuman())
+ 		{
+-			iStarvingAllowance = max(0, (iFoodLevel - max(1, (iFoodToGrow / 2))));
++			iStarvingAllowance = max(0, (iFoodLevel - max(1, ((9 * iFoodToGrow) / 10))));
+ 		}
+ 		
+ 		// if still starving
+@@ -4801,6 +4808,7 @@
+ 				if (!bIgnoreGrowth && !bEmphasizeFood)
+ 				{
+ 					int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
++					bool bCanPopRush = GET_PLAYER(getOwnerINLINE()).canPopRush();
+ 					// also avail: iFoodLevel, iFoodToGrow
+ 					
+ 					// adjust iFoodPerTurn assuming that we plots all equal to iConsumtionPerPop
+@@ -4818,7 +4826,7 @@
+ 						}
+ 
+ 						// if we can pop rush, let us grow one over the limit
+-						if (GET_PLAYER(getOwnerINLINE()).canPopRush())
++						if (bCanPopRush)
+ 						{
+ 							iHappinessLevel++;
+ 						}
+@@ -4858,6 +4866,26 @@
+ 
+ 					int iPopToGrow = max(0, iHappinessLevel);
+ 
++					// if we do not have unhappy, fill food bar to 85%
++					bool bFillingBar = false;
++					if (iHappinessLevel == 0)
++					{
++						if (iFoodLevel + iFoodPerTurn + aiYields[YIELD_FOOD] < 	((85 * iFoodToGrow) / 100))
++						{
++							iPopToGrow = 1;
++							bFillingBar = true;
++						}
++					}
++					
++					// if we will push into growth we do not want (and we cannot pop rush), devalue our food
++					if (iPopToGrow <= 0 && !bCanPopRush)
++					{
++						if (iFoodLevel + iFoodPerTurn + aiYields[YIELD_FOOD] >= iFoodToGrow)
++						{
++							iValue -= (aiYields[YIELD_FOOD] * 4);
++						}
++					}
++
+ 					// if we want to grow
+ 					if (iPopToGrow > 0)
+ 					{
+@@ -4868,12 +4896,12 @@
+ 						int iTempValue = aiYields[YIELD_FOOD] * 3;
+ 						
+ 						// (range 1-25) - we want to grow more if we have a lot of growth to do
+-						// factor goes up like this: 0:1, 1:6, 2:7, 3:8, 4:11, 5:13, 6:14, 7:15, 8:16, 9:17, ... 17:25
++						// factor goes up like this: 0:1, 1:8, 2:9, 3:10, 4:11, 5:13, 6:14, 7:15, 8:16, 9:17, ... 17:25
+ 						int iFactorPopToGrow;
+-						if (iPopToGrow < 1)
++						if (iPopToGrow < 1 || bFillingBar)
+ 							iFactorPopToGrow = 1;
+ 						else if (iPopToGrow < 4)
+-							iFactorPopToGrow = 5 + iPopToGrow;
++							iFactorPopToGrow = 7 + iPopToGrow;
+ 						else if (iPopToGrow < 6)
+ 							iFactorPopToGrow = 3 + (2 * iPopToGrow);
+ 						else if (iPopToGrow < 17)
+@@ -4904,18 +4932,17 @@
+ 						iTempValue *= iFactorFastRate;
+ 						iTempValue /= 100;
+ 						
+-						// (range 4-7ish)[7ish = iConsumtionPerPop+5] - yields less than 3 will not help us grow much
+-						//												use the minimum (2) if we do not have at least 2 to grow
+-						int iFactorLowYield = 4 + ((iPopToGrow > 1) ? (min((iConsumtionPerPop+1), max(0, aiYields[YIELD_FOOD]))) : 0);
+-						iTempValue *= iFactorLowYield * 5;
+-						iTempValue /= (iConsumtionPerPop + 3); // if (iConsumtionPerPop == 2), this cancels out with the 5 above
++						// (range 4-16)[under normal conditions, 12 will be the highest]
++						int iFactorHighYield = 4 + (2 * min(iConsumtionPerPop * 3, max(0, aiYields[YIELD_FOOD] - iConsumtionPerPop)));
++						iTempValue *= iFactorHighYield * 16;
++						iTempValue /= (4 + (iConsumtionPerPop * 6)); // if (iConsumtionPerPop == 2), this cancels out with the 16 above
+ 
+ 						// (range 76-100) - exclusively growing is less important in big cities
+ 						int	iFactorPopulation = 75 + max(0, 25 - max(0, iPopulation - 10));
+ 						iTempValue *= iFactorPopulation;
+ 						iTempValue /= 500;
+ 
+-						// (range 0-69) * yield
++						// (range 0-158) * yield
+ 						iValue += iTempValue;
+ 					}
+ 				}
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@137
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@138
+@@ -12005,7 +12005,7 @@
+ 	m_iPopRushHurryCount = 0;
+ 	for (iI = 0; iI < GC.getNumHurryInfos(); iI++)
+ 	{
+-		if (GC.getHurryInfo((HurryTypes)iI).getProductionPerPopulation() > 0)
++		if (GC.getHurryInfo((HurryTypes)iI).getProductionPerPopulation() > 0 && getHurryCount((HurryTypes)iI) > 0)
+ 		{
+ 			m_iPopRushHurryCount++;
+ 		}
+

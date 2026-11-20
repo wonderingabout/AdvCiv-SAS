@@ -1,0 +1,112 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 58
+# Author: blakeciv
+# Date: 2006-11-11T02:59:25.226325Z
+# Coverage: full
+# Message:
+#   Added cultural victory function
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.h
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@57
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@58
+@@ -8757,6 +8757,82 @@
+ }
+ 
+ 
++int CvPlayerAI::AI_getCultureVictoryStage()
++{
++    int iI;
++    VictoryTypes eVictory;
++    VictoryTypes eCultureVictory;
++    int iValue;
++
++    for (iI = 0; iI < GC.getNumVictoryInfos(); iI++)
++    {
++
++        eVictory = (VictoryTypes)iI;
++        if (GC.getGame().isVictoryValid(eVictory))
++        {
++            if (GC.getVictoryInfo(eVictory).getCityCulture() > 0)
++            {
++                eCultureVictory = eVictory;
++                break;
++            }
++        }
++    }
++
++    if (eCultureVictory == NO_VICTORY)
++    {
++        return 0;
++    }
++
++    if (getCapitalCity() == NULL)
++    {
++        return 0;
++    }
++
++    if (getCapitalCity()->getGameTurnFounded() > (10 + GC.getGameINLINE().getStartTurn()))
++    {
++        //the loss of the capital indicates it might be a good idea to abort any culture victory
++        return 0;
++    }
++
++    iValue = 0;
++
++    for (int iI = 0; iI < GC.getNumTraitInfos(); iI++)
++    {
++        if (hasTrait((TraitTypes)iI))
++        {
++            iValue += ((GC.getTraitInfo((TraitTypes)iI).getMaxAnarchy() == 0) ? 4 : 0);
++            iValue += (GC.getTraitInfo((TraitTypes)iI).getCommerceChange(COMMERCE_CULTURE) * 2);
++            iValue += (GC.getTraitInfo((TraitTypes)iI).getCommerceModifier(COMMERCE_CULTURE) / 10);
++            iValue += (GC.getTraitInfo((TraitTypes)iI).getGreatPeopleRateModifier() / 30);
++            iValue += ((GC.getTraitInfo((TraitTypes)iI).getTradeYieldModifier(YIELD_COMMERCE) * 4) / max(1, (1 + (GC.getTraitInfo((TraitTypes)iI).getExtraYieldThreshold(YIELD_COMMERCE)))));
++        }
++    }
++
++    //atleast I'm honest
++    int iNonsense = 0;
++    iNonsense += getCapitalCity()->getX();
++    iNonsense += getCapitalCity()->getY();
++
++    iValue += (iNonsense % 7);
++
++    if (iValue < 10)
++    {
++        return 0;
++    }
++
++	if (getCurrentEra() > ((GC.getNumEraInfos() / 2) + iNonsense % 2))
++	{
++	    return 2;
++	}
++	else
++	{
++        return 1;
++	}
++}
++
++
++
++
+ //
+ // read object from a stream
+ // used during load
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.h
+--- /trunk/CvGameCoreDLL/CvPlayerAI.h@57
++++ /trunk/CvGameCoreDLL/CvPlayerAI.h@58
+@@ -221,6 +221,8 @@
+ 
+ 	void AI_doCommerce();
+ 
++	int AI_getCultureVictoryStage();
++
+ 	// for serialization
+   virtual void read(FDataStreamBase* pStream);
+   virtual void write(FDataStreamBase* pStream);
+

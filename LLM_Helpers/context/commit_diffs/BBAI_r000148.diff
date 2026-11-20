@@ -1,0 +1,629 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 148
+# Author: blakeciv
+# Date: 2006-12-06T04:36:07.297653Z
+# Coverage: full
+# Message:
+#   The Big Start Point Adjustment Commit.
+#   This should greatly improve start point sanity. Changes are in CvPlayerAI (to AI_FoundValue) and CvGame (to the normalizers) and in CvMap (adjusting the minimum distance calculation).
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvMap.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@147
++++ /trunk/CvGameCoreDLL/CvGame.cpp@148
+@@ -1119,7 +1119,48 @@
+ 					}
+ 				}
+ 			}
+-		}
++			
++			int iX, iY;
++            int iCityRange = CITY_PLOTS_RADIUS;
++            int iExtraRange = 2;
++            int iMaxRange = iCityRange + iExtraRange;
++			
++            for (iX = -iMaxRange; iX <= iMaxRange; iX++)
++            {
++                for (iY = -iMaxRange; iY <= iMaxRange; iY++)
++                {
++                    pLoopPlot = plotXY(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), iX, iY);
++                    if (pLoopPlot != NULL)
++                    {
++                        int iDistance = plotDistance(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());			
++                        if (iDistance <= iMaxRange)
++                        {
++                            if (pLoopPlot->getFeatureType() != NO_FEATURE)
++                            {
++                                if ((GC.getFeatureInfo(pLoopPlot->getFeatureType()).getYieldChange(YIELD_FOOD) <= 0) &&
++                                    (GC.getFeatureInfo(pLoopPlot->getFeatureType()).getYieldChange(YIELD_PRODUCTION) <= 0))
++                                {
++                                    if (pLoopPlot->isWater())
++                                    {
++                                        if (pLoopPlot->isAdjacentToLand() || (!(iDistance == iMaxRange) && (getSorenRandNum(2, "Remove Bad Feature") == 0)))
++                                        {
++                                            pLoopPlot->setFeatureType(NO_FEATURE);
++                                        }
++                                    }
++                                    else
++                                    {
++                                        if (!(iDistance == iMaxRange) && (getSorenRandNum((2 + (pLoopPlot->getBonusType() == NO_BONUS) ? 0 : 2), "Remove Bad Feature") == 0))
++                                        {
++                                            pLoopPlot->setFeatureType(NO_FEATURE);                                            
++                                        }
++                                    }
++                                }
++                            }
++                        }
++                    }
++                }
++            }
++        }
+ 	}
+ }
+ 
+@@ -1128,7 +1169,18 @@
+ {
+ 	CvPlot* pStartingPlot;
+ 	CvPlot* pLoopPlot;
+-	int iI, iJ, iK;
++	int iI, iK;
++	int iX, iY;
++	
++	int iTargetFood;
++	int iTargetTotal;
++	int iPlotFood;
++	int iPlotProduction;
++	
++	
++	int iCityRange = CITY_PLOTS_RADIUS;
++	int iExtraRange = 1;
++	int iMaxRange = iCityRange + iExtraRange;
+ 
+ 	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+@@ -1138,32 +1190,82 @@
+ 
+ 			if (pStartingPlot != NULL)
+ 			{
+-				for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+-				{
+-					pLoopPlot = plotCity(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), iJ);
+-
+-					if (pLoopPlot != NULL)
+-					{
+-						if (!(pLoopPlot->isWater()))
+-						{
+-							if ((GC.getTerrainInfo(pLoopPlot->getTerrainType()).getYield(YIELD_FOOD) + GC.getTerrainInfo(pLoopPlot->getTerrainType()).getYield(YIELD_PRODUCTION)) <= 1)
+-							{
+-								for (iK = 0; iK < GC.getNumTerrainInfos(); iK++)
+-								{
+-									if (!(GC.getTerrainInfo((TerrainTypes)iK).isWater()))
+-									{
+-										if ((GC.getTerrainInfo((TerrainTypes)iK).getYield(YIELD_FOOD) + GC.getTerrainInfo((TerrainTypes)iK).getYield(YIELD_PRODUCTION)) > 1)
+-										{
+-											if ((pLoopPlot->getFeatureType() == NO_FEATURE) || GC.getFeatureInfo(pLoopPlot->getFeatureType()).isTerrain(iK))
+-											{
+-												pLoopPlot->setTerrainType((TerrainTypes)iK);
+-											}
+-										}
+-									}
+-								}
+-							}
+-						}
+-					}
++			    for (iX = -iMaxRange; iX <= iMaxRange; iX++)
++			    {
++			        for (iY = -iMaxRange; iY <= iMaxRange; iY++)
++			        {
++			            pLoopPlot = plotXY(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), iX, iY);
++                        if (pLoopPlot != NULL)
++                        {
++                            int iDistance = plotDistance(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
++                            if (iDistance <= iMaxRange)
++                            {
++                                if (!(pLoopPlot->isWater()) && ((iDistance <= iCityRange) || (pLoopPlot->isCoastalLand()) || (0 == getSorenRandNum(1 + iDistance - iCityRange, "Map Upgrade Terrain Food"))))
++                                {
++                                    iPlotFood = GC.getTerrainInfo(pLoopPlot->getTerrainType()).getYield(YIELD_FOOD);
++                                    iPlotProduction = GC.getTerrainInfo(pLoopPlot->getTerrainType()).getYield(YIELD_PRODUCTION);
++                                    if ((iPlotFood + iPlotProduction) <= 1)
++                                    {
++                                        iTargetFood = 1;
++                                        iTargetTotal = 1;
++                                        if ((iPlotFood == 1) || (iDistance <= iCityRange))
++                                        {
++                                            iTargetFood = 1 + getSorenRandNum(2, "Map Upgrade Terrain Food");
++                                            iTargetTotal = 2;
++                                        }
++                                        else
++                                        {
++                                            iTargetFood = pLoopPlot->isCoastalLand() ? 2 : 1;
++                                            iTargetTotal = 2;
++                                        }
++                                        
++                                        for (iK = 0; iK < GC.getNumTerrainInfos(); iK++)
++                                        {
++                                            if (!(GC.getTerrainInfo((TerrainTypes)iK).isWater()))
++                                            {
++                                                if ((GC.getTerrainInfo((TerrainTypes)iK).getYield(YIELD_FOOD) >= iTargetFood) && 
++                                                    (GC.getTerrainInfo((TerrainTypes)iK).getYield(YIELD_FOOD) + GC.getTerrainInfo((TerrainTypes)iK).getYield(YIELD_PRODUCTION)) == iTargetTotal)
++                                                {
++                                                    if ((pLoopPlot->getFeatureType() == NO_FEATURE) || GC.getFeatureInfo(pLoopPlot->getFeatureType()).isTerrain(iK))
++                                                    {
++                                                        pLoopPlot->setTerrainType((TerrainTypes)iK);
++                                                    }
++                                                }
++                                            }
++                                        }
++                                    }
++                                }
++                            }
++  
++			            }
++			        }
++
++//				for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
++//				{
++//					pLoopPlot = plotCity(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), iJ);
++//
++//					if (pLoopPlot != NULL)
++//					{
++//						if (!(pLoopPlot->isWater()))
++//						{
++//							if ((GC.getTerrainInfo(pLoopPlot->getTerrainType()).getYield(YIELD_FOOD) + GC.getTerrainInfo(pLoopPlot->getTerrainType()).getYield(YIELD_PRODUCTION)) <= 1)
++//							{
++//								for (iK = 0; iK < GC.getNumTerrainInfos(); iK++)
++//								{
++//									if (!(GC.getTerrainInfo((TerrainTypes)iK).isWater()))
++//									{
++//										if ((GC.getTerrainInfo((TerrainTypes)iK).getYield(YIELD_FOOD) + GC.getTerrainInfo((TerrainTypes)iK).getYield(YIELD_PRODUCTION)) > 1)
++//										{
++//											if ((pLoopPlot->getFeatureType() == NO_FEATURE) || GC.getFeatureInfo(pLoopPlot->getFeatureType()).isTerrain(iK))
++//											{
++//												pLoopPlot->setTerrainType((TerrainTypes)iK);
++//											}
++//										}
++//									}
++//								}
++//							}
++//						}
++//					}
+ 				}
+ 			}
+ 		}
+@@ -1209,7 +1311,7 @@
+ 								{
+ 									if (pLoopPlot->isWater())
+ 									{
+-										iFoodBonus++;
++										iFoodBonus ++;
+ 									}
+ 									else
+ 									{
+@@ -1251,7 +1353,7 @@
+ 														pLoopPlot->setBonusType((BonusTypes)iK);
+ 														if (pLoopPlot->isWater())
+ 														{
+-															iFoodBonus++;
++															iFoodBonus ++;
+ 														}
+ 														else
+ 														{
+@@ -1385,16 +1487,26 @@
+ 	CvPlot* pLoopPlot;
+ 	bool bIgnoreLatitude;
+ 	int iValue;
+-	int iMaxValue;
++	int iTotalValue;
++	int iBestValue;
++	int iWorstValue;
+ 	int iTargetValue;
+ 	int iCount;
+ 	int iPass;
++	int iPlayerCount;
+ 	int iI, iJ, iK;
++	
++	int iOceanFoodCount;
++	int iCoastFoodCount;
++	bool bLandBias;
+ 
+ 	bIgnoreLatitude = false;
+ 	gDLL->getPythonIFace()->pythonIsBonusIgnoreLatitudes(&bIgnoreLatitude);
+ 
+-	iMaxValue = 0;
++	iTotalValue = 0;
++	iPlayerCount = 0;
++	iBestValue = 0;
++	iWorstValue = MAX_INT;
+ 
+ 	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+@@ -1405,13 +1517,19 @@
+ 			if (pStartingPlot != NULL)
+ 			{
+ 				iValue = GET_PLAYER((PlayerTypes)iI).AI_foundValue(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), -1, true);
+-
+-				iMaxValue = max(iMaxValue, iValue);
+-			}
+-		}
+-	}
+-
+-	iTargetValue = ((iMaxValue * 4) / 5);
++				iTotalValue++;
++                iPlayerCount++;
++                
++                iBestValue = max(iValue, iBestValue);
++                iWorstValue = min(iValue, iWorstValue);
++                
++			}
++		}
++	}
++
++	iTargetValue = (((iTotalValue + (iBestValue - iWorstValue)) * 3) / iPlayerCount);
++	iTargetValue += iBestValue;
++	iTargetValue /= 5; //somewhere around 3/5th of bestvalue...
+ 
+ 	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+@@ -1422,7 +1540,8 @@
+ 
+ 			if (pStartingPlot != NULL)
+ 			{
+-				iCount = 0;
++			    
++                iCount = 0;
+ 
+ 				for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+ 				{
+@@ -1461,23 +1580,59 @@
+ 						}
+ 					}
+ 				}
+-
+-				iCount = 0;
+-
++				
++				iCoastFoodCount = 0;
++				iOceanFoodCount = 0;
++				int iWaterCount = 0;
+ 				for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+ 				{
+-					if (GET_PLAYER((PlayerTypes)iI).AI_foundValue(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), -1, true) >= iTargetValue)
+-					{
+-						break;
+-					}
+-
+-					if (getSorenRandNum(((iCount * 4) + 1), "Placing Bonuses") == 0)
+-					{
+-						pLoopPlot = plotCity(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), iJ);
+-
+-						if (pLoopPlot != NULL)
+-						{
+-							if (pLoopPlot != pStartingPlot)
++                    if (pLoopPlot != NULL)
++                    {
++                        if (pLoopPlot != pStartingPlot)
++                        {
++                            iWaterCount++;
++                            if (pLoopPlot->isWater())
++                            {
++                                if (pLoopPlot->getBonusType() != NO_BONUS)
++                                {
++                                    if (pLoopPlot->isAdjacentToLand())
++                                    {
++                                        iCoastFoodCount++;
++                                    }
++                                    else
++                                    {
++                                        iOceanFoodCount++;                                        
++                                    }
++                                }
++                            }
++                        }
++                    }
++				}
++				if (iWaterCount > NUM_CITY_PLOTS / 2)
++				{
++				    bLandBias = true;
++				}
++
++                iCount = 0;
++
++				for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
++				{
++				    pLoopPlot = plotCity(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), iJ);
++
++                    if (pLoopPlot != NULL)
++                    {
++                        if (getSorenRandNum((((iCount * 3) + 1) * ((bLandBias && pLoopPlot->isWater()) ? 2 : 1)), "Placing Bonuses") == 0)
++                        {
++                            if (GET_PLAYER((PlayerTypes)iI).AI_foundValue(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), -1, true) >= iTargetValue)
++                            {
++                                break;
++                            }
++
++						    bool bCoast = (pLoopPlot->isWater() && pLoopPlot->isAdjacentToLand());
++						    bool bOcean = (pLoopPlot->isWater() && !bCoast);
++							if ((pLoopPlot != pStartingPlot)
++                                && !(bCoast && (iCoastFoodCount > 2))
++                                && !(bOcean && (iOceanFoodCount > 2)))
+ 							{
+ 								for (iPass = 0; iPass < 2; iPass++)
+ 								{
+@@ -1498,6 +1653,8 @@
+ 															{
+ 																pLoopPlot->setBonusType((BonusTypes)iK);
+ 																iCount++;
++																iCoastFoodCount += bCoast ? 1 : 0;
++																iOceanFoodCount += bOcean ? 1 : 0;
+ 																break;
+ 															}
+ 														}
+
+Index: /trunk/CvGameCoreDLL/CvMap.cpp
+--- /trunk/CvGameCoreDLL/CvMap.cpp@147
++++ /trunk/CvGameCoreDLL/CvMap.cpp@148
+@@ -462,6 +462,8 @@
+ 
+ 						if (iDist != -1)
+ 						{
++						    int iCrowDistance = plotDistance(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
++						    iDist = min(iDist,  iCrowDistance * 2);
+ 							if ((pLoopPlot->getMinOriginalStartDist() == -1) || (iDist < pLoopPlot->getMinOriginalStartDist()))
+ 							{
+ 								pLoopPlot->setMinOriginalStartDist(iDist);
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@147
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@148
+@@ -1344,6 +1344,7 @@
+ 	int iSpecialCommerce = 0;
+ 
+ 	int iGreed;
++	int iNumAreaCities;
+ 
+ 	int * paiBonusCount;
+ 
+@@ -1355,6 +1356,7 @@
+ 	pPlot = GC.getMapINLINE().plotINLINE(iX, iY);
+ 	pArea = pPlot->area();
+ 	bIsCoastal = pPlot->isCoastalLand(GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN"));
++	iNumAreaCities = pArea->getCitiesPerPlayer(getID());
+ 
+     paiBonusCount = new int[GC.getNumBonusInfos()];
+ 
+@@ -1571,9 +1573,9 @@
+                 iCultureMultiplier = min(100, iCultureMultiplier);
+             }
+             
+-            if (iCultureMultiplier < 25)
++            if (iCultureMultiplier < ((iNumAreaCities > 0) ? 25 : 50))
+             {
+-                iTakenTiles++;
++                iTakenTiles += (iNumAreaCities > 0) ? 1 : 2;
+             }
+ 
+ 			if (eBonus != NO_BONUS)
+@@ -1644,12 +1646,19 @@
+ 				iTempValue += aiYield[YIELD_PRODUCTION] * 15;
+ 				iTempValue += aiYield[YIELD_COMMERCE] * 10;
+ 			}
+-
+-			if (bIsCoastal && pLoopPlot->isWater() && aiYield[YIELD_COMMERCE] > 1)
+-			{
+-				iTempValue += 40;
+-			}
+-
++			
++            if (pLoopPlot->isWater())
++            {
++                if (aiYield[YIELD_COMMERCE] > 1)
++                {
++                    iTempValue += bIsCoastal ? 30 : -20;
++                    if (bStartingLoc)
++                    {
++                        iTempValue += bIsCoastal ? 0 : -400;
++                    }
++                }                
++            }
++            
+ 			if (pLoopPlot->isRiver())
+ 			{
+ 				iTempValue += 10;
+@@ -1750,6 +1759,10 @@
+     iResourceValue += iSpecialFood * 50;
+     iResourceValue += iSpecialProduction * 50;
+     iResourceValue += iSpecialCommerce * 50;
++    if (bStartingLoc)
++    {
++        iResourceValue /= 2;
++    }
+ 
+ 	iValue += max(0, iResourceValue);
+ 
+@@ -1767,7 +1780,7 @@
+ 
+ 	if (bIsCoastal)
+ 	{
+-		iValue += 300;
++		iValue += 400;
+ 
+ 		if (!bStartingLoc)
+ 		{
+@@ -1775,8 +1788,11 @@
+ 			{
+ 				iValue += 400;
+ 			}
+-
+-			iValue += 200;
++		}
++		else
++		{
++		    //let other penalties bring this down.
++		    iValue += 1000;
+ 		}
+ 	}
+ 
+@@ -1801,6 +1817,7 @@
+ 		PROFILE("CvPlayerAI::AI_foundValue() 5");
+ 
+ 		iRange = GREATER_FOUND_RANGE;
++		int iGreaterBadTile = 0;
+ 
+ 		for (iDX = -(iRange); iDX <= iRange; iDX++)
+ 		{
+@@ -1814,14 +1831,64 @@
+ 					{
+ 						if (plotDistance(iX, iY, pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()) <= iRange)
+ 						{
+-							iValue += (pLoopPlot->getYield(YIELD_FOOD) * 10);
+-							iValue += (pLoopPlot->getYield(YIELD_PRODUCTION) * 10);
+-							iValue += (pLoopPlot->getYield(YIELD_COMMERCE) * 5);
++						    iTempValue = 0;
++							iTempValue += (pLoopPlot->getYield(YIELD_FOOD) * 15);
++							iTempValue += (pLoopPlot->getYield(YIELD_PRODUCTION) * 10);
++							iTempValue += (pLoopPlot->getYield(YIELD_COMMERCE) * 5);
++							iValue += iTempValue;
++							if (iTempValue < 20)
++							{
++							    if (eFeature == NO_FEATURE)
++							    {
++							        iGreaterBadTile += 2;
++							    }
++							    else 
++							    {
++							        if (pLoopPlot->calculateBestNatureYield((YIELD_FOOD), getTeam()) > 1)
++							        {
++							            iGreaterBadTile++;							            
++							        }
++							    }
++							}
+ 						}
+ 					}
+ 				}
+ 			}
+ 		}
++		iGreaterBadTile /= 2;
++		if (iGreaterBadTile > 8)
++		{
++		    iValue *= 9;
++		    iValue /= iGreaterBadTile;
++		}
++		
++		int iWaterCount = 0;
++		
++		for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++		{
++		    pLoopPlot = plotCity(iX, iY, iI);
++            
++            if (pLoopPlot != NULL)
++		    {
++		        if (pLoopPlot->isWater())
++		        {
++		            iWaterCount++;
++		            if (pLoopPlot->getYield(YIELD_FOOD) <= 1)
++		            {
++		                iWaterCount++;
++		            }
++		        }		        
++		    }
++		}
++		iWaterCount /= 2;
++		
++		int iLandCount = (NUM_CITY_PLOTS - iWaterCount);
++		
++		if (iLandCount < 12)
++		{
++		    iValue *= 1 + iLandCount;
++		    iValue /= 13;
++		}
+ 	}
+ 
+ 	if (bStartingLoc)
+@@ -1834,6 +1901,32 @@
+ 		{
+ 			iValue += (pPlot->getMinOriginalStartDist() * 100);
+ 		}
++		
++		//nice hacky way to avoid this messing with normalizer
++		if (!pPlot->isStartingPlot())
++		{
++		    int iTotalDist = 0;
++		    int iTotalCount = 0;
++            for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++            {
++                if (GET_PLAYER((PlayerTypes)iI).isAlive())
++                {
++                    CvPlot* pStartingPlot = GET_PLAYER((PlayerTypes)iI).getStartingPlot();
++
++                    if (pStartingPlot != NULL)
++                    {		
++                        if (pStartingPlot->area() == pPlot->area())
++                        {
++                            iTotalDist += plotDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pStartingPlot->getX_INLINE(), pStartingPlot->getX_INLINE());                        
++                            iTotalCount++;
++                        }
++                    }
++                }
++            }
++            
++            iValue *= (10 + iTotalDist);
++            iValue /= (10 + 10 * iTotalCount);
++		}
+ 	}
+ 
+ 	pNearestCity = GC.getMapINLINE().findCity(iX, iY, ((isBarbarian()) ? NO_PLAYER : getID()));
+@@ -1846,7 +1939,11 @@
+ 		}
+ 		else
+ 		{
+-			iValue -= (abs(plotDistance(iX, iY, pNearestCity->getX_INLINE(), pNearestCity->getY_INLINE()) - 5) * 500);
++		    int iDistance = plotDistance(iX, iY, pNearestCity->getX_INLINE(), pNearestCity->getY_INLINE());
++		    int iNumCities = getNumCities();
++			iValue -= (min(abs(iDistance - 4), abs(iDistance - 5)) * 500);
++			iValue *= (8 + iNumCities * 4);
++			iValue /= (2 + (iNumCities * 4) + iDistance);
+ 		}
+ 	}
+ 
+@@ -1875,16 +1972,19 @@
+ 		}
+ 	}
+ 	
+-	int iFoodSurplus = max(0, iSpecialFoodPlus - iSpecialFoodMinus);
+-	int iFoodDeficit = max(0, iSpecialFoodMinus - iSpecialFoodPlus);
+-
+-	iValue *= 100 + 20 * max(0, min(iFoodSurplus, 2 * GC.getFOOD_CONSUMPTION_PER_POPULATION()));
+-	iValue /= 100 + 20 * max(0, iFoodDeficit);
+-
++	if (!bStartingLoc)
++	{
++        int iFoodSurplus = max(0, iSpecialFoodPlus - iSpecialFoodMinus);
++        int iFoodDeficit = max(0, iSpecialFoodMinus - iSpecialFoodPlus);
++
++        iValue *= 100 + 20 * max(0, min(iFoodSurplus, 2 * GC.getFOOD_CONSUMPTION_PER_POPULATION()));
++        iValue /= 100 + 20 * max(0, iFoodDeficit);
++	}
++	
++	iValue /= (1 + AI_countDeadlockedBonuses(pPlot));
++	
+ 	iValue /= (max(0, (iBadTile - (NUM_CITY_PLOTS / 4))) + 3);
+ 	
+-	iValue /= (1 + AI_countDeadlockedBonuses(pPlot));
+-
+ 	if (bStartingLoc)
+ 	{
+ 		iDifferentAreaTile = 0;
+@@ -1904,7 +2004,7 @@
+ 
+ 	SAFE_DELETE(paiBonusCount);
+ 
+-	return max(1, iValue);
++	return max(0, iValue);
+ }
+ 
+ 
+

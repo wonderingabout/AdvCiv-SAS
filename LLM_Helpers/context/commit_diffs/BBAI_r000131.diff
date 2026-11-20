@@ -1,0 +1,144 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 131
+# Author: iustus
+# Date: 2006-11-30T22:25:39.570463Z
+# Coverage: full
+# Message:
+#   if there is danger, we _will_ cancel wonder builds if the production queue was marked dirty
+#   if a top production city, the leaderhead preferences for building wonders is doubled, causing more wonder builds
+#   governor now wants to grow quickly all the way to the happy cap, rather than slowing a lot as it gets close
+#   governor now counts food more when emphasizing food, this should fix most of the emphasize all 3 cases
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@130
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@131
+@@ -19,17 +19,17 @@
+ #include "CvDLLFAStarIFaceBase.h"
+ 
+ 
+-#define BUILDINGFOCUS_FOOD					(0x00000001)
+-#define BUILDINGFOCUS_PRODUCTION		(0x00000002)
+-#define BUILDINGFOCUS_GOLD					(0x00000004)
+-#define BUILDINGFOCUS_RESEARCH			(0x00000008)
+-#define BUILDINGFOCUS_CULTURE				(0x00000010)
+-#define BUILDINGFOCUS_DEFENSE				(0x00000020)
+-#define BUILDINGFOCUS_HAPPY					(0x00000040)
+-#define BUILDINGFOCUS_HEALTHY				(0x00000080)
+-#define BUILDINGFOCUS_EXPERIENCE		(0x00000100)
+-#define BUILDINGFOCUS_MAINTENANCE		(0x00000200)
+-#define BUILDINGFOCUS_SPECIALIST		(0x00000400)
++#define BUILDINGFOCUS_FOOD					(1 << 1)
++#define BUILDINGFOCUS_PRODUCTION			(1 << 2)
++#define BUILDINGFOCUS_GOLD					(1 << 3)
++#define BUILDINGFOCUS_RESEARCH				(1 << 4)
++#define BUILDINGFOCUS_CULTURE				(1 << 5)
++#define BUILDINGFOCUS_DEFENSE				(1 << 6)
++#define BUILDINGFOCUS_HAPPY					(1 << 7)
++#define BUILDINGFOCUS_HEALTHY				(1 << 8)
++#define BUILDINGFOCUS_EXPERIENCE			(1 << 9)
++#define BUILDINGFOCUS_MAINTENANCE			(1 << 10)
++#define BUILDINGFOCUS_SPECIALIST			(1 << 11)
+ 
+ //#define DEBUG_CITY_BUILDS
+ #ifdef DEBUG_CITY_BUILDS
+@@ -48,11 +48,6 @@
+ 	if (iFocusFlags & BUILDINGFOCUS_MAINTENANCE) {szString+=L"maintenance"; if (!bFirst){szString+=L", ";} bFirst = false;}
+ 	if (iFocusFlags & BUILDINGFOCUS_SPECIALIST) {szString+=L"specialist"; if (!bFirst){szString+=L", ";} bFirst = false;}
+ 	if (bFirst) {szString+=L"none";}
+-}
+-
+-inline void getBuildingString(CvWString& szString, BuildingTypes eBuilding)
+-{
+-
+ }
+ #endif
+ 
+@@ -542,6 +537,8 @@
+ 	int iCulturePressure;
+ 	int iI;
+ 
++	bDanger = AI_isDanger();
++
+ 	if (isProduction())
+ 	{
+ 		if (getProduction() > 0)
+@@ -566,9 +563,10 @@
+ 				}
+ 			}
+ 			
+-			// if we are building a wonder, do not cancel, keep building it
++			// if we are building a wonder, do not cancel, keep building it (if no danger)
+ 			BuildingTypes eProductionBuilding = getProductionBuilding();
+-			if (eProductionBuilding != NO_BUILDING && isLimitedWonderClass((BuildingClassTypes) GC.getBuildingInfo(eProductionBuilding).getBuildingClassType()))
++			if (!bDanger && eProductionBuilding != NO_BUILDING && 
++				isLimitedWonderClass((BuildingClassTypes) GC.getBuildingInfo(eProductionBuilding).getBuildingClassType()))
+ 			{
+ 				return;
+ 			}
+@@ -600,7 +598,6 @@
+ 	bAssault = (area()->getAreaAIType(getTeam()) == AREAAI_ASSAULT);
+ 	bPrimaryArea = GET_PLAYER(getOwnerINLINE()).AI_isPrimaryArea(area());
+ 	bFinancialTrouble = GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble();
+-	bDanger = AI_isDanger();
+ 	iCulturePressure = AI_calculateCulturePressure();
+ 	int iNumCitiesInArea = area()->getCitiesPerPlayer(getOwnerINLINE());
+ 
+@@ -1802,17 +1799,21 @@
+ 								{
+ 									if (bAsync)
+ 									{
+-										iTempValue = GC.getASyncRand().get(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand ASYNC");
++										iTempValue = 2 * GC.getASyncRand().get(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand ASYNC");
+ 									}
+ 									else
+ 									{
+-										iTempValue = GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
++										iTempValue = 2 * GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
+ 									}
+ 
+ 									if (bAreaAlone)
+ 									{
+ 										iTempValue *= 2;
+ 									}
++
++#ifdef DEBUG_CITY_BUILDS
++									DEBUGLOG("[+%d]", iTempValue);
++#endif
+ 
+ 									iValue += iTempValue;
+ 
+@@ -4860,14 +4861,12 @@
+ 						int iTempValue = aiYields[YIELD_FOOD] * 3;
+ 						
+ 						// (range 1-25) - we want to grow more if we have a lot of growth to do
+-						// factor goes up like this: 0:1, 1:2, 2:4, 3:8, 4:11, 5:13, 6:14, 7:15, 8:16, 9:17, ... 17:25
++						// factor goes up like this: 0:1, 1:6, 2:7, 3:8, 4:11, 5:13, 6:14, 7:15, 8:16, 9:17, ... 17:25
+ 						int iFactorPopToGrow;
+-						if (iPopToGrow < 2)
+-							iFactorPopToGrow = 1 + iPopToGrow;
+-						else if (iPopToGrow == 2)
+-							iFactorPopToGrow = 4;
+-						else if (iPopToGrow == 3)
+-							iFactorPopToGrow = 8;
++						if (iPopToGrow < 1)
++							iFactorPopToGrow = 1;
++						else if (iPopToGrow < 4)
++							iFactorPopToGrow = 5 + iPopToGrow;
+ 						else if (iPopToGrow < 6)
+ 							iFactorPopToGrow = 3 + (2 * iPopToGrow);
+ 						else if (iPopToGrow < 17)
+@@ -4930,8 +4929,8 @@
+ 	{
+ 		if (!bFoodIsProduction)
+ 		{
+-			// value food very high(120)
+-			iValue += (aiYields[YIELD_FOOD] * 120);
++			// value food extremely high(180)
++			iValue += (aiYields[YIELD_FOOD] * 180);
+ 		}
+ 	}
+ 
+

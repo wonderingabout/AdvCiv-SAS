@@ -25,6 +25,9 @@ void CyGameTextMgrInterface()
 		// advc.069:
 		.def("getBasicUnitHelp", &CyGameTextMgr::getBasicUnitHelp, "wstring (int iUnit, bool bCivilopediaText)")
 		.def("getSpecificUnitHelp", &CyGameTextMgr::getSpecificUnitHelp, "wstring (CyUnit* pUnit, bool bOneLine, bool bShort)")
+		// <!-- custom: Python needs the omit-owner unit-help wrapper for Military Advisor Map-tab rows; see KI#130. (GPT-5.5) -->
+		// <!-- custom: Expose promotion icon size too so callers can control DLL-generated image markup directly. (GPT-5.5) -->
+		.def("getSpecificUnitHelpOmitOwner", &CyGameTextMgr::getSpecificUnitHelpOmitOwner, "wstring (CyUnit* pUnit, bool bOneLine, bool bShort, int iPromotionIconSize)")
 		// advc.004:
 		.def("getHurtUnitStrength", &CyGameTextMgr::getHurtUnitStrength, "wstring (CyUnit* pUnit)")
 		.def("getBuildingHelp", &CyGameTextMgr::getBuildingHelp, "wstring (int iBuilding, bool bCivilopediaText, bool bStrategyText, bool bTechChooserText, CyCity* pCity)")
@@ -36,6 +39,8 @@ void CyGameTextMgrInterface()
 		.def("getImprovementHelp", &CyGameTextMgr::getImprovementHelp, "wstring (int iImprovement, bool bCivilopediaText)")
 		.def("getTerrainHelp", &CyGameTextMgr::getTerrainHelp, "wstring (int iTerrain, bool bCivilopediaText)")
 		.def("getFeatureHelp", &CyGameTextMgr::getFeatureHelp, "wstring (int iFeature, bool bCivilopediaText)")
+		// <!-- custom: Expose the formatted discovery line to Sevopedia Build. See KI#1078. (GPT-6.1-Sol) -->
+		.def("getFeatureRemovalDiscoveryHelp", &CyGameTextMgr::getFeatureRemovalDiscoveryHelp, "wstring (int iFeature)")
 		.def("parseCivicInfo", &CyGameTextMgr::parseCivicInfo, "wstring (int /*CivicTypes*/ iCivicType, bool bCivilopediaText, bool bPlayerContext, bool bSkipName)")
 		.def("parseReligionInfo", &CyGameTextMgr::parseReligionInfo, "wstring (int /*ReligionTypes*/ iReligionType, bool bCivilopediaText)")
 		.def("parseCorporationInfo", &CyGameTextMgr::parseCorporationInfo, "wstring (int /*CorporationTypes*/ iCorporationType, bool bCivilopediaText)")

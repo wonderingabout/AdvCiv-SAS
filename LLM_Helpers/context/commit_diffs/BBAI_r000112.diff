@@ -1,0 +1,29 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 112
+# Author: iustus
+# Date: 2006-11-22T07:34:12.733838Z
+# Coverage: full
+# Message:
+#   AI_groupSmartAttack no longer hacks bStack to true if isHuman. This is still a temp fix, and should be done the right way after the next build release
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@111
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@112
+@@ -596,7 +596,12 @@
+ 	FAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
+ 
+ 	bStack = (isHuman() && ((getDomainType() == DOMAIN_AIR) || GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_STACK_ATTACK)));
+-    bStack = true;
++    
++	// temp fix to make AIs stack attack, need to do this better so humans can watch if they want to
++	// the _real_ fix is to change it elsewhere
++	if (!isHuman())
++		bStack = true;
++	
+ 	bAttack = false;
+ 
+ 	if (getNumUnits() > 0)
+

@@ -1,0 +1,398 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 39
+# Author: blakeciv
+# Date: 2006-11-07T01:06:10.507420Z
+# Coverage: full
+# Message:
+#   Cultural buildings/artists placed better, more missionaries will be trained, fixes to railroad/coal stuff.
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@38
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@39
+@@ -324,6 +324,11 @@
+ 				iTempValue += (iCommerce * 16);
+ 			}
+ 
++			if ((CommerceTypes)iI == COMMERCE_CULTURE)
++			{
++                iTempValue *= (110 - calculateCulturePercent(getOwnerINLINE()));
++			}
++
+ 			iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_commerceWeight(((CommerceTypes)iI), this);
+ 			iTempValue /= 100;
+ 
+@@ -739,7 +744,7 @@
+ 
+     if (!bDanger)
+ 	{
+-	    if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Missionary") < 20)
++	    if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Missionary") < (isHolyCity() ? 30 : 15))
+ 	    {
+             for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
+             {
+@@ -1944,6 +1949,16 @@
+ 						}
+ 
+ 						iValue++;
++
++						ReligionTypes eReligion = (ReligionTypes)(GC.getUnitInfo((UnitTypes)iI).getPrereqReligion());
++						if (eReligion != NO_RELIGION)
++						{
++						    //encouragement to get some minimal ability to train special units
++						    if (isHolyCity(eReligion) || isCapital())
++						    {
++						        iValue += (2 + area()->getCitiesPerPlayer(getOwnerINLINE()));
++                            }
++						}
+ 					}
+ 				}
+ 
+@@ -2046,7 +2061,14 @@
+ 						}
+ 					}
+ 
+-					iTempValue += ((kBuilding.getCommerceModifier(iI) * getBaseCommerceRate((CommerceTypes)iI)) / 15);
++					if ((CommerceTypes)iI == COMMERCE_CULTURE)
++					{
++					    iTempValue += (((kBuilding.getCommerceModifier(iI) * getBaseCommerceRate((CommerceTypes)iI)) / 15) * (100 - calculateCulturePercent(getOwnerINLINE())));
++					}
++					else
++					{
++                        iTempValue += ((kBuilding.getCommerceModifier(iI) * getBaseCommerceRate((CommerceTypes)iI)) / 15);
++					}
+ 					iTempValue += ((kBuilding.getGlobalCommerceModifier(iI) * iNumCities) / 4);
+ 					iTempValue += ((kBuilding.getSpecialistExtraCommerce(iI) * kOwner.getTotalPopulation()) / 3);
+ 
+@@ -2713,6 +2735,7 @@
+ 	int iFoodPriority = 0;
+ 	int iCommercePriority = 0;
+ 	int iProductionPriority = 0;
++	int iWorkerCount = 0;
+ 
+ 	bool bChop = false;
+ 
+@@ -2734,8 +2757,10 @@
+ 					//determine if the tile is being improved.
+ 					if (m_aiBestBuildValue[iI] > 0)
+ 					{
++					    int iCount = (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD));
++					    iWorkerCount += iCount;
+ 						//check if the tile is being improved
+-						if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD) > 0)
++						if (iCount > 0)
+ 						{
+ 							//we can't really assume this.. but lets assume the BestBuild is what is being built
+ 							BuildTypes eBuild = m_aeBestBuild[iI];
+@@ -2763,7 +2788,7 @@
+ 				if (((aiFinalYields[YIELD_FOOD]*10) + (aiFinalYields[YIELD_PRODUCTION]*6) + (aiFinalYields[YIELD_COMMERCE]*4)) > 21)
+ 				{
+ 					iGoodTileCount++;
+-                    iFoodTotal += ((aiFinalYields[YIELD_FOOD] >= GC.getFOOD_CONSUMPTION_PER_POPULATION()) ? aiFinalYields[YIELD_FOOD] : 0);
++                    iFoodTotal += aiFinalYields[YIELD_FOOD];
+                     iProductionTotal += aiFinalYields[YIELD_PRODUCTION];
+ 				}
+ 
+@@ -2792,17 +2817,21 @@
+ 
+ 	int iTargetSize = min(iGoodTileCount, getPopulation()+(happyLevel()-unhappyLevel()));
+ 	iTargetSize = min(iTargetSize, getPopulation()+(healthRate()));
+-	iTargetSize = min(iTargetSize, NUM_CITY_PLOTS - 1);
+ 
+ 	if (iBonusFoodDiff < 3)
+ 	{
+ 		iFoodPriority = max(1, 1 - (iBonusFoodDiff / 3));
+ 	}
+ 
+-	if (iFoodTotal < ((iTargetSize + 1) * GC.getFOOD_CONSUMPTION_PER_POPULATION() + iBonusFoodDeficit))
+-	{
+-		iFoodPriority += 1;
+-	}
++	if (iFoodTotal < ((iTargetSize + ((getPopulation() < iTargetSize) ? 1 : 0)) * GC.getFOOD_CONSUMPTION_PER_POPULATION()))
++	{
++		iFoodPriority ++;
++	}
++
++//    else if ((getPopulation() >= NUM_CITY_PLOTS) && (iFoodTotal > iFoodEaten))
++//    {
++//        iFoodPriority--;
++//    }
+ //	else
+ //	{
+ //	    iCommercePriority += 1;
+@@ -2867,6 +2896,8 @@
+ 			if (NULL != pLoopPlot && pLoopPlot->getWorkingCity() == this)
+ 			{
+ 				AI_bestPlotBuild(pLoopPlot, &(m_aiBestBuildValue[iI]), &(m_aeBestBuild[iI]), iFoodPriority, iProductionPriority, iCommercePriority, bChop);
++				m_aiBestBuildValue[iI] *= 4;
++				m_aiBestBuildValue[iI] /= (4 + iWorkerCount);
+ 				FAssert(AI_getBestBuildValue(iI) >= 0);
+ 			}
+ 		}
+@@ -4560,6 +4591,7 @@
+ 							}
+ 							else
+ 							{
++							    iValue /= 2;
+ 								iValue -= 50;
+ 							}
+ 						}
+@@ -4585,6 +4617,7 @@
+ 		}
+ 	}
+ 
++    //clear jungle
+ 	if (eBestBuild == NO_BUILD)
+ 	{
+ 		if (pPlot->getFeatureType() != NO_FEATURE)
+@@ -4629,7 +4662,8 @@
+ 		}
+ 	}
+ 
+-	//Chop - maybe integrate this better with the other feature-clear code
++	//Chop - maybe integrate this better with the other feature-clear code tho the logic
++	//is kinda different
+     if (bChop && (eBonus == NO_BONUS) && (pPlot->getFeatureType() != NO_FEATURE) &&
+         (pPlot->getImprovementType() == NO_IMPROVEMENT) && !(GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_LEAVE_FORESTS)))
+     {
+@@ -4674,6 +4708,50 @@
+     }
+ 
+ 
++    for (iI = 0; iI < GC.getNumRouteInfos(); iI++)
++    {
++        RouteTypes eRoute = (RouteTypes)iI;
++        RouteTypes eOldRoute = pPlot->getRouteType();
++
++        if (eRoute != eOldRoute)
++        {
++            if (pPlot->getImprovementType() != NO_IMPROVEMENT)
++            {
++                if ((eOldRoute == NO_ROUTE) || (GC.getRouteInfo(eRoute).getValue() > GC.getRouteInfo(eOldRoute).getValue()))
++                {
++                    int iTempValue = 0;
++                    iTempValue += ((GC.getImprovementInfo(pPlot->getImprovementType()).getRouteYieldChanges(eRoute, YIELD_FOOD)) * 100);
++                    iTempValue += ((GC.getImprovementInfo(pPlot->getImprovementType()).getRouteYieldChanges(eRoute, YIELD_PRODUCTION)) * 60);
++                    iTempValue += ((GC.getImprovementInfo(pPlot->getImprovementType()).getRouteYieldChanges(eRoute, YIELD_COMMERCE)) * 40);
++                    if (iTempValue > 0)
++                    {
++                        for (iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
++                        {
++                            eBuild = ((BuildTypes)iJ);
++                            if (GC.getBuildInfo(eBuild).getRoute() == eRoute)
++                            {
++                                if (GET_PLAYER(getOwnerINLINE()).canBuild(pPlot, eBuild, false))
++                                {
++                                    //the value multiplier is based on the default time...
++                                    iValue = iTempValue * 5 * 300;
++                                    iValue /= GC.getBuildInfo(eBuild).getTime();
++
++                                    if (iValue > iBestValue)
++                                    {
++                                        iBestValue = iValue;
++                                        eBestBuild = eBuild;
++                                    }
++                                }
++                            }
++                        }
++                    }
++                }
++            }
++        }
++    }
++
++
++
+ 	if (eBestBuild != NO_BUILD)
+ 	{
+ 		FAssertMsg(iBestValue > 0, "iBestValue is expected to be greater than 0");
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@38
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@39
+@@ -1650,21 +1650,20 @@
+ 	}
+ 	else if (!bShift && bAlt && (gDLL->getChtLvl() > 0))
+ 	{
+-	    //
+-        szTempBuffer.Format(L"\nThis player has %d area cities", pPlot->area()->getCitiesPerPlayer(pPlot->getOwnerINLINE()));
+-        szString+=szTempBuffer;
+-
+-
+-        for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
+-        {
+-            int iNeededMissionaries = GET_PLAYER(pPlot->getOwnerINLINE()).AI_neededMissionaries(pPlot->area(), ((ReligionTypes)iI));
+-
+-//            if (iNeededMissionaries > 0)
+-//            {
+-                szTempBuffer.Format(L"\nNeeded %c missionaries = %d", GC.getReligionInfo((ReligionTypes)iI).getChar(), iNeededMissionaries);
+-                szString+=szTempBuffer;
+-//            }
+-        }
++	    if (pPlot->isOwned())
++	    {
++            szTempBuffer.Format(L"\nThis player has %d area cities", pPlot->area()->getCitiesPerPlayer(pPlot->getOwnerINLINE()));
++            szString+=szTempBuffer;
++            for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
++            {
++                int iNeededMissionaries = GET_PLAYER(pPlot->getOwnerINLINE()).AI_neededMissionaries(pPlot->area(), ((ReligionTypes)iI));
++                if (iNeededMissionaries > 0)
++                {
++                    szTempBuffer.Format(L"\nNeeded %c missionaries = %d", GC.getReligionInfo((ReligionTypes)iI).getChar(), iNeededMissionaries);
++                    szString+=szTempBuffer;
++                }
++            }
++	    }
+ 	}
+ 	else
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@38
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@39
+@@ -4691,15 +4691,21 @@
+ 		}
+ 	}
+ 
++    RouteTypes eBestRoute = getBestRoute();
+ 	for (iI = 0; iI < GC.getNumBuildInfos(); iI++)
+ 	{
+         RouteTypes eRoute = (RouteTypes)(GC.getBuildInfo((BuildTypes)iI).getRoute());
++
+ 
+         if ((eRoute != NO_ROUTE) && (GC.getRouteInfo(eRoute).getPrereqBonus() == eBonus))
+         {
+-            if (GC.getRouteInfo(getBestRoute()).getValue() <= GC.getRouteInfo(eRoute).getValue())
++            if ((eBestRoute != NO_ROUTE) && (GC.getRouteInfo(getBestRoute()).getValue() <= GC.getRouteInfo(eRoute).getValue()))
+             {
+                 iTempValue = 100;
++            }
++            else
++            {
++                iTempValue += 40;
+             }
+         }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@38
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@39
+@@ -739,21 +739,26 @@
+ 									if (!(pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+ 									{
+ 										// XXX take advantage of range (warning... this could lead to some units doing nothing...)
+-										iValue /= max(1, (1 + GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup())));
+-
+-                                        if (generatePath(pLoopPlot, 0, true))
++										int iWorkerCount = GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup());
++                                        if (iWorkerCount <= 2)
+                                         {
+-                                            iBestValue = iValue;
+-                                            if (ppBestPlot != NULL)
++                                            iValue /= max(1, (1 + iWorkerCount));
++
++
++                                            if (generatePath(pLoopPlot, 0, true))
+                                             {
+-                                                *ppBestPlot = pLoopPlot;
++                                                iBestValue = iValue;
++                                                if (ppBestPlot != NULL)
++                                                {
++                                                    *ppBestPlot = pLoopPlot;
++                                                }
++                                                if (peBestBuild != NULL)
++                                                {
++                                                    *peBestBuild = eBuild;
++                                                }
++
++                                                bBuild = true;
+                                             }
+-                                            if (peBestBuild != NULL)
+-                                            {
+-                                                *peBestBuild = eBuild;
+-                                            }
+-
+-                                            bBuild = true;
+                                         }
+ 									}
+ 								}
+@@ -3965,7 +3970,7 @@
+ 			(AI_getUnitAIType() == UNITAI_RESERVE_SEA) ||
+ 			(AI_getUnitAIType() == UNITAI_CARRIER_SEA))
+ 	{
+-		iValue += (iTemp * 20);
++		iValue += (iTemp * 15);
+ 	}
+ 	else
+ 	{
+@@ -4104,7 +4109,6 @@
+ 
+ 	iTemp = GC.getPromotionInfo(ePromotion).getCityDefensePercent() + getExtraCityDefensePercent();
+ 	if ((AI_getUnitAIType() == UNITAI_CITY_DEFENSE) ||
+-		  (AI_getUnitAIType() == UNITAI_CITY_COUNTER) ||
+ 		  (AI_getUnitAIType() == UNITAI_CITY_SPECIAL))
+ 	{
+ 		iValue += (iTemp * 2);
+@@ -4128,7 +4132,14 @@
+ 	iTemp = GC.getPromotionInfo(ePromotion).getHillsDefensePercent() + getExtraHillsDefensePercent();
+ 	if (AI_getUnitAIType() == UNITAI_COUNTER)
+ 	{
+-		iValue += (iTemp / 4);
++	    if (plot()->isHills())
++	    {
++            iValue += (iTemp / 4);
++	    }
++	    else
++	    {
++	        iValue++;
++	    }
+ 	}
+ 	else
+ 	{
+@@ -4211,7 +4222,14 @@
+ 		iTemp = GC.getPromotionInfo(ePromotion).getTerrainDefensePercent(iI) + getExtraTerrainDefensePercent((TerrainTypes)iI);
+ 		if (AI_getUnitAIType() == UNITAI_COUNTER)
+ 		{
+-			iValue += (iTemp / 4);
++		    if (plot()->getTerrainType() == (TerrainTypes)iI)
++		    {
++                iValue += (iTemp / 4);
++		    }
++		    else
++            {
++                iValue++;
++            }
+ 		}
+ 		else
+ 		{
+@@ -4238,7 +4256,14 @@
+ 		{
+ 			if (AI_getUnitAIType() == UNITAI_COUNTER)
+ 			{
+-				iValue += (iTemp / 4);
++			    if (plot()->getFeatureType() == (FeatureTypes)iI)
++			    {
++                    iValue += (iTemp / 4);
++			    }
++                else
++                {
++                    iValue++;
++                }
+ 			}
+ 			else
+ 			{
+@@ -5318,6 +5343,8 @@
+ 
+ 	bRetreat = false;
+ 
++	iMaxPath = min(iMaxPath, 9);
++
+ 	pEntityNode = getGroup()->headUnitNode();
+ 
+ 	while (pEntityNode != NULL)
+

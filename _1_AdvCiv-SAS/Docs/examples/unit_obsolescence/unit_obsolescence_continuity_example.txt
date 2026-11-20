@@ -1,0 +1,73 @@
+AdvCiv-SAS unit-obsolescence continuity audit
+
+Fatal invariant:
+- For each playable civilization and land/sea/air domain, start from all technologies in earlier tech-tree columns.
+- Enumerate every reachable combination of technologies in the current column.
+- If the earlier-column state has an unlimited military unit trainable from technology alone, no reachable same-column combination may reduce that domain to zero such units.
+- Pure UNITAI_EXPLORE* units are excluded by role, so Scout/Explorer/Airship-style units cannot mask a military-production gap.
+
+FATAL continuity holes: 0 grouped / 0 civilization instances
+(none)
+
+REVIEW-ONLY direct successor restrictions: 60
+These are useful design/audit leads but do not fail CI by themselves.
+- UNIT_AIRSHIP [DOMAIN_LAND] --obsolete at TECH_SPACE_EXPLORATION--> UNIT_ROBOTIC_RECON_DRONE: additional/un-guaranteed tech=TECH_AI; new/different condition=BONUS_ALUMINUM
+- UNIT_ARABIA_HAJJAN [DOMAIN_LAND] --obsolete at TECH_FIREARMS--> UNIT_HORSE_CUIRASSIER: new/different condition=BONUS_HORSE
+- UNIT_ARCHER [DOMAIN_LAND] --obsolete at TECH_CONSTRUCTION--> UNIT_LONGBOWMAN: additional/un-guaranteed tech=TECH_HUNTING
+- UNIT_AXEMAN [DOMAIN_LAND] --obsolete at TECH_CIVIL_SERVICE--> UNIT_MACEMAN: additional/un-guaranteed tech=TECH_IRON_WORKING
+- UNIT_AZTEC_JAGUAR [DOMAIN_LAND] --obsolete at TECH_CIVIL_SERVICE--> UNIT_MACEMAN: additional/un-guaranteed tech=TECH_IRON_WORKING
+- UNIT_BABYLON_BOWMAN [DOMAIN_LAND] --obsolete at TECH_FIREARMS--> UNIT_CROSSBOWMAN: new/different condition=BONUS_IRON
+- UNIT_BAZOOKA [DOMAIN_LAND] --obsolete at TECH_ADVANCED_FLIGHT--> UNIT_GUNSHIP: new/different condition=BONUS_OIL
+- UNIT_BOMBER [DOMAIN_AIR] --obsolete at TECH_ADVANCED_FLIGHT--> UNIT_STEALTH_BOMBER: additional/un-guaranteed tech=TECH_ROCKETRY
+- UNIT_BYZANTINE_CATAPHRACT [DOMAIN_LAND] --obsolete at TECH_FIREARMS--> UNIT_CAMEL_CUIRASSIER: new/different condition=BONUS_CAMEL
+- UNIT_CAMEL_ARCHER [DOMAIN_LAND] --obsolete at TECH_CHIVALRY--> UNIT_HORSE_KNIGHT: new/different condition=BONUS_HORSE
+- UNIT_CAMEL_CUIRASSIER [DOMAIN_LAND] --obsolete at TECH_MILITARY_TRADITION--> UNIT_DRAGOON: new/different condition=BONUS_HORSE
+- UNIT_CAMEL_KNIGHT [DOMAIN_LAND] --obsolete at TECH_FIREARMS--> UNIT_HORSE_CUIRASSIER: new/different condition=BONUS_HORSE
+- UNIT_CARTHAGE_NUMIDIAN_CAVALRY [DOMAIN_LAND] --obsolete at TECH_CHIVALRY--> UNIT_CAMEL_KNIGHT: new/different condition=BONUS_CAMEL
+- UNIT_CATAPULT [DOMAIN_LAND] --obsolete at TECH_CHEMISTRY--> UNIT_CANNON: new/different condition=BONUS_IRON
+- UNIT_CELTIC_GALLIC_WARRIOR [DOMAIN_LAND] --obsolete at TECH_CIVIL_SERVICE--> UNIT_MACEMAN: additional/un-guaranteed tech=TECH_IRON_WORKING
+- UNIT_CHARIOT [DOMAIN_LAND] --obsolete at TECH_MOUNTED_COMBAT--> UNIT_CAMEL_ARCHER: new/different condition=BONUS_CAMEL
+- UNIT_DRAGOON [DOMAIN_LAND] --obsolete at TECH_FASCISM--> UNIT_TANK: additional/un-guaranteed tech=TECH_ASSEMBLY_LINE, TECH_AUTOMOBILES; new/different condition=BONUS_OIL, building=BUILDING_FACTORY
+- UNIT_EGYPTIAN_WAR_CHARIOT [DOMAIN_LAND] --obsolete at TECH_MOUNTED_COMBAT--> UNIT_CAMEL_ARCHER: new/different condition=BONUS_CAMEL
+- UNIT_FIELD_GUN [DOMAIN_LAND] --obsolete at TECH_INDUSTRIALISM--> UNIT_SELF_PROPELLED_ARTILLERY: new/different condition=BONUS_OIL
+- UNIT_FRIGATE [DOMAIN_SEA] --obsolete at TECH_MILITARY_SCIENCE--> UNIT_IRONCLAD: additional/un-guaranteed tech=TECH_STEAM_POWER
+- UNIT_GERMAN_HUSSAR [DOMAIN_LAND] --obsolete at TECH_FASCISM--> UNIT_TANK: additional/un-guaranteed tech=TECH_ASSEMBLY_LINE, TECH_AUTOMOBILES; new/different condition=BONUS_OIL, building=BUILDING_FACTORY
+- UNIT_GREEK_HOPLITE [DOMAIN_LAND] --obsolete at TECH_FEUDALISM--> UNIT_PIKEMAN: additional/un-guaranteed tech=TECH_IRON_WORKING; new/different condition=BONUS_IRON
+- UNIT_GRENADIER [DOMAIN_LAND] --obsolete at TECH_ARTILLERY--> UNIT_MACHINE_GUN: additional/un-guaranteed tech=TECH_FASCISM
+- UNIT_HORSE_ARCHER [DOMAIN_LAND] --obsolete at TECH_CHIVALRY--> UNIT_CAMEL_KNIGHT: new/different condition=BONUS_CAMEL
+- UNIT_HORSE_KNIGHT [DOMAIN_LAND] --obsolete at TECH_FIREARMS--> UNIT_CAMEL_CUIRASSIER: new/different condition=BONUS_CAMEL
+- UNIT_INCAN_LLAMA_KAMAYUQ [DOMAIN_LAND] --obsolete at TECH_CHIVALRY--> UNIT_HORSE_KNIGHT: new/different condition=BONUS_HORSE
+- UNIT_INFANTRY [DOMAIN_LAND] --obsolete at TECH_INDUSTRIALISM--> UNIT_PARATROOPER: additional/un-guaranteed tech=TECH_ADVANCED_FLIGHT
+- UNIT_IRELAND_FLYING_COLUMN [DOMAIN_LAND] --obsolete at TECH_FASCISM--> UNIT_INFANTRY: additional/un-guaranteed tech=TECH_ASSEMBLY_LINE
+- UNIT_KHMER_BALLISTA_ELEPHANT [DOMAIN_LAND] --obsolete at TECH_CHIVALRY--> UNIT_CAMEL_KNIGHT: new/different condition=BONUS_CAMEL
+- UNIT_KHMER_BALLISTA_ELEPHANT [DOMAIN_LAND] --obsolete at TECH_CHIVALRY--> UNIT_HORSE_KNIGHT: new/different condition=BONUS_HORSE
+- UNIT_LONGBOWMAN [DOMAIN_LAND] --obsolete at TECH_FIREARMS--> UNIT_CROSSBOWMAN: new/different condition=BONUS_IRON
+- UNIT_MALI_SKIRMISHER [DOMAIN_LAND] --obsolete at TECH_FIREARMS--> UNIT_CROSSBOWMAN: new/different condition=BONUS_IRON
+- UNIT_MODERN_TANK [DOMAIN_LAND] --obsolete at TECH_FUSION--> UNIT_ROBOTIC_TANK: additional/un-guaranteed tech=TECH_AI; new/different condition=BONUS_URANIUM
+- UNIT_MONGOL_KHISHIGTEN [DOMAIN_LAND] --obsolete at TECH_FIREARMS--> UNIT_CAMEL_CUIRASSIER: new/different condition=BONUS_CAMEL
+- UNIT_NATIVE_AMERICA_DOG_SOLDIER [DOMAIN_LAND] --obsolete at TECH_CIVIL_SERVICE--> UNIT_MACEMAN: additional/un-guaranteed tech=TECH_IRON_WORKING
+- UNIT_PARATROOPER [DOMAIN_LAND] --obsolete at TECH_TRANSHUMANISM--> UNIT_ROBOTIC_INFANTRY: additional/un-guaranteed tech=TECH_AI; new/different condition=BONUS_ALUMINUM
+- UNIT_PERSIA_IMMORTAL [DOMAIN_LAND] --obsolete at TECH_CIVIL_SERVICE--> UNIT_MACEMAN: additional/un-guaranteed tech=TECH_IRON_WORKING
+- UNIT_PIKEMAN [DOMAIN_LAND] --obsolete at TECH_FIREARMS--> UNIT_GRENADIER: additional/un-guaranteed tech=TECH_MILITARY_SCIENCE
+- UNIT_PORTUGAL_CACADOR [DOMAIN_LAND] --obsolete at TECH_ARTILLERY--> UNIT_MACHINE_GUN: additional/un-guaranteed tech=TECH_FASCISM
+- UNIT_PRIVATEER [DOMAIN_SEA] --obsolete at TECH_MILITARY_SCIENCE--> UNIT_ATTACK_SUBMARINE: additional/un-guaranteed tech=TECH_COMBUSTION, TECH_MARINE_TECHNOLOGY
+- UNIT_RIFLEMAN [DOMAIN_LAND] --obsolete at TECH_FASCISM--> UNIT_INFANTRY: additional/un-guaranteed tech=TECH_ASSEMBLY_LINE
+- UNIT_ROMAN_LEGIONARY [DOMAIN_LAND] --obsolete at TECH_CIVIL_SERVICE--> UNIT_MACEMAN: additional/un-guaranteed tech=TECH_IRON_WORKING
+- UNIT_RUSSIA_COSSACK [DOMAIN_LAND] --obsolete at TECH_FASCISM--> UNIT_TANK: additional/un-guaranteed tech=TECH_ASSEMBLY_LINE, TECH_AUTOMOBILES; new/different condition=BONUS_OIL, building=BUILDING_FACTORY
+- UNIT_SAM_INFANTRY [DOMAIN_LAND] --obsolete at TECH_ROCKETRY--> UNIT_MOBILE_SAM: new/different condition=BONUS_OIL
+- UNIT_SELF_PROPELLED_ARTILLERY [DOMAIN_LAND] --obsolete at TECH_QUANTUM_MECHANICS--> UNIT_LEVITATION_ARTILLERY: new/different condition=BONUS_URANIUM
+- UNIT_SHIP_OF_THE_LINE [DOMAIN_SEA] --obsolete at TECH_MILITARY_SCIENCE--> UNIT_BATTLESHIP: additional/un-guaranteed tech=TECH_MARINE_TECHNOLOGY
+- UNIT_SPEARMAN [DOMAIN_LAND] --obsolete at TECH_FEUDALISM--> UNIT_PIKEMAN: additional/un-guaranteed tech=TECH_IRON_WORKING; new/different condition=BONUS_IRON
+- UNIT_SUMERIAN_VULTURE [DOMAIN_LAND] --obsolete at TECH_CIVIL_SERVICE--> UNIT_MACEMAN: additional/un-guaranteed tech=TECH_IRON_WORKING
+- UNIT_SWORDSMAN [DOMAIN_LAND] --obsolete at TECH_CIVIL_SERVICE--> UNIT_MACEMAN: additional/un-guaranteed tech=TECH_IRON_WORKING
+- UNIT_TANK [DOMAIN_LAND] --obsolete at TECH_COMPOSITES--> UNIT_MODERN_TANK: additional/un-guaranteed tech=TECH_COMPUTERS
+- UNIT_TREBUCHET [DOMAIN_LAND] --obsolete at TECH_CHEMISTRY--> UNIT_CANNON: new/different condition=BONUS_IRON
+- UNIT_TRIREME [DOMAIN_SEA] --obsolete at TECH_ASTRONOMY--> UNIT_FRIGATE: additional/un-guaranteed tech=TECH_CHEMISTRY; new/different condition=BONUS_IRON
+- UNIT_TRIREME [DOMAIN_SEA] --obsolete at TECH_ASTRONOMY--> UNIT_SHIP_OF_THE_LINE: additional/un-guaranteed tech=TECH_GUNPOWDER, TECH_PHYSICS
+- UNIT_USA_PATRIOT [DOMAIN_LAND] --obsolete at TECH_FASCISM--> UNIT_INFANTRY: additional/un-guaranteed tech=TECH_ASSEMBLY_LINE
+- UNIT_WARRIOR [DOMAIN_LAND] --obsolete at TECH_ANIMAL_HUSBANDRY--> UNIT_AXEMAN: additional/un-guaranteed tech=TECH_BRONZE_WORKING
+- UNIT_WARRIOR [DOMAIN_LAND] --obsolete at TECH_ANIMAL_HUSBANDRY--> UNIT_SPEARMAN: additional/un-guaranteed tech=TECH_BRONZE_WORKING
+- UNIT_WAR_ELEPHANT [DOMAIN_LAND] --obsolete at TECH_CHIVALRY--> UNIT_CAMEL_KNIGHT: new/different condition=BONUS_CAMEL
+- UNIT_WAR_ELEPHANT [DOMAIN_LAND] --obsolete at TECH_CHIVALRY--> UNIT_HORSE_KNIGHT: new/different condition=BONUS_HORSE
+- UNIT_ZULU_IMPI [DOMAIN_LAND] --obsolete at TECH_FEUDALISM--> UNIT_MACEMAN: additional/un-guaranteed tech=TECH_IRON_WORKING
+- UNIT_ZULU_IMPI [DOMAIN_LAND] --obsolete at TECH_FEUDALISM--> UNIT_PIKEMAN: additional/un-guaranteed tech=TECH_IRON_WORKING; new/different condition=BONUS_IRON

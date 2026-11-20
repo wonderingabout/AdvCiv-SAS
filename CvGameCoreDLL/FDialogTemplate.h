@@ -21,26 +21,19 @@ public:
 
 	~CDialogTemplate();
 
-	void AddComponent(LPCSTR type, LPCSTR caption, DWORD style, DWORD exStyle,
-		int x, int y, int w, int h, WORD id);
+	void AddComponent(LPCSTR type, LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id);
 
-	void AddButton(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-		int w, int h, WORD id);
+	void AddButton(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id);
 
-	void AddEditBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-		int w, int h, WORD id);
+	void AddEditBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id);
 
-	void AddStatic(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-		int w, int h, WORD id);
+	void AddStatic(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id);
 
-	void AddListBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-		int w, int h, WORD id);
+	void AddListBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id);
 
-	void AddScrollBar(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-		int w, int h, WORD id);
+	void AddScrollBar(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id);
 
-	void AddComboBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-		int w, int h, WORD id);
+	void AddComboBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id);
 
 	DLGTEMPLATE* GetDialogTemplate() const;
 
@@ -49,12 +42,12 @@ private:
 	CDialogTemplate(const CDialogTemplate&);
 	CDialogTemplate& operator=(const CDialogTemplate&);
 
-	void AddStandardComponent(WORD type, LPCSTR caption, DWORD style,
-		DWORD exStyle, int x, int y, int w, int h, WORD id);
+	void AddStandardComponent(WORD type, LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id);
 
 	void AlignData(int size);
 	void AppendString(LPCSTR string);
-	void AppendData(void const* data, int dataLength); // advc.cppstd: const
+	// <!-- custom: AdvCiv's advc.cppstd lets this read-only input accept const buffers. See KI#1099. (GPT-6.2-Sol) -->
+	void AppendData(void const* data, int dataLength);
 	void EnsureSpace(int length);
 
 	DLGTEMPLATE* dialogTemplate;

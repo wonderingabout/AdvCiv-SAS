@@ -1,0 +1,31 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 288
+# Author: blakeciv
+# Date: 2007-01-23T23:10:33.752676Z
+# Coverage: full
+# Message:
+#   Added high food override and dampening.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@287
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@288
+@@ -5926,6 +5926,15 @@
+ 					}
+ 				}
+ 			}
++			
++			if (!(bAvoidGrowth && isHuman()))
++			{
++				//very high food override
++				int iTempValue = 30 * max(0, (aiYields[YIELD_FOOD]) - (2 * iConsumtionPerPop));
++				iTempValue *= max(0, (3 * iConsumtionPerPop) - foodDifference(false));
++				iTempValue /= 3 * iConsumtionPerPop;
++				iValue += iTempValue;
++			}
+ 		}
+ 	}
+ 	
+

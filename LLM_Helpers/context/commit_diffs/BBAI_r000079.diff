@@ -1,0 +1,148 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 79
+# Author: blakeciv
+# Date: 2006-11-15T06:00:48.653026Z
+# Coverage: full
+# Message:
+#   (no message)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@78
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@79
+@@ -8910,6 +8910,7 @@
+     if (iCurrentEra <= (1+(iNonsense%2)) && (iMetCount > 0))
+     {	    
+ 	    int iDagger = 0;
++	    int iAttackUnitCount = 0;
+ 	    iDagger += 5000 / max(100, (50 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand()));
+ 	    
+         for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+@@ -8923,6 +8924,7 @@
+                     if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() == NO_TECH)
+                     {
+                         iDagger += 50;
++                        iAttackUnitCount++;
+                     }
+                     else
+                     {
+@@ -8936,60 +8938,79 @@
+                             {
+                                 iDagger += 25;
+                             }
++                        }
++                    }
+                             
+-                            bool bNeedsAndBonus = false;
+-                            int iOrBonusCount = 0;
+-                            int iOrBonusHave = 0;
+-                            
+-                            for (iJ = 0; iJ < GC.getNumBonusInfos(); iJ++)
++                    bool bNeedsAndBonus = false;
++                    int iOrBonusCount = 0;
++                    int iOrBonusHave = 0;
++                    
++                    for (iJ = 0; iJ < GC.getNumBonusInfos(); iJ++)
++                    {
++                        BonusTypes eBonus = (BonusTypes)iJ;
++                        if (eBonus != NO_BONUS)
++                        {
++                            if (GC.getUnitInfo(eLoopUnit).getPrereqAndBonus() == eBonus)
+                             {
+-                                BonusTypes eBonus = (BonusTypes)iJ;
+-                                if (eBonus != NO_BONUS)
++                                if (getNumTradeableBonuses(eBonus) == 0)
+                                 {
+-                                    if (GC.getUnitInfo(eLoopUnit).getPrereqAndBonus() == eBonus)
++                                    bNeedsAndBonus = true;
++                                }
++                            }
++
++                            for (iK = 0; iK < GC.getNUM_UNIT_PREREQ_OR_BONUSES(); iK++)
++                            {
++                                if (GC.getUnitInfo(eLoopUnit).getPrereqOrBonuses(iK) == eBonus)
++                                {
++                                    iOrBonusCount++;
++                                    if (getNumTradeableBonuses(eBonus) > 0)
+                                     {
+-                                        if (getNumTradeableBonuses(eBonus) == 0)
+-                                        {
+-                                            bNeedsAndBonus = true;
+-                                        }
++                                        iOrBonusHave++;
+                                     }
+-
+-                                    for (iK = 0; iK < GC.getNUM_UNIT_PREREQ_OR_BONUSES(); iK++)
+-                                    {
+-                                        if (GC.getUnitInfo(eLoopUnit).getPrereqOrBonuses(iK) == eBonus)
+-                                        {
+-                                            iOrBonusCount++;
+-                                            if (getNumTradeableBonuses(eBonus) > 0)
+-                                            {
+-                                                iOrBonusHave++;
+-                                            }
+-                                        }
+-                                    } 
+-                                }  
++                                }
+                             }
+-                            
+-                            iDagger += 20;
+-                            if (bNeedsAndBonus)
++                        }
++                    }
++                    
++                    iDagger += 20;
++                    if (bNeedsAndBonus)
++                    {
++                        iDagger -= 20;
++                    }
++                    if ((iOrBonusCount > 0) && (iOrBonusHave == 0))
++                    {
++                        iDagger -= 20;
++                    }
++                }
++        
++                //normal units                
++                if ((GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_ATTACK)) || (GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_ATTACK_CITY)))
++                {
++                    if (!GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_CITY_DEFENSE))
++                    {
++                        if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() != NO_TECH)
++                        {
++                            if (getCapitalCity() != NULL)
+                             {
+-                                iDagger -= 20;
+-                            }
+-                            if ((iOrBonusCount > 0) && (iOrBonusHave == 0))
+-                            {
+-                                iDagger -= 20;
++                                if (getCapitalCity()->canTrain(eLoopUnit))
++                                {
++                                    iAttackUnitCount++;
++                                }
+                             }
+                         }
+                     }
+                 }
+-            }            
++            }
+         }
+         
+-        iDagger += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 4 : 0);
+-        iDagger += ((iNonsense % 8) * 10);
++        iDagger += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 40 : 0);
++        iDagger += ((iNonsense % 6) * 10);
++        iDagger -= ((iAttackUnitCount == 0) ? 40 : 0);
+         
+         if (iDagger >= 100)
+         {
+             m_iStrategyHash |= AI_STRATEGY_DAGGER;            
+-        }        
++        }
+ 	} 
+ 	return m_iStrategyHash;   
+ }
+

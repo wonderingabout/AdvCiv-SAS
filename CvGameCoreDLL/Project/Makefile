@@ -60,9 +60,10 @@
 ## Civ install path
 ## Path to the directory where boost and python is stored
 ## Overwritten by enviroment variable CIV4_LIB_INSTALL_PATH
+# <!-- custom: also add steam path if helps for reference even though we also list it at least as of now in Makefile.user. Note: i am not sure if i should set this as the Beyond the Sword subfolder or the root civ4 one but this seems to work-function as is so keeping as is the steam link we added -->
 #CIV4_PATH=$(PROGRAMFILES)\Sid Meier's Civilization 4\Beyond the Sword
 #CIV4_PATH=$(PROGRAMFILES)\2K Games\Firaxis Games\Sid Meier's Civilization IV Colonization\CvGameCoreDLL
-#
+#CIV4_PATH=$(PROGRAMFILES)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword
 ## Optional:
 # To have newly compiled dlls copied to your mod's Assets directory
 #YOURMOD=..
@@ -101,7 +102,6 @@ Release_DEFINES=/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG
 TEMP_FILE_DIR = temp_files
 CUSTOM_CFLAGS  =
 CUSTOM_LDFLAGS =
-
 
 
 !IF [IF NOT EXIST Makefile.user EXIT 1] != 0
@@ -168,6 +168,9 @@ FD=$(FASTDEP_FULL_PATH)
 #### Target Files ####
 Target_BIN=$(TARGET)\CvGameCoreDLL.dll
 Target_BIN_TEMP=$(TEMP_TARGET_FILES)\CvGameCoreDLL.dll
+# <!-- custom: Begin SASGameRecord embedded build evidence; keep the generated header configuration-local and out of distributed files. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+Target_BUILD_PROVENANCE=$(TEMP_TARGET_FILES)\SASBuildProvenance.generated.h
+# <!-- custom: End SASGameRecord embedded build-evidence path. (GPT-6.1-Sol) -->
 
 !IF [IF NOT EXIST CvGameCoreDLL.rc EXIT 1] == 0
 !IF "$(TARGET)" == "Final_Release"
@@ -210,7 +213,9 @@ Final_Release_LDFLAGS=/LTCG /INCREMENTAL:NO /OPT:REF /OPT:ICF $(GLOBAL_LDFLAGS)
 Final_Profile_LDFLAGS=/LTCG /DEBUG /IMPLIB:"$(Target_STATICLIB)" $(GLOBAL_LDFLAGS)
 
 #### INCLUDES ####
-GLOBAL_INCS=/I"$(TOOLKIT)/include" /I"$(PSDK)/Include" /I"$(PSDK)/Include/mfc"
+# <!-- custom: Begin SASGameRecord generated-header include path; compiler lookup must use this target's own temp directory rather than a shared source-tree header. (GPT-6.1-Sol) -->
+GLOBAL_INCS=/I"$(TEMP_TARGET_FILES)" /I"$(TOOLKIT)/include" /I"$(PSDK)/Include" /I"$(PSDK)/Include/mfc"
+# <!-- custom: End SASGameRecord generated-header include path. (GPT-6.1-Sol) -->
 
 #### boost and python ####
 
@@ -238,31 +243,32 @@ GLOBAL_LIBS=/LIBPATH:"$(TOOLKIT)/lib" /LIBPATH:"$(PSDK)/Lib" winmm.lib user32.li
 LIBS = $(PROJECT_LIBS) $(GLOBAL_LIBS)
 
 
+# <!-- custom: Stamp the actual nmake target into the DLL so shared runtime diagnostics can distinguish Debug/Debug-opt/Release/Assert/Profile/Final_Release even when the usual _DEBUG/NDEBUG flags overlap. Keep this numeric and map it to readable text in CvGameCoreUtils.cpp for MSVC 7.1-friendly quoting. (ChatGPT-5.6-Sol) -->
 !IF "$(TARGET)" == "Debug"
-CFLAGS  = $(Debug_CFLAGS)
+CFLAGS  = $(Debug_CFLAGS) /DSAS_DLL_BUILD_CONFIGURATION=1
 LDFLAGS = $(Debug_LDFLAGS)
 LIBS    = $(LIBS) msvcprt.lib
 !ENDIF
 !IF "$(TARGET)" == "Debug-opt"
-CFLAGS  = $(Debug_Opt_CFLAGS)
+CFLAGS  = $(Debug_Opt_CFLAGS) /DSAS_DLL_BUILD_CONFIGURATION=2
 LDFLAGS = $(Debug_LDFLAGS)
 # Leaving out msvcprt might help with debugging memory (but I doubt it)
 LIBS    = $(LIBS) msvcprt.lib
 !ENDIF
 !IF "$(TARGET)" == "Release"
-CFLAGS  = $(Release_CFLAGS)
+CFLAGS  = $(Release_CFLAGS) /DSAS_DLL_BUILD_CONFIGURATION=3
 LDFLAGS = $(Release_LDFLAGS)
 !ENDIF
 !IF "$(TARGET)" == "Assert"
-CFLAGS  = $(Release_CFLAGS) /DFASSERT_ENABLE
+CFLAGS  = $(Release_CFLAGS) /DFASSERT_ENABLE /DSAS_DLL_BUILD_CONFIGURATION=4
 LDFLAGS = $(Release_LDFLAGS)
 !ENDIF
 !IF "$(TARGET)" == "Profile"
-CFLAGS  = $(Release_CFLAGS) $(PROJECT_Profile_CFLAGS) /Z7
+CFLAGS  = $(Release_CFLAGS) $(PROJECT_Profile_CFLAGS) /Z7 /DSAS_DLL_BUILD_CONFIGURATION=5
 LDFLAGS = $(Debug_LDFLAGS)
 !ENDIF
 !IF "$(TARGET)" == "Final_Release"
-CFLAGS  = $(Final_Release_CFLAGS)
+CFLAGS  = $(Final_Release_CFLAGS) /DSAS_DLL_BUILD_CONFIGURATION=6
 LDFLAGS = $(Final_Release_LDFLAGS)
 !ENDIF
 
@@ -278,11 +284,22 @@ LDFLAGS = $(Final_Release_LDFLAGS)
 #### Targets ####
 #################
 
-.PHONY: all clean build precompile Make_Dir fastdep source_list
+# <!-- custom: Add build_provenance to the existing non-file target list; its recipe refreshes embedded pre-build evidence on each invocation rather than producing a target named build_provenance. (GPT-6.1-Sol) -->
+.PHONY: all clean build precompile Make_Dir fastdep source_list build_provenance sas_toolchain_info
 
 all: Precompile build
 
 dll: all
+
+# <!-- custom: Report the actual expanded tool selections after Makefile.user/project overrides; IDE and PATH compiler names can differ from these commands.
+# This explicit target only prints configuration and has no compile/link/clean prerequisites. The reporting wrapper reads executable versions without running a compiler. (GPT-6.1-Sol) -->
+sas_toolchain_info:
+	@echo SAS_BUILD_CC=$(CC)
+	@echo SAS_BUILD_CPP=$(CPP)
+	@echo SAS_BUILD_LD=$(LD)
+	@echo SAS_BUILD_RC=$(RC)
+	@echo SAS_BUILD_TOOLKIT=$(TOOLKIT)
+	@echo SAS_BUILD_PSDK=$(PSDK)
 
 clean:
 	@IF EXIST "$(TEMP_TARGET_FILES)" RMDIR /s /q "$(TEMP_TARGET_FILES)"
@@ -305,7 +322,24 @@ build: $(Target_BIN)
 !ENDIF
 
 
-precompile: Make_Dir Target_unfinished $(Target_PCH)
+# <!-- custom: Begin SASGameRecord build snapshot before PCH/object compilation in both serial dll and precompile-then-jom workflows.
+# Regenerate per invocation and remove only CvGameCoreUtils.obj so its embedded evidence cannot remain stale after a no-op build or coarse filesystem timestamp.
+# Existing build configuration/compiler identity already lives in the DLL; record only the request and preexisting artifact counts here, without claiming object reuse or successful-link certification.
+# Redirect before ECHO: the first draft lost numeric values because cmd.exe parsed adjacent digits as redirection descriptors. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+precompile: build_provenance Target_unfinished $(Target_PCH)
+
+# <!-- custom: The bare FIND came with this step, which SAS added on 2026-10-12 with ChatGPT-5.6-Sol and GPT-6.1-Sol (credited above) to count what a build found in temp_files; DIR piped into FIND /C /V "" is cmd.exe's usual way to count lines.
+# find.exe is now named by its System32 path: a bare FIND resolved to Git Bash's Unix find when a build inherited Git Bash's PATH, which crawled all of C: while the build waited (2026-11-11 and 2026-11-13); in Visual C++ 2010 Express and PowerShell a bare FIND already resolved to this same program.
+# makefile_windows_tools.py keeps it so. See KI#38.7. (Claude code Opus 5.5) -->
+build_provenance: Make_Dir
+	@> "$(Target_BUILD_PROVENANCE)" ECHO #define SAS_BUILD_REQUEST "UNKNOWN"
+	@IF DEFINED SAS_BUILD_REQUEST >> "$(Target_BUILD_PROVENANCE)" ECHO #undef SAS_BUILD_REQUEST
+	@IF DEFINED SAS_BUILD_REQUEST >> "$(Target_BUILD_PROVENANCE)" ECHO #define SAS_BUILD_REQUEST "%SAS_BUILD_REQUEST%"
+	@FOR /F %i IN ('DIR /S /B "$(TEMP_TARGET_FILES)\*.obj" 2^>NUL ^| %SystemRoot%\System32\find.exe /C /V ""') DO @>> "$(Target_BUILD_PROVENANCE)" ECHO #define SAS_BUILD_PREEXISTING_OBJECT_COUNT %i
+	@FOR /F %i IN ('DIR /S /B "$(TEMP_TARGET_FILES)\*.@" 2^>NUL ^| %SystemRoot%\System32\find.exe /C /V ""') DO @>> "$(Target_BUILD_PROVENANCE)" ECHO #define SAS_BUILD_PREEXISTING_INCOMPLETE_MARKER_COUNT %i
+	@IF EXIST "$(Target_PCH)" (>> "$(Target_BUILD_PROVENANCE)" ECHO #define SAS_BUILD_PREEXISTING_PCH 1) ELSE (>> "$(Target_BUILD_PROVENANCE)" ECHO #define SAS_BUILD_PREEXISTING_PCH 0)
+	@IF EXIST "$(TEMP_TARGET_FILES)\CvGameCoreUtils.obj" DEL "$(TEMP_TARGET_FILES)\CvGameCoreUtils.obj"
+# <!-- custom: End SASGameRecord embedded build snapshot. (GPT-6.1-Sol) -->
 
 source_list: Make_Dir
 	@ECHO Building source list
@@ -334,7 +368,13 @@ Target_unfinished:
 
 $(Target_BIN_TEMP): $(OBJS) $(Target_RESOURCE)
 	@ECHO.Linking DLL
+# <!-- custom: Begin SASGameRecord pre-link marker; a failed link retains it as observable unfinished-build residue. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	@ECHO.>"$(Target_BIN_TEMP).@"
+# <!-- custom: End SASGameRecord pre-link marker. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	@$(LD) /out:$(Target_BIN_TEMP) $(LDFLAGS) $(LIBS) $(OBJS) $(Target_RESOURCE)
+# <!-- custom: Begin SASGameRecord successful-link marker cleanup; no sidecar is written or installed. (GPT-6.1-Sol) -->
+	@DEL "$(Target_BIN_TEMP).@"
+# <!-- custom: End SASGameRecord successful-link marker cleanup. (GPT-6.1-Sol) -->
 
 {$(SOURCE_DIR)\.}.cpp{$(TEMP_TARGET_FILES)\.}.obj:
 	@ECHO.>"$*.obj.@"
@@ -360,7 +400,7 @@ $(Target_BIN_TEMP): $(OBJS) $(Target_RESOURCE)
 	@ECHO.>"$*.obj.@"
 	@$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH4)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
 	@DEL "$*.obj.@"
-	
+
 {$(SOURCE_DIR)\$(SUBDIR5)}.cpp{$(TEMP_TARGET_FILES)\$(SUBDIR5)}.obj:
 	@ECHO.>"$*.obj.@"
 	@$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH5)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<

@@ -1,0 +1,20 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 423
+# Author: jdog5000
+# Date: 2009-01-04T04:36:09.544769Z
+# Coverage: full
+# Message:
+#   0.50F
+#   
+#   A couple small fixes
+# Changed paths (2):
+#   M /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+#   M /trunk/Better BTS AI/Better BTS AI sources for 0.50.zip
+
+Index: /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/Better BTS AI sources for 0.50.zip
+# Binary file, contents not shown
+

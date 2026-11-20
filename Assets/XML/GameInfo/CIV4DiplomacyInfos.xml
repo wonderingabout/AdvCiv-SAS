@@ -2,6 +2,10 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- *ActualQuotes* by Willowmound, ver. 4.20 (Beyond the Sword) -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- Diplomacy Infos -->
 <Civ4DiplomacyInfos xmlns="x-schema:CIV4GameInfoSchema.xml">
@@ -903,6 +907,48 @@
 						<Text>AI_DIPLO_FIRST_CONTACT_LEADER_GILGAMESH_1</Text>
 					</DiplomacyText>
 				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_EWUARE</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers/>
+					<DiplomacyText>
+						<Text>AI_DIPLO_FIRST_CONTACT_LEADER_EWUARE_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_GRACE_OMALLEY</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers/>
+					<DiplomacyText>
+						<Text>AI_DIPLO_FIRST_CONTACT_LEADER_GRACE_OMALLEY_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_MICHAEL_COLLINS</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers/>
+					<DiplomacyText>
+						<Text>AI_DIPLO_FIRST_CONTACT_LEADER_MICHAEL_COLLINS_1</Text>
+					</DiplomacyText>
+				</Response>
 			</Responses>
 		</DiplomacyInfo>
 		<DiplomacyInfo>
@@ -1660,6 +1706,48 @@
 					<DiplomacyPowers/>
 					<DiplomacyText>
 						<Text>AI_DIPLO_REFUSE_TO_TALK_LEADER_GILGAMESH_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_EWUARE</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers/>
+					<DiplomacyText>
+						<Text>AI_DIPLO_REFUSE_TO_TALK_LEADER_EWUARE_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_GRACE_OMALLEY</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers/>
+					<DiplomacyText>
+						<Text>AI_DIPLO_REFUSE_TO_TALK_LEADER_GRACE_OMALLEY_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_MICHAEL_COLLINS</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers/>
+					<DiplomacyText>
+						<Text>AI_DIPLO_REFUSE_TO_TALK_LEADER_MICHAEL_COLLINS_1</Text>
 					</DiplomacyText>
 				</Response>
 			</Responses>
@@ -2438,6 +2526,48 @@
 					<DiplomacyPowers/>
 					<DiplomacyText>
 						<Text>AI_DIPLO_NO_PEACE_LEADER_GILGAMESH_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_EWUARE</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers/>
+					<DiplomacyText>
+						<Text>AI_DIPLO_NO_PEACE_LEADER_EWUARE_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_GRACE_OMALLEY</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers/>
+					<DiplomacyText>
+						<Text>AI_DIPLO_NO_PEACE_LEADER_GRACE_OMALLEY_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_MICHAEL_COLLINS</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers/>
+					<DiplomacyText>
+						<Text>AI_DIPLO_NO_PEACE_LEADER_MICHAEL_COLLINS_1</Text>
 					</DiplomacyText>
 				</Response>
 			</Responses>
@@ -3893,6 +4023,60 @@
 				</Response>
 				<Response>
 					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_EWUARE</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes>
+						<Attitude><AttitudeType>ATTITUDE_FRIENDLY</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
+						<Attitude><AttitudeType>ATTITUDE_PLEASED</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
+						<Attitude><AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
+					</Attitudes>
+					<DiplomacyPowers/>
+					<DiplomacyText>
+						<Text>AI_DIPLO_GREETINGS_ATT_FR_LEADER_EWUARE_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_GRACE_OMALLEY</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes>
+						<Attitude><AttitudeType>ATTITUDE_FRIENDLY</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
+						<Attitude><AttitudeType>ATTITUDE_PLEASED</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
+						<Attitude><AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
+					</Attitudes>
+					<DiplomacyPowers/>
+					<DiplomacyText>
+						<Text>AI_DIPLO_GREETINGS_ATT_FR_LEADER_GRACE_OMALLEY_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_MICHAEL_COLLINS</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes>
+						<Attitude><AttitudeType>ATTITUDE_FRIENDLY</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
+						<Attitude><AttitudeType>ATTITUDE_PLEASED</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
+						<Attitude><AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
+					</Attitudes>
+					<DiplomacyPowers/>
+					<DiplomacyText>
+						<Text>AI_DIPLO_GREETINGS_ATT_FR_LEADER_MICHAEL_COLLINS_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
 					<Leaders/>
 					<Attitudes>
 						<Attitude>
@@ -5119,6 +5303,57 @@
 					<DiplomacyPowers/>
 					<DiplomacyText>
 						<Text>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_GILGAMESH_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_EWUARE</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes>
+						<Attitude><AttitudeType>ATTITUDE_ANNOYED</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
+						<Attitude><AttitudeType>ATTITUDE_FURIOUS</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
+					</Attitudes>
+					<DiplomacyPowers/>
+					<DiplomacyText>
+						<Text>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_EWUARE_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_GRACE_OMALLEY</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes>
+						<Attitude><AttitudeType>ATTITUDE_ANNOYED</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
+						<Attitude><AttitudeType>ATTITUDE_FURIOUS</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
+					</Attitudes>
+					<DiplomacyPowers/>
+					<DiplomacyText>
+						<Text>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_GRACE_OMALLEY_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_MICHAEL_COLLINS</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes>
+						<Attitude><AttitudeType>ATTITUDE_ANNOYED</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
+						<Attitude><AttitudeType>ATTITUDE_FURIOUS</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
+					</Attitudes>
+					<DiplomacyPowers/>
+					<DiplomacyText>
+						<Text>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MICHAEL_COLLINS_1</Text>
 					</DiplomacyText>
 				</Response>
 			</Responses>
@@ -6882,6 +7117,63 @@
 				</Response>
 				<Response>
 					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_EWUARE</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers>
+						<DiplomacyPower>
+							<DiplomacyPowerType>DIPLOMACYPOWER_WEAKER</DiplomacyPowerType>
+							<bDiplomacyPowerType>1</bDiplomacyPowerType>
+						</DiplomacyPower>
+					</DiplomacyPowers>
+					<DiplomacyText>
+						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_EWUARE_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_GRACE_OMALLEY</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers>
+						<DiplomacyPower>
+							<DiplomacyPowerType>DIPLOMACYPOWER_WEAKER</DiplomacyPowerType>
+							<bDiplomacyPowerType>1</bDiplomacyPowerType>
+						</DiplomacyPower>
+					</DiplomacyPowers>
+					<DiplomacyText>
+						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_GRACE_OMALLEY_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_MICHAEL_COLLINS</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers>
+						<DiplomacyPower>
+							<DiplomacyPowerType>DIPLOMACYPOWER_WEAKER</DiplomacyPowerType>
+							<bDiplomacyPowerType>1</bDiplomacyPowerType>
+						</DiplomacyPower>
+					</DiplomacyPowers>
+					<DiplomacyText>
+						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_MICHAEL_COLLINS_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
 					<Leaders/>
 					<Attitudes/>
 					<DiplomacyPowers>
@@ -7828,6 +8120,63 @@
 				</Response>
 				<Response>
 					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_EWUARE</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers>
+						<DiplomacyPower>
+							<DiplomacyPowerType>DIPLOMACYPOWER_EQUAL</DiplomacyPowerType>
+							<bDiplomacyPowerType>1</bDiplomacyPowerType>
+						</DiplomacyPower>
+					</DiplomacyPowers>
+					<DiplomacyText>
+						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_EWUARE_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_GRACE_OMALLEY</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers>
+						<DiplomacyPower>
+							<DiplomacyPowerType>DIPLOMACYPOWER_EQUAL</DiplomacyPowerType>
+							<bDiplomacyPowerType>1</bDiplomacyPowerType>
+						</DiplomacyPower>
+					</DiplomacyPowers>
+					<DiplomacyText>
+						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_GRACE_OMALLEY_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_MICHAEL_COLLINS</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers>
+						<DiplomacyPower>
+							<DiplomacyPowerType>DIPLOMACYPOWER_EQUAL</DiplomacyPowerType>
+							<bDiplomacyPowerType>1</bDiplomacyPowerType>
+						</DiplomacyPower>
+					</DiplomacyPowers>
+					<DiplomacyText>
+						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_MICHAEL_COLLINS_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
 					<Leaders/>
 					<Attitudes/>
 					<DiplomacyPowers>
@@ -8751,6 +9100,63 @@
 					</DiplomacyPowers>
 					<DiplomacyText>
 						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_GILGAMESH_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_EWUARE</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers>
+						<DiplomacyPower>
+							<DiplomacyPowerType>DIPLOMACYPOWER_STRONGER</DiplomacyPowerType>
+							<bDiplomacyPowerType>1</bDiplomacyPowerType>
+						</DiplomacyPower>
+					</DiplomacyPowers>
+					<DiplomacyText>
+						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_EWUARE_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_GRACE_OMALLEY</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers>
+						<DiplomacyPower>
+							<DiplomacyPowerType>DIPLOMACYPOWER_STRONGER</DiplomacyPowerType>
+							<bDiplomacyPowerType>1</bDiplomacyPowerType>
+						</DiplomacyPower>
+					</DiplomacyPowers>
+					<DiplomacyText>
+						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_GRACE_OMALLEY_1</Text>
+					</DiplomacyText>
+				</Response>
+				<Response>
+					<Civilizations/>
+					<Leaders>
+						<Leader>
+							<LeaderType>LEADER_MICHAEL_COLLINS</LeaderType>
+							<bLeaderType>1</bLeaderType>
+						</Leader>
+					</Leaders>
+					<Attitudes/>
+					<DiplomacyPowers>
+						<DiplomacyPower>
+							<DiplomacyPowerType>DIPLOMACYPOWER_STRONGER</DiplomacyPowerType>
+							<bDiplomacyPowerType>1</bDiplomacyPowerType>
+						</DiplomacyPower>
+					</DiplomacyPowers>
+					<DiplomacyText>
+						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MICHAEL_COLLINS_1</Text>
 					</DiplomacyText>
 				</Response>
 			</Responses>

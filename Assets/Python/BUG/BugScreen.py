@@ -59,9 +59,18 @@
 ## Copyright (c) 2009 The BUG Mod.
 ##
 ## Author: Ruff_Hi
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file.
+# Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 #import BugUtil
 from CvPythonExtensions import *
+# <!-- custom: Resolve interface-art paths through SASVisualUtils so immutable art defines share one lazy cache instead of querying CyArtFileMgr per caller. (ChatGPT-5.6-Sol) -->
+import SASVisualUtils as SASVisuals
+from SASUtils import getInfoTypeOrFail
 #from PyHelpers import PyPlayer
 import CvUtil
 #import ScreenInput
@@ -73,7 +82,6 @@ import BugUtil
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-
 
 class BugTab:
 	def __init__(self, sWidgetId, sTxt_Key, sFont, bUpper, iX, iY, iZ, bShow, bEnabled, bActive, sDraw, sRefresh, WidgetType):
@@ -108,11 +116,10 @@ class BugTab:
 			szText += localText.getText(self.txt_key, ())
 		szText += u"</font>"
 		if not self.enabled:
-			szText = localText.changeTextColor(szText, gc.getInfoTypeForString("COLOR_GREY"))
+			szText = localText.changeTextColor(szText, SASVisuals.Color.GREY)
 		elif self.active:
-			szText = localText.changeTextColor(szText, gc.getInfoTypeForString("COLOR_YELLOW"))
+			szText = localText.changeTextColor(szText, SASVisuals.Color.YELLOW)
 		return szText
-
 
 class BugScreen:
 	def __init__(self, sWidgetId, screen, iWidth, iHeight):
@@ -186,27 +193,26 @@ class BugScreen:
 	def draw(self):
 		self.screen.setDimensions(self.screen.centerX(0), self.screen.centerY(0), self.width, self.height)
 
-		self.screen.addDDSGFC(self.BGwidget_Id, ArtFileMgr.getInterfaceArtInfo(self.BGkey).getPath(), 0, 0, self.width, self.height, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		self.screen.addDDSGFC(self.BGwidget_Id, SASVisuals.InterfaceArt.getPath(self.BGkey), 0, 0, self.width, self.height, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		self.screen.addPanel(self.widget_id + "TopPanel", u"", u"", True, False, 0, 0, self.width, 55, PanelStyles.PANEL_STYLE_TOPBAR )
 		self.screen.addPanel(self.widget_id + "BottomPanel", u"", u"", True, False, 0, 713, self.width, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
 
 		self.screen.showWindowBackground(False)
 
 		# Title
-		self.screen.setLabel(self.Title.widget_id, self.widget_id + "TopPanel", self.Title.getLabel(), CvUtil.FONT_CENTER_JUSTIFY,
-							 self.Title.X, self.Title.Y, self.Title.Z, FontTypes.TITLE_FONT, self.Title.WidgetType, -1, -1)
+		self.screen.setLabel(self.Title.widget_id, self.widget_id + "TopPanel", self.Title.getLabel(), CvUtil.FONT_CENTER_JUSTIFY, self.Title.X, self.Title.Y, self.Title.Z, FontTypes.TITLE_FONT, self.Title.WidgetType, -1, -1)
 
 	def drawActiveTab(self):
 		for tab in self.tabs:
 			if tab.active:
-				if not tab.DrawProc == None:
+				if tab.DrawProc is not None:
 					tab.DrawProc ()
 				break
 
 	def refreshActiveTab(self):
 		for tab in self.tabs:
 			if tab.active:
-				if not tab.RefreshProc == None:
+				if tab.RefreshProc is not None:
 					tab.RefreshProc ()
 				break
 
@@ -219,6 +225,5 @@ class BugScreen:
 					justify = CvUtil.FONT_RIGHT_JUSTIFY
 				else:
 					justify = CvUtil.FONT_LEFT_JUSTIFY
-				self.screen.setText(tab.widget_id, self.widget_id + "BottomPanel", tab.getLabel(), justify,
-									tab.X, tab.Y, tab.Z, FontTypes.TITLE_FONT, tab.WidgetType, -1, -1 )
+				self.screen.setText(tab.widget_id, self.widget_id + "BottomPanel", tab.getLabel(), justify, tab.X, tab.Y, tab.Z, FontTypes.TITLE_FONT, tab.WidgetType, -1, -1 )
 			itab += 1

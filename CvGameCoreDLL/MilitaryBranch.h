@@ -38,10 +38,7 @@ public:
 	static char const* str(MilitaryBranchTypes eBranch);
 
 	// Replacing CvPlayer::getTypicalUnitValue
-	UnitTypes getTypicalUnit(TeamTypes eOberserver = NO_TEAM) const
-	{
-		return m_eTypicalUnit;
-	}
+	UnitTypes getTypicalUnit(TeamTypes eOberserver = NO_TEAM) const { return m_eTypicalUnit; }
 	scaled getTypicalPower(TeamTypes eOberserver = NO_TEAM) const;
 	scaled getTypicalCost(TeamTypes eOberserver = NO_TEAM) const;
 	// Total military power of units in this branch
@@ -94,10 +91,7 @@ protected:
 	/*	Vague expectation of how many extra instances will have been produced
 		when halfway through with the military buildup that this class helps predict.
 		(Could get the era from m_eOwner, but don't want to include CvPlayer.h.) */
-	scaled estimateExtraInstances(scaled rEraFactor) const
-	{
-		return fixp(1.75) + fixp(1.25) * rEraFactor;
-	}
+	scaled estimateExtraInstances(scaled rEraFactor) const { return fixp(1.75) + fixp(1.25) * rEraFactor; }
 
 private:
 	std::ostream& out(std::ostream& os) const;

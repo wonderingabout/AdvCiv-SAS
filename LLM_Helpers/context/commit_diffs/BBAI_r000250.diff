@@ -1,0 +1,965 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 250
+# Author: iustus
+# Date: 2007-01-08T14:18:10.721672Z
+# Coverage: full
+# Message:
+#   explorer improvements: improved movement, draw blue circle where automation will go
+# Changed paths (8):
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvMap.cpp
+#   M /trunk/CvGameCoreDLL/CvMap.h
+#   M /trunk/CvGameCoreDLL/CvUnit.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@249
++++ /trunk/CvGameCoreDLL/CvGame.cpp@250
+@@ -2164,6 +2164,7 @@
+ 
+ 			iRange = 4;
+ 
++			bool bFoundGoody = false;
+ 			for (iDX = -(iRange); iDX <= iRange; iDX++)
+ 			{
+ 				for (iDY = -(iRange); iDY <= iRange; iDY++)
+@@ -2190,6 +2191,7 @@
+ 									{
+ 										if (pLoopPlot->isRevealedGoody(pHeadSelectedUnit->getTeam()))
+ 										{
++											bFoundGoody = true;
+ 											gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+ 										}
+ 									}
+@@ -2199,7 +2201,137 @@
+ 					}
+ 				}
+ 			}
+-		}
++
++			if (!bFoundGoody && (pHeadSelectedUnit->isNoBadGoodies() || pHeadSelectedUnit->getDomainType() == DOMAIN_SEA))
++			{
++				CvPlot* pBestExplorePlotThisTurn = NULL;
++				CvPlot* pBestExplorePlot = pHeadSelectedUnit->AI_getBestExplorePlot((pHeadSelectedUnit->getDomainType() == DOMAIN_SEA) ? 4 : 3, &pBestExplorePlotThisTurn);
++				if (pBestExplorePlotThisTurn != NULL)
++				{
++					if (pBestExplorePlotThisTurn != pHeadSelectedUnit->plot())
++					{
++						gDLL->getEngineIFace()->addColoredPlot(pBestExplorePlotThisTurn->getX_INLINE(), pBestExplorePlotThisTurn->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++					}
++					else if (pBestExplorePlot != NULL && pBestExplorePlotThisTurn != pBestExplorePlot)
++					{
++						gDLL->getEngineIFace()->addColoredPlot(pBestExplorePlot->getX_INLINE(), pBestExplorePlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++					}
++
++#ifdef FASSERT_ENABLE
++					if (pBestExplorePlot != NULL && pBestExplorePlotThisTurn != pBestExplorePlot)
++					{
++						gDLL->getEngineIFace()->addColoredPlot(pBestExplorePlot->getX_INLINE(), pBestExplorePlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_NEGATIVE_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++					}
++#endif
++				}
++			}
++		}
++
++#ifdef ITS_FULL_OF_STARS
++		// testing
++		static bool bDrawCircles = false;
++		if (bDrawCircles)
++		{
++			TeamTypes eTeam = pHeadSelectedUnit->getTeam();
++			int iRange = pHeadSelectedUnit->visibilityRange();
++			int iCenterX = pHeadSelectedUnit->plot()->getX_INLINE();
++			int iCenterY = pHeadSelectedUnit->plot()->getY_INLINE();
++			for (int iDX = -(iRange + 1); iDX <= (iRange + 1); iDX++)
++			{
++				for (int iDY = -(iRange + 1); iDY <= (iRange + 1); iDY++)
++				{
++					CvPlot* pLoopPlot = plotXY(iCenterX, iCenterY, iDX, iDY);
++					if (pLoopPlot != NULL)
++					{
++						bool bPlotVisible = false;
++
++						// if interior, then it is visible
++						if (abs(iDX) <= abs(iRange) && abs(iDY) <= abs(iRange))
++						{
++							if (abs(iDX) == abs(iRange) || abs(iDY) == abs(iRange))
++							{
++								static bool bDrawEdge = false;
++								if (bDrawEdge)
++									bPlotVisible = true;
++							}
++						}
++						// if outer edge, check if it would be visible
++						// uses reverse of logic found in CvPlot::changeAdjacentSight
++						else
++						{
++							int iEdgePlotSeeFromLevel = pLoopPlot->seeFromLevel(eTeam);
++							
++							// for every adjacent inner plot, check its adjacent inner plots
++							CvPlot* pAdjacentPlot;
++							int iAdjacentPlotIndex = 0;
++							while (!bPlotVisible && (pAdjacentPlot = getIndexedInnerPlot(iCenterX, iCenterY, iDX, iDY, iAdjacentPlotIndex++)) != NULL)
++							{
++								int iAdjacentPlotSeeThroughLevel = pAdjacentPlot->seeThroughLevel();
++
++								CvPlot* pInnerPlot;
++								int iInnerPlotIndex = 0;
++								int iAdjacentDX = pAdjacentPlot->getX_INLINE() - iCenterX;
++								int iAdjacentDY = pAdjacentPlot->getY_INLINE() - iCenterY;
++								while (!bPlotVisible && (pInnerPlot = getIndexedInnerPlot(iCenterX, iCenterY, iAdjacentDX, iAdjacentDY, iInnerPlotIndex++, iDX, iDY)) != NULL)
++								{
++									// do not include the contrary direction for inner loop, visibility doesnt bend directions
++									if (iInnerPlotIndex > 2)
++									{
++										break;
++									}
++
++									int iInnerSeeFromLevel = pInnerPlot->seeFromLevel(eTeam);
++									if ((iInnerSeeFromLevel > iAdjacentPlotSeeThroughLevel) ||
++										(iInnerSeeFromLevel == iAdjacentPlotSeeThroughLevel && iEdgePlotSeeFromLevel > iInnerSeeFromLevel))
++									{
++										bPlotVisible = true;
++									}
++								}
++							}
++						}
++						
++						if (bPlotVisible)
++						{
++							gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_UNIT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++						}
++					}
++				}
++			}
++		}
++
++		static bool bDrawMoreCircles = false;
++		if (bDrawMoreCircles)
++		{
++			int iCenterX = GET_PLAYER(getActivePlayer()).getCapitalCity()->plot()->getX_INLINE();
++			int iCenterY = GET_PLAYER(getActivePlayer()).getCapitalCity()->plot()->getY_INLINE();
++			int iDX = pHeadSelectedUnit->plot()->getX_INLINE() - iCenterX;
++			int iDY = pHeadSelectedUnit->plot()->getY_INLINE() - iCenterY;
++
++			CvPlot* pAdjacentPlot;
++			int iAdjacentPlotIndex = 0;
++			while ((pAdjacentPlot = getIndexedInnerPlot(iCenterX, iCenterY, iDX, iDY, iAdjacentPlotIndex++)) != NULL)
++			{
++				if ((iAdjacentPlotIndex == 1 && gDLL->altKey() && !gDLL->ctrlKey()) ||
++					(iAdjacentPlotIndex == 2 && !gDLL->altKey() && gDLL->ctrlKey()) ||
++					(iAdjacentPlotIndex == 3 && gDLL->altKey() && gDLL->ctrlKey()))
++				gDLL->getEngineIFace()->addColoredPlot(pAdjacentPlot->getX_INLINE(), pAdjacentPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_BOX_OUTLINE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++				
++				CvPlot* pInnerPlot;
++				int iInnerPlotIndex = 0;
++				int iAdjacentDX = pAdjacentPlot->getX_INLINE() - iCenterX;
++				int iAdjacentDY = pAdjacentPlot->getY_INLINE() - iCenterY;
++				while ((pInnerPlot = getIndexedInnerPlot(iCenterX, iCenterY, iAdjacentDX, iAdjacentDY, iInnerPlotIndex++, iDX, iDY)) != NULL)
++				{
++					if ((iAdjacentPlotIndex == 1 && gDLL->altKey() && !gDLL->ctrlKey()) ||
++						(iAdjacentPlotIndex == 2 && !gDLL->altKey() && gDLL->ctrlKey()) ||
++						(iAdjacentPlotIndex == 3 && gDLL->altKey() && gDLL->ctrlKey()))
++						gDLL->getEngineIFace()->addColoredPlot(pInnerPlot->getX_INLINE(), pInnerPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_BOX_OUTLINE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++				}
++
++			}
++		}
++#endif
++
+ 	}
+ }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.h@249
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.h@250
+@@ -259,8 +259,6 @@
+ 
+ inline bool rangeIndexToXY(const int iRange, const int iIndex, int &iDX, int &iDY)
+ {
+-	//for (int iIndex = 0; iIndex < iPlotsAtThisRange; iIndex++)
+-
+ 	iDX = 0;
+ 	iDY = 0;
+ 	
+@@ -329,6 +327,147 @@
+ 	return false;
+ }
+ 
++// - | O | - | - | - | - | -		- | - | U | - | - | - | -
++// -------------------------		-------------------------
++// - | Y | X | - | - | Z | -		- | - | - | O | - | - | -
++// -------------------------		-------------------------
++// - | - | X | - | - | Y | O		U | - | Z | Y | X | - | -	
++// -------------------------		-------------------------
++// - | O | Y | C | - | X | -		- | O | Y | C | Y | O | -
++// -------------------------		-------------------------
++// - | - | Z | - | - | - | -		- | - | X | Y | Z | - | U
++// -------------------------		-------------------------
++// - | X | - | - | X | Y | -		- | - | - | O | - | - | -
++// -------------------------		-------------------------
++// O | - | - | - | - | O | -		- | - | - | - | U | - | -
++//
++// given a collection of plots centered at (iCenterX, iCenterY), and
++// a outer plot at (iOuterDX,iOuterDY), returns plot inside and adjacent to start plot, indexed by iIndex
++// will return a minimum of one plot (iIndex == 0), and a max of 3 plots (up to iIndex == 2)
++// in the above picture given input C and O, the return plots are X (and Y) (and Z)
++// if a (iUltraOuterDX, iUltraOuterDY) are provided, they influence which direction gets the lower index when iOuterDX or iOuterDY is zero
++// and a direction reversal is prevented
++inline CvPlot* getIndexedInnerPlot(int iCenterX, int iCenterY, int iOuterDX, int iOuterDY, int iIndex, int iUltraOuterDX = 0, int iUltraOuterDY = 0)
++{
++	int iPlotX, iPlotY;
++	bool bPlotValid = false;
++	
++	int iRange = max(abs(iOuterDX), abs(iOuterDY));
++	int iXNormal = (iOuterDX < 0) ? -1 : 1;
++	int iYNormal = (iOuterDY < 0) ? -1 : 1;
++
++	// handle special ultra outer cases
++	int iOuterToUltraDX = 0;
++	int iOuterToUltraDY = 0;
++	if (iUltraOuterDX != 0 || iUltraOuterDY != 0)
++	{
++		iOuterToUltraDX = iUltraOuterDX - iOuterDX;
++		iOuterToUltraDY = iUltraOuterDY - iOuterDY;
++
++		// if in the middle, set the normal
++		if (iOuterDX == 0)
++		{
++			iXNormal = (iOuterToUltraDX < 0) ? -1 : 1;
++		}
++		
++		if (iOuterDY == 0)
++		{
++			iYNormal = (iOuterToUltraDY < 0) ? -1 : 1;
++		}
++	}
++	
++	// loop through all possibilities, until a match is found
++	int iValidCount = 0;
++	for (int iPass = 0; iValidCount <= iIndex && iPass <= 2; iPass++)
++	{
++		bPlotValid = false;
++		// handle tiny sizes
++		if (iRange <= 1)
++		{
++			// if range is 1, then there is only one inner plot, the center (if range zero, then there are no plots inside)
++			if (iRange == 1 && iPass == 0)
++			{
++				iPlotX = iCenterX;
++				iPlotY = iCenterY;
++				bPlotValid = true;
++			}
++		}
++		else
++		{
++			// first position is diagonally in both directions (always exists, by definition)
++			if (iPass == 0)
++			{
++				iPlotX = iCenterX + iOuterDX - iXNormal;
++				iPlotY = iCenterY + iOuterDY - iYNormal;
++				bPlotValid = true;
++			}
++			// second position is moving straight inside
++			else if (iPass == 1)
++			{
++				// are we horizontally in from the corner? (then directly inside vertically exists)
++				if (abs(iOuterDX) < iRange)
++				{
++					iPlotX = iCenterX + iOuterDX;
++					iPlotY = iCenterY + iOuterDY - iYNormal;
++					bPlotValid = true;
++				}
++				// are we vertically in from the corner? (then directly inside horizontally exists)
++				else if (abs(iOuterDY) < iRange)
++				{
++					iPlotX = iCenterX + iOuterDX - iXNormal;
++					iPlotY = iCenterY + iOuterDY;
++					bPlotValid = true;
++				}
++			}
++			// third position is moving diagonally, contrary direction to the center of this edge
++			else if (iPass == 2)
++			{
++				// are we in horizontally enough? (then inside vertically and contrary horizontally direction exists)
++				if (abs(iOuterDX) < (iRange - 1))
++				{
++					iPlotX = iCenterX + iOuterDX + iXNormal;
++					iPlotY = iCenterY + iOuterDY - iYNormal;
++					bPlotValid = true;
++				}
++				// are we in vertically enough? (then inside horizontally and contrary vertically direction exists)
++				else if (abs(iOuterDY) < (iRange - 1))
++				{
++					iPlotX = iCenterX + iOuterDX - iXNormal;
++					iPlotY = iCenterY + iOuterDY + iYNormal;
++					bPlotValid = true;
++				}
++			}
++		}
++
++		// invalidate direction switches
++		if (bPlotValid)
++		{
++			int iPlotToOuterDX = iOuterDX - iPlotX + iCenterX;
++			int iPlotToOuterDY = iOuterDY - iPlotY + iCenterY;
++			if ((iOuterToUltraDX > 0 && iPlotToOuterDX < 0) || (iOuterToUltraDX < 0 && iPlotToOuterDX > 0) ||
++				(iOuterToUltraDY > 0 && iPlotToOuterDY < 0) || (iOuterToUltraDY < 0 && iPlotToOuterDY > 0))
++			{
++				bPlotValid = false;
++			}
++		}
++
++		// count valid plots until we get to iIndex'th one
++		if (bPlotValid)
++		{
++			iValidCount++;
++		}
++	}
++	
++	// did we find enough valid plots?
++	if (bPlotValid && iValidCount > iIndex)
++	{
++		return GC.getMapINLINE().plotINLINE(iPlotX, iPlotY);
++	}
++
++	return NULL;
++}
++
++
+ inline bool getBit(unsigned int bitField, int bit)
+ {
+ 	if (bit >= 0 && bit < 32)
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@249
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@250
+@@ -2171,8 +2171,25 @@
+ 			CvUnitAI* pHeadUnit = static_cast<CvUnitAI*>(gDLL->getInterfaceIFace()->getSelectionList()->getHeadUnit());
+ 			if (pHeadUnit != NULL)
+ 			{
+-				int iExploreValue = pHeadUnit->AI_explorePlotValue(pPlot);
+-				szString += CvWString::format(SETCOLR L"\n\nExplore Value: %d" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), iExploreValue);
++				int iRawExploreValue = pHeadUnit->AI_explorePlotValue(pPlot);
++				int iExploreValue = iRawExploreValue;
++				if (iExploreValue > 0)
++				{
++					int iPathTurns;
++					if (!pHeadUnit->atPlot(pPlot) && pHeadUnit->generatePath(pPlot, MOVE_NO_ENEMY_TERRITORY, true, &iPathTurns))
++					{
++						int iRange = (pHeadUnit->getDomainType() == DOMAIN_SEA) ? 4 : 3;
++						if (iPathTurns > iRange)
++						{
++							iExploreValue /= (iPathTurns + 1);
++						}
++
++						iExploreValue += pHeadUnit->AI_exploreTurnPathValue();
++
++						szString += CvWString::format(SETCOLR L"\n\nExplore Value: %d (%d)" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), iExploreValue, iRawExploreValue);
++						
++					}
++				}
+ 			}
+ 		}
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvMap.cpp
+--- /trunk/CvGameCoreDLL/CvMap.cpp@249
++++ /trunk/CvGameCoreDLL/CvMap.cpp@250
+@@ -236,6 +236,8 @@
+ 	gDLL->getFAStarIFace()->Initialize(&GC.getBorderFinder(), getGridWidthINLINE(), getGridHeightINLINE(), isWrapXINLINE(), isWrapYINLINE(), NULL, NULL, NULL, borderValid, NULL, NULL, NULL);
+ 	gDLL->getFAStarIFace()->Initialize(&GC.getAreaFinder(), getGridWidthINLINE(), getGridHeightINLINE(), isWrapXINLINE(), isWrapYINLINE(), NULL, NULL, NULL, areaValid, NULL, joinArea, NULL);
+ 	gDLL->getFAStarIFace()->Initialize(&GC.getPlotGroupFinder(), getGridWidthINLINE(), getGridHeightINLINE(), isWrapXINLINE(), isWrapYINLINE(), NULL, NULL, NULL, plotGroupValid, NULL, countPlotGroup, NULL);
++	
++	resetCache(false);
+ }
+ 
+ 
+@@ -1413,14 +1415,65 @@
+ ///////////////////////////////////////
+ 
+ // public functions here
++int CvMap::getCachedExploreValue(const CvPlot* pPlot, const CvUnit* pUnit)
++{	
++	// if cache valid, get the value, otherwise, clear the whole cache
++	int iTurnSlice = GC.getGameINLINE().getTurnSlice();
++	if (m_iLastExploreTurnSlice == iTurnSlice && m_iLastExplorePlayerID == pUnit->getOwnerINLINE() && m_iLastExploreUnitID == pUnit->getID())
++	{
++		int iPlotNum = plotNumINLINE(pPlot->getX_INLINE(), pPlot->getY_INLINE());
++		return m_paiCachedExploreValues[iPlotNum];
++	}
++	else
++	{
++		// remember for next time
++		m_iLastExploreTurnSlice = iTurnSlice;
++		m_iLastExplorePlayerID = pUnit->getOwnerINLINE();
++		m_iLastExploreUnitID = pUnit->getID();
++
++		// initialize all values to -1
++		for (int iI = 0; iI < m_iCachedExploreValuesSize; iI++)
++		{
++			m_paiCachedExploreValues[iI] = -1;
++		}
++	}
++	
++	return -1;
++}
++
++void CvMap::setCachedExploreValue(const CvPlot* pPlot, const CvUnit* pUnit, int iValue)
++{
++	FAssertMsg(m_iCachedExploreValuesSize == numPlotsINLINE(), "explore value cache size incorrect");
++	
++	// if cache invalid, clear the whole cache first
++	int iTurnSlice = GC.getGameINLINE().getTurnSlice();
++	if (m_iLastExploreTurnSlice != iTurnSlice || m_iLastExplorePlayerID != pUnit->getOwnerINLINE() || m_iLastExploreUnitID != pUnit->getID())
++	{
++		// remember for next time
++		m_iLastExploreTurnSlice = iTurnSlice;
++		m_iLastExplorePlayerID = pUnit->getOwnerINLINE();
++		m_iLastExploreUnitID = pUnit->getID();
++
++		// initialize all values to -1
++		for (int iI = 0; iI < m_iCachedExploreValuesSize; iI++)
++		{
++			m_paiCachedExploreValues[iI] = -1;
++		}
++	}
++	
++	// store the value
++	int iPlotNum = plotNumINLINE(pPlot->getX_INLINE(), pPlot->getY_INLINE());
++	m_paiCachedExploreValues[iPlotNum] = iValue;
++}
++
+ 
+ void CvMap::constructCache()
+ {
+ 	// allocate known constants
+ 
+ 	// zero everything out, just to be safe
+-	m_iPlaceholderCount = 0;
+-	m_aiPlaceholderArray = NULL;
++	m_iCachedExploreValuesSize = 0;
++	m_paiCachedExploreValues = NULL;
+ 	
+ 	// note resetCache(/*bConstructorCall*/ true) will be called by CvMap::CvMap
+ }
+@@ -1441,9 +1494,12 @@
+ 
+ void CvMap::uninitCache()
+ {
+-	m_iPlaceholderCount = 0;
+-
+-	SAFE_DELETE_ARRAY(m_aiPlaceholderArray);
++	m_iLastExplorePlayerID = FFreeList::INVALID_INDEX;
++	m_iLastExploreUnitID = FFreeList::INVALID_INDEX;
++	m_iLastExploreTurnSlice = -1;
++
++	m_iCachedExploreValuesSize = 0;
++	SAFE_DELETE_ARRAY(m_paiCachedExploreValues);
+ }
+ 
+ void CvMap::resetCache(bool bConstructorCall)
+@@ -1454,11 +1510,12 @@
+ 	
+ 	if (!bConstructorCall)
+ 	{
+-		FAssertMsg(m_aiPlaceholderArray==NULL, "about to leak memory, CvGame::m_aiShrineBuilding");
+-		m_aiPlaceholderArray = new int[GC.getNumBuildingInfos()];
+-		for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+-		{
+-			m_aiPlaceholderArray[iI] = (int) 0;
++		FAssertMsg(m_paiCachedExploreValues==NULL, "about to leak memory, CvGame::resetCache");
++		m_iCachedExploreValuesSize = numPlotsINLINE();
++		m_paiCachedExploreValues = new int[m_iCachedExploreValuesSize];
++		for (iI = 0; iI < m_iCachedExploreValuesSize; iI++)
++		{
++			m_paiCachedExploreValues[iI] = -1;
+ 		}
+ 	}
+ }
+@@ -1466,6 +1523,9 @@
+ 
+ void CvMap::doUpdateCacheOnTurn()
+ {
+-
+-}
+-
++	// not necessary, but cannot hurt
++	m_iLastExplorePlayerID = FFreeList::INVALID_INDEX;
++	m_iLastExploreUnitID = FFreeList::INVALID_INDEX;
++	m_iLastExploreTurnSlice = -1;
++}
++
+
+Index: /trunk/CvGameCoreDLL/CvMap.h
+--- /trunk/CvGameCoreDLL/CvMap.h@249
++++ /trunk/CvGameCoreDLL/CvMap.h@250
+@@ -301,12 +301,18 @@
+ ///////////////////////////////////////
+ public:
+ 	// public cache functions here
++	int getCachedExploreValue(const CvPlot* pPlot, const CvUnit* pUnit);
++	void setCachedExploreValue(const CvPlot* pPlot, const CvUnit* pUnit, int iValue);
+ 
+ protected:
+ 	bool	m_bConstructorCall;	// hack, because CvMap::reset does not have this parameter, and we cannot add it
+ 
+-	int		m_iPlaceholderCount;
+-	int*	m_aiPlaceholderArray;
++	int		m_iLastExplorePlayerID;
++	int		m_iLastExploreUnitID;
++	int		m_iLastExploreTurnSlice;
++
++	int		m_iCachedExploreValuesSize;
++	int*	m_paiCachedExploreValues;
+ 
+ 	void constructCache();	// called from constructor
+ 	void destructCache();	// called from destructor
+
+Index: /trunk/CvGameCoreDLL/CvUnit.h
+--- /trunk/CvGameCoreDLL/CvUnit.h@249
++++ /trunk/CvGameCoreDLL/CvUnit.h@250
+@@ -650,6 +650,7 @@
+ 	virtual UnitAITypes AI_getUnitAIType() const = 0;																				// Exposed to Python
+ 	virtual void AI_setUnitAIType(UnitAITypes eNewValue) = 0;
+     virtual int AI_sacrificeValue(const CvPlot* pPlot) const = 0;
++	virtual CvPlot* AI_getBestExplorePlot(int iRange, CvPlot** pThisTurnPlot = NULL) = 0;
+ 
+ protected:
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@249
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@250
+@@ -7574,14 +7574,23 @@
+ 	return false;
+ }
+ 
+-int CvUnitAI::AI_explorePlotValue(const CvPlot* pPlot)
++int CvUnitAI::AI_explorePlotValue(const CvPlot* pPlot, bool bAddRandom) const
+ {
+ 	PROFILE_FUNC();
+ 
++	// try to use cached value (it is -1 if there is no cached value)
++	int iCachedValue = GC.getMapINLINE().getCachedExploreValue(pPlot, this);
++	if (iCachedValue >= 0)
++	{
++		return iCachedValue;
++	}
++	
++	// calculate the value
+ 	int iValue = 0;
+ 	int iExtraValue = 0;
+-	
++
+ 	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
++	TeamTypes eTeam = kPlayer.getTeam();
+ 
+ 	CvPlot* pStartPlot = plot();
+ 	bool bStartOnRiver = pStartPlot->isRiver();
+@@ -7598,75 +7607,132 @@
+ 	if (!(pPlot->isRevealed(getTeam(), false)))
+ 	{
+ 		iValue += 10000;
+-	}
+-	else
+-	{
+-		ePlotBonus = pPlot->getNonObsoleteBonusType(getTeam());
+-		if (ePlotBonus != NO_BONUS)
+-		{
+-			iBonusValue = 10 * kPlayer.AI_bonusVal(ePlotBonus);
+-		}
+ 		
+ 		// try to explore other civs
+ 		if (pPlot->isOwned() && pPlot->getOwnerINLINE() != getOwnerINLINE())
+ 		{
+-			iExtraValue += 2000;
+-		}
+-
++			iValue += 2000;
++		}
++	}
++	else
++	{
++		// check for bonus resource
++		ePlotBonus = pPlot->getNonObsoleteBonusType(getTeam());
++		if (ePlotBonus != NO_BONUS)
++		{
++			iBonusValue = 10 * kPlayer.AI_bonusVal(ePlotBonus);
++		}
++		
+ 		// try to follow rivers when possible
+ 		if (pPlot->isRiver())
+ 		{
+ 			iExtraValue += 2000 + (pStartPlot->getRiverID() == pPlot->getRiverID()) ? 5000 : 0;
+ 			bDestinationRiver = true;
+ 		}
+-
+-	}
+-
+-	for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
++	}
++	
++	// add value to all plots that would be visible from this one
+ 	{
+ 		PROFILE("AI_explorePlotValue 1");
+-
+-		CvPlot* pAdjacentPlot = plotDirection(pPlot->getX_INLINE(), pPlot->getY_INLINE(), ((DirectionTypes)iJ));
+-
+-		if (pAdjacentPlot != NULL)
+-		{
+-			if (!(pAdjacentPlot->isRevealed(getTeam(), false)))
+-			{
+-				// unrevealed plots next to revealed bonus resources are worth more
+-				iValue += 1000 + ((ePlotBonus != NO_BONUS) ? iBonusValue : 0);
+-			}
+-			else
+-			{
+-				// try to follow rivers when possible
+-				if (pAdjacentPlot->isRiver())
++		int iRange = visibilityRange();
++		int iCenterX = pPlot->getX_INLINE();
++		int iCenterY = pPlot->getY_INLINE();
++		for (int iDX = -(iRange + 1); iDX <= (iRange + 1); iDX++)
++		{
++			for (int iDY = -(iRange + 1); iDY <= (iRange + 1); iDY++)
++			{
++				PROFILE("AI_explorePlotValue 2");
++
++				CvPlot* pLoopPlot = plotXY(iCenterX, iCenterY, iDX, iDY);
++				if (pLoopPlot != NULL)
+ 				{
+-					iExtraValue += 2000 + (pStartPlot->getRiverID() == pAdjacentPlot->getRiverID()) ? 2000 : 0;
+-					bDestinationRiver = true;
++					bool bPlotVisible = false;
++
++					// if interior, then it is visible
++					if (abs(iDX) <= abs(iRange) && abs(iDY) <= abs(iRange))
++					{
++						bPlotVisible = true;
++					}
++					// if outer edge, check if it would be visible
++					// uses reverse of logic found in CvPlot::changeAdjacentSight
++					else
++					{
++						int iEdgePlotSeeFromLevel = pLoopPlot->seeFromLevel(eTeam);
++						
++						// for every adjacent inner plot, check its adjacent inner plots
++						CvPlot* pAdjacentPlot;
++						int iAdjacentPlotIndex = 0;
++						while (!bPlotVisible && (pAdjacentPlot = getIndexedInnerPlot(iCenterX, iCenterY, iDX, iDY, iAdjacentPlotIndex++)) != NULL)
++						{
++							int iAdjacentPlotSeeThroughLevel = pAdjacentPlot->seeThroughLevel();
++
++							CvPlot* pInnerPlot;
++							int iInnerPlotIndex = 0;
++							int iAdjacentDX = pAdjacentPlot->getX_INLINE() - iCenterX;
++							int iAdjacentDY = pAdjacentPlot->getY_INLINE() - iCenterY;
++							while (!bPlotVisible && (pInnerPlot = getIndexedInnerPlot(iCenterX, iCenterY, iAdjacentDX, iAdjacentDY, iInnerPlotIndex++, iDX, iDY)) != NULL)
++							{
++								int iInnerSeeFromLevel = pInnerPlot->seeFromLevel(eTeam);
++
++								if ((iInnerSeeFromLevel > iAdjacentPlotSeeThroughLevel) ||
++									(iInnerSeeFromLevel == iAdjacentPlotSeeThroughLevel && iEdgePlotSeeFromLevel > iInnerSeeFromLevel))
++								{
++									bPlotVisible = true;
++								}
++							}
++						}
++					}
++					
++					if (bPlotVisible)
++					{
++						if (!(pLoopPlot->isRevealed(getTeam(), false)))
++						{
++							iValue += 1000;
++
++							// explore nearby bonus resources (note this is not perfect, only catches bonuses in middle)
++							if (ePlotBonus != NO_BONUS)
++							{
++								iValue += iBonusValue;
++							}
++
++							// explore coasts
++							if (pPlot->isWater() != pLoopPlot->isWater())
++							{
++								iValue += 3500;
++							}
++
++							// try to explore other civs
++							if (pLoopPlot->isOwned() && pLoopPlot->getOwnerINLINE() != getOwnerINLINE())
++							{
++								iValue += 2000;
++							}
++						}
++						else
++						{
++							// try to follow rivers when possible
++							if (pLoopPlot->isRiver())
++							{
++								iExtraValue += 2000 + (pStartPlot->getRiverID() == pLoopPlot->getRiverID()) ? 2000 : 0;
++								bDestinationRiver = true;
++							}
++						}
++					}
+ 				}
+-
+-				// try to explore other civs
+-				if (pAdjacentPlot->isOwned() && pAdjacentPlot->getOwnerINLINE() != getOwnerINLINE())
+-				{
+-					iExtraValue += 2000;
+-				}
+-
+-				// explore coasts
+-				if (pPlot->isWater() != pAdjacentPlot->isWater())
+-				{
+-					iExtraValue += 2500;
+-				}
+ 			}
+ 		}
+ 	}
+ 
+ 	if (iValue > 0)
+ 	{
+-		PROFILE("AI_explorePlotValue 2");
++		PROFILE("AI_explorePlotValue 3");
+ 
+ 		// random factor
+-		iValue += GC.getGameINLINE().getSorenRandNum(3000, "AI explorePlotValue");
+-
+-		// add bonus values (for rivers, civ boundries, etc)
++		if (bAddRandom)
++		{
++			iValue += GC.getGameINLINE().getSorenRandNum(3000, "AI explorePlotValue");
++		}
++
++		// add bonus values (for rivers, etc)
+ 		iValue += iExtraValue;
+ 		
+ 		// if not following river, explore area around capital first
+@@ -7697,11 +7763,13 @@
+ 
+ 				if (iModifier > 0)
+ 				{
+-					iValue *= max(iModifier, 8);
++					iValue *= min(2 + iModifier, 6);
++					iValue /= 2;
+ 				}
+ 				else if (iModifier < 0)
+ 				{
+-					iValue /= max(-(iModifier*4), 32);
++					iValue *= 11;
++					iValue /= 16;
+ 				}
+ 			}
+ 
+@@ -7714,15 +7782,48 @@
+ 
+ 				if (iModifier > 0)
+ 				{
+-					iValue *= min(iModifier, 8);
++					iValue *= min(2 + iModifier, 6);
++					iValue /= 2;
+ 				}
+ 				else if (iModifier < 0)
+ 				{
+-					iValue /= min(-(iModifier*4), 32);
++					iValue *= 11;
++					iValue /= 16;
+ 				}
+ 			}
+ 		}
+-		
++	}
++	
++	// update cache
++	GC.getMapINLINE().setCachedExploreValue(pPlot, this, iValue);
++
++	return iValue;
++}
++
++int CvUnitAI::AI_exploreTurnPathValue(void) const
++{
++	int iValue = 0;
++	int iPlotCount = 0;
++	
++	// add up the values for every plot we touch the first turn
++	// look at CvSelectionGroup::getPathEndTurnPlot for logic comparison
++	FAStarNode* pNode = getPathLastNode();
++	while (pNode != NULL)
++	{
++		// m_iData2 is number of turns to get there
++		if (pNode->m_iData2 == 1)
++		{
++			iValue += AI_explorePlotValue(GC.getMapINLINE().plotSorenINLINE(pNode->m_iX, pNode->m_iY));
++			iPlotCount++;
++		}
++
++		pNode = pNode->m_pParent;
++	}
++	
++	// reduce path value based on the number of plots added
++	if (iPlotCount > 0)
++	{
++		iValue /= (iPlotCount + 2) / 3;
+ 	}
+ 
+ 	return iValue;
+@@ -7745,7 +7846,7 @@
+ 
+ 		if (AI_plotValid(pLoopPlot))
+ 		{
+-			int iValue = AI_explorePlotValue(pLoopPlot);
++			int iValue = AI_explorePlotValue(pLoopPlot, /*bAddRandom*/ true);
+ 				
+ 			if (iValue > 0)
+ 			{
+@@ -7758,6 +7859,9 @@
+ 						{
+ 							iValue /= (iPathTurns + 1);
+ 
++							// add the value of the plots we actually moving to this turn
++							iValue += AI_exploreTurnPathValue();
++							
+ 							if (iValue > iBestValue)
+ 							{
+ 								iBestValue = iValue;
+@@ -7787,17 +7891,34 @@
+ {
+ 	PROFILE_FUNC();
+ 
++	CvPlot* pBestPlot = NULL;
++	CvPlot* pBestExplorePlot = AI_getBestExplorePlot(iRange, &pBestPlot);
++
++	if ((pBestPlot != NULL) && (pBestExplorePlot != NULL))
++	{
++		FAssert(!atPlot(pBestPlot));
++		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), MOVE_NO_ENEMY_TERRITORY, false, false, MISSIONAI_EXPLORE, pBestExplorePlot);
++		return true;
++	}
++
++	return false;
++}
++
++CvPlot* CvUnitAI::AI_getBestExplorePlot(int iRange, CvPlot** pThisTurnPlot)
++{
++	PROFILE_FUNC();
++
+ 	int iSearchRange = AI_searchRange(iRange);
+ 
+ 	int iBestValue = 0;
+ 	CvPlot* pBestPlot = NULL;
+ 	CvPlot* pBestExplorePlot = NULL;
+-
++	
+ 	for (int iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
+ 	{
+ 		for (int iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
+ 		{
+-			PROFILE("AI_exploreRange 1");
++			PROFILE("AI_getBestExplorePlot 1");
+ 
+ 			CvPlot* pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+ 
+@@ -7811,22 +7932,26 @@
+ 					{
+ 						if (!(pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+ 						{
+-							PROFILE("AI_exploreRange 2");
++							PROFILE("AI_getBestExplorePlot 2");
+ 
+ 							if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_EXPLORE, getGroup(), 3) == 0)
+ 							{
+-								PROFILE("AI_exploreRange 3");
++								PROFILE("AI_getBestExplorePlot 3");
+ 								
+ 								int iPathTurns;
+ 								if (!atPlot(pLoopPlot) && generatePath(pLoopPlot, MOVE_NO_ENEMY_TERRITORY, true, &iPathTurns))
+ 								{
++									// if we can get there in one turn, value higher
++									if (iPathTurns == 1)
++									{
++										iValue *= 16;
++										iValue /= 11;
++									}
++									
+ 									if (iPathTurns <= iRange)
+-									{
+-										// diagonal directions are the most efficient at sea
+-										if (getDomainType() == DOMAIN_SEA && iDX == iDY)
+-										{
+-											iValue *= 2;
+-										}
++									{										
++										// add the value of the plots we actually moving to this turn
++										iValue += AI_exploreTurnPathValue();
+ 										
+ 										if (iValue > iBestValue)
+ 										{
+@@ -7844,18 +7969,13 @@
+ 		}
+ 	}
+ 
+-	if ((pBestPlot != NULL) && (pBestExplorePlot != NULL))
+-	{
+-		PROFILE("AI_exploreRange 4");
+-
+-		FAssert(!atPlot(pBestPlot));
+-		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), MOVE_NO_ENEMY_TERRITORY, false, false, MISSIONAI_EXPLORE, pBestExplorePlot);
+-		return true;
+-	}
+-
+-	return false;
+-}
+-
++	if (pThisTurnPlot != NULL)
++	{
++		*pThisTurnPlot = pBestPlot;
++	}
++
++	return pBestExplorePlot;
++}
+ 
+ // Returns true if a mission was pushed...
+ bool CvUnitAI::AI_targetCity()
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@249
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@250
+@@ -38,13 +38,15 @@
+ 	int AI_getBirthmark() const;
+ 	void AI_setBirthmark(int iNewValue);
+ 
+-  UnitAITypes AI_getUnitAIType() const;
+-  void AI_setUnitAIType(UnitAITypes eNewValue);
++	UnitAITypes AI_getUnitAIType() const;
++	void AI_setUnitAIType(UnitAITypes eNewValue);
+ 
+-  int AI_sacrificeValue(const CvPlot* pPlot) const;
++	int AI_sacrificeValue(const CvPlot* pPlot) const;
++	
++	CvPlot* AI_getBestExplorePlot(int iRange, CvPlot** pThisTurnPlot = NULL);
+ 
+-  void read(FDataStreamBase* pStream);
+-  void write(FDataStreamBase* pStream);
++	void read(FDataStreamBase* pStream);
++	void write(FDataStreamBase* pStream);
+ 
+ protected:
+ 
+@@ -124,7 +126,8 @@
+ 	bool AI_safety();
+ 	bool AI_hide();
+ 	bool AI_goody(int iRange);
+-	int AI_explorePlotValue(const CvPlot* pPlot);
++	int AI_explorePlotValue(const CvPlot* pPlot, bool bAddRandom = false) const;
++	int AI_exploreTurnPathValue(void) const;
+ 	bool AI_explore();
+ 	bool AI_exploreRange(int iRange);
+ 	bool AI_targetCity();
+

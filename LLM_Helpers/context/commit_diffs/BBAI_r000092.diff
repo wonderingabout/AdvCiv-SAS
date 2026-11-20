@@ -1,0 +1,31 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 92
+# Author: blakeciv
+# Date: 2006-11-17T19:01:32.676744Z
+# Coverage: full
+# Message:
+#   (no message)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@91
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@92
+@@ -5634,6 +5634,7 @@
+ 			//FAssert(aeDamagedUnits[iI] != this); 
+ 			// note, removing the head unit from a group will force the group to be completely set if non-human
+ 			aeDamagedUnits[iI]->joinGroup(NULL);
++			aeDamagedUnits[iI]->getGroup()->pushMission(MISSION_SKIP);
+ 			iHurtUnitCount--;	    
+ 		}
+ 	}
+@@ -10786,6 +10787,7 @@
+ 	pBestCity = NULL;
+ 	
+ 	iBestValue = 0;
++	iLoop = 0;
+ 	
+ 	for (pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
+ 	{
+

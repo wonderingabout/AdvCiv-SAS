@@ -1,0 +1,45 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 127
+# Author: penjo
+# Date: 2006-11-28T00:36:32.499848Z
+# Coverage: full
+# Message:
+#   Put in some mildly smart sacrifice value calculations for aircraft.  AI would never use it, but players may find it awful nifty that their injured bomber goes last.  Pretty sure this only helps unit strike missions, not city/tile bombing missions.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@126
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@127
+@@ -838,13 +838,22 @@
+         }
+     }
+ 
+-    iValue  = (currEffectiveStr(pPlot, ((pPlot == NULL) ? NULL : this)));
+-    iValue *= (100 + iCollateralDamageValue);
+-    iValue /= (100 + cityDefenseModifier());
+-    iValue *= (100 + withdrawalProbability());
+-
+-    iValue /= max(1, (1 + GC.getUnitInfo(getUnitType()).getProductionCost()));
+-    iValue /= (10 + getExperience());
++	if (getDomainType() == DOMAIN_AIR) {
++		// Mildly stupid sacrifice value - favors interceptors since they deal damage to intercepting aircraft
++		// Devalues units that are expensive and/or injured
++		// Feel free to make this smarter...  ~Penjo 19Nov2006
++		iValue = 100 * (100 + currInterceptionProbability());
++		iValue /= max(1, (1 + GC.getUnitInfo(getUnitType()).getProductionCost()));
++		iValue /= getDamage() + 1;
++	} else {
++		iValue  = (currEffectiveStr(pPlot, ((pPlot == NULL) ? NULL : this)));
++		iValue *= (100 + iCollateralDamageValue);
++		iValue /= (100 + cityDefenseModifier());
++		iValue *= (100 + withdrawalProbability());
++
++		iValue /= max(1, (1 + GC.getUnitInfo(getUnitType()).getProductionCost()));
++		iValue /= (10 + getExperience());
++	}
+ 
+     return iValue;
+ }
+

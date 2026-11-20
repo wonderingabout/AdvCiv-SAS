@@ -1,0 +1,94 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 590
+# Author: jdog5000
+# Date: 2010-07-01T07:40:10.222705Z
+# Coverage: full
+# Message:
+#   release 1.01f
+# Changed paths (2):
+#   M /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+#   M /trunk/Better BTS AI/todo and ideas.txt
+
+Index: /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/todo and ideas.txt
+--- /trunk/Better BTS AI/todo and ideas.txt@589
++++ /trunk/Better BTS AI/todo and ideas.txt@590
+@@ -1,34 +1,23 @@
+------------------------------------------------------------
+-
+-For BBAI 1.01
+-
+-- Conquer city raze if it's enemy cultural victory city
+-- Debug targetCityValues
+-
+-x AI construction of national wonders?
+-
+-x UNITAI_COUNTER valuation of interception based on enemy air power
+-x New fast movers paradigm: FAST_MOVERS covers non-SODs only, LAND_BLITZ covers SODs
+-
+-x Check AI building of power plants/factories with new health code
+-x Check AI valuation of building happiness
+-
+-
+ -----------------------------------------------------------
+ 
+ For 1.10
+ 
+ - AI scraps extra transports/escorts if planning land war
++- Build like assault fraction of time if at war with non-land targets, fraction based partly on number of wars
+ 
+ - Strategic resource unit AI ... defensive, recapture, offensive and deny
+ 
+ - Breakout power calculations into land, sea, air, production?
+ 	- Add power for promotions (and subtract on death)
+ 	- Add power for cash on hand
++	- UNITAI_COUNTER valuation of interception based on enemy air power
++
++- Gold spending in US
+ 
+ - High value unit preservation
+ 
+ - AI willing to end wars earlier if it has a much higher value target
++- AI acceptance of capitulation of insignificant targets in late game
+ 
+ - DPII diplomacy changes?
+ 
+@@ -42,10 +31,6 @@
+ 
+ Air AI
+ - Bombers hit random nearby enemy cities if no air defenses and nothing else to do?
+-
+-Espionage AI
+-- Why do spies recalculate move every turn?
+-x Gives spies auto-explore option (in CvUnit, look for AUTOMATE_EXPLORE)
+ 
+ Victory Strategy
+ x Effect civic choices
+@@ -73,7 +58,6 @@
+ Unit AI:
+ x Attack stacks should stage in coastal cities if in assault areas
+ - If sending an attack load with no attack city units, change at least one unit ai
+-x Don't send attack city stack with just seige ...
+ - Stranded move to city with good closeness
+ - Generals spawned in enemy territory (mods) -> lead
+ - Fast moving attack/pillage groups sometimes shadow instead of join attack stacks, break off to pillage
+@@ -103,14 +87,10 @@
+ - How do losing/weak civs ask for help in war?  Try to vassal themselves to anyone
+ - when will vassals choose to break free?
+ - Pick state religion logic
+-- Less willing to make peace when about to capture city, more willing when have threatened cities
++x Less willing to make peace when about to capture city, more willing when have threatened cities
+ - Go after civs who previously took your prized cities?
+ - Teams behind in tech more willing to make trades with others also behind?
+ - Scale some interactions with game speed?
+-
+-Logging system:
+-- goodies
+-- Log religion founding
+ 
+ Expose AI variables:
+ - ?
+

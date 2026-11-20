@@ -40,18 +40,18 @@ with GFC_Control_Edit
 			.Caret					=	GFC_CtrlTheme_Bitmap_Control_Edit_Renderer_Caret;
 			.DragCaret				=	GFC_CtrlTheme_Bitmap_Control_Edit_Renderer_DragCaret;
 		}						
-									
+
 		with .Child					
 		{						
 			.Border					=	GFC_CtrlTheme_Bitmap_Control_Edit_Child_Border;
 			.ScrollFrame			=	GFC_CtrlTheme_Bitmap_Control_Edit_Child_ScrollFrame;
 			.PopupMenu				=	GFC_CtrlTheme_Bitmap_Control_Edit_Child_PopupMenu;
 			.DropMenu				=	GFC_CtrlTheme_Bitmap_Control_Edit_Child_DropMenu;
-									
+
 			// History object		
 			.History				=	GFC_CtrlTheme_Bitmap_Control_Edit_Child_DefaultHistory;
 		}						
-									
+
 		with .StyleId				
 		{						
 			.Border					=	GPropertyId(GFC_Control_InBorder_Style);
@@ -73,7 +73,7 @@ with GFC_Control_Edit
 			.TopLayer							=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-											
+
 			// Control flag change masks	
 			.Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_ACTIVE, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
 		}
@@ -97,32 +97,32 @@ with GFC_Control_Edit
 			.Multiline							=	0;	//GFlags(GEditCtrl, GFC_CF_EDIT_MULTILINE);
 			.Clamp								=	0;	//GFlags(GEditCtrl, GFC_CF_EDIT_CLAMP_TOTOP);
 			.ScrollFrame						=	GFlags(GEditCtrl, GFC_CF_EDIT_SCROLLFRAME);
-			
+
 			// Edit flag change																			
 			// - No assignment uses defaults
 			//.EditMask_InvalidateControl		=	GFlags(GEditCtrl);
 			//.EditMask_UpdateDrawText			=	GFlags(GEditCtrl);
 		}	
-		
+
 		with .Size
 		{
 			.ViewMargin					= GRectMargin(4,1,4,1);
 			.PageMargin					= GRectMargin(0,0,0,0);
 			.PageWidth					= 0;
 			.TextOffset					= GPoint(0,0);	
-										
+
 			.MaxCharCount				= 0;
 			.MaxLineCount				= 0;
 			.MaxDataSize				= 2000;
-										
+
 			.TabSize					= 8;
 		//	.TabStops					= 0;
-										
+
 			.ScrollShiftUp				= 0;
 			.ScrollShiftDown			= 0;
 			.ScrollShiftLeft			= 10;
 			.ScrollShiftRight			= 10;
-		
+
 			// Zero for either size component causes
 			// the caret to be the size of the character
 			.Caret_Insert				=	GSize(3,-1);
@@ -140,7 +140,7 @@ with GFC_Control_Edit
 			.CaretExtent_DragCopy		=	GRectMargin(0,0,0,0);
 			.CaretExtent_DragMove		=	GRectMargin(0,0,0,0);
 			.CaretExtent_DragLink		=	GRectMargin(0,0,0,0);
-	
+
 			.Default					=	GSize(64,26);
 		}
 
@@ -153,7 +153,7 @@ with GFC_Control_Edit
 			.Text_InactiveSelect				=	GFC_Control_Color_Text_InactiveSelect;
 			.Text_Disable						=	GFC_Control_Color_Text_Disable;
 			.Text_DisableSelect					=	GFC_Control_Color_Text_DisableSelect;					
-			
+
 			.Inner_Default						=	GFC_Control_Color_Inner_Default;
 			.Inner_Inactive						=	GFC_Control_Color_Inner_Inactive;
 			.Inner_Disable						=	GFC_Control_Color_Inner_Disable;
@@ -161,7 +161,7 @@ with GFC_Control_Edit
 			.Select_Default						=	SF_CtrlTheme_Civ4_Control_Color_Select;
 			.Select_Inactive					=	SF_CtrlTheme_Civ4_Control_Color_DisableSelect;
 			.Select_Disable						=	SF_CtrlTheme_Civ4_Control_Color_DisableSelect;
-			
+
 			.Caret_Insert_Default				=	GFC_Control_Color_3DLook_Darkest;
 			.Caret_Insert_Select				=	GFC_Control_Color_3DLook_Darkest;
 			.Caret_Insert_Inactive				=	GFC_Control_Color_3DLook_Darkest;
@@ -193,15 +193,15 @@ with GFC_Control_Edit
 			.Text_Disable_Factor				=	GFC_Control_Combine_Text_Disable_Factor;
 			.Text_DisableSelect_Dest			=	GFC_Control_Combine_Text_DisableSelect_Dest;								
 			.Text_DisableSelect_Factor			=	GFC_Control_Combine_Text_DisableSelect_Factor;
-			
+
 			.Inner_Default						=	GFC_Control_Combine_Inner_Default;
 			.Inner_Inactive						=	GFC_Control_Combine_Inner_Default;
 			.Inner_Disable						=	GFC_Control_Combine_Inner_Disable;
-			
+
 			.Select_Default						=	GFC_Control_Combine_Inner_Select;
 			.Select_Inactive					=	GFC_Control_Combine_Inner_InactiveSelect;
 			.Select_Disable						=	GFC_Control_Combine_Inner_DisableSelect;
-			
+
 			.Caret_Insert_Default				=	GColorCombine(Source, Disable);  //GColorCombine(XOr, Source);
 			.Caret_Insert_Select				=	GColorCombine(Source, Disable);  //GColorCombine(XOr, Source);
 			.Caret_Insert_Inactive				=	GColorCombine(Source, Disable);  //GColorCombine(XOr, Source);
@@ -230,9 +230,9 @@ with GFC_Control_Edit
 			.DragCopy							=	GFC_Control_Cursor_DragCopy;
 			.DragLink							=	GFC_Control_Cursor_DragLink;
 		}								
-		
+
 		.Font_Text								=	SF_CtrlTheme_Civ4_Control_Font_Size3_Normal;
-												
+
 		.Delay_BlinkRate						=	500;
 
 		with .Text							
@@ -312,7 +312,7 @@ with GFC_Control_Edit
 	{
 		GFC_Control_Border_Size_Margin				= GRectMargin(6,2,6,3);
 		GFC_Control_Flag_Mask_InvalidateControl		=	GFlags(GCtrl, GFC_CF_ACTIVE, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
-			
+
 		with GFC_CtrlTheme_Bitmap_Control_Border_Skin
 		{
 			.Full_Default
@@ -400,7 +400,7 @@ with GFC_Control_Edit
 	style SF_CtrlTheme_Civ4_Control_Edit_Flat_Border_Style
 	{
 		GFC_Control_Border_Size_Margin		= GRectMargin(0,0,2,2);
-			
+
 		with GFC_CtrlTheme_Bitmap_Control_Border_Skin
 		{
 			.Full_Default
@@ -428,18 +428,18 @@ with GFC_Control_Edit
 			.Full_Winoff				=	.Full_Default;
 			.Full_WinoffDisable			=	.Full_Disable;
 		}
-	
+
 		map GFC_CtrlTheme_Bitmap_Control_Border		=	GFC_Control_DefaultBorder_Style;
 		map GFC_Control								=	GFC_Control_DefaultBorder_Style;		
 	}
 
 
 	// ** Normal edit box style
-	
+
 	GFC_Control_StandardEdit_Style
 	{
 		.StyleId_Border				= GPropertyId(SF_CtrlTheme_Civ4_Control_Edit_Standard_Border_Style);
-			
+
 		with GFC_CtrlTheme_Bitmap_Control_Edit_Skin_Inner
 		{
 			.Default
@@ -458,7 +458,7 @@ with GFC_Control_Edit
 				layer {	}
 			}
 		}
-	
+
 		with GFC_CtrlTheme_Bitmap_Control_Edit_Skin_Caret
 		{
 			.Insert_Default
@@ -472,7 +472,7 @@ with GFC_Control_Edit
 			}
 			.Insert_Inactive		=	.Insert_Default;
 			.Insert_Disable			=	.Insert_Default;
-			
+
 			.Overwrite_Default
 			{
 				layer {
@@ -497,7 +497,7 @@ with GFC_Control_Edit
 			.DragMove				=	.DragCopy;
 			.DragLink				=	.DragCopy;
 		}
-		
+
 		map GFC_CtrlTheme_Bitmap_Control_Edit		=	GFC_Control_DefaultEdit_Style;
 		map GFC_Control								=	GFC_Control_DefaultEdit_Style;
 	}	
@@ -1003,7 +1003,7 @@ with GFC_Control_Edit
 		}
 
 		// Scroll shaft skins
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Scroll_Skin_HShaft
 		{
 			.Default
@@ -1111,7 +1111,7 @@ with GFC_Control_Edit
 			.WinoffRollover			= .Rollover;
 			.WinoffDisable			= .Disable;	
 		}
-	
+
 		map GFC_CtrlTheme_Bitmap_Control_Scroll			= GFC_Control_StandardScroll_Style;
 		map GFC_Control									= GFC_Control_StandardScroll_Style;
 	}
@@ -1185,7 +1185,7 @@ with GFC_Control_Edit
 	style SF_CtrlTheme_Civ4_Control_Edit_MultiLine_ScrollFrame_Style
 	{
 		GFC_Control_ScrollFrame_StyleId_Table				=	GPropertyId(SF_CtrlTheme_Civ4_Control_Edit_MultiLine_Table_Style);
-	
+
 		map GFC_CtrlTheme_Bitmap_Control_ScrollFrame		=	GFC_Control_StandardScrollFrame_Style;
 		map GFC_Control										=	GFC_Control_StandardScrollFrame_Style;
 	}
@@ -1194,7 +1194,7 @@ with GFC_Control_Edit
 	{
 		.StyleId_Border				= GPropertyId(SF_CtrlTheme_Civ4_Control_Edit_MultiLine_Border_Style);
 		.StyleId_ScrollFrame		= GPropertyId(SF_CtrlTheme_Civ4_Control_Edit_MultiLine_ScrollFrame_Style);
-		
+
 		.Flag_Multiline								=	GFlags(GEditCtrl, GFC_CF_EDIT_MULTILINE);
 		.Flag_Select								=	GFlags(GEditCtrl, GFC_CF_EDIT_SELECT_NORMAL);
 		.Flag_CropLeft								=	0;

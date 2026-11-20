@@ -1,0 +1,71 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 459
+# Author: jdog5000
+# Date: 2009-06-12T10:43:12.422523Z
+# Coverage: full
+# Message:
+#   0.77B
+#   
+#   One more fix for blockades malfunctioning
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreDLL.rc
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@458
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@459
+@@ -4271,7 +4271,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.77A");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.77B");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreDLL.rc
+--- /trunk/CvGameCoreDLL/CvGameCoreDLL.rc@458
++++ /trunk/CvGameCoreDLL/CvGameCoreDLL.rc@459
+@@ -53,8 +53,8 @@
+ //
+ 
+ VS_VERSION_INFO VERSIONINFO
+- FILEVERSION 3,1,7,0
+- PRODUCTVERSION 3,1,7,0
++ FILEVERSION 3,1,9,0
++ PRODUCTVERSION 3,1,9,0
+  FILEFLAGSMASK 0x17L
+ #ifdef _DEBUG
+  FILEFLAGS 0x1L
+@@ -72,12 +72,12 @@
+             VALUE "Comments", "Use the SDK to override the default game rules"
+             VALUE "CompanyName", "Firaxis Games"
+             VALUE "FileDescription", "Game core DLL for Sid Meier's Civilization 4 : Beyond The Sword"
+-            VALUE "FileVersion", "3, 1, 7, 0"
++            VALUE "FileVersion", "3, 1, 9, 0"
+             VALUE "InternalName", "Sid Meier's Civilization 4 : Beyond The Sword Game Core DLL"
+             VALUE "LegalCopyright", "Copyright (C) Firaxis Games.  All Rights Reserved."
+             VALUE "OriginalFilename", "CvGameCoreDLL.dll"
+             VALUE "ProductName", "Sid Meier's Civilization 4 : Beyond The Sword"
+-            VALUE "ProductVersion", "3, 1, 7, 0"
++            VALUE "ProductVersion", "3, 1, 9, 0"
+         END
+     END
+     BLOCK "VarFileInfo"
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@458
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@459
+@@ -4755,7 +4755,7 @@
+ 						if (isEnemy((TeamTypes)iTeam))
+ 						{
+ 							bValid = (iPathDist <= iBlockadeRange);
+-							if( !bValid && (iChange == -1 && pLoopPlot->getBlockadedCount((TeamTypes)iTeam) == 1) )
++							if( !bValid && (iChange == -1 && pLoopPlot->getBlockadedCount((TeamTypes)iTeam) > 0) )
+ 							{
+ 								bValid = true;
+ 							}
+

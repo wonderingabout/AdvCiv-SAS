@@ -1,0 +1,149 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 491
+# Author: jdog5000
+# Date: 2009-09-26T23:41:12.282035Z
+# Coverage: full
+# Message:
+#   Post 0.81 tweaks and notes
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@490
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@491
+@@ -6316,8 +6316,7 @@
+ 	}
+ 	
+ 	// AI no longer uses emphasis except for short term boosts.
+-	// BBAI TODO: temp for testing
+-	if( false && isHuman() )
++	if( isHuman() )
+ 	{
+ 		if (AI_isEmphasizeYield(YIELD_FOOD))
+ 		{
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@490
++++ /trunk/CvGameCoreDLL/CvGame.cpp@491
+@@ -5417,26 +5417,29 @@
+ 		AI_makeAssignWorkDirty();
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      09/20/09                       poyuzhe & jdog5000     */
++/** BETTER_BTS_AI_MOD                      09/26/09                       poyuzhe & jdog5000     */
+ /**                                                                                              */
+ /** Efficiency                                                                                   */
+ /*************************************************************************************************/
+ 		// From Sanguo Mod Performance, ie the CAR Mod
+ 		// Attitude cache
+-		for (int iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
+-		{
+-			if (GET_PLAYER((PlayerTypes)iJ).isAlive() && GET_PLAYER((PlayerTypes)iJ).getStateReligion() == eIndex)
+-			{
+-				if( pNewValue != NULL )
+-				{
+-					GET_PLAYER(pNewValue->getOwnerINLINE()).AI_invalidateAttitudeCache((PlayerTypes)iJ);
+-					GET_PLAYER((PlayerTypes)iJ).AI_invalidateAttitudeCache(pNewValue->getOwnerINLINE());
+-				}
+-				
+-				if( pOldValue != NULL )
+-				{
+-					GET_PLAYER(pOldValue->getOwnerINLINE()).AI_invalidateAttitudeCache((PlayerTypes)iJ);
+-					GET_PLAYER((PlayerTypes)iJ).AI_invalidateAttitudeCache(pOldValue->getOwnerINLINE());
++		if (GC.getGameINLINE().isFinalInitialized())
++		{
++			for (int iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
++			{
++				if (GET_PLAYER((PlayerTypes)iJ).isAlive() && GET_PLAYER((PlayerTypes)iJ).getStateReligion() == eIndex)
++				{
++					if( pNewValue != NULL )
++					{
++						GET_PLAYER(pNewValue->getOwnerINLINE()).AI_invalidateAttitudeCache((PlayerTypes)iJ);
++						GET_PLAYER((PlayerTypes)iJ).AI_invalidateAttitudeCache(pNewValue->getOwnerINLINE());
++					}
++					
++					if( pOldValue != NULL )
++					{
++						GET_PLAYER(pOldValue->getOwnerINLINE()).AI_invalidateAttitudeCache((PlayerTypes)iJ);
++						GET_PLAYER((PlayerTypes)iJ).AI_invalidateAttitudeCache(pOldValue->getOwnerINLINE());
++					}
+ 				}
+ 			}
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@490
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@491
+@@ -3136,6 +3136,7 @@
+ 
+ 	pGiftUnit->convert(this);
+ 
++	// BBAI TODO: This needs to be much higher, create function?
+ 	GET_PLAYER(pGiftUnit->getOwnerINLINE()).AI_changePeacetimeGrantValue(eOwner, (pGiftUnit->getUnitInfo().getProductionCost() / 5));
+ 
+ 	szBuffer = gDLL->getText("TXT_KEY_MISC_GIFTED_UNIT_TO_YOU", GET_PLAYER(eOwner).getNameKey(), pGiftUnit->getNameKey());
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@490
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@491
+@@ -1298,6 +1298,8 @@
+ 		{
+ 			return;
+ 		}
++
++		// BBAI TODO: Go to a good city (like one with a transport ...
+ 	}
+ 
+ 	if (AI_retreatToCity())
+@@ -8133,7 +8135,7 @@
+ 		}
+ 	}
+ 
+-	// TODO: Support friendly attacks on common enemies, if low risk?
++	// BBAI TODO: Support friendly attacks on common enemies, if low risk?
+ 
+ 	if (canAirDefend())
+ 	{
+@@ -8437,7 +8439,7 @@
+ 		return;
+ 	}
+ 
+-	// TODO: how valuable is recon information to AI in war time?	
++	// BBAI TODO: how valuable is recon information to AI in war time?	
+ 	if (canRecon(plot()))
+ 	{
+ 		if (GC.getGame().getSorenRandNum(bDefensive ? 6 : 3, "AI defensive air recon") == 0)
+@@ -8579,7 +8581,6 @@
+ 	
+ 	if (isCargo())
+ 	{
+-		// BBAI TODO: 3.19 changed this from 1 in 5 to 2 in 3 ... good?
+ 		int iRand = GC.getGameINLINE().getSorenRandNum(3, "AI Air Missile plot bombing");
+ 		if (iRand != 0)
+ 		{
+@@ -13067,7 +13068,6 @@
+ /** Unit AI, Efficiency                                                                          */
+ /*************************************************************************************************/
+ // Returns true if a mission was pushed...
+-// BBAI TODO: max path length
+ bool CvUnitAI::AI_protect(int iOddsThreshold, int iMaxPathTurns)
+ {
+ 	PROFILE_FUNC();
+@@ -16450,6 +16450,8 @@
+ 			if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pCitySitePlot, MISSIONAI_FOUND, getGroup(), 4) == 0)
+ 			{
+ 				int iPathTurns;
++				// BBAI TODO: Nearby plots too if much shorter (settler walk from there)
++				// also, if plots are in area player already has cities, then may not be coastal ... (see Earth 1000 AD map for Inca)
+ 				if (generatePath(pCitySitePlot, 0, true, &iPathTurns))
+ 				{
+ 					iValue = pCitySitePlot->getFoundValue(getOwnerINLINE());
+

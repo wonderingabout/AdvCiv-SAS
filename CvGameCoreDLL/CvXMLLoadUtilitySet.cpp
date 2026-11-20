@@ -8,6 +8,9 @@
 #include "CvInfo_All.h"
 #include "CvGameAI.h" // advc.104x
 #include "FVariableSystem.h"
+#include "BBAILog.h" // <!-- custom: Cache XML-backed BBAI diagnostic levels after all GlobalDefines overrides load so widespread disabled gates are direct reads. (ChatGPT-5.6-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Cache the structured recorder level once after all GlobalDefines overrides load so its widespread disabled hot gates are direct reads. (ChatGPT-5.6-Sol) -->
+#include "SelfMod.h" // <!-- custom: smc::BtS_EXE, to apply the setup screen size patch before the main menu opens. (Claude code Opus 5.5) -->
 // <advc> Overwrite the definition in CvGlobals.h b/c a const GC is no use here
 #undef GC
 #define GC CvGlobals::getInstance() // </advc>
@@ -28,7 +31,7 @@ bool CvXMLLoadUtility::ReadGlobalDefines(TCHAR const* szXMLFileName, CvCacheObje
 	// advc: Handle successful read upfront
 	if (gDLL->cacheRead(cache, szXMLFileName)) // src data file name
 	{
-		logMsg("Read GlobalDefines from cache");
+		logMsg("XML_CACHE", "action=READ outcome=SUCCEEDED target=GlobalDefines");
 		return true;
 	}
 	#endif
@@ -157,7 +160,7 @@ bool CvXMLLoadUtility::ReadGlobalDefines(TCHAR const* szXMLFileName, CvCacheObje
 				sprintf(szMessage, "Failed writing to global defines cache.\nCurrent XML file is: %s", GC.getCurrentXMLFile().GetCString());
 				gDLL->MessageBox(szMessage, "XML Caching Error");
 			}
-			else logMsg("Wrote GlobalDefines to cache");
+			else logMsg("XML_CACHE", "action=WRITE outcome=SUCCEEDED target=GlobalDefines");
 			#endif
 		}
 	}
@@ -194,6 +197,10 @@ bool CvXMLLoadUtility::SetGlobalDefines()
 		return false;
 	if(!ReadGlobalDefines("xml\\GlobalDefines_advc.xml", cache))
 		return false; // </advc.009>
+	// <!-- custom: add our new advciv-sas specific file as well, as also recommended by chatgpt 5 upon checking this code sample as i asked it to, check if accurate -->
+	// Load AdvCiv-SAS overrides / extras
+	if(!ReadGlobalDefines("xml\\GlobalDefines_advciv_sas.xml", cache))
+		return false; // </advc.009>
 
 	// BETTER_BTS_AI_MOD, XML Options, 02/21/10, jdog5000: START
 	ReadGlobalDefines("xml\\BBAI_Game_Options_GlobalDefines.xml", cache);
@@ -224,7 +231,22 @@ bool CvXMLLoadUtility::SetGlobalDefines()
 	#if ENABLE_XML_FILE_CACHE
 	gDLL->destroyCache(cache);
 	#endif
+	// <!-- custom: SAS's XML file keeps its SAS_ namespace, but the installed EXE contains the inherited SAVE_VERSION key and BUG's GameUtil still reads that name.
+	// Derive this compatibility key from the single editable SAS_SAVE_VERSION after all modular overrides, before global caches are initialized; do not maintain two XML identity values. See KI#166.2. (GPT-6.1-Sol) -->
+	GC.getDefinesVarSystem()->SetValue("SAVE_VERSION", GC.getDefineINT("SAS_SAVE_VERSION"));
 	GC.cacheGlobals();
+	// <!-- custom: Activate optional silent assertion handling only after every GlobalDefines/module override has had its final say; earlier startup failures keep the normal dialog and still log.
+	// Match the Windows assertion-dialog build guard so ordinary Release builds need neither this cache nor its initialization call. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	#if defined(FASSERT_ENABLE) && defined(WIN32)
+	cacheSASAssertionSilentPolicy();
+	#endif
+	// <!-- custom: Cache BBAI category levels only after every base/SAS/modular define file has had its final say; before this point the zero-initialized settings safely keep diagnostics disabled. (ChatGPT-5.6-Sol) -->
+	cacheSASBBAILogSettings();
+	// <!-- custom: Do this only after every base/SAS/modular define file has had its final say.
+	// Before this point the zero-initialized recorder cache safely means disabled; afterwards no gameplay hook needs an out-of-line XML-backed level getter. (ChatGPT-5.6-Sol) -->
+	cacheSASGameRecordLogLevel();
+	// <!-- custom: Cache the independently switchable action trace only after every GlobalDefines/module override has loaded; ordinary level-0 hooks short-circuit before reading it. (ChatGPT-5.6-Sol) -->
+	cacheSASGameRecordActionTraceEnabled();
 	return true;
 }
 
@@ -429,6 +451,7 @@ bool CvXMLLoadUtility::SetGlobalTypes()
 				"Civ4Types/FootstepAudioTypes/FootstepAudioType",
 				&GC.getNumFootstepAudioTypes());
 
+		// <!-- custom: Not a doubled line: each call moves the XML cursor up one level, so the pair climbs two, as in BtS's original. See KI#1098. (Claude code Opus 5.5) -->
 		gDLL->getXMLIFace()->SetToParent(m_pFXml);
 		gDLL->getXMLIFace()->SetToParent(m_pFXml);
 		SetVariableListTagPair(&GC.getFootstepAudioTags(), "FootstepAudioTags",
@@ -485,7 +508,7 @@ bool CvXMLLoadUtility::LoadGlobalText()
 	CvCacheObject* cache = gDLL->createGlobalTextCacheObject("GlobalText.dat");	// cache file name
 	if (gDLL->cacheRead(cache))
 	{
-		logMsg("Read GlobalText from cache");
+		logMsg("XML_CACHE", "action=READ outcome=SUCCEEDED target=GlobalText");
 		gDLL->destroyCache(cache);
 		return true;
 	}
@@ -524,7 +547,11 @@ bool CvXMLLoadUtility::LoadGlobalText()
 		if (bValid)
 		{
 			const int& iLanguage = GAMETEXT.getCurrentLanguage();
-			const int iMax = GC.getDefineINT("MAX_NUM_LANGUAGES");
+
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const int iMAX_NUM_LANGUAGES = GC.getDefineINT("MAX_NUM_LANGUAGES");
+
+			const int iMax = iMAX_NUM_LANGUAGES;
 			int i;
 			for (i = 0; i < iMax; i++)
 			{
@@ -607,7 +634,7 @@ bool CvXMLLoadUtility::LoadGlobalText()
 			gDLL->MessageBox(szMessage, "XML Caching Error");
 		}
 		if (bOk)
-			logMsg("Wrote GlobalText to cache");
+			logMsg("XML_CACHE", "action=WRITE outcome=SUCCEEDED target=GlobalText");
 	gDLL->destroyCache(cache);
 	#endif
 	return true;
@@ -690,6 +717,15 @@ bool CvXMLLoadUtility::LoadPreMenuGlobals()
 	LoadGlobalClassInfo(GC.m_paSpecialUnitInfo, "CIV4SpecialUnitInfos", "Units", "Civ4SpecialUnitInfos/SpecialUnitInfos/SpecialUnitInfo", false);
 	LoadGlobalClassInfo(GC.m_paProjectInfo, "CIV4ProjectInfo", "GameInfo", "Civ4ProjectInfo/ProjectInfos/ProjectInfo", true);
 	LoadGlobalClassInfo(GC.m_paCivicInfo, "CIV4CivicInfos", "GameInfo", "Civ4CivicInfos/CivicInfos/CivicInfo", false, &CvDLLUtilityIFaceBase::createCivicInfoCacheObject);
+	// <!-- custom: moved CIV4VoteInfo load here from LoadPostMenuGlobals
+	// so VoteInfos are parsed at app startup instead of only after leaving the main menu.
+	// Reason: our Sevopedia Votes category would otherwise show an empty list when opened
+	// from the main menu, since gc.getNumVoteInfos() returns 0 pre-game, and Sevopedia
+	// caches that empty list. Placed AFTER CivicInfos because CIV4VoteInfo.xml references
+	// civic types via <ForceCivics>; loading it before civics triggers unknown-civic-type
+	// XML errors at launch. Safe to move: CvVoteInfo is plain XML-backed data with no
+	// per-game state. (Claude code Opus 4.7) -->
+	LoadGlobalClassInfo(GC.m_paVoteInfo, "CIV4VoteInfo", "GameInfo", "Civ4VoteInfo/VoteInfos/VoteInfo", false);
 	FOR_EACH_ENUM(VoteSource)
 		GC.getInfo(eLoopVoteSource).readPass3();
 	LoadGlobalClassInfo(GC.m_paLeaderHeadInfo, "CIV4LeaderHeadInfos", "Civilizations", "Civ4LeaderHeadInfos/LeaderHeadInfos/LeaderHeadInfo", false, &CvDLLUtilityIFaceBase::createLeaderHeadInfoCacheObject);
@@ -717,6 +753,24 @@ bool CvXMLLoadUtility::LoadPreMenuGlobals()
 	LoadGlobalClassInfo(GC.m_paGameOptionInfo, "CIV4GameOptionInfos", "GameInfo", "Civ4GameOptionInfos/GameOptionInfos/GameOptionInfo", false);
 	LoadGlobalClassInfo(GC.m_paMPOptionInfo, "CIV4MPOptionInfos", "GameInfo", "Civ4MPOptionInfos/MPOptionInfos/MPOptionInfo", false);
 	LoadGlobalClassInfo(GC.m_paForceControlInfo, "CIV4ForceControlInfos", "GameInfo", "Civ4ForceControlInfos/ForceControlInfos/ForceControlInfo", false);
+	// <!-- custom: moved CIV4EventInfos + CIV4EventTriggerInfos load here from
+	// LoadOptionalGlobals so event data is parsed at app startup instead of only after
+	// a game begins. Reason: our Sevopedia Event Triggers category would otherwise show
+	// an empty list when opened from the main menu, since gc.getNumEventTriggerInfos()
+	// returns 0 pre-game, and Sevopedia caches that empty list. Same pattern as the
+	// CIV4VoteInfo move earlier in this function. Placed at the END of the info-loading
+	// block because CIV4EventInfos.xml references yields (YIELD_PRODUCTION, ...) and
+	// commerces (COMMERCE_*) via iYield/iCommerce fields — those info types are loaded
+	// just above on lines ending with CIV4YieldInfos / CIV4CommerceInfo, and an earlier
+	// placement produced "Tag: YIELD_PRODUCTION ... was incorrect" XML errors at launch.
+	// Events also reference civs/leaders/religions/etc., all of which are now loaded too.
+	// We also set m->bEventsLoaded so LoadOptionalGlobals skips its own (now-redundant)
+	// load. Note: GAMEOPTION_NO_EVENTS intentionally does NOT gate this load — that
+	// option controls whether events *fire* in-game, not whether their data is available
+	// for display in Sevopedia. (Claude code Opus 4.7) -->
+	LoadGlobalClassInfo(GC.m_paEventInfo, "CIV4EventInfos", "Events", "Civ4EventInfos/EventInfos/EventInfo", true, &CvDLLUtilityIFaceBase::createEventInfoCacheObject);
+	LoadGlobalClassInfo(GC.m_paEventTriggerInfo, "CIV4EventTriggerInfos", "Events", "Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo", false, &CvDLLUtilityIFaceBase::createEventTriggerInfoCacheObject);
+	m->bEventsLoaded = true;
 
 	// Allow data to be cached
 	CvEraInfo::allInfosRead(); // advc.erai
@@ -753,6 +807,8 @@ bool CvXMLLoadUtility::LoadPreMenuGlobals()
 	TestScaledNum(); // </advc.fract>
 	getUWAI().doXML(); // advc.104x
 	GC.setXMLLoadUtility(this); // advc.003v
+	// <!-- custom: Resize the pre-game setup screens here, before the main menu can open one; GlobalDefines are loaded by now. See KI#1082. (Claude code Opus 5.5) -->
+	smc::BtS_EXE.patchSetupScreenSize();
 
 	return true;
 }
@@ -800,8 +856,9 @@ bool CvXMLLoadUtility::LoadPostMenuGlobals()
 	LoadGlobalClassInfo(GC.m_paCommandInfo, "CIV4CommandInfos", "Units", "Civ4CommandInfos/CommandInfos/CommandInfo", false);
 	LoadGlobalClassInfo(GC.m_paAutomateInfo, "CIV4AutomateInfos", "Units", "Civ4AutomateInfos/AutomateInfos/AutomateInfo", false);
 
-	UpdateProgressCB("Global Vote");
-	LoadGlobalClassInfo(GC.m_paVoteInfo, "CIV4VoteInfo", "GameInfo", "Civ4VoteInfo/VoteInfos/VoteInfo", false);
+	// <!-- custom: CIV4VoteInfo load moved to LoadPreMenuGlobals (placed right after CIV4CivicInfos since <ForceCivics> references civic types) so the Sevopedia Votes category populates from the main menu too; see the matching comment there for the full rationale. (Claude code Opus 4.7) -->
+	//UpdateProgressCB("Global Vote");
+	//LoadGlobalClassInfo(GC.m_paVoteInfo, "CIV4VoteInfo", "GameInfo", "Civ4VoteInfo/VoteInfos/VoteInfo", false);
 
 	UpdateProgressCB("Global Interface");
 	// advc.003j:
@@ -845,19 +902,21 @@ bool CvXMLLoadUtility::LoadPostMenuGlobals()
 bool CvXMLLoadUtility::LoadOptionalGlobals()
 {
 	bool bFXmlCreated = false; // Perhaps better not to do this twice
-	if (!m->bEventsLoaded &&
-		(!GC.getGame().isOption(GAMEOPTION_NO_EVENTS) ||
-		/*	Don't risk sync issue that might arise from one player having
-			loaded the data through a previously started game */
-		GC.getGame().isNetworkMultiPlayer()))
-	{
-		if (!CreateFXml())
-			return false;
-		LoadGlobalClassInfo(GC.m_paEventInfo, "CIV4EventInfos", "Events", "Civ4EventInfos/EventInfos/EventInfo", true, &CvDLLUtilityIFaceBase::createEventInfoCacheObject);
-		LoadGlobalClassInfo(GC.m_paEventTriggerInfo, "CIV4EventTriggerInfos", "Events", "Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo", false, &CvDLLUtilityIFaceBase::createEventTriggerInfoCacheObject);
-		m->bEventsLoaded = true;
-		bFXmlCreated = true;
-	}
+	// <!-- custom: CIV4EventInfos + CIV4EventTriggerInfos load moved to LoadPreMenuGlobals (right after CIV4VoteInfo) so the Sevopedia Event Triggers category populates from the main menu too.
+	// See the matching comment at the new load site for the full rationale. (Claude code Opus 4.7) -->
+	//if (!m->bEventsLoaded &&
+	//	(!GC.getGame().isOption(GAMEOPTION_NO_EVENTS) ||
+	//	/*	Don't risk sync issue that might arise from one player having
+	//		loaded the data through a previously started game */
+	//	GC.getGame().isNetworkMultiPlayer()))
+	//{
+	//	if (!CreateFXml())
+	//		return false;
+	//	LoadGlobalClassInfo(GC.m_paEventInfo, "CIV4EventInfos", "Events", "Civ4EventInfos/EventInfos/EventInfo", true, &CvDLLUtilityIFaceBase::createEventInfoCacheObject);
+	//	LoadGlobalClassInfo(GC.m_paEventTriggerInfo, "CIV4EventTriggerInfos", "Events", "Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo", false, &CvDLLUtilityIFaceBase::createEventTriggerInfoCacheObject);
+	//	m->bEventsLoaded = true;
+	//	bFXmlCreated = true;
+	//}
 	// <advc.tsl>
 	if (!m->bTrueStartsDataLoaded && GC.getGame().isOption(GAMEOPTION_TRUE_STARTS))
 	{
@@ -899,7 +958,7 @@ bool CvXMLLoadUtility::LoadThroneRoomInfo()
 void CvXMLLoadUtility::SetGlobalStringArray(CvString **ppszString, char* szTagName, int* iNumVals, bool bUseEnum)
 {
 	PROFILE_FUNC();
-	logMsg("SetGlobalStringArray %s\n", szTagName);
+	logMsg("XML_GLOBAL_STRING_ARRAY", "tag=%s\n", szTagName);
 
 	CvString* pszString = NULL; // checked at the end of the function
 
@@ -971,7 +1030,7 @@ void CvXMLLoadUtility::SetGlobalActionInfo()
 		(With CvActionInfo::getSubType exported from the DLL, the approach of
 		explicitly storing (sub-)type IDs can't easily be abandoned.) */
 	PROFILE_FUNC();
-	logMsg("SetGlobalActionInfo\n");
+	logMsg("XML_GLOBAL_ACTION_INFO", "action=SET\n");
 
 	/*	Originally named "iOldActionInfos". Not sure what this is for, modular loading?
 		Normally 0 (no action infos yet). */
@@ -1090,7 +1149,7 @@ void CvXMLLoadUtility::SetGlobalActionInfo()
 void CvXMLLoadUtility::SetGlobalAnimationPathInfo(CvAnimationPathInfo** ppAnimationPathInfo, char* szTagName, int* iNumVals)
 {
 	PROFILE_FUNC();
-	logMsg("SetGlobalAnimationPathInfo %s\n", szTagName);
+	logMsg("XML_GLOBAL_ANIMATION_PATH_INFO", "tag=%s\n", szTagName);
 
 	CvAnimationPathInfo * pAnimPathInfo = NULL;	// local pointer to the domain info memory
 
@@ -1161,11 +1220,10 @@ void CvXMLLoadUtility::SetGlobalAnimationPathInfo(CvAnimationPathInfo** ppAnimat
 
 
 // Reads game text info from XML and adds it to the translation manager
-void CvXMLLoadUtility::SetGameText(const char* szTextGroup, const char* szTagName,
-	std::string const& sLanguageName) // K-Mod
+void CvXMLLoadUtility::SetGameText(const char* szTextGroup, const char* szTagName, std::string const& sLanguageName) // K-Mod
 {
 	PROFILE_FUNC();
-	logMsg("SetGameText %s\n", szTagName);
+	logMsg("XML_GAME_TEXT", "tag=%s\n", szTagName);
 
 	if (gDLL->getXMLIFace()->LocateNode(m_pFXml, szTextGroup)) // Get the Text Group 1st
 	{
@@ -1195,14 +1253,14 @@ void CvXMLLoadUtility::SetGameText(const char* szTextGroup, const char* szTagNam
 	Takes the szTagName parameter and loads the ppszString with the text values
 	under the tags. This will be the hints displayed during game initialization and load. */
 template <class T>
-void CvXMLLoadUtility::SetGlobalClassInfo(std::vector<T*>& aInfos, const char* szTagName,
-	bool bPassTwo, // advc.rh: Renamed from bTwoPass
-	bool bFinalCall) // advc.xmldefault
+// advc.rh: Renamed from bTwoPass
+// <!-- custom: hoisted from multiline signature between `bPassTwo` and `bFinalCall` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvXMLLoadUtility::SetGlobalClassInfo(std::vector<T*>& aInfos, const char* szTagName, bool bPassTwo, bool bFinalCall) // advc.xmldefault
 {
 	char szLog[256];
 	sprintf(szLog, "SetGlobalClassInfo (%s)", szTagName);
 	PROFILE(szLog);
-	logMsg(szLog);
+	logMsg("XML_GLOBAL_CLASS_INFO", "tag=%s pass=%d final=%d", szTagName, (bPassTwo ? 2 : 1), bFinalCall);
 
 	// locate the tag name in the xml file
 	if (!gDLL->getXMLIFace()->LocateNode(m_pFXml, szTagName))
@@ -1307,7 +1365,7 @@ void CvXMLLoadUtility::SetDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfo
 	char szLog[256];
 	sprintf(szLog, "SetDiplomacyInfo (%s)", szTagName);
 	PROFILE(szLog);
-	logMsg(szLog);
+	logMsg("XML_DIPLOMACY_INFO", "tag=%s", szTagName);
 
 	// ocate the tag name in the xml file
 	if (!gDLL->getXMLIFace()->LocateNode(m_pFXml, szTagName))
@@ -1343,10 +1401,7 @@ void CvXMLLoadUtility::SetDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfo
 }
 
 template <class T>
-void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos,
-	const char* szFileRoot, const char* szFileDirectory,
-	const char* szXmlPath, bool bTwoPass,
-	CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (TCHAR const*))
+void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos, const char* szFileRoot, const char* szFileDirectory, const char* szXmlPath, bool bTwoPass, CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (TCHAR const*))
 {
 	//GC.addToInfosVectors(aInfos); // advc.enum (no longer needed)
 	#if ENABLE_XML_FILE_CACHE
@@ -1358,7 +1413,7 @@ void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos,
 		pCache = (gDLL->*pArgFunction)(CvString::format("%s.dat", szFileRoot));	// cache file name
 		if (gDLL->cacheRead(pCache, CvString::format("xml\\\\%s\\\\%s.xml", szFileDirectory, szFileRoot)))
 		{
-			logMsg("Read %s from cache", szFileDirectory);
+			logMsg("XML_CACHE", "action=READ outcome=SUCCEEDED target=%s", szFileDirectory);
 			bLoaded = true;
 			bWriteCache = false;
 		}
@@ -1451,7 +1506,7 @@ void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos,
 						gDLL->MessageBox(szMessage, "XML Caching Error");
 					}
 					if (bOk)
-						logMsg("Wrote %s to cache", szFileDirectory);
+						logMsg("XML_CACHE", "action=WRITE outcome=SUCCEEDED target=%s", szFileDirectory);
 				}
 			#endif
 		}
@@ -1463,9 +1518,7 @@ void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos,
 }
 
 
-void CvXMLLoadUtility::LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfos,
-	const char* szFileRoot, const char* szFileDirectory, const char* szXmlPath,
-	CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (TCHAR const*))
+void CvXMLLoadUtility::LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfos, const char* szFileRoot, const char* szFileDirectory, const char* szXmlPath, CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (TCHAR const*))
 {
 	#if ENABLE_XML_FILE_CACHE
 	bool bLoaded = false;
@@ -1476,7 +1529,7 @@ void CvXMLLoadUtility::LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInf
 		pCache = (gDLL->*pArgFunction)(CvString::format("%s.dat", szFileRoot));	// cache file name
 		if (gDLL->cacheRead(pCache, CvString::format("xml\\\\%s\\\\%s.xml", szFileDirectory, szFileRoot)))
 		{
-			logMsg("Read %s from cache", szFileDirectory);
+			logMsg("XML_CACHE", "action=READ outcome=SUCCEEDED target=%s", szFileDirectory);
 			bLoaded = true;
 			bWriteCache = false;
 		}
@@ -1525,7 +1578,7 @@ void CvXMLLoadUtility::LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInf
 						gDLL->MessageBox(szMessage, "XML Caching Error");
 					}
 					if (bOk)
-						logMsg("Wrote %s to cache", szFileDirectory);
+						logMsg("XML_CACHE", "action=WRITE outcome=SUCCEEDED target=%s", szFileDirectory);
 				}
 			#endif
 		}
@@ -1561,15 +1614,14 @@ int CvXMLLoadUtility::SetYields(int** ppiYield)
 	if (!GetChildXmlVal(piYield[0]))
 		return 0;
 
-	if(iNumSibs > NUM_YIELD_TYPES)
-	{
-		char szMessage[1024];
-		sprintf(szMessage, "For loop iterator is greater than array size.\nCurrent XML file is: %s",
-				GC.getCurrentXMLFile().GetCString());
-		errorMessage(szMessage);
-	}
+	// <!-- custom: A follow-up audit of XML readers after the civilization comment-handling issue found this separate bounds defect.
+	// The inherited reader reported excess children but continued indexing a NUM_YIELD_TYPES allocation with the unchecked child count.
+	// Keep the XML diagnostic and bound writes in every build, including after Ignore Once/Always; ignored assertions must not turn malformed XML into heap corruption. See KI#3.2 and KI#3.3. (GPT-6.1-Sol) -->
+	if (iNumSibs > NUM_YIELD_TYPES)
+		errorMessage(CvString::format("XML yield array exceeds capacity: children=%d capacity=%d XML=%s; excess values ignored", iNumSibs, NUM_YIELD_TYPES, GC.getCurrentXMLFile().GetCString()).c_str());
+	int const iReadLimit = std::min(iNumSibs, (int)NUM_YIELD_TYPES);
 	// loop through all the siblings, we start at 1 since we already have the first value
-	for (int i = 1; i < iNumSibs; i++)
+	for (int i = 1; i < iReadLimit; i++)
 	{
 		// set the current node to it's first non-comment sibling and
 		// set the parameter to the new node's value
@@ -1577,7 +1629,7 @@ int CvXMLLoadUtility::SetYields(int** ppiYield)
 			break;
 	}
 	gDLL->getXMLIFace()->SetToParent(m_pFXml); // set the current xml node to its parent
-	return iNumSibs;
+	return iReadLimit;
 }
 
 // allocate and set the feature struct variables for the CvBuildInfo class
@@ -1618,17 +1670,18 @@ void CvXMLLoadUtility::SetFeatureStruct(int** ppiFeatureTech, int** ppiFeatureTi
 				{
 					GetChildXmlValByName(szTextVal, "FeatureType");
 					int iFeatureIndex = FindInInfoClass(szTextVal);
-					if(iFeatureIndex == -1)
+					// <!-- custom: The inherited missing-feature diagnostic returned to code that indexed the arrays at -1.
+					// Guard both ends and skip that record's writes after reporting it, so ignoring the error is memory-safe in every build. See KI#3.3. (GPT-6.1-Sol) -->
+					if (iFeatureIndex < 0 || iFeatureIndex >= GC.getNumFeatureInfos())
+						errorMessage(CvString::format("XML FeatureStruct has an invalid feature: type=%s index=%d capacity=%d XML=%s; entry ignored", szTextVal, iFeatureIndex, GC.getNumFeatureInfos(), GC.getCurrentXMLFile().GetCString()).c_str());
+					else
 					{
-						char	szMessage[1024];
-						sprintf(szMessage, "iFeatureIndex is -1 inside SetFeatureStruct function.\nCurrent XML file is: %s", GC.getCurrentXMLFile().GetCString());
-						errorMessage(szMessage);
+						GetChildXmlValByName(szTextVal, "PrereqTech");
+						paiFeatureTech[iFeatureIndex] = FindInInfoClass(szTextVal);
+						GetChildXmlValByName(&paiFeatureTime[iFeatureIndex], "iTime");
+						GetChildXmlValByName(&paiFeatureProduction[iFeatureIndex], "iProduction");
+						GetChildXmlValByName(&pabFeatureRemove[iFeatureIndex], "bRemove");
 					}
-					GetChildXmlValByName(szTextVal, "PrereqTech");
-					paiFeatureTech[iFeatureIndex] = FindInInfoClass(szTextVal);
-					GetChildXmlValByName(&paiFeatureTime[iFeatureIndex], "iTime");
-					GetChildXmlValByName(&paiFeatureProduction[iFeatureIndex], "iProduction");
-					GetChildXmlValByName(&pabFeatureRemove[iFeatureIndex], "bRemove");
 
 					if (!gDLL->getXMLIFace()->NextSibling(m_pFXml))
 					{
@@ -1676,7 +1729,9 @@ void CvXMLLoadUtility::SetImprovementBonuses(CvImprovementBonusInfo** ppImprovem
 						// index of the match in the bonus types list; -1 if no value is found.
 						int iBonusIndex = FindInInfoClass(szNodeVal);
 						// if we found a match we will get the next sibling's boolean value at that match's index
-						if (iBonusIndex >= 0)
+						// <!-- custom: Queue 028 also recorded this malformed-key path; a nonnegative global XML id may still lie outside the bonus allocation.
+						// Retain negative/no-entry handling and reject foreign positive keys before indexing. See KI#3.3. (GPT-6.1-Sol) -->
+						if (iBonusIndex >= 0 && iBonusIndex < GC.getNumBonusInfos())
 						{
 							GetNextXmlVal(paImprovementBonus[iBonusIndex].m_bBonusMakesValid);
 							GetNextXmlVal(paImprovementBonus[iBonusIndex].m_bBonusTrade);
@@ -1691,7 +1746,12 @@ void CvXMLLoadUtility::SetImprovementBonuses(CvImprovementBonusInfo** ppImprovem
 							}
 							else InitList(&paImprovementBonus[iBonusIndex].m_piYieldChange, NUM_YIELD_TYPES);
 						}
-						else gDLL->getXMLIFace()->SetToParent(m_pFXml);
+						else
+						{
+							if (iBonusIndex >= GC.getNumBonusInfos())
+								errorMessage(CvString::format("XML improvement bonus key exceeds capacity: type=%s index=%d capacity=%d XML=%s; entry ignored", szNodeVal, iBonusIndex, GC.getNumBonusInfos(), GC.getCurrentXMLFile().GetCString()).c_str());
+							gDLL->getXMLIFace()->SetToParent(m_pFXml);
+						}
 					}
 					if (!gDLL->getXMLIFace()->NextSibling(m_pFXml))
 						break;
@@ -1738,8 +1798,7 @@ void CvXMLLoadUtility::XMLTagPairIteratorBase::setToParent()
 }
 
 template<typename T>
-CvXMLLoadUtility::XMLTagPairIterator<T>::XMLTagPairIterator(
-	CvXMLLoadUtility& kUtil, TCHAR const* szRootTagName)
+CvXMLLoadUtility::XMLTagPairIterator<T>::XMLTagPairIterator(CvXMLLoadUtility& kUtil, TCHAR const* szRootTagName)
 :	XMLTagPairIteratorBase(kUtil), m_iSiblingIndex(0), m_iSiblings(0)
 {
 	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pParser, szRootTagName))
@@ -1807,9 +1866,7 @@ DO_FOR_EACH_STATIC_INFO_TYPE(INSTANTIATE_XML_TAG_PAIR_ITERATOR);
 // </advc.003t>
 // <advc.enum>
 template<class EncodableMap>
-CvXMLLoadUtility::XMLTagPairRateIterator<EncodableMap>::XMLTagPairRateIterator(
-	CvXMLLoadUtility& kUtil, TCHAR const* szTagName,
-	TCHAR const* szKeyTagName, TCHAR const* szRateTagName)
+CvXMLLoadUtility::XMLTagPairRateIterator<EncodableMap>::XMLTagPairRateIterator(CvXMLLoadUtility& kUtil, TCHAR const* szTagName, TCHAR const* szKeyTagName, TCHAR const* szRateTagName)
 :	XMLTagPairIteratorBase(kUtil), m_iSiblingIndex(0), m_iSiblings(0), m_aiRates(NULL)
 {
 	/*	The flat structure is used by Civ4EventInfos.xml. I'd like to change that to the
@@ -1856,6 +1913,10 @@ CvXMLLoadUtility::XMLTagPairRateIterator<EncodableMap>::next()
 			m_util.GetChildXmlValByName(m_szTextVal, m_szKeyTagName)))
 		{
 			int iKey = getGlobalEnumFromString(m_szTextVal);
+			// <!-- custom: Flat records have already descended through GetChildXmlVal even when their key is rejected.
+			// Restore that level before advancing, matching the valid-key path and the primitive iterator's cleanup. See KI#3.3. (GPT-6.1-Sol) -->
+			if (iKey < 0 && m_bFlat)
+				setToParent();
 			if (iKey >= 0)
 			{
 				ZeroMemory(m_aiRates, iENUM_LEN * sizeof(int));
@@ -1865,9 +1926,9 @@ CvXMLLoadUtility::XMLTagPairRateIterator<EncodableMap>::next()
 					if (m_util.GetNextXmlVal(m_szTextVal))
 					{
 						int iRateType = FindInInfoClass(m_szTextVal);
-						if (iRateType >= 0)
+						// <!-- custom: The rate iterator's scratch array needs the same real upper bound as the other XML arrays; an ignored assertion alone cannot protect its index. See KI#3.3. (GPT-6.1-Sol) -->
+						if (iRateType >= 0 && iRateType < iENUM_LEN)
 						{
-							FAssert(iRateType < iENUM_LEN);
 							int iRateVal = 0;
 							if (m_util.GetNextXmlVal(iRateVal))
 							{
@@ -1876,6 +1937,8 @@ CvXMLLoadUtility::XMLTagPairRateIterator<EncodableMap>::next()
 									iValuesSet++;
 							}
 						}
+						else if (iRateType >= iENUM_LEN)
+							m_util.errorMessage(CvString::format("XML rate type exceeds capacity: index=%d capacity=%d XML=%s; rate ignored", iRateType, iENUM_LEN, GC.getCurrentXMLFile().GetCString()).c_str());
 					}
 					setToParent();
 				}
@@ -1912,8 +1975,7 @@ template CvXMLLoadUtility::XMLTagPairRateIterator<CommerceChangeMap>;
 template CvXMLLoadUtility::XMLTagPairRateIterator<CommercePercentMap>;
 // </advc.enum>
 
-void CvXMLLoadUtility::SetVariableListTagPair(CvString **ppszList,
-	TCHAR const* szRootTagName, int iInfoBaseLength, CvString szDefaultListVal)
+void CvXMLLoadUtility::SetVariableListTagPair(CvString **ppszList, TCHAR const* szRootTagName, int iInfoBaseLength, CvString szDefaultListVal)
 {
 	// <advc.xmldefault>
 	if (*ppszList != NULL)
@@ -1924,6 +1986,8 @@ void CvXMLLoadUtility::SetVariableListTagPair(CvString **ppszList,
 		sprintf(szMessage, "Allocating zero or less memory.\nCurrent XML file is: %s",
 				GC.getCurrentXMLFile().GetCString());
 		errorMessage(szMessage);
+		// <!-- custom: Do not allocate an invalid tag-pair capacity after its error is ignored. See KI#3.3. (GPT-6.1-Sol) -->
+		return;
 	}
 	bool bListModified = false; // advc.003t, advc.xmldefault
 	InitStringList(ppszList, iInfoBaseLength, szDefaultListVal);
@@ -1952,9 +2016,12 @@ void CvXMLLoadUtility::SetVariableListTagPair(CvString **ppszList,
 							GetChildXmlVal(szTextVal))
 						{	// advc: was FindInfoClass
 							int iIndexVal = getGlobalEnumFromString(szTextVal);
-							if (iIndexVal >= 0)
+							// <!-- custom: Replace the advc.006 assertion-only bound with a real guard, preserving negative/no-entry keys and parser restoration.
+							// The album's Queue 028 identified the string/audio siblings alongside the primitive tag-pair defect. See KI#3.3. (GPT-6.1-Sol) -->
+							if (iIndexVal >= iInfoBaseLength)
+								errorMessage(CvString::format("XML tag-pair key exceeds capacity: list=%s index=%d capacity=%d XML=%s; entry ignored", szRootTagName, iIndexVal, iInfoBaseLength, GC.getCurrentXMLFile().GetCString()).c_str());
+							else if (iIndexVal >= 0)
 							{
-								FAssert(iIndexVal < iInfoBaseLength); // advc.006
 								GetNextXmlVal(pszList[iIndexVal]);
 								/*  <advc.003t> Since bListModified will only matter
 									if szDefaultListVal is an empty string, let's
@@ -1984,8 +2051,7 @@ void CvXMLLoadUtility::SetVariableListTagPair(CvString **ppszList,
 }
 
 // allocate and initialize a list from a tag pair in the xml for audio scripts
-void CvXMLLoadUtility::SetVariableListTagPairForAudioScripts(int **ppiList, TCHAR const* szRootTagName,
-	int iInfoBaseLength, int iDefaultListVal)
+void CvXMLLoadUtility::SetVariableListTagPairForAudioScripts(int **ppiList, TCHAR const* szRootTagName, int iInfoBaseLength, int iDefaultListVal)
 {
 	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szRootTagName))
 	{
@@ -1998,6 +2064,9 @@ void CvXMLLoadUtility::SetVariableListTagPairForAudioScripts(int **ppiList, TCHA
 				sprintf(szMessage, "Allocating zero or less memory.\nCurrent XML file is: %s",
 						GC.getCurrentXMLFile().GetCString());
 				errorMessage(szMessage);
+				// <!-- custom: Restore the entered audio-list root before rejecting invalid capacity; ignored diagnostics must not reach allocation. See KI#3.3. (GPT-6.1-Sol) -->
+				gDLL->getXMLIFace()->SetToParent(m_pFXml);
+				return;
 			}
 			InitList(ppiList, iInfoBaseLength, iDefaultListVal);
 			int* piList = *ppiList;
@@ -2019,9 +2088,12 @@ void CvXMLLoadUtility::SetVariableListTagPairForAudioScripts(int **ppiList, TCHA
 							GetChildXmlVal(szTextVal))
 						{	// advc: was FindInfoClass
 							int iIndexVal = getGlobalEnumFromString(szTextVal);
-							if (iIndexVal >= 0)
+							// <!-- custom: Replace the advc.006 assertion-only bound with a real guard, preserving negative/no-entry keys and parser restoration.
+							// The album's Queue 028 identified the string/audio siblings alongside the primitive tag-pair defect. See KI#3.3. (GPT-6.1-Sol) -->
+							if (iIndexVal >= iInfoBaseLength)
+								errorMessage(CvString::format("XML tag-pair key exceeds capacity: list=%s index=%d capacity=%d XML=%s; entry ignored", szRootTagName, iIndexVal, iInfoBaseLength, GC.getCurrentXMLFile().GetCString()).c_str());
+							else if (iIndexVal >= 0)
 							{
-								FAssert(iIndexVal < iInfoBaseLength); // advc.006
 								CvString szTemp;
 								GetNextXmlVal(szTemp);
 								if (szTemp.GetLength() > 0)

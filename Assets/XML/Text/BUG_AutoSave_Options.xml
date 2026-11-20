@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!--
+	AutoSave
+	Options Game Text
+
+	Copyright (c) 2009 The BUG Mod.
+-->
+<Civ4GameText xmlns="http://www.firaxis.com">
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_AUTOSAVE__CREATESTARTSAVE_TEXT</Tag>
+		<English>Start Save</English>
+		<German>Am Anfang speichern</German>
+		<Italian>Salvataggio iniziale</Italian>
+		<Spanish>Guardar al Comienzo</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_AUTOSAVE__CREATESTARTSAVE_HOVER</Tag>
+		<English>When checked, a saved game is created after (re)generating the map.</English>
+		<German>Erzeugt einen Spielstand, wenn eine Karte (neu-)erstellt wurde</German>
+		<Italian>Quando è selezionato, viene creato un salvataggio dopo la rigenerazione della mappa.</Italian>
+		<Spanish>Si se activa, se crea una partida guardada justo después de generar el mapa.</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_AUTOSAVE__CREATEENDSAVE_TEXT</Tag>
+		<English>End Save</English>
+		<German>Am Ende speichern</German>
+		<Italian>Salvataggio finale</Italian>
+		<Spanish>Guardar al Final</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_AUTOSAVE__CREATEENDSAVE_HOVER</Tag>
+		<English>When checked, a saved game is created when the game is won/lost.</English>
+		<German>Erzeugt einen Spielstand, wenn eine Partie gewonnen/verloren wird</German>
+		<Italian>Quando è selezionato, viene creato un salvataggio quando viene vinta/persa la partita.</Italian>
+		<Spanish>Si se activa, se crea una partida guardada cuando se gana o pierde una partida.</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_AUTOSAVE__CREATEEXITSAVE_TEXT</Tag>
+		<English>Exit Save</English>
+		<German>Beim Beenden speichern</German>
+		<Italian>Salvataggio all'uscita</Italian>
+		<Spanish>Guardar al Salir</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_AUTOSAVE__CREATEEXITSAVE_HOVER</Tag>
+		<English>When checked, a saved game is created when you exit using the menu's EXIT TO DESKTOP or EXIT TO MENU commands. [COLOR_YELLOW]The game is not saved automatically if you press ALT + F4.[COLOR_REVERT]</English>
+		<German>Erzeugt einen Spielstand, wenn eine Partie über die Menübefehle "Programm beenden" oder "Zurück zum Hauptmenü" verlassen wird ([COLOR_YELLOW]Es wird nicht automatisch gespeichert, wenn das Spiel über die Tastenkombination [ALT + F4] verlassen wird[COLOR_REVERT])</German>
+		<Italian>Quando è selezionato, viene creato un salvataggio quando si esce dal gioco utilizzando le opzioni del menù "Ritorna al desktop" o "ritorna al menù principale". [COLOR_YELLOW]La partita non viene salvata automaticamente se si preme la combinazione di tasti 'ALT + F4'.[COLOR_REVERT]</Italian>
+		<Spanish>Si se activa, se crea una partida guardada cuando sales de una partida empleando las opciones "Salir al escritorio" o "Salir al menú principal". [COLOR_YELLOW]La partida no se guardará si sales empleando ALT + F4.[COLOR_REVERT]</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_AUTOSAVE__USEPLAYERNAME_TEXT</Tag>
+		<English>Use Player Name</English>
+		<German>Spielername verwenden</German>
+		<Italian>Utilizza il nome del giocatore</Italian>
+		<Spanish>Usar Nombre del Jugador</Spanish>
+	</TEXT>
+</Civ4GameText>

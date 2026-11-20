@@ -1,0 +1,158 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 385
+# Author: jdog5000
+# Date: 2008-08-28T01:02:37.717622Z
+# Coverage: full
+# Message:
+#   Changed fighter v fighter combat mechanics.
+#   Exposed some debug functions to Python.
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CyPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CyPlayer.h
+#   M /trunk/CvGameCoreDLL/CyPlayerInterface1.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@384
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@385
+@@ -3523,7 +3523,7 @@
+ 	/**																				*/
+ 	/********************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.36");
++	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.37");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szTempBuffer.Format(L"%S", "==========================");
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@384
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@385
+@@ -818,10 +818,44 @@
+ 		iTheirRoundDamage = std::max(GC.getDefineINT("MIN_INTERCEPTION_DAMAGE"), iTheirRoundDamage);
+ 	}
+ 
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						8/27/08				jdog5000	*/
++	/**																				*/
++	/**		Combat mechanics														*/
++	/********************************************************************************/
++	/* original BTS code
+ 	int iTheirDamage = 0;
+ 	int iOurDamage = 0;
+ 
+ 	for (int iRound = 0; iRound < GC.getDefineINT("INTERCEPTION_MAX_ROUNDS"); ++iRound)
++	*/
++	int iMaxRounds = GC.getDefineINT("INTERCEPTION_MAX_ROUNDS");
++
++	// Fighter v fighter is not like other interceptions, more like standard comabt
++	// Round damage in this case will now depend on strength, not interception probability
++	if( DOMAIN_AIR == pInterceptor->getDomainType() && DOMAIN_AIR == getDomainType() )
++	{
++		if( pInterceptor->currInterceptionProbability() > 50 && currInterceptionProbability() > 50 )
++		{
++			int iBaseDamage = GC.getDefineINT("AIR_COMBAT_DAMAGE") + 5;
++			int iOurFirepower = ((airMaxCombatStr(pInterceptor) + iOurStrength + 1) / 2);
++			int iTheirFirepower = ((airMaxCombatStr(this) + iTheirStrength + 1) / 2);
++
++			int iStrengthFactor = ((iOurFirepower + iTheirFirepower + 1) / 2);
++
++			iOurRoundDamage = std::max(1, ((iBaseDamage * (iTheirFirepower + iStrengthFactor)) / (iOurFirepower + iStrengthFactor)));
++			iTheirRoundDamage = std::max(1, ((iBaseDamage * (iOurFirepower + iStrengthFactor)) / (iTheirFirepower + iStrengthFactor)));
++		}
++	}
++	
++
++	int iTheirDamage = 0;
++	int iOurDamage = 0;
++
++	for (int iRound = 0; iRound < iMaxRounds; ++iRound)
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						END								*/
++	/********************************************************************************/
+ 	{
+ 		if (GC.getGameINLINE().getSorenRandNum(100, "Air combat") < iOurOdds)
+ 		{
+
+Index: /trunk/CvGameCoreDLL/CyPlayer.cpp
+--- /trunk/CvGameCoreDLL/CyPlayer.cpp@384
++++ /trunk/CvGameCoreDLL/CyPlayer.cpp@385
+@@ -25,6 +25,31 @@
+ {
+ }
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI                         08/27/08                                 jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++void CyPlayer::changeLeader( int /*LeaderHeadTypes*/ eNewLeader )
++{
++	if( m_pPlayer )
++		m_pPlayer->changeLeader( (LeaderHeadTypes)eNewLeader );
++}
++
++void CyPlayer::changeCiv( int /*CivilizationTypes*/ eNewCiv )
++{
++	if( m_pPlayer )
++		m_pPlayer->changeCiv( (CivilizationTypes)eNewCiv );
++}
++void CyPlayer::setIsHuman( bool bNewValue )
++{
++	if( m_pPlayer )
++		m_pPlayer->setIsHuman( bNewValue );
++}
++/*************************************************************************************************/
++/** BETTER_BTS_AI                          END                                                  */
++/*************************************************************************************************/
++
+ int CyPlayer::startingPlotRange()
+ {
+ 	return m_pPlayer ? m_pPlayer->startingPlotRange() : -1;
+
+Index: /trunk/CvGameCoreDLL/CyPlayer.h
+--- /trunk/CvGameCoreDLL/CyPlayer.h@384
++++ /trunk/CvGameCoreDLL/CyPlayer.h@385
+@@ -23,6 +23,17 @@
+ 	CvPlayer* getPlayer() { return m_pPlayer;	}	// Call from C++
+ 	bool isNone() { return (m_pPlayer==NULL); }
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI                         08/27/08                                 jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++	void changeLeader( int /*LeaderHeadTypes*/ eNewLeader );
++	void changeCiv( int /*CivilizationTypes*/ eNewCiv );
++	void setIsHuman( bool bNewValue );
++/*************************************************************************************************/
++/** BETTER_BTS_AI                           END                                                  */
++/*************************************************************************************************/
+ 	int startingPlotRange();
+ 	bool startingPlotWithinRange(CyPlot *pPlot, int /*PlayerTypes*/ ePlayer, int iRange, int iPass);
+ 
+
+Index: /trunk/CvGameCoreDLL/CyPlayerInterface1.cpp
+--- /trunk/CvGameCoreDLL/CyPlayerInterface1.cpp@384
++++ /trunk/CvGameCoreDLL/CyPlayerInterface1.cpp@385
+@@ -21,6 +21,17 @@
+ 	python::scope().attr("__doc__") = "Civilization IV Player Class"; 
+ 	x
+ 		.def("isNone", &CyPlayer::isNone, "checks for a null player")
++		/********************************************************************************/
++		/**		BETTER_BTS_AI							08/27/08			jdog5000	*/
++		/**																				*/
++		/**		 																		*/
++		/********************************************************************************/
++		.def( "changeLeader", &CyPlayer::changeLeader, "void ( int /*LeaderHeadTypes*/ eNewLeader ) - change leader of player")
++		.def( "changeCiv", &CyPlayer::changeCiv, "void ( int /*CivilizationTypes*/ eNewCiv ) - change civilization of player" )
++		.def( "setIsHuman", &CyPlayer::setIsHuman, "void ( bool bNewValue ) - set whether player is human" )
++		/********************************************************************************/
++		/**		BETTER_BTS_AI							END								*/
++		/********************************************************************************/
+ 		.def("startingPlotRange", &CyPlayer::startingPlotRange, "int ()")
+ 		.def("startingPlotWithinRange", &CyPlayer::startingPlotWithinRange, "bool (CyPlot *pPlot, int /*PlayerTypes*/ ePlayer, int iRange, int iPass)")
+ 
+

@@ -1,0 +1,133 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 569
+# Author: jdog5000
+# Date: 2010-05-17T01:55:22.895406Z
+# Coverage: full
+# Message:
+#   More tweaks for late game war decisions
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@568
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@569
+@@ -3259,7 +3259,7 @@
+ 	}
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      04/03/10                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      05/16/10                                jdog5000      */
+ /*                                                                                              */
+ /* War strategy AI                                                                              */
+ /************************************************************************************************/
+@@ -3306,6 +3306,42 @@
+ 			if (pLoopPlot->isAdjacentPlayer(getID(), true))
+ 			{
+ 				iValue++;
++			}
++		}
++	}
++
++	if( GET_PLAYER(pCity->getOwnerINLINE()).AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) )
++	{
++		if( pCity->getCultureLevel() >= (GC.getGameINLINE().culturalVictoryCultureLevel() - 1) )
++		{
++			iValue += 10;
++			
++			if( GET_PLAYER(pCity->getOwnerINLINE()).AI_isDoVictoryStrategy(AI_VICTORY_CULTURE4) )
++			{
++				iValue += 10;
++
++				if( pCity->getCultureLevel() >= (GC.getGameINLINE().culturalVictoryCultureLevel()) )
++				{
++					iValue += 10;
++				}
++			}
++		}
++	}
++
++	if( GET_PLAYER(pCity->getOwnerINLINE()).AI_isDoVictoryStrategy(AI_VICTORY_SPACE3) )
++	{
++		if( pCity->isCapital() )
++		{
++			iValue += 10;
++
++			if( GET_PLAYER(pCity->getOwnerINLINE()).AI_isDoVictoryStrategy(AI_VICTORY_SPACE4) )
++			{
++				iValue += 10;
++
++				if( GET_TEAM(pCity->getTeam()).getVictoryCountdown(GC.getGameINLINE().getSpaceVictory()) >= 0 )
++				{
++					iValue += 30;
++				}
+ 			}
+ 		}
+ 	}
+@@ -17684,7 +17720,7 @@
+ 			iTheirVictoryCountdown = -1;
+ 		}
+ 
+-		if ((iOurVictoryCountdown >= 0) && (iOurVictoryCountdown <= iTheirVictoryCountdown))
++		if ((iOurVictoryCountdown >= 0) && (iTheirVictoryCountdown < 0 || iOurVictoryCountdown <= iTheirVictoryCountdown))
+ 		{
+ 			m_iStrategyHash |= AI_STRATEGY_LAST_STAND;
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@568
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@569
+@@ -1192,7 +1192,7 @@
+ 
+ 		if( GET_TEAM(eTeam).AI_isAnyMemberDoVictoryStrategyLevel4() )
+ 		{
+-			if( GET_TEAM(eTeam).getVictoryCountdown(GC.getGameINLINE().getSpaceVictory()) >= 0 )
++			if( GET_TEAM(eTeam).AI_getLowestVictoryCountdown() >= 0 )
+ 			{
+ 				iValue += 50;
+ 			}
+@@ -4308,13 +4308,10 @@
+ 					iTimeModifier *= 50 + GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getTrainPercent();
+ 					iTimeModifier /= 150;
+ 
+-					if( GET_TEAM((TeamTypes)iI).AI_isAnyMemberDoVictoryStrategyLevel4() )
+-					{
+-						iTimeModifier /= 4;
+-					}
+-
+ 					FAssert(iTimeModifier >= 0);
+ 				}
++
++				bool bEnemyVictoryLevel4 = GET_TEAM((TeamTypes)iI).AI_isAnyMemberDoVictoryStrategyLevel4();
+ 
+ 				if (AI_getWarPlan((TeamTypes)iI) == WARPLAN_ATTACKED_RECENT)
+ 				{
+@@ -4333,7 +4330,7 @@
+ 				{
+ 					FAssert(canEventuallyDeclareWar((TeamTypes)iI));
+ 
+-					if (AI_getWarPlanStateCounter((TeamTypes)iI) > ((5 * iTimeModifier) / 100))
++					if (AI_getWarPlanStateCounter((TeamTypes)iI) > ((5 * iTimeModifier) / (bEnemyVictoryLevel4 ? 400 : 100)))
+ 					{
+ 						if( gTeamLogLevel >= 1 )
+ 						{
+@@ -4346,7 +4343,7 @@
+ 				{
+ 					FAssert(canEventuallyDeclareWar((TeamTypes)iI));
+ 
+-					if (AI_getWarPlanStateCounter((TeamTypes)iI) > ((10 * iTimeModifier) / 100))
++					if (AI_getWarPlanStateCounter((TeamTypes)iI) > ((10 * iTimeModifier) / (bEnemyVictoryLevel4 ? 400 : 100)))
+ 					{
+ 						bAreaValid = false;
+ 						bShareValid = false;
+@@ -4373,7 +4370,7 @@
+ 							}
+ 						}
+ 
+-						if ( (bAreaValid && iEnemyPowerPercent < 140) || (!bShareValid && iEnemyPowerPercent < 110) || GET_TEAM((TeamTypes)iI).AI_isAnyMemberDoVictoryStrategyLevel4() )
++						if ( (bAreaValid && iEnemyPowerPercent < 140) || (!bShareValid && iEnemyPowerPercent < 110) || (GET_TEAM((TeamTypes)iI).AI_getLowestVictoryCountdown() >= 0) )
+ 						{
+ 							if( gTeamLogLevel >= 1 )
+ 							{
+

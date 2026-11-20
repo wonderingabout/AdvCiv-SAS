@@ -3,152 +3,15 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- Civilization Infos -->
-<!-- advc.303: Not sure where comments are allowed in this file;
-     demonstrably not everywhere. Added NONE entries to the Barbarians
-	 starting at Monument (still called "Obelisk" internally) until
-	 Supermarket.
-	 advc.305: Removed (now allowed) Workboat.
-	 advc.307: Allowed Musketman
-	 Disallowed Frigate, Privateer, Paratrooper, Rifleman, Grenadier,
-	 Spy (kekm.6). -->
 <Civ4CivilizationInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
+	<!-- custom: The Custom Game civilization list shows short names in this file order, so keep civilizations in alphabetical order of their short names ("United States" under U), with Minor and Barbarian last; xml_display_order.py checks it. See KI#1073. (Claude code Opus 5.5) -->
 	<CivilizationInfos>
-		<CivilizationInfo>
-			<Type>CIVILIZATION_AMERICA</Type>
-			<Description>TXT_KEY_CIV_AMERICA_DESC</Description>
-			<ShortDescription>TXT_KEY_CIV_AMERICA_SHORT_DESC</ShortDescription>
-			<Adjective>TXT_KEY_CIV_AMERICA_ADJECTIVE</Adjective>
-			<Civilopedia>TXT_KEY_CIV_AMERICA_PEDIA</Civilopedia>
-			<DefaultPlayerColor>PLAYERCOLOR_BLUE</DefaultPlayerColor>
-			<ArtDefineTag>ART_DEF_CIVILIZATION_AMERICA</ArtDefineTag>
-			<ArtStyleType>ARTSTYLE_EUROPEAN</ArtStyleType>
-			<UnitArtStyleType>UNIT_ARTSTYLE_EUROPEAN</UnitArtStyleType>
-			<bPlayable>1</bPlayable>
-			<bAIPlayable>1</bAIPlayable>
-			<Cities>
-				<City>TXT_KEY_CITY_NAME_WASHINGTON</City>
-				<City>TXT_KEY_CITY_NAME_NEW_YORK</City>
-				<City>TXT_KEY_CITY_NAME_BOSTON</City>
-				<City>TXT_KEY_CITY_NAME_PHILADELPHIA</City>
-				<City>TXT_KEY_CITY_NAME_ATLANTA</City>
-				<City>TXT_KEY_CITY_NAME_CHICAGO</City>
-				<City>TXT_KEY_CITY_NAME_SEATTLE</City>
-				<City>TXT_KEY_CITY_NAME_SAN_FRANCISCO</City>
-				<City>TXT_KEY_CITY_NAME_LOS_ANGELES</City>
-				<City>TXT_KEY_CITY_NAME_HOUSTON</City>
-				<City>TXT_KEY_CITY_NAME_PORTLAND</City>
-				<City>TXT_KEY_CITY_NAME_ST_LOUIS</City>
-				<City>TXT_KEY_CITY_NAME_MIAMI</City>
-				<City>TXT_KEY_CITY_NAME_BUFFALO</City>
-				<City>TXT_KEY_CITY_NAME_DETROIT</City>
-				<City>TXT_KEY_CITY_NAME_NEW_ORLEANS</City>
-				<City>TXT_KEY_CITY_NAME_BALTIMORE</City>
-				<City>TXT_KEY_CITY_NAME_DENVER</City>
-				<City>TXT_KEY_CITY_NAME_CINCINNATI</City>
-				<City>TXT_KEY_CITY_NAME_DALLAS</City>
-				<City>TXT_KEY_CITY_NAME_MEMPHIS</City>
-				<City>TXT_KEY_CITY_NAME_CLEVELAN</City>
-				<City>TXT_KEY_CITY_NAME_KANSAS_CITY</City>
-				<City>TXT_KEY_CITY_NAME_SAN_DIEGO</City>
-				<City>TXT_KEY_CITY_NAME_RICHMOND</City>
-				<City>TXT_KEY_CITY_NAME_LAS_VEGAS</City>
-				<City>TXT_KEY_CITY_NAME_PHOENIX</City>
-				<City>TXT_KEY_CITY_NAME_ALBUQUERQUE</City>
-				<City>TXT_KEY_CITY_NAME_MINNEAPOLIS</City>
-				<City>TXT_KEY_CITY_NAME_PITTSBURGH</City>
-				<City>TXT_KEY_CITY_NAME_OAKLAND</City>
-				<City>TXT_KEY_CITY_NAME_TAMPA_BAY</City>
-				<City>TXT_KEY_CITY_NAME_ORLANDO</City>
-				<City>TXT_KEY_CITY_NAME_TACOMA</City>
-				<City>TXT_KEY_CITY_NAME_SANTA_FE</City>
-				<City>TXT_KEY_CITY_NAME_OLYMPIA</City>
-				<City>TXT_KEY_CITY_NAME_HUNT_VALLEY</City>
-				<City>TXT_KEY_CITY_NAME_SPRINGFIELD</City>
-				<City>TXT_KEY_CITY_NAME_PALO_ALTO</City>
-				<City>TXT_KEY_CITY_NAME_CENTRALIA</City>
-				<City>TXT_KEY_CITY_NAME_SPOKANE</City>
-				<City>TXT_KEY_CITY_NAME_JACKSONVILLE</City>
-				<City>TXT_KEY_CITY_NAME_SAVANNAH</City>
-				<City>TXT_KEY_CITY_NAME_CHARLESTON</City>
-				<City>TXT_KEY_CITY_NAME_SAN_ANTONIO</City>
-				<City>TXT_KEY_CITY_NAME_OMAHA</City>
-				<City>TXT_KEY_CITY_NAME_BIRMINGHAM</City>
-				<City>TXT_KEY_CITY_NAME_HONOLULU</City>
-				<City>TXT_KEY_CITY_NAME_ANCHORAGE</City>
-				<City>TXT_KEY_CITY_NAME_SACRAMENTO</City>
-				<City>TXT_KEY_CITY_NAME_SALT_LAKE_CITY</City>
-				<City>TXT_KEY_CITY_NAME_RENO</City>
-				<City>TXT_KEY_CITY_NAME_BOISE</City>
-				<City>TXT_KEY_CITY_NAME_MILWAUKEE</City>
-				<City>TXT_KEY_CITY_NAME_SANTA_CRUZ</City>
-				<City>TXT_KEY_CITY_NAME_MONTEREY</City>
-				<City>TXT_KEY_CITY_NAME_SANTA_MONICA</City>
-				<City>TXT_KEY_CITY_NAME_LITTLE_ROCK</City>
-				<City>TXT_KEY_CITY_NAME_COLUMBUS</City>
-				<City>TXT_KEY_CITY_NAME_LE_BAM</City>
-			</Cities>
-			<Buildings>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_SUPERMARKET</BuildingClassType>
-					<BuildingType>BUILDING_AMERICAN_MALL</BuildingType>
-				</Building>
-			</Buildings>
-			<Units>
-				<Unit>
-					<UnitClassType>UNITCLASS_MARINE</UnitClassType>
-					<UnitType>UNIT_AMERICAN_NAVY_SEAL</UnitType>
-				</Unit>
-			</Units>
-			<FreeUnitClasses>
-				<FreeUnitClass>
-					<UnitClassType>UNITCLASS_SETTLER</UnitClassType>
-					<iFreeUnits>1</iFreeUnits>
-				</FreeUnitClass>
-			</FreeUnitClasses>
-			<FreeBuildingClasses>
-				<FreeBuildingClass>
-					<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-					<bFreeBuildingClass>1</bFreeBuildingClass>
-				</FreeBuildingClass>
-			</FreeBuildingClasses>
-			<FreeTechs>
-				<FreeTech>
-					<TechType>TECH_FISHING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_AGRICULTURE</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-			</FreeTechs>
-			<DisableTechs/>
-			<InitialCivics>
-				<CivicType>CIVIC_DESPOTISM</CivicType>
-				<CivicType>CIVIC_BARBARISM</CivicType>
-				<CivicType>CIVIC_TRIBALISM</CivicType>
-				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
-			</InitialCivics>
-			<Leaders>
-				<Leader>
-					<LeaderName>LEADER_WASHINGTON</LeaderName>
-					<bLeaderAvailability>1</bLeaderAvailability>
-				</Leader>
-				<Leader>
-					<LeaderName>LEADER_FRANKLIN_ROOSEVELT</LeaderName>
-					<bLeaderAvailability>1</bLeaderAvailability>
-				</Leader>
-				<Leader>
-					<LeaderName>LEADER_LINCOLN</LeaderName>
-					<bLeaderAvailability>1</bLeaderAvailability>
-				</Leader>
-			</Leaders>
-			<DerivativeCiv>NONE</DerivativeCiv>
-			<CivilizationSelectionSound>AS3D_AMERICA_SELECT</CivilizationSelectionSound>
-			<CivilizationActionSound>AS3D_AMERICA_ORDER</CivilizationActionSound>
-		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_ARABIA (useful for VS Code upper tree view while scrolling) -->
 			<Type>CIVILIZATION_ARABIA</Type>
 			<Description>TXT_KEY_CIV_ARABIA_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_ARABIA_SHORT_DESC</ShortDescription>
@@ -200,14 +63,14 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
-					<BuildingType>BUILDING_ARABIAN_MADRASSA</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_STABLE</BuildingClassType>
+					<BuildingType>BUILDING_ARABIAN_FURUSIYYA_MAYDAN</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_KNIGHT</UnitClassType>
-					<UnitType>UNIT_ARABIA_CAMELARCHER</UnitType>
+					<UnitClassType>UNITCLASS_CAMEL_KNIGHT</UnitClassType>
+					<UnitType>UNIT_ARABIA_HAJJAN</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -224,7 +87,7 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_THE_WHEEL</TechType>
+					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -238,7 +101,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -250,7 +113,7 @@
 			<CivilizationSelectionSound>AS3D_ARABIA_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_ARABIA_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_AZTEC -->
 			<Type>CIVILIZATION_AZTEC</Type>
 			<Description>TXT_KEY_CIV_AZTEC_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_AZTEC_SHORT_DESC</ShortDescription>
@@ -302,13 +165,13 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_COURTHOUSE</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
 					<BuildingType>BUILDING_AZTEC_SACRIFICIAL_ALTAR</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_SWORDSMAN</UnitClassType>
+					<UnitClassType>UNITCLASS_AXEMAN</UnitClassType>
 					<UnitType>UNIT_AZTEC_JAGUAR</UnitType>
 				</Unit>
 			</Units>
@@ -326,11 +189,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_MYSTICISM</TechType>
+					<TechType>TECH_MINING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_HUNTING</TechType>
+					<TechType>TECH_MYSTICISM</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -340,7 +203,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -352,7 +215,7 @@
 			<CivilizationSelectionSound>AS3D_AZTEC_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_AZTEC_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_BABYLON -->
 			<Type>CIVILIZATION_BABYLON</Type>
 			<Description>TXT_KEY_CIV_BABYLON_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_BABYLON_SHORT_DESC</ShortDescription>
@@ -408,13 +271,13 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_COLOSSEUM</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_GRANARY</BuildingClassType>
 					<BuildingType>BUILDING_BABYLON_GARDEN</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_ARCHER</UnitClassType>
+					<UnitClassType>UNITCLASS_LONGBOWMAN</UnitClassType>
 					<UnitType>UNIT_BABYLON_BOWMAN</UnitType>
 				</Unit>
 			</Units>
@@ -432,11 +295,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_AGRICULTURE</TechType>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_THE_WHEEL</TechType>
+					<TechType>TECH_MYSTICISM</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -446,7 +309,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -458,7 +321,7 @@
 			<CivilizationSelectionSound>AS3D_BABYLON_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_BABYLON_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_BYZANTIUM -->
 			<Type>CIVILIZATION_BYZANTIUM</Type>
 			<Description>TXT_KEY_CIV_BYZANTIUM_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_BYZANTIUM_SHORT_DESC</ShortDescription>
@@ -518,13 +381,13 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_THEATRE</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_STABLE</BuildingClassType>
 					<BuildingType>BUILDING_BYZANTINE_HIPPODROME</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_KNIGHT</UnitClassType>
+					<UnitClassType>UNITCLASS_HORSE_KNIGHT</UnitClassType>
 					<UnitType>UNIT_BYZANTINE_CATAPHRACT</UnitType>
 				</Unit>
 			</Units>
@@ -542,11 +405,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_THE_WHEEL</TechType>
+					<TechType>TECH_MYSTICISM</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_MYSTICISM</TechType>
+					<TechType>TECH_FISHING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -556,7 +419,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -568,7 +431,7 @@
 			<CivilizationSelectionSound>AS3D_BYZANTIUM_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_BYZANTIUM_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_CARTHAGE -->
 			<Type>CIVILIZATION_CARTHAGE</Type>
 			<Description>TXT_KEY_CIV_CARTHAGE_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_CARTHAGE_SHORT_DESC</ShortDescription>
@@ -625,8 +488,8 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
-					<BuildingType>BUILDING_CARTHAGE_COTHON</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_GROCER</BuildingClassType>
+					<BuildingType>BUILDING_CARTHAGE_PUNIC_AGORA</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
@@ -653,7 +516,7 @@
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_MINING</TechType>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -663,7 +526,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -675,7 +538,7 @@
 			<CivilizationSelectionSound>AS3D_CARTHAGE_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_CARTHAGE_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_CELT -->
 			<Type>CIVILIZATION_CELT</Type>
 			<Description>TXT_KEY_CIV_CELT_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_CELT_SHORT_DESC</ShortDescription>
@@ -736,8 +599,8 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
-					<BuildingType>BUILDING_CELTIC_DUN</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
+					<BuildingType>BUILDING_CELTIC_LA_TENE_SMITHY</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
@@ -764,7 +627,7 @@
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_MYSTICISM</TechType>
+					<TechType>TECH_MINING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -774,7 +637,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -790,7 +653,7 @@
 			<CivilizationSelectionSound>AS3D_CELTS_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_CELTS_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_CHINA -->
 			<Type>CIVILIZATION_CHINA</Type>
 			<Description>TXT_KEY_CIV_CHINA_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_CHINA_SHORT_DESC</ShortDescription>
@@ -850,14 +713,14 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_THEATRE</BuildingClassType>
-					<BuildingType>BUILDING_CHINESE_PAVILLION</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
+					<BuildingType>BUILDING_CHINESE_CHANGPINGCANG</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
 				<Unit>
 					<UnitClassType>UNITCLASS_CROSSBOWMAN</UnitClassType>
-					<UnitType>UNIT_CHINA_CHOKONU</UnitType>
+					<UnitType>UNIT_CHINA_ZHUGE_NU</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -874,11 +737,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_AGRICULTURE</TechType>
+					<TechType>TECH_MINING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_MINING</TechType>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -888,7 +751,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -904,7 +767,7 @@
 			<CivilizationSelectionSound>AS3D_CHINA_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_CHINA_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_EGYPT -->
 			<Type>CIVILIZATION_EGYPT</Type>
 			<Description>TXT_KEY_CIV_EGYPT_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_EGYPT_SHORT_DESC</ShortDescription>
@@ -976,14 +839,14 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_OBELISK</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
 					<BuildingType>BUILDING_EGYPTIAN_OBELISK</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
 				<Unit>
 					<UnitClassType>UNITCLASS_CHARIOT</UnitClassType>
-					<UnitType>UNIT_EGYPT_WARCHARIOT</UnitType>
+					<UnitType>UNIT_EGYPTIAN_WAR_CHARIOT</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -1000,11 +863,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_THE_WHEEL</TechType>
+					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_AGRICULTURE</TechType>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -1014,7 +877,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -1030,7 +893,7 @@
 			<CivilizationSelectionSound>AS3D_EGYPT_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_EGYPT_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_ENGLAND -->
 			<Type>CIVILIZATION_ENGLAND</Type>
 			<Description>TXT_KEY_CIV_ENGLAND_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_ENGLAND_SHORT_DESC</ShortDescription>
@@ -1090,8 +953,8 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_RIFLEMAN</UnitClassType>
-					<UnitType>UNIT_ENGLISH_REDCOAT</UnitType>
+					<UnitClassType>UNITCLASS_CROSSBOWMAN</UnitClassType>
+					<UnitType>UNIT_ENGLISH_YEOMAN_ARCHER</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -1122,7 +985,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -1142,7 +1005,7 @@
 			<CivilizationSelectionSound>AS3D_ENGLAND_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_ENGLAND_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_ETHIOPIA -->
 			<Type>CIVILIZATION_ETHIOPIA</Type>
 			<Description>TXT_KEY_CIV_ETHIOPIA_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_ETHIOPIA_SHORT_DESC</ShortDescription>
@@ -1196,8 +1059,8 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_OBELISK</BuildingClassType>
-					<BuildingType>BUILDING_ETHIOPIAN_STELE</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
+					<BuildingType>BUILDING_ETHIOPIAN_METSEHAF_BET</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
@@ -1224,7 +1087,7 @@
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_MINING</TechType>
+					<TechType>TECH_MYSTICISM</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -1234,7 +1097,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -1243,10 +1106,10 @@
 				</Leader>
 			</Leaders>
 			<DerivativeCiv>NONE</DerivativeCiv>
-			<CivilizationSelectionSound>AS3D_ETHIOPIA_SELECT</CivilizationSelectionSound>
-			<CivilizationActionSound>AS3D_ETHIOPIA_ORDER</CivilizationActionSound>
+			<CivilizationSelectionSound>AS3D_MALI_SELECT</CivilizationSelectionSound>
+			<CivilizationActionSound>AS3D_MALI_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_FRANCE -->
 			<Type>CIVILIZATION_FRANCE</Type>
 			<Description>TXT_KEY_CIV_FRANCE_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_FRANCE_SHORT_DESC</ShortDescription>
@@ -1302,7 +1165,7 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_OBSERVATORY</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
 					<BuildingType>BUILDING_FRENCH_SALON</BuildingType>
 				</Building>
 			</Buildings>
@@ -1326,11 +1189,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_THE_WHEEL</TechType>
+					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_AGRICULTURE</TechType>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -1340,7 +1203,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -1360,7 +1223,7 @@
 			<CivilizationSelectionSound>AS3D_FRANCE_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_FRANCE_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_GERMANY -->
 			<Type>CIVILIZATION_GERMANY</Type>
 			<Description>TXT_KEY_CIV_GERMANY_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_GERMANY_SHORT_DESC</ShortDescription>
@@ -1429,14 +1292,14 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
-					<BuildingType>BUILDING_GERMAN_ASSEMBLY_PLANT</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
+					<BuildingType>BUILDING_GERMAN_ZUNFTHAUS</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_TANK</UnitClassType>
-					<UnitType>UNIT_GERMAN_PANZER</UnitType>
+					<UnitClassType>UNITCLASS_DRAGOON</UnitClassType>
+					<UnitType>UNIT_GERMAN_HUSSAR</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -1453,7 +1316,7 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_HUNTING</TechType>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -1467,7 +1330,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -1483,7 +1346,7 @@
 			<CivilizationSelectionSound>AS3D_GERMANY_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_GERMANY_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_GREECE -->
 			<Type>CIVILIZATION_GREECE</Type>
 			<Description>TXT_KEY_CIV_GREECE_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_GREECE_SHORT_DESC</ShortDescription>
@@ -1495,6 +1358,7 @@
 			<UnitArtStyleType>UNIT_ARTSTYLE_GRECO_ROMAN</UnitArtStyleType>
 			<bPlayable>1</bPlayable>
 			<bAIPlayable>1</bAIPlayable>
+			<!-- custom: Removed duplicate TXT_KEY_CITY_NAME_SICYON from this later city-list slot. See KI#150. (GPT-5.5) -->
 			<Cities>
 				<City>TXT_KEY_CITY_NAME_ATHENS</City>
 				<City>TXT_KEY_CITY_NAME_SPARTA</City>
@@ -1545,14 +1409,14 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_COLOSSEUM</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_THEATRE</BuildingClassType>
 					<BuildingType>BUILDING_GREEK_ODEON</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_AXEMAN</UnitClassType>
-					<UnitType>UNIT_GREEK_PHALANX</UnitType>
+					<UnitClassType>UNITCLASS_SPEARMAN</UnitClassType>
+					<UnitType>UNIT_GREEK_HOPLITE</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -1569,11 +1433,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_FISHING</TechType>
+					<TechType>TECH_MINING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_HUNTING</TechType>
+					<TechType>TECH_MYSTICISM</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -1583,7 +1447,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -1599,7 +1463,7 @@
 			<CivilizationSelectionSound>AS3D_GREECE_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_GREECE_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_HOLY_ROMAN -->
 			<Type>CIVILIZATION_HOLY_ROMAN</Type>
 			<Description>TXT_KEY_CIV_HOLY_ROMAN_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_HOLY_ROMAN_SHORT_DESC</ShortDescription>
@@ -1667,8 +1531,8 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_PIKEMAN</UnitClassType>
-					<UnitType>UNIT_HOLY_ROMAN_LANDSKNECHT</UnitType>
+					<UnitClassType>UNITCLASS_CANNON</UnitClassType>
+					<UnitType>UNIT_HOLY_ROMAN_HOUFNICE</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -1689,7 +1553,7 @@
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_HUNTING</TechType>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -1699,7 +1563,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -1711,7 +1575,7 @@
 			<CivilizationSelectionSound>AS3D_HOLY_ROMAN_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_HOLY_ROMAN_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_INCA -->
 			<Type>CIVILIZATION_INCA</Type>
 			<Description>TXT_KEY_CIV_INCA_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_INCA_SHORT_DESC</ShortDescription>
@@ -1762,13 +1626,13 @@
 			<Buildings>
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_GRANARY</BuildingClassType>
-					<BuildingType>BUILDING_INCAN_TERRACE</BuildingType>
+					<BuildingType>BUILDING_INCAN_QULLQA</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_WARRIOR</UnitClassType>
-					<UnitType>UNIT_INCAN_QUECHUA</UnitType>
+					<UnitClassType>UNITCLASS_CAMEL_ARCHER</UnitClassType>
+					<UnitType>UNIT_INCAN_LLAMA_KAMAYUQ</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -1785,11 +1649,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_AGRICULTURE</TechType>
+					<TechType>TECH_MINING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_MYSTICISM</TechType>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -1799,7 +1663,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -1811,7 +1675,7 @@
 			<CivilizationSelectionSound>AS3D_INCA_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_INCA_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_INDIA -->
 			<Type>CIVILIZATION_INDIA</Type>
 			<Description>TXT_KEY_CIV_INDIA_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_INDIA_SHORT_DESC</ShortDescription>
@@ -1831,7 +1695,7 @@
 				<City>TXT_KEY_CITY_NAME_VARANASI</City>
 				<City>TXT_KEY_CITY_NAME_AGRA</City>
 				<City>TXT_KEY_CITY_NAME_CALCUTTA</City>
-				<City>TXT_KEY_CITY_NAME_LAHORE</City>				
+				<City>TXT_KEY_CITY_NAME_LAHORE</City>
 				<City>TXT_KEY_CITY_NAME_MADRAS</City>
 				<City>TXT_KEY_CITY_NAME_BANGALORE</City>
 				<City>TXT_KEY_CITY_NAME_HYDERABAD</City>
@@ -1924,7 +1788,7 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_JAIL</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_COLOSSEUM</BuildingClassType>
 					<BuildingType>BUILDING_INDIAN_MAUSOLEUM</BuildingType>
 				</Building>
 			</Buildings>
@@ -1962,7 +1826,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -1978,7 +1842,117 @@
 			<CivilizationSelectionSound>AS3D_INDIA_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_INDIA_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<!-- custom: add Ireland civilization (GPT-5.3-Codex) -->
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_IRELAND -->
+			<Type>CIVILIZATION_IRELAND</Type>
+			<Description>TXT_KEY_CIV_IRELAND_DESC</Description>
+			<ShortDescription>TXT_KEY_CIV_IRELAND_SHORT_DESC</ShortDescription>
+			<Adjective>TXT_KEY_CIV_IRELAND_ADJECTIVE</Adjective>
+			<Civilopedia>TXT_KEY_CIV_IRELAND_PEDIA</Civilopedia>
+			<DefaultPlayerColor>PLAYERCOLOR_DARK_GREEN</DefaultPlayerColor>
+			<ArtDefineTag>ART_DEF_CIVILIZATION_IRELAND</ArtDefineTag>
+			<ArtStyleType>ARTSTYLE_EUROPEAN</ArtStyleType>
+			<UnitArtStyleType>UNIT_ARTSTYLE_EUROPEAN</UnitArtStyleType>
+			<bPlayable>1</bPlayable>
+			<bAIPlayable>1</bAIPlayable>
+			<!-- custom: Limerick and Tara intentionally omitted because they are already used by Scandinavia/Celts city lists. (GPT-5.3-Codex) -->
+			<!-- custom: A CI check for city names shared between civilizations was considered after noticing this, but not added: Minor and Barbarian share their whole lists on purpose, and unrelated cities can genuinely share a name (Memphis in Egypt and the United States).
+			Few playable civilizations share names, and a shared name is harmless because Civ4 skips names already used in the game. (Claude code Opus 5.5) -->
+			<Cities>
+				<City>TXT_KEY_CITY_NAME_DUBLIN_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_CORK_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_EMAIN_MACHA_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_GALWAY_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_SWORDS_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_WATERFORD_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_KILKENNY_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_BELFAST_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_DERRY_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_ARMAGH_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_CASHEL_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_CLONMACNOISE_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_KELLS_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_GLENDALOUGH_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_DOWNPATRICK_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_DROGHEDA_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_WEXFORD_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_SLIGO_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_ATHLONE_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_DUNDALK_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_ENNIS_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_TRALEE_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_KILLARNEY_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_CLONMEL_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_NAVAN_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_MULLINGAR_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_TULLAMORE_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_CARLOW_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_NEWRY_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_LETTERKENNY_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_DONEGAL_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_CASTLEBAR_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_BALLINA_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_BRAY_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_SKERRIES_IRELAND</City>
+				<City>TXT_KEY_CITY_NAME_YOUGHAL_IRELAND</City>
+			</Cities>
+			<Buildings>
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
+					<BuildingType>BUILDING_IRELAND_MUILEANN_UISCE</BuildingType>
+				</Building>
+			</Buildings>
+			<Units>
+				<Unit>
+					<UnitClassType>UNITCLASS_RIFLEMAN</UnitClassType>
+					<UnitType>UNIT_IRELAND_FLYING_COLUMN</UnitType>
+				</Unit>
+			</Units>
+			<FreeUnitClasses>
+				<FreeUnitClass>
+					<UnitClassType>UNITCLASS_SETTLER</UnitClassType>
+					<iFreeUnits>1</iFreeUnits>
+				</FreeUnitClass>
+			</FreeUnitClasses>
+			<FreeBuildingClasses>
+				<FreeBuildingClass>
+					<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
+					<bFreeBuildingClass>1</bFreeBuildingClass>
+				</FreeBuildingClass>
+			</FreeBuildingClasses>
+			<FreeTechs>
+				<FreeTech>
+					<TechType>TECH_FISHING</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<FreeTech>
+					<TechType>TECH_MYSTICISM</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+			</FreeTechs>
+			<DisableTechs/>
+			<InitialCivics>
+				<CivicType>CIVIC_DESPOTISM</CivicType>
+				<CivicType>CIVIC_BARBARISM</CivicType>
+				<CivicType>CIVIC_TRIBALISM</CivicType>
+				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
+			</InitialCivics>
+			<Leaders>
+				<Leader>
+					<LeaderName>LEADER_GRACE_OMALLEY</LeaderName>
+					<bLeaderAvailability>1</bLeaderAvailability>
+				</Leader>
+				<Leader>
+					<LeaderName>LEADER_MICHAEL_COLLINS</LeaderName>
+					<bLeaderAvailability>1</bLeaderAvailability>
+				</Leader>
+			</Leaders>
+			<DerivativeCiv>NONE</DerivativeCiv>
+			<CivilizationSelectionSound>AS3D_ENGLAND_SELECT</CivilizationSelectionSound>
+			<CivilizationActionSound>AS3D_ENGLAND_ORDER</CivilizationActionSound>
+		</CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_JAPAN -->
 			<Type>CIVILIZATION_JAPAN</Type>
 			<Description>TXT_KEY_CIV_JAPAN_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_JAPAN_SHORT_DESC</ShortDescription>
@@ -2029,8 +2003,8 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_COAL_PLANT</BuildingClassType>
-					<BuildingType>BUILDING_JAPANESE_SHALE_PLANT</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
+					<BuildingType>BUILDING_JAPAN_DOUJOU</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
@@ -2057,7 +2031,7 @@
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_THE_WHEEL</TechType>
+					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -2067,7 +2041,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -2079,7 +2053,7 @@
 			<CivilizationSelectionSound>AS3D_JAPAN_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_JAPAN_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_KHMER -->
 			<Type>CIVILIZATION_KHMER</Type>
 			<Description>TXT_KEY_CIV_KHMER_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_KHMER_SHORT_DESC</ShortDescription>
@@ -2137,8 +2111,8 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
-					<BuildingType>BUILDING_KHMER_BARAY</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_THEATRE</BuildingClassType>
+					<BuildingType>BUILDING_KHMER_HALL_OF_DANCERS</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
@@ -2161,11 +2135,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_HUNTING</TechType>
+					<TechType>TECH_FISHING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_MINING</TechType>
+					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -2175,7 +2149,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -2187,7 +2161,113 @@
 			<CivilizationSelectionSound>AS3D_KHMER_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_KHMER_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<!-- custom: Long_Comments_XML.txt #344 -->
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_KINGDOM_OF_BENIN -->
+			<Type>CIVILIZATION_KINGDOM_OF_BENIN</Type>
+			<Description>TXT_KEY_CIV_KINGDOM_OF_BENIN_DESC</Description>
+			<ShortDescription>TXT_KEY_CIV_KINGDOM_OF_BENIN_SHORT_DESC</ShortDescription>
+			<Adjective>TXT_KEY_CIV_KINGDOM_OF_BENIN_ADJECTIVE</Adjective>
+			<Civilopedia>TXT_KEY_CIV_KINGDOM_OF_BENIN_PEDIA</Civilopedia>
+			<DefaultPlayerColor>PLAYERCOLOR_MIDDLE_GREEN</DefaultPlayerColor>
+			<ArtDefineTag>ART_DEF_CIVILIZATION_KINGDOM_OF_BENIN</ArtDefineTag>
+			<ArtStyleType>ARTSTYLE_MIDDLE_EAST</ArtStyleType>
+			<UnitArtStyleType>UNIT_ARTSTYLE_MIDDLE_EAST</UnitArtStyleType>
+			<bPlayable>1</bPlayable>
+			<bAIPlayable>1</bAIPlayable>
+			<!-- custom: Long_Comments_XML.txt #345 -->
+			<Cities>
+				<City>TXT_KEY_CITY_NAME_EDO_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_UGHOTON_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_UGBINI_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_URHONIGBE_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_SAPELE_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_GWATO_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_UDO_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_UGO_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_UMOGHUNWUN_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_WARL_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_AGBAR_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_ELUR_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_MAHIN_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_AKOTOGBO_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_AYE_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_UGBODU_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_UKUNZU_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_UROMI_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_UZEA_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_HON_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_OWO_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_AKURE_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_ODE_ITSEKIRI_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_ONDO_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_IKARE_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_IKWE_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_ONITSHA_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_ABOH_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_EKO_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_IDWARI_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_BADAGRI_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_IKERE_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_ADO_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_EKITI_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_IDOLA_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_APA_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_IPOKIA_CUSTOM</City>
+				<City>TXT_KEY_CITY_NAME_ITAKETE_CUSTOM</City>
+			</Cities>
+			<Buildings>
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
+					<BuildingType>BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</BuildingType>
+				</Building>
+			</Buildings>
+			<Units>
+				<Unit>
+					<UnitClassType>UNITCLASS_CROSSBOWMAN</UnitClassType>
+					<UnitType>UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN</UnitType>
+				</Unit>
+			</Units>
+			<FreeUnitClasses>
+				<FreeUnitClass>
+					<UnitClassType>UNITCLASS_SETTLER</UnitClassType>
+					<iFreeUnits>1</iFreeUnits>
+				</FreeUnitClass>
+			</FreeUnitClasses>
+			<FreeBuildingClasses>
+				<FreeBuildingClass>
+					<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
+					<bFreeBuildingClass>1</bFreeBuildingClass>
+				</FreeBuildingClass>
+			</FreeBuildingClasses>
+			<FreeTechs>
+				<FreeTech>
+					<TechType>TECH_MYSTICISM</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<FreeTech>
+					<TechType>TECH_POTTERY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+			</FreeTechs>
+			<DisableTechs/>
+			<InitialCivics>
+				<CivicType>CIVIC_DESPOTISM</CivicType>
+				<CivicType>CIVIC_BARBARISM</CivicType>
+				<CivicType>CIVIC_TRIBALISM</CivicType>
+				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
+			</InitialCivics>
+			<Leaders>
+				<Leader>
+					<LeaderName>LEADER_EWUARE</LeaderName>
+					<bLeaderAvailability>1</bLeaderAvailability>
+				</Leader>
+			</Leaders>
+			<DerivativeCiv>NONE</DerivativeCiv>
+			<CivilizationSelectionSound>AS3D_ETHIOPIA_SELECT</CivilizationSelectionSound>
+			<CivilizationActionSound>AS3D_ETHIOPIA_ORDER</CivilizationActionSound>
+		</CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_KOREA -->
 			<Type>CIVILIZATION_KOREA</Type>
 			<Description>TXT_KEY_CIV_KOREA_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_KOREA_SHORT_DESC</ShortDescription>
@@ -2233,13 +2313,14 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
-					<BuildingType>BUILDING_KOREAN_SEOWON</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
+					<BuildingType>BUILDING_KOREAN_GYEONGDANG</BuildingType>
 				</Building>
 			</Buildings>
+			<!-- custom: was UNITCLASS_CATAPULT -->
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_CATAPULT</UnitClassType>
+					<UnitClassType>UNITCLASS_CANNON</UnitClassType>
 					<UnitType>UNIT_KOREAN_HWACHA</UnitType>
 				</Unit>
 			</Units>
@@ -2257,11 +2338,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_MINING</TechType>
+					<TechType>TECH_FISHING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_MYSTICISM</TechType>
+					<TechType>TECH_MINING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -2271,7 +2352,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -2283,7 +2364,7 @@
 			<CivilizationSelectionSound>AS3D_KOREA_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_KOREA_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_MALI -->
 			<Type>CIVILIZATION_MALI</Type>
 			<Description>TXT_KEY_CIV_MALI_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_MALI_SHORT_DESC</ShortDescription>
@@ -2335,7 +2416,7 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_ARCHER</UnitClassType>
+					<UnitClassType>UNITCLASS_LONGBOWMAN</UnitClassType>
 					<UnitType>UNIT_MALI_SKIRMISHER</UnitType>
 				</Unit>
 			</Units>
@@ -2353,11 +2434,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_THE_WHEEL</TechType>
+					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_MINING</TechType>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -2367,7 +2448,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -2379,7 +2460,7 @@
 			<CivilizationSelectionSound>AS3D_MALI_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_MALI_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_MAYA -->
 			<Type>CIVILIZATION_MAYA</Type>
 			<Description>TXT_KEY_CIV_MAYA_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_MAYA_SHORT_DESC</ShortDescription>
@@ -2445,8 +2526,8 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_SPEARMAN</UnitClassType>
-					<UnitType>UNIT_MAYA_HOLKAN</UnitType>
+					<UnitClassType>UNITCLASS_WORKER</UnitClassType>
+					<UnitType>UNIT_MAYA_QUICK_WORKER</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -2463,7 +2544,7 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_MINING</TechType>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -2477,7 +2558,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -2489,7 +2570,7 @@
 			<CivilizationSelectionSound>AS3D_MAYA_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_MAYA_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_MONGOL -->
 			<Type>CIVILIZATION_MONGOL</Type>
 			<Description>TXT_KEY_CIV_MONGOL_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_MONGOL_SHORT_DESC</ShortDescription>
@@ -2544,8 +2625,8 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_HORSE_ARCHER</UnitClassType>
-					<UnitType>UNIT_MONGOL_KESHIK</UnitType>
+					<UnitClassType>UNITCLASS_HORSE_KNIGHT</UnitClassType>
+					<UnitType>UNIT_MONGOL_KHISHIGTEN</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -2562,11 +2643,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_THE_WHEEL</TechType>
+					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_HUNTING</TechType>
+					<TechType>TECH_MYSTICISM</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -2576,7 +2657,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -2592,7 +2673,7 @@
 			<CivilizationSelectionSound>AS3D_MONGOL_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_MONGOL_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_NATIVE_AMERICA -->
 			<Type>CIVILIZATION_NATIVE_AMERICA</Type>
 			<Description>TXT_KEY_CIV_NATIVE_AMERICA_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_NATIVE_AMERICA_SHORT_DESC</ShortDescription>
@@ -2658,8 +2739,8 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_OBELISK</BuildingClassType>
-					<BuildingType>BUILDING_NATIVE_AMERICA_TOTEM</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_JAIL</BuildingClassType>
+					<BuildingType>BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
@@ -2682,11 +2763,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_AGRICULTURE</TechType>
+					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_FISHING</TechType>
+					<TechType>TECH_MINING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -2696,7 +2777,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -2708,7 +2789,7 @@
 			<CivilizationSelectionSound>AS3D_NATIVE_AMERICA_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_NATIVE_AMERICA_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_NETHERLANDS -->
 			<Type>CIVILIZATION_NETHERLANDS</Type>
 			<Description>TXT_KEY_CIV_NETHERLANDS_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_NETHERLANDS_SHORT_DESC</ShortDescription>
@@ -2769,15 +2850,16 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_LEVEE</BuildingClassType>
-					<BuildingType>BUILDING_NETHERLANDS_DIKE</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_BANK</BuildingClassType>
+					<BuildingType>BUILDING_NETHERLANDS_BEURS</BuildingType>
 				</Building>
 			</Buildings>
+			<!-- custom: east indiaman of class frigate now replaced with NETHERLANDS_SWIFT_WORKER of class worker -->
 			<Units>
 				<Unit>
 					<!-- advc.905b: was GALLEON -->
-					<UnitClassType>UNITCLASS_FRIGATE</UnitClassType>
-					<UnitType>UNIT_NETHERLANDS_OOSTINDIEVAARDER</UnitType>
+					<UnitClassType>UNITCLASS_WORKER</UnitClassType>
+					<UnitType>UNIT_NETHERLANDS_SWIFT_WORKER</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -2794,11 +2876,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_AGRICULTURE</TechType>
+					<TechType>TECH_FISHING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_FISHING</TechType>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -2808,7 +2890,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -2820,7 +2902,7 @@
 			<CivilizationSelectionSound>AS3D_NETHERLANDS_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_NETHERLANDS_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_OTTOMAN -->
 			<Type>CIVILIZATION_OTTOMAN</Type>
 			<Description>TXT_KEY_CIV_OTTOMAN_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_OTTOMAN_SHORT_DESC</ShortDescription>
@@ -2832,6 +2914,7 @@
 			<UnitArtStyleType>UNIT_ARTSTYLE_MIDDLE_EAST</UnitArtStyleType>
 			<bPlayable>1</bPlayable>
 			<bAIPlayable>1</bAIPlayable>
+			<!-- custom: Removed duplicate TXT_KEY_CITY_NAME_MARMARIS from this later city-list slot. See KI#150. (GPT-5.5) -->
 			<Cities>
 				<City>TXT_KEY_CITY_NAME_ISTANBUL</City>
 				<City>TXT_KEY_CITY_NAME_EDIRNE</City>
@@ -2897,11 +2980,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_THE_WHEEL</TechType>
+					<TechType>TECH_FISHING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_AGRICULTURE</TechType>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -2911,7 +2994,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -2927,7 +3010,7 @@
 			<CivilizationSelectionSound>AS3D_OTTOMAN_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_OTTOMAN_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_PERSIA -->
 			<Type>CIVILIZATION_PERSIA</Type>
 			<Description>TXT_KEY_CIV_PERSIA_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_PERSIA_SHORT_DESC</ShortDescription>
@@ -3014,7 +3097,7 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_CHARIOT</UnitClassType>
+					<UnitClassType>UNITCLASS_SWORDSMAN</UnitClassType>
 					<UnitType>UNIT_PERSIA_IMMORTAL</UnitType>
 				</Unit>
 			</Units>
@@ -3032,11 +3115,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_AGRICULTURE</TechType>
+					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_HUNTING</TechType>
+					<TechType>TECH_MINING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -3046,7 +3129,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -3062,7 +3145,7 @@
 			<CivilizationSelectionSound>AS3D_PERSIA_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_PERSIA_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_PORTUGAL -->
 			<Type>CIVILIZATION_PORTUGAL</Type>
 			<Description>TXT_KEY_CIV_PORTUGAL_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_PORTUGAL_SHORT_DESC</ShortDescription>
@@ -3123,14 +3206,14 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_CUSTOM_HOUSE</BuildingClassType>
-					<BuildingType>BUILDING_PORTUGAL_FEITORIA</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_GROCER</BuildingClassType>
+					<BuildingType>BUILDING_PORTUGAL_PEIXARIA</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_CARAVEL</UnitClassType>
-					<UnitType>UNIT_PORTUGAL_CARRACK</UnitType>
+					<UnitClassType>UNITCLASS_GRENADIER</UnitClassType>
+					<UnitType>UNIT_PORTUGAL_CACADOR</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -3151,7 +3234,7 @@
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_MINING</TechType>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -3161,7 +3244,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -3173,7 +3256,7 @@
 			<CivilizationSelectionSound>AS3D_PORTUGAL_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_PORTUGAL_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_ROME -->
 			<Type>CIVILIZATION_ROME</Type>
 			<Description>TXT_KEY_CIV_ROME_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_ROME_SHORT_DESC</ShortDescription>
@@ -3251,7 +3334,7 @@
 			<Units>
 				<Unit>
 					<UnitClassType>UNITCLASS_SWORDSMAN</UnitClassType>
-					<UnitType>UNIT_ROME_PRAETORIAN</UnitType>
+					<UnitType>UNIT_ROMAN_LEGIONARY</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -3282,7 +3365,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -3298,7 +3381,7 @@
 			<CivilizationSelectionSound>AS3D_ROME_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_ROME_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_RUSSIA -->
 			<Type>CIVILIZATION_RUSSIA</Type>
 			<Description>TXT_KEY_CIV_RUSSIA_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_RUSSIA_SHORT_DESC</ShortDescription>
@@ -3352,13 +3435,13 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_LABORATORY</BuildingClassType>
-					<BuildingType>BUILDING_RUSSIAN_RESEARCH_INSTITUTE</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_COURTHOUSE</BuildingClassType>
+					<BuildingType>BUILDING_RUSSIAN_PRIKAZ</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_CAVALRY</UnitClassType>
+					<UnitClassType>UNITCLASS_DRAGOON</UnitClassType>
 					<UnitType>UNIT_RUSSIA_COSSACK</UnitType>
 				</Unit>
 			</Units>
@@ -3376,7 +3459,7 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_HUNTING</TechType>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -3390,7 +3473,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -3410,7 +3493,114 @@
 			<CivilizationSelectionSound>AS3D_RUSSIA_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_RUSSIA_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<!-- custom: The machine-facing civilization family uses the inherited VIKING namespace for external XML/WorldBuilder compatibility, while the player-facing short name remains Scandinavia.
+		Keep this block in the S position: Custom Game follows the shown short name, not the <Type>; xml_display_order.py checks that order. (ChatGPT-5.6-Sol) -->
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_VIKING -->
+			<Type>CIVILIZATION_VIKING</Type>
+			<Description>TXT_KEY_CIV_VIKING_DESC</Description>
+			<ShortDescription>TXT_KEY_CIV_VIKING_SHORT_DESC</ShortDescription>
+			<Adjective>TXT_KEY_CIV_VIKING_ADJECTIVE</Adjective>
+			<Civilopedia>TXT_KEY_CIV_VIKING_PEDIA</Civilopedia>
+			<DefaultPlayerColor>PLAYERCOLOR_LIGHT_PURPLE</DefaultPlayerColor>
+			<ArtDefineTag>ART_DEF_CIVILIZATION_VIKINGS</ArtDefineTag>
+			<ArtStyleType>ARTSTYLE_EUROPEAN</ArtStyleType>
+			<UnitArtStyleType>UNIT_ARTSTYLE_EUROPEAN</UnitArtStyleType>
+			<bPlayable>1</bPlayable>
+			<bAIPlayable>1</bAIPlayable>
+			<Cities>
+				<City>TXT_KEY_CITY_NAME_NIDAROS</City>
+				<City>TXT_KEY_CITY_NAME_UPPSALA</City>
+				<City>TXT_KEY_CITY_NAME_HAITHABU</City>
+				<City>TXT_KEY_CITY_NAME_BIRKA</City>
+				<City>TXT_KEY_CITY_NAME_BJORGVIN</City>
+				<City>TXT_KEY_CITY_NAME_JELLING</City>
+				<City>TXT_KEY_CITY_NAME_ROSKILDE</City>
+				<City>TXT_KEY_CITY_NAME_TONSBERG</City>
+				<City>TXT_KEY_CITY_NAME_SIGTUNA</City>
+				<City>TXT_KEY_CITY_NAME_LODOSE</City>
+				<City>TXT_KEY_CITY_NAME_ODENSE</City>
+				<City>TXT_KEY_CITY_NAME_OSLO</City>
+				<City>TXT_KEY_CITY_NAME_RIBE</City>
+				<City>TXT_KEY_CITY_NAME_LINDHOLM</City>
+				<City>TXT_KEY_CITY_NAME_VASTERAS</City>
+				<City>TXT_KEY_CITY_NAME_AARHUS</City>
+				<City>TXT_KEY_CITY_NAME_LUND</City>
+				<City>TXT_KEY_CITY_NAME_KAUPANG</City>
+				<City>TXT_KEY_CITY_NAME_REYKJAVIK</City>
+				<City>TXT_KEY_CITY_NAME_THINGVELLIR</City>
+				<City>TXT_KEY_CITY_NAME_JORVIK</City>
+				<City>TXT_KEY_CITY_NAME_LINCOLN</City>
+				<City>TXT_KEY_CITY_NAME_DEORABY</City>
+				<City>TXT_KEY_CITY_NAME_STAMFORD</City>
+				<City>TXT_KEY_CITY_NAME_DYFLIN</City>
+				<City>TXT_KEY_CITY_NAME_VADREJFORD</City>
+				<City>TXT_KEY_CITY_NAME_LIMERICK</City>
+				<City>TXT_KEY_CITY_NAME_ROWANE</City>
+				<City>TXT_KEY_CITY_NAME_KONUGARD</City>
+				<City>TXT_KEY_CITY_NAME_HOLMGARD</City>
+				<City>TXT_KEY_CITY_NAME_ALDEIGJUBORG</City>
+				<City>TXT_KEY_CITY_NAME_KIRKJUVAGR</City>
+				<City>TXT_KEY_CITY_NAME_TYNWALD</City>
+				<City>TXT_KEY_CITY_NAME_LEIRVIK</City>
+				<City>TXT_KEY_CITY_NAME_TINGANES</City>
+				<City>TXT_KEY_CITY_NAME_KIRKJUBOUR</City>
+				<City>TXT_KEY_CITY_NAME_BRATTAHLID</City>
+				<City>TXT_KEY_CITY_NAME_VINLAND</City>
+				<City>TXT_KEY_CITY_NAME_THUNDERFALL</City>
+			</Cities>
+			<Buildings>
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
+					<BuildingType>BUILDING_VIKING_CHIEFTAINS_HALL</BuildingType>
+				</Building>
+			</Buildings>
+			<Units>
+				<Unit>
+					<UnitClassType>UNITCLASS_MACEMAN</UnitClassType>
+					<UnitType>UNIT_VIKING_VIKING</UnitType>
+				</Unit>
+			</Units>
+			<FreeUnitClasses>
+				<FreeUnitClass>
+					<UnitClassType>UNITCLASS_SETTLER</UnitClassType>
+					<iFreeUnits>1</iFreeUnits>
+				</FreeUnitClass>
+			</FreeUnitClasses>
+			<FreeBuildingClasses>
+				<FreeBuildingClass>
+					<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
+					<bFreeBuildingClass>1</bFreeBuildingClass>
+				</FreeBuildingClass>
+			</FreeBuildingClasses>
+			<FreeTechs>
+				<FreeTech>
+					<TechType>TECH_FISHING</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<FreeTech>
+					<TechType>TECH_HUNTING</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+			</FreeTechs>
+			<DisableTechs/>
+			<InitialCivics>
+				<CivicType>CIVIC_DESPOTISM</CivicType>
+				<CivicType>CIVIC_BARBARISM</CivicType>
+				<CivicType>CIVIC_TRIBALISM</CivicType>
+				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
+			</InitialCivics>
+			<Leaders>
+				<Leader>
+					<LeaderName>LEADER_RAGNAR</LeaderName>
+					<bLeaderAvailability>1</bLeaderAvailability>
+				</Leader>
+			</Leaders>
+			<DerivativeCiv>CIVILIZATION_AMERICA</DerivativeCiv>
+			<CivilizationSelectionSound>AS3D_VIKING_SELECT</CivilizationSelectionSound>
+			<CivilizationActionSound>AS3D_VIKING_ORDER</CivilizationActionSound>
+		</CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_SPAIN -->
 			<Type>CIVILIZATION_SPAIN</Type>
 			<Description>TXT_KEY_CIV_SPAIN_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_SPAIN_SHORT_DESC</ShortDescription>
@@ -3467,13 +3657,13 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
-					<BuildingType>BUILDING_SPANISH_CITADEL</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
+					<BuildingType>BUILDING_SPANISH_LONJA</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_CUIRASSIER</UnitClassType>
+					<UnitClassType>UNITCLASS_HORSE_CUIRASSIER</UnitClassType>
 					<UnitType>UNIT_SPANISH_CONQUISTADOR</UnitType>
 				</Unit>
 			</Units>
@@ -3505,7 +3695,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -3517,7 +3707,7 @@
 			<CivilizationSelectionSound>AS3D_SPAIN_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_SPAIN_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_SUMERIA -->
 			<Type>CIVILIZATION_SUMERIA</Type>
 			<Description>TXT_KEY_CIV_SUMERIA_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_SUMERIA_SHORT_DESC</ShortDescription>
@@ -3570,7 +3760,7 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_COURTHOUSE</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
 					<BuildingType>BUILDING_SUMERIAN_ZIGGURAT</BuildingType>
 				</Building>
 			</Buildings>
@@ -3594,11 +3784,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_AGRICULTURE</TechType>
+					<TechType>TECH_MYSTICISM</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_THE_WHEEL</TechType>
+					<TechType>TECH_MINING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -3608,7 +3798,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -3620,69 +3810,90 @@
 			<CivilizationSelectionSound>AS3D_SUMERIA_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_SUMERIA_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
-			<Type>CIVILIZATION_VIKING</Type>
-			<Description>TXT_KEY_CIV_VIKING_DESC</Description>
-			<ShortDescription>TXT_KEY_CIV_VIKING_SHORT_DESC</ShortDescription>
-			<Adjective>TXT_KEY_CIV_VIKING_ADJECTIVE</Adjective>
-			<Civilopedia>TXT_KEY_CHANGED_CIV_VIKING_PEDIA</Civilopedia>
-			<DefaultPlayerColor>PLAYERCOLOR_LIGHT_PURPLE</DefaultPlayerColor>
-			<ArtDefineTag>ART_DEF_CIVILIZATION_VIKINGS</ArtDefineTag>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_AMERICA -->
+			<Type>CIVILIZATION_AMERICA</Type>
+			<Description>TXT_KEY_CIV_AMERICA_DESC</Description>
+			<ShortDescription>TXT_KEY_CIV_AMERICA_SHORT_DESC</ShortDescription>
+			<Adjective>TXT_KEY_CIV_AMERICA_ADJECTIVE</Adjective>
+			<Civilopedia>TXT_KEY_CIV_AMERICA_PEDIA</Civilopedia>
+			<DefaultPlayerColor>PLAYERCOLOR_BLUE</DefaultPlayerColor>
+			<ArtDefineTag>ART_DEF_CIVILIZATION_AMERICA</ArtDefineTag>
 			<ArtStyleType>ARTSTYLE_EUROPEAN</ArtStyleType>
 			<UnitArtStyleType>UNIT_ARTSTYLE_EUROPEAN</UnitArtStyleType>
 			<bPlayable>1</bPlayable>
 			<bAIPlayable>1</bAIPlayable>
 			<Cities>
-				<City>TXT_KEY_CITY_NAME_NIDAROS</City>
-				<City>TXT_KEY_CITY_NAME_UPPSALA</City>
-				<City>TXT_KEY_CITY_NAME_HAITHABU</City>
-				<City>TXT_KEY_CITY_NAME_BIRKA</City>
-				<City>TXT_KEY_CITY_NAME_BJORGVIN</City>
-				<City>TXT_KEY_CITY_NAME_JELLING</City>
-				<City>TXT_KEY_CITY_NAME_ROSKILDE</City>
-				<City>TXT_KEY_CITY_NAME_TONSBERG</City>
-				<City>TXT_KEY_CITY_NAME_SIGTUNA</City>
-				<City>TXT_KEY_CITY_NAME_LODOSE</City>
-				<City>TXT_KEY_CITY_NAME_ODENSE</City>
-				<City>TXT_KEY_CITY_NAME_OSLO</City>
-				<City>TXT_KEY_CITY_NAME_RIBE</City>
-				<City>TXT_KEY_CITY_NAME_LINDHOLM</City>
-				<City>TXT_KEY_CITY_NAME_VASTERAS</City>
-				<City>TXT_KEY_CITY_NAME_AARHUS</City>
-				<City>TXT_KEY_CITY_NAME_LUND</City>
-				<City>TXT_KEY_CITY_NAME_KAUPANG</City>
-				<City>TXT_KEY_CITY_NAME_REYKJAVIK</City>
-				<City>TXT_KEY_CITY_NAME_THINGVELLIR</City>
-				<City>TXT_KEY_CITY_NAME_JORVIK</City>
-				<City>TXT_KEY_CITY_NAME_LINCOLN</City>
-				<City>TXT_KEY_CITY_NAME_DEORABY</City>
-				<City>TXT_KEY_CITY_NAME_STAMFORD</City>
-				<City>TXT_KEY_CITY_NAME_DYFLIN</City>
-				<City>TXT_KEY_CITY_NAME_VADREJFORD</City>
-				<City>TXT_KEY_CITY_NAME_LIMERICK</City>
-				<City>TXT_KEY_CITY_NAME_ROWANE</City>
-				<City>TXT_KEY_CITY_NAME_KONUGARD</City>
-				<City>TXT_KEY_CITY_NAME_HOLMGARD</City>
-				<City>TXT_KEY_CITY_NAME_ALDEIGJUBORG</City>
-				<City>TXT_KEY_CITY_NAME_KIRKJUVAGR</City>
-				<City>TXT_KEY_CITY_NAME_TYNWALD</City>
-				<City>TXT_KEY_CITY_NAME_LEIRVIK</City>
-				<City>TXT_KEY_CITY_NAME_TINGANES</City>
-				<City>TXT_KEY_CITY_NAME_KIRKJUBOUR</City>
-				<City>TXT_KEY_CITY_NAME_BRATTAHLID</City>
-				<City>TXT_KEY_CITY_NAME_VINLAND</City>
-				<City>TXT_KEY_CITY_NAME_THUNDERFALL</City>
+				<City>TXT_KEY_CITY_NAME_WASHINGTON</City>
+				<City>TXT_KEY_CITY_NAME_NEW_YORK</City>
+				<City>TXT_KEY_CITY_NAME_BOSTON</City>
+				<City>TXT_KEY_CITY_NAME_PHILADELPHIA</City>
+				<City>TXT_KEY_CITY_NAME_ATLANTA</City>
+				<City>TXT_KEY_CITY_NAME_CHICAGO</City>
+				<City>TXT_KEY_CITY_NAME_SEATTLE</City>
+				<City>TXT_KEY_CITY_NAME_SAN_FRANCISCO</City>
+				<City>TXT_KEY_CITY_NAME_LOS_ANGELES</City>
+				<City>TXT_KEY_CITY_NAME_HOUSTON</City>
+				<City>TXT_KEY_CITY_NAME_PORTLAND</City>
+				<City>TXT_KEY_CITY_NAME_ST_LOUIS</City>
+				<City>TXT_KEY_CITY_NAME_MIAMI</City>
+				<City>TXT_KEY_CITY_NAME_BUFFALO</City>
+				<City>TXT_KEY_CITY_NAME_DETROIT</City>
+				<City>TXT_KEY_CITY_NAME_NEW_ORLEANS</City>
+				<City>TXT_KEY_CITY_NAME_BALTIMORE</City>
+				<City>TXT_KEY_CITY_NAME_DENVER</City>
+				<City>TXT_KEY_CITY_NAME_CINCINNATI</City>
+				<City>TXT_KEY_CITY_NAME_DALLAS</City>
+				<City>TXT_KEY_CITY_NAME_MEMPHIS</City>
+				<City>TXT_KEY_CITY_NAME_CLEVELAN</City>
+				<City>TXT_KEY_CITY_NAME_KANSAS_CITY</City>
+				<City>TXT_KEY_CITY_NAME_SAN_DIEGO</City>
+				<City>TXT_KEY_CITY_NAME_RICHMOND</City>
+				<City>TXT_KEY_CITY_NAME_LAS_VEGAS</City>
+				<City>TXT_KEY_CITY_NAME_PHOENIX</City>
+				<City>TXT_KEY_CITY_NAME_ALBUQUERQUE</City>
+				<City>TXT_KEY_CITY_NAME_MINNEAPOLIS</City>
+				<City>TXT_KEY_CITY_NAME_PITTSBURGH</City>
+				<City>TXT_KEY_CITY_NAME_OAKLAND</City>
+				<City>TXT_KEY_CITY_NAME_TAMPA_BAY</City>
+				<City>TXT_KEY_CITY_NAME_ORLANDO</City>
+				<City>TXT_KEY_CITY_NAME_TACOMA</City>
+				<City>TXT_KEY_CITY_NAME_SANTA_FE</City>
+				<City>TXT_KEY_CITY_NAME_OLYMPIA</City>
+				<City>TXT_KEY_CITY_NAME_HUNT_VALLEY</City>
+				<City>TXT_KEY_CITY_NAME_SPRINGFIELD</City>
+				<City>TXT_KEY_CITY_NAME_PALO_ALTO</City>
+				<City>TXT_KEY_CITY_NAME_CENTRALIA</City>
+				<City>TXT_KEY_CITY_NAME_SPOKANE</City>
+				<City>TXT_KEY_CITY_NAME_JACKSONVILLE</City>
+				<City>TXT_KEY_CITY_NAME_SAVANNAH</City>
+				<City>TXT_KEY_CITY_NAME_CHARLESTON</City>
+				<City>TXT_KEY_CITY_NAME_SAN_ANTONIO</City>
+				<City>TXT_KEY_CITY_NAME_OMAHA</City>
+				<City>TXT_KEY_CITY_NAME_BIRMINGHAM</City>
+				<City>TXT_KEY_CITY_NAME_HONOLULU</City>
+				<City>TXT_KEY_CITY_NAME_ANCHORAGE</City>
+				<City>TXT_KEY_CITY_NAME_SACRAMENTO</City>
+				<City>TXT_KEY_CITY_NAME_SALT_LAKE_CITY</City>
+				<City>TXT_KEY_CITY_NAME_RENO</City>
+				<City>TXT_KEY_CITY_NAME_BOISE</City>
+				<City>TXT_KEY_CITY_NAME_MILWAUKEE</City>
+				<City>TXT_KEY_CITY_NAME_SANTA_CRUZ</City>
+				<City>TXT_KEY_CITY_NAME_MONTEREY</City>
+				<City>TXT_KEY_CITY_NAME_SANTA_MONICA</City>
+				<City>TXT_KEY_CITY_NAME_LITTLE_ROCK</City>
+				<City>TXT_KEY_CITY_NAME_COLUMBUS</City>
+				<City>TXT_KEY_CITY_NAME_LE_BAM</City>
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
-					<BuildingType>BUILDING_VIKING_TRADING_POST</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_COURTHOUSE</BuildingClassType>
+					<BuildingType>BUILDING_AMERICAN_FEDERAL_COURTHOUSE</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_MACEMAN</UnitClassType>
-					<UnitType>UNIT_VIKING_BESERKER</UnitType>
+					<UnitClassType>UNITCLASS_RIFLEMAN</UnitClassType>
+					<UnitType>UNIT_USA_PATRIOT</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -3697,6 +3908,7 @@
 					<bFreeBuildingClass>1</bFreeBuildingClass>
 				</FreeBuildingClass>
 			</FreeBuildingClasses>
+			<!-- custom: techs updated with the big and thanks a lot but of me toohelp of chatgpt 5, see readme_tech_tree.md for details; also check if accurate -->
 			<FreeTechs>
 				<FreeTech>
 					<TechType>TECH_FISHING</TechType>
@@ -3713,19 +3925,27 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
-					<LeaderName>LEADER_RAGNAR</LeaderName>
+					<LeaderName>LEADER_WASHINGTON</LeaderName>
+					<bLeaderAvailability>1</bLeaderAvailability>
+				</Leader>
+				<Leader>
+					<LeaderName>LEADER_FRANKLIN_ROOSEVELT</LeaderName>
+					<bLeaderAvailability>1</bLeaderAvailability>
+				</Leader>
+				<Leader>
+					<LeaderName>LEADER_LINCOLN</LeaderName>
 					<bLeaderAvailability>1</bLeaderAvailability>
 				</Leader>
 			</Leaders>
-			<DerivativeCiv>CIVILIZATION_AMERICA</DerivativeCiv>
-			<CivilizationSelectionSound>AS3D_VIKING_SELECT</CivilizationSelectionSound>
-			<CivilizationActionSound>AS3D_VIKING_ORDER</CivilizationActionSound>
+			<DerivativeCiv>NONE</DerivativeCiv>
+			<CivilizationSelectionSound>AS3D_AMERICA_SELECT</CivilizationSelectionSound>
+			<CivilizationActionSound>AS3D_AMERICA_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_ZULU -->
 			<Type>CIVILIZATION_ZULU</Type>
 			<Description>TXT_KEY_CIV_ZULU_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_ZULU_SHORT_DESC</ShortDescription>
@@ -3801,11 +4021,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_AGRICULTURE</TechType>
+					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_HUNTING</TechType>
+					<TechType>TECH_MINING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -3815,7 +4035,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -3827,7 +4047,7 @@
 			<CivilizationSelectionSound>AS3D_ZULU_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_ZULU_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_MINOR -->
 			<Type>CIVILIZATION_MINOR</Type>
 			<Description>TXT_KEY_CIV_MINOR_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_MINOR_SHORT_DESC</ShortDescription>
@@ -3839,6 +4059,7 @@
 			<ArtStyleType>ARTSTYLE_BARBARIAN</ArtStyleType>
 			<bPlayable>0</bPlayable>
 			<bAIPlayable>0</bAIPlayable>
+			<!-- advc: Duplicate removed TXT_KEY_CITY_NAME_HARAPPAN -->
 			<Cities>
 				<City>TXT_KEY_CITY_NAME_CHEROKEE</City>
 				<City>TXT_KEY_CITY_NAME_ANASAZI</City>
@@ -3881,8 +4102,6 @@
 				<City>TXT_KEY_CITY_NAME_HARAPPAN</City>
 				<City>TXT_KEY_CITY_NAME_MAURYAN</City>
 				<City>TXT_KEY_CITY_NAME_PARTHIAN</City>
-				<!-- advc: Duplicate removed -->
-				<!--City>TXT_KEY_CITY_NAME_HARAPPAN</City-->
 				<City>TXT_KEY_CITY_NAME_NUBIAN</City>
 				<City>TXT_KEY_CITY_NAME_BACTRIAN</City>
 				<City>TXT_KEY_CITY_NAME_CIRCASSIAN</City>
@@ -3953,7 +4172,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>
@@ -3965,7 +4184,7 @@
 			<CivilizationSelectionSound/>
 			<CivilizationActionSound/>
 		</CivilizationInfo>
-		<CivilizationInfo>
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_BARBARIAN -->
 			<Type>CIVILIZATION_BARBARIAN</Type>
 			<Description>TXT_KEY_CIV_BARBARIAN_DESC</Description>
 			<ShortDescription>TXT_KEY_CIV_BARBARIAN_SHORT_DESC</ShortDescription>
@@ -3976,6 +4195,7 @@
 			<ArtStyleType>ARTSTYLE_BARBARIAN</ArtStyleType>
 			<bPlayable>0</bPlayable>
 			<bAIPlayable>0</bAIPlayable>
+			<!-- advc: Duplicate removed TXT_KEY_CITY_NAME_HARAPPAN -->
 			<Cities>
 				<City>TXT_KEY_CITY_NAME_CHEROKEE</City>
 				<City>TXT_KEY_CITY_NAME_ANASAZI</City>
@@ -4018,8 +4238,6 @@
 				<City>TXT_KEY_CITY_NAME_HARAPPAN</City>
 				<City>TXT_KEY_CITY_NAME_MAURYAN</City>
 				<City>TXT_KEY_CITY_NAME_PARTHIAN</City>
-				<!-- advc: Duplicate removed -->
-				<!--City>TXT_KEY_CITY_NAME_HARAPPAN</City-->
 				<City>TXT_KEY_CITY_NAME_NUBIAN</City>
 				<City>TXT_KEY_CITY_NAME_BACTRIAN</City>
 				<City>TXT_KEY_CITY_NAME_CIRCASSIAN</City>
@@ -4045,28 +4263,31 @@
 				<City>TXT_KEY_CITY_NAME_TARTAR</City>
 			</Cities>
 			<Buildings>
+				<!-- custom: Like base AdvCiv, Barbarians have no Palace/capital.
+				Their stronger per-city administration is instead the civ-specific replacement for the concurrent City Center class. (ChatGPT-5.6-Sol) -->
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_GREAT_PALACE</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_CITY_CENTER</BuildingClassType>
+					<BuildingType>BUILDING_BARBARIAN_CITY_CENTER</BuildingType>
+				</Building>
+				<!-- custom: Long_Comments_XML.txt #346 -->
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_VERSAILLES</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_ACADEMY</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_STABLE</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_OBELISK</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
@@ -4074,7 +4295,7 @@
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_PORT</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
@@ -4106,11 +4327,15 @@
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_NATIONAL_SECURITY</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_ACADEMY</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_INTELLIGENCE_AGENCY</BuildingClassType>
+					<BuildingType>NONE</BuildingType>
+				</Building>
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_SECURITY_BUREAU</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
@@ -4157,16 +4382,13 @@
 					<BuildingClassType>BUILDINGCLASS_SUPERMARKET</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
+				<!-- custom: note: this seemingly does nothing as barbarians still build libraries -->
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_OBSERVATORY</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
@@ -4177,312 +4399,14 @@
 					<BuildingClassType>BUILDINGCLASS_THEATRE</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_BROADCAST_TOWER</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_INTELLIGENCE_AGENCY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_NATIONAL_SECURITY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_JEWISH_TEMPLE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_JEWISH_CATHEDRAL</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_JEWISH_MONASTERY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_JEWISH_SHRINE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_CHRISTIAN_TEMPLE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_CHRISTIAN_CATHEDRAL</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_CHRISTIAN_MONASTERY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_CHRISTIAN_SHRINE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_ISLAMIC_TEMPLE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_ISLAMIC_CATHEDRAL</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_ISLAMIC_MONASTERY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_ISLAMIC_SHRINE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_HINDU_TEMPLE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_HINDU_CATHEDRAL</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_HINDU_MONASTERY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_HINDU_SHRINE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_BUDDHIST_TEMPLE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_BUDDHIST_CATHEDRAL</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_BUDDHIST_MONASTERY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_BUDDHIST_SHRINE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_CONFUCIAN_TEMPLE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_CONFUCIAN_CATHEDRAL</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_CONFUCIAN_MONASTERY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_CONFUCIAN_SHRINE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_TAOIST_TEMPLE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_TAOIST_CATHEDRAL</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_TAOIST_MONASTERY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_TAOIST_SHRINE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_HEROIC_EPIC</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_NATIONAL_EPIC</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_GLOBE_THEATRE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_HERMITAGE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_OXFORD_UNIVERSITY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_WALL_STREET</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_IRON_WORKS</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_MT_RUSHMORE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_NATIONAL_PARK</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_MOAI_STATUES</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_RED_CROSS</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_SCOTLAND_YARD</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_WEST_POINT</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_GREAT_LIBRARY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_GREAT_LIGHTHOUSE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_ORACLE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_STONEHENGE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_PARTHENON</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_ANGKOR_WAT</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_HAGIA_SOPHIA</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_CHICHEN_ITZA</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_SISTINE_CHAPEL</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_SPIRAL_MINARET</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_NOTRE_DAME</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_TAJ_MAHAL</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_KREMLIN</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_EIFFEL_TOWER</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_STATUE_OF_LIBERTY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_BROADWAY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_ROCKNROLL</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_HOLLYWOOD</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_GREAT_DAM</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_PENTAGON</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_UNITED_NATIONS</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_SPACE_ELEVATOR</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_COLOSSUS</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_HANGING_GARDEN</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_PYRAMID</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_GREAT_WALL</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_SANKORE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_ARTEMIS</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_CRISTO_REDENTOR</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_SHWEDAGON_PAYA</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_MAUSOLEUM_OF_MAUSSOLLOS</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_STATUE_OF_ZEUS</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
+				<!-- custom: Long_Comments_XML.txt #347 -->
 			</Buildings>
+			<!-- custom: Long_Comments_XML.txt #348 -->
 			<Units>
+				<Unit>
+					<UnitClassType>UNITCLASS_WORKER</UnitClassType>
+					<UnitType>UNIT_BARBARIAN_WORKER</UnitType>
+				</Unit>
 				<Unit>
 					<UnitClassType>UNITCLASS_SETTLER</UnitClassType>
 					<UnitType>NONE</UnitType>
@@ -4495,6 +4419,7 @@
 					<UnitClassType>UNITCLASS_EXPLORER</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
+				<!-- custom: do not allow missionaries as core purpose remains to invade and warmongering -->
 				<Unit>
 					<UnitClassType>UNITCLASS_JEWISH_MISSIONARY</UnitClassType>
 					<UnitType>NONE</UnitType>
@@ -4516,7 +4441,7 @@
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>
-					<UnitClassType>UNITCLASS_CONFUCIAN_MISSIONARY</UnitClassType>
+					<UnitClassType>UNITCLASS_PAGAN_MISSIONARY</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>
@@ -4552,219 +4477,24 @@
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>
-					<UnitClassType>UNITCLASS_PIKEMAN</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_RIFLEMAN</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_GRENADIER</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
 					<UnitClassType>UNITCLASS_SPY</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
+				<!-- custom: also allow barbarians great prophets in case they are first to found a religion, so not putting a NON here for GREAT_PROPHET in case it would disallow a great prophet being born in a barbarian city -->
 				<Unit>
-					<UnitClassType>UNITCLASS_INFANTRY</UnitClassType>
+					<UnitClassType>UNITCLASS_GREAT_ARTIST</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>
-					<UnitClassType>UNITCLASS_MARINE</UnitClassType>
+					<UnitClassType>UNITCLASS_GREAT_SCIENTIST</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>
-					<UnitClassType>UNITCLASS_PARATROOPER</UnitClassType>
+					<UnitClassType>UNITCLASS_GREAT_MERCHANT</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>
-					<UnitClassType>UNITCLASS_MECHANIZED_INFANTRY</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_CROSSBOWMAN</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_CHARIOT</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_KNIGHT</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_WAR_ELEPHANT</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_CUIRASSIER</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_CAVALRY</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_AT_INFANTRY</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_SAM_INFANTRY</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_TANK</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_MODERN_ARMOR</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_GUNSHIP</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_CATAPULT</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_TREBUCHET</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_CANNON</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_MACHINE_GUN</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_ARTILLERY</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_MOBILE_ARTILLERY</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_MOBILE_SAM</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_TRIREME</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_CARAVEL</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_GALLEON</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_FRIGATE</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_PRIVATEER</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_IRONCLAD</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_SHIP_OF_THE_LINE</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_TRANSPORT</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_DESTROYER</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_STEALTH_DESTROYER</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_MISSILE_CRUISER</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_BATTLESHIP</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_SUBMARINE</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_ATTACK_SUBMARINE</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_CARRIER</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_AIRSHIP</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_FIGHTER</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_JET_FIGHTER</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_BOMBER</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_STEALTH_BOMBER</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_GUIDED_MISSILE</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_TACTICAL_NUKE</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_ICBM</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_PROPHET</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_ARTIST</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_SCIENTIST</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_MERCHANT</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
-					<UnitClassType>UNITCLASS_ENGINEER</UnitClassType>
+					<UnitClassType>UNITCLASS_GREAT_ENGINEER</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>
@@ -4773,7 +4503,15 @@
 				</Unit>
 			</Units>
 			<FreeUnitClasses/>
-			<FreeBuildingClasses/>
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #17 -->
+			<FreeBuildingClasses>
+				<FreeBuildingClass>
+					<BuildingClassType>BUILDINGCLASS_CITY_CENTER</BuildingClassType>
+					<bFreeBuildingClass>1</bFreeBuildingClass>
+				</FreeBuildingClass>
+			</FreeBuildingClasses>
+			<!-- custom: was TECH_POTTERY, TECH_FISHING, TECH_SEAFARING and TECH_MASONRY; base AdvCiv gives Barbarians none, and their catch-up now comes from the City Center in every city and the per-era cost rules, so the AI builds its own Granary, Walls and Harbor once it has the techs. (Claude code Opus 5.5) -->
+			<!-- custom: especially not putting mysticism here to reduce the likeliness of barbarians having a holy city for religions such as paganism, judaism, hinduism -->
 			<FreeTechs/>
 			<DisableTechs/>
 			<InitialCivics>
@@ -4781,7 +4519,7 @@
 				<CivicType>CIVIC_BARBARISM</CivicType>
 				<CivicType>CIVIC_TRIBALISM</CivicType>
 				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
-				<CivicType>CIVIC_PAGANISM</CivicType>
+				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
 			</InitialCivics>
 			<Leaders>
 				<Leader>

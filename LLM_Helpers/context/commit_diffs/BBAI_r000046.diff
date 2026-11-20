@@ -1,0 +1,467 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 46
+# Author: iustus
+# Date: 2006-11-08T13:14:13.074742Z
+# Coverage: full
+# Message:
+#   Added function CvSelectionGroup::AI_compareStacks to be used later for warmongering. The implementation of which adds CvSelectionGroup::AI_sumStrength, CvPlot::AI_sumStrength, CvUnit::currEffectiveStr.
+# Changed paths (7):
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.h
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.h
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@45
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@46
+@@ -2267,6 +2267,43 @@
+ 	}
+ 
+ 	return pBestUnit;
++}
++
++// returns a sum of the strength (adjusted by firepower) of all the units on a plot
++int CvPlot::AI_sumStrength(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, DomainTypes eDomainType, bool bTestAtWar, bool bTestPotentialEnemy) const
++{
++	CLLNode<IDInfo>* pUnitNode;
++	CvUnit* pLoopUnit;
++	int	strSum = 0;
++
++	pUnitNode = headUnitNode();
++
++	while (pUnitNode != NULL)
++	{
++		pLoopUnit = ::getUnit(pUnitNode->m_data);
++		pUnitNode = nextUnitNode(pUnitNode);
++
++		if ((eOwner == NO_PLAYER) || (pLoopUnit->getOwnerINLINE() == eOwner))
++		{
++			if ((eAttackingPlayer == NO_PLAYER) || !(pLoopUnit->isInvisible(GET_PLAYER(eAttackingPlayer).getTeam(), false)))
++			{
++				if (!bTestAtWar || (eAttackingPlayer == NO_PLAYER) || atWar(GET_PLAYER(eAttackingPlayer).getTeam(), pLoopUnit->getTeam()))
++				{
++					if (!bTestPotentialEnemy || (eAttackingPlayer == NO_PLAYER) || isPotentialEnemy(GET_PLAYER(eAttackingPlayer).getTeam(), pLoopUnit->getTeam()))
++					{
++						// we may want to be more sophisticated about domains
++						// somewhere we need to check to see if this is a city, if so, only land units can defend here, etc
++						if (eDomainType == NO_DOMAIN || (pLoopUnit->getDomainType() == eDomainType))
++						{
++							strSum += pLoopUnit->currEffectiveStr(this, NULL);
++						}
++					}
++				}
++			}
++		}
++	}
++
++	return strSum;
+ }
+ 
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlot.h
+--- /trunk/CvGameCoreDLL/CvPlot.h@45
++++ /trunk/CvGameCoreDLL/CvPlot.h@46
+@@ -116,6 +116,7 @@
+ 	DllExport int getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CvCity** ppCity) const;																// Exposed to Python
+ 
+ 	DllExport CvUnit* getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bTestPotentialEnemy = false, bool bTestCanMove = false) const;		// Exposed to Python
++	int AI_sumStrength(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, DomainTypes eDomainType = NO_DOMAIN, bool bTestAtWar = false, bool bTestPotentialEnemy = false) const;	
+ 	CvUnit* getSelectedUnit() const;																																// Exposed to Python				
+ 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;																					// Exposed to Python				
+ 
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.h@45
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.h@46
+@@ -163,6 +163,9 @@
+ 	virtual bool AI_update() = 0;
+ 	virtual int AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const = 0;
+ 	virtual CvUnit* AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce = false, bool bNoBlitz = false) const = 0;
++	virtual int AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy) const = 0;
++	virtual int AI_sumStrength(const CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false) const = 0;
++
+ 	virtual bool AI_isControlled() = 0;
+ 	virtual bool AI_isDeclareWar() = 0;
+ 	virtual CvPlot* AI_getMissionAIPlot() = 0;
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@45
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@46
+@@ -204,7 +204,6 @@
+ 	return pAttacker->AI_attackOdds(pPlot, bPotentialEnemy);
+ }
+ 
+-
+ CvUnit* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce, bool bNoBlitz) const
+ {
+ 	CLLNode<IDInfo>* pUnitNode;
+@@ -273,6 +272,57 @@
+ 	}
+ 
+ 	return pBestUnit;
++}
++
++// Returns ratio of strengths of stacks times 100 
++// (so 100 is even ratio, numbers over 100 mean this group is more powerful than the stack on a plot)
++int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy) const
++{
++	FAssert(getOwnerINLINE() != NO_PLAYER);
++	FAssert(pPlot != NULL);
++	
++	int	compareRatio;
++	DomainTypes eDomainType = NO_DOMAIN;
++
++	compareRatio = AI_sumStrength(pPlot, eDomainType, false);
++	compareRatio *= 100;
++
++	compareRatio /= pPlot->AI_sumStrength(NO_PLAYER, getOwnerINLINE(), eDomainType, !bPotentialEnemy, bPotentialEnemy);
++
++	return compareRatio;
++}
++
++int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot, DomainTypes eDomainType, bool bCheckCanAttack) const
++// may want to add check on canMove and/or canMoveInto to AI_sumStrength (would add bool)
++{
++	CLLNode<IDInfo>* pUnitNode;
++	CvUnit* pLoopUnit;
++	int	strSum = 0;
++
++	pUnitNode = headUnitNode();
++
++	while (pUnitNode != NULL)
++	{
++		pLoopUnit = ::getUnit(pUnitNode->m_data);
++		pUnitNode = nextUnitNode(pUnitNode);
++
++		if (!pLoopUnit->isDead())
++		{
++			bool bCanAttack = false;
++			if (pLoopUnit->getDomainType() == DOMAIN_AIR)
++				bCanAttack = pLoopUnit->canAirAttack();
++			else
++				bCanAttack = pLoopUnit->canAttack();
++
++			if (!bCheckCanAttack || bCanAttack)
++			{
++				if (eDomainType == NO_DOMAIN || pLoopUnit->getDomainType() == eDomainType)
++					strSum += pLoopUnit->currEffectiveStr(pAttackedPlot, pLoopUnit);
++			}
++		}
++	}
++
++	return strSum;
+ }
+ 
+ 
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.h@45
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.h@46
+@@ -23,6 +23,8 @@
+ 
+ 	int AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const;
+ 	CvUnit* AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce = false, bool bNoBlitz = false) const;
++	int AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy) const;
++	int AI_sumStrength(const CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false) const;
+ 
+ 	bool AI_isControlled();
+ 	bool AI_isDeclareWar();
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@45
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@46
+@@ -5615,13 +5615,35 @@
+ 	return GC.getUnitInfo(getUnitType()).getCombat();
+ }
+ 
+-
++// maxCombatStr can be called in four different configurations
++//		pPlot == NULL, pAttacker == NULL for combat when this is the attacker
++//		pPlot valid, pAttacker valid for combat when this is the defender
++//		pPlot valid, pAttacker == NULL (new case), when this is the defender, attacker unknown
++//		pPlot valid, pAttacker == this (new case), when the defender is unknown, but we want to calc approx str
++//			note, in this last case, it is expected pCombatDetails == NULL, it does not have to be, but some 
++//			values may be unexpectedly reversed in this case (iModifierTotal will be the negative sum)
+ int CvUnit::maxCombatStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDetails* pCombatDetails) const
+ {
+ 	int iModifier;
+ 	int iCombat;
+ 
+ 	FAssertMsg((pPlot == NULL) || (pPlot->getTerrainType() != NO_TERRAIN), "(pPlot == NULL) || (pPlot->getTerrainType() is not expected to be equal with NO_TERRAIN)");
++	
++	// handle our new special case
++	const	CvPlot*	pAttackedPlot = NULL;
++	bool	bAttackingUnknownDefender = false;
++	if (pAttacker == this)
++	{
++		bAttackingUnknownDefender = true;
++		pAttackedPlot = pPlot;
++		
++		// reset these values, we will fiddle with them below
++		pPlot = NULL;
++		pAttacker = NULL;
++	}
++	// otherwise, attack plot is the plot of us (the defender)
++	else if (pAttacker != NULL)
++		pAttackedPlot = plot();
+ 
+ 	if (pCombatDetails != NULL)
+ 	{
+@@ -5678,7 +5700,8 @@
+ 	{
+ 		pCombatDetails->iExtraCombatPercent = getExtraCombatPercent();
+ 	}
+-
++	
++	// do modifiers for animals and barbarians (leaving these out for bAttackingUnknownDefender case)
+ 	if (pAttacker != NULL)
+ 	{
+ 		if (isAnimal())
+@@ -5761,7 +5784,8 @@
+ 			}
+ 		}
+ 	}
+-
++	
++	// add defensive bonuses (leaving these out for bAttackingUnknownDefender case)
+ 	if (pPlot != NULL)
+ 	{
+ 		if (!noDefensiveBonus())
+@@ -5815,13 +5839,18 @@
+ 		}
+ 	}
+ 
++	// if we are attacking to an plot with an unknown defender, the calc the modifier in reverse
++	if (bAttackingUnknownDefender)
++		pAttacker = this;
++
++	// calc attacker bonueses
+ 	if (pAttacker != NULL)
+ 	{
+-		FAssertMsg(pAttacker != this, "pAttacker is not expected to be equal with this");
+-
+-		if (plot()->isCity(true))
+-		{
+-			iModifier -= pAttacker->cityAttackModifier();
++		int			iTempModifier = 0;		
++
++		if (pAttackedPlot->isCity(true))
++		{
++			iTempModifier -= pAttacker->cityAttackModifier();
+ 			if (pCombatDetails != NULL)
+ 			{
+ 				pCombatDetails->iCityAttackModifier = -(pAttacker->cityAttackModifier());
+@@ -5829,7 +5858,7 @@
+ 
+ 			if (pAttacker->isBarbarian())
+ 			{
+-				iModifier += GC.getDefineINT("CITY_BARBARIAN_DEFENSE_MODIFIER");
++				iTempModifier += GC.getDefineINT("CITY_BARBARIAN_DEFENSE_MODIFIER");
+ 				if (pCombatDetails != NULL)
+ 				{
+ 					pCombatDetails->iCityBarbarianDefenseModifier = GC.getDefineINT("CITY_BARBARIAN_DEFENSE_MODIFIER");
+@@ -5837,76 +5866,82 @@
+ 			}
+ 		}
+ 
+-		if (plot()->isHills())
+-		{
+-			iModifier -= pAttacker->hillsAttackModifier();
++		if (pAttackedPlot->isHills())
++		{
++			iTempModifier -= pAttacker->hillsAttackModifier();
+ 			if (pCombatDetails != NULL)
+ 			{
+ 				pCombatDetails->iHillsAttackModifier = -(pAttacker->hillsAttackModifier());
+ 			}
+ 		}
+-
+-		iModifier += unitClassDefenseModifier(pAttacker->getUnitClassType());
+-		if (pCombatDetails != NULL)
+-		{
+-			pCombatDetails->iClassDefenseModifier = unitClassDefenseModifier(pAttacker->getUnitClassType());
+-		}
+-		iModifier -= pAttacker->unitClassAttackModifier(getUnitClassType());
+-		if (pCombatDetails != NULL)
+-		{
+-			pCombatDetails->iClassAttackModifier = -(pAttacker->unitClassAttackModifier(getUnitClassType()));
+-		}
+-
+-		if (pAttacker->getUnitCombatType() != NO_UNITCOMBAT)
+-		{
+-			iModifier += unitCombatModifier(pAttacker->getUnitCombatType());
++		
++		// only compute comparisions if we are the defender with a known attacker
++		if (!bAttackingUnknownDefender)
++		{
++			FAssertMsg(pAttacker != this, "pAttacker is not expected to be equal with this");
++
++			iTempModifier += unitClassDefenseModifier(pAttacker->getUnitClassType());
+ 			if (pCombatDetails != NULL)
+ 			{
+-				pCombatDetails->iCombatModifierA = unitCombatModifier(pAttacker->getUnitCombatType());
+-			}
+-		}
+-		if (getUnitCombatType() != NO_UNITCOMBAT)
+-		{
+-			iModifier -= pAttacker->unitCombatModifier(getUnitCombatType());
++				pCombatDetails->iClassDefenseModifier = unitClassDefenseModifier(pAttacker->getUnitClassType());
++			}
++			iTempModifier -= pAttacker->unitClassAttackModifier(getUnitClassType());
+ 			if (pCombatDetails != NULL)
+ 			{
+-				pCombatDetails->iCombatModifierT = -(pAttacker->unitCombatModifier(getUnitCombatType()));
+-			}
+-		}
+-
+-		iModifier += domainModifier(pAttacker->getDomainType());
+-		if (pCombatDetails != NULL)
+-		{
+-			pCombatDetails->iDomainModifierA = domainModifier(pAttacker->getDomainType());
+-		}
+-		iModifier -= pAttacker->domainModifier(getDomainType());
+-		if (pCombatDetails != NULL)
+-		{
+-			pCombatDetails->iDomainModifierT = -(pAttacker->domainModifier(getDomainType()));
+-		}
+-
+-		if (pAttacker->isAnimal())
+-		{
+-			iModifier += animalCombatModifier();
++				pCombatDetails->iClassAttackModifier = -(pAttacker->unitClassAttackModifier(getUnitClassType()));
++			}
++
++			if (pAttacker->getUnitCombatType() != NO_UNITCOMBAT)
++			{
++				iTempModifier += unitCombatModifier(pAttacker->getUnitCombatType());
++				if (pCombatDetails != NULL)
++				{
++					pCombatDetails->iCombatModifierA = unitCombatModifier(pAttacker->getUnitCombatType());
++				}
++			}
++			if (getUnitCombatType() != NO_UNITCOMBAT)
++			{
++				iTempModifier -= pAttacker->unitCombatModifier(getUnitCombatType());
++				if (pCombatDetails != NULL)
++				{
++					pCombatDetails->iCombatModifierT = -(pAttacker->unitCombatModifier(getUnitCombatType()));
++				}
++			}
++
++			iTempModifier += domainModifier(pAttacker->getDomainType());
+ 			if (pCombatDetails != NULL)
+ 			{
+-				pCombatDetails->iAnimalCombatModifierA = animalCombatModifier();
+-			}
+-		}
+-		if (isAnimal())
+-		{
+-			iModifier -= pAttacker->animalCombatModifier();
++				pCombatDetails->iDomainModifierA = domainModifier(pAttacker->getDomainType());
++			}
++			iTempModifier -= pAttacker->domainModifier(getDomainType());
+ 			if (pCombatDetails != NULL)
+ 			{
+-				pCombatDetails->iAnimalCombatModifierT = -(animalCombatModifier());
++				pCombatDetails->iDomainModifierT = -(pAttacker->domainModifier(getDomainType()));
++			}
++
++			if (pAttacker->isAnimal())
++			{
++				iTempModifier += animalCombatModifier();
++				if (pCombatDetails != NULL)
++				{
++					pCombatDetails->iAnimalCombatModifierA = animalCombatModifier();
++				}
++			}
++			if (isAnimal())
++			{
++				iTempModifier -= pAttacker->animalCombatModifier();
++				if (pCombatDetails != NULL)
++				{
++					pCombatDetails->iAnimalCombatModifierT = -(animalCombatModifier());
++				}
+ 			}
+ 		}
+ 
+ 		if (!(pAttacker->isRiver()))
+ 		{
+-			if (pAttacker->plot()->isRiverCrossing(directionXY(pAttacker->plot(), plot())))
+-			{
+-				iModifier -= GC.getRIVER_ATTACK_MODIFIER();
++			if (pAttacker->plot()->isRiverCrossing(directionXY(pAttacker->plot(), pAttackedPlot)))
++			{
++				iTempModifier -= GC.getRIVER_ATTACK_MODIFIER();
+ 				if (pCombatDetails != NULL)
+ 				{
+ 					pCombatDetails->iRiverAttackModifier = -(GC.getRIVER_ATTACK_MODIFIER());
+@@ -5916,9 +5951,9 @@
+ 
+ 		if (!(pAttacker->isAmphib()))
+ 		{
+-			if (!(plot()->isWater()) && pAttacker->plot()->isWater())
+-			{
+-				iModifier -= GC.getAMPHIB_ATTACK_MODIFIER();
++			if (!(pAttackedPlot->isWater()) && pAttacker->plot()->isWater())
++			{
++				iTempModifier -= GC.getAMPHIB_ATTACK_MODIFIER();
+ 				if (pCombatDetails != NULL)
+ 				{
+ 					pCombatDetails->iAmphibAttackModifier = -(GC.getAMPHIB_ATTACK_MODIFIER());
+@@ -5928,12 +5963,18 @@
+ 
+ 		if (pAttacker->getKamikazePercent() != 0)
+ 		{
+-			iModifier += pAttacker->getKamikazePercent();
++			iTempModifier += pAttacker->getKamikazePercent();
+ 			if (pCombatDetails != NULL)
+ 			{
+ 				pCombatDetails->iKamikazeModifier = pAttacker->getKamikazePercent();
+ 			}
+ 		}
++		
++		// if we are attacking an unknown defender, then use the reverse of the modifier
++		if (bAttackingUnknownDefender)
++			iModifier -= iTempModifier;
++		else
++			iModifier += iTempModifier;
+ 	}
+ 
+ 	if (pCombatDetails != NULL)
+@@ -5975,6 +6016,18 @@
+ 	return ((maxCombatStr(pPlot, pAttacker) + currCombatStr(pPlot, pAttacker) + 1) / 2);
+ }
+ 
++// this nomalizes str by firepower, useful for quick odds calcs
++// the effect is that a damaged unit will have an effective str lowered by firepower/maxFirepower
++// doing the algebra, this means we mulitply by 1/2(1 + currHP)/maxHP = (maxHP + currHP) / (2 * maxHP)
++int CvUnit::currEffectiveStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDetails* pCombatDetails) const
++{
++	int currStr = currCombatStr(pPlot, pAttacker, pCombatDetails);
++
++	currStr *= (maxHitPoints() + currHitPoints());
++	currStr /= (2 * maxHitPoints());
++	
++	return currStr;
++}
+ 
+ float CvUnit::maxCombatStrFloat(const CvPlot* pPlot, const CvUnit* pAttacker) const
+ {
+
+Index: /trunk/CvGameCoreDLL/CvUnit.h
+--- /trunk/CvGameCoreDLL/CvUnit.h@45
++++ /trunk/CvGameCoreDLL/CvUnit.h@46
+@@ -281,6 +281,7 @@
+ 	DllExport int maxCombatStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDetails* pCombatDetails = NULL) const;		// Exposed to Python
+ 	DllExport int currCombatStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDetails* pCombatDetails = NULL) const;	// Exposed to Python
+ 	DllExport int currFirepower(const CvPlot* pPlot, const CvUnit* pAttacker) const;																				// Exposed to Python
++	int currEffectiveStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDetails* pCombatDetails = NULL) const;
+ 	DllExport float maxCombatStrFloat(const CvPlot* pPlot, const CvUnit* pAttacker) const;																	// Exposed to Python
+ 	DllExport float currCombatStrFloat(const CvPlot* pPlot, const CvUnit* pAttacker) const;																	// Exposed to Python
+ 
+

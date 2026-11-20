@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 307
+# Author: iustus
+# Date: 2007-01-27T18:12:07.256786Z
+# Coverage: full
+# Message:
+#   N0_TECH assert bug as reported on civ fanatics (doesnt occur in final release builds)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@306
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@307
+@@ -3711,7 +3711,7 @@
+ 	}
+ 
+ #ifdef DEBUG_TECH_CHOICES
+-	CvWString szBestTechName = GC.getTechInfo(eBestTech).getDescription();
++	CvWString szBestTechName = (eBestTech != NO_TECH) ? GC.getTechInfo(eBestTech).getDescription() : L"No Tech";
+ 	DEBUGLOG("  best:%S (%.2f)\n", szBestTechName.GetCString(), ((float) iBestValue) / 1000);
+ #endif
+ 
+

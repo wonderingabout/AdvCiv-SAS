@@ -1,4 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?><!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) --><!-- Sid Meier's Civilization 4 --><!-- Copyright Firaxis Games 2005 --><!-- --><!-- Feature --><Civ4FeatureInfos xmlns="x-schema:CIV4TerrainSchema.xml">
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) --><!-- Sid Meier's Civilization 4 --><!-- Copyright Firaxis Games 2005 --><!-- -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
+<!-- Feature -->
+<Civ4FeatureInfos xmlns="x-schema:CIV4TerrainSchema.xml">
 	<FeatureInfos>
 		<FeatureInfo>
 			<Type>FEATURE_ICE</Type>
@@ -119,8 +126,9 @@
 			<Description>TXT_KEY_FEATURE_JUNGLE</Description>
 			<Civilopedia>TXT_KEY_FEATURE_JUNGLE_PEDIA</Civilopedia>
 			<ArtDefineTag>ART_DEF_FEATURE_JUNGLE</ArtDefineTag>
+			<!-- custom: some or many websites i looked at or on google or such search say jungle is vegetation and animals rich, so to rebalance it and make it as strong in different ways than forest is, make jungle not give any food penalty, to compensate this or as part of this change, increase health penalty, see below, was -1 / 0 / 0 -->
 			<YieldChanges>
-				<iYieldChange>-1</iYieldChange>
+				<iYieldChange>0</iYieldChange>
 				<iYieldChange>0</iYieldChange>
 				<iYieldChange>0</iYieldChange>
 			</YieldChanges>
@@ -128,9 +136,11 @@
 			<HillsYieldChange/>
 			<iMovement>2</iMovement>
 			<iSeeThrough>1</iSeeThrough>
-			<iHealthPercent>-25</iHealthPercent>
+			<!-- custom: (now and as of now same as of the forest health positive modifier but negative here), was -25 -->
+			<iHealthPercent>-50</iHealthPercent>
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #27 -->
 			<!-- advc.012: was 50 -->
-			<iDefense>0</iDefense>
+			<iDefense>-25</iDefense>
 			<!-- advc.012 -->
 			<iRivalDefense>25</iRivalDefense>
 			<iAppearance>0</iAppearance>
@@ -368,7 +378,8 @@
 			<HillsYieldChange/>
 			<iMovement>1</iMovement>
 			<iSeeThrough>0</iSeeThrough>
-			<iHealthPercent>-40</iHealthPercent>
+			<!-- custom: this feature is a bit op so fine to nerf it bit, no reason not to increase the health penalty even outside of this as seems more realistic, was -40 -->
+			<iHealthPercent>-50</iHealthPercent>
 			<iDefense>0</iDefense>
 			<iAppearance>10000</iAppearance>
 			<iDisappearance>0</iDisappearance>
@@ -609,7 +620,8 @@
 			<HillsYieldChange/>
 			<iMovement>2</iMovement>
 			<iSeeThrough>0</iSeeThrough>
-			<iHealthPercent>-50</iHealthPercent>
+			<!-- custom: increase it so it is higher than jungle, was -50 -->
+			<iHealthPercent>-75</iHealthPercent>
 			<iDefense>0</iDefense>
 			<iAppearance>0</iAppearance>
 			<!-- K-Mod: was 500 -->
@@ -701,6 +713,66 @@
 					<FootstepAudioType>ENDSTEP_WHEELS_3</FootstepAudioType>
 					<FootstepAudioScript/>
 				</FootstepSound>
+			</FootstepSounds>
+			<EffectType>NONE</EffectType>
+			<iEffectProbability>0</iEffectProbability>
+			<iAdvancedStartRemoveCost>0</iAdvancedStartRemoveCost>
+		</FeatureInfo>
+		<!-- custom: Marsh holds fertile flat Grassland hostage for development rather than making it poor: it keeps the land's yield but slows movement, exposes defenders and adds mild unhealthiness.
+		Improvements and routes drain it as part of their own build through FEATURE_MARSH FeatureStructs; BUILD_DRAIN_MARSH clears it alone.
+		Pasture, Plantation and Peat Works have no such entry and keep it, so a Marsh bonus can be worked early but connects only once a road drains the Marsh.
+		A -1 Food version was rejected because SAS already removed that penalty from Jungle for making tiles dead weight.
+		No AI code was added: draining inside the improvement and route builds uses the AI's existing feature-removal handling, so it never needs a separate drain-then-build plan.
+		Tech valuation already counts Marsh through its unhealthiness, raising The Wheel's value when cities have Marsh nearby. (Claude code Opus 5.5) -->
+		<FeatureInfo>
+			<Type>FEATURE_MARSH</Type>
+			<Description>TXT_KEY_FEATURE_MARSH</Description>
+			<Civilopedia>TXT_KEY_FEATURE_MARSH_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_FEATURE_MARSH</ArtDefineTag>
+			<YieldChanges>
+				<iYieldChange>0</iYieldChange>
+				<iYieldChange>0</iYieldChange>
+				<iYieldChange>0</iYieldChange>
+			</YieldChanges>
+			<RiverYieldChange/>
+			<HillsYieldChange/>
+			<iMovement>2</iMovement>
+			<iSeeThrough>0</iSeeThrough>
+			<!-- custom: Milder than Jungle so a single Marsh barely matters while a cluster makes draining worthwhile. (Claude code Opus 5.5) -->
+			<iHealthPercent>-25</iHealthPercent>
+			<!-- custom: Unlike Forest cover, a unit slowed in a marsh is exposed.
+			iRivalDefense stays 0 so the penalty applies to everyone, unlike Jungle's advc.012 rival exemption. (Claude code Opus 5.5) -->
+			<iDefense>-25</iDefense>
+			<iRivalDefense>0</iRivalDefense>
+			<!-- custom: 0 because FeatureGenerator places Marsh with its own fractal; an appearance chance would scatter single tiles instead of wetlands. (Claude code Opus 5.5) -->
+			<iAppearance>0</iAppearance>
+			<iDisappearance>0</iDisappearance>
+			<iGrowth>0</iGrowth>
+			<iTurnDamage>0</iTurnDamage>
+			<iWarmingDefense>0</iWarmingDefense>
+			<bNoCoast>0</bNoCoast>
+			<bNoRiver>0</bNoRiver>
+			<bNoAdjacent>0</bNoAdjacent>
+			<bRequiresFlatlands>1</bRequiresFlatlands>
+			<bRequiresRiver>0</bRequiresRiver>
+			<bRequiresRiverSide>0</bRequiresRiverSide>
+			<bAddsFreshWater>0</bAddsFreshWater>
+			<bImpassable>0</bImpassable>
+			<!-- custom: Allow founding to clear this tile as on Forest or Jungle, rather than making settlement wait for drainage research and Worker time.
+			Surrounding Marsh retains its costs. (Gemini 4 Hydrogen + GPT-6.1-Sol) -->
+			<bNoCity>0</bNoCity>
+			<!-- custom: 0 on purpose: bNoImprovement would forbid improvements even when their build removes the feature, forcing a separate drain step the Worker AI does not plan for. (Claude code Opus 5.5) -->
+			<bNoImprovement>0</bNoImprovement>
+			<bVisibleAlways>0</bVisibleAlways>
+			<bNukeImmune>0</bNukeImmune>
+			<OnUnitChangeTo/>
+			<TerrainBooleans>
+				<TerrainBoolean>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<bTerrain>1</bTerrain>
+				</TerrainBoolean>
+			</TerrainBooleans>
+			<FootstepSounds>
 			</FootstepSounds>
 			<EffectType>NONE</EffectType>
 			<iEffectProbability>0</iEffectProbability>

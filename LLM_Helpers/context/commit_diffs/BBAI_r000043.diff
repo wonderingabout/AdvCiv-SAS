@@ -1,0 +1,35 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 43
+# Author: iustus
+# Date: 2006-11-08T07:11:24.660076Z
+# Coverage: full
+# Message:
+#   remove the svn repository that was inadvertantly checked in by Blake (bad Blake!)
+# Changed paths (7):
+#   D /branches/vanilla/README.txt
+#   D /branches/vanilla/conf
+#   D /branches/vanilla/dav
+#   D /branches/vanilla/db
+#   D /branches/vanilla/format
+#   D /branches/vanilla/hooks
+#   D /branches/vanilla/locks
+
+Index: /branches/vanilla/README.txt
+--- /branches/vanilla/README.txt@42
++++ /dev/null
+@@ -1,6 +0,0 @@
+-This is a Subversion repository; use the 'svnadmin' tool to examine
+-it.  Do not add, delete, or modify files here unless you know how
+-to avoid corrupting the repository.
+-
+-Visit http://subversion.tigris.org/ for more information.
+-
+
+Index: /branches/vanilla/format
+--- /branches/vanilla/format@42
++++ /dev/null
+@@ -1,2 +0,0 @@
+-5
+-
+

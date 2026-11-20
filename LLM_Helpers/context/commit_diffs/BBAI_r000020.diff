@@ -1,0 +1,12 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 20
+# Author: iustus
+# Date: 2006-11-01T06:18:09.315531Z
+# Coverage: full
+# Message:
+#   Added ignore of some build targets of the Visual Studio Project
+# Changed paths (2):
+#   M /trunk
+#   M /trunk/CvGameCoreDLL
+

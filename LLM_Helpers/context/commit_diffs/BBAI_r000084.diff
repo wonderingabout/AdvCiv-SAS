@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 84
+# Author: blakeciv
+# Date: 2006-11-16T15:18:27.091993Z
+# Coverage: full
+# Message:
+#   Latest changes to UnitAI
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@83
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@84
+@@ -4622,7 +4622,7 @@
+ 						pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+ 
+-                        if (pLoopUnit != this)
++                        if ((pLoopUnit != this) && (pLoopUnit->getGroup() != getGroup()))
+                         {
+                             if (pLoopUnit->isGroupHead())
+                             {
+

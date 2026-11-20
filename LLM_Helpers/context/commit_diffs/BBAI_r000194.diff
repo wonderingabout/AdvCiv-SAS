@@ -1,0 +1,713 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 194
+# Author: blakeciv
+# Date: 2006-12-17T19:58:50.426315Z
+# Coverage: full
+# Message:
+#   Added AI_panic function to CvCityAI it causes the AI to abuse threatened cities. Added bForce flag to AI_draft and AI_hurry to make this possible.
+#   Added a more advanced equiv of "plotDanger" which sums strengths instead and some minor infrastructure to use it.
+#   Added new Great People logic by having AI_construct and AI_join take a max number..
+# Changed paths (7):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@193
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@194
+@@ -208,6 +208,8 @@
+ 	    }
+ 		return;
+ 	}
++	
++	AI_doPanic();
+ 
+ 	AI_doDraft();
+ 
+@@ -537,6 +539,16 @@
+ 		//iGreatPeopleRate = ((iGreatPeopleRate * getTotalGreatPeopleRateModifier()) / 100);
+ 
+ 		iTempValue = (iGreatPeopleRate * 4);
++		
++		if (!isHuman())
++		{
++			int iProgress = getGreatPeopleProgress();
++			if (iProgress > 0)
++			{
++				int iThreshold = GET_PLAYER(getOwnerINLINE()).greatPeopleThreshold();
++				iTempValue += ((iGreatPeopleRate * 16 * iProgress * iProgress) / (iThreshold * iThreshold));
++			}
++		}
+ 
+ 		if (AI_isEmphasizeGreatPeople())
+ 		{
+@@ -635,6 +647,7 @@
+ 	bool bHasMetHuman;
+ 	bool bLandWar;
+ 	bool bAssault;
++	bool bDefenseWar;
+ 	bool bPrimaryArea;
+ 	bool bFinancialTrouble;
+ 	bool bDanger;
+@@ -708,6 +721,7 @@
+ 	bWasFoodProduction = isFoodProduction();
+ 	bHasMetHuman = GET_TEAM(getTeam()).hasMetHuman();
+ 	bLandWar = ((area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_MASSING));
++	bDefenseWar = (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE);
+ 	bAssault = (area()->getAreaAIType(getTeam()) == AREAAI_ASSAULT);
+ 	bPrimaryArea = GET_PLAYER(getOwnerINLINE()).AI_isPrimaryArea(area());
+ 	bFinancialTrouble = GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble();
+@@ -1051,6 +1065,40 @@
+                 }
+             }
+         }
++        
++        if (bDefenseWar)
++        {
++        	if (GC.getGameINLINE().getSorenRandNum(100, "AI Train Defensive Unit (Panic)") > 20)
++        	{
++        		switch (GC.getGameINLINE().getSorenRandNum(4, "AI Choose Defense Panic Unit"))
++        		{
++        			case 0:
++					if (AI_chooseUnit(UNITAI_RESERVE))
++					{
++						break;
++					}
++        			
++        			case 1:
++					if (AI_chooseUnit(UNITAI_COUNTER))
++					{
++						break;
++					}
++					
++					case 2:
++					if (AI_chooseUnit(UNITAI_COLLATERAL))
++					{
++						break;
++					}
++					
++					case 3:
++					if (AI_chooseUnit(UNITAI_ATTACK))
++					{
++						break;
++					}
++					break;//lack of other breaks deliberate
++        		}
++        	}
++        }
+ 
+         if (!bFinancialTrouble && kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER))
+         {
+@@ -3975,7 +4023,7 @@
+ // Protected Functions...
+ 
+ // Better drafting strategy by Blake - thank you!
+-void CvCityAI::AI_doDraft()
++void CvCityAI::AI_doDraft(bool bForce)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -3985,6 +4033,12 @@
+ 	{
+ 	    if (GC.getUnitInfo(getConscriptUnit()).getCombat() > 5)
+         {
++			if (bForce)
++			{
++				conscript();
++				return;
++        	}
++        	
+             bool bLandWar = ((area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_MASSING));
+             bool bDanger = (!AI_isDefended() && AI_isDanger());
+             int iConscriptPop = getConscriptPopulation();
+@@ -4023,7 +4077,7 @@
+ }
+ 
+ // Better pop-rushing strategy by Blake - thank you!
+-void CvCityAI::AI_doHurry()
++void CvCityAI::AI_doHurry(bool bForce)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -4042,7 +4096,7 @@
+ 
+ 	FAssert(!isHuman() || isProductionAutomated());
+ 
+-	if (getProduction() == 0)
++	if (!bForce || (getProduction() == 0))
+ 	{
+ 		return;
+ 	}
+@@ -4059,6 +4113,11 @@
+ 	{
+ 		if (canHurry((HurryTypes)iI))
+ 		{
++			if (bForce)
++			{
++				hurry((HurryTypes)iI);
++				break;
++			}
+ 			iHurryAngerLength = hurryAngerLength((HurryTypes)iI);
+ 			iHurryPopulation = hurryPopulation((HurryTypes)iI);
+ 
+@@ -5476,6 +5535,15 @@
+ 
+ 	// value production medium(15)
+ 	iValue += (adjustedYIELD_PRODUCTION * 15);
++	if (adjustedYIELD_PRODUCTION != 0)
++	{
++		if (!isHuman() && ((GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_DAGGER))
++			|| 	((area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE) 
++			|| (area()->getAreaAIType(getTeam()) == AREAAI_MASSING) || (area()->getAreaAIType(getTeam()) == AREAAI_ASSAULT))))
++		{
++			iValue += (adjustedYIELD_PRODUCTION * 9);
++		}
++	}
+ 	
+ 	// value commerce low(4)
+ 	iValue += (aiYields[YIELD_COMMERCE] * 4);
+@@ -6241,6 +6309,43 @@
+ {
+ 	return AI_getHappyFromHurry(getHurryPopulation(eHurry, getHurryCost(true, eBuilding, bIgnoreNew)));
+ }
++
++
++bool CvCityAI::AI_doPanic()
++{
++	bool bLandWar = ((area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_MASSING));
++	
++	if (bLandWar)
++	{
++		int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(), 0, true, false);
++		int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(), 2, false, false);
++		
++		AI_doDraft(true);
++		if (iEnemyOffense > iOurDefense)
++		{
++			UnitTypes eProductionUnit = getProductionUnit();
++
++			if (eProductionUnit != NO_UNIT)
++			{
++				if (GC.getUnitInfo(eProductionUnit).getCombat() > 0)
++				{
++					AI_doHurry(true);
++				}
++			}
++			else
++			{
++				if (AI_chooseUnit(UNITAI_CITY_COUNTER) || AI_chooseUnit(UNITAI_CITY_DEFENSE))
++				{
++					AI_doHurry(true);					
++				}
++			}			
++		}
++	}
++	return false;
++}
++
++
++
+ 
+ int CvCityAI::AI_calculateCulturePressure(bool bGreatWork)
+ {
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@193
++++ /trunk/CvGameCoreDLL/CvCityAI.h@194
+@@ -122,13 +122,14 @@
+ 	
+ 	int m_iCityRoleFlags;
+ 
+-	void AI_doDraft();
+-	void AI_doHurry();
++	void AI_doDraft(bool bForce = false);
++	void AI_doHurry(bool bForce = false);
+ 	void AI_doEmphasize();
+ 	int AI_getHappyFromHurry(HurryTypes eHurry);
+ 	int AI_getHappyFromHurry(HurryTypes eHurry, UnitTypes eUnit, bool bIgnoreNew);
+ 	int AI_getHappyFromHurry(HurryTypes eHurry, BuildingTypes eBuilding, bool bIgnoreNew);
+ 	int AI_getHappyFromHurry(int iHurryPopulation);
++	bool AI_doPanic();
+ 
+ 	bool AI_chooseUnit(UnitAITypes eUnitAI = NO_UNITAI);
+ 	bool AI_chooseDefender();
+@@ -158,6 +159,7 @@
+ 	void AI_stealPlots();
+ 	
+ 	int AI_buildingSpecialYieldChangeValue(BuildingTypes kBuilding, YieldTypes eYield);
++
+ 	
+ 	void writeExtraSaveData(CvExtraSaveData& extraSaveData);
+ 	friend CvExtraSaveData;
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@193
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@194
+@@ -1703,11 +1703,20 @@
+ 				szString += NEWLINE + gDLL->getText("TXT_KEY_COMBAT_PLOT_HP", pDefender->currHitPoints(), pDefender->maxHitPoints());
+ 			}
+ 
+-			if (gDLL->getChtLvl() > 0)
++			if ((gDLL->getChtLvl() > 0))
+ 			{
+ 				szTempBuffer.Format(L"\nStack Compare Value = %d",
+ 					gDLL->getInterfaceIFace()->getSelectionList()->AI_compareStacks(pPlot, false));
+ 				szString+=szTempBuffer;
++				
++				int iOurStrengthDefense = GET_PLAYER(GC.getGameINLINE().getActivePlayer()).AI_getOurPlotStrength(pPlot, 1, true, false);
++				int iOurStrengthOffense = GET_PLAYER(GC.getGameINLINE().getActivePlayer()).AI_getOurPlotStrength(pPlot, 1, false, false);
++				szTempBuffer.Format(L"\nStrength(2)Ours= d%d, o%d", iOurStrengthDefense, iOurStrengthOffense);
++				szString += szTempBuffer;
++				int iEnemyStrengthDefense = GET_PLAYER(GC.getGameINLINE().getActivePlayer()).AI_getEnemyPlotStrength(pPlot, 1, true, false);
++				int iEnemyStrengthOffense = GET_PLAYER(GC.getGameINLINE().getActivePlayer()).AI_getEnemyPlotStrength(pPlot, 1, false, false);
++				szTempBuffer.Format(L"\nStrength(2)Ours= d%d, o%d", iEnemyStrengthDefense, iEnemyStrengthOffense);
++				szString += szTempBuffer;
+ 			}
+ 
+ 			szString+=gDLL->getText("TXT_KEY_COLOR_REVERT");
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@193
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@194
+@@ -1683,6 +1683,10 @@
+                 if (aiYield[YIELD_COMMERCE] > 1)
+                 {
+                     iTempValue += bIsCoastal ? 30 : -20;
++					if (bIsCoastal && (aiYield[YIELD_FOOD] >= GC.getFOOD_CONSUMPTION_PER_POPULATION()))
++                    {
++                    	iSpecialFoodPlus += 1;                    	
++                    }
+                     if (bStartingLoc)
+                     {
+                         // I'm pretty much forbidding starting 1 tile inland non-coastal.
+@@ -4521,12 +4525,12 @@
+ 			}
+ 			break;
+ 		case TRADE_GOLD:
+-			iValue += pNode->m_data.m_iData;
++			iValue += pNode->m_data.m_iData * 2;
+ 			break;
+ 		case TRADE_GOLD_PER_TURN:
+ 			if (!bIgnoreAnnual)
+ 			{
+-				iValue += AI_goldPerTurnTradeVal(pNode->m_data.m_iData);
++				iValue += AI_goldPerTurnTradeVal(pNode->m_data.m_iData) * 2;
+ 			}
+ 			break;
+ 		case TRADE_MAPS:
+@@ -10136,6 +10140,137 @@
+     return iCount;
+ }
+ 
++int CvPlayerAI::AI_getOurPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves)
++{
++	PROFILE_FUNC();
++
++	CLLNode<IDInfo>* pUnitNode;
++	CvUnit* pLoopUnit;
++	CvPlot* pLoopPlot;
++	int iValue;
++	int iDistance;
++	int iDX, iDY;
++
++	iValue = 0;
++
++	for (iDX = -(iRange); iDX <= iRange; iDX++)
++	{
++		for (iDY = -(iRange); iDY <= iRange; iDY++)
++		{
++			pLoopPlot = plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY);
++
++			if (pLoopPlot != NULL)
++			{
++				if (pLoopPlot->area() == pPlot->area())
++				{
++				    iDistance = stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
++					pUnitNode = pLoopPlot->headUnitNode();
++
++					while (pUnitNode != NULL)
++					{
++						pLoopUnit = ::getUnit(pUnitNode->m_data);
++						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
++
++						if (pLoopUnit->getOwnerINLINE() == getID())
++						{
++							if ((bDefensiveBonuses && pLoopUnit->canDefend()) || pLoopUnit->canAttack())
++							{
++								if (!(pLoopUnit->isInvisible(getTeam(), false)))
++								{
++								    if (pLoopUnit->canMoveInto(pPlot))
++								    {
++                                        if (!bTestMoves)
++                                        {
++                                        	iValue += pLoopUnit->currEffectiveStr((bDefensiveBonuses ? pPlot : NULL), NULL);
++                                        }
++                                        else
++                                        {
++											if (pLoopUnit->baseMoves() >= iDistance)
++                                            {
++                                                iValue += pLoopUnit->currEffectiveStr((bDefensiveBonuses ? pPlot : NULL), NULL);
++                                            }
++                                        }
++								    }
++								}
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++
++
++	return iValue;
++}
++
++int CvPlayerAI::AI_getEnemyPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves)
++{
++	PROFILE_FUNC();
++
++	CLLNode<IDInfo>* pUnitNode;
++	CvUnit* pLoopUnit;
++	CvPlot* pLoopPlot;
++	int iValue;
++	int iDistance;
++	int iDX, iDY;
++
++	iValue = 0;
++
++	for (iDX = -(iRange); iDX <= iRange; iDX++)
++	{
++		for (iDY = -(iRange); iDY <= iRange; iDY++)
++		{
++			pLoopPlot = plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY);
++
++			if (pLoopPlot != NULL)
++			{
++				if (pLoopPlot->area() == pPlot->area())
++				{
++				    iDistance = stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
++					pUnitNode = pLoopPlot->headUnitNode();
++
++					while (pUnitNode != NULL)
++					{
++						pLoopUnit = ::getUnit(pUnitNode->m_data);
++						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
++
++						if (atWar(pLoopUnit->getTeam(), getTeam()))
++						{
++							if ((bDefensiveBonuses && pLoopUnit->canDefend()) || pLoopUnit->canAttack())
++							{
++								if (!(pLoopUnit->isInvisible(getTeam(), false)))
++								{
++								    if (pPlot->isValidDomainForAction(pLoopUnit->getDomainType()))
++								    {
++                                        if (!bTestMoves)
++                                        {
++                                            iValue += pLoopUnit->currEffectiveStr((bDefensiveBonuses ? pPlot : NULL), NULL);
++                                        }
++                                        else
++                                        {
++                                            int iDangerRange = pLoopUnit->baseMoves();
++                                            iDangerRange += ((pLoopPlot->isValidRoute(pLoopUnit)) ? 1 : 0);
++                                            if (iDangerRange >= iDistance)
++                                            {
++                                                iValue += pLoopUnit->currEffectiveStr((bDefensiveBonuses ? pPlot : NULL), NULL);
++                                            }
++                                        }
++								    }
++								}
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++
++
++	return iValue;
++	
++}
++
+ //
+ // read object from a stream
+ // used during load
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.h
+--- /trunk/CvGameCoreDLL/CvPlayerAI.h@193
++++ /trunk/CvGameCoreDLL/CvPlayerAI.h@194
+@@ -233,6 +233,9 @@
+ 	void AI_nowHasTech(TechTypes eTech);
+ 	
+     int AI_countDeadlockedBonuses(CvPlot* pPlot);
++    
++    int AI_getOurPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves);
++    int AI_getEnemyPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves);
+ 
+ 	// for serialization
+   virtual void read(FDataStreamBase* pStream);
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@193
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@194
+@@ -2433,7 +2433,7 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-	if (AI_construct())
++	if (AI_construct(1))
+ 	{
+ 		return;
+ 	}
+@@ -2443,6 +2443,11 @@
+ 		return;
+ 	}
+ 
++	if (AI_construct(3))
++	{
++		return;
++	}
++	
+ 	int iGoldenAgeValue = (GET_PLAYER(getOwnerINLINE()).AI_calculateGoldenAgeValue() / (GET_PLAYER(getOwnerINLINE()).unitsRequiredForGoldenAge()));
+ 	int iDiscoverValue = max(1, getDiscoverResearch(NO_TECH));
+ 
+@@ -2595,6 +2600,18 @@
+ 		return;
+ 	}
+ 
++	if (AI_construct(1))
++	{
++		return;
++	}
++	if (GET_PLAYER(getOwnerINLINE()).getCurrentEra() < 3)
++	{
++		if (AI_join(2))
++		{
++			return;
++		}		
++	}
++	
+ 	if (GET_PLAYER(getOwnerINLINE()).getCurrentEra() <= (GC.getNumEraInfos() / 2))
+ 	{
+ 		if (AI_construct())
+@@ -2671,53 +2688,66 @@
+ 
+ 	std::vector<UnitAITypes> aeUnitAITypes;
+ 	int iDanger = GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot(), 2);
+-
++	
++	bool bOffenseWar = (area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE);
++	
++	
+ 	if (iDanger > 0)
+ 	{
+ 		aeUnitAITypes.clear();
+ 		aeUnitAITypes.push_back(UNITAI_ATTACK);
++		aeUnitAITypes.push_back(UNITAI_COUNTER);
+ 		if (AI_lead(aeUnitAITypes))
+ 		{
+ 			return;
+ 		}
+ 	}
+-
+-	if (AI_construct())
+-	{
+-		return;
+-	}
+-
+-	if (iDanger > 0)
+-	{
+-//		aeUnitAITypes.clear();
+-//		aeUnitAITypes.push_back(UNITAI_RESERVE);
+-//		aeUnitAITypes.push_back(UNITAI_COUNTER);
+-//		if (AI_lead(aeUnitAITypes))
+-//		{
+-//			return;
+-//		}
+-//
+-//		aeUnitAITypes.clear();
+-//		aeUnitAITypes.push_back(UNITAI_CITY_DEFENSE);
+-//		aeUnitAITypes.push_back(UNITAI_CITY_COUNTER);
+-//		if (AI_lead(aeUnitAITypes))
+-//		{
+-//			return;
+-//		}
+-	}
+-	else
++	
++	if (AI_construct(1))
++	{
++		return;
++	}
++	if (AI_join(1))
++	{
++		return;
++	}
++	
++	if (bOffenseWar && (GC.getGameINLINE().getSorenRandNum(2, "AI General Lead") == 0))
+ 	{
+ 		aeUnitAITypes.clear();
+-		aeUnitAITypes.push_back(UNITAI_ATTACK);
++		aeUnitAITypes.push_back(UNITAI_ATTACK_CITY);
+ 		if (AI_lead(aeUnitAITypes))
+ 		{
+ 			return;
+ 		}
+-
+-		if (AI_join())
++	}
++	
++	
++	if (AI_join(2))
++	{
++		return;
++	}
++	
++	if (AI_construct(2))
++	{
++		return;
++	}
++	if (AI_join(4))
++	{
++		return;
++	}
++	
++	if (GC.getGameINLINE().getSorenRandNum(3, "AI General Construct") == 0)
++	{
++		if (AI_construct())
+ 		{
+ 			return;
+ 		}
++	}
++
++	if (AI_join())
++	{
++		return;
+ 	}
+ 
+ 	if (AI_retreatToCity())
+@@ -6357,8 +6387,9 @@
+ 	return false;
+ }
+ 
+-// Returns true if a mission was pushed...
+-bool CvUnitAI::AI_join()
++// Returns true if a mission was pushed... 
++// iMaxCounts = 1 would mean join a city if there's no existing joined GP of that type.
++bool CvUnitAI::AI_join(int iMaxCount)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -6369,10 +6400,12 @@
+ 	int iBestValue;
+ 	int iLoop;
+ 	int iI;
++	int iCount;
+ 
+ 	iBestValue = 0;
+ 	pBestPlot = NULL;
+ 	eBestSpecialist = NO_SPECIALIST;
++	iCount = 0;
+ 
+ 	for (pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
+ 	{
+@@ -6384,6 +6417,18 @@
+ 				{
+ 					for (iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+ 					{
++						bool bDoesJoin = false;
++						SpecialistTypes eSpecialist = (SpecialistTypes)iI;
++						if (GC.getUnitInfo(getUnitType()).getGreatPeoples(eSpecialist))
++						{
++							bDoesJoin = true;
++						}
++						iCount += pLoopCity->getSpecialistCount(eSpecialist);
++						if (iCount >= iMaxCount)
++						{
++							return false;
++						}
++						
+ 						if (canJoin(pLoopCity->plot(), ((SpecialistTypes)iI)))
+ 						{
+ 							iValue = pLoopCity->AI_specialistValue(((SpecialistTypes)iI), pLoopCity->AI_avoidGrowth(), false);
+@@ -6419,9 +6464,10 @@
+ 	return false;
+ }
+ 
+-
+-// Returns true if a mission was pushed...
+-bool CvUnitAI::AI_construct()
++// Returns true if a mission was pushed... 
++// iMaxCounts = 1 would mean construct only if there are no existing buildings 
++//   constructed by this GP type.
++bool CvUnitAI::AI_construct(int iMaxCount)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -6433,12 +6479,14 @@
+ 	int iBestValue;
+ 	int iLoop;
+ 	int iI;
++	int iCount;
+ 
+ 	iBestValue = 0;
+ 	pBestPlot = NULL;
+ 	pBestConstructPlot = NULL;
+ 	eBestBuilding = NO_BUILDING;
+-
++	iCount = 0;
++	
+ 	for (pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
+ 	{
+ 		if (AI_plotValid(pLoopCity->plot()))
+@@ -6451,9 +6499,26 @@
+ 					{
+ 						for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+ 						{
+-							if (canConstruct(pLoopCity->plot(), ((BuildingTypes)iI)))
++							BuildingTypes eBuilding = (BuildingTypes)iI;
++							bool bDoesBuild = false;
++							if ((GC.getUnitInfo(getUnitType()).getForceBuildings(eBuilding))
++								|| (GC.getUnitInfo(getUnitType()).getBuildings(eBuilding)))
+ 							{
+-								iValue = pLoopCity->AI_buildingValue((BuildingTypes)iI);
++								bDoesBuild = true;
++							}
++							
++							if (pLoopCity->hasBuilding(eBuilding))
++							{
++								iCount++;
++								if (iCount >= iMaxCount)
++								{
++									return false;
++								}
++							}
++							
++							if (bDoesBuild && canConstruct(pLoopCity->plot(), eBuilding))
++							{
++								iValue = pLoopCity->AI_buildingValue(eBuilding);
+ 
+ 								if (iValue > iBestValue)
+ 								{
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@193
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@194
+@@ -112,8 +112,8 @@
+ 	bool AI_spreadReligion();
+ 	bool AI_discover(bool bThisTurnOnly = false, bool bFirstResearchOnly = false);
+ 	bool AI_lead(std::vector<UnitAITypes>& aeAIUnitTypes);
+-	bool AI_join();
+-	bool AI_construct();
++	bool AI_join(int iMaxCount = MAX_INT);
++	bool AI_construct(int iMaxCount = MAX_INT);
+ 	bool AI_switchHurry();
+ 	bool AI_hurry();
+ 	bool AI_greatWork();
+

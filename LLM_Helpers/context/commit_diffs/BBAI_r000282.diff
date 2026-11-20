@@ -1,0 +1,42 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 282
+# Author: iustus
+# Date: 2007-01-22T14:04:52.506920Z
+# Coverage: full
+# Message:
+#   only display AI-AI trades when under debug mode (ctrl-z under chipotle), rather than all the time when chipotle active
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvDeal.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDeal.cpp
+--- /trunk/CvGameCoreDLL/CvDeal.cpp@281
++++ /trunk/CvGameCoreDLL/CvDeal.cpp@282
+@@ -81,8 +81,8 @@
+ 		szString.Format(L"%s: %s", szCancelString.GetCString(), szDealString.GetCString());
+ 		gDLL->getInterfaceIFace()->addMessage((PlayerTypes)getSecondPlayer(), true, GC.getDefineINT("EVENT_MESSAGE_TIME"), szString, "AS2D_DEAL_CANCELLED");
+ 		
+-		// if cheatlevel > 0, then notify the human that a deal was canceled
+-		if (gDLL->getChtLvl() > 0)
++		// if debug mode (ctrl-z under chipotle), then notify the human that a deal was canceled
++		if (GC.getGameINLINE().isDebugMode())
+ 		{
+ 			PlayerTypes iActivePlayer = GC.getGameINLINE().getActivePlayer();
+ 			
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@281
++++ /trunk/CvGameCoreDLL/CvGame.cpp@282
+@@ -3979,8 +3979,8 @@
+ 	FAssertMsg(eOtherWho != NO_PLAYER, "OtherWho is not assigned a valid value");
+ 	FAssertMsg(eWho != eOtherWho, "eWho is not expected to be equal with eOtherWho");
+ 
+-	// if cheatlevel > 0, then notify the human that a deal was made
+-	if (gDLL->getChtLvl() > 0)
++	// if debug mode (ctrl-z under chipotle), then notify the human that a deal was made
++	if (GC.getGameINLINE().isDebugMode())
+ 	{
+ 		FAssertMsg(((pOurList->getLength() > 0) || (pTheirList->getLength() > 0)), "Empty trade implemented?!");
+ 
+

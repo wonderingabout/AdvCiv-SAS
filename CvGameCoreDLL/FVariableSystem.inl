@@ -84,10 +84,7 @@ inline void FVariableSystem::UnInit()
 }
 
 
-inline uint FVariableSystem::GetSize() const
-{
-	return m_mapVariableMap.size();
-}
+inline uint FVariableSystem::GetSize() const { return m_mapVariableMap.size(); }
 
 
 inline void FVariableSystem::Read(FDataStreamBase* pStream)

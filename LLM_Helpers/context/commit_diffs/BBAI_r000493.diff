@@ -1,0 +1,525 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 493
+# Author: jdog5000
+# Date: 2009-10-05T17:15:37.307729Z
+# Coverage: full
+# Message:
+#   Fixed MP crash bug
+#   Expanded logging system
+# Changed paths (10):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@492
++++ /trunk/CvGameCoreDLL/CvCity.cpp@493
+@@ -3306,7 +3306,7 @@
+ 			szString = GC.getProjectInfo(getProductionProject()).getDescription();
+ 		}
+ 
+-		logBBAI("    City %S hurrying production of %S at cost of %d pop, %d gold, %d anger length", getName().GetCString(), szString.GetCString(), iHurryGold, iHurryPopulation, iHurryAngerLength );
++		logBBAI("    City %S hurrying production of %S at cost of %d pop, %d gold, %d anger length", getName().GetCString(), szString.GetCString(), iHurryPopulation, iHurryGold, iHurryAngerLength );
+ 	}
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@492
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@493
+@@ -837,8 +837,6 @@
+         }
+ 	}
+ 
+-	iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
+-
+ 	// Free experience for various unit domains
+ 	int iFreeLandExperience = getSpecialistFreeExperience() + getDomainFreeExperience(DOMAIN_LAND);
+ 	int iFreeSeaExperience = getSpecialistFreeExperience() + getDomainFreeExperience(DOMAIN_SEA);
+@@ -846,13 +844,15 @@
+ 
+ 	clearOrderQueue();
+ 
+-	//if( gCityLogLevel >= 3 ) logBBAI("      City %S considering new production: iProdRank %d, iBuildUnitProb %d", getName().GetCString(), iProductionRank, iBuildUnitProb);
+-
+ 	if (bWasFoodProduction)
+ 	{
+ 		AI_assignWorkingPlots();
+ 	}
+-	
++
++	iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
++
++	if( gCityLogLevel >= 3 ) logBBAI("      City %S pop %d considering new production: iProdRank %d, iBuildUnitProb %d", getName().GetCString(), getPopulation(), iProductionRank, iBuildUnitProb);
++
+ 	// -------------------- BBAI Notes -------------------------
+ 	// Start special circumstances
+ 
+@@ -1077,7 +1077,7 @@
+ 		if ((iExistingWorkers == 0) && ((AI_getWorkersNeeded() > 0) || ((isCapital() && (GC.getGame().getElapsedGameTurns() < ((30 * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getTrainPercent()) / 100))))))
+ 		{
+ 			int iLandBonuses = AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ true, /*bIncludeNeutral*/ true, -1, /*bLand*/ true, /*bWater*/ false);
+-			if ((iLandBonuses > 1) || (getPopulation() > 3))
++			if ((iLandBonuses > 1 && getPopulation() > 1) || (getPopulation() > 3))
+ 			{
+ 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+ 				{
+@@ -1095,7 +1095,7 @@
+ 					return;
+ 				}
+ 			}
+-			if ((iLandBonuses == 1) || (AI_getWorkersNeeded() > 0))
++			if ((iLandBonuses == 1  && getPopulation() > 1) || (AI_getWorkersNeeded() > 0))
+     		{
+ 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+ 				{
+@@ -1258,12 +1258,15 @@
+ 		{
+ 			if ((iExistingWorkers < ((iNeededWorkers + 1) / 2)))
+ 			{
+-				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+-				{
+-					if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose worker 3", getName().GetCString());
+-					return;
+-				}
+-				bChooseWorker = true;
++				if( getPopulation() > 3 || (iProductionRank < (kPlayer.getNumCities() + 1) / 2) )
++				{
++					if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
++					{
++						if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose worker 3", getName().GetCString());
++						return;
++					}
++					bChooseWorker = true;
++				}
+ 			}
+ 		}
+ 	}
+@@ -1318,12 +1321,15 @@
+ 		{
+ 			if (!bDanger && (iExistingWorkers < ((iNeededWorkers + 1) / 2)))
+ 			{
+-				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+-				{
+-					if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose worker 4", getName().GetCString());
+-					return;
+-				}
+-				bChooseWorker = true;
++				if( getPopulation() > 3 || (iProductionRank < (kPlayer.getNumCities() + 1) / 2) )
++				{
++					if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
++					{
++						if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose worker 4", getName().GetCString());
++						return;
++					}
++					bChooseWorker = true;
++				}
+ 			}
+ 		}
+ 	}
+@@ -1335,7 +1341,7 @@
+ 		if( !(bDefenseWar && iWarSuccessRatio < -50) )
+ 		{
+ 			if ((AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ true, /*bIncludeNeutral*/ true, -1, /*bLand*/ true, /*bWater*/ false) > 0) || 
+-				(isCapital() && (getPopulation() > 3)))
++				(isCapital() && (getPopulation() > 3) && iNumCitiesInArea > 1))
+     		{
+ 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+ 				{
+@@ -1685,12 +1691,15 @@
+ 		{
+ 			if ((AI_getWorkersNeeded() > 0) && (AI_getWorkersHave() == 0))
+ 			{
+-				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+-				{
+-					if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose worker 6", getName().GetCString());
+-					return;
+-				}
+-				bChooseWorker = true;
++				if( getPopulation() > 1 || (GC.getGameINLINE().getGameTurn() - getGameTurnAcquired() > (15 * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getTrainPercent())/100) )
++				{
++					if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
++					{
++						if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose worker 6", getName().GetCString());
++						return;
++					}
++					bChooseWorker = true;
++				}
+ 			}
+ 		}
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@492
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@493
+@@ -4441,7 +4441,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.20");
++	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.30 pre-release");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+@@ -4454,7 +4454,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.81M");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.82 pre-release");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /*************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@492
++++ /trunk/CvGameCoreDLL/CvGame.cpp@493
+@@ -7317,10 +7317,10 @@
+ /**                                                                                              */
+ /** AI logging                                                                                   */
+ /*************************************************************************************************/
+-				if( gTeamLogLevel >= 1 )
+-				{
+-					logBBAI("  Vote for assigning %S to %d (%S) passes", pCity->getName(), kPlayer.getTeam(), kPlayer.getCivilizationDescription(0) );
+-				}
++					if( gTeamLogLevel >= 1 )
++					{
++						logBBAI("  Vote for assigning %S to %d (%S) passes", pCity->getName(), GET_PLAYER(kData.kVoteOption.eOtherPlayer).getTeam(), GET_PLAYER(kData.kVoteOption.eOtherPlayer).getCivilizationDescription(0) );
++					}
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@492
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@493
+@@ -2078,9 +2078,11 @@
+ /**                                                                                              */
+ /** General AI                                                                                   */
+ /*************************************************************************************************/
+-/* original BTS code
++// original BTS code
+ 	return ((GC.getMapINLINE().plotSorenINLINE(parent->m_iX, parent->m_iY)->isWater() == GC.getMapINLINE().plotSorenINLINE(node->m_iX, node->m_iY)->isWater()) ? TRUE : FALSE);
+-*/
++
++	// BBAI TODO: Why doesn't this work to break water and ice into separate area?
++/*
+ 	if( GC.getMapINLINE().plotSorenINLINE(parent->m_iX, parent->m_iY)->isWater() != GC.getMapINLINE().plotSorenINLINE(node->m_iX, node->m_iY)->isWater() )
+ 	{
+ 		return FALSE;
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@492
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@493
+@@ -5854,26 +5854,31 @@
+ 		}
+ 	}
+ 
+-	if(GC.getUSE_CAN_FOUND_CITIES_ON_WATER_CALLBACK())
+-	{
+-		CyArgsList argsList2;
+-		argsList2.add(iX);
+-		argsList2.add(iY);
+-		lResult=0;
+-		gDLL->getPythonIFace()->callFunction(PYGameModule, "canFoundCitiesOnWater", argsList2.makeFunctionArgs(), &lResult);
+-	}
+-
+-	if (lResult == 1)
+-	{
+-		bValid = true;
+-	}
+-	else
+-	{
+-		if (pPlot->isWater())
+-		{
+-			return false;
+-		}
+-	}
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       10/04/09                    EmperorFool & jdog5000    */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++	// EF: canFoundCitiesOnWater callback handling was incorrect and ignored isWater() if it returned true
++	if (!bValid && pPlot->isWater())
++	{
++		if(GC.getUSE_CAN_FOUND_CITIES_ON_WATER_CALLBACK())
++		{
++			CyArgsList argsList2;
++			argsList2.add(iX);
++			argsList2.add(iY);
++			lResult=0;
++			gDLL->getPythonIFace()->callFunction(PYGameModule, "canFoundCitiesOnWater", argsList2.makeFunctionArgs(), &lResult);
++
++			if (lResult == 1)
++			{
++				bValid = true;
++			}
++		}
++	}
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
+ 
+ 	if (!bValid)
+ 	{
+@@ -7724,6 +7729,20 @@
+ bool CvPlayer::canDoCivics(CivicTypes eCivic) const
+ {
+ 	PROFILE_FUNC();
++
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       10/05/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++	// Circumvents second crash bug in simultaneous turns MP games
++	if( eCivic == NO_CIVIC )
++	{
++		return 1;
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/	
+ 
+ 	if (GC.getGameINLINE().isForceCivicOption((CivicOptionTypes)(GC.getCivicInfo(eCivic).getCivicOptionType())))
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@492
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@493
+@@ -3542,7 +3542,7 @@
+ 	return iCount;
+ }
+ 
+-// BBAI TODO: never used ...
++// Never used ...
+ /*
+ int CvPlayerAI::AI_getUnitDanger(CvUnit* pUnit, int iRange, bool bTestMoves, bool bAnyDanger) const
+ {
+@@ -3919,10 +3919,10 @@
+ /**                                                                                              */
+ /** AI logging                                                                                   */
+ /*************************************************************************************************/
+-								if( gPlayerLogLevel >= 3 )
++								/*if( gPlayerLogLevel >= 3 )
+ 								{
+ 									logBBAI("      Player %d (%S) consider tech %S with value %d", getID(), getCivilizationDescription(0), GC.getTechInfo((TechTypes)iI).getDescription(), iValue );
+-								}
++								}*/
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+@@ -6539,12 +6539,12 @@
+ 				}
+ 				else if (GET_TEAM(ePeaceTeam).isAtWar(getTeam()))
+ 				{
+-					bool bWantsToEndWar = (GET_TEAM(getTeam()).AI_endWarVal(ePeaceTeam) > (GET_TEAM(ePeaceTeam).AI_endWarVal(getTeam())));
++					bool bWantsToEndWar = (GET_TEAM(getTeam()).AI_endWarVal(ePeaceTeam) > (3*GET_TEAM(ePeaceTeam).AI_endWarVal(getTeam()))/2);
+ 					bValid = bWantsToEndWar;
+ 
+ 					if( bValid )
+ 					{
+-						bValid = bWinningBig || (iWarsWinning > iWarsLosing) || (GET_TEAM(getTeam()).getAtWarCount(true) > 1);
++						bValid = bWinningBig || (iWarsWinning > iWarsLosing) || (GET_TEAM(getTeam()).getAtWarCount(true, true) > 1);
+ 					}
+ 
+ 					if (!bValid && bThisPlayerWinning && (iWarsLosing >= iWarsWinning) && !bPropose )
+@@ -6781,11 +6781,16 @@
+ 				{
+ 					if (NO_PLAYER != kVoteData.eOtherPlayer && kVoteData.eOtherPlayer != pCity->getOwnerINLINE())
+ 					{
+-						if ((!bPropose && eSecretaryGeneral == getTeam()) || kVoteData.eOtherPlayer == getID())
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      10/03/09                                jdog5000      */
++/**                                                                                              */
++/** Diplomacy AI                                                                                 */
++/*************************************************************************************************/
++						if ((!bPropose && eSecretaryGeneral == getTeam()) || GET_PLAYER(kVoteData.eOtherPlayer).getTeam() == getTeam())
+ 						{
+ 							bValid = true;
+ 						}
+-						else if (kVoteData.ePlayer == getID())
++						else if (kPlayer.getTeam() == getTeam())
+ 						{
+ 							bValid = false;
+ 							// BBAI TODO: Wonders, holy city, aggressive AI?
+@@ -6798,6 +6803,9 @@
+ 						{
+ 							bValid = (AI_getAttitude(kVoteData.ePlayer) < AI_getAttitude(kVoteData.eOtherPlayer));
+ 						}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 					}
+ 				}
+ 			}
+@@ -9876,8 +9884,20 @@
+ /** UNOFFICIAL_PATCH                        END                                                  */
+ /*************************************************************************************************/
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      10/03/09                                jdog5000      */
++/**                                                                                              */
++/** Missionary AI                                                                                */
++/*************************************************************************************************/
++	// In free religion, treat all religions like state religions
+ 	bool bStateReligion = (getStateReligion() == eReligion);
+-	if (bStateReligion)
++	
++	if (!isStateReligion())
++	{
++		iSpreadInternalValue += 500;
++		bStateReligion = true;
++	}
++	else if(bStateReligion)
+ 	{
+ 		iSpreadInternalValue += 1000;
+ 	}
+@@ -9886,18 +9906,17 @@
+ 		iSpreadInternalValue += (500 * getHasReligionCount(eReligion)) / std::max(1, getNumCities());
+ 	}
+ 	
++	int iGoldValue = 0;
+ 	if (kTeam.hasHolyCity(eReligion))
+ 	{
+-		// BBAI TODO: What about Free Religion???
+-		iSpreadInternalValue += bStateReligion ? 1000 : 200;
+-		iSpreadExternalValue += bStateReligion ? 1000 : 0;
++		iSpreadInternalValue += bStateReligion ? 1000 : 500;
++		iSpreadExternalValue += bStateReligion ? 1000 : 200;
+ 		if (kTeam.hasShrine(eReligion))
+ 		{
+-			iSpreadInternalValue += bStateReligion ? 1000 : 500;
+-			iSpreadExternalValue += bStateReligion ? 600 : 100;
++			iSpreadInternalValue += bStateReligion ? 500 : 300;
++			iSpreadExternalValue += bStateReligion ? 300 : 200;
+ 			int iGoldMultiplier = kGame.getHolyCity(eReligion)->getTotalCommerceRateModifier(COMMERCE_GOLD);
+-			iSpreadInternalValue += 10 * std::max(0, (iGoldMultiplier - 100));
+-			iSpreadExternalValue += 5 * std::max(0, (iGoldMultiplier - 150));
++			iGoldValue = 5 * iGoldMultiplier;
+ 		}
+ 	}
+ 	
+@@ -9918,8 +9937,9 @@
+ 	if (iOurCitiesHave < iOurCitiesCount)
+ 	{
+ 		// BBAI TODO: Spread to last few cities!
+-		iSpreadInternalValue *= 50 + 50 * (iOurCitiesCount - iOurCitiesHave);
+-		iSpreadInternalValue /= 100 * iOurCitiesCount;
++		iSpreadInternalValue *= 30 + ((100 * (iOurCitiesCount - iOurCitiesHave))/ iOurCitiesCount);
++		iSpreadInternalValue /= 100;
++		iSpreadInternalValue += iGoldValue;
+ 	}
+ 	else
+ 	{
+@@ -9957,9 +9977,9 @@
+ 							}
+ 						}
+ 						
+-						// BBAI TODO: No state religion, but running state religion civic???  The AI never does this
+ 						if (kLoopPlayer.getStateReligion() == NO_RELIGION)
+ 						{
++							// Paganism counts as a state religion civic, that's what's caught below
+ 							if (kLoopPlayer.getStateReligionCount() > 0)
+ 							{
+ 								int iTotalReligions = kLoopPlayer.countTotalHasReligion();
+@@ -9970,6 +9990,8 @@
+ 						
+ 						int iValue = (iMultiplier * iSpreadExternalValue * (iCitiesCount - iCitiesHave)) / std::max(1, iCitiesCount);
+ 						iValue /= 100;
++						iValue += iGoldValue;
++
+ 						if (iValue > iBestValue)
+ 						{
+ 							iBestValue = iValue;
+@@ -9994,8 +10016,12 @@
+ 	if (NULL != peBestPlayer)
+ 	{
+ 		*peBestPlayer = getID();
+-	}		
++	}
++
+ 	return iSpreadInternalValue;
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ }
+ 
+ int CvPlayerAI::AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation, PlayerTypes* peBestPlayer) const
+@@ -10478,6 +10504,20 @@
+ 
+ 	FAssertMsg(eCivic < GC.getNumCivicInfos(), "eCivic is expected to be within maximum bounds (invalid Index)");
+ 	FAssertMsg(eCivic >= 0, "eCivic is expected to be non-negative (invalid Index)");
++
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       10/05/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++	// Circumvents crash bug in simultaneous turns MP games
++	if( eCivic == NO_CIVIC )
++	{
++		return 1;
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/	
+ 
+ 	CvCivicInfo& kCivic = GC.getCivicInfo(eCivic);
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@492
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@493
+@@ -3136,8 +3136,23 @@
+ 
+ 	pGiftUnit->convert(this);
+ 
+-	// BBAI TODO: This needs to be much higher, create function?
+-	GET_PLAYER(pGiftUnit->getOwnerINLINE()).AI_changePeacetimeGrantValue(eOwner, (pGiftUnit->getUnitInfo().getProductionCost() / 5));
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      10/03/09                                jdog5000      */
++/**                                                                                              */
++/** General AI                                                                                   */
++/*************************************************************************************************/
++	//GET_PLAYER(pGiftUnit->getOwnerINLINE()).AI_changePeacetimeGrantValue(eOwner, (pGiftUnit->getUnitInfo().getProductionCost() / 5));
++	if( pGiftUnit->isCombat() )
++	{
++		GET_PLAYER(pGiftUnit->getOwnerINLINE()).AI_changePeacetimeGrantValue(eOwner, (pGiftUnit->getUnitInfo().getProductionCost() * 3 * GC.getGameINLINE().AI_combatValue(pGiftUnit->getUnitType()))/100);
++	}
++	else
++	{
++		GET_PLAYER(pGiftUnit->getOwnerINLINE()).AI_changePeacetimeGrantValue(eOwner, (pGiftUnit->getUnitInfo().getProductionCost()));
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 	szBuffer = gDLL->getText("TXT_KEY_MISC_GIFTED_UNIT_TO_YOU", GET_PLAYER(eOwner).getNameKey(), pGiftUnit->getNameKey());
+ 	gDLL->getInterfaceIFace()->addMessage(pGiftUnit->getOwnerINLINE(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_UNITGIFTED", MESSAGE_TYPE_INFO, pGiftUnit->getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), pGiftUnit->getX_INLINE(), pGiftUnit->getY_INLINE(), true, true);
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@492
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@493
+@@ -1200,7 +1200,7 @@
+ /*************************************************************************************************/
+ 					if( gUnitLogLevel >= 2 )
+ 					{
+-						logBBAI("    Settler founding in place since it's at a city site");
++						logBBAI("    Settler founding in place since it's at a city site %d, %d", getX_INLINE(), getY_INLINE());
+ 					}
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+

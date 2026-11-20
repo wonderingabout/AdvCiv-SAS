@@ -1,0 +1,142 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 289
+# Author: blakeciv
+# Date: 2007-01-24T00:53:06.802764Z
+# Coverage: full
+# Message:
+#   Tweaked the high food override...
+#   
+#   Streamlined the defender and floating defender code and added a population component to needed floating defenders for an area.
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@288
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@289
+@@ -771,7 +771,7 @@
+     if (isHuman() && isProductionAutomated())
+     {
+         AI_buildGovernorChooseProduction();
+-        return;        
++        return;
+     }
+ 
+ 	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
+@@ -3699,52 +3699,21 @@
+ 	
+ 	if (!GET_PLAYER(getOwner()).AI_isDoStrategy(AI_STRATEGY_CRUSH))
+ 	{
+-		if ((iNumCities > 1))
++		iDefenders += AI_neededFloatingDefenders();
++	}
++	else
++	{
++		iDefenders += (AI_neededFloatingDefenders() + 2) / 4;
++	}
++	
++	
++	if (bDefenseWar)
++	{
++		if (!(plot()->isHills()))
+ 		{
+ 			iDefenders++;
+ 		}
+-		
+-		iDefenders += max(0, (getPopulation() / 6) - (getGameTurnFounded() % 3));
+-		
+-		iDefenders += AI_neededFloatingDefenders();
+-	}
+-	else
+-	{
+-		iDefenders += (AI_neededFloatingDefenders() + 2) / 4;
+-	}
+-	
+-	
+-	if (bDefenseWar)
+-	{
+-		if (!(plot()->isHills()))
+-		{
+-			iDefenders++;
+-		}
+-	}
+-	
+-	/*
+-
+-	int iI = 3;
+-	while (iI <= (iNumCities + max(0, (getPopulation()) - 5)))
+-	{
+-		iDefenders++;
+-		iI += ((iI / 2) + 3);
+-	}
+-
+-//	if (bOffenseWar)
+-//	{
+-//		iDefenders++;
+-//	}
+-	
+-	iDefenders = min(iDefenders, 1 + (1 + GET_PLAYER(getOwnerINLINE()).getCurrentEra()) / 2);
+-	
+-	
+-	
+-	
+-	if (bDefenseWar || bOffenseWar)
+-	{
+-		iDefenders += (GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot()) + 1) / 2;
+-	}*/
++	}
+ 
+ 	if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3))
+ 	{
+@@ -3792,18 +3761,12 @@
+ 	int iDefenders = 0;
+ 	
+ 	int iFloatingDefenders = GET_PLAYER(getOwnerINLINE()).AI_getTotalFloatingDefendersNeeded(area());
+-	
++		
+ 	int iTotalThreat = max(1, GET_PLAYER(getOwnerINLINE()).AI_getTotalAreaCityThreat(area()));
+ 	
+ 	iFloatingDefenders *= AI_cityThreat();
+ 	iFloatingDefenders += (iTotalThreat / 2);
+ 	iFloatingDefenders /= iTotalThreat;
+-	
+-	if (GET_PLAYER(getOwner()).AI_isDoStrategy(AI_STRATEGY_CRUSH))
+-	{
+-		iFloatingDefenders += 2;
+-		iFloatingDefenders /= 2;
+-	}
+ 	
+ 	m_iNeededFloatingDefenders = iFloatingDefenders;
+ 	m_iNeededFloatingDefendersCacheTurn = GC.getGame().getGameTurn();
+@@ -5725,6 +5688,8 @@
+ 		int	iExtraPopulationThatCanWork = min(iPopulation - range(-iHappinessLevel, 0, iPopulation) + min(0, extraFreeSpecialists()) , NUM_CITY_PLOTS) - getWorkingPopulation() + ((bRemove) ? 1 : 0);
+ 		int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+ 
++		int iAdjustedFoodDifference = getYieldRate(YIELD_FOOD) - ((iPopulation + min(0, iHappinessLevel)) * iConsumtionPerPop);
++		
+ 		// if we not human, allow us to starve to half full if avoiding growth
+ 		int iStarvingAllowance = 0;
+ 		if (bAvoidGrowth && !isHuman())
+@@ -5931,7 +5896,7 @@
+ 			{
+ 				//very high food override
+ 				int iTempValue = 30 * max(0, (aiYields[YIELD_FOOD]) - (2 * iConsumtionPerPop));
+-				iTempValue *= max(0, (3 * iConsumtionPerPop) - foodDifference(false));
++				iTempValue *= max(0, (3 * iConsumtionPerPop) - iAdjustedFoodDifference);
+ 				iTempValue /= 3 * iConsumtionPerPop;
+ 				iValue += iTempValue;
+ 			}
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@288
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@289
+@@ -10999,6 +10999,7 @@
+ 	
+ 	iDefenders = 1 + ((iCurrentEra + 1) * pArea->getCitiesPerPlayer(getID()));
+ 	iDefenders /= 2;
++	iDefenders += pArea->getPopulationPerPlayer(getID()) / 5;	
+ 	
+ 	if (AI_getTotalAreaCityThreat(pArea) == 0)
+ 	{
+

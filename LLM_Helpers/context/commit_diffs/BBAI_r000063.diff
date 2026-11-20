@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 63
+# Author: iustus
+# Date: 2006-11-11T07:29:52.073556Z
+# Coverage: full
+# Message:
+#   fix crash bug caused by cultural victory thing. Apparently, you cannot add any virtual functions to the CvPlayer class, it seems the exe has secret knowledge of the virtual function table.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayer.h
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.h
+--- /trunk/CvGameCoreDLL/CvPlayer.h@62
++++ /trunk/CvGameCoreDLL/CvPlayer.h@63
+@@ -850,8 +850,6 @@
+ 	virtual int AI_getMemoryCount(PlayerTypes eIndex1, MemoryTypes eIndex2) = 0;
+ 	virtual void AI_changeMemoryCount(PlayerTypes eIndex1, MemoryTypes eIndex2, int iChange) = 0;
+ 	virtual void AI_doCommerce() = 0;
+-
+-    virtual int AI_getCultureVictoryStage() = 0;
+ 
+ protected:
+ 
+

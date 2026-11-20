@@ -19,8 +19,9 @@
 					get="isEnabled" set="setEnabled" dirtyBit="GameData" 
 					label="Enable NJAGC" 
 					help="When checked, the game clock is displayed using TheLopez's NJAGC mod."/>
+			<!-- custom: default changed from False to True so era text is shown by default in this mod. (GPT-5.3-Codex) -->
 			<option id="ShowEra" key="Show Era" 
-					type="boolean" default="False" 
+					type="boolean" default="True" 
 					get="isShowEra" set="setShowEra" dirtyBit="GameData" 
 					label="Display Era" 
 					help="When checked, the current era is displayed to the left of the research bar."/>

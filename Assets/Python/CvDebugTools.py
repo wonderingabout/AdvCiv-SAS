@@ -3,11 +3,17 @@
 #
 # CIV Python Tools Code
 #
+
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+
 import CvUtil
 import PyHelpers
 import Popup as PyPopup
 import CvScreenEnums
 from CvPythonExtensions import *
+# <!-- custom: Route shared visual resources through the centralized SASVisualUtils namespace after retiring overlapping helper/cache imports; keep one canonical visual-resource boundary. (ChatGPT-5.6-Sol) -->
+import SASVisualUtils as SASVisuals
 
 PyPlayer = PyHelpers.PyPlayer
 PyGame = PyHelpers.PyGame
@@ -31,17 +37,17 @@ def giveUnitsLotsOfMoves():
 	playerTeam.changeExtraMoves(DomainTypes.DOMAIN_LAND, 1000)
 	playerTeam.changeExtraMoves(DomainTypes.DOMAIN_SEA, 1000)
 	playerTeam.changeExtraMoves(DomainTypes.DOMAIN_AIR, 1000)
-	
+
 ############################### DEBUG TOOLS ####################################
 class CvDebugTools:
 	def __init__(self):
 		self._bDebugMode = False
 		self.iActiveEffect = -1
 		self.pEffectPlot = None
-	
+
 	def getDebugMode( self ):
 		return self._bDebugMode
-		
+
 	def setDebugMode( self, bVal ):
 		self._bDebugMode = bVal		
 		CyInterface().addImmediateMessage( "CvDebugTools.setDebugMode set to %s" % self.bDebugMode, "" )
@@ -49,9 +55,10 @@ class CvDebugTools:
 	def notifyInput( self, argsList ):
 		#print "Python Debug Mode Notify"
 		return 0
-	
+
 	def initEffectViewer( self, argsList ):
-		if not gc.getGame().isDebugMode(): return # advc.007b
+		if not gc.getGame().isDebugMode():
+			return # advc.007b
 		px,py = argsList
 		pPlot = CyMap().plot(px,py)
 		popup = PyPopup.PyPopup( CvUtil.PopupTypeEffectViewer, EventContextTypes.EVENTCONTEXT_SELF )
@@ -60,27 +67,27 @@ class CvDebugTools:
 		popup.setHeaderString( "Python Debug Tools: Object Placer" )
 		# Pulldown0 - Player Selection
 		numEffects = gc.getNumEffectInfos()	# get total # of units from Game
-		
+
 		popup.createPythonPullDown("Choose an Effect")
 		for i in range(gc.getNumEffectInfos()):
 			popup.addPullDownString(gc.getEffectInfo(i).getType(), i)
-		
+
 		popup.createPythonEditBox( "Default", "Modify the scale of the effect" )
 		popup.createPythonEditBox( "Default", "Modify the update rate" )
-		
+
 		# Launch Popup
 		popup.launch()
 		return 0
-	
+
 	def applyEffectViewer(self, playerID, userData, popupReturn):
 		px,py = userData
 		self.pEffectPlot = CyMap().plot(px,py)
-		
+
 		if self.pEffectPlot.isNone():
 			return 0
-		
+
 		self.iActiveEffect = popupReturn.getSelectedPullDownValue( 0 )
-		
+
 		CyEngine().triggerEffect(self.iActiveEffect, self.pEffectPlot.getPoint())
 		#scale = popupReturn.getSelectedListBoxValue( 0 )
 		#updateRate = int( popupReturn.getEditBoxString( 0 ) )
@@ -89,8 +96,10 @@ class CvDebugTools:
 	## UNIT / CITY PLAYER 
 	############################
 	def initUnitPicker( self, argsList ):
-		'initUnitPicker - for placing units & cities'
-		if not gc.getGame().isDebugMode(): return # advc.007b
+		# initUnitPicker - for placing units & cities
+		#
+		if not gc.getGame().isDebugMode():
+			return # advc.007b
 		px,py = argsList
 		pPlot = CyMap().plot(px,py)
 		popup = PyPopup.PyPopup( CvUtil.EventPlaceObject, EventContextTypes.EVENTCONTEXT_ALL )
@@ -113,7 +122,7 @@ class CvDebugTools:
 					popup.addPullDownString(gc.getPlayer(i).getName(), i)
 
 		popup.addSeparator()
-		
+
 		# ListBox0 - Unit List w/ City also selectable
 		#popup.setBodyString( "Select Game Object to Add:" )
 
@@ -141,55 +150,58 @@ class CvDebugTools:
 
 		for j in range( iNumUnits ):			
 			popup.addListBoxString( unitsList[j][0], unitsList[j][1])
-		
+
 		# EditBox0 - Customize how many units to build
 		#popup.setBodyString( "How many objects?" )
 		popup.createPythonEditBox( "1", "This allows you to create multiple units." )
-		
+
 		# Launch Popup
 		#popup.setSize( 400, 600 )
 		popup.launch()
 		return 0
-	
+
 	def applyUnitPicker( self, argsList ):
-		'Apply Unit Picker'
+		# Apply Unit Picker
+		#
 		popupReturn, userData = argsList
 		px,py = userData
 		pPlot = CyMap().plot(px,py)
-		
+
 		if pPlot.isNone():
 			return 0
-		
+
 		# UNIT DEBUG MENU
 		playerID = popupReturn.getSelectedPullDownValue( 0 )
 		selectedObject = popupReturn.getSelectedListBoxValue( 0 )
 		iSpawnNum = int( popupReturn.getEditBoxString( 0 ) )
-		
+
 		player = PyPlayer( playerID )
 		if ( player.isNone() ):
 			return -1   # Error
-			
+
 		iNumUnits = gc.getNumUnitInfos()
 		global iLastSelectedObject
 		iLastSelectedObject = selectedObject
 		if ( selectedObject != iNumUnits + 1 ):# Nothing
-			
+
 			if ( selectedObject == iNumUnits ):# City"
 				player.initCity( px,py )
-			
+
 			else:
 				player.initUnit( selectedObject, px, py, iSpawnNum )
 		else:
 			iLastSelectedObject = -1
-				
+
 		return 0	
 
 	############################
 	## TECH / GOLD CHEAT POPUP
 	############################
 	def cheatTechs( self ):
-		'Cheat techs and gold to the players'
-		if not gc.getGame().isDebugMode(): return # advc.007b
+		# Cheat techs and gold to the players
+		#
+		if not gc.getGame().isDebugMode():
+			return # advc.007b
 		popup = PyPopup.PyPopup( CvUtil.EventAwardTechsAndGold, EventContextTypes.EVENTCONTEXT_ALL )
 		popup.setHeaderString( "Tech & Gold Cheat!" )
 		popup.createPullDown()
@@ -199,15 +211,16 @@ class CvDebugTools:
 				popup.addPullDownString( gc.getPlayer(i).getName(), i )
 		popup.setBodyString( "Modify Player %s:" %( CvUtil.getIcon('gold'),) )
 		popup.createPythonEditBox( "0", "Integer value (positive or negative)" )
-		
+
 		# Loop through Era Infos and add names
 		for i in range(gc.getNumEraInfos()):
 			popup.addButton(gc.getEraInfo(i).getDescription())
-		
+
 		popup.launch(true, PopupStates.POPUPSTATE_IMMEDIATE)
-	
+
 	def applyTechCheat( self, argsList ):
-		'Apply Tech Cheat'
+		# Apply Tech Cheat
+		#
 		popupReturn = argsList
 		playerID = popupReturn.getSelectedPullDownValue( 0 )
 		bAll = 0
@@ -217,12 +230,12 @@ class CvDebugTools:
 		else:
 			player = PyPlayer( playerID )
 		era = popupReturn.getButtonClicked()
-		
+
 		try:
 			goldChange = int( popupReturn.getEditBoxString( 0 ) )
 		except:
 			return 0
-			
+
 		if goldChange:
 			if not bAll:
 				player.changeGold(goldChange)
@@ -238,20 +251,22 @@ class CvDebugTools:
 				for j in range(len(player)):
 					player[j].setHasTech( id )
 	def RotateUnit(self, Direction, px, py ):
-		if not gc.getGame().isDebugMode(): return # advc.007b
+		if not gc.getGame().isDebugMode():
+			return # advc.007b
 		if ( px != -1 and py != -1 ):
 			unit = CyMap().plot(px, py).getUnit(0)
 			if ( not unit.isNone() ):
 				unitEntity = CyUnitEntity(unit)
 				dir = unitEntity.GetUnitFacingDirection( )
-				dir += Direction * 0.05;
+				dir += Direction * 0.05
 				unitEntity.SetUnitFacingDirection( dir )
 
 	def resetUnitMovement( self ):
 		global g_bDebugMode
 		if g_bDebugMode == 0:
 			return
-		if not gc.getGame().isDebugMode(): return # advc.007b (same as above?)
+		if not gc.getGame().isDebugMode():
+			return # advc.007b (same as above?)
 		for i in range(gc.getMAX_PLAYERS()):
 			(unit, iter) = gc.getPlayer(i).firstUnit(false)
 			while (unit):
@@ -259,27 +274,30 @@ class CvDebugTools:
 				(unit, iter) = gc.getPlayer(i).nextUnit(iter, false)
 
 	def allUnits( self ):
-		if not gc.getGame().isDebugMode(): return # advc.007b
-		self.putOneOfEveryUnit();
-		
+		if not gc.getGame().isDebugMode():
+			return # advc.007b
+		self.putOneOfEveryUnit()
+
 	def allBonuses( self ):
-		if not gc.getGame().isDebugMode(): return # advc.007b
+		if not gc.getGame().isDebugMode():
+			return # advc.007b
 		iNBonuses = gc.getNumBonusInfos()
 		map = CyMap()
 		if ( iNBonuses < map.getGridWidth() * map.getGridHeight() ):
 			for x in range(map.getGridWidth()):
 				for y in range((iNBonuses/map.getGridWidth())+1):
-					map.plot(x,y).setBonusType( (x + y * map.getGridWidth())%iNBonuses );
-		
+					map.plot(x,y).setBonusType( (x + y * map.getGridWidth())%iNBonuses )
+
 	def allImprovements( self ):
-		if not gc.getGame().isDebugMode(): return # advc.007b
+		if not gc.getGame().isDebugMode():
+			return # advc.007b
 		iNImprovements = gc.getNumImprovementInfos()
 		map = CyMap()
 		if ( iNImprovements < map.getGridWidth() * map.getGridHeight() ):
 			for x in range(map.getGridWidth()):
 				for y in range((iNImprovements/map.getGridWidth())+1):
-					map.plot(x,y).setImprovementType( (x + y * map.getGridWidth())%iNImprovements );
-		
+					map.plot(x,y).setImprovementType( (x + y * map.getGridWidth())%iNImprovements )
+
 	def putOneOfEveryUnit( self ):
 		pass
 		iNUnits = gc.getNumUnitInfos()
@@ -291,36 +309,39 @@ class CvDebugTools:
 					player.initUnit( (x + y * map.getGridWidth())%iNUnits, x, y, UnitAITypes.NO_UNITAI, DirectionTypes.NO_DIRECTION )
 
 	def wonderMovie( self ):
-		'ShowWonder Movie'
-		if not gc.getGame().isDebugMode(): return # advc.007b
+		# ShowWonder Movie
+		#
+		if not gc.getGame().isDebugMode():
+			return # advc.007b
 		popup = PyPopup.PyPopup( CvUtil.EventShowWonder, EventContextTypes.EVENTCONTEXT_ALL )
 		popup.setHeaderString( "Wonder Movie" )
 		popup.createPullDown()
 		for i in range(gc.getNumBuildingInfos()):
 			szMovieFile = gc.getBuildingInfo(i).getMovie()
-			if (szMovieFile != None and len(szMovieFile) > 0):
+			if ((szMovieFile is not None) and len(szMovieFile) > 0):
 				popup.addPullDownString( gc.getBuildingInfo(i).getDescription(), i )
 
 		for i in range(gc.getNumProjectInfos()):
 			szMovieFile = None
 			szArtDef = gc.getProjectInfo(i).getMovieArtDef()
 			if (len(szArtDef) > 0):
-				szMovieFile = CyArtFileMgr().getMovieArtInfo(szArtDef).getPath()
-			if (szMovieFile != None and len(szMovieFile) > 0):
+				szMovieFile = SASVisuals.MovieArt.getPath(szArtDef)
+			if ((szMovieFile is not None) and len(szMovieFile) > 0):
 				popup.addPullDownString( gc.getProjectInfo(i).getDescription(), gc.getNumBuildingInfos() + i )
-			
+
 		popup.launch(true, PopupStates.POPUPSTATE_IMMEDIATE)
-	
+
 	def applyWonderMovie( self, argsList ):
-		'Apply Wonder Movie'
+		# Apply Wonder Movie
+		#
 		popupReturn = argsList
 		wonderID = popupReturn.getSelectedPullDownValue( 0 )
-					
+
 		popupInfo = CyPopupInfo()
 		popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON_SCREEN)
 		popupInfo.setData2(-1)
 		popupInfo.setText(u"showWonderMovie")
-		
+
 		if wonderID < gc.getNumBuildingInfos():
 			popupInfo.setData3(0)
 			popupInfo.setData1(wonderID)

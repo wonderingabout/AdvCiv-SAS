@@ -1,0 +1,33 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 528
+# Author: jdog5000
+# Date: 2010-03-01T08:16:48.087807Z
+# Coverage: full
+# Message:
+#   Adjust value of air interception ability for UNITAI_COUNTER units
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@527
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@528
+@@ -9477,7 +9477,16 @@
+ 
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getMoves()) / 2);
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getWithdrawalProbability()) / 100);
+-		iValue += (GC.getUnitInfo(eUnit).getInterceptionProbability() * 2);
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/24/10                                jdog5000      */
++/*                                                                                              */
++/* War strategy AI                                                                              */
++/************************************************************************************************/
++		//iValue += (GC.getUnitInfo(eUnit).getInterceptionProbability() * 2);
++		iValue += (GC.getUnitInfo(eUnit).getInterceptionProbability());
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/	
+ 		break;
+ 
+ 	case UNITAI_CITY_DEFENSE:
+

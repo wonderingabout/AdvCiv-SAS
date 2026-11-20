@@ -5,13 +5,13 @@
 #if defined(WIN32)
 
 #include <tchar.h>
-#include "CvGameCoreDLLUndefNew.h"
+// <!-- custom: Undefine the DLL allocation macros before the system header and dialog code.
+// BtS's pragma once made the second include below tchar.h ineffective. See KI#1098.2. (GPT-6.2-Sol) -->
 
 // advc.make: Some int-to-short conversions here that are probably harmless
 #pragma warning(disable: 244) // "type conversion: possible loss of data"
 
-CDialogTemplate::CDialogTemplate(LPCSTR caption, DWORD style, int x, int y, int w, int h,
-								 LPCSTR font, WORD fontSize)
+CDialogTemplate::CDialogTemplate(LPCSTR caption, DWORD style, int x, int y, int w, int h, LPCSTR font, WORD fontSize)
 {
 	usedBufferLength = sizeof(DLGTEMPLATE);
 	totalBufferLength = usedBufferLength;
@@ -52,8 +52,7 @@ CDialogTemplate::~CDialogTemplate()
 	free(dialogTemplate);
 }
 
-void CDialogTemplate::AddComponent(LPCSTR type, LPCSTR caption, DWORD style, DWORD exStyle,
-								   int x, int y, int w, int h, WORD id)
+void CDialogTemplate::AddComponent(LPCSTR type, LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id)
 {
 	DLGITEMTEMPLATE item;
 
@@ -78,8 +77,7 @@ void CDialogTemplate::AddComponent(LPCSTR type, LPCSTR caption, DWORD style, DWO
 	dialogTemplate->cdit++;
 }
 
-void CDialogTemplate::AddButton(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-								int w, int h, WORD id)
+void CDialogTemplate::AddButton(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id)
 {
 	AddStandardComponent(0x0080, caption, style, exStyle, x, y, w, h, id);
 
@@ -87,8 +85,7 @@ void CDialogTemplate::AddButton(LPCSTR caption, DWORD style, DWORD exStyle, int 
 	AppendData(&creationDataLength, sizeof(WORD));
 }
 
-void CDialogTemplate::AddEditBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-								 int w, int h, WORD id)
+void CDialogTemplate::AddEditBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id)
 {
 	AddStandardComponent(0x0081, caption, style, exStyle, x, y, w, h, id);
 
@@ -96,8 +93,7 @@ void CDialogTemplate::AddEditBox(LPCSTR caption, DWORD style, DWORD exStyle, int
 	AppendData(&creationDataLength, sizeof(WORD));
 }
 
-void CDialogTemplate::AddStatic(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-								int w, int h, WORD id)
+void CDialogTemplate::AddStatic(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id)
 {
 	AddStandardComponent(0x0082, caption, style, exStyle, x, y, w, h, id);
 
@@ -105,8 +101,7 @@ void CDialogTemplate::AddStatic(LPCSTR caption, DWORD style, DWORD exStyle, int 
 	AppendData(&creationDataLength, sizeof(WORD));
 }
 
-void CDialogTemplate::AddListBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-								 int w, int h, WORD id)
+void CDialogTemplate::AddListBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id)
 {
 	AddStandardComponent(0x0083, caption, style, exStyle, x, y, w, h, id);
 
@@ -114,8 +109,7 @@ void CDialogTemplate::AddListBox(LPCSTR caption, DWORD style, DWORD exStyle, int
 	AppendData(&creationDataLength, sizeof(WORD));
 }
 
-void CDialogTemplate::AddScrollBar(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-								   int w, int h, WORD id)
+void CDialogTemplate::AddScrollBar(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id)
 {
 	AddStandardComponent(0x0084, caption, style, exStyle, x, y, w, h, id);
 
@@ -123,8 +117,7 @@ void CDialogTemplate::AddScrollBar(LPCSTR caption, DWORD style, DWORD exStyle, i
 	AppendData(&creationDataLength, sizeof(WORD));
 }
 
-void CDialogTemplate::AddComboBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-								  int w, int h, WORD id)
+void CDialogTemplate::AddComboBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id)
 {
 	AddStandardComponent(0x0085, caption, style, exStyle, x, y, w, h, id);
 
@@ -137,8 +130,7 @@ DLGTEMPLATE* CDialogTemplate::GetDialogTemplate() const
 	return dialogTemplate;
 }
 
-void CDialogTemplate::AddStandardComponent(WORD type, LPCSTR caption, DWORD style,
-										   DWORD exStyle, int x, int y, int w, int h, WORD id)
+void CDialogTemplate::AddStandardComponent(WORD type, LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id)
 {
 	DLGITEMTEMPLATE item;
 
@@ -188,6 +180,7 @@ void CDialogTemplate::AppendString(LPCSTR string)
 	free(wideString);
 }
 
+// <!-- custom: AdvCiv's advc.cppstd accepts a const input buffer because AppendData only copies from it. See KI#1099. (GPT-6.2-Sol) -->
 void CDialogTemplate::AppendData(void const* data, int dataLength)
 {
 	EnsureSpace(dataLength);

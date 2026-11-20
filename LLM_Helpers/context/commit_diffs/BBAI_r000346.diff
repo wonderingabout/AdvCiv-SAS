@@ -1,0 +1,62 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 346
+# Author: iustus
+# Date: 2007-02-08T01:22:38.812135Z
+# Coverage: full
+# Message:
+#   avoid anarchy when it will cause a strike, add gold to cover negative trade to gold target
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@345
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@346
+@@ -2572,14 +2572,15 @@
+ 
+ int CvPlayerAI::AI_goldTarget()
+ {
+-	int iGold;
++	// if we have negative trade deals, we need at least enough to keep us solvent during anarchy
++	int iGold = max(0, -getGoldPerTurn());
+ 
+ 	if (GC.getGameINLINE().getElapsedGameTurns() < 40)
+ 	{
+-		return 0;
+-	}
+-
+-	iGold = ((getNumCities() * 3) + (getTotalPopulation() / 3));
++		return iGold;
++	}
++
++	iGold += ((getNumCities() * 3) + (getTotalPopulation() / 3));
+ 
+ 	iGold += (GC.getGameINLINE().getElapsedGameTurns() / 2);
+ 
+@@ -8304,6 +8305,12 @@
+ 		{
+ 			return;
+ 		}
++
++		// if we will become insolvent during anarchy, wait (getGoldPerTurn is just our trade deals)
++		if (getGold() + getGoldPerTurn() < 0)
++		{
++			return;
++		}
+ 	}
+ 
+ 	if (!canRevolution(NULL))
+@@ -8351,6 +8358,12 @@
+ 	if (getMaxAnarchyTurns() > 0)
+ 	{
+ 		if (isGoldenAge())
++		{
++			return;
++		}
++		
++		// if we will become insolvent during anarchy, wait (getGoldPerTurn is just our trade deals)
++		if (getGold() + getGoldPerTurn() < 0)
+ 		{
+ 			return;
+ 		}
+

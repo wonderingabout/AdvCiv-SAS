@@ -1,0 +1,1029 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 275
+# Author: iustus
+# Date: 2007-01-20T19:16:42.151672Z
+# Coverage: full
+# Message:
+#   massive speed improvement in explore and fogbust routines (more randomness rather than checking every single possibility)
+#   visibility speed enhancement in (#undefine NEW_VISIBILITY_IMPLEMENTATION to go back to slower method) 
+# Changed paths (8):
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.h
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@274
++++ /trunk/CvGameCoreDLL/CvGame.cpp@275
+@@ -2322,7 +2322,7 @@
+ 			if (!bFoundRecommendation && (pHeadSelectedUnit->isNoBadGoodies() || pHeadSelectedUnit->getDomainType() == DOMAIN_SEA))
+ 			{
+ 				CvPlot* pBestExplorePlotThisTurn = NULL;
+-				CvPlot* pBestExplorePlot = pHeadSelectedUnit->AI_getBestExplorePlot((pHeadSelectedUnit->getDomainType() == DOMAIN_SEA) ? 4 : 3, &pBestExplorePlotThisTurn);
++				CvPlot* pBestExplorePlot = pHeadSelectedUnit->AI_getBestExplorePlot((pHeadSelectedUnit->getDomainType() == DOMAIN_SEA) ? 4 : 3, &pBestExplorePlotThisTurn, /*bNoRandom*/ true);
+ 				if (pBestExplorePlotThisTurn != NULL)
+ 				{
+ 					if (pBestExplorePlotThisTurn != pHeadSelectedUnit->plot())
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.h@274
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.h@275
+@@ -124,6 +124,105 @@
+ 	{
+ 		return fNum;
+ 	}
++}
++
++// on input, iRand should be a random number, preferably of the range 0-31
++inline DirectionTypes directionShuffle(DirectionTypes eDirection, int iRand)
++{
++	FAssert((NUM_DIRECTION_TYPES % 3) != 0 && (NUM_DIRECTION_TYPES % 5) != 0 && (NUM_DIRECTION_TYPES % 7) != 0);
++
++	// if 0 passed in, no shuffle at all
++	if (iRand == 0)
++	{
++		return eDirection;
++	}
++		
++	int iMultiplier;
++	switch (iRand  % 4)
++	{
++	case 0: iMultiplier = 1; break;
++	case 1: iMultiplier = 3; break;
++	case 2: iMultiplier = 5; break;
++	case 3: iMultiplier = 7; break;
++	}
++
++	int iIncrement = (iRand / 4) % NUM_DIRECTION_TYPES;
++	
++	int iDirection = (DirectionTypes) eDirection;
++	iDirection = ((iDirection + iIncrement) * iMultiplier) % NUM_DIRECTION_TYPES;
++
++	return ((DirectionTypes) iDirection);
++}
++
++// shuffles a range from 0-(iMaxIndex-1), iIndex is the current index, returns a shuffled one
++// each iIndex input will result in a unique result for the range, given the same iRand1, iRand2
++// on input, iRand1, iRand2 should be a random numbers, preferably of the range 0-(iMaxIndex-1)
++inline int intShuffle(int iIndex, int iMaxIndex, int iRand1, int iRand2)
++{
++	FAssert(iMaxIndex > 1 && iMaxIndex <= MAX_SHORT);
++
++	const int iPrimesCount = 40;
++	const int iPrimes[iPrimesCount] = {3, 5, 7, 11, 17, 29, 43, 83, 137, 173, 197, 223, 313, 347, 397, 467, 547, 643, 743, 797, 
++		883, 983, 997, 1223, 1367, 1523, 1613, 1823, 1997, 2113, 2347, 2467, 2617, 2797, 2953, 3137, 3313, 3467, 3547, 3613}; 
++	
++	// increment start random amount forward
++	int iIncrement = iRand1 % iMaxIndex;
++	iIndex = (iIndex + iIncrement) % iMaxIndex;
++
++	// special case 0
++	if (iRand2 == 0)
++	{
++		return iIndex;
++	}
++
++	int iNumMultipliers;
++	if (iMaxIndex < 32)
++	{
++		iNumMultipliers = 4;
++	}
++	else if (iMaxIndex < 256)
++	{
++		iNumMultipliers = 8;
++	}
++	else
++	{
++		iNumMultipliers = 16;
++	}
++	
++	// special case 0, do not bother with multiplier
++	int iMultiplierIndex = iRand2 % iNumMultipliers;
++	if (iMultiplierIndex == 0)
++	{
++		return iIndex;
++	}
++
++	// find the prime to use for this iMultiplierIndex
++	int iPrimeIndex = 0;
++	int iPrimesFound = 0;
++	int iMultiplier = 1;
++	while (iPrimeIndex < iPrimesCount)
++	{
++		// get prime to test and increment index
++		int iTestPrime = iPrimes[iPrimeIndex++];
++
++		// is this prime not a factor of iMaxIndex? if so its a good one
++		if ((iMaxIndex % iTestPrime) != 0)
++		{
++			// increment found, and check to see if this is the last one
++			if (++iPrimesFound == iMultiplierIndex)
++			{
++				iMultiplier = iTestPrime;
++				break;
++			}
++		}
++	}
++
++	FAssertMsg(iPrimeIndex <= iPrimesCount, "ran out of primes");
++
++	// do the multiplier
++	iIndex = (iIndex * iMultiplier) % iMaxIndex;
++	
++	return iIndex;
+ }
+ 
+ inline int coordDistance(int iFrom, int iTo, int iRange, bool bWrap)
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@274
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@275
+@@ -7152,28 +7152,50 @@
+ 
+ int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup, int iRange)
+ {
++	int iClosestTargetRange;
++	return AI_plotTargetMissionAIs(pPlot, &eMissionAI, 1, iClosestTargetRange, pSkipSelectionGroup, iRange);
++}
++
++int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, int& iClosestTargetRange, CvSelectionGroup* pSkipSelectionGroup, int iRange)
++{
++	return AI_plotTargetMissionAIs(pPlot, &eMissionAI, 1, iClosestTargetRange, pSkipSelectionGroup, iRange);
++}
++
++int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes* aeMissionAI, int iMissionAICount, int& iClosestTargetRange, CvSelectionGroup* pSkipSelectionGroup, int iRange)
++{
+ 	PROFILE_FUNC();
+ 
+-	CvSelectionGroup* pLoopSelectionGroup;
+-	CvPlot* pMissionPlot;
+-	int iCount;
++	int iCount = 0;
++	iClosestTargetRange = MAX_INT;
++
++	// only valid to pass NO_MISSIONAI as the first and only MissionAI
++	bool bIsAllMissionAIs = (iMissionAICount == 1 && aeMissionAI[0] == NO_MISSIONAI);
++
+ 	int iLoop;
+-
+-	iCount = 0;
+-
+-	for(pLoopSelectionGroup = firstSelectionGroup(&iLoop); pLoopSelectionGroup; pLoopSelectionGroup = nextSelectionGroup(&iLoop))
++	for(CvSelectionGroup* pLoopSelectionGroup = firstSelectionGroup(&iLoop); pLoopSelectionGroup; pLoopSelectionGroup = nextSelectionGroup(&iLoop))
+ 	{
+ 		if (pLoopSelectionGroup != pSkipSelectionGroup)
+ 		{
+-			if (pLoopSelectionGroup->AI_getMissionAIType() == eMissionAI)
+-			{
+-				pMissionPlot = pLoopSelectionGroup->AI_getMissionAIPlot();
+-
+-				if (pMissionPlot != NULL)
+-				{
+-					if (stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pMissionPlot->getX_INLINE(), pMissionPlot->getY_INLINE()) <= iRange)
++			MissionAITypes eGroupMissionAI = pLoopSelectionGroup->AI_getMissionAIType();
++			for (int iMissionAIIndex = 0; iMissionAIIndex < iMissionAICount; iMissionAIIndex++)
++			{
++				if (bIsAllMissionAIs || eGroupMissionAI == aeMissionAI[iMissionAIIndex])
++				{
++					CvPlot* pMissionPlot = pLoopSelectionGroup->AI_getMissionAIPlot();
++
++					if (pMissionPlot != NULL)
+ 					{
+-						iCount += pLoopSelectionGroup->getNumUnits();
++						int iDistance = stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pMissionPlot->getX_INLINE(), pMissionPlot->getY_INLINE());
++						if (iDistance <= iRange)
++						{
++							iCount += pLoopSelectionGroup->getNumUnits();
++
++						}
++
++						if (iDistance < iClosestTargetRange)
++						{
++							iClosestTargetRange = iDistance;
++						}
+ 					}
+ 				}
+ 			}
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.h
+--- /trunk/CvGameCoreDLL/CvPlayerAI.h@274
++++ /trunk/CvGameCoreDLL/CvPlayerAI.h@275
+@@ -159,6 +159,8 @@
+ 	int AI_totalMissionAIs(MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL);
+ 	int AI_areaMissionAIs(CvArea* pArea, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL);
+ 	int AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = 0);
++	int AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, int& iClosestTargetRange, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = 0);
++	int AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes* aeMissionAI, int iMissionAICount, int& iClosestTargetRange, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = 0);
+ 	int AI_unitTargetMissionAIs(CvUnit* pUnit, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL);
+ 	int AI_unitTargetMissionAIs(CvUnit* pUnit, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL);
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@274
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@275
+@@ -26,8 +26,10 @@
+ 
+ #define	STANDARD_MINIMAP_ALPHA		(0.6f)
+ 
++#define NEW_VISIBILITY_IMPLEMENTATION
++
+ #ifdef FASSERT_ENABLE
+-#define DO_VISIBILITY_TESTING
++//#define DO_VISIBILITY_TESTING
+ #endif
+ 
+ // Public Functions...
+@@ -1810,16 +1812,6 @@
+ 		changeAdjacentSight(getTeam(), GC.getDefineINT("PLOT_VISIBILITY_RANGE"), bIncrement, NO_INVISIBLE);
+ 	}
+ 
+-#ifdef NEW_IMPLEMENTATION
+-	CvPlotRegion visiblePlots;
+-	for	(iI	= 0; iI	< MAX_TEAMS; iI++)
+-	{
+-		visiblePlots.clear();
+-		buildVisibilityRegion(visiblePlots, (TeamTypes) iI);
+-		// change sight for region
+-	}
+-#endif
+-
+ #ifdef DO_VISIBILITY_TESTING
+ 	CvPlotDataRegion teamUnitOldVisibility[MAX_TEAMS];
+ 	for	(iI	= 0; iI	< MAX_TEAMS; iI++)
+@@ -1836,6 +1828,23 @@
+ 	}
+ #endif
+ 
++#ifdef NEW_VISIBILITY_IMPLEMENTATION
++	CvPlotDataRegion visiblePlots;
++	for	(iI	= 0; iI	< MAX_TEAMS; iI++)
++	{
++		visiblePlots.clear();
++		buildVisibilityRegion(visiblePlots, (TeamTypes) iI);
++		
++		for (CvPlotDataRegionIterator it = visiblePlots.begin(); it != visiblePlots.end(); it++)
++		{
++			XYCoords xy(getXYCoords(it));
++			CvPlot* pLoopPlot = GC.getMapINLINE().plotSorenINLINE(xy.iX, xy.iY);
++
++			int iDeltaValue = getRegionValue(it) * ((bIncrement) ? 1 : -1);
++			pLoopPlot->changeVisibilityCount((TeamTypes) iI, iDeltaValue, NO_INVISIBLE);
++		}
++	}
++#endif
+ 
+ 	pUnitNode =	headUnitNode();
+ 	while (pUnitNode !=	NULL)
+@@ -1843,18 +1852,25 @@
+ 		pLoopUnit =	::getUnit(pUnitNode->m_data);
+ 		pUnitNode =	nextUnitNode(pUnitNode);
+ 
++#ifdef NEW_VISIBILITY_IMPLEMENTATION
++		InvisibleTypes eSeeInvisible = pLoopUnit->getSeeInvisibleType();
++		if (eSeeInvisible != NO_INVISIBLE)
++		{
++			TeamTypes eUnitTeam = pLoopUnit->getTeam();
++			
++			visiblePlots.clear();
++			addVisiblePlots(visiblePlots, pLoopUnit->visibilityRange(), 1, eUnitTeam);
++			for(CvPlotDataRegionIterator it = visiblePlots.begin(); it != visiblePlots.end(); it++)
++			{
++				XYCoords xy(getXYCoords(it));
++				CvPlot* pLoopPlot = GC.getMapINLINE().plotSorenINLINE(xy.iX, xy.iY);
++
++				int iDeltaValue = getRegionValue(it) * ((bIncrement) ? 1 : -1);
++				pLoopPlot->changeInvisibleVisibilityCount(eUnitTeam, eSeeInvisible, iDeltaValue);
++			}
++		}
++#else
+ 		changeAdjacentSight(pLoopUnit->getTeam(), pLoopUnit->visibilityRange(),	bIncrement,	pLoopUnit->getSeeInvisibleType());
+-		
+-#ifdef NEW_IMPLEMENTATION
+-		if (pLoopUnit->getSeeInvisibleType() != NO_INVISIBLE)
+-		{
+-			visiblePlots.clear();
+-			addVisiblePlots(visiblePlots, pLoopUnit->visibilityRange(), pLoopUnit->getTeam());
+-			for(CvPlotRegionIterator it = visiblePlots.begin(); it != visiblePlots.end(); it++)
+-			{
+-				changeInvisibleVisibilityCount(eTeam, eSeeInvisible, iChange);
+-			}
+-		}
+ #endif
+ 	}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnit.h
+--- /trunk/CvGameCoreDLL/CvUnit.h@274
++++ /trunk/CvGameCoreDLL/CvUnit.h@275
+@@ -650,8 +650,8 @@
+ 	virtual UnitAITypes AI_getUnitAIType() const = 0;																				// Exposed to Python
+ 	virtual void AI_setUnitAIType(UnitAITypes eNewValue) = 0;
+     virtual int AI_sacrificeValue(const CvPlot* pPlot) const = 0;
+-	virtual CvPlot* AI_getBestExplorePlot(int iRange, CvPlot** pThisTurnPlot = NULL) = 0;
+-	virtual CvPlot* AI_getBestGoodyPlot(CvPlot* pStartPlot, int iRange, CvPlot** pThisTurnPlot = NULL) = 0;
++	virtual CvPlot* AI_getBestExplorePlot(int iRange, CvPlot** pThisTurnPlot = NULL, bool bNoRandom = false) = 0;
++	virtual CvPlot* AI_getBestGoodyPlot(CvPlot* pStartPlot, int iRange, CvPlot** pThisTurnPlot = NULL, bool bNoRandom = false) = 0;
+ 
+ protected:
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@274
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@275
+@@ -158,7 +158,7 @@
+ 				int iCurrentTurn = GC.getGameINLINE().getElapsedGameTurns();
+ 				int iCurrentTurnSlice = GC.getGameINLINE().getTurnSlice();
+ 
+-				if (iCurrentTurn == s_iLastAutomatedTurn && (iCurrentTurnSlice - s_iLastAutomatedTurnSlice) < 2)
++				if (iCurrentTurn == s_iLastAutomatedTurn && iCurrentTurnSlice == s_iLastAutomatedTurnSlice)
+ 				{
+ 					// bail, wait a slice
+ 					return true;
+@@ -7491,41 +7491,6 @@
+ 		}
+ 	}
+ 
+-#ifdef FASSERT_ENABLE
+-	int iOldFogbustingLostValue, iOldFogbustingGainedValue;
+-	bool bOldAdjacent = oldAI_fogbustPlotDifference(pNewPlot, visiblePlotRegion, iOldFogbustingLostValue, iOldFogbustingGainedValue);
+-	
+-	FAssert(bOldAdjacent == bAdjacentOurTerritory);
+-	FAssert(iOldFogbustingLostValue == iFogbustingLostValue);
+-	FAssert(iOldFogbustingGainedValue == iFogbustingGainedValue);
+-#endif
+-
+-	return bAdjacentOurTerritory;
+-}
+-
+-// determines the change in fogbusting plot values by moving to new plot, returns whether new plot is adjacent our territory
+-bool CvUnitAI::oldAI_fogbustPlotDifference(const CvPlot* pNewPlot, const CvPlotDataRegion& visiblePlotRegion, int& iFogbustingLostValue, int& iFogbustingGainedValue) const
+-{
+-	PROFILE_FUNC();
+-
+-	// copy full visible list, will remove all the plots that intersect later
+-	CvPlotDataRegion noLongerVisibleRegion = visiblePlotRegion;
+-	
+-	// get list of visible plots at new location
+-	CvPlotDataRegion newVisiblePlotRegion;
+-	getGroup()->buildVisibilityRegion(newVisiblePlotRegion, pNewPlot);
+-	
+-	// remove the intersection, each list will be plots we lose or gain
+-	CvPlotDataRegion gainedVisibleRegion = newVisiblePlotRegion;
+-	removeIntersection(noLongerVisibleRegion, gainedVisibleRegion);
+-
+-	// count lost value of plots we lose
+-	iFogbustingLostValue = AI_fogbustDataRegionValue(noLongerVisibleRegion);
+-
+-	// count visible plots we gain
+-	bool bAdjacentOurTerritory;
+-	iFogbustingGainedValue = AI_fogbustDataRegionValue(newVisiblePlotRegion, /*bRegionIsVisible*/ false, &bAdjacentOurTerritory, &newVisiblePlotRegion);
+-
+ 	return bAdjacentOurTerritory;
+ }
+ 
+@@ -7541,14 +7506,14 @@
+ 	PlayerTypes ePlayer = getOwnerINLINE();
+ 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+ 	TeamTypes eTeam = kPlayer.getTeam();
++	CvSelectionGroup* pGroup = getGroup();
+ 	
+-	//int iRange = visibilityRange();
+ 	bool bSeaUnit = (getDomainType() == DOMAIN_SEA);
+ 	int iArea = getArea();
+ 	
+ 	// build region of all the plots visible to our group
+ 	CvPlotDataRegion visiblePlotRegion;
+-	getGroup()->buildVisibilityRegion(visiblePlotRegion);
++	pGroup->buildVisibilityRegion(visiblePlotRegion);
+ 
+ 	// are we already busting fog?
+ 	bool bOurTerritoryInRange;
+@@ -7572,8 +7537,8 @@
+ 	if (isAutomated() && iEnemyPlots > 0 && m_iAutomatedAbortTurn != iGameTurn)
+ 	{
+ 		m_iAutomatedAbortTurn = iGameTurn;
+-		getGroup()->setAutomateType(NO_AUTOMATE);
+-		getGroup()->setActivityType(ACTIVITY_AWAKE);
++		pGroup->setAutomateType(NO_AUTOMATE);
++		pGroup->setActivityType(ACTIVITY_AWAKE);
+ 		return true;
+ 	}
+ 
+@@ -7584,6 +7549,7 @@
+ 		if ((bOurTerritoryInRange && iFogbustingCurrentValue > 0) || iEnemyPlots > 0)
+ 		{
+ 			pBestFogbustPlot = pBestPlot = plot();
++			iBestValue = iFogbustingCurrentValue;
+ 		}
+ 		
+ 		// if there are enemies about, we will choose the best defensive plot
+@@ -7593,11 +7559,13 @@
+ 			FAssert(pBestPlot != NULL);
+ 			iCurrCombatStr = currCombatStr(pBestPlot, NULL);
+ 		}
+-
++		
+ 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+ 		{
++			DirectionTypes eDirection = (DirectionTypes) iI;
++			
+ 			// check non-impassable adjacent plots that do not have enemies in them
+-			CvPlot* pAdjacentPlot = plotDirection(getX_INLINE(), getY_INLINE(), (DirectionTypes) iI);
++			CvPlot* pAdjacentPlot = plotDirection(getX_INLINE(), getY_INLINE(), eDirection);
+ 			if (pAdjacentPlot != NULL && !pAdjacentPlot->isImpassable() && !pAdjacentPlot->isVisibleEnemyUnit(ePlayer))
+ 			{
+ 				// count up fogbusting gain and loss
+@@ -7650,20 +7618,84 @@
+ 		}
+ 	}
+ 	
+-	// if there was nothing good nearby
++	// if there was nothing good nearby, try the plot we were headed to last time
+ 	if (pBestPlot == NULL)
+ 	{
+-		int iRange = getGroup()->visibilityRange();
++		MissionAITypes eLastMissionAI = pGroup->AI_getMissionAIType();
++		if (eLastMissionAI == MISSIONAI_EXPLORE)
++		{
++			CvPlot* pLastMissionPlot = pGroup->AI_getMissionAIPlot();
++			if (pLastMissionPlot != NULL && !atPlot(pLastMissionPlot))
++			{
++				if (AI_plotValid(pLastMissionPlot))
++				{
++					// count up fogbusting gain and loss
++					int iFogbustingLostValue = 0;
++					int iFogbustingGainedValue = 0;
++					bool bNewOurTerritoryInRange = AI_fogbustPlotDifference(pLastMissionPlot, visiblePlotRegion, iFogbustingLostValue, iFogbustingGainedValue);
++
++					// if still a decent choice
++					int iValue = iFogbustingCurrentValue + iFogbustingGainedValue - iFogbustingLostValue;
++					if (iValue > 0 && bNewOurTerritoryInRange)
++					{
++						// can we still get there?
++						int iPathTurns = 0;
++						if (generatePath(pLastMissionPlot, 0, true, &iPathTurns))
++						{
++							iBestValue = iValue;
++							pBestFogbustPlot = pLastMissionPlot;
++							pBestPlot = getPathEndTurnPlot();
++						}
++					}
++				}
++			}
++		}
++	}
++
++	// if we still have not found a good spot
++	if (pBestPlot == NULL)
++	{
++		int iRange = pGroup->visibilityRange();
+ 		
+-		// search cities on this area for fog to bust
+-		int iLoop;
+-		for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
++		// find a close city (slightly randomize the distance, so we do not always pick the absolute closest)
++		int iClosestDistance = MAX_INT;
++		CvCity* pLoopCity = NULL;
++		CvCity* pStartCity = NULL;
++		int iLoop, iStartLoop;
++		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+ 		{
+ 			if (bSeaUnit || pLoopCity->getArea() == getArea())
+ 			{
+-				// for each city, test all 8 sides to see if there is a good fogbusting spot
+-				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++				int iDistance = stepDistance(getX_INLINE(), getY_INLINE(), pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE());
++				
++				// do slight randomization
++				int iAdjustment = GC.getGameINLINE().getSorenRandNum(64, "AI_Fogbust distance adjustment");
++				iDistance *= 97 + iAdjustment;
++				iDistance /= 128;
++
++				if (iDistance < iClosestDistance)
+ 				{
++					iClosestDistance = iDistance;
++					pStartCity = pLoopCity;
++					iStartLoop = iLoop;
++				}
++			}
++		}
++		
++		// loop through all the cities, starting with start city, stopping when we find a good match
++		pLoopCity = pStartCity;
++		iLoop = iStartLoop;
++		while (pLoopCity != NULL)
++		{
++			if (bSeaUnit || pLoopCity->getArea() == getArea())
++			{
++				// for each city, check each of the 8 sides in random order to see if there is a good fogbusting spot
++				int iDirectionRand = GC.getGameINLINE().getSorenRandNum(32, "AI_Fogbust direction");
++				for (int iI = 0; iI < NUM_DIRECTION_TYPES && iBestValue <= 0; iI++)
++				{
++					// shuffle the direction
++					DirectionTypes eDirection = directionShuffle((DirectionTypes) iI, iDirectionRand);
++
+ 					int iDistanceToGo = pLoopCity->getCultureLevel() + iRange + 1;
+ 					
+ 					// move up to iDistanceToGo from center, if possible
+@@ -7671,7 +7703,7 @@
+ 					CvPlot* pCheckPlot = NULL;
+ 					CvPlot* pNextPlot = pLoopCity->plot();
+ 					while (0 < iDistanceToGo-- &&
+-						(pNextPlot = plotDirection(pNextPlot->getX_INLINE(), pNextPlot->getY_INLINE(), (DirectionTypes) iI)) != NULL)
++						(pNextPlot = plotDirection(pNextPlot->getX_INLINE(), pNextPlot->getY_INLINE(), eDirection)) != NULL)
+ 					{
+ 						// remember the last plot (only on our area for land units)
+ 						if (bSeaUnit || (pCheckPlot != NULL && pCheckPlot->getArea() == getArea()))
+@@ -7712,7 +7744,7 @@
+ 								pPreviousCheckPlot = (pPreviousCheckPlot != NULL) ? pPreviousCheckPlot : pCheckPlot;
+ 								if (pPreviousCheckPlot != NULL)
+ 								{
+-									pCheckPlot = plotDirection(pPreviousCheckPlot->getX_INLINE(), pPreviousCheckPlot->getY_INLINE(), GC.getTurnLeftDirection(iI));
++									pCheckPlot = plotDirection(pPreviousCheckPlot->getX_INLINE(), pPreviousCheckPlot->getY_INLINE(), GC.getTurnLeftDirection(eDirection));
+ 								}
+ 								break;
+ 
+@@ -7720,7 +7752,7 @@
+ 							case 2:
+ 								if (pPreviousCheckPlot != NULL)
+ 								{
+-									pCheckPlot = plotDirection(pPreviousCheckPlot->getX_INLINE(), pPreviousCheckPlot->getY_INLINE(), GC.getTurnRightDirection(iI));
++									pCheckPlot = plotDirection(pPreviousCheckPlot->getX_INLINE(), pPreviousCheckPlot->getY_INLINE(), GC.getTurnRightDirection(eDirection));
+ 								}
+ 								break;
+ 
+@@ -7728,10 +7760,10 @@
+ 							case 3:
+ 								if (pPreviousCheckPlot != NULL)
+ 								{
+-									CvPlot* pStepOnePlot = plotDirection(pPreviousCheckPlot->getX_INLINE(), pPreviousCheckPlot->getY_INLINE(), GC.getTurnLeftDirection(iI));
++									CvPlot* pStepOnePlot = plotDirection(pPreviousCheckPlot->getX_INLINE(), pPreviousCheckPlot->getY_INLINE(), GC.getTurnLeftDirection(eDirection));
+ 									if (pStepOnePlot != NULL)
+ 									{
+-										pCheckPlot = plotDirection(pStepOnePlot->getX_INLINE(), pStepOnePlot->getY_INLINE(), GC.getTurnLeftDirection(GC.getTurnLeftDirection(iI)));
++										pCheckPlot = plotDirection(pStepOnePlot->getX_INLINE(), pStepOnePlot->getY_INLINE(), GC.getTurnLeftDirection(GC.getTurnLeftDirection(eDirection)));
+ 									}
+ 								}
+ 								break;
+@@ -7740,10 +7772,10 @@
+ 							case 4:
+ 								if (pPreviousCheckPlot != NULL)
+ 								{
+-									CvPlot* pStepOnePlot = plotDirection(pPreviousCheckPlot->getX_INLINE(), pPreviousCheckPlot->getY_INLINE(), GC.getTurnRightDirection(iI));
++									CvPlot* pStepOnePlot = plotDirection(pPreviousCheckPlot->getX_INLINE(), pPreviousCheckPlot->getY_INLINE(), GC.getTurnRightDirection(eDirection));
+ 									if (pStepOnePlot != NULL)
+ 									{
+-										pCheckPlot = plotDirection(pStepOnePlot->getX_INLINE(), pStepOnePlot->getY_INLINE(), GC.getTurnRightDirection(GC.getTurnRightDirection(iI)));
++										pCheckPlot = plotDirection(pStepOnePlot->getX_INLINE(), pStepOnePlot->getY_INLINE(), GC.getTurnRightDirection(GC.getTurnRightDirection(eDirection)));
+ 									}
+ 								}
+ 								break;
+@@ -7763,23 +7795,20 @@
+ 						int iFogbustingGainedValue = 0;
+ 						bool bNewOurTerritoryInRange = AI_fogbustPlotDifference(pCheckPlot, visiblePlotRegion, iFogbustingLostValue, iFogbustingGainedValue);
+ 
+-						// are any other units headed to the area?
+-						int iMissionCount = kPlayer.AI_plotTargetMissionAIs(pCheckPlot, MISSIONAI_EXPLORE, getGroup(), iRange + 1);
+-						//if (iMissionCount > 0)
+-						//{
+-						//	// if any units are headed to exactly the same plot, that counts way more
+-						//	iMissionCount = 8 * kPlayer.AI_plotTargetMissionAIs(pCheckPlot, MISSIONAI_EXPLORE, getGroup(), 0);
+-						//}
++						// are any other groups headed to the that exact plot, or the area?
++						int iClosestTargetRange;
++						int iMissionCount = kPlayer.AI_plotTargetMissionAIs(pCheckPlot, MISSIONAI_EXPLORE, iClosestTargetRange, pGroup);
++						iClosestTargetRange = min(iClosestTargetRange, 7);
+ 
+ 						// if at least one plot, consider this as our best choice
+ 						int iValue = iFogbustingCurrentValue + iFogbustingGainedValue - iFogbustingLostValue;
+-						if (iValue > 0)
++						if (iValue > 0 && bNewOurTerritoryInRange)
+ 						{
+ 							int iPathTurns = 0;
+ 							if (atPlot(pCheckPlot) || generatePath(pCheckPlot, 0, true, &iPathTurns))
+ 							{
+-								iValue = (iValue * 128) / (8 + iPathTurns);
+-								iValue /= ((8 * iMissionCount) + 1);
++								iValue = (iValue * 64 * iClosestTargetRange) / (8 + iPathTurns);
++								iValue /= ((16 * iMissionCount) + 1);
+ 								iValue = (iValue > 0) ? iValue : 1;
+ 								
+ 								// if better, or equal and random chance choose this one
+@@ -7794,10 +7823,30 @@
+ 					}
+ 				}
+ 			}
+-		}
+-	}
+-
+-	bool bPushedMission = false;
++			
++			// if we found a good match, stop
++			if (iBestValue > 0)
++			{
++				break;
++			}
++			
++			// increment to next city
++			pLoopCity = kPlayer.nextCity(&iLoop);
++			
++			// if we at end, start back at beginning
++			if (pLoopCity == NULL)
++			{
++				pLoopCity = kPlayer.firstCity(&iLoop);
++			}
++
++			// if we back to start city, stop
++			if (pLoopCity == pStartCity)
++			{
++				pLoopCity = NULL;
++			}
++		}
++	}
++
+ 	if (pBestPlot != NULL)
+ 	{
+ 		if (atPlot(pBestPlot))
+@@ -7837,83 +7886,70 @@
+ 	}
+ 	bool bEnemyFound = false;
+ 
+-	// check in all 8 directions
++	// randomly check a direction, stopping when we find a good one
+ 	int iReconVisibilityRange = ((airRange() + 1) / 2);
+ 	CvPlot* pLaunchPlot = plot();
+-	for (int iI = 0; !bEnemyFound && iI < NUM_DIRECTION_TYPES; iI++)
+-	{
+-		DirectionTypes eDirection = (DirectionTypes) iI;
++	int iDirectionRand = GC.getGameINLINE().getSorenRandNum(32, "AI_airFogbust direction");
++	for (int iI = 0; iI < NUM_DIRECTION_TYPES && !bEnemyFound && iBestValue <= 0; iI++)
++	{
++		// shuffle the direction
++		DirectionTypes eDirection = directionShuffle((DirectionTypes) iI, iDirectionRand);
++
+ 		int iNX = GC.getPlotDirectionX()[eDirection];
+ 		int iNY = GC.getPlotDirectionY()[eDirection];
+ 
+-		// try once at full range and once at half range
+-		for (int iRangeDivisor = 1; iRangeDivisor <= 2; iRangeDivisor++)
+-		{
+-			// diagonal directions are a shorter stepdistance, because plotdistance is used for recon
+-			int iRange = airRange() / iRangeDivisor;
+-			iRange = ((abs(iNX) + abs(iNY)) <= 1) ? iRange : (((2 * iRange) + 1) / 3);
+-
+-			// find the furthest valid plot in this direction
+-			CvPlot* pCheckPlot = NULL;
+-			do
+-			{
+-				int iDX = iNX * iRange;
+-				int iDY = iNY * iRange;
+-
+-				pCheckPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+-			}
+-			while (pCheckPlot == NULL && --iRange > 0);
+-
+-			// skip pass two if we already had to move much)
+-			if (iRange < (airRange() / 2))
+-			{
+-				iRangeDivisor = 256;
+-			}
+-
+-			if (pCheckPlot != NULL && canReconAt(pLaunchPlot, pCheckPlot->getX_INLINE(), pCheckPlot->getY_INLINE()))
+-			{
+-				// build region of visible plots at recon location
+-				CvPlotRegion reconPlotRegion;
+-				pCheckPlot->addVisiblePlots(reconPlotRegion, iReconVisibilityRange, eTeam);
+-
+-				// find fogbusting value for this recon location
+-				int iValue = AI_fogbustRegionValue(reconPlotRegion);
+-
+-				// skip pass two if we have a non-zero value
+-				if (iValue > 0)
++		// diagonal directions are a shorter stepdistance, because plotdistance is used for recon
++		int iRange = airRange();
++		iRange = ((abs(iNX) + abs(iNY)) <= 1) ? iRange : (((2 * iRange) + 1) / 3);
++
++		// find the furthest valid plot in this direction
++		CvPlot* pCheckPlot = NULL;
++		do
++		{
++			int iDX = iNX * iRange;
++			int iDY = iNY * iRange;
++
++			pCheckPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++		}
++		while (pCheckPlot == NULL && --iRange > 0);
++
++		if (pCheckPlot != NULL && canReconAt(pLaunchPlot, pCheckPlot->getX_INLINE(), pCheckPlot->getY_INLINE()))
++		{
++			// build region of visible plots at recon location
++			CvPlotRegion reconPlotRegion;
++			pCheckPlot->addVisiblePlots(reconPlotRegion, iReconVisibilityRange, eTeam);
++
++			// find fogbusting value for this recon location
++			int iValue = AI_fogbustRegionValue(reconPlotRegion);
++
++			// check for visible enemy if we will abort
++			if (bAbortIfEnemyFound)
++			{
++				for (CvPlotRegionConstIterator it = reconPlotRegion.begin(); it != reconPlotRegion.end(); it++)
+ 				{
+-					iRangeDivisor = 256;
+-				}
+-
+-				// check for visible enemy if we will abort
+-				if (bAbortIfEnemyFound)
+-				{
+-					for (CvPlotRegionConstIterator it = reconPlotRegion.begin(); it != reconPlotRegion.end(); it++)
++					XYCoords xy(getXYCoords(it));
++					CvPlot* pPlotToReveal = GC.getMapINLINE().plotSorenINLINE(xy.iX, xy.iY);
++
++					// abort if necessary
++					if (pPlotToReveal->getArea() == iArea && pPlotToReveal->isVisibleEnemyUnit(getOwnerINLINE()))
+ 					{
+-						XYCoords xy(getXYCoords(it));
+-						CvPlot* pPlotToReveal = GC.getMapINLINE().plotSorenINLINE(xy.iX, xy.iY);
+-
+-						// abort if necessary
+-						if (pPlotToReveal->getArea() == iArea && pPlotToReveal->isVisibleEnemyUnit(getOwnerINLINE()))
+-						{
+-							bEnemyFound = true;
+-							break;
+-						}
++						bEnemyFound = true;
++						break;
+ 					}
+ 				}
+-
+-				// abort if enemy found
+-				if (bEnemyFound)
+-				{
+-					break;
+-				}
+-
+-				// if better, or equal and random chance choose this one
+-				if (iValue > iBestValue || (iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI_airFogbust")))
+-				{
+-					iBestValue = iValue;
+-					pBestPlot = pCheckPlot;
+-				}
++			}
++
++			// abort if enemy found
++			if (bEnemyFound)
++			{
++				break;
++			}
++
++			// if better, or equal and random chance choose this one
++			if (iValue > iBestValue || (iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI_airFogbust")))
++			{
++				iBestValue = iValue;
++				pBestPlot = pCheckPlot;
+ 			}
+ 		}
+ 	}
+@@ -8361,7 +8397,7 @@
+ 	return false;
+ }
+ 
+-CvPlot* CvUnitAI::AI_getBestGoodyPlot(CvPlot* pStartPlot, int iRange, CvPlot** pThisTurnPlot)
++CvPlot* CvUnitAI::AI_getBestGoodyPlot(CvPlot* pStartPlot, int iRange, CvPlot** pThisTurnPlot, bool bNoRandom)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -8412,7 +8448,7 @@
+ 							int iUnitsHeadedToGoody = kPlayer.AI_plotTargetMissionAIs(pCheckPlot, MISSIONAI_EXPLORE, pGroup, 0);
+ 						
+ 							int iValue = 200000 / ((iPathTurns + 1) * (iUnitsHeadedToGoody + 1));
+-							if (iValue > iBestValue || (iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI_getBestGoodyPlot")))
++							if (iValue > iBestValue || (!bNoRandom && iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI_getBestGoodyPlot")))
+ 							{
+ 								iBestValue = iValue;
+ 								pBestPlot = getPathEndTurnPlot();
+@@ -8664,39 +8700,35 @@
+ {
+ 	PROFILE_FUNC();
+ 
++	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
++	TeamTypes eTeam = kPlayer.getTeam();
++	CvSelectionGroup* pGroup = getGroup();
++	
+ 	int iBestValue = 0;
+ 	CvPlot* pBestPlot = NULL;
+ 	CvPlot* pBestExplorePlot = NULL;
+ 
+-	for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+-	{
+-		PROFILE("AI_explore 1");
+-
+-		CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+-
+-		if (AI_plotValid(pLoopPlot))
+-		{
+-			int iValue = AI_explorePlotValue(pLoopPlot, /*bAddRandom*/ true);
+-				
+-			if (iValue > 0)
+-			{
+-				if (!(pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
++	// first try the plot we were headed to last time
++	MissionAITypes eLastMissionAI = pGroup->AI_getMissionAIType();
++	if (eLastMissionAI == MISSIONAI_EXPLORE)
++	{
++		CvPlot* pLastMissionPlot = pGroup->AI_getMissionAIPlot();
++		if (pLastMissionPlot != NULL)
++		{
++			if (!atPlot(pLastMissionPlot) && AI_plotValid(pLastMissionPlot))
++			{
++				int iValue = AI_explorePlotValue(pLastMissionPlot, /*bAddRandom*/ false);
++				if (iValue > 0)
+ 				{
+-					if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_EXPLORE, getGroup(), 3) == 0)
++					if (!(pLastMissionPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+ 					{
+-						int iPathTurns;
+-						if (!atPlot(pLoopPlot) && generatePath(pLoopPlot, MOVE_NO_ENEMY_TERRITORY, true, &iPathTurns))
++						if (kPlayer.AI_plotTargetMissionAIs(pLastMissionPlot, MISSIONAI_EXPLORE, pGroup, 3) == 0)
+ 						{
+-							iValue /= (iPathTurns + 1);
+-
+-							// add the value of the plots we actually moving to this turn
+-							iValue += AI_exploreTurnPathValue();
+-							
+-							if (iValue > iBestValue)
++							if (generatePath(pLastMissionPlot, MOVE_NO_ENEMY_TERRITORY, true))
+ 							{
+ 								iBestValue = iValue;
+ 								pBestPlot = getPathEndTurnPlot();
+-								pBestExplorePlot = pLoopPlot;
++								pBestExplorePlot = pLastMissionPlot;
+ 							}
+ 						}
+ 					}
+@@ -8705,7 +8737,103 @@
+ 		}
+ 	}
+ 
+-	if ((pBestPlot != NULL) && (pBestExplorePlot != NULL))
++	
++	if (pBestPlot == NULL)
++	{
++		int iVisibilityRange = pGroup->visibilityRange() + 1;
++		int iCheckDiameter = (iVisibilityRange * 2) + 1;
++
++		int iNumPlots = GC.getMapINLINE().numPlotsINLINE();
++		std::vector<bool> abCheckedPlot;	// initializes to zero (false)
++		abCheckedPlot.reserve(iNumPlots);
++
++		// constants when to break off search
++		const int iMaxMoreToCheck = 3;
++		const int iMaxGoodOnes = 3;
++
++		// loop through the plots in random order, if the plot is unexplored, search all plots in range
++		// once one good match is found, only search iMaxMoreToCheck more unexplored areas
++		int iMoreToCheck = -1;
++		int iRand1 = GC.getGameINLINE().getSorenRandNum(iNumPlots, "AI_explore rand1");
++		int iRand2 = GC.getGameINLINE().getSorenRandNum(iNumPlots, "AI_explore rand2");
++		for (int iI = 0; iI < iNumPlots; iI++)
++		{
++			PROFILE("AI_explore 1");
++
++			// if we have done enough after finding a good one, stop
++			if (iMoreToCheck == 0)
++			{
++				break;
++			}
++
++			int iShuffledIndex = intShuffle(iI, iNumPlots, iRand1, iRand2);
++			CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iShuffledIndex);
++			if (pLoopPlot != NULL && !pLoopPlot->isRevealed(eTeam, false))
++			{		
++				// after we find iMaxGoodOnes good ones stop looking for pLoopPlot
++				int iGoodOnes = 0;
++				
++				// in random order, check the plots that can pontentially see this plot
++				// stop when we find one good one in this area
++				int iCenterX = pLoopPlot->getX_INLINE();
++				int iCenterY = pLoopPlot->getY_INLINE();
++				for (int iYRange = 0; iYRange < iCheckDiameter && iGoodOnes <= iMaxGoodOnes; iYRange++)
++				{
++					int iDY = intShuffle(iYRange, iCheckDiameter, iRand1, iRand2) - iVisibilityRange;
++					for (int iXRange = 0; iXRange < iCheckDiameter && iGoodOnes <= iMaxGoodOnes; iXRange++)
++					{
++						int iDX = intShuffle(iXRange, iCheckDiameter, iRand2, iRand1) - iVisibilityRange;
++
++						CvPlot* pCheckPlot = plotXY(iCenterX, iCenterY, iDX, iDY);
++						if (pCheckPlot != NULL)
++						{
++							// if we have not already checked this plot and it is 'valid'
++							int iCheckPlotNum = GC.getMapINLINE().plotNumINLINE(pCheckPlot->getX_INLINE(), pCheckPlot->getY_INLINE());
++							if (!abCheckedPlot[iCheckPlotNum] && AI_plotValid(pCheckPlot))
++							{
++								abCheckedPlot[iCheckPlotNum] = true;
++								
++								int iValue = AI_explorePlotValue(pCheckPlot, /*bAddRandom*/ true);
++								if (iValue > 0)
++								{
++									if (!(pCheckPlot->isVisibleEnemyUnit(getOwnerINLINE())))
++									{
++										if (kPlayer.AI_plotTargetMissionAIs(pCheckPlot, MISSIONAI_EXPLORE, pGroup, 3) == 0)
++										{
++											int iPathTurns;
++											if (!atPlot(pCheckPlot) && generatePath(pCheckPlot, MOVE_NO_ENEMY_TERRITORY, true, &iPathTurns))
++											{
++												iGoodOnes++;
++									
++												iValue /= (iPathTurns + 1);
++
++												// add the value of the plots we actually moving to this turn
++												iValue += AI_exploreTurnPathValue();
++												
++												if (iValue > iBestValue)
++												{
++													if (iMoreToCheck < 0)
++													{
++														iMoreToCheck = iMaxMoreToCheck;
++													}
++													
++													iBestValue = iValue;
++													pBestPlot = getPathEndTurnPlot();
++													pBestExplorePlot = pCheckPlot;
++												}
++											}
++										}
++									}
++								}
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++
++	if (pBestPlot != NULL)
+ 	{
+ 		FAssert(!atPlot(pBestPlot));
+ 		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), MOVE_NO_ENEMY_TERRITORY, false, false, MISSIONAI_EXPLORE, pBestExplorePlot);
+@@ -8734,7 +8862,7 @@
+ 	return false;
+ }
+ 
+-CvPlot* CvUnitAI::AI_getBestExplorePlot(int iRange, CvPlot** pThisTurnPlot)
++CvPlot* CvUnitAI::AI_getBestExplorePlot(int iRange, CvPlot** pThisTurnPlot, bool bNoRandom)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -8746,14 +8874,18 @@
+ 	CvPlot* pBestPlot = NULL;
+ 	CvPlot* pBestExplorePlot = NULL;
+ 	
+-	for (int iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
+-	{
+-		for (int iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
++	// search in expanding range for best explore plot, stop after going 2 range further than the first good one we find
++	int iFoundRange = MAX_INT;
++	int iStartX = getX_INLINE();
++	int iStartY = getY_INLINE();
++	for (int iCheckRange = 1; (iCheckRange - 2) <= iFoundRange && iCheckRange <= iSearchRange; iCheckRange++)
++	{
++		int iDX, iDY;
++		for (int iIndex = 0; rangeIndexToXY(iCheckRange, iIndex, iDX, iDY); iIndex++)
+ 		{
+ 			PROFILE("AI_getBestExplorePlot 1");
+ 
+-			CvPlot* pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+-
++			CvPlot* pLoopPlot = plotXY(iStartX, iStartY, iDX, iDY);
+ 			if (pLoopPlot != NULL)
+ 			{
+ 				if (AI_plotValid(pLoopPlot))
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@274
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@275
+@@ -44,8 +44,8 @@
+ 
+ 	int AI_sacrificeValue(const CvPlot* pPlot) const;
+ 	
+-	CvPlot* AI_getBestExplorePlot(int iRange, CvPlot** pThisTurnPlot = NULL);
+-	CvPlot* AI_getBestGoodyPlot(CvPlot* pStartPlot, int iRange, CvPlot** pThisTurnPlot = NULL);
++	CvPlot* AI_getBestExplorePlot(int iRange, CvPlot** pThisTurnPlot = NULL, bool bNoRandom = false);
++	CvPlot* AI_getBestGoodyPlot(CvPlot* pStartPlot, int iRange, CvPlot** pThisTurnPlot = NULL, bool bNoRandom = false);
+ 
+ 	void read(FDataStreamBase* pStream);
+ 	void write(FDataStreamBase* pStream);
+@@ -130,7 +130,6 @@
+ 	int AI_fogbustRegionValue(const CvPlotRegion& plotRegion, bool* pbAdjacentOurTerritory = NULL, const CvPlotRegion* pVisibleRegion = NULL) const;
+ 	int AI_fogbustDataRegionValue(const CvPlotDataRegion& plotRegion, bool bRegionIsVisible = true, bool* pbAdjacentOurTerritory = NULL, const CvPlotDataRegion* pVisibleRegion = NULL) const;
+ 	bool AI_fogbustPlotDifference(const CvPlot* pNewPlot, const CvPlotDataRegion& visiblePlotRegion, int& iFogbustingLostValue, int& iFogbustingGainedValue) const;
+-	bool oldAI_fogbustPlotDifference(const CvPlot* pNewPlot, const CvPlotDataRegion& visiblePlotRegion, int& iFogbustingLostValue, int& iFogbustingGainedValue) const;
+ 	bool AI_fogbust();
+ 	bool AI_airFogbust();
+ 	bool AI_patrol();
+

@@ -1,0 +1,508 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 167
+# Author: iustus
+# Date: 2006-12-11T17:32:46.816013Z
+# Coverage: full
+# Message:
+#   AI_bestTech changes:
+#   - fishing and sailing should be valued less, especially without any coastal cities
+#   - worker techs in general are valued more (particularly ones that add improvements for food bonus resources)
+#   - founding a religion is valued more if it is the next tech, less if it is the 2nd tech away
+#   - masonry or other techs which give a lot of buildings is valued less
+#   - techs that give a better civic can be valued higher (capped at 2400 instead of 1200)
+#   - techs that reveal bonus resources are weighted by how frequent that bonus occurs
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@166
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@167
+@@ -26,6 +26,12 @@
+ #define GREATER_FOUND_RANGE			(5)
+ #define CIVIC_CHANGE_DELAY			(25)
+ #define RELIGION_CHANGE_DELAY		(15)
++
++// for testing only
++#ifndef FINAL_RELEASE
++#define DEBUG_TECH_CHOICES
++//#define DEBUG_TECH_CHOICES_NO_RANDOM
++#endif
+ 
+ // our own version number on our extra data
+ // if we want to reorder what we save, change this number
+@@ -2549,7 +2555,7 @@
+ 	pCapitalCity = getCapitalCity();
+ 
+ 	bool bWarPlan = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
+-	bool bCapitalAlone = AI_isCapitalAreaAlone();
++	bool bCapitalAlone = (GC.getGameINLINE().getElapsedGameTurns() > 0) ? AI_isCapitalAreaAlone() : false;
+ 	bool bFinancialTrouble = AI_isFinancialTrouble();
+ 
+ 	int iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+@@ -2560,6 +2566,11 @@
+ 
+ 	int iBestValue = 0;
+ 	TechTypes eBestTech = NO_TECH;
++
++#ifdef DEBUG_TECH_CHOICES
++	CvWString szPlayerName = getName();
++	DEBUGLOG("AI_bestTech:%S\n", szPlayerName.GetCString());
++#endif
+ 
+ 	for (iI = 0; iI < GC.getNumTechInfos(); iI++)
+ 	{
+@@ -2579,7 +2590,9 @@
+ 							{
+ 								iValue = 1;
+ 
+-								iValue += ((bAsync) ? GC.getASyncRand().get(2000, "AI Research ASYNC") : GC.getGameINLINE().getSorenRandNum(2000, "AI Research"));
++								int iRandomFactor = ((bAsync) ? GC.getASyncRand().get(2000, "AI Research ASYNC") : GC.getGameINLINE().getSorenRandNum(2000, "AI Research"));
++								int iRandomMax = 2000;
++								iValue += iRandomFactor;
+ 
+ 								iValue += GET_TEAM(getTeam()).getResearchProgress((TechTypes)iI);
+ 
+@@ -2729,10 +2742,10 @@
+ 
+ 											if (iCoastalCities > 0)
+ 											{
+-												iValue += 200;
++												iValue += ((bCapitalAlone) ? 950 : 350);
+ 											}
+ 
+-											iValue += ((bCapitalAlone) ? 800 : 200);
++											iValue += 50;
+ 										}
+ 										else
+ 										{
+@@ -2757,66 +2770,81 @@
+ 								}
+ 
+ 								iBuildValue = 0;
+-
+ 								for (iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
+ 								{
+ 									if (GC.getBuildInfo((BuildTypes)iJ).getTechPrereq() == iI)
+ 									{
+-										iBuildValue += 200;
+-
+ 										eImprovement = (ImprovementTypes)(GC.getBuildInfo((BuildTypes)iJ).getImprovement());
+ 										if (eImprovement != NO_IMPROVEMENT)
+ 										{
+ 											eImprovement = finalImprovementUpgrade(eImprovement);
+ 										}
++										else
++										{
++											// only increment build value if it is not an improvement, otherwise hand it there
++											iBuildValue += 200;
++										}
+ 
+ 										if (eImprovement != NO_IMPROVEMENT)
+ 										{
+-											iBuildValue += 100;
+-
+-											iBuildValue += ((GC.getImprovementInfo(eImprovement).isActsAsCity()) ? 100 : 0);
+-											iBuildValue += ((GC.getImprovementInfo(eImprovement).isHillsMakesValid()) ? 100 : 0);
+-											iBuildValue += ((GC.getImprovementInfo(eImprovement).isFreshWaterMakesValid()) ? 200 : 0);
+-											iBuildValue += ((GC.getImprovementInfo(eImprovement).isRiverSideMakesValid()) ? 100 : 0);
+-											iBuildValue += ((GC.getImprovementInfo(eImprovement).isCarriesIrrigation()) ? 300 : 0);
++											CvImprovementInfo& kImprovement = GC.getImprovementInfo(eImprovement);
++											
++											int iImprovementValue = 300;
++
++											iImprovementValue += ((kImprovement.isActsAsCity()) ? 100 : 0);
++											iImprovementValue += ((kImprovement.isHillsMakesValid()) ? 100 : 0);
++											iImprovementValue += ((kImprovement.isFreshWaterMakesValid()) ? 200 : 0);
++											iImprovementValue += ((kImprovement.isRiverSideMakesValid()) ? 100 : 0);
++											iImprovementValue += ((kImprovement.isCarriesIrrigation()) ? 300 : 0);
+ 
+ 											for (iK = 0; iK < GC.getNumTerrainInfos(); iK++)
+ 											{
+-												iBuildValue += (GC.getImprovementInfo(eImprovement).getTerrainMakesValid(iK) ? 50 : 0);
++												iImprovementValue += (kImprovement.getTerrainMakesValid(iK) ? 50 : 0);
+ 											}
+ 
+ 											for (iK = 0; iK < GC.getNumFeatureInfos(); iK++)
+ 											{
+-												iBuildValue += (GC.getImprovementInfo(eImprovement).getFeatureMakesValid(iK) ? 50 : 0);
++												iImprovementValue += (kImprovement.getFeatureMakesValid(iK) ? 50 : 0);
+ 											}
+ 
+ 											for (iK = 0; iK < NUM_YIELD_TYPES; iK++)
+ 											{
+ 												iTempValue = 0;
+ 
+-												iTempValue += (GC.getImprovementInfo(eImprovement).getYieldChange(iK) * 200);
+-												iTempValue += (GC.getImprovementInfo(eImprovement).getRiverSideYieldChange(iK) * 100);
+-												iTempValue += (GC.getImprovementInfo(eImprovement).getHillsYieldChange(iK) * 100);
+-												iTempValue += (GC.getImprovementInfo(eImprovement).getIrrigatedYieldChange(iK) * 150);
++												iTempValue += (kImprovement.getYieldChange(iK) * 200);
++												iTempValue += (kImprovement.getRiverSideYieldChange(iK) * 100);
++												iTempValue += (kImprovement.getHillsYieldChange(iK) * 100);
++												iTempValue += (kImprovement.getIrrigatedYieldChange(iK) * 150);
+ 
+ 												iTempValue *= AI_yieldWeight((YieldTypes)iK);
+ 												iTempValue /= 100;
+ 
+-												iBuildValue += iTempValue;
++												iImprovementValue += iTempValue;
+ 											}
+-
++											
++											int iBestUnownedBonusValue = 0;
+ 											for (iK = 0; iK < GC.getNumBonusInfos(); iK++)
+ 											{
+ 												iBonusValue = 0;
+ 
+ 												iTempValue = 0;
+ 
+-												iTempValue += ((GC.getImprovementInfo(eImprovement).isImprovementBonusMakesValid(iK)) ? 30 : 0);
+-												iTempValue += ((GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(iK)) ? 60 : 0);
++												iTempValue += ((kImprovement.isImprovementBonusMakesValid(iK)) ? 30 : 0);
++												iTempValue += ((kImprovement.isImprovementBonusTrade(iK)) ? 60 : 0);
+ 
+ 												if (iTempValue > 0)
+ 												{
+-													iTempValue *= AI_bonusVal((BonusTypes)iK);
++													TechTypes eBonusRevealTech = (TechTypes) GC.getBonusInfo((BonusTypes) iK).getTechReveal();
++													bool bCanUseBonus = (((TechTypes) iI) == eBonusRevealTech || GET_TEAM(getTeam()).isHasTech(eBonusRevealTech));
++													int iMultiplier = AI_bonusVal((BonusTypes) iK);
++													
++													// if we are not going to be able to use this bonus, cap its multiplier
++													if (!bCanUseBonus)
++													{
++														iMultiplier = min(iMultiplier/2, 8);
++													}
++													
++													iTempValue *= iMultiplier;
+ 
+ 													iBonusValue += iTempValue;
+ 												}
+@@ -2825,7 +2853,14 @@
+ 												{
+ 													iTempValue = 0;
+ 
+-													iTempValue += (GC.getImprovementInfo(eImprovement).getImprovementBonusYield(iK, iL) * 300);
++													iTempValue += (kImprovement.getImprovementBonusYield(iK, iL) * 300);
++
++													// land food bonuses are super valueble!
++													if (iL == YIELD_FOOD && !kImprovement.isWater())
++													{
++														iTempValue *= 3;
++														iTempValue /= 2;
++													}
+ 
+ 													iTempValue *= AI_yieldWeight((YieldTypes)iL);
+ 													iTempValue /= 100;
+@@ -2840,12 +2875,35 @@
+ 													if (iNumBonuses > 0)
+ 													{
+ 														iBonusValue *= (iNumBonuses + 3);
+-														iBonusValue /= 2;
+-
+-														iBuildValue += iBonusValue;
++														iBonusValue /= kImprovement.isWater() ? 4 : 2;	// water resources are worth less
++
++														iImprovementValue += iBonusValue;
++													}
++													else 
++													{
++														// weight based on how common the resource is (rare bonuses likely are not close)
++														iBonusValue *= GC.getMapINLINE().getNumBonuses((BonusTypes)iK);
++														iBonusValue /= GC.getMapINLINE().numPlotsINLINE() / 512;
++														
++														if (iBonusValue > iBestUnownedBonusValue)
++														{
++															iBestUnownedBonusValue = iBonusValue;
++														}
+ 													}
+ 												}
+ 											}
++											
++											// if tech gives improvement that improves bonuses we dont have, pick the most valueble bonus and count that one
++											iImprovementValue += iBestUnownedBonusValue / 30;
++
++											// if water improvement, weight by coastal cities (weight the whole build)
++											if (kImprovement.isWater())
++											{
++												iImprovementValue *= iCoastalCities;
++												iImprovementValue /= max(1, iCityCount/2);
++											}
++											
++											iBuildValue += iImprovementValue;
+ 										}
+ 
+ 										eRoute = ((RouteTypes)(GC.getBuildInfo((BuildTypes)iJ).getRoute()));
+@@ -2905,22 +2963,43 @@
+                                     }
+                                 }
+ 
+-								if (AI_totalUnitAIs(UNITAI_WORKER) == 0)
++								/*if (AI_totalUnitAIs(UNITAI_WORKER) == 0)
+ 								{
+ 									iBuildValue /= 2;
+-								}
+-
++								}*/
++								
+ 								iValue += iBuildValue;
+-
++								
++								// does tech reveal bonus resources
+ 								for (iJ = 0; iJ < GC.getNumBonusInfos(); iJ++)
+ 								{
+ 									if (GC.getBonusInfo((BonusTypes)iJ).getTechReveal() == iI)
+ 									{
+-										iValue += 200;
+-										iValue += (AI_bonusVal((BonusTypes)iJ) * 50);
++										int iRevealValue = 200;
++										iRevealValue += (AI_bonusVal((BonusTypes)iJ) * 50);
++										
++										int iBonusCount = GC.getMapINLINE().getNumBonuses((BonusTypes)iJ);
++										
++										// weight based on how common the resource is (rare bonuses likely are not close)
++										iRevealValue *= iBonusCount;
++										iRevealValue /= GC.getMapINLINE().numPlotsINLINE() / 512;
++										
++										// devalue water bonuses based on our coastal cities
++										int iBonusCountOnLand = GC.getMapINLINE().getNumBonusesOnLand((BonusTypes)iJ);
++										
++										// are there bonuses on the water?
++										if (iBonusCount > iBonusCountOnLand)
++										{
++											// (value * land%) + (value * water% * coastalcity%)
++											iRevealValue = ((iRevealValue * iBonusCountOnLand) / iBonusCount) +
++												((iRevealValue * (iBonusCount - iBonusCountOnLand) * iCoastalCities) / (iBonusCount * iCityCount));
++										}
++
++										iValue += iRevealValue;
+ 									}
+ 								}
+ 
++								bool bEnablesUnitWonder = false;
+ 								for (iJ = 0; iJ < GC.getNumUnitClassInfos(); iJ++)
+ 								{
+ 									eLoopUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iJ)));
+@@ -3168,7 +3247,17 @@
+ 										}
+ 									}
+ 								}
+-
++								if (bEnablesUnitWonder)
++								{
++									int iWonderRandom = ((bAsync) ? GC.getASyncRand().get(400, "AI Research Wonder Unit ASYNC") : GC.getGameINLINE().getSorenRandNum(400, "AI Research Wonder Unit"));
++									iValue += iWonderRandom;
++
++									iRandomMax += 400;
++									iRandomFactor += iWonderRandom;
++								}
++
++								int iBestLandBuildingValue = 0;
++								bool bEnablesWonder = false;
+ 								for (iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
+ 								{
+ 									eLoopBuilding = ((BuildingTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iJ)));
+@@ -3186,16 +3275,16 @@
+ 											}
+ 											else
+ 											{
+-												iBuildingValue += ((bCapitalAlone) ? 400 : 100);
++												iBuildingValue += ((bCapitalAlone) ? 200 : 50);
+ 											}
+ 
+ 											//the granary effect is SO powerful it deserves special code
+ 											if (kBuilding.getFoodKept() > 0)
+ 											{
+-												iBuildingValue += (10 * kBuilding.getFoodKept());
++												iBuildingValue += (15 * kBuilding.getFoodKept());
+ 											}
+ 
+-											iBuildingValue += 300;
++											iBuildingValue += 100;
+ 
+                                             if ((GC.getBuildingClassInfo((BuildingClassTypes)iJ).getDefaultBuildingIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iJ)))
+                                             {
+@@ -3212,9 +3301,9 @@
+ 											
+ 											if (bFinancialTrouble)
+ 											{
+-												iBuildingValue += kBuilding.getMaintenanceModifier() * 10;
+-												iBuildingValue += kBuilding.getYieldModifier(YIELD_COMMERCE) * 5;
+-												iBuildingValue += kBuilding.getCommerceModifier(COMMERCE_GOLD) * 10;
++												iBuildingValue += kBuilding.getMaintenanceModifier() * 15;
++												iBuildingValue += kBuilding.getYieldModifier(YIELD_COMMERCE) * 8;
++												iBuildingValue += kBuilding.getCommerceModifier(COMMERCE_GOLD) * 15;
+ 											}
+ 
+ 											// if this is a religious building, its not as useful
+@@ -3247,8 +3336,8 @@
+ 														{
+ 															if (!(GC.getGameINLINE().isBuildingClassMaxedOut((BuildingClassTypes)iJ)))
+ 															{
+-															    
+-																iValue += ((bAsync) ? GC.getASyncRand().get(800, "AI Research Wonder Building ASYNC") : GC.getGameINLINE().getSorenRandNum(800, "AI Research Wonder Building"));
++																bEnablesWonder = true;
++
+ 																if (AI_isDoStrategy(AI_STRATEGY_CULTURE1))
+ 																{
+ 																    iValue += 400;
+@@ -3264,11 +3353,45 @@
+ 												}
+ 											}
+ 
++
++											if (iBuildingValue > iBestLandBuildingValue)
++											{
++												iBestLandBuildingValue = iBuildingValue;
++											}
++
++											// if water building, weight by coastal cities
++											if (kBuilding.isWater())
++											{
++												iBuildingValue *= iCoastalCities;
++												iBuildingValue /= max(1, iCityCount/2);
++											}
++											// if land building, is it the best?
++											else if (iBuildingValue > iBestLandBuildingValue)
++											{
++												iBestLandBuildingValue = iBuildingValue;
++											}
++
+ 											iValue += iBuildingValue;
+ 										}
+ 									}
+ 								}
+-
++								// if tech gives at least one building (so we can count each individual building less)
++								if (iBestLandBuildingValue > 0)
++								{
++									iValue += iBestLandBuildingValue;
++								}
++
++								// if it gives at least one wonder
++								if (bEnablesWonder)
++								{
++									int iWonderRandom = ((bAsync) ? GC.getASyncRand().get(800, "AI Research Wonder Building ASYNC") : GC.getGameINLINE().getSorenRandNum(800, "AI Research Wonder Building"));
++									iValue += 500 + iWonderRandom;
++
++									iRandomMax += 800;
++									iRandomFactor += iWonderRandom;
++								}
++
++								bool bEnablesProjectWonder = false;
+ 								for (iJ = 0; iJ < GC.getNumProjectInfos(); iJ++)
+ 								{
+ 									if (GC.getProjectInfo((ProjectTypes)iJ).getTechPrereq() == iI)
+@@ -3283,7 +3406,7 @@
+ 												{
+ 													if (!(GC.getGameINLINE().isProjectMaxedOut((ProjectTypes)iJ)))
+ 													{
+-														iValue += ((bAsync) ? GC.getASyncRand().get(200, "AI Research Wonder Project ASYNC") : GC.getGameINLINE().getSorenRandNum(200, "AI Research Wonder Project"));
++														bEnablesProjectWonder = true;
+ 
+ 														if (bCapitalAlone)
+ 														{
+@@ -3295,6 +3418,14 @@
+ 										}
+ 									}
+ 								}
++								if (bEnablesProjectWonder)
++								{
++									int iWonderRandom = ((bAsync) ? GC.getASyncRand().get(200, "AI Research Wonder Project ASYNC") : GC.getGameINLINE().getSorenRandNum(200, "AI Research Wonder Project"));
++									iValue += iWonderRandom;
++
++									iRandomMax += 200;
++									iRandomFactor += iWonderRandom;
++								}
+ 
+ 								for (iJ = 0; iJ < GC.getNumProcessInfos(); iJ++)
+ 								{
+@@ -3330,7 +3461,7 @@
+ 
+ 										if (iNewCivicValue > iCurrentCivicValue)
+ 										{
+-											iValue += min(1200, (2400 * (iNewCivicValue - iCurrentCivicValue)) / max(1, iCurrentCivicValue));
++											iValue += min(2400, (2400 * (iNewCivicValue - iCurrentCivicValue)) / max(1, iCurrentCivicValue));
+ 										}
+ 									}
+ 								}
+@@ -3346,7 +3477,10 @@
+ 												if (!(GC.getGameINLINE().isReligionFounded((ReligionTypes)iJ)))
+ 												{
+ 													int iReligionValue = ((bAsync) ? GC.getASyncRand().get(2400, "AI Research Religion ASYNC") : GC.getGameINLINE().getSorenRandNum(2400, "AI Research Religion"));
+-                                                    if (AI_isDoStrategy(AI_STRATEGY_CULTURE1))
++													iRandomMax += 2400;
++													iRandomFactor += iReligionValue;
++
++													if (AI_isDoStrategy(AI_STRATEGY_CULTURE1))
+                                                     {
+                                                         iReligionValue += 500;
+ 
+@@ -3369,7 +3503,13 @@
+ 													if (AI_isDoStrategy(AI_STRATEGY_DAGGER))
+ 													{
+ 													    iReligionValue /= 2;
+-													}													
++													}
++
++													if (iPathLength < 2)
++													{
++														iReligionValue *= 3;
++														iReligionValue /= 2;
++													}
+ 
+ 													iValue += iReligionValue;
+ 												}
+@@ -3380,7 +3520,11 @@
+ 										{
+ 											if (((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(GC.getTechInfo((TechTypes) iI).getFirstFreeUnitClass()))) != NO_UNIT)
+ 											{
+-												iValue += ((bAsync) ? GC.getASyncRand().get(3200, "AI Research Great People ASYNC") : GC.getGameINLINE().getSorenRandNum(3200, "AI Research Great People"));
++												int iGreatPeopleRandom = ((bAsync) ? GC.getASyncRand().get(3200, "AI Research Great People ASYNC") : GC.getGameINLINE().getSorenRandNum(3200, "AI Research Great People"));
++												iValue += iGreatPeopleRandom;
++												
++												iRandomMax += 3200;
++												iRandomFactor += iGreatPeopleRandom;
+ 
+ 												if (bCapitalAlone)
+ 												{
+@@ -3409,6 +3553,13 @@
+ 								{
+ 									iValue /= 10;
+ 								}
++
++#ifdef DEBUG_TECH_CHOICES_NO_RANDOM
++								// remove random factors, use average
++								iValue -= iRandomFactor;
++								iValue += iRandomMax/2;
++#endif
++								int iPreNormalizedValue = iValue;
+ 
+ 								if (bIgnoreCost)
+ 								{
+@@ -3433,6 +3584,11 @@
+ 
+ 								iValue = max(1, iValue);
+ 
++#ifdef DEBUG_TECH_CHOICES
++								CvWString szTechName = GC.getTechInfo((TechTypes)iI).getDescription();
++								DEBUGLOG("    %S (%d [%d/%d]->%.2f)\n", szTechName.GetCString(), 
++									iPreNormalizedValue, iRandomFactor, iRandomMax, ((float) iValue) / 1000);
++#endif
+ 								if (iValue > iBestValue)
+ 								{
+ 									iBestValue = iValue;
+@@ -3445,6 +3601,11 @@
+ 			}
+ 		}
+ 	}
++
++#ifdef DEBUG_TECH_CHOICES
++	CvWString szBestTechName = GC.getTechInfo(eBestTech).getDescription();
++	DEBUGLOG("  best:%S (%.2f)\n", szBestTechName.GetCString(), ((float) iBestValue) / 1000);
++#endif
+ 
+ 	return eBestTech;
+ }
+

@@ -1,0 +1,68 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 143
+# Author: iustus
+# Date: 2006-12-01T22:35:23.937541Z
+# Coverage: full
+# Message:
+#   merge from trunk, merge rev 140-142
+# Changed paths (1):
+#   M /branches/vanilla/CvGameCoreDLL/CvTeamAI.cpp
+
+Index: /branches/vanilla/CvGameCoreDLL/CvTeamAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvTeamAI.cpp@142
++++ /branches/vanilla/CvGameCoreDLL/CvTeamAI.cpp@143
+@@ -846,7 +846,7 @@
+ 	iValue += (GET_TEAM(eTeam).AI_getWarSuccess(getID()) * 20);
+ 
+ 	int iOurPower = max(1, getPower());
+-	int iTheirPower = max(1, GET_TEAM(eTeam).getPower());
++	int iTheirPower = max(1, GET_TEAM(eTeam).getDefensivePower());
+ 
+ 	iValue *= iTheirPower + 10;
+ 	iValue /= max(1, iOurPower + iTheirPower + 10);
+@@ -855,7 +855,7 @@
+ 
+ 	// if we not human, do we want to continue war for strategic reasons?
+ 	// only check if our power is at least 120% of theirs
+-	if (!(isHuman() && iOurPower > (120 * iTheirPower) / 100))
++	if (!isHuman() && iOurPower > ((120 * iTheirPower) / 100))
+ 	{
+ 		bool bDagger = false;
+ 		
+@@ -886,6 +886,15 @@
+ 			iValue /= 10 * iOurPower;
+ 		}
+ 		
++	    // for now, we will always do the land mass check for domination
++		// if we have more than half the land, then value peace at 90% * land ratio 
++		int iLandRatio = ((getTotalLand() * 100) / max(1, GET_TEAM(eTeam).getTotalLand()));
++	    if (iLandRatio > 120)
++	    {
++			iValue *= 9 * 100;
++			iValue /= 10 * iLandRatio;
++	    }
++
+ 		// if in financial trouble, warmongers will continue the fight to make more money
+ 		if (bAnyFinancialTrouble)
+ 		{
+@@ -937,18 +946,6 @@
+ 		iValue /= 2;
+ 	}
+ 	
+-	if (!(isHuman()))
+-	{
+-	    int iLandRatio = ((getTotalLand() * 100) / max(20, GET_TEAM(eTeam).getTotalLand()));
+-	    if (iLandRatio > 120)
+-	    {
+-	        iValue *= (iLandRatio - 20);
+-	        iValue /= 100;
+-	        iValue *= (iLandRatio - 20);
+-	        iValue /= 100;
+-	    }
+-	}
+-
+ 	iValue -= (iValue % GC.getDefineINT("DIPLOMACY_VALUE_REMAINDER"));
+ 
+ 	if (isHuman())
+

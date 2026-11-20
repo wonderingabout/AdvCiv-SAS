@@ -1,0 +1,155 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 556
+# Author: jdog5000
+# Date: 2010-05-13T04:26:20.474833Z
+# Coverage: full
+# Message:
+#   Finish unofficial patch 1.5
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@555
++++ /trunk/CvGameCoreDLL/CvCity.cpp@556
+@@ -3118,7 +3118,16 @@
+ 		}
+ 	}
+ 
+-	return std::max(0, iMultiplier);
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       05/10/10                             jdog5000         */
++/*                                                                                              */
++/* For mods                                                                                     */
++/************************************************************************************************/
++//	return std::max(0, iMultiplier);
++	return std::max(-50, iMultiplier);
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ }
+ 
+ 
+@@ -3142,7 +3151,16 @@
+ 		}
+ 	}
+ 
+-	return std::max(0, iMultiplier);
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       05/10/10                             jdog5000         */
++/*                                                                                              */
++/* For mods                                                                                     */
++/************************************************************************************************/
++//	return std::max(0, iMultiplier);
++	return std::max(-50, iMultiplier);
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ }
+ 
+ 
+@@ -3163,7 +3181,16 @@
+ 		}
+ 	}
+ 
+-	return std::max(0, iMultiplier);
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       05/10/10                             jdog5000         */
++/*                                                                                              */
++/* For mods                                                                                     */
++/************************************************************************************************/
++//	return std::max(0, iMultiplier);
++	return std::max(-50, iMultiplier);
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ }
+ 
+ 
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@555
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@556
+@@ -4500,7 +4500,7 @@
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.50 pre-release");
++	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.50");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@555
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@556
+@@ -12325,6 +12325,20 @@
+ 		return false;
+ 	}
+ 
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       05/10/10                             jdog5000         */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++	// Need to check target plot too
++	if (!pTargetPlot->isVisible(getTeam(), false))
++	{
++		return false;
++	}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
++
+ 	if (plotDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pTargetPlot->getX_INLINE(), pTargetPlot->getY_INLINE()) > airRange())
+ 	{
+ 		return false;
+@@ -12358,10 +12372,24 @@
+ 		return false;
+ 	}
+ 
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       05/10/10                             jdog5000         */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++/* original bts code
+ 	if (!canRangeStrikeAt(pPlot, iX, iY))
+ 	{
+ 		return false;
+ 	}
++*/
++	if (!canRangeStrikeAt(plot(), iX, iY))
++	{
++		return false;
++	}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 
+ 	pDefender = airStrikeTarget(pPlot);
+ 
+@@ -12404,7 +12432,20 @@
+ 		gDLL->getEntityIFace()->AddMission(&kDefiniton);
+ 
+ 		//delay death
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       05/10/10                             jdog5000         */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++/* original bts code
+ 		pDefender->getGroup()->setMissionTimer(GC.getMissionInfo(MISSION_RANGE_ATTACK).getTime());
++*/
++		// mission timer is not used like this in any other part of code, so it might cause OOS
++		// issues ... at worst I think unit dies before animation is complete, so no real
++		// harm in commenting it out.
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 	}
+ 
+ 	return true;
+

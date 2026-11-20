@@ -1,0 +1,75 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 30
+# Author: blakeciv
+# Date: 2006-11-05T13:22:15.150372Z
+# Coverage: full
+# Message:
+#   Updated AI_PlotDanger so that hostile borders are considered dangerous places to be.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@29
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@30
+@@ -1964,8 +1964,10 @@
+ 	CvUnit* pLoopUnit;
+ 	CvPlot* pLoopPlot;
+ 	int iCount;
++	int iDistance;
+ 	int iDX, iDY;
+ 
++
+ 	iCount = 0;
+ 
+ 	if (iRange == -1)
+@@ -1973,6 +1975,7 @@
+ 		iRange = DANGER_RANGE;
+ 	}
+ 
++
+ 	for (iDX = -(iRange); iDX <= iRange; iDX++)
+ 	{
+ 		for (iDY = -(iRange); iDY <= iRange; iDY++)
+@@ -1983,6 +1986,20 @@
+ 			{
+ 				if (pLoopPlot->area() == pPlot->area())
+ 				{
++				    iDistance = stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
++				    if (atWar(pLoopPlot->getTeam(), getTeam()))
++				    {
++				        if (iDistance == 1)
++				        {
++				            iCount++;
++				        }
++				        else if ((iDistance == 2) && (pLoopPlot->isRoute()))
++				        {
++				            iCount++;
++				        }
++				    }
++
++
+ 					pUnitNode = pLoopPlot->headUnitNode();
+ 
+ 					while (pUnitNode != NULL)
+@@ -1998,9 +2015,18 @@
+ 								{
+ 								    if (pLoopUnit->canMoveOrAttackInto(pPlot))
+ 								    {
+-                                        if (!bTestMoves || (((pLoopUnit->baseMoves() + ((pLoopPlot->isValidRoute(pLoopUnit)) ? 1 : 0)) >= stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()))))
++                                        if (!bTestMoves)
+                                         {
+                                             iCount++;
++                                        }
++                                        else
++                                        {
++                                            int iDangerRange = pLoopUnit->baseMoves();
++                                            iDangerRange += ((pLoopPlot->isValidRoute(pLoopUnit)) ? 1 : 0);
++                                            if (iDangerRange >= iDistance)
++                                            {
++                                                iCount++;
++                                            }
+                                         }
+ 								    }
+ 								}
+

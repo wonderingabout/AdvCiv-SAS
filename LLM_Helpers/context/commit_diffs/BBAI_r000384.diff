@@ -1,0 +1,91 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 384
+# Author: jdog5000
+# Date: 2008-08-23T19:57:45.753596Z
+# Coverage: full
+# Message:
+#   Small bug fixes: second half of collateralDamage fix, fix for forested starts, plus minor fix to game text (from mamba)
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.ncb
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.ncb
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@383
++++ /trunk/CvGameCoreDLL/CvGame.cpp@384
+@@ -1706,7 +1706,20 @@
+ 						break;
+ 					}
+ 					
++					/********************************************************************************/
++					/**		BETTER_BTS_AI_MOD						8/22/08				jdog5000	*/
++					/**																				*/
++					/**		Bugfix																	*/
++					/********************************************************************************/
++					/* original BTS code
+ 					//if (getSorenRandNum((iCount + 2), "Setting Feature Type") <= 1)
++					*/
++					// This was originally Bhruic's idea for fixing the forest spam bug, reimplelment 
++					// the commented out randomizer
++					if (getSorenRandNum((iCount + 2), "Setting Feature Type") <= 1)
++					/********************************************************************************/
++					/**		BETTER_BTS_AI_MOD						END								*/
++					/********************************************************************************/
+ 					{
+ 						pLoopPlot = plotCity(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), aiShuffle[iJ]);
+ 
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@383
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@384
+@@ -6893,7 +6893,7 @@
+ 
+ 	if (bCivilopediaText)
+ 	{
+-		if(NO_UNIT != eDefaultBuilding && eDefaultBuilding == eBuilding)
++		if(NO_BUILDING != eDefaultBuilding && eDefaultBuilding == eBuilding)
+ 		{
+ 			for(iI = 0; iI < GC.getNumBuildingInfos(); ++iI)
+ 			{
+@@ -6902,7 +6902,7 @@
+ 					continue;
+ 				}
+ 
+-				if(eBuildingClass == ((UnitClassTypes)GC.getBuildingInfo((BuildingTypes)iI).getBuildingClassType()))
++				if(eBuildingClass == ((BuildingClassTypes)GC.getBuildingInfo((BuildingTypes)iI).getBuildingClassType()))
+ 				{
+ 					szBuffer.append(NEWLINE);
+ 					szBuffer.append(gDLL->getText("TXT_KEY_REPLACED_BY_BUILDING", GC.getBuildingInfo((BuildingTypes)iI).getTextKeyWide()));
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@383
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@384
+@@ -11609,8 +11609,17 @@
+ 
+ 				if (pCity != NULL)
+ 				{
++					/********************************************************************************/
++					/**		BETTER_BTS_AI_MOD						8/22/08		DanF5771 & jdog5000	*/
++					/**																				*/
++					/**		Bugfix																	*/
++					/********************************************************************************/
+ 					//iModifier += pCity->getAirModifier();
+-					iModifier *= (100 + pCity->getAirModifier()) / 100;
++					iModifier *= (100 + pCity->getAirModifier());
++					iModifier /= 100;
++					/********************************************************************************/
++					/**		BETTER_BTS_AI_MOD						END								*/
++					/********************************************************************************/
+ 				}
+ 				iCollateralDamage *= iModifier;
+ 				iCollateralDamage /= 100;
+

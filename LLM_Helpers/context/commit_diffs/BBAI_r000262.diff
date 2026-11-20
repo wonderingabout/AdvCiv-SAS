@@ -1,0 +1,797 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 262
+# Author: iustus
+# Date: 2007-01-12T14:59:44.064255Z
+# Coverage: full
+# Message:
+#   can explore with air units, causing them to explore then fogbust
+#   carriers on explore/fogbust will automatically explore with their planes after moving
+#   canceling automation on a unit cancels automation on any units it is carrying as cargo
+#   automated explorers of all types will wake when finding an enemy unit
+#   fixed erroneous assert when a worker is trying to connect a bonus when player does not have a capital (barbarians)
+#   all fogbusting still has outstanding bug/issue: visibility count is badly implemented by firaxis, not counting 1 per unit, but rather 1 per plot that can see that plot. despite this horrible problem, fogbusting still sortof works, deciding how creative a change I want to make to fix it
+#   some minor chipotle changes
+# Changed paths (6):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@261
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@262
+@@ -1890,7 +1890,7 @@
+ 			{
+ 				szString+=NEWLINE;
+ 				szString+=(GC.getBonusInfo((BonusTypes)iI).getDescription());
+-				szString+=CvWString::format(L" (%d)", GET_PLAYER(pPlot->getOwner()).AI_bonusVal((BonusTypes)iI));
++				szString+=CvWString::format(L" (%d)", GET_PLAYER(GC.getGameINLINE().getActivePlayer()).AI_bonusVal((BonusTypes)iI));
+ 			}
+ 		}
+ 
+@@ -2172,6 +2172,9 @@
+         }
+ 		
+ 		// explore and fogbusting value
++		int iVisibilityCount = pPlot->getVisibilityCount(GET_PLAYER(GC.getGameINLINE().getActivePlayer()).getTeam());
++		szString += CvWString::format(SETCOLR L"\n\nVisibility Count: %d" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), iVisibilityCount);
++
+ 		if (gDLL->getInterfaceIFace()->getLengthSelectionList() > 0)
+ 		{
+ 			CvUnitAI* pHeadUnit = static_cast<CvUnitAI*>(gDLL->getInterfaceIFace()->getSelectionList()->getHeadUnit());
+@@ -2192,7 +2195,7 @@
+ 
+ 						iExploreValue += pHeadUnit->AI_exploreTurnPathValue();
+ 
+-						szString += CvWString::format(SETCOLR L"\n\nExplore Value: %d (%d)" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), iExploreValue, iRawExploreValue);
++						szString += CvWString::format(SETCOLR L"\nExplore Value: %d (%d)" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), iExploreValue, iRawExploreValue);
+ 						
+ 					}
+ 				}
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@261
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@262
+@@ -1695,7 +1695,6 @@
+ 	}
+ }
+ 
+-// allocates memory, you must dispose of the returned list
+ void CvPlot::getVisiblePlotsList(CLinkList<CvPlot*>& plotsList,	TeamTypes eTeam, int iRange, CLinkList<CvPlot*>* pExcludePlotsList,	bool bXOrExcludeList) const
+ {
+ 	PROFILE_FUNC();
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@261
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@262
+@@ -3092,6 +3092,24 @@
+ 
+ 		clearMissionQueue();
+ 		setActivityType(ACTIVITY_AWAKE);
++
++		// if canceling automation, cancel on cargo as well
++		if (eNewValue == NO_AUTOMATE)
++		{
++			CvPlot* pPlot = plot();
++			CLLNode<IDInfo>* pUnitNode = pPlot->headUnitNode();
++			while (pUnitNode != NULL)
++			{
++				CvUnit* pCargoUnit = ::getUnit(pUnitNode->m_data);
++				pUnitNode = pPlot->nextUnitNode(pUnitNode);
++				
++				CvUnit* pTransportUnit = pCargoUnit->getTransportUnit();
++				if (pTransportUnit != NULL && pTransportUnit->getGroup() == this)
++				{
++					pCargoUnit->getGroup()->setAutomateType(NO_AUTOMATE);
++				}
++			}
++		}
+ 	}
+ }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@261
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@262
+@@ -2230,7 +2230,7 @@
+ 		break;
+ 
+ 	case AUTOMATE_EXPLORE:
+-		if ((!canFight() && (getDomainType() != DOMAIN_SEA)) || (getDomainType() == DOMAIN_AIR) || (getDomainType() == DOMAIN_IMMOBILE))
++		if ((!canFight() && (getDomainType() != DOMAIN_SEA) && (getDomainType() != DOMAIN_AIR)) || (getDomainType() == DOMAIN_IMMOBILE))
+ 		{
+ 			return false;
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@261
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@262
+@@ -71,6 +71,7 @@
+ 	m_bCacheObserverCount = false;
+ 
+ 	m_iLastJoinGroupTurn = -1;
++	m_iAutomatedAbortTurn = -1;
+ }
+ 
+ 
+@@ -152,21 +153,49 @@
+ 			break;
+ 
+ 		case AUTOMATE_EXPLORE:
+-			if (getDomainType() == DOMAIN_SEA)
+-			{
++			switch (getDomainType())
++			{
++			case DOMAIN_SEA:
+ 				AI_exploreSeaMove();
+-			}
+-			else
+-			{
+-#ifdef TEST_FOGBUSTING
+-				if (!AI_fogbust())
++				break;
++
++			case DOMAIN_AIR:
++				AI_exploreAirMove();
++
++				// after we move, if we on a carrier, turn off automation, so we after the carrier again next turn
++				if (isCargo())
+ 				{
+-					getGroup()->pushMission(MISSION_SKIP);
++					getGroup()->setAutomateType(NO_AUTOMATE);
+ 				}
+-				return;
+-#endif
+-
++				break;
++
++			case DOMAIN_LAND:
+ 				AI_exploreMove();
++				break;
++
++			default:
++				FAssert(false);
++				break;
++			}
++			
++			// if we have air cargo (we are a carrier), and we done moving, explore with the aircraft as well
++			if (hasCargo() && domainCargo() == DOMAIN_AIR && (!canMove() || getGroup()->getActivityType() == ACTIVITY_HOLD))
++			{
++				CvPlot* pPlot = plot();
++				CLLNode<IDInfo>* pUnitNode = pPlot->headUnitNode();
++				while (pUnitNode != NULL && isAutomated())
++				{
++					CvUnit* pCargoUnit = ::getUnit(pUnitNode->m_data);
++					pUnitNode = pPlot->nextUnitNode(pUnitNode);
++
++					if (pCargoUnit->getTransportUnit() == this && pCargoUnit->getDomainType() == DOMAIN_AIR)
++					{
++						if (pCargoUnit->canMove())
++						{
++							pCargoUnit->getGroup()->setAutomateType(AUTOMATE_EXPLORE);
++						}
++					}
++				}
+ 			}
+ 			break;
+ 
+@@ -3498,8 +3527,6 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvArea* pWaterArea;
+-
+ 	if (AI_anyAttack(1, 70))
+ 	{
+ 		return;
+@@ -3514,7 +3541,7 @@
+ 	{
+ 		return;
+ 	}
+-
++	
+ 	if (AI_exploreRange(4))
+ 	{
+ 		return;
+@@ -3542,7 +3569,7 @@
+ 
+ 	if (!(isHuman()) && (AI_getUnitAIType() == UNITAI_EXPLORE_SEA))
+ 	{
+-		pWaterArea = plot()->waterArea();
++		CvArea* pWaterArea = plot()->waterArea();
+ 
+ 		if (pWaterArea != NULL)
+ 		{
+@@ -3932,6 +3959,11 @@
+ 		return;
+ 	}
+ 
++	if (AI_airFogbust())
++	{
++		return;
++	}
++
+ 	if (AI_airOffensiveCity())
+ 	{
+ 		return;
+@@ -3986,6 +4018,11 @@
+ 				return;
+ 			}
+ 		}
++
++		if (AI_airFogbust())
++		{
++			return;
++		}
+ 	}
+ 
+ 	if (AI_airDefensiveCity())
+@@ -4027,6 +4064,16 @@
+ 			{
+ 				return;
+ 			}
++
++			if (AI_airExplore())
++			{
++				return;
++			}
++
++			if (AI_airFogbust())
++			{
++				return;
++			}
+ 		}
+ 	}
+ 
+@@ -4050,6 +4097,28 @@
+ 	return;
+ }
+ 
++
++void CvUnitAI::AI_exploreAirMove()
++{
++	if (AI_airExplore())
++	{
++		return;
++	}
++
++	if (AI_airFogbust())
++	{
++		return;
++	}
++
++	if (canAirDefend())
++	{
++		getGroup()->pushMission(MISSION_AIRPATROL);
++		return;
++	}
++
++	getGroup()->pushMission(MISSION_SKIP);
++	return;
++}
+ 
+ void CvUnitAI::AI_networkAutomated()
+ {
+@@ -7137,31 +7206,34 @@
+ }
+ 
+ // value of a plot for fogbusting
+-int CvUnitAI::AI_fogbustPlotValue(const CvPlot* pPlot, int iObserverChange)
++int CvUnitAI::AI_fogbustPlotValue(const CvPlot* pPlot, bool bVisibleToUnit)
+ {
+ 	int iValue = 0;
+ 	
+-	int iNumObservers;
+-
+-	// if we want to use cache, and its valid, use it
+-	if (m_bCacheObserverCount && m_iCachedObserverCount >= 0)
+-	{
+-		iNumObservers = m_iCachedObserverCount;
+-	}
+-	// otherwise, calculate the count
+-	else
+-	{
+-		iNumObservers = getGroup()->getNumUnits() + getGroup()->getCargo();
+-
+-		// if we want to cache the count, do so
+-		if (m_bCacheObserverCount)
+-		{
+-			m_iCachedObserverCount = iNumObservers;
+-		}
+-	}
+-
+-	int iNewVisibilityCount = pPlot->getVisibilityCount(GET_PLAYER(getOwnerINLINE()).getTeam()) + iObserverChange;
+-	if (iNewVisibilityCount <= iNumObservers)
++	// air units are going to use recon mission, so iNumObservers is always 0
++	int iNumObservers = 0;
++	if (bVisibleToUnit && getDomainType() != DOMAIN_AIR)
++	{
++		// if we want to use cache, and its valid, use it
++		if (m_bCacheObserverCount && m_iCachedObserverCount >= 0)
++		{
++			iNumObservers = m_iCachedObserverCount;
++		}
++		// otherwise, calculate the count
++		else
++		{
++			iNumObservers = getGroup()->getNumUnits() + getGroup()->getCargo();
++
++			// if we want to cache the count, do so
++			if (m_bCacheObserverCount)
++			{
++				m_iCachedObserverCount = iNumObservers;
++			}
++		}
++	}
++
++	int iNewVisibilityCount = pPlot->getVisibilityCount(getTeam()) - iNumObservers;
++	if (iNewVisibilityCount <= 0)
+ 	{
+ 		iValue ++;
+ 
+@@ -7222,7 +7294,7 @@
+ 	iFogbustingPlotsWeGain = 0;
+ 	for (CLLNode<CvPlot*>* pNode = newVisiblePlotList.head(); (pNode != NULL); pNode = newVisiblePlotList.next(pNode))
+ 	{
+-		iFogbustingPlotsWeGain += AI_fogbustPlotValue(pNode->m_data, /*iObserverChange*/ +1);
++		iFogbustingPlotsWeGain += AI_fogbustPlotValue(pNode->m_data, /*bVisibleToUnit*/ false);
+ 	}
+ 
+ 	// turn off the cache if we activated it
+@@ -7274,6 +7346,15 @@
+ 		{
+ 			iOurTerritoryCount++;
+ 		}
++	}
++
++	// if automated human and there are enemies about, wake up, unless we already woke up this turn and the human automated us again 
++	int iGameTurn = GC.getGame().getGameTurn();
++	if (isAutomated() && iEnemyPlots > 0 && m_iAutomatedAbortTurn != iGameTurn)
++	{
++		m_iAutomatedAbortTurn = iGameTurn;
++		getGroup()->setAutomateType(NO_AUTOMATE);
++		return true;
+ 	}
+ 
+ 	// count the plots just outside our visibility that we own as well
+@@ -7553,7 +7634,8 @@
+ 	// turn off the cache
+ 	m_bCacheObserverCount = false;
+ 	m_iCachedObserverCount = -1;
+-
++	
++	bool bPushedMission = false;
+ 	if (pBestPlot != NULL)
+ 	{
+ 		if (atPlot(pBestPlot))
+@@ -7569,8 +7651,135 @@
+ 		}
+ 	}
+ 
++
++
++
+ 	return false;
+ }
++
++// Returns true if a mission was pushed...
++bool CvUnitAI::AI_airFogbust()
++{
++	PROFILE_FUNC();
++
++	int iBestValue = 0;
++	CvPlot* pBestPlot = NULL;
++	
++	// we will abort if an enemy is present and we are automated
++	CvUnitAI* pCarrierUnit = static_cast<CvUnitAI*>(getTransportUnit());
++	int iGameTurn = GC.getGame().getGameTurn();
++	bool bAbortIfEnemyFound = isAutomated() && m_iAutomatedAbortTurn != iGameTurn;
++	if (!bAbortIfEnemyFound && pCarrierUnit != NULL)
++	{
++		bAbortIfEnemyFound = pCarrierUnit->isAutomated() && pCarrierUnit->m_iAutomatedAbortTurn != iGameTurn;
++	}
++	bool bEnemyFound = false;
++
++	// check in all 8 directions
++	int iReconVisibilityRange = ((airRange() + 1) / 2);
++	for (int iI = 0; !bEnemyFound && iI < NUM_DIRECTION_TYPES; iI++)
++	{
++		DirectionTypes eDirection = (DirectionTypes) iI;
++		int iNX = GC.getPlotDirectionX()[eDirection];
++		int iNY = GC.getPlotDirectionY()[eDirection];
++
++		// try once at full range and once at half range
++		for (int iRangeDivisor = 1; iRangeDivisor <= 2; iRangeDivisor++)
++		{
++			// diagonal directions are a shorter stepdistance, because plotdistance is used for recon
++			int iRange = airRange() / iRangeDivisor;
++			iRange = ((abs(iNX) + abs(iNY)) <= 1) ? iRange : (((2 * iRange) + 1) / 3);
++
++			// find the furthest valid plot in this direction
++			CvPlot* pCheckPlot = NULL;
++			do
++			{
++				int iDX = iNX * iRange;
++				int iDY = iNY * iRange;
++
++				pCheckPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++			}
++			while (pCheckPlot == NULL && --iRange > 0);
++
++			if (pCheckPlot != NULL && canReconAt(plot(), pCheckPlot->getX_INLINE(), pCheckPlot->getY_INLINE()))
++			{
++				// get list of visible plots at recon location
++				CLinkList<CvPlot*> reconPlotList; 
++				pCheckPlot->getVisiblePlotsList(reconPlotList, getTeam(), iReconVisibilityRange);
++
++				// count visible plots we gain
++				int iValue = 0;
++				for (CLLNode<CvPlot*>* pNode = reconPlotList.head(); (pNode != NULL); pNode = reconPlotList.next(pNode))
++				{
++					CvPlot* pPlotToReveal = pNode->m_data;
++					
++					iValue += AI_fogbustPlotValue(pPlotToReveal, /*bVisibleToUnit*/ false);
++					
++					// abort if necessary
++					if (bAbortIfEnemyFound && pPlotToReveal->getArea() == getArea() && pPlotToReveal->isVisibleEnemyUnit(getOwnerINLINE()))
++					{
++						bEnemyFound = true;
++						break;
++					}
++				}
++
++				// abort if enemy found
++				if (bEnemyFound)
++				{
++					break;
++				}
++
++				// if better, or equal and random chance choose this one
++				if (iValue > iBestValue || (iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI_airFogbust")))
++				{
++					iBestValue = iValue;
++					pBestPlot = pCheckPlot;
++				}
++			}
++		}
++	}
++
++	bool bPushedMission = false;
++	if (!bEnemyFound && pBestPlot != NULL)
++	{
++		getGroup()->pushMission(MISSION_RECON, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE());
++		bPushedMission = true;
++
++		if (bAbortIfEnemyFound)
++		{
++			// get list of visible plots at recon location
++			CLinkList<CvPlot*> reconPlotList; 
++			pBestPlot->getVisiblePlotsList(reconPlotList, getTeam(), iReconVisibilityRange);
++			
++			// check again for enemies, post recon
++			for (CLLNode<CvPlot*>* pNode = reconPlotList.head(); (pNode != NULL); pNode = reconPlotList.next(pNode))
++			{
++				// abort if necessary
++				if (pNode->m_data->isVisibleEnemyUnit(getOwnerINLINE()))
++				{
++					bEnemyFound = true;
++					break;
++				}
++			}
++		}
++	}
++
++	// if automated human and there are enemies about, wake up, unless we already woke up this turn and the human automated us again 
++	if (bEnemyFound)
++	{
++		m_iAutomatedAbortTurn = iGameTurn;
++		getGroup()->setAutomateType(NO_AUTOMATE);
++		if (pCarrierUnit != NULL && pCarrierUnit->m_iAutomatedAbortTurn != iGameTurn)
++		{
++			pCarrierUnit->getGroup()->setAutomateType(NO_AUTOMATE);
++		}
++
++		bPushedMission = true;
++	}
++
++	return bPushedMission;
++}
++
+ 
+ // Returns true if a mission was pushed...
+ bool CvUnitAI::AI_patrol()
+@@ -7998,7 +8207,7 @@
+ 	{
+ 		for (iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
+ 		{
+-			pLoopPlot	= plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++			pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+ 
+ 			if (pLoopPlot != NULL)
+ 			{
+@@ -8040,7 +8249,7 @@
+ 	return false;
+ }
+ 
+-int CvUnitAI::AI_explorePlotValue(const CvPlot* pPlot, bool bAddRandom) const
++int CvUnitAI::AI_explorePlotValue(const CvPlot* pPlot, bool bAddRandom, bool bIgnoreGoodies) const
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -8057,12 +8266,13 @@
+ 
+ 	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
+ 	TeamTypes eTeam = kPlayer.getTeam();
++	DomainTypes eDomain = getDomainType();
+ 
+ 	CvPlot* pStartPlot = plot();
+ 	bool bStartOnRiver = pStartPlot->isRiver();
+ 	bool bDestinationRiver = false;
+ 
+-	if (pPlot->isRevealedGoody(getTeam()))
++	if (!bIgnoreGoodies && pPlot->isRevealedGoody(getTeam()))
+ 	{
+ 		iValue += 200000;
+ 	}
+@@ -8098,7 +8308,7 @@
+ 	}
+ 	
+ 	// add value to all plots that would be visible from this one
+-	int iRange = visibilityRange();
++	int iRange = (eDomain != DOMAIN_AIR) ? visibilityRange() : ((airRange() + 1) / 2);
+ 	CLinkList<CvPlot*> visiblePlotList;
+ 	pPlot->getVisiblePlotsList(visiblePlotList, eTeam, iRange);
+ 	for (CLLNode<CvPlot*>* pNode = visiblePlotList.head(); (pNode != NULL); pNode = visiblePlotList.next(pNode))
+@@ -8152,7 +8362,7 @@
+ 		iValue += iExtraValue;
+ 		
+ 		// if not following river, explore area around capital first
+-		if (!bDestinationRiver && getDomainType() == DOMAIN_LAND && kPlayer.getNumCities() == 1)
++		if (!bDestinationRiver && eDomain == DOMAIN_LAND && kPlayer.getNumCities() == 1)
+ 		{
+ 			CvCity* pCapital = kPlayer.getCapitalCity();
+ 			if (pCapital != NULL && pCapital->getArea() == getArea())
+@@ -8168,7 +8378,7 @@
+ 		}
+ 		
+ 		// circumnavigation 
+-		if (getDomainType() == DOMAIN_SEA && GC.getGameINLINE().circumnavigationAvailable())
++		if (eDomain == DOMAIN_SEA && GC.getGameINLINE().circumnavigationAvailable())
+ 		{
+ 			// try to go all one direction in x axis (reproducable randomness based on unitID)
+ 			if (GC.getMapINLINE().isWrapXINLINE())
+@@ -8324,6 +8534,8 @@
+ {
+ 	PROFILE_FUNC();
+ 
++	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
++
+ 	int iSearchRange = AI_searchRange(iRange);
+ 
+ 	int iBestValue = 0;
+@@ -8350,7 +8562,7 @@
+ 						{
+ 							PROFILE("AI_getBestExplorePlot 2");
+ 
+-							if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_EXPLORE, getGroup(), 3) == 0)
++							if (kPlayer.AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_EXPLORE, getGroup(), 3) == 0)
+ 							{
+ 								PROFILE("AI_getBestExplorePlot 3");
+ 								
+@@ -8369,7 +8581,7 @@
+ 										// add the value of the plots we actually moving to this turn
+ 										iValue += AI_exploreTurnPathValue();
+ 										
+-										if (iValue > iBestValue)
++										if (iValue > iBestValue || (iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI_getBestExplorePlot")))
+ 										{
+ 											iBestValue = iValue;
+ 											pBestPlot = getPathEndTurnPlot();
+@@ -8381,6 +8593,73 @@
+ 						}
+ 					}
+ 				}
++				// otherwise, if this is 1 distance, and we are land cargo, is this a good place to drop off?
++				// note, under normal conditions, AI_getBestExplorePlot is not called when isCargo() is true
++				//else if ((max(abs(iDX), abs(iDY)) <= 1) && isCargo() && getDomainType() == DOMAIN_LAND && !pLoopPlot->isWater())
++				//{
++				//	CvPlot* pExplorePlot = pLoopPlot;
++				//	TeamTypes eTeam = kPlayer.getTeam();
++
++				//	int iValue = pLoopPlot->isRevealedGoody(eTeam) ? 200000 : 0;
++				//	
++				//	// if no goody right there on the coast
++				//	if (iValue == 0)
++				//	{
++				//		CvArea* pArea = pLoopPlot->area(); 
++				//		int iAreaExporers = kPlayer.AI_areaMissionAIs(pArea, MISSIONAI_EXPLORE, getGroup());
++				//		int iAreaNeededExplorers = kPlayer.AI_neededExplorers(pArea);
++				//		
++				//		iValue = (iAreaNeededExplorers - iAreaExporers) * 10000;
++				//		
++				//		// if area does not need explorers and has none, is there a goody nearby?
++				//		bool bFoundGoody = false;
++				//		if (iAreaNeededExplorers == 0 && iAreaExporers == 0)
++				//		{
++				//			// search in expanding range for a goody
++				//			int iLoopPlotX = pLoopPlot->getX_INLINE();
++				//			int iLoopPlotY = pLoopPlot->getY_INLINE();
++				//			for (int iGoodyRange = 1; !bFoundGoody && iGoodyRange <= 5; iGoodyRange++)
++				//			{
++				//				// search every plot at this range for a goody, pick the best one
++				//				int iGoodyDX, iGoodyDY;
++				//				for (int iIndex = 0; rangeIndexToXY(iGoodyRange, iIndex, iGoodyDX, iGoodyDY); iIndex++)
++				//				{
++				//					// is the plot on the same area?
++				//					CvPlot* pCheckPlot = plotXY(iLoopPlotX, iLoopPlotY, iGoodyDX, iGoodyDY);
++				//					if (pCheckPlot != NULL && pCheckPlot->getArea() == pArea->getID())
++				//					{
++				//						// is there a goody?
++				//						if (pCheckPlot->isRevealedGoody(eTeam))
++				//						{
++				//							// can we get there?
++				//							int iPathTurns;
++				//							if (getGroup()->generatePath(pLoopPlot, pCheckPlot, MOVE_NO_ENEMY_TERRITORY, true, &iPathTurns))
++				//							{
++				//								bFoundGoody = true;
++				//								int iTempValue = 200000 / (iPathTurns + 1);
++				//								if (iTempValue > iValue)
++				//								{
++				//									iValue = iTempValue;
++				//									pExplorePlot = pCheckPlot;
++				//								}
++				//							}
++				//						}
++				//					}
++				//				}
++				//			}
++				//		}
++				//	}
++
++				//	if (iValue > iBestValue || (iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI_getBestExplorePlot")))
++				//	{
++				//		if (canMoveInto(pLoopPlot, /*bAttack*/ false, /*bDeclareWar*/ false, /*bIgnoreLoad*/ true))
++				//		{
++				//			iBestValue = iValue;
++				//			pBestPlot = pLoopPlot;
++				//			pBestExplorePlot = pExplorePlot;
++				//		}
++				//	}
++				//}
+ 			}
+ 		}
+ 	}
+@@ -8391,6 +8670,62 @@
+ 	}
+ 
+ 	return pBestExplorePlot;
++}
++
++// Returns true if a mission was pushed...
++bool CvUnitAI::AI_airExplore()
++{
++	PROFILE_FUNC();
++
++	int iBestValue = 0;
++	CvPlot* pBestPlot = NULL;
++
++	// check in all 8 directions
++	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++	{
++		DirectionTypes eDirection = (DirectionTypes) iI;
++		int iNX = GC.getPlotDirectionX()[eDirection];
++		int iNY = GC.getPlotDirectionY()[eDirection];
++
++		// try once at full range and once at half range
++		for (int iRangeDivisor = 1; iRangeDivisor <= 2; iRangeDivisor++)
++		{
++			// diagonal directions are a shorter stepdistance, because plotdistance is used for recon
++			int iRange = airRange() / iRangeDivisor;
++			iRange = ((abs(iNX) + abs(iNY)) <= 1) ? iRange : (((2 * iRange) + 1) / 3);
++
++			// find the furthest valid plot in this direction
++			CvPlot* pCheckPlot = NULL;
++			do
++			{
++				int iDX = iNX * iRange;
++				int iDY = iNY * iRange;
++
++				pCheckPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++			}
++			while (pCheckPlot == NULL && --iRange > 0);
++
++			if (pCheckPlot != NULL && canReconAt(plot(), pCheckPlot->getX_INLINE(), pCheckPlot->getY_INLINE()))
++			{
++				int iValue = AI_explorePlotValue(pCheckPlot, /*bAddRandom*/ false, /*bIgnoreGoodies*/ true);
++
++				// if better, or equal and random chance choose this one
++				if (iValue > iBestValue || (iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI_airExplore")))
++				{
++					iBestValue = iValue;
++					pBestPlot = pCheckPlot;
++				}
++			}
++		}
++	}
++
++	if (pBestPlot != NULL)
++	{
++		getGroup()->pushMission(MISSION_RECON, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE());
++		return true;
++	}
++
++	return false;
+ }
+ 
+ // Returns true if a mission was pushed...
+@@ -10748,10 +11083,11 @@
+ 			{
+ 				return true;
+ 			}
+-			else
+-			{
++			/*else
++			{
++				// the plot may be connected, but not connected to capital, if capital is not on same area, or if civ has no capital (like barbarians)
+ 				FAssertMsg(false, "Expected that a route could be built to eBestPlot");
+-			}
++			}*/
+ 		}
+ 		else
+ 		{
+@@ -12151,7 +12487,6 @@
+ 	return false;
+ }
+ 
+-
+ int CvUnitAI::AI_finalOddsThreshold(CvPlot* pPlot, int iOddsThreshold)
+ {
+ 	PROFILE_FUNC();
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@261
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@262
+@@ -56,6 +56,8 @@
+ 
+ 	int m_iCachedObserverCount;
+ 	bool m_bCacheObserverCount;
++
++	int m_iAutomatedAbortTurn;
+ 
+ 	void AI_animalMove();
+ 	void AI_settleMove();
+@@ -93,6 +95,7 @@
+ 	void AI_attackAirMove();
+ 	void AI_defenseAirMove();
+ 	void AI_carrierAirMove();
++	void AI_exploreAirMove();
+ 
+ 	void AI_networkAutomated();
+ 	void AI_cityAutomated();
+@@ -124,18 +127,20 @@
+ 	bool AI_greatWork();
+ 	bool AI_offensiveAirlift();
+ 	bool AI_protect(int iOddsThreshold);
+-	int AI_fogbustPlotValue(const CvPlot* pPlot, int iObserverChange = 0);
++	int AI_fogbustPlotValue(const CvPlot* pPlot, bool bVisibleToUnit = true);
+ 	void AI_fogbustPlotDifference(CvPlot* pNewPlot, CLinkList<CvPlot*>& visiblePlotList, int& iFogbustingPlotsWeLose, int& iFogbustingPlotsWeGain);
+ 	bool AI_fogbust();
++	bool AI_airFogbust();
+ 	bool AI_patrol();
+ 	bool AI_defend();
+ 	bool AI_safety();
+ 	bool AI_hide();
+ 	bool AI_goody(int iRange);
+-	int AI_explorePlotValue(const CvPlot* pPlot, bool bAddRandom = false) const;
++	int AI_explorePlotValue(const CvPlot* pPlot, bool bAddRandom = false, bool bIgnoreGoodies = false) const;
+ 	int AI_exploreTurnPathValue(void) const;
+ 	bool AI_explore();
+ 	bool AI_exploreRange(int iRange);
++	bool AI_airExplore();
+ 	bool AI_targetCity();
+ 	bool AI_targetBarbCity();
+ 	bool AI_bombardCity();
+

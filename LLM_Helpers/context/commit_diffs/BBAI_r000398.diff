@@ -1,0 +1,141 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 398
+# Author: jdog5000
+# Date: 2008-11-02T07:58:20.143890Z
+# Coverage: full
+# Message:
+#   0.41 revision A
+#   
+#   Fix to unowned fort bug in CvUnitAI::AI_airOffensiveCity
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@397
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@398
+@@ -3523,7 +3523,7 @@
+ 	/**																				*/
+ 	/********************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.40M");
++	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.41A");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szTempBuffer.Format(L"%S", "==========================");
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@397
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@398
+@@ -15856,7 +15856,7 @@
+ 	pBestPlot = NULL;
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						10/6/08				jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						11/01/08			jdog5000	*/
+ 	/**																				*/
+ 	/**		Air AI																	*/
+ 	/********************************************************************************/
+@@ -15870,7 +15870,7 @@
+ 		// Limit to cities and forts, true for any city but only this team's forts
+ 		if (pLoopPlot->isCity(true, getTeam()))
+ 		{
+-			if (pLoopPlot->getTeam() == getTeam() || GET_TEAM(pLoopPlot->getTeam()).isVassal(getTeam()))
++			if (pLoopPlot->getTeam() == getTeam() || (pLoopPlot->isOwned() && GET_TEAM(pLoopPlot->getTeam()).isVassal(getTeam())))
+ 			{
+ 				if (atPlot(pLoopPlot) || canMoveInto(pLoopPlot))
+ 				{
+@@ -15902,7 +15902,7 @@
+ }
+ 
+ /********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						10/21/08			jdog5000	*/
++/**		BETTER_BTS_AI_MOD						10/26/08			jdog5000	*/
+ /**																				*/
+ /**		Air AI																	*/
+ /********************************************************************************/
+@@ -16080,7 +16080,14 @@
+ 
+ 									if( pLoopPlot->getOwnerINLINE() == getOwnerINLINE() )
+ 									{
+-										iTempValue *= 2;
++										if( GET_PLAYER(getOwnerINLINE()).AI_isPrimaryArea(pLoopPlot->area()) )
++										{
++											iTempValue *= 3;
++										}
++										else
++										{
++											iTempValue *= 2;
++										}
+ 									}
+ 
+ 									if( bDefensive )
+@@ -16141,16 +16148,22 @@
+ 									}
+ 								}
+ 
+-								if( pLoopPlot->isBarbarian() )
+-								{
+-									iTempValue /= 2;
+-								}
+-
+ 								if( (pLoopPlot->area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) )
+ 								{
+ 									// Extra weight for enemy territory in offensive areas
+ 									iTempValue *= 2;
+ 								}
++
++								if( GET_PLAYER(getOwnerINLINE()).AI_isPrimaryArea(pLoopPlot->area()) )
++								{
++									iTempValue *= 3;
++									iTempValue /= 2;
++								}
++
++								if( pLoopPlot->isBarbarian() )
++								{
++									iTempValue /= 2;
++								}
+ 							}
+ 						}
+ 
+@@ -16198,6 +16211,12 @@
+ 		}
+ 
+ 		iValue += std::min(24, 3*(iDefenders - iAttackAirCount));
++
++		if( GET_PLAYER(getOwnerINLINE()).AI_isPrimaryArea(pPlot->area()) )
++		{
++			iValue *= 4;
++			iValue /= 3;
++		}
+ 
+ 		// No real enemies, check for minor civ or barbarian cities where attacks could be supported
+ 		pNearestEnemyCity = GC.getMapINLINE().findCity(pPlot->getX_INLINE(), pPlot->getY_INLINE(), NO_PLAYER, NO_TEAM, false, false, getTeam());
+@@ -16250,7 +16269,7 @@
+ 	FAssert(canAirDefend());
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						10/21/08			jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/26/08			jdog5000	*/
+ 	/**																				*/
+ 	/**		Air AI																	*/
+ 	/********************************************************************************/
+@@ -16315,6 +16334,12 @@
+ 
+ 					// Increase value of cities needing air defense more
+ 					iValue *= std::max(1, 3 + iNeedAirDefenders - iExistingAirDefenders);
++
++					if( GET_PLAYER(getOwnerINLINE()).AI_isPrimaryArea(pLoopCity->area()) )
++					{
++						iValue *= 4;
++						iValue /= 3;
++					}
+ 
+ 					// Reduce value of endangered city, it may be too late to help
+ 					if (3*iEnemyOffense > iOurDefense || iOurDefense == 0)
+

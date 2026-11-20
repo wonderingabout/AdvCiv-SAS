@@ -1,0 +1,90 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 395
+# Author: jdog5000
+# Date: 2008-10-22T18:45:07.267939Z
+# Coverage: full
+# Message:
+#   0.40 revision L - release candidate 1
+#   
+#   See sources for changes
+# Changed paths (3):
+#   M /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+#   M /trunk/Better BTS AI/readme.txt
+#   M /trunk/Better BTS AI/todo and ideas.txt
+
+Index: /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/readme.txt
+--- /trunk/Better BTS AI/readme.txt@394
++++ /trunk/Better BTS AI/readme.txt@395
+@@ -56,6 +56,7 @@
+ - When doing invasions, AI will now have cities with high production or free sea experience more often fill needs for aircraft carriers
+ - When doing invasions, if AI has at least 50% of its possible missile capacity it will no longer always build missiles
+ - Rewrote CvCityAI::AI_isAirDefended so that it considers unit damage, movement, AI type and can also count land units
++- Normal workboat build blocked if there's an enemy sea unit camping outside city
+ 
+ Espionage AI
+ - When a spy has waited in a city but has no mission available, they are now more likely to move around and explore instead of sitting
+@@ -96,6 +97,8 @@
+ - AI will now consider basing attack planes in vassal territory, though it will only use them if it owns no good base cities or forts itself
+ - Attack air units will now pull out of cities/forts if the defenders leave
+ - Airstrikes will no longer target enemies in adjacent territory when the territory is only adjacent to owned water tiles
++- Fighters now always move before bombers, they're much better at taking on enemy fighters
++- New function in CvPlot to count how many air units are running intercept missions already
+ 
+ Barbarian AI
+ - Barb ships will now often blockade cities for a few turns before moving on if they have no nearby targets
+@@ -104,6 +107,7 @@
+ - Improved barb ship blockade decisions so they stick around for a while but will then should actually move to another area
+ - Barb ships less suicidal, more oppurtunistic
+ - Reduced range in which barb ships detect unprotected resources by 25%
++- Barbarians now will build defenders in captured cities first, not buildings
+ 
+ General AI
+ - Modified city closeness calculations to use population from both cities, not just pop of the other city
+@@ -113,7 +117,10 @@
+ - Added function to calculate plot strength of teammates and (if desired) vassals
+ 
+ Combat Mechanics
+-- Blocked out location for potential changes to air combat
++- Modification for air v air combat to make veteran units more valuable, especially when wounded.  Air v air combat is now more much more similar to land combat.  This change can be disabled/enabled using BBAI_AIR_COMBAT in GlobalDefinesAlt.xml
++
++Customization
++- Added GlobalDefinesAlt.xml to mod files to allow some customization of what new features are running
+ 
+ Debug
+ - Added SDK and adapted python code from AIAutoPlay mod to faciliate testing
+
+Index: /trunk/Better BTS AI/todo and ideas.txt
+--- /trunk/Better BTS AI/todo and ideas.txt@394
++++ /trunk/Better BTS AI/todo and ideas.txt@395
+@@ -14,7 +14,7 @@
+ Air AI:
+ x Defensive airstrikes: target stacks adjacent to cities before doing regular airstrike check (which has a strong preference for boats)
+ x airOffensiveCity: position planes to better support attacking troops
+-- Defensive city, spread out more
++x Defensive city, spread out more
+ x Airstrike adjacent land only
+ 
+ City AI:
+@@ -30,6 +30,9 @@
+ - Transports (particularly with settlers) stalling if target location taken when on the way
+ - City defense axemen don't upgrade to Macemen since Macemen don't have that UNITAI ... switch to city counter under some circumstances?
+ 
++Barbarian AI:
++- Do barb cities in new world ever build assault ships?  They can ...
++
+ -----------------------------------------------------------
+ 
+ Bigger picture avenues to pursue:
+@@ -44,6 +47,4 @@
+ 
+ War allies:  how do losing/weak civs ask for help?
+ 
+-Reorganize unit upgrade AI, loop through cities and upgrade city defenses beyond just one unit ... maybe upgrade number needed defenders.  Then upgrade transports and escorts.  Then, if planning war, upgrade offensive units.  Then, if plenty of money, upgrade all units.
+-
+-Air combat mechanics: make air v air difference than ground v air?
++Privateers: move in the shadows
+

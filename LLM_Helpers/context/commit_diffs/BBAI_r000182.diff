@@ -1,0 +1,35 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 182
+# Author: iustus
+# Date: 2006-12-13T08:43:07.744935Z
+# Coverage: full
+# Message:
+#   really fixed the assert bug in 2.08 (previous fix caused asserts when chopping)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@181
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@182
+@@ -8616,7 +8616,8 @@
+ {
+ 	FAssertMsg(NO_PLAYER != city.getOwnerINLINE(), "City must have an owner");
+ 
+-	int iPastOverflow = (city.isProductionProcess() ? 0 : city.getOverflowProduction());
++	bool bIsProcess = city.isProductionProcess();
++	int iPastOverflow = (bIsProcess ? 0 : city.getOverflowProduction());
+ 	if (iPastOverflow != 0)
+ 	{
+ 		szBuffer += gDLL->getText("TXT_KEY_MISC_HELP_PROD_OVERFLOW", iPastOverflow) + NEWLINE;
+@@ -8839,8 +8840,7 @@
+ 
+ 	int iModProduction = iFoodProduction + (iBaseModifier * iBaseProduction) / 100;
+ 
+-    //asserts on processes
+-	FAssertMsg(iModProduction == city.getCurrentProductionDifference(false, (iPastOverflow > 0)), "Modified Production does not match actual value");
++	FAssertMsg(iModProduction == city.getCurrentProductionDifference(false, !bIsProcess), "Modified Production does not match actual value");
+ 
+ 	szBuffer += gDLL->getText("TXT_KEY_MISC_HELP_PROD_FINAL_YIELD", iModProduction) + NEWLINE;
+ 
+

@@ -1,0 +1,99 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 422
+# Author: jdog5000
+# Date: 2009-01-04T04:33:18.718194Z
+# Coverage: full
+# Message:
+#   0.50F
+#   
+#   Few more bug fixes
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@421
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@422
+@@ -4171,7 +4171,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.50E");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.50F");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@421
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@422
+@@ -1515,11 +1515,14 @@
+ 							for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+ 							{
+ 								pAdjacentPlot = plotDirection(pToPlot->getX_INLINE(), pToPlot->getY_INLINE(), ((DirectionTypes)iI));
+-								
+-								if (pAdjacentPlot->isOwned() && (atWar(pAdjacentPlot->getTeam(), pSelectionGroup->getHeadTeam()) || (pAdjacentPlot->getTeam() != pLoopUnit->getTeam() && pLoopUnit->isAlwaysHostile(pAdjacentPlot))))
++
++								if( pAdjacentPlot != NULL )
+ 								{
+-									iCost *= 4;
+-									iCost /= 3;
++									if (pAdjacentPlot->isOwned() && (atWar(pAdjacentPlot->getTeam(), pSelectionGroup->getHeadTeam()) || (pAdjacentPlot->getTeam() != pLoopUnit->getTeam() && pLoopUnit->isAlwaysHostile(pAdjacentPlot))))
++									{
++										iCost *= 4;
++										iCost /= 3;
++									}
+ 								}
+ 							}
+ 						}
+@@ -1538,10 +1541,13 @@
+ 							{
+ 								pAdjacentPlot = plotDirection(pToPlot->getX_INLINE(), pToPlot->getY_INLINE(), ((DirectionTypes)iI));
+ 								
+-								if (pAdjacentPlot->isOwned() && (atWar(pAdjacentPlot->getTeam(), pSelectionGroup->getHeadTeam()) || (pAdjacentPlot->getTeam() != pLoopUnit->getTeam() && pLoopUnit->isAlwaysHostile(pAdjacentPlot))))
++								if( pAdjacentPlot != NULL )
+ 								{
+-									iCost *= 6;
+-									iCost /= 5;
++									if (pAdjacentPlot->isOwned() && (atWar(pAdjacentPlot->getTeam(), pSelectionGroup->getHeadTeam()) || (pAdjacentPlot->getTeam() != pLoopUnit->getTeam() && pLoopUnit->isAlwaysHostile(pAdjacentPlot))))
++									{
++										iCost *= 6;
++										iCost /= 5;
++									}
+ 								}
+ 							}
+ 						}
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@421
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@422
+@@ -5897,7 +5897,7 @@
+ 
+ 					if( !bValid )
+ 					{
+-						if( bFriendlyToSecretary )
++						if( bFriendlyToSecretary || (!bPropose && GET_TEAM(getTeam()).isVassal(eSecretaryGeneral)) )
+ 						{
+ 							// Influence by secretary
+ 							bValid = true;
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@421
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@422
+@@ -17469,7 +17469,7 @@
+ 									{
+ 										if (pLoopPlot->getBonusType(getTeam()) != NO_BONUS)
+ 										{
+-											iTempValue += 8*std::max(2, GET_PLAYER(pLoopPlot->getOwnerINLINE()).AI_bonusVal(pLoopPlot->getBonusType(pLoopPlot->getTeam()))/10);
++											iTempValue += 8*std::max(2, GET_PLAYER(pLoopPlot->getOwnerINLINE()).AI_bonusVal(pLoopPlot->getBonusType(getTeam()))/10);
+ 										}
+ 									}
+ 								}
+

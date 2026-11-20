@@ -1,0 +1,304 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 116
+# Author: blakeciv
+# Date: 2006-11-23T06:41:22.251464Z
+# Coverage: full
+# Message:
+#   Improved AI boat building logic.
+#   Tweaked strategies.
+#   AI will pop borders with build culture.
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/CvCity.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.h
+--- /trunk/CvGameCoreDLL/CvCity.h@115
++++ /trunk/CvGameCoreDLL/CvCity.h@116
+@@ -776,6 +776,7 @@
+ 	virtual BuildTypes AI_getBestBuild(int iIndex) = 0;
+ 
+ 	virtual int AI_calculateCulturePressure(bool bGreatWork = false) = 0;
++	virtual int AI_calculateWaterWorldPercent() = 0;
+ 
+ protected:
+ 
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@115
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@116
+@@ -539,12 +539,22 @@
+ 	int iBaseResearchRate = getBaseCommerceRate(COMMERCE_RESEARCH);
+ 
+ 	bChooseUnit = false;
+-
++	
++	int iWaterPercent = AI_calculateWaterWorldPercent();
++	
+ 	clearOrderQueue();
+ 
+ 	if (bWasFoodProduction)
+ 	{
+ 		AI_assignWorkingPlots();
++	}
++	
++    if (getCultureLevel() == (CultureLevelTypes)1)
++	{
++        if (AI_chooseProcess(COMMERCE_CULTURE))
++        {
++            return;
++        }
+ 	}
+ 
+ 	if (plot()->getNumDefenders(getOwnerINLINE()) == 0) // XXX check for other team's units?
+@@ -682,7 +692,7 @@
+ 		}
+ 	}
+ 	
+-	if (bAssault)
++	if (bAssault && (GC.getGameINLINE().getSorenRandNum(100, "AI Choose Sea Unit") < iWaterPercent))
+ 	{
+ 		if (pWaterArea != NULL)
+ 		{
+@@ -2539,7 +2549,7 @@
+ }
+ 
+ 
+-ProcessTypes CvCityAI::AI_bestProcess()
++ProcessTypes CvCityAI::AI_bestProcess(CommerceTypes eCommerceType)
+ {
+ 	ProcessTypes eBestProcess;
+ 	int iValue;
+@@ -2553,7 +2563,7 @@
+ 	{
+ 		if (canMaintain((ProcessTypes)iI))
+ 		{
+-			iValue = AI_processValue((ProcessTypes)iI);
++			iValue = AI_processValue((ProcessTypes)iI, eCommerceType);
+ 
+ 			if (iValue > iBestValue)
+ 			{
+@@ -2567,12 +2577,13 @@
+ }
+ 
+ 
+-int CvCityAI::AI_processValue(ProcessTypes eProcess)
++int CvCityAI::AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType)
+ {
+ 	int iValue;
+ 	int iTempValue;
+ 	int iI;
+-
++	bool bValid = (eCommerceType == NO_COMMERCE);
++	
+ 	iValue = 0;
+ 
+ 	if (GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble())
+@@ -2588,6 +2599,10 @@
+ 	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 	{
+ 		iTempValue = GC.getProcessInfo(eProcess).getProductionToCommerceModifier(iI);
++		if (!bValid && ((CommerceTypes)iI == eCommerceType) && (iTempValue > 0))
++		{
++		    bValid = true;
++		}
+ 
+ 		iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_commerceWeight(((CommerceTypes)iI), this);
+ 		if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3))
+@@ -2600,7 +2615,7 @@
+ 		iValue += iTempValue;
+ 	}
+ 
+-	return iValue;
++	return (bValid ? iValue : 0);
+ }
+ 
+ 
+@@ -3806,11 +3821,11 @@
+ }
+ 
+ 
+-bool CvCityAI::AI_chooseProcess()
++bool CvCityAI::AI_chooseProcess(CommerceTypes eCommerceType)
+ {
+ 	ProcessTypes eBestProcess;
+ 
+-	eBestProcess = AI_bestProcess();
++	eBestProcess = AI_bestProcess(eCommerceType);
+ 
+ 	if (eBestProcess != NO_PROCESS)
+ 	{
+@@ -5335,6 +5350,39 @@
+ }
+ 
+ 
++int CvCityAI::AI_calculateWaterWorldPercent()
++{
++    int iI;
++    int iWaterPercent = 0;
++    int iTeamCityCount = 0;
++	int iOtherCityCount = 0;
++	for (iI = 0; iI < MAX_TEAMS; iI++)
++	{
++	    if (iI == getID())
++	    {
++	        iTeamCityCount += GET_TEAM((TeamTypes)iI).countNumCitiesByArea(area());
++	    }
++	    else
++	    {
++            iOtherCityCount += GET_TEAM((TeamTypes)iI).countNumCitiesByArea(area());
++	    }	    
++	}
++
++    if (iOtherCityCount == 0)
++    {
++        iWaterPercent = 100;
++    }
++    else
++    {
++        iWaterPercent = 100 - ((iTeamCityCount + iOtherCityCount) * 100) / max(1, (GC.getGame().getNumCities()));
++    }
++    
++    iWaterPercent = max(20, iWaterPercent);
++    
++    
++    return iWaterPercent;
++}
++
+ //
+ //
+ //
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@115
++++ /trunk/CvGameCoreDLL/CvCityAI.h@116
+@@ -37,8 +37,8 @@
+ 	DllExport ProjectTypes AI_bestProject();
+ 	DllExport int AI_projectValue(ProjectTypes eProject);
+ 
+-	DllExport ProcessTypes AI_bestProcess();
+-	DllExport int AI_processValue(ProcessTypes eProcess);
++	DllExport ProcessTypes AI_bestProcess(CommerceTypes eCommerceType = NO_COMMERCE);
++	DllExport int AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType = NO_COMMERCE);
+ 
+ 	DllExport int AI_neededSeaWorkers();
+ 
+@@ -81,6 +81,8 @@
+ 	DllExport void AI_updateBestBuild();
+ 
+     int AI_calculateCulturePressure(bool bGreatWork = false);
++    
++    int AI_calculateWaterWorldPercent();
+ 
+ 	DllExport void read(FDataStreamBase* pStream);
+ 	DllExport void write(FDataStreamBase* pStream);
+@@ -115,7 +117,7 @@
+ 	bool AI_chooseDefender();
+ 	bool AI_chooseBuilding(int iFocusFlags = 0, int iMaxTurns = MAX_INT);
+ 	bool AI_chooseProject();
+-	bool AI_chooseProcess();
++	bool AI_chooseProcess(CommerceTypes eCommerceType = NO_COMMERCE);
+ 
+ 	bool AI_addBestCitizen(bool bWorkers, bool bSpecialists);
+ 	bool AI_removeWorstCitizen(SpecialistTypes eIgnoreSpecialist = NO_SPECIALIST);
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@115
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@116
+@@ -1705,6 +1705,8 @@
+                     szString+=szTempBuffer;
+                 }
+             }
++            
++            
+ 
+ 
+ 
+@@ -1712,6 +1714,9 @@
+             {
+                 szTempBuffer.Format(L"\n\nCulture Pressure Value = %d", pPlot->getPlotCity()->AI_calculateCulturePressure());
+                 szString+=szTempBuffer;
++                
++                szTempBuffer.Format(L"\nWater World Percent = %d", pPlot->getPlotCity()->AI_calculateWaterWorldPercent());
++                szString+=szTempBuffer;                
+             }
+             szString += NEWLINE;
+             
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@115
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@116
+@@ -6130,7 +6130,7 @@
+ 
+ 	if (pArea->isWater())
+ 	{
+-		return min((pArea->getNumUnrevealedTiles(getTeam()) / 800), min(4, ((getNumCities() / 2) + 1)));
++		return min((pArea->getNumUnrevealedTiles(getTeam()) / 800), min(2, ((getNumCities() / 2) + 1)));
+ 	}
+ 	else
+ 	{
+@@ -8988,9 +8988,13 @@
+     
+     if (getCurrentEra() >= (GC.getNumEraInfos() - (2 + iNonsense % 2)))
+     {
+-        return 3;   
++        if (countTotalHasReligion() >= getNumCities() * 3)
++        {
++            return 3;
++        }
+     }
+-	else if (getCurrentEra() >= ((GC.getNumEraInfos() / 3) + iNonsense % 2))
++	
++	if (getCurrentEra() >= ((GC.getNumEraInfos() / 3) + iNonsense % 2))
+ 	{
+ 	    return 2;
+ 	}
+@@ -9045,11 +9049,12 @@
+     int iCurrentEra = getCurrentEra();
+     int iMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+     
+-    if (iCurrentEra <= (1+(iNonsense%2)) && (iMetCount > 0))
++    if (iCurrentEra <= (2+(iNonsense%2)) && (iMetCount > 0))
+     {	    
+ 	    int iDagger = 0;
+ 	    int iAttackUnitCount = 0;
+-	    iDagger += 5000 / max(100, (50 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand()));
++	    iDagger += 3000 / max(100, (50 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand()));
++	    iDagger += 4 * AI_getFlavorValue(AI_FLAVOR_MILITARY);
+ 	    
+         for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+         {
+@@ -9065,7 +9070,7 @@
+                     }
+                     if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() == NO_TECH)
+                     {
+-                        iDagger += 50;
++                        iDagger += 40;
+                         iAttackUnitCount++;
+                     }
+                     else
+@@ -9074,7 +9079,7 @@
+                         {
+                             if (GET_TEAM(getTeam()).isHasTech((TechTypes)GC.getUnitInfo(eLoopUnit).getPrereqAndTech()))
+                             {
+-                                iDagger += 50;
++                                iDagger += 40;
+                             }
+                             else
+                             {
+@@ -9150,6 +9155,11 @@
+         iDagger += ((iNonsense % 6) * 10);
+         iDagger -= ((iAttackUnitCount == 0) ? 40 : 0);
+         
++        if ((getCapitalCity()->area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (getCapitalCity()->area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE))
++        {
++            iDagger += (iAttackUnitCount > 0) ? 40 : 20;
++        }
++        
+         if (iDagger >= 100)
+         {
+             m_iStrategyHash |= AI_STRATEGY_DAGGER;            
+

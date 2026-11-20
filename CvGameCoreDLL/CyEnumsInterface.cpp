@@ -436,6 +436,16 @@ void CyEnumsPythonInterface()
 		.value("WIDGET_EXAMINE_CITY", WIDGET_EXAMINE_CITY)
 		// advc.500c:
 		.value("WIDGET_HELP_NO_FEAR_FOR_SAFETY", WIDGET_HELP_NO_FEAR_FOR_SAFETY)
+		.value("WIDGET_POWER_RATIO_INFO_SCREEN", WIDGET_POWER_RATIO_INFO_SCREEN) // <!-- custom: Expose the Info Screen-specific power hover to Python. See KI#388. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		.value("WIDGET_HELP_FINANCE_UNIT_COST_AND_SUPPLY", WIDGET_HELP_FINANCE_UNIT_COST_AND_SUPPLY) // <!-- custom: Expose the combined Military Advisor finance hover to Python. See KI#390. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		.value("WIDGET_PEDIA_JUMP_TO_ROUTE", WIDGET_PEDIA_JUMP_TO_ROUTE) // <!-- custom: Route links in Sevopedia and the advisors. See KI#113. (Claude code Opus 5.5) -->
+		// <!-- custom: Let Sevopedia table cells carry era and trigger IDs for native hover and clicks. See KI#113. (GPT-6.1-Sol) -->
+		.value("WIDGET_PEDIA_JUMP_TO_ERA", WIDGET_PEDIA_JUMP_TO_ERA)
+		.value("WIDGET_PEDIA_JUMP_TO_EVENT_TRIGGER", WIDGET_PEDIA_JUMP_TO_EVENT_TRIGGER)
+		.value("WIDGET_PEDIA_JUMP_TO_VOTE", WIDGET_PEDIA_JUMP_TO_VOTE) // <!-- custom: Vote links in Sevopedia. See KI#113. (Claude code Opus 5.5) -->
+		// <!-- custom: Build and Trait links in Sevopedia and the Tech Advisor. See KI#113. (Claude code Opus 5.5) -->
+		.value("WIDGET_PEDIA_JUMP_TO_BUILD", WIDGET_PEDIA_JUMP_TO_BUILD)
+		.value("WIDGET_PEDIA_JUMP_TO_TRAIT", WIDGET_PEDIA_JUMP_TO_TRAIT)
 
 		.value("NUM_WIDGET_TYPES", NUM_WIDGET_TYPES)
 		;
@@ -470,7 +480,8 @@ void CyEnumsPythonInterface()
 		.value("BUTTONPOPUP_ADDBUDDY", BUTTONPOPUP_ADDBUDDY)
 		.value("BUTTONPOPUP_FORCED_DISCONNECT", BUTTONPOPUP_FORCED_DISCONNECT)
 		.value("BUTTONPOPUP_PITBOSS_DISCONNECT", BUTTONPOPUP_PITBOSS_DISCONNECT)
-		.value("BUTTONPOPUP_KICKED", BUTTONPOPUP_PITBOSS_DISCONNECT)
+		// <!-- custom: Vanilla Civ4 bound BUTTONPOPUP_KICKED to BUTTONPOPUP_PITBOSS_DISCONNECT, a copy of the line above, though CvEnums.h has its own BUTTONPOPUP_KICKED; Warlords, BtS, Better BTS AI, K-Mod and base AdvCiv 1.14 kept it. See KI#1090.2. (Claude code Opus 5.5) -->
+		.value("BUTTONPOPUP_KICKED", BUTTONPOPUP_KICKED)
 		.value("BUTTONPOPUP_VASSAL_DEMAND_TRIBUTE", BUTTONPOPUP_VASSAL_DEMAND_TRIBUTE)
 		.value("BUTTONPOPUP_VASSAL_GRANT_TRIBUTE", BUTTONPOPUP_VASSAL_GRANT_TRIBUTE)
 		.value("BUTTONPOPUP_EVENT", BUTTONPOPUP_EVENT)
@@ -479,6 +490,19 @@ void CyEnumsPythonInterface()
 		.value("BUTTONPOPUP_FOUND_RELIGION", BUTTONPOPUP_FOUND_RELIGION)
 
 		.value("NUM_BUTTONPOPUP_TYPES", NUM_BUTTONPOPUP_TYPES)
+		;
+
+	// <!-- custom: Expose explicit AI Auto Play completion causes so the Python controller can distinguish scheduled completion, user interruption, victory, and player defeat in SASGameRecord. See KI#203. (GPT-5.6-Sol) -->
+	python::enum_<SASAutoPlayEndCause>("SASAutoPlayEndCause")
+		.value("SAS_AUTOPLAY_END_UNSPECIFIED", SAS_AUTOPLAY_END_UNSPECIFIED)
+		.value("SAS_AUTOPLAY_END_SCHEDULED", SAS_AUTOPLAY_END_SCHEDULED)
+		.value("SAS_AUTOPLAY_END_USER_INTERRUPTED", SAS_AUTOPLAY_END_USER_INTERRUPTED)
+		.value("SAS_AUTOPLAY_END_VICTORY", SAS_AUTOPLAY_END_VICTORY)
+		.value("SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED", SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED)
+		.value("SAS_AUTOPLAY_END_DESYNC", SAS_AUTOPLAY_END_DESYNC)
+		.value("SAS_AUTOPLAY_END_ASSERTION", SAS_AUTOPLAY_END_ASSERTION)
+		.value("SAS_AUTOPLAY_END_RISE_FALL", SAS_AUTOPLAY_END_RISE_FALL)
+		.value("SAS_AUTOPLAY_END_OTHER", SAS_AUTOPLAY_END_OTHER)
 		;
 
 	python::enum_<ClimateTypes>("ClimateTypes")
@@ -493,17 +517,26 @@ void CyEnumsPythonInterface()
 		.value("NO_CUSTOM_MAPOPTION", NO_CUSTOM_MAPOPTION)
 		;
 
+	// <!-- custom: Keep WorldSizeTypes aligned with CIV4WorldInfo.xml so C++ and Python enum values match runtime XML indices.
+	// New Arena is inserted before Duel and new SAS24/32/40/48 extend beyond Huge, so the old BtS-only Duel..Huge enum made constants such as WORLDSIZE_HUGE point at the wrong XML row. (ChatGPT-5.5) -->
 	python::enum_<WorldSizeTypes>("WorldSizeTypes")
 		.value("NO_WORLDSIZE", NO_WORLDSIZE)
+		.value("WORLDSIZE_ARENA", WORLDSIZE_ARENA)
 		.value("WORLDSIZE_DUEL", WORLDSIZE_DUEL)
 		.value("WORLDSIZE_TINY", WORLDSIZE_TINY)
 		.value("WORLDSIZE_SMALL", WORLDSIZE_SMALL)
 		.value("WORLDSIZE_STANDARD", WORLDSIZE_STANDARD)
 		.value("WORLDSIZE_LARGE", WORLDSIZE_LARGE)
 		.value("WORLDSIZE_HUGE", WORLDSIZE_HUGE)
+		.value("WORLDSIZE_SAS24", WORLDSIZE_SAS24)
+		.value("WORLDSIZE_SAS32", WORLDSIZE_SAS32)
+		.value("WORLDSIZE_SAS40", WORLDSIZE_SAS40)
+		.value("WORLDSIZE_SAS48", WORLDSIZE_SAS48)
 		/*  advc.enum: Don't assume that all sizes are hardcoded.
 			NUM_WORLDSIZE_TYPES is unused in AdvCiv/BtS Python. If it's needed
 			in a mod-mod, one could use WORLDSIZE_HUGE+1. */
+		// <!-- custom: WORLDSIZE_HUGE+1 should now be WORLDSIZE_SAS48+1.
+		// with the new worldsizes we added (ChatGPT-5.5) -->
 		//.value("NUM_WORLDSIZE_TYPES", NUM_WORLDSIZE_TYPES)
 		;
 
@@ -818,7 +851,9 @@ void CyEnumsPythonInterface()
 		.value("TASK_CHANGE_WORKING_PLOT", TASK_CHANGE_WORKING_PLOT)
 		.value("TASK_CLEAR_WORKING_OVERRIDE", TASK_CLEAR_WORKING_OVERRIDE)
 		.value("TASK_HURRY", TASK_HURRY)
-		.value("TASK_CONSCRIPT", TASK_HURRY)
+		// <!-- custom: Vanilla Civ IV bound Python's TASK_CONSCRIPT to TASK_HURRY, a copy of the line above, so drafting from Python would have hurried production instead; base AdvCiv 1.14, Better BTS AI and Civ4CE's BtS source have the same line.
+		// No Python file in the mod uses it; found while reading the task list for SASPilot's city commands. See KI#1090. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+		.value("TASK_CONSCRIPT", TASK_CONSCRIPT)
 		.value("TASK_CLEAR_ORDERS", TASK_CLEAR_ORDERS)
 		.value("TASK_RALLY_PLOT", TASK_RALLY_PLOT)
 		.value("TASK_CLEAR_RALLY_PLOT", TASK_CLEAR_RALLY_PLOT)
@@ -970,12 +1005,12 @@ void CyEnumsPythonInterface()
 		.value("UNITAI_CITY_SPECIAL", UNITAI_CITY_SPECIAL)
 		.value("UNITAI_EXPLORE", UNITAI_EXPLORE)
 		.value("UNITAI_MISSIONARY", UNITAI_MISSIONARY)
-		.value("UNITAI_PROPHET", UNITAI_PROPHET)
-		.value("UNITAI_ARTIST", UNITAI_ARTIST)
-		.value("UNITAI_SCIENTIST", UNITAI_SCIENTIST)
-		.value("UNITAI_GENERAL", UNITAI_GENERAL)
-		.value("UNITAI_MERCHANT", UNITAI_MERCHANT)
-		.value("UNITAI_ENGINEER", UNITAI_ENGINEER)
+		.value("UNITAI_GREAT_PROPHET", UNITAI_GREAT_PROPHET)
+		.value("UNITAI_GREAT_ARTIST", UNITAI_GREAT_ARTIST)
+		.value("UNITAI_GREAT_SCIENTIST", UNITAI_GREAT_SCIENTIST)
+		.value("UNITAI_GREAT_GENERAL", UNITAI_GREAT_GENERAL)
+		.value("UNITAI_GREAT_MERCHANT", UNITAI_GREAT_MERCHANT)
+		.value("UNITAI_GREAT_ENGINEER", UNITAI_GREAT_ENGINEER)
 		.value("UNITAI_GREAT_SPY", UNITAI_GREAT_SPY) // K-Mod
 		.value("UNITAI_SPY", UNITAI_SPY)
 		.value("UNITAI_ICBM", UNITAI_ICBM)
@@ -1182,13 +1217,14 @@ void CyEnumsPythonInterface()
 		.value("CONTROL_MOUSE_FLYING_CAMERA", CONTROL_MOUSE_FLYING_CAMERA)
 		.value("CONTROL_TOP_DOWN_CAMERA", CONTROL_TOP_DOWN_CAMERA)
 		.value("CONTROL_CIVILOPEDIA", CONTROL_CIVILOPEDIA)
-		.value("CONTROL_RELIGION_SCREEN", CONTROL_RELIGION_SCREEN)
-		.value("CONTROL_CORPORATION_SCREEN", CONTROL_CORPORATION_SCREEN)
+		// <!-- custom: CONTROL_RELIGION_SCREEN / CONTROL_CORPORATION_SCREEN removed; those screens are planned as Civics tabs. (GPT-5.3-Codex) -->
 		.value("CONTROL_CIVICS_SCREEN", CONTROL_CIVICS_SCREEN)
 		.value("CONTROL_FOREIGN_SCREEN", CONTROL_FOREIGN_SCREEN)
-		.value("CONTROL_FINANCIAL_SCREEN", CONTROL_FINANCIAL_SCREEN)
+		.value("CONTROL_FOREIGN_DIPLOMACY_SCREEN", CONTROL_FOREIGN_DIPLOMACY_SCREEN)
 		.value("CONTROL_MILITARY_SCREEN", CONTROL_MILITARY_SCREEN)
 		.value("CONTROL_TECH_CHOOSER", CONTROL_TECH_CHOOSER)
+		// <!-- custom: expose the F7 World Advisor control to Python. (GPT-5.5) -->
+		.value("CONTROL_WORLD_ADVISOR_SCREEN", CONTROL_WORLD_ADVISOR_SCREEN)
 		.value("CONTROL_TURN_LOG", CONTROL_TURN_LOG)
 		.value("CONTROL_CHAT_ALL", CONTROL_CHAT_ALL)
 		.value("CONTROL_CHAT_TEAM", CONTROL_CHAT_TEAM)
@@ -1454,7 +1490,8 @@ void CyEnumsPythonInterface()
 		// advc.130p:
 		.value("MEMORY_INDEPENDENCE", MEMORY_INDEPENDENCE)
 		// advc.104i:
-		.value("MEMORY_DECLARED_WAR_RECENT", MEMORY_INDEPENDENCE)
+		// <!-- custom: AdvCiv's advc.104i added MEMORY_DECLARED_WAR_RECENT (2018-09-30) and bound it to MEMORY_INDEPENDENCE, a copy of the line above. See KI#1090.2. (Claude code Opus 5.5) -->
+		.value("MEMORY_DECLARED_WAR_RECENT", MEMORY_DECLARED_WAR_RECENT)
 		.value("NUM_MEMORY_TYPES", NUM_MEMORY_TYPES)
 		;
 
@@ -1489,10 +1526,15 @@ void CyEnumsPythonInterface()
 		.value("NUM_DIPLOMACYPOWER_TYPES", NUM_DIPLOMACYPOWER_TYPES)
 		;
 
+	/*<!-- custom: new unit combat types and modifying existing ones --> */
 	python::enum_<FeatTypes>("FeatTypes")
-		.value("FEAT_UNITCOMBAT_ARCHER", FEAT_UNITCOMBAT_ARCHER)
-		.value("FEAT_UNITCOMBAT_MOUNTED", FEAT_UNITCOMBAT_MOUNTED)
-		.value("FEAT_UNITCOMBAT_MELEE", FEAT_UNITCOMBAT_MELEE)
+		.value("FEAT_UNITCOMBAT_ARCHER_BOW_SHORT", FEAT_UNITCOMBAT_ARCHER_BOW_SHORT)
+		.value("FEAT_UNITCOMBAT_ARCHER_BOW_LONG", FEAT_UNITCOMBAT_ARCHER_BOW_LONG)
+		.value("FEAT_UNITCOMBAT_ARCHER_CROSSBOW", FEAT_UNITCOMBAT_ARCHER_CROSSBOW)
+		.value("FEAT_UNITCOMBAT_MOUNTED_MELEE", FEAT_UNITCOMBAT_MOUNTED_MELEE)
+		.value("FEAT_UNITCOMBAT_MOUNTED_RANGED", FEAT_UNITCOMBAT_MOUNTED_RANGED)
+		.value("FEAT_UNITCOMBAT_MELEE_POLEARM", FEAT_UNITCOMBAT_MELEE_POLEARM)
+		.value("FEAT_UNITCOMBAT_MELEE_SHOCK", FEAT_UNITCOMBAT_MELEE_SHOCK)
 		.value("FEAT_UNITCOMBAT_SIEGE", FEAT_UNITCOMBAT_SIEGE)
 		.value("FEAT_UNITCOMBAT_GUN", FEAT_UNITCOMBAT_GUN)
 		.value("FEAT_UNITCOMBAT_ARMOR", FEAT_UNITCOMBAT_ARMOR)
@@ -2003,7 +2045,8 @@ void CyEnumsPythonInterface()
 		.value("GLOBE_LAYER_RELIGION", GLOBE_LAYER_RELIGION)
 		.value("GLOBE_LAYER_CULTURE", GLOBE_LAYER_CULTURE)
 		.value("NUM_GLOBE_LAYER_TYPES", NUM_GLOBE_LAYER_TYPES)
-		.value("NO_GLOBE_LAYER", NUM_GLOBE_LAYER_TYPES)
+		// <!-- custom: AdvCiv's advc.004m (2019-04-14) exposed the globe layers and bound NO_GLOBE_LAYER to NUM_GLOBE_LAYER_TYPES, the line above, though it placed its own NO_GLOBE_LAYER after it; so CvMainInterface reported NUM_GLOBE_LAYER_TYPES to reportCurrentLayer when no layer was shown. See KI#1090.2. (Claude code Opus 5.5) -->
+		.value("NO_GLOBE_LAYER", NO_GLOBE_LAYER)
 		;
 	// advc.pf: If generatePath (CvUnit, CvSelectionGroup) is exposed, so should this be.
 	python::enum_<MovementFlags>("MovementFlags")

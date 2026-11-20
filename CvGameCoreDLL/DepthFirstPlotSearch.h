@@ -23,12 +23,8 @@ public:
 		// Should check some property of kPlot here
 		return true;
 	}
-	bool canVisit(CvPlot const& kFrom, CvPlot const& kPlot) const
-	{
-		/*	Always returning true means that any two plots adjacent on the map
-			are treated as adjacent in the graph */
-		return true;
-	}
+	/* Always returning true means that any two plots adjacent on the map are treated as adjacent in the graph */
+	bool canVisit(CvPlot const& kFrom, CvPlot const& kPlot) const { return true; }
 	// Return false to abort the traversal. Need to set bFULL_TRAVERSAL=false then.
 	bool visit(CvPlot& kPlot)
 	{
@@ -50,19 +46,13 @@ protected:
 	EagerEnumMap<PlotNumTypes,bool> m_abVisited;
 
 public:
-	bool isVisited(CvPlot const& kPlot) const
-	{
-		return m_abVisited.get(kPlot.plotNum());
-	}
-	void setVisited(CvPlot const& kPlot)
-	{
-		m_abVisited.set(kPlot.plotNum(), true);
-	}
+	bool isVisited(CvPlot const& kPlot) const { return m_abVisited.get(kPlot.plotNum()); }
+	void setVisited(CvPlot const& kPlot) { m_abVisited.set(kPlot.plotNum(), true); }
 	// Needs to be called when using the same instance for multiple searches
-	void reset()
-	{
-		m_abVisited.reset();
-	}
+	// <!-- custom: KI#243.2's same-process small-map -> Huge capture hit INVALID_POINTER_WRITE because reset clears this eager PlotNum map at the current map length but does not resize the construction-time allocation.
+	// Keep AdvCiv's reset semantics unchanged; a caller retaining this visitor across games must reconstruct it when the plot count changes.
+	// The reusable machinery originated in AdvCiv commit cf83cd90b3 (2022-11-11). See KI#243.2. (ChatGPT-5.6-Sol) -->
+	void reset() { m_abVisited.reset(); }
 };
 
 // V should be derived from PlotVisitor

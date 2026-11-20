@@ -3,10 +3,7 @@
 	<!-- Mostly just to be consistent with other info types. Could also be
 		 used for lookup by type string for debugging. -->
 	<ElementType name="Type" content="textOnly"/>
-	<!-- Always nice to have some means of encouraging or discouraging a
-		 a particular outcome for no particular reason. +100 is a "high"
-		 bias in favor (but not the highest possible), -100 is a
-		 maximal bias against. -->
+	<!-- custom: Long_Comments_XML.txt #290 -->
 	<ElementType name="iBias" content="textOnly" dt:type="int"/>
 	<!-- TruCivs ... -->
 	<ElementType name="CivilizationType" content="textOnly"/>
@@ -23,108 +20,30 @@
 	<ElementType name="GeoRegion" content="textOnly"/>
 	<ElementType name="TruCivInfo" content="eltOnly">
 		<element type="Type"/>
-		<!-- "CIVILIZATION_..." type name of the civilization that the
-			 TruCiv info refers to. Not linking those two info types in the
-			 inverse direction because I want to keep all the TruCiv XML code
-			 in one place. -->
+		<!-- custom: Long_Comments_XML.txt #291 -->
 		<element type="CivilizationType"/>
-		<!-- Latitude and longitude of the civ's capital, given as degrees
-			 at times 10 precision. I.e. _not_ given as minutes. -->
-		<!-- Can take any values between -900 and +900.
-			 Negative sign for southern hemisphere. -->
+		<!-- custom: Long_Comments_XML.txt #292 -->
 		<element type="iLatitudeTimes10"/>
 		<!-- Can take any values between -1800 and +1800.
 			 Negative sign for western hemisphere. -->
 		<element type="iLongitudeTimes10"/>
-		<!-- All other elements are optional (minOccurs 0). So that mods with
-			 additional civs need to define only the geo coordinates,
-			 which are easy to look up on Wikipedia (though the minutes stated
-			 there will have to be converted to tenths of degrees through
-			 multiplication by 5/3). -->
-		<!-- Annual, in millimeters. I've mostly tried to find the present-day
-			 precipitation average of the modern country or countries
-			 corresponding to the civ.
-			 This translates into a preference for terrain and feature types.
-			 The ids of those types are obtained from the Global Warming
-			 definitions in GlobalDefinesAlt.xml. -->
+		<!-- custom: Long_Comments_XML.txt #280 -->
 		<element type="iPrecipitation" minOccurs="0"/>
-		<!-- A percentage expressing how much the climate varies across the
-			 (core) territory of the civilization. Again, this results in a
-			 bias for terrain and feature types, so not all kinds of variations
-			 should be equally reflected by the percentage. Large civs should
-			 tend to have higher variation values (because players will
-			 associate them with diverse biomes), but the degree of variation
-			 within smaller subareas should also matter. For example, Western
-			 Russia does not have much variation, whereas Korea is quite varied
-			 for a small country. -->
+		<!-- custom: Long_Comments_XML.txt #281 -->
 		<element type="iClimateVariation" minOccurs="0"/>
-		<!-- Percentage expressing how maritime the civ is. The game -mostly-
-			 aims at that ratio of sea tiles (or land tiles on a different
-			 landmass than the starting tiles) among the tiles surrounding the
-			 starting tile. To choose the values, I've looked at the
-			 approximate ratios on Earth within a 550 km radius around the
-			 capitals (that surface area, conveniently, covers about 1 mio.
-			 square kilometers), then made adjustments based on the capitals'
-			 distance from the coast, length of the coastline and the civs'
-			 naval histories. -->
+		<!-- custom: Long_Comments_XML.txt #282 -->
 		<element type="iOceanity" minOccurs="0"/>
-		<!-- Percentage expressing the importance of having a major river
-			 (as in: one of the world's biggest or most prominent river systems)
-			 near the civ's starting tile. 0 means that it doesn't matter
-			 whether there's a major river. A negative percentage discourages
-			 starts near major rivers. The default value is -25. (Civs not
-			 strongly associated with a river should, ideally, have only
-			 minor rivers near their starting plots.) -->
+		<!-- custom: Long_Comments_XML.txt #283 -->
 		<element type="iMajorRiverWeight" minOccurs="0"/>
-		<!-- Highest elevation in meters that is within the historical
-			 territory of the civ and not too far away from its core.
-			 Translates into an affinity for Peaks.
-			 Using prominence, or the highest elevation minus the average of
-			 the civ's whole (core) territory, would be slightly more helpful,
-			 but it really doesn't make much of a difference for the civs that
-			 we have, and maximal elevation is easy to research. (I've mainly
-			 used a table of extreme elevations per country on Wikipedia.) -->
+		<!-- custom: Long_Comments_XML.txt #284 -->
 		<element type="iMaxElevation" minOccurs="0"/>
-		<!-- Percentage of the civ's core area that has a mountainous relief.
-			 (This is a matter of gradients, not absolute elevation. E.g. an
-			 altiplano is not considered mountainous in this context.)
-			 Translates into an affinity for hills and peaks.
-			 (I use crude approximations based on some world map showing that
-			 info on a per-country basis.) -->
+		<!-- custom: Long_Comments_XML.txt #285 -->
 		<element type="iMountainousArea" minOccurs="0"/>
-		<!-- In units of 1000 square kilometer. Hard to say which borders to
-			 use. Results in a (slight) bias for or against starting tiles
-			 with (somewhat) more space for expansion than the average.
-			 The specific numbers don't matter much, just the order of
-			 magnitude. For empires, the largest extent can vastly exceed
-			 the pre-imperial or core area. I've been picking modest sizes
-			 in these cases, also taking into account whether the conquered
-			 peoples are represented in the game as civs. In any case, a civ
-			 should have to do some actual conquering to become a veritable
-			 empire. However, small sizes, say, less than 250 thousand square
-			 kilometers, should be reserved for civs that are only thought of
-			 as small, including colonial empires like Portugal. -->
+		<!-- custom: Long_Comments_XML.txt #286 -->
 		<element type="iTotalArea" minOccurs="0"/>
-		<!-- Target ratio of the horizontal to the vertical dimension of the
-			 civ's space for expansion, as a percentage. E.g. 150 means that
-			 the civ should have 50% more space for expansion in west-east
-			 direction than in north-south direction. Should not necessarily
-			 be used for civs that expanded into a particular direction as
-			 empires (e.g. Persia) because having space in that direction
-			 can mean that they'll conquer neighboring civs in just the
-			 perpendicular (counter-historical) direction. I'm also never
-			 setting a preference for civs with a small area because their
-			 shape didn't matter much historically. For large civs, like
-			 Egypt, the shape mattered more as it caused them to span multiple
-			 climate zones. -->
+		<!-- custom: Long_Comments_XML.txt #287 -->
 		<element type="iHStretch" minOccurs="0"/>
-		<!-- To make preferences for bonus resources easier to specify.
-			 Use ARTSTYLE_... strings here to avoid having to define a new
-			 global type for the regions. Using the artstyles already assigned
-			 for CivilizationInfos wouldn't (always) work since those are based
-			 on culture, not geography. Moreover, a mod might add and assign
-			 new artstyles (but I doubt that it would eliminate any of the
-			 existing ones). -->
+		<!-- custom: Long_Comments_XML.txt #288 -->
 		<element type="GeoRegion" minOccurs="0"/>
 		<!-- See comment above the ElementType definition. Important for
 			 balancing the civs' frequencies of appearance on the bottom line. -->
@@ -145,11 +64,7 @@
 		<!-- "LEADER_..." type name of the leader that the
 			 TruLeader info refers to. -->
 		<element type="LeaderType"/>
-		<!-- Gregorian year number. Negative sign for BC(E). When in doubt,
-			 it should be the year in which the leader took control of the bulk
-			 of his or her domain. Should ideally also have ruled for several
-			 years after. Optional - the DLL treats the date as (entirely) unknown
-			 when none is stated. -->
+		<!-- custom: Long_Comments_XML.txt #289 -->
 		<element type="iStartOfReign" minOccurs="0"/>
 		<element type="iBias" minOccurs="0"/>
 	</ElementType>
@@ -172,9 +87,7 @@
 	</ElementType>
 	<ElementType name="DiscouragedCiv" content="eltOnly">
 		<element type="CivilizationType" minOccurs="1" maxOccurs="1"/>
-		<!-- Exclusive until, i.e. when the game starts in this era or later,
-			 the discouragement is ignored. Use NONE when the bonus resource is
-			 supposed to be discouraged regardless of the start era. -->
+		<!-- custom: Long_Comments_XML.txt #293 -->
 		<element type="UntilEra" minOccurs="1" maxOccurs="1"/>
 	</ElementType>
 	<ElementType name="DiscouragedCivs" content="eltOnly">
@@ -190,12 +103,9 @@
 	</ElementType>
 	<ElementType name="TruBonusInfo" content="eltOnly">
 		<element type="Type"/>
-		<!-- "BONUS_..." type name of the bonus resource that the
-			 TruBonus info refers to. -->
+		<!-- custom: Long_Comments_XML.txt #294 -->
 		<element type="BonusType"/>
-		<!-- Applies the biases only to instances of the bonus resource
-			 that get placed on land. This only makes sense for
-			 bonus resources that can be placed on both land and water. -->
+		<!-- custom: Long_Comments_XML.txt #295 -->
 		<element type="bLandOnly" minOccurs="0"/>
 		<element type="DiscouragedRegions" minOccurs="0" maxOccurs="*"/>
 		<element type="DiscouragedCivs" minOccurs="0" maxOccurs="*"/>

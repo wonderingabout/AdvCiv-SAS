@@ -1,6 +1,7 @@
 #include "CvGameCoreDLL.h"
-//#include ".\cvpopupinfo.h"
-#include "CvPopupInfo.h" // advc.cppstd
+// <!-- custom: AdvCiv already uses the case-correct local header below.
+// SAS extended that cleanup during the AdvCiv 1.14 merge by removing the commented-out `.\cvpopupinfo.h` left beside it. (GPT-6.2-Sol) -->
+#include "CvPopupInfo.h" // advc
 
 /*	advc (note): There's a convention of checking for a NULL pointer
 	after allocating a CvPopupInfo. This might make it possible to
@@ -10,10 +11,7 @@
 	serve any reasonable purpose. Even if they do, wrapping those checks
 	into a factory function would be much better. */
 
-CvPopupInfo::CvPopupInfo(
-	ButtonPopupTypes eButtonPopupType,
-	int iData1, int iData2, int iData3, int iFlags,
-	bool bOption1, bool bOption2)
+CvPopupInfo::CvPopupInfo(ButtonPopupTypes eButtonPopupType, int iData1, int iData2, int iData3, int iFlags, bool bOption1, bool bOption2)
 :	m_iData1(iData1),
 	m_iData2(iData2),
 	m_iData3(iData3),

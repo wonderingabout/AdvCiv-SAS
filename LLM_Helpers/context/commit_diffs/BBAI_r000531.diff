@@ -1,0 +1,342 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 531
+# Author: jdog5000
+# Date: 2010-03-03T07:28:57.289010Z
+# Coverage: full
+# Message:
+#   0.90e
+#   
+#   Fix bug with multiple pillages
+#   Some UP changes
+#   New siege valuation function
+# Changed paths (6):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@530
++++ /trunk/CvGameCoreDLL/CvCity.cpp@531
+@@ -228,7 +228,7 @@
+ 	if (lResult == 1)
+ 	{
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       10/30/09                     Mongoose & jdog5000      */
++/* UNOFFICIAL_PATCH                       03/01/10                     Mongoose & jdog5000      */
+ /*                                                                                              */
+ /* Bugfix                                                                                       */
+ /************************************************************************************************/
+@@ -237,7 +237,9 @@
+ */
+ 		// From Mongoose SDK
+ 		// Don't remove floodplains from tiles when founding city
+-		if ((pPlot->getFeatureType() != NO_FEATURE) && (pPlot->getFeatureType() != (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS")))
++		//if ((pPlot->getFeatureType() != NO_FEATURE) && (pPlot->getFeatureType() != (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS")))
++		
++		if (pPlot->getFeatureType() != NO_FEATURE)
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                        END                                                  */
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@530
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@531
+@@ -4521,12 +4521,12 @@
+ /* UNOFFICIAL_PATCH                       END                                                   */
+ /************************************************************************************************/
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/10/10                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      03/02/10                                jdog5000      */
+ /*                                                                                              */
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.90c");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.90e");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@530
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@531
+@@ -9354,6 +9354,12 @@
+ 		break;
+ 
+ 	case UNITAI_ATTACK_CITY:
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/24/10                                jdog5000      */
++/*                                                                                              */
++/* War strategy AI                                                                              */
++/************************************************************************************************/
++		// Effect army composition to have more collateral/bombard units
+ 		iFastMoverMultiplier = AI_isDoStrategy(AI_STRATEGY_FASTMOVERS) ? 4 : 1;
+ 		
+ 		iTempValue = ((iCombatValue * iCombatValue) / 75) + (iCombatValue / 2);
+@@ -9370,53 +9376,36 @@
+ 		{
+ 			iValue += (iTempValue * 8) / 100;
+ 		}		
+-		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getCityAttackModifier()) / 100);
+-		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getCollateralDamage()) / 400);
++		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getCityAttackModifier()) / 75);
++		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getCollateralDamage()) / 200);
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getMoves() * iFastMoverMultiplier) / 4);
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getWithdrawalProbability()) / 100);
++
+ 		if (!AI_isDoStrategy(AI_STRATEGY_AIR_BLITZ))
+ 		{
+-			int iBombardValue = GC.getUnitInfo(eUnit).getBombardRate() * 4;
++			int iBombardValue = GC.getUnitInfo(eUnit).getBombardRate() * 8;
+ 			if (iBombardValue > 0)
+ 			{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/24/10                                jdog5000      */
+-/*                                                                                              */
+-/* War strategy AI                                                                              */
+-/************************************************************************************************/
+-				// Army composition needs to scale with army size, bombard unit potency
+-
+-				//Percentage change
+-				//Total Bombard == 0 : 600%
+-				//Total Bombard == 100 : 200%
+-				//Total Bombard == 200: 100%
+-				//Total Bombard == 300: 50%
+-				//Total Bombard == 400: 
+-				int iTotalBombardValue = 4 * AI_calculateTotalBombard(DOMAIN_LAND);
+-
+-				int iNumBombardUnits = iTotalBombardValue / iBombardValue;
+-				int iNumOffensiveUnits = AI_totalUnitAIs(UNITAI_ATTACK_CITY) + AI_totalUnitAIs(UNITAI_ATTACK) + AI_totalUnitAIs(UNITAI_COUNTER)/2;
+-				int iAIDesiredBombardFraction = std::max( 10, GC.getDefineINT("BBAI_BOMBARD_ATTACK_STACK_FRACTION"));
+-				int iActualBombardFraction = (100*iNumBombardUnits)/std::max(1, iNumOffensiveUnits);
+-
+-				if (iActualBombardFraction < iAIDesiredBombardFraction)
+-				{
+-					iBombardValue *= iAIDesiredBombardFraction + 20 * (iAIDesiredBombardFraction - iActualBombardFraction);
+-					iBombardValue /= iAIDesiredBombardFraction;
++				int iGoalTotalBombardRate = (GC.getUnitInfo(eUnit).isIgnoreBuildingDefense() ? 100 : 200);
++				// Note: this also counts UNITAI_COLLATERAL units, which only play defense
++				int iTotalBombardRate = AI_calculateTotalBombard(DOMAIN_LAND);
++				if (iTotalBombardRate < iGoalTotalBombardRate)
++				{
++					iBombardValue *= (iGoalTotalBombardRate - iTotalBombardRate);
++					iBombardValue /= iGoalTotalBombardRate;
+ 				}
+ 				else
+ 				{
+-					iBombardValue *= iAIDesiredBombardFraction;
+-					iBombardValue /= range(iActualBombardFraction,1,99);
+-				}
++					iBombardValue *= iGoalTotalBombardRate;
++					iBombardValue /= std::min(4*iGoalTotalBombardRate, 2*iTotalBombardRate - iGoalTotalBombardRate);
++				}
++
++				iValue += iBombardValue;
++			}
++		}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-
+-				iValue += iBombardValue;
+-			}
+-		}
+-
+ 		break;
+ 
+ 	case UNITAI_COLLATERAL:
+@@ -12061,7 +12050,25 @@
+ 					{
+ 						if (GET_TEAM((TeamTypes)iI).AI_getWorstEnemy() == getTeam())
+ 						{
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       03/02/10                                Sephi         */
++/*                                                                                              */
++/* Bug fix                                                                                      */
++/************************************************************************************************/
++/* orig bts code
+ 							GET_TEAM((TeamTypes)iI).AI_changeEnemyPeacetimeTradeValue(GET_PLAYER(eIndex).getTeam(), iChange);
++*/
++                            //make sure that if A trades with B and A is C's worst enemy, C is only mad at B if C has met B before
++                            //A = this
++                            //B = eIndex
++                            //C = (TeamTypes)iI
++                            if (GET_TEAM((TeamTypes)iI).isHasMet(GET_PLAYER(eIndex).getTeam()))
++                            {
++								GET_TEAM((TeamTypes)iI).AI_changeEnemyPeacetimeTradeValue(GET_PLAYER(eIndex).getTeam(), iChange);
++							}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 						}
+ 					}
+ 				}
+@@ -12105,7 +12112,25 @@
+ 					{
+ 						if (GET_TEAM((TeamTypes)iI).AI_getWorstEnemy() == getTeam())
+ 						{
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       03/02/10                                Sephi         */
++/*                                                                                              */
++/* Bug fix                                                                                      */
++/************************************************************************************************/
++/* orig bts code
+ 							GET_TEAM((TeamTypes)iI).AI_changeEnemyPeacetimeGrantValue(GET_PLAYER(eIndex).getTeam(), iChange);
++*/
++                            //make sure that if A trades with B and A is C's worst enemy, C is only mad at B if C has met B before
++                            //A = this
++                            //B = eIndex
++                            //C = (TeamTypes)iI
++                            if (GET_TEAM((TeamTypes)iI).isHasMet(GET_PLAYER(eIndex).getTeam()))
++                            {
++								GET_TEAM((TeamTypes)iI).AI_changeEnemyPeacetimeGrantValue(GET_PLAYER(eIndex).getTeam(), iChange);
++							}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 						}
+ 					}
+ 				}
+@@ -16396,10 +16421,6 @@
+ 
+ 	return m_iVictoryStrategyHash;
+ }
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/		
+-
+ 
+ 
+ bool CvPlayerAI::AI_isDoStrategy(int iStrategy) const
+@@ -16598,7 +16619,7 @@
+ 					{
+ 						if (!kLoopUnit.isSuicide())
+ 						{
+-							if ((kLoopUnit.getBombRate() > 5) && (kLoopUnit.getAirCombat() > 0))
++							if ((kLoopUnit.getBombRate() > 10) && (kLoopUnit.getAirCombat() > 0))
+ 							{
+ 								bHasBomber = true;								
+ 							}
+@@ -17161,6 +17182,9 @@
+ 
+ 	return m_iStrategyHash;   
+ }
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/		
+ 
+ 
+ void CvPlayerAI::AI_nowHasTech(TechTypes eTech)
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@530
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@531
+@@ -1153,7 +1153,7 @@
+ 		}
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/10/10                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      03/02/10                                jdog5000      */
+ /*                                                                                              */
+ /* War tactics AI                                                                               */
+ /************************************************************************************************/
+@@ -1168,16 +1168,15 @@
+ 				pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 				pUnitNode = nextUnitNode(pUnitNode);
+ 
+-				if( pLoopUnit->canPillage(plot()) )
++				if( pLoopUnit->canMove() && pLoopUnit->canPillage(plot()) )
+ 				{
+ 					iMaxMovesLeft = std::max( iMaxMovesLeft, pLoopUnit->movesLeft() );
+ 				}
+ 			}
+ 
+-			bool bDidPillage = true;
+-			while( iMaxMovesLeft > 0 && bDidPillage )
+-			{
+-				bDidPillage = false;
++			bool bDidPillage = false;
++			while( iMaxMovesLeft > 0 && !bDidPillage )
++			{
+ 				pUnitNode = headUnitNode();
+ 				int iNextMaxMovesLeft = 0;
+ 
+@@ -1186,7 +1185,7 @@
+ 					pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 					pUnitNode = nextUnitNode(pUnitNode);
+ 
+-					if( pLoopUnit->canPillage(plot()) )
++					if( pLoopUnit->canMove() && pLoopUnit->canPillage(plot()) )
+ 					{
+ 						if( pLoopUnit->movesLeft() >= iMaxMovesLeft )
+ 						{
+@@ -1194,6 +1193,7 @@
+ 							{
+ 								bAction = true;
+ 								bDidPillage = true;
++								break;
+ 							}
+ 						}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@530
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@531
+@@ -947,7 +947,19 @@
+ 
+ 				for (iJ = 0; iJ < MAX_CIV_TEAMS; iJ++)
+ 				{
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       03/01/10                     Mongoose & jdog5000      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++/* original bts code
+ 					if (GET_TEAM((TeamTypes)iJ).isAlive())
++*/
++					// From Mongoose SDK, BarbarianPassiveTechFix
++					if (GET_TEAM((TeamTypes)iJ).isAlive() && !GET_TEAM((TeamTypes)iJ).isBarbarian())
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 					{
+ 						if (GET_TEAM((TeamTypes)iJ).isHasTech((TechTypes)iI))
+ 						{
+@@ -962,7 +974,19 @@
+ 				{
+ 					FAssertMsg(iPossibleCount > 0, "iPossibleCount is expected to be greater than 0");
+ 
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       03/01/10                     Mongoose & jdog5000      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++/* original bts code
+ 					changeResearchProgress(((TechTypes)iI), ((getResearchCost((TechTypes)iI) * ((GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT") * iCount) / iPossibleCount)) / 100), getLeaderID());
++*/
++					// From Mongoose SDK, BarbarianPassiveTechFix
++					changeResearchProgress((TechTypes)iI, std::max((getResearchCost((TechTypes)iI) * GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT") * iCount) / (100 * iPossibleCount), 1), getLeaderID());
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 				}
+ 			}
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@530
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@531
+@@ -14199,7 +14199,7 @@
+ 		//getGroup()->AI_compareStacks(pBombardCity->plot(), /*bPotentialEnemy*/ true, /*bCheckCanAttack*/ true, /*bCheckCanMove*/ true);
+ 		//int iOurStrength = pBombardCity->plot()->AI_sumStrength(getOwnerINLINE(), NO_PLAYER, DOMAIN_LAND, false, false, false)
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/28/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      02/22/10                                jdog5000      */
+ /*                                                                                              */
+ /* War Tactics AI                                                                               */
+ /************************************************************************************************/
+

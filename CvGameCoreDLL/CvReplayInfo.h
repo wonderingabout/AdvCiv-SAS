@@ -5,6 +5,38 @@
 
 class CvReplayMessage;
 
+// <!-- custom: Rejection reasons describe replay reading rather than a particular log, so keep their enum and generated names beside the reader interface.
+// Following the AI-strategy/BuildingFocus single-catalog pattern, one list serves assertions and SGR without duplicated string mappings or a generic-utilities dependency.
+// A bad replay stops at its first unsafe field; the Hall-of-Fame scan can continue with other replay files. See KI#166.2. (GPT-6.1-Sol) -->
+#define SAS_REPLAY_REJECTION_REASONS(DO) \
+	DO(FOREIGN_ID) \
+	DO(NEWER_VERSION) \
+	DO(OLDER_VERSION) \
+	DO(BOUNDS) \
+	DO(CALENDAR_ARITHMETIC) \
+	DO(BTS_DISABLED) \
+	DO(MOD_NAME_MISMATCH) \
+	DO(READ_EXCEPTION)
+#define SAS_REPLAY_REJECTION_ENUM(NAME) SAS_REPLAY_REJECT_##NAME,
+enum SASReplayRejectionReason
+{
+	SAS_REPLAY_REJECTION_REASONS(SAS_REPLAY_REJECTION_ENUM)
+};
+#undef SAS_REPLAY_REJECTION_ENUM
+
+inline char const* getSASReplayRejectionName(SASReplayRejectionReason eReason)
+{
+	switch(eReason)
+	{
+#define SAS_REPLAY_REJECTION_CASE(NAME) case SAS_REPLAY_REJECT_##NAME: return #NAME;
+		SAS_REPLAY_REJECTION_REASONS(SAS_REPLAY_REJECTION_CASE)
+#undef SAS_REPLAY_REJECTION_CASE
+	default: return "UNKNOWN";
+	}
+}
+#undef SAS_REPLAY_REJECTION_REASONS
+
+
 class CvReplayInfo
 {
 	CvReplayInfo& operator=(CvReplayInfo const&); // advc.003k (private)
@@ -74,6 +106,11 @@ public:
 
 	DllExport const char* getModName() const;
 
+	// <!-- custom: Shared first-use cache of XML SAS_SAVE_VERSION for replay identity and SGR metadata; changing this setting takes effect after restarting Civ4, without recompiling the DLL. See KI#166.2. (GPT-6.1-Sol) -->
+	static int getSASReplayModID();
+	// <!-- custom: XML-configured deprecated candidate ID for same-mod replay attempts; 0 disables that route, independently of displaying foreign mods. See KI#166.2. (GPT-6.1-Sol) -->
+	static int getSASLegacyReplayModID();
+
 	DllExport bool read(FDataStreamBase& stream);
 	void write(FDataStreamBase& stream);
 
@@ -87,7 +124,8 @@ protected:
 	void setMinimapSizeFromXML(); // </advc.106m>
 	void addSettingsMsg(); // advc.106h
 	// <advc.106i>
-	bool checkBounds(int iValue, int iLower, int iUpper) const;
+	// <!-- custom: Name rejected replay fields in SASAssertions diagnostics; arithmetic-safety callers can disable AdvC's foreign-mod upper-bound relaxation. See KI#166.2 and KI#166.3. (ChatGPT-5.6-Sol) -->
+	bool checkBounds(int iValue, int iLower, int iUpper, char const* szField, bool bRelaxForOtherMods = true) const;
 	bool isStoringReplaysAsBtS() const;
 	// </advc.106i>
 	static int REPLAY_VERSION;
@@ -126,6 +164,7 @@ protected:
 		int iFinalScore; // advc.707
 		// <advc.106i>
 		int iVersionRead;
+		int iReplayModIDRead; // <!-- custom: Retain the packed replay identity for current-SAS bounds diagnostics. See KI#166.2. (ChatGPT-5.6-Sol) -->
 		bool bDisplayOtherMods;
 		// </advc.106i>
 		friend CvReplayInfo;

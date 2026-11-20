@@ -1,6 +1,7 @@
 // team.cpp
 
 #include "CvGameCoreDLL.h"
+#include "SASSaveStreamFormat.h" // <!-- custom: Use the same compile-time write markers as the session diagnostic registry, avoiding duplicated version literals. (GPT-6.1-Sol) -->
 #include "CvTeam.h"
 #include "CvAgents.h" // advc.agent
 #include "CoreAI.h"
@@ -18,10 +19,39 @@
 #include "CvDiploParameters.h"
 #include "CvPopupInfo.h"
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+#include "SASGameRecordLog.h" // <!-- custom: Structured team, war, and bulk map-revelation rows are logged separately from BBAI diagnostics. (GPT-5.5 + GPT-5.6-Sol) -->
 #include "CvBugOptions.h" // advc.071
 
 // advc.003u: Statics moved from CvTeamAI
 CvTeamAI** CvTeam::m_aTeams = NULL;
+
+namespace
+{
+	// <!-- custom: AdvCiv's persistent demographics-history latch depended on passive espionage costs but was refreshed only by current espionage-point changes.
+	// Keep the directional update reusable for every authoritative cost input. See KI#784. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void updateEverSeenDemographicsFor(TeamTypes eObserver, TeamTypes eTarget)
+	{
+		CvTeam const& kObserver = GET_TEAM(eObserver);
+		CvTeam const& kTarget = GET_TEAM(eTarget);
+		if (!kObserver.isAlive() || !kTarget.isAlive() || kObserver.isBarbarian() || kTarget.isBarbarian())
+			return;
+		for (MemberIter itObserver(eObserver); itObserver.hasNext(); ++itObserver)
+			itObserver->updateEverSeenDemographics(eTarget);
+	}
+
+	// <!-- custom: Lifetime espionage totals affect the population-weighted passive-mission cost in both directions, so a change can newly reveal either team's demographics. See KI#784. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void updateEverSeenDemographicsForEspionageRatioChange(TeamTypes eChangedTeam)
+	{
+		CvTeam const& kChangedTeam = GET_TEAM(eChangedTeam);
+		if (!kChangedTeam.isAlive() || kChangedTeam.isBarbarian())
+			return;
+		for (TeamIter<MAJOR_CIV,NOT_SAME_TEAM_AS> itOther(eChangedTeam); itOther.hasNext(); ++itOther)
+		{
+			updateEverSeenDemographicsFor(eChangedTeam, itOther->getID());
+			updateEverSeenDemographicsFor(itOther->getID(), eChangedTeam);
+		}
+	}
+}
 
 void CvTeam::initStatics()
 {
@@ -43,6 +73,7 @@ std::queue<TeamTypes> CvTeam::defending_queue;
 std::queue<bool> CvTeam::newdiplo_queue;
 std::queue<WarPlanTypes> CvTeam::warplan_queue;
 std::queue<bool> CvTeam::primarydow_queue;
+std::queue<WarDeclarationCause> CvTeam::warcause_queue;
 bool CvTeam::bTriggeringWars = false;
 // </kekm.26>
 
@@ -217,6 +248,10 @@ void CvTeam::addTeam(TeamTypes eTeam)
 
 	int const iOriginalTeamSize = getNumMembers(); // K-Mod
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		CvPlayer const& kObs = GET_PLAYER((PlayerTypes)i);
@@ -231,7 +266,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
 						getName().GetCString(), GET_TEAM(eTeam).getName().GetCString()));
 				gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer, "AS2D_THEIRALLIANCE",
 						MESSAGE_TYPE_MAJOR_EVENT, // advc.106b
-						NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+						NULL, eColorHighlightText,
 						// advc.127b:
 						getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 			}
@@ -242,7 +277,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
 			getReplayName().GetCString(), GET_TEAM(eTeam).getReplayName().GetCString()));
 	CvGame& kGame = GC.getGame();
 	kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer,
-			GC.getColorType("HIGHLIGHT_TEXT"));
+			eColorHighlightText);
 
 	// K-Mod note: the cancel deals code use to be here. I've moved it lower down.
 
@@ -261,10 +296,55 @@ void CvTeam::addTeam(TeamTypes eTeam)
 	for (size_t i = 0; i < apOther.size(); i++)
 	{
 		TeamTypes const eOther = apOther[i]->getID();
+		// <!-- custom: K-Mod's historical identity knowledge was not migrated when a Permanent Alliance absorbed a team.
+		// Union both observer directions before the absorbed team disappears so neither its members nor outsiders forget civilizations they had already seen. See KI#411. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (GET_TEAM(eTeam).isHasSeen(eOther))
+			makeHasSeen(eOther);
+		if (apOther[i]->isHasSeen(eTeam))
+			apOther[i]->makeHasSeen(getID());
+		// <!-- custom: AdvCiv's first-contact turn replaced BtS's core team-contact boolean storage but was not added to Permanent Alliance migration.
+		// Preserve the earliest real contact date in both directions before meet fills missing entries with the alliance turn. See KI#401. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int iOurHasMetTurn = getHasMetTurn(eOther);
+		int const iShareHasMetTurn = GET_TEAM(eTeam).getHasMetTurn(eOther);
+		if (iOurHasMetTurn < 0 || (iShareHasMetTurn >= 0 && iShareHasMetTurn < iOurHasMetTurn))
+			iOurHasMetTurn = iShareHasMetTurn;
+		int iOtherHasMetTurn = apOther[i]->getHasMetTurn(getID());
+		int const iOtherShareHasMetTurn = apOther[i]->getHasMetTurn(eTeam);
+		if (iOtherHasMetTurn < 0 || (iOtherShareHasMetTurn >= 0 && iOtherShareHasMetTurn < iOtherHasMetTurn))
+			iOtherHasMetTurn = iOtherShareHasMetTurn;
 		if (GET_TEAM(eTeam).isHasMet(eOther))
 			meet(eOther, false);
 		else if (isHasMet(eOther))
 			GET_TEAM(eTeam).meet(eOther, false);
+		if (iOurHasMetTurn >= 0)
+			m_aiHasMetTurn.set(eOther, iOurHasMetTurn);
+		if (iOtherHasMetTurn >= 0)
+			apOther[i]->m_aiHasMetTurn.set(getID(), iOtherHasMetTurn);
+	}
+	// <!-- custom: The live-outsider pass above must retain `meet` and its active side effects, but durable identity/contact history must also survive through dead outsiders that can later revive.
+	// Copy only persistent fields for those ever-alive dead teams; do not expand the neighboring war, deal, visibility or diplomacy migrations to inactive slots. See KI#1056 and KI#1057. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (int i = 0; i < MAX_TEAMS; i++)
+	{
+		CvTeam& kOther = GET_TEAM((TeamTypes)i);
+		TeamTypes const eOther = kOther.getID();
+		if (eOther == getID() || eOther == eTeam || kOther.isAlive() || !kOther.isEverAlive())
+			continue;
+		if (GET_TEAM(eTeam).isHasSeen(eOther))
+			makeHasSeen(eOther);
+		if (kOther.isHasSeen(eTeam))
+			kOther.makeHasSeen(getID());
+		int iOurHasMetTurn = getHasMetTurn(eOther);
+		int const iShareHasMetTurn = GET_TEAM(eTeam).getHasMetTurn(eOther);
+		if (iOurHasMetTurn < 0 || (iShareHasMetTurn >= 0 && iShareHasMetTurn < iOurHasMetTurn))
+			iOurHasMetTurn = iShareHasMetTurn;
+		int iOtherHasMetTurn = kOther.getHasMetTurn(getID());
+		int const iOtherShareHasMetTurn = kOther.getHasMetTurn(eTeam);
+		if (iOtherHasMetTurn < 0 || (iOtherShareHasMetTurn >= 0 && iOtherShareHasMetTurn < iOtherHasMetTurn))
+			iOtherHasMetTurn = iOtherShareHasMetTurn;
+		if (iOurHasMetTurn >= 0)
+			m_aiHasMetTurn.set(eOther, iOurHasMetTurn);
+		if (iOtherHasMetTurn >= 0)
+			kOther.m_aiHasMetTurn.set(getID(), iOtherHasMetTurn);
 	}
 
 	for (size_t i = 0; i < apOther.size(); i++)
@@ -274,13 +354,13 @@ void CvTeam::addTeam(TeamTypes eTeam)
 		{
 			//declareWar(...);
 			queueWar( // kekm.26
-					getID(), eOther, false, GET_TEAM(eTeam).AI_getWarPlan(eOther));
+					getID(), eOther, false, GET_TEAM(eTeam).AI_getWarPlan(eOther), true, WAR_DECLARATION_PERMANENT_ALLIANCE);
 		}
 		else if (isAtWar(eOther))
 		{
 			//GET_TEAM(eTeam).declareWar(...);
 			queueWar( // kekm.26
-					eTeam, eOther, false, AI().AI_getWarPlan(eOther));
+					eTeam, eOther, false, AI().AI_getWarPlan(eOther), true, WAR_DECLARATION_PERMANENT_ALLIANCE);
 		}
 	}
 	// <kekm.26>
@@ -289,9 +369,9 @@ void CvTeam::addTeam(TeamTypes eTeam)
 	{
 		TeamTypes const eOther = apOther[i]->getID();
 		if (GET_TEAM(eTeam).isAtWar(eOther))
-			queueWar(eOther, getID(), false, WARPLAN_DOGPILE, false);
+			queueWar(eOther, getID(), false, WARPLAN_DOGPILE, false, WAR_DECLARATION_PERMANENT_ALLIANCE);
 		else if (isAtWar(eOther))
-			queueWar(eOther, eTeam, false, WARPLAN_DOGPILE, false);
+			queueWar(eOther, eTeam, false, WARPLAN_DOGPILE, false, WAR_DECLARATION_PERMANENT_ALLIANCE);
 	}
 	triggerWars();
 	// </kekm.26>
@@ -348,6 +428,18 @@ void CvTeam::addTeam(TeamTypes eTeam)
 			apOther[i]->setForcePeace(eTeam, true);
 		}
 	}
+
+	// <!-- custom: AdvCiv outsider Disengage deals follow their players to the surviving Permanent Alliance team, but their separately stored enforcement flags did not.
+	// Preserve the live bilateral relation so the migrated deal keeps granting its temporary right of passage. See KI#402. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (size_t i = 0; i < apOther.size(); i++)
+	{
+		TeamTypes const eOther = apOther[i]->getID();
+		if (GET_TEAM(eTeam).isDisengage(eOther) || apOther[i]->isDisengage(eTeam))
+		{
+			setDisengage(eOther, true);
+			apOther[i]->setDisengage(getID(), true);
+		}
+	}
 	/*  <advc.opt> Some changes are necessary here b/c vassals now store only
 		the id of a single master. */
 	if (GET_TEAM(eTeam).isAVassal())
@@ -395,11 +487,32 @@ void CvTeam::addTeam(TeamTypes eTeam)
 	/*  advc.104t: Leader id needed later for merging data; unavailable after the
 		loop below. */
 	PlayerTypes eTeamLeader = GET_TEAM(eTeam).getLeaderID();
+	// <!-- custom: AdvCiv practical 1818 replaced the old pre-merge member cache with a live iterator, but kept this call after player reassignment.
+	// Merge into only the original surviving members before changing teams so the absorbed leader cannot add its history to itself. See KI#539. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (getUWAI().isEnabled())
+	{
+		AI().uwai().addTeam(eTeamLeader);
+		// <!-- custom: Preserve outsiders' paid-war and human-capitulation state before absorbed-player reassignment reaches zero alive members and clears that transient state.
+		// Exclude both merging teams here; absorbed members have not joined the survivor yet. See KI#1045. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		for (PlayerAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
+		{
+			if (it->getTeam() != getID() && it->getTeam() != eTeam)
+				it->uwai().getCache().onTargetTeamAboutToBeAbsorbed(getID(), eTeam);
+		}
+	}
+	// <!-- custom: Capture the exact team-merge boundary while both pre-merge member lists still exist.
+	// The logger call is cold and fully gated before it gathers diagnostic-only strings. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordTeamMerged(getID(), eTeam);
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		if (GET_PLAYER((PlayerTypes)i).getTeam() == eTeam)
 			GET_PLAYER((PlayerTypes)i).setTeam(getID());
 	}
+	// <!-- custom: AdvCiv rebuilt AgentIterator only in the AI-AI caller after a Permanent Alliance, leaving generic human-involved deals with stale member/team sequences.
+	// Rebuild at the common transaction boundary after every absorbed player has its final team, then refresh the member-count-dependent vassal maintenance for the merged team. See KI#788 and KI#793. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	GC.getAgents().allianceFormed();
+	for (MemberIter it(getID()); it.hasNext(); ++it)
+		it->updateMaintenance();
 	updateLeaderID(); // advc.opt
 	// <kekm.13>
 	// "AP resident and UN secretary general teams need to be updated if that team will not be used anymore."
@@ -445,7 +558,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
 			{
 				setResearchProgress(eLoopTech,
 						getResearchProgress(eLoopTech) * iCostMultiplier / 100,
-						getLeaderID());
+						getLeaderID(), TECH_ACQUISITION_TEAM_MERGE);
 			}
 		}
 	} // K-Mod end
@@ -453,6 +566,17 @@ void CvTeam::addTeam(TeamTypes eTeam)
 	/*	K-Mod: The following cancel deals code has been moved from higher up.
 		I've done this so that when open-borders is canceled,
 		it doesn't bump our new allies out of our borders. */
+	// <!-- custom: Keep K-Mod's post-reassignment timing, but clear the obsolete relation between the surviving and absorbed team IDs directly.
+	// Generic deal teardown now sees both players on the surviving team and otherwise misreads the old Defensive Pact as a self-pact.
+	// The absorbed team has no remaining players, so clearing only these stored old-team bits avoids unit bumping, false cancellation memory and AdvCiv's self-team assertion. See KI#613. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	m_abOpenBorders.set(eTeam, false);
+	GET_TEAM(eTeam).m_abOpenBorders.set(getID(), false);
+	m_abDefensivePact.set(eTeam, false);
+	GET_TEAM(eTeam).m_abDefensivePact.set(getID(), false);
+	m_abForcePeace.set(eTeam, false);
+	GET_TEAM(eTeam).m_abForcePeace.set(getID(), false);
+	m_abDisengage.set(eTeam, false);
+	GET_TEAM(eTeam).m_abDisengage.set(getID(), false);
 	FOR_EACH_DEAL_VAR(pLoopDeal)
 	{
 		/*if ((TEAMID(pLoopDeal->getFirstPlayer()) == getID() && TEAMID(pLoopDeal->getSecondPlayer()) == eTeam) ||
@@ -507,6 +631,17 @@ void CvTeam::addTeam(TeamTypes eTeam)
 			kPlot.setRevealed(getID(), true, false, eTeam, false);
 		kPlot.updateTeam(); // advc.opt: Need to update cached team
 	}
+	// <!-- custom: Reassigning Permanent-Alliance members changes whether their stationary units are allied garrisons or outside friendly borders.
+	// Rebuild both relational caches only after plot teams reflect the merged team; scan players directly because these values depend on current unit plots rather than only the now-repaired AgentIterator membership. See KI#778 and KI#781. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)i);
+		if (kPlayer.isAlive() && kPlayer.getTeam() == getID())
+		{
+			kPlayer.updateMilitaryHappinessUnits();
+			kPlayer.updateNumOutsideUnits();
+		}
+	}
 
 	kGame.updatePlotGroups();
 	int const iSecondTeamSize = getNumMembers() - iOriginalTeamSize; // kekm.26
@@ -522,60 +657,51 @@ void CvTeam::addTeam(TeamTypes eTeam)
 		kOther.setEspionagePointsAgainstTeam(getID(), std::max(kOther.getEspionagePointsAgainstTeam(getID()), kOther.getEspionagePointsAgainstTeam(eTeam))); // unofficial patch*/
 		/*  <kekm.26> "These counters now scale properly with number of players in teams.
 			Also, espionage is now sum instead of max. */
-		kOther.AI_setAtWarCounter(getID(), (iOriginalTeamSize *
-				kOther.AI_getAtWarCounter(getID()) + iSecondTeamSize *
-				kOther.AI_getAtWarCounter(eTeam)) / getNumMembers());
+		kOther.AI_setAtWarCounter(getID(), (iOriginalTeamSize * kOther.AI_getAtWarCounter(getID()) + iSecondTeamSize * kOther.AI_getAtWarCounter(eTeam)) / getNumMembers());
 		// advc: The at-war counters should be consistent
 		AI().AI_setAtWarCounter(kOther.getID(), kOther.AI_getAtWarCounter(getID()));
-		kOther.setStolenVisibilityTimer(getID(), (iOriginalTeamSize *
-				kOther.getStolenVisibilityTimer(getID()) + iSecondTeamSize *
-				kOther.getStolenVisibilityTimer(eTeam)) / getNumMembers());
-		kOther.AI_setAtPeaceCounter(getID(), (iOriginalTeamSize *
-				kOther.AI_getAtPeaceCounter(getID()) + iSecondTeamSize *
-				kOther.AI_getAtPeaceCounter(eTeam)) / getNumMembers());
-		kOther.AI_setHasMetCounter(getID(), (iOriginalTeamSize *
-				kOther.AI_getHasMetCounter(getID()) + iSecondTeamSize *
-				kOther.AI_getHasMetCounter(eTeam)) / getNumMembers());
+		kOther.setStolenVisibilityTimer(getID(), (iOriginalTeamSize * kOther.getStolenVisibilityTimer(getID()) + iSecondTeamSize * kOther.getStolenVisibilityTimer(eTeam)) / getNumMembers());
+		// <!-- custom: After transferring an outsider's stolen-visibility timer to the surviving Permanent-Alliance team, clear its absorbed-team relation through the stateful setter so the old plot-level counts are removed. See KI#421. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (kOther.isAlive())
+			kOther.setStolenVisibilityTimer(eTeam, 0);
+		// <!-- custom: Firaxis migrated neighboring temporary espionage state during a Permanent Alliance but omitted Counterespionage.
+		// Its effect is keyed to the current team identity, so retain the longer coherent timer/modifier pair from the outsider's direction rather than leaving it on the absorbed team. See KI#400. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (kOther.getCounterespionageTurnsLeftAgainstTeam(eTeam) > kOther.getCounterespionageTurnsLeftAgainstTeam(getID()))
+		{
+			kOther.setCounterespionageTurnsLeftAgainstTeam(getID(), kOther.getCounterespionageTurnsLeftAgainstTeam(eTeam));
+			kOther.setCounterespionageModAgainstTeam(getID(), kOther.getCounterespionageModAgainstTeam(eTeam));
+		}
+		kOther.AI_setAtPeaceCounter(getID(), (iOriginalTeamSize * kOther.AI_getAtPeaceCounter(getID()) + iSecondTeamSize * kOther.AI_getAtPeaceCounter(eTeam)) / getNumMembers());
+		// <!-- custom: HasMetCounter is exact bilateral history, but AdvCiv max-merged the survivor's direction and weighted the outsider's.
+		// Assign the same weighted Permanent-Alliance result to both directions like the neighboring exact AtWarCounter. See KI#420. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int const iMergedHasMetCounter = (iOriginalTeamSize * kOther.AI_getHasMetCounter(getID()) + iSecondTeamSize * kOther.AI_getHasMetCounter(eTeam)) / getNumMembers();
+		kOther.AI_setHasMetCounter(getID(), iMergedHasMetCounter);
+		AI().AI_setHasMetCounter(kOther.getID(), iMergedHasMetCounter);
 		// <advc.003n>
 		if (kOther.isBarbarian())
 			continue; // </advc.003n>
-		kOther.setWarWeariness(getID(), (iOriginalTeamSize *
-				kOther.getWarWeariness(getID()) + iSecondTeamSize *
-				kOther.getWarWeariness(eTeam)) / getNumMembers());
-		// <advc.001> (from SAS)
-		kOther.AI_setOpenBordersCounter(getID(), (iOriginalTeamSize *
-				kOther.AI_getOpenBordersCounter(getID()) + iSecondTeamSize *
-				kOther.AI_getOpenBordersCounter(eTeam)) / getNumMembers()); // </advc.001>
-		kOther.AI_setDefensivePactCounter(getID(), (iOriginalTeamSize *
-				kOther.AI_getDefensivePactCounter(getID()) + iSecondTeamSize *
-				kOther.AI_getDefensivePactCounter(eTeam)) / getNumMembers());
-		kOther.AI_setShareWarCounter(getID(), (iOriginalTeamSize *
-				kOther.AI_getShareWarCounter(getID()) + iSecondTeamSize *
-				kOther.AI_getShareWarCounter(eTeam)) / getNumMembers());
-		kOther.AI_setWarSuccess(getID(), (iOriginalTeamSize *
-				kOther.AI_getWarSuccess(getID()) + iSecondTeamSize *
-				kOther.AI_getWarSuccess(eTeam)) / getNumMembers());
+		// <!-- custom: Firaxis's reverse Permanent Alliance merge omitted the outsider's directional Open Borders history even though shareCounters preserves the absorbed team's own direction.
+		// Apply the neighboring team-size-weighted policy. See KI#370. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		kOther.AI_setOpenBordersCounter(getID(), (iOriginalTeamSize * kOther.AI_getOpenBordersCounter(getID()) + iSecondTeamSize * kOther.AI_getOpenBordersCounter(eTeam)) / getNumMembers());
+		kOther.setWarWeariness(getID(), (iOriginalTeamSize * kOther.getWarWeariness(getID()) + iSecondTeamSize * kOther.getWarWeariness(eTeam)) / getNumMembers());
+		kOther.AI_setDefensivePactCounter(getID(), (iOriginalTeamSize * kOther.AI_getDefensivePactCounter(getID()) + iSecondTeamSize * kOther.AI_getDefensivePactCounter(eTeam)) / getNumMembers());
+		kOther.AI_setShareWarCounter(getID(), (iOriginalTeamSize * kOther.AI_getShareWarCounter(getID()) + iSecondTeamSize * kOther.AI_getShareWarCounter(eTeam)) / getNumMembers());
+		kOther.AI_setWarSuccess(getID(), (iOriginalTeamSize * kOther.AI_getWarSuccess(getID()) + iSecondTeamSize * kOther.AI_getWarSuccess(eTeam)) / getNumMembers());
 		// <advc.130m>
-		kOther.AI_setSharedWarSuccess(getID(), (iOriginalTeamSize *
-				kOther.AI_getSharedWarSuccess(getID()) + iSecondTeamSize *
-				kOther.AI_getSharedWarSuccess(eTeam)) / getNumMembers());
+		kOther.AI_setSharedWarSuccess(getID(), (iOriginalTeamSize * kOther.AI_getSharedWarSuccess(getID()) + iSecondTeamSize * kOther.AI_getSharedWarSuccess(eTeam)) / getNumMembers());
 		// </advc.130m>
-		kOther.setEspionagePointsAgainstTeam(getID(),
-				kOther.getEspionagePointsAgainstTeam(getID()) +
-				kOther.getEspionagePointsAgainstTeam(eTeam));
+		kOther.setEspionagePointsAgainstTeam(getID(), kOther.getEspionagePointsAgainstTeam(getID()) + kOther.getEspionagePointsAgainstTeam(eTeam));
 		// <advc.130k>
-		kOther.setTurnsAtPeace(getID(), (iOriginalTeamSize *
-				kOther.getTurnsAtPeace(getID()) + iSecondTeamSize *
-				kOther.getTurnsAtPeace(eTeam)) / getNumMembers()); // </advc.130k>
+		// <!-- custom: TurnsAtPeace is also exact bilateral history.
+		// Reconcile both directions to the same weighted Permanent-Alliance value instead of retaining shareCounters' max-versus-weighted asymmetry. See KI#420. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int const iMergedTurnsAtPeace = (iOriginalTeamSize * kOther.getTurnsAtPeace(getID()) + iSecondTeamSize * kOther.getTurnsAtPeace(eTeam)) / getNumMembers();
+		kOther.setTurnsAtPeace(getID(), iMergedTurnsAtPeace);
+		setTurnsAtPeace(kOther.getID(), iMergedTurnsAtPeace); // </advc.130k>
 		// <advc.003n>
 		if (kOther.isMinorCiv())
 			continue; // </advc.003n>
-		kOther.AI_setEnemyPeacetimeTradeValue(getID(), (iOriginalTeamSize *
-				kOther.AI_getEnemyPeacetimeTradeValue(getID()) + iSecondTeamSize *
-				kOther.AI_getEnemyPeacetimeTradeValue(eTeam)) / getNumMembers());
-		kOther.AI_setEnemyPeacetimeGrantValue(getID(), (iOriginalTeamSize *
-				kOther.AI_getEnemyPeacetimeGrantValue(getID()) + iSecondTeamSize *
-				kOther.AI_getEnemyPeacetimeGrantValue(eTeam)) / getNumMembers());
+		kOther.AI_setEnemyPeacetimeTradeValue(getID(), (iOriginalTeamSize * kOther.AI_getEnemyPeacetimeTradeValue(getID()) + iSecondTeamSize * kOther.AI_getEnemyPeacetimeTradeValue(eTeam)) / getNumMembers());
+		kOther.AI_setEnemyPeacetimeGrantValue(getID(), (iOriginalTeamSize * kOther.AI_getEnemyPeacetimeGrantValue(getID()) + iSecondTeamSize * kOther.AI_getEnemyPeacetimeGrantValue(eTeam)) / getNumMembers());
 		// </kekm.26>
 
 		if (kOther.isAlive())
@@ -586,11 +712,22 @@ void CvTeam::addTeam(TeamTypes eTeam)
 			AI().AI_setWarPlan(kOther.getID(), NO_WARPLAN, false);
 		}
 	}
+	// <!-- custom: The survivor can also have stolen visibility against the team it just absorbed.
+	// Its real sight has now been copied, so clear the obsolete relation through the setter to remove the old plot-level counts. See KI#421. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	setStolenVisibilityTimer(eTeam, 0);
 
 	AI().AI_updateWorstEnemy();
 	// <advc.104t>
 	if(getUWAI().isEnabled())
-		AI().uwai().addTeam(eTeamLeader);
+	{
+		// <!-- custom: After the absorbed team's war teardown has finalized outsiders' past-war scores, migrate that persistent history to the surviving target key.
+		// Transient obligations were moved before player reassignment so teardown could not erase them. See KI#551. See KI#1045. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		for (PlayerAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
+		{
+			if (it->getTeam() != getID())
+				it->uwai().getCache().onTargetTeamAbsorbed(getID(), eTeam);
+		}
+	}
 	// </advc.104t>
 	AI().AI_updateAreaStrategies();
 
@@ -608,7 +745,7 @@ void CvTeam::shareItems(TeamTypes eTeam)
 		{	// <kekm.26> "Preserve no tech brokering status."
 			setNoTradeTech(eLoopTech, (!isHasTech(eLoopTech) || isNoTradeTech(eLoopTech)) &&
 					GET_TEAM(eTeam).isNoTradeTech(eLoopTech)); // </kekm.26>
-			setHasTech(eLoopTech, true, NO_PLAYER, true, false);
+			setHasTech(eLoopTech, true, NO_PLAYER, true, false, false, TECH_ACQUISITION_TEAM_MERGE);
 		}
 	}
 	/*  <kekm.26> "Other direction also done here as other direction of shareItems
@@ -621,7 +758,7 @@ void CvTeam::shareItems(TeamTypes eTeam)
 					(!GET_TEAM(eTeam).isHasTech(eLoopTech) ||
 					GET_TEAM(eTeam).isNoTradeTech(eLoopTech)) &&
 					isNoTradeTech(eLoopTech));
-			GET_TEAM(eTeam).setHasTech(eLoopTech, true, NO_PLAYER, true, false);
+			GET_TEAM(eTeam).setHasTech(eLoopTech, true, NO_PLAYER, true, false, false, TECH_ACQUISITION_TEAM_MERGE);
 		}
 	} // </kekm.26>
 
@@ -642,12 +779,16 @@ void CvTeam::shareItems(TeamTypes eTeam)
 	for (int i = 0; i < MAX_TEAMS; i++)
 	{
 		TeamTypes eLoopTeam = (TeamTypes)i;
+		// <!-- custom: A Permanent Alliance made the absorbed team's espionage against the survivor become survivor self-target points.
+		// Mutual constituent points have no remaining rival target; discard both obsolete slots and merge only outsider-directed espionage. See KI#409. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (eLoopTeam == getID() || eLoopTeam == eTeam)
+			continue;
 		//setEspionagePointsAgainstTeam(eLoopTeam, std::max(GET_TEAM(eTeam).getEspionagePointsAgainstTeam(eLoopTeam), getEspionagePointsAgainstTeam(eLoopteam)));
 		// <kekm.26> "Espionage is now sum instead of max."
-		setEspionagePointsAgainstTeam(eLoopTeam,
-				GET_TEAM(eTeam).getEspionagePointsAgainstTeam(eLoopTeam) +
-				getEspionagePointsAgainstTeam(eLoopTeam)); // </kekm.26>
+		setEspionagePointsAgainstTeam(eLoopTeam, GET_TEAM(eTeam).getEspionagePointsAgainstTeam(eLoopTeam) + getEspionagePointsAgainstTeam(eLoopTeam)); // </kekm.26>
 	}
+	setEspionagePointsAgainstTeam(getID(), 0);
+	setEspionagePointsAgainstTeam(eTeam, 0);
 	//setEspionagePointsEver(std::max(GET_TEAM(eTeam).getEspionagePointsEver(), getEspionagePointsEver())); // K-Mod
 	// kekm.26: Replacing the above
 	setEspionagePointsEver(GET_TEAM(eTeam).getEspionagePointsEver() + getEspionagePointsEver());
@@ -673,8 +814,7 @@ void CvTeam::shareItems(TeamTypes eTeam)
 					{
 						if(GET_PLAYER((PlayerTypes)k).getTeam() == getID())
 						{
-							GET_PLAYER((PlayerTypes)k).processBuilding(eBuilding,
-									iCityBuildings, pLoopCity->getArea());
+							GET_PLAYER((PlayerTypes)k).processBuilding(eBuilding, iCityBuildings, pLoopCity->getArea());
 						}
 					}
 				}
@@ -749,6 +889,14 @@ void CvTeam::shareCounters(TeamTypes eTeam)
 			setStolenVisibilityTimer(eLoopTeam, kShareTeam.getStolenVisibilityTimer(eLoopTeam));
 		//else kShareTeam.setStolenVisibilityTimer(eLoopTeam, getStolenVisibilityTimer(eLoopTeam));
 
+		// <!-- custom: Firaxis migrated neighboring temporary espionage state during a Permanent Alliance but omitted Counterespionage.
+		// Retain the longer coherent timer/modifier pair in the survivor's direction; summing two live effects would manufacture a stronger mission. See KI#400. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (kShareTeam.getCounterespionageTurnsLeftAgainstTeam(eLoopTeam) > getCounterespionageTurnsLeftAgainstTeam(eLoopTeam))
+		{
+			setCounterespionageTurnsLeftAgainstTeam(eLoopTeam, kShareTeam.getCounterespionageTurnsLeftAgainstTeam(eLoopTeam));
+			setCounterespionageModAgainstTeam(eLoopTeam, kShareTeam.getCounterespionageModAgainstTeam(eLoopTeam));
+		}
+
 		if (kShareTeam.AI_getAtWarCounter(eLoopTeam) > AI().AI_getAtWarCounter(eLoopTeam))
 			AI().AI_setAtWarCounter(eLoopTeam, kShareTeam.AI_getAtWarCounter(eLoopTeam));
 		//else kShareTeam.AI_setAtWarCounter(eLoopTeam, AI_getAtWarCounter(eLoopTeam));
@@ -756,13 +904,7 @@ void CvTeam::shareCounters(TeamTypes eTeam)
 		if (kShareTeam.AI_getAtPeaceCounter(eLoopTeam) > AI().AI_getAtPeaceCounter(eLoopTeam))
 			AI().AI_setAtPeaceCounter(eLoopTeam, kShareTeam.AI_getAtPeaceCounter(eLoopTeam));
 		//else kShareTeam.AI_setAtPeaceCounter(eLoopTeam, AI_getAtPeaceCounter(eLoopTeam));
-		// <advc.130k>
-		if (kShareTeam.getTurnsAtPeace(eLoopTeam) > getTurnsAtPeace(eLoopTeam))
-			setTurnsAtPeace(eLoopTeam, kShareTeam.getTurnsAtPeace(eLoopTeam));
-		// </advc.130k>
-		if (kShareTeam.AI_getHasMetCounter(eLoopTeam) > AI().AI_getHasMetCounter(eLoopTeam))
-			AI().AI_setHasMetCounter(eLoopTeam, kShareTeam.AI_getHasMetCounter(eLoopTeam));
-		//else kShareTeam.AI_setHasMetCounter(eLoopTeam, AI_getHasMetCounter(eLoopTeam));
+		// <!-- custom: Exact TurnsAtPeace and HasMetCounter history is reconciled symmetrically after member reassignment, alongside the reverse-direction weighted merge. See KI#420. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 
 		if (kShareTeam.AI_getOpenBordersCounter(eLoopTeam) > AI().AI_getOpenBordersCounter(eLoopTeam))
 			AI().AI_setOpenBordersCounter(eLoopTeam, kShareTeam.AI_getOpenBordersCounter(eLoopTeam));
@@ -779,10 +921,11 @@ void CvTeam::shareCounters(TeamTypes eTeam)
 		if (kShareTeam.AI_getWarSuccess(eLoopTeam) > AI().AI_getWarSuccess(eLoopTeam))
 			AI().AI_setWarSuccess(eLoopTeam, kShareTeam.AI_getWarSuccess(eLoopTeam));
 		//else kShareTeam.AI_setWarSuccess(eLoopTeam, AI_getWarSuccess(eLoopTeam));
-		// <advc.130m> (correction from SAS)
+		// <!-- custom: AdvCiv added SharedWarSuccess and merged the outsider's direction during a Permanent Alliance, but omitted the absorbed team's own direction from this older stronger-history merge.
+		// Retain the stronger directional history like the neighboring own-side counters. See KI#369. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (kShareTeam.AI_getSharedWarSuccess(eLoopTeam) > AI().AI_getSharedWarSuccess(eLoopTeam))
 			AI().AI_setSharedWarSuccess(eLoopTeam, kShareTeam.AI_getSharedWarSuccess(eLoopTeam));
-		// </advc.130m>
+
 		if (kShareTeam.AI_getEnemyPeacetimeTradeValue(eLoopTeam) > AI().AI_getEnemyPeacetimeTradeValue(eLoopTeam))
 			AI().AI_setEnemyPeacetimeTradeValue(eLoopTeam, kShareTeam.AI_getEnemyPeacetimeTradeValue(eLoopTeam));
 		//else kShareTeam.AI_setEnemyPeacetimeTradeValue(eLoopTeam, AI_getEnemyPeacetimeTradeValue(eLoopTeam));
@@ -809,7 +952,8 @@ void CvTeam::shareCounters(TeamTypes eTeam)
 		int iDelta = kShareTeam.getProjectCount(eProject) - getProjectCount(eProject);
 		if (iDelta > 0)
 		{
-			changeProjectCount(eProject, iDelta);
+			// <!-- custom: Inherit every project effect without emitting a false completion message/replay event for a project built earlier by the absorbed team. See KI#422. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			changeProjectCount(eProject, iDelta, false);
 			// don't count the additional projects that have been added in this way
 			GC.getGame().incrementProjectCreatedCount(eProject, -iDelta);
 		}
@@ -821,6 +965,21 @@ void CvTeam::shareCounters(TeamTypes eTeam)
 		// projects still under construction should be counted for both teams
 		changeProjectMaking(eProject, kShareTeam.getProjectMaking(eProject));
 		//kShareTeam.changeProjectMaking(eProject, getProjectMaking(eProject) - kShareTeam.setProjectMaking(eProject));
+	}
+
+	// <!-- custom: Firaxis Permanent Alliances migrated spaceship Projects but not an existing launch countdown, and Project transfer could re-enable launch for even the surviving in-flight ship.
+	// Preserve the earliest constituent arrival after merging Projects and keep a live countdown non-launchable. See KI#403. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	FOR_EACH_ENUM(Victory)
+	{
+		int iCountdown = getVictoryCountdown(eLoopVictory);
+		int const iShareCountdown = kShareTeam.getVictoryCountdown(eLoopVictory);
+		if (iCountdown < 0 || (iShareCountdown >= 0 && iShareCountdown < iCountdown))
+			iCountdown = iShareCountdown;
+		if (iCountdown >= 0)
+		{
+			setVictoryCountdown(eLoopVictory, iCountdown);
+			setCanLaunch(eLoopVictory, false);
+		}
 	}
 
 	FOR_EACH_ENUM(UnitClass)
@@ -856,7 +1015,7 @@ void CvTeam::shareCounters(TeamTypes eTeam)
 			{
 				setResearchProgress(eTech,
 						kShareTeam.getResearchProgress(eTech) * getResearchCost(eTech) /
-						std::max(1, kShareTeam.getResearchCost(eTech)), getLeaderID());
+						std::max(1, kShareTeam.getResearchCost(eTech)), getLeaderID(), TECH_ACQUISITION_TEAM_MERGE);
 			}
 			//else kShareTeam.setResearchProgress(eTech, getResearchProgress(eTech) * kShareTeam.getResearchCost(eTech) / std::max(1, getResearchCost(eTech)), kShareTeam.getLeaderID());
 		}
@@ -1042,10 +1201,12 @@ bool CvTeam::canEventuallyDeclareWar(TeamTypes eTeam) const
 }
 
 // K-Mod note: I've shuffled things around a bit in this function.  // advc: refactored
-void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan,
-	bool bPrimaryDoW, // K-Mod
-	PlayerTypes eSponsor, // advc.100
-	bool bRandomEvent) // advc.106g
+// K-Mod
+// <!-- custom: hoisted from multiline signature between `bPrimaryDoW` and `eSponsor` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc.100
+// <!-- custom: hoisted from multiline signature between `eSponsor` and `bRandomEvent` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// <!-- custom: Added eCause to preserve the direct or cascading origin until SASGameRecord logs the declaration. (GPT-5.6-Sol) -->
+void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDoW, PlayerTypes eSponsor, bool bRandomEvent, WarDeclarationCause eCause) // advc.106g
 {
 	PROFILE_FUNC();
 	FAssert(eTarget != NO_TEAM);
@@ -1055,7 +1216,12 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
 			TEAMID(eSponsor) != eTarget)); // </advc.100>
 	if (isAtWar(eTarget))
 		return;
-	if (gTeamLogLevel >= 1) logBBAI("  Team %d (%S) declares war on team %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget); // BETTER_BTS_AI_MOD (10/02/09, jdog5000): AI logging
+	// <!-- custom: A declaration can cancel deals, swap contested-border ownership, emit the primary WAR_STARTED row and synchronously trigger defensive-pact/vassal wars.
+	// Nested declarations join the root tx. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	SASGameRecordTransactionScope kSASWarDeclarationTransaction("WAR_DECLARATION", gGameRecordLogLevel >= 2 && GC.getGame().isFinalInitialized());
+	if (gWarLogLevel >= 1 && GC.getGame().isFinalInitialized()) logBBAI("TEAM_WAR_STATE_CHANGE turn=%d action=DECLARE_WAR team=%d civ=%s targetTeam=%d targetCiv=%s warPlan=%s primary=%d sponsor=%d randomEvent=%d cause=%s",
+		GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eTarget,
+		GC.getInfo(GET_PLAYER(GET_TEAM(eTarget).getLeaderID()).getCivilizationType()).getType(), getSASWarPlanType(eWarPlan), bPrimaryDoW, eSponsor, bRandomEvent, getSASWarDeclarationCause(eCause)); // BETTER_BTS_AI_MOD (10/02/09, jdog5000): AI logging
 	CvTeam& kTarget = GET_TEAM(eTarget);
 	std::vector<CvPlayer*> kMembers; // advc: of either team
 	for (MemberIter it(getID()); it.hasNext(); ++it)
@@ -1083,6 +1249,9 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
 	setAtWar(eTarget, true);
 	kTarget.setAtWar(getID(), true);
 	m_abJustDeclaredWar.set(eTarget, true); // advc.162
+	// <!-- custom: The inherited EventReporter callback only knew that two teams entered war.
+	// Log at the declaration itself, before secondary wars are triggered, so the declarer, target, plan, sponsor, primary/cascade status, and preserved cause remain unambiguous. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordWarStarted(getID(), eTarget, eWarPlan, bPrimaryDoW, bNewDiplo, eSponsor, bRandomEvent, eCause);
 	// BETTER_BTS_AI_MOD (08/21/09, jdog5000, Efficiency): START
 	GC.getMap().invalidateBorderDangerCache(eTarget);
 	GC.getMap().invalidateBorderDangerCache(getID());
@@ -1162,13 +1331,13 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
 		{
 			//declareWar(kThirdTeam.getID(), bNewDiplo, AI_getWarPlan(eTeam), false);
 			// kekm.26:
-			queueWar(getID(), kThirdTeam.getID(), bNewDiplo, AI().AI_getWarPlan(eTarget), false);
+			queueWar(getID(), kThirdTeam.getID(), bNewDiplo, AI().AI_getWarPlan(eTarget), false, WAR_DECLARATION_VASSAL_ALIGNMENT);
 		}
 		else if (kThirdTeam.isVassal(getID()) || isVassal(kThirdTeam.getID()))
 		{
 			//kThirdTeam.declareWar(eTeam, bNewDiplo, WARPLAN_DOGPILE, false);
 			// kekm.26:
-			queueWar(kThirdTeam.getID(), eTarget, bNewDiplo, WARPLAN_DOGPILE, false);
+			queueWar(kThirdTeam.getID(), eTarget, bNewDiplo, WARPLAN_DOGPILE, false, WAR_DECLARATION_VASSAL_ALIGNMENT);
 		}
 	}
 	/*if (bPrimaryDoW) { // K-Mod. update attitude
@@ -1218,7 +1387,7 @@ void CvTeam::triggerDefensivePacts(TeamTypes eTarget, bool bNewDiplo, bool bPrim
 			FAssert(!kTarget.isAVassal() && !kThirdTeam.isAVassal());
 			//kThirdTeam.declareWar(getID(), bNewDiplo, WARPLAN_DOGPILE, false);
 			// kekm.26:
-			queueWar(kThirdTeam.getID(), getID(), bNewDiplo, WARPLAN_DOGPILE, false);
+			queueWar(kThirdTeam.getID(), getID(), bNewDiplo, WARPLAN_DOGPILE, false, WAR_DECLARATION_DEFENSIVE_PACT);
 			// <advc.104i>
 			bDefPactTriggered = true;
 			if(!isAVassal())
@@ -1232,7 +1401,7 @@ void CvTeam::triggerDefensivePacts(TeamTypes eTarget, bool bNewDiplo, bool bPrim
 		{	// For alliance option.  This teams pacts are canceled above if not using alliance option.
 			//kThirdTeam.declareWar(eTeam, bNewDiplo, WARPLAN_DOGPILE, false);
 			// kekm.26:
-			queueWar(kThirdTeam.getID(), eTarget, bNewDiplo, WARPLAN_DOGPILE, false);
+			queueWar(kThirdTeam.getID(), eTarget, bNewDiplo, WARPLAN_DOGPILE, false, WAR_DECLARATION_DEFENSIVE_PACT);
 		}
 	}
 	if (iDPBehavior == 0)// kekm.3: || (iDPBehavior == 1 && bPrimaryDoW))
@@ -1246,16 +1415,24 @@ void CvTeam::triggerDefensivePacts(TeamTypes eTarget, bool bNewDiplo, bool bPrim
 }
 
 
-void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits,  // advc: refactored
-	TeamTypes eBroker, // advc.100b
-	bool bCapitulate, // advc.034
-	CLinkList<TradeData> const* pReparations, // advc.039
-	bool bRandomEvent) // advc.106g
+// advc: refactored
+// <!-- custom: hoisted from multiline signature between `bBumpUnits` and `eBroker` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc.100b
+// <!-- custom: hoisted from multiline signature between `eBroker` and `bCapitulate` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc.034
+// <!-- custom: hoisted from multiline signature between `bCapitulate` and `pReparations` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc.039
+// <!-- custom: hoisted from multiline signature between `pReparations` and `bRandomEvent` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// <!-- custom: Carry the reparations-giving player from CvDeal through the announcement path; TeamTypes alone cannot resolve player-local city IDs. See KI#412. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits, TeamTypes eBroker, bool bCapitulate, CLinkList<TradeData> const* pReparations, bool bRandomEvent, PlayerTypes eReparationsFrom) // advc.106g
 {
 	FAssert(eTarget != NO_TEAM);
 	FAssert(eTarget != getID());
 	if (!isAtWar(eTarget))
 		return;
+	// <!-- custom: Peace can restore contested-border ownership, close the synthetic war summary and synchronously propagate to vassals.
+	// Keep that complete causal chain under one session-local tx. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	SASGameRecordTransactionScope kSASPeaceTransaction("PEACE", gGameRecordLogLevel >= 2 && GC.getGame().isFinalInitialized());
 	CvTeam& kTarget = GET_TEAM(eTarget);
 	std::vector<CvPlayer*> kMembers; // advc: of either team
 	for (MemberIter it(getID()); it.hasNext(); ++it)
@@ -1265,7 +1442,9 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits,  // advc: refactored
 
 	AI().AI_preMakePeace(eTarget, pReparations); // advc: AI code moved into new function
 
-	if (gTeamLogLevel >= 1) logBBAI("    Team %d (%S) and team %d (%S) make peace", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget, GET_PLAYER(kTarget.getLeaderID()).getCivilizationDescription(0)); // BETTER_BTS_AI_MOD, AI logging, 05/21/10, jdog5000
+	if (gTeamLogLevel >= 1 && GC.getGame().isFinalInitialized()) logBBAI("TEAM_WAR_STATE_CHANGE turn=%d action=MAKE_PEACE team=%d civ=%s targetTeam=%d targetCiv=%s brokerTeam=%d capitulation=%d randomEvent=%d reparationsFrom=%d",
+		GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eTarget,
+		GC.getInfo(GET_PLAYER(kTarget.getLeaderID()).getCivilizationType()).getType(), eBroker, bCapitulate, bRandomEvent, eReparationsFrom); // BETTER_BTS_AI_MOD, AI logging, 05/21/10, jdog5000
 
 	for (size_t i = 0; i < kMembers.size(); i++)
 		kMembers[i]->updatePlunder(-1, false);
@@ -1300,12 +1479,15 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits,  // advc: refactored
 		kMembers[i]->updatePlotGroups();
 	for (size_t i = 0; i < kMembers.size(); i++)
 		kMembers[i]->updateTradeRoutes();
+	// <!-- custom: Base AdvCiv's AI_postMakePeace clears both teams' war-success values.
+	// Record the completed war and peace context after the war counts change but before that reset, so SASGameRecord can emit an accurate synthetic summary. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordWarEnded(getID(), eTarget, AI().AI_getWarSuccess(eTarget).round(), kTarget.AI().AI_getWarSuccess(getID()).round(), bCapitulate, eBroker, bRandomEvent, pReparations != NULL);
 	// advc: AI code moved down a bit and then into a new function
 	AI().AI_postMakePeace(eTarget);
 	// advc.106o: Vassals now mentioned along with their master
 	if (!isAVassal() && !kTarget.isAVassal())
 	{	// advc: Moved into new function
-		announcePeace(eTarget, eBroker, pReparations, bRandomEvent);
+		announcePeace(eTarget, eBroker, pReparations, bRandomEvent, eReparationsFrom);
 	}
 	CvEventReporter::getInstance().changeWar(false, getID(), eTarget);
 	for (TeamIter<MAJOR_CIV> it; it.hasNext(); ++it)
@@ -1319,8 +1501,7 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits,  // advc: refactored
 }
 
 // advc: Cut from declareWar
-void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW,
-	PlayerTypes eSponsor, bool bRandomEvent)
+void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW, PlayerTypes eSponsor, bool bRandomEvent)
 {
 	CvWString szBuffer;
 	// <advc.100>
@@ -1332,6 +1513,11 @@ void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW,
 		szSponsorName = GET_PLAYER(eSponsor).getName();
 		cpSponsorName = szSponsorName.GetCString();
 	} // </advc.100>
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
+
 	// advc.106o:
 	bool const bMultiple = (TeamIter<MAJOR_CIV,VASSAL_OF>::count(getID()) > 0);
 	CvTeam const& kTarget = GET_TEAM(eTarget);
@@ -1386,7 +1572,7 @@ void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW,
 		} // </advc.100>
 		gDLL->UI().addMessage(kObs.getID(), bForce, -1, szBuffer,
 					(bPrimaryDoW ? szSound : NULL), // advc.002l
-					MESSAGE_TYPE_MAJOR_EVENT, NULL, GC.getColorType("WARNING_TEXT"),
+					MESSAGE_TYPE_MAJOR_EVENT, NULL, eColorWarningText,
 					// advc.127b:
 					getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 	}
@@ -1419,17 +1605,22 @@ void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW,
 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_WAR_VIA_EVENT"));
 	} // </advc.106g>
 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer,
-			GC.getColorType("WARNING_TEXT"));
+			eColorWarningText);
 }
 
 // advc: Cut from makePeace
-void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker,
-	CLinkList<TradeData> const* pReparations, bool bRandomEvent)
+// <!-- custom: Retain the reparations giver so TRADE_CITIES names the city from its real owner's local ID namespace. See KI#412. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker, CLinkList<TradeData> const* pReparations, bool bRandomEvent, PlayerTypes eReparationsFrom)
 {
 	CvWString szBuffer;
 	CvTeam const& kTarget = GET_TEAM(eTarget);
 	// advc.106o:
 	bool const bMultiple = (TeamIter<MAJOR_CIV,VASSAL_OF>::count(getID()) > 0);
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 	{
 		CvPlayer const& kObs = *it;
@@ -1459,14 +1650,14 @@ void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker,
 					szPeacemakers.c_str(), szTargets.c_str());
 		} // </advc.106o>
 		LPCTSTR szSound = NULL;
-		ColorTypes eColor = GC.getColorType("HIGHLIGHT_TEXT");
+		ColorTypes eColor = eColorHighlightText;
 		bool bForce = false;
 		bool bDebugCoords = true; // advc.127b
 		if (kObs.getTeam() == getID())
 		{
 			szSound = "AS2D_MAKEPEACE";
 			bForce = true;
-			
+
 		}
 		else if (kObs.getTeam() == eTarget)
 		{
@@ -1478,11 +1669,11 @@ void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker,
 		}
 		else szSound = "AS2D_THEIRMAKEPEACE";
 		// <advc.039>
-		if (pReparations != NULL && kObs.getID() != getLeaderID() &&
-			kObs.getID() != kTarget.getLeaderID()) 
+		if (pReparations != NULL && kObs.getID() != getLeaderID() && kObs.getID() != kTarget.getLeaderID())
 		{
-			szBuffer.Format(SETCOLR L"%s" ENDCOLR,
-					TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szBuffer.c_str());
+			// <!-- custom: Debug builds enforce the new player-identity contract before any local city ID is resolved. See KI#412. (ChatGPT-5.6-Sol + GPT-5.6-Sol); (note: assertion untested since this was only run on a Release DLL) -->
+			FAssert(eReparationsFrom != NO_PLAYER);
+			szBuffer.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szBuffer.c_str());
 			eColor = NO_COLOR; // Don't color the whole message
 			szBuffer.append(L" ");
 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_IN_EXCHANGE_FOR"));
@@ -1490,8 +1681,7 @@ void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker,
 			std::vector<CvWString> aszTradeItems;
 			FOR_EACH_TRADE_ITEM(*pReparations)
 			{
-				CvWString const szItem(tradeItemString(
-						pItem->m_eItemType, pItem->m_iData, eTarget));
+				CvWString const szItem(tradeItemString(pItem->m_eItemType, pItem->m_iData, eReparationsFrom));
 				if (szItem.length() > 0)
 					aszTradeItems.push_back(szItem);
 			}
@@ -1543,21 +1733,19 @@ void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker,
 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_PEACE_VIA_EVENT"));
 	} // </advc.106g>
 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer,
-			GC.getColorType("HIGHLIGHT_TEXT"));
+			eColorHighlightText);
 }
 
 /*	advc.106o: To be called on the observer, i.e. the recipient of a message about a
 	change in war peace status between eAgent and eTarget, initiated by eAgent. */
-void CvTeam::setWarPeacePartyStrings(TeamTypes eAgent, TeamTypes eTarget,
-	CvWString& szAgents, CvWString& szTargets, bool bReplay)
+void CvTeam::setWarPeacePartyStrings(TeamTypes eAgent, TeamTypes eTarget, CvWString& szAgents, CvWString& szTargets, bool bReplay)
 {
 	setWarPeacePartyStrings(eAgent, szAgents, bReplay, true);
 	setWarPeacePartyStrings(eTarget, szTargets, bReplay, false);
 }
 
 // advc.106o: Helper for the above
-void CvTeam::setWarPeacePartyStrings(TeamTypes eTeam, CvWString& szTeams, bool bReplay,
-	bool bCapitalize) // just for the pronoun "you"
+void CvTeam::setWarPeacePartyStrings(TeamTypes eTeam, CvWString& szTeams, bool bReplay, bool bCapitalize) // just for the pronoun "you"
 {
 	FAssert(szTeams.empty());
 	FAssert(!GET_TEAM(eTeam).isAVassal());
@@ -1608,14 +1796,22 @@ bool CvTeam::canContact(TeamTypes eTeam, bool bCheckWillingness) const
 }
 
 
-void CvTeam::meet(TeamTypes eTeam, bool bNewDiplo,
-	FirstContactData* pData) // advc.071: Just passing this along
+void CvTeam::meet(TeamTypes eTeam, bool bNewDiplo, FirstContactData* pData) // advc.071: Just passing this along
 {
 	if (isHasMet(eTeam))
 		return;
 	CvTeam& kTeam = GET_TEAM(eTeam);
 	CvPlot const* pAt = makeHasMet(eTeam, bNewDiplo, pData);
 	CvPlot const* pOtherAt = kTeam.makeHasMet(getID(), bNewDiplo, pData);
+	// <!-- custom: AdvCiv evaluated Tech Share inside each directional makeHasMet call, so the first team was scanned before reciprocal contact existed.
+	// Update both teams only after contact is symmetric; The Internet can then grant the same technology regardless of which team initiated contact. See KI#414. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	updateTechShare();
+	kTeam.updateTechShare();
+	if (gGameRecordLogLevel >= 2 && isAlive() && kTeam.isAlive() && !isBarbarian() && !kTeam.isBarbarian()) logSASGameRecordTeamMet(
+		getID(), eTeam, bNewDiplo,
+		pData == NULL ? -1 : pData->x1, pData == NULL ? -1 : pData->y1,
+		pData == NULL ? -1 : pData->x2, pData == NULL ? -1 : pData->y2,
+		pAt, pOtherAt);
 	// <advc.120l> (Not in makeHasMet b/c all the has-met data needs to be set first)
 	if (pData != NULL &&
 		GC.IsGraphicsInitialized() && // No reminder while initializing a scenario
@@ -1634,7 +1830,9 @@ void CvTeam::meet(TeamTypes eTeam, bool bNewDiplo,
 		}
 	} // </advc.120l>
 
-	if (gTeamLogLevel >= 2 && GC.getGame().isFinalInitialized() && eTeam != getID() && isAlive() && GET_TEAM(eTeam).isAlive()) logBBAI("    Team %d (%S) meets team %d (%S)", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTeam, GET_PLAYER(GET_TEAM(eTeam).getLeaderID()).getCivilizationDescription(0)); // BETTER_BTS_AI_MOD, AI logging, 02/20/10, jdog5000
+	if (gTeamLogLevel >= 2 && GC.getGame().isFinalInitialized() && eTeam != getID() && isAlive() && GET_TEAM(eTeam).isAlive()) logBBAI("TEAM_CONTACT turn=%d action=MEET team=%d civ=%s otherTeam=%d otherCiv=%s newDiplo=%d",
+		GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eTeam,
+		GC.getInfo(GET_PLAYER(GET_TEAM(eTeam).getLeaderID()).getCivilizationType()).getType(), bNewDiplo); // BETTER_BTS_AI_MOD, AI logging, 02/20/10, jdog5000
 	// <advc.001> Moved from makeHasMet in order to get the attitude update right
 	for (TeamIter<ALIVE,VASSAL_OF> it(getID()); it.hasNext(); ++it)
 		it->meet(eTeam, bNewDiplo, /* advc.071: */ pData);
@@ -1786,12 +1984,15 @@ int CvTeam::getDefensivePower(TeamTypes eExcludeTeam) const
 	int iPow = 0;
 	// K-Mod. only our master will have defensive pacts.
 	CvTeam const& kOurMaster = GET_TEAM(getMasterTeam());
+	// <!-- custom: AdvCiv practical 1837 changed this team-level calculation to players but excluded only direct members of the supplied attacker.
+	// Exclude that team's whole master/vassal bloc so its vassals cannot be counted as defenders through the attacker's Defensive Pact with the target. See KI#417. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamTypes const eExcludedMaster = (eExcludeTeam == NO_TEAM ? NO_TEAM : GET_TEAM(eExcludeTeam).getMasterTeam());
 	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
 	{
 		CvPlayer const& kPlayer = *it;
-		if (kPlayer.getTeam() == eExcludeTeam)
+		TeamTypes const eMaster = kPlayer.getMasterTeam();
+		if (eMaster == eExcludedMaster)
 			continue;
-		TeamTypes eMaster = kPlayer.getMasterTeam();
 		if (eMaster == kOurMaster.getID() || kOurMaster.isDefensivePact(eMaster))
 			iPow += kPlayer.getPower();
 	}
@@ -1965,8 +2166,7 @@ int CvTeam::getVassalCount(TeamTypes eObs) const
 }
 
 
-bool CvTeam::canVassalRevolt(TeamTypes eMaster,
-	bool bCheckLosses, int iExtraLand, int iExtraPop) const // advc.ctr
+bool CvTeam::canVassalRevolt(TeamTypes eMaster, bool bCheckLosses, int iExtraLand, int iExtraPop) const // advc.ctr
 {
 	FAssert(NO_TEAM != eMaster);
 
@@ -1976,8 +2176,9 @@ bool CvTeam::canVassalRevolt(TeamTypes eMaster,
 		return true;
 
 	int const iFREE_VASSAL_LAND_PERCENT = GC.getDefineINT(CvGlobals::FREE_VASSAL_LAND_PERCENT);
+	// <!-- custom: Use the shared native land floor so SGR reads the same rule. (GPT-6.1-Sol) -->
 	if (iFREE_VASSAL_LAND_PERCENT < 0 ||
-		100 * std::max(10, getTotalLand(false) + iExtraLand) < // advc.112: Lower bound added
+		100 * std::max(getSASVassalRevoltLandFloor(), getTotalLand(false) + iExtraLand) < // advc.112: Lower bound added
 		kMaster.getTotalLand(false) * iFREE_VASSAL_LAND_PERCENT)
 	{
 		return false;
@@ -1999,13 +2200,22 @@ bool CvTeam::isLossesAllowRevolt(TeamTypes eMaster) const
 	CvTeam& kMaster = GET_TEAM(eMaster);
 	if (isVassal(eMaster))
 	{	// advc.112: Lower bound 10 added
-		if (100 * std::max(10, getTotalLand(false)) < getVassalPower() *
-			GC.getDefineINT("VASSAL_REVOLT_OWN_LOSSES_FACTOR"))
+
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iVASSAL_REVOLT_OWN_LOSSES_FACTOR = GC.getDefineINT("VASSAL_REVOLT_OWN_LOSSES_FACTOR");
+
+		// <!-- custom: Reuse the same native land floor for the losses test. (GPT-6.1-Sol) -->
+		if (100 * std::max(getSASVassalRevoltLandFloor(), getTotalLand(false)) < getVassalPower() *
+			iVASSAL_REVOLT_OWN_LOSSES_FACTOR)
 		{
 			return true;
 		}
+
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iVASSAL_REVOLT_MASTER_LOSSES_FACTOR = GC.getDefineINT("VASSAL_REVOLT_MASTER_LOSSES_FACTOR");
+
 		if (100 * kMaster.getTotalLand() < getMasterPower() *
-			GC.getDefineINT("VASSAL_REVOLT_MASTER_LOSSES_FACTOR")) // advc (note): 0 in XML
+			iVASSAL_REVOLT_MASTER_LOSSES_FACTOR) // advc (note): 0 in XML
 		{
 			return true;
 		}
@@ -2066,8 +2276,9 @@ bool CvTeam::isInContactWithBarbarians() const
 		return true; // Needed for advc.314 (free unit from goody hut)
 	bool bCheckCity = kGame.getElapsedGameTurns() >=
 			GC.getInfo(kGame.getGameSpeedType()).getBarbPercent();
-	// (Perhaps just iUnitThresh=1 would have the same effect)
-	int iUnitThresh = kGame.getCurrentEra();
+	// <!-- custom: AdvCiv used the zero-based era as a unit threshold, so Ancient-era teams needed no unit presence and any Barbarian anywhere counted as contact.
+	// Require positive local presence while retaining later-era scaling for Barbarian research. See KI#408. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int const iUnitThresh = std::max(1, (int)kGame.getCurrentEra());
 	CvTeam const& kBarbarianTeam = GET_TEAM(BARBARIAN_TEAM);
 	FOR_EACH_AREA(pArea)
 	{
@@ -2180,9 +2391,9 @@ int CvTeam::getTypicalUnitValue(UnitAITypes eUnitAI, DomainTypes eDomain) const
 }
 
 
-int CvTeam::getResearchCost(TechTypes eTech,
-	bool bFreeBarbarianResearch, // advc.301: Replacing K-Mod's bGlobalModifiers
-	bool bTeamSizeModifiers) const // K-Mod
+// advc.301: Replacing K-Mod's bGlobalModifiers
+// <!-- custom: hoisted from multiline signature between `bFreeBarbarianResearch` and `bTeamSizeModifiers` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvTeam::getResearchCost(TechTypes eTech, bool bFreeBarbarianResearch, bool bTeamSizeModifiers) const // K-Mod
 {
 	CvGame const& kGame = GC.getGame();
 	CvTechInfo const& kTech = GC.getInfo(eTech);
@@ -2261,8 +2472,7 @@ int CvTeam::getResearchCost(TechTypes eTech,
 		player handicap adjustment */
 	if (kGame.isOption(GAMEOPTION_RISE_FALL))
 	{
-		rCost *= 1 - per100(GC.getDefineINT(
-				CvGlobals::RF_PLAYER_HANDICAP_ADJUSTMENT) * 3);
+		rCost *= 1 - per100(GC.getDefineINT(CvGlobals::RF_PLAYER_HANDICAP_ADJUSTMENT) * 3);
 	} // </advc.708>
 	if (bTeamSizeModifiers) // K-Mod
 	{
@@ -2272,7 +2482,9 @@ int CvTeam::getResearchCost(TechTypes eTech,
 	}
 	// <advc.251>
 	rCost *= scaled::max(rModifier, 0);
-	int iCost = rCost.roundToMultiple(isHuman() ? 5 : 1);
+	// <!-- custom: see known issue as of now 67 for details -->
+	//int iCost = rCost.roundToMultiple(isHuman() ? 5 : 1);
+	const int iCost = rCost.round();
 	// </advc.251>
 	return std::max(1, iCost);
 }
@@ -2425,11 +2637,17 @@ HandicapTypes CvTeam::getHandicapType() const
 	}
 	int const iDiv = it.nextIndex();
 	if (iDiv <= 0)
-		return (HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP");
+	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const HandicapTypes eSTANDARD_HANDICAP = (HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP");
+
+		return eSTANDARD_HANDICAP;
+	}
+
 	//FAssert((iGameHandicap / iDiv) >= 0);
-	// advc.250a: (also disabled the assertion above)
-	return (HandicapTypes)std::min(GC.getNumHandicapInfos() - 1,
-			(iGameHandicap / (10 * iDiv)));
+	// <!-- custom: iDifficulty is a score/rating in XML, not always enum index * 10. (ChatGPT-5.5) -->
+	// return (HandicapTypes)std::min(GC.getNumHandicapInfos() - 1, (iGameHandicap / (10 * iDiv))); // advc.250a: (also disabled the assertion above)
+	return handicapFromDifficulty(intdiv::round(iGameHandicap, iDiv));
 
 }
 
@@ -2490,6 +2708,15 @@ void CvTeam::changeAliveCount(int iChange)
 			}
 			/*  <advc.003m> So that AtWarCounts are updated. Also seems prudent
 				in general not to keep dead teams at war. */
+			// <!-- custom: Raw elimination teardown bypassed UWAI's war-ending callback, allowing sponsorship and past-war history to survive or omit the ended war.
+			// Report it while war state is still intact; during the early scenario readiness window, clear only the transient obligation. See KI#562. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (isMajorCiv() && kLoopTeam.isMajorCiv() &&
+				kLoopTeam.isAtWar(getID()) && getUWAI().isEnabled())
+			{
+				if (getUWAI().isReady())
+					kLoopTeam.uwai().reportWarEnding(getID());
+				else kLoopTeam.uwai().clearWarSponsorship(getID());
+			}
 			kLoopTeam.setAtWar(getID(), false);
 			setAtWar(kLoopTeam.getID(), false);
 			// </advc.003m>  <advc.opt> Also keep WarPlanCounts updated
@@ -2517,15 +2744,15 @@ PlayerTypes CvTeam::getRandomMemberAlive(bool bHuman) const
 	int iValid = (bHuman ? PlayerIter<HUMAN,MEMBER_OF>::count(getID()) :
 			getAliveCount());
 	int iIndex = SyncRandNum(iValid);
-	// For the bHuman case. From SAS, fixing an earlier AdvCiv bug.
+	// <!-- custom: Fix inherited AdvCiv practical 2945 bug: the random index is 0-based, while nextIndex() reports the next iterator position and also counts ineligible members.
+	// Compare against our own eligible-member index instead. See KI#207. (ChatGPT-5.6-Sol) -->
 	int iValidIndex = 0;
 	for (MemberIter itMember(getID()); itMember.hasNext(); ++itMember)
 	{
 		if (bHuman && !itMember->isHuman())
 			continue;
-		if (iValidIndex >= iIndex)
+		if (iValidIndex++ == iIndex)
 			return itMember->getID();
-		iValidIndex++;
 	}
 	FErrorMsg("Team not alive?");
 	return NO_PLAYER;
@@ -2543,6 +2770,20 @@ void CvTeam::changeNumCities(int iChange)
 {
 	m_iNumCities += iChange;
 	FAssert(getNumCities() >= 0);
+	// <!-- custom: A city addition is already present in its owner's authoritative container here, so refresh the vassal master's city-count-dependent maintenance immediately.
+	// City loss reaches this counter before player-city deletion and is deferred to the stable post-deletion callback. See KI#789. See KI#1035. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (iChange > 0)
+		updateMasterMaintenance();
+}
+
+
+// <!-- custom: Centralize the vassal-city invalidation shared by additions and stable post-deletion losses; final-initialization guards setup-time partial state. See KI#789. See KI#1035. (GPT-5.6-Sol) -->
+void CvTeam::updateMasterMaintenance() const
+{
+	if (!isAVassal() || !GC.getGame().isFinalInitialized())
+		return;
+	for (MemberIter it(getMasterTeam()); it.hasNext(); ++it)
+		it->updateMaintenance();
 }
 
 
@@ -2883,8 +3124,7 @@ void CvTeam::changeExtraMoves(DomainTypes eIndex, int iChange)
 }
 
 // advc.071: Now returns the location of the meeting, if any.
-CvPlot* CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
-	FirstContactData* pData) // advc.071
+CvPlot* CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo, FirstContactData* pData) // advc.071
 {
 	if (isHasMet(eOther))
 		return NULL;
@@ -2897,8 +3137,6 @@ CvPlot* CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
 		FAssert(iGameTurn >= 0);
 		m_aiHasMetTurn.set(eOther, iGameTurn);
 	} // </advc.091>
-	updateTechShare();
-
 	/*if(GET_TEAM(eOther).isHuman()) {
 		for (iI = 0; iI < MAX_PLAYERS; iI++) {
 			if (GET_PLAYER((PlayerTypes)iI).isAlive()) {
@@ -2939,7 +3177,7 @@ CvPlot* CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
 		}	
 	} // </advc.071>
 	if (isAlwaysWar() && getID() != eOther)
-		declareWar(eOther, false, NO_WARPLAN);
+		declareWar(eOther, false, NO_WARPLAN, true, NO_PLAYER, false, WAR_DECLARATION_ALWAYS_WAR);
 	else if (!isHuman() && bNewDiplo &&
 		GC.getGame().isFinalInitialized() && !gDLL->GetWorldBuilderMode() &&
 		!isAtWar(eOther))
@@ -3098,6 +3336,8 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
 	}
 	std::vector<CvPlot*> flipPlots;
 	::contestedPlots(flipPlots, getID(), eIndex);
+	// <!-- custom: Only realized contested-border flips need immediate mechanism provenance; WAR_BORDER and PEACE_BORDER remain distinct beneath any outer declaration/peace/vassalage transaction. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	SASGameRecordPlotOwnerChangeCauseScope kSASWarPeaceBorderCause(bNewValue ? SAS_PLOT_OWNER_CAUSE_WAR_BORDER : SAS_PLOT_OWNER_CAUSE_PEACE_BORDER, gGameRecordLogLevel >= 3 && GC.getGame().isFinalInitialized() && !flipPlots.empty());
 	for (size_t i = 0; i < flipPlots.size(); i++)
 	{
 		CvPlot& p = *flipPlots[i];
@@ -3224,13 +3464,18 @@ void CvTeam::setDefensivePact(TeamTypes eIndex, bool bNewValue)
 	m_abDefensivePact.set(eIndex, bNewValue);
 	if (isActive() || GET_TEAM(eIndex).isActive())
 		gDLL->UI().setDirty(Score_DIRTY_BIT, true);
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	CvTeam const& kOther = GET_TEAM(eIndex); // advc
 	if (bNewValue && !kOther.isDefensivePact(getID()))
 	{
 		CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYERS_SIGN_DEFENSIVE_PACT",
 				getReplayName().GetCString(), kOther.getReplayName().GetCString());
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getLeaderID(), szBuffer, GC.getColorType("HIGHLIGHT_TEXT"));
+				getLeaderID(), szBuffer, eColorHighlightText);
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 		{
 			CvPlayer& kObs = *it;
@@ -3239,7 +3484,7 @@ void CvTeam::setDefensivePact(TeamTypes eIndex, bool bNewValue)
 			{
 				gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 						"AS2D_THEIRALLIANCE", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-						GC.getColorType("HIGHLIGHT_TEXT"),
+						eColorHighlightText,
 						// advc.127b:
 						getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 			}
@@ -3251,7 +3496,7 @@ void CvTeam::setDefensivePact(TeamTypes eIndex, bool bNewValue)
 		CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYERS_CANCEL_DEFENSIVE_PACT",
 				getReplayName().GetCString(), kOther.getReplayName().GetCString());
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getLeaderID(), szBuffer, GC.getColorType("HIGHLIGHT_TEXT"));
+				getLeaderID(), szBuffer, eColorHighlightText);
 		for (PlayerIter<MAJOR_CIV,NOT_SAME_TEAM_AS> it(getID()); it.hasNext(); ++it)
 		{
 			CvPlayer& kObs = *it;
@@ -3303,13 +3548,34 @@ int CvTeam::turnsOfForcedPeaceRemaining(TeamTypes eOther) const
 	{
 		TeamTypes eFirstMaster = GET_PLAYER(d->getFirstPlayer()).getMasterTeam();
 		TeamTypes eSecondMaster = GET_PLAYER(d->getSecondPlayer()).getMasterTeam();
-		if (((eFirstMaster == eOurMaster && eSecondMaster == eTheirMaster) ||
-			(eFirstMaster == eTheirMaster && eSecondMaster == eOurMaster)) &&
-			d->getLengthFirst() > 0 &&
-			d->getFirstList().head()->m_data.m_eItemType == TRADE_PEACE_TREATY)
+		// <!-- custom: Filter deals by the two master teams, then scan both trade lists because AdvCiv can place reparations before the peace treaty.
+		// This keeps forced-peace AI timing tied to the live treaty regardless of list side or order. See KI#413. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (!((eFirstMaster == eOurMaster && eSecondMaster == eTheirMaster) || (eFirstMaster == eTheirMaster && eSecondMaster == eOurMaster)))
+			continue;
+		bool bPeaceTreaty = false;
 		{
-			r = std::max(r, d->turnsToCancel());
+			FOR_EACH_TRADE_ITEM(d->getFirstList())
+			{
+				if (pItem->m_eItemType == TRADE_PEACE_TREATY)
+				{
+					bPeaceTreaty = true;
+					break;
+				}
+			}
 		}
+		if (!bPeaceTreaty)
+		{
+			FOR_EACH_TRADE_ITEM(d->getSecondList())
+			{
+				if (pItem->m_eItemType == TRADE_PEACE_TREATY)
+				{
+					bPeaceTreaty = true;
+					break;
+				}
+			}
+		}
+		if (bPeaceTreaty)
+			r = std::max(r, d->turnsToCancel());
 	}
 	return r;
 }
@@ -3325,6 +3591,9 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 		isCapitulated()==bCapitulated here. */
 	if (isVassal(eMaster) == bNewValue)
 		return; // <advc>
+	// <!-- custom: Vassalage can synchronously recalculate culture ownership and align war/peace relationships.
+	// Keep the whole state transition under one root tx; nested owner-cause scopes still report the immediate CULTURE_UPDATE/WAR_BORDER/PEACE_BORDER mechanism. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	SASGameRecordTransactionScope kSASVassalageTransaction("VASSALAGE", gGameRecordLogLevel >= 2 && GC.getGame().isFinalInitialized());
 	for (MemberIter it(getID()); it.hasNext(); ++it)
 		it->updateCitySight(false, false);
 
@@ -3352,9 +3621,9 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 			t.changeAtWarCount(-1, false, !bNewValue);
 		} // </advc.003m>
 		// <advc.opt> War plans against vassals don't count
+		// <!-- custom: Remove cached plans before the target becomes a vassal; restoration must wait until after its master is cleared below. See KI#363. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (bNewValue)
 			t.AI_updateWarPlanCounts(getID(), t.AI_getWarPlan(getID()), NO_WARPLAN);
-		else t.AI_updateWarPlanCounts(getID(), NO_WARPLAN, t.AI_getWarPlan(getID()));
 		// </advc.opt>
 	}
 	// <advc.opt>
@@ -3368,6 +3637,13 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 		FAssert(m_eMaster == eMaster);
 		m_eMaster = NO_TEAM;
 	} // </advc.opt>
+	// <!-- custom: AdvCiv practical 1677 attempted to restore cached plans while this target still reported itself as a vassal, so AI_updateWarPlanCounts rejected every restoration.
+	// Re-add them only after independence is current. See KI#363. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (!bNewValue)
+	{
+		for (TeamAIIter<ALIVE> it; it.hasNext(); ++it)
+			it->AI_updateWarPlanCounts(getID(), NO_WARPLAN, it->AI_getWarPlan(getID()));
+	}
 	// <advc.agent>
 	if (bNewValue)
 	{
@@ -3412,6 +3688,10 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 		plot group update causes an AI city to choose new production
 		immediately, there could be trouble. I don't think that can happen though. */
 	GC.getGame().updatePlotGroups();
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 
 	if (isVassal(eMaster))
 	{
@@ -3467,7 +3747,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 			{
 				//declareWar((TeamTypes)iI, false, WARPLAN_DOGPILE);
 				// kekm.26: "These wars declared by capitulated vassal don't trigger defensive pacts."
-				queueWar(getID(), eThirdParty, false, WARPLAN_DOGPILE, !bCapitulated);
+				queueWar(getID(), eThirdParty, false, WARPLAN_DOGPILE, !bCapitulated, WAR_DECLARATION_VASSAL_ALIGNMENT);
 			}
 			else if (isAtWar(eThirdParty))
 			{
@@ -3477,7 +3757,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 				{
 					//GET_TEAM(eMaster).declareWar((TeamTypes)iI, false, WARPLAN_DOGPILE);
 					// kekm.26:
-					queueWar(eMaster, eThirdParty, false, WARPLAN_DOGPILE);
+					queueWar(eMaster, eThirdParty, false, WARPLAN_DOGPILE, true, WAR_DECLARATION_VASSAL_ALIGNMENT);
 				}
 			}
 		}
@@ -3504,7 +3784,8 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 
 		setMasterPower(GET_TEAM(eMaster).getTotalLand());
 		// advc.112: Lower bound added
-		setVassalPower(std::max(10, getTotalLand(false)));
+		// <!-- custom: Initial power uses the same floor as subsequent revolt tests. (GPT-6.1-Sol) -->
+		setVassalPower(std::max(getSASVassalRevoltLandFloor(), getTotalLand(false)));
 
 		if (GC.getGame().isFinalInitialized() && !gDLL->GetWorldBuilderMode())
 		{
@@ -3521,7 +3802,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 						getReplayName().c_str(), GET_TEAM(eMaster).getReplayName().c_str());
 			}
 			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szReplayMessage,
-					GC.getColorType("HIGHLIGHT_TEXT"));
+					eColorHighlightText);
 
 			for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 			{
@@ -3532,7 +3813,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 				{
 					gDLL->UI().addMessage(kObs.getID(), false, -1, szReplayMessage,
 							"AS2D_WELOVEKING", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-							GC.getColorType("HIGHLIGHT_TEXT"),
+							eColorHighlightText,
 							// advc.127b:
 							getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 				}
@@ -3561,7 +3842,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 			}
 
 			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-					getLeaderID(), szReplayMessage, GC.getColorType("HIGHLIGHT_TEXT"));
+					getLeaderID(), szReplayMessage, eColorHighlightText);
 
 			for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 			{
@@ -3578,7 +3859,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 				{
 					gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 							"AS2D_REVOLTSTART", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-							GC.getColorType("HIGHLIGHT_TEXT"),
+							eColorHighlightText,
 							// advc.127b:
 							getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 				}
@@ -3659,7 +3940,10 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 			FOR_EACH_UNIT_VAR(u, *it)
 			{
 				if (u->isNuke())
-					u->scrap();
+				{
+					// <!-- custom: Capitulation nuclear disarm is a mandatory AdvCiv rule, not routine AI economizing; force removal so SAS obsolete-only preservation cannot leave AI nukes armed. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					u->scrapForced(true, SAS_UNIT_SCRAP_CONTEXT_CAPITULATION_NUKE_DISARM);
+				}
 			}
 		}
 	} // </advc.143b>
@@ -3757,14 +4041,15 @@ void CvTeam::freeVassal(TeamTypes eVassal) const
 /*  <kekm.26> "Changed how multiple war declarations work. declareWar used to
 	nest war declarations, now they are queued to trigger defensive pacts and
 	everything else in the correct order." */
-void CvTeam::queueWar(TeamTypes eAttackingTeam, TeamTypes eDefendingTeam,
-		bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDOW)
+// <!-- custom: Added eCause and a matching queue so a secondary declaration does not lose whether an alliance, defensive pact, vassal alignment, vote, or nuclear attack caused it. (GPT-5.6-Sol) -->
+void CvTeam::queueWar(TeamTypes eAttackingTeam, TeamTypes eDefendingTeam, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDOW, WarDeclarationCause eCause)
 {
 	attacking_queue.push(eAttackingTeam);
 	defending_queue.push(eDefendingTeam);
 	newdiplo_queue.push(bNewDiplo);
 	warplan_queue.push(eWarPlan);
 	primarydow_queue.push(bPrimaryDOW);
+	warcause_queue.push(eCause);
 }
 
 void CvTeam::triggerWars(bool bForceUpdateAttitude)
@@ -3775,14 +4060,17 @@ void CvTeam::triggerWars(bool bForceUpdateAttitude)
 	else bTriggeringWars = true;
 	while (!attacking_queue.empty())
 	{
+		// <!-- custom: eCause follows the existing optional sponsor and random-event parameters.
+		// Pass their former NO_PLAYER/false defaults explicitly so adding the queued cause preserves gameplay exactly. (GPT-5.6-Sol) -->
 		GET_TEAM(attacking_queue.front()).declareWar(
 				defending_queue.front(), newdiplo_queue.front(),
-				warplan_queue.front(), primarydow_queue.front());
+				warplan_queue.front(), primarydow_queue.front(), NO_PLAYER, false, warcause_queue.front());
 		attacking_queue.pop();
 		defending_queue.pop();
 		newdiplo_queue.pop();
 		warplan_queue.pop();
 		primarydow_queue.pop();
+		warcause_queue.pop();
 		bWarsDeclared = true;
 	}
 	if (bWarsDeclared /* advc: */ || bForceUpdateAttitude)
@@ -3880,7 +4168,8 @@ void CvTeam::finalizeProjectArtTypes()
 }
 
 
-void CvTeam::changeProjectCount(ProjectTypes eProject, int iChange)
+// <!-- custom: The transfer mode suppresses only completion reporting; inherited projects still update counts, effects, victory state and AI production normally. See KI#422. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvTeam::changeProjectCount(ProjectTypes eProject, int iChange, bool bAnnounceCompletion)
 {
 	if (iChange == 0)
 		return;
@@ -3955,7 +4244,11 @@ void CvTeam::changeProjectCount(ProjectTypes eProject, int iChange)
 			kAIMember.AI_makeProductionDirty();
 	}
 
-	if (GC.getGame().isFinalInitialized() && !gDLL->GetWorldBuilderMode())
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
+	if (bAnnounceCompletion && GC.getGame().isFinalInitialized() && !gDLL->GetWorldBuilderMode())
 	{
 		CvWString szBuffer = gDLL->getText( // <advc.008e>
 				kProject.nameNeedsArticle() ?
@@ -3963,7 +4256,7 @@ void CvTeam::changeProjectCount(ProjectTypes eProject, int iChange)
 				"TXT_KEY_MISC_COMPLETES_PROJECT", // </advc.008e>
 				getReplayName().GetCString(), kProject.getTextKeyWide());
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer,
-				GC.getColorType("HIGHLIGHT_TEXT"));
+				eColorHighlightText);
 
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 		{
@@ -3975,7 +4268,7 @@ void CvTeam::changeProjectCount(ProjectTypes eProject, int iChange)
 					getName().GetCString(), kProject.getTextKeyWide());
 			gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 					"AS2D_PROJECT_COMPLETED", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-					GC.getColorType("HIGHLIGHT_TEXT"),
+					eColorHighlightText,
 					// advc.127b:
 					getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 		}
@@ -4062,9 +4355,11 @@ int CvTeam::getResearchProgress(TechTypes eIndex) const
 }
 
 
-void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer)
+// <!-- custom: Added eCause and pass it through research-progress helpers to setHasTech when this change completes the technology, preserving the action that actually crossed the threshold. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer, TechAcquisitionCause eCause)
 {
-	if(getResearchProgress(eIndex) == iNewValue)
+	int const iOldProgress = getResearchProgress(eIndex);
+	if (iOldProgress == iNewValue)
 		return;
 
 	m_aiResearchProgress.set(eIndex, iNewValue);
@@ -4074,27 +4369,32 @@ void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes eP
 	{
 		gDLL->UI().setDirty(GameData_DIRTY_BIT, true);
 		gDLL->UI().setDirty(Score_DIRTY_BIT, true);
-		/*  <advc.004x> Update research-turns shown in popup (tbd.: perhaps setting
-			Popup_DIRTY_BIT would suffice here?) */
+		// <advc.004x> Update research-turns shown in popup (tbd.: perhaps setting Popup_DIRTY_BIT would suffice here?)
 		CvPlayer& kActivePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
-		if (kActivePlayer.getCurrentResearch() == NO_TECH &&
-			kActivePlayer.isFoundedFirstCity() &&
-			kActivePlayer.isHuman()) // i.e. not during Auto Play
+		if (kActivePlayer.getCurrentResearch() == NO_TECH && kActivePlayer.isFoundedFirstCity() && kActivePlayer.isHuman()) // i.e. not during Auto Play
 		{
 			kActivePlayer.killAll(BUTTONPOPUP_CHOOSETECH);
 			kActivePlayer.chooseTech();
 		} // </advc.004x>
 	}
 
-	if (getResearchProgress(eIndex) >= getResearchCost(eIndex))
+	int const iResearchCost = getResearchCost(eIndex);
+	if (getResearchProgress(eIndex) >= iResearchCost)
 	{
-		int iOverflow = (100 * (getResearchProgress(eIndex) - getResearchCost(eIndex))) /
-				std::max(1, GET_PLAYER(ePlayer).calculateResearchModifier(eIndex));
-		GET_PLAYER(ePlayer).changeOverflowResearch(iOverflow);
+		CvPlayer& kResearcher = GET_PLAYER(ePlayer);
+		int const iResearchModifier = std::max(1, kResearcher.calculateResearchModifier(eIndex));
+		int const iProgressBeforeClamp = getResearchProgress(eIndex);
+		int const iOverflow = (100 * (iProgressBeforeClamp - iResearchCost)) / iResearchModifier;
+		kResearcher.changeOverflowResearch(iOverflow);
 		// <advc> Cleaner to subtract the overflow. Cf. comment in getResearchProgress.
-		m_aiResearchProgress.add(eIndex,
-				getResearchProgress(eIndex) - getResearchCost(eIndex)); // </advc>
-		setHasTech(eIndex, true, ePlayer, true, true, /* advc.121: */ true);
+		// <!-- custom: AdvCiv added the raw overflow to the already overflowing progress, doubling that portion instead of subtracting it.
+		// Preserve exactly the completed technology cost in stored progress. See KI#404. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		m_aiResearchProgress.add(eIndex, iResearchCost - getResearchProgress(eIndex)); // </advc>
+		// <!-- custom: Only a genuine CvPlayer::doResearch threshold crossing has meaningful research-overflow accounting.
+		// Log after the overflow grant and KI#404 clamp, but before setHasTech emits the generic TECH_ACQUIRED row, so the two factual actions remain in chronological order.
+		// Other acquisition causes stay on TECH_ACQUIRED alone. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2 && eCause == TECH_ACQUISITION_RESEARCH) logSASGameRecordResearchCompleted(eIndex, getID(), ePlayer, iOldProgress, iProgressBeforeClamp, iResearchModifier, iOverflow);
+		setHasTech(eIndex, true, ePlayer, true, true, /* advc.121: */ true, eCause);
 		/*if (!GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS) && !GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING))
 			setNoTradeTech(eIndex, true);*/ // BtS
 		// disabled by K-Mod. I don't know why this was here, and it conflicts with my changes to the order of the doTurn functions.
@@ -4102,12 +4402,12 @@ void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes eP
 }
 
 
-void CvTeam::changeResearchProgress(TechTypes eIndex, int iChange, PlayerTypes ePlayer)
+void CvTeam::changeResearchProgress(TechTypes eIndex, int iChange, PlayerTypes ePlayer, TechAcquisitionCause eCause)
 {
-	setResearchProgress(eIndex, getResearchProgress(eIndex) + iChange, ePlayer);
+	setResearchProgress(eIndex, getResearchProgress(eIndex) + iChange, ePlayer, eCause);
 }
 
-int CvTeam::changeResearchProgressPercent(TechTypes eIndex, int iPercent, PlayerTypes ePlayer)
+int CvTeam::changeResearchProgressPercent(TechTypes eIndex, int iPercent, PlayerTypes ePlayer, TechAcquisitionCause eCause)
 {
 	int iBeakers = 0;
 
@@ -4122,7 +4422,7 @@ int CvTeam::changeResearchProgressPercent(TechTypes eIndex, int iPercent, Player
 					iResearchCostPersent);
 		}
 
-		changeResearchProgress(eIndex, iBeakers, ePlayer);
+		changeResearchProgress(eIndex, iBeakers, ePlayer, eCause);
 	}
 
 	return iBeakers;
@@ -4243,6 +4543,11 @@ void CvTeam::resetVictoryProgress()
 {	// <advc.opt>
 	if (GC.getGame().getGameState() != GAMESTATE_ON)
 		return;
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	FOR_EACH_NON_DEFAULT_KEY(m_aiVictoryCountdown, Victory) // </advc.opt>
 	{
 		setVictoryCountdown(eLoopVictory, -1);
@@ -4271,7 +4576,7 @@ void CvTeam::resetVictoryProgress()
 			}
 		}
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getLeaderID(), szBuffer, GC.getColorType("HIGHLIGHT_TEXT"));
+				getLeaderID(), szBuffer, eColorHighlightText);
 	}
 }
 
@@ -4318,14 +4623,16 @@ bool CvTeam::isHasTech(TechTypes eIndex) const
 }
 
 // advc.039:
-CvWString const CvTeam::tradeItemString(TradeableItems eItem, int iData, TeamTypes eFrom) const
+// <!-- custom: Resolve city IDs through the actual giver; retain team-level formatting for the remaining item types. See KI#412. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+CvWString const CvTeam::tradeItemString(TradeableItems eItem, int iData, PlayerTypes eFrom) const
 {
-	CvTeam const& kFrom = GET_TEAM(eFrom);
+	CvPlayer const& kFromPlayer = GET_PLAYER(eFrom);
+	CvTeam const& kFrom = GET_TEAM(kFromPlayer.getTeam());
 	switch(eItem)
 	{
 	case TRADE_CITIES:
 	{
-		CvCity* c = GET_PLAYER(kFrom.getLeaderID()).getCity(iData);
+		CvCity* c = kFromPlayer.getCity(iData);
 		if (c == NULL)
 			return L"";
 		return c->getName();
@@ -4398,13 +4705,17 @@ bool CvTeam::isTechSplash() const
 	return true;
 }
 
-void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes eDiscoverPlayer,
-	bool bPartial)
+void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes eDiscoverPlayer, bool bPartial)
 {
 	bool bSound = ((!isTechSplash() ||
 			/*  advc.156: I think HotSeat doesn't play sounds along with messages,
 				but let's try. */
 			GC.getGame().isHotSeat()) && !bPartial);
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorTechText = (ColorTypes)GC.getColorType("TECH_TEXT");
+
 	for (MemberIter it(getID()); it.hasNext(); ++it)
 	{
 		CvPlayer const& kPlayer = *it;
@@ -4423,16 +4734,22 @@ void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes
 		gDLL->UI().addMessage(kPlayer.getID(), false, -1, szBuffer,
 				szSound, // advc.156
 				MESSAGE_TYPE_MINOR_EVENT, // advc.106b
-				NULL, GC.getColorType("TECH_TEXT"));
+				NULL, eColorTechText);
+		// <!-- custom: Identify the actual full-completion notice at its producer so Turn Log accounting no longer guesses from persistent NO_TECH state.
+		// This complements rather than removes the logged notice. See KI#1030. (GPT-5.6-Sol) -->
+		if (!bPartial)
+			GET_PLAYER(kPlayer.getID()).noteNewTechCompletionMessage();
 				// K-Mod. Play the quote sound always, the "MP" sound is boring.
 				//(bSound ? GC.getInfo(eIndex).getSound() : NULL)
 	}
 }
 
-void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
-	bool bFirst, bool bAnnounce, /* advc.121: */ bool bEndOfTurn)
+// <!-- custom: Added eCause and forward it to the event reporter so TECH_ACQUIRED records the explicit acquisition source without changing technology processing. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce, /* advc.121: */ bool bEndOfTurn, TechAcquisitionCause eCause)
 {
 	PROFILE_FUNC();
+	// <!-- custom: SASGameRecord checks in this large function intentionally remain beside the specific tech effects they describe (full-map revelation and later research-queue invalidation).
+	// Those paths are distant/conditional, so a universal function-entry level cache would usually be unused. (ChatGPT-5.6-Sol) -->
 
 	if (eTech == NO_TECH)
 		return;
@@ -4451,7 +4768,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 		m_aiTechCount.add(eTech, 1);
 		setResearchProgress(eTech, 0, ePlayer);
 		CvEventReporter::getInstance().techAcquired(eTech, getID(), ePlayer,
-				bAnnounce && 1 == m_aiTechCount.get(eTech));
+				bAnnounce && 1 == m_aiTechCount.get(eTech), eCause);
 
 		if (m_aiTechCount.get(eTech) == 1 && bAnnounce &&
 			kGame.isFinalInitialized() && !gDLL->GetWorldBuilderMode())
@@ -4463,7 +4780,10 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 	{
 		updatePlotGroupBonus(eTech, false); // advc: Code moved into auxiliary function
 		m_abHasTech.set(eTech, bNewValue);
-		m_iTechCount++; // advc.101
+		// <!-- custom: AdvCiv's cached known-technology total incremented on both acquisition and removal.
+		// Follow the actual state transition so True Starts map regeneration cannot inflate gameplay consumers of the cache. See KI#405. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		m_iTechCount += (bNewValue ? 1 : -1); // advc.101
+		FAssert(m_iTechCount >= 0);
 		updatePlotGroupBonus(eTech, true);
 	}
 
@@ -4471,9 +4791,13 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 
 	if (isHasTech(eTech))
 	{
-		if (gTeamLogLevel >= 2) logBBAI("    Team %d (%S) acquires tech %S", getID(), getName().GetCString(), kTech.getDescription()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+		if (gTeamLogLevel >= 2 && kGame.isFinalInitialized()) logBBAI("TEAM_TECH_ACQUIRED turn=%d team=%d teamName=%S player=%d civ=%s tech=%s first=%d announce=%d cause=%s",
+			kGame.getGameTurn(), getID(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(), ePlayer, GC.getInfo(GET_PLAYER(ePlayer).getCivilizationType()).getType(), kTech.getType(), bFirst, bAnnounce,
+			getSASTechAcquisitionCause(eCause)); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 
-		for (MemberIter it(getID()); it.hasNext(); ++it)
+		// <!-- custom: AdvCiv practical 1837 made this inherited all-member era propagation alive-only.
+		// Include dead assigned teammates so a later revival does not retain an era older than the team's acquired technologies. See KI#416. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		for (PlayerIter<EVER_ALIVE,MEMBER_OF> it(getID()); it.hasNext(); ++it)
 		{
 			CvPlayer& kMember = *it;
 			if (kMember.getCurrentEra() < kTech.getEra())
@@ -4481,7 +4805,14 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 		}
 
 		if (kTech.isMapVisible())
+		{
+			// <!-- custom: Map-visible technologies previously produced thousands of redundant coordinate entries.
+			// Suppress those per-plot hooks during this known bulk operation and record one exact full-map revelation row instead. (GPT-5.6-Sol) -->
+			bool const bLogFullMapRevelation = (gGameRecordLogLevel >= 2 && getID() < MAX_CIV_TEAMS && kGame.getElapsedGameTurns() > 0);
+			if (bLogFullMapRevelation) beginSASGameRecordFullMapRevelation(getID(), eTech);
 			GC.getMap().setRevealedPlots(getID(), true, true);
+			if (bLogFullMapRevelation) endSASGameRecordFullMapRevelation(getID(), eTech);
+		}
 
 		FOR_EACH_ENUM(SpecialBuilding)
 		{
@@ -4490,7 +4821,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 		}
 
 		// report event to Python, along with some other key state
-		CvEventReporter::getInstance().techAcquired(eTech, getID(), ePlayer, bAnnounce);
+		CvEventReporter::getInstance().techAcquired(eTech, getID(), ePlayer, bAnnounce, eCause);
 
 		bool bReligionFounded = false;
 		bool bFirstPerk = false; // advc: Reneamed from bFirstBonus
@@ -4582,13 +4913,25 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 		for (MemberAIIter it(getID()); it.hasNext(); ++it)
 		{
 			CvPlayerAI& kMember = *it;
-			if (kMember.isResearchingTech(eTech))
+			bool const bWasResearchingAcquiredTech = kMember.isResearchingTech(eTech);
+			if (bWasResearchingAcquiredTech)
 				kMember.popResearch(eTech);
+			// <!-- custom: A completed final queue target normally leaves currentResearch=- until the AI chooses again before its next research phase.
+			// Record that harmless cause so an end-of-round SASGameRecord snapshot is not mistaken for lost science. (GPT-5.6-Sol) -->
+			if (gPlayerLogLevel >= 2 && bWasResearchingAcquiredTech && !kMember.isHuman() && kGame.isFinalInitialized()) logBBAI("RESEARCH_QUEUE_AFTER_ACQUIRE turn=%d player=%d civ=%s acquired=%s next=%s queueLength=%d",
+				kGame.getGameTurn(), kMember.getID(), GC.getInfo(kMember.getCivilizationType()).getType(), kTech.getType(),
+				getSASInfoTypeOrNone(kMember.getCurrentResearch()),
+				kMember.getLengthResearchQueue());
 			/*	notify the player they now have the tech,
 				if they want to make immediate changes */
 			kMember.AI_nowHasTech(eTech);
 			kMember.invalidateYieldRankCache();
 		}
+
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: code/performance optimization: hoist -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+		static const int iSHOW_FIRST_TO_DISCOVER_IN_REPLAY = GC.getDefineINT("SHOW_FIRST_TO_DISCOVER_IN_REPLAY");
 
 		if (bFirst && bFirstToDiscover)
 		{
@@ -4623,14 +4966,15 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 					GET_PLAYER(ePlayer).chooseTech(kTech.getFirstFreeTechs(),
 							szBuffer.GetCString());
 				}
+
 				// advc.004: Announcement code moved into next block
 				// advc.106: Do it at the end instead
-				if (GC.getDefineINT("SHOW_FIRST_TO_DISCOVER_IN_REPLAY") <= 0)
+				if (iSHOW_FIRST_TO_DISCOVER_IN_REPLAY <= 0)
 				{
 					szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH",
 							GET_PLAYER(ePlayer).getReplayName(), kTech.getTextKeyWide());
 					kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, ePlayer, szBuffer,
-							GC.getColorType("HIGHLIGHT_TEXT"));
+							eColorHighlightText);
 				} // advc.106
 			} // <advc.004>
 			if (bAnnounceFirst) // Cut, pasted, refactored from above
@@ -4651,7 +4995,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 					gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 							(bMajor ? "AS2D_FIRSTTOTECH" : NULL),
 							(bMajor ? MESSAGE_TYPE_MAJOR_EVENT :
-							MESSAGE_TYPE_MINOR_EVENT), NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+							MESSAGE_TYPE_MINOR_EVENT), NULL, eColorHighlightText,
 							// advc.127b:
 							getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 				}
@@ -4664,12 +5008,16 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 					{
 						/*	K-Mod note: we just want to flag it for re-evaluation.
 							Clearing the queue is currently the only way to do that. */
+						// <!-- custom: This may leave currentResearch=- in the end-of-round summary, but the affected AI has already applied this round's science and chooses again before applying the next round's.
+						// Log the cause to verify that timing and expose any true missed research separately. (GPT-5.6-Sol) -->
+						if (gPlayerLogLevel >= 2 && kGame.isFinalInitialized()) logBBAI("RESEARCH_QUEUE_INVALIDATED_FIRST_PERK turn=%d player=%d civ=%s competingTech=%s claimedByTeam=%d",
+							kGame.getGameTurn(), itOther->getID(), GC.getInfo(itOther->getCivilizationType()).getType(), kTech.getType(), getID());
+						if (gGameRecordLogLevel >= 2) noteSASGameRecordResearchTargetChangeCause(itOther->getID(), RESEARCH_TARGET_CHANGE_FIRST_DISCOVERY_PERK_INVALIDATION);
 						itOther->clearResearchQueue();
 					}
 				}
 			}
 		}
-
 
 		if (bAnnounce && kGame.isFinalInitialized() &&
 			!gDLL->GetWorldBuilderMode()) // advc
@@ -4781,12 +5129,15 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 			it->updateTechShare(eTech); // Share through "Internet" project
 		// <advc.106>
 		if (bFirst && bFirstToDiscover && // (Note: CvGame::initFreeState uses bFirst=false)
-			GC.getDefineINT("SHOW_FIRST_TO_DISCOVER_IN_REPLAY") > 0)
+			iSHOW_FIRST_TO_DISCOVER_IN_REPLAY > 0)
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const ColorTypes eColorAltHighlightText = (ColorTypes)GC.getColorType("ALT_HIGHLIGHT_TEXT");
+
 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH",
 					GET_PLAYER(ePlayer).getReplayName(), kTech.getTextKeyWide());
 			kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, ePlayer, szBuffer,
-					GC.getColorType("ALT_HIGHLIGHT_TEXT"));
+					eColorAltHighlightText);
 		} // </advc.106>
 	}
 
@@ -5043,8 +5394,8 @@ void CvTeam::changeEspionagePointsAgainstTeam(TeamTypes eIndex, int iChange)
 // advc.120d:
 bool CvTeam::canSeeTech(TeamTypes eOther) const
 {
-	/*	In part based on drawTechDeals in ExoticForeignAdvisor.py.
-		Exposed to Python via CvPlayer. Therefore has to pretty foolproof. */
+	/*	In part based on drawTechDeals in ForeignAdvisor.py.
+		Exposed to Python via CvPlayer. Therefore has to pretty foolproof.; <!-- custom: removed "Exotic" since it is now unified in a single file --> */
 	CvTeam const& kOther = GET_TEAM(eOther);
 	// Can see vassal tech through "we'd like you to research ..."
 	if (getID() == kOther.getID() || kOther.isVassal(getID()))
@@ -5065,7 +5416,9 @@ bool CvTeam::canSeeTech(TeamTypes eOther) const
 int CvTeam::getTotalUnspentEspionage() const
 {
 	int iTotal = 0;
-	for (TeamIter<CIV_ALIVE> it; it.hasNext(); ++it)
+	// <!-- custom: Self-target espionage has no usable rival target and can be left by inherited or external state.
+	// Exclude it defensively from K-Mod AI denominators and SASGameRecord totals. See KI#409. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (TeamIter<CIV_ALIVE,NOT_SAME_TEAM_AS> it(getID()); it.hasNext(); ++it)
 		iTotal += getEspionagePointsAgainstTeam(it->getID());
 	return iTotal;
 }
@@ -5078,7 +5431,12 @@ int CvTeam::getEspionagePointsEver() const
 void CvTeam::setEspionagePointsEver(int iValue)
 {
 	if (iValue != getEspionagePointsEver())
+	{
 		m_iEspionagePointsEver = iValue;
+		// <!-- custom: Lifetime espionage totals alter K-Mod's passive-cost ratio in both directions independently of current directional points.
+		// Refresh AdvCiv's persistent visibility latch. See KI#784. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		updateEverSeenDemographicsForEspionageRatioChange(getID());
+	}
 }
 
 void CvTeam::changeEspionagePointsEver(int iChange)
@@ -5115,6 +5473,9 @@ void CvTeam::setCounterespionageModAgainstTeam(TeamTypes eIndex, int iValue)
 	if (iValue != getCounterespionageModAgainstTeam(eIndex))
 	{
 		m_aiCounterespionageModAgainstTeam.set(eIndex, iValue);
+		// <!-- custom: This team's Counterespionage modifier changes the opposing team's passive cost against us.
+		// Expiry can newly reveal our demographics without any espionage-point change. See KI#784. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		updateEverSeenDemographicsFor(eIndex, getID());
 		gDLL->UI().setDirty(Espionage_Advisor_DIRTY_BIT, true);
 	}
 }
@@ -5132,10 +5493,15 @@ void CvTeam::verifySpyUnitsValidPlot()
 		CvPlayer const& kMember = *it;
 		FOR_EACH_UNIT_VAR(pUnit, kMember)
 		{
+			// <!-- custom: A failed inherited Partisans initUnit(NO_UNIT) call left a reset/unplaced object in the unit container.
+			// This inherited loop dereferenced its null plot before checking whether it was a Spy, then a first repair still crashed by reading isSpy() before placement.
+			// Check placement before all unit-info-backed state and ignore every unit outside this helper's placed-Spy scope. See KI#524.2 and KI#524.6. (GPT-5.6-Sol) -->
+			if (pUnit->plot() == NULL || !pUnit->isSpy())
+				continue;
 			PlayerTypes eOwner = pUnit->getPlot().getOwner();
 			if (eOwner != NO_PLAYER)
 			{
-				if (pUnit->isSpy() && !kMember.canSpiesEnterBorders(eOwner))
+				if (!kMember.canSpiesEnterBorders(eOwner))
 					aUnits.push_back(pUnit);
 			}
 		}
@@ -5239,12 +5605,15 @@ bool CvTeam::isTurnActive() const
 }
 
 
+// <!-- custom: This aging runs from the ordinary team turn for living owners and from CvGame's global-turn boundary for dead owners that can later revive. See KI#415. See KI#1055. (GPT-5.6-Sol) -->
 void CvTeam::doWarWeariness()
 {
 	static int const iWW_DECAY_RATE = GC.getDefineINT("WW_DECAY_RATE"); // advc.opt
 	static int const iWW_DECAY_PEACE_PERCENT = GC.getDefineINT("WW_DECAY_PEACE_PERCENT"); // advc.opt
 	CvGame const& kGame = GC.getGame();
-	for (TeamIter<CIV_ALIVE> it; it.hasNext(); ++it)
+	// <!-- custom: AdvCiv practical 1837 restricted this BtS loop to living civilizations, making the retained dead-team decay branch unreachable and freezing stored war weariness until revival.
+	// Iterate every civilization team that has lived so dead-team weariness continues decaying. See KI#415. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (TeamIter<EVER_ALIVE> it; it.hasNext(); ++it)
 	{
 		TeamTypes eLoopTeam = it->getID();
 		if (getWarWeariness(eLoopTeam) > 0)
@@ -5287,7 +5656,7 @@ void CvTeam::doBarbarianResearch()
 			{
 				int const iPossibleCount = it.nextIndex();
 				setResearchProgress(eLoopTech, (getResearchCost(eLoopTech) * iCount) /
-						iPossibleCount, getLeaderID());
+						iPossibleCount, getLeaderID(), TECH_ACQUISITION_BARBARIAN_RESEARCH);
 			}
 		}
 	} // </kekm.28>
@@ -5365,12 +5734,11 @@ void CvTeam::doBarbarianResearch()
 				// <advc.301> No overflow
 				std::max(1, getResearchCost(eLoopTech)
 				- getResearchProgress(eLoopTech))).uround(), // </advc.301>
-				kBarbPlayer.getID()); // </K-Mod>
+				kBarbPlayer.getID(), TECH_ACQUISITION_BARBARIAN_RESEARCH); // </K-Mod>
 	}
 }
 
-void CvTeam::updateTechShare(TechTypes eTech,
-	int iOtherKnownThreshold) // advc.opt: Allow caller to handle this
+void CvTeam::updateTechShare(TechTypes eTech, int iOtherKnownThreshold) // advc.opt: Allow caller to handle this
 {
 	if (isHasTech(eTech) /* advc.opt: */ || !isAnyTechShare())
 		return;
@@ -5382,10 +5750,14 @@ void CvTeam::updateTechShare(TechTypes eTech,
 		itOther.hasNext(); ++itOther)
 	{
 		if (itOther->isHasTech(eTech))
-			iCount += itOther->getNumMembers(); // kekm.38: was +1
+		{
+			// <!-- custom: Kek-Mod changed Tech Share to count players but used assigned membership, allowing dead teammates to satisfy The Internet.
+			// Count living players consistently with the feature's AI valuation. See KI#418. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			iCount += itOther->getAliveCount(); // kekm.38: was +1
+		}
 		if (iCount >= iOtherKnownThreshold) // advc.opt: Moved into the loop
 		{
-			setHasTech(eTech, true, NO_PLAYER, true, true);
+			setHasTech(eTech, true, NO_PLAYER, true, true, false, TECH_ACQUISITION_TECH_SHARE);
 			if (GET_PLAYER(getLeaderID()).isSignificantDiscovery(eTech)) // advc.550e
 				setNoTradeTech(eTech, true); // kekm.31
 			return;
@@ -5498,11 +5870,22 @@ void CvTeam::testCircumnavigated()
 
 	GC.getGame().makeCircumnavigated();
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const int iCIRCUMNAVIGATE_FREE_MOVES = GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES");
+	bool const bLogGameRecordCircumnavigation = (gGameRecordLogLevel >= 2);
+	int const iSeaExtraMovesBefore = bLogGameRecordCircumnavigation ? getExtraMoves(DOMAIN_SEA) : 0;
+	bool const bCircumnavigationBonusApplied = (GC.getGame().getElapsedGameTurns() > 1 && iCIRCUMNAVIGATE_FREE_MOVES != 0);
+
 	//if (GC.getGame().getElapsedGameTurns() > 0)
-	if (GC.getGame().getElapsedGameTurns() > 1 && // K-Mod (due to changes in when CvTeam::doTurn is called)
-		GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES") != 0)
+	if (bCircumnavigationBonusApplied) // K-Mod (due to changes in when CvTeam::doTurn is called)
 	{
-		changeExtraMoves(DOMAIN_SEA, GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES"));
+		changeExtraMoves(DOMAIN_SEA, iCIRCUMNAVIGATE_FREE_MOVES);
+
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: code/performance optimization: hoist -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 		{
 			CvPlayer const& kObs = *it;
@@ -5510,7 +5893,7 @@ void CvTeam::testCircumnavigated()
 			if (getID() == kObs.getTeam())
 			{
 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_CIRC_GLOBE",
-						GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES"));
+						iCIRCUMNAVIGATE_FREE_MOVES);
 			}
 			else if (isHasMet(kObs.getTeam()) /* advc.127: */ || kObs.isSpectator())
 			{
@@ -5520,15 +5903,18 @@ void CvTeam::testCircumnavigated()
 			else szBuffer = gDLL->getText("TXT_KEY_MISC_UNKNOWN_CIRC_GLOBE");
 			gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 					"AS2D_GLOBECIRCUMNAVIGATED", MESSAGE_TYPE_MAJOR_EVENT,
-					NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+					NULL, eColorHighlightText,
 					// advc.127b:
 					getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 		}
 		CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_SOMEONE_CIRC_GLOBE",
 				getReplayName().c_str()));
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getLeaderID(), szBuffer, GC.getColorType("HIGHLIGHT_TEXT"));
+				getLeaderID(), szBuffer, eColorHighlightText);
 	}
+	// <!-- custom: Circumnavigation is a one-time global history boundary with a permanent naval-movement effect.
+	// Record the winning team and actual before/after movement modifier without rescanning the map that testCircumnavigated already validated. (ChatGPT-5.6-Sol) -->
+	if (bLogGameRecordCircumnavigation) logSASGameRecordCircumnavigated(getID(), iCIRCUMNAVIGATE_FREE_MOVES, bCircumnavigationBonusApplied, iSeaExtraMovesBefore, getExtraMoves(DOMAIN_SEA));
 }
 
 // <advc.127b>
@@ -5575,8 +5961,7 @@ int CvTeam::getCapitalY(TeamTypes eObserver, bool bDebug) const
 	return pCapital->getY();
 } // </advc.127b>
 
-void CvTeam::processTech(TechTypes eTech, int iChange,
-	bool bEndOfTurn) // advc.121
+void CvTeam::processTech(TechTypes eTech, int iChange, bool bEndOfTurn) // advc.121
 {
 	PROFILE_FUNC();
 
@@ -5675,7 +6060,9 @@ void CvTeam::processTech(TechTypes eTech, int iChange,
 		}
 	}
 
-	for (MemberIter it(getID()); it.hasNext(); ++it)
+	// <!-- custom: AdvCiv practical 1837 also made persistent player-level technology effects alive-only, but revival does not replay known team technologies.
+	// Process dead assigned teammates as BtS did so their modifiers remain synchronized for revival. See KI#416. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (PlayerIter<EVER_ALIVE,MEMBER_OF> it(getID()); it.hasNext(); ++it)
 	{
 		CvPlayer& kMember = *it;
 		kMember.changeFeatureProductionModifier(kTech.getFeatureProductionModifier() * iChange);
@@ -5797,7 +6184,10 @@ void CvTeam::read(FDataStreamBase* pStream)
 {
 	reset(); // Init data before load
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 
 	pStream->Read(&m_iNumMembers);
@@ -5823,223 +6213,81 @@ void CvTeam::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iMasterPower);
 	pStream->Read(&m_iEnemyWarWearinessModifier);
 	pStream->Read(&m_iRiverTradeCount);
+
 	// <advc.500c> (Older saves handled after techs are loaded)
-	if (uiFlag >= 18)
-		pStream->Read(&m_iNoFearForSafetyCount); // </advc.500c>
+	// <!-- custom: Note: AdvCiv recovered this count after loading techs when a save did not store it.
+	// Current SAS saves already include the count. See KI#46.2. (GPT-6.2-Sol) -->
+	pStream->Read(&m_iNoFearForSafetyCount); // </advc.500c>
+
 	pStream->Read(&m_iEspionagePointsEver);
+
 	// <advc.003m>
-	if(uiFlag >= 5)
-	{
 		pStream->Read(&m_iMajorWarEnemies);
 		pStream->Read(&m_iMinorWarEnemies);
 		pStream->Read(&m_iVassalWarEnemies);
 		pStream->Read(&m_bMinorTeam);
-	}
-	else
-	{
-		updateMinorCiv(); // Need to do this before CvTeamAI::read
-		/*	All teams need to be loaded before war enemies can be counted.
-			Set negative counts in order to signal to CvGame::onAllGameDataRead
-			that finalizeInit needs to be called. */
-		m_iMajorWarEnemies = m_iMinorWarEnemies = m_iVassalWarEnemies = -1;
-	} // </advc.003m>
+	// </advc.003m>
 
 	pStream->Read(&m_bMapCentering);
 	pStream->Read(&m_bCapitulated);
-	// <advc.opt> (obsolete)
-	if (uiFlag >= 7 && uiFlag < 16)
-	{
-		bool bAnyVictoryCountdown; // (discard)
-		pStream->Read(&bAnyVictoryCountdown);
-	} // </advc.opt>
+
 	pStream->Read((int*)&m_eID);
 	FAssertEnumBounds(m_eID); // advc (sanity check)
-	if (uiFlag >= 16)
-	{
-		m_aiStolenVisibilityTimer.read(pStream);
-		m_aiWarWeariness.read(pStream);
-	}
-	else
-	{
-		m_aiStolenVisibilityTimer.readArray<int>(pStream);
-		m_aiWarWeariness.readArray<int>(pStream);
-	}
-	// <advc> (for kekm.38)
-	if (uiFlag >= 15)
-	{
-		if (uiFlag >= 16)
-			m_aiTechShareCount.read(pStream);
-		else m_aiTechShareCount.readArray<char>(pStream);
-	}
-	else
-	{	/*	Used to be stored for each possible team count, now player count.
-			And the iTechShare from XML is no longer treated as 1 less in the DLL. */
-		ArrayEnumMap<TeamTypes,int> aiTeamTechShareCount;
-		aiTeamTechShareCount.readArray<int>(pStream);
-		if (aiTeamTechShareCount.isAnyNonDefault())
-		{
-			for (int i = 0; i < std::min<int>(MAX_TEAMS, MAX_PLAYERS - 1); i++)
-			{
-				m_aiTechShareCount.set((PlayerTypes)(i + 1),
-						aiTeamTechShareCount.get((TeamTypes)i));
-			}
-		}
-	} // </advc>
-	if (uiFlag >= 16)
-	{
-		m_aiEspionagePointsAgainstTeam.read(pStream);
-		m_aiCounterespionageTurnsLeftAgainstTeam.read(pStream);
-		m_aiCounterespionageModAgainstTeam.read(pStream);
-		// <advc.130k> (Handle old saves in CvTeamAI) 
-		if (uiFlag >= 17)
-			m_aiTurnsAtPeace.read(pStream); // </advc.130k>
-		m_aiCommerceFlexibleCount.read(pStream);
-	}
-	else
-	{
-		m_aiEspionagePointsAgainstTeam.readArray<int>(pStream);
-		m_aiCounterespionageTurnsLeftAgainstTeam.readArray<int>(pStream);
-		m_aiCounterespionageModAgainstTeam.readArray<int>(pStream);
-		m_aiCommerceFlexibleCount.readArray<int>(pStream);
-	}
-	// <advc.120g> Prior to uiFlag=6, espionage was flexible from the beginning.
-	if(uiFlag < 6)
-		m_aiCommerceFlexibleCount.set(COMMERCE_ESPIONAGE, 1); // </advc.120g>
-	if (uiFlag >= 16)
-	{
-		m_aiExtraMoves.read(pStream);
-		m_aiForceTeamVoteEligibilityCount.read(pStream);
-	}
-	else
-	{
-		m_aiExtraMoves.readArray<int>(pStream);
-		m_aiForceTeamVoteEligibilityCount.readArray<int>(pStream);
-	}
+
+	m_aiStolenVisibilityTimer.read(pStream);
+	m_aiWarWeariness.read(pStream);
+
+
+	m_aiTechShareCount.read(pStream);
+	// </advc>
+
+	m_aiEspionagePointsAgainstTeam.read(pStream);
+	m_aiCounterespionageTurnsLeftAgainstTeam.read(pStream);
+	m_aiCounterespionageModAgainstTeam.read(pStream);
+	// <advc.130k> (Handle old saves in CvTeamAI)
+	// <!-- custom: Note: CvTeamAI recovered peace counters when an old save did not store them.
+	// Current SAS saves already include the counters. See KI#46.2. (GPT-6.2-Sol) -->
+	m_aiTurnsAtPeace.read(pStream); // </advc.130k>
+
+	m_aiCommerceFlexibleCount.read(pStream);
+
+	m_aiExtraMoves.read(pStream);
+	m_aiForceTeamVoteEligibilityCount.read(pStream);
+
 	// <advc.091>
-	if (uiFlag >= 12)
-	{
-		if (uiFlag >= 16)
-			m_aiHasMetTurn.read(pStream);
-		else m_aiHasMetTurn.readArray<int>(pStream);
-	}
-	else
-	{
-		ArrayEnumMap<TeamTypes,bool> abHasMet;
-		abHasMet.readArray<bool>(pStream);
-		CvGame const& kGame = GC.getGame();
-		int iGameTurn = kGame.getGameTurn();
-		int iStartTurn = kGame.getStartTurn();
-		FAssert(iGameTurn >= 0 && iStartTurn >= 0);
-		for (TeamIter<> itTeam; itTeam.hasNext(); ++itTeam)
-		{
-			TeamTypes eTeam = itTeam->getID();
-			if (abHasMet.get(eTeam))
-			{
-				m_aiHasMetTurn.set(eTeam,
-						eTeam == getID() ? iStartTurn : iGameTurn);
-			}
-		}
-	}
+	m_aiHasMetTurn.read(pStream);
+
 	// </advc.091>
-	/*if (uiFlag >= 1)
-		pStream->Read(MAX_TEAMS, m_abHasSeen);
-	else memcpy(m_abHasSeen, m_abHasMet, sizeof(*m_abHasSeen)*MAX_TEAMS);*/ // K-Mod
-	FAssert(uiFlag >= 1);
-	if (uiFlag >= 16)
-	{
-		m_abHasSeen.read(pStream);
-		m_abAtWar.read(pStream);
-	}
-	else
-	{
-		m_abHasSeen.readArray<bool>(pStream);
-		m_abAtWar.readArray<bool>(pStream);
-	}
+
+	m_abHasSeen.read(pStream);
+	m_abAtWar.read(pStream);
+
 	// <advc.162>
-	if (uiFlag >= 4)
-	{
-		if (uiFlag >= 16)
-			m_abJustDeclaredWar.read(pStream);
-		else m_abJustDeclaredWar.readArray<bool>(pStream);
-	} // </advc.162>
-	if (uiFlag >= 16)
-	{
-		m_abPermanentWarPeace.read(pStream);
-		m_abOpenBorders.read(pStream);
-	}
-	else
-	{
-		m_abPermanentWarPeace.readArray<bool>(pStream);
-		m_abOpenBorders.readArray<bool>(pStream);
-	}
+	m_abJustDeclaredWar.read(pStream);
+	// </advc.162>
+
+	m_abPermanentWarPeace.read(pStream);
+	m_abOpenBorders.read(pStream);
+
 	// <advc.034>
-	if(uiFlag >= 3)
-	{
-		if (uiFlag >= 9)
-		{
-			if (uiFlag >= 16)
-				m_abDisengage.read(pStream);
-			else m_abDisengage.readArray<bool>(pStream);
-		}
-		else // I had previously written only MAX_CIV_TEAMS values
-		{
-			bool abTmp[MAX_CIV_TEAMS];
-			pStream->Read(MAX_CIV_TEAMS, abTmp);
-			for (int i = 0; i < MAX_CIV_TEAMS; i++)
-				m_abDisengage.set((TeamTypes)i, abTmp[i]);
-		}
-	} // </advc.034>
-	if (uiFlag >= 16)
-	{
-		m_abDefensivePact.read(pStream);
-		m_abForcePeace.read(pStream);
-	}
-	else
-	{
-		m_abDefensivePact.readArray<bool>(pStream);
-		m_abForcePeace.readArray<bool>(pStream);
-	}
+	m_abDisengage.read(pStream);
+	// </advc.034>
+
+	m_abDefensivePact.read(pStream);
+	m_abForcePeace.read(pStream);
+
 	// <advc.opt>
-	if (uiFlag < 9)
-	{
-		ArrayEnumMap<TeamTypes,bool> dummy; // m_abVassal
-		dummy.readArray<bool>(pStream);
-	}
 	pStream->Read((int*)&m_eMaster);
-	if (uiFlag >= 2)
-		pStream->Read((int*)&m_eLeader);
-	if (uiFlag < 8)
-		updateLeaderID();
+	pStream->Read((int*)&m_eLeader);
 	// </advc.opt>
-	if (uiFlag >= 16)
-	{
-		if (uiFlag >= 19)
-			m_abCanLaunch.read(pStream);
-		else LegacyArrayEnumMap<VictoryTypes,bool>::convert(m_abCanLaunch, pStream);
-		m_aiRouteChange.read(pStream);
-		m_aiProjectCount.read(pStream);
-	}
-	else
-	{
-		m_abCanLaunch.readArray<bool>(pStream);
-		m_aiRouteChange.readArray<int>(pStream);
-		m_aiProjectCount.readArray<int>(pStream);
-	}
-	if (uiFlag < 14)
-	{	// Reduced SDI interception chance in AdvCiv 1.0
-		ProjectTypes eSDI = (ProjectTypes)GC.getInfoTypeForString("PROJECT_SDI");
-		if (eSDI != NO_PROJECT)
-		{
-			int iSDICount = m_aiProjectCount.get(eSDI);
-			if (iSDICount > 0 && getNukeInterception() >= iSDICount * 75)
-			{
-				changeNukeInterception(iSDICount * -15);
-			}
-		}
-	}
-	if (uiFlag >= 16)
-		m_aiProjectDefaultArtTypes.read(pStream);
-	else m_aiProjectDefaultArtTypes.readArray<int>(pStream);
+
+	m_abCanLaunch.read(pStream);
+
+	m_aiRouteChange.read(pStream);
+	m_aiProjectCount.read(pStream);
+
+	m_aiProjectDefaultArtTypes.read(pStream);
+
 	// project art types
 	FOR_EACH_ENUM(Project)
 	{
@@ -6050,146 +6298,44 @@ void CvTeam::read(FDataStreamBase* pStream)
 			m_aaiProjectArtTypes[eLoopProject].push_back(iTmp);
 		}
 	}
-	if (uiFlag >= 16)
-	{
-		m_aiProjectMaking.read(pStream);
-		m_aiUnitClassCount.read(pStream);
-		m_aiBuildingClassCount.read(pStream);
-		m_aiObsoleteBuildingCount.read(pStream);
-		m_aiResearchProgress.read(pStream);
-		m_aiTechCount.read(pStream);
-		m_aiTerrainTradeCount.read(pStream);
-		m_aiVictoryCountdown.read(pStream);
-	}
-	else
-	{
-		m_aiProjectMaking.readArray<int>(pStream);
-		m_aiUnitClassCount.readArray<int>(pStream);
-		m_aiBuildingClassCount.readArray<int>(pStream);
-		m_aiObsoleteBuildingCount.readArray<int>(pStream);
-		m_aiResearchProgress.readArray<int>(pStream);
-		m_aiTechCount.readArray<int>(pStream);
-		m_aiTerrainTradeCount.readArray<int>(pStream);
-		m_aiVictoryCountdown.readArray<int>(pStream);
-	}
+
+	m_aiProjectMaking.read(pStream);
+	m_aiUnitClassCount.read(pStream);
+	m_aiBuildingClassCount.read(pStream);
+	m_aiObsoleteBuildingCount.read(pStream);
+	m_aiResearchProgress.read(pStream);
+	m_aiTechCount.read(pStream);
+	m_aiTerrainTradeCount.read(pStream);
+	m_aiVictoryCountdown.read(pStream);
+
 	// <advc.opt>
-	if (uiFlag == 10) // Fix a bug in AdvCiv 0.97
-	{
-		FOR_EACH_ENUM(Victory)
-		{	/*	Is 0 a legit value? Well, let's hope that it represents
-				"no countdown started" in this savegame. */
-			if (getVictoryCountdown(eLoopVictory) == 0)
-				m_aiVictoryCountdown.set(eLoopVictory, -1);
-		}
-	} // </advc.opt>
-	if (uiFlag >= 16)
-	{
-		if (uiFlag >= 19)
-			m_abHasTech.read(pStream);
-		else LegacyArrayEnumMap<TechTypes,bool>::convert(m_abHasTech, pStream);
-	}
-	else m_abHasTech.readArray<bool>(pStream);
+
+	m_abHasTech.read(pStream);
+
 	// <advc.101>
-	if (uiFlag >= 10)
-		pStream->Read(&m_iTechCount);
-	else
-	{
-		FOR_EACH_ENUM(Tech)
-		{
-			if (m_abHasTech.get(eLoopTech))
-				m_iTechCount++;
-		}
-	} // </advc.101>
-	if (uiFlag >= 16)
-	{
-		if (uiFlag >= 19)
-			m_abNoTradeTech.read(pStream);
-		else LegacyArrayEnumMap<TechTypes,bool>::convert(m_abNoTradeTech, pStream);
-		m_aaiImprovementYieldChange.read(pStream);
-	}
-	else
-	{
-		m_abNoTradeTech.readArray<bool>(pStream);
-		m_aaiImprovementYieldChange.readArray<int>(pStream);
-	}
-	if (uiFlag >= 16)
-	{
-		if (uiFlag >= 19)
-			m_abRevealedBonuses.read(pStream);
-		else LegacyArrayEnumMap<BonusTypes,bool>::convert(m_abRevealedBonuses, pStream);
-	}
-	else
-	{
-		int iSize;
-		pStream->Read(&iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			int iBonus;
-			pStream->Read(&iBonus);
-			m_abRevealedBonuses.insert(iBonus, true);
-		}
-	}
-	// <advc.500c> (Citizen assignment gets updated by CvGame::onAllGameDataRead)
-	if (uiFlag < 18)
-	{
-		TechTypes eNationalism = (TechTypes)GC.getInfoTypeForString("TECH_NATIONALISM");
-		if (eNationalism != NO_TECH && isHasTech(eNationalism))
-			m_iNoFearForSafetyCount = 1;
-	} // </advc.500c>
-	// <advc.183> Reveal any destroyed forts (so that aircraft can't rebase to them)
-	if (uiFlag < 13 && isAlive())
-	{
-		FOR_EACH_ENUM(PlotNum)
-		{
-			CvPlot& kPlot = GC.getMap().getPlotByIndex(eLoopPlotNum);
-			if (kPlot.isWater()) // to save time
-				continue;
-			ImprovementTypes eRevealedImprov = kPlot.getRevealedImprovementType(getID());
-			if (eRevealedImprov != NO_IMPROVEMENT &&
-				kPlot.getImprovementType() != eRevealedImprov &&
-				GC.getInfo(eRevealedImprov).isActsAsCity())
-			{
-				kPlot.setRevealedImprovementType(getID(), NO_IMPROVEMENT);
-			}
-		}
-	} // </advc.183>
+	pStream->Read(&m_iTechCount);
+	// </advc.101>
+
+	m_abNoTradeTech.read(pStream);
+
+	m_aaiImprovementYieldChange.read(pStream);
+
+	m_abRevealedBonuses.read(pStream);
 }
 
-// <advc.003m>  (for legacy savegames)
-void CvTeam::finalizeInit()
-{
-	m_iMajorWarEnemies = countWarEnemies();
-	m_iMinorWarEnemies = countWarEnemies(false, false) - m_iMajorWarEnemies;
-	FAssert(m_iMinorWarEnemies >= 0);
-	m_iVassalWarEnemies = m_iMajorWarEnemies - countWarEnemies(true, true);
-	FAssert(m_iVassalWarEnemies >= 0);
-} // </advc.003m>
-
-
+// <!-- custom: Note: CvTeam::finalizeInit (advc.003m) used to reconstruct war-enemy counts here for old saves.
+// Current saves serialize those counts directly. See KI#46.2. (GPT-6.2-Sol) -->
 void CvTeam::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
 	REPRO_TEST_BEGIN_WRITE(CvString::format("Team(%d)", getID()));
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag;
-	//uiFlag = 1; // K-Mod
-	//uiFlag = 2; // advc.opt: m_eLeader added
-	//uiFlag = 3; // advc.034
-	//uiFlag = 4; // advc.162
-	//uiFlag = 5; // advc.003m
-	//uiFlag = 6; // advc.120g
-	//uiFlag = 7; // advc.opt: m_bAnyVictoryCountdown
-	//uiFlag = 8; // advc.opt: change in updateLeaderID
-	//uiFlag = 9; // advc.opt: remove m_abVassal; advc.enum/ advc.034: write m_abDisengage[BARBARIAN_TEAM]
-	//uiFlag = 10; // advc.101: m_iTechCount
-	//uiFlag = 11; // advc.opt: fix m_aiVictoryCountdown bug
-	//uiFlag = 12; // advc.091
-	//uiFlag = 13; // advc.183
-	//uiFlag = 14; // advc.650
-	//uiFlag = 15; // advc (for kekm.38)
-	//uiFlag = 16; // advc.enum: new enum map save behavior
-	//uiFlag = 17; // advc.130k
-	//uiFlag = 18; // advc.500c
-	uiFlag = 19; // advc.enum: Bugfix in bool-valued ArrayEnumMap
+	// <!-- custom: Reuse the existing CvTeam write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
+	uiFlag = SASSaveStreamFormat::CV_TEAM; // advc.enum: Bugfix in bool-valued ArrayEnumMap
+
 	pStream->Write(uiFlag);
 
 	pStream->Write(m_iNumMembers);
@@ -6240,7 +6386,7 @@ void CvTeam::write(FDataStreamBase* pStream)
 	m_aiForceTeamVoteEligibilityCount.write(pStream);
 
 	m_aiHasMetTurn.write(pStream); // advc.091
-	m_abHasSeen.write(pStream); // K-Mod. uiFlag >= 1
+	m_abHasSeen.write(pStream); // K-Mod.
 	m_abAtWar.write(pStream);
 	m_abJustDeclaredWar.write(pStream); // advc.162
 	m_abPermanentWarPeace.write(pStream);

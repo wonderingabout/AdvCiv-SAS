@@ -1,0 +1,36 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 50
+# Author: blakeciv
+# Date: 2006-11-08T13:35:18.426736Z
+# Coverage: full
+# Message:
+#   Added cheat-mode info to units when shift-clicking
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@49
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@50
+@@ -407,6 +407,7 @@
+ 	int iCurrMoves;
+ 	int iI;
+ 	bool bFirst;
++	bool bShift = gDLL->shiftKey();
+ 
+ 	szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), pUnit->getName().GetCString());
+ 	szString += szTempBuffer;
+@@ -970,6 +971,12 @@
+ 			szString += NEWLINE;
+ 			szString += (GC.getUnitInfo(pUnit->getUnitType()).getHelp());
+ 		}
++
++        if (bShift && (gDLL->getChtLvl() > 0))
++        {
++            szTempBuffer.Format(L"\nUnitAI Type = %s.", GC.getUnitAIInfo(pUnit->AI_getUnitAIType()).getDescription());
++            szString += szTempBuffer;
++        }
+ 	}
+ }
+ 
+

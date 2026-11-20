@@ -36,14 +36,8 @@ public:
 	{
 		SAFE_DELETE_ARRAY(m_data);
 	}
-	FAStarNode& get(int iX, int iY)
-	{
-		return reinterpret_cast<FAStarNode*>(m_data)[iY * m_iWidth + iX];
-	}
-	void reset()
-	{
-		memset(m_data, 0, sizeof(FAStarNode) * m_iWidth * m_iHeight);
-	}
+	FAStarNode& get(int iX, int iY) { return reinterpret_cast<FAStarNode*>(m_data)[iY * m_iWidth + iX]; }
+	void reset() { memset(m_data, 0, sizeof(FAStarNode) * m_iWidth * m_iHeight); }
 private:
 	byte* m_data;
 	int m_iWidth, m_iHeight;
@@ -74,12 +68,7 @@ public:
 	KmodPathFinderLegacy();
 	~KmodPathFinderLegacy();
 	void Reset();
-	void SetSettings(CvSelectionGroup const* pGroup,
-		MovementFlags eFlags = NO_MOVEMENT_FLAGS,
-		int iMaxPath = -1, int iHeuristicWeight = -1)
-	{
-		SetSettings(CvPathSettings(pGroup, eFlags, iMaxPath, iHeuristicWeight));
-	}
+	void SetSettings(CvSelectionGroup const* pGroup, MovementFlags eFlags = NO_MOVEMENT_FLAGS, int iMaxPath = -1, int iHeuristicWeight = -1) { SetSettings(CvPathSettings(pGroup, eFlags, iMaxPath, iHeuristicWeight)); }
 	bool GeneratePath(int x1, int y1, int x2, int y2);
 	bool GeneratePath(const CvPlot* pToPlot);
 	bool IsPathComplete() const { return (end_node != NULL); }

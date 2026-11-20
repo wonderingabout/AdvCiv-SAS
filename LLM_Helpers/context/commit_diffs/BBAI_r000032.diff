@@ -1,0 +1,87 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 32
+# Author: blakeciv
+# Date: 2006-11-06T04:08:11.488752Z
+# Coverage: full
+# Message:
+#   Cleaned up some code and added some alt-key debug info related to religion and such.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@31
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@32
+@@ -1546,14 +1546,17 @@
+ 	PlayerTypes eRevealOwner;
+ 	BonusTypes eBonus;
+ 	bool bShift;
++	bool bAlt;
+ 	bool bFound;
+ 	int iDefenseModifier;
+ 	int iYield;
+ 	int iTurns;
+ 
+ 	bShift = gDLL->shiftKey();
+-
+-	if (bShift && (gDLL->getChtLvl() > 0))
++	bAlt = gDLL->altKey();
++
++
++	if (bShift && !bAlt && (gDLL->getChtLvl() > 0))
+ 	{
+ 		szString+=(GC.getTerrainInfo(pPlot->getTerrainType()).getDescription());
+ 
+@@ -1634,23 +1637,34 @@
+ 		CvCity* pWorkingCity = pPlot->getWorkingCity();
+ 		if (NULL != pWorkingCity)
+ 		{
+-			for (iI = 0; iI < NUM_CITY_PLOTS; ++iI)
+-			{
+-				if (pPlot == plotCity(pWorkingCity->getX_INLINE(), pWorkingCity->getY_INLINE(), iI))
+-				{
+-					int iBuildValue = pWorkingCity->AI_getBestBuildValue(iI);
+-					BuildTypes eBestBuild = pWorkingCity->AI_getBestBuild(iI);
+-
+-					if (NO_BUILD != eBestBuild)
+-					{
+-						szTempBuffer.Format(L"\n Best Build: %s (%d)", GC.getBuildInfo(eBestBuild).getDescription(), iBuildValue);
+-						szString += szTempBuffer;
+-					}
+-
+-					break;
+-				}
+-			}
+-		}
++		    int iPlotIndex = pWorkingCity->getCityPlotIndex(pPlot);
++            int iBuildValue = pWorkingCity->AI_getBestBuildValue(iPlotIndex);
++            BuildTypes eBestBuild = pWorkingCity->AI_getBestBuild(iPlotIndex);
++
++            if (NO_BUILD != eBestBuild)
++            {
++                szTempBuffer.Format(L"\n Best Build: %s (%d)", GC.getBuildInfo(eBestBuild).getDescription(), iBuildValue);
++                szString += szTempBuffer;
++            }
++		}
++	}
++	else if (!bShift && bAlt && (gDLL->getChtLvl() > 0))
++	{
++	    //
++        szTempBuffer.Format(L"\nThis player has %d area cities", pPlot->area()->getCitiesPerPlayer(pPlot->getOwnerINLINE()));
++        szString+=szTempBuffer;
++
++
++        for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
++        {
++            int iNeededMissionaries = GET_PLAYER(pPlot->getOwnerINLINE()).AI_neededMissionaries(pPlot->area(), ((ReligionTypes)iI));
++
++//            if (iNeededMissionaries > 0)
++//            {
++                szTempBuffer.Format(L"\nNeeded %c missionaries = %d", GC.getReligionInfo((ReligionTypes)iI).getChar(), iNeededMissionaries);
++                szString+=szTempBuffer;
++//            }
++        }
+ 	}
+ 	else
+ 	{
+

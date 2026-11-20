@@ -3,12 +3,20 @@
 # by jdog5000
 # version 2.0
 
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+
 from CvPythonExtensions import *
 import CvScreenEnums
 import CvTopCivs
 import CvUtil
 import PyHelpers
 import Popup as PyPopup
+from SASUtils import findInfoTypeNumOrFail
+import SASFastSave
+import SASAutoplayRequest # <!-- custom: Starts autoplay requested by an [SASAutoplay] section in an ini= launch file, for unattended runs. (Claude Code Opus 5.5) -->
 
 import ChangePlayer
 import time # Erik (BM1)
@@ -20,18 +28,36 @@ PyInfo = PyHelpers.PyInfo
 game = CyGame()
 localText = CyTranslator()
 
+# <!-- custom: Lazy-cache the autoplay popup SAS GlobalDefines so they are resolved only after XML define loading is safely complete. (ChatGPT-5.6-Sol) -->
+_SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON = None
+_SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS = None
+
+def _isDefaultTurnsScaledByGameSpeed():
+	global _SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON
+	if _SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON is None:
+		_SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON = (gc.getDefineINT("SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON") > 0)
+	return _SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON
+
+def _getDefaultTurnsUnscaled():
+	global _SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS
+	if _SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS is None:
+		_SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS = max(1, gc.getDefineINT("SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS"))
+	return _SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS
+
 class AIAutoPlay :
 
 	def __init__(self, customEM ) :
 
-		print "Initializing AIAutoPlay Mod"
+		# <!-- custom: Use the shared component lifecycle record instead of unlabelled initialization prose. (ChatGPT-5.6-Sol) -->
+		CvUtil.pyPrintRecord("PY_COMPONENT_INIT", "component=AIAutoPlay")
 
 		self.LOG_DEBUG = False
 		self.blockPopups = True
 		self.refortify = False
 		self.bSaveAllDeaths = True
 
-		self.DefaultTurnsToAuto = 1
+		# <!-- custom: Cache the manual popup fallback through the lazy GlobalDefine helper; game-speed scaling, when enabled, supersedes this value. (ChatGPT-5.6-Sol) -->
+		self.DefaultTurnsToAuto = _getDefaultTurnsUnscaled()
 		# Erik <BM1>
 		self.benchmarkStartTime = 0
 		self.numTurns = 0
@@ -48,33 +74,37 @@ class AIAutoPlay :
 		self.customEM.addEventHandler( 'EndPlayerTurn', self.onEndPlayerTurn )
 		self.customEM.addEventHandler( 'victory', self.onVictory )
 		self.customEM.addEventHandler( 'AutoPlayComplete', self.onAutoPlayComplete ) # Erik (BM1)
+		# <!-- custom: External autoplay requests: arm on load or new-game start, start on the next game update. (Claude Code Opus 5.5) -->
+		self.customEM.addEventHandler( 'OnLoad', SASAutoplayRequest.onLoadGame )
+		self.customEM.addEventHandler( 'GameStart', SASAutoplayRequest.onGameStart )
+		self.customEM.addEventHandler( 'gameUpdate', SASAutoplayRequest.onGameUpdate )
 
 		self.customEM.setPopupHandler( 7050, ["toAIChooserPopup",self.AIChooserHandler,self.blankHandler] )
 		self.customEM.setPopupHandler( 7052, ["pickHumanPopup",self.pickHumanHandler,self.blankHandler] )
 
 		# Keep game from showing messages about handling these popups
 		CvUtil.SilentEvents.extend([7050,7052])
-		
+
 		if( self.blockPopups ) :
-			print "Removing some event handlers"
+			# <!-- custom: Identify why AIAutoPlay replaces inherited handlers instead of emitting an ambiguous removal notice. (ChatGPT-5.6-Sol) -->
+			CvUtil.pyPrintRecord("PY_COMPONENT_HANDLER_OVERRIDE", "component=AIAutoPlay handlerCount=2")
 			try :
 				self.customEM.removeEventHandler( "cityBuilt", customEM.onCityBuilt )
 				self.customEM.addEventHandler( "cityBuilt", self.onCityBuilt )
 			except ValueError :
-				print "Failed to remove 'onCityBuilt', perhaps not registered"
+				CvUtil.pyPrintRecord("PY_COMPONENT_HANDLER_OVERRIDE", "component=AIAutoPlay handler=cityBuilt outcome=NOT_REGISTERED fallback=SET")
 				self.customEM.setEventHandler( "cityBuilt", self.onCityBuilt )
-			
+
 			try :
 				self.customEM.removeEventHandler( "BeginGameTurn", customEM.onBeginGameTurn )
 				self.customEM.addEventHandler( "BeginGameTurn", self.onBeginGameTurn )
 			except ValueError :
-				print "Failed to remove 'onBeginGameTurn', perhaps not registered"
+				CvUtil.pyPrintRecord("PY_COMPONENT_HANDLER_OVERRIDE", "component=AIAutoPlay handler=BeginGameTurn outcome=NOT_REGISTERED fallback=SET")
 				self.customEM.setEventHandler( "BeginGameTurn", self.onBeginGameTurn )
 
-
 	def removeEventHandlers( self ) :
-		print "Removing event handlers from AIAutoPlay"
-		
+		CvUtil.pyPrintRecord("PY_COMPONENT_REMOVE_HANDLERS", "component=AIAutoPlay")
+
 		self.customEM.removeEventHandler( "kbdEvent", self.onKbdEvent )
 		# advc: Disable unused handlers
 		#self.customEM.removeEventHandler( "EndGameTurn", self.onEndGameTurn )
@@ -87,14 +117,14 @@ class AIAutoPlay :
 
 		self.customEM.setPopupHandler( 7050, ["toAIChooserPopup",self.blankHandler,self.blankHandler] )
 		self.customEM.setPopupHandler( 7052, ["pickHumanPopup",self.blankHandler,self.blankHandler] )
-		
+
 		if( self.blockPopups ) :
 			self.customEM.removeEventHandler( "cityBuilt", self.onCityBuilt )
 			self.customEM.addEventHandler( "cityBuilt", self.customEM.onCityBuilt )
-			
+
 			self.customEM.removeEventHandler( "BeginGameTurn", self.onBeginGameTurn )
 			self.customEM.addEventHandler( "BeginGameTurn", self.customEM.onBeginGameTurn )
-	
+
 	def blankHandler( self, playerID, netUserData, popupReturn ) :
 		# Dummy handler to take the second event for popup
 		return
@@ -112,13 +142,13 @@ class AIAutoPlay :
 	#		# About to turn off automation
 	#		pass
 
+	# <!-- custom: Victory ends AI Auto Play through the shared completion path so the DLL records the real cause and restores human control only once. See KI#203. (GPT-5.6-Sol) -->
 	def onVictory( self, argsList ) :
-		self.checkPlayer()
-		game.setAIAutoPlay(0)
+		self.checkPlayer(SASAutoPlayEndCause.SAS_AUTOPLAY_END_VICTORY)
 
 	def pickHumanHandler( self, iPlayerID, netUserData, popupReturn ) :
 
-		CvUtil.pyPrint('Handling pick human popup')
+		CvUtil.pyPrintRecord("AI_AUTOPLAY_PICK_HUMAN_RESPONSE", "playerId=%d" % iPlayerID)
 
 		if( popupReturn.getButtonClicked() == 0 ):  # if you pressed cancel
 			CyInterface().addImmediateMessage("Kill your remaining units if you'd like to see end game screens","")
@@ -134,12 +164,12 @@ class AIAutoPlay :
 
 		# CvUtil.pyPrint("You now control the %s"%(newPlayer.getCivilizationDescription(0)))
 		# CyInterface().addImmediateMessage("You now control the %s"%(newPlayer.getCivilizationDescription(0)),"")
-		
+
 		ChangePlayer.changeHuman( newHumanIdx, toKillPlayer.getID() )
 
 		if( toKillPlayer.getNumCities() == 0 ) :
 			# Kills off the lion in the ice field
-			CvUtil.pyPrint("Killing off player %d"%(toKillPlayer.getID()))
+			CvUtil.pyPrintRecord("AI_AUTOPLAY_KILL_PLAYER", "playerId=%d" % toKillPlayer.getID())
 			toKillPlayer.killUnits()
 			toKillPlayer.setIsHuman(False)
 			#success = game.changePlayer( toKillPlayer.getID(), toKillPlayer.getCivilizationType(), toKillPlayer.getLeaderType(), -1, False, False )
@@ -151,16 +181,15 @@ class AIAutoPlay :
 
 		if( game.getAIAutoPlay() == 1 and iPlayer > game.getActivePlayer() and gc.getActivePlayer().isAlive() ) :
 			# Forces isHuman checks to come through positive for everything after human players turn
-			# <advc.127> Commented out; return instead. (The setAIAutoPlay
-			# call might be superfluous in any case.)
+			# <advc.127> Commented out; return instead. (The setAIAutoPlay call might be superfluous in any case.)
 			#self.checkPlayer()
 			#game.setAIAutoPlay(0)
 			return # </advc.127>
-		
+
 		elif( self.bSaveAllDeaths ) :
 			if( game.getAIAutoPlay() == 0 and not gc.getActivePlayer().isAlive() and iPlayer > game.getActivePlayer() ) :
-				self.checkPlayer()
-				game.setAIAutoPlay(0)
+				# <!-- custom: Preserve active-player defeat as the cause when this fallback has to finish AI Auto Play. See KI#203. (GPT-5.6-Sol) -->
+				self.checkPlayer(SASAutoPlayEndCause.SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED)
 
 	def onEndPlayerTurn( self, argsList ) :
 		iGameTurn, iPlayer = argsList
@@ -197,13 +226,15 @@ class AIAutoPlay :
 		if turnsLeft <= turnsLeftTarget and iPlayer == preceding:
 			# </advc.127>
 			# About to turn off automation
-			self.checkPlayer() # advc.127: Un-commented this line.
+			self.checkPlayer(SASAutoPlayEndCause.SAS_AUTOPLAY_END_SCHEDULED) # advc.127: Un-commented this line.
 
-	def checkPlayer( self ) :
-		
+	# <!-- custom: Carry the explicit completion cause into the DLL so SASGameRecord can distinguish scheduled completion, user interruption, victory, and active-player defeat. See KI#203. (GPT-5.6-Sol) -->
+	def checkPlayer( self, iEndCause = SASAutoPlayEndCause.SAS_AUTOPLAY_END_OTHER ) :
+
 		pPlayer = gc.getActivePlayer()
 		# advc.127: Unit check added to avoid multiple popups. Note however: Normally, CvPlayer::verifyAlive automatically transfers human control to a different player when the active player is defeated. The popup here remains only as a fallback. Also added not-human check - should obviously only affect AI Auto Play. Don't know if and how that was working previously.
 		if not pPlayer.isAlive() and pPlayer.getNumUnits() <= 0 and not pPlayer.isHuman():
+			iEndCause = SASAutoPlayEndCause.SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED
 			popup = PyPopup.PyPopup(7052,contextType = EventContextTypes.EVENTCONTEXT_ALL)
 			popup.setHeaderString( localText.getText("TXT_KEY_AIAUTOPLAY_PICK_CIV", ()) )
 			popup.setBodyString( localText.getText("TXT_KEY_AIAUTOPLAY_CIV_DIED", ()) )
@@ -222,36 +253,40 @@ class AIAutoPlay :
 			popup.addSeparator()
 
 			popup.addButton( localText.getText("TXT_KEY_AIAUTOPLAY_NONE", ()) )
-			CvUtil.pyPrint('Launching pick human popup')
+			CvUtil.pyPrintRecord("AI_AUTOPLAY_PICK_HUMAN_POPUP", "activePlayerId=%d" % activePlayerIdx)
 			popup.launch()
 
 			#gc.getActivePlayer().setNewPlayerAlive( True )
-			iSettler = CvUtil.findInfoTypeNum(gc.getUnitInfo,gc.getNumUnitInfos(),'UNIT_SETTLER')
+			iSettler = findInfoTypeNumOrFail(gc.getUnitInfo,gc.getNumUnitInfos(),'UNIT_SETTLER')
 			gc.getActivePlayer().initUnit( iSettler, 0, 0, UnitAITypes.NO_UNITAI, DirectionTypes.DIRECTION_SOUTH )
 			#gc.getActivePlayer().setFoundedFirstCity( False )
 			gc.getActivePlayer().setIsHuman( True )
 
-		CvUtil.pyPrint('CDP: Setting autoplay to 0')
+		# <!-- custom: Record the explicit end cause already passed to the DLL instead of the old CDP-era "setting autoplay to 0" prose. (ChatGPT-5.6-Sol) -->
+		CvUtil.pyPrintRecord("AI_AUTOPLAY_END_REQUEST", "activePlayerId=%d endCause=%d" % (pPlayer.getID(), iEndCause))
 		# advc.127 (comment): Re-enables humans
-		game.setAIAutoPlay(0)
-		
+		# <!-- custom: Use the AdvCiv-SAS Python API rather than the ambiguous one-argument reset so the end cause reaches CvGame and SASGameRecord. See KI#203. (GPT-5.6-Sol) -->
+		game.endAIAutoPlay(iEndCause)
+
+		# <!-- custom: Create one ordinary fast save when a requested autoplay interval completes or the user manually interrupts it.
+		# Victory is excluded because the BUG victory-event handler creates the richer <victory>_<leader> Fast Save instead. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if iEndCause == SASAutoPlayEndCause.SAS_AUTOPLAY_END_SCHEDULED or iEndCause == SASAutoPlayEndCause.SAS_AUTOPLAY_END_USER_INTERRUPTED:
+			SASFastSave.saveAutoPlayStop()
+
 		if( not pPlayer.isHuman() ) :
-			CvUtil.pyPrint('Returning human player to control of %s'%(pPlayer.getCivilizationDescription(0)))
+			CvUtil.pyPrintRecord("AI_AUTOPLAY_RETURN_CONTROL", "playerId=%d civilization=%s" % (pPlayer.getID(), pPlayer.getCivilizationDescription(0)))
 			game.setActivePlayer( pPlayer.getID(), False )
 			pPlayer.setIsHuman( True )
 
 		#for idx in range(0,gc.getMAX_CIV_TEAMS()) :
 		#	pPlayer.setEspionageSpendingWeightAgainstTeam(idx, pPlayer.getEspionageSpendingWeightAgainstTeam(idx)/10)
 
-
 	def onKbdEvent( self, argsList ) :
 		'keypress handler'
 		eventType,key,mx,my,px,py = argsList
 		# <advc.001>
-		if not self.customEM.isCheatsEnabled() or (
-				game.getActivePlayer() != PlayerTypes.NO_PLAYER and
-				# Enabling AI Auto Play during Advanced Start isn't supported
-				gc.getPlayer(game.getActivePlayer()).getAdvancedStartPoints() > 0):
+		# Enabling AI Auto Play during Advanced Start isn't supported (getAdvancedStartPoints() > 0)
+		if not self.customEM.isCheatsEnabled() or (game.getActivePlayer() != PlayerTypes.NO_PLAYER and gc.getPlayer(game.getActivePlayer()).getAdvancedStartPoints() > 0):
 			return # </advc.001>
 		# Get it?  Shift ... control ... to the AI
 		if eventType != 6 or not self.customEM.bShift or not self.customEM.bCtrl:
@@ -263,8 +298,7 @@ class AIAutoPlay :
 			if game.getAIAutoPlay() > 0:
 				if self.refortify:
 					doRefortify(game.getActivePlayer())
-				game.setAIAutoPlay(0)
-				self.checkPlayer()
+				self.checkPlayer(SASAutoPlayEndCause.SAS_AUTOPLAY_END_USER_INTERRUPTED)
 			else:
 				# <advc> for BM1
 				if theKey == int(InputTypes.KB_B):
@@ -278,7 +312,6 @@ class AIAutoPlay :
 		#	game.setAIAutoPlay(1)
 		if theKey == int(InputTypes.KB_O):
 			doRefortify( game.getActivePlayer() )
-
 
 	def onBeginGameTurn( self, argsList):
 		'Called at the beginning of the end of each turn'
@@ -299,10 +332,9 @@ class AIAutoPlay :
 			self.customEM.onCityBuilt(argsList)
 		else:
 			try :
-				CvUtil.pyPrint('City Built Event: %s' %(city.getName()))
+				CvUtil.pyPrintRecord("AI_AUTOPLAY_CITY_BUILT", "cityName=%s" % city.getName())
 			except :
-				CvUtil.pyPrint('City Built Event: Error processing city name' )
-
+				CvUtil.pyPrintRecord("AI_AUTOPLAY_CITY_BUILT", "cityName=<UNAVAILABLE>")
 
 	def toAIChooser( self ) :
 		'Chooser window for when user switches to AI auto play'
@@ -323,7 +355,16 @@ class AIAutoPlay :
 		popup.setHeaderString( localText.getText("TXT_KEY_AIAUTOPLAY_TURN_ON", ()) )
 		popup.setBodyString( localText.getText("TXT_KEY_AIAUTOPLAY_TURNS", ()) )
 		popup.addSeparator()
-		popup.createPythonEditBox( '%d'%(self.DefaultTurnsToAuto), 'Number of turns to turn over to AI', 0)
+		# <!-- custom: AI Auto Play QoL: when enabled, use the selected game speed's actual configured total turn count + 1 (Normal 500 -> 501, Marathon 1000 -> 1001).
+		# If disabled, retain the manual unscaled value.
+		# Reading the timeline itself stays correct if a speed is retuned later. (ChatGPT-5.6-Sol) -->
+		iDefaultTurnsToAuto = self.DefaultTurnsToAuto
+		if _isDefaultTurnsScaledByGameSpeed():
+			speedInfo = gc.getGameSpeedInfo(game.getGameSpeedType())
+			iDefaultTurnsToAuto = 1
+			for i in range(speedInfo.getNumTurnIncrements()):
+				iDefaultTurnsToAuto += speedInfo.getGameTurnInfo(i).iNumGameTurnsPerIncrement
+		popup.createPythonEditBox( '%d'%(max(1, iDefaultTurnsToAuto)), 'Number of turns to turn over to AI', 0)
 		popup.setEditBoxMaxCharCount( 4, 2, 0 )
 		if self.bBenchmark: # advc
 			# Erik <BM1>
@@ -355,8 +396,9 @@ class AIAutoPlay :
 				# advc: CvRandom::reseed isn't exposed to Python, but init does the same thing.
 				gc.getGame().getSorenRand().init(seed)
 		# </BM1>
-		if( self.numTurns > 0 ) :
-			if( self.LOG_DEBUG ) : CyInterface().addImmediateMessage("Fully automating for %d turns"%(self.numTurns),"")
+		if (self.numTurns > 0):
+			if (self.LOG_DEBUG):
+				CyInterface().addImmediateMessage("Fully automating for %d turns"%(self.numTurns),"")
 			game.setAIAutoPlay(self.numTurns)
 	# Erik <BM1>
 	def onAutoPlayComplete(self, argsList):
@@ -366,18 +408,18 @@ class AIAutoPlay :
 		benchmarkEndTime = time.clock()
 		timeElapsed = benchmarkEndTime - self.benchmarkStartTime	
 		popupInfo = PyPopup.PyPopup(game.getActivePlayer())
-		popupInfo.setHeaderString('Benchmark complete!') # advc: Put this in the header
-		popupInfo.setBodyString('Elapsed time: ' + str(timeElapsed) + ' seconds. turns: ' + str(self.numTurns))	
+		popupInfo.setHeaderString("Benchmark complete!") # advc: Put this in the header
+		popupInfo.setBodyString("Elapsed time: " + str(timeElapsed) + " seconds. turns: " + str(self.numTurns))	
 		popupInfo.launch(true, PopupStates.POPUPSTATE_QUEUED)
 	# </BM1>
 
 ########################## Utility functions ###########################################
-			
+
 def doRefortify( iPlayer ) :
-	 #pyPlayer = PyPlayer( iPlayer )
+	#pyPlayer = PyPlayer( iPlayer )
 	pPlayer = gc.getPlayer(iPlayer)
-	
-	CvUtil.pyPrint( "Refortifying units for player %d"%(iPlayer))
+
+	CvUtil.pyPrintRecord("AI_AUTOPLAY_REFORTIFY", "playerId=%d" % iPlayer)
 
 	for groupID in range(0,pPlayer.getNumSelectionGroups()) :
 		pGroup = pPlayer.getSelectionGroup(groupID)

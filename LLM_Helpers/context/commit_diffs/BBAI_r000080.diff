@@ -1,0 +1,162 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 80
+# Author: blakeciv
+# Date: 2006-11-15T15:05:17.035276Z
+# Coverage: full
+# Message:
+#   Added new logic for choosing medic promotion.
+#   Improved AI unit healing.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@79
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@80
+@@ -4128,29 +4128,32 @@
+ 		iValue += (iTemp / 8);
+ 	}
+ 
+-    //XXX increase the value of medic in enemy territory if no existing medic...
+-	iTemp = GC.getPromotionInfo(ePromotion).getSameTileHealChange() + getSameTileHeal();
+-	if ((AI_getUnitAIType() == UNITAI_COUNTER) ||
+-		  (AI_getUnitAIType() == UNITAI_CITY_DEFENSE) ||
+-		  (AI_getUnitAIType() == UNITAI_CITY_COUNTER) ||
+-		  (AI_getUnitAIType() == UNITAI_CITY_SPECIAL))
+-	{
+-		iValue += (iTemp / 2);
+-	}
+-	else
+-	{
+-		iValue += (iTemp / 8);
+-	}
+-
+-	iTemp = GC.getPromotionInfo(ePromotion).getAdjacentTileHealChange() + getAdjacentTileHeal();
+-	if (AI_getUnitAIType() == UNITAI_ATTACK)
+-	{
+-		iValue += (iTemp * 2);
+-	}
+-	else
+-	{
+-		iValue += (iTemp / 4);
+-	}
++
++    if (getDamage() > 0)
++    {
++        iTemp = GC.getPromotionInfo(ePromotion).getSameTileHealChange() + getSameTileHeal();
++        if (iTemp > 0)
++        {
++            if (healRate(plot()) < iTemp)
++            {
++                iValue += iTemp * ((getGroup()->getNumUnits() > 4) ? 4 : 2);
++            }
++            else
++            {
++                iValue += (iTemp / 8);
++            }
++        }
++
++        iTemp = GC.getPromotionInfo(ePromotion).getAdjacentTileHealChange() + getAdjacentTileHeal();
++        if (getSameTileHeal() >= iTemp)
++        {
++            iValue += (iTemp * ((getGroup()->getNumUnits() > 9) ? 4 : 2));
++        }
++        else
++        {
++            iValue += (iTemp / 4);
++        }
++    }
+ 
+ 	iTemp = GC.getPromotionInfo(ePromotion).getCombatPercent();
+ 	if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
+@@ -5512,8 +5515,17 @@
+ 	PROFILE_FUNC();
+ 
+ 	CLLNode<IDInfo>* pEntityNode;
++	std::vector<CvUnit*> aeDamagedUnits;
+ 	CvUnit* pLoopUnit;
++	int iTotalDamage;
++	int iTotalHitpoints;
++	int iHurtUnitCount;
+ 	bool bRetreat;
++	
++	if (iDamagePercent == 0)
++	{
++	    iDamagePercent = 10;	    
++	}
+ 	
+ 	
+ 
+@@ -5539,6 +5551,9 @@
+ 
+ 	pEntityNode = getGroup()->headUnitNode();
+ 
++    iTotalDamage = 0;
++    iTotalHitpoints = 0;
++    iHurtUnitCount = 0;
+ 	while (pEntityNode != NULL)
+ 	{
+ 		pLoopUnit = ::getUnit(pEntityNode->m_data);
+@@ -5551,6 +5566,14 @@
+ 		{
+ 			iDamageThreshold /= 2;
+ 		}
++		
++		if (pLoopUnit->getDamage() > 0)
++		{
++		    iHurtUnitCount++;
++		}
++		iTotalDamage += pLoopUnit->getDamage();
++		iTotalHitpoints += pLoopUnit->maxHitPoints();
++		
+ 
+ 		if (pLoopUnit->getDamage() > iDamageThreshold)
+ 		{
+@@ -5562,21 +5585,41 @@
+ 				{
+ 					if (pLoopUnit->healTurns(pLoopUnit->plot()) <= iMaxPath)
+ 					{
++					    aeDamagedUnits.push_back(pLoopUnit);
+                         //pLoopUnit->joinGroup(NULL);
+ 					}
+ 				}
+ 			}
+ 		}
+ 	}
+-
+-	if (bRetreat)
+-	{
+-		if (AI_retreatToCity(false, false, iMaxPath))
++	
++    if (plot()->isCity() && (plot()->getOwnerINLINE() == getOwnerINLINE()))
++	{
++	    if (iHurtUnitCount == getGroup()->getNumUnits())
++	    {
++            getGroup()->pushMission(MISSION_SKIP);
++            return true;
++	    }
++        for (unsigned int iI = 0; iI < aeDamagedUnits.size(); iI++)
++        {
++            aeDamagedUnits[iI]->joinGroup(NULL);
++            iHurtUnitCount--;	    
++        }
++	}
++	
++	if ((iHurtUnitCount * 3) > getGroup()->getNumUnits())
++	{
++	    if (healRate(plot()) >= 10)
++	    {
++            getGroup()->pushMission(MISSION_SKIP);
++            return true;
++	    }
++	    else if (AI_moveIntoCity(2))
+ 		{
+ 			return true;
+ 		}
+ 	}
+-
++	
+ 	return false;
+ }
+ 
+

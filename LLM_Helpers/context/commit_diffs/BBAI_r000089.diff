@@ -1,0 +1,33 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 89
+# Author: iustus
+# Date: 2006-11-17T09:20:13.445492Z
+# Coverage: full
+# Message:
+#   removed the cheat mode spam when a stack was sent to attack a city
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@88
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@89
+@@ -7293,17 +7293,6 @@
+ 			}
+ 			else
+ 			{
+-				// if cheat on, notify player that a mission was pushed (non-barbarian)
+-				if (gDLL->getChtLvl() > 0 && !GET_PLAYER(getOwnerINLINE()).isBarbarian())
+-				{
+-					CvSelectionGroup* eGroup = getGroup();
+-					int iCompareValue = eGroup->AI_compareStacks(pBestCity->plot(), /*bPotentialEnemy*/ true, /*bCheckCanAttack*/ false, /*bCheckCanMove*/ false);
+-
+-					CvWString szString;
+-					szString.Format(L"AI_targetCity:City(%s), Stack(%d), size(%d), turns(%d), compare(%d)", pBestCity->getNameKey(), eGroup->getID(), eGroup->countNumUnitAIType(NO_UNITAI), iPathTurns, iCompareValue);
+-					gDLL->getInterfaceIFace()->addMessage(GC.getGameINLINE().getActivePlayer(), true, GC.getDefineINT("EVENT_MESSAGE_TIME"), szString);
+-				}
+-
+ 				getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE());
+ 				return true;
+ 			}
+

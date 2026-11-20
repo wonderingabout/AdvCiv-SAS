@@ -1,0 +1,267 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 363
+# Author: iustus
+# Date: 2007-02-13T10:20:00.295256Z
+# Coverage: full
+# Message:
+#   fixed typo in AI use of slavery
+#   new governor tweaks (disabled by default)
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@362
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@363
+@@ -1280,12 +1280,14 @@
+ 	
+ 	bool bEmphasizeFood = AI_isEmphasizeYield(YIELD_FOOD);
+ 	bool bEmphasizeProduction = AI_isEmphasizeYield(YIELD_PRODUCTION);
++	bool bEmphasizeAvoidGrowth = AI_isEmphasizeAvoidGrowth();
+ 	bool bFoodIsProduction = isFoodProduction();
+ 	bool bCanPopRush = kPlayer.canPopRush();
+ 	bool bIsNoUnhappiness = isNoUnhappiness();
+ 
+ 	int iNumCities = kPlayer.getNumCities();
+ 	int iPopulation = getPopulation();
++	int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+ 	
+ 	// calculate modifiers
+ 	int iExtraProductionModifier = 0;
+@@ -1316,6 +1318,7 @@
+ 		governorValues.yieldValues.aiYield[iYield] = iGovernor_CommerceWeight;
+ 	}
+ 	governorValues.yieldValues.aiYield[YIELD_FOOD] = iGovernor_FoodWeight;
++	governorValues.iExtraFoodValue = 0;
+ 	governorValues.yieldValues.aiYield[YIELD_PRODUCTION] = iGovernor_ProductionWeight;
+ 	governorValues.yieldValues.aiYield[YIELD_COMMERCE] = iGovernor_CommerceWeight;
+ 
+@@ -1326,6 +1329,7 @@
+ 
+ 	governorValues.yieldValues.iGPPRate = iGovernor_CommerceWeight / 2;
+ 	governorValues.yieldValues.iBonusExperience = 2;
++
+ 	
+ 	// now do the real work, modifying these values based on the situation
+ 	int iHealthLevel = goodHealth() - badHealth(/*bNoAngry*/ false, 1);
+@@ -1347,7 +1351,7 @@
+ 		else
+ 		{
+ 			// value food much less if we avoiding growth
+-			if (AI_isEmphasizeAvoidGrowth())
++			if (bEmphasizeAvoidGrowth)
+ 			{
+ 				governorValues.yieldValues.aiYield[YIELD_FOOD] /= 3;
+ 				governorValues.bGrowPastHappy = false;
+@@ -1355,9 +1359,6 @@
+ 			// otherwise, do some checks based on our situation
+ 			else
+ 			{
+-				int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+-				int iFoodToGrow = max(1, (growthThreshold() * (100 - getMaxFoodKeptPercent())) / 100);
+-
+ 				// if unhealthy, value food less
+ 				if (iHealthLevel < 0)
+ 				{
+@@ -1379,65 +1380,83 @@
+ 					governorValues.yieldValues.aiYield[YIELD_FOOD] *= iAdjustment;
+ 					governorValues.yieldValues.aiYield[YIELD_FOOD] /= 10;
+ 				}
+-
+-				// if we can pop rush, value food more
+-				if (bCanPopRush)
+-				{
+-					int iBestProductionPerPopulation = 0;
+-					int iHurryPopulation = 0;
+-					for (int iHurry = 0; iHurry < GC.getNumHurryInfos(); iHurry++)
+-					{
+-						if (kPlayer.getHurryCount((HurryTypes) iHurry) > 0)
+-						{
+-							int iProductionPerPopulation = GC.getHurryInfo((HurryTypes) iHurry).getProductionPerPopulation();
+-							if (iProductionPerPopulation > iBestProductionPerPopulation)
+-							{
+-								iBestProductionPerPopulation = iProductionPerPopulation;
+-								iHurryPopulation = hurryPopulation((HurryTypes) iHurry);
+-							}
+-						}
+-					}
+-					
+-					// productionWeight * (slaveryProductionPerPop/foodToGrowOnePop) * (percentageCostToRushCurrentBuild) * (4 or 2)
+-					int iSlaveryValue = iGovernor_ProductionWeight * iBestProductionPerPopulation * getHurryCostModifier(/*bIgnoreNew*/ true);
+-					iSlaveryValue *= bIsNoUnhappiness ? 4 : 2;
+-					iSlaveryValue /= (iFoodToGrow * 100 * iConsumtionPerPop);
+-					
+-					// if we have to grow too much to actually use slavery on this build, then value slavery bonus much less
+-					int iExtraPopNeeded = max(0, (iHurryPopulation * 2) - iPopulation);
+-					iSlaveryValue /= max(1, iExtraPopNeeded - 5); 
+-
+-					if (bEmphasizeProduction)
+-					{
+-						iSlaveryValue *= iGovernor_EmphasizeMultiplier;
+-					}
+-
+-					governorValues.yieldValues.aiYield[YIELD_FOOD] += iSlaveryValue;
+-					governorValues.bGrowPastHappy = (iSlaveryValue > (iGovernor_FoodWeight / 8));
+-				}
+-
+-				// if we can draft, value food more
+-				int iMaxConscript;
+-				UnitTypes eConscriptUnit;
+-				bool bCanConscript = ((iMaxConscript = kPlayer.getMaxConscript()) > 0 && (eConscriptUnit = getConscriptUnit()) != NO_UNIT);
+-				if (bCanConscript)
+-				{
+-					int iConscriptProduction = kPlayer.getProductionNeeded(eConscriptUnit);
+-					int iConscriptPopulation = getConscriptPopulation();
+-					int iConscriptValue = iGovernor_ProductionWeight * iConscriptProduction;
+-					iConscriptValue *= bIsNoUnhappiness ? 3 : range(iNumCities, 1, 12);
+-					iConscriptValue /= iConscriptPopulation * iFoodToGrow * iConsumtionPerPop;
+-					iConscriptValue /= bIsNoUnhappiness ? 1 : (iMaxConscript * 2);
+-					
+-					governorValues.yieldValues.aiYield[YIELD_FOOD] += iConscriptValue;
+-					governorValues.bGrowPastHappy = ((iHappyLevel + iConscriptPopulation) > 0);
+-				}
+ 			}
+ 		}
+ 	}
+ 
+ 	governorValues.yieldValues.aiYield[YIELD_FOOD] *= 100 + AI_specialYieldMultiplier(YIELD_FOOD);
+ 	governorValues.yieldValues.aiYield[YIELD_FOOD] /= kPlayer.AI_averageYieldMultiplier(YIELD_FOOD);
++
++	// extra food value (slavery, conscription)
++	if (!bFoodIsProduction)
++	{
++		int iFoodToGrow = max(1, (growthThreshold() * (100 - getMaxFoodKeptPercent())) / 100);
++		int iFoodConsumption = foodConsumption();
++		int iProductionTurnsLeft = getProductionTurnsLeft();
++
++		// if we can pop rush, value food more
++		if (bCanPopRush)
++		{
++			int iBestProductionPerPopulation = 0;
++			int iHurryPopulation = 0;
++			for (int iHurry = 0; iHurry < GC.getNumHurryInfos(); iHurry++)
++			{
++				if (kPlayer.getHurryCount((HurryTypes) iHurry) > 0)
++				{
++					int iProductionPerPopulation = GC.getHurryInfo((HurryTypes) iHurry).getProductionPerPopulation();
++					if (iProductionPerPopulation > iBestProductionPerPopulation)
++					{
++						iBestProductionPerPopulation = iProductionPerPopulation;
++						iHurryPopulation = hurryPopulation((HurryTypes) iHurry);
++					}
++				}
++			}
++			
++			// productionWeight * slaveryProductionPerPop/foodToGrow * (2*pop/foodConsumption) * (100/rushCostModifier) * (125% if globe theater)
++			int iHurryCostModifier = getHurryCostModifier(/*bIgnoreNew*/ true);
++			int iSlaveryValue = iGovernor_ProductionWeight * iBestProductionPerPopulation * iConsumtionPerPop * iPopulation * 100;
++			iSlaveryValue *= bIsNoUnhappiness ? 125 : 100;
++			iSlaveryValue /= iFoodToGrow * iFoodConsumption * iHurryCostModifier * 100;
++			
++			// if we have to grow too much to actually use slavery on this build, then value slavery bonus much less
++			int iExtraPopNeeded = max(0, (iHurryPopulation * 2) - iPopulation);
++			iSlaveryValue /= max(1, iExtraPopNeeded - 5);
++
++			// if we have whipped more than twice, reduce slavery value
++			int iFullLengthHurryCount = getHurryAngerTimer() / flatHurryAngerLength();
++			if (iFullLengthHurryCount > 1)
++			{
++				iSlaveryValue /= (iFullLengthHurryCount * iFullLengthHurryCount);
++			}
++
++			governorValues.iExtraFoodValue += iSlaveryValue;
++		}
++
++		// if we can draft, value food more
++		int iMaxConscript;
++		UnitTypes eConscriptUnit;
++		bool bCanConscript = ((iMaxConscript = kPlayer.getMaxConscript()) > 0 && (eConscriptUnit = getConscriptUnit()) != NO_UNIT);
++		if (bCanConscript)
++		{
++			int iConscriptProduction = kPlayer.getProductionNeeded(eConscriptUnit);
++			int iConscriptPopulation = getConscriptPopulation();
++			int iConscriptValue = iGovernor_ProductionWeight * iConscriptProduction;
++			iConscriptValue *= bIsNoUnhappiness ? 3 : range(iNumCities, 1, 12);
++			iConscriptValue /= iConscriptPopulation * iFoodToGrow * iConsumtionPerPop;
++			iConscriptValue /= bIsNoUnhappiness ? 1 : (iMaxConscript * 2);
++			
++			governorValues.iExtraFoodValue += iConscriptValue;
++		}
++		
++		// iExtraFoodValue is food working as production because of slavery or conscription 
++		if (bEmphasizeProduction)
++		{
++			governorValues.iExtraFoodValue *= iGovernor_EmphasizeMultiplier;
++		}
++		
++		governorValues.iExtraFoodValue *= 100 + AI_specialYieldMultiplier(YIELD_PRODUCTION);
++		governorValues.iExtraFoodValue /= kPlayer.AI_averageYieldMultiplier(YIELD_PRODUCTION);
++	}
+ 
+ 	// production
+ 	governorValues.yieldValues.aiYield[YIELD_PRODUCTION] *= 100 + AI_specialYieldMultiplier(YIELD_PRODUCTION);
+@@ -2012,6 +2031,10 @@
+ 	{
+ 		iValue += completeYield.aiYield[iYield] * governorValues.yieldValues.aiYield[iYield];
+ 	}
++
++	// only count food over the citizen cost for slavery (rough approximation of food that will put us over break even)
++	int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
++	iValue += max(0, completeYield.aiYield[YIELD_FOOD] - iConsumtionPerPop) * governorValues.iExtraFoodValue;
+ 
+ 	for (int iCommerce = 0; iCommerce < NUM_COMMERCE_TYPES; iCommerce++)
+ 	{
+@@ -6478,11 +6501,12 @@
+ 			}
+ 			if (AI_countGoodTiles((healthRate(0) == 0), false, 100) <= (getPopulation() - iHurryPopulation))
+ 			{
+-				if (getProductionTurnsLeft() > iMinTurns)
++				int iProductionTurnsLeft = getProductionTurnsLeft();
++				if (iProductionTurnsLeft > iMinTurns)
+ 				{
+ 					bWait = isHuman();
+ 					
+-					if ((iHurryPopulation * 3) > (getProductionTurnsLeft * 2))
++					if ((iHurryPopulation * 3) > (iProductionTurnsLeft * 2))
+ 					{
+ 						bWait = true;
+ 					}
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@362
++++ /trunk/CvGameCoreDLL/CvCityAI.h@363
+@@ -40,6 +40,7 @@
+ {
+ 	CvCompleteYield yieldModifiers;
+ 	CvCompleteYield yieldValues;
++	int iExtraFoodValue;
+ 	
+ 	bool bInitialized;
+ 
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@362
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@363
+@@ -2631,6 +2631,19 @@
+ 		szString += CvWString::format( ENDCOLR L"\n" );
+ 	}
+ 
++#ifdef NEW_CITY_GOVERNOR
++	CvGovernorValues& governorValues = pCityAI->m_governorValues;
++
++	szString += CvWString::format(L"%df", governorValues.yieldValues.aiYield[YIELD_FOOD]);
++	if (governorValues.iExtraFoodValue > 0)
++	{
++		szString += CvWString::format(L" (+%ds)", governorValues.iExtraFoodValue);
++	}
++	szString += CvWString::format(L", %dp, (%dg,%dr,%dc)c\n", governorValues.yieldValues.aiYield[YIELD_PRODUCTION], 
++		governorValues.yieldValues.aiCommerce[COMMERCE_GOLD], governorValues.yieldValues.aiCommerce[COMMERCE_RESEARCH], 
++		governorValues.yieldValues.aiCommerce[COMMERCE_CULTURE]);
++#endif
++	
+ 	// if control key is down, ignore food
+ 	bool bIgnoreFood = gDLL->ctrlKey();
+ 
+

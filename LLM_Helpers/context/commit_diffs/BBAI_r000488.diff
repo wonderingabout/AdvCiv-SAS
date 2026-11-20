@@ -1,0 +1,82 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 488
+# Author: jdog5000
+# Date: 2009-09-20T23:42:40.386875Z
+# Coverage: full
+# Message:
+#   Final tweaks for 0.81
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@487
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@488
+@@ -4436,18 +4436,6 @@
+ 	CvWString szTempBuffer;
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      09/03/09                                jdog5000      */
+-/**                                                                                              */
+-/**                                                                                              */
+-/*************************************************************************************************/
+-	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.81L");
+-	szBuffer.append(szTempBuffer);
+-	szBuffer.append(NEWLINE);
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                       END                                                  */
+-/*************************************************************************************************/
+-/*************************************************************************************************/
+ /** UNOFFICIAL_PATCH                      09/17/09                                jdog5000       */
+ /**                                                                                              */
+ /**                                                                                              */
+@@ -4460,7 +4448,18 @@
+ /*************************************************************************************************/
+ /** UNOFFICIAL_PATCH                       END                                                   */
+ /*************************************************************************************************/
+-
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                                jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++	// Add string showing version number
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.81L");
++	szBuffer.append(szTempBuffer);
++	szBuffer.append(NEWLINE);
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 	szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), GC.getCivilizationInfo(GC.getGameINLINE().getActiveCivilizationType()).getDescription());
+ 	szBuffer.append(szTempBuffer);
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@487
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@488
+@@ -7856,7 +7856,18 @@
+ 	}
+ 
+ 	// calc attacker bonueses
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       09/20/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++/* original code
+ 	if (pAttacker != NULL)
++*/
++	if (pAttacker != NULL && pAttackedPlot != NULL)
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
+ 	{
+ 		int iTempModifier = 0;		
+ 
+

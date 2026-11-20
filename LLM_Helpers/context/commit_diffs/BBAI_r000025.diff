@@ -1,0 +1,199 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 25
+# Author: blakeciv
+# Date: 2006-11-02T09:13:26.146341Z
+# Coverage: full
+# Message:
+#   Tweaks to worker AI before getting into serious game-breaking stuff.
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@24
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@25
+@@ -2789,6 +2789,7 @@
+ 	int iBonusFoodDiff = ((iBonusFoodSurplus + iFeatureFoodSurplus) - iBonusFoodDeficit);
+ 
+ 	int iTargetSize = min(iGoodTileCount, getPopulation()+(happyLevel()-unhappyLevel()));
++	iTargetSize = min(iTargetSize, getPopulation()+(healthRate()));
+ 
+ 	if (iBonusFoodDiff < 3)
+ 	{
+@@ -2799,10 +2800,10 @@
+ 	{
+ 		iFoodPriority += 1;
+ 	}
+-	else
+-	{
+-	    iCommercePriority += 1;
+-	}
++//	else
++//	{
++//	    iCommercePriority += 1;
++//	}
+ 
+ 	if (iProductionTotal < 10)
+ 	{
+@@ -2813,10 +2814,10 @@
+ 	    iProductionPriority += 1;
+ 	}
+ 
+-	if (((iBonusFoodSurplus + iFeatureFoodSurplus) > 1) && ((iBonusFoodDeficit + iHillFoodDeficit) < 5) && (iProductionTotal > 8))
+-	{
+-		iCommercePriority = 1;
+-	}
++//	if (((iBonusFoodSurplus + iFeatureFoodSurplus) > 1) && ((iBonusFoodDeficit + iHillFoodDeficit) < 5) && (iProductionTotal > 8))
++//	{
++//		iCommercePriority = 1;
++//	}
+ 
+ 	if ((iBonusFoodSurplus + iFeatureFoodSurplus > 5) && ((iBonusFoodDeficit + iHillFoodDeficit) > 5))
+ 	{
+@@ -4464,10 +4465,13 @@
+ 					{
+ 						if (iFoodPriority > 0)
+ 						{
+-							iValue *= 2;
+-							iValue /= (3 + iFoodPriority);
+-							//if the city needs food there's little sense in improving tiles
+-							//which can't be worked.
++						    if (eNonObsoleteBonus == NO_BONUS)
++						    {
++                                iValue *= 2;
++                                iValue /= (3 + iFoodPriority);
++                                //if the city needs food there's little sense in improving tiles
++                                //which can't be worked.
++						    }
+ 						}
+ 						else
+ 						{
+@@ -4481,9 +4485,6 @@
+ 						    iValue *= 3+iProductionPriority;
+ 						    iValue /= 3;
+ 						}
+-
+-
+-
+ 					}
+ 
+ 					if (bEmphasizeIrrigation && GC.getImprovementInfo(eFinalImprovement).isCarriesIrrigation())
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@24
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@25
+@@ -1947,7 +1947,7 @@
+ 								{
+ 								    if (pLoopUnit->canMoveOrAttackInto(pPlot))
+ 								    {
+-                                        if (!bTestMoves || (((pLoopUnit->baseMoves() + ((pLoopPlot->isValidRoute(pLoopUnit)) ? 1 : 0) + ((pLoopUnit->isHuman()) ? 1 : 0)) >= stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()))))
++                                        if (!bTestMoves || (((pLoopUnit->baseMoves() + ((pLoopPlot->isValidRoute(pLoopUnit)) ? 1 : 0)) >= stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()))))
+                                         {
+                                             iCount++;
+                                         }
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@24
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@25
+@@ -955,7 +955,7 @@
+ 		}
+ 	}
+ 
+-	if (!(getGroup()->canDefend()))
++    if (!(getGroup()->canDefend()))
+ 	{
+ 		if (GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot(), 3) > 0)
+ 		{
+@@ -966,10 +966,6 @@
+ 		}
+ 	}
+ 
+-	if (AI_improveBonus(15))
+-	{
+-		return;
+-	}
+ 
+ 	if (bCanRoute)
+ 	{
+@@ -988,14 +984,21 @@
+ 				}
+ 			}
+ 		}
+-
++	}
++
++    if (AI_improveBonus(20))
++	{
++		return;
++	}
++
++	if (bCanRoute)
++	{
+ 		if (AI_connectCity())
+ 		{
+ 			return;
+ 		}
+ 	}
+ 
+-
+ 	pCity = NULL;
+ 
+ 	if (plot()->getOwnerINLINE() == getOwnerINLINE())
+@@ -1005,7 +1008,7 @@
+ 
+ 	if ((pCity == NULL) || (pCity->countNumImprovedPlots() > (pCity->getPopulation()+1)))
+ 	{
+-		if (AI_improveBonus(10))
++		if (AI_improveBonus())
+ 		{
+ 			return;
+ 		}
+@@ -1013,11 +1016,6 @@
+ 		if (pCity == NULL)
+ 		{
+ 			pCity = GC.getMapINLINE().findCity(getX_INLINE(), getY_INLINE(), getOwnerINLINE()); // XXX do team???
+-		}
+-
+-		if (AI_improveBonus())
+-		{
+-			return;
+ 		}
+ 
+ 		if (AI_nextCityToImprove(pCity))
+@@ -8818,20 +8816,21 @@
+                                     }
+                                     if (!bIsConnected && bCanRoute && (GC.getBuildInfo(eBuild).getRoute() != NO_ROUTE))
+                                     {
+-                                        if (!pLoopPlot->isRoute())
++                                        if ((eImprovement != NO_IMPROVEMENT) && (GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus)))
+                                         {
+-                                            if (canBuild(pLoopPlot, eBuild))
++                                            if (!pLoopPlot->isRoute())
+                                             {
+-                                                iValue = 2000;
+-
+-                                                iValue /= (GC.getBuildInfo(eBuild).getTime() + 1);
+-
+-                                                // XXX feature production???
+-
+-                                                if (iValue < iBestTempBuildValue)
++                                                if (canBuild(pLoopPlot, eBuild))
+                                                 {
+-                                                    iBestTempBuildValue = iValue;
+-                                                    eBestTempBuild = eBuild;
++                                                    iValue = 2000;
++
++                                                    iValue /= (GC.getBuildInfo(eBuild).getTime() + 1);
++
++                                                    if (iValue < iBestTempBuildValue)
++                                                    {
++                                                        iBestTempBuildValue = iValue;
++                                                        eBestTempBuild = eBuild;
++                                                    }
+                                                 }
+                                             }
+                                         }
+

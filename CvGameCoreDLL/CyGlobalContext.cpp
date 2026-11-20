@@ -12,6 +12,9 @@
 #include "CyMap.h"
 #include "CyTeam.h"
 #include "CyArtFileMgr.h"
+// <!-- custom: begin - getAudio3DScriptName uses FXml/CvDLLXmlIFaceBase to build the 3D audio script reverse lookup for Sevopedia previews. See KI#141. (GPT-5.5?) -->
+#include "CvDLLXMLIFaceBase.h"
+// <!-- custom: end - See KI#141. (GPT-5.5?) -->
 
 CyGlobalContext::CyGlobalContext() :
 	kGlobals(CvGlobals::getInstance()) // advc.003t
@@ -34,6 +37,32 @@ bool CyGlobalContext::isDebugBuild() const
 	return false;
 #endif
 }
+
+// <!-- custom: AdvCiv already owns the central display/folder/path identity through ModName; expose those values to Python instead of duplicating name or filesystem resolution there. (ChatGPT-5.6-Sol) -->
+const char* CyGlobalContext::getModDisplayName() const
+{
+	return GC.getModName().getDisplayName();
+}
+
+const char* CyGlobalContext::getModFolderName() const
+{
+	return GC.getModName().getName();
+}
+
+const char* CyGlobalContext::getModPathInRoot() const
+{
+	return GC.getModName().getPathInRoot();
+}
+
+// <!-- custom: Python-facing source/version accessors stay as thin wrappers over ModName's single resolver. (ChatGPT-5.6-Sol) -->
+const char* CyGlobalContext::getModVersion() const { return GC.getModName().getVersion(); }
+const char* CyGlobalContext::getModCommitHash() const { return GC.getModName().getCommitHash(); }
+const char* CyGlobalContext::getModBranch() const { return GC.getModName().getBranch(); }
+const char* CyGlobalContext::getModCommitDate() const { return GC.getModName().getCommitDate(); }
+const char* CyGlobalContext::getModSourceMetadataType() const { return GC.getModName().getSourceMetadataType(); }
+int CyGlobalContext::getModSourceDirtyState() const { return GC.getModName().getSourceDirtyState(); }
+int CyGlobalContext::getModSourceDirtyFileCount() const { return GC.getModName().getSourceDirtyFileCount(); }
+const char* CyGlobalContext::getModSourceDirtyFiles() const { return GC.getModName().getSourceDirtyFiles(); }
 
 CyGame* CyGlobalContext::getCyGame() const
 {
@@ -411,6 +440,44 @@ int CyGlobalContext::getTypesEnum(const char* szType) const
 	return GC.getTypesEnum(szType, /* advc.006: */ false, true);
 }
 
+// <!-- custom: begin - Python can receive 3D audio script IDs, but older exposed APIs had no reverse lookup.
+// Cache Audio3DScripts.xml once so Python can resolve any 3D script ID back to AS3D_... and play Sevopedia previews through CyInterface().playGeneralSound at normal volume. See KI#141. (GPT-5.5?) -->
+const char* CyGlobalContext::getAudio3DScriptName(int iScriptId) const
+{
+	static std::vector<CvString> aszAudio3DScripts;
+	static bool bLoaded = false;
+	static CvString szEmpty;
+	if (!bLoaded)
+	{
+		bLoaded = true;
+		FXml* pXml = gDLL->getXMLIFace()->CreateFXml();
+		CvString szPath = "XML\\Audio\\Audio3DScripts.xml";
+		if (!gDLL->fileManagerEnabled())
+			szPath = "Assets//" + szPath;
+		if (pXml != NULL && gDLL->getXMLIFace()->LoadXml(pXml, szPath))
+		{
+			if (gDLL->getXMLIFace()->LocateNode(pXml, "Script3DSounds") && gDLL->getXMLIFace()->SetToChild(pXml))
+			{
+				do
+				{
+					CvString szScriptId;
+					if (gDLL->getXMLIFace()->SetToChildByTagName(pXml, "ScriptID"))
+					{
+						gDLL->getXMLIFace()->GetLastNodeValue(pXml, szScriptId);
+						gDLL->getXMLIFace()->SetToParent(pXml);
+					}
+					aszAudio3DScripts.push_back(szScriptId);
+				} while (gDLL->getXMLIFace()->NextSibling(pXml));
+			}
+		}
+		if (pXml != NULL)
+			gDLL->getXMLIFace()->DestroyFXml(pXml);
+	}
+	if (iScriptId < 0 || iScriptId >= (int)aszAudio3DScripts.size())
+		return szEmpty.c_str();
+	return aszAudio3DScripts[iScriptId].c_str();
+}
+// <!-- custom: end - See KI#141. (GPT-5.5?) -->
 
 CvPlayerColorInfo* CyGlobalContext::getPlayerColorInfo(int i) const
 {

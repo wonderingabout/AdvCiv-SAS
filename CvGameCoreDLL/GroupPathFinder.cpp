@@ -22,8 +22,7 @@ bool GroupStepMetric::canReuseInitialPathData(GroupPathNode const& kStart) const
 }
 
 // "pathValid_join" in K-Mod
-bool GroupStepMetric::isValidStep(CvPlot const& kFrom, CvPlot const& kTo,
-	CvSelectionGroup const& kGroup, MovementFlags eFlags)
+bool GroupStepMetric::isValidStep(CvPlot const& kFrom, CvPlot const& kTo, CvSelectionGroup const& kGroup, MovementFlags eFlags)
 {
 	return (kGroup.getDomainType() != DOMAIN_SEA ||
 			!GC.getMap().isSeparatedByIsthmus(kFrom, kTo) ||
@@ -31,8 +30,7 @@ bool GroupStepMetric::isValidStep(CvPlot const& kFrom, CvPlot const& kTo,
 }
 
 // "pathValid_source" in K-Mod
-bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const& kGroup,
-	MovementFlags eFlags)
+bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const& kGroup, MovementFlags eFlags)
 {
 	//PROFILE_FUNC(); // advc.003o
 
@@ -61,6 +59,15 @@ bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const
 	{
 		if (eFlags & (MOVE_THROUGH_ENEMY /* K-Mod: */ | MOVE_ATTACK_STACK))
 		{
+			// <!-- custom: Loading onto a ship is a possible destination action, not permission for the unchanged land group to traverse water toward another destination.
+			// Unlike canMoveThrough below, canMoveOrAttackInto permits loading; reject that transit shortcut while preserving fully all-terrain groups and the existing water-city rule.
+			// In the current SAS XML, Levitation Artillery crosses impassable terrain but lacks all-terrain movement, whereas Gunships have both abilities; test group capabilities rather than unit names so legitimate Gunship water transit remains available.
+			// Keep this inside the AI-or-revealed block to preserve human fog knowledge, and after the start-plot exception so a cargo group's actual water start remains usable; endpoint loading is still checked separately by isValidDest. See KI#623.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			if (kPlot.isWater() && kGroup.getDomainType() == DOMAIN_LAND && !kGroup.canMoveAllTerrain() &&
+				(!kPlot.isCity() || !GC.getDefineBOOL(CvGlobals::LAND_UNITS_CAN_ATTACK_WATER_CITIES)))
+			{
+				return false;
+			}
 			if (!kGroup.canMoveOrAttackInto(kPlot,
 				(eFlags & MOVE_DECLARE_WAR) && !kGroup.isHuman())) // K-Mod
 			{
@@ -115,8 +122,7 @@ bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const
 	(that is: to close off plots entirely after visiting from only one neighbor),
 	it mustn't take into account path data. Doing so had lead to rare pathfinding
 	failures in K-Mod. */
-bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const& kGroup,
-	MovementFlags eFlags, int iMoves, int iPathTurns)
+bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const& kGroup, MovementFlags eFlags, int iMoves, int iPathTurns)
 {
 	if ((iPathTurns > 1 || iMoves == 0) &&
 		kGroup.isAIControlled() &&
@@ -131,8 +137,7 @@ bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const
 }
 
 // "pathDestValid" in BtS/ K-Mod
-bool GroupStepMetric::isValidDest(CvPlot const& kPlot, CvSelectionGroup const& kGroup,
-	MovementFlags eFlags)
+bool GroupStepMetric::isValidDest(CvPlot const& kPlot, CvSelectionGroup const& kGroup, MovementFlags eFlags)
 {
 	PROFILE_FUNC();
 
@@ -253,10 +258,9 @@ bool GroupStepMetric::isValidDest(CvPlot const& kPlot, CvSelectionGroup const& k
 // "pathCost" in BtS/ K-Mod
 /*	This function has been completely rewritten for K-Mod.
 	(the rewrite includes some bug fixes as well as some new features) */
-int GroupStepMetric::cost(CvPlot const& kFrom, CvPlot const& kTo,
-	CvSelectionGroup const& kGroup, MovementFlags eFlags,
-	int iCurrMoves, // (advc: Moves left when at kFrom)
-	bool bAtStart) // (advc: True if kFrom is the start of the path)
+// (advc: Moves left when at kFrom)
+// <!-- custom: hoisted from multiline signature between `iCurrMoves` and `bAtStart` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int GroupStepMetric::cost(CvPlot const& kFrom, CvPlot const& kTo, CvSelectionGroup const& kGroup, MovementFlags eFlags, int iCurrMoves, bool bAtStart) // (advc: True if kFrom is the start of the path)
 {
 	//PROFILE_FUNC(); // advc.003o
 
@@ -631,8 +635,7 @@ int GroupStepMetric::initialMoves(CvSelectionGroup const& kGroup, MovementFlags 
 
 // "pathAdd" in BtS/ K-Mod
 template<class Node>
-bool GroupStepMetric::updatePathData(Node& kNode, Node const& kParent,
-	CvSelectionGroup const& kGroup, MovementFlags eFlags)
+bool GroupStepMetric::updatePathData(Node& kNode, Node const& kParent, CvSelectionGroup const& kGroup, MovementFlags eFlags)
 {
 	//PROFILE_FUNC(); // advc.003o
 	FAssert(kGroup.getNumUnits() > 0);
@@ -744,8 +747,7 @@ template bool GroupStepMetric::updatePathData<FAStarNode>(FAStarNode&, FAStarNod
 		CvSelectionGroup const&, MovementFlags);
 
 
-void GroupPathFinder::setGroup(CvSelectionGroup const& kGroup,
-	MovementFlags eFlags, int iMaxPath, int iHeuristicWeight)
+void GroupPathFinder::setGroup(CvSelectionGroup const& kGroup, MovementFlags eFlags, int iMaxPath, int iHeuristicWeight)
 {	// <advc.test>
 	#if VERIFY_PATHF
 	kLegacyPathf.SetSettings(&kGroup, eFlags, iMaxPath, iHeuristicWeight);
@@ -812,6 +814,7 @@ void GroupPathFinder::invalidateGroup(CvSelectionGroup const& kGroup)
 bool GroupPathFinder::generatePath(CvPlot const& kTo)
 {
 	FAssertMsg(m_stepMetric.getGroup() != NULL, "Must call SetSettings before GeneratePath");
+	// <!-- custom: Retired KI#100's null-group guard, restoring base AdvCiv 1.14: a crash fix made without a matching PDB, so a recurrence should be traced with a Debug-opt dump. See KI#100 and KI#136. (Claude code Opus 4.5 + GPT-5.2-Codex + Claude code Opus 5.5) -->
 	return generatePath(m_stepMetric.getGroup()->getPlot(), kTo);
 }
 
@@ -819,6 +822,10 @@ bool GroupPathFinder::generatePath(CvPlot const& kTo)
 CvPlot& GroupPathFinder::getPathEndTurnPlot() const
 {
 	GroupPathNode* pNode = m_pEndNode;
+	// <!-- custom: Base AdvCiv dereferenced pNode in its first assertion before checking it.
+	// Keep the successful-current-path contract rather than fabricating a fallback path, but diagnose a violated contract before any dereference in Assert/Debug builds.
+	// The concrete SAS misuse is fixed at its caller. See KI#180.2. (ChatGPT-5.6-Sol) -->
+	FAssertMsg(pNode != NULL, "getPathEndTurnPlot requires a current successful path; a later generatePath call may have replaced or cleared it");
 	FAssert(pNode->getPathLength() == 1 || pNode->m_pParent != NULL);
 	while (pNode != NULL && pNode->getPathLength() > 1)
 	{

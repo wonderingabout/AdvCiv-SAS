@@ -1,0 +1,130 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 161
+# Author: blakeciv
+# Date: 2006-12-10T15:40:22.201455Z
+# Coverage: full
+# Message:
+#   Start point changes (fairer food resource normalization), CvPlayerAI also changed was accidently included in previous checkin.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@160
++++ /trunk/CvGameCoreDLL/CvGame.cpp@161
+@@ -1244,33 +1244,6 @@
+   
+ 			            }
+ 			        }
+-
+-//				for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+-//				{
+-//					pLoopPlot = plotCity(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), iJ);
+-//
+-//					if (pLoopPlot != NULL)
+-//					{
+-//						if (!(pLoopPlot->isWater()))
+-//						{
+-//							if ((GC.getTerrainInfo(pLoopPlot->getTerrainType()).getYield(YIELD_FOOD) + GC.getTerrainInfo(pLoopPlot->getTerrainType()).getYield(YIELD_PRODUCTION)) <= 1)
+-//							{
+-//								for (iK = 0; iK < GC.getNumTerrainInfos(); iK++)
+-//								{
+-//									if (!(GC.getTerrainInfo((TerrainTypes)iK).isWater()))
+-//									{
+-//										if ((GC.getTerrainInfo((TerrainTypes)iK).getYield(YIELD_FOOD) + GC.getTerrainInfo((TerrainTypes)iK).getYield(YIELD_PRODUCTION)) > 1)
+-//										{
+-//											if ((pLoopPlot->getFeatureType() == NO_FEATURE) || GC.getFeatureInfo(pLoopPlot->getFeatureType()).isTerrain(iK))
+-//											{
+-//												pLoopPlot->setTerrainType((TerrainTypes)iK);
+-//											}
+-//										}
+-//									}
+-//								}
+-//							}
+-//						}
+-//					}
+ 				}
+ 			}
+ 		}
+@@ -1285,6 +1258,7 @@
+ 	BonusTypes eBonus;
+ 	bool bIgnoreLatitude;
+ 	int iFoodBonus;
++	int iGoodNatureTileCount;
+ 	int iI, iJ, iK;
+ 
+ 	bIgnoreLatitude = false;
+@@ -1299,6 +1273,7 @@
+ 			if (pStartingPlot != NULL)
+ 			{
+ 				iFoodBonus = 0;
++				iGoodNatureTileCount = 0;
+ 
+ 				for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+ 				{
+@@ -1307,9 +1282,14 @@
+ 					if (pLoopPlot != NULL)
+ 					{
+ 						eBonus = pLoopPlot->getBonusType(GET_PLAYER((PlayerTypes)iI).getTeam());
++						
+ 
+ 						if (eBonus != NO_BONUS)
+ 						{
++						    if (pLoopPlot->getYield(YIELD_FOOD) >= 2)
++						    {
++						        iGoodNatureTileCount++;
++						    }
+ 							if (GC.getBonusInfo(eBonus).getYieldChange(YIELD_FOOD) > 0)
+ 							{
+ 								if ((GC.getBonusInfo(eBonus).getTechCityTrade() == NO_TECH) || (GC.getTechInfo((TechTypes)(GC.getBonusInfo(eBonus).getTechCityTrade())).getEra() <= getStartEra()))
+@@ -1325,12 +1305,22 @@
+ 								}
+ 							}
+ 						}
++						else
++						{
++                            if (pLoopPlot->getYield(YIELD_FOOD) >= 3)
++						    {
++						        iGoodNatureTileCount++;
++						    }
++						}
+ 					}
+ 				}
++				
++				int iTargetFoodBonusCount = 2;
++				iTargetFoodBonusCount += (iGoodNatureTileCount == 0) ? 1 : 0;
+ 
+ 				for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+ 				{
+-					if (iFoodBonus >= 2)
++					if (iFoodBonus >= iTargetFoodBonusCount)
+ 					{
+ 						break;
+ 					}
+@@ -1534,7 +1524,7 @@
+ 
+ 	//iTargetValue = (iTotalValue + iBestValue) / (iPlayerCount + 1);
+ 	
+-	iTargetValue = (iBestValue * 3) / 5;
++	iTargetValue = (iBestValue * 4) / 5;
+ 		
+ 
+ 	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+@@ -1627,7 +1617,7 @@
+ 				{
+ 				    pLoopPlot = plotCity(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), iJ);
+ 
+-                    if (pLoopPlot != NULL)
++                    if ((pLoopPlot != NULL) && (pLoopPlot != pStartingPlot))
+                     {
+                         if (getSorenRandNum((((iCount * 3) + 1) * ((bLandBias && pLoopPlot->isWater()) ? 2 : 1)), "Placing Bonuses") == 0)
+                         {
+@@ -1650,6 +1640,7 @@
+ 										{
+ 											if (GC.getBonusInfo((BonusTypes)iK).isNormalize())
+ 											{
++											    //???no bonuses with negative yields?
+ 												if ((GC.getBonusInfo((BonusTypes)iK).getYieldChange(YIELD_FOOD) >= 0) &&
+ 													  (GC.getBonusInfo((BonusTypes)iK).getYieldChange(YIELD_PRODUCTION) >= 0))
+ 												{
+

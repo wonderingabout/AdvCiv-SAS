@@ -1,0 +1,37 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 207
+# Author: blakeciv
+# Date: 2006-12-19T03:05:48.023648Z
+# Coverage: full
+# Message:
+#   Made AI_updateSpecialYieldMultiplier actually do stuff :P.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@206
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@207
+@@ -6990,17 +6990,16 @@
+ void CvCityAI::AI_updateSpecialYieldMultiplier()
+ {
+ 	PROFILE_FUNC();
+-	int m_aiSpecialYieldMultiplier[NUM_YIELD_TYPES];
+ 	
+ 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 	{
+ 		m_aiSpecialYieldMultiplier[iI] = 0;
+ 	}
+ 	
+-	UnitAITypes eProductionUnitAI = getProductionUnitAI();
+-	if (eProductionUnitAI != NO_UNITAI)
+-	{
+-		if (eProductionUnitAI == UNITAI_WORKER_SEA)
++	UnitTypes eProductionUnit = getProductionUnit();
++	if (eProductionUnit != NO_UNIT)
++	{
++		if (GC.getUnitInfo(eProductionUnit).getDefaultUnitAIType() == UNITAI_WORKER_SEA)
+ 		{
+ 			m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 100;
+ 			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 50;				
+

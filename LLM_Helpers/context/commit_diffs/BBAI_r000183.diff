@@ -1,0 +1,132 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 183
+# Author: blakeciv
+# Date: 2006-12-14T22:30:06.698472Z
+# Coverage: full
+# Message:
+#   (no message)
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@182
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@183
+@@ -954,6 +954,18 @@
+                 if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20))
+                 {
+                     return;
++                }
++                int iBestFoundValue = area()->getBestFoundValue(getOwnerINLINE());
++                if (((GET_PLAYER(getOwnerINLINE()).getNumCities() == 1) && iBestFoundValue > 2000)
++                	|| ((GET_PLAYER(getOwnerINLINE()).getNumCities() >= 2) && iBestFoundValue > 4000))
++                {
++					if (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) == 0)
++					{
++						if (AI_chooseUnit(UNITAI_SETTLE))
++						{
++							return;
++						}
++					}                	
+                 }
+                 if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Choose Unit") > 30)
+                 {
+@@ -3226,6 +3238,9 @@
+ int CvCityAI::AI_neededDefenders()
+ {
+ 	int iDefenders;
++	bool bOffenseWar = ((area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_MASSING));
++	bool bDefenseWar = ((area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE));
++	
+ 
+ 	if (!(GET_TEAM(getTeam()).AI_isWarPossible()))
+ 	{
+@@ -3241,10 +3256,44 @@
+ 		iDefenders++;
+ 	}
+ 
+-	if (GET_TEAM(getTeam()).hasMetHuman())
++	if (bOffenseWar)
+ 	{
+ 		iDefenders++;
+ 	}
++	
++	if (bDefenseWar)
++	{
++		iDefenders ++;
++		if (hasActiveWorldWonder())
++		{
++			iDefenders++;
++		}
++		if (isCapital())
++		{
++			iDefenders++;
++		}
++	}
++	
++	if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++	{
++		iDefenders++;
++		
++		iDefenders += getCommerceRateModifier(COMMERCE_CULTURE)/100;
++		
++		if (bDefenseWar || bOffenseWar)
++		{
++			if (getCultureLevel() >= (GC.getNumCultureLevelInfos() - 2))
++			{
++				iDefenders += 2;
++				if (getCultureLevel() >= (GC.getNumCultureLevelInfos() - 1))
++				{
++					iDefenders += 2;
++				}
++
++				iDefenders += (GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot()) + 1) / 2;
++			}
++		}
++	}		
+ 
+ 	if (getGameTurnAcquired() != getGameTurnFounded())
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@182
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@183
+@@ -325,6 +325,7 @@
+ 	PROFILE_FUNC();
+ 
+ 	CvUnit* pLoopUnit;
++	CvPlot* pLastUpgradePlot;
+ 	bool bValid;
+ 	int iPass;
+ 	int iLoop;
+@@ -342,6 +343,7 @@
+ 		return;
+ 	}
+ 
++	pLastUpgradePlot = NULL;
+ 	for (iPass = 0; iPass < 4; iPass++)
+ 	{
+ 		for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+@@ -359,12 +361,19 @@
+ 			case 1:
+ 				if (pLoopUnit->plot()->isCity())
+ 				{
++					//try to upgrade units which are in danger... but don't get obsessed
++					if (((AI_getPlotDanger(pLoopUnit->plot(), 1, false)) > 0) && (pLastUpgradePlot != pLoopUnit->plot()))
++					{
++						bValid = true;
++						pLastUpgradePlot = pLoopUnit->plot();
++						break;
++					}
+ 					if (pLoopUnit->plot()->getBestDefender(getID()) == pLoopUnit)
+ 					{
+ 						bValid = true;
++						break;
+ 					}
+ 				}
+-				break;
+ 			case 2:
+ 				if (pLoopUnit->cargoSpace() > 0)
+ 				{
+

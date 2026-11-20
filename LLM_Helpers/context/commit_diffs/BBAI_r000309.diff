@@ -1,0 +1,35 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 309
+# Author: iustus
+# Date: 2007-01-27T20:34:33.351664Z
+# Coverage: full
+# Message:
+#   added isAlive check, may be bug reported on civ fanatics (cant hurt)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@308
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@309
+@@ -8804,12 +8804,15 @@
+ 														TeamTypes eMasterTeam = GET_PLAYER((PlayerTypes)iI).getTeam();
+ 														for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; iTeam++)
+ 														{
+-															if (iTeam != getTeam() && iTeam != eMasterTeam && atWar(getTeam(), (TeamTypes)iTeam) && !atWar(eMasterTeam, (TeamTypes)iTeam))
++															if (GET_TEAM((TeamTypes)iTeam).isAlive())
+ 															{
+-																if (GET_TEAM(eMasterTeam).AI_declareWarTrade((TeamTypes)iTeam, getTeam(), false) != NO_DENIAL)
++																if (iTeam != getTeam() && iTeam != eMasterTeam && atWar(getTeam(), (TeamTypes)iTeam) && !atWar(eMasterTeam, (TeamTypes)iTeam))
+ 																{
+-																	bAccepted = false;
+-																	break;
++																	if (GET_TEAM(eMasterTeam).AI_declareWarTrade((TeamTypes)iTeam, getTeam(), false) != NO_DENIAL)
++																	{
++																		bAccepted = false;
++																		break;
++																	}
+ 																}
+ 															}
+ 														}
+

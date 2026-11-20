@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 45
+# Author: iustus
+# Date: 2006-11-08T07:38:56.455685Z
+# Coverage: full
+# Message:
+#   Moved debug final release Visual Studio target back to /assets instead of /customassets
+# Changed paths (1):
+#   M /branches/vanilla/CvGameCoreDLL/CvGameCoreDLL.vcproj
+
+Index: /branches/vanilla/CvGameCoreDLL/CvGameCoreDLL.vcproj
+--- /branches/vanilla/CvGameCoreDLL/CvGameCoreDLL.vcproj@44
++++ /branches/vanilla/CvGameCoreDLL/CvGameCoreDLL.vcproj@45
+@@ -362,7 +362,7 @@
+ 			<Tool
+ 				Name="VCLinkerTool"
+ 				AdditionalDependencies="boost_python-vc71-mt-1_32.lib  winmm.lib"
+-				OutputFile="../CustomAssets/CvGameCoreDLL.dll"
++				OutputFile="../Assets/CvGameCoreDLL.dll"
+ 				LinkIncremental="2"
+ 				AdditionalLibraryDirectories="Python24\libs;&quot;boost-1.32.0\libs\&quot;"
+ 				GenerateDebugInformation="TRUE"
+

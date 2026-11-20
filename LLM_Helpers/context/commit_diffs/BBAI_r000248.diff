@@ -1,0 +1,354 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 248
+# Author: blakeciv
+# Date: 2007-01-07T08:40:58.558355Z
+# Coverage: full
+# Message:
+#   AI's now use "We have enough on our hands" as the excuse of last resort.
+#   
+#   AI's less deterministic in whether or not they'll crush and will sometimes crush in dogpile wars.
+#   
+#   Added CULUTRE4 strategy, CULTURE3 now means "Turn off research after running out of shiny techs" CULTURE4 means the research is now off, there's a new function to assess cultural victory tech shininess. This should make the AI more flexible in when it turns off research.
+#   
+#   Also made the AI's less likely to pursue cultural victory.
+#   
+# Changed paths (6):
+#   M /trunk/CvGameCoreDLL/AI_Defines.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.h
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+
+Index: /trunk/CvGameCoreDLL/AI_Defines.h
+--- /trunk/CvGameCoreDLL/AI_Defines.h@247
++++ /trunk/CvGameCoreDLL/AI_Defines.h@248
+@@ -12,9 +12,11 @@
+ #define AI_STRATEGY_CULTURE1            (1 << 6)  //religions and wonders
+ #define AI_STRATEGY_CULTURE2            (1 << 7)  //mass culture buildings
+ #define AI_STRATEGY_CULTURE3            (1 << 8)  //culture slider
+-#define AI_STRATEGY_MISSIONARY          (1 << 9)
+-#define AI_STRATEGY_CRUSH				(1 << 10)  //convert units to City Attack
+-#define AI_STRATEGY_PRODUCTION          (1 << 11)
++#define AI_STRATEGY_CULTURE4			(1 << 9)
++#define AI_STRATEGY_MISSIONARY          (1 << 10)
++#define AI_STRATEGY_CRUSH				(1 << 11)  //convert units to City Attack
++#define AI_STRATEGY_PRODUCTION          (1 << 12)
++
+ 
+ #define AI_CITY_ROLE_VALID              (1 <<  1)    //zero is bad
+ #define AI_CITY_ROLE_BIG_CULTURE        (1 <<  2)    //culture victory, probably
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@247
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@248
+@@ -3707,7 +3707,7 @@
+ 		if (!(plot()->isHills()))
+ 		{
+ 			iDefenders++;
+-		}		
++		}
+ 	}
+ 	
+ 	/*
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@247
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@248
+@@ -2050,6 +2050,11 @@
+             if (GET_PLAYER(pPlot->getOwner()).AI_isDoStrategy(AI_STRATEGY_CULTURE3))
+             {
+                 szTempBuffer.Format(L"\n AI Culture3 Strategy");
++                szString+=szTempBuffer;
++            }
++			if (GET_PLAYER(pPlot->getOwner()).AI_isDoStrategy(AI_STRATEGY_CULTURE4))
++            {
++                szTempBuffer.Format(L"\n AI Culture4 Strategy");
+                 szString+=szTempBuffer;
+             }
+             if (GET_PLAYER(pPlot->getOwner()).AI_isDoStrategy(AI_STRATEGY_MISSIONARY))
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@247
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@248
+@@ -2501,7 +2501,7 @@
+ 
+ bool CvPlayerAI::AI_avoidScience()
+ {
+-    if (AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++    if (AI_isDoStrategy(AI_STRATEGY_CULTURE4))
+     {
+         return true;
+     }
+@@ -3677,6 +3677,13 @@
+                                         iValue /= (iTurnsLeft + (bCheapBooster ? 1 : (5 * iAdjustment)));
+ 									}
+ 								}
++								
++								if (AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++								{
++									int iCVValue = AI_cultureVictoryTechValue((TechTypes)iI);
++									iValue *= (iCVValue + 10);
++									iValue /= ((iCVValue < 100) ? 400 : 100);
++								}
+ 
+ 								iValue = max(1, iValue);
+ 
+@@ -8137,7 +8144,7 @@
+ 
+ 			iIdealPercent = min(iIdealPercent, 20);
+ 			
+-			if (AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++			if (AI_isDoStrategy(AI_STRATEGY_CULTURE4))
+ 			{
+ 			    iIdealPercent = 100;
+ 			}
+@@ -8148,7 +8155,7 @@
+ 
+ 	if (isCommerceFlexible(COMMERCE_RESEARCH))
+ 	{
+-		if (isNoResearchAvailable() || AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++		if (isNoResearchAvailable() || AI_isDoStrategy(AI_STRATEGY_CULTURE4))
+ 		{
+ 			setCommercePercent(COMMERCE_RESEARCH, 0);
+ 		}
+@@ -9770,6 +9777,81 @@
+ 	}
+ }
+ 
++int CvPlayerAI::AI_cultureVictoryTechValue(TechTypes eTech)
++{
++	int iI;
++	
++	if (eTech == NO_TECH)
++	{
++		return 0;
++	}
++	
++	int iValue = 0;
++	
++	if (GC.getTechInfo(eTech).isDefensivePactTrading())
++	{
++		iValue += 50;
++	}
++	
++	if (GC.getTechInfo(eTech).isCommerceFlexible(COMMERCE_CULTURE))
++	{
++		iValue += 100;
++	}
++	
++	//units
++	int iBestUnitValue = 0;
++	for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
++	{
++		UnitTypes eLoopUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)));
++
++		if (eLoopUnit != NO_UNIT)
++		{
++			if (isTechRequiredForUnit((eTech), eLoopUnit))
++			{
++				int iTempValue = (GC.getUnitInfo(eLoopUnit).getCombat() * 100) / max(1, (GC.getGame().getBestLandUnitCombat()));
++				
++				iValue += iTempValue / 3;
++				iBestUnitValue = max(iBestUnitValue, iTempValue);
++			}
++		}
++	}
++	iValue += max(0, iBestUnitValue - 15);
++	
++	//cultural things
++	for (iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
++	{
++		BuildingTypes eLoopBuilding = ((BuildingTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iI)));
++
++		if (eLoopBuilding != NO_BUILDING)
++		{
++			if (isTechRequiredForBuilding((eTech), eLoopBuilding))
++			{
++				CvBuildingInfo& kLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
++
++				if ((GC.getBuildingClassInfo((BuildingClassTypes)iI).getDefaultBuildingIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iI)))
++				{
++					//UB
++					iValue += 100;
++				}
++				
++				iValue += (150 * kLoopBuilding.getCommerceChange(COMMERCE_CULTURE)) * 20;
++				iValue += kLoopBuilding.getCommerceModifier(COMMERCE_CULTURE) * 2;
++			}
++		}
++	}
++	
++	//important civics
++	for (iI = 0; iI < GC.getNumCivicInfos(); iI++)
++	{
++		if (GC.getCivicInfo((CivicTypes)iI).getTechPrereq() == eTech)
++		{
++			iValue += GC.getCivicInfo((CivicTypes)iI).getCommerceModifier(COMMERCE_CULTURE) * 2;
++		}
++	}
++	
++	return iValue;
++}
++
+ int CvPlayerAI::AI_getCultureVictoryStage()
+ {
+     int iValue;
+@@ -9839,7 +9921,7 @@
+     iNonsense += getCapitalCity()->getX();
+     iNonsense += getCapitalCity()->getY();
+ 
+-    iValue += (iNonsense % 8);
++    iValue += (iNonsense % 7);
+ 
+     if (iValue < 10)
+     {
+@@ -10081,6 +10163,10 @@
+             if (iCultureStage > 2)
+             {
+                 m_iStrategyHash |= AI_STRATEGY_CULTURE3;                
++                if (AI_cultureVictoryTechValue(getCurrentResearch()) < 100)
++                {
++                	m_iStrategyHash |= AI_STRATEGY_CULTURE4; 
++                }
+             }
+ 	    }
+ 	}
+@@ -10142,26 +10228,54 @@
+ 	    }
+ 	}
+ 	
+-	if ((m_iStrategyHash & AI_STRATEGY_DAGGER) || GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI))
+-	{
++	{//Crush
+ 		int iWarCount = 0;
+-		int iTotalWarCount = 0;
++		int iCrushValue = 0;
++		
++		iCrushValue += (iNonsense % 3);
++		
++		if (m_iStrategyHash & AI_STRATEGY_DAGGER)
++		{
++			iCrushValue += 3;			
++		}
++		if (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI))
++		{
++			iCrushValue += 2;
++		}
++
+ 		for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 		{
+-			if (GET_TEAM((TeamTypes)iI).isAlive())
++			if ((GET_TEAM((TeamTypes)iI).isAlive()) && (iI != getID()))
+ 			{
+ 				if (GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) != NO_WARPLAN)
+ 				{
+ 					iWarCount++;
+-					if ((GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) == WARPLAN_PREPARING_TOTAL)
+-						|| ((GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) == WARPLAN_TOTAL) && (GET_TEAM(getTeam()).AI_getWarPlanStateCounter((TeamTypes)iI) < 20)))
++					if (GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) == WARPLAN_PREPARING_TOTAL)
+ 					{
+-						iTotalWarCount++;
++						iCrushValue += 6;					
+ 					}
+-				}
+-			}
+-		}
+-		if ((iWarCount == 1) && (iTotalWarCount == 1))
++					else if ((GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) == WARPLAN_TOTAL) && (GET_TEAM(getTeam()).AI_getWarPlanStateCounter((TeamTypes)iI) < 20))
++					{
++						iCrushValue += 6;						
++					}
++					
++					if ((GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) == WARPLAN_DOGPILE) && (GET_TEAM(getTeam()).AI_getWarPlanStateCounter((TeamTypes)iI) < 20))
++					{
++						for (iJ = 0; iJ < MAX_TEAMS; iJ++)
++						{
++							if ((iJ != iI) && iJ != getID())
++							{
++								if (atWar((TeamTypes)iI, (TeamTypes)iJ))
++								{
++									iCrushValue += 4;
++								}
++							}
++						}
++					}
++				}
++			}
++		}
++		if ((iWarCount == 1) && (iCrushValue >= 10))
+ 		{
+ 			m_iStrategyHash |= AI_STRATEGY_CRUSH;			
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.h
+--- /trunk/CvGameCoreDLL/CvPlayerAI.h@247
++++ /trunk/CvGameCoreDLL/CvPlayerAI.h@248
+@@ -228,6 +228,8 @@
+ 
+ 	int AI_getCultureVictoryStage();
+ 	
++	int AI_cultureVictoryTechValue(TechTypes eTech);
++	
+ 	bool AI_isDoStrategy(int iStrategy);
+ 
+ 	void AI_nowHasTech(TechTypes eTech);
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@247
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@248
+@@ -1842,6 +1842,19 @@
+ 	FAssertMsg(eWarTeam != getID(), "shouldn't call this function on ourselves");
+ 	FAssertMsg(GET_TEAM(eWarTeam).isAlive(), "GET_TEAM(eWarTeam).isAlive is expected to be true");
+ 	FAssertMsg(!isAtWar(eWarTeam), "should be at peace with eWarTeam");
++	
++	bool bAnyWar = false;
++	for (iI = 0; iI < MAX_TEAMS; iI++)
++	{
++		if (GET_TEAM((TeamTypes)iI).isAlive())
++		{			
++			if (isAtWar((TeamTypes)iI))
++			{
++				bAnyWar = true;
++				break;
++			}
++		}
++	}
+ 
+ 	if (GET_TEAM(eWarTeam).isVassal(eTeam) || GET_TEAM(eWarTeam).isDefensivePact(eTeam))
+ 	{
+@@ -1857,10 +1870,13 @@
+ 	{
+ 		return DENIAL_VASSAL;
+ 	}
+-
+-	if (getAnyWarPlanCount(true) > 0)
+-	{
+-		return DENIAL_TOO_MANY_WARS;
++	
++	if (bAnyWar)
++	{
++		if (getAnyWarPlanCount(true) > 0)
++		{
++			return DENIAL_TOO_MANY_WARS;
++		}
+ 	}
+ 	
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+@@ -1924,6 +1940,14 @@
+ 					return DENIAL_ATTITUDE_THEM;
+ 				}
+ 			}
++		}
++	}
++	
++	if (!bAnyWar) // we are not in a war don't give away sneak attack information.
++	{
++		if (getAnyWarPlanCount(true) > 0)
++		{
++			return DENIAL_TOO_MANY_WARS;
+ 		}
+ 	}
+ 
+

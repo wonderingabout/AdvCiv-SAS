@@ -436,7 +436,8 @@ m_bNormalize(false),
 m_piYieldChange(NULL),
 m_pbTerrain(NULL),
 m_pbFeature(NULL),
-m_pbFeatureTerrain(NULL)
+m_pbFeatureTerrain(NULL),
+m_piFeatureRemovalDiscoverPercent(NULL) // <!-- custom: see getFeatureRemovalDiscoverPercent (Claude code Opus 5.5) -->
 {}
 
 CvBonusInfo::~CvBonusInfo()
@@ -445,6 +446,7 @@ CvBonusInfo::~CvBonusInfo()
 	SAFE_DELETE_ARRAY(m_pbTerrain);
 	SAFE_DELETE_ARRAY(m_pbFeature);
 	SAFE_DELETE_ARRAY(m_pbFeatureTerrain); // free memory - MT
+	SAFE_DELETE_ARRAY(m_piFeatureRemovalDiscoverPercent); // <!-- custom: see getFeatureRemovalDiscoverPercent (Claude code Opus 5.5) -->
 }
 
 wchar CvBonusInfo::getChar() const
@@ -604,6 +606,13 @@ bool CvBonusInfo::isFeatureTerrain(int i) const
 {
 	FAssertBounds(0, GC.getNumTerrainInfos(), i);
 	return m_pbFeatureTerrain ?	m_pbFeatureTerrain[i] : false;
+}
+
+// <!-- custom: New getter for FeatureRemovalDiscoveries; 0 when the bonus lists no entry for eFeature. See KI#1078. (Claude code Opus 5.5) -->
+int CvBonusInfo::getFeatureRemovalDiscoverPercent(FeatureTypes eFeature) const
+{
+	FAssertBounds(0, GC.getNumFeatureInfos(), eFeature);
+	return m_piFeatureRemovalDiscoverPercent ? m_piFeatureRemovalDiscoverPercent[eFeature] : 0;
 }
 
 const TCHAR* CvBonusInfo::getButton() const
@@ -771,6 +780,9 @@ bool CvBonusInfo::read(CvXMLLoadUtility* pXML)
 	pXML->SetVariableListTagPair(&m_pbTerrain, "TerrainBooleans", GC.getNumTerrainInfos());
 	pXML->SetVariableListTagPair(&m_pbFeature, "FeatureBooleans", GC.getNumFeatureInfos());
 	pXML->SetVariableListTagPair(&m_pbFeatureTerrain, "FeatureTerrainBooleans", GC.getNumTerrainInfos());
+	// <!-- custom: Read on the bonus side because FeatureInfos load before BonusInfos, so a FeatureInfo could not yet name a bonus.
+	// The disabled XML file cache is not extended. (Claude code Opus 5.5) -->
+	pXML->SetVariableListTagPair(&m_piFeatureRemovalDiscoverPercent, "FeatureRemovalDiscoveries", GC.getNumFeatureInfos());
 
 	return true;
 }

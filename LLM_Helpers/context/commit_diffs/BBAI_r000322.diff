@@ -1,0 +1,38 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 322
+# Author: iustus
+# Date: 2007-01-29T18:54:02.453999Z
+# Coverage: full
+# Message:
+#   turned off sync logging #defines
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@321
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@322
+@@ -39,7 +39,7 @@
+ 
+ // for testing only
+ #ifndef FINAL_RELEASE
+-#define TESTING_EXTRA_SAVE_DATA
++//#define TESTING_EXTRA_SAVE_DATA
+ //#define DEBUG_OUT_OF_SYNCS
+ #endif
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@321
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@322
+@@ -23,7 +23,7 @@
+ 
+ // for testing only
+ #ifndef FINAL_RELEASE
+-#define DEBUG_OUT_OF_SYNCS
++//#define DEBUG_OUT_OF_SYNCS
+ #endif
+ 
+ #define FOUND_RANGE				(6)
+

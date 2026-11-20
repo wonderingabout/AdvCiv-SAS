@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 128
+# Author: iustus
+# Date: 2006-11-30T22:16:19.966864Z
+# Coverage: full
+# Message:
+#   backed out unnecessary change to the trade strings under chipotle
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvDeal.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDeal.cpp
+--- /trunk/CvGameCoreDLL/CvDeal.cpp@127
++++ /trunk/CvGameCoreDLL/CvDeal.cpp@128
+@@ -90,7 +90,7 @@
+ 			{
+ 				szDealString.clear();
+ 				GAMETEXT.getDealString(szDealString, *this, iActivePlayer);
+-				szString.Format(L"%s: %s%s", szCancelString.GetCString(), szDealString.GetCString(), bKillTeam ? "" : "(duplicate?)");
++				szString.Format(L"%s: %s", szCancelString.GetCString(), szDealString.GetCString());
+ 				gDLL->getInterfaceIFace()->addMessage((PlayerTypes)iActivePlayer, true, GC.getDefineINT("EVENT_MESSAGE_TIME"), szString);
+ 			}
+ 		}
+

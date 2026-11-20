@@ -1,0 +1,2406 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 485
+# Author: jdog5000
+# Date: 2009-09-05T04:46:20.604804Z
+# Coverage: full
+# Message:
+#   0.81j
+#   
+#   Adapted getAttitudeVal cache system from CAR
+#   Added path length to CvUnitAI::AI_protect
+#   Profiler changes
+# Changed paths (17):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.ncb
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.h
+#   M /trunk/CvGameCoreDLL/CvPlotGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.ncb
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@484
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@485
+@@ -4436,12 +4436,12 @@
+ 	CvWString szTempBuffer;
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      08/08/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      09/03/09                                jdog5000      */
+ /**                                                                                              */
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.81G");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.81J");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /*************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@484
++++ /trunk/CvGameCoreDLL/CvGame.cpp@485
+@@ -4796,6 +4796,27 @@
+ {
+ 	FAssertMsg(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++	// From Sanguo Mod Performance, ie the CAR Mod
++	// Attitude cache
++	if (iRank != m_aiPlayerRank[ePlayer])
++	{
++		for (int iI = 0; iI < MAX_PLAYERS; iI++)
++		{
++			if (GET_PLAYER((PlayerTypes)iI).isAlive())
++			{
++				GET_PLAYER(ePlayer).AI_invalidateAttitudeCache((PlayerTypes)iI);
++				GET_PLAYER((PlayerTypes)iI).AI_invalidateAttitudeCache(ePlayer);
++			}
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	m_aiPlayerRank[ePlayer] = iRank;
+ 	FAssert(getPlayerRank(ePlayer) >= 0);
+ }
+@@ -5394,6 +5415,25 @@
+ 		}
+ 
+ 		AI_makeAssignWorkDirty();
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++		// From Sanguo Mod Performance, ie the CAR Mod
++		// Attitude cache
++		for (int iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
++		{
++			if (GET_PLAYER((PlayerTypes)iJ).isAlive() && GET_PLAYER((PlayerTypes)iI).getStateReligion() == eIndex)
++			{
++				GET_PLAYER(pNewValue->getOwnerINLINE()).AI_invalidateAttitudeCache((PlayerTypes)iJ);
++				GET_PLAYER((PlayerTypes)iJ).AI_invalidateAttitudeCache(pNewValue->getOwnerINLINE());
++			}
++		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	}
+ }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj
+--- /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj@484
++++ /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj@485
+@@ -87,6 +87,7 @@
+ 				Name="VCCLCompilerTool"
+ 				Optimization="2"
+ 				GlobalOptimizations="TRUE"
++				InlineFunctionExpansion="2"
+ 				EnableIntrinsicFunctions="TRUE"
+ 				OmitFramePointers="TRUE"
+ 				OptimizeForProcessor="3"
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@484
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@485
+@@ -1677,10 +1677,7 @@
+ 
+ 	if (gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_SAFE_TERRITORY)
+ 	{
+-		if (!(pFromPlot->isRevealed(pSelectionGroup->getHeadTeam(), false)))
+-		{
+-			return FALSE;
+-		}
++		PROFILE("pathValid move save");
+ 
+ 		if (pFromPlot->isOwned())
+ 		{
+@@ -1689,10 +1686,17 @@
+ 				return FALSE;
+ 			}
+ 		}
++
++		if (!(pFromPlot->isRevealed(pSelectionGroup->getHeadTeam(), false)))
++		{
++			return FALSE;
++		}
+ 	}
+ 
+ 	if (gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_NO_ENEMY_TERRITORY)
+ 	{
++		PROFILE("pathValid no enemy");
++
+ 		if (pFromPlot->isOwned())
+ 		{
+ 			if (atWar(pFromPlot->getTeam(), pSelectionGroup->getHeadTeam()))
+@@ -1706,6 +1710,8 @@
+ 	// BBAI TODO: fix this check to allow all terrain sea units to move diagonally over land
+ 	if (pSelectionGroup->getDomainType() == DOMAIN_SEA)
+ 	{
++		PROFILE("pathValid domain sea");
++
+ 		if (pFromPlot->isWater() && pToPlot->isWater())
+ 		{
+ 			if (!(GC.getMapINLINE().plotINLINE(parent->m_iX, node->m_iY)->isWater()) && !(GC.getMapINLINE().plotINLINE(node->m_iX, parent->m_iY)->isWater()))
+@@ -1719,6 +1725,7 @@
+ 
+ 	if (bAIControl)
+ 	{
++		PROFILE("pathValid danger & invisible");
+ 		if ((parent->m_iData2 > 1) || (parent->m_iData1 == 0))
+ 		{
+ 			if (!(gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_IGNORE_DANGER))
+@@ -1745,6 +1752,8 @@
+ 
+ 	if (bAIControl || pFromPlot->isRevealed(pSelectionGroup->getHeadTeam(), false))
+ 	{
++		PROFILE("pathValid move through");
++
+ 		if (gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_THROUGH_ENEMY)
+ 		{
+ 			if (!(pSelectionGroup->canMoveOrAttackInto(pFromPlot)))
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@484
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@485
+@@ -10446,6 +10446,22 @@
+ 			}
+ 
+ 			gDLL->openSlot(getID());
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++			// From Sanguo Mod Performance, ie the CAR Mod
++			// Attitude cache
++			for( int iI = 0; iI < MAX_PLAYERS; iI++ )
++			{
++				GET_PLAYER((PlayerTypes)iI).AI_invalidateAttitudeCache(getID());
++				GET_PLAYER(getID()).AI_invalidateAttitudeCache((PlayerTypes)iI);
++			}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		}
+ 		else
+ 		{
+@@ -11072,6 +11088,24 @@
+ 
+ 			// Python Event
+ 			CvEventReporter::getInstance().playerChangeStateReligion(getID(), eNewValue, eOldReligion);
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++			// From Sanguo Mod Performance, ie the CAR Mod
++			// Attitude cache
++			for (int iI = 0; iI < GC.getMAX_PLAYERS(); iI++)
++			{
++				if (GET_PLAYER((PlayerTypes)iI).isAlive() && GET_PLAYER((PlayerTypes)iI).getStateReligion() != NO_RELIGION)
++				{
++					GET_PLAYER(getID()).AI_invalidateAttitudeCache((PlayerTypes)iI);
++					GET_PLAYER((PlayerTypes)iI).AI_invalidateAttitudeCache(getID());
++				}
++			}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		}
+ 	}
+ }
+@@ -11083,6 +11117,20 @@
+ 
+ void CvPlayer::setParent(PlayerTypes eParent)
+ {
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++	// From Sanguo Mod Performance, ie the CAR Mod
++	// Attitude cache
++	if (m_eParent != eParent)
++	{
++		GET_PLAYER(getID()).AI_invalidateAttitudeCache(eParent);
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	m_eParent = eParent;
+ }
+ 
+@@ -11135,6 +11183,28 @@
+ 	GET_TEAM(getTeam()).changeNumCities(getNumCities());
+ 	GET_TEAM(getTeam()).changeTotalPopulation(getTotalPopulation());
+ 	GET_TEAM(getTeam()).changeTotalLand(getTotalLand());
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++	// From Sanguo Mod Performance, ie the CAR Mod
++	// Attitude cache
++	if (GC.getGameINLINE().isFinalInitialized())
++	{
++		for (int iI = 0; iI < MAX_PLAYERS; iI++)
++		{
++			if( GET_PLAYER((PlayerTypes)iI).isAlive() )
++			{
++				GET_PLAYER(getID()).AI_invalidateAttitudeCache((PlayerTypes)iI);
++				GET_PLAYER((PlayerTypes)iI).AI_invalidateAttitudeCache(getID());
++			}
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ }
+ 
+ 
+@@ -12507,6 +12577,23 @@
+ 				}
+ 			}
+ 		}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++		// From Sanguo Mod Performance, ie the CAR Mod
++		// Attitude cache
++		for (int iI = 0; iI < MAX_PLAYERS; iI++)
++		{
++			GET_PLAYER(getID()).AI_invalidateAttitudeCache((PlayerTypes)iI);
++			GET_PLAYER((PlayerTypes)iI).AI_invalidateAttitudeCache(getID());
++		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	}
+ }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@484
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@485
+@@ -111,6 +111,18 @@
+ 	m_aiUnitCombatWeights = NULL;
+ 	m_aiCloseBordersAttitudeCache = new int[MAX_PLAYERS];
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++	// From Sanguo Mod Performance, ie the CAR Mod
++	// Attitude cache
++	m_aiAttitudeCache = new int[MAX_PLAYERS];
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	AI_reset(true);
+ }
+ 
+@@ -146,6 +158,19 @@
+ 	SAFE_DELETE_ARRAY(m_aiAverageCommerceMultiplier);
+ 	SAFE_DELETE_ARRAY(m_aiAverageCommerceExchange);
+ 	SAFE_DELETE_ARRAY(m_aiCloseBordersAttitudeCache);
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++	// From Sanguo Mod Performance, ie the CAR Mod
++	// Attitude cache
++	SAFE_DELETE_ARRAY(m_aiAttitudeCache);
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ }
+ 
+ 
+@@ -312,6 +337,23 @@
+ 		{
+ 			GET_PLAYER((PlayerTypes) iI).m_aiCloseBordersAttitudeCache[getID()] = 0;
+ 		}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++		// From Sanguo Mod Performance, ie the CAR Mod
++		// Attitude cache
++		m_aiAttitudeCache[iI] = MAX_INT;
++
++		if (!bConstructor && getID() != NO_PLAYER)
++		{
++			GET_PLAYER((PlayerTypes) iI).m_aiAttitudeCache[getID()] = MAX_INT;
++		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	}
+ }
+ 
+@@ -336,6 +378,18 @@
+ 
+ 	AI_doCounter();
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++	// From Sanguo Mod Performance, ie the CAR Mod
++	// Attitude cache
++	AI_invalidateAttitudeCache();
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	AI_updateBonusValue();
+ 	
+ 	AI_doEnemyUnitData();
+@@ -389,9 +443,16 @@
+ 	}
+ 
+ 	AI_doDiplo();
+-
+-	AI_doSplit();
+-
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       06/16/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++	// Moved per alexman's suggestion
++	//AI_doSplit();	
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
+ 
+ 	for (int i = 0; i < GC.getNumVictoryInfos(); ++i)
+ 	{
+@@ -629,6 +690,18 @@
+ 	{
+ 		return;
+ 	}
++
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       06/16/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++	// Moved here per alexman's suggestion
++	AI_doSplit();	
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
++
+ }
+ 
+ 
+@@ -5489,6 +5562,21 @@
+ 		}
+ 	}
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++	// From Sanguo Mod Performance, ie the CAR Mod
++	// Attitude cache
++	if (m_aiAttitudeCache[ePlayer] != MAX_INT)
++	{
++		return m_aiAttitudeCache[ePlayer];
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	iAttitude = GC.getLeaderHeadInfo(getPersonalityType()).getBaseAttitude();
+ 
+ 	iAttitude += GC.getHandicapInfo(GET_PLAYER(ePlayer).getHandicapType()).getAttitudeChange();
+@@ -5554,6 +5642,18 @@
+ 	iAttitude += AI_getColonyAttitude(ePlayer);
+ 	iAttitude += AI_getAttitudeExtra(ePlayer);
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++	// From Sanguo Mod Performance, ie the CAR Mod
++	// Attitude cache
++	m_aiAttitudeCache[ePlayer] = range(iAttitude, -100, 100);
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	return range(iAttitude, -100, 100);
+ }
+ 
+@@ -5591,19 +5691,20 @@
+ {
+ 	if (m_aiCloseBordersAttitudeCache[ePlayer] == MAX_INT)
+ 	{
+-	int iPercent;
+-
+-	if (getTeam() == GET_PLAYER(ePlayer).getTeam() || GET_TEAM(getTeam()).isVassal(GET_PLAYER(ePlayer).getTeam()) || GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isVassal(getTeam()))
+-	{
+-		return 0;
+-	}
+-
+-	iPercent = std::min(60, (AI_calculateStolenCityRadiusPlots(ePlayer) * 3));
+-
+-	if (GET_TEAM(getTeam()).AI_isLandTarget(GET_PLAYER(ePlayer).getTeam()))
+-	{
+-		iPercent += 40;
+-	}
++		PROFILE_FUNC();
++		int iPercent;
++
++		if (getTeam() == GET_PLAYER(ePlayer).getTeam() || GET_TEAM(getTeam()).isVassal(GET_PLAYER(ePlayer).getTeam()) || GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isVassal(getTeam()))
++		{
++			return 0;
++		}
++
++		iPercent = std::min(60, (AI_calculateStolenCityRadiusPlots(ePlayer) * 3));
++
++		if (GET_TEAM(getTeam()).AI_isLandTarget(GET_PLAYER(ePlayer).getTeam()))
++		{
++			iPercent += 40;
++		}
+ 
+ 		m_aiCloseBordersAttitudeCache[ePlayer] = ((GC.getLeaderHeadInfo(getPersonalityType()).getCloseBordersAttitudeChange() * iPercent) / 100);
+ 	}
+@@ -11464,6 +11565,19 @@
+ 
+ 	if (iChange != 0)
+ 	{
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++		// From Sanguo Mod Performance, ie the CAR Mod
++		// Attitude cache
++		AI_invalidateAttitudeCache(eIndex);
++		GET_PLAYER(eIndex).AI_invalidateAttitudeCache(getID());
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 		m_aiPeacetimeTradeValue[eIndex] = (m_aiPeacetimeTradeValue[eIndex] + iChange);
+ 		FAssert(AI_getPeacetimeTradeValue(eIndex) >= 0);
+ 
+@@ -11562,6 +11676,20 @@
+ {
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++	// From Sanguo Mod Performance, ie the CAR Mod
++	// Attitude cache
++	if (m_aiAttitudeExtra[eIndex] != iNewValue)
++	{
++		GET_PLAYER(getID()).AI_invalidateAttitudeCache(eIndex);
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	m_aiAttitudeExtra[eIndex] = iNewValue;
+ }
+ 
+@@ -13959,6 +14087,19 @@
+ 	pStream->Read(GC.getNumUnitClassInfos(), m_aiUnitClassWeights);
+ 	pStream->Read(GC.getNumUnitCombatInfos(), m_aiUnitCombatWeights);
+ 	pStream->Read(MAX_PLAYERS, m_aiCloseBordersAttitudeCache);
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++	// From Sanguo Mod Performance, ie the CAR Mod
++	// Attitude cache
++	AI_invalidateAttitudeCache();
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ }
+ 
+ 
+@@ -18998,6 +19139,17 @@
+ 	for (int i = 0; i < MAX_PLAYERS; ++i)
+ 	{
+ 		m_aiCloseBordersAttitudeCache[i] = MAX_INT;
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++		// From Sanguo Mod Performance, ie the CAR Mod
++		// Attitude cache
++		AI_invalidateAttitudeCache((PlayerTypes)i);
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	}
+ }
+ 
+@@ -19078,5 +19230,28 @@
+ 	return false;
+ }
+ 
+-
+-
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++// From Sanguo Mod Performance, ie the CAR Mod
++// Attitude cache
++void CvPlayerAI::AI_invalidateAttitudeCache(PlayerTypes ePlayer)
++{
++	m_aiAttitudeCache[ePlayer] = MAX_INT;
++}
++
++void CvPlayerAI::AI_invalidateAttitudeCache()
++{
++	for( int iI = 0; iI < MAX_PLAYERS; iI++ )
++	{
++		AI_invalidateAttitudeCache((PlayerTypes)iI);
++	}
++}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
++
++
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.h
+--- /trunk/CvGameCoreDLL/CvPlayerAI.h@484
++++ /trunk/CvGameCoreDLL/CvPlayerAI.h@485
+@@ -389,6 +389,19 @@
+ 
+ 	bool AI_isFirstTech(TechTypes eTech) const;
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++	// From Sanguo Mod Performance, ie the CAR Mod
++	// Attitude cache
++	void AI_invalidateAttitudeCache(PlayerTypes ePlayer);
++	void AI_invalidateAttitudeCache();
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	// for serialization
+   virtual void read(FDataStreamBase* pStream);
+   virtual void write(FDataStreamBase* pStream);
+@@ -446,6 +459,17 @@
+ 
+ 	mutable int* m_aiCloseBordersAttitudeCache;
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++	// From Sanguo Mod Performance, ie the CAR Mod
++	// Attitude cache
++	mutable int* m_aiAttitudeCache;
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 	bool* m_abFirstContact;
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlotGroup.cpp
+--- /trunk/CvGameCoreDLL/CvPlotGroup.cpp@484
++++ /trunk/CvGameCoreDLL/CvPlotGroup.cpp@485
+@@ -139,37 +139,45 @@
+ 		}
+ 	}
+ 
+-	oldPlotGroup.clear();
+-
+-	pPlotNode = headPlotsNode();
+-
+-	while (pPlotNode != NULL)
+-	{
+-		pPlot = GC.getMapINLINE().plotSorenINLINE(pPlotNode->m_data.iX, pPlotNode->m_data.iY);
+-
+-		FAssertMsg(pPlot != NULL, "Plot is not assigned a valid value");
+-
+-		xy.iX = pPlot->getX_INLINE();
+-		xy.iY = pPlot->getY_INLINE();
+-
+-		oldPlotGroup.insertAtEnd(xy);
+-
+-		pPlot->setPlotGroup(eOwner, NULL);
+-
+-		pPlotNode = deletePlotsNode(pPlotNode); // will delete this PlotGroup...
+-	}
+-
+-	pPlotNode = oldPlotGroup.head();
+-
+-	while (pPlotNode != NULL)
+-	{
+-		pPlot = GC.getMapINLINE().plotSorenINLINE(pPlotNode->m_data.iX, pPlotNode->m_data.iY);
+-
+-		FAssertMsg(pPlot != NULL, "Plot is not assigned a valid value");
+-
+-		pPlot->updatePlotGroup(eOwner, true);
+-
+-		pPlotNode = oldPlotGroup.deleteNode(pPlotNode);
++	{
++		PROFILE("CvPlotGroup::recalculatePlots update");
++
++		oldPlotGroup.clear();
++
++		pPlotNode = headPlotsNode();
++
++		while (pPlotNode != NULL)
++		{
++			PROFILE("CvPlotGroup::recalculatePlots update 1");
++
++			pPlot = GC.getMapINLINE().plotSorenINLINE(pPlotNode->m_data.iX, pPlotNode->m_data.iY);
++
++			FAssertMsg(pPlot != NULL, "Plot is not assigned a valid value");
++
++			xy.iX = pPlot->getX_INLINE();
++			xy.iY = pPlot->getY_INLINE();
++
++			oldPlotGroup.insertAtEnd(xy);
++
++			pPlot->setPlotGroup(eOwner, NULL);
++
++			pPlotNode = deletePlotsNode(pPlotNode); // will delete this PlotGroup...
++		}
++
++		pPlotNode = oldPlotGroup.head();
++
++		while (pPlotNode != NULL)
++		{
++			PROFILE("CvPlotGroup::recalculatePlots update 2");
++
++			pPlot = GC.getMapINLINE().plotSorenINLINE(pPlotNode->m_data.iX, pPlotNode->m_data.iY);
++
++			FAssertMsg(pPlot != NULL, "Plot is not assigned a valid value");
++
++			pPlot->updatePlotGroup(eOwner, true);
++
++			pPlotNode = oldPlotGroup.deleteNode(pPlotNode);
++		}
+ 	}
+ }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@484
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@485
+@@ -685,7 +685,7 @@
+ 
+ bool CvSelectionGroup::canStartMission(int iMission, int iData1, int iData2, CvPlot* pPlot, bool bTestVisible, bool bUseCache)
+ {
+-	PROFILE_FUNC();
++	//PROFILE_FUNC();
+ 
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pTargetUnit;
+@@ -1010,7 +1010,7 @@
+ 
+ void CvSelectionGroup::startMission()
+ {
+-	PROFILE_FUNC();
++	//PROFILE_FUNC();
+ 
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+@@ -2983,22 +2983,14 @@
+ 			return false;
+ 		}
+ 
+-		{
+-			PROFILE("CvSelectionGroup::isStranded() check path 1");
+-
+-			if( isHasPathToAreaPlayerCity(getOwner()) )
+-			{
+-				return false;
+-			}
+-		}
+-
+-		{
+-			PROFILE("CvSelectionGroup::isStranded() check path 2");
+-
+-			if( isHasPathToAreaEnemyCity(false) )
+-			{
+-				return false;
+-			}
++		if( isHasPathToAreaPlayerCity(getOwner()) )
++		{
++			return false;
++		}
++
++		if( isHasPathToAreaEnemyCity(false) )
++		{
++			return false;
+ 		}
+ 	}
+ 
+@@ -3048,6 +3040,8 @@
+ 
+ bool CvSelectionGroup::alwaysInvisible() const
+ {
++	PROFILE_FUNC();
++
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+ 
+@@ -3507,7 +3501,7 @@
+ 
+ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEndMove)
+ {
+-	PROFILE_FUNC();
++	//PROFILE_FUNC();
+ 
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+@@ -4330,7 +4324,7 @@
+ // Returns true if the unit is added...
+ bool CvSelectionGroup::addUnit(CvUnit* pUnit, bool bMinimalChange)
+ {
+-	PROFILE_FUNC();
++	//PROFILE_FUNC();
+ 
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+@@ -4827,7 +4821,7 @@
+ 
+ void CvSelectionGroup::insertAtEndMissionQueue(MissionData mission, bool bStart)
+ {
+-	PROFILE_FUNC();
++	//PROFILE_FUNC();
+ 
+ 	FAssert(getOwnerINLINE() != NO_PLAYER);
+ 
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@484
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@485
+@@ -337,7 +337,7 @@
+ // Returns attack odds out of 100 (the higher, the better...)
+ int CvSelectionGroupAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
+ {
+-	PROFILE_FUNC();
++	//PROFILE_FUNC();
+ 
+ 	CvUnit* pAttacker;
+ 
+@@ -720,7 +720,7 @@
+ 
+ void CvSelectionGroupAI::AI_setMissionAI(MissionAITypes eNewMissionAI, CvPlot* pNewPlot, CvUnit* pNewUnit)
+ {
+-	PROFILE_FUNC();
++	//PROFILE_FUNC();
+ 
+ 	m_eMissionAIType = eNewMissionAI;
+ 
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@484
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@485
+@@ -1364,6 +1364,41 @@
+ 			}
+ 		}
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++		// From Sanguo Mod Performance, ie the CAR Mod
++		// Attitude cache
++		if (GC.getGameINLINE().isFinalInitialized())
++		{
++			for (int iI = 0; iI < MAX_PLAYERS; iI++)
++			{
++				if( GET_PLAYER((PlayerTypes)iI).isAlive() )
++				{
++					if( GET_PLAYER((PlayerTypes)iI).getTeam() == getID() || GET_PLAYER((PlayerTypes)iI).getTeam() == eTeam
++						|| GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isAtWar(getID()) || GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isAtWar(eTeam) )
++					{
++						for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)
++						{
++							if( GET_PLAYER((PlayerTypes)iJ).isAlive() && GET_PLAYER((PlayerTypes)iJ).getTeam() != GET_PLAYER((PlayerTypes)iI).getTeam() )
++							{
++								if( GET_PLAYER((PlayerTypes)iJ).getTeam() == getID() || GET_PLAYER((PlayerTypes)iJ).getTeam() == eTeam )
++								{
++									GET_PLAYER((PlayerTypes)iJ).AI_invalidateAttitudeCache((PlayerTypes)iI);
++									GET_PLAYER((PlayerTypes)iI).AI_invalidateAttitudeCache((PlayerTypes)iJ);
++								}
++							}
++						}
++					}
++				}
++			}
++		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 		if (GC.getGameINLINE().isFinalInitialized() && !(gDLL->GetWorldBuilderMode()))
+ 		{
+ 			if (bNewDiplo)
+@@ -1597,6 +1632,41 @@
+ 				}
+ 			}
+ 		}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++		// From Sanguo Mod Performance, ie the CAR Mod
++		// Attitude cache
++		if (GC.getGameINLINE().isFinalInitialized())
++		{
++			for (int iI = 0; iI < MAX_PLAYERS; iI++)
++			{
++				if( GET_PLAYER((PlayerTypes)iI).isAlive() )
++				{
++					if( GET_PLAYER((PlayerTypes)iI).getTeam() == getID() || GET_PLAYER((PlayerTypes)iI).getTeam() == eTeam
++						|| GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isAtWar(getID()) || GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isAtWar(eTeam) )
++					{
++						for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)
++						{
++							if( GET_PLAYER((PlayerTypes)iJ).isAlive() && GET_PLAYER((PlayerTypes)iJ).getTeam() != GET_PLAYER((PlayerTypes)iI).getTeam() )
++							{
++								if( GET_PLAYER((PlayerTypes)iJ).getTeam() == getID() || GET_PLAYER((PlayerTypes)iJ).getTeam() == eTeam )
++								{
++									GET_PLAYER((PlayerTypes)iJ).AI_invalidateAttitudeCache((PlayerTypes)iI);
++									GET_PLAYER((PlayerTypes)iI).AI_invalidateAttitudeCache((PlayerTypes)iJ);
++								}
++							}
++						}
++					}
++				}
++			}
++		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 		for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 		{
+@@ -3785,6 +3855,35 @@
+ 				}
+ 			}
+ 		}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++		// From Sanguo Mod Performance, ie the CAR Mod
++		// Attitude cache
++		for (int iI = 0; iI < MAX_PLAYERS; iI++)
++		{
++			if( GET_PLAYER((PlayerTypes)iI).isAlive() )
++			{
++				for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)
++				{
++					if( GET_PLAYER((PlayerTypes)iJ).isAlive() && GET_PLAYER((PlayerTypes)iJ).getTeam() != GET_PLAYER((PlayerTypes)iI).getTeam() )
++					{
++						if( GET_PLAYER((PlayerTypes)iJ).getTeam() == getID() || GET_PLAYER((PlayerTypes)iJ).getTeam() == eIndex )
++						{
++							GET_PLAYER((PlayerTypes)iJ).AI_invalidateAttitudeCache((PlayerTypes)iI);
++							GET_PLAYER((PlayerTypes)iI).AI_invalidateAttitudeCache((PlayerTypes)iJ);
++						}
++					}
++				}
++			}
++		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	}
+ }
+ 
+@@ -4107,6 +4206,37 @@
+ 		{
+ 			CvEventReporter::getInstance().vassalState(eIndex, getID(), bNewValue);
+ 		}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++		// From Sanguo Mod Performance, ie the CAR Mod
++		// Attitude cache
++		for (int iI = 0; iI < MAX_PLAYERS; iI++)
++		{
++			if( GET_PLAYER((PlayerTypes)iI).isAlive() )
++			{
++				if( GET_PLAYER((PlayerTypes)iI).getTeam() == getID() || GET_PLAYER((PlayerTypes)iI).getTeam() == eIndex )
++				{
++					for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)
++					{
++						if( GET_PLAYER((PlayerTypes)iJ).isAlive() && GET_PLAYER((PlayerTypes)iJ).getTeam() != GET_PLAYER((PlayerTypes)iI).getTeam() )
++						{
++							if( GET_PLAYER((PlayerTypes)iJ).getTeam() == getID() || GET_PLAYER((PlayerTypes)iJ).getTeam() == eIndex )
++							{
++								GET_PLAYER((PlayerTypes)iJ).AI_invalidateAttitudeCache((PlayerTypes)iI);
++								GET_PLAYER((PlayerTypes)iI).AI_invalidateAttitudeCache((PlayerTypes)iJ);
++							}
++						}
++					}
++				}
++			}
++		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	}
+ }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@484
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@485
+@@ -3115,6 +3115,39 @@
+ {
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/**                                                                                              */
++/** Efficiency                                                                                   */
++/*************************************************************************************************/
++	// From Sanguo Mod Performance, ie the CAR Mod
++	// Attitude cache
++	if (m_aiWarSuccess[eIndex] != iNewValue)
++	{
++		for (int iI = 0; iI < MAX_PLAYERS; iI++)
++		{
++			if( GET_PLAYER((PlayerTypes)iI).isAlive() )
++			{
++				if( GET_PLAYER((PlayerTypes)iI).getTeam() == getID() || GET_PLAYER((PlayerTypes)iI).getTeam() == eIndex )
++				{
++					for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)
++					{
++						if( GET_PLAYER((PlayerTypes)iJ).isAlive() && GET_PLAYER((PlayerTypes)iJ).getTeam() != GET_PLAYER((PlayerTypes)iI).getTeam() )
++						{
++							if( GET_PLAYER((PlayerTypes)iJ).getTeam() == getID() || GET_PLAYER((PlayerTypes)iJ).getTeam() == eIndex )
++							{
++								GET_PLAYER((PlayerTypes)iJ).AI_invalidateAttitudeCache((PlayerTypes)iI);
++								GET_PLAYER((PlayerTypes)iI).AI_invalidateAttitudeCache((PlayerTypes)iJ);
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	m_aiWarSuccess[eIndex] = iNewValue;
+ 	FAssert(AI_getWarSuccess(eIndex) >= 0);
+ }
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@484
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@485
+@@ -2312,6 +2312,8 @@
+ 
+ bool CvUnit::canMoveInto(const CvPlot* pPlot, bool bAttack, bool bDeclareWar, bool bIgnoreLoad) const
+ {
++	PROFILE_FUNC();
++
+ 	FAssertMsg(pPlot != NULL, "Plot is not assigned a valid value");
+ 
+ 	if (atPlot(pPlot))
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@484
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@485
+@@ -2182,22 +2182,21 @@
+ 				}
+ 			}
+ 		}
+-
+-		if (AI_protect(35))
+-		{
+-			return;
+-		}
+-
+-		if (AI_offensiveAirlift())
+-		{
+-			return;
+-		}
+-
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      12/07/08                                jdog5000      */
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/01/09                                jdog5000      */
+ /**                                                                                              */
+ /** Unit AI                                                                                      */
+ /*************************************************************************************************/
++		if (AI_protect(35, 5))
++		{
++			return;
++		}
++
++		if (AI_offensiveAirlift())
++		{
++			return;
++		}
++
+ /* original bts code
+ 		if (AI_defend())
+ 		{
+@@ -2273,121 +2272,126 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-	{
+-		PROFILE("CvUnitAI::AI_paratrooperMove()");
+-		bool bHostile = (plot()->isOwned() && isPotentialEnemy(plot()->getTeam()));
+-		if (!bHostile)
+-		{
+-			if (AI_guardCity(true))
+-			{
+-				return;
++	bool bHostile = (plot()->isOwned() && isPotentialEnemy(plot()->getTeam()));
++	if (!bHostile)
++	{
++		if (AI_guardCity(true))
++		{
++			return;
++		}
++		
++		if (plot()->getTeam() == getTeam())
++		{
++			if (plot()->isCity())
++			{
++				if (AI_heal(30, 1))
++				{
++					return;
++				}
+ 			}
+ 			
+-			if (plot()->getTeam() == getTeam())
+-			{
+-				if (plot()->isCity())
+-				{
+-					if (AI_heal(30, 1))
+-					{
+-						return;
+-					}
+-				}
+-				
+-				AreaAITypes eAreaAIType = area()->getAreaAIType(getTeam());
+-				bool bLandWar = ((eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) || (eAreaAIType == AREAAI_MASSING));		
+-				if (!bLandWar)
+-				{
+-					if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, 0, MOVE_SAFE_TERRITORY, 4))
+-					{
+-						return;
+-					}
+-				}
+-			}
+-
+-			if (AI_guardCity(false, true, 1))
+-			{
+-				return;
+-			}
+-		}
+-
+-		if (AI_cityAttack(1, 45))
++			AreaAITypes eAreaAIType = area()->getAreaAIType(getTeam());
++			bool bLandWar = ((eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) || (eAreaAIType == AREAAI_MASSING));		
++			if (!bLandWar)
++			{
++				if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, 0, MOVE_SAFE_TERRITORY, 4))
++				{
++					return;
++				}
++			}
++		}
++
++		if (AI_guardCity(false, true, 1))
+ 		{
+ 			return;
+ 		}
++	}
++
++	if (AI_cityAttack(1, 45))
++	{
++		return;
++	}
++	
++	if (AI_anyAttack(1, 55))
++	{
++		return;
++	}
++	
++	if (!bHostile)
++	{
++		if (AI_paradrop(getDropRange()))
++		{
++			return;
++		}
++	
++		if (AI_offensiveAirlift())
++		{
++			return;
++		}
++	
++		if (AI_moveToStagingCity())
++		{
++			return;
++		}
+ 		
+-		if (AI_anyAttack(1, 55))
++		if (AI_guardFort(true))
+ 		{
+ 			return;
+ 		}
+-		
+-		if (!bHostile)
+-		{
+-			if (AI_paradrop(getDropRange()))
+-			{
+-				return;
+-			}
+-		
+-			if (AI_offensiveAirlift())
+-			{
+-				return;
+-			}
+-		
+-			if (AI_moveToStagingCity())
+-			{
+-				return;
+-			}
+-			
+-			if (AI_guardFort(true))
+-			{
+-				return;
+-			}
+-	
+-			if (AI_guardCityAirlift())
+-			{
+-				return;
+-			}
+-		}
+-
+-		if (collateralDamage() > 0)
+-		{
+-			if (AI_anyAttack(1, 45, 3))
+-			{
+-				return;
+-			}
+-		}
+-
+-		if (AI_pillageRange(1, 15))
++
++		if (AI_guardCityAirlift())
+ 		{
+ 			return;
+ 		}
+-		
+-		if (bHostile)
+-		{
+-			if (AI_choke(1))
+-			{
+-				return;
+-			}
+-		}
+-		
+-		if (AI_heal())
++	}
++
++	if (collateralDamage() > 0)
++	{
++		if (AI_anyAttack(1, 45, 3))
+ 		{
+ 			return;
+ 		}
+-
+-		if (AI_retreatToCity())
++	}
++
++	if (AI_pillageRange(1, 15))
++	{
++		return;
++	}
++	
++	if (bHostile)
++	{
++		if (AI_choke(1))
+ 		{
+ 			return;
+ 		}
+-
+-		if (AI_protect(35))
+-		{
+-			return;
+-		}
+-
+-		if (AI_safety())
+-		{
+-			return;
+-		}
++	}
++	
++	if (AI_heal())
++	{
++		return;
++	}
++
++	if (AI_retreatToCity())
++	{
++		return;
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/01/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++	//if (AI_protect(35))
++	if (AI_protect(35, 5))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++	{
++		return;
++	}
++
++	if (AI_safety())
++	{
++		return;
+ 	}
+ 
+ 	getGroup()->pushMission(MISSION_SKIP);
+@@ -2857,8 +2861,16 @@
+ 	{
+ 		return;
+ 	}
+-
+-	if (AI_protect(50))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/01/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++	//if (AI_protect(50))
++	if (AI_protect(50, 8))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	{
+ 		return;
+ 	}
+@@ -3147,7 +3159,16 @@
+ 		}
+ 	}
+ 
+-	if (AI_protect(45))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/01/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++	//if (AI_protect(45))
++	if (AI_protect(45, 8))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	{
+ 		return;
+ 	}
+@@ -3775,63 +3796,52 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-	{
+-		PROFILE("AI_missionaryMove spread");
+-		if (AI_spreadReligion())
+-		{
+-			return;
+-		}
+-
+-		if (AI_spreadCorporation())
+-		{
+-			return;
+-		}
+-	}
+-	
+-	{
+-		PROFILE("AI_missionaryMove airlift");
+-
+-		if (!isHuman() || (isAutomated() && GET_TEAM(getTeam()).getAtWarCount(true) == 0))
+-		{
+-			if (!isHuman() || (getGameTurnCreated() < GC.getGame().getGameTurn()))
+-			{
+-				if (AI_spreadReligionAirlift())
+-				{
+-					return;
+-				}
+-				if (AI_spreadCorporationAirlift())
+-				{
+-					return;
+-				}
+-			}
+-			
+-			if (!isHuman())
+-			{
+-				if (AI_load(UNITAI_MISSIONARY_SEA, MISSIONAI_LOAD_SPECIAL, NO_UNITAI, -1, -1, -1, 0, MOVE_SAFE_TERRITORY))
+-				{
+-					return;
+-				}
+-
+-				if (AI_load(UNITAI_MISSIONARY_SEA, MISSIONAI_LOAD_SPECIAL, NO_UNITAI, -1, -1, -1, 0, MOVE_NO_ENEMY_TERRITORY))
+-				{
+-					return;
+-				}
+-			}
+-		}
+-	}
+-
+-	{
+-		PROFILE("AI_missionaryMove safety");
+-
+-		if (AI_retreatToCity())
+-		{
+-			return;
+-		}
+-
+-		if (AI_safety())
+-		{
+-			return;
+-		}
++	if (AI_spreadReligion())
++	{
++		return;
++	}
++
++	if (AI_spreadCorporation())
++	{
++		return;
++	}
++
++	if (!isHuman() || (isAutomated() && GET_TEAM(getTeam()).getAtWarCount(true) == 0))
++	{
++		if (!isHuman() || (getGameTurnCreated() < GC.getGame().getGameTurn()))
++		{
++			if (AI_spreadReligionAirlift())
++			{
++				return;
++			}
++			if (AI_spreadCorporationAirlift())
++			{
++				return;
++			}
++		}
++		
++		if (!isHuman())
++		{
++			if (AI_load(UNITAI_MISSIONARY_SEA, MISSIONAI_LOAD_SPECIAL, NO_UNITAI, -1, -1, -1, 0, MOVE_SAFE_TERRITORY))
++			{
++				return;
++			}
++
++			if (AI_load(UNITAI_MISSIONARY_SEA, MISSIONAI_LOAD_SPECIAL, NO_UNITAI, -1, -1, -1, 0, MOVE_NO_ENEMY_TERRITORY))
++			{
++				return;
++			}
++		}
++	}
++
++	if (AI_retreatToCity())
++	{
++		return;
++	}
++
++	if (AI_safety())
++	{
++		return;
+ 	}
+ 
+ 	getGroup()->pushMission(MISSION_SKIP);
+@@ -4938,7 +4948,16 @@
+ 			return;			
+ 		}
+ 		
+-		if (AI_protect(30))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/01/09                                jdog5000      */
++/**                                                                                              */
++/** Pirate AI                                                                                    */
++/*************************************************************************************************/
++		//if (AI_protect(30))
++		if (AI_protect(40, 3))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		{
+ 			return;
+ 		}
+@@ -5055,7 +5074,16 @@
+ 				return;
+ 			}
+ 
+-			if (AI_protect(35))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/01/09                                jdog5000      */
++/**                                                                                              */
++/** Naval AI                                                                                     */
++/*************************************************************************************************/
++			//if (AI_protect(35))
++			if (AI_protect(35, 3))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 			{
+ 				return;
+ 			}
+@@ -5223,7 +5251,21 @@
+ 		return;
+ 	}
+ 	
+-	if (AI_protect(35))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/01/09                                jdog5000      */
++/**                                                                                              */
++/** Naval AI                                                                                     */
++/*************************************************************************************************/
++	//if (AI_protect(35))
++	if (AI_protect(35, 3))
++	{
++		return;
++	}
++
++	if (AI_protect(35, 8))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	{
+ 		return;
+ 	}
+@@ -5279,7 +5321,16 @@
+ 				return;
+ 			}
+ 
+-			if (AI_protect(40))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/01/09                                jdog5000      */
++/**                                                                                              */
++/** Naval AI                                                                                     */
++/*************************************************************************************************/
++			//if (AI_protect(40))
++			if (AI_protect(40, 3))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 			{
+ 				return;
+ 			}
+@@ -5324,7 +5375,16 @@
+ 		return;
+ 	}
+ 	
+-	if (AI_protect(40))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/01/09                                jdog5000      */
++/**                                                                                              */
++/** Naval AI                                                                                     */
++/*************************************************************************************************/
++	//if (AI_protect(40))
++	if (AI_protect(40, 5))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	{
+ 		return;
+ 	}
+@@ -5379,6 +5439,19 @@
+ 	{
+ 		return;
+ 	}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/01/09                                jdog5000      */
++/**                                                                                              */
++/** Naval AI                                                                                     */
++/*************************************************************************************************/
++	if (AI_protect(40))
++	{
++		return;
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 	if (AI_anyAttack(3, 45))
+ 	{
+@@ -6457,7 +6530,7 @@
+ 	if ((bFull || bReinforce) && !bAttack)
+ 	{
+ 		// Group with nearby transports with units on board
+-		if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ -1, -1, true, false, false, 2, true, true, false))
++		if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ -1, -1, true, false, false, 2, false, true, false))
+ 		{
+ 			return;
+ 		}
+@@ -12623,13 +12696,13 @@
+ 
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      08/19/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      09/01/09                                jdog5000      */
+ /**                                                                                              */
+ /** Unit AI, Efficiency                                                                          */
+ /*************************************************************************************************/
+ // Returns true if a mission was pushed...
+ // BBAI TODO: max path length
+-bool CvUnitAI::AI_protect(int iOddsThreshold)
++bool CvUnitAI::AI_protect(int iOddsThreshold, int iMaxPathTurns)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -12666,12 +12739,19 @@
+ 								int iPathTurns;
+ 								if( generatePath(pLoopPlot, 0, true, &iPathTurns) )
+ 								{
+-									// BBAI TODO: Scale value by path length?  Other units targeting this already (if path turns > 1 or 0)?
+-									if (iValue > iBestValue)
++									// BBAI TODO: Other units targeting this already (if path turns > 1 or 0)?
++									if( iPathTurns <= iMaxPathTurns )
+ 									{
+-										iBestValue = iValue;
+-										pBestPlot = getPathEndTurnPlot();
+-										FAssert(!atPlot(pBestPlot));
++										iValue *= 100;
++
++										iValue /= (2 + iPathTurns);
++									
++										if (iValue > iBestValue)
++										{
++											iBestValue = iValue;
++											pBestPlot = getPathEndTurnPlot();
++											FAssert(!atPlot(pBestPlot));
++										}
+ 									}
+ 								}
+ 							}
+@@ -15223,9 +15303,9 @@
+ /** War tactics AI                                                                               */
+ /*************************************************************************************************/
+ /* original bts code
+-							if (generatePath(pLoopPlot, 0, true, &iPathTurns))
++								if (generatePath(pLoopPlot, 0, true, &iPathTurns))
+ */
+-							if (generatePath(pLoopPlot, MOVE_AVOID_ENEMY_WEIGHT_3, true, &iPathTurns))
++								if (generatePath(pLoopPlot, MOVE_AVOID_ENEMY_WEIGHT_3, true, &iPathTurns))
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+@@ -15450,9 +15530,9 @@
+ }
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/15/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      09/01/09                                jdog5000      */
+ /**                                                                                              */
+-/** Naval AI                                                                                     */
++/** Naval AI, Efficiency                                                                         */
+ /*************************************************************************************************/
+ // Returns true if a mission was pushed...
+ bool CvUnitAI::AI_assaultSeaReinforce(bool bBarbarian)
+@@ -15490,264 +15570,59 @@
+ 	int iBestValue = 0;
+ 	CvPlot* pBestPlot = NULL;
+ 	CvPlot* pBestAssaultPlot = NULL;
+-
+-	// Try a timed meeting with other sea or land based assaults in enemy territory
+-	for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+-	{
+-		CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+-
+-		if (pLoopPlot->isWater() && !pLoopPlot->isCity())
+-		{
+-			continue;
+-		}
+-
+-		if (pLoopPlot->isCoastalLand() || canMoveAllTerrain())
+-		{
+-			if (pLoopPlot->isOwned())
+-			{
+-				if (isPotentialEnemy(pLoopPlot->getTeam(), pLoopPlot))
+-				{
+-					int iTargetCities = pLoopPlot->area()->getCitiesPerPlayer(pLoopPlot->getOwnerINLINE());
+-					if (iTargetCities > 0)
++	CvArea* pWaterArea = plot()->waterArea();
++	bool bCity = plot()->isCity(true,getTeam());
++	bool bCanMoveAllTerrain = getGroup()->canMoveAllTerrain();
++
++	int iTargetCities;
++	int iOurFightersHere;
++	int iPathTurns;
++	int iValue;
++
++	// Loop over nearby plots for groups in enemy territory to reinforce
++	int iRange = 2*maxMoves();
++	int iDX, iDY;
++	for (iDX = -(iRange); iDX <= iRange; iDX++)
++	{
++		for (iDY = -(iRange); iDY <= iRange; iDY++)
++		{
++			CvPlot* pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++
++			if( pLoopPlot != NULL )
++			{
++				if (pLoopPlot->isOwned())
++				{
++					if (isEnemy(pLoopPlot->getTeam(), pLoopPlot))
+ 					{
+-						int iPathTurns;
+-						// BBAI TODO:  Potentially generating paths to a lot of plots
+-						if (generatePath(pLoopPlot, MOVE_AVOID_ENEMY_WEIGHT_3, true, &iPathTurns))
++						if ( bCanMoveAllTerrain || (pWaterArea != NULL && pLoopPlot->isAdjacentToArea(pWaterArea)) )
+ 						{
+-							CvPlot* pEndTurnPlot = getPathEndTurnPlot();
+-							int iAssaultsHere = 0;
+-							int iMinAssaultTurns = MAX_INT;
+-							int iLoop;
+-							for(CvSelectionGroup* pLoopSelectionGroup = GET_PLAYER(getOwnerINLINE()).firstSelectionGroup(&iLoop); pLoopSelectionGroup; pLoopSelectionGroup = GET_PLAYER(getOwnerINLINE()).nextSelectionGroup(&iLoop))
++							iTargetCities = pLoopPlot->area()->getCitiesPerPlayer(pLoopPlot->getOwnerINLINE());
++							
++							if (iTargetCities > 0)
+ 							{
+-								if (pLoopSelectionGroup != getGroup())
++								iOurFightersHere = pLoopPlot->getNumDefenders(getOwnerINLINE());
++
++								if( iOurFightersHere > 2 )
+ 								{
+-									if( pLoopSelectionGroup->AI_getMissionAIPlot() == pLoopPlot )
+-									{
+-										MissionAITypes eGroupMissionAI = pLoopSelectionGroup->AI_getMissionAIType();
+-										
+-										if (eGroupMissionAI == MISSIONAI_ASSAULT)
+-										{
+-											iAssaultsHere += pLoopSelectionGroup->getNumUnits();
+-
+-											int iOtherPathTurns = MAX_INT;
+-											if (pLoopSelectionGroup->generatePath(pLoopSelectionGroup->plot(), pLoopPlot, MOVE_AVOID_ENEMY_WEIGHT_3, true, &iOtherPathTurns))
+-											{
+-												// We need to get there the turn after they do, +1 required whether
+-												// they move first or we do
+-												iOtherPathTurns += 1;
+-												iMinAssaultTurns = std::min(iMinAssaultTurns, iOtherPathTurns);
+-											}													
+-										}
+-									}
+-								}
+-							}
+-
+-							// Either there will be an assault here in the future or we're close and the troops we're reinforcing are already there
+-							if( ((iAssaultsHere > 0) && (iMinAssaultTurns < MAX_INT)) || (isEnemy(pLoopPlot->getTeam(), pLoopPlot) && (iPathTurns <= 2) && pLoopPlot->getNumDefenders(getOwnerINLINE()) > 2))
+-							{
+-								bool bCanCargoAllUnload = true;
+-								int iVisibleEnemyDefenders = pLoopPlot->getNumVisibleEnemyDefenders(this);
+-								if (iVisibleEnemyDefenders > 0 || pLoopPlot->isCity())
+-								{
+-									for (uint i = 0; i < aGroupCargo.size(); ++i)
+-									{
+-										CvUnit* pAttacker = aGroupCargo[i];
+-										if( iVisibleEnemyDefenders > 0 )
+-										{
+-											CvUnit* pDefender = pLoopPlot->getBestDefender(NO_PLAYER, pAttacker->getOwnerINLINE(), pAttacker, true);
+-											if (pDefender == NULL || !pAttacker->canAttack(*pDefender))
+-											{
+-												bCanCargoAllUnload = false;
+-												break;
+-											}
+-										}
+-										else if( pLoopPlot->isCity() && !(pLoopPlot->isVisible(getTeam(),false)) )
+-										{
+-											// Artillery can't naval invade, so don't try
+-											if( pAttacker->combatLimit() < 100 )
+-											{
+-												bCanCargoAllUnload = false;
+-												break;
+-											}
+-										}
+-									}
+-								}
+-
+-								int iValue = 0;
+-
+-								// Other troops will arrive there soon, we won't get there this turn
+-								if(iAssaultsHere > 0)
+-								{
+-									if(iPathTurns > 1)
+-									{
+-										if((iPathTurns >= iMinAssaultTurns) && (iPathTurns < iMinAssaultTurns + 5))
+-										{
+-											// Don't require all cargo to be able to unload incase pLoopPlot is a city,
+-											// other group will attack first and we can just reinforce if they win
+-											iValue += (iAssaultsHere * 10);
+-										}
+-									}
+-								}
+-
+-								// Other troops have already invaded enemy territory, we're nearby
+-								
+-								if(isEnemy(pLoopPlot->getTeam(), pLoopPlot))
+-								{
+-									if( (iPathTurns <= 2) )
+-									{
+-										if( bCanCargoAllUnload )
+-										{
+-											int iOurFightersHere = pLoopPlot->getNumDefenders(getOwnerINLINE());
+-											int iAdjacentAttackers = GET_PLAYER(getOwnerINLINE()).AI_adjacentPotentialAttackers(pLoopPlot);
+-											if( (iAdjacentAttackers > 2) || (iOurFightersHere > 2))
+-											{
+-												iValue += 10*iOurFightersHere;
+-												iValue += 3*iAdjacentAttackers;
+-											}
+-										}
+-									}
+-								}
+-
+-								if ( iValue > 0 )
+-								{
+-									iValue *= 1000;
+-
+-									if ((2*iTargetCities) <= iAssaultsHere)
+-									{
+-										iValue /= 2;
+-									}
+-
+-									// if more than 3 turns to get there, then put some randomness into our preference of distance
+-									// +/- 33%
+-									if (iPathTurns > 3)
+-									{
+-										int iPathAdjustment = GC.getGameINLINE().getSorenRandNum(67, "AI Assault Target");
+-
+-										iPathTurns *= 66 + iPathAdjustment;
+-										iPathTurns /= 100;
+-									}
+-
+-									iValue /= (iPathTurns + 1);
+-
+-									if (iValue > iBestValue)
+-									{
+-										iBestValue = iValue;
+-										pBestPlot = pEndTurnPlot;
+-										pBestAssaultPlot = pLoopPlot;
+-									}
+-								}
+-							}
+-						}
+-					}
+-				}
+-			}
+-		}
+-	}
+-
+-	// Reinforce our cities in need
+-	if ((pBestPlot == NULL) && (pBestAssaultPlot == NULL))
+-	{
+-		for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+-		{
+-			CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+-
+-			if (pLoopPlot->isCoastalLand())
+-			{
+-				if (pLoopPlot->getOwnerINLINE() == getOwnerINLINE())
+-				{
+-					int iVisibleEnemyDefenders = pLoopPlot->getNumVisibleEnemyDefenders(this);
+-					if (iVisibleEnemyDefenders == 0)
+-					{
+-						int iValue = 0;
+-						if(pLoopPlot->area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE)
+-						{
+-							iValue = 3;
+-						}
+-						else if(pLoopPlot->area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE)
+-						{
+-							iValue = 2;
+-						}
+-						else if(pLoopPlot->area()->getAreaAIType(getTeam()) == AREAAI_MASSING)
+-						{
+-							iValue = 1;
+-						}
+-						else if( bBarbarian && pLoopPlot->area()->getCitiesPerPlayer(BARBARIAN_PLAYER) )
+-						{
+-							iValue = 1;
+-						}
+-
+-						if( iValue > 0 )
+-						{				
+-							CvCity* pCity = pLoopPlot->getPlotCity();
+-
+-							if (pCity == NULL)
+-							{
+-								for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
+-								{
+-									CvPlot* pAdjacentPlot = plotDirection(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), ((DirectionTypes)iJ));
+-
+-									if (pAdjacentPlot != NULL)
+-									{
+-										pCity = pAdjacentPlot->getPlotCity();
+-
+-										if (pCity != NULL)
+-										{
+-											// Go directly to our cities
+-											if (pCity->getOwnerINLINE() == getOwnerINLINE() && (pCity->waterArea() != plot()->waterArea()))
+-											{
+-												break;
+-											}
+-											else
+-											{
+-												pCity = NULL;
+-											}
+-										}
+-									}
+-								}
+-							}
+-
+-							if( pCity != NULL )
+-							{
+-								if( pCity->area() != area() || (GC.getGameINLINE().getGameTurn() - pCity->getGameTurnAcquired()) < 10 || pCity->AI_isDanger() )
+-								{
+-									int iPathTurns;
++									iPathTurns;
+ 									if (generatePath(pLoopPlot, MOVE_AVOID_ENEMY_WEIGHT_3, true, &iPathTurns))
+ 									{
+-										iValue *= 10*pCity->AI_cityThreat();
+-									
+-										int iAssaultsHere = GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_ASSAULT, getGroup());
+-										iValue += (iAssaultsHere * 50);
+-
+-										int iOurPower = std::max(1, pLoopPlot->area()->getPower(getOwnerINLINE()));
+-										// Enemy power includes barb power
+-										int iEnemyPower = GET_TEAM(getTeam()).countEnemyPowerByArea(pLoopPlot->area());
+-
+-										// Don't send troops to areas we are dominating already
+-										// Don't require presence of enemy cities, just a dangerous force
+-										if( iOurPower < (2*iEnemyPower) )
++										if( iPathTurns <= 2 )
+ 										{
+-											iValue *= std::min(iEnemyPower, 3*iOurPower);
+-											iValue /= iOurPower;
+-
+-											iValue *= 1000;
+-
+-											// if more than 3 turns to get there, then put some randomness into our preference of distance
+-											// +/- 33%
+-											if (iPathTurns > 3)
+-											{
+-												int iPathAdjustment = GC.getGameINLINE().getSorenRandNum(67, "AI Assault Target");
+-
+-												iPathTurns *= 66 + iPathAdjustment;
+-												iPathTurns /= 100;
+-											}
+-
+-											iValue /= (iPathTurns + 6);
++											CvPlot* pEndTurnPlot = getPathEndTurnPlot();
++
++											iValue = 10*iTargetCities;
++											iValue += 8*iOurFightersHere;
++											iValue += 3*GET_PLAYER(getOwnerINLINE()).AI_adjacentPotentialAttackers(pLoopPlot);
++
++											iValue *= 100;
++
++											iValue /= (iPathTurns + 1);
+ 
+ 											if (iValue > iBestValue)
+ 											{
+ 												iBestValue = iValue;
+-												pBestPlot = getPathEndTurnPlot();
++												pBestPlot = pEndTurnPlot;
+ 												pBestAssaultPlot = pLoopPlot;
+ 											}
+ 										}
+@@ -15761,113 +15636,278 @@
+ 		}
+ 	}
+ 
++	// Loop over other transport groups, looking for synchronized landing
+ 	if ((pBestPlot == NULL) && (pBestAssaultPlot == NULL))
+ 	{
+-		if( GET_TEAM(getTeam()).isAVassal() )
+-		{
+-			TeamTypes eMasterTeam = NO_TEAM;
+-
+-			for( int iI = 0; iI < MAX_CIV_TEAMS; iI++ )
+-			{
+-				if( GET_TEAM(getTeam()).isVassal((TeamTypes)iI) )
+-				{
+-					eMasterTeam = (TeamTypes)iI;
+-				}
+-			}
+-
+-			if( eMasterTeam != NO_TEAM )
+-			{
+-				for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+-				{
+-					CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+-
+-					if (pLoopPlot->isCoastalLand())
++		int iLoop;
++		for(CvSelectionGroup* pLoopSelectionGroup = GET_PLAYER(getOwnerINLINE()).firstSelectionGroup(&iLoop); pLoopSelectionGroup; pLoopSelectionGroup = GET_PLAYER(getOwnerINLINE()).nextSelectionGroup(&iLoop))
++		{
++			if (pLoopSelectionGroup != getGroup())
++			{				
++				if (pLoopSelectionGroup->AI_getMissionAIType() == MISSIONAI_ASSAULT)
++				{
++					CvPlot* pLoopPlot = pLoopSelectionGroup->AI_getMissionAIPlot();
++
++					if( pLoopPlot != NULL )
+ 					{
+-						if (pLoopPlot->getTeam() == eMasterTeam)
++						if (pLoopPlot->isOwned())
+ 						{
+-							int iVisibleEnemyDefenders = pLoopPlot->getNumVisibleEnemyDefenders(this);
+-							if (iVisibleEnemyDefenders == 0)
++							if (isPotentialEnemy(pLoopPlot->getTeam(), pLoopPlot))
+ 							{
+-								int iValue = 0;
+-								if(pLoopPlot->area()->getAreaAIType(eMasterTeam) == AREAAI_OFFENSIVE)
++								if ( bCanMoveAllTerrain || (pWaterArea != NULL && pLoopPlot->isAdjacentToArea(pWaterArea)) )
+ 								{
+-									iValue = 2;
+-								}
+-								else if(pLoopPlot->area()->getAreaAIType(eMasterTeam) == AREAAI_MASSING)
+-								{
+-									iValue = 1;
+-								}
+-
+-								if( iValue > 0 )
+-								{
+-									CvCity* pCity = pLoopPlot->getPlotCity();
+-
+-									if (pCity == NULL)
++									iTargetCities = pLoopPlot->area()->getCitiesPerPlayer(pLoopPlot->getOwnerINLINE());
++									if (iTargetCities > 0)
+ 									{
+-										for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
++										int iAssaultsHere = pLoopSelectionGroup->getCargo();
++											
++										if( iAssaultsHere > 2 )
+ 										{
+-											CvPlot* pAdjacentPlot = plotDirection(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), ((DirectionTypes)iJ));
+-
+-											if (pAdjacentPlot != NULL)
++											iPathTurns;
++											if (generatePath(pLoopPlot, MOVE_AVOID_ENEMY_WEIGHT_3, true, &iPathTurns))
+ 											{
+-												pCity = pAdjacentPlot->getPlotCity();
+-
+-												if (pCity != NULL)
++												CvPlot* pEndTurnPlot = getPathEndTurnPlot();
++											
++												int iOtherPathTurns = MAX_INT;
++												if (pLoopSelectionGroup->generatePath(pLoopSelectionGroup->plot(), pLoopPlot, MOVE_AVOID_ENEMY_WEIGHT_3, true, &iOtherPathTurns))
+ 												{
+-													if (pCity->getOwnerINLINE() == getOwnerINLINE())
++													// We need to get there the turn after they do, +1 required whether
++													// they move first or we do
++													iOtherPathTurns += 1;
++												}
++												else
++												{
++													// Should never happen ...
++													continue;
++												}
++
++												if( (iPathTurns >= iOtherPathTurns) && (iPathTurns < iOtherPathTurns + 5) )
++												{
++													bool bCanCargoAllUnload = true;
++													int iVisibleEnemyDefenders = pLoopPlot->getNumVisibleEnemyDefenders(this);
++													if (iVisibleEnemyDefenders > 0 || pLoopPlot->isCity())
+ 													{
+-														break;
++														for (uint i = 0; i < aGroupCargo.size(); ++i)
++														{
++															CvUnit* pAttacker = aGroupCargo[i];
++															if( iVisibleEnemyDefenders > 0 )
++															{
++																CvUnit* pDefender = pLoopPlot->getBestDefender(NO_PLAYER, pAttacker->getOwnerINLINE(), pAttacker, true);
++																if (pDefender == NULL || !pAttacker->canAttack(*pDefender))
++																{
++																	bCanCargoAllUnload = false;
++																	break;
++																}
++															}
++															else if( pLoopPlot->isCity() && !(pLoopPlot->isVisible(getTeam(),false)) )
++															{
++																// Artillery can't naval invade, so don't try
++																if( pAttacker->combatLimit() < 100 )
++																{
++																	bCanCargoAllUnload = false;
++																	break;
++																}
++															}
++														}
+ 													}
+-													else
++
++													iValue = (iAssaultsHere * 5);
++													iValue += iTargetCities*10;
++
++													iValue *= 100;
++
++													// if more than 3 turns to get there, then put some randomness into our preference of distance
++													// +/- 33%
++													if (iPathTurns > 3)
+ 													{
+-														pCity = NULL;
++														int iPathAdjustment = GC.getGameINLINE().getSorenRandNum(67, "AI Assault Target");
++
++														iPathTurns *= 66 + iPathAdjustment;
++														iPathTurns /= 100;
++													}
++
++													iValue /= (iPathTurns + 1);
++
++													if (iValue > iBestValue)
++													{
++														iBestValue = iValue;
++														pBestPlot = pEndTurnPlot;
++														pBestAssaultPlot = pLoopPlot;
+ 													}
+ 												}
+ 											}
+ 										}
+ 									}
+-
+-									if( pCity != NULL )
++								}
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++
++	// Reinforce our cities in need
++	if ((pBestPlot == NULL) && (pBestAssaultPlot == NULL))
++	{
++		int iLoop;
++		CvCity* pLoopCity;
++
++		for (pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
++		{
++			if( bCanMoveAllTerrain || (pWaterArea != NULL && (pLoopCity->waterArea(true) == pWaterArea || pLoopCity->secondWaterArea() == pWaterArea)) )
++			{
++				iValue = 0;
++				if(pLoopCity->area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE)
++				{
++					iValue = 3;
++				}
++				else if(pLoopCity->area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE)
++				{
++					iValue = 2;
++				}
++				else if(pLoopCity->area()->getAreaAIType(getTeam()) == AREAAI_MASSING)
++				{
++					iValue = 1;
++				}
++				else if( bBarbarian && (pLoopCity->area()->getCitiesPerPlayer(BARBARIAN_PLAYER) > 0) )
++				{
++					iValue = 1;
++				}
++
++				if( iValue > 0 )
++				{
++					bool bCityDanger = pLoopCity->AI_isDanger();
++					if( (bCity && pLoopCity->area() != area()) || bCityDanger || ((GC.getGameINLINE().getGameTurn() - pLoopCity->getGameTurnAcquired()) < 10 && pLoopCity->getPreviousOwner() != NO_PLAYER) )
++					{
++						int iOurPower = std::max(1, pLoopCity->area()->getPower(getOwnerINLINE()));
++						// Enemy power includes barb power
++						int iEnemyPower = GET_TEAM(getTeam()).countEnemyPowerByArea(pLoopCity->area());
++
++						// Don't send troops to areas we are dominating already
++						// Don't require presence of enemy cities, just a dangerous force
++						if( iOurPower < (3*iEnemyPower) )
++						{
++							iPathTurns;
++							if (generatePath(pLoopCity->plot(), MOVE_AVOID_ENEMY_WEIGHT_3, true, &iPathTurns))
++							{
++								iValue *= 10*pLoopCity->AI_cityThreat();
++						
++								iValue += 20 * GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopCity->plot(), MISSIONAI_ASSAULT, getGroup());
++								
++								iValue *= std::min(iEnemyPower, 3*iOurPower);
++								iValue /= iOurPower;
++
++								iValue *= 100;
++
++								// if more than 3 turns to get there, then put some randomness into our preference of distance
++								// +/- 33%
++								if (iPathTurns > 3)
++								{
++									int iPathAdjustment = GC.getGameINLINE().getSorenRandNum(67, "AI Assault Target");
++
++									iPathTurns *= 66 + iPathAdjustment;
++									iPathTurns /= 100;
++								}
++
++								iValue /= (iPathTurns + 6);
++
++								if (iValue > iBestValue)
++								{
++									iBestValue = iValue;
++									pBestPlot = (bCityDanger ? getPathEndTurnPlot() : pLoopCity->plot());
++									pBestAssaultPlot = pLoopCity->plot();
++								}
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++
++	if ((pBestPlot == NULL) && (pBestAssaultPlot == NULL))
++	{
++		if( bCity ) 
++		{
++			if( GET_TEAM(getTeam()).isAVassal() )
++			{
++				TeamTypes eMasterTeam = NO_TEAM;
++
++				for( int iI = 0; iI < MAX_CIV_TEAMS; iI++ )
++				{
++					if( GET_TEAM(getTeam()).isVassal((TeamTypes)iI) )
++					{
++						eMasterTeam = (TeamTypes)iI;
++					}
++				}
++
++				if( (eMasterTeam != NO_TEAM) && GET_TEAM(getTeam()).isOpenBorders(eMasterTeam) )
++				{
++					for( int iI = 0; iI < MAX_CIV_PLAYERS; iI++ )
++					{
++						if( GET_PLAYER((PlayerTypes)iI).getTeam() == eMasterTeam )
++						{
++							int iLoop;
++							CvCity* pLoopCity;
++
++							for (pLoopCity = GET_PLAYER((PlayerTypes)iI).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iI).nextCity(&iLoop))
++							{
++								if( pLoopCity->area() != area() )
++								{
++									iValue = 0;
++									if(pLoopCity->area()->getAreaAIType(eMasterTeam) == AREAAI_OFFENSIVE)
+ 									{
+-										int iPathTurns;
+-										if (generatePath(pLoopPlot, MOVE_AVOID_ENEMY_WEIGHT_3, true, &iPathTurns))
++										iValue = 2;
++									}
++									else if(pLoopCity->area()->getAreaAIType(eMasterTeam) == AREAAI_MASSING)
++									{
++										iValue = 1;
++									}
++
++									if( iValue > 0 )
++									{
++										if( bCanMoveAllTerrain || (pWaterArea != NULL && (pLoopCity->waterArea(true) == pWaterArea || pLoopCity->secondWaterArea() == pWaterArea)) )
+ 										{
+-											iValue *= pCity->AI_cityThreat();
+-									
+-											int iAssaultsHere = GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_ASSAULT, getGroup());
+-											iValue += (iAssaultsHere * 10);
+-
+-											int iOurPower = std::max(1, pLoopPlot->area()->getPower(getOwnerINLINE()));
+-											iOurPower += GET_TEAM(eMasterTeam).countPowerByArea(pLoopPlot->area());
++											int iOurPower = std::max(1, pLoopCity->area()->getPower(getOwnerINLINE()));
++											iOurPower += GET_TEAM(eMasterTeam).countPowerByArea(pLoopCity->area());
+ 											// Enemy power includes barb power
+-											int iEnemyPower = GET_TEAM(eMasterTeam).countEnemyPowerByArea(pLoopPlot->area());
++											int iEnemyPower = GET_TEAM(eMasterTeam).countEnemyPowerByArea(pLoopCity->area());
+ 
+ 											// Don't send troops to areas we are dominating already
+ 											// Don't require presence of enemy cities, just a dangerous force
+ 											if( iOurPower < (2*iEnemyPower) )
+ 											{
+-												iValue *= std::min(iEnemyPower, 3*iOurPower);
+-												iValue /= iOurPower;
+-
+-												iValue *= 1000;
+-
+-												// if more than 3 turns to get there, then put some randomness into our preference of distance
+-												// +/- 33%
+-												if (iPathTurns > 3)
++												int iPathTurns;
++												if (generatePath(pLoopCity->plot(), MOVE_AVOID_ENEMY_WEIGHT_3, true, &iPathTurns))
+ 												{
+-													int iPathAdjustment = GC.getGameINLINE().getSorenRandNum(67, "AI Assault Target");
+-
+-													iPathTurns *= 66 + iPathAdjustment;
+-													iPathTurns /= 100;
+-												}
+-
+-												iValue /= (iPathTurns + 1);
+-
+-												if (iValue > iBestValue)
+-												{
+-													iBestValue = iValue;
+-													pBestPlot = getPathEndTurnPlot();
+-													pBestAssaultPlot = pLoopPlot;
++													iValue *= pLoopCity->AI_cityThreat();
++											
++													iValue += 10 * GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopCity->plot(), MISSIONAI_ASSAULT, getGroup());
++												
++													iValue *= std::min(iEnemyPower, 3*iOurPower);
++													iValue /= iOurPower;
++
++													iValue *= 100;
++
++													// if more than 3 turns to get there, then put some randomness into our preference of distance
++													// +/- 33%
++													if (iPathTurns > 3)
++													{
++														int iPathAdjustment = GC.getGameINLINE().getSorenRandNum(67, "AI Assault Target");
++
++														iPathTurns *= 66 + iPathAdjustment;
++														iPathTurns /= 100;
++													}
++
++													iValue /= (iPathTurns + 1);
++
++													if (iValue > iBestValue)
++													{
++														iBestValue = iValue;
++														pBestPlot = getPathEndTurnPlot();
++														pBestAssaultPlot = pLoopCity->plot();
++													}
+ 												}
+ 											}
+ 										}
+@@ -20422,6 +20462,8 @@
+ 
+ bool CvUnitAI::AI_infiltrate()
+ {
++	PROFILE_FUNC();
++
+ 	CvCity* pLoopCity;
+ 	CvPlot* pBestPlot;
+ 
+@@ -20612,6 +20654,8 @@
+ 
+ int CvUnitAI::AI_getEspionageTargetValue(CvPlot* pPlot, int iMaxPath)
+ {
++	PROFILE_FUNC();
++
+ 	CvTeamAI& kTeam = GET_TEAM(getTeam());
+ 	int iValue = 0;
+ 
+@@ -20662,6 +20706,8 @@
+ 
+ bool CvUnitAI::AI_cityOffenseSpy(int iMaxPath)
+ {
++	PROFILE_FUNC();
++
+ 	int iBestValue = 0;
+ 	CvPlot* pBestPlot = NULL;
+ 
+@@ -20709,6 +20755,8 @@
+ 
+ bool CvUnitAI::AI_bonusOffenseSpy(int iRange)
+ {
++	PROFILE_FUNC();
++
+ 	CvPlot* pBestPlot = NULL;
+ 	int iBestValue = 0;
+ 
+@@ -20753,6 +20801,8 @@
+ //Returns true if the spy performs espionage.
+ bool CvUnitAI::AI_espionageSpy()
+ {
++	PROFILE_FUNC();
++
+ 	if (!canEspionage(plot()))
+ 	{
+ 		return false;
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@484
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@485
+@@ -146,7 +146,15 @@
+ 	bool AI_greatWork();
+ 	bool AI_offensiveAirlift();
+ 	bool AI_paradrop(int iRange);
+-	bool AI_protect(int iOddsThreshold);
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/01/09                                jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++	bool AI_protect(int iOddsThreshold, int iMaxPathTurns = MAX_INT);
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	bool AI_patrol();
+ 	bool AI_defend();
+ 	bool AI_safety();
+

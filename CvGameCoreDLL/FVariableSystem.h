@@ -91,50 +91,17 @@ public:
 		m_wszValue = wcscpy(new wchar[wcslen(wsz) + 1], wsz);
 		m_eType = FVARTYPE_WSTRING;
 	}
-	void assertType(bool) const
-	{
-		FAssert(m_eType == FVARTYPE_BOOL);
-	}
-	void assertType(char) const
-	{
-		FAssert(m_eType == FVARTYPE_CHAR);
-	}
-	void assertType(byte) const
-	{
-		FAssert(m_eType == FVARTYPE_UCHAR);
-	}
-	void assertType(short) const
-	{
-		FAssert(m_eType == FVARTYPE_SHORT);
-	}
-	void assertType(word) const
-	{
-		FAssert(m_eType == FVARTYPE_USHORT);
-	}
-	void assertType(int) const
-	{
-		FAssert(m_eType == FVARTYPE_INT);
-	}
-	void assertType(uint) const
-	{
-		FAssert(m_eType == FVARTYPE_UINT);
-	}
-	void assertType(char*) const
-	{
-		FAssert(m_eType == FVARTYPE_STRING);
-	}
-	void assertType(wchar*) const
-	{
-		FAssert(m_eType == FVARTYPE_WSTRING);
-	}
-	void assertType(const char*) const
-	{
-		FAssert(m_eType == FVARTYPE_STRING);
-	}
-	void assertType(const wchar*) const
-	{
-		FAssert(m_eType == FVARTYPE_WSTRING);
-	} // </advc>
+	void assertType(bool) const { FAssert(m_eType == FVARTYPE_BOOL); }
+	void assertType(char) const { FAssert(m_eType == FVARTYPE_CHAR); }
+	void assertType(byte) const { FAssert(m_eType == FVARTYPE_UCHAR); }
+	void assertType(short) const { FAssert(m_eType == FVARTYPE_SHORT); }
+	void assertType(word) const { FAssert(m_eType == FVARTYPE_USHORT); }
+	void assertType(int) const { FAssert(m_eType == FVARTYPE_INT); }
+	void assertType(uint) const { FAssert(m_eType == FVARTYPE_UINT); }
+	void assertType(char*) const { FAssert(m_eType == FVARTYPE_STRING); }
+	void assertType(wchar*) const { FAssert(m_eType == FVARTYPE_WSTRING); }
+	void assertType(const char*) const { FAssert(m_eType == FVARTYPE_STRING); }
+	void assertType(const wchar*) const { FAssert(m_eType == FVARTYPE_WSTRING); } // </advc>
 
 	union
 	{

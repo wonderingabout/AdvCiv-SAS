@@ -1,0 +1,327 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 505
+# Author: jdog5000
+# Date: 2009-10-31T01:08:14.825092Z
+# Coverage: full
+# Message:
+#   0.82J
+#   
+#   A couple small tweaks
+#   Mongoose SDK fixes
+# Changed paths (6):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvDeal.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@504
++++ /trunk/CvGameCoreDLL/CvCity.cpp@505
+@@ -227,7 +227,20 @@
+ 
+ 	if (lResult == 1)
+ 	{
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       10/30/09                     Mongoose & jdog5000      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++/* original bts code
+ 		if (pPlot->getFeatureType() != NO_FEATURE)
++*/
++		// From Mongoose SDK
++		// Don't remove floodplains from tiles when founding city
++		if ((pPlot->getFeatureType() != NO_FEATURE) && (pPlot->getFeatureType() != (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS")))
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 		{
+ 			pPlot->setFeatureType(NO_FEATURE);
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@504
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@505
+@@ -4454,7 +4454,7 @@
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.82H");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.82J");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvDeal.cpp
+--- /trunk/CvGameCoreDLL/CvDeal.cpp@504
++++ /trunk/CvGameCoreDLL/CvDeal.cpp@505
+@@ -767,7 +767,7 @@
+ /************************************************************************************************/
+ 			if( gTeamLogLevel >= 2 )
+ 			{
+-				logBBAI("    Player %d (%S) gives city %S due to TRADE_CITIES with %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), pCity->getName(), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++				logBBAI("    Player %d (%S) gives a city due to TRADE_CITIES with %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
+ 			}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+@@ -987,6 +987,7 @@
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
++
+ 		SAFE_DELETE_ARRAY(paeNewCivics);
+ 		break;
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@504
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@505
+@@ -3159,31 +3159,31 @@
+ 		iValue++;
+ 	}
+ 
+-	if (pCity->hasActiveWorldWonder())
+-	{
+-		iValue += 1 + pCity->getNumWorldWonders();
+-	}
+-
+-	if (pCity->isHolyCity())
+-	{
+-		iValue += 2;
+-
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      10/28/09                                jdog5000      */
+ /*                                                                                              */
+ /* War strategy AI                                                                              */
+ /************************************************************************************************/
+-		if( getStateReligion() != NO_RELIGION )
+-		{
+-			if( pCity->isHolyCity(getStateReligion()) )
+-			{
+-				iValue += 4;
+-			}
+-		}
++	if (pCity->hasActiveWorldWonder())
++	{
++		iValue += 1 + pCity->getNumWorldWonders();
++	}
++
++	for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
++	{
++		if (pCity->isHolyCity((ReligionTypes)iI))
++		{
++			iValue += 3;
++
++			if( getStateReligion() != iI )
++			{
++				iValue += 6;
++			}
++		}
++	}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-	}
+ 
+ 	if (pCity->isEverOwned(getID()))
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@504
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@505
+@@ -454,7 +454,28 @@
+ 	pUnit->getCargoUnits(aCargoUnits);
+ 	for (uint i = 0; i < aCargoUnits.size(); ++i)
+ 	{
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       10/30/09                     Mongoose & jdog5000      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++/* original BTS code
+ 		aCargoUnits[i]->setTransportUnit(this);
++*/
++		// From Mongoose SDK
++		// Check cargo types and capacity when upgrading transports
++		if (cargoSpaceAvailable(aCargoUnits[i]->getSpecialUnitType(), aCargoUnits[i]->getDomainType()) > 0)
++		{
++			aCargoUnits[i]->setTransportUnit(this);
++		}
++		else
++		{
++			aCargoUnits[i]->setTransportUnit(NULL);
++			aCargoUnits[i]->jumpToNearestValidPlot();
++		}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 	}
+ 
+ 	pUnit->kill(true);
+@@ -3177,6 +3198,20 @@
+ 		return false;
+ 	}
+ 
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       10/30/09                     Mongoose & jdog5000      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++	// From Mongoose SDK
++	if (isCargo())
++	{
++		return false;
++	}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
++
+ 	if (getCargo() > 0)
+ 	{
+ 		return false;
+@@ -3237,10 +3272,22 @@
+ 	switch (getDomainType())
+ 	{
+ 	case DOMAIN_LAND:
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       10/30/09                     Mongoose & jdog5000      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++/* original bts code
+ 		if (pPlot->isWater())
++*/
++		// From Mongoose SDK
++		if (pPlot->isWater() && !canMoveAllTerrain())
+ 		{
+ 			return true;
+ 		}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 		break;
+ 	case DOMAIN_AIR:
+ 		if (!pPlot->isFriendlyCity(*this, true))
+@@ -8232,21 +8279,21 @@
+ 		iModifier += getKamikazePercent();
+ 	}
+ 
+-	/********************************************************************************/
+-	/* 	BETTER_BTS_AI_MOD						8/16/08		DanF5771 & jdog5000	*/
+-	/* 																			*/
+-	/* 	Bugfix																	*/
+-	/********************************************************************************/
+-	/* original BTS code
++/********************************************************************************/
++/* 	BETTER_BTS_AI_MOD						8/16/08		DanF5771 & jdog5000	*/
++/* 																			*/
++/* 	Bugfix																	*/
++/********************************************************************************/
++/* original BTS code
+ 	if (getExtraCombatPercent() != 0)
+ 	{
+ 		iModifier += getExtraCombatPercent();
+ 	}
+-	*/
++*/
+ 	// ExtraCombatPercent already counted above
+-	/********************************************************************************/
+-	/* 	BETTER_BTS_AI_MOD						END								*/
+-	/********************************************************************************/
++/********************************************************************************/
++/* 	BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
+ 
+ 	if (NULL != pOther)
+ 	{
+@@ -8326,7 +8373,20 @@
+ 
+ 	if (getDomainType() != DOMAIN_AIR)
+ 	{
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       10/30/09                     Mongoose & jdog5000      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++/* original bts code
+ 		if (!pPlot->isValidDomainForLocation(*this))
++*/
++		// From Mongoose SDK
++		// Land units which are cargo cannot intercept
++		if (!pPlot->isValidDomainForLocation(*this) || isCargo())
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 		{
+ 			return false;
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@504
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@505
+@@ -785,8 +785,23 @@
+ 
+ 	if (getDomainType() != DOMAIN_AIR)
+ 	{
+-		iNeededRoundsUs = std::max(1, iNeededRoundsUs - (iBaseOdds * ((pDefender->immuneToFirstStrikes() ? 0 : (firstStrikes() + chanceFirstStrikes()/2))) / 100));
+-		iNeededRoundsThem = std::max(1, iNeededRoundsThem - ((100 - iBaseOdds) * ((immuneToFirstStrikes() ? 0 : (pDefender->firstStrikes() + pDefender->chanceFirstStrikes()/2))) / 100));
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/30/09                      Mongoose & jdog5000     */
++/*                                                                                              */
++/* Unit AI                                                                                      */
++/************************************************************************************************/
++		// From Mongoose SDK
++		if (!pDefender->immuneToFirstStrikes()) {
++			iNeededRoundsUs   -= ((iBaseOdds * firstStrikes()) + ((iBaseOdds * chanceFirstStrikes()) / 2)) / 100;
++		}
++		if (!immuneToFirstStrikes()) {
++			iNeededRoundsThem -= (((100 - iBaseOdds) * pDefender->firstStrikes()) + (((100 - iBaseOdds) * pDefender->chanceFirstStrikes()) / 2)) / 100;
++		}
++		iNeededRoundsUs   = std::max(1, iNeededRoundsUs);
++		iNeededRoundsThem = std::max(1, iNeededRoundsThem);
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 	}
+ 
+ 	int iRoundsDiff = iNeededRoundsUs - iNeededRoundsThem;
+@@ -803,7 +818,16 @@
+ 	iOdds += ((100 - iOdds) * withdrawalProbability()) / 100;
+ 	iOdds += GET_PLAYER(getOwnerINLINE()).AI_getAttackOddsChange();
+ 
+-	return std::max(1, std::min(iOdds, 99));
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/30/09                      Mongoose & jdog5000     */
++/*                                                                                              */
++/* Unit AI                                                                                      */
++/************************************************************************************************/
++	// From Mongoose SDK
++	return range(iOdds, 1, 99);
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ }
+ 
+ 
+@@ -11599,7 +11623,7 @@
+ 					// someone else winning by culture, but at the cost of $$ in holy city and diplomatic conversions (ie future wars!).  
+ 					// Doesn't seem to up our odds of winning by culture really.  Also, no foreign spread after Free Religion?  Still get
+ 					// gold for city count.
+-					if (!bCultureVictory || ((eReligion == GET_PLAYER(getOwnerINLINE()).getStateReligion()) && bHasHolyCity))
++					if (!bCultureVictory || (eReligion == GET_PLAYER(getOwnerINLINE()).getStateReligion()))
+ 					{
+ 						if (GET_PLAYER((PlayerTypes)iI).getStateReligion() == NO_RELIGION)
+ 						{
+@@ -11631,7 +11655,7 @@
+ 						iAdjustment /= ((iCityCount + 1) + iReligionCount);
+ 						iAdjustment = (((iAdjustment - 25) * 4) / 3);
+ 						
+-						iAdjustment = (std::max(10, iAdjustment));
++						iAdjustment = std::max(10, iAdjustment);
+ 						
+ 						iPlayerMultiplierPercent *= iAdjustment;
+ 						iPlayerMultiplierPercent /= 100;
+

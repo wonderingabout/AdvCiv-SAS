@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 324
+# Author: iustus
+# Date: 2007-01-29T22:42:19.909468Z
+# Coverage: full
+# Message:
+#   turned on the oosync logs for assert build
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@323
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@324
+@@ -23,7 +23,7 @@
+ 
+ // for testing only
+ #ifndef FINAL_RELEASE
+-//#define DEBUG_OUT_OF_SYNCS
++#define DEBUG_OUT_OF_SYNCS
+ #endif
+ 
+ #define FOUND_RANGE				(6)
+

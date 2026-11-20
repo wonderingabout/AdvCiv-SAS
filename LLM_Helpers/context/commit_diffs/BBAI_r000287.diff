@@ -1,0 +1,392 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 287
+# Author: blakeciv
+# Date: 2007-01-23T21:26:12.353705Z
+# Coverage: full
+# Message:
+#   Added AI_PEACE strategy infrastructure (does nothing yet but should show up if the AI thinks it's in a peaceful situation)
+#   Tweaked some other stuff in strategies (I have a little more tweaking to do too).
+#   Made a couple governor tweaks (unhealth and such)
+#   Reworked the Unit AI types for consistency - AI types are now basically either defensive or offensive and defensive types should not group with offensive types, defensive types should not group up much if it all - instead preferring to remain free so they can be shuffled to wherever the defense code tells them to go.
+#   
+#   Tweaked the floating defender stuff in a number of ways (mostly reduced), also adding extra defenders if Raging Barbarians is on.
+#   AI_isDefended should not be used much in chooseProduction now - only in extreme cases. Otherwise floating defenders should handle it.
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/AI_Defines.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/AI_Defines.h
+--- /trunk/CvGameCoreDLL/AI_Defines.h@286
++++ /trunk/CvGameCoreDLL/AI_Defines.h@287
+@@ -16,6 +16,7 @@
+ #define AI_STRATEGY_MISSIONARY          (1 << 10)
+ #define AI_STRATEGY_CRUSH				(1 << 11)  //convert units to City Attack
+ #define AI_STRATEGY_PRODUCTION          (1 << 12)
++#define AI_STRATEGY_PEACE				(1 << 13)  //lucky... neglect defenses.
+ 
+ 
+ #define AI_CITY_ROLE_VALID              (1 <<  1)    //zero is bad
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@286
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@287
+@@ -3794,21 +3794,15 @@
+ 	int iFloatingDefenders = GET_PLAYER(getOwnerINLINE()).AI_getTotalFloatingDefendersNeeded(area());
+ 	
+ 	int iTotalThreat = max(1, GET_PLAYER(getOwnerINLINE()).AI_getTotalAreaCityThreat(area()));
+-		
++	
+ 	iFloatingDefenders *= AI_cityThreat();
+ 	iFloatingDefenders += (iTotalThreat / 2);
+ 	iFloatingDefenders /= iTotalThreat;
+ 	
+-	
+-	if (!GET_PLAYER(getOwner()).AI_isDoStrategy(AI_STRATEGY_CRUSH))
+-	{		
+-		iFloatingDefenders += max(0, (getPopulation() / 6) - (getGameTurnFounded() % 3));
+-		
+-		iFloatingDefenders += AI_neededFloatingDefenders();
+-	}
+-	else
+-	{
+-		iFloatingDefenders += (AI_neededFloatingDefenders() + 2) / 4;
++	if (GET_PLAYER(getOwner()).AI_isDoStrategy(AI_STRATEGY_CRUSH))
++	{
++		iFloatingDefenders += 2;
++		iFloatingDefenders /= 2;
+ 	}
+ 	
+ 	m_iNeededFloatingDefenders = iFloatingDefenders;
+@@ -5073,15 +5067,15 @@
+ 	}
+ 	iTotalNeededDefenders -= iCount;
+ 	
+-	iCount = GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_COUNTER);
+-	if (iCount < (iTotalNeededDefenders / 2))
+-	{
+-		if (AI_chooseUnit(UNITAI_COUNTER))
+-		{
+-			return true;
+-		}
+-	}
+-	iTotalNeededDefenders -= iCount;
++//	iCount = GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_COUNTER);
++//	if (iCount < (iTotalNeededDefenders / 2))
++//	{
++//		if (AI_chooseUnit(UNITAI_COUNTER))
++//		{
++//			return true;
++//		}
++//	}
++//	iTotalNeededDefenders -= iCount;
+ 	
+ 	if (AI_chooseUnit(UNITAI_RESERVE))
+ 	{
+@@ -5886,9 +5880,12 @@
+ 						iTempValue *= iFactorPopToGrow;
+ 						
+ 						// (range 51-100) - we will grown slightly slower if we running unhealthy
+-						int iFactorUnhealth = 51 + max(0, 49 - iUnhealthLosses);
+-						iTempValue *= iFactorUnhealth;
+-						iTempValue /= 100;
++						if (iUnhealthLosses > 0)
++						{
++							int iFactorUnhealth = 26 + max(0, 49 - iUnhealthLosses);
++							iTempValue *= iFactorUnhealth;
++							iTempValue /= 100;
++						}
+ 						
+ 						// (range 8-20ish)[20ish = (6*iConsumtionPerPop)+8] - our min goal is (2*iConsumtionPerPop)
+ 						//													 per turn, if we under, give food a bonus
+@@ -5922,9 +5919,9 @@
+ 
+ 						// if this is our last plot to assign and stagnant, give an equal boost to any food tile
+ 						iFoodPerTurn -= (iExtraPopulationThatCanWork * iConsumtionPerPop);
+-						if (iExtraPopulationThatCanWork <= 1 && (iFoodPerTurn <= aiYields[YIELD_FOOD]) && aiYields[YIELD_FOOD] > 0)
++						if (iExtraPopulationThatCanWork <= 1 && (iFoodPerTurn <= 0) && aiYields[YIELD_FOOD] > 0)
+ 						{
+-							iValue += iFoodPerTurn <= 0 ? 64 : 32;
++							iValue += 180;
+ 						}
+ 					}
+ 				}
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@286
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@287
+@@ -2096,6 +2096,12 @@
+                 szTempBuffer.Format(L"\n AI Production Strategy");
+                 szString+=szTempBuffer;
+             }
++			if (GET_PLAYER(pPlot->getOwner()).AI_isDoStrategy(AI_STRATEGY_PEACE))
++            {
++                szTempBuffer.Format(L"\n AI Peace Strategy");
++                szString+=szTempBuffer;
++            }
++            
+             
+             //Area battle plans.
+             if (pPlot->area()->getAreaAIType(pPlot->getTeam()) == AREAAI_OFFENSIVE)
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@286
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@287
+@@ -6305,10 +6305,7 @@
+ 			{
+ 				if (!(GC.getUnitInfo(eUnit).isOnlyDefensive()))
+ 				{
+-					if (!(GC.getUnitInfo(eUnit).isNoDefensiveBonus()))
+-					{
+-						bValid = true;
+-					}
++					bValid = true;
+ 				}
+ 			}
+ 			break;
+@@ -6660,7 +6657,7 @@
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getCollateralDamage()) / 50);
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getMoves()) / 4);
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getWithdrawalProbability()) / 25);
+-		iValue -= ((iCombatValue * GC.getUnitInfo(eUnit).getCityAttackModifier()) / 200);
++		iValue -= ((iCombatValue * GC.getUnitInfo(eUnit).getCityAttackModifier()) / 100);
+ 		break;
+ 
+ 	case UNITAI_PILLAGE:
+@@ -6670,6 +6667,7 @@
+ 
+ 	case UNITAI_RESERVE:
+ 		iValue += iCombatValue;
++		iValue -= ((iCombatValue * GC.getUnitInfo(eUnit).getCollateralDamage()) / 200);
+ 		for (iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
+ 		{
+ 			int iCombatModifier = GC.getUnitInfo(eUnit).getUnitCombatModifier(iI);
+@@ -10031,13 +10029,13 @@
+         return m_iStrategyHash;        
+     }
+     
+-    FlavorTypes AI_FLAVOR_MILITARY = (FlavorTypes)0;
+-	FlavorTypes AI_FLAVOR_RELIGION = (FlavorTypes)1;
+-    FlavorTypes AI_FLAVOR_PRODUCTION = (FlavorTypes)2;
+-    FlavorTypes AI_FLAVOR_GOLD = (FlavorTypes)3;
+-    FlavorTypes AI_FLAVOR_SCIENCE = (FlavorTypes)4;
+-    FlavorTypes AI_FLAVOR_CULTURE = (FlavorTypes)5;
+-    FlavorTypes AI_FLAVOR_GROWTH = (FlavorTypes)6;
++    const FlavorTypes AI_FLAVOR_MILITARY = (FlavorTypes)0;
++	const FlavorTypes AI_FLAVOR_RELIGION = (FlavorTypes)1;
++    const FlavorTypes AI_FLAVOR_PRODUCTION = (FlavorTypes)2;
++    const FlavorTypes AI_FLAVOR_GOLD = (FlavorTypes)3;
++    const FlavorTypes AI_FLAVOR_SCIENCE = (FlavorTypes)4;
++    const FlavorTypes AI_FLAVOR_CULTURE = (FlavorTypes)5;
++    const FlavorTypes AI_FLAVOR_GROWTH = (FlavorTypes)6;
+     
+     int iI, iJ, iK;
+     UnitTypes eLoopUnit;
+@@ -10054,7 +10052,6 @@
+     {
+         return m_iStrategyHash;
+     }
+-        
+     
+     int iNonsense = 0;
+     iNonsense += getCapitalCity()->getX();
+@@ -10062,8 +10059,70 @@
+     
+     int iCurrentEra = getCurrentEra();
+     int iMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
++    int iParanoia = 0;
+     
+-    if (iCurrentEra <= (2+(iNonsense%2)) && (iMetCount > 0))
++    //peace
++    if (iMetCount == 0)
++    {
++    	iParanoia = 0;
++    }
++    else   
++    {
++    	for (iI = 0; iI < MAX_PLAYERS; iI++)
++    	{
++    		if ((iI != getID()) && GET_PLAYER((PlayerTypes)iI).isAlive())
++    		{
++    			if (!GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isAVassal())
++    			{
++					int iCloseness = AI_playerCloseness((PlayerTypes)iI, 5 + iCurrentEra);
++					if (iCloseness > 0)
++					{
++						int iWarMemory = GET_PLAYER((PlayerTypes)iI).AI_getMemoryAttitude(getID(), MEMORY_DECLARED_WAR);
++						if (iWarMemory > 0)
++						{
++							//they are a snake
++							iParanoia += 50 + 20 * iWarMemory;
++							break;							
++						}
++						
++						if (AI_getAttitude((PlayerTypes)iI) < ATTITUDE_PLEASED)
++						{
++							iParanoia += 30;
++						}
++					
++						//perform some personality profiling
++						for (iJ = 0; iJ < MAX_PLAYERS; iJ++)
++						{
++							//XXX the alive check means it doesn't count murder victims, should it?
++							if ((iJ != getID()) && (iI != iJ) && GET_PLAYER((PlayerTypes)iJ).isAlive() 								
++							&& GET_TEAM(getTeam()).isHasMet((TeamTypes)iJ) && !GET_TEAM(GET_PLAYER((PlayerTypes)iJ).getTeam()).isAVassal())
++							{
++								if (GET_PLAYER((PlayerTypes)iI).AI_getMemoryAttitude((PlayerTypes)iJ, MEMORY_DECLARED_WAR) > 0)
++								{
++									//Do we not hate the victim?
++									if (AI_getAttitude((PlayerTypes)iJ) >= ATTITUDE_ANNOYED)
++									{
++										iParanoia += (iCloseness < 15) ? 60 : 100;
++									}
++								}
++							}
++						}
++					}
++				}
++    		}
++    	}
++    }
++    
++    iParanoia -= iCurrentEra * 10;
++    
++    if (iParanoia < ((iMetCount > 1) ? 100 : 50))
++    {
++    	m_iStrategyHash |= AI_STRATEGY_PEACE;
++    }
++    
++    
++    //dagger
++    if ((iCurrentEra <= (2+(iNonsense%2)) && (iMetCount > 0)) && (iParanoia > 0))
+     {	    
+ 	    int iDagger = 0;
+ 	    int iAttackUnitCount = 0;
+@@ -10183,7 +10242,7 @@
+         
+         iDagger += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 40 : 0);
+         iDagger += ((iNonsense % 6) * 10);
+-        iDagger -= ((iAttackUnitCount == 0) ? 40 : 0);
++        iDagger -= ((iAttackUnitCount == 0) ? 60 : 0);
+         
+         if ((getCapitalCity()->area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (getCapitalCity()->area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE))
+         {
+@@ -10292,7 +10351,7 @@
+ 			{
+ 				if (GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) != NO_WARPLAN)
+ 				{
+-					if (!GET_TEAM(getTeam()).isAVassal())
++					if (!GET_TEAM((TeamTypes)iI).isAVassal())
+ 					{
+ 						if (GET_TEAM(getTeam()).AI_teamCloseness((TeamTypes)iI) > 0)
+ 						{
+@@ -10315,7 +10374,7 @@
+ 						{
+ 							if ((iJ != iI) && iJ != getID())
+ 							{
+-								if (atWar((TeamTypes)iI, (TeamTypes)iJ))
++								if ((atWar((TeamTypes)iI, (TeamTypes)iJ)) && !GET_TEAM((TeamTypes)iI).isAVassal())
+ 								{
+ 									iCrushValue += 4;
+ 								}
+@@ -10936,8 +10995,10 @@
+ {
+ 	PROFILE_FUNC();
+ 	int iDefenders;
++	int iCurrentEra = getCurrentEra();
+ 	
+-	iDefenders = 1 + (getCurrentEra() * pArea->getCitiesPerPlayer(getID()));
++	iDefenders = 1 + ((iCurrentEra + 1) * pArea->getCitiesPerPlayer(getID()));
++	iDefenders /= 2;
+ 	
+ 	if (AI_getTotalAreaCityThreat(pArea) == 0)
+ 	{
+@@ -10952,6 +11013,11 @@
+ 	{
+ 		iDefenders *= 2;
+ 		iDefenders /= 3;
++	}
++	
++	if ((iCurrentEra < 3) && (GC.getGameINLINE().isOption(GAMEOPTION_RAGING_BARBARIANS)))
++	{
++		iDefenders += 2;
+ 	}
+ 		
+ 	iDefenders = max(iDefenders, AI_countNumAreaHostileUnits(pArea));
+@@ -10966,7 +11032,7 @@
+ 
+ 	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_COLLATERAL);
+ 	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_RESERVE);
+-	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_COUNTER);
++	//iCount += AI_totalAreaUnitAIs(pArea, UNITAI_COUNTER);
+ 	iCount += max(0, (AI_totalAreaUnitAIs(pArea, UNITAI_CITY_DEFENSE) - (pArea->getCitiesPerPlayer(getID()) * 2)));
+ 	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_CITY_COUNTER);
+ 	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_CITY_SPECIAL);
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@286
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@287
+@@ -1916,10 +1916,10 @@
+ 		return;
+ 	}
+ 
+-    if (AI_group(UNITAI_ATTACK_CITY, -1, -1, -1, /*bIgnoreFaster*/ true))
+-	{
+-		return;
+-	}
++//    if (AI_group(UNITAI_ATTACK_CITY, -1, -1, -1, /*bIgnoreFaster*/ true))
++//	{
++//		return;
++//	}
+ 
+ 	if (AI_guardCity(false, true, 3))
+ 	{
+@@ -2119,10 +2119,10 @@
+ 		}
+ 	}
+ 
+-	if (AI_group(UNITAI_COLLATERAL, /*iMaxGroup*/ 1, -1, -1, false, false, false, /*iMaxPath*/ 4))
+-	{
+-		return;
+-	}
++//	if (AI_group(UNITAI_COLLATERAL, /*iMaxGroup*/ 1, -1, -1, false, false, false, /*iMaxPath*/ 4))
++//	{
++//		return;
++//	}
+ 
+ 	if (AI_cityAttack(3, 45))
+ 	{
+@@ -2214,10 +2214,10 @@
+ 		return;
+ 	}
+ 
+-	if (AI_group(UNITAI_PILLAGE, /*iMaxGroup*/ 1, -1, -1, false, /*bIgnoreOwnUnitType*/ true, false, /*iMaxPath*/ 4))
+-	{
+-		return;
+-	}
++//	if (AI_group(UNITAI_PILLAGE, /*iMaxGroup*/ 1, -1, -1, false, /*bIgnoreOwnUnitType*/ true, false, /*iMaxPath*/ 4))
++//	{
++//		return;
++//	}
+ 
+ //	if (AI_pillageRange(2))
+ //	{
+@@ -2338,10 +2338,10 @@
+ 		return;
+ 	}
+ 
+-    if (AI_group(UNITAI_ATTACK_CITY, -1, 3, -1, /*bIgnoreFaster*/ true))
+-	{
+-		return;
+-	}
++//    if (AI_group(UNITAI_ATTACK_CITY, -1, 3, -1, /*bIgnoreFaster*/ true))
++//	{
++//		return;
++//	}
+ 
+ 	if (AI_retreatToCity())
+ 	{
+

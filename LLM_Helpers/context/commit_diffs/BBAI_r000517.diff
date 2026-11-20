@@ -1,0 +1,660 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 517
+# Author: jdog5000
+# Date: 2010-01-16T23:33:48.002383Z
+# Coverage: full
+# Message:
+#   0.83h
+#   
+#   Small fixes and tweaks
+#   Still one crash bug which is very difficult to track down
+# Changed paths (7):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.h
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@516
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@517
+@@ -1129,8 +1129,8 @@
+ 	{
+ 		// pick granary or lighthouse, any duration
+ 		int iStrikeFlags = 0;
+-		iStrikeFlags += BUILDINGFOCUS_GOLD;
+-		iStrikeFlags += BUILDINGFOCUS_MAINTENANCE;
++		iStrikeFlags |= BUILDINGFOCUS_GOLD;
++		iStrikeFlags |= BUILDINGFOCUS_MAINTENANCE;
+ 
+ 		if(AI_chooseBuilding(iStrikeFlags))
+ 		{
+@@ -1290,7 +1290,7 @@
+     
+     if (bMaybeWaterArea)
+ 	{
+-		if( !(bLandWar && iWarSuccessRatio < -30) && !bDanger )
++		if( !(bLandWar && iWarSuccessRatio < -30) && !bDanger && !bFinancialTrouble )
+ 		{
+ 			if (kPlayer.AI_getNumTrainAIUnits(UNITAI_ATTACK_SEA) + kPlayer.AI_getNumTrainAIUnits(UNITAI_PIRATE_SEA) + kPlayer.AI_getNumTrainAIUnits(UNITAI_RESERVE_SEA) < std::min(3,kPlayer.getNumCities()))
+ 			{
+@@ -1319,7 +1319,7 @@
+ 				int iOdds = -1;
+ 				if (iAreaBestFoundValue == 0 || iWaterAreaBestFoundValue > iAreaBestFoundValue)
+ 				{
+-					iOdds = 0;
++					iOdds = 100;
+ 				}
+ 				else if (iWaterPercent > 60)
+ 				{
+@@ -1542,9 +1542,12 @@
+ 
+ 			if( (iAttackCount) == 0 )
+ 			{
+-				if (AI_chooseUnit(UNITAI_ATTACK, iStartAttackStackRand))
+-				{
+-					return;
++				if( !bFinancialTrouble )
++				{
++					if (AI_chooseUnit(UNITAI_ATTACK, iStartAttackStackRand))
++					{
++						return;
++					}
+ 				}
+ 			}
+ 			else
+@@ -1755,7 +1758,7 @@
+             }
+         }
+ 
+-        if (!bLandWar && !bDanger)
++        if (!bLandWar && !bDanger && !bFinancialTrouble)
+         {
+ 			if (kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_EXPLORE) < (kPlayer.AI_neededExplorers(pArea)))
+ 			{
+@@ -1952,7 +1955,7 @@
+ 			
+ 			int iUnitsToTransport = iAreaAttackCityUnits;
+ 			iUnitsToTransport += kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_ATTACK);
+-			iUnitsToTransport += kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_COUNTER);
++			iUnitsToTransport += kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_COUNTER)/2;
+ 
+ 			int iLocalTransports = kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_ASSAULT_SEA);
+ 			int iTransportsAtSea = 0;
+@@ -2022,10 +2025,13 @@
+ 				
+ 				if (iUnitsToTransport > (iTransportCapacity))
+ 				{
+-					if (AI_chooseUnit(UNITAI_ASSAULT_SEA))
+-					{
+-						AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA);
+-						return;
++					if (iUnitCostPercentage < (iMaxUnitSpending) || iUnitsToTransport > (2*iTransportCapacity))
++					{
++						if (AI_chooseUnit(UNITAI_ASSAULT_SEA))
++						{
++							AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA);
++							return;
++						}
+ 					}
+ 				}
+ 			}
+@@ -2225,21 +2231,24 @@
+ 	
+ 	if (!bAlwaysPeace && !(bLandWar || bAssault) && (kPlayer.AI_isDoStrategy(AI_STRATEGY_OWABWNW) || (GC.getGame().getSorenRandNum(12, "AI consider Nuke") == 0)))
+ 	{
+-		int iTotalNukes = kPlayer.AI_totalUnitAIs(UNITAI_ICBM);
+-		int iNukesWanted = 1 + 2 * std::min(kPlayer.getNumCities(), GC.getGame().getNumCities() - kPlayer.getNumCities());
+-		if ((iTotalNukes < iNukesWanted) && (GC.getGame().getSorenRandNum(100, "AI train nuke MWAHAHAH") < (90 - (80 * iTotalNukes) / iNukesWanted)))
+-		{
+-			if ((pWaterArea != NULL))
+-			{
+-				if (AI_chooseUnit(UNITAI_MISSILE_CARRIER_SEA, 50))
+-				{
+-					return;	
+-				}
+-			}
+-
+-			if (AI_chooseUnit(UNITAI_ICBM))
+-			{
+-				return;
++		if( !bFinancialTrouble )
++		{
++			int iTotalNukes = kPlayer.AI_totalUnitAIs(UNITAI_ICBM);
++			int iNukesWanted = 1 + 2 * std::min(kPlayer.getNumCities(), GC.getGame().getNumCities() - kPlayer.getNumCities());
++			if ((iTotalNukes < iNukesWanted) && (GC.getGame().getSorenRandNum(100, "AI train nuke MWAHAHAH") < (90 - (80 * iTotalNukes) / iNukesWanted)))
++			{
++				if ((pWaterArea != NULL))
++				{
++					if (AI_chooseUnit(UNITAI_MISSILE_CARRIER_SEA, 50))
++					{
++						return;	
++					}
++				}
++
++				if (AI_chooseUnit(UNITAI_ICBM))
++				{
++					return;
++				}
+ 			}
+ 		}
+ 	}   
+@@ -2317,8 +2326,8 @@
+ 		}
+ 	}
+ 	
+-	//Arr.
+-	if ((pWaterArea != NULL) && !bLandWar && !bAssault)
++	//Arr.  Don't build pirates in financial trouble, as they'll be disbanded with high probability
++	if ((pWaterArea != NULL) && !bLandWar && !bAssault && !bFinancialTrouble)
+ 	{
+ 		int iPirateCount = kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_PIRATE_SEA);
+ 		int iNeededPirates = (1 + (pWaterArea->getNumTiles() / std::max(1, 200 - iBuildUnitProb)));
+@@ -2342,7 +2351,7 @@
+ 		}
+ 	}
+ 	
+-	if (!bLandWar)
++	if (!bLandWar && !bFinancialTrouble)
+ 	{
+ 		if ((pWaterArea != NULL) && (iWaterPercent > 40))
+ 		{
+@@ -2369,7 +2378,7 @@
+ 		FAssertMsg(false, "AI_bestSpreadUnit should provide a valid unit when it returns true");
+ 	}
+ 		
+-	if (iTotalFloatingDefenders < iNeededFloatingDefenders)
++	if (iTotalFloatingDefenders < iNeededFloatingDefenders && (!bFinancialTrouble || bLandWar))
+ 	{
+ 		if (AI_chooseLeastRepresentedUnit(floatingDefenderTypes, 50))
+ 		{
+@@ -2458,7 +2467,7 @@
+ 		}
+ 	}
+ 	
+-	if (iUnitCostPercentage < iMaxUnitSpending + 4)
++	if (iUnitCostPercentage < iMaxUnitSpending + 4 && !bFinancialTrouble)
+ 	{
+ 		if ((iAircraftHave * 2 >= iAircraftNeed) && (iAircraftHave < iAircraftNeed))
+ 		{
+@@ -2487,7 +2496,7 @@
+ 			}
+ 		}
+ 
+-		if (pWaterArea != NULL)
++		if (pWaterArea != NULL && bFinancialTrouble)
+ 		{
+ 			if (kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_MISSIONARY) > 0)
+ 			{
+@@ -6556,7 +6565,6 @@
+ 					}
+ 				}
+ 
+-				// BBAI TODO: This doesn't make sense ... should only be for production tiles, right?
+ 				if ((iFoodPriority < 100) && (iProductionPriority > 100))
+ 				{
+ 					if( bOriginal )
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@516
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@517
+@@ -3631,9 +3631,9 @@
+ 	    iDogpileWarRand /= (iNumMembers + iNumVassals);
+ 	    
+ 		// calculate war threshold
+-	    int iTotalWarRandThreshold = iHighUnitSpendingPercent * (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 4 : 2);
++	    int iTotalWarRandThreshold = iHighUnitSpendingPercent * (bAggressive ? 4 : 2);
+ 	    iTotalWarRandThreshold /= 3;
+-	    iTotalWarRandThreshold += GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 1 : 0;
++	    iTotalWarRandThreshold += bAggressive ? 1 : 0;
+ 		
+ 		// we oppose war if half the non-dagger teammates in financial trouble
+ 		bool bFinancesOpposeWar = false;
+@@ -3715,7 +3715,7 @@
+ 				WarPlanTypes eWarPlan = kTeam.AI_getWarPlan(eLoopTeam);
+ 				if (!kTeam.isAtWar(eLoopTeam) && (eWarPlan == NO_WARPLAN))
+ 				{
+-					if (kTeam.canDeclareWar(eLoopTeam) && kTeam.isHasMet(eLoopTeam))
++					if (kTeam.canDeclareWar(eLoopTeam, true) && kTeam.isHasMet(eLoopTeam))
+ 					{
+ 						if( GET_TEAM(eLoopTeam).isAVassal() && !kTeam.AI_isOkayVassalTarget(eLoopTeam) )
+ 						{
+@@ -3800,7 +3800,7 @@
+ 						// dogpile war
+ 						aStartWarInfo[iTeamIndex].bPossibleDogpileWar = false;
+ 						aStartWarInfo[iTeamIndex].bEnoughDogpilePower = false;
+-						if (iNoWarAttitudeProb < 100 && (bFinancesProDogpileWar || !bFinancesOpposeWar))
++						if (iNoWarAttitudeProb < 100 && (bFinancesProDogpileWar || !bFinancesOpposeWar) && kTeam.canDeclareWar(eLoopTeam))
+ 						{
+ 							int iNoWarChance = std::max(0, iNoWarAttitudeProb + 20 - (bAggressive ? 10 : 0) - (bFinancesProDogpileWar ? 10 : 0));
+ 							if (iNoWarChance < 100)
+@@ -4526,7 +4526,7 @@
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.83g");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.83h");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@516
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@517
+@@ -15022,6 +15022,19 @@
+ 
+ 				bSomethingHappened = true;
+ 				bShowExplosion = true;
++
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      01/12/10                                jdog5000      */
++/*                                                                                              */
++/* AI logging                                                                                   */
++/************************************************************************************************/
++				if( gUnitLogLevel >= 2 )
++				{
++					logBBAI("      Spy for player %d (%S) causes revolt in %S, owned by %S (%d)", getID(), getCivilizationDescription(0), pCity->getName().GetCString(), GET_PLAYER(pCity->getOwner()).getCivilizationDescription(0), pCity->getOwner() );
++				}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 			}
+ 		}
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@516
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@517
+@@ -4900,7 +4900,7 @@
+ 					iTempValue *= -kLoopBuilding.getMaintenanceModifier();
+ 					iTempValue /= 10 * 100;
+ 
+-					// BBAI TODO: iTempValue was never used ...
++					// iTempValue was never used ...
+ 					iValue += iTempValue;
+ 				}
+ 
+@@ -15279,6 +15279,11 @@
+ 					{
+ 						if (!(pLoopUnit->isMilitaryHappiness()) || !(pLoopUnit->plot()->isCity()) || (pLoopUnit->plot()->plotCount(PUF_isMilitaryHappiness, -1, -1, getID()) > 2))
+ 						{
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      01/12/10                                jdog5000      */
++/*                                                                                              */
++/* Gold AI                                                                                      */
++/************************************************************************************************/
+ 							iValue = (10000 + GC.getGameINLINE().getSorenRandNum(1000, "Disband Unit"));
+ 
+ 							iValue *= 100 + (pLoopUnit->getUnitInfo().getProductionCost() * 3);
+@@ -15290,16 +15295,17 @@
+ 							iValue *= 100 + (pLoopUnit->getLevel() * 25);
+ 							iValue /= 100;
+ 
+-							if (pLoopUnit->canDefend() && pLoopUnit->plot()->isCity())
+-							{
+-								iValue *= 2;
+-							}
+-
+ 							if (pLoopUnit->plot()->getTeam() == pLoopUnit->getTeam())
+ 							{
+ 								iValue *= 3;
++
++								if (pLoopUnit->canDefend() && pLoopUnit->plot()->isCity())
++								{
++									iValue *= 2;
++								}
+ 							}
+ 
++							// Multiplying by higher number means unit has higher priority, less likely to be disbanded
+ 							switch (pLoopUnit->AI_getUnitAIType())
+ 							{
+ 							case UNITAI_UNKNOWN:
+@@ -15340,11 +15346,23 @@
+ 								break;
+ 
+ 							case UNITAI_EXPLORE:
+-								iValue *= 15;
++								if ((GC.getGame().getGameTurn() - pLoopUnit->getGameTurnCreated()) < 10 
++									|| pLoopUnit->plot()->getTeam() != getTeam())
++								{
++									iValue *= 15;
++								}
++								else
++								{
++									iValue *= 2;
++								}
+ 								break;
+ 
+ 							case UNITAI_MISSIONARY:
+-								iValue *= 8;
++								if ((GC.getGame().getGameTurn() - pLoopUnit->getGameTurnCreated()) < 10 
++									|| pLoopUnit->plot()->getTeam() != getTeam())
++								{
++									iValue *= 8;
++								}
+ 								break;
+ 
+ 							case UNITAI_PROPHET:
+@@ -15353,6 +15371,7 @@
+ 							case UNITAI_GENERAL:
+ 							case UNITAI_MERCHANT:
+ 							case UNITAI_ENGINEER:
++								iValue *= 20;
+ 								break;
+ 
+ 							case UNITAI_SPY:
+@@ -15373,16 +15392,31 @@
+ 								break;
+ 
+ 							case UNITAI_EXPLORE_SEA:
+-								iValue *= 25;
++								if ((GC.getGame().getGameTurn() - pLoopUnit->getGameTurnCreated()) < 10 
++									|| pLoopUnit->plot()->getTeam() != getTeam())
++								{
++									iValue *= 12;
++								}
+ 								break;
+ 
+-							case UNITAI_ASSAULT_SEA:
+ 							case UNITAI_SETTLER_SEA:
++								iValue *= 6;
++
+ 							case UNITAI_MISSIONARY_SEA:
+ 							case UNITAI_SPY_SEA:
++								iValue *= 4;
++
++							case UNITAI_ASSAULT_SEA:
+ 							case UNITAI_CARRIER_SEA:
+ 							case UNITAI_MISSILE_CARRIER_SEA:
+-								iValue *= 5;
++								if( GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0 )
++								{
++									iValue *= 5;
++								}
++								else
++								{
++									iValue *= 2;
++								}
+ 								break;
+ 
+ 							case UNITAI_PIRATE_SEA:
+@@ -15392,7 +15426,14 @@
+ 							case UNITAI_DEFENSE_AIR:
+ 							case UNITAI_CARRIER_AIR:
+ 							case UNITAI_MISSILE_AIR:
+-								iValue *= 3;
++								if( GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0 )
++								{
++									iValue *= 5;
++								}
++								else
++								{
++									iValue *= 3;
++								}
+ 								break;
+ 
+ 							default:
+@@ -15410,6 +15451,9 @@
+ 								iBestValue = iValue;
+ 								pBestUnit = pLoopUnit;
+ 							}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 						}
+ 					}
+ 				}
+@@ -15420,13 +15464,16 @@
+ 	if (pBestUnit != NULL)
+ 	{
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      01/12/10                                jdog5000      */
+ /*                                                                                              */
+ /* AI logging                                                                                   */
+ /************************************************************************************************/
+ 		if( gPlayerLogLevel >= 2 )
+ 		{
+-			logBBAI("    Player %d (%S) disbanding %S to save cash", getID(), getCivilizationDescription(0), pBestUnit->getName().GetCString());
++			CvWString szString;
++			getUnitAIString(szString, pBestUnit->AI_getUnitAIType());
++
++			logBBAI("    Player %d (%S) disbanding %S with UNITAI %S to save cash", getID(), getCivilizationDescription(0), pBestUnit->getName().GetCString(), szString.GetCString());
+ 		}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@516
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@517
+@@ -1114,8 +1114,15 @@
+ 	return true;
+ }
+ 
+-
+-bool CvTeam::canDeclareWar(TeamTypes eTeam) const
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      01/10/10                                jdog5000      */
++/*                                                                                              */
++/* War Strategy AI                                                                              */
++/************************************************************************************************/
++/// \brief Can team declare war on eTeam.
++///
++/// Option bIgnoreTreaties = true causes function to ignore temporary peace treaties.
++bool CvTeam::canDeclareWar(TeamTypes eTeam, bool bIgnoreTreaties) const
+ {
+ 	if (eTeam == getID())
+ 	{
+@@ -1137,18 +1144,21 @@
+ 		return false;
+ 	}
+ 
+-	if (isForcePeace(eTeam))
++	if (!bIgnoreTreaties && isForcePeace(eTeam))
+ 	{
+ 		return false;
+ 	}
+ 
+-	for (int i = 0; i < MAX_TEAMS; ++i)
+-	{
+-		if (i != eTeam && i != getID() && GET_TEAM(eTeam).isVassal((TeamTypes)i))
+-		{
+-			if (isForcePeace((TeamTypes)i))
+-			{
+-				return false;
++	if( !bIgnoreTreaties )
++	{
++		for (int i = 0; i < MAX_TEAMS; ++i)
++		{
++			if (i != eTeam && i != getID() && GET_TEAM(eTeam).isVassal((TeamTypes)i))
++			{
++				if (isForcePeace((TeamTypes)i))
++				{
++					return false;
++				}
+ 			}
+ 		}
+ 	}
+@@ -1179,6 +1189,9 @@
+ 
+ 	return true;
+ }
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/		
+ 
+ 
+ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan)
+
+Index: /trunk/CvGameCoreDLL/CvTeam.h
+--- /trunk/CvGameCoreDLL/CvTeam.h@516
++++ /trunk/CvGameCoreDLL/CvTeam.h@517
+@@ -48,7 +48,15 @@
+ 	void updateCommerce();
+ 
+ 	bool canChangeWarPeace(TeamTypes eTeam, bool bAllowVassal = false) const;																			// Exposed to Python
+-	DllExport bool canDeclareWar(TeamTypes eTeam) const;																// Exposed to Python
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      01/10/10                                jdog5000      */
++/*                                                                                              */
++/* War Strategy AI                                                                              */
++/************************************************************************************************/
++	DllExport bool canDeclareWar(TeamTypes eTeam, bool bIgnoreTreaties = false) const;																// Exposed to Python
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 	DllExport void declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan);										// Exposed to Python
+ 	DllExport void makePeace(TeamTypes eTeam, bool bBumpUnits = true);																		// Exposed to Python
+ 	bool canContact(TeamTypes eTeam) const;																							// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@516
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@517
+@@ -476,13 +476,13 @@
+ 		}
+         
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                         04/03/09                             jdog5000      */
++/* BETTER_BTS_AI_MOD                         01/12/10                             jdog5000      */
+ /*                                                                                              */
+ /* War strategy AI                                                                              */
+ /************************************************************************************************/
+ 		if( bTargets )
+ 		{
+-			if(iAreaCities > 0) 
++			if(iAreaCities > 0 && getAtWarCount(true) > 0) 
+ 			{
+ 				int iPower = countPowerByArea(pArea);
+ 				int iEnemyPower = countEnemyPowerByArea(pArea);
+@@ -504,22 +504,57 @@
+ 				}
+ 			}
+ 		}
++
++		if (bDeclaredTargets)
++		{
++			return AREAAI_OFFENSIVE;
++		}
++
++		if (bTargets)
++		{
++			// AI_countMilitaryWeight is based on this team's pop and cities ... if this team is the biggest, it will over estimate needed units
++			int iMilitaryWeight = AI_countMilitaryWeight(pArea);
++			int iCount = 1;
++
++			for( int iJ = 0; iJ < MAX_CIV_TEAMS; iJ++ )
++			{
++				if( iJ != getID() && GET_TEAM((TeamTypes)iJ).isAlive() )
++				{
++					if( !(GET_TEAM((TeamTypes)iJ).isBarbarian() || GET_TEAM((TeamTypes)iJ).isMinorCiv()) )
++					{
++						if( AI_getWarPlan((TeamTypes)iJ) != NO_WARPLAN )
++						{
++							iMilitaryWeight += GET_TEAM((TeamTypes)iJ).AI_countMilitaryWeight(pArea);
++							iCount++;
++
++							if( GET_TEAM((TeamTypes)iJ).isAVassal() )
++							{
++								for( int iK = 0; iK < MAX_CIV_TEAMS; iK++ )
++								{
++									if( iK != getID() && GET_TEAM((TeamTypes)iK).isAlive() )
++									{
++										if( GET_TEAM((TeamTypes)iJ).isVassal((TeamTypes)iK) )
++										{
++											iMilitaryWeight += GET_TEAM((TeamTypes)iK).AI_countMilitaryWeight(pArea);
++										}
++									}
++								}
++							}
++						}
++					}
++				}
++			}
++
++			iMilitaryWeight /= iCount;
++			
++			if ((countNumAIUnitsByArea(pArea, UNITAI_ATTACK) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_CITY) + countNumAIUnitsByArea(pArea, UNITAI_PILLAGE) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_AIR)) > (((iMilitaryWeight * iOffensiveThreshold) / 100) + 1))
++			{
++				return AREAAI_OFFENSIVE;
++			}
++		}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-
+-		if (bDeclaredTargets)
+-		{
+-			return AREAAI_OFFENSIVE;
+-		}
+-
+-		if (bTargets)
+-		{
+-			if ((countNumAIUnitsByArea(pArea, UNITAI_ATTACK) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_CITY) + countNumAIUnitsByArea(pArea, UNITAI_PILLAGE) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_AIR)) > (((AI_countMilitaryWeight(pArea) * iOffensiveThreshold) / 100) + 1))
+-			{
+-				return AREAAI_OFFENSIVE;
+-			}
+-		}
+ 
+ 		if (bTargets)
+ 		{
+@@ -4000,7 +4035,7 @@
+ 						{
+ 							if( gTeamLogLevel >= 1 )
+ 							{
+-								logBBAI("      Team %d (%S_1) switching WARPLANS against team %d (%S_2) from PREPARING_TOTAL to TOTAL with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, GET_PLAYER(GET_TEAM((TeamTypes)iI).getLeaderID()).getCivilizationDescription(0), iEnemyPowerPercent );
++								logBBAI("      Team %d (%S) switching WARPLANS against team %d (%S) from PREPARING_TOTAL to TOTAL with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, GET_PLAYER(GET_TEAM((TeamTypes)iI).getLeaderID()).getCivilizationDescription(0), iEnemyPowerPercent );
+ 							}
+ 							AI_setWarPlan(((TeamTypes)iI), WARPLAN_TOTAL);
+ 						}
+@@ -4012,7 +4047,7 @@
+ 							}
+ 							if( gTeamLogLevel >= 1 )
+ 							{
+-								logBBAI("      Team %d (%S_1) abandoning WARPLAN_TOTAL_PREPARING against team %d (%S_2) with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, GET_PLAYER(GET_TEAM((TeamTypes)iI).getLeaderID()).getCivilizationDescription(0), iEnemyPowerPercent );
++								logBBAI("      Team %d (%S) abandoning WARPLAN_TOTAL_PREPARING against team %d (%S) with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, GET_PLAYER(GET_TEAM((TeamTypes)iI).getLeaderID()).getCivilizationDescription(0), iEnemyPowerPercent );
+ 							}
+ 							AI_setWarPlan(((TeamTypes)iI), NO_WARPLAN);
+ 						}
+@@ -4207,9 +4242,9 @@
+ 	    iDogpileWarRand *= iNumMembers;
+ 	    iDogpileWarRand /= (iNumMembers + iNumVassals);
+ 	    
+-	    int iWarRandThreshold = iHighUnitSpendingPercent * (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 4 : 2);
++	    int iWarRandThreshold = iHighUnitSpendingPercent * (bAggressive ? 4 : 2);
+ 	    iWarRandThreshold /= 3;
+-	    iWarRandThreshold += GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 1 : 0;
++	    iWarRandThreshold += bAggressive ? 1 : 0;
+ 		
+ 		// we oppose war if half the non-dagger teammates in financial trouble
+ 		bool bFinancesOpposeWar = false;
+@@ -4267,7 +4302,7 @@
+ 		{
+ 			iOurPower = getPower(true);
+ 
+-			if (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI))
++			if (bAggressive)
+ 			{
+ 				iOurPower *= 4;
+ 				iOurPower /= 3;
+@@ -4292,7 +4327,7 @@
+ 							{
+ 								if (isHasMet((TeamTypes)iI))
+ 								{
+-									if (canDeclareWar((TeamTypes)iI))
++									if (canDeclareWar((TeamTypes)iI, true))
+ 									{
+ 										if( GET_TEAM((TeamTypes)iI).isAVassal() && !AI_isOkayVassalTarget((TeamTypes)iI) )
+ 										{
+@@ -4373,7 +4408,7 @@
+ 						{
+ 							if (isHasMet((TeamTypes)iI))
+ 							{
+-								if (canDeclareWar((TeamTypes)iI))
++								if (canDeclareWar((TeamTypes)iI, true))
+ 								{
+ 									if( GET_TEAM((TeamTypes)iI).isAVassal() && !AI_isOkayVassalTarget((TeamTypes)iI) )
+ 									{
+

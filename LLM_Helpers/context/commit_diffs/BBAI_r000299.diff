@@ -1,0 +1,94 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 299
+# Author: iustus
+# Date: 2007-01-26T15:48:57.621061Z
+# Coverage: full
+# Message:
+#   visibility bug on plots at edge of the map (only using new algorithm, so only affected exploring unless non-save compatible define was enabled)
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@298
++++ /trunk/CvGameCoreDLL/CvGame.cpp@299
+@@ -2083,7 +2083,27 @@
+ 			TeamTypes eTeam = pHeadSelectedUnit->getTeam();
+ 			int iRange = pHeadSelectedUnit->visibilityRange();
+ 
+-			CvPlotDataRegion visiblePlotRegion;
++			CvPlotDataRegion visiblePlotDataRegion;
++			pHeadSelectedUnit->getGroup()->buildVisibilityRegion(visiblePlotDataRegion);
++			for(CvPlotDataRegionIterator it = visiblePlotDataRegion.begin(); it != visiblePlotDataRegion.end(); it++)
++			{
++				XYCoords xy(getXYCoords(it));
++				CvPlot* pLoopPlot = GC.getMapINLINE().plotSorenINLINE(xy.iX, xy.iY);
++				FAssert(pLoopPlot != NULL);
++				gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_NEGATIVE_TEXT")).getColor(), PLOT_STYLE_BOX_OUTLINE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++			}
++
++			CvPlotRegion visiblePlotRegion;
++			pHeadSelectedUnit->getGroup()->buildVisibilityRegion(visiblePlotRegion);
++			for(CvPlotRegionIterator it = visiblePlotRegion.begin(); it != visiblePlotRegion.end(); it++)
++			{
++				XYCoords xy(getXYCoords(it));
++				CvPlot* pLoopPlot = GC.getMapINLINE().plotSorenINLINE(xy.iX, xy.iY);
++				FAssert(pLoopPlot != NULL);
++				gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_UNIT_TEXT")).getColor(), PLOT_STYLE_BOX_OUTLINE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++			}
++
++			/*CvPlotDataRegion visiblePlotRegion;
+ 			pHeadSelectedUnit->getGroup()->buildVisibilityRegion(visiblePlotRegion);
+ 			for(CvPlotDataRegionIterator it = visiblePlotRegion.begin(); it != visiblePlotRegion.end(); it++)
+ 			{
+@@ -2095,7 +2115,7 @@
+ 				{
+ 					gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_UNIT_TEXT")).getColor(), PLOT_STYLE_BOX_OUTLINE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+ 				}
+-			}
++			}*/
+ 
+ 			/*CvPlotDataRegion visibilityValues;
+ 			pHeadSelectedUnit->plot()->addVisiblePlots(visibilityValues, iRange, 1, eTeam);
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.h@298
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.h@299
+@@ -476,6 +476,8 @@
+ 		}
+ 	}
+ 	
++	CvMap& kMap = GC.getMapINLINE();
++
+ 	// loop through all possibilities, until a match is found
+ 	int iValidCount = 0;
+ 	for (int iPass = 0; iValidCount <= iIndex && iPass <= 2; iPass++)
+@@ -551,6 +553,17 @@
+ 			}
+ 		}
+ 
++		// wrap coordinates and invalidate plots off the edge
++		if (bPlotValid)
++		{
++			iPlotX = coordRange(iPlotX, kMap.getGridWidthINLINE(), kMap.isWrapXINLINE());
++			iPlotY = coordRange(iPlotY, kMap.getGridHeightINLINE(), kMap.isWrapYINLINE());
++			if (!kMap.isPlotINLINE(iPlotX, iPlotY))
++			{
++				bPlotValid = false;
++			}
++		}
++
+ 		// count valid plots until we get to iIndex'th one
+ 		if (bPlotValid)
+ 		{
+@@ -561,7 +574,7 @@
+ 	// did we find enough valid plots?
+ 	if (bPlotValid && iValidCount > iIndex)
+ 	{
+-		return GC.getMapINLINE().plotINLINE(iPlotX, iPlotY);
++		return kMap.plotSorenINLINE(iPlotX, iPlotY);
+ 	}
+ 
+ 	return NULL;
+

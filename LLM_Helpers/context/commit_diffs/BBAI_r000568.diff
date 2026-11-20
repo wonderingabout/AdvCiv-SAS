@@ -1,0 +1,279 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 568
+# Author: jdog5000
+# Date: 2010-05-17T00:05:38.379488Z
+# Coverage: full
+# Message:
+#   Fix AI_lead to work better for world units
+#   Better late game aggression against space launch
+#   EFs UP tweaks
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@567
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@568
+@@ -3840,6 +3840,7 @@
+ 				bFinancesProTotalWar ? L", pro Total" : L"",
+ 				bFinancesProLimitedWar ? L", pro Limited" : L"",
+ 				bFinancesProDogpileWar ? L", pro Dogpile" : L""));
++			szBuffer.append(NEWLINE);
+ 		}
+ 
+ 		// display total war items, sorting the list
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@567
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@568
+@@ -2103,11 +2103,11 @@
+ 				}
+ 
+ 			}
+-			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2))
++			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2) || getCommercePercent(COMMERCE_CULTURE) > 60)
+ 			{
+ 				iWeight *= 3;
+ 			}
+-			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE1) || getCommercePercent(COMMERCE_CULTURE) > 50)
++			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE1) || getCommercePercent(COMMERCE_CULTURE) > 40)
+ 			{
+ 				iWeight *= 2;
+ 			}
+@@ -2122,17 +2122,17 @@
+ 		// pCity == NULL
+ 		else
+ 		{
+-			if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) || getCommercePercent(COMMERCE_CULTURE) > 90 )
++			if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) || getCommercePercent(COMMERCE_CULTURE) > 80 )
+ 			{
+ 				iWeight *= 3;
+ 				iWeight /= 4;
+ 			}
+-			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2) || getCommercePercent(COMMERCE_CULTURE) > 70 )
++			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2) || getCommercePercent(COMMERCE_CULTURE) > 60 )
+ 			{
+ 				iWeight *= 2;
+ 				iWeight /= 3;
+ 			}
+-			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE1) || getCommercePercent(COMMERCE_CULTURE) > 50 )
++			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE1) || getCommercePercent(COMMERCE_CULTURE) > 40 )
+ 			{
+ 				iWeight /= 2;
+ 			}
+@@ -17688,9 +17688,20 @@
+ 		{
+ 			m_iStrategyHash |= AI_STRATEGY_LAST_STAND;
+ 		}
+-		if ((iTheirVictoryCountdown > 0) && (iTheirVictoryCountdown < iOurVictoryCountdown))
+-		{
+-			m_iStrategyHash |= AI_STRATEGY_FINAL_WAR;			
++		else if ((iTheirVictoryCountdown >= 0))
++		{
++			if((iTheirVictoryCountdown < iOurVictoryCountdown))
++			{
++				m_iStrategyHash |= AI_STRATEGY_FINAL_WAR;			
++			}
++			else if( GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) )
++			{
++				m_iStrategyHash |= AI_STRATEGY_FINAL_WAR;
++			}
++			else if( AI_isDoVictoryStrategyLevel4() || AI_isDoVictoryStrategy(AI_VICTORY_SPACE3) )
++			{
++				m_iStrategyHash |= AI_STRATEGY_FINAL_WAR;
++			}
+ 		}
+ 		
+ 		if (iOurVictoryCountdown < 0)
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@567
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@568
+@@ -956,19 +956,7 @@
+ 
+ 				for (iJ = 0; iJ < MAX_CIV_TEAMS; iJ++)
+ 				{
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       03/01/10                     Mongoose & jdog5000      */
+-/*                                                                                              */
+-/* Bugfix                                                                                       */
+-/************************************************************************************************/
+-/* original bts code
+ 					if (GET_TEAM((TeamTypes)iJ).isAlive())
+-*/
+-					// From Mongoose SDK, BarbarianPassiveTechFix
+-					if (GET_TEAM((TeamTypes)iJ).isAlive() && !GET_TEAM((TeamTypes)iJ).isBarbarian())
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
+ 					{
+ 						if (GET_TEAM((TeamTypes)iJ).isHasTech((TechTypes)iI))
+ 						{
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@567
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@568
+@@ -1153,7 +1153,7 @@
+ 	
+ 	int iClosenessValue = AI_teamCloseness(eTeam);
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      04/24/10                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      05/16/10                                jdog5000      */
+ /*                                                                                              */
+ /* War Strategy AI, Victory Strategy AI                                                         */
+ /************************************************************************************************/
+@@ -1178,7 +1178,7 @@
+ 	// Target other teams close to victory
+ 	if( GET_TEAM(eTeam).AI_isAnyMemberDoVictoryStrategyLevel3() )
+ 	{
+-		iValue++;
++		iValue += 10;
+ 
+ 		bool bAggressive = GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI);
+ 		bool bConq4 = AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CONQUEST4);
+@@ -1192,6 +1192,11 @@
+ 
+ 		if( GET_TEAM(eTeam).AI_isAnyMemberDoVictoryStrategyLevel4() )
+ 		{
++			if( GET_TEAM(eTeam).getVictoryCountdown(GC.getGameINLINE().getSpaceVictory()) >= 0 )
++			{
++				iValue += 50;
++			}
++
+ 			iValue *= 2;
+ 
+ 			if( bConq4 || bAggressive )
+@@ -1212,18 +1217,11 @@
+ 		iValue *= (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 3 : 2);
+ 	}
+ 
+-	// If early or not strong, have those inclined for conquest pick off weak opponents
+-	if( AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CONQUEST2) && !(AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CONQUEST3)) )
+-	{
+-		if( 4*getPower(false) > 5*GET_TEAM(eTeam).getDefensivePower() )
+-		{
+-			iValue *= 2;
+-		}
+-	}
+-
+-	if( getAnyWarPlanCount(true) > 0 )
+-	{
+-		int iMultiplier = (70 * getPower(false))/std::max(1, GET_TEAM(eTeam).getDefensivePower());
++	// If occupied or conquest inclined and early/not strong, value weak opponents
++	if( getAnyWarPlanCount(true) > 0 || 
++		(AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CONQUEST2) && !(AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CONQUEST3))) )
++	{
++		int iMultiplier = (75 * getPower(false))/std::max(1, GET_TEAM(eTeam).getDefensivePower());
+ 
+ 		iValue *= range(iMultiplier, 50, 400);
+ 		iValue /= 100;
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@567
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@568
+@@ -12659,53 +12659,63 @@
+ 		int iLoop;
+ 		for (CvUnit* pLoopUnit = kOwner.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kOwner.nextUnit(&iLoop))
+ 		{
+-			for (uint iI = 0; iI < aeUnitAITypes.size(); iI++)
+-			{
+-				if (pLoopUnit->AI_getUnitAIType() == aeUnitAITypes[iI] || NO_UNITAI == aeUnitAITypes[iI] || isWorldUnitClass(pLoopUnit->getUnitClassType()) )
+-				{
+-					if (canLead(pLoopUnit->plot(), pLoopUnit->getID()) > 0)
++			bool bValid = isWorldUnitClass(pLoopUnit->getUnitClassType());
++
++			if( !bValid )
++			{
++				for (uint iI = 0; iI < aeUnitAITypes.size(); iI++)
++				{
++					if (pLoopUnit->AI_getUnitAIType() == aeUnitAITypes[iI] || NO_UNITAI == aeUnitAITypes[iI])
+ 					{
+-						if (AI_plotValid(pLoopUnit->plot()))
++						bValid = true;
++						break;
++					}
++				}
++			}
++
++			if( bValid )
++			{
++				if (canLead(pLoopUnit->plot(), pLoopUnit->getID()) > 0)
++				{
++					if (AI_plotValid(pLoopUnit->plot()))
++					{
++						if (!(pLoopUnit->plot()->isVisibleEnemyUnit(this)))
+ 						{
+-							if (!(pLoopUnit->plot()->isVisibleEnemyUnit(this)))
++							if( pLoopUnit->combatLimit() == 100 )
+ 							{
+-								if( pLoopUnit->combatLimit() == 100 )
++								if (generatePath(pLoopUnit->plot(), MOVE_AVOID_ENEMY_WEIGHT_3, true))
+ 								{
+-									if (generatePath(pLoopUnit->plot(), MOVE_AVOID_ENEMY_WEIGHT_3, true))
++									// pick the unit with the highest current strength
++									int iCombatStrength = pLoopUnit->currCombatStr(NULL, NULL);
++
++									iCombatStrength *= 30 + pLoopUnit->getExperience();
++									iCombatStrength /= 30;
++
++									if( GC.getUnitClassInfo(pLoopUnit->getUnitClassType()).getMaxGlobalInstances() > -1 )
+ 									{
+-										// pick the unit with the highest current strength
+-										int iCombatStrength = pLoopUnit->currCombatStr(NULL, NULL);
+-
+-										iCombatStrength *= 30 + pLoopUnit->getExperience();
+-										iCombatStrength /= 30;
+-
+-										if( GC.getUnitClassInfo(pLoopUnit->getUnitClassType()).getMaxGlobalInstances() > -1 )
+-										{
+-											iCombatStrength *= 1 + GC.getUnitClassInfo(pLoopUnit->getUnitClassType()).getMaxGlobalInstances();
+-											iCombatStrength /= std::max(1, GC.getUnitClassInfo(pLoopUnit->getUnitClassType()).getMaxGlobalInstances());
+-										}
+-
+-										if (iCombatStrength > iBestStrength)
+-										{
+-											iBestStrength = iCombatStrength;
+-											pBestStrUnit = pLoopUnit;
+-											pBestStrPlot = getPathEndTurnPlot();
+-										}
+-										
+-										// or the unit with the best healing ability
+-										int iHealing = pLoopUnit->getSameTileHeal() + pLoopUnit->getAdjacentTileHeal();
+-										if (iHealing > iBestHealing)
+-										{
+-											iBestHealing = iHealing;
+-											pBestHealUnit = pLoopUnit;
+-											pBestHealPlot = getPathEndTurnPlot();
+-										}
++										iCombatStrength *= 1 + GC.getUnitClassInfo(pLoopUnit->getUnitClassType()).getMaxGlobalInstances();
++										iCombatStrength /= std::max(1, GC.getUnitClassInfo(pLoopUnit->getUnitClassType()).getMaxGlobalInstances());
++									}
++
++									if (iCombatStrength > iBestStrength)
++									{
++										iBestStrength = iCombatStrength;
++										pBestStrUnit = pLoopUnit;
++										pBestStrPlot = getPathEndTurnPlot();
++									}
++									
++									// or the unit with the best healing ability
++									int iHealing = pLoopUnit->getSameTileHeal() + pLoopUnit->getAdjacentTileHeal();
++									if (iHealing > iBestHealing)
++									{
++										iBestHealing = iHealing;
++										pBestHealUnit = pLoopUnit;
++										pBestHealPlot = getPathEndTurnPlot();
+ 									}
+ 								}
+ 							}
+ 						}
+ 					}
+-					break;
+ 				}
+ 			}
+ 		}
+

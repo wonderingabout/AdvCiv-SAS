@@ -19,10 +19,8 @@ class FDataStreamBase;
 #define getUWAI() GC.AI_getGame().uwai()
 
 
-/*	Setting this to 1 should remove almost all runtime overhead from logging in
-	optimized release builds. The overhead should be pretty small in any case,
-	so I'd rather keep logging available (via an XML switch) in releases. */
-#define DISABLE_UWAI_REPORT 0
+// <!-- custom: Base AdvCiv used DISABLE_UWAI_REPORT as a compile-time escape hatch for its standalone UWAI logger.
+// AdvCiv-SAS removes that separate logger; cached SAS_BBAI_UWAI_* caller gates suppress disabled diagnostics without recompilation. See KI#505.3. (ChatGPT-5.6-Sol) -->
 
 class UWAI : private boost::noncopyable
 {
@@ -35,6 +33,10 @@ public:
 	void invalidateUICache();
 	// When a colonial vassal is created
 	void initNewPlayerInGame(PlayerTypes eNewPlayer);
+	// <!-- custom: A player already dead when a save is loaded has no deserialized UWAI owner/cache.
+	// Initialize that player and reconstruct its already-existing units before processing a later revival.
+	// CvTeam::changeAliveCount separately initializes a team returning from zero alive members. See KI#475.3. See KI#548. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void initRevivedPlayerInGame(PlayerTypes eRevivedPlayer);
 	// When the colonial vassal has received a capital and tech
 	void processNewPlayerInGame(PlayerTypes eNewPlayer);
 	/*  true if UWAI fully enabled, making all decisions, otherwise false.
@@ -90,16 +92,8 @@ public:
 		DO_FOR_EACH_WAR_UTILITY_ASPECT(MAKE_ENUMERATOR)
 		NUM_ASPECTS
 	};
-	scaled aspectWeight(AspectTypes eAspect) const
-	{
-		FAssertBounds(0, NUM_ASPECTS, eAspect);
-		return per100(m_aiXmlWeights[eAspect]);
-	}
-	char const* aspectName(AspectTypes eAspect) const
-	{
-		FAssertBounds(0, NUM_ASPECTS, eAspect);
-		return m_aszAspectNames[eAspect];
-	}
+	scaled aspectWeight(AspectTypes eAspect) const { FAssertBounds(0, NUM_ASPECTS, eAspect); return per100(m_aiXmlWeights[eAspect]); }
+	char const* aspectName(AspectTypes eAspect) const { FAssertBounds(0, NUM_ASPECTS, eAspect); return m_aszAspectNames[eAspect]; }
 
 private:
 	std::vector<int> m_aiXmlWeights;

@@ -1,0 +1,232 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 93
+# Author: iustus
+# Date: 2006-11-17T20:01:30.514758Z
+# Coverage: full
+# Message:
+#   Added back the DEBUGLOG calls, to debug hangs, only implemented if the #ifdef DEBUG_AI_UPDATE_GROUPS is defined. (It is commented out in CvGameCoreUtils.h
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.h@92
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.h@93
+@@ -319,8 +319,8 @@
+ 	}
+ }
+ 
+-
+ #ifdef FASSERT_ENABLE
++//#define DEBUG_AI_UPDATE_GROUPS
+ inline int ShortenID(int iID)
+ {
+ 	return (((iID/1000)/1459) + (iID%1000));
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@92
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@93
+@@ -901,9 +901,10 @@
+ 				pCurrUnitNode = nextGroupCycleNode(pCurrUnitNode);
+ 			}
+ 
+-			// debugging
++#ifdef DEBUG_AI_UPDATE_GROUPS
++			// debugging, for DEBUGLOG
+ 			int iTempGroupLength = tempGroupCycle.getLength();
+-
++#endif
+ 			iValue = 0;
+ 
+ 			while (tempGroupCycle.getLength() > 0)
+@@ -928,6 +929,15 @@
+ 
+ 				iValue++;
+ 			}
++
++#ifdef DEBUG_AI_UPDATE_GROUPS
++			// debugging
++			if (true)
++			{
++				CvWString szPlayerName = getName();
++				DEBUGLOG("AI_unitUpdate:%S (%d = %d) groups\n", szPlayerName.GetCString(), iTempGroupLength, finalGroupCycle.getLength());
++			}
++#endif
+ 
+ 			pCurrUnitNode = finalGroupCycle.head();
+ 			while (pCurrUnitNode != NULL)
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@92
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@93
+@@ -8,6 +8,7 @@
+ #include "CvDLLEntityIFaceBase.h"
+ #include "CvGameCoreUtils.h"
+ #include "FProfiler.h"
++#include "CVInfos.h"
+ 
+ // Public Functions...
+ 
+@@ -56,6 +57,14 @@
+ {
+ 	CLLNode<IDInfo>* pEntityNode;
+ 	CvUnit* pLoopUnit;
++
++#ifdef DEBUG_AI_UPDATE_GROUPS
++	// debugging
++	if (true)
++	{
++		DEBUGLOG("AI_separate(%d) [size %d]\n", ShortenID(m_iID), getNumUnits());
++	}
++#endif
+ 
+ 	pEntityNode = headUnitNode();
+ 
+@@ -91,6 +100,28 @@
+ 	{
+ 		return false;
+ 	}
++
++#ifdef DEBUG_AI_UPDATE_GROUPS
++	// debugging
++	if (!GET_PLAYER(getOwnerINLINE()).isHuman())
++	{
++		pHeadUnit = getHeadUnit();
++		CvWString szPlayerName = GET_PLAYER(getOwnerINLINE()).getName();
++		CvWString szUnitString;
++		if (pHeadUnit != NULL)
++		{
++			CvWString szUnitName = GC.getUnitInfo(pHeadUnit->getUnitType()).getDescription();
++			szUnitString.Format(L"%s(%d)", szUnitName.GetCString(), ShortenID(pHeadUnit->getID()));
++		}
++		else
++			szUnitString.Format(L"--no unit--");
++
++		DEBUGLOG("AI_update:%S group(%d), lead by %S [size %d%s%s]\n", szPlayerName.GetCString(),
++			ShortenID(getID()), szUnitString.GetCString(), getNumUnits(), 
++			AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
++			isForceUpdate() ? ",WILL_FORCE_UPDATE" : "");
++	}
++#endif
+ 
+ 	if (isForceUpdate())
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@92
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@93
+@@ -6903,6 +6903,46 @@
+ 			{
+ 				gDLL->getInterfaceIFace()->setDirty(PlotListButtons_DIRTY_BIT, true);
+ 			}
++
++#ifdef DEBUG_AI_UPDATE_GROUPS
++			// debugging
++			if (true)
++			{
++				CvWString szOldGroupString;
++				CvWString szNewGroupString;
++				if (pOldSelectionGroup != NULL)
++				{
++					szOldGroupString.Format(L"left group(%d) [size %d%s] to join", 
++						ShortenID(pOldSelectionGroup->getID()), pOldSelectionGroup->getNumUnits(), 
++						pOldSelectionGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++				}
++				else
++					szOldGroupString.Format(L"joining");
++
++				if (pNewSelectionGroup != NULL)
++				{
++					CvUnit* pHeadUnit = pNewSelectionGroup->getHeadUnit();
++					CvWString szUnitString;
++					if (pHeadUnit != NULL)
++					{
++						CvWString szUnitName = GC.getUnitInfo(pHeadUnit->getUnitType()).getDescription();
++						szUnitString.Format(L"%s(%d)", szUnitName.GetCString(), ShortenID(pHeadUnit->getID()));
++					}
++					else
++						szUnitString.Format(L"--no unit--");
++
++					szNewGroupString.Format(L"%s's group(%d) [size %d%s]", szUnitString.GetCString(),
++						ShortenID(pNewSelectionGroup->getID()), pNewSelectionGroup->getNumUnits(), 
++						pNewSelectionGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++				}
++				else
++					szNewGroupString.Format(L"--no group--");
++
++				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
++				DEBUGLOG("%S(%d) %S %S\n", szUnitName.GetCString(), ShortenID(m_iID), 
++					szOldGroupString.GetCString(), szNewGroupString.GetCString());
++			}
++#endif
+ 		}
+ 
+ 		if (bRemoveSelected)
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@92
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@93
+@@ -4585,6 +4585,20 @@
+ 	{
+ 		if (atPlot(pBestUnit->plot()))
+ 		{
++#ifdef DEBUG_AI_UPDATE_GROUPS
++			// debugging
++			if (true)
++			{
++				CvSelectionGroup* pBestGroup = pBestUnit->getGroup();
++				CvSelectionGroup* pCurrentGroup = getGroup();
++				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
++				CvWString szBestUnitName = GC.getUnitInfo(pBestUnit->getUnitType()).getDescription();
++				DEBUGLOG("AI_group:%S(%d) leaving group(%d) [size %d%s] to switch into %S(%d)'s group(%d) [size %d%s]\n", szUnitName.GetCString(), ShortenID(m_iID), 
++					ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
++					szBestUnitName.GetCString(), ShortenID(pBestUnit->getID()), 
++					ShortenID(pBestGroup->getID()), pBestGroup->getNumUnits(), pBestGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++			}
++#endif
+ 			joinGroup(pBestUnit->getGroup());
+ 			return true;
+ 		}
+@@ -4686,6 +4700,20 @@
+ 	{
+ 		if (atPlot(pBestUnit->plot()))
+ 		{
++#ifdef DEBUG_AI_UPDATE_GROUPS
++			// debugging
++			if (true)
++			{
++				CvSelectionGroup* pBestGroup = pBestUnit->getGroup();
++				CvSelectionGroup* pCurrentGroup = getGroup();
++				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
++				CvWString szBestUnitName = GC.getUnitInfo(pBestUnit->getUnitType()).getDescription();
++				DEBUGLOG("AI_groupMergeRange:%S(%d)'s group(%d) [size %d%s] merging into %S(%d)'s group(%d) [size %d%s]\n", szUnitName.GetCString(), ShortenID(m_iID), 
++					ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
++					szBestUnitName.GetCString(), ShortenID(pBestUnit->getID()), 
++					ShortenID(pBestGroup->getID()), pBestGroup->getNumUnits(), pBestGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++			}
++#endif
+ 			pGroup->mergeIntoGroup(pBestUnit->getGroup()); // note, this moves just us, not our whole group into the new group, is this intended??
+ 			return true;
+ 		}
+@@ -9504,6 +9532,16 @@
+ 					{
+ 						if (!(pCity->plot()->isVisibleEnemyUnit(getOwnerINLINE())))
+ 						{
++#ifdef DEBUG_AI_UPDATE_GROUPS
++							// debugging
++							if (true)
++							{
++								CvSelectionGroup* pCurrentGroup = getGroup();
++								CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
++								DEBUGLOG("AI_retreatToCity:%S(%d) already in city, will skip. Group(%d) [size %d%s]\n", szUnitName.GetCString(), ShortenID(m_iID), 
++									ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++							}
++#endif
+ 							getGroup()->pushMission(MISSION_SKIP);
+ 							return true;
+ 						}
+

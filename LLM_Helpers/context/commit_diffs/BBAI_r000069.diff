@@ -1,0 +1,45 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 69
+# Author: blakeciv
+# Date: 2006-11-14T05:54:20.296854Z
+# Coverage: full
+# Message:
+#   Updated team declare peace value function to better account for relative size
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@68
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@69
+@@ -909,6 +909,16 @@
+ 		iValue *= 3;
+ 		iValue /= 2;
+ 	}
++	
++	if (!(isHuman()))
++	{
++	    int iLandRatio = ((getTotalLand(true) * 100) / max(20, GET_TEAM(eTeam).getTotalLand(true)));
++	    if (iLandRatio > 125)
++	    {
++	        iValue *= (iLandRatio - 25);
++	        iValue /= 100;        
++	    }
++	}
+ 
+ 	iValue -= (iValue % GC.getDefineINT("DIPLOMACY_VALUE_REMAINDER"));
+ 
+@@ -1600,6 +1610,12 @@
+ 	if (AI_endWarVal(ePeaceTeam) > (GET_TEAM(ePeaceTeam).AI_endWarVal(getID()) * 2))
+ 	{
+ 		return DENIAL_CONTACT_THEM;
++	}
++	
++    int iLandRatio = ((getTotalLand(true) * 100) / max(20, GET_TEAM(eTeam).getTotalLand(true)));
++    if (iLandRatio > 250)
++    {
++		return DENIAL_VICTORY;
+ 	}
+ 
+ 	return NO_DENIAL;
+

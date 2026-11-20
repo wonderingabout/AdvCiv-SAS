@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 279
+# Author: iustus
+# Date: 2007-01-21T09:21:00.521369Z
+# Coverage: full
+# Message:
+#   fogbusting units less likely to move when enemies about
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@278
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@279
+@@ -7594,7 +7594,7 @@
+ 								// if adjacent plot is better defensively (not checking for fogbusting in this case)
+ 								// or equal and we gain significant fogbusting ability
+ 								if ((iCombatDifference > 0) || 
+-									(iCombatDifference == 0 && (iFogbustingChange > 2 || (iValue > 0 && iFogbustingCurrentValue == 0))))
++									(iCombatDifference == 0 && ((iFogbustingChange >= 32 && bNewOurTerritoryInRange) || (iValue > 0 && iFogbustingCurrentValue == 0))))
+ 								{
+ 									iValue += (3 * iCombatDifference);
+ 								}
+

@@ -1,0 +1,54 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 49
+# Author: blakeciv
+# Date: 2006-11-08T13:33:51.467526Z
+# Coverage: full
+# Message:
+#   Made a pointless change to AI_plotDanger... 
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@48
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@49
+@@ -1965,10 +1965,12 @@
+ 	CvPlot* pLoopPlot;
+ 	int iCount;
+ 	int iDistance;
++	int iBorderDanger;
+ 	int iDX, iDY;
+ 
+ 
+ 	iCount = 0;
++	iBorderDanger = 0;
+ 
+ 	if (iRange == -1)
+ 	{
+@@ -1991,11 +1993,11 @@
+ 				    {
+ 				        if (iDistance == 1)
+ 				        {
+-				            iCount++;
++				            iBorderDanger++;
+ 				        }
+ 				        else if ((iDistance == 2) && (pLoopPlot->isRoute()))
+ 				        {
+-				            iCount++;
++				            iBorderDanger++;
+ 				        }
+ 				    }
+ 
+@@ -2036,6 +2038,11 @@
+ 				}
+ 			}
+ 		}
++	}
++
++	if (iBorderDanger > 0)
++	{
++	    iCount += iBorderDanger;
+ 	}
+ 
+ 	return iCount;
+

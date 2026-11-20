@@ -359,6 +359,9 @@ void CyInfoPythonInterface1()
 		.def("getFreePromotions", &CvUnitInfo::getFreePromotions, "bool (int i)")
 		.def("getLeaderPromotion", &CvUnitInfo::getLeaderPromotion, "int ()")
 		.def("getLeaderExperience", &CvUnitInfo::getLeaderExperience, "int ()")
+		// <!-- custom: expose getObsoleteTech to Python for Sevopedia Tech obsoletes panel (Claude code Sonnet 4.5) -->
+		.def("getObsoleteTech", &CvUnitInfo::getObsoleteTech, "int ()")
+		// <!-- custom: End - expose getObsoleteTech to Python for Sevopedia Tech obsoletes panel (Claude code Sonnet 4.5) -->
 
 		.def("getEarlyArtDefineTag", &CvUnitInfo::getEarlyArtDefineTag, "string (int i, UnitArtStyleTypes eStyle)")
 		.def("getLateArtDefineTag", &CvUnitInfo::getLateArtDefineTag, "string (int i, UnitArtStyleTypes eStyle)")
@@ -595,6 +598,8 @@ void CyInfoPythonInterface1()
 		.def("getCommerceChangeDoubleTime", &CvBuildingInfo::py_getCommerceChangeDoubleTime, "int (int i)")
 		.def("getCommerceModifier", &CvBuildingInfo::py_getCommerceModifier, "int (int i)")
 		.def("getGlobalCommerceModifier", &CvBuildingInfo::py_getGlobalCommerceModifier, "int (int i)")
+		// <!-- custom: Building SpecialistExtraCommerce affects every specialist but was the only source omitted from the Sevopedia Specialist Extra Yields panel because its existing enum-map getter was not exposed to Python. See KI#303. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		.def("getSpecialistExtraCommerce", &CvBuildingInfo::py_getSpecialistExtraCommerce, "int (int i)")
 		.def("getStateReligionCommerce", &CvBuildingInfo::py_getStateReligionCommerce, "int (int i)")
 		.def("getCommerceHappiness", &CvBuildingInfo::py_getCommerceHappiness, "int (int i)")
 		.def("getReligionChange", &CvBuildingInfo::py_getReligionChange, "int (int i)")

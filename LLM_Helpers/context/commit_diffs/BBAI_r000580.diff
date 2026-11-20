@@ -1,0 +1,81 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 580
+# Author: jdog5000
+# Date: 2010-06-24T05:43:31.744086Z
+# Coverage: full
+# Message:
+#   A few more UP fixes
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@579
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@580
+@@ -10512,7 +10512,18 @@
+ 	if (iOurCitiesHave >= iOurCitiesCount)
+ 	{
+ 		iSpreadInternalValue = 0;
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/23/10                                  denev       */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++/* original bts code
+ 		if (iSpreadExternalValue = 0)
++*/
++		if (iSpreadExternalValue == 0)
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 		{
+ 			return 0;
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@579
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@580
+@@ -3297,15 +3297,15 @@
+ 	}
+ 
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       11/06/09                     Mongoose & jdog5000      */
++/* UNOFFICIAL_PATCH                       06/23/10                     Mongoose & jdog5000      */
+ /*                                                                                              */
+ /* Bugfix                                                                                       */
+ /************************************************************************************************/
+ 	// From Mongoose SDK
+-	/*if (isCargo())
+-	{
+-		return false;
+-	}*/
++	if (isCargo() && getTransportUnit() == pUnit)
++	{
++		return false;
++	}
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                        END                                                  */
+ /************************************************************************************************/
+@@ -4741,6 +4741,20 @@
+ 	{
+ 		return false;
+ 	}
++
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/23/10                     Mongoose & jdog5000      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++	// From Mongoose SDK
++	if (isCargo())
++	{
++		return false;
++	}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 
+ 	if (pPlot->getImprovementType() == NO_IMPROVEMENT)
+ 	{
+

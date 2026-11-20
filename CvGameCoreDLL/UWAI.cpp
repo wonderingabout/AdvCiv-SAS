@@ -38,6 +38,17 @@ void UWAI::initNewPlayerInGame(PlayerTypes eNewPlayer)
 }
 
 
+// <!-- custom: Reviving a player that was dead when the save loaded needs the player UWAI initialization skipped by CvPlayerAI::read; restoring it fixed the reproducible WorldBuilder-exit crash.
+// Rebuild the incremental military inventory after initialization because the unit that caused revival was created while the player was still dead and the new cache otherwise starts at zero.
+// Do not reinitialize the whole team here: CvTeam::changeAliveCount already initializes a team returning from zero alive members, while a surviving teammate's UWAI state must remain intact. See KI#475.3. See KI#548. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAI::initRevivedPlayerInGame(PlayerTypes eRevivedPlayer)
+{
+	WarEvaluator::clearCache();
+	GET_PLAYER(eRevivedPlayer).uwai().init(eRevivedPlayer);
+	GET_PLAYER(eRevivedPlayer).uwai().getCache().rebuildMilitaryUnitCounts();
+}
+
+
 void UWAI::processNewPlayerInGame(PlayerTypes eNewPlayer)
 {
 	GET_PLAYER(eNewPlayer).uwai().getCache().update(true);
@@ -114,7 +125,8 @@ void UWAI::doXML()
 
 void UWAI::applyPersonalityWeight()
 {
-	int const iWeight = GC.getDefineINT("UWAI_PERSONALITY_PERCENT");
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iWeight = GC.getDefineINT("UWAI_PERSONALITY_PERCENT");
 	if (iWeight == 100)
 		return;
 	std::vector<std::vector<int*>*> personalityMatrix;

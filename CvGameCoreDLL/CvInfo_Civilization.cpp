@@ -2,6 +2,7 @@
 
 #include "CvGameCoreDLL.h"
 #include "CvXMLLoadUtility.h"
+#include "CvPlayer.h" // <!-- custom: era-aware leader art lookup needs CvPlayer (Claude code Opus 4.7) -->
 
 
 CvCivilizationInfo::CvCivilizationInfo() :
@@ -328,25 +329,29 @@ bool CvCivilizationInfo::read(CvXMLLoadUtility* pXML)
 				piUniques = &m_piCivilizationUnits;
 				pXML->InitUnitDefaults(piUniques);
 			}
-			int iNumSibs = gDLL->getXMLIFace()->GetNumChildren(pXML->GetXML());
-			if (iNumSibs > 0 && gDLL->getXMLIFace()->SetToChild(pXML->GetXML()))
+			// <!-- custom: Walk until the siblings end rather than trusting a count whose handling of comments belongs to the closed EXE.
+			// AdvCiv's GetChildXmlValByName rationale also warns against NumOfChildrenByTagName around comments, so neither counting API controls this traversal. See KI#3.2. (GPT-6.1-Sol) -->
+			if (gDLL->getXMLIFace()->SetToChild(pXML->GetXML()))
 			{
-				FAssert(iNumSibs <= (bBuildings ? GC.getNumBuildingClassInfos() : GC.getNumUnitClassInfos()));
 				char szClassVal[256]; // holds the text value of the relevant classinfo
 				CvString szTextVal;
-				for (int j = 0; j < iNumSibs; j++)
+				// <!-- custom: Skip raw comments before each descent, including leading/trailing comment runs; GetChildXmlVal only skips comments after descent.
+				// Read failures retain civilization/list/index context without asserting an unverified expected sibling count. See KI#3.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+				for (int j = 0; pXML->SkipToNextVal(); j++)
 				{
 					if (pXML->GetChildXmlVal(szClassVal))
 					{
 						int iClassIndex = pXML->FindInInfoClass(szClassVal);
-						if (iClassIndex > -1)
+						if (iClassIndex >= 0 && iClassIndex < (bBuildings ? GC.getNumBuildingClassInfos() : GC.getNumUnitClassInfos()))
 						{
-							pXML->GetNextXmlVal(szTextVal);
-							(*piUniques)[iClassIndex] = pXML->FindInInfoClass(szTextVal);
+							if (pXML->GetNextXmlVal(szTextVal))
+								(*piUniques)[iClassIndex] = pXML->FindInInfoClass(szTextVal);
+							else FErrorMsg(CvString::format("Civilization XML mapping target cannot be read: type=%s list=%s class=%s entry=%d XML=%s", getType(), bBuildings ? "Buildings" : "Units", szClassVal, j, GC.getCurrentXMLFile().GetCString()).c_str());
 						}
-						else FAssert(iClassIndex > -1);
+						else FErrorMsg(CvString::format("Civilization XML mapping has an invalid class: type=%s list=%s class=%s entry=%d XML=%s", getType(), bBuildings ? "Buildings" : "Units", szClassVal, j, GC.getCurrentXMLFile().GetCString()).c_str());
 						gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
 					}
+					else FErrorMsg(CvString::format("Civilization XML mapping cannot be read: type=%s list=%s entry=%d XML=%s", getType(), bBuildings ? "Buildings" : "Units", j, GC.getCurrentXMLFile().GetCString()).c_str());
 					if (!gDLL->getXMLIFace()->NextSibling(pXML->GetXML()))
 						break;
 				}
@@ -372,8 +377,13 @@ bool CvCivilizationInfo::read(CvXMLLoadUtility* pXML)
 				CvString szTextVal;
 				if (pXML->GetChildXmlVal(szTextVal))
 				{
-					FAssert(iNumSibs <= GC.getNumCivicOptionInfos());
-					for (int j = 0; j < iNumSibs; j++)
+					// <!-- custom: InitialCivics is allocated per civic option, not per XML child.
+					// Diagnose excess entries but cap writes even in Release or after Ignore Once/Always.
+					// Keep the inherited value traversal and parent restoration for valid lists; the album's Queue 034 established that shipped lists fit. See KI#3.3. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+					if (iNumSibs > GC.getNumCivicOptionInfos())
+						FErrorMsg(CvString::format("Civilization InitialCivics exceeds allocation: type=%s count=%d capacity=%d XML=%s", getType(), iNumSibs, GC.getNumCivicOptionInfos(), GC.getCurrentXMLFile().GetCString()).c_str());
+					int const iReadLimit = std::min(iNumSibs, GC.getNumCivicOptionInfos());
+					for (int j = 0; j < iReadLimit; j++)
 					{
 						m_piCivilizationInitialCivics[j] = pXML->FindInInfoClass(szTextVal);
 						if (!pXML->GetNextXmlVal(szTextVal))
@@ -485,6 +495,7 @@ m_iFreedomAppreciation(0),
 m_iLoveOfPeace(0),
 m_eFavoriteCivic(NO_CIVIC),
 m_eFavoriteReligion(NO_RELIGION),
+m_paszEraArtDefineTags(NULL), // <!-- custom: per-era leader art tag array (Claude code Opus 4.7) -->
 m_pbTraits(NULL),
 m_piFlavorValue(NULL),
 m_piContactRand(NULL),
@@ -533,6 +544,14 @@ CvLeaderHeadInfo::CvLeaderHeadInfo(CvLeaderHeadInfo const& kOther)
 	allocCopy(m_piDiploPeaceMusicScriptIds, kOther.m_piDiploPeaceMusicScriptIds, GC.getNumEraInfos());
 	allocCopy(m_piDiploWarIntroMusicScriptIds, kOther.m_piDiploWarIntroMusicScriptIds, GC.getNumEraInfos());
 	allocCopy(m_piDiploWarMusicScriptIds, kOther.m_piDiploWarMusicScriptIds, GC.getNumEraInfos());
+	// <!-- custom: CvString elements need proper copy-construction; allocCopy's memcpy would alias the underlying buffers, so copy element-wise instead. (Claude code Opus 4.7) -->
+	if (kOther.m_paszEraArtDefineTags != NULL)
+	{
+		int const iNumEras = GC.getNumEraInfos();
+		m_paszEraArtDefineTags = new CvString[iNumEras];
+		for (int i = 0; i < iNumEras; i++)
+			m_paszEraArtDefineTags[i] = kOther.m_paszEraArtDefineTags[i];
+	}
 } // </advc.xmldefault>
 
 CvLeaderHeadInfo::~CvLeaderHeadInfo()
@@ -550,6 +569,7 @@ CvLeaderHeadInfo::~CvLeaderHeadInfo()
 	SAFE_DELETE_ARRAY(m_piDiploPeaceMusicScriptIds);
 	SAFE_DELETE_ARRAY(m_piDiploWarIntroMusicScriptIds);
 	SAFE_DELETE_ARRAY(m_piDiploWarMusicScriptIds);
+	SAFE_DELETE_ARRAY(m_paszEraArtDefineTags); // <!-- custom: free per-era leader art tag array (Claude code Opus 4.7) -->
 }
 
 const TCHAR* CvLeaderHeadInfo::getButton() const
@@ -901,9 +921,39 @@ void CvLeaderHeadInfo::write(FDataStreamBase* stream)
 }
 #endif
 
+// <!-- custom: per-era leader art lookup (optional). Empty string = not set. (Claude code Opus 4.7) -->
+const TCHAR* CvLeaderHeadInfo::getEraArtDefineTag(EraTypes eEra) const
+{
+	if (m_paszEraArtDefineTags == NULL || eEra == NO_ERA)
+		return "";
+	FAssertBounds(0, GC.getNumEraInfos(), eEra);
+	return m_paszEraArtDefineTags[eEra];
+}
+
 const CvArtInfoLeaderhead* CvLeaderHeadInfo::getArtInfo() const
 {
-	return ARTFILEMGR.getLeaderheadArtInfo( getArtDefineTag());
+	// <!-- custom: per-era leader art.
+	// Early-out when no overrides are defined for this leader (the common case) avoids the MAX_PLAYERS scan on every scene render.
+	// Otherwise locate the (first) alive player using this leader and, if an override is set for their current era, return that.
+	// Eras without an explicit override (and any non-ingame context: XML load, pedia browsing for unused leaders) fall straight back to the base ArtDefineTag.
+	// Duplicate-leader limitation: all duplicates (e.g., De Gaulle used by 3 players) render with the lowest-index player's era art. See KI#120. (Claude code Opus 4.7) -->
+	if (m_paszEraArtDefineTags != NULL)
+	{
+		EraTypes eEra = NO_ERA;
+		for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
+		{
+			CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+			if (kPlayer.isEverAlive() &&
+				&GC.getInfo(kPlayer.getLeaderType()) == this)
+			{
+				eEra = kPlayer.getCurrentEra();
+				break;
+			}
+		}
+		if (eEra != NO_ERA && !m_paszEraArtDefineTags[eEra].empty())
+			return ARTFILEMGR.getLeaderheadArtInfo(m_paszEraArtDefineTags[eEra]);
+	}
+	return ARTFILEMGR.getLeaderheadArtInfo(getArtDefineTag());
 }
 
 bool CvLeaderHeadInfo::read(CvXMLLoadUtility* pXML)
@@ -914,6 +964,46 @@ bool CvLeaderHeadInfo::read(CvXMLLoadUtility* pXML)
 	pXML->GetChildXmlValByName(m_szArtDefineTag, "ArtDefineTag",
 			// advc.xmldefault:
 			m_szArtDefineTag.empty() ? NULL : m_szArtDefineTag.c_str());
+	// <!-- custom: optional per-era leader art tags.
+	// Format: <EraArtDefineTags><EraArtDefineTag><EraType>ERA_X</EraType><ArtDefineTag>ART_DEF_LEADER_X_ERA_X</ArtDefineTag></EraArtDefineTag>...</EraArtDefineTags>.
+	// Gated by a SAS define: when disabled the whole parser is skipped, m_paszEraArtDefineTags stays NULL, and getArtInfo() early-outs to the base ArtDefineTag.
+	// The define check is a cached static since SAS defines require a Civ4 restart to change. (Claude code Opus 4.7) -->
+	static const bool bSAS_LEADER_XML_ERA_ART_DEFS = GC.getDefineBOOL("SAS_LEADER_XML_ERA_ART_DEFS");
+	if (bSAS_LEADER_XML_ERA_ART_DEFS &&
+		gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(), "EraArtDefineTags"))
+	{
+		if (pXML->SkipToNextVal())
+		{
+			int const iNumSibs = gDLL->getXMLIFace()->GetNumChildren(pXML->GetXML());
+			if (iNumSibs > 0 && gDLL->getXMLIFace()->SetToChild(pXML->GetXML()))
+			{
+				int const iNumEras = GC.getNumEraInfos();
+				SAFE_DELETE_ARRAY(m_paszEraArtDefineTags);
+				m_paszEraArtDefineTags = new CvString[iNumEras];
+				TCHAR szEraText[256];
+				for (int i = 0; i < iNumSibs; i++)
+				{
+					if (pXML->SkipToNextVal() && pXML->GetChildXmlVal(szEraText))
+					{
+						// <!-- custom: use GC.getInfoTypeForString, not pXML->getGlobalEnumFromString: the latter is private to CvXMLLoadUtility (C2248) and this public lookup resolves "ERA_MEDIEVAL" -> enum index identically. (Claude code Opus 4.7) -->
+						int const iEra = GC.getInfoTypeForString(szEraText);
+						if (iEra >= 0 && iEra < iNumEras)
+						{
+							CvString szTag;
+							pXML->GetNextXmlVal(szTag);
+							m_paszEraArtDefineTags[iEra] = szTag;
+						}
+						gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+					}
+					if (!gDLL->getXMLIFace()->NextSibling(pXML->GetXML()))
+						break;
+				}
+				gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+			}
+		}
+		gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+	}
+	// <!-- custom: end of per-era leader art tag parser (Claude code Opus 4.7) -->
 	/*	advc.xmldefault: Redirect the CvXMLLoadUtility::GetChildXmlValByName
 		calls through CvLeaderHeadInfo::GetChildXmlValByName. */
 	m_pXML = pXML;
@@ -1539,25 +1629,27 @@ bool CvDiplomacyInfo::read(CvXMLLoadUtility* pXML)
 	if (!CvInfoBase::read(pXML))
 		return false;
 
-	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"Responses"))
+	// <!-- custom: Like civilization mappings, Response siblings need comment skipping before their field readers run.
+	// Preserve the advc.006b comment-handling concern without its NumOfChildrenByTagName dependency: terminate at the actual sibling end instead.
+	// Restore only parser levels that were entered, including an empty Responses list. See KI#3.2. (GPT-6.1-Sol) -->
+	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(), "Responses"))
 	{
-		int iNewResponses = gDLL->getXMLIFace()->NumOfChildrenByTagName(pXML->GetXML(), "Response");
-		// advc.006b: GetChildXmlValByName can't handle comments
-		FAssertMsg(iNewResponses > 0, "XML comment inside Responses?");
-		gDLL->getXMLIFace()->SetToChild(pXML->GetXML());
-
-		for (int i = 0; i < iNewResponses; i++)
+		if (gDLL->getXMLIFace()->SetToChild(pXML->GetXML()))
 		{
-			CvDiplomacyResponse* pNewResponse = new CvDiplomacyResponse;
-			pNewResponse->read(pXML);
-			m_pResponses.push_back(pNewResponse);
-
-			if (!gDLL->getXMLIFace()->NextSibling(pXML->GetXML()))
-				break;
+			for (int i = 0; pXML->SkipToNextVal(); i++)
+			{
+				CvDiplomacyResponse* pNewResponse = new CvDiplomacyResponse;
+				bool const bRead = pNewResponse->read(pXML);
+				FAssertMsg(bRead, CvString::format("Diplomacy XML response cannot be read: type=%s entry=%d XML=%s", getType(), i, GC.getCurrentXMLFile().GetCString()).c_str());
+				if (bRead)
+					m_pResponses.push_back(pNewResponse);
+				else delete pNewResponse;
+				if (!gDLL->getXMLIFace()->NextSibling(pXML->GetXML()))
+					break;
+			}
+			gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
 		}
 		gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
 	}
-	gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
-
 	return true;
 }

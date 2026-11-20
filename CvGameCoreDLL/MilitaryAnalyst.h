@@ -8,8 +8,7 @@
 
 class InvasionGraph;
 class WarEvalParameters;
-class UWAIReport;
-class InvasionGraph;
+class UWAILogMuteState; // <!-- custom: Nested mute depth shared by UWAI diagnostic sub-evaluations; not a logger. See KI#505.3. (ChatGPT-5.6-Sol) -->
 
 /*  advc.104: New class. Handles the military assessment of a war between
 	two teams (agent, target) from the pov of a particular member of the agent team.
@@ -47,38 +46,23 @@ public:
 	scaled gainedPower(PlayerTypes ePlayer, MilitaryBranchTypes eBranch) const;
 	// Production invested in military build-up
 	scaled militaryProduction(PlayerTypes ePlayer) const;
-	TeamSet const& getCapitulationsAccepted(TeamTypes eMaster) const
-	{
-		FAssertBounds(0, MAX_CIV_TEAMS, eMaster);
-		return m_capitulationsAcceptedPerTeam[eMaster];
-	}
-	scaled getNukedCities(PlayerTypes eNukeOwner, PlayerTypes eCityOwner) const
-	{
-		FAssertBounds(0, MAX_CIV_PLAYERS, eNukeOwner);
-		FAssertBounds(0, MAX_CIV_PLAYERS, eCityOwner);
-		return m_nukedCities[eNukeOwner][eCityOwner];
-	}
-	bool isWar(PlayerTypes eFirst, PlayerTypes eSecond) const // After simulated DoWs
-	{
-		FAssertBounds(0, MAX_CIV_PLAYERS, eFirst);
-		FAssertBounds(0, MAX_CIV_PLAYERS, eSecond);
-		return m_warTable[eFirst][eSecond];
-	}
+	TeamSet const& getCapitulationsAccepted(TeamTypes eMaster) const { FAssertBounds(0, MAX_CIV_TEAMS, eMaster); return m_capitulationsAcceptedPerTeam[eMaster]; }
+	scaled getNukedCities(PlayerTypes eNukeOwner, PlayerTypes eCityOwner) const { FAssertBounds(0, MAX_CIV_PLAYERS, eNukeOwner); FAssertBounds(0, MAX_CIV_PLAYERS, eCityOwner); return m_nukedCities[eNukeOwner][eCityOwner]; }
+	bool isWar(PlayerTypes eFirst, PlayerTypes eSecond) const { FAssertBounds(0, MAX_CIV_PLAYERS, eFirst); FAssertBounds(0, MAX_CIV_PLAYERS, eSecond); return m_warTable[eFirst][eSecond]; } // After simulated DoWs
 	bool isWar(TeamTypes eFirst, TeamTypes eSecond) const;
 	// Prep. time, if any, plus time horizon
 	int turnsSimulated() const { return m_iTurnsSimulated; }
 	// Does ePlayer have a node in the InvasionGraph?
-	bool isPartOfAnalysis(PlayerTypes ePlayer) const
-	{
-		return (m_partOfAnalysis.count(ePlayer) > 0);
-	}
+	bool isPartOfAnalysis(PlayerTypes ePlayer) const { return (m_partOfAnalysis.count(ePlayer) > 0); }
 	void logResults(PlayerTypes ePlayer); // for debugging
+	// <!-- custom: logResults and its helpers are diagnostic-only; callers must pre-gate them before entering this path. (ChatGPT-5.6-Sol) -->
 	// (There's another public and private section below)
 private:
 	PlayerTypes m_eWe;
 	WarEvalParameters& m_kWarEvalParams;
 	TeamTypes m_eTarget;
-	UWAIReport& m_kReport;
+	// <!-- custom: Shared nested mute state from m_kWarEvalParams; this only suppresses nested UWAI diagnostics and is not a logger/cache. (ChatGPT-5.6-Sol) -->
+	UWAILogMuteState& m_kLogMuteState;
 	bool m_bPeaceScenario;
 
 	InvasionGraph* m_pInvGraph;
@@ -100,16 +84,10 @@ private:
 		void addNukesFired(scaled rNukes) { m_rNukesFired += rNukes; }
 		scaled getNukesFired() const { return m_rNukesFired; }
 		void setDoWOn(PlayerTypes eAggressor) { m_DoWOn.insert(eAggressor); }
-		void setDoWOn(PlyrSetIter const& itFirst, PlyrSetIter const& itLast)
-		{
-			m_DoWOn.insert(itFirst, itLast);
-		}
+		void setDoWOn(PlyrSetIter const& itFirst, PlyrSetIter const& itLast) { m_DoWOn.insert(itFirst, itLast); }
 		PlyrSet const& getDoWOn() const { return m_DoWOn; }
 		void setDoWBy(PlayerTypes eTarget) { m_DoWBy.insert(eTarget); }
-		void setDoWBy(PlyrSetIter const& itFirst, PlyrSetIter const& itLast)
-		{
-			m_DoWBy.insert(itFirst, itLast);
-		}
+		void setDoWBy(PlyrSetIter const& itFirst, PlyrSetIter const& itLast) { m_DoWBy.insert(itFirst, itLast); }
 		PlyrSet const& getDoWBy() const { return m_DoWBy; }
 		void setWarContinued(PlayerTypes eEnemy) { m_warsCont.insert(eEnemy); }
 		PlyrSet const& getWarsContinued() const { return m_warsCont; }
@@ -182,13 +160,15 @@ public:
 		PlayerResult* pR = m_playerResults[ePlayer];
 		return (pR == NULL ? 0 : pR->getNukesFired());
 	}
-	// Based on conquered and lost cities
-	scaled predictedGameScore(PlayerTypes ePlayer) const;
+	// <!-- custom: Predict one member's score without the team-shared accepted-vassal addition; Kingmaking adds that contribution once after summing the team. See KI#433. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled predictedMemberGameScore(PlayerTypes ePlayer) const;
 private:
 	// True if we are preparing war against ePlayer or considering a war plan
 	bool doWePlanToDeclWar(PlayerTypes ePlayer) const;
 	void prepareResults();
 	void simulateNuclearWar();
+	// <!-- custom: Use the conventional forecast's remaining city count when deciding which players can participate in the later nuclear simulation. See KI#967. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int simulatedRemainingCities(PlayerTypes ePlayer) const;
 	/*  Also checks vassal agreements, including other vassals of
 		the same master. */
 	bool isDefactoDefensivePact(TeamTypes eFirst, TeamTypes eSecond) const;

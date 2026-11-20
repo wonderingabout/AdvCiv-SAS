@@ -1,0 +1,29 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 227
+# Author: iustus
+# Date: 2006-12-22T00:56:35.821333Z
+# Coverage: full
+# Message:
+#   reverted back Blake's accidental checkin of vs project
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj
+--- /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj@226
++++ /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj@227
+@@ -46,11 +46,10 @@
+ 				Name="VCCustomBuildTool"/>
+ 			<Tool
+ 				Name="VCLinkerTool"
+-				AdditionalDependencies="boost_python-vc71-mt-gd-1_32.lib winmm.lib msvcprt.lib"
+-				OutputFile="F:\Documents and Settings\Grater1\My Documents\My Games\Warlords\CustomAssets\CvGameCoreDLL.dll"
++				AdditionalDependencies="boost_python-vc71-mt-gd-1_32.lib winmm.lib"
++				OutputFile="../Warlords/Assets/CvGameCoreDLL_DEBUG.dll"
+ 				LinkIncremental="2"
+ 				AdditionalLibraryDirectories="Python24\libs;&quot;boost-1.32.0\libs\&quot;"
+-				IgnoreDefaultLibraryNames="msvcprtd.lib"
+ 				GenerateDebugInformation="TRUE"
+ 				ProgramDatabaseFile="$(OutDir)/CvGameCoreDLL_DEBUG.pdb"
+ 				SubSystem="2"
+

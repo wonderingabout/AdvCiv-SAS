@@ -1,0 +1,80 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 57
+# Author: iustus
+# Date: 2006-11-11T02:47:01.667670Z
+# Coverage: full
+# Message:
+#   Fixed divide by zero bug with AI_compareStacks
+#   Added display in chipotle cheat mode to show which techs AIs are researching (alt over the tech bar, or tech window)
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@56
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@57
+@@ -3449,6 +3449,40 @@
+ 	UnitTypes eLoopUnit;
+ 	bool bFirst;
+ 	int iI;
++	
++	// show debug info if cheat level > 0 and alt down
++	bool bShift = gDLL->shiftKey();
++	bool bAlt = gDLL->altKey();
++    if (bAlt && (gDLL->getChtLvl() > 0))
++    {
++		szBuffer = L"";
++		
++		for (int iI = 0; iI < MAX_PLAYERS; iI++)
++		{
++			CvPlayerAI* playerI = &GET_PLAYER((PlayerTypes)iI);
++			CvTeamAI* teamI = &GET_TEAM(playerI->getTeam());
++			if (playerI->isAlive())
++			{
++				szTempBuffer.Format(L"%s: ", playerI->getName());
++		        szBuffer += szTempBuffer;
++
++				TechTypes ePlayerTech = playerI->getCurrentResearch();
++				if (ePlayerTech == NO_TECH)
++					szTempBuffer.Format(L"-\n");
++				else			
++					szTempBuffer.Format(L"%s (%d->%dt)(%d/%d)\n", 
++						GC.getTechInfo(ePlayerTech).getDescription(),
++						playerI->calculateResearchRate(ePlayerTech),
++						playerI->getResearchTurnsLeft(ePlayerTech, true),
++						teamI->getResearchProgress(ePlayerTech),
++						teamI->getResearchCost(ePlayerTech));
++		        szBuffer += szTempBuffer;
++			}
++		}
++
++		return;
++    }
++
+ 
+ 	if (NO_TECH == eTech)
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@56
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@57
+@@ -296,14 +296,14 @@
+ 
+ 	compareRatio = AI_sumStrength(pPlot, eDomainType, bCheckCanAttack, bCheckCanMove);
+ 	compareRatio *= 100;
+-
+-	compareRatio /= pPlot->AI_sumStrength(NO_PLAYER, getOwnerINLINE(), eDomainType, true, !bPotentialEnemy, bPotentialEnemy);
++	
++	int defenderSum = pPlot->AI_sumStrength(NO_PLAYER, getOwnerINLINE(), eDomainType, true, !bPotentialEnemy, bPotentialEnemy);
++	compareRatio /= max(1, defenderSum);
+ 
+ 	return compareRatio;
+ }
+ 
+ int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot, DomainTypes eDomainType, bool bCheckCanAttack, bool bCheckCanMove) const
+-// may want to add check on canMove and/or canMoveInto to AI_sumStrength (would add bool)
+ {
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+

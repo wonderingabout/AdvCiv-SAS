@@ -59,8 +59,7 @@ void BarbarianActivityMap::decay()
 }
 
 
-void BarbarianActivityMap::change(CvPlot const& kPlot, int iChange,
-	int iPlotRange)
+void BarbarianActivityMap::change(CvPlot const& kPlot, int iChange, int iPlotRange)
 {
 	for (PlotCircleIter itPlot(kPlot, iPlotRange); itPlot.hasNext(); ++itPlot)
 	{

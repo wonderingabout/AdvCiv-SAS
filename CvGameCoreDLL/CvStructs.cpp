@@ -17,16 +17,8 @@
 #include "CvPlot.h" // advc.071
 #include "CvInfo_Command.h" // advc (for NukeMissionDef)
 
-// advc.opt: For reading legacy savegames
-void IDInfo::validateOwner()
-{
-	if (eOwner == NO_PLAYER)
-	{
-		if (iID == FFreeList::INVALID_INDEX)
-			eOwner = BARBARIAN_PLAYER;
-		else FAssert(iID == FFreeList::INVALID_INDEX);
-	}
-}
+// <!-- custom: Removed IDInfo::validateOwner (advc.opt, f0551b743b), which converted empty owners from NO_PLAYER in old saves.
+// Current saves already serialize BARBARIAN_PLAYER for an empty reference. See KI#46.2. (GPT-6.2-Sol) -->
 
 int EventTriggeredData::getID() const
 {
@@ -329,8 +321,7 @@ void CvMissionDefinition::setPlot(const CvPlot *plot)
 }
 
 // advc: Body cut from CvUnit::nuke
-NukeMissionDef::NukeMissionDef(CvPlot const& kPlot, CvUnit& kNuke, bool bIntercept,
-	int iBaseTime) // advc.002m
+NukeMissionDef::NukeMissionDef(CvPlot const& kPlot, CvUnit& kNuke, bool bIntercept, int iBaseTime) // advc.002m
 {
 	setMissionTime(iBaseTime * gDLL->getSecsPerTurn());
 	setMissionType(MISSION_NUKE);
@@ -576,8 +567,9 @@ PBGameSetupData::PBGameSetupData()
 }
 
 // advc.071:
-FirstContactData::FirstContactData(CvPlot const* pAt1, CvPlot const* pAt2,
-	CvUnit const* pUnit1, CvUnit const* pUnit2)
+// <!-- custom: Optional contact plots are genuinely absent at several live call sites; initialize both coordinate pairs explicitly so CvTeam::makeHasMet never reads indeterminate x/y values when it probes the optional second plot. See KI#1002. (ChatGPT-5.6-Sol) -->
+FirstContactData::FirstContactData(CvPlot const* pAt1, CvPlot const* pAt2, CvUnit const* pUnit1, CvUnit const* pUnit2) :
+		u1(), u2(), x1(-1), y1(-1), x2(-1), y2(-1)
 {
 	/*  Don't need to worry here about which unit is where and who sees whom - can
 		figure that out when we know which teams are meeting. */

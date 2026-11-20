@@ -12,7 +12,7 @@ import BugConfigTracker
 
 class BugSystemOptionsTab(BugOptionsTab.BugOptionsTab):
 	"BUG System Options Screen Tab"
-	
+
 	def __init__(self, screen):
 		BugOptionsTab.BugOptionsTab.__init__(self, "System", "System")
 
@@ -29,9 +29,8 @@ class BugSystemOptionsTab(BugOptionsTab.BugOptionsTab):
 		self.addCheckbox(screen, center, "MainInterface__ModNameInReplays") # advc.106i
 		screen.setLayoutFlag(right, "LAYOUT_RIGHT")
 		screen.setLayoutFlag(right, "LAYOUT_SIZE_HPREFERREDEXPANDING")
-		self.addLabel(screen, right, "Version", 
-					  CvModName.getDisplayNameAndVersion() + " (" + CvModName.getCivNameAndVersion() + ")")
-		
+		self.addLabel(screen, right, "Version", CvModName.getDisplayNameAndVersion() + " (" + CvModName.getCivNameAndVersion() + ")")
+
 #		screen.attachHSeparator(column, column + "Sep1")		
 #		self.addLabel(screen, column, "Subversion", "Subversion (SVN):")
 #		self.addCheckbox(screen, column, "Core__CheckForUpdates")
@@ -45,7 +44,7 @@ class BugSystemOptionsTab(BugOptionsTab.BugOptionsTab):
 		self.addTextDropdown(screen, left, left, "Core__ScreenLogLevel")
 		self.addTextDropdown(screen, center, center, "Core__FileLogLevel")
 		self.addCheckbox(screen, right, "Core__LogTime")
-				
+
 		screen.attachHSeparator(column, column + "Sep3")
 		items = BugConfigTracker.combine()
 		itemNum = 0

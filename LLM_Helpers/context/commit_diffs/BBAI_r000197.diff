@@ -1,0 +1,470 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 197
+# Author: blakeciv
+# Date: 2006-12-18T00:49:53.648732Z
+# Coverage: full
+# Message:
+#   Changed the AI gold valuation for trade.
+#   Fixed some braindead bugs with the new great people stuff and AI panic stuff.
+#   Also tweaked production order and such.
+#   Tweaked the build governor and related issues...
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@196
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@197
+@@ -910,6 +910,14 @@
+ 					return;
+ 				}
+ 			}
++		}
++	}
++	
++	if (AI_countNumBonuses(NO_BONUS, false, true, -1) > 0)
++	{
++		if (getCommerceRate(COMMERCE_CULTURE) == 0)
++		{
++			AI_chooseBuilding(BUILDINGFOCUS_CULTURE);
+ 		}
+ 	}
+ 	
+@@ -1106,12 +1114,30 @@
+         		}
+         	}
+         }
++        
++        if (AI_chooseBuilding(BUILDINGFOCUS_FOOD))
++        {
++        	return;
++        }
+ 
+         if (!bFinancialTrouble && kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER))
+         {
+             if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Train Unit") > 25)
+             {
+-                if (iWaterPercent > 50)
++
++                int iBestFoundValue = area()->getBestFoundValue(getOwnerINLINE());
++                if (((GET_PLAYER(getOwnerINLINE()).getNumCities() == 1) && iBestFoundValue > 2000)
++                	|| ((GET_PLAYER(getOwnerINLINE()).getNumCities() >= 2) && iBestFoundValue > 4000))
++                {
++					if (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) == 0)
++					{
++						if (AI_chooseUnit(UNITAI_SETTLE))
++						{
++							return;
++						}
++					}                	
++                }
++				if (iWaterPercent > 50)
+                 {
+                     if (GC.getGameINLINE().getSorenRandNum(50, "AI Dagger Sea Unit") < (iWaterPercent / 2))
+                     {
+@@ -1119,22 +1145,10 @@
+ 						AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA, 20);
+                     }
+                 }
+-
+-                if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20))
++                
++				if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20))
+                 {
+-                    return;
+-                }
+-                int iBestFoundValue = area()->getBestFoundValue(getOwnerINLINE());
+-                if (((GET_PLAYER(getOwnerINLINE()).getNumCities() == 1) && iBestFoundValue > 2000)
+-                	|| ((GET_PLAYER(getOwnerINLINE()).getNumCities() >= 2) && iBestFoundValue > 4000))
+-                {
+-					if (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) == 0)
+-					{
+-						if (AI_chooseUnit(UNITAI_SETTLE))
+-						{
+-							return;
+-						}
+-					}                	
++                	
+                 }
+                 if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Choose Unit") > 30)
+                 {
+@@ -2874,7 +2888,7 @@
+ 					{
+ 					    
+ 					    iTempValue = kBuilding.getSeaPlotYieldChange(YIELD_FOOD) * AI_buildingSpecialYieldChangeValue(eBuilding, YIELD_FOOD);
+-					    if (iTempValue < 8)
++					    if ((iTempValue < 8) && (getPopulation() > 3))
+ 					    {
+ 					        // don't bother
+ 					    }
+@@ -4245,7 +4259,8 @@
+ 				{
+ 					
+ 					iMinTurns = min(iMinTurns, 10);
+-					if (AI_buildingSpecialYieldChangeValue(eProductionBuilding, YIELD_FOOD) > 10)
++					
++					if (AI_buildingSpecialYieldChangeValue(eProductionBuilding, YIELD_FOOD) > (getPopulation() * 2))
+ 					{
+ 						bEssential = true;
+ 						bGrowth = true;
+@@ -4440,7 +4455,7 @@
+ 			}
+ 			if (getProductionTurnsLeft() > iMinTurns)
+ 			{
+-				bWait = false;
++				bWait = isHuman();
+ 				
+ 				if ((iHurryPopulation * 3) > (getProductionTurnsLeft * 2))
+ 				{
+@@ -6329,32 +6344,45 @@
+ 
+ bool CvCityAI::AI_doPanic()
+ {
++	
+ 	bool bLandWar = ((area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_MASSING));
+ 	
+ 	if (bLandWar)
+ 	{
+ 		int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(), 0, true, false);
+ 		int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(), 2, false, false);
+-		
++		int iRatio = (100 * iEnemyOffense) / (max(1, iOurDefense));
+ 		AI_doDraft(true);
+-		if (iEnemyOffense > iOurDefense)
++		if (iRatio > 100)
+ 		{
+ 			UnitTypes eProductionUnit = getProductionUnit();
+ 
+ 			if (eProductionUnit != NO_UNIT)
+ 			{
+-				if (GC.getUnitInfo(eProductionUnit).getCombat() > 0)
+-				{
+-					AI_doHurry(true);
++				if (getProduction() > 0)
++				{
++					if (GC.getUnitInfo(eProductionUnit).getCombat() > 0)
++					{
++						AI_doHurry(true);
++						return true;
++					}
+ 				}
+ 			}
+ 			else
+ 			{
+-				if (AI_chooseUnit(UNITAI_CITY_COUNTER) || AI_chooseUnit(UNITAI_CITY_DEFENSE))
+-				{
+-					AI_doHurry(true);					
+-				}
+-			}			
++				if ((GC.getGame().getSorenRandNum(2, "AI choose panic unit") == 0) && AI_chooseUnit(UNITAI_CITY_COUNTER))
++				{
++					AI_doHurry((iRatio > 140));	
++				}
++				else if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
++				{
++					AI_doHurry((iRatio > 140));
++				}
++				else if (AI_chooseUnit(UNITAI_ATTACK))
++				{
++					AI_doHurry((iRatio > 140));
++				}
++			}
+ 		}
+ 	}
+ 	return false;
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@196
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@197
+@@ -1055,10 +1055,6 @@
+ 	int iValue;
+ 	int iLoop = 0;
+ 	int iMinRange = startingPlotRange();
+-	CvPlot* pPlotI;
+-	CvPlot* pPlotJ;
+-	
+-	int iI, iJ;
+ 
+ 	CvArea *pLoopArea = NULL;
+ 
+@@ -1081,42 +1077,6 @@
+ 				iValue /= 3;
+ 			}
+ 			
+-
+-//			//penalize for too-close starts
+-//			for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+-//			{
+-//				if ((getID() != iI) && (GET_PLAYER((PlayerTypes)iI).isAlive()))
+-//				{
+-//					pPlotI = GET_PLAYER((PlayerTypes)iI).getStartingPlot();
+-//					if (pPlotI != NULL)
+-//					{
+-//						if (pPlotI->area() == pLoopArea)
+-//						{
+-//							for (iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
+-//							{
+-//								if ((iJ != getID()) && (GET_PLAYER((PlayerTypes)iJ).isAlive()))
+-//								{
+-//									pPlotJ = GET_PLAYER((PlayerTypes)iJ).getStartingPlot();
+-//									if (pPlotJ != NULL)
+-//									{
+-//										if (pPlotJ->area() == pLoopArea)
+-//										{
+-//											int iDistance = plotDistance(pPlotI->getX_INLINE(), pPlotI->getY_INLINE(), pPlotJ->getX_INLINE(), pPlotJ->getY_INLINE());
+-//											if (iDistance <= ((iMinRange * 2) / 3))
+-//											{
+-//												iValue *= iDistance;
+-//												iValue /= (1 + iMinRange);
+-//											}
+-//										}
+-//									}
+-//								}
+-//							}
+-//						}
+-//					}
+-//				}
+-//			}
+-			
+-
+ 			if (iValue > iBestValue)
+ 			{
+ 				iBestValue = iValue;
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@196
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@197
+@@ -4525,12 +4525,12 @@
+ 			}
+ 			break;
+ 		case TRADE_GOLD:
+-			iValue += pNode->m_data.m_iData * 2;
++			iValue += (pNode->m_data.m_iData * AI_goldTradeValuePercent()) / 100;
+ 			break;
+ 		case TRADE_GOLD_PER_TURN:
+ 			if (!bIgnoreAnnual)
+ 			{
+-				iValue += AI_goldPerTurnTradeVal(pNode->m_data.m_iData) * 2;
++				iValue += AI_goldPerTurnTradeVal(pNode->m_data.m_iData);
+ 			}
+ 			break;
+ 		case TRADE_MAPS:
+@@ -4697,6 +4697,7 @@
+ 	int iHumanDealWeight;
+ 	int iAIDealWeight;
+ 	int iGoldData;
++	int iGoldWeight;
+ 	int iWeight;
+ 	int iBestWeight;
+ 	int iValue;
+@@ -4801,15 +4802,19 @@
+ 				}
+ 			}
+ 		}
+-
+-		if (iAIDealWeight > iHumanDealWeight)
++		
++		int iGoldWeight = iAIDealWeight - iHumanDealWeight;
++
++		if (iGoldWeight > 0)
+ 		{
+ 			if (pGoldNode)
+ 			{
+-				if (GET_PLAYER(ePlayer).AI_maxGoldTrade(getID()) >= (iAIDealWeight - iHumanDealWeight))
+-				{
+-					pGoldNode->m_data.m_iData = (iAIDealWeight - iHumanDealWeight);
+-					iHumanDealWeight += pGoldNode->m_data.m_iData;
++				iGoldData = iGoldWeight * 100;
++				iGoldData /= AI_goldTradeValuePercent();
++				if (GET_PLAYER(ePlayer).AI_maxGoldTrade(getID()) >= iGoldData)
++				{
++					pGoldNode->m_data.m_iData = iGoldData;
++					iHumanDealWeight += iGoldWeight;
+ 					pTheirCounter->insertAtEnd(pGoldNode->m_data);
+ 					pGoldNode = NULL;
+ 				}
+@@ -4885,19 +4890,22 @@
+ 				}
+ 			}
+ 		}
+-
+-		if (iAIDealWeight > iHumanDealWeight)
++		
++		iGoldWeight = iAIDealWeight - iHumanDealWeight;
++
++		if (iGoldWeight > 0)
+ 		{
+ 			if (pGoldNode)
+ 			{
+-				iGoldData = (iAIDealWeight - iHumanDealWeight);
++				iGoldData = iGoldWeight * 100;
++				iGoldData /= AI_goldTradeValuePercent();
+ 
+ 				iGoldData = min(iGoldData, GET_PLAYER(ePlayer).AI_maxGoldTrade(getID()));
+ 
+ 				if (iGoldData > 0)
+ 				{
+ 					pGoldNode->m_data.m_iData = iGoldData;
+-					iHumanDealWeight += pGoldNode->m_data.m_iData;
++					iHumanDealWeight += (iGoldData * AI_goldTradeValuePercent()) / 100;
+ 					pTheirCounter->insertAtEnd(pGoldNode->m_data);
+ 					pGoldNode = NULL;
+ 				}
+@@ -5068,15 +5076,19 @@
+ 				}
+ 			}
+ 		}
+-
+-		if (iHumanDealWeight > iAIDealWeight)
++		
++		iGoldWeight = iHumanDealWeight > iAIDealWeight;
++
++		if (iGoldWeight > 0)
+ 		{
+ 			if (pGoldNode)
+ 			{
+-				if (AI_maxGoldTrade(ePlayer) >= (iHumanDealWeight - iAIDealWeight))
+-				{
+-					pGoldNode->m_data.m_iData = (iHumanDealWeight - iAIDealWeight);
+-					iAIDealWeight += pGoldNode->m_data.m_iData;
++				int iGoldData = iGoldWeight * 100;
++				iGoldData /= AI_goldTradeValuePercent();
++				if (AI_maxGoldTrade(ePlayer) >= iGoldData)
++				{
++					pGoldNode->m_data.m_iData = iGoldData;
++					iAIDealWeight += (iGoldData * AI_goldTradeValuePercent());
+ 					pOurCounter->insertAtEnd(pGoldNode->m_data);
+ 					pGoldNode = NULL;
+ 				}
+@@ -5159,18 +5171,20 @@
+ 			}
+ 		}
+ 
+-		if (iHumanDealWeight > iAIDealWeight)
++		iGoldWeight = iHumanDealWeight - iAIDealWeight;
++		if (iGoldWeight > 0)
+ 		{
+ 			if (pGoldNode)
+ 			{
+-				iGoldData = (iHumanDealWeight - iAIDealWeight);
++				iGoldData = iGoldWeight * 100;
++				iGoldData /= AI_goldTradeValuePercent();
+ 
+ 				iGoldData = min(iGoldData, AI_maxGoldTrade(ePlayer));
+ 
+ 				if (iGoldData > 0)
+ 				{
+ 					pGoldNode->m_data.m_iData = iGoldData;
+-					iAIDealWeight += pGoldNode->m_data.m_iData;
++					iAIDealWeight += (iGoldData * AI_goldTradeValuePercent()) / 100;
+ 					pOurCounter->insertAtEnd(pGoldNode->m_data);
+ 					pGoldNode = NULL;
+ 				}
+@@ -5274,7 +5288,11 @@
+ 
+ int CvPlayerAI::AI_goldPerTurnTradeVal(int iGoldPerTurn)
+ {
+-	return (iGoldPerTurn * GC.getDefineINT("PEACE_TREATY_LENGTH"));
++	int iValue = iGoldPerTurn * GC.getDefineINT("PEACE_TREATY_LENGTH");
++	iValue *= AI_goldTradeValuePercent();
++	iValue /= 100;
++	
++	return iValue;
+ }
+ 
+ 
+@@ -10271,6 +10289,18 @@
+ 	
+ }
+ 
++
++int CvPlayerAI::AI_goldTradeValuePercent()
++{
++	int iValue = 2;
++	if (AI_isFinancialTrouble())
++	{
++		iValue += 1;
++	}
++	return 100 * iValue;
++	
++}
++
+ //
+ // read object from a stream
+ // used during load
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.h
+--- /trunk/CvGameCoreDLL/CvPlayerAI.h@196
++++ /trunk/CvGameCoreDLL/CvPlayerAI.h@197
+@@ -237,6 +237,7 @@
+     int AI_getOurPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves);
+     int AI_getEnemyPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves);
+ 
++	int AI_goldTradeValuePercent();
+ 	// for serialization
+   virtual void read(FDataStreamBase* pStream);
+   virtual void write(FDataStreamBase* pStream);
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@196
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@197
+@@ -6423,10 +6423,13 @@
+ 						{
+ 							bDoesJoin = true;
+ 						}
+-						iCount += pLoopCity->getSpecialistCount(eSpecialist);
+-						if (iCount >= iMaxCount)
++						if (bDoesJoin)
+ 						{
+-							return false;
++							iCount += pLoopCity->getSpecialistCount(eSpecialist);
++							if (iCount >= iMaxCount)
++							{
++								return false;
++							}
+ 						}
+ 						
+ 						if (canJoin(pLoopCity->plot(), ((SpecialistTypes)iI)))
+@@ -6507,7 +6510,7 @@
+ 								bDoesBuild = true;
+ 							}
+ 							
+-							if (pLoopCity->hasBuilding(eBuilding))
++							if (bDoesBuild && (pLoopCity->hasBuilding(eBuilding)))
+ 							{
+ 								iCount++;
+ 								if (iCount >= iMaxCount)
+@@ -7754,16 +7757,19 @@
+ 			{
+ 				if (!atPlot(pLoopCity->plot()) && generatePath(pLoopCity->plot(), 0, true, &iPathTurns))
+ 				{
+-					iValue = GET_PLAYER(getOwnerINLINE()).AI_targetCityValue(pLoopCity, false);
+-
+-					iValue *= 1000;
+-
+-					iValue /= (iPathTurns + 1);
+-
+-					if (iValue > iBestValue)
++					if (iPathTurns < 10)
+ 					{
+-						iBestValue = iValue;
+-						pBestCity = pLoopCity;
++						iValue = GET_PLAYER(getOwnerINLINE()).AI_targetCityValue(pLoopCity, false);
++
++						iValue *= 1000;
++
++						iValue /= (iPathTurns + 1);
++
++						if (iValue > iBestValue)
++						{
++							iBestValue = iValue;
++							pBestCity = pLoopCity;
++						}
+ 					}
+ 				}
+ 			}
+

@@ -20,10 +20,7 @@ public:
 	CvProcessInfo();
 	~CvProcessInfo();
 
-	TechTypes getTechPrereq() const // Exposed to Python
-	{
-		return m_eTechPrereq;
-	}
+	TechTypes getTechPrereq() const { return m_eTechPrereq; } // Exposed to Python
 	int getProductionToCommerceModifier(CommerceTypes eCommerce) const; // Exposed to Python
 	iPY_WRAP(ProductionToCommerceModifier, Commerce);
 	bool read(CvXMLLoadUtility* pXML);
@@ -89,11 +86,7 @@ public:
 	int getSpeedThreshold(int i) const; // Exposed to Python
 	bool read(CvXMLLoadUtility* pXML);
 
-	static CultureLevelTypes finalCultureLevel()
-	{
-		FAssert(GC.getNumCultureLevelInfos() > 0);
-		return (CultureLevelTypes)(GC.getNumCultureLevelInfos() - 1);
-	}
+	static CultureLevelTypes finalCultureLevel() { FAssert(GC.getNumCultureLevelInfos() > 0); return (CultureLevelTypes)(GC.getNumCultureLevelInfos() - 1); }
 
 protected:
 	int m_iCityDefenseModifier;

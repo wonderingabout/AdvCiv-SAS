@@ -10,6 +10,38 @@ class CvPlot;
 class CvArea;
 class CvGame;
 
+// <!-- custom: Recorder-owned optional Food-support output; keep its fields in SASGameRecordLog.h and only declare the pointer type here. See KI#144.4. (GPT-6.1-Sol) -->
+struct SASGameRecordCitySiteFoodSupportResult;
+
+// <!-- custom: Caller-owned numeric evidence for comparing partially revealed sites without dividing city-center, health or strategic bonuses by plot count.
+// Known slots include unusable/off-map zero-value slots; only actual fog is unknown.
+// The sorted values retain zero placeholders solely for an explicit exploration forecast, never for committing a city. See KI#144.6. (GPT-6.1-Sol) -->
+struct SASCitySiteKnownPlotValues
+{
+	SASCitySiteKnownPlotValues() : iKnownNonHomePlots(0), iUnrevealedNonHomePlots(0), iKnownWorkedValue(0), iKnownForecastValue(0), iConfirmedWeightedPlotValue(0), bFirstCity(false)
+	{
+		for (int i = 0; i < NUM_CITY_PLOTS; ++i)
+		{
+			aiSortedPlotValues[i] = 0;
+			aiWorkedPlotValues[i] = 0;
+			aiForecastPlotValues[i] = 0;
+		}
+	}
+	int getAverageValueX100() const { return (iKnownNonHomePlots > 0 ? (int)(((__int64)iKnownWorkedValue * 100) / iKnownNonHomePlots) : 0); }
+	int iKnownNonHomePlots;
+	int iUnrevealedNonHomePlots;
+	int iKnownWorkedValue;
+	int iKnownForecastValue;
+	int iConfirmedWeightedPlotValue;
+	bool bFirstCity;
+	int aiSortedPlotValues[NUM_CITY_PLOTS];
+	// <!-- custom: Preserve spatial worked value, including bonus-improvement yields, for revealed-frontier forecasts; sorted scores alone cannot identify which edge is promising. See KI#144.6. (GPT-6.1-Sol) -->
+	int aiWorkedPlotValues[NUM_CITY_PLOTS];
+	// <!-- custom: Forecast samples omit the separate resource-improvement reward; known Sugar/Gems value remains real, but projecting that reward into ordinary fog assumes more such resources.
+	// Keep both arrays because zero relative-frontier strength restores the prior complete-worked-value forecast. See KI#144.6. (GPT-6.1-Sol) -->
+	int aiForecastPlotValues[NUM_CITY_PLOTS];
+};
+
 // advc: New classes extracted from CvPlayerAI::AI_foundValue
 
 // Corresponds to K-Mod's CvPlayerAI::CvFoundSettings
@@ -18,9 +50,34 @@ class CitySiteEvaluator
 public:
 	CitySiteEvaluator(CvPlayerAI const& kPlayer, int iMinRivalRange = -1,
 			bool bStartingLoc = false, bool bNormalize = false);
-	short evaluate(CvPlot const& kPlot) const;
-	short evaluate(int iX, int iY) const;
-	short evaluateWithLogging(CvPlot const& kPlot) const; // advc.031c
+	// <!-- custom: found-value path uses int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
+	int evaluate(CvPlot const& kPlot) const;
+	int evaluate(int iX, int iY) const;
+	// <!-- custom: Return the ordinary confirmed score plus known worked-plot evidence from that same evaluation; no logging or unknown resource knowledge is required.
+	// The separate hope projection prices an investigation only and never replaces the confirmed settlement score. See KI#144.6. (GPT-6.1-Sol) -->
+	int evaluateWithKnownPlotValues(CvPlot const& kPlot, SASCitySiteKnownPlotValues& kKnown) const;
+	// <!-- custom: Optional per-slot forecasts replace uniform fog filling; negative entries denote known/nonexistent slots.
+	// This remains exploration-only. See KI#144.6. (GPT-6.1-Sol) -->
+	static int getHopePlotValueGain(SASCitySiteKnownPlotValues const& kKnown, int iUpsideReferencePercent, int const* paiFogForecast = NULL);
+	// <!-- custom: Opt-in diagnostic entry point: return the same found value while filling an exact stage-by-stage summary; callers guard its use behind logging so normal city-site evaluation does no string formatting. (GPT-5.5) -->
+	int evaluateWithBreakdown(CvPlot const& kPlot, CvString& szBreakdown) const;
+	// <!-- custom: First-city roaming can distinguish a genuinely weak site from a food-imperfect site with strong practical worked-plot cores.
+	// Compute the best-6/10 decision metrics without formatting the finer best-1/2/3 or mature best-14 diagnostics. (GPT-5.6-Sol) -->
+	int evaluateWithGrowthCorePlotValues(CvPlot const& kPlot, int& iBest6PlotValue, int& iBest10PlotValue, int& iSustainableProductivePlotValue) const;
+	// <!-- custom: SASGameRecord founding snapshots can reuse the same plot-value distribution already computed inside AIFoundValue without parsing BBAI text or rescanning the BFC afterward.
+	// Core sums use sizes 1/2/3/6/10/14; positive-plot count describes the same sorted potential-plot values; diagnostic only. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Added optional numeric Food-summary output to the existing distribution pass for rare founding-time recorder comparisons; ordinary callers pass NULL and skip its collection/search. See KI#144.4. (GPT-6.1-Sol) -->
+	int evaluateWithPlotValueDistribution(CvPlot const& kPlot, int* aiCoreSums, int& iPositivePlots, int& iSustainableProductivePlotValue, SASGameRecordCitySiteFoodSupportResult* pFoodSummary = NULL) const;
+	// <!-- custom: Share one XML-driven scale for heuristics expressed in found-value units.
+	// A sustainable productive reference plot supplies the current food consumption per citizen plus 1 Production and uses the same self-sustaining yield weights as ordinary site evaluation. (GPT-5.6-Sol) -->
+	static int getSustainableProductivePlotValue();
+	// <!-- custom: Compare frontier optimism with the confirmed site's small configured core, using the same BFC-relative slot setting as actual valuation rather than a separate fixed six or score cutoff. See KI#144.6. (GPT-6.1-Sol) -->
+	static int getSmallCoreAverageValueX100(SASCitySiteKnownPlotValues const& kKnown);
+	// <!-- custom: The limiting small/medium core relative to equally sized sustainable productive plots distinguishes a weak known capital from an already strong one without terrain names or an absolute found-value cutoff. See KI#144.6. (GPT-6.1-Sol) -->
+	static int getLimitingEarlyCoreQualityPercent(SASCitySiteKnownPlotValues const& kKnown);
+	// <!-- custom: Share settlement-specific seafood counts between selected-site, city-site-list and broad founding diagnostics.
+	// Ordinary diagnostics use the founder's information and non-obsolete resources; SASGameRecord can additionally request the true-map count to explain hidden seafood at the site actually founded; callers keep the BFC scan behind diagnostic gates. (GPT-5.6-Sol) -->
+	static int countWaterBonuses(CvPlot const& kCityPlot, TeamTypes eTeam, bool bDiagnosticOmniscience);
 	scaled evaluateWorkablePlot(CvPlot const& kPlot) const; // advc.027
 	CvPlayerAI const& getPlayer() const { return m_kPlayer; }
 	bool isStartingLoc() const { return m_bStartingLoc; }
@@ -47,6 +104,15 @@ public:
 	/*	doesn't need vision of a plot to know what's there
 		[But doesn't necessarily reveal resources; see AIFoundValue::getBonus.] */
 	bool isAllSeeing() const { return m_bAllSeeing; }
+	// <!-- custom: First-settler roaming needs starting-capital weights without map-generation omniscience. (GPT-5.5) -->
+	void setAllSeeing(bool b) { m_bAllSeeing = b; }
+	// <!-- custom: Pregame starting-plot generation should stay leader-neutral, but the live first Settler already belongs to a concrete civilization/leader.
+	// Let that runtime caller opt into real yield-threshold traits without enabling personality or the inherited extra Financial river preference; changing the mode clears cached trait-dependent plot values. See KI#144.6. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	void setUsePlayerYieldTraits(bool b);
+	bool isPlayerYieldTraitScoringEnabled() const { return (!m_bStartingLoc || m_bUsePlayerYieldTraits); }
+	// <!-- custom: Level-3 diagnostics can compare the player's actual information with the true map, including technology-hidden bonuses that ordinary starting-location all-seeing intentionally still conceals; this mode is diagnostic only and must not feed AI choices. (GPT-5.6-Sol) -->
+	void setDiagnosticOmniscience(bool b) { m_bDiagnosticOmniscience = b; if (b) m_bAllSeeing = true; }
+	bool isDiagnosticOmniscience() const { return m_bDiagnosticOmniscience; }
 	// some trait information that will influence where we settle ...
 	// easy for us to pop the culture to the 2nd border
 	bool isEasyCulture() const { return m_bEasyCulture; }
@@ -61,11 +127,26 @@ public:
 	bool isSeafaring() const { return m_bSeafaring; }
 	// willing to place cities further apart. (not directly based on the expansive trait)
 	bool isExpansive() const { return m_bExpansive; }
-	// <advc.031c>
-	void log(CvPlot const& kPlot);
-	void logSettings() const; // </advc.031c>
+	// <!-- custom: Context identifies the caller in output only; 1ST and 2PL guards are selected where the corresponding code executes, shared paths by the player's phase. See KI#505.2, KI#144.6. (ChatGPT-5.6-Sol + GPT-6.1-Sol + Claude code Opus 5.5) -->
+	void setLogContext(SASFoundLogContextTypes eContext) { m_eLogContext = eContext; }
+	SASFoundLogContextTypes getLogContext() const { return m_eLogContext; }
 
 private:
+	// <!-- custom: Cache the best XML-valid improvement outcome for each plot across the many overlapping candidate BFCs evaluated by one CitySiteEvaluator.
+	// AIFoundValue performs the plot scoring, so grant it access to these private cache helpers instead of exposing their internals publicly. (GPT-5.6-Sol) -->
+	struct PlotPotentialYield
+	{
+		PlotPotentialYield();
+		int iValue;
+		ImprovementTypes eImprovement;
+		int aiYield[NUM_YIELD_TYPES];
+		int iTimingPercent;
+	};
+	bool getCachedPlotPotentialYield(CvPlot const& kPlot, int& iValue, ImprovementTypes& eImprovement, int* aiYield, int& iTimingPercent) const;
+	void cachePlotPotentialYield(CvPlot const& kPlot, int iValue, ImprovementTypes eImprovement, int const* aiYield, int iTimingPercent) const;
+	bool getCachedImprovementProduction(CvPlot const& kPlot, scaled& rValue) const;
+	void cacheImprovementProduction(CvPlot const& kPlot, scaled rValue) const;
+	friend class AIFoundValue;
 	CvPlayerAI const& m_kPlayer;
 	bool m_bStartingLoc;
 	bool m_bScenario; // advc
@@ -76,6 +157,13 @@ private:
 	bool m_bAdvancedStart; // advc
 	bool m_bDebug; // advc.007
 	bool m_bAllSeeing;
+	// <!-- custom: True only for the level-3 true-map comparison evaluator; an evaluator whose result can drive an AI decision must leave this false. (GPT-5.6-Sol) -->
+	bool m_bDiagnosticOmniscience;
+	// <!-- custom: Opt-in actual yield-threshold scoring for live first capitals and their matching recorder comparisons; pregame starting locations retain the default false. See KI#144.6. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	bool m_bUsePlayerYieldTraits;
+	// <!-- custom: Diagnostic-only caller identity, stored as an enum to prevent misspelled string labels and avoid carrying a raw string pointer.
+	// Only enabled BBAI output converts it to text; it never selects scoring rules. See KI#505.2. (GPT-6.1-Sol) -->
+	SASFoundLogContextTypes m_eLogContext;
 	int m_iClaimThreshold;
 	bool m_bEasyCulture;
 	bool m_bAmbitious;
@@ -84,6 +172,10 @@ private:
 	bool m_bDefensive;
 	bool m_bSeafaring;
 	bool m_bExpansive;
+	// <!-- custom: AI_updateFoundValues evaluates overlapping BFCs across every revealed map plot.
+	// Cache plot-intrinsic XML improvement scans for this evaluator instance so the de-hardcoded logic scans each ordinary plot once, including when diagnostics are enabled; the consolidated plot row identifies reused outcomes through potentialCacheHit instead of repeating candidate scans. See KI#505.2. (GPT-5.6-Sol + GPT-6.1-Sol) -->
+	mutable std::map<PlotNumTypes, PlotPotentialYield> m_plotPotentialYieldCache;
+	mutable std::map<PlotNumTypes, scaled> m_improvementProductionCache;
 };
 
 /*  AIFoundValue::evaluate corresponds to K-Mod's CvPlayerAI::AI_foundValue_bulk
@@ -91,16 +183,37 @@ private:
 class AIFoundValue
 {
 public:
-	AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings);
-	short get() const { return m_iResult; }
+	// <!-- custom: A non-null breakdown output or the phase-routed Found level 2+ enables diagnostic accounting during the same evaluation; neither changes the returned score.
+	// Disabled logging with no output skips formatting. See KI#505.2. (GPT-5.5 + GPT-6.1-Sol + Claude code Opus 5.5) -->
+	// <!-- custom: Let SPI construct the shared workable-plot context without also running and discarding a complete city-site evaluation; optional output pointers expose decision components already computed during the same pass. See KI#492. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: Added optional caller-owned Food summary; this enables diagnostic collection without requiring BBAI output and cannot supply a gameplay result. See KI#144.4. (GPT-6.1-Sol) -->
+	// <!-- custom: Add an optional known-plot result for coverage-aware exploration; confirmed scoring is unchanged and projections remain outside settlement decisions. See KI#144.6. (GPT-6.1-Sol) -->
+	AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings, CvString* pszBreakdown = NULL, bool bEvaluateSite = true, int* paiGrowthCorePlotValues = NULL, int* piSustainableProductivePlotValue = NULL, int* paiPlotCoreSums = NULL, int* paiPlotCoreCutoffs = NULL, int* piPositivePlots = NULL, SASGameRecordCitySiteFoodSupportResult* pFoodSummary = NULL, SASCitySiteKnownPlotValues* pKnownPlots = NULL);
+	int get() const { return m_iResult; }
 	scaled evaluateWorkablePlot(CvPlot const& p) const; // advc.027
+	// <!-- custom: Reuse XML-aware ordinary-land potential for revealed directional scouting samples; -1 excludes unknown, water and visible resource plots, so a resource cannot stand in for the surrounding terrain. See KI#144.6. (GPT-6.1-Sol) -->
+	int evaluateKnownOrdinaryLandPotential(CvPlot const& p) const;
 
-	// <advc.031c> Will have to enable the found log in BBAILog.h in addition
-	static void setLoggingEnabled(bool b);
-	static bool isLoggingEnabled() { return bLoggingEnabled; } // </advc.031c>
+	// <!-- custom: Removed the inherited advc.031c setLoggingEnabled()/isLoggingEnabled() API and static bLoggingEnabled switch: they enabled output only during a separate replay and suppressed constructor settings output.
+	// Caller-side FOUND_1ST / FOUND_2PL guards now observe existing evaluations without a process-wide switch that couples evaluator instances. See KI#505.2. (GPT-6.1-Sol + Claude code Opus 5.5) -->
 
 private:
-	short m_iResult;
+	int m_iResult;
+	// <!-- custom: Snapshot of the constructor's bEvaluateSite argument for diagnostic scope only: true means a complete SITE evaluation; false means a shared WORKABLE_PLOT context (SPI or ordinary-land scouting samples).
+	// Prevent partial helper output from looking like a full site result; this is not a logging-enable flag. See KI#505.2. (GPT-6.1-Sol) -->
+	bool const m_bSiteEvaluation;
+	CvString* m_pszBreakdown;
+	// <!-- custom: Optional caller-owned outputs reuse results already computed by this evaluation.
+	// Growth-core returns the best-6 and best-10 values for first-city logic; the productive-plot output shares its reference threshold; the broader diagnostic outputs return the best-1/2/3/6/10/14 sums and cutoffs plus the positive-plot count. (GPT-5.6-Sol) -->
+	int* m_paiGrowthCorePlotValues;
+	int* m_piSustainableProductivePlotValue;
+	int* m_paiPlotCoreSums;
+	int* m_paiPlotCoreCutoffs;
+	int* m_piPositivePlots;
+	// <!-- custom: Non-owning output used only by explicit recorder evaluations; NULL keeps ordinary callers outside the additional Food-summary work. (GPT-6.1-Sol) -->
+	SASGameRecordCitySiteFoodSupportResult* m_pFoodSummary;
+	// <!-- custom: Optional gameplay comparison output; NULL keeps ordinary scoring outside the extra known-plot accounting. See KI#144.6. (GPT-6.1-Sol) -->
+	SASCitySiteKnownPlotValues* m_pKnownPlots;
 	/*  The rest aren't prefixed with "m_"; too awkward. Note that the order of
 		the reference members needs to match their order in the ctor initalizer list. */
 	CvPlot const& kPlot;
@@ -108,6 +221,7 @@ private:
 	CitySiteEvaluator const& kSet;
 	CvPlayerAI const& kPlayer;
 	PlayerTypes ePlayer;
+	int const iFoundLogLevel; // <!-- custom: Phase-routed Found level, resolved once per evaluation; must follow ePlayer. (Claude code Opus 5.5) -->
 	TeamTypes eTeam;
 	CvTeamAI const& kTeam;
 	CvGame const& kGame;
@@ -117,6 +231,9 @@ private:
 	int iX, iY;
 	CvCityAI const* pCapital;
 	bool bCoastal;
+	// <!-- custom: Cache the candidate's ocean-coast eligibility and civilization-specific assumed sea-Food building once per evaluation; share it across classification, Food support and workable-yield helpers. See KI#144.6. (GPT-5.5 + GPT-6.1-Sol) -->
+	bool bOceanCoastal;
+	int iAssumedSeaPlotFoodChange;
 	int iAreaCities;
 	int iCities;
 	// Intermediate values ...
@@ -127,83 +244,103 @@ private:
 	bool bFirstColony;
 	int iUnrevealedTiles; // advc.040
 	// <advc.031c>
-	static bool bLoggingEnabled;
+	// <!-- custom: The event name already states a simple reason; optional payloads add values or explanation rather than repeating that name as prose. See KI#505.2. (GPT-6.1-Sol) -->
+	void logBBAIFoundDetail(char const* szEvent, char const* szFormat = "", ...) const;
 	static wchar const* cityName(CvCity const& kCity);
-	void logSite() const;
-	void logPlot(CvPlot const& p, int iPlotValue, int const* aiYield,
-			int iCultureModifier, BonusTypes eBonus, ImprovementTypes eBonusImprovement,
-			bool bCanTradeBonus, bool bCanSoonTradeBonus, bool bCanImproveBonus,
-			bool bCanSoonImproveBonus, bool bEasyAccess,
-			int iFeatureProduction, bool bPersistentFeature, bool bRemovableFeature) const;
+	// <!-- custom: Former AIFoundValue::logSite() emitted site identity and coastal/city context.
+	// The explicit BBAI name now also covers the settings formerly emitted by CitySiteEvaluator::logSettings(), recorded with the actual evaluation rather than a replay. See KI#505.2. (GPT-6.1-Sol) -->
+	void logBBAIFoundSiteSettings() const;
+	// <!-- custom: Renamed inherited AIFoundValue::logPlot(): reports BFC plot yields, culture and resource-access diagnostics without calculating valuation.
+	// Consolidated rows now also carry the already-computed nature/potential scores and cache-hit result.
+	// The BBAI prefix identifies its output sink; logBBAIFoundDetail supplies the shared row context. See KI#505.2. (GPT-6.1-Sol) -->
+	// <!-- custom: iFeatureDiscoveryValue added for the PLOT row's featureDiscoveryValue field. See KI#1078. (Claude code Opus 5.5) -->
+	void logBBAIFoundPlotDetails(CvPlot const& p, int iPlotValue, int const* aiYield, int iCultureModifier, BonusTypes eBonus, ImprovementTypes eBonusImprovement, bool bCanTradeBonus, bool bCanSoonTradeBonus, bool bCanImproveBonus, bool bCanSoonImproveBonus, bool bEasyAccess, int iFeatureProduction, bool bPersistentFeature, bool bRemovableFeature, int iNatureYieldValue, int iPotentialValue, ImprovementTypes ePotentialImprovement, int const* aiPotentialYield, int iPotentialTimingPercent, bool bPotentialCacheHit, int iFeatureDiscoveryValue) const;
 	// </advc.031c>
-	short evaluate();
+	int evaluate();
 	// Subroutines of evaluate ...
 	bool isHome(CvPlot const& p) const { return (&p == &kPlot); }
 	bool isSiteValid() const;
 	bool computeOverlap();
 	bool isPrioritizeAsFirstColony() const; // advc.040
-	int countBadTiles(int& iInner, int& iUnrevealed, int& iLand,
-			int& iRevealedDecentLand) const;
+	int countBadTiles(int& iInner, int& iUnrevealed, int& iLand, int& iRevealedDecentLand) const;
 	bool isTooManyBadTiles(int iBadTiles, int iInnerBadTiles) const;
 	int baseCityValue() const;
-	bool isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCityRadius,
-			bool& bForeignOwned, bool& bAnyForeignOwned, bool& bShare, bool& bSteal) const;
-	bool isRemovableFeature(CvPlot const& p, bool& bPersistent,
-			int& iFeatureProduction) const;
+	bool isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCityRadius, bool& bForeignOwned, bool& bAnyForeignOwned, bool& bShare, bool& bSteal) const;
+	bool isRemovableFeature(CvPlot const& p, bool& bPersistent, int& iFeatureProduction) const;
 	bool isRevealed(CvPlot const& p) const;
 	PlayerTypes getRevealedOwner(CvPlot const& p) const;
 	TeamTypes getRevealedTeam(CvPlot const& p) const;
+	// <!-- custom: Count only cities the evaluating team owns or can locate when an ordinary found-value heuristic asks about an area's settlement state. See KI#493 and KI#495. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int countKnownCities(CvArea const& kLoopArea, PlayerTypes eOwner = NO_PLAYER) const;
 	BonusTypes getBonus(CvPlot const& p) const;
-	ImprovementTypes getBonusImprovement(BonusTypes eBonus, CvPlot const& p,
-			bool& bCanTrade, bool& bCanTradeSoon, int* aiImprovementYield,
-			bool& bCanImprove, bool& bCanImproveSoon, bool& bRemoveFeature) const;
+	ImprovementTypes getBonusImprovement(BonusTypes eBonus, CvPlot const& p, bool& bCanTrade, bool& bCanTradeSoon, int* aiImprovementYield, bool& bCanImprove, bool& bCanImproveSoon, bool& bRemoveFeature) const;
 	bool isNearTech(TechTypes eTech) const;
-	int calculateCultureModifier(CvPlot const& p, bool bForeignOwned, bool bShare,
-			bool bCityRadius, bool bSteal, bool bFlip, bool bOwnExcl,
-			int& iTakenTiles, int& iStealPercent) const;
-	int removableFeatureYieldVal(FeatureTypes eFeature, bool bRemovableFeature,
-			bool bBonus) const;
-	scaled estimateImprovementProduction(CvPlot const& p, bool bPersistentFeature) const;
-	int evaluateYield(int const* aiYield, CvPlot const* p = NULL,
-			bool bCanNeverImprove = false) const;
-	int evaluateFreshWater(CvPlot const& p, int const* aiYield, bool bSteal,
-			int& iRiverTiles, int& iGreenTiles) const;
-	int foundOnResourceValue(int const* aiBonusImprovementYield) const;
-	int applyCultureModifier(CvPlot const& p, int iPlotValue, int iCultureModifier,
-			bool bShare) const;
-	int nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade,
-			bool bCanTradeSoon, bool bEasyAccess, bool& bAnyGrowthBonus,
-			std::vector<int>* paiBonusCount, int iCultureModifier) const;
-	int calculateSpecialYieldModifier(int iCultureModifier, bool bEasyAccess,
-			bool bBonus, bool bCanSoonImproveBonus, bool bCanImproveBonus) const;
-	void calculateSpecialYields(CvPlot const& p,
-			int const* aiBonusImprovementYield, int const* aiNatureYield,
-			int iModifier, int* aiSpecialYield,
-			int& iSpecialFoodPlus, int& iSpecialFoodMinus, int& iSpecialYieldTiles) const;
-	void calculateBuildingYields(CvPlot const& p, int const* aiNatureYield,
-			int* aiBuildingYield) const;
-	int sumUpPlotValues(std::vector<int>& aiPlotValues) const;
-	int evaluateSpecialYields(int const* aiSpecialYield, int iSpecialYieldTiles,
-			int iSpecialFoodPlus, int iSpecialFoodMinus) const;
-	bool isTooManyTakenTiles(int iTaken, int iResourceValue, bool bLowValue) const;
+	int calculateCultureModifier(CvPlot const& p, bool bForeignOwned, bool bShare, bool bCityRadius, bool bSteal, bool bFlip, bool bOwnExcl, int& iTakenTiles, int& iStealPercent) const;
+	int removableFeatureYieldVal(FeatureTypes eFeature, bool bRemovableFeature, bool bBonus) const;
+	// <!-- custom: New: value of the bonus that removing p's feature may uncover, weighted by its chance and valued by evaluateYield like the plot's own yields. See KI#1078. (Claude code Opus 5.5) -->
+	int removableFeatureDiscoveryVal(CvPlot const& p, int const* aiNatureYield, int iNatureYieldValue, bool bCanNeverImprove) const;
+	// <!-- custom: The XML-driven replacement for AdvCiv's earlier fixed improvement-production estimate no longer accepts bPersistentFeature: feature retention or removal depends on each legal Build candidate and is derived inside the function. (GPT-5.6-Sol) -->
+	scaled estimateImprovementProduction(CvPlot const& p) const;
+	// <!-- custom: Settler sites now value ordinary plots through XML-valid improvement outcomes rather than named terrain/feature tables.
+	// Keep the city-center distinction optional so the home plot's lost workable potential can be evaluated as an ordinary BFC plot. (GPT-5.6-Sol) -->
+	int evaluateYield(int const* aiYield, CvPlot const* p = NULL, bool bCanNeverImprove = false, bool bTreatHomeAsCity = true) const;
+	// <!-- custom: Return both the best XML-valid Build outcome and the weighted yield/timing details needed by the caller and diagnostics; this replaces separate terrain-, feature- and named-improvement assumptions. (GPT-5.6-Sol) -->
+	// <!-- custom: bCacheHit reports the existing lookup outcome for consolidated diagnostics; it never controls cache policy or the returned score. See KI#505.2. (GPT-6.1-Sol) -->
+	int evaluateBestPotentialPlotYield(CvPlot const& p, bool bCanNeverImprove, ImprovementTypes& eBestImprovement, int* aiBestYield, int& iTimingPercent, bool& bCacheHit) const;
+	int evaluateFreshWater(CvPlot const& p, int const* aiYield, bool bSteal, int& iRiverTiles, int& iGreenTiles) const;
+	// <!-- custom: removed and now added inline in parent caller AIFoundValue::evaluate() directly, as it seems to be called only once, and we'd have more parameters to fine tune it further in parent caller rather, it is also clearer this way i think -->
+	//int foundOnResourceValue(int const* aiBonusImprovementYield) const;
+	int applyCultureModifier(CvPlot const& p, int iPlotValue, int iCultureModifier, bool bShare) const;
+	// <!-- custom: Base AdvCiv had no diagnostic pointer parameters here; our previous SAS diagnostics exposed baseBonusVal/multiplier/earlyPercent from the broad AI_bonusVal path.
+	// Replace those with explicit new health/happiness value, plausible ordinary and capped special-building health/happiness effects, final adjustment, and water-penalty diagnostics.
+	// The old first-growth/luxury extra is not a separate parameter because new health/happiness already represents that empire-wide effect; adding a flat first-bonus value would double-count it. See KI#178. (GPT-5.5 + GPT-5.6-Sol) -->
+	bool isPlotInKnownRivalFutureBFC(CvPlot const& p) const;
+	bool isBonusOwnedOrClaimedByFutureBFC(BonusTypes eBonus) const;
+	bool isBonusBuildingEffectValued(BuildingTypes eBuilding, int iMaxPrereqEra, bool bCoastal) const;
+	int calculateBonusBuildingHappyHealthValue(BonusTypes eBonus, bool bCoastal) const;
+	int calculateBonusConnectionEra(BonusTypes eBonus, CvPlot const& p) const;
+	int nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bEasyAccess, bool bCoastal, std::vector<int>* paiBonusCount, int iCultureModifier, int* piHappyHealthValue = NULL, int* piBuildingHappyHealthValue = NULL, int* piAdjustPercent = NULL, int* piWaterPenalty = NULL) const;
+	// <!-- custom: Observe known radius-3 resources and their BFC/ownership/claim context without granting resource credit.
+	// Replaces the experimental outer-ring scoring helper; call only behind Found level 3 for first-capital evaluation. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	void logBBAIFirstCityOuterRingResources(std::vector<int> const& aiBFCBonusCount) const;
+	int calculateSpecialYieldModifier(int iCultureModifier, bool bEasyAccess, bool bBonus, bool bCanSoonImproveBonus, bool bCanImproveBonus) const;
+	void calculateSpecialYields(CvPlot const& p, int const* aiBonusImprovementYield, int const* aiNatureYield, int iModifier, int* aiSpecialYield, int& iSpecialFoodPlus, int& iSpecialFoodMinus, int& iSpecialYieldTiles) const;
+	// <!-- custom: Drop aiNatureYield: the former hardcoded +1 Food on water with Commerce > 1 is replaced by the cached XML sea-Food assumption, independent of Commerce or terrain names. See KI#144.6. (GPT-6.1-Sol) -->
+	void calculateBuildingYields(CvPlot const& p, int* aiBuildingYield) const;
+	// <!-- custom: The weighted site total still uses the complete sorted BFC, while optional outputs expose best-1/2/3/6/10/14 sums, their cutoff plots and the positive-plot count from that same sort without rescanning or changing the score. (GPT-5.6-Sol) -->
+	int sumUpPlotValues(std::vector<int>& aiPlotValues, int* aiCoreSums = NULL, int* aiCoreCutoffs = NULL, int* piPositivePlots = NULL) const;
+	// <!-- custom: Disabled after XML-tunable SAS bonus-improvement yield valuation made this obscure hardcoded path redundant and retaining both overscored bonus-heavy sites in KI#173 follow-up testing.
+	// Kept commented with its implementation for reference. (GPT-5.5) -->
+	// int evaluateSpecialYields(int const* aiSpecialYield, int iSpecialYieldTiles, int iSpecialFoodPlus, int iSpecialFoodMinus) const;
+	// <!-- custom: simplify logic and attempt to spread cities more, currently they are way too crowded which is inefficient -->
+	// bool isTooManyTakenTiles(int iTaken, int iResourceValue, bool bLowValue) const;
+	bool isTooManyTakenTiles(int iTaken, int iResourceValue) const;
 	int evaluateLongTermHealth(int& iHealthPercent) const;
 	int evaluateFeatureProduction(int iProduction) const;
-	int evaluateSeaAccess(bool bGoodFirstColony, scaled rProductionModifier,
-			int iLandTiles) const;
-	int evaluateDefense() const;
+	int evaluateSeaAccess(bool bGoodFirstColony, scaled rProductionModifier, int iLandTiles) const;
+	// <!-- custom: Pass the remaining workable-plot value so inherent post-founding defense remains a proportional economic tiebreaker instead of AdvCiv's fixed Hill-only bonus or a multiplier on unrelated site rewards. (GPT-5.6-Sol) -->
+	int evaluateDefense(int iWorkablePlotValue) const;
 	int evaluateGoodies(int iGoodies) const;
 	int adjustToLandAreaBoundary(int iValue) const;
 	int adjustToStartingSurroundings(int iValue) const;
 	int adjustToStartingChoices(int iValue) const;
-	int adjustToFood(int iValue, int iSpecialFoodPlus, int iSpecialFoodMinus,
-			int iGreenTiles) const;
-	int adjustToProduction(int iValue, scaled rBaseProduction) const;
-	int adjustToBarbarianSurroundings(int iValue) const;
-	int adjustToCivSurroundings(int iValue, int iStealPercent) const;
+	// <!-- custom: try to remove this interference as we have a finer algorithm now, and this old code may lead to unexpected results -->
+	// int adjustToFood(int iValue, int iSpecialFoodPlus, int iSpecialFoodMinus,
+	// 		int iGreenTiles) const;
+	// <!-- custom: see code comment there for details -->
+	// int adjustToProduction(int iValue, scaled rBaseProduction) const;
+	// <!-- custom: Barbarian spawning already requires eligible fogged land; disable Base AdvCiv's additional penalty against a new Barbarian city near an existing city because it could make a stronger nearby tile lose to a weaker farther one.
+	// This never controlled normal Settlers avoiding Barbarian cities. (GPT-5.6-Sol) -->
+	//int adjustToBarbarianSurroundings(int iValue) const;
+	// <!-- custom: this adjustToCivSurroundings caused a bug of AI settler settling on bonus camel desert which is very bad in a desert surroudning even worse, it is seemingly called only once in AIFoundValue::evaluate, may as well disable it since it is so complicated and who knows where the bugs is(/are?)
+	// and instead migrate only a very simplified version of the logic we want directly inline in its only caller so in AIFoundValue::evaluate, done so with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details -->
+	// int adjustToCivSurroundings(int iValue, int iStealPercent) const;
 	int adjustToCitiesPerArea(int iValue) const;
 	int adjustToBonusCount(int iValue, std::vector<int> const& aiBonusCount) const;
-	int adjustToBadTiles(int iValue, int iBadTiles) const;
-	int adjustToBadHealth(int iValue, int iGoodHealth) const;
+	// <!-- custom: try to remove this interference as we have a finer algorithm now, and this old code may lead to unexpected results -->
+	// int adjustToBadTiles(int iValue, int iBadTiles) const;
+	// <!-- custom: same -->
+	//int adjustToBadHealth(int iValue, int iGoodHealth) const;
 	int countDeadlockedBonuses() const;
 	bool isDeadlockedBonus(CvPlot const& kBonusPlot, int iMinRange) const;
 };

@@ -5,8 +5,7 @@
 #
 # * This file stores the version of CvScreenUtils that is active
 # * It is called from CvScreensInterface
-# * When modding, this file should be replaced with one that has
-#   screenUtils pointing to the mods <Mod>ScreenUtils
+# * When modding, this file should be replaced with one that has screenUtils pointing to the mods <Mod>ScreenUtils
 #
 # No other modules should import this
 #

@@ -1,6 +1,6 @@
 ## BugOptionsScreen
 ##
-## Displays the BUG Options Screen and its tabs.
+## Displays the BUG_Options_Screen and its tabs.
 ##
 ## For input handlers see CvOptionsScreenCallbackInterface in Python/EntryPoints.
 ##
@@ -20,14 +20,12 @@ import BugHelp
 import BugOptions
 import BugUtil
 
-
 ## Globals
 
 g_optionsScreen = None
 
 CoreOpt = BugCore.game.Core
 MainOpt = BugCore.game.MainInterface
-
 
 ## Using and Showing
 
@@ -41,12 +39,10 @@ def showOptionsScreen(argsList=None):
 		MainOpt.setShowOptionsKeyReminder(False)
 	getOptionsScreen().interfaceScreen()
 
-
 ## Event Handlers
 
 def clearAllTranslations(argsList=None):
 	g_optionsScreen.clearAllTranslations()
-
 
 ## Control Callback Handlers
 
@@ -55,7 +51,7 @@ def handleBugExitButtonInput(argsList):
 	#szName = argsList[0]
 	getOptionsScreen().close()
 	return 1
-		
+
 def handleBugHelpButtonInput(argsList):
 	"Opens the BUG help file"
 	#szName = argsList[0]
@@ -107,12 +103,11 @@ def handleResolutionDropdownInput(argsList):
 	CvEventInterface.getEventManager().fireEvent("ResolutionChanged", value)
 	return 1
 
-
 ## Class
 
 class BugOptionsScreen:
 	"BUG Mod Options Screen"
-	
+
 	def __init__(self):
 		self.iScreenHeight = 50
 		self.options = BugOptions.getOptions()
@@ -137,7 +132,7 @@ class BugOptionsScreen:
 		self.pTabControl.setSize(950, 715)
 		self.pTabControl.setControlsExpanding(False)
 		self.pTabControl.setColumnLength(self.iScreenHeight)
-		
+
 		if self.options.isLoaded():
 			self.createTabs()
 		else:
@@ -152,7 +147,7 @@ class BugOptionsScreen:
 		"Clear the translations of all tabs in response to the user choosing a language"
 		for tab in self.tabs:
 			tab.clearTranslation()
-	
+
 	def close(self):
 		# TODO: check for error
 		self.options.write()
@@ -161,53 +156,52 @@ class BugOptionsScreen:
 		if self.reopen:
 			self.reopen = False
 			self.interfaceScreen()
-	
+
 	def setOptionValue(self, name, value):
 		option = self.options.getOption(name)
 		if (option is not None):
 			option.setValue(value)
-	
+
 	def setOptionIndex(self, name, index):
 		option = self.options.getOption(name)
 		if (option is not None):
 			option.setIndex(index)
 
-
 ## Configuration
 
 class ScreenConfig:
-	
+
 	def __init__(self, id):
 		self.id = id
 		self.tabs = []
-	
+
 	def addTab(self, tab):
 		self.tabs.append(tab)
 
 class ScreenHandler(BugConfig.Handler):
-	
+
 	TAG = "screen"
-	
+
 	def __init__(self):
 		BugConfig.Handler.__init__(self, ScreenHandler.TAG, "id", TabHandler.TAG)
 		self.addAttribute("id", True)
-	
+
 	def handle(self, element, id):
 		screen = ScreenConfig(id)
 		element.setState("options-screen", screen)
 		BugCore.game._addScreen(screen)
 
 class TabHandler(BugConfig.Handler):
-	
+
 	TAG = "tab"
-	
+
 	def __init__(self):
 		BugConfig.Handler.__init__(self, TabHandler.TAG, "id screen module class")
 		self.addAttribute("screen")
 		self.addAttribute("module", True, True)
 		self.addAttribute("class", True, False, None, "module")
 		self.addAttribute("id", True, False, None, "module")
-	
+
 	def handle(self, element, screenId, module, clazz, id):
 		if screenId:
 			screen = BugCore.game._getScreen(screenId)
@@ -218,7 +212,6 @@ class TabHandler(BugConfig.Handler):
 		screen.addTab(id)
 		tab = BugUtil.callFunction(module, clazz, g_optionsScreen)
 		g_optionsScreen.addTab(tab)
-
 
 ## Initialization
 

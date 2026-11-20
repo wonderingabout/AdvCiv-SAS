@@ -1,0 +1,42 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 195
+# Author: iustus
+# Date: 2006-12-17T20:41:01.566315Z
+# Coverage: full
+# Message:
+#   fixed bug in new war info stuff, was not checking bValid
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@194
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@195
+@@ -3197,7 +3197,7 @@
+ 				// now display every team that has that value
+ 				for (int iTeamIndex = 0; iTeamIndex < MAX_TEAMS; iTeamIndex++)
+ 				{
+-					if (aStartWarInfo[iTeamIndex].iStartWarValue == iBestValue)
++					if (aStartWarInfo[iTeamIndex].bValid && aStartWarInfo[iTeamIndex].iStartWarValue == iBestValue)
+ 					{
+ 						CvTeamAI& kLoopTeam = GET_TEAM((TeamTypes) iTeamIndex);
+ 
+@@ -3271,7 +3271,7 @@
+ 				// now display every team that has that value
+ 				for (int iTeamIndex = 0; iTeamIndex < MAX_TEAMS; iTeamIndex++)
+ 				{
+-					if (aStartWarInfo[iTeamIndex].iStartWarValue == iBestValue)
++					if (aStartWarInfo[iTeamIndex].bValid && aStartWarInfo[iTeamIndex].iStartWarValue == iBestValue)
+ 					{
+ 						if (bFirst)
+ 						{
+@@ -3330,7 +3330,7 @@
+ 				// now display every team that has that value
+ 				for (int iTeamIndex = 0; iTeamIndex < MAX_TEAMS; iTeamIndex++)
+ 				{
+-					if (aStartWarInfo[iTeamIndex].iStartWarValue == iBestValue)
++					if (aStartWarInfo[iTeamIndex].bValid && aStartWarInfo[iTeamIndex].iStartWarValue == iBestValue)
+ 					{
+ 						if (bFirst)
+ 						{
+

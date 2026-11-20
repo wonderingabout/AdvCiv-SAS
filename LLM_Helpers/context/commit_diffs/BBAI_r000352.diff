@@ -1,0 +1,520 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 352
+# Author: iustus
+# Date: 2007-02-08T22:04:37.126602Z
+# Coverage: full
+# Message:
+#   numerous fixes to new city governor, still disabled by default
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@351
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@352
+@@ -256,8 +256,11 @@
+ {
+ 	PROFILE_FUNC();
+ 
++#ifdef NEW_CITY_GOVERNOR
++	test_AI_AssignWorkingPlots();
++#endif
++
+ #ifdef USE_NEW_CITY_GOVERNOR
+-	test_AI_AssignWorkingPlots();
+ 	return;
+ #endif
+ 
+@@ -413,7 +416,6 @@
+ #ifdef COMPARE_NEW_CITY_GOVERNOR
+ 	m_bDisableTest = false;
+ 
+-	test_AI_AssignWorkingPlots();
+ 	AI_compareGovernorCitizens();
+ #endif
+ }
+@@ -474,16 +476,11 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-	// do recalcs if needed
+-	bool bIsAssignWorkDirty = AI_isAssignWorkDirty();
+-	if (!m_governorValues.bInitialized || bIsAssignWorkDirty)
+-	{
+-		AI_calculateGovernorValues(m_governorValues);
+-	}
+-	if (m_governorCitizens.size() <= 0 || bIsAssignWorkDirty)
+-	{
+-		AI_buildGovernorCitizens(m_governorCitizens, m_governorValues);
+-	}
++	// calculate the modifiers to each yield type
++	AI_calculateGovernorValues(m_governorValues);
++
++	// build and sort the list of plots and specialists
++	AI_buildGovernorCitizens(m_governorCitizens, m_governorValues, /*bReassign*/ false, /*bCapWorkers*/ !bWorkers, /*bCapSpecialists*/ !bSpecialists);
+ 
+ 	// first pass, count the number of citizens already assigned, check forced specialists
+ 	CvGovernorWork governorWork;
+@@ -494,8 +491,7 @@
+ 	FAssert(iChangeCount <= 1);
+ 		
+ 	// adjust for growth and starvation
+-	int iFoodChange = AI_foodAdjustCitizens(governorWork, m_governorCitizens, m_governorValues);
+-	FAssert(iFoodChange <= 1);
++	AI_foodAdjustChangedCitizen(governorWork, m_governorCitizens, m_governorValues);
+ 
+ 	// actually work the citizens
+ 	AI_workGovernorCitizens(m_governorCitizens);
+@@ -507,28 +503,26 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-	// do recalcs if needed
+-	bool bIsAssignWorkDirty = AI_isAssignWorkDirty();
+-	if (!m_governorValues.bInitialized || bIsAssignWorkDirty)
+-	{
+-		AI_calculateGovernorValues(m_governorValues);
+-	}
+-	if (m_governorCitizens.size() <= 0 || bIsAssignWorkDirty)
+-	{
+-		AI_buildGovernorCitizens(m_governorCitizens, m_governorValues);
+-	}
++	// calculate the modifiers to each yield type
++	AI_calculateGovernorValues(m_governorValues);
++
++	// build and sort the list of plots and specialists
++	AI_buildGovernorCitizens(m_governorCitizens, m_governorValues, /*bReassign*/ false);
+ 
+ 	// first pass, count the number of citizens already assigned, check forced specialists
+ 	CvGovernorWork governorWork;
+ 	AI_initializeGovernorWork(governorWork, m_governorCitizens, /*bDoForced*/ true);
+ 
++	// adjust assignable, so food calculations know what to do
++	governorWork.iPopulationAssignable  = -1;
++	governorWork.iFreeSpecialistsAssignable  = 0;
++
+ 	// remove one citizen
+ 	int iChangeCount = AI_workLessCitizens(governorWork, m_governorCitizens, 1);
+ 	FAssert(iChangeCount <= 1);
+ 	
+ 	// adjust for growth and starvation
+-	int iFoodChange = AI_foodAdjustCitizens(governorWork, m_governorCitizens, m_governorValues);
+-	FAssert(iFoodChange <= 1);
++	AI_foodAdjustChangedCitizen(governorWork, m_governorCitizens, m_governorValues);
+ 
+ 	// actually work the citizens
+ 	AI_workGovernorCitizens(m_governorCitizens);
+@@ -826,7 +820,6 @@
+ 	// return the number we removed
+ 	return (iCountToRemove - iPopulationToRemove);
+ }
+-
+ int CvCityAI::AI_foodAdjustCitizens(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens, CvGovernorValues& governorValues)
+ {
+ 	PROFILE_FUNC();
+@@ -841,7 +834,7 @@
+ 	
+ 	// is our food difference too low? (shoot for min of iConsumtionPerPop if we want to grow, and at least zero so we dont starve)
+ 	int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+-	int iMinDifference = (governorValues.bGrowPastHappy || governorValues.iHappyLevel > 0) ? iConsumtionPerPop : 0;
++	int iMinDifference = (!isFoodProduction() && (governorValues.bGrowPastHappy || governorValues.iHappyLevel > 0)) ? iConsumtionPerPop : 0;
+ 	if (iFoodDifference < iMinDifference)
+ 	{
+ 		int iMaxFood = AI_countMaximumCitizenFood(governorWork, governorCitizens);
+@@ -859,9 +852,6 @@
+ 					iMinDifference = 0;
+ 				}
+ 			
+-				// remember for our reshuffles
+-				int iPopulationAssignable = governorWork.iPopulationAssignable + governorWork.iFreeSpecialistsAssignable;
+-				
+ 				// search iterator will be the first citizen with a higher value than our first swap
+ 				bool bRemovedFirst = false;
+ 				CvCitizensReverseIterator irFirstRemove;
+@@ -916,7 +906,7 @@
+ 	if (iFood > 0 && iFood > iLowestFood && iMoveCount > 0)
+ 	{
+ 		// if we are not starving, then set a cap on how much of a worse citizen we will use
+-		int iMaxValue = (iFoodDifference > 0) ? ((getCitizenValue(ir) * 135) / 100) : MAX_INT;
++		int iMaxValue = (iFoodDifference >= 0) ? ((getCitizenValue(ir) * 135) / 100) : MAX_INT;
+ 		
+ 		// remove points to the citizen we will remove one (or more) of
+ 		CvCitizensReverseIterator irRemove = governorCitizens.rend();
+@@ -1053,6 +1043,87 @@
+ 	return iTotalChangeCount;
+ }
+ 
++bool CvCityAI::AI_foodAdjustChangedCitizen(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens, CvGovernorValues& governorValues)
++{
++	PROFILE_FUNC();
++
++	bool bWasChanged = false;
++
++	int iCurrentFood = AI_countCitizenFood(governorCitizens);
++	
++	int iFoodConsumption = foodConsumption();
++	int iFoodDifference = iCurrentFood - iFoodConsumption;
++
++	// is our food difference too low? (shoot for min of iConsumtionPerPop if we want to grow, and at least zero so we dont starve)
++	int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
++	int iMinDifference = (!isFoodProduction() && (governorValues.bGrowPastHappy || governorValues.iHappyLevel > 0)) ? iConsumtionPerPop : 0;
++	if (iFoodDifference < iMinDifference)
++	{
++		// find the changed citizen
++		bool bFoundCitizen = false;
++		CvCitizensReverseIterator irCitizen;
++		int iCitizenFood = -1;
++		int iCitizenThreshold = MAX_INT;
++		bool bIsRemove = false;
++
++		// start from the best citizen, working downward (list is sorted worst to best, so do in reverse order)
++		for (CvCitizensReverseIterator ir = governorCitizens.rbegin(); iFoodDifference < iMinDifference && ir != governorCitizens.rend(); ++ir)
++		{
++			CvGovernorCitizen* pCitizen = getCitizen(ir);
++			int iFood = pCitizen->iFood;
++
++			int iCount = pCitizen->iCount;
++			int iCannotChangeCount = min(iCount, max(pCitizen->iInitialCount, pCitizen->iForcedCount));
++			int iCanChangeCount = iCount - iCannotChangeCount;
++			int iCanChangeMax = pCitizen->iMax - iCannotChangeCount;
++
++			// still searching for the one that was changed
++			if (!bFoundCitizen)
++			{
++				if (pCitizen->iCount != pCitizen->iInitialCount)
++				{
++					bFoundCitizen = true;
++					irCitizen = ir;
++					iCitizenFood = iFood;
++					iCitizenThreshold = ((getCitizenValue(irCitizen) * 100) / 135);
++					bIsRemove = (pCitizen->iInitialCount > pCitizen->iCount);
++				}
++			}
++			// found the changed one, now look for higher food (lower value) one
++			else if (iFood > iCitizenFood)
++			{
++				// if we have reached values too low, then bail, we done
++				int iMinValue = (iFoodDifference >= 0) ? iCitizenThreshold : MAX_INT;
++				if (getCitizenValue(ir) < iMinValue)
++				{
++					break;
++				}
++
++				// can we swap this one
++				if (bIsRemove ? (pCitizen->iCount > max(pCitizen->iInitialCount, pCitizen->iForcedCount)) : (pCitizen->iCount < pCitizen->iMax))
++				{
++					CvGovernorCitizen* pOldCitizen = getCitizen(irCitizen);
++
++					// swap
++					int iChange = (bIsRemove) ? -1 : 1;
++					pCitizen->iCount += iChange;
++					pOldCitizen->iCount -= iChange;
++
++					// update difference
++					iFoodDifference += iFood - iCitizenFood;
++					bWasChanged = true;
++
++					// remember new one
++					irCitizen = ir;
++					iCitizenFood = iFood;
++				}
++			}
++		}
++	}
++
++	return bWasChanged;
++}
++
+ 
+ int CvCityAI::AI_countCitizenFood(CvSortedCitizens& governorCitizens)
+ {
+@@ -1102,7 +1173,7 @@
+ 		{
+ 			// copy the citizen so we can make changes
+ 			CvGovernorCitizen citizen = *pCitizen;
+-			
++
+ 			// if there is intial or forced, remove that portion (counting it below)
+ 			int iInitialCount = min(pCitizen->iInitialCount, pCitizen->iCount);
+ 			int iForcedCount = min(pCitizen->iForcedCount, pCitizen->iCount);
+@@ -1144,26 +1215,29 @@
+ 	governorWork.iFreeSpecialistsAssignable = iFreeSpecialistsLeft;
+ 
+ 	// grab the highest food items
+-	for (CvCitizensReverseIterator ir = foodSortedCitizens.rbegin(); iPopulationToAssign > 0 && ir != foodSortedCitizens.rend(); ++ir)
++	for (CvCitizensReverseIterator ir = foodSortedCitizens.rbegin(); (iPopulationToAssign > 0 || iFreeSpecialistsLeft > 0) && ir != foodSortedCitizens.rend(); ++ir)
+ 	{
+ 		CvGovernorCitizen* pCitizen = getCitizen(ir);
+-
+-		int iAssignCount = min(pCitizen->iMax, iPopulationToAssign);
+-		FAssert(iAssignCount > 0);
+-		FAssert(pCitizen->iFood > 0);
+-		
+-		iMaxFood += pCitizen->iFood * iAssignCount;
+ 
+ 		// if this a specialist, first remove from the free specialists
+ 		if (pCitizen->bIsSpecialist && iFreeSpecialistsLeft > 0)
+ 		{
+-			int iToRemove = min(iAssignCount, iFreeSpecialistsLeft);
+-			iFreeSpecialistsLeft -= iToRemove;
+-			iAssignCount -= iToRemove;
++			int iFreeAssignCount = min(pCitizen->iMax, iFreeSpecialistsLeft);
++			iFreeSpecialistsLeft -= iFreeAssignCount;
++			pCitizen->iMax -= iFreeAssignCount;
++
++			FAssert(pCitizen->iFood > 0);
++			iMaxFood += pCitizen->iFood * iFreeAssignCount;
+ 		}
+ 		
+-		// now remove from pop to assign
+-		iPopulationToAssign -= iAssignCount;
++		if (iPopulationToAssign > 0 && pCitizen->iMax > 0)
++		{
++			int iAssignCount = min(pCitizen->iMax, iPopulationToAssign);
++			iPopulationToAssign -= iAssignCount;
++			
++			FAssert(pCitizen->iFood > 0);
++			iMaxFood += pCitizen->iFood * iAssignCount;
++		}
+ 	}
+ 
+ 	return iMaxFood;
+@@ -1351,10 +1425,14 @@
+ 
+ 	governorValues.yieldValues.aiYield[YIELD_PRODUCTION] /= kPlayer.AI_averageYieldMultiplier(YIELD_PRODUCTION);
+ 
+-	// if food is production, then food is worth just slightly more than production (to account for also avoiding starvation)
++	// if food is production, then food is worth the same as production
+ 	if (bFoodIsProduction)
+ 	{
+-		governorValues.yieldValues.aiYield[YIELD_FOOD] = governorValues.yieldValues.aiYield[YIELD_PRODUCTION] + (iFoodWeight / 4);
++		// value production slightly more (over commerce), so we can finish this build and get back to growing
++		governorValues.yieldValues.aiYield[YIELD_PRODUCTION] *= 100;
++		governorValues.yieldValues.aiYield[YIELD_PRODUCTION] /= 65;
++
++		governorValues.yieldValues.aiYield[YIELD_FOOD] = governorValues.yieldValues.aiYield[YIELD_PRODUCTION];
+ 	}
+ 	
+ 	// commerce
+@@ -1448,7 +1526,7 @@
+ 	governorValues.bInitialized = true;
+ }
+ 
+-void CvCityAI::AI_buildGovernorCitizens(bool bReassign)
++void CvCityAI::AI_buildGovernorCitizens(bool bReassign, bool bCapWorkers, bool bCapSpecialists)
+ {
+ 	// do calc if needed
+ 	if (!m_governorValues.bInitialized)
+@@ -1456,10 +1534,10 @@
+ 		AI_calculateGovernorValues(m_governorValues);
+ 	}
+ 
+-	AI_buildGovernorCitizens(m_governorCitizens, m_governorValues, bReassign);
+-}
+-
+-void CvCityAI::AI_buildGovernorCitizens(CvSortedCitizens& governorCitizens, CvGovernorValues& governorValues, bool bReassign)
++	AI_buildGovernorCitizens(m_governorCitizens, m_governorValues, bReassign, bCapWorkers, bCapSpecialists);
++}
++
++void CvCityAI::AI_buildGovernorCitizens(CvSortedCitizens& governorCitizens, CvGovernorValues& governorValues, bool bReassign, bool bCapWorkers, bool bCapSpecialists)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -1507,7 +1585,7 @@
+ 					citizen.iInitialCount = (!bReassign && isWorkingPlot(iI)) ? 1 : 0;
+ 					citizen.iForcedCount = 0;
+ 					citizen.iCount = citizen.iInitialCount;
+-					citizen.iMax = 1;
++					citizen.iMax = (bCapWorkers) ? citizen.iCount: 1;
+ 					citizen.iFreeCount = 0;
+ 				}
+ 
+@@ -1515,7 +1593,7 @@
+ 				governorCitizens.insert(std::make_pair(iValue, citizen));
+ 			}
+ 			// also add plots we were working but can no longer work (so they will be removed)
+-			else if (!bReassign && isWorkingPlot(iI))
++			else if (isWorkingPlot(iI))
+ 			{
+ 				iValue = 0;
+ 				
+@@ -1531,6 +1609,9 @@
+ 				citizen.iMax = 0;
+ 
+ 				citizen.iFreeCount = 0;
++
++				// add to the sorted citizens
++				governorCitizens.insert(std::make_pair(iValue, citizen));
+ 			}
+ 		}
+ 	}
+@@ -1553,7 +1634,7 @@
+ 		citizen.iInitialCount = bReassign ? 0 : getSpecialistCount(eSpecialist);
+ 		citizen.iForcedCount = getForceSpecialistCount(eSpecialist);
+ 		citizen.iCount = citizen.iInitialCount;
+-		citizen.iMax = (eSpecialist == eDefaultSpecialist || kPlayer.isSpecialistValid(eSpecialist)) ? MAX_SHORT : getMaxSpecialistCount(eSpecialist);
++		citizen.iMax = (!bCapSpecialists) ? ((eSpecialist == eDefaultSpecialist || kPlayer.isSpecialistValid(eSpecialist)) ? MAX_SHORT : getMaxSpecialistCount(eSpecialist)) : citizen.iCount;
+ 
+ 		citizen.iFreeCount = getFreeSpecialistCount(eSpecialist);
+ 
+@@ -1616,8 +1697,8 @@
+ 	CvCompleteYield completeYield;
+ 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+ 	{
+-		// value food in a non-linear fasion (first 2 less, 2nd two normal, all after that extra
+-		if (iYield == YIELD_FOOD)
++		// value food in a non-linear fasion unless food is production (first 2 60%, 2nd two 100%, all after that 130%)
++		if (iYield == YIELD_FOOD && !isFoodProduction())
+ 		{
+ 			int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+ 
+@@ -1917,6 +1998,10 @@
+ #ifdef COMPARE_NEW_CITY_GOVERNOR
+ void CvCityAI::AI_compareGovernorCitizens()
+ {
++#ifdef FASSERT_ENABLE
++	std::set<int> differentPlots;
++	std::set<int> differentSpecialists;
++
+ 	// compare
+ 	int iDifferentPlots = 0;
+ 	int iDifferentSpecialists = 0;
+@@ -1929,21 +2014,37 @@
+ 		{
+ 			if (getSpecialistCount((SpecialistTypes) pCitizen->iIndex) != pCitizen->iCount)
+ 			{
+-				iDifferentSpecialists++;
++				if (m_lastDifferentSpecialists.find(pCitizen->iIndex) == m_lastDifferentSpecialists.end())
++				{
++					iDifferentSpecialists++;
++				}
++
++				differentSpecialists.insert(pCitizen->iIndex);
+ 			}
+ 		}
+ 		// plot
+ 		else
+ 		{
+-			if (isWorkingPlot(pCitizen->iIndex) != (pCitizen->iCount > 0))
+-			{
+-				iDifferentPlots++;
+-			}
+-		}
+-	}
+-
+-	//FAssertMsg((iDifferentPlots == 0), "assigned different plots");
+-	//FAssertMsg((iDifferentSpecialists == 0), "assigned different specialists");
++			if (isWorkingPlot(pCitizen->iIndex) != (pCitizen->iCount > 0 || pCitizen->iFreeCount > 0))
++			{
++				if (m_lastDifferentPlots.find(pCitizen->iIndex) == m_lastDifferentPlots.end())
++				{
++					iDifferentPlots++;
++				}
++
++				differentPlots.insert(pCitizen->iIndex);
++			}
++		}
++	}
++
++	m_lastDifferentPlots = differentPlots;
++	m_lastDifferentSpecialists = differentSpecialists;
++
++	TCHAR szAssertMessage[1024];
++	sprintf(szAssertMessage, "%S assigned different plots (%d) and/or specialists (%d)", getName().GetCString(), iDifferentPlots, iDifferentSpecialists);
++	FAssertMsg((iDifferentPlots == 0) && (iDifferentSpecialists == 0), szAssertMessage);
++
++#endif	// FASSERT_ENABLE
+ }
+ #endif	// COMPARE_NEW_CITY_GOVERNOR
+ 
+@@ -6668,6 +6769,14 @@
+ 	return test_AI_AddBestCitizen(bWorkers, bSpecialists);
+ #endif
+ 
++#ifdef COMPARE_NEW_CITY_GOVERNOR
++	bool bTestSuccess = true;
++	if (!m_bDisableTest)
++	{
++		bTestSuccess = test_AI_AddBestCitizen(bWorkers, bSpecialists);
++	}
++#endif
++
+ 	bool bAvoidGrowth = AI_avoidGrowth();
+ 	bool bIgnoreGrowth = AI_ignoreGrowth();
+ 	bool bIsSpecialistForced = false;
+@@ -6799,7 +6908,6 @@
+ #ifdef COMPARE_NEW_CITY_GOVERNOR
+ 	if (!m_bDisableTest)
+ 	{
+-		bool bTestSuccess = test_AI_AddBestCitizen(bWorkers, bSpecialists);
+ 		FAssertMsg(bTestSuccess == bSuccess, "AI_AddBestCitizen and test_AI_AddBestCitizen had different success");
+ 		AI_compareGovernorCitizens();
+ 	}
+@@ -6814,6 +6922,14 @@
+ {
+ #ifdef USE_NEW_CITY_GOVERNOR
+ 	return test_AI_removeWorstCitizen(eIgnoreSpecialist);
++#endif
++
++#ifdef COMPARE_NEW_CITY_GOVERNOR
++	bool bTestSuccess = true;
++	if (!m_bDisableTest)
++	{
++		bTestSuccess = test_AI_removeWorstCitizen(eIgnoreSpecialist);
++	}
+ #endif
+ 
+ 	CvPlot* pLoopPlot;
+@@ -6946,7 +7062,6 @@
+ #ifdef COMPARE_NEW_CITY_GOVERNOR
+ 	if (!m_bDisableTest)
+ 	{
+-		bool bTestSuccess = test_AI_removeWorstCitizen(eIgnoreSpecialist);
+ 		FAssertMsg(bTestSuccess == bSuccess, "AI_removeWorstCitizen and test_AI_removeWorstCitizen had different success");
+ 		AI_compareGovernorCitizens();
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@351
++++ /trunk/CvGameCoreDLL/CvCityAI.h@352
+@@ -13,6 +13,7 @@
+ 
+ #ifdef COMPARE_NEW_CITY_GOVERNOR
+ #define NEW_CITY_GOVERNOR
++#include <set>
+ #endif
+ 
+ #ifdef USE_NEW_CITY_GOVERNOR
+@@ -271,17 +272,18 @@
+ 	void AI_initializeGovernorWork(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens, bool bDoForced = false);
+ 	int AI_workMoreCitizens(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens, int iCountToAdd, bool bIgnoreForced = false);
+ 	int AI_workLessCitizens(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens, int iCountToRemove);
++
+ 	int AI_foodAdjustCitizens(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens, CvGovernorValues& governorValues);
+-
+ 	int swapHigherFoodCitizen(CvCitizensReverseIterator ir, int& iFoodDifference, int iMinDifference, int& iLowestFood, CvCitizensReverseIterator& irLowestFood, CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens);
++	bool AI_foodAdjustChangedCitizen(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens, CvGovernorValues& governorValues);
+ 
+ 	int AI_countCitizenFood(CvSortedCitizens& governorCitizens);
+ 	int AI_countMaximumCitizenFood(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens);
+ 
+ 	void AI_calculateGovernorValues();
+ 	void AI_calculateGovernorValues(CvGovernorValues& governorValues);
+-	void AI_buildGovernorCitizens(bool bReassign = false);
+-	void AI_buildGovernorCitizens(CvSortedCitizens& governorCitizens, CvGovernorValues& governorValues, bool bReassign = false);
++	void AI_buildGovernorCitizens(bool bReassign = false, bool bCapWorkers = false, bool bCapSpecialists = false);
++	void AI_buildGovernorCitizens(CvSortedCitizens& governorCitizens, CvGovernorValues& governorValues, bool bReassign = false, bool bCapWorkers = false, bool bCapSpecialists = false);
+ 	void AI_workGovernorCitizens(CvSortedCitizens& governorCitizens);
+ 
+ 	int AI_plotValue(CvPlot* pPlot);
+@@ -294,6 +296,8 @@
+ #ifdef COMPARE_NEW_CITY_GOVERNOR
+ 	// the following are only for testing
+ 	bool m_bDisableTest;
++	std::set<int> m_lastDifferentPlots;
++	std::set<int> m_lastDifferentSpecialists;
+ 	void AI_compareGovernorCitizens();
+ #endif
+ #endif
+

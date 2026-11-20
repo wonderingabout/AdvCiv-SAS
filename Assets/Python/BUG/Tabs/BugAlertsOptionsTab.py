@@ -10,7 +10,7 @@ import BugOptionsTab
 
 class BugAlertsOptionsTab(BugOptionsTab.BugOptionsTab):
 	"BUG NJAGC Options Screen Tab"
-	
+
 	def __init__(self, screen):
 		BugOptionsTab.BugOptionsTab.__init__(self, "Alerts", "Alerts")
 
@@ -18,11 +18,11 @@ class BugAlertsOptionsTab(BugOptionsTab.BugOptionsTab):
 		tab = self.createTab(screen)
 		panel = self.createMainPanel(screen)
 		column = self.addOneColumnLayout(screen, panel)
-		
+
 		# Civ4lerts
 		self.addCheckbox(screen, column, "Civ4lerts__Enabled")
 		left, center, right = self.addThreeColumnLayout(screen, column, "Civ4lerts", True)
-		
+
 		# City management
 		self.addLabel(screen, left, "Alerts_City", "Cities:")
 		leftL, leftR = self.addTwoColumnLayout(screen, left, "Civ4lerts_TableGrowth")
@@ -46,7 +46,7 @@ class BugAlertsOptionsTab(BugOptionsTab.BugOptionsTab):
 		self.addCheckbox(screen, left, "Civ4lerts__CityCanHurryGold")
 		# advc.210c: Disabled
 		#self.addCheckbox(screen, left, "MoreCiv4lerts__CityFounded")
-		
+
 		# Diplomacy
 		self.addLabel(screen, center, "Alerts_Diplomacy", "Diplomacy:")
 		self.addCheckbox(screen, center, "Civ4lerts__RefusesToTalk")
@@ -58,7 +58,7 @@ class BugAlertsOptionsTab(BugOptionsTab.BugOptionsTab):
 		# advc.210: Disabled; use the RTT alert instead.
 		#self.addCheckbox(screen, center, "MoreCiv4lerts__PeaceTrade")
 		self.addCheckbox(screen, center, "MoreCiv4lerts__SurrenderTrade")
-		
+
 		# Trades
 		self.addLabel(screen, right, "Alerts_Trade", "Trading:")
 		self.addCheckbox(screen, right, "MoreCiv4lerts__TechTrade")
@@ -67,7 +67,7 @@ class BugAlertsOptionsTab(BugOptionsTab.BugOptionsTab):
 		self.addCheckbox(screen, right, "MoreCiv4lerts__MapTrade")
 		# advc.210a:
 		self.addCheckbox(screen, right, "Civ4lerts__WarTrade")
-	
+
 		rightL, rightR = self.addTwoColumnLayout(screen, right, "Alerts_Trade_Column")
 		# <advc.210d> Moved down b/c now part of the two-column layout
 		self.addCheckbox(screen, rightL, "MoreCiv4lerts__BonusTrade")
@@ -75,16 +75,16 @@ class BugAlertsOptionsTab(BugOptionsTab.BugOptionsTab):
 		# </advc.210d>
 		self.addCheckboxIntDropdown(screen, rightL, rightR, "Civ4lerts__GoldTrade", "Civ4lerts__GoldTradeThresh", "LAYOUT_LEFT")
 		self.addCheckboxIntDropdown(screen, rightL, rightR, "Civ4lerts__GoldPerTurnTrade", "Civ4lerts__GoldPerTurnTradeThresh", "LAYOUT_LEFT")
-		
+
 		# advc.210a: Removing these alerts
 		# Victories
 		#self.addLabel(screen, right, "Alerts_Victory", "Victory:")
 		#rightL, rightR = self.addTwoColumnLayout(screen, right, "Alerts_Victory_Column")
 		#self.addCheckboxFloatDropdown(screen, rightL, rightR, "MoreCiv4lerts__DomPop", "MoreCiv4lerts__DomPopThresh", "LAYOUT_LEFT")
 		#self.addCheckboxFloatDropdown(screen, rightL, rightR, "MoreCiv4lerts__DomLand", "MoreCiv4lerts__DomLandThresh", "LAYOUT_LEFT")
-		
+
 		screen.attachHSeparator(column, column + "Sep")
-		
+
 		# Reminders
 		left, right = self.addTwoColumnLayout(screen, column, "Main")
 		# advc.071: And put Reminder options in lLeft
