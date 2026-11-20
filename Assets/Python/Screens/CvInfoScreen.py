@@ -949,7 +949,21 @@ class CvInfoScreen:
 		dHiddenMessages = {}
 		if not self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON:
 			szTopCivsTitle = localText.getText("TXT_KEY_TOPCIVS_TITLE", ())
-			for iMessage in range(replayInfo.getNumReplayMessages()):
+			for iMessage in range(iNumMessages):
+				if not replayInfo.getReplayMessageText(iMessage).startswith(szTopCivsTitle):
+					continue
+				dHiddenMessages[iMessage] = True
+				iRow = iMessage - 1
+				while iRow >= 0 and replayInfo.getReplayMessageTurn(iRow) == replayInfo.getReplayMessageTurn(iMessage) and replayInfo.getReplayMessagePlayer(iRow) == replayInfo.getReplayMessagePlayer(iMessage) and self.RE_TOP_CIVS_RANK.match(replayInfo.getReplayMessageText(iRow)):
+					dHiddenMessages[iRow] = True
+					iRow -= 1
+
+		# <!-- custom: SAS_INFO_UI_TIMELINE_TOP_CIVS_ON 0 hides the Greatest Civilizations rankings (CvTopCivs.py): each title row and the rank rows written just before it in the same turn by the same player.
+		# The title is matched in the current language, so rows saved in another language stay listed; a known limit kept for simplicity, as SAS adds English text only (Codex's review, 2026-11-19). (Claude code Opus 5.5) -->
+		dHiddenMessages = {}
+		if not self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON:
+			szTopCivsTitle = localText.getText("TXT_KEY_TOPCIVS_TITLE", ())
+			for iMessage in range(iNumMessages):
 				if not replayInfo.getReplayMessageText(iMessage).startswith(szTopCivsTitle):
 					continue
 				dHiddenMessages[iMessage] = True
@@ -983,7 +997,8 @@ class CvInfoScreen:
 			aReligionFoundingTexts = self.getReligionFoundingTimelineTexts()
 
 		# Iterate backwards (newest first) so no reverse needed later
-		for iMessage in range(replayInfo.getNumReplayMessages() - 1, -1, -1):
+		for iMessage in range(iNumMessages - 1, -1, -1):
+			# <!-- custom: Skip the Greatest Civilizations rows dHiddenMessages marks above, when SAS_INFO_UI_TIMELINE_TOP_CIVS_ON is 0. (Claude code Opus 5.5) -->
 			if dHiddenMessages.has_key(iMessage):
 				continue
 			iPlayer = replayInfo.getReplayMessagePlayer(iMessage)
