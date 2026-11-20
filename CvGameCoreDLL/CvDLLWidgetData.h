@@ -60,6 +60,11 @@ public:
 protected:
 
 	static CvDLLWidgetData* m_pInst;
+public:
+	// <!-- custom: True while SASPilot's CyGame.getSASPilotWidgetHelp asks for a tooltip outside a real hover; parseHelp then leaves the scoreboard unexpanded (advc.085).
+	// A static member, so the class layout the EXE uses is unchanged. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	static bool m_bSASPilotHelpQuery;
+protected:
 
 	//	Help parsing (advc: These were all public)
 	void parsePlotListHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);

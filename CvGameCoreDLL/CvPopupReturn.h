@@ -15,6 +15,8 @@ class PopupReturn
 	PopupReturn(PopupReturn const&); // advc: Made private (was unused)
 
 public:
+	// <!-- custom: The class had no usable constructor in the DLL (only the EXE built these), so SASPilot could not make one to answer a popup; a default constructor adds no data member, so the layout the EXE relies on is unchanged. (Claude code Fable 5.2) -->
+	PopupReturn() {}
 	DllExport PopupReturn& operator=(PopupReturn const& source);
 	/*	<advc> Implementations moved to CvPopupReturn.cpp.
 		Removed most of the uninformative comments. */

@@ -923,18 +923,30 @@ class CvInfoScreen:
 				return self.timelineCacheEntries
 
 		# Rebuild cache
+		# <!-- custom: The filter loop moved into getTimelineRecords, which returns raw fields, so SASPilot's timeline command reads the same entries as this tab rather than parsing formatted text or copying the filter; this method only formats them. (Claude code Opus 5.5) -->
 		entries = []
+		for iTurnMsg, szEventDate, szText, eColor, iPlayer, eMessageType, bMetPlayer, bPublic in self.getTimelineRecords(replayInfo):
+			entries.append(localText.changeTextColor(SASTextScale.sasFontTagLabel + szEventDate + u": " + szText + SASTextScale.SAS_FONT_TAG_CLOSE, eColor))
 
+		if self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON:
+			# Store in instance vars (faster than dict)
+			self.timelineCacheEntries = entries
+			self.timelineCacheActivePlayer = self.iActivePlayer
+			self.timelineCacheBRevealAll = self.bRevealAll
+			self.timelineCacheNumMessages = iNumMessages
+			self.timelineCacheGameTurn = iGameTurn
+		return entries
+
+	def getTimelineRecords(self, replayInfo):
+		# <!-- custom: The Timeline entries from the perspective of self.iActivePlayer / iActiveTeam / bRevealAll, newest first, as (turn, date, uncoloured text, colour, replay player, message type, player met, public announcement) tuples.
+		# A public announcement is a religion or corporation founding or a world wonder, reworded to its faraway-land text where the tab does so; the player is the replay's own, so a caller must not name an unmet one. (Claude code Opus 5.5) -->
+		records = []
+		# <!-- custom: Read here: the 2026-11-20 merge of main brought main's Greatest Civilizations filter, written inside buildTimelineCache where iNumMessages is defined, into this method, twice, and pressing the Timeline tab raised "global name 'iNumMessages' is not defined" (found by SASPilotUISweep.py). See KI#1101. (Claude code Opus 5.5) -->
+		iNumMessages = replayInfo.getNumReplayMessages()
 		if iNumMessages <= 0:
-			if self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON:
-				self.timelineCacheEntries = entries
-				self.timelineCacheActivePlayer = self.iActivePlayer
-				self.timelineCacheBRevealAll = self.bRevealAll
-				self.timelineCacheNumMessages = iNumMessages
-				self.timelineCacheGameTurn = iGameTurn
-			return entries
+			return records
 
-		# <!-- custom: SAS_INFO_UI_TIMELINE_TOP_CIVS_ON 0 hides the Greatest Civilizations rankings (CvTopCivs.py): each title row and the rank rows written just before it in the same turn by the same player.
+		# <!-- custom: SAS_INFO_UI_TIMELINE_TOP_CIVS_ON 0 hides the Greatest Civilizations rankings (CvTopCivs.py): each title row and the rank rows written just before it in the same turn by the same player, as SASPilot's 'topcivs' groups them.
 		# The title is matched in the current language, so rows saved in another language stay listed; a known limit kept for simplicity, as SAS adds English text only (Codex's review, 2026-11-19). (Claude code Opus 5.5) -->
 		dHiddenMessages = {}
 		if not self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON:
@@ -1080,17 +1092,8 @@ class CvInfoScreen:
 					if szCityName:
 						szText = szText.replace(szCityName, self.TEXT_TIMELINE_UNKNOWN_CITY)
 
-			szFormattedText = localText.changeTextColor(SASTextScale.sasFontTagLabel + szEventDate + u": " + szText + SASTextScale.SAS_FONT_TAG_CLOSE, eColor)
-			entries.append(szFormattedText)
-
-		if self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON:
-			# Store in instance vars (faster than dict)
-			self.timelineCacheEntries = entries
-			self.timelineCacheActivePlayer = self.iActivePlayer
-			self.timelineCacheBRevealAll = self.bRevealAll
-			self.timelineCacheNumMessages = iNumMessages
-			self.timelineCacheGameTurn = iGameTurn
-		return entries
+			records.append((iTurnMsg, szEventDate, szText, eColor, iPlayer, eMessageType, bMetPlayer, szHiddenReligionText is not None))
+		return records
 
 	def drawTimelineTab(self):
 		screen = self.getScreen()

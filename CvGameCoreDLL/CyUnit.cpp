@@ -686,6 +686,13 @@ bool CyUnit::isHurt()
 	return m_pUnit ? m_pUnit->isHurt() : false;
 }
 
+// <!-- custom: -1 for a missing unit or a plot off the map; MAX_INT when the plot does not heal it, as CvUnit::healTurns returns. (Claude code Opus 5.5) -->
+int CyUnit::healTurnsAt(int iX, int iY)
+{
+	CvPlot const* pPlot = GC.getMap().plot(iX, iY);
+	return (m_pUnit != NULL && pPlot != NULL) ? m_pUnit->healTurns(pPlot) : -1;
+}
+
 bool CyUnit::isDead()
 {
 	return m_pUnit ? m_pUnit->isDead() : false;

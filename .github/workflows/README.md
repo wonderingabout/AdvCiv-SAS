@@ -255,7 +255,7 @@ npx markdownlint-cli2@0.24.0
 
 ## Python 2.4 compile workflow
 
-[`python24-compile.yml`](/.github/workflows/python24-compile.yml) runs [`build/python/python24_compile.py`](#buildpythonpython24_compilepy) inside `ghcr.io/wonderingabout/python-2.4:2.4.6`, built from the separate [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) Docker-image recipe. It checks `Assets/Python` and `PrivateMaps` with the real CPython 2.4 parser/bytecode compiler, which is closer to Civ4's embedded Python than Ruff or modern Python 3.
+[`python24-compile.yml`](/.github/workflows/python24-compile.yml) runs [`build/python/python24_compile.py`](#buildpythonpython24_compilepy) inside `ghcr.io/wonderingabout/python-2.4:2.4.6`, built from the separate [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) Docker-image recipe. It checks `Assets/Python`, `PrivateMaps` and `SASPilot/game`, the SASPilot modules Civ4 loads, with the real CPython 2.4 parser/bytecode compiler, which is closer to Civ4's embedded Python than Ruff or modern Python 3.
 
 This is intentionally a syntax/compile compatibility check only: it does not launch Civ4, run gameplay code, import `CvPythonExtensions`, or validate engine-only runtime objects. It uses `docker run` after normal checkout instead of a job-level container so GitHub Actions and checkout still run on the ordinary runner, while the old image only needs to provide Python 2.4.
 
@@ -298,6 +298,8 @@ python -m unittest discover -s .github/workflows/tests/repository -t .github/wor
 Local platform-specific game-code tests live separately under [`tests/`](/tests/README.md), including the Windows/VC2003 diagnostic writer harness; they are not part of this workflow.
 
 The `-t` argument keeps test package names distinct from standard-library modules such as `xml`. Source-tool tests also cover related manual helpers in `LLM_Helpers`; the commit-diff packaging tests live with repository tooling.
+
+SASPilot graph tests in the source suite cover tech prerequisite groups against the XML, promotion alternatives and reverse links, civilization-specific unit upgrades, directed diplomatic links, and visibility of historical series.
 
 ## Helper reference
 
@@ -559,6 +561,7 @@ Keeps folder indexes listing what their folders hold, in alphabetical order, so 
   - It found `light_source_python24_linux.py` undescribed when it was added on 2026-11-10.
   - Exception: a folder in `GUIDE_DOCUMENTED_FOLDERS` is documented only in its guide, so every helper file in it, Ghidra `.java` scripts included, must be named in that guide instead, and its README section must be a single line linking to the guide and its disclaimer, with no subsections.
     - Since 2026-11-12 `exe_analysis/` is documented in the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md): its technical details stay for agents in Git and the light-source ZIP, but out of player downloads, while the README, which ships, says only "See the EXE patches guide and the corresponding disclaimer", so a downloaded ZIP holds no description of the EXE work.
+- Every script and sequence in [`SASPilot/`](/SASPilot/README.md), which left `LLM_Helpers` for the root on 2026-11-20, is named in its README.
 - This README's helper reference subjects, the helpers within each subject (by file name), and the helper/test area table are alphabetical. Each check script in `build/` and shared module in `lib/` has a matching heading in the reference and appears in the menu. Private modules prefixed with `_` are exempt.
 - The short `build/` and `tests/` READMEs list each subject folder that exists in their own directory.
 - Every guide in `_1_AdvCiv-SAS/Docs/Modding_Resources/` is listed under its README's "Guides in this folder", by file name; a list that claims to cover its folder should not need remembering either.
@@ -678,7 +681,7 @@ Checks list layout in every tracked Markdown file, plus added/edited maintained 
 - Reject an apparent tab/four-space-indented list immediately after a prose paragraph, including in unchanged tracked docs: Markdown can merge its bullets into that paragraph. Separate a new top-level list with a blank line and leave its bullets unindented; valid nested lists and ordinary soft wrapping remain allowed.
 - Code, tables, blockquotes and HTML comments are excluded. The paragraph-length rule additionally excludes untouched historical prose, copied/generated context and numbered archived changelogs; the tracked-file list-layout scan has no historical-doc exemption.
 - An added or edited table row of 1000 characters or more fails: keep the row a short summary and move its details into a table of its own, one row per field or check, linked from the cell.
-  - Added on 2026-11-19, as tables were outside the prose rule and the SASPilot guide's `reminders` row, on the SASPilot branch, had reached 5710 characters, one check appended after another; it became the guide's Reminders table.
+  - Added on 2026-11-19, as tables were outside the prose rule and the SASPilot guide's `reminders` row had reached 5710 characters, one check appended after another; it became the guide's Reminders table.
   - Untouched long rows wait for their next edit; that day 13 rows of `README_Assets_Rebalancing.md` (rationale paragraphs in table cells, up to 1763 characters) and the guide's `relations` row were over the limit.
 - Reports affected paths and line numbers without rewriting files. Run locally with `python .github/workflows/build/documentation/markdown_prose_changes.py --base-ref HEAD`.
 
@@ -864,7 +867,9 @@ python .github/workflows/build/hygiene/text_blank_lines.py --base-ref main
 
 #### `build/python/python24_compile.py`
 
-Compile-checks runtime Civ4 Python files under `Assets/Python` and `PrivateMaps` with CPython 2.4 through [`python24-compile.yml`](/.github/workflows/python24-compile.yml). It uses `py_compile` on each source file but redirects bytecode to a temporary directory so the workflow catches real Python 2.4 parser/bytecode errors without writing `.pyc` files into the mounted repository.
+Compile-checks runtime Civ4 Python files under `Assets/Python`, `PrivateMaps` and `SASPilot/game`, the SASPilot modules Civ4 loads, with CPython 2.4 through [`python24-compile.yml`](/.github/workflows/python24-compile.yml).
+
+It uses `py_compile` on each source file but redirects bytecode to a temporary directory so the workflow catches real Python 2.4 parser/bytecode errors without writing `.pyc` files into the mounted repository.
 
 This check complements Ruff: Ruff gives modern static diagnostics, while this workflow confirms the old parser still accepts the files Civ4 can load.
 
@@ -1197,7 +1202,8 @@ Verifies `Assets/XML/Misc/CIV4DetailManager.xml` `CITYBILLBOARD_SCALE` keys matc
 Requires the shipped values of the hands-free switches, which spare players clicks and manual steps, so players still get them.
 
 - `SAS_UI_DAWN_OF_MAN_ON=1` keeps the Dawn of Man screen for players; [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) `on` sets it to `0` locally.
-- The same holds since 2026-11-19 for the Greatest Civilizations screen (`SAS_UI_TOP_CIVS_ON`), whose ranking is recorded as a Timeline row either way.
+- The same holds since 2026-11-13 for the tech splash and the era, wonder, religion and project movies (`SAS_UI_TECH_SPLASH_ON`, `SAS_UI_ERA_MOVIE_ON`, `SAS_UI_WONDER_MOVIE_ON`, `SAS_UI_RELIGION_MOVIE_ON`, `SAS_UI_PROJECT_MOVIE_ON`).
+  - And since 2026-11-19 for the Greatest Civilizations screen (`SAS_UI_TOP_CIVS_ON`), whose ranking is recorded as a Timeline row either way.
 - The others are not changed locally, but one switched off by mistake would bring back what it removes: AI Auto Play's no-decision popups and its speed-scaled default turns, SASFastSave's start, end and autoplay-stop saves, scoreboard autocenter, and silent assertion handling (`SAS_ASSERT_SILENT_ACTION=1`).
 - Like the diagnostic-default checks it accepts `--staged`, which the local CI runner uses.
 
@@ -1270,7 +1276,7 @@ Verifies that no `// <!-- custom: ... -->` or `# <!-- custom: ... -->` comment i
 
 #### `build/source/float_format_int_division.py`
 
-Fails when runtime Python, including `LLM_Helpers/saspilot`, applies a `%.Nf` format to arguments that divide with no float in them (no literal such as `100.0`, no `float()`). Python 2.4 divides two integers to an integer, so the decimals print as `.00`.
+Fails when runtime Python, including `SASPilot/game`, applies a `%.Nf` format to arguments that divide with no float in them (no literal such as `100.0`, no `float()`). Python 2.4 divides two integers to an integer, so the decimals print as `.00`.
 
 - Vanilla Civ4's Victory screen showed the best rival's population and land shares this way, `2.00%` for 2.30% and 2.06% ([KI#290.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-290.2)).
 - A division by a value that is already a float passes only with one of those markers, so convert it at the division.
@@ -1400,6 +1406,7 @@ It enforces these review rules introduced after repeated provenance mistakes:
 - newly authored or substantively rewritten source comments use `<!-- custom: ... (model credit) -->`; model-authored comments need the credit, while user-authored comments may omit it. Missing model credits are advisory warnings, not helper failures; unchanged/moved inherited comments and whitespace-only reflow remain valid, while stale inherited comments may simply be removed;
 - when a nearby replacement custom comment retains identical or substantially unchanged prose, recognized existing credits in its trailing parenthesized credit list are preserved; dropping one contributor still fails even if another credit remains. Credit reordering/additions and whitespace reflow are allowed, as are whole-comment deletions and unrelated replacements;
 - parenthesized custom-comment credits reject the known misspellings `Chat-GPT` and `catgpt`, ignoring case. Prose mentions and other model names remain allowed; this is a small typo guard, not a list of approved models;
+- in new custom prose, each `+`-joined credit names its app, as `(Claude code Fable 5.2 + Claude code Opus 5.5)`: a Claude model alone, such as `+ Opus 5.5`, fails. Added on 2026-11-20 after Claude Code Opus 5.5 wrote one and the user caught it;
 - newly introduced source separators of three or more blank lines fail; use at most two.
   - Extra separators can accumulate during agent patching or leave inconsistent runs of four or five blank lines without a structural purpose. This guard prevents that formatting noise after the initial cleanup.
   - Changed Python, C/C++ and XML are compared against the base. Unchanged or shortened inherited runs remain allowed; multiline strings, block comments and XML text are protected.

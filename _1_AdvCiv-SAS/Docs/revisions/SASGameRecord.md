@@ -113,10 +113,20 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 210 - SAS practical 6874 (SASPilot branch)
+
+- **Date:** 2026-11-18
+- **Git commit:** `8f24208b71c0ba1aa6c9568e41e363010714febc`
+- **Change:** No change to the record: custom comments that mention SASGameRecord, in `CvPlayer.h`, `SASPilotClient.py` and `SASPilotCommands.py`, were reflowed one sentence per line for the CI comment check, with their wording unchanged, and comments in SASGameRecord-related files renamed the retired "the pilot" to SASPilot.
+  - First made as revision 202 in commit `f005c06cce13db7a64971009789ca770b6acd3c5` (2026-11-15) on the SASPilot branch, then 204 when main was merged into it on 2026-11-17 (`b57f87e3382783e7d19020606d64edd11fdb0851`), as main had used 202 and 203 meanwhile.
+  - That 204 also held the branch's revision check judging a merge against its higher parent; main took that rule as its own 204 on 2026-11-18, so merging main again that day made this entry 205, keeping the branch, squashed when it lands, one revision above main.
+  - Merging main on 2026-11-19, which had used 205 to 208 meanwhile, made it 209.
+  - Merging main on 2026-11-20, which used 209 for the Greatest Civilizations rows first made here, made it 210; those rows are now main's revision 209, below.
+
 ### Revision 209 - SAS practical 6829
 
 - **Date:** 2026-11-20
-- **Git commit:** pending
+- **Git commit:** `ec029819d92529c2b4f445d7768eb8ca36d278fd`
 - **Change:** Adds `GAME_RECORD_TOP_CIVS` and `GAME_RECORD_TOP_CIVS_RANK` (level 1): each Greatest Civilizations ranking, with whether the screen showed, how many ranks it listed and the viewer did not know, then one row per alive player with its rank, value, team, civilization and leader types, and whether it was listed and known.
   - `CvTopCivs.py` pre-gates and calls `SASGameRecordActions.logTopCivs`, which writes them through `CyGame.logSASGameRecordTopCivs` and `logSASGameRecordTopCivsRank`.
   - Made on 2026-11-19 on the SASPilot branch, where it shared that branch's revision 209; ported to main on its own.

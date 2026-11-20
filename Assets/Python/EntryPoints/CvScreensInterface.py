@@ -53,6 +53,8 @@ import SASTextScale
 # Emit SHOW_REQUEST before drawing: a drawing failure otherwise loses its causal row, and interfaceScreen may return without actually opening.
 # This is intent, not visibility confirmation. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 import SASGameRecordActions
+# <!-- custom: SASPilot serves the agent pilot's mailbox from screen updates; it returns at once unless SASPilot is on. (Claude code Opus 5.5) -->
+import SASPilot
 import SASPopupChoices # <!-- custom: The Python popup handlers use named IDs from the catalog that creates their buttons, avoiding a second numeric convention in gameplay dispatch. (GPT-6.1-Sol) -->
 # <!-- custom: Structured interface diagnostics now use CvUtil.pyPrintRecord, so the former BugUtil-only writer import is no longer needed; the same shared stream layer still supplies row timestamps. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 # K-Mod
@@ -96,7 +98,14 @@ def initBugAdvisors():
 
 mainInterface = CvMainInterface.CvMainInterface()
 def showMainInterface():
-	mainInterface.interfaceScreen()
+	# <!-- custom: SASPilotUI records the main interface's widgets as this builds them, the only time the advisor, minimap and scoreboard buttons are created; rerunning this later to record them left the minimap blank (2026-11-20).
+	# Both calls return at once unless SASPilot is on. (Claude code Opus 5.5) -->
+	SASPilot.aroundMainInterfaceBuild(True)
+	# <!-- custom: The after call in finally, so a failing build does not leave the recorder on (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	try:
+		mainInterface.interfaceScreen()
+	finally:
+		SASPilot.aroundMainInterfaceBuild(False)
 
 def reinitMainInterface():
 	mainInterface.initState()
@@ -296,12 +305,36 @@ victoryMovie = CvVictoryMovieScreen.CvVictoryMovieScreen()
 def showVictoryMovie(argsList):
 	victoryMovie.interfaceScreen(argsList[0])
 
+# <!-- custom: Switches for screens that only inform, as SAS_UI_DAWN_OF_MAN_ON is for Dawn of Man: an agent or an unattended run must click through each one, and what they say also reaches the event log ("You have discovered Navigation!").
+# Checked here, where the EXE shows them, so a splash the DLL launches (advc: CvTeam::setHasTech) is covered as well as the one CvEventManager.py queues.
+# Read once, lazily, after GlobalDefines are loaded. (Claude code Opus 5.5) -->
+_sasInfoScreenSwitches = {}
+
+
+def _isSASInfoScreenShown(szDefine):
+	if szDefine not in _sasInfoScreenSwitches:
+		# <!-- custom: CyGlobalContext(), as this module has no global gc (see KI#113). (Claude code Opus 5.5) -->
+		_sasInfoScreenSwitches[szDefine] = (CyGlobalContext().getDefineINT(szDefine) > 0)
+	return _sasInfoScreenSwitches[szDefine]
+
+
 wonderMovie = CvWonderMovieScreen.CvWonderMovieScreen()
 def showWonderMovie(argsList):
+	# <!-- custom: The wonder movie screen also shows religions founded (third argument 1) and projects built (2), as CvEventManager.py queues them; each kind has its own switch, named literally so sas_define_usage.py sees each lookup. (Claude code Opus 5.5) -->
+	if argsList[2] == 1:
+		bShown = _isSASInfoScreenShown("SAS_UI_RELIGION_MOVIE_ON")
+	elif argsList[2] == 2:
+		bShown = _isSASInfoScreenShown("SAS_UI_PROJECT_MOVIE_ON")
+	else:
+		bShown = _isSASInfoScreenShown("SAS_UI_WONDER_MOVIE_ON")
+	if not bShown:
+		return
 	wonderMovie.interfaceScreen(argsList[0], argsList[1], argsList[2])
 
 eraMovie = CvEraMovieScreen.CvEraMovieScreen()
 def showEraMovie(argsList):
+	if not _isSASInfoScreenShown("SAS_UI_ERA_MOVIE_ON"):
+		return
 	eraMovie.interfaceScreen(argsList[0])
 
 spaceShip = CvSpaceShipScreen.CvSpaceShipScreen()
@@ -374,6 +407,9 @@ def deleteTechSplash(option=None, value=None):
 		del HandleInputMap[TECH_SPLASH]
 
 def showTechSplash(argsList):
+	# <!-- custom: See _isSASInfoScreenShown. (Claude code Opus 5.5) -->
+	if not _isSASInfoScreenShown("SAS_UI_TECH_SPLASH_ON"):
+		return
 	if techSplashScreen is None:
 		createTechSplash()
 	techSplashScreen.interfaceScreen(argsList[0])
@@ -1122,6 +1158,7 @@ def handleInput (argsList):
 	return 0
 
 def update (argsList):
+	SASPilot.onScreenUpdate()
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().update(argsList)):
 		return

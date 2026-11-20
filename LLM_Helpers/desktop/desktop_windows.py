@@ -634,6 +634,105 @@ def find_button(pid, label):
 	return found[0] if found else None
 
 
+def _cream(pixel):
+	return pixel[0] > 140 and pixel[1] > 120 and pixel[0] - pixel[2] > 25
+
+
+# <!-- custom: The dark pixels of the "Python Exception" title, cut from a real dialog's title bar on 2026-11-20 (from 4 pixels right of the bar's left edge and 2 above its top, 166x24), so a dialog is recognized by its title rather than by its buttons.
+# Kept as text, # dark and .
+# light: it reads as the title, diffs as text, and CI keeps images to the Images folders. (Claude code Opus 5.5) -->
+PYTHON_EXCEPTION_TITLE = Path(__file__).resolve().parent / "layouts" / "civ4_python_exception_title.txt"
+
+
+def _band(image, center, y):
+	left = center
+	while left > 0 and _cream(image.getpixel((left, y))):
+		left -= 1
+	right = center
+	while right < image.width - 1 and _cream(image.getpixel((right, y))):
+		right += 1
+	return (left + 1, right - left)
+
+
+def _titleMatches(image, template, left, y):
+	# <!-- custom: The share of the template's pixels whose dark or light matches the window, the same threshold as the template was cut with. (Claude code Opus 5.5) -->
+	width = len(template[0])
+	box = (left + 3, y - 2, left + 3 + width, y - 2 + len(template))
+	if box[0] < 0 or box[1] < 0 or box[2] > image.width or box[3] > image.height:
+		return False
+	region = image.crop(box)
+	same = 0
+	for yy in range(len(template)):
+		for xx in range(width):
+			if (sum(region.getpixel((xx, yy))) < 300) == (template[yy][xx] == "#"):
+				same += 1
+	return same >= 0.95 * width * len(template)
+
+
+def find_dialog_ok(image):
+	# <!-- custom: The OK buttons of the game's "Python Exception" dialogs, as (x, y) window points: they are drawn by the game, so find_button cannot see them, and Python has no call to close them.
+	# Measured on 2026-11-20 at 1926x1120: each dialog is centred, its title bar a cream band 371 to 499 pixels wide on the centre column, its OK a cream band about 61 wide below it, under the blue body.
+	# An OK counts only below a title bar whose text matches PYTHON_EXCEPTION_TITLE, with no other title between: Codex's review saw that a cream button under blue could be a game popup's choice.
+	# The point clicked is 4 pixels into the OK, above its dark letters. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	template = PYTHON_EXCEPTION_TITLE.read_text(encoding="utf-8").split()
+	center = image.width // 2
+	found = []
+	previous = False
+	bTitle = False
+	for y in range(2, image.height - 8):
+		now = _cream(image.getpixel((center, y)))
+		if now and not previous:
+			(left, width) = _band(image, center, y)
+			above = image.getpixel((center, y - 2))
+			# <!-- custom: A title bar is a wide band at least 12 rows tall: the thin cream line under it is as wide, and in the first version it reset the match. (Claude code Opus 5.5) -->
+			iRows = 0
+			while y + iRows < image.height and iRows < 12 and _cream(image.getpixel((center, y + iRows))):
+				iRows += 1
+			if width >= 250 and iRows >= 12:
+				bTitle = _titleMatches(image, template, left, y)
+			elif bTitle and 30 <= width <= 150 and above[2] > above[0] + 20:
+				found.append((center, y + 4))
+				bTitle = False
+		previous = now
+	return found
+
+
+def dismiss_dialogs(pid, count):
+	# <!-- custom: Close up to count of the game's dialogs by their OK, one at a time, looking again after each click: stacked dialogs show several OKs and only the top one answers, so on 2026-11-20 122 blind clicks at one point closed 75 of 120 Python error dialogs.
+	# Only for dialogs known to be there, such as the Python errors SASPilot's 'pyerrors' counts: a game popup has the same cream buttons, and its first one may be a choice. (Claude code Opus 5.5) -->
+	# <!-- custom: A click counts when the OKs or the text above the lowest one changed: identical stacked dialogs put their OK at the same point, so the points alone did not show the close. (Claude code Opus 5.5) -->
+	make_dpi_aware()
+	closed = 0
+	misses = 0
+	while closed < count and misses < 3:
+		image = print_window_image(find_window(pid))
+		points = find_dialog_ok(image)
+		if not points:
+			break
+		# <!-- custom: Clicked only when exactly one Python Exception dialog is found: with two, which is on top cannot be told from the pixels, and the first version then tried the other end (Codex's review); stacked dialogs of one size show one. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if len(points) != 1:
+			break
+		target = points[0]
+		before = (points, hash(image.crop((target[0] - 250, max(0, target[1] - 160), target[0] + 250, target[1] - 8)).tobytes()))
+		# <!-- custom: click presses nothing when the user's mouse moved just before it (the first run stopped there, 2026-11-20), so wait until the user is idle and look again. (Claude code Opus 5.5) -->
+		try:
+			click(pid, target[0], target[1])
+		except RuntimeError as error:
+			if "mouse moved" not in str(error):
+				raise
+			wait_for_idle_user(2.0, 120.0)
+			continue
+		time.sleep(0.4)
+		image = print_window_image(find_window(pid))
+		after = find_dialog_ok(image)
+		if after != points or (after and hash(image.crop((target[0] - 250, max(0, target[1] - 160), target[0] + 250, target[1] - 8)).tobytes()) != before[1]):
+			closed += 1
+			misses = 0
+		else:
+			misses += 1
+	return closed
+
+
 def minidump_pid(path):
 	# <!-- custom: The process ID a minidump records in its MiscInfo stream (type 15; ProcessId at offset 8 when Flags1 has bit 1), or None.
 	# 'dump' checks it, as every Civ4 writes the same file name (Codex's review). See KI#1089. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
@@ -1101,6 +1200,9 @@ def main():
 	press_key.add_argument("name", help="a key or combination such as enter, f10, ctrl+left or ctrl+shift+x")
 	press_key.add_argument("--count", type=int, default=1, help="press it this many times")
 	press_key.add_argument("--hold", type=float, default=0.5, help="seconds to keep the window in front after the last press, so a game reads it")
+	dismiss = sub.add_parser("dismiss", help="close up to --count of the game's own dialogs, such as its Python Exception boxes, by their OK button, found from the window's pixels; only for dialogs known to be there, as a game popup has the same buttons")
+	dismiss.add_argument("--pid", type=int, required=True)
+	dismiss.add_argument("--count", type=int, required=True, help="the most dialogs to close, such as the writes SASPilot's pyerrors counted")
 	typing = sub.add_parser("type", help="bring the window to the front and type text as key presses, using the active keyboard layout")
 	typing.add_argument("--pid", type=int, required=True)
 	typing.add_argument("text")
@@ -1184,6 +1286,8 @@ def main():
 	elif args.command == "key":
 		key(args.pid, args.name, args.hold, args.count)
 		print("pressed %s %d time(s)" % (args.name, args.count))
+	elif args.command == "dismiss":
+		print("closed %d dialog(s)" % dismiss_dialogs(args.pid, args.count))
 	elif args.command == "type":
 		type_text(args.pid, args.text, us_keys=args.us_keys)
 		print("typed %d characters" % len(args.text))

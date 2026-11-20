@@ -126,6 +126,8 @@ def maintained_source_path(path: str) -> bool:
             lower.startswith("assets/python/")
             or lower.startswith("privatemaps/")
             or lower.startswith("llm_helpers/")
+            # <!-- custom: SASPilot moved from LLM_Helpers to the root on 2026-11-20; Codex's review found it had left this check's scope. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+            or lower.startswith("saspilot/")
             or lower.startswith("tests/")
             or lower.startswith(".github/workflows/")
         )
@@ -451,13 +453,21 @@ def unmatched_blocks(old: list[CommentBlock], new: list[CommentBlock], custom: b
 
 # <!-- custom: A partial rewrite of the logging comments dropped one existing contributor while keeping another, so merely checking that some credit exists missed the loss.
 # Recognize the normal trailing parenthesized credit list separately from prose; do not treat model names mentioned in the explanation as authorship. (GPT-6.1-Sol) -->
-def comment_credit_parts(block: CommentBlock) -> tuple[dict[str, str], list[str]]:
+# <!-- custom: The trailing parenthesized list split into labels, each without its own note such as "(summarized)"; shared by the credit checks so they parse it alike (Codex's review, 2026-11-20). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+def trailing_credit_labels(block: CommentBlock) -> tuple[re.Match | None, list[str]]:
     payload = block.text.replace(CUSTOM_CLOSE, "").strip()
     match = re.search(r"\(([^()]*(?:\([^()]*\)[^()]*)*)\)\s*$", payload)
+    if not match:
+        return None, []
+    return match, [re.sub(r"\s*\([^()]*\)", "", part).strip() for part in re.split(r"\s*\+\s*|,\s*|\s+(?:and|&)\s+", match.group(1))]
+
+
+def comment_credit_parts(block: CommentBlock) -> tuple[dict[str, str], list[str]]:
+    payload = block.text.replace(CUSTOM_CLOSE, "").strip()
+    match, labels = trailing_credit_labels(block)
     credits = {}
     if match:
-        for part in re.split(r"\s*\+\s*|,\s*|\s+(?:and|&)\s+", match.group(1)):
-            label = re.sub(r"\s*\([^()]*\)", "", part).strip()
+        for label in labels:
             if re.fullmatch(r"(?:ChatGPT|GPT|Codex|Claude|Gemini|DeepSeek|Grok|wonderingabout|AI/LLM)(?:[ \t-]+[A-Za-z0-9.]+)*", label, re.I):
                 credits[re.sub(r"\s+", " ", label).casefold()] = label
         if credits:
@@ -479,6 +489,17 @@ GENERIC_ONLY_CREDITS = GENERIC_MODEL_CREDITS | frozenset(("claude code",))
 def generic_credit_errors(path: str, block: CommentBlock) -> list[str]:
     credits, _ = comment_credit_parts(block)
     return ["%s:%d: model credit '%s' names only the app or model family; name the exact model, such as GPT-6.1-Sol or Claude code Opus 5.5" % (path, block.start, label) for key, label in credits.items() if key in GENERIC_ONLY_CREDITS]
+
+
+# <!-- custom: A joined credit repeats the app in each part, as "(Claude code Fable 5.2 + Claude code Opus 5.5)"; on 2026-11-20 Claude Code Opus 5.5 wrote "+ Opus 5.5", which the user caught.
+# comment_credit_parts drops a part it does not recognize, so such a part passed silently; a Claude model name without "Claude" before it now fails in new prose.
+# Codex's review found the first version missed "+ Opus 5.5 (review)", as it did not parse notes, and would fail a closing aside such as "(Opus 5.5 reproduced this)", as it matched only the start; it now uses the credit parser and matches whole labels. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+BARE_CLAUDE_CREDIT_RE = re.compile(r"(?:Opus|Sonnet|Haiku|Fable|Mythos)[ \t-]+\d+(?:\.\d+)*", re.IGNORECASE)
+
+
+def bare_claude_credit_errors(path: str, block: CommentBlock) -> list[str]:
+    _, labels = trailing_credit_labels(block)
+    return ["%s:%d: model credit '%s' leaves out the app; write it in full, such as Claude code Opus 5.5" % (path, block.start, label) for label in labels if BARE_CLAUDE_CREDIT_RE.fullmatch(label)]
 
 
 def credit_preserved(old_key: str, new_credits: dict[str, str]) -> bool:
@@ -1081,6 +1102,7 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
         errors.extend(credit_spelling_errors(path, block))
         if block.normalized not in old_custom_text:
             errors.extend(generic_credit_errors(path, block))
+            errors.extend(bare_claude_credit_errors(path, block))
         if not block.credited and block.normalized not in old_custom_text and warnings is not None:
             warnings.append(
                 "%s:%d: new/rewritten custom comment has no recognized model credit near its closing '-->'"

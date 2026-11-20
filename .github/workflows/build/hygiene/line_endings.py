@@ -31,6 +31,8 @@ SCAN_RELATIVE_PATHS = (
 	Path("Assets/Python"),
 	Path("CvGameCoreDLL"),
 	Path("LLM_Helpers"),
+	# <!-- custom: SASPilot moved from LLM_Helpers to the root on 2026-11-20. (Claude code Opus 5.5) -->
+	Path("SASPilot"),
 	Path("PrivateMaps"),
 	Path("_1_AdvCiv-SAS/Docs"),
 )

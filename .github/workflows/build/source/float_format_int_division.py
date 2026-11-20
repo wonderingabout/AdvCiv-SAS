@@ -17,8 +17,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 from xml_defines import get_default_repo_root
 
 
-# <!-- custom: LLM_Helpers/saspilot holds SASPilotCommands.py, which runs inside the game's Python 2.4 too. (Claude code Opus 5.5) -->
-SCAN_RELATIVE_DIRS = (Path("Assets/Python"), Path("PrivateMaps"), Path("LLM_Helpers/saspilot"))
+# <!-- custom: SASPilot/game holds SASPilotCommands.py and SASPilotUI.py, which run inside the game's Python 2.4 too. (Claude code Opus 5.5) -->
+SCAN_RELATIVE_DIRS = (Path("Assets/Python"), Path("PrivateMaps"), Path("SASPilot/game"))
 FLOAT_FORMAT_APPLIED = re.compile(r'%[-+ 0#]*\d*\.\d*f[^"\']*["\']\s*%\s*(.*)$')
 FLOAT_MARKER = re.compile(r'\d\.\d|\d\.(?!\w)|\bfloat\s*\(')
 DIVISION = re.compile(r'[\w)\]]\s*/\s*[\w(]')

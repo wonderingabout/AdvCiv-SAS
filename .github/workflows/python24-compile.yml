@@ -5,6 +5,7 @@ on:
     paths:
       - "Assets/Python/**.py"
       - "PrivateMaps/**.py"
+      - "SASPilot/game/**.py"
       - ".github/workflows/python24-compile.yml"
       - ".github/workflows/build/python/python24_compile.py"
   pull_request:
@@ -15,6 +16,7 @@ on:
     paths:
       - "Assets/Python/**.py"
       - "PrivateMaps/**.py"
+      - "SASPilot/game/**.py"
       - ".github/workflows/python24-compile.yml"
       - ".github/workflows/build/python/python24_compile.py"
   workflow_dispatch:
