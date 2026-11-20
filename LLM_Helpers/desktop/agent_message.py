@@ -251,6 +251,21 @@ def reply_since(app, before, marker, seen=None):
 	return None
 
 
+# <!-- custom: --wait-for first started from each log's current size, so it found only a message the app had not started yet; on 2026-11-19 Codex had already answered a review, and the wait sat on a reply that was already in its log.
+# So start each log at the line holding the header when it is there, which finds an answered, running or queued message alike, and at its end otherwise. (Claude Code Opus 5.5) -->
+def marker_offsets(app, marker):
+	needles = [marker.encode("utf-8"), json.dumps(marker)[1:-1].encode("ascii")]
+	offsets = {}
+	for path, size in log_sizes(app).items():
+		with path.open("rb") as stream:
+			data = stream.read(size)
+		# <!-- custom: The first match: Codex copies the message into a later "compacted" record, and starting there missed it. (Claude Code Opus 5.5) -->
+		hits = [i for i in [data.find(needle) for needle in needles] if i >= 0]
+		found = min(hits) if hits else -1
+		offsets[path] = (data.rfind(b"\n", 0, found) + 1) if found >= 0 else size
+	return offsets
+
+
 def wait_reply(app, before, marker, timeout, arrival_timeout=120):
 	# <!-- custom: On 2026-11-11 Claude Code waited for a Codex review with a shell loop on the newest log, so neither agent nor user had to check Codex's window or guess how long to wait; this keeps that loop, and works the other way for Codex waiting on Claude Code. (Claude Code Opus 5.5) -->
 	# <!-- custom: The reply wait used to watch only for the turn's end, so a message that never reached the app looked like a slow reply: on 2026-11-17 a paste went to the user's window instead of Codex and the wait ran its full 30 minutes.
@@ -300,12 +315,12 @@ def main():
 	sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 	if args.wait_for:
 		# <!-- custom: On 2026-11-18 a --queue send's wait stopped after 2 minutes, saying the message did not reach Codex, although it sat in Codex's queue: an app logs a queued message only when it starts on it, so the arrival check does not apply to one, and resending to wait again would have queued it twice.
-		# This picks up the wait for a message already sent and still queued; it reads the logs from now on, so it cannot find a message the app has already started. (Claude Code Opus 5.5) -->
+		# This picks up the wait for a message already sent, queued or not. (Claude Code Opus 5.5) -->
 		if not args.to:
 			parser.error("--wait-for needs --to")
 		name = {"codex": "Codex", "claude": "Claude Code"}[args.to]
 		print("waiting for %s to end the turn holding %s..." % (name, args.wait_for), flush=True)
-		result = wait_reply(args.to, log_sizes(args.to), args.wait_for, args.wait_timeout, None)
+		result = wait_reply(args.to, marker_offsets(args.to, args.wait_for), args.wait_for, args.wait_timeout, None)
 		if result is None:
 			sys.exit("no reply from %s within %d seconds" % (name, args.wait_timeout))
 		if result[1] is None:
@@ -366,6 +381,10 @@ def main():
 	print("sent to %s (pid %d):" % (args.to, pid))
 	print(message)
 	print("Check the sent message: anything before its header or after its closing tag was not yours.")
+	# <!-- custom: On 2026-11-19 a review went to Codex with --reply "Claude app" and no --wait-reply; Codex answered in its own window and nothing woke the sender, so the user wondered why no reply came.
+	# Name the header to wait on, since the reply is otherwise read only by someone who looks. (Claude Code Opus 5.5) -->
+	if not args.wait_reply and args.reply != "none needed":
+		print('Nothing waits for the reply: run again with --wait-for "%s" in the background to be woken when it ends.' % message[:message.index(" UTC]") + 5])
 	if args.wait_reply:
 		name = {"codex": "Codex", "claude": "Claude Code"}[args.to]
 		print("waiting for %s to end the turn holding this message..." % name, flush=True)

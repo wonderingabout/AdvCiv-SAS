@@ -89,7 +89,7 @@ def read_mixed_values() -> tuple[str, list[str]]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Toggle the usual local development diagnostics (%s) on, or back to shipped defaults." % ", ".join(DEV_DIAGNOSTICS))
-    parser.add_argument("mode", choices=("on", "off", "status"), help="on = development values, off = shipped defaults, status = print current values, exiting 1 when they are mixed")
+    parser.add_argument("mode", choices=("on", "off", "status", "stage"), help="on = development values, off = shipped defaults, status = print current values, exiting 1 when they are mixed, stage = stage the working file with shipped defaults, leaving it unchanged")
     args = parser.parse_args()
     # <!-- custom: Read/write bytes so the file's CRLF line endings and encoding stay untouched. (Claude code Opus 5.5) -->
     text = DEFINES_PATH.read_bytes().decode("utf-8")
@@ -111,6 +111,13 @@ def main() -> None:
         target = dev if args.mode == "on" else shipped
         text = define_pattern(name).sub(lambda m: "%s%d%s" % (m.group(1), target, m.group(3)), text)
         print("%s: %d -> %d" % (name, current, target))
+    # <!-- custom: "off" then "on" around staging needs Civ4 closed, and on 2026-11-19 the user had it open on a game; staging a copy with shipped values leaves the working file, and the game reading it, untouched.
+    # git hash-object --path applies the repository's line-ending rules, as "git add" would. (Claude code Opus 5.5) -->
+    if args.mode == "stage":
+        sha = subprocess.run(["git", "-C", str(REPO_ROOT), "hash-object", "-w", "--path=" + DEFINES_RELATIVE, "--stdin"], input=text.encode("utf-8"), capture_output=True, check=True).stdout.decode("ascii").strip()
+        subprocess.run(["git", "-C", str(REPO_ROOT), "update-index", "--cacheinfo", "100644," + sha + "," + DEFINES_RELATIVE], check=True)
+        print("staged %s with shipped defaults; the working file keeps its values" % DEFINES_RELATIVE)
+        return
     # <!-- custom: Live XML edits during a run have produced XML errors and crashes; refuse rather than edit under a running game. (Claude code Opus 5.5) -->
     if civ4_running():
         raise SystemExit("Civ4BeyondSword.exe is running; close it before editing GlobalDefines (nothing was written).")

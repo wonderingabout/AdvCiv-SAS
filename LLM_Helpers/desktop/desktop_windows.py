@@ -19,6 +19,8 @@ import json
 import os
 import shutil
 import struct
+# <!-- custom: re reads a client's mod from its command line or ini= file. (Claude Code Opus 5.5) -->
+import re
 import subprocess
 import sys
 import time
@@ -720,6 +722,50 @@ def civ4_processes():
 	return result
 
 
+# <!-- custom: Python and XML saved under Assets while an AdvCiv-SAS client runs break that game, so an agent closes such clients first; on 2026-11-20 an agent edited advisor Python while the user's own client ran, which the user said agents should simply close themselves.
+# --mod picks every client of that mod, whose command line ends in mod=\<name>, so a client of another mod is left alone; a stuck client once ignored WM_CLOSE, hence --force after --wait. (Claude Code Opus 5.5) -->
+# <!-- custom: A client's mod is its mod= argument, or for an agent-started client the Mod line of its ini= file, as SASPilot and run_autoplay.py pass no mod=: the first --mod matched only mod= and missed them (2026-11-20). (Claude Code Opus 5.5) -->
+def client_mod(cmd):
+	m = re.search(r'"mod=\\?([^"]+)"|mod=\\?(\S+)', cmd, re.IGNORECASE)
+	if m:
+		return m.group(1) or m.group(2)
+	m = re.search(r'ini="?([^" ]+)', cmd, re.IGNORECASE)
+	if m:
+		ini = DEFAULT_CIV4_DIR / m.group(1)
+		if ini.exists():
+			line = re.search(r'(?mi)^\s*mod\s*=\s*(.+?)\s*$', ini.read_bytes().decode('latin-1'))
+			if line:
+				return line.group(1).split('\\')[-1]
+	return ''
+
+
+def close_clients(pid, mod, wait, force):
+	if pid is not None:
+		pids = [pid]
+	else:
+		pids = [p for (p, cmd) in civ4_processes() if client_mod(cmd).lower() == mod.lower()]
+		if not pids:
+			print("no Civ4 client running %s" % mod)
+			return
+	for p in pids:
+		if not request_close(p):
+			print("no window for process %d" % p)
+		else:
+			print("WM_CLOSE sent to %d" % p)
+	deadline = time.time() + wait
+	while wait > 0 and time.time() < deadline and [p for p in pids if process_alive(p)]:
+		time.sleep(0.5)
+	for p in pids:
+		if not process_alive(p):
+			if wait > 0:
+				print("process %d exited" % p)
+		elif force:
+			subprocess.run(["taskkill", "/F", "/PID", str(p)], capture_output=True)
+			print("process %d still ran after %g s; ended it" % (p, wait))
+		elif wait > 0:
+			sys.exit("process %d still runs after %g s; add --force to end it" % (p, wait))
+
+
 def launch_detached(arguments, civ4_dir=DEFAULT_CIV4_DIR):
 	# <!-- custom: Start Civ4 through WMI so it is not a child of the caller: an agent stopping its shell command once killed the game and its Runtime observers with it. (Claude Code Opus 5.5) -->
 	exe = Path(civ4_dir) / EXE_NAME
@@ -1063,8 +1109,11 @@ def main():
 	dump.add_argument("--pid", type=int, required=True)
 	dump.add_argument("--kind", choices=("full", "normal"), default="full")
 	dump.add_argument("--timeout", type=float, default=300.0)
-	close = sub.add_parser("close", help="send WM_CLOSE, as the title bar's X does")
-	close.add_argument("--pid", type=int, required=True)
+	close = sub.add_parser("close", help="send WM_CLOSE, as the title bar's X does, to one client or to every client running --mod")
+	close.add_argument("--pid", type=int)
+	close.add_argument("--mod", help="every Civ4 client whose command line names this mod, such as AdvCiv-SAS")
+	close.add_argument("--wait", type=float, default=0.0, help="wait up to this many seconds for each to exit")
+	close.add_argument("--force", action="store_true", help="end a client still running after --wait")
 	keep = sub.add_parser("positions", help="save, restore or list named window layouts of the Claude app, the Codex app (ChatGPT.exe) and Civ4, found by program name; kept in layouts/window_positions.json")
 	keep.add_argument("action", choices=("save", "restore", "list"))
 	keep.add_argument("name", nargs="?", default="default", help="the layout's name (default 'default')")
@@ -1142,9 +1191,9 @@ def main():
 		(path, size) = save_dump(args.pid, args.kind, args.timeout)
 		print("dump written: %s (%d bytes); move it beside its DLL and PDB before another crash replaces it" % (path, size))
 	elif args.command == "close":
-		if not request_close(args.pid):
-			sys.exit("no window for process %d" % args.pid)
-		print("WM_CLOSE sent to %d" % args.pid)
+		if (args.pid is None) == (args.mod is None):
+			sys.exit("close needs exactly one of --pid or --mod")
+		close_clients(args.pid, args.mod, args.wait, args.force)
 	elif args.command == "dump":
 		(path, size) = save_dump(args.pid, args.kind, args.timeout)
 		print("dump written: %s (%d bytes); move it beside its DLL and PDB before another crash replaces it" % (path, size))
@@ -1159,6 +1208,12 @@ def main():
 		else:
 			print(format_json(load_positions(), indent=1, sort_keys=True))
 	elif args.command == "move":
+		# <!-- custom: The user asked that the tools never shrink a window to unreadable, after a SASPilot console was squeezed into a sliver (2026-11-20); refuse a size below 640 x 400 rather than place it.
+		# Growing a window, such as a 1920 x 1080 Civ4 to fill a 4K monitor, is useful: on 2026-11-20 the user's 4K view showed the few px left between advisors and the scoreboard, which took the scoreboard's width from 395 to 393, and windows close to the 4K screen's size measured how the main-menu setup screens scale for the EXE patch of KI#1082 (2026-11-12).
+		# But shrinking a running Civ4 only stretches its picture: a 1920 x 1080 test that way showed blurry text and advisors not laid out for 1920.
+		# To test a smaller screen, start Civ4 at that resolution instead (the INI's ScreenWidth and ScreenHeight); a 2005 game supports low resolutions natively. (Claude Code Opus 5.5) -->
+		if args.size and (args.size[0] < 640 or args.size[1] < 400):
+			sys.exit("refusing --size %d x %d: below 640 x 400 a window is unreadable" % tuple(args.size))
 		print("window now at %s" % (move(args.pid, args.monitor, args.part, args.size, args.beside),))
 
 
