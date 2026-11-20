@@ -150,11 +150,46 @@ def _writeAtomic(path, text):
 	os.rename(temp, path)
 
 
+class _ErrorTee:
+	# <!-- custom: Keeps this client's Python error output for 'pyerrors', and passes every write on to the stream it wraps, so PythonErr.log gets it as before.
+	# Needed on 2026-11-20: PythonErr.log is one file for every client (KI#1081), and a Civ4 stuck while exiting kept it locked, so no later client's traceback reached it and SASPilotUISweep.py could not see one.
+	# The methods use only their instance, no module global or builtin, as a reload of this file frees the old module's globals while sys.stderr may still hold this object. (Claude code Opus 5.5) -->
+	def __init__(self, stream, lines, count):
+		self.stream = stream
+		self.lines = lines
+		self.count = count
+
+	# <!-- custom: Kept before it is passed on, so a sink that raises cannot lose the write this was added to catch (Codex's review); the wrapped stream's own error still reaches the caller. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	def write(self, text):
+		try:
+			self.lines.append(text)
+			self.count[0] = self.count[0] + 1
+			if self.lines.__len__() > 400:
+				del self.lines[0]
+		except:
+			pass
+		self.stream.write(text)
+
+	def flush(self):
+		try:
+			self.stream.flush()
+		except:
+			pass
+
+
+def _installErrorTee(state):
+	# <!-- custom: Checked every tick, as the EXE can replace sys.stderr after CvUtil set it (CvUtil's note); a tee from an earlier version of this file is kept, its state being the same lists. (Claude code Opus 5.5) -->
+	if sys.stderr.__class__.__name__ == "_ErrorTee":
+		return
+	sys.stderr = _ErrorTee(sys.stderr, state.setdefault("pyErrors", []), state.setdefault("pyErrorWrites", [0]))
+
+
 def poll(state, szReloadError):
 	# <!-- custom: Called on every tick; one directory listing when no request waits. (Claude code Fable 5.2) -->
 	global _state
 	_state = state
 	state["reloadError"] = szReloadError
+	_installErrorTee(state)
 	_loadUI()
 	if state.get("uiInstalled") and sys.modules.has_key(_UI_NAME):
 		sys.modules[_UI_NAME]._tick()
@@ -2902,7 +2937,8 @@ _HELP["timeline"] = "The Info screen's Timeline tab as entries, newest first: th
 
 def cmd_timeline(args):
 	# <!-- custom: The user's follow-up after the public-information survey (2026-11-15): the Timeline shows met rivals' era changes, first discoveries and Great People, which no command read.
-	# Uses CvInfoScreen.getTimelineRecords on a copy of the screen object set to our perspective, never reveal-all, so SASPilot and the tab share one filter and the open screen's own state and cache stay untouched. (Claude code Opus 5.5) -->
+	# Uses CvInfoScreen.getTimelineRecords on a copy of the screen object set to our perspective, never reveal-all, so SASPilot and the tab share one filter and the open screen's own state and cache stay untouched.
+	# A 2026-11-20 merge slip in that method broke this command and the tab alike. See KI#1101. (Claude code Opus 5.5) -->
 	import copy
 	player = _player(args)
 	iTeam = player.getTeam()
@@ -7851,6 +7887,27 @@ class _Capture:
 		if isinstance(text, unicode):
 			text = text.encode("cp1252", "replace")
 		self.parts.append(text)
+
+
+_HELP["pyerrors"] = "This client's Python error output since SASPilot started, which the game also writes to PythonErr.log: the last lines, up to 400 writes kept, and how many writes there were. Every client shares PythonErr.log, and a Civ4 stuck while exiting can keep it locked, so this is the one read that is surely this client's. clear=1 empties it after this read, so the next shows only what came after. args: clear, lines (default 40)."
+
+
+def cmd_pyerrors(args):
+	lines = _state.setdefault("pyErrors", [])
+	count = _state.setdefault("pyErrorWrites", [0])
+	parts = []
+	for part in lines:
+		if isinstance(part, unicode):
+			part = part.encode("utf-8", "replace")
+		parts.append(part)
+	text = "".join(parts)
+	rows = [row for row in text.split("\n") if row.strip()]
+	result = {"writes": count[0], "lines": rows[-int(args.get("lines", 40)):]}
+	# <!-- custom: Emptied after the reply is built: the first version emptied it first, so SASPilotUISweep.py, which reads with clear=1, never saw an error, while a raised test error stood open in the window (2026-11-20). (Claude code Opus 5.5) -->
+	if args.get("clear"):
+		del lines[:]
+		count[0] = 0
+	return result
 
 
 _HELP["py"] = "Run Python inside the game and return what it printed, plus the value of 'result' if the code sets it, or of the code itself when it is one expression. The namespace persists between calls and has gc, game, map, interface, player (active), describe() and everything from CvPythonExtensions. args: code."

@@ -975,6 +975,9 @@ python LLM_Helpers\commits\stage_partial.py SASPilot\game\SASPilotCommands.py --
 
 - `screenshot`, `click`, `hover`, `scroll`, `paste`, `key` and `close` act on any app's window chosen by process ID: Civ4, or another agent's app such as Codex or the Claude app. `list` prints the running Civ4 clients and their command lines.
   - `close --mod AdvCiv-SAS --wait 30 --force` closes every client running that mod, found by its `mod=` argument or, for an agent-started client, its `ini=` file's `Mod` line, waits for each to exit, and ends one that ignores WM_CLOSE; a client of another mod is left alone.
+  - `dismiss --pid --count` closes up to that many of the game's "Python Exception" dialogs, which Python cannot close: it finds each OK button from the window's pixels and looks again after each click.
+    - It clicks only under a title matching the text mask in `layouts/civ4_python_exception_title.txt`, and only when exactly one such dialog is up, as a game popup has the same buttons.
+    - See [Python errors and their dialogs](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#python-errors-and-their-dialogs).
     - Run it before saving Python or XML under `Assets`, which breaks a running game: on 2026-11-20 an agent edited advisor Python while the user's own client ran.
   - `hover` moves the pointer without clicking or taking focus, to reveal a tooltip. On 2026-11-10 it read the Codex app's usage reset times.
   - `move` places a window on a monitor: `full`, `left` or `right` half, `topleft` or `bottomleft` at its own size, or `beside --beside <pid>`; `positions save|restore|list <name>` keeps named layouts of the Claude app, the Codex app and Civ4 in `layouts/window_positions.json`, found by program name. Both added on 2026-11-14; see [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md).

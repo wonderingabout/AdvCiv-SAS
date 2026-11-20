@@ -72,6 +72,9 @@ SASPilot reads and drives a running Civ4 game for agents, as JSON rather than sc
 - [`SASPilotTurns.py`](/SASPilot/SASPilotTurns.py) ends turns until something needs the agent (`todo`'s `blocking`), handling only routine steps: the ships named with `--explorers` scout one plot at a time toward `seareach`'s recommendation; with `--peace-on-contact` a first-contact greeting gets peace; with `--refuse-recommendations` the advisor's production popup is refused; an AI offer of techs we already have is rejected.
   - After each turn it prints only the new reminders and messages.
   - Written in the islands replay (2026-11-15) after the same shell loop had been rewritten many times, and once ended six turns against an open diplomacy screen.
+- [`SASPilotUISweep.py`](/SASPilot/SASPilotUISweep.py) opens every advisor and the Sevopedia through SASPilotUI, presses only their tabs, scroll arrows, Exit and Sevopedia entries, and lists Python errors, tabs that do not switch and widgets lost between visits.
+  - `--dismiss` closes Python error dialogs and goes on; `--dry-run` presses no tab.
+  - See [Sweeping the screens](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#sweeping-the-screens-tested-on-a-late-game).
 - [`SASPilotSweep.py`](/SASPilot/SASPilotSweep.py) runs `unit` on every unit and `city` on every city of the running game and lists the failures, as a regression check after a DLL or command change; `--commands unit` limits it, and `--player` sweeps another player's under the all role.
   - It prints the player, fog mode and role first: with fog on, another player's units and cities are read only as far as our team sees them (Codex's review).
   - `unit` asks the game about every mission with no target, which a player's clicks never do, and on 2026-11-20 it raised "unidentifiable C++ exception" for units in cities on a turn-402 save: inherited checks read past the map ([KI#1091.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.3)).

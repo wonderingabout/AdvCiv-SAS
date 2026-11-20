@@ -1281,7 +1281,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1098 - (Fixed inherited vanilla Civ4 and BUG-era slips and a SAS one, guarded by CI) Three code lines repeated the line above them: CvDanQuayle.py assigned SCORE_ID twice, CvCustomizableDomesticAdvisor.py hid the rename button twice, and SevoPediaMusic.py set the music title label twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098)\
 [KI#1098.2 - (Fixed inherited Civ4 and AdvCiv duplicate includes, guarded by CI) CvPlayer.cpp and FDialogTemplate.cpp each included one header twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.2)\
 [KI#1099 - (Guarded by CI, inherited BtS code fixed by AdvCiv) Non-standard C++ that VC2003 accepts, such as CyPlayer::disbandUnit returning a void call or NULL through ?:, kept the DLL from building with a standard-conforming compiler](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1099)\
-[KI#1100 - (Fixed AdvCiv-SAS bug) The World Advisor's Changes tab listed an Advanced Start Automate row above the buys it made, as its row was written once the AI had spent the points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1100)
+[KI#1100 - (Fixed AdvCiv-SAS bug) The World Advisor's Changes tab listed an Advanced Start Automate row above the buys it made, as its row was written once the AI had spent the points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1100)\
+[KI#1101 - (Fixed AdvCiv-SAS merge slip, SASPilot branch only) The Info Screen's Timeline tab raised "global name 'iNumMessages' is not defined", as a merge of main put its Greatest Civilizations filter, twice, into a method without that variable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101)
 
 <a id="ki-1"></a>
 
@@ -38368,6 +38369,7 @@ warning: in the working copy of 'LLM_Helpers/formatting/fix_line_endings.py', LF
   - `CvPlot.cpp`'s two `iTurnsLeft++` look like one too, but in BtS the first sits in an `if` block and the second follows a blank line: one rounds the build time up and the other adds the current turn. AdvCiv dropped the braces, which put them side by side.
   - It and `CvXMLLoadUtilitySet.cpp`'s two `SetToParent` calls, as in BtS, each moving the XML cursor up one level, now carry a comment saying they are meant.
   - XML files are not checked: their lists repeat rows on purpose, such as several `<iCommerce>0</iCommerce>` or `<GoodyType>GOODY_TECH</GoodyType>` in a row, 213 and 17 times across the tracked XML, so a repeated row there is data, not a slip.
+- Update (2026-11-20): a 13-line block repeated whole, from a branch merge, slipped past this check, which compares single adjacent lines; see [KI#1101](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101).
 
 <a id="ki-1098.2"></a>
 
@@ -38426,3 +38428,22 @@ On 2026-11-19, testing Advanced Start from the Industrial era on SAS24 Pangaea, 
 - Only the hand-pressed button writes an Automate row. The AI places its own points, and a player's during AI Auto Play, through the same routine without one.
 
 Found by wonderingabout; fixed by Claude Code Opus 5.5.
+
+<a id="ki-1101"></a>
+
+## KI#1101 - (Fixed AdvCiv-SAS merge slip, SASPilot branch only) The Info Screen's Timeline tab raised "global name 'iNumMessages' is not defined", as a merge of main put its Greatest Civilizations filter, twice, into a method without that variable
+
+On 2026-11-20 the first full run of `SASPilotUISweep.py`, which presses every advisor's footer tabs through SASPilotUI, stopped at the Info Screen's Timeline tab:
+
+```text
+uipress {'widget': 'InfoTabButton2'}: NameError: global name 'iNumMessages' is not defined
+```
+
+- main added the `SAS_INFO_UI_TIMELINE_TOP_CIVS_ON` filter, which hides the Greatest Civilizations rankings, inside `CvInfoScreen.buildTimelineCache`, where `iNumMessages` is a local (`ec029819d`).
+  - The SASPilot branch had moved that method's filter loop into `getTimelineRecords`, so SASPilot's `timeline` command reads the same entries as the tab, and carried its own copy of the filter there (`7d42a5762`).
+  - The 2026-11-20 merge of main into the SASPilot branch (`8f24208b7`) kept both copies in `getTimelineRecords`, one after the other, where `iNumMessages` was never defined. The Timeline tab and the `timeline` command both failed from then on.
+- main is not affected: it has no `getTimelineRecords`.
+- Fixed by reading `iNumMessages` in `getTimelineRecords` and removing the second copy; the sweep then pressed every tab of the 13 advisors with no problem, on the turn-402 SAS24 Pangaea save.
+- The repeated block was 13 lines, so [KI#1098](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098)'s check, which compares single adjacent lines, could not see it.
+
+Found by `SASPilotUISweep.py`; fixed by Claude Code Opus 5.5, the user asking for this entry.

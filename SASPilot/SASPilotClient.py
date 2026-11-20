@@ -37,9 +37,9 @@ POLL_SECONDS = 0.001
 LOGS_DIR = MAILBOX_ROOT.parent / "Logs"
 # <!-- custom: Commands that never change the game; a command with one of ORDER_ARGS is an order even so, e.g. 'espionage weight=' or 'fog on='. Everything else, 'py' included, is logged as an order, since it may change the game. (Claude code Opus 5.5) -->
 # <!-- custom: The ui* commands that only read or redraw what is shown; uiopen, uipress and uiselect act as clicks do, and uiplot gives a mission with x and y. Before 2026-11-20 none was listed, so the log and SASPilotConsole called uistate or uihover orders. (Claude code Opus 5.5) -->
-READ_COMMANDS = frozenset(("uiscreens", "uiwidgets", "uiread", "uihover", "uiitems", "uistate", "uimain", "uirecord", "uibench", "uiprobe", "uiplot", "help", "ping", "advise", "role", "demographics", "trainable", "bonustrade", "tech", "graph", "deals", "scores", "player", "players", "units", "unit", "cities", "city", "plot", "plots", "grid", "fog", "path", "targets", "wartargets", "messages", "todo", "info", "routes", "group", "diplo", "trade", "techs", "odds", "sites", "builds", "look", "finance", "domestic", "military", "relations", "espionage", "spy", "turn", "popups", "civics", "sliders", "religion", "types", "pedia", "citizens", "greatpeople", "workers", "map", "scout", "resources", "reminders", "research", "hurry", "freetech"))
+READ_COMMANDS = frozenset(("pyerrors", "uioptions", "uiscreens", "uiwidgets", "uitabs", "uiread", "uihover", "uiitems", "uistate", "uimain", "uirecord", "uibench", "uiprobe", "uiplot", "help", "ping", "advise", "role", "demographics", "trainable", "bonustrade", "tech", "graph", "deals", "scores", "player", "players", "units", "unit", "cities", "city", "plot", "plots", "grid", "fog", "path", "targets", "wartargets", "messages", "todo", "info", "routes", "group", "diplo", "trade", "techs", "odds", "sites", "builds", "look", "finance", "domestic", "military", "relations", "espionage", "spy", "turn", "popups", "civics", "sliders", "religion", "types", "pedia", "citizens", "greatpeople", "workers", "map", "scout", "resources", "reminders", "research", "hurry", "freetech"))
 # <!-- custom: Codex's review found 'popups held=' (it switches holding) and 'profile' (it can run any command repeatedly) logged as reads, and the query forms of 'research', 'hurry' and 'freetech' as orders. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-ORDER_ARGS = {"fog": ("on",), "espionage": ("weight",), "sliders": ("percent",), "citizens": ("automated",), "civics": ("set",), "religion": ("convert",), "popups": ("held",), "research": ("tech",), "hurry": ("hurry",), "freetech": ("tech",), "role": ("set",), "uirecord": ("on",), "uiprobe": ("on", "clear"), "uiplot": ("x", "y", "cancel")}
+ORDER_ARGS = {"fog": ("on",), "espionage": ("weight",), "sliders": ("percent",), "citizens": ("automated",), "civics": ("set",), "religion": ("convert",), "popups": ("held",), "research": ("tech",), "hurry": ("hurry",), "freetech": ("tech",), "role": ("set",), "uirecord": ("on",), "uiprobe": ("on", "clear"), "uiplot": ("x", "y", "cancel"), "uiscroll": ("dir",), "pyerrors": ("clear",), "uioptions": ("open", "close")}
 # <!-- custom: A logged result longer than this is cut, so a 1.6 MB plot reply does not flood the log; its size is still recorded. (Claude code Opus 5.5) -->
 LOG_RESULT_CHARS = 1500
 # <!-- custom: Set by main for this invocation: the top-level command, so wait_for_turn's pings are not logged under 'endturn', and its note=, written on the first logged request only. (Claude code Opus 5.5) -->
@@ -736,7 +736,9 @@ def ensure_watcher(pid, slots=None, slot=None):
 	# The console writes its PID and creation time to <log>.watch; a missing file, a process that ended or a reused PID means it is gone.
 	# One file read and one OpenProcess per command, far below a request's time.
 	# Only for a client with a log, as a console waits on one. (Claude code Opus 5.5) -->
+	# <!-- custom: Said on every command: on 2026-11-20 an agent set SAS_PILOT_WATCH=0 by hand for an interactive test, and the user, watching, found no console. (Claude code Opus 5.5) -->
 	if os.environ.get("SAS_PILOT_WATCH") == "0":
+		print("pilot: SASPilotConsole is off (SAS_PILOT_WATCH=0), meant only for automated tests; unset it when the user may watch", file=sys.stderr)
 		return False
 	try:
 		path = log_path(pid)

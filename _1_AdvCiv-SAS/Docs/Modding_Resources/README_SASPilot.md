@@ -45,6 +45,11 @@ The video demos cover two stages of the playtest.
 &emsp;[Map plots for unit actions, tested on a late game](#map-plots-for-unit-actions-tested-on-a-late-game)\
 &emsp;[Typing and drop-downs, tested on a late game](#typing-and-drop-downs-tested-on-a-late-game)\
 &emsp;[A turn by name, tested on a SAS48 game](#a-turn-by-name-tested-on-a-sas48-game)\
+&emsp;[Sweeping the screens, tested on a late game](#sweeping-the-screens-tested-on-a-late-game)\
+&emsp;&emsp;[Python errors and their dialogs](#python-errors-and-their-dialogs)\
+&emsp;[BUG's options screen, tested on a late game](#bugs-options-screen-tested-on-a-late-game)\
+&emsp;[Transitions, tested on a late game](#transitions-tested-on-a-late-game)\
+&emsp;[What stays the EXE's, and what covers it](#what-stays-the-exes-and-what-covers-it)\
 &emsp;[SASPilotUI limits](#saspilotui-limits)\
 [Loading a save](#loading-a-save)\
 [What was measured](#what-was-measured)\
@@ -520,6 +525,7 @@ python SASPilotClient.py py "print player.getName(); result = [c.getName() for c
   - Example (2026-11-20): to check the cost of shortening scoreboard names beside an open advisor, one `py` call turned on debug mode, opened the Military Advisor and timed 20 `updateScoreStrings` calls, with and without trimming by swapping `CvMainInterface.isScoreboardSpaceAdvisorUp` for a stub.
     - A redraw took 133 ms instead of 88, which led to reusing the last name cap; the same call then gave 62 ms. Another call had first confirmed that `CyInterface().isScreenUp` reports the open screen.
 - When a `py` snippet proves useful twice, make it a `cmd_<name>` function in the command file.
+- `pyerrors` gives this client's Python error output since SASPilot started, the one read that is surely this client's, as `PythonErr.log` is shared; see [Python errors and their dialogs](#python-errors-and-their-dialogs).
 
 ### Using it from a script
 
@@ -611,20 +617,24 @@ The user's idea (2026-11-20): click what a player clicks, by name, without memor
 | Command | What it does |
 | --- | --- |
 | `uiscreens` | The screens it knows, with `open` and the number of recorded widgets; the short names `uiopen` takes. |
-| `uiopen name=military` | Opens a screen as its button does (tech, policy, religion, corporation, foreigntrade, foreigndiplomacy, domestic, military, espionage, info, world, victory, halloffame, pedia). Under the play role it passes the same check as `screen`. |
+| `uiopen name=military` | Opens a screen as its key does, through its control such as `CONTROL_MILITARY_SCREEN` (tech, policy, religion, corporation, foreigntrade, foreigndiplomacy, domestic, military, espionage, info, world, victory, halloffame, pedia; religion and corporation, which have no control since SAS moved them into the Policy Advisor, by their show function). Under the play role it passes the same check as `screen`. |
+| `uitabs` | The open advisor's footer tabs: widget name, label and the active one, as the screen last drew them. |
+| `uiscroll dir=down` | Scrolls a list with its arrow buttons: up, down, pageup, pagedown, top, bottom, such as the Foreign Advisor's Bonuses grid; an arrow at its end is hidden, so it is refused. Without `dir`, the arrows shown. |
 | `uiwidgets [match=Tab]` | The open screen's widgets in creation order: name, text, widget type and data. Hidden ones only with `hidden=1`. |
 | `uipress widget=MilitaryAdvisorTabButton2` | Clicks a widget; `text=Augustus` names it by what it shows instead; `choice=` picks a drop-down's entry; `row=` and `column=` click a table cell, `right=1` clicks with the right button. |
 | `uiread widget=MilitaryAdvisorBattleTable` | A table's rows as cell text, or a widget's text. |
 | `uirecord` | The recorder's state; `on=1` keeps it installed for good, `on=0` goes back to the default. |
 | `uibench [name=tech]` | Times a screen's full draw and a full main interface redraw with the recorder off and on. |
 | `uiprobe on=1` | Logs what real clicks in the window send the screens, decoded; `uiprobe` reads the log. For mapping a new kind of widget. The EXE calls only a plain function in place of `handleInput`: the first `uiprobe`, an object with `__call__`, saw `uipress`'s calls but no real click. |
-| `uistate` | Where the window is: active player, civilization, leader, turn, interface mode, selection, city screen, open screens, recorder. Read it before pressing anything. |
+| `uistate` | Where the window is: active player, civilization, leader, turn, interface mode, selection, city screen, open screens, the Sevopedia's category and item, whether BUG's options dialog is open, recorder. Read it before pressing anything. |
 | `uihover widget=TechAdvisorButton` | The tooltip the window shows for a widget, an item or a cell, read from the DLL, such as "Technology Advisor <F6>". |
 | `uiselect unit=65543` | Selects a unit, as a map click does, or with `city=` opens that city's screen; `close=1` closes it, as Esc does. |
 | `uimain` | Records the main interface as it is now: the selected unit's actions, the open city screen, sliders, research, the scoreboard. |
-| `uiitems widget=BottomButtonList screen=MAIN_INTERFACE` | A multi-list's items, numbered for `uipress item=`, which `about=INTERFACEMODE_GO_TO` can name instead, each named: an action, unit, building, project or process. |
+| `uiitems widget=BottomButtonList screen=MAIN_INTERFACE` | A multi-list's items, numbered for `uipress item=`, which `about=INTERFACEMODE_GO_TO` can name instead, each named: an action, unit, building, project or process. A list box's entries too, named by their text, such as the Sevopedia's categories: `uipress widget=PediaMainCategoryList about=Leaders`. |
 | `uiplot x=85 y=17` | Clicks a map plot while a unit action such as Go To, Paradrop or Air Strike waits for one: the mode's mission goes to the selected group. Without `x` and `y`, the plots the mode accepts, for the modes the game checks plot by plot (Paradrop, Air Strike, Recon and the like); `cancel=1` leaves the mode, as Esc does. |
 | `uitype text=grass` | Types into the open screen as the keyboard does, such as the Sevopedia's search; `keys=backspace` sends named keys. |
+| `uioptions open=1` | Opens BUG's options screen and lists its controls: tab, title, kind, option `id`, value; `tab=` and `match=` filter, `close=1` presses its Exit, which saves the options. |
+| `uioption id=MainInterface__GPBar_Types value=1` | Changes one option as a click does: a checkbox 1 or 0, a dropdown its choice's index, a slider a number within its bounds. |
 
 Example: switching the Military Advisor to its Battles tab and reading the table.
 
@@ -803,6 +813,86 @@ On the SAS48 game at turn 0, 2026-11-20, one turn was played through the `ui` co
 - `control control=CONTROL_ENDTURN`, what the end-turn button runs, did nothing while the city screen was open, as in the window. The screen's exit arrow is the EXE's and is not recorded, so `uiselect close=1` closes it, as Esc does; then the turn ended.
 - A press by name needs no scrolling: the recorder holds every widget a screen creates, such as techs beyond the Tech Chooser's visible edge, and a press reaches the screen without a mouse position.
 
+### Sweeping the screens, tested on a late game
+
+[`SASPilotUISweep.py`](/SASPilot/SASPilotUISweep.py) opens every advisor and the Sevopedia through SASPilotUI and lists what went wrong, as a read-only regression check after a Python or DLL change. Codex (GPT-6.2-Sol) and Claude Code Opus 5.5 listed it as the next step after [`SASPilotSweep.py`](/SASPilot/SASPilotSweep.py) on 2026-11-20.
+
+```text
+python SASPilot/SASPilotUISweep.py --dismiss
+python SASPilot/SASPilotUISweep.py --screens military,pedia --pedia-items all
+python SASPilot/SASPilotUISweep.py --dry-run
+```
+
+- It presses only navigation: each screen, its footer tabs (`uitabs`), its scroll arrows to the bottom and back to the top (`uiscroll`), its Exit, and every Sevopedia category with its first entries (3 by default, `--pedia-items all` for every one; Movies and Music entries are not pressed, as they play).
+  - On each category's first page it opens every EXPAND panel and closes it again, and on one category it types the first four letters of an entry into the search, then Backspaces them: the list must narrow, keep that entry and come back whole (27 panels and one search on the test save).
+  - The Policy Advisor's Exit is a plain button that becomes REVOLUTION once a civic is changed, so a button other than `WIDGET_CLOSE_SCREEN` is pressed only while it reads EXIT.
+  - `--dry-run` opens each screen and lists its tabs or the Sevopedia's categories, pressing no tab or category.
+- Problems: a command that failed, a screen other than the one expected or with fewer footer tabs than counted on 2026-11-20, a tab that does not become active, widgets missing when the first tab is visited again, a screen that reopens with other tabs, a Sevopedia category or entry whose page the Sevopedia does not then show (`uistate`'s `pedia`), and Python errors. Widgets added on a second visit and typed widgets with no hover text are notes.
+  - The expected screens and tab counts are written in the sweep, as the tabs it finds come from the recorder it tests (Codex's review).
+  - A Sevopedia entry counts once the Sevopedia shows the item its cell links to, in the swept category: all 943 linked entries, of 23 link widgets, stayed in theirs. Group headers such as "GraphicalOnly (High)" link nowhere and are left out.
+  - Religion, Corporation and Espionage open the advisors SAS merged them into, so each must open on its own tab, checked by its place among the tabs.
+  - A screen may create a widget on its first visit to a tab and keep it, such as the Military Advisor's minimap panel, covered by the Summary tab, or the Victory screen's spaceship button.
+  - Some hovers are empty by design: AdvCiv switched off the unit count's (advc.086), and domestic trade has one only with more than one domestic route.
+- A popup, the diplomacy screen or BUG's options dialog stops it, as pressing under them could change the game.
+- On the turn-402 SAS24 Pangaea save, 14 screens took 16 s; with `--pedia-items all`, 943 Sevopedia entry pages, the run took 75 s, with no problem.
+- Its first run found [KI#1101](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101): the Info Screen's Timeline tab raised a `NameError`, a slip of the branch merge that day.
+- The Foreign Advisor names its widgets with a running counter, so its Treaties tab was `ForeignAdvisorWidget539` at the first draw and `ForeignAdvisorWidget48` after one press; the sweep looks tabs up by label just before each press.
+- Opened by calling `showMilitaryAdvisor` from the bridge, the Military Advisor's Map tab showed an empty minimap until the tab was pressed again, while F5 drew it at once; `uiopen` now opens a screen through its control, as its key does.
+  - Not the Policy Advisor: `CONTROL_CIVICS_SCREEN` first removes every waiting change-civic popup (advc.004x), which could hide one from the sweep (Codex's review).
+
+#### Python errors and their dialogs
+
+- `PythonErr.log` is one file for every client ([KI#1081](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081)), and on 2026-11-20 a Civ4 stuck while exiting, which Windows could not end, kept it locked, so no later client's traceback reached it. The sweep's first version read that file and so checked nothing: a probe error never showed.
+- SASPilot now keeps its own client's error output: `sys.stderr` passes every write on as before and keeps the last 400, which `pyerrors` reads (`clear=1` empties it after the read).
+- With `HidePythonExceptions = 0`, as SASPilot recommends, every write to `sys.stderr` opens a "Python Exception" dialog in the window. Python cannot see or close it, as it is the EXE's and not a game popup, so `popups` does not list it.
+  - A 120-line test write opened 120 of them; 122 clicks at one fixed point closed only 75, as stacked dialogs answer one at a time.
+  - [`desktop_windows.py dismiss --pid --count`](/LLM_Helpers/README.md#desktop_windowspy) finds each OK button from the window's pixels and clicks it, looking again after each click; it closed the remaining ones.
+  - It clicks only an OK under a title that matches a template of "Python Exception", cut from a real dialog, as a game popup has the same cream buttons (Codex's review); a game text popup was not matched.
+  - It clicks only when it finds exactly one such dialog: with two of different sizes, which is on top cannot be told from the pixels. Stacked dialogs of one size show one.
+- The sweep stops at the first Python error, with its dialog open, or with `--dismiss` records it, closes its dialogs and goes on, after checking that no game popup or diplomacy is up, and stops if a Python dialog is still open. Errors from before the start stop it too, or are closed with `--dismiss`.
+  - The errors are cleared only once handled, so a run that stopped leaves them for a rerun with `--dismiss`.
+  - Tested by making the main interface's update raise once: before the start, and after a few screen updates, which the sweep caught at the Military Advisor's Battles tab.
+
+### BUG's options screen, tested on a late game
+
+BUG's options screen is a modal `CyGTabCtrl`, not a screen the widget recorder sees, so `uioptions open=1` records its controls as it builds them; each names a Python callback, which a change calls with `(value, option id)`, as the window does.
+
+- On the turn-402 save it listed 328 controls on 12 tabs: 197 checkboxes, 84 dropdowns, 24 buttons, 21 edit fields and 2 sliders. Title, value and choices come from BUG's option itself, so they are current.
+- Its panel names repeat from tab to tab (`TopCol0`, `TopHBox`), so a control takes the tab built last: following the parents by name first put the General tab's Tick Marks on the Map tab, as the window showed.
+- `uioption` turned Tick Marks off and on again; it first set a three-choice dropdown to 9, which BUG stored, so a dropdown now takes only its choices' indexes and a slider its bounds.
+- Three dropdowns' titles read "XML key ... not found", such as `TXT_KEY_BUG_OPT_MAININTERFACE__GPBAR_TYPES_TEXT`: base AdvCiv commented those texts out as unused (advc.004), and the window shows these dropdowns without a label, so no player sees it.
+- A change is saved to BUG's ini files when the screen closes, as in the window; the options changed in the test were set back first.
+- A checkbox takes exactly 1 or 0 and every value a whole number. The recording belongs to the dialog SASPilot opened, so one reopened by hand must be closed and opened again with `open=1`.
+- The dialog is modal: while it is open, `uistate` says `bugOptions`, the main interface's presses are refused and the sweep stops; it does not open over the diplomacy screen or a popup on display (Codex's review).
+
+### Transitions, tested on a late game
+
+Where the window can change between two commands, a stale record must not turn a valid command into another action (Codex's list, 2026-11-20).
+
+- The selection changed between listing and pressing: after `uiitems` listed a Paratrooper's 13 actions, a Galleon was selected, and `uipress item=4` refused, as the Galleon's list of 7 differs; `about=` names an action instead of a number.
+- A key that closes a screen: `uitype` stops sending once the screen has closed or a popup or diplomacy owns input.
+- A popup arriving: popups are held from the window while SASPilot drives, `popups` lists them, and the sweep stops at one.
+- A screen hidden by hand: while testing, an agent's own loop hid every screen but number 0, assuming that was the main interface, which is 99.
+  - The HUD stayed drawn but reported inactive, and main interface presses were refused until the game was loaded again.
+  - `closescreens` closes only the screens a player can close; `uistate` reports `mainInterfaceActive`, which the sweep checks after each screen closes.
+- A save loaded while screens are recorded was not tested.
+
+### What stays the EXE's, and what covers it
+
+Some of the window is drawn or read by the EXE, not by Python, so the widget recorder cannot press it; each has a command that does the same as the player's action, as found while building SASPilotUI (2026-11-20).
+
+| In the window | Why SASPilotUI cannot press it | What does the same |
+| --- | --- | --- |
+| Hotkeys on the map (F1 to F10, Ctrl+S and the like) | The EXE reads the keyboard; `uitype` reaches only Python screens. | `control control=CONTROL_...`, such as `CONTROL_MILITARY_SCREEN` or `CONTROL_QUICK_SAVE`; `uiopen` uses the screens' controls itself. |
+| The End Turn button | Drawn by the EXE. | `endturn`, or `control control=CONTROL_ENDTURN`, which does nothing while the city screen is open, as in the window. |
+| The city screen's exit arrow | Drawn by the EXE. | `uiselect close=1`, as Esc does, or `closescreens`. |
+| The diplomacy screen | The EXE's own screen. | `contact` or a scoreboard press (`uipress text=<leader>`) opens it; `diplo` reads it and `reply` answers. |
+| Alt+click on a leader (declare war) and Shift+clicks | `CvDLLWidgetData::doContactCiv` reads the real keyboard with `GC.altKey()`, which a press cannot set. | `contact` and `reply`, which declare war through the diplomacy screen as a player does. |
+| Game popups | Popup windows, not screens. | `popups` and `answer`, with popups held from the window while SASPilot drives. |
+| "Python Exception" dialogs | The EXE's, out of Python's reach. | `pyerrors` counts them; [`desktop_windows.py dismiss`](/LLM_Helpers/README.md#desktop_windowspy) closes them by their OK. |
+| BUG's options dialog | A modal `CyGTabCtrl`, not a screen. | `uioptions` and `uioption`. |
+| The main menu | Before a game, where SASPilot does not run. | The click maps of [README_Game_Runs.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md). |
+
 ### SASPilotUI limits
 
 - Only widgets drawn while the recorder was installed are known: open a screen with `uiopen`, or run `uimain` for the main interface.
@@ -811,6 +901,7 @@ On the SAS48 game at turn 0, 2026-11-20, one turn was played through the `ui` co
 - Some of `desktop_windows.py`'s clicks on the city screen's build bar did not reach the game (Bomb Shelter twice, a wrapped unit once), while the next ones did, on the 2026-11-20 tests; the cause was not found. SASPilotUI does not click, so this concerns only the real-click checks.
 - Widgets the recorder did not see can still be sent by hand with `uipress widget= widgettype= data1= data2=`, under the all role.
 - Popups are separate; see [Popups](#popups).
+- The EXE's "Python Exception" dialogs are out of Python's reach; `pyerrors` counts the writes that opened them and `desktop_windows.py dismiss` closes them by their OK. It finds only dialogs centred in the window, as all seen so far were.
 
 ## Loading a save
 

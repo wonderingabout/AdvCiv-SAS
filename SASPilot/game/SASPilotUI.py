@@ -9,10 +9,16 @@
 from CvPythonExtensions import *
 import CvScreenEnums
 import CvScreensInterface
+# <!-- custom: re takes the icon names out of a list box entry's text. (Claude code Opus 5.5) -->
+import re
 # <!-- custom: copy keeps the main interface's start-time record apart from each 'uimain' record. (Claude code Opus 5.5) -->
 import copy
 # <!-- custom: sys reads the error a recording raised. (Claude code Opus 5.5) -->
 import sys
+# <!-- custom: SASUtils draws every advisor's footer tabs, which 'uitabs' records (_TabRecorder). (Claude code Opus 5.5) -->
+import SASUtils
+# <!-- custom: SASVisualUtils holds the scroll arrows' art, which 'uiscroll' finds them by. (Claude code Opus 5.5) -->
+import SASVisualUtils
 
 gc = CyGlobalContext()
 
@@ -25,7 +31,7 @@ _SET_CREATORS = ("setText", "setLabel", "setTextAt", "setLabelAt", "setButtonGFC
 
 
 # <!-- custom: Methods that change a recorded widget's state rather than create one. (Claude code Opus 5.5) -->
-_STATE_METHODS = ("deleteWidget", "hideScreen", "hide", "show", "enable", "appendMultiListButton", "clearMultiList", "disableMultiListButton", "addPullDownString")
+_STATE_METHODS = ("deleteWidget", "hideScreen", "hide", "show", "enable", "appendMultiListButton", "clearMultiList", "disableMultiListButton", "addPullDownString", "clearListBoxGFC", "appendListBoxString", "appendListBoxStringNoUpdate")
 
 
 # <!-- custom: The drop-down creators, whose arguments are kept so a choice can rebuild the box with that entry selected (see _chooseOption). (Claude code Opus 5.5) -->
@@ -67,6 +73,36 @@ class _BoundRecorded(object):
 		except Exception:
 			pilot._state["uiRecordError"] = "%s: %s" % (self.recorded.szMethod, sys.exc_info()[1])
 		return result
+
+
+class _TabRecorder(object):
+	# <!-- custom: In place of SASUtils.drawAdvisorFooterTabRows, which every footer tab row goes through (drawAdvisorFooterTabs calls it from SASUtils' own namespace), so the tabs of each advisor are known by widget name, label and page, and which one is active.
+	# Always installed: it runs once per advisor draw.
+	# The drawing goes first, and a recording error never reaches it, as with _BoundRecorded. (Claude code Opus 5.5) -->
+	def __init__(self, original):
+		self.original = original
+
+	def __call__(self, *args):
+		result = self.original(*args)
+		try:
+			_noteTabs(args[0], args[1], args[2])
+		except Exception:
+			pilot._state["uiRecordError"] = "drawAdvisorFooterTabRows: %s" % sys.exc_info()[1]
+		return result
+
+
+def _noteTabs(screen, aTabRows, iActivePageID):
+	tabs = [{"widget": row[0], "label": row[1], "page": row[3]} for row in aTabRows]
+	pilot._state.setdefault("uiTabs", {})[screen.getPythonFileID()] = {"tabs": tabs, "active": iActivePageID}
+
+
+def _installTabs():
+	# <!-- custom: The original is kept in the loader's state, so a reload of this file wraps it again rather than wrapping the previous wrapper. (Claude code Opus 5.5) -->
+	original = pilot._state.get("uiTabOriginal")
+	if original is None:
+		original = SASUtils.drawAdvisorFooterTabRows
+		pilot._state["uiTabOriginal"] = original
+	SASUtils.drawAdvisorFooterTabRows = _TabRecorder(original)
 
 
 def _registry():
@@ -116,6 +152,16 @@ def _note(screen, szMethod, args):
 		if len(args) > 4 and widgets.has_key(args[0]):
 			widgets[args[0]].setdefault("options", []).append({"text": args[1], "type": args[2], "data": args[3], "selected": bool(args[4])})
 		return
+	# <!-- custom: A list box's entries, such as the Sevopedia's categories (WIDGET_PEDIA_MAIN with the category as data1), kept as items one per row, as 'uipress item=' sends the row a click on it sends (2026-11-20). (Claude code Opus 5.5) -->
+	if szMethod == "clearListBoxGFC":
+		if args and widgets.has_key(args[0]):
+			widgets[args[0]]["items"] = []
+		return
+	if szMethod in ("appendListBoxString", "appendListBoxStringNoUpdate"):
+		if len(args) > 4 and widgets.has_key(args[0]):
+			items = widgets[args[0]].setdefault("items", [])
+			items.append({"button": "", "row": len(items), "widget": int(args[2]), "data1": args[3], "data2": args[4], "option": False, "text": args[1], "listBox": True})
+		return
 	if szMethod == "appendMultiListButton":
 		if len(args) > 6 and widgets.has_key(args[0]):
 			widgets[args[0]].setdefault("items", []).append({"button": args[1], "row": args[2], "widget": int(args[3]), "data1": args[4], "data2": args[5], "option": bool(args[6])})
@@ -150,6 +196,14 @@ def _note(screen, szMethod, args):
 		if isinstance(value, unicode):
 			entry["text"] = value
 			break
+	# <!-- custom: An image button shows only its art, kept so 'uiscroll' finds the scroll arrows by it: the Foreign Advisor's grids name theirs with a running counter and give them no text (2026-11-20).
+	# setImageButtonAt names its parent before the art. (Claude code Opus 5.5) -->
+	if szMethod in ("setImageButton", "setImageButtonAt"):
+		iArt = 1
+		if szMethod == "setImageButtonAt":
+			iArt = 2
+		if len(args) > iArt and isinstance(args[iArt], str):
+			entry["art"] = args[iArt]
 	# <!-- custom: Widgets created with an empty name, such as the Foreign Advisor's leader buttons (attachImageButton(panel, "", ...)), overwrote each other in this record, which kept one leader of many (2026-11-20).
 	# Each gets a stand-in name from its parent and its place among the parent's unnamed children, and keeps its real name for what a press sends. (Claude code Opus 5.5) -->
 	if entry["name"] == "":
@@ -242,6 +296,7 @@ def _reloaded():
 		_install()
 	else:
 		_uninstall()
+	_installTabs()
 
 
 def _activeScreens():
@@ -252,6 +307,11 @@ def _activeScreens():
 
 # <!-- custom: The screens a player opens from the window, by a short name after SAS's titles (BtS's single Foreign Advisor is SAS's Foreign Trade and Foreign Diplomacy Advisors, as the user pointed out), with the CvScreensInterface function their button calls (pediaShow for the Sevopedia, which reopens the last page); under the play role, 'uiopen' passes the same check as 'screen'. (Claude code Opus 5.5) -->
 _OPENERS = (("tech", "showTechChooser"), ("policy", "showPolicyAdvisorScreen"), ("religion", "showReligionScreen"), ("corporation", "showCorporationScreen"), ("foreigntrade", "showForeignAdvisorScreen"), ("foreigndiplomacy", "showForeignDiplomacyAdvisor"), ("domestic", "showDomesticAdvisor"), ("military", "showMilitaryAdvisor"), ("espionage", "showEspionageAdvisor"), ("info", "showInfoScreen"), ("world", "showWorldAdvisorScreen"), ("victory", "showVictoryScreen"), ("halloffame", "showHallOfFame"), ("pedia", "pediaShow"))
+
+
+# <!-- custom: The control each short name's key sends (CvGame::doControl in CvGameInterface.cpp).
+# Not the Policy Advisor's: CONTROL_CIVICS_SCREEN first kills every waiting change-civic popup (advc.004x), so opening it could remove a popup before a check saw it (Codex's review); its show function draws it fully. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+_OPENER_CONTROLS = {"tech": "CONTROL_TECH_CHOOSER", "foreigntrade": "CONTROL_FOREIGN_SCREEN", "foreigndiplomacy": "CONTROL_FOREIGN_DIPLOMACY_SCREEN", "domestic": "CONTROL_DOMESTIC_SCREEN", "military": "CONTROL_MILITARY_SCREEN", "espionage": "CONTROL_ESPIONAGE_SCREEN", "info": "CONTROL_INFO", "world": "CONTROL_WORLD_ADVISOR_SCREEN", "victory": "CONTROL_VICTORY_SCREEN", "halloffame": "CONTROL_HALL_OF_FAME", "pedia": "CONTROL_CIVILOPEDIA"}
 
 
 def _screenNames():
@@ -360,7 +420,13 @@ def _openScreen(szName, bRecord):
 			_forget(iScreen)
 	if bRecord:
 		_install()
-	pilot.cmd_screen({"name": szShow})
+	# <!-- custom: Through the screen's control, as its key does, where it has one: opened by calling showMilitaryAdvisor from the bridge, the Military Advisor's Map tab showed an empty minimap, black or blue, until the tab was pressed again, while F5 and 'control control=CONTROL_MILITARY_SCREEN' drew it at once (2026-11-20).
+	# Religion and Corporation have no control since SAS moved them into the Policy Advisor, so they keep the call, as does the Policy Advisor (see _OPENER_CONTROLS). (Claude code Opus 5.5) -->
+	szControl = _OPENER_CONTROLS.get(args["name"])
+	if szControl is not None:
+		gc.getGame().doControl(getattr(ControlTypes, szControl))
+	else:
+		pilot.cmd_screen({"name": szShow})
 	after = _activeScreens()
 	opened = [iScreen for iScreen in after if iScreen not in before]
 	for iScreen in opened:
@@ -374,7 +440,7 @@ def _openScreen(szName, bRecord):
 		pilot._state["uiWatched"] = after[0]
 	else:
 		pilot._state["uiWatched"] = None
-	return {"opened": args["name"], "called": szShow, "screen": _screenNames().get(pilot._state["uiWatched"])}
+	return {"opened": args["name"], "called": szShow, "control": szControl, "screen": _screenNames().get(pilot._state["uiWatched"])}
 
 
 _HELP["uiwidgets"] = "The widgets an open screen created, in creation order, as the recorder saw them: name, method, text, widget (WidgetTypes number and name), data1, data2, attachTo. Only widgets drawn while the recorder was installed (see uirecord) are known; hidden ones, themselves or through a parent, are left out unless hidden=1 (all role). args: screen (CvScreenEnums name, default the open one), match (part of the name or text, optional), hidden (optional)."
@@ -412,7 +478,66 @@ def cmd_uiwidgets(args):
 	return {"screen": _screenNames().get(iScreen, str(iScreen)), "widgets": result}
 
 
-_HELP["uipress"] = "Click a widget of an open screen by name, as a mouse click does: the screen's handleInput gets what the EXE sends it (the function name and trailing number, left-button flags, the recorded widget type and data), then a typed widget's own action runs through the DLL, as it does after a click whatever the screen returned (pedia links, slider buttons, techs); an Exit (WIDGET_CLOSE_SCREEN) hides the screen, as the EXE does. right=1 clicks with the right button, whose DLL action is the alternate one. With row and column, a table cell is clicked (row as data and mouse Y, column as mouse X) with that cell's own widget; with item, a multi-list item ('uiitems' numbers them), such as a unit action or a city build. widgettype, data1, data2 and option replace the recorded values, or stand in for a widget the recorder did not see; they need the all role, as they can send what no click can. text= names the widget by what it shows instead of widget=, such as text=Augustus for his scoreboard row: an exact match, else the one widget containing it, without case; several are listed. about= names a multi-list item by what it does, such as about=INTERFACEMODE_GO_TO or about=UNIT_WARRIOR, rather than by number: the list changes as the unit moves, and a stale number once pressed Delete. choice= picks a drop-down's entry, by its number from 'uiitems' or by its text: the box is rebuilt with that entry selected, as Python cannot select it otherwise, then the selection is sent as a click sends it. args: widget, text, item, about, choice, row, column, right, screen (default the open one), widgettype (WidgetTypes name), data1, data2, option."
+_HELP["uitabs"] = "The footer tabs of an open advisor (Domestic, Military, Foreign, Info, Policy, Victory, World), as the screen last drew them: each tab's widget name for 'uipress widget=', its label as plain text and whether it is the active one. Recorded from SAS's shared footer tab drawing whatever the recorder's state; a screen without footer tabs, such as the Tech Chooser, has none. args: screen (default the open one)."
+
+
+def cmd_uitabs(args):
+	iScreen = _screenId(args.get("screen"))
+	_requirePlayable(iScreen, False)
+	record = pilot._state.get("uiTabs", {}).get(iScreen)
+	tabs = []
+	if record is not None:
+		for tab in record["tabs"]:
+			tabs.append({"widget": tab["widget"], "label": _plainCell(tab["label"], False), "active": tab["page"] == record["active"]})
+	return {"screen": _screenNames().get(iScreen, str(iScreen)), "tabs": tabs}
+
+
+_HELP["uiscroll"] = "Scroll a list of an open screen with its arrow buttons, as a click on them does: dir= up, down, pageup, pagedown, top or bottom, such as the Foreign Advisor's Bonuses, Techs and Cities grids. An arrow at its end is hidden, as in the window, so it is refused; without dir, the arrows shown now. Afterwards, the arrows still shown, so 'up' missing means the list is at its top. args: dir, screen (default the open one)."
+
+# <!-- custom: Each direction and the InterfaceArt its arrow shows (IconGrid_BUG's six arrows). (Claude code Opus 5.5) -->
+_SCROLL_ARROWS = (("top", "SCROLL_TOP_ARROW"), ("pageup", "SCROLL_PAGE_UP_ARROW"), ("up", "SCROLL_UP_ARROW"), ("down", "SCROLL_DOWN_ARROW"), ("pagedown", "SCROLL_PAGE_DOWN_ARROW"), ("bottom", "SCROLL_BOTTOM_ARROW"))
+
+
+def _scrollArrows(iScreen):
+	# <!-- custom: The shown arrows by direction, matched by the art path SASVisuals gives IconGrid_BUG. (Claude code Opus 5.5) -->
+	paths = {}
+	for (szDir, szArt) in _SCROLL_ARROWS:
+		paths[getattr(SASVisualUtils.InterfaceArt, szArt)] = szDir
+	widgets = _registry().get(iScreen, {})
+	result = {}
+	for entry in widgets.values():
+		szDir = paths.get(entry.get("art"))
+		if szDir is not None and _isShown(widgets, entry):
+			result.setdefault(szDir, []).append(entry["name"])
+	return result
+
+
+def _arrowOrder(arrows):
+	return [szDir for (szDir, szArt) in _SCROLL_ARROWS if arrows.has_key(szDir)]
+
+
+def cmd_uiscroll(args):
+	iScreen = _screenId(args.get("screen"))
+	_requirePlayable(iScreen, True)
+	arrows = _scrollArrows(iScreen)
+	szDir = args.get("dir")
+	result = {"screen": _screenNames().get(iScreen, str(iScreen))}
+	if szDir is None:
+		result["arrows"] = _arrowOrder(arrows)
+		return result
+	if szDir not in [szName for (szName, szArt) in _SCROLL_ARROWS]:
+		raise ValueError("dir is one of %s" % ", ".join([szName for (szName, szArt) in _SCROLL_ARROWS]))
+	if not arrows.has_key(szDir):
+		raise ValueError("no %s arrow shown on %s: the list is at that end, or the screen has no scroll arrows; shown: %s" % (szDir, result["screen"], ", ".join(_arrowOrder(arrows)) or "none"))
+	if len(arrows[szDir]) != 1:
+		raise ValueError("%d %s arrows are shown (%s); press one with 'uipress widget='" % (len(arrows[szDir]), szDir, ", ".join(arrows[szDir])))
+	cmd_uipress({"widget": arrows[szDir][0], "screen": iScreen})
+	result["pressed"] = szDir
+	result["arrows"] = _arrowOrder(_scrollArrows(iScreen))
+	return result
+
+
+_HELP["uipress"] ="Click a widget of an open screen by name, as a mouse click does: the screen's handleInput gets what the EXE sends it (the function name and trailing number, left-button flags, the recorded widget type and data), then a typed widget's own action runs through the DLL, as it does after a click whatever the screen returned (pedia links, slider buttons, techs); an Exit (WIDGET_CLOSE_SCREEN) hides the screen, as the EXE does. right=1 clicks with the right button, whose DLL action is the alternate one. With row and column, a table cell is clicked (row as data and mouse Y, column as mouse X) with that cell's own widget; with item, a multi-list item ('uiitems' numbers them), such as a unit action or a city build. widgettype, data1, data2 and option replace the recorded values, or stand in for a widget the recorder did not see; they need the all role, as they can send what no click can. text= names the widget by what it shows instead of widget=, such as text=Augustus for his scoreboard row: an exact match, else the one widget containing it, without case; several are listed. about= names a multi-list item by what it does, such as about=INTERFACEMODE_GO_TO or about=UNIT_WARRIOR, rather than by number: the list changes as the unit moves, and a stale number once pressed Delete. choice= picks a drop-down's entry, by its number from 'uiitems' or by its text: the box is rebuilt with that entry selected, as Python cannot select it otherwise, then the selection is sent as a click sends it. args: widget, text, item, about, choice, row, column, right, screen (default the open one), widgettype (WidgetTypes name), data1, data2, option."
 
 
 # <!-- custom: Screens the play role cannot click or read, whoever opened them: WorldBuilder and debug screens change or show what a player may not (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
@@ -482,6 +607,9 @@ def _target(iScreen, args, bPress):
 		eNotify = NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED
 		iFlags = 0
 		iData = len([other for other in items[:iItem] if other["row"] == item["row"]])
+		# <!-- custom: A list box sends its row, a multi-list the position within the row. (Claude code Opus 5.5) -->
+		if item.get("listBox"):
+			iData = item["row"]
 		iWidget = item["widget"]
 		bOption = item["option"]
 		entry = {"data1": item["data1"], "data2": item["data2"]}
@@ -734,6 +862,9 @@ def cmd_uimain(args):
 def _requireHudInput():
 	if pilot._diploState()["open"] or pilot._pendingContact() is not None:
 		raise ValueError("the diplomacy screen owns input; 'diplo' reads it")
+	# <!-- custom: BUG's options dialog is modal, and not a screen _activeScreens lists (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if _optionsOpen():
+		raise ValueError("BUG's options dialog owns input; 'uioptions close=1' closes it")
 	if hasattr(gc.getGame(), "getSASPilotPopups"):
 		for popup in pilot._popups():
 			if popup["state"] == "DISPLAYED":
@@ -824,6 +955,12 @@ def cmd_uiitems(args):
 		if item.get("disabled"):
 			row["disabled"] = True
 		szAbout = _itemAbout(item)
+		# <!-- custom: Named by its text, so the items listed are not compared by number alone. (Claude code Opus 5.5) -->
+		if item.get("listBox"):
+			row["text"] = szAbout
+			# <!-- custom: A Sevopedia category entry names its category screen, such as PEDIA_MOVIES, the same in every language. (Claude code Opus 5.5) -->
+			if item["widget"] == int(WidgetTypes.WIDGET_PEDIA_MAIN):
+				row["category"] = _screenNames().get(item["data1"], str(item["data1"]))
 		if szAbout is not None:
 			row["about"] = szAbout
 		result.append(row)
@@ -916,6 +1053,9 @@ def _chooseOption(iScreen, szWidget, iChoice):
 
 
 def _itemAbout(item):
+	# <!-- custom: A list box entry by its text, without its icons, such as Techs for the Sevopedia's category. (Claude code Opus 5.5) -->
+	if item.get("listBox"):
+		return re.sub(r"\[[A-Z0-9_]+\]", "", _plainCell(item["text"], False)).strip()
 	# <!-- custom: A build button's data1 is a unit or building class, which doTrain and doConstruct turn into the active civ's own unit or building: labelled first as a unit index, item 3 read UNIT_SCOUT, and pressing it queued a Spy, class 10 (2026-11-20). (Claude code Opus 5.5) -->
 	civ = gc.getCivilizationInfo(gc.getGame().getActiveCivilizationType())
 	if item["widget"] == int(WidgetTypes.WIDGET_TRAIN) and 0 <= item["data1"] < gc.getNumUnitClassInfos():
@@ -1001,10 +1141,18 @@ def cmd_uistate(args):
 	if iPlayer >= 0:
 		result["commercePercent"] = dict([(pilot._enumName(CommerceTypes, i), gc.getPlayer(iPlayer).getCommercePercent(CommerceTypes(i))) for i in range(CommerceTypes.NUM_COMMERCE_TYPES)])
 	result["openScreens"] = [_screenNames().get(iScreen, str(iScreen)) for iScreen in _activeScreens()]
+	# <!-- custom: The Sevopedia's page: category (its SevoScreenEnums name) and item, as the screen holds them, so a press can be checked to have opened the page it aimed at (Codex's review of SASPilotUISweep.py, 2026-11-20).
+	# Read from iCategory and iItem: SAS_lastPediaJump, read first, stayed at PEDIA_MAIN for the index, the hints and the charts, which do not go through pediaJump. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	pedia = CvScreensInterface.pediaMainScreen
+	if pedia is not None and _isOpen(CvScreenEnums.SevoScreenEnums.PEDIA_MAIN):
+		result["pedia"] = {"category": _screenNames().get(pedia.iCategory, str(pedia.iCategory)), "item": pedia.iItem}
 	# <!-- custom: Diplomacy is the EXE's own screen, not a Python one, so openScreens left it out after a scoreboard press opened it (2026-11-20); its partner comes from the state 'diplo' reads. (Claude code Opus 5.5) -->
 	diplo = pilot._diploState()
 	if diplo["open"]:
 		result["diplomacy"] = {"who": diplo["who"], "whoName": gc.getPlayer(diplo["who"]).getName()}
+	result["bugOptions"] = _optionsOpen()
+	# <!-- custom: The main interface's own screen: a test loop that hid every screen but number 0 hid it too (it is 99), the HUD stayed drawn but reported inactive, and its presses were refused (2026-11-20); SASPilotUISweep.py checks it after each screen closes. (Claude code Opus 5.5) -->
+	result["mainInterfaceActive"] = _isOpen(CvScreenEnums.MAIN_INTERFACE)
 	result["recorder"] = cmd_uirecord({})
 	return result
 
@@ -1127,7 +1275,179 @@ def cmd_uiplot(args):
 	return {"mode": szMode, "mission": szMission, "x": plot.getX(), "y": plot.getY(), "result": reply}
 
 
-_HELP["uihover"] = "The hover text the window shows for a widget, a multi-list item (item=) or a table cell (row=, column=), as plain text; read through the DLL for typed widgets, so it is the tooltip a player sees. A WIDGET_GENERAL widget has none of its own. text= names the widget by what it shows instead of widget=, such as text=Augustus for his scoreboard row: an exact match, else the one widget containing it, without case; several are listed. about= names a multi-list item by what it does, such as about=INTERFACEMODE_GO_TO or about=UNIT_WARRIOR, rather than by number: the list changes as the unit moves, and a stale number once pressed Delete. args: widget, text, item, about, row, column, screen (default the open one), raw."
+# <!-- custom: BUG's options screen (Ctrl+Alt+O, its button beside the advisors) is not a CyGInterfaceScreen but a modal CyGTabCtrl, so the widget recorder does not see it.
+# Each control names a Python callback, module and function, called with (value, option ID) when the player changes it, as BugOptionsScreen.handleBugCheckboxClicked takes them; so the controls are recorded as the screen builds them, and a change calls that callback. (Claude code Opus 5.5) -->
+class _OptionRecorded(object):
+	def __init__(self, szMethod, original):
+		self.szMethod = szMethod
+		self.original = original
+
+	def __get__(self, ctrl, owner):
+		return _BoundOptionRecorded(self, ctrl)
+
+
+class _BoundOptionRecorded(object):
+	def __init__(self, recorded, ctrl):
+		self.recorded = recorded
+		self.ctrl = ctrl
+
+	def __call__(self, *args):
+		result = self.recorded.original(self.ctrl, *args)
+		try:
+			_noteOption(self.recorded.szMethod, args)
+		except Exception:
+			pilot._state["uiRecordError"] = "%s: %s" % (self.recorded.szMethod, sys.exc_info()[1])
+		return result
+
+
+# <!-- custom: Each control kind: where its callback module, function and option ID sit in the arguments (CyGTabCtrl's attach methods). (Claude code Opus 5.5) -->
+_OPTION_KINDS = {"attachCheckBox": ("checkbox", 3), "attachRadioButton": ("radio", 3), "attachDropDown": ("dropdown", 4), "attachHSlider": ("slider", 2), "attachVSlider": ("slider", 2), "attachSpinner": ("spinner", 2), "attachEdit": ("edit", 3), "attachButton": ("button", 3)}
+
+
+def _noteOption(szMethod, args):
+	record = pilot._state["uiOptions"]
+	if szMethod == "attachTabItem":
+		record["tabs"].append({"name": args[0], "label": args[1]})
+		return
+	if szMethod == "setEnabled":
+		if len(args) > 1 and record["controls"].has_key(args[0]):
+			record["controls"][args[0]]["enabled"] = bool(args[1])
+		return
+	# <!-- custom: Each control takes the tab built last: BUG builds its tabs one after another, and its panel names repeat from tab to tab (TopCol0, TopHBox), so following the parents by name put the General tab's Tick Marks on the Map tab in the first test. (Claude code Opus 5.5) -->
+	if len(args) >= 2 and _OPTION_KINDS.has_key(szMethod):
+		(szKind, iCallback) = _OPTION_KINDS[szMethod]
+		szTab = None
+		if record["tabs"]:
+			szTab = record["tabs"][-1]["label"]
+		record["controls"][args[1]] = {"control": args[1], "kind": szKind, "module": args[iCallback], "function": args[iCallback + 1], "id": args[iCallback + 2], "order": len(record["controls"]), "enabled": True, "tab": szTab}
+		# <!-- custom: A slider's bounds follow its option ID: attachHSlider(parent, name, module, function, id, min, max, value). (Claude code Opus 5.5) -->
+		if szKind == "slider" and len(args) > iCallback + 4:
+			record["controls"][args[1]]["min"] = args[iCallback + 3]
+			record["controls"][args[1]]["max"] = args[iCallback + 4]
+
+
+def _optionsScreen():
+	# <!-- custom: BugOptionsScreen holds BUG's options dialog; imported where used, as BUG loads it only once the game runs. (Claude code Opus 5.5) -->
+	import BugOptionsScreen
+	return BugOptionsScreen.getOptionsScreen()
+
+
+def _optionsOpen():
+	screen = _optionsScreen()
+	return getattr(screen, "pTabControl", None) is not None
+
+
+def _optionsRecord():
+	record = pilot._state.get("uiOptions")
+	if record is None or not record["controls"] or record.get("ctrl") is not _optionsScreen().pTabControl:
+		raise ValueError("this options dialog was not opened through SASPilot; close it ('uioptions close=1') and open it with open=1")
+	return record
+
+
+def _optionDescribe(record, control):
+	# <!-- custom: Title, value and choices from BUG's option itself, so they are current: the recorded arguments hold only what the screen was built with. (Claude code Opus 5.5) -->
+	# <!-- custom: findOption, as a button's ID, such as GeneralHelp_Button, is no option: getOption raised for it in the first test. (Claude code Opus 5.5) -->
+	option = _optionsScreen().options.findOption(control["id"])
+	row = {"id": control["id"], "kind": control["kind"], "tab": _plainCell(control["tab"] or u"", False)}
+	if not control["enabled"]:
+		row["enabled"] = False
+	if option is None:
+		return row
+	row["title"] = _plainCell(option.getTitle(), False)
+	if control["kind"] == "dropdown":
+		row["value"] = option.getIndex()
+		row["choices"] = [_plainCell(unicode(value), False) for value in option.getDisplayValues()]
+	else:
+		row["value"] = option.getValue()
+	return row
+
+
+_HELP["uioptions"] = "BUG's options screen, the modal tab control the advisors' BUG button and Ctrl+Alt+O open: open=1 opens it, as its button does, recording its controls as it builds them; then its controls, each with its tab, title, kind (checkbox, dropdown, slider, ...), option id for 'uioption', value (a dropdown's as the index of its choices) and enabled=false when greyed out. close=1 presses its Exit, which saves the options to BUG's ini files, as in the window. args: open, close, tab (part of a tab label), match (part of a title or id)."
+
+
+def cmd_uioptions(args):
+	if args.get("open"):
+		if _optionsOpen():
+			raise ValueError("BUG's options screen is already open")
+		# <!-- custom: Not over the diplomacy screen or a popup on display, as its button cannot be reached then (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		_requireHudInput()
+		pilot._state["uiOptions"] = {"tabs": [], "controls": {}}
+		originals = {}
+		for szMethod in dir(CyGTabCtrl):
+			if szMethod.startswith("attach") or szMethod == "setEnabled":
+				originals[szMethod] = getattr(CyGTabCtrl, szMethod)
+		# <!-- custom: Wrapped only while the screen is built, which showBugOptionsScreen does at once, and given back even if the build fails. (Claude code Opus 5.5) -->
+		# <!-- custom: Only the methods actually replaced are given back (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		replaced = []
+		try:
+			for (szMethod, original) in originals.items():
+				setattr(CyGTabCtrl, szMethod, _OptionRecorded(szMethod, original))
+				replaced.append(szMethod)
+			CvScreensInterface.showBugOptionsScreen()
+		finally:
+			for szMethod in replaced:
+				setattr(CyGTabCtrl, szMethod, originals[szMethod])
+		# <!-- custom: The recording belongs to this dialog: closed and reopened by hand, a new dialog has other controls and callbacks, and the old record would have served it (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		pilot._state["uiOptions"]["ctrl"] = _optionsScreen().pTabControl
+	if not _optionsOpen():
+		raise ValueError("BUG's options screen is not open; open=1 opens it")
+	if args.get("close"):
+		# <!-- custom: BugOptionsScreen's Exit handler closes the dialog and writes the options, as its Exit button does. (Claude code Opus 5.5) -->
+		import BugOptionsScreen
+		BugOptionsScreen.handleBugExitButtonInput([""])
+		pilot._state["uiOptions"] = None
+		return {"closed": True}
+	record = _optionsRecord()
+	controls = record["controls"].values()
+	controls.sort(lambda a, b: cmp(a["order"], b["order"]))
+	rows = []
+	for control in controls:
+		row = _optionDescribe(record, control)
+		if args.get("tab") is not None and row["tab"].upper().find(str(args["tab"]).upper()) < 0:
+			continue
+		if args.get("match") is not None and (row.get("title", u"") + u" " + row["id"]).upper().find(unicode(args["match"]).upper()) < 0:
+			continue
+		rows.append(row)
+	return {"tabs": [_plainCell(tab["label"], False) for tab in record["tabs"]], "controls": rows}
+
+
+_HELP["uioption"] = "Change one control of BUG's options screen, as a click does: its callback gets (value, id), as the screen calls it, so BUG sets the option and applies it; the screen's own drawing of the control is not refreshed until it is reopened. A checkbox takes 1 or 0, a dropdown the index of its choice ('uioptions' lists them), a slider a number. The change is saved to BUG's ini files when the screen closes ('uioptions close=1'). args: id, value."
+
+
+def cmd_uioption(args):
+	if not _optionsOpen():
+		raise ValueError("BUG's options screen is not open; 'uioptions open=1' opens it")
+	record = _optionsRecord()
+	found = [control for control in record["controls"].values() if control["id"] == args["id"]]
+	if len(found) != 1:
+		raise ValueError("%d controls have the option id %s; 'uioptions' lists them" % (len(found), args["id"]))
+	control = found[0]
+	if not control["enabled"]:
+		raise ValueError("%s is greyed out in the window" % args["id"])
+	if control["kind"] not in ("checkbox", "dropdown", "slider"):
+		raise ValueError("%s is a %s; only checkboxes, dropdowns and sliders are set this way" % (args["id"], control["kind"]))
+	# <!-- custom: Whole numbers only, and a checkbox 0 or 1: the first version made 2 true and 1.9 the index 1 (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	value = args["value"]
+	if isinstance(value, bool) or not (isinstance(value, int) or (isinstance(value, str) and value.lstrip("-").isdigit())):
+		raise ValueError("value must be a whole number, not %r" % (value,))
+	value = int(value)
+	if control["kind"] == "checkbox":
+		if value not in (0, 1):
+			raise ValueError("a checkbox takes 1 or 0, not %d" % value)
+		value = bool(value)
+	before = _optionDescribe(record, control)
+	# <!-- custom: Only what the control offers: the first test set a three-choice dropdown to 9, which BUG stored.
+	# A slider keeps the bounds it was built with. (Claude code Opus 5.5) -->
+	if control["kind"] == "dropdown" and not 0 <= value < len(before.get("choices", [])):
+		raise ValueError("%s has %d choices, 0 to %d" % (args["id"], len(before.get("choices", [])), len(before.get("choices", [])) - 1))
+	if control["kind"] == "slider" and not control["min"] <= value <= control["max"]:
+		raise ValueError("%s takes %d to %d" % (args["id"], control["min"], control["max"]))
+	module = __import__(control["module"])
+	getattr(module, control["function"])((value, control["id"]))
+	return {"before": before, "after": _optionDescribe(record, control)}
+
+
+_HELP["uihover"] ="The hover text the window shows for a widget, a multi-list item (item=) or a table cell (row=, column=), as plain text; read through the DLL for typed widgets, so it is the tooltip a player sees. A WIDGET_GENERAL widget has none of its own. text= names the widget by what it shows instead of widget=, such as text=Augustus for his scoreboard row: an exact match, else the one widget containing it, without case; several are listed. about= names a multi-list item by what it does, such as about=INTERFACEMODE_GO_TO or about=UNIT_WARRIOR, rather than by number: the list changes as the unit moves, and a stale number once pressed Delete. args: widget, text, item, about, row, column, screen (default the open one), raw."
 
 
 def cmd_uihover(args):

@@ -941,24 +941,12 @@ class CvInfoScreen:
 		# <!-- custom: The Timeline entries from the perspective of self.iActivePlayer / iActiveTeam / bRevealAll, newest first, as (turn, date, uncoloured text, colour, replay player, message type, player met, public announcement) tuples.
 		# A public announcement is a religion or corporation founding or a world wonder, reworded to its faraway-land text where the tab does so; the player is the replay's own, so a caller must not name an unmet one. (Claude code Opus 5.5) -->
 		records = []
-		if replayInfo.getNumReplayMessages() <= 0:
+		# <!-- custom: Read here: the 2026-11-20 merge of main brought main's Greatest Civilizations filter, written inside buildTimelineCache where iNumMessages is defined, into this method, twice, and pressing the Timeline tab raised "global name 'iNumMessages' is not defined" (found by SASPilotUISweep.py). See KI#1101. (Claude code Opus 5.5) -->
+		iNumMessages = replayInfo.getNumReplayMessages()
+		if iNumMessages <= 0:
 			return records
 
 		# <!-- custom: SAS_INFO_UI_TIMELINE_TOP_CIVS_ON 0 hides the Greatest Civilizations rankings (CvTopCivs.py): each title row and the rank rows written just before it in the same turn by the same player, as SASPilot's 'topcivs' groups them.
-		# The title is matched in the current language, so rows saved in another language stay listed; a known limit kept for simplicity, as SAS adds English text only (Codex's review, 2026-11-19). (Claude code Opus 5.5) -->
-		dHiddenMessages = {}
-		if not self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON:
-			szTopCivsTitle = localText.getText("TXT_KEY_TOPCIVS_TITLE", ())
-			for iMessage in range(iNumMessages):
-				if not replayInfo.getReplayMessageText(iMessage).startswith(szTopCivsTitle):
-					continue
-				dHiddenMessages[iMessage] = True
-				iRow = iMessage - 1
-				while iRow >= 0 and replayInfo.getReplayMessageTurn(iRow) == replayInfo.getReplayMessageTurn(iMessage) and replayInfo.getReplayMessagePlayer(iRow) == replayInfo.getReplayMessagePlayer(iMessage) and self.RE_TOP_CIVS_RANK.match(replayInfo.getReplayMessageText(iRow)):
-					dHiddenMessages[iRow] = True
-					iRow -= 1
-
-		# <!-- custom: SAS_INFO_UI_TIMELINE_TOP_CIVS_ON 0 hides the Greatest Civilizations rankings (CvTopCivs.py): each title row and the rank rows written just before it in the same turn by the same player.
 		# The title is matched in the current language, so rows saved in another language stay listed; a known limit kept for simplicity, as SAS adds English text only (Codex's review, 2026-11-19). (Claude code Opus 5.5) -->
 		dHiddenMessages = {}
 		if not self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON:
