@@ -207,6 +207,10 @@ Each client's files carry its process ID, so they cannot collide:
 
 ## Screenshots and clicks
 
+Inside a game, prefer SASPilot's `ui*` commands to these points: since 2026-11-20 they open screens and press buttons, tabs, table cells and Sevopedia entries by name, with no coordinates or screenshots, and keep working at any resolution; see [Screens and buttons by name](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#screens-and-buttons-by-name-saspilotui).
+
+The points and maps below stay useful outside a game, such as the main menu and the setup screens, where SASPilot does not run, and for checking what a player sees.
+
 ```bash
 python LLM_Helpers/desktop/desktop_windows.py list
 python LLM_Helpers/desktop/desktop_windows.py screenshot --pid 15692 --out shot.png

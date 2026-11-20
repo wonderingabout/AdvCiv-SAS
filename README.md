@@ -10,6 +10,8 @@ An important milestone is the addition of SASPilot, a new Civ4 CLI API that allo
 
 It also helps debugging: its `py` command runs Python live inside the running game, for example to time a scoreboard redraw or check which screen is open.
 
+It also tests what play rarely reaches: its commands ask the game about every unit and mission, in combinations a player's clicks never send. On 2026-11-20 its `unit` command found an inherited vanilla bug, an airlift check that read past the map for a unit in a city ([KI#1091.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.3)).
+
 Its in-game side is [`SASPilot.py`](/Assets/Python/SASPilot.py), which answers the agents' requests; the commands it runs and the agents' client live in [`SASPilot/`](/SASPilot/README.md).
 
 <a href="https://www.youtube.com/watch?v=c8Ob1knQ09s"><img src="/_1_AdvCiv-SAS/Images/LLM/youtube_video_peer_agent_saspilot_codex_claude_code.png" alt="youtube_video_peer_agent_saspilot_codex_claude_code.png" width="640"></a>

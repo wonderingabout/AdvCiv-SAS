@@ -25,7 +25,11 @@ _SET_CREATORS = ("setText", "setLabel", "setTextAt", "setLabelAt", "setButtonGFC
 
 
 # <!-- custom: Methods that change a recorded widget's state rather than create one. (Claude code Opus 5.5) -->
-_STATE_METHODS = ("deleteWidget", "hideScreen", "hide", "show", "enable", "appendMultiListButton", "clearMultiList", "disableMultiListButton")
+_STATE_METHODS = ("deleteWidget", "hideScreen", "hide", "show", "enable", "appendMultiListButton", "clearMultiList", "disableMultiListButton", "addPullDownString")
+
+
+# <!-- custom: The drop-down creators, whose arguments are kept so a choice can rebuild the box with that entry selected (see _chooseOption). (Claude code Opus 5.5) -->
+_DROPDOWN_CREATORS = ("addDropDownBoxGFC", "attachDropDownBoxGFC")
 
 
 def _isCell(szMethod):
@@ -107,6 +111,11 @@ def _note(screen, szMethod, args):
 			if 0 <= args[2] < len(rowItems):
 				rowItems[args[2]]["disabled"] = True
 		return
+	# <!-- custom: A drop-down's entries, in order, with the one shown selected: the advisors' grouping and page boxes, the Hall of Fame filters, the debug player list. (Claude code Opus 5.5) -->
+	if szMethod == "addPullDownString":
+		if len(args) > 4 and widgets.has_key(args[0]):
+			widgets[args[0]].setdefault("options", []).append({"text": args[1], "type": args[2], "data": args[3], "selected": bool(args[4])})
+		return
 	if szMethod == "appendMultiListButton":
 		if len(args) > 6 and widgets.has_key(args[0]):
 			widgets[args[0]].setdefault("items", []).append({"button": args[1], "row": args[2], "widget": int(args[3]), "data1": args[4], "data2": args[5], "option": bool(args[6])})
@@ -151,6 +160,9 @@ def _note(screen, szMethod, args):
 			parent["unnamedChildren"] = iUnnamed + 1
 		entry["realName"] = ""
 		entry["name"] = "%s#%d" % (entry.get("attachTo", "?"), iUnnamed)
+	# <!-- custom: Kept as the original tuple, Boost enums and all, and not on the main interface, whose record is deep-copied (_refreshMain), which Codex's review doubted would copy those enums. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if szMethod in _DROPDOWN_CREATORS and iScreen != CvScreenEnums.MAIN_INTERFACE:
+		entry["createArgs"] = tuple(args)
 	if widgets.has_key(entry["name"]):
 		entry["order"] = widgets[entry["name"]]["order"]
 		_dropChildren(widgets, entry["name"])
@@ -400,7 +412,7 @@ def cmd_uiwidgets(args):
 	return {"screen": _screenNames().get(iScreen, str(iScreen)), "widgets": result}
 
 
-_HELP["uipress"] = "Click a widget of an open screen by name, as a mouse click does: the screen's handleInput gets what the EXE sends it (the function name and trailing number, left-button flags, the recorded widget type and data), then a typed widget's own action runs through the DLL, as it does after a click whatever the screen returned (pedia links, slider buttons, techs); an Exit (WIDGET_CLOSE_SCREEN) hides the screen, as the EXE does. right=1 clicks with the right button, whose DLL action is the alternate one. With row and column, a table cell is clicked (row as data and mouse Y, column as mouse X) with that cell's own widget; with item, a multi-list item ('uiitems' numbers them), such as a unit action or a city build. widgettype, data1, data2 and option replace the recorded values, or stand in for a widget the recorder did not see; they need the all role, as they can send what no click can. args: widget, item, row, column, right, screen (default the open one), widgettype (WidgetTypes name), data1, data2, option."
+_HELP["uipress"] = "Click a widget of an open screen by name, as a mouse click does: the screen's handleInput gets what the EXE sends it (the function name and trailing number, left-button flags, the recorded widget type and data), then a typed widget's own action runs through the DLL, as it does after a click whatever the screen returned (pedia links, slider buttons, techs); an Exit (WIDGET_CLOSE_SCREEN) hides the screen, as the EXE does. right=1 clicks with the right button, whose DLL action is the alternate one. With row and column, a table cell is clicked (row as data and mouse Y, column as mouse X) with that cell's own widget; with item, a multi-list item ('uiitems' numbers them), such as a unit action or a city build. widgettype, data1, data2 and option replace the recorded values, or stand in for a widget the recorder did not see; they need the all role, as they can send what no click can. text= names the widget by what it shows instead of widget=, such as text=Augustus for his scoreboard row: an exact match, else the one widget containing it, without case; several are listed. about= names a multi-list item by what it does, such as about=INTERFACEMODE_GO_TO or about=UNIT_WARRIOR, rather than by number: the list changes as the unit moves, and a stale number once pressed Delete. choice= picks a drop-down's entry, by its number from 'uiitems' or by its text: the box is rebuilt with that entry selected, as Python cannot select it otherwise, then the selection is sent as a click sends it. args: widget, text, item, about, choice, row, column, right, screen (default the open one), widgettype (WidgetTypes name), data1, data2, option."
 
 
 # <!-- custom: Screens the play role cannot click or read, whoever opened them: WorldBuilder and debug screens change or show what a player may not (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
@@ -423,11 +435,11 @@ def _requirePlayable(iScreen, bClick):
 
 def _target(iScreen, args, bPress):
 	# <!-- custom: The widget a command acts on, as a click on it would send it: a plain widget, a multi-list item (item=) or a table cell (row=, column=), with its widget type, data, notify code, flags and mouse values. Shared by 'uipress' and 'uihover', so the two cannot disagree on what a name points at. (Claude code Opus 5.5) -->
-	szWidget = str(args["widget"])
 	szScreen = _screenNames().get(iScreen, str(iScreen))
 	# <!-- custom: Recorded anew first when it may be stale, so it matches the current selection and state: it replaced a refusal when the selection had changed since 'uimain' (Codex's review), which left the agent running 'uimain' before every press. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	if iScreen == CvScreenEnums.MAIN_INTERFACE:
 		_mainRecord(bPress)
+	szWidget = _widgetArg(iScreen, args)
 	entry = _registry().get(iScreen, {}).get(szWidget)
 	if entry is not None and not _isShown(_registry().get(iScreen, {}), entry):
 		raise ValueError("%s is hidden on %s" % (szWidget, szScreen))
@@ -451,9 +463,12 @@ def _target(iScreen, args, bPress):
 	iMouseX = 0
 	iMouseY = 0
 	# <!-- custom: A real click on a multi-list item (the Worker's Sleep and Go To buttons, 2026-11-20) came as NOTIFY_LISTBOX_ITEM_SELECTED with flags 0, the list's name, ID 0, the item's widget and data, and its position within its row as data: 0 for Sleep, 2 for Go To. (Claude code Opus 5.5) -->
-	if args.get("item") is not None:
+	if args.get("item") is not None or args.get("about") is not None:
 		items = entry.get("items", [])
-		iItem = int(args["item"])
+		if args.get("item") is None:
+			iItem = _itemByAbout(szWidget, items, args["about"])
+		else:
+			iItem = int(args["item"])
 		if iItem < 0 or iItem >= len(items):
 			raise ValueError("%s has %d items; 'uiitems' lists them" % (szWidget, len(items)))
 		item = items[iItem]
@@ -461,7 +476,7 @@ def _target(iScreen, args, bPress):
 			raise ValueError("item %d of %s is disabled in the window" % (iItem, szWidget))
 		# <!-- custom: The list may have changed since 'uiitems' numbered it, so the same item= would press another action or build (Codex's review); a press checks the item is still the one listed. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		listed = pilot._state.get("uiItemsListed", {}).get((iScreen, szWidget))
-		if bPress and listed is not None and (iItem >= len(listed) or listed[iItem] != _itemKey(item)):
+		if bPress and args.get("item") is not None and listed is not None and (iItem >= len(listed) or listed[iItem] != _itemKey(item)):
 			raise ValueError("item %d of %s changed since 'uiitems' listed it; list it again" % (iItem, szWidget))
 		target["about"] = _itemAbout(item)
 		eNotify = NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED
@@ -470,6 +485,17 @@ def _target(iScreen, args, bPress):
 		iWidget = item["widget"]
 		bOption = item["option"]
 		entry = {"data1": item["data1"], "data2": item["data2"]}
+	# <!-- custom: A drop-down choice: the advisors' handlers read the chosen index as the event's data (CvBUGMilitaryAdvisor's grouping boxes, CvCustomizableDomesticAdvisor's pages), others the box's own selection through getSelectedPullDownID, which cmd_uipress sets by rebuilding the box first. (Claude code Opus 5.5) -->
+	elif args.get("choice") is not None:
+		options = entry.get("options")
+		if not options:
+			raise ValueError("%s is not a drop-down with recorded entries; 'uiitems' lists a drop-down's entries" % szWidget)
+		iChoice = _optionIndex(szWidget, options, args["choice"])
+		target["choice"] = iChoice
+		target["about"] = _plainCell(options[iChoice]["text"], False)
+		eNotify = NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED
+		iFlags = 0
+		iData = iChoice
 	elif args.get("row") is not None:
 		eNotify = NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED
 		iFlags = 0
@@ -521,6 +547,9 @@ def cmd_uipress(args):
 	if len(szFunction) < len(szSent):
 		iID = int(szSent[len(szFunction):])
 	argsList = [eNotify, iData, iFlags, iID, iScreen, szFunction, False, False, False, iMouseX, iMouseY, iWidget, iData1, iData2, bOption]
+	if target.get("choice") is not None:
+		result["choice"] = target["choice"]
+		result["rebuilt"] = _chooseOption(iScreen, szWidget, target["choice"])
 	result["function"] = szFunction
 	result["id"] = iID
 	result["screenHandled"] = bool(CvScreensInterface.handleInput(argsList))
@@ -536,12 +565,48 @@ def cmd_uipress(args):
 	return result
 
 
-_HELP["uiread"] = "Read a table of an open screen as rows of cell text, or a recorded widget's text, as plain text: font tags and the advisors' invisible sort keys removed, game-font icons named such as [YIELD_FOOD]; raw=1 gives the text as the screen set it. args: widget, screen (default the open one), raw."
+_HELP["uiread"] = "Read a table of an open screen as rows of cell text, or a recorded widget's text, as plain text: font tags and the advisors' invisible sort keys removed, game-font icons named such as [YIELD_FOOD]; raw=1 gives the text as the screen set it. text= names the widget by what it shows instead of widget=, such as text=Augustus for his scoreboard row: an exact match, else the one widget containing it, without case; several are listed. args: widget, text, screen (default the open one), raw."
 
 
 # <!-- custom: The Battles table's icon cells read as ten invisible characters each, such as u"\u200b\u200b...", which the user noticed as wasted space (2026-11-20): SASUtils.getAdvisorIconSortKey writes a base-5 sort key in U+200B to U+200F so icon-only cells sort, invisible in the window.
 # Removed for the agent, with the font tags; pilot._plainText names the game-font icons. (Claude code Opus 5.5) -->
 _SORT_KEY_CHARS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")
+
+
+# <!-- custom: A widget named by what it shows, as a player finds it: opening diplomacy with Augustus took his scoreboard row's name, ScoreText28, read first through 'uiwidgets match=' (2026-11-20).
+# The shown text, tags and sort keys removed, is compared without case: an exact match wins, else the one widget containing it; several are listed rather than one guessed. (Claude code Opus 5.5) -->
+def _widgetArg(iScreen, args):
+	if args.get("widget") is None and args.get("text") is not None:
+		return _widgetByText(iScreen, args["text"])
+	return str(args["widget"])
+
+
+def _widgetByText(iScreen, text):
+	widgets = _registry().get(iScreen, {})
+	szWanted = unicode(text).strip().lower()
+	# <!-- custom: An empty or blank text= is in every text, so with one shown widget it would press that one (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if not szWanted:
+		raise ValueError("text= is empty; give the text the widget shows")
+	exact = []
+	partial = []
+	for name, entry in widgets.items():
+		if not entry.get("text") or not _isShown(widgets, entry):
+			continue
+		szShown = _plainCell(entry["text"], False).strip().lower()
+		if szShown == szWanted:
+			exact.append(name)
+		elif szShown.find(szWanted) >= 0:
+			partial.append(name)
+	found = exact
+	if not found:
+		found = partial
+	if len(found) == 1:
+		return found[0]
+	szScreen = _screenNames().get(iScreen, str(iScreen))
+	if not found:
+		raise ValueError("no shown widget on %s reads %r; 'uiwidgets' lists them" % (szScreen, text))
+	found.sort()
+	raise ValueError("%d widgets on %s read %r, give widget= instead: %s" % (len(found), szScreen, text, ", ".join(["%s (%s)" % (name, _plainCell(widgets[name]["text"], False).strip()) for name in found[:12]])))
 
 
 def _plainCell(text, bRaw):
@@ -557,7 +622,7 @@ def _plainCell(text, bRaw):
 def cmd_uiread(args):
 	iScreen = _screenId(args.get("screen"))
 	_requirePlayable(iScreen, False)
-	szWidget = str(args["widget"])
+	szWidget = _widgetArg(iScreen, args)
 	entry = _registry().get(iScreen, {}).get(szWidget)
 	if entry is not None and pilot._state.get("role") not in (None, "all") and not _isShown(_registry().get(iScreen, {}), entry):
 		raise ValueError("%s is hidden on %s" % (szWidget, _screenNames().get(iScreen, str(iScreen))))
@@ -665,15 +730,20 @@ def cmd_uimain(args):
 	return {"screen": "MAIN_INTERFACE", "widgets": len(_registry().get(CvScreenEnums.MAIN_INTERFACE, {})), "cityScreen": bool(CyInterface().isCityScreenUp())}
 
 
-def _mainRecord(bPress):
-	# <!-- custom: Codex's review: refreshing the main interface for every command cost three full redraws for a list, a hover and a press, each rebuilding the production chooser, and the main interface could be refreshed and pressed while the diplomacy screen or a popup owned input.
-	# So input elsewhere refuses, and the record is redrawn only when it may be stale: another selection, turn or city screen state, or a press since, which can change the interface (a toggle hid the scoreboard button). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+# <!-- custom: While diplomacy or a displayed popup owns input, no click reaches the main interface or the map; shared by the main interface's record and 'uiplot' (Codex's review found 'uiplot' without it). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+def _requireHudInput():
 	if pilot._diploState()["open"] or pilot._pendingContact() is not None:
 		raise ValueError("the diplomacy screen owns input; 'diplo' reads it")
 	if hasattr(gc.getGame(), "getSASPilotPopups"):
 		for popup in pilot._popups():
 			if popup["state"] == "DISPLAYED":
 				raise ValueError("a %s popup on display owns input; 'popups' lists it" % popup["type"])
+
+
+def _mainRecord(bPress):
+	# <!-- custom: Codex's review: refreshing the main interface for every command cost three full redraws for a list, a hover and a press, each rebuilding the production chooser, and the main interface could be refreshed and pressed while the diplomacy screen or a popup owned input.
+	# So input elsewhere refuses, and the record is redrawn only when it may be stale: another selection, turn or city screen state, or a press since, which can change the interface (a toggle hid the scoreboard button). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	_requireHudInput()
 	key = (_selectionKey(), gc.getGame().getGameTurn())
 	# <!-- custom: A press always records anew: Codex's next review saw that a manual toggle or a change within the selected group leaves this key unchanged while the controls change, so a press could act on an old record; the item check then compares the listing with the fresh record. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	if bPress or pilot._state.get("uiMainKey") != key or pilot._state.get("uiMainPressed"):
@@ -732,7 +802,7 @@ def _selectionKey():
 	return tuple(key)
 
 
-_HELP["uiitems"] = "The items of a multi-list, such as the main interface's BottomButtonList with the selected unit's actions or the open city's builds, numbered as 'uipress item=' takes them: widget type and data, with the action, unit, building, project or process it stands for. The main interface is recorded anew first. args: widget, screen (default the open one, or the main interface)."
+_HELP["uiitems"] = "The items of a multi-list, such as the main interface's BottomButtonList with the selected unit's actions or the open city's builds, numbered as 'uipress item=' takes them: widget type and data, with the action, unit, building, project or process it stands for. The main interface is recorded anew first. text= names the widget by what it shows instead of widget=, such as text=Augustus for his scoreboard row: an exact match, else the one widget containing it, without case; several are listed. For a drop-down, its entries instead, numbered for 'uipress choice=', with the one selected. args: widget, text, screen (default the open one, or the main interface)."
 
 
 def cmd_uiitems(args):
@@ -740,7 +810,7 @@ def cmd_uiitems(args):
 	_requirePlayable(iScreen, False)
 	if iScreen == CvScreenEnums.MAIN_INTERFACE:
 		_mainRecord(False)
-	szWidget = str(args["widget"])
+	szWidget = _widgetArg(iScreen, args)
 	entry = _registry().get(iScreen, {}).get(szWidget)
 	if entry is None:
 		raise ValueError("no widget %s on %s; 'uiwidgets' lists them" % (szWidget, _screenNames().get(iScreen, str(iScreen))))
@@ -757,6 +827,10 @@ def cmd_uiitems(args):
 		if szAbout is not None:
 			row["about"] = szAbout
 		result.append(row)
+	if entry.get("options") is not None:
+		# <!-- custom: The selection is read from the box itself, as screens read it (getSelectedPullDownID gives the entry's index): the recorded flags are those it was built with, which a mouse choice or a rebuild while the recorder was off left stale (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		iSelected = CyGInterfaceScreen("", iScreen).getSelectedPullDownID(szWidget)
+		return {"widget": szWidget, "choices": [{"choice": i, "text": _plainCell(entry["options"][i]["text"], False), "selected": i == iSelected} for i in range(len(entry["options"]))]}
 	return {"widget": szWidget, "items": result}
 
 
@@ -790,6 +864,57 @@ def _itemKey(item):
 	return (item["row"], item["widget"], item["data1"], item["data2"])
 
 
+# <!-- custom: An item named by what it does, such as about=INTERFACEMODE_GO_TO, rather than by its place: on 2026-11-20 a Maceman's Go To was item 3 until it moved, after which item 3 was Delete, and pressing it by number asked to delete the unit (the confirmation was refused).
+# The name is compared without case and must match exactly one item; the list is read when pressed, so it cannot be stale. (Claude code Opus 5.5) -->
+def _itemByAbout(szWidget, items, about):
+	szWanted = str(about).strip().upper()
+	# <!-- custom: Items with no name are left out: str(None) made about=None match them (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	found = [i for i in range(len(items)) if _itemAbout(items[i]) is not None and str(_itemAbout(items[i])).upper() == szWanted]
+	if len(found) == 1:
+		return found[0]
+	if not found:
+		raise ValueError("no item of %s does %s now: %s" % (szWidget, about, ", ".join([str(_itemAbout(item)) for item in items])))
+	raise ValueError("%d items of %s do %s; give item= from 'uiitems'" % (len(found), szWidget, about))
+
+
+def _optionIndex(szWidget, options, choice):
+	# <!-- custom: Normalized to Unicode once: str() of an accented label raised under Python 2.4, and a blank choice was in every entry (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if isinstance(choice, (int, long)):
+		choice = unicode(choice)
+	szChoice = unicode(choice).strip()
+	if not szChoice:
+		raise ValueError("choice= is empty; give the entry's number or text")
+	if szChoice.isdigit():
+		iChoice = int(szChoice)
+		if iChoice < 0 or iChoice >= len(options):
+			raise ValueError("%s has %d entries; 'uiitems' lists them" % (szWidget, len(options)))
+		return iChoice
+	szWanted = szChoice.lower()
+	shown = [_plainCell(option["text"], False).strip().lower() for option in options]
+	found = [i for i in range(len(shown)) if shown[i] == szWanted]
+	if not found:
+		found = [i for i in range(len(shown)) if shown[i].find(szWanted) >= 0]
+	if len(found) == 1:
+		return found[0]
+	if not found:
+		raise ValueError("no entry of %s reads %r: %s" % (szWidget, choice, ", ".join(shown)))
+	raise ValueError("%d entries of %s read %r; give its number from 'uiitems'" % (len(found), szWidget, choice))
+
+
+# <!-- custom: Python cannot set a drop-down's selection (CyGInterfaceScreen has getSelectedPullDownID but no setter), so a choice rebuilds the box from its recorded creation and entries with the chosen one selected, which the window then shows and getSelectedPullDownID returns. (Claude code Opus 5.5) -->
+def _chooseOption(iScreen, szWidget, iChoice):
+	entry = _registry().get(iScreen, {}).get(szWidget)
+	if entry is None or entry.get("createArgs") is None:
+		return False
+	options = entry.get("options", [])
+	screen = CyGInterfaceScreen("", iScreen)
+	screen.deleteWidget(szWidget)
+	getattr(screen, entry["method"])(*entry["createArgs"])
+	for i in range(len(options)):
+		screen.addPullDownString(szWidget, options[i]["text"], options[i]["type"], options[i]["data"], i == iChoice)
+	return True
+
+
 def _itemAbout(item):
 	# <!-- custom: A build button's data1 is a unit or building class, which doTrain and doConstruct turn into the active civ's own unit or building: labelled first as a unit index, item 3 read UNIT_SCOUT, and pressing it queued a Spy, class 10 (2026-11-20). (Claude code Opus 5.5) -->
 	civ = gc.getCivilizationInfo(gc.getGame().getActiveCivilizationType())
@@ -806,7 +931,7 @@ def _itemAbout(item):
 	return None
 
 
-_HELP["uiselect"] = "Select as a click on the map does: unit= selects that unit and its group, so its actions fill the main interface; city= opens that city's screen. Then 'uimain' records what the main interface shows. Own units and cities only, unless player= names another under the all role. args: unit, city, player."
+_HELP["uiselect"] = "Select as a click on the map does: unit= selects that unit and its group, so its actions fill the main interface; city= opens that city's screen. Then 'uimain' records what the main interface shows. Own units and cities only, unless player= names another under the all role. close=1 closes the city screen, as Esc does; its exit arrow is the EXE's. args: unit, close, city, player."
 
 
 def cmd_uiselect(args):
@@ -822,10 +947,15 @@ def cmd_uiselect(args):
 		city = pilot._city(args)
 		CyInterface().selectCity(city, True)
 		return {"selected": city.getName(), "cityScreen": bool(CyInterface().isCityScreenUp())}
-	raise ValueError("give unit= or city=")
+	# <!-- custom: The city screen's exit arrow is the EXE's, so the recorder never sees it, and CONTROL_ENDTURN did nothing while the screen was open, as in the window (the 2026-11-20 ui-only turn); Esc clears the selected city, which this does. (Claude code Opus 5.5) -->
+	if args.get("close"):
+		bWasUp = bool(CyInterface().isCityScreenUp())
+		CyInterface().clearSelectedCities()
+		return {"closed": bWasUp, "cityScreen": bool(CyInterface().isCityScreenUp())}
+	raise ValueError("give unit=, city= or close=1")
 
 
-_HELP["uistate"] = "Where the window is now, as one reply: active player, civilization, leader, turn and whether it is our turn; the scoreboard (visible, expanded, background style, lock, autocenter, scroll), the map toggles (grid, yields, bare map), the globe view and the commerce sliders; the interface mode (INTERFACEMODE_GO_TO waits for a map click, for example); the selected unit, its group's units and plot; the selected city and whether its screen is open; the open screens; and the recorder's state. Read it before pressing anything."
+_HELP["uistate"] = "Where the window is now, as one reply: active player, civilization, leader, turn and whether it is our turn; the scoreboard (visible, expanded, background style, lock, autocenter, scroll), the map toggles (grid, yields, bare map), the globe view and the commerce sliders; the interface mode (INTERFACEMODE_GO_TO waits for a map click, for example); the selected unit, its group's units and plot; the selected city and whether its screen is open; the open screens, and the diplomacy partner while the EXE's diplomacy screen is up ('diplo' reads and answers it); and the recorder's state. Read it before pressing anything."
 
 
 def cmd_uistate(args):
@@ -871,11 +1001,133 @@ def cmd_uistate(args):
 	if iPlayer >= 0:
 		result["commercePercent"] = dict([(pilot._enumName(CommerceTypes, i), gc.getPlayer(iPlayer).getCommercePercent(CommerceTypes(i))) for i in range(CommerceTypes.NUM_COMMERCE_TYPES)])
 	result["openScreens"] = [_screenNames().get(iScreen, str(iScreen)) for iScreen in _activeScreens()]
+	# <!-- custom: Diplomacy is the EXE's own screen, not a Python one, so openScreens left it out after a scoreboard press opened it (2026-11-20); its partner comes from the state 'diplo' reads. (Claude code Opus 5.5) -->
+	diplo = pilot._diploState()
+	if diplo["open"]:
+		result["diplomacy"] = {"who": diplo["who"], "whoName": gc.getPlayer(diplo["who"]).getName()}
 	result["recorder"] = cmd_uirecord({})
 	return result
 
 
-_HELP["uihover"] = "The hover text the window shows for a widget, a multi-list item (item=) or a table cell (row=, column=), as plain text; read through the DLL for typed widgets, so it is the tooltip a player sees. A WIDGET_GENERAL widget has none of its own. args: widget, item, row, column, screen (default the open one), raw."
+_HELP["uiplot"] = "Click a map plot while the window waits for one, after a unit action such as Go To, Air Strike or Recon has set its interface mode ('uistate' interfaceMode): the mode's own mission (from its XML) goes to the selected group at that plot through 'mission' and its checks, and the mode returns to selection, as after a click. append=1 queues it, as a shift-click does. Without x and y, lists the plots the mode accepts, as 'targets' does. Go To Type and Go To All move the group their press made of the head's type, or of every unit of ours on its plot. Under fog, the plot-checked modes take only revealed plots. A plot with no path for Go To or Route To is refused, as the click would do nothing; cancel=1 leaves the mode, as Esc does. A mode with no mission, such as a sign or a ping, is refused. args: x, y, append, cancel."
+
+
+_PLOT_CHECKED_MODES = ("INTERFACEMODE_AIRLIFT", "INTERFACEMODE_NUKE", "INTERFACEMODE_RECON", "INTERFACEMODE_PARADROP", "INTERFACEMODE_AIRBOMB", "INTERFACEMODE_RANGE_ATTACK", "INTERFACEMODE_AIRSTRIKE", "INTERFACEMODE_REBASE")
+
+
+_HELP["uitype"] = "Type into the open screen as the keyboard does, such as the Sevopedia's search: each key reaches the screen's handleInput as NOTIFY_CHARACTER, key down then key up, as real keys were logged. text= types letters (capitals with Shift), digits, spaces and - . , ' /; keys= sends named keys, comma-separated InputTypes names with or without KB_, such as BACKSPACE, RETURN, LEFT. Python screens only: the main interface's hotkeys are the EXE's. args: text, keys, screen (default the open one)."
+
+
+# <!-- custom: Characters text= can type, beyond letters and digits, by their InputTypes key. (Claude code Opus 5.5) -->
+_TYPED_KEYS = {u" ": "KB_SPACE", u"-": "KB_MINUS", u".": "KB_PERIOD", u",": "KB_COMMA", u"'": "KB_APOSTROPHE", u"/": "KB_SLASH"}
+
+
+def cmd_uitype(args):
+	# <!-- custom: Typed keys came as two NOTIFY_CHARACTER events per key, logged with 'uiprobe' from real keys in the Sevopedia (2026-11-20): the key's InputTypes code as data (19 for G, 40 for Backspace), ID 1 on key down and 0 on key up, an empty function name, flags 0 and WIDGET_GENERAL.
+	# The pair matters: the Sevopedia's per-key debounce skips every second event of a key, which is the key up, so a single event per key would type only every other repeated letter. (Claude code Opus 5.5) -->
+	iScreen = _screenId(args.get("screen"))
+	_requirePlayable(iScreen, True)
+	if iScreen == CvScreenEnums.MAIN_INTERFACE:
+		raise ValueError("the main interface's keys are the EXE's hotkeys; type into a Python screen such as the Sevopedia")
+	keys = []
+	for ch in unicode(args.get("text") or u""):
+		if u"a" <= ch <= u"z" or u"A" <= ch <= u"Z":
+			keys.append((int(InputTypes.KB_A) + ord(ch.lower()) - ord(u"a"), ch.isupper()))
+		elif u"0" <= ch <= u"9":
+			keys.append((int(InputTypes.KB_0) + ord(ch) - ord(u"0"), False))
+		elif _TYPED_KEYS.has_key(ch):
+			keys.append((int(getattr(InputTypes, _TYPED_KEYS[ch])), False))
+		else:
+			raise ValueError("cannot type %r; text= takes letters, digits, spaces and - . , ' /, and keys= named keys" % ch)
+	if args.get("keys"):
+		for szKey in str(args["keys"]).split(","):
+			szName = szKey.strip().upper()
+			if not szName.startswith("KB_"):
+				szName = "KB_" + szName
+			if not hasattr(InputTypes, szName):
+				raise ValueError("no key %s in InputTypes" % szName)
+			keys.append((int(getattr(InputTypes, szName)), False))
+	if not keys:
+		raise ValueError("give text= or keys=")
+	# <!-- custom: A key can close the screen or bring up a popup, as Esc or Enter does in the Replay screen on the key down; the remaining events then went to a screen that no longer had input (Codex's review), so each waits until the screen is still up and nothing modal owns input. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	iSent = 0
+	for (iKey, bShift) in keys:
+		if not _screenTakesKeys(iScreen):
+			return {"screen": _screenNames().get(iScreen, str(iScreen)), "keys": iSent, "stopped": "the screen closed or lost input after %d of %d keys" % (iSent, len(keys))}
+		for iID in (1, 0):
+			CvScreensInterface.handleInput([NotifyCode.NOTIFY_CHARACTER, iKey, 0, iID, iScreen, "", bShift, False, False, 0, 0, int(WidgetTypes.WIDGET_GENERAL), 0, 0, False])
+			if iID == 1 and not _screenTakesKeys(iScreen):
+				break
+		iSent = iSent + 1
+	return {"screen": _screenNames().get(iScreen, str(iScreen)), "keys": iSent}
+
+
+def _screenTakesKeys(iScreen):
+	if not CyGInterfaceScreen("", iScreen).isActive() or pilot._diploState()["open"]:
+		return False
+	if hasattr(gc.getGame(), "getSASPilotPopups"):
+		for popup in pilot._popups():
+			if popup["state"] == "DISPLAYED":
+				return False
+	return True
+
+
+_GROUND_MOVE_MODES = ("INTERFACEMODE_GO_TO", "INTERFACEMODE_GO_TO_TYPE", "INTERFACEMODE_GO_TO_ALL", "INTERFACEMODE_ROUTE_TO")
+
+
+def cmd_uiplot(args):
+	# <!-- custom: A unit action such as Go To only sets an interface mode and waits for a map click, which the EXE then turns into the mode's mission (CvInterfaceModeInfo::getMissionType); SASPilotUI had no way to give that click (2026-11-20).
+	# The mission goes through 'mission', so its checks (moves left, fog, data range) apply as to any order, and 'targets' lists the plots, as the window highlights them. (Claude code Opus 5.5) -->
+	_requirePlayable(CvScreenEnums.MAIN_INTERFACE, True)
+	_requireHudInput()
+	eMode = CyInterface().getInterfaceMode()
+	szMode = pilot._enumName(InterfaceModeTypes, int(eMode))
+	info = gc.getInterfaceModeInfo(int(eMode))
+	# <!-- custom: After a refused plot the window still waits in the mode, with the unit's action list hidden (2026-11-20); Esc leaves any mode in the window, cancel=1 here, so it comes before the check for a mission (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if args.get("cancel"):
+		CyInterface().setInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION)
+		return {"mode": szMode, "cancelled": True}
+	if int(eMode) == int(InterfaceModeTypes.INTERFACEMODE_SELECTION) or info.getMissionType() < 0:
+		raise ValueError("the window waits for no plot (interface mode %s); press a unit action such as Go To first" % szMode)
+	unit = CyInterface().getHeadSelectedUnit()
+	if unit is None or unit.isNone():
+		raise ValueError("no unit is selected for %s" % szMode)
+	# <!-- custom: The selection is our own outside the all role, as for 'uiselect': 'mission' and 'targets' were called with the unit's owner, which skipped the player= check (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if pilot._state.get("role") not in (None, "all") and unit.getOwner() != gc.getGame().getActivePlayer():
+		raise ValueError("the selected unit is player %d's, not ours; the all role allows it" % unit.getOwner())
+	szMission = gc.getMissionInfo(info.getMissionType()).getType()
+	# <!-- custom: The selection can change while a mode waits, so the group must still be able to use it, as 'targets' checks first; canDoInterfaceModeAt accepts any plot for the ground modes, so it does not catch this (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if not unit.getGroup().canDoInterfaceMode(eMode):
+		raise ValueError("the selected group cannot use %s now; cancel=1 leaves the mode" % szMode)
+	if args.get("x") is None or args.get("y") is None:
+		# <!-- custom: CvSelectionGroup::canDoInterfaceModeAt checks the plot only for these modes and accepts any other, so for Go To the list held all 16,632 plots of the SAS48 map (2026-11-20); the mission then decides on arrival. (Claude code Opus 5.5) -->
+		if szMode not in _PLOT_CHECKED_MODES:
+			return {"mode": szMode, "mission": szMission, "plots": "any plot; the mission checks the path when given"}
+		return pilot.cmd_targets({"unit": unit.getID(), "player": unit.getOwner(), "mode": szMode})
+	plot = CyMap().plot(int(args["x"]), int(args["y"]))
+	if plot is None or plot.isNone():
+		raise ValueError("no plot %s,%s on the map" % (args["x"], args["y"]))
+	# <!-- custom: Under fog, a plot-checked mode answers only for plots our team has seen, as 'targets' lists them: whether a paradrop or air strike takes an unseen plot would tell what is there (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	iFogTeam = pilot._fogTeam(args)
+	if iFogTeam >= 0 and szMode in _PLOT_CHECKED_MODES and not plot.isRevealed(iFogTeam, False):
+		raise ValueError("plot %d,%d is unrevealed to our team; with fog on, %s takes only revealed plots" % (plot.getX(), plot.getY(), szMode))
+	if not unit.getGroup().canDoInterfaceModeAt(eMode, plot):
+		raise ValueError("%s does not take plot %d,%d; uiplot without x and y lists the plots it does" % (szMode, plot.getX(), plot.getY()))
+	# <!-- custom: A Go To Type onto an ocean plot was taken, reported, and silently dropped, as a click with no path does in the window (2026-11-20), so the ground moves ask the pathfinder 'move' and 'path' use first.
+	# By mode, not mission: Air Strike and Rebase also give MISSION_MOVE_TO, but fly straight, and GroupPathFinder asserts against air units (Codex's review).
+	# An appended move starts where the queue ends, which this path from the unit does not see, so the mission checks it. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if szMode in _GROUND_MOVE_MODES and not (args.get("append") and unit.getGroup().getLengthMissionQueue() > 0):
+		path = pilot.fromJson(pilot._pilotGame("getSASPilotPathJson").getSASPilotPathJson(unit.getOwner(), unit.getID(), plot.getX(), plot.getY(), 0))
+		if not path.get("found"):
+			raise ValueError("unit %d has no path to %d,%d, so the click would do nothing" % (unit.getID(), plot.getX(), plot.getY()))
+	# <!-- custom: Go To Type and Go To All move more than the selected group: their XML sets bSelectType or bSelectAll, and pressing them already joined two Modern Infantry of separate groups into one (2026-11-20), so the mission goes to that group.
+	# A first version also joined them here, through 'group', which Codex's review found could leave units regrouped when the mission was then refused. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	reply = pilot.cmd_mission({"unit": unit.getID(), "player": unit.getOwner(), "mission": szMission, "data1": plot.getX(), "data2": plot.getY(), "append": bool(args.get("append"))})
+	CyInterface().setInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION)
+	return {"mode": szMode, "mission": szMission, "x": plot.getX(), "y": plot.getY(), "result": reply}
+
+
+_HELP["uihover"] = "The hover text the window shows for a widget, a multi-list item (item=) or a table cell (row=, column=), as plain text; read through the DLL for typed widgets, so it is the tooltip a player sees. A WIDGET_GENERAL widget has none of its own. text= names the widget by what it shows instead of widget=, such as text=Augustus for his scoreboard row: an exact match, else the one widget containing it, without case; several are listed. about= names a multi-list item by what it does, such as about=INTERFACEMODE_GO_TO or about=UNIT_WARRIOR, rather than by number: the list changes as the unit moves, and a stale number once pressed Delete. args: widget, text, item, about, row, column, screen (default the open one), raw."
 
 
 def cmd_uihover(args):

@@ -41,6 +41,10 @@ The video demos cover two stages of the playtest.
 &emsp;[The main interface and the city screen](#the-main-interface-and-the-city-screen)\
 &emsp;[Main interface controls, tested on a late game](#main-interface-controls-tested-on-a-late-game)\
 &emsp;[Reading and naming, tested on a late game](#reading-and-naming-tested-on-a-late-game)\
+&emsp;[Diplomacy and names, tested on a SAS48 game](#diplomacy-and-names-tested-on-a-sas48-game)\
+&emsp;[Map plots for unit actions, tested on a late game](#map-plots-for-unit-actions-tested-on-a-late-game)\
+&emsp;[Typing and drop-downs, tested on a late game](#typing-and-drop-downs-tested-on-a-late-game)\
+&emsp;[A turn by name, tested on a SAS48 game](#a-turn-by-name-tested-on-a-sas48-game)\
 &emsp;[SASPilotUI limits](#saspilotui-limits)\
 [Loading a save](#loading-a-save)\
 [What was measured](#what-was-measured)\
@@ -129,6 +133,8 @@ python SASPilotClient.py look follow=1
   - The failure is also written to stderr, which the game shows as a Python error in its window. On 2026-11-13 an edit saved a help string with double quotes inside it, the user watching saw the error, and the corrected file loaded 4 seconds later; so an error that appears while an agent edits this file is usually such a transient save, and `PythonErr.log` names the line.
   - Checking the edit first with Python 2.4 (`C:\Python24\python.exe`, as in [Syntax checks](/AGENTS.md#syntax-checks-and-linting)) before relying on the reload catches such a slip, but the Edit tool saves at once, so the game may load the broken version first.
 - This is why the command file lives in `SASPilot/game/` and not in `Assets/Python/`; see [What did not work](#what-did-not-work-and-why).
+  - Writing the file is enough, even unchanged. On 2026-11-20 a credit sweep's `sed -i` rewrote `Assets/Python/SASPilot.py` while a test game ran, and the game showed "Failed to load python module CvScreensInterface". Rewriting that file again with identical bytes (the same MD5, no Git diff) reproduced it at once in a fresh game.
+  - So a sweep across files, such as `sed -i` or a script writing every match, must leave `Assets/` alone while Civ4 runs, even where it changes nothing.
 - `SASPilot.py` itself is in `Assets/Python/`, so changing it needs Civ4 closed first, like any mod Python.
 - `ping` reports the loaded `PILOT_REVISION`. Keep one revision for the candidate during a draft PR and record its command changes in [SASPilot revisions](/_1_AdvCiv-SAS/Docs/revisions/SASPilot.md).
 - A script writing the command file can fail with `OSError: [Errno 22] Invalid argument` while the game has the file open for its reload check; it happened twice on 2026-11-14, and a retry a moment later succeeded. The Edit tool retries on its own.
@@ -607,16 +613,18 @@ The user's idea (2026-11-20): click what a player clicks, by name, without memor
 | `uiscreens` | The screens it knows, with `open` and the number of recorded widgets; the short names `uiopen` takes. |
 | `uiopen name=military` | Opens a screen as its button does (tech, policy, religion, corporation, foreigntrade, foreigndiplomacy, domestic, military, espionage, info, world, victory, halloffame, pedia). Under the play role it passes the same check as `screen`. |
 | `uiwidgets [match=Tab]` | The open screen's widgets in creation order: name, text, widget type and data. Hidden ones only with `hidden=1`. |
-| `uipress widget=MilitaryAdvisorTabButton2` | Clicks a widget; `row=` and `column=` click a table cell, `right=1` clicks with the right button. |
+| `uipress widget=MilitaryAdvisorTabButton2` | Clicks a widget; `text=Augustus` names it by what it shows instead; `choice=` picks a drop-down's entry; `row=` and `column=` click a table cell, `right=1` clicks with the right button. |
 | `uiread widget=MilitaryAdvisorBattleTable` | A table's rows as cell text, or a widget's text. |
 | `uirecord` | The recorder's state; `on=1` keeps it installed for good, `on=0` goes back to the default. |
 | `uibench [name=tech]` | Times a screen's full draw and a full main interface redraw with the recorder off and on. |
 | `uiprobe on=1` | Logs what real clicks in the window send the screens, decoded; `uiprobe` reads the log. For mapping a new kind of widget. The EXE calls only a plain function in place of `handleInput`: the first `uiprobe`, an object with `__call__`, saw `uipress`'s calls but no real click. |
 | `uistate` | Where the window is: active player, civilization, leader, turn, interface mode, selection, city screen, open screens, recorder. Read it before pressing anything. |
 | `uihover widget=TechAdvisorButton` | The tooltip the window shows for a widget, an item or a cell, read from the DLL, such as "Technology Advisor <F6>". |
-| `uiselect unit=65543` | Selects a unit, as a map click does, or with `city=` opens that city's screen. |
+| `uiselect unit=65543` | Selects a unit, as a map click does, or with `city=` opens that city's screen; `close=1` closes it, as Esc does. |
 | `uimain` | Records the main interface as it is now: the selected unit's actions, the open city screen, sliders, research, the scoreboard. |
-| `uiitems widget=BottomButtonList screen=MAIN_INTERFACE` | A multi-list's items, numbered for `uipress item=`, each named: an action, unit, building, project or process. |
+| `uiitems widget=BottomButtonList screen=MAIN_INTERFACE` | A multi-list's items, numbered for `uipress item=`, which `about=INTERFACEMODE_GO_TO` can name instead, each named: an action, unit, building, project or process. |
+| `uiplot x=85 y=17` | Clicks a map plot while a unit action such as Go To, Paradrop or Air Strike waits for one: the mode's mission goes to the selected group. Without `x` and `y`, the plots the mode accepts, for the modes the game checks plot by plot (Paradrop, Air Strike, Recon and the like); `cancel=1` leaves the mode, as Esc does. |
+| `uitype text=grass` | Types into the open screen as the keyboard does, such as the Sevopedia's search; `keys=backspace` sends named keys. |
 
 Example: switching the Military Advisor to its Battles tab and reading the table.
 
@@ -747,6 +755,53 @@ On the same turn-403 save, 2026-11-20:
   - `uiread` removes them and the font tags and names game-font icons, as `_plainText` does for popups; the Battles table's reply went from 4,135 to 1,705 bytes.
   - `raw=1` gives the text as set.
 - The Battles table's plot cell (`WIDGET_SAS_ADVISOR_PLOT_LOCATION`, the plot in data1 and data2) closed the advisor and moved the camera to (77, 15), as a click does.
+
+### Diplomacy and names, tested on a SAS48 game
+
+On a new SAS48 Pangaea game, 2026-11-20:
+
+- A scoreboard row is a `WIDGET_CONTACT_CIV` with the player in `data1`, such as `ScoreText28` for Augustus. Pressing it opened diplomacy with him, through the DLL's `doContactCiv`, as a click does; `diplo` and `reply` then answer the screen.
+- `text=` names a widget by what it shows, in `uipress`, `uihover`, `uiread` and `uiitems`: `uipress text=saladin` opened diplomacy with Saladin without first reading his row's name. The shown text, tags removed, is compared without case, an exact match first, else the one widget containing it.
+  - `text=an` matched 10 widgets, from `EraText` (Ancient) to `ScoreText9` (Gandhi), and the reply listed them rather than pressing one.
+- `uistate` lists the diplomacy partner while the screen is up: it is the EXE's own screen, not a Python one, so the open screens left it out.
+- The tooltip offers "[CTRL] for trade table, [ALT] to declare war". `doContactCiv` reads the real keyboard (`GC.altKey()`, `GC.shiftKey()`), so a press cannot hold a key: war goes through diplomacy's own replies, and `contact give= take=` opens the trade table.
+
+### Map plots for unit actions, tested on a late game
+
+On the turn-402 save and the SAS48 game, 2026-11-20:
+
+- A unit action such as Go To only sets an interface mode (`uistate` shows `INTERFACEMODE_GO_TO`) and waits for a map click, which the EXE turns into the mode's mission from its XML. `uiplot x= y=` gives that mission to the selected group through `mission`, then returns to selection.
+  - Go To took a Warrior a plot toward 74,84; Paradrop listed 45 plots and dropped a Paratrooper on 84,11; Go To Type moved two Modern Infantry from 84,17 to 85,17 together.
+  - Go To Type and Go To All have `bSelectType` or `bSelectAll` in their XML: the window gathers that type, or every unit on the plot, into one group first. The press already joined the two Modern Infantry into one group, so `uiplot` gives the mission to that group. A first version also joined them itself, which Codex's review found could leave units regrouped when the mission was then refused.
+  - `uiplot` without `x` and `y` lists the plots, but only for the modes `canDoInterfaceModeAt` checks plot by plot (airlift, nuke, recon, paradrop, air bomb, range attack, air strike, rebase): for Go To it accepted all 16,632 plots of the SAS48 map.
+- A Go To Type onto an ocean plot was taken and silently dropped, as such a click does in the window. The Go To modes and Route To now ask the pathfinder first and refuse a plot with no path; the window then still waits in the mode, which `cancel=1` leaves. Air Strike and Rebase also give `MISSION_MOVE_TO`, but fly straight, so they are not asked (Codex's review).
+- Like a click, `uiplot` refuses while diplomacy or a popup owns input, takes our own selection outside the all role, and under fog lets the plot-checked modes answer only for revealed plots.
+- Items by name: on the SAS48 game a Warrior's Go To was `item=3`, but once it had moved, item 3 was Delete, and pressing it by number asked to delete the unit; the confirmation was refused. `about=INTERFACEMODE_GO_TO` names the item by what it does and reads the list when pressed.
+- `unit` on the turn-402 save raised "unidentifiable C++ exception" for units in cities, which `uiplot`'s first test ran into; it was an inherited airlift check reading past the map ([KI#1091.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.3)). With the fixed DLL, `unit` answered for all 108 of our units. Codex's review found Air Bomb's check reading the same way, fixed with it.
+
+### Typing and drop-downs, tested on a late game
+
+On the turn-402 save, 2026-11-20:
+
+- Real keys in the Sevopedia, logged with `uiprobe`, came as two `NOTIFY_CHARACTER` events per key: the key's `InputTypes` code as data (19 for G, 40 for Backspace), ID 1 on key down and 0 on key up, an empty function name and `WIDGET_GENERAL`.
+  - `uitype` sends the same pairs. The pair matters: the Sevopedia's per-key debounce skips every second event of a key, the key up, so one event per key would type only every other repeated letter.
+  - `uitype text=grass` filtered the Index to Grassland, and `keys=backspace,backspace` left "gra".
+  - A key can close a screen that handles it in Python, as Esc and Enter close the Replay screen on the key down, so `uitype` stops once the screen is gone or a popup or diplomacy owns input (Codex's review). Esc in the Sevopedia is the EXE's, so `keys=escape` sent there does not close it.
+  - `text=za` listed English Empire, Elizabeth, Ethiopian Empire and Zara Yaqob; on a leader's page, `keys=up` went from Zara Yaqob to Elizabeth, skipping the civilization rows, as the arrow keys do.
+  - SAS's leader-page buttons are `WIDGET_PYTHON` and press by name: `SevoPediaLeaderAttitudeBtn0` made Elizabeth's portrait furious, and `SevoPediaLeaderActionBtn0` played her greeting.
+- A drop-down's entries are recorded with the one selected, and `uiitems` lists them. Python can read a drop-down's selection (`getSelectedPullDownID`) but not set it, so `uipress choice=` rebuilds the box from its recorded creation with the chosen entry selected, then sends `NOTIFY_LISTBOX_ITEM_SELECTED` with its number, as a click does.
+  - `uiitems` marks the selected entry from the box itself (`getSelectedPullDownID`), so a mouse choice shows too (Codex's review).
+  - The advisors' player drop-down (`SASUtils.addAdvisorDebugDropdown`) reads the box itself: `choice=zara` showed Zara Yaqob's two cities in the Domestic Advisor, as our vassal, and `choice=0` our own again.
+
+### A turn by name, tested on a SAS48 game
+
+On the SAS48 game at turn 0, 2026-11-20, one turn was played through the `ui` commands:
+
+- The Warrior moved a plot with `uipress ... about=INTERFACEMODE_GO_TO` and `uiplot x=73 y=84`.
+- `uiopen name=tech`, `uipress text=agriculture` and `uipress text=exit` set the research.
+- The Settler founded Beijing with `about=MISSION_FOUND`; `uiselect city=` and `about=UNIT_WARRIOR` started its production.
+- `control control=CONTROL_ENDTURN`, what the end-turn button runs, did nothing while the city screen was open, as in the window. The screen's exit arrow is the EXE's and is not recorded, so `uiselect close=1` closes it, as Esc does; then the turn ended.
+- A press by name needs no scrolling: the recorder holds every widget a screen creates, such as techs beyond the Tech Chooser's visible edge, and a press reaches the screen without a mouse position.
 
 ### SASPilotUI limits
 

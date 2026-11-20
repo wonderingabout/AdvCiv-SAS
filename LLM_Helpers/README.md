@@ -1287,12 +1287,22 @@ python LLM_Helpers/dll_builds/build_dll.py syntax CvGameInterface.cpp CyGame.cpp
 python LLM_Helpers/dll_builds/build_dll.py build --configuration Debug-opt
 ```
 
+```bash
+python LLM_Helpers/dll_builds/build_dll.py build --install --close
+```
+
 - `build` defaults to a Debug-opt `REBUILD`, which cleans `temp_files/<target>` first, as the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md) asks; `--configuration Release` for a shipped DLL.
 - `syntax` takes file names in `CvGameCoreDLL` or paths, and writes no objects: three changed files took 9 seconds on 2026-11-13, against about 10 minutes for a build.
 - Why: started without `vcvars32`, `build_with_report.ps1` failed within 4 seconds with cmd's "not recognized as a command" and no compiler line (2026-11-13). Earlier sessions had each written a `.bat` for this into their own scratchpad, which the next session could not see.
 - The `PATH` change came from its first build, the same day: `cmd.exe` inherited Git Bash's `PATH`, so the Makefile's `FIND /C /V ""` ran Git's Unix `find`, which crawled all of `C:` while nmake waited.
   - The build report stayed `RUNNING` with no `cl.exe` running, and `AdvCiv.log` ended in `FIND: '/C/$Recycle.Bin/...': Permission denied` lines. A build that seems stuck is worth those two checks. See [KI#38.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7).
 - Read the exit code `build` returns rather than one after a pipe: `build | tail` reported 0 for that stopped build.
+- `install` copies the built DLL into `Assets` for a local test, the DLL alone, as its `.build.json` joins it only for a shipped Release update; `build --install` does both.
+  - It installs only a DLL its build report calls a successful build of that configuration, with the same hash, and refuses while a Civ4 runs this mod, which `--close` closes first.
+  - It writes the copy beside the installed DLL, checks it, then swaps it in by a rename, so a failed copy leaves the old DLL in place (Codex's review).
+  - Why: each DLL test on 2026-11-20 took these steps by hand, closing Civ4, copying the DLL and starting the game again, until the user asked for a script.
+  - A Civ4 that had exited but still showed in the process list once kept the old DLL open, so a copy failed with "Device or resource busy". Windows refuses to overwrite a DLL any process has loaded, so a lock with any Civ4 still alive is refused; with none alive, Windows still lets the file be renamed, so `install` moves it to `%TEMP%\AdvCiv-SAS_locked_dlls` and copies the new one in.
+  - It finds this mod's clients with `desktop_windows.client_mod`, which also reads the `Mod` line of a client's `ini=` file: the first version looked only for the mod's name in the command line, missed a SASPilot client and replaced the DLL under it.
 
 ### `debug_dll.py`
 
@@ -2259,6 +2269,7 @@ python LLM_Helpers/game_runs/start_game.py --option GAMEOPTION_ADVANCED_START
   - `--overlays DIR` saves each page with its found boxes numbered, to check the result; `--categories` limits the run.
 - It waits until the user has been idle before each click: on its first run the user's typing landed in the Sevopedia's search box once a click had brought Civ4 forward, and emptied the entry list.
 - The map also describes the page kinds and what EXPAND does, and names the unit page's panels as an example. Rerun it after a resolution or Sevopedia code change.
+- In a game, SASPilot's `uiopen pedia` and `uipress` reach the same entries and EXPAND buttons by name, with no coordinates, since 2026-11-20; see [Screens and buttons by name](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#screens-and-buttons-by-name-saspilotui). The map stays for the Sevopedia opened from the main menu, where SASPilot does not run.
 - Each box or button is written on one line, such as `[377, 107, 1130, 290]`: plain indented JSON put every number on its own line, which made the file 1,492 lines long and hard to scan. On Codex's suggestion (2026-11-11) the writer keeps number lists together, and the file shrank to 476 lines with the same parsed data.
 
 ```bash
