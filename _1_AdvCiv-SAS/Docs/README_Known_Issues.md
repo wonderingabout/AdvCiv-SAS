@@ -1279,7 +1279,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1097 - (Guarded by CI) Edits that changed a file's line endings between LF and CRLF made a handful of real changes show as thousands of changed lines](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097)\
 [KI#1098 - (Fixed inherited vanilla Civ4 and BUG-era slips and a SAS one, guarded by CI) Three code lines repeated the line above them: CvDanQuayle.py assigned SCORE_ID twice, CvCustomizableDomesticAdvisor.py hid the rename button twice, and SevoPediaMusic.py set the music title label twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098)\
 [KI#1098.2 - (Fixed inherited Civ4 and AdvCiv duplicate includes, guarded by CI) CvPlayer.cpp and FDialogTemplate.cpp each included one header twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.2)\
-[KI#1099 - (Guarded by CI, inherited BtS code fixed by AdvCiv) Non-standard C++ that VC2003 accepts, such as CyPlayer::disbandUnit returning a void call or NULL through ?:, kept the DLL from building with a standard-conforming compiler](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1099)
+[KI#1099 - (Guarded by CI, inherited BtS code fixed by AdvCiv) Non-standard C++ that VC2003 accepts, such as CyPlayer::disbandUnit returning a void call or NULL through ?:, kept the DLL from building with a standard-conforming compiler](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1099)\
+[KI#1100 - (Fixed AdvCiv-SAS bug) The World Advisor's Changes tab listed an Advanced Start Automate row above the buys it made, as its row was written once the AI had spent the points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1100)
 
 <a id="ki-1"></a>
 
@@ -38385,3 +38386,17 @@ The merge brought all of these in, and a scan of the merged tree found no other 
 - `CyPlayer::disbandUnit` now explains the change in a comment, and the merge's comments at each `advc.cppstd` site, in `CvDLLWidgetData.cpp`, `CvReplayMessage.cpp`, `CvXMLLoadUtility.cpp`, `CyPlayer.cpp` and `FDialogTemplate`, point here.
 
 Found while reviewing the merge with wonderingabout; the check, its tests and this entry by Claude Code Opus 5.5.
+
+<a id="ki-1100"></a>
+
+## KI#1100 - (Fixed AdvCiv-SAS bug) The World Advisor's Changes tab listed an Advanced Start Automate row above the buys it made, as its row was written once the AI had spent the points
+
+On 2026-11-19, testing Advanced Start from the Industrial era on SAS24 Pangaea, wonderingabout asked why the Automate row, "30000 -> 3660" points, sat near the top of the newest-first Changes tab, above the Add City, Add Unit and Add Building rows it had bought.
+
+- `CvPlayer::doAdvancedStartAction` records each action after it succeeds, so `ADVANCEDSTARTACTION_AUTOMATE`'s row came after `AI_doAdvancedStart` had recorded every purchase: the summary was numbered last, though the automation began first.
+  - SAS added this history with the Changes tab in `53aef2f7b` (2026-10-25, SGR171); BtS and AdvCiv keep no list of Advanced Start actions.
+- `CvGame::moveLastSASWorldChangesHistoryEntryTo` now moves that row back to the place where the automation began, so the rows read in order. Its points and gold, before and after, are unchanged.
+- Confirmed the same day in a QuickStart Advanced Start game with the button pressed by hand: Automate is #0, Add City #1 and Begin Game #2.
+- Only the hand-pressed button writes an Automate row. The AI places its own points, and a player's during AI Auto Play, through the same routine without one.
+
+Found by wonderingabout; fixed by Claude Code Opus 5.5.

@@ -20,6 +20,7 @@ FOREIGN_ADVISOR = 4
 # <!-- custom: legacy screen id 5 now maps to Foreign Diplomacy naming. (GPT-5.3-Codex) -->
 FOREIGN_DIPLOMACY_SCREEN = 5
 WONDER_MOVIE_SCREEN = 6
+# <!-- custom: Now opens the Policy Advisor's Religion tab; HandleInputMap routes it to policyAdvisorScreen. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 RELIGION_SCREEN = 7
 INTRO_MOVIE_SCREEN = 8
 # <!-- custom: canonical policy advisor screen id; removed civics/policy alias layer for strict naming consistency. (GPT-5.3-Codex) -->
@@ -41,8 +42,10 @@ WORLDBUILDER_SCREEN = 23
 WORLDBUILDER_DIPLOMACY_SCREEN = 24
 VICTORY_MOVIE_SCREEN = 25
 UN_SCREEN = 26
+# <!-- custom: Now opens the Foreign Diplomacy Advisor's Espionage tab; HandleInputMap routes it to foreignDiplomacyAdvisor. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 ESPIONAGE_ADVISOR = 27
 SPACE_SHIP_SCREEN = 28
+# <!-- custom: Now opens the Policy Advisor's Corporation tab; HandleInputMap routes it to policyAdvisorScreen. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 CORPORATION_SCREEN = 29
 # <!-- custom: split Foreign advisor shell id for diplomacy/intel cluster (F3 slot). (GPT-5.3-Codex) -->
 FOREIGN_DIPLOMACY_ADVISOR = 30

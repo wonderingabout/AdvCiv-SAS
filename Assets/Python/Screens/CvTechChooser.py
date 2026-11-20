@@ -198,7 +198,7 @@ class CvTechChooser:
 
 		# Hide the screen
 		screen.hideScreen()
-		# <!-- custom: force scoreboard redraw when closing Tech Chooser so any Tech-Chooser-specific alignment/layout rules revert immediately. (GPT-5.3-Codex) -->
+		# <!-- custom: force scoreboard redraw when closing Tech Chooser so any Tech-Chooser-specific layout rules revert immediately; these were right-aligned names, now names fitted to the strip it leaves (CvScreensInterface.getOpenAdvisorScoreboardSpace). (GPT-5.3-Codex + Claude code Opus 5.5) -->
 		CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, True)
 
 	def updateRuntimeLayout(self, screen):
@@ -209,7 +209,7 @@ class CvTechChooser:
 			self.iSAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE = gc.getDefineINT("SAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE")
 		if self.iSAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE is None:
 			self.iSAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE = gc.getDefineINT("SAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE")
-		iRightSpaceForScoreboard = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
+		iRightSpaceForScoreboard = getAdvisorScoreboardSpace(screen.getXResolution(), SASTextScale.getSASUIFontLabel())
 		iTopSpaceForTechBar = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
 		# <!-- custom: optional right-space replacement for scoreboard; on lower resolutions this lets users render a larger advisor so one more tech-tree column can be visible. (GPT-5.3-Codex) -->
 		if self.iSAS_TECH_UI_SCOREBOARD_SWAP_MAX_WIDTH > 0 and screen.getXResolution() < self.iSAS_TECH_UI_SCOREBOARD_SWAP_MAX_WIDTH:
@@ -221,6 +221,8 @@ class CvTechChooser:
 		if iTopSpaceForTechBar < 0:
 			iTopSpaceForTechBar = 0
 		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS, iRightSpaceForScoreboard, iTopSpaceForTechBar, SAS_ADVISOR_BOTTOM_SPACE)
+		# <!-- custom: Kept for the scoreboard, which fits leader names into this space while the Tech Advisor is open. (Claude code Opus 5.5) -->
+		self.iRightSpaceForScoreboard = iRightSpaceForScoreboard
 		self.iX_LEFT_START = self.iSAS_TECH_GRID_LEFT_START
 		self.iX_LEFT_START_OR_PREREQS = self.iX_LEFT_START - 6
 		# <!-- custom: keep GP prefs aligned with the tech grid and Exit/footer anchors at any resolution. (GPT-5.3-Codex) -->
@@ -240,7 +242,7 @@ class CvTechChooser:
 
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
-		# <!-- custom: force scoreboard redraw when opening Tech Chooser so Tech-Chooser-specific scoreboard alignment applies immediately (not only after hover-triggered redraw). (GPT-5.3-Codex) -->
+		# <!-- custom: force scoreboard redraw when opening Tech Chooser so its Tech-Chooser-specific scoreboard layout, once right-aligned names and now names fitted to the strip it leaves, applies immediately (not only after hover-triggered redraw). (GPT-5.3-Codex + Claude code Opus 5.5) -->
 		CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, True)
 
 		screen.hide("AddTechButton")
@@ -1505,7 +1507,7 @@ class CvTechChooser:
 			screen.hide("AddTechButton")
 
 	def onClose(self):
-		# <!-- custom: ensure scoreboard alignment state resets even when Tech Chooser closes through onClose (not hideScreen). (GPT-5.3-Codex) -->
+		# <!-- custom: ensure the scoreboard's Tech-Chooser-specific layout, now its fitted names, resets even when Tech Chooser closes through onClose (not hideScreen). (GPT-5.3-Codex + Claude code Opus 5.5) -->
 		CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, True)
 		pPlayer = gc.getPlayer(self.iCivSelected)
 		if (pPlayer.getAdvancedStartPoints() >= 0):

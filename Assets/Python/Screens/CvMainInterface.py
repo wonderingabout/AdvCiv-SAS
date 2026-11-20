@@ -675,6 +675,11 @@ class CvMainInterface:
 		# <!-- custom: scoreboard scroll autocenter toggle; when True, redraws keep the scroll slice centered on the active player.
 		# Manual scroll buttons turn it off so deliberate strongest/weakest watching is preserved. (ChatGPT-5.5) -->
 		self.bScoreScrollAutocenterActivePlayer = None
+		# <!-- custom: The name width cap of the last draw beside an open advisor; see updateScoreStrings. (Claude code Opus 5.5) -->
+		self.iScoreNameMaxW = None
+		self.bScoreNameFill = False
+		self.iScoreFullW = None
+		self.bScoreNamesCut = False
 		# <!-- custom: scoreboard background style cycle (not just opacity: PanelStyles also include plain/colored panels e.g. blue/tan, not only opaque/translucent).
 		# Discrete PanelStyle levels in cycle order.
 		# 0 HUD_HELP is vanilla look.
@@ -6190,6 +6195,27 @@ class CvMainInterface:
 			pass
 		screen.addPanel("ScoreBackground", u"", u"", True, False, 0, 0, 0, 0, eStyle)
 		self._eScoreBgStyleApplied = eStyle
+	# <!-- custom: The room an advisor leaving iSpace px on the screen's right gives the scoreboard, measured from the scoreboard's right edge.
+	# Measured widths fit, leaving about 6 px between the advisor's edge and the leftmost war or golden-age circles, which sit inside their column; 1 px more is kept free to be safe (the user).
+	# Circles half hidden under the advisor first suggested drawn glyphs wider than measured, so a 10 to 16 px margin was tried; pixel measurements then showed a 21 px gap at 16, and the half-hidden circles came from the Tech Advisor check, then wrongly true on the map (2026-11-20). (Claude code Opus 5.5) -->
+	def getScoreboardRoomW(self, screen, iSpace):
+		return iSpace - self.getScoreboardEdgeW(screen) - 1
+
+	# <!-- custom: Whether opening (bOpening) or closing one of the non-Tech advisors changes the scoreboard: opening only when its uncut width exceeds their room, as at 1920 px and font 4, and closing only when its names are cut now.
+	# A first version redrew it on every such open and close, which cost a full redraw, some 60 to 90 ms in a debug-mode turn-380 sample, even where nothing changed, as at font 3 (2026-11-20).
+	# Without an aligned scoreboard (BUG's Align Icons off) iScoreFullW stays None and names are never cut.
+	# iSpace is the space the opening advisor leaves, which CvScreensInterface passes. (Claude code Opus 5.5) -->
+	def isScoreboardRedrawNeededForAdvisor(self, bOpening, iSpace=0):
+		if not bOpening:
+			return self.bScoreNamesCut
+		if self.iScoreFullW is None:
+			return False
+		return self.iScoreFullW > self.getScoreboardRoomW(CyGInterfaceScreen("MainInterface", CvScreenEnums.MAIN_INTERFACE), iSpace)
+
+	# <!-- custom: How far the scoreboard's right edge sits inside the screen's, a few px. (Claude code Opus 5.5) -->
+	def getScoreboardEdgeW(self, screen):
+		return screen.getXResolution() - gPoint("ScoreTextLowerRight").x()
+
 	# advc.092: Reconciling redundant BtS code from updateScoreStrings with BUG code from Scoreboard.draw.
 	def updateScoreBackgrSize(self, iTextWidth, iTextHeight):
 		iRMargin = gRect("Top").xRight() - gPoint("ScoreTextLowerRight").x()
@@ -6331,9 +6357,54 @@ class CvMainInterface:
 				self.iScoreScrollOffset = 0
 			else:
 				self.iScoreScrollOffset = max(0, min(self.iScoreScrollOffset, iTotalCount - iMaxRows))
+			# <!-- custom: Testing showed that at 1920 px and font 4 the scoreboard needs about 55 px more than advisors leave it, which hid its war dots and power ratios behind an open advisor.
+			# So while an advisor is open, shorten the widest leader names until the scoreboard fits.
+			# CvScreensInterface tells the space the open advisor leaves; every advisor but the Tech Advisor leaves the same, from getAdvisorScoreboardSpace.
+			# The scoreboard's right edge sits a few px inside the screen's, hence measuring from it.
+			# Below 2560 px the Tech Advisor leaves less, 203 px visible at 1920 against about 303 for the scoreboard without names at font 4, so its power ratios cannot fit; names are then cut to the room left of the columns on their right, read from their start.
+			# This replaced its right-aligned names, which showed only their ends, such as "e O'Malley".
+			# A first version drew the scoreboard, then again with shorter names: timing 20 updateScoreStrings calls through SASPilot's py command, with the Military Advisor open on a debug-mode turn-380 sample, a redraw took 133 ms instead of 88.
+			# Now it draws with the last name cap and redraws only when the cap it measures differs, as when players, columns, the advisor or the screen width change; the same timing gave 62 ms, against 71 without trimming (2026-11-20). (Claude code Opus 5.5) -->
+			iNameMaxW = None
+			bNameFill = False
+			iRoomW = None
+			# <!-- custom: Local import, as elsewhere here: CvScreensInterface imports this module during startup.
+			# It holds the advisors and knows which is open. (Claude code Opus 5.5) -->
+			import CvScreensInterface
+			iSpace = CvScreensInterface.getOpenAdvisorScoreboardSpace()
+			if iSpace is not None:
+				iRoomW = self.getScoreboardRoomW(screen, iSpace)
+			if iRoomW is not None:
+				iNameMaxW = self.iScoreNameMaxW
+				bNameFill = self.bScoreNameFill
 # BUG - Align Icons - start
-			scores.draw(screen, self.iScoreScrollOffset, iMaxRows, self.bScoreAlwaysExpand, True)
+			iScoresW = scores.draw(screen, self.iScoreScrollOffset, iMaxRows, self.bScoreAlwaysExpand, True, iNameMaxW, bNameFill)
 # BUG - Align Icons - end
+			# <!-- custom: Kept for redrawScoreboardForAdvisor in CvScreensInterface: the scoreboard's width with uncut names, measured from this draw, as a second one below returns another total that the first version mixed with this draw's name widths (Claude code Opus 5.5 + GPT-6.2-Sol). -->
+			self.iScoreFullW = iScoresW - scores.getDrawnNameWidth() + scores.getNameWidth()
+			# <!-- custom: Without a name column, as with BUG's Display Name option off, there are no names to cut. (Claude code Opus 5.5) -->
+			if scores.getNameWidth() <= 0:
+				iRoomW = None
+				iNameMaxW = None
+			if iRoomW is not None:
+				iNameFitW = iRoomW - (iScoresW - scores.getDrawnNameWidth())
+				bNeededFill = False
+				# <!-- custom: When the scoreboard would not fit even without names, as beside the Tech Advisor below 2560 px, the name column fills exactly the room left of the columns on its right.
+				# Testing at 1920 px and font 3 showed that names narrower than that room left the last digits of the score column beside them visible at the advisor's edge, which distracted; filling the room puts that column wholly under the advisor (the user, 2026-11-20). (Claude code Opus 5.5) -->
+				if iNameFitW <= 0:
+					# <!-- custom: Not below 0, which would push the columns on the right of the names further right, should the Tech Advisor leave less than those columns need (Claude code Opus 5.5 + GPT-6.2-Sol). -->
+					iNameFitW = max(0, iRoomW - scores.getRightOfNameWidth())
+					bNeededFill = True
+				iNeededMaxW = None
+				if bNeededFill or scores.getNameWidth() > iNameFitW:
+					iNeededMaxW = iNameFitW
+				self.iScoreNameMaxW = iNeededMaxW
+				self.bScoreNameFill = bNeededFill
+				if iNeededMaxW != iNameMaxW or bNeededFill != bNameFill:
+					scores.draw(screen, 0, iMaxRows, self.bScoreAlwaysExpand, True, iNeededMaxW, bNeededFill)
+				iNameMaxW = iNeededMaxW
+			# <!-- custom: Kept for redrawScoreboardForAdvisor too: whether the names are cut now. (Claude code Opus 5.5) -->
+			self.bScoreNamesCut = (iNameMaxW is not None)
 		# <!-- custom: show scroll buttons when there are more players than visible rows; + (ScoreScrollUp) shows more lower-ranked players, - (ScoreScrollDown) goes back toward rank 1. (Claude code Sonnet 4.6 + ChatGPT-5.5 + GPT-5.5) -->
 		if iTotalCount > iMaxRows:
 			screen.show("ScoreScrollCenterActivePlayer")
@@ -6444,6 +6515,7 @@ class CvMainInterface:
 					if bAlignIcons:
 						scores.setScoreDelta(szScoreDelta)
 # BUG - Score Delta - end
+		szRawPlayerName = szPlayerName
 		if (not CyInterface().isFlashingPlayer(ePlayer) or CyInterface().shouldFlash(ePlayer)):
 			if ePlayer == eActivePlayer:
 				szPlayerName = u"[<color=%d,%d,%d,%d>%s</color>]" %(pPlayer.getPlayerTextColorR(), pPlayer.getPlayerTextColorG(), pPlayer.getPlayerTextColorB(), pPlayer.getPlayerTextColorA(), szPlayerName)
@@ -6459,7 +6531,7 @@ class CvMainInterface:
 		szTempBuffer = u"%s: %s" %(szPlayerScore, szPlayerName)
 		szBuffer = szBuffer + szTempBuffer
 		if bAlignIcons:
-			scores.setName(szPlayerName)
+			scores.setName(szPlayerName, szRawPlayerName)
 			# <advc.190d>
 			if bConcealCiv:
 				scores.setID(u"<color=%d,%d,%d,%d>%d</color>" %(iUnmetR, iUnmetG, iUnmetB, iUnmetA, ePlayer))

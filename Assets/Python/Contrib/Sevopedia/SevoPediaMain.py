@@ -2674,6 +2674,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.W_PEDIA_PAGE = self.R_PEDIA_PAGE - self.X_PEDIA_PAGE
 
 	def SAS_getLeaderItemsWidthByCurrentUIFont(self):
+		# <!-- custom: Advisors currently meet the same limit: at 1920 px and font 4 the scoreboard needs more width than they leave it, while 2560 px has room for both.
+		# See also the resolution considerations above getAdvisorScoreboardSpace in SASUtils.py (2026-11-20). (Claude code Opus 5.5) -->
 		# <!-- custom: nonpositive cutoff disables wide-screen reduction; without the positive guard every normal resolution met a 0/-1 cutoff and forced base width, reversing the documented setting. See KI#230. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (self.SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH > 0) and (self.getScreen().getXResolution() >= self.SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH):
 			return self.SAS_W_ITEMS_BASE

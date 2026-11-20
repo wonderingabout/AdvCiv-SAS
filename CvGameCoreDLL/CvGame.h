@@ -224,6 +224,8 @@ public:
 	// SASWorldChangesHistory stores Advanced Start actions and WorldBuilder edits for the Changes tab, not ordinary simulation changes or the Info Screen Timeline/Sevopedia navigation history.
 	// Keep stable action/target tokens and numeric before/after context in save state; richer wall-clock/session evidence remains in SASGameRecord rather than introducing nondeterministic timestamps into synchronized gameplay state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	int getNumSASWorldChangesHistoryEntries() const { return (int)m_aSASWorldChangesHistory.size(); }
+	// <!-- custom: Moves the newest row to iIndex, so a summary written after the rows it sums up, such as Advanced Start's Automate, keeps the place it started at. See KI#1100. (Claude code Opus 5.5) -->
+	void moveLastSASWorldChangesHistoryEntryTo(int iIndex);
 	int getSASWorldChangesHistorySource(int iIndex) const;
 	char const* getSASWorldChangesHistorySourceName(int iIndex) const;
 	int getSASWorldChangesHistoryCategory(int iIndex) const;
