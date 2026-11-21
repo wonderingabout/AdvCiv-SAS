@@ -230,6 +230,24 @@ class _CommerceResources(_IndexedInfoChars):
 		setattr(self, szName, szChar)
 		return szChar
 
+	# <!-- custom: Finance and the Military Summary show expenses as positive magnitudes. Mark a real deduction with the maintenance coin so it scans differently from income. (GPT-6.2-Sol) -->
+	# <!-- custom: The coin alone, for a cost shown in another format, such as the city screen's maintenance with its hundredths; every gold cost takes its coin from here, so a change to it reaches the Finance tab, the Military Summary and the city screen at once (the user, 2026-11-21).
+	# Red losses beside plain gains were what made Civ3's economy screens easy to scan, which the user recalled when asking for it. (Claude code Opus 5.5) -->
+	def goldCostChar(self, iCost):
+		if iCost > 0:
+			return Font.BAD_GOLD_CHAR
+		return self.GOLD_CHAR
+
+	def goldCostText(self, iCost):
+		return u"%d %s" % (iCost, self.goldCostChar(iCost))
+
+	# <!-- custom: A cost's text in the negative-text red, the pair of goldCostChar's coin: the Finance tab's red amounts read as a loss at a glance, while the city screen's white "9.90" beside the red coin did not (the user, 2026-11-21, Civ4ScreenShot0397 and 0398).
+	# It takes any text, so each screen keeps its own number format, such as the city screen's hundredths; zero stays plain, as its coin does. (Claude code Opus 5.5) -->
+	def colorGoldCost(self, szText, iCost):
+		if iCost > 0:
+			return CyTranslator().changeTextColor(szText, Color.NEGATIVE_TEXT)
+		return szText
+
 
 class _ReligionResources(_IndexedInfoChars):
 	def __init__(self):
@@ -905,8 +923,9 @@ class _GreatPeopleResources:
 			self.init()
 		return self._unitColors
 
-	def getGreatGeneralText(self, iNeededExp):
-		return BugUtil.getText("INTERFACE_NEXT_GREAT_GENERAL_XP", (Font.GREAT_GENERAL_CHAR, iNeededExp))
+	# <!-- custom: Was BUG's INTERFACE_NEXT_GREAT_GENERAL_XP, which showed only the experience still needed, so the player hovered to see progress; now "stored / threshold", as the research bar shows its beakers. (Claude code Opus 5.5) -->
+	def getGreatGeneralText(self, iCombatExp, iThresholdExp):
+		return BugUtil.getText("TXT_KEY_SAS_GREAT_GENERAL_BAR", (Font.GREAT_GENERAL_CHAR, iCombatExp, iThresholdExp))
 
 
 GreatPeople = _GreatPeopleResources()

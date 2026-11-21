@@ -257,7 +257,8 @@ class Scoreboard:
 			if (ScoreOpt.isShowResearchIcons()):
 				self._set(RESEARCH, tech)
 			else:
-				self._set(RESEARCH, smallText(gc.getTechInfo(tech).getDescription()))
+				# <!-- custom: The text form had no hover, unlike the icon form; it now carries the icon's widget, data2 0 included so hovering expands the scoreboard alike (advc.085). (Claude code Opus 5.5) -->
+				self._set(RESEARCH, smallText(gc.getTechInfo(tech).getDescription()), (WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, tech, 0))
 		#if turns >= 0: # advc.004x
 		#	self._set(RESEARCH_TURNS, smallText(u"(%d)" % turns))
 		# <advc.085> Replacing the two lines above
@@ -279,8 +280,9 @@ class Scoreboard:
 	def setPact(self):
 		self._set(PACT, True, self._getDealWidget(TradeableItems.TRADE_DEFENSIVE_PACT))
 
-	def setReligion(self, value):
-		self._set(RELIGION, smallText(value))
+	# <!-- custom: The state religion icon had no hover; it now hovers and opens the religion's Sevopedia page, as the research icon does for its tech. (Claude code Opus 5.5) -->
+	def setReligion(self, value, eReligion):
+		self._set(RELIGION, smallText(value), (WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, eReligion, 1))
 
 	def setAttitude(self, value):
 		self._set(ATTITUDE, smallText(value))

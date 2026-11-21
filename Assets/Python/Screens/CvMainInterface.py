@@ -67,6 +67,7 @@ WIDGET_SCORE_SCROLL_DOWN = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN")
 WIDGET_SCORE_SCROLL_UP_FAST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP_FAST")
 WIDGET_SCORE_SCROLL_DOWN_FAST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN_FAST")
 WIDGET_SCORE_BG_STYLE = WidgetUtil.createWidget("WIDGET_SCORE_BG_STYLE")
+WIDGET_COMMERCE_BG_STYLE = WidgetUtil.createWidget("WIDGET_COMMERCE_BG_STYLE")
 WIDGET_SCORE_EXPAND_TOGGLE = WidgetUtil.createWidget("WIDGET_SCORE_EXPAND_TOGGLE")
 WIDGET_SCORE_SCROLL_CENTER_ACTIVE_PLAYER = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_CENTER_ACTIVE_PLAYER")
 WIDGET_SCORE_SCROLL_AUTOCENTER_ACTIVE_PLAYER_TOGGLE = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_AUTOCENTER_ACTIVE_PLAYER_TOGGLE")
@@ -77,15 +78,54 @@ def _scoreHelp(szText):
 	return lambda *_: SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 def _cityBreakdownsHelp(*_):
 	return g_szCityBreakdownsHelp
+# <!-- custom: These four hovers named the action but not the current setting, so the player had to click to find out; they now state it, read from the live interface at hover time.
+# Import CvScreensInterface locally because it imports this module during startup. (Claude code Opus 5.5) -->
+def _getMainInterface():
+	import CvScreensInterface
+	return CvScreensInterface.mainInterface
+def _scoreBgStyleHelp(*_):
+	mi = _getMainInterface()
+	szText = u"Cycle scoreboard background style"
+	if mi.iScoreBgStyleLevel is not None:
+		szText += u" (%d/%d: %s)" % (mi.iScoreBgStyleLevel + 1, len(mi.aScoreBgStyleLevels), mi.aScoreBgStyleLevels[mi.iScoreBgStyleLevel])
+	return SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
+def _commerceBgStyleHelp(*_):
+	mi = _getMainInterface()
+	szText = u"Cycle commerce sliders background style"
+	if mi.iCommerceBgStyleLevel is not None:
+		szText += u" (%d/%d: %s)" % (mi.iCommerceBgStyleLevel + 1, len(mi.aScoreBgStyleLevels), mi.aScoreBgStyleLevels[mi.iCommerceBgStyleLevel])
+	return SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
+def _scoreExpandToggleHelp(*_):
+	szText = u"Toggle lock scoreboard hover"
+	if _getMainInterface().bScoreAlwaysExpand:
+		szText += u" (Locked)"
+	else:
+		szText += u" (Unlocked)"
+	return SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
+def _scoreAutocenterToggleHelp(*_):
+	szText = u"Toggle autocenter scoreboard scroll on the active player "
+	if _getMainInterface().bScoreScrollAutocenterActivePlayer:
+		szText += localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_ON", ())
+	else:
+		szText += localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_OFF", ())
+	return SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
+def _annotationsToggleHelp(*_):
+	szText = u"Toggle show map annotations "
+	if _getMainInterface().bAnnotationsVisible:
+		szText += localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_ON", ())
+	else:
+		szText += localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_OFF", ())
+	return SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP, _scoreHelp(u"Scroll scoreboard up"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN, _scoreHelp(u"Scroll scoreboard down"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP_FAST, _scoreHelp(u"Scroll scoreboard up (fast)"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN_FAST, _scoreHelp(u"Scroll scoreboard down (fast)"))
-WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_BG_STYLE, _scoreHelp(u"Cycle scoreboard background style"))
-WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_EXPAND_TOGGLE, _scoreHelp(u"Toggle lock scoreboard hover"))
+WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_BG_STYLE, _scoreBgStyleHelp)
+WidgetUtil.setWidgetHelpFunction(WIDGET_COMMERCE_BG_STYLE, _commerceBgStyleHelp)
+WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_EXPAND_TOGGLE, _scoreExpandToggleHelp)
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_CENTER_ACTIVE_PLAYER, _scoreHelp(u"Center scoreboard scroll on the active player"))
-WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_AUTOCENTER_ACTIVE_PLAYER_TOGGLE, _scoreHelp(u"Toggle autocenter scoreboard scroll on the active player"))
-WidgetUtil.setWidgetHelpFunction(WIDGET_ANNOTATIONS_TOGGLE, _scoreHelp(u"Toggle show map annotations"))
+WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_AUTOCENTER_ACTIVE_PLAYER_TOGGLE, _scoreAutocenterToggleHelp)
+WidgetUtil.setWidgetHelpFunction(WIDGET_ANNOTATIONS_TOGGLE, _annotationsToggleHelp)
 WidgetUtil.setWidgetHelpFunction(WIDGET_CITY_BREAKDOWNS, _cityBreakdownsHelp)
 # <advc.090>
 import math
@@ -664,6 +704,13 @@ class CvMainInterface:
 		self.iMAX_TRADE_ROUTES = None
 		self.IS_USE_KMOD_TRADE_CULTURE = None
 		self.bSASLastCommerceRectsCityScreen = None
+		# <!-- custom: The right space the map-view commerce sliders were last laid out against; the Tech Advisor can leave less than other advisors, so it changes when that opens or closes. (Claude code Opus 5.5) -->
+		self.iSASCommerceRectsRightSpace = None
+		self.bCommerceMinMaxFits = True
+		self.iSAS_COMMERCE_SLIDERS_RATE_SHOW = None
+		self.iSAS_MAIN_UI_GG_BAR_TEXT = None
+		self.iSAS_COMMERCE_SLIDERS_BG_BUTTON_POS = None
+		self.iSAS_MAIN_UI_GG_BAR_CLICK_TAB = None
 		# <!-- custom: scoreboard scroll offset; 0 = show bottom of list (highest-ranked), increases to show lower-ranked players.
 		# Reset when the scoreboard is rebuilt. (Claude code Sonnet 4.6) -->
 		self.iScoreScrollOffset = 0
@@ -689,6 +736,10 @@ class CvMainInterface:
 		self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE = None
 		self.aScoreBgStyleLevels = [PanelStyles.PANEL_STYLE_HUD_HELP, PanelStyles.PANEL_STYLE_SOLID, PanelStyles.PANEL_STYLE_MAIN, PanelStyles.PANEL_STYLE_MAIN_BLACK50, PanelStyles.PANEL_STYLE_MAIN_BLACK25, PanelStyles.PANEL_STYLE_EMPTY]
 		self._eScoreBgStyleApplied = PanelStyles.PANEL_STYLE_HUD_HELP
+		# <!-- custom: The commerce sliders' text can be hard to read over the map, so they take a background too, cycled through the scoreboard's styles by their own button; the starting level comes from SAS_COMMERCE_SLIDERS_BG_DEFAULT_STYLE (the user, 2026-11-20). (Claude code Opus 5.5) -->
+		self.iCommerceBgStyleLevel = None
+		# <!-- custom: The style the panel widget has now, unlike the scoreboard's HUD_HELP above: base AdvCiv creates ScoreBackground with HUD_HELP, while CommerceBackground is new and created empty, and _applyCommerceBackgroundStyle recreates it only when the wanted style differs. (Claude code Opus 5.5) -->
+		self._eCommerceBgStyleApplied = PanelStyles.PANEL_STYLE_EMPTY
 		# <!-- custom: main-map annotation visibility toggle; signs/landmarks have no Python visibility flag, so hide caches them and removes engine billboards until restored. (GPT-5.5) -->
 		self.bAnnotationsVisible = True
 		self.aHiddenAnnotationSigns = []
@@ -1145,9 +1196,23 @@ class CvMainInterface:
 	def setTopBarRects(self):
 		gSetRect("TopBarsMaxSpace", "Top", gRect("CityLeftPanel").xRight() + HSPACE(8), VSPACE(2), -(gRect("CityRightPanel").width() + HSPACE(8)), 2 * self.stackBarDefaultHeight())
 		# <!-- custom: on upscaled 1080p, shift one-line top-bar space from research to GP so GP text fits while research keeps enough room. (GPT-5.3-Codex) -->
-		fResearchBarWidth = fThinResearchBarWidth = 415
-		fGGBarWidth = 100
-		fThinGGBarWidth = 84
+		# <!-- custom: The Great General bar shows "stored / threshold" instead of the experience still needed, so it takes width from the research bar, whose text had room to spare; was 415, 100 and 84.
+		# Sized for two digits, as measured in the current label font: three-digit thresholds are rare, and the research and GP bars beside it were cramped by the room kept for them; a rare three-digit text may overflow (the user, 2026-11-21).
+		# 12 is the text's padding inside the bar; base AdvCiv's widths stay the minimum, and are the widths for no text or its experience still needed (SAS_MAIN_UI_GG_BAR_TEXT 0 or 2).
+		# These numbers are base AdvCiv's proportions rather than final pixels: with bScaleHUD, below, it stretches the bars to the space the top bar has, so they follow the resolution (checked at 1920 x 1080 and 2560 x 1440). See KI#1103. (Claude code Opus 5.5) -->
+		iGGBarTextMode = self.getGGBarTextMode()
+		if iGGBarTextMode in (1, 3):
+			# <!-- custom: Measure the same localized text and Great General glyph the bar actually draws. (GPT-6.2-Sol) -->
+			szSample = SASVisuals.GreatPeople.getGreatGeneralText(88, 99)
+			if iGGBarTextMode == 3:
+				szSample += u" (88)"
+			fGGBarWidth = max(100, CyInterface().determineWidth(SASTextScale.labelText(szSample)) + 12)
+			fThinGGBarWidth = fGGBarWidth
+		else:
+			fGGBarWidth = 100
+			fThinGGBarWidth = 84
+		fResearchBarWidth = 415 - (fThinGGBarWidth - 84)
+		fThinResearchBarWidth = 415
 		iSpacing = HSPACE(7)
 		iThinSpacing = HSPACE(6)
 		fThinGPBarWidth = 392
@@ -1226,6 +1291,14 @@ class CvMainInterface:
 		gSetRectangle("MainMenuButton", lButtons.next())
 		gSetRectangle("InterfaceHelpButton", lButtons.next())
 
+	# <!-- custom: Use the widest commerce glyph at 100% for the narrow slider layout. The Tech Advisor uses the same minimum so both ordinary buttons fit even when its right strip is configured smaller. See KI#1103. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+	def getCommercePercentLabelWidth(self):
+		return max(CyInterface().determineWidth(SASTextScale.labelText(u"%s:100%%" % SASVisuals.Commerce.char(eCommerce))) for eCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES))
+
+	def getMinimumMapCommerceRightSpace(self):
+		iOffset = max(HSPACE(4), HSPACE(gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_RIGHT_X_OFFSET")))
+		return iOffset + self.getCommercePercentLabelWidth() + HSPACE(3) + 2 * BTNSZ(20) + HSPACE(0) + max(2, HSPACE(4))
+
 	def setCommerceAdjustRects(self):
 		iMaxRows = CommerceTypes.NUM_COMMERCE_TYPES
 		iBtnSize = BTNSZ(20)
@@ -1233,7 +1306,10 @@ class CvMainInterface:
 		iHSpacing = HSPACE(0)
 		iRowH = iBtnSize + iVSpacing
 		iColumnW = iBtnSize + iHSpacing
-		if CyInterface().isCityScreenUp():
+		# <!-- custom: Read once, as the layout below tests it three times. bCommerceMinMaxFits starts true for each layout and turns false below when BUG's Min/Max pair cannot fit beside the Tech Advisor; updatePercentButtons and updateGameDataStrings then leave that pair out. (Claude code Opus 5.5) -->
+		bCityScreen = CyInterface().isCityScreenUp()
+		self.bCommerceMinMaxFits = True
+		if bCityScreen:
 			if self.iSAS_COMMERCE_CITY_X_OFFSET is None:
 				self.iSAS_COMMERCE_CITY_X_OFFSET = gc.getDefineINT("SAS_MAIN_UI_CITY_COMMERCE_RIGHT_X_OFFSET")
 				self.iSAS_COMMERCE_CITY_Y_OFFSET = gc.getDefineINT("SAS_MAIN_UI_CITY_COMMERCE_RIGHT_Y_OFFSET")
@@ -1249,29 +1325,47 @@ class CvMainInterface:
 			iRightCommerceBlockXOffset = self.iSAS_COMMERCE_MAP_X_OFFSET
 			iRightCommerceBlockYOffset = self.iSAS_COMMERCE_MAP_Y_OFFSET
 			bCommerceBlockAnchorRight = self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT
-		if bCommerceBlockAnchorRight:
+		# <!-- custom: In map view the right anchor was InterfaceTopRight, 178 px right of which the sliders sat clear of the Tech Advisor at 1920 px, but far right of the scoreboard under them.
+		# They now start where advisors leave the scoreboard its space, so they line up with it and keep clear of any open advisor; the Tech Advisor at 1920 px leaves less, and they move right while it is open (the user, 2026-11-20). (Claude code Opus 5.5) -->
+		if not bCommerceBlockAnchorRight:
+			iPercentTextBaseX = gRect("InterfaceTopLeft").x()
+		elif bCityScreen:
 			iPercentTextBaseX = gRect("InterfaceTopRight").x()
 		else:
-			iPercentTextBaseX = gRect("InterfaceTopLeft").x()
+			# <!-- custom: For getOpenAdvisorScoreboardSpace; imported here, as elsewhere in this file, since CvScreensInterface imports this module. (Claude code Opus 5.5) -->
+			import CvScreensInterface
+			self.iSASCommerceRectsRightSpace = CvScreensInterface.getOpenAdvisorScoreboardSpace(bUseStandardOnMap=True)
+			iPercentTextBaseX = gRect("Top").xRight() - self.iSASCommerceRectsRightSpace
 		iPercentTextX = iPercentTextBaseX + HSPACE(iRightCommerceBlockXOffset)
-		# <!-- custom: Do not reserve two full button columns by shifting the map-view commerce sliders left: with expanded advisors, that hid useful +/- buttons under the advisor even when upscaled and with Min/Max buttons enabled.
-		# Move the green commerce-rate values to a compact row below instead, so the slider block can shift right enough for the percent text and Min/Max controls to stay visible inside Tech Chooser and in normal map view. (GPT-5.5) -->
+		iPercentTextToButtonsX = 36 + HSPACE(56) - HSPACE(14)
+		iFirstColumnOffset = 0
+		# <!-- custom: The Tech Advisor's strip can be narrower than four scaled buttons plus the percentage label. Tighten the label gap first, then keep the ordinary +/- buttons if Min/Max still cannot fit. Move those buttons to the first two columns in that case. The city layout keeps its inherited spacing. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if not bCityScreen and bCommerceBlockAnchorRight:
+			iPercentTextX = max(iPercentTextX, iPercentTextBaseX + HSPACE(4))
+			iButtonSpace = gRect("Top").xRight() - max(2, HSPACE(4)) - iPercentTextX
+			iMinLabelSpace = self.getCommercePercentLabelWidth() + HSPACE(3)
+			iPercentTextToButtonsX = max(iPercentTextToButtonsX, iMinLabelSpace)
+			if iPercentTextToButtonsX + 4 * iColumnW - iHSpacing > iButtonSpace:
+				iPercentTextToButtonsX = iMinLabelSpace
+				self.bCommerceMinMaxFits = iPercentTextToButtonsX + 4 * iColumnW - iHSpacing <= iButtonSpace
+				if not self.bCommerceMinMaxFits:
+					iFirstColumnOffset = -iColumnW
 		iCommerceRowsTopOffset = VSPACE(iRightCommerceBlockYOffset)
 		for i in range(iMaxRows):
 			gSetPoint("PercentText" + str(i), PointLayout(iPercentTextX, gRect("InterfaceTopLeft").yBottom() + VSPACE(-8) + i * iRowH + iCommerceRowsTopOffset))
 			if self.bScaleHUD:
 				# Make room for the Turn Log, whose (default) position I can't change.
 				gPoint("PercentText" + str(i)).move(0, -3)
-		iPercentTextToButtonsX = 36 + HSPACE(56) - HSPACE(14)
-		iX = iPercentTextX + iPercentTextToButtonsX # Space for the PercentText label
+		iX = iPercentTextX + iPercentTextToButtonsX
 		for i in range(4): # Up to 4 buttons per row (2 for BUG - Min/Max Sliders)
-			lSliderBtns = ColumnLayout(gRect("Top"), iX, gPoint("PercentText0").y(), iMaxRows, iVSpacing, iBtnSize)
+			iColumnX = iX + max(0, i * iColumnW + iFirstColumnOffset)
+			lSliderBtns = ColumnLayout(gRect("Top"), iColumnX, gPoint("PercentText0").y(), iMaxRows, iVSpacing, iBtnSize)
 			gSetRectangle("CommerceSliderBtns" + str(i), lSliderBtns)
-			iX += iColumnW
 		for i in range(iMaxRows):
 			szPrefix = "RateText" + str(i)
 			iY = gPoint("PercentText" + str(i)).y()
-			gSetPoint(szPrefix + "BtS", PointLayout(gRect("CommerceSliderBtns1").xRight() + HSPACE(3), iY))
+			# <!-- custom: The ordinary minus button is in column 2 even when BUG's outer two buttons are hidden. (GPT-6.2-Sol) -->
+			gSetPoint(szPrefix + "BtS", PointLayout(gRect("CommerceSliderBtns2").xRight() + HSPACE(3), iY))
 			# for BUG - Min/Max Sliders
 			gSetPoint(szPrefix + "BUG", PointLayout(gRect("CommerceSliderBtns3").xRight() + HSPACE(3), iY))
 
@@ -1287,14 +1381,14 @@ class CvMainInterface:
 			iCommercePanelHorizontalSpacingToTheRight = self.SIDE_PANELS_WIDTH - iEstimatedLeftSideSize - iEstimatedCommerceRightMargin
 			# (The horizontal spacing here seems pretty arbitrary)
 			gSetPoint("CityPercentText" + str(i), PointLayout(gRect("CommerceSliderBtns3").xRight() + HSPACE(iCommercePanelHorizontalSpacingToTheRight, 3), iY))
-		gSetPoint("CommerceRateSummaryText", PointLayout(gPoint("PercentText0").x(), gPoint("PercentText0").y() + iMaxRows * iRowH))
-
 		# <advc.002b> Placing the buttons at just the same y coord as the labels
 		# doesn't quite work out
 		iSliderButtonsVerticalOffset = 25 - iBtnSize
 		for i in range(4):
 			gRect("CommerceSliderBtns" + str(i)).move(0, iSliderButtonsVerticalOffset)
 		# </advc.002b>
+		# <!-- custom: The style button is drawn at the measured end of the visible block in updateGameDataStrings. Its initial rect supplies only its size. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		gSetRect("CommerceBgStyle", "Top", 0, 0, iBtnSize, iBtnSize)
 		gSetPoint("MaintenanceText", PointLayout(gPoint("PercentText0").x() + 1, gRect("CommerceSliderBtns0").yBottom()))
 		gSetPoint("MaintenanceAmountText", PointLayout(gPoint("CityPercentText0").x(), gPoint("MaintenanceText").y()))
 		# The panel, which only appears on the city screen, needs to encompass all the widgets above - and be centered on the left city panel.
@@ -2043,6 +2137,13 @@ class CvMainInterface:
 
 		screen.addPanel("ScoreBackground", u"", u"", True, False, 0, 0, 0, 0, PanelStyles.PANEL_STYLE_HUD_HELP)
 		screen.hide("ScoreBackground")
+		# <!-- custom: A new HUD starts with an empty panel. Reset the cached style so a load applies the configured commerce background to the newly created widget. (GPT-6.2-Sol) -->
+		self.iCommerceBgStyleLevel = None
+		self._eCommerceBgStyleApplied = PanelStyles.PANEL_STYLE_EMPTY
+		screen.addPanel("CommerceBackground", u"", u"", True, False, 0, 0, 0, 0, PanelStyles.PANEL_STYLE_EMPTY)
+		screen.hide("CommerceBackground")
+		self.setStyledButton("CommerceBgStyle", ButtonStyles.BUTTON_STYLE_STANDARD, WIDGET_COMMERCE_BG_STYLE, -1, -1)
+		screen.hide("CommerceBgStyle")
 
 		for i in range(gc.getMAX_CIV_PLAYERS()):
 			szName = "ScoreText" + str(i)
@@ -2424,6 +2525,14 @@ class CvMainInterface:
 		self.setFieldofView(screen, False)
 # BUG - Field of View - end
 
+		# <!-- custom: The Tech Advisor dirties the scoreboard on open and close. Update the shared strip before either the commerce buttons or labels draw, so they move together in this redraw. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		kInterface = CyInterface()
+		if self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT and not kInterface.isCityScreenUp() and kInterface.isDirty(InterfaceDirtyBits.Score_DIRTY_BIT):
+			import CvScreensInterface
+			if CvScreensInterface.getOpenAdvisorScoreboardSpace(bUseStandardOnMap=True) != self.iSASCommerceRectsRightSpace:
+				self.setCommerceAdjustRects()
+				kInterface.setDirty(InterfaceDirtyBits.PercentButtons_DIRTY_BIT, True)
+				kInterface.setDirty(InterfaceDirtyBits.GameData_DIRTY_BIT, True)
 		# Check Dirty Bits, see what we need to redraw...
 		if (CyInterface().isDirty(InterfaceDirtyBits.PercentButtons_DIRTY_BIT)):
 			# Percent Buttons
@@ -2548,6 +2657,8 @@ class CvMainInterface:
 
 	def updatePercentButtons(self):
 		screen = self.screen
+		# <!-- custom: Before the slider buttons are drawn, as a recreated panel would cover widgets drawn before it. (Claude code Opus 5.5) -->
+		self._applyCommerceBackgroundStyle()
 		for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
 			szIndex = str(iCommerce)
 			screen.hide("IncreasePercent" + szIndex)
@@ -2567,6 +2678,8 @@ class CvMainInterface:
 		iCommercePercentChangeIncrements = gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")
 		if self.iSAS_COMMERCE_SLIDERS_FAST_INCR_PCT is None:
 			self.iSAS_COMMERCE_SLIDERS_FAST_INCR_PCT = gc.getDefineINT("SAS_COMMERCE_SLIDERS_FAST_INCR_PCT")
+		# <!-- custom: BUG's Min/Max pair only when setCommerceAdjustRects found room for it: beside the Tech Advisor at 1920 px it would fall off the screen's edge. (Claude code Opus 5.5) -->
+		bShowMinMax = self.bCommerceMinMaxFits and MainOpt.isShowMinMaxCommerceButtons()
 		# <advc.092>
 		for i in range(4):
 			gRect("CommerceSliderBtns" + str(i)).resetIter() # </advc.092>
@@ -2581,7 +2694,7 @@ class CvMainInterface:
 			iCol = 0 # advc.092
 			# <!-- custom: Added Min/Max +/- pair on the city screen (because map-view commerce sliders are hidden there).
 			# Not added to the Finance/Espionage advisor tabs: those are windowed so the right-side map-view sliders stay reachable. (Claude code Opus 4.7) -->
-			if MainOpt.isShowMinMaxCommerceButtons():
+			if bShowMinMax:
 				szString = "MaxPercent" + str(eCommerce)
 				gSetRectangle(szString, gRect("CommerceSliderBtns0").next())
 				self.setStyledButton(szString, ButtonStyles.BUTTON_STYLE_CITY_PLUS, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, self.iSAS_COMMERCE_SLIDERS_FAST_INCR_PCT)
@@ -4086,7 +4199,10 @@ class CvMainInterface:
 			szIndex = str(iCommerce)
 			screen.hide("PercentText" + szIndex)
 			screen.hide("RateText" + szIndex)
-		screen.hide("CommerceRateSummaryText")
+			screen.hide("CommerceRateSummaryText" + szIndex)
+		# <!-- custom: Hidden with the slider texts, as the views that return just below (all hidden, minimap only, Advanced Start) draw no sliders; shown again with them further down. (Claude code Opus 5.5) -->
+		screen.hide("CommerceBackground")
+		screen.hide("CommerceBgStyle")
 
 		eUIVis = kInterface.getShowInterface()
 		if (eUIVis == InterfaceVisibility.INTERFACE_HIDE_ALL or eUIVis == InterfaceVisibility.INTERFACE_MINIMAP_ONLY or eUIVis == InterfaceVisibility.INTERFACE_ADVANCED_START):
@@ -4096,8 +4212,12 @@ class CvMainInterface:
 		# Percent of commerce
 		if pPlayer.isAlive():
 			iCount = 0
-			aCommerceRateSummary = []
-			bUseCompactCommerceRates = ((not bCityScreen) and MainOpt.isShowMinMaxCommerceButtons())
+			# <!-- custom: Base AdvCiv shows each commerce's green per-turn rate beside its slider; SAS moved them into one compact row below the sliders when Min/Max buttons were on, as they then overflowed off the right edge or under expanded advisors.
+			# Since the sliders line up with the scoreboard, the rates fit beside them again, so SAS_COMMERCE_SLIDERS_RATE_SHOW picks beside, below or both (the user, 2026-11-20).
+			# Where they do not fit beside, as with the Tech Advisor open at 1920 px, which leaves the sliders less room, they show below instead. (GPT-5.5 + Claude code Opus 5.5) -->
+			if self.iSAS_COMMERCE_SLIDERS_RATE_SHOW is None:
+				self.iSAS_COMMERCE_SLIDERS_RATE_SHOW = gc.getDefineINT("SAS_COMMERCE_SLIDERS_RATE_SHOW")
+			aRateRows = []
 			for i in range(CommerceTypes.NUM_COMMERCE_TYPES):
 				eCommerce = (i + 1) % CommerceTypes.NUM_COMMERCE_TYPES
 				#if (gc.getPlayer(ePlayer).isCommerceFlexible(eCommerce) or (CyInterface().isCityScreenUp() and (eCommerce == CommerceTypes.COMMERCE_GOLD))):
@@ -4108,32 +4228,97 @@ class CvMainInterface:
 				self.setLabel(szString, "Background", szOutText, CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.1)
 				screen.show(szString)
 				# <advc.004p>
-				# </advc.004p>
 				if (not bCityScreen and (eCommerce != CommerceTypes.COMMERCE_CULTURE or MainOpt.isShowTotalCultureRate())):
-					szOutText = SASTextScale.sasFontTagLabel + localText.getText("TXT_KEY_MISC_POS_GOLD_PER_TURN", (pPlayer.getCommerceRate(CommerceTypes(eCommerce)),))
-					szOutText += SASTextScale.SAS_FONT_TAG_CLOSE
-					# <!-- custom: BUG Min/Max buttons add two extra commerce button columns in map view, so the green commerce-rate values (e.g. +297/Turn) overflow off the right edge or under expanded advisors.
-					# Keep the useful percent text and +/- controls visible; collapse the rate values into one compact row below the sliders.
-					# The compact row omits ": " so all visible commerce rates are more likely to fit on one line, especially in late-game 4-5 digit cases; city screen keeps the regular per-row rate labels. (GPT-5.5) -->
-					if bUseCompactCommerceRates:
-						aCommerceRateSummary.append(u"%s%d" %(SASVisuals.Commerce.char(eCommerce), pPlayer.getCommerceRate(CommerceTypes(eCommerce))))
-						iCount += 1
-						continue
-					szString = "RateText" + str(iCount)
-# BUG - Min/Max Sliders - start
-					szPointKey = szString
-					if MainOpt.isShowMinMaxCommerceButtons():
-						szPointKey += "BUG"
-					else:
-						szPointKey += "BtS"
-					gSetPoint(szString, gPoint(szPointKey))
-# BUG - Min/Max Sliders - end
-					self.setLabel(szString, "Background", szOutText, CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.1)
-					screen.show(szString)
+					aRateRows.append((iCount, eCommerce, pPlayer.getCommerceRate(CommerceTypes(eCommerce))))
+				# </advc.004p>
 				iCount += 1
-			if bUseCompactCommerceRates and aCommerceRateSummary:
-				self.setLabel("CommerceRateSummaryText", "Background", SASTextScale.sasFontTagLabel + u"; ".join(aCommerceRateSummary) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.1)
-				screen.show("CommerceRateSummaryText")
+# BUG - Min/Max Sliders - start
+			# <!-- custom: BUG's option alone decided; the rates now sit after the Min/Max pair only when setCommerceAdjustRects found room for it (bCommerceMinMaxFits), as updatePercentButtons does. (Claude code Opus 5.5) -->
+			bShowMinMax = self.bCommerceMinMaxFits and MainOpt.isShowMinMaxCommerceButtons()
+			if bShowMinMax:
+				szPointSuffix = "BUG"
+				iSliderLastCol = 3
+			else:
+				szPointSuffix = "BtS"
+				iSliderLastCol = 2
+# BUG - Min/Max Sliders - end
+			bRatesBeside = (self.iSAS_COMMERCE_SLIDERS_RATE_SHOW & 1) != 0
+			bRatesBelow = (self.iSAS_COMMERCE_SLIDERS_RATE_SHOW & 2) != 0
+			aRateTexts = []
+			iBgPad = max(2, HSPACE(4))
+			iRightLimit = gRect("Top").xRight() - iBgPad
+			iControlsRight = gRect("CommerceSliderBtns" + str(iSliderLastCol)).xRight()
+			iRateRight = iControlsRight
+			for (iRow, eCommerce, iRate) in aRateRows:
+				szOutText = SASTextScale.labelText(localText.getText("TXT_KEY_MISC_POS_GOLD_PER_TURN", (iRate,)))
+				aRateTexts.append(szOutText)
+				if bRatesBeside:
+					iRateX = gPoint("RateText" + str(iRow) + szPointSuffix).x()
+					iRateRight = max(iRateRight, iRateX + kInterface.determineWidth(szOutText))
+					if iRateRight > iRightLimit:
+						bRatesBeside = False
+						bRatesBelow = True
+			iContentRight = iControlsRight
+			if bRatesBeside:
+				iContentRight = iRateRight
+			if bRatesBeside:
+				for k in range(len(aRateRows)):
+					szString = "RateText" + str(aRateRows[k][0])
+					gSetPoint(szString, gPoint(szString + szPointSuffix))
+					self.setLabel(szString, "Background", aRateTexts[k], CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.1)
+					screen.show(szString)
+			# <!-- custom: The compact row omits ": " so all visible commerce rates are more likely to fit on one line, especially in late-game 4-5 digit cases. (GPT-5.5) -->
+			lFirstSliderColumn = gRect("CommerceSliderBtns0")
+			iRowStep = gPoint("PercentText1").y() - gPoint("PercentText0").y()
+			iContentBottom = lFirstSliderColumn.yBottom() - (CommerceTypes.NUM_COMMERCE_TYPES - iCount) * iRowStep
+			if bRatesBelow and aRateRows:
+				aCommerceRateSummary = [u"%s%d" %(SASVisuals.Commerce.char(eCommerce), iRate) for (iRow, eCommerce, iRate) in aRateRows]
+				iSummaryX = gPoint("PercentText0").x()
+				iSummaryY = max(gPoint("PercentText0").y() + iCount * iRowStep, iContentBottom)
+				# <!-- custom: Late-game rates can exceed even the space below the sliders. Wrap between commerce amounts so each number stays with its icon. (GPT-6.2-Sol) -->
+				aSummaryLines = [aCommerceRateSummary[0]]
+				for szRate in aCommerceRateSummary[1:]:
+					szCombined = aSummaryLines[-1] + u"; " + szRate
+					if iSummaryX + kInterface.determineWidth(SASTextScale.labelText(szCombined)) <= iRightLimit:
+						aSummaryLines[-1] = szCombined
+					else:
+						aSummaryLines.append(szRate)
+				for iLine, szLine in enumerate(aSummaryLines):
+					szName = "CommerceRateSummaryText" + str(iLine)
+					szSummary = SASTextScale.labelText(szLine)
+					gSetPoint(szName, PointLayout(iSummaryX, iSummaryY + iLine * iRowStep))
+					self.setLabel(szName, "Background", szSummary, CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.1)
+					screen.show(szName)
+					iContentRight = max(iContentRight, iSummaryX + kInterface.determineWidth(szSummary))
+				iContentBottom = iSummaryY + len(aSummaryLines) * iRowStep
+			# <!-- custom: Keep the background around the drawn block, including when left-anchored. In the panel, the style button goes at the bottom-right so it stays clear of the percentages and rates at every width. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			if not bCityScreen and iCount > 0:
+				iBgX = max(gRect("Top").x(), gPoint("PercentText0").x() - iBgPad)
+				iBgY = min(gPoint("PercentText0").y(), lFirstSliderColumn.y()) - VSPACE(2)
+				lBgBtn = gRect("CommerceBgStyle")
+				iBgRight = min(iContentRight, iRightLimit) + iBgPad
+				# <!-- custom: SAS_COMMERCE_SLIDERS_BG_BUTTON_POS: at the panel's bottom-right the button stood out over the map (the user, 2026-11-21), so it can sit with the scoreboard's own buttons (1) or left of the advisor buttons, just above the sliders (2), and the panel then ends at its content. (Claude code Opus 5.5) -->
+				iButtonPos = self.getCommerceBgButtonPos()
+				if iButtonPos == 0:
+					iButtonX = min(iContentRight, iRightLimit) - lBgBtn.width()
+					iButtonY = iContentBottom + VSPACE(2)
+					iBgBottom = iButtonY + lBgBtn.height() + VSPACE(2)
+				elif iButtonPos == 1:
+					# <!-- custom: Left of the scoreboard row's eight buttons and two gaps; see updateScoreStrings. (Claude code Opus 5.5) -->
+					iButtonX = gRect("MiniMap").xRight() - 9 * lBgBtn.width() - 2 * HSPACE(6)
+					iButtonY = gRect("GlobeToggle").y() - lBgBtn.height()
+					iBgBottom = iContentBottom + VSPACE(2)
+				else:
+					lAdvisors = gRect("AdvisorButtons")
+					# <!-- custom: HSPACE(4) left a wider gap than between the advisor buttons, while their own spacing (-iround(BTNSZ(28) / 10.0) + 1, which overlaps their art) left it touching the first one; HSPACE(1) sits between (the user, 2026-11-21). (Claude code Opus 5.5) -->
+					iButtonX = lAdvisors.x() - lBgBtn.width() - HSPACE(1)
+					# <!-- custom: Centring the two rectangles left the square 1 px below the advisor circles at 1080p (circle rows 8-31, square 13-28), as the circles' art sits above their rectangle's centre; VSPACE(1) lifts it with the resolution. (Claude code Opus 5.5) -->
+					iButtonY = lAdvisors.y() + (lAdvisors.height() - lBgBtn.height()) / 2 - VSPACE(1)
+					iBgBottom = iContentBottom + VSPACE(2)
+				screen.setPanelSize("CommerceBackground", iBgX, iBgY, iBgRight - iBgX, iBgBottom - iBgY)
+				screen.show("CommerceBackground")
+				screen.moveItem("CommerceBgStyle", iButtonX, iButtonY, -0.3)
+				screen.show("CommerceBgStyle")
 		self.updateTimeText()
 		self.setLabel("TimeText", "Background", SASTextScale.sasFontTagLabel + g_szTimeText + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
 		screen.show("TimeText")
@@ -4338,16 +4523,41 @@ class CvMainInterface:
 		pPlayer = gc.getActivePlayer()
 		iCombatExp = pPlayer.getCombatExperience()
 		iThresholdExp = pPlayer.greatPeopleThreshold(True)
-		iNeededExp = iThresholdExp - iCombatExp
-		szText = SASTextScale.sasFontTagLabel + u"%s" %(SASVisuals.GreatPeople.getGreatGeneralText(iNeededExp)) + SASTextScale.SAS_FONT_TAG_CLOSE
+		iGGBarTextMode = self.getGGBarTextMode()
+		if iGGBarTextMode > 0:
+			# <!-- custom: Mode 2 is base AdvCiv's text, the icon and the experience still needed (BUG's INTERFACE_NEXT_GREAT_GENERAL_XP). (Claude code Opus 5.5) -->
+			# <!-- custom: Mode 3 shows both, "x / y (needed)", the user's intended combination (2026-11-21). (Claude code Opus 5.5) -->
+			if iGGBarTextMode == 2:
+				szText = BugUtil.getText("INTERFACE_NEXT_GREAT_GENERAL_XP", (SASVisuals.Font.GREAT_GENERAL_CHAR, iThresholdExp - iCombatExp))
+			elif iGGBarTextMode == 3:
+				szText = SASVisuals.GreatPeople.getGreatGeneralText(iCombatExp, iThresholdExp) + u" (%d)" % (iThresholdExp - iCombatExp)
+			else:
+				szText = SASVisuals.GreatPeople.getGreatGeneralText(iCombatExp, iThresholdExp)
+			szText = SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 # BUG - Bars on single line for higher resolution screens - start
-		self.setLabel("GreatGeneralBarText", "Background", szText, CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -0.4, WidgetTypes.WIDGET_HELP_GREAT_GENERAL)
-		screen.show("GreatGeneralBarText")
+			# <!-- custom: setText rather than setLabel, so a click on the text reaches handleInput, which opens the Military Advisor, as the GP bar's opens its city. (Claude code Opus 5.5) -->
+			self.setText("GreatGeneralBarText", "Background", szText, CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -0.4, WidgetTypes.WIDGET_HELP_GREAT_GENERAL)
+			screen.show("GreatGeneralBarText")
 # BUG - Bars on single line for higher resolution screens - end
 		fProgress = float(iCombatExp) / float(iThresholdExp)
 		screen.setBarPercentage(szGGBar, InfoBarTypes.INFOBAR_STORED, fProgress)
 		screen.show(szGGBar)
 # BUG - Great General Bar - end
+
+	# <!-- custom: SAS_COMMERCE_SLIDERS_BG_BUTTON_POS, read once; see where updateGameDataStrings places the button. (Claude code Opus 5.5) -->
+	def getCommerceBgButtonPos(self):
+		if self.iSAS_COMMERCE_SLIDERS_BG_BUTTON_POS is None:
+			self.iSAS_COMMERCE_SLIDERS_BG_BUTTON_POS = gc.getDefineINT("SAS_COMMERCE_SLIDERS_BG_BUTTON_POS")
+		return self.iSAS_COMMERCE_SLIDERS_BG_BUTTON_POS
+
+	# <!-- custom: SAS_MAIN_UI_GG_BAR_TEXT, read once: what the Great General bar's text shows; 0 = no text, 1 = stored / threshold, 2 = base AdvCiv's experience still needed, 3 = both. (Claude code Opus 5.5) -->
+	def getGGBarTextMode(self):
+		if self.iSAS_MAIN_UI_GG_BAR_TEXT is None:
+			iMode = gc.getDefineINT("SAS_MAIN_UI_GG_BAR_TEXT")
+			if not 0 <= iMode <= 3:
+				raise ValueError("SAS_MAIN_UI_GG_BAR_TEXT is %d; use 0, 1, 2 or 3" % iMode)
+			self.iSAS_MAIN_UI_GG_BAR_TEXT = iMode
+		return self.iSAS_MAIN_UI_GG_BAR_TEXT
 
 	# <advc.078> I've replaced all calls to MainOpt.isShowGGProgressBar and MainOpt.isShowGPProgressBar with these functions
 	def isShowGGProgressBar(self):
@@ -5154,8 +5364,9 @@ class CvMainInterface:
 					szIcon = gc.getBuildingInfo(iBuilding).getButton() # from BAT mod
 				# </advc.097>
 				szFontStart = self.bldgFontTag # advc.092
-				screen.setTableText("BuildingListTable", 0, iNumBuildings, szFontStart + szLeftBuffer + SASTextScale.SAS_FONT_TAG_CLOSE, szIcon, WidgetTypes.WIDGET_HELP_BUILDING, iBuilding, -1, CvUtil.FONT_LEFT_JUSTIFY)
-				screen.setTableText("BuildingListTable", 1, iNumBuildings, szFontStart + szRightBuffer + SASTextScale.SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_HELP_BUILDING, iBuilding, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+				# <!-- custom: WIDGET_HELP_BUILDING hovered but had no click; WIDGET_PEDIA_JUMP_TO_BUILDING gives the same hover, as both call parseBuildingHelp with the selected city, and opens the building's Sevopedia page. (Claude code Opus 5.5) -->
+				screen.setTableText("BuildingListTable", 0, iNumBuildings, szFontStart + szLeftBuffer + SASTextScale.SAS_FONT_TAG_CLOSE, szIcon, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.setTableText("BuildingListTable", 1, iNumBuildings, szFontStart + szRightBuffer + SASTextScale.SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 				iNumBuildings = iNumBuildings + 1
 		# advc: unused
 		#if (iNumBuildings > g_iNumBuildings):
@@ -5322,7 +5533,9 @@ class CvMainInterface:
 		szBuffer = self.szTextMaintenance
 		self.setLabel("MaintenanceText", "Background", SASTextScale.sasFontTagLabel + szBuffer + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.3, WidgetTypes.WIDGET_HELP_MAINTENANCE)
 		screen.show("MaintenanceText")
-		szBuffer = u"-%d.%02d %s" %(iMaintenance/100, iMaintenance%100, SASVisuals.Commerce.GOLD_CHAR)
+		# <!-- custom: Was "-0.49" with the plain coin; the red maintenance coin marks it as a cost, as in Finance, so the minus sign is dropped (the user, 2026-11-21, Civ4ScreenShot0296). (Claude code Opus 5.5) -->
+		# <!-- custom: The amount in red too, as in Finance: white beside the red coin, it did not read as a loss (the user, 2026-11-21, Civ4ScreenShot0398). (Claude code Opus 5.5) -->
+		szBuffer = u"%s %s" % (SASVisuals.Commerce.colorGoldCost(u"%d.%02d" % (iMaintenance/100, iMaintenance%100), iMaintenance), SASVisuals.Commerce.goldCostChar(iMaintenance))
 		self.setLabel("MaintenanceAmountText", "Background", SASTextScale.sasFontTagLabel + szBuffer + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.SMALL_FONT, -0.3, WidgetTypes.WIDGET_HELP_MAINTENANCE)
 		screen.show("MaintenanceAmountText")
 # BUG - Raw Yields - start
@@ -6180,6 +6393,22 @@ class CvMainInterface:
 	# <!-- custom: recreate ScoreBackground with the selected PanelStyle; only on change to avoid per-refresh churn.
 	# No runtime setPanelStyle in Civ4, hence delete+addPanel (same pattern as _rebuildCityScreenBottomBars).
 	# PANEL_STYLE_EMPTY level reads as no background. (Claude code Opus 4.7) -->
+	# <!-- custom: As _applyScoreBackgroundStyle below, for the commerce sliders' background. (Claude code Opus 5.5) -->
+	def _applyCommerceBackgroundStyle(self):
+		if self.iCommerceBgStyleLevel is None:
+			self.iCommerceBgStyleLevel = gc.getDefineINT("SAS_COMMERCE_SLIDERS_BG_DEFAULT_STYLE")
+		eStyle = self.aScoreBgStyleLevels[self.iCommerceBgStyleLevel]
+		if eStyle == self._eCommerceBgStyleApplied:
+			return
+		self.screen.deleteWidget("CommerceBackground")
+		self.screen.addPanel("CommerceBackground", u"", u"", True, False, 0, 0, 0, 0, eStyle)
+		self.screen.hide("CommerceBackground")
+		# <!-- custom: Recreated after the panel, which otherwise covered it from the second style on, although moveItem gives it a nearer z. (Claude code Opus 5.5) -->
+		self.screen.deleteWidget("CommerceBgStyle")
+		self.setStyledButton("CommerceBgStyle", ButtonStyles.BUTTON_STYLE_STANDARD, WIDGET_COMMERCE_BG_STYLE, -1, -1)
+		self.screen.hide("CommerceBgStyle")
+		self._eCommerceBgStyleApplied = eStyle
+
 	def _applyScoreBackgroundStyle(self):
 		if self.iScoreBgStyleLevel is None:
 			if self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE is None:
@@ -6358,7 +6587,7 @@ class CvMainInterface:
 			else:
 				self.iScoreScrollOffset = max(0, min(self.iScoreScrollOffset, iTotalCount - iMaxRows))
 			# <!-- custom: Testing showed that at 1920 px and font 4 the scoreboard needs about 55 px more than advisors leave it, which hid its war dots and power ratios behind an open advisor.
-			# So while an advisor is open, shorten the widest leader names until the scoreboard fits.
+			# So while an advisor is open, shorten the widest leader names until the scoreboard fits; advisors keep their width, as KI#1103 explains.
 			# CvScreensInterface tells the space the open advisor leaves; every advisor but the Tech Advisor leaves the same, from getAdvisorScoreboardSpace.
 			# The scoreboard's right edge sits a few px inside the screen's, hence measuring from it.
 			# Below 2560 px the Tech Advisor leaves less, 203 px visible at 1920 against about 303 for the scoreboard without names at font 4, so its power ratios cannot fit; names are then cut to the room left of the columns on their right, read from their start.
@@ -6595,7 +6824,7 @@ class CvMainInterface:
 						szTempBuffer = u"%s" %(SASVisuals.Religion.char(eStateReligion))
 					szBuffer = szBuffer + szTempBuffer
 					if bAlignIcons:
-						scores.setReligion(szTempBuffer)
+						scores.setReligion(szTempBuffer, eStateReligion)
 				# BUG - 3.17: isEspionage check
 				# advc.120h: Second condition was pTeam.getEspionagePointsAgainstTeam(eActiveTeam) < pActiveTeam.getEspionagePointsAgainstTeam(eTeam)
 				if (GameUtil.isEspionage() and pActivePlayer.getEspionageSpendingWeightAgainstTeam(eTeam) > 0):
@@ -7250,6 +7479,12 @@ class CvMainInterface:
 					self.updateScoreStrings()
 					SASGameRecordActions.logScoreboardChange(SASGameRecordActions.AUTOCENTER_TOGGLE, sasBefore, self.iScoreScrollOffset, self.iScoreBgStyleLevel, self.bScoreAlwaysExpand, self.bScoreScrollAutocenterActivePlayer)
 					return 1
+				# <!-- custom: The commerce sliders' own style button cycles the same levels as the scoreboard's; the dirty bits redraw the sliders, whose redraw recreates their panel (_applyCommerceBackgroundStyle). (Claude code Opus 5.5) -->
+				elif fn == "CommerceBgStyle":
+					self.iCommerceBgStyleLevel = (self.iCommerceBgStyleLevel + 1) % len(self.aScoreBgStyleLevels)
+					CyInterface().setDirty(InterfaceDirtyBits.PercentButtons_DIRTY_BIT, True)
+					CyInterface().setDirty(InterfaceDirtyBits.GameData_DIRTY_BIT, True)
+					return 1
 				# <!-- custom: scoreboard bg style cycle; advances PanelStyle level (lazily seeded from SAS_SCOREBOARD_BG_DEFAULT_STYLE on first use), redraw recreates the panel. (Claude code Opus 4.7) -->
 				elif fn == "ScoreBgStyle":
 					SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_SCOREBOARD, SASGameRecordActions.BACKGROUND_STYLE_CYCLE)
@@ -7318,6 +7553,14 @@ class CvMainInterface:
 		if (inputClass.getFunctionName().startswith("BuildFilter")):
 			return self.handleBuildingFilterButtons(inputClass)
 		# <!-- custom: end - building filter button hover tooltips -->
+
+		# <!-- custom: A click on the Great General bar, or its text, did nothing; it now opens the Military Advisor on the tab SAS_MAIN_UI_GG_BAR_CLICK_TAB names, by default Battles, the fights that earn the experience: the advisor's own button and F5 already open it on its last tab, which starts as Map (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and (inputClass.getFunctionName().startswith("TwoLineGGBar") or inputClass.getFunctionName().startswith("OneLineGGBar") or inputClass.getFunctionName().startswith("GreatGeneralBarText"))):
+			import CvScreensInterface
+			if self.iSAS_MAIN_UI_GG_BAR_CLICK_TAB is None:
+				self.iSAS_MAIN_UI_GG_BAR_CLICK_TAB = gc.getDefineINT("SAS_MAIN_UI_GG_BAR_CLICK_TAB")
+			CvScreensInterface.showMilitaryAdvisorTab(self.iSAS_MAIN_UI_GG_BAR_CLICK_TAB)
+			return 1
 
 # BUG - Great Person Bar - start
 		# <!-- custom: support GP bar clicks in both one-line/two-line layouts and on GP text itself. (GPT-5.3-Codex) -->

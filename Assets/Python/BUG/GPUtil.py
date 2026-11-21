@@ -205,7 +205,10 @@ def getGreatPeopleText(city, iGPTurns, iGPBarWidth, bGPBarTypesNone, bGPBarTypes
 					else:
 						szText = unicode(pInfo.getDescription())
 				# <!-- custom: show chars in the GP bar even if 100% (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`). (GPT-5.2-Codex) -->
-				szText = u"%s - %s100%%" % (szText, getUnitIcon(iUnit))
+				# <!-- custom: BUG's One option also takes this branch when several types are possible. Show the leading type's actual odds. (GPT-6.2-Sol) -->
+				szText = u"%s - %s%d%%" % (szText, getUnitIcon(iUnit), iPercent)
+				# <!-- custom: The Great People icon leads the text when the type is certain too, as it does when several types are possible, so the bar scans the same way in both cases (the user, 2026-11-21, Civ4ScreenShot0185). (Claude code Opus 5.5) -->
+				szText = u"%s %s" % (sGreatPeopleChar, szText)
 			else:
 				if (iGPTurns):
 					if (bIncludeCityName):
