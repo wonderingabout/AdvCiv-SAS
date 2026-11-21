@@ -352,6 +352,25 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_COMMERCE_SLIDERS_FAST_INCR_PCT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
+	<!-- custom: Where the map view shows each commerce's per-turn rate: 1 = in green beside its slider, as base AdvCiv does; 2 = in one compact row below the sliders, as SAS did when Min/Max buttons were on; 3 = both.
+	Where the rates do not fit beside the sliders, as with the Technology Advisor open at 1920 px, they show below instead. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_COMMERCE_SLIDERS_RATE_SHOW</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: The commerce sliders' background style at each save load / new game, cycled in game by its button (placed by SAS_COMMERCE_SLIDERS_BG_BUTTON_POS); the levels are SAS_SCOREBOARD_BG_DEFAULT_STYLE's, from 0 = HUD_HELP to 5 = EMPTY (no background, as before it existed).
+	The scoreboard already had a background, while the slider text over the map had none and was hard to read, so the sliders got one too.
+	The blue PANEL_STYLE_MAIN (2) chosen first (the user, 2026-11-20) hid the map under it; the default is now the scoreboard's own, HUD_HELP (0), so both read alike, and it stays a setting apart from SAS_SCOREBOARD_BG_DEFAULT_STYLE so each can be tuned (the user, 2026-11-21, Civ4ScreenShot0263). (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_COMMERCE_SLIDERS_BG_DEFAULT_STYLE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Where the commerce sliders' background style button sits: 0 = the panel's bottom-right, 1 = left of the scoreboard's buttons, 2 = left of the advisor buttons, just above the sliders; -1 = no button, the background then staying at SAS_COMMERCE_SLIDERS_BG_DEFAULT_STYLE's style (the user, 2026-11-21).
+	At the panel's bottom-right it stood out over the map (the user, 2026-11-21). (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_COMMERCE_SLIDERS_BG_BUTTON_POS</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
 
 
 
@@ -363,7 +382,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_TECH_UI_SCOREBOARD_SWAP_MAX_WIDTH</DefineName>
 		<iDefineIntVal>2560</iDefineIntVal>
 	</Define>
-	<!-- custom: Tech Chooser alternate right-side reserved space for scoreboard when low-res swap is active. Lower value => wider tech tree and more chance to fit one extra column at low resolution. Higher value => preserves more scoreboard/map area. This is mainly useful on lower resolutions where reclaiming some scoreboard space can make one more tech-tree column visible. Use 0 for maximum squeeze during low-res mode. (GPT-5.3-Codex); for example at 1080p a value of 206 allows to show exactly one more technology advisor column -->
+	<!-- custom: Tech Chooser alternate right-side reserved space for scoreboard when low-res swap is active. Lower value => wider tech tree and more chance to fit one extra column at low resolution. Higher value => preserves more scoreboard/map area. This is mainly useful on lower resolutions where reclaiming some scoreboard space can make one more tech-tree column visible. Use 0 for maximum squeeze during low-res mode. (GPT-5.3-Codex); for example at 1080p a value of 206 allows to show exactly one more technology advisor column.
+	With right-anchored map sliders, the strip still keeps enough room for their percentage and ordinary plus and minus buttons. (GPT-6.2-Sol) -->
 	<Define>
 		<DefineName>SAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE</DefineName>
 		<iDefineIntVal>206</iDefineIntVal>
@@ -876,15 +896,29 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_MAIN_UI_PLOT_LIST_WIDTH_ADJ</DefineName>
 		<iDefineIntVal>-120</iDefineIntVal>
 	</Define>
-	<!-- custom: map-view commerce block anchor side: 1 = anchor to InterfaceTopRight, 0 = anchor to InterfaceTopLeft. (GPT-5.3-Codex) -->
+	<!-- custom: What the Great General bar's text shows: 0 = no text; 1 = stored / threshold experience, such as "9 / 29"; 2 = base AdvCiv's experience still needed, such as "20"; 3 = both, such as "9 / 29 (20)".
+	The bar's width follows the text, base AdvCiv's for 0 and 2. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_MAIN_UI_GG_BAR_TEXT</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: The Military Advisor tab a click on the Great General bar opens: 0 = Summary, 1 = Map, 2 = Battles, 3 = Composition.
+	Battles by default, the fights that earn the experience, as the advisor's own button and F5 already open it on its last tab, which starts as Map (the user, 2026-11-21). (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_MAIN_UI_GG_BAR_CLICK_TAB</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: map-view commerce block anchor side: 1 = anchor to InterfaceTopRight, 0 = anchor to InterfaceTopLeft. (GPT-5.3-Codex)
+	In map view, 1 now anchors to where advisors leave the scoreboard its space, the Technology Advisor's own while it is open, so the sliders line up with the scoreboard. (Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_MAIN_UI_MAP_COMMERCE_ANCHOR_RIGHT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: horizontal offset for the map-view commerce block anchor. (GPT-5.3-Codex); currently commerce slider row's left commerce icons are a bit too close to the tech chooser, but this is so when upscaled 4 to 5 digit commerce rate (e.g., 1024/Turn) may fit without overflowing to the right, also Technlogy Advisor is as of now the only overflowing to the right into scoreboard, so prefer always having room for high commerce rate numbers in all other views outside Technology Advisor rather -->
+	<!-- custom: horizontal offset for the map-view commerce block anchor. (GPT-5.3-Codex)
+	Was 178 from InterfaceTopRight, which kept the sliders clear of the Technology Advisor at 1920 px but far right of the scoreboard; now from the anchor above, a few px right of the advisors' edge, as the scoreboard's war dots start about 6 px right of it. (Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_MAIN_UI_MAP_COMMERCE_RIGHT_X_OFFSET</DefineName>
-		<iDefineIntVal>178</iDefineIntVal>
+		<iDefineIntVal>6</iDefineIntVal>
 	</Define>
 	<!-- custom: vertical offset for the same map-view commerce block anchor; negative moves up, positive moves down. (GPT-5.3-Codex) -->
 	<Define>

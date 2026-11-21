@@ -1176,6 +1176,12 @@ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataExternal)
 		doDealKill(widgetDataStruct);
 		break;
 
+	// <!-- custom: The scoreboard's power ratio did nothing on click; it now opens the Info screen on its Score tab, whose power column compares every known rival (the user's idea).
+	// 1 is CvInfoScreen.iScoreID. (Claude code Opus 5.5) -->
+	case WIDGET_POWER_RATIO:
+		py.showInfoScreen(1);
+		break;
+
 	case WIDGET_MINIMAP_HIGHLIGHT:
 		py.refreshMilitaryAdvisor(iData1, iData2);
 		break;
@@ -2218,6 +2224,26 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct, CvWS
 			kAction.getHotKeyDescription().c_str());
 	szBuffer.assign(szTemp);
 	CvDLLInterfaceIFaceBase& kUI = *gDLL->getInterfaceIFace();
+	// <!-- custom: The minimap and globe toggles' hovers named the action but not whether it was on, so the player had to look at the map to tell; append (ON) or (OFF) from the same getters the control handlers read.
+	// Resource and unit icons have no engine getter, so they read advc.004m's tracked globe layer. (Claude code Opus 5.5) -->
+	ControlTypes const eSASControl = (ControlTypes)kAction.getControlType();
+	int iSASToggleOn = -1;
+	switch (eSASControl)
+	{
+	case CONTROL_GRID: iSASToggleOn = (gDLL->getEngineIFace()->GetGridMode() ? 1 : 0); break;
+	case CONTROL_BARE_MAP: iSASToggleOn = (kUI.isBareMapMode() ? 1 : 0); break;
+	case CONTROL_YIELDS: iSASToggleOn = (kUI.isShowYields() ? 1 : 0); break;
+	case CONTROL_SCORES: iSASToggleOn = (kUI.isScoresVisible() ? 1 : 0); break;
+	case CONTROL_GLOBELAYER: iSASToggleOn = (gDLL->getEngineIFace()->isGlobeviewUp() ? 1 : 0); break;
+	case CONTROL_RESOURCE_ALL: iSASToggleOn = (GC.getGame().getCurrentLayer() == GLOBE_LAYER_RESOURCE ? 1 : 0); break;
+	case CONTROL_UNIT_ICONS: iSASToggleOn = (GC.getGame().getCurrentLayer() == GLOBE_LAYER_UNIT ? 1 : 0); break;
+	default: break;
+	}
+	if (iSASToggleOn >= 0)
+	{
+		szBuffer.append(L" ");
+		szBuffer.append(gDLL->getText(iSASToggleOn > 0 ? "TXT_KEY_SAS_HOVER_TOGGLE_ON" : "TXT_KEY_SAS_HOVER_TOGGLE_OFF"));
+	}
 
 	CvUnit const* pHeadSelectedUnit = kUI.getHeadSelectedUnit();
 	if (pHeadSelectedUnit != NULL)

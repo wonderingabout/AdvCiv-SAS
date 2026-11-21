@@ -3001,9 +3001,6 @@ Note: New panels added or modified mostly not mentioned here for concision. See 
 
 ### UI (In-game)
 
-- (Requires AdvCiv-SAS 6732+) **City health from surroundings is broken down:** the help showed only a rounded total, so a city with one Marsh seemed unaffected, and it named Forest but lumped Jungle and Marsh together as "Features" with no tile counts.
-  - It now lists each feature and improvement with its count and value, and the exact total before the city rounds it to whole points; for example `+2 from Features (2.25 before rounding)`, then `Jungle: 4 x 0.50` and `Marsh: 1 x 0.25`. See [KI#1077](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1077).
-  - `SAS_MAIN_UI_CITY_HEALTH_HELP_DETAIL` chooses the detail: 0 keeps the base AdvCiv rounded total, 1 adds the exact total, 2 also lists each source.
 - **Beautified** and **expanded**, and add **support for text upscaling** for miscellaneous **screens**:
   - [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen) is **expanded laterally and vertically** to **avoid scrolling**, add **icons** for buildings and units, add icon **chars for traits**
   - [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered) is moderately **expanded** to **avoid scrolling**, vertically center screen (was slightly excentered)
@@ -3155,10 +3152,24 @@ Make some of the data-dense advisors use using a **higher constrast background t
 - Beautified the **Diplomacy Screen**'s **trading rows** with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact; and **leader icons** (make peace / declare war / embargo)). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
 - **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read.
   - Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`.
+    - (Requires AdvCiv-SAS 6830+) The **Great General bar** shows `stored / threshold`, such as `9 / 29`, rather than base AdvCiv's experience still needed; it takes a little width from the research bar, measured for two-digit values in the current font, as three-digit thresholds are rare and the bars beside it were cramped by the room kept for them; see [KI#1103](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103).
+    - (Requires AdvCiv-SAS 6830+) `SAS_MAIN_UI_GG_BAR_TEXT` picks the text: none, `stored / threshold` (the default), base AdvCiv's experience still needed, or both, such as `9 / 29 (20)`; the bar's width follows it.
+    - Note: as in base AdvCiv, fights against animals give no Great General points, and those against Barbarians count half (AdvCiv's advc.312), so a few early fights can leave the bar at 0 while units still earn their own experience and promotions.
+      - The half is rounded down for each fight on its own, and the lost half point is not kept: a 1-point win against Barbarians adds nothing, a 3-point one adds 1. The stored experience is a whole number, so the bar has no fraction to show.
+      - (Requires AdvCiv-SAS 6830+) The Military Advisor's **Battles** tab legend, where a click on the bar leads, now explains these points with examples, such as two fights of 3 XP adding 2, not 3, and five fights of 1 XP adding nothing.
+    - (Requires AdvCiv-SAS 6830+) A click on the Great General bar opens the **Military Advisor**, by default on its **Battles** tab, the fights that earn the experience, since the advisor's own button and F5 already open it on its last tab; `SAS_MAIN_UI_GG_BAR_CLICK_TAB` picks the tab. Before, the click did nothing, while the GP bar opened its city.
+    - (Requires AdvCiv-SAS 6830+) The **Combat Experience** bar on the Military Advisor's **Map** tab shows the same values, such as `Combat Experience: 9 / 29`, in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py).
   - Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py).
+    - (Requires AdvCiv-SAS 6830+) When the type is certain, such as a Great Engineer when the city has Great Engineer points only, the text starts with the Great People icon too, as it does when several types are possible with their odds, so both read alike.
   - **Swap top left** (e.g., Treasury) **and top right** (e.g., Turn and Year) **text position**, and optionally **move commerce sliders to the right side** (allows to freely expand advisors so they use the entire left side, and is visually closer to scoreboard and most mouse controls) **in city screen or map view**.
   - **Reduce commerce sliders fast increment** (`++ and --` optional buttons ("Min/Max Buttons in BUG Menu")) from **100 to 50** and make them **tunable**.
   - When **Min/Max commerce buttons** are enabled in **map view**, move the green commerce rate values (e.g. `+297/Turn`) into a **compact row below the sliders** (e.g. `[RESEARCH_CHAR]297; [ESPIONAGE_CHAR]16`) so the slider block can be shifted right enough to keep both the **percentage text** and the **Min/Max buttons** visible near expanded advisors such as the Technology Advisor, while avoiding right-edge overflow in normal map view too.
+    - (Requires AdvCiv-SAS 6830+) The map-view sliders now start where advisors leave the scoreboard its space, so they **line up with the scoreboard** and stay clear of any open advisor; while the Technology Advisor is open and leaves less room, as at 1920 px, they move right into it.
+      - (Requires AdvCiv-SAS 6830+) `SAS_COMMERCE_SLIDERS_RATE_SHOW` shows rates beside the sliders (the default), below them, or both. In a narrow strip the rates move below and the regular plus and minus buttons take priority over the extra Min/Max buttons.
+    - (Requires AdvCiv-SAS 6830+) The scoreboard already had a background, while the slider text over the map had none and was hard to read, so the sliders now have one too, and a **background style button** cycles the scoreboard's six background styles behind them.
+      - `SAS_COMMERCE_SLIDERS_BG_DEFAULT_STYLE` sets the starting one, by default the scoreboard's own `PANEL_STYLE_HUD_HELP` (1/6), our preferred style for both: its slight gray sets the text apart from the map while the map still shows through, and both read alike (a blue panel, tried first, hid the map).
+      - It stays a setting of its own, so the sliders and the scoreboard can differ.
+      - (Requires AdvCiv-SAS 6830+) `SAS_COMMERCE_SLIDERS_BG_BUTTON_POS` places that button at the panel's bottom-right, beside the scoreboard's buttons, or left of the advisor buttons (the default), as at the panel's corner it stood out over the map; `-1` hides it, for a player who finds it distracting.
   - Show **Era text default ON** (as of now on top left); **strip " Era" suffix** so text is now only e.g., `Renaissance` not `Renaissance Era` (would overflow during golden age when text is upscaled, plus it is unneeded).
   - See [Main interface rework](/README.md#main-interface-rework).
 - **Main Interface (City Screen) - Breakdowns**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**.
@@ -3171,6 +3182,9 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - The lower row separately and permanently shows Build Culture and No-Espionage's transferred Espionage as post-modifier additions (including zero values), followed by the exact final Culture rate and progress.
   - Integral values omit redundant `.00`, while nonzero hundredths remain exact.
   - See [KI#1063](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1063).
+- (Requires AdvCiv-SAS 6732+) **Main Interface (City Screen) - City health from surroundings is broken down:** the help showed only a rounded total, so a city with one Marsh seemed unaffected, and it named Forest but lumped Jungle and Marsh together as "Features" with no tile counts.
+  - It now lists each feature and improvement with its count and value, and the exact total before the city rounds it to whole points; for example `+2 from Features (2.25 before rounding)`, then `Jungle: 4 x 0.50` and `Marsh: 1 x 0.25`. See [KI#1077](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1077).
+  - `SAS_MAIN_UI_CITY_HEALTH_HELP_DETAIL` chooses the detail: 0 keeps the base AdvCiv rounded total, 1 adds the exact total, 2 also lists each source.
 - **Main Interface (City Screen) - Bottom**: added **optional extra rows** in the **Production Chooser Bar** (with optional separate blue ribbon, bar Y position and bar height position fine-tuning tunables (e.g., helps remove needless scroll bar when there are not more than max rows, or keep display symmetric or prettier)) and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen)
   - `SAS_MAIN_UI_CITY_SHOW_PLOT_LIST=0` keeps that unit bar hidden; `1` shows it. The [retired-name table](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md) explains the inverted value when migrating from the earlier hide setting.
 - **Main Interface (City Screen)**: added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width.
@@ -3182,6 +3196,7 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - And other changes.
   - See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-101).
 - **Main Interface (City Screen - Widgets/Clickable Buttons)**: Add **redirect to Sevopedia on click** (preserving `WIDGET_HELP` hover) for **Religion** and **Corporation** icons.
+  - (Requires AdvCiv-SAS 6830+) The **building list** opens the building's Sevopedia page on click too, with the same city-specific hover.
   - Add a tunable **city bonus panel render mode**: **mode 0** keeps the old AdvCiv-SAS text glyphs (Civ4's `screen.setLabelAt`: smaller; also used as overflow fallback), **mode 1** uses base AdvCiv-style framed image buttons (Civ4's `setImageButton`) but now with **larger icons** when there is room, and **mode 2** uses frameless DDS rendering (Civ4's `addDDS`) with the same larger-size logic for a cleaner look.
   - Active non-obsolete **Bonus** icons can open Sevopedia too (mode 0 text glyphs did not redirect to Sevopedia in testing; mode 1: left/right click; mode 2: right click only in our Python-only attempts so far).
   - Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right.
@@ -3197,6 +3212,7 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - Added a **Toggle show map annotations** (Alt + S **captions**, Alt + X **BFC marks**) button (next to the other buttons **above the Minimap**); the toggled state **persists on save and load**; reorganized buttons as part of this change (this takes the Event Log's former HUD icon former (it gets another one instead)).
   - To accommodate this new minimap button's width, **reduce minimap buttons horizontal interspacing** so **last minimap button doesn't collide horizontally with globe view** button (except for squarish maps like as of now `BTG_Cross.py`, where this is a fine trade-off, and still improved significantly with this adjustment).
   - See [README.md (Map annotations)](/README.md#map-annotations) and [KI#135](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-135).
+  - (Requires AdvCiv-SAS 6830+) The **minimap and globe buttons' hovers end with (ON) or (OFF)**, such as `Toggle Grid <Ctrl+T> (ON)`; before, the player had to look at the map to tell.
   - Optionally show **Plot coordinates on hover** (e.g., `63,46`) in hover help text.
   - This helps discuss screenshots, review, or compare directly with BBAI logs and DLL diagnostics.
 - **Main Interface ((Map View) Scoreboard)**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+** (up, fast up) and **-** (down, fast down) **scroll buttons** (e.g., 1 by 1, 5 by 5) to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max).
@@ -3205,6 +3221,9 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - Add a **Toggle lock scoreboard hover button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover), with an **optional default value** (as of now ON, to avoid always tediously clicking it the first time). This contributes to "hands-free" inspection by keeping that information visible without holding the pointer over the scoreboard.
   - Note: in first turns of the game the lock button effectively has no effect since power ratios are not yet visible.
   - Add a **Toggle Background Style button** (AdvCiv **default at each save load/new game kept**; tunable) (e.g., blue panel, black50, empty (transparent)).
+  - (Requires AdvCiv-SAS 6830+) These buttons' **hovers state the current setting**: Locked or Unlocked, autocenter (ON) or (OFF), and the background style, such as `Cycle scoreboard background style (2/6: PANEL_STYLE_SOLID)`.
+  - (Requires AdvCiv-SAS 6830+) A click on a leader's **power ratio** opens the Info screen on its **Score tab**, whose power column compares every known rival; before, it did nothing. The Score tab's **Legend** mentions this shortcut.
+  - (Requires AdvCiv-SAS 6830+) The **state religion** icon, and the **research** when shown as text, **hover and open their Sevopedia page**, as the research icon already did.
   - Change in [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py).
   - See [README.md (Scoreboard)](/README.md#scoreboard).
 - **Main Interface (civilization flag):**

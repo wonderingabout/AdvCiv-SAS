@@ -145,10 +145,11 @@ def isScoreboardSpaceAdvisorUp():
 # <!-- custom: The space the open advisor leaves the scoreboard on the screen's right, or None with none open; the main interface fits the scoreboard into it.
 # It is queried at each scoreboard draw, so the engine stays the source of truth for which screen is open (Claude code Opus 5.5 + GPT-6.2-Sol).
 # isScreenUp(TECH_CHOOSER) stays true after the Tech Advisor closes, so a first version cut names to its room on the map and beside other advisors too; isActive reports it correctly, as the earlier right-aligned names used. (Claude code Opus 5.5) -->
-def getOpenAdvisorScoreboardSpace():
+# <!-- custom: The commerce sliders use the usual advisor width on the map too, so a standard advisor does not move them. (GPT-6.2-Sol) -->
+def getOpenAdvisorScoreboardSpace(bUseStandardOnMap=False):
 	if CyGInterfaceScreen("TechChooser", TECH_CHOOSER).isActive():
 		return techChooser.iRightSpaceForScoreboard
-	if isScoreboardSpaceAdvisorUp():
+	if bUseStandardOnMap or isScoreboardSpaceAdvisorUp():
 		return getAdvisorScoreboardSpace(CyGInterfaceScreen("MainInterface", MAIN_INTERFACE).getXResolution(), SASTextScale.getSASUIFontLabel())
 	return None
 
@@ -264,6 +265,25 @@ def createMilitaryAdvisor():
 		militaryAdvisor = CvMilitaryAdvisor.CvMilitaryAdvisor(MILITARY_ADVISOR)
 	militaryAdvisorUsesBUG = bUseBUG
 	HandleInputMap[MILITARY_ADVISOR] = militaryAdvisor
+
+# <!-- custom: For the main interface's Great General bar.
+# Through the advisor's control, as its key does: opened by calling showMilitaryAdvisor from elsewhere, the Map tab's minimap stayed empty until the tab was pressed again (SASPilot, 2026-11-20; see KI#129). (Claude code Opus 5.5) -->
+# <!-- custom: iPage is one of the advisor's PAGE_ values, from SAS_MAIN_UI_GG_BAR_CLICK_TAB. (Claude code Opus 5.5) -->
+def showMilitaryAdvisorTab(iPage):
+	createMilitaryAdvisor()
+	if not AdvisorOpt.isBUG_MA():
+		# <!-- custom: An out-of-range SAS_MAIN_UI_GG_BAR_CLICK_TAB would draw the Map page with no tab selected (GPT-6.2-Sol); fail loudly instead of keeping the current page, so a mistyped setting shows at once, as SAS defines do. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+		if iPage not in militaryAdvisor.PAGE_IDS:
+			raise ValueError("SAS_MAIN_UI_GG_BAR_CLICK_TAB is %d; use one of %s" % (iPage, militaryAdvisor.PAGE_IDS))
+		# <!-- custom: interfaceScreen returns when the advisor is already open.
+		# Use the same in-place redraw as a Map tab click, so the page ID and visible content change together. (GPT-6.2-Sol) -->
+		if militaryAdvisor.getScreen().isActive():
+			if militaryAdvisor.iActivePage != iPage:
+				militaryAdvisor.iActivePage = iPage
+				militaryAdvisor.redrawContents()
+			return
+		militaryAdvisor.iActivePage = iPage
+	CyGame().doControl(ControlTypes.CONTROL_MILITARY_SCREEN)
 
 def showMilitaryAdvisor():
 	if (-1 != CyGame().getActivePlayer()):

@@ -65,15 +65,8 @@ SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD_FONT_4 = 455
 SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR = 32
 SAS_ADVISOR_BOTTOM_SPACE = 0
 
-# <!-- custom: Advisors need as much width as possible; their only constraint to using the full screen width is the width they must leave for the scoreboard on their right.
-# Wider screens have room for both: at 2560 px, advisors keep 2105 px even beside a 455 px font-4 scoreboard, against 1527 px at 1920, so only 1920 px or less at font 4 lacks room.
-# The Sevopedia leader page meets the same limit: it currently narrows its item list by font to fit the AI Personality panel only below SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH (2560), where both no longer fit.
-# However, 1920 px width (1080p) *and* font 4 is a rare combination: 1920 x 1080 usually uses font 3 or lower, while mostly higher resolutions such as 2560 x 1440 can use, or may need, font 4.
-# But font 3 at 1920 x 1080 is the user's current setup, and possibly among the most common ones, but either way, advisors should not give up width just to support (very) rare edge cases.
-# Also, some advisors, such as the Technology Advisor, currently overflow into and hide part of the scoreboard even at 1920 x 1080 (and font 3), to display a full column, which shows more; there the scoreboard's leader names are fitted to the strip it leaves, which replaced moving them to the right, and its width is tunable.
-# Therefore, to give advisors their maximum usable width, font 3 at 1920 x 1080, and up to font 4 at 2560 x 1440, are the priority.
-# To support the rare font 4 at 1920 x 1080, advisors do not give up their precious width; the scoreboard works around it instead: while an advisor is open, it shortens leader names just enough for the columns it shows, measured at each draw, so debug mode's extra columns shorten them more (CvMainInterface.updateScoreStrings).
-# 2560 x 1440 can afford font 4, so it should not restrict either: it shows the full scoreboard at font 4, as it has the room anyway, and the font-3 width at font 3, so advisors still get the extra room.
+# <!-- custom: Advisors need as much width as possible; their only constraint is the width they leave for the scoreboard.
+# That room goes to font 3 at 1920 x 1080 and up to font 4 at 2560 x 1440, and the rare font 4 at 1920 x 1080 is worked around by the scoreboard shortening leader names; the reasoning and measurements are in KI#1103.
 # Takes the width and the scoreboard's font size, currently SAS_UI_FONT_LABEL, not the screen, as SevoPediaMediaPlayer's layout helpers take iScreenW: a resolution read in __init__ can come before the screen is ready and goes stale on a resolution change, as CvInfoScreen's runtime geometry notes.
 # Each advisor reads screen.getXResolution() and that font size when it draws, so a change applies on the next draw, and this stays a pure function of its inputs: SASUtils need not know about screens or when they are ready (the user, 2026-11-20). (Claude code Opus 5.5) -->
 def getAdvisorScoreboardSpace(iXResolution, iFontSize):

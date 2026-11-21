@@ -2153,7 +2153,9 @@ class CvMilitaryAdvisor:
 			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_RATE_EXTRA, SASVisuals.Color.EMPTY)
 			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_EMPTY, SASVisuals.Color.EMPTY)
 			screen.setBarPercentage(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_STORED, float(iExperience) / float(iGreatPeopleThreshold))
-			screen.setLabel(self.GREAT_GENERAL_LABEL_ID, "", SASTextScale.sasFontTagLabel + self.TEXT_COMBAT_EXPERIENCE + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GREAT_GENERAL_BAR + self.W_GREAT_GENERAL_BAR/2, self.Y_GREAT_GENERAL_BAR + 6, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
+			# <!-- custom: The label named the bar but not its values, which the main interface's Great General bar shows as "stored / threshold"; it now shows them too (the user, 2026-11-20). (Claude code Opus 5.5) -->
+			szText = u"%s: %d / %d" % (self.TEXT_COMBAT_EXPERIENCE, iExperience, iGreatPeopleThreshold)
+			screen.setLabel(self.GREAT_GENERAL_LABEL_ID, "", SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GREAT_GENERAL_BAR + self.W_GREAT_GENERAL_BAR/2, self.Y_GREAT_GENERAL_BAR + 6, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
 
 	# returns a unique ID for a widget in this screen
 	def getNextWidgetName(self):

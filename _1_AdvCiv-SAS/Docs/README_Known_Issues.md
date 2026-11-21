@@ -1282,7 +1282,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1099 - (Guarded by CI, inherited BtS code fixed by AdvCiv) Non-standard C++ that VC2003 accepts, such as CyPlayer::disbandUnit returning a void call or NULL through ?:, kept the DLL from building with a standard-conforming compiler](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1099)\
 [KI#1100 - (Fixed AdvCiv-SAS bug) The World Advisor's Changes tab listed an Advanced Start Automate row above the buys it made, as its row was written once the AI had spent the points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1100)\
 [KI#1101 - (Fixed AdvCiv-SAS merge slip, SASPilot branch only) The Info Screen's Timeline tab raised "global name 'iNumMessages' is not defined" on the SASPilot branch; main is not affected](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101)\
-[KI#1102 - (Open, a Steam client bug outside the mod's code) A closed Civ4 sometimes never finishes exiting, as Steam's steamclient.dll waits forever while unloading, so Steam still sees the game running and the shortcut starts nothing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)
+[KI#1102 - (Open, a Steam client bug outside the mod's code) A closed Civ4 sometimes never finishes exiting, as Steam's steamclient.dll waits forever while unloading, so Steam still sees the game running and the shortcut starts nothing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)\
+[KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103)
 
 <a id="ki-1"></a>
 
@@ -38438,3 +38439,27 @@ Civ4BeyondSword -> msvcr71!exit -> kernel32!ExitProcessImplementation -> ntdll!R
   - So it is not rare on this machine at the moment; which conditions make Steam wait was not traced.
 
 Found by Claude Code Opus 5.5 on 2026-11-20 from the user's Task Manager dump of the leftover Civ4 (pid 32660), whose dump, logs and CDB output are kept in `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261120_steamclient_exit_hang/`; the user asking for this entry.
+
+<a id="ki-1103"></a>
+
+## KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout
+
+Not a bug but a rule several layouts follow, written down here so each place can point to it, and one grep for `KI#1103` finds them all. It began as a comment beside `getAdvisorScoreboardSpace` in [`SASUtils.py`](/Assets/Python/SASUtils.py) (2026-11-20); the user asked on 2026-11-21 to move it here, as the GG bar's width followed the same reasoning.
+
+- Advisors need as much width as possible; their only constraint to using the full screen width is the width they must leave for the scoreboard on their right.
+  - With text upscaling, the scoreboard needs more room at larger fonts: a turn-380 SAS24 scoreboard with war, attitude, vassal and research markers took about 394 px at font 3, the usual one, and 448 at font 4 (2026-11-19).
+  - Wider screens have room for both: at 2560 px, advisors keep 2105 px even beside a 455 px font-4 scoreboard, against 1527 px at 1920, so only 1920 px or less at font 4 lacks room.
+  - The Sevopedia leader page meets the same limit: it narrows its item list by font to fit the AI Personality panel only below `SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH` (2560), where both no longer fit.
+- However, 1920 px width (1080p) *and* font 4 is a rare combination: 1920 x 1080 usually uses font 3 or lower, while mostly higher resolutions such as 2560 x 1440 can use, or may need, font 4.
+  - Font 3 at 1920 x 1080 is the user's current setup, and possibly among the most common ones; either way, layouts should not give up room just to support (very) rare edge cases.
+  - Some advisors, such as the Technology Advisor, overflow into and hide part of the scoreboard even at 1920 x 1080 and font 3, to display a full column, which shows more; there the scoreboard's leader names are fitted to the strip it leaves, which replaced moving them to the right, and its width is tunable.
+- Therefore font 3 at 1920 x 1080, and up to font 4 at 2560 x 1440, are the priority.
+  - The rare font 4 at 1920 x 1080 is worked around where it costs nobody room: while an advisor is open, the scoreboard shortens leader names just enough for the columns it shows, measured at each draw, so debug mode's extra columns shorten them more (`CvMainInterface.updateScoreStrings`).
+  - 2560 x 1440 can afford font 4, so it should not be restricted either: it shows the full scoreboard at font 4, as it has the room anyway, and the font-3 width at font 3, so advisors still get the extra room.
+- Where the rule applies:
+  - The width advisors leave for the scoreboard (`getAdvisorScoreboardSpace` and its two widths in [`SASUtils.py`](/Assets/Python/SASUtils.py)) and the scoreboard's name shortening beside an open advisor ([`CvMainInterface.py`](/Assets/Python/Screens/CvMainInterface.py)).
+  - The Sevopedia leader page's item list ([`SevoPediaLeader.py`](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py)).
+  - The Great General bar, sized for two-digit values in the current font (2026-11-21): three-digit thresholds are rare, and room kept for them cramped the research and GP bars beside it, so a rare three-digit text may overflow.
+  - The commerce sliders beside the Technology Advisor, which fall back to fewer buttons and rates below the sliders in a narrow strip.
+
+Pondered on by the user and Claude Code Opus 5.5 while fitting the advisors and the scoreboard at larger fonts (2026-11-19 to 21), with Codex's (GPT-6.2-Sol) reviews of the layouts that follow it, such as the commerce sliders' fallback beside the Technology Advisor.
