@@ -29,7 +29,7 @@ A shot that shows a variant of another, rather than a screen of its own, carries
 
 - `_sas48`: the same tab in a 48-civilization game, such as `1.513_foreign_advisor (2)_sas48.JPG`, the Glance tab paged, which base AdvCiv does not do, and `(4)_sas48`, the Espionage tab's compact rows.
 - `_individual`: the Military Advisor's Map tab with individual units shown, `1.515_military_advisor (2)_individual.JPG`.
-- `_dots`: the same tab with a unit type selected, its units shown as white dots on the minimap, `1.515_military_advisor (2)_dots.JPG` (Galley, turn 201).
+- `_selected_dots`: the same tab with a unit type selected, its units shown as white dots on the minimap, `1.515_military_advisor (2)_selected_dots.JPG`; it replaced the plain Map tab shot, which showed nothing more (Galley, turn 201).
 - `_hover`: a shot whose hover is the point, such as `1.513_foreign_advisor (1)_hover.JPG`, an attitude's breakdown on the Relations tab.
 - `_late`: a late-game save, such as `1.511_domestic_advisor (4)_late.JPG`, for corporations.
 - `_active` and `_built_active`: the Victory screen with a vote source built and voting.

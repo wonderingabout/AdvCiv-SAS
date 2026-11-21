@@ -594,9 +594,8 @@ For example moving the espionage screen to now being a tab of the foreign adviso
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.514_foreign_advisor%20(4).JPG" alt="1.514_foreign_advisor (4).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(4).JPG" alt="1.513_foreign_advisor (4).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(4)_sas48.JPG" alt="1.513_foreign_advisor (4)_sas48.JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(2).JPG" alt="1.515_military_advisor (2).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(2)_individual.JPG" alt="1.515_military_advisor (2)_individual.JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(2)_dots.JPG" alt="1.515_military_advisor (2)_dots.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(2)_selected_dots.JPG" alt="1.515_military_advisor (2)_selected_dots.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(1).JPG" alt="1.518_info_screen (1).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(4).JPG" alt="1.518_info_screen (4).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(5).JPG" alt="1.518_info_screen (5).JPG" width="250"></img>
