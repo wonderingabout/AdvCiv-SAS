@@ -301,7 +301,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GENERALS_FREE</Tag>
-		<English>Great Generals</English>
+		<English>Unattached Generals</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GENERALED</Tag>
@@ -1159,6 +1159,10 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<English>Open the Eras chart at %s1_Era</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_OPEN_GAME_SPEED_CHART</Tag>
+		<English>Open the Speeds chart at %s1_Speed</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_OPEN_EVENT_TRIGGER</Tag>
 		<English>Open event trigger: %s1_Trigger</English>
 	</TEXT>
@@ -1512,6 +1516,63 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_MISC_TOTAL_MAINT_FLOAT</Tag>
 		<English>%s1_Num [ICON_BAD_GOLD] Total Maintenance</English>
+	</TEXT>
+	<!-- custom: The Resolutions and Members tabs' headings and note for a vote source that votes now or no longer does. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_SOURCE_ACTIVE</Tag>
+		<English>Active</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_SOURCE_INACTIVE</Tag>
+		<English>Inactive</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_MEMBERS_INACTIVE</Tag>
+		<English>Inactive: no member votes here now.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_RESOLUTION</Tag>
+		<English>Resolution</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_EFFECT</Tag>
+		<English>Effect</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_REQUIRED</Tag>
+		<English>Required</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_TOTAL</Tag>
+		<English>Total</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_OUTCOME</Tag>
+		<English>Outcome</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_LEADER</Tag>
+		<English>Leader</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_VOTES</Tag>
+		<English>Votes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_PLAYER</Tag>
+		<English>Player</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_TEAM</Tag>
+		<English>Team</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_STATUS</Tag>
+		<English>Status</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_OUTCOME_PASSED</Tag>
+		<English>Passed</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_VOTE_SOURCE_NOT_ACTIVE</Tag>

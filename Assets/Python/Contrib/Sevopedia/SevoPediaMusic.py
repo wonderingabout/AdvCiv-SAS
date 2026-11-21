@@ -278,16 +278,38 @@ class SevoPediaMusic:
 		self.mediaPlayer.setToggleCallback(self.switchToMovies)
 		self.SAS_lastMusicSound = (szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
 		self.SAS_setupPlayableMusic(iMusic)
-		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMusicLabels, self.SAS_playableMusicIndex, self.SAS_playableMusicGroupByIndex, self.SAS_playableMusicGroupLabels, self.SAS_playableMusicIcons)
+		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMusicLabels, self.SAS_playableMusicIndex, self.SAS_playableMusicGroupByIndex, self.SAS_playableMusicGroupLabels, self.SAS_playableMusicIcons, [self.SAS_getMusicPediaLink(iPacked) for iPacked in self.SAS_playableMusic])
+
+	# <!-- custom: Link tracks whose catalog entry identifies an owner. Script-only tracks can be shared and have no single page. Leader hovers use the same civ context as the Music page, as in KI#332. (GPT-6.2-Sol) -->
+	def SAS_getMusicPediaLink(self, iPacked):
+		iMusicType, iMusicId = self.top.SAS_unpackMusicKey(iPacked)
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_TECH:
+			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iMusicId, 1)
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_ERA:
+			iEra = self.top.SAS_getMusicEra(iPacked)
+			if iEra >= 0:
+				return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_ERA, iEra, 1)
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_LEADER:
+			iLeader = self.top.SAS_getMusicLeaderId(iPacked)
+			if iLeader >= 0:
+				return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, self.top.pediaLeader.getCiv(iLeader))
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV:
+			iCiv = self.top.SAS_getMusicCivId(iPacked)
+			if iCiv >= 0:
+				return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCiv, 1)
+		return None
 
 	def closeMusicPlayer(self):
 		if not self.mediaPlayer.isOpen:
 			return
 
+		self.leaveMusicPlayer()
+		self.top.pediaJump(SevoScreenEnums.PEDIA_MUSIC, self.iMusic, False, False)
+
+	# <!-- custom: Reuse the playback cleanup when a linked row goes straight to the destination page. (GPT-6.2-Sol) -->
+	def leaveMusicPlayer(self):
 		self.mediaPlayer.stopSound()
 		self.mediaPlayer.closeScreen()
-
-		self.top.pediaJump(SevoScreenEnums.PEDIA_MUSIC, self.iMusic, False, False)
 
 	def isMusicPlayerOpen(self):
 		return self.mediaPlayer.isOpen

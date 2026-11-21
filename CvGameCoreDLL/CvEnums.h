@@ -536,6 +536,15 @@ ENUM_START(Widget, WIDGET)
 	// Build payload: the BuildInfo ID, then the unlocking tech or -1; Trait payload: the TraitInfo ID. See KI#113. (Claude code Opus 5.5) -->
 	WIDGET_PEDIA_JUMP_TO_BUILD,
 	WIDGET_PEDIA_JUMP_TO_TRAIT,
+	// <!-- custom: Opens the Sevopedia speeds chart, which has no item pages, with a game speed's column and a culture level's row highlighted, such as the Victory screen's Legendary cities.
+	// Payload: data1 the GameSpeedInfo ID, data2 the CultureLevelInfo ID or -1. Appended to preserve EXE-facing widget IDs. See KI#113. (Claude code Opus 5.5) -->
+	WIDGET_PEDIA_JUMP_TO_GAME_SPEED,
+	// <!-- custom: A hover naming player data1's leader, traits, player name and civilization, the Sevopedia on a Ctrl+click or a right click, and no plain-click action, which stays the screen's: the Info screen's Graph legend toggles a line on it. (Claude code Opus 5.5) -->
+	WIDGET_HELP_LEADER_HEAD,
+	// <!-- custom: The hover of civic or corporation data1, with no click action, for buttons whose clicks are the screen's: the Policy Advisor's civic and corporation buttons select on a left click and open the Sevopedia on a right click.
+	// WIDGET_PEDIA_JUMP_TO_CIVIC and _CORPORATION would open the Sevopedia on the left click too. (Claude code Opus 5.5) -->
+	WIDGET_HELP_CIVIC,
+	WIDGET_HELP_CORPORATION,
 ENUM_END(Widget, WIDGET)
 
 ENUM_START(ButtonPopup, BUTTONPOPUP)

@@ -101,7 +101,8 @@ class CvVictoryScreen:
 
 		# <!-- custom: adjusted column widths for percentage display (claude opus 4.5) -->
 		someWRoomForCulturePercentages = 27
-		self.TABLE_WIDTH_BASE = [350 - (2 * someWRoomForCulturePercentages), 80, 180, 100 + someWRoomForCulturePercentages, 180, 100 + someWRoomForCulturePercentages]
+		# <!-- custom: 50 moved from the first column to the last: the first had about 140 px to spare at 1920 x 1080 beside its longest text, "Election triggered by Apostolic Palace", while the last now holds the vote sources' chairs, whose leader icon and long names such as "Suryavarman II" overflowed it (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		self.TABLE_WIDTH_BASE = [300 - (2 * someWRoomForCulturePercentages), 80, 180, 100 + someWRoomForCulturePercentages, 180, 150 + someWRoomForCulturePercentages]
 		self.TABLE2_WIDTH_BASE = [740, 265]
 		# <advc.703>
 		self.RF_TABLEW_BASE = [125, 150, 250, 260, 205]
@@ -151,6 +152,7 @@ class CvVictoryScreen:
 		# <!-- custom: language tracking for initText, based on Info Screen pattern (claude opus 4.5) -->
 		self.iLanguageLoaded = -1
 		self.SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS = None
+		self.SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES = None
 
 		# <!-- custom: keep screen-independent advisor edge constants in init; compute runtime resolution-dependent bounds in interfaceScreen through shared SASUtils helpers. (GPT-5.3-Codex) -->
 		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
@@ -224,11 +226,26 @@ class CvVictoryScreen:
 		self.TEXT_VOTING_MEMBER = localText.getText("TXT_KEY_VOTESOURCE_VOTING_MEMBER", ())
 		self.TEXT_NON_VOTING_MEMBER = localText.getText("TXT_KEY_VOTESOURCE_NON_VOTING_MEMBER", ())
 		self.TEXT_LEGENDARY_CITIES = localText.getText("TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES", ())
-		self.TEXT_POPUP_PASSED = localText.getText("TXT_KEY_POPUP_PASSED", ())
+		# <!-- custom: Column headers of the Resolutions and Members tables, and the outcome without the popup's parentheses. (Claude code Opus 5.5) -->
+		self.TEXT_COL_RESOLUTION = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_COL_RESOLUTION", ())
+		self.TEXT_COL_EFFECT = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_COL_EFFECT", ())
+		self.TEXT_COL_REQUIRED = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_COL_REQUIRED", ())
+		self.TEXT_COL_TOTAL = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_COL_TOTAL", ())
+		self.TEXT_COL_OUTCOME = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_COL_OUTCOME", ())
+		self.TEXT_COL_LEADER = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_COL_LEADER", ())
+		self.TEXT_COL_VOTES = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_COL_VOTES", ())
+		self.TEXT_COL_PLAYER = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_COL_PLAYER", ())
+		self.TEXT_COL_TEAM = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_COL_TEAM", ())
+		self.TEXT_COL_STATUS = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_COL_STATUS", ())
+		self.TEXT_OUTCOME_PASSED = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_OUTCOME_PASSED", ())
 		self.TEXT_NOT_YET_BUILT = localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ())
 		self.TEXT_VOTE_SOURCE_NOT_ACTIVE = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_VOTE_SOURCE_NOT_ACTIVE", ())
 		self.TEXT_MEMBERS_NO_VOTING_YET = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_MEMBERS_NO_VOTING_YET", ())
 		self.TEXT_NOT_ACTIVE_SHORT = localText.getText("TXT_KEY_SAS_NOT_ACTIVE_SHORT", ())
+		# <!-- custom: The Resolutions and Members tabs' headings and note for a vote source that votes now or no longer does. (Claude code Opus 5.5) -->
+		self.TEXT_MEMBERS_INACTIVE = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_MEMBERS_INACTIVE", ())
+		self.TEXT_SOURCE_ACTIVE = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_SOURCE_ACTIVE", ())
+		self.TEXT_SOURCE_INACTIVE = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_SOURCE_INACTIVE", ())
 		self.TEXT_THOUSANDS_SEPARATOR_COMMA = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR_COMMA", ())
 		self.EXIT_TEXT = SASTextScale.sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE
 		self.HEADER_TEXT = SASTextScale.sasFontTagTitle.bold + localText.getText("TXT_KEY_VICTORY_SCREEN_TITLE", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE
@@ -266,7 +283,85 @@ class CvVictoryScreen:
 			return u""
 		return gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton()
 
-	# <!-- custom: helper function to get player name with leader icon (claude opus 4.5) -->
+	# <!-- custom: Leader cells showed an icon with no hover or link; a cell that shows the leader's button now hovers and opens their Sevopedia page, as the Info screen's Score tab does.
+	# bKnown is that button, empty for an unknown leader, or a flag where the cell shows no button; an unknown leader's cell stays inert. (Claude code Opus 5.5) -->
+	def getLeaderWidget(self, iPlayer, bKnown):
+		if not bKnown:
+			return (WidgetTypes.WIDGET_GENERAL, -1, -1)
+		pPlayer = gc.getPlayer(iPlayer)
+		return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, pPlayer.getLeaderType(), pPlayer.getCivilizationType())
+
+	def setLeaderCell(self, screen, szTable, iCol, iRow, szText, szButton, iPlayer, iJustify):
+		eWidget, iData1, iData2 = self.getLeaderWidget(iPlayer, szButton)
+		SASTextScale.setTableTextLabel(screen, szTable, iCol, iRow, szText, szButton, eWidget, iData1, iData2, iJustify)
+
+	# <!-- custom: The building that triggers this vote source's elections.
+	# Failing loudly when there is none: callers reach it only for an active vote source, so none would be an XML error to fix, not a row to leave blank. (Claude code Opus 5.5) -->
+	def findVoteSourceBuilding(self, iVoteSource):
+		for iBuilding in range(gc.getNumBuildingInfos()):
+			if gc.getBuildingInfo(iBuilding).getVoteSourceType() == iVoteSource:
+				return iBuilding
+		raise ValueError("no building has VoteSourceType %s" % gc.getVoteSourceInfo(iVoteSource).getType())
+
+	# <!-- custom: When a team's building of this class was built, as "T152 (AD 1030)": the game stores the year a building was first built (getBuildingOriginalTime) but not the turn, so the turn is the one turn that had that year, and the year alone shows when several turns share it, as under a calendar of months; "-" when no city of the team holds it. (Claude code Opus 5.5) -->
+	def getBuildingClassBuiltText(self, iTeam, iBuildingClass):
+		# <!-- custom: Inspect the building types the city actually holds, including any captured variant. CvCity::iBuildingOriginalTimeUnknown is MIN_SHORT for a building with no recorded completion. (GPT-6.2-Sol) -->
+		aiBuildings = [i for i in range(gc.getNumBuildingInfos()) if gc.getBuildingInfo(i).getBuildingClassType() == iBuildingClass]
+		game = gc.getGame()
+		for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
+			pPlayer = gc.getPlayer(iPlayer)
+			if not pPlayer.isAlive() or pPlayer.getTeam() != iTeam:
+				continue
+			pCity, iIter = pPlayer.firstCity(False)
+			while pCity and not pCity.isNone():
+				for iBuilding in aiBuildings:
+					if pCity.getNumRealBuilding(iBuilding) <= 0:
+						continue
+					iYear = pCity.getBuildingOriginalTime(iBuilding)
+					if iYear == -32768:
+						continue
+					if iYear < 0:
+						szYear = localText.getText("TXT_KEY_TIME_BC", (-iYear,))
+					else:
+						szYear = localText.getText("TXT_KEY_TIME_AD", (iYear,))
+					iBuiltTurn = -1
+					for iTurn in xrange(game.getStartTurn(), game.getGameTurn() + 1):
+						if game.getTurnYear(iTurn) == iYear:
+							if iBuiltTurn != -1:
+								return szYear
+							iBuiltTurn = iTurn
+					if iBuiltTurn != -1:
+						return u"T%d (%s)" % (iBuiltTurn, szYear)
+					return szYear
+				pCity, iIter = pPlayer.nextCity(iIter, False)
+		return u"-"
+
+	# <!-- custom: The last two columns of a built vote source's Diplomatic row, empty before: its chair, the Secretary General or the Resident, with leader icon and link, then its title; "Not active" in place of the title when the source does not vote, as the Apostolic Palace in the turn-301 test game, so players see which sources still matter without reloading older saves (the user, 2026-11-21, Civ4ScreenShot0366).
+	# The game keeps an inactive source's last chair (Hannibal there), which stays shown as history; "-" fills a cell with nothing known, such as no chair yet or an unmet one. (Claude code Opus 5.5) -->
+	def setVoteSourceChairCells(self, screen, szTable, iRow, iSource):
+		iChairTeam = gc.getGame().getSecretaryGeneral(iSource)
+		bKnown = gc.getGame().canHaveSecretaryGeneral(iSource) and iChairTeam != -1 and (gc.getGame().isDebugMode() or gc.getTeam(gc.getPlayer(self.iActivePlayer).getTeam()).isHasMet(iChairTeam))
+		if bKnown:
+			iChairPlayer = self.getPlayerOnTeam(iChairTeam)
+			szName = gc.getTeam(iChairTeam).getName()
+			szButton = ""
+			if iChairPlayer >= 0:
+				szName = gc.getPlayer(iChairPlayer).getName()
+				szButton = self.getLeaderButton(iChairPlayer)
+			# <!-- custom: The leader in the fourth column and its value in the last, as every row pairs "Leader:" with a value; the last column cut "U.N. Secretary General" short until it took 50 from the first. (Claude code Opus 5.5) -->
+			self.setLeaderCell(screen, szTable, 4, iRow, szName + u":", szButton, iChairPlayer, CvUtil.FONT_LEFT_JUSTIFY)
+		else:
+			SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, u"-", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		# <!-- custom: One "Not active", not "not yet" and "no longer": that split would rest on the game remembering the last chair, which a modmod switching sources off and on could clear, making a source that has voted read "not yet active". The chair cell beside it tells the two apart anyway: the last chair if it has voted, "-" if it never has (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		if not gc.getGame().isDiploVote(iSource):
+			szValue = self.TEXT_NOT_ACTIVE_SHORT
+		elif bKnown:
+			szValue = u"%s %s" % (SASVisuals.Font.STAR_CHAR, gc.getVoteSourceInfo(iSource).getSecretaryGeneralText())
+		else:
+			szValue = u"-"
+		SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, szValue, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+	# <!-- custom: helper function to get player name with leader icon (Claude code Opus 4.5) -->
 	def getPlayerNameWithIcon(self, iPlayer):
 		if iPlayer < 0 or iPlayer >= gc.getMAX_PLAYERS():
 			return u""
@@ -395,7 +490,8 @@ class CvVictoryScreen:
 			szBuildingButton = gc.getBuildingInfo(iBuildingType).getButton()
 			szSource = gc.getVoteSourceInfo(iVoteSource).getDescription()
 			iRow = screen.appendTableRow(szTable)
-			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szSource, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			# <!-- custom: Building, religion and project cells showed only an icon; they now hover and open their Sevopedia page, as the leader cells do. (Claude code Opus 5.5) -->
+			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szSource, szBuildingButton, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingType, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			if gc.getGame().isDiploVote(iVoteSource):
 				if iUNTeam != -1:
 					if bUnknown:
@@ -410,6 +506,13 @@ class CvVictoryScreen:
 			SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szStatus, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		self.drawTabs()
+
+	def splitVoteDescription(self, szDescription):
+		# <!-- custom: "Name (Content)" into its two parts, at the first " (" when the text ends with ")"; any other shape stays whole, with no content. (Claude code Opus 5.5) -->
+		iOpen = szDescription.find(u" (")
+		if iOpen <= 0 or not szDescription.endswith(u")"):
+			return (szDescription, u"")
+		return (szDescription[:iOpen], szDescription[iOpen + 2:-1])
 
 	def showVotingScreen(self):
 		self.deleteAllWidgets()
@@ -438,129 +541,29 @@ class CvVictoryScreen:
 			self.drawVoteSourceInactiveFallback(self.TEXT_VOTE_SOURCE_NOT_ACTIVE, aiVoteBuildingClass)
 			return
 
-		screen = self.getScreen()
-
-		screen.addPanel(self.getNextWidgetName(), "", "", False, False, self.X_AREA-10, self.Y_AREA-15, self.W_AREA+20, self.H_AREA+30, PanelStyles.PANEL_STYLE_BLUE50)
-		szTable = self.getNextWidgetName()
-		screen.addTableControlGFC(szTable, 2, self.X_AREA, self.Y_AREA, self.W_AREA, self.H_AREA, False, False, self.iLeaderButtonSize, self.iLeaderButtonSize, TableStyles.TABLE_STYLE_STANDARD)
-		screen.enableSelect(szTable, False)		
-		screen.setTableColumnHeader(szTable, 0, "", self.TABLE2_WIDTH_0)
-		screen.setTableColumnHeader(szTable, 1, "", self.TABLE2_WIDTH_1)
-
-		# for (iVoteBuildingClass, iUNTeam, bUnknown) in aiVoteBuildingClass:
-			# iRow = screen.appendTableRow(szTable)
-			# SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_ELECTION", (gc.getBuildingClassInfo(iVoteBuildingClass).getTextKey(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			# if (iUNTeam != -1):
-				# if bUnknown:
-					# szName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
-				# else:
-					# szName = gc.getTeam(iUNTeam).getName()
-				# SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (szName, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			# else:
-				# SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-		#for i in range(gc.getNumVoteSourceInfos()):
-		bHasVotingRows = false
-		for (i, iVoteBuildingClass, iUNTeam, bUnknown) in aiVoteBuildingClass: # K-Mod
-			if gc.getGame().isDiploVote(i): # K-Mod (previously no condition)
-				bHasVotingRows = true
-				# K-Mod
-				kVoteSource = gc.getVoteSourceInfo(i)
-				iRow = screen.appendTableRow(szTable)
-
-				# <!-- custom: add building icon to AP/UN header (claude opus 4.5) -->
-				iBuildingType = gc.getBuildingClassInfo(iVoteBuildingClass).getDefaultBuildingIndex()
-				szBuildingButton = gc.getBuildingInfo(iBuildingType).getButton()
-				szHeaderText = SASTextScale.sasFontTagTitle.bold + kVoteSource.getDescription().upper() + SASTextScale.SAS_FONT_TAG_CLOSE
-				SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szHeaderText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-				if (gc.getGame().getVoteSourceReligion(i) != -1):
-					# <!-- custom: add religion icon (claude opus 4.5) -->
-					iReligion = gc.getGame().getVoteSourceReligion(i)
-					szReligionButton = gc.getReligionInfo(iReligion).getButton()
-					szReligionName = gc.getReligionInfo(iReligion).getDescription()
-					SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szReligionName, szReligionButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-				# K-Mod end
-
-				#if (gc.getGame().canHaveSecretaryGeneral(i) and -1 != gc.getGame().getSecretaryGeneral(i)):
-				if (gc.getGame().canHaveSecretaryGeneral(i) and -1 != gc.getGame().getSecretaryGeneral(i) and (gc.getGame().isDebugMode() or gc.getTeam(activePlayer.getTeam()).isHasMet(gc.getGame().getSecretaryGeneral(i)))):# K-Mod
-					iRow = screen.appendTableRow(szTable)
-
-					# <!-- custom: add star icon to Secretary General / AP Resident row (claude opus 4.5) -->
-					szSecGenText = u"%s %s" % (SASVisuals.Font.STAR_CHAR, gc.getVoteSourceInfo(i).getSecretaryGeneralText())
-					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szSecGenText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					# <!-- custom: add leader icon to secretary general name (claude opus 4.5) -->
-					iSecGenPlayer = self.getPlayerOnTeam(gc.getGame().getSecretaryGeneral(i))
-					szSecGenName = gc.getTeam(gc.getGame().getSecretaryGeneral(i)).getName()
-					# <!-- custom: A plain string for the same reason as the vote rows' icon: setTableText takes it as char const*, so u"" would raise the same ArgumentError. See KI#118.2. (Claude code Opus 5.5) -->
-					szSecGenButton = ""
-					if iSecGenPlayer >= 0:
-						szSecGenName = gc.getPlayer(iSecGenPlayer).getName()
-						szSecGenButton = self.getLeaderButton(iSecGenPlayer)
-					SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szSecGenName, szSecGenButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-				# K-Mod
-				# vote timing
-				if activePlayer.isVotingMember(i):
-					iRow = screen.appendTableRow(szTable)
-					iVoteTimer = gc.getGame().getVoteTimer(i)+1 # the +1 is so that when there will be a vote next turn, this reads "1" rather than "0".
-					sString = localText.getText("TXT_KEY_BUG_VICTORY_TURNS_NEXT_VOTE", (iVoteTimer,) )
-					#sString = u"<font=2b>" + sString + "</font>"
-					sString = BugUtil.colorText(sString, "COLOR_YELLOW")
-					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-					iSecGenTimer = gc.getGame().getSecretaryGeneralTimer(i)
-					sString = localText.getText("TXT_KEY_BUG_VICTORY_VOTES_NEXT_ELECTION", (iSecGenTimer,) )
-					#sString = u"<font=2b>" + sString + "</font>"
-					sString = BugUtil.colorText(sString, "COLOR_YELLOW")
-					SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-				# K-Mod end
-
-				for iLoop in range(gc.getNumVoteInfos()):
-					if gc.getGame().countPossibleVote(iLoop, i) > 0:
-						info = gc.getVoteInfo(iLoop)
-						# advc.178: Clauses for diplo victory added
-						if gc.getGame().isChooseElection(iLoop) and (gc.getGame().isDiploVictoryValid() or not info.isVictory()):
-							iRow = screen.appendTableRow(szTable)
-
-							# <!-- custom: add bullet icon to resolution rows (claude opus 4.5) -->
-							szResText = u"%s %s" % (SASVisuals.Font.BULLET_CHAR, info.getDescription())
-							SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szResText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-							if gc.getGame().isVotePassed(iLoop):
-								SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, self.TEXT_POPUP_PASSED, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-							else:
-								# <!-- custom: use a dedicated key without the optional leading placeholder because this row only shows "(Requires X of Y total votes)" and should not depend on trimming localized text at runtime. (GPT-5.3-Codex) -->
-								szVoteReqText = localText.getText("TXT_KEY_SAS_POPUP_ELECTION_OPTION_REQUIRES_ONLY", (gc.getGame().getVoteRequired(iLoop, i), gc.getGame().countPossibleVote(iLoop, i)))
-								SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szVoteReqText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-				iRow = screen.appendTableRow(szTable) # empty row between vote sources. (K-Mod)
-		# Remove the final empty row (K-Mod)
-		if screen.getTableNumRows(szTable) > 0:
-			screen.setTableNumRows(szTable, screen.getTableNumRows(szTable)-1)
-		if not bHasVotingRows:
-			self.deleteAllWidgets()
+		# <!-- custom: One section per active vote source, the United Nations above the Apostolic Palace, each with its heading lines and a sortable table of its resolutions: the single table mixed headings, timers and resolutions in one list, which could not sort, and cut long resolutions short (the user, 2026-11-21, Civ4ScreenShot0254/0255).
+		# Under Rise and Fall, advc.703 appended the Members list here; SAS always shows the Members tab, so it is no longer repeated.
+		# The table rows this replaces were K-Mod's: one pass over (source, building class, team, unknown) drawing only sources with isDiploVote ("previously no condition"), an empty row between sources, then the last one removed; the sections now space themselves. advc.178's diplomatic-victory clauses stay, in drawResolutionTable. (Claude code Opus 5.5) -->
+		# <!-- custom: Use vote-source order like Members (UN then AP in the XML). One source can have several building definitions, but draws only one section. (GPT-6.2-Sol) -->
+		aiSources = self.getShownVoteSources()
+		if not aiSources:
 			self.drawVoteSourceInactiveFallback(self.TEXT_VOTE_SOURCE_NOT_ACTIVE, aiVoteBuildingClass)
 			return
-		#
-		# <advc.703> Add info from Members tab
-		if not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
-			self.drawTabs()
-			return
-		screen.appendTableRow(szTable) # Empty row as separator
-		self.appendMemberRows(screen, szTable)
-		# </advc.703>
+		self.drawVoteSourceSections(aiSources, self.drawResolutionTable)
+		placeAdvisorLegendLink(self, "CONCEPT_SAS_VICTORY_SCREEN_VOTES_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
 		self.drawTabs()
 
 # BUG Additions Start
 	def showMembersScreen(self):
-		iRelVote, iRelVoteIdx, iUNVote, iUNVoteIdx  = self.getVoteAvailable()
-		if (iRelVote == -1 and iUNVote == -1):
-			self.deleteAllWidgets()
-			self.drawVoteSourceInactiveFallback(self.TEXT_MEMBERS_NO_VOTING_YET, [])
-			return
-
 		# <!-- custom: K-Mod imported this advanced BUG poll disabled and without a visible options checkbox.
 		# An exact DLL prediction was runtime-tested but rejected because it would expose hidden AI vote state while retaining statistical-poll labels; keep the supported plain Members view as the default. See KI#327. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if AdvisorOpt.isMembers():
+			# <!-- custom: Moved in from above the option check: only this BUG poll needs getVoteAvailable's two sources, while the plain view below filters its own, so an inactive source can be listed there. (Claude code Opus 5.5) -->
+			iRelVote, iRelVoteIdx, iUNVote, iUNVoteIdx = self.getVoteAvailable()
+			if iRelVote == -1 and iUNVote == -1:
+				self.deleteAllWidgets()
+				self.drawVoteSourceInactiveFallback(self.TEXT_MEMBERS_NO_VOTING_YET, [])
+				return
 			if  iRelVote == -1:
 				self.VoteBody = 2 # AP Not active
 			elif iUNVote == -1:
@@ -575,7 +578,13 @@ class CvVictoryScreen:
 
 			self.showMembersScreen_BUG(iRelVote, iUNVote, iVoteBody, iVoteIdx)
 		else:
-			self.showMembersScreen_NonBUG()
+			# <!-- custom: Use the same source filter as Resolutions. The BUG poll requires an active source, but the regular Members tab can explain an inactive-only game. (GPT-6.2-Sol) -->
+			aiSources = self.getShownVoteSources()
+			if not aiSources:
+				self.deleteAllWidgets()
+				self.drawVoteSourceInactiveFallback(self.TEXT_MEMBERS_NO_VOTING_YET, [])
+				return
+			self.showMembersScreen_NonBUG(aiSources)
 
 		self.drawTabs()
 
@@ -659,8 +668,11 @@ class CvVictoryScreen:
 		iCand1Known, sCand1Name = self.getCandStatusName(iCandTeam1)
 		iCand2Known, sCand2Name = self.getCandStatusName(iCandTeam2)
 
-		SASTextScale.setTableTextLabel(screen, szHeading, 1, iRow, sCand1Name, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-		SASTextScale.setTableTextLabel(screen, szHeading, 2, iRow, sCand2Name, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		# <!-- custom: A known candidate's heading opens the Sevopedia page of its team's first player, as the leader cells do (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		eWidget, iData1, iData2 = self.getLeaderWidget(iCandPlayer1, iCand1Known == 1)
+		SASTextScale.setTableTextLabel(screen, szHeading, 1, iRow, sCand1Name, "", eWidget, iData1, iData2, CvUtil.FONT_CENTER_JUSTIFY)
+		eWidget, iData1, iData2 = self.getLeaderWidget(iCandPlayer2, iCand2Known == 1)
+		SASTextScale.setTableTextLabel(screen, szHeading, 2, iRow, sCand2Name, "", eWidget, iData1, iData2, CvUtil.FONT_CENTER_JUSTIFY)
 
 		# set up the member table
 		szTable = self.getNextWidgetName()
@@ -758,7 +770,9 @@ class CvVictoryScreen:
 				szPlayerText += localText.getText("TXT_KEY_VICTORY_SCREEN_PLAYER_VOTES", (lMemberVotes, iActiveVote), )
 
 			iRow = screen.appendTableRow(szTable)
-			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			# <!-- custom: The member's name hovers and opens its leader's Sevopedia page, as in the plain Members table. (Claude code Opus 5.5) -->
+			eWidget, iData1, iData2 = self.getLeaderWidget(iMember, szPlayerButton)
+			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, eWidget, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
 
 			if iMember != self.iActivePlayer:
 				# player attitude to candidate #1
@@ -877,92 +891,252 @@ class CvVictoryScreen:
 		sString = SASTextScale.sasFontTagLabel + sString + SASTextScale.SAS_FONT_TAG_CLOSE
 		SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-	# <advc.703> Now shared by showVotes and showMembersScreen_NonBUG
-	# (I don't think the BUG version can be enabled in K-Mod)
-	def appendMemberRows(self, screen, szTable):
-		activePlayer = gc.getPlayer(self.iActivePlayer)
-		iActiveTeam = activePlayer.getTeam()
-		for i in range(gc.getNumVoteSourceInfos()):
-			if gc.getGame().isDiploVote(i):
-				kVoteSource = gc.getVoteSourceInfo(i)
-				iRow = screen.appendTableRow(szTable)
-
-				# <!-- custom: add building icon to AP/UN header (claude opus 4.5) -->
-				szHeaderText = SASTextScale.sasFontTagTitle.bold + kVoteSource.getDescription().upper() + SASTextScale.SAS_FONT_TAG_CLOSE
-				# <!-- custom: Button paths start as plain "", not u"": setTableText takes the icon as char const*, and an empty u"" left here when no leader or building applies raised a Boost ArgumentError that broke the whole screen. See KI#118.2. (Claude code Opus 5.5) -->
-				szBuildingButton = ""
-				for iBuilding in range(gc.getNumBuildingInfos()):
-					if gc.getBuildingInfo(iBuilding).getVoteSourceType() == i:
-						szBuildingButton = gc.getBuildingInfo(iBuilding).getButton()
-						szHeaderText = SASTextScale.sasFontTagTitle.bold + kVoteSource.getDescription().upper() + SASTextScale.SAS_FONT_TAG_CLOSE
-						break
-				SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szHeaderText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-				if (gc.getGame().getVoteSourceReligion(i) != -1):
-					# <!-- custom: add religion icon (claude opus 4.5) -->
-					iReligion = gc.getGame().getVoteSourceReligion(i)
-					szReligionButton = gc.getReligionInfo(iReligion).getButton()
-					szReligionName = gc.getReligionInfo(iReligion).getDescription()
-					SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szReligionName, szReligionButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-				# <!-- custom: Bare numbers and votesource/secgen prints hide which vote-definition scan produced them; use named records and voteId fields.
-				# These identify vote definitions used to draw the screen, not player election choices. (GPT-6.1-Sol) -->
-				iSecretaryGeneralVote = -1
-				if (gc.getGame().canHaveSecretaryGeneral(i) and -1 != gc.getGame().getSecretaryGeneral(i)):
-					for j in range(gc.getNumVoteInfos()):
-						CvUtil.pyPrintRecord("VICTORY_SCREEN_VOTE_SCAN", "voteId=%d" % j)
-						if gc.getVoteInfo(j).isVoteSourceType(i):
-							CvUtil.pyPrintRecord("VICTORY_SCREEN_VOTE_SOURCE_MATCH", "voteId=%d" % j)
-							if gc.getVoteInfo(j).isSecretaryGeneral():
-								CvUtil.pyPrintRecord("VICTORY_SCREEN_SECRETARY_GENERAL_MATCH", "voteId=%d" % j)
-								iSecretaryGeneralVote = j
-								break
-
-				CvUtil.pyPrintRecord("VICTORY_SCREEN_SECRETARY_GENERAL_VOTE", "voteId=%d" % iSecretaryGeneralVote)
-				for j in range(gc.getMAX_PLAYERS()):
-					if gc.getPlayer(j).isAlive() and not gc.getPlayer(j).isBarbarian() and gc.getTeam(iActiveTeam).isHasMet(gc.getPlayer(j).getTeam()):
-						# <!-- custom: add leader icon to player name (claude opus 4.5) -->
-						szPlayerText = gc.getPlayer(j).getName()
-						szPlayerButton = self.getLeaderButton(j)
-						if (-1 != iSecretaryGeneralVote):
-							szPlayerText += localText.getText("TXT_KEY_VICTORY_SCREEN_PLAYER_VOTES", (gc.getPlayer(j).getVotes(iSecretaryGeneralVote, i), ))
-
-						# <!-- custom: add icons to membership status (claude opus 4.5) -->
-						if (gc.getGame().canHaveSecretaryGeneral(i) and gc.getGame().getSecretaryGeneral(i) == gc.getPlayer(j).getTeam()):
-							iRow = screen.appendTableRow(szTable)
-							SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-							szStatusText = u"%s %s" % (SASVisuals.Font.STAR_CHAR, gc.getVoteSourceInfo(i).getSecretaryGeneralText())
-							SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szStatusText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						elif (gc.getPlayer(j).isFullMember(i)):
-							iRow = screen.appendTableRow(szTable)
-							SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-							SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, self.szFullMemberText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						elif (gc.getPlayer(j).isVotingMember(i)):
-							iRow = screen.appendTableRow(szTable)
-							SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-							SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, self.szVotingMemberText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-				iRow = screen.appendTableRow(szTable)
-		# Remove the final empty row (K-Mod)
-		if screen.getTableNumRows(szTable) > 0:
-			screen.setTableNumRows(szTable, screen.getTableNumRows(szTable)-1)
-	# </advc.703>
-
-	def showMembersScreen_NonBUG(self):
+	# <!-- custom: Takes aiSources now, the sources its caller already chose with getShownVoteSources, where it took none and scanned them itself.
+	# It drew through advc.703's appendMemberRows ("Now shared by showVotes and showMembersScreen_NonBUG"; "I don't think the BUG version can be enabled in K-Mod"), one table of headings and member rows; that is now drawVoteSourceSections with drawMemberTable, one sortable table per source.
+	# The icons claude opus 4.5 added there are kept: the building and religion in the heading, the leader beside each name, the star for the Secretary General. (Claude code Opus 5.5) -->
+	def showMembersScreen_NonBUG(self, aiSources):
 		self.deleteAllWidgets()
+		self.drawVoteSourceSections(aiSources, self.drawMemberTable)
+		placeAdvisorLegendLink(self, "CONCEPT_SAS_VICTORY_SCREEN_VOTES_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
 
-		activePlayer = gc.getPlayer(self.iActivePlayer)
-		iActiveTeam = activePlayer.getTeam()
-
+	# <!-- custom: Stack each heading above its sortable table. Cap the table at its share of the available height, but put the next heading after the populated rows when the table is short. At 1440p a three-member UN otherwise left half the screen empty above the Palace. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	def drawVoteSourceSections(self, aiSources, fnDrawTable):
+		aiSources = self.sortVoteSourcesByUnlock(aiSources)
 		screen = self.getScreen()
-
 		screen.addPanel(self.getNextWidgetName(), "", "", False, False, self.X_AREA-10, self.Y_AREA-15, self.W_AREA+20, self.H_AREA+30, PanelStyles.PANEL_STYLE_BLUE50)
+		iGap = 12
+		iY = self.Y_AREA
+		iBottom = self.Y_AREA + self.H_AREA
+		for iIndex, iSource in enumerate(aiSources):
+			iRemaining = len(aiSources) - iIndex
+			iSectionH = (iBottom - iY + iGap) / iRemaining - iGap
+			iHeaderH = self.drawVoteSourceHeader(screen, iSource, self.X_AREA, iY, self.W_AREA)
+			iTableH = fnDrawTable(screen, iSource, self.X_AREA, iY + iHeaderH, self.W_AREA, iSectionH - iHeaderH)
+			iY += iHeaderH + iTableH + iGap
+
+	# <!-- custom: Vote sources in the order the game unlocks their buildings, by the prerequisite tech's era, then its column in the tech tree: XML lists the United Nations first, so it sat above the Apostolic Palace, which comes ages earlier (the user, 2026-11-21).
+	# A vote source a modmod adds takes its place by the same rule. (Claude code Opus 5.5) -->
+	def sortVoteSourcesByUnlock(self, aiSources):
+		aKeyed = []
+		for iSource in aiSources:
+			iTech = gc.getBuildingInfo(self.findVoteSourceBuilding(iSource)).getPrereqAndTech()
+			if iTech == -1:
+				aKeyed.append((-1, -1, iSource))
+			else:
+				aKeyed.append((gc.getTechInfo(iTech).getEra(), gc.getTechInfo(iTech).getGridX(), iSource))
+		aKeyed.sort()
+		return [iSource for (iEra, iGridX, iSource) in aKeyed]
+
+	# <!-- custom: The vote sources the Resolutions and Members tabs show: those voting now, and with SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES also those whose building stands but no longer vote, such as an Apostolic Palace late in a game. (Claude code Opus 5.5) -->
+	def getShownVoteSources(self):
+		if self.SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES is None:
+			self.SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES = (gc.getDefineINT("SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES") > 0)
+		aiSources = []
+		for iSource in range(gc.getNumVoteSourceInfos()):
+			if gc.getGame().isDiploVote(iSource):
+				aiSources.append(iSource)
+			elif self.SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES and self.isVoteSourceBuilt(iSource):
+				aiSources.append(iSource)
+		return aiSources
+
+	def isVoteSourceBuilt(self, iSource):
+		iBuildingClass = gc.getBuildingInfo(self.findVoteSourceBuilding(iSource)).getBuildingClassType()
+		for iTeam in range(gc.getMAX_CIV_TEAMS()):
+			if gc.getTeam(iTeam).isAlive() and gc.getTeam(iTeam).getBuildingClassCount(iBuildingClass) > 0:
+				return True
+		return False
+
+	# <!-- custom: Budget one row for the sortable header and one for the table's bottom inset. Longer lists keep their scroll area. (GPT-6.2-Sol) -->
+	def getVoteTableHeight(self, iAvailable, iRows):
+		return min(iAvailable, (iRows + 2) * self.iLeaderButtonSize)
+
+	# <!-- custom: A vote source's heading lines, out of the table so sorting cannot move them: its building and name, with its religion for the Apostolic Palace, then the Secretary General and, for a voting member, the turns to the next vote and the votes to the next election. Returns the height used. (Claude code Opus 5.5) -->
+	def drawVoteSourceHeader(self, screen, iSource, iX, iY, iW):
+		activePlayer = gc.getPlayer(self.iActivePlayer)
+		iLineH = self.iLeaderButtonSize + 4
+		iIcon = self.iLeaderButtonSize
+		iBuilding = self.findVoteSourceBuilding(iSource)
+		screen.addDDSGFC(self.getNextWidgetName(), gc.getBuildingInfo(iBuilding).getButton(), iX, iY, iIcon, iIcon, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1)
+		szTitle = SASTextScale.sasFontTagTitle.bold + gc.getVoteSourceInfo(iSource).getDescription().upper() + SASTextScale.SAS_FONT_TAG_CLOSE
+		# <!-- custom: Each heading says whether its source votes now, (ACTIVE) or (INACTIVE), as an inactive one can be shown too, as history (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		if gc.getGame().isDiploVote(iSource):
+			szTitle += SASTextScale.labelText(u"  (%s)" % self.TEXT_SOURCE_ACTIVE.upper())
+		else:
+			szTitle += SASTextScale.labelText(u"  (%s)" % self.TEXT_SOURCE_INACTIVE.upper())
+		screen.setText(self.getNextWidgetName(), "Background", szTitle, CvUtil.FONT_LEFT_JUSTIFY, iX + iIcon + 6, iY, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1)
+		iReligion = gc.getGame().getVoteSourceReligion(iSource)
+		if iReligion != -1:
+			iReligionX = iX + iIcon + 6 + CyInterface().determineWidth(szTitle) + 24
+			screen.addDDSGFC(self.getNextWidgetName(), gc.getReligionInfo(iReligion).getButton(), iReligionX, iY, iIcon, iIcon, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iReligion, 1)
+			screen.setText(self.getNextWidgetName(), "Background", SASTextScale.labelText(gc.getReligionInfo(iReligion).getDescription()), CvUtil.FONT_LEFT_JUSTIFY, iReligionX + iIcon + 6, iY + 2, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iReligion, 1)
+		iLineY = iY + iLineH
+		iLineX = iX
+		bSecondLine = False
+		iSecGenTeam = gc.getGame().getSecretaryGeneral(iSource)
+		if gc.getGame().canHaveSecretaryGeneral(iSource) and iSecGenTeam != -1 and (gc.getGame().isDebugMode() or gc.getTeam(activePlayer.getTeam()).isHasMet(iSecGenTeam)):
+			bSecondLine = True
+			szSecGen = SASTextScale.labelText(u"%s %s:" % (SASVisuals.Font.STAR_CHAR, gc.getVoteSourceInfo(iSource).getSecretaryGeneralText()))
+			screen.setText(self.getNextWidgetName(), "Background", szSecGen, CvUtil.FONT_LEFT_JUSTIFY, iLineX, iLineY, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			iLineX += CyInterface().determineWidth(szSecGen) + 8
+			iSecGenPlayer = self.getPlayerOnTeam(iSecGenTeam)
+			szSecGenName = gc.getTeam(iSecGenTeam).getName()
+			# <!-- custom: A plain "" rather than u"", as the button paths before: setTableText took the icon as char const*, and an empty u"" raised a Boost ArgumentError that broke the whole screen. See KI#118.2. (Claude code Opus 5.5) -->
+			szSecGenButton = ""
+			if iSecGenPlayer >= 0:
+				szSecGenName = gc.getPlayer(iSecGenPlayer).getName()
+				szSecGenButton = self.getLeaderButton(iSecGenPlayer)
+			eWidget, iData1, iData2 = self.getLeaderWidget(iSecGenPlayer, szSecGenButton)
+			if szSecGenButton:
+				screen.addDDSGFC(self.getNextWidgetName(), szSecGenButton, iLineX, iLineY, iIcon, iIcon, eWidget, iData1, iData2)
+				iLineX += iIcon + 4
+			szSecGenName = SASTextScale.labelText(szSecGenName)
+			screen.setText(self.getNextWidgetName(), "Background", szSecGenName, CvUtil.FONT_LEFT_JUSTIFY, iLineX, iLineY, self.Z_CONTROLS, FontTypes.GAME_FONT, eWidget, iData1, iData2)
+			iLineX += CyInterface().determineWidth(szSecGenName) + 40
+		# K-Mod
+		# vote timing
+		# <!-- custom: Moved from the table's rows to the heading's second line, after the Secretary General, still for a voting member only. (Claude code Opus 5.5) -->
+		if activePlayer.isVotingMember(iSource):
+			bSecondLine = True
+			# the +1 is so that when there will be a vote next turn, this reads "1" rather than "0".
+			szTimers = localText.getText("TXT_KEY_BUG_VICTORY_TURNS_NEXT_VOTE", (gc.getGame().getVoteTimer(iSource) + 1,)) + u"      " + localText.getText("TXT_KEY_BUG_VICTORY_VOTES_NEXT_ELECTION", (gc.getGame().getSecretaryGeneralTimer(iSource),))
+			screen.setText(self.getNextWidgetName(), "Background", SASTextScale.labelText(BugUtil.colorText(szTimers, "COLOR_YELLOW")), CvUtil.FONT_LEFT_JUSTIFY, iLineX, iLineY, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		# K-Mod end
+		if bSecondLine:
+			return 2 * iLineH + 4
+		return iLineH + 4
+
+	# <!-- custom: Sortable columns: resolution, what it does, votes required, total votes and outcome, in the XML order the game lists them. (Claude code Opus 5.5) -->
+	def drawResolutionTable(self, screen, iSource, iX, iY, iW, iH):
+		# <!-- custom: Wide enough for the header too: 5 digits alone cut "Required" to "Requir..." at 1080p. (Claude code Opus 5.5) -->
+		iNumberW = max(getAdvisorNumberColW(5), CyInterface().determineWidth(SASTextScale.labelText(self.TEXT_COL_REQUIRED)) + 16, CyInterface().determineWidth(SASTextScale.labelText(self.TEXT_COL_TOTAL)) + 16)
+		interface = CyInterface()
+		iOutcomeW = max(interface.determineWidth(SASTextScale.labelText(szText)) for szText in (self.TEXT_COL_OUTCOME, self.TEXT_OUTCOME_PASSED)) + 16
+		iTextW = iW - 2 * iNumberW - iOutcomeW - 18
+		iWantedNameW = interface.determineWidth(SASTextScale.labelText(self.TEXT_COL_RESOLUTION)) + 16
+		iWantedEffectW = interface.determineWidth(SASTextScale.labelText(self.TEXT_COL_EFFECT)) + 16
+		game = gc.getGame()
+		bDiploVictoryValid = game.isDiploVictoryValid()
+		aResolutions = []
+		for iLoop in range(gc.getNumVoteInfos()):
+			info = gc.getVoteInfo(iLoop)
+			# advc.178: Clauses for diplo victory added
+			if not info.isVoteSourceType(iSource) or not game.isChooseElection(iLoop) or (info.isVictory() and not bDiploVictoryValid):
+				continue
+			iTotalVotes = game.countPossibleVote(iLoop, iSource)
+			# <!-- custom: An inactive source counts no votes, so its resolutions are kept by their source alone, with their outcome; their Required and Total read "-". (Claude code Opus 5.5) -->
+			if iTotalVotes <= 0 and game.isDiploVote(iSource):
+				continue
+			szVoteName, szVoteContent = self.splitVoteDescription(info.getDescription())
+			aResolutions.append((iLoop, iTotalVotes, szVoteName, szVoteContent))
+			iWantedNameW = max(iWantedNameW, interface.determineWidth(SASTextScale.labelText(szVoteName)) + 16)
+			iWantedEffectW = max(iWantedEffectW, interface.determineWidth(SASTextScale.labelText(szVoteContent)) + 16)
+		# <!-- custom: AP descriptions often carry the whole action in the name. At font 4 and 1366 px, a fixed share clipped those even while Effect was mostly empty. Give each source its own widths and leave up to half the text space for long effects. (GPT-6.2-Sol) -->
+		iNameW = min(max(iW * 22 / 100, iWantedNameW), iTextW - min(iWantedEffectW, iTextW / 2))
+		iContentW = iTextW - iNameW
+		iH = self.getVoteTableHeight(iH, len(aResolutions))
 		szTable = self.getNextWidgetName()
-		screen.addTableControlGFC(szTable, 2, self.X_AREA, self.Y_AREA, self.W_AREA, self.H_AREA, False, False, self.iLeaderButtonSize, self.iLeaderButtonSize, TableStyles.TABLE_STYLE_STANDARD)
-		screen.enableSelect(szTable, False)
-		screen.setTableColumnHeader(szTable, 0, "", self.TABLE2_WIDTH_0)
-		screen.setTableColumnHeader(szTable, 1, "", self.TABLE2_WIDTH_1)
-		# advc.703: Code moved into subroutine
-		self.appendMemberRows(screen, szTable)
+		screen.addTableControlGFC(szTable, 5, iX, iY, iW, iH, True, True, self.iLeaderButtonSize, self.iLeaderButtonSize, TableStyles.TABLE_STYLE_STANDARD)
+		screen.enableSort(szTable)
+		for (iCol, szHeader, iColW) in ((0, self.TEXT_COL_RESOLUTION, iNameW), (1, self.TEXT_COL_EFFECT, iContentW), (2, self.TEXT_COL_REQUIRED, iNumberW), (3, self.TEXT_COL_TOTAL, iNumberW), (4, self.TEXT_COL_OUTCOME, iOutcomeW)):
+			screen.setTableColumnHeader(szTable, iCol, SASTextScale.labelText(szHeader), iColW)
+		for iLoop, iTotalVotes, szVoteName, szVoteContent in aResolutions:
+			iRow = screen.appendTableRow(szTable)
+			# <!-- custom: Resolution rows had no hover; they open the resolution's Sevopedia page, from its name or what it does. (Claude code Opus 5.5) -->
+			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szVoteName, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_VOTE, iLoop, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szVoteContent, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_VOTE, iLoop, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			if game.isDiploVote(iSource):
+				SASTextScale.setTableIntLabel(screen, szTable, 2, iRow, unicode(game.getVoteRequired(iLoop, iSource)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+				SASTextScale.setTableIntLabel(screen, szTable, 3, iRow, unicode(iTotalVotes), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+			else:
+				SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, u"-", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+				SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, u"-", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+			szOutcome = u""
+			if game.isVotePassed(iLoop):
+				szOutcome = localText.changeTextColor(self.TEXT_OUTCOME_PASSED, SASVisuals.Color.GREEN)
+			SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szOutcome, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		return iH
+
+	# <!-- custom: The Secretary General vote defines each member's weight even before the first election has produced a Secretary General. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	def findSecretaryGeneralVote(self, iSource):
+		# <!-- custom: Bare numbers and votesource/secgen prints hide which vote-definition scan produced them; use named records and voteId fields.
+		# These identify vote definitions used to draw the screen, not player election choices. (GPT-6.1-Sol) -->
+		# <!-- custom: Only the match is recorded now: VICTORY_SCREEN_VOTE_SCAN and VICTORY_SCREEN_VOTE_SOURCE_MATCH were the nested loop's steps, one record per vote definition on every redraw, and this loop tests both conditions at once. (Claude code Opus 5.5) -->
+		for j in range(gc.getNumVoteInfos()):
+			if gc.getVoteInfo(j).isVoteSourceType(iSource) and gc.getVoteInfo(j).isSecretaryGeneral():
+				CvUtil.pyPrintRecord("VICTORY_SCREEN_SECRETARY_GENERAL_VOTE", "voteId=%d" % j)
+				return j
+		return -1
+
+	# <!-- custom: Sortable columns: leader, votes and status, most votes first: the players were listed by player ID with their votes inside the name, so Cyrus (75) sat above Suryavarman (134) (the user, 2026-11-21, Civ4ScreenShot0254). (Claude code Opus 5.5) -->
+	def drawMemberTable(self, screen, iSource, iX, iY, iW, iH):
+		# <!-- custom: An inactive source counts no members, so its section says so rather than drawing an empty table. (Claude code Opus 5.5) -->
+		if not gc.getGame().isDiploVote(iSource):
+			screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.labelText(self.TEXT_MEMBERS_INACTIVE), CvUtil.FONT_LEFT_JUSTIFY, iX, iY, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			return self.iLeaderButtonSize + 4
+		iActiveTeam = gc.getPlayer(self.iActivePlayer).getTeam()
+		iSecGenVote = self.findSecretaryGeneralVote(iSource)
+		aMembers = []
+		for j in range(gc.getMAX_PLAYERS()):
+			pPlayer = gc.getPlayer(j)
+			if not (pPlayer.isAlive() and not pPlayer.isBarbarian() and gc.getTeam(iActiveTeam).isHasMet(pPlayer.getTeam())):
+				continue
+			if gc.getGame().canHaveSecretaryGeneral(iSource) and gc.getGame().getSecretaryGeneral(iSource) == pPlayer.getTeam():
+				szStatus = u"%s %s" % (SASVisuals.Font.STAR_CHAR, gc.getVoteSourceInfo(iSource).getSecretaryGeneralText())
+			elif pPlayer.isFullMember(iSource):
+				szStatus = self.szFullMemberText
+			elif pPlayer.isVotingMember(iSource):
+				szStatus = self.szVotingMemberText
+			else:
+				continue
+			iVotes = -1
+			if iSecGenVote != -1:
+				iVotes = pPlayer.getVotes(iSecGenVote, iSource)
+			aMembers.append((-iVotes, j, szStatus))
+		aMembers.sort()
+		# <!-- custom: Civilization, player ID and team ID beside the leader, as the World Advisor's Changes tab shows them, so teams and repeated leaders read apart (the user, 2026-11-21).
+		# The table takes the width its columns need rather than the whole area: spread over it, the leader column was mostly empty.
+		# Fitted to the names alone, though, Leader and Status read cramped (the user, 2026-11-21, Civ4ScreenShot0384), so they get half and a third more room; longer names, as in modmods or at larger fonts, fit too. (Claude code Opus 5.5) -->
+		iLeaderFitW = self.iLeaderButtonSize + 24 + CyInterface().determineWidth(SASTextScale.labelText(self.TEXT_COL_LEADER))
+		iStatusFitW = CyInterface().determineWidth(SASTextScale.labelText(self.TEXT_COL_STATUS)) + 16
+		for (iNegVotes, j, szStatus) in aMembers:
+			iLeaderFitW = max(iLeaderFitW, self.iLeaderButtonSize + 24 + CyInterface().determineWidth(SASTextScale.labelText(gc.getPlayer(j).getName())))
+			iStatusFitW = max(iStatusFitW, CyInterface().determineWidth(SASTextScale.labelText(szStatus)) + 24)
+		iStatusW = iStatusFitW * 130 / 100
+		aColumns = [(self.TEXT_COL_LEADER, iLeaderFitW * 155 / 100), (u"", self.iLeaderButtonSize + 12)]
+		for szHeader in (self.TEXT_COL_PLAYER, self.TEXT_COL_TEAM, self.TEXT_COL_VOTES):
+			aColumns.append((szHeader, max(getAdvisorNumberColW(5), CyInterface().determineWidth(SASTextScale.labelText(szHeader)) + 16)))
+		aColumns.append((self.TEXT_COL_STATUS, iStatusW))
+		iTableW = 18
+		for (szHeader, iColW) in aColumns:
+			iTableW += iColW
+		# <!-- custom: Keep numeric columns readable when a long leader name pushes the padded widths beyond the table. Trim the Leader and Status columns to its remaining space. (GPT-6.2-Sol) -->
+		if iTableW > iW:
+			iTextWidth = iW - 18 - sum(iColW for (_, iColW) in aColumns[1:-1])
+			iLeaderW, iStatusW = self.scaleColumnsToWidth([aColumns[0][1], iStatusW], iTextWidth)
+			aColumns[0] = (self.TEXT_COL_LEADER, iLeaderW)
+			aColumns[-1] = (self.TEXT_COL_STATUS, iStatusW)
+			iTableW = iW
+		iH = self.getVoteTableHeight(iH, len(aMembers))
+		szTable = self.getNextWidgetName()
+		screen.addTableControlGFC(szTable, len(aColumns), iX, iY, iTableW, iH, True, True, self.iLeaderButtonSize, self.iLeaderButtonSize, TableStyles.TABLE_STYLE_STANDARD)
+		screen.enableSort(szTable)
+		for iCol in range(len(aColumns)):
+			screen.setTableColumnHeader(szTable, iCol, SASTextScale.labelText(aColumns[iCol][0]), aColumns[iCol][1])
+		for (iNegVotes, j, szStatus) in aMembers:
+			pPlayer = gc.getPlayer(j)
+			iRow = screen.appendTableRow(szTable)
+			szButton = self.getLeaderButton(j)
+			self.setLeaderCell(screen, szTable, 0, iRow, pPlayer.getName(), szButton, j, CvUtil.FONT_LEFT_JUSTIFY)
+			iCiv = pPlayer.getCivilizationType()
+			SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, getAdvisorIconSortKey(iCiv + 1, iRow), SASVisuals.CivilizationArt.button(iCiv), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCiv, 1, CvUtil.FONT_CENTER_JUSTIFY)
+			SASTextScale.setTableIntLabel(screen, szTable, 2, iRow, unicode(j), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+			SASTextScale.setTableIntLabel(screen, szTable, 3, iRow, unicode(pPlayer.getTeam()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+			if iNegVotes == 1:
+				SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, u"-", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+			else:
+				SASTextScale.setTableIntLabel(screen, szTable, 4, iRow, unicode(-iNegVotes), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, szStatus, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		return iH
 
 	# <advc.703>
 	def showRiseFall(self):
@@ -1185,7 +1359,8 @@ class CvVictoryScreen:
 #			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, self.BuffyWarningMac, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		# <!-- custom: add leader icon to active player name -->
 		szActivePlayerName = u"%s %s" % (self.getLeaderIconTag(iSettingsPlayer), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (activePlayer.getNameKey(), activePlayer.getCivilizationShortDescriptionKey())))
-		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szActivePlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		# <!-- custom: Leader lines in the Settings tab now hover and open the leader's Sevopedia page, as the other tabs' leader cells do. (Claude code Opus 5.5) -->
+		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szActivePlayerName, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, activePlayer.getLeaderType(), activePlayer.getCivilizationType(), CvUtil.FONT_LEFT_JUSTIFY )
 
 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, u"     " + SASVisuals.Trait.getLeaderTraitsWithIcons(activePlayer.getLeaderType(), activePlayer.getCivilizationType()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
@@ -1422,7 +1597,7 @@ class CvVictoryScreen:
 		for p in rivalsMet: # </advc.190c>
 			# <!-- custom: add leader icon to player names in Other Players panel (claude opus 4.5) -->
 			szPlayerName = u"%s %s" % (self.getLeaderIconTag(p.getID()), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (p.getNameKey(), p.getCivilizationShortDescriptionKey())))
-			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, szPlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, szPlayerName, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, p.getLeaderType(), p.getCivilizationType(), CvUtil.FONT_LEFT_JUSTIFY)
 
 			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, u"     " + SASVisuals.Trait.getLeaderTraitsWithIcons(p.getLeaderType(), p.getCivilizationType()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -1626,7 +1801,7 @@ class CvVictoryScreen:
 					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_TARGET_SCORE", (iTargetScore, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
-					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					self.setLeaderCell(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, self.iActivePlayer, CvUtil.FONT_LEFT_JUSTIFY)
 					# <!-- custom: add thousand separator to score (claude opus 4.5) -->
 					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, separateThousands(ourScore, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -1639,7 +1814,7 @@ class CvVictoryScreen:
 						if iBestPlayer >= 0:
 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 							szBestButton = self.getLeaderButton(iBestPlayer)
-						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						self.setLeaderCell(screen, szTable, 4, iRow, szBestName, szBestButton, iBestPlayer, CvUtil.FONT_LEFT_JUSTIFY)
 						# <!-- custom: add thousand separator to score (claude opus 4.5) -->
 						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, separateThousands(bestScore, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -1654,7 +1829,7 @@ class CvVictoryScreen:
 					szScoreText = u"%s %s" % (self.szTrophyImgTag, szText1)
 					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szScoreText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
-					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					self.setLeaderCell(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, self.iActivePlayer, CvUtil.FONT_LEFT_JUSTIFY)
 					# <!-- custom: add thousand separator to score (claude opus 4.5) -->
 					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, separateThousands(ourScore, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -1667,7 +1842,7 @@ class CvVictoryScreen:
 						if iBestPlayer >= 0:
 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 							szBestButton = self.getLeaderButton(iBestPlayer)
-						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						self.setLeaderCell(screen, szTable, 4, iRow, szBestName, szBestButton, iBestPlayer, CvUtil.FONT_LEFT_JUSTIFY)
 
 						# <!-- custom: add thousand separator to score (claude opus 4.5) -->
 						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, separateThousands(bestScore, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -1703,7 +1878,7 @@ class CvVictoryScreen:
 					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szPopText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
-					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					self.setLeaderCell(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, self.iActivePlayer, CvUtil.FONT_LEFT_JUSTIFY)
 					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, (u"%.2f%%" % popPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					if (iBestPopTeam != -1):
@@ -1714,7 +1889,7 @@ class CvVictoryScreen:
 						if iBestPlayer >= 0:
 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 							szBestButton = self.getLeaderButton(iBestPlayer)
-						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						self.setLeaderCell(screen, szTable, 4, iRow, szBestName, szBestButton, iBestPlayer, CvUtil.FONT_LEFT_JUSTIFY)
 						# <!-- custom: Vanilla Civ4 divided integers here, so the best rival's share lost its decimals (Pacal II's 31 of 1346 showed 2.00% for 2.30% at turn 120 of a SAS48 islands save) while ours kept them; divide as float like ours. See KI#290.2. (Claude code Opus 5.5) -->
 						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%.2f%%" % (bestPop * 100.0 / totalPop)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -1729,7 +1904,7 @@ class CvVictoryScreen:
 					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szLandText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
-					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					self.setLeaderCell(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, self.iActivePlayer, CvUtil.FONT_LEFT_JUSTIFY)
 					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, (u"%.2f%%" % landPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					if (iBestLandTeam != -1):
@@ -1740,7 +1915,7 @@ class CvVictoryScreen:
 						if iBestPlayer >= 0:
 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 							szBestButton = self.getLeaderButton(iBestPlayer)
-						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						self.setLeaderCell(screen, szTable, 4, iRow, szBestName, szBestButton, iBestPlayer, CvUtil.FONT_LEFT_JUSTIFY)
 						# <!-- custom: Float division, as for the population row above. See KI#290.2. (Claude code Opus 5.5) -->
 						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%.2f%%" % (bestLand * 100.0 / totalLand)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -1750,13 +1925,14 @@ class CvVictoryScreen:
 					iRow = screen.appendTableRow(szTable)
 					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_RELIGION", (victory.getReligionPercent(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					if (iOurReligion != -1):
-						SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, gc.getReligionInfo(iOurReligion).getDescription() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						# <!-- custom: The religion cells now hover and open the religion's Sevopedia page. (Claude code Opus 5.5) -->
+						SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, gc.getReligionInfo(iOurReligion).getDescription() + ":", "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iOurReligion, 1, CvUtil.FONT_LEFT_JUSTIFY)
 						SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, (u"%d%%" % ourReligionPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					else:
 						SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 						SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, u"No Holy City", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					if (iBestReligion != -1):
-						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, gc.getReligionInfo(iBestReligion).getDescription() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, gc.getReligionInfo(iBestReligion).getDescription() + ":", "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iBestReligion, 1, CvUtil.FONT_LEFT_JUSTIFY)
 						# <!-- custom: Vanilla Civ4 printed religionPercent, left over from the loop above with the last religion's share, not the best one's; no SAS victory sets iReligionPercent, so this row shows only in a mod-mod with a religious victory. See KI#115.2. (Claude code Opus 5.5) -->
 						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%d%%" % bestReligionPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					bEntriesFound = True
@@ -1792,7 +1968,7 @@ class CvVictoryScreen:
 						if iBestPlayer >= 0:
 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 							szBestButton = self.getLeaderButton(iBestPlayer)
-						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						self.setLeaderCell(screen, szTable, 4, iRow, szBestName, szBestButton, iBestPlayer, CvUtil.FONT_LEFT_JUSTIFY)
 						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, unicode(bestCulture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					bEntriesFound = True
@@ -1814,7 +1990,8 @@ class CvVictoryScreen:
 					if (gc.getBuildingClassInfo(i).getVictoryThreshold(iLoopVC) > 0):
 						iRow = screen.appendTableRow(szTable)
 						szNumber = unicode(gc.getBuildingClassInfo(i).getVictoryThreshold(iLoopVC))
-						SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getBuildingClassInfo(i).getTextKey())), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						# <!-- custom: The required building's row now hovers and opens its Sevopedia page. (Claude code Opus 5.5) -->
+						SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getBuildingClassInfo(i).getTextKey())), "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, gc.getBuildingClassInfo(i).getDefaultBuildingIndex(), -1, CvUtil.FONT_LEFT_JUSTIFY)
 						SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 						SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, activePlayer.getTeam().getBuildingClassCount(i), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -1826,7 +2003,7 @@ class CvVictoryScreen:
 							if iBestPlayer >= 0:
 								szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 								szBestButton = self.getLeaderButton(iBestPlayer)
-							SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							self.setLeaderCell(screen, szTable, 4, iRow, szBestName, szBestButton, iBestPlayer, CvUtil.FONT_LEFT_JUSTIFY)
 							SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, gc.getTeam(iBestBuildingTeam).getBuildingClassCount(i), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 						bEntriesFound = True
@@ -1849,9 +2026,11 @@ class CvVictoryScreen:
 					bApolloShown = False
 					for i in range(gc.getNumProjectInfos()):
 						if (gc.getProjectInfo(i).getVictoryThreshold(iLoopVC) > 0):
+							# <!-- custom: The Apollo Program rows hover and open its Sevopedia page too; it is the part's anyone-built prerequisite, which the row's text names (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+							iApollo = gc.getProjectInfo(i).getAnyoneProjectPrereq()
 							if not self.isApolloBuilt():
 								iRow = screen.appendTableRow(szTable)
-								SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_PROJECT_APOLLO_PROGRAM", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+								SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_PROJECT_APOLLO_PROGRAM", ()), "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iApollo, 1, CvUtil.FONT_LEFT_JUSTIFY)
 								SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 								SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 								bEntriesFound = True
@@ -1860,7 +2039,7 @@ class CvVictoryScreen:
 								if not bApolloShown:
 									bApolloShown = True
 									iRow = screen.appendTableRow(szTable)
-									SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_PROJECT_APOLLO_PROGRAM", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+									SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_PROJECT_APOLLO_PROGRAM", ()), "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iApollo, 1, CvUtil.FONT_LEFT_JUSTIFY)
 
 									if self.isApolloBuiltbyTeam(activePlayer.getTeam()):
 										SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (activePlayer.getTeam().getName(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -1882,7 +2061,8 @@ class CvVictoryScreen:
 								# <!-- custom: add project icon to space ship part (claude opus 4.5) -->
 								szProjectButton = gc.getProjectInfo(i).getButton()
 								sSSPart = localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getProjectInfo(i).getTextKey()))
-								SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sSSPart, szProjectButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+								# <!-- custom: Spaceship part rows now hover and open the part's Sevopedia page. (Claude code Opus 5.5) -->
+								SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sSSPart, szProjectButton, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, i, 1, CvUtil.FONT_LEFT_JUSTIFY)
 
 								if self.isApolloBuiltbyTeam(activePlayer.getTeam()):
 
@@ -1949,11 +2129,11 @@ class CvVictoryScreen:
 							# <!-- custom: add project icon to space ship part (claude opus 4.5) -->
 							szProjectButton = gc.getProjectInfo(i).getButton()
 							szProjectText = localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getProjectInfo(i).getTextKey()))
-							SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szProjectText, szProjectButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szProjectText, szProjectButton, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, i, 1, CvUtil.FONT_LEFT_JUSTIFY)
 							# <!-- custom: add leader icon to active player (claude opus 4.5) -->
 							szActivePlayerName = activePlayer.getName() + ":"
 
-							SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szActivePlayerName, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							self.setLeaderCell(screen, szTable, 2, iRow, szActivePlayerName, szActivePlayerButton, self.iActivePlayer, CvUtil.FONT_LEFT_JUSTIFY)
 							SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, str(activePlayer.getTeam().getProjectCount(i)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 							#check if spaceship
@@ -1968,7 +2148,7 @@ class CvVictoryScreen:
 								if iBestPlayer >= 0:
 									szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 									szBestButton = self.getLeaderButton(iBestPlayer)
-								SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+								self.setLeaderCell(screen, szTable, 4, iRow, szBestName, szBestButton, iBestPlayer, CvUtil.FONT_LEFT_JUSTIFY)
 								SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, unicode(gc.getTeam(iBestProjectTeam).getProjectCount(i)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 							bEntriesFound = True
@@ -1994,25 +2174,33 @@ class CvVictoryScreen:
 						iBuildingType = gc.getBuildingClassInfo(iVoteBuildingClass).getDefaultBuildingIndex()
 						szBuildingButton = gc.getBuildingInfo(iBuildingType).getButton()
 						szElectionText = localText.getText("TXT_KEY_VICTORY_SCREEN_ELECTION", (gc.getBuildingClassInfo(iVoteBuildingClass).getTextKey(), ))
-						SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szElectionText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szElectionText, szBuildingButton, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingType, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 						if (iUNTeam != -1):
 							if bUnknown:
 								szName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
 								# <!-- custom: The icon is a plain string, as setTableText takes the button path as char const*: u"" raised a Boost ArgumentError and broke the whole Victory screen once an unmet team had built the Apostolic Palace (SAS48 island autoplay, turn 120, 2026-11-15). See KI#118.2. (Claude code Opus 5.5) -->
-								szNameButton = ""
+								self.setLeaderCell(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (szName, )), "", -1, CvUtil.FONT_LEFT_JUSTIFY)
+								# <!-- custom: No date for a builder you have not met, whose name is hidden too. (Claude code Opus 5.5) -->
+								SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, u"-", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 							else:
 								# <!-- custom: add leader icon (claude opus 4.5) -->
 								iUNPlayer = self.getPlayerOnTeam(iUNTeam)
-								szName = gc.getTeam(iUNTeam).getName()
-								szNameButton = ""
 								if iUNPlayer >= 0:
 									szName = gc.getPlayer(iUNPlayer).getName()
 									szNameButton = self.getLeaderButton(iUNPlayer)
-							SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (szName, )), szNameButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+								else:
+									szName = gc.getTeam(iUNTeam).getName()
+									szNameButton = ""
+								self.setLeaderCell(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (szName, )), szNameButton, iUNPlayer, CvUtil.FONT_LEFT_JUSTIFY)
+								# <!-- custom: The number column was empty on these rows; it now shows when the building was built, such as "T152 (AD 1030)" (the user, 2026-11-21, Civ4ScreenShot0363). (Claude code Opus 5.5) -->
+								SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, self.getBuildingClassBuiltText(iUNTeam, iVoteBuildingClass), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 						else:
 							SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, u"-", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						if iUNTeam != -1:
+							self.setVoteSourceChairCells(screen, szTable, iRow, gc.getBuildingInfo(iBuildingType).getVoteSourceType())
 						bEntriesFound = True
 
 				if (victory.getCityCulture() != CultureLevelTypes.NO_CULTURELEVEL and victory.getNumCultureCities() > 0):
@@ -2055,7 +2243,8 @@ class CvVictoryScreen:
 					# Simplified Cultural victory text for Victory Screen (claude opus 4.5). -->
 					# <!-- note: uses TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES instead of TXT_KEY_VICTORY_SCREEN_CITY_CULTURE for cleaner display -->
 					szCultureVictoryText = u"%s %d %s (%s)" % (SASVisuals.Commerce.CULTURE_CHAR, victory.getNumCultureCities(), self.TEXT_LEGENDARY_CITIES, separateThousands(iCultureThresh, self.TEXT_THOUSANDS_SEPARATOR_COMMA))
-					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szCultureVictoryText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					# <!-- custom: The row opens the Sevopedia speeds chart at this game's speed and the victory's culture level, whose thresholds it lists. See KI#113. (Claude code Opus 5.5) -->
+					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szCultureVictoryText, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_GAME_SPEED, gc.getGame().getGameSpeedType(), victory.getCityCulture(), CvUtil.FONT_LEFT_JUSTIFY)
 
 					for i in range(victory.getNumCultureCities()):
 						if (len(ourBestCities) > i):
@@ -2372,7 +2561,8 @@ class CvVictoryScreen:
 				self.iScreen = UN_MEMBERS_SCREEN
 				self.showMembersScreen()
 
-			elif (inputClass.getData1() == self.SPACESHIP_SCREEN_BUTTON):
+			# <!-- custom: Only the Spaceship button uses this action code. Other widgets carry Sevopedia IDs in the same input field. (GPT-6.2-Sol) -->
+			elif (inputClass.getButtonType() == WidgetTypes.WIDGET_GENERAL and inputClass.getData1() == self.SPACESHIP_SCREEN_BUTTON):
 				#close screen
 				screen = self.getScreen()
 				screen.setDying(True)

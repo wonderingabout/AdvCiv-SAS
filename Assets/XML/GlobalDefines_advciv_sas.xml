@@ -777,6 +777,16 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_INFO_UI_TIMELINE_CACHE_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Gridlines on the Info screen's graphs, about this many on each axis, at round turn numbers (x) and round values (y), or powers of 10 with the log scale; 0 turns that axis's off.
+	Without them a line's height read the same whatever the top value, and a turn between the date labels had to be guessed (the user, 2026-11-21). (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_INFO_UI_GRAPH_X_GRID_LINES</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_INFO_UI_GRAPH_Y_GRID_LINES</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
 	<!-- custom: 1 lists each Greatest Civilizations ranking on the Timeline tab (a title row and one row per rank); 0 hides them there, for players who find them noise.
 	They stay in the save, the replay and SASPilot either way, so turning it back on shows past rankings again (the user's idea, 2026-11-19).
 	On by default: a ranking comes a few times a game, mostly early, while "X is the first to discover Y" rows come far more often. (Claude code Opus 5.5) -->
@@ -797,6 +807,13 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<Define>
 		<DefineName>SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 also shows a vote source whose building stands but no longer votes, such as an Apostolic Palace late in a game, in the Victory screen's Resolutions and Members tabs, tagged (INACTIVE); 0 shows only the sources voting now, as before.
+	It ships off: the game keeps only whether each resolution is in force now, not what an inactive source decided, so its section is mostly empty (2026-11-21, Civ4ScreenShot0383).
+	It stays a switch for players who want every source listed, and for modmods whose sources turn on and off during a game. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
 
