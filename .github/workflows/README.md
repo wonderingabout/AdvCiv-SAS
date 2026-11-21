@@ -56,6 +56,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/documentation/markdown_links.py`](#builddocumentationmarkdown_linkspy)
     - [`build/documentation/markdown_prose_changes.py`](#builddocumentationmarkdown_prose_changespy)
     - [`build/documentation/markdown_structure.py`](#builddocumentationmarkdown_structurepy)
+    - [`build/documentation/orphan_images.py`](#builddocumentationorphan_imagespy)
     - [`build/documentation/retired_names.py`](#builddocumentationretired_namespy)
     - [`build/documentation/sas_source_guide.py`](#builddocumentationsas_source_guidepy)
   - [EXE patches](#exe-patches)
@@ -705,6 +706,14 @@ Create missing menus or refresh existing ones with `python .github/workflows/bui
 A folder-wide Deprecated/examples exemption also hid missing menus in maintained migration and runtime-example guides; those now require menus, with only the named short index/generated artifact exempt.
 
 The Logging Inventory reached 55 headings without navigation because the earlier check only validated declared menus. The missing-menu regression now fails for arbitrary new document paths, while fixtures verify exemptions, hierarchy and repeatable generation.
+
+#### `build/documentation/orphan_images.py`
+
+Fails on an image (`.png`, `.jpg`, `.gif`, `.webp`, `.bmp`, `.svg`) whose file name no other text file in the repository names, as a Markdown or HTML embed, a link, a JSON list or a script string. It is the reverse of [`markdown_images.py`](#builddocumentationmarkdown_imagespy), which fails on an embed whose image is missing.
+
+- The file name is matched rather than the path, in its plain and `%20` spellings, since scripts and tables name an image without its folder. Generated corpora and helper outputs (`LLM_Helpers/context/`, `LLM_Helpers/outputs/`) do not count, as they quote old names.
+- It has no exemptions. The first run, on 2026-11-21, found 70: three SAS screenshots left out of the docs, now embedded in the root README; 52 base AdvCiv comparison shots, now shown with captions in the [legacy images page](/_0_Legacy/Images/README.md); and 15 other mods' game font previews, now in a table in the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#editing-with-game-font-editor).
+- So a new image needs a place where it is named: an embed in the doc it illustrates, or a line in its folder's index.
 
 #### `build/documentation/retired_names.py`
 

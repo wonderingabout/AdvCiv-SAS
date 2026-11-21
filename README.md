@@ -1949,7 +1949,7 @@ For examples and coverage details:
 
 These plain-text records can be read in a text editor, analyzed with scripts, or shared with an external LLM such as ChatGPT for review without repository access. Sharing them can also reduce the time a local coding agent spends analyzing logs.
 
-For example, these five captured rows record research discoveries and a Great Engineer hurrying the Statue of Zeus at Constantinople, followed by its completion, showing what happened during play rather than only reporting settings.
+As for the records themselves, their rows show what happened during play rather than only reporting settings. For example, these five captured rows record research discoveries and a Great Engineer hurrying the Statue of Zeus at Constantinople, followed by its completion.
 
 Selected unchanged rows from `SASGameRecord_20261019T160718Z_load1.log`, turn 75 (intervening rows omitted):
 
@@ -2227,6 +2227,11 @@ See:
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS%20(1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS%20(2).PNG" alt="claude_code_CuCuGS (2).PNG" width="250"></img>
+
+In game: the CuCuGS screen, a full-screen Custom Game showing the chosen leader's portrait, traits and unique assets, here with the Legionary's hover open; then the same game's Victory screen Settings tab at turn 0:
+
+<img src="/_1_AdvCiv-SAS/Images/CuCuGS/1.001_CuCuGS%20(1).JPG" alt="1.001_CuCuGS (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/CuCuGS/1.001_CuCuGS%20(2).JPG" alt="1.001_CuCuGS (2).JPG" width="250"></img>
 
 ## CivFanatics (CFC) development discontinuation
 
