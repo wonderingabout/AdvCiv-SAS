@@ -30,9 +30,10 @@ class CvSpaceShipScreen:
 		self.windowHeight = screen.getYResolution()
 		screen.setDimensions(0, 0, self.windowWidth, self.windowHeight)
 		# <!-- custom: widen spaceship panel/button areas so upscaled label/title text fits without clipping (e.g., Completed/Type/Zoom/Add/Launch/Exit labels). (GPT-5.3-Codex) -->
-		self.W_SCREEN = 460
+		# <!-- custom: The parts panel stayed 460 x 768 at any resolution, so its upscaled labels were cramped 15 pixels apart; it now grows with the window, keeping those sizes as its minimum. (Claude code Opus 5.5) -->
+		self.W_SCREEN = max(460, self.windowWidth * 29 / 100)
 		self.X_SCREEN = self.windowWidth - self.W_SCREEN - 10
-		self.H_SCREEN = 768
+		self.H_SCREEN = max(768, self.windowHeight - 40)
 		self.Y_SCREEN = self.windowHeight / 2 - self.H_SCREEN / 2
 		self.Y_TITLE = self.Y_SCREEN + 20
 		self.activeProject = iFinishedProject
@@ -95,11 +96,14 @@ class CvSpaceShipScreen:
 		self.numComponents = len(self.componentProjects)
 		self.componentPanelYOffset = 10
 		self.componentPanelXOffset = 10
-		self.componentPanelHeight = self.H_SCREEN / (self.numComponents + 1)
+		# <!-- custom: Was H_SCREEN / (numComponents + 1), a whole part's height kept free for the Exit button; it needs only its own height, so the parts share the rest. (Claude code Opus 5.5) -->
+		self.componentPanelHeight = (self.H_SCREEN - self.H_EXIT - 2 * self.PADDING) / self.numComponents
 		self.componentPanelHeightExtra = 10
 		self.componentPanelWidth = self.W_SCREEN - 2 * self.componentPanelXOffset
 		self.componentNameXOffset = 12
-		self.componentNameYOffset = 10
+		# <!-- custom: Was 10, which left the name against the panel's top edge. (Claude code Opus 5.5) -->
+		self.componentNameYOffset = 18
+		self.componentNameIconSize = 24
 		self.componentTypeWidth = 80
 		self.componentTypeHeight = 30
 		self.componentTypeXOffset = self.componentPanelWidth - self.componentTypeWidth - 10
@@ -114,14 +118,24 @@ class CvSpaceShipScreen:
 		self.componentAddYOffset = 35
 		self.componentModelHeight = self.componentPanelHeight
 		self.componentModelWidth = 2 * self.componentModelHeight
-		self.componentModelXOffset = (self.componentPanelWidth - self.componentModelWidth) / 2
+		# <!-- custom: Was centered on the whole panel, so the model sat close to the labels on the left; it is now centered on the space between the widest label, measured in the current font, and the Type and Zoom buttons.
+		# A fixed 210 pixels for the labels put it too far right at 1080p, as they took about 140. (Claude code Opus 5.5) -->
+		iWidestLabel = 0
+		for szLabel in (localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_COMPLETED_LABEL", (99, 99)), localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_REQUIRED_LABEL", (99,)), localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_IN_PRODUCTION_LABEL", (99,))):
+			iWidestLabel = max(iWidestLabel, CyInterface().determineWidth(SASTextScale.labelText(szLabel)))
+		iModelSpaceLeft = self.componentNameXOffset + iWidestLabel
+		iModelSpaceRight = self.componentTypeXOffset
+		self.componentModelXOffset = (iModelSpaceLeft + iModelSpaceRight - self.componentModelWidth) / 2
 		self.componentModelYOffset = 0
+		# <!-- custom: The three labels were 15 pixels apart, too close for upscaled text; they now share the panel's height below the name. (Claude code Opus 5.5) -->
+		# <!-- custom: The name, in the title font with its 24-pixel button, overflowed onto the first label at 42; they now start at 60. (Claude code Opus 5.5) -->
+		iLabelStep = (self.componentPanelHeight - 60) / 3
 		self.componentCompletedLabelXOffset = 12
-		self.componentCompletedLabelYOffset = 40
+		self.componentCompletedLabelYOffset = 60
 		self.componentRequiredLabelXOffset = 12
-		self.componentRequiredLabelYOffset = 55
+		self.componentRequiredLabelYOffset = 60 + iLabelStep
 		self.componentInProductionLabelXOffset = 12
-		self.componentInProductionLabelYOffset = 70
+		self.componentInProductionLabelYOffset = 60 + 2 * iLabelStep
 
 		screen.setSpaceShip(self.activeProject)
 		self.rebuildComponentPanel()
@@ -153,7 +167,9 @@ class CvSpaceShipScreen:
 				if(index == self.activeProject):
 					xPositionOffset = 80
 				screen.addPanel("ComponentPanel" + str(i), "", "", true, true, xPosition - xPositionOffset, yPosition, self.componentPanelWidth + xPositionOffset, self.componentPanelHeight + self.componentPanelHeightExtra, PanelStyles.PANEL_STYLE_TECH)
-				screen.setLabel("ComponentLabel" + str(i), "ComponentPanel" + str(i), u"<color=255,255,0>" + SASTextScale.titleText(component.getDescription()) + u"</color>", CvUtil.FONT_LEFT_JUSTIFY, xPosition - xPositionOffset + self.componentNameXOffset, yPosition + self.componentNameYOffset, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				# <!-- custom: The part's name had no button or hover; it now shows the part's button and hovers and opens its Sevopedia page, as the Victory screen's part rows do. (Claude code Opus 5.5) -->
+				szComponentName = SASTextScale.imageText(component.getButton(), self.componentNameIconSize, SASTextScale.titleText(component.getDescription()))
+				screen.setText("ComponentLabel" + str(i), "ComponentPanel" + str(i), u"<color=255,255,0>" + szComponentName + u"</color>", CvUtil.FONT_LEFT_JUSTIFY, xPosition - xPositionOffset + self.componentNameXOffset, yPosition + self.componentNameYOffset, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, index, 1)
 
 				#completed
 				completed = gc.getTeam(activeTeam).getProjectCount(index)
@@ -209,10 +225,12 @@ class CvSpaceShipScreen:
 				delay = gc.getTeam(gc.getGame().getActiveTeam()).getVictoryDelay(self.spaceVictory)
 				screen.setLabel("LaunchLabel1", "SpaceShipMainPanel", u"<color=255,255,0>" + SASTextScale.titleText(localText.getText("TXT_KEY_SPACESHIP_CHANCE_OF_SUCCESS", (gc.getTeam(gc.getGame().getActiveTeam()).getLaunchSuccessRate(self.spaceVictory), ))) + u"</color>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LAUNCH_LABEL1, self.Y_LAUNCH_LABEL1, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				screen.setLabel("LaunchLabel2", "SpaceShipMainPanel", u"<color=255,255,0>" + SASTextScale.titleText(localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_TRAVEL_TIME_LABEL", (delay,))) + u"</color>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LAUNCH_LABEL2, self.Y_LAUNCH_LABEL2, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				screen.setButtonGFC("LaunchButton", SASTextScale.titleText(localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_LAUNCH_BUTTON", ())), "", self.X_LAUNCH, self.Y_LAUNCH, self.W_LAUNCH, self.H_LAUNCH, WidgetTypes.WIDGET_GENERAL, self.LAUNCH_BUTTON, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
+				# <!-- custom: Label font, as for the Exit button below. (Claude code Opus 5.5) -->
+				screen.setButtonGFC("LaunchButton", SASTextScale.labelText(localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_LAUNCH_BUTTON", ())), "", self.X_LAUNCH, self.Y_LAUNCH, self.W_LAUNCH, self.H_LAUNCH, WidgetTypes.WIDGET_GENERAL, self.LAUNCH_BUTTON, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
 
 		#exit button
-		screen.setButtonGFC("ExitButton", SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ())), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT, self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
+		# <!-- custom: The splash and dialog screens gave their OK/Exit button the title font, the label font or none, so the same fixed-size button read out of proportion with the screen's own text from one screen to the next; all now take the label font, as the rest of their text does (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		screen.setButtonGFC("ExitButton", SASTextScale.labelText(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ())), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT, self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
 
 	def removeComponentsPanel(self):
 		screen = CyGInterfaceScreen( "SpaceShipScreen", CvScreenEnums.SPACE_SHIP_SCREEN)
@@ -234,6 +252,9 @@ class CvSpaceShipScreen:
 
 	# Will handle the input for this screen...
 	def handleInput (self, inputClass):
+		# <!-- custom: The part names' Sevopedia widget carries the project ID in data1, which the button codes below would otherwise read as a Type, Zoom, Add or Launch press. (Claude code Opus 5.5) -->
+		if inputClass.getButtonType() == WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT:
+			return 0
 		if(inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
 			data1 = inputClass.getData1()
 			data2 = inputClass.getData2()

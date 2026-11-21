@@ -641,6 +641,11 @@ def pediaJumpToEra(argsList):
 	if bUsingSevopedia and 0 <= iEra < CyGlobalContext().getNumEraInfos():
 		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_ERA_CHART, iEra, True, False)
 
+# <!-- custom: Target of the native WIDGET_PEDIA_JUMP_TO_GAME_SPEED; the item is the DLL's packed speed + numSpeeds * (culture level + 1), which SevoPediaGameSpeedChart unpacks. See KI#113. (Claude code Opus 5.5) -->
+def pediaJumpToGameSpeed(argsList):
+	if bUsingSevopedia:
+		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_GAME_SPEED_CHART, argsList[0], True, False)
+
 # <!-- custom: Target of the native WIDGET_PEDIA_JUMP_TO_TRAIT. See KI#113. (Claude code Opus 5.5) -->
 def pediaJumpToTrait(argsList):
 	iTrait = argsList[0]
@@ -1373,11 +1378,11 @@ def featAccomplishedOnClickedCallback(argsList):
 			# <!-- custom: resource-connected feat now belongs to the Foreign Trade cluster; open Bonuses tab there. (GPT-5.3-Codex) -->
 			showForeignAdvisorScreen([foreignAdvisor.SCREEN_DICT["BONUS"]])
 		elif ((iData1 == FeatTypes.FEAT_NATIONAL_WONDER)):
-			# 2 is for the wonder tab...
-			showInfoScreen([2, 0])
+			# <!-- custom: These feats passed 2 for the wonders and 1 for the demographics tab, numbers from before SAS added the Score tab, which the screen ignored anyway, showing the tab last open.
+			# It now opens a positive tab ID, as the scoreboard's power ratio needs, so they name the tabs by the screen's own IDs. (Claude code Opus 5.5) -->
+			showInfoScreen([infoScreen.iTopCitiesID, 0])
 		elif ((iData1 >= FeatTypes.FEAT_POPULATION_HALF_MILLION) and (iData1 <= FeatTypes.FEAT_POPULATION_2_BILLION)):
-			# 1 is for the demographics tab...
-			showInfoScreen([1, 0])
+			showInfoScreen([infoScreen.iDemographicsID, 0])
 		elif iData1 == FeatTypes.FEAT_CORPORATION_ENABLED:
 			showCorporationScreen()
 
