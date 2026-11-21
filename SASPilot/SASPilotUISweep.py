@@ -4,7 +4,8 @@
 
 # <!-- custom: Open every advisor through SASPilotUI, visit each of its footer tabs and list what went wrong, as a read-only regression check of the screens after a Python or DLL change.
 # Listed with Codex (GPT-6.2-Sol) on 2026-11-20 as the next step after SASPilotSweep.py: Python errors, a tab that does not become active, widgets left over from another tab, an Exit that fails or a screen that differs after a close and reopen, and typed widgets with no hover text.
-# Only navigation is pressed, including Sevopedia table cells with recorded page links. Drop-downs and game-changing buttons are out of scope, and an unexpected popup or the diplomacy screen stops the sweep. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+# Only navigation is pressed, including Sevopedia table cells with recorded page links.
+# Drop-downs and game-changing buttons are out of scope, and an unexpected popup or the diplomacy screen stops the sweep. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 
 # <!-- custom: argparse and sys for the command line, re strips tags from a widget's text, time for the run's length, Counter counts the widgets two visits show, and Path finds SASMagicNumbers.py. (Claude code Opus 5.5) -->
 import argparse
@@ -261,7 +262,8 @@ class Sweep(object):
 			self.expanded += 1
 
 	def search(self, category, table, szQuery):
-		# <!-- custom: Compare the ordered page links after typing, as headings can remain in a filtered list without matching the query. Backspace must restore both the table text and the links. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		# <!-- custom: Compare the ordered page links after typing, as headings can remain in a filtered list without matching the query.
+		# Backspace must restore both the table text and the links. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		where = "pedia/%s search" % category
 		expected = [pediaLinkKey(cell) for cell, label in pediaEntries(table) if szQuery in label.lower()]
 		self.call("uipress", widget="PediaMainCategoryList", about=category)

@@ -1291,7 +1291,8 @@ class CvMainInterface:
 		gSetRectangle("MainMenuButton", lButtons.next())
 		gSetRectangle("InterfaceHelpButton", lButtons.next())
 
-	# <!-- custom: Use the widest commerce glyph at 100% for the narrow slider layout. The Tech Advisor uses the same minimum so both ordinary buttons fit even when its right strip is configured smaller. See KI#1103. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+	# <!-- custom: Use the widest commerce glyph at 100% for the narrow slider layout.
+	# The Tech Advisor uses the same minimum so both ordinary buttons fit even when its right strip is configured smaller. See KI#1103. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	def getCommercePercentLabelWidth(self):
 		return max(CyInterface().determineWidth(SASTextScale.labelText(u"%s:100%%" % SASVisuals.Commerce.char(eCommerce))) for eCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES))
 
@@ -1306,7 +1307,8 @@ class CvMainInterface:
 		iHSpacing = HSPACE(0)
 		iRowH = iBtnSize + iVSpacing
 		iColumnW = iBtnSize + iHSpacing
-		# <!-- custom: Read once, as the layout below tests it three times. bCommerceMinMaxFits starts true for each layout and turns false below when BUG's Min/Max pair cannot fit beside the Tech Advisor; updatePercentButtons and updateGameDataStrings then leave that pair out. (Claude code Opus 5.5) -->
+		# <!-- custom: Read once, as the layout below tests it three times.
+		# bCommerceMinMaxFits starts true for each layout and turns false below when BUG's Min/Max pair cannot fit beside the Tech Advisor; updatePercentButtons and updateGameDataStrings then leave that pair out. (Claude code Opus 5.5) -->
 		bCityScreen = CyInterface().isCityScreenUp()
 		self.bCommerceMinMaxFits = True
 		if bCityScreen:
@@ -1339,7 +1341,10 @@ class CvMainInterface:
 		iPercentTextX = iPercentTextBaseX + HSPACE(iRightCommerceBlockXOffset)
 		iPercentTextToButtonsX = 36 + HSPACE(56) - HSPACE(14)
 		iFirstColumnOffset = 0
-		# <!-- custom: The Tech Advisor's strip can be narrower than four scaled buttons plus the percentage label. Tighten the label gap first, then keep the ordinary +/- buttons if Min/Max still cannot fit. Move those buttons to the first two columns in that case. The city layout keeps its inherited spacing. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		# <!-- custom: The Tech Advisor's strip can be narrower than four scaled buttons plus the percentage label.
+		# Tighten the label gap first, then keep the ordinary +/- buttons if Min/Max still cannot fit.
+		# Move those buttons to the first two columns in that case.
+		# The city layout keeps its inherited spacing. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		if not bCityScreen and bCommerceBlockAnchorRight:
 			iPercentTextX = max(iPercentTextX, iPercentTextBaseX + HSPACE(4))
 			iButtonSpace = gRect("Top").xRight() - max(2, HSPACE(4)) - iPercentTextX
@@ -1387,7 +1392,8 @@ class CvMainInterface:
 		for i in range(4):
 			gRect("CommerceSliderBtns" + str(i)).move(0, iSliderButtonsVerticalOffset)
 		# </advc.002b>
-		# <!-- custom: The style button is drawn at the measured end of the visible block in updateGameDataStrings. Its initial rect supplies only its size. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		# <!-- custom: The style button is drawn at the measured end of the visible block in updateGameDataStrings.
+		# Its initial rect supplies only its size. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		gSetRect("CommerceBgStyle", "Top", 0, 0, iBtnSize, iBtnSize)
 		gSetPoint("MaintenanceText", PointLayout(gPoint("PercentText0").x() + 1, gRect("CommerceSliderBtns0").yBottom()))
 		gSetPoint("MaintenanceAmountText", PointLayout(gPoint("CityPercentText0").x(), gPoint("MaintenanceText").y()))
@@ -2137,7 +2143,8 @@ class CvMainInterface:
 
 		screen.addPanel("ScoreBackground", u"", u"", True, False, 0, 0, 0, 0, PanelStyles.PANEL_STYLE_HUD_HELP)
 		screen.hide("ScoreBackground")
-		# <!-- custom: A new HUD starts with an empty panel. Reset the cached style so a load applies the configured commerce background to the newly created widget. (GPT-6.2-Sol) -->
+		# <!-- custom: A new HUD starts with an empty panel.
+		# Reset the cached style so a load applies the configured commerce background to the newly created widget. (GPT-6.2-Sol) -->
 		self.iCommerceBgStyleLevel = None
 		self._eCommerceBgStyleApplied = PanelStyles.PANEL_STYLE_EMPTY
 		screen.addPanel("CommerceBackground", u"", u"", True, False, 0, 0, 0, 0, PanelStyles.PANEL_STYLE_EMPTY)
@@ -2525,7 +2532,8 @@ class CvMainInterface:
 		self.setFieldofView(screen, False)
 # BUG - Field of View - end
 
-		# <!-- custom: The Tech Advisor dirties the scoreboard on open and close. Update the shared strip before either the commerce buttons or labels draw, so they move together in this redraw. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		# <!-- custom: The Tech Advisor dirties the scoreboard on open and close.
+		# Update the shared strip before either the commerce buttons or labels draw, so they move together in this redraw. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		kInterface = CyInterface()
 		if self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT and not kInterface.isCityScreenUp() and kInterface.isDirty(InterfaceDirtyBits.Score_DIRTY_BIT):
 			import CvScreensInterface
@@ -4275,7 +4283,8 @@ class CvMainInterface:
 				aCommerceRateSummary = [u"%s%d" %(SASVisuals.Commerce.char(eCommerce), iRate) for (iRow, eCommerce, iRate) in aRateRows]
 				iSummaryX = gPoint("PercentText0").x()
 				iSummaryY = max(gPoint("PercentText0").y() + iCount * iRowStep, iContentBottom)
-				# <!-- custom: Late-game rates can exceed even the space below the sliders. Wrap between commerce amounts so each number stays with its icon. (GPT-6.2-Sol) -->
+				# <!-- custom: Late-game rates can exceed even the space below the sliders.
+				# Wrap between commerce amounts so each number stays with its icon. (GPT-6.2-Sol) -->
 				aSummaryLines = [aCommerceRateSummary[0]]
 				for szRate in aCommerceRateSummary[1:]:
 					szCombined = aSummaryLines[-1] + u"; " + szRate
@@ -4291,7 +4300,8 @@ class CvMainInterface:
 					screen.show(szName)
 					iContentRight = max(iContentRight, iSummaryX + kInterface.determineWidth(szSummary))
 				iContentBottom = iSummaryY + len(aSummaryLines) * iRowStep
-			# <!-- custom: Keep the background around the drawn block, including when left-anchored. In the panel, the style button goes at the bottom-right so it stays clear of the percentages and rates at every width. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			# <!-- custom: Keep the background around the drawn block, including when left-anchored.
+			# In the panel, the style button goes at the bottom-right so it stays clear of the percentages and rates at every width. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 			if not bCityScreen and iCount > 0:
 				iBgX = max(gRect("Top").x(), gPoint("PercentText0").x() - iBgPad)
 				iBgY = min(gPoint("PercentText0").y(), lFirstSliderColumn.y()) - VSPACE(2)
@@ -4308,17 +4318,24 @@ class CvMainInterface:
 					iButtonX = gRect("MiniMap").xRight() - 9 * lBgBtn.width() - 2 * HSPACE(6)
 					iButtonY = gRect("GlobeToggle").y() - lBgBtn.height()
 					iBgBottom = iContentBottom + VSPACE(2)
-				else:
+				# <!-- custom: Was the else branch, which took any other value; named now, so -1 can hide the button and an unknown value fails below. (Claude code Opus 5.5) -->
+				elif iButtonPos == 2:
 					lAdvisors = gRect("AdvisorButtons")
 					# <!-- custom: HSPACE(4) left a wider gap than between the advisor buttons, while their own spacing (-iround(BTNSZ(28) / 10.0) + 1, which overlaps their art) left it touching the first one; HSPACE(1) sits between (the user, 2026-11-21). (Claude code Opus 5.5) -->
 					iButtonX = lAdvisors.x() - lBgBtn.width() - HSPACE(1)
 					# <!-- custom: Centring the two rectangles left the square 1 px below the advisor circles at 1080p (circle rows 8-31, square 13-28), as the circles' art sits above their rectangle's centre; VSPACE(1) lifts it with the resolution. (Claude code Opus 5.5) -->
 					iButtonY = lAdvisors.y() + (lAdvisors.height() - lBgBtn.height()) / 2 - VSPACE(1)
 					iBgBottom = iContentBottom + VSPACE(2)
+				# <!-- custom: -1 shows no button, for a player who finds it distracting (the user, 2026-11-21); the background keeps SAS_COMMERCE_SLIDERS_BG_DEFAULT_STYLE's style. (Claude code Opus 5.5) -->
+				elif iButtonPos == -1:
+					iBgBottom = iContentBottom + VSPACE(2)
+				else:
+					raise ValueError("SAS_COMMERCE_SLIDERS_BG_BUTTON_POS is %d; use -1, 0, 1 or 2" % iButtonPos)
 				screen.setPanelSize("CommerceBackground", iBgX, iBgY, iBgRight - iBgX, iBgBottom - iBgY)
 				screen.show("CommerceBackground")
-				screen.moveItem("CommerceBgStyle", iButtonX, iButtonY, -0.3)
-				screen.show("CommerceBgStyle")
+				if iButtonPos >= 0:
+					screen.moveItem("CommerceBgStyle", iButtonX, iButtonY, -0.3)
+					screen.show("CommerceBgStyle")
 		self.updateTimeText()
 		self.setLabel("TimeText", "Background", SASTextScale.sasFontTagLabel + g_szTimeText + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
 		screen.show("TimeText")
@@ -4523,6 +4540,7 @@ class CvMainInterface:
 		pPlayer = gc.getActivePlayer()
 		iCombatExp = pPlayer.getCombatExperience()
 		iThresholdExp = pPlayer.greatPeopleThreshold(True)
+		# <!-- custom: Whole numbers, with no fraction to show: advc.312 halves the points of a fight against Barbarians and rounds that fight's half down on its own (CvUnit::changeExperience), so a 1-point win adds nothing and its half point is lost. (Claude code Opus 5.5) -->
 		iGGBarTextMode = self.getGGBarTextMode()
 		if iGGBarTextMode > 0:
 			# <!-- custom: Mode 2 is base AdvCiv's text, the icon and the experience still needed (BUG's INTERFACE_NEXT_GREAT_GENERAL_XP). (Claude code Opus 5.5) -->

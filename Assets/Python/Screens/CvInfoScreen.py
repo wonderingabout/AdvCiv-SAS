@@ -741,7 +741,8 @@ class CvInfoScreen:
 
 		screen = self.getScreen()
 		if screen.isActive():
-			# <!-- custom: The scoreboard stays clickable beside Info. Its power-ratio click must reach Score even when another Info tab is already open. (GPT-6.2-Sol) -->
+			# <!-- custom: The scoreboard stays clickable beside Info.
+			# Its power-ratio click must reach Score even when another Info tab is already open. (GPT-6.2-Sol) -->
 			if 0 < iTabID < len(self.PAGE_NAME_LIST) and iTabID != self.iActiveTab:
 				self.iActiveTab = iTabID
 				self.redrawContents()
@@ -4225,7 +4226,8 @@ class CvInfoScreen:
 
 	# <!-- custom: The graphs had no gridlines, so a line's height read the same whether the top was 500 or 6,000, and a turn between the labels had to be guessed (the user, 2026-11-21, Civ4ScreenShot0165).
 	# Vertical lines fall on round turn numbers rather than years: the x axis is linear in turns, while years per turn change with the era, so round years would be unevenly spaced.
-	# Horizontal lines fall on round values, or on powers of 10 with BUG's log scale. SAS_INFO_UI_GRAPH_X_GRID_LINES and _Y_GRID_LINES give about how many of each; 0 turns that axis's off.
+	# Horizontal lines fall on round values, or on powers of 10 with BUG's log scale.
+	# SAS_INFO_UI_GRAPH_X_GRID_LINES and _Y_GRID_LINES give about how many of each; 0 turns that axis's off.
 	# Labels only on the one large graph, where they fit. (Claude code Opus 5.5) -->
 	def drawGraphGrid(self, screen, szCanvas, iX, iY, iW, iH, iFirstTurn, iLastTurn, fXFactor, fYFactor, iMinValue, iMaxValue):
 		bLabels = (not AdvisorOpt.isGraphs()) or self.Graph_Status_Current == self.Graph_Status_1in1
@@ -4233,7 +4235,8 @@ class CvInfoScreen:
 		eColor = SASVisuals.Color.GREY
 		iXLines = min(self.iSAS_INFO_UI_GRAPH_X_GRID_LINES, max(1, iW / 8))
 		iYLines = min(self.iSAS_INFO_UI_GRAPH_Y_GRID_LINES, max(1, iH / 8))
-		# <!-- custom: Keep the lines but omit labels that would collide. Use the rendered text width for turn labels and reserve a font-sized row for values and the top axis. (GPT-6.2-Sol) -->
+		# <!-- custom: Keep the lines but omit labels that would collide.
+		# Use the rendered text width for turn labels and reserve a font-sized row for values and the top axis. (GPT-6.2-Sol) -->
 		iLabelHeight = max(20, 8 * SASTextScale.getSASUIFontLabel())
 		iTopLabelBand = 0
 		if iXLines > 0:
@@ -4344,7 +4347,8 @@ class CvInfoScreen:
 		szWidgetName = inputClass.getFunctionName() + str(inputClass.getID())
 		code = inputClass.getNotifyCode()
 
-		# <!-- custom: A table selection sends its row number in getData(), which can equal KB_RETURN. Only a keyboard notification can use Enter to close Info. (GPT-6.2-Sol) -->
+		# <!-- custom: A table selection sends its row number in getData(), which can equal KB_RETURN.
+		# Only a keyboard notification can use Enter to close Info. (GPT-6.2-Sol) -->
 		if (szWidgetName == self.szExitButtonName and code == NotifyCode.NOTIFY_CLICKED or
 				code == NotifyCode.NOTIFY_CHARACTER and inputClass.getData() == int(InputTypes.KB_RETURN)):
 			self.resetWonders() # Reset Wonders so nothing lingers next time the screen is opened
@@ -4374,7 +4378,8 @@ class CvInfoScreen:
 		# Dropdown Box/ ListBox
 		if (code == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED):
 
-			# <!-- custom: With no debug dropdown its ID is empty, which is also what the EXE sends for table cells. Only resolve a perspective for a real dropdown. (GPT-6.2-Sol) -->
+			# <!-- custom: With no debug dropdown its ID is empty, which is also what the EXE sends for table cells.
+			# Only resolve a perspective for a real dropdown. (GPT-6.2-Sol) -->
 			if self.DEBUG_DROPDOWN_ID and inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID:
 				self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(screen, self.DEBUG_DROPDOWN_ID)
 				self.reset() # advc.001d

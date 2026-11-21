@@ -463,7 +463,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			self.SAS_safeDeleteWidget(screen, szWidget)
 		self.SAS_searchKeyboardIds = []
 
-	# <!-- custom: The pages that call SAS_prepareSpecialPageDeletingItemList, so they have no item list to select in when jumped to (pediaJump); a new such page joins them here. A class attribute, read once per jump. (Claude code Opus 5.5) -->
+	# <!-- custom: The pages that call SAS_prepareSpecialPageDeletingItemList, so they have no item list to select in when jumped to (pediaJump); a new such page joins them here.
+	# A class attribute, read once per jump. (Claude code Opus 5.5) -->
 	SAS_CATEGORIES_WITHOUT_ITEM_LIST = (SevoScreenEnums.PEDIA_UNIT_UPGRADES, SevoScreenEnums.PEDIA_PROMOTION_TREE, SevoScreenEnums.PEDIA_HINTS, SevoScreenEnums.PEDIA_HANDICAP_CHART, SevoScreenEnums.PEDIA_GAME_SPEED_CHART, SevoScreenEnums.PEDIA_WORLD_SIZE_CHART, SevoScreenEnums.PEDIA_ERA_CHART)
 
 	# <!-- custom: clear search state for special pages that delete the item list (chatgpt 5.2 + claude opus 4.5) -->
@@ -808,7 +809,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	# <!-- custom: Optional action label lets Back/Forward preserve their cause while ordinary callers keep NAVIGATE; final normalized category/item values remain the authoritative destination. (ChatGPT-5.6-Sol) -->
 	def pediaJump(self, iCategory, iItem, bRemoveFwdList, bIsLink, szSASAction=SASGameRecordActions.NAVIGATE):
 		# <!-- custom: note: fixed a (seemingly base advciv) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed so reverted everything as base advciv code was minus this extra code comment, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or known issue number 22 as of now in known issues of advciv-sas readme for details as well. -->
-		# <!-- custom: Close the media overlay when a title or queue link actually navigates. Waiting for a named table event can miss the jump and leave the timer writing to a hidden screen. Movie cleanup also restores No Movies (KI#299). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		# <!-- custom: Close the media overlay when a title or queue link actually navigates.
+		# Waiting for a named table event can miss the jump and leave the timer writing to a hidden screen.
+		# Movie cleanup also restores No Movies (KI#299). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		if self.pediaMovies.isMoviePlayerOpen():
 			self.pediaMovies.leaveMoviePlayer()
 		if self.pediaMusic.isMusicPlayerOpen():

@@ -275,7 +275,8 @@ def createMilitaryAdvisor():
 	militaryAdvisorUsesBUG = bUseBUG
 	HandleInputMap[MILITARY_ADVISOR] = militaryAdvisor
 
-# <!-- custom: For the main interface's Great General bar. Through the advisor's control, as its key does: opened by calling showMilitaryAdvisor from elsewhere, the Map tab's minimap stayed empty until the tab was pressed again (SASPilot, 2026-11-20; see KI#129). (Claude code Opus 5.5) -->
+# <!-- custom: For the main interface's Great General bar.
+# Through the advisor's control, as its key does: opened by calling showMilitaryAdvisor from elsewhere, the Map tab's minimap stayed empty until the tab was pressed again (SASPilot, 2026-11-20; see KI#129). (Claude code Opus 5.5) -->
 # <!-- custom: iPage is one of the advisor's PAGE_ values, from SAS_MAIN_UI_GG_BAR_CLICK_TAB. (Claude code Opus 5.5) -->
 def showMilitaryAdvisorTab(iPage):
 	createMilitaryAdvisor()
@@ -283,7 +284,8 @@ def showMilitaryAdvisorTab(iPage):
 		# <!-- custom: An out-of-range SAS_MAIN_UI_GG_BAR_CLICK_TAB would draw the Map page with no tab selected (GPT-6.2-Sol); fail loudly instead of keeping the current page, so a mistyped setting shows at once, as SAS defines do. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 		if iPage not in militaryAdvisor.PAGE_IDS:
 			raise ValueError("SAS_MAIN_UI_GG_BAR_CLICK_TAB is %d; use one of %s" % (iPage, militaryAdvisor.PAGE_IDS))
-		# <!-- custom: interfaceScreen returns when the advisor is already open. Use the same in-place redraw as a Map tab click, so the page ID and visible content change together. (GPT-6.2-Sol) -->
+		# <!-- custom: interfaceScreen returns when the advisor is already open.
+		# Use the same in-place redraw as a Map tab click, so the page ID and visible content change together. (GPT-6.2-Sol) -->
 		if militaryAdvisor.getScreen().isActive():
 			if militaryAdvisor.iActivePage != iPage:
 				militaryAdvisor.iActivePage = iPage

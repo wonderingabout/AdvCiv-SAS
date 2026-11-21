@@ -493,13 +493,16 @@ class CvWorldAdvisorScreen:
 			self.setBFCCountCell(screen, szTable, iCol, iRow, rowData[7][iFeature])
 			iCol += 1
 
-	# <!-- custom: Keep the sortable plot heading and put its link after the measured text. Shrink the icon to the remaining column space and leave only the heading if it would be too small to click. The Territory row keeps the same link. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	# <!-- custom: Keep the sortable plot heading and put its link after the measured text.
+	# Shrink the icon to the remaining column space and leave only the heading if it would be too small to click.
+	# The Territory row keeps the same link. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	def setHeaderTextWithIconLink(self, screen, szTable, iCol, szText, iDataX, iDataW, szButton, eWidget, iData1, iData2):
 		iX = iDataX + (iCol - 2) * iDataW
 		columnRect = (iX, self.BFC_Y_PLOT_TABLE, iDataW, self.BFC_ICON_SIZE)
 		SASTextScale.setTableColumnHeaderLabelWithLink(screen, szTable, iCol, szText, columnRect, self.getNextWidgetName(), szButton, (eWidget, iData1, iData2), self.BFC_HEADER_TEXT_X, self.BFC_HEADER_ICON_Y)
 
-	# <!-- custom: Table headers cannot carry actions, so draw the linked icon over its column and leave the rest of the header available for sorting (screenshots Civ4ScreenShot0127, 0128). The Rivers concept uses the second data field. (Claude code Opus 5.5) -->
+	# <!-- custom: Table headers cannot carry actions, so draw the linked icon over its column and leave the rest of the header available for sorting (screenshots Civ4ScreenShot0127, 0128).
+	# The Rivers concept uses the second data field. (Claude code Opus 5.5) -->
 	# <!-- custom: Leave padding inside the header and keep the click target within the column at narrow widths. (GPT-6.2-Sol) -->
 	# <!-- custom: Now through SASTextScale.setTableColumnHeaderIconLink, shared with the Domestic Advisor's specialist headers, which also sets the blank header. (Claude code Opus 5.5) -->
 	def addHeaderIconLink(self, screen, szTable, iCol, szButton, iX, iY, iW, eWidget, iData, iData2=-1):
@@ -1239,8 +1242,8 @@ class CvWorldAdvisorScreen:
 		if self.CHANGES_ADVANCED_START_ART is None:
 			self.CHANGES_ADVANCED_START_ART = {
 				"CITY": SASVisuals.StaticArt.FOUND_CITY_BUTTON,
-				"POPULATION": gc.getSpecialistInfo(getInfoTypeOrFail("SPECIALIST_CITIZEN")).getButton(),
-				"CULTURE": gc.getSpecialistInfo(getInfoTypeOrFail("SPECIALIST_ARTIST")).getButton(),
+				"POPULATION": SASVisuals.Specialist.getButton(getInfoTypeOrFail("SPECIALIST_CITIZEN")),
+				"CULTURE": SASVisuals.Specialist.getButton(getInfoTypeOrFail("SPECIALIST_ARTIST")),
 				"IMPROVEMENT": gc.getUnitInfo(getInfoTypeOrFail("UNIT_WORKER")).getButton(),
 				"ROUTE": gc.getBuildInfo(getInfoTypeOrFail("BUILD_ROAD")).getButton(),
 				"AUTOMATE": gc.getAutomateInfo(int(AutomateTypes.AUTOMATE_BUILD)).getButton(),

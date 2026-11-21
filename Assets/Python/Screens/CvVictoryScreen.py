@@ -305,7 +305,8 @@ class CvVictoryScreen:
 
 	# <!-- custom: When a team's building of this class was built, as "T152 (AD 1030)": the game stores the year a building was first built (getBuildingOriginalTime) but not the turn, so the turn is the one turn that had that year, and the year alone shows when several turns share it, as under a calendar of months; "-" when no city of the team holds it. (Claude code Opus 5.5) -->
 	def getBuildingClassBuiltText(self, iTeam, iBuildingClass):
-		# <!-- custom: Inspect the building types the city actually holds, including any captured variant. CvCity::iBuildingOriginalTimeUnknown is MIN_SHORT for a building with no recorded completion. (GPT-6.2-Sol) -->
+		# <!-- custom: Inspect the building types the city actually holds, including any captured variant.
+		# CvCity::iBuildingOriginalTimeUnknown is MIN_SHORT for a building with no recorded completion. (GPT-6.2-Sol) -->
 		aiBuildings = [i for i in range(gc.getNumBuildingInfos()) if gc.getBuildingInfo(i).getBuildingClassType() == iBuildingClass]
 		game = gc.getGame()
 		for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
@@ -352,7 +353,8 @@ class CvVictoryScreen:
 			self.setLeaderCell(screen, szTable, 4, iRow, szName + u":", szButton, iChairPlayer, CvUtil.FONT_LEFT_JUSTIFY)
 		else:
 			SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, u"-", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		# <!-- custom: One "Not active", not "not yet" and "no longer": that split would rest on the game remembering the last chair, which a modmod switching sources off and on could clear, making a source that has voted read "not yet active". The chair cell beside it tells the two apart anyway: the last chair if it has voted, "-" if it never has (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		# <!-- custom: One "Not active", not "not yet" and "no longer": that split would rest on the game remembering the last chair, which a modmod switching sources off and on could clear, making a source that has voted read "not yet active".
+		# The chair cell beside it tells the two apart anyway: the last chair if it has voted, "-" if it never has (the user, 2026-11-21). (Claude code Opus 5.5) -->
 		if not gc.getGame().isDiploVote(iSource):
 			szValue = self.TEXT_NOT_ACTIVE_SHORT
 		elif bKnown:
@@ -541,10 +543,12 @@ class CvVictoryScreen:
 			self.drawVoteSourceInactiveFallback(self.TEXT_VOTE_SOURCE_NOT_ACTIVE, aiVoteBuildingClass)
 			return
 
+		# <!-- custom: Use vote-source order like Members (UN then AP in the XML).
+		# One source can have several building definitions, but draws only one section. (GPT-6.2-Sol) -->
 		# <!-- custom: One section per active vote source, the United Nations above the Apostolic Palace, each with its heading lines and a sortable table of its resolutions: the single table mixed headings, timers and resolutions in one list, which could not sort, and cut long resolutions short (the user, 2026-11-21, Civ4ScreenShot0254/0255).
 		# Under Rise and Fall, advc.703 appended the Members list here; SAS always shows the Members tab, so it is no longer repeated.
-		# The table rows this replaces were K-Mod's: one pass over (source, building class, team, unknown) drawing only sources with isDiploVote ("previously no condition"), an empty row between sources, then the last one removed; the sections now space themselves. advc.178's diplomatic-victory clauses stay, in drawResolutionTable. (Claude code Opus 5.5) -->
-		# <!-- custom: Use vote-source order like Members (UN then AP in the XML). One source can have several building definitions, but draws only one section. (GPT-6.2-Sol) -->
+		# The table rows this replaces were K-Mod's: one pass over (source, building class, team, unknown) drawing only sources with isDiploVote ("previously no condition"), an empty row between sources, then the last one removed; the sections now space themselves.
+		# advc.178's diplomatic-victory clauses stay, in drawResolutionTable. (Claude code Opus 5.5) -->
 		aiSources = self.getShownVoteSources()
 		if not aiSources:
 			self.drawVoteSourceInactiveFallback(self.TEXT_VOTE_SOURCE_NOT_ACTIVE, aiVoteBuildingClass)
@@ -578,7 +582,8 @@ class CvVictoryScreen:
 
 			self.showMembersScreen_BUG(iRelVote, iUNVote, iVoteBody, iVoteIdx)
 		else:
-			# <!-- custom: Use the same source filter as Resolutions. The BUG poll requires an active source, but the regular Members tab can explain an inactive-only game. (GPT-6.2-Sol) -->
+			# <!-- custom: Use the same source filter as Resolutions.
+			# The BUG poll requires an active source, but the regular Members tab can explain an inactive-only game. (GPT-6.2-Sol) -->
 			aiSources = self.getShownVoteSources()
 			if not aiSources:
 				self.deleteAllWidgets()
@@ -899,7 +904,9 @@ class CvVictoryScreen:
 		self.drawVoteSourceSections(aiSources, self.drawMemberTable)
 		placeAdvisorLegendLink(self, "CONCEPT_SAS_VICTORY_SCREEN_VOTES_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
 
-	# <!-- custom: Stack each heading above its sortable table. Cap the table at its share of the available height, but put the next heading after the populated rows when the table is short. At 1440p a three-member UN otherwise left half the screen empty above the Palace. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	# <!-- custom: Stack each heading above its sortable table.
+	# Cap the table at its share of the available height, but put the next heading after the populated rows when the table is short.
+	# At 1440p a three-member UN otherwise left half the screen empty above the Palace. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	def drawVoteSourceSections(self, aiSources, fnDrawTable):
 		aiSources = self.sortVoteSourcesByUnlock(aiSources)
 		screen = self.getScreen()
@@ -946,11 +953,13 @@ class CvVictoryScreen:
 				return True
 		return False
 
-	# <!-- custom: Budget one row for the sortable header and one for the table's bottom inset. Longer lists keep their scroll area. (GPT-6.2-Sol) -->
+	# <!-- custom: Budget one row for the sortable header and one for the table's bottom inset.
+	# Longer lists keep their scroll area. (GPT-6.2-Sol) -->
 	def getVoteTableHeight(self, iAvailable, iRows):
 		return min(iAvailable, (iRows + 2) * self.iLeaderButtonSize)
 
-	# <!-- custom: A vote source's heading lines, out of the table so sorting cannot move them: its building and name, with its religion for the Apostolic Palace, then the Secretary General and, for a voting member, the turns to the next vote and the votes to the next election. Returns the height used. (Claude code Opus 5.5) -->
+	# <!-- custom: A vote source's heading lines, out of the table so sorting cannot move them: its building and name, with its religion for the Apostolic Palace, then the Secretary General and, for a voting member, the turns to the next vote and the votes to the next election.
+	# Returns the height used. (Claude code Opus 5.5) -->
 	def drawVoteSourceHeader(self, screen, iSource, iX, iY, iW):
 		activePlayer = gc.getPlayer(self.iActivePlayer)
 		iLineH = self.iLeaderButtonSize + 4
@@ -1030,7 +1039,9 @@ class CvVictoryScreen:
 			aResolutions.append((iLoop, iTotalVotes, szVoteName, szVoteContent))
 			iWantedNameW = max(iWantedNameW, interface.determineWidth(SASTextScale.labelText(szVoteName)) + 16)
 			iWantedEffectW = max(iWantedEffectW, interface.determineWidth(SASTextScale.labelText(szVoteContent)) + 16)
-		# <!-- custom: AP descriptions often carry the whole action in the name. At font 4 and 1366 px, a fixed share clipped those even while Effect was mostly empty. Give each source its own widths and leave up to half the text space for long effects. (GPT-6.2-Sol) -->
+		# <!-- custom: AP descriptions often carry the whole action in the name.
+		# At font 4 and 1366 px, a fixed share clipped those even while Effect was mostly empty.
+		# Give each source its own widths and leave up to half the text space for long effects. (GPT-6.2-Sol) -->
 		iNameW = min(max(iW * 22 / 100, iWantedNameW), iTextW - min(iWantedEffectW, iTextW / 2))
 		iContentW = iTextW - iNameW
 		iH = self.getVoteTableHeight(iH, len(aResolutions))
@@ -1109,7 +1120,8 @@ class CvVictoryScreen:
 		iTableW = 18
 		for (szHeader, iColW) in aColumns:
 			iTableW += iColW
-		# <!-- custom: Keep numeric columns readable when a long leader name pushes the padded widths beyond the table. Trim the Leader and Status columns to its remaining space. (GPT-6.2-Sol) -->
+		# <!-- custom: Keep numeric columns readable when a long leader name pushes the padded widths beyond the table.
+		# Trim the Leader and Status columns to its remaining space. (GPT-6.2-Sol) -->
 		if iTableW > iW:
 			iTextWidth = iW - 18 - sum(iColW for (_, iColW) in aColumns[1:-1])
 			iLeaderW, iStatusW = self.scaleColumnsToWidth([aColumns[0][1], iStatusW], iTextWidth)
@@ -2561,7 +2573,8 @@ class CvVictoryScreen:
 				self.iScreen = UN_MEMBERS_SCREEN
 				self.showMembersScreen()
 
-			# <!-- custom: Only the Spaceship button uses this action code. Other widgets carry Sevopedia IDs in the same input field. (GPT-6.2-Sol) -->
+			# <!-- custom: Only the Spaceship button uses this action code.
+			# Other widgets carry Sevopedia IDs in the same input field. (GPT-6.2-Sol) -->
 			elif (inputClass.getButtonType() == WidgetTypes.WIDGET_GENERAL and inputClass.getData1() == self.SPACESHIP_SCREEN_BUTTON):
 				#close screen
 				screen = self.getScreen()

@@ -216,7 +216,8 @@ class CvTechChooser:
 			iRightSpaceForScoreboard = self.iSAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE
 			# <!-- custom: optional low-res top-space replacement paired with the low-res width swap; useful to keep map-view advisor buttons accessible when Tech Chooser is widened. (GPT-5.3-Codex) -->
 			iTopSpaceForTechBar = self.iSAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE
-		# <!-- custom: Preserve room for the percentage and the ordinary +/- buttons when the map sliders use the right strip. The HUD handles optional buttons and rates separately. (GPT-6.2-Sol) -->
+		# <!-- custom: Preserve room for the percentage and the ordinary +/- buttons when the map sliders use the right strip.
+		# The HUD handles optional buttons and rates separately. (GPT-6.2-Sol) -->
 		if gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_ANCHOR_RIGHT") > 0:
 			import CvScreensInterface
 			iRightSpaceForScoreboard = max(iRightSpaceForScoreboard, CvScreensInterface.mainInterface.getMinimumMapCommerceRightSpace())

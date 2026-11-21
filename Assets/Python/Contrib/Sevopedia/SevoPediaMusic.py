@@ -280,7 +280,9 @@ class SevoPediaMusic:
 		self.SAS_setupPlayableMusic(iMusic)
 		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMusicLabels, self.SAS_playableMusicIndex, self.SAS_playableMusicGroupByIndex, self.SAS_playableMusicGroupLabels, self.SAS_playableMusicIcons, [self.SAS_getMusicPediaLink(iPacked) for iPacked in self.SAS_playableMusic])
 
-	# <!-- custom: Link tracks whose catalog entry identifies an owner. Script-only tracks can be shared and have no single page. Leader hovers use the same civ context as the Music page, as in KI#332. (GPT-6.2-Sol) -->
+	# <!-- custom: Link tracks whose catalog entry identifies an owner.
+	# Script-only tracks can be shared and have no single page.
+	# Leader hovers use the same civ context as the Music page, as in KI#332. (GPT-6.2-Sol) -->
 	def SAS_getMusicPediaLink(self, iPacked):
 		iMusicType, iMusicId = self.top.SAS_unpackMusicKey(iPacked)
 		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_TECH:

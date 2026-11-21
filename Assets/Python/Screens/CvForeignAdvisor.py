@@ -898,7 +898,9 @@ class CvForeignAdvisor:
 		return CyGInterfaceScreen(self.SCREEN_NAME + str(self.iScreen), CvScreenEnums.FOREIGN_ADVISOR)
 
 	# <!-- custom: Show the same AI attitude icon, signed score and hover breakdown as Glance (the user, 2026-11-21, Civ4ScreenShot0209).
-	# hasAttitude checks contact between the two leaders. Also check the real player's contact with both: a selected or debug-perspective leader can outlast the view that exposed it. Use the same gate for the score and the native hover. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	# hasAttitude checks contact between the two leaders.
+	# Also check the real player's contact with both: a selected or debug-perspective leader can outlast the view that exposed it.
+	# Use the same gate for the score and the native hover. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	def getRelationsLabel(self, iPlayer, iTarget):
 		eWidget = WidgetTypes.WIDGET_GENERAL
 		if not AttitudeUtil.hasAttitude(iPlayer, iTarget):
@@ -1035,7 +1037,8 @@ class CvForeignAdvisor:
 
 		# K-Mod. vassal / master label
 		szName = self.getNextWidgetName()
-		# <!-- custom: The text built here inline is now getRelationsLabel's, shared with the circle's leaders, so playerBase above is gone. setText sends clicks to handleInput, like the portrait. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+		# <!-- custom: The text built here inline is now getRelationsLabel's, shared with the circle's leaders, so playerBase above is gone.
+		# setText sends clicks to handleInput, like the portrait. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 		szText, eWidget = self.getRelationsLabel(self.iActiveLeader, iBaseLeader)
 		if szText:
 			screen.setText(szName, "", labelText(szText), CvUtil.FONT_CENTER_JUSTIFY, self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight + 25, 0, FontTypes.GAME_FONT, eWidget, self.iActiveLeader, iBaseLeader)
@@ -1068,7 +1071,8 @@ class CvForeignAdvisor:
 			screen.setLabel(szName, "", szText, CvUtil.FONT_CENTER_JUSTIFY, fX + iLeaderWidth/2, fY + iLeaderHeight + 5, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 			# Leader attitude towards active player. (rewritten by K-Mod)
-			# <!-- custom: K-Mod's vassal/master and attitude text, built here and again for the center leader, now comes from getRelationsLabel, which adds the attitude's icon, score and hover. It is toward iBaseLeader, the selected leader, as K-Mod's already was: the active player only until another is selected. (Claude code Opus 5.5) -->
+			# <!-- custom: K-Mod's vassal/master and attitude text, built here and again for the center leader, now comes from getRelationsLabel, which adds the attitude's icon, score and hover.
+			# It is toward iBaseLeader, the selected leader, as K-Mod's already was: the active player only until another is selected. (Claude code Opus 5.5) -->
 			szName = self.getNextWidgetName()
 			szText, eWidget = self.getRelationsLabel(iPlayer, iBaseLeader)
 			if szText:
@@ -2527,7 +2531,8 @@ class CvForeignAdvisor:
 	### END CHANGES ENHANCED INTERFACE MOD ###
 	##########################################
 
-	# <!-- custom: The mission rows were plain text (the user, 2026-11-21, Civ4ScreenShot0180). Each now starts with a game-font character for what it does, read from the mission's own effects rather than its name, so a modmod's mission gets one too; "" for a mission with none of these effects. (Claude code Opus 5.5) -->
+	# <!-- custom: The mission rows were plain text (the user, 2026-11-21, Civ4ScreenShot0180).
+	# Each now starts with a game-font character for what it does, read from the mission's own effects rather than its name, so a modmod's mission gets one too; "" for a mission with none of these effects. (Claude code Opus 5.5) -->
 	def getEspionageMissionChar(self, pMission):
 		if pMission.getBuyTechCostFactor() > 0 or pMission.isSeeResearch():
 			szChar = SASVisuals.Commerce.char(CommerceTypes.COMMERCE_RESEARCH)
@@ -2545,7 +2550,8 @@ class CvForeignAdvisor:
 			szChar = SASVisuals.Font.RELIGION_CHAR
 		elif pMission.getDestroyProductionCostFactor() > 0:
 			szChar = SASVisuals.Yield.PRODUCTION_CHAR
-		# <!-- custom: Influence Civics and Sabotage were the two missions left without one (the user, 2026-11-21, Civ4ScreenShot0250): the silver star for forcing a civic, a mark of authority, and the strength sword for destroying a building, unit, project or tile improvement; neither is used by another mission. AdvCiv shows the destroy missions as one Sabotage row (advc.120d below), which takes the sword too. (Claude code Opus 5.5) -->
+		# <!-- custom: Influence Civics and Sabotage were the two missions left without one (the user, 2026-11-21, Civ4ScreenShot0250): the silver star for forcing a civic, a mark of authority, and the strength sword for destroying a building, unit, project or tile improvement; neither is used by another mission.
+		# AdvCiv shows the destroy missions as one Sabotage row (advc.120d below), which takes the sword too. (Claude code Opus 5.5) -->
 		elif pMission.getSwitchCivicCostFactor() > 0 or pMission.getPlayerAnarchyCounter() > 0:
 			szChar = SASVisuals.Font.SILVER_STAR_CHAR
 		elif pMission.isDestroyImprovement() or pMission.getDestroyBuildingCostFactor() > 0 or pMission.getDestroyUnitCostFactor() > 0 or pMission.getDestroyProjectCostFactor() > 0:

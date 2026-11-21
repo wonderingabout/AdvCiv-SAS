@@ -704,8 +704,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
 		//parseDescriptionHelp(widgetDataStruct, szBuffer, true);
 		break;
 
-	// <!-- custom: See WIDGET_HELP_LEADER_HEAD in CvEnums.h.
-	// parseLeaderHeadHelp named the player, so the human's legend entry read "Pilot (Aggressive, Protective)", its chosen name, not its leader's (the user, 2026-11-20, Civ4ScreenShot0140).
+	// <!-- custom: See WIDGET_HELP_LEADER_HEAD in CvEnums.h. parseLeaderHeadHelp named the player, so the human's legend entry read "Pilot (Aggressive, Protective)", its chosen name, not its leader's (the user, 2026-11-20, Civ4ScreenShot0140).
 	// "Pilot" did not tell which leader it was without looking at the button, and some leader names are unfamiliar enough to need saying.
 	// The hover now names the leader, then the player's name when it differs and the civilization. (Claude code Opus 5.5) -->
 	case WIDGET_HELP_LEADER_HEAD:
@@ -749,7 +748,8 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
 		}
 		else if (widgetDataStruct.m_iData1 <= 0 && widgetDataStruct.m_iData1 > -MAX_PLAYERS)
 		{
-			// <!-- custom: A recorded row can survive a unit moving into fog. Match the Map list's visibility rule and omit the owner as its unit text does. (GPT-6.2-Sol) -->
+			// <!-- custom: A recorded row can survive a unit moving into fog.
+			// Match the Map list's visibility rule and omit the owner as its unit text does. (GPT-6.2-Sol) -->
 			CvUnit const* pUnit = GET_PLAYER((PlayerTypes)-widgetDataStruct.m_iData1).getUnit(widgetDataStruct.m_iData2);
 			TeamTypes const eObserver = getActiveTeam();
 			if (pUnit != NULL && eObserver != NO_TEAM && pUnit->plot() != NULL &&
@@ -956,7 +956,8 @@ static bool jumpToMinimapHighlightPedia(CvPythonCaller const& py, int iData1, in
 		py.jumpToPedia(GET_PLAYER((PlayerTypes)iData2).getLeaderType(), "Leader");
 	else if (iData1 <= 0 && iData1 > -MAX_PLAYERS)
 	{
-		// <!-- custom: A Map-tab row can outlive the unit it identified. Keep the click inert when the lookup finds no unit. (GPT-6.2-Sol) -->
+		// <!-- custom: A Map-tab row can outlive the unit it identified.
+		// Keep the click inert when the lookup finds no unit. (GPT-6.2-Sol) -->
 		CvUnit const* pUnit = GET_PLAYER((PlayerTypes)-iData1).getUnit(iData2);
 		if (pUnit != NULL)
 			py.jumpToPedia(pUnit->getUnitType(), "Unit");

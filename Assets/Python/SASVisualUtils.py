@@ -230,7 +230,8 @@ class _CommerceResources(_IndexedInfoChars):
 		setattr(self, szName, szChar)
 		return szChar
 
-	# <!-- custom: Finance and the Military Summary show expenses as positive magnitudes. Mark a real deduction with the maintenance coin so it scans differently from income. (GPT-6.2-Sol) -->
+	# <!-- custom: Finance and the Military Summary show expenses as positive magnitudes.
+	# Mark a real deduction with the maintenance coin so it scans differently from income. (GPT-6.2-Sol) -->
 	# <!-- custom: The coin alone, for a cost shown in another format, such as the city screen's maintenance with its hundredths; every gold cost takes its coin from here, so a change to it reaches the Finance tab, the Military Summary and the city screen at once (the user, 2026-11-21).
 	# Red losses beside plain gains were what made Civ3's economy screens easy to scan, which the user recalled when asking for it. (Claude code Opus 5.5) -->
 	def goldCostChar(self, iCost):

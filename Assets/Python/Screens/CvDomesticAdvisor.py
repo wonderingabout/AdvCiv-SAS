@@ -595,14 +595,16 @@ class CvDomesticAdvisor:
 		szCommerceIcon = u" " + SASVisuals.Yield.COMMERCE_CHAR
 		szGoldIcon = u" " + SASVisuals.Commerce.GOLD_CHAR
 
-		# <!-- custom: Expenses are positive amounts subtracted from income. Use the red maintenance coin for charges, while zero stays neutral. (GPT-6.2-Sol) -->
+		# <!-- custom: Expenses are positive amounts subtracted from income.
+		# Use the red maintenance coin for charges, while zero stays neutral. (GPT-6.2-Sol) -->
 		# <!-- custom: Its red text now comes from SASVisuals.Commerce.colorGoldCost, shared with the city screen's maintenance. (Claude code Opus 5.5) -->
 		def expenseText(iCost):
 			return SASVisuals.Commerce.colorGoldCost(SASVisuals.Commerce.goldCostText(iCost), iCost)
 		szTreasuryPanel = self.getNextFinanceWidgetName()
 		screen.addPanel(szTreasuryPanel, u"", "", True, True, X_LEFT_PANEL, Y_TOP_PANEL, X_RIGHT_PANEL + PANE_WIDTH - X_LEFT_PANEL, H_TOP_PANEL, PanelStyles.PANEL_STYLE_MAIN )
 		szText = localText.getText("TXT_KEY_FINANCIAL_ADVISOR_TREASURY", (gold, )).upper()
-		# <!-- custom: A negative per-turn rate is a deduction even while the treasury can cover it. Use the same red expense cue as the breakdown below. (GPT-6.2-Sol) -->
+		# <!-- custom: A negative per-turn rate is a deduction even while the treasury can cover it.
+		# Use the same red expense cue as the breakdown below. (GPT-6.2-Sol) -->
 		if goldPerTurn < 0:
 			szText += BugUtil.getText("TXT_KEY_MISC_NEG_GOLD_PER_TURN", goldPerTurn)
 			szText += u" " + SASVisuals.Font.BAD_GOLD_CHAR

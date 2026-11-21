@@ -1155,7 +1155,8 @@ class CvPolicyAdvisorScreen:
 				for iUnit in range(gc.getNumUnitInfos()):
 					kUnitInfo = gc.getUnitInfo(iUnit)
 					if kUnitInfo.getBuildings(iBuilding) or kUnitInfo.getForceBuildings(iBuilding):
-						# <!-- custom: Render Built by as a linked icon and clickable text. Labels do not reliably receive clicks, and a corporation without a founding building or unit has no link. (GPT-5.3-Codex + Claude code Opus 5.5 + GPT-6.2-Sol) -->
+						# <!-- custom: Render Built by as a linked icon and clickable text.
+						# Labels do not reliably receive clicks, and a corporation without a founding building or unit has no link. (GPT-5.3-Codex + Claude code Opus 5.5 + GPT-6.2-Sol) -->
 						iBuiltByLeftX = xLoop - 44
 						szName = self.getCorporationTextName(iCorp) + "GreatPerson"
 						screen.setImageButtonAt(szName + "Icon", self.CORPORATION_PANEL_ID, kUnitInfo.getButton(), iBuiltByLeftX, self.Y_CORPORATION_GREAT_PERSON, 24, 24, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, -1)
@@ -1265,7 +1266,8 @@ class CvPolicyAdvisorScreen:
 		return aeBonuses
 
 	# <!-- custom: The Consumes and Generates rows were one label of comma-separated bonus chars (GPT-5.3-Codex), so a bonus had no hover or Sevopedia link (the user, 2026-11-20).
-	# Center the actual set of inputs in its column and keep a gutter between corporations. A short list can use full-size icons; an empty list shows "-". (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	# Center the actual set of inputs in its column and keep a gutter between corporations.
+	# A short list can use full-size icons; an empty list shows "-". (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	def drawCorporationBonusLinks(self, screen, szName, aeBonuses, iX, iY):
 		if len(aeBonuses) == 0:
 			screen.setLabelAt(szName, self.CORPORATION_PANEL_ID, SASTextScale.sasFontTagLabel + u"-" + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, iX, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)

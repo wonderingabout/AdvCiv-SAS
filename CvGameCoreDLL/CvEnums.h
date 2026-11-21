@@ -537,7 +537,8 @@ ENUM_START(Widget, WIDGET)
 	WIDGET_PEDIA_JUMP_TO_BUILD,
 	WIDGET_PEDIA_JUMP_TO_TRAIT,
 	// <!-- custom: Opens the Sevopedia speeds chart, which has no item pages, with a game speed's column and a culture level's row highlighted, such as the Victory screen's Legendary cities.
-	// Payload: data1 the GameSpeedInfo ID, data2 the CultureLevelInfo ID or -1. Appended to preserve EXE-facing widget IDs. See KI#113. (Claude code Opus 5.5) -->
+	// Payload: data1 the GameSpeedInfo ID, data2 the CultureLevelInfo ID or -1.
+	// Appended to preserve EXE-facing widget IDs. See KI#113. (Claude code Opus 5.5) -->
 	WIDGET_PEDIA_JUMP_TO_GAME_SPEED,
 	// <!-- custom: A hover naming player data1's leader, traits, player name and civilization, the Sevopedia on a Ctrl+click or a right click, and no plain-click action, which stays the screen's: the Info screen's Graph legend toggles a line on it. (Claude code Opus 5.5) -->
 	WIDGET_HELP_LEADER_HEAD,

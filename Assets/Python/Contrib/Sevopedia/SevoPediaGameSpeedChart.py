@@ -114,7 +114,8 @@ class SevoPediaGameSpeedChart:
 			else:
 				setHeader(table, iCol, header[iCol], colW)
 
-		# <!-- custom: The culture rows are normally at the bottom. Put the linked threshold first so it is visible immediately, even in a short window, while browsing and CSV export keep the normal row order. (GPT-6.2-Sol) -->
+		# <!-- custom: The culture rows are normally at the bottom.
+		# Put the linked threshold first so it is visible immediately, even in a short window, while browsing and CSV export keep the normal row order. (GPT-6.2-Sol) -->
 		iFocusRow = -1
 		if 0 <= iFocusCultureLevel < gc.getNumCultureLevelInfos():
 			iCultureRow = len(rows) - gc.getNumCultureLevelInfos() + iFocusCultureLevel

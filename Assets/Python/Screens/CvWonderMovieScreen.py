@@ -64,7 +64,8 @@ class CvWonderMovieScreen:
 		self.H_MOVIE = 480
 
 		self.iMovieType = iMovieType
-		# <!-- custom: The timer starts only below, once a movie will play: update() starts playMovie when fDelay is positive, so a screen that returns early for lack of a movie sets no timer. The unused PyPlayer lookup there went too. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+		# <!-- custom: The timer starts only below, once a movie will play: update() starts playMovie when fDelay is positive, so a screen that returns early for lack of a movie sets no timer.
+		# The unused PyPlayer lookup there went too. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 		self.fDelay = -1.0
 
 		# not all projects have movies
@@ -85,7 +86,8 @@ class CvWonderMovieScreen:
 		self.bDone = false
 
 		# move the camera and mark the interface camera as dirty so that it gets reset - JW
-		# <!-- custom: A SASPilot preview has no event city. Leave the map camera and its dirty flag alone. (GPT-6.2-Sol) -->
+		# <!-- custom: A SASPilot preview has no event city.
+		# Leave the map camera and its dirty flag alone. (GPT-6.2-Sol) -->
 		if iCityId >= 0:
 			if self.iMovieType == MOVIE_SCREEN_WONDER:
 				CyInterface().lookAtCityBuilding(iCityId, iMovieItem)

@@ -837,7 +837,8 @@ def take_screenshot(pid, out, timeout):
 		new = [p for p in SCREENSHOT_DIR.glob("Civ4ScreenShot*") if p.name not in before]
 		if new:
 			shot = max(new, key=lambda p: p.stat().st_mtime)
-			# <!-- custom: Check that the file is stable inside the same deadline. Civ4 can miss the key after the focus check or leave a partial file, so either case falls back to PrintWindow. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			# <!-- custom: Check that the file is stable inside the same deadline.
+			# Civ4 can miss the key after the focus check or leave a partial file, so either case falls back to PrintWindow. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 			stat = shot.stat()
 			current = (shot, stat.st_size, stat.st_mtime_ns)
 			if stat.st_size and current == previous:

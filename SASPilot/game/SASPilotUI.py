@@ -122,7 +122,9 @@ def _clearScreenRecord(iScreen):
 			del listed[key]
 
 
-# <!-- custom: A widget can open a screen from its Python or DLL action. Start a fresh record on its first draw, since a persistent screen's last recorded tab can differ from what this press opens. Already open screens keep their records for incremental updates. (GPT-6.2-Sol) -->
+# <!-- custom: A widget can open a screen from its Python or DLL action.
+# Start a fresh record on its first draw, since a persistent screen's last recorded tab can differ from what this press opens.
+# Already open screens keep their records for incremental updates. (GPT-6.2-Sol) -->
 def _beginPressScreenRecord(iScreen):
 	seen = pilot._state.get("uiPressScreens")
 	if seen is not None and iScreen not in seen:
@@ -301,7 +303,8 @@ def _uninstall():
 	pilot._state["uiInstalled"] = False
 
 
-# <!-- custom: The recorder follows screens that 'uiopen' or 'uipress' opens. The bridge tick removes it when the watched screen closes; a permanent install added about 8 ms to a full HUD redraw in the 2026-11-20 test. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+# <!-- custom: The recorder follows screens that 'uiopen' or 'uipress' opens.
+# The bridge tick removes it when the watched screen closes; a permanent install added about 8 ms to a full HUD redraw in the 2026-11-20 test. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 def _tick():
 	if not pilot._state.get("uiInstalled") or pilot._state.get("uiAlways") or pilot._state.get("uiPressScreens") is not None:
 		return
@@ -412,7 +415,8 @@ def _screenIdsFor(szShow):
 	return [iScreen for iScreen in pilot._state.get("uiOpenedBy", {}).get(szShow, [])]
 
 
-# <!-- custom: The Tech Chooser keeps its cached tree across opens. When SASPilot opens it, rebuild so the recorder sees the tech boxes and their links, as well as the icons the cached path updates. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+# <!-- custom: The Tech Chooser keeps its cached tree across opens.
+# When SASPilot opens it, rebuild so the recorder sees the tech boxes and their links, as well as the icons the cached path updates. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 def _prepareTechOpen():
 	CyInterface().setDirty(InterfaceDirtyBits.Tech_Screen_DIRTY_BIT, True)
 
@@ -498,7 +502,8 @@ def cmd_uisplash(args):
 	if gc.getGame().getActivePlayer() < 0:
 		raise ValueError("a splash preview needs an active player")
 	_requireHudInput()
-	# <!-- custom: Two previews can share a screen ID, or stack over different event screens. Check each open splash before starting another. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	# <!-- custom: Two previews can share a screen ID, or stack over different event screens.
+	# Check each open splash before starting another. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	for szOpen in set(entry[4] for entry in _SPLASHES):
 		if _isOpen(getattr(CvScreenEnums, szOpen)):
 			raise ValueError("%s is open; close it before previewing another splash" % szOpen)
@@ -776,7 +781,8 @@ def cmd_uipress(args):
 	if len(szFunction) < len(szSent):
 		iID = int(szSent[len(szFunction):])
 	argsList = [eNotify, iData, iFlags, iID, iScreen, szFunction, False, False, False, iMouseX, iMouseY, iWidget, iData1, iData2, bOption]
-	# <!-- custom: Wrap the dispatch itself so a press from the HUD or another advisor captures the destination as it opens. A press that stays on the same screen keeps its previous watch. (GPT-6.2-Sol) -->
+	# <!-- custom: Wrap the dispatch itself so a press from the HUD or another advisor captures the destination as it opens.
+	# A press that stays on the same screen keeps its previous watch. (GPT-6.2-Sol) -->
 	before = set(_activeScreens())
 	if not pilot._state.get("uiInstalled"):
 		_install()
@@ -812,7 +818,8 @@ def _dispatchPress(iScreen, szWidget, argsList, target, bRight, result):
 	iWidget = target["widget"]
 	result["dllAction"] = iWidget not in (int(WidgetTypes.WIDGET_GENERAL), int(WidgetTypes.WIDGET_PYTHON))
 	if result["dllAction"]:
-		# <!-- custom: The HUD button and any other widget carrying this control use the same rebuild as 'uiopen tech'. Only a left click on the control can open it through executeAction. (GPT-6.2-Sol) -->
+		# <!-- custom: The HUD button and any other widget carrying this control use the same rebuild as 'uiopen tech'.
+		# Only a left click on the control can open it through executeAction. (GPT-6.2-Sol) -->
 		if not bRight and iWidget == int(WidgetTypes.WIDGET_ACTION) and target["data1"] == gc.getControlInfo(ControlTypes.CONTROL_TECH_CHOOSER).getActionInfoIndex() and not _isOpen(CvScreenEnums.TECH_CHOOSER):
 			_prepareTechOpen()
 		result["dllHandled"] = bool(pilot._pilotGame("executeSASPilotWidget").executeSASPilotWidget(iWidget, target["data1"], target["data2"], target["option"], bRight))

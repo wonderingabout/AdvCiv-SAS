@@ -261,7 +261,8 @@ class CvDawnOfMan:
 		return
 
 	def onClose(self):
-		# <!-- custom: Only the real game-start screen releases its sound-selection gate. A mid-game preview never takes ownership of that state. (GPT-6.2-Sol) -->
+		# <!-- custom: Only the real game-start screen releases its sound-selection gate.
+		# A mid-game preview never takes ownership of that state. (GPT-6.2-Sol) -->
 		if not self.bPreview:
 			CyInterface().setSoundSelectionReady(true)
 		return 0

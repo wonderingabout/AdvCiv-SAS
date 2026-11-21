@@ -89,7 +89,8 @@ sasFontTagLabel = _DynamicFontTag("SAS_UI_FONT_LABEL")
 sasFontTagTitle = _DynamicFontTag("SAS_UI_FONT_TITLE")
 sasFontTagHover = _DynamicFontTag("SAS_UI_FONT_HOVER")
 
-# <!-- custom: SASPilot can preview the Python layout fonts within one game session. Native widget tooltips cache the hover font separately in the DLL. (GPT-6.2-Sol) -->
+# <!-- custom: SASPilot can preview the Python layout fonts within one game session.
+# Native widget tooltips cache the hover font separately in the DLL. (GPT-6.2-Sol) -->
 # <!-- custom: Not gated on SASPilot's switch: nothing changes until a caller sets a preview, and another caller, such as an in-game font option shown live, could use it too; SASPilot's uifont is the first. (Claude code Opus 5.5) -->
 _PREVIEW_FONT_TAGS = {"tiny": sasFontTagTiny, "body": sasFontTagBody, "label": sasFontTagLabel, "title": sasFontTagTitle}
 
@@ -99,7 +100,8 @@ def getUIFontSizes():
 
 
 def setUIFontPreview(dSizes, bReset=False):
-	# <!-- custom: Validate the whole request before changing any size. Clear the normal and bold tags together so imports holding either object see the next size. (GPT-6.2-Sol) -->
+	# <!-- custom: Validate the whole request before changing any size.
+	# Clear the normal and bold tags together so imports holding either object see the next size. (GPT-6.2-Sol) -->
 	for szRole, iSize in dSizes.items():
 		if szRole not in _PREVIEW_FONT_TAGS or type(iSize) is not int or not 1 <= iSize <= 4:
 			raise ValueError("expected tiny, body, label or title with a whole size from 1 to 4")
@@ -218,7 +220,9 @@ def setTableDateLabel(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, 
 def setTableColumnHeaderLabel(screen, szTable, iCol, szText, iWidth):
 	setTableColumnHeaderScaled(screen, szTable, iCol, szText, iWidth, sasFontTagLabel)
 
-# <!-- custom: Table headers can sort but cannot carry widget actions. Keep the text in the header and put a linked icon in the remaining space, if it is wide enough to click. Originally used for Peak, Hill and River in the World Advisor. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+# <!-- custom: Table headers can sort but cannot carry widget actions.
+# Keep the text in the header and put a linked icon in the remaining space, if it is wide enough to click.
+# Originally used for Peak, Hill and River in the World Advisor. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 def setTableColumnHeaderLabelWithLink(screen, szTable, iCol, szText, columnRect, szWidget, szButton, widgetData, iTextInset, iIconPadding):
 	iX, iY, iWidth, iHeight = columnRect
 	szHeader = labelText(szText)

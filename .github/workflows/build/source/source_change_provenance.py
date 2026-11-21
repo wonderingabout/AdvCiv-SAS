@@ -411,7 +411,8 @@ def disabled_code_line(line: str, suffix: str) -> bool:
     return bool(CPP_CONTINUATION_RE.search(text) and text.endswith((",", ")", "(", "&&", "||", "+", "-", "*", "/", "?", ":")))
 
 
-# <!-- custom: A closing "See KI#..." belongs at the end of the last prose line, as AGENTS.md's comment rules say; on a line of its own it reads as a stray fragment. The Sevopedia scoreboard comment of 2026-11-21 had "See KI#1103 for ..." alone on its last line, which the user caught in review.
+# <!-- custom: A closing "See KI#..." belongs at the end of the last prose line, as AGENTS.md's comment rules say; on a line of its own it reads as a stray fragment.
+# The Sevopedia scoreboard comment of 2026-11-21 had "See KI#1103 for ..." alone on its last line, which the user caught in review.
 # Before the rule, one scan of every custom comment in the repo found a single other case, CvDeal.cpp's KI#605 note, fixed with it; from then on only new or rewritten comments are checked. (Claude code Opus 5.5) -->
 STRANDED_REFERENCE_RE = re.compile(r"^(?:See |see )(?:KI#|also KI#)")
 
@@ -1286,7 +1287,8 @@ def check(repo: Path, base_ref: str | None, event_name: str | None = None, warni
 
 # <!-- custom: Every rule this check applies must hold across the whole repository from the commit that adds it, then it may be checked on changed files only; AGENTS.md said so, but the user did not trust a written rule alone (2026-11-21), so this enforces it.
 # Each *_errors rule that check_change or check calls is listed here, either as repo-wide, run over every tracked source file on each run, or as diff-only with the reason the whole repository does not meet it; an unlisted rule fails the check, so a new one cannot land without that decision.
-# The counts are from the scan of 2026-11-21. Rules written inline in check_change, such as the interface and import comments, are not covered. (Claude code Opus 5.5) -->
+# The counts are from the scan of 2026-11-21.
+# Rules written inline in check_change, such as the interface and import comments, are not covered. (Claude code Opus 5.5) -->
 REPO_WIDE_RULES = ("stranded_reference_errors", "blank_line_errors", "credit_spelling_errors", "bare_claude_credit_errors", "cascading_comment_errors")
 DIFF_ONLY_RULES = {
     "generic_credit_errors": "4 older comments credit only 'ChatGPT', and which model wrote them is not recorded",

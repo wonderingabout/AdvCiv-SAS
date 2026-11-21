@@ -38500,4 +38500,4 @@ Not a bug but a rule several layouts follow, written down here so each place can
   - The Great General bar, sized for two-digit values in the current font (2026-11-21): three-digit thresholds are rare, and room kept for them cramped the research and GP bars beside it, so a rare three-digit text may overflow.
   - The commerce sliders beside the Technology Advisor, which fall back to fewer buttons and rates below the sliders in a narrow strip.
 
-Written by Claude Code Opus 5.5 from its own 2026-11-20 comment, at the user's request.
+Pondered on by the user and Claude Code Opus 5.5 while fitting the advisors and the scoreboard at larger fonts (2026-11-19 to 21), with Codex's (GPT-6.2-Sol) reviews of the layouts that follow it, such as the commerce sliders' fallback beside the Technology Advisor.

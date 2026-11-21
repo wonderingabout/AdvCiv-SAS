@@ -65,7 +65,8 @@ SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD_FONT_4 = 455
 SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR = 32
 SAS_ADVISOR_BOTTOM_SPACE = 0
 
-# <!-- custom: Advisors need as much width as possible; their only constraint is the width they leave for the scoreboard. That room goes to font 3 at 1920 x 1080 and up to font 4 at 2560 x 1440, and the rare font 4 at 1920 x 1080 is worked around by the scoreboard shortening leader names; the reasoning and measurements are in KI#1103.
+# <!-- custom: Advisors need as much width as possible; their only constraint is the width they leave for the scoreboard.
+# That room goes to font 3 at 1920 x 1080 and up to font 4 at 2560 x 1440, and the rare font 4 at 1920 x 1080 is worked around by the scoreboard shortening leader names; the reasoning and measurements are in KI#1103.
 # Takes the width and the scoreboard's font size, currently SAS_UI_FONT_LABEL, not the screen, as SevoPediaMediaPlayer's layout helpers take iScreenW: a resolution read in __init__ can come before the screen is ready and goes stale on a resolution change, as CvInfoScreen's runtime geometry notes.
 # Each advisor reads screen.getXResolution() and that font size when it draws, so a change applies on the next draw, and this stays a pure function of its inputs: SASUtils need not know about screens or when they are ready (the user, 2026-11-20). (Claude code Opus 5.5) -->
 def getAdvisorScoreboardSpace(iXResolution, iFontSize):

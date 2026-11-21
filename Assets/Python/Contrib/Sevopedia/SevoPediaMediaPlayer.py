@@ -548,11 +548,13 @@ class SevoPediaMediaPlayer:
 				if self.toggleCallback is not None:
 					self.toggleCallback()
 				return True
-			# <!-- custom: Let a title click reach its native jump, or stay on the overlay when the title has no page. The normal overlay close first returns to the media index. (GPT-6.2-Sol) -->
+			# <!-- custom: Let a title click reach its native jump, or stay on the overlay when the title has no page.
+			# The normal overlay close first returns to the media index. (GPT-6.2-Sol) -->
 			if szName == self.currentLabelId:
 				return False
 			# Exit button, or click anywhere on the overlay (image/title/background or movie/nif/dds/title/background) to close.
-			# <!-- custom: The queue's native links navigate on their own. Leave unlinked rows, such as victory movies, out of click-to-close handling. (GPT-6.2-Sol) -->
+			# <!-- custom: The queue's native links navigate on their own.
+			# Leave unlinked rows, such as victory movies, out of click-to-close handling. (GPT-6.2-Sol) -->
 			if szName == self.exitId or (szName.startswith(self.clickPrefix) and szName != self.queueListId):
 				closeCallback()
 				return True

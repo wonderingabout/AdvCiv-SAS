@@ -365,7 +365,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_COMMERCE_SLIDERS_BG_DEFAULT_STYLE</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Where the commerce sliders' background style button sits: 0 = the panel's bottom-right, 1 = left of the scoreboard's buttons, 2 = left of the advisor buttons, just above the sliders.
+	<!-- custom: Where the commerce sliders' background style button sits: 0 = the panel's bottom-right, 1 = left of the scoreboard's buttons, 2 = left of the advisor buttons, just above the sliders; -1 = no button, the background then staying at SAS_COMMERCE_SLIDERS_BG_DEFAULT_STYLE's style (the user, 2026-11-21).
 	At the panel's bottom-right it stood out over the map (the user, 2026-11-21). (Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_COMMERCE_SLIDERS_BG_BUTTON_POS</DefineName>
@@ -913,7 +913,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_MAIN_UI_PLOT_LIST_WIDTH_ADJ</DefineName>
 		<iDefineIntVal>-120</iDefineIntVal>
 	</Define>
-	<!-- custom: What the Great General bar's text shows: 0 = no text; 1 = stored / threshold experience, such as "9 / 29"; 2 = base AdvCiv's experience still needed, such as "20"; 3 = both, such as "9 / 29 (20)". The bar's width follows the text, base AdvCiv's for 0 and 2. (Claude code Opus 5.5) -->
+	<!-- custom: What the Great General bar's text shows: 0 = no text; 1 = stored / threshold experience, such as "9 / 29"; 2 = base AdvCiv's experience still needed, such as "20"; 3 = both, such as "9 / 29 (20)".
+	The bar's width follows the text, base AdvCiv's for 0 and 2. (Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_MAIN_UI_GG_BAR_TEXT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>

@@ -29,6 +29,7 @@ A shot that shows a variant of another, rather than a screen of its own, carries
 
 - `_sas48`: the same tab in a 48-civilization game, such as `1.513_foreign_advisor (2)_sas48.JPG`, the Glance tab paged, which base AdvCiv does not do, and `(4)_sas48`, the Espionage tab's compact rows.
 - `_individual`: the Military Advisor's Map tab with individual units shown, `1.515_military_advisor (2)_individual.JPG`.
+- `_dots`: the same tab with a unit type selected, its units shown as white dots on the minimap, `1.515_military_advisor (2)_dots.JPG` (Galley, turn 201).
 - `_hover`: a shot whose hover is the point, such as `1.513_foreign_advisor (1)_hover.JPG`, an attitude's breakdown on the Relations tab.
 - `_late`: a late-game save, such as `1.511_domestic_advisor (4)_late.JPG`, for corporations.
 - `_active` and `_built_active`: the Victory screen with a vote source built and voting.
@@ -55,5 +56,6 @@ Screenshots are taken by hand for now: choosing the save and the moment, and usi
   - for the World Advisor's Changes tab, a game with both kinds of history: WorldBuilder edits at the top, as the newest, and the Advanced Start buys below them; an Advanced Start in an earlier era keeps its buys few enough not to fill the table.
 - In debug mode, an advisor's player dropdown can switch to another leader whose view shows more, as for the Battles tab on 2026-11-21 (Zara Yaqob on an island map), and a long table can be scrolled to the slice that shows the most.
 - A hover that is part of a feature belongs in the shot, chosen to show the feature at its fullest: on the Relations tab an attitude with several modifiers, and on the Bonuses tab a resource that several buyers would take at different prices, such as Gemstones at 8, 10 and 6 gold on the turn-201 game.
-- The city screen shows SAS's breakdowns, so pick a city where they have values other than 0: its Great Person and culture breakdown hovered, with specialists, a religion or corporations among the culture sources, and enough builds for four full production chooser rows. `1.400_city_screen (1)_spec_break_relig_gp_bldg.JPG` (turn 201: Great Person points from buildings, a religion's culture) and `(2)_spec_break_corp.JPG` (turn 301: specialists and corporations) together cover these.
+- The city screen shows SAS's breakdowns, so pick a city where they have values other than 0: its Great Person and culture breakdown hovered, with specialists, a religion or corporations among the culture sources, and enough builds for four full production chooser rows.
+  - `1.400_city_screen (1)_spec_break_relig_gp_bldg.JPG` (turn 201: Great Person points from buildings, a religion's culture) and `(2)_spec_break_corp.JPG` (turn 301: specialists and corporations) together cover these.
 - When one change touches many shots, such as the commerce sliders' background on 2026-11-21, [`doc_screenshots.py`](/LLM_Helpers/README.md#doc_screenshotspy) retakes the listed ones in bulk.

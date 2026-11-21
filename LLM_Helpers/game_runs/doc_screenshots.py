@@ -53,7 +53,8 @@ def cursor_pos() -> tuple:
 
 
 # <!-- custom: One shot, refused when a person used the mouse meanwhile: the user moving it during the first run clicked a city open, so two shots showed its city screen's panels instead of the map (2026-11-21).
-# It waits until nobody has touched the keyboard or mouse for 2 seconds, puts the pointer on the shot's hover point or, without one, in the title bar where it draws no tooltip, takes the shot, then checks that the pointer has not moved and that only this screen is open, without a city screen. Returns False to have it taken again. (Claude code Opus 5.5) -->
+# It waits until nobody has touched the keyboard or mouse for 2 seconds, puts the pointer on the shot's hover point or, without one, in the title bar where it draws no tooltip, takes the shot, then checks that the pointer has not moved and that only this screen is open, without a city screen.
+# Returns False to have it taken again. (Claude code Opus 5.5) -->
 def take_shot(pid: int, shot: dict) -> bool:
 	desktop_windows.wait_for_idle_user(2.0, 600.0)
 	pilot("uiopen", "name=%s" % shot["open"])
