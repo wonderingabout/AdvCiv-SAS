@@ -35,6 +35,11 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/markdown_images.py
 
+      # <!-- custom: The reverse of Markdown images: fail on an image that no doc, JSON or script names, so a screenshot cannot sit unused and unnoticed. (Claude code Opus 5.5) -->
+      - name: Orphan images
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/documentation/orphan_images.py
+
       - name: Named example artifact locations
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/example_file_locations.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
