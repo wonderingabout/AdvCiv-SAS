@@ -944,7 +944,11 @@ Helpers that prepare a commit.
 Stages a file with chosen regions taken from HEAD or dropped, leaving the working file as it is: the non-interactive counterpart of `git add -p`, which agents cannot drive.
 
 - `--head START END` puts HEAD's version of the region from START up to END (END excluded) into the staged file; `--drop START END` leaves the region out. Both repeat, and markers take escapes such as `\n`.
+- `--keep MARKER` stages only the changed hunks holding MARKER, every other hunk staying at HEAD: the opposite of `--head`, for a commit that takes a few hunks out of a file mostly meant for later commits. It runs before `--head` and `--drop`, which can then trim a kept hunk that holds more than one change.
+  - Added on 2026-11-21 for the themed commits of the UI round, whose first took the Military Summary's fix out of CvMilitaryAdvisor.py's advisor work; `<EOF>` as an end marker ends a region at the file's end, for an entry appended last.
+  - Its first version staged CvMilitaryAdvisor.py without its first 341 and last 356 lines: difflib's `get_grouped_opcodes` trims the matcher's own cached opcode list, so the opcodes are copied before grouping.
 - A marker found twice or not at all stops the helper, so a region is never guessed. `--dry-run` prints the staged diff against HEAD without staging.
+- Markers with backslashes or newlines are safest passed from a Python script rather than the shell: Claude Code's Bash tool halved `\\\n` on 2026-11-21, as AGENTS.md warns.
 - Added on 2026-11-19, when the SASPilot strategy commit had to leave out the Greatest Civilizations work in the same files, kept for its own commit; a scratch script did it first, and the user asked that such scripts join the repository.
 
 ```powershell

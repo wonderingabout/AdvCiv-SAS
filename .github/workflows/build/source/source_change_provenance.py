@@ -8,6 +8,8 @@
 from __future__ import annotations
 
 import argparse
+# <!-- custom: ast reads this file's own rule calls for the rule registry (rule_registry_errors). (Claude code Opus 5.5) -->
+import ast
 # <!-- custom: Counter tracks how many removed inherited blocks each header-free added block may still match. (Claude code Opus 5.5) -->
 from collections import Counter, defaultdict
 from dataclasses import dataclass
@@ -407,6 +409,20 @@ def disabled_code_line(line: str, suffix: str) -> bool:
     if CPP_CODE_END_RE.search(text) or CPP_CODE_START_RE.match(text):
         return True
     return bool(CPP_CONTINUATION_RE.search(text) and text.endswith((",", ")", "(", "&&", "||", "+", "-", "*", "/", "?", ":")))
+
+
+# <!-- custom: A closing "See KI#..." belongs at the end of the last prose line, as AGENTS.md's comment rules say; on a line of its own it reads as a stray fragment. The Sevopedia scoreboard comment of 2026-11-21 had "See KI#1103 for ..." alone on its last line, which the user caught in review.
+# Before the rule, one scan of every custom comment in the repo found a single other case, CvDeal.cpp's KI#605 note, fixed with it; from then on only new or rewritten comments are checked. (Claude code Opus 5.5) -->
+STRANDED_REFERENCE_RE = re.compile(r"^(?:See |see )(?:KI#|also KI#)")
+
+
+def stranded_reference_errors(path: str, block: CommentBlock) -> list[str]:
+    lines = comment_payload_lines(block)
+    errors = []
+    for index, line in enumerate(lines):
+        if index > 0 and STRANDED_REFERENCE_RE.match(line.lstrip("#/ ")):
+            errors.append(f"{path}:{block.start + index}: a comment line starts with a KI reference; put it at the end of the line before, as the comment's closing note")
+    return errors
 
 
 def comment_payload_lines(block: CommentBlock) -> list[str]:
@@ -1100,6 +1116,7 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
     old_custom_text = {block.normalized for block in old_comments if block.custom}
     for block in added_custom:
         errors.extend(credit_spelling_errors(path, block))
+        errors.extend(stranded_reference_errors(path, block))
         if block.normalized not in old_custom_text:
             errors.extend(generic_credit_errors(path, block))
             errors.extend(bare_claude_credit_errors(path, block))
@@ -1267,6 +1284,58 @@ def check(repo: Path, base_ref: str | None, event_name: str | None = None, warni
     return errors, count
 
 
+# <!-- custom: Every rule this check applies must hold across the whole repository from the commit that adds it, then it may be checked on changed files only; AGENTS.md said so, but the user did not trust a written rule alone (2026-11-21), so this enforces it.
+# Each *_errors rule that check_change or check calls is listed here, either as repo-wide, run over every tracked source file on each run, or as diff-only with the reason the whole repository does not meet it; an unlisted rule fails the check, so a new one cannot land without that decision.
+# The counts are from the scan of 2026-11-21. Rules written inline in check_change, such as the interface and import comments, are not covered. (Claude code Opus 5.5) -->
+REPO_WIDE_RULES = ("stranded_reference_errors", "blank_line_errors", "credit_spelling_errors", "bare_claude_credit_errors", "cascading_comment_errors")
+DIFF_ONLY_RULES = {
+    "generic_credit_errors": "4 older comments credit only 'ChatGPT', and which model wrote them is not recorded",
+    "modification_header_errors": "188 untouched inherited files carry no SAS header, which AGENTS.md allows until a file is changed",
+    "modification_header_order_errors": "8 older files place their header before the rule's order",
+    "python_inline_suite_errors": "6 inherited one-line suites stay as written until their code is edited",
+    "cpp_json_format_errors": "2 older JSON format strings predate the rule",
+    "cpp_save_layout_gate_errors": "compares a file's old and new save layout, so it needs a base",
+}
+
+
+def rule_registry_errors() -> list[str]:
+    tree = ast.parse(Path(__file__).read_text(encoding="utf-8"))
+    called = set()
+    for node in tree.body:
+        if isinstance(node, ast.FunctionDef) and node.name in ("check_change", "check"):
+            for call in ast.walk(node):
+                if isinstance(call, ast.Call) and isinstance(call.func, ast.Name) and call.func.id.endswith("_errors"):
+                    called.add(call.func.id)
+    errors = []
+    for name in sorted(called):
+        if name in REPO_WIDE_RULES and name in DIFF_ONLY_RULES:
+            errors.append(f"rule {name} is listed both as repo-wide and as diff-only")
+        elif name not in REPO_WIDE_RULES and name not in DIFF_ONLY_RULES:
+            errors.append(f"rule {name} is in neither REPO_WIDE_RULES nor DIFF_ONLY_RULES; run it over the whole repository first, then list it as repo-wide, or as diff-only with the reason")
+    return errors
+
+
+def repo_wide_rule_errors(repo: Path) -> list[str]:
+    # <!-- custom: The same files the diff-aware check covers (maintained_source_path), so a rule's scope does not change between the two modes. (Claude code Opus 5.5) -->
+    listed = run_git(repo, "ls-files", "-z").stdout.decode("utf-8").split("\0")
+    errors = []
+    for path in listed:
+        if not path or not maintained_source_path(path):
+            continue
+        suffix = Path(path).suffix.lower()
+        text = current_text(repo, path)
+        if text is None:
+            continue
+        errors.extend(blank_line_errors(path, "", text, suffix))
+        for block in comments(text, suffix):
+            errors.extend(cascading_comment_errors(path, block, suffix))
+            if block.custom:
+                errors.extend(stranded_reference_errors(path, block))
+                errors.extend(credit_spelling_errors(path, block))
+                errors.extend(bare_claude_credit_errors(path, block))
+    return errors
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Validate diff-aware source comment, dependency and changed-interface provenance."
@@ -1278,10 +1347,13 @@ def main() -> int:
     warnings = []
     try:
         errors, files_checked = check(args.repo_root, args.base_ref, args.event_name, warnings)
+        # <!-- custom: The rule registry and the repo-wide rules run on every check, whatever the base; see REPO_WIDE_RULES. (Claude code Opus 5.5) -->
+        errors.extend(rule_registry_errors())
+        errors.extend(repo_wide_rule_errors(args.repo_root))
     except (RuntimeError, OSError, ValueError) as exc:
         print("FAIL source change provenance setup: %s" % exc)
         return 1
-    print("FAIL source change provenance" if errors else "PASS source change provenance (%d changed source file(s) checked)" % files_checked)
+    print("FAIL source change provenance" if errors else "PASS source change provenance (%d changed source file(s) checked, repo-wide rules on all)" % files_checked)
     for error in errors:
         print("  - " + error)
     for warning in warnings:

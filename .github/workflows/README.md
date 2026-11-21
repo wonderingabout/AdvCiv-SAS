@@ -1385,6 +1385,13 @@ The initial sweep normalized existing separators; subsequent checks audit the fi
 
 Diff-aware source-history guard for maintained C/C++, Python and XML source. It compares the selected push/PR range with its base instead of linting old source in isolation.
 
+Every rule it applies is listed in `REPO_WIDE_RULES` or, with the reason, in `DIFF_ONLY_RULES`; a rule in neither fails the check (added 2026-11-21).
+
+- A rule must hold across the whole repository from the commit that adds it, then it may be checked on changed files only. The user asked for a check rather than trusting AGENTS.md's written rule alone.
+- The repo-wide rules also run over every maintained source file on each run, about 10 seconds: a comment line starting with "See KI#", blank-line runs, credit spelling, bare Claude credits and cascading comments.
+- The diff-only ones list why the repository does not meet them, such as the 188 untouched inherited files without a SAS header, which AGENTS.md allows.
+- A comment line may not start with a KI reference, such as `# See KI#1103 for ...`; the reference ends the line before. One scan found a single older case, CvDeal.cpp's KI#605 line, fixed with the rule.
+
 It enforces these review rules introduced after repeated provenance mistakes:
 
 - existing one-line C++ declarations and definitions must remain on one line so the complete signature can be found with grep;
