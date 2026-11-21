@@ -17,6 +17,7 @@ Building the Debug-opt DLL and its PDB is covered by the [DLL Compilation Guide]
   - [Inspecting a dump from the command line](#inspecting-a-dump-from-the-command-line)
   - [An example session](#an-example-session)
   - [Taking a full dump](#taking-a-full-dump)
+  - [A hang at exit](#a-hang-at-exit)
 - [Attaching to a running game](#attaching-to-a-running-game)
   - [Start the game first, then attach](#start-the-game-first-then-attach)
   - [A stack snapshot with CDB](#a-stack-snapshot-with-cdb)
@@ -209,6 +210,8 @@ At Civ4's "Program Execution Problem" prompt, always choose **Full Dump** (the u
   - Added after KI#1088's dump took three tries; it was not tried on a real crash prompt.
   - Every Civ4 writes the same file name, so it checks the process ID the dump records (its MiscInfo stream; read correctly from both KI#1088 dumps) and copies it to `Civ4BeyondSword_<pid>_<time>.dmp` while still holding the original, so another client's crash cannot replace it in between ([KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)).
 - Keep each valuable dump with its matching DLL and PDB in `Downloads/AdvCiv-SAS_LLM/crash_dumps/<date>_<what>/`, outside the repository, and write that path in its KI so a grep finds it.
+  - Keep a dump only while it can still answer something: a full dump runs to about a gigabyte. Once read, save the debugger's text output beside it, the stacks and modules, and send the dump to the Recycle Bin when that output holds the answer, as for a hang in Steam's code that no change of ours would revisit ([KI#1102](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102), 2026-11-20).
+  - Keep it while the KI is open on our code and its heap may still be needed, such as an object a crash points at.
 
 Where dumps go, and what needs cleaning:
 
@@ -218,6 +221,23 @@ Where dumps go, and what needs cleaning:
 - A CDB `.dump` writes where it is told: put test dumps in a scratch folder and delete them afterward, as a full dump of a game runs to gigabytes.
 
 `Civ4BeyondSword.exe.dmp` is replaced by a later crash, so preserve a valuable dump before reproducing another one. The dump, installed DLL and PDB must all belong to the same build; source-line information from a different build is not reliable.
+
+### A hang at exit
+
+A Civ4 that has closed its window but stays in Task Manager with almost no memory, such as 0.1 MB, has quit and hung on the way out; Steam then still sees the game running, and its shortcut starts nothing ([KI#1102](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)). No crash prompt appears, so the dump comes from Task Manager.
+
+- Right click the process and choose "Create dump file" (French: "Créer un fichier de vidage"). It writes a full dump to `%LOCALAPPDATA%\Temp\Civ4BeyondSword.DMP`, 837 MB on 2026-11-20; copy it to `crash_dumps/` before Windows' cleanup of temporary files.
+- CDB first shows the 64-bit side of the 32-bit game, only `wow64cpu` and `wow64` frames. `.effmach x86` switches to the game's own stack, but `-c ".effmach x86; kv 40"` failed to parse ("Extra character error"); the same commands from a command file worked:
+
+```powershell
+$cdbExe = "$env:LOCALAPPDATA\Microsoft\WindowsApps\cdbX86.exe"
+Set-Content -Path cdb_cmds.txt -Encoding ascii -Value ".effmach x86", "kv 40", "lm o", "q"
+& $cdbExe -z Civ4BeyondSword.DMP -y "srv*$env:TEMP\symcache*https://msdl.microsoft.com/download/symbols" -cf cdb_cmds.txt
+```
+
+- On 2026-11-20 it gave one thread, stopped in `steamclient` during `LdrShutdownProcess` after `msvcr71!exit`: Steam's DLL waiting forever while it unloaded.
+  - Microsoft's public symbols name the Windows frames; `steamclient` has none, so its frames show as offsets from its exports.
+- Sysinternals Handle (`handle64.exe -a "Civ4BeyondSword.exe(<pid>)"`), tried the same day to find what held the leftover open, listed only the process's own handles without administrator rights; the dump answered the question.
 
 ## Attaching to a running game
 

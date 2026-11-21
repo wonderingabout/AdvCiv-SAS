@@ -1282,7 +1282,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1098.2 - (Fixed inherited Civ4 and AdvCiv duplicate includes, guarded by CI) CvPlayer.cpp and FDialogTemplate.cpp each included one header twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.2)\
 [KI#1099 - (Guarded by CI, inherited BtS code fixed by AdvCiv) Non-standard C++ that VC2003 accepts, such as CyPlayer::disbandUnit returning a void call or NULL through ?:, kept the DLL from building with a standard-conforming compiler](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1099)\
 [KI#1100 - (Fixed AdvCiv-SAS bug) The World Advisor's Changes tab listed an Advanced Start Automate row above the buys it made, as its row was written once the AI had spent the points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1100)\
-[KI#1101 - (Fixed AdvCiv-SAS merge slip, SASPilot branch only) The Info Screen's Timeline tab raised "global name 'iNumMessages' is not defined", as a merge of main put its Greatest Civilizations filter, twice, into a method without that variable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101)
+[KI#1101 - (Fixed AdvCiv-SAS merge slip, SASPilot branch only) The Info Screen's Timeline tab raised "global name 'iNumMessages' is not defined", as a merge of main put its Greatest Civilizations filter, twice, into a method without that variable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101)\
+[KI#1102 - (Open, a Steam client bug outside the mod's code) A closed Civ4 sometimes never finishes exiting, as Steam's steamclient.dll waits forever while unloading, so Steam still sees the game running and the shortcut starts nothing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)
 
 <a id="ki-1"></a>
 
@@ -38447,3 +38448,31 @@ uipress {'widget': 'InfoTabButton2'}: NameError: global name 'iNumMessages' is n
 - The repeated block was 13 lines, so [KI#1098](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098)'s check, which compares single adjacent lines, could not see it.
 
 Found by `SASPilotUISweep.py`; fixed by Claude Code Opus 5.5, the user asking for this entry.
+
+<a id="ki-1102"></a>
+
+## KI#1102 - (Open, a Steam client bug outside the mod's code) A closed Civ4 sometimes never finishes exiting, as Steam's steamclient.dll waits forever while unloading, so Steam still sees the game running and the shortcut starts nothing
+
+Sometimes, rarely, launching the mod does nothing. Ending the leftover Civ4 in Task Manager fixes it, as the [Quick Install and Setup Guide](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md) has long advised, but why it was there was unknown until a full dump of one on 2026-11-20.
+
+- A Civ4 started by SASPilot at 12:13 UTC had its window closed at 12:44 UTC: `SASRuntimeHistory` records `WINDOW_CLOSE_MESSAGE_DEQUEUED`, its last row. The process then stayed listed for about four hours with no window, at 0.1 MB in Task Manager, and the Steam shortcut started nothing meanwhile.
+- The full dump, made from Task Manager's "Create dump file", holds one thread left, the main thread, after a normal quit:
+
+```text
+Civ4BeyondSword -> msvcr71!exit -> kernel32!ExitProcessImplementation -> ntdll!RtlExitUserProcess
+-> ntdll!LdrShutdownProcess -> steamclient (DLL_PROCESS_DETACH) -> KERNELBASE!SleepConditionVariableSRW
+-> ntdll!NtWaitForAlertByThreadId
+```
+
+- So Civ4 had quit normally. While Windows unloaded its DLLs, `steamclient.dll` waited on a condition that only another thread could signal, but `ExitProcess` had already ended every other thread, so the wait never ended: a deadlock at shutdown, inside Steam's code.
+  - `CvGameCoreDLL` is loaded but not on the stuck stack, so the mod's code is not involved. Which earlier actions make Steam wait there was not traced.
+- Ending the leftover in Task Manager frees Steam, as the guide says; it works because the game had already quit and only hung on the way out.
+  - From PowerShell, `Stop-Process` and `taskkill /F` reported success here while the process stayed listed, with one thread and its handles, and `HasExited` true. A reboot clears such a leftover for sure; the user's Task Manager kill has worked in the cases before.
+- Keep the evidence before ending it: Task Manager's "Create dump file" writes `%LOCALAPPDATA%\Temp\Civ4BeyondSword.DMP`, a full dump (837 MB here). Reading it needs `.effmach x86` for the 32-bit stack; see the [DLL Debugging Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md#a-hang-at-exit).
+  - The SASRuntime exit observer had attached and still read `WAITING`: it waits for the process handle to signal, which it does only once the exit finishes, so it cannot see this case.
+- A possible workaround would be for the mod to end its own process once the game has closed its window and its logs are written, skipping the DLL unloading that hangs; it was not tried, and it must not cut Steam's or the logs' writes short.
+- Update (later on 2026-11-20): it happened again within the hour, on a turn-402 SAS24 game started by SASPilot and closed by `desktop_windows.py close`, which sends the window an ordinary close message.
+  - The process reported itself exited but stayed listed with one thread and 675 MB; a dump made the way Task Manager makes one (`MiniDumpWriteDump`) showed the same `steamclient` wait during `LdrShutdownProcess`. CDB could not attach to it, as it was already exiting.
+  - So it is not rare on this machine at the moment; which conditions make Steam wait was not traced.
+
+Found by Claude Code Opus 5.5 on 2026-11-20 from the user's Task Manager dump of the leftover Civ4 (pid 32660), whose dump, logs and CDB output are kept in `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261120_steamclient_exit_hang/`; the user asking for this entry.
