@@ -446,6 +446,13 @@ void CyEnumsPythonInterface()
 		// <!-- custom: Build and Trait links in Sevopedia and the Tech Advisor. See KI#113. (Claude code Opus 5.5) -->
 		.value("WIDGET_PEDIA_JUMP_TO_BUILD", WIDGET_PEDIA_JUMP_TO_BUILD)
 		.value("WIDGET_PEDIA_JUMP_TO_TRAIT", WIDGET_PEDIA_JUMP_TO_TRAIT)
+		// <!-- custom: For the Info screen's Graph legend, whose entries hover their leader while a plain click still toggles the line. (Claude code Opus 5.5) -->
+		.value("WIDGET_HELP_LEADER_HEAD", WIDGET_HELP_LEADER_HEAD)
+		// <!-- custom: For the Policy Advisor's civic and corporation buttons. (Claude code Opus 5.5) -->
+		.value("WIDGET_HELP_CIVIC", WIDGET_HELP_CIVIC)
+		.value("WIDGET_HELP_CORPORATION", WIDGET_HELP_CORPORATION)
+		// <!-- custom: For the Victory screen's Legendary cities and the customizable Domestic Advisor's culture levels, which open the speeds chart at this game's speed. See KI#113. (Claude code Opus 5.5) -->
+		.value("WIDGET_PEDIA_JUMP_TO_GAME_SPEED", WIDGET_PEDIA_JUMP_TO_GAME_SPEED)
 
 		.value("NUM_WIDGET_TYPES", NUM_WIDGET_TYPES)
 		;

@@ -188,6 +188,7 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;&emsp;&emsp;[Score Tab (in the Info Screen Advisor)](/README.md#score-tab-in-the-info-screen-advisor)\
 &emsp;&emsp;[Advisors adjustments](/README.md#advisors-adjustments)\
 &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)\
+&emsp;[Hovers and Sevopedia links across advisors](/README.md#hovers-and-sevopedia-links-across-advisors)\
 &emsp;[Inverted BUG options](/README.md#inverted-bug-options)\
 &emsp;[Diplomacy Screen](/README.md#diplomacy-screen)\
 &emsp;[Miscellaneous screens](/README.md#miscellaneous-screens)\
@@ -453,7 +454,7 @@ The domestic advisor now follows the usual advisor with tabs and debug mode layo
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor%20(1).JPG" alt="1.511_domestic_advisor (1).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor%20(2).JPG" alt="1.511_domestic_advisor (2).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor%20(3).JPG" alt="1.511_domestic_advisor (3).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor%20(4).JPG" alt="1.511_domestic_advisor (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor%20(4)_late.JPG" alt="1.511_domestic_advisor (4)_late.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor%20(5).JPG" alt="1.511_domestic_advisor (5).JPG" width="250"></img>
 
 ##### Summary tab (Military Advisor)
@@ -476,13 +477,13 @@ Some columns are optional to adjust to preference or as the tab is quite loaded 
 
 Also added a **legend link** and **LOG Button**. One complete captured row from the larger export is `2026-10-26T04:38:18.857Z 10 | 18000 BC | Lost | 57 |  | 3 | 3.99 |  | 3.99 | 0 | 0 | Ancient Maceman | Wolf | 0 | 0 | 3 | 3.00 | 0.24 | 3.00 | 48 | 0 |  |  | TERRAIN_PLAINS |  | 56 | 28`; see the [captured Battles export](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#military-advisor-battles). Implementation details are in the Main Changes Guide.
 
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(4).JPG" alt="1.515_military_advisor (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(3).JPG" alt="1.515_military_advisor (3).JPG" width="250"></img>
 
 ##### Compostion tab (Military Advisor)
 
 Also added a new Composition Tab, showing Current Units (non-civilians, including Animals (including Barbarian in debug mode)), Current Unit, Promotion, and Unit Combat counts.
 
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(5).JPG" alt="1.515_military_advisor (5).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(4).JPG" alt="1.515_military_advisor (4).JPG" width="250"></img>
 
 ##### World Advisor
 
@@ -497,10 +498,12 @@ The World Advisor brings geography, environmental information and recorded setup
 
 See the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md) for details.
 
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor%20(1).JPG" alt="1.517_world_advisor (1).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor%20(2).JPG" alt="1.517_world_advisor (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor%20(1)_blue.JPG" alt="1.517_world_advisor (1)_blue.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor%20(2)_blue.JPG" alt="1.517_world_advisor (2)_blue.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor%20(3).JPG" alt="1.517_world_advisor (3).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor%20(4).JPG" alt="1.517_world_advisor (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor%20(5)_bottom_AS.JPG" alt="1.517_world_advisor (5)_bottom_AS.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor%20(5)_top_WB.JPG" alt="1.517_world_advisor (5)_top_WB.JPG" width="250"></img>
 
 ###### Changes tab
 
@@ -523,9 +526,6 @@ Complete captured rows from the larger LOG export include `2026-10-25T19:33:28.6
 
 The advisor is implemented in [CvWorldAdvisorScreen.py](/Assets/Python/Screens/CvWorldAdvisorScreen.py), backed by save-owned records in [CvGame.cpp](/CvGameCoreDLL/CvGame.cpp). See the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md) for coverage and the [SGR revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) for recorder changes.
 
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor%20(5).JPG" alt="1.517_world_advisor (5).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor%20(6).JPG" alt="1.517_world_advisor (6).JPG" width="250"></img>
-
 ##### Timeline Tab (in the Info Screen Advisor)
 
 We added in AdvCiv-SAS a new Timeline Tab in the Info Screen:
@@ -542,7 +542,6 @@ Note: a hybrid DLL compute + Python caching version was tried but load times of 
 A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
 
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(3).JPG" alt="1.518_info_screen (3).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(7).JPG" alt="1.518_info_screen (7).JPG" width="250"></img>
 
 One complete captured row from the larger LOG export is `2026-10-26T04:38:33.780Z - 50000 BC: AI Auto Play started`; see the [captured Timeline export](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#info-screen-timeline) for more examples.
 
@@ -562,27 +561,34 @@ Added with the very nice help of GPT-5.3-Codex thanks.
 
 #### Advisors adjustments
 
-We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, removing the redundant bonuses information and beautifying it with icons, and more generally reorganized tabs (for example moving the espionage screen to now being a tab of the foreign advisor (plus beautified and upscaled to screen resolution the espionage tab).
+We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, removing the redundant bonuses information and beautifying it with icons, and more generally reorganized tabs.
+
+For example moving the espionage screen to now being a tab of the foreign advisor (plus beautified and upscaled to screen resolution the espionage tab), or merging into the Policy Advisor the old Civics Tab, Corporations Tab, and Religions Tab, that were either scattered or isolated.
 
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor%20(1).JPG" alt="1.511_domestic_advisor (1).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(1).JPG" alt="1.513_foreign_advisor (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.512_policy_advisor%20(1).JPG" alt="1.512_policy_advisor (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.512_policy_advisor%20(2).JPG" alt="1.512_policy_advisor (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.512_policy_advisor%20(3).JPG" alt="1.512_policy_advisor (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(1)_hover.JPG" alt="1.513_foreign_advisor (1)_hover.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(2).JPG" alt="1.513_foreign_advisor (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(2)_sas48.JPG" alt="1.513_foreign_advisor (2)_sas48.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(3).JPG" alt="1.513_foreign_advisor (3).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.514_foreign_advisor%20(2).JPG" alt="1.514_foreign_advisor (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.514_foreign_advisor%20(1).JPG" alt="1.514_foreign_advisor (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.514_foreign_advisor%20(2)_hover.JPG" alt="1.514_foreign_advisor (2)_hover.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.514_foreign_advisor%20(3).JPG" alt="1.514_foreign_advisor (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.514_foreign_advisor%20(4).JPG" alt="1.514_foreign_advisor (4).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(4).JPG" alt="1.513_foreign_advisor (4).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(5).JPG" alt="1.513_foreign_advisor (5).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(6).JPG" alt="1.513_foreign_advisor (6).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(7).JPG" alt="1.513_foreign_advisor (7).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(2).JPG" alt="1.515_military_advisor (2).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(3).JPG" alt="1.515_military_advisor (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(4)_sas48.JPG" alt="1.513_foreign_advisor (4)_sas48.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(2)_individual.JPG" alt="1.515_military_advisor (2)_individual.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(2)_selected_dots.JPG" alt="1.515_military_advisor (2)_selected_dots.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(1).JPG" alt="1.518_info_screen (1).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(4).JPG" alt="1.518_info_screen (4).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(5).JPG" alt="1.518_info_screen (5).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(6).JPG" alt="1.518_info_screen (6).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.519_victory_screen%20(1).JPG" alt="1.519_victory_screen (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.519_victory_screen%20(1)_built_active.JPG" alt="1.519_victory_screen (1)_built_active.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.519_victory_screen%20(2).JPG" alt="1.519_victory_screen (2).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.519_victory_screen%20(3).JPG" alt="1.519_victory_screen (3).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.519_victory_screen%20(4).JPG" alt="1.519_victory_screen (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.519_victory_screen%20(3)_active.JPG" alt="1.519_victory_screen (3)_active.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.519_victory_screen%20(4)_active.JPG" alt="1.519_victory_screen (4)_active.JPG" width="250"></img>
 
 ### "Willing to become a vassal" and vassal icons in foreign advisor's glance tab
 
@@ -593,6 +599,20 @@ See [KI#84](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-84).
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.5131_foreign_advisor_glance_willing_vassal.jpg" alt="1.5131_foreign_advisor_glance_willing_vassal.jpg" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.5132_willing_vassal_trade.jpg" alt="1.5132_willing_vassal_trade.jpg" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.5133_foreign_advisor_glance_vassal_show.jpg" alt="1.5133_foreign_advisor_glance_vassal_show.jpg" width="250"></img>
+
+### Hovers and Sevopedia links across advisors
+
+Leaders, buildings, religions, traits, techs and projects shown in advisors hover with their help and open their Sevopedia page on click, as most Sevopedia icons already did: for example the Victory screen's leaders, resolutions and spaceship parts, the Info screen's Score tab traits, the city screen's building list and the scoreboard's state religion. Unmet leaders stay unlinked, so nothing is revealed.
+
+Table headers take no link of their own, so the World Advisor's BFC tables and the Domestic Advisor's specialist columns draw their header icons as linked buttons; the Military Advisor's Map tab opens a unit's page on Ctrl+click and a leader's on right click, and the Info screen's Graph legend a leader's on Ctrl+click, as its plain click toggles the leader's line.
+
+Small icons are not always obvious, so the links help as much as the hovers: the Policy Advisor's civics, religions and corporations, with each corporation's bonuses and founding Great Person, now hover too, and the World Advisor's Peak, Hill and River headers open their pages.
+
+Some links jump between screens: a scoreboard power ratio opens the Info screen's Score tab, its attitude cells the Foreign Advisor's Glance tab and back, and the Great General bar the Military Advisor, on its Battles tab by default.
+
+Toggle buttons also state their setting in their hover, such as `Toggle Grid <Ctrl+T> (ON)`, `Globe View (OFF)`, `Toggle lock scoreboard hover (Locked)` or `Cycle scoreboard background style (1/6: PANEL_STYLE_HUD_HELP)`, so the map or a click is not needed to tell.
+
+See the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game) for each screen.
 
 ### Inverted BUG options
 
@@ -614,13 +634,20 @@ Beautified the Diplomacy Screen's trading rows with icons (e.g., Gold, Gold Per 
 
 ### Miscellaneous screens
 
-Some miscellaneous screens have been beautified, expanded and maximized to support text upscaling, avoid scrolling, and other enhancements: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen), [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered), [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py), [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen), [CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py).
+Some miscellaneous screens have been beautified, expanded and maximized to support text upscaling, avoid scrolling, and other enhancements:
+
+- [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen)
+- [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered)
+- [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py)
+- [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen), [CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py)
+- [CvSpaceShipScreen.py](/Assets/Python/Screens/CvSpaceShipScreen.py) (its parts panel grows with the window, and each part's name shows its button and opens its Sevopedia page).
 
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.980_dawn_of_man_screen.JPG" alt="1.980_dawn_of_man_screen.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.981_tech_splash_screen.JPG" alt="1.981_tech_splash_screen.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.982_replay_screen.JPG" alt="1.982_replay_screen.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.983_dan_qayle_screen.JPG" alt="1.983_dan_qayle_screen.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.984_hall_of_fame_screen.JPG" alt="1.984_hall_of_fame_screen.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.985_spaceship_screen.JPG" alt="1.985_spaceship_screen.JPG" width="250"></img>
 
 ### Main Interface rework
 
@@ -640,9 +667,8 @@ Additionally, also added a new specialists breakdown as of now on bottom-right a
 
 The city screen has been heavily reworked, beautified, and enhanced, for example by splitting the old draft group into draft menu on one side with a new draft button, and config options as a one liner above the minimap zone, plus added new building list filtering options (Show all buildings, Show World Wonders only, etc.) as clickable buttons (based on how the C2C mod does it thanks), enhanced with detailed information (like `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`).
 
-<img src="/_1_AdvCiv-SAS/Images/ui_other/1.400_city_screen%20(1).JPG" alt="1.400_city_screen (1).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/ui_other/1.400_city_screen%20(2).JPG" alt="1.400_city_screen (2).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/ui_other/1.400_city_screen%20(3).JPG" alt="1.400_city_screen (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.400_city_screen%20(1)_spec_break_relig_gp_bldg.JPG" alt="1.400_city_screen (1)_spec_break_relig_gp_bldg.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.400_city_screen%20(2)_spec_break_corp.JPG" alt="1.400_city_screen (2)_spec_break_corp.JPG" width="250"></img>
 
 #### Map view rework (e.g., Scoreboard Toggle and Scroll buttons, Map Annotations Toggle button)
 
@@ -955,8 +981,8 @@ See also:
 Before going more in depth about/in the changes and how to play or such documentation or other topics, here is a view of the reworked tech tree in AdvCiv-SAS (currently unfinished) (click on the images to view them in full screen or bigger size)
 
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.5160_tech_tree_merged.png" alt="1.5160_tech_tree_merged.png" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.516_technology_advisor%20(1).JPG" alt="1.516_technology_advisor (1).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.516_technology_advisor%20(2).JPG" alt="1.516_technology_advisor (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.516_technology_advisor%20(1)_blue.JPG" alt="1.516_technology_advisor (1)_blue.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.516_technology_advisor%20(2)_blue.JPG" alt="1.516_technology_advisor (2)_blue.JPG" width="250"></img>
 
 For more details on how the tech tree was made, which historical timeline it follows, sources, more screenshots and such, upcoming changes if any more, or other information or not or etc, please visit [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md)
 

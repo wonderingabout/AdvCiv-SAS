@@ -42,6 +42,12 @@
 			<Description>TXT_KEY_CONCEPT_SAS_VICTORY_SCREEN_SETTINGS_LEGEND</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_SAS_VICTORY_SCREEN_SETTINGS_LEGEND_PEDIA</Civilopedia>
 		</NewConceptInfo>
+		<!-- custom: Explain the Victory screen's Resolutions and Members tables: their sections, columns, default order and links. (Claude code Opus 5.5) -->
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_VICTORY_SCREEN_VOTES_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_VICTORY_SCREEN_VOTES_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_VICTORY_SCREEN_VOTES_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
 		<NewConceptInfo>
 			<Type>CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND</Type>
 			<Description>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND</Description>
@@ -60,6 +66,11 @@
 		</NewConceptInfo>
 		<!-- custom: Foreign Advisor Espionage legend explains compact target-row fields after the crowded SAS48 layout removed repeated labels/icons. (GPT-5.5-Thinking + GPT-5.5?) -->
 		<NewConceptInfo>
+			<Type>CONCEPT_SAS_FOREIGN_ADVISOR_GLANCE_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_FOREIGN_ADVISOR_GLANCE_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_FOREIGN_ADVISOR_GLANCE_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
 			<Type>CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND</Type>
 			<Description>TXT_KEY_CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND_PEDIA</Civilopedia>
@@ -68,6 +79,11 @@
 			<Type>CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND</Type>
 			<Description>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_MILITARY_ADVISOR_MAP_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_MAP_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_MAP_LEGEND_PEDIA</Civilopedia>
 		</NewConceptInfo>
 		<NewConceptInfo>
 			<Type>CONCEPT_SAS_MILITARY_ADVISOR_SUMMARY_LEGEND</Type>

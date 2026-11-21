@@ -45,12 +45,19 @@ class SevoPediaGameSpeedChart:
 		if self.TABLE_FILL_PERCENT <= 0:
 			raise ValueError("[FATAL] SAS_SEVO_SPEED_CHART_FILL_PCT must be >= 1.")
 
-	def interfaceScreen(self):
+	# <!-- custom: A link such as the Victory screen's Legendary cities highlights the game speed's column and the culture level's row, as the Eras chart does for an era; the chart has no item pages.
+	# iFocus is WIDGET_PEDIA_JUMP_TO_GAME_SPEED's packed speed + numSpeeds * (culture level + 1), or -1 from the category list. See KI#113. (Claude code Opus 5.5) -->
+	def interfaceScreen(self, iFocus=-1):
 		screen = self.top.getScreen()
-		self._drawTable(screen)
+		if iFocus < 0:
+			self._drawTable(screen, -1, -1)
+		else:
+			iNumSpeeds = gc.getNumGameSpeedInfos()
+			self._drawTable(screen, iFocus % iNumSpeeds, iFocus / iNumSpeeds - 1)
 		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_SPEED_CHART_LEGEND")
 
-	def _drawTable(self, screen):
+	# <!-- custom: Was _drawTable(self, screen); iFocusSpeed and iFocusCultureLevel, unpacked from iFocus above, name the column and row a link highlights, each -1 for none. (Claude code Opus 5.5) -->
+	def _drawTable(self, screen, iFocusSpeed, iFocusCultureLevel):
 		x = self.top.X_ITEMS
 		y = self.top.Y_PEDIA_PAGE
 		w = self.top.W_SCREEN - self.top.X_ITEMS - self.MARGIN
@@ -102,15 +109,28 @@ class SevoPediaGameSpeedChart:
 				colW = self.W_FIELD
 			else:
 				colW = wNum
-			setHeader(table, iCol, header[iCol], colW)
+			if iFocusSpeed >= 0 and iCol == nCols - value_cols + iFocusSpeed:
+				setHeader(table, iCol, localText.changeTextColor(header[iCol], SASVisuals.Color.HIGHLIGHT_TEXT), colW)
+			else:
+				setHeader(table, iCol, header[iCol], colW)
 
-		for row in rows:
+		# <!-- custom: The culture rows are normally at the bottom.
+		# Put the linked threshold first so it is visible immediately, even in a short window, while browsing and CSV export keep the normal row order. (GPT-6.2-Sol) -->
+		iFocusRow = -1
+		if 0 <= iFocusCultureLevel < gc.getNumCultureLevelInfos():
+			iCultureRow = len(rows) - gc.getNumCultureLevelInfos() + iFocusCultureLevel
+			rows.insert(0, rows.pop(iCultureRow))
+			iFocusRow = 0
+		for iDataRow in range(len(rows)):
+			row = rows[iDataRow]
 			iRow = appendRow(table)
 			for iCol in range(nCols):
-				if iCol < len(row):
-					cell = row[iCol]
-				else:
+				if iCol >= len(row):
 					cell = u""
+				elif iDataRow == iFocusRow and not isinstance(row[iCol], tuple):
+					cell = localText.changeTextColor(row[iCol], SASVisuals.Color.HIGHLIGHT_TEXT)
+				else:
+					cell = row[iCol]
 
 				# Icon column: cell is (text, buttonPath) tuple
 				if self.IS_SAS_SEVO_SPEED_CHART_HEADER_ICONS and iCol == 0:

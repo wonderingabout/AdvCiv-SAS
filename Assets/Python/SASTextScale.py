@@ -192,6 +192,31 @@ def setTableDateLabel(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, 
 def setTableColumnHeaderLabel(screen, szTable, iCol, szText, iWidth):
 	setTableColumnHeaderScaled(screen, szTable, iCol, szText, iWidth, sasFontTagLabel)
 
+# <!-- custom: Table headers can sort but cannot carry widget actions.
+# Keep the text in the header and put a linked icon in the remaining space, if it is wide enough to click.
+# Originally used for Peak, Hill and River in the World Advisor. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+def setTableColumnHeaderLabelWithLink(screen, szTable, iCol, szText, columnRect, szWidget, szButton, widgetData, iTextInset, iIconPadding):
+	iX, iY, iWidth, iHeight = columnRect
+	szHeader = labelText(szText)
+	screen.setTableColumnHeader(szTable, iCol, szHeader, iWidth)
+	iOffset = iTextInset + CyInterface().determineWidth(szHeader) + iIconPadding
+	iSpace = min(iHeight, iWidth - iOffset)
+	iSize = iSpace - 2 * iIconPadding
+	if iSize >= iHeight / 2:
+		eWidget, iData1, iData2 = widgetData
+		screen.setImageButton(szWidget, szButton, iX + iOffset + iIconPadding, iY + (iHeight - iSize) / 2, iSize, iSize, eWidget, iData1, iData2)
+
+# <!-- custom: The icon-only counterpart: the header stays blank, so the rest of it still sorts, and a linked icon is centered over it, shrunk to the column and dropped if no room is left.
+# The World Advisor's BFC columns and the Domestic Advisor's Overview 4 specialist columns each drew this their own way (2026-11-20); one helper keeps them alike.
+# The icon is placed on the screen, not in the table, as a table's children count their y from below the header. (Claude code Opus 5.5) -->
+def setTableColumnHeaderIconLink(screen, szTable, iCol, columnRect, szWidget, szButton, widgetData, iIconPadding):
+	iX, iY, iWidth, iHeight = columnRect
+	screen.setTableColumnHeader(szTable, iCol, "", iWidth)
+	iSize = min(iWidth, iHeight) - 2 * iIconPadding
+	if iSize > 0:
+		eWidget, iData1, iData2 = widgetData
+		screen.setImageButton(szWidget, szButton, iX + (iWidth - iSize) / 2, iY + (iHeight - iSize) / 2, iSize, iSize, eWidget, iData1, iData2)
+
 def appendListBoxStringLabel(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
 	appendListBoxStringScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, sasFontTagLabel)
 

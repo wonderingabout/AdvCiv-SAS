@@ -678,6 +678,26 @@ class SourceChangeProvenanceTests(unittest.TestCase):
         xml_new = "<Root>\n" + xml_note + "<!--<Define><DefineName>NEW_NAME</DefineName></Define>-->\n</Root>\n"
         self.assertEqual(self.errors("Assets/XML/Test.xml", xml_old, xml_new), [])
 
+    # <!-- custom: A KI reference alone on a comment's last line failed review on 2026-11-21; it belongs at the end of the line before. (Claude code Opus 5.5) -->
+    def test_stranded_ki_reference_line(self):
+        old = "value = 1\n"
+        stranded = "value = 1\n# <!-- custom: The sliders line up with the scoreboard.\n# See KI#1103 for the history. (Claude code Opus 5.5) -->\nother = 2\n"
+        self.assertTrue(any("starts with a KI reference" in error for error in self.errors("Assets/Python/Test.py", old, stranded)))
+        closing = "value = 1\n# <!-- custom: The sliders line up with the scoreboard.\n# The history came first. See KI#1103. (Claude code Opus 5.5) -->\nother = 2\n"
+        self.assertEqual(self.errors("Assets/Python/Test.py", old, closing), [])
+        cpp = "int value = 1;\n// <!-- custom: The proxies record once.\n// See KI#605. (Claude code Opus 5.5) -->\nint other = 2;\n"
+        self.assertTrue(any("starts with a KI reference" in error for error in self.errors("CvGameCoreDLL/Test.cpp", "int value = 1;\n", cpp)))
+
+    # <!-- custom: Every rule is listed as repo-wide or diff-only, and dropping one from its list fails the registry, so a new rule cannot be added without that decision (the user, 2026-11-21). (Claude code Opus 5.5) -->
+    def test_rule_registry(self):
+        self.assertEqual(checker.rule_registry_errors(), [])
+        saved = checker.REPO_WIDE_RULES
+        try:
+            checker.REPO_WIDE_RULES = tuple(name for name in saved if name != "stranded_reference_errors")
+            self.assertTrue(any("stranded_reference_errors is in neither" in error for error in checker.rule_registry_errors()))
+        finally:
+            checker.REPO_WIDE_RULES = saved
+
 
 if __name__ == "__main__":
     unittest.main()

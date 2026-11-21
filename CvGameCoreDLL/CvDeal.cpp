@@ -1225,8 +1225,7 @@ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToP
 			else endTeamTrade(TRADE_VASSAL, TEAMID(eFromPlayer), TEAMID(eToPlayer));
 			bTeamTradeEnded = true; // advc.133
 		}
-		// <!-- custom: A team agreement is stored through player-pair proxies. Record the cancellation only for the one logical bTeam teardown; endTeamTrade kills sibling proxies with bTeam=false, which must not add the same memory again.
-		// See KI#605. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		// <!-- custom: A team agreement is stored through player-pair proxies. Record the cancellation only for the one logical bTeam teardown; endTeamTrade kills sibling proxies with bTeam=false, which must not add the same memory again. See KI#605. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (bTeam)
 		{
 			addEndTradeMemory(eFromPlayer, eToPlayer, TRADE_VASSAL);

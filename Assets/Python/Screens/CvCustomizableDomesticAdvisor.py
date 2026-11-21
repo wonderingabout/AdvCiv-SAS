@@ -878,10 +878,12 @@ class CvCustomizableDomesticAdvisor:
 			nValue = GameUtil.getCultureThreshold(i)
 			# Only show non-zero levels
 			if (nValue != 0):
+				# <!-- custom: Each culture level opens the Sevopedia speeds chart at this game's speed and that level, whose thresholds this list shows. See KI#113. (Claude code Opus 5.5) -->
+				iGameSpeed = gc.getGame().getGameSpeedType()
 				# Set text
-				screen.setText (self.CULTURE_TEXT_NAME + str(i), "Background", SASTextScale.sasFontTagLabel + pCultureLevel.getText() + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.nCultureLevelX, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText (self.CULTURE_TEXT_NAME + str(i), "Background", SASTextScale.sasFontTagLabel + pCultureLevel.getText() + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.nCultureLevelX, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_PEDIA_JUMP_TO_GAME_SPEED, iGameSpeed, i)
 				# Set value
-				screen.setText (self.CULTURE_TEXT_NAME + self.NUMBER_TEXT + str(i), "Background", SASTextScale.sasFontTagLabel + str(nValue) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.nCultureLevelX + self.nCultureLevelTextOffset, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText (self.CULTURE_TEXT_NAME + self.NUMBER_TEXT + str(i), "Background", SASTextScale.sasFontTagLabel + str(nValue) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.nCultureLevelX + self.nCultureLevelTextOffset, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_PEDIA_JUMP_TO_GAME_SPEED, iGameSpeed, i)
 				# Increment counter
 				iCount += 1
 

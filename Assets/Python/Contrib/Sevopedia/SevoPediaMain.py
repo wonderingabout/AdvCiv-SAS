@@ -463,6 +463,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			self.SAS_safeDeleteWidget(screen, szWidget)
 		self.SAS_searchKeyboardIds = []
 
+	# <!-- custom: The pages that call SAS_prepareSpecialPageDeletingItemList, so they have no item list to select in when jumped to (pediaJump); a new such page joins them here.
+	# A class attribute, read once per jump. (Claude code Opus 5.5) -->
+	SAS_CATEGORIES_WITHOUT_ITEM_LIST = (SevoScreenEnums.PEDIA_UNIT_UPGRADES, SevoScreenEnums.PEDIA_PROMOTION_TREE, SevoScreenEnums.PEDIA_HINTS, SevoScreenEnums.PEDIA_HANDICAP_CHART, SevoScreenEnums.PEDIA_GAME_SPEED_CHART, SevoScreenEnums.PEDIA_WORLD_SIZE_CHART, SevoScreenEnums.PEDIA_ERA_CHART)
+
 	# <!-- custom: clear search state for special pages that delete the item list (chatgpt 5.2 + claude opus 4.5) -->
 	def SAS_prepareSpecialPageDeletingItemList(self, screen):
 		# <!-- custom: search bar for the left item list (chatgpt 5.2 + claude opus 4.5) -->
@@ -805,6 +809,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	# <!-- custom: Optional action label lets Back/Forward preserve their cause while ordinary callers keep NAVIGATE; final normalized category/item values remain the authoritative destination. (ChatGPT-5.6-Sol) -->
 	def pediaJump(self, iCategory, iItem, bRemoveFwdList, bIsLink, szSASAction=SASGameRecordActions.NAVIGATE):
 		# <!-- custom: note: fixed a (seemingly base advciv) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed so reverted everything as base advciv code was minus this extra code comment, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or known issue number 22 as of now in known issues of advciv-sas readme for details as well. -->
+		# <!-- custom: Close the media overlay when a title or queue link actually navigates.
+		# Waiting for a named table event can miss the jump and leave the timer writing to a hidden screen.
+		# Movie cleanup also restores No Movies (KI#299). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if self.pediaMovies.isMoviePlayerOpen():
+			self.pediaMovies.leaveMoviePlayer()
+		if self.pediaMusic.isMusicPlayerOpen():
+			self.pediaMusic.leaveMusicPlayer()
 		bAddToHistory = False
 		if (not self.pediaHistory):
 			bAddToHistory = True
@@ -853,7 +864,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		iListIndex = self.SAS_categoryEnumToIndex.get(iCategory, -1)
 		if iListIndex != -1:
 			screen.setSelectedListBoxStringGFC(self.CATEGORY_LIST_ID, iListIndex)
-		if (iCategory not in (SevoScreenEnums.PEDIA_UNIT_UPGRADES, SevoScreenEnums.PEDIA_PROMOTION_TREE, SevoScreenEnums.PEDIA_HINTS)):
+		# <!-- custom: Was the inherited three, upgrades, promotion tree and hints; the charts delete the item list too, so a jump into one, such as the Victory screen's Legendary cities link to the speeds chart, raised "SevoPediaMain instance has no attribute 'list'" when the Sevopedia had not drawn a list yet.
+		# The pages are now listed once, in SAS_CATEGORIES_WITHOUT_ITEM_LIST, beside the helper they call. See KI#113. (Claude code Opus 5.5) -->
+		if (iCategory not in self.SAS_CATEGORIES_WITHOUT_ITEM_LIST):
 			screen.enableSelect(self.ITEM_LIST_ID, True)
 			if (self.iItemIndex != -1):
 				BugUtil.debug("Deselecting item %d" % self.iItemIndex)
@@ -2675,7 +2688,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def SAS_getLeaderItemsWidthByCurrentUIFont(self):
 		# <!-- custom: Advisors currently meet the same limit: at 1920 px and font 4 the scoreboard needs more width than they leave it, while 2560 px has room for both.
-		# See also the resolution considerations above getAdvisorScoreboardSpace in SASUtils.py (2026-11-20). (Claude code Opus 5.5) -->
+		# The resolution considerations were first written above getAdvisorScoreboardSpace in SASUtils.py (2026-11-20). See KI#1103. (Claude code Opus 5.5) -->
 		# <!-- custom: nonpositive cutoff disables wide-screen reduction; without the positive guard every normal resolution met a 0/-1 cutoff and forced base width, reversing the documented setting. See KI#230. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (self.SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH > 0) and (self.getScreen().getXResolution() >= self.SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH):
 			return self.SAS_W_ITEMS_BASE

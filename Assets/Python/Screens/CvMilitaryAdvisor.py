@@ -340,9 +340,6 @@ class CvMilitaryAdvisor:
 		self.RESULT_WON = 0
 		self.RESULT_LOST = 1
 		self.RESULT_RETREAT = 2
-		# <!-- custom: regular gold coin via CommerceInfo.getChar() (matches Domestic Advisor gold headers).
-		# Earlier we used FontSymbols.BAD_GOLD_CHAR, the red maintenance-coin variant, which was visually wrong for normal cost subtotals.
-		# Hammer comes from YIELD_PRODUCTION. (Claude code Opus 4.7, GPT-5.5) -->
 
 	def updateRuntimeLayout(self, screen):
 		# <!-- custom: compute runtime shell bounds/anchors through shared helpers so Military Advisor follows the same runtime layout flow as Foreign/Info/Domestic. (GPT-5.3-Codex) -->
@@ -548,6 +545,8 @@ class CvMilitaryAdvisor:
 		self.selectedUnitList = []
 		self.restoreMapSelectedPlayers()
 
+		# <!-- custom: The Map tab had no legend, so its Ctrl+click and right-click Sevopedia shortcuts were not discoverable (the user, 2026-11-20). (Claude code Opus 5.5) -->
+		placeAdvisorLegendLink(self, "CONCEPT_SAS_MILITARY_ADVISOR_MAP_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
 		self.drawCombatExperience()
 
 		self.refresh(true)
@@ -1637,8 +1636,8 @@ class CvMilitaryAdvisor:
 		return iRowY + 1
 
 	def getSummaryCostResultText(self, szFormula, iResult, iColor):
-		# <!-- custom: every caller of this helper produces a Support-column gold amount, so suffix the result with the normal gold coin; formula operands remain unitless counts, rates, and multipliers. (Claude code Opus 4.7, GPT-5.5) -->
-		return szFormula + u" = " + localText.changeTextColor(unicode(iResult) + SASVisuals.Commerce.char(CommerceTypes.COMMERCE_GOLD), iColor)
+		# <!-- custom: every caller of this helper produces a Support-column gold amount, so use the expense coin on positive deductions, as Finance does; formula operands remain unitless counts, rates, and multipliers. (Claude code Opus 4.7, GPT-5.5) -->
+		return szFormula + u" = " + localText.changeTextColor(SASVisuals.Commerce.goldCostText(iResult), iColor)
 
 	def summaryBuildingHasMilitarySupportEffect(self, kInfo):
 		# <!-- custom: semantic Military Summary predicate: local/global XP, military/domain production, Great-General generation, unit-combat/domain XP, or a free promotion.
@@ -1864,7 +1863,7 @@ class CvMilitaryAdvisor:
 			szUnitSupplyLabel = u"%s (%s)" % (szUnitSupplyLabel, self.TEXT_SUMMARY_ANARCHY)
 			szTotalGoldLabel = u"%s (%s)" % (szTotalGoldLabel, self.TEXT_SUMMARY_ANARCHY)
 		szUnitCostText = self.getSummaryCostResultText(u"%d + %d + %d" % (dStats["regular_unit_cost"], dStats["military_unit_cost"], dStats["extra_unit_cost"]), dStats["raw_unit_cost"], iUnitCostColor)
-		szUnitSupplyText = unicode(dStats["raw_unit_supply"]) + SASVisuals.Commerce.char(CommerceTypes.COMMERCE_GOLD)
+		szUnitSupplyText = SASVisuals.Commerce.goldCostText(dStats["raw_unit_supply"])
 		szFreeUsedCapText = u"%d/%d" % (dStats["free_used_units"], dStats["free_units"])
 		szFreeUsedMilitaryCapText = u"%d/%d" % (dStats["free_used_military_units"], dStats["free_military_units"])
 		if dStats["inflation_percent"] > 0:
@@ -1878,7 +1877,7 @@ class CvMilitaryAdvisor:
 		if dStats["base_supply_cost"] != dStats["raw_unit_supply"]:
 			# <!-- custom: AI handicap multiplies the base supply cost (CvPlayer.cpp:6301-6308).
 			# When the post-handicap value differs we show both: pre-handicap subtotal -> handicap-adjusted final, both as gold. (Claude code Opus 4.7) -->
-			szOutsideRateText = u"(%d x %d) / 100 = %d%s -> %s" % (dStats["paid_outside"], dStats["gold_per_outside_unit"], dStats["base_supply_cost"], SASVisuals.Commerce.char(CommerceTypes.COMMERCE_GOLD), localText.changeTextColor(unicode(dStats["raw_unit_supply"]) + SASVisuals.Commerce.char(CommerceTypes.COMMERCE_GOLD), iUnitSupplyColor))
+			szOutsideRateText = u"(%d x %d) / 100 = %s -> %s" % (dStats["paid_outside"], dStats["gold_per_outside_unit"], SASVisuals.Commerce.goldCostText(dStats["base_supply_cost"]), localText.changeTextColor(SASVisuals.Commerce.goldCostText(dStats["raw_unit_supply"]), iUnitSupplyColor))
 		# <!-- custom: rendered support tree:
 		# Total Units
 		#   Free Used/Cap / Paid / P x R x M
@@ -1909,7 +1908,7 @@ class CvMilitaryAdvisor:
 			(self.TEXT_SUMMARY_FREE_USED_CAP_SHORT, szFreeUsedMilitaryCapText, eNone, -1, -1, 2, -1),
 			(self.TEXT_SUMMARY_PAID_SHORT, unicode(dStats["paid_military_units"]), eNone, -1, -1, 2, -1),
 			(self.TEXT_SUMMARY_GOLD_PER_MIL_UNIT, self.getSummaryCostResultText(u"(%d x %d) / 100" % (dStats["paid_military_units"], dStats["gold_per_military_unit"]), dStats["military_unit_cost"], iUnitCostColor), eHelpUnitCost, self.iActivePlayer, 1, 2, -1),
-			(self.TEXT_SUMMARY_EXTRA_COST, unicode(dStats["extra_unit_cost"]) + SASVisuals.Commerce.char(CommerceTypes.COMMERCE_GOLD), eHelpUnitCost, self.iActivePlayer, 1, 2, iUnitCostColor),
+			(self.TEXT_SUMMARY_EXTRA_COST, SASVisuals.Commerce.goldCostText(dStats["extra_unit_cost"]), eHelpUnitCost, self.iActivePlayer, 1, 2, iUnitCostColor),
 			(None, None, eNone, -1, -1, 0, -1),
 			(szUnitCostLabel, szUnitCostText, eHelpUnitCost, self.iActivePlayer, 1, 1, -1),
 			(None, None, eNone, -1, -1, 0, -1),

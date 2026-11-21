@@ -682,6 +682,10 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
 		if (widgetDataStruct.m_iData1 >= 0 && widgetDataStruct.m_iData1 < GC.getNumVoteInfos())
 			szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_OPEN_VOTE", GC.getInfo((VoteTypes)widgetDataStruct.m_iData1).getTextKeyWide()));
 		break;
+	// <!-- custom: The speeds chart link's hover names what it opens, the chart at that game speed, as the other Sevopedia jumps above name their page. See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_GAME_SPEED:
+		szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_OPEN_GAME_SPEED_CHART", GC.getInfo((GameSpeedTypes)widgetDataStruct.m_iData1).getTextKeyWide()));
+		break;
 
 	case WIDGET_PEDIA_DESCRIPTION:
 		parseDescriptionHelp(widgetDataStruct, szBuffer, false);
@@ -699,6 +703,32 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
 		//parseDescriptionHelp(widgetDataStruct, szBuffer, true);
 		break;
 
+	// <!-- custom: See WIDGET_HELP_LEADER_HEAD in CvEnums.h. parseLeaderHeadHelp named the player, so the human's legend entry read "Pilot (Aggressive, Protective)", its chosen name, not its leader's (the user, 2026-11-20, Civ4ScreenShot0140).
+	// "Pilot" did not tell which leader it was without looking at the button, and some leader names are unfamiliar enough to need saying.
+	// The hover now names the leader, then the player's name when it differs and the civilization. (Claude code Opus 5.5) -->
+	case WIDGET_HELP_LEADER_HEAD:
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)widgetDataStruct.m_iData1;
+		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+		CvWString const szLeader = GC.getInfo(kPlayer.getLeaderType()).getDescription();
+		szBuffer.append(CvWString::format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szLeader.GetCString()));
+		GAMETEXT.parsePlayerTraits(szBuffer, ePlayer);
+		szBuffer.append(NEWLINE);
+		if (szLeader != kPlayer.getName())
+			szBuffer.append(CvWString::format(L"%s, ", kPlayer.getName()));
+		szBuffer.append(kPlayer.getCivilizationDescription());
+		GAMETEXT.getWarWearinessString(szBuffer, ePlayer, NO_PLAYER);
+		break;
+	}
+
+	// <!-- custom: See WIDGET_HELP_CIVIC in CvEnums.h. (Claude code Opus 5.5) -->
+	case WIDGET_HELP_CIVIC:
+		GAMETEXT.parseCivicInfo(szBuffer, (CivicTypes)widgetDataStruct.m_iData1);
+		break;
+	case WIDGET_HELP_CORPORATION:
+		GAMETEXT.setCorporationHelp(szBuffer, (CorporationTypes)widgetDataStruct.m_iData1);
+		break;
+
 	case WIDGET_MINIMAP_HIGHLIGHT:
 		// <advc.004> Leader help for Military Advisor
 		if (widgetDataStruct.m_iData1 == 2) // mode id
@@ -707,6 +737,26 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
 			if (ePlayer > NO_PLAYER && ePlayer < MAX_CIV_PLAYERS)
 				GAMETEXT.parseLeaderHeadHelp(szBuffer, ePlayer, NO_PLAYER);
 		} // </advc.004>
+		// <!-- custom: The Map tab's unit, unit type and unit combat rows had no hover, only the Ctrl+click to their Sevopedia page (the user, 2026-11-21); they now show the same help as those pages' links, with the data of jumpToMinimapHighlightPedia. (Claude code Opus 5.5) -->
+		else if (widgetDataStruct.m_iData1 == 1 && widgetDataStruct.m_iData2 >= 0 && widgetDataStruct.m_iData2 < GC.getNumUnitInfos())
+			GAMETEXT.setUnitHelp(szBuffer, (UnitTypes)widgetDataStruct.m_iData2);
+		else if (widgetDataStruct.m_iData1 == 1 && widgetDataStruct.m_iData2 >= GC.getNumUnitInfos() &&
+			widgetDataStruct.m_iData2 - GC.getNumUnitInfos() < GC.getNumUnitCombatInfos())
+		{
+			GAMETEXT.setUnitCombatHelp(szBuffer, (UnitCombatTypes)(widgetDataStruct.m_iData2 - GC.getNumUnitInfos()));
+		}
+		else if (widgetDataStruct.m_iData1 <= 0 && widgetDataStruct.m_iData1 > -MAX_PLAYERS)
+		{
+			// <!-- custom: A recorded row can survive a unit moving into fog.
+			// Match the Map list's visibility rule and omit the owner as its unit text does. (GPT-6.2-Sol) -->
+			CvUnit const* pUnit = GET_PLAYER((PlayerTypes)-widgetDataStruct.m_iData1).getUnit(widgetDataStruct.m_iData2);
+			TeamTypes const eObserver = getActiveTeam();
+			if (pUnit != NULL && eObserver != NO_TEAM && pUnit->plot() != NULL &&
+				pUnit->plot()->isVisible(eObserver, true) && !pUnit->isInvisible(eObserver, true))
+			{
+				GAMETEXT.setUnitHelp(szBuffer, pUnit, false, false, false, true);
+			}
+		}
 		break;
 
 	case WIDGET_PRODUCTION_MOD_HELP:
@@ -888,6 +938,30 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
 	} // </advc.085>
 }
 
+
+// <!-- custom: The Military Advisor's Map tab draws its unit list rows as <img> text in a list box, kept because DDS icons lost the minimap highlight on click, so its icons had no Sevopedia link (screenshot Civ4ScreenShot0126).
+// A first version opened the page on a right click, through executeAltAction, but the EXE sends a list box row's right click nowhere, neither there nor to the screen's handleInput (SASPilot's uiprobe, 2026-11-20); a Ctrl+click arrives as the row's ordinary click, so it opens the page instead, while a right click still serves the leader buttons.
+// The data are those py.refreshMilitaryAdvisor reads: 1 with a unit type, or a unit combat past the unit types, or -1 for all units; 2 with a player, for the leader buttons; and minus the owner with a unit ID.
+// Returns false where there is no page, as for all units (the user, 2026-11-20). (Claude code Opus 5.5) -->
+static bool jumpToMinimapHighlightPedia(CvPythonCaller const& py, int iData1, int iData2)
+{
+	if (iData1 == 1 && iData2 >= 0 && iData2 < GC.getNumUnitInfos())
+		py.jumpToPedia(iData2, "Unit");
+	else if (iData1 == 1 && iData2 >= GC.getNumUnitInfos())
+		py.jumpToPedia(iData2 - GC.getNumUnitInfos(), "UnitChart");
+	else if (iData1 == 2)
+		py.jumpToPedia(GET_PLAYER((PlayerTypes)iData2).getLeaderType(), "Leader");
+	else if (iData1 <= 0 && iData1 > -MAX_PLAYERS)
+	{
+		// <!-- custom: A Map-tab row can outlive the unit it identified.
+		// Keep the click inert when the lookup finds no unit. (GPT-6.2-Sol) -->
+		CvUnit const* pUnit = GET_PLAYER((PlayerTypes)-iData1).getUnit(iData2);
+		if (pUnit != NULL)
+			py.jumpToPedia(pUnit->getUnitType(), "Unit");
+	}
+	else return false;
+	return true;
+}
 
 bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataExternal)
 {	// advc: Copy - to make sure not to write to the param
@@ -1154,6 +1228,10 @@ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataExternal)
 	case WIDGET_PEDIA_JUMP_TO_TRAIT:
 		py.jumpToPedia(iData1, "Trait");
 		break;
+	// <!-- custom: jumpToPedia passes one integer, so the speed and culture level travel packed as speed + numSpeeds * (level + 1); CvScreensInterface.pediaJumpToGameSpeed unpacks them. See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_GAME_SPEED:
+		py.jumpToPedia(iData1 + GC.getNumGameSpeedInfos() * (iData2 + 1), "GameSpeed");
+		break;
 
 	case WIDGET_PEDIA_DESCRIPTION:
 	case WIDGET_PEDIA_DESCRIPTION_NO_HELP:
@@ -1182,8 +1260,16 @@ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataExternal)
 		py.showInfoScreen(1);
 		break;
 
+	// <!-- custom: See WIDGET_HELP_LEADER_HEAD in CvEnums.h; a right click reaches neither the DLL nor the screen on a text widget, so Ctrl+click opens the Sevopedia. (Claude code Opus 5.5) -->
+	case WIDGET_HELP_LEADER_HEAD:
+		if (GC.ctrlKey())
+			py.jumpToPedia(GET_PLAYER((PlayerTypes)iData1).getLeaderType(), "Leader");
+		break;
+
 	case WIDGET_MINIMAP_HIGHLIGHT:
-		py.refreshMilitaryAdvisor(iData1, iData2);
+		// <!-- custom: Ctrl+click opens the entry's Sevopedia page instead of selecting it; see jumpToMinimapHighlightPedia. (Claude code Opus 5.5) -->
+		if (!GC.ctrlKey() || !jumpToMinimapHighlightPedia(py, iData1, iData2))
+			py.refreshMilitaryAdvisor(iData1, iData2);
 		break;
 
 	// <advc.706>
@@ -1279,6 +1365,14 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataExternal)
 	case WIDGET_PEDIA_JUMP_TO_UNIT:
 	case WIDGET_HELP_FREE_UNIT:
 		py.jumpToPedia(iData1, "Unit");
+		break;
+	// <!-- custom: See WIDGET_HELP_LEADER_HEAD in CvEnums.h. (Claude code Opus 5.5) -->
+	case WIDGET_HELP_LEADER_HEAD:
+		py.jumpToPedia(GET_PLAYER((PlayerTypes)iData1).getLeaderType(), "Leader");
+		break;
+	// <!-- custom: A right click opens the Military Advisor Map tab entry's Sevopedia page; see jumpToMinimapHighlightPedia. (Claude code Opus 5.5) -->
+	case WIDGET_MINIMAP_HIGHLIGHT:
+		bHandled = jumpToMinimapHighlightPedia(py, iData1, iData2);
 		break;
 	case WIDGET_HELP_FOUND_RELIGION:
 		py.jumpToPedia(iData2, "Religion");
@@ -1408,6 +1502,8 @@ bool CvDLLWidgetData::isLink(const CvWidgetDataStruct &widgetDataStruct) const
 	case WIDGET_PEDIA_JUMP_TO_VOTE: // <!-- custom: See KI#113. (Claude code Opus 5.5) -->
 	case WIDGET_PEDIA_JUMP_TO_BUILD: // <!-- custom: See KI#113. (Claude code Opus 5.5) -->
 	case WIDGET_PEDIA_JUMP_TO_TRAIT: // <!-- custom: See KI#113. (Claude code Opus 5.5) -->
+	// <!-- custom: The speeds chart link takes the link look on hover too, as every Sevopedia jump in this list does. See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_GAME_SPEED:
 	case WIDGET_PEDIA_FORWARD:
 	case WIDGET_PEDIA_BACK:
 	case WIDGET_PEDIA_MAIN:
