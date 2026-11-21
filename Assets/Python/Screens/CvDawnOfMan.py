@@ -26,6 +26,8 @@ class CvDawnOfMan:
 	"Dawn of man screen"
 	def __init__(self, iScreenID):
 		self.iScreenID = iScreenID
+		# <!-- custom: Whether the open screen is a preview; see interfaceScreen. (Claude code Opus 5.5) -->
+		self.bPreview = False
 
 		self.X_SCREEN = 0
 		self.Y_SCREEN = 0
@@ -85,26 +87,33 @@ class CvDawnOfMan:
 		self.X_EXIT = (self.W_SCREEN/2) - (self.W_EXIT/2) # Was 460
 		self.Y_EXIT = self.Y_MAIN_PANEL + 440
 
-	def interfaceScreen(self):
+	# <!-- custom: Was interfaceScreen(self); bPreview, false for the game's own calls, lets SASPilotUI's uisplash show the screen in a running game: it opens at once, ignores SAS_UI_DAWN_OF_MAN_ON and, on close, leaves the unit selection sounds as they are. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	def interfaceScreen(self, bPreview=False):
 		'Use a popup to display the opening text'
 		if ( CyGame().isPitbossHost() ):
 			return
 		# <!-- custom: Every Dawn of Man trigger ends here: CvEventManager and the All Eras mod at game start, the DLL after map regeneration or in Rise and Fall, and a popup queued in a save made at game start, which is how it appeared when loading a T0 save.
 		# Skipping here covers them all.
 		# onClose would have re-enabled unit selection sounds, so do that instead. (Claude Code Opus 5.5) -->
-		if not _isDawnOfManShown():
+		if not bPreview and not _isDawnOfManShown():
 			CyInterface().setSoundSelectionReady(true)
 			return
 
 		self.calculateSizesAndPositions()
 
 		self.player = gc.getPlayer(gc.getGame().getActivePlayer())
-		self.EXIT_TEXT = SASTextScale.sasFontTagTitle + localText.getText("TXT_KEY_SCREEN_CONTINUE", ()) + SASTextScale.SAS_FONT_TAG_CLOSE
+		# <!-- custom: The splash and dialog screens gave their OK/Exit button the title font, the label font or none, so the same fixed-size button read out of proportion with the screen's own text from one screen to the next; all now take the label font, as the rest of their text does (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		self.EXIT_TEXT = SASTextScale.sasFontTagLabel + localText.getText("TXT_KEY_SCREEN_CONTINUE", ()) + SASTextScale.SAS_FONT_TAG_CLOSE
 
 		# Create screen
 
 		screen = CyGInterfaceScreen( "CvDawnOfMan", self.iScreenID )		
-		screen.showScreen(PopupStates.POPUPSTATE_QUEUED, False)
+		# <!-- custom: A SASPilot preview opens immediately in a running game and leaves the real Dawn of Man switch alone. (GPT-6.2-Sol) -->
+		self.bPreview = bPreview
+		ePopupState = PopupStates.POPUPSTATE_QUEUED
+		if bPreview:
+			ePopupState = PopupStates.POPUPSTATE_IMMEDIATE
+		screen.showScreen(ePopupState, False)
 		screen.showWindowBackground( False )
 		screen.setDimensions(self.X_SCREEN, screen.centerY(self.Y_SCREEN), self.W_SCREEN, self.H_SCREEN)
 		screen.enableWorldSounds( false )
@@ -148,7 +157,8 @@ class CvDawnOfMan:
 		# <!-- custom: prepend each trait name with its SASVisuals.Trait font-symbol icon (e.g. happy char for Charismatic, defense char for Protective) so the Dawn of Man header uses the same compact trait display as Victory Screen Settings, and reads without requiring pedia-jump wiring.
 		# Mirrors SevoPediaLeader trait-icon injection. (Claude code Sonnet 4.6 + GPT-5.5) -->
 		szNameText += SASTextScale.sasFontTagLabel + SASVisuals.Trait.getLeaderTraitsWithIcons(self.player.getLeaderType(), self.player.getCivilizationType()) + SASTextScale.SAS_FONT_TAG_CLOSE
-		screen.addMultilineText( "NameText", szNameText, self.X_LEADER_TITLE_TEXT, self.Y_LEADER_TITLE_TEXT, self.W_LEADER_TITLE_TEXT, self.H_LEADER_TITLE_TEXT, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		# <!-- custom: The leader's name, civilization and traits open the leader's Sevopedia page and hover its help (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		screen.addMultilineText( "NameText", szNameText, self.X_LEADER_TITLE_TEXT, self.Y_LEADER_TITLE_TEXT, self.W_LEADER_TITLE_TEXT, self.H_LEADER_TITLE_TEXT, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, self.player.getLeaderType(), self.player.getCivilizationType(), CvUtil.FONT_CENTER_JUSTIFY)
 
 		if not isLaterEraStart: # advc.250c: No free tech
 			screen.addMultilineText( "HeaderText2", SASTextScale.labelText(localText.getText("TXT_KEY_FREE_TECHS", ()) + ":"), self.X_STATS_TEXT, self.Y_STATS_TEXT+15, self.W_STATS_TEXT, self.H_STATS_TEXT, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -251,7 +261,9 @@ class CvDawnOfMan:
 		return
 
 	def onClose(self):
-		CyInterface().setSoundSelectionReady(true)		
+		# <!-- custom: Only the real game-start screen releases its sound-selection gate. A mid-game preview never takes ownership of that state. (GPT-6.2-Sol) -->
+		if not self.bPreview:
+			CyInterface().setSoundSelectionReady(true)
 		return 0
 
 	def calculateSizesAndPositions(self):

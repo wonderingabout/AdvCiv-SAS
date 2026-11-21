@@ -144,6 +144,7 @@ class CvTechSplashScreen:
 		screen.setStyle(szTextPanel, "Panel_TanT_Style")
 
 		# Exit Button
+		# <!-- custom: The splash and dialog screens gave their OK/Exit button the title font, the label font or none, so the same fixed-size button read out of proportion with the screen's own text from one screen to the next; all now take the label font, as the rest of their text does (the user, 2026-11-21). (Claude code Opus 5.5) -->
 		screen.setButtonGFC("Exit", SASTextScale.labelText(localText.getText("TXT_KEY_SCREEN_CONTINUE", ())), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT , self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
 
 		# Special Panel
@@ -161,7 +162,8 @@ class CvTechSplashScreen:
 
 		# Title
 		szTech = techInfo.getDescription()
-		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagTitle + szTech.upper() + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		# <!-- custom: The title opens the tech's Sevopedia page, as its icon below already did (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		screen.setText(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagTitle + szTech.upper() + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, self.iTech, -1 )
 
 		# Tech Icon
 		screen.addDDSGFC(self.getNextWidgetName(), techInfo.getButton(), self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, self.iTech, -1 )

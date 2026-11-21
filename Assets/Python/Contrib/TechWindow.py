@@ -4,12 +4,16 @@
 ## Enhanced by Roamty, Caesium, Guarav
 ##
 ## Copyright (c) 2008 The BUG Mod.
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 ## <!-- custom: Ruff reported E902 "stream did not contain valid UTF-8" at this legacy BUG TechWindow file start. Converting the file to UTF-8 in VS Code fixed the Ruff parser error while preserving the German comments and leaving runtime code unchanged. Credit: ChatGPT 5.5 and Ruff check. (GPT-5.5) -->
 
 from CvPythonExtensions import *
 import CvUtil
 
 # BUG - Options - end
+# <!-- custom: SASTextScale for the label font tag of the Exit button. (Claude code Opus 5.5) -->
+import SASTextScale
 import BugCore
 TechWindowOpt = BugCore.game.TechWindow
 # BUG - Options - end
@@ -158,7 +162,8 @@ class CvTechSplashScreen:
 		screen.setStyle(szTextPanel, "Panel_TanT_Style")
 
 		# Exit Button
-		screen.setButtonGFC("Exit", localText.getText("TXT_KEY_SCREEN_CONTINUE", ()), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT, self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
+		# <!-- custom: The splash and dialog screens gave their OK/Exit button the title font, the label font or none, so the same fixed-size button read out of proportion with the screen's own text from one screen to the next; all now take the label font, as the rest of their text does (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		screen.setButtonGFC("Exit", SASTextScale.labelText(localText.getText("TXT_KEY_SCREEN_CONTINUE", ())), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT, self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
 
 		# Special Panel
 		szSpecialPanel = "TechSplashSpecialPanel"
@@ -193,7 +198,8 @@ class CvTechSplashScreen:
 
 		# Title
 		szTech = techInfo.getDescription()
-		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=4>" + szTech.upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		# <!-- custom: The title had a hardcoded <font=4> and the section titles <font=3b>, so they did not follow the UI font settings as the regular tech splash (CvTechSplashScreen.py) does; they now take its title and label tags, and the title links to the tech as there (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		screen.setText(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagTitle + szTech.upper() + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, self.iTech, -1 )
 
 		# Tech Icon
 		screen.addDDSGFC(self.getNextWidgetName(), techInfo.getButton(), self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, self.iTech, -1 )
@@ -208,7 +214,9 @@ class CvTechSplashScreen:
 		screen.addMultilineText( "Text", szTechQuote, self.X_QUOTE, self.Y_QUOTE + iTextOffset, self.W_QUOTE, self.H_QUOTE - iTextOffset, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		# Special
-		szSpecialTitle = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + u"</font>"
+		# <!-- custom: These section titles kept <font=3b> after SAS's font-tag sweep, which had missed this screen; the oversized Exit button showed it out of step with the rest (the user, 2026-11-21), so its text and these titles now take the shared tags.
+		# A hardcoded tag left elsewhere is not always an oversight, as a few are needed where the shared size clips; check it before converting. (Claude code Opus 5.5) -->
+		szSpecialTitle = SASTextScale.sasFontTagLabel + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + SASTextScale.SAS_FONT_TAG_CLOSE
 		szSpecialTitleWidget = "SpecialTitle"
 		screen.setText(szSpecialTitleWidget, "", szSpecialTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_SPECIAL_PANEL+self.iMarginSpace, self.Y_SPECIAL_PANEL - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
@@ -219,7 +227,7 @@ class CvTechSplashScreen:
 
 #---Eingefügt START - kann komplett gelöscht werden --------------
 		# Allows -> LeadsTo
-		szAllowsTitleDescSIR = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_LEADS_TO", ()) + ":" + u"</font>"
+		szAllowsTitleDescSIR = SASTextScale.sasFontTagLabel + localText.getText("TXT_KEY_PEDIA_LEADS_TO", ()) + ":" + SASTextScale.SAS_FONT_TAG_CLOSE
 		szAllowsTitleWidgetSIR = "AllowsTitleSIR"
 		screen.setText(szAllowsTitleWidgetSIR, "", szAllowsTitleDescSIR, CvUtil.FONT_LEFT_JUSTIFY, self.X_ALLOWS_PANELSIR+self.iMarginSpace, self.Y_ALLOWS_PANELSIR - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
@@ -236,13 +244,14 @@ class CvTechSplashScreen:
 #---Eingefügt ENDE ------------------------------------------------
 
                 # Allows
-		# szAllowsTitleDesc = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_ALLOWS", ()) + ":" + u"</font>"
+		# <!-- custom: Disabled title kept with the shared label tag, as the live titles below, so re-enabling it follows them; untested while disabled. (Claude code Opus 5.5) -->
+		# szAllowsTitleDesc = SASTextScale.sasFontTagLabel + localText.getText("TXT_KEY_PEDIA_ALLOWS", ()) + ":" + SASTextScale.SAS_FONT_TAG_CLOSE
 		# szAllowsTitleWidget = "AllowsTitle"
 		# screen.setText(szAllowsTitleWidget, "", szAllowsTitleDesc, CvUtil.FONT_LEFT_JUSTIFY,
 		# 	       self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Units Enabled
-		szUnitsTitleDesc = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_UNITS_ENABLED", ()) + ":" + u"</font>"
+		szUnitsTitleDesc = SASTextScale.sasFontTagLabel + localText.getText("TXT_KEY_PEDIA_UNITS_ENABLED", ()) + ":" + SASTextScale.SAS_FONT_TAG_CLOSE
 		szUnitsTitleWidget = "UnitsTitle"
 		screen.setText(szUnitsTitleWidget, "", szUnitsTitleDesc, CvUtil.FONT_LEFT_JUSTIFY, self.X_ALLOWS_PANEL + self.iMarginSpace, self.Y_ALLOWS_PANEL - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
@@ -255,7 +264,7 @@ class CvTechSplashScreen:
 					screen.attachImageButton( panelName, "", CyGlobalContext().getUnitInfo(eLoopUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False )
 
 		# Buildings Enabled
-		szBuildingsTitleDesc = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_BUILDINGS_ENABLED", ()) + ":" + u"</font>"
+		szBuildingsTitleDesc = SASTextScale.sasFontTagLabel + localText.getText("TXT_KEY_PEDIA_BUILDINGS_ENABLED", ()) + ":" + SASTextScale.SAS_FONT_TAG_CLOSE
 		szBuildingsTitleWidget = "BuildingsTitle"
 		screen.setText(szBuildingsTitleWidget, "", szBuildingsTitleDesc, CvUtil.FONT_LEFT_JUSTIFY, self.X_ALLOWS_PANEL + self.iMarginSpace, self.Y_ALLOWS_PANEL2 - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
@@ -267,7 +276,7 @@ class CvTechSplashScreen:
 					screen.attachImageButton(panelName2, "", CyGlobalContext().getBuildingInfo(eLoopBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, eLoopBuilding, 1, False )
 
 		# Improvements
-		szImprovesTitleDesc = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM", ()) + ":" + u"</font>"
+		szImprovesTitleDesc = SASTextScale.sasFontTagLabel + localText.getText("TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM", ()) + ":" + SASTextScale.SAS_FONT_TAG_CLOSE
 		szImprovesTitleWidget = "ImprovesTitle"
 		screen.setText(szImprovesTitleWidget, "", szImprovesTitleDesc, CvUtil.FONT_LEFT_JUSTIFY, self.X_ALLOWS_PANEL + self.iMarginSpace, self.Y_ALLOWS_PANEL3 - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 

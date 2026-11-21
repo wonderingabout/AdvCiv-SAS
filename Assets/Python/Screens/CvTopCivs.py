@@ -11,6 +11,8 @@ import CvUtil
 import CvScreenEnums
 import random
 from CvPythonExtensions import *
+# <!-- custom: SASTextScale for the label font tag of the Exit button. (Claude code Opus 5.5) -->
+import SASTextScale
 # <!-- custom: SASGameRecordConfig for the cached SGR level that pre-gates the ranking's rows, SASGameRecordActions for the helper that writes them. (Claude code Opus 5.5) -->
 import SASGameRecordConfig
 import SASGameRecordActions
@@ -81,8 +83,10 @@ class CvTopCivs:
 			return
 
 		# Text
-		self.TITLE_TEXT = u"<font=3>" + localText.getText("TXT_KEY_TOPCIVS_TITLE", ()).upper() + u"</font>"
-		self.EXIT_TEXT = localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
+		# <!-- custom: Was a hardcoded <font=3>, smaller than the other splash titles and fixed whatever the UI font settings; now the title tag, as theirs (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		self.TITLE_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_TOPCIVS_TITLE", ()).upper())
+		# <!-- custom: The splash and dialog screens gave their OK/Exit button the title font, the label font or none, so the same fixed-size button read out of proportion with the screen's own text from one screen to the next; all now take the label font, as the rest of their text does (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		self.EXIT_TEXT = SASTextScale.labelText(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper())
 		# advc.038: Moved up
 		self.TypeList = [
 			localText.getText("TXT_KEY_TOPCIVS_WEALTH", ()),
