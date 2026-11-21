@@ -116,7 +116,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 209 - SAS practical 6829
 
 - **Date:** 2026-11-20
-- **Git commit:** pending
+- **Git commit:** `ec029819d92529c2b4f445d7768eb8ca36d278fd`
 - **Change:** Adds `GAME_RECORD_TOP_CIVS` and `GAME_RECORD_TOP_CIVS_RANK` (level 1): each Greatest Civilizations ranking, with whether the screen showed, how many ranks it listed and the viewer did not know, then one row per alive player with its rank, value, team, civilization and leader types, and whether it was listed and known.
   - `CvTopCivs.py` pre-gates and calls `SASGameRecordActions.logTopCivs`, which writes them through `CyGame.logSASGameRecordTopCivs` and `logSASGameRecordTopCivsRank`.
   - Made on 2026-11-19 on the SASPilot branch, where it shared that branch's revision 209; ported to main on its own.

@@ -95,7 +95,13 @@ Disclaimer: try at your own risk.
 
 Sometimes, rarely, when launching the mod nothing happens (i.e. the mod does not start as usual). I don't know the cause, but empirically i have found that going to Windows Task Manager, right click on civ4 process, kill it, then launch the mod again fixes it.
 
-<img src="/_1_AdvCiv-SAS/Images/tools/1.270_kill_civ4_process.png" alt="1.270_kill_civ4_process.png" width="250"></img>
+- Update (2026-11-20): a dump of such a leftover showed its cause. The previous Civ4 had quit normally but hung while Steam's `steamclient.dll` unloaded, so Steam still counted the game as running; it shows in Task Manager with almost no memory, such as 0.1 MB. See [KI#1102](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102).
+  - To help find what makes Steam hang, right click it and choose "Create dump file" before ending it, then keep the `Civ4BeyondSword.DMP` file it names, as Windows' Temp folder gets cleaned.
+
+Note that sometimes it seems named either "Sid Meier's Civilization 4 : Beyond The Sword (32 bits)", or more rarely "Civ IV: Beyond The Sword" but the cure/fix seems to be the same regardless.
+
+<img src="/_1_AdvCiv-SAS/Images/tools/1.270_kill_civ4_sid_process.png" alt="1.270_kill_civ4_sid_process.png" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/tools/1.271_kill_civ4_civ_process.png" alt="1.271_kill_civ4_civ_process.png" width="250"></img>
 
 ## Configure the mod
 

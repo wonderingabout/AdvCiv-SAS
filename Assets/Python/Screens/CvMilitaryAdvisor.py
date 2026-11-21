@@ -1177,6 +1177,11 @@ class CvMilitaryAdvisor:
 				iSpyUnits += 1
 			if pUnitInfo.isHiddenNationality():
 				iHiddenNatUnits += 1
+			# <!-- custom: Standalone Great Generals have no combat strength.
+			# Count units that can grant a leader promotion even when they fail canFight(), so the Summary sees the General before it attaches or settles. (GPT-6.2-Sol) -->
+			bStandaloneGeneral = pUnitInfo.getLeaderPromotion() >= 0
+			if bStandaloneGeneral:
+				iStandaloneGenerals += 1
 			bMilitary = pUnit.canFight()
 			if bMilitary:
 				iMilitary += 1
@@ -1205,12 +1210,9 @@ class CvMilitaryAdvisor:
 						iHighestCostUnitType = iUnitType
 				iXpSum += pUnit.getExperience()
 				iLevelSum += pUnit.getLevel()
-				# <!-- custom: getLeaderPromotion() >= 0 means this UnitInfo is a Great General template (it carries a leader promotion to grant on attach), so the unit ITSELF is a standalone GG.
-				# Otherwise check whether the unit has previously received PROMOTION_LEADER (i.e. a regular combat unit that absorbed a GG).
-				# The two cases are exclusive. (Claude code Opus 4.7) -->
-				if pUnitInfo.getLeaderPromotion() >= 0:
-					iStandaloneGenerals += 1
-				elif pUnit.isHasPromotion(self.iPromoLeader):
+				# <!-- custom: PROMOTION_LEADER identifies an attached General.
+				# Keep that count separate from standalone units that can grant the promotion. (Claude code Opus 4.7 + GPT-6.2-Sol) -->
+				if not bStandaloneGeneral and pUnit.isHasPromotion(self.iPromoLeader):
 					iLedByGeneral += 1
 				# <!-- custom: hit-points-based health % (uses currHitPoints/maxHitPoints rather than 100-getDamage so promotion/building max-HP overrides are reflected). iMinHealth=-1 sentinel because 0 is a valid (dying) value. (Claude code Opus 4.7) -->
 				iMaxHp = pUnit.maxHitPoints()

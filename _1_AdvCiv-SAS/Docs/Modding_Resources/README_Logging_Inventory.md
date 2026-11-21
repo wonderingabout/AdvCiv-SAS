@@ -990,6 +990,10 @@ Complete `SASRuntimeExit_*.json` from the same process:
 
 `observerState=EXITED` confirms that the attached process ended; the earlier `WAITING` receipt only confirms attachment.
 
+- Note: `WAITING` does not always mean the game is still running.
+  - A Civ4 that quit but hung while Steam's `steamclient.dll` unloaded stayed `WAITING` for hours (2026-11-20): its handle signals only once the exit finishes, so the observer cannot tell that hang from a game still running.
+  - The runtime history's last row, `WINDOW_CLOSE_MESSAGE_DEQUEUED`, showed when it had closed. See [KI#1102](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102).
+
 Runtime revision 11 can also record a recognized MSVC runtime-error (`MSVC_RUNTIME_ERROR`) or Civ4 “Program Execution Problem” dump-choice dialog (`CIV4_CRASH_DUMP_PROMPT`) while `observerState` remains `WAITING`. Runtime revision 16 additionally recognizes the reviewed same-process Gamebryo/NiDX9 video-allocation family as `CIV4_VIDEO_MEMORY_ALLOCATION_FAILURE`.
 
 The video-memory classifier does not accept title `ERROR` by itself. It requires the exact `Failed to allocate video memory.` phrase plus a `Gamebryo2_0` / `NiDX9` / `.cpp` source reference. Historical Civ4 reports contain the same phrase with different NiDX9 source files/lines, so Runtime intentionally recognizes the reviewed family rather than one hard-coded filename/line.
