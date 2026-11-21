@@ -2005,10 +2005,11 @@ class CvCustomizableDomesticAdvisor:
 			screen.enableSort (self.CUSTOMIZE_PAGE)
 			screen.setStyle(self.CUSTOMIZE_PAGE, "Table_StandardCiv_Style")
 
-			screen.setTableColumnHeader (self.CUSTOMIZE_PAGE, 0, u"<font=2>POS</font>", 40 )
-			screen.setTableColumnHeader (self.CUSTOMIZE_PAGE, 1, u"<font=2>NAME</font>", 160 )
-			screen.setTableColumnHeader (self.CUSTOMIZE_PAGE, 2, u"<font=2>TITLE</font>", 160 )
-			screen.setTableColumnHeader (self.CUSTOMIZE_PAGE, 3, u"<font=2>WIDTH</font>", 80 )
+			# <!-- custom: The column editor's headers were <font=2>, smaller than the rest of the screen at SAS's label size; they now take the label tag (Codex's review, 2026-11-21). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			screen.setTableColumnHeader (self.CUSTOMIZE_PAGE, 0, SASTextScale.labelText(u"POS"), 40 )
+			screen.setTableColumnHeader (self.CUSTOMIZE_PAGE, 1, SASTextScale.labelText(u"NAME"), 160 )
+			screen.setTableColumnHeader (self.CUSTOMIZE_PAGE, 2, SASTextScale.labelText(u"TITLE"), 160 )
+			screen.setTableColumnHeader (self.CUSTOMIZE_PAGE, 3, SASTextScale.labelText(u"WIDTH"), 80 )
 
 			columns = self.PAGES[self.currentPageNum]["columns"]
 			for i, column in enumerate(columns):
@@ -2034,10 +2035,11 @@ class CvCustomizableDomesticAdvisor:
 				screen.enableSort (self.COLUMNS_LIST_PAGE)
 				screen.setStyle(self.COLUMNS_LIST_PAGE, "Table_StandardCiv_Style")
 
-				screen.setTableColumnHeader (self.COLUMNS_LIST_PAGE, 0, u"<font=2>ID</font>", 40 )
-				screen.setTableColumnHeader (self.COLUMNS_LIST_PAGE, 1, u"<font=2>NAME</font>", 160 )
-				screen.setTableColumnHeader (self.COLUMNS_LIST_PAGE, 2, u"<font=2>TITLE</font>", 160 )
-				screen.setTableColumnHeader (self.COLUMNS_LIST_PAGE, 3, u"<font=2>WIDTH</font>", 80 )
+				# <!-- custom: The column editor's headers were <font=2>, smaller than the rest of the screen at SAS's label size; they now take the label tag (Codex's review, 2026-11-21). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+				screen.setTableColumnHeader (self.COLUMNS_LIST_PAGE, 0, SASTextScale.labelText(u"ID"), 40 )
+				screen.setTableColumnHeader (self.COLUMNS_LIST_PAGE, 1, SASTextScale.labelText(u"NAME"), 160 )
+				screen.setTableColumnHeader (self.COLUMNS_LIST_PAGE, 2, SASTextScale.labelText(u"TITLE"), 160 )
+				screen.setTableColumnHeader (self.COLUMNS_LIST_PAGE, 3, SASTextScale.labelText(u"WIDTH"), 80 )
 
 				columns = self.COLUMNS_LIST
 				for i, column in enumerate(columns):
@@ -2122,12 +2124,9 @@ class CvCustomizableDomesticAdvisor:
 					# I don't think we should shrink columns when player configures too many
 					1))
 			# <!-- custom: minimally upscale main customizable-domestic table text (rows + non-building headers): keep base AdvCiv width logic and just bump the two legacy font steps by +1 for readability. (GPT-5.3-Codex) -->
-			if fHScaleFactor > 1.36:
-				iCellFontSize = 4
-			else:
-				iCellFontSize = 3
+			# <!-- custom: Those <font=3>/<font=4> cells showed larger than the regular Domestic Advisor's (the user, Civ4ScreenShot0186), so they now take the same SAS_UI_FONT_LABEL tag as its Overview tables. (Claude code Opus 5.5) -->
 			# (The three uses of these tags in the code below aren't tagged w/ comments)
-			szFontTagOpen = u"<font=" + unicode(iCellFontSize) + u">"
+			szFontTagOpen = SASTextScale.sasFontTagLabel
 			szFontTagClose = SASTextScale.SAS_FONT_TAG_CLOSE
 			# </advc.193>
 

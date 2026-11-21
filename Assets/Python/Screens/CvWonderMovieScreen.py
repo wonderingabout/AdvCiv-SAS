@@ -64,9 +64,9 @@ class CvWonderMovieScreen:
 		self.H_MOVIE = 480
 
 		self.iMovieType = iMovieType
-		self.fTime = 0.0
-		self.fDelay = 1.5
-		self.bDone = false
+		# <!-- custom: The timer starts only below, once a movie will play: update() starts playMovie when fDelay is positive, so a screen that returns early for lack of a movie sets no timer.
+		# The unused PyPlayer lookup there went too. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+		self.fDelay = -1.0
 
 		# not all projects have movies
 		self.szMovieFile = None
@@ -81,14 +81,19 @@ class CvWonderMovieScreen:
 		if (self.szMovieFile is None or len(self.szMovieFile) == 0):
 			return
 
-		player = PyPlayer(CyGame().getActivePlayer())
+		self.fTime = 0.0
+		self.fDelay = 1.5
+		self.bDone = false
 
 		# move the camera and mark the interface camera as dirty so that it gets reset - JW
-		if self.iMovieType == MOVIE_SCREEN_WONDER:
-			CyInterface().lookAtCityBuilding(iCityId, iMovieItem)
-		else:
-			CyInterface().lookAtCityBuilding(iCityId, -1)
-		CyInterface().setDirty(InterfaceDirtyBits.SelectionCamera_DIRTY_BIT, True)
+		# <!-- custom: A SASPilot preview has no event city.
+		# Leave the map camera and its dirty flag alone. (GPT-6.2-Sol) -->
+		if iCityId >= 0:
+			if self.iMovieType == MOVIE_SCREEN_WONDER:
+				CyInterface().lookAtCityBuilding(iCityId, iMovieItem)
+			else:
+				CyInterface().lookAtCityBuilding(iCityId, -1)
+			CyInterface().setDirty(InterfaceDirtyBits.SelectionCamera_DIRTY_BIT, True)
 
 		screen = CyGInterfaceScreen( "WonderMovieScreen" + str(iMovieItem), CvScreenEnums.WONDER_MOVIE_SCREEN )
 		screen.addPanel("WonderMoviePanel", "", "", true, true, self.X_WINDOW, self.Y_WINDOW, self.W_WINDOW, self.H_WINDOW, PanelStyles.PANEL_STYLE_MAIN)
@@ -109,7 +114,14 @@ class CvWonderMovieScreen:
 			szHeader = gc.getProjectInfo(iMovieItem).getDescription()
 
 		# <!-- custom: this screen already used legacy <font=4b>, but we switch to SAS title scaling for consistency/readability with the rest of AdvCiv-SAS upscaled UI (plain title tag instead of bold). (GPT-5.3-Codex) -->
-		screen.setLabel(szHeaderId, "Background", SASTextScale.titleText(szHeader), CvUtil.FONT_CENTER_JUSTIFY, self.X_WINDOW + self.W_WINDOW / 2, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		# <!-- custom: The title opens the wonder's, religion's or project's Sevopedia page and hovers its help, as the movie does (see playMovie); the widget is kept for both. (Claude code Opus 5.5) -->
+		if self.iMovieType == MOVIE_SCREEN_RELIGION:
+			self.eLinkWidget = WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION
+		elif self.iMovieType == MOVIE_SCREEN_WONDER:
+			self.eLinkWidget = WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING
+		else:
+			self.eLinkWidget = WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT
+		screen.setText(szHeaderId, "Background", SASTextScale.titleText(szHeader), CvUtil.FONT_CENTER_JUSTIFY, self.X_WINDOW + self.W_WINDOW / 2, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, self.eLinkWidget, iMovieItem, 1)
 
 		screen.hide("Background")
 
@@ -122,13 +134,17 @@ class CvWonderMovieScreen:
 		screen.show("Background")
 
 		# Play the movie
+		# <!-- custom: The movie is the screen's largest part, so it hovers its wonder's, religion's or project's help and opens its Sevopedia page too, as the title does; a first version linked only the title, while the user meant the movie (2026-11-21).
+		# The religion movie is a widget and takes the link itself; playMovie takes no widget, so an image button with no art lies over it. (Claude code Opus 5.5) -->
 		if self.iMovieType == MOVIE_SCREEN_RELIGION:
-			screen.addReligionMovieWidgetGFC( "ReligionMovie", self.szMovieFile, self.X_WINDOW + self.X_MOVIE, self.Y_WINDOW + self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.addReligionMovieWidgetGFC( "ReligionMovie", self.szMovieFile, self.X_WINDOW + self.X_MOVIE, self.Y_WINDOW + self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE, self.eLinkWidget, self.iWonderId, 1)
 			CyInterface().playGeneralSound(gc.getReligionInfo(self.iWonderId).getMovieSound())		
 		else:
 			screen.playMovie(self.szMovieFile, self.X_WINDOW + self.X_MOVIE, self.Y_WINDOW + self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE, -2.3 )
+			screen.setImageButton("WonderMovieLink", "", self.X_WINDOW + self.X_MOVIE, self.Y_WINDOW + self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE, self.eLinkWidget, self.iWonderId, 1)
 
-		screen.setButtonGFC("WonderExit" + str(self.iWonderId), SASTextScale.titleText(localText.getText("TXT_KEY_MAIN_MENU_OK", ())), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT, self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
+		# <!-- custom: The splash and dialog screens gave their OK/Exit button the title font, the label font or none, so the same fixed-size button read out of proportion with the screen's own text from one screen to the next; all now take the label font, as the rest of their text does (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		screen.setButtonGFC("WonderExit" + str(self.iWonderId), SASTextScale.labelText(localText.getText("TXT_KEY_MAIN_MENU_OK", ())), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT, self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
 
 	# Will handle the input for this screen...
 	def handleInput (self, inputClass):
