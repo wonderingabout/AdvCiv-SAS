@@ -11,8 +11,11 @@ gc = CyGlobalContext()
 # <!-- custom: Keep SAS text-size defines/tags with the text-scaling helpers that consume them.
 # They formerly lived in SASFontUtils and briefly in the broader UI-resource cache; neither icon/glyph nor art-resource code should be imported merely to format text. (ChatGPT-5.6-Sol) -->
 _SAS_UI_FONT_SIZE_CACHE = {}
+_SAS_UI_FONT_PREVIEW = {}
 
 def _getSASUIFontSize(szDefineName):
+	if szDefineName in _SAS_UI_FONT_PREVIEW:
+		return _SAS_UI_FONT_PREVIEW[szDefineName]
 	if szDefineName in _SAS_UI_FONT_SIZE_CACHE:
 		return _SAS_UI_FONT_SIZE_CACHE[szDefineName]
 	iSize = gc.getDefineINT(szDefineName)
@@ -85,6 +88,29 @@ sasFontTagBody = _DynamicFontTag("SAS_UI_FONT_BODY")
 sasFontTagLabel = _DynamicFontTag("SAS_UI_FONT_LABEL")
 sasFontTagTitle = _DynamicFontTag("SAS_UI_FONT_TITLE")
 sasFontTagHover = _DynamicFontTag("SAS_UI_FONT_HOVER")
+
+# <!-- custom: SASPilot can preview the Python layout fonts within one game session. Native widget tooltips cache the hover font separately in the DLL. (GPT-6.2-Sol) -->
+# <!-- custom: Not gated on SASPilot's switch: nothing changes until a caller sets a preview, and another caller, such as an in-game font option shown live, could use it too; SASPilot's uifont is the first. (Claude code Opus 5.5) -->
+_PREVIEW_FONT_TAGS = {"tiny": sasFontTagTiny, "body": sasFontTagBody, "label": sasFontTagLabel, "title": sasFontTagTitle}
+
+
+def getUIFontSizes():
+	return dict((szRole, _getSASUIFontSize(tag.szDefineName)) for szRole, tag in _PREVIEW_FONT_TAGS.items())
+
+
+def setUIFontPreview(dSizes, bReset=False):
+	# <!-- custom: Validate the whole request before changing any size. Clear the normal and bold tags together so imports holding either object see the next size. (GPT-6.2-Sol) -->
+	for szRole, iSize in dSizes.items():
+		if szRole not in _PREVIEW_FONT_TAGS or type(iSize) is not int or not 1 <= iSize <= 4:
+			raise ValueError("expected tiny, body, label or title with a whole size from 1 to 4")
+	if bReset:
+		_SAS_UI_FONT_PREVIEW.clear()
+	for szRole, iSize in dSizes.items():
+		_SAS_UI_FONT_PREVIEW[_PREVIEW_FONT_TAGS[szRole].szDefineName] = iSize
+	for tag in _PREVIEW_FONT_TAGS.values():
+		tag._cachedTag = None
+		tag.bold._cachedTag = None
+
 
 SAS_FONT_OPEN_RE = re.compile(u"<font=[^>]*>", re.IGNORECASE)
 SAS_FONT_CLOSE_RE = re.compile(u"</font>", re.IGNORECASE)

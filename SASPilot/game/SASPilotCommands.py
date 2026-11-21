@@ -306,8 +306,21 @@ def _checkedHandler(name, args):
 	allowed = _allowedArgs(name)
 	unknown = [key for key in args.keys() if key not in allowed]
 	if unknown:
-		raise ValueError("%s takes no %s; it takes: %s" % (name, ", ".join(unknown), ", ".join(allowed) or "nothing"))
+		# <!-- custom: A hint for the keys agents guess first: 'uiopen screen=victory' and 'uipress name=members' were each refused with the whole key list, the right keys being name= and widget= or text= (2026-11-21). (Claude code Opus 5.5) -->
+		hints = []
+		for key in unknown:
+			for guess in _ARG_GUESSES.get(key, ()):
+				if guess in allowed:
+					hints.append("%s= for %s=" % (guess, key))
+		szHint = ""
+		if hints:
+			szHint = "; did you mean " + ", ".join(hints) + "?"
+		raise ValueError("%s takes no %s; it takes: %s%s" % (name, ", ".join(unknown), ", ".join(allowed) or "nothing", szHint))
 	return handler
+
+
+# <!-- custom: The keys agents tried in place of a command's own, with what that command may take instead; used only to word the refusal above. (Claude code Opus 5.5) -->
+_ARG_GUESSES = {"screen": ("name",), "name": ("widget", "text"), "tab": ("widget", "text"), "button": ("widget", "text"), "file": ("out", "save"), "path": ("out", "save")}
 
 
 def _allowedArgs(name):
@@ -1491,7 +1504,7 @@ _HELP["fog"] = "Without args: whether fog is on. With on=1 or 0: switch it. With
 # Commands not listed are play; some depend on their arguments, see _commandRole. (Claude code Opus 5.5) -->
 # <!-- custom: The user's next idea the same day: tell facts from judgments. play commands state what the game shows a player, the same for every player who can see it, and rarely change; advice weighs facts into a recommendation by a heuristic of ours, which may be wrong and gets tuned as we learn, such as 'advise about=threats'.
 # So advice is a role of its own: the session role 'play' gets facts only, which shows what an agent works out by itself, and 'assist' adds advice, so the log shows which advice an agent asked for. 'sites' stays play, as the window circles those sites for any player with a Settler selected; the city AI's builds in 'workers' are advice, as no screen shows them. (Claude code Opus 5.5) -->
-_COMMAND_ROLES = {"py": "create", "autoplay": "meta", "save": "meta", "menu": "meta", "profile": "meta", "batch": "meta", "ping": "meta", "help": "meta", "role": "meta", "advise": "advice", "uiprobe": "omniscient", "meet": "create"}
+_COMMAND_ROLES = {"py": "create", "autoplay": "meta", "save": "meta", "menu": "meta", "profile": "meta", "batch": "meta", "ping": "meta", "help": "meta", "role": "meta", "advise": "advice", "uiprobe": "omniscient", "meet": "create", "uisplash": "create"}
 _ROLE_ALLOWED = {"play": ("play", "meta"), "assist": ("play", "meta", "advice"), "all": ("play", "meta", "advice", "omniscient", "create")}
 # <!-- custom: Controls that leave play, checked by value: the play role compared the control's name as typed, so its number passed (Codex's review, round 32). Loading a save is meta, as 'menu path=' is. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 _CONTROL_ROLES = (("CONTROL_WORLD_BUILDER", "create"), ("CONTROL_ADMIN_DETAILS", "omniscient"), ("CONTROL_LOAD_GAME", "meta"), ("CONTROL_QUICK_LOAD", "meta"))
@@ -1531,6 +1544,9 @@ def _commandRole(name, args):
 				return szRole
 	if name == "screen" and args.get("name") is not None:
 		return _screenRole(str(args["name"]), args)
+	# <!-- custom: Reading the font sizes is available in play; their session preview is a layout test. (GPT-6.2-Sol) -->
+	if name == "uifont" and set(args).difference(("player", "fog")):
+		return "create"
 	# <!-- custom: A recorded widget is what the window shows a player, but widgettype, data1, data2 or option can send any widget action with any data, which no click can. (Claude code Opus 5.5) -->
 	if name == "uipress" and [szKey for szKey in ("widgettype", "data1", "data2", "option") if args.get(szKey) is not None]:
 		return "create"
@@ -5724,7 +5740,7 @@ def cmd_freetech(args):
 	return {"chosen": args["tech"]}
 
 
-_HELP["diplo"] = "The diplomacy screen, when an AI has contacted the player or the player has contacted an AI: open, who, the AI's line (aiComment type and text), the numbered replies the screen offers, and the deal on the table. 'reply n=' answers. args: none."
+_HELP["diplo"] = "The diplomacy screen, when an AI has contacted the player or the player has contacted an AI: open, who, the AI's line (aiComment type and text), the numbered replies the screen offers, and the deal on the table. 'reply n= screen=' answers, with this reply's screen number, which 'reply' requires. args: none."
 
 
 def _diploState():
@@ -6852,7 +6868,7 @@ def cmd_greatpeople(args):
 	return {"threshold": iThreshold, "created": player.getGreatPeopleCreated(), "cities": cities, "firstDiscoveryFree": firstFree}
 
 
-_HELP["military"] ="The Military Advisor's summary as decisions need it: unit counts by domain, military and civilian; where they stand (own cities, own land, neutral land, enemy land, other land); the wounded by ID; every unit that can upgrade now with its targets and cheapest cost, and the total; Great General progress; cities with walls and castles. args: player."
+_HELP["military"] ="The Military Advisor's summary as decisions need it: unit counts by domain, military and civilian; where they stand (own cities, own land, neutral land, enemy land, other land); the wounded by ID; every unit that can upgrade now with its targets and cheapest cost, and the total; Great General progress and generals created; cities with walls and castles. args: player."
 
 
 def cmd_military(args):
@@ -6896,7 +6912,8 @@ def cmd_military(args):
 		if iClass >= 0:
 			iBuilding = gc.getCivilizationInfo(player.getCivilizationType()).getCivilizationBuildings(iClass)
 			defenses[szClass[14:]] = len([city for city in _cities(player) if iBuilding >= 0 and city.getNumBuilding(iBuilding) > 0])
-	return {"units": player.getNumUnits(), "military": iMilitary, "byDomain": domains, "where": where, "wounded": wounded, "upgradeable": upgradeable, "upgradeTotalCost": sum([u["cheapest"] for u in upgradeable]), "greatGeneralProgress": player.getCombatExperience(), "greatGeneralThreshold": player.greatPeopleThreshold(True), "cities": player.getNumCities(), "citiesWith": defenses}
+	# <!-- custom: Generals created too: checking why a turn-301 autoplay save showed "0 / 29" took a 'py' snippet three times (2026-11-21). (Claude code Opus 5.5) -->
+	return {"units": player.getNumUnits(), "military": iMilitary, "byDomain": domains, "where": where, "wounded": wounded, "upgradeable": upgradeable, "upgradeTotalCost": sum([u["cheapest"] for u in upgradeable]), "greatGeneralProgress": player.getCombatExperience(), "greatGeneralThreshold": player.greatPeopleThreshold(True), "greatGeneralsCreated": player.getGreatGeneralsCreated(), "cities": player.getNumCities(), "citiesWith": defenses}
 
 
 _HELP["relations"] ="Each player met, for weighing whom to please or anger: attitude toward the player, whether they will talk, war, peace treaty, open borders and defensive pact, the shortest distance between the two empires' cities and how many of their cities lie within 10 plots of ours, their score, their power against ours in per mille (powerRatioPerMille, 1489 is 1.489 times ours) wherever the scoreboard shows that ratio, and without fog their power. With graph=1 return player nodes and directed attitude edges, keyed by IDs. args: graph, player."

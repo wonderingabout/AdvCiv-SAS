@@ -4,7 +4,7 @@
 
 # <!-- custom: Open every advisor through SASPilotUI, visit each of its footer tabs and list what went wrong, as a read-only regression check of the screens after a Python or DLL change.
 # Listed with Codex (GPT-6.2-Sol) on 2026-11-20 as the next step after SASPilotSweep.py: Python errors, a tab that does not become active, widgets left over from another tab, an Exit that fails or a screen that differs after a close and reopen, and typed widgets with no hover text.
-# Only navigation is pressed: the screens 'uiopen' opens and the tabs 'uitabs' lists (the shared footer tabs), never a table cell, a drop-down or a button that changes the game; an unexpected popup or the diplomacy screen stops it. (Claude code Opus 5.5) -->
+# Only navigation is pressed, including Sevopedia table cells with recorded page links. Drop-downs and game-changing buttons are out of scope, and an unexpected popup or the diplomacy screen stops the sweep. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 
 # <!-- custom: argparse and sys for the command line, re strips tags from a widget's text, time for the run's length, Counter counts the widgets two visits show, and Path finds SASMagicNumbers.py. (Claude code Opus 5.5) -->
 import argparse
@@ -54,6 +54,16 @@ class Stop(Exception):
 def plain(text):
 	# <!-- custom: A widget's text without its font and color tags, such as <font=4>EXIT</font>. (Claude code Opus 5.5) -->
 	return re.sub(r"<[^>]*>", "", text or "").strip().upper()
+
+
+# <!-- custom: Identify links before pressing so subheadings and spacers do not consume the per-category page limit. (GPT-6.2-Sol) -->
+def pediaEntries(table):
+	rows = table["rows"]
+	return [(cell, rows[cell["row"]][0].strip()) for cell in table["cells"] if cell["column"] == 0 and (cell["widgetType"] or "").startswith("WIDGET_PEDIA_JUMP_")]
+
+
+def pediaLinkKey(cell):
+	return (cell["widgetType"], cell["data1"], cell["data2"])
 
 
 class Sweep(object):
@@ -160,7 +170,6 @@ class Sweep(object):
 		categories = [(item["text"], item.get("category")) for item in self.call("uiitems", widget="PediaMainCategoryList").get("items") or []]
 		print("pedia: %d categories" % len(categories))
 		search = None
-		expanded = {}
 		if not categories:
 			self.problems.append("pedia: no categories recorded")
 		pages = []
@@ -183,18 +192,24 @@ class Sweep(object):
 			if "PediaMainItemList" not in widgets:
 				pages.append(category)
 				continue
-			rows = self.call("uiread", widget="PediaMainItemList").get("rows") or []
-			entries = [(i, row[0]) for (i, row) in enumerate(rows) if row and row[0].strip()]
+			table = self.call("uiread", widget="PediaMainItemList", cells=1)
+			entries = pediaEntries(table)
+			if table["rows"] and not table["cells"]:
+				self.problems.append("%s: item list has rows but no recorded cell actions" % where)
 			if search is None and len(entries) >= 5:
-				search = (category, rows)
+				for _, szText in reversed(entries):
+					szQuery = szText[:4].lower()
+					if re.match(r"^[a-z]{4}$", szQuery) and any(szQuery not in label.lower() for _, label in entries):
+						search = (category, table, szQuery)
+						break
 			if iItems >= 0:
 				entries = entries[:iItems]
-			# <!-- custom: An entry counts once the Sevopedia shows the item its cell links to (a WIDGET_PEDIA_JUMP_ widget, data1 the item).
-			# A first version compared the page before and after, which failed for the entry a category selects on its own, and for its group headers, such as "GraphicalOnly (High)", which link nowhere and are left out. (Claude code Opus 5.5) -->
-			for (iRow, szText) in entries:
-				pressed = self.call("uipress", widget="PediaMainItemList", row=iRow, column=0)
-				self.check("%s/%s" % (where, szText.strip()))
-				if not str(pressed.get("widget", "")).startswith("WIDGET_PEDIA_JUMP_"):
+			bCheckedExpand = False
+			for cell, szText in entries:
+				pressed = self.call("uipress", widget="PediaMainItemList", row=cell["row"], column=cell["column"])
+				self.check("%s/%s" % (where, szText))
+				if (pressed.get("widget"), pressed.get("data1"), pressed.get("data2")) != pediaLinkKey(cell):
+					self.problems.append("%s/%s: cell action changed before the press" % (where, szText))
 					continue
 				after = self.call("uistate").get("pedia") or {}
 				# <!-- custom: Category and item together, as item numbers repeat across categories (Codex's review).
@@ -203,8 +218,8 @@ class Sweep(object):
 					self.problems.append("%s/%s: pressed %s %s, but the Sevopedia shows %s" % (where, szText.strip(), pressed.get("widget"), pressed.get("data1"), after))
 					continue
 				self.pages += 1
-				if self.pages and where not in expanded:
-					expanded[where] = True
+				if not bCheckedExpand:
+					bCheckedExpand = True
 					self.expand("%s/%s" % (where, szText.strip()))
 				# <!-- custom: Back to the category for its next entry, as a page replaces the entry list. (Claude code Opus 5.5) -->
 				if "PediaMainItemList" not in self.shown():
@@ -212,7 +227,9 @@ class Sweep(object):
 		if pages:
 			self.notes.append("pedia: a page with no entry list for %s" % ", ".join(pages))
 		if search is not None:
-			self.search(search[0], search[1])
+			self.search(*search)
+		else:
+			self.notes.append("pedia: no category had an ASCII prefix that could narrow five or more linked entries")
 		self.closeScreen("pedia", self.shown())
 
 	def expand(self, where):
@@ -225,45 +242,41 @@ class Sweep(object):
 			buttons = [widget for widget in widgets.values() if widget.get("widgetType") == "WIDGET_PYTHON" and widget.get("data1") == iData1]
 			if not buttons:
 				continue
+			if len(buttons) != 1 or buttons[0].get("data2") != 1:
+				self.problems.append("%s: expected one EXPAND (%d) with data2=1" % (where, iData1))
+				return
 			self.call("uipress", widget=buttons[0]["name"])
 			self.check("%s expanded" % where)
 			back = [widget for widget in self.shown().values() if widget.get("widgetType") == "WIDGET_PYTHON" and widget.get("data1") == iData1]
-			if len(back) != 1 or back[0].get("data2") == buttons[0].get("data2") or self.call("uistate").get("pedia") != page:
+			if len(back) != 1 or back[0].get("data2") != 0 or self.call("uistate").get("pedia") != page:
 				self.problems.append("%s: EXPAND (%d) did not switch to its CLOSE on the same page" % (where, iData1))
 				return
 			self.call("uipress", widget=back[0]["name"])
 			self.check("%s collapsed" % where)
 			widgets = self.shown()
 			again = [widget for widget in widgets.values() if widget.get("widgetType") == "WIDGET_PYTHON" and widget.get("data1") == iData1]
-			if len(again) != 1 or again[0].get("data2") != buttons[0].get("data2") or self.call("uistate").get("pedia") != page:
+			if len(again) != 1 or again[0].get("data2") != 1 or self.call("uistate").get("pedia") != page:
 				self.problems.append("%s: CLOSE (%d) did not bring EXPAND back on the same page" % (where, iData1))
 				return
 			self.expanded += 1
 
-	def search(self, category, rows):
-		# <!-- custom: The Sevopedia's search, as typed: the first four letters of one of the category's own entries, so it holds in any language, must narrow the list and keep that entry, and Backspace must bring the whole list back.
-		# Tested by hand first on Terrains: "gras" left "Land" and "Grassland" of 14 rows (2026-11-20). (Claude code Opus 5.5) -->
+	def search(self, category, table, szQuery):
+		# <!-- custom: Compare the ordered page links after typing, as headings can remain in a filtered list without matching the query. Backspace must restore both the table text and the links. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		where = "pedia/%s search" % category
-		candidates = [row[0].strip() for row in rows if row and re.match(r"^[A-Za-z]{4}", row[0].strip())]
-		if not candidates:
-			self.notes.append("%s: no entry starts with four plain letters to search for" % where)
-			return
-		szEntry = candidates[-1]
-		szQuery = szEntry[:4].lower()
+		expected = [pediaLinkKey(cell) for cell, label in pediaEntries(table) if szQuery in label.lower()]
 		self.call("uipress", widget="PediaMainCategoryList", about=category)
 		self.call("uitype", text=szQuery)
 		self.check(where)
-		found = [row[0].strip() for row in self.call("uiread", widget="PediaMainItemList").get("rows") or [] if row]
-		bFiltered = szEntry in found and len(found) < len(rows)
-		if not bFiltered:
-			self.problems.append("%s: typing %s left %d of %d rows, with %s %s" % (where, szQuery, len(found), len(rows), szEntry, "among them" if szEntry in found else "missing"))
+		filtered = self.call("uiread", widget="PediaMainItemList", cells=1)
+		found = [pediaLinkKey(cell) for cell, _ in pediaEntries(filtered)]
+		if found != expected:
+			self.problems.append("%s: typing %s returned %d links, expected %d in the original order" % (where, szQuery, len(found), len(expected)))
 		self.call("uitype", keys=",".join(["BACKSPACE"] * len(szQuery)))
 		self.check(where + " cleared")
-		# <!-- custom: The same rows, not only as many, and counted only when both steps passed (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-		again = self.call("uiread", widget="PediaMainItemList").get("rows") or []
-		if again != rows:
-			self.problems.append("%s: after Backspace, %d rows, were %d, or other rows" % (where, len(again), len(rows)))
-		elif bFiltered:
+		again = self.call("uiread", widget="PediaMainItemList", cells=1)
+		if again["rows"] != table["rows"] or again["cells"] != table["cells"]:
+			self.problems.append("%s: Backspace did not restore the original rows and cell actions" % where)
+		elif found == expected:
 			self.searched += 1
 
 	def screen(self, name, dry):

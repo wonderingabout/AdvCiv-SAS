@@ -19,6 +19,8 @@ import sys
 import SASUtils
 # <!-- custom: SASVisualUtils holds the scroll arrows' art, which 'uiscroll' finds them by. (Claude code Opus 5.5) -->
 import SASVisualUtils
+# <!-- custom: SASTextScale owns the session font preview and its cached tags. (GPT-6.2-Sol) -->
+import SASTextScale
 
 gc = CyGlobalContext()
 
@@ -92,8 +94,10 @@ class _TabRecorder(object):
 
 
 def _noteTabs(screen, aTabRows, iActivePageID):
+	iScreen = screen.getPythonFileID()
+	_beginPressScreenRecord(iScreen)
 	tabs = [{"widget": row[0], "label": row[1], "page": row[3]} for row in aTabRows]
-	pilot._state.setdefault("uiTabs", {})[screen.getPythonFileID()] = {"tabs": tabs, "active": iActivePageID}
+	pilot._state.setdefault("uiTabs", {})[iScreen] = {"tabs": tabs, "active": iActivePageID}
 
 
 def _installTabs():
@@ -109,11 +113,29 @@ def _registry():
 	return pilot._state.setdefault("uiWidgets", {})
 
 
+def _clearScreenRecord(iScreen):
+	_registry().pop(iScreen, None)
+	pilot._state.get("uiTabs", {}).pop(iScreen, None)
+	listed = pilot._state.get("uiItemsListed", {})
+	for key in listed.keys():
+		if key[0] == iScreen:
+			del listed[key]
+
+
+# <!-- custom: A widget can open a screen from its Python or DLL action. Start a fresh record on its first draw, since a persistent screen's last recorded tab can differ from what this press opens. Already open screens keep their records for incremental updates. (GPT-6.2-Sol) -->
+def _beginPressScreenRecord(iScreen):
+	seen = pilot._state.get("uiPressScreens")
+	if seen is not None and iScreen not in seen:
+		seen.add(iScreen)
+		_clearScreenRecord(iScreen)
+
+
 def _note(screen, szMethod, args):
 	iScreen = screen.getPythonFileID()
 	# <!-- custom: The main interface redraws often and is not a screen SASPilotUI opens, so it is recorded only during 'uimain', which redraws it whole once. (Claude code Opus 5.5) -->
 	if iScreen == CvScreenEnums.MAIN_INTERFACE and not pilot._state.get("uiRecordMain"):
 		return
+	_beginPressScreenRecord(iScreen)
 	widgets = _registry().setdefault(iScreen, {})
 	if szMethod == "deleteWidget":
 		if args and widgets.has_key(args[0]):
@@ -174,7 +196,9 @@ def _note(screen, szMethod, args):
 					break
 		return
 	iName = 0
-	if szMethod.startswith("attach"):
+	# <!-- custom: addCheckBoxGFCAt names its parent first too, as every call does (the Policy Advisor's religions and corporations, the Foreign Advisor's leaders), although the BUG API listing omits the parent.
+	# Taken as the name, the parent was recorded once per button and each re-record dropped its children, so the Religions tab kept none of its buttons and labels but the last (2026-11-20). (Claude code Opus 5.5) -->
+	if szMethod.startswith("attach") or szMethod == "addCheckBoxGFCAt":
 		iName = 1
 	if len(args) <= iName:
 		return
@@ -267,7 +291,7 @@ def _isShown(widgets, entry):
 def _forget(iScreen):
 	# <!-- custom: A screen closed by the EXE (Esc, or its Exit, which the EXE handles) or redrawn while the recorder was off leaves a stale record, as Codex's review pointed out; a non-persistent screen's record is dropped when its watch ends and before 'uiopen' draws it anew. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	if not CyGInterfaceScreen("", iScreen).isPersistent():
-		_registry()[iScreen] = {}
+		_clearScreenRecord(iScreen)
 
 
 def _uninstall():
@@ -277,10 +301,9 @@ def _uninstall():
 	pilot._state["uiInstalled"] = False
 
 
-# <!-- custom: The recorder is installed only while a screen 'uiopen' opened is up, unless 'uirecord on=1' keeps it: installed for good, every main interface call passed through the wrappers, and a full main interface redraw took about 8 ms longer (24 to 31 ms against 16 to 23, 2026-11-20).
-# So 'uiopen' installs it and names the screen it opened, and the bridge's tick, every frame, removes it once that screen is no longer active: one isActive call per frame while installed, nothing otherwise. (Claude code Opus 5.5) -->
+# <!-- custom: The recorder follows screens that 'uiopen' or 'uipress' opens. The bridge tick removes it when the watched screen closes; a permanent install added about 8 ms to a full HUD redraw in the 2026-11-20 test. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 def _tick():
-	if pilot._state.get("uiAlways"):
+	if not pilot._state.get("uiInstalled") or pilot._state.get("uiAlways") or pilot._state.get("uiPressScreens") is not None:
 		return
 	iWatched = pilot._state.get("uiWatched")
 	if iWatched is None or not CyGInterfaceScreen("", iWatched).isActive():
@@ -369,7 +392,7 @@ def cmd_uiscreens(args):
 	return {"screens": result, "open": [szShort for (szShort, szShow) in _OPENERS], "recorderMethods": len(pilot._state.get("uiOriginals", {})), "recorder": cmd_uirecord({}), "recorderError": pilot._state.get("uiRecordError")}
 
 
-_HELP["uirecord"] = "The widget recorder: installed (now recording), always, the screen 'uiopen' opened that keeps it installed, and startRecord, the widgets recorded when the main interface was built at game start (0 if the client started with SASPilot off). By default it records only while that screen is up, so screens a person opens are not recorded; on=1 keeps it installed for good (each main interface redraw then costs more), on=0 goes back to the default and removes it. args: on."
+_HELP["uirecord"] = "The widget recorder: installed (now recording), always, the screen opened by 'uiopen' or 'uipress' that keeps it installed, and startRecord, the widgets recorded when the main interface was built at game start (0 if the client started with SASPilot off). By default it records only while that screen is up, so screens a person opens are not recorded; on=1 keeps it installed for good (each main interface redraw then costs more), on=0 goes back to the default and removes it. args: on."
 
 
 def cmd_uirecord(args):
@@ -389,14 +412,18 @@ def _screenIdsFor(szShow):
 	return [iScreen for iScreen in pilot._state.get("uiOpenedBy", {}).get(szShow, [])]
 
 
-# <!-- custom: Persistent screens and the dirty bit that makes them rebuild on open. (Claude code Opus 5.5) -->
-_REBUILD_BITS = {"tech": "Tech_Screen_DIRTY_BIT"}
+# <!-- custom: The Tech Chooser keeps its cached tree across opens. When SASPilot opens it, rebuild so the recorder sees the tech boxes and their links, as well as the icons the cached path updates. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+def _prepareTechOpen():
+	CyInterface().setDirty(InterfaceDirtyBits.Tech_Screen_DIRTY_BIT, True)
 
 
-_HELP["uiopen"] = "Open a screen as its button in the window does, by short name ('uiscreens' lists them: tech, military, domestic, foreigntrade, foreigndiplomacy, ...). Returns the screen and its widgets' count once drawn. args: name."
+_HELP["uiopen"] = "Open a screen as its button in the window does, by short name ('uiscreens' lists them: tech, military, domestic, foreigntrade, foreigndiplomacy, ...). Returns the screen and its recorded widget count. Without a name lists the screen shortcuts. args: name."
 
 
 def cmd_uiopen(args):
+	# <!-- custom: Listing shortcuts is a successful read; invalid names still fail in _openScreen. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if args.get("name") is None:
+		return {"open": [szShort for szShort, _ in _OPENERS]}
 	return _openScreen(args["name"], True)
 
 
@@ -410,10 +437,10 @@ def _openScreen(szName, bRecord):
 	if szShow is None:
 		raise ValueError("unknown screen %s; one of %s" % (args["name"], ", ".join([szShort for (szShort, szShow) in _OPENERS])))
 	pilot._checkRole("screen", {"name": szShow})
-	# <!-- custom: The Tech Chooser built its tree once, before the recorder was installed, and on later opens only updated it (advc.068 checks this dirty bit), so 'uiwidgets' found 11 Great Person icons and no tech (2026-11-20).
-	# Setting the bit rebuilds the tree, and the recorder sees it. (Claude code Opus 5.5) -->
-	if _REBUILD_BITS.has_key(args["name"]):
-		CyInterface().setDirty(getattr(InterfaceDirtyBits, _REBUILD_BITS[args["name"]]), True)
+	if szName == "tech":
+		_prepareTechOpen()
+		if bRecord:
+			_clearScreenRecord(CvScreenEnums.TECH_CHOOSER)
 	before = _activeScreens()
 	for iScreen in _screenIdsFor(szShow):
 		if iScreen not in before:
@@ -440,10 +467,84 @@ def _openScreen(szName, bRecord):
 		pilot._state["uiWatched"] = after[0]
 	else:
 		pilot._state["uiWatched"] = None
-	return {"opened": args["name"], "called": szShow, "control": szControl, "screen": _screenNames().get(pilot._state["uiWatched"])}
+	iWatched = pilot._state["uiWatched"]
+	result = {"opened": args["name"], "called": szShow, "control": szControl, "screen": _screenNames().get(iWatched)}
+	if bRecord:
+		result["widgets"] = len(_registry().get(iWatched, {}))
+	return result
 
 
-_HELP["uiwidgets"] = "The widgets an open screen created, in creation order, as the recorder saw them: name, method, text, widget (WidgetTypes number and name), data1, data2, attachTo. Only widgets drawn while the recorder was installed (see uirecord) are known; hidden ones, themselves or through a parent, are left out unless hidden=1 (all role). args: screen (CvScreenEnums name, default the open one), match (part of the name or text, optional), hidden (optional)."
+# <!-- custom: Each event screen by short name, its XML info table and optional CvWonderMovieScreen kind, and the screen ID it draws. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+_SPLASHES = (("era", "ERA", "Era", None, "ERA_MOVIE_SCREEN"), ("dawnofman", None, None, None, "DAWN_OF_MAN"), ("wonder", "BUILDING", "Building", 0, "WONDER_MOVIE_SCREEN"), ("religion", "RELIGION", "Religion", 1, "WONDER_MOVIE_SCREEN"), ("project", "PROJECT", "Project", 2, "WONDER_MOVIE_SCREEN"), ("techsplash", "TECH", "Tech", None, "TECH_SPLASH"))
+# <!-- custom: Greatest Civilizations stays on the normal turn path: it draws synchronized random numbers and writes its ranking to the Timeline and SASGameRecord. (Claude code Opus 5.5) -->
+
+
+_HELP["uisplash"] = "Preview an event screen on the map without waiting for its event: era item=ERA_RENAISSANCE, dawnofman, wonder item=BUILDING_PYRAMID, religion item=RELIGION_JUDAISM, project item=PROJECT_APOLLO_PROGRAM, techsplash item=TECH_WRITING. The preview bypasses the SAS_UI_*_ON switches and respects the screen's own player options. The recorder follows it for uiwidgets, uihover and uipress; use the returned close widget name with uipress widget=. Without a name lists the previews. args: name, item."
+
+
+def cmd_uisplash(args):
+	szName = args.get("name")
+	if szName is None:
+		return {"splash": [entry[0] for entry in _SPLASHES]}
+	entry = None
+	for candidate in _SPLASHES:
+		if candidate[0] == szName:
+			entry = candidate
+			break
+	if entry is None:
+		raise ValueError("unknown splash %s; one of %s" % (szName, ", ".join([entry[0] for entry in _SPLASHES])))
+	(szShort, szPrefix, szInfo, iKind, szScreen) = entry
+	iScreen = getattr(CvScreenEnums, szScreen)
+	if gc.getGame().getActivePlayer() < 0:
+		raise ValueError("a splash preview needs an active player")
+	_requireHudInput()
+	# <!-- custom: Two previews can share a screen ID, or stack over different event screens. Check each open splash before starting another. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	for szOpen in set(entry[4] for entry in _SPLASHES):
+		if _isOpen(getattr(CvScreenEnums, szOpen)):
+			raise ValueError("%s is open; close it before previewing another splash" % szOpen)
+	iItem = -1
+	if szPrefix is not None:
+		szItem = args.get("item")
+		if szItem is None or not str(szItem).startswith(szPrefix + "_"):
+			raise ValueError("%s takes item=%s_..." % (szName, szPrefix))
+		iNum = getattr(gc, "getNum%sInfos" % szInfo)()
+		iItem = pilot._typedIndex(str(szItem), szPrefix, iNum, getattr(gc, "get%sInfo" % szInfo))
+	_clearScreenRecord(iScreen)
+	bWasRecording = pilot._state.get("uiInstalled")
+	if not bWasRecording:
+		_install()
+	try:
+		if szName == "era":
+			CvScreensInterface.eraMovie.interfaceScreen(iItem)
+		elif szName == "dawnofman":
+			CvScreensInterface.dawnOfMan.interfaceScreen(True)
+		elif szName == "techsplash":
+			if CvScreensInterface.techSplashScreen is None:
+				CvScreensInterface.createTechSplash()
+			CvScreensInterface.techSplashScreen.interfaceScreen(iItem)
+		else:
+			CvScreensInterface.wonderMovie.interfaceScreen(iItem, -1, iKind)
+	finally:
+		if not bWasRecording and not _registry().get(iScreen):
+			_uninstall()
+	# <!-- custom: Judged by what was drawn, not by the screen being up: the era splash reads as open only from the next frame, so the first version reported it as not shown (2026-11-21).
+	# The close button is returned, as 'uipress widgettype=WIDGET_CLOSE_SCREEN' without a widget name does not reach these screens. (Claude code Opus 5.5) -->
+	widgets = _registry().get(iScreen, {})
+	if widgets:
+		pilot._state["uiWatched"] = iScreen
+	result = {"shown": None, "screen": szScreen, "widgets": len(widgets), "close": [szWidget for szWidget in widgets.keys() if widgets[szWidget].get("widget") == int(WidgetTypes.WIDGET_CLOSE_SCREEN)]}
+	if not widgets:
+		# <!-- custom: The screen returned before drawing: No Movies for the movie screens, or the tech splash's own option. (Claude code Opus 5.5) -->
+		result["note"] = "nothing drawn; check player options and whether the item has a movie"
+	else:
+		result["shown"] = szName
+	if widgets and not result["close"]:
+		# <!-- custom: The wonder screen adds its OK button when its movie starts, from its update after a delay (CvWonderMovieScreen.playMovie). (Claude code Opus 5.5) -->
+		result["note"] = "its close button comes with the movie, a moment later; 'uiwidgets' then lists it"
+	return result
+
+
+_HELP["uiwidgets"] ="The widgets an open screen created, in creation order, as the recorder saw them: name, method, text, widget (WidgetTypes number and name), data1, data2, attachTo. Only widgets drawn while the recorder was installed (see uirecord) are known; hidden ones, themselves or through a parent, are left out unless hidden=1 (all role). args: screen (CvScreenEnums name, default the open one), match (part of the name or text, optional), hidden (optional)."
 
 
 def cmd_uiwidgets(args):
@@ -675,25 +776,49 @@ def cmd_uipress(args):
 	if len(szFunction) < len(szSent):
 		iID = int(szSent[len(szFunction):])
 	argsList = [eNotify, iData, iFlags, iID, iScreen, szFunction, False, False, False, iMouseX, iMouseY, iWidget, iData1, iData2, bOption]
+	# <!-- custom: Wrap the dispatch itself so a press from the HUD or another advisor captures the destination as it opens. A press that stays on the same screen keeps its previous watch. (GPT-6.2-Sol) -->
+	before = set(_activeScreens())
+	if not pilot._state.get("uiInstalled"):
+		_install()
+	pilot._state["uiPressScreens"] = before | set((CvScreenEnums.MAIN_INTERFACE,))
+	try:
+		_dispatchPress(iScreen, szWidget, argsList, target, bRight, result)
+	finally:
+		seen = pilot._state.pop("uiPressScreens")
+		opened = [iOpened for iOpened in _activeScreens() if iOpened not in before]
+		for iOpened in opened:
+			if iOpened not in seen:
+				# <!-- custom: A persistent screen may reopen without emitting any widget calls, so a screen this press opened but drew nothing for loses its stale record. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+				_clearScreenRecord(iOpened)
+		if opened:
+			pilot._state["uiWatched"] = opened[0]
+			result["openedScreens"] = [_screenNames().get(iOpened, str(iOpened)) for iOpened in opened]
+		_tick()
+	return result
+
+
+def _dispatchPress(iScreen, szWidget, argsList, target, bRight, result):
 	if target.get("choice") is not None:
 		result["choice"] = target["choice"]
 		result["rebuilt"] = _chooseOption(iScreen, szWidget, target["choice"])
-	result["function"] = szFunction
-	result["id"] = iID
+	result["function"] = argsList[5]
+	result["id"] = argsList[3]
 	result["screenHandled"] = bool(CvScreensInterface.handleInput(argsList))
 	# <!-- custom: The first version ran the DLL action only when the screen returned 0, guessing the EXE did the same.
 	# Codex's review found both failures this risked: the Domestic Advisor returns 1 on a slider button without changing the rate, so the rate would not change, and the Tech Chooser's route link returns None after opening the page itself, so it would open twice.
 	# A real click then showed what the EXE does: on the Domestic Advisor's Gold +10 button its Python returned 1 while gold was still 0%, and gold was 10% after the click; on a Tech Chooser box Python saw the old research, and the new one was set afterwards.
 	# So the EXE runs the widget's DLL action after the screen's Python, whatever it returned, and 'uipress' does the same, to do what the window does, the route link's double opening included. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	# <!-- custom: dllHandled is executeAction's own return, false for nearly every widget ("Game will run with this = false"): pressing Pottery reported false while research became Pottery (2026-11-20), so whether the action was called is dllAction. (Claude code Opus 5.5) -->
-	result["dllAction"] = False
-	if iWidget not in (int(WidgetTypes.WIDGET_GENERAL), int(WidgetTypes.WIDGET_PYTHON)):
-		result["dllHandled"] = bool(pilot._pilotGame("executeSASPilotWidget").executeSASPilotWidget(iWidget, iData1, iData2, bOption, bRight))
-		result["dllAction"] = True
-	return result
+	iWidget = target["widget"]
+	result["dllAction"] = iWidget not in (int(WidgetTypes.WIDGET_GENERAL), int(WidgetTypes.WIDGET_PYTHON))
+	if result["dllAction"]:
+		# <!-- custom: The HUD button and any other widget carrying this control use the same rebuild as 'uiopen tech'. Only a left click on the control can open it through executeAction. (GPT-6.2-Sol) -->
+		if not bRight and iWidget == int(WidgetTypes.WIDGET_ACTION) and target["data1"] == gc.getControlInfo(ControlTypes.CONTROL_TECH_CHOOSER).getActionInfoIndex() and not _isOpen(CvScreenEnums.TECH_CHOOSER):
+			_prepareTechOpen()
+		result["dllHandled"] = bool(pilot._pilotGame("executeSASPilotWidget").executeSASPilotWidget(iWidget, target["data1"], target["data2"], target["option"], bRight))
 
 
-_HELP["uiread"] = "Read a table of an open screen as rows of cell text, or a recorded widget's text, as plain text: font tags and the advisors' invisible sort keys removed, game-font icons named such as [YIELD_FOOD]; raw=1 gives the text as the screen set it. text= names the widget by what it shows instead of widget=, such as text=Augustus for his scoreboard row: an exact match, else the one widget containing it, without case; several are listed. args: widget, text, screen (default the open one), raw."
+_HELP["uiread"] = "Read a table of an open screen as rows of cell text, or a recorded widget's text, as plain text: font tags and the advisors' invisible sort keys removed, game-font icons named such as [YIELD_FOOD]; raw=1 gives the text as the screen set it. text= names the widget by what it shows instead of widget=, such as text=Augustus for his scoreboard row: an exact match, else the one widget containing it, without case; several are listed. args: widget, text, screen (default the open one), raw, cells (1 to include recorded table cell actions)."
 
 
 # <!-- custom: The Battles table's icon cells read as ten invisible characters each, such as u"\u200b\u200b...", which the user noticed as wasted space (2026-11-20): SASUtils.getAdvisorIconSortKey writes a base-5 sort key in U+200B to U+200F so icon-only cells sort, invisible in the window.
@@ -706,6 +831,9 @@ _SORT_KEY_CHARS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")
 def _widgetArg(iScreen, args):
 	if args.get("widget") is None and args.get("text") is not None:
 		return _widgetByText(iScreen, args["text"])
+	# <!-- custom: Neither given raised a bare KeyError 'widget', as for 'uipress widgettype=WIDGET_CLOSE_SCREEN' while no screen was open (2026-11-21). (Claude code Opus 5.5) -->
+	if args.get("widget") is None:
+		raise ValueError("name the widget with widget= or text= on %s; 'uiwidgets' lists them" % _screenNames().get(iScreen, str(iScreen)))
 	return str(args["widget"])
 
 
@@ -760,10 +888,27 @@ def cmd_uiread(args):
 		rows = []
 		for iRow in range(screen.getTableNumRows(szWidget)):
 			rows.append([_plainCell(screen.getTableText(szWidget, iColumn, iRow), args.get("raw")) for iColumn in range(iColumns)])
-		return {"widget": szWidget, "columns": iColumns, "rows": rows}
+		result = {"widget": szWidget, "columns": iColumns, "rows": rows}
+		if args.get("cells"):
+			result["cells"] = _tableCellActions(entry, len(rows), iColumns)
+		return result
 	if entry is None:
 		raise ValueError("no widget %s on %s; 'uiwidgets' lists them" % (szWidget, _screenNames().get(iScreen, str(iScreen))))
 	return {"widget": szWidget, "text": _plainCell(entry.get("text") or u"", args.get("raw"))}
+
+
+# <!-- custom: These are the drawing coordinates 'uipress row= column=' uses. Returning actions separately lets callers distinguish link rows from headers before pressing. (GPT-6.2-Sol) -->
+def _tableCellActions(entry, iRows, iColumns):
+	cells = []
+	names = {}
+	for szPosition, (iType, iData1, iData2) in entry.get("cells", {}).items():
+		iColumn, iRow = [int(iIndex) for iIndex in szPosition.split(",")]
+		if 0 <= iRow < iRows and 0 <= iColumn < iColumns:
+			if iType not in names:
+				names[iType] = pilot._enumName(WidgetTypes, iType)
+			cells.append({"row": iRow, "column": iColumn, "widgetType": names[iType], "data1": iData1, "data2": iData2})
+	cells.sort(key=lambda cell: (cell["row"], cell["column"]))
+	return cells
 
 
 _HELP["uibench"] = "Time the recorder's cost: a full draw of a screen (opened as 'uiopen' does, then hidden; the Tech Chooser rebuilt) and a main interface redraw with every dirty bit set, each with the recorder off and on, alternating, repeat times. Milliseconds per draw. Opening the screen closes any other advisor, as in the window. Leaves the recorder as it was. args: name (default tech), repeat (default 3)."
@@ -856,6 +1001,27 @@ def cmd_uimain(args):
 	pilot._state["uiMainKey"] = None
 	_mainRecord(False)
 	return {"screen": "MAIN_INTERFACE", "widgets": len(_registry().get(CvScreenEnums.MAIN_INTERFACE, {})), "cityScreen": bool(CyInterface().isCityScreenUp())}
+
+
+_HELP["uifont"] = "Read or preview the Python UI text sizes in this client. With no arguments shows the sizes. On the map, set tiny, body, label or title to a whole size 1 to 4, or reset=1 to restore the configured sizes. Changes need the all role and last until reset or exit. Open advisors again to build them at the preview size. Native hover text is unchanged. args: tiny, body, label, title, reset."
+
+
+def cmd_uifont(args):
+	# <!-- custom: Reuse the map HUD redraw and invalidate its widget record without rebuilding the main interface, which clears the minimap mid-game. (GPT-6.2-Sol) -->
+	dSizes = dict((szRole, args[szRole]) for szRole in ("tiny", "body", "label", "title") if szRole in args)
+	bReset = args.get("reset", False)
+	if type(bReset) not in (bool, int) or bReset not in (0, 1) or (bReset and dSizes):
+		raise ValueError("use reset=1 by itself or pass font sizes")
+	if dSizes or bReset:
+		_requireHudInput()
+		if not _isOpen(CvScreenEnums.MAIN_INTERFACE) or CyInterface().isCityScreenUp() or _activeScreens():
+			raise ValueError("return to the map before changing the font preview")
+		SASTextScale.setUIFontPreview(dSizes, bReset)
+		CvScreensInterface.mainInterface.setCommerceAdjustRects()
+		pilot._state["uiMainKey"] = None
+		CyInterface().makeInterfaceDirty()
+		CvScreensInterface.forceScreenRedraw([CvScreenEnums.MAIN_INTERFACE])
+	return SASTextScale.getUIFontSizes()
 
 
 # <!-- custom: While diplomacy or a displayed popup owns input, no click reaches the main interface or the map; shared by the main interface's record and 'uiplot' (Codex's review found 'uiplot' without it). (Claude code Opus 5.5 + GPT-6.2-Sol) -->

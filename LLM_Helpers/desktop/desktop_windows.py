@@ -183,6 +183,18 @@ def window_point(pid, x, y):
 	return hwnd, left + x, top + y
 
 
+def client_offset(pid):
+	# <!-- custom: Where the game area starts inside pid's window, as a window-relative point: Civ4's own screenshots and its 1920 x 1080 layouts count from there, while click, hover and screenshot count from the window's corner, title bar and border included (3, 37 for a windowed 1920 x 1080 client on 2026-11-21). (Claude Code Opus 5.5) -->
+	make_dpi_aware()
+	hwnd = find_window(pid)
+	if hwnd is None:
+		raise RuntimeError("no visible window for process %d" % pid)
+	left, top, _right, _bottom = window_rect(hwnd)
+	origin = wt.POINT(0, 0)
+	USER32.ClientToScreen(hwnd, ctypes.byref(origin))
+	return origin.x - left, origin.y - top
+
+
 def window_pid(hwnd):
 	owner = wt.DWORD()
 	USER32.GetWindowThreadProcessId(hwnd, ctypes.byref(owner))
@@ -227,7 +239,9 @@ def bring_to_front(hwnd, pid, allow_click=True):
 	return USER32.GetForegroundWindow()
 
 
-def click(pid, x, y, modifiers=(), double=False, give_back=False):
+def click(pid, x, y, modifiers=(), double=False, give_back=False, button="left"):
+	# <!-- custom: button picks the mouse button from DRAG_BUTTONS; a right click opens the Sevopedia from many Civ4 widgets, which agents could not test before (2026-11-20). (Claude code Opus 5.5) -->
+	_, button_down_flag, button_up_flag = DRAG_BUTTONS[button]
 	# <!-- custom: give_back returns the focus to the user's window after the click.
 	# Only the command line sets it: paste calls click first, and giving the focus back there made Ctrl+V land in the user's window on 2026-11-17. (Claude code Opus 5.5) -->
 	# <!-- custom: The caller can request a chord or double click so both forms use the same bounds and ownership checks. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
@@ -261,15 +275,15 @@ def click(pid, x, y, modifiers=(), double=False, give_back=False):
 			time.sleep(0.04)
 		# <!-- custom: double presses twice within the double-click time, as opening a city from its banner needs. (Claude Code Opus 5.5) -->
 		for _ in range(2 if double else 1):
-			USER32.mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+			USER32.mouse_event(button_down_flag, 0, 0, 0, 0)
 			button_down = True
 			time.sleep(0.05)
-			USER32.mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+			USER32.mouse_event(button_up_flag, 0, 0, 0, 0)
 			button_down = False
 			time.sleep(0.05)
 	finally:
 		if button_down:
-			USER32.mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+			USER32.mouse_event(button_up_flag, 0, 0, 0, 0)
 		for modifier in reversed(pressed):
 			key_event(modifier, up=True)
 	# <!-- custom: key, type and paste gave the focus back to the user's window, but click left the target in front, so a user working in VS Code during an agent's clicks found Civ4 in front (2026-11-17).
@@ -364,10 +378,12 @@ KEYEVENTF_KEYUP = 0x0002
 VK_CONTROL = 0x11
 # <!-- custom: Each key is (virtual key, modifiers); ctrl+enter queues a message in the Claude app or Codex while it works ("Ctrl+Enter to queue for later"); ctrl+a then backspace clears a box the agent filled itself. (Claude Code Opus 5.5) -->
 KEYS = {"enter": (0x0D, ()), "esc": (0x1B, ()), "ctrl+enter": (0x0D, (VK_CONTROL,)), "ctrl+a": (ord("A"), (VK_CONTROL,)), "backspace": (0x08, ()),
-	"left": (0x25, ()), "up": (0x26, ()), "right": (0x27, ()), "down": (0x28, ()), "pgup": (0x21, ()), "pgdn": (0x22, ()), "home": (0x24, ()), "end": (0x23, ())}
+	"left": (0x25, ()), "up": (0x26, ()), "right": (0x27, ()), "down": (0x28, ()), "pgup": (0x21, ()), "pgdn": (0x22, ()), "home": (0x24, ()), "end": (0x23, ()),
+	# <!-- custom: Print Screen makes Civ4 save its own screenshot of the game area, in the format the INI names (JPG by default), to ScreenShots (2026-11-21, for the docs' screenshots). (Claude Code Opus 5.5) -->
+	"printscreen": (0x2C, ())}
 KEYEVENTF_EXTENDEDKEY = 0x0001
 # <!-- custom: Arrow, page, home, end, insert and delete keys sit on the extended keyboard, so their events need KEYEVENTF_EXTENDEDKEY, or a program reading scan codes sees the number pad's keys instead. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
-EXTENDED_KEYS = {0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x2D, 0x2E}
+EXTENDED_KEYS = {0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x2C, 0x2D, 0x2E}
 
 
 def clipboard_text():
@@ -1158,7 +1174,7 @@ def main():
 	shot.add_argument("--pid", type=int, required=True)
 	shot.add_argument("--out", required=True)
 	shot.add_argument("--method", choices=("window", "screen"), default="window", help="window: PrintWindow, works while covered; screen: bring to front and grab the screen area")
-	press = sub.add_parser("click", help="left-click a window-relative point (physical pixels, as in screenshots)")
+	press = sub.add_parser("click", help="click a window-relative point (physical pixels, as in screenshots), with the left button unless --button says otherwise")
 	press.add_argument("--pid", type=int, required=True)
 	press.add_argument("x", type=int, nargs="?")
 	press.add_argument("y", type=int, nargs="?")
@@ -1166,6 +1182,7 @@ def main():
 	press.add_argument("--layout", help="desktop usage layout from app_layouts.json")
 	press.add_argument("--with", dest="modifiers", action="append", choices=("ctrl", "shift", "alt"), default=[], help="hold this key during the click; repeat for several")
 	press.add_argument("--double", action="store_true", help="double-click")
+	press.add_argument("--button", choices=sorted(DRAG_BUTTONS), default="left", help="the mouse button, such as right for a Sevopedia link's right click")
 	point = sub.add_parser("hover", help="move the pointer to a window-relative point without clicking or focusing, e.g. to show a tooltip")
 	point.add_argument("--pid", type=int, required=True)
 	point.add_argument("x", type=int, nargs="?")
@@ -1264,7 +1281,7 @@ def main():
 		elif args.x is None or args.y is None:
 			sys.exit("%s needs x and y, or --point NAME" % args.command)
 		if args.command == "click":
-			print("clicked screen point %d,%d" % click(args.pid, args.x, args.y, tuple(MODIFIER_VKS[m] for m in args.modifiers), args.double, give_back=True))
+			print("clicked screen point %d,%d" % click(args.pid, args.x, args.y, tuple(MODIFIER_VKS[m] for m in args.modifiers), args.double, give_back=True, button=args.button))
 		else:
 			print("pointer at screen point %d,%d" % hover(args.pid, args.x, args.y))
 	elif args.command == "drag":

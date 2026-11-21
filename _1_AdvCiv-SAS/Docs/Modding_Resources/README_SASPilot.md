@@ -35,6 +35,7 @@ The video demos cover two stages of the playtest.
 &emsp;[Replaying commands](#replaying-commands)\
 [Popups](#popups)\
 [Screens and buttons by name (SASPilotUI)](#screens-and-buttons-by-name-saspilotui)\
+&emsp;[Screenshots for the docs](#screenshots-for-the-docs)\
 &emsp;[The widget recorder](#the-widget-recorder)\
 &emsp;[What a press sends](#what-a-press-sends)\
 &emsp;[What the recorder costs](#what-the-recorder-costs)\
@@ -618,6 +619,7 @@ The user's idea (2026-11-20): click what a player clicks, by name, without memor
 | --- | --- |
 | `uiscreens` | The screens it knows, with `open` and the number of recorded widgets; the short names `uiopen` takes. |
 | `uiopen name=military` | Opens a screen as its key does, through its control such as `CONTROL_MILITARY_SCREEN` (tech, policy, religion, corporation, foreigntrade, foreigndiplomacy, domestic, military, espionage, info, world, victory, halloffame, pedia; religion and corporation, which have no control since SAS moved them into the Policy Advisor, by their show function). Under the play role it passes the same check as `screen`. |
+| `uisplash name=era item=ERA_RENAISSANCE` | Shows a screen the game shows on an event, without the event: era, dawnofman, wonder, religion, project and techsplash, the item by its XML type. It bypasses the SAS splash switches, respects the player's own options, and returns the close button for `uipress` when the preview draws. Movie previews leave the map camera in place. The create role, as it shows what the player has not reached. |
 | `uitabs` | The open advisor's footer tabs: widget name, label and the active one, as the screen last drew them. |
 | `uiscroll dir=down` | Scrolls a list with its arrow buttons: up, down, pageup, pagedown, top, bottom, such as the Foreign Advisor's Bonuses grid; an arrow at its end is hidden, so it is refused. Without `dir`, the arrows shown. |
 | `uiwidgets [match=Tab]` | The open screen's widgets in creation order: name, text, widget type and data. Hidden ones only with `hidden=1`. |
@@ -645,6 +647,41 @@ SASPilotClient.py uipress widget=MilitaryAdvisorTabButton2
 SASPilotClient.py uiread widget=MilitaryAdvisorBattleTable
 ```
 
+For a Sevopedia movie, use `uiopen name=pedia` and `uipress widget=PediaMainCategoryList about=Movies`. Read the entries with `uiread widget=PediaMainItemList cells=1` and select the movie's cell with `uipress`. Find its Play image in `uiwidgets` (the `WIDGET_PYTHON` button with `Play_Button` art), then press it by widget name. Once playing, `uihover widget=MoviePlayerCurrentLabel` reads the title's tooltip and `uipress widget=MoviePlayerCurrentLabel` follows the link when it has one. For music, use the Music category and `MusicPlayerQueueList` with `row=` and `column=`.
+
+The screens that come with an event, such as a new era, a wonder or a tech, used to be checked only by playing until the event happened, or by waiting for it in an autoplay. With `uisplash` they show at once on any save. That made it quick to compare their fonts side by side and to test their title links (2026-11-21):
+
+```text
+SASPilotClient.py uisplash name=era item=ERA_RENAISSANCE
+SASPilotClient.py uihover widget=EraTitleHeader3 screen=ERA_MOVIE_SCREEN
+SASPilotClient.py uipress widget=EraExit3 screen=ERA_MOVIE_SCREEN
+```
+
+- The Greatest Civilizations screen is left out: it draws two synchronized random numbers and writes its ranking to the Timeline and SASGameRecord, so showing it would change the game.
+- The wonder, religion and project screen adds its OK button when its movie starts, a moment later; `uiwidgets match=WonderExit` then finds it.
+- A bare `uipress widgettype=WIDGET_CLOSE_SCREEN` did not close these screens; press their own close button by name.
+
+### Screenshots for the docs
+
+`SASPilotClient.py shot out=<path>` presses Print Screen on the client's window, so Civ4 saves its own screenshot to `My Games/beyond the sword/ScreenShots`, then copies it to `out`. The docs' screenshots are these; `desktop_windows.py screenshot` suits an agent's own checks instead, as it captures a covered window and crops.
+
+- Print Screen needs the game in front, and Windows refuses that while the user works in another window: on 2026-11-21 `shot` failed so while testing the city screen's red maintenance.
+  - It then falls back to PrintWindow, which needs no focus, cut to the game area and saved as JPG at quality 75: the same 1920 x 1080 frame, with `"method": "PrintWindow"` in the reply.
+
+| Same frame, 2026-11-21 | Civ4 Print Screen (`shot`) | `desktop_windows.py screenshot` |
+| --- | --- | --- |
+| Format | JPG (the INI's `screenshot format`), about quality 75 | PNG |
+| Area | the game area, 1920 x 1080 | the whole window with its title bar and borders, 1926 x 1120 |
+| Size | 422 KB | 3,696 KB, or 721 KB cropped to the game area and saved as JPG at quality 90 |
+
+On 2026-11-21 the 31 advisor screenshots were retaken this way after the commerce sliders' default background changed, by name with no click: `uiopen` each advisor, `uipress text=<tab>` each tab, then `shot`, on three saves chosen as in `changes_new.md`'s screenshot automation note (a turn-201 Pangaea for most, turn 301 for Domestic Overview 4's corporations, a SAS48 game at turn 152 for the Espionage tab's compact rows).
+
+- A save may open on an AI's diplomacy screen; `leave`, or `reply` with the exit or a refusal, clears it first.
+- A view behind a toggle needs its button pressed, such as the Military Advisor Map tab's `Show individual units`; press it again afterwards, as it is a setting.
+- A hover needs the real pointer: `uihover` reads its text, but only a pointer over the widget makes the game draw it.
+
+The list of shots and the runner are now [`doc_screenshots.py`](/LLM_Helpers/README.md#doc_screenshotspy), which also places the pointer for a hover and retakes a shot when someone used the mouse meanwhile.
+
 ### The widget recorder
 
 - A screen cannot list its widgets: `CyGInterfaceScreen` has getters for a table's text and a checkbox's state, but nothing that enumerates what was drawn.
@@ -659,6 +696,7 @@ SASPilotClient.py uiread widget=MilitaryAdvisorBattleTable
     - The module now stays in `sys.modules`, and a recording error is kept for `uiscreens` (`recorderError`) instead of reaching the screen's drawing.
   - `CyInterface().isScreenUp` also said yes for the hidden Tech Chooser and Sevopedia tech page, so "the open screen" asks the screen itself, `isActive`.
   - Advisors hide a tab's widgets rather than delete them: the Battles table stayed listed after a press on Composition, so `hide` and `show` are recorded too.
+  - When `uipress` opens a screen, it reports it in `openedScreens` and records the new draw, including navigation from the HUD. For example, the scoreboard power ratio opens Info on Score, and the Graph tab can be pressed immediately. SASPilot rebuilds the Tech Advisor's cached tree on both `uiopen name=tech` and a press on its HUD button, so tech boxes and their links are available immediately. A persistent screen that reuses other existing widgets may give a partial recording.
 
 ### What a press sends
 
@@ -751,6 +789,7 @@ On the turn-402 save, 2026-11-20, each by name, with its hover text from `uihove
 - SAS's scoreboard buttons: `ScoreBgStyle` cycled the background through its six styles, and `ScoreExpandToggle` unlocked and locked the scoreboard hover. Their tooltips come from BUG's `WidgetUtil` in Python, which `uihover` now asks when the DLL has none ("Cycle scoreboard background style", "Toggle lock scoreboard hover").
 - SAS48 scoreboard scrolling, on a new SAS48 Pangaea game where the team met all 47 others (first a `py` loop, now the `meet` command, create role, which checks its whole team list before meeting anyone and refuses network games, where it would change only one machine's game; saved as `sas_pilot_ui_sas48_met_all`): the scroll buttons appear only when the scoreboard overflows.
   - Up moved it by 1, fast up by 5, the down buttons appeared once it could scroll down, and the center and autocenter buttons worked, each with its tooltip.
+- `uifont` reports the Python UI font sizes. On the map, `uifont label=4` previews font 4 and `uifont reset=1` restores the configured sizes. The preview accepts `tiny`, `body`, `label` and `title` (1–4) and lasts only for this client. Changes require the all role. Open advisors after setting the preview so they rebuild their layout at the new size. Native hover text keeps its configured size.
 - `uistate` reports what these tests first read with `py` after each press: `scoreboard` (visible, expanded, background style and the number of styles, lock, autocenter, scroll) and `map` (grid, yields, bare map), with the globe view and the commerce sliders.
 
 ### Reading and naming, tested on a late game
@@ -760,6 +799,9 @@ On the same turn-403 save, 2026-11-20:
 - Unnamed widgets: the Foreign Advisor creates its leader buttons with an empty name (`attachImageButton(panel, "", ...)`), so in a record keyed by name each overwrote the last and one leader of 21 was left.
   - Each now gets a stand-in name from its parent and its place among the parent's unnamed children, such as `ForeignAdvisorWidget19#1`, and a press still sends the empty name, as the EXE does.
   - Pressing that one selected leader 17, which needs the left-button flag.
+- Parent-first checkboxes: `addCheckBoxGFCAt` takes its parent before its name in every call, such as the Policy Advisor's `addCheckBoxGFCAt(szArea, szButtonName, ...)`, although the BUG API listing omits the parent.
+  - The recorder took the parent as the name, so it recorded the parent once per button, and each re-record dropped the parent's children: the Religions tab kept none of its religion buttons and labels but the last one drawn (2026-11-20, a new game).
+  - It now reads the name second, as for `attach*`, and the tab records every button with its widget.
 - Plain text: the Battles table's icon cells read as ten invisible characters each, which the user noticed as wasted space.
   - They are SAS's sort keys (`getAdvisorIconSortKey` in [`SASUtils.py`](/Assets/Python/SASUtils.py), a base-5 number in U+200B to U+200F, so icon-only cells sort).
   - `uiread` removes them and the font tags and names game-font icons, as `_plainText` does for popups; the Battles table's reply went from 4,135 to 1,705 bytes.
@@ -811,6 +853,7 @@ On the SAS48 game at turn 0, 2026-11-20, one turn was played through the `ui` co
 - `uiopen name=tech`, `uipress text=agriculture` and `uipress text=exit` set the research.
 - The Settler founded Beijing with `about=MISSION_FOUND`; `uiselect city=` and `about=UNIT_WARRIOR` started its production.
 - `control control=CONTROL_ENDTURN`, what the end-turn button runs, did nothing while the city screen was open, as in the window. The screen's exit arrow is the EXE's and is not recorded, so `uiselect close=1` closes it, as Esc does; then the turn ended.
+- `uiread widget=TABLE cells=1` adds recorded cell actions (row, column, widget type, `data1`, `data2`) to the usual table text. The sweep uses them to identify page links before pressing, so subheadings do not consume its page limit. The actions use drawing coordinates, like `uipress row= column=`, and may be out of date after the EXE sorts a table.
 - A press by name needs no scrolling: the recorder holds every widget a screen creates, such as techs beyond the Tech Chooser's visible edge, and a press reaches the screen without a mouse position.
 
 ### Sweeping the screens, tested on a late game
@@ -937,7 +980,7 @@ Speed, the C++ versus Python question and the client's own cost are in [SASPilot
   - In a client started from a save it stays at the main menu, silent. From there use the UI tools of the [Game Runs Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#the-main-menu-and-the-sevopedia), or `close` and `start` again, which takes about a minute.
 - SASPilotUI, 2026-11-20 (details under [Screens and buttons by name](#screens-and-buttons-by-name-saspilotui)):
   - Recording widgets in the DLL was not possible: `CyGInterfaceScreen` is the EXE's class, so the DLL never sees a widget created. The recorder wraps the class's methods in Python instead.
-  - A recorder installed for good cost every main interface redraw time, even though the main interface is not recorded, so it is installed only while a `uiopen` screen is up.
+  - A recorder installed for good cost every main interface redraw time, even though the main interface is not recorded, so by default it is installed during a press and while a screen opened by `uiopen` or `uipress` is up.
     - The first measurement put the cost at 0.8 ms per full redraw, which would have kept the install-for-good design; the snippet's result was already in milliseconds per redraw and was read as tenths, and the real figure was about 8 ms.
   - Running the DLL action only when the screen returned 0 was a guess at the EXE's rule; Codex's review showed it would miss a slider change and double a route link, and a click logged in the window showed the EXE runs it whatever the screen returns.
   - The first module loader kept only the module's functions, so Python 2 freed the module and set its globals to `None`; the recorder then failed inside the main interface's own drawing, 479 Python popups in 13 seconds, before the module was kept in `sys.modules`.

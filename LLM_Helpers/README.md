@@ -45,7 +45,7 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `game_runs/`: starting and playing | [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`start_game.py`](#start_gamepy) starts a turn-0 game with a chosen map, size and game options and leaves it open; reading and driving a running game as JSON is the job of [`SASPilot/`](/SASPilot/README.md) at the root |
 | `game_runs/`: screen map | the screen map `civ4_ui_map.json`, with [`set_dropdown.py`](#civ4_ui_mapjson-capture_dropdownspy-and-set_dropdownpy), which chooses a dropdown item by name, and `capture_dropdowns.py`, which captures their lists; [`map_sevopedia.py`](#map_sevopediapy) maps each Sevopedia page's panels and EXPAND buttons |
 | `game_runs/`: checking clicks | [`check_points.py`](#check_pointspy) clicks named Civ4 points and reports what changed; [`run_steps.py`](#run_stepspy) runs clicks, keys and hovers in order with a capture of each on one sheet |
-| `game_runs/`: captures | [`capture_screens.py`](#capture_screenspy) launches Civ4 itself, at any resolution or in fullscreen if asked, clicks through screens and saves full-size captures |
+| `game_runs/`: captures | [`capture_screens.py`](#capture_screenspy) launches Civ4 itself, at any resolution or in fullscreen if asked, clicks through screens and saves full-size captures; [`doc_screenshots.py`](#doc_screenshotspy) retakes the docs' screenshots from a list |
 | `game_runs/`: art from the game | [`map_preview_dds.py`](#map_preview_ddspy) makes a map script's Simple Game preview from its minimap, with [`simple_game_scripts.py`](#simple_game_scriptspy) saying which scripts Simple Game lists |
 | `housekeeping/` | keeping the development computer tidy: [`archive_old_files.py`](#archive_old_filespy) moves a folder's older entries into a dated subfolder; [`redact_image.py`](#redact_imagepy) covers personal details in a screenshot; [`python_versions.py`](#python_versionspy) reports when the helpers can move to a newer Python |
 | `packaging/` | building context corpora, for a light-source ZIP or locally: [`make_light_source_zip.py`](#make_light_source_zippy), [`refresh_commit_diffs.py`](#refresh_commit_diffspy) and `light_source_python24_linux.py` |
@@ -199,6 +199,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`hover_tooltips.py`, `export_pedia_concepts.py` and `export_bug_options.py`](#hover_tooltipspy-export_pedia_conceptspy-and-export_bug_optionspy)
     - [`check_points.py`](#check_pointspy)
     - [`run_steps.py`](#run_stepspy)
+    - [`doc_screenshots.py`](#doc_screenshotspy)
     - [`capture_screens.py`](#capture_screenspy)
     - [`map_preview_dds.py`](#map_preview_ddspy)
     - [`simple_game_scripts.py`](#simple_game_scriptspy)
@@ -983,6 +984,7 @@ python LLM_Helpers\commits\stage_partial.py SASPilot\game\SASPilotCommands.py --
     - It clicks only under a title matching the text mask in `layouts/civ4_python_exception_title.txt`, and only when exactly one such dialog is up, as a game popup has the same buttons.
     - See [Python errors and their dialogs](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#python-errors-and-their-dialogs).
     - Run it before saving Python or XML under `Assets`, which breaks a running game: on 2026-11-20 an agent edited advisor Python while the user's own client ran.
+  - `click --button right` right-clicks, as many Civ4 icons open their Sevopedia page on a right click; added on 2026-11-20, when it opened a leader's page from the Military Advisor's leader buttons, and showed that a list box row's right click reaches neither the DLL nor the screen.
   - `hover` moves the pointer without clicking or taking focus, to reveal a tooltip. On 2026-11-10 it read the Codex app's usage reset times.
   - `move` places a window on a monitor: `full`, `left` or `right` half, `topleft` or `bottomleft` at its own size, or `beside --beside <pid>`; `positions save|restore|list <name>` keeps named layouts of the Claude app, the Codex app and Civ4 in `layouts/window_positions.json`, found by program name. Both added on 2026-11-14; see [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md).
   - `dump --pid` presses Full Dump at Civ4's crash prompt by its label, waits until the writer lets go of the file, checks the process ID the dump records and copies it to `Civ4BeyondSword_<pid>_<time>.dmp`, as every Civ4 writes the same file name ([KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)). Added on 2026-11-13; not yet tried on a real prompt.
@@ -2206,6 +2208,18 @@ python LLM_Helpers/game_runs/run_steps.py --pid 20608 --out steps.png --crop 0 3
 ```
 
 - In GPT-6.1-Sol's live check on 2026-11-12, this sequence opened Sevopedia from the main menu, filtered Units, selected the War Chariot and captured its tooltip. Replace the example PID with the target client's PID. The runner was added by Claude Code Opus 5.5.
+
+#### `doc_screenshots.py`
+
+- Taking the docs' screenshots by hand is preferred for now: choosing the save and the moment is what shows UI faults (the user, 2026-11-21). The list keeps the preferred saves and views, and the runner is for bulk refreshes when a change touches many shots, such as the commerce sliders' background.
+- Retakes the docs' screenshots listed in [`doc_screenshots.json`](/LLM_Helpers/game_runs/doc_screenshots.json): one Civ4 client per save role, each screen opened and each tab pressed by name through SASPilot, then Civ4's own Print Screen through `SASPilotClient.py shot`, written over the image in `_1_AdvCiv-SAS/Images`. Review the result with `git diff` before staging.
+  - Each list entry names its image, save role, screen, the tabs or buttons to press, an optional point to hover in the 1920 x 1080 game area (the real pointer goes there, so the game draws the tooltip, as the Relations tab's attitude breakdown needs) and presses that undo a toggle afterwards.
+  - The save roles (`t201`, `t301`, `sas48`) name local saves with a note on how to make a new one, as saves break across commits.
+- `--list` prints the list and what it does not cover yet; `--only '*military*'` and `--save t201` narrow it; `--dry-run` says what it would take.
+- Before each shot it waits until nobody has used the keyboard or mouse for 2 seconds, brings the window forward, places the pointer, then checks that the pointer stayed and that only that screen is open, without a city screen; otherwise it takes the shot again.
+  - Written on 2026-11-21 by Claude Code Opus 5.5, after the user moving the mouse during the first run clicked a city open and two shots showed its city screen.
+  - The first check also failed every time on its own: `shot`'s Print Screen brought the window forward by clicking its title bar, which moved the pointer, so the window is now brought forward before the pointer is placed.
+- The method, and why Civ4's own JPG rather than `desktop_windows.py screenshot`, are in the [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#screenshots-for-the-docs).
 
 #### `capture_screens.py`
 

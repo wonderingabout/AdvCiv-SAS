@@ -37,9 +37,9 @@ POLL_SECONDS = 0.001
 LOGS_DIR = MAILBOX_ROOT.parent / "Logs"
 # <!-- custom: Commands that never change the game; a command with one of ORDER_ARGS is an order even so, e.g. 'espionage weight=' or 'fog on='. Everything else, 'py' included, is logged as an order, since it may change the game. (Claude code Opus 5.5) -->
 # <!-- custom: The ui* commands that only read or redraw what is shown; uiopen, uipress and uiselect act as clicks do, and uiplot gives a mission with x and y. Before 2026-11-20 none was listed, so the log and SASPilotConsole called uistate or uihover orders. (Claude code Opus 5.5) -->
-READ_COMMANDS = frozenset(("pyerrors", "uioptions", "uiscreens", "uiwidgets", "uitabs", "uiread", "uihover", "uiitems", "uistate", "uimain", "uirecord", "uibench", "uiprobe", "uiplot", "help", "ping", "advise", "role", "demographics", "trainable", "bonustrade", "tech", "graph", "deals", "scores", "player", "players", "units", "unit", "cities", "city", "plot", "plots", "grid", "fog", "path", "targets", "wartargets", "messages", "todo", "info", "routes", "group", "diplo", "trade", "techs", "odds", "sites", "builds", "look", "finance", "domestic", "military", "relations", "espionage", "spy", "turn", "popups", "civics", "sliders", "religion", "types", "pedia", "citizens", "greatpeople", "workers", "map", "scout", "resources", "reminders", "research", "hurry", "freetech"))
+READ_COMMANDS = frozenset(("pyerrors", "uifont", "uioptions", "uiopen", "uiscreens", "uiwidgets", "uitabs", "uiread", "uihover", "uiitems", "uistate", "uimain", "uirecord", "uibench", "uiprobe", "uiplot", "help", "ping", "advise", "role", "demographics", "trainable", "bonustrade", "tech", "graph", "deals", "scores", "player", "players", "units", "unit", "cities", "city", "plot", "plots", "grid", "fog", "path", "targets", "wartargets", "messages", "todo", "info", "routes", "group", "diplo", "trade", "techs", "odds", "sites", "builds", "look", "finance", "domestic", "military", "relations", "espionage", "spy", "turn", "popups", "civics", "sliders", "religion", "types", "pedia", "citizens", "greatpeople", "workers", "map", "scout", "resources", "reminders", "research", "hurry", "freetech"))
 # <!-- custom: Codex's review found 'popups held=' (it switches holding) and 'profile' (it can run any command repeatedly) logged as reads, and the query forms of 'research', 'hurry' and 'freetech' as orders. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-ORDER_ARGS = {"fog": ("on",), "espionage": ("weight",), "sliders": ("percent",), "citizens": ("automated",), "civics": ("set",), "religion": ("convert",), "popups": ("held",), "research": ("tech",), "hurry": ("hurry",), "freetech": ("tech",), "role": ("set",), "uirecord": ("on",), "uiprobe": ("on", "clear"), "uiplot": ("x", "y", "cancel"), "uiscroll": ("dir",), "pyerrors": ("clear",), "uioptions": ("open", "close")}
+ORDER_ARGS = {"fog": ("on",), "espionage": ("weight",), "sliders": ("percent",), "citizens": ("automated",), "civics": ("set",), "religion": ("convert",), "popups": ("held",), "research": ("tech",), "hurry": ("hurry",), "freetech": ("tech",), "role": ("set",), "uirecord": ("on",), "uiprobe": ("on", "clear"), "uiplot": ("x", "y", "cancel"), "uiscroll": ("dir",), "pyerrors": ("clear",), "uioptions": ("open", "close"), "uifont": ("tiny", "body", "label", "title", "reset"), "uiopen": ("name",)}
 # <!-- custom: A logged result longer than this is cut, so a 1.6 MB plot reply does not flood the log; its size is still recorded. (Claude code Opus 5.5) -->
 LOG_RESULT_CHARS = 1500
 # <!-- custom: Set by main for this invocation: the top-level command, so wait_for_turn's pings are not logged under 'endturn', and its note=, written on the first logged request only. (Claude code Opus 5.5) -->
@@ -657,7 +657,8 @@ def start(args):
 		save = None
 		settings["QuickStart"] = "1"
 		# <!-- custom: The INI wants full type names, and Civ4 silently fell back to Standard for "--world-size Large" (Continents game, 2026-11-19, noticed only from the START save's name), so a short name gets its prefix. (Claude code Opus 5.5) -->
-		for key, value, prefix in (("Map", args.map, None), ("WorldSize", args.world_size, "WORLDSIZE_"), ("GameSpeed", args.speed, "GAMESPEED_"), ("QuickHandicap", args.handicap, "HANDICAP_")):
+		# <!-- custom: Era added on 2026-11-20 for a late-era UI test, as the INI's QuickStart section takes it like start_game.py's --era, and older late-game saves no longer loaded after a save format change. (Claude code Opus 5.5) -->
+		for key, value, prefix in (("Map", args.map, None), ("WorldSize", args.world_size, "WORLDSIZE_"), ("GameSpeed", args.speed, "GAMESPEED_"), ("QuickHandicap", args.handicap, "HANDICAP_"), ("Era", args.era, "ERA_")):
 			if value:
 				if prefix and not value.upper().startswith(prefix):
 					value = prefix + value.upper()
@@ -677,7 +678,8 @@ def start(args):
 	pilot_lines = ["[SASPilot]", "On = 1", "Session = %s" % session]
 	if args.role:
 		pilot_lines.append("Role = %s" % args.role)
-	run_autoplay.write_request_ini(run_autoplay.USER_DIR / "CivilizationIV.ini", ini_path, None, False, "-", "Pilot", settings, extra_lines=pilot_lines)
+	# <!-- custom: The player's name is "SASPilot" rather than "Pilot", the tool's own name, in hovers, the scoreboard and logs alike (the user, 2026-11-21). (Claude code Opus 5.5) -->
+	run_autoplay.write_request_ini(run_autoplay.USER_DIR / "CivilizationIV.ini", ini_path, None, False, "-", "SASPilot", settings, extra_lines=pilot_lines)
 	arguments = "ini=%s" % ini_name
 	if save is not None:
 		arguments = '/FXSLOAD="%s" %s' % (save, arguments)
@@ -810,6 +812,73 @@ LEAVE_REPLIES = ("USER_DIPLOCOMMENT_EXIT", "USER_DIPLOCOMMENT_NO_RENEGOTIATE")
 # <!-- custom: AI_DIPLOCOMMENT_STOP_DENIED is the AI's answer to our refusal of its demand to stop trading (Sitting Bull at turn 115 of the turn-0 game, 2026-11-14); it only informs, and stopped 'leave'. (Claude code Opus 5.5) -->
 LEAVE_AI_COMMENTS = ("AI_DIPLOCOMMENT_THANKS", "AI_DIPLOCOMMENT_GLAD", "AI_DIPLOCOMMENT_CANCEL_DEAL", "AI_DIPLOCOMMENT_DECLARE_WAR", "AI_DIPLOCOMMENT_SOMETHING_ELSE", "AI_DIPLOCOMMENT_NO_PEACE", "AI_DIPLOCOMMENT_PEACE", "AI_DIPLOCOMMENT_STOP_DENIED")
 LEAVE_ONLY_REPLY_COMMENTS = ("AI_DIPLOCOMMENT_DECLARE_WAR",)
+
+
+# <!-- custom: Civ4's own screenshot, as Print Screen takes it: the game area only, in the INI's format (JPG by default, about quality 75), into ScreenShots; the docs' screenshots are these.
+# desktop_windows.py screenshot captures the whole window with its title bar and borders as PNG, about nine times the size (2026-11-21), which suits an agent's own checks rather than the docs. (Claude code Opus 5.5) -->
+SCREENSHOT_DIR = Path.home() / "Documents" / "My Games" / "beyond the sword" / "ScreenShots"
+
+
+def take_screenshot(pid, out, timeout):
+	import shutil
+	import desktop_windows
+	before = set(p.name for p in SCREENSHOT_DIR.glob("Civ4ScreenShot*"))
+	try:
+		desktop_windows.key(pid, "printscreen", hold=0.5)
+	except RuntimeError as error:
+		# <!-- custom: Print Screen needs the game in front, and Windows refused that while the user worked in another window, so 'shot' failed (2026-11-21, testing the city screen's red maintenance).
+		# Then the window draws itself into a bitmap instead (PrintWindow, which needs no focus), cut to the game area and saved as JPG as Civ4 saves its own, so the shot matches Print Screen's but for the JPG encoder. (Claude code Opus 5.5) -->
+		if "come to the front" not in str(error):
+			raise
+		return print_window_shot(pid, out)
+	deadline = time.monotonic() + timeout
+	previous = None
+	while time.monotonic() < deadline:
+		new = [p for p in SCREENSHOT_DIR.glob("Civ4ScreenShot*") if p.name not in before]
+		if new:
+			shot = max(new, key=lambda p: p.stat().st_mtime)
+			# <!-- custom: Check that the file is stable inside the same deadline. Civ4 can miss the key after the focus check or leave a partial file, so either case falls back to PrintWindow. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			stat = shot.stat()
+			current = (shot, stat.st_size, stat.st_mtime_ns)
+			if stat.st_size and current == previous:
+				result = {"shot": str(shot), "bytes": stat.st_size}
+				if out:
+					target = Path(out)
+					target.parent.mkdir(parents=True, exist_ok=True)
+					shutil.copyfile(shot, target)
+					result["copied"] = str(target)
+				return result
+			previous = current
+		time.sleep(0.3)
+	return print_window_shot(pid, out)
+
+
+def print_window_shot(pid, out):
+	# <!-- custom: ctypes for the game area's size (GetClientRect) and desktop_windows for the window and its PrintWindow capture; imported here, as take_screenshot does, so the commands without a window need neither. (Claude code Opus 5.5) -->
+	import ctypes
+	from ctypes import wintypes
+	import desktop_windows
+	hwnd = desktop_windows.find_window(pid)
+	if hwnd is None:
+		raise PilotError("no visible window for process %d" % pid)
+	if ctypes.windll.user32.IsIconic(hwnd):
+		raise PilotError("restore the Civ4 window before taking a screenshot")
+	left, top = desktop_windows.client_offset(pid)
+	client = wintypes.RECT()
+	if not ctypes.windll.user32.GetClientRect(hwnd, ctypes.byref(client)) or not (client.right > 0 and client.bottom > 0):
+		raise PilotError("could not read the Civ4 client rectangle")
+	image = desktop_windows.print_window_image(hwnd)
+	right, bottom = left + client.right, top + client.bottom
+	if left < 0 or top < 0 or right > image.width or bottom > image.height:
+		raise PilotError("the Civ4 client rectangle fell outside the captured window")
+	image = image.crop((left, top, right, bottom)).convert("RGB")
+	if out:
+		target = Path(out)
+	else:
+		target = SCREENSHOT_DIR / ("SASPilotShot_%s_%d.JPG" % (time.strftime("%Y%m%dT%H%M%S"), pid))
+	target.parent.mkdir(parents=True, exist_ok=True)
+	image.save(str(target), "JPEG", quality=75)
+	return {"shot": str(target), "bytes": target.stat().st_size, "method": "PrintWindow", "size": list(image.size)}
 
 
 def leave_screens(pid, timeout, rounds=12):
@@ -1018,6 +1087,7 @@ def main():
 	parser.add_argument("--resolution", type=int, nargs=2, metavar=("WIDTH", "HEIGHT"), help="start: run the game at this resolution, such as 1920 1080, in this run's INI only")
 	parser.add_argument("--speed", help="start: e.g. GAMESPEED_NORMAL")
 	parser.add_argument("--handicap", help="start: e.g. HANDICAP_NOBLE")
+	parser.add_argument("--era", help="start: the starting era, e.g. ERA_MODERN or Modern")
 	parser.add_argument("--fixed-seeds", action="store_true", help="start: SyncRandSeed and MapRandSeed 1, for a repeatable new game")
 	parser.add_argument("--save", help="start: load this save instead of starting a new game")
 	parser.add_argument("--fog", action="store_true", help="start: switch fog on once the game runs, so replies show only what the player knows, as for a playthrough; a new client starts with fog off")
@@ -1034,7 +1104,7 @@ def main():
 	parser.add_argument("--note", help="the reason for this command, written with it in the command log (Logs/SASPilot_<start>_<pid>.jsonl) that SASPilotConsole.py follows; note=... among the arguments does the same, except for 'py'")
 	parser.add_argument("--operator", help="who sends the commands, e.g. \"Claude Code Opus 5.5\", written on each command-log row; default SAS_PILOT_OPERATOR. 'operator joined' and 'operator left' mark the start and end of a turn at the controls")
 	parser.add_argument("--brief", action="store_true", help="endturn: print each turn's digest as short text lines (turn, messages, what waits) instead of JSON")
-	parser.add_argument("command", help="start (warns of recommended settings not set; check prints them), list, layout (each running client and its SASPilotConsole in a band of its own, oldest on top), wait, close, operator joined|left|list (mark the --operator taking or leaving the controls in the command log; list them all with their times), review (this session's errors and its 'py' snippets grouped, most repeated first), health (SASPilot's own state and its problems in one reply), leave (click through diplomacy screens that only inform; stops at one with a choice), price with= take=[...] give=[...] [accept=1] (an AI's counter-offer; nothing agreed unless accept=1), bench <command> [key=value...], or a bridge command ('help' lists them)")
+	parser.add_argument("command", help="start (warns of recommended settings not set; check prints them), list, layout (each running client and its SASPilotConsole in a band of its own, oldest on top), wait, close, operator joined|left|list (mark the --operator taking or leaving the controls in the command log; list them all with their times), review (this session's errors and its 'py' snippets grouped, most repeated first), health (SASPilot's own state and its problems in one reply), leave (click through diplomacy screens that only inform; stops at one with a choice), shot out=<path> (Civ4's own screenshot of the game area, as Print Screen takes it, into ScreenShots and copied to out), price with= take=[...] give=[...] [accept=1] (an AI's counter-offer; nothing agreed unless accept=1), bench <command> [key=value...], or a bridge command ('help' lists them)")
 	parser.add_argument("arguments", nargs="*", help="key=value pairs; for 'py', the code itself, '-' for stdin or @file")
 	args = parser.parse_args()
 	# <!-- custom: note= on any command is the agent's reason for it: taken out here, so the game never sees it, and written with the command's log line for the watcher and later review. (Claude code Opus 5.5) -->
@@ -1084,6 +1154,12 @@ def main():
 				result = wait_for_turn(pid, args.timeout or 600.0)
 			elif args.command == "leave":
 				result = leave_screens(pid, args.timeout or 60.0)
+			elif args.command == "shot":
+				shot_args = {}
+				for item in args.arguments:
+					key, value = item.split("=", 1)
+					shot_args[key] = value
+				result = take_screenshot(pid, shot_args.get("out"), args.timeout or 20.0)
 			elif args.command == "health":
 				result = health(pid, args.timeout or 60.0)
 			elif args.command == "review":
