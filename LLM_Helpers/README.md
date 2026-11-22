@@ -949,8 +949,15 @@ The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_
   - It needs only Git and the CI check's [`inherited_files.tsv`](/_0_Legacy/Docs/Manifests/inherited_files.tsv), which lists what the base game and base AdvCiv ship; SAS's side comes from the tree.
   - Events name date, SHA and title, no practical number, as the same number names different commits in different segments; SAS's SHAs change with any rewrite of our history, so rerun it after one.
   - Its audit's "Why it has this shape" records the choices made with the user, such as file events only, one path per file and no log of our history in the audit.
+- `--loaded` compares the base-game Python files SAS has no copy of with the modules every `PythonDbg*.log` in Civ4's Logs folder, archived ones included, shows loading; pass another folder after it to read that one. See [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104).
+  - It sorts them into loaded, registered only as an entry point, and not observed. Entry points such as `CvTranslator` never print `load_module`, so not observed is not proof of non-use.
+  - It matches names without case, as Civ4 does: a first, case-sensitive comparison missed `CvUNVictoryScreen`, which the logs name `CvUnVictoryScreen`, until Codex caught it (2026-11-22).
+- `--take-in PATH...` copies base-game Python files SAS uses into SAS unchanged, from the newest layer providing each, adding only the SAS header and a comment naming the source; put your model credit in that comment.
+  - It began as a scratchpad script for KI#1104's first 18 files, which Codex then checked against their sources one by one.
 
 ```bash
+python LLM_Helpers/code_history/inherited_files.py --loaded
+python LLM_Helpers/code_history/inherited_files.py --take-in Assets/Python/Screens/CvScreen.py
 python LLM_Helpers/code_history/inherited_files.py --inventory
 python LLM_Helpers/code_history/inherited_files.py python --grep wb
 python LLM_Helpers/code_history/inherited_files.py xml --summary

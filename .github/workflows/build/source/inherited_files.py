@@ -46,6 +46,8 @@ PY24_RUNTIME_MODULES = {
 	"imp", "math", "md5", "new", "operator", "os", "pickle", "popen2", "random", "re", "regex",
 	"sets", "sgmllib", "sha", "shutil", "stat", "string", "stringio", "strop", "sys", "thread",
 	"threading", "time", "traceback", "types", "urllib", "urllib2", "user", "warnings", "webbrowser", "xmllib",
+	# <!-- custom: base64, pydoc, smtplib and MimeWriter came with BtS's CvAppInterface.py, copied into SAS on 2026-11-22: imported only inside its functions, pydoc for a CvPythonExtensions help dump and the other three for sending PBEM turns by email; all four are in Python 2.4's Lib. See KI#1104. (Claude code Opus 5.5) -->
+	"base64", "mimewriter", "pydoc", "smtplib",
 }
 # <!-- custom: Optional modules imported inside try/except ImportError: BUG's BugPath tries a player's own CvAltRoot and CvModFolder, and configobj tries validate; none ships with SAS or the game. (Claude code Opus 5.5) -->
 OPTIONAL_IMPORTS = {"cvaltroot", "cvmodfolder", "validate"}

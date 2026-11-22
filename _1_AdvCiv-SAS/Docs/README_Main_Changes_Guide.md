@@ -405,6 +405,12 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - The setting now lives in `GlobalDefines_advciv_sas.xml`, using the SAS-prefixed key and a shared first-use cache; an XML-only mod-mod can change it and restart Civ4 without rebuilding the DLL. The DLL derives the inherited `SAVE_VERSION` key after loading XML, so existing engine/BUG consumers see the same value. The compiled replay-layout marker still describes the binary format separately.
   - `SAS_HOF_LEGACY_MOD_ID=14223` also permits older SAS candidates. AdvCiv files share that old ID, so they can be attempted too, but their different stored mod path excludes them when foreign-mod display is off.
     - Set the legacy ID to `0` to skip old-ID files entirely. The reader still rejects files whose format or stored values it cannot safely read.
+- (Requires AdvCiv-SAS 6838+) **SAS now carries every base-game Python file it uses**, changed or not, so the code that runs is all in the mod and its repository, searchable and ready to change. See [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104).
+  - 18 files that ran from BtS or vanilla came in unchanged, such as the WorldBuilder screens ([`CvWorldBuilderScreen.py`](/Assets/Python/Screens/CvWorldBuilderScreen.py)) and the game-rule hooks ([`CvGameUtils.py`](/Assets/Python/CvGameUtils.py)); each names its source in the Civ4 install.
+    - Gameplay does not change, as the game took the same files from the base game before.
+  - Files nothing uses stay out, such as the old Civilopedia pages the Sevopedia replaced.
+  - The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md) lists which base-game and base AdvCiv files SAS keeps, takes in or leaves out, and the [manifests](/README.md#manifests-of-the-inherited-layers) what each layer ships.
+    - Like the earlier `CIV4ProcessInfo.xml` from Realism Invictus, a file comes in when SAS needs it; now that means when SAS uses it, not only when SAS changes it.
 
 ### Code/Performance optimizations
 

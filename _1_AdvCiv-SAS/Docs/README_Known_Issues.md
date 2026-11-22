@@ -1283,7 +1283,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1100 - (Fixed AdvCiv-SAS bug) The World Advisor's Changes tab listed an Advanced Start Automate row above the buys it made, as its row was written once the AI had spent the points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1100)\
 [KI#1101 - (Fixed AdvCiv-SAS merge slip, SASPilot branch only) The Info Screen's Timeline tab raised "global name 'iNumMessages' is not defined" on the SASPilot branch; main is not affected](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101)\
 [KI#1102 - (Open, a Steam client bug outside the mod's code) A closed Civ4 sometimes never finishes exiting, as Steam's steamclient.dll waits forever while unloading, so Steam still sees the game running and the shortcut starts nothing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)\
-[KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103)
+[KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103)\
+[KI#1104 - (AdvCiv-SAS design rule) SAS keeps its own copy of every base-game Python file it uses, changed or not: SASPilot's WorldBuilder work found the WorldBuilder screen running from BtS's copy, outside the repository](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)
 
 <a id="ki-1"></a>
 
@@ -38469,3 +38470,41 @@ Not a bug but a rule several layouts follow, written down here so each place can
   - The commerce sliders beside the Technology Advisor, which fall back to fewer buttons and rates below the sliders in a narrow strip.
 
 Pondered on by the user and Claude Code Opus 5.5 while fitting the advisors and the scoreboard at larger fonts (2026-11-19 to 21), with Codex's (GPT-6.2-Sol) reviews of the layouts that follow it, such as the commerce sliders' fallback beside the Technology Advisor.
+
+<a id="ki-1104"></a>
+
+## KI#1104 - (AdvCiv-SAS design rule) SAS keeps its own copy of every base-game Python file it uses, changed or not: SASPilot's WorldBuilder work found the WorldBuilder screen running from BtS's copy, outside the repository
+
+Not a bug but a rule, written down so the files it covers can point to it.
+
+- How it was found (2026-11-22): SASPilot's WorldBuilder work asked whether the WorldBuilder screen that runs is ours.
+  - It was not: `CvWorldBuilderScreen.py`, `CvWorldBuilderDiplomacyScreen.py` and `CvWBInterface.py` ran from BtS and `CvWBPopups.py` from vanilla; only `CvWBDesc.py`, which saves and loads WorldBuilder files, was in SAS. See [WorldBuilder](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#worldbuilder) in the inherited files audit.
+  - Auditing more broadly, 76 base-game Python files had no copy in SAS. The `load_module` lines of 7 `PythonDbg.log` files (2026-10-19 to 2026-11-22: new games, autoplay, Sevopedia, diplomacy, WorldBuilder) showed 19 of them loading.
+    - Static imports alone gave a different set: `CvDiplomacyInterface`, `CvGFCScreen` and `CvScreen` load without any SAS import, while `CvPediaMain` and `CvPediaHistory` are imported by inherited files that never run.
+    - A first count, case-sensitive, missed `CvUNVictoryScreen`, which the logs name `CvUnVictoryScreen` as `CvScreensInterface.py` imports it; Codex caught it while checking the copies.
+    - `CvTranslator`, `CvMapScriptInterface` and `CvUnitControlInterface` appear only as `EntryPoint module:` lines, so the other 57 are not observed by the import hook rather than proven unused (Codex's reading).
+  - The 19 loaded ones by use: every game (`CvGameUtils`'s rule hooks, `PyHelpers`, `DomPyHelpers`, `ScreenInput`, `CvAppInterface`, `CvPopupInterface`, `CvDiplomacyInterface`, and `CvPediaScreen` and `CvScreen`, which the Sevopedia pages subclass), WorldBuilder (its two screens, `CvWBPopups`, `CvWBInterface`), a victory (`CvVictoryMovieScreen`, and `CvUNVictoryScreen` for a diplomatic one, which `CvGame.cpp` shows when the victory `isDiploVote()`), the intro movie unless the ini turns it off (`CvIntroMovieScreen`), and Debug Mode's Shift+F2 screen (`CvDebugInfoScreen` and its base `CvGFCScreen`).
+    - `TechTree` only loads: see below.
+  - The 57 others, by likely use; none was traced call by call:
+    - specific use: 3 entry points the game registers (`CvMapScriptInterface`, `CvTranslator`, `CvUnitControlInterface`), Pitboss (`PbMain`, `PbAdmin`, `PbWizard`), the tutorial (`CvTutorialQuestScreen`, `CvQuestManager`) and vanilla's 21-file `email` package, which `CvAppInterface`'s PBEM email sending reaches through `smtplib`;
+    - obsolete: the old Civilopedia (`CvPediaMain`, `CvPediaHistory` and 13 `CvPedia*` pages) the Sevopedia replaced, screens base AdvCiv or SAS replaced such as `CvCorporationScreen` and `CvFinanceAdvisor`, the vanilla unit-control helpers (`Unit`, `UnitEntity`, `CvUnitController`) and developer leftovers such as `CvDefineEditor`, `CvPerfTest` and `vector`.
+    - [`inherited_files.py --loaded`](/LLM_Helpers/README.md#inherited_filespy) lists them again from the current logs; it also lists 4 base-game screens base AdvCiv had already replaced under other names, such as `CvCivicsScreen.py`.
+- Why: we kept looking back and forth for files we may have forgotten, which layer a running file comes from and whether it must be copied before a change.
+  - SAS had taken files in that way each time it first needed one, which this rule extends:
+    - Python: [`CvTechSplashScreen.py`](/Assets/Python/Screens/CvTechSplashScreen.py) and [`CvWonderMovieScreen.py`](/Assets/Python/Screens/CvWonderMovieScreen.py) from BtS (2026-04-14);
+    - XML: `CIV4ProcessInfo.xml` from Realism Invictus (2025-03-24) and `CIV4WorldPickerInfos.xml` for the SAS24 to SAS48 world sizes (2026-01-08);
+    - map scripts: 42 of SAS's 50, from the base game and third-party mods, starting with `aDebugMap.py` and `Highlands.py` (2026-02-03); see [Map scripts](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#not-traced) in the audit.
+  - Those came in when SAS changed or offered them, often fixed in the same commit, such as "Fix Oasis.py" (2026-02-08). A first commit that copies the file unchanged keeps the later diff to SAS's own change; the base copy also stays in the Civ4 install to diff against.
+  - So what decides is whether SAS uses a file, not whether SAS has changed it yet: a file SAS uses should be in the repository, greppable and diffable for every agent, and ready for a later change; doing it once ends the question.
+  - An unused file stays out, even when something imports it: `TechTree.py` loads only through `self.objTechTree = TechTree.TechTree()` in [`CvForeignAdvisor.py`](/Assets/Python/Screens/CvForeignAdvisor.py), which nothing reads afterwards.
+  - Runtime does not change: the game takes a mod's file before BtS's, Warlords' and vanilla's, so an unchanged copy loads the same code. Codex first warned that a copied XML file could change which definitions load, then found no such case in the loader (`CvXMLLoadUtilitySet.cpp`) and withdrew it; its remaining point is later drift, which a separate copy commit before any edit keeps visible.
+  - Base AdvCiv and K-Mod ship only base-game files they changed: on 2026-11-22, none of their 81 and 50 Python and XML files sharing a BtS path was byte-identical to it.
+- Done (2026-11-22): the 18 loading files other than `TechTree.py` were copied unchanged, each with the SAS header and a comment naming its source's layer and full path, and which layers ship it, such as BtS's `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\Python\Screens\CvWorldBuilderScreen.py` (the newest of the vanilla Civ4, Warlords and BtS copies).
+  - `CvGameUtils`, `DomPyHelpers`, `PyHelpers`, `ScreenInput`, `CvAppInterface`, `CvDiplomacyInterface`, `CvPopupInterface`, `CvWBInterface`, `CvWBPopups`, `CvDebugInfoScreen`, `CvGFCScreen`, `CvIntroMovieScreen`, `CvPediaScreen`, `CvScreen`, `CvUNVictoryScreen`, `CvVictoryMovieScreen`, `CvWorldBuilderDiplomacyScreen`, `CvWorldBuilderScreen`.
+  - Undecided on 2026-11-22: whether the rule extends to the 42 data XML files SAS reads whole from the base game, such as `GlobalDefines.xml` and `CIV4ClimateInfo.xml`, listed in the audit; the same reasoning would bring all of them in, as the game reads each at startup.
+    - Text files are left out on purpose: the game loads every layer's text files together, so SAS overrides single keys in its own files instead.
+      - Claude Code Opus 5.5 first said a same-named copy of a base-game text file would load its keys a second time, which was wrong: `LoadGlobalText` lists every `xml\text\*.xml` of every layer, and K-Mod's comment there says a file present in both the mod and the base game is "loaded from the mod folder anyway", so it drops the duplicate and the mod's copy replaces the base one, as for Python and other XML (`CvXMLLoadUtilitySet.cpp`, checked 2026-11-22).
+      - So a SAS text file must not take a base-game text file's name, such as `CIV4GameText_BTS.xml`: it would replace that file, and every key only that file defines would stop loading.
+        - SAS's own `AdvCiv-SAS_*.xml` names cannot collide; the 37 text files given back base AdvCiv's names on 2026-11-22 were checked not to match any vanilla, Warlords or BtS text file, and base AdvCiv is not a layer under SAS.
+
+Asked for by the user while auditing SAS's inherited files with Claude Code Opus 5.5 (2026-11-22), with Codex's (GPT-6.2-Sol) review of the loading question and of each copy.

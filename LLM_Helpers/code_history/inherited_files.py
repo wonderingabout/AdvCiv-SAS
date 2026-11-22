@@ -418,6 +418,76 @@ def write_inventory(upstream_ref):
 	print("wrote %s and the generated part of %s" % (report.relative_to(REPO).as_posix(), check.AUDIT.relative_to(REPO).as_posix()))
 
 
+LOGS = Path.home() / "Documents" / "My Games" / "beyond the sword" / "Logs"
+LOG_LINE = re.compile(r"^(load_module |EntryPoint module:)\s*([A-Za-z0-9_]+)")
+
+
+def loaded_modules(log_dir):
+	# <!-- custom: Which modules Civ4 reported loading in every PythonDbg*.log under log_dir, archived ones included, lower-cased.
+	# Lower case because Civ4 imports by name without case: the first comparison, case-sensitive, missed CvUNVictoryScreen, which the logs name CvUnVictoryScreen; Codex caught it (2026-11-22). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	loaded, entry_points, logs = set(), set(), sorted(log_dir.rglob("PythonDbg*.log"))
+	for log in logs:
+		for line in log.read_text(encoding="utf-8", errors="replace").splitlines():
+			match = LOG_LINE.match(line)
+			if match:
+				(loaded if match.group(1).startswith("load") else entry_points).add(match.group(2).lower())
+	return loaded, entry_points, logs
+
+
+def report_loaded(log_dir):
+	# <!-- custom: Sorts the base-game Python modules SAS has no copy of by what the logs show: loaded, registered only as an entry point, or not observed.
+	# Registered entry points such as CvTranslator never print load_module, so "not observed" is not proof of non-use (Codex, 2026-11-22). See KI#1104. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	loaded, entry_points, logs = loaded_modules(log_dir)
+	if not logs:
+		raise SystemExit("no PythonDbg*.log under %s" % log_dir)
+	tsv_rows = check.read_tsv()
+	sas = {path.stem.lower() for path in (REPO / "Assets" / "Python").rglob("*.py")}
+	missing = sorted((row for row in tsv_rows if row["area"] == "python" and check.in_base_game(row) and row["file"][:-3] not in sas), key=lambda row: row["path"].lower())
+	print("%d PythonDbg logs under %s" % (len(logs), log_dir))
+	for label, test in (("loaded", lambda key: key in loaded), ("entry point only", lambda key: key not in loaded and key in entry_points), ("not observed", lambda key: key not in loaded and key not in entry_points)):
+		rows = [row for row in missing if test(row["file"][:-3])]
+		print("\n%s (%d):" % (label, len(rows)))
+		for row in rows:
+			print("  %s\t%s" % (check.base_game_path(row), next(name for name in reversed(row["layers"].split(",")) if name in check.BASE_TREES)))
+	return 0
+
+
+LAYER_FOLDERS = {"vanilla": "", "warlords": "Warlords/", "bts": "Beyond the Sword/"}
+# <!-- custom: The copy comment names the layer as well as the full path: a path under the install root alone did not say whether vanilla, Warlords or BtS shipped the file (the user, 2026-11-22). (Claude code Opus 5.5) -->
+LAYER_NAMES = {"vanilla": "vanilla Civ4", "warlords": "Warlords", "bts": "BtS"}
+
+
+def shipped_by(layers):
+	if len(layers) == 1:
+		return "only %s ships it" % LAYER_NAMES[layers[0]]
+	return "the newest of the %s and %s copies" % (", ".join(LAYER_NAMES[name] for name in layers[:-1]), LAYER_NAMES[layers[-1]])
+
+
+def take_in(paths, civ4_root):
+	# <!-- custom: Copies base-game Python files SAS uses into SAS unchanged, from the newest layer providing each, adding only the SAS header after Firaxis's notice and a comment naming the source.
+	# Written for KI#1104's first 18 files (2026-11-22), so the next file SAS starts using comes in the same way; Codex checked each of those copies against its source. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	rows = {row["path"].lower(): row for row in check.read_tsv() if row["area"] == "python" and check.in_base_game(row)}
+	for path in paths:
+		row = rows.get(path.replace("\\", "/").lower())
+		if row is None:
+			raise SystemExit("%s: not a base-game Python file in inherited_files.tsv" % path)
+		layers = [name for name in row["layers"].split(",") if name in LAYER_FOLDERS]
+		layer = layers[-1]
+		rel = check.base_game_path(row)
+		source = LAYER_FOLDERS[layer] + rel
+		target = REPO / rel
+		if target.exists():
+			raise SystemExit("%s: already in SAS" % rel)
+		lines = (civ4_root / source).read_bytes().decode("ascii").replace("\r\n", "\n").split("\n")
+		if "Copyright Firaxis Games" not in lines[1]:
+			raise SystemExit("%s: no Firaxis notice on line 2; add the header by hand" % source)
+		header = ["#", "# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)", "# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)", "#", "# <!-- custom: Copied unchanged from %s's %s (%s), the copy SAS ran before, so the file SAS uses is in its repository; only these header lines were added (%s). See KI#1104. (model credit) -->" % (LAYER_NAMES[layer], (civ4_root / source).resolve(), shipped_by(layers), datetime.now().strftime("%Y-%m-%d"))]
+		target.parent.mkdir(parents=True, exist_ok=True)
+		target.write_bytes("\n".join(lines[:2] + header + lines[2:]).encode("ascii"))
+		print("copied %s -> %s; put your model credit in its comment" % (source, rel))
+	return 0
+
+
 def main():
 	parser = argparse.ArgumentParser(description="List which inherited Python, XML or C++ filenames SAS keeps or still takes from the base game, with their lineage.")
 	parser.add_argument("area", nargs="?", choices=[entry[0] for entry in check.AREAS])
@@ -428,7 +498,13 @@ def main():
 	parser.add_argument("--upstream-ref", help="upstream AdvCiv commit or ref (default: the release SAS last merged)")
 	parser.add_argument("--grep", help="only files whose name contains this text (case-insensitive)")
 	parser.add_argument("--summary", action="store_true", help="print counts instead of rows")
+	parser.add_argument("--loaded", nargs="?", const=LOGS, type=Path, metavar="LOG_DIR", help="compare the base-game Python files SAS lacks with the modules PythonDbg logs show loading (default: Civ4's Logs folder)")
+	parser.add_argument("--take-in", nargs="+", metavar="PATH", help="copy these base-game Python files, such as Assets/Python/Screens/CvScreen.py, into SAS unchanged with a source comment")
 	args = parser.parse_args()
+	if args.loaded:
+		return report_loaded(args.loaded)
+	if args.take_in:
+		return take_in(args.take_in, args.civ4_root)
 	# <!-- custom: --upstream-ref applies to --inventory too; it was ignored there, which Codex found in review (2026-11-22). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	upstream_ref = check.merged_release_or_exit(REPO, args.upstream_ref)
 	if args.inventory:
