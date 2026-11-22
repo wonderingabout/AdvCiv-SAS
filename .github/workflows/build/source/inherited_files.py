@@ -384,7 +384,8 @@ def not_carried_problems(imported):
 
 
 def text_name_problems(tsv_rows):
-	# <!-- custom: A SAS text file named like a base-game one replaces it, so every key only that file defines stops loading; K-Mod's LoadGlobalText drops the base copy of a same-named file. SAS's own names never matched one when this was added (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
+	# <!-- custom: A SAS text file named like a base-game one replaces it, so every key only that file defines stops loading; K-Mod's LoadGlobalText drops the base copy of a same-named file.
+	# SAS's own names never matched one when this was added (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
 	base = {Path(row["path"]).name.lower(): row["path"] for row in tsv_rows if row["path"].lower().startswith("assets/xml/text/") and in_base_game(row)}
 	return ["Assets/XML/Text/%s has the name of the base game's %s, so it replaces that file and drops the keys only it defines; rename it (KI#1104)" % (path.name, base[path.name.lower()]) for path in sorted((REPO / "Assets" / "XML" / "Text").glob("*.xml")) if path.name.lower() in base]
 

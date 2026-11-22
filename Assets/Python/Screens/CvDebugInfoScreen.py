@@ -72,28 +72,15 @@ class CvDebugInfoScreen(CvGFCScreen.CvGFCScreen):
 		screen = self.getScreen()
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 		screen.addDDSGFC("DebugInfoScreen", ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), 0, 0, 1024, 768, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		#screen.addPanel( "DebugInfoMainTable", u"Debug Info", u"Debug Information", 
-		#				  0, 1, 
-		#				  self.TABLE_START_X,self.TABLE_START_Y, 
-		#				  900, 600, 
-		#				  PanelStyles.PANEL_STYLE_BLUELARGE )
-		
-		screen.setExitText( u"EXIT SCREEN", 
-							CvUtil.FONT_RIGHT_JUSTIFY, 
-							self.EXIT_TEXT_X, self.EXIT_TEXT_Y, self.EXIT_TEXT_Z, 
-							FontTypes.TITLE_FONT )
+		#screen.addPanel( "DebugInfoMainTable", u"Debug Info", u"Debug Information", 0, 1, self.TABLE_START_X,self.TABLE_START_Y, 900, 600, PanelStyles.PANEL_STYLE_BLUELARGE )
+
+		screen.setExitText( u"EXIT SCREEN", CvUtil.FONT_RIGHT_JUSTIFY, self.EXIT_TEXT_X, self.EXIT_TEXT_Y, self.EXIT_TEXT_Z, FontTypes.TITLE_FONT )
 
 		# Header...
-		screen.setText( "DebugInfoTitleHeader", "Background", u"DEBUG INFO", 
-						CvUtil.FONT_CENTER_JUSTIFY, 
-						self.TITLE_TEXT_X, self.TITLE_TEXT_Y, self.TITLE_TEXT_Z, 
-						FontTypes.TITLE_FONT, 
-						WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setText( "DebugInfoTitleHeader", "Background", u"DEBUG INFO", CvUtil.FONT_CENTER_JUSTIFY, self.TITLE_TEXT_X, self.TITLE_TEXT_Y, self.TITLE_TEXT_Z, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		
 		# Create Drop Down so the user can select the screen they want
-		screen.addDropDownBoxGFC(self.szDebugInfoPulldownID,
-								self.DROPDOWN_INFOTYPE_X, self.DROPDOWN_INFOTYPE_Y, 300,
-								WidgetTypes.WIDGET_GENERAL, -1, -1,FontTypes.GAME_FONT )
+		screen.addDropDownBoxGFC(self.szDebugInfoPulldownID, self.DROPDOWN_INFOTYPE_X, self.DROPDOWN_INFOTYPE_Y, 300, WidgetTypes.WIDGET_GENERAL, -1, -1,FontTypes.GAME_FONT )
 		
 		# adds the screen names to the drop down using the DebugInfoMap - always selects the last one that was selected
 		bSelected = false

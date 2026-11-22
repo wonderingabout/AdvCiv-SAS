@@ -2691,8 +2691,7 @@ class CvForeignAdvisor:
 		# Redundant now that global commerce sliders are visible on the right; preserving this block commented
 		# keeps rollback trivial if we want a dedicated Espionage header again later. (GPT-5.3-Codex) -->
 		#self.ESP_szTotalPaneWidget = "TotalPane"
-		#screen.addPanel( self.ESP_szTotalPaneWidget, "", "", true, true,
-		#	self.ESP_X_TOTAL_PANE, self.ESP_Y_TOTAL_PANE, self.ESP_W_TOTAL_PANE, self.ESP_H_TOTAL_PANE, PanelStyles.PANEL_STYLE_MAIN )
+		#screen.addPanel( self.ESP_szTotalPaneWidget, "", "", true, true, self.ESP_X_TOTAL_PANE, self.ESP_Y_TOTAL_PANE, self.ESP_W_TOTAL_PANE, self.ESP_H_TOTAL_PANE, PanelStyles.PANEL_STYLE_MAIN )
 		#
 		## <advc.120c> Replace TOTAL_NUM_EPS text with espionage slider
 		## (The slider is in the refresh function though)

@@ -247,8 +247,7 @@ class CvTechSplashScreen:
 		# <!-- custom: Disabled title kept with the shared label tag, as the live titles below, so re-enabling it follows them; untested while disabled. (Claude code Opus 5.5) -->
 		# szAllowsTitleDesc = SASTextScale.sasFontTagLabel + localText.getText("TXT_KEY_PEDIA_ALLOWS", ()) + ":" + SASTextScale.SAS_FONT_TAG_CLOSE
 		# szAllowsTitleWidget = "AllowsTitle"
-		# screen.setText(szAllowsTitleWidget, "", szAllowsTitleDesc, CvUtil.FONT_LEFT_JUSTIFY,
-		# 	       self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		# screen.setText(szAllowsTitleWidget, "", szAllowsTitleDesc, CvUtil.FONT_LEFT_JUSTIFY, self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Units Enabled
 		szUnitsTitleDesc = SASTextScale.sasFontTagLabel + localText.getText("TXT_KEY_PEDIA_UNITS_ENABLED", ()) + ":" + SASTextScale.SAS_FONT_TAG_CLOSE

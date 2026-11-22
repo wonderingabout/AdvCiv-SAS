@@ -1244,32 +1244,10 @@ class CvWorldBuilderScreen:
 		self.m_tabCtrlEdit.addSectionEditCtrl(strName, "CvScreensInterface", "WorldBuilderHandleUnitEditNameCB", "UnitEditName", 0)
 		self.m_tabCtrlEdit.addSectionLabel(localText.getText("TXT_KEY_WB_EXPERIENCE",()),  0)
 		strExperience = str("UnitEditExperienceCB")
-		self.m_tabCtrlEdit.addSectionSpinner(
-			strExperience, 
-			"CvScreensInterface", 
-			"WorldBuilderHandleUnitEditExperienceCB", 
-			"UnitEditExperience", 
-			0,
-			0.0,
-			1000.0,
-			1.0,
-			self.m_pActivePlot.getUnit(self.m_iCurrentUnit).getExperience(),
-			0,
-			0)
+		self.m_tabCtrlEdit.addSectionSpinner(strExperience, "CvScreensInterface", "WorldBuilderHandleUnitEditExperienceCB", "UnitEditExperience", 0, 0.0, 1000.0, 1.0, self.m_pActivePlot.getUnit(self.m_iCurrentUnit).getExperience(), 0, 0)
 		self.m_tabCtrlEdit.addSectionLabel(localText.getText("TXT_KEY_WB_LEVEL",()),  0)
 		strLevel = str("UnitEditLevelCB")
-		self.m_tabCtrlEdit.addSectionSpinner(
-			strLevel, 
-			"CvScreensInterface", 
-			"WorldBuilderHandleUnitEditLevelCB", 
-			"UnitEditLevel", 
-			0,
-			1.0,
-			1000.0,
-			1.0,
-			self.m_pActivePlot.getUnit(self.m_iCurrentUnit).getLevel(),
-			0,
-			0)
+		self.m_tabCtrlEdit.addSectionSpinner(strLevel, "CvScreensInterface", "WorldBuilderHandleUnitEditLevelCB", "UnitEditLevel", 0, 1.0, 1000.0, 1.0, self.m_pActivePlot.getUnit(self.m_iCurrentUnit).getLevel(), 0, 0)
 		strTest = ()
 		for i in range(UnitAITypes.NUM_UNITAI_TYPES):
 			strTest = strTest + (gc.getUnitAIInfo(i).getDescription(),)
@@ -1306,46 +1284,13 @@ class CvWorldBuilderScreen:
 		self.m_tabCtrlEdit.addSectionEditCtrl(strName, "CvScreensInterface", "WorldBuilderHandleCityEditNameCB", "CityEditName", 0)
 		self.m_tabCtrlEdit.addSectionLabel(localText.getText("TXT_KEY_WB_POPULATION",()),  0)
 		strPopulation = str("CityEditPopulationCB")
-		self.m_tabCtrlEdit.addSectionSpinner(
-			strPopulation, 
-			"CvScreensInterface", 
-			"WorldBuilderHandleCityEditPopulationCB", 
-			"CityEditPopulation", 
-			0,
-			1.0,
-			1000.0,
-			1.0,
-			self.m_pActivePlot.getPlotCity().getPopulation(),
-			0,
-			0)
+		self.m_tabCtrlEdit.addSectionSpinner(strPopulation, "CvScreensInterface", "WorldBuilderHandleCityEditPopulationCB", "CityEditPopulation", 0, 1.0, 1000.0, 1.0, self.m_pActivePlot.getPlotCity().getPopulation(), 0, 0)
 		self.m_tabCtrlEdit.addSectionLabel(localText.getText("TXT_KEY_WB_CULTURE",()),  0)
 		strCulture = str("CityEditCultureCB")
-		self.m_tabCtrlEdit.addSectionSpinner(
-			strCulture, 
-			"CvScreensInterface", 
-			"WorldBuilderHandleCityEditCultureCB", 
-			"CityEditCulture", 
-			0,
-			1.0,
-			100000000.0,
-			1.0,
-			self.m_pActivePlot.getPlotCity().getCulture(self.m_pActivePlot.getPlotCity().getOwner()),
-			0,
-			0)
+		self.m_tabCtrlEdit.addSectionSpinner(strCulture, "CvScreensInterface", "WorldBuilderHandleCityEditCultureCB", "CityEditCulture", 0, 1.0, 100000000.0, 1.0, self.m_pActivePlot.getPlotCity().getCulture(self.m_pActivePlot.getPlotCity().getOwner()), 0, 0)
 		self.m_tabCtrlEdit.addSectionLabel(localText.getText("TXT_KEY_WB_GOLD",()),  0)
 		strGold = str("CityEditGoldCB")
-		self.m_tabCtrlEdit.addSectionSpinner(
-			strGold, 
-			"CvScreensInterface", 
-			"WorldBuilderHandleCityEditGoldCB", 
-			"CityEditGold", 
-			0,
-			-1000.0,
-			5000.0,
-			1.0,
-			gc.getPlayer(self.m_iCurrentPlayer).getGold(),
-			0,
-			0)
+		self.m_tabCtrlEdit.addSectionSpinner(strGold, "CvScreensInterface", "WorldBuilderHandleCityEditGoldCB", "CityEditGold", 0, -1000.0, 5000.0, 1.0, gc.getPlayer(self.m_iCurrentPlayer).getGold(), 0, 0)
 		self.m_tabCtrlEdit.addSectionButton(localText.getText("TXT_KEY_WB_ADD_SCRIPT",()), "CvScreensInterface", "WorldBuilderHandleCityEditAddScriptCB", "CityEditAddScript", 0)
 
 		initWBToolEditCtrlTab(False)
@@ -2054,19 +1999,9 @@ class CvWorldBuilderScreen:
 		else:
 			
 			iPanelWidth = 35*6
-			screen.attachPanelAt( 
-				"WorldBuilderMainPanel", 
-				"WorldBuilderLoadSavePanel", 
-				"", 
-				"", 
-				False, 
-				True, 
-				PanelStyles.PANEL_STYLE_CITY_TANSHADE, 
-				70,
-				0,
-				iPanelWidth-70,
-				35,
-				WidgetTypes.WIDGET_GENERAL, -1, -1)
+			# <!-- custom: Collapsed this inherited one-argument-per-line call because SAS's adjacent_duplicate_lines.py CI check flagged its two "" arguments as repeated neighbouring lines, as copying the file into SAS made them new.
+			# Not a bug: they are the empty title and help text, the third and fourth arguments of attachPanelAt(szAttachTo, szName, title, helpText, ...) in _0_Legacy/Docs/Civ4BUG_Python_API/all_classes_web.txt. (Claude code Opus 5.5) -->
+			screen.attachPanelAt( "WorldBuilderMainPanel", "WorldBuilderLoadSavePanel", "", "", False, True, PanelStyles.PANEL_STYLE_CITY_TANSHADE, 70, 0, iPanelWidth-70, 35, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			
 			screen.setImageButtonAt( "WorldBuilderAllPlotsButton", "WorldBuilderLoadSavePanel", ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_CHANGE_ALL_PLOTS").getPath(), iButtonX, iButtonY, iButtonWidth, iButtonHeight, WidgetTypes.WIDGET_WB_ALL_PLOTS_BUTTON, -1, -1)
 			iButtonX = iButtonX + 35
@@ -2081,99 +2016,35 @@ class CvWorldBuilderScreen:
 			iButtonX = 0
 			iButtonY = 0
 			self.m_iUnitEditCheckboxID = 0
-			screen.addCheckBoxGFC(
-				"WorldBuilderUnitEditModeButton",	
-				ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_TOGGLE_UNIT_EDIT_MODE").getPath(), 
-				ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(),
-				(iMaxScreenWidth-self.iScreenWidth)+8+iButtonX,
-				(10+36),
-				iButtonWidth, 
-				iButtonHeight, 
-				WidgetTypes.WIDGET_WB_UNIT_EDIT_BUTTON, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
+			screen.addCheckBoxGFC("WorldBuilderUnitEditModeButton", ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_TOGGLE_UNIT_EDIT_MODE").getPath(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), (iMaxScreenWidth-self.iScreenWidth)+8+iButtonX, (10+36), iButtonWidth, iButtonHeight, WidgetTypes.WIDGET_WB_UNIT_EDIT_BUTTON, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
 				
 			iButtonX = iButtonX + 35
 			self.m_iCityEditCheckboxID = 1
-			screen.addCheckBoxGFC(
-				"WorldBuilderCityEditModeButton",	
-				ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_TOGGLE_CITY_EDIT_MODE").getPath(), 
-				ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(),
-				(iMaxScreenWidth-self.iScreenWidth)+8+iButtonX,
-				(10+36),
-				iButtonWidth, 
-				iButtonHeight, 
-				WidgetTypes.WIDGET_WB_CITY_EDIT_BUTTON, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
+			screen.addCheckBoxGFC("WorldBuilderCityEditModeButton", ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_TOGGLE_CITY_EDIT_MODE").getPath(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), (iMaxScreenWidth-self.iScreenWidth)+8+iButtonX, (10+36), iButtonWidth, iButtonHeight, WidgetTypes.WIDGET_WB_CITY_EDIT_BUTTON, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
 				
 			iButtonX = iButtonX + 35
 			self.m_iNormalPlayerCheckboxID = 2
-			screen.addCheckBoxGFC(
-				"WorldBuilderNormalPlayerModeButton",	
-				ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_NORMAL_UNIT_MODE").getPath(), 
-				ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(),
-				(iMaxScreenWidth-self.iScreenWidth)+8+iButtonX,
-				(10+36),
-				iButtonWidth, 
-				iButtonHeight, 
-				WidgetTypes.WIDGET_WB_NORMAL_PLAYER_TAB_MODE_BUTTON, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
+			screen.addCheckBoxGFC("WorldBuilderNormalPlayerModeButton", ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_NORMAL_UNIT_MODE").getPath(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), (iMaxScreenWidth-self.iScreenWidth)+8+iButtonX, (10+36), iButtonWidth, iButtonHeight, WidgetTypes.WIDGET_WB_NORMAL_PLAYER_TAB_MODE_BUTTON, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
 				
 			iButtonX = iButtonX + 35
 			self.m_iNormalMapCheckboxID = 3
-			screen.addCheckBoxGFC(
-				"WorldBuilderNormalMapModeButton",	
-				ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_NORMAL_MAP_MODE").getPath(), 
-				ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(),
-				(iMaxScreenWidth-self.iScreenWidth)+8+iButtonX,
-				(10+36),
-				iButtonWidth, 
-				iButtonHeight, 
-				WidgetTypes.WIDGET_WB_NORMAL_MAP_TAB_MODE_BUTTON, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
+			screen.addCheckBoxGFC("WorldBuilderNormalMapModeButton", ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_NORMAL_MAP_MODE").getPath(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), (iMaxScreenWidth-self.iScreenWidth)+8+iButtonX, (10+36), iButtonWidth, iButtonHeight, WidgetTypes.WIDGET_WB_NORMAL_MAP_TAB_MODE_BUTTON, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
 				
 			iButtonX = iButtonX + 35
 			self.m_iRevealTileCheckboxID = 4
-			screen.addCheckBoxGFC(
-				"WorldBuilderRevealTileModeButton",	
-				ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_REVEAL_TILE_MODE").getPath(), 
-				ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(),
-				(iMaxScreenWidth-self.iScreenWidth)+8+iButtonX,
-				(10+36),
-				iButtonWidth, 
-				iButtonHeight, 
-				WidgetTypes.WIDGET_WB_REVEAL_TAB_MODE_BUTTON, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
+			screen.addCheckBoxGFC("WorldBuilderRevealTileModeButton", ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_REVEAL_TILE_MODE").getPath(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), (iMaxScreenWidth-self.iScreenWidth)+8+iButtonX, (10+36), iButtonWidth, iButtonHeight, WidgetTypes.WIDGET_WB_REVEAL_TAB_MODE_BUTTON, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
 				
 			iButtonX = iButtonX + 35
 			self.m_iDiplomacyCheckboxID = 5
-			screen.addCheckBoxGFC(
-				"WorldBuilderDiplomacyModeButton",	
-				ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_DIPLOMACY_MODE").getPath(), 
-				ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(),
-				(iMaxScreenWidth-self.iScreenWidth)+8+iButtonX,
-				(10+36),
-				iButtonWidth, 
-				iButtonHeight, 
-				WidgetTypes.WIDGET_WB_DIPLOMACY_MODE_BUTTON, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
+			screen.addCheckBoxGFC("WorldBuilderDiplomacyModeButton", ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_DIPLOMACY_MODE").getPath(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), (iMaxScreenWidth-self.iScreenWidth)+8+iButtonX, (10+36), iButtonWidth, iButtonHeight, WidgetTypes.WIDGET_WB_DIPLOMACY_MODE_BUTTON, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
 	
 			iButtonX = 0
 			self.m_iLandmarkCheckboxID = 6
-			screen.addCheckBoxGFC(
-				"WorldBuilderLandmarkButton",	
-				ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_LANDMARK_MODE").getPath(), 
-				ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(),
-				(iMaxScreenWidth-self.iScreenWidth)+8+iButtonX,
-				(10),
-				iButtonWidth, 
-				iButtonHeight, 
-				WidgetTypes.WIDGET_WB_LANDMARK_BUTTON, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
+			screen.addCheckBoxGFC("WorldBuilderLandmarkButton", ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_LANDMARK_MODE").getPath(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), (iMaxScreenWidth-self.iScreenWidth)+8+iButtonX, (10), iButtonWidth, iButtonHeight, WidgetTypes.WIDGET_WB_LANDMARK_BUTTON, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
 	
 			iButtonX = iButtonX + 35
 			self.m_iEraseCheckboxID = 7
-			screen.addCheckBoxGFC(
-				"WorldBuilderEraseButton",	
-				ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_ERASE").getPath(), 
-				ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(),
-				(iMaxScreenWidth-self.iScreenWidth)+8+iButtonX,
-				(10),
-				iButtonWidth, 
-				iButtonHeight, 
-				WidgetTypes.WIDGET_WB_ERASE_BUTTON, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
+			screen.addCheckBoxGFC("WorldBuilderEraseButton", ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_ERASE").getPath(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), (iMaxScreenWidth-self.iScreenWidth)+8+iButtonX, (10), iButtonWidth, iButtonHeight, WidgetTypes.WIDGET_WB_ERASE_BUTTON, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
 	
 			self.setCurrentModeCheckbox(self.m_iNormalPlayerCheckboxID)
 			

@@ -113,6 +113,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/inherited_files.py`](#buildsourceinherited_filespy)
     - [`build/source/lint_suppressions.py`](#buildsourcelint_suppressionspy)
     - [`build/source/python_binding_targets.py`](#buildsourcepython_binding_targetspy)
+    - [`build/source/python_multiline_calls.py`](#buildsourcepython_multiline_callspy)
     - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`build/source/python_wrapper_null_args.py`](#buildsourcepython_wrapper_null_argspy)
@@ -1341,6 +1342,14 @@ Fails when a Python binding in the DLL's `Cy*Interface*.cpp` files points at a n
 - A method binding `.def("name", &Class::target)` fails when `Class` declares its own `name()` and `target` is neither `name` nor its `py_`/`py` wrapper. Methods AdvCiv retired by commenting out their declaration, such as `getStealTreasuryTypes`, pass.
 - Inside `python::class_<Owner>`, a `.def` fails when it points at a class that is neither `Owner` nor one of its bases.
 - Added on 2026-11-16 for [KI#1090.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090.2). Run against the older files, it finds all seven slips known so far: [KI#1090](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090)'s and KI#1090.2's four enum names, and the three getters [KI#122](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-122) fixed by hand.
+
+#### `build/source/python_multiline_calls.py`
+
+Fails when a call in `Assets/Python` or `PrivateMaps` spans several lines, commented-out calls included, as searches find them too: one line per call greps, compares and lints better, as [AGENTS.md](/AGENTS.md#code-layout-and-collapsing) prefers unless that makes it overly complicated. `--fix` collapses what it flags.
+
+- Added on 2026-11-22: hand sweeps with [`collapse_multiline_calls.py`](/LLM_Helpers/README.md#collapse_multiline_callspy) had no guard, so the [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104) copies brought 18 back, such as WorldBuilder's `attachPanelAt`, and 7 SAS calls such as `a, b = _readIniValues(` slipped past the helper; 10 more were commented out, such as `CvDebugInfoScreen.py`'s disabled `screen.addPanel(`.
+- It is a heuristic: a call is a dotted name and `(` starting a statement, after `return` or `yield`, or after an assignment target such as `a, b =` or `out[0] =`, and the call itself must span lines; a commented-out call is a run of up to 20 comment lines that compiles once uncommented.
+- Tables, conditions, multi-line strings and calls with a comment inside, such as AdvCiv's `# <advc.092>` markers, stay multi-line; tooling Python under `.github`, `LLM_Helpers` and `tests` is not checked.
 
 #### `build/source/python_resource_api.py`
 

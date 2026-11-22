@@ -113,6 +113,12 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 210 - SAS practical 6841
+
+- **Date:** 2026-11-22
+- **Git commit:** pending
+- **Change:** Layout only, with no change to what is recorded: `SASGameRecordSettings.py`'s two `_readIniValues(` calls and `SASGameRecordActions.py`'s two `_emitPythonPopupResponse(` calls are now written on one line each, as `python_multiline_calls.py` requires for runtime Python.
+
 ### Revision 209 - SAS practical 6829
 
 - **Date:** 2026-11-20

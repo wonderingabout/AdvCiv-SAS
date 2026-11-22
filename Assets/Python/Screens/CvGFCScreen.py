@@ -30,9 +30,7 @@ class CvGFCScreen:
 	
 	def addText(self, widgetName,message, iX,iY, iWidth, iHeight):
 		screen = self.getScreen()
-		screen.addMultilineText( widgetName, unicode(message), 
-								iX, iY, iWidth, iHeight, 
-								WidgetTypes.WIDGET_GENERAL, -1,-1, CvUtil.FONT_LEFT_JUSTIFY );
+		screen.addMultilineText( widgetName, unicode(message), iX, iY, iWidth, iHeight, WidgetTypes.WIDGET_GENERAL, -1,-1, CvUtil.FONT_LEFT_JUSTIFY );
 	
 	def hideScreen(self):
 		self.getScreen().hideScreen()

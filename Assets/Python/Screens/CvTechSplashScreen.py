@@ -171,8 +171,7 @@ class CvTechSplashScreen:
 		# Tech Quote
 		if techInfo.getQuote():
 			szQuotePanel = "TechSplashQuotePanel"
-			#screen.addPanel( szQuotePanel, "", "", true, true,
-             #                    self.X_QUOTE, self.Y_QUOTE, self.W_QUOTE, self.H_QUOTE, PanelStyles.PANEL_STYLE_IN )
+			#screen.addPanel( szQuotePanel, "", "", true, true, self.X_QUOTE, self.Y_QUOTE, self.W_QUOTE, self.H_QUOTE, PanelStyles.PANEL_STYLE_IN )
 
 			screen.addMultilineText( "Text", SASTextScale.labelText(techInfo.getQuote()), self.X_QUOTE, self.Y_QUOTE + self.iMarginSpace*2, self.W_QUOTE - (self.iMarginSpace * 2), self.H_QUOTE - (self.iMarginSpace * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 

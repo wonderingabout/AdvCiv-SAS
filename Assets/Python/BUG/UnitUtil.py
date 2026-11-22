@@ -247,9 +247,7 @@ def findObsoleteUnits(units):
 		if upgrades:
 			for eUpgradeUnit in upgrades:
 				if eUpgradeUnit not in units and eUpgradeUnit not in generics:
-#					BugUtil.debug("findObsoleteUnits - %s, cannot build %s", 
-#							unitInfo.getDescription(),
-#							gc.getUnitInfo(eUpgradeUnit).getDescription())
+#					BugUtil.debug("findObsoleteUnits - %s, cannot build %s", unitInfo.getDescription(), gc.getUnitInfo(eUpgradeUnit).getDescription())
 					break
 			else:
 				obsoletes.add(eUnit)

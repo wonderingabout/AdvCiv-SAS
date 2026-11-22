@@ -9,6 +9,11 @@
 ##
 ## Author: Dresden
 
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+
 from CvPythonExtensions import *
 
 import AttitudeUtil
@@ -246,8 +251,7 @@ class FavoriteCivic:
 	def setFavorite(self, eCivic):
 		# Explicitly sets favorite for this player to given civic.
 		#
-		#BugUtil.debug("FavoriteCivic.setFavorite() attempting to set player %d favorite civic to %d (%s)"
-		#			  % (self.iPlayer, eCivic, gc.getCivicInfo(eCivic).getText()))
+		#BugUtil.debug("FavoriteCivic.setFavorite() attempting to set player %d favorite civic to %d (%s)" % (self.iPlayer, eCivic, gc.getCivicInfo(eCivic).getText()))
 		if (eCivic != NO_CIVIC):
 			self.eFavorite = eCivic
 			self.possibles = None
@@ -375,8 +379,7 @@ class FavoriteCivicDetector:
 		# Called when AI demands you switch to their favorite civic.
 		#
 		ePlayer, eTargetPlayer, eCivic = argsList
-		#BugUtil.debug("FavoriteCivicDetectorEvent.onCivicDemanded(ePlayer = %d, eTargetPlayer = %d, eCivic = %d)"
-		#			  % (ePlayer, eTargetPlayer, eCivic))
+		#BugUtil.debug("FavoriteCivicDetectorEvent.onCivicDemanded(ePlayer = %d, eTargetPlayer = %d, eCivic = %d)" % (ePlayer, eTargetPlayer, eCivic))
 		if gDetectionNecessary:
 			kFavorite = getFavoriteCivicInfo(ePlayer)
 			kFavorite.setFavorite(eCivic)

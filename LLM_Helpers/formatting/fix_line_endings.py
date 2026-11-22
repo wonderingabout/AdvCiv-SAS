@@ -155,6 +155,7 @@ def dominant_eol(data: bytes) -> bytes:
 	return b"\n"
 
 
+# <!-- custom: Added trim_trailing_blank_lines, defaulting to False so existing callers keep their behavior; it backs --trim-trailing-blank-lines, explained in the body. (Claude code Opus 5.5) -->
 def normalize_data(data: bytes, eol_mode: str, ensure_final_newline: bool, trim_trailing_blank_lines: bool = False) -> tuple[bytes, str]:
 	if not data or is_probably_binary(data):
 		return data, "skipped"
