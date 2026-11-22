@@ -4,7 +4,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: Copied unchanged from BtS's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\Python\Screens\CvWorldBuilderDiplomacyScreen.py (the newest of the vanilla Civ4, Warlords and BtS copies), the copy SAS ran before, so the file SAS uses is in its repository; only these header lines were added (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
+# <!-- custom: Copied from BtS's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\Python\Screens\CvWorldBuilderDiplomacyScreen.py (the newest of the vanilla Civ4, Warlords and BtS copies), the copy SAS ran before (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
 
 import CvUtil
 import CvScreenEnums
@@ -405,4 +405,3 @@ class CvWorldBuilderDiplomacyScreen:
 		szSliderText = self.getSliderTextMiddle(-100, 100, gc.getPlayer(iPlayer).AI_getAttitudeExtra(self.m_iActivePlayer))
 		tab.setText(szTextName, szSliderText)		
 		return
-

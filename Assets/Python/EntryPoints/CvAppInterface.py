@@ -4,7 +4,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: Copied unchanged from BtS's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\Python\EntryPoints\CvAppInterface.py (the newest of the vanilla Civ4, Warlords and BtS copies), the copy SAS ran before, so the file SAS uses is in its repository; only these header lines were added (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
+# <!-- custom: Copied from BtS's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\Python\EntryPoints\CvAppInterface.py (the newest of the vanilla Civ4, Warlords and BtS copies), the copy SAS ran before (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
 #
 # CvAppInterface.py
 #
@@ -90,17 +90,19 @@ def onPbemSend(argsList):
 	szUser = argsList[6]
 	szPassword = argsList[7]
 	
-	print 'sending e-mail'
-	print 'To:', szToAddr
-	print 'From:', szFromAddr
-	print 'Subject:', szSubject
-	print 'Path:', szPath
-	print 'File:', szFilename
-	print 'Server:', szHost
-	print 'User:', szUser
+	# <!-- custom: BtS's Python 2 print statements became single-string print(...) calls, which Python 2.4 and Ruff both parse; "%s" keeps the one space a comma put between items. See KI#1104. (Claude code Opus 5.5) -->
+	print('sending e-mail')
+	print('To: %s' % szToAddr)
+	print('From: %s' % szFromAddr)
+	print('Subject: %s' % szSubject)
+	print('Path: %s' % szPath)
+	print('File: %s' % szFilename)
+	print('Server: %s' % szHost)
+	print('User: %s' % szUser)
 	
 	if len(szFromAddr) == 0 or len(szHost) == 0:
-		print 'host or address empty'
+		# <!-- custom: was a Python 2 print statement, which Ruff cannot parse. See KI#1104. (Claude code Opus 5.5) -->
+		print('host or address empty')
 		return 1
 
 	message = StringIO.StringIO()

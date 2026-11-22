@@ -454,18 +454,18 @@ def report_loaded(log_dir):
 
 LAYER_FOLDERS = {"vanilla": "", "warlords": "Warlords/", "bts": "Beyond the Sword/"}
 # <!-- custom: The copy comment names the layer as well as the full path: a path under the install root alone did not say whether vanilla, Warlords or BtS shipped the file (the user, 2026-11-22). (Claude code Opus 5.5) -->
-LAYER_NAMES = {"vanilla": "vanilla Civ4", "warlords": "Warlords", "bts": "BtS"}
+COPY_LAYER_NAMES = {"vanilla": "vanilla Civ4", "warlords": "Warlords", "bts": "BtS"}
 
 
 def shipped_by(layers):
 	if len(layers) == 1:
-		return "only %s ships it" % LAYER_NAMES[layers[0]]
-	return "the newest of the %s and %s copies" % (", ".join(LAYER_NAMES[name] for name in layers[:-1]), LAYER_NAMES[layers[-1]])
+		return "only %s ships it" % COPY_LAYER_NAMES[layers[0]]
+	return "the newest of the %s and %s copies" % (", ".join(COPY_LAYER_NAMES[name] for name in layers[:-1]), COPY_LAYER_NAMES[layers[-1]])
 
 
 def take_in(paths, civ4_root):
-	# <!-- custom: Copies base-game Python files SAS uses into SAS unchanged, from the newest layer providing each, adding only the SAS header after Firaxis's notice and a comment naming the source.
-	# Written for KI#1104's first 18 files (2026-11-22), so the next file SAS starts using comes in the same way; Codex checked each of those copies against its source. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	# <!-- custom: Copies base-game Python files SAS uses into SAS, from the newest layer providing each, adding only the SAS header after Firaxis's notice and a comment naming the source; from then on each is an ordinary SAS file.
+	# Written for KI#1104's first copies (2026-11-22), so the next file SAS starts using comes in the same way; Codex checked each of those copies against its source. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	rows = {row["path"].lower(): row for row in check.read_tsv() if row["area"] == "python" and check.in_base_game(row)}
 	for path in paths:
 		row = rows.get(path.replace("\\", "/").lower())
@@ -481,7 +481,7 @@ def take_in(paths, civ4_root):
 		lines = (civ4_root / source).read_bytes().decode("ascii").replace("\r\n", "\n").split("\n")
 		if "Copyright Firaxis Games" not in lines[1]:
 			raise SystemExit("%s: no Firaxis notice on line 2; add the header by hand" % source)
-		header = ["#", "# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)", "# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)", "#", "# <!-- custom: Copied unchanged from %s's %s (%s), the copy SAS ran before, so the file SAS uses is in its repository; only these header lines were added (%s). See KI#1104. (model credit) -->" % (LAYER_NAMES[layer], (civ4_root / source).resolve(), shipped_by(layers), datetime.now().strftime("%Y-%m-%d"))]
+		header = ["#", "# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)", "# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)", "#", "# <!-- custom: Copied from %s's %s (%s), the copy SAS ran before (%s). See KI#1104. (model credit) -->" % (COPY_LAYER_NAMES[layer], (civ4_root / source).resolve(), shipped_by(layers), datetime.now().strftime("%Y-%m-%d"))]
 		target.parent.mkdir(parents=True, exist_ok=True)
 		target.write_bytes("\n".join(lines[:2] + header + lines[2:]).encode("ascii"))
 		print("copied %s -> %s; put your model credit in its comment" % (source, rel))
@@ -499,7 +499,7 @@ def main():
 	parser.add_argument("--grep", help="only files whose name contains this text (case-insensitive)")
 	parser.add_argument("--summary", action="store_true", help="print counts instead of rows")
 	parser.add_argument("--loaded", nargs="?", const=LOGS, type=Path, metavar="LOG_DIR", help="compare the base-game Python files SAS lacks with the modules PythonDbg logs show loading (default: Civ4's Logs folder)")
-	parser.add_argument("--take-in", nargs="+", metavar="PATH", help="copy these base-game Python files, such as Assets/Python/Screens/CvScreen.py, into SAS unchanged with a source comment")
+	parser.add_argument("--take-in", nargs="+", metavar="PATH", help="copy these base-game Python files, such as Assets/Python/Screens/CvScreen.py, into SAS with a source comment")
 	args = parser.parse_args()
 	if args.loaded:
 		return report_loaded(args.loaded)

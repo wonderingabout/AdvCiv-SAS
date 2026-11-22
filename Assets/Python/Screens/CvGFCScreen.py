@@ -4,7 +4,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: Copied unchanged from vanilla Civ4's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\Python\Screens\CvGFCScreen.py (only vanilla Civ4 ships it), the copy SAS ran before, so the file SAS uses is in its repository; only these header lines were added (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
+# <!-- custom: Copied from vanilla Civ4's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\Python\Screens\CvGFCScreen.py (only vanilla Civ4 ships it), the copy SAS ran before (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
 import CvUtil
 from CvPythonExtensions import *
 

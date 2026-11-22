@@ -4,7 +4,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: Copied unchanged from BtS's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\Python\Screens\CvWorldBuilderScreen.py (the newest of the vanilla Civ4, Warlords and BtS copies), the copy SAS ran before, so the file SAS uses is in its repository; only these header lines were added (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
+# <!-- custom: Copied from BtS's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\Python\Screens\CvWorldBuilderScreen.py (the newest of the vanilla Civ4, Warlords and BtS copies), the copy SAS ran before (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
 from CvPythonExtensions import *
 import CvUtil
 import CvScreensInterface
@@ -1907,12 +1907,14 @@ class CvWorldBuilderScreen:
 		return
 
 	def showMultipleReveal(self):
-		print "showMultipleReveal"
+		# <!-- custom: was a Python 2 print statement, which Ruff cannot parse. See KI#1104. (Claude code Opus 5.5) -->
+		print("showMultipleReveal")
 		self.refreshReveal()
 		return
 
 	def setMultipleReveal(self, bReveal):
-		print "setMultipleReveal"
+		# <!-- custom: was a Python 2 print statement, which Ruff cannot parse. See KI#1104. (Claude code Opus 5.5) -->
+		print("setMultipleReveal")
 		bInsideForLoop = False
 		permCurrentPlot = self.m_pCurrentPlot
 		for i in range( (self.m_iBrushWidth-1) ):

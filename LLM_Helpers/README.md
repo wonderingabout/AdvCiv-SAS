@@ -952,8 +952,8 @@ The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_
 - `--loaded` compares the base-game Python files SAS has no copy of with the modules every `PythonDbg*.log` in Civ4's Logs folder, archived ones included, shows loading; pass another folder after it to read that one. See [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104).
   - It sorts them into loaded, registered only as an entry point, and not observed. Entry points such as `CvTranslator` never print `load_module`, so not observed is not proof of non-use.
   - It matches names without case, as Civ4 does: a first, case-sensitive comparison missed `CvUNVictoryScreen`, which the logs name `CvUnVictoryScreen`, until Codex caught it (2026-11-22).
-- `--take-in PATH...` copies base-game Python files SAS uses into SAS unchanged, from the newest layer providing each, adding only the SAS header and a comment naming the source; put your model credit in that comment.
-  - It began as a scratchpad script for KI#1104's first 18 files, which Codex then checked against their sources one by one.
+- `--take-in PATH...` copies base-game Python files SAS uses into SAS, from the newest layer providing each, adding only the SAS header and a comment naming the source; put your model credit in that comment. From then on each is an ordinary SAS file.
+  - It began as a scratchpad script for KI#1104's first copies, which Codex then checked against their sources one by one.
 
 ```bash
 python LLM_Helpers/code_history/inherited_files.py --loaded
@@ -1682,6 +1682,8 @@ External cleanup helper for line-ending hygiene.
 - Defaults to active repo text-like files and excludes generated/reference folders such as `LLM_Helpers/outputs`, `_1_AdvCiv-SAS/Docs/examples` and the verbatim `LLM_Helpers/context/mapscript_refs` corpus.
 - Preserves each file's dominant existing line-ending style by default, so it does not force the whole repo to LF or CRLF.
 - Adds a final newline to non-empty text files by default; use `--no-final-newline` only when deliberately preserving a missing final newline.
+  - It adds it after the last line with content: vanilla's `CvDiplomacyInterface.py` ended on a whitespace-only line without a newline, and appending one left the file ending in two blank lines (2026-11-22, KI#1104).
+- `--trim-trailing-blank-lines` also drops blank lines before an existing final newline. It is opt-in: 60 tracked files ended that way on 2026-11-22, many inherited, and touching one only for whitespace makes provenance ask for its SAS header.
 - Use `--eol lf` or `--eol crlf` only for deliberate normalization passes; their commit needs `Convert line endings` in its message, or [`line_ending_churn.py`](/.github/workflows/README.md#buildhygieneline_ending_churnpy) fails it. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
 - Always review the diff before committing generated source changes.
 

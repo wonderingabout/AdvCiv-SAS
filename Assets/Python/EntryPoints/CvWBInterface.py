@@ -4,7 +4,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: Copied unchanged from BtS's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\Python\EntryPoints\CvWBInterface.py (the newest of the vanilla Civ4, Warlords and BtS copies), the copy SAS ran before, so the file SAS uses is in its repository; only these header lines were added (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
+# <!-- custom: Copied from BtS's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\Python\EntryPoints\CvWBInterface.py (the newest of the vanilla Civ4, Warlords and BtS copies), the copy SAS ran before (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
 from CvPythonExtensions import *
 import CvWBPopups
 import CvUtil
@@ -67,6 +67,8 @@ def getGameData():
 	maxCityElimination = WBDesc.gameDesc.maxCityElimination
 	numAdvancedStartPoints = WBDesc.gameDesc.numAdvancedStartPoints
 	targetScore = WBDesc.gameDesc.targetScore
+	# <!-- custom: These lookups, and the option and victory ones below, stay raw rather than findInfoTypeNumOrFail: a WorldBuilder file can omit a value or write NONE, which findInfoTypeNum turns into -1, while an unknown tag still fails through pyAssert; advc.001 tolerates such files as BtS loaded them.
+	# raw_getinfotype.py lists this exception (Codex's check, 2026-11-22). See KI#1104. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	worldSizeType = CvUtil.findInfoTypeNum(gc.getWorldInfo, gc.getNumWorldInfos(), WBDesc.mapDesc.worldSize)
 	climateType = CvUtil.findInfoTypeNum(gc.getClimateInfo, gc.getNumClimateInfos(), WBDesc.mapDesc.climate)
 	seaLevelType = CvUtil.findInfoTypeNum(gc.getSeaLevelInfo, gc.getNumSeaLevelInfos(), WBDesc.mapDesc.seaLevel)
@@ -125,6 +127,7 @@ def getPlayerData():
 	"after reading a save file, return player data as a tuple, terminated by -1"
 	t=()
 	for i in range(gc.getMAX_CIV_PLAYERS()):
+		# <!-- custom: Raw lookups as in getGameData: an unused player slot writes NONE for its leader, civilization and color, which must stay -1. See KI#1104. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		leaderType = CvUtil.findInfoTypeNum(gc.getLeaderHeadInfo, gc.getNumLeaderHeadInfos(), WBDesc.playersDesc[i].leaderType)
 		civType = CvUtil.findInfoTypeNum(gc.getCivilizationInfo, gc.getNumCivilizationInfos(), WBDesc.playersDesc[i].civType)
 		handicapType = CvUtil.findInfoTypeNum(gc.getHandicapInfo, gc.getNumHandicapInfos(), WBDesc.playersDesc[i].handicap)

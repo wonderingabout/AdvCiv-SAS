@@ -4,7 +4,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: Copied unchanged from vanilla Civ4's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\Python\EntryPoints\CvDiplomacyInterface.py (only vanilla Civ4 ships it), the copy SAS ran before, so the file SAS uses is in its repository; only these header lines were added (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
+# <!-- custom: Copied from vanilla Civ4's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\Python\EntryPoints\CvDiplomacyInterface.py (only vanilla Civ4 ships it), the copy SAS ran before (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
 from CvPythonExtensions import *
 import CvUtil
 import CvDiplomacy
@@ -21,7 +21,8 @@ def beginDiplomacy (argsList):
 	if (commentArgsSize):
 		commentArgs = argsList[2:]
 		CvUtil.pyAssert(len(commentArgs)==commentArgsSize, "comment args tuple size mismatch")
-		print "tuple size", len(commentArgs), ", commentArgsSize ", commentArgsSize
+		# <!-- custom: vanilla's Python 2 print statement became one print(...) string, which Python 2.4 and Ruff both parse, with the spaces the commas put between items. See KI#1104. (Claude code Opus 5.5) -->
+		print("tuple size %s , commentArgsSize  %s" % (len(commentArgs), commentArgsSize))
 	else:
 		commentArgs=[]
 	diploClass = CvDiplomacy.CvDiplomacy()
@@ -48,5 +49,3 @@ def refresh (argsList):
 
 def toggleDebugLogging():
 	CvDiplomacy.DebugLogging = not CvDiplomacy.DebugLogging
-	
-	

@@ -929,6 +929,7 @@ Clear, accurate explanations help users and developers understand the code and i
 - Prefer strict XML lookup helpers from `SASUtils` over raw lookups for static/literal tags: use `getInfoTypeOrFail("TAG")` instead of raw `gc.getInfoTypeForString("TAG")`, and use `findInfoTypeNumOrFail(gc.getXInfo, gc.getNumXInfos, "TAG")` instead of raw `CvUtil.findInfoTypeNum(...)`.
   - This keeps missing or renamed XML tags loud instead of silently returning `-1`; it helped catch incorrect direction-string usage in Planet Generator map (e.g., `getInfoTypeOrFail("DIRECTION_NORTH")` instead of `DirectionTypes.DIRECTION_NORTH*`) and incorrect plot/terrain-style lookups (e.g., `getInfoTypeOrFail("PLOT_PEAK")` instead of `PlotTypes.PLOT_PEAK` in Peirce map).
   - Dynamic/guarded legacy lookups can stay raw when intentionally reviewed; the automated [`.github/workflows/build/source/raw_getinfotype.py`](/.github/workflows/README.md#buildsourceraw_getinfotypepy) check flags literal/static runtime lookups that should use the fail-fast policy.
+    - Example of exception: `CvWBInterface.py`'s WorldBuilder lookups stay raw because unused player slots write `NONE`, which the strict helper would raise on; being dynamic alone would not have been enough (KI#1104).
 - When parsing large structured data, validate against expected samples or assertions early, and log diagnostics to surface schema/list mistakes (e.g., missing commas or malformed enum lists).
 
 #### Modules, shared constants and helper ownership

@@ -155,7 +155,7 @@ def dominant_eol(data: bytes) -> bytes:
 	return b"\n"
 
 
-def normalize_data(data: bytes, eol_mode: str, ensure_final_newline: bool) -> tuple[bytes, str]:
+def normalize_data(data: bytes, eol_mode: str, ensure_final_newline: bool, trim_trailing_blank_lines: bool = False) -> tuple[bytes, str]:
 	if not data or is_probably_binary(data):
 		return data, "skipped"
 
@@ -171,8 +171,17 @@ def normalize_data(data: bytes, eol_mode: str, ensure_final_newline: bool) -> tu
 	normalized = normalized.replace(placeholder, b"\n")
 	normalized = normalized.replace(b"\n", target_eol)
 
-	if ensure_final_newline and normalized and not normalized.endswith(target_eol):
-		normalized += target_eol
+	# <!-- custom: A file that lacks its final newline can end on a whitespace-only line, as vanilla's CvDiplomacyInterface.py ends "\r\n\t\r\n\t"; appending a newline kept those lines, so the file then ended in two blank lines (2026-11-22, KI#1104).
+	# So a missing final newline is added after the last line with content, dropping the whitespace-only lines behind it; a file that already ends in a newline keeps its trailing lines. (Claude code Opus 5.5) -->
+	# <!-- custom: --trim-trailing-blank-lines also drops blank lines before an existing final newline: after that fix, several of KI#1104's base-game copies still ended in one or two, as their Firaxis originals did (2026-11-22).
+	# It stays opt-in, since 60 tracked files ended so that day, many inherited, and touching one for whitespace alone would make provenance ask for a SAS header. (Claude code Opus 5.5) -->
+	if trim_trailing_blank_lines and normalized.endswith(target_eol):
+		normalized = normalized[:-len(target_eol)]
+	if (ensure_final_newline or trim_trailing_blank_lines) and normalized and not normalized.endswith(target_eol):
+		lines = normalized.split(target_eol)
+		while len(lines) > 1 and not lines[-1].strip():
+			lines.pop()
+		normalized = target_eol.join(lines) + target_eol
 
 	return normalized, "changed" if normalized != data else "ok"
 
@@ -198,6 +207,7 @@ def main() -> int:
 	parser.add_argument("--diff", action="store_true", help="print unified diffs for files that would change")
 	parser.add_argument("--eol", choices=("preserve", "lf", "crlf"), default="preserve", help="target line ending; preserve means use each file's dominant existing style")
 	parser.add_argument("--no-final-newline", action="store_true", help="do not add a final newline")
+	parser.add_argument("--trim-trailing-blank-lines", action="store_true", help="also drop blank or whitespace-only lines at the end of each file")
 	args = parser.parse_args()
 
 	repo_root = args.repo_root.resolve()
@@ -207,7 +217,7 @@ def main() -> int:
 	for path in iter_candidate_files(repo_root, args.paths):
 		scanned += 1
 		data = path.read_bytes()
-		new_data, status = normalize_data(data, args.eol, not args.no_final_newline)
+		new_data, status = normalize_data(data, args.eol, not args.no_final_newline, args.trim_trailing_blank_lines)
 		if status != "changed":
 			continue
 

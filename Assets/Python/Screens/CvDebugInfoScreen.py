@@ -4,7 +4,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: Copied unchanged from vanilla Civ4's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\Python\Screens\CvDebugInfoScreen.py (only vanilla Civ4 ships it), the copy SAS ran before, so the file SAS uses is in its repository; only these header lines were added (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
+# <!-- custom: Copied from vanilla Civ4's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\Python\Screens\CvDebugInfoScreen.py (only vanilla Civ4 ships it), the copy SAS ran before (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
 from CvPythonExtensions import *
 import CvUtil
 import PyHelpers
@@ -393,8 +393,11 @@ class CvDebugInfoScreen(CvGFCScreen.CvGFCScreen):
 		last_row = len(areas) + 1
 		loopRowData.append("Total")
 		loopRowData.append(map.numPlots())
-		loopRowData.append("")
-		loopRowData.append("")
+		# <!-- custom: The totals row mirrors the area rows above (area, tiles, starting plots, unique bonus types, total bonuses, then each bonus): "Total", the map's plot count, then "" twice for starting plots and unique bonus types, which vanilla does not total, then the bonus total.
+		# Each of the two lines now names its field, as adjacent_duplicate_lines.py asks of a line meant twice.
+		# Read from the code, not seen in game (2026-11-22): title_list has one header more than these rows hold values, "Area" after "BonusDistro", and setTableData fills both from column 0, so each value shows one header to the left of its field; left as vanilla wrote it. See KI#1104. (Claude code Opus 5.5) -->
+		loopRowData.append("") # <!-- custom: starting plots (Claude code Opus 5.5) -->
+		loopRowData.append("") # <!-- custom: unique bonus types (Claude code Opus 5.5) -->
 		loopRowData.append("%d" % total)
 		for j in range(len(bonus_infos)):
 			quantity = map.getNumBonuses(j)
@@ -508,7 +511,8 @@ class CvDebugInfoScreen(CvGFCScreen.CvGFCScreen):
 	def handleInput (self, inputClass):
 		'Calls function mapped in FinanceAdvisorInputMap'
 		functionName = inputClass.getFunctionName()
-		print functionName
+		# <!-- custom: was a Python 2 print statement, which Ruff cannot parse. See KI#1104. (Claude code Opus 5.5) -->
+		print(functionName)
 		if ( functionName == self.szDebugInfoPulldownID ):
 			self.InfoType(inputClass)
 		return 0
