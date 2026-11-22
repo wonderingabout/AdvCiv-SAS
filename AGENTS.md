@@ -178,6 +178,7 @@ Release preparation: when preparing a stable release or substantial release upda
 - Do not include practical commit numbers in commit messages: they can change across branches, rebases, merges and squashes.
 - A few bracketed markers in a commit message, such as `- [ci_update_dll]` for a commit shipping the DLL or `- [ci_squash_pr]` for a PR intended to be squash-merged, state an intent the change alone cannot show.
   - CI still runs every check and verifies the change against that intent; [CI markers in commit messages](/.github/workflows/README.md#ci-markers-in-commit-messages) lists them and their rules, and a new one belongs there.
+  - Before squash-merging a PR, check the drafted squash message with [`squash_message.py`](/.github/workflows/README.md#buildrepositorysquash_messagepy)` --message FILE`: its title must name the revisions and new KIs the PR brings, which CI can check only after the merge.
   - A marker does not authorize what it states: a DLL ships only when the user approved it, as under [DLL inclusion in commits](#dll-inclusion-in-commits).
 - Validation text in commit messages is optional; keep it brief when it explains a meaningful technical risk or supports a bug-fix claim. Omit routine checklists that add little; this does not waive appropriate checks.
 
@@ -509,7 +510,7 @@ If a program, package or other tool would help, suggest it to the user rather th
 - In [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md), apply the same rule especially strictly: parent change/feature bullets should use real nested sub-bullets for distinct details, evidence, validation, updates, or part 2 of that same change.
   - Plain continuation indentation does not create visible list structure.
   - Keep a new top-level bullet for a separately trackable feature/change.
-- When adding doc entries in the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md), prefix bullet titles with `- (Requires AdvCiv-SAS X+)` where `X` is current latest commit + 1, since docs describe post-commit state for readers.
+- When adding doc entries in the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md), prefix bullet titles with `- (Requires AdvCiv-SAS X+)` where `X` is current latest commit + 1, since docs describe post-commit state for readers; for a PR intended to be squash-merged, `X` is main's count + 1, and [`requires_version_markers.py`](/.github/workflows/README.md#builddocumentationrequires_version_markerspy) checks it.
   - Current rule of thumb: latest stable is 5500, so the first commit after it would be 5501+, 10 commits later would be 5510+, etc.
 - When a new stable release is made, then all these previous markers can be stripped (e.g. if next stable is AdvCiv-SAS 5560, then any requires <= 5559+ is stripped because players would have the changes in latest stable, so they don't need anymore the marker about a change they might not have yet (in main i.e. as of now our dev branch)).
   - We don't need to mark other files since they are generally not player facing in that way and more general information on the mod (plus it's less tedious as such).

@@ -57,6 +57,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/documentation/markdown_prose_changes.py`](#builddocumentationmarkdown_prose_changespy)
     - [`build/documentation/markdown_structure.py`](#builddocumentationmarkdown_structurepy)
     - [`build/documentation/orphan_images.py`](#builddocumentationorphan_imagespy)
+    - [`build/documentation/requires_version_markers.py`](#builddocumentationrequires_version_markerspy)
     - [`build/documentation/retired_names.py`](#builddocumentationretired_namespy)
     - [`build/documentation/sas_source_guide.py`](#builddocumentationsas_source_guidepy)
   - [EXE patches](#exe-patches)
@@ -85,6 +86,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/repository/makefile_windows_tools.py`](#buildrepositorymakefile_windows_toolspy)
     - [`build/repository/project_sources.py`](#buildrepositoryproject_sourcespy)
     - [`build/repository/release_upstream.py`](#buildrepositoryrelease_upstreampy)
+    - [`build/repository/squash_message.py`](#buildrepositorysquash_messagepy)
     - [`build/repository/temp_files.py`](#buildrepositorytemp_filespy)
     - [`build/repository/ui_map_sync.py`](#buildrepositoryui_map_syncpy)
     - [`build/repository/version_metadata.py`](#buildrepositoryversion_metadatapy)
@@ -308,6 +310,8 @@ To run one subject locally, use the same top-level directory:
 ```bash
 python -m unittest discover -s .github/workflows/tests/repository -t .github/workflows -v
 ```
+
+Keep `-t .github/workflows`: some tests import their helper as a package from there, such as `test_project_sources.py`, which then fails without it. On 2026-11-22 a run without it reported `ModuleNotFoundError: No module named 'build'`, which looked like a broken test, while the same 134 repository tests passed with `-t`.
 
 Local platform-specific game-code tests live separately under [`tests/`](/tests/README.md), including the Windows/VC2003 diagnostic writer harness; they are not part of this workflow.
 
@@ -728,6 +732,15 @@ Fails on an image (`.png`, `.jpg`, `.gif`, `.webp`, `.bmp`, `.svg`) whose file n
 - It has no exemptions. The first run, on 2026-11-21, found 70: three SAS screenshots left out of the docs, now embedded in the root README; 52 base AdvCiv comparison shots, now shown with captions in the [legacy images page](/_0_Legacy/Images/README.md); and 15 other mods' game font previews, now in a table in the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#editing-with-game-font-editor).
 - So a new image needs a place where it is named: an embed in the doc it illustrates, or a line in its folder's index.
 
+#### `build/documentation/requires_version_markers.py`
+
+Checks that a newly added `(Requires AdvCiv-SAS N+)` names the practical number, `git rev-list --count`, that its change lands at on main: on a push to main, each first-parent commit's own count, a merge commit's included; on a PR marked `[ci_squash_pr]`, the target branch's current count + 1, the squash commit's number.
+
+- The number was written by hand and nothing checked it until 2026-11-22: one too high claims a version that lacks the change, one too low tells players of earlier versions they have it.
+- Only a number that now appears more often in a file counts as added, so rewording, moving or deleting an entry passes; archived release texts under `changelogs_web/` are skipped.
+- It reuses the revision checks' commit selection, so a feature-branch push is left to its PR, as theirs is.
+- A PR not marked for a squash is left to the push on main: a merge commit's count is known only once it exists, which Codex's review found when a branch's `2+` passed on its PR and failed after the merge demanded `4+` (2026-11-22).
+
 #### `build/documentation/retired_names.py`
 
 Fails on a retired tool or feature name, such as SASSaveTransplanter's former plain-English name or SASPilot's early nickname, in any text file of the repository outside the history records.
@@ -1129,6 +1142,15 @@ Run the same check before tagging a candidate.
 ```sh
 python .github/workflows/build/repository/release_upstream.py --release-ref HEAD
 ```
+
+#### `build/repository/squash_message.py`
+
+Lists what a squash merge's commit message must contain, and with `--message FILE` checks a drafted one: the title names each revision the PR bumps, such as `SGR210`, and each KI it opens, and the message carries `[ci_update_dll]` when the PR ships a DLL.
+
+- Those rules read the squash commit's own message, which exists only once the PR is merged, so before this they failed on the push to main, after the merge; on 2026-11-22 the title drafted for PR #50 lacked SGR210.
+- On a PR marked `[ci_squash_pr]` it shows the list as a warning on the PR page; locally, run `python .github/workflows/build/repository/squash_message.py --message FILE` on the drafted message before merging.
+- It reuses the revision readers, the KI anchor rule of `ki_commit_titles.py` and the marker spellings, so it cannot drift from the checks that judge the squash commit.
+- It compares the target branch with the tree the squash would commit, from `git merge-tree`, so changes the target already has, such as a cherry-picked entry, are not asked of the squash message; `requires_version_markers.py` does the same, while the DLL check still compares the PR's merge base with its newest commit (2026-11-22).
 
 #### `build/repository/temp_files.py`
 
@@ -1967,6 +1989,8 @@ A marker is one bracketed token in a commit message, title or body, usually on a
 - `[ci_squash_pr]` is read from the PR's newest commit message, which states the intent as it stands; a PR without it is checked commit by commit, which is right for a rebase or plain merge.
   - Example (2026-11-22): PR #50's draft commits bumped SGR to 210, then 211, then back to 210. Judged one by one, its SGR step failed on "regressed 211->210", although the squash commit, 209 to 210, passes. A GitHub label, `revision:squash`, said the same before, but was not in use; the marker replaced it.
   - The squash commit's own SHA cannot be known before the merge, so the newest revision entry says `pending`, and the next commit on main, or an amend of the squash commit, fills it in.
+  - The squash commit's message must still meet the rules that read a message, such as a bumped revision named in its title; [`build/repository/squash_message.py`](#buildrepositorysquash_messagepy) lists them and checks a drafted message.
+  - With it, the DLL check judges the PR as one commit too, and a new `(Requires AdvCiv-SAS N+)` must name main's count + 1; see [`build/documentation/requires_version_markers.py`](#builddocumentationrequires_version_markerspy).
 - Local options do the same for a local run: `--squash` on the revision checks judges a branch as one squash commit; `--staged` on the diagnostic-default checks reads staged content while unstaged development values stay on (see [Local `--staged` option for diagnostic defaults](#local---staged-option-for-diagnostic-defaults)); `ci_report.py --message` takes a draft commit message, so the commit-message checks read its markers.
 
 ## Run Locally

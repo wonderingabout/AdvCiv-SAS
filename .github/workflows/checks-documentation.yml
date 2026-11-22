@@ -89,6 +89,12 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/retired_names.py
 
+      - name: Requires AdvCiv-SAS version markers
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/documentation/requires_version_markers.py --default-branch-ref "refs/remotes/origin/$DEFAULT_BRANCH" --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+
       - name: Known Issues update chronology
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/known_issues_chronology.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
