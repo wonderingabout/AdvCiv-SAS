@@ -258,6 +258,9 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 
 #### CI
 
+- (Requires AdvCiv-SAS 6895+) **Inherited files audit, and manifests of the inherited layers in one place:** the [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md) lists every Python, XML, C++, `res` and `Config` file vanilla Civ4, Warlords, BtS or base AdvCiv provides, whether SAS carries it, when SAS added, removed or renamed it and why, such as why `CIV4PlotLSystem.xml` is ours but `CIV4CityLSystem.xml` is BtS's. Its helper writes the full per-file list, SAS's own new files included, as a report.
+  - A [CI check](/.github/workflows/README.md#buildsourceinherited_filespy) fails when SAS starts or stops keeping an inherited filename, or importing an inherited Python module, until the audit is regenerated, so a new decision cannot go unrecorded.
+  - The manifests CI and agents read in place of files the repository does not have, such as the inherited text hashes, now sit together in [`_0_Legacy/Docs/Manifests/`](/_0_Legacy/README.md#manifests), with the names considered for the folder and why, instead of beside each check.
 - (Requires AdvCiv-SAS 6637+) **DLL shipping and rebuild checks:**
   - Intentionally committed Release DLL updates require the DLL and full JSON to change together, configuration exactly `Release`, a successful build result, matching DLL hash and the `Update DLL` intent marker. The matching JSON remains required on source-only commits too.
   - Adding, removing or renaming C++-used XML define names across `Assets/XML` requires updated Release build evidence when integrating into the repository's default branch; intermediate feature-branch source commits remain possible.

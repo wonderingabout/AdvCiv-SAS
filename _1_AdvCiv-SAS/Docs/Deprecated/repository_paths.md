@@ -2,6 +2,11 @@
 
 Use this reference to translate folder and file paths found in older commits, logs, discussions and historical records into the current ones.
 
+Record a rename here when it is significant, not when it is old (the user, 2026-11-22):
+
+- Significant: the old path reached players, modders or other readers, such as a file in a release, a path a guide or a player-facing feature names, or one many discussions and records cite. Even a short-lived path can matter if it shipped.
+- Not significant: a move of development-only files no player or modder relies on, however long they sat there, such as the CI reference lists moved into `_0_Legacy/Docs/Manifests/` on 2026-11-22. The commit's own message is enough for those, and an entry here would only add noise.
+
 ## Menu
 
 - [Legacy documentation](#legacy-documentation)

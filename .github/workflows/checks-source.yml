@@ -43,6 +43,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/sevopedia_top_attributes.py
 
+      - name: Copies of base-game files and inherited Python imports match the inherited files audit
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/inherited_files.py
+
       - name: Byte comparisons in CI scripts say why
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/checkout_byte_compares.py

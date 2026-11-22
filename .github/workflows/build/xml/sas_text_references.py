@@ -155,7 +155,7 @@ def collect_missing_diplomacy_text(repo_root: Path) -> list[str]:
 # A token ending in "_" is a prefix completed at run time, as BUG's option keys are.
 # The EXE also reads a tag CHANGED_<key> as a definition of <key>: Warlords defines the Trireme's pedia text only as CHANGED_TXT_KEY_UNIT_TRIREME_PEDIA, and the Sevopedia shows it.
 # Keys that base AdvCiv 1.14 already used without defining (Firaxis XML pointing at strategy, help and pedia texts it never wrote, BUG and BULL leftovers) are listed in UNDEFINED_INHERITED with the first file using each; a key there that becomes defined or unused fails, so the list stays a record of real gaps. See KI#1085. (Claude code Opus 5.5) -->
-UNDEFINED_INHERITED = Path(__file__).with_name("xml_text_undefined_inherited.tsv")
+UNDEFINED_INHERITED = Path(__file__).resolve().parents[4] / "_0_Legacy" / "Docs" / "Manifests" / "xml_text_undefined_inherited.tsv"
 UNDEFINED_INHERITED_HEADER = "tag	first_reference"
 
 

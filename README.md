@@ -1615,12 +1615,14 @@ The first is a Windows/VC2003 diagnostic writer test: it compiles the actual log
 
 ### Inherited game text lists
 
-The game's own text files (BtS, Warlords and vanilla Civ4) are not in the repo, because we do not know whether republishing them is allowed. Base AdvCiv's text is only in old Git history. So nothing in the repo shows whether a key such as `TXT_KEY_CIV_KOREA_DESC` (Korea's name, defined only in Warlords text) exists, where it comes from, or what it says.
+The game's own files (BtS, Warlords and vanilla Civ4) are not in the repo, because we do not know whether republishing them is allowed, and base AdvCiv's text is only in old Git history.
 
-Two small generated lists answer that, in English only, since SAS text files hold English only:
+So CI, and agents without a Civ4 install, cannot read them: nothing in the repo shows whether a key such as `TXT_KEY_CIV_KOREA_DESC` (Korea's name, defined only in Warlords text) exists, where it comes from, or what it says.
 
-- [`xml_sas_text_inherited_hashes.tsv`](/.github/workflows/build/xml/xml_sas_text_inherited_hashes.tsv) has one row per inherited text key: its source (base AdvCiv, else BtS, else Warlords, else vanilla) and a short fingerprint (SHA-256) of its English text. The fingerprint tells whether two texts are identical without containing the text.
-- [`xml_sas_text_inherited_names.tsv`](/.github/workflows/build/xml/xml_sas_text_inherited_names.tsv) has the readable English names of leaders and civilizations, about 120 rows.
+Small generated lists stand in for them, holding names, sources and fingerprints but never the content. They sit together in [`_0_Legacy/Docs/Manifests/`](/_0_Legacy/README.md#manifests). Two cover text, in English only, since SAS text files hold English only:
+
+- [`xml_sas_text_inherited_hashes.tsv`](/_0_Legacy/Docs/Manifests/xml_sas_text_inherited_hashes.tsv) has one row per inherited text key: its source (base AdvCiv, else BtS, else Warlords, else vanilla) and a short fingerprint (SHA-256) of its English text. The fingerprint tells whether two texts are identical without containing the text.
+- [`xml_sas_text_inherited_names.tsv`](/_0_Legacy/Docs/Manifests/xml_sas_text_inherited_names.tsv) has the readable English names of leaders and civilizations, about 120 rows.
 
 Hash list sample:
 
@@ -1653,6 +1655,10 @@ Uses:
 - **CI:** [`xml_sas_text_inherited.py`](/.github/workflows/README.md#buildxmlxml_sas_text_inheritedpy) fails when SAS text is identical to the inherited text, [`xml_display_order.py`](/.github/workflows/README.md#buildxmlxml_display_orderpy) keeps the Custom Game lists in name order (see [KI#1073](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073)), and [`sas_text_references.py`](/.github/workflows/README.md#buildxmlsas_text_referencespy) checks that diplomacy keys exist.
 
 Both are plain TSV with one header row. They are generated from a local Civ4 install with `python .github/workflows/build/xml/xml_sas_text_inherited.py --write --civ4-root "<Civ4 install root>"`; the game files do not change, so they should not need refreshing.
+
+A third, [`inherited_files.tsv`](/_0_Legacy/Docs/Manifests/inherited_files.tsv), covers files rather than text: every Python, XML, C++, `res` and `Config` file the base game and base AdvCiv ship, with its path, layers and file events in upstream AdvCiv's history.
+
+It feeds the [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md): which inherited filenames SAS keeps, and when and why it added, removed or renamed the files.
 
 ### CI
 
