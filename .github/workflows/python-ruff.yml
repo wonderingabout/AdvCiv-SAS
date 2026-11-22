@@ -41,7 +41,7 @@ jobs:
           # Assets/Python/Screens/CvForeignAdvisor.py:17:8: F401 `ScreenInput` imported but unused
           # Assets/Python/BUG/SpyUtil.py:9:1: F403 `from CvPythonExtensions import *` used; unable to detect undefined names
           # Assets/Python/BUG/SpyUtil.py:14:6: F405 `CyGlobalContext` may be undefined, or defined from star imports
-          # <!-- custom: Note: extra caution about F841, sometimes declared variables run instructions, for example disabling an unused variable to fix a ruff warning caused Sevopedia Promotions to miss many promotions (see Sevopedia Promotions). So fix them with caution. -->
+          # <!-- custom: Note: extra caution about F841, sometimes declared variables run instructions, for example disabling an unused variable to fix a ruff warning caused Sevopedia Promotions to miss many promotions (see Sevopedia Promotions). So fix them with caution. See KI#21.7. -->
           # Assets/Python/EntryPoints/CvScreensInterface.py:1091:2: F841 Local variable `bOption1` is assigned to but never used
           # <!-- custom: See full-report command above for why reviewed legacy Python 2 built-ins are passed through Ruff config here. (GPT-5.5) -->
           ruff check . --isolated --exclude "LLM_Helpers/context/mapscript_refs" --config "builtins = ['unicode']" --select E9,F --ignore F401,F403,F405,F841 --output-format=github

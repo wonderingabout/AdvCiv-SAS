@@ -887,9 +887,12 @@ The Git counterpart of [`svn_history_to_diffs.py`](#svn_history_to_diffspy), for
 - It works on a blobless clone (`git clone --filter=blob:none`). Binary files and `--summarize` paths are listed without their contents, so their blobs are never downloaded; text diffs fetch what they need.
 - Interrupted runs resume, and failures are collected and reported together, as with the SVN exporter.
 - A first trial on 2026-11-12 exported C2C's newest 30 commits in about 2 minutes, 3.2 MB, mostly spent downloading blobs; the full 9,293 commits would take hours, so run it in the background.
+- `--rev newest-release` exports the highest version-named branch, read with the same rule base AdvCiv's release branches use (`release_version` in `.github/workflows/lib/advciv_release.py`).
+  - Added on 2026-11-22 for Taurus, which develops on a branch named by its version: its `main` last changed on 2026-05-23, its `1.04` on 2026-08-24, so neither the default branch nor a version written into the command stays the newest. Its 230 commits exported in under a minute ([KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7) cites one).
 
 ```bash
 py -u LLM_Helpers/code_history/git_history_to_diffs.py --repo "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/mod_repos/c2c_github" --out "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/git_history/c2c" --label C2C --summarize "UnpackedArt/*" --summarize "ArtSource/*" --summarize "Assets/art/*" --summarize "Assets/Sounds/*" --newest-first
+py -u LLM_Helpers/code_history/git_history_to_diffs.py --repo "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/mod_repos/Taurus" --rev newest-release --out "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/git_history/taurus" --label Taurus
 ```
 
 ### `svn_history_verify.py`
