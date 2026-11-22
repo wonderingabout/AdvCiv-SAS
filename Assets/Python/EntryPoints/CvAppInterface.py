@@ -79,7 +79,7 @@ def preGameStart():
 	CvScreensInterface.showMainInterface()	
 
 def onPbemSend(argsList):
-	# <!-- custom: The same five modules the PBEM mail sender always imported, one per line now, as Ruff's E401 asks. (Claude code Opus 5.5) -->
+	# <!-- custom: The same five modules the PBEM mail sender always imported, one per line now, as Ruff's E401 asks. See KI#21.7. (Claude code Opus 5.5) -->
 	import sys
 	import smtplib
 	import MimeWriter

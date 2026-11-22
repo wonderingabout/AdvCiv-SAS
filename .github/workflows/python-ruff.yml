@@ -37,7 +37,7 @@ jobs:
       - name: Ruff critical gate
         shell: bash
         run: |
-          # <!-- custom: Fail CI on Ruff syntax/parse errors plus Pyflakes bug checks. The full report above shows every Ruff finding; after the first GitHub run, only a few rules were clearly too noisy, so keep the rest of F failing until actual output proves more narrowing is needed. (ChatGPT-5.5 + GPT-5.5) -->
+          # <!-- custom: Fail CI on Ruff syntax/parse errors plus Pyflakes bug checks. The full report above shows every Ruff finding; after the first GitHub run, only a few rules were clearly too noisy, so keep the rest of F failing until actual output proves more narrowing is needed. See KI#21.7. (ChatGPT-5.5 + GPT-5.5) -->
           # Assets/Python/Screens/CvForeignAdvisor.py:17:8: F401 `ScreenInput` imported but unused
           # Assets/Python/BUG/SpyUtil.py:9:1: F403 `from CvPythonExtensions import *` used; unable to detect undefined names
           # Assets/Python/BUG/SpyUtil.py:14:6: F405 `CyGlobalContext` may be undefined, or defined from star imports
@@ -50,7 +50,7 @@ jobs:
         shell: bash
         run: |
           # <!-- custom: Style rules promoted to failures once the repository had none left (2026-11-22): E703 a needless trailing semicolon such as "screen.hide(x);", E714 "not x is None" for "x is not None", E401 several imports on one line.
-          # Each is a plain slip with one clear fix, unlike the broad rules the full report shows; the base AdvCiv 1.12 comparison copy under Docs/examples stays as it was, so it is excluded. (Claude code Opus 5.5) -->
+          # Each is a plain slip with one clear fix, unlike the broad rules the full report shows; the base AdvCiv 1.12 comparison copy under Docs/examples stays as it was, so it is excluded. See KI#21.7. (Claude code Opus 5.5) -->
           ruff check . --isolated --exclude "LLM_Helpers/context/mapscript_refs,_1_AdvCiv-SAS/Docs/examples/source_comparison" --config "builtins = ['unicode']" --select E703,E714,E401 --output-format=github
 
       - name: No unused noqa

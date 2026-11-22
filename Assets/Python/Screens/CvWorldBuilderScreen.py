@@ -2000,7 +2000,7 @@ class CvWorldBuilderScreen:
 			
 			iPanelWidth = 35*6
 			# <!-- custom: Collapsed this inherited one-argument-per-line call because SAS's adjacent_duplicate_lines.py CI check flagged its two "" arguments as repeated neighbouring lines, as copying the file into SAS made them new.
-			# Not a bug: they are the empty title and help text, the third and fourth arguments of attachPanelAt(szAttachTo, szName, title, helpText, ...) in _0_Legacy/Docs/Civ4BUG_Python_API/all_classes_web.txt. (Claude code Opus 5.5) -->
+			# Not a bug: they are the empty title and help text, the third and fourth arguments of attachPanelAt(szAttachTo, szName, title, helpText, ...) in _0_Legacy/Docs/Civ4BUG_Python_API/all_classes_web.txt. See KI#21.7. (Claude code Opus 5.5) -->
 			screen.attachPanelAt( "WorldBuilderMainPanel", "WorldBuilderLoadSavePanel", "", "", False, True, PanelStyles.PANEL_STYLE_CITY_TANSHADE, 70, 0, iPanelWidth-70, 35, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			
 			screen.setImageButtonAt( "WorldBuilderAllPlotsButton", "WorldBuilderLoadSavePanel", ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_CHANGE_ALL_PLOTS").getPath(), iButtonX, iButtonY, iButtonWidth, iButtonHeight, WidgetTypes.WIDGET_WB_ALL_PLOTS_BUTTON, -1, -1)

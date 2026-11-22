@@ -51,7 +51,7 @@ class PythonMultilineCallsTests(unittest.TestCase):
         self.assertEqual(text, "\t#screen.addPanel( \"Main\", 0, 1 )\nx = 1\n")
 
     def test_codex_review_cases(self):
-        # <!-- custom: Codex's review (2026-11-22) reproduced each: a "#f(" inside a triple-quoted string taken for disabled code and rewritten by --fix, subscript and commented-out return targets missed, and a call already on one line flagged for its condition. (Claude code Opus 5.5) -->
+        # <!-- custom: Codex's review (2026-11-22) reproduced each: a "#f(" inside a triple-quoted string taken for disabled code and rewritten by --fix, subscript and commented-out return targets missed, and a call already on one line flagged for its condition. See KI#21.7. (Claude code Opus 5.5) -->
         text = "s = '''\n#f(a,\n# b)\n'''\n"
         errors, fixed = self.run_checker(text, fix=True)
         self.assertEqual((errors, fixed), ([], text))

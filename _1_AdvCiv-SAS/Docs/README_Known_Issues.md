@@ -51,6 +51,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#21 - (Now fixed) missing "Cannot enter" terrain or feature info in map view of unit effects, unlike in Sevopedia (where it is also not clear enough about restrictions (cultural borders + not affected by roads, now added this info as well))](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21)\
 [KI#21.5 - (Addressed / fixed) - Removed the giant configobj docstring very inefficiently in the python code, and commented out most if not all as well](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.5)\
 [KI#21.6 - (Addressed) Old python code not being optimized, with many ruff linter (that we added) VS Code errors that don't allow to read the files](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.6)\
+[KI#21.7 - (Addressed, partly guarded by CI) SAS's Ruff and multi-line cleanups kept coming undone: a year of hand sweeps had no CI gate for these rules, so on 2026-11-22 64 Ruff findings and 25 multi-line calls were back or left, and 35 findings remain](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7)\
 [KI#22 - (Now fixed) Obsolete bonuses (such as BONUS_ELEPHANTS) in tech advisor (i.e. tech tree view) failing to redirect to Sevopedia bonus with id none causing an error, unlike obsolete buildings (like BUILDING_SPIRAL_MINARET for example) successfully showing the building item's page](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22)\
 [KI#22.5 - (Addressed) Seemingly fixed weird flavors or XML fields: Mistakes?](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22.5)\
 [KI#22.6 - (Addressed) XML tweaks and fixes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22.6)\
@@ -2088,6 +2089,49 @@ Note 2: example case of where i was too aggressive and caused a bug by remoing a
 Preserving the call while removing the old unused variable was the/a correct way to fix the ruff warning instead of simply removing the line, which was my mistake but perhaps a good example of cases where some extra caution is needed
 
 Note 3: reverted some of them to be safe and as not necessary to fix all of them (e.g. bare except rule added to exceptions in [/ruff.toml](/ruff.toml)).
+
+<a id="ki-21.7"></a>
+
+## KI#21.7 - (Addressed, partly guarded by CI) SAS's Ruff and multi-line cleanups kept coming undone: a year of hand sweeps had no CI gate for these rules, so on 2026-11-22 64 Ruff findings and 25 multi-line calls were back or left, and 35 findings remain
+
+KI#21.6 records the first Ruff cleanup. This entry retraces what followed, from the [`commit_diffs`](/LLM_Helpers/context/commit_diffs/) corpus, practical numbers and dates included, and what was done once the pattern showed (2026-11-22).
+
+**What the sweeps did, without a gate:**
+
+- 2025-06-26 to 2025-06-27 (practical 4844 `363dca74cf`, 4847 `2973ba48f3`): Ruff and markdownlint added as VS Code extensions, and "tons of ruff and pylance" findings fixed by hand (KI#21.6).
+  - That pass also collapsed a multi-line call in `TechWindow.py` and slipped a `y` before `WidgetTypes`, a `NameError` found much later ([KI#392](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-392)).
+  - 2025-12-19 (5211 `90da888635`): some changes reverted to be safe; bare `except` (E722) has been ignored in [`ruff.toml`](/ruff.toml) since 2025-12-25 (5255 `a9da325fd7`).
+- 2026-05-02 to 2026-05-16 (5738 `7868026fd4` to 5807 `e65191a992`): multi-line statements and comments collapsed to one line with `collapse_multiline_brackets.py` and LLM passes (pull request #23, "no-multiline"); untouched BUG files got the header saying SAS changes them only in such minor ways.
+- 2026-05-29 to 2026-05-31 (5865 to 5891):
+  - Parser blockers first, so Ruff could read the files at all: Python 2 `print` statements (5865 `fa6b78670d`) and `raise` values (5866 `54505f4c7c`).
+  - Then one rule at a time: E711 (5867), E713 by regular expression (5868) and with Ruff's own `--fix` (5883 `61f12eb683`), E701 in nine passes (5869 to 5876, 5884), E702 (5877, 5878), E703 (5879), E401 (5890).
+  - E101 (mixed tabs and spaces) fell from about 1,068 to 259 by the count in 5891's message, which also gives 349 E101 reports left in Ruff's total, with new helpers: `collapse_multiline_calls.py` (5880), `collapse_multiline_calls2.py` (5881), `fix_matrix_indent.py` (5882) and `collapse_multiline_parens_safe.py` (5891).
+  - Map scripts were the messiest: broad indentation scripts gave misleading results, so `BTG_Cross.py`, `BTG_Grid.py`, `Terra.py`, `Oasis.py` and four others were repaired by hand with ChatGPT and reviewed (5892 `0e6854abcd`), then `RandomScriptMap.py` on 2026-06-01 (5896 `17fe7e5319`).
+- 2026-06-01 to 2026-06-04: flat literals collapsed (5898 `c20ef76a64`), and Ruff's E902 fixed by converting files to UTF-8 (5910 `93ce591ae9`).
+- 2026-06-20 (5964 `0759bd4dba`): [`python-ruff.yml`](/.github/workflows/python-ruff.yml) added on GitHub, failing only on parse errors and Pyflakes (E9, F); it found [KI#164](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-164) and [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165). Layout rules such as E701 stayed warnings in the full report.
+  - Base AdvCiv took two of these Ruff findings upstream from SAS's forum posts: the `configobj.py` comment writer ([KI#143](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-143), AdvCiv `c2605f98d8`, 2026-06-05) and `RectLayout.py`'s undefined `Point` (KI#165, AdvCiv `13a7fe526c`, the same day as the workflow).
+- 2026-08-20 (6188 `8d8cba5f65`, which base AdvCiv and Taurus cite by its earlier SHA `b5704a2476`): adding byte-preserved third-party map-script originals for archaeology, now [`mapscript_refs`](/LLM_Helpers/context/mapscript_refs/), also excluded them from Ruff in `python-ruff.yml` and `ruff.toml`, as they stay exactly as found and would otherwise flood the report.
+  - That commit's tiny-island fix ([KI#262](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-262)) was adopted by base AdvCiv the next day (`26b5f482f8`) and by Taurus.
+- 2026-08-21 to 2026-08-24, in Taurus: f1rpo added several Warlords and BtS map scripts, each followed by a commit taking SAS's fixes for it.
+  - After adding BtS's `RandomScriptMap.py`, [`45fa699`](https://github.com/f1rpo/Taurus/commit/45fa699019300138de0eaab4344c478f0f7f4ff4) fixed its errors "mostly from SAS", crediting SAS for fixes such as `isValidBoth` and the map bounds.
+  - f1rpo also found its semicolon-joined statements (E702) on his own, which SAS had fixed in May, split them, and added a header warning about the file's mixed indentation (E101).
+  - It also found a double write SAS still has: `shiftRegionPlots` sets `stripRadius = min(15, iStrip)`, then overwrites it with `stripRadius = max(3, iStrip)`, so the cap of 15 never applies. Its message expected linters and LLMs to find much more in such scripts.
+
+**What came back, counted on 2026-11-22:** E701 10, E702 13, E703 25, E714 3, E711 1, E401 1, E101 11 after the collapses below, and 25 multi-line calls plus 10 commented-out ones. E713 alone stayed at zero. `git blame` shows three sources:
+
+- New code: the [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104) base-game copies brought most of it the same day, such as the seven one-line `if (fxnKey==1): return …` in `CvAppInterface.py`, the E101 table in `CvDebugInfoScreen.py` and 18 multi-line calls; SAS code added later brought a few, such as `CvScreensInterface.py`'s E701 (2026-10-27) and `CvWBDesc.py`'s `if line==None:` (2026-11-17).
+- The sweeps themselves: the E713 regular-expression pass wrote `if item not in tpR : tpR.append(item)` on one line in `BTG_Cross.py` and `BTG_Grid.py`, an E701, and the E701 and E702 passes left E101 and E702 lines in the tooling helper `comment_cleanup_pass_v2.py`.
+- Calls the collapse helpers' patterns did not know, such as `szText += getText(…, (` and `a, b = _readIniValues(`.
+
+**What was done (2026-11-22):**
+
+- Practical 6841 `dbbc733221`: [`python_multiline_calls.py`](/.github/workflows/README.md#buildsourcepython_multiline_callspy) fails on a multi-line call in `Assets/Python` or `PrivateMaps`, commented-out ones included, and its `--fix` collapses what it flags; the 25 calls and 10 commented-out ones were collapsed.
+  - One showed why the layout mattered beyond grepping: `CvWorldBuilderScreen.py`'s `attachPanelAt` passed its empty title and help text as two `""` lines in a row, which [`adjacent_duplicate_lines.py`](/.github/workflows/README.md#buildrepositoryadjacent_duplicate_linespy) flagged as a likely pasted line; on one line the pair is no longer two lines.
+  - Codex's review found that `--fix` could rewrite a triple-quoted string that looked like commented-out code, and that a Windows-1252 ellipsis byte shifted line numbers; both were fixed with tests.
+- Practical 6842 `2b8a034d3a`: E703, E714 and E401 promoted to failures in `python-ruff.yml`, after fixing the 29 findings with Ruff's own safe fixes.
+- Still warnings: E701, E702, E711 and E101, whose 35 findings need hand edits; E713 has none.
+
+Retraced with Claude Code Opus 5.5; Codex (GPT-6.2-Sol) reviewed the check and the Ruff promotion.
 
 <a id="ki-22"></a>
 
@@ -38509,7 +38553,7 @@ Not a bug but a rule, written down so the files it covers can point to it.
       - This follows AGENTS.md rather than bending it: it asks for `findInfoTypeNumOrFail` on static or literal tags, and lets dynamic or guarded legacy lookups stay raw once reviewed, as these were.
         - Being dynamic, read from the file rather than written in our code, only takes them out of that literal-tag rule; the strict helper handles dynamic strings too. What keeps them raw is the empty and `NONE` values, which it would raise on.
     - The rest of what CI found was fixed in the files: final newlines Firaxis's files lacked, a trailing note on each line meant twice (the totals row of `CvDebugInfoScreen.py` leaves two columns empty), and a run of 3 blank lines in `PyHelpers.py`.
-      - `CvWorldBuilderScreen.py`'s `attachPanelAt`, whose two `""` arguments were flagged the same way, was collapsed onto one line instead, with 24 other multi-line calls, now guarded by [`python_multiline_calls.py`](/.github/workflows/README.md#buildsourcepython_multiline_callspy).
+      - The multi-line calls and Ruff findings the copies brought back, `CvWorldBuilderScreen.py`'s `attachPanelAt` among them, are in [KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7).
     - Left for later: source provenance reads the copies' 365 or so Firaxis comments as new comments without a model credit, and the resource-API rule their 31 direct resource lookups as new code, since both judge every line of a newly added file as new.
       - Codex suggested accepting only comments found word for word in the verified source copies, but GitHub's runners have no Civ4 install to compare with, and a draft commit holding the plain copies does not survive the squash merge, so CI would need another baseline.
       - A narrower exception would accept a new file's comments when its header names a base-game source the manifest lists, checked for real only where the Civ4 install exists; it would make GitHub's CI trust the header, which is not ideal, as the rule would no longer stand on its own (the user, 2026-11-22).

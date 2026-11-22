@@ -1448,7 +1448,7 @@ The older [`comment_cleanup_pass_v2.py`](#comment_cleanup_pass_v2py) remains a h
 
 Conservative source-rewrite helper for Python files.
 
-- For runtime Python (`Assets/Python`, `PrivateMaps`), prefer [`python_multiline_calls.py --fix`](/.github/workflows/README.md#buildsourcepython_multiline_callspy), the CI check that keeps such calls out: it fixes exactly what it flags, including `x += f(` and `a, b = f(`, which this helper's patterns miss.
+- For runtime Python (`Assets/Python`, `PrivateMaps`), prefer [`python_multiline_calls.py --fix`](/.github/workflows/README.md#buildsourcepython_multiline_callspy), the CI check that keeps such calls out: it fixes exactly what it flags, including `x += f(` and `a, b = f(`, which this helper's patterns miss ([KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7)).
 - Collapses multiline call-like statements and simple parenthesized return expressions into one line.
 - Useful for making Civ4 Python calls easier to grep/review and for reducing harmless continuation-indent noise.
 - Skips statements containing comments, multiline strings, explicit backslash continuations, and large list/dict/table assignments.

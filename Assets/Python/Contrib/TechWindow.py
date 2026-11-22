@@ -6,7 +6,7 @@
 ## Copyright (c) 2008 The BUG Mod.
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
-## <!-- custom: Ruff reported E902 "stream did not contain valid UTF-8" at this legacy BUG TechWindow file start. Converting the file to UTF-8 in VS Code fixed the Ruff parser error while preserving the German comments and leaving runtime code unchanged. Credit: ChatGPT 5.5 and Ruff check. (GPT-5.5) -->
+## <!-- custom: Ruff reported E902 "stream did not contain valid UTF-8" at this legacy BUG TechWindow file start. Converting the file to UTF-8 in VS Code fixed the Ruff parser error while preserving the German comments and leaving runtime code unchanged. Credit: ChatGPT 5.5 and Ruff check. See KI#21.7. (GPT-5.5) -->
 
 from CvPythonExtensions import *
 import CvUtil
@@ -234,7 +234,7 @@ class CvTechSplashScreen:
 		for j in range(CyGlobalContext().getNumTechInfos()):
 			for k in range(CyGlobalContext().getDefineINT("NUM_OR_TECH_PREREQS")):
 				iPrereq = CyGlobalContext().getTechInfo(j).getPrereqOrTechs(k)
-				# <!-- custom: fix weird indentation and tabs/spaces issues that trigger Pylance/Ruff warnings. (GPT-5.2-Codex (summarized)) -->
+				# <!-- custom: fix weird indentation and tabs/spaces issues that trigger Pylance/Ruff warnings. See KI#21.7. (GPT-5.2-Codex (summarized)) -->
 				if (iPrereq == self.iTech):
 					screen.attachImageButton( panelNameSIR, "", CyGlobalContext().getTechInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_DERIVED_TECH, j, self.iTech, False )
 			for k in range(CyGlobalContext().getDefineINT("NUM_AND_TECH_PREREQS")):
@@ -259,7 +259,7 @@ class CvTechSplashScreen:
 			if (eLoopUnit != -1):
 				if (isTechRequiredForUnit(self.iTech, eLoopUnit)):
 					# <!-- custom: SAS's line-collapse cleanup accidentally prefixed WidgetTypes with "y", raising NameError when the internally Detailed, user-facing Extended Tech Splash lists an enabled unit.
-					# Restore the valid enum reference. See KI#392. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					# Restore the valid enum reference. See KI#392. See KI#21.7. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 					screen.attachImageButton( panelName, "", CyGlobalContext().getUnitInfo(eLoopUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False )
 
 		# Buildings Enabled

@@ -13,7 +13,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). See KI#21.7. (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
 # <!-- custom: Consolidate this dependency at the shared SASVisualUtils/SASTextScale boundary instead of retaining the retired overlapping visual-resource helper imports. (ChatGPT-5.6-Sol) -->
@@ -85,7 +85,7 @@ def getAttitudeIcon (nPlayer, nTarget):
 def getAttitudeCount (nPlayer, nTarget):
 	# Returns the total attitude modifiers nPlayer has toward nTarget.
 	sAttStr = getAttitudeString(nPlayer, nTarget)
-	# <!-- custom: use "is" not "==" when checking None (ruff). Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+	# <!-- custom: use "is" not "==" when checking None (ruff). Credit: ChatGPT. See KI#21.7. (GPT-5.2-Codex (summarized)) -->
 	if sAttStr is None:
 		#return
 		return 0 # advc.001 (from Inthegrave's mod, fixed by Toffer)

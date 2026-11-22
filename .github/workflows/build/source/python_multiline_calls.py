@@ -4,7 +4,7 @@
 #
 # Build check: runtime Python writes a call on one line, not one argument per line.
 # <!-- custom: One line per call greps, compares and lints better (AGENTS.md); hand sweeps had no guard, so the KI#1104 copies brought 18 back and 7 SAS calls such as a, b = f( slipped past collapse_multiline_calls.py.
-# Tables, conditions, multi-line strings and calls with a comment inside, such as AdvCiv's # <advc.092> markers, stay multi-line; --fix collapses what this flags. (Claude code Opus 5.5) -->
+# Tables, conditions, multi-line strings and calls with a comment inside, such as AdvCiv's # <advc.092> markers, stay multi-line; --fix collapses what this flags. See KI#21.7. (Claude code Opus 5.5) -->
 
 # <!-- custom: pathlib walks the folders, argparse reads the options, io feeds each file to tokenize. (Claude code Opus 5.5) -->
 from pathlib import Path

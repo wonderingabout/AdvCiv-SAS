@@ -230,6 +230,7 @@ A further step fails on style rules promoted once the repository had none left, 
 - E703, a needless trailing semicolon; E714, `not x is None` for `x is not None`; E401, several imports on one line.
 - The base AdvCiv 1.12 comparison copy under `_1_AdvCiv-SAS/Docs/examples/source_comparison` is excluded, as it stays as it was.
 - To promote another rule, fix its findings first, then add it to that step's `--select`.
+- [KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7) retraces why: SAS's earlier hand sweeps fixed these rules too, but without a gate they came back.
 
 A last step fails on Ruff's RUF100, a `noqa` that suppresses nothing. RUF100 needs every rule enabled, or each `noqa` naming a rule outside the narrow critical gate, such as `E402`, would look unused, so this step runs `--select ALL` and fails only on RUF100.
 
@@ -1354,6 +1355,7 @@ Fails when a Python binding in the DLL's `Cy*Interface*.cpp` files points at a n
 Fails when a call in `Assets/Python` or `PrivateMaps` spans several lines, commented-out calls included, as searches find them too: one line per call greps, compares and lints better, as [AGENTS.md](/AGENTS.md#code-layout-and-collapsing) prefers unless that makes it overly complicated. `--fix` collapses what it flags.
 
 - Added on 2026-11-22: hand sweeps with [`collapse_multiline_calls.py`](/LLM_Helpers/README.md#collapse_multiline_callspy) had no guard, so the [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104) copies brought 18 back, such as WorldBuilder's `attachPanelAt`, and 7 SAS calls such as `a, b = _readIniValues(` slipped past the helper; 10 more were commented out, such as `CvDebugInfoScreen.py`'s disabled `screen.addPanel(`.
+  - [KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7) retraces those sweeps and what came back.
 - It is a heuristic: a call is a dotted name and `(` starting a statement, after `return` or `yield`, or after an assignment target such as `a, b =` or `out[0] =`, and the call itself must span lines; a commented-out call is a run of up to 20 comment lines that compiles once uncommented.
 - Tables, conditions, multi-line strings and calls with a comment inside, such as AdvCiv's `# <advc.092>` markers, stay multi-line; tooling Python under `.github`, `LLM_Helpers` and `tests` is not checked.
 

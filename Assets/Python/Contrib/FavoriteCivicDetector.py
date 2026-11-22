@@ -65,7 +65,7 @@ def getFavoriteCivicInfo (iPlayer):
 	return favorite
 
 def doUpdate ():
-	# <!-- custom: ruff E714: use "x is not None" instead of "not x is None". (GPT-5.2-Codex (summarized)) -->
+	# <!-- custom: ruff E714: use "x is not None" instead of "not x is None". See KI#21.7. (GPT-5.2-Codex (summarized)) -->
 	# Goes through the current diplomacy situation to determine potential favorite civics for each civ.
 	#
 	# advc.009b: None check added
