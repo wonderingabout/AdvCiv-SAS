@@ -127,6 +127,11 @@ The shape came from several rounds with the user on 2026-11-22; each choice belo
   - `LoadGlobalClassInfo` requests one primary XML file through the EXE file manager, then adds modular files when enabled.
   - `LoadGlobalText` enumerates `xml\text\*.xml` instead, so distinct text files can contribute keys from older layers, such as `TXT_KEY_CIV_KOREA_DESC` from Warlords; see [Manifests of the inherited layers](/README.md#manifests-of-the-inherited-layers).
   - The audit has no per-file runtime evidence for fallback on non-text XML missing from BtS.
+  - A same-named file in SAS replaces the base game's, text files included (checked 2026-11-22, [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)):
+    - Codex first warned that a copied XML file could change which definitions load, then found no such case in the loader (`CvXMLLoadUtilitySet.cpp`) and withdrew it; its remaining point is later drift, which a separate copy commit before any edit keeps visible.
+    - Claude Code Opus 5.5 first said a same-named copy of a base-game text file would load its keys a second time, which was wrong: `LoadGlobalText` lists every `xml\text\*.xml` of every layer, and K-Mod's comment there says a file present in both the mod and the base game is "loaded from the mod folder anyway", so it drops the duplicate and the mod's copy replaces the base one, as for Python and other XML (`CvXMLLoadUtilitySet.cpp`, checked 2026-11-22).
+    - So a SAS text file must not take a base-game text file's name, such as `CIV4GameText_BTS.xml`: it would replace that file, and every key only that file defines would stop loading.
+      - SAS's own `AdvCiv-SAS_*.xml` names cannot collide; the 37 text files given back base AdvCiv's names on 2026-11-22 were checked not to match any vanilla, Warlords or BtS text file, and base AdvCiv is not a layer under SAS.
 - C++: only SAS's `CvGameCoreDLL` source tree is built.
   - The Firaxis SDK copies are comparison sources.
   - A same-path comparison tells us about a whole file; code can also survive in a renamed or split file.

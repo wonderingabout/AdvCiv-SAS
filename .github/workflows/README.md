@@ -1304,6 +1304,8 @@ Keeps the [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_
 
 - SAS starts or stops keeping the filename of a Python, XML, C++, `res` or `Config` file that vanilla, Warlords, BtS or base AdvCiv provides, or moves its file;
 - SAS starts or stops importing an inherited Python module;
+- SAS imports a base-game Python module it does not carry, unless `NOT_CARRIED` says why, as SAS keeps the base-game modules it uses ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)); an entry nothing imports any more fails too;
+- a SAS text file has a base-game text file's name, which would replace that file and drop the keys only it defines (KI#1104);
 - a static import is outside SAS, the base game, and the known Python 2.4 runtime and optional modules (the scan covers `Assets/Python`, `PrivateMaps`, and `SASPilot/game`);
 - the audit was generated from another inherited list.
 
