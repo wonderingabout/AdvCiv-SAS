@@ -135,22 +135,22 @@ class CvWorldBuilderScreen:
 
 		self.m_normalMapTabCtrl = getWBToolNormalMapTabCtrl()
 
-		self.m_normalMapTabCtrl.setNumColumns((gc.getNumBonusInfos()/10)+1);
-		self.m_normalMapTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_IMPROVEMENTS",()));
+		self.m_normalMapTabCtrl.setNumColumns((gc.getNumBonusInfos()/10)+1)
+		self.m_normalMapTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_IMPROVEMENTS",()))
 		self.m_iImprovementTabID = 0
 		self.m_iNormalMapCurrentIndexes.append(0)
 
 		self.m_iNormalMapCurrentList.append(0)
 		self.m_iImprovementListID = 0
 
-		self.m_normalMapTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_BONUSES", ()));
+		self.m_normalMapTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_BONUSES", ()))
 		self.m_iBonusTabID = 1
 		self.m_iNormalMapCurrentIndexes.append(0)
 
 		self.m_iNormalMapCurrentList.append(0)
 		self.m_iBonusListID = 0
 
-		self.m_normalMapTabCtrl.setNumColumns((gc.getNumTerrainInfos()/10)+1);
+		self.m_normalMapTabCtrl.setNumColumns((gc.getNumTerrainInfos()/10)+1)
 		self.m_normalMapTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_TERRAINS",()))
 		self.m_iTerrainTabID = 2
 		self.m_iNormalMapCurrentIndexes.append(0)
@@ -163,7 +163,7 @@ class CvWorldBuilderScreen:
 		
 		# Territory
 		
-		self.m_normalMapTabCtrl.setNumColumns(8);
+		self.m_normalMapTabCtrl.setNumColumns(8)
 		self.m_normalMapTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_TERRITORY",()))
 		self.m_iTerritoryTabID = 3
 		self.m_iNormalMapCurrentIndexes.append(0)
@@ -2185,7 +2185,7 @@ class CvWorldBuilderScreen:
 				pPlot = CyMap().plot(i,j)
 				if (not pPlot.isNone()):
 					if bReveal or (not pPlot.isVisible(self.m_iCurrentTeam, False)):
-						pPlot.setRevealed(self.m_iCurrentTeam, bReveal, False, -1);
+						pPlot.setRevealed(self.m_iCurrentTeam, bReveal, False, -1)
 		self.refreshReveal()
 		return
 
@@ -2227,18 +2227,18 @@ class CvWorldBuilderScreen:
 		
 		self.m_normalPlayerTabCtrl = getWBToolNormalPlayerTabCtrl()
 
-		self.m_normalPlayerTabCtrl.setNumColumns((gc.getNumUnitInfos()/10)+2);
-		self.m_normalPlayerTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_UNITS",()));
+		self.m_normalPlayerTabCtrl.setNumColumns((gc.getNumUnitInfos()/10)+2)
+		self.m_normalPlayerTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_UNITS",()))
 		self.m_iUnitTabID = 0
 		self.m_iNormalPlayerCurrentIndexes.append(0)
 
-		self.m_normalPlayerTabCtrl.setNumColumns((gc.getNumBuildingInfos()/10)+1);
-		self.m_normalPlayerTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_BUILDINGS",()));
+		self.m_normalPlayerTabCtrl.setNumColumns((gc.getNumBuildingInfos()/10)+1)
+		self.m_normalPlayerTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_BUILDINGS",()))
 		self.m_iBuildingTabID = 1
 		self.m_iNormalPlayerCurrentIndexes.append(0)
 
-		self.m_normalPlayerTabCtrl.setNumColumns((gc.getNumTechInfos()/10)+1);
-		self.m_normalPlayerTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_TECHNOLOGIES",()));
+		self.m_normalPlayerTabCtrl.setNumColumns((gc.getNumTechInfos()/10)+1)
+		self.m_normalPlayerTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_TECHNOLOGIES",()))
 		self.m_iTechnologyTabID = 2
 		self.m_iNormalPlayerCurrentIndexes.append(0)
 		
@@ -2267,8 +2267,8 @@ class CvWorldBuilderScreen:
 			
 			self.m_advancedStartTabCtrl = getWBToolAdvancedStartTabCtrl()
 
-			self.m_advancedStartTabCtrl.setNumColumns((gc.getNumBuildingInfos()/10)+2);
-			self.m_advancedStartTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_AS_CITIES",()));
+			self.m_advancedStartTabCtrl.setNumColumns((gc.getNumBuildingInfos()/10)+2)
+			self.m_advancedStartTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_AS_CITIES",()))
 			self.m_iASCityTabID = 0
 			self.m_iAdvancedStartCurrentIndexes.append(0)
 			
@@ -2277,16 +2277,16 @@ class CvWorldBuilderScreen:
 			self.m_iASAutomateListID = 1
 			self.m_iAdvancedStartCurrentList.append(self.m_iASCityListID)
 
-			self.m_advancedStartTabCtrl.setNumColumns((gc.getNumUnitInfos()/10)+2);
-			self.m_advancedStartTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_AS_UNITS",()));
+			self.m_advancedStartTabCtrl.setNumColumns((gc.getNumUnitInfos()/10)+2)
+			self.m_advancedStartTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_AS_UNITS",()))
 			self.m_iASUnitTabID = 1
 			self.m_iAdvancedStartCurrentIndexes.append(0)
 			
 			self.m_iAdvancedStartCurrentList.append(0)
 			self.m_iASUnitListID = 0
 
-			self.m_advancedStartTabCtrl.setNumColumns((gc.getNumImprovementInfos()/10)+2);
-			self.m_advancedStartTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_AS_IMPROVEMENTS",()));
+			self.m_advancedStartTabCtrl.setNumColumns((gc.getNumImprovementInfos()/10)+2)
+			self.m_advancedStartTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_AS_IMPROVEMENTS",()))
 			self.m_iASImprovementsTabID = 2
 			self.m_iAdvancedStartCurrentIndexes.append(0)
 			
@@ -2294,16 +2294,16 @@ class CvWorldBuilderScreen:
 			self.m_iASImprovementsListID = 1
 			self.m_iAdvancedStartCurrentList.append(self.m_iASRoutesListID)
 
-			self.m_advancedStartTabCtrl.setNumColumns(1);
-			self.m_advancedStartTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_AS_VISIBILITY",()));
+			self.m_advancedStartTabCtrl.setNumColumns(1)
+			self.m_advancedStartTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_AS_VISIBILITY",()))
 			self.m_iASVisibilityTabID = 3
 			self.m_iAdvancedStartCurrentIndexes.append(0)
 			
 			self.m_iAdvancedStartCurrentList.append(0)
 			self.m_iASVisibilityListID = 0
 
-			self.m_advancedStartTabCtrl.setNumColumns(1);
-			self.m_advancedStartTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_AS_TECH",()));
+			self.m_advancedStartTabCtrl.setNumColumns(1)
+			self.m_advancedStartTabCtrl.addTabSection(localText.getText("TXT_KEY_WB_AS_TECH",()))
 			self.m_iASTechTabID = 4
 			self.m_iAdvancedStartCurrentIndexes.append(0)
 			

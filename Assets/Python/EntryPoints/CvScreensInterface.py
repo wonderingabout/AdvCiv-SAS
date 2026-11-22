@@ -1274,7 +1274,7 @@ def updateCameraStartDistance(): # Called by DLL and by InputUtil.updateCameraSt
 		newVal = 6000
 	else:
 		gc.updateCameraStartDistance(True)
-	if not newVal is None:
+	if newVal is not None:
 		gc.setDefineFLOAT('CAMERA_START_DISTANCE', newVal)
 # </advc.004m>
 

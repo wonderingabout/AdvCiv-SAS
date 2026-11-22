@@ -3951,7 +3951,7 @@ class PangaeaBreaker:
 		# <advc> Kludge. I see meteors cast near the poles or twice in the same spot; ruling out water targets should help.
 		for i in range(len(C)):
 			centralPlot = CyMap().plot(C[i].x, C[i].y)
-			if not centralPlot is None and centralPlot.getX() >= 0 and centralPlot.getY() >= 0 and not centralPlot.isWater():
+			if centralPlot is not None and centralPlot.getX() >= 0 and centralPlot.getY() >= 0 and not centralPlot.isWater():
 				return C[i].x, C[i].y # </advc>
 		return C[0].x, C[0].y
 

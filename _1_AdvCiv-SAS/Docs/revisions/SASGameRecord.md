@@ -116,7 +116,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 210 - SAS practical 6841
 
 - **Date:** 2026-11-22
-- **Git commit:** pending
+- **Git commit:** `dbbc733221ec16db8f67b65580c2d6667fa7e3e9`
 - **Change:** Layout only, with no change to what is recorded: `SASGameRecordSettings.py`'s two `_readIniValues(` calls and `SASGameRecordActions.py`'s two `_emitPythonPopupResponse(` calls are now written on one line each, as `python_multiline_calls.py` requires for runtime Python.
 
 ### Revision 209 - SAS practical 6829

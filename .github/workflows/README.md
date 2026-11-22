@@ -225,7 +225,13 @@ The workflow first prints the full `ruff check . --isolated --select ALL` groupe
 
 The first GitHub run showed that only a few rules were clearly too noisy, so this is the first cautious narrowing step; narrow further only from actual failure output.
 
-A third step fails on Ruff's RUF100, a `noqa` that suppresses nothing. RUF100 needs every rule enabled, or each `noqa` naming a rule outside the narrow critical gate, such as `E402`, would look unused, so this step runs `--select ALL` and fails only on RUF100.
+A further step fails on style rules promoted once the repository had none left, each a plain slip with one clear fix (2026-11-22):
+
+- E703, a needless trailing semicolon; E714, `not x is None` for `x is not None`; E401, several imports on one line.
+- The base AdvCiv 1.12 comparison copy under `_1_AdvCiv-SAS/Docs/examples/source_comparison` is excluded, as it stays as it was.
+- To promote another rule, fix its findings first, then add it to that step's `--select`.
+
+A last step fails on Ruff's RUF100, a `noqa` that suppresses nothing. RUF100 needs every rule enabled, or each `noqa` naming a rule outside the narrow critical gate, such as `E402`, would look unused, so this step runs `--select ALL` and fails only on RUF100.
 
 - Added on 2026-11-17: a `noqa: E402` was added for an import after a `sys.path` insert, which E402 already allows, and [`lint_suppressions.py`](#buildsourcelint_suppressionspy) passed it, since it checks that a suppression names a rule and a reason, not that one is needed.
 

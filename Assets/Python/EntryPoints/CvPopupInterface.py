@@ -61,7 +61,7 @@ def initTestPopup():
 	for i in range(5):
 		szPullDownString = "PullDown String " + str(i)
 		popup.addPullDownString( szPullDownString, i, 0 )
-	popup.setSelectedPulldownID( 2, 0 );
+	popup.setSelectedPulldownID( 2, 0 )
 
 	# make a listbox
 	popup.createListBox( 0 )
@@ -120,7 +120,7 @@ def initPythonTestPopup():
 	for i in range(5):
 		szPullDownString = "PullDown String " + str(i)
 		popup.addPullDownString( szPullDownString, i, 0 )
-	popup.setSelectedPulldownID( 2, 0 );
+	popup.setSelectedPulldownID( 2, 0 )
 
 	# make a listbox
 	popup.createPythonListBox( "ListBox Help String", 0 )
