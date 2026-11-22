@@ -98,6 +98,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/runtime/mapscripts.py`](#buildruntimemapscriptspy)
     - [`build/runtime/worldsizes.py`](#buildruntimeworldsizespy)
   - [Shared helpers](#shared-helpers)
+    - [`lib/advciv_release.py`](#libadvciv_releasepy)
     - [`lib/blank_lines.py`](#libblank_linespy)
     - [`lib/cpp_lex.py`](#libcpp_lexpy)
     - [`lib/git_context.py`](#libgit_contextpy)
@@ -1223,6 +1224,18 @@ Verifies hardcoded C++/Python `WorldSizeTypes` enum exposure matches the `Assets
 
 Workflow checks import these modules to share parsing and repository logic.
 
+#### `lib/advciv_release.py`
+
+Recognizes base AdvCiv's release branches, named by version such as `1.14`, `v1.14` or `release-1.14.1`, and finds the newest one already merged into `HEAD`, as a local branch or a remote one such as `origin/1.14` on GitHub's full-history checkout or `upstream/1.14`. Versions compare number by number, so 1.10 follows 1.9.
+
+- "Already merged" matters: base AdvCiv means the version SAS last merged, and a fetched `upstream/1.15` not merged yet would otherwise be taken for it.
+  - Only whole branch names count, locally or on the `origin` and `upstream` remotes: Codex's review found the first draft let a branch such as `scratch/99.99` win.
+  - A command that needs the ref and finds none, with no `--upstream-ref` given, stops with a clear message rather than a traceback, which Codex's review also asked for.
+- Users:
+  - [`inherited_files.py`](#buildsourceinherited_filespy) and [`history_lineage_tables.py`](/LLM_Helpers/README.md#history_lineage_tablespy) take their `--upstream-ref` default from it; they had `"1.14"` and `"upstream/1.14"` written in, so a newer AdvCiv would have needed edits (the user, 2026-11-22);
+  - [`release_upstream.py`](#buildrepositoryrelease_upstreampy) and [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) share its branch-name pattern, of which each kept its own copy; they look for upstream releases not merged yet, on purpose.
+- The workflows cannot import Python, so their `branches-ignore` filters, which skip PR checks against that branch, use GitHub's pattern `"[0-9]+.[0-9]+"` instead of the version. It matches bare two-part names only, such as `1.14`, the way SAS mirrors AdvCiv's branches, not `v1.14` or `1.14.1`; Codex's review pointed out the gap with the shared rule.
+
 #### `lib/blank_lines.py`
 
 Finds newly introduced runs of excess blank lines while preserving spacing within literals and structured text. Used by the source provenance and text spacing checks.
@@ -1298,7 +1311,7 @@ After a failure, run [`inherited_files.py --inventory`](/LLM_Helpers/README.md#i
 
 - GitHub's runners have neither Civ4 nor base AdvCiv, so [`inherited_files.tsv`](/_0_Legacy/Docs/Manifests/inherited_files.tsv) in the [manifests](/_0_Legacy/README.md#manifests) records what those layers ship, one row per file, never its content:
   - its path as the newest layer providing it ships it, and the layers that ship it;
-  - its file events in upstream AdvCiv's history, read from the local branch `1.14` (`--upstream-ref`) rather than the local `Mods/AdvCiv` folder, which held SAS files upstream never had;
+  - its file events in upstream AdvCiv's history, read from base AdvCiv's newest release branch, which [`lib/advciv_release.py`](#libadvciv_releasepy) finds (`--upstream-ref` overrides it), rather than the local `Mods/AdvCiv` folder, which held SAS files upstream never had;
   - any layer keeping it at another path;
   - it changes only when those layers do; rewrite it then with `--write` on a computer with Civ4 installed, supplying `--civ4-root` when the checkout is outside the install.
 - The audit records three fingerprints, of that list, of the inherited filenames SAS keeps and of the inherited modules it imports, so the check stores nothing about SAS and reads SAS's side from the tree.

@@ -9,7 +9,7 @@ on:
   pull_request:
     # <!-- custom: Match the other sanity workflows: skip the long-lived comparison against the mirrored base AdvCiv branch. (GPT-6.1-Sol) -->
     branches-ignore:
-      - "1.14"
+      - "[0-9]+.[0-9]+"
     paths:
       - "**/*.md"
       - ".markdownlint*"

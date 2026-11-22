@@ -18,6 +18,10 @@ import subprocess
 import sys
 import tokenize
 
+# <!-- custom: advciv_release, in the shared lib folder, finds the base AdvCiv release SAS last merged, for --upstream-ref's default. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+from advciv_release import merged_release_or_exit
+
 REPO = Path(__file__).resolve().parents[4]
 # <!-- custom: The manifests of what the base game and base AdvCiv ship live in _0_Legacy/Docs/Manifests, not beside the checks: they serve greps, the audit and external agents as well as CI, and they describe inherited material, as _0_Legacy does.
 # Rejected names: data/ (could be anything), Inherited_Lists/ ("inherited" repeats _0_Legacy, and we did not inherit lists); see _0_Legacy/README.md (the user, 2026-11-22). (Claude code Opus 5.5) -->
@@ -131,8 +135,8 @@ def comparison_sources(area, subdir, suffixes, civ4_root):
 
 TSV_COLUMNS = ("path", "layers", "advcivEvents", "otherPaths")
 # <!-- custom: The local branch holding upstream AdvCiv's own history, the version SAS last merged; its commits are K-Mod's and AdvCiv's, never rewritten, so their SHAs stay valid in a tracked list, while SAS's own commits are left out, as our history gets rewritten (the user, 2026-11-22).
-# Update it, or pass --upstream-ref, after merging a newer AdvCiv. (Claude code Opus 5.5) -->
-DEFAULT_UPSTREAM_REF = "1.14"
+# It was "1.14" written here; advciv_release now finds the newest release branch already merged into HEAD, when a command needs it, so a newer AdvCiv needs no edit once merged; --upstream-ref overrides it.
+# Resolving it only when needed, with a clear error when there is none, follows Codex's review (2026-11-22). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 
 
 def upstream_events(ref):
@@ -406,10 +410,10 @@ def main():
 	parser = argparse.ArgumentParser(description="Check that SAS's copies of base-game files and its inherited Python imports match the inherited files audit.")
 	parser.add_argument("--write", action="store_true", help="rebuild inherited_files.tsv from the local Civ4 install")
 	parser.add_argument("--civ4-root", type=Path, default=DEFAULT_CIV4_ROOT, help="install root containing Assets and Beyond the Sword (used with --write)")
-	parser.add_argument("--upstream-ref", default=DEFAULT_UPSTREAM_REF, help="local branch with upstream AdvCiv's history, for base AdvCiv's file events (used with --write)")
+	parser.add_argument("--upstream-ref", help="branch with upstream AdvCiv's history, for base AdvCiv's file events (used with --write; default: the release SAS last merged)")
 	args = parser.parse_args()
 	if args.write:
-		write_tsv(args.civ4_root, args.upstream_ref)
+		write_tsv(args.civ4_root, merged_release_or_exit(REPO, args.upstream_ref))
 		return 0
 	problems = check()
 	for problem in problems:

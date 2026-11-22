@@ -2,14 +2,17 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
-# <!-- custom: argparse accepts a release candidate ref, re identifies upstream release branches, subprocess queries Git, and sys returns a failing status to Actions. (GPT-6.2-Sol) -->
+# <!-- custom: argparse accepts a release candidate ref, pathlib finds the shared lib folder, subprocess queries Git, and sys returns a failing status to Actions. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 import argparse
-import re
+from pathlib import Path
 import subprocess
 import sys
 
+# <!-- custom: The release-branch pattern and version order live in the shared lib's advciv_release, which the provenance and inherited-files checks also use to find base AdvCiv. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+from advciv_release import release_version
+
 UPSTREAM = "https://github.com/f1rpo/AdvCiv.git"
-RELEASE_BRANCH = re.compile(r"refs/heads/(?:v|release[-/])?([0-9]+)\.([0-9]+)(?:\.([0-9]+))?", re.IGNORECASE)
 
 
 def git(*args):
@@ -26,9 +29,8 @@ def newest_release_branches(remote_heads):
     releases = {}
     for line in remote_heads.splitlines():
         sha, ref = line.split("\t")
-        match = RELEASE_BRANCH.fullmatch(ref)
-        if match:
-            version = tuple(int(part or 0) for part in match.groups())
+        version = release_version(ref)
+        if version is not None:
             releases.setdefault(version, []).append((ref.removeprefix("refs/heads/"), sha))
     if not releases:
         raise ValueError("base AdvCiv advertised no numbered release branches")

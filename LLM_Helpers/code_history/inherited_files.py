@@ -313,7 +313,8 @@ def folder_tree(files_by):
 	return lines
 
 
-def write_inventory():
+# <!-- custom: upstream_ref is new: write_inventory read the CI check's fixed "1.14" default, so --upstream-ref was ignored here, which Codex found in review; main now passes the resolved ref (2026-11-22). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+def write_inventory(upstream_ref):
 	by_path = defaultdict(list)
 	by_module = defaultdict(list)
 	for change in git_path_changes():
@@ -382,7 +383,7 @@ def write_inventory():
 		block.append("| %s | %d | %d | %d | %d |" % (titles[area], len(rows), len([1 for row in rows if row[2].startswith("kept")]), len([1 for row in rows if row[0] == "extra"]), len([1 for row in rows if row[0] == "absent"])))
 	# <!-- custom: The files SAS decided about, generated one full path per bullet with the events on SAS's side of history: a hand-kept list drifted from Git, and bare names hid where a file sits (the user, 2026-11-22).
 	# Files SAS took in and dropped again get their own list, such as Assets/XML/Buildings/CIV4CityLSystem.xml, which neither of the other two would show. (Claude code Opus 5.5) -->
-	upstream = upstream_shas(check.DEFAULT_UPSTREAM_REF)
+	upstream = upstream_shas(upstream_ref)
 	selections = {heading: [] for heading in (check.TAKEN_IN_HEADING, check.DROPPED_HEADING, check.REMOVED_HEADING)}
 	for area, subdir, rows in by_area:
 		for decision, row, state, _, changes in rows:
@@ -424,16 +425,18 @@ def main():
 	parser.add_argument("--inventory", action="store_true", help="write the TSV report and refresh the audit summary")
 	parser.add_argument("--runs", help="filter by matching source layer: sas, bts, warlords, vanilla, 'not built' (C++) or 'advciv only'")
 	parser.add_argument("--civ4-root", type=Path, default=check.DEFAULT_CIV4_ROOT, help="install root containing Assets and Beyond the Sword")
-	parser.add_argument("--upstream-ref", default=check.DEFAULT_UPSTREAM_REF, help="upstream AdvCiv commit or ref for per-area comparisons")
+	parser.add_argument("--upstream-ref", help="upstream AdvCiv commit or ref (default: the release SAS last merged)")
 	parser.add_argument("--grep", help="only files whose name contains this text (case-insensitive)")
 	parser.add_argument("--summary", action="store_true", help="print counts instead of rows")
 	args = parser.parse_args()
+	# <!-- custom: --upstream-ref applies to --inventory too; it was ignored there, which Codex found in review (2026-11-22). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	upstream_ref = check.merged_release_or_exit(REPO, args.upstream_ref)
 	if args.inventory:
-		write_inventory()
+		write_inventory(upstream_ref)
 		return 0
 	if args.area is None:
 		parser.error("give an area or --inventory")
-	rows = rows_for(args.area, args.civ4_root, args.upstream_ref)
+	rows = rows_for(args.area, args.civ4_root, upstream_ref)
 	if args.runs:
 		rows = [row for row in rows if row["runs"] == args.runs]
 	if args.grep:

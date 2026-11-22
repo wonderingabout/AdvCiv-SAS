@@ -32,6 +32,9 @@ import light_source_python24_linux
 # <!-- custom: read_revision_headers rebuilds Better BTS AI's index and path rows from its tracked revision files, the one place they live. (Claude code Opus 5.5) -->
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "code_history"))
 from svn_history_to_diffs import read_revision_headers
+# <!-- custom: advciv_release, in CI's shared lib folder, holds the release-branch name pattern this script's upstream detection shares with the CI checks (2026-11-22). (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / ".github" / "workflows" / "lib"))
+from advciv_release import release_version
 
 
 # <!-- custom: Keep Git's canonical `Assets/Res` casing here even on Windows, whose case-insensitive filesystem may also display/accept `Assets/res`; GitHub/Linux paths and CI are case-sensitive. (ChatGPT-5.6-Sol) -->
@@ -173,9 +176,6 @@ GENERATED_PENDING_UPSTREAM_INDEX_NAME = f"{GENERATED_PENDING_UPSTREAM_DIR}/INDEX
 GENERATED_PENDING_UPSTREAM_LOG_NAME = f"{GENERATED_PENDING_UPSTREAM_DIR}/DEV_LOG.txt"
 GENERATED_PENDING_UPSTREAM_PATH_INDEX_NAME = f"{GENERATED_PENDING_UPSTREAM_DIR}/PATH_HISTORY_INDEX.txt"
 GENERATED_PENDING_UPSTREAM_REFS_NAME = f"{GENERATED_PENDING_UPSTREAM_DIR}/UPSTREAM_REFS.txt"
-# Auto-detect ordinary release-style remote refs while deliberately ignoring topic/experimental
-# branches. Explicit --upstream-ref remains the escape hatch if upstream naming ever changes.
-UPSTREAM_RELEASE_REF_RE = re.compile(r"^upstream/(?:(?:v)|(?:release[-/]))?(\d+)\.(\d+)(?:\.(\d+))?$", re.IGNORECASE)
 TRACKED_BBAI_DEV_LOG = "_0_Legacy/Docs/dev_logs/dev_log_anonymized_email_000_BBAI.txt"
 TRACKED_KMOD_DEV_LOG = "_0_Legacy/Docs/dev_logs/dev_log_anonymized_email_001_K-Mod.txt"
 TRACKED_BASE_ADVCIV_DEV_LOG = "_0_Legacy/Docs/dev_logs/dev_log_anonymized_email_002_Base_AdvCiv.txt"
@@ -457,12 +457,11 @@ def list_upstream_refs(repo_root: Path) -> tuple[list[tuple[str, str]], str | No
     return refs, refs_error
 
 
+# Auto-detect ordinary release-style remote refs while deliberately ignoring topic/experimental
+# branches. Explicit --upstream-ref remains the escape hatch if upstream naming ever changes.
 def upstream_release_version(ref: str) -> tuple[int, int, int] | None:
-    match = UPSTREAM_RELEASE_REF_RE.fullmatch(ref)
-    if match is None:
-        return None
-    values = [int(value) if value is not None else 0 for value in match.groups()]
-    return values[0], values[1], values[2]
+    # <!-- custom: The release-name pattern was a copy of release_upstream.py's; both now use advciv_release's. (Claude code Opus 5.5) -->
+    return release_version(ref, prefix="upstream/")
 
 
 def resolve_git_commit(repo_root: Path, revision: str) -> tuple[str | None, str | None]:

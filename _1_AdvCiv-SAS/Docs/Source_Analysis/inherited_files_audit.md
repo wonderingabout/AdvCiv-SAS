@@ -33,8 +33,8 @@ It began with a narrower question from the SASPilot work, whether the WorldBuild
 ## How to read and refresh it
 
 - "Base AdvCiv" is upstream AdvCiv as SAS last merged it:
-  - read from the local branch `1.14` (as of 2026-11-22);
-  - a newer AdvCiv needs that branch updated, or `--upstream-ref`, and the list rewritten;
+  - read from its newest release branch, `1.14` as of 2026-11-22, which [`advciv_release.py`](/.github/workflows/README.md#libadvciv_releasepy) finds, so no version is written into the scripts;
+  - a newer AdvCiv needs its branch fetched, or `--upstream-ref`, and the list rewritten;
   - the wording does not name a version (the user, 2026-11-22).
 - [`inherited_files.tsv`](/_0_Legacy/Docs/Manifests/inherited_files.tsv) records what the base game and base AdvCiv ship, one row per file, never its content:
   - its path as the newest layer providing it ships it, and the layers that ship it;
