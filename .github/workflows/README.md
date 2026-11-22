@@ -1358,7 +1358,10 @@ Fails when a call in `Assets/Python` or `PrivateMaps` spans several lines, comme
 - Added on 2026-11-22: hand sweeps with [`collapse_multiline_calls.py`](/LLM_Helpers/README.md#collapse_multiline_callspy) had no guard, so the [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104) copies brought 18 back, such as WorldBuilder's `attachPanelAt`, and 7 SAS calls such as `a, b = _readIniValues(` slipped past the helper; 10 more were commented out, such as `CvDebugInfoScreen.py`'s disabled `screen.addPanel(`.
   - [KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7) retraces those sweeps and what came back.
 - It is a heuristic: a call is a dotted name and `(` starting a statement, after `return` or `yield`, or after an assignment target such as `a, b =` or `out[0] =`, and the call itself must span lines; a commented-out call is a run of up to 20 comment lines that compiles once uncommented.
-- Tables, conditions, multi-line strings and calls with a comment inside, such as AdvCiv's `# <advc.092>` markers, stay multi-line; tooling Python under `.github`, `LLM_Helpers` and `tests` is not checked.
+- A flat list or tuple of plain values counts too when it wraps, with several items on one line, as `CvDebugInfoScreen.py`'s `CivInfoItems` did; one item per line stays allowed.
+- A comment inside moves, unchanged, onto its own line above the collapsed one, as the movie screens' `#self.EXIT_TEXT,` did; only provenance markers keep a call multi-line, such as AdvCiv's `# <advc.092>` around the arguments it changed, or a SAS `custom:` note, and line-scoped directives such as `# noqa`, which only work on their own line; a comment after the closing bracket stays at the end of the collapsed line.
+  - Above moved comments, `--fix` writes a custom note saying where they came from, credited with `--credit "<model>"`, which it then requires: alone, the movie screens' `#self.EXIT_TEXT,` read like a stray line.
+- Tables, conditions and multi-line strings stay multi-line, as do quotes inside a multi-line `custom:` note, such as `SevoPediaReligion.py`'s copy of a base AdvCiv call; tooling Python under `.github`, `LLM_Helpers` and `tests` is not checked.
 
 #### `build/source/python_resource_api.py`
 

@@ -37,8 +37,7 @@ class CvDebugInfoScreen(CvGFCScreen.CvGFCScreen):
 			5 : { 'DESC':	"Available Bonuses", 		'DATA':	self.drawPlayerAvailableResources },
 			6 : { 'DESC':	"Map Details",				'DATA': self.generateBonusDistributionList },
 		}
-		self.CivInfoItems = ["Power", "Assets","Gold Reserve", "Gold Commerce", "Research Rate", "Total Maintenance", "Civic Upkeep", "Unit Cost", "Unit Supply", 
-						"# Cities", "# Units", "# Citizens", "# Plots", "Current Tech"]
+		self.CivInfoItems = ["Power", "Assets","Gold Reserve", "Gold Commerce", "Research Rate", "Total Maintenance", "Civic Upkeep", "Unit Cost", "Unit Supply", "# Cities", "# Units", "# Citizens", "# Plots", "Current Tech"]
 
 		self.WIDGET_ID = "DebugInfoScreenWidget"
 		self.nWidgetCount = 0

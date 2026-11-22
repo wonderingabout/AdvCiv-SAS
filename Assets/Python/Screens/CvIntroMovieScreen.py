@@ -52,8 +52,10 @@ class CvIntroMovieScreen:
 		# Show the screen
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)		
 		
-		screen.setButtonGFC("Exit", u"Your movies are not installed correctly.", "", #self.EXIT_TEXT,
-			self.X_EXIT, self.Y_EXIT, 400, 100, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+		# <!-- custom: Collapsed onto one line by python_multiline_calls.py --fix; the comment below sat inside the brackets and moved above unchanged.
+		# It is a disabled third argument from the base game: the call passes "" where self.EXIT_TEXT was. See KI#21.7. (Claude code Opus 5.5) -->
+		#self.EXIT_TEXT,
+		screen.setButtonGFC("Exit", u"Your movies are not installed correctly.", "", self.X_EXIT, self.Y_EXIT, 400, 100, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
 		
 		# Play the movie
 		movieFilePath = CyArtFileMgr().getMovieArtInfo(movieArtDef).getPath()

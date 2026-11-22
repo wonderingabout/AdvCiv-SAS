@@ -2137,6 +2137,11 @@ KI#21.6 records the first Ruff cleanup. This entry retraces what followed, from 
 - Practical 6845 (2026-11-22): those 35 were fixed by hand, and E701, E702, E711, E713 and E101 promoted to failures too.
   - E701 and E702 statements were split onto their own lines, such as `CvAppInterface.py`'s seven `if (fxnKey==1): return …`; E711's `line==None` became `line is None`.
   - E101: `CvDebugInfoScreen.py`'s dispatch table was indented with five tabs and a space, now three tabs, keeping its columns aligned with the tabs inside each row.
+- Practical 6846 (2026-11-22): `python_multiline_calls.py` now also flags a call whose comment inside is not a provenance marker, and a flat list or tuple that wraps; four were fixed.
+  - Both movie screens' `setButtonGFC(… "", #self.EXIT_TEXT,` call had escaped through its comment, which now sits above the collapsed call with a note on where it was; `CvCustomizableDomesticAdvisor.py`'s note on `max(…, 1)` moved the same way.
+  - `CvDebugInfoScreen.py`'s 14 `CivInfoItems` strings were wrapped over two lines at an arbitrary point; lists with one item per line, such as `SASGameRecordSettings.py`'s key lists, stay as they are.
+  - Flagging comments inside also exposed a quote of a base AdvCiv call inside a `custom:` note in `SevoPediaReligion.py`, which the commented-out rule then took for disabled code; lines inside such a note are now skipped.
+  - The branch had bumped SASGameRecord twice for these layout changes, 210 and then 211; 211 was folded back into 210, as the squash gives main one change.
 
 Retraced with Claude Code Opus 5.5; Codex (GPT-6.2-Sol) reviewed the check and the Ruff promotion.
 

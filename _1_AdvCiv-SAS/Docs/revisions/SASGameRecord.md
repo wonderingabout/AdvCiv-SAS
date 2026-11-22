@@ -113,17 +113,14 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 211 - SAS practical 6845
-
-- **Date:** 2026-11-22
-- **Git commit:** pending
-- **Change:** Layout only, with no change to what is recorded: `CvScreensInterface.py`'s pre-gated `SASGameRecordActions.observeMapAnnotations` call for WorldBuilder landmarks now sits on its own line under its `isEnabled()` test, as Ruff's E701, promoted to a CI failure, requires. See KI#21.7.
-
 ### Revision 210 - SAS practical 6841
 
 - **Date:** 2026-11-22
 - **Git commit:** `dbbc733221ec16db8f67b65580c2d6667fa7e3e9`
-- **Change:** Layout only, with no change to what is recorded: `SASGameRecordSettings.py`'s two `_readIniValues(` calls and `SASGameRecordActions.py`'s two `_emitPythonPopupResponse(` calls are now written on one line each, as `python_multiline_calls.py` requires for runtime Python.
+- **Change:** Layout only, with no change to what is recorded:
+  - `SASGameRecordSettings.py`'s two `_readIniValues(` calls and `SASGameRecordActions.py`'s two `_emitPythonPopupResponse(` calls are now written on one line each, as `python_multiline_calls.py` requires for runtime Python.
+  - `CvScreensInterface.py`'s pre-gated `SASGameRecordActions.observeMapAnnotations` call for WorldBuilder landmarks now sits on its own line under its `isEnabled()` test, as Ruff's E701, promoted to a CI failure, requires.
+  - Both came in draft commits of one branch meant to be squashed, so they share this revision: the second briefly bumped it to 211, folded back here, as main sees one change (2026-11-22). See KI#21.7.
 
 ### Revision 209 - SAS practical 6829
 
