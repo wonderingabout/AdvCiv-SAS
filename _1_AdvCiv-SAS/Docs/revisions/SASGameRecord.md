@@ -113,14 +113,14 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 210 - SAS practical 6841
+### Revision 210 - SAS practical 6838
 
 - **Date:** 2026-11-22
-- **Git commit:** `dbbc733221ec16db8f67b65580c2d6667fa7e3e9`
+- **Git commit:** pending
 - **Change:** Layout only, with no change to what is recorded:
   - `SASGameRecordSettings.py`'s two `_readIniValues(` calls and `SASGameRecordActions.py`'s two `_emitPythonPopupResponse(` calls are now written on one line each, as `python_multiline_calls.py` requires for runtime Python.
   - `CvScreensInterface.py`'s pre-gated `SASGameRecordActions.observeMapAnnotations` call for WorldBuilder landmarks now sits on its own line under its `isEnabled()` test, as Ruff's E701, promoted to a CI failure, requires.
-  - Both came in draft commits of one branch meant to be squashed, so they share this revision: the second briefly bumped it to 211, folded back here, as main sees one change (2026-11-22). See KI#21.7.
+  - Both came in draft commits of one branch meant to be squashed, so they share this revision: the second briefly bumped it to 211, folded back here, as main sees one change (2026-11-22). See KI#21.7 and [PR #50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50), whose page keeps both branch commits.
 
 ### Revision 209 - SAS practical 6829
 

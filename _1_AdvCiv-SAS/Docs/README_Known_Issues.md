@@ -2143,6 +2143,8 @@ KI#21.6 records the first Ruff cleanup. This entry retraces what followed, from 
   - Flagging comments inside also exposed a quote of a base AdvCiv call inside a `custom:` note in `SevoPediaReligion.py`, which the commented-out rule then took for disabled code; lines inside such a note are now skipped.
   - The branch had bumped SASGameRecord twice for these layout changes, 210 and then 211; 211 was folded back into 210, as the squash gives main one change.
 
+- Pull request: [PR #50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50). The branch is squash-merged, so the practical numbers 6838 to 6846 and SHAs above name its separate commits, which stay reachable on that page rather than on main.
+
 Retraced with Claude Code Opus 5.5; Codex (GPT-6.2-Sol) reviewed the check and the Ruff promotion.
 
 <a id="ki-22"></a>
@@ -38575,5 +38577,7 @@ Not a bug but a rule, written down so the files it covers can point to it.
     - Modules the EXE loads by name, with no import in Python, stay outside what CI can see; `--loaded` compares them with the logs.
   - Undecided on 2026-11-22: whether the rule extends to the 42 data XML files SAS reads whole from the base game, such as `GlobalDefines.xml` and `CIV4ClimateInfo.xml`, listed in the audit; the same reasoning would bring all of them in, as the game reads each at startup.
     - Text files are left out on purpose: the game loads every layer's text files together, so SAS overrides single keys in its own files instead. A SAS text file must not take a base-game text file's name, as it would replace that file; see [Which copy runs](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#which-copy-runs).
+
+- Pull request: [PR #50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50). The branch is squash-merged, so its separate commits, such as `ec887dbd9e`, `7463f070dc` and `36fcfde727`, stay reachable on that page rather than on main.
 
 Asked for by the user while auditing SAS's inherited files with Claude Code Opus 5.5 (2026-11-22), with Codex's (GPT-6.2-Sol) review of the loading question and of each copy.
