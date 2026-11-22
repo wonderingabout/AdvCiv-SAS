@@ -31,7 +31,7 @@ class ControlCharacterTests(unittest.TestCase):
         self.assertIn("System32<0x0C>ind.exe", errors[0])
 
     def test_tsv_manifests_are_scanned(self):
-        self.assertTrue(checker.is_text_path(".github/workflows/build/xml/xml_sas_text_inherited_hashes.tsv"))
+        self.assertTrue(checker.is_text_path("_0_Legacy/Docs/Manifests/xml_sas_text_inherited_hashes.tsv"))
 
     def test_only_text_formats_are_scanned(self):
         self.assertTrue(checker.is_text_path("AGENTS.md"))

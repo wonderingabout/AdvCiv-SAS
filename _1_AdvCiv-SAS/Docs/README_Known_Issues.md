@@ -37961,7 +37961,7 @@ Found and narrowed down by Claude code Opus 5.5 on 2026-11-13, after Codex (GPT-
   - The audit behind it found 72 such keys. Two were SAS's own, `TXT_KEY_YES` and `TXT_KEY_NO` in [`SevoPediaEraChart.py`](/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py), read but never shown, as the Era Chart writes "+" and blank; the lookups were removed.
   - A first count also took the Trireme's pedia text for missing: Warlords defines it only as `CHANGED_TXT_KEY_UNIT_TRIREME_PEDIA`, and the EXE reads a `CHANGED_` tag as the key after the prefix, as the Sevopedia showed. The check follows that rule.
   - The other 68 were already used without text by base AdvCiv 1.14, mostly Firaxis XML naming strategy, help and pedia texts it never wrote (control, specialist, era, victory and world-size infos) and BUG or BULL leftovers.
-    - They are listed in [`xml_text_undefined_inherited.tsv`](/.github/workflows/build/xml/xml_text_undefined_inherited.tsv), and a listed key that becomes defined or unused fails, so the list shrinks as gaps are fixed.
+    - They are listed in [`xml_text_undefined_inherited.tsv`](/_0_Legacy/Docs/Manifests/xml_text_undefined_inherited.tsv), and a listed key that becomes defined or unused fails, so the list shrinks as gaps are fixed.
     - Which of them a player can see was not checked.
 
 Found by Claude code Opus 5.5 on 2026-11-13, while playing through SASPilot.

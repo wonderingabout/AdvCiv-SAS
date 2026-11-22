@@ -29,7 +29,7 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `audits/` | reports of problems to review: [`ci_report.py`](#ci_reportpy), [`audit_define_keys.py`](#audit_define_keyspy), [`audit_unused_text_keys.py`](#audit_unused_text_keyspy), [`audit_cpp_logging_pregates.py`](#audit_cpp_logging_pregatespy) and others |
 | `balance/` | gameplay values and their tuning: [`compare_handicap_infos.py`](#compare_handicap_infospy), [`autotune_speed_from_xml.py`](#autotune_speed_from_xmlpy), [`compare_speed_summaries.py`](#compare_speed_summariespy), [`military_tree_continuity.py`](#military_tree_continuitypy) |
 | `chat_exports/` | readable transcripts of Claude Code, Codex and ChatGPT chats: [`claude_session_export_to_txt.py`](#claude_session_export_to_txtpy), [`openai_chat_export_to_txt.py`](#codex-and-chatgpt-transcript-helper), and `chat_export_paths.py`, which they share |
-| `code_history/` | where code came from: [`svn_history_to_diffs.py`](#svn_history_to_diffspy), [`git_history_to_diffs.py`](#git_history_to_diffspy), [`svn_history_verify.py`](#svn_history_verifypy), [`svn_export_to_dev_log.py`](#svn_export_to_dev_logpy), [`history_lineage_tables.py`](#history_lineage_tablespy), and [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy), whose manual lists AdvCiv's changes by `advc.` tag |
+| `code_history/` | where code came from: [`svn_history_to_diffs.py`](#svn_history_to_diffspy), [`git_history_to_diffs.py`](#git_history_to_diffspy), [`svn_history_verify.py`](#svn_history_verifypy), [`svn_export_to_dev_log.py`](#svn_export_to_dev_logpy), [`history_lineage_tables.py`](#history_lineage_tablespy), [`inherited_files.py`](#inherited_filespy), and [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy), whose manual lists AdvCiv's changes by `advc.` tag |
 | `commits/` | preparing a commit: [`stage_partial.py`](#stage_partialpy) stages part of a file without touching it |
 | `context/` | reference corpora rather than helpers: `commit_diffs/`, generated except Better BTS AI's tracked SVN revisions, and [map-script originals](#inherited-map-script-reference-sources) |
 | `desktop/` | controlling the computer rather than the game, for any app, in the two groups below; `layouts/` holds the apps' click points and saved window layouts |
@@ -129,6 +129,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
   - [`svn_history_verify.py`](#svn_history_verifypy)
   - [`svn_export_to_dev_log.py`](#svn_export_to_dev_logpy)
   - [`history_lineage_tables.py`](#history_lineage_tablespy)
+  - [`inherited_files.py`](#inherited_filespy)
 - [`commits/`](#commits)
   - [`stage_partial.py`](#stage_partialpy)
 - [`context/`](#context)
@@ -929,6 +930,30 @@ Generates the tables of the [History lineage](/_1_AdvCiv-SAS/Docs/Source_Analysi
 
 ```bash
 python LLM_Helpers/code_history/history_lineage_tables.py --write
+```
+
+### `inherited_files.py`
+
+Lists Python, XML and C++ file matches across SAS and the base-game layers, whether SAS's copy differs from the BtS and base AdvCiv copies, which SAS modules import a Python module, and the first and last indexed commit for each matching path, including deleted overrides, in `commit_diffs/`.
+
+The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md) records what it found and why.
+
+- Added on 2026-11-22, when the user and Codex proposed tracing which inherited files run and when each copy entered our lineage, starting with WorldBuilder.
+- Pass `--civ4-root` for per-area comparisons outside the Civ4 install. The base AdvCiv comparison reads Git blobs from the upstream ref, which `--upstream-ref` can override. It shares its layer definitions with the [CI check](/.github/workflows/README.md#buildsourceinherited_filespy) of the same name, so both agree.
+- The draft took a file missing from BtS for unused, but `CvWBPopups.py` exists only in vanilla and loads for SAS's `CvEventManager`: the inventory now keeps matching copies in all three base-game layers.
+- Commits come from `PATH_HISTORY_INDEX.txt`; `--summary` names its newest commit, so run [`refresh_commit_diffs.py`](#refresh_commit_diffspy) first when it lags.
+- `--inventory` writes a report, `inherited_files_inventory_<UTC>.tsv` in `LLM_Helpers/outputs/`, and the audit's generated part.
+  - The report lists every inherited file, base AdvCiv's included, and every new SAS file, in tree order, with its path, layers, its file events in upstream AdvCiv's history, SAS's status and its file-level events in our history (added, removed, added again, renamed or moved, with date and full title).
+  - The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#generated-tables)'s generated part holds the counts, the file lists, a tree of every inherited file and the base-game Python modules SAS's Python files import, mostly through inherited files SAS kept.
+  - The user asked for it on 2026-11-22, to see what SAS integrates and why, so the rest can be decided deliberately.
+  - It needs only Git and the CI check's [`inherited_files.tsv`](/_0_Legacy/Docs/Manifests/inherited_files.tsv), which lists what the base game and base AdvCiv ship; SAS's side comes from the tree.
+  - Events name date, SHA and title, no practical number, as the same number names different commits in different segments; SAS's SHAs change with any rewrite of our history, so rerun it after one.
+  - Its audit's "Why it has this shape" records the choices made with the user, such as file events only, one path per file and no log of our history in the audit.
+
+```bash
+python LLM_Helpers/code_history/inherited_files.py --inventory
+python LLM_Helpers/code_history/inherited_files.py python --grep wb
+python LLM_Helpers/code_history/inherited_files.py xml --summary
 ```
 
 ## `commits/`

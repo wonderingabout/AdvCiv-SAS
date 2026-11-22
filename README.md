@@ -259,8 +259,8 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;&emsp;[LLM chat transcripts](/README.md#llm-chat-transcripts)\
 &emsp;[Running Civ4 from the command line](/README.md#running-civ4-from-the-command-line)\
 &emsp;[Agent tools for Civ4 file formats (e.g., .tga, .dds, .fpk, .nif, .kfm, .kf, .bik, .mp3, .wav)](/README.md#agent-tools-for-civ4-file-formats-eg-tga-dds-fpk-nif-kfm-kf-bik-mp3-wav)\
+&emsp;[Manifests of the inherited layers](/README.md#manifests-of-the-inherited-layers)\
 &emsp;[Local tests](/README.md#local-tests)\
-&emsp;[Inherited game text lists](/README.md#inherited-game-text-lists)\
 &emsp;[CI](/README.md#ci)\
 &emsp;[Light-source ZIP](/README.md#light-source-zip)\
 &emsp;[Repository](/README.md#repository)\
@@ -1592,20 +1592,36 @@ Searching for marshes, swamps and wetlands found 35 in 20 mods, from Caveman2Cos
 
 [`regenerate_art_samples.py`](/LLM_Helpers/README.md#regenerate_art_samplespy) renders all of these samples again with the current renderer, so none falls behind its fixes, as Grace's still once kept eyes the skinning fix had corrected in her GIFs.
 
-### Local tests
+### Manifests of the inherited layers
 
-Alongside the automated GitHub CI checks, [`tests/`](/tests/README.md) contains local tests for behavior that needs the development machine's platform or tools. These are run deliberately when changing the relevant subsystem; they do not run during gameplay or normal DLL compilation.
+The game's own files (BtS, Warlords and vanilla Civ4) are not in the repo, because we do not know whether republishing them is allowed, and base AdvCiv's text is only in old Git history.
 
-The first is a Windows/VC2003 diagnostic writer test: it compiles the actual logging code into a temporary program and checks file sharing, Unicode paths and recovery from simulated write failures. Run it when changing the writer or investigating missing/corrupted output; full DLL compilation and in-game validation remain separate.
+So a grep of the repo, by you or any agent, cannot tell whether a key such as `TXT_KEY_CIV_KOREA_DESC` (Korea's name, defined only in Warlords text) exists, where it comes from, or what it says; CI and agents without a Civ4 install cannot even look elsewhere.
 
-### Inherited game text lists
+Small generated TSV manifests stand in for them, holding names, sources and fingerprints but never the content.
 
-The game's own text files (BtS, Warlords and vanilla Civ4) are not in the repo, because we do not know whether republishing them is allowed. Base AdvCiv's text is only in old Git history. So nothing in the repo shows whether a key such as `TXT_KEY_CIV_KOREA_DESC` (Korea's name, defined only in Warlords text) exists, where it comes from, or what it says.
+They were first made for CI and agents without Civ4, which still need them, but they serve local agents and the user just as well: one grep of the repo answers what would otherwise mean searching the vanilla, Warlords and BtS folders of the install.
 
-Two small generated lists answer that, in English only, since SAS text files hold English only:
+They sit together in [`_0_Legacy/Docs/Manifests/`](/_0_Legacy/Docs/Manifests/) ([what each holds](/_0_Legacy/README.md#manifests)). One covers files, and two cover text.
 
-- [`xml_sas_text_inherited_hashes.tsv`](/.github/workflows/build/xml/xml_sas_text_inherited_hashes.tsv) has one row per inherited text key: its source (base AdvCiv, else BtS, else Warlords, else vanilla) and a short fingerprint (SHA-256) of its English text. The fingerprint tells whether two texts are identical without containing the text.
-- [`xml_sas_text_inherited_names.tsv`](/.github/workflows/build/xml/xml_sas_text_inherited_names.tsv) has the readable English names of leaders and civilizations, about 120 rows.
+[`inherited_files.tsv`](/_0_Legacy/Docs/Manifests/inherited_files.tsv) lists every Python, XML, C++, `res` and `Config` file the base game and base AdvCiv ship: its path, the layers that ship it, its file events in upstream AdvCiv's history, and any layer keeping it at another path.
+
+Files list sample, as of 2026-11-22:
+
+| path | layers | advcivEvents | otherPaths |
+| --- | --- | --- | --- |
+| `Assets/Python/pyWB/CvWBPopups.py` | `vanilla` | `-` | `-` |
+| `Assets/XML/Buildings/CIV4CityLSystem.xml` | `vanilla,warlords,bts` | `-` | `-` |
+| `Assets/XML/Text/Unit Naming Options.xml` | `advciv` | `2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Unit Naming Options.xml to Assets/XML/Text/Unit Naming Options.xml` | `-` |
+| `Assets/res/cursors/Pointer.ani` | `vanilla,bts` | `-` | `vanilla:Assets/res/Cursors/Pointer.ani` |
+| `CvGameCoreDLL/UWAIReport.cpp` | `advciv` | `2017-04-16 f6ff6a182f added; 2019-12-02 2c186034b3 renamed from CvGameCoreDLL/WarAndPeaceReport.cpp to CvGameCoreDLL/UWAIReport.cpp` | `-` |
+
+For example, `CvWBPopups` exists only in vanilla's `Assets/Python/pyWB/`, which settled where SAS's WorldBuilder popup comes from. It feeds the [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md): which inherited filenames SAS keeps, and when and why it added, removed or renamed the files.
+
+The two text manifests are in English only, as SAS's text files currently hold English only:
+
+- [`xml_sas_text_inherited_hashes.tsv`](/_0_Legacy/Docs/Manifests/xml_sas_text_inherited_hashes.tsv) has one row per inherited text key: its source (base AdvCiv, else BtS, else Warlords, else vanilla) and a short fingerprint (SHA-256) of its English text. The fingerprint tells whether two texts are identical without containing the text.
+- [`xml_sas_text_inherited_names.tsv`](/_0_Legacy/Docs/Manifests/xml_sas_text_inherited_names.tsv) has the readable English names of leaders and civilizations, about 120 rows.
 
 Hash list sample:
 
@@ -1633,11 +1649,19 @@ These are the inherited values. SAS overrides some of them in its own text files
 
 Uses:
 
-- **Searching:** grep a key to see whether the game defines it and in which layer, for example while checking a Civ4 reference in an XML file.
+- **Searching, by anyone:** grep a key or a filename to see whether the game defines it and in which layer, for example while checking a Civ4 reference in an XML file or which copy of a Python module runs, without searching the Civ4 install.
 - **External agents** such as ChatGPT, which get the lists in the light-source ZIP but have no Civ4 install.
-- **CI:** [`xml_sas_text_inherited.py`](/.github/workflows/README.md#buildxmlxml_sas_text_inheritedpy) fails when SAS text is identical to the inherited text, [`xml_display_order.py`](/.github/workflows/README.md#buildxmlxml_display_orderpy) keeps the Custom Game lists in name order (see [KI#1073](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073)), and [`sas_text_references.py`](/.github/workflows/README.md#buildxmlsas_text_referencespy) checks that diplomacy keys exist.
+- **CI:** [`xml_sas_text_inherited.py`](/.github/workflows/README.md#buildxmlxml_sas_text_inheritedpy) fails when SAS text is identical to the inherited text, [`xml_display_order.py`](/.github/workflows/README.md#buildxmlxml_display_orderpy) keeps the Custom Game lists in name order (see [KI#1073](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073)), and [`sas_text_references.py`](/.github/workflows/README.md#buildxmlsas_text_referencespy) checks that diplomacy keys exist; [`inherited_files.py`](/.github/workflows/README.md#buildsourceinherited_filespy) fails when SAS starts or stops keeping an inherited filename or importing an inherited Python module without the audit following.
 
-Both are plain TSV with one header row. They are generated from a local Civ4 install with `python .github/workflows/build/xml/xml_sas_text_inherited.py --write --civ4-root "<Civ4 install root>"`; the game files do not change, so they should not need refreshing.
+All are plain TSV with one header row. The text manifests are generated from a local Civ4 install with `python .github/workflows/build/xml/xml_sas_text_inherited.py --write --civ4-root "<Civ4 install root>"`; the game files do not change, so they should not need refreshing.
+
+`inherited_files.tsv` also records base AdvCiv, so it is rewritten with `python .github/workflows/build/source/inherited_files.py --write`, on a computer with Civ4, when SAS takes a newer AdvCiv.
+
+### Local tests
+
+Alongside the automated GitHub CI checks, [`tests/`](/tests/README.md) contains local tests for behavior that needs the development machine's platform or tools. These are run deliberately when changing the relevant subsystem; they do not run during gameplay or normal DLL compilation.
+
+The first is a Windows/VC2003 diagnostic writer test: it compiles the actual logging code into a temporary program and checks file sharing, Unicode paths and recovery from simulated write failures. Run it when changing the writer or investigating missing/corrupted output; full DLL compilation and in-game validation remain separate.
 
 ### CI
 
@@ -1646,7 +1670,7 @@ Both are plain TSV with one header row. They are generated from a local Civ4 ins
 
 GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions.
 
-Some XML checks compare SAS text with Civ4 game text that is not in the repo. Their reference data, generated TSV lists of inherited text, was made for CI but also serves external agents such as ChatGPT and quick greps, so it has its own section: [Inherited game text lists](/README.md#inherited-game-text-lists).
+Some checks compare SAS with Civ4 files that are not in the repo, the game's text and files. They read the manifests of those layers, which also make them greppable for anyone, so the manifests have their own section: [Manifests of the inherited layers](/README.md#manifests-of-the-inherited-layers).
 
 They catch easy-to-forget build-default problems such as enabled BBAI logging, wrong shared UI font defaults, AI Personality Panel predumped-cache issues, XML-tag references in SAS defines, world-size enum/XML drift, map-script classification drift, opening-music setup issues, launch-guard sentinel drift, unusually large integer SAS define values, etc. They can also be run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md).
 

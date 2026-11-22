@@ -109,6 +109,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/cpp_standard_conformance.py`](#buildsourcecpp_standard_conformancepy)
     - [`build/source/custom_comment_indentation.py`](#buildsourcecustom_comment_indentationpy)
     - [`build/source/float_format_int_division.py`](#buildsourcefloat_format_int_divisionpy)
+    - [`build/source/inherited_files.py`](#buildsourceinherited_filespy)
     - [`build/source/lint_suppressions.py`](#buildsourcelint_suppressionspy)
     - [`build/source/python_binding_targets.py`](#buildsourcepython_binding_targetspy)
     - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
@@ -1284,6 +1285,32 @@ Fails when runtime Python, including `LLM_Helpers/saspilot`, applies a `%.Nf` fo
 - Vanilla Civ4's Victory screen showed the best rival's population and land shares this way, `2.00%` for 2.30% and 2.06% ([KI#290.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-290.2)).
 - A division by a value that is already a float passes only with one of those markers, so convert it at the division.
 
+#### `build/source/inherited_files.py`
+
+Keeps the [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md) in step with SAS's decisions about inherited files. It fails when:
+
+- SAS starts or stops keeping the filename of a Python, XML, C++, `res` or `Config` file that vanilla, Warlords, BtS or base AdvCiv provides, or moves its file;
+- SAS starts or stops importing an inherited Python module;
+- a static import is outside SAS, the base game, and the known Python 2.4 runtime and optional modules (the scan covers `Assets/Python`, `PrivateMaps`, and `SASPilot/game`);
+- the audit was generated from another inherited list.
+
+After a failure, run [`inherited_files.py --inventory`](/LLM_Helpers/README.md#inherited_filespy), which needs only Git, and review the audit's reasons.
+
+- GitHub's runners have neither Civ4 nor base AdvCiv, so [`inherited_files.tsv`](/_0_Legacy/Docs/Manifests/inherited_files.tsv) in the [manifests](/_0_Legacy/README.md#manifests) records what those layers ship, one row per file, never its content:
+  - its path as the newest layer providing it ships it, and the layers that ship it;
+  - its file events in upstream AdvCiv's history, read from the local branch `1.14` (`--upstream-ref`) rather than the local `Mods/AdvCiv` folder, which held SAS files upstream never had;
+  - any layer keeping it at another path;
+  - it changes only when those layers do; rewrite it then with `--write` on a computer with Civ4 installed, supplying `--civ4-root` when the checkout is outside the install.
+- The audit records three fingerprints, of that list, of the inherited filenames SAS keeps and of the inherited modules it imports, so the check stores nothing about SAS and reads SAS's side from the tree.
+- Added on 2026-11-22 at the user's request, with the audit, so a new inherited dependency or copy cannot go unrecorded.
+  - Its first run found five imports in none of the three: BUG's optional `CvAltRoot`, `CvModFolder` and configobj's `validate`, each tried inside `try`/`except ImportError`, and Python 2's `imp` and `xmllib`.
+  - The check uses the known Python 2.4 runtime modules so a Python 3-only import cannot pass on the strength of the CI runner's standard library.
+- The shape was settled with the user the same day, after drafts that did not hold up:
+  - the list first stored SAS's own status and hashes, which needed Civ4 to refresh after every SAS file change, then a path column per tree that repeated the same path four times;
+  - a tracked SAS inventory would have churned with every SAS change and history rewrite, so the full list became a report in `LLM_Helpers/outputs/`;
+  - a fingerprint over every SAS file would have failed most feature commits, so the check covers only decisions about inherited files.
+- The test feeds it import lines, a Git tree with ignored outputs and the fingerprints.
+
 #### `build/source/lint_suppressions.py`
 
 Fails on any `noqa`, `type: ignore` or `pyright: ignore` comment in our Python that does not name its rule, such as `noqa: E402`, or gives no reason on the same line or the line above. AGENTS.md asks to fix the cause first and to explain any suppression that remains.
@@ -1528,7 +1555,7 @@ Religions and corporations get their glyphs from XML order itself, and [`build/x
 
 Verifies that every `<LSystem>` in `CIV4ArtDefines_Building.xml` names a `building:LSYSTEM_*` placement rule of the city L-system.
 
-- SAS uses the BtS `CIV4CityLSystem.xml`, which is not in the repository, so the check reads its 24 names from [`building_art_lsystem_names_bts.tsv`](/.github/workflows/build/xml/building_art_lsystem_names_bts.tsv), regenerated locally with `--write --civ4-root <Civ4 install root>`.
+- SAS uses the BtS `CIV4CityLSystem.xml`, which is not in the repository, so the check reads its 24 names from [`building_art_lsystem_names_bts.tsv`](/_0_Legacy/Docs/Manifests/building_art_lsystem_names_bts.tsv), regenerated locally with `--write --civ4-root <Civ4 install root>`.
 - The names are plain identifiers rather than hashes, so failures can list the valid choices.
 - If SAS ships its own city L-system, the check reads that file instead.
 
@@ -1711,7 +1738,7 @@ The other direction too: every `TXT_KEY` used by active mod XML, Config, Python,
 
 Inherited text counts only where BtS, Warlords or vanilla define it, from the hash list's `game` column: base AdvCiv's original files are not loaded by SAS, which carries its own copies, so 2,302 tags defined only there would otherwise pass while the game shows the key.
 
-Base AdvCiv's own undefined keys are listed in [`xml_text_undefined_inherited.tsv`](/.github/workflows/build/xml/xml_text_undefined_inherited.tsv). See [KI#1085](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085).
+Base AdvCiv's own undefined keys are listed in [`xml_text_undefined_inherited.tsv`](/_0_Legacy/Docs/Manifests/xml_text_undefined_inherited.tsv). See [KI#1085](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085).
 
 It also verifies that buildings, units, civilizations, and leaders with SAS-owned descriptions reference Civilopedia keys defined in the mod's GameText files, unless the pedia text is explicitly confirmed as inherited from the base game or expansion.
 
@@ -1845,11 +1872,11 @@ Verifies that every entry in `Assets/XML/Text/AdvCiv-SAS*.xml` still differs fro
 - An identical entry fails with what to do: restore base AdvCiv's original block in its inherited file, or delete the SAS entry so the BtS/Warlords/vanilla text applies.
   - The 2026-11-04 cleanup found 25 such entries, for example `TXT_KEY_LEADER_TOKUGAWA` (lengthened, then shortened back to AdvCiv's "Tokugawa").
 - The comparison is strict: only CRLF/LF line endings are ignored, because Git checkouts can change them. A fixed hyphen, quote mark or space keeps an entry as an SAS change.
-- GitHub has no BtS/Warlords/vanilla text files, so the check reads [`xml_sas_text_inherited_hashes.tsv`](/.github/workflows/build/xml/xml_sas_text_inherited_hashes.tsv): one tag, source and truncated SHA-256 per inherited entry, without copying Firaxis text. Overview and samples: [Inherited game text lists](/README.md#inherited-game-text-lists).
+- GitHub has no BtS/Warlords/vanilla text files, so the check reads [`xml_sas_text_inherited_hashes.tsv`](/_0_Legacy/Docs/Manifests/xml_sas_text_inherited_hashes.tsv): one tag, source and truncated SHA-256 per inherited entry, without copying Firaxis text. Overview and samples: [Manifests of the inherited layers](/README.md#manifests-of-the-inherited-layers).
   - Why hashes instead of the text: we do not know whether copyright allows republishing complete unmodified game text files, and this check only needs to know whether two English texts are identical.
     - A hash answers that without containing the text: `TXT_KEY_LEADER_LINCOLN bts 8d54efb91fed8018` cannot be read back as "Lincoln" or sorted by it.
     - Only the English text is hashed, as SAS text files hold English only.
-  - Hashes cannot be read or sorted, so `--write` also stores [`xml_sas_text_inherited_names.tsv`](/.github/workflows/build/xml/xml_sas_text_inherited_names.tsv): readable English only for the about 120 leader and civilization name keys that CI checks use, such as `TXT_KEY_LEADER_LINCOLN` -> "Lincoln".
+  - Hashes cannot be read or sorted, so `--write` also stores [`xml_sas_text_inherited_names.tsv`](/_0_Legacy/Docs/Manifests/xml_sas_text_inherited_names.tsv): readable English only for the about 120 leader and civilization name keys that CI checks use, such as `TXT_KEY_LEADER_LINCOLN` -> "Lincoln".
   - Both are plain TSV with one header row and no comment lines, so table tools read them cleanly; Rainbow CSV's CSVLint in VS Code had flagged earlier `#` header lines as rows with the wrong column count.
     - There is no separate CSV/TSV lint: the readers already fail on a missing header row or a row without exactly three fields, and these lists are almost the only tracked TSV files (the other is generated context under `LLM_Helpers/context/`).
   - BtS, Warlords and vanilla do not change, and the base AdvCiv snapshot is a fixed commit, so the file should not need refreshing. If needed, regenerate it locally with `python .github/workflows/build/xml/xml_sas_text_inherited.py --write --civ4-root "<Civ4 install root>"`.

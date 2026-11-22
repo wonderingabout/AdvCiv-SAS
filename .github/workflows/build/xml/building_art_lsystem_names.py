@@ -22,7 +22,7 @@ SAS_CITY_LSYSTEM = Path("Assets/XML/Buildings/CIV4CityLSystem.xml")
 # SAS uses the BtS city L-system, which GitHub does not have, so --write stores its building:LSYSTEM_* names from a local Civ4 install, as xml_sas_text_inherited.py does for inherited text.
 # Plain names, not hashes: they are bare identifiers, and failures should name the valid choices.
 # If SAS ever ships its own CIV4CityLSystem.xml, the check reads that file instead. (Claude code Opus 5.5) -->
-BTS_NAMES = Path(__file__).with_name("building_art_lsystem_names_bts.tsv")
+BTS_NAMES = Path(__file__).resolve().parents[4] / "_0_Legacy" / "Docs" / "Manifests" / "building_art_lsystem_names_bts.tsv"
 BTS_CITY_LSYSTEM = Path("Beyond the Sword/Assets/XML/Buildings/CIV4CityLSystem.xml")
 NAMES_HEADER = "name"
 COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
