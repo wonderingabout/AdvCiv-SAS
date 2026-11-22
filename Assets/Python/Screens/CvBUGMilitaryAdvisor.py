@@ -582,9 +582,7 @@ class CvMilitaryAdvisor:
 			self.iconGrid.addIcon(iRow, self.Col_WEnemy, gc.getLeaderHeadInfo(pWorstEnemy.getLeaderType()).getButton(), 45, WidgetTypes.WIDGET_LEADERHEAD_RELATIONS, iLeader, pWorstEnemy.getID())
 		else:
 			pass
-			#self.iconGrid.addIcon(iRow, self.Col_WEnemy,
-			#						ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CANCEL").getPath(), 35, 
-			#						WidgetTypes.WIDGET_GENERAL, -1)
+			#self.iconGrid.addIcon(iRow, self.Col_WEnemy, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CANCEL").getPath(), 35, WidgetTypes.WIDGET_GENERAL, -1)
 
 #### Strategic Advantages Tab ####
 

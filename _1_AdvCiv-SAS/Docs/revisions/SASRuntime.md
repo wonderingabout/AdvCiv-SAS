@@ -2,6 +2,8 @@
 
 `SASRuntimeStatus.json` describes the latest observed state; its companion `SASRuntimeHistory_*.jsonl` retains timed activity transitions. Both report the same XML `SAS_RUNTIME_REVISION` as `revision`, identifying their recorder implementation independently of SASGameRecord's revision.
 
+The [shared rules](/_1_AdvCiv-SAS/Docs/revisions/README.md#shared-rules) for every revisioned subsystem apply here; what follows is Runtime's own.
+
 Increment once per commit changing the loaded runtime recorder, its interfaces, configuration, call sites or shared runtime services, including implementation comments/provenance. Keep one pending revision throughout drafting and amend cycles.
 
 The label is cached once when Runtime is enabled; it identifies the configured recorder implementation, not the loaded binary. DLL/build/source provenance separately identifies native code.
@@ -239,16 +241,6 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 ## Maintenance template
 
-Increment XML `SAS_RUNTIME_REVISION` once for the next qualifying commit and prepend one entry:
+The entry template, the `pending` commit and the other [shared rules](/_1_AdvCiv-SAS/Docs/revisions/README.md#shared-rules) apply; increment `SAS_RUNTIME_REVISION` once for the next qualifying commit.
 
-```markdown
-### Revision N - SAS practical XXXX
-
-- **Date:** YYYY-MM-DD
-- **Git commit:** pending
-- **Change:** Explain the runtime-recorder change and why it matters to readers of its observations.
-```
-
-Keep only the latest entry's Git commit as `pending` in its introducing commit; finalize it in the next commit, even without another recorder change. Reconcile hashes and practical numbers after an amend, rebase or squash; ordinary merges preserve the original commit identities.
-
-Do not put the current commit's own SHA into its entry: editing the document would change that SHA again. Exact loaded-DLL identity remains separate evidence in both runtime files.
+Exact loaded-DLL identity remains separate evidence in both runtime files.

@@ -391,7 +391,7 @@ class UnitUpgradesGraph:
 								if (medB == -1 and medA >= y):
 									self.swap(mGraph, x, y-1, y)
 									doneB = False
-							# <!-- custom: ruff: avoid "== False"; use "is False". Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+							# <!-- custom: ruff: avoid "== False"; use "is False". Credit: ChatGPT. See KI#21.7. (GPT-5.2-Codex (summarized)) -->
 							if not doneB:
 								doneA = False
 						doneB = False

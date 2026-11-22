@@ -1350,7 +1350,7 @@ See [commit/e8659a5e4c4afae41306dfc04e8ec62eeb77eb99](https://github.com/wonderi
 
 Context: after AI performed measurably better following a DLL refactor, the only other change was moving a very heavy XML comment (UnitAI XML info, not C++), which made it a suspect for the improvement and prompted us to archive long comments out of game files (AdvCiv-SAS 5240; see the [archived 5240 release notes](/_1_AdvCiv-SAS/Docs/changelogs_web/5240.txt)).
 
-To keep files readable, we consolidated long comments into [Long_Comments/](/_1_AdvCiv-SAS/Docs/Long_Comments/). See details in [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb) and [PR #17](https://github.com/wonderingabout/AdvCiv-SAS/pull/17).
+To keep files readable, we consolidated long comments into [Long_Comments/](/_1_AdvCiv-SAS/Docs/Long_Comments/). See details in [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb) and [PR#17](https://github.com/wonderingabout/AdvCiv-SAS/pull/17).
 
 Note: we try to balance comment cleanup with keeping concise technical explanations in code when they help maintainers.
 
@@ -1665,7 +1665,7 @@ The first is a Windows/VC2003 diagnostic writer test: it compiles the actual log
 
 ### CI
 
-- DLL shipping checks require a changed Release DLL/JSON pair, matching successful build evidence and the `Update DLL` commit-message marker; a marker without a changed pair also fails.
+- DLL shipping checks require a changed Release DLL/JSON pair, matching successful build evidence and the `[ci_update_dll]` commit-message marker; a marker without a changed pair also fails.
 - C++-used XML define name additions/removals/renames require updated Release build evidence at default-branch integration; value/comment edits and Python-only names are excluded. See [DLL shipping and rebuild checks](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ci).
 
 GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions.
@@ -1678,7 +1678,7 @@ The blocking checks are grouped by repository, hygiene, documentation, XML, asse
 
 For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change).
 
-The AIP predump refresh bot is a separate tested workflow that refreshes `SevoPediaLeaderCachePredumped.py` outside Civ4 and opens a bot PR only when the generated predump actually changes; [PR #31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31) validated no-op, XML comment-only, numeric XML drift, and Python label/display drift cases.
+The AIP predump refresh bot is a separate tested workflow that refreshes `SevoPediaLeaderCachePredumped.py` outside Civ4 and opens a bot PR only when the generated predump actually changes; [PR#31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31) validated no-op, XML comment-only, numeric XML drift, and Python label/display drift cases.
 
 This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-148), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-149), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-150)).
 

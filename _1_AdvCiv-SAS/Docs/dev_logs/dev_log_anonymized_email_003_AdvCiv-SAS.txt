@@ -193,7 +193,7 @@ Make the main menu setup screens and their world-picker globe tunable and resolu
 - New helpers: map_preview_dds.py, start_game.py, contact_sheet.py, rename_identifiers.py; WorldBuilder and Advanced Start mapped in the UI map, whose Simple Game rows are now derived from the map scripts and the XML box formula.
 - New CI checks: lint suppressions must name a rule and reason, the UI map JSON must match its generator, and a new EXE patches category keeps EXE internals out of shipping files.
 - ci_report.py compares with HEAD when HEAD is pushed and the working tree holds the next commit, and judges staged changes as a temporary commit so the commit-history checks see an uncommitted candidate locally; run_autoplay.py archives crowded log and screenshot folders at the end of each run.
-- SGR 201: map_preview_dds.py reads GAME_RECORD_GAME_SETTINGS map=WxH, so it is a new SASGameRecord reader.
+- SGR201: map_preview_dds.py reads GAME_RECORD_GAME_SETTINGS map=WxH, so it is a new SASGameRecord reader.
 - Update DLL
 
 commit e07f72bc15a5093fb4ff94e8ea4f4360c7b2778e
@@ -1225,7 +1225,7 @@ commit 7030fbbe4fe8b48f2b548c6c54daeb4a9c118b34
 Author: wonderingabout <hidden>
 Date:   2026-10-24 12:51:06 +0200
 
-Record branch and staged-source provenance (SGR 168, Runtime 8)
+Record branch and staged-source provenance (SGR168, Runtime 8)
 
 - Distinguish the exact source SHA/count from its locally known default branch and merge-base relationship, so feature and reproducer runs remain interpretable after rebase or squash.
 - Preserve combined, staged and unstaged runtime-source fingerprints, with per-file evidence in SGR/BBAI and build reports and a compact source identity in runtime JSON. Keep expensive diagnostic capture behind enabled recorder gates, separate from ordinary version UI.
@@ -1447,7 +1447,7 @@ commit 73fba8f1cf408ebac14cf28c170fbb9090d6f1b7
 Author: wonderingabout <hidden>
 Date:   2026-10-22 09:40:02 +0200
 
-Shorten and standardize GlobalDefine names (KI#1001.2) - PR #45
+Shorten and standardize GlobalDefine names (KI#1001.2) - PR#45
 
 - Audit all 977 shipped defines: 667 SAS and 310 inherited. Rename 648 SAS keys consistently within 42 bytes, matching Base AdvCiv 1.14’s longest shipped name; this is a naming target, not an engine limit. Preserve settings and gameplay behavior.
 - Document historical loader and lookup mechanics, inherited naming baselines and SAS before/after comparisons.
@@ -2314,7 +2314,7 @@ commit 39e40d78917c42d67dfa9c87a1fc92da178ad7dd
 Author: wonderingabout <hidden>
 Date:   2026-10-09 17:28:00 +0200
 
-Refactor UWAI diagnostics into structured, greppable BBAI events (PR #44)
+Refactor UWAI diagnostics into structured, greppable BBAI events (PR#44)
 
 - Modernize the inherited UWAI narrative diagnostics after the KI#505.3 migration to XML-tunable BBAI logging.
   - Cover WarEvaluator scenario analysis, MilitaryAnalyst results, ArmamentForecast inputs/results, InvasionGraph topology/combat, UWAIAgent decisions and the full WarUtilityAspect diagnostic surface.
@@ -2709,9 +2709,9 @@ commit bc01b185a11cb546696af3904d459dd454c74d8c
 Author: wonderingabout <hidden>
 Date:   2026-10-06 07:51:48 +0200
 
-Rework AI building and Wonder valuation with audited contextual policy (PR #43); SASGameRecord revision 130
+Rework AI building and Wonder valuation with audited contextual policy (PR#43); SASGameRecord revision 130
 
-- Continue the September 2026 AdvCiv-SAS AI modernization after the Worker AI rework (PR #40), Settler AI rework (PR #41) and dynamic bonus-value rework (PR #42), applying the same evidence-first approach to city building production.
+- Continue the September 2026 AdvCiv-SAS AI modernization after the Worker AI rework (PR#40), Settler AI rework (PR#41) and dynamic bonus-value rework (PR#42), applying the same evidence-first approach to city building production.
   - Preserve the strategic intent behind the old SAS building rules rather than mechanically preserving their implementation.
   - Instrument inherited K-Mod/AdvC valuation, compare deterministic autoplay histories, retire old rules where inherited/contextual competition already solves the concern, and correct the responsible marginal value or production opportunity only where evidence shows a real weakness.
   - Treat regular buildings and Wonders separately: regular infrastructure is primarily an additive multi-effect valuation problem, while World Wonders additionally involve race risk and National Wonders involve one-copy specialization/placement.
@@ -2926,7 +2926,7 @@ Rework AI building and Wonder valuation with audited contextual policy (PR #43);
   - Remove both surviving M100 policy gates (`...GATE_M100_REGULAR_BUILDINGS` and `...GATE_M100_WONDERS`) with the maintenance/Government-Center hard rules that used them.
   - Remove old regular/World/National/unknown-Wonder masters, era-cost cheap-Wonder caps, era hammer floors, rival-knows-tech controls, fixed Wonder turn cap, named Stable/Palace classes and the post-production emergency define family once their consumers are retired.
   - Remove dead generic National/unknown-Wonder selectors and temporary A/B switches/loggers after validation rather than shipping dormant alternate policies.
-  - The older top-M100 cache family was already gone before this current-main delta; PR #43 removes the surviving M100 policy/scan layer and, separately, removes the still-live production-Wonder top-HPT cache family described above.
+  - The older top-M100 cache family was already gone before this current-main delta; PR#43 removes the surviving M100 policy/scan layer and, separately, removes the still-live production-Wonder top-HPT cache family described above.
   - Keep historical conditions in documentation or explicitly behavior-neutral level-3 diagnostics only when they still help future archaeology.
 
 - Harden maintenance checks around the new diagnostic infrastructure.
@@ -3013,19 +3013,19 @@ Date:   2026-10-01 18:37:00 +0200
 
 Fix inherited K-Mod construction-value cache lifetime (KI#821; album F498)
 
-Originally found as F498 during ChatGPT-5.6-Sol's C031-WIP242/WIP243 CvPlayer.cpp album audit, this inherited K-Mod defect was rediscovered concretely during PR #43's AI building-value and Wonder-policy audit. KI#48.15's completion-time-aware World-Wonder placement exposed that speculative cross-city evaluation could prime another city's mutable construction-value cache and alter later decisions.
+Originally found as F498 during ChatGPT-5.6-Sol's C031-WIP242/WIP243 CvPlayer.cpp album audit, this inherited K-Mod defect was rediscovered concretely during PR#43's AI building-value and Wonder-policy audit. KI#48.15's completion-time-aware World-Wonder placement exposed that speculative cross-city evaluation could prime another city's mutable construction-value cache and alter later decisions.
 
-PR #43 first committed a caller-specific partial repair. Direct pre-fix/const-cache comparisons then proved that path behaviorally consequential: Tiny Islands and Pangaea remained identical through turns 274 and 106 before separating, while a concrete Pangaea case reused a primed Mutal Great Wall value of 45 instead of the side-effect-free value 20.
+PR#43 first committed a caller-specific partial repair. Direct pre-fix/const-cache comparisons then proved that path behaviorally consequential: Tiny Islands and Pangaea remained identical through turns 274 and 106 before separating, while a concrete Pangaea case reused a primed Mutal Great Wall value of 45 instead of the side-effect-free value 20.
 
 A broader A/B subsequently tested the complete demonstrated lifetime repair. Tiny Islands remained synchronized through turn 103 with 323 identical AI research decisions before New York's fresh Walls value changed from 33 to 28 and production split at turn 104. Pangaea remained synchronized through turn 99 with 275 identical research decisions before Berlin's Walls value changed from 17 to 13 and production split at turn 100.
 
-This mainline commit consolidates the current-main-relevant code and documentation from PR #43's partial and final KI#821 commits:
+This mainline commit consolidates the current-main-relevant code and documentation from PR#43's partial and final KI#821 commits:
 
 - clear construction values before periodic Great-Person weighting so late previous-turn values cannot reach that consumer
 - retain K-Mod's independent pre-research clear and establish another fresh boundary immediately before city turns, after commerce, civics, religion and actual technology completion
 - keep speculative cross-city limited-building placement and prerequisite-building probes side-effect free on cache misses
 - document the demonstrated lifetime repair and deterministic validation while leaving unproven semantic cache-key collisions outside this fix
-- omit PR-specific KI#48.15 placement implementation and temporary A/B machinery; those remain with PR #43 until it is merged
+- omit PR-specific KI#48.15 placement implementation and temporary A/B machinery; those remain with PR#43 until it is merged
 
 commit ea3af2714d38c73f91a04f4967584ca78424b3a0
 Author: wonderingabout <hidden>
@@ -10364,7 +10364,7 @@ Author: wonderingabout <hidden>
 Date:   2026-07-03 11:04:27 +0200
 
 Update docs following branch rename from tech-rework to main
-- this auto-closed the comparative main vs 1.12 PR #13, now reopened as PR #34
+- this auto-closed the comparative main vs 1.12 PR#13, now reopened as PR#34
 
 commit d2ccd468a9c74c54769ccf414e4a7fd329bff46f
 Author: wonderingabout <hidden>

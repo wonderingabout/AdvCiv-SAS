@@ -996,7 +996,8 @@ def assignStartingPlots():
 		if region_duplicated[0] in best_regions :
 					tpR = [region_duplicated[0]]
 					for item in best_regions :
-							if item not in tpR : tpR.append(item)
+							if item not in tpR :
+								tpR.append(item)
 					best_regions = tpR
 		else :
 			print("you missed something there O.o")

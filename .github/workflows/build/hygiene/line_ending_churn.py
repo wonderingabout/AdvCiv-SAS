@@ -4,7 +4,7 @@
 
 # <!-- custom: line_endings.py catches a file with mixed endings, but not one switched whole from CRLF to LF or back, which turns every line into a change.
 # On 2026-11-16 a commit switched .github/workflows/README.md from LF to CRLF (1,640 lines changed for 20 real ones), and on 2026-11-17 an agent's sed edit switched it back (1,751 for 22); the user noticed the second only from its line count.
-# This fails when a commit changes at least MIN_EOL_LINES lines of a file whose content, line endings aside, did not change there; a deliberate conversion passes with "Convert line endings" in the message. See KI#1097. (Claude code Opus 5.5) -->
+# This fails when a commit changes at least MIN_EOL_LINES lines of a file whose content, line endings aside, did not change there; a deliberate conversion passes with [ci_convert_line_endings] in the message ("Convert line endings" before 2026-11-22). See KI#1097. (Claude code Opus 5.5) -->
 
 # <!-- custom: argparse parses the options, json reads the GitHub event, os reads its environment, pathlib finds the repository, sys reports the result. (Claude code Opus 5.5) -->
 import argparse
@@ -17,7 +17,10 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "repository"))
 from dll_commit_message import ROOT, commit_id, commits_in_range, event_commits, git
 
-MARKER = "Convert line endings"
+# <!-- custom: The shared marker spelling, kept once in lib/ci_markers.py with the other commit-message markers. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+from ci_markers import CONVERT_LINE_ENDINGS
+MARKER = CONVERT_LINE_ENDINGS
 # <!-- custom: Small enough to catch any whole-file switch, large enough that an edit touching a few lines' endings, such as a pasted block, passes. (Claude code Opus 5.5) -->
 MIN_EOL_LINES = 20
 

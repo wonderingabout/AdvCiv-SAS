@@ -514,7 +514,11 @@ class RevisionHistoryTests(unittest.TestCase):
                 tip = commit_fixture(repo, 'step')
             event = {'pull_request': {'base': {'sha': base}, 'head': {'sha': tip}, 'labels': []}}
             self.assertTrue(history.check_progression(repo, 'main', 'pull_request', event))
+            # <!-- custom: [ci_squash_pr] in the newest commit message marks the squash intent the revision:squash label marked before 2026-11-22; a label alone no longer counts. (Claude code Opus 5.5) -->
             event['pull_request']['labels'] = [{'name': 'revision:squash'}]
+            self.assertTrue(history.check_progression(repo, 'main', 'pull_request', event))
+            git(repo, 'commit', '--amend', '-q', '-m', 'step\n\n- [ci_squash_pr]')
+            event['pull_request']['head']['sha'] = git(repo, 'rev-parse', 'HEAD').strip()
             self.assertEqual(history.check_progression(repo, 'main', 'pull_request', event), [])
             self.assertEqual(history.check_progression(repo, 'main', squash=True), [])
             for invalid in (153, 155):

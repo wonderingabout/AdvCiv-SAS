@@ -46,6 +46,8 @@ PY24_RUNTIME_MODULES = {
 	"imp", "math", "md5", "new", "operator", "os", "pickle", "popen2", "random", "re", "regex",
 	"sets", "sgmllib", "sha", "shutil", "stat", "string", "stringio", "strop", "sys", "thread",
 	"threading", "time", "traceback", "types", "urllib", "urllib2", "user", "warnings", "webbrowser", "xmllib",
+	# <!-- custom: base64, pydoc, smtplib and MimeWriter came with BtS's CvAppInterface.py, copied into SAS on 2026-11-22: imported only inside its functions, pydoc for a CvPythonExtensions help dump and the other three for sending PBEM turns by email; all four are in Python 2.4's Lib. See KI#1104. (Claude code Opus 5.5) -->
+	"base64", "mimewriter", "pydoc", "smtplib",
 }
 # <!-- custom: Optional modules imported inside try/except ImportError: BUG's BugPath tries a player's own CvAltRoot and CvModFolder, and configobj tries validate; none ships with SAS or the game. (Claude code Opus 5.5) -->
 OPTIONAL_IMPORTS = {"cvaltroot", "cvmodfolder", "validate"}
@@ -363,6 +365,31 @@ def inherited_imports(tsv_rows):
 	return (imported, problems)
 
 
+# <!-- custom: Base-game Python modules SAS's code imports without carrying a copy, each with why it may stay in the base game; any other one fails, as SAS keeps the base-game modules it uses (KI#1104), and an entry nothing imports any more fails too.
+# The user asked that the rule be enforced, not only written (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
+NOT_CARRIED = {
+	"techtree": "CvForeignAdvisor.py constructs it and nothing then reads the stored object",
+	"cvpediamain": "CvScreensInterface.py imports it only when BUG's Sevopedia option is off, to show the old Civilopedia; whether SAS carries that fallback is undecided",
+	"cvpediahistory": "imported beside CvPediaMain for the same fallback",
+}
+
+
+def not_carried_problems(imported):
+	problems = []
+	for module in sorted(imported - set(NOT_CARRIED)):
+		problems.append("SAS imports the base-game module %s without carrying it; copy it with python LLM_Helpers/code_history/inherited_files.py --take-in <path>, or list why in NOT_CARRIED (KI#1104)" % module)
+	for module in sorted(set(NOT_CARRIED) - imported):
+		problems.append("NOT_CARRIED lists %s, which SAS no longer imports from the base game; drop the entry" % module)
+	return problems
+
+
+def text_name_problems(tsv_rows):
+	# <!-- custom: A SAS text file named like a base-game one replaces it, so every key only that file defines stops loading; K-Mod's LoadGlobalText drops the base copy of a same-named file.
+	# SAS's own names never matched one when this was added (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
+	base = {Path(row["path"]).name.lower(): row["path"] for row in tsv_rows if row["path"].lower().startswith("assets/xml/text/") and in_base_game(row)}
+	return ["Assets/XML/Text/%s has the name of the base game's %s, so it replaces that file and drops the keys only it defines; rename it (KI#1104)" % (path.name, base[path.name.lower()]) for path in sorted((REPO / "Assets" / "XML" / "Text").glob("*.xml")) if path.name.lower() in base]
+
+
 def carried_inherited(tsv_rows):
 	# <!-- custom: Fingerprint the upstream key and every SAS path carrying it.
 	# A move can preserve a Python basename, but it still changes which file the audit describes.
@@ -399,6 +426,8 @@ def check():
 	lines = audit_text[start:end].splitlines()
 	(imported, import_problems) = inherited_imports(rows)
 	problems += import_problems
+	problems += not_carried_problems(imported)
+	problems += text_name_problems(rows)
 	reasons = ("inherited_files.tsv changed", "SAS started or stopped keeping an inherited filename, or moved its file", "SAS started or stopped importing an inherited Python module")
 	for (marker, reason) in zip(audit_markers(rows, imported), reasons):
 		if marker not in lines:

@@ -89,6 +89,17 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/retired_names.py
 
+      # <!-- custom: A pull request, a KI or an SGR revision is written as one token, such as PR#50, so one grep finds every mention. (Claude code Opus 5.5) -->
+      - name: Numbered references as one token
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/documentation/numbered_references.py
+
+      - name: Requires AdvCiv-SAS version markers
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/documentation/requires_version_markers.py --default-branch-ref "refs/remotes/origin/$DEFAULT_BRANCH" --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+
       - name: Known Issues update chronology
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/known_issues_chronology.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"

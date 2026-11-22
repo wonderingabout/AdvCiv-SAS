@@ -43,7 +43,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). See KI#21.7. (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
 from SAS_WorldSizeUtils import *
@@ -3951,7 +3951,7 @@ class PangaeaBreaker:
 		# <advc> Kludge. I see meteors cast near the poles or twice in the same spot; ruling out water targets should help.
 		for i in range(len(C)):
 			centralPlot = CyMap().plot(C[i].x, C[i].y)
-			if not centralPlot is None and centralPlot.getX() >= 0 and centralPlot.getY() >= 0 and not centralPlot.isWater():
+			if centralPlot is not None and centralPlot.getX() >= 0 and centralPlot.getY() >= 0 and not centralPlot.isWater():
 				return C[i].x, C[i].y # </advc>
 		return C[0].x, C[0].y
 

@@ -37,7 +37,7 @@ class LineEndingChurnTests(unittest.TestCase):
 		self.assertEqual(checker.commit_errors(self.repo, self.commit("\n".join(LINES[:-1] + ["changed"]) + "\n", "Edit one line")), [])
 
 	def test_marker_allows_a_deliberate_conversion(self):
-		self.assertEqual(checker.commit_errors(self.repo, self.commit("\r\n".join(LINES) + "\r\n", "Convert line endings of doc.md to CRLF")), [])
+		self.assertEqual(checker.commit_errors(self.repo, self.commit("\r\n".join(LINES) + "\r\n", "Turn doc.md to CRLF\n\n- [ci_convert_line_endings]")), [])
 
 
 if __name__ == "__main__":

@@ -81,6 +81,20 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
 
+      # <!-- custom: Lists what a squash merge's message must name, as a warning on the PR page, since that message is only written at the merge. (Claude code Opus 5.5) -->
+      - name: Squash message checklist
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/squash_message.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+
+      # <!-- custom: After the merge, a squash commit on main, known by the [ci_squash_pr] it keeps, must end its title with its PR number. (Claude code Opus 5.5) -->
+      - name: Squash commits name their PR
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/squash_pr_number.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+
       - name: No Co-authored-by trailers in commit messages
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/repository/commit_trailers.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"

@@ -78,14 +78,18 @@ class RuntimeDLLRevisionTests(unittest.TestCase):
             later4 = commit()
             self.assertEqual(checker.check(repo, [missing4, later4]), ([], 0))
             self.assertEqual(checker.check(repo, [later4], corrected), ([], 1))
+            # <!-- custom: The squash intent comes from [ci_squash_pr] in the newest commit message, replacing the revision:squash label (2026-11-22). (Claude code Opus 5.5) -->
+            git("commit", "-q", "--amend", "-m", "fixture\n\n- [ci_squash_pr]")
+            later4 = git("rev-parse", "HEAD")
             event = dict(repository=dict(default_branch="main"), pull_request=dict(
-                base=dict(ref="main", sha=corrected), head=dict(sha=later4), labels=[dict(name="revision:squash")]))
+                base=dict(ref="main", sha=corrected), head=dict(sha=later4)))
             event_path = repo / "event.json"
             command = [sys.executable, checker.__file__, "--repo-root", str(repo), "--event-name", "pull_request", "--event-path", str(event_path)]
             event_path.write_text(json.dumps(event), encoding="utf-8")
             result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            event["pull_request"]["labels"] = []
+            git("commit", "-q", "--amend", "-m", "fixture")
+            event["pull_request"]["head"]["sha"] = git("rev-parse", "HEAD")
             event_path.write_text(json.dumps(event), encoding="utf-8")
             result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

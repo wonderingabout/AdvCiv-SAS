@@ -42,7 +42,7 @@ class CvWBParser:
 	def getTokens(self, line):
 		# return a list of (comma separated) tokens from the line.  Strip whitespace on each token
 		#
-		if line==None:
+		if line is None:
 			return list()
 		toks=line.split(",")
 		toksOut=list()

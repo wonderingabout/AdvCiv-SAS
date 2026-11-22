@@ -610,14 +610,7 @@ def _collectConfiguredFiles():
 	bNetworkValuesEnabled = gc.getDefineINT("SAS_SGR_INI_NETWORK_VALS_ON") != 0
 
 	civ4Path, civ4Source = _findCiv4Ini()
-	civ4Values, civ4Found = _readIniValues(
-		civ4Path,
-		_SAS_CIV4_INI_DIRECT_KEYS,
-		_SAS_CIV4_INI_PRIVATE_KEYS,
-		_SAS_CIV4_INI_NETWORK_KEYS,
-		bPrivateValuesEnabled,
-		bNetworkValuesEnabled,
-		True)
+	civ4Values, civ4Found = _readIniValues(civ4Path, _SAS_CIV4_INI_DIRECT_KEYS, _SAS_CIV4_INI_PRIVATE_KEYS, _SAS_CIV4_INI_NETWORK_KEYS, bPrivateValuesEnabled, bNetworkValuesEnabled, True)
 	civ4Values["activeIniSource"] = civ4Source
 	# <!-- custom: Remove the second ConfigObj import/read formerly used only for CheatCode and Mod presence; reuse civ4Found from the reader above to avoid reparsing and the former CONFIG-only omission. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	if civ4Values.get("readable") == "1":
@@ -632,14 +625,7 @@ def _collectConfiguredFiles():
 		raise
 	except Exception:
 		modPath = None
-	modValues, unused = _readIniValues(
-		modPath,
-		_SAS_MOD_INI_DIRECT_KEYS,
-		_SAS_MOD_INI_PRIVATE_KEYS,
-		(),
-		bPrivateValuesEnabled,
-		False,
-		True)
+	modValues, unused = _readIniValues(modPath, _SAS_MOD_INI_DIRECT_KEYS, _SAS_MOD_INI_PRIVATE_KEYS, (), bPrivateValuesEnabled, False, True)
 	groups["MOD_INI_CONFIGURED"] = ("CONFIGURED_STARTUP_FILE", modValues)
 	return groups
 

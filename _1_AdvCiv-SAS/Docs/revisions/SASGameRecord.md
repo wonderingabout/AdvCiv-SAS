@@ -4,6 +4,8 @@ Historical reconstruction from the AdvCiv-SAS commit-diff corpus, reconciled thr
 
 ## Revision policy
 
+The [shared rules](/_1_AdvCiv-SAS/Docs/revisions/README.md#shared-rules) for every revisioned subsystem apply here, such as the `pending` commit and one increment for a PR intended to be squash-merged; this section adds what is SASGameRecord's own.
+
 `SASGameRecord` uses one monotonically increasing **revision** number as a downstream-update signal, not as a compatibility promise. The purpose is simple: an external mod/parser/tool that supports revision N and encounters N+1 knows that the official SASGameRecord implementation changed and should review/update its copy.
 
 - Increment the revision for every intentional SASGameRecord-related code change that a downstream copy may want to review: emitted data/semantics, row/field names, recording conditions, recorder bug fixes, relevant bridges/call sites/configuration/checkers, implementation/refactors/optimizations, and code comments or provenance headers in those implementation files.
@@ -11,7 +13,6 @@ Historical reconstruction from the AdvCiv-SAS commit-diff corpus, reconciled thr
 - Do **not** spend time deciding whether a change is backward-compatible or behavior-changing. When in doubt, increment.
 - Do not increment for standalone documentation/history edits, refreshed example logs/screenshots/packages, or unrelated gameplay commits that merely used SASGameRecord as validation evidence.
 - Multiple SASGameRecord changes deliberately combined in one Git commit are one revision; this is an update counter, not a hunk/field counter.
-  - For an explicitly squash-bound PR (`revision:squash` label), maintain one aggregate revision relative to its base. Ordinary PRs keep per-commit increments.
 - `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` is the single official revision source.
   - The revision is reported as `GAME_RECORD_SOURCE_CONTEXT recordRevision=...` in the SASGameRecord log.
   - The build JSON records build/source/binary evidence separately and has no dedicated recorder-revision field.
@@ -112,6 +113,15 @@ An empty structured collection means **zero companion rows** (with parent counts
 Only the listed collections use this convention; other compact fields retain their field-specific interpretation. Companion rows follow the parent snapshot's logging level and interval, rather than recording every live change.
 
 ## History (latest first)
+
+### Revision 210 - SAS practical 6838
+
+- **Date:** 2026-11-22
+- **Git commit:** pending
+- **Change:** Layout only, with no change to what is recorded:
+  - `SASGameRecordSettings.py`'s two `_readIniValues(` calls and `SASGameRecordActions.py`'s two `_emitPythonPopupResponse(` calls are now written on one line each, as `python_multiline_calls.py` requires for runtime Python.
+  - `CvScreensInterface.py`'s pre-gated `SASGameRecordActions.observeMapAnnotations` call for WorldBuilder landmarks now sits on its own line under its `isEnabled()` test, as Ruff's E701, promoted to a CI failure, requires.
+  - Both came in draft commits of one branch meant to be squashed, so they share this revision: the second briefly bumped it to 211, folded back here, as main sees one change (2026-11-22). See KI#21.7 and [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50), whose page keeps both branch commits.
 
 ### Revision 209 - SAS practical 6829
 
@@ -2116,18 +2126,6 @@ Note: Steam detection/path/build metadata are runtime-validated; GOG, Firaxis re
 
 ## Maintenance template
 
-For the next qualifying committed update, increment `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` exactly once and prepend one entry like this:
+The entry template, the `pending` commit and the other [shared rules](/_1_AdvCiv-SAS/Docs/revisions/README.md#shared-rules) apply; increment `SAS_SGR_REVISION` once for the next qualifying commit.
 
-```markdown
-### Revision N - SAS practical XXXX
-
-- **Date:** YYYY-MM-DD
-- **Git commit:** pending
-- **Change:** Briefly state what changed in SASGameRecord-related code and why a downstream copy should review/update.
-```
-
-Keep only the latest entry's Git commit as `pending` in its introducing commit; finalize it in the next commit, even without another recorder change. Reconcile hashes and practical numbers after an amend, rebase or squash; ordinary merges preserve the original commit identities.
-
-Do not put the current commit's own SHA into its entry: editing the document would change that SHA again. Current runtime Git/source identity is recorded independently by `GAME_RECORD_SOURCE_CONTEXT`.
-
-Standalone docs/history/example-log/package-only updates do not bump the revision. If a qualifying implementation change and those maintenance files are committed together, they remain one revision. Do not pre-bump, double-bump or reuse a revision for a later qualifying commit.
+Current runtime Git/source identity is recorded independently by `GAME_RECORD_SOURCE_CONTEXT`.

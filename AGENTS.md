@@ -56,9 +56,7 @@
     - [Caching and variable reuse](#caching-and-variable-reuse)
     - [Diagnostic gating and output](#diagnostic-gating-and-output)
     - [Interface, dependency and toolchain comments](#interface-dependency-and-toolchain-comments)
-- [Diagnostic revision maintenance](#diagnostic-revision-maintenance)
-  - [SASGameRecord](#sasgamerecord)
-  - [Runtime status and history](#runtime-status-and-history)
+- [Subsystem revision maintenance](#subsystem-revision-maintenance)
 - [DLL compilation](#dll-compilation)
 - [Runtime safety and diagnostics](#runtime-safety-and-diagnostics)
 - [File management](#file-management)
@@ -169,7 +167,7 @@ Release preparation: when preparing a stable release or substantial release upda
   - Update it when needed for normal gameplay, for example Python calling a newly exposed method or structural DLL-referenced define changes; these examples are not exhaustive. Compile when needed to test native changes, but a tested local build does not itself require shipping that binary in the same commit.
   - If another condition is found that would break normal gameplay with the existing DLL, consider extending the rebuild CI guards to block integration without a matching DLL refresh.
 - Inspect staged DLLs and their build reports before committing.
-  - For a user-approved commit whose native changes require an updated shipped DLL, a user-staged matching Release DLL/report pair is approval to include that pair. Verify the successful Release build and matching binary identity, and retain the required `Update DLL` marker.
+  - For a user-approved commit whose native changes require an updated shipped DLL, a user-staged matching Release DLL/report pair is approval to include that pair. Verify the successful Release build and matching binary identity, and retain the required `[ci_update_dll]` marker.
   - Otherwise include compiled binaries only when the user explicitly asks; keep unrelated binaries and local Debug-opt builds out of source/docs commits.
 
 ### Commit message writing
@@ -178,9 +176,10 @@ Release preparation: when preparing a stable release or substantial release upda
 - For a defect/crash fix whose origin is established, prefer a concise provenance label in the commit title (e.g. `inherited AdvCiv`, `inherited K-Mod/BUG`, `SAS`); if that would make the title awkward, put the provenance in the first body bullet instead. Do not infer origin merely because another codebase currently contains similar code.
   - Preserve useful discovery context in the body, such as an issue resurfacing during a broader crash investigation, while distinguishing that from a claim that it caused the crash.
 - Do not include practical commit numbers in commit messages: they can change across branches, rebases, merges and squashes.
-- When an explicitly authorized commit changes a tracked `.dll`, include the exact phrase `Update DLL` in its title or body (e.g. `- Update DLL`); the DLL commit-message CI check requires it.
-  - This catches accidental inclusion of local test/Debug-opt binaries when the shipped Release DLL is updated less frequently than source commits.
-  - The marker does not authorize a binary update by itself. Intentionally shipped DLL updates also need the generated full `<DLL filename>.build.json` staged beside the DLL from configuration exactly `Release`; both paths must change in the same commit, and `Update DLL` without a changed pair fails; the full `AdvCiv.log` remains a local diagnostic file. Ordinary build outputs remain local/Git-ignored.
+- A few bracketed markers in a commit message, such as `- [ci_update_dll]` for a commit shipping the DLL or `- [ci_squash_pr]` for a PR intended to be squash-merged, state an intent the change alone cannot show.
+  - CI still runs every check and verifies the change against that intent; [CI markers in commit messages](/.github/workflows/README.md#ci-markers-in-commit-messages) lists them and their rules, and a new one belongs there.
+  - Before squash-merging a PR, check the drafted squash message with [`squash_message.py`](/.github/workflows/README.md#buildrepositorysquash_messagepy)` --message FILE`: its title must name the revisions and new KIs the PR brings, which CI can check only after the merge.
+  - A marker does not authorize what it states: a DLL ships only when the user approved it, as under [DLL inclusion in commits](#dll-inclusion-in-commits).
 - Validation text in commit messages is optional; keep it brief when it explains a meaningful technical risk or supports a bug-fix claim. Omit routine checklists that add little; this does not waive appropriate checks.
 
 ## Research and references
@@ -315,6 +314,7 @@ Make sure to ask before deleting or moving files/folders inside it: its mod repo
 - `mod_repos/` holds other mods' development versions, SVN working copies or Git clones: their latest code, XML and art, unpacked and greppable, and the base for exporting their history as greppable diffs.
   - `Realism/`: Realism Invictus's SVN working copy; update it with `C:\Program Files\SlikSvn\bin\svn.exe update <folder>`.
   - `c2c_github/`: a blobless clone of Caveman2Cosmos's GitHub repository, with its art unpacked in `UnpackedArt/`; update it with `git pull`. Its history starts in 2019, when C2C moved to GitHub; the 2010-2019 history is only in C2C's SourceForge SVN, which now carries packed builds for players.
+  - `Taurus/`: a blobless clone of f1rpo's Taurus, which develops on a branch named by its version, not on `main`; its history is in `git_history/taurus/`, exported with `--rev newest-release` (2026-11-22).
   - Release versions stay in the Civ4 `Mods` folder for playing: their FPKs load much faster than unpacked art, and a few large files instead of thousands of small ones keep disk-wide tools such as WizTree, Everything or a global search lighter, as under [File management](#file-management).
     - Take the latest art from the development version here, or read an installed mod's FPKs directly with [`fpk_tool.py`](/LLM_Helpers/README.md#fpk_toolpy); see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#packed-fpk-archives).
   - To look at an installed mod's leaders or units, no extraction is needed: `nif_preview.py --mod` renders one by its `ART_DEF_` name and `art_gallery.py` a filtered grid, finding files in the mod, its FPKs and the base game as the game does; see [Other mods' art](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#other-mods-art).
@@ -407,7 +407,11 @@ Alternatively, the Civ4 BUG documentation is also provided as .txt, may be helpf
 
 If you find yourself stuck like for audio stopping issues, feel free to ask the user to perform one or many web searches, maybe some solutions exist or insights on how solvable issues are.
 
-- Agents may now search themselves when their setup allows: Claude Code has a web search tool and a built-in browser pane kept apart from the user's own browser and data, and Codex has its own web search. Ask the user when your setup has neither.
+- Agents can often look things up themselves: for example, Claude Code has web search and a built-in browser kept apart from the user's, and Codex has web search.
+  - When a tool cannot fetch something or gives outdated or inaccurate data, for example `gh` when it is not signed in, or a search result indexed before a recent change or for another region, read the page instead, in your own browser first, or if that fails from the user's already open browser window, and ask the user only when neither works.
+    - Example 1 (2026-11-22): Claude Code Opus 5.5 had no working `gh` and asked the user for the `base-game-copies` pull request's link. The user suggested its own browser: the repository's pull request list, filtered by that branch, found [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50) at once.
+    - Example 2 (2026-11-17): after a force-push, a screenshot of the user's GitHub tab checked CI's result on the commits page, with no browser extension connected; see [The user's Chrome](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#the-users-chrome).
+    - Example 3 (2026-11-10): the official pages, read in the agent's own browser, corrected the search tool's Claude and Codex plan prices for the user's region; see [Browsers for agents](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#browsers-for-agents).
 - Your training data stops at a cutoff date, often months before the session, so anything newer is missing from what you know: new models, app features, tool and library versions, game patches or mod releases. Do not tell the user something "does not exist yet", "is not released" or "is not visible" from memory alone; the user reports agents doing this often.
   - Check first: compare the session's date with your cutoff, look at local evidence (installed programs, files, the app's own interface in a screenshot), and search the web. If you cannot check, say that it is unknown to you rather than denying it.
   - Example (2026-11-10): Codex's model picker listed GPT-6.1 Sol, GPT-6 Astra, GPT-6.1 Terra and other models that an agent trained earlier would not know. The screenshot settled it; see the [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#codex-the-chatgpt-desktop-app).
@@ -506,7 +510,7 @@ If a program, package or other tool would help, suggest it to the user rather th
 - In [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md), apply the same rule especially strictly: parent change/feature bullets should use real nested sub-bullets for distinct details, evidence, validation, updates, or part 2 of that same change.
   - Plain continuation indentation does not create visible list structure.
   - Keep a new top-level bullet for a separately trackable feature/change.
-- When adding doc entries in the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md), prefix bullet titles with `- (Requires AdvCiv-SAS X+)` where `X` is current latest commit + 1, since docs describe post-commit state for readers.
+- When adding doc entries in the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md), prefix bullet titles with `- (Requires AdvCiv-SAS X+)` where `X` is current latest commit + 1, since docs describe post-commit state for readers; for a PR intended to be squash-merged, `X` is main's count + 1, and [`requires_version_markers.py`](/.github/workflows/README.md#builddocumentationrequires_version_markerspy) checks it.
   - Current rule of thumb: latest stable is 5500, so the first commit after it would be 5501+, 10 commits later would be 5510+, etc.
 - When a new stable release is made, then all these previous markers can be stripped (e.g. if next stable is AdvCiv-SAS 5560, then any requires <= 5559+ is stripped because players would have the changes in latest stable, so they don't need anymore the marker about a change they might not have yet (in main i.e. as of now our dev branch)).
   - We don't need to mark other files since they are generally not player facing in that way and more general information on the mod (plus it's less tedious as such).
@@ -765,22 +769,19 @@ Clear, accurate explanations help users and developers understand the code and i
 
 #### Code layout and collapsing
 
-- Avoid redundant blank-line runs in edited code and documentation; keep spacing that serves the language or structure, such as two blank lines between top-level Python definitions.
-- Note: for the collapse multiline to singleline bullets below, such a refactor would be extensive, so if we need to, do it as we go rather than all in one-go throughout our whole codebase.
-  - It's a low-priority nicety — don't go out of your way for it during unrelated tasks; only apply it to code you're already editing, or if it seems relevant/related to your current task, or when explicitly asked to do a collapse pass.
-- Prefer one physical line for a single call or expression when practical, for example a line like `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)` is much easier to scan or grep through/compare throughout our codebase than a multiline mostly needlessly stylized version of it.
-  - The user has line wrap on VS Code so it is preferrable for the user too.
-  - This preference collapses the call itself, not its surrounding Python block: keep `if`/`for`/`while` bodies on separate indented lines, including logging guards. For example, `if enabled: log(...)` violates Ruff E701; the compact `if (bLog) log(...);` convention applies only to C++.
-  - See also a LLM-helpers to perform that refactor for py files in [collapse_multiline_brackets.py](/LLM_Helpers/formatting/collapse_multiline_brackets.py) and [singleline_pass3_comments_and_long.py](/LLM_Helpers/formatting/singleline_pass3_comments_and_long.py).
-- Note: there are some exceptions to the above collapse multiline preference; for example, for very long or uniform listings, a multiline statement seems preferable and more readable.
-  - Examples: the temporary `SAS_CATEGORY_DEFS` construction table in SevoPediaMain.py, or multi-field tabular data (e.g. `aSupport`/`aArmy` in CvMilitaryAdvisor.py, `field_specs`/`row_specs` chart tables, polygon `[x, y]` vertex lists, 2D matrices, dispatch dicts, and per-row-documented config tables).
-  - Flat lists/tuples of plain values, single split calls, and boolean `or`/`and` chains, that should generally be collapsed as well, also have some exceptions, such as clearly very lengthy or iterative ones; e.g., the `or` chains near `eComment == self.getCommentID(` (CvDiplomacy.py).
-  - Adjust as you see fit.
-- For technical C++ under active crash/PDB investigation, preserve source-line structure when it helps WinDbg isolate the failing access.
-  - Function signatures and flat logging argument lists remain good collapse candidates, but complicated conditions or expressions with several independently crashable calls may use readable BtS-style multiline layout; do not combine distinct risky accesses onto one debugger source line solely for grep or compactness.
-- Note: a fast way to find collapse candidates is a global regex search for `(\n\t` and `[\n\t` (an open paren or bracket immediately followed by a newline + tab, i.e. a wrapped call/list/tuple/`if`/`def`); also `,\n\t` catches mid-arg splits.
-- When manually collapsing, if a block has inline comments mid-args, hoist them into a single comment line just above the now-collapsed line (rephrase so it still reads correctly out of position) rather than skipping the collapse — one greppable line of code is the goal, comments above are fine.
-- After collapsing, verify nothing broke: compare `(`/`[`/`{` balance of the file vs `git show HEAD:<file>` (must be identical, since collapsing only removes newlines/indent, never tokens) and `ast.parse` it (a pre-existing Python 2 `print x` statement will fail Py3 `ast.parse` even on untouched files; the paren-balance-vs-HEAD check is the reliable one there).
+- We prefer a call or expression on one physical line, especially in a higher-level language such as Python, whose calls are mostly simple, such as screen and API calls, and where most of our linting currently runs, Ruff being Python-only; it greps, compares and lints better: `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)` is found and read whole, carries no continuation-indent noise (Ruff/Pylance E101), shows a missing or swapped argument, and is seen whole by our own line-based CI checks, such as `float_format_int_division.py`, which reads one line at a time; the user reads with line wrap on in VS Code.
+  - Even a longish call, such as SevoPediaHistory's `getText` with 8 placeholder arguments, is clearer that way; only an overly long or complicated result reads better split.
+  - The preference covers the call, not its block: Python `if`/`for`/`while` bodies and logging guards keep their own lines (`if enabled: log(...)` violates Ruff E701), while the compact `if (bLog) log(...);` is a C++ convention.
+- Multi-line reads better, as judgement calls:
+  - for tables and long uniform listings, such as `SAS_CATEGORY_DEFS` in SevoPediaMain.py, `aSupport`/`aArmy` in CvMilitaryAdvisor.py, `field_specs`/`row_specs` chart tables, polygon `[x, y]` vertex lists, 2D matrices, dispatch dicts and per-row-documented config tables, and for long `or`/`and` chains such as those near `eComment == self.getCommentID(` in CvDiplomacy.py;
+  - for calls whose arguments carry inherited markers, such as AdvCiv's `# <advc.092>` ... `# </advc.092>` in BugUnitPlot.py or PLE.py, which say which arguments changed; other comments inside a call fit on one line above it;
+  - in C++, apart from function signatures, where we care more for the same grepping reasons, such as finding the right one of an overloaded function like `addMessage`: beyond simple expressions on cached variables we are more lax, as a multi-line layout often reads better there and also lets WinDbg isolate a failing access in a crash dump.
+- Where it applies:
+  - Runtime Python calls (`Assets/Python`, `PrivateMaps`): enforced by [`python_multiline_calls.py`](/.github/workflows/README.md#buildsourcepython_multiline_callspy), commented-out calls included, whose `--fix` collapses them; before that CI check, sweeps used scripts such as [collapse_multiline_calls.py](/LLM_Helpers/README.md#collapse_multiline_callspy), and what they fixed kept coming back ([KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7)).
+  - C++ function signatures: strictly one line, since the whole signature is the grep key (see [Signatures and preprocessor layout](#signatures-and-preprocessor-layout)).
+  - The rest of C++ and tooling Python: a low-priority nicety in code already being edited; regex searches for `(\n\t`, `[\n\t` or `,\n\t` find candidates.
+- A collapse changes only layout, so its token sequence, or at least its `(`/`[`/`{` balance against `git show HEAD:<file>`, stays identical; that comparison works on Python 2 files, where Python 3's `ast.parse` fails on `print x`.
+- These are guidelines and repository preferences, not rules for their own sake: where collapsing would make code clearly worse, or leaving it split seems worse, use your judgement; where a pattern proves good, enforcing it with CI when convenient keeps it, as `python_multiline_calls.py` now does for runtime Python calls.
 
 #### Lookup and caching review
 
@@ -929,6 +930,7 @@ Clear, accurate explanations help users and developers understand the code and i
 - Prefer strict XML lookup helpers from `SASUtils` over raw lookups for static/literal tags: use `getInfoTypeOrFail("TAG")` instead of raw `gc.getInfoTypeForString("TAG")`, and use `findInfoTypeNumOrFail(gc.getXInfo, gc.getNumXInfos, "TAG")` instead of raw `CvUtil.findInfoTypeNum(...)`.
   - This keeps missing or renamed XML tags loud instead of silently returning `-1`; it helped catch incorrect direction-string usage in Planet Generator map (e.g., `getInfoTypeOrFail("DIRECTION_NORTH")` instead of `DirectionTypes.DIRECTION_NORTH*`) and incorrect plot/terrain-style lookups (e.g., `getInfoTypeOrFail("PLOT_PEAK")` instead of `PlotTypes.PLOT_PEAK` in Peirce map).
   - Dynamic/guarded legacy lookups can stay raw when intentionally reviewed; the automated [`.github/workflows/build/source/raw_getinfotype.py`](/.github/workflows/README.md#buildsourceraw_getinfotypepy) check flags literal/static runtime lookups that should use the fail-fast policy.
+    - Example of exception: `CvWBInterface.py`'s WorldBuilder lookups stay raw because unused player slots write `NONE`, which the strict helper would raise on; being dynamic alone would not have been enough (KI#1104).
 - When parsing large structured data, validate against expected samples or assertions early, and log diagnostics to surface schema/list mistakes (e.g., missing commas or malformed enum lists).
 
 #### Modules, shared constants and helper ownership
@@ -1089,25 +1091,11 @@ Example based on the inherited `WarEvaluator::evaluate(WarPlanTypes, bool, int)`
 int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, bool bNaval, int iPreparationTime)
 ```
 
-## Diagnostic revision maintenance
+## Subsystem revision maintenance
 
-- A revision entry may say `pending` in its introducing commit; finalize its full SHA in the next commit even if that commit does not change the recorder.
-  - This is an exception to avoiding vague progress labels: the work is finished and included, but a commit cannot contain its own final SHA. Here `pending` marks only that unavoidable missing reference, not a promise of further implementation changes.
-  - After an amend/rebase/squash, reconcile rewritten references and practical numbers with the resulting history; an ordinary merge preserves the original commit identities. The commit-reference check validates both recorder histories.
-- For a PR explicitly labeled `revision:squash`, apply revision maintenance once to the complete candidate relative to its base; ordinary PRs retain per-commit maintenance. Both recorder checks accept local `--squash` review.
-
-### SASGameRecord
-
-- SASGameRecord revision maintenance: every intentional SASGameRecord-related code change, including implementation/checker/bridge/configuration code comments or header-only edits, increments `SAS_SGR_REVISION` and adds the matching latest-first entry to [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) in the same commit.
-  - Edit the XML Define in `Assets/XML/GlobalDefines_advciv_sas.xml`. The DLL reports its first-use cached value as `GAME_RECORD_SOURCE_CONTEXT recordRevision`; Python-only updates do not require a DLL rebuild just to advance this label.
-  - Do not debate compatibility; the revision is only a downstream-update signal.
-  - Standalone docs/history/example-log/package refreshes do not require a bump.
-  - The SASGameRecord build check verifies that source and history stay synchronized.
-
-### Runtime status and history
-
-- Increment XML `SAS_RUNTIME_REVISION` once per Runtime implementation commit, including observers, configuration, hooks and implementation comments; keep one pending increment during drafting and add its entry to [`SASRuntime.md`](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md). Pure CI, tests, docs and example maintenance do not require a bump.
-- Runtime follows the same DLL shipping policy as SGR. Rebuild native changes for in-game testing, and ship a matching Release DLL/report when the old binary is unsuitable, for example when an observer requires a new native field. Use DLL/build/source identity to identify loaded native code.
+- Some SAS subsystems, such as SASGameRecord (`SAS_SGR_REVISION`) and Runtime (`SAS_RUNTIME_REVISION`), carry a revision that tells downstream copies the subsystem changed: a commit changing one, its code comments included, increments it once and adds a history entry, as the [shared rules](/_1_AdvCiv-SAS/Docs/revisions/README.md) say, and CI checks it.
+  - The entry's commit says `pending` until the next commit fills it in: an exception to avoiding vague progress labels, since a commit cannot contain its own SHA.
+  - What counts as a change to each subsystem is in its history doc, such as [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) and [`SASRuntime.md`](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md).
 
 ## DLL compilation
 
@@ -1203,6 +1191,16 @@ Add-Type -AssemblyName Microsoft.VisualBasic
 - If `DeleteDirectory` refuses a folder with "This function is not supported by the system", recycle its contents one level down, then the emptied folder. On 2026-11-18 the folders left by uninstalling Python 3.12 and 3.13 failed that way, twice, while their subfolders and files recycled at once.
 - If an item cannot go to the Recycle Bin, for example because the call fails or Windows would delete it permanently, ask the user what to do instead of deleting it directly.
 - A direct delete is fine where you judge nothing of value can be lost, for example an agent's own temporary files in its session scratchpad; when in doubt, use the Recycle Bin.
+- A script that rewrites a file should check everything first and only then open the file for writing: opening it for writing empties it at once, so a check failing after that leaves an empty file.
+  - Example (2026-11-22): Claude Code Opus 5.5 ran `open(p, "w").write(apply(text))` on AGENTS.md; the open emptied the file, then `apply`'s count check failed, so nothing was written back and all 1,213 lines were gone from the working tree.
+    - It was lucky: the whole file was staged, so `git show :AGENTS.md` restored it.
+    - In a long iterative commit candidate, with hours of unstaged edits in a key code file and no diff backup taken, the index or HEAD would have brought back only an older version, losing those edits.
+  - So, to recover a file emptied or overwritten by mistake, try in this order:
+    - Git: `git show :<path>` for the staged version, `git show HEAD:<path>` for the committed one, then the diff backups of [Review and staging](#review-and-staging), which keep unstaged edits too.
+    - VS Code's Local History: each save in the editor leaves a copy under `%APPDATA%\Code\User\History\<id>\`, whose `entries.json` names the file and the time of each copy, so an agent can read the latest one directly. It holds only what the editor saved, not a script's writes.
+    - The user's open editor: if the file is open in VS Code, Ctrl+Z there can bring back the unsaved buffer, as the user did that day. Ask the user rather than typing into their editor.
+  - Better still, prevent the loss: in long, iterative or critical work, take a diff backup now and then, and before each risky step such as a scripted rewrite, a branch switch or a reset, as [Review and staging](#review-and-staging) describes; recovery then needs none of the above.
+    - Example (2026-11-22): before switching to main to amend the PR#50 squash commit, the unstaged KI#11 round was saved both as a diff in `Downloads/AdvCiv-SAS_diff_backups` and as a temporary commit on its own branch.
 - Keep folders that agents or the user open often to roughly 1,000 to 2,000 files, and move older files into a dated subfolder: every listing of a crowded folder strains the hardware needlessly, while moving old files keeps them all. On 2026-11-10 the Civ4 `ScreenShots` folder, with 3,000+ images, was slow to list even on an SSD.
   - [`archive_old_files.py`](/LLM_Helpers/README.md#archive_old_filespy) does the moving, and the [Computer upkeep guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Computer_Upkeep.md) lists the folders that grow.
     - `run_autoplay.py` runs it at the end of every run, so the folders it fills are tidied without anyone remembering; `archive_old_files.py --all --apply` checks every known folder by hand.

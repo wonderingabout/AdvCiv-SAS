@@ -262,7 +262,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - A [CI check](/.github/workflows/README.md#buildsourceinherited_filespy) fails when SAS starts or stops keeping an inherited filename, or importing an inherited Python module, until the audit is regenerated, so a new decision cannot go unrecorded.
   - The manifests CI and agents read in place of files the repository does not have, such as the inherited text hashes, now sit together in [`_0_Legacy/Docs/Manifests/`](/_0_Legacy/README.md#manifests), with the names considered for the folder and why, instead of beside each check.
 - (Requires AdvCiv-SAS 6637+) **DLL shipping and rebuild checks:**
-  - Intentionally committed Release DLL updates require the DLL and full JSON to change together, configuration exactly `Release`, a successful build result, matching DLL hash and the `Update DLL` intent marker. The matching JSON remains required on source-only commits too.
+  - Intentionally committed Release DLL updates require the DLL and full JSON to change together, configuration exactly `Release`, a successful build result, matching DLL hash and the `[ci_update_dll]` intent marker. The matching JSON remains required on source-only commits too.
   - Adding, removing or renaming C++-used XML define names across `Assets/XML` requires updated Release build evidence when integrating into the repository's default branch; intermediate feature-branch source commits remain possible.
     - Define value/comment edits and Python-only names are excluded; see the [structural define check](/.github/workflows/README.md#buildrepositorydll_define_changespy) for scope and limitations.
 - (Requires AdvCiv-SAS 6584+) **Broader repository sanity checks:**
@@ -298,9 +298,10 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - added [`runtime-aip-predump-refresh.yml`](/.github/workflows/runtime-aip-predump-refresh.yml), a tested GitHub Actions bot workflow for the Sevopedia Leader AI Personality predump cache.
   - The existing checker still fails when the committed predump is stale, but the refresh workflow can now run `aip_predump_values.py --write` outside Civ4 and open/update a bot PR containing only `SevoPediaLeaderCachePredumped.py` when real generated AIP data or display-label drift is detected.
   - It runs automatically after pushes to known AIP predump dependency files.
-  - Tested in [PR #31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31) with no-op, XML comment-only, numeric Leader XML, and Python label/display drift cases, so harmless comments do not refresh the cache while real generated predump changes do.
+  - Tested in [PR#31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31) with no-op, XML comment-only, numeric Leader XML, and Python label/display drift cases, so harmless comments do not refresh the cache while real generated predump changes do.
 - **Python Ruff GitHub workflow:**
   - added [`python-ruff.yml`](/.github/workflows/python-ruff.yml), which prints a full Ruff report and fails on a practical critical gate for syntax/parse errors and Pyflakes bug checks.
+  - (Requires AdvCiv-SAS 6838+) Ruff's E101, E401, E701, E702, E703, E711, E713 and E714 fail CI too, the rules the earlier hand sweeps had cleaned, after fixing the findings that had come back. See [KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7) and [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50).
   - This helped spot shadowed duplicate callbacks in base Civ4 `Oasis.py` (see [KI#164](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-164)) and a Base AdvCiv bug of dormant undefined `Point` (instead of using `PointLayout`) helper in `RectLayout.py` (see [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165)).
 - (Requires AdvCiv-SAS 6593+) **Markdownlint GitHub workflow:**
   - added [`documentation-markdownlint.yml`](/.github/workflows/documentation-markdownlint.yml), which checks non-ignored Markdown throughout the repository using the same rule settings as the editor.
@@ -405,6 +406,13 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - The setting now lives in `GlobalDefines_advciv_sas.xml`, using the SAS-prefixed key and a shared first-use cache; an XML-only mod-mod can change it and restart Civ4 without rebuilding the DLL. The DLL derives the inherited `SAVE_VERSION` key after loading XML, so existing engine/BUG consumers see the same value. The compiled replay-layout marker still describes the binary format separately.
   - `SAS_HOF_LEGACY_MOD_ID=14223` also permits older SAS candidates. AdvCiv files share that old ID, so they can be attempted too, but their different stored mod path excludes them when foreign-mod display is off.
     - Set the legacy ID to `0` to skip old-ID files entirely. The reader still rejects files whose format or stored values it cannot safely read.
+- (Requires AdvCiv-SAS 6838+) **SAS carries the base-game Python files it uses**, changed or not, so the code that runs is in the mod and its repository, searchable and ready to change. See [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104) and [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50).
+  - For example the WorldBuilder screens ([`CvWorldBuilderScreen.py`](/Assets/Python/Screens/CvWorldBuilderScreen.py)) and the game-rule hooks ([`CvGameUtils.py`](/Assets/Python/CvGameUtils.py)), taken from BtS; each names its source in the Civ4 install.
+    - Gameplay is the same as with the base game's copies.
+  - A base-game file SAS uses comes in even when SAS leaves it unmodified.
+    - So a later change is an ordinary edit: AdvCiv-SAS lacked `CIV4ProcessInfo.xml`, for example, so it could not modify the file until taking it in.
+    - One SAS does not use stays in the base game, such as `TechTree.py`, which the Foreign Advisor constructs but never reads.
+  - The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md) lists which base-game and base AdvCiv files SAS keeps, takes in or leaves out, and the [manifests](/README.md#manifests-of-the-inherited-layers) what each layer ships.
 
 ### Code/Performance optimizations
 
@@ -438,6 +446,8 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - Often done using scripts to batch process it, and done as we go rather than all at once since this is a recent change.
   - Especially important in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) where ~2158 lines of code have been collapsed to ~879 lines, and ~187 lines of comments to ~83 lines.
   - See also [LLM_Helpers (README.md)](/LLM_Helpers/README.md) and [PR#23](https://github.com/wonderingabout/AdvCiv-SAS/pull/23). Then done in other py files in a more manual or gradual way.
+  - (Requires AdvCiv-SAS 6838+) Kept so by CI: [`python_multiline_calls.py`](/.github/workflows/README.md#buildsourcepython_multiline_callspy) fails on a multi-line call in runtime Python, commented-out calls included, as the earlier sweeps kept coming undone without a check.
+    - See [KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7) and [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50).
 - **Python 2 bare-print cleanup:**
   - converted simple active `print "..."` statements to Python 2.4/3-compatible single-string calls such as `print("msg %s" % value)`, using [`wrap_python2_prints_for_linting.py`](/LLM_Helpers/formatting/wrap_python2_prints_for_linting.py) plus manual comma-print cleanup.
   - This keeps Civ4 Python 2.4 compatibility while reducing Ruff/Python 3 parser noise (e.g., on VS Code) so real issues are easier to see.

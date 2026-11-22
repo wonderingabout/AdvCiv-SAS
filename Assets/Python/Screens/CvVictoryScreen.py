@@ -1538,7 +1538,7 @@ class CvVictoryScreen:
 			szAIOption = localText.getText("TXT_KEY_GAME_OPTION_AGGRESSIVE_AI",())
 		elif bLegacyAI: # Only possible if Aggressive AI disabled through XML
 			szAIOption = "Non-Aggressive AI"
-		if not szAIOption is None:
+		if szAIOption is not None:
 			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, szAIOption, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# </advc.104>
 

@@ -842,7 +842,8 @@ def WorldBuilderHandleCityEditNameCB( argsList ):
 def WorldBuilderHandleLandmarkTextCB( argsList ):
 	worldBuilderScreen.handleLandmarkTextCB(argsList)
 	# <!-- custom: WorldBuilder landmark text has an explicit Python apply callback; observe immediately afterward so editor captions do not wait until the next turn/save boundary. (ChatGPT-5.6-Sol) -->
-	if SASGameRecordActions.isEnabled(): SASGameRecordActions.observeMapAnnotations(mainInterface.getHiddenMapAnnotationSignsForSave(), "WORLD_BUILDER_LANDMARK")
+	if SASGameRecordActions.isEnabled():
+		SASGameRecordActions.observeMapAnnotations(mainInterface.getHiddenMapAnnotationSignsForSave(), "WORLD_BUILDER_LANDMARK")
 
 def WorldBuilderHandleUnitEditPullDownCB( argsList ):
 	worldBuilderScreen.handleUnitEditPullDownCB(argsList)
@@ -1274,7 +1275,7 @@ def updateCameraStartDistance(): # Called by DLL and by InputUtil.updateCameraSt
 		newVal = 6000
 	else:
 		gc.updateCameraStartDistance(True)
-	if not newVal is None:
+	if newVal is not None:
 		gc.setDefineFLOAT('CAMERA_START_DISTANCE', newVal)
 # </advc.004m>
 

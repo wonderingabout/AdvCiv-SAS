@@ -35,6 +35,11 @@
 ##
 ## Author: EmperorFool
 
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+
 from CvPythonExtensions import *
 import BugOptions
 import BugUtil
@@ -106,10 +111,7 @@ def widgetVersion(version, bugWidget, bugData1=None, bugData2=None, *args):
 	# Make sure to use a * to unpack the returned tuple when passing the arguments to your function.
 	#
 	# Example:
-	# 	screen.setButtonGFC( "MinCommerceRate", u"", "", 130, 50, 20, 20, 
-	# 						 *BugDll.widget("WIDGET_SET_PERCENT", eCommerce, 0, 
-	# 						 				WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, -100, 
-	# 						 				ButtonStyles.BUTTON_STYLE_CITY_MINUS) )
+	# 	screen.setButtonGFC( "MinCommerceRate", u"", "", 130, 50, 20, 20, *BugDll.widget("WIDGET_SET_PERCENT", eCommerce, 0, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, -100, ButtonStyles.BUTTON_STYLE_CITY_MINUS) )
 	#
 	realArgs = []
 	if len(args) >= 3 and isinstance(args[0], WidgetTypes):

@@ -2122,9 +2122,10 @@ class CvCustomizableDomesticAdvisor:
 			for value, key in columns:
 				iTotalColW += self.columnWidth[key]
 			# Filling up nTableWidth entirely makes the columns too wide for some reason(?).
-			fHScaleFactor = min(2, max((self.nTableWidth - 50.0) / iTotalColW,
-					# I don't think we should shrink columns when player configures too many
-					1))
+			# <!-- custom: Collapsed onto one line by python_multiline_calls.py --fix; the comment below sat inside the brackets and moved above unchanged.
+			# It explains max()'s last argument, 1. See KI#21.7. (Claude code Opus 5.5) -->
+			# I don't think we should shrink columns when player configures too many
+			fHScaleFactor = min(2, max((self.nTableWidth - 50.0) / iTotalColW, 1))
 			# <!-- custom: minimally upscale main customizable-domestic table text (rows + non-building headers): keep base AdvCiv width logic and just bump the two legacy font steps by +1 for readability. (GPT-5.3-Codex) -->
 			# <!-- custom: Those <font=3>/<font=4> cells showed larger than the regular Domestic Advisor's (the user, Civ4ScreenShot0186), so they now take the same SAS_UI_FONT_LABEL tag as its Overview tables. (Claude code Opus 5.5) -->
 			# (The three uses of these tags in the code below aren't tagged w/ comments)

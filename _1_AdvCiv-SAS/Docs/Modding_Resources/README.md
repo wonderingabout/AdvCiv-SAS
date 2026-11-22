@@ -294,7 +294,7 @@ Note 2: since as of now dev log text docs are updated incrementally unlike relea
 
 Note 3: it seems that due to this, some commits are not ordered chronologically, for example `24dbe0256ce974067b99f4d545fa8ca23596c344` (2026-04-25 00:18:51 +0200) is part of the AdvCiv-SAS 6020 release batch's changelog, so it is more recent in our dev log than the newer `82f042a44f4cd4bbc2b687444356d220b83131c1` 2026-06-04 19:20:56 +0200, but as of now keep it as such for no tedium and clearer/more reliable version boundaries.
 
-Prepend only the new entries: the older ones hold hand edits that a full regeneration would erase, and [`dev_logs.py`](/.github/workflows/README.md#buildrepositorydev_logspy) fails a commit that changes them unless its message says `Edit dev log`.
+Prepend only the new entries: the older ones hold hand edits that a full regeneration would erase, and [`dev_logs.py`](/.github/workflows/README.md#buildrepositorydev_logspy) fails a commit that changes them unless its message carries `[ci_edit_dev_log]`.
 
 For example, i put thes dev log files in the [/_0_Legacy/Docs/dev_logs/](/_0_Legacy/Docs/dev_logs/) and [/_1_AdvCiv-SAS/Docs/dev_logs/](/_1_AdvCiv-SAS/Docs/dev_logs/) folders.
 

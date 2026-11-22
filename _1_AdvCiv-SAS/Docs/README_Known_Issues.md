@@ -51,6 +51,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#21 - (Now fixed) missing "Cannot enter" terrain or feature info in map view of unit effects, unlike in Sevopedia (where it is also not clear enough about restrictions (cultural borders + not affected by roads, now added this info as well))](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21)\
 [KI#21.5 - (Addressed / fixed) - Removed the giant configobj docstring very inefficiently in the python code, and commented out most if not all as well](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.5)\
 [KI#21.6 - (Addressed) Old python code not being optimized, with many ruff linter (that we added) VS Code errors that don't allow to read the files](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.6)\
+[KI#21.7 - (Addressed, guarded by CI) SAS's Ruff and multi-line cleanups kept coming undone: a year of hand sweeps had no CI gate for these rules, so on 2026-11-22 64 Ruff findings and 25 multi-line calls were back or left](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7)\
 [KI#22 - (Now fixed) Obsolete bonuses (such as BONUS_ELEPHANTS) in tech advisor (i.e. tech tree view) failing to redirect to Sevopedia bonus with id none causing an error, unlike obsolete buildings (like BUILDING_SPIRAL_MINARET for example) successfully showing the building item's page](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22)\
 [KI#22.5 - (Addressed) Seemingly fixed weird flavors or XML fields: Mistakes?](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22.5)\
 [KI#22.6 - (Addressed) XML tweaks and fixes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22.6)\
@@ -1283,7 +1284,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1100 - (Fixed AdvCiv-SAS bug) The World Advisor's Changes tab listed an Advanced Start Automate row above the buys it made, as its row was written once the AI had spent the points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1100)\
 [KI#1101 - (Fixed AdvCiv-SAS merge slip, SASPilot branch only) The Info Screen's Timeline tab raised "global name 'iNumMessages' is not defined" on the SASPilot branch; main is not affected](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101)\
 [KI#1102 - (Open, a Steam client bug outside the mod's code) A closed Civ4 sometimes never finishes exiting, as Steam's steamclient.dll waits forever while unloading, so Steam still sees the game running and the shortcut starts nothing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)\
-[KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103)
+[KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103)\
+[KI#1104 - (AdvCiv-SAS design rule) SAS keeps its own copy of every base-game Python file it uses, changed or not, as it took in CvTechSplashScreen.py, CIV4ProcessInfo.xml and CIV4WorldPickerInfos.xml when first needed: SASPilot's WorldBuilder work found the WorldBuilder screen running from BtS's copy, outside the repository](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)
 
 <a id="ki-1"></a>
 
@@ -2087,6 +2089,63 @@ Note 2: example case of where i was too aggressive and caused a bug by remoing a
 Preserving the call while removing the old unused variable was the/a correct way to fix the ruff warning instead of simply removing the line, which was my mistake but perhaps a good example of cases where some extra caution is needed
 
 Note 3: reverted some of them to be safe and as not necessary to fix all of them (e.g. bare except rule added to exceptions in [/ruff.toml](/ruff.toml)).
+
+Update (2026-11-22): the cleanup above is practical 4844 to 4847, 2025-06-26 to 2025-06-27; Note 2's regression was introduced on 2025-07-13 and fixed on 2025-07-24. [KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7) retraces the later sweeps and the CI that now guards some of their rules.
+
+<a id="ki-21.7"></a>
+
+## KI#21.7 - (Addressed, guarded by CI) SAS's Ruff and multi-line cleanups kept coming undone: a year of hand sweeps had no CI gate for these rules, so on 2026-11-22 64 Ruff findings and 25 multi-line calls were back or left
+
+KI#21.6 records the first Ruff cleanup. This entry retraces what followed, from the [`commit_diffs`](/LLM_Helpers/context/commit_diffs/) corpus, practical numbers and dates included, and what was done once the pattern showed (2026-11-22).
+
+**What the sweeps did, without a gate:**
+
+- 2025-06-26 to 2025-06-27 (practical 4844 `363dca74cf`, 4847 `2973ba48f3`): Ruff and markdownlint added as VS Code extensions, and "tons of ruff and pylance" findings fixed by hand (KI#21.6).
+  - That pass also collapsed a multi-line call in `TechWindow.py` and slipped a `y` before `WidgetTypes`, a `NameError` found much later ([KI#392](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-392)).
+  - Another Ruff fix broke the Sevopedia: on 2025-07-13 (4874 `4516bcdd59`), `iRow = screen.appendTableRow(szTable)` in `SevoPediaPromotion.py` was removed as an unused variable (F841), but the call added each unit combat's row, so a promotion listed only its first one. Restoring the call without the name fixed it on 2025-07-24 (4900 `56ea046e0d`), KI#21.6's Note 2.
+  - Both show the caution these sweeps need: a lint fix changes code, so an unused name can hide a needed call, and a collapse can mistype a word.
+  - 2025-12-19 (5211 `90da888635`): some changes reverted to be safe; bare `except` (E722) has been ignored in [`ruff.toml`](/ruff.toml) since 2025-12-25 (5255 `a9da325fd7`).
+- 2026-05-02 to 2026-05-16 (5738 `7868026fd4` to 5807 `e65191a992`): multi-line statements and comments collapsed to one line with `collapse_multiline_brackets.py` and LLM passes (pull request #23, "no-multiline"); untouched BUG files got the header saying SAS changes them only in such minor ways.
+- 2026-05-29 to 2026-05-31 (5865 to 5891):
+  - Parser blockers first, so Ruff could read the files at all, both on 2026-05-29: Python 2 `print` statements (5865 `fa6b78670d`) and `raise` values (5866 `54505f4c7c`).
+  - Then one rule at a time: E711 (5867 `452bbb8183`, 2026-05-29), E713 by regular expression (5868 `ea84ad6420`, 2026-05-29) and with Ruff's own `--fix` (5883 `61f12eb683`, 2026-05-30), E701 in nine passes (5869 `2933726ba0` to 5876 `9c8ec3e402` on 2026-05-29, and 5884 `c1758a63b3` on 2026-05-30), E702 (5877 `ececa8d173`, 5878 `230e455497`, 2026-05-29), E703 (5879 `fee7a8170b`, 2026-05-29), E401 (5890 `10ebfdab4e`, 2026-05-31).
+  - E101 (mixed tabs and spaces) fell from about 1,068 to 259 by the count in 5891's message, which also gives 349 E101 reports left in Ruff's total, with new helpers: `collapse_multiline_calls.py` (5880 `005b40a4dc`), `collapse_multiline_calls2.py` (5881 `882d6f2e34`) and `fix_matrix_indent.py` (5882 `ca81ed7166`), all on 2026-05-30, and `collapse_multiline_parens_safe.py` (5891 `e4893dee90`, 2026-05-31).
+  - Map scripts were the messiest: broad indentation scripts gave misleading results, so `BTG_Cross.py`, `BTG_Grid.py`, `Terra.py`, `Oasis.py` and four others were repaired by hand with ChatGPT and reviewed (5892 `0e6854abcd`, 2026-05-31), then `RandomScriptMap.py` on 2026-06-01 (5896 `17fe7e5319`).
+- 2026-06-01 to 2026-06-04: flat literals collapsed (5898 `c20ef76a64`, 2026-06-01), and Ruff's E902 fixed by converting files to UTF-8 (5910 `93ce591ae9`, 2026-06-04).
+- 2026-06-20 (5964 `0759bd4dba`): [`python-ruff.yml`](/.github/workflows/python-ruff.yml) added on GitHub, failing only on parse errors and Pyflakes (E9, F); it found [KI#164](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-164) and [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165). Layout rules such as E701 stayed warnings in the full report.
+  - Base AdvCiv took two of these Ruff findings upstream from SAS's forum posts: the `configobj.py` comment writer ([KI#143](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-143), AdvCiv `c2605f98d8`, 2026-06-05) and `RectLayout.py`'s undefined `Point` (KI#165, AdvCiv `13a7fe526c`, 2026-06-20, the same day as the workflow).
+- 2026-08-20 (6188 `8d8cba5f65`, which base AdvCiv and Taurus cite by its earlier SHA `b5704a2476`): adding byte-preserved third-party map-script originals for archaeology, now [`mapscript_refs`](/LLM_Helpers/context/mapscript_refs/), also excluded them from Ruff in `python-ruff.yml` and `ruff.toml`, as they stay exactly as found and would otherwise flood the report.
+  - That commit's tiny-island fix ([KI#262](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-262)) was adopted by base AdvCiv the next day (`26b5f482f8`, 2026-08-21) and by Taurus the same day ([`05dda99`](https://github.com/f1rpo/Taurus/commit/05dda99316b7eec75c6bc8adbf9dec79d94b75c1)).
+- 2026-08-21 to 2026-08-24, in Taurus: f1rpo added several Warlords and BtS map scripts, each followed by a commit taking SAS's fixes for it.
+  - After adding BtS's `RandomScriptMap.py`, [`45fa699`](https://github.com/f1rpo/Taurus/commit/45fa699019300138de0eaab4344c478f0f7f4ff4) (2026-08-21) fixed its errors "mostly from SAS", crediting SAS for fixes such as `isValidBoth` and the map bounds.
+  - f1rpo also found its semicolon-joined statements (E702) on his own, which SAS had fixed in May, split them, and added a header warning about the file's mixed indentation (E101).
+  - It also found a double write SAS still has: `shiftRegionPlots` sets `stripRadius = min(15, iStrip)`, then overwrites it with `stripRadius = max(3, iStrip)`, so the cap of 15 never applies. Its message expected linters and LLMs to find much more in such scripts.
+
+**What came back, counted on 2026-11-22:** E701 10, E702 13, E703 25, E714 3, E711 1, E401 1, E101 11 after the collapses below, and 25 multi-line calls plus 10 commented-out ones. E713 alone stayed at zero. `git blame` shows three sources:
+
+- New code: the [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104) base-game copies brought most of it the same day (6838 `ec887dbd9e`, 2026-11-22), such as the seven one-line `if (fxnKey==1): return …` in `CvAppInterface.py`, the E101 table in `CvDebugInfoScreen.py` and 18 multi-line calls; SAS code added later brought a few, such as `CvScreensInterface.py`'s E701 (6693 `e11c562882`, 2026-10-27) and `CvWBDesc.py`'s `if line==None:` (6772 `1d6a223865`, 2026-11-17).
+- The sweeps themselves: the E713 regular-expression pass wrote `if item not in tpR : tpR.append(item)` on one line in `BTG_Cross.py` and `BTG_Grid.py`, an E701, and the E701 and E702 passes left E101 and E702 lines in the tooling helper `comment_cleanup_pass_v2.py`.
+- Calls the collapse helpers' patterns did not know, such as `szText += getText(…, (` and `a, b = _readIniValues(`.
+
+**What was done (2026-11-22):**
+
+- Practical 6841 `dbbc733221` (2026-11-22): [`python_multiline_calls.py`](/.github/workflows/README.md#buildsourcepython_multiline_callspy) fails on a multi-line call in `Assets/Python` or `PrivateMaps`, commented-out ones included, and its `--fix` collapses what it flags; the 25 calls and 10 commented-out ones were collapsed.
+  - One showed why the layout mattered beyond grepping: `CvWorldBuilderScreen.py`'s `attachPanelAt` passed its empty title and help text as two `""` lines in a row, which [`adjacent_duplicate_lines.py`](/.github/workflows/README.md#buildrepositoryadjacent_duplicate_linespy) flagged as a likely pasted line; on one line the pair is no longer two lines.
+  - Codex's review found that `--fix` could rewrite a triple-quoted string that looked like commented-out code, and that a Windows-1252 ellipsis byte shifted line numbers; both were fixed with tests.
+- Practical 6842 `2b8a034d3a` (2026-11-22): E703, E714 and E401 promoted to failures in `python-ruff.yml`, after fixing the 29 findings with Ruff's own safe fixes.
+- Left as warnings by that commit: E701, E702, E711 and E101, whose 35 findings needed hand edits; E713 had none.
+- Practical 6845 (2026-11-22): those 35 were fixed by hand, and E701, E702, E711, E713 and E101 promoted to failures too.
+  - E701 and E702 statements were split onto their own lines, such as `CvAppInterface.py`'s seven `if (fxnKey==1): return …`; E711's `line==None` became `line is None`.
+  - E101: `CvDebugInfoScreen.py`'s dispatch table was indented with five tabs and a space, now three tabs, keeping its columns aligned with the tabs inside each row.
+- Practical 6846 (2026-11-22): `python_multiline_calls.py` now also flags a call whose comment inside is not a provenance marker, and a flat list or tuple that wraps; four were fixed.
+  - Both movie screens' `setButtonGFC(… "", #self.EXIT_TEXT,` call had escaped through its comment, which now sits above the collapsed call with a note on where it was; `CvCustomizableDomesticAdvisor.py`'s note on `max(…, 1)` moved the same way.
+  - `CvDebugInfoScreen.py`'s 14 `CivInfoItems` strings were wrapped over two lines at an arbitrary point; lists with one item per line, such as `SASGameRecordSettings.py`'s key lists, stay as they are.
+  - Flagging comments inside also exposed a quote of a base AdvCiv call inside a `custom:` note in `SevoPediaReligion.py`, which the commented-out rule then took for disabled code; lines inside such a note are now skipped.
+  - The branch had bumped SASGameRecord twice for these layout changes, 210 and then 211; 211 was folded back into 210, as the squash gives main one change.
+
+Retraced with Claude Code Opus 5.5; Codex (GPT-6.2-Sol) reviewed the check and the Ruff promotion.
+
+Pull request (2026-11-22): [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50). The branch is squash-merged, so the practical numbers 6838 to 6846 and SHAs above name its separate commits, which stay reachable on that page rather than on main.
 
 <a id="ki-22"></a>
 
@@ -4716,7 +4775,7 @@ Diagnosed and fixed with the help of GPT-5.6-Sol, thanks.
 
 ## KI#48.5 - (Greatly Reworked/Enhanced; regular-building audit complete) September 2026 AI regular-building valuation: replace hard SAS category gates with audited inherited additive valuation and targeted evidence-backed corrections
 
-Current implementation/review PR: [#43 - Codex/building value health rework](https://github.com/wonderingabout/AdvCiv-SAS/pull/43). This follows the September 2026 [Worker AI rework PR #40](https://github.com/wonderingabout/AdvCiv-SAS/pull/40), [Settler AI rework PR #41](https://github.com/wonderingabout/AdvCiv-SAS/pull/41), and [dynamic bonus-value PR #42](https://github.com/wonderingabout/AdvCiv-SAS/pull/42).
+Current implementation/review PR: [#43 - Codex/building value health rework](https://github.com/wonderingabout/AdvCiv-SAS/pull/43). This follows the September 2026 [Worker AI rework PR#40](https://github.com/wonderingabout/AdvCiv-SAS/pull/40), [Settler AI rework PR#41](https://github.com/wonderingabout/AdvCiv-SAS/pull/41), and [dynamic bonus-value PR#42](https://github.com/wonderingabout/AdvCiv-SAS/pull/42).
 
 ### September 2026 second rework: audit the old regular-building policy instead of mechanically translating it
 
@@ -33013,7 +33072,7 @@ The naming error did not itself alter gameplay or synchronized RNG, but it obscu
 
 The local is now named `iMaxPalaceTurns`, preserving the exact expression and call while making the inherited contract explicit.
 
-This is a separate behavior-neutral follow-up to the capital-relocation audit family, not a revival of F445/KI#768's retracted yield-rank theory. Found during the PR #43 AI building-value / Wonder-policy rework and traced and clarified with the help of GPT-5.6-Sol, thanks.
+This is a separate behavior-neutral follow-up to the capital-relocation audit family, not a revival of F445/KI#768's retracted yield-rank theory. Found during the PR#43 AI building-value / Wonder-policy rework and traced and clarified with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-769"></a>
 
@@ -34104,7 +34163,7 @@ K-Mod caches neutral `AI_buildingValue()` results in each city's `m_aiConstructi
 
 This issue was originally album-found as **F498** during ChatGPT-5.6-Sol's C031-WIP242-WIP243 `CvPlayer.cpp` deep re-audit.
 
-It was rediscovered concretely during the PR #43 AI building-value / Wonder-policy rework, when KI#48.15's World-Wonder placement migration made speculative cross-city building evaluation much easier to observe.
+It was rediscovered concretely during the PR#43 AI building-value / Wonder-policy rework, when KI#48.15's World-Wonder placement migration made speculative cross-city building evaluation much easier to observe.
 
 ### Confirmed lifetime failure modes
 
@@ -34164,7 +34223,7 @@ This does not claim that every hypothetical semantic cache-key collision is impo
 
 See **KI#48.15** for the World-Wonder placement migration that rediscovered and first partially repaired this inherited cache-lifetime issue.
 
-Found as F498 during ChatGPT-5.6-Sol's C031-WIP242-WIP243 `CvPlayer.cpp` deep re-audit; rediscovered, instrumented, partially fixed and then fully validated/fixed for the demonstrated lifetime defect during the PR #43 AI building-value / Wonder-policy rework with BBAI diagnostics and SASGameRecord deterministic comparison, with testing and review by wonderingabout, thanks.
+Found as F498 during ChatGPT-5.6-Sol's C031-WIP242-WIP243 `CvPlayer.cpp` deep re-audit; rediscovered, instrumented, partially fixed and then fully validated/fixed for the demonstrated lifetime defect during the PR#43 AI building-value / Wonder-policy rework with BBAI diagnostics and SASGameRecord deterministic comparison, with testing and review by wonderingabout, thanks.
 
 <a id="ki-822"></a>
 
@@ -38295,7 +38354,7 @@ Found and fixed by Claude code Fable 5.2, checked by Codex (GPT-6.1-Sol).
   - Only the README's endings and the SHAs citing those commits changed: the dev log, SASGameRecord's revision history and the Modding Resources README now cite the new ones.
   - The force push made GitHub's date check, `future_dates.py`, judge the rewritten commits again, including two from the evening of 2026-11-16 that had written "2026-11-17" a day early before the KI#1090 commit corrected them, so that push showed a red cross. Recreating the two newest commits with a new commit time and pushing again made CI judge only those two, which passed.
   - The two noisy diffs disappeared: the KI#1094 commit now shows 389 lines added and 39 removed instead of 2,118 and 1,768, and the 2026-11-16 commit 416 and 170. Its SHA changed with the rewrite, from `2b7c59cab` to `e183db41c`.
-- Guarded since 2026-11-17 by [`line_ending_churn.py`](/.github/workflows/README.md#buildhygieneline_ending_churnpy), so nobody has to notice a line count or remember April: a commit fails when 20 or more of a file's changed lines differ only in their endings. A deliberate conversion passes with `Convert line endings` in its message.
+- Guarded since 2026-11-17 by [`line_ending_churn.py`](/.github/workflows/README.md#buildhygieneline_ending_churnpy), so nobody has to notice a line count or remember April: a commit fails when 20 or more of a file's changed lines differ only in their endings. A deliberate conversion passes with `[ci_convert_line_endings]` in its message (`Convert line endings` before 2026-11-22).
   - Tools that rewrite a whole file, such as `sed -i` in Git Bash or PowerShell's `Set-Content`, can switch its endings; LLM_Helpers' editing helpers keep each file's style.
 
 Noticed by wonderingabout, who also recalled the 2026-04-12 workaround that traced it back; the check by Claude code Opus 5.5.
@@ -38469,3 +38528,56 @@ Not a bug but a rule several layouts follow, written down here so each place can
   - The commerce sliders beside the Technology Advisor, which fall back to fewer buttons and rates below the sliders in a narrow strip.
 
 Pondered on by the user and Claude Code Opus 5.5 while fitting the advisors and the scoreboard at larger fonts (2026-11-19 to 21), with Codex's (GPT-6.2-Sol) reviews of the layouts that follow it, such as the commerce sliders' fallback beside the Technology Advisor.
+
+<a id="ki-1104"></a>
+
+## KI#1104 - (AdvCiv-SAS design rule) SAS keeps its own copy of every base-game Python file it uses, changed or not, as it took in CvTechSplashScreen.py, CIV4ProcessInfo.xml and CIV4WorldPickerInfos.xml when first needed: SASPilot's WorldBuilder work found the WorldBuilder screen running from BtS's copy, outside the repository
+
+Not a bug but a rule, written down so the files it covers can point to it.
+
+- How it was found (2026-11-22): SASPilot's WorldBuilder work asked whether the WorldBuilder screen that runs is ours.
+  - It was not: `CvWorldBuilderScreen.py`, `CvWorldBuilderDiplomacyScreen.py` and `CvWBInterface.py` ran from BtS and `CvWBPopups.py` from vanilla; only `CvWBDesc.py`, which saves and loads WorldBuilder files, was in SAS. See [WorldBuilder](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#worldbuilder) in the inherited files audit.
+  - Auditing more broadly, 76 base-game Python files had no copy in SAS. The `load_module` lines of 7 `PythonDbg.log` files (2026-10-19 to 2026-11-22: new games, autoplay, Sevopedia, diplomacy, WorldBuilder) showed 19 of them loading.
+    - Static imports alone gave a different set: `CvDiplomacyInterface`, `CvGFCScreen` and `CvScreen` load without any SAS import, while `CvPediaMain` and `CvPediaHistory` are imported by inherited files that never run.
+    - A first count, case-sensitive, missed `CvUNVictoryScreen`, which the logs name `CvUnVictoryScreen` as `CvScreensInterface.py` imports it; Codex caught it while checking the copies.
+    - `CvTranslator`, `CvMapScriptInterface` and `CvUnitControlInterface` appear only as `EntryPoint module:` lines, so the other 57 are not observed by the import hook rather than proven unused (Codex's reading).
+  - The 19 loaded ones by use: every game (`CvGameUtils`'s rule hooks, `PyHelpers`, `DomPyHelpers`, `ScreenInput`, `CvAppInterface`, `CvPopupInterface`, `CvDiplomacyInterface`, and `CvPediaScreen` and `CvScreen`, which the Sevopedia pages subclass), WorldBuilder (its two screens, `CvWBPopups`, `CvWBInterface`), a victory (`CvVictoryMovieScreen`, and `CvUNVictoryScreen` for a diplomatic one, which `CvGame.cpp` shows when the victory `isDiploVote()`), the intro movie unless the ini turns it off (`CvIntroMovieScreen`), and Debug Mode's Shift+F2 screen (`CvDebugInfoScreen` and its base `CvGFCScreen`).
+    - `TechTree` only loads: see below.
+  - The 57 others, by likely use; none was traced call by call:
+    - specific use: 3 entry points the game registers (`CvMapScriptInterface`, `CvTranslator`, `CvUnitControlInterface`), Pitboss (`PbMain`, `PbAdmin`, `PbWizard`), the tutorial (`CvTutorialQuestScreen`, `CvQuestManager`) and vanilla's 21-file `email` package, which `CvAppInterface`'s PBEM email sending reaches through `smtplib`;
+    - the old Civilopedia (`CvPediaMain`, `CvPediaHistory` and 13 `CvPedia*` pages): used only when a player turns off BUG's Sevopedia option (Advisors tab), as [`CvScreensInterface.py`](/Assets/Python/EntryPoints/CvScreensInterface.py) then shows it instead; a first reading here called it obsolete, until the import behind that option was checked (2026-11-22);
+    - obsolete: screens base AdvCiv or SAS replaced such as `CvCorporationScreen` and `CvFinanceAdvisor`, the vanilla unit-control helpers (`Unit`, `UnitEntity`, `CvUnitController`) and developer leftovers such as `CvDefineEditor`, `CvPerfTest` and `vector`.
+    - [`inherited_files.py --loaded`](/LLM_Helpers/README.md#inherited_filespy) lists them again from the current logs; it also lists 4 base-game screens base AdvCiv had already replaced under other names, such as `CvCivicsScreen.py`.
+- Why: we kept looking back and forth for files we may have forgotten, which layer a running file comes from and whether it must be copied before a change.
+  - SAS had taken files in that way each time it first needed one, which this rule extends:
+    - Python: [`CvTechSplashScreen.py`](/Assets/Python/Screens/CvTechSplashScreen.py) and [`CvWonderMovieScreen.py`](/Assets/Python/Screens/CvWonderMovieScreen.py) from BtS (2026-04-14);
+    - XML: `CIV4ProcessInfo.xml` from Realism Invictus (2025-03-24) and `CIV4WorldPickerInfos.xml` for the SAS24 to SAS48 world sizes (2026-01-08);
+    - map scripts: 42 of SAS's 50, from the base game and third-party mods, starting with `aDebugMap.py` and `Highlands.py` (2026-02-03); see [Map scripts](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#not-traced) in the audit.
+  - Those came in when SAS changed or offered them, often fixed in the same commit, such as "Fix Oasis.py" (2026-02-08). A first commit that copies the file unchanged keeps the later diff to SAS's own change; the base copy also stays in the Civ4 install to diff against.
+  - So what decides is whether SAS uses a file, not whether SAS has changed it yet: a file SAS uses should be in the repository, greppable and diffable for every agent, and ready for a later change; doing it once ends the question.
+  - An unused file stays out, even when something imports it: [`CvForeignAdvisor.py`](/Assets/Python/Screens/CvForeignAdvisor.py) imports `TechTree` and constructs it (`self.objTechTree = TechTree.TechTree()`), and nothing then reads the stored object.
+  - Runtime does not change: the game takes a mod's file before BtS's, Warlords' and vanilla's, so an unchanged copy loads the same code. See [Which copy runs](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#which-copy-runs) in the inherited files audit, which also records the loading claims corrected on the way.
+  - Base AdvCiv and K-Mod ship only base-game files they changed: on 2026-11-22, none of their 81 and 50 Python and XML files sharing a BtS path was byte-identical to it.
+- Done (2026-11-22): the files the logs above showed loading, other than `TechTree.py`, were copied, each with the SAS header and a comment naming its source's layer and full path, and which layers ship it, such as BtS's `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\Python\Screens\CvWorldBuilderScreen.py` (the newest of the vanilla Civ4, Warlords and BtS copies).
+  - `CvGameUtils`, `DomPyHelpers`, `PyHelpers`, `ScreenInput`, `CvAppInterface`, `CvDiplomacyInterface`, `CvPopupInterface`, `CvWBInterface`, `CvWBPopups`, `CvDebugInfoScreen`, `CvGFCScreen`, `CvIntroMovieScreen`, `CvPediaScreen`, `CvScreen`, `CvUNVictoryScreen`, `CvVictoryMovieScreen`, `CvWorldBuilderDiplomacyScreen`, `CvWorldBuilderScreen`.
+  - From then on each copy is an ordinary SAS file: its header already makes it a changed file, and later changes carry their own comments, as in any inherited file SAS keeps.
+    - A list of the copies with content hashes, which CI checks would skip while a copy stayed byte-identical, was considered and dropped: tedious, brittle and more upkeep for little gain, since whether a copy still matches its source does not matter in the end (the user, 2026-11-22).
+    - So the copies were fixed where CI failed on them: their Python 2 `print` statements became single-string `print(...)` calls, which Python 2.4 still parses, with `%s` keeping the one space Python 2 put between comma-separated items, so Ruff's critical gate no longer stops at a syntax error and can analyze these files; their other Ruff findings deserve a lint pass of their own.
+    - `CvWBInterface.py`'s 14 lookups of the settings and players a WorldBuilder file names stay raw, with an exception in `raw_getinfotype.py` like `CvWBDesc.py`'s: Codex checked that a file can omit a value or write NONE, as unused player slots do, and `findInfoTypeNum` returns -1 for those, which the strict helper would turn into an error; base AdvCiv's advc.001 tolerates such files because BtS loaded them. Comments at both lookup groups say so.
+      - This follows AGENTS.md rather than bending it: it asks for `findInfoTypeNumOrFail` on static or literal tags, and lets dynamic or guarded legacy lookups stay raw once reviewed, as these were.
+        - Being dynamic, read from the file rather than written in our code, only takes them out of that literal-tag rule; the strict helper handles dynamic strings too. What keeps them raw is the empty and `NONE` values, which it would raise on.
+    - The rest of what CI found was fixed in the files: final newlines Firaxis's files lacked, a trailing note on each line meant twice (the totals row of `CvDebugInfoScreen.py` leaves two columns empty), and a run of 3 blank lines in `PyHelpers.py`.
+      - The multi-line calls and Ruff findings the copies brought back, `CvWorldBuilderScreen.py`'s `attachPanelAt` among them, are in [KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7).
+    - Left for later: source provenance reads the copies' 365 or so Firaxis comments as new comments without a model credit, and the resource-API rule their 31 direct resource lookups as new code, since both judge every line of a newly added file as new.
+      - Codex suggested accepting only comments found word for word in the verified source copies, but GitHub's runners have no Civ4 install to compare with, and a draft commit holding the plain copies does not survive the squash merge, so CI would need another baseline.
+      - A narrower exception would accept a new file's comments when its header names a base-game source the manifest lists, checked for real only where the Civ4 install exists; it would make GitHub's CI trust the header, which is not ideal, as the rule would no longer stand on its own (the user, 2026-11-22).
+    - The same squash rule applies to the audit: regenerating it on the draft branch wrote that draft commit beside the copies, which was reverted; `--inventory` runs once the squashed commit is on main.
+  - Why CI: a written rule alone is unreliable, as the user put it once the rule was written, since anyone, the user and agents alike, can forget it or slip; this session's own slips, such as the case-sensitive count that missed `CvUNVictoryScreen` and the old Civilopedia first called obsolete, show how easily that happens.
+  - Enforced by CI (2026-11-22), as the user asked: [`inherited_files.py`](/.github/workflows/README.md#buildsourceinherited_filespy) fails when SAS imports a base-game Python module it does not carry, unless its `NOT_CARRIED` table says why (`TechTree`, and the old Civilopedia's `CvPediaMain` and `CvPediaHistory` while carrying that fallback is undecided), and when a SAS text file takes a base-game text file's name.
+    - Modules the EXE loads by name, with no import in Python, stay outside what CI can see; `--loaded` compares them with the logs.
+  - Undecided on 2026-11-22: whether the rule extends to the 42 data XML files SAS reads whole from the base game, such as `GlobalDefines.xml` and `CIV4ClimateInfo.xml`, listed in the audit; the same reasoning would bring all of them in, as the game reads each at startup.
+    - Text files are left out on purpose: the game loads every layer's text files together, so SAS overrides single keys in its own files instead. A SAS text file must not take a base-game text file's name, as it would replace that file; see [Which copy runs](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#which-copy-runs).
+
+- Pull request: [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50). The branch is squash-merged, so its separate commits, such as `ec887dbd9e`, `7463f070dc` and `36fcfde727`, stay reachable on that page rather than on main.
+
+Asked for by the user while auditing SAS's inherited files with Claude Code Opus 5.5 (2026-11-22), with Codex's (GPT-6.2-Sol) review of the loading question and of each copy.

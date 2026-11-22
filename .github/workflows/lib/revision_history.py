@@ -4,6 +4,26 @@
 # <!-- custom: Share numbered-entry parsing and explanation presence between recorder histories; their different revision/provenance policies remain in their own checkers.
 # Regex locates Markdown fields/headings; fenced examples and HTML comments cannot substitute for a real history entry or explanatory text. (GPT-6.1-Sol) -->
 import re
+# <!-- custom: subprocess reads the PR's newest commit message from Git for the squash-intent rule below; ci_markers holds the marker's one spelling. (Claude code Opus 5.5) -->
+import subprocess
+from ci_markers import SQUASH_PR
+
+
+# <!-- custom: Whether a PR is intended to be squash-merged, so its revision checks judge it as the one commit it becomes rather than each of its commits.
+# A GitHub label, revision:squash, said so, but the user does not use labels, so PR#50's SGR step failed on the 210, 211, 210 bumps of its draft commits although the squash commit, 209 to 210, passes (2026-11-22).
+# The intent now comes from the commit messages, like the other markers: [ci_squash_pr] in the PR's newest commit, which states the intent as it stands; the label is no longer read, so one spelling decides. (Claude code Opus 5.5) -->
+# <!-- custom: The tree a squash merge of tip onto target would commit, or None when they conflict; diffing target against it shows what the squash commit really changes.
+# Codex's review (2026-11-22) found the merge-base diff blocking a valid squash: an entry already on main read as new to the PR, so a check demanded 3+ where the squash left it untouched. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+def squash_tree(repo, target, tip):
+    result = subprocess.run(["git", "merge-tree", "--write-tree", target, tip], cwd=repo, capture_output=True, text=True)
+    return result.stdout.split("\n", 1)[0].strip() if result.returncode == 0 else None
+
+
+def pull_request_squashes(repo, pull):
+    tip = pull.get("head", {}).get("sha")
+    if not tip:
+        return False
+    return SQUASH_PR in subprocess.check_output(["git", "log", "-1", "--format=%B", tip], cwd=repo, text=True)
 
 
 def revision_entries(text):

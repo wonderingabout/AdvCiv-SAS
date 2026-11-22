@@ -340,7 +340,7 @@ Writes every CI failure to one text file, so one pass can fix them all rather th
     - On 2026-11-09 a run compared with the parent passed, as `plot_scene.py` was new there, while GitHub, comparing with the replaced commit, failed a changed signature.
   - Most checks read the working tree. Eight judge the commits of a push instead: the SASGameRecord and Runtime revision checks, the commit-reference check, the four DLL checks and the KI title check.
     - So staged changes become a temporary commit on top of HEAD, made with `git commit-tree`, which moves no branch and touches no file, and those checks judge it as the pushed commit. Unstaged development values stay out, as they would from the real commit.
-    - `--message FILE` gives that commit the draft message; without it, a placeholder makes the title and `Update DLL` checks fail as a reminder. With nothing staged, they judge HEAD.
+    - `--message FILE` gives that commit the draft message; without it, a placeholder makes the title and `[ci_update_dll]` checks fail as a reminder. With nothing staged, they judge HEAD.
     - Before 2026-11-12 these checks only saw commits, so an uncommitted candidate passed them without being judged. A run passed locally while GitHub failed the commit that followed: `map_preview_dds.py` had begun reading SGR rows without the `SAS_SGR_REVISION` bump the rule asks for. Rerun on that state, the new run fails the same check, as GitHub did.
   - The diagnostic default checks read staged content, so unstaged development values do not fail them.
   - Markdownlint and Python 2.4 run through local Node.js and `C:\Python24\python.exe`; a missing tool is listed as not covered. The predump refresh workflow is not run.
@@ -887,9 +887,12 @@ The Git counterpart of [`svn_history_to_diffs.py`](#svn_history_to_diffspy), for
 - It works on a blobless clone (`git clone --filter=blob:none`). Binary files and `--summarize` paths are listed without their contents, so their blobs are never downloaded; text diffs fetch what they need.
 - Interrupted runs resume, and failures are collected and reported together, as with the SVN exporter.
 - A first trial on 2026-11-12 exported C2C's newest 30 commits in about 2 minutes, 3.2 MB, mostly spent downloading blobs; the full 9,293 commits would take hours, so run it in the background.
+- `--rev newest-release` exports the highest version-named branch, read with the same rule base AdvCiv's release branches use (`release_version` in `.github/workflows/lib/advciv_release.py`).
+  - Added on 2026-11-22 for Taurus, which develops on a branch named by its version: its `main` last changed on 2026-05-23, its `1.04` on 2026-08-24, so neither the default branch nor a version written into the command stays the newest. Its 230 commits exported in under a minute ([KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7) cites one).
 
 ```bash
 py -u LLM_Helpers/code_history/git_history_to_diffs.py --repo "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/mod_repos/c2c_github" --out "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/git_history/c2c" --label C2C --summarize "UnpackedArt/*" --summarize "ArtSource/*" --summarize "Assets/art/*" --summarize "Assets/Sounds/*" --newest-first
+py -u LLM_Helpers/code_history/git_history_to_diffs.py --repo "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/mod_repos/Taurus" --rev newest-release --out "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/git_history/taurus" --label Taurus
 ```
 
 ### `svn_history_verify.py`
@@ -949,8 +952,15 @@ The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_
   - It needs only Git and the CI check's [`inherited_files.tsv`](/_0_Legacy/Docs/Manifests/inherited_files.tsv), which lists what the base game and base AdvCiv ship; SAS's side comes from the tree.
   - Events name date, SHA and title, no practical number, as the same number names different commits in different segments; SAS's SHAs change with any rewrite of our history, so rerun it after one.
   - Its audit's "Why it has this shape" records the choices made with the user, such as file events only, one path per file and no log of our history in the audit.
+- `--loaded` compares the base-game Python files SAS has no copy of with the modules every `PythonDbg*.log` in Civ4's Logs folder, archived ones included, shows loading; pass another folder after it to read that one. See [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104).
+  - It sorts them into loaded, registered only as an entry point, and not observed. Entry points such as `CvTranslator` never print `load_module`, so not observed is not proof of non-use.
+  - It matches names without case, as Civ4 does: a first, case-sensitive comparison missed `CvUNVictoryScreen`, which the logs name `CvUnVictoryScreen`, until Codex caught it (2026-11-22).
+- `--take-in PATH...` copies base-game Python files SAS uses into SAS, from the newest layer providing each, adding only the SAS header and a comment naming the source; put your model credit in that comment. From then on each is an ordinary SAS file.
+  - It began as a scratchpad script for KI#1104's first copies, which Codex then checked against their sources one by one.
 
 ```bash
+python LLM_Helpers/code_history/inherited_files.py --loaded
+python LLM_Helpers/code_history/inherited_files.py --take-in Assets/Python/Screens/CvScreen.py
 python LLM_Helpers/code_history/inherited_files.py --inventory
 python LLM_Helpers/code_history/inherited_files.py python --grep wb
 python LLM_Helpers/code_history/inherited_files.py xml --summary
@@ -1441,6 +1451,7 @@ The older [`comment_cleanup_pass_v2.py`](#comment_cleanup_pass_v2py) remains a h
 
 Conservative source-rewrite helper for Python files.
 
+- For runtime Python (`Assets/Python`, `PrivateMaps`), prefer [`python_multiline_calls.py --fix`](/.github/workflows/README.md#buildsourcepython_multiline_callspy), the CI check that keeps such calls out: it fixes exactly what it flags, including `x += f(` and `a, b = f(`, which this helper's patterns miss ([KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7)).
 - Collapses multiline call-like statements and simple parenthesized return expressions into one line.
 - Useful for making Civ4 Python calls easier to grep/review and for reducing harmless continuation-indent noise.
 - Skips statements containing comments, multiline strings, explicit backslash continuations, and large list/dict/table assignments.
@@ -1675,7 +1686,9 @@ External cleanup helper for line-ending hygiene.
 - Defaults to active repo text-like files and excludes generated/reference folders such as `LLM_Helpers/outputs`, `_1_AdvCiv-SAS/Docs/examples` and the verbatim `LLM_Helpers/context/mapscript_refs` corpus.
 - Preserves each file's dominant existing line-ending style by default, so it does not force the whole repo to LF or CRLF.
 - Adds a final newline to non-empty text files by default; use `--no-final-newline` only when deliberately preserving a missing final newline.
-- Use `--eol lf` or `--eol crlf` only for deliberate normalization passes; their commit needs `Convert line endings` in its message, or [`line_ending_churn.py`](/.github/workflows/README.md#buildhygieneline_ending_churnpy) fails it. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
+  - It adds it after the last line with content: vanilla's `CvDiplomacyInterface.py` ended on a whitespace-only line without a newline, and appending one left the file ending in two blank lines (2026-11-22, KI#1104).
+- `--trim-trailing-blank-lines` also drops blank lines before an existing final newline. It is opt-in: 60 tracked files ended that way on 2026-11-22, many inherited, and touching one only for whitespace makes provenance ask for its SAS header.
+- Use `--eol lf` or `--eol crlf` only for deliberate normalization passes; their commit needs `[ci_convert_line_endings]` in its message, or [`line_ending_churn.py`](/.github/workflows/README.md#buildhygieneline_ending_churnpy) fails it. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
 - Always review the diff before committing generated source changes.
 
 Examples:

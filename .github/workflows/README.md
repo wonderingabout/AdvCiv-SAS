@@ -56,7 +56,9 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/documentation/markdown_links.py`](#builddocumentationmarkdown_linkspy)
     - [`build/documentation/markdown_prose_changes.py`](#builddocumentationmarkdown_prose_changespy)
     - [`build/documentation/markdown_structure.py`](#builddocumentationmarkdown_structurepy)
+    - [`build/documentation/numbered_references.py`](#builddocumentationnumbered_referencespy)
     - [`build/documentation/orphan_images.py`](#builddocumentationorphan_imagespy)
+    - [`build/documentation/requires_version_markers.py`](#builddocumentationrequires_version_markerspy)
     - [`build/documentation/retired_names.py`](#builddocumentationretired_namespy)
     - [`build/documentation/sas_source_guide.py`](#builddocumentationsas_source_guidepy)
   - [EXE patches](#exe-patches)
@@ -85,6 +87,8 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/repository/makefile_windows_tools.py`](#buildrepositorymakefile_windows_toolspy)
     - [`build/repository/project_sources.py`](#buildrepositoryproject_sourcespy)
     - [`build/repository/release_upstream.py`](#buildrepositoryrelease_upstreampy)
+    - [`build/repository/squash_message.py`](#buildrepositorysquash_messagepy)
+    - [`build/repository/squash_pr_number.py`](#buildrepositorysquash_pr_numberpy)
     - [`build/repository/temp_files.py`](#buildrepositorytemp_filespy)
     - [`build/repository/ui_map_sync.py`](#buildrepositoryui_map_syncpy)
     - [`build/repository/version_metadata.py`](#buildrepositoryversion_metadatapy)
@@ -100,8 +104,10 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
   - [Shared helpers](#shared-helpers)
     - [`lib/advciv_release.py`](#libadvciv_releasepy)
     - [`lib/blank_lines.py`](#libblank_linespy)
+    - [`lib/ci_markers.py`](#libci_markerspy)
     - [`lib/cpp_lex.py`](#libcpp_lexpy)
     - [`lib/git_context.py`](#libgit_contextpy)
+    - [`lib/reference_spellings.py`](#libreference_spellingspy)
     - [`lib/revision_history.py`](#librevision_historypy)
     - [`lib/xml_defines.py`](#libxml_definespy)
   - [Source](#source)
@@ -113,6 +119,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/inherited_files.py`](#buildsourceinherited_filespy)
     - [`build/source/lint_suppressions.py`](#buildsourcelint_suppressionspy)
     - [`build/source/python_binding_targets.py`](#buildsourcepython_binding_targetspy)
+    - [`build/source/python_multiline_calls.py`](#buildsourcepython_multiline_callspy)
     - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`build/source/python_wrapper_null_args.py`](#buildsourcepython_wrapper_null_argspy)
@@ -168,6 +175,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/xml_suspicious_angle_tags.py`](#buildxmlxml_suspicious_angle_tagspy)
     - [`build/xml/xml_suspicious_text_chars.py`](#buildxmlxml_suspicious_text_charspy)
     - [`build/xml/xml_text_duplicate_tags.py`](#buildxmlxml_text_duplicate_tagspy)
+- [CI markers in commit messages](#ci-markers-in-commit-messages)
 - [Run Locally](#run-locally)
 - [Not currently automated](#not-currently-automated)
 - [Dependabot](#dependabot)
@@ -205,14 +213,14 @@ The bot ignores its own refresh branches and skips runs by `github-actions[bot]`
 
 If PR creation fails with a permission error, check the repository's Actions workflow permissions: the workflow needs `contents: write`, `pull-requests: write`, and repository settings that allow GitHub Actions to create pull requests.
 
-Validated behavior, tested in [PR #31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31):
+Validated behavior, tested in [PR#31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31):
 
 - current `main` predump already current -> no PR;
 - leader XML comment-only change (Test 0) -> no PR;
 - real AIP numeric XML change (e.g., Temporary test 1: increase LEADER_MONTEZUMA's war likeliness iMaxWarRand from 50 to 10) -> predump refresh PR;
 - shared AIP label/display change (e.g., Temporary test 2: "Build Unit %" -> "Build Unit Prob") -> predump refresh PR.
 
-The [PR #31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31) body keeps the detailed temporary test commits, GitHub Actions logs, and temporary bot PR links. The important result is that the bot reacts to actual generated predump drift, not merely to touched dependency files.
+The [PR#31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31) body keeps the detailed temporary test commits, GitHub Actions logs, and temporary bot PR links. The important result is that the bot reacts to actual generated predump drift, not merely to touched dependency files.
 
 ## Python Ruff workflow
 
@@ -224,7 +232,15 @@ The workflow first prints the full `ruff check . --isolated --select ALL` groupe
 
 The first GitHub run showed that only a few rules were clearly too noisy, so this is the first cautious narrowing step; narrow further only from actual failure output.
 
-A third step fails on Ruff's RUF100, a `noqa` that suppresses nothing. RUF100 needs every rule enabled, or each `noqa` naming a rule outside the narrow critical gate, such as `E402`, would look unused, so this step runs `--select ALL` and fails only on RUF100.
+A further step fails on style rules promoted once the repository had none left, each a plain slip with one clear fix (2026-11-22):
+
+- E703, a needless trailing semicolon; E714, `not x is None` for `x is not None`; E401, several imports on one line.
+- The same day, once their findings were fixed by hand: E701, `if x: y` on one line; E702, `a; b`; E711, `== None`; E713, `not x in y`, already clean; E101, indentation mixing tabs and spaces.
+- The base AdvCiv 1.12 comparison copy under `_1_AdvCiv-SAS/Docs/examples/source_comparison` is excluded, as it stays as it was.
+- To promote another rule, fix its findings first, then add it to that step's `--select`.
+- [KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7) retraces why: SAS's earlier hand sweeps fixed these rules too, but without a gate they came back.
+
+A last step fails on Ruff's RUF100, a `noqa` that suppresses nothing. RUF100 needs every rule enabled, or each `noqa` naming a rule outside the narrow critical gate, such as `E402`, would look unused, so this step runs `--select ALL` and fails only on RUF100.
 
 - Added on 2026-11-17: a `noqa: E402` was added for an import after a `sys.path` insert, which E402 already allows, and [`lint_suppressions.py`](#buildsourcelint_suppressionspy) passed it, since it checks that a suppression names a rule and a reason, not that one is needed.
 
@@ -297,6 +313,8 @@ To run one subject locally, use the same top-level directory:
 ```bash
 python -m unittest discover -s .github/workflows/tests/repository -t .github/workflows -v
 ```
+
+Keep `-t .github/workflows`: some tests import their helper as a package from there, such as `test_project_sources.py`, which then fails without it. On 2026-11-22 a run without it reported `ModuleNotFoundError: No module named 'build'`, which looked like a broken test, while the same 134 repository tests passed with `-t`.
 
 Local platform-specific game-code tests live separately under [`tests/`](/tests/README.md), including the Windows/VC2003 diagnostic writer harness; they are not part of this workflow.
 
@@ -407,7 +425,7 @@ A new revision can say `pending` in its introducing commit because that commit c
 
 The lifetime rule applies from this checker's introduction; current histories are audited in full. Local draft checks use the staged candidate, excluding unrelated unstaged build outputs and diagnostic overrides.
 
-Existing event boundaries and `revision:squash`/local `--squash` intent are reused: squash candidates validate the aggregate transition, ordinary commits retain individual references. Rewrite stale hashes and practical numbers after rebase/squash; an unchanged merge retains valid identities.
+Existing event boundaries and squash intent (`[ci_squash_pr]` or local `--squash`) are reused: squash candidates validate the aggregate transition, ordinary commits retain individual references. Rewrite stale hashes and practical numbers after rebase/squash; an unchanged merge retains valid identities.
 
 The practical number in a revision heading (`### Revision N - SAS practical M`) is not checked. On 2026-11-15 all 200 finalized SGR and 18 Runtime entries matched `git rev-list --count` of their commit, so a finalized entry could be checked, but a pending one cannot: its number depends on how its branch lands.
 
@@ -419,7 +437,7 @@ The practical number in a revision heading (`### Revision N - SAS practical M`) 
 
 Checks the XML runtime-recorder revision (or compiled labels in historical commits) against its [history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md), shared by the current-state JSON and activity JSONL. This label is independent of SASGameRecord's revision.
 
-Reuses SASGameRecord's event boundaries and explicit `revision:squash` policy, checking each ordinary commit or the complete squash candidate: recognized implementation changes require exactly one increment; pure CI/checker, documentation/example and test maintenance leaves it unchanged. Local checks also validate the pending working-tree increment, including new files before staging.
+Reuses SASGameRecord's event boundaries and squash-intent policy (`[ci_squash_pr]`), checking each ordinary commit or the complete squash candidate: recognized implementation changes require exactly one increment; pure CI/checker, documentation/example and test maintenance leaves it unchanged. Local checks also validate the pending working-tree increment, including new files before staging.
 
 The runtime-defaults check also enforces independent default-off source and screenshot watcher switches; shared environment metadata and the dialog listener are support components, not separate collection toggles.
 
@@ -489,7 +507,7 @@ Commit selection follows the event and explicit merge intent:
 
 - Default-branch pushes check the first-parent commits in `before..after`, including earlier commits in a multi-commit push. Feature-branch pushes defer progression to the PR check because their payload does not identify its merge policy; defaults and history validation still run.
 - Ordinary PRs check each authored commit from the base/head merge base, independently of the synthetic merge checkout.
-- A PR labeled `revision:squash` checks the aggregate base-to-head change as one integration commit: qualifying changes require exactly one bump, unrelated changes require none. Intermediate bumps or corrections do not create public revisions; removing the label restores per-commit checks.
+- A PR whose newest commit message carries `[ci_squash_pr]` checks the aggregate base-to-head change as one integration commit: qualifying changes require exactly one bump, unrelated changes require none. Intermediate bumps or corrections do not create public revisions; removing the label restores per-commit checks.
 - Local/manual checks retain per-commit behavior; `--squash` explicitly checks the complete working candidate against its default-branch merge base. For example, `python .github/workflows/build/diagnostics/sas_revision_history.py --squash`; the runtime checker accepts the same option.
 - A merge commit is judged against the parent with the higher revision, for its number and for whether it changes the recorder.
   - Merging main into the SASPilot branch on 2026-11-17 failed as a jump from 202 to 204: both had used 202 meanwhile, and against the branch's own parent the merge seemed to skip one. Against main's 203, the merge adds the branch's change as 204, one step.
@@ -709,6 +727,15 @@ A folder-wide Deprecated/examples exemption also hid missing menus in maintained
 
 The Logging Inventory reached 55 headings without navigation because the earlier check only validated declared menus. The missing-menu regression now fails for arbitrary new document paths, while fixtures verify exemptions, hierarchy and repeatable generation.
 
+#### `build/documentation/numbered_references.py`
+
+Fails when a tracked text file writes a numbered reference with a space: a pull request is `PR#50`, a Known Issue `KI#1104` and a SASGameRecord revision `SGR210`, one token each, so one grep finds every mention. `--fix` joins them in place; `checks-documentation.yml` runs it as **Numbered references as one token**.
+
+- Added on 2026-11-23, when the user found pull requests written both ways, 29 spaced against 5 joined, while `KI#` was never spaced in 21,972 uses; every tracked text file was converted, history copies such as the dev logs and the archived release notes included, since one grep is the point.
+- The spellings live in [`lib/reference_spellings.py`](/.github/workflows/lib/reference_spellings.py), which [`squash_pr_number.py`](#buildrepositorysquash_pr_numberpy) applies to commit messages too.
+- Runtime revisions, such as `Runtime12`, are not listed yet: 4 of their 22 spaced uses sit in the Runtime subsystem's own sources, where a comment change needs a Runtime revision bump, so they can join with the next commit that bumps Runtime.
+- `LLM_Helpers/context/`, other mods' material and the map scripts' originals, is not ours to respell.
+
 #### `build/documentation/orphan_images.py`
 
 Fails on an image (`.png`, `.jpg`, `.gif`, `.webp`, `.bmp`, `.svg`) whose file name no other text file in the repository names, as a Markdown or HTML embed, a link, a JSON list or a script string. It is the reverse of [`markdown_images.py`](#builddocumentationmarkdown_imagespy), which fails on an embed whose image is missing.
@@ -716,6 +743,15 @@ Fails on an image (`.png`, `.jpg`, `.gif`, `.webp`, `.bmp`, `.svg`) whose file n
 - The file name is matched rather than the path, in its plain and `%20` spellings, since scripts and tables name an image without its folder. Generated corpora and helper outputs (`LLM_Helpers/context/`, `LLM_Helpers/outputs/`) do not count, as they quote old names.
 - It has no exemptions. The first run, on 2026-11-21, found 70: three SAS screenshots left out of the docs, now embedded in the root README; 52 base AdvCiv comparison shots, now shown with captions in the [legacy images page](/_0_Legacy/Images/README.md); and 15 other mods' game font previews, now in a table in the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#editing-with-game-font-editor).
 - So a new image needs a place where it is named: an embed in the doc it illustrates, or a line in its folder's index.
+
+#### `build/documentation/requires_version_markers.py`
+
+Checks that a newly added `(Requires AdvCiv-SAS N+)` names the practical number, `git rev-list --count`, that its change lands at on main: on a push to main, each first-parent commit's own count, a merge commit's included; on a PR marked `[ci_squash_pr]`, the target branch's current count + 1, the squash commit's number.
+
+- The number was written by hand and nothing checked it until 2026-11-22: one too high claims a version that lacks the change, one too low tells players of earlier versions they have it.
+- Only a number that now appears more often in a file counts as added, so rewording, moving or deleting an entry passes; archived release texts under `changelogs_web/` are skipped.
+- It reuses the revision checks' commit selection, so a feature-branch push is left to its PR, as theirs is.
+- A PR not marked for a squash is left to the push on main: a merge commit's count is known only once it exists, which Codex's review found when a branch's `2+` passed on its PR and failed after the merge demanded `4+` (2026-11-22).
 
 #### `build/documentation/retired_names.py`
 
@@ -792,7 +828,7 @@ Fails when a commit switches a file's line endings between LF and CRLF, so that 
 
 - `line_endings.py` catches a file with mixed endings, but a file switched whole has none, so it passed. Its diff then hides the real change: on 2026-11-17 a commit showed 3,481 changed lines in this README for 23 real ones, and only the user's eye on the line count caught it. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
 - Per file, it compares the commit's changed lines with Git's count ignoring line endings (`--ignore-cr-at-eol`); 20 or more lines that differ only there fail. Removed or rewritten lines count in both, so they never trip it.
-- A deliberate conversion passes with `Convert line endings` in the commit message. Commit selection is shared with `dll_commit_message.py`.
+- A deliberate conversion passes with `[ci_convert_line_endings]` in the commit message. Commit selection is shared with `dll_commit_message.py`.
 - Replayed over all of SAS's 2,815 commits, it found 82 files in 56 commits, most from March to May 2026 and only 4 after `line_endings.py` arrived, besides the two README switches already removed by rewriting history. The same command audits any range: `--base-ref <commit> --head-ref main`.
 
 ```bash
@@ -938,13 +974,13 @@ Keeps the dev logs' hand edits, anonymized authors and commits in the branch's h
 
 - The logs are hand-edited copies of `git log`. On 2026-11-17, 650 of the SAS log's 2,420 entries, 8 of base AdvCiv's 3,094 and 3 of K-Mod's 1,249 differed from Git's own messages, with typo, churn and wording fixes such as "LLM/AI helpers" becoming "AI/LLM helpers".
   - A naive regeneration with `git log` would erase them all, so a commit that changes a dev log must keep its earlier content as the exact tail of the new one: new entries go on top.
-  - A deliberate edit of earlier entries, such as a typo fix, passes when the commit message contains `Edit dev log`, as `Update DLL` does for the DLL.
+  - A deliberate edit of earlier entries, such as a typo fix, passes when the commit message contains `[ci_edit_dev_log]`, as `[ci_update_dll]` does for the DLL.
   - Deleting a log fails. A moved log is followed to its earlier path, even when the move and a large prepend together fall below Git's rename similarity, by pairing logs with the same key after `anonymized_email_`, such as `003_AdvCiv-SAS.txt`.
 - Every `Author:` line must be `<hidden>`, as the `anonymized_email` file names promise.
   - Addresses inside message bodies stay as their commits wrote them, such as agents' and bots' `Co-authored-by: GPT-Codex-5.2 <codex@openai.com>` or Dependabot's `Signed-off-by`. They are not personal, and replacing them by hand would be brittle, as more come with new commits.
 - Every logged commit must still be in the checked branch's history, so a history rewrite cannot leave the log citing SHAs that no longer exist there.
   - On 2026-11-17 main was rewritten twice, to give SASSaveTransplanter its name in older commits and to reword KI#1091's message. Both times the SAS log ended just before the rewritten commits, but a rewrite reaching further back would have left it stale without any failure.
-  - After such a rewrite, replace the old SHAs in the log with the new ones from the rewrite's old-to-new map, keeping the entries' hand edits, and say `Edit dev log` in the commit message.
+  - After such a rewrite, replace the old SHAs in the log with the new ones from the rewrite's old-to-new map, keeping the entries' hand edits, and put `[ci_edit_dev_log]` in the commit message.
   - The CI checkout fetches the full history (`fetch-depth: 0`), so a missing commit means it left the history, not that the clone was shallow.
 - Commit selection is shared with `dll_commit_message.py`: the pushed or PR commits in CI, `HEAD` locally.
 - Added on 2026-11-17, while the SAS dev log was brought up to date from practical 6402 to 6763; the check first confirmed that the committed log survived as the exact tail of the new one.
@@ -961,9 +997,9 @@ A changed installed DLL should therefore remain unstaged unless its inclusion is
 
 The commit-message marker makes that decision explicit and catches accidental binary staging in CI. CI runs after pushing; it does not stop local staging or Git pushes, so inspect the staged file list before committing as well.
 
-Requires the exact, case-sensitive phrase `Update DLL` in the title or body of every checked commit that adds, modifies, deletes or renames a tracked `.dll` file anywhere in the repository. The extension is case-insensitive.
+Requires the exact, case-sensitive marker `[ci_update_dll]` in the title or body of every checked commit that adds, modifies, deletes or renames a tracked `.dll` file anywhere in the repository. The extension is case-insensitive.
 
-For example, use `- Update DLL: install the tested Release build` in the commit body. Source-only commits need no marker. With the reporting wrapper present, changing either a DLL or its `<DLL filename>.build.json` requires both paths to change in that same commit; `Update DLL` without a changed pair also fails.
+For example, use `- [ci_update_dll]: install the tested Release build` in the commit body. Source-only commits need no marker. With the reporting wrapper present, changing either a DLL or its `<DLL filename>.build.json` requires both paths to change in that same commit; `[ci_update_dll]` without a changed pair also fails.
 
 A later marked commit cannot excuse an earlier unmarked DLL update; each message is checked separately. Merge commits are compared against their first parent, and root commits include additions.
 
@@ -994,7 +1030,7 @@ GitHub documents its [push payload and commit-array limit](https://docs.github.c
 
 This is an explicit-intent marker, not proof that a DLL was compiled in Release mode, corresponds to the current source or was authorized by the user. Preserve the existing rule that compiled binaries require explicit user approval.
 
-When a squash or merge introduces a DLL, its resulting commit message must also contain `Update DLL`; CI checks that committed message on push. This intent check does not rebuild DLLs or install a local hook; the structural define check below separately covers DLL-consumed XML define name changes.
+When a squash or merge introduces a DLL, its resulting commit message must also contain `[ci_update_dll]`; CI checks that committed message on push. This intent check does not rebuild DLLs or install a local hook; the structural define check below separately covers DLL-consumed XML define name changes.
 
 ```sh
 python .github/workflows/build/repository/dll_commit_message.py
@@ -1008,7 +1044,7 @@ Adding, removing or renaming an XML define consumed by C++ requires an updated s
 - Discover `DefineName` declarations throughout `Assets/XML/**/*.xml`, regardless of filename or name prefix, and compare their combined name sets against each selected commit's first parent; inspect both C++ source trees for those names, ignoring comments.
 - Moving an unchanged name between XML files, value/comment edits and Python-only define names require no rebuild. This is a conservative static reference check; dynamically constructed names and preprocessor reachability are not resolved.
 - Feature-branch pushes defer enforcement. PRs targeting the default branch and default-branch pushes require the integration head's DLL to differ from the binary before each affected change, with matching successful Release JSON evidence.
-- Intermediate source commits can share a later Release build at the integration head; each binary-changing commit still needs its own `Update DLL` marker and build evidence under the existing intent check.
+- Intermediate source commits can share a later Release build at the integration head; each binary-changing commit still needs its own `[ci_update_dll]` marker and build evidence under the existing intent check.
 - Local/manual runs check the selected head commit; `--base-ref` checks a complete range. Amended pushes inspect the new commit identities without relying on a discarded push-before object.
 
 The DLL rebuild check sends the changed define names to Git as input rather than hundreds of command-line arguments. This avoids Windows' command-length limit while preserving literal, whole-name matching; the complete KI#1001.2 rename set exposed that limit.
@@ -1118,6 +1154,30 @@ Run the same check before tagging a candidate.
 ```sh
 python .github/workflows/build/repository/release_upstream.py --release-ref HEAD
 ```
+
+#### `build/repository/squash_message.py`
+
+Lists what a squash merge's commit message must contain, and with `--message FILE` checks a drafted one: the title names its PR as `PR#50`, and each revision the PR bumps, such as `SGR210`, and each KI it opens; the message keeps `[ci_squash_pr]`, and carries `[ci_update_dll]` when the PR ships a DLL.
+
+- Those rules read the squash commit's own message, which exists only once the PR is merged, so before this they failed on the push to main, after the merge; on 2026-11-22 the title drafted for PR#50 lacked SGR210.
+- On a PR marked `[ci_squash_pr]` it shows the list as a warning on the PR page; locally, run `python .github/workflows/build/repository/squash_message.py --message FILE` on the drafted message before merging.
+- The PR reference and the marker were added on 2026-11-23: PR#50's drafted message, pasted over GitHub's own title and body, which lists the PR's commit messages with their marker, lost both; its squash commit, first pushed without them, was rewritten on 2026-11-23 to carry them and this check. On a PR the number comes from the event; locally pass `--pr N`, or any `PR#N` passes.
+  - GitHub's own title ends with a bare `(#50)`, which does not say what the number counts; a PR is named `PR#50`, one token as `KI#1104` is, and a spaced reference fails, as [`build/documentation/numbered_references.py`](#builddocumentationnumbered_referencespy) explains.
+  - [`build/repository/squash_pr_number.py`](#buildrepositorysquash_pr_numberpy) checks the same title on main after the merge.
+- It reuses the revision readers, the KI anchor rule of `ki_commit_titles.py` and the marker spellings, so it cannot drift from the checks that judge the squash commit.
+- It compares the target branch with the tree the squash would commit, from `git merge-tree`, so changes the target already has, such as a cherry-picked entry, are not asked of the squash message; `requires_version_markers.py` does the same, while the DLL check still compares the PR's merge base with its newest commit (2026-11-22).
+
+#### `build/repository/squash_pr_number.py`
+
+On a push to the default branch, and locally on `main`, fails when a commit carrying `[ci_squash_pr]`, the marker a squash commit keeps from its PR, does not name its PR in its title as `PR#50`; GitHub's bare `(#50)` does not count.
+
+On any branch, it also fails a commit message writing a numbered reference with a space, by the table [`numbered_references.py`](#builddocumentationnumbered_referencespy) uses. `checks-repository.yml` runs it as **Squash commits name their PR**.
+
+- Added on 2026-11-23, after PR#50's squash commit lost both its PR reference and the marker to a drafted message, so `git log` and the dev logs no longer led back to the PR's page; that commit was then rewritten to carry both and this check, and [`squash_message.py`](#buildrepositorysquash_messagepy) asks a draft for both before the merge.
+- A PR's own commits carry the marker without a number, so PR runs and pushes to other branches are not checked; a commit without the marker, such as a rebase-merged Dependabot commit, needs no number.
+- It guards marked commits only: a squash whose message dropped both the number and the marker, as PR#50's did, leaves nothing to tell it from an ordinary commit, so the draft check is the guard for that case (Codex's review, 2026-11-23).
+- The title is read as Git's subject, the message's first paragraph joined, and only a positive number such as `PR#50` passes.
+- It checks only the commits of each push.
 
 #### `build/repository/temp_files.py`
 
@@ -1240,6 +1300,10 @@ Recognizes base AdvCiv's release branches, named by version such as `1.14`, `v1.
 
 Finds newly introduced runs of excess blank lines while preserving spacing within literals and structured text. Used by the source provenance and text spacing checks.
 
+#### `lib/ci_markers.py`
+
+Holds the one spelling of each commit-message marker, such as `[ci_update_dll]`, for the checks that read them; see [CI markers in commit messages](#ci-markers-in-commit-messages).
+
 #### `lib/cpp_lex.py`
 
 Masks C++ comments and string and character literals while retaining line breaks and character offsets. The duplicate-include and source provenance checks use `mask_cpp` to distinguish active code from commented-out code and literal text.
@@ -1248,9 +1312,13 @@ Masks C++ comments and string and character literals while retaining line breaks
 
 Runs Git commands, resolves comparison bases for local and CI checks, and decodes historical file contents.
 
+#### `lib/reference_spellings.py`
+
+Holds the one-token spellings of numbered references, such as `PR#50`, `KI#1104` and `SGR210`, and the spaced forms they replace, for [`numbered_references.py`](#builddocumentationnumbered_referencespy) and [`squash_pr_number.py`](#buildrepositorysquash_pr_numberpy).
+
 #### `lib/revision_history.py`
 
-Parses diagnostic revision history entries and validates their Change fields for the SASGameRecord and Runtime checks.
+Parses diagnostic revision history entries and validates their Change fields for the SASGameRecord and Runtime checks, and reads `[ci_squash_pr]` to tell whether a PR is intended to be squash-merged.
 
 #### `lib/xml_defines.py`
 
@@ -1304,6 +1372,8 @@ Keeps the [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_
 
 - SAS starts or stops keeping the filename of a Python, XML, C++, `res` or `Config` file that vanilla, Warlords, BtS or base AdvCiv provides, or moves its file;
 - SAS starts or stops importing an inherited Python module;
+- SAS imports a base-game Python module it does not carry, unless `NOT_CARRIED` says why, as SAS keeps the base-game modules it uses ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)); an entry nothing imports any more fails too;
+- a SAS text file has a base-game text file's name, which would replace that file and drop the keys only it defines (KI#1104);
 - a static import is outside SAS, the base game, and the known Python 2.4 runtime and optional modules (the scan covers `Assets/Python`, `PrivateMaps`, and `SASPilot/game`);
 - the audit was generated from another inherited list.
 
@@ -1339,6 +1409,18 @@ Fails when a Python binding in the DLL's `Cy*Interface*.cpp` files points at a n
 - A method binding `.def("name", &Class::target)` fails when `Class` declares its own `name()` and `target` is neither `name` nor its `py_`/`py` wrapper. Methods AdvCiv retired by commenting out their declaration, such as `getStealTreasuryTypes`, pass.
 - Inside `python::class_<Owner>`, a `.def` fails when it points at a class that is neither `Owner` nor one of its bases.
 - Added on 2026-11-16 for [KI#1090.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090.2). Run against the older files, it finds all seven slips known so far: [KI#1090](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090)'s and KI#1090.2's four enum names, and the three getters [KI#122](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-122) fixed by hand.
+
+#### `build/source/python_multiline_calls.py`
+
+Fails when a call in `Assets/Python` or `PrivateMaps` spans several lines, commented-out calls included, as searches find them too: one line per call greps, compares and lints better, as [AGENTS.md](/AGENTS.md#code-layout-and-collapsing) prefers unless that makes it overly complicated. `--fix` collapses what it flags.
+
+- Added on 2026-11-22: hand sweeps with [`collapse_multiline_calls.py`](/LLM_Helpers/README.md#collapse_multiline_callspy) had no guard, so the [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104) copies brought 18 back, such as WorldBuilder's `attachPanelAt`, and 7 SAS calls such as `a, b = _readIniValues(` slipped past the helper; 10 more were commented out, such as `CvDebugInfoScreen.py`'s disabled `screen.addPanel(`.
+  - [KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7) retraces those sweeps and what came back.
+- It is a heuristic: a call is a dotted name and `(` starting a statement, after `return` or `yield`, or after an assignment target such as `a, b =` or `out[0] =`, and the call itself must span lines; a commented-out call is a run of up to 20 comment lines that compiles once uncommented.
+- A flat list or tuple of plain values counts too when it wraps, with several items on one line, as `CvDebugInfoScreen.py`'s `CivInfoItems` did; one item per line stays allowed.
+- A comment inside moves, unchanged, onto its own line above the collapsed one, as the movie screens' `#self.EXIT_TEXT,` did; only provenance markers keep a call multi-line, such as AdvCiv's `# <advc.092>` around the arguments it changed, or a SAS `custom:` note, and line-scoped directives such as `# noqa`, which only work on their own line; a comment after the closing bracket stays at the end of the collapsed line.
+  - Above moved comments, `--fix` writes a custom note saying where they came from, credited with `--credit "<model>"`, which it then requires: alone, the movie screens' `#self.EXIT_TEXT,` read like a stray line.
+- Tables, conditions and multi-line strings stay multi-line, as do quotes inside a multi-line `custom:` note, such as `SevoPediaReligion.py`'s copy of a base AdvCiv call; tooling Python under `.github`, `LLM_Helpers` and `tests` is not checked.
 
 #### `build/source/python_resource_api.py`
 
@@ -1916,6 +1998,32 @@ Verifies each GameText `TXT_KEY`-style `<TEXT>/<Tag>` entry under `Assets/XML/Te
 Inspired by the old AdvCiv-SAS blind [scan_xml_duplicates-3.3.py](/LLM_Helpers/audits/scan_xml_duplicates-3.3.py) (see [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](/LLM_Helpers/README.md#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)).
 
 This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894) and fix XML text duplicate errors. See [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-149).
+
+## CI markers in commit messages
+
+A marker is one bracketed token in a commit message, title or body, usually on a body line such as `- [ci_update_dll]`. It states an intent the change alone cannot show, so CI checks the change against that intent.
+
+- A marker never skips a check, unlike GitHub's `[skip ci]`, which stops CI from running at all and so lets a problem through unseen. Ours are handled exceptions: every check still runs, and the marker tells it which result is the intended one.
+- Each intent has one spelling, kept once in [`lib/ci_markers.py`](/.github/workflows/lib/ci_markers.py), and all start with `[ci_`, so one search finds every marker in the history.
+  - They were plain phrases before 2026-11-22, such as `Update DLL`, taken from base AdvCiv's commits; the bracketed form keeps them from prose, and older commits keep their phrases, as CI reads only new ones.
+- A bracketed marker counts wherever it appears in the message, so a commit message that only talks about one, such as a commit changing these checks, writes it without brackets, as `ci_update_dll`.
+  - Example (2026-11-22): the draft message of the commit introducing these markers listed them in its prose, and the DLL check failed on "contains '[ci_update_dll]' but no DLL/build-JSON pair changed".
+- A new marker belongs here, and only where the change cannot show the intent: an SGR or Runtime revision bump shows itself, through its define and history entry, so it has none.
+
+| Marker | Intent | What CI still checks |
+| --- | --- | --- |
+| `[ci_update_dll]` | the commit ships the DLL on purpose | a changed DLL and its `Release` build report together; a DLL change without the marker fails, which catches a local test build committed by mistake. See [`build/repository/dll_commit_message.py`](#buildrepositorydll_commit_messagepy). |
+| `[ci_edit_dev_log]` | the commit edits earlier dev log entries on purpose, such as a typo fix | the logs' authors and commits. See [`build/repository/dev_logs.py`](#buildrepositorydev_logspy). |
+| `[ci_convert_line_endings]` | the commit switches files' line endings on purpose | everything else in the commit. See [`build/hygiene/line_ending_churn.py`](#buildhygieneline_ending_churnpy). |
+| `[ci_squash_pr]` | the PR is intended to be squash-merged | the SASGameRecord, Runtime and DLL/runtime revision checks judge the whole PR as the one commit it becomes, so it still needs exactly one correct bump. See [`lib/revision_history.py`](/.github/workflows/lib/revision_history.py). |
+
+- `[ci_squash_pr]` is read from the PR's newest commit message, which states the intent as it stands; a PR without it is checked commit by commit, which is right for a rebase or plain merge.
+  - Example (2026-11-22): PR#50's draft commits bumped SGR to 210, then 211, then back to 210. Judged one by one, its SGR step failed on "regressed 211->210", although the squash commit, 209 to 210, passes. A GitHub label, `revision:squash`, said the same before, but was not in use; the marker replaced it.
+  - The squash commit's own SHA cannot be known before the merge, so the newest revision entry says `pending`, and the next commit on main, or an amend of the squash commit, fills it in.
+  - The squash commit's message must still meet the rules that read a message, such as a bumped revision named in its title; [`build/repository/squash_message.py`](#buildrepositorysquash_messagepy) lists them and checks a drafted message.
+  - The squash commit keeps the marker, which GitHub's squash body carries from the PR's commits as this repository has it set, and names its PR in its title as `PR#50`; [`build/repository/squash_pr_number.py`](#buildrepositorysquash_pr_numberpy) checks it on main.
+  - With it, the DLL check judges the PR as one commit too, and a new `(Requires AdvCiv-SAS N+)` must name main's count + 1; see [`build/documentation/requires_version_markers.py`](#builddocumentationrequires_version_markerspy).
+- Local options do the same for a local run: `--squash` on the revision checks judges a branch as one squash commit; `--staged` on the diagnostic-default checks reads staged content while unstaged development values stay on (see [Local `--staged` option for diagnostic defaults](#local---staged-option-for-diagnostic-defaults)); `ci_report.py --message` takes a draft commit message, so the commit-message checks read its markers.
 
 ## Run Locally
 
