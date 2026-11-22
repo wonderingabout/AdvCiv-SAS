@@ -1,6 +1,9 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
 ## 
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
 ## CvCameraControls
 # advc: Added from BtS just to correct some bugs in unused code. In case that someone ever tries to implement enhanced camera controls (e.g. akin to BlueMod for Civ4Col) based on this wrapper around CyCamera. (There might still be further bugs of course.)
 
@@ -255,7 +258,9 @@ class CvCameraControls:
 		bAtDestination = False
 
 		if ( self.turnDirection ):
-			fTurnModifer = fDeltaTime * self.fTurnSpeed
+			# <!-- custom: Both turn directions read fTurnModifier.
+			# Use the same spelling for the computed value. See KI#165.6. (GPT-6.2-Sol) -->
+			fTurnModifier = fDeltaTime * self.fTurnSpeed
 
 			if ( self.turnDirection == "Right" ):
 				fNewTurn = CyCamera().GetBaseTurn() - fTurnModifier

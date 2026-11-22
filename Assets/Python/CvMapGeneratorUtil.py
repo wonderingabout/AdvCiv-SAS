@@ -1042,14 +1042,16 @@ class MultilayeredFractal:
 				values = sizevalues[key]
 				break
 		# <!-- custom: WorldSizeTypes now includes ARENA/SAS sizes; extra/future XML world sizes should map to the closest calibrated size by tile count so they don't silently fall back to Huge parameters. (ChatGPT-5.2 Thinking + ChatGPT-5.5) -->
+		# <!-- custom: Read size data through the context already owned by this fractal.
+		# The fallback swallowed the undefined gc and used Huge. See KI#165.7. (GPT-6.2-Sol) -->
 		if values is None:
 			try:
-				wi = gc.getWorldInfo(sizekey)
+				wi = self.gc.getWorldInfo(sizekey)
 				iTiles = wi.getGridWidth() * wi.getGridHeight()
 				bestKey = WorldSizeTypes.WORLDSIZE_HUGE
 				bestDiff = 1 << 30
 				for k in sizevalues.keys():
-					wiK = gc.getWorldInfo(k)
+					wiK = self.gc.getWorldInfo(k)
 					diff = abs(iTiles - (wiK.getGridWidth() * wiK.getGridHeight()))
 					if diff < bestDiff:
 						bestDiff = diff
@@ -1078,6 +1080,11 @@ class MultilayeredFractal:
 		# Here is an example set of definitions
 		regiononeWestLon = 0.05
 		regiononeEastLon = 0.35
+		# <!-- custom: Give the example region explicit bounds enclosing its subcontinent, and use the example's calibrated grains. See KI#165.8. (GPT-6.2-Sol) -->
+		regiononeNorthLat = 0.65
+		regiononeSouthLat = 0.25
+		regiononeGrain = iGrainOne
+		archGrain = iGrainFour
 		regiontwoWestLon = 0.45
 		regiontwoEastLon = 0.95
 		regiontwoNorthLat = 0.95

@@ -639,7 +639,9 @@ class mdArray:
 	def get(self):
 		return self._data
 
-	def __len__():
+	# <!-- custom: Python passes the array to __len__ as its receiver.
+	# Accept self before reading the backing data. See KI#165.12. (GPT-6.2-Sol) -->
+	def __len__(self):
 		return len(self._data)
 
 #for saving grid data, wraps in w

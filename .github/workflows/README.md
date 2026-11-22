@@ -72,6 +72,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/hygiene/text_blank_lines.py`](#buildhygienetext_blank_linespy)
   - [Python compatibility](#python-compatibility)
     - [`build/python/python24_compile.py`](#buildpythonpython24_compilepy)
+    - [`build/python/star_import_names.py`](#buildpythonstar_import_namespy)
   - [Repository](#repository)
     - [`build/repository/adjacent_duplicate_lines.py`](#buildrepositoryadjacent_duplicate_linespy)
     - [`build/repository/assets_dlls.py`](#buildrepositoryassets_dllspy)
@@ -914,6 +915,13 @@ python .github/workflows/build/hygiene/text_blank_lines.py --base-ref main
 Compile-checks runtime Civ4 Python files under `Assets/Python` and `PrivateMaps` with CPython 2.4 through [`python24-compile.yml`](/.github/workflows/python24-compile.yml). It uses `py_compile` on each source file but redirects bytecode to a temporary directory so the workflow catches real Python 2.4 parser/bytecode errors without writing `.pyc` files into the mounted repository.
 
 This check complements Ruff: Ruff gives modern static diagnostics, while this workflow confirms the old parser still accepts the files Civ4 can load.
+
+#### `build/python/star_import_names.py`
+
+Fails on a name in `Assets/Python` or `PrivateMaps` that Ruff reports as F405, "may be undefined, or defined from star imports", but that nothing provides: none of the file's star-imported repository modules, recursively, nor a Python 2 built-in, a Python 2 exception target in its handler, or an engine export resolved from a BUG API class heading, a DLL binding or the checked list. It runs in [`python-ruff.yml`](/.github/workflows/python-ruff.yml), which installs Ruff.
+
+- Ruff cannot know what `from CvPythonExtensions import *` provides, so a typo there is F405 rather than F821, and the Ruff gate ignores F405, as nearly every Civ4 name arrives that way. [KI#165.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.2)'s `religionList`, an undefined name from vanilla on, went unseen until 2026-11-22.
+- An engine name the reference lacks, such as WorldBuilder's `getWBToolEditTabCtrl`, goes on the script's `ENGINE_NAMES` list only once checked, as a typo added there would hide the next one.
 
 ### Repository
 

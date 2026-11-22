@@ -920,9 +920,8 @@ class IconGrid_BUG:
 			startIndex = 0
 			for groupIndex in range(len(self.columnGroups)):
 				colGroup = self.columnGroups[groupIndex]
-				if (colGroup.label != ""):
-					currentX += self.groupBorder
-
+				# <!-- custom: Widget deletion uses names.
+				# The copied layout increment read a coordinate this method never sets. See KI#165.11. (GPT-6.2-Sol) -->
 				for offset in range(colGroup.length):
 					if (self.columns[startIndex + offset] == GRID_ICON_COLUMN):
 						self.screen.hide(self.rowName + str(rowIndex) + "_" + str(startIndex + offset))

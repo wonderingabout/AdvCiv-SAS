@@ -258,6 +258,17 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#163 - (Retired tentative hardening) Rare non-reproducible autoplay crash variant related to `CvSelectionGroup::deleteUnitNode` and `CvSelectionGroup::clearUnits`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-163)\
 [KI#164 - (Fixed) Base Civ4 Oasis map script had shadowed Python callbacks (found by the Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-164)\
 [KI#165 - (Fixed) Base AdvCiv bug: Dormant RectLayout `upperLeft` helper returned undefined `Point` instead of `PointLayout` (found by Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165)\
+[KI#165.2 - (Fixed inherited vanilla) `PyHelpers.py`'s dormant `getUnlockedReligionIdxList` built `religionlist` but appended to and returned `religionList`, a name never defined](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.2)\
+[KI#165.3 - (Fixed inherited vanilla) `PyHelpers.py` used bare `PyInfo` member names and undefined list names in dormant info helpers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.3)\
+[KI#165.4 - (Fixed inherited vanilla) `PyPlayer.getPlotList` read `i` instead of the owned plot's `iIndex`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.4)\
+[KI#165.5 - (Fixed inherited BUG) `UnitPlotListUtil.py`'s unused prototype lost its screen, grid and method receivers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.5)\
+[KI#165.6 - (Fixed inherited vanilla) `CvCameraControls.updateTurn` assigned `fTurnModifer` and read `fTurnModifier`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.6)\
+[KI#165.7 - (Fixed SAS) `CvMapGeneratorUtil`'s fallback for extra world sizes silently used Huge because `gc` was undefined](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.7)\
+[KI#165.8 - (Fixed inherited vanilla) Sirian's `MultilayeredFractal` example used undefined region latitudes and grains](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.8)\
+[KI#165.9 - (Fixed inherited Warlords) `onSelectionGroupPushMission` tested an undefined `pHeadUnit` when logging was enabled](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.9)\
+[KI#165.10 - (Fixed inherited BtS) `onCorporationRemove` logged an undefined `iReligion` instead of the corporation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.10)\
+[KI#165.11 - (Fixed inherited BUG) `IconGrid_BUG.deleteAllWidgets` incremented an uninitialized `currentX`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.11)\
+[KI#165.12 - (Fixed inherited Planet Generator) `mdArray.__len__` read `self` without accepting a receiver](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.12)\
 [KI#166 - (Fixed/Addressed) Base AdvCiv issue of trying to support reading mod (e.g., AdvCiv/AdvCiv-SAS) replay/Hall of Fame data in unmodded BTS, or unmodded BTS replay/Hall of Fame data in the mod (e.g., AdvCiv/AdvCiv-SAS): replays no longer try to use vanilla BtS-compatible replay storage after shifted XML enum order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166)\
 [KI#166.2 - (Fixed/Addressed SAS replay-identity follow-up exposed by SASAssertions) AdvCiv's packed replay ID could let incompatible AdvC/legacy shared-ID replays reach current SAS field bounds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.2)\
 [KI#166.3 - (Fixed inherited AdvCiv replay bounds) Valid mod-mod start years were rejected, and invalid final turns did not stop parsing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.3)\
@@ -14720,6 +14731,136 @@ The nearby `__str__` returning text like `"Point(...)"` is different: that is on
 The fix changed `upperLeft()` to return the local `PointLayout` class, matching `RectLayout.offsetPoint()` and the rest of the active layout code.
 
 Found thanks to Python Ruff and fixed with the help of GPT-5.5 (on Codex) and ChatGPT-5.5 (who also helped implement/draft this workflow) thanks (Although tbh another LLM or maybe it was GPT-5.5 too had mentioned it but i had overlooked/omitted it or forgot to look into it; now fixed it seems).
+
+<a id="ki-165.2"></a>
+
+## KI#165.2 - (Fixed inherited vanilla) `PyHelpers.py`'s dormant `getUnlockedReligionIdxList` built `religionlist` but appended to and returned `religionList`, a name never defined
+
+`PyHelpers.py`'s `PyTechInfo.getUnlockedReligionIdxList` started an empty `religionlist`, then called `religionList.append(i)` and returned `religionList`, differently capitalized. Any call would have raised `NameError: global name 'religionList' is not defined`; nothing in SAS calls it, so like KI#165's `Point` it stayed dormant.
+
+- Found on 2026-11-22 while switching the KI#1104 copy of `PyHelpers.py` to `SASVisualUtils`' religion glyphs in `getReligionButton`, the function just below it.
+- Vanilla Civ4, Warlords and BtS all have the same capitalization bug in `Assets/Python/PyHelpers.py`. The Better BTS AI 1.01 release, K-Mod 1.46 and base AdvCiv 1.14 ship no `PyHelpers.py` override. SAS used the BtS copy until KI#1104 brought that file into the mod.
+- Ruff's full report flagged both references to `religionList` as `F405` because `from CvPythonExtensions import *` could supply the name. It also flagged the unused `religionlist` assignment as `F841`. The Ruff gate in `python-ruff.yml` ignores both rules.
+- The fix names the list `religionList` throughout.
+- See also the mirror case, a name that exists when it should not: Python keeps a loop's variable after the loop ends.
+  - In `generate_leaders_data.py`, the script that then generated the leader data behind the Sevopedia Leader rewrite (SAS practical 4835, `41755fedd2`, 2025-06-22), a loop read a variable left over from an earlier loop instead of its own.
+  - It silently used that loop's last value instead of failing, a bug that took hours to find.
+  - The commit message illustrates it with `x1` and `x2` but does not name the variables actually involved.
+  - That commit gave each loop's variables its own suffix, so that a slip names nothing and fails at once: `leader_type_1`, `leader_data_1` and `contact_type_1` in the first loop, `contact_type_2` and `leader_type_2` in the second, `contact_type_3`, `leader_type_3` and `leader_data_3` in the third, and `contact_type_4` in the fourth.
+  - The script left the repository with SAS practical 5287 (`121d7739ae`, 2026-01-03), so these names now exist only in its history.
+  - Ruff's `F405` resolution, which [`star_import_names.py`](/.github/workflows/README.md#buildpythonstar_import_namespy) checks, cannot see that case, as the reused name is defined.
+
+- How it was found (2026-11-22): by chance, while amending PR#50's squash commit to move the KI#1104 copies' art lookups onto SASVisualUtils' cache, as `getReligionButton` sits just below this function.
+  - The user then asked for a CI check, to look for siblings rather than stop at the one found by chance: [`star_import_names.py`](/.github/workflows/README.md#buildpythonstar_import_namespy), run once over the whole repository, found 35 more names nothing defines, now [KI#165.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.3) to [KI#165.12](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.12), and fails on any new one.
+  - So one chance finding became a systematic sweep and a guard; most of the siblings sat in the same KI#1104 copies, such as `PyHelpers.py`, which SAS had run from the base game until then. See also [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104).
+
+Found by Claude Code Opus 5.5 (2026-11-22); Codex (GPT-6.2-Sol) traced it through each layer and reproduced the `NameError` in Python 2.4.
+
+<a id="ki-165.3"></a>
+
+## KI#165.3 - (Fixed inherited vanilla) `PyHelpers.py` used bare `PyInfo` member names and undefined list names in dormant info helpers
+
+The installed vanilla, Warlords and BtS copies use bare names such as `TechnologyInfo` and `InfoDictionary` inside method bodies. Those members are on `PyInfo`. The class body can use its own names while building its dictionary, but a method body does not look them up there. Better BTS AI 1.01, K-Mod 1.46 and base AdvCiv 1.14 ship no `PyHelpers.py` override. SAS used the BtS copy until KI#1104.
+
+The fix qualifies those references in the dispatchers and getters. The unit prerequisite helpers also used the unit wrapper for technology and bonus IDs. `getListUnlockedUnitInfos` now iterates the returned unit IDs directly instead of indexing an undefined `idList`.
+
+`FeatureInfo.getFeatureTerrainList` now uses the DLL's `isTerrain`, appends the terrain ID, and returns `featureTerrainList` with its declared spelling. I found no SAS callers outside the affected helper chains.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.4"></a>
+
+## KI#165.4 - (Fixed inherited vanilla) `PyPlayer.getPlotList` read `i` instead of the owned plot's `iIndex`
+
+The installed vanilla, Warlords and BtS copies all iterate `iIndex` and then call `plotByIndex(i)`. An empty list returns normally. Any owned plot exposes the undefined name. The indirect callers are `getPlotsWithBonus` and `getNumImprovementPlots` in the same module. I found no SAS caller of that chain. KI#1104 copied the BtS implementation. The fix passes `iIndex` to the map lookup.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.5"></a>
+
+## KI#165.5 - (Fixed inherited BUG) `UnitPlotListUtil.py`'s unused prototype lost its screen, grid and method receivers
+
+The independent BUG history contains the missing `PleOpt`, `UnitUtil` and `_getMission` receiver by `f3a3f13364` (2009-06-26). The 2009-06-27 rewrite (`0c9c242f7a`) adds bare coordinate and screen names. The July 14 and 15 revisions (`82015d8dc4`, `5d9586fec2`) contain the unbound panel and unit snapshots and the promotion callback calls.
+
+K-Mod brought the prototype in with `593c549b51` (2010-12-27). Base AdvCiv and SAS preserve it. [BUG source history](https://github.com/dharkness/civ4bug/commits/master/CustomAssets/Python/BUG/UnitPlotListUtil.py)
+
+There is no SAS import or BUG configuration registration for this prototype. `BugUnitPlot.py` provides the maintained plot list. The repair gives the prototype explicit receivers for its BUG options and mission lookups, screen, grid and unit methods.
+
+Its grid now follows the documented zero-based, bottom-row-first order. The promotion methods use previous and current slot snapshots with guards for empty slots.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.6"></a>
+
+## KI#165.6 - (Fixed inherited vanilla) `CvCameraControls.updateTurn` assigned `fTurnModifer` and read `fTurnModifier`
+
+The installed vanilla and BtS copies have the discrepancy. Warlords ships no override. Base AdvCiv copied the BtS file in `bb6397f363` (2022-01-18), and SAS retained it. `CvEventManager.onUpdate` can forward to the camera controller, but I found no SAS caller arming the turn with `doTurnCamera`. AdvCiv also noted that the old update callback appeared obsolete.
+
+Use one spelling for both reads and the assignment. The historical turn-direction and destination logic was outside this typo fix.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.7"></a>
+
+## KI#165.7 - (Fixed SAS) `CvMapGeneratorUtil`'s fallback for extra world sizes silently used Huge because `gc` was undefined
+
+SAS practical 5311, `77dc1e64a7` (2026-01-08), added the nearest-size lookup to Sirian's dormant `MultilayeredFractal.generatePlotsByRegion` template. Both uses of bare `gc` were new. The inherited method's class already had `self.gc`, and the bare `except` treated the resulting `NameError` as a lookup failure. The fallback consequently used Huge for any size missing from the example's table.
+
+Use `self.gc` for both lookups. The 25 checked SAS subclasses override the template method, so this repair does not change their map generation.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.8"></a>
+
+## KI#165.8 - (Fixed inherited vanilla) Sirian's `MultilayeredFractal` example used undefined region latitudes and grains
+
+The installed vanilla and Warlords `CvMapGeneratorUtil.py` template uses `regiononeNorthLat`, `regiononeSouthLat`, `regiononeGrain` and `archGrain` without definitions. The installed BtS layer has no copy. Better BTS AI already preserves these lines in SVN r482 (2009-08-09) and ships them in 1.01. K-Mod contains them in `593c549b51` (2010-12-27), and base AdvCiv and SAS retain the sample.
+
+The checked SAS map scripts provide their own `generatePlotsByRegion`, so none uses these example values. Keep the tutorial runnable with explicit latitudes enclosing its example subcontinent, and use the sample's existing world-size grain values for the first region and archipelago branch.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.9"></a>
+
+## KI#165.9 - (Fixed inherited Warlords) `onSelectionGroupPushMission` tested an undefined `pHeadUnit` when logging was enabled
+
+The handler is absent from the installed vanilla copy. Warlords and BtS unpack an owner, mission, count and unit IDs but test `pHeadUnit`, which they never bind. The Better BTS AI 1.01 and K-Mod 1.46 trees have no `CvEventManager.py` override. Base AdvCiv's `e11525d303` (2017-08-24) contains the slip and SAS retains it.
+
+The DLL dispatches the event from the selection-group mission path. AdvCiv's legacy switch leaves `__LOG_PUSH_MISSION` off, so normal play returned before the failing guard. Use the event's unit count for that guard. The log only prints the mission number.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.10"></a>
+
+## KI#165.10 - (Fixed inherited BtS) `onCorporationRemove` logged an undefined `iReligion` instead of the corporation
+
+BtS's `CvEventManager.py` added the corporation removal handler with an `iCorporation` argument, then used the religion-removal lookup unchanged. Vanilla and Warlords have no corporation-removal handler. The same code is in base AdvCiv and SAS. The registered handler returns before the bad lookup unless the legacy religion-spread logging switch is enabled.
+
+Use `getCorporationInfo(iCorporation)`, as the neighboring corporation callbacks already do.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.11"></a>
+
+## KI#165.11 - (Fixed inherited BUG) `IconGrid_BUG.deleteAllWidgets` incremented an uninitialized `currentX`
+
+The unused increment appears in the BUG SVN mirror at `1a03ccf8e4` (2009-05-12), in K-Mod's initial asset import `593c549b51` (2010-12-27), and in base AdvCiv and SAS. [BUG source snapshot](https://github.com/dharkness/civ4bug/blob/1a03ccf8e448aaf625afcdf03551a12d93e64488/CustomAssets/Python/Screens/IconGrid_BUG.py)
+
+The Foreign Advisor and BUG Military Advisor use the grid, but I found no call to this grid's `deleteAllWidgets`. If called with a populated labeled group, the increment would raise `UnboundLocalError`.
+
+Remove the coordinate increment and its label guard. The method deletes widgets by name and never uses the coordinate.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.12"></a>
+
+## KI#165.12 - (Fixed inherited Planet Generator) `mdArray.__len__` read `self` without accepting a receiver
+
+The byte-preserved Planet Generator 0.68 and BTG copies both have `def __len__():` under `mdArray`, as does the C2C copy. SAS's Planet import `eaa9a887f9` (2026-02-11) preserved it. Python would reject the implicit receiver before executing the body when asked for the length of an `mdArray` or subclass such as `worldArray`.
+
+The map creates `worldArray` during plot generation, but I found no direct length call on that object. Add the receiver as the author's other array classes already do.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
 
 <a id="ki-166"></a>
 
@@ -38581,3 +38722,5 @@ Not a bug but a rule, written down so the files it covers can point to it.
 - Pull request: [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50). The branch is squash-merged, so its separate commits, such as `ec887dbd9e`, `7463f070dc` and `36fcfde727`, stay reachable on that page rather than on main.
 
 Asked for by the user while auditing SAS's inherited files with Claude Code Opus 5.5 (2026-11-22), with Codex's (GPT-6.2-Sol) review of the loading question and of each copy.
+
+Update (2026-11-22): once in the repository, the copies met SAS's CI, and `PyHelpers.py`'s dormant `religionList` slip turned up, which led to a check for such names and its 35 siblings. See also [KI#165.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.2).

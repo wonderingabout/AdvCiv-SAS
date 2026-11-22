@@ -356,8 +356,9 @@ class PyPlayer:
 	def getPlotList(self):
 		' plotList - player plots '
 		lPlots = []
+		# <!-- custom: Use the loop's plot index when resolving each owned plot. See KI#165.4. (GPT-6.2-Sol) -->
 		for iIndex in self.getPlotIDList():
-			lPlots.append( CyMap().plotByIndex(i) )
+			lPlots.append( CyMap().plotByIndex(iIndex) )
 		return lPlots
 	
 	def getTotalLand(self):
@@ -955,11 +956,13 @@ class PyInfo:
 	
 	def getInfoID(strInfoType, iID):
 		strInfoType = strInfoType.lower()
-		infoDict = InfoDictionary.get(strInfoType)
+		# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+		infoDict = PyInfo.InfoDictionary.get(strInfoType)
 		return infoDict['GET'](iID)
 	
 	def getPyInfoID(strPyInfoType, iID):
-		PyInfoTypes = {'unit':UnitInfo,'building':BuildingInfo,'tech':TechnologyInfo}
+		# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+		PyInfoTypes = {'unit':PyInfo.UnitInfo,'building':PyInfo.BuildingInfo,'tech':PyInfo.TechnologyInfo}
 		strInfoType = strPyInfoType.lower()
 		return PyInfoTypes.get(strInfoType)(iID)
 		
@@ -969,7 +972,8 @@ class PyInfo:
 		strInfoName = strInfoName.capitalize()
 		
 		#get the appropriate dictionary item
-		infoDict = InfoDictionary.get(strInfoType)
+		# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+		infoDict = PyInfo.InfoDictionary.get(strInfoType)
 		#get the number of infos
 		numInfos = infoDict['NUM']()
 		#loop through each info
@@ -1015,7 +1019,8 @@ class PyInfo:
 		def getPrereqImprovementID(self):
 			lImprovements = []
 			for i in range(gc.getNumImprovementInfos()):
-				if self.ID in ImprovementInfo(i).getAffectedBonusIDList():
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				if self.ID in PyInfo.ImprovementInfo(i).getAffectedBonusIDList():
 					lImprovements.append(i)
 			return lImprovements
 		
@@ -1027,7 +1032,8 @@ class PyInfo:
 			rTech = []
 			reqImprovement = self.getPrereqImprovementID()
 			for i in range(len(reqImprovement)):
-				info = ImprovementInfo(reqImprovement[i])
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				info = PyInfo.ImprovementInfo(reqImprovement[i])
 				rTech.append(info.getTechPrereq())
 			return rTech
 		
@@ -1042,7 +1048,8 @@ class PyInfo:
 			"str - Tech the bonus is revealed"
 			techReveal = self.info.getTechReveal()
 			if techReveal and not techReveal == -1:
-				techInfo = TechnologyInfo(techReveal)
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				techInfo = PyInfo.TechnologyInfo(techReveal)
 				return techInfo.getDescription()
 			return 0
 		
@@ -1057,7 +1064,8 @@ class PyInfo:
 			"str - Location of button art for tech that reveals this bonus"
 			techReveal = self.getRevealTechID()
 			if techReveal and not techReveal == -1:
-				techInfo = TechnologyInfo(techReveal)
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				techInfo = PyInfo.TechnologyInfo(techReveal)
 				if techInfo:
 					return techInfo.getButton()
 			return 0
@@ -1066,7 +1074,8 @@ class PyInfo:
 			"str - Tech required for Trading"
 			techTrade = self.info.getTechCityTrade()
 			if techTrade and not techTrade == -1:
-				techInfo = TechnologyInfo(techTrade)
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				techInfo = PyInfo.TechnologyInfo(techTrade)
 				return techInfo.getDescription()
 			return 0
 		
@@ -1081,7 +1090,8 @@ class PyInfo:
 			"str - location of button art for tech that allows trading of this resource"
 			techTrade = self.getTradeTechID()
 			if techTrade and not techTrade == -1:
-				techInfo = TechnologyInfo(techTrade)
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				techInfo = PyInfo.TechnologyInfo(techTrade)
 				if techInfo:
 					return techInfo.getButton()
 			return 0
@@ -1159,7 +1169,8 @@ class PyInfo:
 			"int-list of ImprovementID's the bonus affects"
 			ImprovementList = []
 			for i in range(gc.getNumImprovementInfos()):
-				loopInfo = ImprovementInfo(i)
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				loopInfo = PyInfo.ImprovementInfo(i)
 				if self.ID in loopInfo.getAffectedBonusIDList():
 					ImprovementList.append(loopInfo)
 			return ImprovementList
@@ -1167,7 +1178,8 @@ class PyInfo:
 		def getImprovementChangeIDList(self):
 			iList = []
 			for i in range(gc.getNumImprovementInfos()):
-				loopInfo = ImprovementInfo(i)
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				loopInfo = PyInfo.ImprovementInfo(i)
 				idList = loopInfo.getAffectedBonusIDList()
 				if self.ID in idList:
 					iList.append(i)
@@ -1178,7 +1190,8 @@ class PyInfo:
 		
 		def getImprovementModifierInfo(self):
 			iImprovement = self.getAPrereqImprovementID()
-			info = ImprovementInfo(iImprovement)
+			# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+			info = PyInfo.ImprovementInfo(iImprovement)
 			lEffects = []
 			for i in range(YieldTypes.NUM_YIELD_TYPES):
 				iResult = info.getImprovementBonusYield(self.ID, i)
@@ -1276,7 +1289,8 @@ class PyInfo:
 			"intList - id list of all unit infos that match combat type with current unit"
 			lUnitClassID = []
 			for i in range(gc.getNumUnitInfos()):
-				if UnitInfo(i).getUnitClassType() == self.getUnitClassType():
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				if PyInfo.UnitInfo(i).getUnitClassType() == self.getUnitClassType():
 					lUnitClassID.append(i)
 			return lUnitClassID
 			
@@ -1313,7 +1327,8 @@ class PyInfo:
 			"str - prerequisite technology"
 			pTech = self.info.getPrereqAndTech()
 			if pTech >= 0 and pTech < gc.getNumTechInfos():
-				return TechnologyInfo(pTech).getDescription()
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				return PyInfo.TechnologyInfo(pTech).getDescription()
 		
 		def getTechPrereqID(self):
 			"int - prerequisite techs xml id"
@@ -1326,7 +1341,8 @@ class PyInfo:
 			"str - location of techs button art"
 			pTech = self.getTechPrereqID()
 			if pTech and not pTech == 0:
-				return TechnologyInfo(pTech).getButton()
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				return PyInfo.TechnologyInfo(pTech).getButton()
 		
 		def getPrereqOrTechIDList(self):
 			"intList - IDList of multiple tech requirements"
@@ -1342,7 +1358,8 @@ class PyInfo:
 			pTechIDList = self.getPrereqOrTechIDList()
 			pTechInfos = []
 			for i in range(len(pTechIDList)):
-				pTechInfos.append(UnitInfo(pTechIDList[i]))
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				pTechInfos.append(PyInfo.TechnologyInfo(pTechIDList[i]))
 			return pTechInfos
 		
 		def getPrereqBonusID(self):
@@ -1361,7 +1378,8 @@ class PyInfo:
 			"str - prerequisite bonus"
 			pBonus = self.info.getPrereqAndBonus()
 			if pBonus >= 0 and pBonus < gc.getNumBonusInfos():
-				return "%c" %(BonusInfo(pBonus).getSymbol())
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				return "%c" %(PyInfo.BonusInfo(pBonus).getSymbol())
 			return ""
 		
 		def getPrereqBonusIDList(self):
@@ -1378,7 +1396,8 @@ class PyInfo:
 			bInfos = []
 			pBonuses = self.getPrereqBonusIDList()
 			for item in pBonuses:
-				bInfos.append(UnitInfo(item))
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				bInfos.append(PyInfo.BonusInfo(item))
 			return bInfos
 	
 		def getPrereqBonusIcons(self):
@@ -1387,7 +1406,8 @@ class PyInfo:
 			pBonuses = self.getPrereqBonusIDList()
 			for i in range(len(pBonuses)):
 				loopID = pBonuses[i]
-				loopIcon = BonusInfo(loopID).getSymbol()
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				loopIcon = PyInfo.BonusInfo(loopID).getSymbol()
 				bonusIcons+= loopIcon
 			return bonusIcons
 		
@@ -1447,27 +1467,31 @@ class PyInfo:
 			"str - Required Buildings Name"
 			reqBuildingID = self.getRequiredBuildingID()
 			if not reqBuildingID == -1:
-				return BuildingInfo(reqBuildingID).getDescription()
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				return PyInfo.BuildingInfo(reqBuildingID).getDescription()
 		
 		def getRequiredBuildingButton(self):
 			"int - Required Buildings Button"
 			reqBuildingID = self.getRequiredBuildingID()
 			if not reqBuildingID == -1:
-				return BuildingInfo(reqBuildingID).getButton()
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				return PyInfo.BuildingInfo(reqBuildingID).getButton()
 			return 0
 		
 		def getBuildingRequiredTechID(self):
 			"int - required buildings ID"
 			reqBuildingID = self.getRequiredBuildingID()
 			if not reqBuildingID == -1:
-				return BuildingInfo(reqBuildingID).getTechPrereq()
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				return PyInfo.BuildingInfo(reqBuildingID).getTechPrereq()
 			return -1
 		
 		def getBuildingRequiredTechnologyButton(self):
 			"str - building requireds technology button path"
 			techID = self.getBuildingRequiredTechID()
 			if not techID == -1:
-				return TechnologyInfo(techID).getButton()
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				return PyInfo.TechnologyInfo(techID).getButton()
 			return ""
 		
 	class TechnologyInfo:
@@ -1498,7 +1522,8 @@ class PyInfo:
 		def createPrereqDictionary(self):
 			pDict = {}
 			for i in range(gc.getNumTechInfos()):
-				TechInfo = TechnologyInfo(i)
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				TechInfo = PyInfo.TechnologyInfo(i)
 				pDict[i]=(i,"%s" %(TechInfo.getDescription()), TechInfo.getTechPreqIdxList())
 			return pDict
 		
@@ -1507,7 +1532,8 @@ class PyInfo:
 			f = file('TechPrereq.txt', "w")
 			f.write("### CIV Tech Prereq List ###\n\n")
 			for i in range(gc.getNumTechInfos()):
-				lInfo = TechnologyInfo(i)
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				lInfo = PyInfo.TechnologyInfo(i)
 				f.write("\n   (%d)%s - %s" %(i, lInfo.getDescription(), lInfo.getTechPreqDescList()))
 			f.close()
 		
@@ -1537,7 +1563,8 @@ class PyInfo:
 				if len(lGroup) > 0:
 					for j in range(len(lPrereqID[i])):
 						lGroup2 = lPrereqID[i][j]
-						lInfo.append(TechnologyInfo(lGroup2).getDescription())
+						# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+						lInfo.append(PyInfo.TechnologyInfo(lGroup2).getDescription())
 				lPrereqDesc.append(lInfo)
 				lInfo=[]
 			return lPrereqDesc
@@ -1552,7 +1579,8 @@ class PyInfo:
 					loopGroup = preqList[i]				
 					for j in range(len(loopGroup)):
 						loopID = loopGroup[j]
-						loopInfo = TechnologyInfo(loopID)
+						# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+						loopInfo = PyInfo.TechnologyInfo(loopID)
 						if loopInfo:
 							infoGroup = infoGroup + (loopInfo,)
 					if infoGroup:
@@ -1618,14 +1646,16 @@ class PyInfo:
 			idList = self.getUnlockedBuildingIdxList()
 			buildingList = []
 			for i in range(len(idList)):
-				buildingList.append(BuildingInfo(idList[i]))
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				buildingList.append(PyInfo.BuildingInfo(idList[i]))
 			return buildingList			
 		
 		def getUnlockedUnitIdxList(self):
 			"intList - IDList of unlocked Units"
 			unitList=[]
 			for i in range(gc.getNumUnitInfos()):
-				loopUnit = UnitInfo(i)
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				loopUnit = PyInfo.UnitInfo(i)
 				if loopUnit.isTechPrereq(self.techID):
 					unitList.append(i)
 			return unitList
@@ -1645,19 +1675,23 @@ class PyInfo:
 		def getListUnlockedUnitInfos(self):
 			"objList - info list of unlocked units"
 			unitList = []
-			for i in range(len(self.getUnlockedUnitIdxList())):
-				unitList.append(UnitInfo(idList[i]))
+			# <!-- custom: Build wrappers directly from the unlocked IDs.
+			# The inherited loop indexed an unset idList. See KI#165.3. (GPT-6.2-Sol) -->
+			for unitID in self.getUnlockedUnitIdxList():
+				unitList.append(PyInfo.UnitInfo(unitID))
 			return unitList
 		
 		def getNoUniqueUnlockedUnitInfoList(self):
 			lUnitInfos = []
 			for unitID in self.getNoUniqueUnlockedUnitIDList():
-				lUnitInfos.append(UnitInfo(unitID))
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				lUnitInfos.append(PyInfo.UnitInfo(unitID))
 			return lUnitInfos
 	
 		def getUnlockedReligionIdxList(self):
 			"intList - IDList of unlocked Religions"
-			religionlist = []
+			# <!-- custom: Was religionlist, while the loop appended to and returned religionList, an undefined name: any call raised NameError. See KI#165.2. (Claude code Opus 5.5) -->
+			religionList = []
 			for i in range(gc.getNumReligionInfos()):
 				if ( gc.getReligionInfo(i).getTechPrereq() == self.techID ): 
 					religionList.append(i)
@@ -1674,7 +1708,8 @@ class PyInfo:
 		def isBuildTech(self):
 			"bool - unlocks build"
 			for i in range(gc.getNumBuildInfos()):
-				if ( BuildInfo(i).getTechPrereq() == self.techID ):
+				# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+				if ( PyInfo.BuildInfo(i).getTechPrereq() == self.techID ):
 					return True
 			return False
 		
@@ -1682,8 +1717,9 @@ class PyInfo:
 			"objList - list of build infos the tech unlocks"
 			lBuilds = []
 			for i in range(gc.getNumBuildInfos()):
-				if ( BuildInfo(i).getTechPrereq() == self.techID ):
-					lBuilds.append(BuildInfo(i))
+				if ( PyInfo.BuildInfo(i).getTechPrereq() == self.techID ):
+					# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+					lBuilds.append(PyInfo.BuildInfo(i))
 			return lBuilds
 		
 		def isCivicTech(self):
@@ -1843,7 +1879,8 @@ class PyInfo:
 					loopID = lBonusID[i]
 					if loopID in lBonusTrack: #dont need multiple infos for the same bonus
 						continue
-					lBonus.append(BonusInfo(loopID))
+					# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+					lBonus.append(PyInfo.BonusInfo(loopID))
 					lBonusTrack.append(loopID)
 			return lBonus
 		
@@ -1853,7 +1890,8 @@ class PyInfo:
 			if lBonus:
 				for i in range(len(lBonus)):
 					loopEntry = lBonus[i]
-					loopBonus = BonusInfo(loopEntry[0])
+					# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+					loopBonus = PyInfo.BonusInfo(loopEntry[0])
 					loopYield = gc.getYieldInfo(loopEntry[1])
 					loopModifier = loopEntry[2]
 					loopItem = (loopBonus,loopYield,loopModifier)
@@ -1889,7 +1927,8 @@ class PyInfo:
 			return 0
 			
 		def getButton(self):
-			return TechnologyInfo(self.getTechPrereq()).getButton()
+			# <!-- custom: Resolve the inherited helper through PyInfo so the method finds its class member. See KI#165.3. (GPT-6.2-Sol) -->
+			return PyInfo.TechnologyInfo(self.getTechPrereq()).getButton()
 		
 		def getTechPrereq(self):
 			return self.info.getTechPrereq()
@@ -2068,12 +2107,13 @@ class PyInfo:
 			return False
 		
 		def getFeatureTerrainList(self, terrainList):
+			# <!-- custom: The feature binding calls this test isTerrain.
+			# Append the accepted ID and return the list with its declared spelling. See KI#165.3. (GPT-6.2-Sol) -->
 			featureTerrainList = []
-			numTerrain = gc.getNumTerrainInfos()
-			for i in range(numTerrain):
-				if self.info.checkTerrain(i):
-					featureTerrainList.append()
-			return featureTerrainLIst
+			for i in range(gc.getNumTerrainInfos()):
+				if self.info.isTerrain(i):
+					featureTerrainList.append(i)
+			return featureTerrainList
 		
 		def getFoodYieldChange(self):
 			return self.info.getYieldChange(YieldTypes.YIELD_FOOD)

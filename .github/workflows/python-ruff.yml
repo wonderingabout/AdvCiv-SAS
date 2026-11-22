@@ -54,6 +54,13 @@ jobs:
           # Each is a plain slip with one clear fix, unlike the broad rules the full report shows; the base AdvCiv 1.12 comparison copy under Docs/examples stays as it was, so it is excluded. See KI#21.7. (Claude code Opus 5.5) -->
           ruff check . --isolated --exclude "LLM_Helpers/context/mapscript_refs,_1_AdvCiv-SAS/Docs/examples/source_comparison" --config "builtins = ['unicode']" --select E703,E714,E401,E701,E702,E711,E713,E101 --output-format=github
 
+      - name: Names hidden by star imports
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          # <!-- custom: The gate above ignores F405, as nearly every Civ4 name arrives through "from CvPythonExtensions import *"; this fails on the F405 names nothing provides, such as KI#165.2's religionList. (Claude code Opus 5.5) -->
+          python .github/workflows/build/python/star_import_names.py
+
       - name: No unused noqa
         if: ${{ !cancelled() }}
         shell: bash

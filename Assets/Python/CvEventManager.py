@@ -561,7 +561,8 @@ class CvEventManager:
 
 		if (not self.__LOG_PUSH_MISSION):
 			return
-		if pHeadUnit:
+		# <!-- custom: The event supplies a unit count and IDs, so keep the unit guard without looking for an undefined head unit. See KI#165.9. (GPT-6.2-Sol) -->
+		if iNumUnits > 0:
 			CvUtil.pyPrint("Selection Group pushed mission %d" %(eMission))
 
 	def onUnitMove(self, argsList):
@@ -771,7 +772,8 @@ class CvEventManager:
 		player = PyPlayer(iOwner)
 		if (not self.__LOG_RELIGIONSPREAD):
 			return
-		CvUtil.pyPrint('%s has been removed from Player %d Civilization %s city of %s' %(gc.getReligionInfo(iReligion).getDescription(), iOwner, player.getCivilizationName(), pRemoveCity.getName()))
+		# <!-- custom: Use this event's corporation ID and lookup when legacy logging is enabled. See KI#165.10. (GPT-6.2-Sol) -->
+		CvUtil.pyPrint('%s has been removed from Player %d Civilization %s city of %s' %(gc.getCorporationInfo(iCorporation).getDescription(), iOwner, player.getCivilizationName(), pRemoveCity.getName()))
 
 	def onGoldenAge(self, argsList):
 		'Golden Age'

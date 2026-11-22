@@ -117,7 +117,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 210 - SAS practical 6838
 
 - **Date:** 2026-11-22
-- **Git commit:** pending
+- **Git commit:** `0f5ef710eabaf6332a47b9781ba13b236444b713`
 - **Change:** Layout only, with no change to what is recorded:
   - `SASGameRecordSettings.py`'s two `_readIniValues(` calls and `SASGameRecordActions.py`'s two `_emitPythonPopupResponse(` calls are now written on one line each, as `python_multiline_calls.py` requires for runtime Python.
   - `CvScreensInterface.py`'s pre-gated `SASGameRecordActions.observeMapAnnotations` call for WorldBuilder landmarks now sits on its own line under its `isEnabled()` test, as Ruff's E701, promoted to a CI failure, requires.
