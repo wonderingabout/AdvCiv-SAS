@@ -38724,3 +38724,7 @@ Not a bug but a rule, written down so the files it covers can point to it.
 Asked for by the user while auditing SAS's inherited files with Claude Code Opus 5.5 (2026-11-22), with Codex's (GPT-6.2-Sol) review of the loading question and of each copy.
 
 Update (2026-11-22): once in the repository, the copies met SAS's CI, and `PyHelpers.py`'s dormant `religionList` slip turned up, which led to a check for such names and its 35 siblings. See also [KI#165.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.2).
+
+Update (2026-11-22): the source-provenance gap left for later above is closed: [`source_change_provenance.py`](/.github/workflows/README.md#buildsourcesource_change_provenancepy) now counts a new file's original comments and imports as inherited when the layer and path from `Assets/` in its leading copy note match the inherited-files manifest.
+
+The full install path remains in the note for readers. The push after the PR#50 squash had failed on those comments and imports.

@@ -1589,6 +1589,11 @@ Or provide an explicit comparison base:
 python .github/workflows/build/source/source_change_provenance.py --base-ref <base-sha>
 ```
 
+A base-game file SAS takes in whole, as [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104) asks, keeps its original comments and imports without custom notes: a file new to the checked range counts them as inherited when its leading source header says "Copied from" and the layer and path from `Assets/` match the [inherited-files manifest](/_0_Legacy/Docs/Manifests/inherited_files.tsv). The full install path stays in the header for readers.
+
+- Before this (2026-11-22), every push whose range held the KI#1104 copies failed on their hundreds of Firaxis comments, as main did after the PR#50 squash and its amend.
+- GitHub's runners have no Civ4 install to compare the copy with, so the header is trusted once the manifest confirms the path; the copy's custom notes and SAS header are still checked as usual.
+
 #### `build/source/string_label_compares.py`
 
 Fails when runtime Python (`Assets/Python`, `PrivateMaps`) compares a value with a short lowercase string literal, such as `kind == "btn"`, unless a `sas-ci-string-compare-exemption: <reason>` note sits on that line or the line above, inside a credited custom comment.
