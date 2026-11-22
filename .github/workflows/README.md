@@ -228,6 +228,7 @@ The first GitHub run showed that only a few rules were clearly too noisy, so thi
 A further step fails on style rules promoted once the repository had none left, each a plain slip with one clear fix (2026-11-22):
 
 - E703, a needless trailing semicolon; E714, `not x is None` for `x is not None`; E401, several imports on one line.
+- The same day, once their findings were fixed by hand: E701, `if x: y` on one line; E702, `a; b`; E711, `== None`; E713, `not x in y`, already clean; E101, indentation mixing tabs and spaces.
 - The base AdvCiv 1.12 comparison copy under `_1_AdvCiv-SAS/Docs/examples/source_comparison` is excluded, as it stays as it was.
 - To promote another rule, fix its findings first, then add it to that step's `--select`.
 - [KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7) retraces why: SAS's earlier hand sweeps fixed these rules too, but without a gate they came back.

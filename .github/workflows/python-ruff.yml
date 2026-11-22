@@ -50,8 +50,9 @@ jobs:
         shell: bash
         run: |
           # <!-- custom: Style rules promoted to failures once the repository had none left (2026-11-22): E703 a needless trailing semicolon such as "screen.hide(x);", E714 "not x is None" for "x is not None", E401 several imports on one line.
+          # The same day, once their findings were fixed by hand: E701 "if x: y" on one line, E702 "a; b", E711 "== None", E713 "not x in y" (already clean) and E101 indentation mixing tabs and spaces.
           # Each is a plain slip with one clear fix, unlike the broad rules the full report shows; the base AdvCiv 1.12 comparison copy under Docs/examples stays as it was, so it is excluded. See KI#21.7. (Claude code Opus 5.5) -->
-          ruff check . --isolated --exclude "LLM_Helpers/context/mapscript_refs,_1_AdvCiv-SAS/Docs/examples/source_comparison" --config "builtins = ['unicode']" --select E703,E714,E401 --output-format=github
+          ruff check . --isolated --exclude "LLM_Helpers/context/mapscript_refs,_1_AdvCiv-SAS/Docs/examples/source_comparison" --config "builtins = ['unicode']" --select E703,E714,E401,E701,E702,E711,E713,E101 --output-format=github
 
       - name: No unused noqa
         if: ${{ !cancelled() }}

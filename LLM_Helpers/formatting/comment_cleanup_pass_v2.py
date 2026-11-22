@@ -81,7 +81,9 @@ def smart_join(parts):
     for part in parts:
         part=part.strip()
         if not out:
-            out=part; prev=part; continue
+            out=part
+            prev=part
+            continue
         # Preserve wrapped-sentence behavior; insert a period only when previous line looks complete and the next is a new sentence.
         if prev and not SENTENCE_END_RE.search(prev) and part[:1].isupper() and not prev.endswith(('and','or','the','a','an','to','of','in','for','with','that','than','as','is','are','be','adding')):
             out += '. ' + part
@@ -107,32 +109,41 @@ def transform(text):
     src_lines=text.split('\n')
     ends=text.endswith('\n')
     if ends:
-    	src_lines=src_lines[:-1]
+        src_lines=src_lines[:-1]
     lines=[]
     typos=0
     for l in src_lines:
-        n,c=fix_typos(l); lines.append(n)
+        n,c=fix_typos(l)
+        lines.append(n)
         typos+=c
     out=[]
     collapsed=0
     i=0
     while i < len(lines):
         if not is_plain_comment_line(lines[i]):
-            out.append(lines[i]); i+=1; continue
+            out.append(lines[i])
+            i+=1
+            continue
         # top copyright/license-ish header: leave structured
         if i < 20:
-            out.append(lines[i]); i+=1; continue
+            out.append(lines[i])
+            i+=1
+            continue
         indent, _ = split_comment(lines[i])
         # collect same-indent plain comments only
         j=i
         contents=[]
         raw=[]
         while j < len(lines) and is_plain_comment_line(lines[j]) and split_comment(lines[j])[0] == indent:
-            _ind, cont=split_comment(lines[j]); contents.append(cont); raw.append(lines[j])
+            _ind, cont=split_comment(lines[j])
+            contents.append(cont)
+            raw.append(lines[j])
             j+=1
         # Process only short-ish runs; long prose/doc blocks are intentionally multiline.
         if len(contents) < 2 or len(contents) > 6:
-            out.extend(raw); i=j; continue
+            out.extend(raw)
+            i=j
+            continue
         group=[]
         any_collapse=0
         for cont in contents:
@@ -147,7 +158,8 @@ def transform(text):
             if SENTENCE_END_RE.search(s):
                 if len(group) == 1:
                     # Single complete sentence/label; keep it separate so following lowercase continuation lines do not get merged into it.
-                    out.append(indent + '# ' + group[0]); group=[]
+                    out.append(indent + '# ' + group[0])
+                    group=[]
                 elif len(group) >= 2:
                     any_collapse += maybe_flush_group(out, indent, group)
                     group=[]
@@ -156,10 +168,11 @@ def transform(text):
         i=j
     result='\n'.join(out)
     if ends:
-    	result+='\n'
+        result+='\n'
     return result,typos,collapsed
 
-raw=SRC.read_bytes(); use_crlf=b'\r\n' in raw
+raw=SRC.read_bytes()
+use_crlf=b'\r\n' in raw
 text=raw.decode('utf-8').replace('\r\n','\n').replace('\r','\n')
 new,typos,collapsed=transform(text)
 if significant_tokens(text)!=significant_tokens(new):

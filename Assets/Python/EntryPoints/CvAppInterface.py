@@ -189,11 +189,19 @@ def normalizePath(argsList):
 def getConsoleMacro(argsList):
 	'return a string macro that is used by the in-game python console, fxnKey goes from 1 to 10'
 	fxnKey = argsList[0]
-	if (fxnKey==1): return "player = gc.getPlayer(0)"
-	if (fxnKey==2): return "import CvCameraControls"
-	if (fxnKey==3): return "CvCameraControls.g_CameraControls.resetCameraControls()"
-	if (fxnKey==4): return "CvCameraControls.g_CameraControls.doRotateCamera(360, 45.0)"
-	if (fxnKey==5): return "CvCameraControls.g_CameraControls.doZoomCamera(0.2, 0.5)"
-	if (fxnKey==6): return "CvCameraControls.g_CameraControls.doZoomCamera(0.5, 0.15)"
-	if (fxnKey==7): return "CvCameraControls.g_CameraControls.doPitchCamera(0.5, 0.5)"
+	# <!-- custom: Each if and its return on their own lines, as Ruff's E701 asks; the macros are unchanged. See KI#21.7. (Claude code Opus 5.5) -->
+	if (fxnKey==1):
+		return "player = gc.getPlayer(0)"
+	if (fxnKey==2):
+		return "import CvCameraControls"
+	if (fxnKey==3):
+		return "CvCameraControls.g_CameraControls.resetCameraControls()"
+	if (fxnKey==4):
+		return "CvCameraControls.g_CameraControls.doRotateCamera(360, 45.0)"
+	if (fxnKey==5):
+		return "CvCameraControls.g_CameraControls.doZoomCamera(0.2, 0.5)"
+	if (fxnKey==6):
+		return "CvCameraControls.g_CameraControls.doZoomCamera(0.5, 0.15)"
+	if (fxnKey==7):
+		return "CvCameraControls.g_CameraControls.doPitchCamera(0.5, 0.5)"
 	return ""

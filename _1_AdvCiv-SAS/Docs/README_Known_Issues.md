@@ -51,7 +51,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#21 - (Now fixed) missing "Cannot enter" terrain or feature info in map view of unit effects, unlike in Sevopedia (where it is also not clear enough about restrictions (cultural borders + not affected by roads, now added this info as well))](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21)\
 [KI#21.5 - (Addressed / fixed) - Removed the giant configobj docstring very inefficiently in the python code, and commented out most if not all as well](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.5)\
 [KI#21.6 - (Addressed) Old python code not being optimized, with many ruff linter (that we added) VS Code errors that don't allow to read the files](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.6)\
-[KI#21.7 - (Addressed, partly guarded by CI) SAS's Ruff and multi-line cleanups kept coming undone: a year of hand sweeps had no CI gate for these rules, so on 2026-11-22 64 Ruff findings and 25 multi-line calls were back or left, and 35 findings remain](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7)\
+[KI#21.7 - (Addressed, guarded by CI) SAS's Ruff and multi-line cleanups kept coming undone: a year of hand sweeps had no CI gate for these rules, so on 2026-11-22 64 Ruff findings and 25 multi-line calls were back or left](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7)\
 [KI#22 - (Now fixed) Obsolete bonuses (such as BONUS_ELEPHANTS) in tech advisor (i.e. tech tree view) failing to redirect to Sevopedia bonus with id none causing an error, unlike obsolete buildings (like BUILDING_SPIRAL_MINARET for example) successfully showing the building item's page](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22)\
 [KI#22.5 - (Addressed) Seemingly fixed weird flavors or XML fields: Mistakes?](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22.5)\
 [KI#22.6 - (Addressed) XML tweaks and fixes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22.6)\
@@ -2094,7 +2094,7 @@ Update (2026-11-22): the cleanup above is practical 4844 to 4847, 2025-06-26 to 
 
 <a id="ki-21.7"></a>
 
-## KI#21.7 - (Addressed, partly guarded by CI) SAS's Ruff and multi-line cleanups kept coming undone: a year of hand sweeps had no CI gate for these rules, so on 2026-11-22 64 Ruff findings and 25 multi-line calls were back or left, and 35 findings remain
+## KI#21.7 - (Addressed, guarded by CI) SAS's Ruff and multi-line cleanups kept coming undone: a year of hand sweeps had no CI gate for these rules, so on 2026-11-22 64 Ruff findings and 25 multi-line calls were back or left
 
 KI#21.6 records the first Ruff cleanup. This entry retraces what followed, from the [`commit_diffs`](/LLM_Helpers/context/commit_diffs/) corpus, practical numbers and dates included, and what was done once the pattern showed (2026-11-22).
 
@@ -2133,7 +2133,10 @@ KI#21.6 records the first Ruff cleanup. This entry retraces what followed, from 
   - One showed why the layout mattered beyond grepping: `CvWorldBuilderScreen.py`'s `attachPanelAt` passed its empty title and help text as two `""` lines in a row, which [`adjacent_duplicate_lines.py`](/.github/workflows/README.md#buildrepositoryadjacent_duplicate_linespy) flagged as a likely pasted line; on one line the pair is no longer two lines.
   - Codex's review found that `--fix` could rewrite a triple-quoted string that looked like commented-out code, and that a Windows-1252 ellipsis byte shifted line numbers; both were fixed with tests.
 - Practical 6842 `2b8a034d3a` (2026-11-22): E703, E714 and E401 promoted to failures in `python-ruff.yml`, after fixing the 29 findings with Ruff's own safe fixes.
-- Still warnings: E701, E702, E711 and E101, whose 35 findings need hand edits; E713 has none.
+- Left as warnings by that commit: E701, E702, E711 and E101, whose 35 findings needed hand edits; E713 had none.
+- Practical 6845 (2026-11-22): those 35 were fixed by hand, and E701, E702, E711, E713 and E101 promoted to failures too.
+  - E701 and E702 statements were split onto their own lines, such as `CvAppInterface.py`'s seven `if (fxnKey==1): return …`; E711's `line==None` became `line is None`.
+  - E101: `CvDebugInfoScreen.py`'s dispatch table was indented with five tabs and a space, now three tabs, keeping its columns aligned with the tabs inside each row.
 
 Retraced with Claude Code Opus 5.5; Codex (GPT-6.2-Sol) reviewed the check and the Ruff promotion.
 

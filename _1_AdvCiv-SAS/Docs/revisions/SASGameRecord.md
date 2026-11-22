@@ -113,6 +113,12 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 211 - SAS practical 6845
+
+- **Date:** 2026-11-22
+- **Git commit:** pending
+- **Change:** Layout only, with no change to what is recorded: `CvScreensInterface.py`'s pre-gated `SASGameRecordActions.observeMapAnnotations` call for WorldBuilder landmarks now sits on its own line under its `isEnabled()` test, as Ruff's E701, promoted to a CI failure, requires. See KI#21.7.
+
 ### Revision 210 - SAS practical 6841
 
 - **Date:** 2026-11-22
