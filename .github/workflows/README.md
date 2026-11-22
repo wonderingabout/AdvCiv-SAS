@@ -1555,7 +1555,7 @@ Religions and corporations get their glyphs from XML order itself, and [`build/x
 
 Verifies that every `<LSystem>` in `CIV4ArtDefines_Building.xml` names a `building:LSYSTEM_*` placement rule of the city L-system.
 
-- SAS uses the BtS `CIV4CityLSystem.xml`, which is not in the repository, so the check reads its 24 names from [`building_art_lsystem_names_bts.tsv`](/_0_Legacy/Docs/Manifests/building_art_lsystem_names_bts.tsv), regenerated locally with `--write --civ4-root <Civ4 install root>`.
+- SAS currently uses the BtS `CIV4CityLSystem.xml`, which is not in the repository, so the check reads its 24 names from [`building_art_lsystem_names_bts.tsv`](/_0_Legacy/Docs/Manifests/building_art_lsystem_names_bts.tsv), regenerated locally with `--write --civ4-root <Civ4 install root>`.
 - The names are plain identifiers rather than hashes, so failures can list the valid choices.
 - If SAS ships its own city L-system, the check reads that file instead.
 
@@ -1875,7 +1875,7 @@ Verifies that every entry in `Assets/XML/Text/AdvCiv-SAS*.xml` still differs fro
 - GitHub has no BtS/Warlords/vanilla text files, so the check reads [`xml_sas_text_inherited_hashes.tsv`](/_0_Legacy/Docs/Manifests/xml_sas_text_inherited_hashes.tsv): one tag, source and truncated SHA-256 per inherited entry, without copying Firaxis text. Overview and samples: [Manifests of the inherited layers](/README.md#manifests-of-the-inherited-layers).
   - Why hashes instead of the text: we do not know whether copyright allows republishing complete unmodified game text files, and this check only needs to know whether two English texts are identical.
     - A hash answers that without containing the text: `TXT_KEY_LEADER_LINCOLN bts 8d54efb91fed8018` cannot be read back as "Lincoln" or sorted by it.
-    - Only the English text is hashed, as SAS text files hold English only.
+    - Only the English text is hashed, as SAS's text files currently hold English only.
   - Hashes cannot be read or sorted, so `--write` also stores [`xml_sas_text_inherited_names.tsv`](/_0_Legacy/Docs/Manifests/xml_sas_text_inherited_names.tsv): readable English only for the about 120 leader and civilization name keys that CI checks use, such as `TXT_KEY_LEADER_LINCOLN` -> "Lincoln".
   - Both are plain TSV with one header row and no comment lines, so table tools read them cleanly; Rainbow CSV's CSVLint in VS Code had flagged earlier `#` header lines as rows with the wrong column count.
     - There is no separate CSV/TSV lint: the readers already fail on a missing header row or a row without exactly three fields, and these lists are almost the only tracked TSV files (the other is generated context under `LLM_Helpers/context/`).

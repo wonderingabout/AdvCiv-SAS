@@ -5,9 +5,13 @@
 
 	Copyright (c) 2009 The BUG Mod.
 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <Civ4GameText xmlns="http://www.firaxis.com">
 
-	<!-- advc.002f: Replaced by text in BUG_Main_Interface_Options.xml -->
+	<!-- advc.002f: Replaced by text in BUG Main Interface Options.xml -->
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #99 -->
 
 	<!-- advc.186: Not making these optional -->

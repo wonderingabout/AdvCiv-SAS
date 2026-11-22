@@ -380,7 +380,7 @@ Rename the tag									Original untouched; you're free to localize your version
 "
 -->
 
-===== \Assets\XML\Text\BUG_City_Screen_Options.xml =====
+===== \Assets\XML\Text\BUG City Screen Options.xml =====
 ===== /Assets/XML/Art/CIV4ArtDefines_Interface.xml =====
 ----- Comment #31 -----
 <!-- custom: ⚔️ emoji ('s choice/idea/suggestion) is from chatgpt's code
@@ -430,7 +430,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Selecciona el número de turnos a esperar antes de mostrar información de decaimiento.</Spanish>
 	</TEXT-->
 
-===== \Assets\XML\Text\BUG_Main_Interface_Options.xml =====
+===== \Assets\XML\Text\BUG Main Interface Options.xml =====
 ----- Comment #33 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__OPTIONSKEY_TEXT</Tag>
@@ -523,7 +523,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<German>Zeigt das [ICON_HEALTHY]-Symbol über den Namen von Städten an, deren Bevölkerung keine [ICON_UNHEALTHY]-Punkte generiert.</German>
 	</TEXT-->
 
-===== \Assets\XML\Text\BUG_Options_Screen.xml =====
+===== \Assets\XML\Text\BUG Options Screen.xml =====
 ----- Comment #36 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_AUTOLOG_BUILDS</Tag>
@@ -574,7 +574,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Comercio:</Spanish>
 	</TEXT-->
 
-===== \Assets\XML\Text\BUG_Advanced_Scoreboard_Options.xml =====
+===== \Assets\XML\Text\Advanced Scoreboard Options.xml =====
 ----- Comment #37 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__WHEOOH_TEXT</Tag>
@@ -611,7 +611,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>[COLOR_WARNING_TEXT]Esta característica requiere una versión más nueva del DLL de BUG (BULL).[COLOR_REVERT]</Spanish>
 	</TEXT-->
 
-===== \Assets\XML\Text\BUG_Civ4lerts_Options_advc.xml =====
+===== \Assets\XML\Text\Civ4lerts Options.xml =====
 ----- Comment #39 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGOCCUPATION_TEXT</Tag>
@@ -646,7 +646,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Muestra un aviso cuando una ciudad sea pacificada, terminando con la ocupación.</Spanish>
 	</TEXT-->
 
-===== \Assets\XML\Text\BUG_MoreCiv4lerts_Options.xml =====
+===== \Assets\XML\Text\MoreCiv4lerts Options.xml =====
 ----- Comment #40 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__CITYFOUNDED_TEXT</Tag>
@@ -743,7 +743,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Límite de territorio para una victoria por Dominación.</Spanish>
 	</TEXT-->
 
-===== \Assets\XML\Text\BUG_Not_Just_Another_Game_Clock_Options.xml =====
+===== \Assets\XML\Text\Not Just Another Game Clock Options.xml =====
 ----- Comment #42 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWCOMPLETEDPERCENT_TEXT</Tag>
@@ -778,7 +778,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Muestra el porcentaje de turnos completado si la condición de Victoria por Tiempo está habilitada</Spanish>
 	</TEXT-->
 
-===== \Assets\XML\Text\BUG_Plot_List_Enhancements_Options.xml =====
+===== \Assets\XML\Text\Plot List Enhancements Options.xml =====
 ----- Comment #43 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__DRAW_METHOD_LIST</Tag>
@@ -923,7 +923,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Especifica el espaciado vertical de los iconos de promoción en el texto flotante del panel de información de unidades (el valor por defecto es cero, valores positivos hacia arriba). Es necesario modificar este valor al usar temas que modifican la fuente. Por ejemplo, hay que usar 6 con BlueMarble.</Spanish>
 	</TEXT!-->
 
-===== \Assets\XML\Text\BULL_City_Bar_Options.xml =====
+===== \Assets\XML\Text\BULL City Bar Options.xml =====
 ----- Comment #50 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HEALTH_TEXT</Tag>
@@ -1147,7 +1147,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Si se activa, muestra el número de turnos restantes para que en la ciudad nazca una gran personaje ([ICON_GREATPEOPLE]).</Spanish>
 	</TEXT-->
 
-===== \Assets\XML\Text\BULL_Misc_Hovers_Options.xml =====
+===== \Assets\XML\Text\BULL Misc Hovers Options.xml =====
 ----- Comment #57 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADHIDDENATTITUDE_TEXT</Tag>
@@ -1400,7 +1400,7 @@ Rename the tag									Original untouched; you're free to localize your version
 ----- Comment #74 -----
 <!-- custom: remove the very unclear "Enables" text, that is at best inaccurate. For example in https://modiki.civfanatics.com/index.php/Civ4BonusInfos (and similar info in kujira's website translated to english as well, see ctrl+f "kujira" global search for details), it states about this: "The technology that enables the trading of this resource.", so i think we can rephrase it for concision to for example as below -->
 
-===== \Assets\XML\Text\CIV4GameText_Sevopedia.xml =====
+===== \Assets\XML\Text\Sevopedia_CIV4GameText.xml =====
 ----- Comment #76 -----
 <!-- custom: "Food: +1F (with Irrigation)" becomes now "+1F (with Irrigation)", remove the uneeded "%s1: " too now, see placeYield in SevoPediaImprovement.py for details; note: update: these entries are not used anymore now that we display them as buttons, commented-out in case it helps
 	<TEXT>
@@ -1987,7 +1987,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Todas[COLOR_REVERT][NEWLINE]Cuenta todas las casillas en el radio de la ciudad sin importar su propietario.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BULL_City_Bar_Options.xml =====
+===== \Assets/XML/Text/BULL City Bar Options.xml =====
 ----- Comment #99 -----
 
 	<!--TEXT>
@@ -2438,7 +2438,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 </TEXT>
 -->
 
-===== \Assets/XML/Text/BUG_Plot_List_Enhancements_Options.xml =====
+===== \Assets/XML/Text/Plot List Enhancements Options.xml =====
 ----- Comment #141 -----
 
 	<!-- advc.069: unused -->
@@ -2459,7 +2459,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 		<Spanish>Activa las mejoras a la lista de unidades y el resto de opciones de esta pestaña.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Strategy_Overlay_Options.xml =====
+===== \Assets/XML/Text/Strategy Overlay Options.xml =====
 ----- Comment #142 -----
 
 	<!-- advc.004: Now unused -->
@@ -2478,7 +2478,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 		<Spanish>Muestra los puntos de ciudad planeada en el mapa normal.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Strategy_Overlay_Options.xml =====
+===== \Assets/XML/Text/Strategy Overlay Options.xml =====
 ----- Comment #143 -----
 
 	<!-- advc.004: unused -->
@@ -2490,7 +2490,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 		<Spanish>Número del icono a colocar en el centro de los bordes de las ciudades planeadas.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BULL_City_Bar_Options.xml =====
+===== \Assets/XML/Text/BULL City Bar Options.xml =====
 ----- Comment #144 -----
 
 	<!-- Handled by advc.101; non-optional. -->
@@ -3161,7 +3161,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 <!-- custom: extra valuing if city is in top hammer cities, and the higher the rank the more we value it: e.g. 1000 means city will be extra valued with an added value of 1000 - (10 * 1) = 990 * the military instructor's specialist experience in top 1 hammer city (mostly additive and conservative addition, so made numbers high enough to make it significant while trying to avoid overflow), or 1000 - (10 * 2) = 980 in top 2 hammer city, or 1000 - (10 * 3) = 970 in top 3 hammer city. -->
 	<!-- custom: Long_Comments_XML.txt #169 -->
 
-===== \Assets/XML/Text/BUG_Advanced_Combat_Odds_Options.xml =====
+===== \Assets/XML/Text/Advanced Combat Odds Options.xml =====
 ----- Comment #236 -----
 
 	<!-- advc.048: unused -->
@@ -3182,7 +3182,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Cuando está activada muestra la información de depuración en el cálculo de Probabilidades de Combate.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Advanced_Scoreboard_Options.xml =====
+===== \Assets/XML/Text/Advanced Scoreboard Options.xml =====
 ----- Comment #237 -----
 
 	<!-- [advc.099] -->
@@ -3197,7 +3197,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	<!-- Replacing the above (and TXT_KEY_BUG_OPTLABEL_SCORES_DEAD_CIVS in BUG
 		 Options Screen.xml) -->
 
-===== \Assets/XML/Text/BUG_Advisors_Options.xml =====
+===== \Assets/XML/Text/BUG Advisors Options.xml =====
 ----- Comment #238 -----
 
 	<!-- advc.072: Now unused -->
@@ -3210,7 +3210,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Iconos</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Advisors_Options.xml =====
+===== \Assets/XML/Text/BUG Advisors Options.xml =====
 ----- Comment #239 -----
 
 	<!-- Rewritten (English, German), then replaced with the key below. -->
@@ -3223,7 +3223,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Permite mostrar cuántos turnos quedan antes de que puedas cancelar cada intercambio en la pestaña 'Activo'.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Advisors_Options.xml =====
+===== \Assets/XML/Text/BUG Advisors Options.xml =====
 ----- Comment #240 -----
 
 	<!-- advc.004: Now disused (German was "BUG Statistiken") -->
@@ -3259,7 +3259,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Activada, sólo las entradas que no sean cero son mostradas en la pestaña 'Estadísticas'.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Autolog_Options.xml =====
+===== \Assets/XML/Text/Autolog Options.xml =====
 ----- Comment #241 -----
 
 <!-- advc.004: was
@@ -3270,7 +3270,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		 Doesn't hurt to have a separate option for SS parts, but the
 		 generic production alerts should cover these in any case. -->
 
-===== \Assets/XML/Text/BUG_City_Screen_Options.xml =====
+===== \Assets/XML/Text/BUG City Screen Options.xml =====
 ----- Comment #243 -----
 
 	<!-- advc.004: Obsolete, see above. -->
@@ -3289,7 +3289,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Si se activa, muestra sólo las corporaciones que están presentes en la ciudad y permite más de siete corporaciones.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_City_Screen_Options.xml =====
+===== \Assets/XML/Text/BUG City Screen Options.xml =====
 ----- Comment #244 -----
 
 	<!--TEXT>
@@ -3301,7 +3301,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Avisos</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Civ4lerts_Options_advc.xml =====
+===== \Assets/XML/Text/Civ4lerts Options.xml =====
 ----- Comment #245 -----
 
 	<!-- unused -->
@@ -3322,7 +3322,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Cantidad</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Main_Interface_Options.xml =====
+===== \Assets/XML/Text/BUG Main Interface Options.xml =====
 ----- Comment #246 -----
 
 	<!--TEXT>
@@ -3342,7 +3342,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Muestra tu oro en amarillo si el cambio este turno es negativo pero no suficiente para llevar tu tesoro por debajo de cero.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Main_Interface_Options.xml =====
+===== \Assets/XML/Text/BUG Main Interface Options.xml =====
 ----- Comment #247 -----
 
 	<!-- advc.004: Unused -->
@@ -3355,7 +3355,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Barra de Tipo de GP</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_MoreCiv4lerts_Options.xml =====
+===== \Assets/XML/Text/MoreCiv4lerts Options.xml =====
 ----- Comment #248 -----
 
 	<!-- advc.004: Now unused -->
@@ -3374,7 +3374,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Muestra un aviso cuando una civilización está dispuesta a firmar un Tratado de Paz.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Not_Just_Another_Game_Clock_Options.xml =====
+===== \Assets/XML/Text/Not Just Another Game Clock Options.xml =====
 ----- Comment #249 -----
 
 	<!--TEXT>
@@ -3386,9 +3386,9 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Reloj Alternativo</Spanish>
 	</TEXT-->
 	<!-- advc.067: Merging the above with TXT_KEY_BUG_OPTLABEL_NJAGC_ALTERNATE
-		 in 'BUG_Options_Screen.xml' -->
+		 in 'BUG Options Screen.xml' -->
 
-===== \Assets/XML/Text/BUG_Not_Just_Another_Game_Clock_Options.xml =====
+===== \Assets/XML/Text/Not Just Another Game Clock Options.xml =====
 ----- Comment #250 -----
 
 	<!-- advc.067: unused -->
@@ -3407,7 +3407,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		 <Spanish>Permite seleccionar el tiempo que cada una de las vistas de reloj se mostrará cuando se emplea el modo alternante.</Spanish>
 		 -->
 
-===== \Assets/XML/Text/BUG_Options_Screen.xml =====
+===== \Assets/XML/Text/BUG Options Screen.xml =====
 ----- Comment #251 -----
 
 	<!-- advc.009c: Commented out -->
@@ -3416,7 +3416,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<English>MapFinder:</English>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Options_Screen.xml =====
+===== \Assets/XML/Text/BUG Options Screen.xml =====
 ----- Comment #252 -----
 
 	<!--TEXT>
@@ -3431,7 +3431,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		 Same as TXT_KEY_FOREIGN_ADVISOR_RELATIONS in
 		 CIV4GameTextInfos.xml (but that one misses the colon). -->
 
-===== \Assets/XML/Text/BUG_Options_Screen.xml =====
+===== \Assets/XML/Text/BUG Options Screen.xml =====
 ----- Comment #253 -----
 
 	<!--TEXT>
@@ -3444,7 +3444,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	</TEXT-->
 	<!-- advc.002k: Year notation doesn't fit under "Clock" -->
 
-===== \Assets/XML/Text/BUG_Options_Screen.xml =====
+===== \Assets/XML/Text/BUG Options Screen.xml =====
 ----- Comment #254 -----
 
 	<!--TEXT>
@@ -3457,7 +3457,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	<!-- advc.060: Replacing the above b/c I want to list the SS screen as a
 		 kind of splash screen (though it really isn't) -->
 
-===== \Assets/XML/Text/BUG_Options_Screen.xml =====
+===== \Assets/XML/Text/BUG Options Screen.xml =====
 ----- Comment #255 -----
 
 	<!--TEXT> advc.009c
@@ -3465,7 +3465,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<English>BUFFY:</English>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Plot_List_Enhancements_Options.xml =====
+===== \Assets/XML/Text/Plot List Enhancements Options.xml =====
 ----- Comment #256 -----
 
 	<!-- advc.069: Switched the order of the last two.
@@ -3476,7 +3476,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		 <Spanish>Fila Simple|Filas Múltiples|Grupos Verticales|Grupos Horizontales</Spanish>
 		 -->
 
-===== \Assets/XML/Text/BUG_Reminder_Options.xml =====
+===== \Assets/XML/Text/Reminder Options.xml =====
 ----- Comment #257 -----
 
 	<!-- advc.004: Merged into the key below -->
@@ -3489,7 +3489,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Visualización</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Reminder_Options.xml =====
+===== \Assets/XML/Text/Reminder Options.xml =====
 ----- Comment #258 -----
 
 	<!--TEXT>
@@ -3502,7 +3502,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	</TEXT-->
 	<!-- advc.004: Replacing the above -->
 
-===== \Assets/XML/Text/BUG_TechWindow_Options.xml =====
+===== \Assets/XML/Text/TechWindow Options.xml =====
 ----- Comment #259 -----
 
 	<!--TEXT>
@@ -3515,7 +3515,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	</TEXT-->
 	<!-- advc.060: Replacing the above b/c the heading no longer says "Tech" -->
 
-===== \Assets/XML/Text/BULL_Actions_Options.xml =====
+===== \Assets/XML/Text/BULL Actions Options.xml =====
 ----- Comment #260 -----
 
 <!-- advc (note): None of these options are currently shown, and I don't
@@ -3564,7 +3564,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>[ICON_BULLET]%s1 en %s2_CityName</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BULL_Misc_Hovers_Options.xml =====
+===== \Assets/XML/Text/BULL Misc Hovers Options.xml =====
 ----- Comment #263 -----
 
 	<!-- advc.078: Not optional -->
@@ -3730,7 +3730,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	<!-- New diplomacy text -->
 	<!-- advc.002c: German was unidiomatic -->
 
-===== \Assets/XML/Text/CIV4GameText_Shortcuts.xml =====
+===== \Assets/XML/Text/Shortcuts_CIV4GameText.xml =====
 ----- Comment #273 -----
 
 	<!-- advc.009c: Removed under "Regenerate the map": [NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+G[COLOR_REVERT][\BOLD][TAB][TAB]Start/Stop MapFinder
@@ -3739,14 +3739,14 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+G[COLOR_REVERT][\BOLD][TAB][TAB]Comenzar/detener MapFinder
 	-->
 
-===== \Assets/XML/Text/CIV4GameTextInfos_CIV4PlotListEnhancementsInfo.xml =====
+===== \Assets/XML/Text/CIV4PlotListEnhancementsInfo.xml =====
 ----- Comment #274 -----
 
 	<!-- Outdated translations:
 		 <Italian>[COLOR_HIGHLIGHT_TEXT]Cambia modalità di visualizzazione[COLOR_REVERT][NEWLINE]Scegli come vengono visualizzate le icone delle Unità: riga singola, righe multiple o gruppi di colonne o righe</Italian>
 		 <Spanish>[COLOR_HIGHLIGHT_TEXT]Modo Cambiar Vista[COLOR_REVERT][NEWLINE]Permite seleccionar cómo mostrar los iconos de unidad: en una sola fila, en múltiples filas o apiladas en columnas o filas separadas.</Spanish>-->
 
-===== \Assets/XML/Text/CIV4GameTextInfos_CIV4PlotListEnhancementsInfo.xml =====
+===== \Assets/XML/Text/CIV4PlotListEnhancementsInfo.xml =====
 ----- Comment #275 -----
 
 	<!-- advc.069: Not sure if this button functions as intended. Disables
@@ -3756,7 +3756,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		 <German>[COLOR_HIGHLIGHT_TEXT]Standardansicht aktivieren[COLOR_REVERT][NEWLINE]Anzeige der normalen Einheitensymbole und Aktionsschaltflächen</German>
 		 -->
 
-===== \Assets/XML/Text/CIV4GameTextInfos_CIV4PlotListEnhancementsInfo.xml =====
+===== \Assets/XML/Text/CIV4PlotListEnhancementsInfo.xml =====
 ----- Comment #276 -----
 
 	<!-- was:
@@ -3764,7 +3764,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		 <German>[COLOR_HIGHLIGHT_TEXT]Standardansicht[COLOR_REVERT][NEWLINE]Auswahl der Art der Gruppierung: nach Einheitentyp oder nach Einheitenverband</German>
 	-->
 
-===== \Assets/XML/Text/K-Mod_hints.xml =====
+===== \Assets/XML/Text/K-Mod hints.xml =====
 ----- Comment #277 -----
 
 <!-- replacement text for the inaccurate barbarian tip (changed english and german only)-->
@@ -3776,7 +3776,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	 make sure your 'friend' isn't mapping out your land for sale to the 
 	 highest bidder!" -->
 
-===== \Assets/XML/Text/K-Mod_hints.xml =====
+===== \Assets/XML/Text/K-Mod hints.xml =====
 ----- Comment #278 -----
 
 <!-- replacement text for the double-click tip, because I've changed the functionality of double-click -->

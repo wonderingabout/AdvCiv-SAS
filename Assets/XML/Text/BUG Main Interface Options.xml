@@ -5,6 +5,10 @@
 
 	Copyright (c) 2009 The BUG Mod.
 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- advc: Some of the Romance-language translations are from www.deepl.com -->
 <Civ4GameText xmlns="http://www.firaxis.com">
 
@@ -815,7 +819,7 @@
 		<Italian>Airport</Italian>
 		<Spanish>Airport</Spanish>
 	</TEXT>
-	<!-- Italian and Spanish copied from 'BULL_City_Bar_Options.xml' -->
+	<!-- Italian and Spanish copied from 'BULL City Bar Options.xml' -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__AIRPORTICON_HOVER</Tag>
 		<English>When checked, the [ICON_AIRPORT] icon is shown above the billboard of cities that have an airport.</English>

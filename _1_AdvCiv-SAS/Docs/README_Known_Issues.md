@@ -11506,6 +11506,12 @@ So among them we as of now only renamed `indian sreni.dds` to `indian_sreni.dds`
 
 Note: since then the `Buildings/Natya_Shastra/indian sreni.dds` button was removed and the corresponding asset as of now now uses another art.
 
+Update (2026-11-22): a rule naming every game file with `_` instead of spaces was drafted from this issue and dropped the same day.
+
+- It began with the [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#removed-or-renamed-from-base-advciv): 37 text files SAS had renamed, some with `_` for spaces, went back to base AdvCiv's exact names, spaces included, such as `Unit Naming Options.xml`; [Renamed repository paths](/_1_AdvCiv-SAS/Docs/Deprecated/repository_paths.md#text-files-with-base-advcivs-names) maps them.
+- Extending this issue's rule to every file under `Assets` reached into imported art: models store their texture and animation names inside their binaries, such as `building n shared03 2 map.dds` in `Bronzeshop_barb.nif`, so the check needed exemptions read from the models, then path fallbacks, while it renamed imported files such as Grace O'Malley's `John II.kfm` and Napoleon's diplomacy track `Symphony_No_25_in_G minor_K_183_I_Allegro_con_brio.mp3`. The user judged it more complicated than tidier names were worth.
+- So the rule stays as this issue left it: `art_button_paths.py` rejects spaces in DDS buttons, the failure seen here. A text file's name never reaches `<img>` markup, as Civ4 loads every file in `xml\text`, so its spaces are harmless.
+
 <a id="ki-118.2"></a>
 
 ## KI#118.2 - (Fixed AdvCiv-SAS regression) Same family as KI#118's icon paths: the Victory screen raised a Python exception and drew only part of its table once an unmet team had built the Apostolic Palace or United Nations

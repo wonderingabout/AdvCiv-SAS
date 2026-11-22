@@ -5,6 +5,10 @@
 
 	Copyright (c) 2009 The BUG Mod.
 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <Civ4GameText xmlns="http://www.firaxis.com">
 
 <!-- Leaderhead -->
@@ -332,7 +336,7 @@
 		<Italian>Includi corrente</Italian>
 		<Spanish>Incluir Actual</Spanish>
 	</TEXT>
-	<!-- advc.064: Moved from 'BUG_City_Screen_Options.xml'; no change. I don't
+	<!-- advc.064: Moved from 'BUG City Screen Options.xml'; no change. I don't
 		 think duplicate text can be avoided when two BUG options are supposed to
 		have the same _TEXT or _HOVER. -->
 	<TEXT>
@@ -353,7 +357,7 @@
 		<Spanish>Incluye el [ICON_PRODUCTION] actual al calcular excedentes de sacrificio. Como usar sacrificio afecta a la producción, el resultado final puede ser diferente.</Spanish>
 	</TEXT>
 
-	<!-- advc.064: Moved from 'BUG_City_Screen_Options.xml'. Now says the exact
+	<!-- advc.064: Moved from 'BUG City Screen Options.xml'. Now says the exact
 		 same thing as HURRYOVERFLOWINCLUDECURRENT above b/c it's the same
 		 functionality (even using the same C++ code now). -->
 	<TEXT>
@@ -364,7 +368,7 @@
 		<Spanish>Incluye el [ICON_PRODUCTION] actual al calcular excedentes de sacrificio. Como usar sacrificio afecta a la producción, el resultado final puede ser diferente.</Spanish>
 	</TEXT>
 
-	<!-- advc.064: Moved from 'BUG_City_Screen_Options.xml'; German shortened.
+	<!-- advc.064: Moved from 'BUG City Screen Options.xml'; German shortened.
 		 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__WHIPASSIST_TEXT</Tag>
@@ -374,7 +378,7 @@
 		<Spanish>Barra de Producción</Spanish>
 	</TEXT>
 
-	<!-- advc.064: Moved from 'BUG_City_Screen_Options.xml' and made some changes.
+	<!-- advc.064: Moved from 'BUG City Screen Options.xml' and made some changes.
 		 advc.186: Also affects city bars now. -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__WHIPASSIST_HOVER</Tag>
@@ -385,7 +389,7 @@
 	</TEXT>
 
 	<!-- advc.064: New option. Same label as TXT_KEY_BUG_OPT_MAININTERFACE__
-		 PROGRESSBARSTICKMARKS_TEXT (BUG_Main_Interface_Options.xml), but
+		 PROGRESSBARSTICKMARKS_TEXT (BUG Main Interface Options.xml), but
 		 the IT, SP translations are no help here; too long. -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__HURRYTICKMARKS_TEXT</Tag>

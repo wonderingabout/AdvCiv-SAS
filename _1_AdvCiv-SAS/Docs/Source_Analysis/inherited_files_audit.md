@@ -2,7 +2,7 @@
 
 Every Python, XML, C++, `res` and `Config` file that vanilla Civ4, Warlords, Beyond the Sword and base AdvCiv provide, how far SAS integrates each one, and why. The goal is to bring in only what SAS needs, and to decide the rest deliberately later, rather than by accident (the user, 2026-11-22).
 
-It began with a narrower question from the SASPilot work, whether the WorldBuilder screen that runs is ours (Codex and the user, 2026-11-22), answered under [WorldBuilder](#worldbuilder).
+It began with a narrower question from the SASPilot work, whether the WorldBuilder screen that runs is ours (2026-11-22), answered under [WorldBuilder](#worldbuilder).
 
 - This file:
   - its hand-written sections give what a commit title cannot: which copy actually runs, and the reasons by subsystem;
@@ -115,9 +115,6 @@ The shape came from several rounds with the user on 2026-11-22; each choice belo
 - What CI checks: only inherited-file decisions.
   - A draft fingerprinted every SAS file, so most feature commits, adding a module of SAS's own, would have had to regenerate this file for a count.
   - Only SAS starting or stopping to keep an inherited filename, or to import an inherited module, is worth that.
-- Still open: the text file renames.
-  - SAS renamed many inherited text files on 2025-04-02 (listed below).
-  - Renaming them back where it makes sense would make SAS easier to compare with base AdvCiv; the audit comes first, so the renames can be decided with the whole picture.
 
 ## Which copy runs
 
@@ -160,19 +157,22 @@ The reasons behind the generated lists of [files taken in](#files-taken-in-from-
   - the Exotic Foreign Advisor into the Foreign Advisor, with Espionage as its tab;
   - the Economics Advisor's environment tab into the Info screen;
   - the Civics and Religion screens into the Policy Advisor;
-  - BtS's and vanilla's copies remain on disk, and nothing imports them.
+  - BtS's and vanilla's copies remain on disk, and nothing in SAS currently imports them.
 - Helpers centralized, 2026-10-20:
   - `FontUtil.py`, `GGUtil.py` and `TraitUtil.py` into `Assets/Python/SASVisualUtils.py`;
   - `SevoScreenEnums.py` into `Assets/Python/Screens/CvScreenEnums.py`.
-- Text files renamed on 2025-04-02, to the `CIV4GameText_*` naming, so their keys still load under the new names:
-  - the BUG and BULL option files, the other feature option files, the feature text files, and a few others such as `K-Mod hints.xml`;
-  - `CIV4GameText_advc_pedia.xml` was renamed with the Barbarian rework (2025-05-10), then merged into `Assets/XML/Text/AdvCiv-SAS_main.xml` with the other `_Custom` text files (2026-01-15, `a44b7c6997`);
-  - whether these names still make sense is open: some mix BUG features, such as Plot List Enhancements, with AdvCiv text, and AI Auto Play's text sits apart from them; a later pass could sort them by the feature they belong to.
+- Text files:
+  - SAS renamed 28 of them on 2025-04-02, to `BUG_` prefixes or the `CIV4GameText_*` order, such as `Colors_CIV4GameText.xml` to `CIV4GameText_Colors.xml`; Civ4 loads every file in `xml\text`, so the keys loaded under any name.
+  - 2026-01-15 replaced the spaces left in their names, and in 9 others, with `_`, such as `BUG Core Options.xml` to `BUG_Core_Options.xml`.
+  - 2026-11-22 gave all 37 base AdvCiv's exact names back, spaces included, so each file can be compared with its upstream copy by name (the user, 2026-11-22); the 2025-04-02 names had also mixed BUG features with AdvCiv text, such as `BUG_AdvancedCombatOdds_advc.xml`.
+    - A rule naming game files with `_` was drafted with them and dropped the same day: it reached into imported art, whose names models store inside their binaries, and grew more complicated than tidier names were worth (the user, 2026-11-22). `art_button_paths.py` still rejects spaces in DDS buttons, the known failure of [KI#118](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118).
+    - No key is defined in two of SAS's text files, and BtS, Warlords and vanilla ship none of these names, so the renames cannot change which file a key loads from (checked 2026-11-22).
+  - `CIV4GameText_advc_pedia.xml` was renamed with the Barbarian rework (2025-05-10), then merged into `Assets/XML/Text/AdvCiv-SAS_main.xml` with the other `_Custom` text files (2026-01-15, `a44b7c6997`), so it is currently the one text file SAS does not keep.
 - UWAI's reports: `CvGameCoreDLL/UWAIReport.cpp` and `.h` were removed with [KI#505.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-505.3) (2026-10-08), when UWAI's reports moved into BBAI logging behind pre-gated levels.
 
 ## WorldBuilder
 
-The question the audit started from. Of the five WorldBuilder modules, SAS has its own file only for `CvWBDesc`.
+The question the audit started from. Of the five WorldBuilder modules, SAS has its own file only for `CvWBDesc`, as of 2026-11-22.
 
 - `CvWorldBuilderScreen` and `CvWorldBuilderDiplomacyScreen` run from BtS.
   - Vanilla had them first, then each expansion its own copy.
@@ -218,7 +218,7 @@ The question the audit started from. Of the five WorldBuilder modules, SAS has i
 
 <!-- generated by inherited_files.py inventory: edit the script, not this part -->
 <!-- inherited_files.tsv f5af83b0c1f84315 -->
-<!-- inherited filenames SAS keeps e305d481f394fb6f -->
+<!-- inherited filenames SAS keeps d92b2a3c0ede0f2b -->
 <!-- inherited Python imports 91364611a432ee9b -->
 
 Generated by [`inherited_files.py`](/LLM_Helpers/README.md#inherited_filespy) `--inventory`. The same run writes every inherited and new SAS file, its layers, its file events in base AdvCiv's history and in ours, and SAS's status to a timestamped `inherited_files_inventory_<UTC>.tsv` in the Git-ignored `LLM_Helpers/outputs/`.
@@ -252,12 +252,12 @@ Each inherited file counts once, under the newest layer that provides it.
 | vanilla | 115 | 0 | 115 |
 | Warlords | 18 | 1 | 17 |
 | BtS | 114 | 23 | 91 |
-| Base AdvCiv | 674 | 625 | 49 |
+| Base AdvCiv | 674 | 662 | 12 |
 
 | Area | Inherited files | Filename kept by SAS | SAS overrides absent from base AdvCiv | Base AdvCiv files absent from SAS |
 | --- | --- | --- | --- | --- |
 | Python | 239 | 154 | 2 | 9 |
-| XML | 239 | 114 | 22 | 38 |
+| XML | 239 | 151 | 22 | 1 |
 | C++ | 362 | 348 | 0 | 2 |
 | res | 51 | 3 | 0 | 0 |
 | Config | 30 | 30 | 0 | 0 |
@@ -310,44 +310,7 @@ Base AdvCiv filenames absent from SAS. The list shows the SAS-side deletion or r
 - `Assets/Python/Screens/CvExoticForeignAdvisor.py`: 2026-03-20 `bbbd9fea2c`, deleted: merge CvForeignAdvisor.py and CvExoticForeignAdvisor.py into a single unified file
 - `Assets/Python/Screens/CvReligionScreen.py`: 2026-03-26 `662f1d53c0`, deleted: beautify and enhance religion tab, remove old CvReligionScreen.py
 - `Assets/Python/Screens/EconomicsAdvisor.py`: 2026-03-25 `9953b9f0ad`, deleted: move the environment tab to the info screen, delete EconomicsAdvisor.py
-- `Assets/XML/Text/Advanced Combat Odds Options.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_Advanced Combat Odds Options.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/Advanced Scoreboard Options.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_Advanced Scoreboard Options.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/AdvancedCombatOdds_CIV4GameText.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_AdvancedCombatOdds_CIV4GameText_advc.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/Autolog Options.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_Autolog Options.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/Autolog_CIV4GameText.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_Autolog_CIV4GameText.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/AutoSave Options.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_AutoSave Options.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/Better Espionage Options.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_Better Espionage Options.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/BUG Advisors Options.xml`: 2026-01-15 `7fa2d16180`, renamed to `Assets/XML/Text/BUG_Advisors_Options.xml`: replace concept road/railroad links with sevopedia build road/railroad links
-- `Assets/XML/Text/BUG City Screen Options.xml`: 2026-01-15 `7fa2d16180`, renamed to `Assets/XML/Text/BUG_City_Screen_Options.xml`: replace concept road/railroad links with sevopedia build road/railroad links
-- `Assets/XML/Text/BUG Core Options.xml`: 2026-01-15 `7fa2d16180`, renamed to `Assets/XML/Text/BUG_Core_Options.xml`: replace concept road/railroad links with sevopedia build road/railroad links
-- `Assets/XML/Text/BUG Main Interface Options.xml`: 2026-01-15 `7fa2d16180`, renamed to `Assets/XML/Text/BUG_Main_Interface_Options.xml`: replace concept road/railroad links with sevopedia build road/railroad links
-- `Assets/XML/Text/BUG Options Screen.xml`: 2026-01-15 `7fa2d16180`, renamed to `Assets/XML/Text/BUG_Options_Screen.xml`: replace concept road/railroad links with sevopedia build road/railroad links
-- `Assets/XML/Text/BULL Actions Options.xml`: 2026-01-15 `7fa2d16180`, renamed to `Assets/XML/Text/BULL_Actions_Options.xml`: replace concept road/railroad links with sevopedia build road/railroad links
-- `Assets/XML/Text/BULL City Bar Options.xml`: 2026-01-15 `7fa2d16180`, renamed to `Assets/XML/Text/BULL_City_Bar_Options.xml`: replace concept road/railroad links with sevopedia build road/railroad links
-- `Assets/XML/Text/BULL Misc Hovers Options.xml`: 2026-01-15 `7fa2d16180`, renamed to `Assets/XML/Text/BULL_Misc_Hovers_Options.xml`: replace concept road/railroad links with sevopedia build road/railroad links
 - `Assets/XML/Text/CIV4GameText_advc_pedia.xml`: 2025-05-10 `bf00d29700`, renamed to `Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml`: major barbarian rework, + other changes major barbarian reword i am very happy about but anyways etc (full title in the report)
-- `Assets/XML/Text/Civ4lerts Options.xml`: 2025-04-02 `50c2397b64`, renamed to `Assets/XML/Text/BUG_Civ4lerts_Options_advc.xml`: rename Civ4lerts Options.xml to BUG\_Civ4lerts\_Options\_advc.xml
-- `Assets/XML/Text/Civ4lerts_CIV4GameText.xml`: 2025-04-02 `c8e436d895`, renamed to `Assets/XML/Text/CIV4GameText_Civ4lerts.xml`: rename Civ4lerts\_CIV4GameText.xml to CIV4GameText\_Civ4lerts.xml
-- `Assets/XML/Text/CIV4PlotListEnhancementsInfo.xml`: 2025-04-02 `6a16d1721d`, renamed to `Assets/XML/Text/CIV4GameTextInfos.xml_CIV4PlotListEnhancementsInfo.xml`: rename CIV4PlotListEnhancementsInfo.xml to CIV4GameTextInfos.xml\_CIV4PlotListEnhancementsInfo.xml
-- `Assets/XML/Text/Colors_CIV4GameText.xml`: 2025-04-02 `2553145741`, renamed to `Assets/XML/Text/CIV4GameText_Colors.xml`: rename Colors\_CIV4GameText.xml to CIV4GameText\_Colors.xml
-- `Assets/XML/Text/CustDomAdv Options.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_CustDomAdv Options.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/CustDomAdv_CIV4GameText.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_CIV4GameText_CustDomAdv.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/EventSigns Options.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_EventSigns Options.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/EventSigns_CIV4GameText.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/CIV4GameText_EventSigns.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/EventText_CorrectedTranslations.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/Civ4GameText_Events_BTS_CorrectedTranslations.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/K-Mod hints.xml`: 2026-01-15 `7fa2d16180`, renamed to `Assets/XML/Text/K-Mod_hints.xml`: replace concept road/railroad links with sevopedia build road/railroad links
-- `Assets/XML/Text/MoreCiv4lerts Options.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_MoreCiv4lerts Options.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/MoreCiv4lerts_CIV4GameText.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_MoreCiv4lerts.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/Not Just Another Game Clock Options.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_Not Just Another Game Clock Options.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/Plot List Enhancements Options.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_Plot List Enhancements Options.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/Reminder Options.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_Reminder Options.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/Sevopedia_CIV4GameText.xml`: 2025-04-02 `548a53efd0`, renamed to `Assets/XML/Text/CIV4GameText_Sevopedia.xml`: rename Sevopedia\_CIV4GameText to CIV4GameText\_Sevopedia
-- `Assets/XML/Text/Shortcuts_CIV4GameText.xml`: 2025-04-02 `aecc0e9f65`, renamed to `Assets/XML/Text/CIV4GameText_Shortcuts.xml`: rename Shortcuts\_CIV4GameText.xml to CIV4GameText\_Shortcuts.xml
-- `Assets/XML/Text/Strategy Overlay Options.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_Strategy Overlay Options.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/StrategyOverlay_CIV4GameText.xml`: 2025-04-02 `354dcb7639`, renamed to `Assets/XML/Text/CIV4GameText_StrategyOverlay.xml`: rename StrategyOverlay\_CIV4GameText.xml to CIV4GameText\_StrategyOverlay.xml
-- `Assets/XML/Text/TechWindow Options.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_TechWindow Options.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/Unit Naming Options.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_Unit Naming Options.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
-- `Assets/XML/Text/Unit Naming.xml`: 2025-04-02 `94bb0637cf`, renamed to `Assets/XML/Text/BUG_Unit Naming.xml`: rename remaining files in a similar manner maybe i did not get it all right but at least it's classified, hopefully clearer now, also maybe i got it right (full title in the report)
 - `CvGameCoreDLL/UWAIReport.cpp`: 2026-10-08 `c722096302`, deleted: KI#505.3: Fix inherited AdvCiv UWAI diagnostic work running while logging is disabled
 - `CvGameCoreDLL/UWAIReport.h`: 2026-10-08 `c722096302`, deleted: KI#505.3: Fix inherited AdvCiv UWAI diagnostic work running while logging is disabled
 
@@ -842,23 +805,23 @@ Every inherited file in its folder, with its comparison layer and whether SAS ke
       - `ActualQuotesText.xml`: filename kept by SAS, also in base AdvCiv
       - `ActualQuotesText_BtS.xml`: filename kept by SAS, also in base AdvCiv
       - `ActualQuotesText_WL.xml`: filename kept by SAS, also in base AdvCiv
-      - `Advanced Combat Odds Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `Advanced Scoreboard Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `AdvancedCombatOdds_CIV4GameText.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `Autolog Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `Autolog_CIV4GameText.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `AutoSave Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `Better Espionage Options.xml`: base AdvCiv filename absent from SAS (see the list above)
+      - `Advanced Combat Odds Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Advanced Scoreboard Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `AdvancedCombatOdds_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `Autolog Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Autolog_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `AutoSave Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Better Espionage Options.xml`: filename kept by SAS, also in base AdvCiv
       - `BUFFY_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
-      - `BUG Advisors Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `BUG City Screen Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `BUG Core Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `BUG Main Interface Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `BUG Options Screen.xml`: base AdvCiv filename absent from SAS (see the list above)
+      - `BUG Advisors Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `BUG City Screen Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `BUG Core Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `BUG Main Interface Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `BUG Options Screen.xml`: filename kept by SAS, also in base AdvCiv
       - `BUG_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
-      - `BULL Actions Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `BULL City Bar Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `BULL Misc Hovers Options.xml`: base AdvCiv filename absent from SAS (see the list above)
+      - `BULL Actions Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `BULL City Bar Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `BULL Misc Hovers Options.xml`: filename kept by SAS, also in base AdvCiv
       - `BULL_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4DiplomacyText.xml`: from vanilla, not in SAS
       - `CIV4GameText_advc.xml`: filename kept by SAS, also in base AdvCiv
@@ -904,29 +867,29 @@ Every inherited file in its folder, with its comparison layer and whether SAS ke
       - `CIV4GameTextInfos_Cities.xml`: from vanilla, not in SAS
       - `CIV4GameTextInfos_GreatPeople.xml`: from vanilla, not in SAS
       - `CIV4GameTextInfos_Objects.xml`: from vanilla, not in SAS
-      - `Civ4lerts Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `Civ4lerts_CIV4GameText.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `CIV4PlotListEnhancementsInfo.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `Colors_CIV4GameText.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `CustDomAdv Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `CustDomAdv_CIV4GameText.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `EventSigns Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `EventSigns_CIV4GameText.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `EventText_CorrectedTranslations.xml`: base AdvCiv filename absent from SAS (see the list above)
+      - `Civ4lerts Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Civ4lerts_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4PlotListEnhancementsInfo.xml`: filename kept by SAS, also in base AdvCiv
+      - `Colors_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `CustDomAdv Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `CustDomAdv_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `EventSigns Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `EventSigns_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `EventText_CorrectedTranslations.xml`: filename kept by SAS, also in base AdvCiv
       - `HiddenAttitudes_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
-      - `K-Mod hints.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `MoreCiv4lerts Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `MoreCiv4lerts_CIV4GameText.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `Not Just Another Game Clock Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `Plot List Enhancements Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `Reminder Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `Sevopedia_CIV4GameText.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `Shortcuts_CIV4GameText.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `Strategy Overlay Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `StrategyOverlay_CIV4GameText.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `TechWindow Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `Unit Naming Options.xml`: base AdvCiv filename absent from SAS (see the list above)
-      - `Unit Naming.xml`: base AdvCiv filename absent from SAS (see the list above)
+      - `K-Mod hints.xml`: filename kept by SAS, also in base AdvCiv
+      - `MoreCiv4lerts Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `MoreCiv4lerts_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `Not Just Another Game Clock Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Plot List Enhancements Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Reminder Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Sevopedia_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `Shortcuts_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `Strategy Overlay Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `StrategyOverlay_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `TechWindow Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Unit Naming Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Unit Naming.xml`: filename kept by SAS, also in base AdvCiv
     - `TrueStarts/`
       - `CIV4TruBonusInfos.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4TruCivInfos.xml`: filename kept by SAS, also in base AdvCiv

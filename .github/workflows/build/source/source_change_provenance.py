@@ -1255,9 +1255,11 @@ def check(repo: Path, base_ref: str | None, event_name: str | None = None, warni
                 return True
             # <!-- custom: Multiline comments are parsed with LF, so a CRLF file also needs the CRLF spelling to match. (Claude code Opus 5.5) -->
             needles = list(dict.fromkeys((raw, raw.replace("\r\n", "\n").replace("\n", "\r\n"))))
+            # <!-- custom: Search the file's history under its current name too: giving 37 text files base AdvCiv's names back restored base comments such as "advc.064: Moved from 'BUG City Screen Options.xml'", which the file held under that same name before SAS renamed it to BULL_Misc_Hovers_Options.xml; the base-name history alone began at that rename, so all 8 failed as rewritten (2026-11-22). (Claude code Opus 5.5) -->
             for needle in needles:
-                if run_git(repo, "log", "-1", "--format=%H", "-S", needle, base, "--", history_path, check=False).stdout.strip():
-                    return True
+                for searched_path in dict.fromkeys((history_path, path)):
+                    if run_git(repo, "log", "-1", "--format=%H", "-S", needle, base, "--", searched_path, check=False).stdout.strip():
+                        return True
             return False
         errors.extend(check_change(path, old, new, warnings, restored_comment))
     return errors, count

@@ -58,7 +58,8 @@ def history_errors(source, history, defines=""):
 def read(repo, commit, path):
     if commit is None:
         file = repo / path
-        return file.read_text(encoding="utf-8") if file.is_file() else ""
+        # <!-- custom: Read the working copy as leniently as a committed blob below: many inherited BUG and AdvCiv text files are Windows-1252, and renaming them back to base AdvCiv's names made this strict read fail with "'utf-8' codec can't decode byte 0xe0" (2026-11-22). (Claude code Opus 5.5) -->
+        return file.read_text(encoding="utf-8", errors="replace") if file.is_file() else ""
     data = git_show(repo, commit, path)
     return "" if data is None else data.decode("utf-8", "replace")
 
