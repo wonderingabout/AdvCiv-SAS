@@ -2143,9 +2143,9 @@ KI#21.6 records the first Ruff cleanup. This entry retraces what followed, from 
   - Flagging comments inside also exposed a quote of a base AdvCiv call inside a `custom:` note in `SevoPediaReligion.py`, which the commented-out rule then took for disabled code; lines inside such a note are now skipped.
   - The branch had bumped SASGameRecord twice for these layout changes, 210 and then 211; 211 was folded back into 210, as the squash gives main one change.
 
-- Pull request: [PR #50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50). The branch is squash-merged, so the practical numbers 6838 to 6846 and SHAs above name its separate commits, which stay reachable on that page rather than on main.
-
 Retraced with Claude Code Opus 5.5; Codex (GPT-6.2-Sol) reviewed the check and the Ruff promotion.
+
+Pull request (2026-11-22): [PR #50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50). The branch is squash-merged, so the practical numbers 6838 to 6846 and SHAs above name its separate commits, which stay reachable on that page rather than on main.
 
 <a id="ki-22"></a>
 
@@ -38354,7 +38354,7 @@ Found and fixed by Claude code Fable 5.2, checked by Codex (GPT-6.1-Sol).
   - Only the README's endings and the SHAs citing those commits changed: the dev log, SASGameRecord's revision history and the Modding Resources README now cite the new ones.
   - The force push made GitHub's date check, `future_dates.py`, judge the rewritten commits again, including two from the evening of 2026-11-16 that had written "2026-11-17" a day early before the KI#1090 commit corrected them, so that push showed a red cross. Recreating the two newest commits with a new commit time and pushing again made CI judge only those two, which passed.
   - The two noisy diffs disappeared: the KI#1094 commit now shows 389 lines added and 39 removed instead of 2,118 and 1,768, and the 2026-11-16 commit 416 and 170. Its SHA changed with the rewrite, from `2b7c59cab` to `e183db41c`.
-- Guarded since 2026-11-17 by [`line_ending_churn.py`](/.github/workflows/README.md#buildhygieneline_ending_churnpy), so nobody has to notice a line count or remember April: a commit fails when 20 or more of a file's changed lines differ only in their endings. A deliberate conversion passes with `Convert line endings` in its message.
+- Guarded since 2026-11-17 by [`line_ending_churn.py`](/.github/workflows/README.md#buildhygieneline_ending_churnpy), so nobody has to notice a line count or remember April: a commit fails when 20 or more of a file's changed lines differ only in their endings. A deliberate conversion passes with `[ci_convert_line_endings]` in its message (`Convert line endings` before 2026-11-22).
   - Tools that rewrite a whole file, such as `sed -i` in Git Bash or PowerShell's `Set-Content`, can switch its endings; LLM_Helpers' editing helpers keep each file's style.
 
 Noticed by wonderingabout, who also recalled the 2026-04-12 workaround that traced it back; the check by Claude code Opus 5.5.

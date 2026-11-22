@@ -3,7 +3,7 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
 # <!-- custom: The dev logs are hand-edited copies of git log: on 2026-11-17, 650 of the SAS log's 2,420 entries, 8 of base AdvCiv's and 3 of K-Mod's differed from Git's own messages, with typo, churn and wording fixes.
-# A naive regeneration with git log would silently erase them, so a changed log must keep its earlier content as its exact tail, new entries going on top, unless the commit message says "Edit dev log".
+# A naive regeneration with git log would silently erase them, so a changed log must keep its earlier content as its exact tail, new entries going on top, unless the commit message carries [ci_edit_dev_log] ("Edit dev log" before 2026-11-22).
 # The files are named anonymized_email: every Author line must be <hidden>.
 # Addresses in message bodies, such as agents' and bots' Co-authored-by and Signed-off-by trailers, stay as their commits wrote them. (Claude code Opus 5.5) -->
 #
@@ -25,7 +25,10 @@ from dll_commit_message import ROOT, commit_id, commits_in_range, event_commits,
 
 # <!-- custom: The key after anonymized_email_, such as 003_AdvCiv-SAS.txt, names a log across folders and the git_logs to dev_logs rename. (Claude code Opus 5.5) -->
 DEV_LOG = re.compile(r"(^|/)Docs/(?:dev|git)_logs/(?:dev|git)_log_anonymized_email_([^/]+\.txt)$")
-EDIT_MARKER = "Edit dev log"
+# <!-- custom: The shared marker spelling, kept once in lib/ci_markers.py with the other commit-message markers. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+from ci_markers import EDIT_DEV_LOG
+EDIT_MARKER = EDIT_DEV_LOG
 LOGGED_COMMIT = re.compile(r"^commit ([0-9a-f]{40})\s*$", re.M)
 
 

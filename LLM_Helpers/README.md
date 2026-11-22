@@ -340,7 +340,7 @@ Writes every CI failure to one text file, so one pass can fix them all rather th
     - On 2026-11-09 a run compared with the parent passed, as `plot_scene.py` was new there, while GitHub, comparing with the replaced commit, failed a changed signature.
   - Most checks read the working tree. Eight judge the commits of a push instead: the SASGameRecord and Runtime revision checks, the commit-reference check, the four DLL checks and the KI title check.
     - So staged changes become a temporary commit on top of HEAD, made with `git commit-tree`, which moves no branch and touches no file, and those checks judge it as the pushed commit. Unstaged development values stay out, as they would from the real commit.
-    - `--message FILE` gives that commit the draft message; without it, a placeholder makes the title and `Update DLL` checks fail as a reminder. With nothing staged, they judge HEAD.
+    - `--message FILE` gives that commit the draft message; without it, a placeholder makes the title and `[ci_update_dll]` checks fail as a reminder. With nothing staged, they judge HEAD.
     - Before 2026-11-12 these checks only saw commits, so an uncommitted candidate passed them without being judged. A run passed locally while GitHub failed the commit that followed: `map_preview_dds.py` had begun reading SGR rows without the `SAS_SGR_REVISION` bump the rule asks for. Rerun on that state, the new run fails the same check, as GitHub did.
   - The diagnostic default checks read staged content, so unstaged development values do not fail them.
   - Markdownlint and Python 2.4 run through local Node.js and `C:\Python24\python.exe`; a missing tool is listed as not covered. The predump refresh workflow is not run.
@@ -1688,7 +1688,7 @@ External cleanup helper for line-ending hygiene.
 - Adds a final newline to non-empty text files by default; use `--no-final-newline` only when deliberately preserving a missing final newline.
   - It adds it after the last line with content: vanilla's `CvDiplomacyInterface.py` ended on a whitespace-only line without a newline, and appending one left the file ending in two blank lines (2026-11-22, KI#1104).
 - `--trim-trailing-blank-lines` also drops blank lines before an existing final newline. It is opt-in: 60 tracked files ended that way on 2026-11-22, many inherited, and touching one only for whitespace makes provenance ask for its SAS header.
-- Use `--eol lf` or `--eol crlf` only for deliberate normalization passes; their commit needs `Convert line endings` in its message, or [`line_ending_churn.py`](/.github/workflows/README.md#buildhygieneline_ending_churnpy) fails it. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
+- Use `--eol lf` or `--eol crlf` only for deliberate normalization passes; their commit needs `[ci_convert_line_endings]` in its message, or [`line_ending_churn.py`](/.github/workflows/README.md#buildhygieneline_ending_churnpy) fails it. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
 - Always review the diff before committing generated source changes.
 
 Examples:

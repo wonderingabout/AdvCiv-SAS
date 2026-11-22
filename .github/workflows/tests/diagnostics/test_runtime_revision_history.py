@@ -150,7 +150,11 @@ class RuntimeRevisionTests(unittest.TestCase):
         self.commit()
         self.record(2, "consolidated implementation")
         tip = self.commit()
-        event = {'pull_request': {'base': {'sha': self.introduction}, 'head': {'sha': tip}, 'labels': [{'name': 'revision:squash'}]}}
+        # <!-- custom: The squash intent comes from [ci_squash_pr] in the newest commit message, replacing the revision:squash label (2026-11-22). (Claude code Opus 5.5) -->
+        title = self.git("log", "-1", "--format=%s").strip()
+        self.git("commit", "--amend", "-qm", title + "\n\n- [ci_squash_pr]")
+        tip = self.git("rev-parse", "HEAD").strip()
+        event = {'pull_request': {'base': {'sha': self.introduction}, 'head': {'sha': tip}}}
         self.assertEqual(history.check(self.repo, 'main', 'pull_request', event), [])
         self.assertEqual(history.check(self.repo, 'main', squash=True), [])
         self.record(3, "unnecessary extra bump")

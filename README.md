@@ -1665,7 +1665,7 @@ The first is a Windows/VC2003 diagnostic writer test: it compiles the actual log
 
 ### CI
 
-- DLL shipping checks require a changed Release DLL/JSON pair, matching successful build evidence and the `Update DLL` commit-message marker; a marker without a changed pair also fails.
+- DLL shipping checks require a changed Release DLL/JSON pair, matching successful build evidence and the `[ci_update_dll]` commit-message marker; a marker without a changed pair also fails.
 - C++-used XML define name additions/removals/renames require updated Release build evidence at default-branch integration; value/comment edits and Python-only names are excluded. See [DLL shipping and rebuild checks](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ci).
 
 GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions.

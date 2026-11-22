@@ -100,6 +100,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
   - [Shared helpers](#shared-helpers)
     - [`lib/advciv_release.py`](#libadvciv_releasepy)
     - [`lib/blank_lines.py`](#libblank_linespy)
+    - [`lib/ci_markers.py`](#libci_markerspy)
     - [`lib/cpp_lex.py`](#libcpp_lexpy)
     - [`lib/git_context.py`](#libgit_contextpy)
     - [`lib/revision_history.py`](#librevision_historypy)
@@ -169,6 +170,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/xml_suspicious_angle_tags.py`](#buildxmlxml_suspicious_angle_tagspy)
     - [`build/xml/xml_suspicious_text_chars.py`](#buildxmlxml_suspicious_text_charspy)
     - [`build/xml/xml_text_duplicate_tags.py`](#buildxmlxml_text_duplicate_tagspy)
+- [CI markers in commit messages](#ci-markers-in-commit-messages)
 - [Run Locally](#run-locally)
 - [Not currently automated](#not-currently-automated)
 - [Dependabot](#dependabot)
@@ -416,7 +418,7 @@ A new revision can say `pending` in its introducing commit because that commit c
 
 The lifetime rule applies from this checker's introduction; current histories are audited in full. Local draft checks use the staged candidate, excluding unrelated unstaged build outputs and diagnostic overrides.
 
-Existing event boundaries and `revision:squash`/local `--squash` intent are reused: squash candidates validate the aggregate transition, ordinary commits retain individual references. Rewrite stale hashes and practical numbers after rebase/squash; an unchanged merge retains valid identities.
+Existing event boundaries and squash intent (`[ci_squash_pr]` or local `--squash`) are reused: squash candidates validate the aggregate transition, ordinary commits retain individual references. Rewrite stale hashes and practical numbers after rebase/squash; an unchanged merge retains valid identities.
 
 The practical number in a revision heading (`### Revision N - SAS practical M`) is not checked. On 2026-11-15 all 200 finalized SGR and 18 Runtime entries matched `git rev-list --count` of their commit, so a finalized entry could be checked, but a pending one cannot: its number depends on how its branch lands.
 
@@ -428,7 +430,7 @@ The practical number in a revision heading (`### Revision N - SAS practical M`) 
 
 Checks the XML runtime-recorder revision (or compiled labels in historical commits) against its [history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md), shared by the current-state JSON and activity JSONL. This label is independent of SASGameRecord's revision.
 
-Reuses SASGameRecord's event boundaries and explicit `revision:squash` policy, checking each ordinary commit or the complete squash candidate: recognized implementation changes require exactly one increment; pure CI/checker, documentation/example and test maintenance leaves it unchanged. Local checks also validate the pending working-tree increment, including new files before staging.
+Reuses SASGameRecord's event boundaries and squash-intent policy (`[ci_squash_pr]`), checking each ordinary commit or the complete squash candidate: recognized implementation changes require exactly one increment; pure CI/checker, documentation/example and test maintenance leaves it unchanged. Local checks also validate the pending working-tree increment, including new files before staging.
 
 The runtime-defaults check also enforces independent default-off source and screenshot watcher switches; shared environment metadata and the dialog listener are support components, not separate collection toggles.
 
@@ -498,7 +500,7 @@ Commit selection follows the event and explicit merge intent:
 
 - Default-branch pushes check the first-parent commits in `before..after`, including earlier commits in a multi-commit push. Feature-branch pushes defer progression to the PR check because their payload does not identify its merge policy; defaults and history validation still run.
 - Ordinary PRs check each authored commit from the base/head merge base, independently of the synthetic merge checkout.
-- A PR labeled `revision:squash` checks the aggregate base-to-head change as one integration commit: qualifying changes require exactly one bump, unrelated changes require none. Intermediate bumps or corrections do not create public revisions; removing the label restores per-commit checks.
+- A PR whose newest commit message carries `[ci_squash_pr]` checks the aggregate base-to-head change as one integration commit: qualifying changes require exactly one bump, unrelated changes require none. Intermediate bumps or corrections do not create public revisions; removing the label restores per-commit checks.
 - Local/manual checks retain per-commit behavior; `--squash` explicitly checks the complete working candidate against its default-branch merge base. For example, `python .github/workflows/build/diagnostics/sas_revision_history.py --squash`; the runtime checker accepts the same option.
 - A merge commit is judged against the parent with the higher revision, for its number and for whether it changes the recorder.
   - Merging main into the SASPilot branch on 2026-11-17 failed as a jump from 202 to 204: both had used 202 meanwhile, and against the branch's own parent the merge seemed to skip one. Against main's 203, the merge adds the branch's change as 204, one step.
@@ -801,7 +803,7 @@ Fails when a commit switches a file's line endings between LF and CRLF, so that 
 
 - `line_endings.py` catches a file with mixed endings, but a file switched whole has none, so it passed. Its diff then hides the real change: on 2026-11-17 a commit showed 3,481 changed lines in this README for 23 real ones, and only the user's eye on the line count caught it. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
 - Per file, it compares the commit's changed lines with Git's count ignoring line endings (`--ignore-cr-at-eol`); 20 or more lines that differ only there fail. Removed or rewritten lines count in both, so they never trip it.
-- A deliberate conversion passes with `Convert line endings` in the commit message. Commit selection is shared with `dll_commit_message.py`.
+- A deliberate conversion passes with `[ci_convert_line_endings]` in the commit message. Commit selection is shared with `dll_commit_message.py`.
 - Replayed over all of SAS's 2,815 commits, it found 82 files in 56 commits, most from March to May 2026 and only 4 after `line_endings.py` arrived, besides the two README switches already removed by rewriting history. The same command audits any range: `--base-ref <commit> --head-ref main`.
 
 ```bash
@@ -947,13 +949,13 @@ Keeps the dev logs' hand edits, anonymized authors and commits in the branch's h
 
 - The logs are hand-edited copies of `git log`. On 2026-11-17, 650 of the SAS log's 2,420 entries, 8 of base AdvCiv's 3,094 and 3 of K-Mod's 1,249 differed from Git's own messages, with typo, churn and wording fixes such as "LLM/AI helpers" becoming "AI/LLM helpers".
   - A naive regeneration with `git log` would erase them all, so a commit that changes a dev log must keep its earlier content as the exact tail of the new one: new entries go on top.
-  - A deliberate edit of earlier entries, such as a typo fix, passes when the commit message contains `Edit dev log`, as `Update DLL` does for the DLL.
+  - A deliberate edit of earlier entries, such as a typo fix, passes when the commit message contains `[ci_edit_dev_log]`, as `[ci_update_dll]` does for the DLL.
   - Deleting a log fails. A moved log is followed to its earlier path, even when the move and a large prepend together fall below Git's rename similarity, by pairing logs with the same key after `anonymized_email_`, such as `003_AdvCiv-SAS.txt`.
 - Every `Author:` line must be `<hidden>`, as the `anonymized_email` file names promise.
   - Addresses inside message bodies stay as their commits wrote them, such as agents' and bots' `Co-authored-by: GPT-Codex-5.2 <codex@openai.com>` or Dependabot's `Signed-off-by`. They are not personal, and replacing them by hand would be brittle, as more come with new commits.
 - Every logged commit must still be in the checked branch's history, so a history rewrite cannot leave the log citing SHAs that no longer exist there.
   - On 2026-11-17 main was rewritten twice, to give SASSaveTransplanter its name in older commits and to reword KI#1091's message. Both times the SAS log ended just before the rewritten commits, but a rewrite reaching further back would have left it stale without any failure.
-  - After such a rewrite, replace the old SHAs in the log with the new ones from the rewrite's old-to-new map, keeping the entries' hand edits, and say `Edit dev log` in the commit message.
+  - After such a rewrite, replace the old SHAs in the log with the new ones from the rewrite's old-to-new map, keeping the entries' hand edits, and put `[ci_edit_dev_log]` in the commit message.
   - The CI checkout fetches the full history (`fetch-depth: 0`), so a missing commit means it left the history, not that the clone was shallow.
 - Commit selection is shared with `dll_commit_message.py`: the pushed or PR commits in CI, `HEAD` locally.
 - Added on 2026-11-17, while the SAS dev log was brought up to date from practical 6402 to 6763; the check first confirmed that the committed log survived as the exact tail of the new one.
@@ -970,9 +972,9 @@ A changed installed DLL should therefore remain unstaged unless its inclusion is
 
 The commit-message marker makes that decision explicit and catches accidental binary staging in CI. CI runs after pushing; it does not stop local staging or Git pushes, so inspect the staged file list before committing as well.
 
-Requires the exact, case-sensitive phrase `Update DLL` in the title or body of every checked commit that adds, modifies, deletes or renames a tracked `.dll` file anywhere in the repository. The extension is case-insensitive.
+Requires the exact, case-sensitive marker `[ci_update_dll]` in the title or body of every checked commit that adds, modifies, deletes or renames a tracked `.dll` file anywhere in the repository. The extension is case-insensitive.
 
-For example, use `- Update DLL: install the tested Release build` in the commit body. Source-only commits need no marker. With the reporting wrapper present, changing either a DLL or its `<DLL filename>.build.json` requires both paths to change in that same commit; `Update DLL` without a changed pair also fails.
+For example, use `- [ci_update_dll]: install the tested Release build` in the commit body. Source-only commits need no marker. With the reporting wrapper present, changing either a DLL or its `<DLL filename>.build.json` requires both paths to change in that same commit; `[ci_update_dll]` without a changed pair also fails.
 
 A later marked commit cannot excuse an earlier unmarked DLL update; each message is checked separately. Merge commits are compared against their first parent, and root commits include additions.
 
@@ -1003,7 +1005,7 @@ GitHub documents its [push payload and commit-array limit](https://docs.github.c
 
 This is an explicit-intent marker, not proof that a DLL was compiled in Release mode, corresponds to the current source or was authorized by the user. Preserve the existing rule that compiled binaries require explicit user approval.
 
-When a squash or merge introduces a DLL, its resulting commit message must also contain `Update DLL`; CI checks that committed message on push. This intent check does not rebuild DLLs or install a local hook; the structural define check below separately covers DLL-consumed XML define name changes.
+When a squash or merge introduces a DLL, its resulting commit message must also contain `[ci_update_dll]`; CI checks that committed message on push. This intent check does not rebuild DLLs or install a local hook; the structural define check below separately covers DLL-consumed XML define name changes.
 
 ```sh
 python .github/workflows/build/repository/dll_commit_message.py
@@ -1017,7 +1019,7 @@ Adding, removing or renaming an XML define consumed by C++ requires an updated s
 - Discover `DefineName` declarations throughout `Assets/XML/**/*.xml`, regardless of filename or name prefix, and compare their combined name sets against each selected commit's first parent; inspect both C++ source trees for those names, ignoring comments.
 - Moving an unchanged name between XML files, value/comment edits and Python-only define names require no rebuild. This is a conservative static reference check; dynamically constructed names and preprocessor reachability are not resolved.
 - Feature-branch pushes defer enforcement. PRs targeting the default branch and default-branch pushes require the integration head's DLL to differ from the binary before each affected change, with matching successful Release JSON evidence.
-- Intermediate source commits can share a later Release build at the integration head; each binary-changing commit still needs its own `Update DLL` marker and build evidence under the existing intent check.
+- Intermediate source commits can share a later Release build at the integration head; each binary-changing commit still needs its own `[ci_update_dll]` marker and build evidence under the existing intent check.
 - Local/manual runs check the selected head commit; `--base-ref` checks a complete range. Amended pushes inspect the new commit identities without relying on a discarded push-before object.
 
 The DLL rebuild check sends the changed define names to Git as input rather than hundreds of command-line arguments. This avoids Windows' command-length limit while preserving literal, whole-name matching; the complete KI#1001.2 rename set exposed that limit.
@@ -1249,6 +1251,10 @@ Recognizes base AdvCiv's release branches, named by version such as `1.14`, `v1.
 
 Finds newly introduced runs of excess blank lines while preserving spacing within literals and structured text. Used by the source provenance and text spacing checks.
 
+#### `lib/ci_markers.py`
+
+Holds the one spelling of each commit-message marker, such as `[ci_update_dll]`, for the checks that read them; see [CI markers in commit messages](#ci-markers-in-commit-messages).
+
 #### `lib/cpp_lex.py`
 
 Masks C++ comments and string and character literals while retaining line breaks and character offsets. The duplicate-include and source provenance checks use `mask_cpp` to distinguish active code from commented-out code and literal text.
@@ -1259,7 +1265,7 @@ Runs Git commands, resolves comparison bases for local and CI checks, and decode
 
 #### `lib/revision_history.py`
 
-Parses diagnostic revision history entries and validates their Change fields for the SASGameRecord and Runtime checks.
+Parses diagnostic revision history entries and validates their Change fields for the SASGameRecord and Runtime checks, and reads `[ci_squash_pr]` to tell whether a PR is intended to be squash-merged.
 
 #### `lib/xml_defines.py`
 
@@ -1939,6 +1945,29 @@ Verifies each GameText `TXT_KEY`-style `<TEXT>/<Tag>` entry under `Assets/XML/Te
 Inspired by the old AdvCiv-SAS blind [scan_xml_duplicates-3.3.py](/LLM_Helpers/audits/scan_xml_duplicates-3.3.py) (see [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](/LLM_Helpers/README.md#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)).
 
 This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894) and fix XML text duplicate errors. See [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-149).
+
+## CI markers in commit messages
+
+A marker is one bracketed token in a commit message, title or body, usually on a body line such as `- [ci_update_dll]`. It states an intent the change alone cannot show, so CI checks the change against that intent.
+
+- A marker never skips a check, unlike GitHub's `[skip ci]`, which stops CI from running at all and so lets a problem through unseen. Ours are handled exceptions: every check still runs, and the marker tells it which result is the intended one.
+- Each intent has one spelling, kept once in [`lib/ci_markers.py`](/.github/workflows/lib/ci_markers.py), and all start with `[ci_`, so one search finds every marker in the history.
+  - They were plain phrases before 2026-11-22, such as `Update DLL`, taken from base AdvCiv's commits; the bracketed form keeps them from prose, and older commits keep their phrases, as CI reads only new ones.
+- A bracketed marker counts wherever it appears in the message, so a commit message that only talks about one, such as a commit changing these checks, writes it without brackets, as `ci_update_dll`.
+  - Example (2026-11-22): the draft message of the commit introducing these markers listed them in its prose, and the DLL check failed on "contains '[ci_update_dll]' but no DLL/build-JSON pair changed".
+- A new marker belongs here, and only where the change cannot show the intent: an SGR or Runtime revision bump shows itself, through its define and history entry, so it has none.
+
+| Marker | Intent | What CI still checks |
+| --- | --- | --- |
+| `[ci_update_dll]` | the commit ships the DLL on purpose | a changed DLL and its `Release` build report together; a DLL change without the marker fails, which catches a local test build committed by mistake. See [`build/repository/dll_commit_message.py`](#buildrepositorydll_commit_messagepy). |
+| `[ci_edit_dev_log]` | the commit edits earlier dev log entries on purpose, such as a typo fix | the logs' authors and commits. See [`build/repository/dev_logs.py`](#buildrepositorydev_logspy). |
+| `[ci_convert_line_endings]` | the commit switches files' line endings on purpose | everything else in the commit. See [`build/hygiene/line_ending_churn.py`](#buildhygieneline_ending_churnpy). |
+| `[ci_squash_pr]` | the PR is intended to be squash-merged | the SASGameRecord, Runtime and DLL/runtime revision checks judge the whole PR as the one commit it becomes, so it still needs exactly one correct bump. See [`lib/revision_history.py`](/.github/workflows/lib/revision_history.py). |
+
+- `[ci_squash_pr]` is read from the PR's newest commit message, which states the intent as it stands; a PR without it is checked commit by commit, which is right for a rebase or plain merge.
+  - Example (2026-11-22): PR #50's draft commits bumped SGR to 210, then 211, then back to 210. Judged one by one, its SGR step failed on "regressed 211->210", although the squash commit, 209 to 210, passes. A GitHub label, `revision:squash`, said the same before, but was not in use; the marker replaced it.
+  - The squash commit's own SHA cannot be known before the merge, so the newest revision entry says `pending`, and the next commit on main, or an amend of the squash commit, fills it in.
+- Local options do the same for a local run: `--squash` on the revision checks judges a branch as one squash commit; `--staged` on the diagnostic-default checks reads staged content while unstaged development values stay on (see [Local `--staged` option for diagnostic defaults](#local---staged-option-for-diagnostic-defaults)); `ci_report.py --message` takes a draft commit message, so the commit-message checks read its markers.
 
 ## Run Locally
 

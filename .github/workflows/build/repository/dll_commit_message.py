@@ -3,7 +3,7 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 # <!-- custom: Local test DLLs, including a Debug-opt build, were accidentally shipped with source changes instead of the deliberately updated Release DLL.
 # Source commits can be more frequent than distributed Release DLL updates; an installed test DLL is therefore not automatically a binary intended for Git.
-# Require the explicit Update DLL phrase in each binary-changing commit's own title/body so accidental binary staging produces a CI failure rather than silently shipping it.
+# Require the explicit [ci_update_dll] marker (Update DLL before 2026-11-22) in each binary-changing commit's own title/body so accidental binary staging produces a CI failure rather than silently shipping it.
 # A later commit's message cannot establish intent for an earlier accidental binary.
 # Inspect Git trees, not a local installed DLL. (GPT-6.1-Sol) -->
 
@@ -21,7 +21,10 @@ import sys
 
 # <!-- custom: Resolve repository/shared-helper paths from this subject subfolder after the workflow-tool reorganization. (GPT-6.1-Sol) -->
 ROOT = Path(__file__).resolve().parents[4]
-MARKER = re.compile(r"(?<!\w)Update DLL(?!\w)")
+# <!-- custom: The shared marker spelling, kept once in lib/ci_markers.py with the other commit-message markers. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+from ci_markers import UPDATE_DLL
+MARKER = re.compile(re.escape(UPDATE_DLL))
 PUSH_PAYLOAD_LIMIT = 2048
 
 
@@ -147,7 +150,7 @@ def shipped_build_errors(repo, head):
     return build_report_errors(repo, head, ["Assets/CvGameCoreDLL.dll"])
 
 
-# <!-- custom: With build reporting available, a DLL and its JSON must change together and carry Update DLL; that marker without a pair also fails.
+# <!-- custom: With build reporting available, a DLL and its JSON must change together and carry [ci_update_dll]; that marker without a pair also fails.
 # Apply pair enforcement prospectively from the reporting wrapper, while older binary commits retain their original intent check. (GPT-6.1-Sol) -->
 def check(repo, commits):
     errors = []
@@ -162,7 +165,7 @@ def check(repo, commits):
         paired_policy = bool(git(repo, "ls-tree", commit, "--", "CvGameCoreDLL/Project/build_with_report.ps1").strip())
         if not paths and not (paired_policy and reports):
             if paired_policy and marked:
-                errors.append(f"{commit[:12]}: contains 'Update DLL' but no DLL/build-JSON pair changed")
+                errors.append(f"{commit[:12]}: contains '{UPDATE_DLL}' but no DLL/build-JSON pair changed")
             continue
         updated += bool(paths)
         affected = sorted(set(paths) | {path[:-len(".build.json")] for path in reports}) if paired_policy else paths
@@ -173,12 +176,12 @@ def check(repo, commits):
                 if dll not in changed or report not in changed:
                     errors.append(f"{commit[:12]}: {dll} and {report} must both change in this commit (including paired additions, removals or renames)")
         if not marked:
-            errors.append(f"{commit[:12]}: changes {', '.join(affected)} but its commit title/body lacks the exact phrase 'Update DLL'")
+            errors.append(f"{commit[:12]}: changes {', '.join(affected)} but its commit title/body lacks the marker '{UPDATE_DLL}'")
     return errors, updated
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Require Update DLL and matching Release build evidence for tracked DLL updates.")
+    parser = argparse.ArgumentParser(description="Require [ci_update_dll] and matching Release build evidence for tracked DLL updates.")
     parser.add_argument("--repo-root", type=Path, default=ROOT)
     parser.add_argument("--base-ref", help="explicit range base; omitted for a local single-commit check")
     parser.add_argument("--head-ref", default="HEAD")

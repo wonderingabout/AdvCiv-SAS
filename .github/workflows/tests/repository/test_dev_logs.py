@@ -43,7 +43,7 @@ class DevLogTests(unittest.TestCase):
 
     def test_marker_allows_a_deliberate_edit(self):
         edited = OLD.replace("hand-edited", "edited again")
-        self.assertEqual(checker.commit_errors(self.repo, self.commit(LOG, edited, "Fix a typo\n\n- Edit dev log: reword one entry.")), [])
+        self.assertEqual(checker.commit_errors(self.repo, self.commit(LOG, edited, "Fix a typo\n\n- [ci_edit_dev_log]: reword one entry.")), [])
 
     def test_a_rename_keeps_the_earlier_content_check(self):
         (self.repo / LOG).unlink()

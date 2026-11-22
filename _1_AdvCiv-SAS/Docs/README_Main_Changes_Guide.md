@@ -262,7 +262,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - A [CI check](/.github/workflows/README.md#buildsourceinherited_filespy) fails when SAS starts or stops keeping an inherited filename, or importing an inherited Python module, until the audit is regenerated, so a new decision cannot go unrecorded.
   - The manifests CI and agents read in place of files the repository does not have, such as the inherited text hashes, now sit together in [`_0_Legacy/Docs/Manifests/`](/_0_Legacy/README.md#manifests), with the names considered for the folder and why, instead of beside each check.
 - (Requires AdvCiv-SAS 6637+) **DLL shipping and rebuild checks:**
-  - Intentionally committed Release DLL updates require the DLL and full JSON to change together, configuration exactly `Release`, a successful build result, matching DLL hash and the `Update DLL` intent marker. The matching JSON remains required on source-only commits too.
+  - Intentionally committed Release DLL updates require the DLL and full JSON to change together, configuration exactly `Release`, a successful build result, matching DLL hash and the `[ci_update_dll]` intent marker. The matching JSON remains required on source-only commits too.
   - Adding, removing or renaming C++-used XML define names across `Assets/XML` requires updated Release build evidence when integrating into the repository's default branch; intermediate feature-branch source commits remain possible.
     - Define value/comment edits and Python-only names are excluded; see the [structural define check](/.github/workflows/README.md#buildrepositorydll_define_changespy) for scope and limitations.
 - (Requires AdvCiv-SAS 6584+) **Broader repository sanity checks:**

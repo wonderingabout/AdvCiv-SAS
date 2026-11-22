@@ -56,9 +56,7 @@
     - [Caching and variable reuse](#caching-and-variable-reuse)
     - [Diagnostic gating and output](#diagnostic-gating-and-output)
     - [Interface, dependency and toolchain comments](#interface-dependency-and-toolchain-comments)
-- [Diagnostic revision maintenance](#diagnostic-revision-maintenance)
-  - [SASGameRecord](#sasgamerecord)
-  - [Runtime status and history](#runtime-status-and-history)
+- [Subsystem revision maintenance](#subsystem-revision-maintenance)
 - [DLL compilation](#dll-compilation)
 - [Runtime safety and diagnostics](#runtime-safety-and-diagnostics)
 - [File management](#file-management)
@@ -169,7 +167,7 @@ Release preparation: when preparing a stable release or substantial release upda
   - Update it when needed for normal gameplay, for example Python calling a newly exposed method or structural DLL-referenced define changes; these examples are not exhaustive. Compile when needed to test native changes, but a tested local build does not itself require shipping that binary in the same commit.
   - If another condition is found that would break normal gameplay with the existing DLL, consider extending the rebuild CI guards to block integration without a matching DLL refresh.
 - Inspect staged DLLs and their build reports before committing.
-  - For a user-approved commit whose native changes require an updated shipped DLL, a user-staged matching Release DLL/report pair is approval to include that pair. Verify the successful Release build and matching binary identity, and retain the required `Update DLL` marker.
+  - For a user-approved commit whose native changes require an updated shipped DLL, a user-staged matching Release DLL/report pair is approval to include that pair. Verify the successful Release build and matching binary identity, and retain the required `[ci_update_dll]` marker.
   - Otherwise include compiled binaries only when the user explicitly asks; keep unrelated binaries and local Debug-opt builds out of source/docs commits.
 
 ### Commit message writing
@@ -178,9 +176,9 @@ Release preparation: when preparing a stable release or substantial release upda
 - For a defect/crash fix whose origin is established, prefer a concise provenance label in the commit title (e.g. `inherited AdvCiv`, `inherited K-Mod/BUG`, `SAS`); if that would make the title awkward, put the provenance in the first body bullet instead. Do not infer origin merely because another codebase currently contains similar code.
   - Preserve useful discovery context in the body, such as an issue resurfacing during a broader crash investigation, while distinguishing that from a claim that it caused the crash.
 - Do not include practical commit numbers in commit messages: they can change across branches, rebases, merges and squashes.
-- When an explicitly authorized commit changes a tracked `.dll`, include the exact phrase `Update DLL` in its title or body (e.g. `- Update DLL`); the DLL commit-message CI check requires it.
-  - This catches accidental inclusion of local test/Debug-opt binaries when the shipped Release DLL is updated less frequently than source commits.
-  - The marker does not authorize a binary update by itself. Intentionally shipped DLL updates also need the generated full `<DLL filename>.build.json` staged beside the DLL from configuration exactly `Release`; both paths must change in the same commit, and `Update DLL` without a changed pair fails; the full `AdvCiv.log` remains a local diagnostic file. Ordinary build outputs remain local/Git-ignored.
+- A few bracketed markers in a commit message, such as `- [ci_update_dll]` for a commit shipping the DLL or `- [ci_squash_pr]` for a PR intended to be squash-merged, state an intent the change alone cannot show.
+  - CI still runs every check and verifies the change against that intent; [CI markers in commit messages](/.github/workflows/README.md#ci-markers-in-commit-messages) lists them and their rules, and a new one belongs there.
+  - A marker does not authorize what it states: a DLL ships only when the user approved it, as under [DLL inclusion in commits](#dll-inclusion-in-commits).
 - Validation text in commit messages is optional; keep it brief when it explains a meaningful technical risk or supports a bug-fix claim. Omit routine checklists that add little; this does not waive appropriate checks.
 
 ## Research and references
@@ -1092,25 +1090,11 @@ Example based on the inherited `WarEvaluator::evaluate(WarPlanTypes, bool, int)`
 int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, bool bNaval, int iPreparationTime)
 ```
 
-## Diagnostic revision maintenance
+## Subsystem revision maintenance
 
-- A revision entry may say `pending` in its introducing commit; finalize its full SHA in the next commit even if that commit does not change the recorder.
-  - This is an exception to avoiding vague progress labels: the work is finished and included, but a commit cannot contain its own final SHA. Here `pending` marks only that unavoidable missing reference, not a promise of further implementation changes.
-  - After an amend/rebase/squash, reconcile rewritten references and practical numbers with the resulting history; an ordinary merge preserves the original commit identities. The commit-reference check validates both recorder histories.
-- For a PR explicitly labeled `revision:squash`, apply revision maintenance once to the complete candidate relative to its base; ordinary PRs retain per-commit maintenance. Both recorder checks accept local `--squash` review.
-
-### SASGameRecord
-
-- SASGameRecord revision maintenance: every intentional SASGameRecord-related code change, including implementation/checker/bridge/configuration code comments or header-only edits, increments `SAS_SGR_REVISION` and adds the matching latest-first entry to [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) in the same commit.
-  - Edit the XML Define in `Assets/XML/GlobalDefines_advciv_sas.xml`. The DLL reports its first-use cached value as `GAME_RECORD_SOURCE_CONTEXT recordRevision`; Python-only updates do not require a DLL rebuild just to advance this label.
-  - Do not debate compatibility; the revision is only a downstream-update signal.
-  - Standalone docs/history/example-log/package refreshes do not require a bump.
-  - The SASGameRecord build check verifies that source and history stay synchronized.
-
-### Runtime status and history
-
-- Increment XML `SAS_RUNTIME_REVISION` once per Runtime implementation commit, including observers, configuration, hooks and implementation comments; keep one pending increment during drafting and add its entry to [`SASRuntime.md`](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md). Pure CI, tests, docs and example maintenance do not require a bump.
-- Runtime follows the same DLL shipping policy as SGR. Rebuild native changes for in-game testing, and ship a matching Release DLL/report when the old binary is unsuitable, for example when an observer requires a new native field. Use DLL/build/source identity to identify loaded native code.
+- Some SAS subsystems, such as SASGameRecord (`SAS_SGR_REVISION`) and Runtime (`SAS_RUNTIME_REVISION`), carry a revision that tells downstream copies the subsystem changed: a commit changing one, its code comments included, increments it once and adds a history entry, as the [shared rules](/_1_AdvCiv-SAS/Docs/revisions/README.md) say, and CI checks it.
+  - The entry's commit says `pending` until the next commit fills it in: an exception to avoiding vague progress labels, since a commit cannot contain its own SHA.
+  - What counts as a change to each subsystem is in its history doc, such as [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) and [`SASRuntime.md`](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md).
 
 ## DLL compilation
 
@@ -1206,6 +1190,14 @@ Add-Type -AssemblyName Microsoft.VisualBasic
 - If `DeleteDirectory` refuses a folder with "This function is not supported by the system", recycle its contents one level down, then the emptied folder. On 2026-11-18 the folders left by uninstalling Python 3.12 and 3.13 failed that way, twice, while their subfolders and files recycled at once.
 - If an item cannot go to the Recycle Bin, for example because the call fails or Windows would delete it permanently, ask the user what to do instead of deleting it directly.
 - A direct delete is fine where you judge nothing of value can be lost, for example an agent's own temporary files in its session scratchpad; when in doubt, use the Recycle Bin.
+- A script that rewrites a file should check everything first and only then open the file for writing: opening it for writing empties it at once, so a check failing after that leaves an empty file.
+  - Example (2026-11-22): Claude Code Opus 5.5 ran `open(p, "w").write(apply(text))` on AGENTS.md; the open emptied the file, then `apply`'s count check failed, so nothing was written back and all 1,213 lines were gone from the working tree.
+    - It was lucky: the whole file was staged, so `git show :AGENTS.md` restored it.
+    - In a long iterative commit candidate, with hours of unstaged edits in a key code file and no diff backup taken, the index or HEAD would have brought back only an older version, losing those edits.
+  - So, to recover a file emptied or overwritten by mistake, try in this order:
+    - Git: `git show :<path>` for the staged version, `git show HEAD:<path>` for the committed one, then the diff backups of [Review and staging](#review-and-staging), which keep unstaged edits too.
+    - VS Code's Local History: each save in the editor leaves a copy under `%APPDATA%\Code\User\History\<id>\`, whose `entries.json` names the file and the time of each copy, so an agent can read the latest one directly. It holds only what the editor saved, not a script's writes.
+    - The user's open editor: if the file is open in VS Code, Ctrl+Z there can bring back the unsaved buffer, as the user did that day. Ask the user rather than typing into their editor.
 - Keep folders that agents or the user open often to roughly 1,000 to 2,000 files, and move older files into a dated subfolder: every listing of a crowded folder strains the hardware needlessly, while moving old files keeps them all. On 2026-11-10 the Civ4 `ScreenShots` folder, with 3,000+ images, was slow to list even on an SSD.
   - [`archive_old_files.py`](/LLM_Helpers/README.md#archive_old_filespy) does the moving, and the [Computer upkeep guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Computer_Upkeep.md) lists the folders that grow.
     - `run_autoplay.py` runs it at the end of every run, so the folders it fills are tidied without anyone remembering; `archive_old_files.py --all --apply` checks every known folder by hand.

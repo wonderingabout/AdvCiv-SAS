@@ -149,7 +149,7 @@ def local_report(args):
 			results = list(pool.map(lambda step: run_step(step, shared_env, bash), steps))
 	failures = [result for result in results if result[1]]
 	if staged:
-		judged = "Staged changes judged as a temporary commit %s on HEAD, compared with %s, with %s." % (head[:12], base[:12], "the message from %s" % args.message if args.message else "a placeholder message, so the title and Update DLL checks may fail: pass --message with the draft")
+		judged = "Staged changes judged as a temporary commit %s on HEAD, compared with %s, with %s." % (head[:12], base[:12], "the message from %s" % args.message if args.message else "a placeholder message, so the title and [ci_update_dll] checks may fail: pass --message with the draft")
 	else:
 		judged = "Nothing staged, so the commit checks judge HEAD %s, compared with %s; stage the candidate for them to judge it." % (head[:12], base[:12])
 	lines = ["Local CI report: %d of %d steps failed" % (len(failures), len(results)), judged, "Other checks read the working tree, unstaged development values included."]
