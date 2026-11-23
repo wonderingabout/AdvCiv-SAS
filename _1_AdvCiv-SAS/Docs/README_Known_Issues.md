@@ -37,7 +37,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#9 - Art (and maybe other assets too or not) XML assets silently causing a game crash during init/game load/startup instead of telling us which asset was missing (no error)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-9)\
 [KI#10 - some text characters in XML TXT_KEY tags are not displayed correctly ingame (as `?` or causing other arti(e?)facts maybe too indeed for example), while some like `&` cause an XML error and asset failing to load entirely](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-10)\
 [KI#11 - In Debug mode, in map view, unexplored tile by the active player if improved, shows as red for example "with Road" or "with Pasture", even though a road is already there and text should be white instead or removed entirely; and other weird debug mode display issue(s)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11)\
-[KI#11.2 - In debug mode, another weird bug is at wonder list while world wonder has not been built in said civs at least not all](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.2)\
+[KI#11.2 - (Rejected false positive: Debug Mode lists rivals' wonders in progress) In debug mode, another weird bug is at wonder list while world wonder has not been built in said civs at least not all](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.2)\
+[KI#11.3 - (Fixed inherited vanilla, Debug Mode only) A sheep on plains showed 1 food instead of 2 in Debug Mode: the plot hover then shows the plot's stored yield, which counts no resource on a plot nobody owns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3)\
 [KI#12 - (now fixed) Special/generic building monastery's button inconsistently using (uses/was using rather) the hindu specific monastery button instead of a generic button like the (abstract? / generic) generic temple and generic cathedral were](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-12)\
 [KI#13 - (now fixed/reworked) As an appendix to 12 - just before, shrines now also appear in tech tree at their religion's tech requirement unlike in base advciv / civ4 too](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-13)\
 [KI#14 - (now removed/fixed if it is a fix) duplicate ArtRef Name="building:BUILDING_LIGHTHOUSE" and same for ArtRef Name="building:BUILDING_HARBOR" and ArtRef Name="building:BUILDING_CARTHAGE_COTHON" in CIV4CityLSystem.xml](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-14)\
@@ -1822,17 +1823,60 @@ As this is debug-only, and to not cause further issues, only mentioning it for n
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1lXQ8pyE0A6TJGqlnf4In3V7QuJ0lBhIR?usp=sharing)
 
-Another weird display issue/bug in debug mode is for examples yields are not accurately accounted in some conditions, for example in screenshots 5465, 5466, 5467 of/in the drive link just above, sheep plains natural yield should be 1 food of plains + 1 food natural yield change of sheep so 2 food, but is displayed as 1 food only for this tile with map reveal (ctrl+z debug mode) vs 2 food accurately seemingly, without map reveal.
+Update (2026-11-22): the second issue this entry reported, a sheep on plains at 1 food instead of 2 with Debug Mode's map reveal, has its own cause, so its two paragraphs moved word for word to [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3); this entry keeps the red "with Road" text.
 
-I don't know what the exact issue is as i didn't investigate it, but still is an issue, just mentioning it here, may be helpful, hopefully exhaustive too as i wanted or not wanted or yes wanted or other or and not...
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080).
 
 <a id="ki-11.2"></a>
 
-## KI#11.2 - In debug mode, another weird bug is at wonder list while world wonder has not been built in said civs at least not all
+## KI#11.2 - (Rejected false positive: Debug Mode lists rivals' wonders in progress) In debug mode, another weird bug is at wonder list while world wonder has not been built in said civs at least not all
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1dtHQbjW9Z55O_KryENWcJsrlMhUVqyTH?usp=sharing)
 
 Similarly to [known issue number 11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), this seems to be a debug mode only bug, as when toggling off debug mode while still in same game (ctrl+z as of now if not always or not), a wonder is shown to have been built by many civs, with the date showing hammer icon instead of a data number year or such, and looking inside said cities, no world wonder exists, so this seems to be a visual bug specific to debug mode, i didn't check all cities, but a few said to have the world wonder didn't have it, and since it is supposed to be "unique" i.e. only 1 in entire world (not civ-specific as civ4 says about "unique" in another way) i forgot my sentencei assume this is not too important to fix, but mentioning it for exhaustiveness and in case it helps but or not but or yes but
+
+Update (2026-11-22): rejected as a false positive, as the user suspected: these were rivals building the same wonder, not built copies of it.
+
+- In the Info Screen's wonders tab, the hammer marks a wonder in progress, not a built one: `-9999` stands in for its year, as a comment in [`CvInfoScreen.py`](/Assets/Python/Screens/CvInfoScreen.py) says.
+- BUG's `calculateWondersList_BUG` there lists other civilizations' wonders in progress whenever Debug Mode is on (its `bDebug`), as well as through an Investigate City mission; base AdvCiv's advc.001d only stops it listing the active team's twice.
+- So in Debug Mode, every civilization building the same world wonder shows it with a hammer, which fits the report. Read from the code by Claude Code Opus 5.5; the report saw it after turning Debug Mode off, which the screen may not have redrawn for.
+- The entry's own screenshots confirm it: in `Civ4ScreenShot0664` (turn 90, 1300 BC) the World Wonders list shows Shwedagon Paya for Rome (Antium), Holy Rome (Aachen), Babylon (Akkad) and the Ottomans (Istanbul), and Stonehenge for Mongolia, each with the in-progress icon in the Date column, while the wonders actually built, such as the Pagan Shrine and the Colossus, show their years; Antium's city banner on the map reads Shwedagon Paya, its current build, and no city had completed it (taken with an older SAS interface).
+
+<a id="ki-11.3"></a>
+
+## KI#11.3 - (Fixed inherited vanilla, Debug Mode only) A sheep on plains showed 1 food instead of 2 in Debug Mode: the plot hover then shows the plot's stored yield, which counts no resource on a plot nobody owns
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1u48pxKmIwmc0TZ7CifyX4DpKKBs18--D?usp=sharing).
+
+Split from [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11) on 2026-11-22, which reported it beside an unrelated red "with Road" text; the user found that the two issues shared one entry. Its original report, moved word for word:
+
+Another weird display issue/bug in debug mode is for examples yields are not accurately accounted in some conditions, for example in screenshots 5465, 5466, 5467 of/in the drive link just above, sheep plains natural yield should be 1 food of plains + 1 food natural yield change of sheep so 2 food, but is displayed as 1 food only for this tile with map reveal (ctrl+z debug mode) vs 2 food accurately seemingly, without map reveal.
+
+I don't know what the exact issue is as i didn't investigate it, but still is an issue, just mentioning it here, may be helpful, hopefully exhaustive too as i wanted or not wanted or yes wanted or other or and not...
+
+- What was seen: the entry's screenshots, from turn 100: with Debug Mode's map reveal on (`Civ4ScreenShot5465`, `Civ4ScreenShot5466`), the hover over a sheep on plains read "Plains, 1 food, 1 commerce", and without it (`Civ4ScreenShot5467`) "Plains, 2 food, 1 commerce", plains' 1 food plus the sheep's 1.
+- Cause, read from the code: in Debug Mode, `CvPlot::calculateYield` returns the plot's stored `getYield` for any hover instead of computing the yield the active team would see.
+  - The stored yield is computed for the plot's owner, and with no owner `calculateNatureYield` gets `NO_TEAM`, which, as a comment there notes, ignores bonus resources; so an unowned sheep tile stores 1 food. The sheep in the screenshots stood outside every border.
+  - Without Debug Mode the hover computes the yield for the active team, which sees the sheep, hence 2 food.
+  - Gameplay is not affected: a plot is worked only once owned, when its stored yield counts the resource.
+- Origin: vanilla Civ4's `CvPlot::calculateYield` already returned `getYield(eYield)` first whenever `bDisplay` and Debug Mode were set, as the Warlords and BtS copies in Civ4CE do; base AdvCiv's advc.129d only moved the check below two early returns.
+- Left open: a fix would compute the displayed yield for the active team in Debug Mode too, or for the plot's owner when there is one; not tried.
+- How it came up again (2026-11-22): during the base-game Python copies work of [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104), checking KI#1105's Map Details table in Debug Mode (`Civ4ScreenShot0448`, `Civ4ScreenShot0449`) prompted the user to look at the other Debug Mode issues the user remembered, this one among them, reproduced next (`Civ4ScreenShot0450`).
+- Reproduced in the current SAS (2026-11-22, the user's `Civ4ScreenShot0450` and a hover check): at turn 0 on a small Pangaea, Debug Mode's hover over an unowned sheep on plains, plot (40,17), read "Plains, 1 food, 1 production".
+  - With Debug Mode off the plot was still unexplored at turn 0, so it showed no hover to compare; the report's `Civ4ScreenShot5467` covers that side, at 2 food.
+  - The user then walked a Settler all the way around to it and compared the same plot at turn 22: "Plains, 2 food, 1 production" with Debug Mode off (`Civ4ScreenShot0452`) and "Plains, 1 food, 1 production" with it on (`Civ4ScreenShot0453`), the plot still unowned.
+- Fixed (2026-11-22): in Debug Mode, `CvPlot::calculateYield` now returns the stored yield only for an owned plot, whose stored yield is the true one; an unowned plot falls through to the active team's view, as without Debug Mode. The custom comment there says so.
+  - Checked in game with a Debug-opt build on the user's turn-22 save: with Debug Mode on, plot (40,17) read "Plains, 2 food, 1 production" (`Civ4ScreenShot0457`).
+    - The user's after-fix shots in the entry's folder show both sides: the sheep plot at 2 food with Debug Mode off (`Civ4ScreenShot0455`) as on (`Civ4ScreenShot0457`), and the Settler's neighbouring plot (39,18), plains with fresh water and no resource, at 1 food with Debug Mode off (`Civ4ScreenShot0456`) as on (`Civ4ScreenShot0458`), so a plot with no resource reads as before.
+- Archaeology (2026-11-22), with Civ4CE's copies of the Firaxis source: vanilla's `CvPlot::calculateYield` already returns `getYield(eYield)` first whenever `bDisplay` and Debug Mode are set, and its non-display path computes the stored yield with `calculateNatureYield(eYield, NO_TEAM)` for an unowned plot, whose `if (eTeam != NO_TEAM)` skips `getBonusType`; Warlords and BtS kept both.
+  - Base AdvCiv's commit `48e93752d0` (practical 2362, "Don't place unreachable water resources") only moved the Debug Mode check below two early returns, as advc.129d; no Better BTS AI, K-Mod or SAS commit in the `commit_diffs` corpus changed it before this fix.
+- Codex's review (2026-11-22) noted that an unowned plot now shows the active team's view: a resource the team cannot use yet, for lack of its tech, adds nothing, though the Debug Mode hover names it.
+  - Kept on purpose (the user): with no owner, nobody can get that yield yet, so the active team's view is the meaningful one, as without Debug Mode.
+  - An owned plot keeps its owner's stored yield, which uses the owner's techs, so a rival that already has the tech shows the resource counted, as it really gets it.
+
+Found by Claude Code Opus 5.5 from the user's screenshots (2026-11-22), during the base-game Python copies work of [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50) ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)), though committed after it: checking KI#1105's Map Details table in Debug Mode led the user to the other Debug Mode issues the user remembered, this one first.
+
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080).
 
 <a id="ki-12"></a>
 
@@ -12592,6 +12636,8 @@ Fix:
 File changed:
 
 - [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)
+
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080).
 
 <a id="ki-143"></a>
 
@@ -31090,6 +31136,8 @@ An AZERTY single-player retest confirmed that Ctrl+Z toggles Debug mode again.
 
 Found during ChatGPT-5.6-Sol's C026 `CvDllPythonEvents.cpp` audit; implemented, reviewed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
 
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080).
+
 <a id="ki-623"></a>
 
 ## KI#623 - (Pending Architectural inherited K-Mod pathfinder defect incompletely addressed by AdvCiv) Reparented paths retain stale danger legality
@@ -37694,6 +37742,8 @@ Compilation and the same fresh autoplay completed successfully. The selected-pla
 
 Found as F746/provisional KI#1067 during ChatGPT-5.6-Sol's C031-WIP864 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080).
+
 <a id="ki-1068"></a>
 
 ## KI#1068 - (Fixed AdvCiv-SAS Sevopedia repair regression) EventTrigger corporation-era inference ignored HQ-building technology gates
@@ -38107,6 +38157,8 @@ To reproduce: run `python LLM_Helpers/game_runs/run_autoplay.py <save> --turns 1
 The difference is in the exact game, not something a player would notice: the user often turns Debug Mode on a few or dozens of turns into a game and saw nothing unusual. Only two runs that should be identical reveal it, which is why it matters for comparisons and benchmarks.
 
 Found by Claude code Opus 5.5 while testing parallel autoplay runs requested by wonderingabout, thanks.
+
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067).
 
 <a id="ki-1081"></a>
 

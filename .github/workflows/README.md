@@ -646,6 +646,10 @@ Keeps new history paragraphs at the end of an existing Known Issues entry. It co
   - The user noticed while reviewing: VS Code showed KI#39's text, written months before, as new green lines, which made no sense for a commit adding KI#38.7. A content comparison then showed KI#39 had lost its ending, which this rule now reports by itself.
   - Only a paragraph found in one entry counts, so shared credit lines, such as the C++ File Audit Album's "Found and documented … with the help of ChatGPT-5.6-Sol", do not; a whole entry merged into another, as KI#176.2 into KI#1091, leaves no source and passes.
   - Replayed over the 546 commits that changed the Known Issues, it flags 5, all from 2026-08-30: a "Reserved during ChatGPT-5.6-Sol's C031 … re-audit" note moved to the newest provisional entry at each step of that discontinued audit.
+  - A declared split passes: when the source entry keeps a paragraph saying it "moved" with a link to the destination, and the destination links back, its paragraphs may move word for word.
+    - Splitting KI#11's sheep-yield report into KI#11.3 (2026-11-22) needed it, as keeping the report in KI#11 left the split half done (the user).
+    - An unmarked move still fails, and paragraphs only match word for word, so a move cannot reword them.
+    - Both the "moved" note, with "moved" as a whole word, and the link back must be new paragraphs: Codex's review found that "removed" matched too and that a declaration already in the document would have let any later move pass.
 - Whitespace reflow, title/status edits, paragraph corrections and deletions are allowed. This conservative check cannot tell whether rewritten prose falsifies history; semantic review remains necessary.
 - Run `python .github/workflows/build/documentation/known_issues_chronology.py --base-ref HEAD` locally. It reports all detected insertions without editing the document.
 
@@ -1133,6 +1137,9 @@ Requires a commit that adds Known Issues to name them, so the commit that opened
 - New KIs are found by their `<a id="ki-N">` anchors; an entry only moved or renumbered within the file is not new, and editing an existing KI needs no mention.
 - Up to three new KIs must each be named in the title. More, as in audit reconciliations that added up to 33 at once, may be named anywhere in the message, and a range such as `KI#1036-KI#1068` names whole-number KIs in between.
 - `KI#1076` is not satisfied by `KI#1076.2` or `KI#10760`.
+- A KI named before its entry exists is allowed, on purpose (2026-11-23).
+  - The KI#11.3 commit named KI#1105, whose entry the user had not finished, and the user's VS Code showed `#1105` as a link to issue #1105 of the upstream AdvCiv repository, which this clone has as its `upstream` remote. GitHub shows it as plain text.
+  - A rule failing a message that names a KI with no entry was tried: over all history it flagged only that commit. It led to describing the issue in words instead, which the user found worse than the number, since a grep for `KI#1105` then misses it; the link came from the viewer, not from the text, so the rule was reverted before the push.
 - Commit selection is shared with `dll_commit_message.py`: the pushed or PR commits in CI, `HEAD` locally.
 
 ```bash

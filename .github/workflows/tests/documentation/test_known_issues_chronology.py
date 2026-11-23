@@ -55,6 +55,21 @@ class KnownIssuesChronologyTests(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn('KI#979 now sits in KI#980', errors[0])
 
+    # <!-- custom: A split declared in both entries, by new paragraphs, moves its paragraph; a note on one side only, "removed" for "moved", or a declaration already in the document does not (KI#11.3, 2026-11-22; the last two from Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+    def test_declared_move_passes_only_when_both_entries_newly_say_so(self):
+        moved = self.baseline.replace('Archaeology and rationale.\n\n', '').replace('Other history.', 'Other history.\n\nArchaeology and rationale.')
+        source_note = 'Original credits.\n\nThe rationale moved word for word to [KI#980](/x.md#ki-980).'
+        back_link = 'Other history.\n\nSplit from [KI#979](/x.md#ki-979).'
+        both = moved.replace('Original credits.', source_note).replace('Other history.', back_link)
+        self.assertEqual(checker.chronology_errors(self.baseline, both), [])
+        self.assertEqual(len(checker.chronology_errors(self.baseline, moved.replace('Original credits.', source_note))), 1)
+        self.assertEqual(len(checker.chronology_errors(self.baseline, moved.replace('Other history.', back_link))), 1)
+        removed = both.replace('moved word for word', 'removed word for word')
+        self.assertEqual(len(checker.chronology_errors(self.baseline, removed)), 1)
+        declared_before = self.baseline.replace('Original credits.', source_note).replace('Other history.', back_link)
+        later_move = declared_before.replace('Archaeology and rationale.\n\n', '').replace('Split from [KI#979](/x.md#ki-979).', 'Split from [KI#979](/x.md#ki-979).\n\nArchaeology and rationale.')
+        self.assertEqual(len(checker.chronology_errors(declared_before, later_move)), 1)
+
     def test_shared_lines_and_merged_entries_pass(self):
         shared = self.baseline.replace('Other history.', 'Other history.\n\nOriginal credits.')
         self.assertEqual(checker.chronology_errors(shared, shared.replace('Original credits.\n\n<a id="ki-980">', '<a id="ki-980">')), [])

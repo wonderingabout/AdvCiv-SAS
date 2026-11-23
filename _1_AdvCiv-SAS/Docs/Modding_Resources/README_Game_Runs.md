@@ -86,6 +86,8 @@ python LLM_Helpers/game_runs/run_autoplay.py "C:/path/to/save.CivBeyondSwordSave
 
 The save is only read. The runner copies the user's `CivilizationIV.ini` so graphics and sound settings match, and deletes that copy when Civ4 closes.
 
+To load a save without playing any turn, for example to check a fix on the position a bug was seen in, use [`start_game.py --load`](/LLM_Helpers/README.md#start_gamepy) instead: `--turns 1` would still play the loaded turn.
+
 ## Start a new game
 
 ```bash
@@ -235,6 +237,7 @@ Tested on 2026-11-10 during an autoplay:
 - One click on the Dawn of Man popup's Continue button reached the game. Its position, `963,809` in a 1926x1120 window, was read off a screenshot, so it holds only for that window size and layout; a different resolution, text scale or UI change moves it. Take a screenshot and read the position again before each click, and prefer a request that needs no click, as autoplay itself does.
 - `hover` moves the pointer to a point without clicking or focusing the window, so a tooltip appears without disturbing a user typing elsewhere. It refuses a point outside the window.
   - It needs Civ4 in front, though: on 2026-11-14 hovering a resource icon on the Foreign Advisor's Bonuses tab showed no tooltip while the agent's console had the focus, and the user's own hover, with Civ4 in front, showed it (`Civ4ScreenShot0027.JPG`, `0028.JPG`). Click an empty spot of the window first, or read the data through SASPilot, as `bonustrade` does for that tab.
+    - The map's plot help works the same way (2026-11-22, checking KI#11.3): after a save loaded with `start_game.py --load`, hovered plots kept showing an earlier plot's help, even after a key press, until the user clicked in the game; the user's own hovers then gave the expected plot.
 - Keystrokes did not: simulated Ctrl+Shift+X and Enter never reached the game, so the tool offers none, and the autoplay request avoids the keyboard. Anyone typing at the PC also cannot disturb a run.
   - Since 2026-11-11 key events carry the scan code a real key press has, and Civ4 accepted them: in the Sevopedia, Down moved to the next entry, Left and Right acted as BACK and NEXT, and `type` filled the search box. Later testing also opened the Ctrl+Shift+X chooser and started and stopped autoplay.
 - Civ4's own screenshot key, which the Runtime screenshot observer records, was not tried from the tools.

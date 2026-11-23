@@ -31,6 +31,7 @@ format_json = import_module("formatting.json_format").format_json
 
 USER32 = ctypes.windll.user32
 WM_CLOSE = 0x0010
+MOUSEEVENTF_MOVE = 0x0001
 MOUSEEVENTF_LEFTDOWN = 0x0002
 MOUSEEVENTF_LEFTUP = 0x0004
 
@@ -149,6 +150,8 @@ def screenshot(pid, out_path, method="window", crop=None, scale=1.0, page=False)
 		image = image.resize((max(1, int(image.width * scale)), max(1, int(image.height * scale))))
 	out_path = Path(out_path)
 	out_path.parent.mkdir(parents=True, exist_ok=True)
+	# <!-- custom: Captures are kept as PNG on purpose, though heavier: a 1926 x 1120 Civ4 window took 2.9 MB, against 262 KB for Civ4's own Print Screen JPG (2026-11-22).
+	# A PNG can be converted to JPG later for sharing, but a JPG cannot get back what it lost (the user). (Claude code Opus 5.5) -->
 	image.save(out_path)
 	return out_path, box
 
@@ -340,11 +343,19 @@ def drag(pid, x1, y1, x2, y2, button="left", steps=20, modifiers=()):
 	return (start_x, start_y), (end_x, end_y)
 
 
-def hover(pid, x, y):
+def hover(pid, x, y, front=False):
 	# <!-- custom: Move the pointer without clicking or focusing, to reveal tooltips such as Codex's usage reset times.
 	# A click into the Claude app while the user typed there would have taken focus from their typing; a hover takes none. (Claude Code Opus 5.5) -->
-	_hwnd, screen_x, screen_y = window_point(pid, x, y)
+	# <!-- custom: Civ4's plot help ignored a pointer only placed with SetCursorPos: on 2026-11-22, checking KI#11.3, it kept an earlier plot's help, and only the user's own click woke it.
+	# Writing "click Civ4 first" in the Game Runs guide had not helped, so the tool now does it: front=True brings the window forward through its title bar, which does nothing in a game, then a 1-pixel real mouse move there and back makes the game read the new point; tested on plot (40,17), whose help then appeared. (Claude Code Opus 5.5) -->
+	hwnd, screen_x, screen_y = window_point(pid, x, y)
+	if front:
+		bring_to_front(hwnd, pid, allow_click=True)
+		time.sleep(0.3)
 	USER32.SetCursorPos(screen_x, screen_y)
+	for step in (1, -1):
+		USER32.mouse_event(MOUSEEVENTF_MOVE, step, 0, 0, 0)
+		time.sleep(0.05)
 	return screen_x, screen_y
 
 
@@ -606,8 +617,9 @@ DUMP_FILE = Path(os.environ.get("LOCALAPPDATA", "")) / "Temp" / "Civ4BeyondSword
 DUMP_BUTTONS = {"full": "Full Dump", "normal": "Normal Dump"}
 
 
-def find_button(pid, label):
+def find_button(pid, label, title_prefix=None):
 	# <!-- custom: The button of that label in any top-level window of pid, such as the crash prompt's "Full Dump", or None. (Claude code Opus 5.5) -->
+	# <!-- custom: Or, with pid None, in a visible top-level window whose title starts with title_prefix, whatever its process: the Save As dialog the Claude app opens for each browser-pane download belongs to one of its many processes, and its title is the download's URL (2026-11-23). (Claude code Opus 5.5) -->
 	found = []
 	proc_type = ctypes.WINFUNCTYPE(wt.BOOL, wt.HWND, wt.LPARAM)
 
@@ -626,12 +638,105 @@ def find_button(pid, label):
 	def top(hwnd, _lparam):
 		owner = wt.DWORD()
 		USER32.GetWindowThreadProcessId(hwnd, ctypes.byref(owner))
-		if owner.value == pid:
+		if owner.value == pid if pid is not None else (USER32.IsWindowVisible(hwnd) and window_title(hwnd).startswith(title_prefix)):
 			USER32.EnumChildWindows(hwnd, proc_type(child), 0)
 		return True
 
 	USER32.EnumWindows(proc_type(top), 0)
 	return found[0] if found else None
+
+
+def visible_windows(predicate):
+	found = []
+	proc_type = ctypes.WINFUNCTYPE(wt.BOOL, wt.HWND, wt.LPARAM)
+
+	def collect(hwnd, _lparam):
+		if USER32.IsWindowVisible(hwnd) and predicate(hwnd):
+			found.append(hwnd)
+		return True
+
+	USER32.EnumWindows(proc_type(collect), 0)
+	return found
+
+
+def window_class(hwnd):
+	buffer = ctypes.create_unicode_buffer(64)
+	USER32.GetClassNameW(hwnd, buffer, 64)
+	return buffer.value
+
+
+def save_download(title_prefix, timeout=15.0, expect=None, folder=Path.home() / "Downloads"):
+	# <!-- custom: Saves a browser-pane download: the Claude app opens Windows' Save As dialog for each one, titled with the download's URL, and the app waits on it until someone answers (2026-11-23, the user's screenshot).
+	# Pressing Save by its label worked, but when the name already existed Windows asked whether to replace the file, so one press was not enough (the user's question); the first version stopped there and left the prompt open, blocking the app.
+	# Save goes by its standard ID, IDOK, so a French "Enregistrer" needs no label. (Claude code Opus 5.5) -->
+	IDOK, WM_COMMAND, WM_GETTEXT, WM_SETTEXT, GW_OWNER = 1, 0x0111, 0x000D, 0x000C, 4
+	deadline = time.monotonic() + timeout
+	dialogs = []
+	while not dialogs and time.monotonic() < deadline:
+		dialogs = visible_windows(lambda hwnd: window_class(hwnd) == "#32770" and window_title(hwnd).startswith(title_prefix))
+		if not dialogs:
+			time.sleep(0.5)
+	if not dialogs:
+		raise SystemExit("no Save As dialog titled %r... appeared" % title_prefix)
+	seen = time.monotonic()
+	dialog = dialogs[0]
+	# <!-- custom: The name box is searched among all descendants: the Explorer-style dialog nests it, so GetDlgItem(dialog, 1148) found nothing, the first run read an empty name and its renames went nowhere.
+	# A dump of the real dialog (2026-11-23) showed why: its name box is a ComboBox with ID 0 inside a FloatNotifySink, holding an Edit with ID 1001, while the file type ComboBox beside it has no Edit; 1148 stays for the classic dialog. (Claude code Opus 5.5) -->
+	boxes = []
+	proc_type = ctypes.WINFUNCTYPE(wt.BOOL, wt.HWND, wt.LPARAM)
+
+	def find_box(hwnd, _lparam):
+		parent = USER32.GetParent(hwnd)
+		if window_class(hwnd) == "Edit" and window_class(parent) == "ComboBox" and (USER32.GetDlgCtrlID(parent) == 1148 or window_class(USER32.GetParent(parent)) == "FloatNotifySink"):
+			boxes.append(hwnd)
+		return True
+
+	USER32.EnumChildWindows(dialog, proc_type(find_box), 0)
+	name_box = boxes[0] if boxes else None
+	if not name_box:
+		raise SystemExit("found the Save As dialog but not its file name box; left for the user")
+	buffer = ctypes.create_unicode_buffer(1024)
+	USER32.SendMessageW(name_box, WM_GETTEXT, 1024, buffer)
+	original = buffer.value
+	if not original:
+		raise SystemExit("the Save As dialog's file name reads empty; left for the user")
+	# <!-- custom: A dialog takes focus on opening, so the user's typing can replace its name: a Drive folder ZIP took seconds to prepare, its dialog opened after the click that wait-idle guarded, and "he" was saved as he.zip (2026-11-23).
+	# Codex's review found that a check of input since the dialog was first seen misses typing before that, so the caller names the file it asked for with expect, the name Drive shows, and any other name stops here. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if expect is not None and original.casefold() != expect.casefold():
+		raise SystemExit("the Save As dialog names %r, not the expected %r, perhaps typed over while it had focus; left for the user" % (original, expect))
+	stem, dot, extension = original.rpartition(".")
+	if not dot:
+		stem, extension = original, ""
+	# <!-- custom: A free name is chosen before Save, so no replace prompt comes up, and a name already there gets the local time, "name_20261123T091234.ext", which is unique and says when the copy came (the user's idea, over browsers' "name (1).ext").
+	# The first versions answered the prompt instead and failed twice: posting IDNO did nothing, as the prompt is a task dialog whose Yes and No buttons both have ID 0, and the Save dialog behind it turns hidden and disabled, not closed, which was read as saved (2026-11-23).
+	# The name box gets the absolute path, as Codex's review noted that a bare name is relative to whatever folder the dialog shows, so checking Downloads alone could miss a clash; exists() follows Windows' case rules there. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	target = Path(folder) / original
+	if target.exists():
+		target = target.with_name("%s_%s%s" % (stem, time.strftime("%Y%m%dT%H%M%S"), dot + extension))
+		if target.exists():
+			raise SystemExit("%r and %s both exist; left for the user" % (original, target))
+	USER32.SendMessageW(name_box, WM_SETTEXT, 0, ctypes.c_wchar_p(str(target)))
+	USER32.SendMessageW(name_box, WM_GETTEXT, 1024, buffer)
+	if buffer.value != str(target):
+		raise SystemExit("could not set the download's path to %s; left for the user" % target)
+	# <!-- custom: Input checked again just before Save, not only once: a key pressed after the name was set would land in the box (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if user_idle_seconds() < time.monotonic() - seen:
+		raise SystemExit("the keyboard or mouse was used while the Save As dialog was open, so its name may be the user's; left for the user")
+	USER32.PostMessageW(dialog, WM_COMMAND, IDOK, 0)
+	end = time.monotonic() + 15.0
+	while USER32.IsWindow(dialog) and time.monotonic() < end:
+		# <!-- custom: A prompt should not come up now; if one does, it is left open, as its buttons have no IDs and the last one was only assumed to be No (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if visible_windows(lambda hwnd: hwnd != dialog and window_class(hwnd) == "#32770" and USER32.GetWindow(hwnd, GW_OWNER) == dialog):
+			raise SystemExit("Windows put up a prompt over the Save As dialog for %s; left for the user" % target)
+		time.sleep(0.25)
+	if USER32.IsWindow(dialog):
+		raise SystemExit("pressed Save, but the dialog still exists, perhaps hidden; left for the user")
+	# <!-- custom: Success is this exact file arriving, not any new file in the folder, which Codex's review showed an unrelated download could pass. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	while time.monotonic() < end and not target.exists():
+		time.sleep(0.25)
+	if not target.exists():
+		raise SystemExit("the dialog closed, but %s did not appear" % target)
+	return target
 
 
 def minidump_pid(path):
@@ -1069,6 +1174,7 @@ def main():
 	press.add_argument("--double", action="store_true", help="double-click")
 	point = sub.add_parser("hover", help="move the pointer to a window-relative point without clicking or focusing, e.g. to show a tooltip")
 	point.add_argument("--pid", type=int, required=True)
+	point.add_argument("--front", action="store_true", help="bring the window forward first, through its title bar; Civ4's plot help needs it")
 	point.add_argument("x", type=int, nargs="?")
 	point.add_argument("y", type=int, nargs="?")
 	point.add_argument("--point", help="a named Civ4 point or a desktop usage point with --layout")
@@ -1109,6 +1215,19 @@ def main():
 	dump.add_argument("--pid", type=int, required=True)
 	dump.add_argument("--kind", choices=("full", "normal"), default="full")
 	dump.add_argument("--timeout", type=float, default=300.0)
+	button = sub.add_parser("button", help="press a button by its label in a window found by --pid or by --title prefix, such as Save (Enregistrer) in the Save As dialog of a browser-pane download")
+	button.add_argument("label", help="the button's text without its & accelerator, in the system's language")
+	button.add_argument("--pid", type=int)
+	button.add_argument("--title", help="the window title's start, such as https://drive.usercontent.google.com/")
+	button.add_argument("--timeout", type=float, default=10.0, help="seconds to wait for the button to appear")
+	idle = sub.add_parser("wait-idle", help="wait until nobody has typed or moved the mouse for a while, e.g. before a browser-pane download, whose Save As dialog blocks the Claude app")
+	idle.add_argument("--seconds", type=float, default=5.0)
+	idle.add_argument("--timeout", type=float, default=600.0)
+	saving = sub.add_parser("save-download", help="answer the Save As dialog of a browser-pane download in Downloads, never replacing a file: an existing name gets the time, \"name_20261123T091234.ext\"")
+	saving.add_argument("--title", default="https://", help="the dialog title's start, the download's URL, such as https://drive.usercontent.google.com/")
+	saving.add_argument("--timeout", type=float, default=15.0, help="seconds to wait for the dialog")
+	saving.add_argument("--expect", help="the file name asked for, as the site shows it; any other name in the dialog stops it, as typing may have replaced it")
+	saving.add_argument("--folder", type=Path, default=Path.home() / "Downloads", help="where to save (default: the user's Downloads)")
 	close = sub.add_parser("close", help="send WM_CLOSE, as the title bar's X does, to one client or to every client running --mod")
 	close.add_argument("--pid", type=int)
 	close.add_argument("--mod", help="every Civ4 client whose command line names this mod, such as AdvCiv-SAS")
@@ -1164,7 +1283,7 @@ def main():
 		if args.command == "click":
 			print("clicked screen point %d,%d" % click(args.pid, args.x, args.y, tuple(MODIFIER_VKS[m] for m in args.modifiers), args.double, give_back=True))
 		else:
-			print("pointer at screen point %d,%d" % hover(args.pid, args.x, args.y))
+			print("pointer at screen point %d,%d" % hover(args.pid, args.x, args.y, args.front))
 	elif args.command == "drag":
 		start, end = drag(args.pid, args.x1, args.y1, args.x2, args.y2, args.button, args.steps, tuple(MODIFIER_VKS[m] for m in args.modifiers))
 		print("dragged %s from %d,%d to %d,%d" % ((args.button,) + start + end))
@@ -1194,9 +1313,48 @@ def main():
 		if (args.pid is None) == (args.mod is None):
 			sys.exit("close needs exactly one of --pid or --mod")
 		close_clients(args.pid, args.mod, args.wait, args.force)
-	elif args.command == "dump":
-		(path, size) = save_dump(args.pid, args.kind, args.timeout)
-		print("dump written: %s (%d bytes); move it beside its DLL and PDB before another crash replaces it" % (path, size))
+	elif args.command == "button":
+		if (args.pid is None) == (args.title is None):
+			sys.exit("button needs exactly one of --pid or --title")
+		# <!-- custom: Waits, as a dialog can open a moment after the click that asks for it; BM_CLICK, as in save_dump, needs no focus, so it does not take the user's keyboard. (Claude code Opus 5.5) -->
+		deadline = time.monotonic() + args.timeout
+		found = find_button(args.pid, args.label, args.title)
+		while found is None and time.monotonic() < deadline:
+			time.sleep(0.5)
+			found = find_button(args.pid, args.label, args.title)
+		if found is None:
+			sys.exit("no %r button in a window %s" % (args.label, "of process %d" % args.pid if args.pid is not None else "titled %r..." % args.title))
+		dialog = USER32.GetAncestor(found, 2)
+		owner = wt.DWORD()
+		USER32.GetWindowThreadProcessId(dialog, ctypes.byref(owner))
+		if not USER32.PostMessageW(found, 0x00F5, 0, 0):
+			sys.exit("could not send the click to %r: Windows error %d" % (args.label, ctypes.GetLastError()))
+		# <!-- custom: A press is not a result: Save stops at Windows' prompt to replace the file when the name already exists, the user asked (2026-11-23), so the dialog must close, and a prompt in its place is left to the user rather than answered.
+		# Closed means the window no longer exists: behind such a prompt the Save dialog is only hidden, which this first took for closed (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		deadline = time.monotonic() + 5.0
+		while USER32.IsWindow(dialog) and time.monotonic() < deadline:
+			time.sleep(0.25)
+		if USER32.IsWindow(dialog):
+			titles = []
+			proc_type = ctypes.WINFUNCTYPE(wt.BOOL, wt.HWND, wt.LPARAM)
+
+			def collect(hwnd, _lparam):
+				pid = wt.DWORD()
+				USER32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+				if pid.value == owner.value and USER32.IsWindowVisible(hwnd) and window_title(hwnd):
+					titles.append(window_title(hwnd))
+				return True
+
+			USER32.EnumWindows(proc_type(collect), 0)
+			sys.exit("pressed %r, but its window is still open, perhaps behind a prompt; left for the user: %s" % (args.label, " | ".join(titles)))
+		print("pressed %r; its window closed" % args.label)
+	elif args.command == "wait-idle":
+		# <!-- custom: A download's Save As dialog popped up while the user was typing in the Claude app and took the app until answered (2026-11-23), so the click that starts a download waits for this first. (Claude code Opus 5.5) -->
+		if not wait_for_idle_user(args.seconds, args.timeout):
+			sys.exit("the user was not idle for %s seconds within %s seconds" % (args.seconds, args.timeout))
+		print("idle for %s seconds" % args.seconds)
+	elif args.command == "save-download":
+		print("saved as %s" % save_download(args.title, args.timeout, args.expect, args.folder))
 	elif args.command == "monitors":
 		for number, area in enumerate(monitors(), 1):
 			print("%d\twork area %d,%d to %d,%d (%dx%d)" % ((number,) + area + (area[2] - area[0], area[3] - area[1])))

@@ -206,6 +206,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
 - [`housekeeping/`](#housekeeping)
   - [Folder upkeep](#folder-upkeep)
     - [`archive_old_files.py`](#archive_old_filespy)
+    - [`unzip_flat.py`](#unzip_flatpy)
   - [Screenshot privacy](#screenshot-privacy)
     - [`redact_image.py`](#redact_imagepy)
   - [Python upkeep](#python-upkeep)
@@ -1016,6 +1017,12 @@ python LLM_Helpers\commits\stage_partial.py Assets\Python\SASUtils.py --head "de
   - `hover` moves the pointer without clicking or taking focus, to reveal a tooltip. On 2026-11-10 it read the Codex app's usage reset times.
   - `move` places a window on a monitor: `full`, `left` or `right` half, `topleft` or `bottomleft` at its own size, or `beside --beside <pid>`; `positions save|restore|list <name>` keeps named layouts of the Claude app, the Codex app and Civ4 in `layouts/window_positions.json`, found by program name. Both added on 2026-11-14; see [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md).
   - `dump --pid` presses Full Dump at Civ4's crash prompt by its label, waits until the writer lets go of the file, checks the process ID the dump records and copies it to `Civ4BeyondSword_<pid>_<time>.dmp`, as every Civ4 writes the same file name ([KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)). Added on 2026-11-13; not yet tried on a real prompt.
+  - `save-download` answers the Save As dialog the Claude app opens for each download from the agent's browser pane, which blocks the app until answered; run `wait-idle` before the click that starts the download, then `save-download --title https://drive.usercontent.google.com/ --expect Civ4ScreenShot5385.JPG` (any start of the dialog's title, the download's URL, and the file name the site shows). Added on 2026-11-23, tried with the user on single Drive files and a Drive folder ZIP.
+    - It saves into `Downloads` (`--folder` for another) by the absolute path, so the clash check holds whatever folder the dialog opened in, and never replaces a file: a name already there gets the time, `Civ4ScreenShot5385_20261123T091130.JPG`, the user's idea. Success is that exact file arriving.
+    - It stops and leaves the dialog to the user when the name differs from `--expect`, or when the keyboard or mouse was used while the dialog was up, checked again just before Save: a Drive ZIP took seconds to prepare, its dialog opened while the user was typing, and "he" became the file name. A prompt over the dialog is left open too.
+    - Found by testing, and why it works by IDs and searches: the name box is an Edit nested in a `FloatNotifySink`, not control 1148 on the dialog; the replace prompt is a task dialog whose Yes and No both have ID 0; and behind that prompt the Save dialog is hidden and disabled, not closed. Choosing a free name first means no prompt comes up at all.
+    - Codex's review (GPT-6.2-Sol, 2026-11-23) found the gaps the first version left: typing before the dialog was first seen passed, any new file in `Downloads` counted as the result, a bare name was relative to the dialog's folder, and the prompt's last button was pressed as if it were No. Each is fixed as above, and the mismatch, clash and free-name cases were tried live after.
+  - `button LABEL --title PREFIX` (or `--pid`) presses a button by its text in any window, waits until the window no longer exists, as a hidden one is not closed (Codex's review), and lists what is still open if it does not.
   - `paste` clicks a message box and pastes text without sending it, restoring the clipboard's text; `key enter` then sends it, or `key ctrl+enter` queues it in an app that is still working. Claude Code and Codex message each other this way; see the [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#agents-talking-to-each-other).
   - Named `civ4_window.py` until 2026-11-10, before it was committed: it began as a Civ4 helper and was renamed once it drove other apps too.
 - `screenshot --crop LEFT TOP RIGHT BOTTOM --scale 0.5` keeps one part of the window and shrinks it: a full 3840-pixel window costs many tokens per read, a crop of the part that matters a fraction.
@@ -2293,7 +2300,11 @@ python LLM_Helpers/game_runs/map_preview_dds.py Wheel --pick 2 --chooser "Claude
   - `--option GAMEOPTION_ADVANCED_START` starts Advanced Start with 0 points, since QuickStart skips the setup's Advanced Start Base Points; go through Custom Game for points, as the UI map's `advanced_start` screen describes.
 - `--era ERA_INDUSTRIAL` sets the start era, as the INI's QuickStart `Era` key does; added on 2026-11-19 for a later-era sample, as older late-game saves no longer loaded. For a developed late game, `run_autoplay.py --era` with Advanced Start gives every civ its points and plays the turns.
 
+- `--load SAVE` loads a save into AdvCiv-SAS instead and leaves it open with no autoplay, so a fix can be checked on the position a bug was seen in; `run_autoplay.py --turns 1` would play that turn first. `--debug-mode` still applies.
+  - Added on 2026-11-22 to check [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3) on the user's turn-22 save, after a hand-typed launch through `python -c` in Bash lost the backslash of `mod=\AdvCiv-SAS`; the helper builds the arguments in Python.
+
 ```bash
+python LLM_Helpers/game_runs/start_game.py --load "C:/Users/PC/Documents/My Games/beyond the sword/Saves/single/Agent BC-9500_moved_to_sheep_plains_2.CivBeyondSwordSave" --debug-mode
 python LLM_Helpers/game_runs/start_game.py --map Pangaea --world-size WORLDSIZE_SAS48 --debug-mode
 python LLM_Helpers/game_runs/start_game.py --option GAMEOPTION_ADVANCED_START
 ```
@@ -2330,6 +2341,22 @@ python LLM_Helpers/housekeeping/archive_old_files.py --all --apply
 
 - `--all` checks every known folder; `run_autoplay.py` calls the same check at the end of each run, so the folders it fills stay under about 1,000 entries without anyone remembering.
 - `--dumps` lists Civ4 crash dumps in `Temp` and `Downloads/AdvCiv-SAS_LLM/crash_dumps/` with their size and age, as dumps clutter by size rather than count; it deletes nothing. `run_autoplay.py` runs it quietly after each run, so it prints only past 5 GB in all or for a `Temp` copy over a week old. On 2026-11-18 it listed 3 kept dumps, 2.74 GB.
+
+#### `unzip_flat.py`
+
+Writes a ZIP's files under their own names into one short folder, leaving out its folders.
+
+- Why: a Known Issue's Drive folder downloads as a ZIP whose inner folder carries the KI's whole title, KI#11's 268 characters, so in `Downloads` its paths pass Windows' 260-character limit and 7-Zip could not extract them (the user, 2026-11-23).
+- It writes nothing when two files share a name, compared as Windows does, ignoring case, when a name is one Windows reserves, such as `NUL.txt`, or when one is already in the folder, and it creates each file exclusively.
+
+- Codex's review (GPT-6.2-Sol) extracted `a/Shot.JPG` and `b/shot.jpg` from a test ZIP: the first version let the second overwrite the first, as Windows ignores case.
+
+```bash
+python LLM_Helpers/housekeeping/unzip_flat.py "C:/Users/PC/Downloads/drive-download-20261122T134656Z-1-001.zip" --out "C:/Users/PC/Downloads/ki11"
+```
+
+- Tried on KI#11's folder ZIP: its six screenshots came out byte for byte the user's copies.
+- Added with help of Claude Code Opus 5.5.
 
 ### Screenshot privacy
 

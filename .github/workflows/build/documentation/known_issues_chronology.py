@@ -69,6 +69,22 @@ def chronology_errors(old, new):
 # The insertion rule above saw nothing, as deletions are allowed and a new entry has no history, and the structure checks passed; only the user's review noticed.
 # So a paragraph that leaves an entry still present and appears in another fails; a whole entry merged into another, as KI#176.2 into KI#1091, leaves no source and passes.
 # Only a paragraph found in a single entry before and after counts: replayed over the 546 commits that changed this document, the first draft failed 7, each a shared credit line such as "Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; …", which stayed in dozens of other entries when one entry's credit changed. (Claude code Opus 5.5) -->
+# <!-- custom: A declared split may move a paragraph word for word: on 2026-11-22 KI#11's sheep-yield report became KI#11.3, and keeping the report in KI#11 left the split half done (the user).
+# The move passes only when both entries say so: the source keeps a paragraph saying it "moved" with a link to the destination, and the destination links back; an unmarked move, like KI#39's paragraphs above, still fails.
+# Paragraphs only match word for word, so a move cannot reword the report on the way. (Claude code Opus 5.5) -->
+# <!-- custom: Codex's review: "removed" also contained "moved", and a declaration or link already in the document would have let any later move pass, so both must be new paragraphs and "moved" a whole word (2026-11-22). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+MOVED = re.compile(r"\bmoved\b", re.IGNORECASE)
+
+
+def declared_move(previous, current, source, destination):
+    to_destination = "#ki-%s)" % destination
+    to_source = "#ki-%s)" % source
+    new_in = lambda number: [value for value, _line in current.get(number, []) if value not in {old for old, _line in previous.get(number, [])}]
+    says_moved = any(MOVED.search(value) and to_destination in value for value in new_in(source))
+    links_back = any(to_source in value for value in new_in(destination))
+    return says_moved and links_back
+
+
 def moved_errors(previous, current):
     errors = []
     found, owners = {}, {}
@@ -86,6 +102,8 @@ def moved_errors(previous, current):
             if value in kept or len(owners[value]) > 1 or len(found.get(value, [])) != 1:
                 continue
             other, line = found[value][0]
+            if declared_move(previous, current, number, other):
+                continue
             errors.append(f"{DOCUMENT}:{line}: a paragraph of KI#{number} now sits in KI#{other}; keep it in its own entry")
     return errors
 
