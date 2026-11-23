@@ -3056,7 +3056,7 @@ void Effort::evaluate() {}
 
 int Risk::preEvaluate()
 {
-	// <!-- custom: also handle risk of going to war too far away and leaving our cities defenseless and dying pathetically if i may say or stupidly shortly after, as is very problematic as of now in base advciv and advciv-sas as of now, see KI#61 for details, also code is provided thanks to chatgpt 5, check if accurate; result of this code change: we seem to live a bit longer but still attack the wrong target when a closer and weaker one was in reach, but since it seems harmless and we seem to live longer due to not attacking first target if not due to autoplay fluctuation, kept as such. -->
+	// <!-- custom: also handle risk of going to war too far away and leaving our cities defenseless and dying pathetically or stupidly shortly after, as is very problematic as of now in base advciv and advciv-sas as of now, see KI#61 for details, also code is provided thanks to chatgpt 5, check if accurate; result of this code change: we seem to live a bit longer but still attack the wrong target when a closer and weaker one was in reach, but since it seems harmless and we seem to live longer due to not attacking first target if not due to autoplay fluctuation, kept as such. -->
 	// <!-- custom: If a fixed, super-simple turns-to-contact cap is wanted, replace these calls with constants or XML defines.
 	// The cached city distances (`getDistanceByLand` for land and `getDistance` for mixed/cargo routes) are the team pathfinder's notion of turns and already factor roads, terrain and domain speed. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	// --- SIMPLE HARD REJECT / RPE FILTER ---

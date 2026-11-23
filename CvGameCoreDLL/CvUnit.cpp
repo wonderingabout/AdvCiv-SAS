@@ -3392,7 +3392,7 @@ void CvUnit::automate(AutomateTypes eAutomate)
 // <!-- custom: the changes in CvPlayerAI::AI_doMilitary did not change the seemingly cyclical scrapping behaviour of new ancient macemen many turns on a row, so as advised by chatgpt 5 (genius idea it got, it may not seem too clean but great way to solve it xd thanks!), implementing our logic here as well, check if accurate -->
 // <!-- custom: update!!!
 // Tremendously fixed!!!
-// No more scrapping and painful losing of these ancient macemen, will reduce handicap now to accommodate these and make sure we don't run bankrupt at leats early, else i don't care too much or as much, and give AI best chances, see KI#52 for details; in short we only aded some more prechecks here as we usually do, in an attempt to help improve AI efficiency or correct or help improve significant AI flaws, so hopefully AI is now stronger as such and we have to adjust some things to match these, and we otherwise kept function the same -->
+// No more scrapping and painful losing of these ancient macemen, will reduce handicap now to accommodate these and make sure we don't run bankrupt at least early, else i don't care too much or as much, and give AI best chances, see KI#52 for details; in short we only aded some more prechecks here as we usually do, in an attempt to help improve AI efficiency or correct or help improve significant AI flaws, so hopefully AI is now stronger as such and we have to adjust some things to match these, and we otherwise kept function the same -->
 // <!-- custom: Routine scrap() must pass canScrap(), preventing the observed repeated culling of protected land combat units.
 // Explicit scrapForced() callers instead establish narrow mandatory-cleanup conditions; see KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 bool CvUnit::canScrap() const
@@ -3482,7 +3482,7 @@ bool CvUnit::canScrap(SASUnitScrapEligibility* peEligibility) const
 			(eUnitAI == UNITAI_ATTACK_CITY_LEMMING) ||
 			(eUnitAI == UNITAI_COUNTER) ||
 			(eUnitAI == UNITAI_CITY_COUNTER) ||
-			// <!-- custom: note: we don't use UNITAI_COLLATERAL, UNITAI_PILLAGE and such so not going the extra long mile to save them either if i may say (in case they are produced which shouldn't happen any way but adding this note for clarity) -->
+			// <!-- custom: note: we don't use UNITAI_COLLATERAL, UNITAI_PILLAGE and such so not going the extra long mile to save them either (in case they are produced which shouldn't happen any way but adding this note for clarity) -->
 			//
 			(eUnitAI == UNITAI_CITY_DEFENSE) ||
 			(eUnitAI == UNITAI_CITY_SPECIAL) ||
@@ -3572,7 +3572,7 @@ bool CvUnit::canScrap(SASUnitScrapEligibility* peEligibility) const
 			// <!-- custom: since we now already handle in CvCityAI::AI_chooseUnit when to produce them and how much, no need to worry too much about scrapping enough units.
 			// However, as shown in KI#53, it seems scrapping still happens for privateers or such, although i am not sure and AI may have just been overproducing and i didn't check too much, still generally scrapping benefits should now far outweigh costs/risks, which include infinite loop of missing a unit we just created or such, and as happened in KI#23 as well with workboats in the past.
 			// It seems much simpler to disable scrapping altogether for most if not all, and see what happens and if we go bankrupt or not.
-			// By meeting our quotas sooner, we can then move on to other units or buildings or anything much more efficiently/effectively than scrap reproduce again, and 1-2 lone units are not a big problem vs the global risk of scrapping messing up, so disabling it at least for these units; chatgpt 5 also likes this change if i may say at least it said so so the change seems fine to it at least if not more -->
+			// By meeting our quotas sooner, we can then move on to other units or buildings or anything much more efficiently/effectively than scrap reproduce again, and 1-2 lone units are not a big problem vs the global risk of scrapping messing up, so disabling it at least for these units; chatgpt 5 also likes this change it said so so the change seems fine to it at least if not more -->
 			// asymmetric: don’t scrap existing boats
 			if (bAllHandledNavalUnitAIs)
 			{
@@ -3664,7 +3664,7 @@ bool CvUnit::canScrap(SASUnitScrapEligibility* peEligibility) const
 					// clamp to avoid negative
 					const int iErasSinceRenaissance = std::max(0, (iCurrentEra - iERA_RENAISSANCE) + 1);
 
-					// <!-- custom: as for decay use a very simple and effecive formula: -10% per era -->
+					// <!-- custom: as for decay use a very simple and effective formula: -10% per era -->
 					const int pct = std::max(60, (100 - (10 * iErasSinceRenaissance))); // never below <!-- custom: 40% reduction/decay, so never below 60% of the max value-->
 					const int iMaxWorkersDecayed = (iMaxUnits * pct) / 100;
 					// <!-- custom: keep minimal force of 3+ workers around in case but no need to pay maintenance (if it costs?

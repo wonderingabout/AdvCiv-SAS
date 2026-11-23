@@ -543,7 +543,7 @@ class SevoPediaUnit:
 				iButtonIndex += 1
 
 		# Check for UnitCombatMods
-		# <!-- custom: we need to do this in a separate loop according to chatgpt as "i is a UnitClass index; gc.getUnitCombatInfo(i) expects a UnitCombatTypes index" and indeed i don't know if this is the cause but we got an error when trying to refactor too aggressively with claude ai i meanthe code (ignorantly perhaps of me but good to try or not or yes), so making sure i mean to have a separate loop for combat type modifiers in understanding this -->
+		# <!-- custom: we need to do this in a separate loop according to chatgpt as "i is a UnitClass index; gc.getUnitCombatInfo(i) expects a UnitCombatTypes index" and indeed i don't know if this is the cause but we got an error when trying to refactor too aggressively with claude ai i meanthe code (ignorantly perhaps of me but good to try), so making sure i mean to have a separate loop for combat type modifiers in understanding this -->
 		# Check for unit combat types that this unit belongs to
 		if iUnitCombatType != -1:  # Make sure this unit has a combat type
 			# Loop through all units to find those with UnitCombatMods against this combat type
@@ -753,7 +753,7 @@ class SevoPediaUnit:
 
 		bullet = localText.getText("[ICON_BULLET]", ())
 
-		# <!-- custom: show if unit has no military support cost info for example for the robotic_infantry we added in advciv-sas, code provided with the help of chatgpt thanks etc thanks and thanks to me too hehe if i may say in this case, and adjusted for advciv-sas or not by me too -->
+		# <!-- custom: show if unit has no military support cost info for example for the robotic_infantry we added in advciv-sas, code provided with the help of chatgpt thanks etc thanks and thanks to me too hehe, and adjusted for advciv-sas or not by me too -->
 		# Get unit info
 		unitInfo = gc.getUnitInfo(self.iUnit)
 
@@ -761,7 +761,7 @@ class SevoPediaUnit:
 			noMilitarySupportCostText = localText.getText("TXT_KEY_UNIT_NO_MILITARY_SUPPORT_COST", ())
 			szSpecialText += u"\n%s%s" % (bullet, noMilitarySupportCostText)
 
-		# <!-- custom: if unit grants unit(s) on capture, code added thanks to claude ai as well as my prompt and adjustments or such or not or yes or etc -->
+		# <!-- custom: if unit grants unit(s) on capture, code added thanks to claude ai as well as my prompt and adjustments or such -->
 		unitCaptureClassType = unitInfo.getUnitCaptureClassType()
 		if unitCaptureClassType != -1:
 			unitCaptureClassTypeInfo = gc.getUnitClassInfo(unitCaptureClassType)
@@ -769,7 +769,7 @@ class SevoPediaUnit:
 				captureText = localText.getText("TXT_KEY_UNIT_MAY_GRANT_UNITS_ON_CAPTURE", ())
 				szSpecialText += u"\n%s%s: %s" % (bullet, captureText, unitCaptureClassTypeInfo.getType())
 
-		# <!-- custom: add ai info for players and me too hehe: should be valuable for info or balancing, added with the help of claude ai and my prompts and adjustments and inspect or and such...
+		# <!-- custom: add ai info for players and me too hehe: should be valuable for info or balancing, added with the help of claude ai and my prompts and adjustments and inspect such...
 		# if players want to see it xd, as for me yes i want! -->
 		if IS_SHOW_AI_INFO:
 			# Add Default UnitAI

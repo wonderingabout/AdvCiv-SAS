@@ -723,7 +723,7 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 	buttonColumn = iButtonIndex % maxButtonsPerRow
 	buttonRow = iButtonIndex // maxButtonsPerRow
 
-	# <!-- custom: note: since we start at 0 in this nice system chatgpt and claude ai if i may say helped me design and adjust thanks, we don't need to handle the 1th no spacing with next item of the list, as anything multilied by 0 negates spacing, this applies to both column and row calculation(s); however we just add a X correction to start not at leftmost part of the button anyways but instead at center/middle of button to place our first and onwards numTxT -->
+	# <!-- custom: note: since we start at 0 in this nice system chatgpt and claude ai helped me design and adjust thanks, we don't need to handle the 1th no spacing with next item of the list, as anything multiplied by 0 negates spacing, this applies to both column and row calculation(s); however we just add a X correction to start not at leftmost part of the button anyways but instead at center/middle of button to place our first and onwards numTxT -->
 	startAtMiddleOfButtonCorrectionX = +1 * (int(button_size / 2))
 
 	# <!-- custom: note: in this code, it seems we are still slightly off vs an ideally centered label, i don't know what the exact cause is, but maybe we can use this as a parameter to control more precisely label positioning based on/depending on numTxt and such as we prefer (center more or less aggressively depending on whether numTxt is expected to be long (like "+25/+100" for example) vs short (for example"+25%") in trying it as such, so we add a tiny bit of in this case extra x correction (extraCorrectionX) etc -->
@@ -732,7 +732,7 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 	if iLabelFont > 2:
 		textX += (-3 * (iLabelFont - 2))
 
-	# <!-- custom: similarly to extraCorrectionX, we are slightly off for some reason here so adjust Y position of the numTxt multine text, but since this is the same for all buttons unlike in extraCorrectionX (i.e. regardless of numTxt length), then it is fine i think to hardcode it here for convenience and efficiency at least i want to do so hopefully convenient or helpful or not or yes or etc to do so -->
+	# <!-- custom: similarly to extraCorrectionX, we are slightly off for some reason here so adjust Y position of the numTxt multine text, but since this is the same for all buttons unlike in extraCorrectionX (i.e. regardless of numTxt length), then it is fine i think to hardcode it here for convenience and efficiency at least i want to do so hopefully convenient or helpful to do so -->
 	extraCorrectionY = -9
 	textY = multiListY + button_size + extraCorrectionY + (buttonRow * button_size) + (buttonRow * HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING)
 

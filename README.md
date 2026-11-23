@@ -1030,7 +1030,7 @@ Before going more in depth about/in the changes and how to play or such document
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.516_technology_advisor%20(1)_blue.JPG" alt="1.516_technology_advisor (1)_blue.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.516_technology_advisor%20(2)_blue.JPG" alt="1.516_technology_advisor (2)_blue.JPG" width="250"></img>
 
-For more details on how the tech tree was made, which historical timeline it follows, sources, more screenshots and such, upcoming changes if any more, or other information or not or etc, please visit [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md)
+For more details on how the tech tree was made, which historical timeline it follows, sources, more screenshots and such, upcoming changes if any more, or other information or not, please visit [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md)
 
 ## Military Tree and changes
 
@@ -2212,20 +2212,20 @@ Non-exhaustive list below:
   - Also, we cannot just grey in the main menu (via `NoCustomScenario = 1` in [AdvCiv-SAS.ini](/AdvCiv-SAS.ini)) these play modes in case player add AdvCiv-SAS compatible scenarios that they would be unable to then play; plus this does not fix "Play a Scenario", only "Custom Scenarios", so preferred to just document it as an all around much better and simpler solution.
 - CustomDomAdv, which according to the txt inside it seems to relate to "only settings for the mod components Advanced Unit Naming and Customizable Domestic Advisor (both disabled by default through the BUG menu)" (see [/Settings/About%20this%20folder.txt](/Settings/About%20this%20folder.txt)).
   - Since i don't use it, and is similarly like the translations a bit if not lot tedious or complicated to maintain furthermore, then i am not supporting it in AdvCiv-SAS.
-  - May or not be updated every while or inconsistently but expect it to be unsupported.
+  - May be updated every while or inconsistently but expect it to be unsupported.
 - concepts being updated in their content: see [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
 - savegame compatibility.
   - Anytime an asset is added or removed in the game (e.g. adding a tech, removing a unit or building or other), it should be expected that previous savegames are NOT compatible.
   - Same with any DLL recompile.
   - They may luckily or sometimes somehow work, but as a rule expect that generally they don't, and i will not support old save files, if you want to continue playing on them, use the previous version (see [/README.md#version-number](/README.md#version-number) for info about how we choose version number in advciv-sas) of this mod you were using.
-  - E.g. if AdvCiv-SAS version 4946 worked, and then version 4947 broke comptibility in one way or an other, play it with this version instead.
+  - E.g. if AdvCiv-SAS version 4946 worked, and then version 4947 broke compatibility in one way or an other, play it with this version instead.
   - I have decided to do so as it's beyond way too tedious and i'm really not sure it's worth preserving compatibility considering the code mess it creates xd.
   - Also i don't know how so i'd rather not, but hopefully keep playing on the old version (same version that you used to create this save file) should be fine or not too bad.
   - Note: XML changes such as increasing the cost of this unit or changing the bonus needed in the xml for this building or such should generally if not always be fine, at least seems so to me, but i don't know too much about these, check if accurate.
   - See [KI#46](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46) for the original cleanup and [KI#46.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2) for the follow-up.
-- the old K-Mod Aggressive AI (Legacy): we may ship a fix/tweak/change or change here and there or not, and they may or not work but we as of now don't support them (we don't use or value it since we use UWAI so no need to bother supporting it).
+- the old K-Mod Aggressive AI (Legacy): we may ship a fix/tweak/change or change here and there or not, and they may work but we as of now don't support them (we don't use or value it since we use UWAI so no need to bother supporting it).
 - Legacy Civilopedia: AdvCiv-SAS supports Sevopedia, which is enabled by default. The older Civilopedia option remains in the inherited code but has not been validated in this work; it may function partly and omit SAS information, including Sevopedia-only categories such as Music, Votes and Event Triggers.
-- BUG Military Advisor [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) and BUG Custom Domestic Advisor [CvCustomizableDomesticAdvisor.py](/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py) (in particular about the Custom Domestic Advisor it is lacking the Finance Tab that the AdvCiv-SAS equivalent as of now has); see also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123)): we may ship a fix/tweak/change or change here and there or not, and they may or not work but we as of now don't support them (we have SAS-specific equivalent or clearly better alternative advisors so no need to bother supporting them).
+- BUG Military Advisor [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) and BUG Custom Domestic Advisor [CvCustomizableDomesticAdvisor.py](/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py) (in particular about the Custom Domestic Advisor it is lacking the Finance Tab that the AdvCiv-SAS equivalent as of now has); see also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123)): we may ship a fix/tweak/change or change here and there or not, and they may work but we as of now don't support them (we have SAS-specific equivalent or clearly better alternative advisors so no need to bother supporting them).
 - **Resolutions below 1920 x 1080**: these are old resolutions, too small for the information many SAS screens show, to name just two, the AI Personality Panel's wide table of leaders' AI values and the Military Advisor's Battles tab with its many columns; and I don't play at them myself.
   - The screens are laid out dynamically, from the window size and the text size, so they may happen to work, or work well enough, on a smaller window, but this is unsupported, whatever the result looks like.
 - **Multiplayer gameplay** is unsupported and may have issues. The [two-client LAN walkthrough](/_1_AdvCiv-SAS/Docs/README_Multiple_Instances.md) shows how we adapted the base AdvCiv instructions to run two Steam clients on the same Windows computer and join the same LAN game.

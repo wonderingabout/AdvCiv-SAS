@@ -12616,7 +12616,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
 			<AndPreReqs/>
-			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitue that seems relevant in tech grid position. -->
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitute that seems relevant in tech grid position. -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 				<ObsoleteTech>TECH_BIOLOGY</ObsoleteTech>

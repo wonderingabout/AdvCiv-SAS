@@ -368,7 +368,7 @@ The implementation still needs some minor polish, but it is as of now entirely f
 - Add a custom dds or nif (like leader animation, as we did for religion animations in Sevopedia Movies) while playing, as well as the track name / item name and maybe also text such as quote or such (what the panel displays)
 - Search Bar desyncs when we exit an audio file playing, common to other non-mmedia sevopedia categories though it seems at a glance
 - Maybe generalize script name for other things than era tracks
-- Possibly also something GPT-5.2-Codex mentionned like "If you want song titles beyond script IDs, we can add a simple XML alias map and expose that too." or maybe script volume or such.
+- Possibly also something GPT-5.2-Codex mentioned like "If you want song titles beyond script IDs, we can add a simple XML alias map and expose that too." or maybe script volume or such.
 - in header add music id / total (like total 1759)
 
 <img src="/_1_AdvCiv-SAS/Images/sevopedia/1.830_sevopedia_music%20(1).JPG" alt="1.830_sevopedia_music (1).JPG" width="250"></img>
@@ -490,7 +490,7 @@ Originally based in part on RFC Dawn of Civilization code; substantially reworke
 
 Then following the Sevopedia terrains rework (see for details Sevopedia [terrains category rework](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-9-terrains-category)), new placeRelevantUnits and placeUnitsImpassable panels corresponding to these methods/functions have also been added, so now we can see which units are stronger or weaker per feature as well as the numTxt (what i call this, meaning the textual information such as "+25/+50" for example for +25% attack and +50% defense or any promotion information that makes the unit stronger in said feature (such as woodsman for example in jungle and forest in advciv-sas)) if any.
 
-Also added the remove production or time (for example feature_fallout only has iTime and no iProduction as of now) information as part of the jungle rework and then of a later optimziation that moves some logic to pre-load code (similarly to the precomputing as of now in Sevopedia main's placeLeaders and placeTechs) (that as of now also gives production on remove, see [README_Main_Changes_Guide.md#terrains--features](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#terrains--features) for details) thanks to claude ai or chatgpt and my prompts and adjustments too.
+Also added the remove production or time (for example feature_fallout only has iTime and no iProduction as of now) information as part of the jungle rework and then of a later optimization that moves some logic to pre-load code (similarly to the precomputing as of now in Sevopedia main's placeLeaders and placeTechs) (that as of now also gives production on remove, see [README_Main_Changes_Guide.md#terrains--features](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#terrains--features) for details) thanks to claude ai or chatgpt and my prompts and adjustments too.
 
 Also clarified the imported resources header to explicitly name "Bonuses On Any Terrain" (see [README_Sevopedia_Reworks.md#example-4-bonuses-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-4-bonuses-category) for details about featurebooleans).
 
@@ -510,11 +510,11 @@ Then added iFeatureproduction panel with the help of GPT-5.3-Codex thanks.
 
 One of the oldest Sevopedia reworks, i added it in this readme much later so i hope or i think or maybe it fits quite well or maybe well here.
 
-The core changes is on the panel header naming, to help clarify the maning of the modifiers displayed, as well as make text slightly more readable in terms of text size in some panels if i may say and remember it correctly (i could check but i think is how it was). Not much or too big in this casechanges otherwise except some beautification.
+The core changes is on the panel header naming, to help clarify the meaning of the modifiers displayed, as well as make text slightly more readable in terms of text size in some panels and remember it correctly (i could check but i think is how it was). Not much or too big in this casechanges otherwise except some beautification.
 
-More recently, i also added the improvement's build time (`iTime` in XML (note: related to the build's iTime, not the FeatureStruct's `iTime` which is about time to remove the feature as part building this build if i may say and, which is something different not displayed here but in Sevopedia feature, see there or the [sevopedia feature's section in this readme](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-3-features-category) for details, thanks,)).
+More recently, i also added the improvement's build time (`iTime` in XML (note: related to the build's iTime, not the FeatureStruct's `iTime` which is about time to remove the feature as part of building this build, which is something different not displayed here but in Sevopedia feature, see there or the [sevopedia feature's section in this readme](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-3-features-category) for details, thanks,)).
 
-Also refactored and beautified it (for example moved base yields on top in the improvement_pane, reordered and resized panels, etc if any other or yes or not or etc), as well as added new TerrainMakesValids, FeatureMakesValids, and History info/panels (txt_key s imported from m-e mod (see [/README.md#credits](/README.md#credits) for details).
+Also refactored and beautified it (for example moved base yields on top in the improvement_pane, reordered and resized panels, etc if any other), as well as added new TerrainMakesValids, FeatureMakesValids, and History info/panels (txt_key s imported from m-e mod (see [/README.md#credits](/README.md#credits) for details).
 
 As for placeMostYields in particular, beautified it especially more by now using buttons (images) instead of text such as ("(with Irrigation)" or "(with Guids)"), based on m-e mod's placeImprovements code, with the help of claude ai and gemini ai thanks).
 
@@ -524,7 +524,7 @@ More recently, entries are now grouped by Land/Water (e.g. Land Improvements -> 
 
 Plus subdiving them based on growth or such (e.g. Cottages, hamlet, etc.) as i had the idea too xd as was bit too concentrated in land and we have the booleans i mean as chatgpt 5.2 mentioned that we have (booleans) more generally, and then chatgpt 5.2 found the other "Bonus-capable" idea of a subgroup we could use as well thanks a lot.
 
-Now they are nicely ordered i mean.! Implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot.
+Now they are nicely ordered.! Implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot.
 
 Then, also added a Build panel redirecting to the corresponding Sevopedia Builds page we added since then.
 
@@ -544,7 +544,7 @@ Since then, added Graphical Only (e.g., Land Worked, Water Worked) (similarly to
 
 A more extensive rewrite/refactor was done based on [example 7: units category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-units-category) and [example-8-buildings-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category), and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main README.md](/_1_AdvCiv-SAS/Docs/README_Authors.md#claude-web-chat) for details), in particular changes include that we now have also added a placeObsoleteWith function now that tells us when a bonus/ressource is obsolete (i.e. at which tech).
 
-Also, changes include as well showing horizontally improvements rather than vertically while still keeping the auto-cetering of the spacing between improvements; although code is maybe a bit shaky and not too optimal, it does seem to work well for a small number of improvements (didn't test for more how it would display).
+Also, changes include as well showing horizontally improvements rather than vertically while still keeping the auto-centering of the spacing between improvements; although code is maybe a bit shaky and not too optimal, it does seem to work well for a small number of improvements (didn't test for more how it would display).
 
 More recently, also added with chatgpt's help thanks the terrainbooleans, featurebooleans, and featureterrainbooleans info, see Sevopedia feature screenshots or ingame for what these mean in their respective panel headers (for example featureterrainbooleans is as of now "Terrains only if with this bonus's features" or something similar to this abbreviated if needed for example or if updated since then and not shown in screenshot sample or also updated as well) section information or Main Changes Guide or code comments.
 
@@ -567,7 +567,7 @@ Update 3 (2026-11-07): the "Buildings and Projects" panel is now "Buildings, Pro
 
 new Favorites (Leaders) (based on History Rewritten's code) and Buildings (with an earlier implementation based in part on RFC Dawn of Civilization and later replaced/reworked using ROM 291 as a more complete base) and Units (based on ROM 291's code too) panels in Sevopedia Religion category, and then modified by Claude AI thanks to my prompts too or adjustments or not, as well as the Civ4 BUG documentation, see code comments in Sevopediareligion.py for details.
 
-Also note that all Favorites (Leaders) now have in AdvCiv-SAS an updated pedia entry based on real wikipedia content, hopefully clearer, more exhaustive, neutral enough, and accurate and updated maybe too, may or not be less politically correct but i don't care, in fact i encourage it and like it.
+Also note that all Favorites (Leaders) now have in AdvCiv-SAS an updated pedia entry based on real wikipedia content, hopefully clearer, more exhaustive, neutral enough, and accurate and updated maybe too, may be less politically correct but i don't care, in fact i encourage it and like it.
 
 Since then, we also added the Leader count pattern in Sevopedia Traits in the Favorites (Leaders)' panel's header (example "Leader 12/53 (22%)").
 
@@ -587,11 +587,11 @@ More recently, added optional grouping by Artstyle (e.g. European, Asian) with t
 
 ### example 7: units category
 
-Reordered and beautified the original AdvCiv Sevopedia code while trying to keep its original structure, but added relative positioning everywhere or almost if not everywhere, this means that ideally the panels sizes should adjust to the screen resolution, removing the old harcoded logic, hopefully cleaner now (not tested at smaller resolutions).
+Reordered and beautified the original AdvCiv Sevopedia code while trying to keep its original structure, but added relative positioning everywhere or almost if not everywhere, this means that ideally the panels sizes should adjust to the screen resolution, removing the old hardcoded logic, hopefully cleaner now (not tested at smaller resolutions).
 
 Finally and most importantly, new placeReplace (Replaced By / Replaces), whose earlier Replaced By implementation originated from RFC Dawn of Civilization, as well as new placeCivilizations (renamed from the original name Claude AI gave to it placeExclusiveCivs) with the help of Claude AI thanks and small adjustments of already working code (tweaked coordinates) and adjusted.
 
-After having written these, combat information was added (which units is this unit strong against or weak against, in which plot types, city or not, terrains, features, etc if any more/other or not etc if not but or, placeFreePromotions, etc) largely with the help of Claude AI (see also [Authors for details (Claude AI's section) in the main README.md](/_1_AdvCiv-SAS/Docs/README_Authors.md#claude-web-chat)).
+After having written these, combat information was added (which units is this unit strong against or weak against, in which plot types, city or not, terrains, features, etc if any more/other if not but or, placeFreePromotions, etc) largely with the help of Claude AI (see also [Authors for details (Claude AI's section) in the main README.md](/_1_AdvCiv-SAS/Docs/README_Authors.md#claude-web-chat)).
 
 Also fixed and now added missing iCollateralDamage info as well in the collateral damage text in the DLL, for example `<iCollateralDamage>25</iCollateralDamage>` for the chinese crossbowman or `<iCollateralDamage>100</iCollateralDamage>` for the catapult is now displayed as well as of now as for example `Collateral Damage (base 25%, max 200%) to 5 Defenders` for the chinese crossbowman or `Collateral Damage (base 100%, max 200%) to 6 Defenders` for the catapult; added thanks to chatgpt's help as well and me guessing or adjusting it as well(note: changed/fixed in the the DLL the TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA (this unit causes x% extra collateral damage) now being cumulatively displayed ingame (not in Sevopedia, as it was) additionally to the general collateral damage text, instead of it being previously conditionally displayed instead of (`else`) the general collateral damage which would not be visible, so now (e.g. catapult) we see only the general collateral damage message if `pUnit->getExtraCollateralDamage() == 0)`, and alternatively if `(pUnit->getExtraCollateralDamage() != 0)` (e.g. cannon) we now see both the general collateral damage message and additionally also the extra collateral damage as well)
 
@@ -709,7 +709,7 @@ This is another very nice rework :) I should have thought of it sooner xd, but i
 
 It allowed to polish a bit the Sevopedia religion that also had a placeSpecial panel that i could beautify a bit as well (upper spacing).
 
-Code provided by/with the help of claude ai too thanks if i may say (and thanks to me too maybe as well if i may say too).
+Code provided by/with the help of claude ai too thanks (and thanks to me too maybe as well).
 
 More recently, added the `iCivicPercentAnger` info in Sevopedia and Policy Advisor with the help of chatgpt 5 thanks a lot i mean really.
 
@@ -723,9 +723,9 @@ Examples of output below.:
 
 ### example 14: projects category
 
-Minor beautified and polished it a bit and now it's quite good xd at least not too bad hehe, and i had also added grouping for entries as in similar reworks previously, so it looks not too bad, quite good actually xd i mean.
+Minor beautified and polished it a bit and now it's quite good xd at least not too bad hehe, and i had also added grouping for entries as in similar reworks previously, so it looks not too bad, quite good actually xd.
 
-As for the grouping, since this is a nice functionnal change, i wanted to show it here as well.
+As for the grouping, since this is a nice functional change, i wanted to show it here as well.
 
 <img src="/_1_AdvCiv-SAS/Images/sevopedia/1.750_sevopedia_projects%20(1).JPG" alt="1.750_sevopedia_projects (1).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/sevopedia/1.750_sevopedia_projects%20(2).JPG" alt="1.750_sevopedia_projects (2).JPG" width="250"></img>

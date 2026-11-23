@@ -2716,7 +2716,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_EXPLORE</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
-			<!-- custom: too tedious to manage, also not realistic according to chatgpt, make them strictly observer/explroer/recon based/type of units, hopefully historically more accurate and less tedious or relevant this way, was INVISIBLE_SUBMARINE -->
+			<!-- custom: too tedious to manage, also not realistic according to chatgpt, make them strictly observer/explorer/recon based/type of units, hopefully historically more accurate and less tedious or relevant this way, was INVISIBLE_SUBMARINE -->
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_AIRSHIP</Description>
 			<Civilopedia>TXT_KEY_UNIT_AIRSHIP_PEDIA</Civilopedia>
@@ -2843,7 +2843,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<iMinAreaSize>-1</iMinAreaSize>
 			<iMoves>2</iMoves>
 			<bNoRevealMap>0</bNoRevealMap>
-			<!-- custom: now the airship is a domain_land unit, so disabling it now for this unit, based on / done in accordance with if i may say toochatgpt's explanation, was 8 -->
+			<!-- custom: now the airship is a domain_land unit, so disabling it now for this unit, based on / done in accordance with chatgpt's explanation, was 8 -->
 			<iAirRange>0</iAirRange>
 			<!-- custom: was 1 -->
 			<iAirUnitCap>0</iAirUnitCap>
@@ -2949,7 +2949,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_EXPLORE</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
-			<!-- custom: too tedious to manage, also not realistic according to chatgpt, make them strictly observer/explroer/recon based/type of units, hopefully historically more accurate and less tedious or relevant this way, was INVISIBLE_SUBMARINE -->
+			<!-- custom: too tedious to manage, also not realistic according to chatgpt, make them strictly observer/explorer/recon based/type of units, hopefully historically more accurate and less tedious or relevant this way, was INVISIBLE_SUBMARINE -->
 			<SeeInvisible>INVISIBLE_SUBMARINE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_ROBOTIC_RECON_DRONE</Description>
 			<Civilopedia>TXT_KEY_UNIT_ROBOTIC_RECON_DRONE_PEDIA</Civilopedia>
@@ -3076,7 +3076,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<iMinAreaSize>-1</iMinAreaSize>
 			<iMoves>2</iMoves>
 			<bNoRevealMap>0</bNoRevealMap>
-			<!-- custom: now the airship is a domain_land unit, so disabling it now for this unit, based on / done in accordance with if i may say toochatgpt's explanation, was 8 -->
+			<!-- custom: now the airship is a domain_land unit, so disabling it now for this unit, based on / done in accordance with chatgpt's explanation, was 8 -->
 			<iAirRange>0</iAirRange>
 			<!-- custom: was 1 -->
 			<iAirUnitCap>0</iAirUnitCap>
@@ -12079,7 +12079,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units, was TECH_FIREARMS with techTypes empty -->
+			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- mounted) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units, was TECH_FIREARMS with techTypes empty -->
 			<ObsoleteTech>TECH_FASCISM</ObsoleteTech>
 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<TechTypes>
@@ -13525,7 +13525,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: making it out of main scientific path so that military path is not too rewarded and other strategies are just as vlaid or at least worth profits -->
+			<!-- custom: making it out of main scientific path so that military path is not too rewarded and other strategies are just as valid or at least worth profits -->
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_TRANSHUMANISM</PrereqTech>
 			<TechTypes>
@@ -13590,7 +13590,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: make it strong vs humans in particular if i may say but or not but or yes but -->
+			<!-- custom: make it strong vs humans in particular -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
@@ -14444,7 +14444,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<!-- custom: i imagine they'd have trouble to aim if units hide in the bushes or and such, defense should be fine though as they are in the air and can especially always retreat, was empty -->
+			<!-- custom: i imagine they'd have trouble to aim if units hide in the bushes such, defense should be fine though as they are in the air and can especially always retreat, was empty -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -14758,7 +14758,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqBonuses>0</bPrereqBonuses>
 			<bPrereqReligion>0</bPrereqReligion>
-			<!-- custom: although according to (translate to english using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bmechanized) no effect seems to be used/activated by enabling this field if i may, still it seems very strange if i may say too in this casethat the mechanized_infantry, that has "mechanized" in its litteral name...
+			<!-- custom: although according to (translate to english using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bmechanized) no effect seems to be used/activated by enabling this field if i may, still it seems very strange that the mechanized_infantry, that has "mechanized" in its litteral name...
 			Is not among mechanized units; now that we changed its combat type as well as of now to combat_armor, it also makes sense furthermore to enable this effect on this unit as well, was 0 -->
 			<bMechanized>1</bMechanized>
 			<bSuicide>0</bSuicide>
@@ -15415,7 +15415,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<iGreatWorkCulture>0</iGreatWorkCulture>
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
-			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar; changed based on https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables; note: only applies to tiles outside of cultural bordersand as base civ4 or and base advciv dotoo -->
+			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar; changed based on https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables; note: only applies to tiles outside of cultural bordersand as base civ4 base advciv dotoo -->
 			<!-- custom: Wheeled and heavy siege units cannot cross Marsh, as with Jungle and Forest, except on a route. See KI#1076. (Claude code Opus 5.5) -->
 			<FeatureImpassables>
 				<FeatureImpassable>
@@ -19544,7 +19544,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<StateReligion>NONE</StateReligion>
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
-			<!-- custom: be careful as this seems to not be about building class, may lead to imposible condition if some civ has a civ-specific version of this but check to be sure; Long_Comments_XML.txt #332, was NONE -->
+			<!-- custom: be careful as this seems to not be about building class, may lead to impossible condition if some civ has a civ-specific version of this but check to be sure; Long_Comments_XML.txt #332, was NONE -->
 			<PrereqBuilding>BUILDING_FACTORY</PrereqBuilding>
 			<!-- custom: was TECH_ASSEMBLY_LINE -->
 			<ObsoleteTech>TECH_COMPOSITES</ObsoleteTech>
@@ -19940,7 +19940,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<!-- custom: see code comment at UNIT_TANK, was NONE -->
 			<PrereqBuilding>BUILDING_FACTORY</PrereqBuilding>
-			<!-- custom: making it out of main scientific path so that military path is not too rewarded and other strategies are just as vlaid or at least worth profits -->
+			<!-- custom: making it out of main scientific path so that military path is not too rewarded and other strategies are just as valid or at least worth profits -->
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_FUSION</PrereqTech>
 			<TechTypes>
@@ -20459,7 +20459,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<!-- custom: see code comment at one of the siege units's featureattacks or featuredefenses for details if any there as well hopefully or not or yes or etc, was empty -->
+			<!-- custom: see code comment at one of the siege units's featureattacks or featuredefenses for details if any there as well hopefully, was empty -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -21058,7 +21058,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
-			<!-- custom: fine to change according to chatgpt 5 after i asked it about it, reasnoning below, check if accurate, was iron only; Long_Comments_XML.txt #115 -->
+			<!-- custom: fine to change according to chatgpt 5 after i asked it about it, reasoning below, check if accurate, was iron only; Long_Comments_XML.txt #115 -->
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
 				<BonusType>BONUS_COPPER</BonusType>
@@ -21675,7 +21675,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: making it at latest tech(s) so that aoe effect is not abused early in robotic/future era; suits also well its atypical effect or extra perks if i may say toosuch as of now move impassable or such -->
+			<!-- custom: making it at latest tech(s) so that aoe effect is not abused early in robotic/future era; suits also well its atypical effect or extra perks such as of now move impassable or such -->
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_QUANTUM_MECHANICS</PrereqTech>
 			<TechTypes>
@@ -22290,7 +22290,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: reduce cost as this is more of a civilan unit, was 80 -->
+			<!-- custom: reduce cost as this is more of a civilian unit, was 80 -->
 			<iCost>70</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -24311,7 +24311,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<!-- custom: since the unit doesn't appear to have any modifier in sevopedia and the base advciv code comment seems clear enough if i may say in this case, use simply an empty tag rather -->
+			<!-- custom: since the unit doesn't appear to have any modifier in sevopedia and the base advciv code comment seems clear enough, use simply an empty tag rather -->
 			<!-- advc.906: both 25 in K-Mod 1.45 -->
 			<TerrainAttacks/>
 			<TerrainDefenses/>

@@ -6951,7 +6951,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 	// <!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient.
 	// Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other.
 	// Also extend this logic so that the vassal as well doesn't research or research as much techs its master already owns.
-	// Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean, check if accurate; see also KI#77 for details -->
+	// Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency, check if accurate; see also KI#77 for details -->
 	// SAS vassalMasterTechResearch
 	// With:
 	// 	- Master-from-vassal penalty,
@@ -10723,7 +10723,7 @@ int CvPlayerAI::AI_dealVal(PlayerTypes eFromPlayer, CLinkList<TradeData> const& 
 		switch(eItemType) // </advc.130p>
 		{
 			// <!-- custom: AI is not good at cheap trading techs when it is beneficial: if more than 1 player has a tech, any other player that has the tech could sell it anytime for super cheap like 40 gold at mid-late classical era, which is still a much better deal than gaining 0 gold if another rival beats us to it.
-			// Something like 1 gold would be too low and like purposely sabotaging the other players, so some minimal theshold is needed, but beyond that AI needs to be opportunistic to maximize its gains as a human player would.
+			// Something like 1 gold would be too low and like purposely sabotaging the other players, so some minimal threshold is needed, but beyond that AI needs to be opportunistic to maximize its gains as a human player would.
 			// Code implemented with the help of gemini 3 pro, check if accurate -->
 			// Explanation of the Logic
 			// 	- kGame.countKnownTechNumTeams(eTech) > 2: This checks if the tech is known by the owner plus at least two other teams. This satisfies your condition "as long as more than one rival has it". If you strictly meant "at least one rival" (so 2 teams total including us), change > 2 to > 1 (or >= 2).
@@ -13641,7 +13641,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 
 			// <!-- custom: to not cause overvaluing, exclude building classes that are rare (not built in many cities) such as world wonders, national wonders, and cathedrals (handled below since they are not limited but just rarely built due to their cost and restrictions (in XML iMaxGlobalInstances and such are -1 so not limited so need to handle it in another way if i'm not mistaken)) as of now which are the only ones i can think of.
 			// This is because our nice change caused incense to be a bit overpriced due to effect with buddhist stupa and pagan cathedral which are buildings we rarely build, so no need to value bonuses too much more just because of these.
-			// So to simplify, just ignore these cases; we also save some computation nicely too if i may say by early exiting -->
+			// So to simplify, just ignore these cases; we also save some computation nicely too by early exiting -->
 			// Skip world wonders, national wonders (player-limited)
 			// Skip world wonders, team wonders, national wonders
 			if (kCls.isLimited())
@@ -16136,7 +16136,7 @@ int CvPlayerAI::AI_countUnitsByCombat(UnitCombatTypes eCombat) const
 	int iTotal = 0;
 	FOR_EACH_ENUM(UnitClass)
 	{
-		// <!-- custom: performance optimization by chatgpt 5 thanks a lotwhich i slightly tweaked (added const) or not or yes or etc -->
+		// <!-- custom: performance optimization by chatgpt 5 thanks a lotwhich i slightly tweaked (added const) -->
 		// Tiny (optional) micro-perf tweak you can apply to all three: skip classification work when you own zero of that class. It avoids a few GC.getInfo(...) calls
 		const int iHave = getUnitClassCount(eLoopUnitClass);
 		if (iHave == 0)
@@ -16152,7 +16152,7 @@ int CvPlayerAI::AI_countUnitsByCombat(UnitCombatTypes eCombat) const
 		if (kU.getUnitCombatType() != eCombat)
 			continue;
 
-		// <!-- custom: note: it's bit tricky as units could be cancelled midway and we could be stuck in loops trying to build then cancelling midaway, i don't mind a little extra units as result of this i think if i may say and may generally be fine for this purpose i'm guessing; chatgpt 5 seems to agree as well, check if accurate as well i mean -->
+		// <!-- custom: note: it's bit tricky as units could be cancelled midway and we could be stuck in loops trying to build then cancelling midaway, i don't mind a little extra units as result of this i think and may generally be fine for this purpose i'm guessing; chatgpt 5 seems to agree as well, check if accurate as well -->
 		// Totally fair—queued builds can get canceled or reshuffled, so “counting makings" can push you over a cap and then bounce you back under it next turn. Easiest fix: never count makings and only count units you actually own on the map.
 		iTotal += iHave; // count once per class
 	}
@@ -20133,7 +20133,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	// <!-- custom: this code looks very bad as per k-mod's admission but also as it seems to only value culture specialists (i don't know too much but check to be sure), and as chatgpt 5 confirms as well (check to be sure as well).
 	// We want to value engineer specialists for example for our as of now civic_wage_labor rework that gives unlimited engineers and that is never picked by ais, even though engineer are quite strong.
 	// So trying to value each specialist based on their strengths and time when they are relevant or such.
-	// Code provided by chatgpt 5 which i adjusted or such, check if accurate i mean. See KI#76. -->
+	// Code provided by chatgpt 5 which i adjusted or such, check if accurate. See KI#76. -->
 	// {
 	// 	int iTempValue = 0; // advc: Moved up to reduce rounding error
 	// 	int iMaxCultureChange = 0;
@@ -24242,7 +24242,7 @@ void CvPlayerAI::AI_doDiplo()
 					// <!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient.
 					// Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other, and vice versa for its vassal. -->
 					// <!-- custom: After we have implemented a tentative fix to this, now also encourage vassal(s)<->master to trade more/preferentially (and not only for techs each other don't own, so this is an extra team play enhancement for any tech), which synergises with this previous tentative fix.
-					// Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean, check if accurate; see also KI#77 and KI#78 for details -->
+					// Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency, check if accurate; see also KI#77 and KI#78 for details -->
 					// SAS vassalMasterMoreTechTrade
 					static const bool bSAS_TECH_CONTACT_MASTER_VASSAL_ON = GC.getDefineBOOL("SAS_TECH_CONTACT_MASTER_VASSAL_ON");
 					const TeamTypes eOurTeam = getTeam();
@@ -26415,7 +26415,7 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
 	//pStream->Read(MAX_PLAYERS, m_aiCloseBordersAttitude);
 	pStream->Read(MAX_PLAYERS, &m_aiCloseBordersAttitude[0]); // K-Mod
 
-	// <!-- custom: using another identifier since now that we removed the old uiFlag check inner scope, this is now on same scope as existing iSize causing a compile error if i'm not mistaken, so distinguishing these 2 by renaming the 2nd definition to iSizeTwo hehe if i may say creative name xd but why not -->
+	// <!-- custom: using another identifier since now that we removed the old uiFlag check inner scope, this is now on same scope as existing iSize causing a compile error if i'm not mistaken, so distinguishing these 2 by renaming the 2nd definition to iSizeTwo hehe creative name xd but why not -->
 	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	// <advc.opt>
 	int iSizeTwo;

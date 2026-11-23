@@ -14156,7 +14156,7 @@ int CvPlayer::getAdvancedStartCityCost(bool bAdd, CvPlot const* pPlot) const
 		}
 
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-		// <!-- custom: moved above as it was weirdly reused before if i may say as well -->
+		// <!-- custom: moved above as it was weirdly reused before as well -->
 		static const int iADVANCED_START_CITY_PLACEMENT_MAX_RANGE = GC.getDefineINT("ADVANCED_START_CITY_PLACEMENT_MAX_RANGE"); // advc.opt
 		// Is there a distance limit on how far a city can be placed from a player's start/another city?
 		if (iADVANCED_START_CITY_PLACEMENT_MAX_RANGE > 0)

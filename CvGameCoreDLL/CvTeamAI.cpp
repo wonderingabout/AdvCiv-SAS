@@ -2169,7 +2169,7 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnore
 			}
 		}
 
-		// <!-- custom: additionally to our self research tech value changes based on if our ennemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal -->
+		// <!-- custom: additionally to our self research tech value changes based on if our enemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal -->
 		// SAS techTradePowerDanger: bias trade valuation toward key military techs when we're clearly outgunned
 		// Yeah, this is exactly the place I meant: CvTeamAI::AI_techTradeVal is the right hook for “how much do we think this tech is worth in trades", so it’s the natural spot to add a danger-biased military weighting.
 		// Given what you’ve already done in AI_techValue and how well #81 behaved, I’d mirror that idea here, but in a single, clean block inside AI_techTradeVal, with a separate toggle/knobs for trades.

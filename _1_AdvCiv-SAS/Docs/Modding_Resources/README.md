@@ -60,7 +60,7 @@ This is a non-exhaustive page containing some resources i found helpful and gene
 [Insert an img in a text label in Sevopedia](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#insert-an-img-in-a-text-label-in-sevopedia)\
 [Import a nif art asset from another mod (example with how we added the impluvium's nif as an import from FFH2 mod's Adventurer's guild building)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#import-a-nif-art-asset-from-another-mod-example-with-how-we-added-the-impluviums-nif-as-an-import-from-ffh2-mods-adventurers-guild-building)\
 [(Not used anymore in advciv-sas) Example of how to add a static image file (such as .PNG, .JPG, etc) as a leader portrait](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#not-used-anymore-in-advciv-sas-example-of-how-to-add-a-static-image-file-such-as-png-jpg-etc-as-a-leader-portrait)\
-[(Not used anymore in advciv-sas) Example of how to create a leader head .dds button from a static image file (such as .PNG, .JPG, etc) (ideally from the leader head image portrait if any, but if i may say)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#not-used-anymore-in-advciv-sas-example-of-how-to-create-a-leader-head-dds-button-from-a-static-image-file-such-as-png-jpg-etc-ideally-from-the-leader-head-image-portrait-if-any-but-if-i-may-say)\
+[(Not used anymore in advciv-sas) Example of how to create a leader head .dds button from a static image file (such as .PNG, .JPG, etc) (ideally from the leader head image portrait if any)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#not-used-anymore-in-advciv-sas-example-of-how-to-create-a-leader-head-dds-button-from-a-static-image-file-such-as-png-jpg-etc-ideally-from-the-leader-head-image-portrait-if-any)\
 [.dds (button) size comparison analysis - (Trying to find) optimal .dds button size for a 164px (+ 2(px?) due to small mistake) icon frame in Sevopedia unit's unit pane('s icon frame)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#dds-button-size-comparison-analysis---trying-to-find-optimal-dds-button-size-for-a-164px--2px-due-to-small-mistake-icon-frame-in-sevopedia-units-unit-panes-icon-frame)\
 [How to change the mod's main menu background image (for example to add a static image instead of default base advciv +/- civ4 image)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#how-to-change-the-mods-main-menu-background-image-for-example-to-add-a-static-image-instead-of-default-base-advciv---civ4-image)\
 [How to remove the blue rectangle in main menu screen, change text color for example to black, etc. (in .thm files)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#how-to-remove-the-blue-rectangle-in-main-menu-screen-change-text-color-for-example-to-black-etc-in-thm-files)\
@@ -161,7 +161,7 @@ Here is an example of how to download same video/media file but from seconds 15 
 yt-dlp -x --audio-format mp3 --postprocessor-args "-ss 00:00:15.000 -to 00:00:45.000" "https://www.youtube.com/watch?v=MM2-z8inpY8"
 ```
 
-To download from a specified time to end, use, as chatgpt advsied/told me when i asked it thanks but anwyays etc (thanks me (i.e. / to me too)):
+To download from a specified time to end, use, as chatgpt advised/told me when i asked it thanks but anwyays etc (thanks me (i.e. / to me too)):
 
 ```bash
 yt-dlp -x --audio-format mp3 --postprocessor-args "-ss 00:00:15.000" "https://www.youtube.com/watch?v=MM2-z8inpY8"
@@ -197,7 +197,7 @@ See an example of this in the update note in [KI#51](/_1_AdvCiv-SAS/Docs/README_
 
 I have noticed while developing this advciv-sas mod at some point it is is so helpful to write bit by bit and gradually the commit message rather than do all changes then try to guess/remember which. Not necessarily listing all changes, but the main ones or most relevant or important ones in importance i mean (redundant to say important importance) as bullet points or such as you prefer.
 
-Personally i do so in Notepad++ where i also store notes of ideas of things to add for example. I may often not look at it for a long time, and spend bit of time then sorting the ideas and organizing them but is very helpful so i would recommend this as well as part or and on top of in this case writing commit message notes in a .txt, i'd also recommend writing your ideas in another or same .txt if tidy or readable to you or some similar or as you prefer solution/idea.
+Personally i do so in Notepad++ where i also store notes of ideas of things to add for example. I may often not look at it for a long time, and spend bit of time then sorting the ideas and organizing them but is very helpful so i would recommend this as well as part on top of in this case writing commit message notes in a .txt, i'd also recommend writing your ideas in another or same .txt if tidy or readable to you or some similar or as you prefer solution/idea.
 
 I started this habit somewhere in this advciv-sas mod development i mean but is very helpful, so adding mention of it if helps.
 
@@ -209,7 +209,7 @@ For example, AdvCiv-SAS 4986 is available at the [4986 git/github tag](https://g
 
 #### simple version(s)
 
-Here is how to do it with the help of chatgpt 5, which i adjusted a bit at some parts (check if accurate too, and make backups of your git repo before trying this just in case even though seems to function fine but is to be safe i mean) (for example i run this from git bash on windows):
+Here is how to do it with the help of chatgpt 5, which i adjusted a bit at some parts (check if accurate too, and make backups of your git repo before trying this just in case even though seems to function fine but is to be safe) (for example i run this from git bash on windows):
 
 If the tag doesn’t exist yet:
 
@@ -235,7 +235,7 @@ git push --force origin 4986
 
 A more advanced version would allow to better control the date we set to the tag. For example, i committed version 4986 as of now more or less 2 weeks ago, however if i create a tag now as above, i generally get the tag dated to now, which doesn't reflect the date when 4986 was made that i would want to show as date of the tag as well, not "now".
 
-To do that, with bit of back and forth wit chatgpt 5 and trial and error (but check if accurate), i have found this very nice version that allows to do that (be bit more careful using it as i don't know if it will always be functionnal (the simple one too but this one in particular xd as it's more technical and might change in the future or apply differently to your use case or something so check if accurate and make a backup of your repo maybe/ideally if i may say just in case))
+To do that, with bit of back and forth wit chatgpt 5 and trial and error (but check if accurate), i have found this very nice version that allows to do that (be bit more careful using it as i don't know if it will always be functional (the simple one too but this one in particular xd as it's more technical and might change in the future or apply differently to your use case or something so check if accurate and make a backup of your repo maybe/ideally just in case))
 
 Result ([for example for tag version 4986 here](https://github.com/wonderingabout/AdvCiv-SAS/releases/tag/4986) as linked before but added here again for exhaustiveness) is great, now our tag is shown "2 weeks ago" (date of the commit of version 4986), and not "now" anymore (date of when i am tagging it as of now today) as we wanted, but again check if accurate and make a backup of your repo just in case, hopefully helpful.
 
@@ -276,9 +276,9 @@ git push --force origin "refs/tags/$TAG:refs/tags/$TAG"
 
 It can be useful to keep a dev log, a .txt copy of the full git log of your project, for grep with a global search (for example with VS Code) or such. You can gain while doing so precious information about some features you want to know more about.
 
-To create a dev log from past commits with git log on a comand line, plus also anonymizing the email with a `<hidden>` instead for all authors, as provided to me by chatgpt, for example in git bash for windows, for Steam users (adjust paths or such similar things anyways if not steam user).
+To create a dev log from past commits with git log on a command line, plus also anonymizing the email with a `<hidden>` instead for all authors, as provided to me by chatgpt, for example in git bash for windows, for Steam users (adjust paths or such similar things anyways if not steam user).
 
-Note: although redundant, we as of now keep in code comment the version where it ended, so it is easier to remember where we stopped last and to append only what is new and not everything from scratch again each time (which would lose our manual edits to remove churn/typoes etc).
+Note: although redundant, we as of now keep in code comment the version where it ended, so it is easier to remember where we stopped last and to append only what is new and not everything from scratch again each time (which would lose our manual edits to remove churn/typos etc).
 
 ```shell
 # 1. Set your commit hashes here
@@ -322,7 +322,7 @@ note: about the below example, a global search on "HandicapIncrementTurns" direc
 
 VS Code's (for example) global search can be useful in particular but not only, for example, to try to understand what advciv id changes do.
 
-For example while trying to tweak difficulty settings after having added a script for handicap info, i was trying, for example in this case, to understand what this unknown (to me at least) `iAIHandicapIncrementTurns` field does, no info in usual websites like kujira or and such
+For example while trying to tweak difficulty settings after having added a script for handicap info, i was trying, for example in this case, to understand what this unknown (to me at least) `iAIHandicapIncrementTurns` field does, no info in usual websites like kujira such
 
 Output is as follows for a search on "251" and right click "copy" on the global search results (part of them that are in manual.txt):
 
@@ -373,7 +373,7 @@ You can read these docs if you want to know more about AI attributes:
 - todo: tutorial on how to compile the DLL or files for Advciv (but should not be needed if you only modify XML files)
 - [Python Class Reference (civ4bug.sourceforge.net)](https://civ4bug.sourceforge.net/PythonAPI/) List of all or many(?) python class detailed info, can be useful for example it helped me implement the Sevopedia religion's (working and finalized at least as of now) right panel version of leaders panel, telling [Authors for details (Claude AI's section) in the main README.md](/_1_AdvCiv-SAS/Docs/README_Authors.md#claude-web-chat) to adjust its code for the `screen.addMultiListControlGFC` to display leaders in a multi line button panel, see Sevopedia religion's code and code comments for details.
   - I have also made a copy of it (this website's content that is helpful) here in advciv-sas, in the file [all_classes_web.txt](/_0_Legacy/Docs/Civ4BUG_Python_API/all_classes_web.txt), may help us also for global search (with vs code for example).
-- inspecting an object, see for example, one way i found it to work is using `printObjAttrs` in [_sevopedia_debuggers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py) and [Sevopedia debug dumps](/_1_AdvCiv-SAS/Docs/Sevopedia/Debug/) which helped me adjust Claude AI's (see [Authors for details (Claude AI's section) in the main README.md](/_1_AdvCiv-SAS/Docs/README_Authors.md#claude-web-chat)) code of the new placeTerrainFeatureCity or similarly named Sevopedia unit function/method, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our inspect of the unitinfo as linked just above in same bulelt point indeed with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!!
+- inspecting an object, see for example, one way i found it to work is using `printObjAttrs` in [_sevopedia_debuggers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py) and [Sevopedia debug dumps](/_1_AdvCiv-SAS/Docs/Sevopedia/Debug/) which helped me adjust Claude AI's (see [Authors for details (Claude AI's section) in the main README.md](/_1_AdvCiv-SAS/Docs/README_Authors.md#claude-web-chat)) code of the new placeTerrainFeatureCity or similarly named Sevopedia unit function/method, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our inspect of the unitinfo as linked just above in same bullet point indeed with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!!
   - (see also [this screenshot (1) (google drive image link)](https://drive.google.com/file/d/1oE0tG3VjCY7a5ABwlV0MYDhA3ox3Sbe4/view?usp=sharing) and [this screenshot (2) (google drive image link)](https://drive.google.com/file/d/1Yn7dIxzDpuJ2f8wbpXmhn2W0qZ42ADOe/view?usp=sharing) for example of how i solved it, with the help of Claude AI thanks
 
 ## In case UnitAIs info from link above is deleted someday, here is a copy here in case
@@ -770,16 +770,16 @@ Then feed it to chatgpt with the makes valid entire method (a dozen or 2 dozen l
 			if gc.getImprovementInfo(self.iImprovement).isTerrainMakesValid(iTerrain):
 ```
 
-that chatgpt fixed as (slightly adjusted its code by merging 2 lines (it created a bValid boolean we otherwise don't use)), after a bit of back and forth unusually, as usually it would fix it at first try when giving it BUG_Doc sample, but it thought our code was right despite the error. Still, (or i could ask other ais like gemini or claude or deepseek maybe too or and such but ):
+that chatgpt fixed as (slightly adjusted its code by merging 2 lines (it created a bValid boolean we otherwise don't use)), after a bit of back and forth unusually, as usually it would fix it at first try when giving it BUG_Doc sample, but it thought our code was right despite the error. Still, (or i could ask other ais like gemini or claude or deepseek maybe too):
 
 ```python
 		for iTerrain in xrange(gc.getNumTerrainInfos()):
 			if gc.getImprovementInfo(self.iImprovement).getTerrainMakesValid(iTerrain):
 ```
 
-Which helped fix our issue successfully now if i may say thankfully:)
+Which helped fix our issue successfully now thankfully:)
 
-note: many many many other things global search can be useful for, for example this includes how i made suepr fast as of now all the readme md files's menus with chatgpt 5's help, bug hunting, and many other uses hehe.
+note: many many many other things global search can be useful for, for example this includes how i made super fast as of now all the readme md files's menus with chatgpt 5's help, bug hunting, and many other uses hehe.
 
 ## Example of how to fast replace many redundant entries (e.g. 400+ strategy entries to obsolete) using regexp (with chatgpt 5's help) and vs code
 
@@ -990,7 +990,7 @@ void CvDllTranslator::initializeTags(CvWString& szTagStartIcon, CvWString& szTag
 
 ## Insert an img in a text label in Sevopedia
 
-Code sample provided by Claude AI in one of my prompts to add YieldChanges to placeStats in Sevopedia building, but the code sample surprisingly and happily, or maybe rather plesantly or both or notworks, so sharing it in case it helps others or me who rereads it or and need or want to reuse it some day, or not, or etc.
+Code sample provided by Claude AI in one of my prompts to add YieldChanges to placeStats in Sevopedia building, but the code sample surprisingly and happily, or maybe rather plesantly or both or notworks, so sharing it in case it helps others or me who rereads it need or want to reuse it some day, or not.
 
 Output looks like this for example: [(google drive folder screenshots link)](https://drive.google.com/drive/folders/1ZY8gTziXBsHoCjjxYRJ4DoJwTf5VHvsy?usp=sharing)
 
@@ -1043,7 +1043,7 @@ But not sure and would need to test, and in all cases,)), perhaps using another 
 
 note 3: atlas linking buttons such as `szPowerButton = u"<img=,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,15 size=32></img>"` (as part of changing tech_physics 's button as part of our tech rework in advciv-sas) also seems to work quite well, we see the button successfully even though a bit excentered if that is a word in english (not centered around the text), but hopefully good enoughat least as proof of concept further, see the great person button code in place Stats of Sevopedia building as well for a cleaner or rather more centered implementation, is just to show/test how it successfully works here; also for our needs this seems to work very well (whoaaa!!!!
 
-If i may say indeed too), see screenshot(s) in drive link above for details
+ indeed too), see screenshot(s) in drive link above for details
 
 note 4: we later also used this approach for emojis in our Sevopedia leader's ai personality panel category headers, with the revived chatgpt's inputs as well, reusing old emojis in our code with the help of AI/LLM helpers. See as of now screenshot 5846 in same google drive or ingame in Sevopedia leader for an example.
 
@@ -1055,7 +1055,7 @@ In this example the nif was in a .fpk, but i assume it would work similarly if f
 
 Be careful to import all nif related files in the same folder in your mod (or in advciv-sas in this example), i am not too technical nor knowledgeable about these but it seems to work/function well for this nif import, hopefully this is helpful.
 
-Note: be careful, in some mods/cases the assets such as nif may be scattered across several different fkps, like in ri mod smokehouse1 's nif, scattered across RI_37_Structures2.FPK (iroquoislh.nif and asian_building.dds) and RI_37_Structures9.FPK (asian_building_shadow.dds) so need to gather them all in one folder if not doing an FPK approach (we don't do FPKs in AdvCiv-SAS at least as of now, see screenshots in the drive link above for details/example), in such cases, i would recommend rather to use PakBuild, see [README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) explanation and drive link at PakBuild there for details; note 2 about this: in some mods like c2c for example, unpacking in a fodler where you unpacked before seems to create some elements to be missing, 13 by unpacking all fpks in same folder one by one vs 17 files by doing it manually with dragon unpacker, adjust as you see fit the note in this paragraph
+Note: be careful, in some mods/cases the assets such as nif may be scattered across several different fkps, like in ri mod smokehouse1 's nif, scattered across RI_37_Structures2.FPK (iroquoislh.nif and asian_building.dds) and RI_37_Structures9.FPK (asian_building_shadow.dds) so need to gather them all in one folder if not doing an FPK approach (we don't do FPKs in AdvCiv-SAS at least as of now, see screenshots in the drive link above for details/example), in such cases, i would recommend rather to use PakBuild, see [README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) explanation and drive link at PakBuild there for details; note 2 about this: in some mods like c2c for example, unpacking in a folder where you unpacked before seems to create some elements to be missing, 13 by unpacking all fpks in same folder one by one vs 17 files by doing it manually with dragon unpacker, adjust as you see fit the note in this paragraph
 
 note 1.1 / update (2026-11-12): [`fpk_tool.py`](/LLM_Helpers/README.md#fpk_toolpy) lists any FPK and extracts files from it by pattern, keeping their folders, so files scattered across several FPKs, such as RI's smokehouse, are quick to gather into one folder; see note 3.5 below and the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#packed-fpk-archives).
 
@@ -1073,7 +1073,7 @@ note3: in some cases it's even harder than that as the nif expects some assets n
 
 So to solve this, i did a search with dragon unpacker in the .fpk of civilization america where i took this unit from, and luckily for us this brownbesstexture.dds was there, so i extracted, added it, verified path in nif is relative to current folder as was and not in some other folder parent or child to ours, and since all was good by adding this .dds as well in Mods\AdvCiv-SAS\Assets\Art\AdvCiv_SAS\Units\USA_Patriot\nif\ then finally the gun was not purple again of missing art but was the real gun same as in ri mod yohoo!!.
 
-Since it was not luckily too hard to solve unlike harder times i had for example with c2c camel units with many missing assets or and with a path outside of the unit's folder if i remember correctly, i thought it was a good time to add this example to the tutorial since easier and such and i could solve it, while also remembering chatgpt's instructions at the time for c2c even though i didn't succeed at it at the time now solved with the usa patriot that has a nice brown gun in the game (or white in nifskope as in empty in this case). hopefully helpful, see drive screenshots as well for examples of how i solved it in main steps hopefully helpful
+Since it was not luckily too hard to solve unlike harder times i had for example with c2c camel units with many missing assets with a path outside of the unit's folder if i remember correctly, i thought it was a good time to add this example to the tutorial since easier and such and i could solve it, while also remembering chatgpt's instructions at the time for c2c even though i didn't succeed at it at the time now solved with the usa patriot that has a nice brown gun in the game (or white in nifskope as in empty in this case). hopefully helpful, see drive screenshots as well for examples of how i solved it in main steps hopefully helpful
 
 note 3.2 / update: i have found that as of now for ri mod in particular, downloading the SVN version (for example with TortoiseSVN as they recommend it on their website) allows to have directly all the asset files, which is extremely convenient, no need to browse through fpks painfully and very inefficiently!!!. Used for the mongol khishigten art assets!
 
@@ -1095,7 +1095,7 @@ For example, History Rewritten's extracted Peat folder showed that its model loa
 
 ## (Not used anymore in advciv-sas) Example of how to add a static image file (such as .PNG, .JPG, etc) as a leader portrait
 
-Old information from my notes, now we use leader portraits (nif) with an animation, but an earlier version used static images if i may say and am not mistaken in saying so. But these instructions may be helpful so adding them for reference.
+Old information from my notes, now we use leader portraits (nif) with an animation, but an earlier version used static images and am not mistaken in saying so. But these instructions may be helpful so adding them for reference.
 
 Note: if you want to add leaders or other kinds of button art assets or such, below instructions aim to help at that even though they may not be 100% accurate or best practive, but may be maybe or not; however it should also be noted that it may be easier to rather import existing art assets from many mods, but if you want to import your own manual art asset, perhaps as static images .dds files, this is how i do it, not guaranteed is best way to do it, may or may not be, but it worked and hopefully helpful enough if you want to do so, otherwise i would recommend in general or all cases to maybe import directy already refined art assets from other mods, adjust as you see fit.
 
@@ -1156,9 +1156,9 @@ image: 499 x 610
 
 This is just an example, adapt as you see fit
 
-## (Not used anymore in advciv-sas) Example of how to create a leader head .dds button from a static image file (such as .PNG, .JPG, etc) (ideally from the leader head image portrait if any, but if i may say)
+## (Not used anymore in advciv-sas) Example of how to create a leader head .dds button from a static image file (such as .PNG, .JPG, etc) (ideally from the leader head image portrait if any)
 
-Old information from my notes, as we now we use leader portraits (nif) with an animation, and while doing so also imported the corresponding .dds button that the mod where we imported the .nif animation and such from also had (this .dds button), so we don't make leader .dds buttons from our own leader static images anymore as of now at least in advciv-sas, but an earlier version used static images if i may say and am not mistaken in saying so. But these instructions may be helpful so adding them for reference.
+Old information from my notes, as we now we use leader portraits (nif) with an animation, and while doing so also imported the corresponding .dds button that the mod where we imported the .nif animation and such from also had (this .dds button), so we don't make leader .dds buttons from our own leader static images anymore as of now at least in advciv-sas, but an earlier version used static images and am not mistaken in saying so. But these instructions may be helpful so adding them for reference.
 
 Fourthly, then for the leaderhead button (mini icon of the leader in the Sevopedia), since now the final dimension displayed is no longer a portrait (no 256 x 512 stretched to 512 x 512 if am not mistaken, so we can directly crop select at 64 x 64 for such a button (leader icon without any resize (stretching or compression of ratio or anything that alters ratio this time)) from the native image (for example .png, any size should do fine too so ideally take the original image if you still have it, else maybe the .dds (unstretched)) should maybe do fine anyways)
 
@@ -1166,7 +1166,7 @@ So for example you can first make a 96 x 96 crop selection around his head with 
 
 Note: if at 64x64 your leader head is too big or maybe too small, you may try instead to make a bigger selection of say for example 96 x 96 or maybe even 128 x 128 (or any number inbetwwen like 105 x 105, 99 x 99, etc should maybe work too? (to try i didn't but if you want to try it)) and then resize it to 64x64, this way leader head would be smaller relatively to the 64 x 64 button.
 
-Then regenerate the .dds in a similar manner than for the full portrait, but no restretching from say 256x512 to 512x512 since 64x64 is alreayd square so just pick same format maybe not sure.
+Then regenerate the .dds in a similar manner than for the full portrait, but no restretching from say 256x512 to 512x512 since 64x64 is already square so just pick same format maybe not sure.
 
 And finally implement it (the .dds) in XML, looks very very good, at least for me i think might do further beautification such as rounded edges or other things, but more than good enough for my purpose, hope this helps.
 
@@ -1215,11 +1215,11 @@ The lines are for example like this:
 		</UnitArtInfo>
 ```
 
-The results, minus the small and ideally not too altering + 2 to icon size i made mistake or maybe not small or yes, that i would ideally redo cleanly but a bit tedious, and hopefully interpretable if that is a word as in similar enough or maybe rather accurate enough or and other or and not, is that:
+The results, minus the small and ideally not too altering + 2 to icon size i made mistake or maybe not small, that i would ideally redo cleanly but a bit tedious, and hopefully interpretable if that is a word as in similar enough or maybe rather accurate enough, is that:
 
 - 1024 seems too pixelated on this 164px icon unit pane's frame
 - gradually as i reduce size to 512, then 256, quality seems to improve, file size is also much smaller which is nice if high enough and best looking
-- then at size 164 which should be a 1:1 ratio with the pane (minus my small mistake that ohpefully didn't alter it too much), it seems that image is a bit blurrier and less nice(ly?) if that is a word looking than 256 x 256 dds one, so 256 seems better and best so far for .dds size on this
+- then at size 164 which should be a 1:1 ratio with the pane (minus my small mistake that hopefully didn't alter it too much), it seems that image is a bit blurrier and less nice(ly?) if that is a word looking than 256 x 256 dds one, so 256 seems better and best so far for .dds size on this
 - then the lower the size, from 164, the worse it gets, more and more blurry on our 164px + 2 due to my mistake
 - finally, at 64px size, so a 1:1 ratio with other buttons (or maybe i am, it may actually be 84px or something similar, seeing how the button is smaller than other civ4 ones, so added a 84px image in a similar manner than other ones (with the + 2 mistake), but it is a bit too big, maybe due to not rounded edges, or maybe it is slightly smaller):
 
@@ -1229,7 +1229,7 @@ The need is to display buttons at same size than others in the end (else the "ov
 
 Ideally i would redo the experiment without the uneeded and inaccurate due to my misunderstanding + 2, but is tedious.
 
-Note: ingame (map and playing an actual game), the game crashes after a few turn with a 1024px, freezes without end seemingly at 256px so exiting it after a short time of a few seconds or such, and similarly at 128px when trying to enter debug mode just like in 128px, at least (all this happens) with default game settings which i don't know a lot about at least not now or and always or and not but in all cases, (so) not using them for now (or maybe a smaller size that doesn't crash or displays accurately) if not always
+Note: ingame (map and playing an actual game), the game crashes after a few turn with a 1024px, freezes without end seemingly at 256px so exiting it after a short time of a few seconds or such, and similarly at 128px when trying to enter debug mode just like in 128px, at least (all this happens) with default game settings which i don't know a lot about at least not now always in all cases, (so) not using them for now (or maybe a smaller size that doesn't crash or displays accurately) if not always
 
 Note 2: Among all those sizes, only 64px doesn't crash with default settings it seemst), they seem a bit slower to load even at 64px ingame as they sometimes do not show but there is a default archer button instead the first times, so for now until i investigate more about it/this and know better how it works, not using them
 
@@ -1305,7 +1305,7 @@ Example:
 
 So then with the big help of chatgpt and my own ideas too and digging, but and also its support as i may have as well given up on it soon if not for its persistence and encouragement, and finally before i did it just worked luckily, so i am glad this feature (display bTrade info in Sevopedia tech and in tech advisor) is in the game now.
 
-I also modified related files to the .cpp file(s), such as .h file(s) (see screenshots for details as i didn't recheck since then hence the plural singular but from my memory they should only be a very few/low number of files but adding this to be safe and cause bit lazy if i may say to recheck but hopefully helpful).
+I also modified related files to the .cpp file(s), such as .h file(s) (see screenshots for details as i didn't recheck since then hence the plural singular but from my memory they should only be a very few/low number of files but adding this to be safe and cause bit lazy to recheck but hopefully helpful).
 
 After all done, recompile the DLL, fix errors if any such as i had forgotten to add the .h  during compile, then again recompile (no fastdep as they seem to cause errors as well sometimes) cleanly, delete the old DLL rather than overwrite, in case we need to revert to old DLL or such, we have it as backup rather than it being lost if we simply copy pasted and overwrote old DLL.
 

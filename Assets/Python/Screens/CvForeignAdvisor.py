@@ -117,7 +117,7 @@ class CvForeignAdvisor:
 		self.GLANCE_BUTTON = "ForeignAdvisorPlusMinus"
 		self.X_LINK = 0
 
-		# <!-- custom: remove these iExtraWidth and iExtraHeight-like as we don't want yellow margins: they are distracting and not not useful; channge with the help of gemini pro 3 thanks. -->
+		# <!-- custom: remove these iExtraWidth and iExtraHeight-like as we don't want yellow margins: they are distracting and not not useful; change with the help of gemini pro 3 thanks. -->
 		# self.X_GLANCE_OFFSET = 6 # advc.004: was 10
 		# self.Y_GLANCE_OFFSET = 3
 		self.X_GLANCE_OFFSET = 0
@@ -732,7 +732,7 @@ class CvForeignAdvisor:
 		# topBottomMargin = 50
 		leftRightMargin = 0
 		# <!-- custom: 43 is a bit nicer as it overflows less on the top and bottom, but we lose one leader row with it with the current inter row spacing as of now, so keep 42 rather despite the slight overflowing outside the top and bottom edges as of now -->
-		# <!-- custom: note: does not necessarily lead to one more leader row as it seems (but not sure, check if accurate as this is just a guess of mine even though it does seem to be as such but check to be sure) rows can be higher if they have more lines as of now in the foreign advisor's active tab but doing as such for consistency as well as in base advciv code as well coincidentally i mean. -->
+		# <!-- custom: note: does not necessarily lead to one more leader row as it seems (but not sure, check if accurate as this is just a guess of mine even though it does seem to be as such but check to be sure) rows can be higher if they have more lines as of now in the foreign advisor's active tab but doing as such for consistency as well as in base advciv code as well coincidentally. -->
 		topBottomMargin = 42
 		mainPanelWidth = self.W_SCREEN - 2 * leftRightMargin
 		mainPanelHeight = self.H_SCREEN - 2 * topBottomMargin
@@ -2391,7 +2391,7 @@ class CvForeignAdvisor:
 		# <!-- custom: note: empirically, it seems that reducing width to have symmetrical margins than on the left side causes buttons (or is it icons?)
 		# like the war declare or peace one to be too close to the leader's button.
 		# On the other hand, the right space is useless in itself, and we have no other column on the right, so it's fine if it overfills beyond the screen on the right side, as long as it helps have enough space from the leader button.
-		# Could maybe ideally fix this more properly but may be possibly very tedious and is fine enough as such i mean if i may say so left as such as long as it displays nicely on the left side.
+		# Could maybe ideally fix this more properly but may be possibly very tedious and is fine enough as such left as such as long as it displays nicely on the left side.
 		# (comparing it to the foreign advisor's tech tab and trying to have a more or less identical left side display seems more important). -->
 		iExtraWidth = 10
 

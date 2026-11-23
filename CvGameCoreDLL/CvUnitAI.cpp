@@ -3155,7 +3155,7 @@ bool CvUnitAI::AI_update()
 	if (getDomainType() == DOMAIN_LAND && !isBarbarian() && AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GUARD_CITY && AI_getGroup()->AI_getMissionAIPlot() != NULL && AI_guardCity(false, true, 3, MOVE_AVOID_ENEMY_WEIGHT_2, 0, /*bDangerOnly*/true, /*bFillShortfall*/true))
 		return false;
 
-	// <!-- custom: now that this seems mostly fixed, but check if accurate, disable this for later turns where barbarians should no longer be a threat, and total units of players higher making it even more costly for lesser purpose; i hope that cities are defended well enough by then to hopefully allow/permit this computation savig; also as a side effect if theoretically this would make AIs a bit reluctant to attack or somehow mess their offense tempo, hopefully this also helps that?
+	// <!-- custom: now that this seems mostly fixed, but check if accurate, disable this for later turns where barbarians should no longer be a threat, and total units of players higher making it even more costly for lesser purpose; i hope that cities are defended well enough by then to hopefully allow/permit this computation saving; also as a side effect if theoretically this would make AIs a bit reluctant to attack or somehow mess their offense tempo, hopefully this also helps that?
 	// Although we could lose the benefit of it better guarding cities possibly maybe, trying to disable it past a certain amount of turns for expected performance gains and perhaps indirectly other gains as well if no losses, chatgpt 5 said it's also fine, check if accurate to be sure -->
 	CvGame const& kGame = GC.getGame();
 	const int iMaxTurnDefendWeakerCitiesHarderNormal = 120;
@@ -5975,7 +5975,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				// <!-- custom: find the bonus's bonus-specific build first -->
 				if (eBonusSpecificBuild == NO_BUILD)
 				{
-					// <!-- custom: up to modders to support this in their mod, here we assume bonus not in map means unknown bonus, do not improve at all, for ease of code mostly if i may say rather than put any random build in a messy and inefficient or ineffective way worked aorund patched in a bad way i'd say -->
+					// <!-- custom: up to modders to support this in their mod, here we assume bonus not in map means unknown bonus, do not improve at all, for ease of code mostly rather than put any random build in a messy and inefficient or ineffective way worked around patched in a bad way i'd say -->
 					if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "BONUS_NO_SPECIFIC_BUILD");
 					continue;
 				}
@@ -5998,7 +5998,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					// Give an even bigger multiplier if the bonus is a FOOD bonus.
 					if (bonusFoodYieldChange > 0)
 						iValue += iSAS_WORKER_BONUS_YIELD_VAL_PER_FOOD * bonusFoodYieldChange;
-					// <!-- custom: then also valorize hammer/production less, i'd prefer to improve iron before gold i mean, although this is debatable, handle as such, i hope in most cases it would make AI more efficient -->
+					// <!-- custom: then also valorize hammer/production less, i'd prefer to improve iron before gold, although this is debatable, handle as such, i hope in most cases it would make AI more efficient -->
 					if (bonusProductionYieldChange > 0)
 						iValue += iSAS_WORKER_BONUS_YIELD_VAL_PER_PROD * bonusProductionYieldChange;
 					// <!-- custom: if there is a lot of commerce, it may make sense to go for this one first maybe, but it needs to be a lot and more generally i would say -->
@@ -6168,7 +6168,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			}
 		}
 
-		// Store this candidate <!-- custom: plot -->. We will check pathfinding <!-- custom: and other conditions (such as enemy on plot maybe) --> later <!-- custom: for efficiency, as there is no need to check this on tiles we would not select as best anyways, as gemini ai did thanks i mean, it is faster to just sort them all without looking too deep, then process them later, than spend computation to look at a tile we won't use later -->
+		// Store this candidate <!-- custom: plot -->. We will check pathfinding <!-- custom: and other conditions (such as enemy on plot maybe) --> later <!-- custom: for efficiency, as there is no need to check this on tiles we would not select as best anyways, as gemini ai did thanks, it is faster to just sort them all without looking too deep, then process them later, than spend computation to look at a tile we won't use later -->
 		CandidatePlot candidatePlot;
 		candidatePlot.iValue = iValue;
 		candidatePlot.pPlot = &kPlot;
@@ -6403,7 +6403,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 		{
 			iDiagnosticPathableCandidates++;
 			// <!-- custom: max one worker per tile, should be much more efficient in most cases, minimal gain in spending a lot of move speed to go in one tile this move speed could be used to start much faster on other tiles, especially if it's to inefficiently move to high move cost tile like unroaded hill or forest; however in some cases this may be slower, than say improve a bonus to a farm or pasture with 2 available workers, but i hope that in most cases this is statistically more beneficial for the AI than not to focus one worker on one tile.
-			// The type of improvement may also be improtant to tweak as well, ideally start with the improvement not a road on food bonuses (even if just 1 food) but not handled here if we ever handle it; is maybe also computationally faster as a side effect to execute this code maybe (but check to be sure as this is just a guess and i don't know too much about these but i assume so), it also nicely simplifies code as gemini ai suggested. -->
+			// The type of improvement may also be important to tweak as well, ideally start with the improvement not a road on food bonuses (even if just 1 food) but not handled here if we ever handle it; is maybe also computationally faster as a side effect to execute this code maybe (but check to be sure as this is just a guess and i don't know too much about these but i assume so), it also nicely simplifies code as gemini ai suggested. -->
 			//int iPathTurns = pathFinder.getPathTurns() + (pathFinder.getFinalMoves() == 0 ? 1 : 0);
 			// int iMaxWorkers = iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(*pB, eB);
 			// if (pUnit != NULL && pUnit->getPlot().isCity() && iPathTurns == 1)
@@ -6412,7 +6412,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			// if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pB, MISSIONAI_BUILD, getGroup(),
 			// 	/* <advc.opt> */ 0, iMaxWorkers /* </advc.opt> */) < iMaxWorkers)
 
-			// <!-- custom: chatgpt 5 explanation of this code to help me make sense of this, check to be sure it is accurate or not accurate, hopefully informative as well for me or and others or not or yes or etc -->
+			// <!-- custom: chatgpt 5 explanation of this code to help me make sense of this, check to be sure it is accurate or not accurate, hopefully informative as well for me others -->
 			// It’s not a distance limit for how far the worker can travel. It only affects reservation counting.
 			// AI_plotTargetMissionAIs(plot, …, iRange, …) counts other groups whose mission plot is within iRange tiles of plot.
 			// With iRange = 0, it only counts groups whose target is exactly the same tile.
@@ -7450,7 +7450,7 @@ bool CvUnitAI::AI_foundFirstCity()
 				{
 					iTurnWeight = 50; 
 				}
-				// <!-- custom: else, see claude ai's explanation below and it is not too i mean, check if accurate -->
+				// <!-- custom: else, see claude ai's explanation below and it is not too, check if accurate -->
 				// CLAUDE: Since we already filtered out plots that take too long above,
 				// iTurnWeight should never be 0 here
 				// CLAUDE: Skip plots that would take too long, matching original logic
@@ -7460,7 +7460,7 @@ bool CvUnitAI::AI_foundFirstCity()
 					continue;
 				}
 
-				// <!-- custom: note: no division here, the whole point of weighting is not doing a divison, just at the end remember to store the raw value and not weighted one and should be all good -->
+				// <!-- custom: note: no division here, the whole point of weighting is not doing a division, just at the end remember to store the raw value and not weighted one and should be all good -->
 				int const iWeightedPlotValue = (iTurnWeight * iPlotValue);
 				if (bLogSettler1stLevel3) SAS_logFirstCityCandidateBFCDiagnostics(pFirstCityOmniscientEvaluator.get(), "city-site", kSite, getOwner(), getTeam(), iPlotValue, iWeightedPlotValue, pathTurnsFromNow);
 
@@ -8585,8 +8585,8 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		}
 	}
 
-	// <!-- custom: make workers less jumpy to retreat as chatgpt 5 says (thanks to my prompts and adjustments or not or yes or etcbut thanks for help too), i don't understand too much these, but it seems that we get false danger positives and due to that never improve tiles, some cities are entirely unimproved at turn 175 in jungle, trying to address that and perhaps also make workers more efficient.
-	// I think that early most units are slow so it's fine, and later in game, when most people have mobile units, the value of workers should be less so fine if they are stolen if i may say in this case; also using this as an opportunity to make workers more responsive and not stay in city when they could do something else, as questionned by the "XXX" comment -->
+	// <!-- custom: make workers less jumpy to retreat as chatgpt 5 says (thanks to my prompts and adjustments or etcbut thanks for help too), i don't understand too much these, but it seems that we get false danger positives and due to that never improve tiles, some cities are entirely unimproved at turn 175 in jungle, trying to address that and perhaps also make workers more efficient.
+	// I think that early most units are slow so it's fine, and later in game, when most people have mobile units, the value of workers should be less so fine if they are stolen; also using this as an opportunity to make workers more responsive and not stay in city when they could do something else, as questionned by the "XXX" comment -->
 	// Why not comment the retreat out entirely?
 	// If you remove it, workers will often stand on roads two tiles from barb axes and get sniped. Your target check won’t stop that. The small tweaks above keep almost all the safety, with far fewer “false retreats," especially around jungle rings.
 	// if (bCanRetreat && !getGroup()->canDefend())
@@ -9040,7 +9040,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		// <!-- custom: chatgpt 5's comment about this change/addition as well -->
 		// C) Only use “self city" as selection, let actual work be decided by AI_improveCity
 		// Keep your current structure where AI_workerMove tries AI_improveCity(*pCity) after city switching. That path is already present and safe; just avoid having AI_nextCityToImprove return “true" with a self target that isn’t actionable (Fix A handles that). Your current call sites do return immediately on “success," so ensuring “success" means “we actually queued missions" is the key.
-		// <!-- custom: when i asked it again if a change was needed regarding C it said this to explain it i mean, check if accurate -->
+		// <!-- custom: when i asked it again if a change was needed regarding C it said this to explain it, check if accurate -->
 		// Short answer: you’re good — with A and B in place, you don’t need to change anything for option C.
 		// - Your current AI_workerMove still early-returns when AI_nextCityToImprove(pCity) succeeds. That’s fine now that A/B make sure we don’t “succeed" on a no-op self-city target; we’ll only return early when we actually queued a move/build to another city.
 		// - The local-work path still runs when no switch happens: after the first switch attempt, you fall through and try AI_improveCity(*pCity) and AI_improveLocalPlot(...), so the worker won’t park if it stayed in place.
@@ -17235,7 +17235,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		return 0;
 	}
 
-	// <!-- custom: moved up here, and refactored to remove the countless as in very very numerous repeated lookups in this same function, which seem very inefficient or suboptimal, hopefully cleaner and better for perfomance or clarity or such maybe too -->
+	// <!-- custom: moved up here, and refactored to remove the countless as in very very numerous repeated lookups in this same function, which seem very inefficient or suboptimal, hopefully cleaner and better for performance or clarity or such maybe too -->
 	UnitAITypes const eAI = AI_getUnitAIType();
 	UnitCombatTypes const eUnitCombat = getUnitCombatType();
 
@@ -17309,7 +17309,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 					return AI_PROMOTION_FORBIDDEN;
 				}
 			}
-			// <!-- custom: in case scouts or explorers have attack_city or such, not totally impossible maybe or with future changes maybe, and also to distinguish these 2 otherwise redundant branches as noted by chatgpt 5 thanks i meanbut as i said to it i like / i'd prefer to distinguish these 2 if i may say as clearer for me to distinguish these edge cases and also to reason about what our code does, of recon units combat type vs specific sentry efficient unitais, and to better be ready to cover any future change we'd make to this in this case i mean if any -->
+			// <!-- custom: in case scouts or explorers have attack_city or such, not totally impossible maybe or with future changes maybe, and also to distinguish these 2 otherwise redundant branches as noted by chatgpt 5 thanks i meanbut as i said to it i like / i'd prefer to distinguish these 2 as clearer for me to distinguish these edge cases and also to reason about what our code does, of recon units combat type vs specific sentry efficient unitais, and to better be ready to cover any future change we'd make to this in this case i mean if any -->
 			else
 			{
 				if (!bSentryAndSuchEfficientUnitAI)
@@ -17449,7 +17449,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		static const PromotionTypes ePromotionCounterSiege = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COUNTER_SIEGE", true);
 		static const PromotionTypes ePromotionCounterTank = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COUNTER_TANK", true);
 
-		// <!-- custom: note: counter and city_counter are seemingly hybrids according to chatgpt 5, i.e. used both for defense and offense so not included either the offensive block nor in the defensive one, as too aggressive promotion restricitions may hurt the unit as pointed by chatgpt 5, check if accurate, hopefully helps the AI without hurting it xd -->
+		// <!-- custom: note: counter and city_counter are seemingly hybrids according to chatgpt 5, i.e. used both for defense and offense so not included either the offensive block nor in the defensive one, as too aggressive promotion restrictions may hurt the unit as pointed by chatgpt 5, check if accurate, hopefully helps the AI without hurting it xd -->
 		const bool bCommonOffenseLandUnitAI = (
 			// <!-- custom: note: as of now seemingly unused or disabled for AIs but just in case or to be exhaustive -->
 			(eAI == UNITAI_COLLATERAL) ||
@@ -17529,7 +17529,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 		static const PromotionTypes ePromotionCityBombardDamage = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_BOMBARD_DAMAGE", true);
 
-		// <!-- custom: according to chatgpt 5 and confirmed by it after it did a web search, check if accurate, collateral damage is not applied for defensive units (e.g. a catapult defending a city, attacked by a swordsman, then the swordsman's stack doesn't receive "splash" damage to other units in the stack, but this is only when the catapult attacks, check if accurate as i don't know for sure and only guessed so, but maybe chatgpt 5 is indeed correct, just check to be sure i mean; so as for defensive units, disabling these since it won't be useful being on the receiving end of an attack -->
+		// <!-- custom: according to chatgpt 5 and confirmed by it after it did a web search, check if accurate, collateral damage is not applied for defensive units (e.g. a catapult defending a city, attacked by a swordsman, then the swordsman's stack doesn't receive "splash" damage to other units in the stack, but this is only when the catapult attacks, check if accurate as i don't know for sure and only guessed so, but maybe chatgpt 5 is indeed correct, just check to be sure; so as for defensive units, disabling these since it won't be useful being on the receiving end of an attack -->
 		static const PromotionTypes ePromotionCollateralDamage1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COLLATERAL_DAMAGE1", true);
 		static const PromotionTypes ePromotionCollateralDamage2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COLLATERAL_DAMAGE2", true);
 		static const PromotionTypes ePromotionCollateralDamage3 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COLLATERAL_DAMAGE3", true);
@@ -27125,7 +27125,7 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity, int iM
 			// if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(p, MISSIONAI_BUILD, getGroup(),
 			// 	/*<advc.opt>*/0, iMaxWorkers/*</advc.opt>*/) < iMaxWorkers)
 			//
-			// <!-- custom: chatgpt 5 explanation of this code to help me make sense of this, check to be sure it is accurate or not accurate, hopefully informative as well for me or and others or not or yes or etc -->
+			// <!-- custom: chatgpt 5 explanation of this code to help me make sense of this, check to be sure it is accurate or not accurate, hopefully informative as well for me others -->
 			// It’s not a distance limit for how far the worker can travel. It only affects reservation counting.
 			// AI_plotTargetMissionAIs(plot, …, iRange, …) counts other groups whose mission plot is within iRange tiles of plot.
 			// With iRange = 0, it only counts groups whose target is exactly the same tile.
@@ -28010,7 +28010,7 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 		// 	(!bDoImprove || kPlot.getBuildTurnsLeft(eBestTempBuild,
 		// 	/* advc.251: */ kOwner.getID(), 0, 0) > iPathTurns * 2 - 1))
 		//
-		// <!-- custom: chatgpt 5 explanation of this code to help me make sense of this, check to be sure it is accurate or not accurate, hopefully informative as well for me or and others or not or yes or etc -->
+		// <!-- custom: chatgpt 5 explanation of this code to help me make sense of this, check to be sure it is accurate or not accurate, hopefully informative as well for me others -->
 		// It’s not a distance limit for how far the worker can travel. It only affects reservation counting.
 		// AI_plotTargetMissionAIs(plot, …, iRange, …) counts other groups whose mission plot is within iRange tiles of plot.
 		// With iRange = 0, it only counts groups whose target is exactly the same tile.
@@ -32088,7 +32088,7 @@ int CvUnitAI::AI_connectBonusCost(CvPlot const& p, BuildTypes eBuild, int iMissi
 	// } // </advc.035>
 	// <!-- custom: No!!!
 	// De!!!
-	// prioritize fucking forts xd, similar to other places, these are just so inefficient to build for minimal gains, only build if absolutely necessary, should statistically benefit the AI more and make it be more efficient and not ruin its yields or worker time, so commenting out most of this function's code, returing iCost instead of r, quite similarly than done as in other places, and as explained as well in the other code comment(s) in this function -->
+	// prioritize fucking forts xd, similar to other places, these are just so inefficient to build for minimal gains, only build if absolutely necessary, should statistically benefit the AI more and make it be more efficient and not ruin its yields or worker time, so commenting out most of this function's code, returning iCost instead of r, quite similarly than done as in other places, and as explained as well in the other code comment(s) in this function -->
 	/*  Prioritize Forts on tiles with high natural defense and on important
 		resources that may later be guarded. */
 	// if(iDefenseValue > 0)

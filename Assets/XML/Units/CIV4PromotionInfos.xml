@@ -2638,7 +2638,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<Description>TXT_KEY_PROMOTION_CITYRAIDER3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far; hopefully that/this also encourages a variety of alternate startegies as well rather, was NONE -->
+			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far; hopefully that/this also encourages a variety of alternate strategies as well rather, was NONE -->
 			<PromotionPrereq>PROMOTION_COMBAT2</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_CITY_RAIDER2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
@@ -2870,7 +2870,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<Description>TXT_KEY_PROMOTION_GARRISON3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far; hopefully that/this also encourages a variety of alternate startegies as well rather, was NONE -->
+			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far; hopefully that/this also encourages a variety of alternate strategies as well rather, was NONE -->
 			<PromotionPrereq>PROMOTION_COMBAT2</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_CITY_GARRISON2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
@@ -3649,7 +3649,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<Description>TXT_KEY_PROMOTION_FIRST_STRIKE3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far; hopefully that/this also encourages a variety of alternate startegies as well rather, was NONE -->
+			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far; hopefully that/this also encourages a variety of alternate strategies as well rather, was NONE -->
 			<PromotionPrereq>PROMOTION_COMBAT2</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_FIRST_STRIKE2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>

@@ -9654,7 +9654,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 				u.getDropRange()));
 	}
 
-	// <!-- custom: in sevopedia, similar reasoning as for TXT_KEY_UNIT_CITY_STRENGTH_MOD, remove the fields we don't need anymore as we display them as button with a txtNum under the button in sevopedia unit, while keeping ingame text as is at least for now if not for always or and not -->
+	// <!-- custom: in sevopedia, similar reasoning as for TXT_KEY_UNIT_CITY_STRENGTH_MOD, remove the fields we don't need anymore as we display them as button with a txtNum under the button in sevopedia unit, while keeping ingame text as is at least for now if not for always -->
 	if (!bCivilopediaText)
 	{
 		if (u.getHillsDefenseModifier() == u.getHillsAttackModifier())
@@ -11031,7 +11031,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
 			szBuffer.append(szTempBuffer);
 		}*/ // BtS
 		// K-Mod. Also include base health change from power.
-		// <!-- custom: also display "+0" as well as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case -->
+		// <!-- custom: also display "+0" as well as it is useful info to know that power has unhealthiness of +0 rather than +2 for example if it were the case -->
 		int iPowerHealthChange = GC.getDefineINT(CvGlobals::POWER_HEALTH_CHANGE);
 
 		int iPowerHealthDirtyToAdd;
@@ -11066,16 +11066,16 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER"));
 		// <!-- custom: also add the K-Mod code block nice info for area clean power to not misleadingly assume that areacleanpower power has no unhealthy effect.
-		// But since power is always clean due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one) and part of this K-Mod code.
+		// But since power is always clean due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty power value one) and part of this K-Mod code.
 		// But since i am not sure that dirty power is cancelled in this city if both areacleanpower and dirtypower are specified, added a "(?)"
 		// as well. -->
 		// <!-- custom: split the message info between/to cover clean and dirty cases. -->
 		// K-Mod. Also include base health change from power.
-		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case. -->
+		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealthiness of +0 rather than +2 for example if it were the case. -->
 
 		// K-Mod end
-		// <!-- custom: then add info about the effect and its value in all cities as well, since power is always clean due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one) -->
-		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case -->
+		// <!-- custom: then add info about the effect and its value in all cities as well, since power is always clean due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty power value one) -->
+		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealthiness of +0 rather than +2 for example if it were the case -->
 		szBuffer.append(" " + gDLL->getText("TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_APPENDIX_IN_ALL_CITIES"));
 		int iPowerHealthChangeAll = GC.getDefineINT(CvGlobals::POWER_HEALTH_CHANGE);
 		if (iPowerHealthChangeAll)

@@ -1504,7 +1504,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def getTerrainList(self):
 		if self.SAS_cacheTerrainsTuple is None:
-			# <!-- custom: also show terrain_peak and terrain_hill in sevopedia terrains display even though they are plot types but with the changes in sevopedia terrain (new placeRelevantUnits and placeUnitsImpassable panels as of now), these still provide very valuable info so adding them helps a lot; code provided with the help of chatgpt thanks and previous reworks i did with it or with claude ai or and such -->
+			# <!-- custom: also show terrain_peak and terrain_hill in sevopedia terrains display even though they are plot types but with the changes in sevopedia terrain (new placeRelevantUnits and placeUnitsImpassable panels as of now), these still provide very valuable info so adding them helps a lot; code provided with the help of chatgpt thanks and previous reworks i did with it or with claude ai such -->
 			# Note: TERRAIN_HILL and TERRAIN_PEAK already exist in CIV4TerrainInfos.xml, but have <bGraphicalOnly>1</bGraphicalOnly>, so they are hidden by the normal list. For Sevopedia, we want them visible, so we include GraphicalOnly here.
 			baseList = self.getUnfilteredSortedList(gc.getNumTerrainInfos(), gc.getTerrainInfo)
 			if self.IS_SAS_SEVO_TERRAINS_GROUP_BY_LAND_WATER:

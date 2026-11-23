@@ -858,7 +858,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 
 
-	<!-- custom: we don't use strategy tags at all anymore in AdvCiv-SAS, they will be empty just to have the tag existing, but it shuold never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia -->
+	<!-- custom: we don't use strategy tags at all anymore in AdvCiv-SAS, they will be empty just to have the tag existing, but it should never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia -->
 	<TEXT>
 		<Tag>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Tag>
 		<English></English>
@@ -3534,7 +3534,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_TECH_SACRED_ARCHITECTURE_QUOTE</Tag>
 		<English>"And on the pedestal these words appear: 'My name is Ozymandias, king of kings: Look on my works, ye Mighty, and despair!' Nothing beside remains." - Percy Bysshe Shelley</English>
 	</TEXT>
-	<!-- custom: rename _UTOPIA to _COMMUNISM, similarly extarcted -->
+	<!-- custom: rename _UTOPIA to _COMMUNISM, similarly extracted -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_COMMUNISM_QUOTE</Tag>
 		<English>"When I give food to the poor, they call me a saint. When I ask why the poor have no food, they call me a communist." - Dom Helder Camara</English>
@@ -3630,7 +3630,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_TECH_DEPOPULATION_QUOTE</Tag>
 		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
 	</TEXT>
-	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least; update: with the quote of tech_guilds (now removed) -->
+	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa; update: with the quote of tech_guilds (now removed) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ECONOMICS_QUOTE</Tag>
 		<English>"People of the same trade seldom meet together, even for merriment and diversion, but the conversation ends in a conspiracy against the public." - Adam Smith</English>
@@ -3747,7 +3747,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_CIV_AMERICA_ADJECTIVE</Tag>
 		<English>US American</English>
 	</TEXT>
-	<!-- custom: rename "Amerindian Empire" back if i may say in this case at leastto "Native American Empire" -->
+	<!-- custom: rename "Amerindian Empire" back to "Native American Empire" -->
 	<!-- advc.002b: Overwrites values in CIV4GameText_Objects_BTS.xml. -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_NATIVE_AMERICA_DESC</Tag>

@@ -1234,7 +1234,7 @@ class CvInfoScreen:
 		iAttW = iMinColW + 2
 		iAttNumW = iMinColW + 2
 		iColorW = iMinColW
-		# <!-- custom: avoid shriking ID below the normal compact column minimum: double-digit player IDs clip in the Civ4 table widget, e.g. "10" or "11" drawing as "1." or "1" (when font upscaled) with iPidW = iMinColW (42) - 10. (ChatGPT-5.5) -->
+		# <!-- custom: avoid shrinking ID below the normal compact column minimum: double-digit player IDs clip in the Civ4 table widget, e.g. "10" or "11" drawing as "1." or "1" (when font upscaled) with iPidW = iMinColW (42) - 10. (ChatGPT-5.5) -->
 		iPidW = iMinColW
 		iResearchPctW = iPidW
 		# <!-- custom: keep Tech width equal to '%' width because both are compact progress/count metrics and are near each other, so matched width reads cleaner; Tech is fine as 2-digit like '%' in AdvCiv-SAS (no 3-digit tech counts expected). (GPT-5.3-Codex) -->

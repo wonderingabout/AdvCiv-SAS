@@ -121,7 +121,7 @@ parent* - this means that checking the 'DEFAULT' subsection in the
 In order to simplify unicode support (which is possibly of limited value
 in a config file) I have removed automatic support and added the
 ``encode`` and ``decode methods, which can be used to transform keys and
-entries. Because the regex looks for specific values on inital parsing
+entries. Because the regex looks for specific values on initial parsing
 (i.e. the quotes and the equals signs) it can only read ascii compatible
 encodings. For unicode use ``UTF8``, which is ASCII compatible.
 
@@ -579,7 +579,7 @@ A reasonably elegant implementation - a basic reader in 160 lines of code.
 		#
 		# This looks good but i want to try to increase it more (portrait size ):
 		# Now 327 / 400 = 0,8175 (which is very close to 0,8187 while also a bigger picture, anyways)
-		# Increasing it more is maybe possible but we start to see the pixels in the animations (see Gandhi's arm) not being straight for example, if we replace animations with images like with/for Ewuare (Kingdom of Benin, anyways) then hese enhanced portaits would be better and more epic, will see if i increase it more or not, maybe leaving as is at least for now or not
+		# Increasing it more is maybe possible but we start to see the pixels in the animations (see Gandhi's arm) not being straight for example, if we replace animations with images like with/for Ewuare (Kingdom of Benin, anyways) then hese enhanced portraits would be better and more epic, will see if i increase it more or not, maybe leaving as is at least for now or not
 		#
 		# Actually all this calculation is not exactly accurate because W_LEADERHEAD_PANE and W_LEADERHEAD are different in this base advciv / sevopedia(?) code, but hopefully accurate enough and ratio should be much closer now to the ingame diplomacy ratio, hopefully less stretched but not sure or guaranteed, should be for images i send as replacements of animations though as i base them on the ingame diplomacy's ratio, not the old sevopedia leader portait ratio so now the new sevopedia ratio for the leader portrait i have added is hopefully much much closer to the old and as of now still existing ratio of the ingame diplomacy leader portrait, which i don't think i'm changing anytime soon as it is most likely more tedious for questionable gain, so using this one as a basis rather, not that is undoable but probably much harder and not necessarily worth it, and if animations are based on the diplomacy ingame ratio rather then they may also display better in the sevopedia with my new sevopedia ratio, (which intuitively or from a quick glance seems to be the case, image looks less compressed on its sides but not sure or guaranteed, check yourself if want to be sure or not, but i hope this helps, and that being said, anyways) anyways -->
 		#
@@ -598,7 +598,7 @@ A reasonably elegant implementation - a basic reader in 160 lines of code.
 ----- Comment #4 -----
 
 # <!-- custom: removing or rather having an empty header, the header disappears entirely, but if you want to use a header, you can just type any value in the related txt keys such as TXT_KEY_AI_PERSONALITY_RIGHT_PANEL and such anyways. This or maybe rather not doing this (having an non-empty txt key header) would take some room though so you'd have to adjust self.H_AI_UPPER_PADDING to the value below commented-out or simialr depending the upper padding you want.
-		# Since i (accidentally found) it frees more room, i want to try using it as such, as i really need the extra room, and not so much the header name (the other two header txt keys were going to be either redunant naming or empty so maybe this is (also) a good opportunity to gain space/room in the ai personality panel, anyways -->
+		# Since i (accidentally found) it frees more room, i want to try using it as such, as i really need the extra room, and not so much the header name (the other two header txt keys were going to be either redundant naming or empty so maybe this is (also) a good opportunity to gain space/room in the ai personality panel -->
 
 
 
@@ -686,7 +686,7 @@ A reasonably elegant implementation - a basic reader in 160 lines of code.
 		# - 5. Health/Unhealth: Shows health effects
 		# - 6. Great People: Shows great people rate changes with button and great people modifiers too
 		# -->
-		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier)) (the 4th before going to a new column and back to 1st row), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such and they are still named the same now which we created as well with chatgpt (see authors for details)) and adjusting/refatoring it for our need for this sevopedia building's placeStats), or other things ways maybe to refactor it so it fits a 4th row. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe. -->
+		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier)) (the 4th before going to a new column and back to 1st row), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such and they are still named the same now which we created as well with chatgpt (see authors for details)) and adjusting/refactoring it for our need for this sevopedia building's placeStats), or other things ways maybe to refactor it so it fits a 4th row. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe. -->
 
 ===== \Assets\Python\Contrib\Sevopedia\ai_utils_shared_with_civ4.py =====
 ----- Comment #7 -----
@@ -706,7 +706,7 @@ A reasonably elegant implementation - a basic reader in 160 lines of code.
 	# and our debug ingame in sevopedia shows (see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py for details):
 	# Memory 29 (MEMORY_RECEIVED_TECH_FROM_ANY): Attitude 0, Decay 20
 	#
-	# here is also chatgpt's web search result if it helps too (not sure is accurate but maybe is or at least more since is web search) formatted or not or yes for our script's consistency or rather small display in this case i mean or other or and not or yes or etc:
+	# here is also chatgpt's web search result if it helps too (not sure is accurate but maybe is or at least more since is web search) formatted for our script's consistency or rather small display in this case i mean or other :
 	#
 	# "
 	# 🧠 What it does
@@ -772,7 +772,7 @@ A reasonably elegant implementation - a basic reader in 160 lines of code.
 ----- Comment #13 -----
 
 			# print("InfoScreenHistory cityFounded hide=%d player=%d revealedOwner=%d plot=%d,%d" % (bHideCityFounded, iPlayer, (pPlot is not None and pPlot.getRevealedOwner(self.iActiveTeam, False) or -1), iX, iY))
-			# <!-- custom: this was very hard to solve, countless AIs faield to do so xd, despite early previous success before caching. The key point is barbarian cities like "Hun" and "Cimmerian" were founded, we explored the plot, left, they spawned, but we didn't revisit since then, nor do we have vision, so on our map we see no city at all in this area, and it's not full flag unexplored either.
+			# <!-- custom: this was very hard to solve, countless AIs failed to do so xd, despite early previous success before caching. The key point is barbarian cities like "Hun" and "Cimmerian" were founded, we explored the plot, left, they spawned, but we didn't revisit since then, nor do we have vision, so on our map we see no city at all in this area, and it's not full flag unexplored either.
 			# Lines like:
 			# InfoScreenHistory show msg=556 player=11 type=1 color=53 plot=42,19 hiddenPlot=0 text=u'Cimmerian is founded.'
 			# Or:
@@ -896,7 +896,7 @@ v. 0.41
 ===== \Assets\Python\Contrib\Sevopedia\SevoPediaMain.py =====
 ----- Comment #16 -----
 
-<!-- custom: increase for smaller screens (resolutions) too, now that sevopedia is expanded (no margins) they should have more room to accommodate a full row width, increase only as minimally as necessary (acording to what i measured), was 182. Update: since the upscaling text changes, increased (from 124) to accommodate a max font size of 4. -->
+<!-- custom: increase for smaller screens (resolutions) too, now that sevopedia is expanded (no margins) they should have more room to accommodate a full row width, increase only as minimally as necessary (according to what i measured), was 182. Update: since the upscaling text changes, increased (from 124) to accommodate a max font size of 4. -->
 		# advc.002b: was 175
 		# <!-- custom: was 200 -->
 

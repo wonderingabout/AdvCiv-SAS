@@ -203,7 +203,7 @@ bool CvSelectionGroupAI::AI_update()
 				(int)isForceUpdate(), (int)AI_isGroupAttack(), (int)AI_isForceSeparate(),
 				iAttempts, iMaxAttempts
 			).c_str());
-			// <!-- custom: now we have more info thanks chatgpt 5 and thanks to me too i guess i mean if i may say as well -->
+			// <!-- custom: now we have more info thanks chatgpt 5 and thanks to me too i guess as well -->
 			// Assert Failed
 			// File:  ..\.\CvSelectionGroupAI.cpp
 			// Line:  180

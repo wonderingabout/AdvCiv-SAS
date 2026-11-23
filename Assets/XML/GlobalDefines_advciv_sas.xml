@@ -3850,7 +3850,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 
-	<!-- custom: enable this so that multi effect bonuses (e.g. wheat has +1 healh and +1 with granary which is effectively 2 health) are valued as such; Long_Comments_XML.txt #179 -->
+	<!-- custom: enable this so that multi effect bonuses (e.g. wheat has +1 health and +1 with granary which is effectively 2 health) are valued as such; Long_Comments_XML.txt #179 -->
 	<Define>
 		<DefineName>SAS_BONUS_TRADE_MULTI_EFFECT_VAL_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -3938,7 +3938,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 
-	<!-- custom: additionally to our self research tech value changes based on if our ennemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal -->
+	<!-- custom: additionally to our self research tech value changes based on if our enemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal -->
 	<!-- bias trade valuation toward key military techs when we're clearly outgunned -->
 	<!-- custom: Long_Comments_XML.txt #112 -->
 	<Define>
@@ -4394,7 +4394,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_PROMOTION_VAL_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: low value so a promotion does not get picked (assuming no other logic overrides ours as seems to happen sometimes for rare unexpected medic promotions, although generalyl our code seems as of now quite/very effective but check to be sure) -->
+	<!-- custom: low value so a promotion does not get picked (assuming no other logic overrides ours as seems to happen sometimes for rare unexpected medic promotions, although generally our code seems as of now quite/very effective but check to be sure) -->
 	<Define>
 		<DefineName>SAS_PROMOTION_VAL_FORBIDDEN</DefineName>
 		<iDefineIntVal>-100000</iDefineIntVal>

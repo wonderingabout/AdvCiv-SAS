@@ -904,7 +904,7 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_L
 - (Requires AdvCiv-SAS 6671+) **Replay/Hall-of-Fame diagnostics:** SGR records the configured replay writer identity/version and legacy candidate ID, and groups reader rejections by reason/field so a large replay collection can be investigated without copying repeated assertion dialogs.
   - Grouped summaries also work in Release builds; assertion-enabled builds retain individual field/value messages. See [KI#166.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.2).
 
-(Requires AdvCiv-SAS 6440+) Note: SASGameRecord (SGR; current recorder settings use the `SAS_SGR_*` define family) has its own revision system, see [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) for details and miscellanous information.
+(Requires AdvCiv-SAS 6440+) Note: SASGameRecord (SGR; current recorder settings use the `SAS_SGR_*` define family) has its own revision system, see [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) for details and miscellaneous information.
 
 - (Requires AdvCiv-SAS 6626+) **SASGameRecord helps distinguish attractive city plots from sustainable worked-plot combinations:**
   - At city founding, compact player-known Food budgets show how much surplus remains for small and larger worked-plot cores, both with potential improvements and with features retained before improvements.
@@ -3061,7 +3061,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See 
   - Some of their dimensions are **harmonized**.
   - Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore).
   - See [Main Advisors reworks](/README.md#main-advisors-reworks).
-Make some of the data-dense advisors use using a **higher constrast background theme** so text is **more readable** (e.g. plain dark grayish in Overview tabs (Domestic Advisor), plain dark brownish in the Score Tab (Info screen), plain blue in the Battles tab (Military Advisor)).
+Make some of the data-dense advisors use using a **higher contrast background theme** so text is **more readable** (e.g. plain dark grayish in Overview tabs (Domestic Advisor), plain dark brownish in the Score Tab (Info screen), plain blue in the Battles tab (Military Advisor)).
 - **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column.
   - Use the **shared advisor shell layout** (**top/bottom bars** + single content panel, remove the old exit icon) so Domestic Advisor **mirrors other advisors' structure** instead of a floating table, and is now has **tabs**; **enhanced** the Domestic Advisor so it now has **4 overview tabs** with detailed city information (modifiers, yields, specialists, etc.) with a corresponding **legend link**, and an **enter city on click button** (mirroring the info screen's wonders tab).
   - Overview 4 uses compact specialist-count columns and adds independently sortable numeric city **X/Y** coordinates.

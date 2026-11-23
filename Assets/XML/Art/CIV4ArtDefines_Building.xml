@@ -262,7 +262,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<KFM/>
 			<Button>Art/AdvCiv_SAS/Buildings/Ireland_Muileann_Uisce/Noria.dds</Button>
 		</BuildingArtInfo>
-		<!-- custom: art nif import from FFH2's ART_DEF_BUILDING_INFIRMARY, since the advciv-sas hopsital is now medieval-based/at era time. -->
+		<!-- custom: art nif import from FFH2's ART_DEF_BUILDING_INFIRMARY, since the advciv-sas hospital is now medieval-based/at era time. -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_HOSPITAL</Type>
 			<LSystem>LSYSTEM_2x1</LSystem>

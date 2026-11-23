@@ -30,7 +30,7 @@ First you need to install (or have it installed already) Civilization 4 Beyond t
 
 If you don't have the game, i recommend buying it from GOG rather than Steam (i have no affiliation with either xd, although i have the steam version myself for convenience and such, as the executable or whatever they call it is cleaner and closer if not entirely unmodified unlike the Steam one, but check to be sure).
 
-It should work fine with the Steam one too, but given the choice again i may have bought it from GOG rather hehe, although it is not certain as Steam one is convenient too for library access of other games or centralized games lbirary for me i mean or such, but i hope this information helps you decide, check i mean too or for extra or updated info if any change has been made since maybe.
+It should work fine with the Steam one too, but given the choice again i may have bought it from GOG rather hehe, although it is not certain as Steam one is convenient too for library access of other games or centralized games library for me i mean or such, but i hope this information helps you decide, check i mean too or for extra or updated info if any change has been made since maybe.
 
 ## Download this mod AdvCiv-SAS
 
@@ -87,7 +87,7 @@ If you don't see the same main menu wallpaper as below when opening AdvCiv-SAS, 
 
 <img src="/_1_AdvCiv-SAS/Images/main_menu/1.300_main_menu_home%20(1).JPG" alt="1.300_main_menu_home (1).JPG" width="250"></img>
 
-Note 2: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Middle-earth mod, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are/should be totally indepedent in theory if i'm not mistaken, the settings or files of one will/should not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
+Note 2: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Middle-earth mod, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are/should be totally independent in theory if i'm not mistaken, the settings or files of one will/should not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
 
 ## If nothing happens when launching the mod
 

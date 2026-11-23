@@ -931,7 +931,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
-			<!-- custom: remove trait specfic production bonuses; Long_Comments_XML.txt #343 -->
+			<!-- custom: remove trait specific production bonuses; Long_Comments_XML.txt #343 -->
 			<ProductionTraits/>
 			<HappinessTraits>
 				<HappinessTrait>
@@ -2628,7 +2628,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: seems to make more sense here around tech_flight that is bloated (while tech_artillery is empty in comparison if i may say), plus also bunkers help protect against artillery too according to wikipedia very very quick glance, was TECH_ELECTRICITY -->
+			<!-- custom: seems to make more sense here around tech_flight that is bloated (while tech_artillery is empty in comparison), plus also bunkers help protect against artillery too according to wikipedia very very quick glance, was TECH_ELECTRICITY -->
 			<PrereqTech>TECH_ARTILLERY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -4677,7 +4677,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: reduce cost to match old lighthouse or around it, as it is its replacement as the first naval building now so make it cheap enough, which makes sense also as its effect althugh quite good is much weaker than of a granary that is cheap as well, was 80 -->
+			<!-- custom: reduce cost to match old lighthouse or around it, as it is its replacement as the first naval building now so make it cheap enough, which makes sense also as its effect although quite good is much weaker than of a granary that is cheap as well, was 80 -->
 			<iCost>50</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -9648,7 +9648,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
-			<!-- custom: remove space race effect, make it a purely scientific building now as the laboratory is now reworked, see xml of the building or and code comments or and docs for details, was 50 -->
+			<!-- custom: remove space race effect, make it a purely scientific building now as the laboratory is now reworked, see xml of the building code comments docs for details, was 50 -->
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -9706,7 +9706,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
 			<PrereqBuildingClasses/>
-			<!-- custom: observatory class removed entirely, laboratory now requires instead a university, which (i.e. the university, not directly related info to the laboratory but to be exhaustive maybe or and other reason or and not) may mesh also better with _OXFORD_UNIVERSITY being a more important key previous objective, like other monument type of buildings are also strongly linked to/with _STONEHENGE -->
+			<!-- custom: observatory class removed entirely, laboratory now requires instead a university, which (i.e. the university, not directly related info to the laboratory but to be exhaustive maybe reason) may mesh also better with _OXFORD_UNIVERSITY being a more important key previous objective, like other monument type of buildings are also strongly linked to/with _STONEHENGE -->
 			<BuildingClassNeededs>
 				<BuildingClassNeeded>
 					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
@@ -14370,7 +14370,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: adjust flavors, was flavor espionage 10 miltary 6 -->
+			<!-- custom: adjust flavors, was flavor espionage 10 military 6 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
@@ -14575,7 +14575,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: adjust flavors, was flavor espionage 10 miltary 6; but as for this civ-specific building, increase flavor espionage to match the new effects -->
+			<!-- custom: adjust flavors, was flavor espionage 10 military 6; but as for this civ-specific building, increase flavor espionage to match the new effects -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
@@ -20980,14 +20980,14 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			</BuildingClassNeededs>
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
-			<!-- custom: effect imported from kujira website (translate to english with web browser or and such): https://gforestshade.github.io/kujira/post/civ4buildinginfos/#iglobalfreespecialist; seems to fit quite well the theme of the building's history i mean of burning down and such from a quick web lookup, maybe now both balanced, varied, and gradual not op effect but strong enough, was empty -->
+			<!-- custom: effect imported from kujira website (translate to english with web browser such): https://gforestshade.github.io/kujira/post/civ4buildinginfos/#iglobalfreespecialist; seems to fit quite well the theme of the building's history i mean of burning down and such from a quick web lookup, maybe now both balanced, varied, and gradual not op effect but strong enough, was empty -->
 			<ImprovementFreeSpecialists>
 				<ImprovementFreeSpecialist>
 					<ImprovementType>IMPROVEMENT_FOREST_PRESERVE</ImprovementType>
 					<iFreeSpecialistCount>1</iFreeSpecialistCount>
 				</ImprovementFreeSpecialist>
 			</ImprovementFreeSpecialists>
-			<!-- custom: military effect of no anger is too low for the building to be considered by military leaning eladers i think i mean, better not use it here so they can focus on building units or more relevant militarily buildings, was flavors growth 5, culture 4, military 2 -->
+			<!-- custom: military effect of no anger is too low for the building to be considered by military leaning leaders i think, better not use it here so they can focus on building units or more relevant militarily buildings, was flavors growth 5, culture 4, military 2 -->
 			<!-- advc.020: Was 10 Growth, but also useful militarily and for
 				 culture. -->
 			<Flavors>
@@ -22094,7 +22094,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: do not give too high military flavor else military leaders would build it instead of units, also the effect is not too strong for military leaders as well, especially considering the cost as also said/highlighted in base advciv comment below, but make it not 0 as is slightly good for military leaders as well but not too much or mandatory i mean; also add small science flavor considering great person type and value of modifier i mean now that this is a world wonder, was flavors military 6 growth 3 -->
+			<!-- custom: do not give too high military flavor else military leaders would build it instead of units, also the effect is not too strong for military leaders as well, especially considering the cost as also said/highlighted in base advciv comment below, but make it not 0 as is slightly good for military leaders as well but not too much or mandatory; also add small science flavor considering great person type and value of modifier i mean now that this is a world wonder, was flavors military 6 growth 3 -->
 			<!-- advc.020: No flavor in BtS. Mostly a military thing, though
 				 Growth has an easier time with the prereq. Hospitals. -->
 			<Flavors>
@@ -24453,7 +24453,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: not all military leaders should prioritize defense, in fatc they should focus on offense and building units rather, so not puting flavor military here, but useful for leaders who want to defend against them, so putting other relevant or few flavors instead opposite to it, was flavor production 5 -->
+			<!-- custom: not all military leaders should prioritize defense, in fatc they should focus on offense and building units rather, so not putting flavor military here, but useful for leaders who want to defend against them, so putting other relevant or few flavors instead opposite to it, was flavor production 5 -->
 			<!-- advc.020: was 10 Production; cf. Hagia Sophia -->
 			<Flavors>
 				<Flavor>
@@ -25704,7 +25704,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
 			<iNumFreeBonuses>0</iNumFreeBonuses>
-			<!-- custom: remove free broadcast towers based on this: https://forums.civfanatics.com/threads/the-eiffel-tower-and-broadcast-towers.224537/, i don't know a lot about this and didn't know at all hehe if i may say anyways, but it does seem weird to have free broadcast towers in all cities just because one eiffel tower is built.
+			<!-- custom: remove free broadcast towers based on this: https://forums.civfanatics.com/threads/the-eiffel-tower-and-broadcast-towers.224537/, i don't know a lot about this and didn't know at all hehe, but it does seem weird to have free broadcast towers in all cities just because one eiffel tower is built.
 			The building itself (probably) needs to be reworked or removed, for now changing its effects a bit or more than bit -->
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
@@ -27875,7 +27875,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<iEspionageDefense>0</iEspionageDefense>
 			<!-- advc.310: Was 5; now a more potent building. -->
 			<iAsset>9</iAsset>
-			<!-- custom: indrectly stronger due to not having barbarians attack, but increasing it too much may make AI avoid to attack a vulnerable/killable target in this case, was 5 -->
+			<!-- custom: indirectly stronger due to not having barbarians attack, but increasing it too much may make AI avoid to attack a vulnerable/killable target in this case, was 5 -->
 			<!-- advc.131c: was 10 -->
 			<iPower>8</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
@@ -27937,7 +27937,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: no flavor military too as military leaders need to focus on offense not defense, see chichen itza code comment as well, and i seem to have read this or something similar in a base advciv code comment too or somewhere so not sure so maybe this gave me the idea now again or i got it independently or both or other, was flavor gold 5 growth 4 -->
+			<!-- custom: no flavor military too as military leaders need to focus on offense not defense, see chichen itza code comment as well, and i seem to have read this or something similar in a base advciv code comment too or somewhere so not sure so maybe this gave me the idea now again or i got it independently, was flavor gold 5 growth 4 -->
 			<!-- advc.310, advc.020: Was 8 Military. Extra trades routes get
 				 Gold flavor. A bit of Growth because the prereq. Walls have
 				that flavor. -->
@@ -28717,7 +28717,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: can't give this a too high military flavor else military leaders would build it instead of building units, still it's strong enough with the early drafting to have military laders consider it but not too strong flavor else they would not build units anymore, was flavors science 5 growth 2 culture 2 -->
+			<!-- custom: can't give this a too high military flavor else military leaders would build it instead of building units, still it's strong enough with the early drafting to have military leaders consider it but not too strong flavor else they would not build units anymore, was flavors science 5 growth 2 culture 2 -->
 			<!-- advc.020: Was 10 Religion, but mainly unlocks Free Religion
 				 (Science), and possibly Pacifism (Growth, Culture). -->
 			<Flavors>
@@ -29174,7 +29174,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: note: Executives now require tech(s) to be built (see there for details) If you change a corporation builing's required tech(s), make sure you also apply this change in the executive's unit info's required tech(s) as well or adjust as you see fit, was NONE. -->
+			<!-- custom: note: Executives now require tech(s) to be built (see there for details) If you change a corporation building's required tech(s), make sure you also apply this change in the executive's unit info's required tech(s) as well or adjust as you see fit, was NONE. -->
 			<!-- custom: was TECH_MEDICINE -->
 			<!-- custom: Move Cereal Mills from removed Ecology's late replacement to TECH_THEORY_OF_EVOLUTION.
 			Its Biology path fits the food corporation and gives the scientific branch an economic payoff without crowding TECH_ENVIRONMENTALISM; TECH_CORPORATION remains additionally required. (GPT-5.6-Sol) -->

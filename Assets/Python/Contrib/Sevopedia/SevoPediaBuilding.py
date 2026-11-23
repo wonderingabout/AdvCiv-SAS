@@ -224,7 +224,7 @@ class SevoPediaBuilding:
 			self.fillStatsCell(screen, szText2, x, y)
 			x, y, rowItemId = self.getStatsNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-		# <!-- custom: 2 Direct SASVisuals.Yield Changes (like Food, Production, Gold), and SASVisuals.Yield Modifiers (Food +x%, Production +x%, Gold +x%) with power breakdown added thanks to Claude AI and my prompts or tweaks/adjustments or not or yes or and but or not but or and(2) -->
+		# <!-- custom: 2 Direct SASVisuals.Yield Changes (like Food, Production, Gold), and SASVisuals.Yield Modifiers (Food +x%, Production +x%, Gold +x%) with power breakdown added thanks to Claude AI and my prompts or tweaks/adjustments -->
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
 			iYieldChange = buildingInfo.getYieldChange(k)
 
@@ -437,7 +437,7 @@ class SevoPediaBuilding:
 	# That's where the helper comes in."
 	# + also "The helper get_iDefaultBuilding_current_civ(iBuildingClass) is not for the current building (self.iBuilding).
 	# It's used to resolve prerequisite buildings by class — and each building class can have different versions (UUs) for each civ."
-	# i don't know if accurate but maybe is, so adding this info here as part of refactoring and wondering if we should use it in required for to which chatgpt also replied thanks but or not but or yes but"In placeRequiredFor: You’re checking: for each building: if building X requires our current building's class: show building X" and "You already have the concrete building (X).
+	# i don't know if accurate but maybe is, so adding this info here as part of refactoring and wondering if we should use it in required for to which chatgpt also replied thanks "In placeRequiredFor: You’re checking: for each building: if building X requires our current building's class: show building X" and "You already have the concrete building (X).
 	# No need to resolve anything — you are showing the building that depends on yours, not the class." -->
 	def get_iDefaultBuilding_current_civ(self, i):
 		# Get the default building of this class for the current civilization
@@ -749,7 +749,7 @@ class SevoPediaBuilding:
 				# Check if the special building has an obsolete tech
 				iObsoleteTech = specialBuildingInfo.getObsoleteTech()
 
-		# <!-- custom: after having checked both directly for an obsolete tech, or indirectly through special buiding, now display button if any:
+		# <!-- custom: after having checked both directly for an obsolete tech, or indirectly through special building, now display button if any:
 		if iObsoleteTech != -1:
 			screen.attachImageButton(panelName, "", gc.getTechInfo(iObsoleteTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iObsoleteTech, -1, False)
 

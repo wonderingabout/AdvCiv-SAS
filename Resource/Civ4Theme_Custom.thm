@@ -3452,9 +3452,9 @@ with GFC_Control_Button
 			// <!-- custom: try this effect that seems to make our text sharper so nice and readable but not overly blurry as chatgpt provided thanks -->
 			//.Default						=	GColor(0,0,0,80);
 			// <!-- custom: result: this is super nice, our text looks bolder no pun xd, but still a bit too thin, try to make it further more bold thanks to chatgpt 5 as well thanks -->
-			// <!-- custom: result: very good!!! Now text is bolder and easier on the eye to read no more strain or less, but not too fat either like a too boiled spaghetti xd if i may say.. I can adjust it further with this if needed, but looks fine now, i prefer a bit too fat text but readable than thin pretty with eye strain,, thanks chatgpt 5 for all help -->
+			// <!-- custom: result: very good!!! Now text is bolder and easier on the eye to read no more strain or less, but not too fat either like a too boiled spaghetti xd. I can adjust it further with this if needed, but looks fine now, i prefer a bit too fat text but readable than thin pretty with eye strain,, thanks chatgpt 5 for all help -->
 			//.Default						=	GColor(0,0,0,160); // try 160–200 for bolder, 120 for lighter
-			// <!-- custom: trying 180 as advised by chatgpt 5; result: it is hard to tell if there is a difference as difference is so small, but text does seem a tiny bit bolder or somehow more readable if not placebo thanks in all cases if i may say chatgpt 5 -->
+			// <!-- custom: trying 180 as advised by chatgpt 5; result: it is hard to tell if there is a difference as difference is so small, but text does seem a tiny bit bolder or somehow more readable if not placebo thanks in all cases chatgpt 5 -->
 			//.Default						=	GColor(0,0,0,180); // try 160–200 for bolder, 120 for lighter
 			// <!-- custom: trying to make it a bit bolder after all if possible would be nice; result: it is not that text is bolder, but more plain as in filled, hopefully less eye strain-->
 			//.Default						=	GColor(0,0,0,240); // try 160–200 for bolder, 120 for lighter
