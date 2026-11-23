@@ -523,7 +523,9 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 - **Build cleanup - disabled unneeded DLL test code in normal builds:**
   - compile-gated disabled reproducibility-test code (`ReproTest.cpp`) so normal DLL builds no longer compile it unless explicitly enabled for debugging.
   - This keeps dormant test/debug code out of normal builds, may slightly reduce DLL/build size, and does **not** change gameplay.
-  - Found with the help of the new [`find_cpp_dead_code_candidates.py`](/LLM_Helpers/audits/find_cpp_dead_code_candidates.py) LLM/manual-review helper.
+  - Found with the help of the new [`find_cpp_dead_code_candidates.py`](/LLM_Helpers/audits/find_cpp_dead_code_candidates.py) LLM/manual-review helper. See [KI#1108](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108).
+- (Requires AdvCiv-SAS 6850+) **Python cleanup - disabled an unused tech prerequisite graph:** the Foreign Advisors rebuilt BtS's `TechTree` on every opening and tab click, pairing each of the 92 techs, as in BtS, base AdvCiv and, as of now, SAS, with every tech, 92 x 92 = 8,464 pairs, a count growing with the square of the techs (in larger mods as installed locally on 2026-11-23, Realism Invictus's 203 techs would make 41,209 and Caveman2Cosmos's 943 make 889,249), though nothing read it, not even in BtS's own Foreign Advisor.
+  - Its import and construction in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) are kept as comments, like ReproTest above behind its switch, and do **not** change gameplay. See [KI#1108.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108.2).
 - **Civ4 GameText character check:**
   - added a GitHub workflow check for Unicode typography that creates visible artifacts in Civ4 text, such as the em dash (`U+2014`) formerly used in the Automobiles Civilopedia instead of a simple hyphen or other ASCII punctuation.
   - It also catches repeated question marks that indicate lost characters, while allowing readable accented letters and ignoring XML comments.

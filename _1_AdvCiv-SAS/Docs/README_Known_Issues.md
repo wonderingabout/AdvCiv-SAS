@@ -1310,7 +1310,9 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1105.2 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen CvDebugInfoScreen.py (Shift + F2) sat at a fixed 1024 x 768, and its table never showed the columns past its right edge, so even on a Huge map Team Relations lost the last 4 of its 16 civilizations and Map Details its bonuses after about the 8th](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2)\
 [KI#1106 - (Clarified inherited vanilla) The plot hover called a lake tile "Coast", then wrote "Fresh Water Lake" where a land plot's fresh water goes, and never said where a land plot's "Fresh Water" came from](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1106)\
 [KI#1107 - (Fixed inherited AdvCiv, Debug Mode only) The Debug Mode screen GameFontDisplay.py (Ctrl + Shift + F1), which lists every game font glyph, showed an empty table, as its row count assumed symbol codes starting near 8193 and so came out at -7667 with codes starting at 450, in base AdvCiv and SAS alike](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107)\
-[KI#1107.2 - (Fixed AdvCiv-SAS bug, Debug Mode only) SAS's move onto the SASVisualUtils cache had broken GameFontDisplay.py's lookup of each glyph's religion, corporation or bonus with .index() on the cache's tuples, which Python 2.4 lacks, hidden behind KI#1107's empty table until its fix let rows draw](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107.2)
+[KI#1107.2 - (Fixed AdvCiv-SAS bug, Debug Mode only) SAS's move onto the SASVisualUtils cache had broken GameFontDisplay.py's lookup of each glyph's religion, corporation or bonus with .index() on the cache's tuples, which Python 2.4 lacks, hidden behind KI#1107's empty table until its fix let rows draw](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107.2)\
+[KI#1108 - (Gated inherited AdvCiv) Default builds compiled the unused implementation of ReproTest.cpp, base AdvCiv's reproducibility test, though its ENABLE_REPRO_TEST switch is off by default](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108)\
+[KI#1108.2 - (Fixed inherited BtS) The Foreign Advisors rebuilt BtS's tech prerequisite graph, TechTree, on every opening and tab click, pairing each of the 92 techs, as in BtS, base AdvCiv and, as of now, SAS, with every tech, 92 x 92 = 8,464 pairs, a count growing with the square of a mod's techs, though it was unread even in BtS's own Foreign Advisor](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108.2)
 
 <a id="ki-1"></a>
 
@@ -15123,6 +15125,8 @@ The byte-preserved Planet Generator 0.68 and BTG copies both have `def __len__()
 The map creates `worldArray` during plot generation, but I found no direct length call on that object. Add the receiver as the author's other array classes already do.
 
 Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+Update (2026-11-23): [KI#1108.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108.2) is the opposite case, working inherited Python that ran for nothing, BtS's TechTree in the Foreign Advisor.
 
 <a id="ki-166"></a>
 
@@ -37102,6 +37106,8 @@ AdvC practical 2033 introduced the player-ID duration mapping and Base AdvC 1.14
 
 Found as F704/provisional KI#1025 during ChatGPT-5.6-Sol's C031-WIP636-C031-WIP637 `ReproTest.cpp` audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
+Update (2026-11-23): [KI#1108](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108) records how `ReproTest.cpp`'s implementation was kept out of default builds, with its origin.
+
 <a id="ki-1026"></a>
 
 ## KI#1026 - (Provisional Pending inherited AdvC gameplay defect) Barbarian Shelf counts loaded land cargo as ships
@@ -38998,6 +39004,12 @@ Update (2026-11-22): the source-provenance gap left for later above is closed: [
 
 The full install path remains in the note for readers. The push after the PR#50 squash had failed on those comments and imports.
 
+Update (2026-11-23): the [audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md) records the decisions on what was left, with Codex (GPT-6.2-Sol) reviewing.
+
+- TechTree's unused construction is disabled ([KI#1108.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108.2)), and the old Civilopedia fallback stays in the base game on purpose.
+- Five modules the EXE registers by name, which no SAS Python imports, will be carried, `CvMapScriptInterface.py` among them, with the Pitboss helpers' `wx` allowed for those files only.
+- The 42 data XML files are no longer undecided: SAS will carry those its rules, AI or UI rely on, such as `GlobalDefines.xml`, and keeps art and presentation files listed in the audit until an edit justifies a copy.
+
 <a id="ki-1105"></a>
 
 ## KI#1105 - (Fixed inherited vanilla, Debug Mode only) The Map Details table showed a continent's 576 tiles under "Area" and its 5 starting plots under "Size": its header row had one extra column
@@ -39128,3 +39140,40 @@ AttributeError: 'tuple' object has no attribute 'index'
   - [`SASVisualUtils.py`](/Assets/Python/SASVisualUtils.py) says the same beside `ordinals()` and `chars()`, where a reverse lookup would start, and each note names the other.
 
 Found by Claude Code Opus 5.5 while fixing KI#1107, and split from it at the user's request, as two separate issues read more clearly than one (2026-11-23).
+
+<a id="ki-1108"></a>
+
+## KI#1108 - (Gated inherited AdvCiv) Default builds compiled the unused implementation of ReproTest.cpp, base AdvCiv's reproducibility test, though its ENABLE_REPRO_TEST switch is off by default
+
+- What it is: `advc.repro`, base AdvCiv's test of whether AI Auto Play replays the same way.
+  - With `ENABLE_REPRO_TEST` defined, right-clicking an AI leader in the Foreign Advisor quick-saves, autoplays as many turns as that player's ID, keeps the synchronized save data, quick-loads, autoplays again and asserts the two match.
+- What was wrong: `ReproTest.h` leaves the `#define ENABLE_REPRO_TEST` line commented, so no build runs the test, yet default builds, Release included, compiled `ReproTest.cpp`'s implementation; the Makefile collects every `.cpp` file.
+  - Whether it then remained in the linked DLL is not established, as Release links with `/OPT:REF`; Codex (GPT-6.2-Sol) drew that line between compiled and linked in his review.
+- Origin, from the `commit_diffs` corpus: base AdvCiv's `fe4f9ef0fb` (2020-03-10), "Code for testing whether AI Auto Play sequence is reproducible", added `ReproTest.cpp` and `ReproTest.h`, and `1835de0196` wrote the test's start and end to the logs.
+- Gated (2026-06-24, AdvCiv-SAS practical 5972, `1ccad77782`): `ReproTest.cpp`'s implementation, after its two includes, sits inside `#ifdef ENABLE_REPRO_TEST`, so default builds no longer compile it unless that line is uncommented on purpose; gameplay is unchanged.
+  - It was the first result of [`find_cpp_dead_code_candidates.py`](/LLM_Helpers/audits/find_cpp_dead_code_candidates.py), added in the same commit, and the Main Changes Guide described it as "Build cleanup" without a KI.
+  - Filed on 2026-11-23, after the gating, as the first of a family: inherited code that ran or was compiled for nothing, kept out of what runs. [KI#1108.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108.2), BtS's TechTree in the Foreign Advisor, is its Python case.
+- Related: [KI#1024](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1024) and [KI#1025](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1025) are defects inside the test itself, found later while auditing `ReproTest.cpp`.
+- Earlier removals made inside other fixes, before this family had a KI: dead XML knobs and an unused selector in [KI#48.9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.9), the obsolete `EFAImprovedInfo` BUG option in [KI#139](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-139), and needless early `BugPath` calls in [KI#110](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-110).
+
+<a id="ki-1108.2"></a>
+
+## KI#1108.2 - (Fixed inherited BtS) The Foreign Advisors rebuilt BtS's tech prerequisite graph, TechTree, on every opening and tab click, pairing each of the 92 techs, as in BtS, base AdvCiv and, as of now, SAS, with every tech, 92 x 92 = 8,464 pairs, a count growing with the square of a mod's techs, though it was unread even in BtS's own Foreign Advisor
+
+- What it was: BtS's `TechTree.py` builds, for each tech, its required (AND) and optional (OR) prerequisites from the tech XML, then for each tech the techs it leads to, checking every tech against every other.
+  - With 92 techs, as in BtS, base AdvCiv and, as of now, SAS, and 4 AND plus 4 OR prerequisite slots per tech, that is 736 prerequisite reads, each two calls into the DLL, then 92 x 92 = 8,464 tech pairs with up to two list checks each, so up to 16,928, on every opening and every tab click of both Foreign Advisors, Diplomacy (F3) and Trade (F4), which share the class, as the DLL routes each tab click through `showForeignAdvisorScreen` and so `interfaceScreen`; not once per game, load or instance.
+  - The pairs grow with the square of the tech count; with the mods installed locally on 2026-11-23: BtS, base AdvCiv and SAS 92 x 92 = 8,464, Middle-earth 88 x 88 = 7,744, BASE 6.4 159 x 159 = 25,281, Realism Invictus 203 x 203 = 41,209 and Caveman2Cosmos 943 x 943 = 889,249.
+  - It offers `RequiredPrereqs`, `OptionalPrereqs`, `RequiredLeadsTo` and `OptionalLeadsTo`; a search of the installed Python of vanilla, Warlords, BtS, K-Mod, base AdvCiv and SAS on 2026-11-23 found them called nowhere but in `TechTree.py` itself.
+- Where: [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) imported it and built `self.objTechTree = TechTree.TechTree()` in `interfaceScreen`, and nothing read `objTechTree`.
+  - The Foreign Advisor's Techs tab, `drawTechDeals`, never used it.
+- Origin: BtS's own `CvExoticForeignAdvisor.py` already built it and never read it. No layer had a use for it; each took the whole file and changed other parts, so the unread line rode along. From the `commit_diffs` corpus:
+  - Better BTS AI's r381 (2008-08-07) added its copy of the file, line included, and r529 (2010-03-01) removed that copy again.
+  - K-Mod's initial asset commit `593c549b51` took the whole file, and base AdvCiv kept it.
+  - SAS practical 5578 (`bbbd9fea2c`) merged `CvExoticForeignAdvisor.py` into `CvForeignAdvisor.py`, carrying the import and the construction over.
+  - Both files first appear in BtS: vanilla and Warlords ship neither `TechTree.py` nor `CvExoticForeignAdvisor.py`, as their installed folders showed on 2026-11-23.
+  - Why BtS left it is not recorded.
+- How it was found (2026-11-23): the base-game files audit ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)) listed `TechTree` as the one base-game module SAS loaded without carrying it, and CI's `NOT_CARRIED` table already said nothing reads the object; asked what it is, Claude Code Opus 5.5 read the module and found it rebuilt on each opening and tab click, and Codex (GPT-6.2-Sol) confirmed no reader in SAS's tree.
+- Fixed: the import and the construction are disabled in place, kept as comments with this KI, rather than deleted, at the user's request, so the lines stay grep-able and come back by uncommenting; `TechTree` left `NOT_CARRIED`, and the audit records the decision. The time saved was not measured.
+- Related:
+  - The same idea in C++: [KI#1108](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108), `ReproTest.cpp`'s implementation, compiled in default builds though disabled, now gated behind `ENABLE_REPRO_TEST`.
+  - The opposite case: [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165)'s family is broken dormant Python that never runs, fixed so it would work; this is working Python that ran for nothing.

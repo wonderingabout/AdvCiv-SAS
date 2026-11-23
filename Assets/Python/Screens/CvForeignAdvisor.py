@@ -36,7 +36,8 @@ import IconGrid_BUG
 
 import DomPyHelpers
 from PyHelpers import PyPlayer as EspionagePyPlayer
-import TechTree
+# <!-- custom: Disabled with its only use below: BtS's TechTree graph, unread even in BtS's own CvExoticForeignAdvisor.py. See KI#1108.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+#import TechTree
 import AttitudeUtil
 import BugCore
 import BugDll
@@ -560,7 +561,9 @@ class CvForeignAdvisor:
 		self.WILLING_VASSAL_ICON = smallSymbol(FontSymbols.SILVER_STAR_CHAR) # using a crown/strength symbol for vassalization
 		self.VASSAL_ICON = smallSymbol(FontSymbols.STRENGTH_CHAR)  # or use a different symbol
 
-		self.objTechTree = TechTree.TechTree()
+		# <!-- custom: Disabled: this rebuilt BtS's TechTree graph on every opening and tab click of both Foreign Advisors, 92 x 92 = 8,464 tech pairs as of now, growing with the square of the tech count, and nothing read self.objTechTree.
+		# Kept as a disabled reference, untested while disabled. See KI#1108.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		#self.objTechTree = TechTree.TechTree()
 
 		if (iScreen < 0):
 			if (self.iScreen < 0):

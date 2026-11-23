@@ -367,9 +367,9 @@ def inherited_imports(tsv_rows):
 
 # <!-- custom: Base-game Python modules SAS's code imports without carrying a copy, each with why it may stay in the base game; any other one fails, as SAS keeps the base-game modules it uses (KI#1104), and an entry nothing imports any more fails too.
 # The user asked that the rule be enforced, not only written (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
+# <!-- custom: techtree left this table when CvForeignAdvisor.py disabled its unused TechTree construction and import (2026-11-23). See KI#1108.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 NOT_CARRIED = {
-	"techtree": "CvForeignAdvisor.py constructs it and nothing then reads the stored object",
-	"cvpediamain": "CvScreensInterface.py imports it only when BUG's Sevopedia option is off, to show the old Civilopedia; whether SAS carries that fallback is undecided",
+	"cvpediamain": "CvScreensInterface.py imports it only when BUG's Sevopedia option is off, to show the old Civilopedia, an unsupported fallback SAS leaves in the base game on purpose (2026-11-23)",
 	"cvpediahistory": "imported beside CvPediaMain for the same fallback",
 }
 
