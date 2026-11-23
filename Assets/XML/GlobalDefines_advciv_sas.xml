@@ -898,6 +898,18 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_MAIN_UI_HELP_AREA_WIDTH_ADJ</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
+	<!-- custom: Plot hover: 1 names a lake tile's kind after its terrain, such as "Coast (Lake)"; 0 restores the display inherited from vanilla through base AdvCiv, "Coast" with a separate "Fresh Water Lake" line; restart Civ4 after a change.
+	Listed before SAS_MAIN_UI_FRESH_WATER_SRC_ON in the order their lines show in the hover: the terrain line, then Fresh Water. See KI#1106. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	<Define>
+		<DefineName>SAS_MAIN_UI_WATER_TYPE_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Plot hover: 1 names where a land plot's fresh water comes from, such as "Fresh Water (River, Lake)", counting only tiles the player has revealed; 0 keeps the inherited plain "Fresh Water"; restart Civ4 after a change.
+	Ships at 1 (the user, 2026-11-23): fresh water is yes or no, so a second source changes nothing, but without the list a player is left wondering what kind of fresh water a plot has, and a river also carries trade and river yields; 0 suits a player who finds it distracting, as rivers and lakes show on the map. See KI#1106. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	<Define>
+		<DefineName>SAS_MAIN_UI_FRESH_WATER_SRC_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: shift the map-view unit bar horizontally (resolution-scaled pixels). Positive = right, negative = left. (Claude code Opus 4.7). (Base AdvCiv value: 0) -->
 	<Define>
 		<DefineName>SAS_MAIN_UI_PLOT_LIST_X_OFFSET</DefineName>

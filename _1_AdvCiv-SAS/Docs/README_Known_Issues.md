@@ -1299,7 +1299,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1102 - (Open, a Steam client bug outside the mod's code) A closed Civ4 sometimes never finishes exiting, as Steam's steamclient.dll waits forever while unloading, so Steam still sees the game running and the shortcut starts nothing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)\
 [KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103)\
 [KI#1104 - (AdvCiv-SAS design rule) SAS keeps its own copy of every base-game Python file it uses, changed or not, as it took in CvTechSplashScreen.py, CIV4ProcessInfo.xml and CIV4WorldPickerInfos.xml when first needed: SASPilot's WorldBuilder work found the WorldBuilder screen running from BtS's copy, outside the repository](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)\
-[KI#1105 - (Fixed inherited vanilla, Debug Mode only) The Map Details table showed a continent's 576 tiles under "Area" and its 5 starting plots under "Size": its header row had one extra column](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)
+[KI#1105 - (Fixed inherited vanilla, Debug Mode only) The Map Details table showed a continent's 576 tiles under "Area" and its 5 starting plots under "Size": its header row had one extra column](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)\
+[KI#1106 - (Clarified inherited vanilla) The plot hover called a lake tile "Coast", then wrote "Fresh Water Lake" where a land plot's fresh water goes, and never said where a land plot's "Fresh Water" came from](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1106)
 
 <a id="ki-1"></a>
 
@@ -38896,3 +38897,28 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 Found by Claude Code Opus 5.5 with Codex (GPT-6.2-Sol) while bringing the base-game Python files SAS uses into the repository (2026-11-22); fixed by Claude Code Opus 5.5 with Codex's review (GPT-6.2-Sol) (2026-11-23).
 
 See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080).
+
+<a id="ki-1106"></a>
+
+## KI#1106 - (Clarified inherited vanilla) The plot hover called a lake tile "Coast", then wrote "Fresh Water Lake" where a land plot's fresh water goes, and never said where a land plot's "Fresh Water" came from
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1_rYueGPHiszmztHEo7CDI1rsv5cSFInj?usp=sharing).
+
+- What was misleading (the user, 2026-11-23, `Civ4ScreenShot0478`, `Civ4ScreenShot0479`):
+  - A lake tile read "Coast", the sea shore's word: a lake is a small enclosed water area (`CvArea::isLake`), whatever its terrain, and its tiles are usually Coast; its kind came only a line later, "Fresh Water Lake".
+  - That line sat where a land plot's "Fresh Water" goes, so a line describing what the tile is read like the fresh water that land gets, which decides irrigation and a city's health.
+  - A land plot said only "Fresh Water", which could be a river on the plot, an adjacent lake or an adjacent Oasis; a river also carries trade and gives river yields, unlike the others, so the source mattered, as the river Stone Quarry of [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11) showed.
+- Origin: vanilla Civ4's `CvGameTextMgr::setPlotHelp` already printed "Fresh Water" for a land plot and "Fresh Water Lake" for a lake tile, at the same place in the hover, never both on one tile, as water is never fresh water there and land is never a lake; Warlords, BtS, Better BTS AI, K-Mod and base AdvCiv kept both lines.
+- Clarified (2026-11-23):
+  - A lake tile names its kind after its terrain, such as "Coast (Lake)", and the separate "Fresh Water Lake" line is dropped, as it described the plot, not the fresh water a land plot gets.
+  - A land plot reads "Fresh Water (River)", "Fresh Water (Lake)" or a list such as "Fresh Water (River, Lake, Oasis)", naming each source `CvPlot::isFreshWater` counts once: a river on the plot, an adjacent lake, and an adjacent feature whose XML adds fresh water, under its own name, so a modmod's feature shows too. Several sources do not stack, as fresh water is yes or no.
+    - Only sources on tiles the active team has revealed are named, including tiles explored earlier: an adjacent lake or Oasis on an unrevealed tile is left out, Debug Mode aware, while "Fresh Water" itself shows as before. Codex's review (GPT-6.2-Sol) found that the first draft named them anyway, which would have disclosed unexplored tiles.
+  - "River" and "Lake" are new SAS text keys, `TXT_KEY_PLOT_SAS_RIVER` and `TXT_KEY_PLOT_SAS_LAKE`.
+  - Each part can be turned off on its own by setting its define to 0 in `GlobalDefines_advciv_sas.xml` and restarting Civ4, restoring the display inherited from vanilla through base AdvCiv: `SAS_MAIN_UI_WATER_TYPE_ON` for the lake label, with the old "Fresh Water Lake" line, and `SAS_MAIN_UI_FRESH_WATER_SRC_ON` for the sources. Two switches rather than one, so a player can keep either (the user).
+    - Both ship on (the user, 2026-11-23): fresh water is yes or no, so a second source changes nothing, but without the list a player is left wondering what kind of fresh water a plot has, and a river also carries trade and river yields. Turning the sources off was weighed, as rivers and lakes show on the map; the define keeps that choice for a player who finds the list distracting.
+  - A possible extension would be an icon for each source, which would make the line quicker to scan (the user).
+- Checked in game with a Debug-opt build on the user's turn-100 save of a Huge Pangaea: the lake by Carthage, (62,44), read "Coast (Lake)" with no second line; (61,44), (61,43) and (63,44) beside it read "Fresh Water (Lake)"; (68,35) and (61,48) read "Fresh Water (River)".
+  - On the user's turn-0 save of a Huge Water map, with the final build: (37,6) and (37,7), a river beside a lake, read "Fresh Water (River, Lake)", and that lake, (38,7), "Coast (Lake)"; with both switches at 0 they read plain "Fresh Water" and "Coast" plus "Fresh Water Lake", the inherited display.
+  - Not seen in game: an Oasis, as no save's Oases were located, and the revealed-only rule, as Debug Mode reveals every tile; both go through the same code as the cases above.
+
+Asked for by the user, who found the lake tile's "Coast" misleading; implemented by Claude Code Opus 5.5 with Codex's (GPT-6.2-Sol) review (2026-11-23).

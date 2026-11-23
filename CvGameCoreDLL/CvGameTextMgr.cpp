@@ -3023,6 +3023,9 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
 
 	TeamTypes const eActiveTeam = getActiveTeam();
 	PlayerTypes const eActivePlayer = getActivePlayer();
+	// <!-- custom: The lake label and the fresh water sources can each be turned off, restoring the display inherited from vanilla through base AdvCiv. See KI#1106. (Claude code Opus 5.5) -->
+	static const bool bSAS_MAIN_UI_WATER_TYPE_ON = GC.getDefineBOOL("SAS_MAIN_UI_WATER_TYPE_ON");
+	static const bool bSAS_MAIN_UI_FRESH_WATER_SRC_ON = GC.getDefineBOOL("SAS_MAIN_UI_FRESH_WATER_SRC_ON");
 	CvWString szTempBuffer;
 	// <advc.187>
 	if (kPlot.isActiveVisible(false))
@@ -3179,6 +3182,13 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
 			}
 
 			szString.append(GC.getInfo(kPlot.getTerrainType()).getDescription());
+			// <!-- custom: A lake is a small enclosed water area, whatever its terrain, so name its kind beside the terrain, such as "Coast (Lake)"; SAS_MAIN_UI_WATER_TYPE_ON=0 restores the inherited display. See KI#1106. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			if (bSAS_MAIN_UI_WATER_TYPE_ON && kPlot.isLake())
+			{
+				szString.append(L" (");
+				szString.append(gDLL->getText("TXT_KEY_PLOT_SAS_LAKE"));
+				szString.append(L")");
+			}
 
 			if (kPlot.isWater())
 				szString.append(ENDCOLR);
@@ -3251,6 +3261,34 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
 	{
 		szString.append(NEWLINE);
 		szString.append(gDLL->getText("TXT_KEY_PLOT_FRESH_WATER"));
+		// <!-- custom: Name each source isFreshWater counts, once: a river on the plot, an adjacent lake, an adjacent feature adding fresh water under its XML name; SAS_MAIN_UI_FRESH_WATER_SRC_ON=0 restores plain "Fresh Water". See KI#1106. (Claude code Opus 5.5) -->
+		// <!-- custom: Only neighbors the active team has revealed are named, Debug Mode aware, as a named lake or Oasis would otherwise disclose an unexplored tile; "Fresh Water" itself stays (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if (bSAS_MAIN_UI_FRESH_WATER_SRC_ON)
+		{
+			std::vector<FeatureTypes> aeFreshFeatures;
+			bool bLake = false;
+			FOR_EACH_ADJ_PLOT(kPlot)
+			{
+				if (!pAdj->isRevealed(eActiveTeam, true))
+					continue;
+				if (pAdj->isLake())
+					bLake = true;
+				if (pAdj->isFeature() && GC.getInfo(pAdj->getFeatureType()).isAddsFreshWater() &&
+					std::find(aeFreshFeatures.begin(), aeFreshFeatures.end(), pAdj->getFeatureType()) == aeFreshFeatures.end())
+				{
+					aeFreshFeatures.push_back(pAdj->getFeatureType());
+				}
+			}
+			CvWString szSources;
+			if (kPlot.isRiver())
+				szSources += gDLL->getText("TXT_KEY_PLOT_SAS_RIVER");
+			if (bLake)
+				szSources += (szSources.empty() ? L"" : L", ") + gDLL->getText("TXT_KEY_PLOT_SAS_LAKE");
+			for (size_t i = 0; i < aeFreshFeatures.size(); i++)
+				szSources += (szSources.empty() ? CvWString() : CvWString(L", ")) + GC.getInfo(aeFreshFeatures[i]).getDescription();
+			if (!szSources.empty())
+				szString.append(L" (" + szSources + L")");
+		}
 		// <advc.059>
 		if(pHeadSelectedUnit != NULL &&
 			pHeadSelectedUnit->isFound() && pHeadSelectedUnit->at(kPlot))
@@ -3262,7 +3300,8 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
 		} // </advc.059>
 	}
 
-	if (kPlot.isLake())
+	// <!-- custom: Shown only with SAS_MAIN_UI_WATER_TYPE_ON=0: "Coast (Lake)" on the terrain line says it, and this line read like a land plot's fresh water. See KI#1106. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if (!bSAS_MAIN_UI_WATER_TYPE_ON && kPlot.isLake())
 	{
 		szString.append(NEWLINE);
 		szString.append(gDLL->getText("TXT_KEY_PLOT_FRESH_WATER_LAKE"));

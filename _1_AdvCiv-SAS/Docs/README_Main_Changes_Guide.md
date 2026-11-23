@@ -3304,6 +3304,12 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai).
   - *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`.
   - Treat them as general information, not guarantees.
+- (Requires AdvCiv-SAS 6846+) The **plot hover** names a **lake** as a lake and says where a plot's **fresh water** comes from, in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp):
+  - Why it was misleading: a lake tile read "Coast", then "Fresh Water Lake" on the line a land plot's fresh water uses, though that line described the tile, not its terrain; and land said only "Fresh Water", so whether a river ran there, which also carries trade and river yields, meant tediously looking at the map.
+  - Two settings in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml), each read when Civ4 starts, so restart it after a change. See [KI#1106](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1106).
+    - `SAS_MAIN_UI_WATER_TYPE_ON`, on by default: a lake tile names its kind after its terrain, such as "Coast (Lake)". At 0 it reads "Coast" with the old "Fresh Water Lake" line, as in base AdvCiv, BtS and vanilla.
+    - `SAS_MAIN_UI_FRESH_WATER_SRC_ON`, on by default: land reads "Fresh Water (River)", "Fresh Water (Lake)" or a list such as "Fresh Water (River, Lake, Oasis)", naming only sources on tiles you have revealed. At 0 it reads plain "Fresh Water", as before.
+    - Why the sources ship on: fresh water is yes or no, so a second source changes nothing, but without the list you are left wondering what kind of fresh water a plot has, and a river also carries trade and river yields. Turn it off if you find it distracting, as rivers and lakes show on the map.
 
 ## General changes
 

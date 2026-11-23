@@ -4474,6 +4474,15 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_FLAT</Tag>
 		<English>Flat</English>
 	</TEXT>
+	<!-- custom: The plot hover's "Coast (Lake)" and fresh water sources, such as "Fresh Water (River, Lake)". See KI#1106. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PLOT_SAS_RIVER</Tag>
+		<English>River</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PLOT_SAS_LAKE</Tag>
+		<English>Lake</English>
+	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_RIVER</Tag>
 		<English>River</English>
