@@ -2484,7 +2484,8 @@ class CvMilitaryAdvisor:
 
 		iNumLeaders = len(listLeaders)
 		# <!-- custom: choose the largest 8-pixel leader-button size that makes the entire current roster fit inside the leader panel.
-		# Square/narrow map aspect ratios can make W_LEADERS much smaller than on ordinary wide maps, so a single fixed overflow size could still exceed H_LEADERS with SAS48; normal layouts keep the preferred 64-pixel size. (ChatGPT-5.6-Sol) -->
+		# Square/narrow map aspect ratios can make W_LEADERS much smaller than on ordinary wide maps, so a single fixed overflow size could still exceed H_LEADERS with SAS48; normal layouts keep the preferred 64-pixel size.
+		# Base AdvCiv's leader buttons spilled a third row below their panel with 48 civilizations. See KI#134.4. (ChatGPT-5.6-Sol + Claude code Opus 5.5) -->
 		iButtonSize = self.LEADER_BUTTON_SIZE
 		while iButtonSize > self.LEADER_BUTTON_SIZE_STEP:
 			iColumns = max(1, int(self.W_LEADERS / (iButtonSize + self.LEADER_MARGIN)))

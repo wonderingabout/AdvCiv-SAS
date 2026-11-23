@@ -52,7 +52,8 @@ class CvDebugInfoScreen(CvGFCScreen.CvGFCScreen):
 		self.nWidgetCount = 0
 
 		self.szDebugInfoPulldownID = "DebugInfoScreenSelectType"
-		# <!-- custom: Column paging of the table; see drawPageArrows. See KI#1105.2. (Claude code Opus 5.5) -->
+		# <!-- custom: Column paging of the table; see drawPageArrows.
+		# Map Details needs it even on Huge, the civilization tabs only with more players than a page holds, such as 48. See KI#1105.2 and KI#134.7. (Claude code Opus 5.5) -->
 		self.iPage = 0
 		self.iNumPages = 1
 		self.szPageLeftID = ""
@@ -471,7 +472,7 @@ class CvDebugInfoScreen(CvGFCScreen.CvGFCScreen):
 					screen.setTableText(szTableName, iCol, i, u"%s" %rowData[j], "", WidgetTypes.WIDGET_GENERAL,-1,-1, CvUtil.FONT_LEFT_JUSTIFY)
 		self.drawPageArrows(screen)
 
-	# <!-- custom: The page arrows and "Page 2 / 3" in the bottom bar, only when the columns did not fit; numbered widgets, so deleteAllWidgets removes them with the table on each redraw, and handleInput matches them as the Glance tab does. See KI#1105.2. (Claude code Opus 5.5) -->
+	# <!-- custom: The page arrows and "Page 2 / 3" in the bottom bar, only when the columns did not fit; numbered widgets, so deleteAllWidgets removes them with the table on each redraw, and handleInput matches them as the Glance tab does. See KI#1105.2 and KI#134.7. (Claude code Opus 5.5) -->
 	def drawPageArrows(self, screen):
 		self.szPageLeftID = ""
 		self.szPageRightID = ""

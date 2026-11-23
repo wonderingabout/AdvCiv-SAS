@@ -77,7 +77,9 @@ Alongside this observability, other changes move towards "hands-free" play and t
 - AI Auto Play omits unnecessary no-decision notices, including the "it's your turn" popup after the active player dies, so runs can continue unattended. Its default requested duration can also follow game speed (e.g., 501 turns at Normal, 1001 at Marathon).
 - SASFastSave makes save info clearer, especially at a glance, avoids identical filename handling issues, and preserves games you might otherwise forget to save permanently; at game start or when autoplay stops, for example.
   - For example, `ALEXANDER_T0000_HUGE_CUSTOM_CONTINENTS_NORMAL_41500016_41500016_20260909T171232Z_START` identifies the starting save, while `ALEXANDER_T0459_HUGE_CUSTOM_CONTINENTS_SPACE_ZARA_YAQOB_NORMAL_41500016_41500016_20260910T184208Z` identifies the outcome.
-- Scoreboard scrolling and a height limit support long player lists, such as SAS48 games, so it no longer overflows vertically beyond the top of the screen.
+- Base AdvCiv's screens were laid out for at most 18 players, its DLL's limit, with 16 on Huge, while SAS's world sizes beyond Huge reach 48, as in a SAS48 game.
+  - SAS adjusts several screens to such high player counts, such as the Glance tab's and the Debug Info screen's pages, the Espionage tab's compact rows, the Info graph's legend and the Military Advisor's leader buttons; see [UI (High player counts)](/README.md#ui-high-player-counts).
+- In particular, scoreboard scrolling and a height limit support long player lists, such as SAS48 games, so it no longer overflows vertically beyond the top of the screen.
 - On top of this (no pun or yes but anyway), scoreboard autocenter (default as of now ON) automatically keeps the active player in view, so that the new scoreboard scroll feature (up/down with +/- buttons as of now when Scoreboard is full) does not require a manual/tedious user intervention every while or if desired.
 - The Dawn of Man screen, still on by default, can now optionally be turned off, so a new or loaded game opens straight on the map, saving a click each time you start or load a game, for example before autoplaying by hand.
 - The Greatest Civilizations screen can likewise be turned off, so the game goes on without waiting for a click, while its rankings stay on the Timeline either way.
@@ -193,6 +195,7 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;[Diplomacy Screen](/README.md#diplomacy-screen)\
 &emsp;[Miscellaneous screens](/README.md#miscellaneous-screens)\
 &emsp;[Debug Mode screens](/README.md#debug-mode-screens)\
+&emsp;[UI (High player counts)](/README.md#ui-high-player-counts)\
 &emsp;[Main Interface rework](/README.md#main-interface-rework)\
 &emsp;&emsp;[City Screen rework](/README.md#city-screen-rework)\
 &emsp;&emsp;[Map view rework (e.g., Scoreboard Toggle and Scroll buttons, Map Annotations Toggle button)](/README.md#map-view-rework-eg-scoreboard-toggle-and-scroll-buttons-map-annotations-toggle-button)\
@@ -572,14 +575,12 @@ For example moving the espionage screen to now being a tab of the foreign adviso
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.512_policy_advisor%20(3).JPG" alt="1.512_policy_advisor (3).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(1)_hover.JPG" alt="1.513_foreign_advisor (1)_hover.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(2).JPG" alt="1.513_foreign_advisor (2).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(2)_sas48.JPG" alt="1.513_foreign_advisor (2)_sas48.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(3).JPG" alt="1.513_foreign_advisor (3).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.514_foreign_advisor%20(1).JPG" alt="1.514_foreign_advisor (1).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.514_foreign_advisor%20(2)_hover.JPG" alt="1.514_foreign_advisor (2)_hover.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.514_foreign_advisor%20(3).JPG" alt="1.514_foreign_advisor (3).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.514_foreign_advisor%20(4).JPG" alt="1.514_foreign_advisor (4).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(4).JPG" alt="1.513_foreign_advisor (4).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(4)_sas48.JPG" alt="1.513_foreign_advisor (4)_sas48.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(2)_individual.JPG" alt="1.515_military_advisor (2)_individual.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(2)_selected_dots.JPG" alt="1.515_military_advisor (2)_selected_dots.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(1).JPG" alt="1.518_info_screen (1).JPG" width="250"></img>
@@ -656,7 +657,7 @@ The screens Debug Mode opens (`chipotle` cheat code, then `Ctrl + Z`), which bas
 
 - The **Debug Info screen** (`Shift + F2`, [CvDebugInfoScreen.py](/Assets/Python/Screens/CvDebugInfoScreen.py)):
   - It adjusts to the resolution and uses most of the screen, as the advisors do as of now, instead of vanilla's fixed 1024 x 768.
-  - It pages its columns when they do not fit, where it used to cut them off, such as Map Details' bonuses or most civilizations in a SAS48 game ([KI#1105.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2)); its Map Details headers line up with their values again ([KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)).
+  - It pages its columns when they do not fit, where it used to cut them off, such as Map Details' bonuses or most civilizations in a SAS48 game ([KI#1105.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2), [KI#134.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.7)); its Map Details headers line up with their values again ([KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)).
 - The **GameFont Display screen**, listing every game font glyph (`Ctrl + Shift + F1`, [GameFontDisplay.py](/Assets/Python/Contrib/GameFontDisplay.py)):
   - It shows the game font's glyphs again, after an empty table in base AdvCiv too ([KI#1107](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107)).
   - It fills the screen, with one glyph column per font size 1 to 4, each naming the SAS font types that use it, instead of a vague "Small" and "Big".
@@ -670,6 +671,29 @@ The screens Debug Mode opens (`chipotle` cheat code, then `Ctrl + Z`), which bas
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.987_game_font_display%20(3).JPG" alt="1.987_game_font_display (3).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.987_game_font_display%20(4).JPG" alt="1.987_game_font_display (4).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.987_game_font_display%20(5).JPG" alt="1.987_game_font_display (5).JPG" width="250"></img>
+
+### UI (High player counts)
+
+Base AdvCiv's screens were laid out for at most 18 players, its DLL's limit, with 16 on Huge. With the [SAS24 to SAS48 world sizes](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena) beyond Huge, a game can have up to 48 players, as in a SAS48 game, and several screens overflowed; so can any size with a 48-civilization DLL, such as base AdvCiv's from f1rpo's [`48civs` branch](https://github.com/f1rpo/AdvCiv/tree/48civs), even Huge, or a modmod's.
+
+The adjustments below followed those world sizes, as the screens did not cleanly support so many players.
+
+As of now, SAS adjusts them to many players:
+
+- The **scoreboard** scrolls instead of running up past the top bar.
+- The Foreign Advisor's **Glance** tab pages its players, and its **Espionage** tab's compact rows fit more of them on screen.
+- The **Info graph**'s legend, which also ran up over its dropdowns, and the **Military Advisor**'s leader buttons shrink to fit.
+- The Debug Mode **Debug Info screen** pages its civilization tabs.
+- Still crowded: the Foreign Advisor's **Relations** tab overlaps at 48, though less than in base AdvCiv, and so does the UN screen shown after a diplomatic victory.
+
+See [UI (High player counts)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-high-player-counts) in the Main Changes Guide, and [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) to [KI#134.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.8) for each screen beside base AdvCiv.
+
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(2)_sas48_page1.JPG" alt="1.513_foreign_advisor (2)_sas48_page1.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(4)_sas48.JPG" alt="1.513_foreign_advisor (4)_sas48.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(1)_sas48.JPG" alt="1.513_foreign_advisor (1)_sas48.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(1)_sas48.JPG" alt="1.518_info_screen (1)_sas48.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(2)_sas48.JPG" alt="1.515_military_advisor (2)_sas48.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(1)_sas48.JPG" alt="1.986_debug_info_screen (1)_sas48.JPG" width="250"></img>
 
 ### Main Interface rework
 
@@ -1215,6 +1239,8 @@ Technical limitation when a leaderhead is used several times, only the era of on
 AdvCiv-SAS ships one `Assets/CvGameCoreDLL.dll`, compiled for up to 48 civilization players so the larger SAS24/SAS32/SAS40/SAS48 world sizes work without swapping DLL variants. The former prebuilt 18-civ DLL is no longer shipped; modders who want a different `MAX_CIV_PLAYERS` limit can compile one from source.
 
 Because changing the player-slot layout can break save compatibility, keep the same DLL build for an existing game.
+
+Adding these sizes, with up to 48 players, needed UI adjustments, as base AdvCiv's screens were laid out for at most 18; see [UI (High player counts)](/README.md#ui-high-player-counts).
 
 These new World Sizes are based on the XXL World mod's world sizes and are tuned around their listed default player counts.
 

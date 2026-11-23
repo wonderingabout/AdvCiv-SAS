@@ -82,6 +82,7 @@ Note: The main changes guide serves as an index that covers concisely most AdvCi
 &emsp;[UI (Common)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-common)\
 &emsp;[UI (Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-sevopedia)\
 &emsp;[UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game)\
+&emsp;[UI (High player counts)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-high-player-counts)\
 [General changes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#general-changes)\
 [Game Speeds](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#game-speeds)\
 [World Size/Scaling](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#world-sizescaling)\
@@ -1409,6 +1410,7 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_L
 ### 48 Civs DLL
 
 - **48 Civs DLL** is the **default and only bundled DLL**, supporting the larger SAS24/SAS32/SAS40/SAS48 world sizes and their higher default player counts. (Requires AdvCiv-SAS 6590+) One maintained DLL avoids switching builds during testing or playing; games with fewer civilizations are still supported.
+  - The screens that adjust to its many players are listed in [UI (High player counts)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-high-player-counts).
 - Add a **notification at game start** (once per session) when the active DLL's **maximum civilization count** is lower than the selected world size's **default player count**.
   - (Requires AdvCiv-SAS 6590+) For example, a user compiling a custom 18-civ DLL and selecting SAS48 would receive a warning that the map may never be fully populated, with advice to use or compile a DLL with sufficient capacity and start a new game.
   - The check uses the active DLL's actual capacity and the current world-size XML values.
@@ -3103,10 +3105,11 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - Fixes **issue of Glance Tab clipping horizontally** if more than 24 players are known and columns being too tight.
   - Last page visited is **remembered and resumed from** on Glance Tab next opening.
   - Diagonal player-vs-itself cells are now left empty instead of showing incorrect/inconsistent `+0` attitude display; see [KI#140](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-140).
-  - See also [KI#134](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134).
+  - See also [KI#134](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134), and [UI (High player counts)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-high-player-counts) for the other screens adjusted for many players.
 - **Foreign Advisor (Espionage Tab)**: **Beautified** similarly; notably **removed redundant Espionage slider** now that commerce sliders are on the right side of main interface in map view, and **improved text spacing** that **was colliding or overflowing** beyond its panel, and **moved + - buttons under the leader icon** where there is more room and it is more intuitive and easier to click it.
   - (Requires AdvCiv-SAS 6830+) **Beautified** the **passive effects and missions** with an icon each, so the list scans by what each does rather than by reading every name: a game-font character such as research for stealing a tech, unhealthy for poisoning water, culture for spreading it, a silver star for influencing civics or a sword for sabotage, read from the mission's effects rather than its name, so a modmod's mission gets one too.
   - Removed redundant and distracting `Weight:`, espionage char icon, and `Cost` text (add a **Legend** link explaining the row fields), and added a new **compact mode** with tunable met rivals cap (0 effectively means always use it) so large player counts (e.g., in SAS48 world-size) are visible and selectable.
+    - Base AdvCiv's two-line rows crowded each weight and "per Turn" into the next row with 48 civilizations; see [KI#134.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.5) and [UI (High player counts)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-high-player-counts).
 - Reworked the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now with Unit Combat and Units **icons**.
   - (Requires AdvCiv-SAS 6830+) In the Map tab, a **Ctrl+click** on a unit, unit type or unit combat row opens its **Sevopedia** page, and a **right click** on a leader button opens the leader's, while a plain click still selects them on the minimap.
     - The list rows are text with inline icons, which have no link of their own; a right click on a list row reaches neither the DLL nor the screen, while a Ctrl+click arrives as the row's click, so `CvDLLWidgetData::executeAction` opens the page then.
@@ -3173,6 +3176,7 @@ Make some of the data-dense advisors use using a **higher constrast background t
     - WorldBuilder names remain withheld. (Requires AdvCiv-SAS 6684+) Script edits retain the applied text by default in the existing target field, without a save-layout change; `SAS_WORLD_CHANGES_SCRIPT_TEXT_ON=0` records a withheld marker instead. Earlier withheld entries stay withheld; this is script data, not a script filename.
 - Did a similar rework of the **Info Screen** in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons (plus **change default ordering** from alphabetical to **from most to least Built** (avoids tedious manual user ordering each time)), and the **Graph** Tab and possibly other tabs also show buttons (e.g., **leader icons before text**, **emojis**).
   - Also added other information (e.g., turn numbers in the Graph Tab).
+  - The **Graph** tab's legend fits every player below the dropdowns, where base AdvCiv's legend of 48 ran up over them, as its scoreboard ran up past the top bar; see [KI#134.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.3) and [UI (High player counts)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-high-player-counts).
   - (Requires AdvCiv-SAS 6830+) The **Graph** tab's legend leaders show a **leader hover** naming the leader, traits, player name and civilization (the scoreboard's named the player, so the human's read its chosen name), and a **Ctrl+click** opens their Sevopedia page; the plain click still toggles their graph line, which a plain Sevopedia link would have opened the Sevopedia on too, hence a new native widget, `WIDGET_HELP_LEADER_HEAD`; a right click on text reaches neither the DLL nor the screen.
   - (Requires AdvCiv-SAS 6830+) The graphs have **gridlines**: vertical ones at round turn numbers, labelled `T50`, `T100` and so on with the year below, and horizontal ones at round values, labelled with them, or at powers of 10 with the log scale. Without them a line's height read the same whether the top was 500 or 6,000, and a turn between the date labels had to be guessed.
     - The x lines fall on turns rather than years: the axis is linear in turns, while the years per turn change with the era, so round years would be unevenly spaced.
@@ -3285,6 +3289,7 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - This helps discuss screenshots, review, or compare directly with BBAI logs and DLL diagnostics.
 - **Main Interface ((Map View) Scoreboard)**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+** (up, fast up) and **-** (down, fast down) **scroll buttons** (e.g., 1 by 1, 5 by 5) to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max).
   - Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow.
+  - With 48 civilizations, base AdvCiv's scoreboard runs up over the turn counter; see [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2), and [UI (High player counts)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-high-player-counts) for the other screens adjusted for many players.
   - Add a **Center scoreboard scroll on the active player** button, and a **Toggle autocenter scoreboard scroll on the active player** button (so that it auto does it without having to tediously redo it regularly; note: if the scroll up/down buttons are clicked, it disables autocenter to apply manual scrolling (can be reenabled by reclicking the toggle autocenter button again)) (default state at Civ4 launch as of now optionally ON); thus contributing to the "hands-free" usability enhancements.
   - Add a **Toggle lock scoreboard hover button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover), with an **optional default value** (as of now ON, to avoid always tediously clicking it the first time). This contributes to "hands-free" inspection by keeping that information visible without holding the pointer over the scoreboard.
   - Note: in first turns of the game the lock button effectively has no effect since power ratios are not yet visible.
@@ -3314,12 +3319,35 @@ Make some of the data-dense advisors use using a **higher constrast background t
     - Why the sources ship on: fresh water is yes or no, so a second source changes nothing, but without the list you are left wondering what kind of fresh water a plot has, and a river also carries trade and river yields. Turn it off if you find it distracting, as rivers and lakes show on the map.
 - (Requires AdvCiv-SAS 6847+) The Debug Mode **Debug Info screen** (`Shift + F2`), [CvDebugInfoScreen.py](/Assets/Python/Screens/CvDebugInfoScreen.py), is beautified: it adjusts to the resolution and uses most of the screen, as the advisors do as of now, instead of vanilla's fixed 1024 x 768.
   - When its columns do not all fit, it pages them with arrows in the bottom bar, as the Foreign Advisor's Glance tab does; it used to cut off every column past its table's right edge, such as Map Details' bonuses after about the 8th or most civilizations in a SAS48 game. See [KI#1105.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2).
+    - Its per-civilization tabs need the pages only with more players than a page holds, such as 48; see [KI#134.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.7) and [UI (High player counts)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-high-player-counts).
   - Its Map Details headers line up with their values since [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105).
   - The Sevopedia's Cheats shortcuts page lists the Debug Mode keys it lacked: `Shift + F1` to `F4` (the Replay, Debug Info, Dan Quayle and UN Victory screens), `Ctrl + Shift + F1` (the GameFont Display screen) and `Shift + [` and `]` (the hovered unit's damage), as of now, as base AdvCiv's `advc.007b` block in [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py) binds them.
 - (Requires AdvCiv-SAS 6848+) The Debug Mode **GameFont Display screen** (`Ctrl + Shift + F1`), [GameFontDisplay.py](/Assets/Python/Contrib/GameFontDisplay.py), lists every game font glyph again.
   - It showed an empty table, in base AdvCiv 1.14 too, as its row count assumed symbol codes near 8193 while the game starts them at 450. See [KI#1107](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107) and [KI#1107.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107.2).
   - It is enhanced too: it fills the screen with larger cells, and one glyph column per font size 1 to 4 replaces a vague "Small" and "Big"; then each glyph's button and XML type, its text in the shared font scale.
     - Each size's header names the SAS font types set to it, read from the `SAS_UI_FONT_*` defines; with the shipped values, as of now, they read "1 (Tiny)", "2 (Body)", "3 (Label, Hover)" and "4 (Title)", so the screen shows which glyphs each kind of SAS text draws.
+
+### UI (High player counts)
+
+Base AdvCiv's screens were laid out for at most 18 players, its DLL's limit, with 16 on its largest map, Huge.
+
+With the [48 Civs DLL](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#48-civs-dll) and the SAS24 to SAS48 world sizes beyond Huge, a game can have up to 48 players, as SAS48's default does, and several screens overflowed; so can any size, even Huge, with base AdvCiv's 48-civilization DLL from f1rpo's [`48civs` branch](https://github.com/f1rpo/AdvCiv/tree/48civs) or in a modmod.
+
+[KI#134](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134) and [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) to [KI#134.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.8), one per screen, show each one in base AdvCiv beside SAS48.
+
+As of now, these screens adjust to many players:
+
+- **Scoreboard**: stops above the commerce sliders and scrolls, instead of running up past the top bar, with +/- and fast buttons, centering on the active player and an autocenter toggle ([KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2)).
+- **Foreign Advisor, Glance tab**: pages its players, a tunable number per page, `SAS_FOREIGN_UI_GLANCE_MAX_PLAYERS_PER_PAGE` ([KI#134](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134)).
+- **Foreign Advisor, Espionage tab**: switches to compact one-line rows above a tunable number of met rivals, `SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH`, fitting more of them on screen, so a large game scrolls less ([KI#134.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.5)).
+- **Info screen, Graph tab**: shrinks the legend's rows so every player fits below the dropdowns ([KI#134.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.3)).
+- **Military Advisor, Map tab**: sizes the leader buttons so the whole roster fits its panel ([KI#134.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.4)).
+- **Debug Info screen** (Debug Mode): pages its per-civilization tabs once the players outnumber a page's columns ([KI#134.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.7)).
+
+Still crowded as of now:
+
+- **Foreign Advisor, Relations tab**: its larger web overlaps less than base AdvCiv's, but the portraits and attitude labels still overlap at 48 ([KI#134.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.6)).
+- **UN screen**, shown after a diplomatic victory: unchanged from the base game, its ring of leaders covers its own portraits and names ([KI#134.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.8)).
 
 ## General changes
 
@@ -3363,6 +3391,7 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - They are [modified versions of the XXL World mod](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena)'s largest maps.
   - (Requires AdvCiv-SAS 6590+) The shipped `Assets/CvGameCoreDLL.dll` supports up to 48 civilization players; the former prebuilt 18-civ alternative is no longer shipped, while modders can still compile a different `MAX_CIV_PLAYERS` limit from source.
   - Also a new `Arena` World Size **smaller than Tiny**.
+  - Their higher player counts led several screens to adjust to many players; see [UI (High player counts)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-high-player-counts).
   - See full World Sizes details in the **new Sevopedia W. Sizes category**.
 - **Research — sea level**: `iResearchPercent = 100` for High / Medium / Low (**was** `117 / 100 / 87`). Sea level no longer alters research pace.
 - **Research — world size**: `iResearchPercent` rescaled from `95 / 98 / 102 / 115 / 137 / 150` to `85 / 90 / 95 / 100 / 105 / 110` (so **Standard = 100**).

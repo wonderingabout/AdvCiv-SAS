@@ -712,7 +712,7 @@ class CvMainInterface:
 		self.iSAS_COMMERCE_SLIDERS_BG_BUTTON_POS = None
 		self.iSAS_MAIN_UI_GG_BAR_CLICK_TAB = None
 		# <!-- custom: scoreboard scroll offset; 0 = show bottom of list (highest-ranked), increases to show lower-ranked players.
-		# Reset when the scoreboard is rebuilt. (Claude code Sonnet 4.6) -->
+		# Reset when the scoreboard is rebuilt. See KI#134.2. (Claude code Sonnet 4.6 + Claude code Opus 5.5) -->
 		self.iScoreScrollOffset = 0
 		self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ON = None
 		# <!-- custom: always-expand scoreboard toggle; when True, expanded columns shown without hovering.
@@ -720,7 +720,7 @@ class CvMainInterface:
 		self.bScoreAlwaysExpand = None
 		self.iSAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON = None
 		# <!-- custom: scoreboard scroll autocenter toggle; when True, redraws keep the scroll slice centered on the active player.
-		# Manual scroll buttons turn it off so deliberate strongest/weakest watching is preserved. (ChatGPT-5.5) -->
+		# Manual scroll buttons turn it off so deliberate strongest/weakest watching is preserved. See KI#134.2. (ChatGPT-5.5 + Claude code Opus 5.5) -->
 		self.bScoreScrollAutocenterActivePlayer = None
 		# <!-- custom: The name width cap of the last draw beside an open advisor; see updateScoreStrings. (Claude code Opus 5.5) -->
 		self.iScoreNameMaxW = None
@@ -2040,7 +2040,8 @@ class CvMainInterface:
 		self.addStackedBar("NationalityBar", WidgetTypes.WIDGET_HELP_NATIONALITY)
 		screen.hide("NationalityBar")
 
-		# <!-- custom: score scroll buttons; shown only when player count exceeds available scoreboard rows. (Claude code Sonnet 4.6) -->
+		# <!-- custom: score scroll buttons; shown only when player count exceeds available scoreboard rows.
+		# Base AdvCiv's scoreboard had no row limit, so with 48 civilizations it ran up past the top bar and over the turn counter. See KI#134.2. (Claude code Sonnet 4.6 + Claude code Opus 5.5) -->
 		self.setStyledButton("ScoreScrollUp", ButtonStyles.BUTTON_STYLE_CITY_PLUS, WIDGET_SCORE_SCROLL_UP, -1, -1)
 		screen.hide("ScoreScrollUp")
 		self.setStyledButton("ScoreScrollDown", ButtonStyles.BUTTON_STYLE_CITY_MINUS, WIDGET_SCORE_SCROLL_DOWN, -1, -1)
@@ -6504,7 +6505,7 @@ class CvMainInterface:
 		iCount = 0
 		iBtnHeight = VLEN(22)
 		# <advc.092> The Scoreboard module will use this too
-		# <!-- custom: compute available scoreboard height and cap visible rows; show scroll buttons when player count exceeds capacity. (Claude code Sonnet 4.6) -->
+		# <!-- custom: compute available scoreboard height and cap visible rows; show scroll buttons when player count exceeds capacity. See KI#134.2. (Claude code Sonnet 4.6 + Claude code Opus 5.5) -->
 		# <!-- custom: buttons sit just above GlobeToggle; iScoreBottom is panel text-bottom = buttons_y - gap - iSidePad, so panel is exactly symmetric (9px each side) matching original. (Claude code Sonnet 4.6) -->
 		iSScrollBtnSz = gRect("ScoreScrollUp").width()
 		iSScrollY = gRect("GlobeToggle").y() - iSScrollBtnSz  # buttons flush above GlobeToggle
@@ -7461,7 +7462,7 @@ class CvMainInterface:
 					SASGameRecordActions.logScoreboardChange(SASGameRecordActions.SCROLL_DOWN, sasBefore, self.iScoreScrollOffset, self.iScoreBgStyleLevel, self.bScoreAlwaysExpand, self.bScoreScrollAutocenterActivePlayer)
 					return 1
 				# <!-- custom: fast scoreboard scroll keeps the useful medium jump but drops the too-niche fastest tier.
-				# Manual scroll disables autocenter before redraw; updateScoreStrings clamps overshoot to [0, total - rows]. (Claude code Opus 4.7 + ChatGPT-5.5 + GPT-5.5) -->
+				# Manual scroll disables autocenter before redraw; updateScoreStrings clamps overshoot to [0, total - rows]. See KI#134.2. (Claude code Opus 4.7 + ChatGPT-5.5 + GPT-5.5 + Claude code Opus 5.5) -->
 				elif fn == "ScoreScrollUpFast":
 					SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_SCOREBOARD, SASGameRecordActions.SCROLL_UP_FAST)
 					sasBefore = SASGameRecordActions.captureScoreboardState(self.iScoreScrollOffset, self.iScoreBgStyleLevel, self.bScoreAlwaysExpand, self.bScoreScrollAutocenterActivePlayer)
@@ -7487,7 +7488,7 @@ class CvMainInterface:
 					SASGameRecordActions.logScoreboardChange(SASGameRecordActions.CENTER_ACTIVE_PLAYER, sasBefore, self.iScoreScrollOffset, self.iScoreBgStyleLevel, self.bScoreAlwaysExpand, self.bScoreScrollAutocenterActivePlayer)
 					return 1
 				# <!-- custom: persistent scoreboard scroll autocenter toggle.
-				# When turned on, center immediately and keep centering on later score redraws until a manual scroll button turns it off. (ChatGPT-5.5) -->
+				# When turned on, center immediately and keep centering on later score redraws until a manual scroll button turns it off. See KI#134.2. (ChatGPT-5.5 + Claude code Opus 5.5) -->
 				elif fn == "ScoreScrollAutocenterActivePlayerToggle":
 					SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_SCOREBOARD, SASGameRecordActions.AUTOCENTER_TOGGLE)
 					sasBefore = SASGameRecordActions.captureScoreboardState(self.iScoreScrollOffset, self.iScoreBgStyleLevel, self.bScoreAlwaysExpand, self.bScoreScrollAutocenterActivePlayer)

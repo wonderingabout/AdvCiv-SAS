@@ -109,6 +109,8 @@ class CvUnVictoryScreen:
 				leaderMap[iPlayer] = iCount
 				iCount = iCount + 1
 		fLeaderTop = self.Y_LEADER_CIRCLE_TOP
+		# <!-- custom: The ring keeps the base game's fixed 1024 x 768 panel and radius, so with 48 civilizations its portraits and names cover one another as of now; the game shows it after a diplomatic victory, and Debug Mode's Shift + F4 opens it too.
+		# This comment first said only Debug Mode opens it, from the Shift + F4 key alone; CvGame.cpp's diplomatic-victory popup, found later the same day, showed otherwise. See KI#134.8. (Claude code Opus 5.5) -->
 		fRadius = self.RADIUS_LEADER_ARC
 		fLeaderArcTop = fLeaderTop
 		

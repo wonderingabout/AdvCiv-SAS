@@ -124,7 +124,7 @@ class CvForeignAdvisor:
 		self.GLANCE_BUTTON_SIZE = 46
 		self.PLUS_MINUS_SIZE = 25
 		self.bGlancePlus = True
-		# <!-- custom: add glance tab column pagination because with 24+ players the column icons overflow the screen width while vertical scrolling still works fine; we use arrow navigation rather than switching to a table widget, which would lose the per-cell widget type interactions (attitude popups, war-trade clicks). See KI#134. (Claude Code Sonnet 4.6+ Claude code Opus 4.7) -->
+		# <!-- custom: add glance tab column pagination because with 24+ players the column icons overflow the screen width while vertical scrolling still works fine; we use arrow navigation rather than switching to a table widget, which would lose the per-cell widget type interactions (attitude popups, war-trade clicks). See KI#134 and, for the other screens with 48 civilizations, KI#134.2 to KI#134.8. (Claude Code Sonnet 4.6+ Claude code Opus 4.7 + Claude code Opus 5.5) -->
 		self.iGlancePage = 0
 		self.iGlanceNumPages = 1
 		self.ltGlanceColumns = []
@@ -866,7 +866,8 @@ class CvForeignAdvisor:
 			self.ESP_iActiveCityID = -1
 			self.ESP_iSelectedMission = -1
 		self.drawEspionageContents()
-		# <!-- custom: compact Espionage rows remove repeated labels/icons to keep SAS48 controls readable, so keep a quiet Sevopedia legend link for the field meanings. (GPT-5.5-Thinking + GPT-5.5?) -->
+		# <!-- custom: compact Espionage rows remove repeated labels/icons to keep SAS48 controls readable, so keep a quiet Sevopedia legend link for the field meanings.
+		# Base AdvCiv's two-line rows crowded each weight and "per Turn" into the next row with 48 civilizations. See KI#134.5. (GPT-5.5-Thinking + GPT-5.5? + Claude code Opus 5.5) -->
 		placeAdvisorLegendLink(self, "CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
 		self.refreshEspionageScreen()
 
@@ -973,6 +974,7 @@ class CvForeignAdvisor:
 		# This sets radius to roughly 75% of screen height. Adjust 0.75 as needed.
 		# fRadius = (self.H_SCREEN * 0.75) - self.H_LEADER
 		fRadius = (self.H_SCREEN * 64) / 100
+		# <!-- custom: The larger radius spreads 48 civilizations more than base AdvCiv's half-ring did, but their portraits and attitude labels still overlap as of now. See KI#134.6. (Claude code Opus 5.5) -->
 
 		fLeaderArcTop = fLeaderTop + self.H_LEADER + 10
 		if iCount < 8:

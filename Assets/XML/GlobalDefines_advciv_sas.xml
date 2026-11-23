@@ -318,7 +318,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 	<!-- custom: scoreboard fast-scroll step.
-	The normal + / - buttons move one row; the fast + / - buttons move this many rows per click, with offset clamped to the first/last valid slice. (Claude code Opus 4.7 + ChatGPT-5.5 + GPT-5.5) -->
+	The normal + / - buttons move one row; the fast + / - buttons move this many rows per click, with offset clamped to the first/last valid slice.
+	Base AdvCiv's scoreboard had no row limit or scrolling, so with 48 civilizations it ran up over the turn counter. See KI#134.2. (Claude code Opus 4.7 + ChatGPT-5.5 + GPT-5.5 + Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_SCOREBOARD_SCROLL_FAST_INCR</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
@@ -340,7 +341,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: scoreboard scroll autocenter default state.
 	0 = keep the current scroll slice across redraws; 1 = start each new game / loaded save with autocenter enabled so overflowing scoreboards stay centered on the active player until manually toggled off.
 	Manual scroll buttons also turn autocenter off.
-	This only sets the initial state; the in-game autocenter button still toggles it normally. (ChatGPT-5.5) -->
+	This only sets the initial state; the in-game autocenter button still toggles it normally. See KI#134.2. (ChatGPT-5.5 + Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -401,7 +402,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	</Define>
 	<!-- custom: Foreign Advisor Espionage tab: switch the target-player list to compact single-line rows when met rivals are above this value.
 	A value of 17 keeps the normal two-line layout for standard 18-player games, but compacts 18+ known rivals for SAS24/SAS48-style games.
-	Set to 0 to always use compact rows. (GPT-5.5-Thinking + GPT-5.5?) -->
+	Set to 0 to always use compact rows.
+	Base AdvCiv's two-line rows crowded into each other with 48 civilizations. See KI#134.5. (GPT-5.5-Thinking + GPT-5.5? + Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH</DefineName>
 		<iDefineIntVal>17</iDefineIntVal>

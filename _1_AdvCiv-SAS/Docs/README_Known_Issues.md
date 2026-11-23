@@ -219,6 +219,13 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#132 - (Enhanced) Base AdvCiv issue of not showing rival gold-per-turn on Foreign Trade Advisor Bonuses tab when not connected to their trade network](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-132)\
 [KI#133 - (Fixed) Base AdvCiv issue of Sevopedia Index's legacy sort-key cleanup (`TXT_KEY_*` prefix-strip + `"The X"` comma-flip) scattering untranslated entries instead of clustering them (hurts diagnosis of missing translations), sorting items differently than the type-specific pedia pages and than natural alphabetical order, and incurring needless per-entry build-time cost (especially wasteful in non-English locales)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-133)\
 [KI#134 - (Fixed) Base AdvCiv issue: Foreign Diplomacy Advisor Glance tab column icons overflow horizontally with 24+ rival players](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134)\
+[KI#134.2 - (Fixed inherited AdvCiv, SAS48) With 48 civilizations the scoreboard ran up past the top bar and over the turn counter, as base AdvCiv drew every player in one column with no height limit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2)\
+[KI#134.3 - (Fixed inherited AdvCiv, SAS48) With 48 civilizations the Info screen Graph tab's legend ran up over the title, the player dropdown and the Score and Entire History dropdowns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.3)\
+[KI#134.4 - (Fixed inherited AdvCiv, SAS48) With 48 civilizations the Military Advisor's leader buttons spilled a third row below their panel, over the map's frame](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.4)\
+[KI#134.5 - (Fixed inherited AdvCiv, SAS48) With 48 civilizations the Espionage screen's two-line rows crowded each leader's weight and "per Turn" into the next row](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.5)\
+[KI#134.6 - (Improved inherited AdvCiv, SAS48) With 48 civilizations the Foreign Advisor's Relations web overlaps its leaders' portraits and attitude labels, still as of now though less than in base AdvCiv](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.6)\
+[KI#134.7 - (Fixed SAS48 enhancement, Debug Mode only) With 48 civilizations the Debug Mode screen CvDebugInfoScreen.py (Shift + F2) could show only up to 19 of the civilization columns of Team Relations and its other per-civilization tabs, even at the full-screen size that fits a Huge map's 16 on one page; it pages them, as the Glance tab does since KI#134](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.7)\
+[KI#134.8 - (Open inherited vanilla, SAS48) With 48 civilizations the UN screen, shown after a diplomatic victory, has its ring of leaders cover its own portraits and names](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.8)\
 [KI#135 - (Fixed) Likely Base AdvCiv issue: turn-status text collided with the diplomacy screen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-135)\
 [KI#136 - (Fixed SAS red-circle regression; the popup was minimized by the Minimize Pop-Ups option, not missing) Choose-production popup does not re-fire when a city finishes production; city then sits idle for many turns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136)\
 [KI#137 - (Fixed) Beyond the Game mod issue: BTG Cross reused Huge grid size for every world size of Huge and below](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-137)\
@@ -12252,6 +12259,121 @@ Fix applied:
 Files changed:
 
 - [Assets/Python/Screens/CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py)
+
+Update (2026-11-23): [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) to [KI#134.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.8) compare the other screens with 48 civilizations, base AdvCiv beside SAS48, one follow-up per screen; KI#134.2 also shows the Glance tab's three pages.
+
+<a id="ki-134.2"></a>
+
+## KI#134.2 - (Fixed inherited AdvCiv, SAS48) With 48 civilizations the scoreboard ran up past the top bar and over the turn counter, as base AdvCiv drew every player in one column with no height limit
+
+How it was found (2026-11-23): while paging the Debug Info screen for a SAS48 game ([KI#1105.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2)), the user wondered whether we had ever filed the SAS48 overflows, which were noted only in scattered places: KI#134 for the Glance tab, [KI#228](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-228) and the Main Changes Guide for the scoreboard.
+
+The user then played a 48-civilization Huge game in base AdvCiv, with the DLL built from f1rpo's [`48civs` branch](https://github.com/f1rpo/AdvCiv/tree/48civs), since SAS's screens have drifted too far to show the old layouts, and took the same screens in a SAS48 game at turn 151 (1920 x 1080). Each screen got its own follow-up, KI#134.2 to KI#134.8.
+
+- Base AdvCiv: the column runs up past the top bar, over the turn counter.
+- SAS, since AdvCiv-SAS practical 5667: the scoreboard stops above the commerce sliders, showing only the rows that fit, and scrolls through the rest.
+  - Scroll buttons, shown only when the players outnumber the rows: + and - move one row, the fast pair `SAS_SCOREBOARD_SCROLL_FAST_INCR` rows.
+  - A button centers the scroll on the active player, and an autocenter toggle keeps it centered on later redraws until a manual scroll turns it off; `SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON` sets its starting state.
+  - How it grew: practical 5667 added the row cap and the + and - buttons, and 5809 the fast pair and a third, fastest pair.
+  - Then 5968, "Scoreboard controls" ([PR#28](https://github.com/wonderingabout/AdvCiv-SAS/pull/28), 2026-06-22), dropped the fastest pair: about 29 rows show at 1080p for up to 48 players, the fast step is tunable, and a third pair was cumbersome and took room from other buttons.
+  - The same PR added the centering button and the autocenter toggle, a persistent toggle like the scoreboard's existing lock-hover one, which it made start on.
+  - [KI#228](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-228) fixed that scrolling's clash with BUG's Max Players cap.
+- Code: [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) caps the rows, keeps the scroll offset and draws the buttons, [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) slices the visible rows, and both defines sit in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml); their comments point here.
+
+Screens that fit at 48 with nothing special done for them: the Info screen's Score tab (SAS only, a scrolling table), the Replay screen, whose event list scrolls, and Your Place in History.
+The Sevopedia lists XML entries rather than players, so 48 civilizations change nothing there; only its Leaders and Civilizations arrows, which step through the met players, have more stops.
+
+The Debug Info screen (Debug Mode only, Shift + F2) needs pages for its civilization views at 48 even at full size: see [KI#134.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.7).
+
+<img src="/_0_Legacy/Images/ui_other/0.410_scoreboard_huge_48civs.JPG" alt="0.410_scoreboard_huge_48civs.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(2)_sas48.JPG" alt="1.518_info_screen (2)_sas48.JPG" width="250">
+
+The Glance tab's three pages (KI#134) and the Info tab in SAS48, for completeness:
+
+<img src="/_0_Legacy/Images/advisors/0.401_foreign_advisor_glance%20(1)_huge_48civs.JPG" alt="0.401_foreign_advisor_glance (1)_huge_48civs.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(2)_sas48_page1.JPG" alt="1.513_foreign_advisor (2)_sas48_page1.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(2)_sas48_page2.JPG" alt="1.513_foreign_advisor (2)_sas48_page2.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(2)_sas48_page3.JPG" alt="1.513_foreign_advisor (2)_sas48_page3.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(3)_sas48.JPG" alt="1.513_foreign_advisor (3)_sas48.JPG" width="250">
+
+<a id="ki-134.3"></a>
+
+## KI#134.3 - (Fixed inherited AdvCiv, SAS48) With 48 civilizations the Info screen Graph tab's legend ran up over the title, the player dropdown and the Score and Entire History dropdowns
+
+Found with [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) (2026-11-23).
+
+- Base AdvCiv: the 48 legend rows outgrow the space below the dropdowns and climb over them.
+- SAS: all 48 rows fit below the dropdowns, as [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) caps the legend's row height to fit any number of players.
+
+<img src="/_0_Legacy/Images/advisors/0.900_info_screen_graph_huge_48civs.JPG" alt="0.900_info_screen_graph_huge_48civs.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(1)_sas48.JPG" alt="1.518_info_screen (1)_sas48.JPG" width="250">
+
+<a id="ki-134.4"></a>
+
+## KI#134.4 - (Fixed inherited AdvCiv, SAS48) With 48 civilizations the Military Advisor's leader buttons spilled a third row below their panel, over the map's frame
+
+Found with [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) (2026-11-23).
+
+- Base AdvCiv: two rows of buttons fill the panel, and the last three civilizations and the Barbarians drop below it.
+- SAS: the panel holds the 48 in five rows of ten, as [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) picks the largest button size that fits the whole roster.
+
+<img src="/_0_Legacy/Images/advisors/0.500_military_advisor_huge_48civs.JPG" alt="0.500_military_advisor_huge_48civs.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(2)_sas48.JPG" alt="1.515_military_advisor (2)_sas48.JPG" width="250">
+
+<a id="ki-134.5"></a>
+
+## KI#134.5 - (Fixed inherited AdvCiv, SAS48) With 48 civilizations the Espionage screen's two-line rows crowded each leader's weight and "per Turn" into the next row
+
+Found with [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) (2026-11-23).
+
+- Base AdvCiv: the list scrolls, about 17 rows at a time, but its rows are too short for their two lines, so the text of one row runs into the next.
+- SAS: the Espionage tab's compact one-line rows fit about 28 of the 47 rivals on screen at 1080p, so a SAS48 list scrolls less, and read cleanly, with a Legend link for the fields, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py); `SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH` in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) switches them on above 17 met rivals.
+
+<img src="/_0_Legacy/Images/advisors/0.440_espionage_screen%20(2)_huge_48civs.JPG" alt="0.440_espionage_screen (2)_huge_48civs.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(4)_sas48.JPG" alt="1.513_foreign_advisor (4)_sas48.JPG" width="250">
+
+<a id="ki-134.6"></a>
+
+## KI#134.6 - (Improved inherited AdvCiv, SAS48) With 48 civilizations the Foreign Advisor's Relations web overlaps its leaders' portraits and attitude labels, still as of now though less than in base AdvCiv
+
+Found with [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) (2026-11-23).
+
+- Base AdvCiv: the known leaders sit on a half-ring in a small panel, so at 48 the portraits pile up and their names and attitudes become unreadable.
+- SAS: the larger radius of [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), 64% of the screen height, spreads them more, but the portraits and labels still overlap; the user finds the tab hard to read.
+- A possible extension would be the web-style layout the user suggested, with us at the centre, reusing the UN screen's ring.
+
+<img src="/_0_Legacy/Images/advisors/0.400_foreign_advisor_relations_huge_48civs.JPG" alt="0.400_foreign_advisor_relations_huge_48civs.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(1)_sas48.JPG" alt="1.513_foreign_advisor (1)_sas48.JPG" width="250">
+
+<a id="ki-134.7"></a>
+
+## KI#134.7 - (Fixed SAS48 enhancement, Debug Mode only) With 48 civilizations the Debug Mode screen CvDebugInfoScreen.py (Shift + F2) could show only up to 19 of the civilization columns of Team Relations and its other per-civilization tabs, even at the full-screen size that fits a Huge map's 16 on one page; it pages them, as the Glance tab does since KI#134
+
+Found with [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) (2026-11-23), while comparing screenshots of the Debug Info screen on Huge and SAS48 maps.
+
+- Base AdvCiv: vanilla's fixed 1024 x 768 screen cuts the civilization views even on a Huge map, which [KI#1105.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2) records.
+- SAS: KI#1105.2 made the screen full-size, which holds a Huge map's civilizations on one page, but not 48: at 1080p a page holds up to 19 columns.
+  - So in a SAS48 game, Team Relations, Player Attitudes and the other per-civilization tabs page with the same arrows and "Page 2 / 3" label as Map Details, three pages for 48, as the Glance tab pages its players ([KI#134](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134)).
+  - That paging came with KI#1105.2's fix in [CvDebugInfoScreen.py](/Assets/Python/Screens/CvDebugInfoScreen.py); this entry records the part a higher player count needs.
+- Map Details pages at any size, Huge included, so its paging belongs to KI#1105.2 alone.
+
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(1).JPG" alt="1.986_debug_info_screen (1).JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(1)_sas48.JPG" alt="1.986_debug_info_screen (1)_sas48.JPG" width="250">
+
+<a id="ki-134.8"></a>
+
+## KI#134.8 - (Open inherited vanilla, SAS48) With 48 civilizations the UN screen, shown after a diplomatic victory, has its ring of leaders cover its own portraits and names
+
+Found with [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) (2026-11-23).
+
+- Base AdvCiv and SAS alike: [CvUNVictoryScreen.py](/Assets/Python/Screens/CvUNVictoryScreen.py) keeps the base game's fixed 1024 x 768 panel and ring radius, so at 48 the portraits and names cover one another.
+- SAS has carried the base-game copy since [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50) without changing its layout as of now.
+- The game shows it when a United Nations or Apostolic Palace vote wins the game: `CvGame.cpp` adds the `showUnVictoryScreen` popup for a victory whose `isDiploVote()` holds, beside the victory movie's branch. It only greets the winner, with no effect on the game.
+  - Debug Mode's Shift + F4 (AdvCiv's `advc.007b` keys in `BugEventManager.py`) also opens it at any time.
+- Correction (2026-11-23): Claude Code Opus 5.5 first wrote that only Debug Mode opens this screen, as the Shift + F4 key was the only caller it had looked at. Later the same day, listing which screens the DLL opens by name, while weighing which base-game Python files to carry, found the diplomatic-victory popup in `CvGame.cpp`, so a player who wins by vote sees it too.
+
+<img src="/_0_Legacy/Images/ui_other/0.988_un_screen_huge_48civs.JPG" alt="0.988_un_screen_huge_48civs.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.988_un_screen_sas48.JPG" alt="1.988_un_screen_sas48.JPG" width="250">
 
 <a id="ki-135"></a>
 
@@ -38917,6 +39039,8 @@ See also (2026-11-22), the other issues Debug Mode reaches or causes, each with 
   - Codex's review (GPT-6.2-Sol) had the columns leave the vertical scrollbar's 14 px, after a full SAS48 page left 12 px beside it, and found that a page change resets the vertical scroll, as the Python API cannot read or set it.
 
 Found by the user, who asked to fit the screen like the other advisors and then saw its table not turning pages at SAS48 size; fixed by Claude Code Opus 5.5 with Codex's (GPT-6.2-Sol) reviews, the second of which also checked the shortcut map, the staged docs and the screenshots (2026-11-23).
+
+Update (2026-11-23): [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) to [KI#134.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.8) compare the other screens with 48 civilizations, base AdvCiv beside SAS48; KI#134.7 is this screen's civilization views, which need pages at 48 even at full size.
 
 <a id="ki-1106"></a>
 

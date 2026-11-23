@@ -2225,7 +2225,8 @@ class CvInfoScreen:
 		if iW_LEGEND > iLegendMaxW:
 			iW_LEGEND = iLegendMaxW
 		# <!-- custom: cap row height at runtime so the legend fits between dropdown controls and graph bottom with any number of players.
-		# H_LEGEND_TEXT is the preferred height; shrink only when needed. (Claude code Sonnet 4.6) -->
+		# H_LEGEND_TEXT is the preferred height; shrink only when needed.
+		# Base AdvCiv's legend of 48 civilizations ran up over the title and the dropdowns, while this one fits. See KI#134.3. (Claude code Sonnet 4.6 + Claude code Opus 5.5) -->
 		if AdvisorOpt.isGraphs():
 			iExtraRows = 4
 		else:
