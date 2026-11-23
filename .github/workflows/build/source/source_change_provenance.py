@@ -907,7 +907,7 @@ def modification_header_order_errors(path: str, old: str, new: str) -> list[str]
         # <!-- custom: Mod-component credits such as "*ActualQuotes* by Willowmound, ver.
         # 4.20" carry no "Copyright", so the SAS header had to sit before them; also accept "by <Name>, ver."
         # as an owner notice. (Claude code Opus 5.5) -->
-        return [m.start() for m in re.finditer(r"(?im)^[ \t]*(?:#[ \t]*)?(?:copyright\b|\(c\)|author\s*:|Â©|.*\bby \S+, ver\.).*$", text)
+        return [m.start() for m in re.finditer(r"(?im)^[ \t]*(?:#[ \t]*)?(?:copyright\b|\(c\)|author\s*:|©|.*\bby \S+, ver\.).*$", text)
                 if "wonderingabout" not in m.group(0).lower() and "AI/LLM helpers" not in m.group(0)]
 
     def positions(text):
