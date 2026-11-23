@@ -7,6 +7,11 @@
 ## Version 1.22
 ##
 ## Rewritten to use BugData by EmperorFool
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: Layout only: python_aligned_columns.py's sweep turned the double spaces and tab runs between this file's code tokens, mostly stray slips such as "x =  y" or one-column alignment, into one space; the code is unchanged. See KI#21.8. (Claude code Opus 5.5) -->
 
 from CvPythonExtensions import *
 import BugUtil
@@ -25,7 +30,7 @@ def sdEcho( echoString ):
 
 def sdGetTimeInt( turn ):
 	TurnTable = CyGameTextMgr().getTimeStr(turn, false).split(' ')
-	TurnInt   = int(TurnTable[0])
+	TurnInt = int(TurnTable[0])
 	if (TurnTable[1] == 'BC'):
 		TurnInt = 0 - TurnInt
 	return TurnInt

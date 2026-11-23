@@ -135,7 +135,7 @@ class UnitPlot:
 #cUplSize = 34
 #cUplSpacing = 3
 
-#				szStringPromoFrame  = szString + "PromoFrame"
+#				szStringPromoFrame = szString + "PromoFrame"
 
 #		for i in range( self.iMaxPlotListIcons ):
 #			szString = self.PLOT_LIST_BUTTON_NAME + str(i)

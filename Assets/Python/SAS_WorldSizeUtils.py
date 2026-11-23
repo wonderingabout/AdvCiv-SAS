@@ -13,16 +13,16 @@ SAS_SIMPLE_GAME_STALE_OPTION_WARNED = False
 
 def sas_default_sizevalues():
 	return {
-		WorldSizeTypes.WORLDSIZE_ARENA:  1,
-		WorldSizeTypes.WORLDSIZE_DUEL:  1,
-		WorldSizeTypes.WORLDSIZE_TINY:  1,
-		WorldSizeTypes.WORLDSIZE_SMALL:  1,
-		WorldSizeTypes.WORLDSIZE_STANDARD:  2,
-		WorldSizeTypes.WORLDSIZE_LARGE:  2,
-		WorldSizeTypes.WORLDSIZE_HUGE:  3,
-		WorldSizeTypes.WORLDSIZE_SAS24:  4,
-		WorldSizeTypes.WORLDSIZE_SAS32:  5,
-		WorldSizeTypes.WORLDSIZE_SAS40:  6,
+		WorldSizeTypes.WORLDSIZE_ARENA: 1,
+		WorldSizeTypes.WORLDSIZE_DUEL: 1,
+		WorldSizeTypes.WORLDSIZE_TINY: 1,
+		WorldSizeTypes.WORLDSIZE_SMALL: 1,
+		WorldSizeTypes.WORLDSIZE_STANDARD: 2,
+		WorldSizeTypes.WORLDSIZE_LARGE: 2,
+		WorldSizeTypes.WORLDSIZE_HUGE: 3,
+		WorldSizeTypes.WORLDSIZE_SAS24: 4,
+		WorldSizeTypes.WORLDSIZE_SAS32: 5,
+		WorldSizeTypes.WORLDSIZE_SAS40: 6,
 		WorldSizeTypes.WORLDSIZE_SAS48: 7,
 	}
 
@@ -31,13 +31,13 @@ def sas_default_sizevalues():
 # See also SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND (GPT-5.3-Codex + GPT-5.5) -->
 def sas_compact_almost_all_land_grid_sizes():
 	return {
-		WorldSizeTypes.WORLDSIZE_ARENA:  (2, 2),
-		WorldSizeTypes.WORLDSIZE_DUEL:  (3, 2),
-		WorldSizeTypes.WORLDSIZE_TINY:  (4, 3),
-		WorldSizeTypes.WORLDSIZE_SMALL:  (6, 4),
-		WorldSizeTypes.WORLDSIZE_STANDARD:  (8, 6),
-		WorldSizeTypes.WORLDSIZE_LARGE:  (11, 8),
-		WorldSizeTypes.WORLDSIZE_HUGE:  (15, 11),
+		WorldSizeTypes.WORLDSIZE_ARENA: (2, 2),
+		WorldSizeTypes.WORLDSIZE_DUEL: (3, 2),
+		WorldSizeTypes.WORLDSIZE_TINY: (4, 3),
+		WorldSizeTypes.WORLDSIZE_SMALL: (6, 4),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (8, 6),
+		WorldSizeTypes.WORLDSIZE_LARGE: (11, 8),
+		WorldSizeTypes.WORLDSIZE_HUGE: (15, 11),
 	}
 
 def sas_get_compact_almost_all_land_grid_size(eWorldSize):

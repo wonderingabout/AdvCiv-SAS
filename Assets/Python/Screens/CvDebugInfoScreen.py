@@ -32,13 +32,13 @@ class CvDebugInfoScreen(CvGFCScreen.CvGFCScreen):
 		self.setScreenValues("DebugInfoScreen", CvScreenEnums.DEBUG_INFO_SCREEN)
 		
 		self.DebugInfoMap = {
-			0 : { 'DESC':	"Team Relations", 			'DATA':	self.drawTeamRelations },
-			1 : { 'DESC':	"Player Attitudes", 		'DATA':	self.drawPlayerAttitudes },
-			2 : { 'DESC':	"Civic Info", 				'DATA':	self.drawPlayerCivics },
-			3 : { 'DESC':	"Civ Info", 				'DATA':	self.drawPlayerOverviewInfo },
-			4 : { 'DESC':	"AI Types", 				'DATA':	self.drawPlayerUnitAITypes },
-			5 : { 'DESC':	"Available Bonuses", 		'DATA':	self.drawPlayerAvailableResources },
-			6 : { 'DESC':	"Map Details",				'DATA': self.generateBonusDistributionList },
+			0 : { 'DESC': "Team Relations", 'DATA': self.drawTeamRelations },
+			1 : { 'DESC': "Player Attitudes", 'DATA': self.drawPlayerAttitudes },
+			2 : { 'DESC': "Civic Info", 'DATA': self.drawPlayerCivics },
+			3 : { 'DESC': "Civ Info", 'DATA': self.drawPlayerOverviewInfo },
+			4 : { 'DESC': "AI Types", 'DATA': self.drawPlayerUnitAITypes },
+			5 : { 'DESC': "Available Bonuses", 'DATA': self.drawPlayerAvailableResources },
+			6 : { 'DESC': "Map Details", 'DATA': self.generateBonusDistributionList },
 		}
 		self.CivInfoItems = ["Power", "Assets","Gold Reserve", "Gold Commerce", "Research Rate", "Total Maintenance", "Civic Upkeep", "Unit Cost", "Unit Supply", "# Cities", "# Units", "# Citizens", "# Plots", "Current Tech"]
 

@@ -80,6 +80,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/python_multiline_calls.py
 
+      - name: Runtime Python aligns columns with tabs and leaves one space elsewhere
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/python_aligned_columns.py
+
       - name: Python bindings point at their own enumerator or method
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/python_binding_targets.py

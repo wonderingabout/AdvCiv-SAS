@@ -5,6 +5,11 @@
 ## Copyright (c) 2007-2008 The BUG Mod.
 ##
 ## Author: EmperorFool
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: Layout only: python_aligned_columns.py's sweep turned the double spaces and tab runs between this file's code tokens, mostly stray slips such as "x =  y" or one-column alignment, into one space; the code is unchanged. See KI#21.8. (Claude code Opus 5.5) -->
 
 import BugOptionsTab
 
@@ -27,7 +32,7 @@ class BugACOOptionsTab(BugOptionsTab.BugOptionsTab):
 		self.addCheckbox(screen, left, "ACO__SwapViews")
 		#self.addSpacer(screen, left, "ACO_Tab0")
 		#self.addSpacer(screen, left, "ACO_Tab1")
-		leftL, leftR =  self.addTwoColumnLayout(screen, left, "ACO1")
+		leftL, leftR = self.addTwoColumnLayout(screen, left, "ACO1")
 		self.addTextDropdown(screen, leftL, leftR, "ACO__ShowShiftInstructions")
 		# </advc.048>
 
@@ -53,7 +58,7 @@ class BugACOOptionsTab(BugOptionsTab.BugOptionsTab):
 
 		self.addSpacer(screen, right, "ACO_Tab2")
 		self.addSpacer(screen, right, "ACO_Tab3") # advc.048: another spacer
-		rightL, rightR =  self.addTwoColumnLayout(screen, right, "ACO2")
+		rightL, rightR = self.addTwoColumnLayout(screen, right, "ACO2")
 
 		self.addTextDropdown(screen, rightL, rightR, "ACO__ShowUnroundedExperience")
 		self.addTextDropdown(screen, rightL, rightR, "ACO__ShowExperienceRange")

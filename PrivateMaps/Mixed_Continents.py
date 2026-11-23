@@ -61,13 +61,13 @@ def getNumPlotsPercent(argsList):
 	sizeModifiers = {
 		# <!-- custom: Arena was absent from this direct dictionary, causing KeyError; the shifted length guard also bypassed the stored Huge value.
 		# Use the established Duel percentage for Arena. See KI#282.3. (GPT-5.6-Sol) -->
-		WorldSizeTypes.WORLDSIZE_ARENA:		100,
-		WorldSizeTypes.WORLDSIZE_DUEL:		100,
-		WorldSizeTypes.WORLDSIZE_TINY:		98,
-		WorldSizeTypes.WORLDSIZE_SMALL:		95,
-		WorldSizeTypes.WORLDSIZE_STANDARD:	92,
-		WorldSizeTypes.WORLDSIZE_LARGE:		88,
-		WorldSizeTypes.WORLDSIZE_HUGE:		84
+		WorldSizeTypes.WORLDSIZE_ARENA: 100,
+		WorldSizeTypes.WORLDSIZE_DUEL: 100,
+		WorldSizeTypes.WORLDSIZE_TINY: 98,
+		WorldSizeTypes.WORLDSIZE_SMALL: 95,
+		WorldSizeTypes.WORLDSIZE_STANDARD: 92,
+		WorldSizeTypes.WORLDSIZE_LARGE: 88,
+		WorldSizeTypes.WORLDSIZE_HUGE: 84
 	}
 	if iWorldSize >= len(sizeModifiers):
 		return 80
@@ -87,11 +87,11 @@ def getCustomMapOptionName(argsList):
 		#1:	"TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
 		#2:	"TXT_KEY_MAP_SCRIPT_ISLAND_OVERLAP",
 		# <advc.mxc> There's no fundamental difference between the two size parameters.
-		0:	"Region 1",
-		1:	"Region 2",
-		2:	"Overlap", # </advc.mxc>
-		3:	"TXT_KEY_MAP_WORLD_WRAP", # advc.mxc
-		4:	"Terrain Clumping"
+		0: "Region 1",
+		1: "Region 2",
+		2: "Overlap", # </advc.mxc>
+		3: "TXT_KEY_MAP_WORLD_WRAP", # advc.mxc
+		4: "Terrain Clumping"
 		#,5:  "Add Water",
 		#6:	"Reduce Desert",
 		#7:	"Add Plains",
@@ -104,11 +104,11 @@ def getCustomMapOptionName(argsList):
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	5, # advc.mxc: was 3
-		1:	5,
-		2:	2,
-		3:	3, # advc.mxc: world wrap
-		4:	4
+		0: 5, # advc.mxc: was 3
+		1: 5,
+		2: 2,
+		3: 3, # advc.mxc: world wrap
+		4: 4
 		#,5:4,
 		#6:	6,
 		#7:	6
@@ -118,7 +118,7 @@ def getNumCustomMapOptionValues(argsList):
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_SCRIPT_MASSIVE_CONTINENTS",
 			1: "TXT_KEY_MAP_SCRIPT_NORMAL_CONTINENTS",
 			2: "TXT_KEY_MAP_SCRIPT_SNAKY_CONTINENTS",
@@ -126,26 +126,26 @@ def getCustomMapOptionDescAt(argsList):
 			3: "TXT_KEY_MAP_SCRIPT_ISLANDS",
 			4: "TXT_KEY_MAP_SCRIPT_TINY_ISLANDS" # </advc.mxc>
 			},
-		1:	{ # advc.mxc: Use (BtS) TXT_KEYs instead of English-only string literals
+		1: { # advc.mxc: Use (BtS) TXT_KEYs instead of English-only string literals
 			0: "TXT_KEY_MAP_SCRIPT_MASSIVE_CONTINENTS",
 			1: "TXT_KEY_MAP_SCRIPT_NORMAL_CONTINENTS",
 			2: "TXT_KEY_MAP_SCRIPT_SNAKY_CONTINENTS",
 			3: "TXT_KEY_MAP_SCRIPT_ISLANDS",
 			4: "TXT_KEY_MAP_SCRIPT_TINY_ISLANDS"
 			},
-		2:	{
+		2: {
 			#0: "TXT_KEY_MAP_SCRIPT_ISLAND_REGION_SEPARATE",
 			#1: "TXT_KEY_MAP_SCRIPT_ISLANDS_MIXED_IN"
 			0: "Separate regions",
 			1: "Regions mixed together"
 			},
 		# <advc.mxc>
-		3:	{
+		3: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 			}, # </advc.mxc>
-		4:	{
+		4: {
 			0: "Very Clumped",
 			1: "Clumped",
 			2: "Normal",
@@ -183,11 +183,11 @@ def getCustomMapOptionDescAt(argsList):
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	1,
-		1:	2, # advc.mxc: was 3 (islands), now snaky
-		2:	1, # advc.mxc: was 2 (separate regions), now mixed
-		3:	1, # advc.mxc: cylinder
-		4:	2
+		0: 1,
+		1: 2, # advc.mxc: was 3 (islands), now snaky
+		2: 1, # advc.mxc: was 2 (separate regions), now mixed
+		3: 1, # advc.mxc: cylinder
+		4: 2
 		#,5:0,
 		#6:	0,
 		#7:	0

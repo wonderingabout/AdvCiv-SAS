@@ -802,7 +802,7 @@ class SevoPediaBuilding:
 		# Check if the building grants a free building
 		iFreeBuildingClass = buildingInfo.getFreeBuildingClass()
 		if iFreeBuildingClass != -1:
-			iDefaultBuilding =  self.get_iDefaultBuilding_current_civ(iFreeBuildingClass)
+			iDefaultBuilding = self.get_iDefaultBuilding_current_civ(iFreeBuildingClass)
 
 			# If a valid building exists, display its button
 			if iDefaultBuilding != -1:

@@ -298,8 +298,14 @@ def parse_block(lines, start, suffix):
     return {"end": min(j, len(lines) - 1), "skip": "unterminated custom comment"}
 
 
+# <!-- custom: Whitespace runs collapse to one space outside quotes only: a comment quoting spacing, such as KI#21.8's "x =  y" slip or the map scripts' "#   FILE:    Wheel.py" notices, lost the very spaces it showed when the reflow first ran over python_aligned_columns.py (2026-11-23). (Claude code Opus 5.5) -->
+def collapse_outside_quotes(text):
+    pieces = re.split(r"(\"[^\"\n]*\"|`[^`\n]*`)", text)
+    return "".join(piece if index % 2 else re.sub(r"[ \t]+", " ", piece) for index, piece in enumerate(pieces))
+
+
 def join_physical_parts(parts):
-    cleaned = [re.sub(r"[ \t]+", " ", part.strip()) for part in parts]
+    cleaned = [collapse_outside_quotes(part.strip()) for part in parts]
     if not cleaned:
         return None, "empty"
     out = cleaned[0]

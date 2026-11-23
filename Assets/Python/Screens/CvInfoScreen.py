@@ -106,21 +106,21 @@ class CvInfoScreen:
 		self.PAGE_LINK_WIDTH = [] # game text is not available at the time this function is called, so we can't calculate the widths yet.
 		# K-Mod end
 
-		self.graphEnd		= CyGame().getGameTurn() - 1
-		self.graphZoom		= self.graphEnd - CyGame().getStartTurn()
-		self.nWidgetCount	= 0
-		self.nLineCount		= 0
+		self.graphEnd = CyGame().getGameTurn() - 1
+		self.graphZoom = self.graphEnd - CyGame().getStartTurn()
+		self.nWidgetCount = 0
+		self.nLineCount = 0
 
 		# This is used to allow the wonders screen to refresh without redrawing everything
 		self.iNumWondersPermanentWidgets = 0
 
 		# <!-- custom: Score Tab ID insertion; all later tab IDs shift by +1. (GPT-5.3-Codex) -->
-		self.iGraphID			= 0
-		self.iScoreID			= 1
-		self.iTimelineID		= 2
-		self.iDemographicsID	= 3
-		self.iTopCitiesID		= 4
-		self.iStatsID			= 5
+		self.iGraphID = 0
+		self.iScoreID = 1
+		self.iTimelineID = 2
+		self.iDemographicsID = 3
+		self.iTopCitiesID = 4
+		self.iStatsID = 5
 
 		# <!-- custom: move screen-independent Info Screen layout constants to init; updateRuntimeLayout now focuses on runtime-dependent geometry. (GPT-5.3-Codex) -->
 		# <!-- custom: X/Y margins are screen-independent constants set in init. (GPT-5.3-Codex) -->
@@ -236,17 +236,17 @@ class CvInfoScreen:
 		self.iGraph_Smoothing_7in1 = -1
 		self.iGraph_Smoothing_3in1 = -1
 
-		self.TOTAL_SCORE	= 0
-		self.ECONOMY_SCORE	= 1
-		self.INDUSTRY_SCORE	= 2
-		self.AGRICULTURE_SCORE	= 3
-		self.POWER_SCORE	= 4
-		self.CULTURE_SCORE	= 5
-		self.ESPIONAGE_SCORE	= 6
-		self.NUM_SCORES		= 7
-		self.RANGE_SCORES	= range(self.NUM_SCORES)
+		self.TOTAL_SCORE = 0
+		self.ECONOMY_SCORE = 1
+		self.INDUSTRY_SCORE = 2
+		self.AGRICULTURE_SCORE = 3
+		self.POWER_SCORE = 4
+		self.CULTURE_SCORE = 5
+		self.ESPIONAGE_SCORE = 6
+		self.NUM_SCORES = 7
+		self.RANGE_SCORES = range(self.NUM_SCORES)
 
-		self.scoreCache	= []
+		self.scoreCache = []
 		for t in self.RANGE_SCORES:
 			self.scoreCache.append(None)
 
@@ -303,7 +303,7 @@ class CvInfoScreen:
 		self.EXIT_TEXT = SASTextScale.sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE
 
 		self.TEXT_THOUSANDS_SEPARATOR_COMMA = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR_COMMA", ())
-		self.TEXT_SHOW_ALL_PLAYERS =  localText.getText("TXT_KEY_SHOW_ALL_PLAYERS", ())
+		self.TEXT_SHOW_ALL_PLAYERS = localText.getText("TXT_KEY_SHOW_ALL_PLAYERS", ())
 		self.TEXT_SHOW_ALL_PLAYERS_GRAY = localText.getColorText("TXT_KEY_SHOW_ALL_PLAYERS", (), SASVisuals.Color.PLAYER_GRAY).upper()
 
 		self.TEXT_ENTIRE_TIMELINE = localText.getText("TXT_KEY_SAS_INFO_ENTIRE_TIMELINE", ())
@@ -357,10 +357,10 @@ class CvInfoScreen:
 		# <!-- custom: move these up from drawTextChart as we don't need to compute them every time if i'm not mistaken, and simplified into one variable (old code deleted). -->
 		# New: Append icons, and use different text keys for economy, industry, agriculture.
 		# Add measure after a colon (and commented out below)
-		self.szEconomyTitle =  localText.getText("TXT_KEY_DEMOGRAPHICS_ECONOMY_TEXT", ()) + (u" (%s+%s)" % (SASVisuals.Commerce.GOLD_CHAR, SASVisuals.Commerce.RESEARCH_CHAR)) + ": " + self.TEXT_ECONOMY_MEASURE
-		self.szIndustryTitle =  localText.getText("TXT_KEY_DEMOGRAPHICS_INDUSTRY_TEXT", ()) + (u" (%s)" % SASVisuals.Yield.PRODUCTION_CHAR) + ": " + self.TEXT_INDUSTRY_MEASURE
+		self.szEconomyTitle = localText.getText("TXT_KEY_DEMOGRAPHICS_ECONOMY_TEXT", ()) + (u" (%s+%s)" % (SASVisuals.Commerce.GOLD_CHAR, SASVisuals.Commerce.RESEARCH_CHAR)) + ": " + self.TEXT_ECONOMY_MEASURE
+		self.szIndustryTitle = localText.getText("TXT_KEY_DEMOGRAPHICS_INDUSTRY_TEXT", ()) + (u" (%s)" % SASVisuals.Yield.PRODUCTION_CHAR) + ": " + self.TEXT_INDUSTRY_MEASURE
 		self.szAgricultureTitle = localText.getText("TXT_KEY_DEMOGRAPHICS_AGRICULTURE_TEXT", ()) + (u" (%s)" % SASVisuals.Yield.FOOD_CHAR) + ": " + self.TEXT_AGRICULTURE_MEASURE
-		self.szMilitaryTitle =  self.TEXT_MILITARY + (u" (%s)" % SASVisuals.Font.STRENGTH_CHAR)
+		self.szMilitaryTitle = self.TEXT_MILITARY + (u" (%s)" % SASVisuals.Font.STRENGTH_CHAR)
 		self.szHappinessTitle = self.TEXT_HAPPINESS + (u" (%s)" % SASVisuals.Font.HAPPY_CHAR)
 		self.szHealthTitle = self.TEXT_HEALTH + (u" (%s)" % SASVisuals.Font.HEALTHY_CHAR) + ": " + self.TEXT_HEALTH_MEASURE
 		self.szExpTitle = self.TEXT_EXP + (u" (%s)" % SASVisuals.Font.TRADE_CHAR) + ": " + self.TEXT_EXP_MEASURE
@@ -477,7 +477,7 @@ class CvInfoScreen:
 		self.iShowingPlayer = -1
 
 		for t in self.RANGE_SCORES:
-			self.scoreCache[t]	= None
+			self.scoreCache[t] = None
 
 	def resetWonders(self):
 
@@ -816,8 +816,8 @@ class CvInfoScreen:
 		self.iNumPermanentWidgets = self.nWidgetCount
 
 		# Reset variables
-		self.graphEnd	= CyGame().getGameTurn() - 1
-		self.graphZoom	= self.graphEnd - CyGame().getStartTurn()
+		self.graphEnd = CyGame().getGameTurn() - 1
+		self.graphZoom = self.graphEnd - CyGame().getStartTurn()
 
 #		self.iActiveTab = iTabID
 		# <!-- custom: The Info key passes 0 and opens the tab last shown, as before; a positive ID opens that tab, as the scoreboard's power ratio asks for the Score tab (CvDLLWidgetData's WIDGET_POWER_RATIO). (Claude code Opus 5.5) -->
@@ -1752,7 +1752,7 @@ class CvInfoScreen:
 			last += 50
 
 		if AdvisorOpt.isGraphs():
-			screen.setText(self.sGraph1in1, "", "1/1", CvUtil.FONT_CENTER_JUSTIFY, 22,  90, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setText(self.sGraph1in1, "", "1/1", CvUtil.FONT_CENTER_JUSTIFY, 22, 90, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 			screen.setText(self.sGraph3in1, "", "3/1", CvUtil.FONT_CENTER_JUSTIFY, 22, 110, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 			screen.setText(self.sGraph7in1, "", "7/1", CvUtil.FONT_CENTER_JUSTIFY, 22, 130, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 			screen.setLabel(self.getNextWidgetName(), "", self.BUG_GRAPH_HELP, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_EXIT - 40, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
@@ -1813,9 +1813,9 @@ class CvInfoScreen:
 				self.scoreCache[scoreType].append(None)
 			else:
 				self.scoreCache[scoreType].append([])
-				firstTurn	= CyGame().getStartTurn()
-				thisTurn	= CyGame().getGameTurn()
-				turn	= firstTurn
+				firstTurn = CyGame().getStartTurn()
+				thisTurn = CyGame().getGameTurn()
+				turn = firstTurn
 				# advc.091:
 				bHideBeginning = (scoreType == self.TOTAL_SCORE and not self.pActivePlayer.hasEverSeenDemographics(p) and p in self.aiPlayersMetNAEspionage)
 				while (turn <= thisTurn):
@@ -2051,7 +2051,7 @@ class CvInfoScreen:
 
 		# Draw x-labels
 		self.drawXLabel(screen, firstTurn, iX_LEFT_LABEL, CvUtil.FONT_LEFT_JUSTIFY)
-		self.drawXLabel(screen, lastTurn,  self.X_RIGHT_LABEL, CvUtil.FONT_RIGHT_JUSTIFY)
+		self.drawXLabel(screen, lastTurn, self.X_RIGHT_LABEL, CvUtil.FONT_RIGHT_JUSTIFY)
 
 		# Don't draw anything the first turn
 		if (firstTurn >= lastTurn):
@@ -2665,28 +2665,28 @@ class CvInfoScreen:
 		bShowBest = (not self.bShowBestKnown or self.bRevealAll or iKnownRivalDemogr > 0)
 		if bShowBest:
 			# Removed 'i' prefix from variables b/c they're pairs now
-			economyGameBest	= self.getBest(aiGroupEconomy)
-			industryGameBest	= self.getBest(aiGroupIndustry)
-			agricultureGameBest	= self.getBest(aiGroupAgriculture)
-			militaryGameBest	= self.getBest(aiGroupMilitary)
-			landAreaGameBest	= self.getBest(aiGroupLandArea)
-			populationGameBest	= self.getBest(aiGroupPopulation)
-			happinessGameBest	= self.getBest(aiGroupHappiness)
-			healthGameBest		= self.getBest(aiGroupHealth)
-			netTradeGameBest	= self.getBest(aiGroupNetTrade)
+			economyGameBest = self.getBest(aiGroupEconomy)
+			industryGameBest = self.getBest(aiGroupIndustry)
+			agricultureGameBest = self.getBest(aiGroupAgriculture)
+			militaryGameBest = self.getBest(aiGroupMilitary)
+			landAreaGameBest = self.getBest(aiGroupLandArea)
+			populationGameBest = self.getBest(aiGroupPopulation)
+			happinessGameBest = self.getBest(aiGroupHappiness)
+			healthGameBest = self.getBest(aiGroupHealth)
+			netTradeGameBest = self.getBest(aiGroupNetTrade)
 		#else: # Will show the column header in any case
 		#	iColumns -= 1
 		bShowWorst = (((not self.bShowBestKnown or self.bRevealAll) and iActiveRivals > 1) or iKnownRivalDemogr > 1)
 		if bShowWorst:
-			economyGameWorst	= self.getWorst(aiGroupEconomy)
-			industryGameWorst	= self.getWorst(aiGroupIndustry)
-			agricultureGameWorst	= self.getWorst(aiGroupAgriculture)
-			militaryGameWorst	= self.getWorst(aiGroupMilitary)
-			landAreaGameWorst	= self.getWorst(aiGroupLandArea)
-			populationGameWorst	= self.getWorst(aiGroupPopulation)
-			happinessGameWorst	= self.getWorst(aiGroupHappiness)
-			healthGameWorst	= self.getWorst(aiGroupHealth)
-			netTradeGameWorst	= self.getWorst(aiGroupNetTrade)
+			economyGameWorst = self.getWorst(aiGroupEconomy)
+			industryGameWorst = self.getWorst(aiGroupIndustry)
+			agricultureGameWorst = self.getWorst(aiGroupAgriculture)
+			militaryGameWorst = self.getWorst(aiGroupMilitary)
+			landAreaGameWorst = self.getWorst(aiGroupLandArea)
+			populationGameWorst = self.getWorst(aiGroupPopulation)
+			happinessGameWorst = self.getWorst(aiGroupHappiness)
+			healthGameWorst = self.getWorst(aiGroupHealth)
+			netTradeGameWorst = self.getWorst(aiGroupNetTrade)
 		else:
 			iColumns -= 1
 		bShowAvg = (iActiveRivals > 3)
@@ -3199,9 +3199,9 @@ class CvInfoScreen:
 
 			sDesc = SASTextScale.sasFontTagTitle + sDesc + SASTextScale.SAS_FONT_TAG_CLOSE
 
-			screen.setImageButton(self.BUGWorldWonderWidget, sWW,  self.X_WONDERS_DROPDOWN +  0, self.Y_WONDERS_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_WORLD_WONDERS, -1, -1)
-			screen.setImageButton(self.BUGNatWonderWidget, sNW,  self.X_WONDERS_DROPDOWN + 30, self.Y_WONDERS_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_NATIONAL_WONDERS, -1, -1)
-			screen.setImageButton(self.BUGProjectWidget, sPj,  self.X_WONDERS_DROPDOWN + 60, self.Y_WONDERS_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_PROJECTS, -1, -1)
+			screen.setImageButton(self.BUGWorldWonderWidget, sWW, self.X_WONDERS_DROPDOWN + 0, self.Y_WONDERS_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_WORLD_WONDERS, -1, -1)
+			screen.setImageButton(self.BUGNatWonderWidget, sNW, self.X_WONDERS_DROPDOWN + 30, self.Y_WONDERS_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_NATIONAL_WONDERS, -1, -1)
+			screen.setImageButton(self.BUGProjectWidget, sPj, self.X_WONDERS_DROPDOWN + 60, self.Y_WONDERS_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_PROJECTS, -1, -1)
 
 			screen.setLabel(self.getNextWidgetName(), "Background", sDesc, CvUtil.FONT_LEFT_JUSTIFY, self.X_WONDERS_DROPDOWN + 100, self.Y_WONDERS_DROPDOWN + 3, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		else:
@@ -3258,7 +3258,7 @@ class CvInfoScreen:
 				szWonderCity = ""
 				self.aszWonderCity.append(szWonderCity)
 
-				SASTextScale.appendListBoxStringLabel(screen,  self.szWondersListBox, szProjectName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+				SASTextScale.appendListBoxStringLabel(screen, self.szWondersListBox, szProjectName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 			for iWonderLoop in range(self.iNumWonders):
 
@@ -3273,7 +3273,7 @@ class CvInfoScreen:
 				szWonderCity = self.aaWondersBuilt[iWonderLoop][3]
 				self.aszWonderCity.append(szWonderCity)
 
-				SASTextScale.appendListBoxStringLabel(screen,  self.szWondersListBox, szProjectName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+				SASTextScale.appendListBoxStringLabel(screen, self.szWondersListBox, szProjectName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		else:
 
@@ -3292,7 +3292,7 @@ class CvInfoScreen:
 				szWonderCity = ""
 				self.aszWonderCity.append(szWonderCity)
 
-				SASTextScale.appendListBoxStringLabel(screen,  self.szWondersListBox, szWonderName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+				SASTextScale.appendListBoxStringLabel(screen, self.szWondersListBox, szWonderName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 			for iWonderLoop in range(self.iNumWonders):
 
@@ -3307,7 +3307,7 @@ class CvInfoScreen:
 				szWonderCity = self.aaWondersBuilt[iWonderLoop][3]
 				self.aszWonderCity.append(szWonderCity)
 
-				SASTextScale.appendListBoxStringLabel(screen,  self.szWondersListBox, szWonderName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+				SASTextScale.appendListBoxStringLabel(screen, self.szWondersListBox, szWonderName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 	def drawWondersList(self):
 
@@ -3410,7 +3410,7 @@ class CvInfoScreen:
 				splitText = szSpecialText.split("\n")
 				for special in splitText:
 					if len( special ) != 0:
-						SASTextScale.appendListBoxStringLabel(screen,  listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+						SASTextScale.appendListBoxStringLabel(screen, listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 			else:
 
@@ -3508,7 +3508,7 @@ class CvInfoScreen:
 				splitText = szSpecialText.split("\n")
 				for special in splitText:
 					if len( special ) != 0:
-						SASTextScale.appendListBoxStringLabel(screen,  listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+						SASTextScale.appendListBoxStringLabel(screen, listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 	def calculateWondersList(self):
 
@@ -3907,7 +3907,7 @@ class CvInfoScreen:
 			screen.appendTableRow(self.szWondersTable)
 			# if bKnown and bRevealed:
 			# 	SASTextScale.setTableTextLabel(screen, self.szWondersTable, 0, iWonderLoop+iWBB, "", zoomArt, WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
-			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 0, iWonderLoop+iWBB, ""            , pWonderInfo.getButton(), iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 0, iWonderLoop+iWBB, "" , pWonderInfo.getButton(), iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 1, iWonderLoop+iWBB, szWonderName, "", iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 2, iWonderLoop+iWBB, szTurnYearBuilt, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 3, iWonderLoop+iWBB, szWonderBuiltBy, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)

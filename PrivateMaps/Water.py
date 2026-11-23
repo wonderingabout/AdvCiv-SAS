@@ -66,8 +66,8 @@ class WaterFractalWorld(CvMapGeneratorUtil.FractalWorld):
 		water_percent = min(water_percent, 40)
 		water_percent = max(water_percent, 20)
 
-		hill1range =  int(25 * increase(self.hillGroupOneRange/25.0, 1.6))
-		hill2range =  int(25 * increase(self.hillGroupTwoRange/25.0, 1.6))
+		hill1range = int(25 * increase(self.hillGroupOneRange/25.0, 1.6))
+		hill2range = int(25 * increase(self.hillGroupTwoRange/25.0, 1.6))
 
 		iWaterThreshold = self.continentsFrac.getHeightFromPercent(water_percent)
 		iHillsBottom1 = self.hillsFrac.getHeightFromPercent(max((self.hillGroupOneBase - hill1range), 0))

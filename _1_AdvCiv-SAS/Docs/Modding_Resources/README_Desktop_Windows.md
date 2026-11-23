@@ -188,6 +188,13 @@ The user reviews diffs and searches the code in VS Code, so its window shows wha
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_vscode_plain_search_no_fallbacks.PNG" alt="llm_vscode_plain_search_no_fallbacks.PNG" width="250">
 
+The user reads code with word wrap on, so a very long table, such as `CvCustomizableDomesticAdvisor.py`'s `COLUMNS_LIST`, wraps its rows and hides its tab-aligned columns; zooming out (Ctrl+-, Ctrl+0 to reset) until each row fits on one line shows the column alignment ([KI#21.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.8)).
+
+- Example (2026-11-23): zoomed out that way, the user's VS Code showed `COLUMNS_LIST`'s 70 rows as one clean grid, and right above it the disabled `GRANK_*` rows off their columns, such as `GRANK_BASE_PRODUCTION` and `GRANK_CULTURE`; side by side, the anomaly showed at a glance.
+  - It led to laying out commented-out code at the column it really starts at; the first capture is what the user saw, the second the result.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_vscode_zoomed_out_columns_list_before.PNG" alt="llm_vscode_zoomed_out_columns_list_before.PNG" width="250"> <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_vscode_zoomed_out_columns_list.PNG" alt="llm_vscode_zoomed_out_columns_list.PNG" width="250">
+
 ## The user's Chrome
 
 When the user asks an agent to look at a page open in their own Chrome, `desktop_windows.py screenshot` reads that window the same way, with no browser extension. Chrome runs many processes; `Get-Process chrome | Where-Object MainWindowHandle -ne 0 | Select-Object Id, MainWindowTitle, Path` gives those that own a window.
@@ -916,6 +923,8 @@ Not every change needs a review: a simple interface tweak can go straight to the
    - the session ID or transcript path if the relevant chat would be hard to identify, for example when several Claude Code sessions worked on the same change;
    - an explicit request to paste the answer back into the Claude app when done, because Claude Code's turn ends after sending and only a message in its box wakes it (tested: Codex pasted a tagged answer that started Claude Code's next turn).
    - Or, without a paste back: send with `--reply "none needed" --wait-reply` as a background command. It watches Codex's session log and prints Codex's final answer as soon as its turn ends, so Claude Code is notified at that moment instead of waiting a guessed time, and neither agent touches the other's window.
+   - Read that answer whole, however long, never through `tail` or `head`: on 2026-11-23 Claude Code Opus 5.5 read Codex's review of KI#21.8 through `tail -5` and applied three findings of six, as its two most important came first; Codex's log showed them, read with [`openai_chat_export_to_txt.py`](/LLM_Helpers/README.md#codex-and-chatgpt-transcript-helper)` codex --tail 4`.
+   - A message that says it needs no reply, such as a thank-you with `Reply: none needed`, can end in a Codex turn with no text: the chat then shows only the feedback icons under it. That is Codex taking the message at its word, not a failed prompt; the log shows the message arrived and the turn ended (2026-11-23).
 4. **Codex reviews the diff and checks the requester's chat when it needs more context.** For example, if a change has an unusual guard, read the relevant discussion to see what failed without it and which cases were already tested.
    - Use the [Claude transcript helper](/LLM_Helpers/README.md#claude_session_export_to_txtpy) on the local session log, or read the transcript supplied with the request. Verify the current code independently.
    - Codex can ask Claude Code a question the same way, with `--to claude --wait-reply`, and gets the answer when Claude Code's turn ends.

@@ -208,7 +208,7 @@ class Attitude:
 					else:
 						BugUtil.debug(u"Attitude::init() - Attitude string contains unknown modifier text: %s" % (sString))
 		#BugUtil.debug(u"Attitude::init() complete.")
-		BugUtil.debug(u"%s"  % (self))
+		BugUtil.debug(u"%s" % (self))
 
 	def __str__ (self):
 		# String representation of class instance.
@@ -294,7 +294,7 @@ class Attitude:
 			pThisPlayer = gc.getPlayer(self.iThisPlayer)
 			pTargetPlayer = gc.getPlayer(self.iTargetPlayer)
 			if bWorstEnemy and isWorstEnemy(pThisPlayer, pTargetPlayer):
-				szText +=  u"%s" %(SASVisuals.Font.ANGRY_POP_CHAR)
+				szText += u"%s" %(SASVisuals.Font.ANGRY_POP_CHAR)
 
 			if bWarPeace:
 				iThisTeam = pThisPlayer.getTeam()

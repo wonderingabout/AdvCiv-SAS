@@ -159,6 +159,8 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
   - [UI-map JSON formatting](#ui-map-json-formatting)
     - [`json_format.py`](#json_formatpy)
   - [Source blank-line cleanup](#source-blank-line-cleanup)
+  - [SAS header after a sweep](#sas-header-after-a-sweep)
+    - [`add_sas_header.py`](#add_sas_headerpy)
   - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`reflow_custom_comments.py`](#reflow_custom_commentspy)
   - [Python source cleanup helpers](#python-source-cleanup-helpers)
@@ -1400,6 +1402,21 @@ Which tracked JSON files it covers, reviewed on 2026-11-18:
 ```powershell
 python LLM_Helpers/formatting/trim_source_blank_lines.py
 python LLM_Helpers/formatting/trim_source_blank_lines.py Assets/Python/CvUtil.py --apply
+```
+
+### SAS header after a sweep
+
+#### `add_sas_header.py`
+
+[`add_sas_header.py`](/LLM_Helpers/formatting/add_sas_header.py) adds the SAS modification header to inherited Python files after their own leading notices, with an optional credited custom note saying what changed and why.
+
+- A sweep that changes inherited files, such as [`python_aligned_columns.py`](/.github/workflows/README.md#buildsourcepython_aligned_columnspy)`--fix` or [`python_multiline_calls.py`](/.github/workflows/README.md#buildsourcepython_multiline_callspy)`--fix`, makes the source-provenance check ask each changed file for the header; `--from-provenance` takes the files it reports, `--base-ref HEAD` comparing with the last commit.
+- Added on 2026-11-23, after [KI#21.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.8)'s spacing sweep needed the header in twelve files, from a scratch script that first doubled a notice block's closing `#` line.
+- Preview is the default; `--apply` writes, and only once every file has passed its checks. A file that already has the header, or has no leading notices, is skipped and named.
+
+```powershell
+python LLM_Helpers/formatting/add_sas_header.py --from-provenance --base-ref HEAD
+python LLM_Helpers/formatting/add_sas_header.py --from-provenance --base-ref HEAD --note "Layout only: ... See KI#21.8." --credit "Claude code Opus 5.5" --apply
 ```
 
 ### Custom-comment logical reflow

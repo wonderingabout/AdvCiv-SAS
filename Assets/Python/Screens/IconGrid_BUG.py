@@ -193,7 +193,7 @@ class IconGrid_BUG:
 	def setMinColumnSpace(self, iVal):
 		self.minColSpace = iVal
 
-	def	setMinRowSpace(self, iVal):
+	def setMinRowSpace(self, iVal):
 		self.minRowSpace = iVal
 
 	def setSize(self, iWidth, iHeight):

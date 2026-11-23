@@ -566,6 +566,16 @@ def import_include_changes(old_text: str, new_text: str, suffix: str):
             found = directive_kind(new_lines[index], suffix)
             if found:
                 directives.append(("added", index + 1, found[0], found[1], new_lines[index].strip()))
+        # <!-- custom: A removed and an added directive that differ only in whitespace are a layout change, not a new dependency: python_aligned_columns.py's sweep turned PerfectMongoose.py's "from array  import array" into "from array import array", which read as one import removed and another added (2026-11-22).
+        # Only whitespace between the directive's tokens counts: Codex's review (2026-11-23) found that collapsing it everywhere passed #include "foo  bar.h" becoming "foo bar.h" as unchanged, though it names another file. See KI#21.8. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+        def layout(text):
+            pieces = re.split(r"(\"[^\"]*\"|<[^>]*>)", text)
+            return "".join(piece if index % 2 else " ".join(piece.split()) for index, piece in enumerate(pieces))
+
+        removed = [layout(entry[4]) for entry in directives if entry[0] == "removed"]
+        added = [layout(entry[4]) for entry in directives if entry[0] == "added"]
+        same = [text for text in removed if text in added]
+        directives = [entry for entry in directives if layout(entry[4]) not in same]
         if directives:
             changes.append((j1 + 1, max(j1 + 1, j2), directives))
     return changes

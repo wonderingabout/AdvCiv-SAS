@@ -7,6 +7,10 @@
 #	Copyright (c) 2005 Firaxis Games, Inc. All rights reserved.
 #-----------------------------------------------------------------------------
 #
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: Layout only: python_aligned_columns.py's sweep turned the double spaces and tab runs between this file's code tokens, mostly stray slips such as "x =  y" or one-column alignment, into one space; the code is unchanged. See KI#21.8. (Claude code Opus 5.5) -->
 
 from CvPythonExtensions import *
 from SAS_WorldSizeUtils import *
@@ -29,7 +33,7 @@ balancer = BonusBalancer()
 # 		WorldSizeTypes.WORLDSIZE_SMALL:		(13,8),
 # 		WorldSizeTypes.WORLDSIZE_STANDARD:	(16,10),
 # 		WorldSizeTypes.WORLDSIZE_LARGE:		(21,13),
-# 		WorldSizeTypes.WORLDSIZE_HUGE:		(26,16)
+# 		WorldSizeTypes.WORLDSIZE_HUGE: (26,16)
 # 	}
 
 # 	if (argsList[0] == -1): # (-1,) is passed to function on loads
@@ -70,9 +74,9 @@ def getNumHiddenCustomMapOptions():
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
-		0:	"TXT_KEY_MAP_SCRIPT_SHORELINE",
-		1:	"TXT_KEY_MAP_WORLD_WRAP",
-		2:  "TXT_KEY_CONCEPT_RESOURCES"
+		0: "TXT_KEY_MAP_SCRIPT_SHORELINE",
+		1: "TXT_KEY_MAP_WORLD_WRAP",
+		2: "TXT_KEY_CONCEPT_RESOURCES"
 		}
 	if not option_names.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -82,27 +86,27 @@ def getCustomMapOptionName(argsList):
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	4,
-		1:	3,
-		2:  2
+		0: 4,
+		1: 3,
+		2: 2
 		}
 	return option_values[iOption]
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_SCRIPT_RANDOM",
 			1: "TXT_KEY_MAP_SCRIPT_NATURAL",
 			2: "TXT_KEY_MAP_SCRIPT_PRESSED",
 			3: "TXT_KEY_MAP_SCRIPT_SOLID"
 			},
-		1:	{
+		1: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 			},
-		2:	{
+		2: {
 			0: "TXT_KEY_WORLD_STANDARD",
 			1: "TXT_KEY_MAP_BALANCED"
 			}
@@ -115,18 +119,18 @@ def getCustomMapOptionDescAt(argsList):
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	0,
-		1:	1,
-		2:  0
+		0: 0,
+		1: 1,
+		2: 0
 		}
 	return option_defaults[iOption]
 
 def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
 	option_random = {
-		0:	false,
-		1:	false,
-		2:  false
+		0: false,
+		1: false,
+		2: false
 		}
 	return option_random[iOption]
 
@@ -228,13 +232,13 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		# <!-- custom: Pangaea's regional shoreline branches retained a direct legacy table with no Arena key, so randomly selecting one of those branches raised KeyError while other branches generated normally.
 		# Arena uses the established Duel/Tiny grain. See KI#282.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		sizevalues = {
-			WorldSizeTypes.WORLDSIZE_ARENA:     3,
-			WorldSizeTypes.WORLDSIZE_DUEL:      3,
-			WorldSizeTypes.WORLDSIZE_TINY:      3,
-			WorldSizeTypes.WORLDSIZE_SMALL:     4,
-			WorldSizeTypes.WORLDSIZE_STANDARD:  4,
-			WorldSizeTypes.WORLDSIZE_LARGE:     4,
-			WorldSizeTypes.WORLDSIZE_HUGE:      5
+			WorldSizeTypes.WORLDSIZE_ARENA: 3,
+			WorldSizeTypes.WORLDSIZE_DUEL: 3,
+			WorldSizeTypes.WORLDSIZE_TINY: 3,
+			WorldSizeTypes.WORLDSIZE_SMALL: 4,
+			WorldSizeTypes.WORLDSIZE_STANDARD: 4,
+			WorldSizeTypes.WORLDSIZE_LARGE: 4,
+			WorldSizeTypes.WORLDSIZE_HUGE: 5
 			}
 		# <advc.165> Tolerate bigger sizes
 		if sizekey >= len(sizevalues):

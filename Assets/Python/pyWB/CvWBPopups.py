@@ -24,16 +24,16 @@ class CvWBPopups:
 	"World Builder App Popups"
 	
 	# These ar popup types, not popup context IDs
-	WBPopupEditCity 		= WorldBuilderPopupTypes.WBPOPUP_CITY
-	WBPopupEditUnit 		= WorldBuilderPopupTypes.WBPOPUP_UNIT
-	WBPopupEditPlot 		= WorldBuilderPopupTypes.WBPOPUP_PLOT
-	WBPopupEditPlayer		= WorldBuilderPopupTypes.WBPOPUP_PLAYER							
+	WBPopupEditCity = WorldBuilderPopupTypes.WBPOPUP_CITY
+	WBPopupEditUnit = WorldBuilderPopupTypes.WBPOPUP_UNIT
+	WBPopupEditPlot = WorldBuilderPopupTypes.WBPOPUP_PLOT
+	WBPopupEditPlayer = WorldBuilderPopupTypes.WBPOPUP_PLAYER
 		
 	def __init__(self):
 		"set global instance items"
 	
-		self.WBPopupDictionary = 	{
-			self.WBPopupEditCity : 	{ 'Init' : self.initEditCity, 'Apply' : self.applyEditCity },
+		self.WBPopupDictionary = {
+			self.WBPopupEditCity : { 'Init' : self.initEditCity, 'Apply' : self.applyEditCity },
 			}
 
 	def initWB(self, argsList):

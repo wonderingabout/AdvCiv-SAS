@@ -141,14 +141,14 @@ selection_names_and_values = [
 					],
 					[ #Continent scattering:
 					["Random (without archipelago)","random",False],
-					["Solid, no islands around",		[0,	0,	0,	0],True],# 0,0,0,0 == bypass
-					["Rare small islands (default)",	[1,	3,	0.5,1],True], #Min, Max, ChangeChance, MaxDif
-					["Common islands",					[3,	6,	0.4,2],True],
-					["Rare islands - common islands",	[1,	5,	0.3,2],True],
-					["Rare islands - many islands",		[1,	8,	0.3,3],True],
-					["Common islands - many islands",	[3,	10,	0.4,2],True],
-					["Coast varies alot",				[1,	12,	0.3,5],True],
-					["Archipelago continents",			[8,	15,	0.5,2],False],
+					["Solid, no islands around",		[0, 0,	0,		0],True],# 0,0,0,0 == bypass
+					["Rare small islands (default)",	[1, 3,	0.5,	1],True], #Min, Max, ChangeChance, MaxDif
+					["Common islands",					[3, 6,	0.4,	2],True],
+					["Rare islands - common islands",	[1, 5,	0.3,	2],True],
+					["Rare islands - many islands",		[1, 8,	0.3,	3],True],
+					["Common islands - many islands",	[3, 10,	0.4,	2],True],
+					["Coast varies alot",				[1, 12,	0.3,	5],True],
+					["Archipelago continents",			[8, 15,	0.5,	2],False],
 					],
 					[ #Continent size:
 					["Random selection","random",False],
@@ -916,7 +916,7 @@ class TileBuilder:
 				partsAround = bArray()
 				for tile in tiles:
 					tx, ty = tile
-					toffset =  world.getOffset([tx, ty])
+					toffset = world.getOffset([tx, ty])
 					partId = self.continentPartAllTiles[toffset]
 					if partId is not None:
 						partsAround[partId] = partId
@@ -3158,7 +3158,7 @@ def addBonusType(argsList):
 def canPlaceBonusAt(argsList):
 	"Can override to determine if a	bonus can be placed	at the specified plot"
 	"""WARNING:	If addBonuses()	is overriden then this function	will not automatically be called."""
-	pPlot =	argsList[0]
+	pPlot = argsList[0]
 	CyPythonMgr().allowDefaultImpl()
 
 #Step 6: place goody huts
@@ -3556,7 +3556,7 @@ if (sys.platform == 'darwin'):
 			if "Warlords" in civ4Dir:
 				civ4Dir = "Civilization IV Warlords"
 			myDocuments = os.path.join(os.environ['HOME'], "Documents")
-			finalFolder =  os.path.join(myDocuments, civ4Dir)
+			finalFolder = os.path.join(myDocuments, civ4Dir)
 			return finalFolder
 		except:
 			return ""
@@ -3624,7 +3624,7 @@ def getCustomMapOptionDescAt(argsList):
     return unicode(selection_names_and_values[iOption][iSelection][0])
 
 def getCustomMapOptionDefault(argsList):
-	index =	argsList[0]
+	index = argsList[0]
 	return selection_defaults[index]
 
 def saveMapOptionDefaults():

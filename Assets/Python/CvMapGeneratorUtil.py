@@ -1406,7 +1406,7 @@ class TerrainGenerator:
 			return
 		self.bEarthlike = True
 		# Everything except getLatitudeAtPlot is essential
-		essentialMethods = [ "__init__", "initFractals",  "generateTerrain", "generateTerrainAtPlot" ]
+		essentialMethods = [ "__init__", "initFractals", "generateTerrain", "generateTerrainAtPlot" ]
 		for attribName in essentialMethods:
 			if getattr(self, attribName).im_func is not getattr(TerrainGenerator, attribName).im_func:
 				self.bEarthlike = False
@@ -1704,10 +1704,10 @@ class BonusBalancer:
 
 				resources_placed = []
 				for pass_num in range(5):
-					bIgnoreUniqueRange  = pass_num >= 1
-					bIgnoreOneArea 		= pass_num >= 2
-					bIgnoreWater 		= pass_num >= 3 # advc.108c
-					bIgnoreAdjacent 	= pass_num >= 4
+					bIgnoreUniqueRange = pass_num >= 1
+					bIgnoreOneArea = pass_num >= 2
+					bIgnoreWater = pass_num >= 3 # advc.108c
+					bIgnoreAdjacent = pass_num >= 4
 
 					for bonus in range(self.gc.getNumBonusInfos()):
 						type_string = self.gc.getBonusInfo(bonus).getType()

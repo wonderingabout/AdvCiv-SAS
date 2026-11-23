@@ -1,5 +1,10 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: Layout only: python_aligned_columns.py's sweep turned the double spaces and tab runs between this file's code tokens, mostly stray slips such as "x =  y" or one-column alignment, into one space; the code is unchanged. See KI#21.8. (Claude code Opus 5.5) -->
 import CvUtil
 from CvPythonExtensions import *
 
@@ -36,12 +41,12 @@ class PyPopup:
 		self.popup.addSeparator()
 
 	# Header String
-	def	setHeaderString( self, strText, uiFlags = CvUtil.FONT_CENTER_JUSTIFY ):
+	def setHeaderString( self, strText, uiFlags = CvUtil.FONT_CENTER_JUSTIFY ):
 		"sets the header text"
 		self.popup.setHeaderString( strText, uiFlags )
 
 	# Body String
-	def	setBodyString( self, strText, uiFlags = CvUtil.FONT_LEFT_JUSTIFY ):
+	def setBodyString( self, strText, uiFlags = CvUtil.FONT_LEFT_JUSTIFY ):
 		"sets the body text"
 		self.popup.setBodyString( strText, uiFlags )
 
@@ -53,53 +58,53 @@ class PyPopup:
 		self.popup.setPythonBodyStringXY( strText, strName, strHelpText, iX, iY, uiFlags )
 
 	# Radio Buttons
-	def	createRadioButtons( self, iNumButtons, iGroup = 0 ):
+	def createRadioButtons( self, iNumButtons, iGroup = 0 ):
 		"creates radio buttons - only 1 set allowed per popup"
 		self.popup.createRadioButtons( iNumButtons, iGroup )
 
-	def	setRadioButtonText( self, iRadioButtonID, strText, iGroup = 0 ):
+	def setRadioButtonText( self, iRadioButtonID, strText, iGroup = 0 ):
 		"sets radio button text - 0 based IDs"
 		self.popup.setRadioButtonText( iRadioButtonID, strText, iGroup )
 
-	def	createPythonRadioButtons( self, iNumButtons, iGroup = 0 ):
+	def createPythonRadioButtons( self, iNumButtons, iGroup = 0 ):
 		"creates python radio buttons - only 1 set allowed per popup"
 		self.popup.createPythonRadioButtons( iNumButtons, iGroup )
 
-	def	setPythonRadioButtonText( self, iRadioButtonID, strText, strHelpText, iGroup = 0 ):
+	def setPythonRadioButtonText( self, iRadioButtonID, strText, strHelpText, iGroup = 0 ):
 		"sets python radio button text - 0 based IDs"
 		self.popup.setPythonRadioButtonText( iRadioButtonID, strText, strHelpText, iGroup )
 
 	# Check Boxes
-	def	createCheckBoxes( self, iNumBoxes, iGroup = 0 ):
+	def createCheckBoxes( self, iNumBoxes, iGroup = 0 ):
 		"creates check boxes - only 1 set allowed per popup"
 		self.popup.createCheckBoxes( iNumBoxes, iGroup )
 
-	def	setCheckBoxText( self, iCheckBoxID, strText, iGroup = 0 ):
+	def setCheckBoxText( self, iCheckBoxID, strText, iGroup = 0 ):
 		"sets the check box text"
 		self.popup.setCheckBoxText( iCheckBoxID, strText, iGroup )
 
-	def	createPythonCheckBoxes( self, iNumBoxes, iGroup = 0 ):
+	def createPythonCheckBoxes( self, iNumBoxes, iGroup = 0 ):
 		"creates Python check boxes - only 1 set allowed per popup"
 		self.popup.createPythonCheckBoxes( iNumBoxes, iGroup )
 
-	def	setPythonCheckBoxText( self, iCheckBoxID, strText, strHelpText, iGroup = 0 ):
+	def setPythonCheckBoxText( self, iCheckBoxID, strText, strHelpText, iGroup = 0 ):
 		"sets the Python check box text"
 		self.popup.setPythonCheckBoxText( iCheckBoxID, strText, strHelpText, iGroup )
 
 	# Edit Boxes
-	def	createEditBox( self, strText, iGroup = 0):
+	def createEditBox( self, strText, iGroup = 0):
 		"adds an edit box"
 		self.popup.createEditBox( strText, iGroup )
 
-	def	createEditBoxXY( self, strText, iX = -1, iY = -1, iGroup = 0):
+	def createEditBoxXY( self, strText, iX = -1, iY = -1, iGroup = 0):
 		"adds an edit box at XY"
 		self.popup.createEditBox( strText, iX, iY, iGroup )
 
-	def	createPythonEditBox( self, strText, strHelpText, iGroup = 0):
+	def createPythonEditBox( self, strText, strHelpText, iGroup = 0):
 		"adds an Python edit box"
 		self.popup.createPythonEditBox( strText, strHelpText, iGroup )
 
-	def	createPythonEditBoxXY( self, strText, strHelpText, iGroup = 0, iX = -1, iY = -1 ):
+	def createPythonEditBoxXY( self, strText, strHelpText, iGroup = 0, iX = -1, iY = -1 ):
 		"adds an Python edit box at XY"
 		self.popup.createPythonEditBoxXY( strText, strHelpText, iGroup, iX, iY )
 
@@ -108,58 +113,58 @@ class PyPopup:
 		self.popup.setEditBoxMaxCharCount( maxCharCount, preferredCharCount, iGroup )
 
 	# Pull Down 
-	def	createPullDown( self, iGroup = 0 ):
+	def createPullDown( self, iGroup = 0 ):
 		"creates a pulldown menu"
 		self.popup.createPullDown( iGroup )
 
-	def	createPullDownXY( self, iGroup = 0, iX = -1, iY = -1 ):
+	def createPullDownXY( self, iGroup = 0, iX = -1, iY = -1 ):
 		"creates a pulldown menu at XY"
 		self.popup.createPullDownXY( iGroup, iX, iY )
 
-	def	addPullDownString( self, strText, iID, iGroup = 0 ):
+	def addPullDownString( self, strText, iID, iGroup = 0 ):
 		"adds text to the pulldown"
 		self.popup.addPullDownString( strText, iID, iGroup )
 
-	def	createPythonPullDown( self, strHelpText, iGroup = 0 ):
+	def createPythonPullDown( self, strHelpText, iGroup = 0 ):
 		"creates a Python pulldown menu"
 		self.popup.createPythonPullDown( strHelpText, iGroup )
 
-	def	createPythonPullDownXY( self, strHelpText, iGroup = 0, iX = -1, iY = -1 ):
+	def createPythonPullDownXY( self, strHelpText, iGroup = 0, iX = -1, iY = -1 ):
 		"creates a Python pulldown menu at XY"
 		self.popup.createPythonPullDownXY( strHelpText, iGroup, iX, iY )
 
 	# List Box
-	def	createListBox( self, iGroup = 0 ):
+	def createListBox( self, iGroup = 0 ):
 		"creates a listbox"
 		self.popup.createListBox( iGroup )
 
-	def	createListBoxXY( self, iGroup = 0, iX = -1, iY = -1 ):
+	def createListBoxXY( self, iGroup = 0, iX = -1, iY = -1 ):
 		"creates a listbox at XY"
 		self.popup.createListBoxXY( iGroup, iX, iY )
 
-	def	addListBoxString( self, strText, iID, iGroup = 0 ):
+	def addListBoxString( self, strText, iID, iGroup = 0 ):
 		"adds list box IDs"
 		self.popup.addListBoxString( strText, iID, iGroup )
 
-	def	createPythonListBox( self, strHelpText, iGroup = 0 ):
+	def createPythonListBox( self, strHelpText, iGroup = 0 ):
 		"creates a Python listbox"
 		self.popup.createPythonListBox( strHelpText, iGroup )
 
-	def	createPythonListBoxXY( self, strHelpText, iGroup = 0, iX = -1, iY = -1 ):
+	def createPythonListBoxXY( self, strHelpText, iGroup = 0, iX = -1, iY = -1 ):
 		"creates a Python listbox at XY"
 		self.popup.createPythonListBoxXY( strHelpText, iGroup, iX, iY )
 
 	# spin Box
-	def	createSpinBox( self, iIndex, strHelpText, iDefault, iIncrement, iMax, iMin ):
+	def createSpinBox( self, iIndex, strHelpText, iDefault, iIncrement, iMax, iMin ):
 		"creates a listbox"
 		self.popup.createSpinBox( iIndex, strHelpText, iDefault, iIncrement, iMax, iMin )
 
 	# Buttons
-	def	addButton( self, strText ):
+	def addButton( self, strText ):
 		"adds a Button"
 		self.popup.addButton( strText )
 
-	def	addButtonXY( self, strText, iX = -1, iY = -1 ):
+	def addButtonXY( self, strText, iX = -1, iY = -1 ):
 		"adds a Button at XY"
 		self.popup.addButtonXY( strText, iX, iY )
 
@@ -174,11 +179,11 @@ class PyPopup:
 		# Unofficial Patch end
 
 	# Graphics		
-	def	addDDS( self, strImageLocation, iX, iY, iWidth, iHeight ):
+	def addDDS( self, strImageLocation, iX, iY, iWidth, iHeight ):
 		"adds a DDS"
 		self.popup.addDDS( strImageLocation, iX, iY, iWidth, iHeight )
 
-	def	addPythonDDS( self, strImageLocation, strHelpText, iX, iY, iWidth, iHeight ):
+	def addPythonDDS( self, strImageLocation, strHelpText, iX, iY, iWidth, iHeight ):
 		"adds a DDS"
 		self.popup.addPythonDDS( strImageLocation, strHelpText, iX, iY, iWidth, iHeight )
 
@@ -222,7 +227,7 @@ class PyPopup:
 			return
 		self.addTableBlank( iRow, iCol, iGroup )
 
-	def	completeTableAndAttach( self, iGroup = 0, iX = -1, iY = -1 ):
+	def completeTableAndAttach( self, iGroup = 0, iX = -1, iY = -1 ):
 		"completes a Table and Adds it to the popup - iX,iY are for the Tables Location"
 		self.popup.completeTableAndAttach( iGroup )
 
@@ -231,8 +236,8 @@ class PyPopup:
 	def addTitleData(self, TitleList, SizeYTitle = 34):
 		"Takes a list of title data and adds it to the popup - (iType, iSize, Name, Data"
 		TEXT = 0
-		DDS  = 1
-		IMG  = 2
+		DDS = 1
+		IMG = 2
 
 		for i in range(len(TitleList)):
 			titleType, titleName, titleSize = TitleList[i]

@@ -779,7 +779,7 @@ class SevoPediaUnit:
 				defaultUnitAIText = str(defaultUnitAI).replace("UNITAI_", "")
 			else:
 				# <!-- custom: also show the absence of it (as of now shown as "NO_UNITAI" in sevopedia unit it seems, abbreviated as of now to "_" for visual clarity / quick scanning) -->
-				defaultUnitAIText =	"_"
+				defaultUnitAIText = "_"
 			# <!-- custom: note: separate info from other non AI entries more cleanly / clearly, so on more new line for first AI entry -->
 			szSpecialText += "\n\n%sDefault UnitAI: %s" % (bullet, defaultUnitAIText)
 

@@ -82,9 +82,9 @@ def getCustomMapOptionName(argsList):
 #	BugUtil.debug("Team_Battleground: getCustomMapOptionName")
 	[iOption] = argsList
 	option_names = {
-		0:	"TXT_KEY_MAP_SCRIPT_TEAM_PLACEMENT",
-		1:	"TXT_KEY_MAP_SCRIPT_TEAM_SETTING",
-		2:  "TXT_KEY_MAP_WORLD_WRAP"
+		0: "TXT_KEY_MAP_SCRIPT_TEAM_PLACEMENT",
+		1: "TXT_KEY_MAP_SCRIPT_TEAM_SETTING",
+		2: "TXT_KEY_MAP_WORLD_WRAP"
 		}
 	if not option_names.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -94,9 +94,9 @@ def getCustomMapOptionName(argsList):
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	6,
-		1:	3,
-		2:	3
+		0: 6,
+		1: 3,
+		2: 3
 		}
 	return option_values[iOption]
 
@@ -105,7 +105,7 @@ def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_SCRIPT_LEFT_VS_RIGHT",
 			1: "TXT_KEY_MAP_SCRIPT_TOP_VS_BOTTOM",
 			2: "TXT_KEY_MAP_SCRIPT_FOUR_CORNERS",
@@ -113,12 +113,12 @@ def getCustomMapOptionDescAt(argsList):
 			4: "TXT_KEY_MAP_SCRIPT_ROUND",
 			5: "TXT_KEY_MAP_SCRIPT_DONUT"
 			},
-		1:	{
+		1: {
 			0: "TXT_KEY_MAP_SCRIPT_START_TOGETHER",
 			1: "TXT_KEY_MAP_SCRIPT_START_SEPARATED",
 			2: "TXT_KEY_MAP_SCRIPT_START_ANYWHERE"
 			},
-		2:	{
+		2: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
@@ -136,9 +136,9 @@ def getCustomMapOptionDefault(argsList):
 #	BugUtil.debug("Team_Battleground: getCustomMapOptionDefault")
 	[iOption] = argsList
 	option_defaults = {
-		0:	1,
-		1:	0,
-		2:  0
+		0: 1,
+		1: 0,
+		2: 0
 		}
 	return option_defaults[iOption]
 
@@ -146,9 +146,9 @@ def isRandomCustomMapOption(argsList):
 #	BugUtil.debug("Team_Battleground: isRandomCustomMapOption")
 	[iOption] = argsList
 	option_random = {
-		0:	true,
-		1:	false,
-		2:  false
+		0: true,
+		1: false,
+		2: false
 		}
 	return option_random[iOption]
 
@@ -209,7 +209,7 @@ def getGridSize(argsList):
 		grid_choice = 0
 
 	if (grid_choice == 4   # round
-	or  grid_choice == 5): # donut
+	or grid_choice == 5): # donut
 		grid_choice = 1
 
 	[eWorldSize] = argsList
@@ -340,7 +340,7 @@ def generatePlotTypes():
 		return plotTypes
 
 	if (userInputPlots == 4   # round
-	or  userInputPlots == 5): # donut
+	or userInputPlots == 5): # donut
 		hinted_world = HintedWorld()
 		iNumPlotsX = map.getGridWidth()
 		iNumPlotsY = map.getGridHeight()
@@ -473,7 +473,7 @@ class TeamBGTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 					terrainVal = self.terrainPlains
 
 		if (userInputPlots == 4   # round
-		or  userInputPlots == 5): # donut
+		or userInputPlots == 5): # donut
 			centery = (map.getGridHeight() - 1)//2
 			centerx = (map.getGridWidth() - 1)//2
 			radii = centery - 1
@@ -547,7 +547,7 @@ def assignStartingPlots():
 #	BugUtil.debug("Team_Battleground: assignStartingPlots userInputPlots %i", userInputPlots)
 
 	if (userInputPlots == 4   # round
-	or  userInputPlots == 5): # donut
+	or userInputPlots == 5): # donut
 
 #		BugUtil.debug("Team_Battleground: assignStartingPlots inside if")
 
@@ -678,7 +678,7 @@ def findStartingPlot(argsList):
 	map = CyMap()
 	userInputPlots = map.getCustomMapOption(0)
 	if (userInputPlots == 4   # round
-	or  userInputPlots == 5): # donut ... starting position already set - return plotnum
+	or userInputPlots == 5): # donut ... starting position already set - return plotnum
 		# <!-- custom: If complete-circle prevalidation found a duplicate coordinate, delegate every player's site to the engine instead of reading an unset handcrafted start. See KI#291. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		global bUseDefaultCircleStarts
 		if bUseDefaultCircleStarts:
@@ -735,7 +735,7 @@ def findStartingPlot(argsList):
 				return false
 
 			elif (userInputPlots == 0   # LvR
-			or    userInputPlots == 3): # LvR with land bridge
+			or userInputPlots == 3): # LvR with land bridge
 				if teamID == 0 and shuffle and x >= iW * 0.6:
 					return true
 				if teamID == 1 and not shuffle and x >= iW * 0.6:
@@ -817,7 +817,7 @@ def findStartingPlot(argsList):
 				return false
 
 			elif (userInputPlots == 0   # LvR
-			or    userInputPlots == 3): # LvR with land bridge
+			or userInputPlots == 3): # LvR with land bridge
 				if teamID == 0 and side and x >= iW * 0.6:
 					return true
 				if teamID == 1 and not side and x >= iW * 0.6:
@@ -869,7 +869,7 @@ def getRiverStartCardinalDirection(argsList):
 	userInputPlots = CyMap().getCustomMapOption(0)
 
 	if (userInputPlots == 0 # LvR
-	or  userInputPlots == 3): # LvR with land bridge
+	or userInputPlots == 3): # LvR with land bridge
 		if x < iW/2:
 			return CardinalDirectionTypes.CARDINALDIRECTION_EAST
 		else:

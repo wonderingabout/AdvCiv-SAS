@@ -48,6 +48,12 @@ class ReflowCustomCommentsTests(unittest.TestCase):
         expected = '// <!-- custom: Keep "0 / 0 / 0 / 0 / 100" unchanged.\n// Preserve 2 placeholders vs 3 substitutions. See KI#234. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->\n'
         self.assertEqual(self.transform(source), expected)
 
+    # <!-- custom: Whitespace inside double quotes or backticks is quoted text, so it stays: the first reflow over python_aligned_columns.py turned its "x =  y" example into "x = y" (2026-11-23). See KI#21.8. (Claude code Opus 5.5) -->
+    def test_keeps_spacing_inside_quotes(self):
+        source = '# <!-- custom: Slips  such as "x =  y" or `a  b` become one space. Next. (Claude code Opus 5.5) -->\n'
+        expected = '# <!-- custom: Slips such as "x =  y" or `a  b` become one space.\n# Next. (Claude code Opus 5.5) -->\n'
+        self.assertEqual(self.transform(source, ".py"), expected)
+
     def test_joins_wrapped_sentence_without_touching_inherited_comment(self):
         source = '// Inherited note. Keep this line unchanged.\n// <!-- custom: Keep the threshold because\n// the current value avoids repeated scans. (GPT-5.3-Codex) -->\nint value = 3;\n'
         expected = '// Inherited note. Keep this line unchanged.\n// <!-- custom: Keep the threshold because the current value avoids repeated scans. (GPT-5.3-Codex) -->\nint value = 3;\n'

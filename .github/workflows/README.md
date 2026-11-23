@@ -119,6 +119,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/float_format_int_division.py`](#buildsourcefloat_format_int_divisionpy)
     - [`build/source/inherited_files.py`](#buildsourceinherited_filespy)
     - [`build/source/lint_suppressions.py`](#buildsourcelint_suppressionspy)
+    - [`build/source/python_aligned_columns.py`](#buildsourcepython_aligned_columnspy)
     - [`build/source/python_binding_targets.py`](#buildsourcepython_binding_targetspy)
     - [`build/source/python_multiline_calls.py`](#buildsourcepython_multiline_callspy)
     - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
@@ -1408,6 +1409,23 @@ Fails on any `noqa`, `type: ignore` or `pyright: ignore` comment in our Python t
 
 - Added on 2026-11-12, when two late imports after a `sys.path` entry each needed a `noqa`, one with no reason. Both were fixed at the cause by loading the module with `importlib`, and the check's first run found one more, a `type: ignore` around `re.match`, fixed by slicing.
 - Comments are read with Python's tokenizer, so suppression text inside strings, such as test fixtures, is not counted; verbatim third-party copies under `LLM_Helpers/context/` and `_0_Legacy/` are skipped.
+
+#### `build/source/python_aligned_columns.py`
+
+Fails when the spacing between code tokens on a line in `Assets/Python` or `PrivateMaps` differs from the layout its `--fix` gives, as a formatter's check does.
+
+A table with two or more columns to align uses tabs only, as the Sevopedia charts do, an idea taken from vanilla Civ4's `CvDebugInfoScreen.py`; one space separates tokens everywhere else. `checks-source.yml` runs it as **Runtime Python aligns columns with tabs and leaves one space elsewhere**.
+
+- Added on 2026-11-22: SAS's own Sevopedia charts were aligned with runs of spaces, about 190 rows, which drifted out of line with each rename, such as `SevoPediaWorldSizeChart.py`'s `"W/H Ratio*"`, a few spaces short of its column; tabs move a column by whole tab stops, with far fewer characters.
+  - [KI#21.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.8) records the sweep that fixed 2,269 lines in 89 files before the check was added, as [AGENTS.md](/AGENTS.md#ci-workflows) asks.
+- `--fix` lays each table out on 4-column tab stops, the width [`.editorconfig`](/.editorconfig) sets, every column one tab past its widest entry, and gives one space to everything else; it then checks that only whitespace changed, and a second run changes nothing.
+  - A table is a run of adjacent lines at the same indentation with as many separators each, a separator being a `,` or `:` or an `=`; it runs on through comment lines, and two rows in a row that align nothing end it. Columns meet only at separators, so a dotted name such as `CyCity.getCommerceRate` is never split.
+  - Only a table with two or more columns to align keeps tabs, such as the charts or `CvCustomizableDomesticAdvisor.py`'s `COLUMNS_LIST`. A key-to-value map such as `WorldSizeTypes.WORLDSIZE_ARENA:  1,`, an enum or an assignment list gains little from one aligned column, and a column whose cells are all as wide aligns nothing, so they get one space.
+- Commented-out code follows the same rule: a run of comment lines whose text parses as Python, such as `CvCustomizableDomesticAdvisor.py`'s disabled `GRANK_*` rows, is laid out at the column it starts at.
+  - Prose stays as written, including the map scripts' `#   FILE:    Wheel.py` notices, which parse in Python 3 as variable annotations, a syntax Python 2.4 does not have.
+- Strings, indentation and the gap before a trailing comment are left alone; a prose comment aligned with spaces, such as `COLUMNS_LIST`'s column header, needs aligning by hand after `--fix`.
+- A long table such as `COLUMNS_LIST` shows its columns only when its rows fit the editor: with VS Code's word wrap on, zoom out (Ctrl+-) to see the grid.
+- Tooling Python under `.github`, `LLM_Helpers` and `tests` is not checked, as it is indented with spaces.
 
 #### `build/source/python_binding_targets.py`
 

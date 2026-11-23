@@ -43,42 +43,42 @@ class PLE:
 #	def PLE_initialize(self):
 
 		# filter constants
-		self.nPLEFilterModeCanMove		= 0x0001
-		self.nPLEFilterModeCantMove		= 0x0002
-		self.nPLEFilterModeWound		= 0x0004
-		self.nPLEFilterModeNotWound		= 0x0008
-		self.nPLEFilterModeAir 			= 0x0010
-		self.nPLEFilterModeSea 			= 0x0020
-		self.nPLEFilterModeLand			= 0x0040
-		self.nPLEFilterModeDom			= 0x0080
-		self.nPLEFilterModeMil			= 0x0100
-		self.nPLEFilterModeOwn			= 0x0200
-		self.nPLEFilterModeForeign		= 0x0400
+		self.nPLEFilterModeCanMove = 0x0001
+		self.nPLEFilterModeCantMove = 0x0002
+		self.nPLEFilterModeWound = 0x0004
+		self.nPLEFilterModeNotWound = 0x0008
+		self.nPLEFilterModeAir = 0x0010
+		self.nPLEFilterModeSea = 0x0020
+		self.nPLEFilterModeLand = 0x0040
+		self.nPLEFilterModeDom = 0x0080
+		self.nPLEFilterModeMil = 0x0100
+		self.nPLEFilterModeOwn = 0x0200
+		self.nPLEFilterModeForeign = 0x0400
 
-		self.nPLEFilterGroupHealth		= self.nPLEFilterModeWound | self.nPLEFilterModeNotWound
-		self.nPLEFilterGroupDomain		= self.nPLEFilterModeAir | self.nPLEFilterModeSea | self.nPLEFilterModeLand
-		self.nPLEFilterGroupType		= self.nPLEFilterModeDom | self.nPLEFilterModeMil
-		self.nPLEFilterGroupOwner		= self.nPLEFilterModeOwn | self.nPLEFilterModeForeign
-		self.nPLEFilterGroupMove		= self.nPLEFilterModeCanMove | self.nPLEFilterModeCantMove
+		self.nPLEFilterGroupHealth = self.nPLEFilterModeWound | self.nPLEFilterModeNotWound
+		self.nPLEFilterGroupDomain = self.nPLEFilterModeAir | self.nPLEFilterModeSea | self.nPLEFilterModeLand
+		self.nPLEFilterGroupType = self.nPLEFilterModeDom | self.nPLEFilterModeMil
+		self.nPLEFilterGroupOwner = self.nPLEFilterModeOwn | self.nPLEFilterModeForeign
+		self.nPLEFilterGroupMove = self.nPLEFilterModeCanMove | self.nPLEFilterModeCantMove
 
-		self.nPLEAllFilters				= self.nPLEFilterGroupHealth | self.nPLEFilterGroupDomain | self.nPLEFilterGroupType | self.nPLEFilterGroupOwner | self.nPLEFilterGroupMove
+		self.nPLEAllFilters = self.nPLEFilterGroupHealth | self.nPLEFilterGroupDomain | self.nPLEFilterGroupType | self.nPLEFilterGroupOwner | self.nPLEFilterGroupMove
 
 		# set all filters to active -> all units 
-		self.nPLEFilter 				= self.nPLEAllFilters
+		self.nPLEFilter = self.nPLEAllFilters
 
-		self.PLOT_LIST_BUTTON_NAME		= "MyPlotListButton"
-		self.PLOT_LIST_MINUS_NAME		= "MyPlotListMinus"
-		self.PLOT_LIST_PLUS_NAME		= "MyPlotListPlus"
-		self.PLOT_LIST_UP_NAME			= "MyPlotListUp"
-		self.PLOT_LIST_DOWN_NAME		= "MyPlotListDown"
-		self.PLOT_LIST_PROMO_NAME		= "MyPlotListPromo"
-		self.PLOT_LIST_UPGRADE_NAME		= "MyPlotListUpgrade"
+		self.PLOT_LIST_BUTTON_NAME = "MyPlotListButton"
+		self.PLOT_LIST_MINUS_NAME = "MyPlotListMinus"
+		self.PLOT_LIST_PLUS_NAME = "MyPlotListPlus"
+		self.PLOT_LIST_UP_NAME = "MyPlotListUp"
+		self.PLOT_LIST_DOWN_NAME = "MyPlotListDown"
+		self.PLOT_LIST_PROMO_NAME = "MyPlotListPromo"
+		self.PLOT_LIST_UPGRADE_NAME = "MyPlotListUpgrade"
 
-		self.PLE_VIEW_MODE			= "PLE_VIEW_MODE1"
-		self.PLE_MODE_STANDARD		= "PLE_MODE_STANDARD1"
-		self.PLE_MODE_MULTILINE		= "PLE_MODE_MULTILINE1"
-		self.PLE_MODE_STACK_VERT	= "PLE_MODE_STACK_VERT1"
-		self.PLE_MODE_STACK_HORIZ	= "PLE_MODE_STACK_HORIZ1"
+		self.PLE_VIEW_MODE = "PLE_VIEW_MODE1"
+		self.PLE_MODE_STANDARD = "PLE_MODE_STANDARD1"
+		self.PLE_MODE_MULTILINE = "PLE_MODE_MULTILINE1"
+		self.PLE_MODE_STACK_VERT = "PLE_MODE_STACK_VERT1"
+		self.PLE_MODE_STACK_HORIZ = "PLE_MODE_STACK_HORIZ1"
 		# advc.069: order is STANDARD, MULTILINE, then STACK_HORIZ, STACK_VERT (last two switched)
 		self.PLE_VIEW_MODES = (self.PLE_MODE_STANDARD, self.PLE_MODE_MULTILINE, self.PLE_MODE_STACK_HORIZ, self.PLE_MODE_STACK_VERT)
 		# advc.069: Switched the order as above
@@ -96,79 +96,79 @@ class PLE:
 			self.PLE_MODE_STACK_VERT : "PLE_MODE_STACK_VERT"
 		}
 
-		self.PLE_RESET_FILTERS		= "PLE_RESET_FILTERS1"
-		self.PLE_FILTER_NOTWOUND	= "PLE_FILTER_NOTWOUND1"
-		self.PLE_FILTER_WOUND		= "PLE_FILTER_WOUND1"
-		self.PLE_FILTER_LAND		= "PLE_FILTER_LAND1"
-		self.PLE_FILTER_SEA			= "PLE_FILTER_SEA1"
-		self.PLE_FILTER_AIR			= "PLE_FILTER_AIR1"
-		self.PLE_FILTER_MIL			= "PLE_FILTER_MIL1"
-		self.PLE_FILTER_DOM			= "PLE_FILTER_DOM1"
-		self.PLE_FILTER_OWN			= "PLE_FILTER_OWN1"
-		self.PLE_FILTER_FOREIGN		= "PLE_FILTER_FOREIGN1"
-		self.PLE_FILTER_CANMOVE		= "PLE_FILTER_CANMOVE1"
-		self.PLE_FILTER_CANTMOVE	= "PLE_FILTER_CANTMOVE1"
+		self.PLE_RESET_FILTERS = "PLE_RESET_FILTERS1"
+		self.PLE_FILTER_NOTWOUND = "PLE_FILTER_NOTWOUND1"
+		self.PLE_FILTER_WOUND = "PLE_FILTER_WOUND1"
+		self.PLE_FILTER_LAND = "PLE_FILTER_LAND1"
+		self.PLE_FILTER_SEA = "PLE_FILTER_SEA1"
+		self.PLE_FILTER_AIR = "PLE_FILTER_AIR1"
+		self.PLE_FILTER_MIL = "PLE_FILTER_MIL1"
+		self.PLE_FILTER_DOM = "PLE_FILTER_DOM1"
+		self.PLE_FILTER_OWN = "PLE_FILTER_OWN1"
+		self.PLE_FILTER_FOREIGN = "PLE_FILTER_FOREIGN1"
+		self.PLE_FILTER_CANMOVE = "PLE_FILTER_CANMOVE1"
+		self.PLE_FILTER_CANTMOVE = "PLE_FILTER_CANTMOVE1"
 
 		self.PLE_PROMO_BUTTONS_UNITINFO = "PLE_PROMO_BUTTONS_UNITINFO"
 
-		self.PLE_GRP_UNITTYPE		= "PLE_GRP_UNITTYPE1"
-		self.PLE_GRP_GROUPS			= "PLE_GRP_GROUPS1"
-		self.PLE_GRP_PROMO			= "PLE_GRP_PROMO1"
-		self.PLE_GRP_UPGRADE		= "PLE_GRP_UPGRADE1"
+		self.PLE_GRP_UNITTYPE = "PLE_GRP_UNITTYPE1"
+		self.PLE_GRP_GROUPS = "PLE_GRP_GROUPS1"
+		self.PLE_GRP_PROMO = "PLE_GRP_PROMO1"
+		self.PLE_GRP_UPGRADE = "PLE_GRP_UPGRADE1"
 		self.PLE_GROUP_MODES = (self.PLE_GRP_UNITTYPE, self.PLE_GRP_GROUPS, self.PLE_GRP_PROMO, self.PLE_GRP_UPGRADE)
 
-		self.UNIT_INFO_PANE			= "PLE_UNIT_INFO_PANE_ID"
-		self.UNIT_INFO_TEXT			= "PLE_UNIT_INFO_TEXT_ID"
-		self.UNIT_INFO_TEXT_SHADOW	= "PLE_UNIT_INFO_TEXT_SHADOW_ID"
+		self.UNIT_INFO_PANE = "PLE_UNIT_INFO_PANE_ID"
+		self.UNIT_INFO_TEXT = "PLE_UNIT_INFO_TEXT_ID"
+		self.UNIT_INFO_TEXT_SHADOW = "PLE_UNIT_INFO_TEXT_SHADOW_ID"
 
-		self.iColOffset 			= 0
-		self.iRowOffset 			= 0
-		self.iArrowStep				= 10 # advc.004n
-		self.iVisibleUnits 			= 0
-		self.pActPlot 				= 0
-		self.pOldPlot 				= self.pActPlot
-	#		self.sPLEMode 				= self.PLE_MODE_MULTILINE
-		self.iMaxPlotListIcons 		= 0
+		self.iColOffset = 0
+		self.iRowOffset = 0
+		self.iArrowStep = 10 # advc.004n
+		self.iVisibleUnits = 0
+		self.pActPlot = 0
+		self.pOldPlot = self.pActPlot
+	#		self.sPLEMode = self.PLE_MODE_MULTILINE
+		self.iMaxPlotListIcons = 0
 
-	#		self.nPLEGrpMode 			= self.PLE_GRP_UNITTYPE
-	#		self.nPLELastGrpMode  	    = self.nPLEGrpMode
-		self.pActPlotListUnit		= 0
-		self.iActPlotListGroup		= 0
-	#		self.pLastPlotListUnit		= 0
-	#		self.iLastPlotListGroup		= 0
+	#		self.nPLEGrpMode = self.PLE_GRP_UNITTYPE
+	#		self.nPLELastGrpMode = self.nPLEGrpMode
+		self.pActPlotListUnit = 0
+		self.iActPlotListGroup = 0
+	#		self.pLastPlotListUnit = 0
+	#		self.iLastPlotListGroup = 0
 
-		self.IDX_PLAYER				= 0
-		self.IDX_DOMAIN 			= 1
-		self.IDX_GROUPID			= 2
-		self.IDX_COMBAT				= 3
-		self.IDX_UNITTYPE			= 4
-		self.IDX_LEVEL				= 5
-		self.IDX_XP					= 6
-		self.IDX_TRANSPORTID		= 7
-		self.IDX_CARGOID			= 8
-		self.IDX_UNITID				= 9
-		self.IDX_UNIT				= 10
+		self.IDX_PLAYER = 0
+		self.IDX_DOMAIN = 1
+		self.IDX_GROUPID = 2
+		self.IDX_COMBAT = 3
+		self.IDX_UNITTYPE = 4
+		self.IDX_LEVEL = 5
+		self.IDX_XP = 6
+		self.IDX_TRANSPORTID = 7
+		self.IDX_CARGOID = 8
+		self.IDX_UNITID = 9
+		self.IDX_UNIT = 10
 
-		self.lPLEUnitList 			= []
-		self.lPLEUnitListTempOK		= []
-		self.lPLEUnitListTempNOK	= []
-		self.dPLEUnitInfo 			= {}
+		self.lPLEUnitList = []
+		self.lPLEUnitListTempOK = []
+		self.lPLEUnitListTempNOK = []
+		self.dPLEUnitInfo = {}
 
-		self.iLoopCnt 				= 0
+		self.iLoopCnt = 0
 
-		self.dUnitPromoList			= {}
-		self.dUnitUpgradeList		= {}
+		self.dUnitPromoList = {}
+		self.dUnitUpgradeList = {}
 
-	#		self.bInit					= False
+	#		self.bInit = False
 
-		self.ASMA 					= AStarMoveArea()
+		self.ASMA = AStarMoveArea()
 
-		self.tLastMousePos			= (0,0)
-		self.bInfoPaneActive		= False
+		self.tLastMousePos = (0,0)
+		self.bInfoPaneActive = False
 		self.bUnitPromoButtonsActive = False
-		self.iMousePosTol			= 30
-		self.iInfoPaneCnt			= 0
-		self.iLastInfoPaneCnt		= -1
+		self.iMousePosTol = 30
+		self.iInfoPaneCnt = 0
+		self.iLastInfoPaneCnt = -1
 		# advc.092: no longer used
 		#self.xResolution = 0
 		#self.yResolution = 0
@@ -204,18 +204,18 @@ class PLE:
 		# advc.001: I also think these were mixed up - bulleted lines take up (slightly)
 		# more space, not less. (I suspect a minor remaining issue with wrapped-around
 		# bulleted lines taking up a little less space but being counted fully.)
-		self.CFG_INFOPANE_PIX_PER_LINE_1 			= 22 # standard
-		self.CFG_INFOPANE_PIX_PER_LINE_2 			= 24 # bulleted
+		self.CFG_INFOPANE_PIX_PER_LINE_1 = 22 # standard
+		self.CFG_INFOPANE_PIX_PER_LINE_2 = 24 # bulleted
 		# </advc.002b>
-		self.CFG_INFOPANE_DX 					    = gRect("DefaultHelpArea").width()
+		self.CFG_INFOPANE_DX = gRect("DefaultHelpArea").width()
 		# <advc.092> Had been set via PleOpt
-		self.CFG_INFOPANE_X					= gRect("DefaultHelpArea").x()
-		self.CFG_INFOPANE_X_CITY			= (self.CFG_INFOPANE_X + gRect("CityLeftPanel").xRight() + HSPACE(2))
-		self.CFG_INFOPANE_Y		 			= gRect("DefaultHelpArea").y()
+		self.CFG_INFOPANE_X = gRect("DefaultHelpArea").x()
+		self.CFG_INFOPANE_X_CITY = (self.CFG_INFOPANE_X + gRect("CityLeftPanel").xRight() + HSPACE(2))
+		self.CFG_INFOPANE_Y = gRect("DefaultHelpArea").y()
 		# </advc.092>
-		self.CFG_INFOPANE_BUTTON_SIZE		= self.CFG_INFOPANE_PIX_PER_LINE_1 - 2
-		self.CFG_INFOPANE_BUTTON_PER_LINE	= self.CFG_INFOPANE_DX / self.CFG_INFOPANE_BUTTON_SIZE
-		self.CFG_INFOPANE_Y_MIN				= gRect("DefaultHelpAreaMin").y()
+		self.CFG_INFOPANE_BUTTON_SIZE = self.CFG_INFOPANE_PIX_PER_LINE_1 - 2
+		self.CFG_INFOPANE_BUTTON_PER_LINE = self.CFG_INFOPANE_DX / self.CFG_INFOPANE_BUTTON_SIZE
+		self.CFG_INFOPANE_Y_MIN = gRect("DefaultHelpAreaMin").y()
 
 		self.listPLEButtons = [(0,0,0)] * self.iMaxPlotListIcons
 
@@ -297,7 +297,7 @@ class PLE:
 			bRightArrow = False
 
 			iLastUnitType = UnitTypes.NO_UNIT
-			iLastGroupID  = 0
+			iLastGroupID = 0
 			# loop for all units on the plot
 			for i in range(len(self.lPLEUnitList)):
 				pLoopUnit = self.getInterfacePlotUnit(i)
@@ -308,7 +308,7 @@ class PLE:
 
 						if not pLoopUnit.isCargo():
 							iActUnitType = pLoopUnit.getUnitType()
-							iActGroupID  = pLoopUnit.getGroupID()
+							iActGroupID = pLoopUnit.getGroupID()
 
 						# standard view with scroll arrows
 						if (self.sPLEMode == self.PLE_MODE_STANDARD):
@@ -430,9 +430,9 @@ class PLE:
 
 						iCount += 1
 
-						iLastUnitType 	= iActUnitType
-						iLastGroupID  	= iActGroupID
-						bFirstLoop 		= false
+						iLastUnitType = iActUnitType
+						iLastGroupID = iActGroupID
+						bFirstLoop = false
 
 			# left/right scroll buttons
 			if ((self.sPLEMode == self.PLE_MODE_STANDARD and self.iVisibleUnits > self.getMaxCol()) or (self.sPLEMode == self.PLE_MODE_STACK_VERT and ((nCol >= self.getMaxCol() or self.iColOffset > 0)))):
@@ -1091,13 +1091,13 @@ class PLE:
 			screen.setStackedBarColors( szStringMoveBar, InfoBarTypes.INFOBAR_EMPTY, iNoMovementColor )
 			screen.hide( szStringMoveBar )
 		# <advc.092>
-		nYOff	= gRect("CenterBottomPanel").height() + 1 # was 130 + 4
-		nXOff	= gRect("CenterBottomPanel").x() - 6 # was 290 - 12
-		nSize	= BTNSZ(24)
-		nDist	= nSize - 2 # was 22
-		nGap    = HSPACE(10)
+		nYOff = gRect("CenterBottomPanel").height() + 1 # was 130 + 4
+		nXOff = gRect("CenterBottomPanel").x() - 6 # was 290 - 12
+		nSize = BTNSZ(24)
+		nDist = nSize - 2 # was 22
+		nGap = HSPACE(10)
 		yResolution = gRect("Top").height() # </advc.092>
-		nNum	= 0
+		nNum = 0
 
 		# PLE Style-Mode buttons
 		#screen.setImageButton( "PleViewModeStyle1", "", 20, 400, 28, 28, WidgetTypes.WIDGET_GENERAL, 1, -1 )
@@ -1217,8 +1217,8 @@ class PLE:
 				# unit has to be displayed
 				self.lPLEUnitListTempOK.append(pLoopUnit)
 		# loop to find all the cargo of units in the OK list. They don't have to be moved away.
-		lTempNOK 	= self.lPLEUnitListTempNOK[:]
-		lTempOK 	= self.lPLEUnitListTempOK[:]
+		lTempNOK = self.lPLEUnitListTempNOK[:]
+		lTempOK = self.lPLEUnitListTempOK[:]
 		for pLoopUnitNOK in lTempNOK:
 			# check if unit is cargo
 			if pLoopUnitNOK.isCargo():
@@ -1230,8 +1230,8 @@ class PLE:
 						self.lPLEUnitListTempOK.append(pLoopUnitNOK)
 		# if Shift is pressed, we also have to keep the already selected units 
 		if bShift:
-			lTempNOK 	= self.lPLEUnitListTempNOK[:]
-			lTempOK 	= self.lPLEUnitListTempOK[:]
+			lTempNOK = self.lPLEUnitListTempNOK[:]
+			lTempOK = self.lPLEUnitListTempOK[:]
 			for i in range(len(self.lPLEUnitList)):
 				pLoopUnit = self.getInterfacePlotUnit(i)
 				if (pLoopUnit.IsSelected()):
@@ -1258,8 +1258,8 @@ class PLE:
 				# unit has to be moved
 				self.lPLEUnitListTempNOK.append(pLoopUnit)
 		# loop to find all the cargo of units in the OK list. They don't have to be moved away.
-		lTempNOK 	= self.lPLEUnitListTempNOK[:]
-		lTempOK 	= self.lPLEUnitListTempOK[:]
+		lTempNOK = self.lPLEUnitListTempNOK[:]
+		lTempOK = self.lPLEUnitListTempOK[:]
 		for pLoopUnitNOK in lTempNOK:
 			# check if unit is cargo
 			if pLoopUnitNOK.isCargo():
@@ -1287,7 +1287,7 @@ class PLE:
 		elif (pPlayer.getNumCities() > 1):
 			# if actual plot is a city -> use next available city to park units
 			for i in range(pPlayer.getNumCities()):
-				pPlot =  lCity[i].plot()
+				pPlot = lCity[i].plot()
 				if (pPlot.getX() != self.pActPlot.getX()) or (pPlot.getY() != self.pActPlot.getY()):
 					break
 			for d in range(DomainTypes.NUM_DOMAIN_TYPES):
@@ -1680,20 +1680,20 @@ class PLE:
 
 	# performs the units promotion
 	def doPromotion(self, id):
-		idPromo		= id % 100
-		idUnit		= id / 100
+		idPromo = id % 100
+		idUnit = id / 100
 		if self.sPLEMode == self.PLE_MODE_STACK_HORIZ:
 			idButton = self.getI(idUnit, 0)
 		else:
 			idButton = self.getI(0, idUnit)
-		pUnit 		= self.listPLEButtons[idButton][0]
-		iPromo		= self.dUnitPromoList[idUnit][idPromo-1]
+		pUnit = self.listPLEButtons[idButton][0]
+		iPromo = self.dUnitPromoList[idUnit][idPromo-1]
 		pUnit.promote(iPromo, -1)
 
 	# displays all the possible upgrade buttons for a unit 
 	def displayUnitUpgrades(self, screen, pUnit, nRow, nCol):
-		lUpgrades 	= []
-		lUnits		= []
+		lUpgrades = []
+		lUnits = []
 
 		# reading all upgrades
 		lUpgrades = mt.getPossibleUpgrades(pUnit)
@@ -1735,14 +1735,14 @@ class PLE:
 
 	# performs the unit upgrades
 	def doUpgrade(self, id):
-		idUpgrade		= id % 100
-		idUnit			= id / 100
+		idUpgrade = id % 100
+		idUnit = id / 100
 		if self.sPLEMode == self.PLE_MODE_STACK_HORIZ:
 			idButton = self.getI(idUnit, 0)
 		else:
 			idButton = self.getI(0, idUnit)
-		pUnit 			= self.listPLEButtons[idButton][0]
-		iUnitType		= self.dUnitUpgradeList[idUnit][idUpgrade-1]		
+		pUnit = self.listPLEButtons[idButton][0]
+		iUnitType = self.dUnitUpgradeList[idUnit][idUpgrade-1]
 		if mt.bCtrl():
 			pPlot = pUnit.plot()
 			iCompUnitType = pUnit.getUnitType()
@@ -1765,14 +1765,14 @@ class PLE:
 	# handles display of the promotion button info pane
 	def showPromoInfoPane(self, id):
 		screen = CyGInterfaceScreen( "MainInterface", CvScreenEnums.MAIN_INTERFACE )
-		idPromo		= id % 100
-		idUnit		= id / 100
+		idPromo = id % 100
+		idUnit = id / 100
 		if self.sPLEMode == self.PLE_MODE_STACK_HORIZ:
 			idButton = self.getI(idUnit, 0)
 		else:
 			idButton = self.getI(0, idUnit)
-		pUnit 		= self.listPLEButtons[idButton][0]
-		iPromo		= self.dUnitPromoList[idUnit][idPromo-1]
+		pUnit = self.listPLEButtons[idButton][0]
+		iPromo = self.dUnitPromoList[idUnit][idPromo-1]
 
 		# promo info
 		szPromoInfo = SASTextScale.sasFontTagLabel + mt.removeLinks(CyGameTextMgr().getPromotionHelp(iPromo, false)) + SASTextScale.SAS_FONT_TAG_CLOSE + u"\n"
@@ -1805,20 +1805,20 @@ class PLE:
 	# handles display of the upgrade info pane
 	def showUpgradeInfoPane(self, id):
 		screen = CyGInterfaceScreen( "MainInterface", CvScreenEnums.MAIN_INTERFACE )
-		idUpgrade		= id % 100
-		idUnit			= id / 100
+		idUpgrade = id % 100
+		idUnit = id / 100
 		if self.sPLEMode == self.PLE_MODE_STACK_HORIZ:
 			idButton = self.getI(idUnit, 0)
 		else:
 			idButton = self.getI(0, idUnit)
-		pUnit 			= self.listPLEButtons[idButton][0]
-		iUnitType		= self.dUnitUpgradeList[idUnit][idUpgrade-1]		
-		pUnitTypeInfo 	= gc.getUnitInfo(iUnitType)		
+		pUnit = self.listPLEButtons[idButton][0]
+		iUnitType = self.dUnitUpgradeList[idUnit][idUpgrade-1]
+		pUnitTypeInfo = gc.getUnitInfo(iUnitType)
 
 		# reading attributes
-		szUnitName 		= localText.changeTextColor(pUnitTypeInfo.getDescription(), PleOpt.getUnitNameColor()) + u"\n"
+		szUnitName = localText.changeTextColor(pUnitTypeInfo.getDescription(), PleOpt.getUnitNameColor()) + u"\n"
 		if pUnitTypeInfo.getUnitCombatType() != -1:
-			szCombatType	= gc.getUnitCombatInfo(pUnitTypeInfo.getUnitCombatType()).getDescription() + u"\n"
+			szCombatType = gc.getUnitCombatInfo(pUnitTypeInfo.getUnitCombatType()).getDescription() + u"\n"
 		else:
 			szCombatType = u""
 		if (pUnitTypeInfo.getAirCombat() > 0):
@@ -1834,10 +1834,10 @@ class PLE:
 		szSpecialText = mt.removeLinks(CyGameTextMgr().getUnitHelp( iUnitType, True, False, False, None )[1:]) + "\n"
 
 		# determining the unit upgrade price
-		iUpgradePriceSingle 	= mt.getUpgradePrice(pUnit, iUnitType, 0)
-	#		iUpgradePriceGrp 		= mt.getUpgradePrice(pUnit, iUnitType, 1)
-		iUpgradePricePlot 		= mt.getUpgradePrice(pUnit, iUnitType, 2)
-		iUpgradePriceAll 		= mt.getUpgradePrice(pUnit, iUnitType, 3)
+		iUpgradePriceSingle = mt.getUpgradePrice(pUnit, iUnitType, 0)
+	#		iUpgradePriceGrp = mt.getUpgradePrice(pUnit, iUnitType, 1)
+		iUpgradePricePlot = mt.getUpgradePrice(pUnit, iUnitType, 2)
+		iUpgradePriceAll = mt.getUpgradePrice(pUnit, iUnitType, 3)
 
 		iGold = gc.getActivePlayer().getGold()	
 		if iUpgradePriceSingle > iGold:
@@ -1857,7 +1857,7 @@ class PLE:
 
 		szUpgradeHelp = localText.getText("TXT_KEY_PLE_UPGRADE_HELP", () )		
 
-		szText 		= (SASTextScale.sasFontTagLabel + szUnitName + szCombatType + szStrength + szMovement + szRange + szSpecialText + szUpgradePrice + szUpgradeHelp + SASTextScale.SAS_FONT_TAG_CLOSE)
+		szText = (SASTextScale.sasFontTagLabel + szUnitName + szCombatType + szStrength + szMovement + szRange + szSpecialText + szUpgradePrice + szUpgradeHelp + SASTextScale.SAS_FONT_TAG_CLOSE)
 
 		# display the info pane
 		self.displayInfoPane(szText)
@@ -1897,30 +1897,30 @@ class PLE:
 
 		# strength 
 		if (eUnitDomain == DomainTypes.DOMAIN_AIR):
-			fCurrStrength 	= float(pUnit.airBaseCombatStr() * pUnit.currHitPoints()) / pUnit.maxHitPoints()
-			fMaxStrength 	= float(pUnit.airBaseCombatStr())
+			fCurrStrength = float(pUnit.airBaseCombatStr() * pUnit.currHitPoints()) / pUnit.maxHitPoints()
+			fMaxStrength = float(pUnit.airBaseCombatStr())
 		else:
-			fCurrStrength 	= float(pUnit.baseCombatStr())*float(1.0-pUnit.getDamage()*0.01)
-			fMaxStrength 	= float(pUnit.baseCombatStr())
+			fCurrStrength = float(pUnit.baseCombatStr())*float(1.0-pUnit.getDamage()*0.01)
+			fMaxStrength = float(pUnit.baseCombatStr())
 		if fCurrStrength != fMaxStrength:
 			if float(fMaxStrength*float(mt.getPlotHealFactor(pUnit))*0.01) == 0:
 				iTurnsToHeal = 999
 			else:
-				iTurnsToHeal 	= int((fMaxStrength-fCurrStrength)/float(fMaxStrength*float(mt.getPlotHealFactor(pUnit))*0.01)+0.999) # force to round upwards
-			szCurrStrength 		= u" %.1f" % fCurrStrength
-			szMaxStrength 		= u" / %i" % fMaxStrength
+				iTurnsToHeal = int((fMaxStrength-fCurrStrength)/float(fMaxStrength*float(mt.getPlotHealFactor(pUnit))*0.01)+0.999) # force to round upwards
+			szCurrStrength = u" %.1f" % fCurrStrength
+			szMaxStrength = u" / %i" % fMaxStrength
 			if mt.getPlotHealFactor(pUnit) != 0:
-				#szTurnsToHeal 		= u" (%i)" % iTurnsToHeal
+				#szTurnsToHeal = u" (%i)" % iTurnsToHeal
 				# advc.069: Replacing the above
 				szTurnsToHeal = localText.getText("TXT_KEY_PLE_TURNS_TO_HEAL", ()) + u": %i" % iTurnsToHeal
 			else:
 				# advc.069: Leading space removed b/c this goes on a new line
 				szTurnsToHeal = u"(Not Healing)"
 		else: 
-			iTurnsToHeal 		= 0
-			szCurrStrength 		= u" %i" % fCurrStrength
-			szMaxStrength 		= u""		
-			szTurnsToHeal 		= u""
+			iTurnsToHeal = 0
+			szCurrStrength = u" %i" % fCurrStrength
+			szMaxStrength = u""
+			szTurnsToHeal = u""
 		# <advc.069>
 		if len(szTurnsToHeal) > 0:
 			szTurnsToHeal = "\n" + szTurnsToHeal
@@ -1933,15 +1933,15 @@ class PLE:
 		fCurrMoves = float(pUnit.movesLeft()) / gc.getMOVE_DENOMINATOR()
 		iMaxMoves = pUnit.baseMoves()
 		if (eUnitDomain == DomainTypes.DOMAIN_AIR):
-			szAirRange 		= u", " + localText.getText("TXT_KEY_UNIT_AIR_RANGE", ( pUnit.airRange(), ) ) 
+			szAirRange = u", " + localText.getText("TXT_KEY_UNIT_AIR_RANGE", ( pUnit.airRange(), ) )
 		else:
-			szAirRange 		= u""
+			szAirRange = u""
 		if ( pUnit.movesLeft() != iMaxMoves * gc.getMOVE_DENOMINATOR() ):
 			szCurrMoves = u" %.1f" % fCurrMoves
-			szMaxMoves 	= u"/%d" % iMaxMoves
+			szMaxMoves = u"/%d" % iMaxMoves
 		else:
 			szCurrMoves = u" %d" % iMaxMoves
-			szMaxMoves 	= u""
+			szMaxMoves = u""
 		szMovement = SASTextScale.sasFontTagLabel + szCurrMoves + szMaxMoves + SASVisuals.Font.MOVES_CHAR + szAirRange + SASTextScale.SAS_FONT_TAG_CLOSE + u"\n"
 
 		# compressed display for standard display
@@ -2014,7 +2014,7 @@ class PLE:
 
 		# unit type specialities
 		# advc.069: Don't show this heading
-		#szSpecialText 	= u"<font=2>" + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + u":\n"
+		#szSpecialText = u"<font=2>" + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + u":\n"
 		# advc.069: was getUnitHelp(iUnitType, true, false, false, None)
 		szSpecialText = SASTextScale.normalizeLabelText(CyGameTextMgr().getBasicUnitHelp(iUnitType, False)[1:])
 		szSpecialText = localText.changeTextColor(szSpecialText, PleOpt.getUnitTypeSpecialtiesColor())
@@ -2033,7 +2033,7 @@ class PLE:
 			szPromotion = u"\n"*((iPromotionCount/self.CFG_INFOPANE_BUTTON_PER_LINE)+1)
 
 		# build text
-		szText 	= (szUnitName + szPromotion + szStrengthMovement + szLevel + szExperience + szCargo + szCiv + szFortifyBonus + szEspionage + szSpecialText)
+		szText = (szUnitName + szPromotion + szStrengthMovement + szLevel + szExperience + szCargo + szCiv + szFortifyBonus + szEspionage + szSpecialText)
 
 		# display the info pane
 		dy = self.displayInfoPane(szText)
@@ -2096,9 +2096,9 @@ class PLE:
 	# base function to display a self sizing info pane
 	def displayInfoPane(self, szText):
 
-		self.bInfoPaneActive 	= True
-		self.iInfoPaneCnt  		+= 1
-		self.tLastMousePos 		= (CyInterface().getMousePos().x, CyInterface().getMousePos().y)
+		self.bInfoPaneActive = True
+		self.iInfoPaneCnt += 1
+		self.tLastMousePos = (CyInterface().getMousePos().x, CyInterface().getMousePos().y)
 
 		screen = CyGInterfaceScreen( "MainInterface", CvScreenEnums.MAIN_INTERFACE )
 

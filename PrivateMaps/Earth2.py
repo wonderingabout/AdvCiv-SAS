@@ -120,13 +120,13 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         # <!-- custom: Earth2's legacy grain table omitted Arena, so the smallest tier fell upward to Huge grain.
         # Give Arena the intended Duel/Tiny tuple; SAS24-48 intentionally retain Huge grain alongside Earth2's fixed-Huge grid policy. See KI#282. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
         sizevalues = {
-            WorldSizeTypes.WORLDSIZE_ARENA:     (3,2,1),
-            WorldSizeTypes.WORLDSIZE_DUEL:      (3,2,1),
-            WorldSizeTypes.WORLDSIZE_TINY:      (3,2,1),
-            WorldSizeTypes.WORLDSIZE_SMALL:     (4,2,1),
-            WorldSizeTypes.WORLDSIZE_STANDARD:  (4,2,1),
-            WorldSizeTypes.WORLDSIZE_LARGE:     (4,2,1),
-            WorldSizeTypes.WORLDSIZE_HUGE:      (5,2,1)
+            WorldSizeTypes.WORLDSIZE_ARENA: (3,2,1),
+            WorldSizeTypes.WORLDSIZE_DUEL: (3,2,1),
+            WorldSizeTypes.WORLDSIZE_TINY: (3,2,1),
+            WorldSizeTypes.WORLDSIZE_SMALL: (4,2,1),
+            WorldSizeTypes.WORLDSIZE_STANDARD: (4,2,1),
+            WorldSizeTypes.WORLDSIZE_LARGE: (4,2,1),
+            WorldSizeTypes.WORLDSIZE_HUGE: (5,2,1)
             }
         (ScatterGrain, BalanceGrain, GatherGrain) = sas_lookup_world_size(sizekey, sizevalues)
 

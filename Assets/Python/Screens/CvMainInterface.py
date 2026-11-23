@@ -181,7 +181,7 @@ g_iTimeTextCounter = -1
 g_bRawShowing = False
 g_bYieldView, g_iYieldType = RawYields.getViewAndType(0)
 g_iYieldTiles = RawYields.WORKED_TILES
-RAW_YIELD_HELP = (	"TXT_KEY_RAW_YIELD_VIEW_TRADE", "TXT_KEY_RAW_YIELD_VIEW_FOOD", "TXT_KEY_RAW_YIELD_VIEW_PRODUCTION", "TXT_KEY_RAW_YIELD_VIEW_COMMERCE", "TXT_KEY_RAW_YIELD_TILES_WORKED", "TXT_KEY_RAW_YIELD_TILES_CITY", "TXT_KEY_RAW_YIELD_TILES_OWNED", "TXT_KEY_RAW_YIELD_TILES_ALL"	)
+RAW_YIELD_HELP = ( "TXT_KEY_RAW_YIELD_VIEW_TRADE", "TXT_KEY_RAW_YIELD_VIEW_FOOD", "TXT_KEY_RAW_YIELD_VIEW_PRODUCTION", "TXT_KEY_RAW_YIELD_VIEW_COMMERCE", "TXT_KEY_RAW_YIELD_TILES_WORKED", "TXT_KEY_RAW_YIELD_TILES_CITY", "TXT_KEY_RAW_YIELD_TILES_OWNED", "TXT_KEY_RAW_YIELD_TILES_ALL" )
 # BUG - Raw Yields - end
 # BUG - field of view slider:
 #DEFAULT_FIELD_OF_VIEW = 42 # disabled (replaced) by K-Mod
@@ -590,48 +590,48 @@ class CvMainInterface:
 #		self.PLE.PLE_initialize()
 
 		self.MainInterfaceInputMap = {
-			self.PLE.PLOT_LIST_BUTTON_NAME	: self.PLE.getPlotListButtonName,
-			self.PLE.PLOT_LIST_MINUS_NAME	: self.PLE.getPlotListMinusName,
-			self.PLE.PLOT_LIST_PLUS_NAME	: self.PLE.getPlotListPlusName,
-			self.PLE.PLOT_LIST_UP_NAME		: self.PLE.getPlotListUpName,
-			self.PLE.PLOT_LIST_DOWN_NAME 	: self.PLE.getPlotListDownName,
+			self.PLE.PLOT_LIST_BUTTON_NAME : self.PLE.getPlotListButtonName,
+			self.PLE.PLOT_LIST_MINUS_NAME : self.PLE.getPlotListMinusName,
+			self.PLE.PLOT_LIST_PLUS_NAME : self.PLE.getPlotListPlusName,
+			self.PLE.PLOT_LIST_UP_NAME : self.PLE.getPlotListUpName,
+			self.PLE.PLOT_LIST_DOWN_NAME : self.PLE.getPlotListDownName,
 
-			"PleViewModeStyle1"				: self.PLE.onClickPLEViewMode,
-			self.PLE.PLE_VIEW_MODE			: self.PLE.onClickPLEViewMode,
-			self.PLE.PLE_MODE_STANDARD		: self.PLE.onClickPLEModeStandard,
-			self.PLE.PLE_MODE_MULTILINE		: self.PLE.onClickPLEModeMultiline,
-			self.PLE.PLE_MODE_STACK_VERT	: self.PLE.onClickPLEModeStackVert,
-			self.PLE.PLE_MODE_STACK_HORIZ	: self.PLE.onClickPLEModeStackHoriz,
+			"PleViewModeStyle1" : self.PLE.onClickPLEViewMode,
+			self.PLE.PLE_VIEW_MODE : self.PLE.onClickPLEViewMode,
+			self.PLE.PLE_MODE_STANDARD : self.PLE.onClickPLEModeStandard,
+			self.PLE.PLE_MODE_MULTILINE : self.PLE.onClickPLEModeMultiline,
+			self.PLE.PLE_MODE_STACK_VERT : self.PLE.onClickPLEModeStackVert,
+			self.PLE.PLE_MODE_STACK_HORIZ : self.PLE.onClickPLEModeStackHoriz,
 
-			self.PLE.PLOT_LIST_PROMO_NAME	: self.PLE.unitPromotion,
-			self.PLE.PLOT_LIST_UPGRADE_NAME	: self.PLE.unitUpgrade,
+			self.PLE.PLOT_LIST_PROMO_NAME : self.PLE.unitPromotion,
+			self.PLE.PLOT_LIST_UPGRADE_NAME : self.PLE.unitUpgrade,
 
-			self.PLE.PLE_RESET_FILTERS		: self.PLE.onClickPLEResetFilters,
-			self.PLE.PLE_FILTER_CANMOVE		: self.PLE.onClickPLEFilterCanMove,
-			self.PLE.PLE_FILTER_CANTMOVE	: self.PLE.onClickPLEFilterCantMove,
-			self.PLE.PLE_FILTER_NOTWOUND	: self.PLE.onClickPLEFilterNotWound,
-			self.PLE.PLE_FILTER_WOUND		: self.PLE.onClickPLEFilterWound,
-			self.PLE.PLE_FILTER_LAND		: self.PLE.onClickPLEFilterLand,
-			self.PLE.PLE_FILTER_SEA			: self.PLE.onClickPLEFilterSea,
-			self.PLE.PLE_FILTER_AIR			: self.PLE.onClickPLEFilterAir,
-			self.PLE.PLE_FILTER_MIL			: self.PLE.onClickPLEFilterMil,
-			self.PLE.PLE_FILTER_DOM			: self.PLE.onClickPLEFilterDom,
-			self.PLE.PLE_FILTER_OWN			: self.PLE.onClickPLEFilterOwn,
-			self.PLE.PLE_FILTER_FOREIGN		: self.PLE.onClickPLEFilterForeign,
+			self.PLE.PLE_RESET_FILTERS : self.PLE.onClickPLEResetFilters,
+			self.PLE.PLE_FILTER_CANMOVE : self.PLE.onClickPLEFilterCanMove,
+			self.PLE.PLE_FILTER_CANTMOVE : self.PLE.onClickPLEFilterCantMove,
+			self.PLE.PLE_FILTER_NOTWOUND : self.PLE.onClickPLEFilterNotWound,
+			self.PLE.PLE_FILTER_WOUND : self.PLE.onClickPLEFilterWound,
+			self.PLE.PLE_FILTER_LAND : self.PLE.onClickPLEFilterLand,
+			self.PLE.PLE_FILTER_SEA : self.PLE.onClickPLEFilterSea,
+			self.PLE.PLE_FILTER_AIR : self.PLE.onClickPLEFilterAir,
+			self.PLE.PLE_FILTER_MIL : self.PLE.onClickPLEFilterMil,
+			self.PLE.PLE_FILTER_DOM : self.PLE.onClickPLEFilterDom,
+			self.PLE.PLE_FILTER_OWN : self.PLE.onClickPLEFilterOwn,
+			self.PLE.PLE_FILTER_FOREIGN : self.PLE.onClickPLEFilterForeign,
 
-			self.PLE.PLE_GRP_UNITTYPE		: self.PLE.onClickPLEGrpUnittype,
-			self.PLE.PLE_GRP_GROUPS			: self.PLE.onClickPLEGrpGroups,
-			self.PLE.PLE_GRP_PROMO			: self.PLE.onClickPLEGrpPromo,
-			self.PLE.PLE_GRP_UPGRADE		: self.PLE.onClickPLEGrpUpgrade,
+			self.PLE.PLE_GRP_UNITTYPE : self.PLE.onClickPLEGrpUnittype,
+			self.PLE.PLE_GRP_GROUPS : self.PLE.onClickPLEGrpGroups,
+			self.PLE.PLE_GRP_PROMO : self.PLE.onClickPLEGrpPromo,
+			self.PLE.PLE_GRP_UPGRADE : self.PLE.onClickPLEGrpUpgrade,
 		}
 
-#		self.iVisibleUnits 			= 0
-		self.iMaxPlotListIcons 		= 0
+#		self.iVisibleUnits = 0
+		self.iMaxPlotListIcons = 0
 
-		self.bPLECurrentlyShowing	= False
-		self.bVanCurrentlyShowing	= False
+		self.bPLECurrentlyShowing = False
+		self.bVanCurrentlyShowing = False
 # BUG - draw method
-		self.bBUGCurrentlyShowing	= False
+		self.bBUGCurrentlyShowing = False
 # BUG - draw method
 
 		self.xResolution = 0
@@ -3305,7 +3305,7 @@ class CvMainInterface:
 							screen.show(szStringIcon)
 
 						if bEnable:
-							iPlotListFrameSize = self.plotListUnitButtonSize()  - self.plotListUnitFrameThickness()
+							iPlotListFrameSize = self.plotListUnitButtonSize() - self.plotListUnitFrameThickness()
 							try: # advc.009b (work around crash upon reloading scripts)
 								lPlotListBtn = gRect("PlotListButton" + str(iCount))
 							except KeyError:

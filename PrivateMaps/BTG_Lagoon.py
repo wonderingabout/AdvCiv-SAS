@@ -50,12 +50,12 @@ def getNumHiddenCustomMapOptions():
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
-		0:	"Size Factor",
-		1:  "TXT_KEY_CONCEPT_RESOURCES",
-		2:	"Types of Start",
-		3:	"Center Resources",
-		4:	"Start Position",
-		5:	"TXT_KEY_MAP_WORLD_WRAP"
+		0: "Size Factor",
+		1: "TXT_KEY_CONCEPT_RESOURCES",
+		2: "Types of Start",
+		3: "Center Resources",
+		4: "Start Position",
+		5: "TXT_KEY_MAP_WORLD_WRAP"
 		}
 	if not option_names.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -65,12 +65,12 @@ def getCustomMapOptionName(argsList):
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	2,
-		1:  3,
-		2:	2,
-		3:	2,
-		4:	3,
-		5:	3
+		0: 2,
+		1: 3,
+		2: 2,
+		3: 2,
+		4: 3,
+		5: 3
 		}
 	if not option_values.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -79,29 +79,29 @@ def getNumCustomMapOptionValues(argsList):
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "Normal - Island is separated",
 			1: "1 Size small - Creates little bridges"
 			},
-		1:	{
+		1: {
 			0: "TXT_KEY_WORLD_STANDARD",
 			1: "TXT_KEY_MAP_BALANCED",
 			2: "Balanced - Including Marble"
 			},
-		2:	{
+		2: {
 			0: "1 Player by Team on Island",
 			1: "All Outer land"
 			},			
-		3:	{
+		3: {
 			0: "Normal Resources",
 			1: "Extra Resources"
 		},	
-		4:	{
+		4: {
 			0: "Normal",
 			1: "Top v Bottom",
 			2: "Anywhere"
 			},				
-		5:	{
+		5: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
@@ -117,12 +117,12 @@ def getCustomMapOptionDescAt(argsList):
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	0,
-		1:  2,
-		2:	0,
-		3:	1,
-		4:	1,
-		5:	0
+		0: 0,
+		1: 2,
+		2: 0,
+		3: 1,
+		4: 1,
+		5: 0
 		}
 	if not option_defaults.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -131,12 +131,12 @@ def getCustomMapOptionDefault(argsList):
 def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
 	option_random = {
-		0:	false,
-		1:	false,
-		2:	false,
-		3:  false,
-		4:	false,
-		5:	false
+		0: false,
+		1: false,
+		2: false,
+		3: false,
+		4: false,
+		5: false
 		}
 	if not option_random.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())

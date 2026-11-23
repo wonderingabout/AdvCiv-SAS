@@ -78,29 +78,29 @@ AdvisorOpt = BugCore.game.Advisors
 class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def __init__(self):
-		self.PEDIA_MAIN_SCREEN	= "PediaMainScreen"
-		self.INTERFACE_ART_INFO	= "SCREEN_BG_OPAQUE"
+		self.PEDIA_MAIN_SCREEN = "PediaMainScreen"
+		self.INTERFACE_ART_INFO = "SCREEN_BG_OPAQUE"
 
-		self.TAB_TOC   = "Contents"
+		self.TAB_TOC = "Contents"
 		self.TAB_INDEX = "Index"
 		self.SAS_USE_BOTTOM_TABS = False
 
-		self.WIDGET_ID		= "PediaMainWidget"
-		self.BACKGROUND_ID	= "PediaMainBackground"
-		self.TOP_PANEL_ID	= "PediaMainTopPanel"
-		self.BOT_PANEL_ID	= "PediaMainBottomPanel"
-		self.HEAD_ID		= "PediaMainHeader"
-		self.TOC_ID			= "PediaMainContents"
-		self.INDEX_ID		= "PediaMainIndex"
-		self.BACK_ID		= "PediaMainBack"
-		self.NEXT_ID		= "PediaMainForward"
+		self.WIDGET_ID = "PediaMainWidget"
+		self.BACKGROUND_ID = "PediaMainBackground"
+		self.TOP_PANEL_ID = "PediaMainTopPanel"
+		self.BOT_PANEL_ID = "PediaMainBottomPanel"
+		self.HEAD_ID = "PediaMainHeader"
+		self.TOC_ID = "PediaMainContents"
+		self.INDEX_ID = "PediaMainIndex"
+		self.BACK_ID = "PediaMainBack"
+		self.NEXT_ID = "PediaMainForward"
 		self.SAS_CLEAR_ID = "PediaMainClear"
 		self.SAS_GAME_PLAYER_ID_PREV_ID = "PediaMainGamePlayerIdPrev"
 		self.SAS_GAME_PLAYER_ID_NEXT_ID = "PediaMainGamePlayerIdNext"
-		self.EXIT_ID		= "PediaMainExit"
-		self.CATEGORY_LIST_ID	= "PediaMainCategoryList"
-		self.ITEM_LIST_ID	= "PediaMainItemList"
-		self.UPGRADES_GRAPH_ID	= "PediaMainUpgradesGraph"
+		self.EXIT_ID = "PediaMainExit"
+		self.CATEGORY_LIST_ID = "PediaMainCategoryList"
+		self.ITEM_LIST_ID = "PediaMainItemList"
+		self.UPGRADES_GRAPH_ID = "PediaMainUpgradesGraph"
 
 		# <!-- custom: search bar for the left item list (initially based on how Realism Invictus does it) (chatgpt 5.2 + claude opus 4.5 + Claude code Opus 5.5) -->
 		self.SAS_SEARCH_PANEL_ID = "PediaMainSearchPanel"
@@ -283,11 +283,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_TECH_STATISTICS_PREBUILT = False
 		self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE = False
 
-		self.pediaBuilding	= SevoPediaBuilding.SevoPediaBuilding(self)
-		self.pediaLeader	= SevoPediaLeader.SevoPediaLeader(self)
-		self.pediaIndex     = SevoPediaIndex.SevoPediaIndex(self)
-		self.pediaMovies    = SevoPediaMovie.SevoPediaMovie(self)
-		self.pediaMusic     = SevoPediaMusic.SevoPediaMusic(self)
+		self.pediaBuilding = SevoPediaBuilding.SevoPediaBuilding(self)
+		self.pediaLeader = SevoPediaLeader.SevoPediaLeader(self)
+		self.pediaIndex = SevoPediaIndex.SevoPediaIndex(self)
+		self.pediaMovies = SevoPediaMovie.SevoPediaMovie(self)
+		self.pediaMusic = SevoPediaMusic.SevoPediaMusic(self)
 		# <!-- custom: keep a shared handicap chart instance so its internal table cache survives between openings. (GPT-5.2-Codex) -->
 		self.pediaHandicapChart = SevoPediaHandicapChart.SevoPediaHandicapChart(self)
 		# <!-- custom: keep a shared game speed chart instance so its internal table cache survives between openings. (GPT-5.2-Codex) -->
@@ -968,8 +968,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				self.SAS_safeDeleteWidget(screen, self.TOC_ID)
 				self.SAS_safeDeleteWidget(screen, self.INDEX_ID)
 			if self.SAS_USE_BOTTOM_TABS:
-				screen.setText(self.TOC_ID, "Background", self.TOC_ACTIVE_TEXT,   CvUtil.FONT_LEFT_JUSTIFY,   self.X_TOC,   self.Y_TOC,   0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
-				screen.setText(self.INDEX_ID, "Background", self.INDEX_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_INDEX, self.Y_INDEX, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
+				screen.setText(self.TOC_ID, "Background", self.TOC_ACTIVE_TEXT,	CvUtil.FONT_LEFT_JUSTIFY, self.X_TOC,	self.Y_TOC,		0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText(self.INDEX_ID, "Background", self.INDEX_TEXT,	CvUtil.FONT_LEFT_JUSTIFY, self.X_INDEX,	self.Y_INDEX,	0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			screen.show(self.BACK_ID)
 			screen.show(self.NEXT_ID)
 			screen.show(self.SAS_CLEAR_ID)
@@ -1019,8 +1019,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.deleteAllWidgets()
 		self.deleteListWidgets()
 		screen = self.getScreen()
-		screen.setText(self.TOC_ID, "Background", self.TOC_TEXT,   CvUtil.FONT_LEFT_JUSTIFY,   self.X_TOC,   self.Y_TOC,   0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
-		screen.setText(self.INDEX_ID, "Background", self.INDEX_ACTIVE_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_INDEX, self.Y_INDEX, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
+		screen.setText(self.TOC_ID, "Background", self.TOC_TEXT,			CvUtil.FONT_LEFT_JUSTIFY, self.X_TOC,	self.Y_TOC,		0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setText(self.INDEX_ID, "Background", self.INDEX_ACTIVE_TEXT,	CvUtil.FONT_LEFT_JUSTIFY, self.X_INDEX,	self.Y_INDEX,	0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.hide(self.BACK_ID)
 		screen.hide(self.NEXT_ID)
 		screen.hide(self.SAS_CLEAR_ID)
@@ -1041,11 +1041,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def setPediaCommonWidgets(self):
 		# advc.004y: was TXT_KEY_SEVOPEDIA_TITLE
-		self.HEAD_TEXT = SASTextScale.sasFontTagTitle.bold + localText.getText("TXT_KEY_CIVILOPEDIA_TITLE",      ())         + SASTextScale.SAS_FONT_TAG_CLOSE
-		self.BACK_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_BACK",    ()).upper())
+		self.HEAD_TEXT = SASTextScale.sasFontTagTitle.bold + localText.getText("TXT_KEY_CIVILOPEDIA_TITLE", ()) + SASTextScale.SAS_FONT_TAG_CLOSE
+		self.BACK_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_BACK", ()).upper())
 		self.NEXT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper())
 		self.SAS_CLEAR_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SAS_CLEAR", ()).upper())
-		self.EXIT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT",    ()).upper())
+		self.EXIT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper())
 		# <!-- custom: build grey labels for global footer controls that stay visible but may be inactive.
 		# Page-specific Legend links still appear only when applicable: no Legend means no page legend, not an inactive global command. See KI#126. (GPT-5.5) -->
 		eLightGrey = SASVisuals.Color.LIGHT_GREY
@@ -1058,10 +1058,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_GAME_PLAYER_ID_NEXT_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SAS_GAME_PLAYER_ID_NEXT", (-1,)), eLightGrey))
 
 		self.TOC_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()).upper())
-		self.INDEX_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX",  ()).upper())
+		self.INDEX_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX", ()).upper())
 		eYellow = SASVisuals.Color.YELLOW
 		self.TOC_ACTIVE_TEXT = SASTextScale.titleText(localText.getColorText("TXT_KEY_PEDIA_SCREEN_CONTENTS", (), eYellow).upper())
-		self.INDEX_ACTIVE_TEXT = SASTextScale.titleText(localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX",  (), eYellow).upper())
+		self.INDEX_ACTIVE_TEXT = SASTextScale.titleText(localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX", (), eYellow).upper())
 
 		# <!-- custom: Re-translate category labels whenever the shared Sevopedia screen is created, while order/icons/keys come from the minimal runtime display rows derived during __init__. (ChatGPT-5.6-Sol) -->
 		self.categoryList = []
@@ -1086,7 +1086,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# </advc.004y>
 		screen.setDimensions(X_SCREEN, Y_SCREEN, self.W_SCREEN, self.H_SCREEN)
 
-		screen.setText(self.HEAD_ID, "Background", self.HEAD_TEXT, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
+		screen.setText(self.HEAD_ID, "Background", self.HEAD_TEXT, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		# <!-- custom: Note: removed generic footer setText from this common-widgets block because it became redundant/no longer relevant here; footer link placement is now handled in showContents where category-specific behavior (Leader AIP overflow exception) is applied. (GPT-5.3-Codex) -->
 
 	def SAS_getFooterLegendX(self):

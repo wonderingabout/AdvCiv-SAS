@@ -60,7 +60,7 @@ class CvVictoryScreen:
 	def __init__(self, screenId):
 		self.screenId = screenId
 		self.SCREEN_NAME = "VictoryScreen"
-		self.DEBUG_DROPDOWN_ID =  "VictoryScreenDropdownWidget"
+		self.DEBUG_DROPDOWN_ID = "VictoryScreenDropdownWidget"
 		self.INTERFACE_ART_INFO = "TECH_BG"
 		self.EXIT_AREA = "EXIT"
 		self.EXIT_ID = "VictoryScreenExit"
@@ -80,8 +80,8 @@ class CvVictoryScreen:
 		# <advc.703>
 		self.RF_SCORE_TAB_ID = "RiseFallTabWidget"
 		# Adopted from CvReligionScreen:
-		self.AREA1_ID =  "RiseFallAreaWidget1"
-		self.AREA2_ID =  "RiseFallAreaWidget2"
+		self.AREA1_ID = "RiseFallAreaWidget1"
+		self.AREA2_ID = "RiseFallAreaWidget2"
 		self.X_RF1_AREA = 45
 		self.X_RF2_AREA = 522
 		self.W_RF_AREA = 457
@@ -568,7 +568,7 @@ class CvVictoryScreen:
 				self.deleteAllWidgets()
 				self.drawVoteSourceInactiveFallback(self.TEXT_MEMBERS_NO_VOTING_YET, [])
 				return
-			if  iRelVote == -1:
+			if iRelVote == -1:
 				self.VoteBody = 2 # AP Not active
 			elif iUNVote == -1:
 				self.VoteBody = 1 # UN Not active
@@ -827,7 +827,7 @@ class CvVictoryScreen:
 		sVoteReq = "%i" % (iVoteReq)
 		sString = SASTextScale.sasFontTagLabel.bold + localText.getText("TXT_KEY_BUG_VICTORY_VOTES_TOTAL", ()) + SASTextScale.SAS_FONT_TAG_CLOSE + u" "
 		if (iCand1Known != 0 and iCand2Known != 0):
-			sString +=  localText.getText("TXT_KEY_BUG_VICTORY_VOTES_REQUIRED", (sVoteReq,))
+			sString += localText.getText("TXT_KEY_BUG_VICTORY_VOTES_REQUIRED", (sVoteReq,))
 		SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		if iCand1Known == 1:

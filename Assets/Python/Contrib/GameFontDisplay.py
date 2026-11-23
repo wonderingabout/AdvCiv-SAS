@@ -45,8 +45,8 @@ class GameFontDisplay:
 				iID += 8193 # was +8483 </advc>
 			screen.appendTableRow(szTableName)
 			screen.setTableInt(szTableName, 0, iLine, "<font=2>" + unicode(iID) + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-			screen.setTableInt(szTableName, 1, iLine, "<font=2>" + (u" %c" %  (iID)) + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-			screen.setTableInt(szTableName, 2, iLine, "<font=4>" + (u" %c" %  (iID)) + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+			screen.setTableInt(szTableName, 1, iLine, "<font=2>" + (u" %c" % (iID)) + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+			screen.setTableInt(szTableName, 2, iLine, "<font=4>" + (u" %c" % (iID)) + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 			infoPointer = self.getInfoPointerFromGameFont(iID)
 

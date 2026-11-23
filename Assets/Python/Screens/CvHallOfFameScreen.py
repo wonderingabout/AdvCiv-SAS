@@ -247,7 +247,7 @@ class CvHallOfFameScreen:
 		#iNumDropDowns += 1
 
 		#yDropDown = self.DROPDOWN_SPACING_Y * (iNumDropDowns % 2) + self.DROPDOWN_Y
-		#xDropDown = (self.DROPDOWN_WIDTH  + self.DROPDOWN_SPACING_X) * (iNumDropDowns / 2) + self.DROPDOWN_SPACING_X
+		#xDropDown = (self.DROPDOWN_WIDTH + self.DROPDOWN_SPACING_X) * (iNumDropDowns / 2) + self.DROPDOWN_SPACING_X
 
 		# Sea Level dropdown initialization
 		#screen.addDropDownBoxGFC(self.SEALEVEL_DROPDOWN_ID, xDropDown, yDropDown, self.DROPDOWN_WIDTH, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)

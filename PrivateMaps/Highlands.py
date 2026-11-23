@@ -38,11 +38,11 @@ def getNumHiddenCustomMapOptions():
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
-		0:	"TXT_KEY_MAP_SCRIPT_MOUNTAIN_PATTERN",
-		1:	"TXT_KEY_MAP_SCRIPT_MOUNTAIN_DENSITY",
-		2:	"TXT_KEY_MAP_SCRIPT_WATER_SETTING",
-		3:  "TXT_KEY_MAP_WORLD_WRAP",
-		4:  "TXT_KEY_CONCEPT_RESOURCES"
+		0: "TXT_KEY_MAP_SCRIPT_MOUNTAIN_PATTERN",
+		1: "TXT_KEY_MAP_SCRIPT_MOUNTAIN_DENSITY",
+		2: "TXT_KEY_MAP_SCRIPT_WATER_SETTING",
+		3: "TXT_KEY_MAP_WORLD_WRAP",
+		4: "TXT_KEY_CONCEPT_RESOURCES"
 		}
 	if not option_names.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -52,38 +52,38 @@ def getCustomMapOptionName(argsList):
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	3,
-		1:	3,
-		2:	3,
-		3:  3,
-		4:  2
+		0: 3,
+		1: 3,
+		2: 3,
+		3: 3,
+		4: 2
 		}
 	return option_values[iOption]
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_SCRIPT_SCATTERED",
 			1: "TXT_KEY_MAP_SCRIPT_RIDGELINES",
 			2: "TXT_KEY_MAP_SCRIPT_CLUSTERED"
 			},
-		1:	{
+		1: {
 			0: "TXT_KEY_MAP_SCRIPT_DENSE_PEAKS",
 			1: "TXT_KEY_MAP_SCRIPT_NORMAL_PEAKS",
 			2: "TXT_KEY_MAP_SCRIPT_THIN_PEAKS"
 			},
-		2:	{
+		2: {
 			0: "TXT_KEY_MAP_SCRIPT_SMALL_LAKES",
 			1: "TXT_KEY_MAP_SCRIPT_LARGE_LAKES",
 			2: "TXT_KEY_MAP_SCRIPT_SEAS"
 			},
-		3:	{
+		3: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 			},
-		4:	{
+		4: {
 			0: "TXT_KEY_WORLD_STANDARD",
 			1: "TXT_KEY_MAP_BALANCED"
 			}
@@ -96,22 +96,22 @@ def getCustomMapOptionDescAt(argsList):
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	1,
-		1:	1,
-		2:	0,
-		3:  0,
-		4:  0
+		0: 1,
+		1: 1,
+		2: 0,
+		3: 0,
+		4: 0
 		}
 	return option_defaults[iOption]
 
 def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
 	option_random = {
-		0:	true,
-		1:	true,
-		2:	true,
-		3:	false,
-		4:  false
+		0: true,
+		1: true,
+		2: true,
+		3: false,
+		4: false
 		}
 	return option_random[iOption]
 

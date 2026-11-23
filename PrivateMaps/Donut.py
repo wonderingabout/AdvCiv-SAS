@@ -35,10 +35,10 @@ def getNumHiddenCustomMapOptions():
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
-		0:	"TXT_KEY_MAP_SCRIPT_CENTER_REGION",
-		1:	"TXT_KEY_FEATURE_JUNGLE",
-		2:	"TXT_KEY_MAP_WORLD_WRAP",
-		3:  "TXT_KEY_CONCEPT_RESOURCES"
+		0: "TXT_KEY_MAP_SCRIPT_CENTER_REGION",
+		1: "TXT_KEY_FEATURE_JUNGLE",
+		2: "TXT_KEY_MAP_WORLD_WRAP",
+		3: "TXT_KEY_CONCEPT_RESOURCES"
 		}
 	if not option_names.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -48,33 +48,33 @@ def getCustomMapOptionName(argsList):
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	5,
-		1:	2,
-		2:	3,
-		3:  2
+		0: 5,
+		1: 2,
+		2: 3,
+		3: 2
 		}
 	return option_values[iOption]
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_SCRIPT_HILLS",
 			1: "TXT_KEY_MAP_SCRIPT_PEAKS",
 			2: "TXT_KEY_MAP_SCRIPT_DESERT",
 			3: "TXT_KEY_MAP_SCRIPT_OCEAN",
 			4: "TXT_KEY_WORLD_STANDARD"
 			},
-		1:	{
+		1: {
 			0: "TXT_KEY_FEATURE_JUNGLE",
 			1: "TXT_KEY_MAP_SCRIPT_NO_JUNGLES"
 			},
-		2:	{
+		2: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 			},
-		3:	{
+		3: {
 			0: "TXT_KEY_WORLD_STANDARD",
 			1: "TXT_KEY_MAP_BALANCED"
 			}
@@ -87,20 +87,20 @@ def getCustomMapOptionDescAt(argsList):
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	1,
-		1:	0,
-		2:	0,
-		3:  0
+		0: 1,
+		1: 0,
+		2: 0,
+		3: 0
 		}
 	return option_defaults[iOption]
 
 def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
 	option_random = {
-		0:	false,
-		1:	false,
-		2:	false,
-		3:  false
+		0: false,
+		1: false,
+		2: false,
+		3: false
 		}
 	return option_random[iOption]
 

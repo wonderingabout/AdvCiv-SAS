@@ -338,6 +338,11 @@ class SourceChangeProvenanceTests(unittest.TestCase):
         self.assertTrue(any("include/import change" in error for error in self.errors("CvGameCoreDLL/Test.cpp", old, bad)))
         self.assertEqual(self.errors("CvGameCoreDLL/Test.cpp", old, good), [])
 
+    # <!-- custom: Whitespace between a directive's tokens is layout, as KI#21.8's sweep changed in "from array  import array", but inside an include's quotes it names another file (Codex's review, 2026-11-23). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+    def test_directive_layout_change_is_not_a_dependency_change(self):
+        self.assertEqual(self.errors("Assets/Python/Test.py", "from array  import array\nx = 1\n", "from array import array\nx = 1\n"), [])
+        self.assertTrue(any("include/import change" in error for error in self.errors("CvGameCoreDLL/Test.cpp", '#include "foo  bar.h"\nint value;\n', '#include "foo bar.h"\nint value;\n')))
+
     def test_removed_python_import_requires_rationale(self):
         old = "import old_module\nvalue = 1\n"
         bad = "value = 1\n"

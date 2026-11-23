@@ -32,9 +32,9 @@ def getNumHiddenCustomMapOptions():
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
-		0:	"TXT_KEY_MAP_SCRIPT_MAZE_WIDTH",
-		1:	"TXT_KEY_MAP_WORLD_WRAP",
-		2:  "TXT_KEY_CONCEPT_RESOURCES"
+		0: "TXT_KEY_MAP_SCRIPT_MAZE_WIDTH",
+		1: "TXT_KEY_MAP_WORLD_WRAP",
+		2: "TXT_KEY_CONCEPT_RESOURCES"
 		}
 	if not option_names.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -44,28 +44,28 @@ def getCustomMapOptionName(argsList):
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	5,
-		1:	3,
-		2:  2
+		0: 5,
+		1: 3,
+		2: 2
 		}
 	return option_values[iOption]
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_SCRIPT_1_PLOT_WIDE",
 			1: "TXT_KEY_MAP_SCRIPT_2_PLOTS_WIDE",
 			2: "TXT_KEY_MAP_SCRIPT_3_PLOTS_WIDE",
 			3: "TXT_KEY_MAP_SCRIPT_4_PLOTS_WIDE",
 			4: "TXT_KEY_MAP_SCRIPT_5_PLOTS_WIDE"
 			},
-		1:	{
+		1: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 			},
-		2:	{
+		2: {
 			0: "TXT_KEY_WORLD_STANDARD",
 			1: "TXT_KEY_MAP_BALANCED"
 			}
@@ -78,18 +78,18 @@ def getCustomMapOptionDescAt(argsList):
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	2,
-		1:	1,
-		2:  0
+		0: 2,
+		1: 1,
+		2: 0
 		}
 	return option_defaults[iOption]
 
 def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
 	option_random = {
-		0:	true,
-		1:	false,
-		2:  false
+		0: true,
+		1: false,
+		2: false
 		}
 	return option_random[iOption]
 

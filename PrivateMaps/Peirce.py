@@ -360,14 +360,14 @@ def addFeatures():
 						map.plot(iX,iY).setFeatureType(iFeature,-1)
 				if iY == 1:
 					if iX > 1 and iX < (map.getGridWidth() - 2):
-						iMirrorX =  map.getGridWidth() - iX - 1
+						iMirrorX = map.getGridWidth() - iX - 1
 						iMirrorY = 2
 						pMirrorPlot = map.plot(iX, iY)
 						iFeature = pMirrorPlot.getFeatureType()
 						map.plot(iX,iY).setFeatureType(iFeature,-1)
 				elif iY == (map.getGridWidth() - 2):
 					if iX > 1 and iX < (map.getGridWidth() - 2):
-						iMirrorX =  map.getGridWidth() - iX - 1
+						iMirrorX = map.getGridWidth() - iX - 1
 						iMirrorY = map.getGridWidth() - iY - 2
 						pMirrorPlot = map.plot(iX, iY)
 						iFeature = pMirrorPlot.getFeatureType()

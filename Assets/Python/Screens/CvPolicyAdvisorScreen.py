@@ -43,7 +43,7 @@ class CvPolicyAdvisorScreen:
 		self.AREA_NAME = "PolicyAdvisorScreenArea"
 		self.HELP_AREA_NAME = "PolicyAdvisorScreenHelpArea"
 		self.HELP_IMAGE_NAME = "PolicyAdvisorScreenCivicOptionImage"
-		self.DEBUG_DROPDOWN_ID =  "PolicyDropdownWidget"
+		self.DEBUG_DROPDOWN_ID = "PolicyDropdownWidget"
 		self.BACKGROUND_ID = "PolicyBackground"
 		self.HELP_HEADER_NAME = "PolicyAdvisorScreenHeaderName"
 		self.POLICY_OPTION_HEADER_NAME = "PolicyAdvisorScreenOptionHeader"
@@ -79,10 +79,10 @@ class CvPolicyAdvisorScreen:
 		self.Z_TEXT = self.Z_SCREEN - 0.2
 
 		self.PolicyAdvisorScreenInputMap = {
-			self.BUTTON_NAME		: self.PolicyButton,
-			self.TEXT_NAME			: self.PolicyButton,
-			self.EXIT_NAME			: self.Revolution,
-			self.CANCEL_NAME		: self.Cancel,
+			self.BUTTON_NAME : self.PolicyButton,
+			self.TEXT_NAME : self.PolicyButton,
+			self.EXIT_NAME : self.Revolution,
+			self.CANCEL_NAME : self.Cancel,
 			}
 
 		self.iActivePlayer = -1
@@ -642,9 +642,9 @@ class CvPolicyAdvisorScreen:
 
 		szHelpText += CyGameTextMgr().parseCivicInfo(iCivic, False, True, True)
 
-		fX = self.HEADINGS_SPACING  + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * iCivicOption
+		fX = self.HEADINGS_SPACING + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * iCivicOption
 
-		screen.setLabel(self.HELP_HEADER_NAME + str(iCivicOption), "Background",  SASTextScale.sasFontTagLabel + gc.getCivicInfo(self.m_paeDisplayPolicies[iCivicOption]).getDescription().upper() + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, fX + self.HEADINGS_WIDTH/2, self.HELP_TOP + self.TEXT_MARGIN, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.HELP_HEADER_NAME + str(iCivicOption), "Background", SASTextScale.sasFontTagLabel + gc.getCivicInfo(self.m_paeDisplayPolicies[iCivicOption]).getDescription().upper() + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, fX + self.HEADINGS_WIDTH/2, self.HELP_TOP + self.TEXT_MARGIN, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		fY = self.HELP_TOP - self.BIG_BUTTON_SIZE
 		szHelpImageID = self.HELP_IMAGE_NAME + str(iCivicOption)		
@@ -658,7 +658,7 @@ class CvPolicyAdvisorScreen:
 	def drawAllHelpText(self):
 		for i in range (gc.getNumCivicOptionInfos()):		
 
-			fX = self.HEADINGS_SPACING  + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * i
+			fX = self.HEADINGS_SPACING + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * i
 
 			szPaneID = "PolicyHelpTextBackground" + str(i)
 			screen = self.getScreen()
@@ -676,7 +676,7 @@ class CvPolicyAdvisorScreen:
 
 		bChange = False
 		i = 0
-		while (i  < gc.getNumCivicOptionInfos() and not bChange):
+		while (i < gc.getNumCivicOptionInfos() and not bChange):
 			if (self.m_paeCurrentPolicies[i] != self.m_paeOriginalPolicies[i]):
 				bChange = True
 			i += 1		

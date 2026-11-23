@@ -50,7 +50,7 @@ from SAS_WorldSizeUtils import *
 import CvUtil
 import CvMapGeneratorUtil
 
-from array  import array
+from array import array
 from random import random, randint, seed, shuffle
 import math
 import sys
@@ -68,19 +68,19 @@ class MapConstants:
 
 	def initialize(self):
 		#This variable sets how much land the map will have, and thus how large its oceans will be.
-		#self.SeaLevel          = 0 # advc: Use the standard option (low/medium/high) for this
+		#self.SeaLevel = 0 # advc: Use the standard option (low/medium/high) for this
 
 		#This variable sets whether to use the new PW3 landmass generator or the old PW2 one.
 		self.LandmassGenerator = 0
 
 		#This variable sets whether to use Average Slope or Absolute Height to determine which tiles are Hills and Peaks.
-		self.HillPeakStyle     = 0
+		self.HillPeakStyle = 0
 
 		#This variable sets whether to use the new PW3 climate system or the old PW2 one.
-		self.ClimateSystem     = 0
+		self.ClimateSystem = 0
 
 		#This variable sets whether to use the PW2 river generator or the Vanilla Civ4 one.
-		self.RiverGenerator    = 0
+		self.RiverGenerator = 0
 
 		#If this variable is set to False, a shower of colossal meteors will attempt to
 		#break up any pangaea-like continents. Setting this variable to True will allow
@@ -163,7 +163,7 @@ class MapConstants:
 
 		#Chance an Oasis will appear. A tile must be Desert, not be on a hill, not be near another Oasis,
 		#and be surrounded by Desert on all sides.
-		#self.OasisPercent   = 0.5
+		#self.OasisPercent = 0.5
 		#self.OasisMinChance = 0.5
 		#self.OasisMaxChance = 1.0
 		# <advc> This works differently now, and the enclosure conditions are also less strict (i.e. not as described above).
@@ -190,12 +190,12 @@ class MapConstants:
 		#Degrees latitude for the top and bottom of the map. This allows
 		#for more specific climate zones
 		# advc: Was 90, -90. That results in one whole row for 90 and -90 each, which, with an equal-area projection, should take up at most one plot each.
-		self.topLatitude    = 85
+		self.topLatitude = 85
 		self.bottomLatitude = -85
 
 		#Horse latitudes and polar fronts plus and minus in case you
 		#want some zones to be compressed or emphasized.
-		self.horseLatitude      = 30
+		self.horseLatitude = 30
 		self.polarFrontLatitude = 60
 
 		#Tropics of Cancer and Capricorn plus and minus respectively
@@ -233,12 +233,12 @@ class MapConstants:
 
 		#The following values are used for assigning starting locations. For now,
 		#they have the same ratio that is found in CvPlot::getFoundValue
-		#self.FoodValue       = 16
+		#self.FoodValue = 16
 		self.ProductionValue = 16
-		#self.CommerceValue   = 16
+		#self.CommerceValue = 16
 		# advc: v3.2 had used 10/40/20 (also weird); The MongooseMod changelog from 19 Jan 2013 says 16/16/8, and a comment elsewhere cites commerce being worth half as much as the other yields as the "standard rule for yield balance". So this might be a bug. Let's give food a little less weight though - b/c lack of food is easily amended during normalization - and commerce a little more because it's difficult to come by in the very early game.
-		self.FoodValue       = 14
-		self.CommerceValue   = 10
+		self.FoodValue = 14
+		self.CommerceValue = 10
 
 		#Coastal cities are important, how important is determined by this value.
 		# advc (note): I think this was intended for discouraging starts one off the coast and turned out not to be needed (at 1, it has no effect). Was 1.3 in v1.32.
@@ -254,19 +254,19 @@ class MapConstants:
 		#Secure resources are important, how important is determined by this value.
 		# advc: Was 1.1, 1.05. Secure access (and w/o worker turns) is, again, not an important consideration for a capital.
 		self.StrategicBonusCityValueBonus = 1.03
-		self.OtherBonusCityValueBonus     = 1.0
+		self.OtherBonusCityValueBonus = 1.0
 
 		#Bonus resources to add depending on difficulty settings
-		self.SettlerBonus   = 2
+		self.SettlerBonus = 2
 		self.ChieftainBonus = 2
-		self.WarlordBonus   = 1
+		self.WarlordBonus = 1
 		# advc: Was 1. I'm disabling these bonuses anyway (at the end of SetStartingPlots), but if someone turns them back on, I still doubt they'd want an extra bonus on Noble.
-		self.NobleBonus     = 0
-		self.PrinceBonus    = 0
-		self.MonarchBonus   = 0
-		self.EmperorBonus   = 0
-		self.ImmortalBonus  = 0
-		self.DeityBonus     = 0
+		self.NobleBonus = 0
+		self.PrinceBonus = 0
+		self.MonarchBonus = 0
+		self.EmperorBonus = 0
+		self.ImmortalBonus = 0
+		self.DeityBonus = 0
 
 		#Decides whether to use the Python random generator or the one that is
 		#intended for use with civ maps. The Python random has much higher precision
@@ -281,36 +281,36 @@ class MapConstants:
 
 		#Below here are static defines. If you change these, the map won't work.
 		#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		self.L  = 0
-		self.N  = 1
-		self.S  = 2
-		self.E  = 3
-		self.W  = 4
+		self.L = 0
+		self.N = 1
+		self.S = 2
+		self.E = 3
+		self.W = 4
 		self.NE = 5
 		self.NW = 6
 		self.SE = 7
 		self.SW = 8
 
-		self.NO_SEPARATION          = 0
+		self.NO_SEPARATION = 0
 		self.NORTH_SOUTH_SEPARATION = 1
-		self.EAST_WEST_SEPARATION   = 2
+		self.EAST_WEST_SEPARATION = 2
 
-		self.width  = 0
+		self.width = 0
 		self.height = 0
 
 		self.WATER = 0
-		self.LAND  = 1
+		self.LAND = 1
 		self.HILLS = 2
-		self.PEAK  = 3
+		self.PEAK = 3
 
-		self.OCEAN  = 0
-		self.COAST  = 1
-		#self.MARSH  = 2
-		self.GRASS  = 3
+		self.OCEAN = 0
+		self.COAST = 1
+		#self.MARSH = 2
+		self.GRASS = 3
 		self.PLAINS = 4
 		self.DESERT = 5
 		self.TUNDRA = 6
-		self.SNOW   = 7
+		self.SNOW = 7
 
 		self.minimumLandInChoke = 0.5
 
@@ -320,7 +320,7 @@ class MapConstants:
 		# advc: twistMinFreq was 0.02. Gets adjusted in ElevationMap3.GenerateElevationMap. Greater values (closer to twistMaxFreq) seem to result in somewhat larger landmasses (or maybe not ...). Fwiw, cephalo uses 0.05 in PerfectWorld6.lua.
 		self.twistMinFreq = 0.045
 		self.twistMaxFreq = 0.12
-		self.twistVar     = 0.042
+		self.twistVar = 0.042
 		self.mountainFreq = 0.078
 
 		# Weight of the mountain elevation map versus the coastline elevation map.
@@ -332,17 +332,17 @@ class MapConstants:
 		self.maxWaterTemp = 0.6
 
 		# Strength of geostrophic rainfall versus monsoon rainfall
-		self.geostrophicFactor              = 3.0
+		self.geostrophicFactor = 3.0
 		self.geostrophicLateralWindStrength = 0.6
 
 		# Wind Zones
-		self.NOZONE     = -1
-		self.NPOLAR     = 0
+		self.NOZONE = -1
+		self.NPOLAR = 0
 		self.NTEMPERATE = 1
-		self.NEQUATOR   = 2
-		self.SEQUATOR   = 3
+		self.NEQUATOR = 2
+		self.SEQUATOR = 3
 		self.STEMPERATE = 4
-		self.SPOLAR     = 5
+		self.SPOLAR = 5
 
 		# Fill in any lakes smaller than this. It looks bad to have large
 		# river systems flowing into a tiny lake.
@@ -353,8 +353,8 @@ class MapConstants:
 		# Minimum amount of rain dropped by default before other factors
 		# add to the amount of rain dropped
 		self.minimumRainCost = 0.0001
-		self.upLiftExponent  = 4
-		self.polarRainBoost  = 0.0
+		self.upLiftExponent = 4
+		self.polarRainBoost = 0.0
 
 		# These attenuation factors lower the altitude of the map edges. This is
 		# currently used to prevent large continents in the uninhabitable polar
@@ -362,14 +362,14 @@ class MapConstants:
 		# have need for them.
 		# advc (note): Now set in initInGameOptions
 		self.northAttenuationFactor = 0.0
-		self.northAttenuationRange  = 0.0 #percent of the map height.
+		self.northAttenuationRange = 0.0 #percent of the map height.
 		self.southAttenuationFactor = 0.0
-		self.southAttenuationRange  = 0.0
+		self.southAttenuationRange = 0.0
 		# east west attenuation may be desired for flat maps.
 		self.eastAttenuationFactor = 0.0
-		self.eastAttenuationRange  = 0.0 #percent of the map width.
+		self.eastAttenuationRange = 0.0 #percent of the map width.
 		self.westAttenuationFactor = 0.0
-		self.westAttenuationRange  = 0.0
+		self.westAttenuationRange = 0.0
 
 		#This value controls the number of mid-altitude lake depressions per map square.
 		#It will become a lake if enough water flows into the depression.
@@ -395,7 +395,7 @@ class MapConstants:
 		#reflect the resulting map size. Both dimensions( + 1 if wrapping in
 		#that dimension = False) must be evenly divisible by self.hmMaxGrain
 		# advc.137: Increased both by 16
-		self.hmWidth  = 160
+		self.hmWidth = 160
 		self.hmHeight = 113
 
 		#Size of largest map increment to begin midpoint displacement. Must
@@ -475,8 +475,8 @@ class MapConstants:
 		#Creates a water margin around the map edges.
 		self.northMargin = False
 		self.southMargin = False
-		self.eastMargin  = False
-		self.westMargin  = False
+		self.eastMargin = False
+		self.westMargin = False
 
 		#If you sink the margins all the way to 0.0, they become too obvious.
 		#This variable sets the maximum amount of sinking
@@ -493,15 +493,15 @@ class MapConstants:
 		#later in the process.
 		self.northWaterBand = 0
 		self.southWaterBand = 0
-		self.eastWaterBand  = 0
-		self.westWaterBand  = 0
+		self.eastWaterBand = 0
+		self.westWaterBand = 0
 
 		#These variables are intended for use with the above water band variables
 		#but you can crop the map edge after climate generation for any reason.
 		self.northCrop = 0
 		self.southCrop = 0
-		self.eastCrop  = 0
-		self.westCrop  = 0
+		self.eastCrop = 0
+		self.westCrop = 0
 
 		#Oceans are slow to gain and lose heat, so the max and min temps
 		#are reduced and raised by this much.
@@ -566,13 +566,13 @@ class MapConstants:
 		gc = CyGlobalContext()
 		mmap = gc.getMap()
 		# Sea Level
-		#self.SeaLevel          = mmap.getCustomMapOption(0)
+		#self.SeaLevel = mmap.getCustomMapOption(0)
 		# <advc> Use the standard sea level option instead
 		seaChg = gc.getSeaLevelInfo(CyMap().getSeaLevel()).getSeaLevelChange()
 		self.SeaLevelFactor -= 0.0425 * seaChg
 		# Some other changes to options below ...
 		# Landmass Generator (renumbered to option index 0; was 1)
-		self.LandmassGenerator  = mmap.getCustomMapOption(0)
+		self.LandmassGenerator = mmap.getCustomMapOption(0)
 		# I'm making the hex-based generator unavailable. So the PW2 generator takes choice id 1 on the menu, but is still represented by id 2 within the script (b/c a lot of code would have to be changed otherwise).
 		if self.LandmassGenerator == 1:
 			self.LandmassGenerator = 2
@@ -581,39 +581,39 @@ class MapConstants:
 			self.landPercent -= 0.004
 		# Hill/Peak Style
 		# Always place hills and peaks based (mainly) on differences in altitude. Using absolute altitude is pretty much only good for concluding that it's a bad idea.
-		#self.HillPeakStyle     = mmap.getCustomMapOption(2)
+		#self.HillPeakStyle = mmap.getCustomMapOption(2)
 		# Climate System
 		# Always use PW3. The older system is working, but I see no compelling reason to prefer it.
-		#self.ClimateSystem     = mmap.getCustomMapOption(3)
+		#self.ClimateSystem = mmap.getCustomMapOption(3)
 		# River Generator
 		# Always use the PM river generator (but only for placing a portion of the rivers; best of both worlds, hopefully).
-		#self.RiverGenerator     = mmap.getCustomMapOption(4)
+		#self.RiverGenerator = mmap.getCustomMapOption(4)
 		# Pangaea Rules
 		# Allow them unless the Old World Starts option is used
-		#self.AllowPangaeas      = (mmap.getCustomMapOption(5) == 0)
+		#self.AllowPangaeas = (mmap.getCustomMapOption(5) == 0)
 		# Wrap Options (renumbered to option index 2; was 6)
-		selectionID            = mmap.getCustomMapOption(2)
+		selectionID = mmap.getCustomMapOption(2)
 		# New World Rules (renumbered to option index 1; was 7)
-		self.OldWorldStarts    = mmap.getCustomMapOption(1)
+		self.OldWorldStarts = mmap.getCustomMapOption(1)
 		# Break Pangaea if and only if there has to be an Old World
 		self.AllowPangaeas = not self.OldWorldStarts
 		# </advc>
 		if selectionID == 1: # advc: was 0
-			self.eastWaterBand  = 0
-			self.westWaterBand  = 0
-			self.eastCrop       = 0
-			self.westCrop       = 0
+			self.eastWaterBand = 0
+			self.westWaterBand = 0
+			self.eastCrop = 0
+			self.westCrop = 0
 		elif selectionID == 2: # advc: was 1
 			self.WrapY = True
 			self.hmHeight -= 1
 			self.northWaterBand = 0
 			self.southWaterBand = 0
-			self.eastWaterBand  = 0
-			self.westWaterBand  = 0
-			self.northCrop      = 0
-			self.southCrop      = 0
-			self.eastCrop       = 0
-			self.westCrop       = 0
+			self.eastWaterBand = 0
+			self.westWaterBand = 0
+			self.northCrop = 0
+			self.southCrop = 0
+			self.eastCrop = 0
+			self.westCrop = 0
 		elif selectionID == 0: # advc: was 2
 			self.WrapX = False
 			self.hmWidth += 1
@@ -643,8 +643,8 @@ class MapConstants:
 		self.southAttenuationRange = self.northAttenuationRange
 		self.southAttenuationFactor = self.northAttenuationFactor
 		if not self.WrapX:
-			self.eastAttenuationRange  = self.northAttenuationRange
-			self.westAttenuationRange  = self.northAttenuationRange
+			self.eastAttenuationRange = self.northAttenuationRange
+			self.westAttenuationRange = self.northAttenuationRange
 			self.eastAttenuationFactor = self.northAttenuationFactor
 			self.westAttenuationFactor = self.northAttenuationFactor
 		if self.ClimateSystem != 0: # High-altitude plots seem to be wetter with the PW2 climate system
@@ -725,10 +725,10 @@ PRand = PythonRandom()
 
 class AreaMap:
 	def __init__(self, width, height, b8connected, bSwitch4Or8OnFalseMatch):
-		self.width  = width
+		self.width = width
 		self.height = height
 		self.length = self.width * self.height
-		self.data   = array('i')
+		self.data = array('i')
 		for i in range(self.length):
 			self.data.append(0)
 		self.b8connected = b8connected
@@ -902,9 +902,9 @@ class AreaMap:
 
 class LineSegment:
 	def __init__(self, y, xLeft, xRight, dy):
-		self.y  = y
+		self.y = y
 		self.dy = dy
-		self.xLeft  = xLeft
+		self.xLeft = xLeft
 		self.xRight = xRight
 
 	def __str__ (self):
@@ -913,12 +913,12 @@ class LineSegment:
 
 class Area:
 	def __init__(self, iD, size, avgX, avgY, water):
-		self.ID			= iD
-		self.size		= size
-		self.avgX		= avgX
-		self.avgY		= avgY
-		self.distance	= 0.0
-		self.water		= water
+		self.ID = iD
+		self.size = size
+		self.avgX = avgX
+		self.avgY = avgY
+		self.distance = 0.0
+		self.water = water
 
 	# advc: (Based on what little info we have)
 	def startScore(self):
@@ -952,9 +952,9 @@ class FloatMap:
 		return
 
 	def initialize(self, width, height, wrapX, wrapY):
-		self.wrapX  = wrapX
-		self.wrapY  = wrapY
-		self.width  = width
+		self.wrapX = wrapX
+		self.wrapY = wrapY
+		self.width = width
 		self.height = height
 		self.length = self.width * self.height
 		##These fields are used to access only a subset of the map
@@ -963,7 +963,7 @@ class FloatMap:
 		##noise fields for each octave
 		self.rectX = 0
 		self.rectY = 0
-		self.rectWidth  = self.width
+		self.rectWidth = self.width
 		self.rectHeight = self.height
 		self.data = []
 		for i in range(self.length):
@@ -1017,7 +1017,7 @@ class FloatMap:
 	def Normalize(self):
 		##find highest and lowest values
 		maxAlt = -1000.0
-		minAlt =  1000.0
+		minAlt = 1000.0
 		for i in range(self.length):
 			alt = self.data[i]
 			if alt > maxAlt:
@@ -1105,29 +1105,29 @@ class FloatMap:
 
 	def GetGeostrophicPressure(self, lat):
 		if lat > mc.polarFrontLatitude:
-			latRange   = 90.0 - mc.polarFrontLatitude
+			latRange = 90.0 - mc.polarFrontLatitude
 			latPercent = (lat - mc.polarFrontLatitude) / latRange
-			pressure   = 1.0 - latPercent
+			pressure = 1.0 - latPercent
 		elif lat >= mc.horseLatitude:
-			latRange   = mc.polarFrontLatitude - mc.horseLatitude
+			latRange = mc.polarFrontLatitude - mc.horseLatitude
 			latPercent = (lat - mc.horseLatitude) / latRange
-			pressure   = latPercent
+			pressure = latPercent
 		elif lat >= 0.0:
-			latRange   = mc.horseLatitude - 0.0
+			latRange = mc.horseLatitude - 0.0
 			latPercent = (lat - 0.0) / latRange
-			pressure   = 1.0 - latPercent
+			pressure = 1.0 - latPercent
 		elif lat > -mc.horseLatitude:
-			latRange   = 0.0 + mc.horseLatitude
+			latRange = 0.0 + mc.horseLatitude
 			latPercent = (lat + mc.horseLatitude) / latRange
-			pressure   = latPercent
+			pressure = latPercent
 		elif lat >= -mc.polarFrontLatitude:
-			latRange   = -mc.horseLatitude + mc.polarFrontLatitude
+			latRange = -mc.horseLatitude + mc.polarFrontLatitude
 			latPercent = (lat + mc.polarFrontLatitude) / latRange
-			pressure   = 1.0 - latPercent
+			pressure = 1.0 - latPercent
 		else:
-			latRange   = -mc.polarFrontLatitude + 90.0
+			latRange = -mc.polarFrontLatitude + 90.0
 			latPercent = (lat + 90.0) / latRange
-			pressure   = latPercent
+			pressure = latPercent
 		return pressure
 
 	def ApplyFunction(self, func):
@@ -1347,9 +1347,9 @@ def almost_equal(a, b, eps=1e-9):
 	return abs(a - b) <= eps
 def run_smooth_tests():
 	grid_rows = [
-		[1,  3,  2,  5],
-		[0,  6,  2, -3],
-		[10, -2,  4,  3],
+		[1,		3,	2, 5],
+		[0,		6,	2, -3],
+		[10,	-2,	4, 3],
 	]
 	width = len(grid_rows[0])
 	height = len(grid_rows)
@@ -1420,10 +1420,10 @@ def CubicInterpolate(v0, v1, v2, v3, mu):
 	return (a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3)
 
 def BicubicInterpolate(v, muX, muY):
-	a0 = CubicInterpolate(v[1],  v[2],  v[3],  v[4],  muX)
-	a1 = CubicInterpolate(v[5],  v[6],  v[7],  v[8],  muX)
-	a2 = CubicInterpolate(v[9],  v[10], v[11], v[12], muX)
-	a3 = CubicInterpolate(v[13], v[14], v[15], v[16], muX)
+	a0 = CubicInterpolate(v[1],		v[2],	v[3],	v[4],	muX)
+	a1 = CubicInterpolate(v[5],		v[6],	v[7],	v[8],	muX)
+	a2 = CubicInterpolate(v[9],		v[10],	v[11],	v[12],	muX)
+	a3 = CubicInterpolate(v[13],	v[14],	v[15],	v[16],	muX)
 	return CubicInterpolate(a0, a1, a2, a3, muY)
 
 def CubicDerivative(v0, v1, v2, v3, mu):
@@ -1434,10 +1434,10 @@ def CubicDerivative(v0, v1, v2, v3, mu):
 	return ((3 * a0 * mu2) + (2 * a1 * mu + a2))
 
 def BicubicDerivative(v, muX, muY):
-	a0 = CubicInterpolate(v[1],  v[2],  v[3],  v[4],  muX)
-	a1 = CubicInterpolate(v[5],  v[6],  v[7],  v[8],  muX)
-	a2 = CubicInterpolate(v[9],  v[10], v[11], v[12], muX)
-	a3 = CubicInterpolate(v[13], v[14], v[15], v[16], muX)
+	a0 = CubicInterpolate(v[1],		v[2],	v[3],	v[4],	muX)
+	a1 = CubicInterpolate(v[5],		v[6],	v[7],	v[8],	muX)
+	a2 = CubicInterpolate(v[9],		v[10],	v[11],	v[12],	muX)
+	a3 = CubicInterpolate(v[13],	v[14],	v[15],	v[16],	muX)
 	return CubicDerivative(a0, a1, a2, a3, muY)
 
 ##This function gets a smoothly interpolated value from srcMap.
@@ -1450,7 +1450,7 @@ def GetInterpolatedValue(X, Y, srcMap):
 	fractionY = Y - math.floor(Y)
 	##wrappedX and wrappedY are set to -1,-1 of the sampled area
 	##so that the sample area is in the middle quad of the 4x4 grid
-	wrappedX = ((math.floor(X) - 1) % srcMap.rectWidth)  + srcMap.rectX
+	wrappedX = ((math.floor(X) - 1) % srcMap.rectWidth) + srcMap.rectX
 	wrappedY = ((math.floor(Y) - 1) % srcMap.rectHeight) + srcMap.rectY
 	for pY in range(4):
 		y = pY + wrappedY
@@ -1467,7 +1467,7 @@ def GetDerivativeValue(X, Y, srcMap):
 	fractionY = Y - math.floor(Y)
 	##wrappedX and wrappedY are set to -1,-1 of the sampled area
 	##so that the sample area is in the middle quad of the 4x4 grid
-	wrappedX = ((math.floor(X) - 1) % srcMap.rectWidth)  + srcMap.rectX
+	wrappedX = ((math.floor(X) - 1) % srcMap.rectWidth) + srcMap.rectX
 	wrappedY = ((math.floor(Y) - 1) % srcMap.rectHeight) + srcMap.rectY
 	for pY in range(4):
 		y = pY + wrappedY
@@ -1539,11 +1539,11 @@ def GetPerlinDerivative(x, y, destMapWidth, destMapHeight, initialFrequency, ini
 
 def GenerateTwistedPerlinMap(width, height, wrapX, wrapY, minFreq, maxFreq, varFreq):
 	inputNoise = FloatMap()
-	freqMap    = FloatMap()
-	twistMap   = FloatMap()
+	freqMap = FloatMap()
+	twistMap = FloatMap()
 	inputNoise.initialize(width, height, wrapX, wrapY)
-	freqMap.initialize(width,    height, wrapX, wrapY)
-	twistMap.initialize(width,   height, wrapX, wrapY)
+	freqMap.initialize(width, height, wrapX, wrapY)
+	twistMap.initialize(width, height, wrapX, wrapY)
 	inputNoise.GenerateNoise()
 	inputNoise.Normalize()
 	for y in range(freqMap.height):
@@ -1551,7 +1551,7 @@ def GenerateTwistedPerlinMap(width, height, wrapX, wrapY, minFreq, maxFreq, varF
 			i = freqMap.GetIndex(x, y)
 			#AIAndy Bugfix - Perlin hex evaluation
 			if mc.LandmassGenerator == 0:
-				freqMap.data[i] = GetPerlinNoise(x,  y, freqMap.width, freqMap.height, varFreq, 1.0, 0.1, 8, inputNoise)
+				freqMap.data[i] = GetPerlinNoise(x, y, freqMap.width, freqMap.height, varFreq, 1.0, 0.1, 8, inputNoise)
 			else:
 				xx = x + ((y % 2.0) / 2.0)
 				freqMap.data[i] = GetPerlinNoise(xx, y, freqMap.width, freqMap.height, varFreq, 1.0, 0.1, 8, inputNoise)
@@ -1566,7 +1566,7 @@ def GenerateTwistedPerlinMap(width, height, wrapX, wrapY, minFreq, maxFreq, varF
 			ampChange = 0.85 - (freqMap.data[i] * 0.5)
 			#AIAndy Bugfix - Perlin hex evaluation
 			if mc.LandmassGenerator == 0:
-				twistMap.data[i] = GetPerlinNoise(x  + offset, y + offset, twistMap.width, twistMap.height, mid, 1.0, ampChange, 8, inputNoise)
+				twistMap.data[i] = GetPerlinNoise(x + offset, y + offset, twistMap.width, twistMap.height, mid, 1.0, ampChange, 8, inputNoise)
 			else:
 				xx = x + ((y % 2.0) / 2.0)
 				twistMap.data[i] = GetPerlinNoise(xx + offset, y + offset, twistMap.width, twistMap.height, mid, 1.0, ampChange, 8, inputNoise)
@@ -1577,15 +1577,15 @@ def GenerateMountainMap(width, height, wrapX, wrapY, initFreq):
 	inputNoise1 = FloatMap()
 	inputNoise2 = FloatMap()
 	mountainMap = FloatMap()
-	stdDevMap   = FloatMap()
-	noiseMap    = FloatMap()
-	moundMap    = FloatMap()
+	stdDevMap = FloatMap()
+	noiseMap = FloatMap()
+	moundMap = FloatMap()
 	inputNoise1.initialize(width, height, wrapX, wrapY)
 	inputNoise2.initialize(width, height, wrapX, wrapY)
 	mountainMap.initialize(width, height, wrapX, wrapY)
-	stdDevMap.initialize(width,   height, wrapX, wrapY)
-	noiseMap.initialize(width,    height, wrapX, wrapY)
-	moundMap.initialize(width,    height, wrapX, wrapY)
+	stdDevMap.initialize(width, height, wrapX, wrapY)
+	noiseMap.initialize(width, height, wrapX, wrapY)
+	moundMap.initialize(width, height, wrapX, wrapY)
 	inputNoise1.GenerateBinaryNoise()
 	inputNoise1.Normalize()
 	inputNoise2.GenerateNoise()
@@ -1595,12 +1595,12 @@ def GenerateMountainMap(width, height, wrapX, wrapY, initFreq):
 			i = mountainMap.GetIndex(x, y)
 			#AIAndy Bugfix - Perlin hex evaluation
 			if mc.LandmassGenerator == 0:
-				mountainMap.data[i] = GetPerlinNoise(x,  y, mountainMap.width, mountainMap.height, initFreq, 1.0, 0.4, 8, inputNoise1)
-				noiseMap.data[i]    = GetPerlinNoise(x,  y, mountainMap.width, mountainMap.height, initFreq, 1.0, 0.4, 8, inputNoise2)
+				mountainMap.data[i] = GetPerlinNoise(x, y, mountainMap.width, mountainMap.height, initFreq, 1.0, 0.4, 8, inputNoise1)
+				noiseMap.data[i] = GetPerlinNoise(x, y, mountainMap.width, mountainMap.height, initFreq, 1.0, 0.4, 8, inputNoise2)
 			else:
 				xx = x + ((y % 2.0) / 2.0)
 				mountainMap.data[i] = GetPerlinNoise(xx, y, mountainMap.width, mountainMap.height, initFreq, 1.0, 0.4, 8, inputNoise1)
-				noiseMap.data[i]    = GetPerlinNoise(xx, y, mountainMap.width, mountainMap.height, initFreq, 1.0, 0.4, 8, inputNoise2)
+				noiseMap.data[i] = GetPerlinNoise(xx, y, mountainMap.width, mountainMap.height, initFreq, 1.0, 0.4, 8, inputNoise2)
 			stdDevMap.data[i] = mountainMap.data[i]
 	mountainMap.Normalize()
 	stdDevMap.Deviate(7)
@@ -1639,21 +1639,21 @@ def GenerateMountainMap(width, height, wrapX, wrapY, initFreq):
 	return mountainMap
 
 def GetAttenuationFactor(map, x, y):
-	southY     = map.height * mc.southAttenuationRange
+	southY = map.height * mc.southAttenuationRange
 	southRange = map.height * mc.southAttenuationRange
 	yAttenuation = 1.0
 	if y < southY:
 		yAttenuation = mc.southAttenuationFactor + (y / southRange) * (1.0 - mc.southAttenuationFactor)
-	northY     = map.height - (map.height * mc.northAttenuationRange)
+	northY = map.height - (map.height * mc.northAttenuationRange)
 	northRange = map.height * mc.northAttenuationRange
 	if y > northY:
 		yAttenuation = mc.northAttenuationFactor + ((map.height - y) / northRange) * (1.0 - mc.northAttenuationFactor)
-	eastY     = map.width - (map.width * mc.eastAttenuationRange)
+	eastY = map.width - (map.width * mc.eastAttenuationRange)
 	eastRange = map.width * mc.eastAttenuationRange
 	xAttenuation = 1.0
 	if x > eastY:
 		xAttenuation = mc.eastAttenuationFactor + ((map.width - x) / eastRange) * (1.0 - mc.eastAttenuationFactor)
-	westY     = map.width * mc.westAttenuationRange
+	westY = map.width * mc.westAttenuationRange
 	westRange = map.width * mc.westAttenuationRange
 	if x < westY:
 		xAttenuation = mc.westAttenuationFactor + (x / westRange) * (1.0 - mc.westAttenuationFactor)
@@ -1674,10 +1674,10 @@ class ElevationMap3(FloatMap):
 			twistMinFreq *= 0.6 # </advc>
 		twistMinFreq = 128.0 / self.width * twistMinFreq #0.02  / 128
 		twistMaxFreq = 128.0 / self.width * mc.twistMaxFreq #0.12  / 128
-		twistVar     = 128.0 / self.width * mc.twistVar     #0.042 / 128
+		twistVar = 128.0 / self.width * mc.twistVar     #0.042 / 128
 		mountainFreq = 128.0 / self.width * mc.mountainFreq #0.05  / 128
-		twistMap     = GenerateTwistedPerlinMap(self.width, self.height, mc.WrapX, mc.WrapY, twistMinFreq, twistMaxFreq, twistVar)
-		mountainMap  = GenerateMountainMap(self.width,      self.height, mc.WrapX, mc.WrapY, mountainFreq)
+		twistMap = GenerateTwistedPerlinMap(self.width, self.height, mc.WrapX, mc.WrapY, twistMinFreq, twistMaxFreq, twistVar)
+		mountainMap = GenerateMountainMap(self.width, self.height, mc.WrapX, mc.WrapY, mountainFreq)
 		for y in range(self.height):
 			for x in range(self.width):
 				i = self.GetIndex(x, y)
@@ -1767,7 +1767,7 @@ class ElevationMap2(FloatMap):
 
 	def GenerateElevationMap(self):
 		self.length = mc.hmWidth * mc.hmHeight
-		self.data   = array('d')
+		self.data = array('d')
 		for i in range(self.length):
 			self.data.append(0.0)
 		self.GenerateMidpointDisplacement()
@@ -1775,13 +1775,13 @@ class ElevationMap2(FloatMap):
 	def checkMaxGrain(self):
 		#hm map dimensions (minus 1 if no wrapping) must be evenly divisible by max grain
 		ok = True
-		width  = mc.hmWidth
+		width = mc.hmWidth
 		height = mc.hmHeight
 		if not mc.WrapX:
-			width  -= 1
+			width -= 1
 		if not mc.WrapY:
 			height -= 1
-		if width  % mc.hmMaxGrain != 0:
+		if width % mc.hmMaxGrain != 0:
 			ok = False
 		if height % mc.hmMaxGrain != 0:
 			ok = False
@@ -1811,7 +1811,7 @@ class ElevationMap2(FloatMap):
 				middle = mc.hmHeight / 2
 			elif mc.hmSeparation == mc.EAST_WEST_SEPARATION:
 				dimension = x
-				middle = mc.hmWidth  / 2
+				middle = mc.hmWidth / 2
 			else:
 				raise ValueError("bad hmSeparation type")
 			if dimension > middle - marginSize and dimension < middle + marginSize:
@@ -1829,7 +1829,7 @@ class ElevationMap2(FloatMap):
 		peaksNEList = list()
 		peaksSWList = list()
 		peaksSEList = list()
-		middleX = mc.hmWidth  / 2
+		middleX = mc.hmWidth / 2
 		middleY = mc.hmHeight / 2
 		for y in range(0, mc.hmHeight, mc.hmMaxGrain):
 			for x in range(0, mc.hmWidth, mc.hmMaxGrain):
@@ -1848,7 +1848,7 @@ class ElevationMap2(FloatMap):
 		peaksSWList = ShuffleList(peaksSWList)
 		peaksSEList = ShuffleList(peaksSEList)
 		#place desired number of peaks in each quadrant
-		totalNonMargin  = len(peaksNWList)
+		totalNonMargin = len(peaksNWList)
 		totalNonMargin += len(peaksNEList)
 		totalNonMargin += len(peaksSWList)
 		totalNonMargin += len(peaksSEList)
@@ -1882,8 +1882,8 @@ class ElevationMap2(FloatMap):
 					bottomLeft = GetHmIndex(x, y + int(currentGrain))
 					if bottomLeft == -1:
 						continue #this means no wrap in y direction
-					bottomRight = GetHmIndex(x + int(currentGrain),       y + int(currentGrain))
-					middle      = GetHmIndex(x + int(currentGrain / 2.0), y + int(currentGrain / 2.0))
+					bottomRight	= GetHmIndex(x + int(currentGrain),			y + int(currentGrain))
+					middle		= GetHmIndex(x + int(currentGrain / 2.0),	y + int(currentGrain / 2.0))
 					average = (self.data[topLeft] + self.data[topRight] + self.data[bottomLeft] + self.data[bottomRight]) / 4.0
 					displacement = h * PRand.random() - h / 2.0
 					self.data[middle] = average + displacement
@@ -1941,12 +1941,12 @@ class ElevationMap2(FloatMap):
 		NormalizeMap(self.data, mc.hmWidth, mc.hmHeight)
 
 	def PerformTectonics(self):
-		self.plateMap  = list()
+		self.plateMap = list()
 		growthPlotList = list()
-		plateList      = list()
-		borderMap           = array('i') #this will help in later distance calculations
+		plateList = list()
+		borderMap = array('i') #this will help in later distance calculations
 		self.plateHeightMap = array('d')
-		preSmoothMap        = array('d')
+		preSmoothMap = array('d')
 		# <advc>
 		# Sounds like this should have a big impact on the shape of the landmasses
 		# and mountain chains, but I find it hard to tell a difference. I guess
@@ -1980,7 +1980,7 @@ class ElevationMap2(FloatMap):
 				iterations += 1
 				if iterations > 10000:
 					raise ValueError("endless loop in region seed placement")
-				seedX = PRand.randint(0, mc.hmWidth  + 1)
+				seedX = PRand.randint(0, mc.hmWidth + 1)
 				seedY = PRand.randint(0, mc.hmHeight + 1)
 				# <advc>
 				if mc.plateSeedRerollExp > 0:
@@ -2024,7 +2024,7 @@ class ElevationMap2(FloatMap):
 					plateList[plateID].isOnMapEdge = True
 					continue
 				if self.plateMap[ii].plateID != plateID and self.plateMap[ii].plateID != 0:
-					borderMap[i]  = True
+					borderMap[i] = True
 					borderMap[ii] = True
 				elif self.plateMap[ii].plateID == 0:
 					roomLeft = True
@@ -2051,16 +2051,16 @@ class ElevationMap2(FloatMap):
 		for plate in plateList:
 			if plate.GetQuadrant() == plate.NW and not NWfound:
 				plate.raiseOnly = True
-				NWfound         = True
+				NWfound = True
 			if plate.GetQuadrant() == plate.NE and not NEfound:
 				plate.raiseOnly = True
-				NEfound         = True
+				NEfound = True
 			if plate.GetQuadrant() == plate.SE and not SEfound:
 				plate.raiseOnly = True
-				SEfound         = True
+				SEfound = True
 			if plate.GetQuadrant() == plate.SW and not SWfound:
 				plate.raiseOnly = True
-				SWfound         = True
+				SWfound = True
 		#Stagger the plates somewhat to add interest
 		steps = int(mc.plateStaggerRange / mc.plateStagger)
 		for i in range(self.length):
@@ -2097,7 +2097,7 @@ class ElevationMap2(FloatMap):
 				self.plateHeightMap[i] = avg
 		#Now add ripple formula to plateHeightMap
 		for i in range(self.length):
-			avgRippleTop    = 0.0
+			avgRippleTop = 0.0
 			avgRippleBottom = 0.0
 			for plateID in range(1, mc.hmNumberOfPlates + 1):
 				distanceWeight = maxDistance - self.plateMap[i].distanceList[plateID]
@@ -2148,11 +2148,11 @@ class ElevationMap2(FloatMap):
 
 	def AddWaterBands(self):
 		#validate water bands. Maps that wrap cannot have one in that direction
-		if mc.WrapX and (mc.eastWaterBand  != 0 or mc.westWaterBand  != 0):
+		if mc.WrapX and (mc.eastWaterBand != 0 or mc.westWaterBand != 0):
 			raise ValueError("east/west water bands cannot be used when wrapping in X direction.")
 		if mc.WrapY and (mc.northWaterBand != 0 or mc.southWaterBand != 0):
 			raise ValueError("north/south water bands cannot be used when wrapping in Y direction.")
-		newWidth  = mc.hmWidth  + mc.eastWaterBand  + mc.westWaterBand
+		newWidth = mc.hmWidth + mc.eastWaterBand + mc.westWaterBand
 		newHeight = mc.hmHeight + mc.northWaterBand + mc.southWaterBand
 		newHeightMap = array('d')
 		for y in range(newHeight):
@@ -2162,7 +2162,7 @@ class ElevationMap2(FloatMap):
 					newHeightMap.append(self.data[ii])
 				else:
 					newHeightMap.append(0.0)
-		mc.hmWidth  = newWidth
+		mc.hmWidth = newWidth
 		mc.hmHeight = newHeight
 		self.data = newHeightMap
 
@@ -2200,7 +2200,7 @@ class ElevationMap2(FloatMap):
 				if seedY > plate.seedY - mc.minSeedRange and seedY < plate.seedY + mc.minSeedRange:
 					return True
 		#Check for edge
-		if seedX < mc.minEdgeRange or seedX >= (mc.hmWidth  + 1) - mc.minEdgeRange:
+		if seedX < mc.minEdgeRange or seedX >= (mc.hmWidth + 1) - mc.minEdgeRange:
 			return True
 		if seedY < mc.minEdgeRange or seedY >= (mc.hmHeight + 1) - mc.minEdgeRange:
 			return True
@@ -2246,11 +2246,11 @@ class ElevationMap2(FloatMap):
 
 class Plate:
 	def __init__(self, ID, seedX, seedY):
-		self.ID    = ID
+		self.ID = ID
 		self.seedX = seedX
 		self.seedY = seedY
 		self.isOnMapEdge = False
-		self.raiseOnly   = False
+		self.raiseOnly = False
 		self.angle = (PRand.random() * 360) - 180
 		self.NW = 0
 		self.NE = 1
@@ -2293,13 +2293,13 @@ class ClimateMap3:
 			em = e3
 		# advc: Make this map also available for GenerateRainfallMap
 		self.aboveSeaLevelMap = FloatMap()
-		self.summerMap        = FloatMap()
-		self.winterMap        = FloatMap()
-		self.TemperatureMap   = FloatMap()
+		self.summerMap = FloatMap()
+		self.winterMap = FloatMap()
+		self.TemperatureMap = FloatMap()
 		self.aboveSeaLevelMap.initialize(em.width, em.height, em.wrapX, em.wrapY)
-		self.summerMap.initialize(em.width,        em.height, em.wrapX, em.wrapY)
-		self.winterMap.initialize(em.width,        em.height, em.wrapX, em.wrapY)
-		self.TemperatureMap.initialize(em.width,   em.height, em.wrapX, em.wrapY)
+		self.summerMap.initialize(em.width, em.height, em.wrapX, em.wrapY)
+		self.winterMap.initialize(em.width, em.height, em.wrapX, em.wrapY)
+		self.TemperatureMap.initialize(em.width, em.height, em.wrapX, em.wrapY)
 		for y in range(em.height):
 			for x in range(em.width):
 				i = self.aboveSeaLevelMap.GetIndex(x, y)
@@ -2312,14 +2312,14 @@ class ClimateMap3:
 		waterTempMap = FloatMap()
 		waterTempMap.initialize(em.width, em.height, em.wrapX, em.wrapY)
 		# </advc>
-		zenith        = mc.tropicsLatitude
-		topTempLat    = mc.topLatitude + zenith
+		zenith = mc.tropicsLatitude
+		topTempLat = mc.topLatitude + zenith
 		bottomTempLat = mc.bottomLatitude
 		latRange = topTempLat - bottomTempLat
 		# advc: Moved into new method
 		self.fillLatitudeMap(self.summerMap, waterTempMap, bottomTempLat, latRange)
-		zenith        = mc.tropicsLatitude * -1
-		topTempLat    = mc.topLatitude
+		zenith = mc.tropicsLatitude * -1
+		topTempLat = mc.topLatitude
 		bottomTempLat = mc.bottomLatitude + zenith
 		latRange = topTempLat - bottomTempLat
 		# advc: Moved into new method
@@ -2387,19 +2387,19 @@ class ClimateMap3:
 			em = e2
 		else:
 			em = e3
-		geoMap                 = FloatMap()
-		moistureMap            = FloatMap()
-		rainfallSummerMap      = FloatMap()
-		rainfallWinterMap      = FloatMap()
+		geoMap = FloatMap()
+		moistureMap = FloatMap()
+		rainfallSummerMap = FloatMap()
+		rainfallWinterMap = FloatMap()
 		rainfallGeostrophicMap = FloatMap()
-		self.RainfallMap       = FloatMap()
-		geoMap.initialize(em.width,                 em.height, em.wrapX, em.wrapY)
-		rainfallSummerMap.initialize(em.width,      em.height, em.wrapX, em.wrapY)
-		rainfallWinterMap.initialize(em.width,      em.height ,em.wrapX, em.wrapY)
+		self.RainfallMap = FloatMap()
+		geoMap.initialize(em.width, em.height, em.wrapX, em.wrapY)
+		rainfallSummerMap.initialize(em.width, em.height, em.wrapX, em.wrapY)
+		rainfallWinterMap.initialize(em.width, em.height ,em.wrapX, em.wrapY)
 		rainfallGeostrophicMap.initialize(em.width, em.height, em.wrapX, em.wrapY)
-		self.RainfallMap.initialize(em.width,       em.height, em.wrapX, em.wrapY)
+		self.RainfallMap.initialize(em.width, em.height, em.wrapX, em.wrapY)
 		for y in range(em.height):
-			lat      = em.GetLatitudeForY(y) #AIAndy - moved these 2 lines out of x loop
+			lat = em.GetLatitudeForY(y) #AIAndy - moved these 2 lines out of x loop
 			pressure = em.GetGeostrophicPressure(lat)
 			for x in range(em.width):
 				i = em.GetIndex(x, y)
@@ -2418,14 +2418,14 @@ class ClimateMap3:
 		for i in range(em.length):
 			sortedGeoMap.append((0, 0, 0.0))
 		xStart = 0
-		xStop  = 0
+		xStop = 0
 		yStart = 0
-		yStop  = 0
-		incX   = 0
-		incY   = 0
+		yStop = 0
+		incX = 0
+		incY = 0
 		geoIndex = 0
 		for zone in range(6):
-			topY    = em.GetYFromZone(zone, True)
+			topY = em.GetYFromZone(zone, True)
 			bottomY = em.GetYFromZone(zone, False)
 			if not (topY == -1 and bottomY == -1):
 				if topY == -1:
@@ -2435,16 +2435,16 @@ class ClimateMap3:
 				dir1, dir2 = em.GetGeostrophicWindDirections(zone)
 				if (dir1 == mc.SW) or (dir1 == mc.SE):
 					yStart = topY
-					yStop  = bottomY - 1
-					incY   = -1
+					yStop = bottomY - 1
+					incY = -1
 				else:
 					yStart = bottomY
-					yStop  = topY + 1
-					incY   = 1
+					yStop = topY + 1
+					incY = 1
 				if dir2 == mc.W:
 					xStart = em.width - 1
-					xStop  = -1
-					incX   = -1
+					xStop = -1
+					incX = -1
 				else:
 					xStart = 0
 					xStop = em.width
@@ -2452,7 +2452,7 @@ class ClimateMap3:
 				for y in range(yStart, yStop, incY):
 					##each line should start on water to avoid vast areas without rain
 					xxStart = xStart
-					xxStop  = xStop
+					xxStop = xStop
 					for x in range(xStart, xStop, incX):
 						if em.IsBelowSeaLevel(x, y):
 							xxStart = x
@@ -2467,24 +2467,24 @@ class ClimateMap3:
 		for i in range(len(sortedSummerMap)):
 			x = sortedSummerMap[i][0]
 			y = sortedSummerMap[i][1]
-			self.DistributeRain(x, y, self.summerMap, rainfallSummerMap,      moistureMap, False)
+			self.DistributeRain(x, y, self.summerMap, rainfallSummerMap, moistureMap, False)
 		moistureMap.initialize(em.width, em.height, em.wrapX, em.wrapY)
 		for i in range(len(sortedWinterMap)):
 			x = sortedWinterMap[i][0]
 			y = sortedWinterMap[i][1]
-			self.DistributeRain(x, y, self.winterMap, rainfallWinterMap,      moistureMap, False)
+			self.DistributeRain(x, y, self.winterMap, rainfallWinterMap, moistureMap, False)
 		moistureMap.initialize(em.width, em.height, em.wrapX, em.wrapY)
 		for i in range(len(sortedGeoMap)):
 			x = sortedGeoMap[i][0]
 			y = sortedGeoMap[i][1]
-			self.DistributeRain(x, y, geoMap,         rainfallGeostrophicMap, moistureMap, True)
+			self.DistributeRain(x, y, geoMap, rainfallGeostrophicMap, moistureMap, True)
 		##zero below sea level for proper percent threshold finding
 		for y in range(em.height):
 			for x in range(em.width):
 				i = em.GetIndex(x, y)
 				if em.IsBelowSeaLevel(x, y):
-					rainfallSummerMap.data[i]      = 0.0
-					rainfallWinterMap.data[i]      = 0.0
+					rainfallSummerMap.data[i] = 0.0
+					rainfallWinterMap.data[i] = 0.0
 					rainfallGeostrophicMap.data[i] = 0.0
 		rainfallSummerMap.Normalize()
 		rainfallWinterMap.Normalize()
@@ -2578,23 +2578,23 @@ class ClimateMap2:
 			em = e2
 		else:
 			em = e3
-		summerSunMap        = array('d')
-		winterSunMap        = array('d')
+		summerSunMap = array('d')
+		winterSunMap = array('d')
 		self.summerTempsMap = array('d')
 		self.winterTempsMap = array('d')
-		self.moistureMap    = array('d')
+		self.moistureMap = array('d')
 		self.TemperatureMap = FloatMap()
-		self.RainfallMap    = FloatMap()
-		self.initializeTempMap(summerSunMap,  mc.tropicsLatitude)
+		self.RainfallMap = FloatMap()
+		self.initializeTempMap(summerSunMap, mc.tropicsLatitude)
 		self.initializeTempMap(winterSunMap, -mc.tropicsLatitude)
 		self.TemperatureMap.initialize(em.width, em.height, em.wrapX, em.wrapY)
-		self.RainfallMap.initialize(em.width,    em.height, em.wrapX, em.wrapY)
+		self.RainfallMap.initialize(em.width, em.height, em.wrapX, em.wrapY)
 		#smooth both sun maps into the temp maps
 		for y in range(em.height):
 			for x in range(em.width):
 				contributers = 0
-				summerAvg    = 0
-				winterAvg    = 0
+				summerAvg = 0
+				winterAvg = 0
 				i = GetHmIndex(x, y)
 				for yy in range(y - mc.filterSize / 2, y + mc.filterSize / 2 + 1, 1):
 					for xx in range(x - mc.filterSize / 2, x + mc.filterSize / 2 + 1, 1):
@@ -2652,7 +2652,7 @@ class ClimateMap2:
 		#create ordered list for geostrophic rain
 		orderList = list()
 		for zone in range(6):
-			topY    = wz.GetYFromZone(zone, True)
+			topY = wz.GetYFromZone(zone, True)
 			bottomY = wz.GetYFromZone(zone, False)
 			if topY == -1 and bottomY == -1:
 				continue #This wind zone is not represented on this map at all so skip it
@@ -2663,16 +2663,16 @@ class ClimateMap2:
 			dx, dy = wz.GetWindDirectionsInZone(zone)
 			if dy < 0:
 				yStart = topY
-				yStop  = bottomY - 1
+				yStop = bottomY - 1
 			else:
 				yStart = bottomY
-				yStop  = topY + 1
+				yStop = topY + 1
 			if dx < 0:
 				xStart = em.width - 1
-				xStop  = -1
+				xStop = -1
 			else:
 				xStart = 0
-				xStop  = em.width
+				xStop = em.width
 			order = 0.0
 			for y in range(yStart, yStop, dy):
 				for x in range(xStart, xStop, dx):
@@ -2742,7 +2742,7 @@ class ClimateMap2:
 		cost = mc.minimumRainCost
 		cRange = 1.0 - cost #We don't want to go over 1.0 so the range is reduced
 		upliftCost = (1.0 / (float(distanceToUplift) + 1.0)) * cRange
-		i  = GetHmIndex(x1, y1)
+		i = GetHmIndex(x1, y1)
 		ii = GetHmIndex(x2, y2)
 		cost += max((self.TemperatureMap.data[ii] - self.TemperatureMap.data[i]) * 2.0 * cRange, upliftCost)
 		return cost
@@ -2777,18 +2777,18 @@ class RainPlot:
 	def __init__(self, x, y, order, uplift):
 		self.x = x
 		self.y = y
-		self.order  = order
+		self.order = order
 		self.uplift = uplift
 
 class WindZones:
 	def __init__(self, height, topLat, botLat):
-		self.NPOLAR     = 0
+		self.NPOLAR = 0
 		self.NTEMPERATE = 1
-		self.NEQUATOR   = 2
-		self.SEQUATOR   = 3
+		self.NEQUATOR = 2
+		self.SEQUATOR = 3
 		self.STEMPERATE = 4
-		self.SPOLAR     = 5
-		self.NOZONE     = 99
+		self.SPOLAR = 5
+		self.NOZONE = 99
 		self.height = height
 		self.topLat = topLat
 		self.botLat = botLat
@@ -2854,13 +2854,13 @@ class WindZones:
 		if z == self.NPOLAR:
 			return (-1, -1)
 		elif z == self.NTEMPERATE:
-			return (1,  1)
+			return (1, 1)
 		elif z == self.NEQUATOR:
 			return (-1, -1)
 		elif z == self.SEQUATOR:
 			return (-1, 1)
 		elif z == self.STEMPERATE:
-			return (1,  -1)
+			return (1, -1)
 		elif z == self.SPOLAR:
 			return (-1, 1)
 		return (0, 0)
@@ -2987,26 +2987,26 @@ def ShrinkMaps():
 		cm = c3
 	else:
 		cm = c2
-	em.data                = CropMap(em.data)
+	em.data = CropMap(em.data)
 	cm.TemperatureMap.data = CropMap(cm.TemperatureMap.data)
-	cm.RainfallMap.data    = CropMap(cm.RainfallMap.data)
-	mc.hmWidth  = mc.hmWidth  - mc.westCrop  - mc.eastCrop
+	cm.RainfallMap.data = CropMap(cm.RainfallMap.data)
+	mc.hmWidth = mc.hmWidth - mc.westCrop - mc.eastCrop
 	mc.hmHeight = mc.hmHeight - mc.northCrop - mc.southCrop
-	newHeightMap      = ShrinkMap(em.data,                mc.hmWidth, mc.hmHeight, mc.width, mc.height)
-	newTemperatureMap = ShrinkMap(cm.TemperatureMap.data, mc.hmWidth, mc.hmHeight, mc.width, mc.height)
-	newRainfallMap    = ShrinkMap(cm.RainfallMap.data,    mc.hmWidth, mc.hmHeight, mc.width, mc.height)
-	em.width                 = mc.width
-	em.height                = mc.height
-	em.length                = mc.width * mc.height
-	cm.TemperatureMap.width  = mc.width
+	newHeightMap		= ShrinkMap(em.data,				mc.hmWidth, mc.hmHeight, mc.width, mc.height)
+	newTemperatureMap	= ShrinkMap(cm.TemperatureMap.data,	mc.hmWidth, mc.hmHeight, mc.width, mc.height)
+	newRainfallMap		= ShrinkMap(cm.RainfallMap.data,	mc.hmWidth, mc.hmHeight, mc.width, mc.height)
+	em.width = mc.width
+	em.height = mc.height
+	em.length = mc.width * mc.height
+	cm.TemperatureMap.width = mc.width
 	cm.TemperatureMap.height = mc.height
 	cm.TemperatureMap.length = mc.width * mc.height
-	cm.RainfallMap.width     = mc.width
-	cm.RainfallMap.height    = mc.height
-	cm.RainfallMap.length    = mc.width * mc.height
-	em.data                = array('d')
+	cm.RainfallMap.width = mc.width
+	cm.RainfallMap.height = mc.height
+	cm.RainfallMap.length = mc.width * mc.height
+	em.data = array('d')
 	cm.TemperatureMap.data = array('d')
-	cm.RainfallMap.data    = array('d')
+	cm.RainfallMap.data = array('d')
 	for y in range(mc.height):
 		for x in range(mc.width):
 			i = GetIndexGeneral(x, y, mc.width, mc.height)
@@ -3053,10 +3053,10 @@ def CropMap(theMap):
 def ShrinkMap(largeMap, lWidth, lHeight, sWidth, sHeight):
 	smallMap = array('d')
 	yScale = float(lHeight) / float(sHeight)
-	xScale = float(lWidth)  / float(sWidth)
+	xScale = float(lWidth) / float(sWidth)
 	for y in range(sHeight):
 		for x in range(sWidth):
-			weights      = 0.0
+			weights = 0.0
 			contributors = 0.0
 			# <advc.001> Using the scale ratios here can lead to out of bounds
 			# indices due to floating-point inaccuracy.
@@ -3110,7 +3110,7 @@ def ShuffleList(theList):
 		return shuffled
 	else:
 		preshuffle = list()
-		shuffled   = list()
+		shuffled = list()
 		numElements = len(theList)
 		for i in range(numElements):
 			preshuffle.append(theList[i])
@@ -3175,7 +3175,7 @@ def FindThresholdFromPercent(map, length, percent, greaterThan):
 	if greaterThan:
 		percentage = 100.0 - percentage
 	if percentage >= 100.0:
-		return  1.01 #whole map
+		return 1.01 #whole map
 	elif percentage <= 0.0:
 		return -0.01 #none of the map
 	mapList = []
@@ -3210,14 +3210,14 @@ def FindValueFromPercent(map, length, percent, greaterThan):
 			if maxV < map[i]:
 				maxV = map[i]
 	mid = (maxV - minV) / 2.0 + minV
-	overMinCount  = 0
+	overMinCount = 0
 	equalMinCount = 0
 	for i in range(length):
 		if map[i] > minV:
 			overMinCount += 1
 		elif map[i] == minV:
 			equalMinCount += 1
-	threshold       = mid
+	threshold = mid
 	thresholdChange = mid
 	iterations = 0
 	lastAdded = False
@@ -3598,10 +3598,10 @@ class TerrainMap:
 		#from the percent coverage calculations since their terrain types don't actually matter.
 		#(You could end up wasting most of your Snow tiles under polar mountain ranges and not
 		#have very many on the map, for example.)
-		#waterTiles  = []
+		#waterTiles = []
 		#waterLength = 0
-		landTiles   = []
-		landLength  = 0
+		landTiles = []
+		landLength = 0
 		polarTiles = [] # advc
 		landRf = [] # advc
 		for y in range(mc.height):
@@ -3631,7 +3631,7 @@ class TerrainMap:
 		taigaTemp = FindValueFromPercent(polarTiles, len(polarTiles), mc.TundraPercent, False)
 		tundraSnowRainfallThreshold = FindValueFromPercent(landRf, len(landRf), mc.tundraSnowRainfallTarget, False)
 		# </advc>
-		warmTiles  = []
+		warmTiles = []
 		warmLength = 0
 		for y in range(mc.height):
 			latitude = abs(em.GetLatitudeForY(y)) # advc
@@ -3690,7 +3690,7 @@ class TerrainMap:
 					else:
 						self.tData[i] = mc.GRASS
 		print("Jungle Temperature")
-		jungleTiles  = []
+		jungleTiles = []
 		jungleLength = 0
 		for y in range(mc.height):
 			for x in range(mc.width):
@@ -3722,7 +3722,7 @@ class PangaeaBreaker:
 		else:
 			em = e3
 		self.areaMap = AreaMap(em.width, em.height, True, True)
-		meteorThrown   = False
+		meteorThrown = False
 		pangaeaDetected = False
 		self.createDistanceMap()
 		self.areaMap.defineAreas(isHmWaterMatch)
@@ -3782,7 +3782,7 @@ class PangaeaBreaker:
 	def isChokePoint(self, x, y, biggestContinentID):
 		circlePoints = self.getCirclePoints(x, y, mc.minimumMeteorSize)
 		waterOpposite = False
-		landOpposite  = False
+		landOpposite = False
 		for cp in circlePoints:
 			if isHmWaterMatch(cp.x, cp.y):
 				#Find opposite
@@ -3803,7 +3803,7 @@ class PangaeaBreaker:
 		return False
 
 	def getLandPercentInCircle(self, circlePoints, biggestContinentID):
-		land  = 0
+		land = 0
 		water = 0
 		circlePoints.sort(lambda n, m:cmp(n.y, m.y))
 		for n in range(0, len(circlePoints), 2):
@@ -3821,7 +3821,7 @@ class PangaeaBreaker:
 		return percent
 
 	def countCraterLine(self, x1, x2, y, biggestContinentID):
-		land  = 0
+		land = 0
 		water = 0
 		for x in range(x1, x2 + 1):
 			i = GetHmIndex(x, y)
@@ -3837,15 +3837,15 @@ class PangaeaBreaker:
 		else:
 			em = e3
 		IDCount = 0
-		xTotal  = 0
-		yTotal  = 0
+		xTotal = 0
+		yTotal = 0
 		for y in range(em.height):
 			for x in range(em.width):
 				i = GetHmIndex(x, y)
 				if self.areaMap.data[i] == ID:
 					IDCount += 1
-					xTotal  += x
-					yTotal  += y
+					xTotal += x
+					yTotal += y
 		xCenter = round(float(xTotal) / float(IDCount))
 		yCenter = round(float(yTotal) / float(IDCount))
 		center = xCenter, yCenter
@@ -3960,10 +3960,10 @@ class PangaeaBreaker:
 			em = e2
 		else:
 			em = e3
-		C        = []
+		C = []
 		indexMap = []
 		gap = 5
-		n   = 0
+		n = 0
 		for y in range(em.height):
 			for x in range(em.width):
 				i = GetHmIndex(x, y)
@@ -4159,7 +4159,7 @@ class ContinentMap:
 			minX = abs(oldWorldAvgX - c.avgX)
 			minY = abs(oldWorldAvgY - c.avgY)
 			if mc.WrapX:
-				minX = min(minX, mc.width  - minX)
+				minX = min(minX, mc.width - minX)
 			if mc.WrapY:
 				minY = min(minY, mc.height - minY)
 			c.distance = math.sqrt(pow(minX, 2) + pow(minY, 2))
@@ -4233,11 +4233,11 @@ class RiverMap:
 		self.O = 9 #used for ocean or land without a river
 		#averageHeightMap, flowMap, averageRainfallMap and drainageMap are offset from the other maps such that
 		#each element coincides with a four tile intersection on the game map
-		self.averageHeightMap   = array('d')
-		self.flowMap            = array('i')
+		self.averageHeightMap = array('d')
+		self.flowMap = array('i')
 		self.averageRainfallMap = array('d')
-		self.drainageMap        = array('d')
-		self.riverMap           = array('i')
+		self.drainageMap = array('d')
+		self.riverMap = array('i')
 		#initialize maps with zeros
 		for i in range(em.length):
 			self.averageHeightMap.append(0.0)
@@ -4278,7 +4278,7 @@ class RiverMap:
 					#First assume this place is lowest, like a 'pit'. Then
 					#for each place that is lower, add it to a list to be
 					#randomly chosen as the drainage path
-					drainList    = list()
+					drainList = list()
 					nonDrainList = list()
 					self.flowMap[i] = mc.L
 					ii = GetIndex(x, y + 1)
@@ -4363,7 +4363,7 @@ class RiverMap:
 		for y in range(mc.height):
 			for x in range(mc.width):
 				i = GetIndex(x, y)
-				flow     = self.flowMap[i]
+				flow = self.flowMap[i]
 				rainFall = self.averageRainfallMap[i]
 				xx = x
 				yy = y
@@ -4606,7 +4606,7 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 		plotListLength = len(plotIndexList)
 		lastI = 0
 		fFloodPlains = getInfoTypeOrFail("FEATURE_FLOOD_PLAINS")
-		fOasis       = getInfoTypeOrFail("FEATURE_OASIS")
+		fOasis = getInfoTypeOrFail("FEATURE_OASIS")
 		for i in range(startAtIndex, startAtIndex + plotListLength):
 			index = 0
 			lastI = i
@@ -4750,9 +4750,9 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 		gc = CyGlobalContext()
 		bonusInfo = gc.getBonusInfo(eBonus)
 		#Here is the change from canHaveBonus. Forest does not block bonus
-		featureForest  = getInfoTypeOrFail("FEATURE_FOREST")
+		featureForest = getInfoTypeOrFail("FEATURE_FOREST")
 		requiresForest = bonusInfo.isFeature(featureForest)
-		plotIsForest   = plot.getFeatureType() == featureForest
+		plotIsForest = plot.getFeatureType() == featureForest
 		#To avoid silk and spices on snow/tundra
 		if plotIsForest and requiresForest:
 			if not bonusInfo.isFeatureTerrain(plot.getTerrainType()):
@@ -4816,8 +4816,8 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 		rand4 = PRand.randint(0, bonusInfo.getRandAppearance4())
 		baseCount = bonusInfo.getConstAppearance() + rand1 + rand2 + rand3 + rand4
 		bIgnoreLatitude = False
-		bIgnoreArea     = True
-		landTiles   = 0
+		bIgnoreArea = True
+		landTiles = 0
 		numPossible = 0
 		if bonusInfo.getTilesPer() > 0:
 			for i in range(em.length):
@@ -4884,7 +4884,7 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 			em = e3
 		gc = CyGlobalContext()
 		areaID = area.getID()
-		uniqueTypesInArea    = self.GetUniqueBonusTypeCountInArea(area)
+		uniqueTypesInArea = self.GetUniqueBonusTypeCountInArea(area)
 		sameClassTypesInArea = self.GetSameClassTypeCountInArea(area, eBonus)
 		#Get the raw number of suitable tiles
 		numPossible = 0
@@ -4917,10 +4917,10 @@ class StartingPlotFinder:
 		return
 
 	def CachePlotValue(self):
-		self.inlandValueList  = []
-		self.inlandFoodList   = []
+		self.inlandValueList = []
+		self.inlandFoodList = []
 		self.coastalValueList = []
-		self.coastalFoodList  = []
+		self.coastalFoodList = []
 		for y in range(mc.height):
 			for x in range(mc.width):
 				food, value = self.getPlotPotentialValueUncached(x, y, False)
@@ -5196,7 +5196,7 @@ class StartingPlotFinder:
 		gc = CyGlobalContext()
 		numCityPlots = gc.getNUM_CITY_PLOTS()
 		totalValue = 0
-		totalFood  = 0
+		totalFood = 0
 		start = CyMap().plot(x, y)
 		if start.isWater():
 			return -1, -1
@@ -5235,7 +5235,7 @@ class StartingPlotFinder:
 		cityPlotList = list()
 		#The StartPlot class has a nifty function to determine salt water vs. fresh
 		sPlot = StartPlot(x, y, 0)
-		#noFoodPlots  = 0
+		#noFoodPlots = 0
 		#lowFoodPlots = 0
 		for i in range(numCityPlots):
 			plot = plotCity(x, y, i)
@@ -5247,7 +5247,7 @@ class StartingPlotFinder:
 				food, value = self.getPlotPotentialValue(plot.getX(), plot.getY(), sPlot.isCoast())
 			totalFood += food
 			#if food == 0:
-			#	noFoodPlots  += 1
+			#	noFoodPlots += 1
 			#elif food == 1:
 			#	lowFoodPlots += 1
 			cPlot = CityPlot(food, value)
@@ -5291,10 +5291,10 @@ class StartingPlotFinder:
 		#CODE ERASED.
 		if coastalCity:
 			value = self.coastalValueList[i]
-			food  = self.coastalFoodList[i]
+			food = self.coastalFoodList[i]
 		else:
 			value = self.inlandValueList[i]
-			food  = self.inlandFoodList[i]
+			food = self.inlandFoodList[i]
 		return food, value
 
 	def getPlotPotentialValueUncached(self, x, y, coastalCity):
@@ -5322,9 +5322,9 @@ class StartingPlotFinder:
 		featureInfo = gc.getFeatureInfo(featureEnum)
 
 		#Get best bonus improvement score. Test tachnology era of bonus first, then test each improvement
-		food       = plot.calculateBestNatureYield(YieldTypes.YIELD_FOOD,       TeamTypes.NO_TEAM)
-		production = plot.calculateBestNatureYield(YieldTypes.YIELD_PRODUCTION, TeamTypes.NO_TEAM)
-		commerce   = plot.calculateBestNatureYield(YieldTypes.YIELD_COMMERCE,   TeamTypes.NO_TEAM)
+		food		= plot.calculateBestNatureYield(YieldTypes.YIELD_FOOD,			TeamTypes.NO_TEAM)
+		production	= plot.calculateBestNatureYield(YieldTypes.YIELD_PRODUCTION,	TeamTypes.NO_TEAM)
+		commerce	= plot.calculateBestNatureYield(YieldTypes.YIELD_COMMERCE,		TeamTypes.NO_TEAM)
 		#LM - Handle Plains-Floodplains (since it's a special case).
 		#LM - Assume Lighthouse (since it's always one of the very first things a coastal city builds), and add in the VITAL extra food point from it.
 		#But remember it doesn't apply on Sea Ice!
@@ -5332,19 +5332,19 @@ class StartingPlotFinder:
 			food += 1
 
 		bonusEnum = plot.getBonusType(TeamTypes.NO_TEAM)
-		bonusFood       = 0
+		bonusFood = 0
 		bonusProduction = 0
-		bonusCommerce   = 0
+		bonusCommerce = 0
 		if bonusEnum != BonusTypes.NO_BONUS:
 			bonusInfo = gc.getBonusInfo(bonusEnum)
 			if bonusInfo.getTechReveal() == TechTypes.NO_TECH or gc.getTechInfo(bonusInfo.getTechReveal()).getEra() <= gc.getGame().getStartEra() + 1:
-				food       += bonusInfo.getYieldChange(YieldTypes.YIELD_FOOD)
+				food += bonusInfo.getYieldChange(YieldTypes.YIELD_FOOD)
 				production += bonusInfo.getYieldChange(YieldTypes.YIELD_PRODUCTION)
-				commerce   += bonusInfo.getYieldChange(YieldTypes.YIELD_COMMERCE)
+				commerce += bonusInfo.getYieldChange(YieldTypes.YIELD_COMMERCE)
 			elif gc.getTechInfo(bonusInfo.getTechReveal()).getEra() <= eraLimit:
-				bonusFood       += bonusInfo.getYieldChange(YieldTypes.YIELD_FOOD)
+				bonusFood += bonusInfo.getYieldChange(YieldTypes.YIELD_FOOD)
 				bonusProduction += bonusInfo.getYieldChange(YieldTypes.YIELD_PRODUCTION)
-				bonusCommerce   += bonusInfo.getYieldChange(YieldTypes.YIELD_COMMERCE)
+				bonusCommerce += bonusInfo.getYieldChange(YieldTypes.YIELD_COMMERCE)
 			else:
 				bonusEnum = BonusTypes.NO_BONUS
 
@@ -5367,37 +5367,37 @@ class StartingPlotFinder:
 			#Workboat access to a non-coastal city's water tiles (VERY unlikely - start a war to get there if necessary!), we don't block land tiles that
 			#are across a channel and might ultimately end up under enemy control... Plus an ally may come along and place Fishing Nets for him anyway.
 			if plot.canHaveImprovement(impEnum, TeamTypes.NO_TEAM, True):
-				impFood       = plot.calculateImprovementYieldChange(impEnum, YieldTypes.YIELD_FOOD,       PlayerTypes.NO_PLAYER, False)
-				impProduction = plot.calculateImprovementYieldChange(impEnum, YieldTypes.YIELD_PRODUCTION, PlayerTypes.NO_PLAYER, False)
-				impCommerce   = plot.calculateImprovementYieldChange(impEnum, YieldTypes.YIELD_COMMERCE,   PlayerTypes.NO_PLAYER, False)
+				impFood			= plot.calculateImprovementYieldChange(impEnum, YieldTypes.YIELD_FOOD,			PlayerTypes.NO_PLAYER, False)
+				impProduction	= plot.calculateImprovementYieldChange(impEnum, YieldTypes.YIELD_PRODUCTION,	PlayerTypes.NO_PLAYER, False)
+				impCommerce		= plot.calculateImprovementYieldChange(impEnum, YieldTypes.YIELD_COMMERCE,		PlayerTypes.NO_PLAYER, False)
 				#That function will not find bonus yield changes for NO_PLAYER, much to my annoyance
 				if bonusEnum != BonusTypes.NO_BONUS:
-					impFood       += impInfo.getImprovementBonusYield(bonusEnum, YieldTypes.YIELD_FOOD)
+					impFood += impInfo.getImprovementBonusYield(bonusEnum, YieldTypes.YIELD_FOOD)
 					impProduction += impInfo.getImprovementBonusYield(bonusEnum, YieldTypes.YIELD_PRODUCTION)
-					impCommerce   += impInfo.getImprovementBonusYield(bonusEnum, YieldTypes.YIELD_COMMERCE)
+					impCommerce += impInfo.getImprovementBonusYield(bonusEnum, YieldTypes.YIELD_COMMERCE)
 				#LM - Assume irrigation (since it's very easy to get everywhere once you have Civil Service), and add in any extra yields from it.
 				#(bOptimal is false, so calculateImprovementYieldChange() didn't add anything.)
-				impFood       += impInfo.getIrrigatedYieldChange(YieldTypes.YIELD_FOOD)
+				impFood += impInfo.getIrrigatedYieldChange(YieldTypes.YIELD_FOOD)
 				impProduction += impInfo.getIrrigatedYieldChange(YieldTypes.YIELD_PRODUCTION)
-				impCommerce   += impInfo.getIrrigatedYieldChange(YieldTypes.YIELD_COMMERCE)
+				impCommerce += impInfo.getIrrigatedYieldChange(YieldTypes.YIELD_COMMERCE)
 				#LM - Add in extra yields from the most advanced route type that is unlocked up through the Era limit.
 				#(bOptimal is false and these plots don't have any routes already on them, so calculateImprovementYieldChange() didn't add anything.)
 				if maxRoute >= 0:
-					impFood       += impInfo.getRouteYieldChanges(maxRoute, YieldTypes.YIELD_FOOD)
+					impFood += impInfo.getRouteYieldChanges(maxRoute, YieldTypes.YIELD_FOOD)
 					impProduction += impInfo.getRouteYieldChanges(maxRoute, YieldTypes.YIELD_PRODUCTION)
-					impCommerce   += impInfo.getRouteYieldChanges(maxRoute, YieldTypes.YIELD_COMMERCE)
+					impCommerce += impInfo.getRouteYieldChanges(maxRoute, YieldTypes.YIELD_COMMERCE)
 				#LM - Undo later tech modifiers, and ALL civic modifiers, to the improvement, since calculateImprovementYieldChange()
 				#adds them in when called with NO_PLAYER, regardless of the bOptimal parameter.
 				for i in range(gc.getNumTechInfos()):
 					if gc.getTechInfo(i).getEra() > eraLimit:
-						impFood       -= impInfo.getTechYieldChanges(i, YieldTypes.YIELD_FOOD)
+						impFood -= impInfo.getTechYieldChanges(i, YieldTypes.YIELD_FOOD)
 						impProduction -= impInfo.getTechYieldChanges(i, YieldTypes.YIELD_PRODUCTION)
-						impCommerce   -= impInfo.getTechYieldChanges(i, YieldTypes.YIELD_COMMERCE)
+						impCommerce -= impInfo.getTechYieldChanges(i, YieldTypes.YIELD_COMMERCE)
 				for i in range(gc.getNumCivicInfos()):
 					civicInfo = gc.getCivicInfo(i)
-					impFood       -= civicInfo.getImprovementYieldChanges(impEnum, YieldTypes.YIELD_FOOD)
+					impFood -= civicInfo.getImprovementYieldChanges(impEnum, YieldTypes.YIELD_FOOD)
 					impProduction -= civicInfo.getImprovementYieldChanges(impEnum, YieldTypes.YIELD_PRODUCTION)
-					impCommerce   -= civicInfo.getImprovementYieldChanges(impEnum, YieldTypes.YIELD_COMMERCE)
+					impCommerce -= civicInfo.getImprovementYieldChanges(impEnum, YieldTypes.YIELD_COMMERCE)
 				#See if feature is removed, if so we must subtract the added yield from that feature
 				bProceed = True
 				if featureEnum != FeatureTypes.NO_FEATURE and buildInfo.isFeatureRemove(featureEnum):
@@ -5405,32 +5405,32 @@ class StartingPlotFinder:
 						#LM - Ceph's code was subtracting out the feature's extra river and hill yields EVEN IF THERE WAS NO RIVER OR HILL ON THE PLOT!!!
 						#It was ALSO not restoring the TERRAIN'S extra river and hill yields afterward, which are used when no feature is present.
 						#Wow, so many major bugs in this function...
-						impFood       -= featureInfo.getYieldChange(YieldTypes.YIELD_FOOD)
+						impFood -= featureInfo.getYieldChange(YieldTypes.YIELD_FOOD)
 						impProduction -= featureInfo.getYieldChange(YieldTypes.YIELD_PRODUCTION)
-						impCommerce   -= featureInfo.getYieldChange(YieldTypes.YIELD_COMMERCE)
+						impCommerce -= featureInfo.getYieldChange(YieldTypes.YIELD_COMMERCE)
 						if plot.isRiver():
-							impFood       -= featureInfo.getRiverYieldChange(YieldTypes.YIELD_FOOD)
+							impFood -= featureInfo.getRiverYieldChange(YieldTypes.YIELD_FOOD)
 							impProduction -= featureInfo.getRiverYieldChange(YieldTypes.YIELD_PRODUCTION)
-							impCommerce   -= featureInfo.getRiverYieldChange(YieldTypes.YIELD_COMMERCE)
-							impFood       += terrainInfo.getRiverYieldChange(YieldTypes.YIELD_FOOD)
+							impCommerce -= featureInfo.getRiverYieldChange(YieldTypes.YIELD_COMMERCE)
+							impFood += terrainInfo.getRiverYieldChange(YieldTypes.YIELD_FOOD)
 							impProduction += terrainInfo.getRiverYieldChange(YieldTypes.YIELD_PRODUCTION)
-							impCommerce   += terrainInfo.getRiverYieldChange(YieldTypes.YIELD_COMMERCE)
+							impCommerce += terrainInfo.getRiverYieldChange(YieldTypes.YIELD_COMMERCE)
 						if plot.isHills():
-							impFood       -= featureInfo.getHillsYieldChange(YieldTypes.YIELD_FOOD)
+							impFood -= featureInfo.getHillsYieldChange(YieldTypes.YIELD_FOOD)
 							impProduction -= featureInfo.getHillsYieldChange(YieldTypes.YIELD_PRODUCTION)
-							impCommerce   -= featureInfo.getHillsYieldChange(YieldTypes.YIELD_COMMERCE)
-							impFood       += terrainInfo.getHillsYieldChange(YieldTypes.YIELD_FOOD)
+							impCommerce -= featureInfo.getHillsYieldChange(YieldTypes.YIELD_COMMERCE)
+							impFood += terrainInfo.getHillsYieldChange(YieldTypes.YIELD_FOOD)
 							impProduction += terrainInfo.getHillsYieldChange(YieldTypes.YIELD_PRODUCTION)
-							impCommerce   += terrainInfo.getHillsYieldChange(YieldTypes.YIELD_COMMERCE)
+							impCommerce += terrainInfo.getHillsYieldChange(YieldTypes.YIELD_COMMERCE)
 					else:
 						bProceed = False
 				if bProceed:
 					imp = Improvement(impEnum, impFood, impProduction, impCommerce, 0)
 					improvementList.append(imp)
 		for i in range(len(improvementList)):
-			impFood       = improvementList[i].food       + food       + bonusFood
+			impFood = improvementList[i].food + food + bonusFood
 			impProduction = improvementList[i].production + production + bonusProduction
-			impCommerce   = improvementList[i].commerce   + commerce   + bonusCommerce
+			impCommerce = improvementList[i].commerce + commerce + bonusCommerce
 			impValue = (impFood * mc.FoodValue) + (impProduction * mc.ProductionValue) + (impCommerce * mc.CommerceValue)
 			#LM - Encourage Floodplains, Oases and early food resources here to differentiate them from tile improvements that add food!
 			if food >= 3:
@@ -5508,52 +5508,52 @@ class StartingPlotFinder:
 		terrainInfo = gc.getTerrainInfo(terrainEnum)
 		featureEnum = plot.getFeatureType()
 		featureInfo = gc.getFeatureInfo(featureEnum)
-		bonusEnum   = plot.getBonusType(TeamTypes.NO_TEAM)
-		bonusInfo   = gc.getBonusInfo(bonusEnum)
+		bonusEnum = plot.getBonusType(TeamTypes.NO_TEAM)
+		bonusInfo = gc.getBonusInfo(bonusEnum)
 
 		#LM - Get base value, then subtract out ALL feature and resource effects.
-		food       = plot.calculateBestNatureYield(YieldTypes.YIELD_FOOD,       TeamTypes.NO_TEAM)
-		production = plot.calculateBestNatureYield(YieldTypes.YIELD_PRODUCTION, TeamTypes.NO_TEAM)
-		commerce   = plot.calculateBestNatureYield(YieldTypes.YIELD_COMMERCE,   TeamTypes.NO_TEAM)
-		bonusFood       = 0
+		food		= plot.calculateBestNatureYield(YieldTypes.YIELD_FOOD,			TeamTypes.NO_TEAM)
+		production	= plot.calculateBestNatureYield(YieldTypes.YIELD_PRODUCTION,	TeamTypes.NO_TEAM)
+		commerce	= plot.calculateBestNatureYield(YieldTypes.YIELD_COMMERCE,		TeamTypes.NO_TEAM)
+		bonusFood = 0
 		bonusProduction = 0
-		bonusCommerce   = 0
+		bonusCommerce = 0
 		if featureEnum != FeatureTypes.NO_FEATURE:
-			food       -= featureInfo.getYieldChange(YieldTypes.YIELD_FOOD)
+			food -= featureInfo.getYieldChange(YieldTypes.YIELD_FOOD)
 			production -= featureInfo.getYieldChange(YieldTypes.YIELD_PRODUCTION)
-			commerce   -= featureInfo.getYieldChange(YieldTypes.YIELD_COMMERCE)
+			commerce -= featureInfo.getYieldChange(YieldTypes.YIELD_COMMERCE)
 			if plot.isRiver():
-				food       -= featureInfo.getRiverYieldChange(YieldTypes.YIELD_FOOD)
+				food -= featureInfo.getRiverYieldChange(YieldTypes.YIELD_FOOD)
 				production -= featureInfo.getRiverYieldChange(YieldTypes.YIELD_PRODUCTION)
-				commerce   -= featureInfo.getRiverYieldChange(YieldTypes.YIELD_COMMERCE)
-				food       += terrainInfo.getRiverYieldChange(YieldTypes.YIELD_FOOD)
+				commerce -= featureInfo.getRiverYieldChange(YieldTypes.YIELD_COMMERCE)
+				food += terrainInfo.getRiverYieldChange(YieldTypes.YIELD_FOOD)
 				production += terrainInfo.getRiverYieldChange(YieldTypes.YIELD_PRODUCTION)
-				commerce   += terrainInfo.getRiverYieldChange(YieldTypes.YIELD_COMMERCE)
+				commerce += terrainInfo.getRiverYieldChange(YieldTypes.YIELD_COMMERCE)
 			if plot.isHills():
-				food       -= featureInfo.getHillsYieldChange(YieldTypes.YIELD_FOOD)
+				food -= featureInfo.getHillsYieldChange(YieldTypes.YIELD_FOOD)
 				production -= featureInfo.getHillsYieldChange(YieldTypes.YIELD_PRODUCTION)
-				commerce   -= featureInfo.getHillsYieldChange(YieldTypes.YIELD_COMMERCE)
-				food       += terrainInfo.getHillsYieldChange(YieldTypes.YIELD_FOOD)
+				commerce -= featureInfo.getHillsYieldChange(YieldTypes.YIELD_COMMERCE)
+				food += terrainInfo.getHillsYieldChange(YieldTypes.YIELD_FOOD)
 				production += terrainInfo.getHillsYieldChange(YieldTypes.YIELD_PRODUCTION)
-				commerce   += terrainInfo.getHillsYieldChange(YieldTypes.YIELD_COMMERCE)
+				commerce += terrainInfo.getHillsYieldChange(YieldTypes.YIELD_COMMERCE)
 		if bonusEnum != BonusTypes.NO_BONUS:
-			food       -= bonusInfo.getYieldChange(YieldTypes.YIELD_FOOD)
+			food -= bonusInfo.getYieldChange(YieldTypes.YIELD_FOOD)
 			production -= bonusInfo.getYieldChange(YieldTypes.YIELD_PRODUCTION)
-			commerce   -= bonusInfo.getYieldChange(YieldTypes.YIELD_COMMERCE)
+			commerce -= bonusInfo.getYieldChange(YieldTypes.YIELD_COMMERCE)
 
 		#LM - Apply city minimum effects, then add permanent features and visible resources back in on top.
-		food       = max(food,       gc.getYieldInfo(YieldTypes.YIELD_FOOD).getMinCity())
+		food = max(food, gc.getYieldInfo(YieldTypes.YIELD_FOOD).getMinCity())
 		production = max(production, gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getMinCity())
-		commerce   += gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getMinCity()
+		commerce += gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getMinCity()
 		if bonusEnum != BonusTypes.NO_BONUS:
 			if bonusInfo.getTechReveal() == TechTypes.NO_TECH or gc.getTechInfo(bonusInfo.getTechReveal()).getEra() <= gc.getGame().getStartEra() + 1:
-				food       += bonusInfo.getYieldChange(YieldTypes.YIELD_FOOD)
+				food += bonusInfo.getYieldChange(YieldTypes.YIELD_FOOD)
 				production += bonusInfo.getYieldChange(YieldTypes.YIELD_PRODUCTION)
-				commerce   += bonusInfo.getYieldChange(YieldTypes.YIELD_COMMERCE)
+				commerce += bonusInfo.getYieldChange(YieldTypes.YIELD_COMMERCE)
 			elif gc.getTechInfo(bonusInfo.getTechReveal()).getEra() <= eraLimit:
-				bonusFood       += bonusInfo.getYieldChange(YieldTypes.YIELD_FOOD)
+				bonusFood += bonusInfo.getYieldChange(YieldTypes.YIELD_FOOD)
 				bonusProduction += bonusInfo.getYieldChange(YieldTypes.YIELD_PRODUCTION)
-				bonusCommerce   += bonusInfo.getYieldChange(YieldTypes.YIELD_COMMERCE)
+				bonusCommerce += bonusInfo.getYieldChange(YieldTypes.YIELD_COMMERCE)
 
 		#LM - Now calculate tile value the same way as in getPlotPotentialValueUncached().
 		value = ((food + bonusFood) * mc.FoodValue) + ((production + bonusProduction) * mc.ProductionValue) + ((commerce + bonusCommerce) * mc.CommerceValue)
@@ -5808,21 +5808,21 @@ class StartingPlotFinder:
 
 class CityPlot:
 	def __init__(self, food, value):
-		self.food  = food
+		self.food = food
 		self.value = value
 
 class Improvement:
 	def __init__(self, e, food, production, commerce, value):
 		self.e = e
-		self.food       = food
+		self.food = food
 		self.production = production
-		self.commerce   = commerce
-		self.value      = value
+		self.commerce = commerce
+		self.value = value
 
 class StartingArea:
 	def __init__(self, areaID):
 		self.areaID = areaID
-		self.plotList   = list()
+		self.plotList = list()
 		self.playerList = list()
 		self.distanceTable = array('i')
 		self.distTableOtherAreas = array('i') # advc
@@ -5874,7 +5874,7 @@ class StartingArea:
 			newWorldSubtr = 1
 		civs = max(1, gc.getGame().countCivPlayersEverAlive())
 		seaLevelAdj = (mc.SeaLevelFactor - 1) * 1.33
-		cull = min(int(round(0.7 * len(self.plotList))), max(0, int(round(len(self.plotList) * (0.22  + (CyMap().getWorldSize() - newWorldSubtr + seaLevelAdj) / (2.0 * civs))))))
+		cull = min(int(round(0.7 * len(self.plotList))), max(0, int(round(len(self.plotList) * (0.22 + (CyMap().getWorldSize() - newWorldSubtr + seaLevelAdj) / (2.0 * civs))))))
 		print("cull ratio: %d percent of %d sites" % (int(100*cull/len(self.plotList)),len(self.plotList)))
 		# </advc>
 		for i in range(cull):
@@ -6139,13 +6139,13 @@ class StartPlot:
 
 	def copy(self):
 		cp = StartPlot(self.x, self.y, self.localValue)
-		cp.totalValue          = self.totalValue
+		cp.totalValue = self.totalValue
 		cp.numberOfOwnedCities = self.numberOfOwnedCities
-		cp.distanceToOwner     = self.distanceToOwner
-		cp.nearestStart        = self.nearestStart
-		cp.vacant              = self.vacant
-		cp.owner               = self.owner
-		cp.avgDistance         = self.avgDistance
+		cp.distanceToOwner = self.distanceToOwner
+		cp.nearestStart = self.nearestStart
+		cp.vacant = self.vacant
+		cp.owner = self.owner
+		cp.avgDistance = self.avgDistance
 		return cp
 
 	def __str__(self):
@@ -6196,9 +6196,9 @@ def getCustomMapOptionName(argsList):
 	# <advc> Reorder and use existing translations
 	[optionID] = argsList
 	option_names = {
-		0:	"TXT_KEY_MAP_SCRIPT_LAND_SHAPE",
-		1:	"Start", # Doesn't really need a translation ...
-		2:	"TXT_KEY_MAP_WORLD_WRAP"
+		0: "TXT_KEY_MAP_SCRIPT_LAND_SHAPE",
+		1: "Start", # Doesn't really need a translation ...
+		2: "TXT_KEY_MAP_WORLD_WRAP"
 		}
 	return unicode(CyTranslator().getText(option_names[optionID], ())) # </advc>
 
@@ -6206,9 +6206,9 @@ def getNumCustomMapOptionValues(argsList):
 	optionID = argsList[0]
 	# <advc>
 	option_values = {
-		0:	2,
-		1:	2,
-		2:	3
+		0: 2,
+		1: 2,
+		2: 3
 		}
 	return option_values[optionID]
 	# </advc>
@@ -6236,19 +6236,19 @@ def getCustomMapOptionDescAt(argsList):
 	# <advc>
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			#0: "TXT_KEY_MAP_SCRIPT_NORMAL_CONTINENTS",
 			#1: "TXT_KEY_MAP_SCRIPT_MASSIVE_CONTINENTS",
 			# But they're not quite "massive" (and the Perlin continents aren't exactly "normal") ...
 			0: "Perlin Noise",
 			1: "Plate Tectonics",
 			},
-		1:	{
+		1: {
 			0: "TXT_KEY_MAP_SCRIPT_START_ANYWHERE",
 			#1: "TXT_KEY_MAP_SCRIPT_ALL_IN_OLD_WORLD"
 			1: "Old World (unless Pangaea); -30% players recommended"
 			},
-		2:	{
+		2: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
@@ -6260,7 +6260,7 @@ def getCustomMapOptionDescAt(argsList):
 	return translated_text
 	# </advc>
 	#
-	# optionID    = argsList[0]
+	# optionID = argsList[0]
 	# selectionID = argsList[1]
 	# if optionID == 0:
 	# 	if selectionID == 0:
@@ -6320,9 +6320,9 @@ def getCustomMapOptionDefault(argsList):
 #	return 0
 	[iOption] = argsList
 	option_defaults = {
-		0:	1, # And make the PW2 landmass generator the default
-		1:	0,
-		2:	1
+		0: 1, # And make the PW2 landmass generator the default
+		1: 0,
+		2: 1
 		}
 	return option_defaults[iOption] # </advc>
 
@@ -6374,7 +6374,7 @@ def getBottomLatitude():
 # 		WorldSizeTypes.WORLDSIZE_SMALL:					(18, 12),
 # 		WorldSizeTypes.WORLDSIZE_STANDARD:				(24, 16),
 # 		WorldSizeTypes.WORLDSIZE_LARGE:					(30, 20),
-# 		WorldSizeTypes.WORLDSIZE_HUGE:					(36, 24)
+# 		WorldSizeTypes.WORLDSIZE_HUGE: (36, 24)
 # 	}
 # <!-- custom: Define getGridSize like the other SAS maps (base grid-unit profile -> calibrated helper).
 # The engine multiplies these grid units ~x4 to plots, so LARGE (20,14) -> ~80x56 effective (bumped up a bit since PerfectMongoose is water-heavy and needs more land; cf. Pangaea ~74x52); returning the full WorldInfo grid (47,34) blew up to 188x136.
@@ -6404,7 +6404,7 @@ def generatePlotTypes():
 	print("=====================")
 	gc = CyGlobalContext()
 	map = gc.getMap()
-	mc.width  = map.getGridWidth()
+	mc.width = map.getGridWidth()
 	mc.height = map.getGridHeight()
 	#PRand.seed() # advc: Moved to beforeInit
 	if mc.LandmassGenerator == 2:
@@ -6420,7 +6420,7 @@ def generatePlotTypes():
 	else:
 		em = e3
 		if mc.ClimateSystem == 0:
-			em.initialize(mc.width,   mc.height,   mc.WrapX, mc.WrapY)
+			em.initialize(mc.width, mc.height, mc.WrapX, mc.WrapY)
 		else:
 			scaleMinMeteorSize() # advc: Moved into new function
 			em.initialize(mc.hmWidth, mc.hmHeight, mc.WrapX, mc.WrapY)
@@ -6448,20 +6448,20 @@ def generatePlotTypes():
 	rm.GenerateRiverMap()
 	km.GenerateContinentMap()
 	#
-	# land   = 0.0
-	# flat   = 0.0
-	# snow   = 0.0
+	# land = 0.0
+	# flat = 0.0
+	# snow = 0.0
 	# tundra = 0.0
 	# desert = 0.0
 	# plains = 0.0
-	# grass  = 0.0
+	# grass = 0.0
 	# for i in range(em.length):
 	# 	if tm.pData[i] != mc.WATER:
 	# 		land += 1.0
 	# 		if tm.pData[i] != mc.PEAK:
 	# 			flat += 1.0
 	# 			if tm.tData[i]   == mc.SNOW:
-	# 				snow   += 1.0
+	# 				snow += 1.0
 	# 			elif tm.tData[i] == mc.TUNDRA:
 	# 				tundra += 1.0
 	# 			elif tm.tData[i] == mc.DESERT:
@@ -6504,13 +6504,13 @@ def generateTerrainTypes():
 	else:
 		em = e3
 	gc = CyGlobalContext()
-	iGrass  = getInfoTypeOrFail("TERRAIN_GRASS")
+	iGrass = getInfoTypeOrFail("TERRAIN_GRASS")
 	iPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
 	iDesert = getInfoTypeOrFail("TERRAIN_DESERT")
 	iTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
-	iSnow   = getInfoTypeOrFail("TERRAIN_SNOW")
-	iCoast  = getInfoTypeOrFail("TERRAIN_COAST")
-	iOcean  = getInfoTypeOrFail("TERRAIN_OCEAN")
+	iSnow = getInfoTypeOrFail("TERRAIN_SNOW")
+	iCoast = getInfoTypeOrFail("TERRAIN_COAST")
+	iOcean = getInfoTypeOrFail("TERRAIN_OCEAN")
 	terrainTypes = [0] * em.length
 	for i in range(em.length):
 		if tm.tData[i] == mc.OCEAN:
@@ -6625,41 +6625,41 @@ def replaceRivers(x, y):
 			#setting the river to what it already is will be ignored by the dll,
 			#so it must be unset and then set again.
 			plot.setWOfRiver(False, CardinalDirectionTypes.NO_CARDINALDIRECTION)
-			plot.setWOfRiver(True,  CardinalDirectionTypes.CARDINALDIRECTION_SOUTH)
+			plot.setWOfRiver(True, CardinalDirectionTypes.CARDINALDIRECTION_SOUTH)
 	plot = mmap.plot(x - 1, y) #West
 	if plot != 0 and plot.isNOfRiver():
 		if plot.getRiverWEDirection() == CardinalDirectionTypes.CARDINALDIRECTION_EAST:
 			plot.setNOfRiver(False, CardinalDirectionTypes.NO_CARDINALDIRECTION)
-			plot.setNOfRiver(True,  CardinalDirectionTypes.CARDINALDIRECTION_EAST)
+			plot.setNOfRiver(True, CardinalDirectionTypes.CARDINALDIRECTION_EAST)
 	plot = mmap.plot(x + 1, y) #East
 	if plot != 0 and plot.isNOfRiver():
 		if plot.getRiverWEDirection() == CardinalDirectionTypes.CARDINALDIRECTION_WEST:
 			plot.setNOfRiver(False, CardinalDirectionTypes.NO_CARDINALDIRECTION)
-			plot.setNOfRiver(True,  CardinalDirectionTypes.CARDINALDIRECTION_WEST)
+			plot.setNOfRiver(True, CardinalDirectionTypes.CARDINALDIRECTION_WEST)
 	plot = mmap.plot(x, y - 1) #South
 	if plot != 0 and plot.isWOfRiver():
 		if plot.getRiverNSDirection() == CardinalDirectionTypes.CARDINALDIRECTION_NORTH:
 			plot.setWOfRiver(False, CardinalDirectionTypes.NO_CARDINALDIRECTION)
-			plot.setWOfRiver(True,  CardinalDirectionTypes.CARDINALDIRECTION_NORTH)
+			plot.setWOfRiver(True, CardinalDirectionTypes.CARDINALDIRECTION_NORTH)
 	plot = mmap.plot(x - 1, y + 1) #Northwest
 	if plot != 0 and plot.isWOfRiver():
 		if plot.getRiverNSDirection() == CardinalDirectionTypes.CARDINALDIRECTION_SOUTH:
 			plot.setWOfRiver(False, CardinalDirectionTypes.NO_CARDINALDIRECTION)
-			plot.setWOfRiver(True,  CardinalDirectionTypes.CARDINALDIRECTION_SOUTH)
+			plot.setWOfRiver(True, CardinalDirectionTypes.CARDINALDIRECTION_SOUTH)
 	if plot != 0 and plot.isNOfRiver():
 		if plot.getRiverWEDirection() == CardinalDirectionTypes.CARDINALDIRECTION_EAST:
 			plot.setNOfRiver(False, CardinalDirectionTypes.NO_CARDINALDIRECTION)
-			plot.setNOfRiver(True,  CardinalDirectionTypes.CARDINALDIRECTION_EAST)
+			plot.setNOfRiver(True, CardinalDirectionTypes.CARDINALDIRECTION_EAST)
 	plot = mmap.plot(x + 1, y + 1) #Northeast
 	if plot != 0 and plot.isNOfRiver():
 		if plot.getRiverWEDirection() == CardinalDirectionTypes.CARDINALDIRECTION_WEST:
 			plot.setNOfRiver(False, CardinalDirectionTypes.NO_CARDINALDIRECTION)
-			plot.setNOfRiver(True,  CardinalDirectionTypes.CARDINALDIRECTION_WEST)
+			plot.setNOfRiver(True, CardinalDirectionTypes.CARDINALDIRECTION_WEST)
 	plot = mmap.plot(x - 1, y - 1) #Southhwest
 	if plot != 0 and plot.isWOfRiver():
 		if plot.getRiverNSDirection() == CardinalDirectionTypes.CARDINALDIRECTION_NORTH:
 			plot.setWOfRiver(False, CardinalDirectionTypes.NO_CARDINALDIRECTION)
-			plot.setWOfRiver(True,  CardinalDirectionTypes.CARDINALDIRECTION_NORTH)
+			plot.setWOfRiver(True, CardinalDirectionTypes.CARDINALDIRECTION_NORTH)
 	#Southeast plot is not relevant
 
 # It looks bad to have a lake, fed by a river, sitting right next to the coast.
@@ -6861,16 +6861,16 @@ def addFeatures():
 		cm = c3
 	else:
 		cm = c2
-	fForest      = getInfoTypeOrFail("FEATURE_FOREST")
-	fJungle      = getInfoTypeOrFail("FEATURE_JUNGLE")
+	fForest = getInfoTypeOrFail("FEATURE_FOREST")
+	fJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
 	fFloodPlains = getInfoTypeOrFail("FEATURE_FLOOD_PLAINS")
-	fOasis       = getInfoTypeOrFail("FEATURE_OASIS")
-	FORESTLEAFY     = 0
+	fOasis = getInfoTypeOrFail("FEATURE_OASIS")
+	FORESTLEAFY = 0
 	FORESTEVERGREEN = 1
-	FORESTSNOWY     = 2
+	FORESTSNOWY = 2
 
 	#print "Forest"
-	forestTiles  = []
+	forestTiles = []
 	forestLength = 0
 	coldTiles = [] # advc
 	for y in range(mc.height):
@@ -7021,10 +7021,10 @@ def createIce():
 	# advc: Simpler, and doesn't need to be adjusted to getGridSize. Divisor 10.0 would be (pretty much) equivalent to the above, but I don't want it to be as thick as that.
 	thickness = int(round((mc.height / 12.5) * mc.topLatitude / 90))
 	if mc.WrapY:
-		iceChance    = 0.5
+		iceChance = 0.5
 		iceReduction = 0.3 / (thickness - 1)
 	else:
-		iceChance    = 1.0
+		iceChance = 1.0
 		iceReduction = 0.6 / (thickness - 1)
 	for y in range(thickness * 2):
 		for x in range(mc.width):

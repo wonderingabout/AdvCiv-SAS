@@ -45,7 +45,7 @@ PopupTypePlayerSelect = 104
 PopupTypeWBContextStart = 200
 PopupTypeWBEditCity = PopupTypeWBContextStart 
 PopupTypeWBEditUnit = 201
-PopupTypeWBContextEnd	= 299
+PopupTypeWBContextEnd = 299
 
 # EVENT ID VALUES (also used in popup contexts)
 EventGetEspionageTarget = 4999
@@ -328,7 +328,7 @@ def initDynamicFontIcons():
 	import SASVisualUtils as SASVisuals
 	SASVisuals.initLegacyIconMap()
 
-GlobalInfosMap = {	'bonus': {'NUM': gc.getNumBonusInfos, 'GET': gc.getBonusInfo},
+GlobalInfosMap = { 'bonus': {'NUM': gc.getNumBonusInfos, 'GET': gc.getBonusInfo},
 					'improvement': {'NUM': gc.getNumImprovementInfos, 'GET': gc.getImprovementInfo},
 					'yield': {'NUM': YieldTypes.NUM_YIELD_TYPES, 'GET': gc.getYieldInfo},
 					'religion': {'NUM': gc.getNumReligionInfos, 'GET': gc.getReligionInfo},

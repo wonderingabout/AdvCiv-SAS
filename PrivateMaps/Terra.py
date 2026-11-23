@@ -48,7 +48,7 @@ balancer = BonusBalancer()
 #		WorldSizeTypes.WORLDSIZE_SMALL:		(21,13),
 #		WorldSizeTypes.WORLDSIZE_STANDARD:	(26,16),
 #		WorldSizeTypes.WORLDSIZE_LARGE:		(32,20),
-#		WorldSizeTypes.WORLDSIZE_HUGE:		(38,24)
+#		WorldSizeTypes.WORLDSIZE_HUGE: (38,24)
 #	}
 
 #	if (argsList[0] == -1): # (-1,) is passed to function on loads
@@ -63,13 +63,13 @@ def getNumPlotsPercent(argsList):
 	sizeModifiers = {
 		# <!-- custom: Arena was absent from this direct dictionary, causing KeyError; the shifted length guard also bypassed the stored Huge value.
 		# Use the established Duel percentage for Arena. See KI#282.3. (GPT-5.6-Sol) -->
-		WorldSizeTypes.WORLDSIZE_ARENA:		96,
-		WorldSizeTypes.WORLDSIZE_DUEL:		96,
-		WorldSizeTypes.WORLDSIZE_TINY:		95,
-		WorldSizeTypes.WORLDSIZE_SMALL:		94,
-		WorldSizeTypes.WORLDSIZE_STANDARD:	92,
-		WorldSizeTypes.WORLDSIZE_LARGE:		90,
-		WorldSizeTypes.WORLDSIZE_HUGE:		87
+		WorldSizeTypes.WORLDSIZE_ARENA: 96,
+		WorldSizeTypes.WORLDSIZE_DUEL: 96,
+		WorldSizeTypes.WORLDSIZE_TINY: 95,
+		WorldSizeTypes.WORLDSIZE_SMALL: 94,
+		WorldSizeTypes.WORLDSIZE_STANDARD: 92,
+		WorldSizeTypes.WORLDSIZE_LARGE: 90,
+		WorldSizeTypes.WORLDSIZE_HUGE: 87
 	}
 	if iWorldSize >= len(sizeModifiers):
 		return 83
@@ -91,8 +91,8 @@ def getNumHiddenCustomMapOptions():
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
-		0:	"TXT_KEY_MAP_WORLD_WRAP",
-		1:  "TXT_KEY_CONCEPT_RESOURCES"
+		0: "TXT_KEY_MAP_WORLD_WRAP",
+		1: "TXT_KEY_CONCEPT_RESOURCES"
 		}
 	if not option_names.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -102,20 +102,20 @@ def getCustomMapOptionName(argsList):
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	3,
-		1:	2
+		0: 3,
+		1: 2
 		}
 	return option_values[iOption]
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 			},
-		1:	{
+		1: {
 			0: "TXT_KEY_WORLD_STANDARD",
 			1: "TXT_KEY_MAP_BALANCED"
 			}
@@ -128,16 +128,16 @@ def getCustomMapOptionDescAt(argsList):
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	1,
-		1:  0
+		0: 1,
+		1: 0
 		}
 	return option_defaults[iOption]
 
 def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
 	option_random = {
-		0:	false,
-		1:  false
+		0: false,
+		1: false
 		}
 	return option_random[iOption]
 
@@ -193,13 +193,13 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		sizevalues = {
 			# <!-- custom: Terra's second direct world-size dictionary also omitted Arena and raised KeyError during regional generation.
 			# Match the established Duel/Tiny grain. See KI#282.3. (GPT-5.6-Sol) -->
-			WorldSizeTypes.WORLDSIZE_ARENA:     (3,2,1,2),
-			WorldSizeTypes.WORLDSIZE_DUEL:      (3,2,1,2),
-			WorldSizeTypes.WORLDSIZE_TINY:      (3,2,1,2),
-			WorldSizeTypes.WORLDSIZE_SMALL:     (4,2,1,2),
-			WorldSizeTypes.WORLDSIZE_STANDARD:  (4,2,1,2),
-			WorldSizeTypes.WORLDSIZE_LARGE:     (4,2,1,2),
-			WorldSizeTypes.WORLDSIZE_HUGE:      (5,2,1,2)
+			WorldSizeTypes.WORLDSIZE_ARENA: (3,2,1,2),
+			WorldSizeTypes.WORLDSIZE_DUEL: (3,2,1,2),
+			WorldSizeTypes.WORLDSIZE_TINY: (3,2,1,2),
+			WorldSizeTypes.WORLDSIZE_SMALL: (4,2,1,2),
+			WorldSizeTypes.WORLDSIZE_STANDARD: (4,2,1,2),
+			WorldSizeTypes.WORLDSIZE_LARGE: (4,2,1,2),
+			WorldSizeTypes.WORLDSIZE_HUGE: (5,2,1,2)
 			}
 		# <advc.165> Tolerate bigger sizes
 		if sizekey >= len(sizevalues):

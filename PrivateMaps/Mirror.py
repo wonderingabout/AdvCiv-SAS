@@ -33,10 +33,10 @@ def getNumHiddenCustomMapOptions():
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
-		0:	"TXT_KEY_MAP_SCRIPT_MIRROR_TYPE",
-		1:	"TXT_KEY_MAP_SCRIPT_TEAM_SETTING",
-		2:	"TXT_KEY_MAP_SCRIPT_LANDMASS_TYPE",
-		3:  "TXT_KEY_MAP_WORLD_WRAP"
+		0: "TXT_KEY_MAP_SCRIPT_MIRROR_TYPE",
+		1: "TXT_KEY_MAP_SCRIPT_TEAM_SETTING",
+		2: "TXT_KEY_MAP_SCRIPT_LANDMASS_TYPE",
+		3: "TXT_KEY_MAP_WORLD_WRAP"
 		}
 	if not option_names.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -46,28 +46,28 @@ def getCustomMapOptionName(argsList):
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	4,
-		1:	3,
-		2:	6,
-		3:  3
+		0: 4,
+		1: 3,
+		2: 6,
+		3: 3
 		}
 	return option_values[iOption]
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_SCRIPT_REFLECTION",
 			1: "TXT_KEY_MAP_SCRIPT_INVERSION",
 			2: "TXT_KEY_MAP_SCRIPT_COPY",
 			3: "TXT_KEY_MAP_SCRIPT_OPPOSITE"
 			},
-		1:	{
+		1: {
 			0: "TXT_KEY_MAP_SCRIPT_START_TOGETHER",
 			1: "TXT_KEY_MAP_SCRIPT_START_SEPARATED",
 			2: "TXT_KEY_MAP_SCRIPT_START_ANYWHERE"
 			},
-		2:	{
+		2: {
 			0: "TXT_KEY_MAP_SCRIPT_SMALL_LAKES",
 			1: "TXT_KEY_MAP_SCRIPT_WIDE_CONTINENTS",
 			2: "TXT_KEY_MAP_SCRIPT_SNAKY_CONTINENTS",
@@ -75,7 +75,7 @@ def getCustomMapOptionDescAt(argsList):
 			4: "TXT_KEY_MAP_SCRIPT_TINY_ISLANDS",
 			5: "TXT_KEY_MAP_SCRIPT_VARIED"
 			},
-		3:	{
+		3: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
@@ -89,20 +89,20 @@ def getCustomMapOptionDescAt(argsList):
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	0,
-		1:	0,
-		2:	0,
-		3:  0
+		0: 0,
+		1: 0,
+		2: 0,
+		3: 0
 		}
 	return option_defaults[iOption]
 
 def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
 	option_random = {
-		0:	true,
-		1:	false,
-		2:	false,
-		3:  false
+		0: true,
+		1: false,
+		2: false,
+		3: false
 		}
 	return option_random[iOption]
 

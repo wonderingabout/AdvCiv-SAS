@@ -52,6 +52,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#21.5 - (Addressed / fixed) - Removed the giant configobj docstring very inefficiently in the python code, and commented out most if not all as well](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.5)\
 [KI#21.6 - (Addressed) Old python code not being optimized, with many ruff linter (that we added) VS Code errors that don't allow to read the files](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.6)\
 [KI#21.7 - (Addressed, guarded by CI) SAS's Ruff and multi-line cleanups kept coming undone: a year of hand sweeps had no CI gate for these rules, so on 2026-11-22 64 Ruff findings and 25 multi-line calls were back or left](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7)\
+[KI#21.8 - (Addressed, guarded by CI) Runtime Python lined its tables up with runs of spaces, which drifted out of line with each rename, and held stray double spaces, while vanilla Civ4's `CvDebugInfoScreen.py` lined its dispatch table up with tabs: 2,269 lines in 89 files now use tabs for tables of two or more columns and one space elsewhere](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.8)\
 [KI#22 - (Now fixed) Obsolete bonuses (such as BONUS_ELEPHANTS) in tech advisor (i.e. tech tree view) failing to redirect to Sevopedia bonus with id none causing an error, unlike obsolete buildings (like BUILDING_SPIRAL_MINARET for example) successfully showing the building item's page](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22)\
 [KI#22.5 - (Addressed) Seemingly fixed weird flavors or XML fields: Mistakes?](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22.5)\
 [KI#22.6 - (Addressed) XML tweaks and fixes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22.6)\
@@ -2157,6 +2158,71 @@ KI#21.6 records the first Ruff cleanup. This entry retraces what followed, from 
 Retraced with Claude Code Opus 5.5; Codex (GPT-6.2-Sol) reviewed the check and the Ruff promotion.
 
 Pull request (2026-11-22): [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50). The branch is squash-merged, so the practical numbers 6838 to 6846 and SHAs above name its separate commits, which stay reachable on that page rather than on main.
+
+Update (2026-11-22): the same layout gap held for aligned columns, which runtime Python lined up with runs of spaces; [KI#21.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.8) fixed them and added their check.
+
+<a id="ki-21.8"></a>
+
+## KI#21.8 - (Addressed, guarded by CI) Runtime Python lined its tables up with runs of spaces, which drifted out of line with each rename, and held stray double spaces, while vanilla Civ4's `CvDebugInfoScreen.py` lined its dispatch table up with tabs: 2,269 lines in 89 files now use tabs for tables of two or more columns and one space elsewhere
+
+**How it was found (2026-11-22):** reviewing the [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104) copies, the user noticed that `CvDebugInfoScreen.py`'s dispatch table, which only vanilla Civ4 ships, aligned its columns with tabs:
+
+```python
+			0 : { 'DESC':	"Team Relations", 			'DATA':	self.drawTeamRelations },
+```
+
+SAS's own Sevopedia charts, about 190 rows in `SevoPediaEraChart.py`, `SevoPediaGameSpeedChart.py`, `SevoPediaHandicapChart.py` and `SevoPediaWorldSizeChart.py`, used runs of spaces instead, and some had drifted out of line, such as `SevoPediaWorldSizeChart.py`'s `"W/H Ratio*"`, a few spaces short of its column.
+
+**Why tabs:** a column moves by whole tab stops, so most renames leave the rest of the table in place, with far fewer characters. Tabs line up only at the width they were laid out with, so [`.editorconfig`](/.editorconfig) pins 4 for runtime Python, the width VS Code uses by default, for editors and GitHub's file view.
+
+- A long table such as `CvCustomizableDomesticAdvisor.py`'s `COLUMNS_LIST` shows its grid only when its rows fit the editor: with VS Code's word wrap on, zooming out (Ctrl+-) until each row fits on one line shows the column alignment, as the user's screenshot did; a note above that table says so.
+
+**What was done:**
+
+- [`python_aligned_columns.py`](/.github/workflows/README.md#buildsourcepython_aligned_columnspy) fails, as a formatter's check does, on a line whose spacing between code tokens in `Assets/Python` or `PrivateMaps` differs from the layout its `--fix` gives: tabs for a table with two or more columns to align, each one tab past its widest entry, and one space everywhere else.
+- As AGENTS.md asks of a new check, its `--fix` first ran over the whole repository: 2,269 lines in 89 files, from SAS's charts and `SevoPediaMain.py` to BUG's notify map, PLE's filter flags, `CvEventManager.py`'s event map and the map scripts' option tables. Many were stray double spaces, such as `self.TAB_TOC   = "Contents"` or `elif  fThreat < 35:`.
+  - The tables that keep tabs are the four charts, `COLUMNS_LIST`, two `setText` pairs in `SevoPediaMain.py`, and a handful of short ones their authors aligned in `PerfectMongoose.py` and `Planet_Generator_0_68.py`.
+  - Each SAS chart table has a note crediting `CvDebugInfoScreen.py`'s tab alignment, and `COLUMNS_LIST` one saying to zoom out to see its columns. `COLUMNS_LIST`'s column header is a prose comment aligned with spaces, which the check leaves alone, so it was laid on the new tab stops by hand; its rows whose entries had overflowed their column, `ESPIONAGE_DEF` and the `NRANK_*` rows, now fit.
+  - Twelve inherited files touched only by the sweep, such as `MonkeyTools.py` and `Fractal.py`, got the SAS header with a note saying the change is layout only, as source provenance asks of a changed file.
+  - Source provenance read `PerfectMongoose.py`'s `from array  import array` becoming `from array import array` as one import removed and another added; a removed and an added directive that differ only in whitespace now count as unchanged.
+
+**The user's refinements (2026-11-22 to 2026-11-23):** the first sweep tab-aligned every table it found, and reviewing it the user asked for less.
+
+- The map scripts' option dicts, such as `Ring.py`'s `4:  "TXT_KEY_MAP_WORLD_WRAP"` with one-digit keys, had turned into a tab that aligned nothing; a column whose cells are all as wide now gets one space.
+- `Tectonics.py`'s `xMoves =\t\t[` rows were already tab-only, so the first sweep skipped them; tab tables are now laid out too, so every table follows one layout.
+- A key-to-value map such as `SAS_WorldSizeUtils.py`'s `WorldSizeTypes.WORLDSIZE_ARENA:  1,`, an enum or an assignment list gains little from one aligned column, and the charts' name-to-icon tables were "unremarkable" in the user's word; only a table with two or more columns to align keeps tabs.
+  - `CvDebugInfoScreen.py`'s dispatch table itself has only one, so it is one space now; the Sevopedia charts are the tab tables to follow.
+- Commented-out code follows the same rule, as `CvCustomizableDomesticAdvisor.py`'s disabled `GRANK_*` rows showed.
+
+**How `--fix` got there:** each draft went wrong in a way the next fixed, and each case is now a test.
+
+- The first split each line at its own wide gaps only. `SevoPediaWorldSizeChart.py`'s `"Building Class Prereq Mod"` row had one space before its next column, so two of its columns merged and every row's later columns moved ten tabs out.
+- The second counted every boundary between tokens as a possible column. `CvCustomizableDomesticAdvisor.py`'s rows hold `CyCity.getCommerceRate` where a neighbour holds `None`, so a name was split at its dot.
+  - Columns now meet only after a `,` or `:` or around an `=`, where a row with no space after its commas, such as `SevoPediaEraChart.py`'s `("iAIMaxGroundbreakingPenalty","AI Max Groundbreaking Pen.",`, still keeps its place.
+- Two adjacent lines of different shape, `SevoPediaMain.py`'s `HEAD_TEXT` and `BACK_TEXT`, were lined up as one table. Only rows with as many separators share columns now.
+- `COLUMNS_LIST`'s `# advc.004:` note between rows split it into two tables laid on different tab stops. A table now runs on through comment lines.
+- A table's widest row often has one space before its next column, so it showed no alignment of its own and was left out. Such a row now joins its table; two such rows in a row end it, and a table still needs two rows that align, so `x =  y` beside `z = 1` stays a slip, not a column.
+- Tables were grown from whichever flagged line came first, judging neighbours by their current alignment, so passes over `SevoPediaMain.py`'s widget IDs flipped between two layouts. Every table of a file is now found up front from its structure, and a second `--fix` changes nothing.
+- Commented-out code: the map scripts' `#   FILE:    Wheel.py` notices parse in Python 3 as variable annotations, a syntax Python 2.4 does not have, so they would have been taken for code; a line that parses as an annotation on a plain name stays prose.
+  - The disabled `GRANK_*` rows were first laid out as if they started at column 0, while they start at column 18 after their `# ` prefix, so their tab stops came out wrong; each run is now laid out at its real column.
+
+**Codex (GPT-6.2-Sol)'s review (2026-11-23):** six findings, each now a test.
+
+- A call's comma and a slice's colon paired `left = foo(a, b)` and `right = bar[long_key: very_long]` as a table; separators now match in kind and bracket depth.
+- `# x =  y` inside a triple-quoted string, live or commented out, was laid out as commented-out code, changing the string; only lines the tokenizer sees as comments count, and lines on or between commented-out triple quotes stay as written.
+- Source provenance's new whitespace rule also collapsed spaces inside an include's quotes, so `#include "foo  bar.h"` becoming `"foo bar.h"` passed as unchanged; only whitespace between a directive's tokens is layout now.
+- `add_sas_header.py` mixed line endings on CRLF files, rejected UTF-8 files with a BOM and wrote the files that passed while another failed; it now keeps both and writes nothing until every file passes.
+- The docs called `CvDebugInfoScreen.py` a BtS file, while only vanilla Civ4 ships it, and cited its table as the current example though it is single-spaced now.
+- Lines the sweep touched kept inherited trailing whitespace, which `git diff --check` flagged; lines `--fix` rewrites now drop it.
+- Claude Code Opus 5.5 first applied only the last four: it had read Codex's reply through `tail -5`, which cut off the first two; Codex's own log, read with `openai_chat_export_to_txt.py codex --tail`, showed them.
+
+**The comment reflow check:** [`reflow_custom_comments.py`](/LLM_Helpers/README.md#reflow_custom_commentspy) collapsed every whitespace run in a custom comment, so this round's comments quoting spacing, such as `"x =  y"`, lost the very spaces they showed. It now keeps whitespace inside double quotes and backticks.
+
+**Not covered:** prose comments, strings, the gap before a trailing comment and tooling Python under `.github`, `LLM_Helpers` and `tests`, which is indented with spaces.
+
+See also [KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7) for the multi-line call and Ruff gates.
+
+Found and refined by the user; the check and the sweep by Claude Code Opus 5.5, with Codex (GPT-6.2-Sol)'s review finding the six issues above.
 
 <a id="ki-22"></a>
 

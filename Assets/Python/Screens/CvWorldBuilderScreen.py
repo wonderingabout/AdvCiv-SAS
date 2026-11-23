@@ -268,7 +268,7 @@ class CvWorldBuilderScreen:
 			self.placeObject()
 			return 1
 		
-		if (bAlt and bCtrl) or  (self.m_bUnitEdit):
+		if (bAlt and bCtrl) or (self.m_bUnitEdit):
 			if (self.m_pCurrentPlot.getNumUnits() > 0):
 				self.m_iCurrentUnit = 0
 				self.setUnitEditInfo(False)
@@ -1245,10 +1245,10 @@ class CvWorldBuilderScreen:
 		else:
 			strName = self.m_pActivePlot.getUnit(self.m_iCurrentUnit).getName()
 		self.m_tabCtrlEdit.addSectionEditCtrl(strName, "CvScreensInterface", "WorldBuilderHandleUnitEditNameCB", "UnitEditName", 0)
-		self.m_tabCtrlEdit.addSectionLabel(localText.getText("TXT_KEY_WB_EXPERIENCE",()),  0)
+		self.m_tabCtrlEdit.addSectionLabel(localText.getText("TXT_KEY_WB_EXPERIENCE",()), 0)
 		strExperience = str("UnitEditExperienceCB")
 		self.m_tabCtrlEdit.addSectionSpinner(strExperience, "CvScreensInterface", "WorldBuilderHandleUnitEditExperienceCB", "UnitEditExperience", 0, 0.0, 1000.0, 1.0, self.m_pActivePlot.getUnit(self.m_iCurrentUnit).getExperience(), 0, 0)
-		self.m_tabCtrlEdit.addSectionLabel(localText.getText("TXT_KEY_WB_LEVEL",()),  0)
+		self.m_tabCtrlEdit.addSectionLabel(localText.getText("TXT_KEY_WB_LEVEL",()), 0)
 		strLevel = str("UnitEditLevelCB")
 		self.m_tabCtrlEdit.addSectionSpinner(strLevel, "CvScreensInterface", "WorldBuilderHandleUnitEditLevelCB", "UnitEditLevel", 0, 1.0, 1000.0, 1.0, self.m_pActivePlot.getUnit(self.m_iCurrentUnit).getLevel(), 0, 0)
 		strTest = ()
@@ -1285,13 +1285,13 @@ class CvWorldBuilderScreen:
 		self.m_tabCtrlEdit.addTabSection(localText.getText("TXT_KEY_WB_CITY_DATA",()))
 		strName = self.m_pActivePlot.getPlotCity().getName()
 		self.m_tabCtrlEdit.addSectionEditCtrl(strName, "CvScreensInterface", "WorldBuilderHandleCityEditNameCB", "CityEditName", 0)
-		self.m_tabCtrlEdit.addSectionLabel(localText.getText("TXT_KEY_WB_POPULATION",()),  0)
+		self.m_tabCtrlEdit.addSectionLabel(localText.getText("TXT_KEY_WB_POPULATION",()), 0)
 		strPopulation = str("CityEditPopulationCB")
 		self.m_tabCtrlEdit.addSectionSpinner(strPopulation, "CvScreensInterface", "WorldBuilderHandleCityEditPopulationCB", "CityEditPopulation", 0, 1.0, 1000.0, 1.0, self.m_pActivePlot.getPlotCity().getPopulation(), 0, 0)
-		self.m_tabCtrlEdit.addSectionLabel(localText.getText("TXT_KEY_WB_CULTURE",()),  0)
+		self.m_tabCtrlEdit.addSectionLabel(localText.getText("TXT_KEY_WB_CULTURE",()), 0)
 		strCulture = str("CityEditCultureCB")
 		self.m_tabCtrlEdit.addSectionSpinner(strCulture, "CvScreensInterface", "WorldBuilderHandleCityEditCultureCB", "CityEditCulture", 0, 1.0, 100000000.0, 1.0, self.m_pActivePlot.getPlotCity().getCulture(self.m_pActivePlot.getPlotCity().getOwner()), 0, 0)
-		self.m_tabCtrlEdit.addSectionLabel(localText.getText("TXT_KEY_WB_GOLD",()),  0)
+		self.m_tabCtrlEdit.addSectionLabel(localText.getText("TXT_KEY_WB_GOLD",()), 0)
 		strGold = str("CityEditGoldCB")
 		self.m_tabCtrlEdit.addSectionSpinner(strGold, "CvScreensInterface", "WorldBuilderHandleCityEditGoldCB", "CityEditGold", 0, -1000.0, 5000.0, 1.0, gc.getPlayer(self.m_iCurrentPlayer).getGold(), 0, 0)
 		self.m_tabCtrlEdit.addSectionButton(localText.getText("TXT_KEY_WB_ADD_SCRIPT",()), "CvScreensInterface", "WorldBuilderHandleCityEditAddScriptCB", "CityEditAddScript", 0)
@@ -1902,7 +1902,7 @@ class CvWorldBuilderScreen:
 		return
 
 	def useLargeBrush(self):
-		if 	(
+		if (
 				(
 					(self.m_bNormalMap) and 
 					(not self.m_bUnitEdit) and 

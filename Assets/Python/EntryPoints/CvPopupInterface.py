@@ -89,11 +89,11 @@ def initPythonTestPopup():
 	# make 2 python buttons
 	strButtonText = "Button 1"
 	strHelpText = "Help text for button 1"
-	popup.addPythonButton( "showHelp", strButtonText, strHelpText, "art/interface/buttons/building/Granary.dds"  )
+	popup.addPythonButton( "showHelp", strButtonText, strHelpText, "art/interface/buttons/building/Granary.dds" )
 
 	strButtonText = "Button 2"
 	strHelpText = "Help text for button 2"
-	popup.addPythonButton( "showHelp", strButtonText, strHelpText, "art/interface/buttons/building/Granary.dds"  )
+	popup.addPythonButton( "showHelp", strButtonText, strHelpText, "art/interface/buttons/building/Granary.dds" )
 
 	#make 4 radiobuttons in group 0
 	popup.createPythonRadioButtons(2, 0)

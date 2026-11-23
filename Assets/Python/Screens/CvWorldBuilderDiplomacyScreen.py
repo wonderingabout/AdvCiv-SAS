@@ -24,7 +24,7 @@ class CvWorldBuilderDiplomacyScreen:
 		self.m_iScreenHeight = 200
 		self.m_iScreenWidth = 200
 		
-		self.iDiplomacyTabID	= 0
+		self.iDiplomacyTabID = 0
 		
 		self.callbackIFace = "CvScreensInterface"
 
@@ -209,7 +209,7 @@ class CvWorldBuilderDiplomacyScreen:
 		return szSliderText
 
 	def getSliderTextBack(self, iMin, iMax, iCurrent):
-		szSliderText =  str(iMax)
+		szSliderText = str(iMax)
 		return szSliderText
 
 	def getNumPlayers(self):
