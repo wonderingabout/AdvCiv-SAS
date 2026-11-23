@@ -77,6 +77,7 @@ On the same day, Better BTS AI's SVN export moved into the `commit_diffs` corpus
 | `LLM_Helpers/context/svn_history/bbai/BBAI_r<revision>.diff` | `LLM_Helpers/context/commit_diffs/BBAI_r<revision>.diff` |
 | `LLM_Helpers/context/svn_history/bbai/INDEX.txt` | its rows, segment `BBAI`, in `LLM_Helpers/context/commit_diffs/INDEX.txt` |
 | `LLM_Helpers/context/svn_history/bbai/PATH_HISTORY_INDEX.txt` | its rows, `BBAI r<revision> …`, in `LLM_Helpers/context/commit_diffs/PATH_HISTORY_INDEX.txt` |
+| `LLM_Helpers/formatting/apply_replacements.py` (renamed 2026-11-23, after the heredoc trap it avoids) | `LLM_Helpers/formatting/heredoc_safe_replace.py` |
 
 - Why: we used to keep separate homes for SVN and Git history, its diffs in `svn_history/` and our Git commits in `commit_diffs/`. That was brittle, easy to forget and needless: whichever system recorded it, it is all our history, and in one home a single grep covers every layer.
   - The `BBAI_r*.diff` files stay tracked there, while everything else in `commit_diffs/` is generated and Git-ignored, because our Git cannot regenerate SVN history.

@@ -654,12 +654,22 @@ Some miscellaneous screens have been beautified, expanded and maximized to suppo
 
 The screens Debug Mode opens (`chipotle` cheat code, then `Ctrl + Z`), which base AdvCiv had left at vanilla's sizes or broken:
 
-- [CvDebugInfoScreen.py](/Assets/Python/Screens/CvDebugInfoScreen.py) (`Shift + F2`): sizes itself like the advisors instead of a fixed 1024 x 768, and pages its columns with arrows when they do not fit, as its table does not scroll sideways and cut off the rest, such as Map Details' bonuses or most civilizations in a SAS48 game ([KI#1105.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2)); its Map Details headers line up with their values again ([KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)).
-- The Sevopedia's Cheats shortcuts page lists the Debug Mode keys it lacked: `Shift + F1` to `F4`, `Ctrl + Shift + F1` and `Shift + [` and `]`, as of now, as base AdvCiv's `advc.007b` block in [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py) binds them.
+- The **Debug Info screen** (`Shift + F2`, [CvDebugInfoScreen.py](/Assets/Python/Screens/CvDebugInfoScreen.py)):
+  - It adjusts to the resolution and uses most of the screen, as the advisors do as of now, instead of vanilla's fixed 1024 x 768.
+  - It pages its columns when they do not fit, where it used to cut them off, such as Map Details' bonuses or most civilizations in a SAS48 game ([KI#1105.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2)); its Map Details headers line up with their values again ([KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)).
+- The **GameFont Display screen**, listing every game font glyph (`Ctrl + Shift + F1`, [GameFontDisplay.py](/Assets/Python/Contrib/GameFontDisplay.py)):
+  - It shows the game font's glyphs again, after an empty table in base AdvCiv too ([KI#1107](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107)).
+  - It fills the screen, with one glyph column per font size 1 to 4, each naming the SAS font types that use it, instead of a vague "Small" and "Big".
+- The Sevopedia's **Cheats** shortcuts page lists the Debug Mode keys it lacked: `Shift + F1` to `F4`, `Ctrl + Shift + F1` and `Shift + [` and `]`, as of now, as base AdvCiv's `advc.007b` block in [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py) binds them.
 
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(1).JPG" alt="1.986_debug_info_screen (1).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(2).JPG" alt="1.986_debug_info_screen (2).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(2)_sas48.JPG" alt="1.986_debug_info_screen (2)_sas48.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.987_game_font_display%20(1).JPG" alt="1.987_game_font_display (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.987_game_font_display%20(2).JPG" alt="1.987_game_font_display (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.987_game_font_display%20(3).JPG" alt="1.987_game_font_display (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.987_game_font_display%20(4).JPG" alt="1.987_game_font_display (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.987_game_font_display%20(5).JPG" alt="1.987_game_font_display (5).JPG" width="250"></img>
 
 ### Main Interface rework
 

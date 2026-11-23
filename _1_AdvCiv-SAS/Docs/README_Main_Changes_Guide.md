@@ -6,7 +6,9 @@ It’s intentionally practical, mostly player-facing, and a bit verbose so newer
 
 It has drifted a bit from that since then, being also aimed at agents for a synthetic view, but it also aims to still keep its mostly exhaustive index-like detail of the changes since base AdvCiv, or updates within AdvCiv-SAS generally much more rarely if they are significant enough and worth adding there, but still remains a broad overview otherwise.
 
-In particular, it does not aim to list every single bugfix or technical change or implementation/spec, but rather give a broad overview, generally detailed and aiming to be exhaustive when it comes to rationale and what broadly changed in a player-facing sense and why since base AdvCiv, or for few changes why AdvCiv-SAS changed its original implementation and how so.
+In particular, the Main Changes Guide does not aim to list every single bugfix or technical change or implementation/spec, but rather give a broad overview, generally detailed and aiming to be exhaustive when it comes to rationale and what broadly changed in a player-facing sense and why since base AdvCiv, or for few changes why AdvCiv-SAS changed its original implementation and how so.
+
+It is mostly a list of features, not of fixes, with some exceptions such as if said fixes are a feature themselves.
 
 A few bugfixes may serve as examples of broader changes like code/performance optimizations, but generally this doc is more focused on the features and listing them exhaustively, so a mere bugfix is not the aim of this doc if it has not other significance or implications for usual gameplay and users for example.
 
@@ -3313,7 +3315,11 @@ Make some of the data-dense advisors use using a **higher constrast background t
 - (Requires AdvCiv-SAS 6847+) The Debug Mode **Debug Info screen** (`Shift + F2`), [CvDebugInfoScreen.py](/Assets/Python/Screens/CvDebugInfoScreen.py), is beautified: it adjusts to the resolution and uses most of the screen, as the advisors do as of now, instead of vanilla's fixed 1024 x 768.
   - When its columns do not all fit, it pages them with arrows in the bottom bar, as the Foreign Advisor's Glance tab does; it used to cut off every column past its table's right edge, such as Map Details' bonuses after about the 8th or most civilizations in a SAS48 game. See [KI#1105.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2).
   - Its Map Details headers line up with their values since [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105).
-  - The Sevopedia's Cheats shortcuts page lists the Debug Mode keys it lacked: `Shift + F1` to `F4` (the Replay, Debug Info, Dan Quayle and UN Victory screens), `Ctrl + Shift + F1` (the game font display) and `Shift + [` and `]` (the hovered unit's damage), as of now, as base AdvCiv's `advc.007b` block in [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py) binds them.
+  - The Sevopedia's Cheats shortcuts page lists the Debug Mode keys it lacked: `Shift + F1` to `F4` (the Replay, Debug Info, Dan Quayle and UN Victory screens), `Ctrl + Shift + F1` (the GameFont Display screen) and `Shift + [` and `]` (the hovered unit's damage), as of now, as base AdvCiv's `advc.007b` block in [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py) binds them.
+- (Requires AdvCiv-SAS 6848+) The Debug Mode **GameFont Display screen** (`Ctrl + Shift + F1`), [GameFontDisplay.py](/Assets/Python/Contrib/GameFontDisplay.py), lists every game font glyph again.
+  - It showed an empty table, in base AdvCiv 1.14 too, as its row count assumed symbol codes near 8193 while the game starts them at 450. See [KI#1107](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107) and [KI#1107.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107.2).
+  - It is enhanced too: it fills the screen with larger cells, and one glyph column per font size 1 to 4 replaces a vague "Small" and "Big"; then each glyph's button and XML type, its text in the shared font scale.
+    - Each size's header names the SAS font types set to it, read from the `SAS_UI_FONT_*` defines; with the shipped values, as of now, they read "1 (Tiny)", "2 (Body)", "3 (Label, Hover)" and "4 (Title)", so the screen shows which glyphs each kind of SAS text draws.
 
 ## General changes
 

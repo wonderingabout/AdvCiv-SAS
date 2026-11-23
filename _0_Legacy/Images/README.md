@@ -261,3 +261,10 @@ Three leaders in the Ottoman game: Genghis Khan (Annoyed), Washington (Pleased) 
 Mecca at turn 190, building a Knight, with its worked tiles circled.
 
 <img src="/_0_Legacy/Images/ui_other/0.990_city_screen.JPG" alt="0.990_city_screen.JPG" width="250">
+
+### Debug Mode screens
+
+The Debug Info screen (`Shift + F2`), at vanilla's fixed 1024 x 768 with its Team Relations tab, and the GameFont Display screen (`Ctrl + Shift + F1`), its table empty, as in SAS until [KI#1107](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107).
+
+<img src="/_0_Legacy/Images/ui_other/0.986_debug_info_screen.JPG" alt="0.986_debug_info_screen.JPG" width="250">
+<img src="/_0_Legacy/Images/ui_other/0.987_game_font_display.JPG" alt="0.987_game_font_display.JPG" width="250">

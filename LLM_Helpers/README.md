@@ -171,7 +171,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`collapse_flat_literals.py`](#collapse_flat_literalspy)
     - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
     - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
-    - [`apply_replacements.py`](#apply_replacementspy)
+    - [`heredoc_safe_replace.py`](#heredoc_safe_replacepy)
     - [`fix_line_endings.py`](#fix_line_endingspy)
     - [`rename_identifiers.py`](#rename_identifierspy)
   - [C++ source cleanup helpers](#c-source-cleanup-helpers)
@@ -783,6 +783,8 @@ The exporter writes a timestamped `chatgpt-share-<share-id>-<timestamp>.txt` to 
   - Copying from the chat view captured only a small slice of a long session, and `/export` was unavailable in the desktop session.
 - Keeps user and Claude messages in full and reduces each tool call to a one-line `[tool: name - description]` marker; thinking and raw tool output are omitted.
   - On the first use, this reduced a 2 MB `transcript.jsonl` to about 24 KB.
+- Includes the messages the user sends while Claude is working, as USER entries starting `[sent mid-turn]`, at their place in the timeline.
+  - The log keeps them not as user records but as `queued_command` attachments whose origin is `human`; the export skipped them until 2026-11-23, when tracing who found KI#1107 turned up the user's mid-turn "ncie you have soemreaciton now hehe" only in the raw log. One session held 342 such messages, all missing; queued task notifications stay out.
 - Uses the same [numbered speaker markers](#codex-and-chatgpt-transcript-helper) as the Codex and ChatGPT helper. When a Claude log record has multiple text blocks, each exported block gets its own number and uses that record’s timestamp.
 - Uses only Python 3's standard library and writes `claude-<input-stem>.txt` in the shared export folder by default:
 
@@ -1689,16 +1691,32 @@ Example:
 python LLM_Helpers\formatting\collapse_multiline_brackets.py Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py
 ```
 
-#### `apply_replacements.py`
+#### `heredoc_safe_replace.py`
 
 Applies exact text replacements to one file from a patch file, for edits too many or too long to make one by one.
 
+- Named for the trap it avoids (renamed from `apply_replacements.py` on 2026-11-23): write the patch file with the Write tool, which keeps backslashes, and pass only its path through the shell; a test patch holding `\\`, `\n`, `\t` and `[\BOLD]` came through unchanged.
+  - Writing this very line through a heredoc turned its `\\` into `\`, its `\n` into a line break and its `\t` into a tab, as the helper's new name warns.
+  - Created on 2026-11-13 as `apply_replacements.py`, it still went unnoticed: on 2026-11-23 Claude Code Opus 5.5 wrote the same read, count-check, replace and write script inline through heredocs all day, halving backslashes, as the old name never came to mind.
+    - So, at the user's suggestion, it took a name saying which trap it avoids, and AGENTS.md's backslash rule names it, as of now, so the next agent meets it where the trap is described.
 - The patch file holds blocks of `<<<<<<< OLD`, the text to find, `=======`, the text to put, and `>>>>>>> NEW`, each marker on its own line. Every old text must occur exactly once, or `--count` times; otherwise nothing is written and every failing block is listed.
+  - For example, the test patch, which replaced one line of a Python file with its backslashes intact:
+
+    ```text
+    <<<<<<< OLD
+    path = "C:\\Users\\PC"
+    =======
+    path = "C:\\Program Files\\Civ4"  # \n and \t stay literal, [\BOLD] too
+    >>>>>>> NEW
+    ```
+
+  - The example lives here rather than in AGENTS.md, whose backslash rule keeps only the slip and a one-line cure linking to it: an agent who meets the heredoc trap follows the link, and the others need not read the format (the user, 2026-11-23).
+
 - Keeps the file's CRLF or LF and its encoding (`--encoding cp1252` for legacy sources); `--dry-run` only checks.
 - Why it exists: on 2026-11-13 two agents patching SASPilot wrote this script about ten times in their scratchpads. Passing the texts through a shell kept failing: heredocs mangled backslashes and regex escapes, an apostrophe ended a quoted block, and `sed` left mixed line endings. Write the patch file with the agent's file-writing tool, which involves no shell quoting.
 
 ```bash
-python ./LLM_Helpers/formatting/apply_replacements.py CvGameCoreDLL/CvPlayer.cpp patch.txt --dry-run
+python ./LLM_Helpers/formatting/heredoc_safe_replace.py CvGameCoreDLL/CvPlayer.cpp patch.txt --dry-run
 ```
 
 #### `fix_line_endings.py`

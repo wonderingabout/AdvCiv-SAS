@@ -84,7 +84,8 @@ class PythonVisualResourceTests(unittest.TestCase):
 
         # <!-- custom: Keep all remaining ordinal consumers intentionally narrow and reviewable; new display code should use char()/named *_CHAR attributes instead. (ChatGPT-5.6-Sol) -->
         allowed = {
-            "Contrib/GameFontDisplay.py": re.compile(r"\biMax\s*=.*SASVisuals\.Font\.ordinal\(FontSymbols\.HAPPY_CHAR\)"),
+            # <!-- custom: The game font display's row range is integer arithmetic on symbol codes: was iMax from HAPPY_CHAR alone, now iEnd from it and iFirstSymbol from the first yield's code. See KI#1107. (Claude code Opus 5.5) -->
+            "Contrib/GameFontDisplay.py": re.compile(r"\b(?:iEnd\s*=.*SASVisuals\.Font\.ordinal\(FontSymbols\.HAPPY_CHAR\)|iFirstSymbol\s*=\s*SASVisuals\.Yield\.ordinal\(YieldTypes\.YIELD_FOOD\))"),
             "Screens/CvMainInterface.py": re.compile(r"(?:localText\.getText|\bcAtt\s*=).*SASVisuals\.(?:Font|Commerce)\.ordinal\("),
             "EntryPoints/CvRandomEventInterface.py": re.compile(r"localText\.getText.*SASVisuals\.Religion\.ordinal\("),
         }
@@ -110,6 +111,17 @@ class PythonVisualResourceTests(unittest.TestCase):
         for path in _gameplay_python_files():
             if pattern.search(_masked_source(path, False)):
                 failures.append(str(path.relative_to(REPO_ROOT)))
+        self.assertEqual(failures, [], "\n".join(failures))
+
+    def test_cached_tuples_are_not_searched_with_index_or_count(self):
+        # <!-- custom: SASVisuals' ordinals() and chars() return tuples, and Python 2.4 tuples have no index() or count(), which came in 2.6; the compile check cannot see a method missing at run time.
+        # The game font display's reverse lookup, from a glyph code to its entry, called ordinals().index() and chars().index() and would have failed on its first row, hidden behind an empty table; a dict built once does that lookup now; SASVisualUtils.py says the same beside ordinals() and chars(). See KI#1107.2. (Claude code Opus 5.5) -->
+        pattern = re.compile(r"\b(?:ordinals|chars)\(\)\s*\.\s*(?:index|count)\s*\(")
+        failures = []
+        for path in _gameplay_python_files():
+            for line_number, line in enumerate(_masked_source(path, True).splitlines(), 1):
+                if pattern.search(line):
+                    failures.append("%s:%d: tuple .index()/.count() is missing in Python 2.4; build a dict from the cached tuple instead" % (path.relative_to(REPO_ROOT), line_number))
         self.assertEqual(failures, [], "\n".join(failures))
 
     def test_sas_visual_utils_is_imported_through_sasvisuals_alias(self):

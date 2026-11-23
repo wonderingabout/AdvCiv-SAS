@@ -245,6 +245,9 @@ Tested on 2026-11-10 during an autoplay:
   - Check with `screenshot` before each press: two shots of the Debug Info screen came out as the bare map, as an earlier Enter had closed the screen.
   - That Enter came from choosing a dropdown item with arrow keys: `key` brings Civ4 forward first, which closed the open list, so the arrows and Enter reached the map instead, and a click on a list item did not register either.
     - [`set_dropdown.py`](/LLM_Helpers/README.md#civ4_ui_mapjson-capture_dropdownspy-and-set_dropdownpy) chooses an item by name; relaunching also worked, as the Debug Info screen opens on its first tab in a new game.
+- In one session (2026-11-23), with two Civ4 clients open and the user working in other windows, `scroll` moved the GameFont Display screen's table only after a `click` on it, and several scrolls did nothing while the focus had moved elsewhere; `scroll` sends the wheel without forcing the focus, so click the target first and check the result.
+  - Click only where a click does nothing else, such as a table row: on the map or a city screen a click can move a unit, assign a specialist or change production (the user).
+  - A stale picture looks the same as a scroll that did nothing: the default `screenshot` asks a background window to redraw itself, so take `--method screen` to see what the screen shows.
 - Enlarging the window does not add detail either: on 2026-11-11 a 1920x1080 game maximized over a 4K monitor showed the same pixels doubled, so keep the game's own size and crop. See [Look, then act](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#look-then-act).
 
 ### The main menu and the Sevopedia

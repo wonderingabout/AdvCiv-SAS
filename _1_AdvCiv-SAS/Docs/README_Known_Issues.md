@@ -1301,7 +1301,9 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1104 - (AdvCiv-SAS design rule) SAS keeps its own copy of every base-game Python file it uses, changed or not, as it took in CvTechSplashScreen.py, CIV4ProcessInfo.xml and CIV4WorldPickerInfos.xml when first needed: SASPilot's WorldBuilder work found the WorldBuilder screen running from BtS's copy, outside the repository](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)\
 [KI#1105 - (Fixed inherited vanilla, Debug Mode only) The Map Details table showed a continent's 576 tiles under "Area" and its 5 starting plots under "Size": its header row had one extra column](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)\
 [KI#1105.2 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen CvDebugInfoScreen.py (Shift + F2) sat at a fixed 1024 x 768, and its table never showed the columns past its right edge, so even on a Huge map Team Relations lost the last 4 of its 16 civilizations and Map Details its bonuses after about the 8th](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2)\
-[KI#1106 - (Clarified inherited vanilla) The plot hover called a lake tile "Coast", then wrote "Fresh Water Lake" where a land plot's fresh water goes, and never said where a land plot's "Fresh Water" came from](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1106)
+[KI#1106 - (Clarified inherited vanilla) The plot hover called a lake tile "Coast", then wrote "Fresh Water Lake" where a land plot's fresh water goes, and never said where a land plot's "Fresh Water" came from](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1106)\
+[KI#1107 - (Fixed inherited AdvCiv, Debug Mode only) The Debug Mode screen GameFontDisplay.py (Ctrl + Shift + F1), which lists every game font glyph, showed an empty table, as its row count assumed symbol codes starting near 8193 and so came out at -7667 with codes starting at 450, in base AdvCiv and SAS alike](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107)\
+[KI#1107.2 - (Fixed AdvCiv-SAS bug, Debug Mode only) SAS's move onto the SASVisualUtils cache had broken GameFontDisplay.py's lookup of each glyph's religion, corporation or bonus with .index() on the cache's tuples, which Python 2.4 lacks, hidden behind KI#1107's empty table until its fix let rows draw](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107.2)
 
 <a id="ki-1"></a>
 
@@ -38940,3 +38942,65 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
   - Not seen in game: an Oasis, as no save's Oases were located, and the revealed-only rule, as Debug Mode reveals every tile; both go through the same code as the cases above.
 
 Asked for by the user, who found the lake tile's "Coast" misleading; implemented by Claude Code Opus 5.5 with Codex's (GPT-6.2-Sol) review (2026-11-23).
+
+<a id="ki-1107"></a>
+
+## KI#1107 - (Fixed inherited AdvCiv, Debug Mode only) The Debug Mode screen GameFontDisplay.py (Ctrl + Shift + F1), which lists every game font glyph, showed an empty table, as its row count assumed symbol codes starting near 8193 and so came out at -7667 with codes starting at 450, in base AdvCiv and SAS alike
+
+- Where: Debug Mode, `Ctrl + Shift + F1`, Nightinggale's GameFont Display, which base AdvCiv took in as `advc.gfd` ([`GameFontDisplay.py`](/Assets/Python/Contrib/GameFontDisplay.py)): a table of every game font glyph with its code, its button and the XML type it stands for.
+- What (2026-11-23, the user): the screen drew its header row and nothing else, with no Python error; base AdvCiv 1.14, started from its own mod folder, showed the same empty table, as in the user's legacy shot [`0.987_game_font_display.JPG`](/_0_Legacy/Images/ui_other/0.987_game_font_display.JPG).
+- How it was found, in order (2026-11-23):
+  - Looking over the Debug Mode keys that had just joined the Sevopedia's Cheats page, the user found this one "not working properly" in SAS; Claude Code Opus 5.5 opened it in the user's SAS client and saw the empty table; the user then started base AdvCiv 1.14, whose display was empty too, so the issue was inherited.
+  - A diagnostic write gave the first symbol's code as 450, which put the row count at -7667; fixing the count let rows draw, and the first one raised an error, a separate SAS bug the empty table had hidden, recorded as [KI#1107.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107.2).
+  - With both fixed, the user asked to enhance the screen, as it used about 750 of 1920 px, then for a column per font size; Codex's review followed, and the two issues were split into this entry and KI#1107.2.
+- Cause, inherited AdvCiv: the row count is `FontSymbols.MAX_NUM_SYMBOLS + getSymbolID(HAPPY_CHAR) - 8193 + 49`, rows past 280 shifted by 8193, which assumes the symbols' codes start near 8193.
+  - A diagnostic write from SAS's copy read `getSymbolID(HAPPY_CHAR)` as 450, so the count was 27 + 450 - 8193 + 49 = -7667, and `range(-7667)` drew no row, silently.
+  - Why the code is 450 here, rather than the 8483 or so the formula was written for: `CvGameTextMgr::assignFontIds` gives the yields the codes from the `iFirstSymbolCode` the EXE passes it (256 here, as the yield glyphs sit at rows 256 to 258), then the commerce, religion, corporation and bonus rows, and `HAPPY_CHAR` first in the block of other symbols after them (Codex's reading); which value the EXE passed in the setup the formula was written for was not found.
+- Archaeology, from the `commit_diffs` corpus and the dev logs:
+  - 2019-08-13, base AdvCiv `40649c33d1` (practical 1622), "Add new files for GameFont Display mod component": the count was `- 8483 + 10`, every row shifted by 8483.
+  - 2024-12-28, base AdvCiv `4af5fc4686` (practical 4255), "GameFont Display shows letters": `- 8193 + 49`, rows up to 280 for letters, the rest shifted by 8193; both versions draw nothing with a first symbol at 450.
+  - SAS's own changes to the file, all read in the `commit_diffs` corpus (2026-11-23): practicals 4847, 5211, 5372, 5816, 5898 and 6743 only changed layout or imports, and 6649 (`6cca292506`) moved its reads onto the SASVisualUtils cache: the row count's `getSymbolID` through `SASVisuals.Font.ordinal`, the same value, and the glyph lookup onto `tuple.index()`, [KI#1107.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107.2); so nothing of SAS's changed the row count.
+  - Since when it was broken, asked by the user: no commit shows it, as both formulas, `- 8483 + 10` from 2019 and `- 8193 + 49` from 2024, give a negative count with a first symbol at 450, so in this setup the screen could not draw under either.
+    - `assignFontIds` is a `DllExport` the EXE calls with the first symbol code; f1rpo's 2024 change, which kept the icons drawing beside the new letters, implies codes in the 8000s in his setup, so the difference most likely lies in what the EXE passes in a given setup, not in a commit; either way, the formula hard-codes a code range that this setup does not use, so the fault is base AdvCiv's; SAS's `.index()` slip sat behind it, hidden until the rows drew.
+    - The game font files are not the cause: base AdvCiv changed `GameFont.tga` at practicals 1414 and 1548, before the screen came in at 1622, and SAS from 4764 to 6733, yet base AdvCiv 1.14 with its own font showed the same empty table.
+    - The base AdvCiv that showed it was the user's SGR-branch copy, but its `GameFont.tga`, `GameFont_75.tga` and `GameFontDisplay.py` match the pristine 1.14 copy (`AdvCiv_base_1.14_renamed`) byte for byte (SHA-1 2026-11-23), so this is base AdvCiv 1.14 as released.
+- Fixed (2026-11-23):
+  - The symbols now start where `assignFontIds` put the first yield: rows 0 to 280 hold the letters, then the symbols follow directly when they start above them, or the rows run straight through when they start lower, up to the last symbol plus the same 49.
+    - A first fix kept the 8193 jump for any first symbol above 8193, which Codex found would draw only 77 rows at 8194; the first yield's code fits every layout, though an 8483 layout now starts its symbols at row 281 rather than after 8474's empty codes.
+- Enhanced at the user's request, as the screen used about 750 of 1920 px and its "Small" and "Big" columns did not say which font size each showed:
+  - The table fills the screen less a 40 px margin; one glyph column per font size 1 to 4, each header naming the SAS font types its size has now, such as "3 (Label, Hover)", read from the `SAS_UI_FONT_*` defines; then Button and Type.
+  - Text takes `SASTextScale`'s label font with a proper `</font>`, where the old cells closed a `<font=2>` with a malformed `<font/>`; each glyph column keeps its fixed size, as that size is what it shows.
+    - A first try set the old Small column to the label font, and rows 425 to 431 went blank: sizes up to 2 draw from `GameFont_75.tga`, larger ones from `GameFont.tga`, and only the former has those glyphs.
+  - Buttons are 24 px, the rows' height: 32 px overlapped the rows, which `setTableRowHeight` did not grow.
+- Checked in game on the user's turn-0 Water save, as a second client beside the user's base AdvCiv: the rows draw from the letters through the bonuses, Peat and Camel with their buttons and types, and the headers read "1 (Tiny)", "2 (Body)", "3 (Label, Hover)" and "4 (Title)".
+
+Found by the user, who asked to enhance the screen; traced and fixed by Claude Code Opus 5.5 with Codex's (GPT-6.2-Sol) review, which also checked the three commits of the archaeology against Git and the `commit_diffs` corpus (2026-11-23).
+
+<a id="ki-1107.2"></a>
+
+## KI#1107.2 - (Fixed AdvCiv-SAS bug, Debug Mode only) SAS's move onto the SASVisualUtils cache had broken GameFontDisplay.py's lookup of each glyph's religion, corporation or bonus with .index() on the cache's tuples, which Python 2.4 lacks, hidden behind KI#1107's empty table until its fix let rows draw
+
+- Where: `getInfoPointerFromGameFont` in [`GameFontDisplay.py`](/Assets/Python/Contrib/GameFontDisplay.py), which finds, for each glyph code the screen lists, the religion, corporation, bonus or built-in symbol that owns it, to show its button and XML type.
+- What: base AdvCiv looped over the infos comparing `getChar()`; SAS's visual-resource refactor replaced the loops with `SASVisuals.Religion.ordinals().index(iIndex)` and the like, and `Font.chars().index(...)`, but `ordinals()` and `chars()` return tuples, and Python 2.4 tuples have no `.index()` (it came in 2.6).
+- No effect a player saw: the lookup runs once per row, and [KI#1107](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107)'s row count already gave no rows, so it never ran; it would have failed on the first row as soon as the count was right.
+- How it was found (2026-11-23): fixing KI#1107's row count in SAS's copy, only row 0 drew, under Civ4's "Python Exception" dialog reading `AttributeError: 'tuple' object has no attribute 'index'`.
+  - Reproduced the same day by putting the old lookup back for one run, as the first run's `PythonErr.log` had been overwritten; the log read, verbatim:
+
+```text
+Traceback (most recent call last):
+  File "BugEventManager", line 381, in _handleConsumableEvent
+  File "BugEventManager", line 511, in onKbdEvent
+  File "GameFontDisplay", line 84, in interfaceScreen
+  File "GameFontDisplay", line 111, in getInfoPointerFromGameFont
+AttributeError: 'tuple' object has no attribute 'index'
+```
+
+- Why only this screen: the other screens use the cache forward, from an entry to its glyph, such as `SASVisuals.Bonus.char(iBonus)` or `ordinals()[i]`, indexing a tuple by position, which Python 2.4 supports; this screen alone goes backward, from a glyph code to its entry, the reverse search tuples lack.
+  - A search of `Assets/Python` and `PrivateMaps` for `ordinals().index` and `chars().index` found no other use.
+  - Our Python 2.4 compile check sees syntax, not a method missing at run time, and the screen never drew a row to fail, so nothing caught it when the refactor landed.
+- Origin: SAS `6cca292506` (practical 6649, 2026-10-20), "Centralize Python visual resources and check their API contracts", whose diff removes base AdvCiv's `if infoPointer.getChar() == iIndex: return infoPointer` loops.
+- Fixed (2026-11-23): one dict from character code to entry, built once per opening, replaces the four searches per row and keeps their order, religion, corporation, bonus, then the built-in symbols.
+- Guarded (2026-11-23, the user's suggestion): `test_python_visual_resources.py` now fails on `.index()` or `.count()` after `ordinals()` or `chars()` in any game Python file, naming the dict as the fix; it finds all four calls in the broken version and none now.
+  - [`SASVisualUtils.py`](/Assets/Python/SASVisualUtils.py) says the same beside `ordinals()` and `chars()`, where a reverse lookup would start, and each note names the other.
+
+Found by Claude Code Opus 5.5 while fixing KI#1107, and split from it at the user's request, as two separate issues read more clearly than one (2026-11-23).
