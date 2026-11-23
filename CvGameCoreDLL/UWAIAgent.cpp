@@ -873,9 +873,8 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU, int iMajorWars, int iE
 	}
 
 	// <!-- custom: we have an issue of hatshepsut ai being the military leader with a strong army at turn 150 and then being badly dogpiled on and dying/been defeated before turn 200.
-	// While we need to fix the reasons why wars happened that were detrimental for Hatshepsut ai as well, for now and first i mean here, add pre-checks to enforce/emergency exit multi-wars past a certain count and try to seek peace no matter what, as more war ennemies (not including barbarians hopefully) can only be detrimental to us, code provided by chatgpt 5, check if accurate; see also known issue as of now 65 for details; results of these "emergency peace" changes: great!!!
-	// Now hatshepsut ai seemingly does not die anymore, makes military gains and makes peace many times based on chatgpt 5 reading of the event log as i had not read it myself at first but then i saw same results looking at event log ingame with multiple peace treaties made by hatshepsut ai quite shortly after war, and hatshepsut ai is still strongest player at turn 200 (although by smaller margin but did very great i would say)!!
-	// See known issue as of now 65 for details -->
+	// While we need to fix the reasons why wars happened that were detrimental for Hatshepsut ai as well, for now and first i mean here, add pre-checks to enforce/emergency exit multi-wars past a certain count and try to seek peace no matter what, as more war ennemies (not including barbarians hopefully) can only be detrimental to us, code provided by chatgpt 5, check if accurate; see also KI#65 for details; results of these "emergency peace" changes: great!!!
+	// Now hatshepsut ai seemingly does not die anymore, makes military gains and makes peace many times based on chatgpt 5 reading of the event log as i had not read it myself at first but then i saw same results looking at event log ingame with multiple peace treaties made by hatshepsut ai quite shortly after war, and hatshepsut ai is still strongest player at turn 200 (although by smaller margin but did very great i would say)!! See KI#65 for details -->
 	// 
 	// Emergency rule: if we're at war with 3+ major civs, force the negotiation path.
 	// With those two placements, Hatshepsut (or anyone) at war with 3+ major civs will reliably try to negotiate peace now, instead of riding the dogpile into the ground.
@@ -1109,7 +1108,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU, int iMajorWars, int iE
 		}
 	}
 
-	// <!-- custom: add emergency peace in multi wars as part of our fix as well, code provided by chatgpt 5, check if accurate, and see also known issue as of now 65 for details -->
+	// <!-- custom: add emergency peace in multi wars as part of our fix as well, code provided by chatgpt 5, check if accurate, and see also KI#65 for details -->
 	if (bEmergencyPeace && bOfferPeace)
 	{
 		rPeaceProb = fixp(1); // 100%
@@ -2067,7 +2066,7 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
 		// <!-- custom: Save-file 449 ended with India launching on turn 299 while the strongest rival continued preparing an unrelated Ottoman war and did not evaluate a new anti-Space war before India won on turn 311.
 		// When an existing non-war plan blocks all new scheming, identify each stage-3+, countdown, or launched-victory threat and the plan occupying the single slot.
 		// Include direct plans because a preparation can become one without starting a war.
-		// This is diagnostic only and is gated by War logging. (GPT-5.6-Sol) -->
+		// This is diagnostic only and is gated by War logging. See KI#184.2. (GPT-5.6-Sol) -->
 		if (gWarLogLevel >= 1)
 		{
 			TeamTypes eBlockingTarget = NO_TEAM;

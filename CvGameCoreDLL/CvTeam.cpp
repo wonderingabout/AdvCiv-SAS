@@ -2482,7 +2482,7 @@ int CvTeam::getResearchCost(TechTypes eTech, bool bFreeBarbarianResearch, bool b
 	}
 	// <advc.251>
 	rCost *= scaled::max(rModifier, 0);
-	// <!-- custom: see known issue as of now 67 for details -->
+	// <!-- custom: see KI#67 for details -->
 	//int iCost = rCost.roundToMultiple(isHuman() ? 5 : 1);
 	const int iCost = rCost.round();
 	// </advc.251>

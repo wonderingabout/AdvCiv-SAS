@@ -5609,7 +5609,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 			return false;
 	}
 
-	// <!-- custom: ObsoleteTech stops training once known; default NONE. (GPT-5.2-Codex) -->
+	// <!-- custom: ObsoleteTech stops training once known; default NONE. See KI#93. (GPT-5.2-Codex) -->
 	// <!-- custom: Apply the same candidate/guaranteed-prerequisite context to ObsoleteTech; otherwise prospective applicability could count a unit that disappears before the evaluated building technology is reached. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	TechTypes const eObsoleteTech = GC.getInfo(eUnit).getObsoleteTech();
 	if (eObsoleteTech != NO_TECH && SAS_isTechKnownOrGuaranteedPrerequisiteOf(getTeam(), eObsoleteTech, eAssumeTech))
@@ -5983,7 +5983,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, int iExtraInstances) const //
 			trainingModifierFromHandicap(GC.getInfo(eUnitClass).isWorldUnit())).
 			// <!-- custom: very annoying, do not round to multiples of 5 please...
 			// Ancient macemen 18 hammers cost 20, and swordsman 42 costs 40 while swordsman 43 costs 45, it is a mess and hard to balance.
-			// Meanwhile, AIs have per 1 costs like 22, 17, 38, and it seems this is where we need to change it as chatgpt 5 explained to me, check if accurate, see known issue as of now 67 for details; Also what's even more annoying is that the price change only applies to the human player, so AIs effectively have a different price than the human player, very very annoying and no setting to manage this outside of DLL.
+			// Meanwhile, AIs have per 1 costs like 22, 17, 38, and it seems this is where we need to change it as chatgpt 5 explained to me, check if accurate, see KI#67 for details; Also what's even more annoying is that the price change only applies to the human player, so AIs effectively have a different price than the human player, very very annoying and no setting to manage this outside of DLL.
 			// Since i find it nonsensical and don't care about pretty numbers in this case at least, disabled it entirely -->
 			// Short answer: for your use-case, they’re the same. Use .round() for clarity.
 			// Semantics: roundToMultiple(1) means “round to the nearest multiple of 1," i.e. the nearest integer. That’s exactly what .round() does. For positive values (your costs are positive), they’ll return the same integer.
@@ -6023,7 +6023,7 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 	// <advc.251>
 	iProductionNeeded = (iProductionNeeded * per100(
 			GC.getInfo(getHandicapType()).getConstructPercent())).
-			// <!-- custom: see known issue as of now 67 for details -->
+			// <!-- custom: see KI#67 for details -->
 			// roundToMultiple(isHuman() ? 5 : 1);
 			round();
 	if (!isHuman()) // Barbarians too
@@ -6045,7 +6045,7 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 {
 	CvGame const& kGame = GC.getGame();
-	// <!-- custom: see known issue as of now 67 for details -->
+	// <!-- custom: see KI#67 for details -->
 	// // <advc.251>
 	// int const iBaseCost = GC.getInfo(eProject).getProductionCost();
 	// int iProductionNeeded = iBaseCost; // </advc.251>
@@ -6063,7 +6063,7 @@ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 	// <advc.251>
 	iProductionNeeded = (iProductionNeeded *
 			per100(GC.getInfo(getHandicapType()).getCreatePercent())).
-			// <!-- custom: see known issue as of now 67 for details, below comment by chatgpt 5, check if accurate -->
+			// <!-- custom: see KI#67 for details, below comment by chatgpt 5, check if accurate -->
 			// Yep—you can make projects round to 1 as well. It’s safe and keeps parity with units/buildings if you’ve already switched those.
 			// roundToMultiple(isHuman() ? (iBaseCost > 500 ? 50 : 5) : 1);
 			round();
@@ -7857,7 +7857,7 @@ int CvPlayer::greatPeopleThreshold(bool bMilitary) const
 	iThreshold /= 100;
 	// <advc.251>
 	iThreshold = (per100(1) * iThreshold * GC.getInfo(
-			// <!-- custom: see known issue as of now 67 for details -->
+			// <!-- custom: see KI#67 for details -->
 			// getHandicapType()).getGPThresholdPercent()).roundToMultiple(
 			// isHuman() ? 5 : 1);
 			getHandicapType()).getGPThresholdPercent()).round();
@@ -19410,7 +19410,7 @@ int CvPlayer::getNewCityProductionValue() const
 	// <advc.251>
 	iValue = (iValue *
 			// Apply production modifier half (b/c getGrowthThreshold is also dependent on handicap)
-			// <!-- custom: see known issue as of now 67 for details -->
+			// <!-- custom: see KI#67 for details -->
 			// (1 + (trainingModifierFromHandicap(false) - 1) / 2)).roundToMultiple(isHuman() ? 5 : 1);
 			(1 + (trainingModifierFromHandicap(false) - 1) / 2)).round();
 	// </advc.251>

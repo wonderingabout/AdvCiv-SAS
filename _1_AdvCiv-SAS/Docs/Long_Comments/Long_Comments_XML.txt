@@ -1544,7 +1544,7 @@ since this seems unused in DLL due to #if 0 and understood correctly chatgpt 5's
 
 ===== \Assets\XML\Units\CIV4UnitClassInfos.xml =====
 ----- Comment #82 -----
-<!-- custom: make the settler a national unit (such as are the missionaries in civ4 +/- base advciv as well), with only one allowed simultaneously per player, so that AI doesn't spam them very inefficiently (e.g. building settlers in 2 cities at the same time is very costly, see known issue 37 for details, or building one settler when we already have one, there shouldn't be a strong reason to do so, it is more likely to cripple economy than not). Hopefully it does not inconvenience or reduce player freedom too much, but i also think it makes sense in terms of gameplay, to settle one city at a time, hopefully fine as such or not too bad or even maybe good for balance as well as tremendously helping AI in all cases i think; this is done thanks to claude ai too who helped me locate this xml spot hehe although i could maybe have found it too but it gave me feedback too and help is nice if i may say when and as i asked if i may say thanks claude ai hehe if i may say too or again here; it may also make settler timing more strategic as well, as well as also the importance to/in making sure they don't die and to escort them well maybe too, so maybe a fine or interesting change at least i want to do it as such-->
+<!-- custom: make the settler a national unit (such as are the missionaries in civ4 +/- base advciv as well), with only one allowed simultaneously per player, so that AI doesn't spam them very inefficiently (e.g. building settlers in 2 cities at the same time is very costly, see KI#37 for details, or building one settler when we already have one, there shouldn't be a strong reason to do so, it is more likely to cripple economy than not). Hopefully it does not inconvenience or reduce player freedom too much, but i also think it makes sense in terms of gameplay, to settle one city at a time, hopefully fine as such or not too bad or even maybe good for balance as well as tremendously helping AI in all cases i think; this is done thanks to claude ai too who helped me locate this xml spot hehe although i could maybe have found it too but it gave me feedback too and help is nice if i may say when and as i asked if i may say thanks claude ai hehe if i may say too or again here; it may also make settler timing more strategic as well, as well as also the importance to/in making sure they don't die and to escort them well maybe too, so maybe a fine or interesting change at least i want to do it as such-->
 
 ===== \Assets\XML\Units\CIV4UnitInfos.xml =====
 ----- Comment #83 -----
@@ -2374,7 +2374,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 ===== \Assets/XML/Units/CIV4PromotionInfos.xml =====
 ----- Comment #136 -----
 
-<!-- custom: it is a tiny bit op i think to make first_strike2 allow to go for medic_ambulatory, but this is to give AIs other paths to reach ambulatory even if we disallow them the medic1 and logistics paths as we do now for efficiency (see known issue as of now 47 for details or related DLL code changes). It is also not nonsensical, perhaps even strategically interesting in this case i mean, to link the concept as in idea of/to moving/mvoe fast with being ambulatory, hopefully more units can go for it now as a result even for human players perhaps, at the cost of making medic_ambulatory or first_strike2 being slightly more op in combination, but since this requires first_strike2 and not first_strike1 is maybe fine as such at least i find it interesting or relevant in this case i mean -->
+<!-- custom: it is a tiny bit op i think to make first_strike2 allow to go for medic_ambulatory, but this is to give AIs other paths to reach ambulatory even if we disallow them the medic1 and logistics paths as we do now for efficiency (see KI#47 for details or related DLL code changes). It is also not nonsensical, perhaps even strategically interesting in this case i mean, to link the concept as in idea of/to moving/mvoe fast with being ambulatory, hopefully more units can go for it now as a result even for human players perhaps, at the cost of making medic_ambulatory or first_strike2 being slightly more op in combination, but since this requires first_strike2 and not first_strike1 is maybe fine as such at least i find it interesting or relevant in this case i mean -->
 
 ===== \Assets/XML/Buildings/CIV4BuildingInfos.xml =====
 ----- Comment #137 -----
@@ -2403,8 +2403,8 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
      That default is wrong for this field because it is a UNIT COUNT added to INITIAL_FREE_OUTSIDE_UNITS, not a percent.
      Result: speeds missing the tag display/behave like "100" (see SevoPedia Game Speed Chart), while slower speeds explicitly set "1".
      We now set this tag explicitly for ALL game speeds (usually 0) to avoid hidden fallback values and keep behavior consistent.
-     0 means "no extra free outside units beyond INITIAL_FREE_OUTSIDE_UNITS" and preserves the intended baseline on normal speeds (ChatGPT 5.2 Thinking). See known issue as of now 92 for details. -->
-<!-- custom: also added iUnitCostPercent that was missing in some game speeds too. See known issue as of now 92 for details. -->
+     0 means "no extra free outside units beyond INITIAL_FREE_OUTSIDE_UNITS" and preserves the intended baseline on normal speeds (ChatGPT 5.2 Thinking). See KI#92 for details. -->
+<!-- custom: also added iUnitCostPercent that was missing in some game speeds too. See KI#92 for details. -->
 
 ===== \Assets/XML/GameInfo/CIV4ReligionInfo.xml =====
 ----- Comment #139 -----
@@ -2771,7 +2771,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #161 -----
 
-	<!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or didn't accommodate/account for food desert bonuses or such. Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details
+	<!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or didn't accommodate/account for food desert bonuses or such. Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see KI#54 for details
 	// if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
 	// 	iValue = adjustToCivSurroundings(iValue, iStealPercent);
 	-->
@@ -2807,7 +2807,7 @@ Note: the code we added in this function takes into account units in queue, not 
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #174 -----
 
-After we have implemented a tentative fix to this, now also encourage vassal(s)<->master to trade more/preferentially (and not only for techs each other don't own, so this is an extra team play enhancement for any tech), which synergises with this previous tentative fix. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean, check if accurate; see also known issues as of now 77 and 78 for details -->
+After we have implemented a tentative fix to this, now also encourage vassal(s)<->master to trade more/preferentially (and not only for techs each other don't own, so this is an extra team play enhancement for any tech), which synergises with this previous tentative fix. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean, check if accurate; see also KI#77 and KI#78 for details -->
 	<!-- // Prefer tech trades with master/vassal partners.
 	// This boosts the chance that we initiate CONTACT_TRADE_TECH
 	// when ePlayer is either our master or our vassal. -->
@@ -2932,7 +2932,7 @@ enable so that even UNITAI_COUNTER default unitai units (e.g. as of now the gree
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #190 -----
 
-	<!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient. Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other. Also extend this logic so that the vassal as well doesn't research or research as much techs its master already owns. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean, check if accurate; see also known issue as of now 77 for details -->
+	<!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient. Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other. Also extend this logic so that the vassal as well doesn't research or research as much techs its master already owns. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean, check if accurate; see also KI#77 for details -->
 	<!-- Yeah, that’s a really sensible enhancement for that situation – you basically want:
 			- Masters to value “vassal-known” techs less for self-research, and
 			- Masters (and vassals) to lean more on tech trades between each other when those techs already exist on the vassal team. -->
@@ -4152,7 +4152,7 @@ since we can build libraries with writing, it would not be too weird if research
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #323 -----
 
-longbowmen, so make them focus on more defensive roles without strictly forbidding attack ones, except if they overlap with defensive ones so we don't end up only with longbowmen, see related info in known issue as of now 53.2.2 for details, results are good, longbowmen were reduced from 39 to 33 at turn 130 in the autoplay run mentioned there, which is still too much when we are stronger but already better, so kept as such; note: also, i removed UNITAI_CITY_COUNTER from most units that had it in base advciv like the UNIT_MACEMAN so only defenders or more versatile defenders build it
+longbowmen, so make them focus on more defensive roles without strictly forbidding attack ones, except if they overlap with defensive ones so we don't end up only with longbowmen, see related info in KI#53.2.2 for details, results are good, longbowmen were reduced from 39 to 33 at turn 130 in the autoplay run mentioned there, which is still too much when we are stronger but already better, so kept as such; note: also, i removed UNITAI_CITY_COUNTER from most units that had it in base advciv like the UNIT_MACEMAN so only defenders or more versatile defenders build it
 
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #324 -----
@@ -4203,7 +4203,7 @@ terrain +/- features, quite little bonus for the arabian civilization's civ-spec
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #333 -----
 
-added most unitai types that are not pure city attack type of, to make trebuchets be built less unless to strictly attack cities as they are bad/inefficient at anything else (note: ignored attack_city_lemming as seemingly unreliable and never produced by AI players in the autoplay run i tried it even if implemented so ignored to simplify), see known issue as of now 53.3 for details
+added most unitai types that are not pure city attack type of, to make trebuchets be built less unless to strictly attack cities as they are bad/inefficient at anything else (note: ignored attack_city_lemming as seemingly unreliable and never produced by AI players in the autoplay run i tried it even if implemented so ignored to simplify), see KI#53.3 for details
 
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #334 -----

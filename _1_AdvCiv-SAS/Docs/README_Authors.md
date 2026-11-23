@@ -249,7 +249,7 @@ Helped me attempt to solve using its deep think mode an issue by stealing one of
 
 I also tried Grok 4 (Expert) which helped me among the various AIs i tried get a better idea of how to solve [KI#56](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-56) (i.e. of the turn 156 crash).
 
-In the end i solved it myself by emprirically disabling code until i found the culprit (see link of the known issue), but its analysis was very sharp among the other AIs i asked (not counting chatgpt 5 which helped me through the whole thing).
+In the end i solved it myself by emprirically disabling code until i found the culprit (see KI#56), but its analysis was very sharp among the other AIs i asked (not counting chatgpt 5 which helped me through the whole thing).
 
 I added some of its thoughts as of now after the issue was solved hehe to summarize it in the .cpp code.
 

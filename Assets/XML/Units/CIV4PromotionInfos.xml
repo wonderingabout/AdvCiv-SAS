@@ -2,8 +2,12 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jon Shafer (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- --><!-- Promotion Infos -->
-<!-- custom: note: be careful if you change these to also change/reflect them/these in the DLL at least in CvUnitAI::AI_promotionValue (a global search with VS code or search may help locate them) as we have hardcoded some of them there to help/attempt to optimize AI promotion choices, see known issue as of now 47 for details or the code there in as of now the .cpp corresponding file(s) -->
+<!-- custom: note: be careful if you change these to also change/reflect them/these in the DLL at least in CvUnitAI::AI_promotionValue (a global search with VS code or search may help locate them) as we have hardcoded some of them there to help/attempt to optimize AI promotion choices, see KI#47 for details or the code in the corresponding .cpp file(s) -->
 <Civ4PromotionInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<PromotionInfos>
 		<PromotionInfo> <!-- custom: PROMOTION_COMBAT1 (useful for VS Code upper tree view while scrolling) -->

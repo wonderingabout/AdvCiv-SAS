@@ -268,7 +268,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<bNoBarbUnits>0</bNoBarbUnits>
 			<bNoBarbCities>1</bNoBarbCities>
 			<!-- advc.250c: was 2700 -->
-			<!-- custom: was 3600; flattening iTrainPercent, iConstructPercent and iGrowthPercent removed AdvCiv's late-era discount, so these points scale up to keep its buying power, which advanced_start_era_points.py checks. (Claude code Opus 5.5) -->
+			<!-- custom: was 3600; flattening iTrainPercent, iConstructPercent and iGrowthPercent removed AdvCiv's late-era discount, so these points scale up to keep its buying power, which advanced_start_era_points.py checks. See KI#1075. (Claude code Opus 5.5) -->
 			<iAdvancedStartPoints>4000</iAdvancedStartPoints>
 			<iStartingUnitMultiplier>2</iStartingUnitMultiplier>
 			<iStartingDefenseUnits>2</iStartingDefenseUnits>
@@ -359,7 +359,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<bNoBarbUnits>0</bNoBarbUnits>
 			<bNoBarbCities>1</bNoBarbCities>
 			<!-- advc.250c: was 4000 -->
-			<!-- custom: was 5500; flattening iTrainPercent, iConstructPercent and iGrowthPercent removed AdvCiv's late-era discount, so these points scale up to keep its buying power, which advanced_start_era_points.py checks. (Claude code Opus 5.5) -->
+			<!-- custom: was 5500; flattening iTrainPercent, iConstructPercent and iGrowthPercent removed AdvCiv's late-era discount, so these points scale up to keep its buying power, which advanced_start_era_points.py checks. See KI#1075. (Claude code Opus 5.5) -->
 			<iAdvancedStartPoints>6900</iAdvancedStartPoints>
 			<iStartingUnitMultiplier>3</iStartingUnitMultiplier>
 			<iStartingDefenseUnits>3</iStartingDefenseUnits>
@@ -448,7 +448,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<bNoBarbUnits>0</bNoBarbUnits>
 			<bNoBarbCities>1</bNoBarbCities>
 			<!-- advc.250c: was 5500 -->
-			<!-- custom: was 7500; flattening iTrainPercent, iConstructPercent and iGrowthPercent removed AdvCiv's late-era discount, so these points scale up to keep its buying power, which advanced_start_era_points.py checks. (Claude code Opus 5.5) -->
+			<!-- custom: was 7500; flattening iTrainPercent, iConstructPercent and iGrowthPercent removed AdvCiv's late-era discount, so these points scale up to keep its buying power, which advanced_start_era_points.py checks. See KI#1075. (Claude code Opus 5.5) -->
 			<iAdvancedStartPoints>10700</iAdvancedStartPoints>
 			<iStartingUnitMultiplier>3</iStartingUnitMultiplier>
 			<iStartingDefenseUnits>3</iStartingDefenseUnits>
@@ -532,7 +532,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<bNoBarbUnits>0</bNoBarbUnits>
 			<bNoBarbCities>1</bNoBarbCities>
 			<!-- advc.250c: was 7000 -->
-			<!-- custom: was 9500; flattening iTrainPercent, iConstructPercent and iGrowthPercent removed AdvCiv's late-era discount, so these points scale up to keep its buying power, which advanced_start_era_points.py checks. (Claude code Opus 5.5) -->
+			<!-- custom: was 9500; flattening iTrainPercent, iConstructPercent and iGrowthPercent removed AdvCiv's late-era discount, so these points scale up to keep its buying power, which advanced_start_era_points.py checks. See KI#1075. (Claude code Opus 5.5) -->
 			<iAdvancedStartPoints>15800</iAdvancedStartPoints>
 			<iStartingUnitMultiplier>3</iStartingUnitMultiplier>
 			<iStartingDefenseUnits>3</iStartingDefenseUnits>

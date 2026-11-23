@@ -2083,8 +2083,7 @@ int AIFoundValue::evaluate()
 
 		if (iLowFoodLocationScore > iMaxToleratedNotCoastalLowFoodScore)
 		{
-			// <!-- custom: old value was sometimes still insufficient even though it helped in some cities; increase low food location penalty more, which successfully solved the issue on testing.
-			// See known issue for details. (Claude code Sonnet 4.5 (summarized)) -->
+			// <!-- custom: old value was sometimes still insufficient even though it helped in some cities; increase low food location penalty more, which successfully solved the issue on testing. See KI#32 for details. (Claude code Sonnet 4.5 (summarized)) -->
 			// iValue += (-50) * iLowFoodLocationScore;
 			iBreakdownLowFood = iBaseValueNotCoastalLowFood * iLowFoodLocationScore;
 			iValue += iBreakdownLowFood;
@@ -2283,7 +2282,7 @@ int AIFoundValue::evaluate()
 	// else if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
 
 	// <!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or didn't accommodate/account for food desert bonuses or such.
-	// Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details -->
+	// Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see KI#54 for details -->
 	// if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
 	// 	iValue = adjustToCivSurroundings(iValue, iStealPercent);
 	const int iBeforeDistance = iValue;
@@ -2791,7 +2790,7 @@ int AIFoundValue::countBadTiles(/* advc.031: */ int& iInnerRadius, int& iUnrevea
 		{
 			// Rational Barbarians wouldn't mind settling one off the coast, but human players do mind, and some really hate this. Therefore, count the outer ring coast as bad if !bCoastal.
 			// <!-- custom: This is separate from the Barbarian coastal value bonus: it keeps the inherited adjacent/inner-focused Barbarian scoring, which can ignore outer-BFC seafood or other long-term captured-city value.
-			// AdvCiv-SAS makes this toggleable because Barbarian cities should also be useful city sites for themselves and later conquerors; set SAS_SITE_BARB_FULL_BFC_ON to use normal full-BFC scoring. (GPT-5.5) -->
+			// AdvCiv-SAS makes this toggleable because Barbarian cities should also be useful city sites for themselves and later conquerors; set SAS_SITE_BARB_FULL_BFC_ON to use normal full-BFC scoring. See KI#177. (GPT-5.5) -->
 			if(p != NULL && p->isWater() && !bCoastal && p->calculateBestNatureYield(YIELD_FOOD, eTeam) <= 1)
 			{
 				iBadTiles++;
@@ -2962,7 +2961,7 @@ bool AIFoundValue::isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCi
 	bool const bInnerRing = adjacentOrSame(*p, kPlot);
 	// <advc.303>
 	// <!-- custom: This was the remaining inherited inner-ring-only Barbarian city-site shortcut.
-	// Gate it with SAS_SITE_BARB_FULL_BFC_ON too, otherwise outer-BFC seafood still gets ignored even when bad-tile checks use full BFC scoring. (GPT-5.5) -->
+	// Gate it with SAS_SITE_BARB_FULL_BFC_ON too, otherwise outer-BFC seafood still gets ignored even when bad-tile checks use full BFC scoring. See KI#177. (GPT-5.5) -->
 	const bool bSAS_SITE_BARB_FULL_BFC_ON = GC.getDefineBOOL(CvGlobals::SAS_SITE_BARB_FULL_BFC_ON);
 	if (bBarbarian && !bSAS_SITE_BARB_FULL_BFC_ON && !bInnerRing)
 		return false; // </advc.303>

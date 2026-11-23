@@ -732,7 +732,7 @@ cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Be
 
 In CivilizationIV.ini (for example as for me in `C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini` path, update to your own windows user account path), there is an option that you can set to `generatecrashdumps = 1`.
 
-It is useful in issues such as for example [57 - (Not reproducible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-57) (with a screenshot), or in previous related crashes in known issues as of now 56 and 55 too with such screenshots.
+It is useful in issues such as for example [KI#57 - (Not reproducible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-57) (with a screenshot), or in previous related crashes in KI#56 and KI#55 too with such screenshots.
 
 I don't know too much about these nor can really read these .dmp files, but Visual 2010 C++ Express seemingly can, and so can WinDbg although that may be bit trickier/harder (but check if accurate again as i don't know too much about this).
 
@@ -740,7 +740,7 @@ The exception/error info as well as possibly some other things i don't know abou
 
 I don't know too much about these but i thought i'd compile (no pun) this info quick if helps.
 
-To read the output .dmp files (i do normal dump most times to have the vague info of why it crashed xd and don't know too much about these), see an example in this known issue's documentation (although we reverted it eventually, it documents an example of showing/reading .dmp files very grossly as in broadly i.e. just a glance/general view as i don't know too much about these but it gives some indication hopefully helpful) here for example [60 - (Fixed) Seemingly rare reproducible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did, check if accurate)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-60).
+To read the output .dmp files (i do normal dump most times to have the vague info of why it crashed xd and don't know too much about these), see an example in KI#60's documentation (although we reverted it eventually, it documents an example of showing/reading .dmp files very grossly as in broadly i.e. just a glance/general view as i don't know too much about these but it gives some indication hopefully helpful) here for example [KI#60 - (Fixed) Seemingly rare reproducible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did, check if accurate)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-60).
 
 See also, since 2026-11-13: always choose Full Dump at the prompt, as a normal dump lacks the heap, with the steps in the [DLL Debugging Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md#crash-dumps); with several Civ4 clients, every one writes the same dump file, see [KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089).
 
@@ -1247,7 +1247,7 @@ Note 2: it looks like a small part of the image is trimmed horizontally, i could
 
 If you want to know how i removed the blue rectangle color, it is (thanks to chatgpt 5) done by replacing, in [/Resource/Civ4Theme_Custom.thm](/Resource/Civ4Theme_Custom.thm) the `style SF_CtrlTheme_Civ4_Control_Panel_MainStart_Style` 's image lines such as `Image			= 	GBitmap("../../../../Resource/Civ4/Custom/main_start.tga", HVGrid, 1, 2, 0, 0);` to `Image			= 	GBitmap();`
 
-Note 2: then in `style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style` in same file you can also change text color for example at lines such as (thanks to chatgpt 5's help) `.Default						=	GFC_Control_Color_Text_Default;` (seemingly white at least before the change) to `.Default						=	GColor(0,0,0,255);` (as of now black much more readable now that we don't have the old blue rectangle as a background), white was too bright so now is black, screenshots are visible in the google drive folder corresponding to known issue above, or other text beautification(s) (see code comments there for details).
+Note 2: then in `style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style` in same file you can also change text color for example at lines such as (thanks to chatgpt 5's help) `.Default						=	GFC_Control_Color_Text_Default;` (seemingly white at least before the change) to `.Default						=	GColor(0,0,0,255);` (as of now black much more readable now that we don't have the old blue rectangle as a background), white was too bright so now is black, screenshots are visible in KI#28's Google Drive folder, or other text beautification(s) (see code comments there for details).
 
 ## How to autoplay (let the AI play for you (super fast gameplay / testing tool)) in map (loaded save file, new game, etc.) view
 
@@ -1261,7 +1261,7 @@ I don't know if autoplay is a feature of base civ4 or bts or some mods that then
 
 Important note: For some behaviours to reliably show ingame by the autoplay AI you are playing, it strongly seems you need at least 2 2 autoplay turns IN ONE GO (sorry for caps but it's to insist), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go.
 
-For example in [62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% evacuating city doomed city regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-62), if we play instead from 2 turns before 1 autplay turn, then get the hand back and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns.
+For example in [KI#62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% evacuating city doomed city regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-62), if we play instead from 2 turns before 1 autplay turn, then get the hand back and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns.
 
 ## Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded" flag in Sevopedia tech 's placeSpecial and in tech tree view (technology advisor)
 
@@ -1319,7 +1319,7 @@ Note: later we also similarly changed the c++ so that we now also display the bR
 
 ## Example of DLL modification 2: missing BBAI getters expose them to Sevopedia leader info in gc too for display
 
-See [README_Known_Issues.md#ki-17](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-17) on how this was implemented (google drive with screenshots link there too hopefully helpful)
+See [KI#17](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-17) on how this was implemented (google drive with screenshots link there too hopefully helpful)
 
 ## Example of performance optimization of python loading time (as in when we load the code) and loading times
 

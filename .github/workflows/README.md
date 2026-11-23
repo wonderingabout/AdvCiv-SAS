@@ -739,6 +739,8 @@ Fails when a tracked text file writes a numbered reference with a space: a pull 
 
 - Added on 2026-11-23, when the user found pull requests written both ways, 29 spaced against 5 joined, while `KI#` was never spaced in 21,972 uses; every tracked text file was converted, history copies such as the dev logs and the archived release notes included, since one grep is the point.
 - The spellings live in [`lib/reference_spellings.py`](/.github/workflows/lib/reference_spellings.py), which [`squash_pr_number.py`](#buildrepositorysquash_pr_numberpy) applies to commit messages too.
+- The oldest KIs were cited in words, "known issue" with "as of now", "number" or `#` before the number, on 129 lines of C++ and Python comments, XML, the Known Issues and the SAS dev log, so a grep for `KI#53.2.2` missed them; the same day they joined the table and became `KI#53.2.2` and the like.
+  - Old Known Issues links that named a KI only by its number or its file and anchor, such as `[57 - title]` or `[README_Known_Issues.md#ki-24]`, were renamed `[KI#57 - title]` and `[KI#24]` by hand, as their anchors already pointed at the right entry; three that an earlier anchor conversion had mangled, such as `#ki-40-if-i-am-not-mistaken-but`, were repaired with them.
 - Runtime revisions, such as `Runtime12`, are not listed yet: 4 of their 22 spaced uses sit in the Runtime subsystem's own sources, where a comment change needs a Runtime revision bump, so they can join with the next commit that bumps Runtime.
 - `LLM_Helpers/context/`, other mods' material and the map scripts' originals, is not ours to respell.
 

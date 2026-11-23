@@ -10,6 +10,10 @@ SPELLINGS = (
 	("PR", re.compile(r"(?<![A-Za-z0-9_])[Pp][Rr] #([0-9])"), r"PR#\1"),
 	("KI", re.compile(r"(?<![A-Za-z0-9_])KI #([0-9])"), r"KI#\1"),
 	("SGR", re.compile(r"(?<![A-Za-z0-9_])SGR ([0-9])"), r"SGR\1"),
+	# <!-- custom: The oldest KIs were cited in words, such as "see known issue as of now N" or "known issue number N", on 129 lines of C++ and Python comments, XML, the Known Issues and the SAS dev log, which a grep for KI#53.2.2 missed (the user, 2026-11-23).
+	# "as of now" was there because KI numbers were not yet stable, which they are now, so it goes with the words.
+	# A second pass found "as of" and the typo "of as now" before the number too, which the first pattern missed. (Claude code Opus 5.5) -->
+	("Known issue", re.compile(r"(?i)(?<![A-Za-z0-9_])(?:as of now )?known[ _-]?issues?(?: as of(?: now)?| of as now)?:? ?(?:number |no\. ?|#)? ?([0-9])"), r"KI#\1"),
 )
 
 

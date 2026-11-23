@@ -1661,14 +1661,14 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<iDefineIntVal>350</iDefineIntVal>
 	</Define>
 	<!-- custom: Base AdvCiv/K-Mod Barbarian city scoring mainly considers adjacent/inner plots, which can ignore seafood and other valuable outer-BFC plots that matter once the city is captured by a major civilization.
-	Default 0 preserves base behavior; set to 1 to use normal full-BFC scoring for Barbarian city placement. (GPT-5.5) -->
+	Default 0 preserves base behavior; set to 1 to use normal full-BFC scoring for Barbarian city placement. See KI#177. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_SITE_BARB_FULL_BFC_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Base AdvCiv/K-Mod adds random variation to Barbarian city-site values, but this can override clearly stronger sites.
 	The random bonus is +0..N-1 percent: for example, 50 changes value 1000 to 1000..1490, 5 changes it to 1000..1040, 1 leaves it at 1000 so effectively disables it but still calls the random path, however 0 disables the random path entirely (value would stay 1000 the same though but cleaner/simpler code).
-	Base behavior is 50. (GPT-5.5) -->
+	Base behavior is 50. See KI#177. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_SITE_BARB_CITY_SITE_RANDOM_PCT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -3810,12 +3810,12 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 
-	<!-- custom: enable AI stack attack order that spends low-power/low-XP units first in AI_getBestGroupAttacker (1 on, 0 off). (GPT-5.2-Codex) -->
+	<!-- custom: enable AI stack attack order that spends low-power/low-XP units first in AI_getBestGroupAttacker (1 on, 0 off). See KI#89. (GPT-5.2-Codex) -->
 	<Define>
 		<DefineName>SAS_GROUP_ATK_LOW_PWR_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: minimum health percent to break ties by lower health when attack-ordering low-power units (e.g. 60). (GPT-5.2-Codex) -->
+	<!-- custom: minimum health percent to break ties by lower health when attack-ordering low-power units (e.g. 60). See KI#89. (GPT-5.2-Codex) -->
 	<Define>
 		<DefineName>SAS_GROUP_ATK_LOW_PWR_MIN_HEALTH_PCT</DefineName>
 		<iDefineIntVal>60</iDefineIntVal>
@@ -3924,7 +3924,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- Consider tech "key military" if its FLAVOR_MILITARY is at least this. -->
-	<!-- custom: e.g. if flavor military of a tech is 8, then this is considered a key military tech for our below tech value changes -->
+	<!-- custom: e.g. if flavor military of a tech is 8, then this is considered a key military tech for our below tech value changes. See KI#81. -->
 	<Define>
 		<DefineName>SAS_TECH_VAL_MILIT_FLAVOR_MIN</DefineName>
 		<iDefineIntVal>6</iDefineIntVal>
@@ -4004,7 +4004,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 
-	<!-- custom: adjust tech trade contact frequency / willingness of contact depending on how strong/dangerous our rival is. -->
+	<!-- custom: adjust tech trade contact frequency / willingness of contact depending on how strong/dangerous our rival is. See KI#80. -->
 	<!-- custom: note: this is not applied between members of a master-vassal(s) locus, as master<->vassal(s) are not in direct and immediate competition but more like trying to come through and not die right away short term so it is not so relevant for them -->
 	<!-- custom: enable (1) / disable (0) to toggle this option. -->
 	<Define>
@@ -4079,7 +4079,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 
-	<!-- custom: how much we value each civic's unlimited specialist based on their yield(s) -->
+	<!-- custom: how much we value each civic's unlimited specialist based on their yield(s). See KI#76. -->
 	<Define>
 		<DefineName>SAS_CIVIC_VAL_UNLIM_SPEC_FOOD_VAL</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
@@ -4097,7 +4097,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_CIVIC_VAL_UNLIM_SPEC_YIELD_COM_VAL</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
-	<!-- custom: how much we value each civic's unlimited specialist based on their commerce(s) -->
+	<!-- custom: how much we value each civic's unlimited specialist based on their commerce(s). See KI#76. -->
 	<Define>
 		<DefineName>SAS_CIVIC_VAL_UNLIM_SPEC_COM_RESEARCH_VAL</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
@@ -4703,7 +4703,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	</Define>
 	<!-- custom: Direct victory-denial war is only allowed if nearest cities are within this distance.
 	Farther or naval-heavy threats can still receive the utility boost, but normal preparation remains safer than a blind direct war. (GPT-5.5) -->
-	<!-- custom: The AdvCiv-SAS war-target contact guard also uses this limit in cached path turns for an otherwise eligible emergency, so its normal shorter limit cannot veto the same direct-war policy. (GPT-5.6-Sol) -->
+	<!-- custom: The AdvCiv-SAS war-target contact guard also uses this limit in cached path turns for an otherwise eligible emergency, so its normal shorter limit cannot veto the same direct-war policy. See KI#184.2. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_UWAI_VICT_DENY_DIRECT_MAX_DIST</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>

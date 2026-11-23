@@ -12,7 +12,7 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
 #
-# <!-- custom: uses new buildBTradeString function in CvGameTextMgr.cpp to display in placeSpecial the this technology "Cannot be traded" bullet point, see /_1_AdvCiv-SAS/Docs/Modding_Resources/README.md.
+# <!-- custom: uses new buildBTradeString function in CvGameTextMgr.cpp to display in placeSpecial the this technology "Cannot be traded" bullet point, see /_1_AdvCiv-SAS/Docs/Modding_Resources/README.md. See KI#15.
 #
 
 from CvPythonExtensions import *

@@ -345,7 +345,7 @@ class SevoPediaBonus:
 				entries.append((info.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, u""))
 
 		# <!-- custom: in the aluminium bonus, all projects show the apostolic palace in the tooltip, and redirect to the apostolic palace instead of the correct project.
-		# Fixed with the help of chatgpt 5.2 thanks -->
+		# Fixed with the help of chatgpt 5.2 thanks. See KI#86. -->
 		# <advc.004y>
 		for iProject in range(gc.getNumProjectInfos()):
 			info = gc.getProjectInfo(iProject)

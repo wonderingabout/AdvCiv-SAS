@@ -6965,7 +6965,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: see also related known issue as of now 67 for details; was 40 -->
+			<!-- custom: see also KI#67 for details; was 40 -->
 			<iCost>42</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -7153,7 +7153,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: see also related known issue as of now 67 for details; was 40 -->
+			<!-- custom: see also KI#67 for details; was 40 -->
 			<iCost>42</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -7370,7 +7370,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: see also related known issue as of now 67 for details; was 40 -->
+			<!-- custom: see also KI#67 for details; was 40 -->
 			<!-- advc.907a: was 45 -->
 			<iCost>42</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
@@ -7595,7 +7595,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: reduce cost to indicate they always spawn more (sort of immortal), but not too much to not make them too op either ideally, as the swordsman is still a strong as of now unit; see also related known issue as of now 67 for details -->
+			<!-- custom: reduce cost to indicate they always spawn more (sort of immortal), but not too much to not make them too op either ideally, as the swordsman is still a strong as of now unit; see also KI#67 for details -->
 			<iCost>38</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -12772,7 +12772,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<!-- custom: see also related known issue as of now 67 for details; was 20 -->
+			<!-- custom: see also KI#67 for details; was 20 -->
 			<iCombat>18</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
@@ -20339,7 +20339,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: see related xml comments in this unit's xml info or known issue as of now 53.3 for details -->
+			<!-- custom: see related xml comments in this unit's xml info or KI#53.3 for details -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>

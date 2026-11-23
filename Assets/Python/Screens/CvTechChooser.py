@@ -419,7 +419,7 @@ class CvTechChooser:
 		# <!-- custom: tried removing the turn > 0 guard to show indicators at turn 0, but it does error.
 		# The base AdvCiv comment seems slightly mistaken: I reproduced the issue on a new game (Noble, Pangaea, Normal, Standard).
 		# Gemini 3 Pro confirmed the cause, so we keep base AdvCiv behavior.
-		# I wanted the BUG bulbing indicators noted for players; see known issue 85. (GPT-5.2-Codex (summarized)) -->
+		# I wanted the BUG bulbing indicators noted for players; see KI#85. (GPT-5.2-Codex (summarized)) -->
 		# <!-- custom: keeping this feature disabled is safer; turn 0 bulbing indicators are not critical, so revert to base AdvCiv behavior. (GPT-5.2-Codex (summarized)) -->
 		if CyGame().getElapsedGameTurns() > 0:
 			self.updateTechPrefs()

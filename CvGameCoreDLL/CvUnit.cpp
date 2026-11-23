@@ -3388,11 +3388,11 @@ void CvUnit::automate(AutomateTypes eAutomate)
 
 // <!-- custom: we scrap way too many military units in particular, as i have noticed it in the early game (+/- turn 40-50, could and most likely happens in other circumstances but didn't check check to be sure and if i'm not mistaken), so after we produce a unit we end up with 1 less, so this would mean we scrapped 2.
 // Especially crippling early when barbarians are stronger, our military weak, and rivals dangerous as well potentially.
-// Try to reduce scrapping with this tentative code change, while also not overdoing it in case it collapses our economy, here or in other places, see known issue as of now 52 for details; also code provided with the help of chatgpt 5 thanks -->
+// Try to reduce scrapping with this tentative code change, while also not overdoing it in case it collapses our economy, here or in other places, see KI#52 for details; also code provided with the help of chatgpt 5 thanks -->
 // <!-- custom: the changes in CvPlayerAI::AI_doMilitary did not change the seemingly cyclical scrapping behaviour of new ancient macemen many turns on a row, so as advised by chatgpt 5 (genius idea it got, it may not seem too clean but great way to solve it xd thanks!), implementing our logic here as well, check if accurate -->
 // <!-- custom: update!!!
 // Tremendously fixed!!!
-// No more scrapping and painful losing of these ancient macemen, will reduce handicap now to accommodate these and make sure we don't run bankrupt at leats early, else i don't care too much or as much, and give AI best chances, see known issue as of now 52 for details; in short we only aded some more prechecks here as we usually do, in an attempt to help improve AI efficiency or correct or help improve significant AI flaws, so hopefully AI is now stronger as such and we have to adjust some things to match these, see known issue mentioned here in these code comments for details, and we otherwise kept function the same -->
+// No more scrapping and painful losing of these ancient macemen, will reduce handicap now to accommodate these and make sure we don't run bankrupt at leats early, else i don't care too much or as much, and give AI best chances, see KI#52 for details; in short we only aded some more prechecks here as we usually do, in an attempt to help improve AI efficiency or correct or help improve significant AI flaws, so hopefully AI is now stronger as such and we have to adjust some things to match these, and we otherwise kept function the same -->
 // <!-- custom: Routine scrap() must pass canScrap(), preventing the observed repeated culling of protected land combat units.
 // Explicit scrapForced() callers instead establish narrow mandatory-cleanup conditions; see KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 bool CvUnit::canScrap() const
@@ -3426,7 +3426,7 @@ bool CvUnit::canScrap(SASUnitScrapEligibility* peEligibility) const
 
 	if (bSAS_SCRAP_ON && !isHuman())
 	{
-		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see for details or updated info known issue as of now 52 or other related docs)
+		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see KI#52 or other related docs for details or updated info)
 		const CvUnitInfo& kUnitInfo = getUnitInfo();
 		// <!-- custom: ObsoleteTech lets us retire obsolete units efficiently; allow a global toggle for no-obsolete-scrap experiments. (GPT-5.2-Codex) -->
 		const bool bSAS_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL(CvGlobals::SAS_SCRAP_OBSOLETE_TECH);
@@ -3503,10 +3503,10 @@ bool CvUnit::canScrap(SASUnitScrapEligibility* peEligibility) const
 			return false;
 		}
 
-		// <!-- custom: as for naval units, do not scrap them at all, we had the workboat infinite loop issue in known issue as of now 23 that we fixed, but then in known issue as of now 53 i noticed a privateer loop and AI dying because of it.
+		// <!-- custom: as for naval units, do not scrap them at all, we had the workboat infinite loop issue in KI#23 that we fixed, but then in KI#53 i noticed a privateer loop and AI dying because of it.
 		// Since we now handle properly max naval units among other units being produced, we don't fear overproducing them too much, at least not too hard, but we i.e. i xdfear invisible scrapping.
 		// There should almost never be good cases where scrapping is worth, and these should be handled as exceptions rather than the main rule.
-		// Just in known issue as of now 52, removing scrapping greatly improves AI military efficiency and performance, and it didn't go bankrupt at all (they can't produce that much units anyway, allowing to reduce handicap so they produce less units so they are less likely to be bankrupt and so they also nicely have a bit of buff and buffer (no pun xd).
+		// Just in KI#52, removing scrapping greatly improves AI military efficiency and performance, and it didn't go bankrupt at all (they can't produce that much units anyway, allowing to reduce handicap so they produce less units so they are less likely to be bankrupt and so they also nicely have a bit of buff and buffer (no pun xd).
 		// Really, i feel or it seems to me like scrapping should be handled as an exception not as a "i don't know what to do with this weird unit let's just scrap it xd".
 		// "No!
 		// Don't scrap it xd, figure out what to do with it, most often the risk of loop or such far outweigh having 1 or 2 extra units anyway i think), if fearing financial trouble or such, please implement it in your code, as for me as of now i consider/assume assume AIs develop well and build these formulas based on iNumCities or such for scaling, the benefits seem to far outweigh the risks/costs, and please read known isue as of now 53 for details; also, since we are only adding pre checks and not changing the logic otherwise, should be fine -->
@@ -3570,7 +3570,7 @@ bool CvUnit::canScrap(SASUnitScrapEligibility* peEligibility) const
 				bNavalSpySeaUnitAIs
 			);
 			// <!-- custom: since we now already handle in CvCityAI::AI_chooseUnit when to produce them and how much, no need to worry too much about scrapping enough units.
-			// However, as shown in known issue as of now 53, it seems scrapping still happens for privateers or such, although i am not sure and AI may have just been overproducing and i didn't check too much, still generally scrapping benefits should now far outweigh costs/risks, which include infinite loop of missing a unit we just created or such, and as happened in known issue as of now 23 as well with workboats in the past.
+			// However, as shown in KI#53, it seems scrapping still happens for privateers or such, although i am not sure and AI may have just been overproducing and i didn't check too much, still generally scrapping benefits should now far outweigh costs/risks, which include infinite loop of missing a unit we just created or such, and as happened in KI#23 as well with workboats in the past.
 			// It seems much simpler to disable scrapping altogether for most if not all, and see what happens and if we go bankrupt or not.
 			// By meeting our quotas sooner, we can then move on to other units or buildings or anything much more efficiently/effectively than scrap reproduce again, and 1-2 lone units are not a big problem vs the global risk of scrapping messing up, so disabling it at least for these units; chatgpt 5 also likes this change if i may say at least it said so so the change seems fine to it at least if not more -->
 			// asymmetric: don’t scrap existing boats
@@ -7585,8 +7585,8 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible, bool bUpgradeCityKno
 		if (kOwner.getGold() < iPrice)
 			return false;
 
-		// <!-- custom: AI upgrade economic checks (gold vs strength gain) (ChatGPT 5.2 Thinking) -->
-		// <!-- custom: note: war gates not implemented as it is not always certain they would be beneficial and may backfire, see for details known issue of as now 88 for details. -->
+		// <!-- custom: AI upgrade economic checks (gold vs strength gain). See KI#88. (ChatGPT 5.2 Thinking) -->
+		// <!-- custom: note: war gates not implemented as it is not always certain they would be beneficial and may backfire, see KI#88 for details. -->
 		if (!isHuman())
 		{
 			static const int iSAS_UPGRADE_ON = GC.getDefineINT("SAS_UPGRADE_ON");

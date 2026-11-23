@@ -7587,7 +7587,7 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 			int iValue = citySiteEval.evaluate(kPlot);
 			const int iRawValue = iValue;
 			// <!-- custom: Do not let Barbarian area-priority adjustment resurrect rejected city sites.
-			// In the Mauryan test, raw 0 at 30,23 became areaAdjusted 1 in bSkipCivAreas and was founded despite the detailed evaluator hard-rejecting it. (GPT-5.5) -->
+			// In the Mauryan test, raw 0 at 30,23 became areaAdjusted 1 in bSkipCivAreas and was founded despite the detailed evaluator hard-rejecting it. See KI#177. (GPT-5.5) -->
 			if (iRawValue <= 0)
 				continue;
 			if (iTargetCitiesMultiplier > 100)
@@ -7669,7 +7669,7 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 					apTopPlots[i]->getArea().getID());
 			}
 			// <!-- custom: Barbarian cities are spawned by a global scan rather than normal Settler city-site lists, and old Barbarian scoring can ignore outer-BFC seafood or other long-term capture value.
-			// Log nearby alternatives so cases like Yue-Chi, Sarmatian, Aryan, and Numidian can show whether the selected spawn tile or a one-tile shift was actually better. (GPT-5.5) -->
+			// Log nearby alternatives so cases like Yue-Chi, Sarmatian, Aryan, and Numidian can show whether the selected spawn tile or a one-tile shift was actually better. See KI#177. (GPT-5.5) -->
 			// <!-- custom: Removing CitySiteEvaluator::log() also removed its best adjacent/distance-2 summaries.
 			// Retain the best raw eligible alternative in each ring during this existing diagnostic scan, then compare with the actual chooser's selected raw score; do not mix randomized final scores with raw scores or repeat evaluations.
 			// Ineligible plots are reported but not scored. See KI#505.2. (GPT-6.1-Sol) -->
@@ -7679,7 +7679,7 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 			// <!-- custom: Label these logging-only alternatives separately from the global chooser's real evaluations; setting context changes only the log label. See KI#505.2. (GPT-6.1-Sol) -->
 			diagnosticEval.setLogContext(SAS_FOUND_LOG_BARBARIAN_COMPARISON);
 			// <!-- custom: Local found-value comparisons can show a better one-tile shift that the actual Barbarian creator skipped because it belongs to an area that does not currently want another Barbarian city.
-			// Log chooser-side eligibility around the selected plot so bad-looking Barbarian settlements can be diagnosed from the real creation filters, not only from post-selection site value. (GPT-5.5) -->
+			// Log chooser-side eligibility around the selected plot so bad-looking Barbarian settlements can be diagnosed from the real creation filters, not only from post-selection site value. See KI#177. (GPT-5.5) -->
 			for (int iDX = -2; iDX <= 2; iDX++)
 			{
 				for (int iDY = -2; iDY <= 2; iDY++)

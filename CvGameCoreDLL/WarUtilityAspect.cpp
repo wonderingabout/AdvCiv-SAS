@@ -3056,13 +3056,13 @@ void Effort::evaluate() {}
 
 int Risk::preEvaluate()
 {
-	// <!-- custom: also handle risk of going to war too far away and leaving our cities defenseless and dying pathetically if i may say or stupidly shortly after, as is very problematic as of now in base advciv and advciv-sas as of now, see known issue as of now 61 for details, also code is provided thanks to chatgpt 5, check if accurate; result of this code change: we seem to live a bit longer but still attack the wrong target when a closer and weaker one was in reach, but since it seems harmless and we seem to live longer due to not attacking first target if not due to autoplay fluctuation, kept as such. -->
+	// <!-- custom: also handle risk of going to war too far away and leaving our cities defenseless and dying pathetically if i may say or stupidly shortly after, as is very problematic as of now in base advciv and advciv-sas as of now, see KI#61 for details, also code is provided thanks to chatgpt 5, check if accurate; result of this code change: we seem to live a bit longer but still attack the wrong target when a closer and weaker one was in reach, but since it seems harmless and we seem to live longer due to not attacking first target if not due to autoplay fluctuation, kept as such. -->
 	// <!-- custom: If a fixed, super-simple turns-to-contact cap is wanted, replace these calls with constants or XML defines.
 	// The cached city distances (`getDistanceByLand` for land and `getDistance` for mixed/cargo routes) are the team pathfinder's notion of turns and already factor roads, terrain and domain speed. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	// --- SIMPLE HARD REJECT / RPE FILTER ---
 
 	// <!-- custom: we get very very good results with 2, now spain ai (our ai in autoplay) doesn't get baited by faraway ais and finishes off weak nearby one, as a result we don't get targeted by cyrus ai and keep our lead, now trying to extend the range a bit to see if still safe -->
-	// <!-- custom: result: seemingly even better, see known issue as of now 61 for details, not increased further to not risk falling back to old pitfalls, while keeping variety enough in war outcomes with larger window -->
+	// <!-- custom: result: seemingly even better, see KI#61 for details, not increased further to not risk falling back to old pitfalls, while keeping variety enough in war outcomes with larger window -->
 	static int const iMaxLandTurns = std::max(0, GC.getDefineINT("SAS_UWAI_CONTACT_LAND_MAX_T_UNSCALED_GS"));
 	static int const iMaxSeaTurns = std::max(0, GC.getDefineINT("SAS_UWAI_CONTACT_SEA_MAX_T_UNSCALED_GS"));
 	static int const iExistingPlanTolerance = std::max(0, GC.getDefineINT("SAS_UWAI_PLAN_CONTACT_EXTRA_T_UNSCALED_GS"));
@@ -3927,7 +3927,7 @@ void Distraction::evaluate()
 	// In save file 452, Mali still had 7 cities vs Maya's 3, 891 vs 397 power and an 83-point war-success lead, while the current war remained profitable before Distraction; nevertheless, a new India preparation raised Distraction from -18 to -96 and caused immediate peace.
 	// The first prototype capped only the preparation-specific portion, reducing Distraction to -75, but Mali still accepted peace on the next turn.
 	// A 50-percent cap on the whole cost kept Mali at war long enough to capture another city, but its turn-161 review remained negative and only skipped peace by chance.
-	// When the current enemy is clearly weaker and losing, apply the stricter tunable cap relative to the cached positive value of the current war; effort, risk, war weariness and emergency multi-war peace remain unchanged. (GPT-5.6-Sol) -->
+	// When the current enemy is clearly weaker and losing, apply the stricter tunable cap relative to the cached positive value of the current war; effort, risk, war weariness and emergency multi-war peace remain unchanged. See KI#189.2. (GPT-5.6-Sol) -->
 	// <!-- custom: Retain the optional winning-war and almost-finished adjustments as named result components so the final row reports the exact path to the applied distraction cost. (ChatGPT-5.6-Sol) -->
 	int iTargetPowerPercent = -1;
 	scaled rWarSuccessLead;

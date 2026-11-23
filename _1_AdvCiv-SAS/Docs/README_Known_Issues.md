@@ -1477,7 +1477,7 @@ Lines such as:
 
 Were totally ineffective, so i have removed them as well for as of now for wonders i mean.
 
-Thanks to chatgpt's help, and following recent as of now DLL changes such as in [README_Known_Issues.md#ki-24](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-24), it seems to finally be fixed by patching the DLL directly instead in [/CvGameCoreDLL/CvCityAI.cpp](/CvGameCoreDLL/CvCityAI.cpp) in `CvCityAI::AI_chooseBuilding`, as of now only for world wonders (no need to forbid national wonders too strongly as of now at least if not always or not or yes or etc)
+Thanks to chatgpt's help, and following recent as of now DLL changes such as in [KI#24](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-24), it seems to finally be fixed by patching the DLL directly instead in [/CvGameCoreDLL/CvCityAI.cpp](/CvGameCoreDLL/CvCityAI.cpp) in `CvCityAI::AI_chooseBuilding`, as of now only for world wonders (no need to forbid national wonders too strongly as of now at least if not always or not or yes or etc)
 
 Update (2026-11-06): the patch rejected a world wonder only after it had won `AI_bestBuildingThreshold`'s selection, so `AI_chooseBuilding` returned false and the Barbarian city lost that building pick instead of choosing its next-best building.
 
@@ -1594,13 +1594,13 @@ Not sure what the issue was, would have liked to be notified of the error/corrup
 
 So hopefully fine and solved now even though not sure and not guaranteed but maybe is hopefully or maybe not, in all cases hopefully this info is helpful to me or and others or and not.
 
-See also [README_Known_Issues.md#ki-38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38)
+See also [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38)
 
 <a id="ki-6"></a>
 
 ## KI#6 - (now worked around) Too long XML code comments cause errors or game crashes
 
-Related to [example/issue 9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-9)
+Related to [KI#9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-9)
 
 Be careful of having too long XML code comments, they (seem to indeed) cause game crashes (or maybe errors too?) in some circumstances, i assume it is especially due to or caused by if it's not samenested code comments more specifically, since i don't know more, it is only speculation on my end, but moving these nested code comments outside of the XML did fix the early game crash issue that is reproducible.
 
@@ -1638,7 +1638,7 @@ If such issues happen, maybe restart the game and hopefully all fixed, ideally m
 
 ## KI#9 - Art (and maybe other assets too or not) XML assets silently causing a game crash during init/game load/startup instead of telling us which asset was missing (no error)
 
-Related to [example/issue 6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-6)
+Related to [KI#6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-6)
 
 For example, while i was renaming `_GEMS` to `_GEMSTONES`, everywhere (with VS Code global search), except one part i had forgotten:
 
@@ -1870,7 +1870,7 @@ Found by the user; explained and fixed by Claude Code Opus 5.5 with the user's s
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1dtHQbjW9Z55O_KryENWcJsrlMhUVqyTH?usp=sharing)
 
-Similarly to [known issue number 11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), this seems to be a debug mode only bug, as when toggling off debug mode while still in same game (ctrl+z as of now if not always or not), a wonder is shown to have been built by many civs, with the date showing hammer icon instead of a data number year or such, and looking inside said cities, no world wonder exists, so this seems to be a visual bug specific to debug mode, i didn't check all cities, but a few said to have the world wonder didn't have it, and since it is supposed to be "unique" i.e. only 1 in entire world (not civ-specific as civ4 says about "unique" in another way) i forgot my sentencei assume this is not too important to fix, but mentioning it for exhaustiveness and in case it helps but or not but or yes but
+Similarly to [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), this seems to be a debug mode only bug, as when toggling off debug mode while still in same game (ctrl+z as of now if not always or not), a wonder is shown to have been built by many civs, with the date showing hammer icon instead of a data number year or such, and looking inside said cities, no world wonder exists, so this seems to be a visual bug specific to debug mode, i didn't check all cities, but a few said to have the world wonder didn't have it, and since it is supposed to be "unique" i.e. only 1 in entire world (not civ-specific as civ4 says about "unique" in another way) i forgot my sentencei assume this is not too important to fix, but mentioning it for exhaustiveness and in case it helps but or not but or yes but
 
 Update (2026-11-22): rejected as a false positive, as the user suspected: these were rivals building the same wonder, not built copies of it.
 
@@ -2043,7 +2043,7 @@ For example _UTOPIA for `_COMMUNISM`, `_OBELISK` for monument sometimes and othe
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Ie5Uln9-vquy601oCUex3QIsgWCGnUXl?usp=sharing)
 
-Quite related to [README_Known_Issues.md#ki-14](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-14) and also while cleaning up in [README_Known_Issues.md#ki-18](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-18)
+Quite related to [KI#14](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-14) and also while cleaning up in [KI#18](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-18)
 
 The `ART_DEF_UNIT_ARCHER_EURASIAN` (see screenshots 6708, 6709, 6710, 6711 in drive linked in/at this example issue for what it looks like) seems to be unused in base advciv, in civ4 too, and in most mods it seems as well from a VS Code global search.
 
@@ -2159,7 +2159,7 @@ Not in known issues as well similarly to python comment cleanup issue.
 
 Note: in case i was too aggressive with these and somehow caused bugs, we may revert to old python code and then only move the config obj docstring to common docs rather, but ideally i'd like to keep all as i belive code is bit cleaner.
 
-I did try to reread multiple times and hopefully didn't make a mistake, but in case we did, may revert if needed to old python code and tweak more consevatively from there if needed, see next issue as of now 21.6 for details.
+I did try to reread multiple times and hopefully didn't make a mistake, but in case we did, may revert if needed to old python code and tweak more consevatively from there if needed, see next issue, KI#21.6, for details.
 
 <a id="ki-21.6"></a>
 
@@ -2175,7 +2175,7 @@ Also a lot of cleaning up of poor code formatting that i annoted if i may say as
 
 Note: in case i was too aggressive with these and somehow caused bugs, we may revert to old python code and then only move the config obj docstring to common docs rather, but ideally i'd like to keep all as i belive code is bit cleaner.
 
-I did try to reread multiple times and hopefully didn't make a mistake, but in case we did, may revert if needed to old python code and tweak more consevatively from there if needed, as said in issue as of now 21.5 as well.
+I did try to reread multiple times and hopefully didn't make a mistake, but in case we did, may revert if needed to old python code and tweak more consevatively from there if needed, as said in KI#21.5 as well.
 
 Note 2: example case of where i was too aggressive and caused a bug by remoing an unused variable shown [here in this commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/56ea046e0da6e55652841d4cc3181b92e294323c#diff-354807997b1a5f7626ae7eee99c7f4841125b08e0dd67675269502697cc9fdc6L145-R147), so although a variable itself is unused doesn't mean the call was.
 
@@ -2419,17 +2419,17 @@ I assume this is what old code attempted to solve but very inefficient, or maybe
 
 Ideally we'd want to count in advance the amount of workboats we need based on water bonsues in cultural borders (to get health even if out of city radius), and produce exactly only the number of workboats to access currently accessible (e.g. coast only) unimproved bonuses, so no need to scrap them later, which i'll attempt to do later in another known issue, but this is still tremendously better than being stuck in a loop for dozen turns and seemingly for many AI cities, which is very crippling, so hopefully a lot better now.
 
-See also although not directly related but anwyays etc: [52 - (Beyond Tremendously improved) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-52).
+See also although not directly related but anwyays etc: [KI#52 - (Beyond Tremendously improved) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-52).
 
 <a id="ki-23.2"></a>
 
 ## KI#23.2 - (Attemptingly partially addressed/reduced) AI players producing more workboats than needed which then stay parked in city or go explore
 
-Not a critical issue as it is in fact less than i thought in known issue as of now [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-23) above in this doc, but i tried to reduce the AI producing a bit too much workboats, mostly by doing changes as advised by chatgpt and claude ai (and approved by gemini ai too) if they are not all and myself mistaken but could be the case but check to be sure, in `CvCityAI::AI_neededSeaWorkers`, changing look ahead from 5 to 0 (check explanation there as it has the AI(s) explaining it better than i would n this case).
+Not a critical issue as it is in fact less than i thought in [KI#23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-23) above in this doc, but i tried to reduce the AI producing a bit too much workboats, mostly by doing changes as advised by chatgpt and claude ai (and approved by gemini ai too) if they are not all and myself mistaken but could be the case but check to be sure, in `CvCityAI::AI_neededSeaWorkers`, changing look ahead from 5 to 0 (check explanation there as it has the AI(s) explaining it better than i would n this case).
 
 It seems some cities still have an extra workboat, but some cities don't, not sure the change made a different, but since it seems harmless, and AIs agree at least those i askedit should be so, left as such, but check to be sure.
 
-Note: change was originally done in an attempt to solve a bug i had created while disabling functionally getimprovementvalue, info about it in this doc or in the code comment at function mentioned in this known issue as of now 23.2 too but check to be sure, and since the bug is now fixed, i kept this change since is conservative, obvious, and seemingly harmless but check to be sure.
+Note: change was originally done in an attempt to solve a bug i had created while disabling functionally getimprovementvalue, info about it in this doc or in the code comment at the function mentioned in KI#23.2 too but check to be sure, and since the bug is now fixed, i kept this change since is conservative, obvious, and seemingly harmless but check to be sure.
 
 <a id="ki-24"></a>
 
@@ -2479,7 +2479,7 @@ But while it seemingly may have improved it a bit, AI still settles on metals, a
 
 As i don't know too much about these but am very eager to improve these ideally...
 
-I asked chatgpt and trying to fix/tweak quite cautiously this logic, quite similarly than in [README_Known_Issues.md#ki-24](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-24)
+I asked chatgpt and trying to fix/tweak quite cautiously this logic, quite similarly than in [KI#24](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-24)
 
 ### General rules for settling on (i.e. home plot) bonuses
 
@@ -2511,7 +2511,7 @@ Update: since latest refactor, although i didn't retest it yet, i'd expect resul
 
 For non-bonus tiles, also added code that tells the AI which tiles are best to have in our environment, and a different logic for the home plot to settle on, with chatgpt 5 and other ai or models 's help as well if i'm not mistaken. Also adjusted and with different values (see below for details).
 
-Done similarly to [README_Known_Issues.md#ki-25](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-25).
+Done similarly to [KI#25](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-25).
 
 Done by modifying in `AIFoundValue::evaluate()` in as of now CitySiteEvaluator.cpp, see there for details, or the documentation below if still accurate or updated.
 
@@ -2712,7 +2712,7 @@ It is also maybe more reliable to have a silent crash rather than adding a compl
 
 So seems safer and most efficient to leave it as it is, and just keep in mind if tech advisor crashes happen again, that issue may be faulty tech prereqs.
 
-See also, although not directly related: [README_Known_Issues.md#ki-22](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22)
+See also, although not directly related: [KI#22](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22)
 
 2026-11-03 follow-up (with the help of Claude code Opus 5.5 thanks):
 
@@ -2731,7 +2731,7 @@ This is an issue i had in base advciv, and this solution may not necessarily in 
 
 Rewrote/refactored `CvUnitAI::AI_bestCityBuild` with gemini ai's help for most thanks to its persistence in particular (see [/_1_AdvCiv-SAS/Docs/README_Authors.md#gemini-ai](/_1_AdvCiv-SAS/Docs/README_Authors.md#gemini-ai)) for details.
 
-I have written most details there, so only adding here as less tedious to do so, a few screenshots in the google drive link folder mentioned at the top of this known issue section (as of now number 30).
+I have written most details there, so only adding here as less tedious to do so, a few screenshots in the google drive link folder mentioned at the top of this known issue section (KI#30).
 
 These changes hopefully fix this issue (see "Boston" screenshot in this google drive (as of now screenshot 1478)).
 
@@ -2921,7 +2921,7 @@ This means that what was a good spot is now not anymore a good spot, and AI will
 
 As can be seen in screenshots, with some previous changes i made, AI had a seemingly better understanding or/annd reactionto which bonuses are valuable and to settle near and not on, such as in screenshot 1475, here i assume to successfully grab the water bonuses thankfully thanks to our changes i assume that incentivize this more, however in screenshot 1476, these changes still did not compell AI to settle on coast and corinth in full tundra/snow is starved soon, which could have been avoided just by settling one tile south or somewhere near that for a much higher potential city relatively.
 
-After these new changes i implemented in this known issue as of now 32, we can see that for example, AI still values water bonuses for coastal planting (screenshot 1580), but now also successfully settles on the coast even if there is no water bonus in range, just to avoid the low-food environment early starving (screenshot 1585 in now city sparta).
+After these new changes i implemented in KI#32, we can see that for example, AI still values water bonuses for coastal planting (screenshot 1580), but now also successfully settles on the coast even if there is no water bonus in range, just to avoid the low-food environment early starving (screenshot 1585 in now city sparta).
 
 In particular, thanks to the changes and buffs we made to coastal planting, it may be a bit stronger to plant on coast than in base advciv, relatively, although land should still be quite better as of now at least.
 
@@ -2982,9 +2982,9 @@ This is shit citizen allocation and i hope to fix it.
 
 Hopefully AI is already much stronger with our changes but thanks for past but i hope i can improve these things among others or not.
 
-update : update: also disabled functionally `CvCityAI::AI_getImprovementValue` and `CvUnitAI::AI_irrigateTerritory` which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains, see update note 2: at [README_Known_Issues.md#ki-30](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-30) for details with screenshots there as well for comparison
+update : update: also disabled functionally `CvCityAI::AI_getImprovementValue` and `CvUnitAI::AI_irrigateTerritory` which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains, see update note 2: at [KI#30](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-30) for details with screenshots there as well for comparison
 
-update 2: now also handles roading choice of build on not connected but connectable bonuses in BFC with other patches, see update 2 at [31 - (Attemptingly fixed) Deprioritize routes for AI workers in favour of yields first](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-31) for details
+update 2: now also handles roading choice of build on not connected but connectable bonuses in BFC with other patches, see update 2 at [KI#31 - (Attemptingly fixed) Deprioritize routes for AI workers in favour of yields first](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-31) for details
 
 <a id="ki-33.2"></a>
 
@@ -3487,7 +3487,7 @@ The fixes: they are tentative and quite conservative, perhaps patches in some ca
 The code that seemed to make a nice and decisive positive difference it seems to me at leastwas as of now this one i added:
 
 ```cpp
-		// <!-- custom: commented-out line below (that was a test to try to fix known issue 34 which is seemingly done or at least bypassed at the cost of angry cities still growing and having lower production) fixes it or so it seems, but at the cost of lowered produciton, even if cities have few angry citizens, try to make it more fine-tuned to city current state: we value food as long as we are not angry, if we are angry, value production in an attempt to build things that would make us go out of unhappiness, but even if we don't, no point in growing further, the citizen won't be allocated; results of this change seem to be very good, cities are not starving anymore unallocating food tiles, they grow until unhappy, then it seems to halt but the food tiles are still reasonable allocated even though production is now high as well and growth slow it seems from quick testing / glances, although this is a patch and not full fix, i hope this helps the issue a lot, or so it seems from quick testing -->
+		// <!-- custom: commented-out line below (that was a test to try to fix KI#34 which is seemingly done or at least bypassed at the cost of angry cities still growing and having lower production) fixes it or so it seems, but at the cost of lowered produciton, even if cities have few angry citizens, try to make it more fine-tuned to city current state: we value food as long as we are not angry, if we are angry, value production in an attempt to build things that would make us go out of unhappiness, but even if we don't, no point in growing further, the citizen won't be allocated; results of this change seem to be very good, cities are not starving anymore unallocating food tiles, they grow until unhappy, then it seems to halt but the food tiles are still reasonable allocated even though production is now high as well and growth slow it seems from quick testing / glances, although this is a patch and not full fix, i hope this helps the issue a lot, or so it seems from quick testing -->
 		// iValue += ((iFoodYieldTimes100+50)/100) * 100;
 		// <!-- custom: note: also include 0 happiness (i.e not unhappy) as it seems in another same file, ulundi again was starving while not unhappy nor happy (at 0 exactly) instead of allocating a food tile
 		if (iHappinessLevel >= 0)
@@ -3514,7 +3514,7 @@ If not, i hope and in all cases too i mean if i may say that it helped, and that
 
 Hopefully AI is a bit stronger with this changed i attempted to make in a balanced way (not too much food, not as it was too much production)
 
-See also [README_Known_Issues.md#ki-40-if-i-am-not-mistaken-but](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-40) for quite related info
+See also [KI#40](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-40) for quite related info
 
 Update: now mitigated by high food loss from unhealthiness (as per corresponding SAS define) as inefficient to grow further (e.g., York size 25 with 25 health 36 unhealth (-11 food) and 39 happy 27 unhappy, +3 food per turn still, should not grow more and work specialists or other yields than food rather to increase efficiency).
 
@@ -3532,7 +3532,7 @@ I also fixed thanks to gemini ai various other conditions where we don't want th
 
 See also [KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-42) which generalizes, fixes and tunes this approach based on other conditions while otherwise preserving base advciv code behaviour. Hopefully a lot more efficient but also responsive/effective AI UNITAI choices but check to be sure.
 
-update: see enhancement of this in [53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or of more importantly building galleons and privateers in droves and excess, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53)
+update: see enhancement of this in [KI#53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or of more importantly building galleons and privateers in droves and excess, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53)
 
 <a id="ki-36"></a>
 
@@ -3540,7 +3540,7 @@ update: see enhancement of this in [53 - (Beyond Tremendously Improved) Naval de
 
 No screenshots from that time except save files, that i'd prefer not to rescreenshot now, however i had listed this issue in example 47 in the list of base advciv issues i had compiled as in listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i made, where it happened 2 times to/for Augustus AI making it/himmuch weaker militarily and my conquest of him much easier in this game (although he/itwas still surprisingly strong so is like a wasted chance in this case at least)
 
-In all cases, i have in a similar function than in [README_Known_Issues.md#ki-35) (while doing this known issue as well](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-35) (while doing this known issue as well), a spot where we could add such a restriction to settler building.
+In all cases, i have in a similar function than in [KI#35](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-35) (while doing this known issue as well), a spot where we could add such a restriction to settler building.
 
 Hopefully AI is now much stronger with this change as well although i didn't test it since i made it.
 
@@ -3550,7 +3550,7 @@ Hopefully AI is now much stronger with this change as well although i didn't tes
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Uf1OOilcGXfyNix7EwXYhQCcsd-bq4Pa?usp=sharing).
 
-Expanding on previous issue as of now in number 36, i have also noticed, now in this as of now known issue number 37, that for example in screenhot 1680, AI was building 2 settlers at same time.
+Expanding on previous KI#36, i have also noticed, now in KI#37, that for example in screenhot 1680, AI was building 2 settlers at same time.
 
 It is very inefficient, and i thought that building one settler in top city (for efficiency, as weakest city may take a long time to build it hindering its growth or not getting settler ready on time; ideally i would handle that too but not done for simplicity and as of now simply building in any city that does it) is enough.
 
@@ -3582,7 +3582,7 @@ Its city location is also nice in these screenshots 1689 and such, hopefully tha
 
 Also this change is also thanks to claude ai which (who?) helped me locate where to make units national in the xml although i could have found myself but it helped still thanks claude ai.
 
-Note: after retesting from turn save file at turn 0 to be sure, and also due to the below as of now known issue 38 so i wanted to test again anyway and since they seemed to do same when starting from save file that is at turn 50 if i'm not mistaken, i wanted to try from save file that is at turn 0 instead, i have found they did it even nicer, and settled extremely ambitiously a super nice city not too far from their capital, very very nice, see screenshots 1701 and 1702 (skipped 1700 since 1702 was more nicely centered around city but 1700 was first centered around city if i may say before 1701) for details.
+Note: after retesting from turn save file at turn 0 to be sure, and also due to the below KI#38 so i wanted to test again anyway and since they seemed to do same when starting from save file that is at turn 50 if i'm not mistaken, i wanted to try from save file that is at turn 0 instead, i have found they did it even nicer, and settled extremely ambitiously a super nice city not too far from their capital, very very nice, see screenshots 1701 and 1702 (skipped 1700 since 1702 was more nicely centered around city but 1700 was first centered around city if i may say before 1701) for details.
 
 <a id="ki-38"></a>
 
@@ -3598,7 +3598,7 @@ However, after recompiling, with exact same source files, no change at all (exce
 
 At this point, or in general, i'd say my best guess would be a cosmic ray fell on my PC somehow and corrupted a bit like in the mario speedrun and as it happened to nasa.
 
-But in all cases, and more seriously really, even though my previous guess was quite serious too, i'd recommend if all seems good otherwise, to make sure you remove all content in temp_files folder (as i have found fast compile seems to cause issues and i strictly avoid it unless doing quick testing never for final dll as of now at least, as mentioned in [README_Known_Issues.md#ki-5)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-5) too; and note too: i think i also made extra sure here that i did delete it as well just before launching the faulty compile, hence my guess that it would be something else like a cosmic ray or something else maybe like a quantic ray xd maybe??
+But in all cases, and more seriously really, even though my previous guess was quite serious too, i'd recommend if all seems good otherwise, to make sure you remove all content in temp_files folder (as i have found fast compile seems to cause issues and i strictly avoid it unless doing quick testing never for final dll as of now at least, as mentioned in [KI#5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-5) too; and note too: i think i also made extra sure here that i did delete it as well just before launching the faulty compile, hence my guess that it would be something else like a cosmic ray or something else maybe like a quantic ray xd maybe??
 
 Added this extra clarification as part of reading claude ai's answer or the beginning of it, which gave me the idea to add this, hopefully clearer with this although maybe uneeded or maybe needed in this case i mean but in all cases), and compile again, which in this case, again strangely but all goood maybe xd if i may say although i would have liked to know how maybe too indeed.
 
@@ -4007,7 +4007,7 @@ After recompiling and testing these changes, as can be seen from existing screen
 
 update: added an extra tweak so that workers stay longer in city B (small cities), as they are expected to grow fast, so don't leave at 2 improved plots if city size is size 2, improve say 4 or 5 plots (see code there for details)
 
-update 2: tremendously improved and tweaked since then in [README_Known_Issues.md#ki-41](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-41), see there for details too i mean
+update 2: tremendously improved and tweaked since then in [KI#41](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-41), see there for details too i mean
 
 <a id="ki-40"></a>
 
@@ -4039,7 +4039,7 @@ And China AI could build the great wall in time in its capital too, so high pop 
 
 I'm very happy of this result, thanks a lot to chatgpt 3-o for help despite the nagging and that it annoyed me hehe on math as i told it too it did hehe, but this helped me and helped a lot if i may say which i told it too, fix the formula and such thanks lot.
 
-See also [README_Known_Issues.md#ki-34](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-34) for quite related info
+See also [KI#34](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-34) for quite related info
 
 Update: now mitigated by high food loss from unhealthiness (as per corresponding SAS define) as inefficient to grow further.
 
@@ -4053,7 +4053,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 There are many tremendous improvements to AI worker efficiency and flexibility in this known issue.
 
-These were aimed originally to solve the AI not moving to city B or city C soon enough or enough issue, as was attempted initially in [README_Known_Issues.md#ki-39](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-39), and i tweaked it a bit more than solving this further, with chatgpt-5 's help and my prompts and adjustments or not or yes or etctoo.
+These were aimed originally to solve the AI not moving to city B or city C soon enough or enough issue, as was attempted initially in [KI#39](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-39), and i tweaked it a bit more than solving this further, with chatgpt-5 's help and my prompts and adjustments or not or yes or etctoo.
 
 As can be seen in existing screenshots between 1838 and 1934, even late in the game, jungle cities that were quite farm from core cities, although not too far really, would not be improved at all!!
 
@@ -4132,13 +4132,13 @@ I may have to reduce handicap settings now as AI would be unbeatable now with ha
 
 This is extremely satisfying, although i hope to improve it further based on autoplay and what i see, but i hope AI and AI workers can be a satisfying challenge now, after all economy and working tiles is key, maybe humans could automate reliably at lower levels if lazy or want to learn and get a really good result if the code applies here as well, but in all cases.
 
-Update: see also related known issue as of nowwith extra very nice improvement(s) to wake from retreat logic causing parking in rare cases: [50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)
+Update: see also, with extra very nice improvement(s) to wake from retreat logic causing parking in rare cases, [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)
 
 <a id="ki-42"></a>
 
 ## KI#42 - (Enhanced/Addressed) Tune AI's preferred based UNITAI based on war status (offense mode, defense mode, combined power ratios of ennemies, etc if any other), general sanity checks and efficiency, city size, map type (land heavy vs water heavy vs other if any for example), general suicide or such tendencies, etc
 
-Note: see also [README_Known_Issues.md#ki-35](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-35)
+Note: see also [KI#35](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-35)
 
 See also: [Modding resources (Mapscripts)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#mapscripts).
 
@@ -4220,7 +4220,7 @@ This makes AI starting points a lot stronger, especially for bad starts such as 
 
 Other cities behave also better, by moving to a more central position, they indirectly are reserving a nice spot for their city 2 or city 3, and in fact the original moscow AI spot is nice for a city 3 or city 4, but for capital it's not enough and moscow AI was certain to fall behind.
 
-In continuation with our changes at previous known issue as of now [43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-43), the AI settlers have up to 5 free unpenalized turns to choose their best spot, much unlike in base advciv or civ4 too unless i'm not aware of it or mistaken maybe or just not knowledgeable if the case.
+In continuation with our changes at previous [KI#43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-43), the AI settlers have up to 5 free unpenalized turns to choose their best spot, much unlike in base advciv or civ4 too unless i'm not aware of it or mistaken maybe or just not knowledgeable if the case.
 
 I believe Moscow AI will have a much better game as a result, and it really walked 5 path turns to this spot, which is very nice.
 
@@ -4477,7 +4477,7 @@ I added with chatgpt 5's help and my adjustments and prompts and such (in `CvUni
 
 This can be seen in existing screenshots between 2237 and 2403 (which are not the most representative of how bad AI choices were, but they give some context/examples of how it could often be suboptimal or ineffective promotions as explained before).
 
-Below is a summary of these by chatgpt 5 which i adjusted a bit and suggested this or that but that it otherwise very nicely for the most part put apart (no pun), check if accurate, and if it has been updated since then in function mentioned as of now above in this known issue as of 47.
+Below is a summary of these by chatgpt 5 which i adjusted a bit and suggested this or that but that it otherwise very nicely for the most part put apart (no pun), check if accurate, and if it has been updated since then in function mentioned as of now above in KI#47.
 
 ### 1) Hard Blocks (global)
 
@@ -4552,7 +4552,7 @@ CITY_DEFENSE, CITY_SPECIAL
 | **RESERVE**, **RESERVE\_SEA** | **No special boost/forbid** (beyond global hard blocks) | They swing between shuffling defense and opportunistic offense; over-constraining can hurt. |
 | **COUNTER**, **CITY\_COUNTER** | **No special boost/forbid** (beyond global hard blocks) | Mixed behavior (intercepts near cities but also attacks nearby threats). Let base scoring decide. |
 
-### Results of known issue 47 changes
+### Results of KI#47 changes
 
 As can be seen in existing screenshots between 2423 and 2451, AI is now much more effective, or at least significantly more effective at picking promotions: attackers often have city_raider promotion or some other offensive related or compatible in this casepromotions if relevant, defenders more often go for city_garrison which is about best in unitai_city_defense, but some offensive longbowmen go for combat or such which is fine as ai uses the to attack and it's decent still as a defensive promotion if attacked by an enemy before this unit leaves its city.
 
@@ -4759,7 +4759,7 @@ if (isWonder) {
 }
 ```
 
-### Results of known issue 48
+### Results of KI#48
 
 You can see the difference between the 2 runs (48 is the old DLL, before the changes, and 48.2 is the new DLL, after the changes) in the screenshots as mentioned as of now above.
 
@@ -7846,7 +7846,7 @@ Investigated and implemented with the help of ChatGPT-5.6-Sol, GPT-6.1-Sol and w
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1IliQAuUug2clSrVHToD6D8cMqOUmxxEM?usp=sharing)
 
-While solving/analyzingknown issue as of now 49, i have noticed Persia AI had 10+ workers parked in city A at turn 200, yet one of the cities was totally unimproved and would badly benefit from using them. Even at turn 210, the workers had moved but only to go to another city instead in retreat mode.
+While solving/analyzing KI#49, i have noticed Persia AI had 10+ workers parked in city A at turn 200, yet one of the cities was totally unimproved and would badly benefit from using them. Even at turn 210, the workers had moved but only to go to another city instead in retreat mode.
 
 I have asked chatgpt 5 with screenshots and such of the issue (see existing screenshots between 2683 and 2686, as well as the missionai_retreat screenshot for how it was before the fix between turns 200 and 210 if i'm not mistaken).
 
@@ -7884,7 +7884,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 This is an issue i had noticed in advciv, in example 69.3 of the list issues (i had named it example 69.3 when i was still playing base advciv here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i had made at that time, also available in this google drive's issue), but it happened only once at least i noticed it only once, but it did seem to affect several cities in the screenshot, but since it was the turn after victory i didn't think too much of it and said it's maybe not too urgent, although not ideal, but documented it still if helps.
 
-But while solving/addressing known issue as of now 49, i have noticed this again, but now in early cities, and several cities, entering what seems like no production at all for 1 or several turns.
+But while solving/addressing KI#49, i have noticed this again, but now in early cities, and several cities, entering what seems like no production at all for 1 or several turns.
 
 For example, in screenshots 2633 (2) and 2634, kyoto has no production, when anything could be best since it is free to produce units if nothing else is good, else the hammer is wasted.
 
@@ -7917,9 +7917,9 @@ I still don't know why the no production happened/happens, but it seems we now c
 
 Thanks to the improvement in AI efficiency, i have adjusted down a bit handicap (as of now only `iAITrainPercent` relative to how they were in advciv-sas which is not exactly like in base advciv, but tries to be gradually harder) costs to match this change.
 
-Update: added siege units to excluded fallback units as they are not versatile enough, see [53.3 (Tremendously Improved) AI overbuilding siege units, in particular trebuchets but not only, where they are detrimental to do build, in particular when weaker but not only](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.3) for related info
+Update: added siege units to excluded fallback units as they are not versatile enough, see [KI#53.3 - (Tremendously Improved) AI overbuilding siege units, in particular trebuchets but not only, where they are detrimental to do build, in particular when weaker but not only](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.3) for related info
 
-Update 2: updated since then to prefer civ-specific units and other tweaks if any, see [53.2.2 (Seemingly greatly enhanced) AI overproducing defenders early on, especially longbowmen but not only, replaced with an early produce more versatile units especially civ-specific ones when defended enough (at least in theory) in CvCityAI::AI_chooseUnit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.2.2) for details
+Update 2: updated since then to prefer civ-specific units and other tweaks if any, see [KI#53.2.2 - (Seemingly greatly enhanced) AI overproducing defenders early on, especially longbowmen but not only, replaced with an early produce more versatile units especially civ-specific ones when defended enough (at least in theory) in CvCityAI::AI_chooseUnit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.2.2) for details
 
 Update 3: added offense only and defense only alternate logic (fallback to overall units if none available) as i have found/guessed this is where most excess longbowmen came from as they would bypass restrictions in `CvCityAI::AI_chooseUnit`, tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
 
@@ -8048,7 +8048,7 @@ Found during the September 2026 building-value rework with the help of ChatGPT-5
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1JHA0QsVUyBiKy_BDFgXFb-wYG_t-EcUc?usp=sharing)
 
-So this is another major AI improvement of a major issue we had in base advciv +/- civ4: for example japan AI would between turns 37 and 44, scrap 2 of its newly produced ancient macemen (update: now archers) (now added as a patch to the no produciton at all during that time in [51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)).
+So this is another major AI improvement of a major issue we had in base advciv +/- civ4: for example japan AI would between turns 37 and 44, scrap 2 of its newly produced ancient macemen (update: now archers) (now added as a patch to the no produciton at all during that time in [KI#51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)).
 
 As a result, it was weaker, and this likely contributed to barbarians successfully invading it and japan ai having a bad game.
 
@@ -8110,7 +8110,7 @@ The results of before/after change are resumed by chatgpt 5's own analysis of ea
 >
 >The after sequence confirms the source fix (blocking scrap for the relevant units) works: counts only go up when production finishes, and never down on the following turn — even with small negative GPT.
 
-One issue i have noticed, not related to this change, but linked to [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-23) indirectly, is AI in some rare cases, despite our tentative changes in other known issues, overproduces galleons and privateers (like 20+ mixed galleons privateers which is insane when most rivals stick to +/- 5 which is much more reasonable), and dies as a result (short-circuit(s) somewhere or is our logic to prevent this other issue ineffective somehow despite showing good results on unitai land types?), at turns 200-220, this would be our next issue to investigate ideally if we do.
+One issue i have noticed, not related to this change, but linked to [KI#23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-23) indirectly, is AI in some rare cases, despite our tentative changes in other known issues, overproduces galleons and privateers (like 20+ mixed galleons privateers which is insane when most rivals stick to +/- 5 which is much more reasonable), and dies as a result (short-circuit(s) somewhere or is our logic to prevent this other issue ineffective somehow despite showing good results on unitai land types?), at turns 200-220, this would be our next issue to investigate ideally if we do.
 
 For now, since all seems to work great, i'll simply adjust handicap and no other economy change, hopefully AI is stronger thanks to these and games can be more even, less of a grind, as we had envisioned while / as was one of the goals i had / issues i had noticed when i had started making this mod.
 
@@ -8120,13 +8120,13 @@ For now, since all seems to work great, i'll simply adjust handicap and no other
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1vHCLdFvm9cQpE_7rXnRL3X9zOQDxTAgH?usp=sharing)
 
-This is also a major AI improvement/refinement, it expands on previous known issue as of now 52 approach, as while solving said known issue, i had noticed Khmer AI's naval cities were producing privateers and galleons like crazy around turn 200, despite most AIs doing fine and only having few such units.
+This is also a major AI improvement/refinement, it expands on previous KI#52 approach, as while solving said known issue, i had noticed Khmer AI's naval cities were producing privateers and galleons like crazy around turn 200, despite most AIs doing fine and only having few such units.
 
 As a result, it got invaded 20 turns later with poor land military and lost its capital, and essentially lost. But this could have been easily avoided or at least much better, if decision was made sooner to build land units instead of naval, quite useless on pangea further more, especially past a certain threshold.
 
-We had handled or attempted to handle this issue in [35 - (Attemptingly fixed/addressed) AI building too many military naval units then gets invaded on land](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-35), but i guess the approach was conservative, or maybe rather didn't cover the many short-circuits to our logic or such (maybe, this is a guess, check if accurate).
+We had handled or attempted to handle this issue in [KI#35 - (Attemptingly fixed/addressed) AI building too many military naval units then gets invaded on land](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-35), but i guess the approach was conservative, or maybe rather didn't cover the many short-circuits to our logic or such (maybe, this is a guess, check if accurate).
 
-It also seemed although i didn't check too much that some of those privateers disappeared, like the infinite loop issue in [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-23).
+It also seemed although i didn't check too much that some of those privateers disappeared, like the infinite loop issue in [KI#23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-23).
 
 Still who knows if this or maybe other such loop issues silently didn't happen.
 
@@ -8134,7 +8134,7 @@ At this point i didn't and don't trust the code anymore, let's implement global 
 
 And chatgpt 5 helped me a lot thanks too, including for part of the documentation of this issue below as well.
 
-So just like in known issue as of now 52, we generalized the production control and overproduction management by putting our prechecks at the source, which seems to be `CvCityAI::AI_chooseUnit`.
+So just like in KI#52, we generalized the production control and overproduction management by putting our prechecks at the source, which seems to be `CvCityAI::AI_chooseUnit`.
 
 I did some refactoring as well with the help of chatgpt 5so the overloaded function now calls the 2nd overloaded one since they ultimately perform the same task duplicated, and so we can control it all so nice xd in one place.
 
@@ -8160,7 +8160,7 @@ Yet we feel compelled to produce more naval units, which is definitely already u
 
 We then die and lose our capital 20 turns later more or less pathetically or tragically, what use were the boats for.
 
-Again, this issue was existing in base advciv, but i thought we had prevented it enough in known issue 35, but i guess our logic is overriden in many places xd or short circuited, this new logic we added explained below should be much more effective!
+Again, this issue was existing in base advciv, but i thought we had prevented it enough in KI#35, but i guess our logic is overriden in many places xd or short circuited, this new logic we added explained below should be much more effective!
 
 But check to be sure.
 
@@ -8479,11 +8479,11 @@ If you're curious about this run, i shared some / a few of the screenshots [ther
 
 So overall very good results it seems!
 
-While doing this, i also enhanced the code of the fallback unit choice `CvCity::doTurn()` in as of now [51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51) with quite similar logic as well (actually improved it while doing changes here and then ported these improvements in a relevant wayto the chooseunit function).
+While doing this, i also enhanced the code of the fallback unit choice `CvCity::doTurn()` in [KI#51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51) with quite similar logic as well (actually improved it while doing changes here and then ported these improvements in a relevant wayto the chooseunit function).
 
 Update: we as of now now favour civ-specific counter units just as much, with an optional config flag not to in sas defines.
 
-Update 2: see another example of windbg usage to bugfix (i don't know too much about these but seems to help looking at these error messages and .dmp analyze results and feeding them to chatgpt 5 or such other ai for review, check if accurate): [Known issue #71](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-71)
+Update 2: see another example of windbg usage to bugfix (i don't know too much about these but seems to help looking at these error messages and .dmp analyze results and feeding them to chatgpt 5 or such other ai for review, check if accurate): [KI#71](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-71)
 
 <a id="ki-53.3"></a>
 
@@ -8493,7 +8493,7 @@ Queue-005 WIP287 found that rejecting one concrete siege candidate suppressed a 
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/180Hnkhno1HgQb9rzPu-EA9ahH0dr-36K?usp=sharing).
 
-This is another nice AI enhancement :). I have noticed after doing known issue as of now 53.2 that for example when continuing the game, our autoplay ai and maybe other players too produce way too many trebuchets (i had noticed the issue with cannons too before).
+This is another nice AI enhancement :). I have noticed after doing KI#53.2 that for example when continuing the game, our autoplay ai and maybe other players too produce way too many trebuchets (i had noticed the issue with cannons too before).
 
 It is also an issue quite often mentioned by players it seems, so i'm glad i could have enhanced it.
 
@@ -8573,7 +8573,7 @@ And since archers are more expensive, we will build less so will go bankrupt not
 
 So we now make it even stricter after turn as of now 50 adjusted to game speed.
 
-As compared to before changes (see screenshots in known issue [53.2.2 (Seemingly greatly enhanced) AI overproducing defenders early on, especially longbowmen but not only, replaced with an early produce more versatile units especially civ-specific ones when defended enough (at least in theory) in CvCityAI::AI_chooseUnit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.2.2) for comparison, including the cfc forum link there for the other map's compositions) in `CvCityAI::AI_chooseUnit` to fix this very cheap combat units being produced issue, we have now much less ancient macemen at turn +/- 100, and more stronger units like swordsmen or such in composition of AI players, which seems very sane, more efficient economically and militarily, and very strong too at least significantly stronger it seems (e.g. 3 vs 11 ancient macemen at turns 100-130 for example from what i remember of it).
+As compared to before changes (see screenshots in [KI#53.2.2 - (Seemingly greatly enhanced) AI overproducing defenders early on, especially longbowmen but not only, replaced with an early produce more versatile units especially civ-specific ones when defended enough (at least in theory) in CvCityAI::AI_chooseUnit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.2.2) for comparison, including the cfc forum link there for the other map's compositions) in `CvCityAI::AI_chooseUnit` to fix this very cheap combat units being produced issue, we have now much less ancient macemen at turn +/- 100, and more stronger units like swordsmen or such in composition of AI players, which seems very sane, more efficient economically and militarily, and very strong too at least significantly stronger it seems (e.g. 3 vs 11 ancient macemen at turns 100-130 for example from what i remember of it).
 
 Note: the way the code is as of now written, it may apply to scouts as well since they have strength/combat as well if i'm not mistaken, but the cap should be large enough that it shouldn't be a concern (unless we overproduce them then fine to limit them as well).
 
@@ -9000,7 +9000,7 @@ Update: fixed!!! The culprit was not our now strengthened (and before that nicel
 				pBestPlot->getX(), pBestPlot->getY(),
 				eMission == MISSION_ROUTE_TO ? MOVE_SAFE_TERRITORY : NO_MOVEMENT_FLAGS, // advc.pf
 				false, false, MISSIONAI_BUILD, pBestPlot);
-		// <!-- custom: don't rely on this anymore, we get nice and reliable builds from AI_bestCityBuild, but this line interferred with it and caused the crash at turn 68, at least commenting it out fixes it and we can remove our safety guard above. See code comments in this function or known issue as of now 55 for details, tricky bug found by chatgpt 5 too thanks a lot thanks to my prompts too and or such -->
+		// <!-- custom: don't rely on this anymore, we get nice and reliable builds from AI_bestCityBuild, but this line interferred with it and caused the crash at turn 68, at least commenting it out fixes it and we can remove our safety guard above. See code comments in this function or KI#55 for details, tricky bug found by chatgpt 5 too thanks a lot thanks to my prompts too and or such -->
 		//eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
 		//
 		getGroup()->pushMission(MISSION_BUILD,
@@ -9013,7 +9013,7 @@ So as i said in as of now one of the code comments related to this fix, at this 
 
 If you have a crash again, consider adding or reenabling such checks in or near our rewritten AI_bestCityBuild callers which are very few as of now.
 
-Update too no pun: see [56 - (Fixed) Most likely base advciv +/- civ4 crash at turn 156 fixed by commenting out the !getPlot().isSamePlotGroup(*pBestPlot, getOwner()) check in CvUnitAI::AI_nextCityToImprove else block (old code)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-56) for related subsequent crash at turn 156 and extra fixes.
+Update too no pun: see [KI#56 - (Fixed) Most likely base advciv +/- civ4 crash at turn 156 fixed by commenting out the !getPlot().isSamePlotGroup(*pBestPlot, getOwner()) check in CvUnitAI::AI_nextCityToImprove else block (old code)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-56) for related subsequent crash at turn 156 and extra fixes.
 
 <a id="ki-56"></a>
 
@@ -9021,7 +9021,7 @@ Update too no pun: see [56 - (Fixed) Most likely base advciv +/- civ4 crash at t
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1bUMSFijm5cAD48Fy-RSnvu-1oI1G2IpV?usp=sharing)
 
-So this is a tricky crash that we got after fixing the crash at turn 68 above (see known issue as of now 55 for details).
+So this is a tricky crash that we got after fixing the crash at turn 68 above (see KI#55 for details).
 
 We since then don't rely on the old "guard" that was in fact a hard reject so of course we got/had no crash anymore (or no more xd?)since we rejected all builds xd, as chatgpt 5 told me if i understood it correctly, which was very bad, so now this old hard reject is not used anymore, and instead through trial and error and blindly commenting out myself hehe, i found the issue to be in the else block (i.e. the non-bonus roading old base advciv +/- civ4 logic that we kept as an alternative path) in `CvUnitAI::AI_nextCityToImprove`.
 
@@ -9054,11 +9054,11 @@ And yay no crash!!
 
 Considering i recompiled it several times including after polishing code comments and still no crash at t200, and considering it always crashed when starting from this autoplay save file (in drive link) and doing exactly 100 turns (doing 50 turns then resuming didn't seem to reliably if at all cause the issue although i didn't dig too much to be sure, do 100 tursn from here if you want to investigate it so from turn 100 to turn 200 to trigger the crash at turn 156 in like 10+ runs i did or something similar if less if i may say we would always crash so i would consider it reproducible from this save file with this number of autoplay turns), i'd consider the issue solved since i tested it a few times with a few recompiled versions of this change, no issue to turn 200.
 
-I am very happy of this result and of us (i.e. me or maybe players xd) being able to keep AI worker efficiency and also solve what i think is/was nowan old base advciv +/- civ4 crash (likely due to tinkering with pointers or such or who knows what), that was hidden by the betterplotbuild assignment as explained in known issue as of now 55 i guess or something similar or perhaps it is related to how we rewrote bestcitybuild function but less likely, but i don't know too much about these, ask chatgpt 5 to be sure!
+I am very happy of this result and of us (i.e. me or maybe players xd) being able to keep AI worker efficiency and also solve what i think is/was nowan old base advciv +/- civ4 crash (likely due to tinkering with pointers or such or who knows what), that was hidden by the betterplotbuild assignment as explained in KI#55 i guess or something similar or perhaps it is related to how we rewrote bestcitybuild function but less likely, but i don't know too much about these, ask chatgpt 5 to be sure!
 
 Or some other AI (or), and check if accurate too if i may say!.
 
-See also: [58 - (Fixed/Enhanced) Reproducible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block based on the (more?) code at CvUnitAI::AI_connectPlot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-58)
+See also: [KI#58 - (Fixed/Enhanced) Reproducible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block based on the (more?) code at CvUnitAI::AI_connectPlot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-58)
 
 <a id="ki-57"></a>
 
@@ -9066,7 +9066,7 @@ See also: [58 - (Fixed/Enhanced) Reproducible crash at turn 95 in another map, r
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/15z0uxT_RxClHNk0u7HnlcmqdmA9gLNkO?usp=sharing)
 
-I cannot reproduce it from same save file at least not in a few retries (even exiting program and retrying), so cannot investigate this further, but it seems in rare cases (didn't happen in more or less 5+ 200 turns autoplays i tried since last known issue fix as of now 56) we still crash quite early in this case i mean, at turn 94 in this example.
+I cannot reproduce it from same save file at least not in a few retries (even exiting program and retrying), so cannot investigate this further, but it seems in rare cases (didn't happen in more or less 5+ 200 turns autoplays i tried since the KI#56 fix) we still crash quite early in this case i mean, at turn 94 in this example.
 
 No idea what the cause is, but could be DLL related based on the .dmp (see screenshot) (although this is just a guess, check if accurate and i don't know too much about these).
 
@@ -9096,10 +9096,10 @@ It seems to enhance our roading logic too although i only checked or glanced rat
 
 A few notes now that this is seemingly solved reliably and nicely enhanced it seems:
 
-- this is a rare crash, a few games autoplayed end to end fine after the fix of crash at turn 156 in [56 - (Fixed) Most likely base advciv +/- civ4 crash at turn 156 fixed by commenting out the !getPlot().isSamePlotGroup(*pBestPlot, getOwner()) check in CvUnitAI::AI_nextCityToImprove else block (old code)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-56) (btw coincidence of issue 56 and turn 156 crash xd i just noticed but purely coincidental really(but still cool)).
+- this is a rare crash, a few games autoplayed end to end fine after the fix of crash at turn 156 in [KI#56 - (Fixed) Most likely base advciv +/- civ4 crash at turn 156 fixed by commenting out the !getPlot().isSamePlotGroup(*pBestPlot, getOwner()) check in CvUnitAI::AI_nextCityToImprove else block (old code)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-56) (btw coincidence of issue 56 and turn 156 crash xd i just noticed but purely coincidental really(but still cool)).
   - It is reliably reproducible 100% though from same save file it seems though so rare in the sense that many other maps play fine after our last fix, so hopefully code is even mre robust now (and not just going back and forth between fixing and unfixing xd, at least i think so (that code is more robust))
 - observation: if i autoplay 35 turns only, so 50->85, then autoplay X amount of turns, say 20 turns, to say 85->105 then we don't crash anymore weirdly. Despite me not reloading nor anything but just holding off for a little while to save.
-  - This is consistent though with what i had observed in known issue as of now 56 where i couldn't reproduce the crash if starting from a closer save point but always could from a farther one, very weird though but there must be some explanation, it also means saving could maybe help somehow workaround unknown crashes for players?
+  - This is consistent though with what i had observed in KI#56 where i couldn't reproduce the crash if starting from a closer save point but always could from a farther one, very weird though but there must be some explanation, it also means saving could maybe help somehow workaround unknown crashes for players?
 - while attempting to fix, i added an extra safety in `CvUnitAI::AI_betterPlotBuild`. Although it didn't help fix it and seemingly wasn't related to our crash (didn't cause it, didn't help fix it) but it seems fine and safe to add, as recommended and provided by chatgpt 5 thanks to my prompts and such too.
   - In case a future crash happens there, hopefully this would help prevent it, and hopefully it doesn't break anything. Consider tinkering with it to troubleshoot and see if it is still needed or not now, or if it makes any difference.
   - Seems like a good practice to add, but i didn't rewrite the other functions (that call it) so i don't know too much if at all what this would cause in terms of gameplay. Cities seem to mostly be improved fine so kept as such, check if accurate (also added for my sanity xd)
@@ -9125,7 +9125,7 @@ A few notes now that this is seemingly solved reliably and nicely enhanced it se
 
 Now all cities of all AI players are improved and roaded fine and fast enough nicely it seems, except elephantine city that is not improved nor roaded at all at turn 200+, then after it is roaded gets nicely improved a very nice and strong city, but a bit too late, so trying to make workers move there faster as our next known issue.
 
-See also: [60 - (Fixed) Seemingly rare reproducible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did, check if accurate)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-60)
+See also: [KI#60 - (Fixed) Seemingly rare reproducible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did, check if accurate)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-60)
 
 <a id="ki-59"></a>
 
@@ -9133,7 +9133,7 @@ See also: [60 - (Fixed) Seemingly rare reproducible crash at turn 283 in CvUnitA
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1FrLep_WV4E8kkdvw6zs0EB-YP0-1z1ea?usp=sharing)
 
-After fixing previous known issue as of now 58, i have (had?) noticed that some cities are neglected for a long time like elephantine city at turn 200 in one of the first screenshot in this known issue.
+After fixing previous KI#58, i have (had?) noticed that some cities are neglected for a long time like elephantine city at turn 200 in one of the first screenshot in this known issue.
 
 Then looking more closely, i also noticed that at turn 100 we don't move fast enough to some cities, and overimprove some other cities.
 
@@ -9143,7 +9143,7 @@ I tweaked the code at (in?)
 
 Thanks to these changes that at least in theory should improve things a bit, we do seem to notice better i.e. sooner improvement in these cities, for example elephantine is improved at turn 190-200 vs turn +/- 230 before, and the nothern city is still improved around turn 190 as before.
 
-These could be autoplay fluctuations, but i repeated it a few times, then started from turn 0 again instead of turn 100 save file of the original save file of this known issue as of now 59 that is at turn 100, and even at turn 100 some cities seem to be improved a bit more.
+These could be autoplay fluctuations, but i repeated it a few times, then started from turn 0 again instead of turn 100 save file of the original save file of KI#59 that is at turn 100, and even at turn 100 some cities seem to be improved a bit more.
 
 Again, could be autoplay fluctuations, but it does seem to be slightly better, and since it doesn't break anything, and theoretically improves/enhances old code, i am comitting it as such.
 
@@ -9157,7 +9157,7 @@ Note: as for screenshots, see existing screenshots between 3387 to 3395 for how 
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1uOm6zvQjV4D018oyMHYMGOcUtBNVyKn4?usp=sharing)
 
-As usual a crash that was fixed by reenabling our hard reject in `CvUnitAI::AI_nextCityToImprove` as explained in [58 - (Fixed/Enhanced) Reproducible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block based on the (more?) code at CvUnitAI::AI_connectPlot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-58).
+As usual a crash that was fixed by reenabling our hard reject in `CvUnitAI::AI_nextCityToImprove` as explained in [KI#58 - (Fixed/Enhanced) Reproducible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block based on the (more?) code at CvUnitAI::AI_connectPlot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-58).
 
 But this is very suboptimal, so i asked chatgpt 5 if it had an idea of how to fix this based on our previous documentation and current code.
 
@@ -9321,9 +9321,9 @@ Also, i could tweak this nice evacuating logic because it was already there so t
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Beau785h18Pp90KTlkl9F8uCrK_oqL4o?usp=sharing).
 
-Following known issue as of now 62, next issue was to prevent the weird back and forth of going to attack a city stack only to withdraw when seeing the enemy stack is too strong, and losing one or a few units while doing so (potentially a lot more if we can't retreat in time or are ambushed or need to urgently defend cities or such).
+Following KI#62, next issue was to prevent the weird back and forth of going to attack a city stack only to withdraw when seeing the enemy stack is too strong, and losing one or a few units while doing so (potentially a lot more if we can't retreat in time or are ambushed or need to urgently defend cities or such).
 
-As in known issue as of now 62 however though, the behaviour does not happen if i autoplay 3 turns on a row vs 1 more turn from save file after 62 was solved, but still i added a code with the help/recommendation of chatgpt 5 (check if accurate) that seems like a very nice sanity check in `CvUnitAI::AI_attackCityMove` to go attack a city only if the existing `bTargetTooStrong` is false (don't attack too strong cities instead of attacking then withdrawing very inefficiently and in a risky way which makes it even worse).
+As in KI#62 however though, the behaviour does not happen if i autoplay 3 turns on a row vs 1 more turn from save file after 62 was solved, but still i added a code with the help/recommendation of chatgpt 5 (check if accurate) that seems like a very nice sanity check in `CvUnitAI::AI_attackCityMove` to go attack a city only if the existing `bTargetTooStrong` is false (don't attack too strong cities instead of attacking then withdrawing very inefficiently and in a risky way which makes it even worse).
 
 Since i couldn't test issue here, i don't know if it is solved, but maybe it helps. The issue existed in base advciv too but tedious to especially test it and all, so as it seems harmless, kept as such if helps.
 
@@ -9345,7 +9345,7 @@ This is because capturing such cities has high cost and low gains especially ear
 - higher city maintenance cost across all cities not just this new one (that may cost more if far away) (also regardless of razing we get the gold on capture so not much to do here anymore)
 - low yields due to generally low pop or not enough improvements
 - even if we have such high pop and improvements, AIs are not too good at spreading forces, often it meant having a big stack stuck in this low pop city and core cities left defenseless.
-  We have added changes in known issue as of now 61 so we dont attack such faraway cities ideally, but if we somehow do in the early game, then raze them rather and favour empire contiguity
+  - We have added changes in KI#61 so we dont attack such faraway cities ideally, but if we somehow do in the early game, then raze them rather and favour empire contiguity
 - other positive side effects, due to the city being destroyed, the place is not fog busted anymore (although i don't know if barbarian cities count as fog busting xd and prevent random barbarian spawn or not), so if it is far from us, it would or may mean more barbarians for our rivals (which (barbarians) are very strong as of now in advciv-sas (at least quite strong xd)) so this should help us focus our forces and energy defensively and offensively and hopefully lead to better outcomes
 - possibly other reasons/advantages if any.
 
@@ -10055,7 +10055,7 @@ For concision, i put the rationale here since the issue is solved, no need to cl
 
 ```py
 		# advc.004a: Adding this guard b/c the new code somehow can't handle calls via preGameStart (CvAppInterface) if the map is very large. Still seems to get updated properly if the player opens the Tech Advisor on turn 0.
-		# <!-- custom: note: trying to comment out the turn > 0 check below. to have our indicators at turn 0 seemingly does indeed lead to an error. However the base advciv's comment is slightly mistaken it seems if i'm not mistaken, as i could reproduce it for example when creating a new game noble pangea normal game speed standard size. As per gemini 3 pro, the error i had was indeed caused by this, so reverted it to base advciv behaviour (i thought the bug info would helps players unaware the feature of BUG's bulbing indicators (including me i mean, i didn't know about it so wanted to share it.; i hope the note helps in our various docs mentionning this)). See for details known issue as of now 85 -->
+		# <!-- custom: note: trying to comment out the turn > 0 check below. to have our indicators at turn 0 seemingly does indeed lead to an error. However the base advciv's comment is slightly mistaken it seems if i'm not mistaken, as i could reproduce it for example when creating a new game noble pangea normal game speed standard size. As per gemini 3 pro, the error i had was indeed caused by this, so reverted it to base advciv behaviour (i thought the bug info would helps players unaware the feature of BUG's bulbing indicators (including me i mean, i didn't know about it so wanted to share it.; i hope the note helps in our various docs mentionning this)). See KI#85 for details -->
 		# <!-- custom: as for this feature, it seems to me that this is safer to simply disable it (i.e. keep base advciv code as it was), and this feature (turn 0 bulbing indicators) is definitely not critical nor mandatory enough to justify this, so reverted it to how it was -->
 		#
 		# The error AttributeError: TechPrefs instance has no attribute 'lTechsByFlavor' occurs because the game attempts to update the Tech Preferences during the initialization phase (preGameStart), before the necessary data (like the Active Player's tech state) is fully ready.
@@ -12463,7 +12463,7 @@ Retired tentative crash fixes (2026-11-03): every crash fix made before PDB-assi
 | [KI#163](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-163) | `8dc2e88cc`, 5957, 2026-06-18 | Direct teardown in `CvSelectionGroup::clearUnits`; null-node guard in `deleteUnitNode` | Bypassed the normal automation, mission and activity cleanup when clearing a group |
 | [KI#171](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-171) | `d2ccd468a`, 6000, 2026-07-02 | `NO_PLAYER` handling in `CvPlot::checkLateEra` | None observed |
 
-Crash fixes kept (reviewed 2026-11-03). Dates are from the first commit that tagged the KI in the source, except KI#56/58/60, dated from their fix code.
+Crash fixes kept (reviewed 2026-11-03). Dates are from the first commit that tagged the KI in the source, except KI#56, KI#58 and KI#60, dated from their fix code.
 
 | KI | Commit, practical, date | Fix | Why kept |
 | --- | --- | --- | --- |

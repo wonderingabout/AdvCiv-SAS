@@ -136,8 +136,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<iBuildTimePercent>100</iBuildTimePercent>
 			<!-- custom: see code comment at iAIGPThresholdPercent.
 			Additionally a grep of "BaseGrowthThresholdPercent" with VS Code's global search lead to the base advciv's manual.txt explanation of this field.
-			I gave it to ChatGPT 5.2 who said it's better for our goals of fair but hard to make it 100 at all handicaps.
-			See for details known issue as of now 91. -->
+			I gave it to ChatGPT 5.2 who said it's better for our goals of fair but hard to make it 100 at all handicaps. See KI#91 for details. -->
 			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
 			<!-- custom: see code comment at iAIGPThresholdPercent -->
 			<iGPThresholdPercent>100</iGPThresholdPercent>
@@ -1341,7 +1340,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<!-- advc.313: end -->
 			<iAIBarbarianBonus>0</iAIBarbarianBonus>
-			<!-- custom: now the same at all handicaps for all players, human and AIs, thanks to many AI efficiency improvements, see known issue as of now 52 and related issues if any for details in our doc or in the code; extend this logic indirectly to explorers or such although not directly related, no reason anymore to give freebies there if AIs are comeptent enough -->
+			<!-- custom: now the same at all handicaps for all players, human and AIs, thanks to many AI efficiency improvements, see KI#52 and related issues if any for details in our doc or in the code; extend this logic indirectly to explorers or such although not directly related, no reason anymore to give freebies there if AIs are comeptent enough -->
 			<iStartingDefenseUnits>1</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>

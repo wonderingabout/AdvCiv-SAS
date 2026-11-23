@@ -3151,7 +3151,7 @@ bool CvUnitAI::AI_update()
 	} // </advc.139>
 	// <!-- custom: Targeted emergency city reinforcements of several UnitAI types could immediately rejoin offensive groups and receive another assignment before reaching their city.
 	// Continue a still-useful targeted guard-city mission centrally before UnitAI-specific movement, without routing ordinary stationary garrisons through the emergency response.
-	// Evacuation above and the usual danger, shortage, incoming-unit, path, and feasibility checks still release obsolete or hopeless assignments. (GPT-5.6-Sol) -->
+	// Evacuation above and the usual danger, shortage, incoming-unit, path, and feasibility checks still release obsolete or hopeless assignments. See KI#188.2. (GPT-5.6-Sol) -->
 	if (getDomainType() == DOMAIN_LAND && !isBarbarian() && AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GUARD_CITY && AI_getGroup()->AI_getMissionAIPlot() != NULL && AI_guardCity(false, true, 3, MOVE_AVOID_ENEMY_WEIGHT_2, 0, /*bDangerOnly*/true, /*bFillShortfall*/true))
 		return false;
 
@@ -3164,7 +3164,7 @@ bool CvUnitAI::AI_update()
 	{
 		// <!-- custom: currently we have an issue as i assume is in base advciv +/- civ4 as well and originallythat barbarians capture cities too much early, however AI has plenty/enough units, but 4 are in capital, while 1 only is in city B, so if AI is not lucky with barbarians avoiding city B, its city would be captured, and capital is needlessly overly defended which is inefficient as well.
 		// Production seems fine, but movement of units should be fixed ideally.
-		// Tentative fix provided by chatgpt 5, based on the request i made to gemini 2.5 pro as well to weigh which would work better xdor refine based on each other's output, check if accurate, i refined i helped format the code comment too; see known issue as of now 49 for details -->
+		// Tentative fix provided by chatgpt 5, based on the request i made to gemini 2.5 pro as well to weigh which would work better xdor refine based on each other's output, check if accurate, i refined i helped format the code comment too; see KI#49 for details -->
 		// 2) Add a tiny “push" at the very top of AI_cityDefenseMove
 		// --- push defenders out of overstocked cities (minimal & effective) ---
 		// <!-- custom: but update, tested previous change ingame, the issue still seemingly mostly persists, and in many cities i have noticed enough units are stationed but they are not necessarily defender unitai types or such, so asked chatgpt 5 about it which (who?)
@@ -3180,7 +3180,7 @@ bool CvUnitAI::AI_update()
 			// <!-- custom: note: UNITAI_ATTACK_LEMMING not added as advised by chatgpt 5, we also don't use them in our mod anyway so maybe fine as such, below is reasoning it gave if helps, check if accurate and thanks chatgpt 5 for all help -->
 			// Include UNITAI_ATTACK_CITY_LEMMING in the exporter?
 			// I’d exclude it. Lemming units are for stack assaults and are deliberately “commit-to-attack" flavored; turning them into garrisons can stall offensives and create weird back-and-forth. If you ever want to relax that, do it behind a strict gate (early barb focus, no current war plan, path ≤ 3), but default should be not to use them as donors.
-			// <!-- custom: update: UNITAI_ATTACK_CITY_LEMMING ignored as it seems unreliable and AIs don't produce trebuchets when trying to make trebuchets ATTACK_CITY_LEMMING, so ignored here for simplicity and reliability, see also known issue as of now 53.3 for related info or details) (note: even if they didn't have, still, trebuchets have a very specific role (attacking cities) and are bad at anything else, yet here we only want a general all-purpose unit here to defend or attack against barbarians or early attackers with quite versatile units, which the trebuchet or other such units would likely not fit, so do not include them here. -->
+			// <!-- custom: update: UNITAI_ATTACK_CITY_LEMMING ignored as it seems unreliable and AIs don't produce trebuchets when trying to make trebuchets ATTACK_CITY_LEMMING, so ignored here for simplicity and reliability, see also KI#53.3 for related info or details) (note: even if they didn't have, still, trebuchets have a very specific role (attacking cities) and are bad at anything else, yet here we only want a general all-purpose unit here to defend or attack against barbarians or early attackers with quite versatile units, which the trebuchet or other such units would likely not fit, so do not include them here. -->
 			const bool bMilAI =
 				(eAI == UNITAI_ATTACK ||
 				eAI == UNITAI_ATTACK_CITY ||
@@ -7334,7 +7334,7 @@ bool CvUnitAI::AI_foundFirstCity()
 	// <!-- custom: give AIs more time to pick best capital spot.
 	// Sometimes they start in bad spots when much better ones are available; no hurry to settle immediately.
 	// Lower quality starts may be fine for 3rd city but not for capital, which is key to winning.
-	// Same on all maps (capital is important even at fastest speed). Credit: ChatGPT 5; Claude AI. (Claude code Sonnet 4.5 (summarized)) -->
+	// Same on all maps (capital is important even at fastest speed). Credit: ChatGPT 5; Claude AI. See KI#43. (Claude code Sonnet 4.5 (summarized)) -->
 	// int iMaxFoundTurn = (iGameSpeedPercent + 50) / 150; //quick 0, normal/epic 1, marathon 2
 	static const int iMaxTurnsToFound = GC.getDefineINT("SAS_1ST_CITY_FOUND_MAX_T_UNSCALED_GS");
 	const bool bLogSettler1stLevel2 = (gSettlerFirstCityLogLevel >= 2);
@@ -8545,8 +8545,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	const bool bWeOwnThisPlot = (getPlot().getOwner() == getOwner());
 
 	// <!-- custom: in rare cases workers get parked in cities with MISSIONAI_RETREAT + ACTIVITY_HOLD.
-	// Fix to unstick these "retreaters" at start of turn.
-	// See known issue 50 for details and screenshots. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+	// Fix to unstick these "retreaters" at start of turn. See KI#50 for details and screenshots. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	// two small patches that fix it
 	// 2) Unstick “retreaters" at the start of the turn
 	// Right at the top of AI_workerMove (after you build kOwner), add:
@@ -8937,8 +8936,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	{
 		// <!-- custom: move to city B sooner if city A is improved enough.
 		// AI workers now more efficient, but core cities get overly improved while edge cities underdeveloped.
-		// Workers keep improving city A even though we'll never allocate all 15+ tiles, while city B needs help urgently.
-		// See known issue 39 for details and screenshots. (Claude code Sonnet 4.5 (summarized)) -->
+		// Workers keep improving city A even though we'll never allocate all 15+ tiles, while city B needs help urgently. See KI#39 for details and screenshots. (Claude code Sonnet 4.5 (summarized)) -->
 		/*  BEFORE the iNeed/iHave block, short-circuit if city A is already fine  */
 		// <!-- custom: adjust as you see fit: 1, 2, 3 plots, etc. So for example iBufferForAllCities 1 would mean that if city pop is 6, when our total improved tiles count in all city if i'm not mistaken is >= 6 + 1 = 7 plots, we have improved city A enough, move to city B that may need improvements more urgently, especially if City A won't grow further, no point in improving too many tiles in city A while ignoring city B that would much need otherwise to have its tiles improve rather -->
 		// <!-- custom: accounting for specialists and the need to develop other cities soon and sooner, which we still don't do soon enough as of now, reduce buffer from 1 to 0 as a test to see what happens -->
@@ -9336,8 +9334,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	}
 
 	// <!-- custom: in rare cases workers get parked in cities with MISSIONAI_RETREAT + ACTIVITY_HOLD.
-	// Fix to unstick these "retreaters" at start of turn.
-	// See known issue 50 for details and screenshots. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+	// Fix to unstick these "retreaters" at start of turn. See KI#50 for details and screenshots. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	// yep — the screenshot tells the story:
 
 	// left debug list shows several Workers with MISSIONAI_RETREAT, HOLD.
@@ -9730,7 +9727,7 @@ void CvUnitAI::AI_attackMove()
 		}
 		// <!-- custom: A backstab could leave endangered cities short of defenders while general attackers continued an expedition abroad.
 		// In a defensive land area, first let the whole group counter a reachable invader; otherwise detach enough suitable defenders to fill a realistic shortage within three turns.
-		// Safe cities and hopeless defenses do not interrupt the expedition. (GPT-5.6-Sol) -->
+		// Safe cities and hopeless defenses do not interrupt the expedition. See KI#188.2. (GPT-5.6-Sol) -->
 		bool const bLogDefensePriority = (gUnitLogLevel >= 2);
 		int const iDefenseSourceX = (bLogDefensePriority ? getX() : -1);
 		int const iDefenseSourceY = (bLogDefensePriority ? getY() : -1);
@@ -10526,7 +10523,7 @@ void CvUnitAI::AI_attackCityMove()
 
 	// <!-- custom: Ready city-assault stacks previously chose another enemy city before K-Mod's defensive-area checks, even after a backstab endangered an underdefended city at home.
 	// Counter a reachable invader or detach enough defenders for a realistic three-turn rescue before selecting the next offensive target.
-	// The rest of a foreign expedition can continue. (GPT-5.6-Sol) -->
+	// The rest of a foreign expedition can continue. See KI#188.2. (GPT-5.6-Sol) -->
 	bool const bLogDefensePriority = (gUnitLogLevel >= 2);
 	int const iDefenseSourceX = (bLogDefensePriority ? getX() : -1);
 	int const iDefenseSourceY = (bLogDefensePriority ? getY() : -1);
@@ -11251,11 +11248,10 @@ void CvUnitAI::AI_attackCityMove()
 						return;
 					}
 				}
-				// <!-- custom: fixes "weird back and forth" issue after fixing known issue 62 (not evacuating all units from doomed city).
+				// <!-- custom: fixes "weird back and forth" issue after fixing KI#62 (not evacuating all units from doomed city).
 				// Stack evacuates nicely then tries to attack much stronger enemy stack, only to retreat without attacking after seeing enemy is too strong - very inefficient and risky.
 				// Doesn't appear if playing 2+ autoplay turns in a row (but does with 1 autoplay turn).
-				// While maybe no longer necessary, kept as harmless sanity check since saw plenty such cases.
-				// See known issue 63 for details. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+				// While maybe no longer necessary, kept as harmless sanity check since saw plenty such cases. See KI#63 for details. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 				// Gate the “walk toward target city" step
 				// In CvUnitAI::AI_attackCityMove() there’s a late “We have to walk." block that always tries to move closer, even if we’ve already computed that the target is too strong
 				// That’s the whole change. When the city is “too strong," the stack won’t step into the 1–2 tile danger ring; it will fall through to the rest of the logic (merge, bombard if possible, pillage/choke, retreat or stage), rather than yo-yoing and bleeding units.
@@ -14104,7 +14100,7 @@ void CvUnitAI::AI_workerSeaMove()
 			}
 		}
 	}
-	// <!-- custom: fixes never-ending one-turn workboat loop lasting 50+ turns in many cities (see known issue 23).
+	// <!-- custom: fixes never-ending one-turn workboat loop lasting 50+ turns in many cities (see KI#23).
 	// This really ruins the game for AI (seemingly only affects AI, not human cities).
 	// AI stuck in perpetual never-ending unit loop. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	// <!-- custom: update: actually, as discussed with chatgpt 5, i think it's really maybe better to not scrap, we waste hammers doing so, but instead telling the AI not to produce these workboats if it judges it has enough -->
@@ -18942,8 +18938,7 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
 
 			// <!-- custom: barbarians capture cities too early in base AdvCiv +/- Civ4.
 			// AI has plenty units but concentrates them poorly (4 in capital, 1 in city B), so city B gets captured while capital is overly defended.
-			// Production is fine but unit movement needs fixing.
-			// See known issue 49 for details. Credit: ChatGPT 5; Gemini 2.5 Pro. (Claude code Sonnet 4.5 (summarized)) -->
+			// Production is fine but unit movement needs fixing. See KI#49 for details. Credit: ChatGPT 5; Gemini 2.5 Pro. (Claude code Sonnet 4.5 (summarized)) -->
 			// int iDefendersNeed = pLoopCity->AI_minDefenders();
 			// 1) Make the search ask for what the city really needs
 			// That one-liner lets the existing “pull" logic target cities that are under their true need (incl. barb/danger effects), not just under the bare min.
@@ -18979,7 +18974,7 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
 							iValue -= iPathTurns;
 							// K-Mod end
 
-							// <!-- custom: i don't know too much about these, but open review chatgpt 5 says it's nice to keep after all our other changes related to the issue we had, so kept as is; see known issue as of now 49 for details -->
+							// <!-- custom: i don't know too much about these, but open review chatgpt 5 says it's nice to keep after all our other changes related to the issue we had, so kept as is; see KI#49 for details -->
 							// 3) Optional (nice-to-have) cherry on top
 							// If you want to be extra robust with almost no extra code, add a small priority boost in the search:
 							// Inside AI_guardCityMinDefender(bSearch) where iValue is computed, add:
@@ -19023,7 +19018,7 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
 	to be much much simpler - and also better. */
 // <advc.300> Go up to this much beyond defensive needs if no city needs defenders
 // <!-- custom: hoisted from multiline signature between `eFlags` and `iExtraDefenders` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
-// <!-- custom: Added bDangerOnly and bFillShortfall so threatened-city responses can ignore routine shortages and detach enough defenders without changing ordinary guard assignments. (GPT-5.6-Sol) -->
+// <!-- custom: Added bDangerOnly and bFillShortfall so threatened-city responses can ignore routine shortages and detach enough defenders without changing ordinary guard assignments. See KI#188.2. (GPT-5.6-Sol) -->
 bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFlags eFlags, int iExtraDefenders, bool bDangerOnly, bool bFillShortfall)
 {
 	// Only affects the city search
@@ -19158,7 +19153,7 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 				continue;
 			// <!-- custom: Threat-only expedition recalls must not feed nearly an entire group into a defense whose stated shortage it cannot fill.
 			// The existing evacuation rule inspired the same three-quarter feasibility gate for every new endangered-city assignment.
-			// Already-targeted reinforcements must continue their collective rescue instead of each resulting singleton rejecting the remaining shortage. (GPT-5.6-Sol) -->
+			// Already-targeted reinforcements must continue their collective rescue instead of each resulting singleton rejecting the remaining shortage. See KI#188.2. (GPT-5.6-Sol) -->
 			int const iGroupUnits = getGroup()->getNumUnits();
 			if (bFillShortfall && pExistingGuardMissionPlot != pLoopCity->plot() && ((iGroupUnits == 1 && iDefendersWant > 1) || (iGroupUnits > 1 && iDefendersWant > fixp(0.75) * iGroupUnits)))
 			{
@@ -19225,7 +19220,7 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 		// If the unit is not suited for defense, do not use MISSIONAI_GUARD_CITY.
 		// <!-- custom: The explicit threatened-city response can use mobile attackers as emergency reinforcements despite their lack of defensive bonuses.
 		// Retain MISSIONAI_GUARD_CITY so they continue toward the city and other groups count them as incoming instead of duplicating the same assignment.
-		// Preserve the old behavior for ordinary guard calls. (GPT-5.6-Sol) -->
+		// Preserve the old behavior for ordinary guard calls. See KI#188.2. (GPT-5.6-Sol) -->
 		MissionAITypes const eMissionAI = (bDangerOnly || !pEjectedUnit->noDefensiveBonus() ? MISSIONAI_GUARD_CITY : NO_MISSIONAI);
 		if (gUnitLogLevel >= 2 && bDangerOnly) logBBAI("ATTACK_DEFENSE_PRIORITY_DETACHED_UNIT turn=%d player=%d civ=%s continuingGuardCity=%d originalGroupId=%d unitId=%d unit=%S unitType=%s unitAI=%s noDefensiveBonus=%d missionAI=%d guardCityMission=%d source=(%d,%d) endTurn=(%d,%d) target=%S targetPlot=(%d,%d)",
 			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), bContinuingGuardCity, iOriginalGroupId,
@@ -23662,7 +23657,7 @@ bool CvUnitAI::AI_evacuateCity()
 	static const bool bSAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON = GC.getDefineBOOL("SAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON");
 	if (bSAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON)
 	{
-		// <!-- custom: if we have determined city is doomed, evacuate each and any single unit, splitting forces is worse than staying with all units or leaving with all units. Leaving with all units is the best since city will fall or has been determined to anyway, so do not care about anything else and simply evacuate all (it may drag the game a bit longer but is best for the AI and its competitiveness), see known issue as of now 62 for details and issue this attempts to fix -->
+		// <!-- custom: if we have determined city is doomed, evacuate each and any single unit, splitting forces is worse than staying with all units or leaving with all units. Leaving with all units is the best since city will fall or has been determined to anyway, so do not care about anything else and simply evacuate all (it may drag the game a bit longer but is best for the AI and its competitiveness), see KI#62 for details and issue this attempts to fix -->
 		// <!-- custom: important note!!
 		// You need at least 2 autoplay turns IN ONE GO (sorry for caps but it's to insist), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go.
 		// If we play instead from 2 turns before 1 autplay turn, then get the hand back and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns -->
@@ -27222,8 +27217,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	// <!-- custom: with AI worker move optimization (going to city B/C sooner instead of overimproving city A), workers now go back to city A since they consider it improved enough.
 	// Strong indication something else prevents going to city C (unimproved at turn 105-175).
 	// Making this much more lax since we handle worker oscillation in our own way.
-	// Old code prevented workers from ever going to city C - AI behaved badly, staying forever in city A. Results after fix: tremendous improvement - city C now fully improved and size 2 at turn 105, with 5+ tiles chopped/improved (jungle chopping gives production in our mod), instead of staying parked in city A. Jungle cities get first improvements much earlier.
-	// See known issue 41 with screenshots for details. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+	// Old code prevented workers from ever going to city C - AI behaved badly, staying forever in city A. Results after fix: tremendous improvement - city C now fully improved and size 2 at turn 105, with 5+ tiles chopped/improved (jungle chopping gives production in our mod), instead of staying parked in city A. Jungle cities get first improvements much earlier. See KI#41 with screenshots for details. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	// FOR_EACH_CITYAI(pLoopCity, kOwner)
 	// {
 	// 	if (pLoopCity == pCity)
@@ -27325,7 +27319,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 				pLoopCity->getPopulation(), pPlot != NULL, (int)eBuild);
 			continue;
 		}
-		// <!-- custom: old hard reject mentioned in known issues (for those that mention this hard reject) 55, 56, 57, 58, 59, 60, we reverted all these changes due to worker efficiency being worse and it being too hard or tedious to fix, so we shouldn't have crashes anymore, but if ever need consider uncommenting this, although very suboptimal as it rejects everything based on chatgpt 5's explanation and what i understood of it, but it often helped temporarily fix crashes until i could pinpoint and do a more selective or proper fix, so kept commented out rather than removed in case it helps debug code someday or such. -->
+		// <!-- custom: old hard reject mentioned in KI#55, KI#56, KI#57, KI#58, KI#59 and KI#60 (for those that mention this hard reject), we reverted all these changes due to worker efficiency being worse and it being too hard or tedious to fix, so we shouldn't have crashes anymore, but if ever need consider uncommenting this, although very suboptimal as it rejects everything based on chatgpt 5's explanation and what i understood of it, but it often helped temporarily fix crashes until i could pinpoint and do a more selective or proper fix, so kept commented out rather than removed in case it helps debug code someday or such. -->
 		// if (pBestPlot == NULL || eBestBuild == NO_BUILD)
 		// 	continue;
 
@@ -27399,7 +27393,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 
 	}
 
-	// <!-- custom: turn 156 rare crash; proper guard added below. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+	// <!-- custom: turn 156 rare crash; proper guard added below. Credit: ChatGPT 5. See KI#56. (Claude code Sonnet 4.5 (summarized)) -->
 	// if (pBestPlot == NULL)
 	// 	return false;
 	// FAssertEnumBounds(eBestBuild);
@@ -28321,7 +28315,7 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild, 
 	FAssert(eBuild != NO_BUILD);
 
 	// <!-- custom: even if we reverted the changes causing such crash now, i kept this safety in case it helps and doesn't break anything, consider disabling it if workers behave weirdly or it seems suboptimal to keep, based on chatgpt 5's review thanks -->
-	// <!-- custom: was added in an attempt to fix crash at turn 95, in the end it didn't help fix but since doesn't seem to break anything may as well keep it just to be safe, hopefully it doesn't break anything, also code is by chatgpt 5, check if accurate and see related crash we attempted to fix info in known issue as of now 58 for details -->
+	// <!-- custom: was added in an attempt to fix crash at turn 95, in the end it didn't help fix but since doesn't seem to break anything may as well keep it just to be safe, hopefully it doesn't break anything, also code is by chatgpt 5, check if accurate and see related crash we attempted to fix info in KI#58 for details -->
 	// Hard guard – don't trust callers in Release
 	if (eBuild == NO_BUILD)
 		return NO_BUILD;

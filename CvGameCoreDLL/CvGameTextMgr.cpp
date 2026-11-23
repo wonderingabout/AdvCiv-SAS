@@ -8177,7 +8177,7 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
 	// <!-- custom: skip obsolete bullets in civilopedia text since we now have a dedicated Obsoletes panel in Sevopedia Tech (Claude code Opus 4.5) -->
 	if (!bCivilopediaText)
 	{
-		// <!-- custom: consolidate obsolete buildings, bonuses, and special buildings into comma-separated lines for efficiency (Claude code Sonnet 4.5) -->
+		// <!-- custom: consolidate obsolete buildings, bonuses, and special buildings into comma-separated lines for efficiency. See KI#96. (Claude code Sonnet 4.5) -->
 		//	Obsolete Buildings
 		CvWString szObsoleteBuildings;
 		bool bAnyObsoleteBuildings = false;
@@ -8255,7 +8255,7 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
 
 		if (!bTreeInfo)
 		{
-			// <!-- custom: consolidate obsolete units into a single comma-separated line instead of multiple bullets for efficiency -->
+			// <!-- custom: consolidate obsolete units into a single comma-separated line instead of multiple bullets for efficiency. See KI#96. -->
 			CvWString szObsoleteUnits;
 			bool bAnyObsoleteUnits = false;
 			FOR_EACH_ENUM(Unit)
@@ -8333,7 +8333,7 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
 	//	Enables bridge building...
 	buildBridgeString(szBuffer, eTech, true, bPlayerContext);
 
-	// <!-- custom: new addition, add the this technology "Cannot be traded" or similar for a tech ; (<bTrade> in XML in tech info's bullets) -->
+	// <!-- custom: new addition, add the this technology "Cannot be traded" or similar for a tech ; (<bTrade> in XML in tech info's bullets). See KI#15. -->
 	buildBTradeString(szBuffer, eTech, true, bPlayerContext);
 
 	// <!-- custom: similarly also add the this technology "Can be researched multiple times" or similar for a tech ; (<bRepeat> in XML in tech info's bullets) -->
@@ -9086,7 +9086,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 
 	if (u.getObsoleteTech() != NO_TECH)
 	{
-		// <!-- custom: show ObsoleteTech as a red tech link in unit special abilities (pedia). (GPT-5.2-Codex) -->
+		// <!-- custom: show ObsoleteTech as a red tech link in unit special abilities (pedia). See KI#93. (GPT-5.2-Codex) -->
 		szBuffer.append(NEWLINE);
 		CvWString szTechLink;
 		szTechLink.Format(L"<link=literal>%s</link>",
@@ -15792,7 +15792,7 @@ void CvGameTextMgr::buildBridgeString(CvWStringBuffer &szBuffer, TechTypes eTech
 	}
 }
 
-// <!-- custom: add the <bTrade> tech info xml flag in sevopedia tech's placeSpecial -->
+// <!-- custom: add the <bTrade> tech info xml flag in sevopedia tech's placeSpecial. See KI#15. -->
 void CvGameTextMgr::buildBTradeString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (!GC.getTechInfo(eTech).isTrade() &&

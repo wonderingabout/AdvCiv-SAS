@@ -25,8 +25,16 @@ class NumberedReferencesTests(unittest.TestCase):
 		self.assertEqual(joined(text), "See [PR#31](url), PR#7, KI#1104 and SGR180's pilot.")
 		self.assertEqual(len(checker.file_errors("doc.md", "line one\n" + text + "\n")), 3)
 
+	def test_known_issues_in_words_are_found_and_joined(self):
+		# <!-- custom: The oldest KIs were cited in words, with "as of now" while their numbers were not yet stable (the user, 2026-11-23). (Claude code Opus 5.5) -->
+		KNOWN = "known" + SPACE + "issue"
+		text = "see " + KNOWN + " as of now 53.2.2, " + KNOWN + " number 22, as of now " + KNOWN + " 34 and [Known" + SPACE + "issue #71](url)."
+		self.assertEqual(spaced(text), ["Known issue"])
+		self.assertEqual(joined(text), "see KI#53.2.2, KI#22, KI#34 and [KI#71](url).")
+		self.assertEqual(joined("see " + KNOWN + " of as now 88 and " + KNOWN + " as of 47."), "see KI#88 and KI#47.")
+
 	def test_joined_and_unrelated_text_passes(self):
-		for text in ("PR#50 and KI#1104 and SGR210", "C2C issue" + SPACE + "#1604", "EXPR" + SPACE + "#5", "SGR level 3", "PR" + SPACE + "#N"):
+		for text in ("PR#50 and KI#1104 and SGR210", "C2C issue" + SPACE + "#1604", "EXPR" + SPACE + "#5", "SGR level 3", "PR" + SPACE + "#N", "the Known" + SPACE + "Issues section", "unknown" + SPACE + "issue 3"):
 			self.assertEqual(spaced(text), [], text)
 
 
