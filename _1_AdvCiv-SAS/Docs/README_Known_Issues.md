@@ -36,7 +36,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#8 - Do not edit python files while running the game, even modifying unused/unreached code may cause weird errors](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-8)\
 [KI#9 - Art (and maybe other assets too or not) XML assets silently causing a game crash during init/game load/startup instead of telling us which asset was missing (no error)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-9)\
 [KI#10 - some text characters in XML TXT_KEY tags are not displayed correctly ingame (as `?` or causing other arti(e?)facts maybe too indeed for example), while some like `&` cause an XML error and asset failing to load entirely](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-10)\
-[KI#11 - In Debug mode, in map view, unexplored tile by the active player if improved, shows as red for example "with Road" or "with Pasture", even though a road is already there and text should be white instead or removed entirely; and other weird debug mode display issue(s)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11)\
+[KI#11 - (Fixed inherited AdvCiv, Debug Mode only) The plot hover asked in red for a road the plot already had, "Wheat +1 (with Road)" above "Farm" and "Road": it counted only a road the active team had seen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11)\
 [KI#11.2 - (Rejected false positive: Debug Mode lists rivals' wonders in progress) In debug mode, another weird bug is at wonder list while world wonder has not been built in said civs at least not all](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.2)\
 [KI#11.3 - (Fixed inherited vanilla, Debug Mode only) A sheep on plains showed 1 food instead of 2 in Debug Mode: the plot hover then shows the plot's stored yield, which counts no resource on a plot nobody owns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3)\
 [KI#12 - (now fixed) Special/generic building monastery's button inconsistently using (uses/was using rather) the hindu specific monastery button instead of a generic button like the (abstract? / generic) generic temple and generic cathedral were](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-12)\
@@ -1815,7 +1815,7 @@ Adjust this advice/feedback as you see fit.
 
 <a id="ki-11"></a>
 
-## KI#11 - In Debug mode, in map view, unexplored tile by the active player if improved, shows as red for example "with Road" or "with Pasture", even though a road is already there and text should be white instead or removed entirely; and other weird debug mode display issue(s)
+## KI#11 - (Fixed inherited AdvCiv, Debug Mode only) The plot hover asked in red for a road the plot already had, "Wheat +1 (with Road)" above "Farm" and "Road": it counted only a road the active team had seen
 
 This is a small bug so just mentioning it, and perhaps it is even intended to be this way, but ideally in debug mode (ctrl+z and "chipotle"), an unexplored tile by the tile active player
 
@@ -1826,6 +1826,29 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 Update (2026-11-22): the second issue this entry reported, a sheep on plains at 1 food instead of 2 with Debug Mode's map reveal, has its own cause, so its two paragraphs moved word for word to [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3); this entry keeps the red "with Road" text.
 
 See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080).
+
+Update (2026-11-23): reproduced, explained and fixed; only the red "Road" was a bug, so the title now names it alone.
+
+- The original screenshots, in the Drive folder above, sorted:
+  - The bug: `Civ4ScreenShot5386`, a Pig with Pasture and Road, and `Civ4ScreenShot5387`, Gemstones with Mine and Road; each listed its road and still asked "with Road" in red.
+  - Not a bug, the hover working as intended: `Civ4ScreenShot5384` and `Civ4ScreenShot5385`, whose Gemstones and Pig had no Mine or Pasture yet, so the red "Mine" and "Pasture" named the improvement each plot lacked.
+  - No red, as expected: `Civ4ScreenShot5389` and `Civ4ScreenShot5390`, a Spanish Maize with Farm and Road.
+- Reproduced (the user's screenshots, a Huge Pangaea at turn 101, India active, Debug Mode on, now in the same Drive folder):
+  - The bug: (33,46) German Wheat with Farm and Road (`Civ4ScreenShot0459`), (61,43) Carthaginian Cattle with Pasture and Road (`Civ4ScreenShot0460`), (68,43) Khmer Pig with Pasture and Road (`Civ4ScreenShot0467`), (70,41) Khmer Rice with Farm and Road (`Civ4ScreenShot0468`).
+  - No red, as expected: an own plot, (55,43) Silk with Plantation and Road (`Civ4ScreenShot0469`), and a visible one, (44,45) Indian Marble with Quarry and Road (`Civ4ScreenShot0470`); so it looked fixed at a glance, the user noted.
+- Cause, read from the code: `CvGameTextMgr::setPlotHelp` takes the improvement from `getRevealedImprovementType(eActiveTeam, true)`, the plot's real one in Debug Mode, but asks for a road when `CvPlot::isBonusNetwork(eActiveTeam)` is false, and since AdvCiv's advc.124 that counts only a road the active team has seen. So only rivals' roads the active team had not seen, or not since they were built, showed it.
+- Origin, inherited from base AdvCiv, which brought the two views apart in two steps:
+  - Vanilla Civ4 took the plot's real improvement (`getImprovementType`) and counted its real road, as `isBonusNetwork` read `isRoute()`; Warlords, BtS, Better BTS AI and K-Mod kept both, so none of them had the mismatch.
+  - advc.124 (pre-SAS practical 1306, `558603f2b2`, 2018-04-26) made `isBonusNetwork` require a road the team has seen, `isRoute() && getRevealedRouteType(eTeam, false) != NO_ROUTE`, while the hover still read the real improvement.
+  - advc.001 (pre-SAS practical 1379, `38e8f897d`, 2018-11-10, "Misc. changes (human/AI handicaps, tile help text)") made the hover's improvement the seen one, with Debug Mode's override, which aligned the two views outside Debug Mode and left this mismatch in it.
+  - Codex's review (GPT-6.2-Sol) found this: Claude Code Opus 5.5 had first labelled it vanilla, from the hover code of each layer alone, without comparing what their `isBonusNetwork` counts.
+  - Asked by the user to make sure, Codex then rechecked the origin labels of the recent KIs against the installed files, the historical source snapshots and the `commit_diffs` corpus (2026-11-23): KI#11 was the only wrong one, and the vanilla origins of KI#11.3, KI#1105, KI#165.2 to KI#165.12 and the example behind KI#21.8 hold up.
+- Fixed (2026-11-23): in Debug Mode the road check also counts the plot's real road, as the hover's own route line shows it, by `isBonusNetwork(eActiveTeam) || (isDebugMode() && isRoute())`, Codex's shorter form of the first draft, which leaves rivers and trade terrain to `isBonusNetwork`; without Debug Mode nothing changes.
+  - Checked in game with a Debug-opt build on that game's turn-100 save: (33,46) and (61,43) no longer ask for a road, the coal Mine at (63,44), which has none, still does, as does the user's coal Mine at (54,38) (`Civ4ScreenShot0476`).
+  - (57,41), a Stone Quarry with no road, does not ask for one (`Civ4ScreenShot0471`), as expected: its 1 commerce on desert shows a river plot, which `isBonusNetwork` counts when the team has river trade or owns the plot, a BtS rule of `isRiverNetwork`. This only says the plot needs no road; whether the resource reaches a city depends on the wider trade network (`isTradeNetworkConnected`).
+- Roads give no yield in this mod: `CIV4RouteInfos.xml` gives routes no yields, and the only route yields are improvements' railroad bonuses; "with Road" asks for the road only to connect the resource.
+
+Found by the user; explained and fixed by Claude Code Opus 5.5 with the user's screenshots and Codex's (GPT-6.2-Sol) review (2026-11-23), the day after [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3) came up during the base-game Python copies work of [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50) ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)), from the same look at the Debug Mode issues the user remembered.
 
 <a id="ki-11.2"></a>
 

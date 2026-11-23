@@ -3332,7 +3332,10 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
 			bool bConnected = GET_PLAYER(eActivePlayer).
 					doesImprovementConnectBonus(ePlotImprovement, eBonus);
 			// Moved up (b/c the route isn't needed for the yields)
-			if(!bCity && !kPlot.isBonusNetwork(eActiveTeam) && !kPlot.isWater() &&
+			// <!-- custom: In Debug Mode the hover shows the plot's real improvement, but isBonusNetwork counts only a road the active team has seen (advc.124), so it asked in red for a road the plot already had.
+			// Debug Mode now also counts the real road; isBonusNetwork keeps its river and terrain rules (Codex's form). See KI#11. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			bool const bNetwork = (kPlot.isBonusNetwork(eActiveTeam) || (kGame.isDebugMode() && kPlot.isRoute()));
+			if(!bCity && !bNetwork && !kPlot.isWater() &&
 				bConnected) // Mention route only if all other pieces in place
 			{
 				//szString.append(gDLL->getText("TXT_KEY_PLOT_REQUIRES_ROUTE"));
