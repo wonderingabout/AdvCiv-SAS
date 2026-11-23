@@ -367,6 +367,8 @@ def showWorldAdvisorScreen(argsList=None):
 
 debugInfoScreen = CvDebugInfoScreen.CvDebugInfoScreen()
 def showDebugInfoScreen():
+	# <!-- custom: The Debug Info screen now leaves the scoreboard the advisors' space, so the scoreboard is redrawn to fit it on opening, as for the advisors. See KI#1105.2. (Claude code Opus 5.5) -->
+	redrawScoreboardForAdvisor(debugInfoScreen)
 	debugInfoScreen.interfaceScreen()
 
 # BUG - Tech Splash Screen - start

@@ -3310,6 +3310,10 @@ Make some of the data-dense advisors use using a **higher constrast background t
     - `SAS_MAIN_UI_WATER_TYPE_ON`, on by default: a lake tile names its kind after its terrain, such as "Coast (Lake)". At 0 it reads "Coast" with the old "Fresh Water Lake" line, as in base AdvCiv, BtS and vanilla.
     - `SAS_MAIN_UI_FRESH_WATER_SRC_ON`, on by default: land reads "Fresh Water (River)", "Fresh Water (Lake)" or a list such as "Fresh Water (River, Lake, Oasis)", naming only sources on tiles you have revealed. At 0 it reads plain "Fresh Water", as before.
     - Why the sources ship on: fresh water is yes or no, so a second source changes nothing, but without the list you are left wondering what kind of fresh water a plot has, and a river also carries trade and river yields. Turn it off if you find it distracting, as rivers and lakes show on the map.
+- (Requires AdvCiv-SAS 6847+) The Debug Mode **Debug Info screen** (`Shift + F2`), [CvDebugInfoScreen.py](/Assets/Python/Screens/CvDebugInfoScreen.py), is beautified: it adjusts to the resolution and uses most of the screen, as the advisors do as of now, instead of vanilla's fixed 1024 x 768.
+  - When its columns do not all fit, it pages them with arrows in the bottom bar, as the Foreign Advisor's Glance tab does; it used to cut off every column past its table's right edge, such as Map Details' bonuses after about the 8th or most civilizations in a SAS48 game. See [KI#1105.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2).
+  - Its Map Details headers line up with their values since [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105).
+  - The Sevopedia's Cheats shortcuts page lists the Debug Mode keys it lacked: `Shift + F1` to `F4` (the Replay, Debug Info, Dan Quayle and UN Victory screens), `Ctrl + Shift + F1` (the game font display) and `Shift + [` and `]` (the hovered unit's damage), as of now, as base AdvCiv's `advc.007b` block in [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py) binds them.
 
 ## General changes
 

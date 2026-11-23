@@ -513,6 +513,8 @@ NAMED_VKS.update({"num%d" % n: 0x60 + n for n in range(10)})
 NAMED_VKS.update({"comma": 0xBC, "period": 0xBE, "backslash": 0xDC, "slash": 0xBF})
 # <!-- custom: 'key escape' failed with "unknown key 'escape'" while closing Civ4's Victory screen (2026-11-15), as only the short name esc was known; the usual long names are aliases now, and the error lists the names it knows. (Claude code Opus 5.5) -->
 NAMED_VKS.update({"escape": 0x1B, "return": 0x0D, "del": 0x2E, "ins": 0x2D, "pageup": 0x21, "pagedown": 0x22})
+# <!-- custom: Print Screen makes Civ4 save its own Civ4ScreenShotNNNN.JPG in My Games' ScreenShots, the small JPG the repository's screenshots use; 'key printscreen' failed as unknown while taking Debug Info screen shots (2026-11-23). (Claude code Opus 5.5) -->
+NAMED_VKS.update({"printscreen": 0x2C, "prtsc": 0x2C})
 MODIFIER_VKS = {"ctrl": VK_CONTROL, "shift": 0x10, "alt": 0x12}
 # <!-- custom: Each printable ASCII character as the US-keyboard key and Shift state that types it, for type --us-keys; see type_text. (Claude Code Opus 5.5) -->
 US_KEYS = {" ": (0x20, False)}

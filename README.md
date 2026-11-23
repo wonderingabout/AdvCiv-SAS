@@ -192,6 +192,7 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;[Inverted BUG options](/README.md#inverted-bug-options)\
 &emsp;[Diplomacy Screen](/README.md#diplomacy-screen)\
 &emsp;[Miscellaneous screens](/README.md#miscellaneous-screens)\
+&emsp;[Debug Mode screens](/README.md#debug-mode-screens)\
 &emsp;[Main Interface rework](/README.md#main-interface-rework)\
 &emsp;&emsp;[City Screen rework](/README.md#city-screen-rework)\
 &emsp;&emsp;[Map view rework (e.g., Scoreboard Toggle and Scroll buttons, Map Annotations Toggle button)](/README.md#map-view-rework-eg-scoreboard-toggle-and-scroll-buttons-map-annotations-toggle-button)\
@@ -648,6 +649,17 @@ Some miscellaneous screens have been beautified, expanded and maximized to suppo
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.983_dan_qayle_screen.JPG" alt="1.983_dan_qayle_screen.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.984_hall_of_fame_screen.JPG" alt="1.984_hall_of_fame_screen.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.985_spaceship_screen.JPG" alt="1.985_spaceship_screen.JPG" width="250"></img>
+
+### Debug Mode screens
+
+The screens Debug Mode opens (`chipotle` cheat code, then `Ctrl + Z`), which base AdvCiv had left at vanilla's sizes or broken:
+
+- [CvDebugInfoScreen.py](/Assets/Python/Screens/CvDebugInfoScreen.py) (`Shift + F2`): sizes itself like the advisors instead of a fixed 1024 x 768, and pages its columns with arrows when they do not fit, as its table does not scroll sideways and cut off the rest, such as Map Details' bonuses or most civilizations in a SAS48 game ([KI#1105.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2)); its Map Details headers line up with their values again ([KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)).
+- The Sevopedia's Cheats shortcuts page lists the Debug Mode keys it lacked: `Shift + F1` to `F4`, `Ctrl + Shift + F1` and `Shift + [` and `]`, as of now, as base AdvCiv's `advc.007b` block in [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py) binds them.
+
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(1).JPG" alt="1.986_debug_info_screen (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(2).JPG" alt="1.986_debug_info_screen (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(2)_sas48.JPG" alt="1.986_debug_info_screen (2)_sas48.JPG" width="250"></img>
 
 ### Main Interface rework
 

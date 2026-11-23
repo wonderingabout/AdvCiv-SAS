@@ -240,7 +240,11 @@ Tested on 2026-11-10 during an autoplay:
     - The map's plot help works the same way (2026-11-22, checking KI#11.3): after a save loaded with `start_game.py --load`, hovered plots kept showing an earlier plot's help, even after a key press, until the user clicked in the game; the user's own hovers then gave the expected plot.
 - Keystrokes did not: simulated Ctrl+Shift+X and Enter never reached the game, so the tool offers none, and the autoplay request avoids the keyboard. Anyone typing at the PC also cannot disturb a run.
   - Since 2026-11-11 key events carry the scan code a real key press has, and Civ4 accepted them: in the Sevopedia, Down moved to the next entry, Left and Right acted as BACK and NEXT, and `type` filled the search box. Later testing also opened the Ctrl+Shift+X chooser and started and stopped autoplay.
-- Civ4's own screenshot key, which the Runtime screenshot observer records, was not tried from the tools.
+- Civ4's own screenshot key, which the Runtime screenshot observer records, works from the tools: `desktop_windows.py key printscreen --pid PID --hold 1` saves `Civ4ScreenShotNNNN.JPG` in My Games' `ScreenShots` (2026-11-23).
+  - It is the small JPG the repository's screenshots use, about 285 KB for a mostly empty table and 600 KB for a full one at 1920 x 1080, without the window's title bar, so it suits a shot for the repository better than `screenshot`'s PNG.
+  - Check with `screenshot` before each press: two shots of the Debug Info screen came out as the bare map, as an earlier Enter had closed the screen.
+  - That Enter came from choosing a dropdown item with arrow keys: `key` brings Civ4 forward first, which closed the open list, so the arrows and Enter reached the map instead, and a click on a list item did not register either.
+    - [`set_dropdown.py`](/LLM_Helpers/README.md#civ4_ui_mapjson-capture_dropdownspy-and-set_dropdownpy) chooses an item by name; relaunching also worked, as the Debug Info screen opens on its first tab in a new game.
 - Enlarging the window does not add detail either: on 2026-11-11 a 1920x1080 game maximized over a 4K monitor showed the same pixels doubled, so keep the game's own size and crop. See [Look, then act](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#look-then-act).
 
 ### The main menu and the Sevopedia

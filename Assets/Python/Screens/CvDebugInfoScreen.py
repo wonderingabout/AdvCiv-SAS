@@ -15,6 +15,9 @@ import ScreenInput
 import CvScreenEnums
 import CvMapGeneratorUtil
 import CvGFCScreen
+# <!-- custom: The shared advisor layout (getAdvisorRuntimeBounds and its anchors, the maximized table, the scoreboard's space at the current font) sizes this screen to the resolution, as the other advisors do; SASTextScale gives that font. See KI#1105.2. (Claude code Opus 5.5) -->
+from SASUtils import *
+import SASTextScale
 
 PyPlayer = PyHelpers.PyPlayer
 
@@ -27,7 +30,10 @@ g_iLastScreen = 0
 
 class CvDebugInfoScreen(CvGFCScreen.CvGFCScreen):
 	'Debug Information Screen'
-	
+
+	# <!-- custom: Leaves the scoreboard the space getAdvisorScoreboardSpace gives, as the advisors do, so CvScreensInterface shortens leader names beside it. See KI#1105.2. (Claude code Opus 5.5) -->
+	SAS_LEAVES_SCOREBOARD_SPACE = True
+
 	def __init__(self):
 		self.setScreenValues("DebugInfoScreen", CvScreenEnums.DEBUG_INFO_SCREEN)
 		
@@ -46,43 +52,49 @@ class CvDebugInfoScreen(CvGFCScreen.CvGFCScreen):
 		self.nWidgetCount = 0
 
 		self.szDebugInfoPulldownID = "DebugInfoScreenSelectType"
+		# <!-- custom: Column paging of the table; see drawPageArrows. See KI#1105.2. (Claude code Opus 5.5) -->
+		self.iPage = 0
+		self.iNumPages = 1
+		self.szPageLeftID = ""
+		self.szPageRightID = ""
 		self.bTeam = false
 		self.bAttitude = false
 		self.iNumPlayers = -1
 		self.iNumTeams = -1
 
-		self.W_CHART = 800
-		self.H_CHART = 400
-		
-		self.TITLE_TEXT_X = 502
-		self.TITLE_TEXT_Y = 8
+		# <!-- custom: Vanilla's fixed positions are gone: TITLE_TEXT_X/Y (502, 8), EXIT_TEXT_X/Y (502, 12), DROPDOWN_INFOTYPE_X/Y (405, 47) and TABLE_START_X/Y (30, 70) gave way to the advisors' runtime anchors in interfaceScreen, and W_CHART/H_CHART (800 x 400) were never read; only the depths remain. See KI#1105.2. (Claude code Opus 5.5) -->
 		self.TITLE_TEXT_Z = -2.5
-		
-		self.EXIT_TEXT_X = 502
-		self.EXIT_TEXT_Y = 12
 		self.EXIT_TEXT_Z = -2.6
-		
-		self.DROPDOWN_INFOTYPE_X = 405
-		self.DROPDOWN_INFOTYPE_Y = 47
-		
-		self.TABLE_START_X = 30
-		self.TABLE_START_Y = 70
-			
+
 	def interfaceScreen(self):
 		' Create the screen '
 		global g_iLastScreen
 		screen = self.getScreen()
+		# <!-- custom: Was a fixed 1024 x 768 background with a 1000 x 580 table at (0, 100), from vanilla, which left most of a 1920 x 1080 screen to the map and cut Map Details after about 13 columns (2026-11-23).
+		# Now sized like the advisors: the area left of the scoreboard and below the tech bar, top and bottom bars, title and exit at the shared anchors, and the table filling the space between the bars. See KI#1105.2. (Claude code Opus 5.5) -->
+		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS, getAdvisorScoreboardSpace(screen.getXResolution(), SASTextScale.getSASUIFontLabel()), SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR, SAS_ADVISOR_BOTTOM_SPACE)
+		iXTitle, iXExit, iYExit, iYLink, iYBottomPanel = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
+		_, self.TABLE_RECT = getAdvisorMaximizedPanelLayout(self.W_SCREEN, iYBottomPanel)
+		self.Y_BOTTOM_PANEL = iYBottomPanel
+		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
-		screen.addDDSGFC("DebugInfoScreen", SASVisuals.InterfaceArt.getPath("SCREEN_BG_OPAQUE"), 0, 0, 1024, 768, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		#screen.addPanel( "DebugInfoMainTable", u"Debug Info", u"Debug Information", 0, 1, self.TABLE_START_X,self.TABLE_START_Y, 900, 600, PanelStyles.PANEL_STYLE_BLUELARGE )
+		screen.addDDSGFC("DebugInfoScreen", SASVisuals.InterfaceArt.getPath("SCREEN_BG_OPAQUE"), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addPanel("DebugInfoTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, SAS_ADVISOR_BOTTOM_PANEL_Y_OFFSET, PanelStyles.PANEL_STYLE_TOPBAR)
+		screen.addPanel("DebugInfoBottomPanel", u"", u"", True, False, 0, iYBottomPanel, self.W_SCREEN, self.H_SCREEN - iYBottomPanel, PanelStyles.PANEL_STYLE_BOTTOMBAR)
+		screen.showWindowBackground(False)
+		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN)
 
-		screen.setExitText( u"EXIT SCREEN", CvUtil.FONT_RIGHT_JUSTIFY, self.EXIT_TEXT_X, self.EXIT_TEXT_Y, self.EXIT_TEXT_Z, FontTypes.TITLE_FONT )
+		# <!-- custom: Was setExitText(u"EXIT SCREEN", ...) at (502, 12); at the advisors' exit anchor it drew from x rightward, ignoring FONT_RIGHT_JUSTIFY, so the screen's right edge cut it to "EX" (2026-11-23).
+		# Now the advisors' close text, right-justified with WIDGET_CLOSE_SCREEN at the shared font scale. See KI#1105.2. (Claude code Opus 5.5) -->
+		screen.setText("DebugInfoExit", "Background", SASTextScale.sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, iXExit, iYExit, self.EXIT_TEXT_Z, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
 
 		# Header...
-		screen.setText( "DebugInfoTitleHeader", "Background", u"DEBUG INFO", CvUtil.FONT_CENTER_JUSTIFY, self.TITLE_TEXT_X, self.TITLE_TEXT_Y, self.TITLE_TEXT_Z, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		
+		# <!-- custom: The title takes the shared font scale, as the exit text and the advisors' titles do. See KI#1105.2. (Claude code Opus 5.5) -->
+		screen.setText( "DebugInfoTitleHeader", "Background", SASTextScale.sasFontTagTitle + u"DEBUG INFO" + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, iXTitle, SAS_ADVISOR_TITLE_Y, self.TITLE_TEXT_Z, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
 		# Create Drop Down so the user can select the screen they want
-		screen.addDropDownBoxGFC(self.szDebugInfoPulldownID, self.DROPDOWN_INFOTYPE_X, self.DROPDOWN_INFOTYPE_Y, 300, WidgetTypes.WIDGET_GENERAL, -1, -1,FontTypes.GAME_FONT )
+		# <!-- custom: Was at (405, 47), under the title; now at the top left, where the advisors put their debug dropdown, so the table starts right under the top bar. See KI#1105.2. (Claude code Opus 5.5) -->
+		screen.addDropDownBoxGFC(self.szDebugInfoPulldownID, 22, 12, 300, WidgetTypes.WIDGET_GENERAL, -1, -1,FontTypes.GAME_FONT )
 		
 		# adds the screen names to the drop down using the DebugInfoMap - always selects the last one that was selected
 		bSelected = false
@@ -419,29 +431,62 @@ class CvDebugInfoScreen(CvGFCScreen.CvGFCScreen):
 		#print "NumColumns = %d" %numColumns
 		#print d_TableData
 		
-		#scrollPanel = self.getNextWidgetName()
-		#screen.addScrollPanel(scrollPanel, u"", 0, 100, 1000,580, PanelStyles.PANEL_STYLE_DEFAULT)
 		
 		szTableName = self.getNextWidgetName()
-		#screen.attachTableControlGFC(scrollPanel, szTableName, numColumns, True, True, 32,32,TableStyles.TABLE_STYLE_STANDARD)
-		screen.addTableControlGFC(szTableName, numColumns, 0, 100, 1000, 580, True, True, 32,32,TableStyles.TABLE_STYLE_STANDARD)
-		
+		# <!-- custom: Was 1000 x 580 at (0, 100), with 150 px for the first column and 70 for each other; now the table fills the screen's maximized area, and the other columns share the width left of the first, no narrower than vanilla's 70.
+		# The table does not scroll sideways, so columns past its right edge were never shown, such as Map Details' bonuses after about the 8th; when they cannot all fit, the first column stays and the others are paged with arrows in the bottom bar, as the Foreign Advisor's Glance tab pages its players. See KI#1105.2. (Claude code Opus 5.5) -->
+		iTableX, iTableY, iTableW, iTableH = self.TABLE_RECT
 		columnHeaders = d_TableData[0]
-		
-		for i in range(len(columnHeaders)):
-			columnWidth = 70
-			if i == 0:
-				columnWidth = 150
-			screen.setTableColumnHeader(szTableName, i, columnHeaders[i], columnWidth)
+		iFirstColW = 150
+		# <!-- custom: Keeps the vertical scrollbar's 14 px off the last column, as the Military Advisor's Battles table does; Codex found a full SAS48 page left 12 px beside it. See KI#1105.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		iColsW = iTableW - 14 - iFirstColW
+		iNumOther = numColumns - 1
+		iPerPage = max(1, iColsW / 70)
+		self.iNumPages = 1
+		if iNumOther > iPerPage:
+			self.iNumPages = (iNumOther + iPerPage - 1) / iPerPage
+		self.iPage = max(0, min(self.iPage, self.iNumPages - 1))
+		iStart = 1 + self.iPage * min(iNumOther, iPerPage)
+		aiColumns = [0] + range(iStart, min(iStart + iPerPage, numColumns))
+		iOtherColW = 70
+		if iNumOther > 0:
+			iOtherColW = max(70, iColsW / min(iNumOther, iPerPage))
+		screen.addTableControlGFC(szTableName, len(aiColumns), iTableX, iTableY, iTableW, iTableH, True, True, 32,32,TableStyles.TABLE_STYLE_STANDARD)
+
+		for iCol in range(len(aiColumns)):
+			columnWidth = iOtherColW
+			if iCol == 0:
+				columnWidth = iFirstColW
+			screen.setTableColumnHeader(szTableName, iCol, columnHeaders[aiColumns[iCol]], columnWidth)
 		i=0
 		for i in range(len(d_TableData)-1):
 			screen.appendTableRow(szTableName)
 		i=0
 		for i in range(len(d_TableData)-1):
 			rowData = d_TableData[i+1]
-			for j in range(len(rowData)):
-				#print rowData[j]
-				screen.setTableText(szTableName, j, i, u"%s" %rowData[j], "", WidgetTypes.WIDGET_GENERAL,-1,-1, CvUtil.FONT_LEFT_JUSTIFY)
+			for iCol in range(len(aiColumns)):
+				j = aiColumns[iCol]
+				if j < len(rowData):
+					#print rowData[j]
+					screen.setTableText(szTableName, iCol, i, u"%s" %rowData[j], "", WidgetTypes.WIDGET_GENERAL,-1,-1, CvUtil.FONT_LEFT_JUSTIFY)
+		self.drawPageArrows(screen)
+
+	# <!-- custom: The page arrows and "Page 2 / 3" in the bottom bar, only when the columns did not fit; numbered widgets, so deleteAllWidgets removes them with the table on each redraw, and handleInput matches them as the Glance tab does. See KI#1105.2. (Claude code Opus 5.5) -->
+	def drawPageArrows(self, screen):
+		self.szPageLeftID = ""
+		self.szPageRightID = ""
+		if self.iNumPages <= 1:
+			return
+		iArrowSize = 24
+		iArrowY = self.Y_BOTTOM_PANEL + (self.H_SCREEN - self.Y_BOTTOM_PANEL - iArrowSize) / 2
+		self.szPageLeftID = self.getNextWidgetName()
+		screen.setButtonGFC(self.szPageLeftID, u"", "", 22, iArrowY, iArrowSize, iArrowSize, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_ARROW_LEFT)
+		screen.enable(self.szPageLeftID, self.iPage > 0)
+		self.szPageRightID = self.getNextWidgetName()
+		screen.setButtonGFC(self.szPageRightID, u"", "", 22 + iArrowSize + 8, iArrowY, iArrowSize, iArrowSize, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_ARROW_RIGHT)
+		screen.enable(self.szPageRightID, self.iPage < self.iNumPages - 1)
+		szPage = u"Page %d / %d" % (self.iPage + 1, self.iNumPages)
+		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + szPage + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, 22 + 2 * iArrowSize + 20, iArrowY + 2, self.EXIT_TEXT_Z, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	def buildTeamTitleData(self, strTitle):
 		' return a '
@@ -496,6 +541,8 @@ class CvDebugInfoScreen(CvGFCScreen.CvGFCScreen):
 			# Get the ID that was selected...
 			iSelectedID = screen.getSelectedPullDownID( self.szDebugInfoPulldownID )
 			self.deleteAllWidgets()
+			# <!-- custom: Another tab starts on its first page. See KI#1105.2. (Claude code Opus 5.5) -->
+			self.iPage = 0
 			self.drawContents(iSelectedID)
 
 	def handleInput (self, inputClass):
@@ -505,6 +552,18 @@ class CvDebugInfoScreen(CvGFCScreen.CvGFCScreen):
 		print(functionName)
 		if ( functionName == self.szDebugInfoPulldownID ):
 			self.InfoType(inputClass)
+		# <!-- custom: The column page arrows from drawPageArrows; a click redraws the same tab one page over.
+		# The new table starts scrolled to the top, as the Python API offers no way to read or set a table's scroll position (Codex's check). See KI#1105.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		elif inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and self.szPageLeftID and functionName + str(inputClass.getID()) == self.szPageLeftID:
+			self.iPage = max(0, self.iPage - 1)
+			self.deleteAllWidgets()
+			self.drawContents(g_iLastScreen)
+			return 1
+		elif inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and self.szPageRightID and functionName + str(inputClass.getID()) == self.szPageRightID:
+			self.iPage = min(self.iNumPages - 1, self.iPage + 1)
+			self.deleteAllWidgets()
+			self.drawContents(g_iLastScreen)
+			return 1
 		return 0
 
 	def update(self, fDelta):

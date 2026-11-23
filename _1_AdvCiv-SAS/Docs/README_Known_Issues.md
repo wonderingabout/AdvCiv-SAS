@@ -1300,6 +1300,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103)\
 [KI#1104 - (AdvCiv-SAS design rule) SAS keeps its own copy of every base-game Python file it uses, changed or not, as it took in CvTechSplashScreen.py, CIV4ProcessInfo.xml and CIV4WorldPickerInfos.xml when first needed: SASPilot's WorldBuilder work found the WorldBuilder screen running from BtS's copy, outside the repository](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)\
 [KI#1105 - (Fixed inherited vanilla, Debug Mode only) The Map Details table showed a continent's 576 tiles under "Area" and its 5 starting plots under "Size": its header row had one extra column](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)\
+[KI#1105.2 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen CvDebugInfoScreen.py (Shift + F2) sat at a fixed 1024 x 768, and its table never showed the columns past its right edge, so even on a Huge map Team Relations lost the last 4 of its 16 civilizations and Map Details its bonuses after about the 8th](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2)\
 [KI#1106 - (Clarified inherited vanilla) The plot hover called a lake tile "Coast", then wrote "Fresh Water Lake" where a land plot's fresh water goes, and never said where a land plot's "Fresh Water" came from](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1106)
 
 <a id="ki-1"></a>
@@ -38897,6 +38898,23 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 Found by Claude Code Opus 5.5 with Codex (GPT-6.2-Sol) while bringing the base-game Python files SAS uses into the repository (2026-11-22); fixed by Claude Code Opus 5.5 with Codex's review (GPT-6.2-Sol) (2026-11-23).
 
 See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080).
+
+<a id="ki-1105.2"></a>
+
+## KI#1105.2 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen CvDebugInfoScreen.py (Shift + F2) sat at a fixed 1024 x 768, and its table never showed the columns past its right edge, so even on a Huge map Team Relations lost the last 4 of its 16 civilizations and Map Details its bonuses after about the 8th
+
+- Where: Debug Mode, `Shift + F2`, every tab of [`CvDebugInfoScreen.py`](/Assets/Python/Screens/CvDebugInfoScreen.py): Team Relations, Player Attitudes, Civic Info, Civ Info, AI Types, Available Bonuses and Map Details.
+- What: vanilla drew the screen at a fixed 1024 x 768, with a 1000 x 580 table at (0, 100), 150 px for the first column and 70 for each other; the table does not scroll sideways, so every column past its right edge was out of reach, not merely off screen.
+  - On a turn-0 Huge game in base AdvCiv, Team Relations showed 12 of its 16 civilizations, losing Charlemagne, Hatshepsut, Darius and Hannibal (the legacy shot below); on the user's turn-0 Huge Water save, Map Details showed about 8 of its bonus columns (2026-11-23).
+  - Its exit, drawn with `setExitText`, ignored right justification: once the rework first moved it to the advisors' exit anchor near the screen's right edge, it was cut to "EX"; vanilla's own spot at (502, 12) showed it whole.
+- Origin: vanilla Civ4's own file, unchanged by Warlords, BtS, Better BTS AI, K-Mod and base AdvCiv, as [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)'s archaeology found; base AdvCiv shows the same fixed screen in the user's legacy shot [`0.986_debug_info_screen.JPG`](/_0_Legacy/Images/ui_other/0.986_debug_info_screen.JPG).
+- Fixed (2026-11-23, at the user's request after KI#1105):
+  - The screen takes the advisors' shared layout, the area left of the scoreboard and below the tech bar, and leaves the scoreboard their space; its exit is the advisors' close text.
+  - On a Huge map the full-screen table holds all of Team Relations' civilizations on one page: [`1.986_debug_info_screen (1).JPG`](/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(1).JPG).
+  - Map Details' bonuses still do not fit, even on Huge, so when the columns cannot all fit at 70 px, the first stays and the others page with arrows and "Page 1 / 3" in the bottom bar, as the Foreign Advisor's Glance tab pages its players: three pages on the Huge game, [`1.986_debug_info_screen (2).JPG`](/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(2).JPG), and likewise three in a SAS48 game, [`1.986_debug_info_screen (2)_sas48.JPG`](/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(2)_sas48.JPG).
+  - Codex's review (GPT-6.2-Sol) had the columns leave the vertical scrollbar's 14 px, after a full SAS48 page left 12 px beside it, and found that a page change resets the vertical scroll, as the Python API cannot read or set it.
+
+Found by the user, who asked to fit the screen like the other advisors and then saw its table not turning pages at SAS48 size; fixed by Claude Code Opus 5.5 with Codex's (GPT-6.2-Sol) reviews, the second of which also checked the shortcut map, the staged docs and the screenshots (2026-11-23).
 
 <a id="ki-1106"></a>
 
