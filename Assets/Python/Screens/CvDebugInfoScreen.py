@@ -335,7 +335,9 @@ class CvDebugInfoScreen(CvGFCScreen.CvGFCScreen):
 		areas = [area for (area_size, area) in area_sizes]
 
 		bonus_infos = [gc.getBonusInfo(i) for i in range(gc.getNumBonusInfos())]
-		title_list = [u"BonusDistro"] + [u"Area"] + [u"Size"] + [u"Starting Plots"] + [u"Unique Bonus Types"] + [u"Total Bonuses"] 
+		# <!-- custom: Was [u"BonusDistro"] + [u"Area"] + [u"Size"] ..., one header more than each row has values, so every value after the area ID sat one header to its left: a Huge Water map's main continent showed its 1505 tiles under "Area" (2026-11-23).
+		# Dropped "Area": "BonusDistro" now titles the area IDs in column 0, as the screen's other tabs put their title over their row labels, and the in-game table lined up. See KI#1105. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		title_list = [u"BonusDistro"] + [u"Size"] + [u"Starting Plots"] + [u"Unique Bonus Types"] + [u"Total Bonuses"]
 		
 		bonusList = ""
 		for bonus in bonus_infos:
@@ -383,8 +385,7 @@ class CvDebugInfoScreen(CvGFCScreen.CvGFCScreen):
 		loopRowData.append("Total")
 		loopRowData.append(map.numPlots())
 		# <!-- custom: The totals row mirrors the area rows above (area, tiles, starting plots, unique bonus types, total bonuses, then each bonus): "Total", the map's plot count, then "" twice for starting plots and unique bonus types, which vanilla does not total, then the bonus total.
-		# Each of the two lines now names its field, as adjacent_duplicate_lines.py asks of a line meant twice.
-		# Read from the code, not seen in game (2026-11-22): title_list has one header more than these rows hold values, "Area" after "BonusDistro", and setTableData fills both from column 0, so each value shows one header to the left of its field; left as vanilla wrote it. See KI#1104. (Claude code Opus 5.5) -->
+		# Each of the two lines now names its field, as adjacent_duplicate_lines.py asks of a line meant twice. See KI#1104. (Claude code Opus 5.5) -->
 		loopRowData.append("") # <!-- custom: starting plots (Claude code Opus 5.5) -->
 		loopRowData.append("") # <!-- custom: unique bonus types (Claude code Opus 5.5) -->
 		loopRowData.append("%d" % total)

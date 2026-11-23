@@ -1298,7 +1298,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1101 - (Fixed AdvCiv-SAS merge slip, SASPilot branch only) The Info Screen's Timeline tab raised "global name 'iNumMessages' is not defined" on the SASPilot branch; main is not affected](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101)\
 [KI#1102 - (Open, a Steam client bug outside the mod's code) A closed Civ4 sometimes never finishes exiting, as Steam's steamclient.dll waits forever while unloading, so Steam still sees the game running and the shortcut starts nothing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)\
 [KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103)\
-[KI#1104 - (AdvCiv-SAS design rule) SAS keeps its own copy of every base-game Python file it uses, changed or not, as it took in CvTechSplashScreen.py, CIV4ProcessInfo.xml and CIV4WorldPickerInfos.xml when first needed: SASPilot's WorldBuilder work found the WorldBuilder screen running from BtS's copy, outside the repository](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)
+[KI#1104 - (AdvCiv-SAS design rule) SAS keeps its own copy of every base-game Python file it uses, changed or not, as it took in CvTechSplashScreen.py, CIV4ProcessInfo.xml and CIV4WorldPickerInfos.xml when first needed: SASPilot's WorldBuilder work found the WorldBuilder screen running from BtS's copy, outside the repository](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)\
+[KI#1105 - (Fixed inherited vanilla, Debug Mode only) The Map Details table showed a continent's 576 tiles under "Area" and its 5 starting plots under "Size": its header row had one extra column](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)
 
 <a id="ki-1"></a>
 
@@ -1825,7 +1826,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 Update (2026-11-22): the second issue this entry reported, a sheep on plains at 1 food instead of 2 with Debug Mode's map reveal, has its own cause, so its two paragraphs moved word for word to [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3); this entry keeps the red "with Road" text.
 
-See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080).
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080), [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105).
 
 Update (2026-11-23): reproduced, explained and fixed; only the red "Road" was a bug, so the title now names it alone.
 
@@ -1899,7 +1900,7 @@ I don't know what the exact issue is as i didn't investigate it, but still is an
 
 Found by Claude Code Opus 5.5 from the user's screenshots (2026-11-22), during the base-game Python copies work of [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50) ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)), though committed after it: checking KI#1105's Map Details table in Debug Mode led the user to the other Debug Mode issues the user remembered, this one first.
 
-See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080).
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080), [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105).
 
 <a id="ki-12"></a>
 
@@ -12660,7 +12661,7 @@ File changed:
 
 - [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)
 
-See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080).
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080), [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105).
 
 <a id="ki-143"></a>
 
@@ -31159,7 +31160,7 @@ An AZERTY single-player retest confirmed that Ctrl+Z toggles Debug mode again.
 
 Found during ChatGPT-5.6-Sol's C026 `CvDllPythonEvents.cpp` audit; implemented, reviewed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
 
-See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080).
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080), [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105).
 
 <a id="ki-623"></a>
 
@@ -37765,7 +37766,7 @@ Compilation and the same fresh autoplay completed successfully. The selected-pla
 
 Found as F746/provisional KI#1067 during ChatGPT-5.6-Sol's C031-WIP864 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
-See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080).
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080), [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105).
 
 <a id="ki-1068"></a>
 
@@ -38181,7 +38182,7 @@ The difference is in the exact game, not something a player would notice: the us
 
 Found by Claude code Opus 5.5 while testing parallel autoplay runs requested by wonderingabout, thanks.
 
-See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067).
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105).
 
 <a id="ki-1081"></a>
 
@@ -38837,6 +38838,7 @@ Not a bug but a rule, written down so the files it covers can point to it.
     - map scripts: 42 of SAS's 50, from the base game and third-party mods, starting with `aDebugMap.py` and `Highlands.py` (2026-02-03); see [Map scripts](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#not-traced) in the audit.
   - Those came in when SAS changed or offered them, often fixed in the same commit, such as "Fix Oasis.py" (2026-02-08). A first commit that copies the file unchanged keeps the later diff to SAS's own change; the base copy also stays in the Civ4 install to diff against.
   - So what decides is whether SAS uses a file, not whether SAS has changed it yet: a file SAS uses should be in the repository, greppable and diffable for every agent, and ready for a later change; doing it once ends the question.
+  - A first payoff the same day: once in the repository, the copies met SAS's CI, and its duplicate-line check on `CvDebugInfoScreen.py` led to [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105), a vanilla table bug that had gone unseen while the file ran from the install, where no check or search of ours reached it.
   - An unused file stays out, even when something imports it: [`CvForeignAdvisor.py`](/Assets/Python/Screens/CvForeignAdvisor.py) imports `TechTree` and constructs it (`self.objTechTree = TechTree.TechTree()`), and nothing then reads the stored object.
   - Runtime does not change: the game takes a mod's file before BtS's, Warlords' and vanilla's, so an unchanged copy loads the same code. See [Which copy runs](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#which-copy-runs) in the inherited files audit, which also records the loading claims corrected on the way.
   - Base AdvCiv and K-Mod ship only base-game files they changed: on 2026-11-22, none of their 81 and 50 Python and XML files sharing a BtS path was byte-identical to it.
@@ -38869,3 +38871,28 @@ Update (2026-11-22): once in the repository, the copies met SAS's CI, and `PyHel
 Update (2026-11-22): the source-provenance gap left for later above is closed: [`source_change_provenance.py`](/.github/workflows/README.md#buildsourcesource_change_provenancepy) now counts a new file's original comments and imports as inherited when the layer and path from `Assets/` in its leading copy note match the inherited-files manifest.
 
 The full install path remains in the note for readers. The push after the PR#50 squash had failed on those comments and imports.
+
+<a id="ki-1105"></a>
+
+## KI#1105 - (Fixed inherited vanilla, Debug Mode only) The Map Details table showed a continent's 576 tiles under "Area" and its 5 starting plots under "Size": its header row had one extra column
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1I-GIAjNJA9xAsC0RSDXWDP0265UYCJV-?usp=sharing).
+
+- Where: Debug Mode, Shift+F2 (the debug info screen), the Map Details tab, drawn by `generateBonusDistributionList` in [`CvDebugInfoScreen.py`](/Assets/Python/Screens/CvDebugInfoScreen.py).
+- What: `title_list` held 6 headers, `BonusDistro`, `Area`, `Size`, `Starting Plots`, `Unique Bonus Types` and `Total Bonuses`, then one letter per bonus, while each row holds 5 values, area ID, tiles, starting plots, unique bonus types and total bonuses, then one count per bonus.
+  - `setTableData` fills both from column 0, so every value after the area ID sat one header to the left of its field, and the last column stayed empty.
+  - Seen in game (2026-11-22, a small Pangaea): the main continent's row read 576, 5, 15 and 71 under "Area", "Size", "Starting Plots" and "Unique Bonus Types", its tiles, starting plots, unique bonus types and total bonuses (the user's `Civ4ScreenShot0449`; `Civ4ScreenShot0448` shows the screen's Team Relations tab lining up).
+    - The "Failed to load python module CvScreensInterface" dialog over that screenshot is most likely unrelated: Claude Code Opus 5.5 had edited Python files under `Assets/` while that game ran, and its traceback was lost when the next launch overwrote the log; a game started after the edits showed no error.
+- Origin: vanilla Civ4's `Assets/Python/Screens/CvDebugInfoScreen.py`; Warlords and BtS never replaced the file, and no Better BTS AI, K-Mod, base AdvCiv or SAS commit in the `commit_diffs` corpus changed it, so it ran unchanged from vanilla until SAS took it in for [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104). Caveman2Cosmos ships the same `title_list`.
+- How it was found: making the copy pass CI. Its totals row appends `""` twice, which `adjacent_duplicate_lines.py` flags, and naming the field each one stands for meant reading the row against its headers.
+  - Claude Code Opus 5.5 first named them after the headers they sit under, "Starting Plots" and "Unique Bonus Types"; reading `setTableData` showed the shift, Codex confirmed it from the code, and the game showed it.
+- Debug Mode only opens the screen; the bug was in the screen's own header list. Another display bug only Debug Mode reaches has its own cause: [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), whose plot hover showed a sheep on plains at 1 food instead of 2.
+- Fixed (2026-11-23, at the user's request once the shift was shown in game): `title_list` drops the `Area` header, so column 0's `BonusDistro` titles the area IDs, the way the screen's other tabs put their title over their row labels, such as Team Relations' "Teams", and every later header now stands over its own value.
+  - Before, on the user's turn-0 save of a Huge Water map: the main continent's row read its 1505 tiles under "Area", 16 starting plots under "Size", 15 unique bonus types under "Starting Plots", 197 bonuses under "Unique Bonus Types" and the first bonus's 8 under "Total Bonuses"; each water area's tile count likewise sat under "Area".
+  - After, on the same save: 1505 under "Size", 16 under "Starting Plots", 15 under "Unique Bonus Types", 197 under "Total Bonuses" and 8 under the first bonus's letter, with no empty last column.
+  - The totals row, not scrolled to in game, was checked from the code by Codex (GPT-6.2-Sol): the map's plot count now falls under "Size", its two blanks under "Starting Plots" and "Unique Bonus Types", and its sums under their own headers.
+  - The vanilla headers' own wording is kept, "Size" for the tile count included; only the extra header goes.
+
+Found by Claude Code Opus 5.5 with Codex (GPT-6.2-Sol) while bringing the base-game Python files SAS uses into the repository (2026-11-22); fixed by Claude Code Opus 5.5 with Codex's review (GPT-6.2-Sol) (2026-11-23).
+
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080).
