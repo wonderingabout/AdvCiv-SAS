@@ -80,7 +80,9 @@ class SevoPediaEraChart:
 		# <!-- custom: Draw era button icons above the table; size matches column width. (Claude Opus 4.5) -->
 		buttonRowH = 0
 		if self.SHOW_ERA_BUTTONS:
-			buttonSize = wNum
+			# <!-- custom: Buttons as wide as an era column grew to about 480 px at 3840 x 2066, so the play button, drawn one column left of the first era, covered the category list.
+			# Cap them at the Field column's width, which the play button sits in, and centre each era button in its column. (Claude code Opus 5.5) -->
+			buttonSize = min(wNum, self.W_FIELD)
 			buttonRowH = buttonSize + 8
 
 			# Position for button row: inside inner panel
@@ -92,7 +94,7 @@ class SevoPediaEraChart:
 				buttonRowStartX = tableX + self.W_FIELD
 
 			if SASVisuals.InterfaceArt.SAS_EMOJI_PLAY_BUTTON:
-				playButtonX = buttonRowStartX - wNum
+				playButtonX = buttonRowStartX - buttonSize
 				# <!-- custom: redirect to first era track (Track 01 of Ancient era) in Sevopedia Music category -->
 				iFirstEraMusicKey = self.top.SAS_getFirstEraMusicKey()
 				if iFirstEraMusicKey != -1:
@@ -107,7 +109,7 @@ class SevoPediaEraChart:
 				info = gc.getEraInfo(iEra)
 				button = info.getButton()
 				if button:
-					btnX = buttonRowStartX + (iEra * wNum)
+					btnX = buttonRowStartX + (iEra * wNum) + ((wNum - buttonSize) / 2)
 					btnY = buttonRowY
 					# <!-- custom: each era button redirects to its movie entry if movie exists. (Claude Opus 4.5) -->
 					if self.top.pediaMovies.hasMovie(SAS_MAGIC_PEDIA_MOVIE_TYPE_ERA, iEra):

@@ -1615,6 +1615,12 @@ More details here too in: [Long_Comments_XML.txt](/_1_AdvCiv-SAS/Docs/Long_Comme
 
 On windows 10 at least if not in other systems as well, at least in my machine, since i play in windowed while debugging and such or other dev needs or not which is much more convenient, if i put the game window on my second (or any alternative/equivalent or not that may exist and that is not main screen) screen, then pressing the - Print Screen - key consistently does not create a new screenshot in (replace with your relevant user path) `C:\Users\PC\Documents\My Games\beyond the sword\ScreenShots\`, but putting the game window back to main screen, (then) the print screen key successfully creates a new screenshot (image) file, for example Civ4ScreenShot4272.JPG as of now.
 
+Update (2026-11-24): the rule is broader than a second screen. The user noticed Print Screen also failing for a window running past the screen's edge, and Claude Code Opus 5.5 checked it on a 4K primary monitor with a second one to its right, pressing Print Screen through `desktop_windows.py`:
+
+- Saved: a window fully on the primary monitor, at 1920 x 1080 and at 2560 x 1440, and one resized over the work area with `move full` or maximized with `move maximize`.
+- Not saved: a window fully on the second monitor, one straddling onto it (2000 to 5844 px with the second monitor from 3840 px), and one running past the primary monitor's bottom edge, where no monitor is.
+- So Civ4 saves a screenshot only while its window lies entirely on the primary monitor. A game as large as the screen, such as 4K on a 4K monitor, overflows at the bottom unless maximized, likely because Civ4's window is not borderless: its title bar and frame add to its size; a smaller one, such as 1440p there, needs nothing.
+
 <a id="ki-7.2"></a>
 
 ## KI#7.2 - (Observed) Native screenshots showed only one of two local Civ4 clients

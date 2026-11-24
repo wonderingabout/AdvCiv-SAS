@@ -988,7 +988,7 @@ def move(pid, monitor, part, size=None, beside=None):
 	elif part in ("topleft", "bottomleft"):
 		target = None
 	else:
-		target = {"full": (left, right), "left": (left, middle), "right": (middle, right)}[part]
+		target = {"full": (left, right), "maximize": (left, right), "left": (left, middle), "right": (middle, right)}[part]
 	USER32.ShowWindow(hwnd, 9)
 	frame = wt.RECT()
 	ctypes.windll.dwmapi.DwmGetWindowAttribute(hwnd, 9, ctypes.byref(frame), ctypes.sizeof(frame))
@@ -1010,6 +1010,12 @@ def move(pid, monitor, part, size=None, beside=None):
 	height = bottom - top + border_top + border_bottom
 	# <!-- custom: 0x0014 is SWP_NOZORDER | SWP_NOACTIVATE, so the move neither raises the window nor takes focus from the user. (Claude Code Opus 5.5) -->
 	USER32.SetWindowPos(hwnd, None, x, y, width, height, 0x0014)
+	# <!-- custom: full only resizes the window over the work area.
+	# While an agent tested the Sevopedia at 4K with it, the user noticed the window was not really maximized and showed the difference: a 3838 x 2062 game area against 3840 x 2066 with the title bar's maximize button (2026-11-24).
+	# Tests should see the screen a player gets, and a player maximizes, so the user asked for a real maximize, for any monitor size rather than only 4K.
+	# maximize first places the window on the chosen monitor, then maximizes it there with ShowWindow's SW_MAXIMIZE (3), which also brings it to the front. (Claude Code Opus 5.5) -->
+	if part == "maximize":
+		USER32.ShowWindow(hwnd, 3)
 	return window_rect(hwnd)
 
 
@@ -1243,7 +1249,7 @@ def main():
 	place = sub.add_parser("move", help="place the window on one monitor's work area: the full area, or its left or right half")
 	place.add_argument("--pid", type=int, required=True)
 	place.add_argument("--monitor", type=int, default=1, help="1 is the leftmost monitor")
-	place.add_argument("part", choices=("full", "left", "right", "topleft", "bottomleft", "beside"), help="full, left or right half; topleft or bottomleft: that corner of the work area at the window's own size or --size; beside: the area right of --beside's window")
+	place.add_argument("part", choices=("full", "maximize", "left", "right", "topleft", "bottomleft", "beside"), help="full, left or right half; maximize: a Windows maximize on that monitor, as the title bar's button does; topleft or bottomleft: that corner of the work area at the window's own size or --size; beside: the area right of --beside's window")
 	place.add_argument("--size", type=int, nargs=2, metavar=("WIDTH", "HEIGHT"), help="topleft and bottomleft: the visible frame's size instead of the current one")
 	place.add_argument("--beside", type=int, help="beside: the process whose window to fill the area right of")
 	# <!-- custom: click, key, type and paste take the focus from whatever window the user is typing in, so their keystrokes then land in the target: on 2026-11-11 the user's typing turned Civ4's autoplay turn box into "ntwt".

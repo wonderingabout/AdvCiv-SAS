@@ -1086,7 +1086,9 @@ class CvMainInterface:
 		# Helper rects for uniform widget placement inside the side panels
 		# <!-- custom: note: old CityOrgArea code removed since we don't put religions and corporations in the right side panel anymore -->
 		# <!-- custom: move the Bonuses up, but after deleting the old religions and corporations, somehow they are too high, and somehow the higher this value is the lower bonuses are so increasing it to put bonuses down; was +VSPACE(4) -->
-		hMoveBonusesDownTooHigh = +VSPACE(35)
+		# <!-- custom: Was +VSPACE(35), which grows more slowly than the top bar above it: logged at 39 and 42 px against the bar's bottom at 47 and 53 px in 1920 x 1080 and 2560 x 1440, so the first bonus row touched the bar's gold edge at 1440 and ran under it at 4K.
+		# Measured from the bar's bottom instead, the row keeps its 1080 place at every resolution. (Claude code Opus 5.5) -->
+		hMoveBonusesDownTooHigh = gRect("CityScreenTopWidget").yBottom() - gRect("CityRightPanel").y() - VSPACE(7)
 		gSetRect("CityLeftPanelContents", "CityLeftPanel", RectLayout.CENTER, gRect("CityAdjustPanel").yBottom(), -HSPACE(9), gRect("LowerLeftCornerPanel").y() - gRect("LowerLeftCorner").y() + 4)
 		gSetRect("CityRightPanelContents", "CityRightPanel", RectLayout.CENTER, hMoveBonusesDownTooHigh, -HSPACE(9), gRect("LowerRightCornerPanel").y() - gRect("LowerRightCorner").y() + 4)
 		# <!-- custom: move culture bars to the right panel under Great People. (GPT-5.2-Codex) -->

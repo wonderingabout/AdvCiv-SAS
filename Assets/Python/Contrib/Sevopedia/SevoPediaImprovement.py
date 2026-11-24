@@ -148,7 +148,14 @@ class SevoPediaImprovement:
 			self.W_FEATURE_MAKES_VALIDS = self.W_TERRAIN_MAKES_VALIDS
 			self.X_IMPROVEMENT_ANIMATION = self.X_TERRAIN_MAKES_VALIDS + self.W_TERRAIN_MAKES_VALIDS + MEDIUM_MARGIN
 			self.W_IMPROVEMENT_ANIMATION = leftAreaRight - self.X_IMPROVEMENT_ANIMATION
-		self.H_IMPROVEMENT_ANIMATION = self.W_IMPROVEMENT_ANIMATION
+		self.H_SPECIAL = 289
+		self.Y_SPECIAL = self.top.B_PEDIA_PAGE - self.H_SPECIAL
+
+		# <!-- custom: The square animation box took the width left of the yield panels, about 2180 px at 3840 x 2066, so it ran past the page bottom over Background and hid the leader table.
+		# Cap its height so the leader table keeps about 10 rows above Special Abilities; at 1920 x 1080 the box stays square. (Claude code Opus 5.5) -->
+		iLeaderTableMinH = 10 * INCHART_ROW_HEIGHT
+		iMaxAnimationH = self.Y_SPECIAL - self.Y_IMPROVEMENT_ANIMATION - 2 * SMALL_MARGIN - iLeaderTableMinH
+		self.H_IMPROVEMENT_ANIMATION = max(self.H_TOP_RIGHT_STACK, min(self.W_IMPROVEMENT_ANIMATION, iMaxAnimationH))
 
 		self.H_TOP_ROW = max(self.H_IMPROVEMENT_PANE, self.H_TOP_RIGHT_STACK, self.H_IMPROVEMENT_ANIMATION)
 
@@ -156,9 +163,6 @@ class SevoPediaImprovement:
 		self.Y_IMPROVEMENT_LEADERS = self.Y_IMPROVEMENT_PANE + self.H_TOP_ROW + SMALL_MARGIN
 		self.W_IMPROVEMENT_LEADERS = leftAreaRight - self.X_IMPROVEMENT_PANE
 
-		self.H_SPECIAL = 289
-		self.H_HISTORY = 289
-		self.Y_SPECIAL = self.top.B_PEDIA_PAGE - self.H_SPECIAL
 		self.X_SPECIAL = self.X_IMPROVEMENT_PANE
 		self.W_SPECIAL = min(360, (self.W_IMPROVEMENT_LEADERS / 3) + 100)
 		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + MEDIUM_MARGIN
