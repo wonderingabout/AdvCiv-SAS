@@ -53,13 +53,19 @@ def wait_until_settled(pid: int, timeout: float = 600) -> None:
 
 
 # <!-- custom: Gained mod, AdvCiv-SAS by default so earlier callers start the same game, to start another mod such as base AdvCiv and compare a screen with SAS's (2026-11-23). See KI#1107. (Claude code Opus 5.5) -->
-def start(script: str, world_size: str, options: list[str], debug_mode: bool, ini_prefix: str = "SASStart", era: str | None = None, mod: str = "AdvCiv-SAS") -> tuple[int, Path]:
+# <!-- custom: Gained size, None by default so earlier callers keep the profile's resolution, to start a game at a chosen resolution (2026-11-24). See KI#123.4. (Claude code Opus 5.5) -->
+def start(script: str, world_size: str, options: list[str], debug_mode: bool, ini_prefix: str = "SASStart", era: str | None = None, mod: str = "AdvCiv-SAS", size: str | None = None) -> tuple[int, Path]:
 	base_ini = run_autoplay.USER_DIR / "CivilizationIV.ini"
 	current = re.search(r"(?mi)^\s*GameOptions\s*=\s*(\d+)", base_ini.read_bytes().decode("latin-1"))
 	settings = {"QuickStart": "1", "Map": script, "WorldSize": world_size}
 	# <!-- custom: The INI's QuickStart section takes Era like Map and WorldSize; added on 2026-11-19 for a later-era sample of the scoreboard and advisors, as older late-game saves no longer loaded. (Claude code Opus 5.5) -->
 	if era:
 		settings["Era"] = era
+	# <!-- custom: Added on 2026-11-24 to compare a game started at one resolution with one switched to it during play, as map_preview_dds.py sets its size. See KI#123.4. (Claude code Opus 5.5) -->
+	if size:
+		width, height = size.lower().split("x")
+		settings["ScreenWidth"] = str(int(width))
+		settings["ScreenHeight"] = str(int(height))
 	if options:
 		settings["GameOptions"] = game_options(current.group(1) if current else "", options)
 	ini_name = "%s_%s_%d.ini" % (ini_prefix, time.strftime("%Y%m%dT%H%M%S"), os.getpid())
@@ -127,6 +133,7 @@ def main() -> int:
 	parser.add_argument("--debug-mode", action="store_true", help="Press Ctrl+Z once the game is up, to reveal the map")
 	parser.add_argument("--era", help="Starting era by type, such as ERA_INDUSTRIAL; the INI's own by default")
 	parser.add_argument("--mod", default="AdvCiv-SAS", help="Mod folder name, such as AdvCiv for base AdvCiv to compare a screen; AdvCiv-SAS by default")
+	parser.add_argument("--size", metavar="WxH", help="Start at this resolution, such as 1920x1080, through the run's INI copy; the profile's own by default")
 	parser.add_argument("--list-mods", action="store_true", help="list the installed mods' folder names, for --mod, and exit")
 	args = parser.parse_args()
 	# <!-- custom: The mod folders hold archives and backups beside the mods, so only folders with an Assets folder are listed, the ones Civ4 can load (the user's idea, 2026-11-23).
@@ -141,7 +148,7 @@ def main() -> int:
 	if args.load:
 		print("pid %d; loaded %s" % (load(args.load, args.debug_mode, args.mod), args.load))
 		return 0
-	pid, ini_path = start(args.map, args.world_size, args.option, args.debug_mode, era=args.era, mod=args.mod)
+	pid, ini_path = start(args.map, args.world_size, args.option, args.debug_mode, era=args.era, mod=args.mod, size=args.size)
 	print("pid %d; per-run INI %s (delete it, and its .bak, after closing the game)" % (pid, ini_path))
 	return 0
 

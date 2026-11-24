@@ -42,6 +42,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/diagnostics/sas_game_record_log.py`](#builddiagnosticssas_game_record_logpy)
     - [`build/diagnostics/sas_revision_history.py`](#builddiagnosticssas_revision_historypy)
   - [Documentation](#documentation)
+    - [`build/documentation/agents_low_value_repeated_links.py`](#builddocumentationagents_low_value_repeated_linkspy)
     - [`build/documentation/art_samples.py`](#builddocumentationart_samplespy)
     - [`build/documentation/diagnostic_artifact_names.py`](#builddocumentationdiagnostic_artifact_namespy)
     - [`build/documentation/disclaimers_first.py`](#builddocumentationdisclaimers_firstpy)
@@ -518,6 +519,25 @@ Commit selection follows the event and explicit merge intent:
 This history check complements the minimal revision/default synchronization check and runs automatically in `checks-diagnostics.yml`. It needs canonical default-branch history, so that workflow performs a full-history metadata checkout with blob filtering.
 
 ### Documentation
+
+#### `build/documentation/agents_low_value_repeated_links.py`
+
+Keeps low-value repeated links out of AGENTS.md, which agents read whole, so a link whose target the text already names only adds a path to read past.
+
+As of now it covers KI links only: AGENTS.md links only its first KI mention, as `[KI#N](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-N)`, to show where the Known Issues live; every other mention is plain `KI#N`. `--fix` links and unlinks in place.
+
+- Agents read AGENTS.md whole, and a KI number names itself, so the Known Issues path repeated on each KI link was churn that took their focus (the user, 2026-11-24). Before the check, AGENTS.md linked 16 of its 64 KIs, some several times.
+  - The request named the rule, link only the first one, but not its intent, so Claude Code Opus 5.5 first read it as each KI's own first mention, and its `--fix` added 46 links; once the user gave the intent, it was clear that this went the opposite way.
+- Other links are not covered, so a new kind would be a new rule here. Links to helpers may repeat, as each repeat reminds agents that the helper matters; links to guides and AGENTS.md's own sections may too, as only about 20 of them repeated, too few to be worth a rule.
+- Mentions in code spans, fenced blocks and other links' labels are left as they are, and a number with no entry is not linked, such as KI#176.2, which was merged into KI#1091.
+- The name says what the check removes, links repeated across the document, such as the Known Issues path 16 times, that are of low value to agents, as the text already names their target (2026-11-24).
+  - `agents_ki_links` was too narrow, as KI links are only the first kind covered, and `agents_repeated_links` misled alone, as some repeats are allowed; `low_value` says which repeats go.
+  - Both words count: a low-value link used once or a few times costs little and can stay, while one repeated a dozen times or more, as the Known Issues path was, adds up.
+  - `agents_boilerplate_links` was less accurate, as boilerplate is text copied in a set shape, while these links were written one by one.
+
+```bash
+python .github/workflows/build/documentation/agents_low_value_repeated_links.py
+```
 
 #### `build/documentation/art_samples.py`
 

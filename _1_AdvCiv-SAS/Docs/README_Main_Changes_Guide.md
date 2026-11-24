@@ -2805,9 +2805,15 @@ Assuming the calculation is correct and reliable, the higher the drive, the more
 
 ## UI
 
-- Note: a few settings still need a Civ4 restart to apply, such as Full-screen Mode, Single Unit Graphics and SAS define edits; a change of screen resolution no longer does ([KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2), [KI#123.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3)).
-- (Requires AdvCiv-SAS 6857+) The Replay screen no longer needs a restart to fill the screen after a resolution change, where base AdvCiv laid it out once per session ([CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py), [KI#123.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.5)).
-- (Requires AdvCiv-SAS 6856+) The map's bonus bubbles, with any BUG Plot Indicator Size other than "BtS", are sized for the field of view in use on a game load and after a resolution change, where base AdvCiv sized them for the XML default or the previous resolution's ([KI#123.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.4)).
+- Note: a few settings still need a Civ4 restart to apply, such as Full-screen Mode, Single Unit Graphics and SAS define edits; some now no longer do, such as:
+  - (Requires AdvCiv-SAS 6858+) The main interface follows a resolution change in game again, as base AdvCiv's did ([KI#123.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3)).
+  - (Requires AdvCiv-SAS 6857+) The Replay screen no longer needs a restart to fill the screen after a resolution change, where base AdvCiv laid it out once per session ([CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py), [KI#123.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.5)).
+  - (Requires AdvCiv-SAS 6856+) The map's bonus bubbles, with any BUG Plot Indicator Size other than "BtS", are sized for the field of view in use on a game load and after a resolution change, where base AdvCiv sized them for the XML default or the previous resolution's ([KI#123.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.4)).
+  - (Requires AdvCiv-SAS 6853+) The Sevopedia no longer needs a restart to adjust its size after a resolution change in game (e.g. 1080p to 1440p or back); base AdvCiv kept its first size until Civ4 was restarted ([SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py), [KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2)).
+  - The BUG options choosing between the advisor variants, [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py) or BUG's [CvCustomizableDomesticAdvisor.py](/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py), and [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) or BUG's [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py), apply at the next opening of that advisor, where they needed a Civ4 restart ([CvScreensInterface.py](/Assets/Python/EntryPoints/CvScreensInterface.py), [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123)).
+- Note 2: although not directly related to the restart point above, some other screens had their size hard coded to be small regardless of resolution before their SAS rework, so even a restart did not help; they now adjust to the resolution dynamically, without needing a restart. They notably include:
+  - The advisors; see [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game).
+  - The main menu's setup screens, such as Simple Game; see [UI (Main Menu)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-main-menu).
 
 ### UI (Main Menu)
 
@@ -2875,7 +2881,6 @@ Note: New panels added or modified mostly not mentioned here for concision. See 
 
 - **Article text sources:** [`AdvCiv-SAS_Core.xml`](/Assets/XML/Text/AdvCiv-SAS_Core.xml) includes adapted rules/concept text; [`AdvCiv-SAS_Sevopedia_Lengthy.xml`](/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml) holds longer article descriptions.
 - Wider content area, narrower main category column; fills available screen space.
-- (Requires AdvCiv-SAS 6853+) No longer needs a restart to adjust its size after a resolution change in game (e.g. 1080p to 1440p or back), as the advisors already did; base AdvCiv kept its first size until Civ4 was restarted ([SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py), [KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2)).
 - Add **Search Bar**: shared by eligible Sevopedia categories (i.e. that have an item list, including Sevopedia Index); it allows to **search** for entries using the **keyboard**.
   - **Special characters** (`()_/*+-=[]'#&~;,:!?.@\|<>`) are **supported** for keyboard input with a **best-effort QWERTY/physical-key mapping** (e.g., `1` inputs `1`, and `Shift + 1` inputs `!`) because they are rarely used in Civ4 item names.
   - An optional **clickable special-character visual keyboard** (with a `KEYS` **toggle link to hide it**) is also available.
@@ -3059,6 +3064,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See 
   - So the Battles cache is kept for tab switching only, while full Military Advisor close/reopen rebuilds the screen/minimap for reliability.
   - See also [KI#129](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-129).
 - **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions.
+  - Most of them, in base AdvCiv and early SAS alike, were fixed 1024 x 768 boxes, such as the Military Advisor's `W_SCREEN = 1024` and `H_SCREEN = 768` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), which even a restart did not resize.
   - The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed.
   - Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.).
   - Some of their dimensions are **harmonized**.

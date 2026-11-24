@@ -20,6 +20,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 
 - The reasoning stays with the decision, so later work can see why something was done rather than only what.
 - Code comments end with `See KI#...`, so a grep for the number finds both the entry and every related part of the code.
+  - A plain `KI#7` also matches `KI#70` to `KI#79` and `KI#700` onward, so end a short number with a word boundary: `rg "KI#7\b"` finds `KI#7` and its follow-ups such as `KI#7.2`, as `\b` stops at a digit but not at `.`, and `rg -P "KI#7(?![\d.])"` finds `KI#7` alone. In links, `#ki-7)` is exact.
+  - Zero-padded numbers such as `KI#00007` would grep without this, but were not adopted (2026-11-24), as the boundary grep above already tells the numbers apart, so padding is not needed.
 
 ## Menu
 
