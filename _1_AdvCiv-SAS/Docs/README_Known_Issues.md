@@ -213,6 +213,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#123.3 - (Fixed SAS) After a resolution change in game, the city screen and then the map kept parts of the old resolution's layout until a restart: after 2560 x 1440 to 1920 x 1080, the city screen lost its bottom band and its right panel ran off the screen, as SAS kept the city screen's panel rects from the first interface build of the game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3)\
 [KI#123.4 - (Fixed inherited AdvCiv) The map's bonus bubbles drew at a size meant for another field of view: AdvCiv's size patch ran before the field of view for the resolution was set, so it used the XML's 42 when a game was loaded and the previous resolution's after a change in game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.4)\
 [KI#123.5 - (Fixed incomplete inherited AdvCiv solution) Vanilla's Replay screen stays a 1024 x 768 box at any resolution; AdvCiv made it scale with the resolution, but laid it out only once per session: after 1920 x 1080 to 2560 x 1440, the reopened replay stayed at 1920 x 1080 until a tedious Civ4 restart](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.5)\
+[KI#123.6 - (Fixed inherited AdvCiv) Turning BUG's Scale Up HUD off kept the main interface scaled until a Civ4 restart: AdvCiv's advc.092 set its scale factors only while the option was on, so a game load or resolution change kept the previous build's](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.6)\
 [KI#124 - (Fixed) Likely Base AdvCiv issue: map-view unit bar overflows into hovered/expanded scoreboard](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-124)\
 [KI#125 - (Fixed) Base AdvCiv issue: Sevopedia Back/Next history is lost on exit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-125)\
 [KI#126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-126)\
@@ -11925,6 +11926,14 @@ Update (2026-11-24): [KI#123.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-12
 
 Update (2026-11-24): [KI#123.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.5), the Replay screen, which AdvCiv laid out once per session, now lays out on every opening.
 
+Update (2026-11-24): five option tooltips still said a restart was needed, and now say when each option takes effect instead, in [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml):
+
+- The resolution dropdown (`TXT_KEY_OPTIONS_SCREEN_RES_HELP`): base AdvCiv's advc.092 text said a restart might be needed with Scale Up HUD on; the screens above now follow a change.
+- The BUG Military Advisor and Customizable Domestic Advisor options: base AdvCiv's "(restart required)" had been stale since this KI's fix, which applies them at the advisor's next opening.
+- The tech splash layout: base AdvCiv's "Restart required." was already stale there, as K-Mod's change hook, which AdvCiv routes through `BugScreenInit.py` (advc.009b), drops the splash screen, so the next one shown uses the new layout.
+- Scale Up HUD: the main interface reads it in `initState`, which runs on each game load and resolution change, so it takes effect then rather than after a restart; switching it off needed a restart until [KI#123.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.6).
+- Codex (GPT-6.2-Sol) reviewed the tooltips: it found KI#123.6, and corrected the tech splash hook's origin and the resolution wording.
+
 <a id="ki-123.2"></a>
 
 ## KI#123.2 - (Fixed incomplete inherited AdvCiv solution) BUG's Sevopedia stays at 1024 x 768 at any resolution, even after a restart; AdvCiv made the Sevopedia scale with the resolution, but only once per session: after 1920 x 1080 to 2560 x 1440 in game, the reopened Sevopedia stayed at 1920 x 1080 until a tedious Civ4 restart
@@ -12011,6 +12020,16 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 - Tested by the user with the fix (`Civ4ScreenShot0703` to `0707`, 2026-11-24): the replay filled 1920 x 1080, and after a switch to 2560 x 1440 from the main menu filled the new window too.
 - The same history as [KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2), the Sevopedia: a fixed 1024 x 768 box before AdvCiv, which made it fill the screen but laid it out once per session.
 - Other screens: a search for once-per-session layouts found only BUG's Customizable Domestic Advisor, whose position flag BUG already resets on its `ResolutionChanged` event (`BUG Advisors.xml`), so the Replay screen was the last of the KI#123 family's inherited cases; base AdvCiv 1.14 registers that event the same way, as BUG wrote it.
+
+<a id="ki-123.6"></a>
+
+## KI#123.6 - (Fixed inherited AdvCiv) Turning BUG's Scale Up HUD off kept the main interface scaled until a Civ4 restart: AdvCiv's advc.092 set its scale factors only while the option was on, so a game load or resolution change kept the previous build's
+
+- What it was: `initState` in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) sets the `LayoutDict` scale factors, which are module globals, only when Scale Up HUD is on and the screen is above 1024 x 768; otherwise it left them as the last build set them.
+  - So turning the option off, or a change to 1024 x 768, kept the old scaling until a restart, which base AdvCiv's tooltip for the option admitted ("Changes won't apply properly until Civ 4 is restarted").
+- Found (2026-11-24) by Codex's (GPT-6.2-Sol) review of SAS's rewrite of that tooltip, under [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123), to say the option applies at the next game load or resolution change: true when turning it on, not off.
+- Fixed (2026-11-24): `initState` resets the factors to 1.0 before each build, then scales only with the option on.
+- Tested the same day: a game loaded at 1920 x 1080 with the option on; the option turned off in the BUG menu, then the resolution changed in Options. The main interface rebuilt unscaled: the unit panel went from about 395 to 345 pixels wide, and the minimap and buttons shrank to match.
 
 <a id="ki-124"></a>
 

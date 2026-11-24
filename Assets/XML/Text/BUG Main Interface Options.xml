@@ -205,11 +205,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<English>Scale Up HUD</English>
 		<German>Anzeige vergrößern</German>
 	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__ENLARGEHUD_HOVER</Tag>
-		<English>When checked, the size of panels, buttons and the minimap is increased based on the rendering resolution. No effect when the resolution is set to the minimum (1024 x 768). Changes won't apply properly until Civ 4 is restarted.</English>
-		<German>Vergrößert Schaltflächen, die Minimap und andere Bedienelemente, wenn eine höhere Bildauflösung als 1024x768 Pixel eingestellt ist. Neustart von Civ 4 erforderlich.</German>
-	</TEXT>
 
 	<!-- advc.120c: Under the new heading, "Max/Min Buttons" should be clear
 		 enough. (Put "max" first to match the "+/-" order.) -->

@@ -136,15 +136,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Spanish>Consejero Militar BUG</Spanish>
 	</TEXT>
 
-	<!-- advc.004: Summary of features added -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGMA_HOVER</Tag>
-		<English>Enables the BUG Military Advisor (restart required), which allows the unit list to be sorted and grouped, lists possible alliances and shows strategic resources available to rivals.</English>
-		<German>Aktiviert den BUG-Militärberater (Neustart erforderlich) mit Sortierfunktionen für die Einheitenliste sowie Informationen über gegnerische strategische Ressourcen und mögliche Bündnisse.</German>
-		<Italian>Quando è selezionato, utilizza il Consigliere Militare del BUG Mod (è richiesto un  perchè il cambiamento abbia effetto).</Italian>
-		<Spanish>Permite emplear el consejero militar incluído en BUG (requiere reiniciar)</Spanish>
-	</TEXT>
-
 	<!-- advc.004: Now unused -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__WIDETECHSCREEN_TEXT</Tag>

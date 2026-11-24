@@ -829,6 +829,11 @@ class CvMainInterface:
 		# <advc.092>
 		gSetRectangle("Top", RectLayout(None, 0, 0, self.xResolution, self.yResolution))
 		self.bScaleHUD = MainOpt.isEnlargeHUD()
+		# <!-- custom: Reset to unscaled before each build: the factors are module globals, set below only with Scale Up HUD on and above 1024 x 768, so turning the option off, or a change to 1024 x 768, kept the last build's scaling until a Civ4 restart, as base AdvCiv's tooltip for the option said.
+		# Codex (GPT-6.2-Sol) found it reviewing that tooltip, which SAS rewrote to say the option applies on the next game load or resolution change. See KI#123.6. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		import LayoutDict
+		LayoutDict.gSetScaleFactors(1.0, 1.0, 1.0, 1.0)
+		del LayoutDict
 		if self.bScaleHUD:
 			# Divide by the aspects that the original HUD was (presumably) optimized for.
 			xRatio = math.pow(self.xResolution / 1024.0, 0.4)

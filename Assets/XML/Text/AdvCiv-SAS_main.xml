@@ -5113,4 +5113,31 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_COMPACT_HELP</Tag>
 		<English>[NEWLINE]Compact view: %d1 contiguous applied WorldBuilder edits (#%d2-#%d3). LOG exports the raw events.</English>
 	</TEXT>
+	<!-- custom: Was base AdvCiv's TXT_KEY_OPTIONS_SCREEN_RES_HELP in CIV4GameText_advc_OptionsScreen.xml, removed there as SAS keeps changed text only in its own files.
+	Its English named the dropdown, then said: "If the [COLOR_HIGHLIGHT_TEXT]Scale Up HUD[COLOR_REVERT] option is enabled on the BUG menu, then the game may have to be restarted to re-scale all widgets properly after a change to the screen resolution."
+	SAS's advisors lay themselves out on each opening, and the Sevopedia, the main interface, the map's bonus bubbles and the Replay screen now follow a resolution change too, so no restart is needed. See KI#123.2, KI#123.3, KI#123.4 and KI#123.5. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_OPTIONS_SCREEN_RES_HELP</Tag>
+		<English>Screen Resolution. No restart is needed: the main interface adjusts to a new resolution at once, and screens such as the advisors, the Sevopedia and the Replay screen when next opened.</English>
+	</TEXT>
+	<!-- custom: Was BUG's text, as edited by base AdvCiv (advc.004) in BUG Advisors Options.xml, which said "(restart required)"; SAS rebuilds the advisor when this option changes, so the next opening uses it. See KI#123. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGMA_HOVER</Tag>
+		<English>Enables the BUG Military Advisor, which allows the unit list to be sorted and grouped, lists possible alliances and shows strategic resources available to rivals. Takes effect the next time the advisor opens.</English>
+	</TEXT>
+	<!-- custom: Was BUG's text, as edited by base AdvCiv (advc.004) in CustDomAdv Options.xml, which said "(restart required)"; SAS rebuilds the advisor when this option changes, so the next opening uses it. See KI#123. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_CUSTDOMADV__ENABLED_HOVER</Tag>
+		<English>Enables the Customizable Domestic Advisor. Takes effect the next time the advisor opens.</English>
+	</TEXT>
+	<!-- custom: Was base AdvCiv's text (advc.004) in TechWindow Options.xml, ending "Restart required.", which was already stale there: K-Mod's change hook on this option, deleteTechSplash, which AdvCiv routes through BugScreenInit.py (advc.009b), drops the splash screen so the next one shown builds the chosen layout (Codex's review). See KI#123. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__VIEWTYPE_HOVER</Tag>
+		<English>The layout of the popup ("splash screen") shown after discovering a new technology. The [COLOR_HIGHLIGHT_TEXT]Extended[COLOR_REVERT] layout spreads the information across five panes instead of two. [COLOR_HIGHLIGHT_TEXT]Wide[COLOR_REVERT] is the same as Extended, but in a larger (wider) window.[NEWLINE]Takes effect at the next tech splash shown.</English>
+	</TEXT>
+	<!-- custom: Was base AdvCiv's text (advc.092) in BUG Main Interface Options.xml, ending "Changes won't apply properly until Civ 4 is restarted."; the main interface reads this option in initState, which runs on each game load and each resolution change, and since KI#123.6 also unscales when it is off. See KI#123 and KI#123.6. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__ENLARGEHUD_HOVER</Tag>
+		<English>When checked, the size of panels, buttons and the minimap is increased based on the rendering resolution. No effect when the resolution is set to the minimum (1024 x 768). Takes effect the next time a game is loaded or the resolution changes.</English>
+	</TEXT>
 </Civ4GameText>
