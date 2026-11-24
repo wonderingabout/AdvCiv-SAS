@@ -113,32 +113,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_SEARCH_H = 32
 		self.SAS_SEARCH_KEYBOARD_CHARS = (u"(", u")", u"_", u"/", u"*", u"+", u"-", u"=", u"[", u"]", u"'", u"#", u"&", u"~", u";", u",", u":", u"!", u"?", u".", u"@", u"\\", u"|", u"<", u">")
 		# <!-- custom: End - search bar for the left item list (initially based on how Realism Invictus does it) (chatgpt 5.2 + claude opus 4.5 + Claude code Opus 5.5) -->
-		self.H_SCREEN = 768
-		self.W_SCREEN = 1024
-
-		# <advc.004y>
-		self.bWideScreen = True
-		self.bFullScreen = True
-		if self.bFullScreen:
-			self.bWideScreen = True
-		# <!-- custom: Not much value in being able to see the elements at the edge parts of the screen, however i think the extra room can be useful to fit more data or simply enlarge the view, hopefully making it all clearer and more pleasant to see.
-		# Other mods use the entire screen for the sevopedia, tested removing margins and i like it very much so removed them now. -->
-		self.HORIZONTAL_MARGIN = 0
-		# VERTICAL_MARGIN: Want the Advisor buttons to remain visible. BOTTOM_MARGIN could be 0, but I don't think asymmetrical margins look good.
-		self.TOP_MARGIN = 0
-		self.BOTTOM_MARGIN = 0
-		if self.bWideScreen:
-			self.W_SCREEN = max(self.W_SCREEN, self.getScreen().getXResolution() - 2 * self.HORIZONTAL_MARGIN)
-			if self.W_SCREEN <= 1024:
-				self.bWideScreen = False
-				self.bFullScreen = False
-		if self.bFullScreen:
-			self.H_SCREEN = max(self.H_SCREEN, self.getScreen().getYResolution() - self.BOTTOM_MARGIN - self.TOP_MARGIN)
-			if self.H_SCREEN <= 768:
-				self.bFullScreen = False
-		#self.X_SCREEN = 500 # now unused
-		#self.Y_SCREEN = 396 # unused to begin with
-		# </advc.004y>
+		# <!-- custom: The frame is the whole screen, from the resolution this layout and its pages were built for; pediaJump rebuilds them at another. See KI#123.2.
+		# Base AdvCiv's advc.004y started from a 1024 x 768 frame, widened it to the resolution minus margins, and kept a centred 1024 x 768 box on screens no larger than that.
+		# SAS had already set the margins to 0, "Other mods use the entire screen for the sevopedia, tested removing margins and i like it very much so removed them now.", and supports nothing below 1920 x 1080, so the frame was always the resolution; the 1024 x 768 start, margins and wide/full-screen flags are removed. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		self.SAS_iBuiltXRes = self.getScreen().getXResolution()
+		self.SAS_iBuiltYRes = self.getScreen().getYResolution()
+		self.W_SCREEN = self.SAS_iBuiltXRes
+		self.H_SCREEN = self.SAS_iBuiltYRes
 
 		self.H_PANEL = 55
 
@@ -161,20 +142,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if SASTextScale.getSASUIFontLabel() > 3:
 			iCategoryWidth = 166
 		self.W_CATEGORIES = iCategoryWidth
-		# <advc.004y>
-		if self.bWideScreen:
-			self.W_CATEGORIES = iCategoryWidth
-		# </advc.004y>
 		self.H_CATEGORIES = (self.Y_BOT_PANEL + 3) - self.Y_CATEGORIES
 
 		self.X_ITEMS = self.X_CATEGORIES + self.W_CATEGORIES + 2
 		self.Y_ITEMS = self.Y_CATEGORIES
 		# <!-- custom: same reasoning as for/in smaller categories, did not test but should be fine with the new space was 210 -->
 		self.W_ITEMS = 230
-		# <advc.004y>
-		if self.bWideScreen:
-			self.W_ITEMS = 230
-		# </advc.004y>
 		self.H_ITEMS = self.H_CATEGORIES
 
 		self.X_PEDIA_PAGE = self.X_ITEMS + self.W_ITEMS + 18
@@ -806,8 +779,28 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# This lets players inspect several entries (e.g. Leader AIP pages), exit to the map, reopen Sevopedia, and still use Back/Next instead of rebuilding the same navigation chain. See KI#125. (GPT-5.5) -->
 		self.pediaJump(current[0], current[1], False, True, SASGameRecordActions.SHOW)
 
+	# <!-- custom: After an in-game resolution change, the Sevopedia opened at the old resolution's size, as __init__ computes its layout, and each page object its own, once per game.
+	# Every opening, link and Back/Next goes through pediaJump, so it compares the resolution there, two cheap calls, and re-runs __init__ on a change: the same object, which CvScreensInterface's input maps keep, with Back/Next history and active player carried over.
+	# Codex's (GPT-6.2-Sol) review found two cases: an open movie or music player would be forgotten by the new page objects, so they are closed first; and with the screen still active, createScreen would be skipped, so the rebuild waits for the next opening.
+	# Note: pediaJump also closes both players on every navigation, a few lines after its rebuild check, so the close here is redundant there; it is kept so the rebuild stays safe from any other caller, and moving the check below that close would need a new in-game test for no change in behaviour. See KI#123.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	def SAS_rebuildForResolution(self, iNewW, iNewH):
+		CvUtil.pyPrintRecord("SEVOPEDIA_RESOLUTION_CHANGE", "fromW=%d fromH=%d toW=%d toH=%d" % (self.SAS_iBuiltXRes, self.SAS_iBuiltYRes, iNewW, iNewH))
+		if self.pediaMovies.isMoviePlayerOpen():
+			self.pediaMovies.leaveMoviePlayer()
+		if self.pediaMusic.isMusicPlayerOpen():
+			self.pediaMusic.leaveMusicPlayer()
+		kept = (self.pediaHistory, self.pediaFuture, self.SAS_lastPediaJump, self.iActivePlayer, self.iCategory, self.iItem)
+		self.__init__()
+		(self.pediaHistory, self.pediaFuture, self.SAS_lastPediaJump, self.iActivePlayer, self.iCategory, self.iItem) = kept
+
 	# <!-- custom: Optional action label lets Back/Forward preserve their cause while ordinary callers keep NAVIGATE; final normalized category/item values remain the authoritative destination. (ChatGPT-5.6-Sol) -->
 	def pediaJump(self, iCategory, iItem, bRemoveFwdList, bIsLink, szSASAction=SASGameRecordActions.NAVIGATE):
+		# <!-- custom: Rebuild the layout and pages first if the resolution changed since they were built. See KI#123.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		screen = self.getScreen()
+		iNewW = screen.getXResolution()
+		iNewH = screen.getYResolution()
+		if (iNewW != self.SAS_iBuiltXRes or iNewH != self.SAS_iBuiltYRes) and not screen.isActive():
+			self.SAS_rebuildForResolution(iNewW, iNewH)
 		# <!-- custom: note: fixed a (seemingly base advciv) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed so reverted everything as base advciv code was minus this extra code comment, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or KI#22 for details as well. -->
 		# <!-- custom: Close the media overlay when a title or queue link actually navigates.
 		# Waiting for a named table event can miss the jump and leave the timer writing to a hidden screen.
@@ -949,7 +942,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if iCategory is None:
 			iCategory = self.SAS_defaultCategory
 		self.deleteAllWidgets()
-		# <!-- custom: keep Sevopedia layout as restart-based for resolution changes; main interface still needs restart after in-session resolution switches to avoid broken layout, so we don't add dynamic per-resolution reflow across Sevopedia screens. (GPT-5.3-Codex) -->
 		screen = self.getScreen()
 		if iCategory == SevoScreenEnums.PEDIA_MUSIC:
 			iMusicItemsWidth = self.SAS_SEVO_MUSIC_ITEMS_WIDTH
@@ -1076,15 +1068,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen.addDDSGFC(self.BACKGROUND_ID, SASVisuals.InterfaceArt.getPath(self.INTERFACE_ART_INFO), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.addPanel(self.TOP_PANEL_ID, u"", u"", True, False, self.X_TOP_PANEL, self.Y_TOP_PANEL, self.W_TOP_PANEL, self.H_TOP_PANEL, PanelStyles.PANEL_STYLE_TOPBAR)
 		screen.addPanel(self.BOT_PANEL_ID, u"", u"", True, False, self.X_BOT_PANEL, self.Y_BOT_PANEL, self.W_BOT_PANEL, self.H_BOT_PANEL, PanelStyles.PANEL_STYLE_BOTTOMBAR)
-		# <advc.004y>
-		X_SCREEN = self.HORIZONTAL_MARGIN
-		Y_SCREEN = self.BOTTOM_MARGIN
-		if not self.bWideScreen:
-			X_SCREEN = screen.centerX(0)
-		if not self.bFullScreen:
-			Y_SCREEN = screen.centerY(0)
-		# </advc.004y>
-		screen.setDimensions(X_SCREEN, Y_SCREEN, self.W_SCREEN, self.H_SCREEN)
+		# <!-- custom: Was advc.004y's centring of a 1024 x 768 frame on small screens; the frame is now always the whole screen, see __init__. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		screen.setDimensions(0, 0, self.W_SCREEN, self.H_SCREEN)
 
 		screen.setText(self.HEAD_ID, "Background", self.HEAD_TEXT, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		# <!-- custom: Note: removed generic footer setText from this common-widgets block because it became redundant/no longer relevant here; footer link placement is now handled in showContents where category-specific behavior (Leader AIP overflow exception) is applied. (GPT-5.3-Codex) -->

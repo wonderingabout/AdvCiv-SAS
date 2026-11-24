@@ -2873,6 +2873,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See 
 
 - **Article text sources:** [`AdvCiv-SAS_Core.xml`](/Assets/XML/Text/AdvCiv-SAS_Core.xml) includes adapted rules/concept text; [`AdvCiv-SAS_Sevopedia_Lengthy.xml`](/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml) holds longer article descriptions.
 - Wider content area, narrower main category column; fills available screen space.
+- (Requires AdvCiv-SAS 6853+) No longer needs a restart to adjust its size after a resolution change in game (e.g. 1080p to 1440p or back), as the advisors already did; base AdvCiv kept its first size until Civ4 was restarted ([SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py), [KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2)).
 - Add **Search Bar**: shared by eligible Sevopedia categories (i.e. that have an item list, including Sevopedia Index); it allows to **search** for entries using the **keyboard**.
   - **Special characters** (`()_/*+-=[]'#&~;,:!?.@\|<>`) are **supported** for keyboard input with a **best-effort QWERTY/physical-key mapping** (e.g., `1` inputs `1`, and `Shift + 1` inputs `!`) because they are rarely used in Civ4 item names.
   - An optional **clickable special-character visual keyboard** (with a `KEYS` **toggle link to hide it**) is also available.

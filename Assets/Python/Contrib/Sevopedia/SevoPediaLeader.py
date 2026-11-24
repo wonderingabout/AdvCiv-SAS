@@ -99,7 +99,7 @@ class SevoPediaLeader:
 		self.ERA_ICON_SIZE = 16
 		# <!-- custom: cache resolved AI categories once at init for this screen instance (runtime Y-resolution aware); no separate header/symbol cache is needed because this already avoids per-draw rebuild cost.
 		# Also only do this when AIP is enabled; otherwise skip needless setup.
-		# We intentionally don't re-resolve on in-session resolution changes: main interface still needs restart after such changes for correct layout, so dynamic Sevopedia-only redraw adds complexity for little practical gain. (GPT-5.3-Codex) -->
+		# A resolution change during the game needs no code here: SevoPediaMain re-runs its __init__ at a new resolution, which builds this page again. See KI#123.2. (GPT-5.3-Codex + Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		if IS_SAS_SEVO_LEADER_AI_ON:
 			iScreenHeight = self.top.getScreen().getYResolution()
 			self.aiRightCategories, self.aiMiddleCategories, self.aiLeftCategories = self.buildAICategoriesForCurrentResolution(iScreenHeight)

@@ -207,6 +207,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#121 - (Fixed) Base AdvCiv bug: `CvVoteSourceInfo` parses `ReligionCommerces` into the wrong array](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-121)\
 [KI#122 - (Fixed) While adding Sevopedia EventTriggerInfo missing getters, found and fixed 3 DLL Python-binding bugs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-122)\
 [KI#123 - (Fixed) BUG Domestic/Military advisor variant toggles required restarting Civ4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123)\
+[KI#123.2 - (Fixed incomplete inherited AdvCiv solution) BUG's Sevopedia stays at 1024 x 768 at any resolution, even after a restart; AdvCiv made the Sevopedia scale with the resolution, but only once per session: after 1920 x 1080 to 2560 x 1440 in game, the reopened Sevopedia stayed at 1920 x 1080 until a tedious Civ4 restart](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2)\
 [KI#124 - (Fixed) Likely Base AdvCiv issue: map-view unit bar overflows into hovered/expanded scoreboard](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-124)\
 [KI#125 - (Fixed) Base AdvCiv issue: Sevopedia Back/Next history is lost on exit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-125)\
 [KI#126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-126)\
@@ -11903,6 +11904,33 @@ ERR: Python function showDomesticAdvisor failed, module CvScreensInterface
 File changed:
 
 - [Assets/Python/EntryPoints/CvScreensInterface.py](/Assets/Python/EntryPoints/CvScreensInterface.py)
+
+Update (2026-11-24): [KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2) follows the same pattern for a resolution change: the Sevopedia, built once per game, is now rebuilt when the resolution differs from the one it was built at.
+
+<a id="ki-123.2"></a>
+
+## KI#123.2 - (Fixed incomplete inherited AdvCiv solution) BUG's Sevopedia stays at 1024 x 768 at any resolution, even after a restart; AdvCiv made the Sevopedia scale with the resolution, but only once per session: after 1920 x 1080 to 2560 x 1440 in game, the reopened Sevopedia stayed at 1920 x 1080 until a tedious Civ4 restart
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1PFWXpfxYVExQGVKmmDnkMu5KjhrVuN5b?usp=sharing).
+
+- What it was, in base AdvCiv 1.14, from the user's screenshots of its Sevopedia opened from the main menu (2026-11-24), both ways:
+  - At 1920 x 1080 it filled the screen within its margins (`Civ4ScreenShot0682`); after a change to 2560 x 1440 it kept its 1920 x 1080 size in the top-left corner (`0683`).
+  - At 2560 x 1440 it filled the screen (`0684`); after a change to 1920 x 1080 it kept its 2560 x 1440 size, running off the bottom and right edges (`0685`).
+  - SAS's Sevopedia kept that once-per-session layout until this fix.
+- Origin, from the `commit_diffs` corpus:
+  - BUG's Sevopedia, as in K-Mod's copy, was always a 1024 x 768 box (`W_SCREEN = 1024`) centred on the screen, whatever the resolution: a resolution change never affected it, so it needed no restart, but it left the rest of a larger screen unused.
+  - Base AdvCiv's advc.004y, "Wide-screen Sevopedia (tentative)", practical 1505 (`077dae13b2`, 2019-05-17), made it fill the screen by taking its size from the resolution, but read it only once, in `__init__`, so after a change it kept its first size for the session.
+    - So the restart need came with an improvement that stopped short of resolution changes made during play, rather than a regression: BUG's box never used the larger screen at all.
+    - Its layout was not hard-coded, though: `SevoPediaMain.__init__` read the resolution and built its 22 page objects there, each anchored on the main frame (`X_PEDIA_PAGE`, `R_PEDIA_PAGE`, `B_PEDIA_PAGE`), some widths scaled by the resolution over 1024, such as the Unit page's `W_UNIT_PANE`.
+    - So re-running `__init__`, as the fix below does, would have been enough in base AdvCiv too, unlike the advisors, whose fixed 1024 x 768 boxes SAS had to lay out anew.
+  - SAS practical 5635 (`6ae1dc83d0`, 2026-04-10) added two comments keeping the Sevopedia restart-based "because main interface still needs restart after in-session resolution switches".
+- Fixed (2026-11-24): `pediaJump` in [`SevoPediaMain.py`](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py), which every opening, link and Back/Next goes through, compares the resolution with the one the instance was built at and, on a change, re-runs `__init__` on the same object, carrying over Back/Next history and active player.
+  - Re-running `__init__` rather than a layout helper: its 24 page classes, such as the Leader page in [`SevoPediaLeader.py`](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py), take their layout from the frame in their own `__init__`, so a helper would have meant splitting each of them too; a rebuild costs about as much as the first opening, once per resolution change.
+  - Codex's (GPT-6.2-Sol) review of the draft found two more cases: an open movie or music player would be forgotten by the new page objects, so they are closed first; and a rebuild while the screen was still active would skip `createScreen`, so the rebuild waits until the Sevopedia is next opened. Neither case was seen in game.
+  - Its frame no longer starts from advc.004y's 1024 x 768: SAS had set the margins to 0 and supports nothing below 1920 x 1080, so the frame was always the resolution, which it now is directly.
+  - Each rebuild writes a `SEVOPEDIA_RESOLUTION_CHANGE` row to `PythonDbg.log`, with the old and new sizes.
+- Tested (2026-11-24) by Claude Code Opus 5.5 in a turn-0 game through `desktop_windows.py`: after 1920 x 1080 to 2560 x 1440 in the Options, the Sevopedia filled the new window, with `SEVOPEDIA_RESOLUTION_CHANGE fromW=1920 fromH=1080 toW=2560 toH=1440` and no Python error.
+- The advisors had followed a resolution change since SAS laid them out each time they open (practical 5580, 2026-03-21, onward); the Sevopedia now does too.
 
 <a id="ki-124"></a>
 

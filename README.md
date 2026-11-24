@@ -8,15 +8,28 @@ The core changes brought by this mod are as of now an AI overhaul to make it muc
 
 Heavy reworks were made, while otherwise mostly staying in the base AdvCiv frame, but with a focus on game balance, generally more historical accuracy (but not too much else gameplay is impractical (e.g. religions appearing too late or too few or not varied enough to be gameplay relevant or effective at all)) and strategic value (e.g. if all religions beeline from same tech path it would not be too balanced or strategically diverse or valuable).
 
-As for in particular UI in Sevopedia (e.g., item grouping, new Search Bar, Keyboard navigation (UP/DOWN for category-list items; LEFT/RIGHT for BACK/NEXT pages visited), Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to), Vote (Votesources and Votes), EventTrigger (Event Triggers and Events), Route (e.g. Road and Railroad), Expanded Text Panels), Legend links to Sevopedia entries to various UI tabs including in Sevopedia, advisors, etc.
+As for in particular UI in Sevopedia, which now adjusts dynamically depending on current resolution without needing a restart anymore, notably but not only:
+
+- Leader (AI Personality Panel with detailed XML statistics and min/max/percentile ranking per field, clickable leader animations to select attitude (e.g. furious, friendly, etc.) or action (e.g. greet, disagree, etc.))
+- Items being grouped (by Era, Type, etc.)
+- new Search Bar
+- Keyboard navigation (UP/DOWN for category-list items; LEFT/RIGHT for BACK/NEXT pages visited)
+- Index as Category and as the Home
+- New Charts (Handicaps, Speeds, Eras, World Sizes, and within categories (e.g. Traits charts, Tradeability and Starting Techs charts))
+- Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)
+- Vote (Votesources and Votes)
+- EventTrigger (Event Triggers and Events)
+- Routes (e.g. Road and Railroad)
+- Expanded Panel (Playground for text/background color selection and maximized text, Animations e.g. for bonuses, leaders, buildings, etc.).
+- Legend links to Sevopedia entries to various UI tabs including in Sevopedia, advisors, etc.
 
 Among other UI changes, notably, the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)). As for advisor screens in particular, and they have been reworked or new ones were added. For example, notably:
 
 - new Military Advisor Summary Tab, new Composition Tab, new Battles Tab (history of all battles of all players, now stored persitently in save files even at load again as well)
 - new World Advisor with Geography tabs (BFC 1, BFC 2 and Territory), an Environment tab for pollution/global warming, and a Changes tab for saved World Changes history (WorldBuilder edits and Advanced Start actions), preserved after reloading
-- new Info Screen Score Tab and Timeline tabs
+- new Info Screen Score Tab and Timeline tabs (hides spoilers)
 
-They were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well, and they now also dynamically adjust to game resolution or generally much better so than before.
+Advisors have been also expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors now also dynamically adjust to game resolution or generally much better so than before.
 
 Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
 

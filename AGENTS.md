@@ -210,23 +210,29 @@ Use these specialized records for inherited regressions, suspicious behavior cha
     - Example 1: Water transit (KI#623.2):
       - Vague: "Fix inherited land pathfinding that treated ship loading as water transit."
       - Clearer: "Fix K-Mod AI coastal-loading regression that activated a BtS water-transit weakness."
-      - Why: "inherited" leaves the provenance unnamed. The clearer title explains both contributions: BtS supplied the older loading/transit weakness, and K-Mod activated the captured AI case by removing its coastal-loading restriction. Naming only BtS or only K-Mod would lose part of that causal explanation.
+      - Why it was unclear: "inherited" leaves the provenance unnamed. The clearer title explains both contributions: BtS supplied the older loading/transit weakness, and K-Mod activated the captured AI case by removing its coastal-loading restriction. Naming only BtS or only K-Mod would lose part of that causal explanation.
         - The technical precision on pathfinding was useful and good to keep ideally though.
     - Example 2: Replay/Hall of Fame (KI#166.2, KI#166.3):
       - Less clear (original KI heading): "KI#166.2 - (Fixed/Addressed SAS replay-identity follow-up exposed by SASAssertions) AdvCiv's packed replay ID could let incompatible AdvC/legacy shared-ID replays reach current SAS field bounds".
       - Clearer (actual combined commit title): "Fix inherited AdvCiv replay bounds and restore SAS Hall of Fame (KI#166.2, KI#166.3)".
-      - Why: the old heading is unintelligible and difficult for a user to understand at a glance: what failed, and why does it matter?
+      - Why it was unclear: the old heading is unintelligible and difficult for a user to understand at a glance: what failed, and why does it matter?
         - The accepted title names both practical repairs: fix AdvCiv's inherited replay bounds, which were unsuitable for mod-mod calendars, and restore missing SAS Hall-of-Fame entries rejected by those bounds. It identifies the inherited reader problem and the affected SAS feature separately, and their separate provenances.
         - "Exposed by assertions" would have been useful discovery context ideally too; the actual title maybe forgot it or did so for concision or such perhaps.
     - Example 3: Victory screen shares (KI#290.2, 2026-11-15):
       - Abstract: "printed the best rival's population and land shares as whole percents through Python 2 integer division".
       - Concrete (the user's suggestion): "showed the best rival's population share as 2.00% instead of 2.30%: Python 2 integer division cut it to whole percents".
-      - Why: the observed wrong value beside the right one shows the bug at once and is easier to remember and recognize on screen; the mechanism can follow after a colon. Put such a pair in a title when the issue has one.
+      - Why the concrete one is clearer: the observed wrong value beside the right one shows the bug at once and is easier to remember and recognize on screen; the mechanism can follow after a colon. Put such a pair in a title when the issue has one.
     - Example 4: Crash dumps (KI#1089, 2026-11-16):
       - Vague (Claude Code Opus 5.5's title): "Work around every Civ4 writing its crash dump to the same file, so with two clients a dump cannot be told apart and a second crash replaces the first".
       - Clearer (the user's suggestion): "Add the process ID to Civ4 crash dump file names, to work around every instance overwriting the previous crash dump, whose name alone did not show which of several instances crashed".
-      - Why: the vague title gives the reason before the action, so a reader could not tell at first what the commit did; its "so with two clients…" chain was also hard to follow.
+      - Why it was unclear: the vague title gives the reason before the action, so a reader could not tell at first what the commit did; its "so with two clients…" chain was also hard to follow.
       - In the user's analogy, a commit titled "I was hungry" gives a rationale out of context. The title says "Buy 2 apples at noon", and the body "I was hungry and the canteen was closed, so as a workaround I went to the grocery store to buy apples".
+    - Example 5: Sevopedia after a resolution change (KI#123.2, 2026-11-24):
+      - Misleading: "(Fixed inherited AdvCiv) After a resolution change in game, the Sevopedia kept its old size until a restart: after 1920 x 1080 to 2560 x 1440 it opened at 1920 x 1080 in the top-left corner, as base AdvCiv's wide-screen Sevopedia (advc.004y) took its size from the resolution only once per session".
+      - Clearer (the user's suggestion): "(Fixed incomplete inherited AdvCiv solution) BUG's Sevopedia stays at 1024 x 768 at any resolution, even after a restart; AdvCiv made the Sevopedia scale with the resolution, but only once per session: after 1920 x 1080 to 2560 x 1440 in game, the reopened Sevopedia stayed at 1920 x 1080 until a tedious Civ4 restart".
+      - Why it was unclear: the old title was technically true, but "Fixed inherited AdvCiv" and its closing clause read as if AdvCiv had broken the Sevopedia, while BUG's never followed the resolution at all; AdvCiv improved it and only stopped short of changes during play.
+        - It also skipped the chain of causality, a common slip for agents: naming the mods where an issue occurs rather than what each one did to it. Without that, a reader cannot tell a step back from an unfinished step forward.
+        - Before labelling a defect, ask what the layer before it did: a step back is a "regression", an unfinished step forward "incomplete".
 - [`historical_source_archaeology.txt`](/_1_AdvCiv-SAS/Docs/Source_Analysis/historical_source_archaeology.txt) records the completed commit-oriented lineage sweep; use the workflow above for new questions rather than treating that one record as the definition of archaeology.
 - For AdvCiv-SAS release-history/provenance questions, use [`Docs/changelogs_web/`](/_1_AdvCiv-SAS/Docs/changelogs_web/) for manually archived published CivFanatics/ModDB release text and [`Docs/dev_logs/`](/_1_AdvCiv-SAS/Docs/dev_logs/) for the detailed tracked commit history.
   - The published changelog copies are historical source material, not a replacement for current source/Git when exact implementation state matters.
