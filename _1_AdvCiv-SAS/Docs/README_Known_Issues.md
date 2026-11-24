@@ -208,6 +208,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#122 - (Fixed) While adding Sevopedia EventTriggerInfo missing getters, found and fixed 3 DLL Python-binding bugs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-122)\
 [KI#123 - (Fixed) BUG Domestic/Military advisor variant toggles required restarting Civ4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123)\
 [KI#123.2 - (Fixed incomplete inherited AdvCiv solution) BUG's Sevopedia stays at 1024 x 768 at any resolution, even after a restart; AdvCiv made the Sevopedia scale with the resolution, but only once per session: after 1920 x 1080 to 2560 x 1440 in game, the reopened Sevopedia stayed at 1920 x 1080 until a tedious Civ4 restart](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2)\
+[KI#123.3 - (Fixed SAS) After a resolution change in game, the city screen and then the map kept parts of the old resolution's layout until a restart: after 2560 x 1440 to 1920 x 1080, the city screen lost its bottom band and its right panel ran off the screen, as SAS kept the city screen's panel rects from the first interface build of the game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3)\
 [KI#124 - (Fixed) Likely Base AdvCiv issue: map-view unit bar overflows into hovered/expanded scoreboard](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-124)\
 [KI#125 - (Fixed) Base AdvCiv issue: Sevopedia Back/Next history is lost on exit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-125)\
 [KI#126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-126)\
@@ -11913,6 +11914,8 @@ File changed:
 
 Update (2026-11-24): [KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2) follows the same pattern for a resolution change: the Sevopedia, built once per game, is now rebuilt when the resolution differs from the one it was built at.
 
+Update (2026-11-24): [KI#123.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3) does the same for the main interface, whose city-screen panel rects SAS had kept from the first build of the game.
+
 <a id="ki-123.2"></a>
 
 ## KI#123.2 - (Fixed incomplete inherited AdvCiv solution) BUG's Sevopedia stays at 1024 x 768 at any resolution, even after a restart; AdvCiv made the Sevopedia scale with the resolution, but only once per session: after 1920 x 1080 to 2560 x 1440 in game, the reopened Sevopedia stayed at 1920 x 1080 until a tedious Civ4 restart
@@ -11937,6 +11940,28 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
   - Each rebuild writes a `SEVOPEDIA_RESOLUTION_CHANGE` row to `PythonDbg.log`, with the old and new sizes.
 - Tested (2026-11-24) by Claude Code Opus 5.5 in a turn-0 game through `desktop_windows.py`: after 1920 x 1080 to 2560 x 1440 in the Options, the Sevopedia filled the new window, with `SEVOPEDIA_RESOLUTION_CHANGE fromW=1920 fromH=1080 toW=2560 toH=1440` and no Python error.
 - The advisors had followed a resolution change since SAS laid them out each time they open (practical 5580, 2026-03-21, onward); the Sevopedia now does too.
+
+<a id="ki-123.3"></a>
+
+## KI#123.3 - (Fixed SAS) After a resolution change in game, the city screen and then the map kept parts of the old resolution's layout until a restart: after 2560 x 1440 to 1920 x 1080, the city screen lost its bottom band and its right panel ran off the screen, as SAS kept the city screen's panel rects from the first interface build of the game
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1pTpdKjBxXABZhwAvpNcOQiIRpFlHaUyW?usp=sharing).
+
+- What it was, in a turn-101 game switched between 2560 x 1440 and 1920 x 1080 in the Options (2026-11-24), compared with the same save loaded at each resolution:
+  - The map was right after the change, until the city screen was opened: its bottom band was gone, the production buttons sat over the map and the right panel's culture lines ran off the bottom.
+  - After leaving the city, the map's bottom corner panels, unit bar and minimap were misplaced too.
+  - With the city screen open during the change, the city screen was right, but after leaving it the end-turn button and the city arrows sat by the screen's bottom edge instead of beside the minimap.
+- Cause: the engine runs `interfaceScreen`, and so `initState`, again after a resolution change, and `initState` lays every rect out at the new resolution, but [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) kept three things from an earlier build:
+  - `_cacheCityScreenSideLiftRects` captured the bottom and side panel rects once per game, behind a `hasattr` guard, and the city screen's lift restored them on entering and leaving the city.
+  - Five offsets scaled through `VSPACE`/`HLEN`/`VLEN` were cached once, such as the city screen's blue ribbon lift.
+  - `initState` put the end-turn button at the lower-right corner's bottom when the city screen was open at build time, else at the minimap's top; a game load always builds in map view, so only a rebuild inside the city used the first.
+- Origin, from the `commit_diffs` corpus: SAS's main interface revamp added the rect cache and the end-turn branch, practical 5384 (`978e8252b3`, 2026-01-28), and the blue ribbon and bar offsets came with practical 5690 (`bdd90ecbc3`, 2026-04-20).
+  - BtS, BUG and base AdvCiv rebuilt their layout on each build with no such cache, and base AdvCiv's main interface followed a resolution change, as the user tested in game the same day.
+- Fixed (2026-11-24): `initState` clears the rect cache and the resolution-scaled offsets on every build, so they always match the rects that build lays out, computes the two city offsets there once the scale factors are set, and places the end-turn button beside the minimap on every build.
+  - Codex's (GPT-6.2-Sol) review found that a Python module reload calls `initState` without `interfaceScreen`, so the two city offsets, at first only cleared, would have stayed `None` for the city screen's lift; computing them in `initState` covers both.
+  - A first fix drafted the day before cleared the caches only when the resolution differed from the last build's, reset advc.092's Enlarge HUD scale factors too, which only matters at 1024 x 768 or below, and missed the end-turn button; this one was redone from a fresh reproduction on the current code.
+  - Each rebuild at a new resolution writes a `MAIN_INTERFACE_RESOLUTION_CHANGE` row to `PythonDbg.log`, with the old and new sizes; SASGameRecord already records the change itself in its `CIV4_GRAPHICS_PROFILE` settings.
+- Tested (2026-11-24) by Claude Code Opus 5.5 through `desktop_windows.py`, both ways between 2560 x 1440 and 1920 x 1080, changing on the map and then visiting a city, and changing with the city screen open and then leaving it; each view matched the same save loaded at that resolution, with no Python error.
 
 <a id="ki-124"></a>
 

@@ -659,6 +659,15 @@ class CvMainInterface:
 		self.iBarExtraRowsExtraManualAdjust = None
 		self.iBarExtraHeightExtraManualAdjust = None
 		self.iCityScreenBlueRibbonExtraLift = None
+		# <!-- custom: Raw values of the five defines that initState and the plot list scale to the resolution on each build, read once per screen instance when first needed.
+		# CvScreensInterface constructs this object at module import, so the reads wait until layout needs them; the scaled attributes are recomputed per build, so the raw values are kept apart, and these XML settings are treated as fixed in normal play.
+		# Lazy attributes, the usual pattern here: the user also questioned the per-object dict helper first used for speed, and Python 2.4's timeit measured a lazy attribute at 0.04 us per read against 0.19 us for the helper, about 4 times faster, on 2026-11-24.
+		# A shared getDefineINTCached in SASUtils was drafted before that but dropped, as the user objected that it would grow over time and hold other files' values, losing the point of a cache kept with its screen. See KI#123.3. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		self.iSAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ_RAW = None
+		self.iSAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT_RAW = None
+		self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ_RAW = None
+		self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET_RAW = None
+		self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET_RAW = None
 		# <!-- custom: cached resolution-scaled width adjustment for the left-side default help text area; positive widens, negative narrows. (Claude code Opus 4.7) -->
 		self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ = None
 		# <!-- custom: cached resolution-scaled offsets for the map-view unit selection bar (PlotListPanel). (Claude code Opus 4.7) -->
@@ -783,8 +792,23 @@ class CvMainInterface:
 		#
 		if screen is None:
 			screen = CyGInterfaceScreen("MainInterface", CvScreenEnums.MAIN_INTERFACE)
+		iOldXRes = self.xResolution
+		iOldYRes = self.yResolution
 		self.xResolution = screen.getXResolution()
 		self.yResolution = screen.getYResolution()
+		# <!-- custom: After an in-game resolution change, the map was right until the city screen was opened: there its bottom band was gone and its right panel ran off the screen, and after leaving the city the map's bottom panels were misplaced too (2560 x 1440 to 1920 x 1080, 2026-11-24).
+		# This function lays every rect out again at the new resolution, but _cacheCityScreenSideLiftRects kept the first build's rects for the whole game, and the city screen's lift restored them; a few values scaled through VSPACE/HLEN/VLEN were cached once too.
+		# Clearing them on each build keeps them matched to the rects this build lays out, so no separate resolution cache key is needed; a game load at the same resolution only recomputes them once.
+		# Inline rather than in a helper, as a first draft had it when it cleared them only on a detected resolution change: every build now clears them, so the clearing sits beside the layout it keeps in step with, its only caller. See KI#123.3. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if hasattr(self, "cityScreenSideLiftRects"):
+			del self.cityScreenSideLiftRects
+			del self.cityScreenUpperSideRects
+		self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ = None
+		self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET = None
+		self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET = None
+		# <!-- custom: The game record's graphics settings already log the resolution change itself; this row shows the main interface laid out again for it. (Claude code Opus 5.5) -->
+		if iOldXRes > 0 and (iOldXRes != self.xResolution or iOldYRes != self.yResolution):
+			CvUtil.pyPrintRecord("MAIN_INTERFACE_RESOLUTION_CHANGE", "fromW=%d fromH=%d toW=%d toH=%d" % (iOldXRes, iOldYRes, self.xResolution, self.yResolution))
 
 		#
 		self.hurryPopulation = getInfoTypeOrFail("HURRY_POPULATION")
@@ -821,6 +845,13 @@ class CvMainInterface:
 		# </advc.092>
 		# advc.061:
 		gc.getGame().setScreenDimensions(self.xResolution, self.yResolution)
+		# <!-- custom: Were computed once per game in interfaceScreen; now on each build here, once the advc.092 scale factors VSPACE uses are set, so they follow a resolution change.
+		# Here rather than only cleared: Codex's (GPT-6.2-Sol) review found that a Python module reload calls initState without interfaceScreen, so a cleared value would have stayed None for the city screen's lift and its bottom button list. See KI#123.3. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if self.iSAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ_RAW is None:
+			self.iSAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ_RAW = gc.getDefineINT("SAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ")
+			self.iSAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT_RAW = gc.getDefineINT("SAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT")
+		self.iBarExtraHeightExtraManualAdjust = VSPACE(self.iSAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ_RAW)
+		self.iCityScreenBlueRibbonExtraLift = VSPACE(self.iSAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT_RAW)
 # BUG - Raw Yields - begin
 		global g_bYieldView
 		global g_iYieldType
@@ -971,9 +1002,10 @@ class CvMainInterface:
 		gSetPoint("EndTurnTextMin", PointLayout(0, gRect("Top").yBottom() - VSPACE(86)))
 		iEndTurnBtnSz = BTNSZ(32)
 		iEndTurnBtnX = gRect("MiniMapPanel").x() - iEndTurnBtnSz - HSPACE(6)
-		iEndTurnBtnY = gRect("LowerRightCorner").yBottom() - iEndTurnBtnSz - VSPACE(4)
-		if not CyInterface().isCityScreenUp():
-			iEndTurnBtnY = gRect("MiniMapPanel").y()
+		# <!-- custom: Was the LowerRightCorner's bottom when this build ran with the city screen open, else the minimap's top.
+		# A game load always builds in map view, so only the minimap's top was used, until a resolution change rebuilt the interface inside the city: the city-screen value then stayed after leaving it, and the end-turn button and city arrows sat by the screen's bottom edge instead of beside the minimap (2560 x 1440 to 1920 x 1080, 2026-11-24).
+		# So the map view's place is used for every build. See KI#123.3. (Claude code Opus 5.5) -->
+		iEndTurnBtnY = gRect("MiniMapPanel").y()
 		gSetSquare("EndTurnButton", "Top", iEndTurnBtnX, iEndTurnBtnY, iEndTurnBtnSz)
 		# <!-- custom: compact BtS-ratio top-left flag slot; runtime drawing is toggled in updateFlag. (GPT-5.3-Codex) -->
 		iFlagWidth = 24
@@ -1117,7 +1149,9 @@ class CvMainInterface:
 		self.m_iNumPlotListButtonsPerRow = ((gRect("BottomButtonMaxSpace").width() + self.iSAS_MAIN_UI_PLOT_LIST_WIDTH_ADJ - 2 * iPlotListUnitBtnSz) / iPlotListUnitBtnSz)
 		# <!-- custom: cache resolution-scaled width adjustment for the left-side help text area; HLEN asserts on negatives, so dispatch via sign. (Claude code Opus 4.7) -->
 		if self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ is None:
-			iHelpAreaWidthAdjustRaw = gc.getDefineINT("SAS_MAIN_UI_HELP_AREA_WIDTH_ADJ")
+			if self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ_RAW is None:
+				self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ_RAW = gc.getDefineINT("SAS_MAIN_UI_HELP_AREA_WIDTH_ADJ")
+			iHelpAreaWidthAdjustRaw = self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ_RAW
 			if iHelpAreaWidthAdjustRaw > 0:
 				self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ = HLEN(iHelpAreaWidthAdjustRaw)
 			elif iHelpAreaWidthAdjustRaw < 0:
@@ -1724,10 +1758,6 @@ class CvMainInterface:
 		if self.iBarExtraRows is None:
 			self.iBarExtraRows = gc.getDefineINT("SAS_MAIN_UI_CITY_BAR_EXTRA_ROWS")
 			self.iBarExtraRowsExtraManualAdjust = gc.getDefineINT("SAS_MAIN_UI_CITY_BAR_EXTRA_ROWS_ADJ")
-		if self.iBarExtraHeightExtraManualAdjust is None:
-			self.iBarExtraHeightExtraManualAdjust = VSPACE(gc.getDefineINT("SAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ"))
-		if self.iCityScreenBlueRibbonExtraLift is None:
-			self.iCityScreenBlueRibbonExtraLift = VSPACE(gc.getDefineINT("SAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT"))
 		if self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS is None:
 			self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS = (gc.getDefineINT("SAS_MAIN_UI_PROD_QUEUE_BUTTONS") > 0)
 		if self.IS_SAS_MAIN_UI_CITY_SHOW_PLOT_LIST is None:
@@ -2282,7 +2312,9 @@ class CvMainInterface:
 		iCols = self.numPlotListButtonsPerRow()
 		# <!-- custom: lazy-cache resolution-scaled unit-bar offsets; HLEN/VLEN assert on negatives, so dispatch via sign. (Claude code Opus 4.7) -->
 		if self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET is None:
-			iRawPLPX = gc.getDefineINT("SAS_MAIN_UI_PLOT_LIST_X_OFFSET")
+			if self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET_RAW is None:
+				self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET_RAW = gc.getDefineINT("SAS_MAIN_UI_PLOT_LIST_X_OFFSET")
+			iRawPLPX = self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET_RAW
 			if iRawPLPX > 0:
 				self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET = HLEN(iRawPLPX)
 			elif iRawPLPX < 0:
@@ -2290,7 +2322,9 @@ class CvMainInterface:
 			else:
 				self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET = 0
 		if self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET is None:
-			iRawPLPY = gc.getDefineINT("SAS_MAIN_UI_PLOT_LIST_Y_OFFSET")
+			if self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET_RAW is None:
+				self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET_RAW = gc.getDefineINT("SAS_MAIN_UI_PLOT_LIST_Y_OFFSET")
+			iRawPLPY = self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET_RAW
 			if iRawPLPY > 0:
 				self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET = VLEN(iRawPLPY)
 			elif iRawPLPY < 0:

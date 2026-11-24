@@ -2805,7 +2805,7 @@ Assuming the calculation is correct and reliable, the higher the drive, the more
 
 ## UI
 
-- Note: when changing some settings such as game resolution, Civ4 needs to be restarted to fully apply some of the changes.
+- Note: a few settings still need a Civ4 restart to apply, such as Full-screen Mode, Single Unit Graphics and SAS define edits; a change of screen resolution no longer does ([KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2), [KI#123.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3)).
 
 ### UI (Main Menu)
 
