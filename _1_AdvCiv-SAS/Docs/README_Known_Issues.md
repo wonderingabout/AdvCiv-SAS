@@ -209,6 +209,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#123 - (Fixed) BUG Domestic/Military advisor variant toggles required restarting Civ4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123)\
 [KI#123.2 - (Fixed incomplete inherited AdvCiv solution) BUG's Sevopedia stays at 1024 x 768 at any resolution, even after a restart; AdvCiv made the Sevopedia scale with the resolution, but only once per session: after 1920 x 1080 to 2560 x 1440 in game, the reopened Sevopedia stayed at 1920 x 1080 until a tedious Civ4 restart](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2)\
 [KI#123.3 - (Fixed SAS) After a resolution change in game, the city screen and then the map kept parts of the old resolution's layout until a restart: after 2560 x 1440 to 1920 x 1080, the city screen lost its bottom band and its right panel ran off the screen, as SAS kept the city screen's panel rects from the first interface build of the game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3)\
+[KI#123.4 - (Fixed inherited AdvCiv) The map's bonus bubbles drew at a size meant for another field of view: AdvCiv's size patch ran before the field of view for the resolution was set, so it used the XML's 42 when a game was loaded and the previous resolution's after a change in game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.4)\
 [KI#124 - (Fixed) Likely Base AdvCiv issue: map-view unit bar overflows into hovered/expanded scoreboard](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-124)\
 [KI#125 - (Fixed) Base AdvCiv issue: Sevopedia Back/Next history is lost on exit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-125)\
 [KI#126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-126)\
@@ -11916,6 +11917,8 @@ Update (2026-11-24): [KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-12
 
 Update (2026-11-24): [KI#123.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3) does the same for the main interface, whose city-screen panel rects SAS had kept from the first build of the game.
 
+Update (2026-11-24): [KI#123.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.4), the map's bonus bubbles sized for another field of view, inherited from AdvCiv and found while testing resolution changes.
+
 <a id="ki-123.2"></a>
 
 ## KI#123.2 - (Fixed incomplete inherited AdvCiv solution) BUG's Sevopedia stays at 1024 x 768 at any resolution, even after a restart; AdvCiv made the Sevopedia scale with the resolution, but only once per session: after 1920 x 1080 to 2560 x 1440 in game, the reopened Sevopedia stayed at 1920 x 1080 until a tedious Civ4 restart
@@ -11962,6 +11965,26 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
   - A first fix drafted the day before cleared the caches only when the resolution differed from the last build's, reset advc.092's Enlarge HUD scale factors too, which only matters at 1024 x 768 or below, and missed the end-turn button; this one was redone from a fresh reproduction on the current code.
   - Each rebuild at a new resolution writes a `MAIN_INTERFACE_RESOLUTION_CHANGE` row to `PythonDbg.log`, with the old and new sizes; SASGameRecord already records the change itself in its `CIV4_GRAPHICS_PROFILE` settings.
 - Tested (2026-11-24) by Claude Code Opus 5.5 through `desktop_windows.py`, both ways between 2560 x 1440 and 1920 x 1080, changing on the map and then visiting a city, and changing with the city screen open and then leaving it; each view matched the same save loaded at that resolution, with no Python error.
+
+<a id="ki-123.4"></a>
+
+## KI#123.4 - (Fixed inherited AdvCiv) The map's bonus bubbles drew at a size meant for another field of view: AdvCiv's size patch ran before the field of view for the resolution was set, so it used the XML's 42 when a game was loaded and the previous resolution's after a change in game
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1loyNEQ5hdesnU3GF8I5TTHHa3byvdBf8?usp=sharing).
+
+- How the size is set: AdvCiv patches the bubble size into the EXE (`PlotIndicatorSizeMod` in [SelfMod.cpp](/CvGameCoreDLL/SelfMod.cpp)), scaled by the square root of 40 / field of view (FoV) to keep a bubble about a quarter of a tile wide.
+  - `initState` in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) runs it through `setScreenDimensions`, while the FoV for the resolution, 37 x height / 1024 above 1024 px tall, is set later, by `setFieldofView` during `redraw`.
+- Reproduced on 2026-11-24 with temporary log rows: loading a game at 1920 x 1080, the patch read 42, the XML's `FIELD_OF_VIEW`, and 39 was set for 1080 a second later; after a change in game the patch reads the previous resolution's FoV.
+  - The previous day the user had seen the bubbles about 1.5 times larger after 4K to 1080p than in a game started at 1080p; Codex's (GPT-6.2-Sol) review noted that this ordering alone predicts the opposite there, as the stale 4K FoV of 78 against a fresh 42 scales the bubbles by about 0.73, so the logs establish the ordering, not the cause of that observation.
+- Origin, from the `commit_diffs` corpus and base AdvCiv 1.14's copy of the file:
+  - AdvCiv advc.004m set the default FoV from the screen height, its base going from 42 to 37 in practical 3791 (`91e1f2153a`, 2022-05-08).
+  - AdvCiv advc.092b added the size patch with its FoV scaling, called from `setScreenDimensions`, in practical 3792 (`55390b0167`, 2022-05-08); this set the order in which the patch runs before advc.004m's FoV.
+  - Base AdvCiv 1.14 keeps that order: on a resolution change it invalidates the globe layer (its advc.001 note, "Avoid warped plot indicators upon changing resolution") and runs the patch again (advc.092b), still before the new FoV is set.
+- Fixed (2026-11-24): `initState` marks the size stale after `setScreenDimensions`, and `_setFieldofView`, once it has set the first FoV of that interface build, runs the patch again through `cyUpdatePlotIndicatorSize`, which BUG's Plot Indicator Size option calls too, and redraws the globe layer.
+  - FoV slider moves still do not run it again: AdvCiv chose not to redraw the globe layer then, to avoid stutter.
+  - The globe redraw also runs when the patch is off or BUG's "BtS" size, which ignores the FoV, is chosen; Codex's review noted it, and it is at most one per interface build, so it is kept.
+  - With the FoV-sensitive patch on, that is any BUG Plot Indicator Size other than "BtS", a game loaded above 1080p now sizes the bubbles from its own FoV, so they are smaller than before, as AdvCiv's formula intends; BUG's Plot Indicator Size option still sets the size by hand.
+- Tested on 2026-11-24 by Claude Code Opus 5.5, with a temporary log row: a game loaded at 1920 x 1080 sized them again with FoV 39, and after a change to 2560 x 1440 with 52, the new resolution's own, with no Python error.
 
 <a id="ki-124"></a>
 

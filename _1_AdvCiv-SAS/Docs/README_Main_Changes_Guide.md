@@ -2806,6 +2806,7 @@ Assuming the calculation is correct and reliable, the higher the drive, the more
 ## UI
 
 - Note: a few settings still need a Civ4 restart to apply, such as Full-screen Mode, Single Unit Graphics and SAS define edits; a change of screen resolution no longer does ([KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2), [KI#123.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3)).
+- (Requires AdvCiv-SAS 6856+) The map's bonus bubbles, with any BUG Plot Indicator Size other than "BtS", are sized for the field of view in use on a game load and after a resolution change, where base AdvCiv sized them for the XML default or the previous resolution's ([KI#123.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.4)).
 
 ### UI (Main Menu)
 

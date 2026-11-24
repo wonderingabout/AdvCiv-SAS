@@ -641,6 +641,8 @@ class CvMainInterface:
 # BUG - field of view slider - start
 		self.sFieldOfView_Text = ""
 		self.iField_View_Prev = -1
+		# <!-- custom: True from setScreenDimensions in initState until _setFieldofView has set this build's field of view. See KI#123.4. (Claude code Opus 5.5) -->
+		self.bSASPlotIndicatorFoVStale = False
 		self.iFoVPos_Prev = -1 # advc.090
 # BUG - field of view slider - end
 
@@ -845,6 +847,10 @@ class CvMainInterface:
 		# </advc.092>
 		# advc.061:
 		gc.getGame().setScreenDimensions(self.xResolution, self.yResolution)
+		# <!-- custom: When the dimensions change, setScreenDimensions runs AdvCiv's plot indicator size patch (advc.092b), which scales the bonus bubbles by the field of view, but the field of view for this resolution is set only later, by _setFieldofView during redraw.
+		# Logged on 2026-11-24: loading a game at 1920 x 1080, the patch read 42, the XML's FIELD_OF_VIEW, then 39 was set for 1080; after a change in game it reads the previous resolution's.
+		# So the bubbles were sized for another field of view than the one in use; _setFieldofView sizes them again once it has set this build's. See KI#123.4. (Claude code Opus 5.5) -->
+		self.bSASPlotIndicatorFoVStale = True
 		# <!-- custom: Were computed once per game in interfaceScreen; now on each build here, once the advc.092 scale factors VSPACE uses are set, so they follow a resolution change.
 		# Here rather than only cleared: Codex's (GPT-6.2-Sol) review found that a Python module reload calls initState without interfaceScreen, so a cleared value would have stayed None for the city screen's lift and its bottom button list. See KI#123.3. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		if self.iSAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ_RAW is None:
@@ -7707,6 +7713,12 @@ class CvMainInterface:
 		if self.iField_View_Prev != iFoV:
 			gc.setDefineFLOAT("FIELD_OF_VIEW", float(iFoV))
 			self.iField_View_Prev = iFoV
+			# <!-- custom: Only for the first field of view of each interface build, not for moves of the FoV slider, where AdvCiv chose not to redraw the globe layer to avoid stutter (advc.092b).
+			# The redraw also runs when the patch is off or BUG's "BtS" size ignores the field of view, which Codex's (GPT-6.2-Sol) review noted; it is at most one per interface build, on a load or a resolution change, so it is kept rather than checked for. See KI#123.4. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			if self.bSASPlotIndicatorFoVStale:
+				cyUpdatePlotIndicatorSize()
+				CyInterface().setDirty(InterfaceDirtyBits.GlobeLayer_DIRTY_BIT, True)
+		self.bSASPlotIndicatorFoVStale = False
 
 	def setFieldofView_Text(self, screen):
 		# advc.090: was self.iField_View
