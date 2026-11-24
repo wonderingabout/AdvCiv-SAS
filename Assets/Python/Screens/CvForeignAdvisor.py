@@ -115,7 +115,7 @@ class CvForeignAdvisor:
 
 		self.GLANCE_HEADER = "ForeignAdvisorGlanceHeader"
 		self.GLANCE_BUTTON = "ForeignAdvisorPlusMinus"
-		self.X_LINK = 0
+		# <!-- custom: Removed X_LINK = 0, which the merge with the Exotic Foreign Advisor (2026-03-20) brought in over the X_LINK = 50 above; nothing reads either. See KI#1098.3. (Claude code Opus 5.5) -->
 
 		# <!-- custom: remove these iExtraWidth and iExtraHeight-like as we don't want yellow margins: they are distracting and not not useful; change with the help of gemini pro 3 thanks. -->
 		# self.X_GLANCE_OFFSET = 6 # advc.004: was 10

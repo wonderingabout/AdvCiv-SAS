@@ -122,6 +122,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/lint_suppressions.py`](#buildsourcelint_suppressionspy)
     - [`build/source/python_aligned_columns.py`](#buildsourcepython_aligned_columnspy)
     - [`build/source/python_binding_targets.py`](#buildsourcepython_binding_targetspy)
+    - [`build/source/python_dead_stores.py`](#buildsourcepython_dead_storespy)
     - [`build/source/python_multiline_calls.py`](#buildsourcepython_multiline_callspy)
     - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
@@ -1464,6 +1465,23 @@ Fails when a Python binding in the DLL's `Cy*Interface*.cpp` files points at a n
 - A method binding `.def("name", &Class::target)` fails when `Class` declares its own `name()` and `target` is neither `name` nor its `py_`/`py` wrapper. Methods AdvCiv retired by commenting out their declaration, such as `getStealTreasuryTypes`, pass.
 - Inside `python::class_<Owner>`, a `.def` fails when it points at a class that is neither `Owner` nor one of its bases.
 - Added on 2026-11-16 for [KI#1090.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090.2). Run against the older files, it finds all seven slips known so far: [KI#1090](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090)'s and KI#1090.2's four enum names, and the three getters [KI#122](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-122) fixed by hand.
+
+#### `build/source/python_dead_stores.py`
+
+Fails when runtime Python in `Assets/Python` or `PrivateMaps` stores `self.X` twice in one block, at one indentation, with nothing between able to read the first value: a reader takes the first one for live, such as `SevoPediaTerrain.py`'s `H_RELEVANT_UNITS`, written twice from the same sum, or `CvForeignAdvisor.py`'s `X_LINK = 50` then `0`.
+
+- Added on 2026-11-24 for [KI#1098.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.3), the family of [`adjacent_duplicate_lines.py`](#buildrepositoryadjacent_duplicate_linespy): a repeated line there, an overwritten value here.
+- What may read the first value without naming it ends the search: a method on `self`, `self` passed on alone as an argument, or leaving the block through `return`, `break`, `continue`, `raise` or `yield`.
+  - Stores inside a `try` block are not checked, as a `finally` or `except` can read the first value when the second store raises, nor is the rest of a function once bare `self` is aliased or passed on.
+  - Files are tokenized, so comments and strings, docstrings included, are neither reads nor code.
+  - Codex's (GPT-6.2-Sol) review reproduced each of these as a false positive of the first version, which cut lines at `#`.
+  - A first scan without those found 26 pairs, half of them reads through such a call, such as `getNextWidgetName()` advancing `nWidgetCount`, or an early `return`, such as the World Advisor's empty Changes tab.
+- An empty list reset, such as `self.plotTypes = [] # reinit the array for each pass` right before the store that fills it, is accepted: it misleads no reader, and eight inherited map-generation lines use it. Other empty values, such as `None`, are not.
+- It is a heuristic, line-based, and checks only one method: a placeholder set in `__init__` and replaced in another method before any read is what the report-only [`audit_screen_init_layout.py`](/LLM_Helpers/README.md#audit_screen_init_layoutpy) lists.
+
+```bash
+python .github/workflows/build/source/python_dead_stores.py
+```
 
 #### `build/source/python_multiline_calls.py`
 

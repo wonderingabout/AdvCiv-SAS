@@ -34,33 +34,8 @@ class CvDanQuayle:
 		self.SCORE_ID = "CvDanQuayleScore"
 		self.WIDGET_HEADER = "CvDanQuayleHeader"
 
-		self.X_SCREEN = 500
-		self.Y_SCREEN = 396
-		self.W_SCREEN = 1024
-		self.H_SCREEN = 768
+		# <!-- custom: Removed vanilla's 1024 x 768 screen, exit, leaderhead, list, score and text positions, set here and never read: interfaceScreen sets them all from the resolution each time the screen opens, so it follows a resolution change; Y_SCREEN was not read at all. See KI#1098.3. (Claude code Opus 5.5) -->
 		self.Y_TITLE = 12
-		self.X_EXIT = 994
-		self.Y_EXIT = 726
-
-		self.X_LEADERHEAD = 120
-		self.Y_LEADERHEAD = 70
-		self.W_LEADERHEAD = 390
-		self.H_LEADERHEAD = 500
-
-		self.X_LIST = 570
-		self.Y_LIST = 130
-		self.W_LIST = 300
-		self.H_LIST = 560
-
-		self.X_SCORE = 570
-		self.Y_SCORE = 70
-		self.W_SCORE = 300
-		self.H_SCORE = 50
-
-		self.X_TEXT = 120
-		self.Y_TEXT = 590
-		self.W_TEXT = 390
-		self.H_TEXT = 100
 
 		self.leaders = ["TXT_KEY_DQ_LEADER_NAME_1", "TXT_KEY_DQ_LEADER_NAME_2", "TXT_KEY_DQ_LEADER_NAME_3", "TXT_KEY_DQ_LEADER_NAME_4", "TXT_KEY_DQ_LEADER_NAME_5", "TXT_KEY_DQ_LEADER_NAME_6", "TXT_KEY_DQ_LEADER_NAME_7", "TXT_KEY_DQ_LEADER_NAME_8", "TXT_KEY_DQ_LEADER_NAME_9", "TXT_KEY_DQ_LEADER_NAME_10", "TXT_KEY_DQ_LEADER_NAME_11", "TXT_KEY_DQ_LEADER_NAME_12", "TXT_KEY_DQ_LEADER_NAME_13", "TXT_KEY_DQ_LEADER_NAME_14", "TXT_KEY_DQ_LEADER_NAME_15", "TXT_KEY_DQ_LEADER_NAME_16", "TXT_KEY_DQ_LEADER_NAME_17", "TXT_KEY_DQ_LEADER_NAME_18", "TXT_KEY_DQ_LEADER_NAME_19", "TXT_KEY_DQ_LEADER_NAME_20"]
 

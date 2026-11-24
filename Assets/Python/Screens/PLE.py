@@ -190,7 +190,7 @@ class PLE:
 		# plot list is disabled. Better put a hard limit on this.
 		self.iMaxPlotListIcons = min(500, self.getMaxCol() * self.getMaxRow())
 
-		self.sPLEMode = self.PLE_MODE_MULTILINE
+		# <!-- custom: Removed sPLEMode = PLE_MODE_MULTILINE here, which the option's default view mode below replaced before anything read it. See KI#1098.3. (Claude code Opus 5.5) -->
 		self.nPLEGrpMode = self.PLE_GRP_UNITTYPE
 		self.nPLELastGrpMode = self.nPLEGrpMode
 		self.sPLEMode = self.PLE_VIEW_MODES[PleOpt.getDefaultViewMode()]

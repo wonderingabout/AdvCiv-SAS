@@ -86,8 +86,6 @@ class SevoPediaUnit:
 		# Row 3-4: Of Other Units panel (full width, 2 rows height)
 		# Row 5: Special | History -->
 
-		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
-
 		# Narrow panels width (same as SevoPediaBuilding's obsolete panel)
 		self.W_OBSOLETE_WITH = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.W_CIVILIZATIONS = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
@@ -102,6 +100,7 @@ class SevoPediaUnit:
 		self.X_REQUIRES = self.X_UNIT_PANE
 		self.Y_REQUIRES = self.Y_UNIT_PANE + self.H_UNIT_PANE + SMALL_MARGIN
 		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_UNIT_PANE - MEDIUM_MARGIN - self.W_OBSOLETE_WITH - MEDIUM_MARGIN - self.W_FREE_PROMOTIONS
+		# <!-- custom: Was also set, the same, at the top of this layout, where nothing read it before this. See KI#1098.3. (Claude code Opus 5.5) -->
 		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		self.X_OBSOLETE_WITH = self.X_REQUIRES + self.W_REQUIRES + MEDIUM_MARGIN

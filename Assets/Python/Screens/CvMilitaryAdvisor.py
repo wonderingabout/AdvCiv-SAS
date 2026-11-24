@@ -354,7 +354,7 @@ class CvMilitaryAdvisor:
 		iAdvisorMargin = 20
 		iLeaderToMapMinimapGap = 5
 		iBottomReserve = 15
-		self.X_TEXT = self.W_SCREEN - iAdvisorMargin - self.W_TEXT
+		# <!-- custom: Removed X_TEXT = W_SCREEN - iAdvisorMargin - W_TEXT here, the right-aligned unit list of an earlier layout: the balanced split below set it again before anything read it. See KI#1098.3. (Claude code Opus 5.5) -->
 		self.Y_TEXT = self.Y_LEADERS
 		self.H_TEXT = self.H_SCREEN - self.Y_TEXT - 55 - iAdvisorMargin
 

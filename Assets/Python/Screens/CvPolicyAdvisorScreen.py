@@ -63,17 +63,12 @@ class CvPolicyAdvisorScreen:
 		self.HEADINGS_SPACING = 5
 		self.HEADINGS_BOTTOM = 280
 		self.HELP_TOP = 350
-		self.HELP_BOTTOM = 610
 		self.TEXT_MARGIN = 15
 		self.BUTTON_SIZE = 24
 		self.BIG_BUTTON_SIZE = 64
-		self.BOTTOM_LINE_TOP = 630
 		self.BOTTOM_LINE_HEIGHT = 60
 
-		self.Y_EXIT = 726
-		self.Y_CANCEL = 726
-
-		self.Y_SCREEN = 396
+		# <!-- custom: Removed the 1024 x 768 HELP_BOTTOM, BOTTOM_LINE_TOP, Y_EXIT, Y_CANCEL, X_RELIGION_START and DX_RELIGION set here: updateRuntimeLayout sets them from the resolution before every draw, so they were never read; Y_SCREEN was not read at all. See KI#1098.3. (Claude code Opus 5.5) -->
 		self.Z_SCREEN = -6.1
 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
 		self.Z_TEXT = self.Z_SCREEN - 0.2
@@ -111,8 +106,6 @@ class CvPolicyAdvisorScreen:
 		self.DZ = -0.2
 		self.LEFT_EDGE_TEXT = 10
 		self.RELIGION_BUTTON_SIZE = 48
-		self.X_RELIGION_START = 180
-		self.DX_RELIGION = 98
 		self.RELIGION_LEFT_LABEL_WIDTH = 180
 		self.RELIGION_RIGHT_PADDING = 16
 		# <!-- custom: use one uniform SASVisuals.Religion row rhythm for top info rows and BUG summary rows. (GPT-5.3-Codex) -->

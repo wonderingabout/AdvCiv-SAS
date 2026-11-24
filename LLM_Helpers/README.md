@@ -105,6 +105,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
   - [`find_cpp_dead_code_candidates.py`](#find_cpp_dead_code_candidatespy)
   - [Static audit helpers](#static-audit-helpers)
     - [`audit_cpp_logging_pregates.py`](#audit_cpp_logging_pregatespy)
+    - [`audit_screen_init_layout.py`](#audit_screen_init_layoutpy)
     - [`audit_define_keys.py`](#audit_define_keyspy)
     - [`audit_unused_text_keys.py`](#audit_unused_text_keyspy)
   - [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)
@@ -346,6 +347,8 @@ Writes every CI failure to one text file, so one pass can fix them all rather th
     - `--message FILE` gives that commit the draft message; without it, a placeholder makes the title and `[ci_update_dll]` checks fail as a reminder. With nothing staged, they judge HEAD.
     - Before 2026-11-12 these checks only saw commits, so an uncommitted candidate passed them without being judged. A run passed locally while GitHub failed the commit that followed: `map_preview_dds.py` had begun reading SGR rows without the `SAS_SGR_REVISION` bump the rule asks for. Rerun on that state, the new run fails the same check, as GitHub did.
   - The diagnostic default checks read staged content, so unstaged development values do not fail them.
+  - To judge a candidate without touching the user's index, point `GIT_INDEX_FILE` at a copy of `.git/index` and stage into the copy, such as everything but `GlobalDefines_advciv_sas.xml`'s development values.
+    - The helper-test groups of `checks-tests.yml` then fail, as the temporary repositories they create inherit `GIT_INDEX_FILE`, and their `git add .` exits with 128; on 2026-11-24 all five failed that way and passed, 576 tests, when run again without it. Run them separately, with `GIT_INDEX_FILE` unset.
   - Markdownlint and Python 2.4 run through local Node.js and `C:\Python24\python.exe`; a missing tool is listed as not covered. The predump refresh workflow is not run.
 - `python LLM_Helpers/audits/ci_report.py github`: reads GitHub's results for a commit, `--sha` or HEAD. Failed workflows and steps come from the public API; their failure text needs `gh auth login` once, as GitHub gives logs only to signed-in users.
 - Output: `LLM_Helpers/outputs/ci_report.txt`, Git-ignored, or `--out`. Exit code 1 when something failed or GitHub's run has not finished.
@@ -397,6 +400,19 @@ Advisory C++ audit for obvious BBAI/SASGameRecord caller-side pre-gating omissio
 ```bash
 python LLM_Helpers/audits/audit_cpp_logging_pregates.py CvGameCoreDLL
 python LLM_Helpers/audits/audit_cpp_logging_pregates.py CvGameCoreDLL/CvCity.cpp --late-gates
+```
+
+#### `audit_screen_init_layout.py`
+
+Report-only audit of Civ4 Python screens: per class, the upper-case layout values, such as `W_SCREEN` or `X_EXIT`, set in `__init__` and set again in another method, and those no code in their own file reads: a shared helper may still read one, as the Legend helper in `SASUtils.py` reads the Hall of Fame's `Z_CONTROLS`.
+
+- Written for [KI#1098.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.3), whose screens set 1024 x 768 placeholders in `__init__` that a runtime layout replaced before any use; it found them in `CvDanQuayle.py`, `CvHallOfFameScreen.py`, `CvDawnOfMan.py` and `CvPolicyAdvisorScreen.py`.
+  - A value set again only under a condition stays, as the Policy Advisor's `DX_CORPORATION` does: it is the fallback when no corporation exists.
+- `--only-resolution` limits it to classes that read `getXResolution`/`getYResolution` somewhere; `--all-names` adds lower-case state such as `bPlaying`, which is usually meant to start in `__init__` and change later.
+- Heuristic and text-based: it does not follow inheritance, `getattr` or reads from other modules, such as a Sevopedia page's `self.top.W_PEDIA_PAGE`, so check each hit before removing anything. The [`python_dead_stores.py`](/.github/workflows/README.md#buildsourcepython_dead_storespy) CI check guards the same mistake within one method.
+
+```bash
+python LLM_Helpers/audits/audit_screen_init_layout.py --only-resolution Assets/Python
 ```
 
 #### `audit_define_keys.py`

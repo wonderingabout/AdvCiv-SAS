@@ -56,26 +56,17 @@ class CvHallOfFameScreen:
 		self.SORT_DROPDOWN_ID = "HallOfFameScreenSortDropdown"
 		self.REPLAY_BUTTON_ID = "HallOfFameReplayButton"
 
-		self.X_SCREEN = 500
 		#self.Y_SCREEN = 396 advc: unused
-		self.W_SCREEN = 1024
-		self.H_SCREEN = 768
 		self.Y_TITLE = 12
 		# <!-- custom: The shared advisor legend helper uses the same control depth as this screen's existing header and exit widgets. (GPT-6.1-Sol) -->
 		self.Z_CONTROLS = 0
 
-		self.X_EXIT = 994
-		self.Y_EXIT = 726
-
-		self.DROPDOWN_WIDTH = 200
+		# <!-- custom: Removed the 1024 x 768 screen, exit, dropdown width and spacing and table size set here: updateLayoutForResolution sets them from the resolution each time the screen opens, so they were never read.
+		# The values that do not depend on the resolution are set only here now, rather than also again in updateLayoutForResolution. See KI#1098.3. (Claude code Opus 5.5) -->
 		self.DROPDOWN_Y = 70
-		self.DROPDOWN_SPACING_X = 45
 		self.DROPDOWN_SPACING_Y = 50
-		self.DROPDOWN_START_X = self.DROPDOWN_SPACING_X
 		self.TABLE_X = 2
 		self.TABLE_Y = 2 * self.DROPDOWN_SPACING_Y + self.DROPDOWN_Y
-		self.TABLE_W = 1018
-		self.TABLE_H = 545
 		self.TOP_BOTTOM_PANEL_H = 55
 		self.HOF_ICON_SIZE = 24
 		self.HOF_COLOR_MARKER = u"|||||"
@@ -107,12 +98,9 @@ class CvHallOfFameScreen:
 		self.Y_EXIT = self.H_SCREEN - 42
 		self.DROPDOWN_WIDTH = max(200, min(240, self.W_SCREEN / 6))
 		self.DROPDOWN_SPACING_X = max(20, self.W_SCREEN / 60)
-		self.DROPDOWN_SPACING_Y = 50
 		iDropDownColumns = 4
 		iDropDownTotalW = iDropDownColumns * self.DROPDOWN_WIDTH + (iDropDownColumns - 1) * self.DROPDOWN_SPACING_X
 		self.DROPDOWN_START_X = (self.W_SCREEN - iDropDownTotalW) / 2
-		self.TABLE_X = 2
-		self.TABLE_Y = 2 * self.DROPDOWN_SPACING_Y + self.DROPDOWN_Y
 		self.TABLE_W = self.W_SCREEN - 2 * self.TABLE_X
 		self.TABLE_H = self.H_SCREEN - self.TABLE_Y - self.TOP_BOTTOM_PANEL_H - 2
 		if self.TABLE_H < 250:

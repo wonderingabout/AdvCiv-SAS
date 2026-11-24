@@ -65,12 +65,11 @@ class SevoPediaTerrain:
 		self.W_BONUSES_ONLY_WITH_FEATURE = self.top.R_PEDIA_PAGE - self.X_BONUSES_ONLY_WITH_FEATURE
 		self.H_BONUSES_ONLY_WITH_FEATURE = self.H_FEATURES
 
-		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details -->
-		self.H_RELEVANT_UNITS = self.H_FEATURES + MULTILIST_BUTTON_SIZE
-
 		self.X_RELEVANT_UNITS = self.X_FEATURES
 		self.Y_RELEVANT_UNITS = self.Y_BONUSES_ONLY_WITH_FEATURE + self.H_BONUSES_ONLY_WITH_FEATURE + SMALL_MARGIN
 		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_BONUSES_ONLY_WITH_FEATURE
+		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details -->
+		# <!-- custom: Was also set, the same, four lines higher, where nothing read it before this; moved its note here. See KI#1098.3. (Claude code Opus 5.5) -->
 		self.H_RELEVANT_UNITS = self.H_FEATURES + MULTILIST_BUTTON_SIZE
 
 		self.X_UNITS_IMPASSABLE = self.X_FEATURES

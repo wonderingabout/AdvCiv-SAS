@@ -29,63 +29,7 @@ class CvDawnOfMan:
 		# <!-- custom: Whether the open screen is a preview; see interfaceScreen. (Claude code Opus 5.5) -->
 		self.bPreview = False
 
-		self.X_SCREEN = 0
-		self.Y_SCREEN = 0
-		self.W_SCREEN = 1024
-		self.H_SCREEN = 768
-
-		self.W_TECH = 425
-		self.H_TECH = 80
-
-		# <!-- custom: widen Dawn of Man panel to reduce wrapping for longer civ unit/building lines at upscaled fonts, then rebalance top vs bottom panel heights so the leader/info section has enough room without overgrowing the lower blue panel.
-		# Text blocks use SAS label/title scaling helpers for readability consistency. (GPT-5.3-Codex) -->
-		self.W_MAIN_PANEL = 800 # Was 550
-
-		self.H_MAIN_PANEL = 590
-
-		self.X_MAIN_PANEL = (self.W_SCREEN/2) - (self.W_MAIN_PANEL/2)# Was 250
-
-		self.Y_MAIN_PANEL = 70
-
-		self.iMarginSpace = 15
-
-		self.X_HEADER_PANEL = self.X_MAIN_PANEL + self.iMarginSpace
-		self.Y_HEADER_PANEL = self.Y_MAIN_PANEL + self.iMarginSpace
-		self.W_HEADER_PANEL = self.W_MAIN_PANEL - (self.iMarginSpace * 2)
-		self.H_HEADER_PANEL = int(self.H_MAIN_PANEL * (2.0 / 5.0)) + 55
-
-		self.X_LEADER_ICON = self.X_HEADER_PANEL + self.iMarginSpace
-		self.Y_LEADER_ICON = self.Y_HEADER_PANEL + self.iMarginSpace
-		self.H_LEADER_ICON = self.H_HEADER_PANEL - (15 * 2)
-		self.W_LEADER_ICON = int(self.H_LEADER_ICON / 1.272727)#110
-
-		self.X_FANCY_ICON1 = self.X_HEADER_PANEL + 170
-		self.X_FANCY_ICON2 = self.X_HEADER_PANEL + (self.W_MAIN_PANEL - 120) # Was 430
-		self.Y_FANCY_ICON = (self.Y_HEADER_PANEL + self.iMarginSpace + 6) - 6
-		self.WH_FANCY_ICON = 64
-
-		self.W_LEADER_TITLE_TEXT = int(self.W_HEADER_PANEL * 2 / 5)
-		self.X_LEADER_TITLE_TEXT = (self.X_FANCY_ICON1+self.WH_FANCY_ICON)+((self.X_FANCY_ICON2 - (self.X_FANCY_ICON1+self.WH_FANCY_ICON))/2) - (self.W_LEADER_TITLE_TEXT/2)
-
-		self.Y_LEADER_TITLE_TEXT = self.Y_HEADER_PANEL + self.iMarginSpace + 6
-		self.H_LEADER_TITLE_TEXT = self.H_HEADER_PANEL / 2
-
-		self.X_STATS_TEXT = self.X_FANCY_ICON1# + self.W_LEADER_ICON + (self.iMarginSpace * 2) + 5
-		self.Y_STATS_TEXT = self.Y_LEADER_TITLE_TEXT + 75
-		self.W_STATS_TEXT = int(self.W_HEADER_PANEL * (5 / 7.0)) + (self.iMarginSpace * 2)
-		self.H_STATS_TEXT = int(self.H_HEADER_PANEL * (3 / 5.0)) - (self.iMarginSpace * 2)
-
-		self.X_TEXT_PANEL = self.X_HEADER_PANEL
-		self.Y_TEXT_PANEL = self.Y_HEADER_PANEL + self.H_HEADER_PANEL + self.iMarginSpace - 10 #10 is the fudge factor
-		self.W_TEXT_PANEL = self.W_HEADER_PANEL
-		self.H_TEXT_PANEL = self.H_MAIN_PANEL - self.H_HEADER_PANEL - (self.iMarginSpace * 3) + 10 #10 is the fudge factor
-		self.iTEXT_PANEL_MARGIN = 30
-
-		self.W_EXIT = 120
-		self.H_EXIT = 30
-
-		self.X_EXIT = (self.W_SCREEN/2) - (self.W_EXIT/2) # Was 460
-		self.Y_EXIT = self.Y_MAIN_PANEL + 440
+		# <!-- custom: Removed BtS's copy of the layout set here at 1024 x 768, which calculateSizesAndPositions sets again from the resolution each time interfaceScreen opens the screen, so it was never read; some of its values already differed from the live ones in BtS, such as Y_STATS_TEXT 75 rather than 60 below the title. See KI#1098.3. (Claude code Opus 5.5) -->
 
 	# <!-- custom: Was interfaceScreen(self); bPreview, false for the game's own calls, lets SASPilotUI's uisplash show the screen in a running game: it opens at once, ignores SAS_UI_DAWN_OF_MAN_ON and, on close, leaves the unit selection sounds as they are. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	def interfaceScreen(self, bPreview=False):
@@ -279,6 +223,8 @@ class CvDawnOfMan:
 		self.W_TECH = 425
 		self.H_TECH = 80
 
+		# <!-- custom: widen Dawn of Man panel to reduce wrapping for longer civ unit/building lines at upscaled fonts, then rebalance top vs bottom panel heights so the leader/info section has enough room without overgrowing the lower blue panel.
+		# Text blocks use SAS label/title scaling helpers for readability consistency. (GPT-5.3-Codex) -->
 		self.W_MAIN_PANEL = 800 # Was 550
 
 		self.H_MAIN_PANEL = 590 # advc.002b: Was 525.
