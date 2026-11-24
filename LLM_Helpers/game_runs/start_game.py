@@ -95,7 +95,9 @@ def start(script: str, world_size: str, options: list[str], debug_mode: bool, in
 
 
 # <!-- custom: Gained mod, AdvCiv-SAS by default, as start did, for a save of another mod (2026-11-23). See KI#1107. (Claude code Opus 5.5) -->
-def load(save: Path, debug_mode: bool, mod: str = "AdvCiv-SAS") -> int:
+# <!-- custom: Gained size, as start has, to load a late-game save at a chosen resolution: on 2026-11-24 a turn-0 game could not show the scoreboard and commerce sliders side by side, as the sliders are hidden then and the scoreboard is narrow.
+# It returns the per-run INI too, None without size, so the caller can remove it after the game. (Claude code Opus 5.5) -->
+def load(save: Path, debug_mode: bool, mod: str = "AdvCiv-SAS", size: str | None = None) -> tuple[int, Path | None]:
 	# <!-- custom: Loads a save into AdvCiv-SAS and leaves it open, with no autoplay, so a fix can be checked on the very position a bug was seen in; run_autoplay.py --turns 1 would play that turn first.
 	# Written on 2026-11-22 to check KI#11.3 on the user's turn-22 save, after a hand-typed launch failed: "mod=\AdvCiv-SAS" passed through python -c in Bash lost its backslash (Win32_Process.Create failed: 9), the pitfall AGENTS.md describes, so the arguments are built here.
 	# /FXSLOAD comes first and quoted, as run_autoplay.py found; mod= names the mod, as the save alone does not pick it. (Claude code Opus 5.5) -->
@@ -103,8 +105,19 @@ def load(save: Path, debug_mode: bool, mod: str = "AdvCiv-SAS") -> int:
 	save = save.resolve()
 	if not save.is_file():
 		raise SystemExit("no save at %s" % save)
-	pid = d.launch_detached('/FXSLOAD="%s" "mod=\\%s"' % (save, mod))
+	ini_path = None
+	ini_argument = ""
+	pid = None
 	try:
+		# <!-- custom: The INI is written inside the try, so a failed or partial write, such as on a full disk, is removed like a failed launch (Codex's review, 2026-11-24). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if size:
+			width, height = size.lower().split("x")
+			ini_name = "SASLoad_%s_%d.ini" % (time.strftime("%Y%m%dT%H%M%S"), os.getpid())
+			ini_path = d.DEFAULT_CIV4_DIR / ini_name
+			run_autoplay.write_request_ini(run_autoplay.USER_DIR / "CivilizationIV.ini", ini_path, None, False, "-", "Agent", {"ScreenWidth": str(int(width)), "ScreenHeight": str(int(height))})
+			# <!-- custom: After /FXSLOAD, as run_autoplay.py orders them. (Claude code Opus 5.5) -->
+			ini_argument = " ini=%s" % ini_name
+		pid = d.launch_detached('/FXSLOAD="%s"%s "mod=\\%s"' % (save, ini_argument, mod))
 		wait_until_settled(pid)
 		# <!-- custom: A settled window can also be the main menu or an error dialog, so the load is confirmed from this process's own runtime status when SAS_RUNTIME_STATUS_ON writes one (Codex's review, 2026-11-22). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		statuses = sorted(run_autoplay.USER_DIR.joinpath("Logs").glob("SASRuntimeStatus_*_%d.json" % pid))
@@ -118,15 +131,20 @@ def load(save: Path, debug_mode: bool, mod: str = "AdvCiv-SAS") -> int:
 			d.key(pid, "ctrl+z")
 			time.sleep(3)
 	except BaseException:
-		if d.process_alive(pid):
-			run_autoplay.close_civ4(pid)
+		try:
+			if pid is not None and d.process_alive(pid):
+				run_autoplay.close_civ4(pid)
+		finally:
+			if ini_path is not None:
+				for leftover in (ini_path, ini_path.with_name(ini_path.name + ".bak")):
+					leftover.unlink(missing_ok=True)
 		raise
-	return pid
+	return pid, ini_path
 
 
 def main() -> int:
 	parser = argparse.ArgumentParser(description="Start a QuickStart game at turn 0 with a map script, world size and game options, or load a save, and leave it open.")
-	parser.add_argument("--load", type=Path, metavar="SAVE", help="load this .CivBeyondSwordSave instead of starting a game; --debug-mode still applies, the other options do not")
+	parser.add_argument("--load", type=Path, metavar="SAVE", help="load this .CivBeyondSwordSave instead of starting a game; --debug-mode, --mod and --size still apply, the other options do not")
 	parser.add_argument("--map", default="Pangaea")
 	parser.add_argument("--world-size", default="WORLDSIZE_STANDARD")
 	parser.add_argument("--option", action="append", default=[], help="Turn on a game option by type, such as GAMEOPTION_ADVANCED_START; repeatable")
@@ -146,7 +164,8 @@ def main() -> int:
 	if d.civ4_processes():
 		raise SystemExit("Civ4 is already running: drive it with --pid in the other tools, or close it first")
 	if args.load:
-		print("pid %d; loaded %s" % (load(args.load, args.debug_mode, args.mod), args.load))
+		pid, ini_path = load(args.load, args.debug_mode, args.mod, args.size)
+		print("pid %d; loaded %s" % (pid, args.load) + ("" if ini_path is None else "; per-run INI %s (delete it, and its .bak, after closing the game)" % ini_path))
 		return 0
 	pid, ini_path = start(args.map, args.world_size, args.option, args.debug_mode, era=args.era, mod=args.mod, size=args.size)
 	print("pid %d; per-run INI %s (delete it, and its .bak, after closing the game)" % (pid, ini_path))

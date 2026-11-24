@@ -738,6 +738,8 @@ class CvMainInterface:
 		self.bScoreNameFill = False
 		self.iScoreFullW = None
 		self.bScoreNamesCut = False
+		# <!-- custom: Read lazily, as the other scoreboard defines above. See KI#1103.2. (Claude code Opus 5.5) -->
+		self.iSAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON = None
 		# <!-- custom: scoreboard background style cycle (not just opacity: PanelStyles also include plain/colored panels e.g. blue/tan, not only opaque/translucent).
 		# Discrete PanelStyle levels in cycle order.
 		# 0 HUD_HELP is vanilla look.
@@ -6496,11 +6498,23 @@ class CvMainInterface:
 	# Without an aligned scoreboard (BUG's Align Icons off) iScoreFullW stays None and names are never cut.
 	# iSpace is the space the opening advisor leaves, which CvScreensInterface passes. (Claude code Opus 5.5) -->
 	def isScoreboardRedrawNeededForAdvisor(self, bOpening, iSpace=0):
+		# <!-- custom: With the map scoreboard already fitted to the space these advisors leave, opening or closing one changes nothing, so the redraw is skipped. See KI#1103.2. (Claude code Opus 5.5) -->
+		if self._isScoreboardMapFitOn():
+			return False
 		if not bOpening:
 			return self.bScoreNamesCut
 		if self.iScoreFullW is None:
 			return False
 		return self.iScoreFullW > self.getScoreboardRoomW(CyGInterfaceScreen("MainInterface", CvScreenEnums.MAIN_INTERFACE), iSpace)
+
+	# <!-- custom: The user noticed the scoreboard's left edge moving between the map and an open advisor, even at 1920 x 1080 and font 3, which was tiring to watch: names were cut to the advisor's space only while one was open, so on the map the scoreboard kept its full width.
+	# Debug-mode measures on a turn-380 SAS24 save put the map scoreboard 10 to 60 px wider than that space at fonts 3 and 4, 1080p and 1440p, while the commerce sliders above it start at that space in both views (2026-11-24).
+	# When on, the map fits the scoreboard to the same space, so it stays put and lines up with the sliders, at the cost of cut names with no advisor open.
+	# A method rather than the usual inline lazy read, as _scoreboardFastScrollStep is, since both the scoreboard draw and isScoreboardRedrawNeededForAdvisor read it. See KI#1103.2. (Claude code Opus 5.5) -->
+	def _isScoreboardMapFitOn(self):
+		if self.iSAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON is None:
+			self.iSAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON = gc.getDefineINT("SAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON")
+		return self.iSAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON > 0
 
 	# <!-- custom: How far the scoreboard's right edge sits inside the screen's, a few px. (Claude code Opus 5.5) -->
 	def getScoreboardEdgeW(self, screen):
@@ -6661,7 +6675,8 @@ class CvMainInterface:
 			# <!-- custom: Local import, as elsewhere here: CvScreensInterface imports this module during startup.
 			# It holds the advisors and knows which is open. (Claude code Opus 5.5) -->
 			import CvScreensInterface
-			iSpace = CvScreensInterface.getOpenAdvisorScoreboardSpace()
+			# <!-- custom: On the map too when SAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON is on, the space the commerce sliders use; the Tech Advisor still gives its own. See KI#1103.2. (Claude code Opus 5.5) -->
+			iSpace = CvScreensInterface.getOpenAdvisorScoreboardSpace(bUseStandardOnMap=self._isScoreboardMapFitOn())
 			if iSpace is not None:
 				iRoomW = self.getScoreboardRoomW(screen, iSpace)
 			if iRoomW is not None:

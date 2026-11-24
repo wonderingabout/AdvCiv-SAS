@@ -120,16 +120,7 @@ Together, these close a loop that local agents, such as Claude Code or Codex, ca
 6. The change is reviewed with the user, or directly between agents such as Codex or ChatGPT: is code shape satisfying, right/intended abstraction, does it address the need, no ci to add or that fails? Did regressions in AI, UI, or whatnot appear in a manual, or possibly even automated/batch way now maybe too? Other notable results or observations? Etc.
 7. Eventually committed once and if approved, and work moves on to the next Known Issue or idea noted for later, with the user, or possibly other agents, either in batch or autonomously, or one by one with or without the user being required at each step, or such.
 
-Each step is documented for agents in the files linked above, so the loop needs the user only to choose what to work on and to approve the result.
-
-None of it needs the game in the foreground, or even visible: Civ4 runs in its own window, screenshots capture it under other windows, and other applications such as Chrome, VS Code or File Explorer did not block its launch or capture in our tests.
-
 So an agent such as Claude Code or Codex can investigate an issue, change the code, compile, run the autoplays it needs, read their logs and screenshots, and commit once the change is approved, while the user browses the web or reads code, possibly without noticing it happened.
-
-Example of exceptions:
-
-- A click in the game window, since it moves the real mouse pointer, but runs need none.
-- Or asking another agent such as Codex for a peer-agent review, as in [this example](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#example-a-peer-agent-review-on-2026-11-11), is more visible with our current method, because we use the agents' desktop apps rather than their CLI, so the request is pasted into the other agent's window, which brings it to the front.
 
 Note: we wrote "AI, UI or otherwise" above without thinking of it, then noticed it matches the current signature at the top of every file SAS modifies: "AI, UI, logging, or other modifications first developed in AdvCiv-SAS". We added "logging" so the two match.
 

@@ -1311,6 +1311,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1101 - (Fixed AdvCiv-SAS merge slip, SASPilot branch only) The Info Screen's Timeline tab raised "global name 'iNumMessages' is not defined" on the SASPilot branch; main is not affected](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101)\
 [KI#1102 - (Open, a Steam client bug outside the mod's code) A closed Civ4 sometimes never finishes exiting, as Steam's steamclient.dll waits forever while unloading, so Steam still sees the game running and the shortcut starts nothing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)\
 [KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103)\
+[KI#1103.2 - (Fixed SAS) The scoreboard's left edge moved whenever an advisor opened or closed, even at 1920 x 1080 and font 3: it cut leader names to the advisors' space only while one was open, so on the map it kept its full width, 10 to 60 px wider in debug mode](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103.2)\
 [KI#1104 - (AdvCiv-SAS design rule) SAS keeps its own copy of every base-game Python file it uses, changed or not, as it took in CvTechSplashScreen.py, CIV4ProcessInfo.xml and CIV4WorldPickerInfos.xml when first needed: SASPilot's WorldBuilder work found the WorldBuilder screen running from BtS's copy, outside the repository](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)\
 [KI#1105 - (Fixed inherited vanilla, Debug Mode only) The Map Details table showed a continent's 576 tiles under "Area" and its 5 starting plots under "Size": its header row had one extra column](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)\
 [KI#1105.2 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen CvDebugInfoScreen.py (Shift + F2) sat at a fixed 1024 x 768, and its table never showed the columns past its right edge, so even on a Huge map Team Relations lost the last 4 of its 16 civilizations and Map Details its bonuses after about the 8th](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2)\
@@ -39050,6 +39051,26 @@ Not a bug but a rule several layouts follow, written down here so each place can
   - The commerce sliders beside the Technology Advisor, which fall back to fewer buttons and rates below the sliders in a narrow strip.
 
 Pondered on by the user and Claude Code Opus 5.5 while fitting the advisors and the scoreboard at larger fonts (2026-11-19 to 21), with Codex's (GPT-6.2-Sol) reviews of the layouts that follow it, such as the commerce sliders' fallback beside the Technology Advisor.
+
+<a id="ki-1103.2"></a>
+
+## KI#1103.2 - (Fixed SAS) The scoreboard's left edge moved whenever an advisor opened or closed, even at 1920 x 1080 and font 3: it cut leader names to the advisors' space only while one was open, so on the map it kept its full width, 10 to 60 px wider in debug mode
+
+- What it was: the user found it tiring to watch the scoreboard shift each time an advisor opened or closed (2026-11-24).
+  - Under [KI#1103](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103)'s rule, advisors leave the scoreboard a fixed space, 393 px at font 3 and 455 at font 4 above 1920 px, and while one is open the scoreboard shortens leader names to fit it; the commerce sliders above start at that space in both views.
+  - On the map nothing cut the names, so the scoreboard took its full width; whether it lined up with the sliders depended on its content: the 393 px came from this save's turn-380 scoreboard without debug mode, about 394 px.
+  - Base AdvCiv's scoreboard never moved: nothing there cut its names, and most of its advisors were fixed 1024 x 768 boxes in the middle of the screen. The movement came with SAS's name cutting beside advisors (2026-11-20), so this fixes an SAS side effect.
+- Measured on 2026-11-24 on that turn-380 SAS24 save in debug mode, which adds every player's power ratio, research and percent columns: on the map the scoreboard ran about 10 px past the sliders at font 3 and 1080p, 20 at font 3 and 1440p, and 60 at font 4 and 1080p; with the Domestic Advisor open, it met the advisor's edge.
+  - Resolution made only a few px of difference, as the sliders' `SAS_MAIN_UI_MAP_COMMERCE_RIGHT_X_OFFSET` scales with it.
+- Fixed (2026-11-24): with `SAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON` (on by default), the map fits the scoreboard to the same space as the advisors, so it stays put and lines up with the sliders ([CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py)).
+  - It costs shortened names with no advisor open, so `0` keeps the full width and whole names on the map, as before.
+  - Opening or closing one of these advisors then changes nothing, so its scoreboard redraw is skipped.
+  - Tested in game the same day: map and Domestic Advisor views showed the scoreboard in the same place at 1920 x 1080 and 2560 x 1440, at font 3 in debug mode, with no Python error.
+- Limits, from Codex's (GPT-6.2-Sol) review the same day:
+  - It holds for BUG's aligned scoreboard with leader names shown; with Align Icons off it draws apart, and with Display Name off there are no names to cut.
+  - The Technology Advisor still leaves its own space, narrower below 2560 px, so opening it can still move the scoreboard; it redraws the scoreboard itself on opening and closing.
+  - Only names are cut, so columns that alone exceed the space, as beside that advisor, still do.
+  - A scoreboard narrower than the space, as in early games with few players, still ends short of the sliders: fitting only shortens names, it does not widen.
 
 <a id="ki-1104"></a>
 

@@ -346,6 +346,12 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: 1 = on the map too, fit the scoreboard to the space advisors leave it, shortening leader names as beside an open advisor, so it keeps the same width whether a standard advisor is open or not and lines up with the commerce sliders; 0 = keep its full width on the map, with whole names.
+	The Technology Advisor still gives its own space, narrower below 2560 px, and only names are cut, not columns. See KI#1103.2. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: commerce sliders second (Min/Max) + + and - - pair step size (e.g., setting it to 50 makes it require 2 clicks to go from 0% to 100% (0->50->100) and vice versa for - -).
 	Keep in [1,100].
 	Base AdvCiv value: 100. (Claude code Opus 4.7) -->
