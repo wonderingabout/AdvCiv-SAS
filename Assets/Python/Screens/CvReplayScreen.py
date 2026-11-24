@@ -42,15 +42,12 @@ class CvReplayScreen:
 		self.Z_BACKGROUND = -6.1
 		self.Z_CONTROLS = self.Z_BACKGROUND - 0.2
 		self.DZ = -0.2
-		# <advc.106m> Use this to avoid calling calculateLayout more than once
-		self.bLayoutDone = False
+		# <!-- custom: Was advc.106m's flag bLayoutDone, "Use this to avoid calling calculateLayout more than once", which kept the replay at the first resolution it opened at for the whole session: after 1920 x 1080 to 2560 x 1440 from the main menu's Options, the replay kept its 1920 x 1080 frame in the top-left corner, with the Hall of Fame around it (the user's screenshots, 2026-11-24).
+		# calculateLayout now runs on every opening, as it is a few sums: Codex's (GPT-6.2-Sol) review found that the first fix, a cache keyed on the resolution, kept another stale value, as showScreen narrows W_MAP for a tall map and a later replay at the same resolution inherited the narrow width. See KI#123.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		self.iOriginalMinimapRenderSize = -1
 
 	# Moved into a new function b/c getScreen can't be called in __init__
 	def calculateLayout(self):
-		if self.bLayoutDone:
-			return
-		self.bLayoutDone = True # </advc.106m>
 		iXRes = self.getScreen().getXResolution()
 		iYRes = self.getScreen().getYResolution()
 		# <!-- custom: use true fullscreen bounds for Replay (no outer margins): x/y start at 0,0 and width/height follow current resolution. (GPT-5.3-Codex) -->

@@ -210,6 +210,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#123.2 - (Fixed incomplete inherited AdvCiv solution) BUG's Sevopedia stays at 1024 x 768 at any resolution, even after a restart; AdvCiv made the Sevopedia scale with the resolution, but only once per session: after 1920 x 1080 to 2560 x 1440 in game, the reopened Sevopedia stayed at 1920 x 1080 until a tedious Civ4 restart](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2)\
 [KI#123.3 - (Fixed SAS) After a resolution change in game, the city screen and then the map kept parts of the old resolution's layout until a restart: after 2560 x 1440 to 1920 x 1080, the city screen lost its bottom band and its right panel ran off the screen, as SAS kept the city screen's panel rects from the first interface build of the game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3)\
 [KI#123.4 - (Fixed inherited AdvCiv) The map's bonus bubbles drew at a size meant for another field of view: AdvCiv's size patch ran before the field of view for the resolution was set, so it used the XML's 42 when a game was loaded and the previous resolution's after a change in game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.4)\
+[KI#123.5 - (Fixed incomplete inherited AdvCiv solution) Vanilla's Replay screen stays a 1024 x 768 box at any resolution; AdvCiv made it scale with the resolution, but laid it out only once per session: after 1920 x 1080 to 2560 x 1440, the reopened replay stayed at 1920 x 1080 until a tedious Civ4 restart](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.5)\
 [KI#124 - (Fixed) Likely Base AdvCiv issue: map-view unit bar overflows into hovered/expanded scoreboard](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-124)\
 [KI#125 - (Fixed) Base AdvCiv issue: Sevopedia Back/Next history is lost on exit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-125)\
 [KI#126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-126)\
@@ -11919,6 +11920,8 @@ Update (2026-11-24): [KI#123.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-12
 
 Update (2026-11-24): [KI#123.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.4), the map's bonus bubbles sized for another field of view, inherited from AdvCiv and found while testing resolution changes.
 
+Update (2026-11-24): [KI#123.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.5), the Replay screen, which AdvCiv laid out once per session, now lays out on every opening.
+
 <a id="ki-123.2"></a>
 
 ## KI#123.2 - (Fixed incomplete inherited AdvCiv solution) BUG's Sevopedia stays at 1024 x 768 at any resolution, even after a restart; AdvCiv made the Sevopedia scale with the resolution, but only once per session: after 1920 x 1080 to 2560 x 1440 in game, the reopened Sevopedia stayed at 1920 x 1080 until a tedious Civ4 restart
@@ -11943,6 +11946,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
   - Each rebuild writes a `SEVOPEDIA_RESOLUTION_CHANGE` row to `PythonDbg.log`, with the old and new sizes.
 - Tested (2026-11-24) by Claude Code Opus 5.5 in a turn-0 game through `desktop_windows.py`: after 1920 x 1080 to 2560 x 1440 in the Options, the Sevopedia filled the new window, with `SEVOPEDIA_RESOLUTION_CHANGE fromW=1920 fromH=1080 toW=2560 toH=1440` and no Python error.
 - The advisors had followed a resolution change since SAS laid them out each time they open (practical 5580, 2026-03-21, onward); the Sevopedia now does too.
+- Update (2026-11-24): [KI#123.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.5), the Replay screen, has the same history: a fixed 1024 x 768 box before AdvCiv, which made it fill the screen but laid it out once per session.
 
 <a id="ki-123.3"></a>
 
@@ -11985,6 +11989,25 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
   - The globe redraw also runs when the patch is off or BUG's "BtS" size, which ignores the FoV, is chosen; Codex's review noted it, and it is at most one per interface build, so it is kept.
   - With the FoV-sensitive patch on, that is any BUG Plot Indicator Size other than "BtS", a game loaded above 1080p now sizes the bubbles from its own FoV, so they are smaller than before, as AdvCiv's formula intends; BUG's Plot Indicator Size option still sets the size by hand.
 - Tested on 2026-11-24 by Claude Code Opus 5.5, with a temporary log row: a game loaded at 1920 x 1080 sized them again with FoV 39, and after a change to 2560 x 1440 with 52, the new resolution's own, with no Python error.
+
+<a id="ki-123.5"></a>
+
+## KI#123.5 - (Fixed incomplete inherited AdvCiv solution) Vanilla's Replay screen stays a 1024 x 768 box at any resolution; AdvCiv made it scale with the resolution, but laid it out only once per session: after 1920 x 1080 to 2560 x 1440, the reopened replay stayed at 1920 x 1080 until a tedious Civ4 restart
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1wUKnwqpAiCewBuigd2Z9vuAgYroselO_?usp=sharing).
+
+- What it was, from the user's screenshots (`Civ4ScreenShot0693` to `0697`, 2026-11-24): at the main menu, the Hall of Fame and a game's Replay filled the screen at 1920 x 1080; after switching to 2560 x 1440 in the main menu's Options, the Hall of Fame filled 2560 x 1440, but the Replay opened at its old 1920 x 1080 frame in the top-left corner, with the Hall of Fame around it.
+  - Base AdvCiv 1.14 does the same, as the user tested the same day the other way round (`Civ4ScreenShot0698` to `0702`): the replay filled 2560 x 1440, and after a switch to 1920 x 1080 kept its 2560 x 1440 size, running off the right and bottom edges.
+- Origin, from the `commit_diffs` corpus and vanilla's copy in Civ4CE, which BtS uses:
+  - Vanilla's Replay screen was a fixed 1024 x 768 box centred on the screen, so it kept no stale dimensions, but used little of a larger screen.
+  - Base AdvCiv copied the file in practical 1741 (`d408c0233f`, 2019-10-10), and advc.106m, practical 1742 (`1402076091`, the same day), sized it from the resolution in `calculateLayout`, behind a `bLayoutDone` flag commented "Use this to avoid calling calculateLayout more than once", so once per session.
+  - SAS made it fill the screen with no margins, practical 5649 (2026-04-13), and kept the flag.
+- Fixed (2026-11-24): [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py) drops the flag, so `calculateLayout`, a few sums, runs on every opening.
+  - The first fix kept the layout cached until the resolution changed; Codex's (GPT-6.2-Sol) review found that this kept another stale value, pre-existing behind the flag: `showScreen` narrows `W_MAP` to fit a tall map, so a later replay at the same resolution inherited the narrow width, at 1920 x 1080 695 px instead of 1226 for a wider map.
+  - Codex also checked every entry point: the game's own replay call, the Hall of Fame and the debug shortcut all go through `showScreen`, which lays out before creating widgets.
+- Tested by the user with the fix (`Civ4ScreenShot0703` to `0707`, 2026-11-24): the replay filled 1920 x 1080, and after a switch to 2560 x 1440 from the main menu filled the new window too.
+- The same history as [KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2), the Sevopedia: a fixed 1024 x 768 box before AdvCiv, which made it fill the screen but laid it out once per session.
+- Other screens: a search for once-per-session layouts found only BUG's Customizable Domestic Advisor, whose position flag BUG already resets on its `ResolutionChanged` event (`BUG Advisors.xml`), so the Replay screen was the last of the KI#123 family's inherited cases; base AdvCiv 1.14 registers that event the same way, as BUG wrote it.
 
 <a id="ki-124"></a>
 
