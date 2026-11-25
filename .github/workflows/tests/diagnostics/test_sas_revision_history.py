@@ -62,9 +62,9 @@ class RevisionHistoryTests(unittest.TestCase):
 
             def record():
                 target.write_text(
-                    '### Revision 155\n- **Git commit:** pending\n- **Change:** Second step.\n\n'
-                    '### Revision 154\n- **Git commit:** `' + feature + '`\n- **Change:** First step.\n\n'
-                    '### Revision 153\n- **Git commit:** `' + base + '`\n- **Change:** Baseline.\n', 'utf-8')
+                    '### Revision 155\n- **Git commit:** pending\n- **Functional:** Yes\n- **Change:** Second step.\n\n'
+                    '### Revision 154\n- **Git commit:** `' + feature + '`\n- **Functional:** Yes\n- **Change:** First step.\n\n'
+                    '### Revision 153\n- **Git commit:** `' + base + '`\n- **Functional:** Yes\n- **Change:** Baseline.\n', 'utf-8')
 
             record()
             self.assertEqual(history.check_history(repo, 'main'), [])
@@ -100,7 +100,7 @@ class RevisionHistoryTests(unittest.TestCase):
             target = repo / history.HISTORY
             target.parent.mkdir(parents=True)
             def record(commit):
-                target.write_text('### Revision 70 - fixture\n- **Git commit:** pending\n- **Change:** Fixture change.\n\n### Revision 69 - fixture\n- **Git commit:** `' + commit + '`\n- **Change:** Fixture change.\n', 'utf-8')
+                target.write_text('### Revision 70 - fixture\n- **Git commit:** pending\n- **Functional:** Yes\n- **Change:** Fixture change.\n\n### Revision 69 - fixture\n- **Git commit:** `' + commit + '`\n- **Functional:** Yes\n- **Change:** Fixture change.\n', 'utf-8')
             record(original)
             self.assertEqual(history.check_history(repo, "main"), [])
             record(amended)
@@ -121,7 +121,7 @@ class RevisionHistoryTests(unittest.TestCase):
             git(repo, 'branch', 'main')
             target = repo / history.HISTORY
             target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_text('### Revision 153 - fixture\n- **Git commit:** `' + committed + '`\n- **Change:** Fixture change.\n', 'utf-8')
+            target.write_text('### Revision 153 - fixture\n- **Git commit:** `' + committed + '`\n- **Functional:** Yes\n- **Change:** Fixture change.\n', 'utf-8')
             self.assertEqual(history.check_history(repo, "main"), [])
             target.write_text(target.read_text().replace('Revision 153', 'Revision 154'))
             self.assertTrue(any('SAS_SGR_REVISION=154' in e for e in history.check_history(repo, "main")))
@@ -493,7 +493,7 @@ class RevisionHistoryTests(unittest.TestCase):
             fixture_git(repo)
             target = repo / history.HISTORY
             target.parent.mkdir(parents=True)
-            target.write_text('### Revision 68 - fixture\n- **Git commit:** `0000000000000000000000000000000000000000`\n- **Change:** Fixture change.\n', 'utf-8')
+            target.write_text('### Revision 68 - fixture\n- **Git commit:** `0000000000000000000000000000000000000000`\n- **Functional:** Yes\n- **Change:** Fixture change.\n', 'utf-8')
             self.assertEqual(history.check_history(repo, "refs/remotes/origin/missing"), [])
 
 

@@ -75,6 +75,8 @@ You can expand this [AGENTS.md](/AGENTS.md) freely as you see fit.
 
 Keep additions in this file as guidance, not a full spec. State the rule, why it exists and concrete example(s) (real names beat abstract prose) if it helps, and link to the detailed doc instead of repeating it unless part of the explanation or something otherwise helpful.
 
+Note: this file is written for local agents (e.g. Codex, Claude Code) working on this computer. If you are an external agent (e.g. ChatGPT, on the web browser), some steps differ: see [External agents (e.g. ChatGPT, on the web browser)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#external-agents).
+
 ## git, GitHub, and git diff info
 
 Our mod is also on github, see [AdvCiv-SAS's github repo](https://github.com/wonderingabout/AdvCiv-SAS).
@@ -383,7 +385,6 @@ Our AdvCiv-SAS documentation is mostly located here:
 - Screenshots for a lot of AdvCiv-SAS elements ingame including but not only Sevopedia, Advisors, etc. They are fairly updated too if it helps: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Images"
 - Screenshots can help development/review by showing what the mod UI/gameplay screens and rendered `SASGameRecord` map text actually look like, not only source/docs.
   - LLMs may parse the raw text-map characters without reconstructing the visual/geographical layout as easily, so `1.291_SASGameRecord_map_text` screenshots are useful review context too.
-  - Codex and similar local agentic tools can read these screenshot folders directly on the user's computer; external/ZIP-only LLMs such as ChatGPT depend on what the compact light source ZIP includes, so [make_light_source_zip.py](/LLM_Helpers/packaging/make_light_source_zip.py) also includes selected useful screenshot folders (advisors, main menu, `1.291_SASGameRecord_map_text` screenshots, the two-client LAN walkthrough, Sevopedia, common UI).
 - Legacy/base-AdvCiv UI references are under `_0_Legacy/Images/` (see its [README](/_0_Legacy/Images/README.md) for naming and provenance): e.g. screenshots of the advisors, Sevopedia, diplomacy and other screens, plus stitched BtS and vanilla Civ4 tech trees from the web.
   - They can be useful for example to compare how the old layout looked with what AdvCiv-SAS changed or improved, or as a historical/reference comparison.
 
@@ -906,18 +907,12 @@ Clear, accurate explanations help users and developers understand the code and i
   - From the repo root in PowerShell: `& 'C:\Python24\python.exe' .github/workflows/build/python/python24_compile.py --repo-root .`.
   - For example, it caught the SASGameRecord revision 152 candidate's `",".join(missing) if missing else "-"` with `SyntaxError`; the explicit `if/else` fix passed, as did all 240 runtime Python files checked on 2026-10-15. Python 3 accepting a file does not prove Python 2.4 compatibility.
   - The checker writes bytecode into a temporary directory and does not import Civ4 engine modules; syntax success still needs appropriate in-game testing.
-  - External web ChatGPT currently uses Linux without access to our local Windows Python 2.4 installation; external-agent environments may change. If the user supplies a compatible standalone Linux Python 2.4 package separately, use it to run the same checker; the user identifies its location, for example in a Library folder.
-    - Extract the package and set `PYTHONHOME` to its `python-2.4.6` directory before invoking its `bin/python`. See [external-agent handoffs](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#python-24-compatibility-for-modding).
-    - Use the matching runtime supplied by the user, for example through ChatGPT Library; verify its SHA256 against `_SNAPSHOT_CONTEXT/python24_runtime.txt` before use.
 - Treat Ruff/lint output as hints only; Civ4 runs Python 2.4 and engine imports can look unused to modern linters.
 - Avoid `noqa` suppressions unless there is a strong reason; prefer fixing the underlying issue when practical. For each necessary suppression, name the specific rule and add a nearby comment explaining why it is needed; remove unnecessary suppressions in code being edited.
   - For actual parser compatibility, GitHub Actions now runs [`python24-compile.yml`](/.github/workflows/python24-compile.yml), which uses the Docker image from [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) to compile-check `Assets/Python` and `PrivateMaps` with real CPython 2.4 syntax/bytecode rules.
 - We don't always need to use linters as part of our tasks, but if we do, among them, VS Code Ruff extension is useful for open-file Problems feedback; locally installed Ruff (`py -m ruff`) is better for broad audits, saved reports, and narrow rule-by-rule autofixes.
 - Example (Git Bash): `cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && mkdir -p LLM_Helpers/outputs && ts=$(date +%Y%m%d_%H%M%S) && out="LLM_Helpers/outputs/ruff_all_py_${ts}.txt" && { py -m ruff check . --output-format=grouped > "$out" 2>&1 || true; } && echo "wrote $out"`
 - Use Ruff `--fix` only for reviewed safe rules (e.g. `E713`); do not broad-autofix risky rules such as `F401`, `F841`, `E712`, old parser warnings, or anything touching Civ4 import/runtime assumptions.
-- For very messy legacy files where automated scripts produce risky or hard-to-review diffs, ask the user to send the file to ChatGPT for a direct manual repair pass.
-  - This can be better than fragile automation, especially for indentation archaeology or old map scripts.
-  - Example: the `BTG_Cross.py` and `BTG_Grid.py` map scripts were easier to repair manually as full files after broad indentation scripts produced misleading results.
 - Always review `git diff` before committing Ruff-driven changes.
 - Use the Python 2.4/3 print compatibility trick for debugging: `print("msg %s" % value)` is valid in both (single string only).
   - For bulk cleanup of simple Python 2 bare prints, use [wrap_python2_prints_for_linting.py](/LLM_Helpers/formatting/wrap_python2_prints_for_linting.py), then manually review any comma-print cases that need `%` formatting so Ruff/Python 3 parsing can show real issues instead of print-syntax noise.
@@ -1137,7 +1132,6 @@ int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, 
   - [`build_dll.py`](/LLM_Helpers/README.md#build_dllpy) does both from any shell: `syntax <files>` for `/Zs`, `build` for a Debug-opt rebuild. Before it (2026-11-13), each session wrote its own `vcvars32` `.bat` into its scratchpad, and a build started without one failed within seconds.
   - Extracted production functions can also be compiled/run in a temporary executable with minimal fixtures for focused logic checks.
     - Neither method replaces the appropriate DLL/link/in-game test.
-    - The external Windows toolchain and one-off temporary fixtures are not included in light-source ZIPs; source access alone does not give an external reviewer such as ChatGPT this local compiler setup.
 - Check current build reports first: `CvGameCoreDLL/Project/<target>/CvGameCoreDLL.dll.build.json` covers both Visual C++ 2010 Express and wrapper-driven terminal builds. The user compiles through VC2010 Express, not VS Code.
   - Scan every configuration together with the wildcard below; do not open target folders individually. Inspect each report's `status`, `startedUtc`, `endedUtc` and configuration rather than only the newest report, since another target can be building.
   - `RUNNING` means no completion was recorded; it can remain after a forcibly interrupted build. `SUCCEEDED`/`FAILED` with final fields confirms that recorded attempt ended, not that no later/direct build started.

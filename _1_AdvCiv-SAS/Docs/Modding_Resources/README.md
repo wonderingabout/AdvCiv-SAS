@@ -23,6 +23,7 @@ This is a non-exhaustive page containing some resources i found helpful and gene
 [Guides in this folder](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#guides-in-this-folder)\
 [LLM-assisted source analysis](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#llm-assisted-source-analysis)\
 &emsp;[Light-source analysis](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#light-source-analysis)\
+&emsp;[External agents](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#external-agents)\
 &emsp;[Historical source archaeology](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#historical-source-archaeology)\
 &emsp;[C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#c-file-audit-album)\
 [A few useful tips](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#a-few-useful-tips)\
@@ -88,6 +89,24 @@ This is a non-exhaustive page containing some resources i found helpful and gene
 ### Light-source analysis
 
 [`LLM_Helpers/packaging/make_light_source_zip.py`](/LLM_Helpers/packaging/make_light_source_zip.py) packages current source, relevant docs/data, repository state, tracked history context, map references and selected screenshots for external LLM review without copying the full installation or `.git`. Current source and Git remain authoritative; the archive is a compact handoff rather than a separate source tree.
+
+### External agents
+
+[AGENTS.md](/AGENTS.md) is written for local agents, such as Codex and Claude Code, which work on this computer with its Civ4, tools and Git history.
+
+Web ChatGPT no longer seems to have a separate, mostly unlimited usage allowance, so the user may lean further on local agents, which are generally more convenient.
+
+ChatGPT may still be useful for an independent review, as it seems to run on different infrastructure and may find what local agents miss.
+
+The notes that only an agent without this computer needs therefore live here, keeping AGENTS.md focused on local work. They sit under [Light-source analysis](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#light-source-analysis) because the light-source ZIP is how an external agent gets the repository, and much of what differs for it follows from what that ZIP holds.
+
+- Python 2.4 checks: web ChatGPT runs in Linux without our Windows Python 2.4.
+  - When the user supplies the standalone Linux Python 2.4 package, for example as a ChatGPT Library file, verify its SHA256 against `_SNAPSHOT_CONTEXT/python24_runtime.txt`, extract it and set `PYTHONHOME` to its `python-2.4.6` folder before running its `bin/python`.
+  - [Python 2.4 compatibility for modding](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#python-24-compatibility-for-modding) has the full steps.
+- Screenshots: local agents read the screenshot folders directly, while a ZIP-only agent sees only what the light-source ZIP holds, so [make_light_source_zip.py](/LLM_Helpers/packaging/make_light_source_zip.py) adds selected folders: advisors, main menu, `1.291_SASGameRecord_map_text`, the two-client LAN walkthrough, Sevopedia and common UI.
+- Compiling: the Windows toolchain and one-off test fixtures are not in light-source ZIPs, so source access alone does not let an external reviewer compile the DLL.
+- Messy legacy files: where automated scripts give risky or hard-to-review diffs, the user can send the whole file to ChatGPT for a direct manual repair.
+  - This can be better than fragile automation, especially for indentation archaeology or old map scripts: the `BTG_Cross.py` and `BTG_Grid.py` map scripts were easier to repair manually as full files after broad indentation scripts produced misleading results.
 
 ### Historical source archaeology
 

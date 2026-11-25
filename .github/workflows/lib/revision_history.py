@@ -64,3 +64,39 @@ def change_errors(text, revision=None):
         if change is None or not change.group(1).strip(" \t\r\n-*+_`"):
             errors.append(f"revision {number}: missing nonempty Change explanation")
     return errors
+
+
+FUNCTIONAL_LINE = re.compile(r"^- \*\*Functional:\*\*.*$", re.MULTILINE)
+FUNCTIONAL_VALUE = re.compile(r"^- \*\*Functional:\*\* (?:Yes(?: \([^()\n]+\))?|No \([^()\n]+\))[ \t]*$")
+# <!-- custom: The last revisions written before the label existed (2026-11-25); a commit adding a later revision must label it, while older commits still in a pushed range, such as 358884a7e5, are not judged by it. (Claude code Opus 5.5) -->
+FUNCTIONAL_SINCE = {"SASGameRecord": 211, "Runtime": 19}
+
+
+# <!-- custom: Each entry says whether its change altered what the subsystem records, publishes or does (Yes), or only its comments, layout, names, docs or tooling (No).
+# The user asked for it on 2026-11-25: Change texts said so only now and then, such as "Comments only" on 3 of 230 entries, so a reader had to infer it; the label makes it one greppable field.
+# Exactly one such line per entry: Yes, or No with a brief reason in parentheses, such as No (comments only), so a reader sees at once what a revision without a behavior change touched, as the user asked; Codex's review (GPT-6.2-Sol) found a first version accepting "Yes/No" and two contradictory lines, and letting a history with no labels at all pass.
+# See the revisions README. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+def functional_errors(text, revision=None, above=0):
+    entries = [(number, body) for number, body in revision_entries(text) if number > above]
+    if revision is not None:
+        entries = [(number, body) for number, body in entries if number == revision]
+    errors = []
+    for number, body in entries:
+        lines = FUNCTIONAL_LINE.findall(body)
+        if len(lines) != 1 or not FUNCTIONAL_VALUE.match(lines[0]):
+            errors.append(f"revision {number}: needs exactly one \"- **Functional:** Yes\" or \"- **Functional:** No (brief reason)\" line")
+    return errors
+
+
+# <!-- custom: After its Change line, an entry holds only child bullets, their continuations, or other fields: 193 loose paragraphs in revisions 80 to 149 followed the list at the left margin, rendering as text outside the entry's list, until 2026-11-25. (Claude code Opus 5.5) -->
+def change_layout_errors(text):
+    errors = []
+    for number, body in revision_entries(text):
+        after_change = False
+        for line in body.split("\n"):
+            if line.startswith("- **Change:**"):
+                after_change = True
+            elif after_change and line.strip() and not line.startswith((" ", "\t", "- **")):
+                errors.append(f"revision {number}: a loose paragraph follows the Change text; make it a child bullet (\"  - ...\")")
+                break
+    return errors

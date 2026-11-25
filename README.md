@@ -1790,9 +1790,7 @@ A separate `pending_upstream/` snapshot section exposes fetched but not-yet-merg
 
 Use `--fetch-upstream` when ZIP generation should first run `git fetch upstream --prune`; upstream fetching remains opt-in, independently of the runtime update check. This makes upstream-change and merge-conflict review possible from the ZIP alone without misrepresenting pending commits as current source ancestry.
 
-Local Codex agents currently use our Windows Python 2.4 installation; external web ChatGPT currently uses Linux without that installation.
-
-For compatible external agents, a separately provided Python 2.4 package enables the same Civ4 syntax checks; source handoffs include a package-information note under `_SNAPSHOT_CONTEXT`. See [Modding Resources](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#python-24-compatibility-for-modding) for package delivery, reuse and platform details.
+For an external agent without our Windows Python 2.4, such as web ChatGPT, the ZIP's `_SNAPSHOT_CONTEXT` notes a separately provided Python 2.4 package for the same Civ4 syntax checks; see [External agents](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#external-agents).
 
 Very large/generated/binary/redundant historical payloads are summarized instead of embedded; see [`LLM_Helpers/README.md`](/LLM_Helpers/README.md) for details.
 
