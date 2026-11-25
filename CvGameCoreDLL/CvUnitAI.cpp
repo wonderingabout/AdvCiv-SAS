@@ -381,7 +381,8 @@ static bool SAS_tryAttachCityEscortToSettler(CvUnitAI& kSettler, int iAreaBestFo
 	bool const bLogSettler2PlusEscort = (gSettler2PlusLogLevel >= 2);
 	SASSettlerCityEscortPool kPool;
 	SAS_collectSettlerCityEscortPool(kSettler, kPool, bLogSettler2PlusEscort, NULL);
-	static const int iSAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT = GC.getDefineINT("SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT");
+	// <!-- custom: Was a function-local static; three functions read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	int const iSAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT = GC.getDefineINT(CvGlobals::SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT);
 	if (kPool.pCity == NULL || kPool.pBestEscort == NULL || kPool.iCityHealthyDefenders <= iSAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT)
 		return false;
 	CvUnit* pEscort = kPool.pBestEscort;
@@ -1565,6 +1566,8 @@ static int SAS_getFirstCityKnownFogPotential(CvUnitAI const& kSettler, CvPlot co
 // Hidden terrain/yield counts are calibration-only "oracle" fields and never feed the score; they let replay analysis test whether the cheap visible-information proxy points toward genuinely useful fog without leaking that information into gameplay. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 static void SAS_logFirstCityShadowScoutEntry(CvUnitAI& kSettler, CvPlot const& kScoutOrigin, CvPlot const& kSettleSite, CitySiteEvaluator const& kEvaluator, int iCurrentFirstCityValue, int iCurrentBest6PlotValue, int iCurrentBest10PlotValue, int iMaxTurnsToFound)
 {
+	// <!-- custom: Read once, as the gameplay path's iScoutUnrevealedEndpointReferencePlotMultiplier does; this shadow check read it by name for each frontier plot and each step. (Claude code Opus 5.5) -->
+	static const int iScoutUnrevealedEndpointReferencePlotMultiplier = std::max(0, GC.getDefineINT("SAS_1ST_CITY_SCOUT_FOG_END_REF_PLOT_MULT"));
 	const int iSustainablePlotValue = CitySiteEvaluator::getSustainableProductivePlotValue();
 	int iScoutOpportunityLinearPercent = 100;
 	int iSettleNowCoreQualityPercent = 100;
@@ -1628,7 +1631,7 @@ static void SAS_logFirstCityShadowScoutEntry(CvUnitAI& kSettler, CvPlot const& k
 			const int iPotentialRange = std::max(1, kSettler.visibilityRange() + 1);
 			const bool bFrontierEndpointAlreadyCovered = (stepDistance(kFirstTurnPlot.getX(), kFirstTurnPlot.getY(), kFrontierPlot.getX(), kFrontierPlot.getY()) <= iPotentialRange);
 			const int iFrontierEndpointFogValue = (!kFrontierPlot.isRevealed(kSettler.getTeam()) && !bFrontierEndpointAlreadyCovered ?
-				std::max(0, GC.getDefineINT("SAS_1ST_CITY_SCOUT_FOG_END_REF_PLOT_MULT")) * iSustainablePlotValue : 0);
+				iScoutUnrevealedEndpointReferencePlotMultiplier * iSustainablePlotValue : 0);
 			const int iFrontierFoundValue = (kFrontierPlot.isRevealed(kSettler.getTeam()) ? SAS_evaluateFirstCityFoundValue(kEvaluator, kFrontierPlot) : 0);
 			const int iFrontierFoundGain = std::max(0, iFrontierFoundValue - iCurrentFirstCityValue);
 			const int iFrontierValue = iFrontierEndpointFogValue + iKnownFrontierFogValue + iFrontierFoundGain;
@@ -1691,7 +1694,7 @@ static void SAS_logFirstCityShadowScoutEntry(CvUnitAI& kSettler, CvPlot const& k
 		}
 		bHadSafeStep = true;
 		const int iEndpointFogValue = (!pEndTurnPlot->isRevealed(kSettler.getTeam()) ?
-			std::max(0, GC.getDefineINT("SAS_1ST_CITY_SCOUT_FOG_END_REF_PLOT_MULT")) * iSustainablePlotValue : 0);
+			iScoutUnrevealedEndpointReferencePlotMultiplier * iSustainablePlotValue : 0);
 		int iKnownFogPotentialPlots = 0;
 		const int iKnownFogPotentialValue = SAS_getFirstCityKnownFogPotential(kSettler, *pEndTurnPlot, iSustainablePlotValue, &iKnownFogPotentialPlots);
 		int iExplorerCount = 0;
@@ -23654,7 +23657,8 @@ bool CvUnitAI::AI_evacuateCity()
 	if(!kCity.AI_isEvacuating())
 		return false;
 
-	static const bool bSAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON = GC.getDefineBOOL("SAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON");
+	// <!-- custom: Was a function-local static; two functions read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	bool const bSAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON = GC.getDefineBOOL(CvGlobals::SAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON);
 	if (bSAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON)
 	{
 		// <!-- custom: if we have determined city is doomed, evacuate each and any single unit, splitting forces is worse than staying with all units or leaving with all units. Leaving with all units is the best since city will fall or has been determined to anyway, so do not care about anything else and simply evacuate all (it may drag the game a bit longer but is best for the AI and its competitiveness), see KI#62 for details and issue this attempts to fix -->

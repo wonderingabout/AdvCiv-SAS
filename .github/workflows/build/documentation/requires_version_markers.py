@@ -22,6 +22,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "diagnostics"))
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 import sas_revision_history as sgr
 from revision_history import pull_request_squashes, squash_tree
+# <!-- custom: The squash marker's one spelling, for the --squash help text; ci_markers_listed.py rejects a marker spelled outside lib/ci_markers.py. (Claude code Opus 5.5) -->
+from ci_markers import SQUASH_PR
 
 ROOT = Path(__file__).resolve().parents[4]
 MARKER = re.compile(r"Requires AdvCiv-SAS (\d+)\+")
@@ -106,7 +108,7 @@ def main():
 	parser.add_argument("--default-branch-ref")
 	parser.add_argument("--event-name", choices=("local", "push", "pull_request", "workflow_dispatch"), default="local")
 	parser.add_argument("--event-path", type=Path)
-	parser.add_argument("--squash", action="store_true", help="judge the branch as the one commit a squash merge makes, as a PR marked [ci_squash_pr] is")
+	parser.add_argument("--squash", action="store_true", help="judge the branch as the one commit a squash merge makes, as a PR marked %s is" % SQUASH_PR)
 	args = parser.parse_args()
 	event_data = json.loads(args.event_path.read_text(encoding="utf-8")) if args.event_path else None
 	try:

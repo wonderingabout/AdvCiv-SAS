@@ -56,6 +56,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/cpp_standard_conformance.py
 
+      - name: DLL source reads each SAS define once, or says why not
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/cpp_define_reads_cached.py
+
       - name: Switched define values are written only in LLM_Helpers/diagnostics/define_values.py
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/shared_define_values.py

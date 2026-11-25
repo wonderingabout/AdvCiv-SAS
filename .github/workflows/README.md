@@ -44,6 +44,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
   - [Documentation](#documentation)
     - [`build/documentation/agents_low_value_repeated_links.py`](#builddocumentationagents_low_value_repeated_linkspy)
     - [`build/documentation/art_samples.py`](#builddocumentationart_samplespy)
+    - [`build/documentation/ci_markers_listed.py`](#builddocumentationci_markers_listedpy)
     - [`build/documentation/diagnostic_artifact_names.py`](#builddocumentationdiagnostic_artifact_namespy)
     - [`build/documentation/disclaimers_first.py`](#builddocumentationdisclaimers_firstpy)
     - [`build/documentation/drive_links.py`](#builddocumentationdrive_linkspy)
@@ -115,6 +116,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
   - [Source](#source)
     - [`build/source/advisor_scoreboard_space.py`](#buildsourceadvisor_scoreboard_spacepy)
     - [`build/source/checkout_byte_compares.py`](#buildsourcecheckout_byte_comparespy)
+    - [`build/source/cpp_define_reads_cached.py`](#buildsourcecpp_define_reads_cachedpy)
     - [`build/source/cpp_standard_conformance.py`](#buildsourcecpp_standard_conformancepy)
     - [`build/source/custom_comment_indentation.py`](#buildsourcecustom_comment_indentationpy)
     - [`build/source/float_format_int_division.py`](#buildsourcefloat_format_int_divisionpy)
@@ -180,6 +182,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/xml_suspicious_text_chars.py`](#buildxmlxml_suspicious_text_charspy)
     - [`build/xml/xml_text_duplicate_tags.py`](#buildxmlxml_text_duplicate_tagspy)
 - [CI markers in commit messages](#ci-markers-in-commit-messages)
+- [CI markers in source comments](#ci-markers-in-source-comments)
 - [Run Locally](#run-locally)
 - [Not currently automated](#not-currently-automated)
 - [Dependabot](#dependabot)
@@ -550,6 +553,18 @@ Keeps the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Too
 
 ```bash
 python .github/workflows/build/documentation/art_samples.py
+```
+
+#### `build/documentation/ci_markers_listed.py`
+
+Fails when a CI marker in [`lib/ci_markers.py`](/.github/workflows/lib/ci_markers.py) has no row in the tables of [CI markers in commit messages](#ci-markers-in-commit-messages) or [CI markers in source comments](#ci-markers-in-source-comments), when a row names a marker that file does not define, or when a workflow script spells a marker in its code instead of importing it.
+
+- Added on 2026-11-25 at the user's suggestion, when `ci_define_uncached:` joined `resource-cache-direct:` and `sas-ci-string-compare-exemption:`, which their checks had each spelled in their own file and no section listed.
+- Its first run also found `[ci_squash_pr]` and `[ci_update_dll]` spelled in two help texts, `requires_version_markers.py`'s and `dll_commit_message.py`'s, which now take the constants.
+- Marker-shaped strings, a bracketed `[ci_x]` or a word such as `ci_x:`, count too, so a new marker cannot start in a check's own file. Comments and docstrings may name a marker, as this entry does.
+
+```bash
+python .github/workflows/build/documentation/ci_markers_listed.py
 ```
 
 #### `build/documentation/diagnostic_artifact_names.py`
@@ -1341,7 +1356,7 @@ Finds newly introduced runs of excess blank lines while preserving spacing withi
 
 #### `lib/ci_markers.py`
 
-Holds the one spelling of each commit-message marker, such as `[ci_update_dll]`, for the checks that read them; see [CI markers in commit messages](#ci-markers-in-commit-messages).
+Holds the one spelling of each CI marker for the checks that read them: commit-message markers, such as `[ci_update_dll]`, and source-comment ones, such as `ci_define_uncached:`; see [CI markers in commit messages](#ci-markers-in-commit-messages) and [CI markers in source comments](#ci-markers-in-source-comments).
 
 #### `lib/cpp_lex.py`
 
@@ -1380,6 +1395,30 @@ Fails when a CI build script compares bytes (`read_bytes()` with `==` or `!=`) w
 
 - On 2026-11-16 [`ui_map_sync.py`](#buildrepositoryui_map_syncpy) compared the checked-out UI map with its generator's output as bytes. A Windows clone with `core.autocrlf` checks text out with CRLF while the generator writes LF, so it failed locally on an unchanged file while GitHub's LF checkout passed, and GitHub could never catch it.
 - Text comparisons (`read_text`) ignore line endings, so they are the default; a byte comparison that is needed, such as for a binary file, states why in its note.
+
+#### `build/source/cpp_define_reads_cached.py`
+
+Fails when the DLL reads a SAS define by name, such as `GC.getDefineINT("SAS_X")`, outside a function-local `static`, unless its function says why with a `ci_define_uncached:` comment, so `rg "ci_define_uncached:"` lists every such read; see [AGENTS.md](/AGENTS.md#caching-and-variable-reuse).
+
+Each such read looks the name up in a string map, so a read on a recurring path belongs in a `static const` or AdvCiv's enum-backed `CvGlobals` cache.
+
+- Added on 2026-11-25. A full audit found 545 SAS define reads: 484 in statics, 59 that run once or rarely, such as lazy setting caches, the EXE patches at startup, which the plot indicator's repeats on a resolution or BUG map option change, and SASGameRecord's session rows, which now carry the comment, and two that recur.
+  - Both were diagnostic: `SAS_logFirstCityShadowScoutEntry`, behind BBAI's first-city Settler level 3, read `SAS_1ST_CITY_SCOUT_FOG_END_REF_PLOT_MULT` for each frontier plot and step, while the gameplay path beside it already kept it in a static.
+- A static is found by walking back to the start of the read's statement, through calls and brace initializers such as `static const int ai[] = { GC.getDefineINT("SAS_A"), ... }`; a `}` closing an earlier block ends the walk.
+- The marker counts only in comments, anywhere between the end of the previous function and the read, so it can sit above the signature; a read inside a loop needs it inside that loop.
+  - Codex's review (GPT-6.2-Sol) reproduced the first version's gaps: a marker inside a string counted, two functions inside an `extern "C"` block shared one region, a marker for a cold read covered a hot one in a loop below, and a `#if` line or a comma declarator such as `static int a[] = {0}, b = ...` hid a static; each now has a test.
+  - A function with no loop of its own but called on a hot path is still covered by its marker, so the comment must be true, which review checks.
+- The token went from `Not cached:` to `define-uncached:` to `ci_define_uncached:` at the user's suggestion (2026-11-25): such generic words can appear in any prose, so an unrelated comment in the same function could exempt a recurring read without anyone meaning to, and a grep for the token would mix exemptions with ordinary comments. The `ci_` prefix, as in the `[ci_update_dll]` commit marker, names a token only this check reads.
+- It scans `CvGameCoreDLL`'s `.cpp`, `.h` and `.inl` files, where the C++ code lives, headers' inline functions included.
+- Only SAS defines are checked. `--all-defines` reports the reads of non-SAS define names too: 52 on 2026-11-25, at setup or on other infrequent paths, such as once per turn in `CvGame::doVoteSelection`, on a resolution change for `CAMERA_BASE_CITY_DISTANCE`, or `CvMapGenerator::addRivers`, which reads fresh by design since [KI#243](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-243); none ran per plot or per unit, so they were left as inherited.
+- Runtime Python has no such check: its SAS define reads sit at module level, in screen `__init__` methods, behind lazy `None` caches or once per screen opening or map generation, and none sits inside a loop; the most frequent is `Earth2.py`'s `findStartingPlot`, which reads two once per player.
+  - The eight looped reads are inherited BUG and vanilla ones, over a tech's few prerequisites or the options screen.
+- Enum-backed `GC.getDefineINT(CvGlobals::SAS_...)` reads are cached already and are not matched; `sas_define_usage.py`'s test keeps them out of statics.
+
+```bash
+python .github/workflows/build/source/cpp_define_reads_cached.py
+python .github/workflows/build/source/cpp_define_reads_cached.py --all-defines
+```
 
 #### `build/source/cpp_standard_conformance.py`
 
@@ -2102,6 +2141,21 @@ A marker is one bracketed token in a commit message, title or body, usually on a
   - The squash commit keeps the marker, which GitHub's squash body carries from the PR's commits as this repository has it set, and names its PR in its title as `PR#50`; [`build/repository/squash_pr_number.py`](#buildrepositorysquash_pr_numberpy) checks it on main.
   - With it, the DLL check judges the PR as one commit too, and a new `(Requires AdvCiv-SAS N+)` must name main's count + 1; see [`build/documentation/requires_version_markers.py`](#builddocumentationrequires_version_markerspy).
 - Local options do the same for a local run: `--squash` on the revision checks judges a branch as one squash commit; `--staged` on the diagnostic-default checks reads staged content while unstaged development values stay on (see [Local `--staged` option for diagnostic defaults](#local---staged-option-for-diagnostic-defaults)); `ci_report.py --message` takes a draft commit message, so the commit-message checks read its markers.
+
+## CI markers in source comments
+
+A source marker is a token in a comment that tells one check why the line or function beside it is a handled exception, followed by that reason. Like the commit markers, it never skips the check: it states the intent, and review checks the reason is true.
+
+- Each one's spelling is kept once in [`lib/ci_markers.py`](/.github/workflows/lib/ci_markers.py) too, and [`build/documentation/ci_markers_listed.py`](#builddocumentationci_markers_listedpy) requires a row below for each.
+- Prefer a specific token over a common phrase: such words can appear in any prose, so an unrelated comment could exempt a line unnoticed, and a grep for the token would mix exemptions with ordinary comments.
+  - Example (2026-11-25): the DLL define-cache check first took `Not cached:`, the wording AGENTS.md suggested, then `define-uncached:`; the user found both too generic, and `ci_define_uncached:` names a token only that check reads.
+  - The two older tokens keep their spelling: renaming them would touch every comment that carries one.
+
+| Marker | Intent | What CI still checks |
+| --- | --- | --- |
+| `ci_define_uncached:` | a SAS define read by name outside a static runs once or rarely, so it needs no cache | every other read in the DLL, and a read inside a loop unless the marker sits in that loop. See [`build/source/cpp_define_reads_cached.py`](#buildsourcecpp_define_reads_cachedpy). |
+| `resource-cache-direct:` | a runtime Python lookup reads a resource directly instead of through its shared cache, for the concrete reason given | that a reason follows the token, and every other lookup. See [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy). |
+| `sas-ci-string-compare-exemption:` | a runtime Python comparison with a short string literal is right as it is, such as a BUG option type | every other such comparison. See [`build/source/string_label_compares.py`](#buildsourcestring_label_comparespy). |
 
 ## Run Locally
 

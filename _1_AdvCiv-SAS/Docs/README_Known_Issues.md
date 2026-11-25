@@ -220,6 +220,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#127 - (Worked around) DLL max players / Worldsize default players mismatch causing very sparse games, and players not being notified of it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-127)\
 [KI#128 - (Seemingly fixed / worked around) Runtime UI define/style changes could produce crashy Python-like behavior](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128)\
 [KI#128.2 - (Addressed inherited AdvCiv runtime-define cache risk) Nuclear effects retained first-read damage/destruction values](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.2)\
+[KI#128.3 - (Improved incomplete inherited AdvCiv caching, guarded by CI for SAS) AdvCiv cached 198 of the DLL's 467 define reads by name, its hot ones; SAS cached most of the rest, and one SAS diagnostic read its define for each plot it scanned](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3)\
 [KI#129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-129)\
 [KI#130 - (Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-130)\
 [KI#131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-131)\
@@ -12167,6 +12168,49 @@ Files changed:
 - The user confirmed successful DLL compilation and an in-game smoke test with no obvious issue. Explicit runtime define-change and nuclear-effect tests remain pending.
 
 Investigated, repaired and documented with the help of GPT-6.1-Sol; the earlier Python caching work retains its Claude code Sonnet 4.6 credit.
+
+<a id="ki-128.3"></a>
+
+## KI#128.3 - (Improved incomplete inherited AdvCiv caching, guarded by CI for SAS) AdvCiv cached 198 of the DLL's 467 define reads by name, its hot ones; SAS cached most of the rest, and one SAS diagnostic read its define for each plot it scanned
+
+### What AdvCiv left and what SAS did
+
+- `GC.getDefineINT("NAME")` looks the name up in a string map on every call. Base AdvCiv 1.14 (`upstream/1.14`) reads defines by name 467 times: 198 in function-local statics, mostly tagged `advc.opt`, such as `CvUnit`'s interception and healing rates, and 269 read anew on each call.
+  - The 269 were mostly cold: event-driven or per-turn code such as `CvUnit::setXY`'s capture war weariness (`WW_UNIT_CAPTURED`), `CvPlayer::calculatePollution`'s global warming weights or help-text builders such as `CvGameTextMgr::setEspionageCostHelp`. So AdvCiv had cached where it mattered and stopped there, an unfinished step rather than a regression.
+- SAS finished most of it in six "performance optimizations" commits from 2025-10-04 to 2025-11-01, SAS practicals 5034 (`c3d736ff5c`) to 5083 (`118d145c30`), besides caching SAS's own new defines the same way.
+  - Counting reads of non-SAS define names in snapshots, from SAS 5033 (`8a4001086b`) just before to 5083 just after: statics rose from 198 to 401 and uncached reads fell from 270 to 52, some reads being removed or moved; snapshots show the net change, not each conversion.
+  - Later passes followed: the Python lazy define caches of [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128) (SAS 5785, `6e6bca43e`, 2026-05-11); SASGameRecord 131's written C++ define-cache policy (SAS 6585, `fdcd91c77`, 2026-10-06); and 28 recurring SAS settings moved into AdvCiv's enum-indexed `CvGlobals` cache (SAS 6691, `1629edc69`, 2026-10-27).
+  - No speedup was measured for any of them; the reads they removed cost a string lookup each, which matters only on a recurring path.
+- 55 reads of non-SAS define names remain uncached in SAS (406 are statics), some of them SAS's own reads of older names.
+  - They run at setup or on other infrequent paths, such as once per turn in `CvGame::doVoteSelection`, on a resolution change for `CAMERA_BASE_CITY_DISTANCE`, or in `CvMapGenerator::addRivers`, which reads fresh by design since [KI#243](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-243); none runs per plot or per unit, so they stay as they are.
+  - Codex's second review (GPT-6.2-Sol) corrected these numbers: the first count used the local `../AdvCiv` copy, which is on its `sasgamerecord-1.14` branch with SASGameRecord added, rather than the pristine `upstream/1.14` (`5970334b64`), counted `const static` as uncached, and claimed 206 conversions the snapshots cannot show.
+
+### The SAS slip and the guard (2026-11-25)
+
+- An audit asked whether every SAS define that needs caching was cached: of 545 SAS reads by name, 484 were statics and 59 ran once or rarely, but `SAS_logFirstCityShadowScoutEntry`, behind BBAI's first-city Settler level 3, read `SAS_1ST_CITY_SCOUT_FOG_END_REF_PLOT_MULT` for each frontier plot and step, while the gameplay path beside it already kept the same define in a static. It now reads it once too.
+- [`cpp_define_reads_cached.py`](/.github/workflows/README.md#buildsourcecpp_define_reads_cachedpy) now fails a SAS define read by name outside a static unless its function says why with a `ci_define_uncached:` comment, which the 59 now carry; `--all-defines` reports the inherited reads too.
+  - It writes down and enforces what was already the habit, a reason beside an uncached read, which nothing checked; the token is listed with the other [CI markers in source comments](/.github/workflows/README.md#ci-markers-in-source-comments).
+  - Codex's review (GPT-6.2-Sol) found the first version's gaps, such as a marker inside a string counting, and two `SelfMod.cpp` comments wrongly saying "once"; the check's README entry lists them.
+- Runtime Python's SAS define reads sit at module level, in screen `__init__` methods, behind lazy caches or once per screen opening or map generation, so they need no such check.
+
+### Which cache, and why not one for every define
+
+- Both caches remove the string lookup, and they cost about the same, so speed alone does not choose between them:
+  - A function-local static holds its value, 4 bytes, plus a guard bit for the function. The first call reads the define by name; each later call tests the guard, one load and a branch the processor predicts, then loads the value.
+  - AdvCiv's enum cache holds the value in one array in `CvGlobals`, and its inline getter loads the array's address, then the value: two loads, the second waiting on the first, and no branch.
+  - Each is around a nanosecond, against a string-map lookup on every call; neither difference was measured, and about 500 cached defines take a few KB either way.
+- The enum cache fits a define that several recurring functions or files share: one home to find, rename or retune it, and no copies drifting apart. A define used in one function, read once at setup, or transformed before use stays a local static, as AGENTS.md's caching rules say.
+  - On 2026-11-25 each of its 28 SAS entries was used by two to four functions, so none needs to move back to a static.
+  - Four SAS defines were kept in statics in several functions that run all game: `SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT` in `CvCityAI::AI_chooseProduction`, `CvCityAI::AI_chooseUnit` and `SAS_tryAttachCityEscortToSettler`, `SAS_BLDG_PICK_WW_EAGERNESS_PCT` and `SAS_BLDG_PICK_WW_LOCAL_DOM_MIN_PWR_PCT` in `AI_bestBuildingThreshold` and `SAS_getWorldWonderSelectionValuePercent`, and `SAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON` in `AI_updateSafety` and `AI_evacuateCity`.
+    - They moved to the enum cache the same day for that single home, not for speed, as they read as fast either way; a 150-turn autoplay with the rebuilt Debug-opt DLL reached world wonders, evacuations and Settler escorts with no error.
+  - Four more are kept in statics in two functions each but left out on purpose, as the user pointed out (2026-11-25): `SAS_1ST_CITY_FOUND_MAX_T_UNSCALED_GS`, `SAS_1ST_CITY_SCOUT_FOG_END_REF_PLOT_MULT`, `SAS_1ST_CITY_CORE_IMPROVE_VAL_PCT` and `SAS_PROD_1ST_SETTLER_ESCORT_MAX_T_NORM_GS` are read only while a player founds its first city or trains its first Settler, or behind BBAI's Settler logging, so they run in a game's first turns, not all game.
+    - The rest of the 19 SAS defines read in more than one function run once or rarely, such as map generation, the EXE patches, `SAS_SAVE_VERSION` or SASGameRecord's session rows.
+- Centralizing is not the problem; the container is. The enum must live in `CvGlobals.h`, which nearly every DLL file includes, so each new entry rebuilds the whole DLL, and a list of every SAS define there would grow without end, far from the code and comments each value belongs to.
+  - A shared home included only by the files that need it would not have that cost; the Python shared modules stayed small for the same reason, and their giant-module cases were what defeated the purpose.
+- Related but separate: [KI#1001.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001.2) shortened SAS define names to AdvCiv's naming scale, for tidiness and greppability rather than speed, and [KI#1001](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001) kept text values within the inherited 256-byte buffer.
+- The Python side keeps its own pattern, lazy `None` caches and module-level reads, since KI#128; Python has no `const`. An idea considered on 2026-11-25, a Python file outside `Assets` read while the game runs so some UI layout values could change without a restart, would concern restarts, not caching.
+
+Audited, fixed and documented by Claude Code Opus 5.5, with Codex's (GPT-6.2-Sol) review.
 
 <a id="ki-129"></a>
 

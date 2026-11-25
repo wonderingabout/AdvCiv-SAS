@@ -32,6 +32,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/folder_indexes.py
 
+      - name: CI markers are spelled once and listed in the workflows README
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/documentation/ci_markers_listed.py
+
       - name: Markdown images
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/markdown_images.py

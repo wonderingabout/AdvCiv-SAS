@@ -114,6 +114,12 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 211 - SAS practical 6862
+
+- **Date:** 2026-11-25
+- **Git commit:** pending
+- **Change:** Comments only, with no change to what is recorded: the action-trace cache, the war AI settings row, the session settings snapshot and the text-map palette say why they read their defines by name, with a `ci_define_uncached:` comment, which the new [`cpp_define_reads_cached.py`](/.github/workflows/README.md#buildsourcecpp_define_reads_cachedpy) check asks of every SAS define read outside a static.
+
 ### Revision 210 - SAS practical 6838
 
 - **Date:** 2026-11-22

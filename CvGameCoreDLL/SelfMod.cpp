@@ -24,6 +24,7 @@ public:
 	// <!-- custom: AdvCiv's DISABLE_EXE_RUNTIME_MODS moved to GlobalDefines_advciv_sas.xml as SAS_EXE_P_ON, with its polarity inverted, so every EXE patch switch sits in one place. (Claude code Opus 5.5) -->
 	bool applyIfEnabled()
 	{
+		// <!-- custom: ci_define_uncached: each patch applies once, or again on a rare UI change such as the plot indicator's. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		if (GC.getDefineBOOL("SAS_EXE_P_ON"))
 			return apply();
 		return true;
@@ -713,7 +714,7 @@ void Civ4BeyondSwordPatches::patchPlotIndicatorSize()
 	// (If we fail past here, there won't be a point in trying again.)
 	m_bPlotIndicatorSizePatched = true;
 	// <!-- custom: Its own switch, now that SAS ports more EXE patches and SAS_EXE_P_ON alone would turn them all off together; off counts as done, so no error message is shown.
-	// Read once per process. (Claude code Opus 5.5) -->
+	// ci_define_uncached: read again only when the resolution, the field of view or a BUG map option changes, which is rare; it first said "once per process", which Codex's review (GPT-6.2-Sol) found untrue. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	if (!GC.getDefineBOOL("SAS_EXE_P_PLOT_INDICATOR_ON"))
 		return;
 	if (!PlotIndicatorSizeMod(iScreenHeight).applyIfEnabled())
@@ -732,7 +733,7 @@ void Civ4BeyondSwordPatches::setHelpTextAreaSize(float fWidth)
 	if (abs(fWidth - getHelpTextAreaWidth()) < 0.5f)
 		return;
 	m_fHelpTextAreaWidth = fWidth;
-	// <!-- custom: Its own switch, like SAS_EXE_P_PLOT_INDICATOR_ON; this runs only when the width setting changes, so the read is not cached. (Claude code Opus 5.5) -->
+	// <!-- custom: Its own switch, like SAS_EXE_P_PLOT_INDICATOR_ON; ci_define_uncached: this runs only when the width setting changes. (Claude code Opus 5.5) -->
 	if (!GC.getDefineBOOL("SAS_EXE_P_HELP_TEXT_AREA_ON"))
 		return;
 	if (!HelpTextAreaWidthMod(fWidth).applyIfEnabled())
@@ -740,7 +741,7 @@ void Civ4BeyondSwordPatches::setHelpTextAreaSize(float fWidth)
 }
 
 // <!-- custom: Called once at the end of LoadPreMenuGlobals, so the size is in place before the main menu can open a setup screen; RI calls its version at the same point.
-// These define reads run once per process, so they need no static const cache; the six values are kept in globals so that sasSetupScreenGetSize, which runs each time a setup screen opens, does no string lookup. See KI#1082. (Claude code Opus 5.5) -->
+// ci_define_uncached: these define reads run once per process, so they need no static const cache; the six values are kept in globals so that sasSetupScreenGetSize, which runs each time a setup screen opens, does no string lookup. See KI#1082. (Claude code Opus 5.5) -->
 void Civ4BeyondSwordPatches::patchSetupScreenSize()
 {
 	// <!-- custom: Test AdvCiv's master switch here rather than through applyIfEnabled, which returns true when the switch is off and nothing was applied; m_bSetupScreenSizePatched must mean the bytes were written. (Claude code Opus 5.5) -->

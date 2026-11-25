@@ -2121,7 +2121,7 @@ void CvGame::normalizeRemoveBadFeatures()
 	// <!-- custom: THRESH-BAD-FEAT-PER-CITY only governs the outer city ring; the inner ring was always cleared and the ring loop below gave every land plot up to one tile past the city radius another removal chance.
 	// SAS sets peak and bad-terrain removal to 0 so maps are not made better on purpose, but these two feature removals had no switch, so a new Pangaea lost much of its Marsh around starts.
 	// The "Balanced" map option (NORMALIZE_HIGH) keeps clearing as in BtS, as advc.108 documents.
-	// One-shot per map generation, so read directly. See KI#284.3. (Claude code Opus 5.5) -->
+	// ci_define_uncached: one-shot per map generation, so read directly. See KI#284.3. (Claude code Opus 5.5) -->
 	bool const bSASClearInnerBadFeatures = (GC.getDefineBOOL("SAS_MAPGEN_NORM_BAD_FEATURE_INNER_ON") || m_eNormalizationLevel >= NORMALIZE_HIGH);
 	bool const bSASClearRingBadFeatures = (GC.getDefineBOOL("SAS_MAPGEN_NORM_BAD_FEATURE_RING_ON") || m_eNormalizationLevel >= NORMALIZE_HIGH);
 

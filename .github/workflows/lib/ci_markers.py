@@ -8,3 +8,9 @@ UPDATE_DLL = "[ci_update_dll]"
 EDIT_DEV_LOG = "[ci_edit_dev_log]"
 CONVERT_LINE_ENDINGS = "[ci_convert_line_endings]"
 SQUASH_PR = "[ci_squash_pr]"
+
+# <!-- custom: The markers a source comment carries to state why a line is a handled exception to a check; kept here too since 2026-11-25, so one file lists every token CI reads and ci_markers_listed.py can require each in the workflows README.
+# They grew apart, each check choosing its own: resource-cache-direct: (2026-10-20), sas-ci-string-compare-exemption: (2026-11-16) and ci_define_uncached:, which the user asked to be specific, as generic words such as "Not cached:" can appear in any prose and exempt a line unnoticed. (Claude code Opus 5.5) -->
+RESOURCE_CACHE_DIRECT = "resource-cache-direct:"
+STRING_COMPARE_EXEMPTION = "sas-ci-string-compare-exemption:"
+DEFINE_UNCACHED = "ci_define_uncached:"

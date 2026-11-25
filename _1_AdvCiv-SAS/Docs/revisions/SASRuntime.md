@@ -18,6 +18,12 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 ## History
 
+### Revision 19 - SAS practical 6862
+
+- **Date:** 2026-11-25
+- **Git commit:** pending
+- **Change:** Comments only, with no change to what is published: `isSASRuntimeStatusEnabled` and `isSASRuntimeSourceWatchEnabled` say why they read their define by name, with a `ci_define_uncached:` comment, which the new [`cpp_define_reads_cached.py`](/.github/workflows/README.md#buildsourcecpp_define_reads_cachedpy) check asks of every SAS define read outside a static.
+
 ### Revision 18 - SAS practical 6746
 
 - **Date:** 2026-11-11

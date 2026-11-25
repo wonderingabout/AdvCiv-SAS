@@ -80,6 +80,7 @@ SASBBAILogSettings gSASBBAILogSettings;
 
 void cacheSASBBAILogSettings()
 {
+	// <!-- custom: ci_define_uncached: SetGlobalDefines calls this once to fill gSASBBAILogSettings. (Claude code Opus 5.5) -->
 	SASBBAILogSettings& kSettings = gSASBBAILogSettings;
 	bool const bMasterEnabled = (GC.getDefineINT("SAS_BBAI_LOG_ON") > 0);
 	kSettings.bMasterEnabled = bMasterEnabled;
@@ -100,16 +101,19 @@ void cacheSASBBAILogSettings()
 // These are not category levels: the score interval is clamped to at least one, the timestamp/Food-support switches are booleans, and the high-war-utility threshold remains an integer. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 static int getSASBBAIScoreLogIntervalConfigured()
 {
+	// <!-- custom: ci_define_uncached: read by its first-use static and the session profile only, as are the three readers below. (Claude code Opus 5.5) -->
 	return std::max(1, GC.getDefineINT("SAS_BBAI_SCORE_LOG_INTERVAL_T_UNSCALED_GS"));
 }
 
 static int getSASBBAITimestampedFilenameConfigured()
 {
+	// <!-- custom: ci_define_uncached: see getSASBBAIScoreLogIntervalConfigured. (Claude code Opus 5.5) -->
 	return GC.getDefineBOOL("SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME");
 }
 
 static int getSASBBAIFoodSupportAuditConfigured()
 {
+	// <!-- custom: ci_define_uncached: see getSASBBAIScoreLogIntervalConfigured. (Claude code Opus 5.5) -->
 	return GC.getDefineBOOL("SAS_BBAI_FOUND_LATER_FOOD_SUPPORT_AUDIT_ON");
 }
 
@@ -117,6 +121,7 @@ static int getSASBBAIFoodSupportAuditConfigured()
 // Share this reader with the diagnostic profile while preserving the evaluator's first-use cache and threshold semantics. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 static int getSASBBAIHighWarUtilityThresholdConfigured()
 {
+	// <!-- custom: ci_define_uncached: see getSASBBAIScoreLogIntervalConfigured. (Claude code Opus 5.5) -->
 	// <!-- custom: Formerly UWAI-prefixed (see Docs/Deprecated/global_define_names.md): UWAI's reports were merged into BBAI logging as the SAS_BBAI_UWAI_* levels, so this filter of their war-utility rows takes the same prefix. (Claude Code Opus 5.5) -->
 	return GC.getDefineINT("SAS_BBAI_UWAI_HIGH_UTILITY_LOG_THRESH");
 }

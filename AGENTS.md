@@ -179,7 +179,8 @@ Release preparation: when preparing a stable release or substantial release upda
   - Preserve useful discovery context in the body, such as an issue resurfacing during a broader crash investigation, while distinguishing that from a claim that it caused the crash.
 - Do not include practical commit numbers in commit messages: they can change across branches, rebases, merges and squashes.
 - A few bracketed markers in a commit message, such as `- [ci_update_dll]` for a commit shipping the DLL or `- [ci_squash_pr]` for a PR intended to be squash-merged, state an intent the change alone cannot show.
-  - CI still runs every check and verifies the change against that intent; [CI markers in commit messages](/.github/workflows/README.md#ci-markers-in-commit-messages) lists them and their rules, and a new one belongs there.
+  - CI still runs every check and verifies the change against that intent; [CI markers in commit messages](/.github/workflows/README.md#ci-markers-in-commit-messages) lists them and their rules, and a new one belongs there; [CI markers in source comments](/.github/workflows/README.md#ci-markers-in-source-comments) lists their counterparts in code comments, such as `ci_define_uncached:`.
+    - Each marker's spelling is one variable in [`lib/ci_markers.py`](/.github/workflows/lib/ci_markers.py), such as `UPDATE_DLL = "[ci_update_dll]"` or `DEFINE_UNCACHED = "ci_define_uncached:"`, which the checks import, so a new marker starts there.
   - Before squash-merging a PR, check the drafted squash message with [`squash_message.py`](/.github/workflows/README.md#buildrepositorysquash_messagepy)` --message FILE`: its title must name the revisions and new KIs the PR brings, which CI can check only after the merge.
   - A marker does not authorize what it states: a DLL ships only when the user approved it, as under [DLL inclusion in commits](#dll-inclusion-in-commits).
 - Validation text in commit messages is optional; keep it brief when it explains a meaningful technical risk or supports a bug-fix claim. Omit routine checklists that add little; this does not waive appropriate checks.
@@ -799,15 +800,17 @@ Clear, accurate explanations help users and developers understand the code and i
 
 #### Lookup and caching review
 
-- When doing performance optimizations, checking quotes (i.e. `"`) only on one side is handy to spot all string lookups we could potentially cache.
-  - E.g. `gc.getInfoTypeForString("` has this result `iHill = gc.getInfoTypeForString("TERRAIN_HILL")` (or the same with `getInfoTypeOrFail("`).
-  - Or appending `.` or `)` or ` ` or `,`, or ` `, etc., to what we want to simplify.
-  - E.g., `GET_TEAM(getTeam()).` or `GET_TEAM(getTeam()))`, or `GET_TEAM(getTeam()) ` (with a space), or `GET_TEAM(getTeam()),`, etc. Basically any character other than `;`, for example `GET_TEAM(getTeam());`, most likely indicates this is not a cached variable and so most likely an optimize candidate.
-- When doing performance optimizations, using local variables only is enough and best if we don't use this variable elsewhere. E.g. `eYellow = gc.getInfoTypeForString("COLOR_YELLOW")` at init in SevoPediaMain.py.
-- In some rare cases, it is better not to cache rather than cache, because we will not read the define again, so caching is costlier or needless.
-  - For example, `start_year = gc.getDefineINT("START_YEAR")` reads the value into a local variable when building the Sevopedia chart. We then cache and reuse the finished chart, so separately retaining `START_YEAR` in a persistent cache would be needless.
-  - Check the globals accessor too: KI#243 uses `CvGlobals::getInstance()` in `CvMapGenerator::addRivers()` because `GC` is const and restoring river defines requires mutable access. Its local `kGlobals` reference is intentional; the separate caching bug was retaining first-generation define values.
-  - If convenient, also comment non-obvious exceptions near the read, e.g. `not cached: read once only`, or explain which runtime/map-generation boundary changes the value.
+- When doing performance optimizations, a local variable is enough, and best, when only one call needs the value; keep a longer-lived cache for values reused across calls.
+  - Example: `CvMainInterface.updatePercentButtons` holds both side by side.
+    - The local `iCommercePercentChangeIncrements = gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")` is read once per redraw and reused for every commerce type's +/- buttons, so a change to the define reaches the next redraw (KI#128.2).
+    - The instance cache `self.iSAS_COMMERCE_SLIDERS_FAST_INCR_PCT = gc.getDefineINT("SAS_COMMERCE_SLIDERS_FAST_INCR_PCT")` keeps its value for the whole session.
+- Some reads are better left uncached: a value read once, where a cache would cost more than it saves, or, more rarely, one that may change between calls, where a cache keeps a stale value and so can cause bugs.
+  - Example (KI#243): `CvMapGenerator::addRivers` reads `const int iOriginalRiverSourceRange = kGlobals.getDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE");` on each map generation, lets a map script such as Water.py override it, then puts it back with `kGlobals.setDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE", iOriginalRiverSourceRange);`.
+    - An earlier SAS optimization had made these reads `static const`, so the first map generated fixed the river values for the rest of the session.
+    - `kGlobals` is `CvGlobals::getInstance()`, as the const `GC` cannot set a define.
+  - Say why beside such a read, or which runtime/map-generation boundary changes the value, so a later reader sees the read was weighed rather than forgotten.
+    - In C++, for a SAS define the DLL reads by name outside a static, that note is a `ci_define_uncached:` comment, which CI checks (see the C++ caching rules below).
+    - In Python, and for inherited defines, a plain custom comment does, as no check reads it; Python's SAS define reads were reviewed by hand on 2026-11-25 (see KI#128.3).
 
 #### Naming, diagnostics and text encoding
 
@@ -1034,8 +1037,9 @@ Clear, accurate explanations help users and developers understand the code and i
 - In C++, recurring or hot-path string-backed GlobalDefine reads such as `GC.getDefineINT("...")` / `GC.getDefineBOOL("...")` should normally use a function-local `static const` when the define is intended to stay fixed for the process; this avoids repeated name lookup while keeping cache scope local.
   - Example: `static const bool bSAS_GROUP_ATK_SAC_OBSOLETE_ON = GC.getDefineBOOL("SAS_GROUP_ATK_SAC_OBSOLETE_ON");`.
   - If the same stable integer/bool define is consumed by several recurring functions/subsystems, prefer AdvCiv's `CvGlobals::GlobalDefines` enum-indexed cache instead of several local static string caches. Add it to the selective shared SAS block in `CvGlobals.h`, then use `GC.getDefineINT(CvGlobals::SAS_...)` / `getDefineBOOL(...)`; do not wrap that enum-backed read in another `static const`.
+    - Hotness alone is not a reason: a static reads as fast. Nor is centralizing the problem; the enum must live in `CvGlobals.h`, which nearly every file includes, so one ever-growing list of every define would rebuild the whole DLL for each new one and keep each value away from its code and comment. See KI#128.3.
   - Keep one-shot/setup-only settings and caller-specific transformed caches local. Multiple uses inside one function alone are not a reason to promote a define globally; widen/reuse one local cache when practical.
-- If a recurring string-backed Define lookup intentionally remains uncached, leave a short nearby reason; one-shot setup/snapshot reads and already-cached enum access do not need blanket cache-exemption comments.
+- A SAS define read by name outside a `static`, even a one-shot setup or snapshot read, says why in its function with a `ci_define_uncached:` comment, which [`cpp_define_reads_cached.py`](/.github/workflows/README.md#buildsourcecpp_define_reads_cachedpy) checks; one comment covers the function, and enum-backed access needs none.
 - Do not add another function-local cache around enum-backed `GC.getDefineINT(CvGlobals::...)`: that overload already reads the global integer define cache. Likewise, do not cache one-shot reads or values intentionally expected to change during runtime/setup; read those directly so the code reflects their semantics.
 
 #### Diagnostic gating and output

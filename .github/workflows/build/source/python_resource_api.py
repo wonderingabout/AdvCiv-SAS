@@ -19,6 +19,8 @@ import xml.etree.ElementTree as ET
 # <!-- custom: Share Git range resolution with the existing source checks rather than giving the API checker a different push/PR comparison policy. (GPT-6.1-Sol) -->
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 from git_context import ensure_base, run_git
+# <!-- custom: The exception note's one spelling, kept in lib/ci_markers.py with the other CI markers since 2026-11-25. (Claude code Opus 5.5) -->
+from ci_markers import RESOURCE_CACHE_DIRECT
 
 ROOT = Path(__file__).resolve().parents[4]
 PROVIDERS = ("SASVisualUtils", "SASTextScale")
@@ -474,10 +476,10 @@ class ResourceCachePolicy:
         errors = []
         exceptions = {}
         for token in tokenize.generate_tokens(StringIO(source).readline):
-            if token.type == tokenize.COMMENT and "resource-cache-direct:" in token.string:
-                reason = token.string.split("resource-cache-direct:", 1)[1].split("-->", 1)[0].strip()
+            if token.type == tokenize.COMMENT and RESOURCE_CACHE_DIRECT in token.string:
+                reason = token.string.split(RESOURCE_CACHE_DIRECT, 1)[1].split("-->", 1)[0].strip()
                 if not reason or reason.startswith("("):
-                    errors.append((token.start[0], "resource-cache-direct requires a concrete reason"))
+                    errors.append((token.start[0], RESOURCE_CACHE_DIRECT[:-1] + " requires a concrete reason"))
                 else:
                     exceptions[token.start[0]] = reason
         policy = self
@@ -521,12 +523,12 @@ class ResourceCachePolicy:
                     if literals and literal not in literals:
                         continue
                     if not self.allowed(node):
-                        errors.append((node.lineno, "direct resource lookup bypasses shared cache; use " + accessor + " or document resource-cache-direct: reason"))
+                        errors.append((node.lineno, "direct resource lookup bypasses shared cache; use " + accessor + " or document " + RESOURCE_CACHE_DIRECT + " reason"))
                     break
                 self.generic_visit(node)
             def visit_Constant(self, node):
                 if isinstance(node.value, str) and node.value.lower() in policy.literals and not self.allowed(node):
-                    errors.append((node.lineno, "duplicated shared art path; use " + policy.literals[node.value.lower()] + " or document resource-cache-direct: reason"))
+                    errors.append((node.lineno, "duplicated shared art path; use " + policy.literals[node.value.lower()] + " or document " + RESOURCE_CACHE_DIRECT + " reason"))
         Visitor().visit(tree)
         return errors
 

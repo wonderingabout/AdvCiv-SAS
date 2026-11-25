@@ -171,6 +171,7 @@ struct SASCitySitePlotRankSettings
 {
 	SASCitySitePlotRankSettings()
 	{
+		// <!-- custom: ci_define_uncached: this constructor builds the one static settings object described above. (Claude code Opus 5.5) -->
 		int const iOrdinarySpread = GC.getDefineINT("SAS_SITE_PLOT_RANK_SPREAD_PCT");
 		int const iCapitalSpread = GC.getDefineINT("SAS_SITE_1ST_CITY_RANK_SPREAD_PCT");
 		iOffset = GC.getDefineINT("SAS_SITE_PLOT_RANK_OFFSET");

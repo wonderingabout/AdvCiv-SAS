@@ -1861,6 +1861,7 @@ std::string CvMainMenuInfo::getSoundtrack() const
 		return m_szSoundtrack;
 
 	// <!-- custom: shuffle-bag state: aszAllScripts = configured pool, aszRemainingScripts = not yet played in current cycle. (GPT-5.3-Codex) -->
+	// <!-- custom: ci_define_uncached: the nine script names below are read once, while bInit is false. (Claude code Opus 5.5) -->
 	static bool bInit = false;
 	static std::vector<CvString> aszAllScripts;
 	static std::vector<CvString> aszRemainingScripts;

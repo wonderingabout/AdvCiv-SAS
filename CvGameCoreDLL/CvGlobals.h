@@ -387,6 +387,8 @@ public:
 		as Python isn't that fast anyway, can just use getDefineINT(char const*). */
 	// <!-- custom: Stable SAS integer/bool Defines shared by several recurring C++ paths use AdvCiv's enum-indexed global cache instead of separate function-local string caches.
 	// One-shot/setup-only settings and values whose useful cache is a caller-specific transformed result deliberately stay local. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: The last four joined on 2026-11-25, when an audit found them kept in statics in two or three functions that run all game; a clamp, where one applies, stays at each caller.
+	// Defines read only in a game's first turns, such as SAS_1ST_CITY_FOUND_MAX_T_UNSCALED_GS, stay statics. See KI#128.3. (Claude code Opus 5.5) -->
 	#define DO_FOR_EACH_SAS_SHARED_GLOBAL_DEFINE(DO) \
 		DO(SAS_TREB_LIKE_MIN_CITY_ATK_THRESH) \
 		DO(SAS_SITE_BARB_FULL_BFC_ON) \
@@ -415,7 +417,11 @@ public:
 		DO(SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS) \
 		DO(SAS_UWAI_VICT_DENY_REFUSE_STAGE4_PEACE_ON) \
 		DO(SAS_UWAI_VICT_DENY_REFUSE_S3_SPACE_ON) \
-		DO(SAS_UWAI_EMERG_PEACE_ENEMY_PWR_THRESH)
+		DO(SAS_UWAI_EMERG_PEACE_ENEMY_PWR_THRESH) \
+		DO(SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT) \
+		DO(SAS_BLDG_PICK_WW_EAGERNESS_PCT) \
+		DO(SAS_BLDG_PICK_WW_LOCAL_DOM_MIN_PWR_PCT) \
+		DO(SAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON)
 	#define DO_FOR_EACH_GLOBAL_DEFINE(DO) \
 		DO(EXTRA_YIELD) /* K-Mod */ \
 		DO(CITY_RADIUS_DECAY) /* advc.130s */ \

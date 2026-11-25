@@ -185,7 +185,7 @@ def check(repo, commits, base=None):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Require [ci_update_dll] and matching Release build evidence for tracked DLL updates.")
+    parser = argparse.ArgumentParser(description="Require %s and matching Release build evidence for tracked DLL updates." % UPDATE_DLL)
     parser.add_argument("--repo-root", type=Path, default=ROOT)
     parser.add_argument("--base-ref", help="explicit range base; omitted for a local single-commit check")
     parser.add_argument("--head-ref", default="HEAD")

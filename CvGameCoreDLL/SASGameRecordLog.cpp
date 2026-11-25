@@ -91,6 +91,7 @@ void cacheSASGameRecordLogLevel()
 // <!-- custom: Resolve the revision-151+ action subject once after XML loading; hot control/player/UI call sites then use the cached Boolean without repeated define lookups. (ChatGPT-5.6-Sol) -->
 void cacheSASGameRecordActionTraceEnabled()
 {
+	// <!-- custom: ci_define_uncached: this fills the cache. (Claude code Opus 5.5) -->
 	g_bSASGameRecordActionTraceEnabled = GC.getDefineBOOL("SAS_SGR_ACTION_TRACE_ON");
 }
 
@@ -2265,7 +2266,7 @@ static void logSASGameRecordWarAISettings(CvGame const& kGame)
 	const bool bUWAIBackground = getUWAI().isEnabled(true);
 	const char* szUWAIMode = (bUWAI ? "FULL" : (bUWAIBackground ? "BACKGROUND" : "DISABLED"));
 
-	// <!-- custom: These are cold setup/load reads; caching would add static state for negligible benefit. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: ci_define_uncached: these are cold setup/load reads; caching would add static state for negligible benefit. (ChatGPT-5.6-Sol + Claude code Opus 5.5) -->
 	const int iUseKModAINonAggressive = GC.getDefineINT("USE_KMOD_AI_NONAGGRESSIVE");
 	const int iDisableUWAI = GC.getDefineINT("DISABLE_UWAI");
 	const int iUWAIInBackground = GC.getDefineINT("UWAI_IN_BACKGROUND");
@@ -2584,6 +2585,7 @@ struct SASGameRecordLogSetting
 // Text-map palette strings remain specialized validated data and are reported by their resolved map legends instead of being forced into this integer registry. (GPT-5.6-Sol + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 static CvString getSASGameRecordLogSettingFields()
 {
+	// <!-- custom: ci_define_uncached: runs once per session snapshot, as above. (Claude code Opus 5.5) -->
 	SASGameRecordLogSetting const aSettings[] =
 	{
 		{ "SAS_SGR_LOG", getSASGameRecordLogLevel() },
@@ -7041,6 +7043,7 @@ static char getSASGameRecordMapAsciiUppercaseSymbol(char cSymbol)
 
 static SASGameRecordMapAsciiPalette const& getSASGameRecordMapAsciiPalette()
 {
+	// <!-- custom: ci_define_uncached: the palette below reads its defines once, while bInitialized is false. (Claude code Opus 5.5) -->
 	static SASGameRecordMapAsciiPalette kPalette;
 	static bool bInitialized = false;
 	if (bInitialized)

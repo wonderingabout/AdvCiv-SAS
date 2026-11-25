@@ -559,10 +559,11 @@ struct SASLocalAreaRivalContext
 // Existing completion-time scoring, normal unit/Settler/building competition and stored-production continuation remain authoritative. See KI#48.20. (ChatGPT-5.6-Sol) -->
 static int SAS_getWorldWonderSelectionValuePercent(CvCityAI const& kCity, int* piLocalExposurePercent = NULL, bool* pbLocalExposureApplies = NULL)
 {
-	static int const iEagernessPercent = std::max(0, std::min(200, GC.getDefineINT("SAS_BLDG_PICK_WW_EAGERNESS_PCT")));
+	// <!-- custom: Was a function-local static; two functions read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all, and the clamp stays here. See KI#128.3. (Claude code Opus 5.5) -->
+	int const iEagernessPercent = std::max(0, std::min(200, GC.getDefineINT(CvGlobals::SAS_BLDG_PICK_WW_EAGERNESS_PCT)));
 	static bool const bLocalExposureOptimize = GC.getDefineBOOL("SAS_BLDG_PICK_WW_LOCAL_EXPOSURE_ON");
 	static int const iLocalExposurePercent = std::max(0, std::min(100, GC.getDefineINT("SAS_BLDG_PICK_WW_LOCAL_EXPOSURE_PCT")));
-	static int const iDominanceMinPowerPercent = std::max(0, GC.getDefineINT("SAS_BLDG_PICK_WW_LOCAL_DOM_MIN_PWR_PCT"));
+	int const iDominanceMinPowerPercent = std::max(0, GC.getDefineINT(CvGlobals::SAS_BLDG_PICK_WW_LOCAL_DOM_MIN_PWR_PCT));
 
 	int iAppliedLocalExposurePercent = 100;
 	bool bLocalExposureApplies = false;
@@ -3461,7 +3462,8 @@ void CvCityAI::AI_chooseProduction()
 	// Logs showed completed Settlers waiting 15-20+ turns with two healthy defenders: movement correctly refused to take one because two must remain, while this older production check saw 2 defenders > 1 Settler and built no missing escort.
 	// Count only unguarded local Settlers for the SAS shortage and request one more defender without weakening the movement-side safety rule. See KI#179.2. (ChatGPT-5.6-Sol) -->
 	const bool bSASSettlerEscortCoordinationOptimize = GC.getDefineBOOL(CvGlobals::SAS_PROD_SETTLER_ESCORT_COORD_ON);
-	static const int iSASSettlerEscortMinHealthyDefendersLeft = std::max(0, GC.getDefineINT("SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT"));
+	// <!-- custom: Was a function-local static; three functions read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all, and the clamp stays here. See KI#128.3. (Claude code Opus 5.5) -->
+	int const iSASSettlerEscortMinHealthyDefendersLeft = std::max(0, GC.getDefineINT(CvGlobals::SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT));
 	int iPlotUnguardedSettlerCount = 0;
 	int iPlotHealthyDefenderCount = 0;
 	bool const bSASExistingSettlerEscortShortage = (bSASSettlerEscortCoordinationOptimize && iPlotSettlerCount > 0 &&
@@ -7836,8 +7838,9 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 			if (gBuildingProductionLogLevel >= 3)
 			{
 				SASLocalAreaRivalContext const kLocalRivals(kOwner, getArea(), false);
-				static int const iEagernessPercent = std::max(0, std::min(200, GC.getDefineINT("SAS_BLDG_PICK_WW_EAGERNESS_PCT")));
-				static int const iDominanceMinPowerPercent = std::max(0, GC.getDefineINT("SAS_BLDG_PICK_WW_LOCAL_DOM_MIN_PWR_PCT"));
+				// <!-- custom: Was a function-local static; two functions read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all, and the clamp stays here. See KI#128.3. (Claude code Opus 5.5) -->
+				int const iEagernessPercent = std::max(0, std::min(200, GC.getDefineINT(CvGlobals::SAS_BLDG_PICK_WW_EAGERNESS_PCT)));
+				int const iDominanceMinPowerPercent = std::max(0, GC.getDefineINT(CvGlobals::SAS_BLDG_PICK_WW_LOCAL_DOM_MIN_PWR_PCT));
 				CvString szSignature;
 				szSignature.Format("%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d",
 					iValueBeforeSASWorldWonderOpportunityCost, iValue, iWorldWonderSelectionValuePercent, iWorldWonderLocalExposurePercent,
@@ -13351,7 +13354,8 @@ void CvCityAI::AI_updateSafety(bool bUpdatePerfectSafety)
 				if (pLoopUnit->getOwner() == getOwner() && pLoopUnit->getDomainType() == DOMAIN_LAND)
 					iOwnedLandUnits++;
 			}
-			static bool const bAllLandUnitsWhenDoomed = GC.getDefineBOOL("SAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON");
+			// <!-- custom: Was a function-local static; two functions read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+			bool const bAllLandUnitsWhenDoomed = GC.getDefineBOOL(CvGlobals::SAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON);
 			logBBAI("EVACUATION_CITY_DECISION turn=%d player=%d civ=%s city=%S cityId=%d cityPlot=(%d,%d) cityAcquiredTurn=%d cityOwnerTurns=%d pop=%d capital=%d totalCities=%d previousSafety=%d allLandUnitsWhenDoomed=%d attackers=%d defenders=%d ownedLandUnits=%d attackStrength=%d defenseStrength=%d attackDefensePercent=%d baseThresholdPercent=%d adjustedThresholdPercent=%d cityValuePercent=%d strongestEnemyTeam=%d strongestEnemy=%S strongestEnemyAttack=%d",
 				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(), getID(), getX(),
 				getY(), getGameTurnAcquired(), GC.getGame().getGameTurn() - getGameTurnAcquired(), getPopulation(), isCapital(),
@@ -16347,7 +16351,8 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetry
 						// <!-- custom: Explicit Settler-escort preparation/repair requests must survive this lower anti-excess-defender optimizer.
 						// KI#179.2 showed that a correctly requested defender could otherwise be replaced with offensive siege; KI#179.3 extends the same preservation to the defender intentionally prepared before the first Settler is trained. (ChatGPT-5.6-Sol) -->
 						const bool bSASSettlerEscortCoordinationOptimize = GC.getDefineBOOL(CvGlobals::SAS_PROD_SETTLER_ESCORT_COORD_ON);
-						static const int iSASSettlerEscortMinHealthyDefendersLeft = std::max(0, GC.getDefineINT("SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT"));
+						// <!-- custom: Was a function-local static; three functions read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all, and the clamp stays here. See KI#128.3. (Claude code Opus 5.5) -->
+						int const iSASSettlerEscortMinHealthyDefendersLeft = std::max(0, GC.getDefineINT(CvGlobals::SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT));
 						int iPlotUnguardedSettlers = 0;
 						int iPlotHealthyDefenders = 0;
 						if (bCityDefenseRequest && bSASSettlerEscortCoordinationOptimize)
