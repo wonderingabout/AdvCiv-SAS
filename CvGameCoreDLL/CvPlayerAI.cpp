@@ -18674,14 +18674,13 @@ int CvPlayerAI::AI_unitTargetMissionAIs(CvUnit const& kUnit, MissionAITypes* aeM
 }
 
 // advc.003j: Unused since a BBAI change to CvUnitAI::AI_assaultSeaMove
-/*int CvPlayerAI::AI_enemyTargetMissionAIs(MissionAITypes eMissionAI,
-	CvSelectionGroup* pSkipSelectionGroup, int iMaxCount) const
+// <!-- custom: The disabled signatures below are each collapsed onto one line, like live ones, so a grep finds them whole; untested while disabled. (Claude code Opus 5.5) -->
+/*int CvPlayerAI::AI_enemyTargetMissionAIs(MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup, int iMaxCount) const
 {
 	return AI_enemyTargetMissionAIs(&eMissionAI, 1, pSkipSelectionGroup, iMaxCount);
 }
 
-int CvPlayerAI::AI_enemyTargetMissionAIs(MissionAITypes* aeMissionAI, int iMissionAICount,
-	CvSelectionGroup* pSkipSelectionGroup, int iMaxCount) const
+int CvPlayerAI::AI_enemyTargetMissionAIs(MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup, int iMaxCount) const
 {
 	PROFILE_FUNC();
 	FAssert(iMaxCount > 0); // advc.opt (use MAX_INT for infinity)

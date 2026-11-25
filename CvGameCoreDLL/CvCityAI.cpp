@@ -8360,12 +8360,7 @@ static void SAS_logDomainApplicability(CvCityAI const& kCity, BuildingTypes eBui
 
 // <!-- custom: Unlike the regular-building attribution, Wonder inherited values need a slim dedicated row.
 // The regular KI#48.5 logger intentionally excludes bWonder and also performs recursive focus probes; this row records only the already-computed neutral inherited result/components, so a master-Wonder-policy-off A/B stays deterministic and cheap enough for level-3 forensic use. (ChatGPT-5.6-Sol) -->
-static void SAS_logInheritedWonderValue(CvCityAI const& kCity, BuildingTypes eBuilding, int iValue, int iPriorityFactor,
-	int iValueBeforePriority, int iValueAfterPriority, int iValueBeforeAIWeight, int iValueAfterAIWeight, int iFlavorMatch, int iValueAfterFlavor,
-	int iDefenseDelta, int iEspionageDefenseDelta, int iHappinessDelta, int iHealthDelta, int iExperienceDelta, int iDomainSeaDelta,
-	int iMaintenanceDelta, int iSpecialistDelta, int iTradeDelta, int iGeneralDelta, int iYieldDelta, int iCommerceGlobalDelta,
-	int iAirCapacityDelta, int iMilitaryProductionDelta, int iDomainProductionDelta, int iGoldDelta, int iResearchDelta,
-	int iCultureDelta, int iEspionageDelta, int iSeaFoodDelta, int iSeaProductionDelta, int iSeaCommerceDelta)
+static void SAS_logInheritedWonderValue(CvCityAI const& kCity, BuildingTypes eBuilding, int iValue, int iPriorityFactor, int iValueBeforePriority, int iValueAfterPriority, int iValueBeforeAIWeight, int iValueAfterAIWeight, int iFlavorMatch, int iValueAfterFlavor, int iDefenseDelta, int iEspionageDefenseDelta, int iHappinessDelta, int iHealthDelta, int iExperienceDelta, int iDomainSeaDelta, int iMaintenanceDelta, int iSpecialistDelta, int iTradeDelta, int iGeneralDelta, int iYieldDelta, int iCommerceGlobalDelta, int iAirCapacityDelta, int iMilitaryProductionDelta, int iDomainProductionDelta, int iGoldDelta, int iResearchDelta, int iCultureDelta, int iEspionageDelta, int iSeaFoodDelta, int iSeaProductionDelta, int iSeaCommerceDelta)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);

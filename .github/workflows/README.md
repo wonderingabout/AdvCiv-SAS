@@ -1581,6 +1581,12 @@ python .github/workflows/build/source/python_resource_api.py --all
 
 It does not impose a character-width limit or reflow inherited comments; structured, code-like and ambiguous blocks remain explicit skips for manual review.
 
+Why logical lines rather than a width:
+
+- A grep or a diff shows one physical line, so a line holding one whole sentence gives a reader, person or agent, a complete thought, while a width cut leaves half a sentence on each line, tedious to find again and to read.
+- Sentences, not paragraphs, keep the lines short enough to read; a long but clear sentence stays whole, since splitting it would bring back half-sentence hits.
+- Runtime Python calls follow the same idea, one call per line, as [`python_multiline_calls.py`](#buildsourcepython_multiline_callspy) checks.
+
 Preview with `python LLM_Helpers/formatting/reflow_custom_comments.py --diff`, then use `--apply` on selected files and review the result. See [the helper documentation](/LLM_Helpers/README.md#custom-comment-logical-reflow) for scope and examples.
 
 #### `build/source/python_wrapper_null_args.py`
@@ -1635,6 +1641,9 @@ It enforces these review rules introduced after repeated provenance mistakes:
   - Added on 2026-11-19, after the base AdvCiv 1.14 merge carried upstream's wrapped parameter list into `CvCityAI::AI_bestSpreadUnit`, splitting SAS's one-line signature.
   - Moving the return type or a trailing qualifier such as `const` onto its own line counts as a split; template lines, access labels such as `public:` and preprocessor directives above the signature do not.
   - Only signatures that were on one line and whose lines the change touches are checked, so new functions and signatures already wrapped in inherited code can still be edited.
+  - The gap this leaves: a new function written wrapped from the start passes, as two SAS ones did, `SAS_logInheritedWonderValue` and `getSASReplayStartYearArithmeticBounds`, collapsed by hand on 2026-11-25 with three others; only `CvDLLEntityIFaceBase.h`'s `PlayAnimation`, the EXE's interface header, stays wrapped on purpose.
+  - No rule closes it, as of 2026-11-25, although not ideal, because this check's signature parser cannot tell a signature from a call, and flags 107 hits, mostly calls such as `FErrorMsg(...)` and constructed locals, when asked for every wrapped one.
+    - A possible extension would be to require one line only for the signatures a commit adds, a diff-mode rule needing a stricter test on few candidates; a stricter repo-wide detector, for definitions and declarations at file or class scope outside comments; or a real C++ parser such as libclang, at the cost of a new dependency.
 - Newly added or changed comparisons on DLL save-layout flags and versions fail, including `uiFlag < 23` and `iSaveVersion == 1`.
   - The same check catches reintroduced legacy helpers such as `IDInfo::validateOwner`, `MissionDataLegacy`, and `LegacyArrayEnumMap` uses.
   - It compares active code with the base and permits writer marker assignments, comments, and unrelated flags such as `uiFlagBits`. See [KI#46.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2).

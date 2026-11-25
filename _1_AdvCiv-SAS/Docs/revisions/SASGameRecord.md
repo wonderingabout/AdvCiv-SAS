@@ -117,7 +117,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 212 - SAS practical 6863
 
 - **Date:** 2026-11-25
-- **Git commit:** pending
+- **Git commit:** `32083950c3ff7f30f982cc9b0d76aac8ca7a4fbd`
 - **Functional:** No (CI checker and history only)
 - **Change:** No change to what is recorded: `sas_revision_history.py`, the dedicated SASGameRecord history check, now requires each revision's new **Functional** line in the commit that adds the revision, and rejects a loose paragraph after an entry's Change text. This history was edited throughout, listed here so a later correction can find what changed:
   - Functional labels on every entry, 1 to 212; the `No` ones, each with its reason, are 5, 68, 90, 129, 135, 136, 138, 143, 147, 148, 156, 157, 159, 160, 163, 173, 174, 182, 196, 197, 201, 202, 203, 204, 205, 207, 210, 211 and 212.

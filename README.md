@@ -124,6 +124,17 @@ So an agent such as Claude Code or Codex can investigate an issue, change the co
 
 Note: we wrote "AI, UI or otherwise" above without thinking of it, then noticed it matches the current signature at the top of every file SAS modifies: "AI, UI, logging, or other modifications first developed in AdvCiv-SAS". We added "logging" so the two match.
 
+Other conveniences for agents are in the source's layout, as agents, who write and edit most of the code and docs, read them mostly through greps and diffs; a person reading in an editor may want line wrapping on. We prefer, and where practical CI enforces, one whole unit per line, so a grep or a diff shows a complete thought rather than a fragment cut at an arbitrary width:
+
+- comments and other prose put one logical sentence per line, never a sentence cut mid-way at a fixed character width; CI checks our custom comments (see [Custom-comment logical reflow](/.github/workflows/README.md#custom-comment-logical-reflow));
+  - Unlike the long-standing habit of wrapping text at a fixed width, such as 80 characters, they notably help because a grep or a diff works line by line:
+    - a sentence cut at a fixed width shows up as half a sentence in a hit, and a search for words spanning the cut misses it;
+    - a whole paragraph on one line turns each hit into the whole paragraph, and each one-word edit into a changed paragraph;
+    - a sentence is the unit a reader searches for or changes.
+- a call or a signature stays on one line where that seems safe and still reads well, such as runtime Python calls or C++ function signatures (see AGENTS.md's [Code layout and collapsing](/AGENTS.md#code-layout-and-collapsing));
+- references such as `KI#128.3` are repeated wherever an issue's code or docs are, so one grep finds them all;
+- inherited manuals and docs are also kept as plain text, such as AdvCiv's [manual.txt](/_0_Legacy/Docs/AdvCiv/manual.txt) beside its PDF and ODT copies, so a grep reaches them too.
+
 Another significant part of the project is [LLM-assisted source analysis](/README.md#llm-assisted-source-analysis): completed historical archaeology follows BtS, K-Mod, AdvCiv and AdvCiv-SAS changes through their actual diffs and lineage, while file-audit records document reviews of combined source and cross-file contracts from complementary angles.
 
 The completed archaeology records 130+ confirmed candidate bug/issue findings; the findings support incremental fixes alongside normal development.

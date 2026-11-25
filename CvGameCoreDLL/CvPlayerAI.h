@@ -361,10 +361,9 @@ public:
 	int AI_enemyTargetMissions(TeamTypes eTargetTeam, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const; // BBAI end
 	bool AI_isAnyEnemyTargetMission(TeamTypes eTargetTeam, CvSelectionGroup* pSkipSelectionGroup = NULL) const { return (AI_enemyTargetMissions(eTargetTeam, pSkipSelectionGroup, 1) >= 1); } // </advc.opt>
 	// advc.003j: unused
-	/*int AI_enemyTargetMissionAIs(MissionAITypes eMissionAI,
-			CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const;
-	int AI_enemyTargetMissionAIs(MissionAITypes* aeMissionAI,
-			int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const;*/
+	// <!-- custom: The disabled signatures below are each collapsed onto one line, like live ones, so a grep finds them whole; untested while disabled. (Claude code Opus 5.5) -->
+	/*int AI_enemyTargetMissionAIs(MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const;
+	int AI_enemyTargetMissionAIs(MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const;*/
 	int AI_wakePlotTargetMissionAIs(CvPlot const& kPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
 	// K-Mod start
 	int AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eDefenceTeam = NO_TEAM, DomainTypes eDomainType = DOMAIN_LAND, int iRange = 0, bool bMoveToTarget = true, bool bCheckMoves = false, bool bNoCache = false, bool bPredictPromotions = false) const; // advc.139
