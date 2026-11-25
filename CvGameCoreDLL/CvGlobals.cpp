@@ -767,12 +767,14 @@ void CvGlobals::cacheGlobalInts(char const* szChangedDefine, int iNewValue)
 		m_aiGlobalDefinesCache[i] = std::max(iLower,
 				getDefineINT(aszGlobalDefinesTagNames[i], iDefault));
 	}
+	// <!-- custom: ci_define_uncached: this fills the cache itself, when XML loads and whenever setDefineINT changes a define. (Claude code Opus 5.5) -->
 	m_iEventMessageTime = getDefineINT("EVENT_MESSAGE_TIME");
 } // </advc.opt>
 
 void CvGlobals::cacheGlobalFloats(bool bAllowRecursion) // advc.004m: Probably not needed; feels safer.
 {
 	//m_fFIELD_OF_VIEW = getDefineFLOAT("FIELD_OF_VIEW");
+	// <!-- custom: ci_define_uncached: this fills the float cache, when XML loads and whenever setDefineFLOAT changes a define, as the main interface's field-of-view slider does with FIELD_OF_VIEW (CvMainInterface.py, advc.004m). (Claude code Opus 5.5) -->
 	// <advc.004m>
 	float fNewFoV = getDefineFLOAT("FIELD_OF_VIEW");
 	if (fNewFoV != m_fFIELD_OF_VIEW)
@@ -958,9 +960,8 @@ void CvGlobals::setDefineSTRING(char const* szName, char const* szValue, /* advc
 // <advc.004m>
 void CvGlobals::updateCameraStartDistance(bool bReset)
 {
-	// <!-- custom: doesn't seem safe to static const (there seems to be a setdefine later, so caching may interfere with that, but i don't know a lot about these so check if accurate)), chatgpt 5 also advises so, check if accurate as i don't know too much about these but it seems unsafe to change these so left as such (i.e. code unchanged besides this code as of now in this case) -->
-	static float m_fCAMERA_START_DISTANCE_Override = std::max(1000.f,
-			GC.getDefineFLOAT("CAMERA_START_DISTANCE"));
+	// <!-- custom: ci_define_uncached: FIELD_OF_VIEW is reread, as the main interface's slider changes it during play; the static below keeps CAMERA_START_DISTANCE's XML value on purpose, since BUG's default camera distance option overwrites that define (advc.004m, as in base AdvCiv). (ChatGPT-5 + Claude code Opus 5.5) -->
+	static float m_fCAMERA_START_DISTANCE_Override = std::max(1000.f, GC.getDefineFLOAT("CAMERA_START_DISTANCE"));
 	float fNewValue = m_fCAMERA_START_DISTANCE_Override;
 	if (!bReset)
 	{
@@ -986,6 +987,7 @@ void CvGlobals::updateCameraStartDistance(bool bReset)
 
 void CvGlobals::updateCityCamDist()
 {
+	// <!-- custom: ci_define_uncached: runs when the field of view or the screen resolution changes, not on a recurring path. (Claude code Opus 5.5) -->
 	float fCityCamDist = getDefineFLOAT("CAMERA_BASE_CITY_DISTANCE");
 	/*	Exponentiate to let the player yet exert _some_ control (through the FoV)
 		over the city-screen camera distance. */

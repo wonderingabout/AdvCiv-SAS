@@ -569,6 +569,18 @@ public:
 		DO(SHOW_ODDS_IN_COMBAT_MESSAGES) /* advc.048 */ \
 		DO(CAN_CHOP_UNOWNED_FEATURES) /* advc.119 */ \
 		DO(DEFY_RESOLUTION_POP_ANGER) /* advc.118b */ \
+		/* <!-- custom: Inherited defines that functions in several files read all game and each kept in a static, such as COMMERCE_PERCENT_CHANGE_INCREMENTS in CvPlayer::verifyGoldCommercePercent and CvPlayerAI::AI_doCommerce; one home since 2026-11-25. See KI#128.3. (Claude code Opus 5.5) --> */ \
+		/* <!-- custom: Not the defines CvXMLLoadUtility::SetPostGlobalsGlobalDefines turns from XML type names into indices, such as STANDARD_HANDICAP or CAPITAL_BUILDINGCLASS: it sets them through GetDefinesVarSystem()->SetValue after cacheGlobals has filled this cache, so the cache would keep a stale value; moving those two crashed new-game creation in a test on 2026-11-25. cpp_define_reads_cached.py checks it. (Claude code Opus 5.5) --> */ \
+		DO(COMMERCE_PERCENT_CHANGE_INCREMENTS) \
+		DO(ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE) \
+		DO(MIN_CONVERSION_TURNS) \
+		DO(INITIAL_CITY_POPULATION) \
+		DO(ESPIONAGE_SPY_MISSION_ESCAPE_MOD) \
+		DO(ESPIONAGE_INTERCEPT_SPENDING_MAX) \
+		DO(ESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION) \
+		DO(RELIGION_INFLUENCE_RANDOM_WEIGHT) \
+		DO(UWAI_PERSONALITY_PERCENT) \
+		DO(CIRCUMNAVIGATE_FREE_MOVES) \
 		DO_FOR_EACH_SAS_SHARED_GLOBAL_DEFINE(DO)
 	#define MAKE_ENUMERATOR(VAR) VAR,
 	enum GlobalDefines

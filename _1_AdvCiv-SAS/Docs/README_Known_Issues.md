@@ -220,7 +220,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#127 - (Worked around) DLL max players / Worldsize default players mismatch causing very sparse games, and players not being notified of it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-127)\
 [KI#128 - (Seemingly fixed / worked around) Runtime UI define/style changes could produce crashy Python-like behavior](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128)\
 [KI#128.2 - (Addressed inherited AdvCiv runtime-define cache risk) Nuclear effects retained first-read damage/destruction values](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.2)\
-[KI#128.3 - (Improved incomplete inherited AdvCiv caching, guarded by CI for SAS) AdvCiv cached 198 of the DLL's 467 define reads by name, its hot ones; SAS cached most of the rest, and one SAS diagnostic read its define for each plot it scanned](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3)\
+[KI#128.3 - (Improved incomplete inherited AdvCiv caching, guarded by CI) AdvCiv cached 198 of the DLL's 467 define reads by name, its hot ones; SAS cached most of the rest, and one SAS diagnostic read its define for each plot it scanned](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3)\
+[KI#128.4 - (Fixed latent inherited AdvCiv) The AI's city-site culture estimate kept the first foreign capital's civilization-specific capital building for every civilization: a static held a value that differs per civilization, harmless only while every civilization builds the same Palace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.4)\
 [KI#129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-129)\
 [KI#130 - (Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-130)\
 [KI#131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-131)\
@@ -12171,7 +12172,7 @@ Investigated, repaired and documented with the help of GPT-6.1-Sol; the earlier 
 
 <a id="ki-128.3"></a>
 
-## KI#128.3 - (Improved incomplete inherited AdvCiv caching, guarded by CI for SAS) AdvCiv cached 198 of the DLL's 467 define reads by name, its hot ones; SAS cached most of the rest, and one SAS diagnostic read its define for each plot it scanned
+## KI#128.3 - (Improved incomplete inherited AdvCiv caching, guarded by CI) AdvCiv cached 198 of the DLL's 467 define reads by name, its hot ones; SAS cached most of the rest, and one SAS diagnostic read its define for each plot it scanned
 
 ### What AdvCiv left and what SAS did
 
@@ -12211,6 +12212,44 @@ Investigated, repaired and documented with the help of GPT-6.1-Sol; the earlier 
 - The Python side keeps its own pattern, lazy `None` caches and module-level reads, since KI#128; Python has no `const`. An idea considered on 2026-11-25, a Python file outside `Assets` read while the game runs so some UI layout values could change without a restart, would concern restarts, not caching.
 
 Audited, fixed and documented by Claude Code Opus 5.5, with Codex's (GPT-6.2-Sol) review.
+
+Update (2026-11-25): the check covered SAS defines only, with `--all-defines` merely listing the 52 inherited reads by name. The user pointed out that inherited code runs just the same, so a new uncached inherited read deserved the same check; [`cpp_define_reads_cached.py`](/.github/workflows/README.md#buildsourcecpp_define_reads_cachedpy) now checks every define.
+
+- None of the 52 recurs: they run at XML load, game setup or map generation, when a Secretary-General timer runs out, when a Rise and Fall chapter ends, or when the field of view or resolution changes. Each of their 22 functions now says why with a `ci_define_uncached:` comment.
+- Two of those comments answer older uncertain notes beside them:
+  - `CvGlobals::updateCameraStartDistance` rereads `FIELD_OF_VIEW` because the main interface's slider changes it during play (`CvMainInterface.py`), while its static keeps `CAMERA_START_DISTANCE`'s XML value on purpose, as BUG's default camera distance option overwrites that define (advc.004m, as in base AdvCiv).
+  - `CvGame::reset` reads `STANDARD_HANDICAP` at each game start or load, and its constructor call skips the read, as XML is not loaded then.
+
+- The same day, 10 inherited defines moved to the enum cache, at the end of AdvCiv's own list in `CvGlobals.h`, by the rule the four SAS ones followed: functions in several files read them all game, each keeping its own static.
+  - The user found the first by chance: `COMMERCE_PERCENT_CHANGE_INCREMENTS`, kept in a static by `CvPlayerAI::AI_doCommerce` since K-Mod and by `CvPlayer::verifyGoldCommercePercent` since SAS 5083's performance pass (`118d145c30`, 2025-11-01), which hoisted a read the loop repeated; Rise and Fall's `abandonPlans` read it by name.
+    - Two sound caches, then, but two homes.
+  - Asked whether others qualified, a list of every define read in two or more functions found 11 more, of which nine moved: `MIN_CONVERSION_TURNS`, `INITIAL_CITY_POPULATION`, `RELIGION_INFLUENCE_RANDOM_WEIGHT`, `UWAI_PERSONALITY_PERCENT`, `CIRCUMNAVIGATE_FREE_MOVES` and four espionage costs such as `ESPIONAGE_INTERCEPT_SPENDING_MAX`.
+    - Their readers in help text, such as `CvGameTextMgr`, moved too, so the hover text and the rule it describes read the same value.
+  - Left as statics: defines whose readers sit in one file, such as global warming's `GLOBAL_WARMING_PROB` and five terrain and feature types in `CvGame::doGlobalWarming` and `getRandGWPlot`, which already share a home, and defines read in two places only when one is help text, setup or a log row.
+  - `STANDARD_HANDICAP` and `CAPITAL_BUILDINGCLASS` moved too, then back: a 150-turn autoplay with them in the cache crashed while creating the new game.
+    - `CvXMLLoadUtility::SetPostGlobalsGlobalDefines` turns such type-name defines into indices after `cacheGlobals` has filled the cache, through `GetDefinesVarSystem()->SetValue`, which never refreshes it, so the cache kept the unresolved value; Codex's review (GPT-6.2-Sol) flagged the same load order unprompted.
+  - The check now fails any of the 31 `SetGlobalDefine` names in the enum cache, and `CvGlobals.h` says why beside the list.
+- While at it, the user asked to drop the old notes beside these reads that hedged with "check if accurate", as the new comments now say why; where a note had cited ChatGPT-5, its credit stays on the comment that replaced it.
+- The user also asked whether any read split its `getDefineINT(` and the name across lines, which hides the read from a grep. None did, and the check now fails such a split; a statement holding a read may still span lines, as tables of reads and long conditions read better split, so short two- or three-line ones such as `rTECH_COST_NOTRADE_MODIFIER`'s static were collapsed by hand instead.
+  - Scanning those statements found [KI#128.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.4).
+
+Pointed out by the user; done by Claude Code Opus 5.5.
+
+<a id="ki-128.4"></a>
+
+## KI#128.4 - (Fixed latent inherited AdvCiv) The AI's city-site culture estimate kept the first foreign capital's civilization-specific capital building for every civilization: a static held a value that differs per civilization, harmless only while every civilization builds the same Palace
+
+- `CitySiteEvaluator`'s culture estimate for a site near a foreign capital adds that capital building's culture, looked up from the foreign city's civilization. AdvCiv kept the looked-up building in a function-local `static`, so the first foreign capital evaluated in a session fixed it for every civilization afterwards.
+  - Only the building class, `CAPITAL_BUILDINGCLASS`, is the same for everyone; the static now keeps that, and the building is looked up per civilization, an array lookup.
+- Harmless with SAS's XML: every civilization builds `BUILDING_PALACE` except the Barbarians, whose cities are never capitals. A mod-mod giving civilizations their own Palace with different culture would have had each foreign capital counted as the first one's.
+- AdvCiv added it in practical 1861 (`891273d300`, 2019-12-21, "AI city placement tweaks"), and practical 1918 (`d78d567f9b`, 2020-01-10) rewrote the expression and kept the static; K-Mod 1.46 and Better BTS AI r597 have no such block.
+  - Codex's review (GPT-6.2-Sol) traced the commits and confirmed the fix.
+  - A first `rg` over the local `commit_diffs` missed them, as ripgrep skips the Git-ignored generated diffs even inside that folder; AGENTS.md's Source analysis now says to search with ignore files off.
+- The C++ File Audit Album did not cover this static, but found its closest relative, F217 ([KI#540](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-540)): UWAICache kept the first feature at -50 health or worse as Fallout, Jungle in SAS.
+  - It also records hidden-information findings in the same function: the lookup still takes the foreign civilization from the plot's working city, which [KI#498](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-498) records as a pending knowledge-boundary leak, unchanged here.
+- Same family as [KI#128.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.2), a static keeping a first-read value that can change; found while scanning multi-line statements holding define reads for [KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3).
+
+Found and fixed by Claude Code Opus 5.5, with Codex's (GPT-6.2-Sol) review.
 
 <a id="ki-129"></a>
 

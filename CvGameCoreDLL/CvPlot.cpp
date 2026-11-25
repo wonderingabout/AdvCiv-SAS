@@ -5134,8 +5134,7 @@ void CvPlot::updateCityRoute(bool bUpdatePlotGroup)
 	RouteTypes eCityRoute = GET_PLAYER(getOwner()).getBestRoute();
 	if (eCityRoute == NO_ROUTE)
 	{	// <advc.opt>
-		static const RouteTypes eINITIAL_CITY_ROUTE_TYPE = (RouteTypes)
-				GC.getDefineINT("INITIAL_CITY_ROUTE_TYPE"); // </advc.opt>
+		static const RouteTypes eINITIAL_CITY_ROUTE_TYPE = (RouteTypes)GC.getDefineINT("INITIAL_CITY_ROUTE_TYPE"); // </advc.opt>
 		eCityRoute = eINITIAL_CITY_ROUTE_TYPE;
 	}
 	setRouteType(eCityRoute, bUpdatePlotGroup);

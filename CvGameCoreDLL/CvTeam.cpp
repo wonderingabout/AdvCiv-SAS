@@ -2458,8 +2458,7 @@ int CvTeam::getResearchCost(TechTypes eTech, bool bFreeBarbarianResearch, bool b
 	if (kGame.isOption(GAMEOPTION_NO_TECH_TRADING) &&
 		eTechEra > 0 && !kTech.isRepeat())
 	{
-		static scaled const rTECH_COST_NOTRADE_MODIFIER = per100(
-				GC.getDefineINT("TECH_COST_NOTRADE_MODIFIER"));
+		static scaled const rTECH_COST_NOTRADE_MODIFIER = per100(GC.getDefineINT("TECH_COST_NOTRADE_MODIFIER"));
 		scaled rNoTradeAdjustment =
 				(rTECH_COST_NOTRADE_MODIFIER + per100(5) *
 				(eTechEra - fixp(2.5)).abs().pow(fixp(1.5))) *
@@ -5872,7 +5871,8 @@ void CvTeam::testCircumnavigated()
 
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	// <!-- custom: code/performance optimization: hoist -->
-	static const int iCIRCUMNAVIGATE_FREE_MOVES = GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES");
+	// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	const int iCIRCUMNAVIGATE_FREE_MOVES = GC.getDefineINT(CvGlobals::CIRCUMNAVIGATE_FREE_MOVES);
 	bool const bLogGameRecordCircumnavigation = (gGameRecordLogLevel >= 2);
 	int const iSeaExtraMovesBefore = bLogGameRecordCircumnavigation ? getExtraMoves(DOMAIN_SEA) : 0;
 	bool const bCircumnavigationBonusApplied = (GC.getGame().getElapsedGameTurns() > 1 && iCIRCUMNAVIGATE_FREE_MOVES != 0);

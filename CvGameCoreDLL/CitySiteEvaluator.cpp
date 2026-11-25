@@ -3418,9 +3418,10 @@ int AIFoundValue::calculateCultureModifier(CvPlot const& p, bool bForeignOwned, 
 			advc.045 hides foreign buildings, but it should, in theory, be possible
 			to infer culture buildings from visible tile culture percentages.
 			But will then also have to predict our own culture rate. */
-		static BuildingTypes const eCapitalBuilding = GC.getInfo(
-				pForeignCity->getCivilizationType()).
-				getCivilizationBuildings(GC.getDefineINT("CAPITAL_BUILDINGCLASS"));
+		// <!-- custom: Was one static for the capital building itself, so the first foreign capital evaluated fixed its civilization's capital building for every civilization for the rest of the session; only the building class is fixed, so the static now keeps that.
+		// Harmless with SAS's XML, where every civilization but the Barbarians, which have no capital, builds BUILDING_PALACE, but a mod giving civilizations their own Palace would have had each capital's culture counted as the first one's. See KI#128.4. (Claude code Opus 5.5) -->
+		static int const iCapitalBuildingClass = GC.getDefineINT("CAPITAL_BUILDINGCLASS");
+		BuildingTypes const eCapitalBuilding = GC.getInfo(pForeignCity->getCivilizationType()).getCivilizationBuildings(iCapitalBuildingClass);
 		if (eCapitalBuilding != NO_BUILDING)
 		{
 			iFreeForeignCulture += GC.getInfo(eCapitalBuilding).

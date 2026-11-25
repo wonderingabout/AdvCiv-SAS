@@ -121,6 +121,7 @@ TrueStarts::TrueStarts()
 	/*	Would be nicer to cache these at CvGlobals (as the Global Warming code
 		uses them too), but that's a bit annoying to implement. Also, this way,
 		I can use the names most appropriate for the True Starts option. */
+	// <!-- custom: ci_define_uncached: True Starts is constructed once per game setup, as are the reads below. (Claude code Opus 5.5) -->
 	m_eWarmForest = (FeatureTypes)GC.getDefineINT("WARM_FEATURE");
 	m_eCoolForest = (FeatureTypes)GC.getDefineINT("TEMPERATE_FEATURE");
 	/*	(Woods should be the natural vegetation of the biome represented by
@@ -939,6 +940,7 @@ void TrueStarts::changeCivs()
 		EagerEnumMap<CivilizationTypes,int> aeiLeaderCounts;
 		for (size_t i = 0; i < m_validAICivs.size(); i++)
 			aeiLeaderCounts.add(m_validAICivs[i].first, 1);
+		// <!-- custom: ci_define_uncached: runs once per game setup. (Claude code Opus 5.5) -->
 		scaled rExtraWeight = per100(GC.getDefineINT("PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT"));
 		/*	Players might actually set this to 1, but such a high bias
 			is not going to work well.

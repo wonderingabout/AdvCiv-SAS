@@ -1398,7 +1398,7 @@ Fails when a CI build script compares bytes (`read_bytes()` with `==` or `!=`) w
 
 #### `build/source/cpp_define_reads_cached.py`
 
-Fails when the DLL reads a SAS define by name, such as `GC.getDefineINT("SAS_X")`, outside a function-local `static`, unless its function says why with a `ci_define_uncached:` comment, so `rg "ci_define_uncached:"` lists every such read; see [AGENTS.md](/AGENTS.md#caching-and-variable-reuse).
+Fails when the DLL reads a define by name, such as `GC.getDefineINT("SAS_X")` or `GC.getDefineINT("STANDARD_HANDICAP")`, outside a function-local `static`, unless its function says why with a `ci_define_uncached:` comment, so `rg "ci_define_uncached:"` lists every such read; see [AGENTS.md](/AGENTS.md#caching-and-variable-reuse).
 
 Each such read looks the name up in a string map, so a read on a recurring path belongs in a `static const` or AdvCiv's enum-backed `CvGlobals` cache.
 
@@ -1409,15 +1409,25 @@ Each such read looks the name up in a string map, so a read on a recurring path 
   - Codex's review (GPT-6.2-Sol) reproduced the first version's gaps: a marker inside a string counted, two functions inside an `extern "C"` block shared one region, a marker for a cold read covered a hot one in a loop below, and a `#if` line or a comma declarator such as `static int a[] = {0}, b = ...` hid a static; each now has a test.
   - A function with no loop of its own but called on a hot path is still covered by its marker, so the comment must be true, which review checks.
 - The token went from `Not cached:` to `define-uncached:` to `ci_define_uncached:` at the user's suggestion (2026-11-25): such generic words can appear in any prose, so an unrelated comment in the same function could exempt a recurring read without anyone meaning to, and a grep for the token would mix exemptions with ordinary comments. The `ci_` prefix, as in the `[ci_update_dll]` commit marker, names a token only this check reads.
+- It also fails a read whose call is split across lines, such as `getDefineINT(` with the name on the next line, which hides the read from a grep for the name; none was on 2026-11-25, when the user asked.
+  - Only the call must stay on one line: a statement holding a read may span lines, as the 18 doing so then were mostly tables of reads, long conditions and calls carrying inherited markers such as `// advc.301`, which read better split; a rule for whole statements would have needed exceptions for each, so the short ones were collapsed by hand instead.
+  - `--list-multiline` lists those statements, with their first line and length, for such a review; it found 18 that day and fails nothing.
+- `--list-shared` lists the defines read by name in two or more functions, with each reader, for choosing what joins the enum cache; on 2026-11-25 its review moved 10 inherited defines there ([KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3)). It fails nothing either.
+  - Codex's review (GPT-6.2-Sol) reproduced two gaps in the first version: a read was named after the function before its own, and a call closing its parenthesis on the next line passed the split-call rule; a CRLF file's line splice also escaped the scan. Each now has a test.
+- It also fails a type-name define in the enum cache, such as `STANDARD_HANDICAP` or `CAPITAL_BUILDINGCLASS`: `CvXMLLoadUtility::SetPostGlobalsGlobalDefines` turns those from XML type names into indices after `cacheGlobals` has filled the cache, through `GetDefinesVarSystem()->SetValue`, which never refreshes it, so the cache keeps a stale value.
+  - Moving those two there crashed new-game creation in a Debug-opt test on 2026-11-25, and Codex's review flagged the same load order unprompted; the 31 `SetGlobalDefine` names in `CvXMLLoadUtilitySet.cpp` are the list checked.
 - It scans `CvGameCoreDLL`'s `.cpp`, `.h` and `.inl` files, where the C++ code lives, headers' inline functions included.
-- Only SAS defines are checked. `--all-defines` reports the reads of non-SAS define names too: 52 on 2026-11-25, at setup or on other infrequent paths, such as once per turn in `CvGame::doVoteSelection`, on a resolution change for `CAMERA_BASE_CITY_DISTANCE`, or `CvMapGenerator::addRivers`, which reads fresh by design since [KI#243](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-243); none ran per plot or per unit, so they were left as inherited.
+- At first only SAS defines were checked, and `--all-defines` listed the reads of inherited define names: 52, at setup or on other infrequent paths, none per plot or per unit.
+  - The user pointed out the same day that inherited code runs just the same, so a new uncached inherited read deserves the same check; the check now covers every define, and the 52 carry the comment in 22 functions.
+  - Examples: `CvGame::doVoteSelection` resets a Secretary-General timer only when it runs out, `CvGlobals::updateCityCamDist` runs on a field-of-view or resolution change, `FIELD_OF_VIEW` is reread because the main interface's slider changes it during play, and `CvMapGenerator::addRivers` reads fresh by design since [KI#243](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-243).
 - Runtime Python has no such check: its SAS define reads sit at module level, in screen `__init__` methods, behind lazy `None` caches or once per screen opening or map generation, and none sits inside a loop; the most frequent is `Earth2.py`'s `findStartingPlot`, which reads two once per player.
   - The eight looped reads are inherited BUG and vanilla ones, over a tech's few prerequisites or the options screen.
 - Enum-backed `GC.getDefineINT(CvGlobals::SAS_...)` reads are cached already and are not matched; `sas_define_usage.py`'s test keeps them out of statics.
 
 ```bash
 python .github/workflows/build/source/cpp_define_reads_cached.py
-python .github/workflows/build/source/cpp_define_reads_cached.py --all-defines
+python .github/workflows/build/source/cpp_define_reads_cached.py --list-multiline
+python .github/workflows/build/source/cpp_define_reads_cached.py --list-shared
 ```
 
 #### `build/source/cpp_standard_conformance.py`
@@ -2162,7 +2172,7 @@ A source marker is a token in a comment that tells one check why the line or fun
 
 | Marker | Intent | What CI still checks |
 | --- | --- | --- |
-| `ci_define_uncached:` | a SAS define read by name outside a static runs once or rarely, so it needs no cache | every other read in the DLL, and a read inside a loop unless the marker sits in that loop. See [`build/source/cpp_define_reads_cached.py`](#buildsourcecpp_define_reads_cachedpy). |
+| `ci_define_uncached:` | a define read by name outside a static runs once or rarely, so it needs no cache | every other read in the DLL, and a read inside a loop unless the marker sits in that loop. See [`build/source/cpp_define_reads_cached.py`](#buildsourcecpp_define_reads_cachedpy). |
 | `resource-cache-direct:` | a runtime Python lookup reads a resource directly instead of through its shared cache, for the concrete reason given | that a reason follows the token, and every other lookup. See [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy). |
 | `sas-ci-string-compare-exemption:` | a runtime Python comparison with a short string literal is right as it is, such as a BUG option type | every other such comparison. See [`build/source/string_label_compares.py`](#buildsourcestring_label_comparespy). |
 

@@ -6259,7 +6259,8 @@ bool CvUnit::spread(ReligionTypes eReligion)
 			std::vector<std::pair<int,ReligionTypes> > aieRankedReligions;
 
 			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-			static const int iRandomWeight = GC.getDefineINT("RELIGION_INFLUENCE_RANDOM_WEIGHT");
+			// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+			const int iRandomWeight = GC.getDefineINT(CvGlobals::RELIGION_INFLUENCE_RANDOM_WEIGHT);
 
 			FOR_EACH_ENUM(Religion)
 			{
@@ -6966,7 +6967,8 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
 				NotifyEntity(MISSION_ESPIONAGE);
 
 			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-			static const int iESPIONAGE_SPY_MISSION_ESCAPE_MOD = GC.getDefineINT("ESPIONAGE_SPY_MISSION_ESCAPE_MOD");
+			// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+			const int iESPIONAGE_SPY_MISSION_ESCAPE_MOD = GC.getDefineINT(CvGlobals::ESPIONAGE_SPY_MISSION_ESCAPE_MOD);
 
 			// <!-- custom: Reuse the same pre-mission provenance after success because the target may now be destroyed/transferred.
 			// As above, these extra arguments are logging-only and do not participate in the escape interception roll. (ChatGPT-5.6-Sol) -->
@@ -7117,9 +7119,11 @@ int CvUnit::getSpyInterceptPercent(TeamTypes eTargetTeam, bool bMission) const
 	FAssert(isSpy());
 	FAssert(getTeam() != eTargetTeam);
 	// <advc.opt>
-	static int const iESPIONAGE_INTERCEPT_SPENDING_MAX = GC.getDefineINT("ESPIONAGE_INTERCEPT_SPENDING_MAX");
+	// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	int const iESPIONAGE_INTERCEPT_SPENDING_MAX = GC.getDefineINT(CvGlobals::ESPIONAGE_INTERCEPT_SPENDING_MAX);
 	static int const iESPIONAGE_INTERCEPT_COUNTERSPY = GC.getDefineINT("ESPIONAGE_INTERCEPT_COUNTERSPY");
-	static int const iESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION = GC.getDefineINT("ESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION");
+	// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	int const iESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION = GC.getDefineINT(CvGlobals::ESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION);
 	static int const iESPIONAGE_INTERCEPT_RECENT_MISSION = GC.getDefineINT("ESPIONAGE_INTERCEPT_RECENT_MISSION");
 	 // </advc.opt>
 	int iSuccess = 0;

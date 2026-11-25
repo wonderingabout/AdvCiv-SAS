@@ -31573,20 +31573,23 @@ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(int& iData, SASEspionageCho
 		int iOurTotal = GET_TEAM(getTeam()).getEspionagePointsEver();
 
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-		static const int iESPIONAGE_INTERCEPT_SPENDING_MAX = GC.getDefineINT("ESPIONAGE_INTERCEPT_SPENDING_MAX");
+		// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+		const int iESPIONAGE_INTERCEPT_SPENDING_MAX = GC.getDefineINT(CvGlobals::ESPIONAGE_INTERCEPT_SPENDING_MAX);
 
 		iBaseIntercept += (iESPIONAGE_INTERCEPT_SPENDING_MAX * iTargetTotal) /
 				std::max(1, iTargetTotal + iOurTotal);
 
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-		static const int iESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION = GC.getDefineINT("ESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION");
+		// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+		const int iESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION = GC.getDefineINT(CvGlobals::ESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION);
 
 		if (GET_TEAM(eTargetTeam).getCounterespionageModAgainstTeam(getTeam()) > 0)
 			iBaseIntercept += iESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION;
 	}
 
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-	static const int iESPIONAGE_SPY_MISSION_ESCAPE_MOD = GC.getDefineINT("ESPIONAGE_SPY_MISSION_ESCAPE_MOD");
+	// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	const int iESPIONAGE_SPY_MISSION_ESCAPE_MOD = GC.getDefineINT(CvGlobals::ESPIONAGE_SPY_MISSION_ESCAPE_MOD);
 
 	int const iEscapeCost = 2 * iSpyValue * iBaseIntercept *
 			(100 + iESPIONAGE_SPY_MISSION_ESCAPE_MOD) / 10000;

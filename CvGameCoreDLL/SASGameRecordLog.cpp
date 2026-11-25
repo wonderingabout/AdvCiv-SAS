@@ -3041,6 +3041,7 @@ void logSASGameRecordDiagnosticContext(int iRenderQualityLevel, int iAntiAliasin
 {
 	CvGame const& kGame = GC.getGame();
 	bool const bPerPlayerMessageControlConfigured = GC.getDefineBOOL(CvGlobals::PER_PLAYER_MESSAGE_CONTROL_LOG);
+	// <!-- custom: ci_define_uncached: logged once per recording session. (Claude code Opus 5.5) -->
 	bool const bMapStatsConfigured = GC.getDefineBOOL("LOG_MAP_STATS");
 	int const iBugScreenLogLevel = BUGOption::getValue("Core__ScreenLogLevel", -1, false);
 	int const iBugFileLogLevel = BUGOption::getValue("Core__FileLogLevel", -1, false);
@@ -3192,9 +3193,8 @@ static void logSASGameRecordTechCapabilitySources()
 // Read the native land floor from CvTeam rather than copying 10 here; algorithm interpretation belongs with the matching source revision, not fixed descriptive flags. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 static void logSASGameRecordVassalRules()
 {
-	logSASGameRecord("GAME_RECORD_VASSAL_RULES freeVassalLandPercent=%d freeVassalPopulationPercent=%d ownLossesFactor=%d masterLossesFactor=%d vassalLandFloor=%d",
-		GC.getDefineINT(CvGlobals::FREE_VASSAL_LAND_PERCENT), GC.getDefineINT(CvGlobals::FREE_VASSAL_POPULATION_PERCENT),
-		GC.getDefineINT("VASSAL_REVOLT_OWN_LOSSES_FACTOR"), GC.getDefineINT("VASSAL_REVOLT_MASTER_LOSSES_FACTOR"), CvTeam::getSASVassalRevoltLandFloor());
+	// <!-- custom: ci_define_uncached: logged once when a recording session starts or loads. (Claude code Opus 5.5) -->
+	logSASGameRecord("GAME_RECORD_VASSAL_RULES freeVassalLandPercent=%d freeVassalPopulationPercent=%d ownLossesFactor=%d masterLossesFactor=%d vassalLandFloor=%d", GC.getDefineINT(CvGlobals::FREE_VASSAL_LAND_PERCENT), GC.getDefineINT(CvGlobals::FREE_VASSAL_POPULATION_PERCENT), GC.getDefineINT("VASSAL_REVOLT_OWN_LOSSES_FACTOR"), GC.getDefineINT("VASSAL_REVOLT_MASTER_LOSSES_FACTOR"), CvTeam::getSASVassalRevoltLandFloor());
 }
 
 // <!-- custom: Plot snapshots can show different yields without preserving the loaded values needed to interpret them later.

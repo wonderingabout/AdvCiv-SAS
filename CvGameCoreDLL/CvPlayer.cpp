@@ -7489,7 +7489,8 @@ void CvPlayer::convert(ReligionTypes eReligion, /* <advc.001v> */ bool bForce)
 	changeAnarchyTurns(iAnarchyLength);
 	setLastStateReligion(eReligion);
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-	static const int iMIN_CONVERSION_TURNS = GC.getDefineINT("MIN_CONVERSION_TURNS");
+	// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	const int iMIN_CONVERSION_TURNS = GC.getDefineINT(CvGlobals::MIN_CONVERSION_TURNS);
 	setConversionTimer(std::max(1, ((100 + getAnarchyModifier()) *
 			iMIN_CONVERSION_TURNS) / 100) + iAnarchyLength);
 	// <advc.004x>
@@ -8218,7 +8219,8 @@ void CvPlayer::changeAnarchyModifier(int iChange)
 	m_iAnarchyModifier += iChange;
 	if (iOldScale <= 0)
 	{
-		static const int iMIN_CONVERSION_TURNS = GC.getDefineINT("MIN_CONVERSION_TURNS");
+		// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+		const int iMIN_CONVERSION_TURNS = GC.getDefineINT(CvGlobals::MIN_CONVERSION_TURNS);
 		if (getRevolutionTimer() > 0)
 			setRevolutionTimer(getMinTurnsBetweenRevolutions());
 		if (getConversionTimer() > 0)
@@ -13004,7 +13006,8 @@ int CvPlayer::getEspionageMissionCostModifier(EspionageMissionTypes eMission, Pl
 	static int const iESPIONAGE_CITY_HOLY_CITY_MOD = GC.getDefineINT("ESPIONAGE_CITY_HOLY_CITY_MOD");
 	static int const iESPIONAGE_CULTURE_MULTIPLIER_MOD = GC.getDefineINT("ESPIONAGE_CULTURE_MULTIPLIER_MOD");
 	static int const iESPIONAGE_DISTANCE_MULTIPLIER_MOD = GC.getDefineINT("ESPIONAGE_DISTANCE_MULTIPLIER_MOD");
-	static int const iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
+	// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	int const iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT(CvGlobals::ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE);
 	// </advc.opt>
 
 	int iModifier = 100;
@@ -13363,7 +13366,8 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
 				GC.getInfo(eReligion).getDescription()).GetCString();
 		GET_PLAYER(eTargetPlayer).setLastStateReligion(eReligion);
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-		static const int iMIN_CONVERSION_TURNS = GC.getDefineINT("MIN_CONVERSION_TURNS");
+		// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+		const int iMIN_CONVERSION_TURNS = GC.getDefineINT(CvGlobals::MIN_CONVERSION_TURNS);
 		GET_PLAYER(eTargetPlayer).setConversionTimer(std::max(1,
 				((100 + GET_PLAYER(eTargetPlayer).getAnarchyModifier()) *
 				iMIN_CONVERSION_TURNS) / 100));
@@ -14240,7 +14244,8 @@ int CvPlayer::getAdvancedStartPopCost(bool bAdd, CvCity const* pCity) const
 	{
 		iPopulation--;
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-		static const int iINITIAL_CITY_POPULATION = GC.getDefineINT("INITIAL_CITY_POPULATION");
+		// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+		const int iINITIAL_CITY_POPULATION = GC.getDefineINT(CvGlobals::INITIAL_CITY_POPULATION);
 		if (iPopulation < iINITIAL_CITY_POPULATION +
 			GC.getInfo(GC.getGame().getStartEra()).getFreePopulation())
 		{
@@ -14777,9 +14782,8 @@ void CvPlayer::verifyGoldCommercePercent()
 	}*/ // BtS
 	// K-Mod
 	bool bValid = isCommerceFlexible(COMMERCE_GOLD);
-	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-	// <!-- custom: code/performance optimization: hoist -->
-	static const int iCOMMERCE_PERCENT_CHANGE_INCREMENTS = GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS");
+	// <!-- custom: Hoisted out of the loop; read through AdvCiv's enum cache, shared with CvPlayerAI::AI_doCommerce, rather than a static of its own. See KI#128.3. (ChatGPT-5 + Claude code Opus 5.5) -->
+	int const iCOMMERCE_PERCENT_CHANGE_INCREMENTS = GC.getDefineINT(CvGlobals::COMMERCE_PERCENT_CHANGE_INCREMENTS);
 	while (bValid && getCommercePercent(COMMERCE_GOLD) < 100 && getGold() + calculateGoldRate() < 0)
 	{
 		bValid = changeCommercePercent(COMMERCE_GOLD, iCOMMERCE_PERCENT_CHANGE_INCREMENTS);
@@ -19396,7 +19400,8 @@ int CvPlayer::getNewCityProductionValue() const
 			kGame.getSpeedPercent()) / 100;
 
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-	static const int iINITIAL_CITY_POPULATION = GC.getDefineINT("INITIAL_CITY_POPULATION");
+	// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	const int iINITIAL_CITY_POPULATION = GC.getDefineINT(CvGlobals::INITIAL_CITY_POPULATION);
 	int iPopulation = iINITIAL_CITY_POPULATION +
 			GC.getInfo(kGame.getStartEra()).getFreePopulation();
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->

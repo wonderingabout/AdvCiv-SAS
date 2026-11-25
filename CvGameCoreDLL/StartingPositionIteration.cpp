@@ -36,6 +36,7 @@ StartingPositionIteration::StartingPositionIteration() :
 	m_pPathDists(NULL), m_pPotentialSites(NULL)
 {
 	m_bScenario = GC.getInitCore().getWBMapScript();
+	// <!-- custom: ci_define_uncached: constructed once per map generation, as are the reads below. (Claude code Opus 5.5) -->
 	if (!GC.getDefineBOOL("ENABLE_STARTING_POSITION_ITERATION"))
 		return;
 	CvMap const& kMap = GC.getMap();
@@ -1767,6 +1768,7 @@ void StartingPositionIteration::doIterations(PotentialSites& kPotentialSites)
 	int iMaxSteps = (1000000 /
 			scaled(iPlots * PlayerIter<CIV_ALIVE>::count()).
 			pow(fixp(0.61))).round();
+	// <!-- custom: ci_define_uncached: read once per map generation, before the iterations start. (Claude code Opus 5.5) -->
 	iMaxSteps *= GC.getDefineINT("SPI_TIME_LIMIT_PERCENT");
 	iMaxSteps /= 100;
 	if (iMaxSteps <= 0)

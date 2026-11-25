@@ -799,10 +799,9 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 	m_eHandicap = eHandicap;
 	// <advc.127>
-	// <!-- custom: note: not doing static const here as there seems to be some required init condition and as recommended by chatgpt 5, check if accurate -->
-	m_eAIHandicap = (bConstructorCall ? NO_HANDICAP :
-			// (XML not loaded when constructor called)
-			(HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP")); // </advc.127>
+	// <!-- custom: ci_define_uncached: reset runs at each game start or load, not on a recurring path; the constructor call skips the read, as XML is not loaded then. (ChatGPT-5 + Claude code Opus 5.5) -->
+	// (XML not loaded when constructor called)
+	m_eAIHandicap = (bConstructorCall ? NO_HANDICAP : (HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP")); // </advc.127>
 	m_ePausePlayer = NO_PLAYER;
 	m_eBestLandUnit = NO_UNIT;
 	m_eWinner = NO_TEAM;
@@ -5158,7 +5157,8 @@ void CvGame::makeCircumnavigated()
 
 bool CvGame::circumnavigationAvailable() const
 {
-	static bool const bCIRCUMNAVIGATE_FREE_MOVES = GC.getDefineBOOL("CIRCUMNAVIGATE_FREE_MOVES"); // advc.opt
+	// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	bool const bCIRCUMNAVIGATE_FREE_MOVES = GC.getDefineBOOL(CvGlobals::CIRCUMNAVIGATE_FREE_MOVES); // advc.opt
 	if (!bCIRCUMNAVIGATE_FREE_MOVES)
 		return false;
 
@@ -11620,6 +11620,7 @@ void CvGame::doVoteSelection()
 				changeSecretaryGeneralTimer(eVS, -1);
 			else
 			{
+				// <!-- custom: ci_define_uncached: reached only when a vote source's Secretary-General timer runs out. (Claude code Opus 5.5) -->
 				setSecretaryGeneralTimer(eVS, GC.getDefineINT("DIPLO_VOTE_SECRETARY_GENERAL_INTERVAL"));
 				FOR_EACH_ENUM(Vote)
 				{

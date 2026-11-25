@@ -114,6 +114,13 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 213 - SAS practical 6865
+
+- **Date:** 2026-11-25
+- **Git commit:** pending
+- **Functional:** No (comments only)
+- **Change:** Comments only, with no change to what is recorded: the diagnostic context row and the vassal rules row say why they read the inherited `LOG_MAP_STATS` and `VASSAL_REVOLT_*_LOSSES_FACTOR` defines by name, with a `ci_define_uncached:` comment, which [`cpp_define_reads_cached.py`](/.github/workflows/README.md#buildsourcecpp_define_reads_cachedpy) now asks of inherited defines too, and the vassal rules row's call is now on one line.
+
 ### Revision 212 - SAS practical 6863
 
 - **Date:** 2026-11-25

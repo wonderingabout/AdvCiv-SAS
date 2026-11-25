@@ -9650,8 +9650,8 @@ int CvPlayerAI::AI_getFirstImpressionAttitude(PlayerTypes ePlayer) const
 		rPersonalityModifier += per100(kTheirHandicap.getAIAttitudeChangePercent());
 		/*  <advc.104x> Low UWAI_PERSONALITY_PERCENT makes the peace weights and
 			respect values more similar; don't want that to increase the relations bonus. */
-		static scaled const rUWAI_PERSONALITY_PERCENT = per100(
-					GC.getDefineINT("UWAI_PERSONALITY_PERCENT"));
+		// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+		scaled const rUWAI_PERSONALITY_PERCENT = per100(GC.getDefineINT(CvGlobals::UWAI_PERSONALITY_PERCENT));
 		rPersonalityModifier *= rUWAI_PERSONALITY_PERCENT;
 		iAttitude += rPersonalityModifier.round();
 		// </advc.130b>
@@ -22143,7 +22143,8 @@ void CvPlayerAI::AI_doCommerce()
 		kSASCommerce.iInitialEspionagePercent = getCommercePercent(COMMERCE_ESPIONAGE);
 	}
 
-	const static int iCommerceIncrement = GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS");
+	// <!-- custom: Read through AdvCiv's enum cache, shared with CvPlayer::verifyGoldCommercePercent, rather than a static of its own. See KI#128.3. (Claude code Opus 5.5) -->
+	int const iCommerceIncrement = GC.getDefineINT(CvGlobals::COMMERCE_PERCENT_CHANGE_INCREMENTS);
 	bool const bLogCultureCommerce = (gCultureLogLevel >= 1);
 	int iCultureHappinessIdeal = -1;
 	int iCultureStageBonus = 0;
@@ -22597,7 +22598,8 @@ void CvPlayerAI::AI_doCommerce()
 			if (eStealTechMission != NO_ESPIONAGEMISSION)
 			{
 				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-				static const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
+				// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+				const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT(CvGlobals::ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE);
 				iMinModifier *= 100 - GC.getDefineINT(CvGlobals::MAX_FORTIFY_TURNS) *
 						iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE;
 				iMinModifier /= 100;
@@ -23220,7 +23222,8 @@ void CvPlayerAI::AI_doReligion()
 		convert(eBestReligion);
 		if (bLogSASReligionDecision) logSASGameRecordAIReligionDecision(getID(), eCurrentReligion, eSASEvaluatedBest, eBestReligion, eSASRunnerUp, iSASBestValue, iSASRunnerUpValue, iSASCurrentScore, iCurrentReligionValue, iSelectedReligionValue, rConvertProb.getPercent(), 1, "CONVERTED", bLogSASReligionCandidates ? &aSASCandidateValues : NULL);
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-		static const int iMIN_CONVERSION_TURNS = GC.getDefineINT("MIN_CONVERSION_TURNS");
+		// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+		const int iMIN_CONVERSION_TURNS = GC.getDefineINT(CvGlobals::MIN_CONVERSION_TURNS);
 		AI_setReligionTimer(getMaxAnarchyTurns() == 0 ? iMIN_CONVERSION_TURNS * 2 : RELIGION_CHANGE_DELAY);
 	}
 	else if (bLogSASReligionDecision) logSASGameRecordAIReligionDecision(getID(), eCurrentReligion, eSASEvaluatedBest, eBestReligion, eSASRunnerUp, iSASBestValue, iSASRunnerUpValue, iSASCurrentScore, iCurrentReligionValue, iSelectedReligionValue, rConvertProb.getPercent(), 0, "DEFERRED_ROLL", bLogSASReligionCandidates ? &aSASCandidateValues : NULL);

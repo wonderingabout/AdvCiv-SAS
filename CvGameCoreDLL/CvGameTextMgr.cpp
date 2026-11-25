@@ -389,7 +389,8 @@ void CvGameTextMgr::setEspionageMissionHelp(CvWStringBuffer &szBuffer, const CvU
 	else if (pUnit->getFortifyTurns() > 0)
 	{
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-		static const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
+		// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+		const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT(CvGlobals::ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE);
 
 		int iModifier = -pUnit->getFortifyTurns() *
 				iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE;
@@ -20689,7 +20690,8 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMis
 		if (pSpyUnit != NULL)
 		{
 			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-			static const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
+			// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+			const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT(CvGlobals::ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE);
 
 			iTempModifier = -(pSpyUnit->getFortifyTurns() *
 					iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE);

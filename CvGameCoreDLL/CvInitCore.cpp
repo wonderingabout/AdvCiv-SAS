@@ -1814,6 +1814,7 @@ void CvInitCore::reRandomizeCivsAndLeaders()
 		delivered until CvGame takes over the setup procedure. */
 	if (getOption(GAMEOPTION_LEAD_ANY_CIV))
 		return;
+	// <!-- custom: ci_define_uncached: runs once at game setup, on the host. (Claude code Opus 5.5) -->
 	int const iPER_EXTRA_LEADER_CIV_SELECTION_WEIGHT = GC.getDefineINT("PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT");
 	if (iPER_EXTRA_LEADER_CIV_SELECTION_WEIGHT == 0) // BtS behavior
 		return;

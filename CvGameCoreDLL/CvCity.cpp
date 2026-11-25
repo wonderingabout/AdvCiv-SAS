@@ -11158,7 +11158,8 @@ void CvCity::doReligion()
 	// weakest religion already in the city
 	ReligionTypes eWeakestReligion = NO_RELIGION;
 	int iWeakestGrip = MAX_INT;
-	static int const iRandomWeight = GC.getDefineINT("RELIGION_INFLUENCE_RANDOM_WEIGHT");
+	// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	int const iRandomWeight = GC.getDefineINT(CvGlobals::RELIGION_INFLUENCE_RANDOM_WEIGHT);
 	static int const iDivisorBase = GC.getDefineINT("RELIGION_SPREAD_DIVISOR_BASE");
 	static int const iDistanceFactor = GC.getDefineINT("RELIGION_SPREAD_DISTANCE_FACTOR");
 
@@ -13146,7 +13147,8 @@ void CvCity::getBuildQueue(std::vector<std::string>& astrQueue) const
 int CvCity::initialPopulation()
 {
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-	static const int iInitialCityPopulation = GC.getDefineINT("INITIAL_CITY_POPULATION");
+	// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	const int iInitialCityPopulation = GC.getDefineINT(CvGlobals::INITIAL_CITY_POPULATION);
 
 	return iInitialCityPopulation +
 			GC.getInfo(GC.getGame().getStartEra()).getFreePopulation();

@@ -60,6 +60,7 @@ void StartPointsAsHandicap::setInitialItems() {
 	for(int i = 0; i < nCivs; i++)
 		report += CvString::format("Points assigned to id %d: %d\n",
 				i, civs[i]->startPoints_configured());
+	// <!-- custom: ci_define_uncached: runs once at game setup. (Claude code Opus 5.5) -->
 	if(randomize)
 		randomize = GC.getDefineINT("SPAH_RANDOMIZE") > 0;
 	if(randomize) {
@@ -329,6 +330,7 @@ void StartPointsAsHandicap::updatePointsDisplayString(bool bTab) const {
 	wostringstream s;
 	s << "Start Points As Handicap\n"
 			<< ind << "(distribution: ";
+	// <!-- custom: ci_define_uncached: runs at setup, on loading a save, and when the settings screen or a replay shows the points, not in the turn loop. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	bool showActual = (GC.getDefineINT("SPAH_SHOW_RANDOMIZED") > 0);
 	for(int i = nHuman; i < nCivs; i++) {
 		int pts = showActual ? civs[i]->startPoints_actual() :
