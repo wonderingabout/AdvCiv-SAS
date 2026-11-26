@@ -1326,6 +1326,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1104 - (AdvCiv-SAS design rule) SAS keeps its own copy of every base-game Python file it uses, changed or not, as it took in CvTechSplashScreen.py, CIV4ProcessInfo.xml and CIV4WorldPickerInfos.xml when first needed: SASPilot's WorldBuilder work found the WorldBuilder screen running from BtS's copy, outside the repository](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)\
 [KI#1105 - (Fixed inherited vanilla, Debug Mode only) The Map Details table showed a continent's 576 tiles under "Area" and its 5 starting plots under "Size": its header row had one extra column](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)\
 [KI#1105.2 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen CvDebugInfoScreen.py (Shift + F2) sat at a fixed 1024 x 768, and its table never showed the columns past its right edge, so even on a Huge map Team Relations lost the last 4 of its 16 civilizations and Map Details its bonuses after about the 8th](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2)\
+[KI#1105.3 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen's Unit AI rows read UNITAI_SETTLE where vanilla meant SETTLE: strName.strip("UNITAI_") dropped its result, and kept, strip would have turned UNITAI_ATTACK_CITY into CK_CITY](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.3)\
 [KI#1106 - (Clarified inherited vanilla) The plot hover called a lake tile "Coast", then wrote "Fresh Water Lake" where a land plot's fresh water goes, and never said where a land plot's "Fresh Water" came from](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1106)\
 [KI#1107 - (Fixed inherited AdvCiv, Debug Mode only) The Debug Mode screen GameFontDisplay.py (Ctrl + Shift + F1), which lists every game font glyph, showed an empty table, as its row count assumed symbol codes starting near 8193 and so came out at -7667 with codes starting at 450, in base AdvCiv and SAS alike](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107)\
 [KI#1107.2 - (Fixed AdvCiv-SAS bug, Debug Mode only) SAS's move onto the SASVisualUtils cache had broken GameFontDisplay.py's lookup of each glyph's religion, corporation or bonus with .index() on the cache's tuples, which Python 2.4 lacks, hidden behind KI#1107's empty table until its fix let rows draw](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107.2)\
@@ -39812,6 +39813,22 @@ See also (2026-11-22), the other issues Debug Mode reaches or causes, each with 
 Found by the user, who asked to fit the screen like the other advisors and then saw its table not turning pages at SAS48 size; fixed by Claude Code Opus 5.5 with Codex's (GPT-6.2-Sol) reviews, the second of which also checked the shortcut map, the staged docs and the screenshots (2026-11-23).
 
 Update (2026-11-23): [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) to [KI#134.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.8) compare the other screens with 48 civilizations, base AdvCiv beside SAS48; KI#134.7 is this screen's civilization views, which need pages at 48 even at full size.
+
+<a id="ki-1105.3"></a>
+
+## KI#1105.3 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen's Unit AI rows read UNITAI_SETTLE where vanilla meant SETTLE: strName.strip("UNITAI_") dropped its result, and kept, strip would have turned UNITAI_ATTACK_CITY into CK_CITY
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1t0Ll7nFcnx-JGOqzjgmMyK3qZKv89wMy?usp=sharing).
+
+`CvDebugInfoScreen.py`'s Unit AI view, one of the Debug Mode screen's (Shift + F2) tables, names each row by its UnitAI's description, which `CIV4UnitAIInfos.xml` sets to the type itself, such as `UNITAI_SETTLE`.
+
+- Vanilla then calls `strName.strip("UNITAI_")` without keeping the result, as Python strings cannot change in place, so every row kept its prefix, which pushed the longer names past the column at 1920 x 1080, cut to `UNITAI_ATTAC...` and `UNITAI_CITY_D...` (seen in game on 2026-11-26, vanilla's line put back for the user's screenshot).
+- Kept, it would have done worse: `strip` removes any of the given characters from both ends, not a prefix, so `UNITAI_ATTACK_CITY` would read `CK_CITY` while `UNITAI_SETTLE` reads `SETTLE`.
+- Only vanilla ships the screen; SAS carried it on 2026-11-22 ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)).
+
+The row now drops the `UNITAI_` prefix when it starts the name, as meant. Checked in game on 2026-11-26 in a turn-0 Debug Mode game: the AI Types view lists `SETTLE`, `ATTACK_CITY`, `CITY_DEFENSE` and `GREAT_PROPHET`, the user having asked for a quick look.
+
+Found on 2026-11-26 by Claude Code Opus 5.5, auditing the carried base-game Python for slips CI does not gate: Ruff's full report, which CI shows without failing on, flags `strip` with a multi-character string as B005.
 
 <a id="ki-1106"></a>
 

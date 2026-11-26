@@ -302,7 +302,9 @@ class CvDebugInfoScreen(CvGFCScreen.CvGFCScreen):
 		
 		for i in range( UnitAITypes.NUM_UNITAI_TYPES ):
 			strName = gc.getUnitAIInfo(i).getDescription()
-			strName.strip("UNITAI_")
+			# <!-- custom: Vanilla's strName.strip("UNITAI_") dropped its result, so rows read UNITAI_SETTLE, and strip removes those letters from both ends rather than the prefix, so kept it would have turned UNITAI_ATTACK_CITY into CK_CITY; the prefix is now cut, as meant. See KI#1105.3. (Claude code Opus 5.5) -->
+			if strName.startswith("UNITAI_"):
+				strName = strName[len("UNITAI_"):]
 			list_loopRowData.append(strName)
 			
 			for j in range( self.iNumPlayers ):		
