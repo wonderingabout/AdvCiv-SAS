@@ -75,7 +75,7 @@ WIDGET_ANNOTATIONS_TOGGLE = WidgetUtil.createWidget("WIDGET_ANNOTATIONS_TOGGLE")
 WIDGET_CITY_BREAKDOWNS = WidgetUtil.createWidget("WIDGET_CITY_BREAKDOWNS")
 g_szCityBreakdownsHelp = u""
 def _scoreHelp(szText):
-	return lambda *_: SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
+	return lambda *_: SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 def _cityBreakdownsHelp(*_):
 	return g_szCityBreakdownsHelp
 # <!-- custom: These four hovers named the action but not the current setting, so the player had to click to find out; they now state it, read from the live interface at hover time.
@@ -88,34 +88,34 @@ def _scoreBgStyleHelp(*_):
 	szText = u"Cycle scoreboard background style"
 	if mi.iScoreBgStyleLevel is not None:
 		szText += u" (%d/%d: %s)" % (mi.iScoreBgStyleLevel + 1, len(mi.aScoreBgStyleLevels), mi.aScoreBgStyleLevels[mi.iScoreBgStyleLevel])
-	return SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
+	return SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 def _commerceBgStyleHelp(*_):
 	mi = _getMainInterface()
 	szText = u"Cycle commerce sliders background style"
 	if mi.iCommerceBgStyleLevel is not None:
 		szText += u" (%d/%d: %s)" % (mi.iCommerceBgStyleLevel + 1, len(mi.aScoreBgStyleLevels), mi.aScoreBgStyleLevels[mi.iCommerceBgStyleLevel])
-	return SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
+	return SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 def _scoreExpandToggleHelp(*_):
 	szText = u"Toggle lock scoreboard hover"
 	if _getMainInterface().bScoreAlwaysExpand:
 		szText += u" (Locked)"
 	else:
 		szText += u" (Unlocked)"
-	return SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
+	return SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 def _scoreAutocenterToggleHelp(*_):
 	szText = u"Toggle autocenter scoreboard scroll on the active player "
 	if _getMainInterface().bScoreScrollAutocenterActivePlayer:
 		szText += localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_ON", ())
 	else:
 		szText += localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_OFF", ())
-	return SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
+	return SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 def _annotationsToggleHelp(*_):
 	szText = u"Toggle show map annotations "
 	if _getMainInterface().bAnnotationsVisible:
 		szText += localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_ON", ())
 	else:
 		szText += localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_OFF", ())
-	return SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
+	return SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP, _scoreHelp(u"Scroll scoreboard up"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN, _scoreHelp(u"Scroll scoreboard down"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP_FAST, _scoreHelp(u"Scroll scoreboard up (fast)"))
@@ -6082,7 +6082,7 @@ class CvMainInterface:
 				szCultureHoverResult = u"Modifier: %s\n%s\nRate: %s per turn\nProgress: %s\nTurns: %s" % (szCultureHoverModifier, szCultureHoverPostModifier, szCultureHoverRate, szCultureHoverProgress, szTurns.strip(u"()"))
 				szCultureBreakdownHelp = u"%s\n%s\n%s" % (szCultureHoverTitle, szCultureHoverSources, szCultureHoverResult)
 				# <!-- custom: Hovering either compact breakdown shows both related city-output summaries, avoiding mouse movement (aims to reduce user tedium) between adjacent rows while retaining separate readable sections. (GPT-5.6-Sol) -->
-				g_szCityBreakdownsHelp = SASTextScale.sasFontTagHover + szSpecialistBreakdownHelp + u"\n\n" + szCultureBreakdownHelp + SASTextScale.SAS_FONT_TAG_CLOSE
+				g_szCityBreakdownsHelp = SASTextScale.sasFontTagLabel + szSpecialistBreakdownHelp + u"\n\n" + szCultureBreakdownHelp + SASTextScale.SAS_FONT_TAG_CLOSE
 
 				iXRight = iX
 				iY2 = gRect("GreatPeopleBar").y() - 22
@@ -7055,7 +7055,7 @@ class CvMainInterface:
 		else:
 			szHelpText = CyInterface().getHelpString()
 			if (szHelpText.find("<font=") == -1):
-				szTag = SASTextScale.sasFontTagHover._build()
+				szTag = SASTextScale.sasFontTagLabel._build()
 				if szTag:
 					szHelpText = szTag + szHelpText + SASTextScale.SAS_FONT_TAG_CLOSE
 			screen.setHelpTextString(szHelpText)

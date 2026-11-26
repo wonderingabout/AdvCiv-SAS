@@ -212,6 +212,9 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: shared UI label font size for emphasized labels and section captions.
 	Keep in [1..4] (GPT-5.3-Codex).
 	Base Civ4 Font size: 3. -->
+	<!-- custom: Also the size of hover help text, which had its own define with the same value until 2026-11-26: raising the label to 4 meant remembering to raise hover too, which players could miss or find unclear, while hover always wanted the label's size, so the user retired it.
+	Base Civ4 drew hover text at 2, its small font; Long_Comments_XML.txt #106.
+	See Docs/Deprecated/global_define_names.md. (Claude code Opus 4.6 + Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_UI_FONT_LABEL</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
@@ -222,13 +225,6 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<Define>
 		<DefineName>SAS_UI_FONT_TITLE</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
-	</Define>
-	<!-- custom: shared UI hover/tooltip font size for widget hover help text (e.g., building info, city name popup, specialist/culture breakdown hover); Long_Comments_XML.txt #106.
-	Keep in [1..4]. (Claude code Opus 4.6).
-	Base Civ4 Font size: 2. -->
-	<Define>
-		<DefineName>SAS_UI_FONT_HOVER</DefineName>
-		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
 
 

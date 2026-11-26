@@ -36,7 +36,7 @@ class GameFontDisplay:
 		# <!-- custom: Was two glyph columns, Small at <font=2> and Big at <font=4>; now one per font size 1 to 4, as the user asked, each header naming the SAS font types its size has now, such as "3 (Body, Label)", read from the defines.
 		# Each glyph cell keeps its fixed size, as showing that size is the column's purpose: sizes up to 2 draw from GameFont_75.tga and larger ones from GameFont.tga, and a SASTextScale label font in the old Small column turned its glyphs to GameFont.tga's, so rows 425 to 431, which only GameFont_75.tga fills, went blank (2026-11-23). See KI#1107. (Claude code Opus 5.5) -->
 		aiFontSizes = [1, 2, 3, 4]
-		aszSASFonts = [("Tiny", SASTextScale.getSASUIFontTiny()), ("Body", SASTextScale.getSASUIFontBody()), ("Label", SASTextScale.getSASUIFontLabel()), ("Title", SASTextScale.getSASUIFontTitle()), ("Hover", SASTextScale.getSASUIFontHover())]
+		aszSASFonts = [("Tiny", SASTextScale.getSASUIFontTiny()), ("Body", SASTextScale.getSASUIFontBody()), ("Label", SASTextScale.getSASUIFontLabel()), ("Title", SASTextScale.getSASUIFontTitle())]
 		iButtonCol = 1 + len(aiFontSizes)
 		iTypeCol = iButtonCol + 1
 		nTableWidth = nScreenWidth - 2 * iMargin

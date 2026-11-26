@@ -904,10 +904,12 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
 				widgetDataStruct.m_iData2, true, szBuffer);
 		break;
 	}
-	// <!-- custom: Optionally upscale hover help text via SAS_UI_FONT_HOVER define (Claude code Opus 4.6) -->
+	// <!-- custom: Optionally upscale hover help text via a SAS font define (Claude code Opus 4.6 + Claude code Opus 5.5) -->
 	if (!szBuffer.isEmpty())
 	{
-		static int const iFontSize = GC.getDefineINT("SAS_UI_FONT_HOVER");
+		// <!-- custom: Reads the label size since 2026-11-26: hover text had its own define with the same value, retired as it named where text shows rather than its role.
+		// See Docs/Deprecated/global_define_names.md. (Claude code Opus 5.5) -->
+		int const iFontSize = GC.getDefineINT(CvGlobals::SAS_UI_FONT_LABEL);
 		if (iFontSize >= 1 && iFontSize <= 4)
 		{
 			CvWString szWrapped;

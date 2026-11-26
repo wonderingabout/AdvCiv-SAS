@@ -41,10 +41,6 @@ def getSASUIFontTitle():
 	return _getSASUIFontSize("SAS_UI_FONT_TITLE")
 
 
-def getSASUIFontHover():
-	return _getSASUIFontSize("SAS_UI_FONT_HOVER")
-
-
 class _DynamicFontTag:
 	def __init__(self, szDefineName, bBold=False):
 		self.szDefineName = szDefineName
@@ -80,11 +76,13 @@ class _DynamicFontTag:
 
 SAS_FONT_TAG_CLOSE = u"</font>"
 
+# <!-- custom: Note: there is no hover tag; hover text uses the label tag.
+# A hover define of its own had the label's value, and the user retired it on 2026-11-26, as raising the label meant remembering to raise hover too, while hover always wanted the label's size.
+# See Docs/Deprecated/global_define_names.md. (Claude code Opus 5.5) -->
 sasFontTagTiny = _DynamicFontTag("SAS_UI_FONT_TINY")
 sasFontTagBody = _DynamicFontTag("SAS_UI_FONT_BODY")
 sasFontTagLabel = _DynamicFontTag("SAS_UI_FONT_LABEL")
 sasFontTagTitle = _DynamicFontTag("SAS_UI_FONT_TITLE")
-sasFontTagHover = _DynamicFontTag("SAS_UI_FONT_HOVER")
 
 SAS_FONT_OPEN_RE = re.compile(u"<font=[^>]*>", re.IGNORECASE)
 SAS_FONT_CLOSE_RE = re.compile(u"</font>", re.IGNORECASE)

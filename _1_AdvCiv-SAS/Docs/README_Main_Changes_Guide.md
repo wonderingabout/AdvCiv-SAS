@@ -2893,7 +2893,7 @@ Assuming the calculation is correct and reliable, the higher the drive, the more
     - and other places where font size could be changed
   - Made some **UI adjustments when needed to accommodate the larger text**.
   - Upscaling text can be **useful for high resolution displays** (where text appears very small), but may **also improve readability at smaller resolutions** (like 1920*1080 or lower).
-  - A **simple way to upscale all text to max font size** is for example to set `SAS_UI_FONT_TINY`, `SAS_UI_FONT_BODY`, `SAS_UI_FONT_LABEL`, `SAS_UI_FONT_TITLE` and `SAS_UI_FONT_HOVER` all to max font size which is 4.
+  - A **simple way to upscale all text to max font size** is for example to set `SAS_UI_FONT_TINY`, `SAS_UI_FONT_BODY`, `SAS_UI_FONT_LABEL` and `SAS_UI_FONT_TITLE` all to max font size which is 4; hover text follows the label size.
   - See [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) and related places for the change.
 - **Upscaling adjustments** include generally to expand them so text does not overflow, or notably:
   - smaller sevopedia leaders item row (else AI Personality Panel's upscaled text overfills)

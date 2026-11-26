@@ -647,8 +647,8 @@ class PLE:
 		CyInterface().setDirty(InterfaceDirtyBits.PlotListButtons_DIRTY_BIT, True)
 
 	def displayHelpHover(self, sKey):
-		# <!-- custom: PLE filter/group/view hover help should scale with SAS hover-font settings instead of fixed font=2 so city-screen filter help remains readable when UI text is upscaled. (GPT-5.3-Codex) -->
-		sText = u"%s%s%s" % (SASTextScale.sasFontTagHover, BugUtil.getPlainText(sKey), SASTextScale.SAS_FONT_TAG_CLOSE)
+		# <!-- custom: PLE filter/group/view hover help should scale with SAS font settings, the label size for hover text since 2026-11-26, instead of fixed font=2 so city-screen filter help remains readable when UI text is upscaled. (GPT-5.3-Codex + Claude code Opus 5.5) -->
+		sText = u"%s%s%s" % (SASTextScale.sasFontTagLabel, BugUtil.getPlainText(sKey), SASTextScale.SAS_FONT_TAG_CLOSE)
 		self.displayInfoPane(sText)
 
 	# hides the info pane
