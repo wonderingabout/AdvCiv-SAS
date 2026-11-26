@@ -72,8 +72,8 @@ def git(root, args, data=None):
 def main(argv):
     parser = argparse.ArgumentParser(description="Stage a file with chosen regions taken from HEAD or dropped; the working file is not changed.")
     parser.add_argument("path", help="file to stage, relative to the repository root")
-    parser.add_argument("--head", nargs=2, action="append", default=[], metavar=("START", "END"), help="replace the working region from START up to END (END excluded) with HEAD's same region; repeatable")
-    parser.add_argument("--drop", nargs=2, action="append", default=[], metavar=("START", "END"), help="leave the region from START up to END (END excluded) out of the staged version; repeatable")
+    parser.add_argument("--head", nargs=2, action="append", default=[], metavar=("START", "END"), help="replace the working region from START up to END (END excluded) with HEAD's same region; END may be <EOF> for the file's end; repeatable")
+    parser.add_argument("--drop", nargs=2, action="append", default=[], metavar=("START", "END"), help="leave the region from START up to END (END excluded) out of the staged version; END may be <EOF> for the file's end; repeatable")
     parser.add_argument("--keep", action="append", default=[], metavar="MARKER", help="stage only the changed hunks holding MARKER, every other hunk staying at HEAD; repeatable, and applied before --head and --drop")
     parser.add_argument("--dry-run", action="store_true", help="print the staged diff against HEAD without staging")
     args = parser.parse_args(argv)

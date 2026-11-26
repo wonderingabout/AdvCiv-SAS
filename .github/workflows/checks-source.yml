@@ -60,6 +60,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/cpp_define_reads_cached.py
 
+      - name: Shipped SASLiveDefineOverrides equal their XML values and reach their readers
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/sas_live_define_overrides.py
+
       - name: Switched define values are written only in LLM_Helpers/diagnostics/define_values.py
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/shared_define_values.py

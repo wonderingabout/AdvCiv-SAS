@@ -62,7 +62,13 @@ def onLoad(argsList):
 
 def preGameStart():
 	import CvScreensInterface
-	
+	# <!-- custom: Applies SASLiveDefineOverrides when a game starts, before its screens are built; until then, such as at the main menu, the defines hold their XML values.
+	# The first load sat in BugEventManager's setup at first, but Codex's review (GPT-6.2-Sol) found that BugInit runs it only once the game is fully initialized.
+	# Imported here, as the file's note above asks for no more top-level imports.
+	# This file is the mod's own copy since KI#1104, which is what made this hook an ordinary SAS edit. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	import SASLiveDefineOverridesBridge
+	SASLiveDefineOverridesBridge.refresh()
+
 	if not CyGame().isPitbossHost():
 		NiTextOut("Initializing font icons")
 		# Load dynamic font icons into the icon map

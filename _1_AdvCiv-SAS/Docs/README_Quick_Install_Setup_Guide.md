@@ -13,8 +13,10 @@ To install and play this mod AdvCiv-SAS, you can follow the steps in this docume
 [Place a shortcut of the mod on your desktop](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#place-a-shortcut-of-the-mod-on-your-desktop)\
 [If nothing happens when launching the mod](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#if-nothing-happens-when-launching-the-mod)\
 [Configure the mod](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#configure-the-mod)\
-&emsp;[General ideas](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#general-ideas)\
 &emsp;[Disable the Steam overlay](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#disable-the-steam-overlay)\
+&emsp;[Game options](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#game-options)\
+&emsp;[BUG options](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#bug-options)\
+&emsp;[Tuning the mod's settings](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#tuning-the-mods-settings)\
 &emsp;[Settings if you want to develop/modify the mod or try some autoplay or such (skip this section if only playing without wanting extra details)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#settings-if-you-want-to-developmodify-the-mod-or-try-some-autoplay-or-such-skip-this-section-if-only-playing-without-wanting-extra-details)\
 [Multiple instances and LAN multiplayer](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#multiple-instances-and-lan-multiplayer)\
 [Mod Version](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#mod-version)\
@@ -105,7 +107,13 @@ Note that sometimes it seems named either "Sid Meier's Civilization 4 : Beyond T
 
 ## Configure the mod
 
-### General ideas
+### Disable the Steam overlay
+
+Optionally, for steam users, consider disabling the Steam Overlay if you don't use it in Civ4; allows access to the F12 key that won't screenshot anymore (as of now default In-game is Open Sevopedia).
+
+Overlays in general seemed to cause all kinds of issues in Civ4, as seemed to be mentioned on the Realism Invictus CivFanatics forums (not verified here), so if you encounter issues, or if convenient, consider disabling other overlays too.
+
+### Game options
 
 Recommended, change your config as you prefer. For example as for me, i play at 1920x1080 (seems to display best ingame, even though i have a larger screen actually (4K) i also optimized Sevopedia features like the AI personality panel for 1920x1080 (but may work as well for higher resolutions although i didn't test it)) in full screen, but when i need to debug or test the windowed mode is so much more practical.
 
@@ -118,13 +126,17 @@ There are some options i use personally xdin ingame settings then like (from mem
 - single unit graphics
 - numbers on city bar
 
+### BUG options
+
 Then in BUG Menu options i also use this for example hehe but do as you prefer as well (non-exhaustive in case i forgot / didn't show some):
 
 - wide city bars
 
-### Disable the Steam overlay
+### Tuning the mod's settings
 
-Optionally, for steam users, consider disabling the Steam Overlay if you don't use it in Civ4; allows access to the F12 key that won't screenshot anymore (as of now default In-game is Open Sevopedia).
+Many of the mod's settings can be tuned in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml), with Civ4 closed.
+
+A few, such as the font sizes, can also change while Civ4 runs, without a restart; see [Live define overrides](/README.md#live-define-overrides).
 
 ### Settings if you want to develop/modify the mod or try some autoplay or such (skip this section if only playing without wanting extra details)
 

@@ -5711,8 +5711,10 @@ void CvTeam::doBarbarianResearch()
 			one or two civs. */
 		if (bNoBarbCities)
 			iCount = std::max(iCount, (2 * iHasTech) / 3);
-		static scaled const rBARBARIAN_FREE_TECH_PERCENT = // advc.opt
-				per100(GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT")); // advc.301
+		// <!-- custom: Collapsed onto one line, so a grep finds the static with its define read; AdvCiv's advc.301 marker, which closed the wrapped line, moved above it, and its advc.opt stays at the end.
+		// cpp_define_reads_cached.py flags a static wrapped onto a later line since 2026-11-26. (Claude code Opus 5.5) -->
+		// advc.301
+		static scaled const rBARBARIAN_FREE_TECH_PERCENT = per100(GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT")); // advc.opt
 		scaled rFreePortion = rBARBARIAN_FREE_TECH_PERCENT *
 				// <advc.301>
 				(1 + per100(GC.getInfo(eLoopTech).get(

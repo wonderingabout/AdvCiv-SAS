@@ -106,6 +106,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
   - [Static audit helpers](#static-audit-helpers)
     - [`audit_cpp_logging_pregates.py`](#audit_cpp_logging_pregatespy)
     - [`audit_screen_init_layout.py`](#audit_screen_init_layoutpy)
+    - [`audit_define_timing.py`](#audit_define_timingpy)
     - [`audit_define_keys.py`](#audit_define_keyspy)
     - [`audit_unused_text_keys.py`](#audit_unused_text_keyspy)
   - [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)
@@ -413,6 +414,22 @@ Report-only audit of Civ4 Python screens: per class, the upper-case layout value
 
 ```bash
 python LLM_Helpers/audits/audit_screen_init_layout.py --only-resolution Assets/Python
+```
+
+#### `audit_define_timing.py`
+
+Report-only audit of when each SAS define of `GlobalDefines_advciv_sas.xml` takes effect, from how its readers in the DLL and runtime Python read it: no cache detected, kept (in a DLL static, member or global, a Python module variable, an `__init__` value, an attribute or a lazy cache), or only while loading or setting up.
+
+- Written on 2026-11-26 to choose which defines [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) may override and which belong in its NoEntry list; see [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5).
+  - A kept reader needs its read changed before an override reaches it, and a startup-only define belongs in NoEntry.
+  - "No cache detected" was "ready" at first: Codex's review (GPT-6.2-Sol) pointed out that a read fresh each time its function runs may sit in a function that runs only during setup, such as the main menu's music pool, so check before relying on an override.
+- It follows a C++ reader one level up: a read inside a helper whose every caller keeps the result or runs at load counts as kept or startup, as BBAI's category levels are, which `cacheSASBBAILogSettings` copies once.
+- Heuristic and text-based, so verdicts marked "by hand" need reading: a name built at runtime, such as `"SAS_BILLBOARD_SCALE_PCT_FONT_%d" % i`, one listed in a table another function reads, or one whose enclosing function it cannot tell.
+- Writes `LLM_Helpers/outputs/define_timing.md`, with counts per verdict and family and every reader per define; `--define NAME` prints one define's readers.
+
+```bash
+python LLM_Helpers/audits/audit_define_timing.py
+python LLM_Helpers/audits/audit_define_timing.py --define SAS_UI_FONT_LABEL
 ```
 
 #### `audit_define_keys.py`
@@ -1085,10 +1102,14 @@ python LLM_Helpers/desktop/desktop_windows.py click --pid 15692 963 809
   - Each layout sits on one line, unlike program-written JSON such as the Runtime files, so the layouts line up like table rows and a re-measure edits one line.
   - Keeping them as data means re-measuring edits no code. Each run reads the file at its start, so a fixed layout applies from the next send on, while code another agent is running, such as a background `--wait-reply`, is left alone.
   - `--check-box` reports the layout picked and whether the message box is empty, without sending; run it after moving a window or updating an app.
+  - The check fails closed. Any candidate area holding more than 5 dark pixels means a draft. "Empty" needs exactly one area whose `frame`, the composer's measured top border, is in place and whose placeholder gray starts at the area's left edge. Anything else stops the send, asking for a new measurement.
+    - Example (2026-11-26): after the user changed the apps' zoom, Claude's old area caught the + button and the caret, so an empty box read as 6 dark pixels and held Codex's reply, while Codex's old area lay below its text line, where a short draft would have read as empty and been pasted over.
+    - A first fix picked the area holding the most ink; Codex's review (GPT-6.2-Sol) showed that ink is not identity, as a gray toolbar could outscore the real line holding a short draft, hence the frame. Fixtures in [`test_agent_message_box.py`](/.github/workflows/tests/repository/test_agent_message_box.py) cover these cases.
 - **Re-measuring a layout:** app updates, a new screen or window size, or an opened panel can move the message box. When `--check-box` finds no layout, reads an empty box as not empty, or a send lands wrong:
   1. Screenshot the bottom of the window, e.g. `desktop_windows.py screenshot --pid PID --crop 0 1850 WIDTH 2110 --scale 0.5`. The printed `window=` rectangle gives the outer width.
   2. Find the placeholder text in the empty box ("Work with Codex", "Enter to send…"). `box` is a point on that line; `text` runs from about 20 px right of where the text starts, past the blinking cursor, to just left of the buttons, about 25 px above and below the line. Scale crop coordinates back up and add the crop's offset.
-  3. Update or add the layout in `app_layouts.json`: `width`, `box`, `text`, `measured` (the date) and `conditions` (screen, panels, app version). No code change is needed.
+  3. Update or add the layout in `app_layouts.json`: `width`, `box`, `text`, `frame`, `measured` (the date) and `conditions` (screen, panels, app version, zoom). No code change is needed.
+     - The Claude app shows its zoom at the bottom right when a zoom shortcut is pressed, with steps of 100, 110, 120, 131 and 144% seen on 2026-11-26; Codex shows it at the top right after a View > Zoom choice, 150% that day.
   4. Check it: `--check-box` should report the layout and an empty box. To check that text is noticed too, paste a word with `desktop_windows.py paste` without sending, run `--check-box` again, then clear the box with `key ctrl+a` and `key backspace`.
 - `--start` opens the target app when it has no window, then sends; with no message it only opens it. Added on 2026-11-15, when the user closed Codex and asked that agents be able to reopen it rather than ask.
   - Store apps have no stable `.exe` path, as `WindowsApps` holds a folder per version, so it opens them through `explorer.exe` and `shell:AppsFolder` with each app's AppUserModelID, kept as `launch` in `app_layouts.json` (from PowerShell `Get-StartApps`; Codex lists as ChatGPT, package `OpenAI.Codex`).
@@ -1217,7 +1238,7 @@ python LLM_Helpers/desktop/contact_sheet.py --out captures/sheet.png --columns 3
 
 [`summarize_first_city_scouting.py`](/LLM_Helpers/diagnostics/summarize_first_city_scouting.py) streams one or many opening SGR logs and optionally pairs BBAI logs by process identity and load ordinal. This turns first-capital scouting traces into reviewable summaries across test maps, without adding runtime work or log rows. It covers initial Settlers, not general Scout/Explorer efficiency.
 
-- Record with `SAS_SGR_LOG_ON=1` and `SAS_SGR_LOG >= 2` for unit IDs and observed scouting origins. Optional `SAS_BBAI_LOG_ON=1` and `SAS_BBAI_SETTLER_1ST_LOG=3` add selected-candidate reveal estimates; full FOUND scoring is not required. Set controls before launch and leave shipping defaults disabled.
+- Record with `SAS_SGR_LOG_ON=1` and `SAS_SGR_LOG >= 2` for unit IDs and observed scouting origins. Optional `SAS_BBAI_LOG_ON=1` in the XML and `SAS_BBAI_SETTLER_1ST_LOG = 3` in `SASLiveDefineOverrides.txt` add selected-candidate reveal estimates; full FOUND scoring is not required. Set controls before launch and leave shipping defaults disabled.
 - Pass SGR paths or quoted globs; repeat `--bbai` for BBAI paths/globs. Extract archived logs first. A separate file is required per session. New/load headers identify sessions; absent or ambiguous matches remain explicitly unpaired.
 - Observed A-B-A origins and revisits are review flags. Requested endpoints alone do not establish arrival. Return-to-found actions remain separate; there is no arbitrary universal founding-time cutoff.
 - Positive estimated information with zero oracle reveals identifies a scoring discrepancy worth inspecting. Oracle counts are pre-move diagnostic estimates, not measured reveals caused by that unit. BBAI lacks unit IDs here, so those selections remain player-level evidence.

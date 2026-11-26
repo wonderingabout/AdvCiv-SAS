@@ -907,6 +907,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
 	// <!-- custom: Optionally upscale hover help text via a SAS font define (Claude code Opus 4.6 + Claude code Opus 5.5) -->
 	if (!szBuffer.isEmpty())
 	{
+		// <!-- custom: Was a function-local static, which kept the first value, so a size set in SASLiveDefineOverrides.txt during play never showed; the enum cache, which the bridge's setDefineINT refreshes, brings it to the next hover. See KI#128.5. (Claude code Opus 5.5) -->
 		// <!-- custom: Reads the label size since 2026-11-26: hover text had its own define with the same value, retired as it named where text shows rather than its role.
 		// See Docs/Deprecated/global_define_names.md. (Claude code Opus 5.5) -->
 		int const iFontSize = GC.getDefineINT(CvGlobals::SAS_UI_FONT_LABEL);

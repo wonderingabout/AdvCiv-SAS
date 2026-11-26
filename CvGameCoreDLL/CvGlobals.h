@@ -412,6 +412,7 @@ public:
 		DO(SAS_CITY_LONG_TERM_WW_DIST_OVERRIDE_ON) \
 		DO(SAS_CULT_PROCESS_MIN_PRESSURE_FACTOR) \
 		DO(SAS_TECH_VAL_MILIT_FLAVOR_MIN) \
+		/* <!-- custom: The label font size, read with each hover and label; SASLiveDefineOverrides can change it during play with setDefineINT, which refreshes this entry, where a static would keep the first value. See KI#128.5. (Claude code Opus 5.5) --> */ \
 		DO(SAS_UI_FONT_LABEL) \
 		DO(SAS_UWAI_VICT_DENY_ON) \
 		DO(SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS) \

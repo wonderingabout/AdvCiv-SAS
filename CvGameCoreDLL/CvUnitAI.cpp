@@ -6680,8 +6680,8 @@ int CvUnitAI::AI_currEffectiveStr(CvPlot const* pPlot, CvUnit const* pOther, boo
 		evaluating imminent stack-on-stack combat. When we already know that
 		a stack of stronger units is facing a larger stack of weaker units
 		we need to assume a high chance of having to fight multiple enemies in a row. */
-	static scaled const rExponent = scaled::max(1,
-			fixp(3/4.) * per100(GC.getDefineINT(CvGlobals::POWER_CORRECTION)));
+	// <!-- custom: Collapsed onto one line, so a grep finds the static with its define read; cpp_define_reads_cached.py flags a static wrapped onto a later line since 2026-11-26. (Claude code Opus 5.5) -->
+	static scaled const rExponent = scaled::max(1, fixp(3/4.) * per100(GC.getDefineINT(CvGlobals::POWER_CORRECTION)));
 	static scaled const rNormalizationFactor = (rExponent < fixp(1.05) ? 1 :
 			// Pretty arbitrary; only need to weigh rounding errors against the danger of overflow.
 			25000 / scaled(10000).pow(rExponent));

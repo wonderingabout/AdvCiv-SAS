@@ -195,6 +195,17 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 
+	<!-- custom: 1 lets SASLiveDefineOverrides/SASLiveDefineOverrides.txt override SAS defines while Civ4 runs, so a value such as a font size can be tried without a restart; each line there wins over this file, and deleting it brings this file's value back.
+	0 never reads that file, and every define keeps this file's value; shipped lines there equal this file's values, so the game is the same either way, without live edits.
+	Read once, at the bridge's first load. See KI#128.5. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_LIVE_DEFINE_OVERRIDES_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: The four font sizes below are set in SASLiveDefineOverrides/SASLiveDefineOverrides.txt, whose shipped lines win over this file, even after a restart, and apply during play; this file keeps the value a deleted line returns to. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	<!-- custom: shared UI tiny font size used for compact labels where screen space is limited.
 	Keep in [1..4] (GPT-5.3-Codex).
 	Base Civ4 Font size: 1. -->
@@ -2196,14 +2207,16 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 	<!-- custom: BBAI log levels were hidden in base AdvCiv's CvGameCoreDLL/BBAILog.h, so enabling BBAI logging (LOG_AI / LOG_FOUND_VALUE), disabling it again, or adjusting its detail required a DLL edit and recompile.
-	AdvCiv-SAS exposes them as XML-tunable SAS defines instead, so a DLL modification and recompile are no longer needed; restart Civ4 to apply changes. (GPT-5.5?); Long_Comments_XML.txt #376. -->
+	AdvCiv-SAS exposes them as XML-tunable SAS defines instead, so a DLL modification and recompile are no longer needed; restart Civ4 to apply a change of SAS_BBAI_LOG_ON, while the category levels change during play through SASLiveDefineOverrides.txt, as below. (Claude code Opus 5.5 + GPT-5.5?); Long_Comments_XML.txt #376. -->
 	<!-- custom: Master switch for classic BBAI AI-decision diagnostics.
 	0 disables the SAS_BBAI_* diagnostic categories regardless of their levels below; 1 uses those category levels.
 	The independent SAS_SGR_* report can still run with this disabled. (GPT-5.5? + GPT-5.5 + GPT-6.1-Sol (define-name update)) -->
+	<!-- custom: Since 2026-11-26, 1 starts the session's BBAI file even with every category at 0, which then logs nothing until a category is raised, such as through SASLiveDefineOverrides midway through a test; before, such a session wrote no file. See KI#128.5. (Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_BBAI_LOG_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: BBAI's category levels below are set in SASLiveDefineOverrides/SASLiveDefineOverrides.txt, whose shipped lines win over this file, even after a restart, and apply during play, while SAS_BBAI_LOG_ON above stays here, read at startup; this file keeps the value a deleted line returns to. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	<!-- custom: Log levels: 0=None, 1=important decisions only, 2=many decisions, 3=all logging. (GPT-5.5?) -->
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
 	<Define>

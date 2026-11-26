@@ -59,6 +59,10 @@ import BugUtil
 # <!-- custom: Route shared visual resources through the centralized SASVisualUtils namespace after retiring overlapping helper/cache imports; keep one canonical visual-resource boundary. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 import SASTextScale
+# <!-- custom: The shared cached read of SAS defines that SASLiveDefineOverrides can change, used for the Leader item-list widths. See KI#128.5. (Claude code Opus 5.5) -->
+import SASCurrentDefines
+# <!-- custom: pediaJump rereads SASLiveDefineOverrides and rebuilds the layout when it changed a define, such as the label font size the layout is sized from. See KI#128.5. (Claude code Opus 5.5) -->
+import SASLiveDefineOverridesBridge
 from SASUtils import getInfoTypeOrFail
 from SASMagicNumbers import *
 
@@ -118,6 +122,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# SAS had already set the margins to 0, "Other mods use the entire screen for the sevopedia, tested removing margins and i like it very much so removed them now.", and supports nothing below 1920 x 1080, so the frame was always the resolution; the 1024 x 768 start, margins and wide/full-screen flags are removed. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		self.SAS_iBuiltXRes = self.getScreen().getXResolution()
 		self.SAS_iBuiltYRes = self.getScreen().getYResolution()
+		# <!-- custom: The SASLiveDefineOverrides change count this layout was built from; pediaJump rebuilds when it changes, as it does for the resolution. (Claude code Opus 5.5) -->
+		self.SAS_iBuiltSASLiveDefineOverridesChangeCount = SASLiveDefineOverridesBridge.getChangeCount()
 		self.W_SCREEN = self.SAS_iBuiltXRes
 		self.H_SCREEN = self.SAS_iBuiltYRes
 
@@ -390,7 +396,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		)
 
 		# <!-- custom: Cache Sevopedia grouping/layout defines on screen construction; shared highlight colors are resolved by SASVisualUtils instead of a screen-owned color cache. (GPT-6.1-Sol) -->
-		# <!-- custom: Read once per screen instance: SAS_rebuildForResolution re-runs __init__ on this same object at a new resolution, and these XML settings are treated as fixed in normal play, so the values derived from them are kept rather than read again.
+		# <!-- custom: Read once per screen instance: SAS_rebuildLayout re-runs __init__ on this same object at a new resolution, and these XML settings are treated as fixed in normal play, so the values derived from them are kept rather than read again.
 		# The attributes survive the re-run, so they are the cache; the sentinel is the last one set, so a run cut short does not mark the block done.
 		# Unlike the main interface, whose raw define values are kept apart from the values it scales to the resolution, these are used as read. See KI#123.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		if not hasattr(self, "IS_SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY"):
@@ -403,11 +409,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			self.IS_SAS_SEVO_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_PROJECTS_GROUP_BY_ERA") > 0)
 			self.IS_SAS_SEVO_ROUTES_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_ROUTES_GROUP_BY_ERA") > 0)
 			self.SAS_SEVO_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVO_MUSIC_ITEMS_WIDTH")
-			self.SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH")
-			self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1 = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1")
-			self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2 = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2")
-			self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3 = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3")
-			self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4 = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4")
+			# <!-- custom: The five Leader item-list widths were kept here as attributes; SAS_getLeaderItemsWidthByCurrentUIFont now reads them through SASCurrentDefines, as a prototype of its shared cache, so an override reaches the next layout. See KI#128.5. (Claude code Opus 5.5) -->
 			self.IS_SAS_SEVO_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVO_SPECIALISTS_GROUP_BY_TYPE") > 0)
 			self.IS_SAS_SEVO_BONUSES_GROUP_BY_IMPROVE = (gc.getDefineINT("SAS_SEVO_BONUSES_GROUP_BY_IMPROVE") > 0)
 			self.IS_SAS_SEVO_IMPROVES_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVO_IMPROVES_GROUP_BY_TERRAIN") > 0)
@@ -787,8 +789,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	# Every opening, link and Back/Next goes through pediaJump, so it compares the resolution there, two cheap calls, and re-runs __init__ on a change: the same object, which CvScreensInterface's input maps keep, with Back/Next history and active player carried over.
 	# Codex's (GPT-6.2-Sol) review found two cases: an open movie or music player would be forgotten by the new page objects, so they are closed first; and with the screen still active, createScreen would be skipped, so the rebuild waits for the next opening.
 	# Note: pediaJump also closes both players on every navigation, a few lines after its rebuild check, so the close here is redundant there; it is kept so the rebuild stays safe from any other caller, and moving the check below that close would need a new in-game test for no change in behaviour. See KI#123.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-	def SAS_rebuildForResolution(self, iNewW, iNewH):
-		CvUtil.pyPrintRecord("SEVOPEDIA_RESOLUTION_CHANGE", "fromW=%d fromH=%d toW=%d toH=%d" % (self.SAS_iBuiltXRes, self.SAS_iBuiltYRes, iNewW, iNewH))
+	# <!-- custom: Was SAS_rebuildForResolution, which also logged the resolution change; a change of SASLiveDefineOverrides rebuilds through it too, so each caller logs its own reason. (Claude code Opus 5.5) -->
+	def SAS_rebuildLayout(self, bRereadDefines=False):
+		# <!-- custom: bRereadDefines drops the sentinel of the define block in __init__, so it reads its defines again: a rebuild after an override left the Leader widths at their old values, as Codex's review (GPT-6.2-Sol) found; a resolution change keeps them, as before. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if bRereadDefines and hasattr(self, "IS_SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY"):
+			del self.IS_SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY
 		if self.pediaMovies.isMoviePlayerOpen():
 			self.pediaMovies.leaveMoviePlayer()
 		if self.pediaMusic.isMusicPlayerOpen():
@@ -803,8 +808,20 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen = self.getScreen()
 		iNewW = screen.getXResolution()
 		iNewH = screen.getYResolution()
-		if (iNewW != self.SAS_iBuiltXRes or iNewH != self.SAS_iBuiltYRes) and not screen.isActive():
-			self.SAS_rebuildForResolution(iNewW, iNewH)
+		# <!-- custom: The Sevopedia asks the bridge to reread its overrides at each jump because it can be opened from the main menu, where no game update runs the bridge's own reread.
+		# Other readers do not need such a call: during play the bridge rereads by itself, and the bridge alone applies and logs a change. See KI#128.5. (Claude code Opus 5.5) -->
+		iSASLiveDefineOverridesChangeCount = SASLiveDefineOverridesBridge.refresh()
+		# <!-- custom: Pages copy widths in __init__ (Codex's review, GPT-6.2-Sol), so a change of overrides rebuilds the layout as a resolution change does, at the next click even with the Sevopedia open.
+		# Only the resolution change is logged here, being the Sevopedia's own; logging overrides in each reader would scatter their history, as the user pointed out. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if not screen.isActive():
+			if iNewW != self.SAS_iBuiltXRes or iNewH != self.SAS_iBuiltYRes:
+				CvUtil.pyPrintRecord("SEVOPEDIA_RESOLUTION_CHANGE", "fromW=%d fromH=%d toW=%d toH=%d" % (self.SAS_iBuiltXRes, self.SAS_iBuiltYRes, iNewW, iNewH))
+				self.SAS_rebuildLayout()
+			elif iSASLiveDefineOverridesChangeCount != self.SAS_iBuiltSASLiveDefineOverridesChangeCount:
+				self.SAS_rebuildLayout(True)
+		elif iSASLiveDefineOverridesChangeCount != self.SAS_iBuiltSASLiveDefineOverridesChangeCount:
+			screen.hideScreen()
+			self.SAS_rebuildLayout(True)
 		# <!-- custom: note: fixed a (seemingly base advciv) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed so reverted everything as base advciv code was minus this extra code comment, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or KI#22 for details as well. -->
 		# <!-- custom: Close the media overlay when a title or queue link actually navigates.
 		# Waiting for a named table event can miss the jump and leave the timer writing to a hidden screen.
@@ -2679,18 +2696,20 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: Advisors currently meet the same limit: at 1920 px and font 4 the scoreboard needs more width than they leave it, while 2560 px has room for both.
 		# The resolution considerations were first written above getAdvisorScoreboardSpace in SASUtils.py (2026-11-20). See KI#1103. (Claude code Opus 5.5) -->
 		# <!-- custom: nonpositive cutoff disables wide-screen reduction; without the positive guard every normal resolution met a 0/-1 cutoff and forced base width, reversing the documented setting. See KI#230. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		if (self.SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH > 0) and (self.getScreen().getXResolution() >= self.SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH):
+		# <!-- custom: Read through SASCurrentDefines, whose cache SASLiveDefineOverrides empties on a change, instead of attributes set once in __init__. See KI#128.5. (Claude code Opus 5.5) -->
+		iFullMinWidth = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH")
+		if (iFullMinWidth > 0) and (self.getScreen().getXResolution() >= iFullMinWidth):
 			return self.SAS_W_ITEMS_BASE
 
 		iLabelFont = SASTextScale.getSASUIFontLabel()
 		if iLabelFont <= 1:
-			iWidth = self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
+			iWidth = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1")
 		elif iLabelFont == 2:
-			iWidth = self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2
+			iWidth = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2")
 		elif iLabelFont == 3:
-			iWidth = self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3
+			iWidth = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3")
 		else:
-			iWidth = self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4
+			iWidth = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4")
 		if iWidth <= 0:
 			return self.SAS_W_ITEMS_BASE
 		return iWidth

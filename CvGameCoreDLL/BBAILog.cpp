@@ -94,7 +94,38 @@ void cacheSASBBAILogSettings()
 		if (iLogLevel > 0)
 			bAnyCategoryEnabled = true;
 	}
-	kSettings.bEnabled = (bMasterEnabled && bAnyCategoryEnabled);
+	kSettings.bAnyCategoryEnabled = bAnyCategoryEnabled;
+	// <!-- custom: The master alone now starts the session file: it was master and any category above 0, so a master of 1 with every category at 0 wrote no file, and a category overridden on during play had nowhere to write, as Codex's review (GPT-6.2-Sol) noted.
+	// The user wanted categories at 0 to be valid under an armed master, logging nothing until one is raised, such as midway through a test or for a comparison; such a session's file holds its lifecycle, provenance, settings and RNG-state rows, but no category's rows. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	kSettings.bEnabled = bMasterEnabled;
+}
+
+// <!-- custom: Refills the category levels after SASLiveDefineOverrides changes a define, as cacheSASBBAILogSettings copies them once at XML load; the bridge reaches it through CyGlobalContext::onSASLiveDefineOverridesApplied.
+// Only while BBAI logging was on at load, keeping SAS_BBAI_LOG_ON and bEnabled as they were: they decide at load whether a session file starts, and callers gate on the levels alone, so a level turned on without one would write before any file starts. See KI#128.5. (Claude code Opus 5.5) -->
+void refreshSASBBAILogLevels()
+{
+	if (!isSASBBAILogEnabled())
+		return;
+	CvString szChanges;
+	bool bAnyCategoryEnabled = false;
+	int const iCategoryCount = getSASBBAILogCategoryCount();
+	for (int iI = 0; iI < iCategoryCount; iI++)
+	{
+		SASBBAILogCategoryDescriptor const& kCategory = aSASBBAILogCategories[iI];
+		int& iLogLevel = gSASBBAILogSettings.*(kCategory.pLogLevel);
+		int const iNewLevel = getClampedSASBBAILogLevel(kCategory.szDefineName);
+		if (iNewLevel > 0)
+			bAnyCategoryEnabled = true;
+		if (iNewLevel == iLogLevel)
+			continue;
+		appendSASDiagnosticListValue(szChanges, CvString::format("%s:%d->%d", kCategory.szDefineName, iLogLevel, iNewLevel).GetCString());
+		iLogLevel = iNewLevel;
+	}
+	gSASBBAILogSettings.bAnyCategoryEnabled = bAnyCategoryEnabled;
+	// <!-- custom: The file records its levels in BBAI_LOG_SETTINGS when a session starts, so a change is written here too, or the file would misstate its own levels; before the first session starts, that session's BBAI_LOG_SETTINGS row shows the new levels.
+	// Gated on a started session rather than isFinalInitialized, as a first draft was: Codex's review (GPT-6.2-Sol) found that saved game state is true during a load before the file rotates, and false after a new game's file has already written its settings. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if (!szChanges.empty() && getSASBBAILogSessionSequence() > 0)
+		logBBAI("BBAI_LOG_SETTINGS_CHANGED changes=%s", szChanges.GetCString());
 }
 
 // <!-- custom: Keep each supporting option's XML lookup and normalization in one reader, shared by its runtime cache and the session profiles.
@@ -244,6 +275,7 @@ CvString getSASBBAILogProfileFields()
 	// Re-read the same registered Defines once per SASGameRecord session so the profile preserves what was configured as well as whether any category can actually run. (ChatGPT-5.6-Sol) -->
 	CvString szConfiguredLevels;
 	CvString szEffectiveLevels;
+	bool bAnyCategoryEffective = false;
 	int const iCategoryCount = getSASBBAILogCategoryCount();
 	for (int iI = 0; iI < iCategoryCount; iI++)
 	{
@@ -253,11 +285,15 @@ CvString getSASBBAILogProfileFields()
 		int const iEffectiveLevel = gSASBBAILogSettings.*(kCategory.pLogLevel);
 		appendSASDiagnosticListValue(szConfiguredLevels, CvString::format("%s:%d", szToken.GetCString(), iConfiguredLevel).GetCString());
 		if (iEffectiveLevel > 0)
+		{
 			appendSASDiagnosticListValue(szEffectiveLevels, CvString::format("%s:%d", szToken.GetCString(), iEffectiveLevel).GetCString());
+			bAnyCategoryEffective = true;
+		}
 	}
 	CvString szFields;
+	// <!-- custom: bbaiAnyCategoryEffective is counted from the levels here, as isSASBBAILogEnabled() now follows the master alone; the field keeps its meaning. See KI#128.5. (Claude code Opus 5.5) -->
 	szFields.Format("bbaiMasterEnabled=%d bbaiAnyCategoryEffective=%d bbaiConfiguredLevels=%s bbaiEffectiveLevels=%s %s",
-		isSASBBAILogMasterEnabled(), isSASBBAILogEnabled(), getSASDiagnosticOrDash(szConfiguredLevels.GetCString()),
+		isSASBBAILogMasterEnabled(), bAnyCategoryEffective, getSASDiagnosticOrDash(szConfiguredLevels.GetCString()),
 		getSASDiagnosticOrDash(szEffectiveLevels.GetCString()), getSASBBAILogSupportingProfileFields().GetCString());
 	return szFields;
 }

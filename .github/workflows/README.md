@@ -112,6 +112,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`lib/git_context.py`](#libgit_contextpy)
     - [`lib/reference_spellings.py`](#libreference_spellingspy)
     - [`lib/revision_history.py`](#librevision_historypy)
+    - [`lib/sas_live_define_overrides_file.py`](#libsas_live_define_overrides_filepy)
     - [`lib/xml_defines.py`](#libxml_definespy)
   - [Source](#source)
     - [`build/source/advisor_scoreboard_space.py`](#buildsourceadvisor_scoreboard_spacepy)
@@ -130,6 +131,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`build/source/python_wrapper_null_args.py`](#buildsourcepython_wrapper_null_argspy)
     - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
+    - [`build/source/sas_live_define_overrides.py`](#buildsourcesas_live_define_overridespy)
     - [`build/source/sevopedia_top_attributes.py`](#buildsourcesevopedia_top_attributespy)
     - [`build/source/shared_define_values.py`](#buildsourceshared_define_valuespy)
     - [`build/source/source_change_provenance.py`](#buildsourcesource_change_provenancepy)
@@ -434,7 +436,9 @@ The lifetime rule applies from this checker's introduction; current histories ar
 
 Existing event boundaries and squash intent (`[ci_squash_pr]` or local `--squash`) are reused: squash candidates validate the aggregate transition, ordinary commits retain individual references. Rewrite stale hashes and practical numbers after rebase/squash; an unchanged merge retains valid identities.
 
-The practical number in a revision heading (`### Revision N - SAS practical M`) is not checked. On 2026-11-15 all 200 finalized SGR and 18 Runtime entries matched `git rev-list --count` of their commit, so a finalized entry could be checked, but a pending one cannot: its number depends on how its branch lands.
+The practical number in a revision heading (`### Revision N - SAS practical M`) is checked for finalized entries only: it must equal `git rev-list --count` of the entry's commit. A pending one cannot be checked, as its number depends on how its branch lands.
+
+- Until 2026-11-26 no number was checked, though all had matched by hand (200 SGR and 18 Runtime entries on 2026-11-15, 214 and 19 on 2026-11-26); the user asked for the check after the SASLiveDefineOverrides work (KI#128.5) reordered its chunks before committing, which would have shifted any number written for the old order.
 
 - A squashed PR lands as one commit, a rebased or merged one keeps its commits, and a squash can sit on main's tip or replace an earlier preview of itself.
 - Example: SASPilot's SGR202 was first written as 6765, a count along its branch, then 6751 for a squash on top of main's preview commit (6750), and finally 6750 again, as the squash replaced that preview.
@@ -886,6 +890,11 @@ Verifies active text-like source/config/docs files do not mix CRLF and LF line e
 Since 2026-11-17 it also fails a text file stored with the wrong endings, LF or mixed for the CRLF kinds and CRLF or mixed for all other text.
 
 `.gitattributes` keeps theme, batch and Visual Studio files CRLF (`-text`) and all other text LF, one style per kind, stored and checked out alike. The check reads Git's own report, `git ls-files --eol`, so a Windows checkout's CRLF working files do not make it fail locally only.
+
+Since 2026-11-25 it also fails a tracked text file that Git stores LF but that is CRLF or mixed on disk, from the same report's working-file column, as Python's `write_text` leaves a file rewritten on Windows.
+
+- Git converts such a file back when staged, so commits stay clean, but an exported diff showed it ([KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097)).
+- It can fire only locally, as a fresh checkout follows `.gitattributes`.
 
 A file switched whole between LF and CRLF has no mixed endings and passes here; [`line_ending_churn.py`](#buildhygieneline_ending_churnpy) catches it per commit. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
 
@@ -1374,6 +1383,12 @@ Holds the one-token spellings of numbered references, such as `PR#50`, `KI#1104`
 
 Parses diagnostic revision history entries and validates their Change fields for the SASGameRecord and Runtime checks, and reads `[ci_squash_pr]` to tell whether a PR is intended to be squash-merged.
 
+#### `lib/sas_live_define_overrides_file.py`
+
+Reads `SASLiveDefineOverrides/SASLiveDefineOverrides.txt` with the game's own parser: it loads `Assets/Python/SASLiveDefineOverridesBridge.py` with stand-ins for the two engine modules it imports, so CI and the game cannot disagree on what the file holds or which XML defines it may override.
+
+Used by [`build/source/sas_live_define_overrides.py`](#buildsourcesas_live_define_overridespy). See [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5).
+
 #### `lib/xml_defines.py`
 
 Reads integer and text values from Civ4 GlobalDefines XML and supports checks of staged diagnostic defaults.
@@ -1615,6 +1630,22 @@ python .github/workflows/build/source/python_wrapper_null_args.py
 Verifies runtime Python files do not add raw `getInfoTypeForString(...)` or `CvUtil.findInfoTypeNum(...)` lookups outside strict helper implementations and narrow legacy/dynamic exceptions. Use `getInfoTypeOrFail(...)` or `findInfoTypeNumOrFail(...)` for literal/static XML tag lookups so missing or renamed tags fail loudly.
 
 Python comments and string literals are ignored, so code-generation strings such as those in `savemap.py` are not flagged by this check. This allowed to [find](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27464773794/job/81185039717) this alternative lookup and that it needed an or fail handling too: now fixed.
+
+#### `build/source/sas_live_define_overrides.py`
+
+Fails when the shipped [`SASLiveDefineOverrides/SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt), which overrides SAS defines of `GlobalDefines_advciv_sas.xml` while Civ4 runs, differs from the XML or names a define its override cannot reach. See [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5).
+
+- It fails:
+  - a file the game's own parser rejects: a malformed line, a name set twice, or a name that is no integer define of the XML, which `setDefineINT` would otherwise create silently;
+  - a shipped override that differs from its XML value, so the game plays the same with the overrides on or off; a different value stays a local, unstaged experiment, so `ci_report.py` runs this check with `--staged`, which reads the values and the XML from the index and the NoEntry list and sources from the working tree;
+  - a define kept where an override cannot reach it: a module global or `self.` attribute in runtime Python, or a `static` in the DLL;
+  - a comment line in the file, which holds values only, as each define's comment stays in the XML;
+  - an override naming a define of [`SASLiveDefineOverridesNoEntry.txt`](/SASLiveDefineOverrides/SASLiveDefineOverridesNoEntry.txt), which lists each define in full with its reason, the failure printing it, in two sections: never, such as master logging switches and EXE patch settings, and not for now, read once by code that could be changed to follow an override; a `*` pattern in that file fails too, as a grep for a define must find its line.
+- Not covered: a read through a name in a variable, as `SASTextScale`'s font sizes, so such a helper clears its own cache when the bridge's change count moves; a lazy global or a `self.` cache split across lines; and defines no shipped line names.
+
+```bash
+python .github/workflows/build/source/sas_live_define_overrides.py --staged
+```
 
 #### `build/source/sevopedia_top_attributes.py`
 

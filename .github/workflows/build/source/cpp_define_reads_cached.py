@@ -26,6 +26,7 @@ from ci_markers import DEFINE_UNCACHED as MARKER
 SOURCE_DIR = Path("CvGameCoreDLL")
 SOURCE_SUFFIXES = (".cpp", ".h", ".inl")
 READ = re.compile(r'\bgetDefine(?:INT|BOOL|FLOAT|STRING)\s*\(\s*"(\w+)"')
+ENUM_READ = re.compile(r'\bgetDefine(?:INT|BOOL|FLOAT|STRING)\s*\(\s*CvGlobals::(\w+)\s*\)')
 # <!-- custom: String contents are blanked to x before this matches, so extern "C" reads as extern "x"; the first version wanted "C" and gave two functions inside an extern "C" block one region, as Codex reproduced. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 CONTAINER_HEAD = re.compile(r'(^|[\s;}])(namespace|class|struct|union|enum)\b[^;]*$|extern\s+"\w*"\s*$')
 LOOP_HEAD = re.compile(r'^\s*(for|while|do)\b')
@@ -183,6 +184,24 @@ def split_reads(text):
 	return hits
 
 
+def wrapped_statics(text):
+	# <!-- custom: A static whose define read sits on a later line than the static hides the cache from a reader of either line, and from a grep for "static" beside the define, which is how a define's kept readers are found; the user asked on 2026-11-26 for these to be flagged.
+	# The first scan found two, both inherited from AdvCiv: CvTeam.cpp's rBARBARIAN_FREE_TECH_PERCENT and CvUnitAI.cpp's rExponent, collapsed the same day.
+	# A brace table of reads, as in static const int ai[] = { ...
+	# }, may still span lines, as tables read better split (AGENTS.md's Code layout and collapsing). (Claude code Opus 5.5) -->
+	code, bare, comments = blank_source(text)
+	hits = []
+	for pattern in (READ, ENUM_READ):
+		for match in pattern.finditer(code):
+			start = statement_start(bare, match.start())
+			while start < match.start() and bare[start].isspace():
+				start += 1
+			head = bare[start:match.start()]
+			if re.match(r"(const\s+)?static\b", head) and "\n" in head and "{" not in head:
+				hits.append((text.count("\n", 0, start) + 1, match.group(1)))
+	return sorted(hits)
+
+
 def multiline_statements(text):
 	# <!-- custom: Lists each statement holding a define read that spans lines, with its first line and length, for review by hand rather than CI: on 2026-11-25 the 18 found were mostly tables, long conditions and calls carrying inherited markers, which read better split, while the short ones were collapsed and one, CitySiteEvaluator's capital building, turned out to be KI#128.4. (Claude code Opus 5.5) -->
 	code, bare, comments = blank_source(text)
@@ -288,6 +307,8 @@ def main(argv=None):
 		text = read_source(path)
 		for line, name in uncached_reads(text):
 			errors.append("%s:%d: %s is read by name outside a static; cache it, or say why it runs once or rarely with a %s comment in the function" % (path.relative_to(args.repo_root).as_posix(), line, name, MARKER))
+		for line, name in wrapped_statics(text):
+			errors.append("%s:%d: the static holding %s continues onto a later line; put the static and its define read on one line, so a grep for either finds the cache" % (path.relative_to(args.repo_root).as_posix(), line, name))
 		for line, name in split_reads(text):
 			errors.append("%s:%d: the read of %s is split across lines; keep getDefine...(\"%s\") on one line so a grep finds it" % (path.relative_to(args.repo_root).as_posix(), line, name, name))
 	source = args.repo_root / SOURCE_DIR

@@ -208,6 +208,21 @@ def stored_crlf_issues(repo_root: Path) -> list[EolIssue]:
 	return issues
 
 
+def worktree_eol_issues(eol_report: str) -> list[EolIssue]:
+	# <!-- custom: A tracked text file stored LF but written CRLF or mixed on disk, as Python's write_text or open(..., "w") leaves it on Windows: Git turns it back to LF when staged, so commits stay clean, but anything reading the working file, such as an exported diff, shows CRLF.
+	# On 2026-11-25 six files rewritten that way reached the user's exported diff, and no check said so; the user asked for one that catches it locally.
+	# It reads Git's own report (git ls-files --eol, column w/), so it can only fire locally, as a fresh checkout follows .gitattributes.
+	# The kinds marked -text there stay CRLF and are left to stored_crlf_issues; a file not yet tracked is not covered. See KI#1097. (Claude code Opus 5.5) -->
+	issues = []
+	for line in eol_report.splitlines():
+		info, _, path = line.partition("\t")
+		fields = info.split()
+		working = fields[1] if len(fields) > 1 else ""
+		if "attr/-text" not in info and working in ("w/crlf", "w/mixed"):
+			issues.append(EolIssue(Path(path), "working file is %s while Git stores it LF; rewrite it with LF line endings (fix_line_endings.py), as Git converts it only when staged" % working[2:].upper()))
+	return issues
+
+
 def check_line_endings(repo_root: Path) -> tuple[list[EolIssue], str]:
 	failures: list[EolIssue] = []
 	candidate_files, scan_mode = iter_candidate_files(repo_root)
@@ -216,6 +231,9 @@ def check_line_endings(repo_root: Path) -> tuple[list[EolIssue], str]:
 		failures.extend(check_file(repo_root, path))
 
 	failures.extend(stored_crlf_issues(repo_root))
+	result = subprocess.run(["git", "-c", "core.quotepath=off", "ls-files", "--eol"], cwd=repo_root, capture_output=True)
+	if result.returncode == 0:
+		failures.extend(worktree_eol_issues(result.stdout.decode("utf-8", errors="replace")))
 	return failures, scan_mode
 
 

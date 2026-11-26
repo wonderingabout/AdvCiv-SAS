@@ -51,19 +51,23 @@ New mechanics as well, including but not only:
 
 Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, the new Marsh feature that holds fertile Grassland hostage for development, the new Peat bonus that gives some Marshes production, and occasionally more when a Marsh is drained, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
 
-Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate logs.
+Many practical changes are made. For example, base AdvCiv kept its BBAI logging levels in the DLL's `BBAILog.h`, so turning a log on or off meant editing and recompiling the DLL; like many other settings, they moved to SAS defines in the XML, so they are now easily tunable. This is deemed valuable not only for modders but also for users, who can now view or generate logs.
 
-Since BBAI log files are usually very long, we generally give them to external LLMs like ChatGPT, whose separate analysis may also give us a different point of view/review from local coding agents (e.g., Codex, Claude Code).
+Some settings, as of now BBAI's log categories and the font sizes, can also be changed while Civ4 runs, without a restart ([Live define overrides](/README.md#live-define-overrides)).
 
-Note: they are now optionally written to a new timestamped file for each new game or loaded save (e.g., `BBAI_<UTC>_<pid>_new1.log` or `SASGameRecord_20261110T165714Z_26088_load1.log`, named by time and process ID) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4.
+BBAI logs are on the heavier side, sometimes several GB (if not more), and rarely needed, so turning a category on or off during play is very handy for agents' AI audits, as is trying font sizes for UI audits or for players tuning the UI.
 
-Each log begins with the new/load lifecycle marker, shared mod/source commit/version and exact DLL-binary identity, currently active BBAI log levels, and then game settings to help doing that.
+We also added more systematic logs, compact yet thorough, such as SASGameRecord (sometimes called SGR, or SAS Game Record), written as `SASGameRecord_*.log`.
 
-A separate SASGameRecord (sometimes called SGR, or SAS Game Record) log, written as `SASGameRecord_*.log`, can also be enabled notably for compact autoplay / AI-benchmark review, recording what happened across the run (economy, expansion, city and battle history, worked plots, diplomacy, initial map/landmass geography, etc.) or to give more gameplay context to complement BBAI's detailed decision traces. Current recorder settings use the greppable `SAS_SGR_*` define family.
+It currently acts like a game's black box: switched on and left on, it records what happened across the run (economy, expansion, city and battle history, worked plots, diplomacy, initial map/landmass geography, etc.), notably for compact autoplay / AI-benchmark review, or to give more gameplay context to complement BBAI's detailed decision traces. Current recorder settings use the greppable `SAS_SGR_*` define family.
 
 It notably also preserves exact high-level AI strategy, victory-route stage and team worst-enemy transitions alongside periodic checkpoints, making shifts in long-term AI intent and diplomatic alignment easier to line up with production, diplomacy and war outcomes without enabling every detailed BBAI category.
 
 This is an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
+
+Note: BBAI and SASGameRecord logs are now optionally written to a new timestamped file for each new game or loaded save (e.g., `BBAI_<UTC>_<pid>_new1.log` or `SASGameRecord_20261110T165714Z_26088_load1.log`, named by time and process ID) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4.
+
+Each log begins with the new/load lifecycle marker, shared mod/source commit/version and exact DLL-binary identity. BBAI's then gives its active log levels and the game settings; SASGameRecord's currently gives more, notably its detail level and switches, the session's settings, and the starting map, war and RNG baselines.
 
 Another significant logging improvement is "flushing":
 
@@ -82,6 +86,9 @@ Additional LLM/agent instrumentation extends this "open brain" view: users and A
 - `SASRuntimeExit_*.json` helps catch failures missed by in-game hooks, such as crashes after live Python/XML edits or DLL/EXE failures. A hidden Windows watcher records recognized runtime-error or crash-dump dialogs while Civ4 is still alive, then its eventual exit time/code.
 - `SASRuntimeScreenshotObserver.ps1` records newly observed screenshot files in `SASRuntimeScreenshots_*.jsonl`, with timestamps, image dimensions and available game context to help find captures from a run.
 - `CvGameCoreDLL.dll.build.json` provides the build-side counterpart: users and AI/LLM agents can follow compilation status and review source/configuration, selected compiler/linker versions, timing, warnings/errors and DLL identity, alongside the enriched `AdvCiv.log` with full compiler output and build summaries.
+- [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) works the other way: it changes some settings while Civ4 runs without a restart, which suits agents that run Civ4 more or less continuously (see [Live define overrides](/README.md#live-define-overrides)).
+  - For example, a UI font audit tries sizes one after another, and a sparse AI audit turns one BBAI log category on for the stretch it studies and off again, each watched in the logs and status files above, with no tedious restart between steps; players can tune the UI, such as upscaling its fonts, the same way.
+  - On top of the permanent ones, overrides may have other uses, such as temporarily setting an AI tunable live for fine-tuning or audits, toward its best value, without tedious restarts, then writing the settled value back to the XML; this works for a define whose code reads it at each use.
 
 Together with live-readable BBAI and SASGameRecord logs, richer and more searchable UWAI diagnostics integrated into BBAI and controlled through SAS defines, enriched compiler logs and embedded DLL provenance, these make it easier to follow runs, investigate problems, and connect observations to the code and binary being tested.
 
@@ -275,6 +282,7 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;&emsp;[SAS_Parallel_Lines](/README.md#sas_parallel_lines)\
 &emsp;[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)\
 &emsp;[New .dds for mapscripts in Simple Game](/README.md#new-dds-for-mapscripts-in-simple-game)\
+[Live define overrides](/README.md#live-define-overrides)\
 [SASFastSave](/README.md#sasfastsave)\
 [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)\
 [Long Comments Archive](/README.md#long-comments-archive)\
@@ -1381,6 +1389,26 @@ Generated previews in Simple Game, three distinct scripts: BTG_Cross, Rainforest
 <img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(2).JPG" alt="1.3201_maps_simple_game (2).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(3).JPG" alt="1.3201_maps_simple_game (3).JPG" width="250"></img>
 
+## Live define overrides
+
+The XML is read once, when Civ4 starts, so trying another value of a setting cost a restart each time. That was tedious for agents and players alike when tuning or auditing the upscaled UI's font sizes, or when turning on one BBAI log category for the stretch of an audit: BBAI's logs are on the heavier side of logging, sometimes several GB, and rarely used.
+
+Changing them live continues our work against restarts, such as the screens that follow a resolution change during play ([KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123)) and the settings read at each redraw ([KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128) family).
+
+[`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) overrides settings of the XML while Civ4 runs:
+
+- Edit a line, such as `SAS_UI_FONT_LABEL = 4`, and save. During play it applies within a few seconds; it also applies at a game's start and when the Sevopedia opens a page.
+  - Supported text uses a new size on its next redraw or rebuild; some elements, such as the city billboards, still need a restart.
+- Delete a line to bring the XML value back.
+- The shipped file lists the four font sizes and BBAI's log categories at their XML values, such as logging at 0, so the game is the same out of the box; the XML stays the home of each setting and its default. Those lines win over the XML, even after a restart, so change these settings in the file; `SAS_BBAI_LOG_ON`, which starts the BBAI file, stays in the XML.
+- On top of the permanent ones, overrides may have other uses, such as temporarily setting an AI tunable live for fine-tuning or audits, toward its best value, without tedious restarts, then writing the settled value back to the XML; this works for a define whose code reads it at each use.
+- Another setting can be added as a line. Settings that cannot change safely during a game, such as masters, startup switches, SASGameRecord and privacy opt-ins, are refused with their reason, listed in [`SASLiveDefineOverridesNoEntry.txt`](/SASLiveDefineOverrides/SASLiveDefineOverridesNoEntry.txt).
+- Each applied change, or a refused line, is logged as a `SAS_LIVE_DEFINE_OVERRIDES` row in `PythonDbg.log`; a refused file leaves the values as they were.
+- In multiplayer, each computer reads its own file at its own moment, so do not use it for settings that change the game there.
+- `SAS_LIVE_DEFINE_OVERRIDES_ON=0` in the XML turns the file off.
+
+[`SASLiveDefineOverridesBridge.py`](/Assets/Python/SASLiveDefineOverridesBridge.py) applies the file, and [`SASCurrentDefines.py`](/Assets/Python/SASCurrentDefines.py) gives Python code the current value. See [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5) for the design and its alternatives.
+
 ## SASFastSave
 
 [`SASFastSave.py`](/Assets/Python/SASFastSave.py) can preserve permanent saves at game start, game end and when autoplay stops, reducing the chance of losing a useful game or test result. These are ordinary single-player saves, separate from Civ4's rotating autosaves; SAS defines control which occasions create them.
@@ -1993,7 +2021,7 @@ Full dirty-file lists remain session-log data rather than being serialized into 
 
 #### BBAI logging and head example
 
-BBAI logs provide detailed AI-decision diagnostics whose levels can be adjusted in XML without editing/recompiling the DLL.
+BBAI logs provide detailed AI-decision diagnostics whose levels can be adjusted without editing/recompiling the DLL: `SAS_BBAI_LOG_ON` in the XML turns them on at startup, and each category's level is set in [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt), even during play.
 
 Also, several BBAI log categories were split into separate levels, making it easier to inspect only the relevant subsystem, such as workers, worker-sea / Work Boats, Settlers, overseas transport logistics, military production, spaceship production, one-copy limited-Project production, building production, war target choice, Great Generals, culture, evacuation, citizen allocation, or found-value scoring.
 
@@ -2030,6 +2058,8 @@ The DLL recorder is implemented in [`SASGameRecordLog.cpp`](/CvGameCoreDLL/SASGa
 Its Python bridge uses [`SASGameRecordConfig.py`](/Assets/Python/SASGameRecordConfig.py) for cached logging gates, [`SASGameRecordSettings.py`](/Assets/Python/SASGameRecordSettings.py) for configuration snapshots and changes, and [`SASGameRecordActions.py`](/Assets/Python/SASGameRecordActions.py) for player-action records.
 
 `SASGameRecord_*.log` is a separate compact game record for autoplay, AI-strength, and cheap wall-clock performance review. It records broadly, yet in a detailed but also compact/efficient format most of what happens in a game.
+
+It currently acts like a game's black box: unlike BBAI's heavier logs, turned on by category for an audit, it is meant to be switched on and left on, so a run that turns out interesting already has its record.
 
 For documentation, see notably also:
 

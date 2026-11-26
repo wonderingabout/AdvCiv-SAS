@@ -355,6 +355,13 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 
 ### System - Misc
 
+- (Requires AdvCiv-SAS 6869+) **Live define overrides:** change a setting while Civ4 runs, without a restart, through [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt).
+  - Why: the XML is read once at startup, so each try of a font size while tuning or auditing the upscaled UI, or each BBAI log category turned on for part of an audit, cost a restart; BBAI's logs are on the heavier side of logging, sometimes several GB, and rarely used, so a category is best on only for the stretch audited. Handy for agents and players alike.
+    - It continues our work against restarts, such as the screens that follow a resolution change during play ([KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123)) and the settings read at each redraw ([KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128) family).
+  - Edit a line, such as `SAS_UI_FONT_LABEL = 4`, and it applies within a few seconds during play, at a game's start and when the Sevopedia opens a page; delete it to bring the XML value back.
+  - On top of the permanent ones, overrides may have other uses, such as temporarily setting an AI tunable live for fine-tuning or audits, toward its best value, without tedious restarts, then writing the settled value back to the XML; this works for a define whose code reads it at each use.
+  - The shipped file holds the font sizes and BBAI's log categories at their XML values; its lines win over the XML, so these settings are changed in the file. Settings that cannot change safely during a game are refused, each with its reason in [`SASLiveDefineOverridesNoEntry.txt`](/SASLiveDefineOverrides/SASLiveDefineOverridesNoEntry.txt).
+  - [`SASLiveDefineOverridesBridge.py`](/Assets/Python/SASLiveDefineOverridesBridge.py) applies the file, and [`SASCurrentDefines.py`](/Assets/Python/SASCurrentDefines.py) gives Python code the current value. See [Live define overrides](/README.md#live-define-overrides) and [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5).
 - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-87).
 - (Requires AdvCiv-SAS 6374+) **Permanent automatic saves for ordinary play and AI Auto Play testing:**
   - Keep the beginning and outcome of a game without having to remember to save them yourself; this supports "hands-free" testing by preserving those checkpoints automatically.
@@ -771,6 +778,7 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_L
 - (Requires AdvCiv-SAS 6478+) **Disabled diagnostic logging is kept lightweight:**
   - after SASGameRecord and BBAI expanded across many more gameplay/AI paths, their effective XML log levels are cached once after all GlobalDefines/module overrides finish loading.
   - The widespread runtime gates are therefore direct cached reads rather than repeated out-of-line getter calls, while logging-only scans, snapshots, formatting, and other arguments remain pre-gated where relevant.
+  - (Requires AdvCiv-SAS 6869+) As of now, BBAI's category levels are refilled when [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) changes one, so the gates stay direct cached reads while following a change made during play.
   - Enabled diagnostic output is unchanged; ordinary games with these logs disabled avoid paying for the added diagnostic coverage.
 - (Requires AdvCiv-SAS 6598+) **Diagnostic caller pre-gating is stricter:**
   - independent BBAI/SASGameRecord compound guards lead with the cached logging gate so disabled categories short-circuit before unrelated diagnostic predicates, while existing outer gates continue to skip whole logging-only loops/setup without redundant inner level checks.
@@ -803,6 +811,7 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_L
 - **BBAI logging is now XML-tunable:**
   - BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv.
   - This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review.
+  - (Requires AdvCiv-SAS 6869+) Each category's level is set in [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt), which wins over the XML and applies during play, so a category can run only for the stretch audited; `SAS_BBAI_LOG_ON=1` in the XML starts the session's file, even with every category at 0. See [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5).
   - This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)).
   - Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give the log file to an external LLM/AI such as ChatGPT, which also gives us a different point of view/review.
 - (Requires AdvCiv-SAS 6600+) **Clearer AI city-site diagnostics (KI#505.2):**
@@ -892,6 +901,7 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_L
 
 #### SASGameRecord log
 
+- **SASGameRecord (SGR) currently acts like a game's black box:** a compact yet thorough record of what happens in a game, meant to be switched on and left on, unlike BBAI's heavier logs, turned on by category for an audit; so a run that turns out interesting already has its record.
 - **SASGameRecord (SGR) implementation:** [`SASGameRecordLog.cpp`](/CvGameCoreDLL/SASGameRecordLog.cpp) owns native row collection/formatting, with its caller interface declared in [`SASGameRecordLog.h`](/CvGameCoreDLL/SASGameRecordLog.h).
   - [`SASGameRecordConfig.py`](/Assets/Python/SASGameRecordConfig.py) shares the cached Python logging gates; [`SASGameRecordSettings.py`](/Assets/Python/SASGameRecordSettings.py) collects session configuration and later settings changes.
 - (Requires AdvCiv-SAS 6745+) **Typed chat context:** With level-2+ action tracing, SGR records the sender, target and turn when typed chat reaches the active player's message archive and matches its audience. The message body is withheld by default.
@@ -2838,7 +2848,8 @@ Assuming the calculation is correct and reliable, the higher the drive, the more
 
 ## UI
 
-- Note: a few settings still need a Civ4 restart to apply, such as Full-screen Mode, Single Unit Graphics and SAS define edits; some now no longer do, such as:
+- Note: a few settings still need a Civ4 restart to apply, such as Full-screen Mode, Single Unit Graphics and SAS define edits in the XML; some now no longer do, such as:
+  - (Requires AdvCiv-SAS 6869+) The font sizes and BBAI's log categories change during play through [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt); see **Live define overrides** under System - Misc.
   - (Requires AdvCiv-SAS 6858+) The main interface follows a resolution change in game again, as base AdvCiv's did ([KI#123.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3)).
   - (Requires AdvCiv-SAS 6857+) The Replay screen no longer needs a restart to fill the screen after a resolution change, where base AdvCiv laid it out once per session ([CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py), [KI#123.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.5)).
   - (Requires AdvCiv-SAS 6856+) The map's bonus bubbles, with any BUG Plot Indicator Size other than "BtS", are sized for the field of view in use on a game load and after a resolution change, where base AdvCiv sized them for the XML default or the previous resolution's ([KI#123.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.4)).
@@ -2893,8 +2904,9 @@ Assuming the calculation is correct and reliable, the higher the drive, the more
     - and other places where font size could be changed
   - Made some **UI adjustments when needed to accommodate the larger text**.
   - Upscaling text can be **useful for high resolution displays** (where text appears very small), but may **also improve readability at smaller resolutions** (like 1920*1080 or lower).
-  - A **simple way to upscale all text to max font size** is for example to set `SAS_UI_FONT_TINY`, `SAS_UI_FONT_BODY`, `SAS_UI_FONT_LABEL` and `SAS_UI_FONT_TITLE` all to max font size which is 4; hover text follows the label size.
+  - A **simple way to upscale all text to max font size** is for example to set `SAS_UI_FONT_TINY`, `SAS_UI_FONT_BODY`, `SAS_UI_FONT_LABEL` and `SAS_UI_FONT_TITLE` all to max font size which is 4, in [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) (Requires AdvCiv-SAS 6869+), whose lines win over the XML; hover text follows the label size.
   - See [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) and related places for the change.
+  - (Requires AdvCiv-SAS 6869+) A font size can be **tried while Civ4 runs**, without a restart, through [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt); see **Live define overrides** under System - Misc.
 - **Upscaling adjustments** include generally to expand them so text does not overflow, or notably:
   - smaller sevopedia leaders item row (else AI Personality Panel's upscaled text overfills)
   - **smaller Sevopedia speeds first column** (only at **lower resolutions** since these don't have enough horizontal room per column to show them without clipping)

@@ -314,6 +314,8 @@ def resource_environment(tree):
     env = {name: (name,) for name in ("CyGlobalContext", "CyArtFileMgr")}
     env["CyGame"] = ("CyGlobalContext", "getGame")
     env["getInfoTypeOrFail"] = ("getInfoTypeOrFail",)
+    # <!-- custom: SASCurrentDefines.getInt is a cached gc.getDefineINT since KI#128.5, so a raw read of a define it serves is the same bypass. (Claude code Opus 5.5) -->
+    env["SASCurrentDefines.getInt"] = ("CyGlobalContext", "getDefineINT")
     for node in tree.body:
         if isinstance(node, ast.Import):
             for item in node.names:
@@ -448,13 +450,16 @@ class ResourceCachePolicy:
             if not isinstance(item, ast.Assign):
                 continue
             origin = resource_origin(item.value, env)
+            # <!-- custom: A value read through SASCurrentDefines.getInt and returned is a cache contract too: SASTextScale's font getters kept the sizes in their own dict until KI#128.5 moved the cache into SASCurrentDefines, after which this check no longer derived its font rules, and a raw gc.getDefineINT('SAS_UI_FONT_BODY') passed (2026-11-26). (Claude code Opus 5.5) -->
+            shared_read = isinstance(item.value, ast.Call) and chain(item.value.func) == ["SASCurrentDefines", "getInt"]
             for target in item.targets:
                 if isinstance(target, ast.Name):
                     env[target.id] = origin
-                elif isinstance(target, ast.Subscript) and origin and (origin[0] in {"CyGlobalContext", "CyArtFileMgr", "getInfoTypeOrFail"}):
+                if (isinstance(target, ast.Subscript) and origin and (origin[0] in {"CyGlobalContext", "CyArtFileMgr", "getInfoTypeOrFail"})) or (isinstance(target, ast.Name) and shared_read):
                     # <!-- custom: Only a lookup whose result is stored in a returned cache is a replacement contract; incidental metadata reads such as trait descriptions are not equivalent to a cached trait icon. (GPT-6.1-Sol) -->
-                    cache = ast.dump(target.value)
-                    returned = any(isinstance(ret, ast.Return) and ret.value is not None and any(ast.dump(part) == cache for part in ast.walk(ret.value)) for ret in ast.walk(function))
+                    # <!-- custom: A returned name is matched by its identifier, as ast.dump keeps its Store or Load context and so never matched. (Claude code Opus 5.5) -->
+                    cache = ("name", target.id) if isinstance(target, ast.Name) else ast.dump(target.value)
+                    returned = any(isinstance(ret, ast.Return) and ret.value is not None and any((isinstance(part, ast.Name) and ("name", part.id) == cache) or ast.dump(part) == cache for part in ast.walk(ret.value)) for ret in ast.walk(function))
                     accessors = set((contracts or {}).get((function.name, cache), ()))
                     if returned and (contracts is None or not function.name.startswith("_")):
                         accessors.add(accessor)

@@ -3125,7 +3125,8 @@ void CvCityAI::AI_chooseProduction()
 	// Keep a local CvWString alive when enabled because CvCity::getName() returns by value; storing getName().GetCString() directly would leave a pointer into a destroyed temporary. (ChatGPT-5.6-Sol) -->
 	CvWString kCityNameForLog;
 	wchar const* sCityName = NULL;
-	if (gLogBBAI)
+	// <!-- custom: Gated on any category above 0 rather than on gLogBBAI, which since 2026-11-26 follows the master alone, so a master armed with every category at 0 would have localized and copied the name on every production choice for rows no category writes, as Codex's review (GPT-6.2-Sol) found; the flag is refilled with the levels, so a category turned on during play prepares the name from the next call. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if (isSASBBAILogAnyCategoryEnabled())
 	{
 		kCityNameForLog = getName();
 		sCityName = kCityNameForLog.GetCString();
@@ -21043,7 +21044,8 @@ void CvCityAI::AI_barbChooseProduction()
 	// Keep the backing string alive when enabled because getName() returns by value. (ChatGPT-5.6-Sol) -->
 	CvWString kCityNameForLog;
 	wchar const* sCityName = NULL;
-	if (gLogBBAI)
+	// <!-- custom: Gated on any category above 0 rather than on gLogBBAI, which since 2026-11-26 follows the master alone, so a master armed with every category at 0 would have localized and copied the name on every production choice for rows no category writes, as Codex's review (GPT-6.2-Sol) found; the flag is refilled with the levels, so a category turned on during play prepares the name from the next call. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if (isSASBBAILogAnyCategoryEnabled())
 	{
 		kCityNameForLog = getName();
 		sCityName = kCityNameForLog.GetCString();

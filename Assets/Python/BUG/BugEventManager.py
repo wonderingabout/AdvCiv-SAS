@@ -116,6 +116,8 @@ import SASDefineGuard
 import SASBillboardScale
 import SASBattleHistory
 import SASFastSave
+# <!-- custom: Rereads SASLiveDefineOverrides during play. See KI#128.5. (Claude code Opus 5.5) -->
+import SASLiveDefineOverridesBridge
 # <advc.007b>
 import CvUtil
 import CvScreensInterface
@@ -660,6 +662,8 @@ def configure(logging=None, noLogEvents=None):
 	# CvGame::autoSave keeps a matching warning so the tempting old location is not reused. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	g_eventManager.addEventHandler("GameStart", SASFastSave.saveGameStart)
 	g_eventManager.addEventHandler("gameUpdate", g_eventManager.onGameUpdate)
+	# <!-- custom: Rereads SASLiveDefineOverrides every few game updates during play; the first load runs in CvAppInterface.preGameStart. See KI#128.5. (Claude code Opus 5.5) -->
+	g_eventManager.addEventHandler("gameUpdate", SASLiveDefineOverridesBridge.onGameUpdate)
 	# --
 
 	# <!-- custom: scale city billboard based on SAS font body level (Claude code Opus 4.6) -->

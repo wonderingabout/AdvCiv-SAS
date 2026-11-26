@@ -87,6 +87,15 @@ class CppDefineReadsCachedTests(unittest.TestCase):
 		text = "void f()\n{\n\tstatic const int iA = GC.getDefineINT(\n\t\t\"SAS_A\");\n\tstatic const int iB = per100(\n\t\tGC.getDefineINT(\"SAS_B\"));\n}\n"
 		self.assertEqual(checker.split_reads(text), [(3, "SAS_A")])
 
+	def test_static_wrapped_onto_a_later_line_fails(self):
+		# <!-- custom: The shape of CvTeam.cpp's and CvUnitAI.cpp's inherited statics before 2026-11-26, by name and through the enum cache. (Claude code Opus 5.5) -->
+		text = 'void f()\n{\n\tstatic int const i = // advc.opt\n\t\t\tGC.getDefineINT("SAS_A");\n\tstatic int const j = g(1,\n\t\t\tGC.getDefineINT(CvGlobals::SAS_B));\n}\n'
+		self.assertEqual(checker.wrapped_statics(text), [(3, "SAS_A"), (5, "SAS_B")])
+
+	def test_static_on_one_line_and_tables_pass(self):
+		text = 'void f()\n{\n\tstatic int const i = GC.getDefineINT("SAS_A");\n\tstatic const int ai[] = {\n\t\tGC.getDefineINT("SAS_B"),\n\t\tGC.getDefineINT("SAS_C")};\n}\n'
+		self.assertEqual(checker.wrapped_statics(text), [])
+
 	def test_multiline_statements_are_listed_once(self):
 		text = "void f()\n{\n\tstatic scaled const r = per100(\n\t\tGC.getDefineINT(\"A\"));\n\tstatic const int ai[] = {\n\t\tGC.getDefineINT(\"B\"),\n\t\tGC.getDefineINT(\"C\") };\n\tint const i = GC.getDefineINT(\"D\");\n}\n"
 		self.assertEqual(checker.multiline_statements(text), [(3, 2), (5, 3)])

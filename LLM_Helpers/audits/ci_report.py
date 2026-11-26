@@ -32,7 +32,8 @@ DEFAULT_OUT = REPO / "LLM_Helpers" / "outputs" / "ci_report.txt"
 NOT_RUN = ("runtime-aip-predump-refresh.yml", "python24-compile.yml")
 PYTHON24 = Path(r"C:\Python24\python.exe")
 # <!-- custom: The checks of shipped diagnostic and hands-free defaults read staged content here, as development values usually stay enabled and unstaged. (Claude code Opus 5.5) -->
-STAGED_CHECKS = re.compile(r"(build/(?:diagnostics/(?:bbai_log|runtime_status|sas_game_record_log)|runtime/hands_free_defaults)\.py)")
+# <!-- custom: sas_live_define_overrides joined on 2026-11-25, as a local override to try a value usually stays unstaged too. (Claude code Opus 5.5) -->
+STAGED_CHECKS = re.compile(r"(build/(?:diagnostics/(?:bbai_log|runtime_status|sas_game_record_log)|runtime/hands_free_defaults|source/sas_live_define_overrides)\.py)")
 LOG_LINES = 200
 PLACEHOLDER_MESSAGE = "Local CI candidate (no commit message given)\n"
 

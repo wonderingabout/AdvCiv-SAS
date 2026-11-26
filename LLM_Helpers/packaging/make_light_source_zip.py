@@ -47,6 +47,8 @@ ASSET_SUBDIRS = (
 
 ROOT_SUBDIRS = (
     "PrivateMaps",
+    # <!-- custom: The overrides SASLiveDefineOverridesBridge.py applies on top of GlobalDefines_advciv_sas.xml during play, and the NoEntry list beside them. See KI#128.5. (Claude code Opus 5.5) -->
+    "SASLiveDefineOverrides",
     ".claude",
     ".github",
     # <!-- custom: Keep inherited docs plus the curated base-AdvCiv UI reference screenshots in external review archives. (ChatGPT-5.6-Sol) -->

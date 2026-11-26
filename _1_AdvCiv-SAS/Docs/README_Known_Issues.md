@@ -222,6 +222,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#128.2 - (Addressed inherited AdvCiv runtime-define cache risk) Nuclear effects retained first-read damage/destruction values](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.2)\
 [KI#128.3 - (Improved incomplete inherited AdvCiv caching, guarded by CI) AdvCiv cached 198 of the DLL's 467 define reads by name, its hot ones; SAS cached most of the rest, and one SAS diagnostic read its define for each plot it scanned](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3)\
 [KI#128.4 - (Fixed latent inherited AdvCiv) The AI's city-site culture estimate kept the first foreign capital's civilization-specific capital building for every civilization: a static held a value that differs per civilization, harmless only while every civilization builds the same Palace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.4)\
+[KI#128.5 - (Improved SAS) Trying another value of a SAS define, such as a font size, cost a Civ4 restart per try, as the XML is read once; SASLiveDefineOverrides.txt now overrides SAS defines on top of the XML while Civ4 runs, and deleting a line brings the XML value back](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5)\
 [KI#129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-129)\
 [KI#130 - (Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-130)\
 [KI#131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-131)\
@@ -12251,6 +12252,257 @@ Pointed out by the user; done by Claude Code Opus 5.5.
 - Same family as [KI#128.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.2), a static keeping a first-read value that can change; found while scanning multi-line statements holding define reads for [KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3).
 
 Found and fixed by Claude Code Opus 5.5, with Codex's (GPT-6.2-Sol) review.
+
+<a id="ki-128.5"></a>
+
+## KI#128.5 - (Improved SAS) Trying another value of a SAS define, such as a font size, cost a Civ4 restart per try, as the XML is read once; SASLiveDefineOverrides.txt now overrides SAS defines on top of the XML while Civ4 runs, and deleting a line brings the XML value back
+
+- Context: after the C++ define-cache audits of [KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3) and [KI#128.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.4), the work moved on to the Python layer on 2026-11-25, where how to cache define reads was still open. Its inventory counted 263 reads of 207 defines in 67 files.
+  - A small subset, 34 SAS layout values such as `SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3`, stood out: an earlier rule would make such pixel values code constants, but the user pointed out that this would scatter values that are handy to tune in one place, while keeping them as defines still cost a restart per try.
+  - So those were looked at first, together with an idea that had waited since 2026-11-10: changing defines at runtime rather than only at startup.
+- The issue: Civ4 reads `GlobalDefines_advciv_sas.xml` once at startup, so each try of a value, such as a Sevopedia width or the hover font size the DLL reads, meant a restart. Editing the XML during play was no answer either, as [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128) showed.
+  - The font upscaling work had shown the cost: adjusting a font size meant restarting Civ4 for each try, which was tedious and needless.
+- First design: move such defines out of the XML into one plain values file, `SASLiveDefinesResort.txt`, which a bridge module rereads during play. A prototype moved the five Sevopedia Leader item-list widths, then `SAS_UI_FONT_HOVER`, the first one the DLL reads.
+  - Two ideas came from SASPilot: the file sits outside `Assets`, as an edited file under `Assets` makes Civ4 reinitialize its Python, and a bridge module reads it while the game runs.
+  - Unlike SASPilot's commands it is data, not Python: Codex's review (GPT-6.2-Sol) noted that a file run as Python can do part of its work before an error stops it, so the whole file is parsed and checked before anything applies, and a bad edit is rejected and logged.
+  - No file watcher: the bridge rereads the small file and compares its whole text at each Sevopedia jump and every 20 game updates, an interval taken from SASPilot. A game update is one `CvGame::update` step, several per frame at most and none between turns or in WorldBuilder.
+    - Measured under Python 2.4, a reread cost 21 to 34 µs, and an edit applied 4.3 seconds after the save in an idle game; a shorter interval would need measuring in a foreground game and an autoplay, as the rate follows frames per second.
+    - An edit that changes only comments or line endings keeps the change count, so it rebuilds nothing; the first test raised it for a CRLF save of the same values.
+    - Comments first lived in the file with the values. Best of 5 rounds of 5,000, a reread took 21.8 µs with the 3.6 KB commented file and 21.3 µs with a 229-byte values-only one, as opening the file costs nearly all of it; a parse after a change took 12.2 µs against 5.1 µs. Comments were cheap, yet the file became values only, which CI enforces, so each define's comment has one home in the XML.
+  - `setDefineINT` updates a define and AdvCiv's enum cache, but not a function-local `static`: `CvDLLWidgetData.cpp` kept the hover size in one, so an edit never showed, and the prototype switched it to `GC.getDefineINT(CvGlobals::SAS_UI_FONT_HOVER)` at each hover; the hover size was later retired into `SAS_UI_FONT_LABEL`, below.
+  - Code that builds something once from a value rebuilds when the bridge's change count moves: `SASTextScale`'s font tags, and the Sevopedia's layout, as after a resolution change ([KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2)); with the Sevopedia open it is hidden and drawn again, and Back/Next history survives.
+  - `BugPath.getModDir()` is `None` at the main menu (`TypeError: len() of unsized object`), so the bridge builds its path from the EXE's folder and `getModPathInRoot`.
+  - Codex's review reproduced a failing setter that left part of a change applied and the file never reread, so a push that raises rolls back what it pushed and retries at the next reread.
+  - A table of bounds was added after Codex found a hover size of 5 accepted, then removed: a range belongs to the readers, and a copy in the carrier would drift from theirs. So the bridge checks only a line's form; `SASTextScale` raises on a font size outside 1 to 4, and the DLL ignores one.
+  - Codex also noted that identical files alone do not keep a multiplayer game in sync, as clients reread at different moments: a gameplay value needs a load boundary, such as loading a save, verified before anything relies on it.
+- What one home cost: with no XML value underneath, each gap needed machinery of its own.
+  - Neither tested startup hook applied the values before the main menu, BugEventManager's setup and `CvAppInterface.preGameStart` running only once a game starts, though a Sevopedia opened from the menu does. So the DLL got its own reader of the file for the hover size at XML load, and a list of its live defines in `CvGlobals.h` that CI kept equal to the bridge's.
+    - That reader took the first matching line and checked no range, unlike the bridge's parse, so the two could disagree about one file: a reason not to bring back a second parser.
+  - An empty or half-saved file would have left readers with no value, so a reread could add names but never drop one.
+  - Python readers had to call the bridge instead of `gc.getDefineINT`, and `SASTextScale` named each font size it routed, as CI wanted a quoted name in each call.
+  - About 13 CI checks and `toggle_dev_diagnostics.py` read define values from the XML only, so a moved define would drop out of them. Development values stay unstaged in any case; a Git clean filter that resets them on staging was set aside, as each clone must register it, what is staged would differ from what is seen, and shipped values would get a second home.
+  - Moving a define out and back meant rewriting XML tags and comments into one plain line and back, which the user found tedious for humans and agents alike.
+  - Scope rules followed: a value set once, such as the Sevopedia widths, and a switch read only at startup stay in the XML; the startup-only ones are listed with a reason each in a NoEntry file beside the values, a signpost the game never reads and CI enforces.
+- Next, the scope raised whether logging levels could change live; as each family would need its own rule for a level changed mid-session, the logging masters were weighed, and the levels stay on their startup path.
+  - Codex's review (GPT-6.2-Sol) kept a master where it controls a service, a dependency or a useful whole-subsystem off: `SAS_EXE_P_ON` stays as an unpatched baseline, `SAS_RUNTIME_STATUS_ON` stays as both Runtime watchers start under it, and SASGameRecord keeps its one level.
+  - `SAS_BBAI_LOG_ON` can go, in its own change, as each of its 29 category levels already switches its subject; the score interval's fallback (`BBAILog.cpp:154`), the `BBAI_LOG_SETTINGS` row and SASGameRecord's BBAI profile follow, and a local setup with the master at 0 and positive levels needs zeroing.
+- Second design, the same day: the user proposed keeping each define in both places, and Codex's review recommended the same as an override layer.
+  - Why: each define keeps its comment, its place among the related defines and its value in the XML, so nobody worries about where a comment goes or rewrites tags into one plain line and back; the CI checks that read the XML keep working, and most of the machinery above goes away. The cost is a shipped value written twice, which CI keeps equal.
+  - "Resort" fit a define moving away for a stay, which no longer happens, so the file became [`SASLiveDefineOverrides/SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt), read by [`SASLiveDefineOverridesBridge.py`](/Assets/Python/SASLiveDefineOverridesBridge.py), with [`SASLiveDefineOverridesNoEntry.txt`](/SASLiveDefineOverrides/SASLiveDefineOverridesNoEntry.txt) beside it.
+  - The XML stays the home of every define, its value and comment. A `SAS_NAME = integer` line in the file wins while Civ4 runs, and deleting it pushes the XML file's value back.
+  - The bridge pushes every override with `setDefineINT`, so any reader that asks at each use, in the DLL or through Python's `gc.getDefineINT`, sees it with no code for that define. The DLL's reader of the file, its separate list, the bridge's own read functions and the no-drop rule went away, and the hover size now sits beside the label size in `DO_FOR_EACH_SAS_SHARED_GLOBAL_DEFINE`.
+  - Only a reader that keeps a value needs care, once per consumer rather than per define: `SASTextScale` clears its kept sizes and tags when the change count moves, and the Sevopedia rebuilds and, since Codex's next review found its Leader widths kept at their old values, reads its defines again.
+  - A line must name an integer define of `GlobalDefines_advciv_sas.xml`, as `setDefineINT` would create any name silently. Codex's review then found that a failed first read of the XML left its names empty and rejected every line for good, and that a `<Define>` inside an XML comment counted as one; the names are now kept only once read whole, with comments removed first.
+  - A failed push now rolls back to the values the defines held just before it, not to the XML's, and the file is retried even if the rollback fails.
+  - Limits, from the same review: a module XML loaded after `GlobalDefines_advciv_sas.xml` could set the same define, which deletion would not restore, though no SAS module sets one; and after Civ4 reinitializes its Python, the bridge no longer knows the overrides the DLL still holds, so a line deleted before its first reread stays applied until a restart.
+  - A shipped line must equal its XML value, so the game plays the same with the overrides on or off; the user wants font sizes shipped there as a demonstration. Codex noted that even an equal line pins the value against a later XML edit.
+  - `SAS_LIVE_DEFINE_OVERRIDES_ON` turns it off, as a master earns its place when it controls a service, here a file read during play.
+  - Overrides apply from the bridge's first load, when a game starts, at a Sevopedia page or a few seconds into play; until then the defines hold their XML values.
+  - [`sas_live_define_overrides.py`](/.github/workflows/README.md#buildsourcesas_live_define_overridespy) fails a shipped override that differs from the XML or names a NoEntry define, and a define it names kept in a Python module global, a `self.` attribute or a DLL `static`.
+    - With `--staged`, as `ci_report.py` runs it, the values and the XML come from the index, while the NoEntry list and the sources come from the working tree.
+    - Codex found what it misses: its cache patterns cover the shipped names only and miss a lazy global or a `self.` cache split across lines; and NoEntry is CI-only, so a local line can still push a startup or gameplay define, which needs an explicit boundary before players or multiplayer rely on it.
+  - Tested on 2026-11-25 with a new Debug-opt DLL only, assertions on: the hover was size 2 from an override at game start, 4 after an edit during play, and the XML's 3 after the line was deleted; a misspelled name was rejected with the hover unchanged, and `PythonErr.log` stayed empty.
+    - After the fixes from Codex's last review, the same cycle passed again, with the line then set back to 4. The paths those fixes guard, a failed first XML read and a failed push, were not exercised in game, nor the Sevopedia's reread of its defines.
+    - Not tested: a font size at a cold main menu, a Release DLL, and multiplayer.
+- Then, on 2026-11-26, a universal answer to readers that keep a value: the user did not want each define handled on its own, so [`SASCurrentDefines.py`](/Assets/Python/SASCurrentDefines.py) offers one cached read, `SASCurrentDefines.getInt("SAS_NAME")`, whose cache empties when the bridge's change count moves, so a reader using it sees an override with no code of its own.
+  - Codex's review advised a prototype on a few readers, opt-in for raw SAS integers, as a value built from a define, such as a font tag or a layout, still belongs to its owner: `SASTextScale`'s font sizes and SevoPediaMain's Leader item-list width getter use it, while the font tags and the Sevopedia layout keep their own rebuild.
+  - A central cache had been set aside for C++ in [KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3), as its enum list must name every define in `CvGlobals.h`, rebuilding the whole DLL for each one and keeping values away from their code.
+    - `SASCurrentDefines` has neither cost: it keeps no list, as each reader passes its define's name where it reads it and the cache fills itself, and it needs no compile.
+  - Codex's next review (GPT-6.2-Sol) found its limit: the cache empties on the bridge's writes only, so a define that other code changes during play, such as `FIELD_OF_VIEW` in `CvMainInterface.py` or the river values `Water.py` sets, would read stale through it; such defines are read with `gc` at each use.
+    - The same review added the main menu's music shuffle, `SAS_SAVE_VERSION` and the billboard multipliers to the NoEntry list, as each is read into state built once, and advised taking the other font sizes and the logging families in changes of their own.
+  - `SASTextScale` had cached an out-of-range font size as `None` after its first error, so later tags silently lost their size; it now raises at each read.
+  - Measured under Python 2.4, best of 5 runs of 200,000 reads: 135 ns per `SASCurrentDefines.getInt` against 15 ns for a kept attribute, then 151 ns once it had float and string caches beside it, so a screen reading 50 defines per redraw pays about 7 µs; a hot loop over cells should still copy the value into a local.
+  - Tested in game with the Sevopedia open on a Leader page: an override of `SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3` from 200 to 400 widened the item list at the next Down press, and deleting the line narrowed it again at the next one, with `PythonErr.log` empty.
+- To choose which defines to ship and which to keep out, without guessing per family, [`audit_define_timing.py`](/LLM_Helpers/README.md#audit_define_timingpy) lists each SAS define's readers and how they read it (2026-11-26). Of 762, about 590 are kept somewhere, mostly in DLL statics (about 450), 8 are read only at startup, and under 90 show no cache.
+  - Codex's review (GPT-6.2-Sol) found that "no cache" can still mean "built once", so the verdict is named for what it can tell. It also moved SGR's map symbols into NoEntry, as their palette is built once per process.
+  - Several families are kept, and so stay in the XML, until their readers change: the Barbarian era cost tables, built once per process in `CvPlayer`; the `SAS_UNIT_XML_*` switches, first-use statics in `CvUnitInfo`'s getters; and BBAI's category levels, copied once by `cacheSASBBAILogSettings`.
+  - Map-generation defines vary by reader: Peirce's and Planet's grid percentages are reread at each size request and Earth2's thresholds at each start assignment, while others are cached for the process.
+- The NoEntry list names each define in full since 2026-11-26: patterns such as `SAS_EXE_P_*` hid a define's line from a grep for it, so the user asked for full names, and CI rejects a `*`.
+  - It has two sections, as the user proposed: never, defines read only at startup or changed by the game itself, and not for now, defines read once by code that could be changed to follow an override, such as the main menu's music pool, the billboard rewrite, SGR's palette, the `SAS_UNIT_XML_*` switches and the Barbarian era cost tables.
+- Overrides are logged where they are set, and only there: the bridge's `SAS_LIVE_DEFINE_OVERRIDES` row records each change and the active set (2026-11-26).
+  - Drafts had also logged them in their readers, a Sevopedia row on each rebuild and a font-size row for each new size; the user pointed out that each further reader would add another, scattering the overrides' history, so both went. It is the same point the user made about caching, which each reader once handled on its own until `SASCurrentDefines` took it over.
+  - Likewise, readers do not ask the bridge to reread its file: during play it rereads by itself on game updates. The Sevopedia is the exception, asking at each jump, as it can be opened from the main menu, where no game update runs; the user asked on 2026-11-26 whether every reader of a live define would need such a call, and none does.
+  - The Sevopedia's `SEVOPEDIA_RESOLUTION_CHANGE` row stays, as the resolution change is the Sevopedia's own concern, detected and handled there alone, while a define override is a more general one.
+- Uses beyond font sizes, discussed with the user; each is a possible extension, with what it would need:
+  - AI values under test: reloading the same save with another value, then setting the XML once satisfied, saves a restart per try. Most AI defines sit in DLL `static`s, about 590 of them, so each needs its reader moved to the enum cache or a read at each use first; and a value that changes the game should reach the game's record, which `PythonDbg.log` alone does not keep past the next launch.
+  - Logging levels changed during a session: BBAI's category levels only gate rows, but the DLL keeps them in globals filled at load, so a push would need a hook that refills them; a SASGameRecord level also decides whether the record file and its first rows exist, so it needs a rule for a change mid-session.
+  - AI benchmarking, autoplays comparing values: one file applies to one computer, so clients that need their own values fit the per-run overrides below better.
+- Related ideas kept apart: Realism Invictus's restored Python hot reload (r5603) serves developers editing code and rereads the same XML defines, so it neither replaces nor conflicts with overrides; per-run overrides in `run_autoplay.py`'s INI, an earlier idea for logging levels, would still give each client its own values.
+
+The other four font sizes followed (2026-11-26): `SAS_UI_FONT_TINY`, `SAS_UI_FONT_BODY`, `SAS_UI_FONT_LABEL` and `SAS_UI_FONT_TITLE` now sit in the shipped overrides file beside the hover, each equal to its XML value.
+
+- A search of their readers found none to change: the font tags rebuild on the change count, each advisor lays itself out from the label size at each opening, the Sevopedia's category width comes from `__init__`, which its rebuild reruns, the city screen reads the size at each redraw, and the DLL reads `SAS_UI_FONT_LABEL` through the enum cache.
+- Tested in game on a turn-150 Huge save at 1926 x 1120, Debug-opt DLL:
+  - With no screen open, `SAS_UI_FONT_LABEL = 4` reached only the turn line, which redraws at each update; the scoreboard, research count and unit panel kept size 3, as they redraw only when their dirty bits are set.
+    - So after a change, the bridge's game-update reread now marks the whole main interface dirty with `makeInterfaceDirty`. AdvCiv notes in `CvPlayer.cpp` that it costs far more than one dirty bit, but it runs only on a change, and it reaches any define the main interface reads, not only fonts.
+    - Retested: label 4, then all four sizes changed at once, then all removed; the scoreboard, era label and unit panel followed within one reread each time, and `PythonErr.log` stayed empty.
+  - An open Domestic Advisor kept the text it had drawn after the label went from 4 to 3, and showed 3 when reopened, so advisors follow at their next opening.
+  - A line equal to its XML value still counts as a change, logged as `SAS_UI_FONT_BODY:xml2->2`, so adding the shipped lines redrew the interface once.
+- `SAS_UI_FONT_BODY` does not reach the city billboards: `SASBillboardScale.py` writes them into `CIV4DetailManager.xml` from the body size once at load, which is why its `SAS_BILLBOARD_SCALE_PCT_FONT_*` multipliers are in NoEntry.
+- Label 4 at this width crowded the scoreboard's left column. A restart at label 4 likely looks the same, as the scoreboard reads the size at each redraw, but this was not compared.
+
+BBAI's category levels followed next (2026-11-26). `cacheSASBBAILogSettings` copies them into `gSASBBAILogSettings` once at XML load, so an override reached none of BBAI's gates.
+
+- Rather than a binding per family, the bridge calls one DLL entry point after each applied change, `CyGlobalContext::onSASLiveDefineOverridesApplied`, which calls `refreshSASBBAILogLevels`; a later family that keeps state built from its defines adds its refill there.
+- The refill runs only while BBAI logging was on at load, and keeps `SAS_BBAI_LOG_ON` and the enabled flag as they were: they decide at load whether a session file starts, and callers gate on the levels alone, so a level turned on in a session without a file would write before one starts.
+- A change during play writes `BBAI_LOG_SETTINGS_CHANGED` into the BBAI file, as the file records its levels in `BBAI_LOG_SETTINGS` at its start and would otherwise misstate them. It records the file's own settings rather than the override, which the bridge's row records.
+- Tested in game on the turn-150 save with a new Debug-opt DLL, `SAS_BBAI_LOG_ON` and `SAS_BBAI_PLAYER_LOG` at 1 in the XML:
+  - `SAS_BBAI_UNIT_LOG = 1` wrote `BBAI_LOG_SETTINGS_CHANGED changes=SAS_BBAI_UNIT_LOG:0->1`.
+  - Replacing it with `SAS_BBAI_CITY_LOG = 1` wrote `SAS_BBAI_CITY_LOG:0->1,SAS_BBAI_UNIT_LOG:1->0`, and the next turn wrote 15 `CITY_PRODUCTION_ORDER` rows, where the turn before had none.
+  - Deleting the line wrote `SAS_BBAI_CITY_LOG:1->0`, and the next turn wrote its 17 `PLAYER_TURN_STATUS` rows but no `CITY_PRODUCTION_ORDER`; `PythonErr.log` stayed empty.
+  - Not tested: a session with BBAI off at load, where the refill is meant to do nothing.
+- Unlike the font sizes, BBAI's levels are not shipped in the overrides file.
+  - The 29 lines at their XML value of 0 passed CI, but a line wins over the XML, so turning a level on in the XML, as `toggle_dev_diagnostics.py` and the usual development set-up do, would have stayed at 0.
+  - Codex had noted that an equal line pins its value against a later XML edit; that matters most for the defines edited most often in the XML.
+- NoEntry's repeated reasons were shortened the same day, at the user's suggestion: a family's first line keeps its reason, and the others say "same reason as" it, naming it so each line stays traceable if lines move. A blank line now separates each family.
+  - The file went from 17 to 10 KB, while each define keeps its own line.
+
+SASGameRecord and Runtime followed through the same entry point (2026-11-26), as an experiment removed the same day; the account below is of that experiment.
+
+- SGR's `SAS_SGR_PERFORMANCE_METRICS_ON` and three `SAS_SGR_TRADE_MARKET_*` switches were first-use statics; `cacheSASGameRecordLiveSwitches` filled them at XML load and after each applied change.
+  - None builds state at the record's start, so a new value applied from the next snapshot. A change during play wrote `GAME_RECORD_SESSION_SETTINGS ... event=CHANGE reason=SAS_LIVE_DEFINE_OVERRIDES`, reusing the row SGR already wrote for runtime view changes.
+  - Reverted the same day, with Runtime's: the user found listing four of SGR's switches while the rest stayed out unintuitive, and placed all of SGR with the system settings, a compact black box switched on and left on, where a restart is fine for the rare benchmark; Codex's review (GPT-6.2-Sol) agreed.
+    - The four first-use statics are back, the refill and its change row went, and SGR needs no revision for it.
+- Runtime's player-turn live threshold and refresh were function-local statics read on every game update during AI turns; they stayed cached, and `refreshSASRuntimeLiveSettings` marked them unread so the next use reread them. Each status snapshot writes both, so no row was added.
+  - Reverted the same day: the user placed Runtime with the system settings switched on once and left on, so its timing values joined NoEntry for that practical reason, and Codex's review (GPT-6.2-Sol) advised removing a refill for an unsupported use; the statics, and Runtime's revision 19, are back.
+- Neither family had moved to AdvCiv's enum cache: each kept its own cache, refilled on a change, so gameplay reads stayed what they were, and the enum's costs from [KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3) are avoided; the user asked, and the enum stays for defines read directly at each use.
+- Tested in game before the revert, on the turn-150 save with SGR at 3 and Runtime on in the XML, BBAI off:
+  - `SAS_SGR_TRADE_MARKET_ON = 0` wrote `values=SAS_SGR_TRADE_MARKET_ON=1>0`, and turn 150, a snapshot turn, wrote no `GAME_RECORD_TRADE_MARKET` row, where the session before, with the switch fixed on, wrote 14. Setting it back wrote `0>1`; the next snapshot turn was not reached.
+  - `SAS_RUNTIME_PLAYER_TURN_LIVE_THRESHOLD_MS = 500` showed as `"playerTurnLiveThresholdMilliseconds": 500` in the next status file, where it had been 3000.
+  - `SAS_BBAI_PLAYER_LOG = 1` started no BBAI file, as BBAI was off at load, which closes the case left untested above.
+
+The hover font size was then retired into `SAS_UI_FONT_LABEL` (2026-11-26), in a change of its own: reviewing the font lines, the user pointed out that raising the label to 4 meant remembering to raise hover too, while hover always wanted the label's size.
+
+- [`global_define_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md) maps the old name; the entries above keep it, as they record what was tested then.
+
+Codex's review of these families (GPT-6.2-Sol, 2026-11-26) found three faults, each fixed the same day:
+
+- The bridge called the DLL refill after it had counted and logged the change, so a failing call, such as with a DLL older than the bridge, raised out of `preGameStart`, and the refill was never retried.
+  - The call now runs inside the push: a failure rolls the defines back, refills from the restored values, and leaves the file to be retried, which a new CI test checks with a refill that fails once.
+  - The shipped DLL must match the bridge, so the commit carries a Release DLL.
+- The BBAI and SGR change rows were gated on `isFinalInitialized`, which is saved game state, not the log's: it is true during a load before the files rotate, and false after a new game's files have already written their settings.
+  - They are now gated on the writer's own session, BBAI's started session sequence and SGR's open record, so a row goes to whichever file is open, and a file opened later shows the new values in its own settings row.
+- SGR joined several changes with commas, while `GAME_RECORD_SESSION_SETTINGS` schema 1 separates pairs with `;`, so two changes at once would have read as one entry; they now use `;`.
+- Retested with a rebuilt Debug-opt DLL: overriding the performance metrics and trade market together wrote `count=2 values=SAS_SGR_PERFORMANCE_METRICS_ON=1>0;SAS_SGR_TRADE_MARKET_ON=1>0` into the open record, and removing both wrote the reverse.
+
+The `preGameStart` hook above relies on [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104), which carried `CvAppInterface.py` into the mod on 2026-11-22 with the other base-game Python files SAS uses. That copy made the first application point an ordinary SAS edit rather than a change to a BtS file outside the repository, as the user pointed out.
+
+The user then asked whether SASGameRecord, and any other family, should get a master of its own, so its level could be overridden like BBAI's categories (2026-11-26). Codex's review (GPT-6.2-Sol) found that a master alone would not make a mid-record level change sound:
+
+- Raising `SAS_SGR_LOG` from 1 to 3 after a load misses the war and RNG baselines and the map and river rows written only when the record starts.
+- Lowering it leaves RNG tracking on, can skip the peace of a war the record already tracks, and a return to 3 resumes city compaction from an old cache. A `CHANGE` row would only describe those gaps.
+- These findings confirmed that the master was worth adding for its own sake, as the user had judged: the level, fixed per record, could never serve as a live switch. It came as `SAS_SGR_LOG_ON` in [SASGameRecord revision 214](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md#revision-214---sas-practical-6868) (SGR214), split out as its own commit.
+- So the level stays fixed per record, and NoEntry now gives that reason. A sound change would apply from the next record: since SGR214, Python's `SASGameRecordConfig` and `DiplomacyUtil` read one effective level from the DLL, so it would need that level set before the native new-game or load gate, and the Python cache cleared when a record starts.
+- No other family needs one: Runtime and its watchers sit under `SAS_RUNTIME_STATUS_ON`, BBAI's categories under `SAS_BBAI_LOG_ON`, `SAS_SGR_SYSTEM_CONTEXT_LVL` under SGR, and assertions, SASPilot, BUG's logging and the Sevopedia and advisor dumps have switches of their own.
+- One limit remained: with BBAI's master on but every category at 0 at load, BBAI stayed off, so a later category override could not start it.
+  - The user then asked that categories at 0 be valid under an armed master, logging nothing until one is raised, midway through a test or for a comparison. So `SAS_BBAI_LOG_ON=1` alone now starts the session file.
+    - An all-zero session's file holds its lifecycle, provenance, settings and RNG-state rows, but no category's rows.
+    - `CvCityAI` prepares city names for those rows only while some category is above 0, a flag refilled with the levels, as Codex's review (GPT-6.2-Sol) found the name copied on every production choice otherwise.
+  - SGR's profile field `bbaiAnyCategoryEffective` is now counted from the levels, keeping its meaning.
+  - Tested in game: with the master at 1 and every category at 0, the BBAI file held its session rows but no category's rows; `SAS_BBAI_PLAYER_LOG = 1` then wrote `BBAI_LOG_SETTINGS_CHANGED changes=SAS_BBAI_PLAYER_LOG:0->1`, and the next turn its 17 `PLAYER_TURN_STATUS` rows.
+
+Which defines the shipped file lists was then settled as one rule (2026-11-26), after the user found the file, with only fonts in it, missing what overrides were wanted for in the first place.
+
+- The rule, the user's: overrides serve sparse audits without tedious restarts, as the in-game resolution support does. A define is listed when changing it during play takes effect and it is something one changes within a session; the file holds live lines only, never commented-out ones, so each line is either in use or absent for a recorded reason.
+- Listed: the four font sizes, and BBAI's 29 category levels.
+  - BBAI reverses the earlier choice above to leave its levels out: once its categories are changed in this file rather than in the XML, the pinning no longer surprises, and deleting a line still brings the XML value back.
+  - The case is strong: BBAI logs reach several GB a session, so a category is best on only for the stretch audited, such as the first city, then Workers, then production; or an agent auditing an AI change turns BBAI on for a few turns, collects what it needs, and tests other things in the same session.
+- Not listed, in NoEntry with their reason, so they are excluded rather than forgotten:
+  - Runtime, its watchers and timing values, as system observers switched on for a run and left on, where a change brings little; the refill added for the timing values was removed, see above.
+  - All of SASGameRecord. Its four live switches were listed for a while, but listing some of its switches and not others was unintuitive, as the user said. Its strength is recording all the small things in one compact, systematic record, so their interactions show, and a restart is fine for the rare benchmark. Codex's review (GPT-6.2-Sol) agreed, so its refill went too.
+    - A trade-off, as the user put it: ideally SGR would be live too, but in practice it is always on, unlike BBAI, which is heavy and turned on sporadically.
+  - SGR's privacy opt-ins, such as chat, paths and INI text, have a section of their own: text once written stays in the record, so they stay a deliberate edit of the XML before a run.
+  - The new NoEntry sections, practical and privacy, join never and not for now.
+  - The EXE patches split the same way, as the user proposed: their switches stay under never, as they decide whether the running game's code is rewritten, risky to flip during play, while the main menu box's and globe's sizes go to practical, as once a size looks right it is rarely changed, and a user who wants another can restart.
+  - Realism Invictus's `SelfMod.cpp` (r5656), where the patches come from, marks some of its patches as applying only after a restart and others as live, which the user recalled Walter Hawkwood saying; NoEntry's reason cites it.
+  - The per-font layout tunings follow the same practical reason, as the user noted: the Sevopedia's widths per font and the billboard multipliers per font are settled once, while the font sizes they follow stay listed. The Leader widths would follow an override, as tested above, but are not something one changes in a session.
+- Not listed and not in NoEntry: defines whose readers keep their value, such as most AI tunables, as NoEntry is not exhaustive; site evaluation and UWAI values, whose timing is mixed; and map generation values, which apply only to the next map.
+  - The define-timing audit had reported 21 AI production values (`SAS_PROD_MIN_*`, `SAS_PROD_SECURED_*`) as read at use; Codex found them in first-use static arrays in `CvCityAI.cpp`, which the audit's backward walk missed at the initializer's `= {`, so the audit now reports them as kept.
+- A CI rule guards the split: a shipped line may not name a define `toggle_dev_diagnostics.py` switches in the XML, as the line would silently undo the toggle.
+- Adding a line is not enough to make another define live, as the user asked: its readers must follow the change first, in the DLL and in Python alike.
+  - In the DLL, a reader kept in a `static` needs a read at each use or the enum cache, and state built from several defines needs a refill through `CyGlobalContext::onSASLiveDefineOverridesApplied`, as BBAI's levels have.
+  - In Python, a module global or `self.` attribute needs `SASCurrentDefines`, and something built once from a define, such as the Sevopedia's layout, needs a rebuild when the change count moves.
+  - [`sas_live_define_overrides.py`](/.github/workflows/README.md#buildsourcesas_live_define_overridespy) fails a shipped line whose reader keeps its value, and [`audit_define_timing.py`](/LLM_Helpers/README.md#audit_define_timingpy) shows how each define is read, so either tells whether a define needs that work first.
+  - Most of the remaining SAS defines are AI tunables kept in statics. Making one live is usually a small code change, but it changes gameplay during a game, which multiplayer cannot keep in step, so it is done when an audit needs it rather than ahead of time.
+- The four font sizes stay listed with a scope: an override reaches text on its next redraw or rebuild, while the body size's billboard scaling, written once at load, does not, as Codex noted.
+- Tested in game with a rebuilt Debug-opt DLL: with `SAS_BBAI_LOG_ON=1` and the shipped lines holding every category at 0, changing `SAS_BBAI_CITY_LOG` to 1 in the overrides file wrote `BBAI_LOG_SETTINGS_CHANGED changes=SAS_BBAI_CITY_LOG:0->1`, and the next turn 22 `CITY_PRODUCTION_ORDER` rows, each with its city name; SGR's restored statics still wrote its 14 trade-market rows at turn 150.
+
+The overall design was then reviewed against the alternatives (2026-11-26), as the user asked whether something better existed, such as Realism Invictus's Python reload, which ChatGPT had researched before.
+
+Codex's review (GPT-6.2-Sol), quoted with its links pointed at repository paths and Realism Invictus's files named:
+
+> **The external override file was the right choice for live font tuning and short BBAI audits.** I'd keep the design and tighten its runtime scope. None of the reload alternatives gives the same coverage with less risk.
+
+| Approach | What it reaches | Verdict |
+| --- | --- | --- |
+| **Current SAS override file** | Typed setters update the define map and the relevant DLL numeric caches. `SASCurrentDefines` refreshes its Python cache, and the explicit DLL hook refills BBAI. Materialized UI state still needs a redraw or rebuild. Other DLL statics keep their original values. | **Best fit for both uses.** Small file, separate from shipped XML, with validation and rollback. [Bridge](/Assets/Python/SASLiveDefineOverridesBridge.py) · [Native setters](/CvGameCoreDLL/CvGlobals.cpp) · [BBAI refill hook](/CvGameCoreDLL/CyGlobalContext.cpp) |
+| **Realism Invictus Python reload** | Reloads Python code, reinitializes BUG and rebuilds the main interface. I found no call from those hooks to reread GlobalDefines XML or refresh the DLL's enum cache, native statics, or BBAI settings. RI also handles a circular-import race and temporarily suppresses cyclic GC and heavy debug logging. | **Complementary for editing code.** It would still need the native setter and refill for this task. Reload entry point: RI's `Assets/Python/EntryPoints/CvEventInterface.py`; BUG reload handling: RI's `Assets/Python/Components/BUG/BugInit.py` |
+| **Watch `GlobalDefines_advciv_sas.xml`** | Could reach exactly the same readers if it filtered edits and used the same setter, refill and redraw path. It would still need to handle partial writes and modular precedence. | **Worse for temporary edits.** It mixes experiments with committed defaults. Keeping the live file outside `Assets` is also prudent. The observed Python reload hazard establishes a reason for caution, while whether saving this particular XML triggers it remains unverified. |
+| **Rerun DLL `SetGlobalDefines`** | Rereads inherited, SAS and modular XML, rewrites `SAVE_VERSION`, and recaches globals, assertion policy, BBAI and SGR. It still leaves arbitrary DLL statics and Python caches intact. | **Worse.** The loader mutates state in place and can return early on error. It can overwrite game-managed values or reconfigure recording after a session has already started. [DLL loader](/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp) |
+| **BUG options or SASPilot commands** | With the same setter, cache notification and refill, they can reach the same readers. BUG makes settings discoverable, while a SASPilot command could apply a change immediately without polling. | **Complementary.** For BBAI alone, a dedicated command might be simpler. For both use cases, keep one apply path so file, UI and command changes behave identically. [Existing BUG option callbacks](/Assets/Config/BUG%20Core.xml) |
+
+- Codex suggested two improvements. The first was taken: the bridge now reads `SASLiveDefineOverridesNoEntry.txt` with the XML and rejects a line naming a listed define, logged as `REJECTED` with that define's reason, so NoEntry decides in game as well as in CI, as the user agreed.
+  - Tested in game: `SAS_SGR_TRADE_MARKET_ON = 0` added to the file was rejected with the other values kept. Its reason was first logged as "same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS", the family pointer, so the bridge now follows such a pointer to the reason itself.
+- The second, restoring on deletion the value a define held before its first override rather than the XML file's, was declined, with the evidence above: after Civ4 reinitializes Python, the bridge forgets what it held while the DLL keeps the override, so a captured value could be the override itself, the reason the XML's value is restored. The module XML case it would fix stays a recorded limit, as no SAS module sets a SAS define.
+- Why BBAI took so little: an earlier refactor, for speed and iteration, had moved BBAI's 29 per-getter first-use statics into one registry, `aSASBBAILogCategories`, filled by one loop into the `gSASBBAILogSettings` struct, so the live refill is that loop run again.
+  - The struct is itself a global cache read directly at every gate, so AdvCiv's enum cache would add nothing but a whole-DLL rebuild per name ([KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3)); the enum suits a single define read directly at each use, such as `SAS_UI_FONT_LABEL`.
+  - SGR's level had been moved to one global the same way, which made its master a single change; its other switches and Runtime's timing values stayed first-use statics.
+
+The user then asked whether BUG options would have done as well, including for the DLL, and how each scales. The conclusion, which Codex's review (GPT-6.2-Sol) confirmed:
+
+- Making a define's readers follow a change costs the same whatever the front end, once per family, such as BBAI's refill or a read at each use instead of a static.
+- On top of that, an override line needs nothing but the line, as the bridge accepts any SAS define by name; listing BBAI's 29 categories took 29 lines.
+- A BUG option also needs its declaration and default in BUG's XML (`BUG Core.xml`), a label and hover text, a place on an options tab (`BugSystemOptionsTab.py`) and the player's INI for storage. Its change callback can be shared by all options, as BUG's own logging options do (`BugOptions.py`), and would have to push the define and call the same refill; a BUG option alone never reaches the DLL.
+- So overrides scale better as a developer's board of dials, while BUG options suit a few settings players should find on a screen; either works through one apply path. With SASPilot, a command could flip either as easily as editing a line, and at once.
+  - Overrides are a tool for developers and agents, not a player feature, and SAS has no options of its own on screen, so options for them would clutter the UI with settings players never need, as the user noted.
+    - The font sizes are the exception, as players may want them for a large screen or their eyesight, which could make them a player option one day; BBAI's categories serve developers only. Hidden BUG options, declared without a screen entry, would only rebuild a text file the long way: an INI still edited by hand, plus BUG's declarations and its rules on which value wins.
+- Codex also showed a way around the declined restore: keeping each define's value from before its first override, and the set of active overrides, in state the DLL owns, which outlives a Python reinitialization, and reconciling on each reread. Restoring the XML file's value stays for now, with its module-XML and missed-deletion limits recorded above.
+- And it noted that the NoEntry check is a denylist: a SAS define nobody has reviewed is still accepted, which the CI check of readers covers for shipped lines only.
+
+Where this leaves the restarts this entry began with (2026-11-26):
+
+- Gone for the values tried again and again within a session: the font sizes, the restarts that started this work, and BBAI's categories, the heaviest logs.
+- Kept, as the sensible way, for settings switched on or set once for a run, such as SASGameRecord, Runtime, the EXE patches and the per-font layout tunings, where a restart costs little next to the code each would need to follow a change; NoEntry gives each its reason.
+  - A restart is also what keeps multiplayer in step, as the user pointed out: every client loads the same XML at the same point, while each rereads its own overrides file at its own moment, so a value that changes the game is changed in the XML, before a restart.
+  - Even BBAI's categories are meant, not proven, to leave the game unchanged: diagnostics must only observe, never draw on the game's RNG or touch its caches, as AGENTS.md requires, and SGR checks its RNG seeds around its checkpoints, but not every logging path has been verified, as the user cautioned.
+    - So in multiplayer, turning a category on in one client is a risk; in single player, where overrides serve, a path that broke the rule would show as a different game, worth finding.
+    - Auditing it, by replaying a save with each recorder on and off and fixing any logging path that diverges, is a low-priority follow-up: development runs keep SASGameRecord on, so they stay comparable with each other, and only comparisons against runs with it off, or mixed multiplayer, would be skewed.
+- All in all, the design keeps the benefits of caching defines while making live the ones that matter, as the user summed it up.
+  - Reading every define live, from the XML or by name at each use, would have given up the caching [KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3) and [KI#128.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.4) put in place.
+    - A static or a struct field turns back into a lookup by name, and in Python a kept attribute costs 0.017 µs against 0.15 µs through `SASCurrentDefines`, as measured above.
+    - The defines sit in a `stdext::hash_map` keyed by `std::string` (`FVariableSystem.h`), so more defines barely slow a lookup; each read by name still builds and hashes the name, so the cost grows with how often defines are read, and the AI's per-plot and per-unit loops read them millions of times a game, as the user asked.
+    - A live XML would also bring the multiplayer and Python-reinitialization risks recorded above.
+  - Here the readers keep their caches, and only the families chosen refill them when a value changes.
+- That matches this family's aim since [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128): to remove a restart where it costs real time again and again, not everywhere at any price. Another define joins the file when an audit needs it to change during play, once its readers follow.
+
+Codex's review of the staged commit (GPT-6.2-Sol, 2026-11-26) found two more faults, each fixed the same day:
+
+- The CI check's `--staged` mode read the values and the XML from the index but NoEntry, the bridge and the scanned readers from disk, so a staged forbidden line passed once its NoEntry line was removed unstaged. `RepoSource` now reads every file from the index.
+  - Codex's check of that fix found two more gaps: it fetched every blob in the index, art and music included, 555 MiB for a check of a few hundred text files, and the development values still came from disk. It now fetches only the files the check reads, and reads `define_values.py` from the index too.
+- A save caught midway, such as an emptied file, parsed as valid, so a poll could apply it as deleted lines, then apply the full file again. During play a changed file now applies only once two consecutive polls read the same text; the reads at a game's start and at a Sevopedia jump still apply at once, so one of them can still catch a save midway.
+  - A failed read between the two polls starts over, as Codex's check of the fix reproduced an empty file applied around a failed read.
+  - The extra poll per edit costs a few seconds, which the user found fine: these are knobs changed now and then, with no one waiting on them.
+  - Tested in game with the Debug-opt DLL on a new turn-0 game: an edit of `SAS_UI_FONT_LABEL` applied 8.5 seconds after the save, two polls; three windows of about 3 seconds with the file emptied, each shorter than a poll, applied nothing; an emptied file held for 12 seconds applied after 6.4 seconds, and restoring it applied after 9.4. `PythonErr.log` stayed empty.
+  - A window shorter than a poll might fall between two polls; with polls about 4.2 seconds apart, at least one of the three windows was very likely read.
+
+Reviewing the docs (2026-11-26), the user noted that, on top of the permanent lines, overrides may have other uses, such as temporarily setting an AI tunable live for fine-tuning or audits, toward its best value, without tedious restarts, then writing the settled value back to the XML; this works for a define whose code reads it at each use.
+
+Implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol).
+
+Smoke-tested with the shipped Release DLL on 2026-11-26, as Codex's review (GPT-6.2-Sol) advised, since the tests above used Debug-opt:
+
+- With `SAS_SGR_LOG_ON=0`, a new game wrote no SASGameRecord file; `SAS_UI_FONT_LABEL = 4` in the overrides file logged `APPLIED`, so the DLL's `onSASLiveDefineOverridesApplied` hook answered, and setting it back logged `APPLIED` again.
+- With `SAS_SGR_LOG_ON=1` and `SAS_SGR_LOG=3`, the record's `GAME_RECORD_LOG_SETTINGS` started `SAS_SGR_LOG_ON=1 SAS_SGR_LOG=3`, followed by 43 Python `GAME_RECORD_SESSION_SETTINGS` rows. `PythonErr.log` stayed empty in both games.
+
+The same day, following Google AI's feedback on this entry (likely Gemini 4 Hydrogen, not confirmed), which flagged the Python-reinitialization limit recorded above, the user asked whether it was real and worth fixing.
+
+It is real: after a reinitialization, the bridge no longer knows the overrides the DLL still holds, so a line deleted before its next reread keeps its override until a restart, or until the line is added and deleted again.
+
+Claude Code Opus 5.5 and Codex (GPT-6.2-Sol) judged a fix better deferred, as the case is rare and mild, and a sound fix costs more than it saves:
+
+- A fix comparing each define's current value with its XML value cannot tell who changed it, so restoring the differences could undo values set by a module XML or by other code.
+- The window lasts until the bridge's first successful reread after the reinitialization; as settled polls need two reads and some screens send no game updates, it is not a fixed few seconds.
+- A possible extension would be to test whether a marker kept on Python's `sys` module survives Civ4's reinitialization, as Realism Invictus's `BugInit.py` relies on; if it does, the bridge could keep its active overrides across it, and if not, a record of them owned by the DLL remains the full fix.
 
 <a id="ki-129"></a>
 
@@ -39021,6 +39273,23 @@ warning: in the working copy of 'LLM_Helpers/formatting/fix_line_endings.py', LF
 - The 1,339 without local edits were rewritten as LF from the repository, so the warning now shows only for a file holding local edits made before the conversion, and goes once that file is committed, as staging stores it as LF.
   - `git checkout -- <file>` alone left them CRLF, since Git skips a file it sees as unchanged; each was deleted and then checked out again.
 
+2026-11-25 update: the reverse warning came back for files an agent had just rewritten, when the user exported the uncommitted changes for review (computer name replaced by x's, the same number of characters):
+
+```text
+2026-11-25 18:38:34
+PC@xxxxxxxxxxxxxxx MINGW64 /c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS (main)
+$ cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && git diff --staged --ignore-space-at-eol > "C:/Users/PC/Downloads/uncommitted_staged_changes_no_eol_$(date +%Y%m%dT%H%M%S).diff" && git diff --ignore-space-at-eol > "C:/Users/PC/Downloads/uncommitted_changes_no_eol_$(date +%Y%m%dT%H%M%S).diff"
+warning: in the working copy of '.github/workflows/README.md', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of '_1_AdvCiv-SAS/Docs/README_Known_Issues.md', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of '_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md', CRLF will be replaced by LF the next time Git touches it
+```
+
+- Claude Code Opus 5.5 had rewritten six files in rename passes with Python's `Path.write_text`, which on Windows turns each `\n` into CRLF; the three above were tracked, and three new, untracked files were CRLF too. The Edit tool and `write_bytes` had kept LF everywhere else.
+- No check had flagged them: Git restores LF when a file is staged, so commits stay clean, `line_endings.py` passed files that were wholly CRLF rather than mixed, and `line_ending_churn.py` looks only at commits. Only what reads the working file, such as this export, showed it.
+- At the user's request, `line_endings.py` now also fails a tracked text file stored LF but written CRLF or mixed on disk, from Git's own report (`git ls-files --eol`, column `w/`). It can fire only locally, as a fresh checkout follows `.gitattributes`; the kinds kept CRLF (`-text`) are left to the stored-endings rule, and a file not yet tracked is not covered.
+  - Run over the whole repository first, it found one more: `Assets/CvGameCoreDLL.dll.build.json`, mixed on disk while Git stored it clean, now rewritten as LF with no content change.
+- AGENTS.md's line-endings note now names Python's `write_text` and `open(..., "w")` among the tools that switch a file's endings, with `write_bytes` or `newline=""` as the way to keep them.
+
 <a id="ki-1098"></a>
 
 ## KI#1098 - (Fixed inherited vanilla Civ4 and BUG-era slips and a SAS one, guarded by CI) Three code lines repeated the line above them: CvDanQuayle.py assigned SCORE_ID twice, CvCustomizableDomesticAdvisor.py hid the rename button twice, and SevoPediaMusic.py set the music title label twice
@@ -39265,6 +39534,10 @@ Update (2026-11-23): the [audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_f
 - TechTree's unused construction is disabled ([KI#1108.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108.2)), and the old Civilopedia fallback stays in the base game on purpose.
 - Five modules the EXE registers by name, which no SAS Python imports, will be carried, `CvMapScriptInterface.py` among them, with the Pitboss helpers' `wx` allowed for those files only.
 - The 42 data XML files are no longer undecided: SAS will carry those its rules, AI or UI rely on, such as `GlobalDefines.xml`, and keeps art and presentation files listed in the audit until an edit justifies a copy.
+
+Update (2026-11-26): carrying the base-game files paid off a few days later.
+
+[KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5)'s live define overrides first apply in `CvAppInterface.preGameStart`, before a game's screens are built, and `CvAppInterface.py` is one of the 18 files carried here. Without that copy, the hook would have meant editing a BtS file outside the repository, as the user noted.
 
 <a id="ki-1105"></a>
 

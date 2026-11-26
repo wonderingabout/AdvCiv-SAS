@@ -466,9 +466,15 @@ def paste(pid, x, y, text, send=None):
 	point = click(pid, x, y)
 	set_clipboard_text(text)
 	try:
+		# <!-- custom: The target must still be in front before the paste and again before Enter: on 2026-11-26 the user moved the mouse just as agent_message.py pasted into Codex, the message never reached Codex, and its text and Enter went to whichever window took focus.
+		# The idle wait before the send cannot cover the second or so the click, paste and Enter take, so this stops the send instead of letting it land elsewhere. (Claude Code Opus 5.5) -->
+		if window_pid(USER32.GetForegroundWindow()) != pid:
+			raise RuntimeError("the target window lost focus before the paste; nothing was pasted")
 		tap(ord("V"), (VK_CONTROL,))
 		time.sleep(0.3)
 		if send:
+			if window_pid(USER32.GetForegroundWindow()) != pid:
+				raise RuntimeError("the target window lost focus after the paste; Enter was not pressed, so the text may sit unsent in whichever window took focus")
 			tap(*KEYS[send])
 	finally:
 		if saved is not None:
