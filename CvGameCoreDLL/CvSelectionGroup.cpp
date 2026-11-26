@@ -3671,12 +3671,18 @@ bool CvSelectionGroup::canDoMission(MissionTypes eMission, int iData1, int iData
 			break;
 
 		case MISSION_AIRBOMB:
-			if (pUnit->canAirBombAt(GC.getMap().getPlot(iData1, iData2), pPlot) &&
+		{
+			// <!-- custom: Off-map coordinates read past the map, as for the airlift: vanilla's canAirBombAt measured the distance to plotINLINE's NULL, and AdvCiv's getPlot reference kept it.
+			// Codex's review found it beside canAirliftAt's fix; SASPilot's 'unit' asks this with -1, -1.
+			// isPlot, as plot() would wrap -1, -1 to a real plot on a map wrapping both ways, and startMission's Air Bomb reads getPlot, which does not wrap. See KI#1091.3. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			if (GC.getMap().isPlot(iData1, iData2) &&
+				pUnit->canAirBombAt(GC.getMap().getPlot(iData1, iData2), pPlot) &&
 				(!bCheckMoves || pUnit->canMove()))
 			{
 				return true;
 			}
 			break;
+		}
 
 		case MISSION_BOMBARD:
 			if (pUnit->canBombard(*pPlot) &&

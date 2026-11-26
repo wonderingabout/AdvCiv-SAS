@@ -4470,6 +4470,11 @@ bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY) const
 	if (!canAirlift(pPlot))
 		return false;
 
+	// <!-- custom: Off-map coordinates read past the map: SASPilot's 'unit' asks canStartMission(MISSION_AIRLIFT, -1, -1) for each unit's buttons, and a Paratrooper in a city that could airlift raised "unidentifiable C++ exception" (2026-11-20).
+	// Vanilla passed plotINLINE's NULL on to canMoveInto, and AdvCiv's getPlot reference kept the hole; Paradrop and Range Strike already check NULL.
+	// isPlot rather than plot() != NULL: Codex's review of the main port found that plot() wraps, so on a map wrapping both ways -1, -1 is the opposite corner; airlift itself resolves its plot the same way, but Air Bomb and Nuke read the coordinates as given, so all three checks take only real map coordinates. See KI#1091.3. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if (!GC.getMap().isPlot(iX, iY))
+		return false;
 	CvPlot const& kTargetPlot = GC.getMap().getPlot(iX, iY);
 
 	// canMoveInto use to be here
@@ -4559,6 +4564,12 @@ bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam, TeamTypes eObs) 
 bool CvUnit::canNukeAt(CvPlot const& kFrom, int iX, int iY, TeamTypes eObs) const // kekm.7 (advc)
 {
 	if (!canNuke(&kFrom))
+		return false;
+	// <!-- custom: Off-map coordinates read past the map, as for the airlift and air bomb: the kekm.7 loop below builds a SquareIter around the target, whose constructor looks the center plot up unchecked, and isNukeVictim takes the target as found.
+	// Codex's review found it after the Air Bomb fix; SASPilot's 'unit' asks canStartMission(MISSION_NUKE, -1, -1) for each unit.
+	// isPlot, as plot() would wrap -1, -1 to a real plot on a map wrapping both ways, while nuke reads the coordinates as given through getPlot.
+	// Checked before plotDistance, whose subtraction would overflow on INVALID_PLOT_COORD (Codex's second review of the main port). See KI#1091.3. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if (!GC.getMap().isPlot(iX, iY))
 		return false;
 
 	int iDistance = plotDistance(kFrom.getX(), kFrom.getY(), iX, iY);
