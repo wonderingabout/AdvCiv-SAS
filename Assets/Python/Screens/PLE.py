@@ -2,6 +2,8 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 from SASUtils import getInfoTypeOrFail
 import CvUtil
 import ScreenInput
@@ -2006,7 +2008,7 @@ class PLE:
 						elif not pUnit.isInvisible(eOwnerTeam, False):
 							szEspionage += localText.getText("TXT_KEY_UNIT_HELP_NO_ESPIONAGE_REASON_VISIBLE", (pOwner.getNameKey(),))
 					elif pUnit.getFortifyTurns() > 0:
-						iModifier = - (pUnit.getFortifyTurns() * gc.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE"))
+						iModifier = - (pUnit.getFortifyTurns() * SASCurrentDefines.getInt("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE"))
 						if 0 != iModifier:
 							szEspionage += localText.getText("TXT_KEY_ESPIONAGE_COST", (iModifier,))
 		if szEspionage:

@@ -6,6 +6,8 @@
 #
 # <!-- custom: Copied from BtS's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\Python\PyHelpers.py (the newest of the vanilla Civ4, Warlords and BtS copies), the copy SAS ran before (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 #import Info as PyInfo
 import CvUtil
 # <!-- custom: SASVisualUtils for the cached religion glyph below. BugEventManager loads it before PyHelpers, as the startup log shows, so importing it here at the top costs nothing and adds no cycle;
@@ -1347,7 +1349,7 @@ class PyInfo:
 		def getPrereqOrTechIDList(self):
 			"intList - IDList of multiple tech requirements"
 			pTechIDList = []
-			for i in range(gc.getDefineINT("NUM_UNIT_OR_TECH_PREREQS")):
+			for i in range(SASCurrentDefines.getInt("NUM_UNIT_OR_TECH_PREREQS")):
 				iResult = self.info.getPrereqOrTechs(i)
 				if iResult >= 0:
 					pTechIDList.append(iResult)

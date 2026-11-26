@@ -13,6 +13,8 @@
 # <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). See KI#21.7. (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import BugConfig
 import BugDll
 import BugUtil
@@ -207,7 +209,7 @@ class ShortcutHandler(BugConfig.HandlerWithArgs):
 # <advc.102>
 gc = BugUtil.gc
 def toggleShowFriendlyMoves(argsList=None):
-	if gc.getDefineINT("ENABLE_HOTKEY_SHOW_FRIENDLY_MOVES") <= 0:
+	if SASCurrentDefines.getInt("ENABLE_HOTKEY_SHOW_FRIENDLY_MOVES") <= 0:
 		return
 	pActivePlayer = gc.getPlayer(gc.getGame().getActivePlayer())
 	eFriendlyMoves = PlayerOptionTypes.PLAYEROPTION_SHOW_FRIENDLY_MOVES

@@ -43,6 +43,8 @@ _values = {}
 _text = None
 _pending = None
 _changeCount = 0
+# <!-- custom: Functions called after each applied change, such as SASCurrentDefines emptying its caches, so its readers need not ask the change count at each read. See KI#128.9. (Claude code Opus 5.5) -->
+_changeListeners = []
 _gameUpdates = 0
 _redrawnChangeCount = 0
 
@@ -266,12 +268,16 @@ def refresh(bSettle=False):
 			gc.onSASLiveDefineOverridesApplied()
 		except:
 			szError = szError + "; rollback failed: " + str(sys.exc_info()[1]).replace("\"", "'")
+			# <!-- custom: A failed rollback may leave the defines changed, so the listeners empty their caches too; a successful one restores the values they hold.
+			# As Codex's review (GPT-6.2-Sol) advised. See KI#128.9. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			szError = szError + _notifyChangeListeners()
 		SASPythonLogging.writeRecord("SAS_LIVE_DEFINE_OVERRIDES", "outcome=PUSH_FAILED keptChangeCount=%d reason=\"%s\"" % (_changeCount, szError))
 		return _changeCount
 	_values = values
 	_changeCount += 1
+	szListenerErrors = _notifyChangeListeners()
 	active = ["%s=%s" % (key, _show(_xmlValues[key][0], values[key])) for key in names if key in values]
-	SASPythonLogging.writeRecord("SAS_LIVE_DEFINE_OVERRIDES", "outcome=APPLIED changeCount=%d changes=%s active=%s" % (_changeCount, ",".join(changes), ",".join(active) or "-"))
+	SASPythonLogging.writeRecord("SAS_LIVE_DEFINE_OVERRIDES", "outcome=APPLIED changeCount=%d changes=%s active=%s%s" % (_changeCount, ",".join(changes), ",".join(active) or "-", szListenerErrors))
 	return _changeCount
 
 
@@ -291,6 +297,23 @@ def onGameUpdate(argsList=None):
 		if refresh(True) != _redrawnChangeCount:
 			_redrawnChangeCount = _changeCount
 			CyInterface().makeInterfaceDirty()
+
+
+def _notifyChangeListeners():
+	# <!-- custom: Calls each listener even when one raises, so the others, the log row and the redraw still follow; returns the errors for the log row, empty when none.
+	# As Codex's review (GPT-6.2-Sol) found, a raising listener would otherwise skip them, and rereading the same text would never notify again. See KI#128.9. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	szErrors = ""
+	for function in _changeListeners:
+		try:
+			function()
+		except:
+			szErrors = szErrors + " listenerFailed=\"%s\"" % str(sys.exc_info()[1]).replace("\"", "'")
+	return szErrors
+
+
+def addChangeListener(function):
+	# <!-- custom: Registers a function the bridge calls after each applied change; a module registers once, when imported. See KI#128.9. (Claude code Opus 5.5) -->
+	_changeListeners.append(function)
 
 
 def getChangeCount():

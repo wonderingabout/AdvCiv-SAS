@@ -105,6 +105,8 @@
 # <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). See KI#21.7. (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import BugUtil
 import DiplomacyUtil
 import GameUtil
@@ -564,7 +566,7 @@ def getTradePlayer(player, trade):
 
 def getTradePeaceDeal(player, trade):
 	BugUtil.debug("TradeUtil - peace treaty has iData %d", trade.iData)
-	return BugUtil.getText("TXT_KEY_TRADE_PEACE_TREATY_STRING", (gc.getDefineINT("PEACE_TREATY_LENGTH"),))
+	return BugUtil.getText("TXT_KEY_TRADE_PEACE_TREATY_STRING", (SASCurrentDefines.getInt("PEACE_TREATY_LENGTH"),))
 
 ## Classes for Formatting TradeData
 

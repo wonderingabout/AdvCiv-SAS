@@ -9,6 +9,8 @@
 # <!-- custom: adapted from https://forums.civfanatics.com/resources/water.15334/ (GPT-5.3-Codex) -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvMapGeneratorUtil
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
@@ -75,7 +77,7 @@ class WaterFractalWorld(CvMapGeneratorUtil.FractalWorld):
 		iHillsBottom2 = self.hillsFrac.getHeightFromPercent(max((self.hillGroupTwoBase - hill2range), 0))
 		iHillsTop2 = self.hillsFrac.getHeightFromPercent(min((self.hillGroupTwoBase + hill2range), 100))
 		iBasePeakPercent = int(100 * increase(self.peakPercent / 100.0, 2.3))
-		iPeakPercentScale = gc.getDefineINT("SAS_WATER_MAP_PEAK_PCT_OF_BASE")
+		iPeakPercentScale = SASCurrentDefines.getInt("SAS_WATER_MAP_PEAK_PCT_OF_BASE")
 		iPeakPercent = (iBasePeakPercent * iPeakPercentScale) / 100
 		if iPeakPercent < 0:
 			iPeakPercent = 0
@@ -152,6 +154,7 @@ def increase(fraction, multiplier):
 	return 1 - (1 - fraction) ** multiplier
 
 def addRivers():
+	# <!-- custom: ci_define_uncached: map scripts set this define for their rivers (KI#243), and SASCurrentDefines empties only on the overrides bridge's writes, so it is read through gc, once per map generation. See KI#128.9. (Claude code Opus 5.5) -->
 	# More rivers!
 	CyGlobalContext().setDefineINT("PLOTS_PER_RIVER_EDGE", int(CyGlobalContext().getDefineINT("PLOTS_PER_RIVER_EDGE") / 2))
 	CyGlobalContext().setDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE", 1)

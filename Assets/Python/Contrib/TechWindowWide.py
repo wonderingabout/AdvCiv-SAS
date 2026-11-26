@@ -9,6 +9,8 @@
 ## <!-- custom: Ruff reported E902 "stream did not contain valid UTF-8" at this legacy BUG TechWindow file start. Converting the file to UTF-8 in VS Code fixed the Ruff parser error while preserving the German comments and leaving runtime code unchanged. Credit: ChatGPT 5.5 and Ruff check. See KI#21.7. (GPT-5.5) -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvUtil
 
 # BUG - Options - end
@@ -237,8 +239,8 @@ class CvTechSplashScreen:
 		screen.setText(szAllowsTitleWidgetSIR, "", szAllowsTitleDescSIR, CvUtil.FONT_LEFT_JUSTIFY, self.X_ALLOWS_PANELSIR+self.iMarginSpace, self.Y_ALLOWS_PANELSIR - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# <!-- custom: Read once before the loop below, which read it for each tech. See KI#128.8. (Claude code Opus 5.5) -->
-		iNumOrTechPrereqs = CyGlobalContext().getDefineINT("NUM_OR_TECH_PREREQS")
-		iNumAndTechPrereqs = CyGlobalContext().getDefineINT("NUM_AND_TECH_PREREQS")
+		iNumOrTechPrereqs = SASCurrentDefines.getInt("NUM_OR_TECH_PREREQS")
+		iNumAndTechPrereqs = SASCurrentDefines.getInt("NUM_AND_TECH_PREREQS")
 		for j in range(CyGlobalContext().getNumTechInfos()):
 			for k in range(iNumOrTechPrereqs):
 				iPrereq = CyGlobalContext().getTechInfo(j).getPrereqOrTechs(k)

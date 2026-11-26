@@ -170,6 +170,7 @@ class CvReplayScreen:
 				self.replayInfo.createInfo(gc.getGame().getActivePlayer())
 
 		self.iTurn = self.replayInfo.getInitialTurn()
+		# <!-- custom: ci_define_uncached: this screen sets MINIMAP_RENDER_SIZE itself and restores the value read here, so it reads the current one through gc at each opening; SASCurrentDefines empties only on the overrides bridge's writes. See KI#128.9. (Claude code Opus 5.5) -->
 		# <advc.106m> Change MINIMAP_RENDER_SIZE until the replay is closed. (The EXE will access it.)
 		self.iOriginalMinimapRenderSize = gc.getDefineINT("MINIMAP_RENDER_SIZE")
 		iMinimapRenderSize = self.replayInfo.getMinimapSize()

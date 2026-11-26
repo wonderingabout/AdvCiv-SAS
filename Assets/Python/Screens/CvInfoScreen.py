@@ -9,6 +9,8 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvUtil
 import ScreenInput
 import CvScreenEnums
@@ -452,13 +454,13 @@ class CvInfoScreen:
 		self.sCityWonders = BugUtil.getPlainText("TXT_KEY_WONDER_CITY")
 
 		# <!-- custom: not strictly for text but use this to compute cheaply our sas defines once -->
-		self.IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (gc.getDefineINT("SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON") > 0)
+		self.IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (SASCurrentDefines.getInt("SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON") > 0)
 		# <!-- custom: cache toggle; when disabled, timeline entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
-		self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON = (gc.getDefineINT("SAS_INFO_UI_TIMELINE_CACHE_ON") > 0)
-		self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON = (gc.getDefineINT("SAS_INFO_UI_TIMELINE_TOP_CIVS_ON") > 0)
-		self.SAS_INFO_UI_SCORE_MAX_RENDER_THRESH = gc.getDefineINT("SAS_INFO_UI_SCORE_MAX_RENDER_THRESH")
-		self.iSAS_INFO_UI_GRAPH_X_GRID_LINES = gc.getDefineINT("SAS_INFO_UI_GRAPH_X_GRID_LINES")
-		self.iSAS_INFO_UI_GRAPH_Y_GRID_LINES = gc.getDefineINT("SAS_INFO_UI_GRAPH_Y_GRID_LINES")
+		self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON = (SASCurrentDefines.getInt("SAS_INFO_UI_TIMELINE_CACHE_ON") > 0)
+		self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON = (SASCurrentDefines.getInt("SAS_INFO_UI_TIMELINE_TOP_CIVS_ON") > 0)
+		self.SAS_INFO_UI_SCORE_MAX_RENDER_THRESH = SASCurrentDefines.getInt("SAS_INFO_UI_SCORE_MAX_RENDER_THRESH")
+		self.iSAS_INFO_UI_GRAPH_X_GRID_LINES = SASCurrentDefines.getInt("SAS_INFO_UI_GRAPH_X_GRID_LINES")
+		self.iSAS_INFO_UI_GRAPH_Y_GRID_LINES = SASCurrentDefines.getInt("SAS_INFO_UI_GRAPH_Y_GRID_LINES")
 
 	def reset(self):
 

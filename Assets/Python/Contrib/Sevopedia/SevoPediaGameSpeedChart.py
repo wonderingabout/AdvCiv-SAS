@@ -6,6 +6,8 @@
 #
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 # <!-- custom: Route shared visual resources through the centralized SASVisualUtils namespace after retiring overlapping helper/cache imports; keep one canonical visual-resource boundary. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 import SASTextScale
@@ -35,7 +37,7 @@ class SevoPediaGameSpeedChart:
 			self.W_FIELD = gc.getDefineINT("SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_4")
 		if self.W_FIELD <= 0:
 			raise ValueError("[FATAL] SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_* must be >= 1.")
-		iNoReduceMinWidth = gc.getDefineINT("SAS_SEVO_SPEED_FIELD_FULL_MIN_WIDTH")
+		iNoReduceMinWidth = SASCurrentDefines.getInt("SAS_SEVO_SPEED_FIELD_FULL_MIN_WIDTH")
 		if (iNoReduceMinWidth > 0) and (self.top.getScreen().getXResolution() >= iNoReduceMinWidth):
 			self.W_FIELD = gc.getDefineINT("SAS_SEVO_SPEED_FIELD_FULL_COL_WIDTH")
 			if self.W_FIELD <= 0:
@@ -319,7 +321,7 @@ class SevoPediaGameSpeedChart:
 			parsed_data[speed_type] = speed_dict
 
 		# Derived summary rows: NumTurnIncrements / TotalTurns; plus Calendar rows (Calendar_01 .. Calendar_NN).
-		start_year = gc.getDefineINT("START_YEAR")  # <!-- custom: not cached: read once only -->
+		start_year = SASCurrentDefines.getInt("START_YEAR")  # <!-- custom: not cached: read once only -->
 		max_increments = 0
 		total_turns_by_speed = {}
 

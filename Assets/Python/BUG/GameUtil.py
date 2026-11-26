@@ -59,7 +59,13 @@
 ##
 ## Author: EmperorFool
 
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 
 ## Globals
 
@@ -70,7 +76,7 @@ gc = CyGlobalContext()
 def getVersion():
 	# Returns the game version as an integer times 100 (e.g. 313).
 	#
-	return gc.getDefineINT("CIV4_VERSION")
+	return SASCurrentDefines.getInt("CIV4_VERSION")
 
 def isVersion(version):
 	# Returns True if the game version is at least <version>.
@@ -90,7 +96,7 @@ def isVersionBetween(min, max):
 def getSaveVersion():
 	# Returns the save version as an integer times 100 (e.g. 301).
 	#
-	return gc.getDefineINT("SAVE_VERSION")
+	return SASCurrentDefines.getInt("SAVE_VERSION")
 
 def isSaveVersion(version):
 	# Returns True if the save version is at least <version>.

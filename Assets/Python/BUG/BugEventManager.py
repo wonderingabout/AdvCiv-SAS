@@ -105,6 +105,8 @@
 # <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). See KI#21.7. (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 # <!-- custom: Consolidate this dependency at the shared SASVisualUtils/SASTextScale boundary instead of retaining the retired overlapping visual-resource helper imports. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 import CvEventManager
@@ -604,7 +606,7 @@ class BugEventManager(CvEventManager.CvEventManager):
 		# K-Mod, only enable these features if the cheat mode is enabled.
 		#return getChtLvl()
 		# advc.127: Replacing the above. ChtLvl is always 0 in multiplayer.
-		return (getChtLvl() or (CyGame().isGameMultiPlayer() and gc.getDefineINT("ENABLE_AUTOPLAY_MULTIPLAYER") > 0))
+		return (getChtLvl() or (CyGame().isGameMultiPlayer() and SASCurrentDefines.getInt("ENABLE_AUTOPLAY_MULTIPLAYER") > 0))
 
 EVENT_FUNCTION_MAP = {
 	"kbdEvent": BugEventManager._handleConsumableEvent,

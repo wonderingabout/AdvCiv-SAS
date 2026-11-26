@@ -5,6 +5,8 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvUtil
 import ScreenInput
 import CvScreenEnums
@@ -218,7 +220,7 @@ class CvTechChooser:
 			iTopSpaceForTechBar = self.iSAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE
 		# <!-- custom: Preserve room for the percentage and the ordinary +/- buttons when the map sliders use the right strip.
 		# The HUD handles optional buttons and rates separately. (GPT-6.2-Sol) -->
-		if gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_ANCHOR_RIGHT") > 0:
+		if SASCurrentDefines.getInt("SAS_MAIN_UI_MAP_COMMERCE_ANCHOR_RIGHT") > 0:
 			import CvScreensInterface
 			iRightSpaceForScoreboard = max(iRightSpaceForScoreboard, CvScreensInterface.mainInterface.getMinimumMapCommerceRightSpace())
 		else:

@@ -74,6 +74,8 @@ __version__ = "$Revision: 1.2 $"
 ## City is under cultural pressure
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 from SASUtils import getInfoTypeOrFail
 # <!-- custom: Reuse centralized immutable UI-art paths instead of maintaining alert-local copies of the same DDS resources.
 # Match entire former icon identifiers when converting uses: replacing HEALTHY_ICON within UNHEALTHY_ICON produced UNSASVisuals and failed during BUG configuration loading; no alert-local assignments to shared art are needed. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
@@ -178,7 +180,7 @@ def addMessage(iPlayer, szString, szIcon, iFlashX=-1, iFlashY=-1, bOffArrow=Fals
 		return # </advc.127>
 	# advc.106c: Reduced time from LONG to normal
 	# advc.106: Set bForce to False
-	eventMessageTime = gc.getDefineINT("EVENT_MESSAGE_TIME")
+	eventMessageTime = SASCurrentDefines.getInt("EVENT_MESSAGE_TIME")
 	# <!-- custom: Retain the inherited icon-delivery requirement: alerts must be "not immediate" for their icons to show up. (GPT-6.1-Sol) -->
 	CyInterface().addMessage(iPlayer, False, eventMessageTime, szString, None, InterfaceMessageTypes.MESSAGE_TYPE_INFO, szIcon, ColorTypes(-1), iFlashX, iFlashY, bOffArrow, bOnArrow)
 
@@ -531,7 +533,7 @@ class CityHappiness(AbstractCityTestAlert):
 
 	def init(self):
 		AbstractCityAlert.init(self)
-		self.kiTempHappy = gc.getDefineINT("TEMP_HAPPY")
+		self.kiTempHappy = SASCurrentDefines.getInt("TEMP_HAPPY")
 
 	def _passesTest(self, city):
 		return city.angryPopulation(0) > 0

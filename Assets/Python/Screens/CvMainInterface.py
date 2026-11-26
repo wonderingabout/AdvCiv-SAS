@@ -6,6 +6,8 @@
 # <!-- custom: note: for comparison with Base AdvCiv purposes, if needed, as of now we also store a single-line version of Base AdvCiv's CvMainInterface.py.
 # See: /_1_AdvCiv-SAS/Docs/examples/source_comparison/CvMainInterface_1_12_singleline.py and [the corresponding readme section] (/LLM_Helpers/README.md#comparison-with-base-advciv-112s-main-interface-processed-similarly) -->
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 # <advc.092>
 from RectLayout import *
 from LayoutDict import *
@@ -997,7 +999,7 @@ class CvMainInterface:
 		iLeftTopTextX = (gRect("TurnLogButton").x() * 2) / 3
 		bTopLeftFlagAndLeftSideTextShift = self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT
 		if bTopLeftFlagAndLeftSideTextShift is None:
-			bTopLeftFlagAndLeftSideTextShift = (gc.getDefineINT("SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT") > 0)
+			bTopLeftFlagAndLeftSideTextShift = (SASCurrentDefines.getInt("SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT") > 0)
 		if bTopLeftFlagAndLeftSideTextShift:
 			# <!-- custom: when this define is off, no flag is drawn here, so the left text (e.g. treasury) keeps its base position (no extra room needed). (GPT-5.3-Codex) -->
 			iLeftTopTextX += HSPACE(18)
@@ -1346,7 +1348,7 @@ class CvMainInterface:
 		return max(CyInterface().determineWidth(SASTextScale.labelText(u"%s:100%%" % SASVisuals.Commerce.char(eCommerce))) for eCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES))
 
 	def getMinimumMapCommerceRightSpace(self):
-		iOffset = max(HSPACE(4), HSPACE(gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_RIGHT_X_OFFSET")))
+		iOffset = max(HSPACE(4), HSPACE(SASCurrentDefines.getInt("SAS_MAIN_UI_MAP_COMMERCE_RIGHT_X_OFFSET")))
 		return iOffset + self.getCommercePercentLabelWidth() + HSPACE(3) + 2 * BTNSZ(20) + HSPACE(0) + max(2, HSPACE(4))
 
 	def setCommerceAdjustRects(self):
@@ -2733,7 +2735,7 @@ class CvMainInterface:
 		if (CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_HIDE_ALL or CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_MINIMAP_ONLY or CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_ADVANCED_START):
 			return
 		# <!-- custom: Replace the former screen-instance define cache with one read per commerce-control redraw so explicit runtime increment changes reach both +/- buttons; retain local reuse within this draw. See KI#128.2. (Claude code Sonnet 4.6 + GPT-6.1-Sol) -->
-		iCommercePercentChangeIncrements = gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")
+		iCommercePercentChangeIncrements = SASCurrentDefines.getInt("COMMERCE_PERCENT_CHANGE_INCREMENTS")
 		if self.iSAS_COMMERCE_SLIDERS_FAST_INCR_PCT is None:
 			self.iSAS_COMMERCE_SLIDERS_FAST_INCR_PCT = gc.getDefineINT("SAS_COMMERCE_SLIDERS_FAST_INCR_PCT")
 		# <!-- custom: BUG's Min/Max pair only when setCommerceAdjustRects found room for it: beside the Tech Advisor at 1920 px it would fall off the screen's edge. (Claude code Opus 5.5) -->

@@ -14,6 +14,8 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvMapGeneratorUtil
 import math
 import sys
@@ -129,7 +131,7 @@ def getGridSize(argsList):
 	kWorld = cgc.getWorldInfo(eWorldSize)
 	iMinWorldSide = min(kWorld.getGridWidth(), kWorld.getGridHeight())
 	# <!-- custom: Peirce uses square grids; scale from selected world-size min side with a global define so Arena..SAS48 can be tuned centrally like Planet Generator. (GPT-5.3-Codex) -->
-	iGridPercent = cgc.getDefineINT("SAS_PEIRCE_GRID_PCT")
+	iGridPercent = SASCurrentDefines.getInt("SAS_PEIRCE_GRID_PCT")
 	iGridPercent = max(1, min(200, iGridPercent))
 	iBaseSide = max(8, int((iMinWorldSide * iGridPercent + 50) / 100))
 	# <!-- custom: Keep original Peirce-type relative sizing (normalized from old Huge tables). (GPT-5.3-Codex) -->

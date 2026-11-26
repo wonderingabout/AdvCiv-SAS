@@ -9,6 +9,8 @@
 # For Input see CvOptionsScreenCallbackInterface in Python\EntryPoints\
 
 import CvUtil
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 from CvPythonExtensions import *
 
 # globals
@@ -341,13 +343,13 @@ class CvOptionsScreen:
 			bContinue = true
 
 			if (iOptionLoop == PlayerOptionTypes.PLAYEROPTION_MODDER_1):
-				if (gc.getDefineINT("USE_MODDERS_PLAYEROPTION_1") == 0):
+				if (SASCurrentDefines.getInt("USE_MODDERS_PLAYEROPTION_1") == 0):
 					bContinue = false
 			elif (iOptionLoop == PlayerOptionTypes.PLAYEROPTION_MODDER_2):
-				if (gc.getDefineINT("USE_MODDERS_PLAYEROPTION_2") == 0):
+				if (SASCurrentDefines.getInt("USE_MODDERS_PLAYEROPTION_2") == 0):
 					bContinue = false
 			elif (iOptionLoop == PlayerOptionTypes.PLAYEROPTION_MODDER_3):
-				if (gc.getDefineINT("USE_MODDERS_PLAYEROPTION_3") == 0):
+				if (SASCurrentDefines.getInt("USE_MODDERS_PLAYEROPTION_3") == 0):
 					bContinue = false
 
 			if (bContinue):

@@ -3,6 +3,8 @@
 #
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 from SASMagicNumbers import *
 import CvUtil
 # <!-- custom: SevoScreenEnums.py was removed; import its unchanged page IDs from the SevoScreenEnums class in CvScreenEnums.py, keeping them distinct from vanilla Civilopedia pages. (GPT-6.1-Sol) -->
@@ -37,7 +39,7 @@ class SevoPediaMusic:
 		self.SAS_musicGroupLastIndex = None
 
 		# Offset for the extra width of Music items list vs base width
-		I_SAS_SEVO_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVO_MUSIC_ITEMS_WIDTH")
+		I_SAS_SEVO_MUSIC_ITEMS_WIDTH = SASCurrentDefines.getInt("SAS_SEVO_MUSIC_ITEMS_WIDTH")
 		if I_SAS_SEVO_MUSIC_ITEMS_WIDTH <= 0:
 			I_SAS_SEVO_MUSIC_ITEMS_WIDTH = self.top.W_ITEMS
 		iExtraWidth = I_SAS_SEVO_MUSIC_ITEMS_WIDTH - self.top.W_ITEMS

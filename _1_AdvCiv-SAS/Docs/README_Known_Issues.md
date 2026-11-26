@@ -226,6 +226,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#128.6 - (Improved SAS and inherited BUG, guarded by CI) 16 Python define reads ran at import, 15 SAS Sevopedia switches and BUG's PEACE_TREATY_LENGTH, so each kept its first value for the session and no override reached it; they are read at use now, and CI rejects new ones](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.6)\
 [KI#128.7 - (Improved SAS, guarded by CI) A user could not tell which defines SASLiveDefineOverrides.txt reaches: one that follows an override and one whose readers keep their first value look the same in the XML, and both logged APPLIED; SASLiveDefineOverridesAllowed.txt now lists the live ones, and the bridge refuses any other](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.7)\
 [KI#128.8 - (Fixed inherited Better BTS AI and BUG) Python read a define again at each pass of a loop: ChangePlayer read BARBARIAN_LEADER once per leader, and the Tech Window read its two tech-prerequisite counts once per tech; each is now read once before its loop](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.8)\
+[KI#128.9 - (Improved SAS and inherited, guarded by CI) Python read defines by name with no caching rule, unlike the DLL: a read through gc cost 279 ns, and five ran once per leader or per tech inside a loop; they now go through a cache, SASCurrentDefines' reads went from 167 ns to about 80 ns, while a kept self.x, at 18 ns, stays the faster choice for a hot path, and CI requires a cache or a stated reason for each read, as in C++](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.9)\
 [KI#129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-129)\
 [KI#130 - (Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-130)\
 [KI#131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-131)\
@@ -12544,6 +12545,13 @@ The user asked whether caching these switches in `__init__` would be faster:
 - Under Python 2.4, a `self.` attribute read took 74 ns and `SASCurrentDefines.getInt` 230 ns, best of 5 runs of 200,000; a page reads one to three of them per draw, well under a microsecond, while an attribute would keep its value for the session, so no override would reach it.
 - The Sevopedia is built on its first opening, its modules imported then too, so `__init__` would read them no later. Codex agreed to keep `SASCurrentDefines` for such UI switches, and attribute caches for hot code.
 
+Hot reads at use were checked next (2026-11-26), as the last step of this audit: [`audit_define_timing.py`](/LLM_Helpers/README.md#audit_define_timingpy)` --scope inherited` lists 49 inherited Python reads at use, and none needed a cache.
+
+- Each runs once per screen draw, popup, message, turn or callback, such as `COMMERCE_PERCENT_CHANGE_INCREMENTS` per redraw ([KI#128.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.2)), `PEACE_TREATY_LENGTH` per deal or the `SCORE_*` factors in `CvGameUtils.calculateScore`, which does not run, as `USE_CALCULATE_SCORE_CALLBACK` is 0.
+- The only loop is the Customizable Domestic Advisor's trade columns: `range(gc.getDefineINT("MAX_TRADE_ROUTES"))` reads the define once per city and column, while each route then calls `calculateTradeYield` for each yield, which costs far more.
+- So they stay read at use, which also keeps them following a change, as `FIELD_OF_VIEW` needs since other code sets it.
+- The screens built at import, such as `CvScreensInterface`'s `mainInterface = CvMainInterface.CvMainInterface()`, read 51 SAS and 4 inherited defines in their `__init__`, so at import; Codex agreed that this is a pass of its own, as it changes how those screens are built.
+
 <a id="ki-128.7"></a>
 
 ## KI#128.7 - (Improved SAS, guarded by CI) A user could not tell which defines SASLiveDefineOverrides.txt reaches: one that follows an override and one whose readers keep their first value look the same in the XML, and both logged APPLIED; SASLiveDefineOverridesAllowed.txt now lists the live ones, and the bridge refuses any other
@@ -12599,6 +12607,62 @@ Where they came from, traced through the `commit_diffs` corpus and the inherited
 - Neither file is in vanilla, Warlords or BtS: `inherited_files.tsv` lists both in the AdvCiv layer only. BUG's own history is not in the corpus, so which BUG version wrote the Tech Window reads was not traced.
 
 Implemented with the help of Claude Code Opus 5.5.
+
+<a id="ki-128.9"></a>
+
+## KI#128.9 - (Improved SAS and inherited, guarded by CI) Python read defines by name with no caching rule, unlike the DLL: a read through gc cost 279 ns, and five ran once per leader or per tech inside a loop; they now go through a cache, SASCurrentDefines' reads went from 167 ns to about 80 ns, while a kept self.x, at 18 ns, stays the faster choice for a hot path, and CI requires a cache or a stated reason for each read, as in C++
+
+- Context: once [KI#128.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.6) found none of Python's inherited reads at use hot, the user asked on 2026-11-26 whether Python should, as the DLL does since [KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3), require a cache or a stated reason for each define read by name, for sanity and reliability, rather than relying on someone remembering to check.
+- [`python_define_reads_cached.py`](/.github/workflows/README.md#buildsourcepython_define_reads_cachedpy) does so, with the same `ci_define_uncached:` marker as the C++ check, so one grep lists the exemptions of both; SAS and inherited reads are checked alike, as in C++.
+  - A cache is `SASCurrentDefines`, an attribute of `self`, a declared global, or a read under a lazy guard on one of them, such as `getGGBarTextMode`'s `if self.iSAS_MAIN_UI_GG_BAR_TEXT is None:` or `addMarshesAtPlot`'s `if getattr(self, "marshes", None) is None:`.
+  - A guard on a parameter is no cache: `CvMapGeneratorUtil`'s `if fracXExp is None:` falls back to the define at each call.
+  - As in C++, a read inside a loop body needs its reason inside that loop.
+- Run over the whole repository first, it found 97 reads by name outside a cache in 54 functions of 36 files, 49 of SAS defines and 48 of inherited ones.
+  - The loop rule found five reads made at each pass: `ChangePlayer.changePersonality` read `BARBARIAN_LEADER` for each leader, and `TechWindow` and `TechWindowWide` read `NUM_OR_TECH_PREREQS` and `NUM_AND_TECH_PREREQS` for each tech. They are now read once before their loop ([KI#128.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.8)).
+  - The check's first draft had two gaps, each found while applying it.
+    - A comment just inside a loop was credited to its function, so a reason first placed there, "read once per tech-discovered popup", passed while the read ran once per tech; a comment between a block's header and its first statement now belongs to that block.
+    - Any attribute counted as a cache, so MoreCiv4lerts' `tradeData.iData = gc.getDefineINT("PEACE_TREATY_LENGTH")`, a field of a deal built at each call, passed; only an attribute of `self` counts now.
+
+How the reads were cached, step by step (2026-11-26):
+
+- The first draft gave each of the 54 functions a stated reason, such as once per map generation, once per deal or once per redraw, judging them all too rare to matter.
+  - The user questioned that: once per deal is not zero, and once per tech is a lot. A probe at game start then measured, best of 5 rounds of 20,000 reads, 279 ns a read through `gc.getDefineINT` against 167 ns through `SASCurrentDefines`, as a read through `gc` crosses into the DLL, which builds a C++ string from the name and looks it up each time.
+- So all 97 reads went through `SASCurrentDefines`, one shared cache for every module, so a define read in several files, such as `START_YEAR`, `PEACE_TREATY_LENGTH` or `EVENT_MESSAGE_TIME`, is fetched once.
+  - The one exception is Water.py's `PLOTS_PER_RIVER_EDGE`, which map scripts set themselves for their rivers ([KI#243](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-243)); `SASCurrentDefines` empties only on the overrides bridge's writes, so it would miss that change, and the read keeps `gc` with a stated reason.
+- The user then asked whether the cache could be faster. Most of its 167 ns was calling the bridge's change count at each read, not the dictionary: Python keeps a string's hash, so the lookup itself is cheap, while the slow string work is the DLL's.
+  - The bridge now calls listeners after each applied change, through `addChangeListener`, and `SASCurrentDefines` registers one at import that empties its caches, so a cached read is one dictionary lookup.
+  - Measured under Python 2.4, best of 5 rounds of 200,000 reads: `SASCurrentDefines` went from 191 ns to about 80 ns, against 39 ns for a lazy `self` attribute behind an `is None` guard and 18 ns for a plain one.
+    - All the reads measured that day, the read through `gc` in game, best of 5 rounds of 20,000, as it needs the DLL, and the others under Python 2.4 outside the game:
+
+      | Read | Cost per read |
+      | --- | --- |
+      | `gc.getDefineINT("X")`, in game | 279 ns |
+      | `SASCurrentDefines.getInt("X")`, asking the change count at each read | 167 ns in game, 191 ns under Python 2.4 |
+      | `SASCurrentDefines.getInt("X")`, emptied by the bridge | about 80 ns |
+      | lazy guard, `if self.y is None: ...` then `self.y` | 39 ns |
+      | plain kept attribute, `self.x` | 18 ns |
+
+    - So a kept `self.x` is the fastest read, over four times faster than `SASCurrentDefines`, which suits a hot path, while `SASCurrentDefines` needs one line, shares one copy across modules and follows a live override.
+  - The shared pool is one dictionary per type, about 60 names; a lookup costs the same whatever its size, so adding names does not make it heavier.
+- The in-game test of that change was blocked: a force-stopped test client stayed listed with `HasExited` true while another process held it, and every new client quit while loading, before Python started. `desktop_windows.civ4_processes()` now leaves out such a client, so `start_game.py` no longer refuses to start because of one.
+- The user then asked whether per-module lazy caches, `self.x` in methods and a module global in module functions, would be better still for defines that never change during play, as they are faster per read, and whether keeping many copies of a define across modules matters.
+  - None of the 97 can change live: the bridge never overrides inherited defines, and none of the SAS ones is in [`SASLiveDefineOverridesAllowed.txt`](/SASLiveDefineOverrides/SASLiveDefineOverridesAllowed.txt), whose check fails a reader that keeps the value of a listed define ([KI#128.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.7)).
+  - The cost would be about 55 cache blocks in 34 files, for about 40 to 60 ns saved a read on paths that run per deal, alert, hover, redraw or popup.
+
+Codex's review (GPT-6.2-Sol, 2026-11-26) advised keeping `SASCurrentDefines` as the default:
+
+- The 40 to 60 ns a read does not justify some 55 cache blocks; a copy of a define costs little memory, but many copies make it harder to see when each is filled or refreshed, and a shared cache of about 60 names is small.
+- Local caches suit a hot path that profiling shows, or a value whose lifetime an object already owns.
+- It found gaps in the check, each now tested: a store into `self` counted as a cache in any method or loop, though it reads at each call or pass; an unrelated guard such as `if self.ready and value is None:` passed; a read split after its bracket was missed; an outer loop's marker covered an inner loop, and a `while` condition, run at each test, followed the function's marker; and a valid one-line `if self.x is None: self.x = ...` failed.
+  - Making these strict turned up nine more reads stored in methods that run again: six SAS switches in `CvInfoScreen.initText`, run at each opening, Civ4lerts' `TEMP_HAPPY` and the Dawn of Man screen's `START_YEAR`, which now go through `SASCurrentDefines`, and `CvReplayScreen`'s `MINIMAP_RENDER_SIZE`, which that screen sets and restores itself, so it keeps `gc` with a stated reason.
+  - A test of the fix also showed that a comment line before a dedent comes before the dedent's tokens, so a function-level reason after a loop was credited to the loop; a comment now counts for the blocks its column sits in.
+- A listener that raised would have skipped the others, the log row and the redraw, and rereading the same text never notifies again, so each listener's error is now caught and logged in the `APPLIED` row; a rollback that itself fails also notifies the listeners, as it may leave the defines changed.
+
+The five reads repeated at each pass of a loop, inherited from Better BTS AI and BUG, are [KI#128.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.8), with their origin.
+
+- The other reads stored again where they run again were no slip: Civ4lerts' `TEMP_HAPPY` and the Dawn of Man screen's `START_YEAR`, in an `init` from K-Mod's first asset commit, and SAS's six `CvInfoScreen.initText` switches, whose comment meant them to be computed "cheaply ... once", while `initText` runs at each opening of the Info screen; all now go through `SASCurrentDefines`.
+
+Implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol).
 
 <a id="ki-129"></a>
 

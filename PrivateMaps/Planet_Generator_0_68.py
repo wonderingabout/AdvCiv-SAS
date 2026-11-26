@@ -16,6 +16,8 @@
 # <!-- custom: Long_Comments_py.txt #14 -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvUtil
 from CvUtil import *
 import CvMapGeneratorUtil
@@ -341,7 +343,7 @@ chosenWorldType = -1
 # <!-- custom: Scale WorldInfo terrain cells through SAS_PLANET_GENERATOR_GRID_PCT, but retain the smallest default-supported 6x4 terrain-cell grid so low percentages cannot produce zero dimensions or four-plot-high edge seeds. See KI#260. (GPT-5.3-Codex; ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 def getPlanetScaledGridSize(iWidth, iHeight):
 	cgc = CyGlobalContext()
-	iGridPercent = cgc.getDefineINT("SAS_PLANET_GENERATOR_GRID_PCT")
+	iGridPercent = SASCurrentDefines.getInt("SAS_PLANET_GENERATOR_GRID_PCT")
 	if iGridPercent < 1:
 		iGridPercent = 1
 	elif iGridPercent > 100:

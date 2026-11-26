@@ -103,23 +103,23 @@ class SevoPediaLeader:
 			self.aiRightCategories, self.aiMiddleCategories, self.aiLeftCategories = (), (), ()
 
 		self.N_AI_TABLE_NUM = 3
-		iLeaderItemsWidthFont2 = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2")
+		iLeaderItemsWidthFont2 = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2")
 		if iLeaderItemsWidthFont2 <= 0:
 			iLeaderItemsWidthFont2 = self.top.SAS_W_ITEMS_BASE
 		iLabelFont = SASTextScale.getSASUIFontLabel()
 		if iLabelFont <= 1:
-			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1")
+			iLeaderItemsWidthCurrentForGain = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1")
 		elif iLabelFont == 2:
-			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2")
+			iLeaderItemsWidthCurrentForGain = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2")
 		elif iLabelFont == 3:
-			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3")
+			iLeaderItemsWidthCurrentForGain = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3")
 		else:
-			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4")
+			iLeaderItemsWidthCurrentForGain = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4")
 		if iLeaderItemsWidthCurrentForGain <= 0:
 			iLeaderItemsWidthCurrentForGain = self.top.SAS_W_ITEMS_BASE
 		# <!-- custom: keep AIP panel expansion tied to upscaled font widths, but when item-list reduction is disabled on wide screens, keep page-left anchored at base item width so the rest of the page absorbs the squeeze. (GPT-5.3-Codex) -->
 		iLeaderItemsWidthCurrent = iLeaderItemsWidthCurrentForGain
-		iNoReduceMinWidth = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH")
+		iNoReduceMinWidth = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH")
 		if (iNoReduceMinWidth > 0) and (self.top.getScreen().getXResolution() >= iNoReduceMinWidth):
 			iLeaderItemsWidthCurrent = self.top.SAS_W_ITEMS_BASE
 		iLeaderItemsWidthGain = iLeaderItemsWidthFont2 - iLeaderItemsWidthCurrentForGain

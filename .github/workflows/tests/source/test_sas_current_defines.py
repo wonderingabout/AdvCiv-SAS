@@ -44,8 +44,8 @@ def load(values, bridge):
 class SASCurrentDefinesTests(unittest.TestCase):
 	def setUp(self):
 		self.bridge = types.ModuleType("SASLiveDefineOverridesBridge")
-		self.count = 0
-		self.bridge.getChangeCount = lambda: self.count
+		self.listeners = []
+		self.bridge.addChangeListener = self.listeners.append
 		self.values = {"SAS_A": 3}
 		self.module, self.fake = load(self.values, self.bridge)
 
@@ -54,11 +54,14 @@ class SASCurrentDefinesTests(unittest.TestCase):
 		self.assertEqual(self.fake.reads, 1)
 
 	def test_override_change_rereads(self):
-		# <!-- custom: The bridge pushes an override, then raises its change count; the next read must see the new value without the reader doing anything. (Claude code Opus 5.5) -->
+		# <!-- custom: The bridge pushes an override, then calls its listeners; the next read must see the new value without the reader doing anything.
+		# Since KI#128.9 the bridge calls the module rather than the module asking the change count at each read. (Claude code Opus 5.5) -->
 		self.assertEqual(self.module.getInt("SAS_A"), 3)
 		self.values["SAS_A"] = 4
 		self.assertEqual(self.module.getInt("SAS_A"), 3)
-		self.count = 1
+		self.assertEqual(len(self.listeners), 1)
+		for function in self.listeners:
+			function()
 		self.assertEqual(self.module.getInt("SAS_A"), 4)
 		self.assertEqual(self.fake.reads, 2)
 

@@ -15,6 +15,8 @@
 # For contrast, true alternatives are independent variants (e.g. "CvBUGMilitaryAdvisor.py" / "CvMilitaryAdvisor.py"), while major screens like "CvMainInterface.py" and "CvInfoScreen.py" are lengthy but unified files. (GPT-5.3-Codex) -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvUtil
 import ScreenInput
 import CvScreenEnums
@@ -3222,7 +3224,7 @@ class CvForeignAdvisor:
 		x = self.ESP_X_TOTAL_PANE
 		y = self.ESP_Y_TOTAL_PANE
 		# <!-- custom: Replace the former screen-instance define cache with one read per commerce-control redraw so explicit runtime increment changes reach both +/- buttons; retain local reuse within this draw. See KI#128.2. (Claude code Sonnet 4.6 + GPT-6.1-Sol) -->
-		iCommercePercentChangeIncrements = gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")
+		iCommercePercentChangeIncrements = SASCurrentDefines.getInt("COMMERCE_PERCENT_CHANGE_INCREMENTS")
 		screen.setButtonGFC("plusButton", u"", "", x + self.ESP_TEXT_MARGIN, y + self.ESP_TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, iCommercePercentChangeIncrements, ButtonStyles.BUTTON_STYLE_CITY_PLUS )
 		screen.setButtonGFC("minusButton", u"", "", x + self.ESP_TEXT_MARGIN + 24, y + self.ESP_TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, -iCommercePercentChangeIncrements, ButtonStyles.BUTTON_STYLE_CITY_MINUS )
 		szText = SASTextScale.sasFontTagLabel + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(pActivePlayer.getCommercePercent(eCommerce)) + u"%)" + SASTextScale.SAS_FONT_TAG_CLOSE

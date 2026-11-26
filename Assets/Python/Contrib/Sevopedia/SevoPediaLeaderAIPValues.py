@@ -186,5 +186,5 @@ def _compute_leader_cache_internal():
 
 def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
 	# Wrapper that either loads pre-dumped cache or computes it
-	return get_leader_cache_predumped_or_compute(compute_func = _compute_leader_cache_internal, excluded_leader_types = AIP_EXCLUDED_LEADER_TYPES, is_emoji_enabled = (gc.getDefineINT("SAS_SEVO_LEADER_AI_EMOJI_ON") > 0), is_raw_xml_names = SASCurrentDefines.getInt("SAS_SEVO_LEADER_AI_RAW_XML_NAMES_ON") > 0)
+	return get_leader_cache_predumped_or_compute(compute_func = _compute_leader_cache_internal, excluded_leader_types = AIP_EXCLUDED_LEADER_TYPES, is_emoji_enabled = (SASCurrentDefines.getInt("SAS_SEVO_LEADER_AI_EMOJI_ON") > 0), is_raw_xml_names = SASCurrentDefines.getInt("SAS_SEVO_LEADER_AI_RAW_XML_NAMES_ON") > 0)
 

@@ -46,6 +46,8 @@
 # <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). See KI#21.7. (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 from SAS_WorldSizeUtils import *
 import CvUtil
 import CvMapGeneratorUtil
@@ -7051,7 +7053,7 @@ def createIce():
 
 def assignStartingPlots():
 	# <advc.027> Handle starting sites in findStartingArea - unless SPI is disabled.
-	if CyGlobalContext().getDefineINT("ENABLE_STARTING_POSITION_ITERATION") <= 0:
+	if SASCurrentDefines.getInt("ENABLE_STARTING_POSITION_ITERATION") <= 0:
 		sf.SetStartingPlots()
 	else:
 		CyPythonMgr().allowDefaultImpl()
@@ -7059,7 +7061,7 @@ def assignStartingPlots():
 def findStartingArea(argsList):
 	[playerID] = argsList
 	player = CyGlobalContext().getPlayer(playerID)
-	if CyGlobalContext().getDefineINT("ENABLE_STARTING_POSITION_ITERATION") <= 0:
+	if SASCurrentDefines.getInt("ENABLE_STARTING_POSITION_ITERATION") <= 0:
 		# Starting plots have already been computed in assignStartingPlots then
 		CyPythonMgr().allowDefaultImpl()
 		return -1

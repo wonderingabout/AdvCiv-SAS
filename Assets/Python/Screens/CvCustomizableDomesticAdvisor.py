@@ -57,6 +57,8 @@
 # <!-- custom: AdvCiv-SAS retains this inherited BUG screen while applying repo-wide fail-loud/consistency cleanup; immutable glyph caches previously rebuilt per advisor instance now delegate to SASVisualUtils. (Claude code Opus 4.7 + ChatGPT-5.6-Sol) -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 from SASUtils import getInfoTypeOrFail
 
 import PyHelpers
@@ -1205,7 +1207,7 @@ class CvCustomizableDomesticAdvisor:
 		nTotalTradeProfit = 0
 
 		# For each trade route possible
-		for nTradeRoute in range (gc.getDefineINT("MAX_TRADE_ROUTES")):
+		for nTradeRoute in range (SASCurrentDefines.getInt("MAX_TRADE_ROUTES")):
 			# Get the next trade city
 			pTradeCity = city.getTradeCity(nTradeRoute)
 			# Not quite sure what this does but it's in the MainInterface
@@ -1228,7 +1230,7 @@ class CvCustomizableDomesticAdvisor:
 		nRoutes = 0
 
 		# For each trade route possible
-		for nTradeRoute in range (gc.getDefineINT("MAX_TRADE_ROUTES")):
+		for nTradeRoute in range (SASCurrentDefines.getInt("MAX_TRADE_ROUTES")):
 			# Get the next trade city
 			pTradeCity = city.getTradeCity(nTradeRoute)
 			# Not quite sure what this does but it's in the MainInterface
@@ -1379,7 +1381,7 @@ class CvCustomizableDomesticAdvisor:
 			if CityScreenOpt.isWhipAssistOverflowCountCurrentProduction():
 				iOverflow = iOverflow + city.getCurrentProductionDifference(True, False)
 			iMaxOverflow = min(city.getProductionNeeded(), iOverflow)
-			iOverflowGold = max(0, iOverflow - iMaxOverflow) * gc.getDefineINT("MAXED_UNIT_GOLD_PERCENT") / 100
+			iOverflowGold = max(0, iOverflow - iMaxOverflow) * SASCurrentDefines.getInt("MAXED_UNIT_GOLD_PERCENT") / 100
 			iOverflow = 100 * iMaxOverflow / city.getBaseYieldRateModifier(self.YIELD_PRODUCTION, city.getProductionModifier())
 			return unicode(iOverflow), unicode(iOverflowGold)
 		else:

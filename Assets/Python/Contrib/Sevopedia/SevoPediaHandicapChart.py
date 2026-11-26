@@ -8,6 +8,8 @@
 # <!-- custom: note: pending issue of img being left-aligned but couldn't fix it for now, i believe the advantage of being able to sort by emoji i.e. theme outweighs this downside so left as such for now. -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 # <!-- custom: Consolidate this dependency at the shared SASVisualUtils/SASTextScale boundary instead of retaining the retired overlapping visual-resource helper imports. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 import CvUtil
@@ -260,7 +262,7 @@ class SevoPediaHandicapChart:
 					goody_types.append(gt)
 		goody_groups = tuple(goody_groups_list)
 
-		anchor_field = gc.getDefineSTRING("SAS_SEVO_HANDICAP_CHART_ANCHOR_FIELD")  # <!-- custom: not cached: read once only (table is cached via _cachedTable) (Claude code Sonnet 4.6) -->
+		anchor_field = SASCurrentDefines.getString("SAS_SEVO_HANDICAP_CHART_ANCHOR_FIELD")  # <!-- custom: through SASCurrentDefines; the table itself is cached via _cachedTable. See KI#128.9. (Claude code Sonnet 4.6 + Claude code Opus 5.5) -->
 		if not anchor_field:
 			raise ValueError("[FATAL] Missing SAS_SEVO_HANDICAP_CHART_ANCHOR_FIELD define.")
 

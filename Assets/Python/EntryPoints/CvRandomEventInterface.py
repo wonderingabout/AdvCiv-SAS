@@ -13,6 +13,8 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
 import CvUtil
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import SASGameRecordActions # <!-- custom: The three named Python event-reply callbacks need readable SGR input evidence independently from subsequent war/peace outcomes; the shared helper owns gating and serialization. (GPT-6.1-Sol) -->
 import SASPopupChoices # <!-- custom: Event reply creation and gameplay dispatch share the same Yes/No IDs and readable action names, independently from diagnostic enablement. (GPT-6.1-Sol) -->
 from CvPythonExtensions import *
@@ -315,7 +317,7 @@ def getHelpWeddingFeud2(argsList):
 	iEvent = argsList[0]
 	event = gc.getEventInfo(iEvent)
 	kTriggeredData = argsList[1]
-	szHelp = localText.getText("TXT_KEY_EVENT_WEDDING_FEUD_2_HELP", (gc.getDefineINT("TEMP_HAPPY"), 30, SASVisuals.Religion.ordinal(kTriggeredData.eReligion)))
+	szHelp = localText.getText("TXT_KEY_EVENT_WEDDING_FEUD_2_HELP", (SASCurrentDefines.getInt("TEMP_HAPPY"), 30, SASVisuals.Religion.ordinal(kTriggeredData.eReligion)))
 
 	return szHelp
 
@@ -3687,7 +3689,7 @@ def doGreatBeast3(argsList):
 
 def getHelpGreatBeast3(argsList):
 	kTriggeredData = argsList[1]
-	szHelp = localText.getText("TXT_KEY_EVENT_GREAT_BEAST_3_HELP", (gc.getDefineINT("TEMP_HAPPY"), 40, SASVisuals.Religion.ordinal(kTriggeredData.eReligion)))
+	szHelp = localText.getText("TXT_KEY_EVENT_GREAT_BEAST_3_HELP", (SASCurrentDefines.getInt("TEMP_HAPPY"), 40, SASVisuals.Religion.ordinal(kTriggeredData.eReligion)))
 
 	return szHelp
 

@@ -126,6 +126,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/python_aligned_columns.py`](#buildsourcepython_aligned_columnspy)
     - [`build/source/python_binding_targets.py`](#buildsourcepython_binding_targetspy)
     - [`build/source/python_dead_stores.py`](#buildsourcepython_dead_storespy)
+    - [`build/source/python_define_reads_cached.py`](#buildsourcepython_define_reads_cachedpy)
     - [`build/source/python_define_reads_import.py`](#buildsourcepython_define_reads_importpy)
     - [`build/source/python_multiline_calls.py`](#buildsourcepython_multiline_callspy)
     - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
@@ -1548,6 +1549,22 @@ Fails when runtime Python in `Assets/Python` or `PrivateMaps` stores `self.X` tw
 python .github/workflows/build/source/python_dead_stores.py
 ```
 
+#### `build/source/python_define_reads_cached.py`
+
+The Python counterpart of [`cpp_define_reads_cached.py`](#buildsourcecpp_define_reads_cachedpy): fails when runtime Python in `Assets/Python` or `PrivateMaps` reads a define by name, such as `gc.getDefineINT("MAX_TRADE_ROUTES")`, inside a function and outside a cache, unless the function says why with a `ci_define_uncached:` comment, so `rg "ci_define_uncached:"` lists the exemptions of both checks; see [AGENTS.md](/AGENTS.md#xml-lookup-caching-and-validation).
+
+- Measured in game on 2026-11-26, best of 5 rounds of 20,000, a read through `gc` cost 279 ns and one through `SASCurrentDefines` 167 ns; once the bridge empties its caches rather than each read asking its change count, a read costs about 80 ns under Python 2.4, so even a read once per deal, hotkey press or map takes the cache; the marker is for a define other code sets during play, such as Water.py's `PLOTS_PER_RIVER_EDGE`, which `SASCurrentDefines` would miss.
+- A cache is `SASCurrentDefines`, a store into an attribute of `self` in `__init__` outside any loop, or a read under a lazy guard of the form `if self.x is None:`, `if getattr(self, "x", None) is None:` or `if NAME is None:` on a declared global, a one-line `if` included; a store in another method runs at each call, and a guard on a parameter, such as `CvMapGeneratorUtil`'s `if fracXExp is None:`, falls back to the define at each call, so both need a reason.
+  - The guard is a heuristic: the read under it is not tied to filling that cache, so `if self.x is None: return gc.getDefineINT("X")` passes though it reads at each call, as Codex's review (GPT-6.2-Sol) found; tying it would reject `getGGBarTextMode`'s valid read into a local before the store, so such a guard is reviewed by eye.
+- A read inside a `for` or `while` body runs at each pass, so only a marker inside its innermost loop covers it, a comment counting for the blocks its column sits in; a read in a `for`'s own header, such as `range(gc.getDefineINT("MAX_TRADE_ROUTES"))`, runs once, while a `while`'s condition runs at each test, so it belongs to that loop.
+- Codex's review (GPT-6.2-Sol) found the first version's gaps, each now tested: a store into `self` in any method or loop counted as a cache, an unrelated guard such as `if self.ready and value is None:` passed, a read split after its bracket was missed, an outer loop's marker covered an inner one, and a valid one-line `if self.x is None: self.x = ...` failed.
+- Module-level and class-body reads are left to [`python_define_reads_import.py`](#buildsourcepython_define_reads_importpy), and reads through a variable name, as `SASCurrentDefines` and the overrides bridge make, are the caches themselves.
+- Added on 2026-11-26 for [KI#128.9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.9), SAS and inherited defines alike, as in C++. Run repo-wide first, it found 97 reads in 54 functions; five ran in a loop, once per leader or tech, and are now read once before it, and all but the river define go through `SASCurrentDefines`.
+
+```bash
+python .github/workflows/build/source/python_define_reads_cached.py
+```
+
 #### `build/source/python_define_reads_import.py`
 
 Fails when runtime Python in `Assets/Python` or `PrivateMaps` reads a GlobalDefine at import, at module level or in a class body, through `getDefineINT`, `getDefineFLOAT`, `getDefineSTRING`, `getDefineBOOL` or `SASCurrentDefines`: the value is then kept for the session, so an override from [`SASLiveDefineOverrides.txt`](/README.md#live-define-overrides) never reaches it, and AGENTS.md prefers reading after setup, as early reads were linked to instability in [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128).
@@ -2219,7 +2236,7 @@ A source marker is a token in a comment that tells one check why the line or fun
 
 | Marker | Intent | What CI still checks |
 | --- | --- | --- |
-| `ci_define_uncached:` | a define read by name outside a static runs once or rarely, so it needs no cache | every other read in the DLL, and a read inside a loop unless the marker sits in that loop. See [`build/source/cpp_define_reads_cached.py`](#buildsourcecpp_define_reads_cachedpy). |
+| `ci_define_uncached:` | a define read by name outside a static runs once or rarely, so it needs no cache; in Python, a define other code sets during play, so `SASCurrentDefines` would miss the change | every other read in the DLL and in runtime Python, and a read inside a loop unless the marker sits in that loop. See [`build/source/cpp_define_reads_cached.py`](#buildsourcecpp_define_reads_cachedpy) and [`build/source/python_define_reads_cached.py`](#buildsourcepython_define_reads_cachedpy). |
 | `resource-cache-direct:` | a runtime Python lookup reads a resource directly instead of through its shared cache, for the concrete reason given | that a reason follows the token, and every other lookup. See [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy). |
 | `sas-ci-string-compare-exemption:` | a runtime Python comparison with a short string literal is right as it is, such as a BUG option type | every other such comparison. See [`build/source/string_label_compares.py`](#buildsourcestring_label_comparespy). |
 

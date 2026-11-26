@@ -7,6 +7,8 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
 import PyHelpers
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvUtil
 import CvScreenEnums
 import random
@@ -331,7 +333,7 @@ class CvTopCivs:
 		# Check to see if this is a turn when the screen should pop up
 		if (not CyGame().isNetworkMultiPlayer() and CyGame().getActivePlayer()>=0):
 			# <advc.038>
-			interval = gc.getDefineINT("TOP_CIVS_INTERVAL") # 50 in BtS
+			interval = SASCurrentDefines.getInt("TOP_CIVS_INTERVAL") # 50 in BtS
 			minTurn = 75 # 2 in BtS
 			speedAdjustPercent = gc.getGameSpeedInfo(gc.getGame().getGameSpeedType()).getGrowthPercent()
 			interval = (interval * speedAdjustPercent) / 100

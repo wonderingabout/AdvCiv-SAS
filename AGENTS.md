@@ -819,7 +819,8 @@ Clear, accurate explanations help users and developers understand the code and i
     - `kGlobals` is `CvGlobals::getInstance()`, as the const `GC` cannot set a define.
   - Say why beside such a read, or which runtime/map-generation boundary changes the value, so a later reader sees the read was weighed rather than forgotten.
     - In C++, for a SAS define the DLL reads by name outside a static, that note is a `ci_define_uncached:` comment, which CI checks (see the C++ caching rules below).
-    - In Python, and for inherited defines, a plain custom comment does, as no check reads it; Python's SAS define reads were reviewed by hand on 2026-11-25 (see KI#128.3).
+    - In Python, a read by name goes through `SASCurrentDefines` instead, even once per map or popup, about 80 ns a read against 279 ns through `gc`; only a define other code sets during play, which it would miss, keeps `gc` with that comment. [`python_define_reads_cached.py`](/.github/workflows/README.md#buildsourcepython_define_reads_cachedpy) checks both (KI#128.9).
+      - A kept `self.x` is faster still, 18 ns, so it stays the choice for a hot path, such as a loop over every plot.
 
 #### Naming, diagnostics and text encoding
 

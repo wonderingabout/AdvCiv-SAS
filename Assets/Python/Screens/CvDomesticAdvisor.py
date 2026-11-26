@@ -4,6 +4,8 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvUtil
 import ScreenInput
 import CvScreenEnums
@@ -713,7 +715,7 @@ class CvDomesticAdvisor:
 
 		yLocation += 0.5 * Y_SPACING
 		# <!-- custom: Replace the former screen-instance define cache with one read per commerce-control redraw so explicit runtime increment changes reach both +/- buttons; retain local reuse within this draw. See KI#128.2. (Claude code Sonnet 4.6 + GPT-6.1-Sol) -->
-		iCommercePercentChangeIncrements = gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")
+		iCommercePercentChangeIncrements = SASCurrentDefines.getInt("COMMERCE_PERCENT_CHANGE_INCREMENTS")
 		for iI in range(CommerceTypes.NUM_COMMERCE_TYPES):
 			eCommerce = (iI + 1) % CommerceTypes.NUM_COMMERCE_TYPES
 			if player.isCommerceFlexible(eCommerce):

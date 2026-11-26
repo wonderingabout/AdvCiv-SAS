@@ -9,6 +9,8 @@
 # Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 # <!-- custom: Consolidate this dependency at the shared SASVisualUtils/SASTextScale boundary instead of retaining the retired overlapping visual-resource helper imports. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 from SASUtils import getInfoTypeOrFail
@@ -72,7 +74,7 @@ class AbstractMoreCiv4lertsEvent(object):
 			if gc.getGame().isRFBlockPopups() or gc.getPlayer(self.iOwner).isHumanDisabled() or gc.getPlayer(self.iOwner).isAutoPlayJustEnded():
 				return # </advc.706>
 			# advc.106c: Reduced time from LONG to normal
-			eventMessageTime = gc.getDefineINT("EVENT_MESSAGE_TIME")
+			eventMessageTime = SASCurrentDefines.getInt("EVENT_MESSAGE_TIME")
 			# advc.135b: Ignore iPlayer. Shouldn't be necessary b/c
 			# the iActivePlayer (on the caller side) should always
 			# be iOwner. Tbd.: Remove the iPlayer attribute from all
@@ -658,7 +660,7 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
 		tradeData = TradeData()
 		tradeData.ItemType = TradeableItems.TRADE_PEACE_TREATY
 		# <!-- custom: Was a module constant read at import; read at use, as BUG's DealUtil.py and TradeUtil.py read it. See KI#128.6. (Claude code Opus 5.5) -->
-		tradeData.iData = gc.getDefineINT("PEACE_TREATY_LENGTH")
+		tradeData.iData = SASCurrentDefines.getInt("PEACE_TREATY_LENGTH")
 		currentTrades = set()
 		for loopPlayer in TradeUtil.getPeaceTradePartners(player):
 			if (loopPlayer.canTradeItem(iPlayerID, tradeData, False)):
