@@ -453,7 +453,7 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<Description>TXT_KEY_BUILD_QUARRY</Description>
 			<Help>TXT_KEY_BUILD_QUARRY_HELP</Help>
 			<Civilopedia>TXT_KEY_BUILD_QUARRY_PEDIA</Civilopedia>
-			<!-- custom: build_quarry moved earlier at same time as mining i mean build mine, if i remember corretly from my research about techs if i may say i wanted/assessed quarry and mining to be at same historical time or tech tree, after rechecking hehe or not heheis indeed as such in tech tree i had made originally so fine to keep this way as well for this reason too for the build improvement tech prereq, was TECH_MASONRY -->
+			<!-- custom: build_quarry moved earlier at same time as mining i mean build mine, if i remember correctly from my research about techs i wanted/assessed quarry and mining to be at same historical time or tech tree, after rechecking hehe or not heheis indeed as such in tech tree i had made originally so fine to keep this way as well for this reason too for the build improvement tech prereq, was TECH_MASONRY -->
 			<PrereqTech>TECH_MINING</PrereqTech>
 			<iTime>600</iTime>
 			<iCost>0</iCost>

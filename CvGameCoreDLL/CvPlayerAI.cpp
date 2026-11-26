@@ -1974,7 +1974,7 @@ void CvPlayerAI::AI_makeProductionDirty()
 		pLoopCity->setChooseProductionDirty(true);
 }
 
-// <!-- custom: added smarter more aggressive razing which now gives very good results ingame (see below and known issue as of now 64 for details), refactored a bit the relevant parts although otherwise and in general mostly the same -->
+// <!-- custom: added smarter more aggressive razing which now gives very good results ingame (see below and KI#64 for details), refactored a bit the relevant parts although otherwise and in general mostly the same -->
 // BETTER_BTS_AI_MOD, War tactics AI, 05/16/10, jdog5000:
 // advc.003u: param was CvCity*
 // <!-- custom: hoisted from multiline signature between `kCity` and `bEverOwned` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
@@ -2092,7 +2092,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 		}
 	} // </advc.ctr>
 	// <!-- custom: we have an issue of AI not razing a bit or too far cities especially early, usually barbarian cities, that are detrimental to capture rather than simply raze.
-	// Make sure we always raze cities in such cases rather than keeping/capturing them, see known issue as of now 64 for details; also code provided by chatgpt 5, check if accurate -->
+	// Make sure we always raze cities in such cases rather than keeping/capturing them, see KI#64 for details; also code provided by chatgpt 5, check if accurate -->
 	bool const bPrevOwnerBarb = (kCity.getPreviousOwner() == BARBARIAN_PLAYER);
 	bool const bBarbCity = (bPrevOwnerBarb && (kCity.getOriginalOwner() == BARBARIAN_PLAYER));
 
@@ -6951,7 +6951,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 	// <!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient.
 	// Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other.
 	// Also extend this logic so that the vassal as well doesn't research or research as much techs its master already owns.
-	// Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean, check if accurate; see also known issue as of now 77 for details -->
+	// Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency, check if accurate; see also KI#77 for details -->
 	// SAS vassalMasterTechResearch
 	// With:
 	// 	- Master-from-vassal penalty,
@@ -9650,8 +9650,8 @@ int CvPlayerAI::AI_getFirstImpressionAttitude(PlayerTypes ePlayer) const
 		rPersonalityModifier += per100(kTheirHandicap.getAIAttitudeChangePercent());
 		/*  <advc.104x> Low UWAI_PERSONALITY_PERCENT makes the peace weights and
 			respect values more similar; don't want that to increase the relations bonus. */
-		static scaled const rUWAI_PERSONALITY_PERCENT = per100(
-					GC.getDefineINT("UWAI_PERSONALITY_PERCENT"));
+		// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+		scaled const rUWAI_PERSONALITY_PERCENT = per100(GC.getDefineINT(CvGlobals::UWAI_PERSONALITY_PERCENT));
 		rPersonalityModifier *= rUWAI_PERSONALITY_PERCENT;
 		iAttitude += rPersonalityModifier.round();
 		// </advc.130b>
@@ -10723,7 +10723,7 @@ int CvPlayerAI::AI_dealVal(PlayerTypes eFromPlayer, CLinkList<TradeData> const& 
 		switch(eItemType) // </advc.130p>
 		{
 			// <!-- custom: AI is not good at cheap trading techs when it is beneficial: if more than 1 player has a tech, any other player that has the tech could sell it anytime for super cheap like 40 gold at mid-late classical era, which is still a much better deal than gaining 0 gold if another rival beats us to it.
-			// Something like 1 gold would be too low and like purposely sabotaging the other players, so some minimal theshold is needed, but beyond that AI needs to be opportunistic to maximize its gains as a human player would.
+			// Something like 1 gold would be too low and like purposely sabotaging the other players, so some minimal threshold is needed, but beyond that AI needs to be opportunistic to maximize its gains as a human player would.
 			// Code implemented with the help of gemini 3 pro, check if accurate -->
 			// Explanation of the Logic
 			// 	- kGame.countKnownTechNumTeams(eTech) > 2: This checks if the tech is known by the owner plus at least two other teams. This satisfies your condition "as long as more than one rival has it". If you strictly meant "at least one rival" (so 2 teams total including us), change > 2 to > 1 (or >= 2).
@@ -13592,7 +13592,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 	// Tone this down so AIs have a better understanding of the value of bonuses, by considering the building that increases effects (e.g. +1 health with granary) is always built as soon as we unlock the tech for it (in our mod for example tech_agriculture for building granary), also making sure our building is not obsolete though.
 	// Tone this toning down for bonuses that have increased effects with coastal buildings, as in many cases most cities won't be coastal, so use 1.5 times value to represent that in a simplified manner.
 	// Code provided by chatgpt 5, check if accurate.
-	// Also see known issue as of now 66 for details -->
+	// Also see KI#66 for details -->
 	// <!-- custom: note: since it seems bonuses losing value (like copper over time is already handled during the game, and according to chatgpt 5 elsewhere, simplifying our code and not wasting needless computation just for our pre-checks here by not checking it; check (no pun) if accurate). -->
 	// Notes & answers
 	// - Fairness (no bullying): The multiplier applies only to the buyer’s evaluation (this function belongs to the buyer), and only when the buyer’s team has the enabling tech. So if we don’t have Agriculture yet, Maize stays valued like +1 health.
@@ -13641,7 +13641,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 
 			// <!-- custom: to not cause overvaluing, exclude building classes that are rare (not built in many cities) such as world wonders, national wonders, and cathedrals (handled below since they are not limited but just rarely built due to their cost and restrictions (in XML iMaxGlobalInstances and such are -1 so not limited so need to handle it in another way if i'm not mistaken)) as of now which are the only ones i can think of.
 			// This is because our nice change caused incense to be a bit overpriced due to effect with buddhist stupa and pagan cathedral which are buildings we rarely build, so no need to value bonuses too much more just because of these.
-			// So to simplify, just ignore these cases; we also save some computation nicely too if i may say by early exiting -->
+			// So to simplify, just ignore these cases; we also save some computation nicely too by early exiting -->
 			// Skip world wonders, national wonders (player-limited)
 			// Skip world wonders, team wonders, national wonders
 			if (kCls.isLimited())
@@ -13881,7 +13881,7 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer, 
 	// advc.133:
 	int iAvailThem = kPlayer.getNumAvailableBonuses(eBonus);
 	// <!-- custom: The former named-resource hard denial was AI-recipient-only after KI#239 and preserved corporation uses after KI#240, but still encoded brittle era/substitute assumptions.
-	// Shared dynamic recipient valuation now reduces only the uses actually replaced, so remove that gate rather than carrying its special cases forward. See KI#239 and KI#240. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// Shared dynamic recipient valuation now reduces only the uses actually replaced, so remove that gate rather than carrying its special cases forward. See KI#109, KI#239 and KI#240. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	// advc.036: Moved this clause up
 	if (iAvailThem + iChange > 1 && kPlayer.AI_corporationBonusVal(eBonus, true) <= 0)
 		return DENIAL_JOKING;
@@ -16127,7 +16127,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea const*
 }
 
 
-// <!-- custom: add helpers to count how many units of a combat type we have or such, to help reduce the excess trebuchets and siege when not relevant (defense, we are weaker, etc.) see known issue as of now 53.3 for details; code of below helpers provided by chatgpt 5, check if accurate -->
+// <!-- custom: add helpers to count how many units of a combat type we have or such, to help reduce the excess trebuchets and siege when not relevant (defense, we are weaker, etc.) see KI#53.3 for details; code of below helpers provided by chatgpt 5, check if accurate -->
 int CvPlayerAI::AI_countUnitsByCombat(UnitCombatTypes eCombat) const
 {
 	const CvCivilizationInfo& kCiv = GC.getInfo(getCivilizationType());
@@ -16136,7 +16136,7 @@ int CvPlayerAI::AI_countUnitsByCombat(UnitCombatTypes eCombat) const
 	int iTotal = 0;
 	FOR_EACH_ENUM(UnitClass)
 	{
-		// <!-- custom: performance optimization by chatgpt 5 thanks a lotwhich i slightly tweaked (added const) or not or yes or etc -->
+		// <!-- custom: performance optimization by chatgpt 5 thanks a lotwhich i slightly tweaked (added const) -->
 		// Tiny (optional) micro-perf tweak you can apply to all three: skip classification work when you own zero of that class. It avoids a few GC.getInfo(...) calls
 		const int iHave = getUnitClassCount(eLoopUnitClass);
 		if (iHave == 0)
@@ -16152,7 +16152,7 @@ int CvPlayerAI::AI_countUnitsByCombat(UnitCombatTypes eCombat) const
 		if (kU.getUnitCombatType() != eCombat)
 			continue;
 
-		// <!-- custom: note: it's bit tricky as units could be cancelled midway and we could be stuck in loops trying to build then cancelling midaway, i don't mind a little extra units as result of this i think if i may say and may generally be fine for this purpose i'm guessing; chatgpt 5 seems to agree as well, check if accurate as well i mean -->
+		// <!-- custom: note: it's bit tricky as units could be cancelled midway and we could be stuck in loops trying to build then cancelling midaway, i don't mind a little extra units as result of this i think and may generally be fine for this purpose i'm guessing; chatgpt 5 seems to agree as well, check if accurate as well -->
 		// Totally fair—queued builds can get canceled or reshuffled, so “counting makings" can push you over a cap and then bounce you back under it next turn. Easiest fix: never count makings and only count units you actually own on the map.
 		iTotal += iHave; // count once per class
 	}
@@ -18674,14 +18674,13 @@ int CvPlayerAI::AI_unitTargetMissionAIs(CvUnit const& kUnit, MissionAITypes* aeM
 }
 
 // advc.003j: Unused since a BBAI change to CvUnitAI::AI_assaultSeaMove
-/*int CvPlayerAI::AI_enemyTargetMissionAIs(MissionAITypes eMissionAI,
-	CvSelectionGroup* pSkipSelectionGroup, int iMaxCount) const
+// <!-- custom: The disabled signatures below are each collapsed onto one line, like live ones, so a grep finds them whole; untested while disabled. (Claude code Opus 5.5) -->
+/*int CvPlayerAI::AI_enemyTargetMissionAIs(MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup, int iMaxCount) const
 {
 	return AI_enemyTargetMissionAIs(&eMissionAI, 1, pSkipSelectionGroup, iMaxCount);
 }
 
-int CvPlayerAI::AI_enemyTargetMissionAIs(MissionAITypes* aeMissionAI, int iMissionAICount,
-	CvSelectionGroup* pSkipSelectionGroup, int iMaxCount) const
+int CvPlayerAI::AI_enemyTargetMissionAIs(MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup, int iMaxCount) const
 {
 	PROFILE_FUNC();
 	FAssert(iMaxCount > 0); // advc.opt (use MAX_INT for infinity)
@@ -19622,7 +19621,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 
 
 	// <!-- custom: the former civic_emancipation was overvalued when it was really not a so great civic especially vs civic_caste_system and civic_serfdom, so reduce the overvaluation potential causes.
-	// Use another formula counting unhappiness in cities rather, with the help of chatgpt 5, check if accurate -->
+	// Use another formula counting unhappiness in cities rather, with the help of chatgpt 5, check if accurate. See KI#75. -->
 	// Short answer: the AI is over-valuing Emancipation because of the two civic-percent-anger terms in AI_civicValue. With your current XML (iCivicPercentAnger = 400 and low upkeep), those lines alone can outweigh Emancipation’s weak direct effects, so AIs “auto-snap" to it.
 	// if (kCivic.getCivicPercentAnger() != 0)
 	// {
@@ -20133,7 +20132,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	// <!-- custom: this code looks very bad as per k-mod's admission but also as it seems to only value culture specialists (i don't know too much but check to be sure), and as chatgpt 5 confirms as well (check to be sure as well).
 	// We want to value engineer specialists for example for our as of now civic_wage_labor rework that gives unlimited engineers and that is never picked by ais, even though engineer are quite strong.
 	// So trying to value each specialist based on their strengths and time when they are relevant or such.
-	// Code provided by chatgpt 5 which i adjusted or such, check if accurate i mean -->
+	// Code provided by chatgpt 5 which i adjusted or such, check if accurate. See KI#76. -->
 	// {
 	// 	int iTempValue = 0; // advc: Moved up to reduce rounding error
 	// 	int iMaxCultureChange = 0;
@@ -20457,7 +20456,7 @@ ReligionTypes CvPlayerAI::AI_bestReligion(ReligionTypes* peEvaluatedBest, int* p
 	return eBestReligion;
 }
 
-// <!-- custom: currently we have an issue of the top dog AI adopting a religion everyone hates instead of the popular one against other strong rivals (same issue for weak players as well), which is very suboptimal, change this to respect more relative power between players rather, with the help of gemini 3 pro and then claude sonnet 4.5 for review thanks; check if accurate -->
+// <!-- custom: currently we have an issue of the top dog AI adopting a religion everyone hates instead of the popular one against other strong rivals (same issue for weak players as well), which is very suboptimal, change this to respect more relative power between players rather, with the help of gemini 3 pro and then claude sonnet 4.5 for review thanks; check if accurate. See KI#82. -->
 // The Problem
 // In the code you provided, the AI falls into a trap because of how it calculates iLikedReligionCivs.
 // The AI only cares about sharing a religion with people it already likes.
@@ -22144,7 +22143,8 @@ void CvPlayerAI::AI_doCommerce()
 		kSASCommerce.iInitialEspionagePercent = getCommercePercent(COMMERCE_ESPIONAGE);
 	}
 
-	const static int iCommerceIncrement = GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS");
+	// <!-- custom: Read through AdvCiv's enum cache, shared with CvPlayer::verifyGoldCommercePercent, rather than a static of its own. See KI#128.3. (Claude code Opus 5.5) -->
+	int const iCommerceIncrement = GC.getDefineINT(CvGlobals::COMMERCE_PERCENT_CHANGE_INCREMENTS);
 	bool const bLogCultureCommerce = (gCultureLogLevel >= 1);
 	int iCultureHappinessIdeal = -1;
 	int iCultureStageBonus = 0;
@@ -22598,7 +22598,8 @@ void CvPlayerAI::AI_doCommerce()
 			if (eStealTechMission != NO_ESPIONAGEMISSION)
 			{
 				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-				static const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
+				// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+				const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT(CvGlobals::ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE);
 				iMinModifier *= 100 - GC.getDefineINT(CvGlobals::MAX_FORTIFY_TURNS) *
 						iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE;
 				iMinModifier /= 100;
@@ -23221,7 +23222,8 @@ void CvPlayerAI::AI_doReligion()
 		convert(eBestReligion);
 		if (bLogSASReligionDecision) logSASGameRecordAIReligionDecision(getID(), eCurrentReligion, eSASEvaluatedBest, eBestReligion, eSASRunnerUp, iSASBestValue, iSASRunnerUpValue, iSASCurrentScore, iCurrentReligionValue, iSelectedReligionValue, rConvertProb.getPercent(), 1, "CONVERTED", bLogSASReligionCandidates ? &aSASCandidateValues : NULL);
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-		static const int iMIN_CONVERSION_TURNS = GC.getDefineINT("MIN_CONVERSION_TURNS");
+		// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+		const int iMIN_CONVERSION_TURNS = GC.getDefineINT(CvGlobals::MIN_CONVERSION_TURNS);
 		AI_setReligionTimer(getMaxAnarchyTurns() == 0 ? iMIN_CONVERSION_TURNS * 2 : RELIGION_CHANGE_DELAY);
 	}
 	else if (bLogSASReligionDecision) logSASGameRecordAIReligionDecision(getID(), eCurrentReligion, eSASEvaluatedBest, eBestReligion, eSASRunnerUp, iSASBestValue, iSASRunnerUpValue, iSASCurrentScore, iCurrentReligionValue, iSelectedReligionValue, rConvertProb.getPercent(), 0, "DEFERRED_ROLL", bLogSASReligionCandidates ? &aSASCandidateValues : NULL);
@@ -24242,7 +24244,7 @@ void CvPlayerAI::AI_doDiplo()
 					// <!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient.
 					// Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other, and vice versa for its vassal. -->
 					// <!-- custom: After we have implemented a tentative fix to this, now also encourage vassal(s)<->master to trade more/preferentially (and not only for techs each other don't own, so this is an extra team play enhancement for any tech), which synergises with this previous tentative fix.
-					// Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean, check if accurate; see also known issues as of now 77 and 78 for details -->
+					// Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency, check if accurate; see also KI#77 and KI#78 for details -->
 					// SAS vassalMasterMoreTechTrade
 					static const bool bSAS_TECH_CONTACT_MASTER_VASSAL_ON = GC.getDefineBOOL("SAS_TECH_CONTACT_MASTER_VASSAL_ON");
 					const TeamTypes eOurTeam = getTeam();
@@ -24299,7 +24301,7 @@ void CvPlayerAI::AI_doDiplo()
 
 					// SAS techTradePowerBias: be more cautious about feeding much stronger civs
 					static const bool bSAS_TECH_CONTACT_PWR_ON = GC.getDefineBOOL("SAS_TECH_CONTACT_PWR_ON");
-					// <!-- custom: note: this is not applied between members of a master-vassal(s) locus, as master<->vassal(s) are not in direct and immediate competition but more like trying to come through and not die right away short term so it is not so relevant for them -->
+					// <!-- custom: note: this is not applied between members of a master-vassal(s) locus, as master<->vassal(s) are not in direct and immediate competition but more like trying to come through and not die right away short term so it is not so relevant for them. See KI#80. -->
 					if (bSAS_TECH_CONTACT_PWR_ON && !bVassalsOrMaster)
 					{
 						const int iOurPower   = kOurTeam.getPower(true);
@@ -24329,7 +24331,7 @@ void CvPlayerAI::AI_doDiplo()
 					}
 					// End - SAS techTradePowerBias
 
-					// <!-- custom: update: add missing parameter so that tech trading is more dynamic and not solely/passively based on personality, if i understood correctly chatgpt 5.1 and then claude sonnet 4.5 who reviewed and corrected it a bit if i understood both of their explanations and the code correctly, see known issue as of now 78 for details -->
+					// <!-- custom: update: add missing parameter so that tech trading is more dynamic and not solely/passively based on personality, if i understood correctly chatgpt 5.1 and then claude sonnet 4.5 who reviewed and corrected it a bit if i understood both of their explanations and the code correctly, see KI#78 for details -->
 					// Since there's a check if (rMult == 1), and calls without the 2nd parameter work, the default must be rMult = 1 (defined in the header file, likely as scaled rMult = 1).
 					// So when you call AI_contactRoll(CONTACT_TRADE_TECH) without the 2nd parameter, it uses rMult = 1.0 (no modification).
 					// Your changes create a more nuanced system:
@@ -26415,7 +26417,7 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
 	//pStream->Read(MAX_PLAYERS, m_aiCloseBordersAttitude);
 	pStream->Read(MAX_PLAYERS, &m_aiCloseBordersAttitude[0]); // K-Mod
 
-	// <!-- custom: using another identifier since now that we removed the old uiFlag check inner scope, this is now on same scope as existing iSize causing a compile error if i'm not mistaken, so distinguishing these 2 by renaming the 2nd definition to iSizeTwo hehe if i may say creative name xd but why not -->
+	// <!-- custom: using another identifier since now that we removed the old uiFlag check inner scope, this is now on same scope as existing iSize causing a compile error if i'm not mistaken, so distinguishing these 2 by renaming the 2nd definition to iSizeTwo hehe creative name xd but why not -->
 	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	// <advc.opt>
 	int iSizeTwo;
@@ -32738,7 +32740,7 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
 	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 
-	// <!-- custom: update issue is now solved by patching globally the canScrap, and below approach didn't solve anything, so i'll comment it out, enable it if need or want and see for related info known issue as of now 52 -->
+	// <!-- custom: update issue is now solved by patching globally the canScrap, and below approach didn't solve anything, so i'll comment it out, enable it if need or want and see for related info KI#52 -->
 	// // B) Patch AI_disbandValue to strongly de-prefer scrapping new combat units & live garrisons
 	// // (You already boost value for MISSIONAI_GUARD_CITY; the check above covers plain defenders without that mission tag.)
 	// // Don’t scrap fresh combat units (prevents “we built one, ended with fewer").

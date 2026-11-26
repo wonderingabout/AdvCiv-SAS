@@ -100,6 +100,8 @@ class _FontSymbolResources:
 			self._charCache[eSymbol] = _char(self.ordinal(eSymbol))
 		return self._charCache[eSymbol]
 
+	# <!-- custom: Returns a tuple, which Python 2.4 cannot search: tuples gained index() and count() in 2.6.
+	# For a reverse lookup, from a code or glyph to its entry, build a dict once, as the game font display now does; test_python_visual_resources.py fails on .index() or .count() here. See KI#1107.2. (Claude code Opus 5.5) -->
 	def chars(self):
 		if self._chars is None:
 			self.init()
@@ -149,6 +151,8 @@ class _IndexedInfoChars:
 			self._charCache[iInfo] = _char(self.ordinal(iInfo))
 		return self._charCache[iInfo]
 
+	# <!-- custom: ordinals() and chars() return tuples, which Python 2.4 cannot search: tuples gained index() and count() in 2.6.
+	# For a reverse lookup, from a code or glyph to its entry, build a dict once, as the game font display now does; test_python_visual_resources.py fails on .index() or .count() here. See KI#1107.2. (Claude code Opus 5.5) -->
 	def ordinals(self):
 		if self._ordinals is None:
 			self.init()

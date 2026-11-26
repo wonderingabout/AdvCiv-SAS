@@ -209,7 +209,8 @@ def _getAdvisorPlotLocationHelp(eWidget, iX, iY, bOption):
 	if not (0 <= iX < CyMap().getGridWidth() and 0 <= iY < CyMap().getGridHeight()):
 		return u""
 	# <!-- custom: Custom BUG help is returned verbatim; apply the shared hover font explicitly instead of leaving these advisor hints at the EXE default size. (GPT-6.1-Sol) -->
-	return SASTextScale.sasFontTagHover + localText.getText("TXT_KEY_SAS_ADVISOR_PLOT_LOCATION_HELP", (iX, iY)) + SASTextScale.SAS_FONT_TAG_CLOSE
+	# <!-- custom: The hover font is the label size since 2026-11-26. (Claude code Opus 5.5) -->
+	return SASTextScale.sasFontTagLabel + localText.getText("TXT_KEY_SAS_ADVISOR_PLOT_LOCATION_HELP", (iX, iY)) + SASTextScale.SAS_FONT_TAG_CLOSE
 
 # <!-- custom: Wonders links identify a live owner/city, unlike historical battle/edit locations.
 # Validate that identity and current observer knowledge before either hover or camera movement; hidden/removed cities must not become a location side channel. (GPT-6.1-Sol) -->

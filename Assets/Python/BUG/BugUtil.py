@@ -137,7 +137,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). See KI#21.7. (Claude code Opus 4.7) -->
 
 # <!-- custom: The inherited BUG header above still names FontUtil in its historical docs/TODO; live symbol replacement now routes through SASVisualUtils because FontUtil is retired by the centralized visual-resource refactor. (ChatGPT-5.6-Sol) -->
 
@@ -312,31 +312,31 @@ def readLoggingOptions(option=None, value=None):
 ## Event Tracking and Output
 
 INPUT_CODES = {
-	NotifyCode.NOTIFY_MOUSEMOVE             : "Mouse Move", 
-	NotifyCode.NOTIFY_MOUSEWHEELDOWN        : "Mouse Wheel Down", 
-	NotifyCode.NOTIFY_MOUSEWHEELUP          : "Mouse Wheel Up", 
-	NotifyCode.NOTIFY_CURSOR_MOVE_ON        : "Mouse Enter", 
-	NotifyCode.NOTIFY_CURSOR_MOVE_OFF       : "Mouse Leave", 
-	NotifyCode.NOTIFY_CLICKED               : "Click",
-	NotifyCode.NOTIFY_DBL_CLICKED           : "Double Click",
+	NotifyCode.NOTIFY_MOUSEMOVE : "Mouse Move",
+	NotifyCode.NOTIFY_MOUSEWHEELDOWN : "Mouse Wheel Down",
+	NotifyCode.NOTIFY_MOUSEWHEELUP : "Mouse Wheel Up",
+	NotifyCode.NOTIFY_CURSOR_MOVE_ON : "Mouse Enter",
+	NotifyCode.NOTIFY_CURSOR_MOVE_OFF : "Mouse Leave",
+	NotifyCode.NOTIFY_CLICKED : "Click",
+	NotifyCode.NOTIFY_DBL_CLICKED : "Double Click",
 
-	NotifyCode.NOTIFY_CHARACTER             : "Character", 
+	NotifyCode.NOTIFY_CHARACTER : "Character",
 
 	NotifyCode.NOTIFY_TABLE_HEADER_SELECTED : "Table Header Select",
 	NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED : "List Select",
-	NotifyCode.NOTIFY_SCROLL_DOWN           : "Scroll Down",
-	NotifyCode.NOTIFY_SCROLL_UP             : "Scroll Up",
+	NotifyCode.NOTIFY_SCROLL_DOWN : "Scroll Down",
+	NotifyCode.NOTIFY_SCROLL_UP : "Scroll Up",
 
-	NotifyCode.NOTIFY_NEW_HORIZONTAL_STOP   : "New Horizontal Stop",
-	NotifyCode.NOTIFY_NEW_VERTICAL_STOP     : "New Vertical Stop",
-	NotifyCode.NOTIFY_SLIDER_NEWSTOP        : "Slider New Stop",
+	NotifyCode.NOTIFY_NEW_HORIZONTAL_STOP : "New Horizontal Stop",
+	NotifyCode.NOTIFY_NEW_VERTICAL_STOP : "New Vertical Stop",
+	NotifyCode.NOTIFY_SLIDER_NEWSTOP : "Slider New Stop",
 
-	NotifyCode.NOTIFY_FOCUS                 : "Focus",
-	NotifyCode.NOTIFY_UNFOCUS               : "Unfocus",
+	NotifyCode.NOTIFY_FOCUS : "Focus",
+	NotifyCode.NOTIFY_UNFOCUS : "Unfocus",
 
-	NotifyCode.NOTIFY_LINKEXECUTE           : "Link Execute",
-	NotifyCode.NOTIFY_FLYOUT_ITEM_SELECTED  : "Flyout Item Selected",
-	NotifyCode.NOTIFY_MOVIE_DONE            : "Movie Done",
+	NotifyCode.NOTIFY_LINKEXECUTE : "Link Execute",
+	NotifyCode.NOTIFY_FLYOUT_ITEM_SELECTED : "Flyout Item Selected",
+	NotifyCode.NOTIFY_MOVIE_DONE : "Movie Done",
 }
 
 def debugInput(inputClass, flags=False):
@@ -372,33 +372,33 @@ def logInput(fxn, inputClass, flags=False):
 		logInputFlags(fxn, inputClass)
 
 MOUSE_FLAGS = {
-	MouseFlags.MOUSE_CLICKED:			"Click",
-	MouseFlags.MOUSE_CONTROL:			"Control",
-	MouseFlags.MOUSE_DBLCLICKED:		"DblClick",
-	MouseFlags.MOUSE_EVENT:				"Event",
-	MouseFlags.MOUSE_LBUTTON:			"L-Click",
-	MouseFlags.MOUSE_LBUTTONDBLCLK:		"L-DblClick",
-	MouseFlags.MOUSE_LBUTTONDOWN:		"L-Down",
-	MouseFlags.MOUSE_LBUTTONUP:			"L-Up",
-	MouseFlags.MOUSE_MBUTTON:			"M-Click",
-	MouseFlags.MOUSE_MBUTTONDBLCLK:		"M-DblClick",
-	MouseFlags.MOUSE_MBUTTONDOWN:		"M-Down",
-	MouseFlags.MOUSE_MBUTTONUP:			"M-Up",
-	MouseFlags.MOUSE_MOUSEMOVE:			"Move",
-	MouseFlags.MOUSE_MOUSEWHEELDOWN: 	"W-Down",
-	MouseFlags.MOUSE_MOUSEWHEELUP:		"W-Up",
-	MouseFlags.MOUSE_RBUTTON:			"R-Click",
-	MouseFlags.MOUSE_RBUTTONDBLCLK:		"R-DblClick",
-	MouseFlags.MOUSE_RBUTTONDOWN:		"R-Down",
-	MouseFlags.MOUSE_RBUTTONUP:			"R-Up",
-	MouseFlags.MOUSE_RELEASED:			"Release",
-	MouseFlags.MOUSE_SHIFT:				"Shift",
-	MouseFlags.MOUSE_STATE:				"State",
-	MouseFlags.MOUSE_XBUTTON1:			"X1-Click",
-	MouseFlags.MOUSE_XBUTTON2:			"X2-Click",
-	MouseFlags.MOUSE_XBUTTONDBLCLK:		"X-DblClick",
-	MouseFlags.MOUSE_XBUTTONDOWN:		"X-Down",
-	MouseFlags.MOUSE_XBUTTONUP:			"X-Up",
+	MouseFlags.MOUSE_CLICKED: "Click",
+	MouseFlags.MOUSE_CONTROL: "Control",
+	MouseFlags.MOUSE_DBLCLICKED: "DblClick",
+	MouseFlags.MOUSE_EVENT: "Event",
+	MouseFlags.MOUSE_LBUTTON: "L-Click",
+	MouseFlags.MOUSE_LBUTTONDBLCLK: "L-DblClick",
+	MouseFlags.MOUSE_LBUTTONDOWN: "L-Down",
+	MouseFlags.MOUSE_LBUTTONUP: "L-Up",
+	MouseFlags.MOUSE_MBUTTON: "M-Click",
+	MouseFlags.MOUSE_MBUTTONDBLCLK: "M-DblClick",
+	MouseFlags.MOUSE_MBUTTONDOWN: "M-Down",
+	MouseFlags.MOUSE_MBUTTONUP: "M-Up",
+	MouseFlags.MOUSE_MOUSEMOVE: "Move",
+	MouseFlags.MOUSE_MOUSEWHEELDOWN: "W-Down",
+	MouseFlags.MOUSE_MOUSEWHEELUP: "W-Up",
+	MouseFlags.MOUSE_RBUTTON: "R-Click",
+	MouseFlags.MOUSE_RBUTTONDBLCLK: "R-DblClick",
+	MouseFlags.MOUSE_RBUTTONDOWN: "R-Down",
+	MouseFlags.MOUSE_RBUTTONUP: "R-Up",
+	MouseFlags.MOUSE_RELEASED: "Release",
+	MouseFlags.MOUSE_SHIFT: "Shift",
+	MouseFlags.MOUSE_STATE: "State",
+	MouseFlags.MOUSE_XBUTTON1: "X1-Click",
+	MouseFlags.MOUSE_XBUTTON2: "X2-Click",
+	MouseFlags.MOUSE_XBUTTONDBLCLK: "X-DblClick",
+	MouseFlags.MOUSE_XBUTTONDOWN: "X-Down",
+	MouseFlags.MOUSE_XBUTTONUP: "X-Up",
 }
 
 def debugInputFlags(inputClass):

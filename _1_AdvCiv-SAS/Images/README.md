@@ -27,7 +27,8 @@ Shots of one screen are numbered with a space, such as `1.515_military_advisor (
 
 A shot that shows a variant of another, rather than a screen of its own, carries a suffix after its number, so a folder listing tells the variants apart without opening them, and each sorts beside the shot it varies. Batch renaming keeps these suffixes too. Examples as of 2026-11-21:
 
-- `_sas48`: the same tab in a 48-civilization game, such as `1.513_foreign_advisor (2)_sas48.JPG`, the Glance tab paged, which base AdvCiv does not do, and `(4)_sas48`, the Espionage tab's compact rows.
+- `_sas48`: the same tab in a 48-civilization game, such as `1.513_foreign_advisor (2)_sas48_page1.JPG`, the Glance tab paged, which base AdvCiv does not do, and `(4)_sas48`, the Espionage tab's compact rows. [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) to [KI#134.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.8) set them beside base AdvCiv's `_huge_48civs` shots.
+  - `_page1` to `_page3` (2026-11-23): one shot per page of a paged tab, here the Glance tab's three pages of 47 rivals.
 - `_individual`: the Military Advisor's Map tab with individual units shown, `1.515_military_advisor (2)_individual.JPG`.
 - `_selected_dots`: the same tab with a unit type selected, its units shown as white dots on the minimap, `1.515_military_advisor (2)_selected_dots.JPG`; it replaced the plain Map tab shot, which showed nothing more (Galley, turn 201).
 - `_hover`: a shot whose hover is the point, such as `1.513_foreign_advisor (1)_hover.JPG`, an attitude's breakdown on the Relations tab.

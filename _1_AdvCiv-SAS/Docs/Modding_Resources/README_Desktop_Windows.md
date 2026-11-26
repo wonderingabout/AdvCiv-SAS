@@ -64,11 +64,17 @@ A window-only capture can miss a transient tooltip, so check the image after hov
 | --- | --- | --- |
 | `screenshot` (default `window` method) | none: the window draws itself into a picture, even when covered | reading any window, any time |
 | `screenshot --method screen` | brings the window to the front | when the default method misses something drawn by the screen |
-| `hover` | moves the pointer only | tooltips, such as usage reset times |
+| `hover` | moves the pointer only; `--front` also brings the window forward through its title bar | tooltips, such as usage reset times; Civ4's plot help needs `--front` |
 | `scroll` | moves the pointer and turns the wheel; no focus change | reading a long chat, up or down |
 | `click` | moves the pointer and brings the window to the front | buttons, expanders, popups |
 
 - Prefer the least intrusive action that answers the question. A hover revealed both of Codex's reset times without a click.
+- Save `screenshot` captures as PNG, though heavier: a 1926 x 1120 Civ4 window took 2.9 MB, against 262 KB for Civ4's own Print Screen JPG of the same screen (2026-11-22).
+  - A PNG can be converted to JPG later for sharing, such as on a Known Issue's Drive folder, but a JPG cannot get back what it lost (the user).
+  - The window capture also sends the game nothing, while Print Screen is a key press the game handles.
+  - Civ4's Print Screen saves a `Civ4ScreenShotNNNN.JPG` only while its window lies entirely on the primary monitor: not on a second monitor, straddling onto one, or past the screen's bottom edge ([KI#7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-7), checked 2026-11-24).
+    - So a game smaller than the screen, such as 1440p on 4K, needs nothing; a game as large as the screen overflows at the bottom, likely because Civ4's window is not borderless: its title bar and frame add to its size, so maximize it first with `desktop_windows.py move --pid <pid> maximize`.
+  - For an image tracked in the repository, such as an advisor or game screenshot in `_1_AdvCiv-SAS/Images`, convert the PNG to JPG before committing, as most images there are, and keep the PNG locally to process again later if needed: every committed version stays in Git's history for good.
 - Take a fresh screenshot right before each click. On 2026-11-10 the user closed a panel in Codex between a screenshot and a click, so the chat moved and the click selected a word instead of expanding a section.
 - Do not click a window the user is typing in: a click takes focus from their typing. The user was typing in the Claude app when asked to read its usage, so a screenshot was used instead, and the click came later, once asked for.
 - Check the window's state before and after acting. During the first session the Codex window ended up no longer maximized, and the user had to maximize it again.
@@ -187,6 +193,13 @@ The user reviews diffs and searches the code in VS Code, so its window shows wha
 - The panel lists results as of its last run: it did not yet show the moved getter's new line in `CvGameCoreUtils.cpp`, so rerun a search rather than trusting an old panel.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_vscode_plain_search_no_fallbacks.PNG" alt="llm_vscode_plain_search_no_fallbacks.PNG" width="250">
+
+The user reads code with word wrap on, so a very long table, such as `CvCustomizableDomesticAdvisor.py`'s `COLUMNS_LIST`, wraps its rows and hides its tab-aligned columns; zooming out (Ctrl+-, Ctrl+0 to reset) until each row fits on one line shows the column alignment ([KI#21.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.8)).
+
+- Example (2026-11-23): zoomed out that way, the user's VS Code showed `COLUMNS_LIST`'s 70 rows as one clean grid, and right above it the disabled `GRANK_*` rows off their columns, such as `GRANK_BASE_PRODUCTION` and `GRANK_CULTURE`; side by side, the anomaly showed at a glance.
+  - It led to laying out commented-out code at the column it really starts at; the first capture is what the user saw, the second the result.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_vscode_zoomed_out_columns_list_before.PNG" alt="llm_vscode_zoomed_out_columns_list_before.PNG" width="250"> <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_vscode_zoomed_out_columns_list.PNG" alt="llm_vscode_zoomed_out_columns_list.PNG" width="250">
 
 ## The user's Chrome
 
@@ -916,6 +929,8 @@ Not every change needs a review: a simple interface tweak can go straight to the
    - the session ID or transcript path if the relevant chat would be hard to identify, for example when several Claude Code sessions worked on the same change;
    - an explicit request to paste the answer back into the Claude app when done, because Claude Code's turn ends after sending and only a message in its box wakes it (tested: Codex pasted a tagged answer that started Claude Code's next turn).
    - Or, without a paste back: send with `--reply "none needed" --wait-reply` as a background command. It watches Codex's session log and prints Codex's final answer as soon as its turn ends, so Claude Code is notified at that moment instead of waiting a guessed time, and neither agent touches the other's window.
+   - Read that answer whole, however long, never through `tail` or `head`: on 2026-11-23 Claude Code Opus 5.5 read Codex's review of KI#21.8 through `tail -5` and applied three findings of six, as its two most important came first; Codex's log showed them, read with [`openai_chat_export_to_txt.py`](/LLM_Helpers/README.md#codex-and-chatgpt-transcript-helper)` codex --tail 4`.
+   - A message that says it needs no reply, such as a thank-you with `Reply: none needed`, can end in a Codex turn with no text: the chat then shows only the feedback icons under it. That is Codex taking the message at its word, not a failed prompt; the log shows the message arrived and the turn ended (2026-11-23).
 4. **Codex reviews the diff and checks the requester's chat when it needs more context.** For example, if a change has an unusual guard, read the relevant discussion to see what failed without it and which cases were already tested.
    - Use the [Claude transcript helper](/LLM_Helpers/README.md#claude_session_export_to_txtpy) on the local session log, or read the transcript supplied with the request. Verify the current code independently.
    - Codex can ask Claude Code a question the same way, with `--to claude --wait-reply`, and gets the answer when Claude Code's turn ends.
@@ -1135,6 +1150,23 @@ Second answer, from the official pages in the agent's own browser:
 > One caveat: Anthropic's page says its prices **exclude tax**. OpenAI's page excerpt I read doesn't say either way. If the €23 includes French VAT (20%), Claude Pro with tax would be about €21.60. That's still cheaper, but the gap is smaller.
 
 - **When a site needs a login,** such as a Google Drive link or a forum attachment, the user signs in once in the pane; the agent then uses that session only as far as the task needs.
+
+- **Downloads from the pane work once the user confirms each one, and land in the user's `Downloads` folder** (2026-11-23): a shared Drive folder needs no sign-in, but its listing and preview give the page text no file names or image links, so a screenshot finds them.
+  - Double-clicking a file opens its preview, whose arrows step through the folder; the download button at the preview's top left saved `Civ4ScreenShot5385.JPG` from [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11)'s folder to `C:\Users\PC\Downloads`, byte for byte the user's own copy.
+  - The app then asks the user to confirm the download in its own window, outside the page, so the agent's screenshot of the pane does not show it: Claude Code Opus 5.5 first wrote that no prompt came, as the file had arrived, but the user had clicked OK for it.
+    - Until the user confirms, the file waits in `Downloads` under a temporary name, such as `5d824fee-ef30-49d8-bd8f-3e396dc3081f.tmp`, already at full size; so tell the user a download is waiting rather than waiting silently.
+    - The confirmation is Windows' Save As dialog, titled with the download's URL, and the app waits on it: the user can click nothing in the Claude app until it is answered, while the agent's tools keep running, so the agent can answer it.
+      - The user asked whether it could: [`desktop_windows.py`](/LLM_Helpers/README.md#desktop_windowspy)'s `wait-idle` before the click, then `save-download`, does so, never replacing a file.
+      - Testing it with the user found three traps: the name box and the replace prompt are not where their documented IDs say, the dialog hides behind the prompt rather than closing, and a ZIP's dialog opened seconds after the click while the user typed, so "he" became its name; the helper's README entry says how each is handled.
+    - A Drive folder downloads as one ZIP whose inner folder carries the folder's name, for a Known Issue its whole title, so its paths can pass Windows' 260-character limit and 7-Zip fails; [`unzip_flat.py`](/LLM_Helpers/README.md#unzip_flatpy) extracts the files flat into a short folder.
+  - Codex's own browser had none of this (2026-11-23): the Codex app now has an in-app browser beside its chat, and Codex (GPT-6.2-Sol), driving it with its computer-use skill, downloaded the same `Civ4ScreenShot5385.JPG` through Drive's right-click Download.
+    - The browser's download event gave the saved path, `C:\Users\PC\Downloads\Civ4ScreenShot5385.JPG`, 611,232 bytes, with no confirmation and no Save As dialog, so `save-download` does not apply there; its accessibility tree also showed the file names, which the Claude pane's page text did not.
+    - The Save As dialog is Windows' own, so `save-download` should answer it for a download from any site in the Claude pane, though only Drive was tried; Codex's browser was tried on Drive alone too.
+  - A download still needs the user's go-ahead in chat too, naming the file, its source and its size; the user's own download of a folder, a ZIP that keeps its subfolders, can be quicker, as KI#11.3's `old_before_fix`, `new_before_fix` and `after_fix` were.
+  - The user's screenshots: the Save As dialog, with the other files in `Downloads` covered, and Windows' prompt when the name already exists:
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_browser_download_save_as_dialog.PNG" alt="llm_browser_download_save_as_dialog.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_browser_download_replace_prompt.PNG" alt="llm_browser_download_replace_prompt.PNG" width="250">
 
 - **Open web links in the agent's own browser to check them:** a web link in the docs can be stale, moved, or point somewhere other than its text says, and only opening it shows which.
   - For example, on 2026-11-11 the new `drive_links.py` check found the Modding Resources guide using one Google Drive folder ID both for its impluvium example and for the whole Modding_Resources Drive, while README_References.md used another ID for the latter.

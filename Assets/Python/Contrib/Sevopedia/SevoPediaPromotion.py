@@ -133,7 +133,7 @@ class SevoPediaPromotion:
 		screen.attachLabel(panelName, "", "  ")
 		isButtonFound = False
 		for j in range(gc.getNumPromotionInfos()):
-			# <!-- custom: include PrereqOrPromotion3 (K-Mod extra OR prereq) so Leads To lists all promotions that depend on this one; otherwise some valid upgrades are missing from this panel. (GPT-5.3-Codex) -->
+			# <!-- custom: include PrereqOrPromotion3 (K-Mod extra OR prereq) so Leads To lists all promotions that depend on this one; otherwise some valid upgrades are missing from this panel. See KI#112. (GPT-5.3-Codex) -->
 			if (gc.getPromotionInfo(j).getPrereqPromotion() == self.iPromotion or gc.getPromotionInfo(j).getPrereqOrPromotion1() == self.iPromotion or gc.getPromotionInfo(j).getPrereqOrPromotion2() == self.iPromotion or gc.getPromotionInfo(j).getPrereqOrPromotion3() == self.iPromotion):
 				screen.attachImageButton(panelName, "", gc.getPromotionInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, j, 1, False)
 				isButtonFound = True
@@ -241,7 +241,7 @@ class SevoPediaPromotion:
 		for iI in range(gc.getNumUnitCombatInfos()):
 			if (0 != gc.getPromotionInfo(self.iPromotion).getUnitCombat(iI)):
 				# <!-- custom: note: i had removed the `iRow = screen.appendTableRow(szTable)` line to fix ruff warning of variable being unused so cleaning this up, after having asked chatgpt this seemed fine and safe to do and we had no errors so maybe was solved as well (as in sevopedia unit ruff warning fix/cleanup as well), other sevopedia classes didn't seem to have a similar issue from quick glance at each file, although i had not investigated it in depth, was hopefully fine i thought, and if in doubt i could have checked ingame display to see if it matches xml info, in sevopedia.
-				# However: update: although the variable is not used, the line was needed to show all entries, else we only showed the first one, so remove the identifier rather while keeping the instruction, as chatgpt noticed as wel and poitned to me hehe thanks -->
+				# However: update: although the variable is not used, the line was needed to show all entries, else we only showed the first one, so remove the identifier rather while keeping the instruction, as chatgpt noticed as wel and pointed to me hehe thanks. See KI#21.7. -->
 				# iRow = screen.appendTableRow(szTable)
 				screen.appendTableRow(szTable)
 				screen.setTableText(szTable, 0, i, SASTextScale.labelText(gc.getUnitCombatInfo(iI).getDescription()), gc.getUnitCombatInfo(iI).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iI, -1, CvUtil.FONT_LEFT_JUSTIFY)

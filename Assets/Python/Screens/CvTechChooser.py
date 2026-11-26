@@ -5,6 +5,8 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvUtil
 import ScreenInput
 import CvScreenEnums
@@ -218,7 +220,7 @@ class CvTechChooser:
 			iTopSpaceForTechBar = self.iSAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE
 		# <!-- custom: Preserve room for the percentage and the ordinary +/- buttons when the map sliders use the right strip.
 		# The HUD handles optional buttons and rates separately. (GPT-6.2-Sol) -->
-		if gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_ANCHOR_RIGHT") > 0:
+		if SASCurrentDefines.getInt("SAS_MAIN_UI_MAP_COMMERCE_ANCHOR_RIGHT") > 0:
 			import CvScreensInterface
 			iRightSpaceForScoreboard = max(iRightSpaceForScoreboard, CvScreensInterface.mainInterface.getMinimumMapCommerceRightSpace())
 		else:
@@ -419,7 +421,7 @@ class CvTechChooser:
 		# <!-- custom: tried removing the turn > 0 guard to show indicators at turn 0, but it does error.
 		# The base AdvCiv comment seems slightly mistaken: I reproduced the issue on a new game (Noble, Pangaea, Normal, Standard).
 		# Gemini 3 Pro confirmed the cause, so we keep base AdvCiv behavior.
-		# I wanted the BUG bulbing indicators noted for players; see known issue 85. (GPT-5.2-Codex (summarized)) -->
+		# I wanted the BUG bulbing indicators noted for players; see KI#85. (GPT-5.2-Codex (summarized)) -->
 		# <!-- custom: keeping this feature disabled is safer; turn 0 bulbing indicators are not critical, so revert to base AdvCiv behavior. (GPT-5.2-Codex (summarized)) -->
 		if CyGame().getElapsedGameTurns() > 0:
 			self.updateTechPrefs()
@@ -1522,42 +1524,42 @@ class CvTechChooser:
 class TechChooserMaps:
 
 	TechChooserInputMap = {
-		'TechRecord'			: CvTechChooser().TechRecord,
-		'TechID'				: CvTechChooser().ParentClick,
-		'TechPane'				: CvTechChooser().ParentClick,
-		'TechButtonID'			: CvTechChooser().ParentClick,
-		'TechButtonBorder'		: CvTechChooser().ParentClick,
-		'Unit'					: CvTechChooser().ParentClick,
-		'Building'				: CvTechChooser().ParentClick,
-		'Obsolete'				: CvTechChooser().ParentClick,
-		'ObsoleteX'				: CvTechChooser().ParentClick,
-		'Move'					: CvTechChooser().ParentClick,
-		'FreeUnit'				: CvTechChooser().ParentClick,
-		'FeatureProduction'			: CvTechChooser().ParentClick,
-		'Worker'				: CvTechChooser().ParentClick,
-		'TradeRoutes'			: CvTechChooser().ParentClick,
-		'HealthRate'			: CvTechChooser().ParentClick,
-		'HappinessRate'			: CvTechChooser().ParentClick,
-		'FreeTech'				: CvTechChooser().ParentClick,
-		'LOS'					: CvTechChooser().ParentClick,
-		'MapCenter'				: CvTechChooser().ParentClick,
-		'MapReveal'				: CvTechChooser().ParentClick,
-		'MapTrade'				: CvTechChooser().ParentClick,
-		'TechTrade'				: CvTechChooser().ParentClick,
-		'OpenBorders'		: CvTechChooser().ParentClick,
-		'BuildBridge'			: CvTechChooser().ParentClick,
-		'Irrigation'			: CvTechChooser().ParentClick,
-		'Improvement'			: CvTechChooser().ParentClick,
-		'DomainExtraMoves'			: CvTechChooser().ParentClick,
-		'AdjustButton'			: CvTechChooser().ParentClick,
-		'TerrainTradeButton'	: CvTechChooser().ParentClick,
-		'SpecialBuildingButton'	: CvTechChooser().ParentClick,
-		'YieldChangeButton'		: CvTechChooser().ParentClick,
-		'BonusRevealButton'		: CvTechChooser().ParentClick,
-		'CivicRevealButton'		: CvTechChooser().ParentClick,
-		'ProjectInfoButton'		: CvTechChooser().ParentClick,
-		'ProcessInfoButton'		: CvTechChooser().ParentClick,
-		'FoundReligionButton'	: CvTechChooser().ParentClick,
-		'CivDropDown'			: CvTechChooser().CivDropDown,
+		'TechRecord' : CvTechChooser().TechRecord,
+		'TechID' : CvTechChooser().ParentClick,
+		'TechPane' : CvTechChooser().ParentClick,
+		'TechButtonID' : CvTechChooser().ParentClick,
+		'TechButtonBorder' : CvTechChooser().ParentClick,
+		'Unit' : CvTechChooser().ParentClick,
+		'Building' : CvTechChooser().ParentClick,
+		'Obsolete' : CvTechChooser().ParentClick,
+		'ObsoleteX' : CvTechChooser().ParentClick,
+		'Move' : CvTechChooser().ParentClick,
+		'FreeUnit' : CvTechChooser().ParentClick,
+		'FeatureProduction' : CvTechChooser().ParentClick,
+		'Worker' : CvTechChooser().ParentClick,
+		'TradeRoutes' : CvTechChooser().ParentClick,
+		'HealthRate' : CvTechChooser().ParentClick,
+		'HappinessRate' : CvTechChooser().ParentClick,
+		'FreeTech' : CvTechChooser().ParentClick,
+		'LOS' : CvTechChooser().ParentClick,
+		'MapCenter' : CvTechChooser().ParentClick,
+		'MapReveal' : CvTechChooser().ParentClick,
+		'MapTrade' : CvTechChooser().ParentClick,
+		'TechTrade' : CvTechChooser().ParentClick,
+		'OpenBorders' : CvTechChooser().ParentClick,
+		'BuildBridge' : CvTechChooser().ParentClick,
+		'Irrigation' : CvTechChooser().ParentClick,
+		'Improvement' : CvTechChooser().ParentClick,
+		'DomainExtraMoves' : CvTechChooser().ParentClick,
+		'AdjustButton' : CvTechChooser().ParentClick,
+		'TerrainTradeButton' : CvTechChooser().ParentClick,
+		'SpecialBuildingButton' : CvTechChooser().ParentClick,
+		'YieldChangeButton' : CvTechChooser().ParentClick,
+		'BonusRevealButton' : CvTechChooser().ParentClick,
+		'CivicRevealButton' : CvTechChooser().ParentClick,
+		'ProjectInfoButton' : CvTechChooser().ParentClick,
+		'ProcessInfoButton' : CvTechChooser().ParentClick,
+		'FoundReligionButton' : CvTechChooser().ParentClick,
+		'CivDropDown' : CvTechChooser().CivDropDown,
 		}
 

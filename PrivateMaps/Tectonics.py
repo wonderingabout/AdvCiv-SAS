@@ -93,13 +93,13 @@ def getNumPlotsPercent(argsList):
 		# NB: The smallest two sizes have highly unpredictable land-sea ratios
 		# <!-- custom: Arena was absent from this direct dictionary, causing KeyError; the shifted length guard also bypassed the stored Huge value.
 		# Use the established Duel percentage for Arena. See KI#282.3. (GPT-5.6-Sol) -->
-		WorldSizeTypes.WORLDSIZE_ARENA:		89,
-		WorldSizeTypes.WORLDSIZE_DUEL:		89,
-		WorldSizeTypes.WORLDSIZE_TINY:		87,
-		WorldSizeTypes.WORLDSIZE_SMALL:		85,
-		WorldSizeTypes.WORLDSIZE_STANDARD:	83,
-		WorldSizeTypes.WORLDSIZE_LARGE:		81,
-		WorldSizeTypes.WORLDSIZE_HUGE:		77
+		WorldSizeTypes.WORLDSIZE_ARENA: 89,
+		WorldSizeTypes.WORLDSIZE_DUEL: 89,
+		WorldSizeTypes.WORLDSIZE_TINY: 87,
+		WorldSizeTypes.WORLDSIZE_SMALL: 85,
+		WorldSizeTypes.WORLDSIZE_STANDARD: 83,
+		WorldSizeTypes.WORLDSIZE_LARGE: 81,
+		WorldSizeTypes.WORLDSIZE_HUGE: 77
 	}
 	if iWorldSize >= len(sizeModifiers):
 		return 73
@@ -491,12 +491,12 @@ class voronoiMap:
 				minHeight = min(height,left,right,top,bottom)
 				if (minHeight >= self.peakAltitude):
 					oldHeightMap[leftX + y*self.mapWidth] = self.hillAltitude + 1 
-					self.heightMap[leftX + y*self.mapWidth] = self.hillAltitude  + 1
-					oldHeightMap[rightX + y*self.mapWidth] = self.hillAltitude  + 1
-					self.heightMap[rightX + y*self.mapWidth] = self.hillAltitude  + 1
+					self.heightMap[leftX + y*self.mapWidth] = self.hillAltitude + 1
+					oldHeightMap[rightX + y*self.mapWidth] = self.hillAltitude + 1
+					self.heightMap[rightX + y*self.mapWidth] = self.hillAltitude + 1
 					if (y>0):
-						oldHeightMap[x + (y-1)*self.mapWidth] = self.hillAltitude  + 1
-						self.heightMap[x + (y-1)*self.mapWidth] = self.hillAltitude  + 1
+						oldHeightMap[x + (y-1)*self.mapWidth] = self.hillAltitude + 1
+						self.heightMap[x + (y-1)*self.mapWidth] = self.hillAltitude + 1
 					if (y<self.mapHeight - 2):
 						oldHeightMap[x + (y+1)*self.mapWidth] = self.hillAltitude + 1
 						self.heightMap[x + (y+1)*self.mapWidth] = self.hillAltitude + 1
@@ -774,7 +774,7 @@ class voronoiTerraMap(voronoiMap):
 		x = 7*self.mapWidth/20
 		y = 2*self.mapHeight/3 -1
 		for i in range(self.mapWidth/12):
-			self.plateMap[x  + i + y*self.mapWidth] = 12
+			self.plateMap[x + i + y*self.mapWidth] = 12
 		x = self.mapWidth/2
 		y = 2*self.mapHeight/5
 		self.plateMap[x + y*self.mapWidth] = 12
@@ -869,13 +869,13 @@ class voronoiTerraMap(voronoiMap):
 	def movePlates(self,dontMoveSeaPlates):
 		plates = self.numContinents + self.numSeaPlates
 		if dontMoveSeaPlates:
-			xMoves =     [0, 1, 0, 0, 0, 0, 0, 0,  -1,-1, 0,-1, 0, 0,-1, 0,-1, 1, 1, 0, 0]
-			yMoves =     [0, 0, 0, 0,-1, 1, 1, 0,   0, 1,-1,-1, 0, 1, 0, 0, 0, 1, 0, 0, 0]
-			subduction = [0, 9, 9, 0, 9, 0, 0, 0,   9, 9, 9, 0, 0, 9, 9, 9, 0, 9, 9, 0, 0]
+			xMoves = [0, 1, 0, 0, 0, 0, 0, 0, -1,-1, 0,-1, 0, 0,-1, 0,-1, 1, 1, 0, 0]
+			yMoves = [0, 0, 0, 0,-1, 1, 1, 0, 0, 1,-1,-1, 0, 1, 0, 0, 0, 1, 0, 0, 0]
+			subduction = [0, 9, 9, 0, 9, 0, 0, 0, 9, 9, 9, 0, 0, 9, 9, 9, 0, 9, 9, 0, 0]
 		else:
-			xMoves =     [0, 1, 0, 0, 0, 1,-1, 0,  -1,-1, 0, 1, 1,-1, 1, 0, 0,-1,-1, 1,-1]
-			yMoves =     [0, 0, 0, 0, 1,-1, 0, 0,  -1, 1,-1,-1, 1,-1,-1,-1,-1,-1, 0, 1, 1]
-			subduction = [0, 9, 9, 0, 9, 9, 9, 0,   9, 9, 9, 9, 0, 9, 9, 9, 0, 0, 9, 0, 0]
+			xMoves = [0, 1, 0, 0, 0, 1,-1, 0, -1,-1, 0, 1, 1,-1, 1, 0, 0,-1,-1, 1,-1]
+			yMoves = [0, 0, 0, 0, 1,-1, 0, 0, -1, 1,-1,-1, 1,-1,-1,-1,-1,-1, 0, 1, 1]
+			subduction = [0, 9, 9, 0, 9, 9, 9, 0, 9, 9, 9, 9, 0, 9, 9, 9, 0, 0, 9, 0, 0]
 		self.doMovePlates(xMoves,yMoves,subduction)
 
 class voronoiPangaeaMap(voronoiMap):
@@ -1195,14 +1195,14 @@ class riversMap:
 			for y in range(self.mapHeight):
 				plot = self.map.plot(x,y)
 				if (plot.getPlotType() == PlotTypes.PLOT_PEAK):
-					currentLands[x + y*self.mapWidth]  = 1
-					self.heightMap[x + y*self.mapWidth]  = 10000
+					currentLands[x + y*self.mapWidth] = 1
+					self.heightMap[x + y*self.mapWidth] = 10000
 				elif (plot.getPlotType() == PlotTypes.PLOT_HILLS):
-					currentLands[x + y*self.mapWidth]  = 1
-					self.heightMap[x + y*self.mapWidth]  = 1000
+					currentLands[x + y*self.mapWidth] = 1
+					self.heightMap[x + y*self.mapWidth] = 1000
 				elif (plot.getPlotType() == PlotTypes.PLOT_LAND):
-					currentLands[x + y*self.mapWidth]  = 1
-					self.heightMap[x + y*self.mapWidth]  = 1
+					currentLands[x + y*self.mapWidth] = 1
+					self.heightMap[x + y*self.mapWidth] = 1
 
 	def generateHeightMap(self):
 		self.heightMap = [0] * (self.mapWidth*self.mapHeight)

@@ -20,15 +20,28 @@ Parts [1](https://www.youtube.com/watch?v=hr-L3UdaKVk) and [3](https://www.youtu
 
 Heavy reworks were made, while otherwise mostly staying in the base AdvCiv frame, but with a focus on game balance, generally more historical accuracy (but not too much else gameplay is impractical (e.g. religions appearing too late or too few or not varied enough to be gameplay relevant or effective at all)) and strategic value (e.g. if all religions beeline from same tech path it would not be too balanced or strategically diverse or valuable).
 
-As for in particular UI in Sevopedia (e.g., item grouping, new Search Bar, Keyboard navigation (UP/DOWN for category-list items; LEFT/RIGHT for BACK/NEXT pages visited), Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to), Vote (Votesources and Votes), EventTrigger (Event Triggers and Events), Route (e.g. Road and Railroad), Expanded Text Panels), Legend links to Sevopedia entries to various UI tabs including in Sevopedia, advisors, etc.
+As for in particular UI in Sevopedia, which now adjusts dynamically depending on current resolution without needing a restart anymore, notably but not only:
+
+- Leader (AI Personality Panel with detailed XML statistics and min/max/percentile ranking per field, clickable leader animations to select attitude (e.g. furious, friendly, etc.) or action (e.g. greet, disagree, etc.))
+- Items being grouped (by Era, Type, etc.)
+- new Search Bar
+- Keyboard navigation (UP/DOWN for category-list items; LEFT/RIGHT for BACK/NEXT pages visited)
+- Index as Category and as the Home
+- New Charts (Handicaps, Speeds, Eras, World Sizes, and within categories (e.g. Traits charts, Tradeability and Starting Techs charts))
+- Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)
+- Vote (Votesources and Votes)
+- EventTrigger (Event Triggers and Events)
+- Routes (e.g. Road and Railroad)
+- Expanded Panel (Playground for text/background color selection and maximized text, Animations e.g. for bonuses, leaders, buildings, etc.).
+- Legend links to Sevopedia entries to various UI tabs including in Sevopedia, advisors, etc.
 
 Among other UI changes, notably, the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)). As for advisor screens in particular, and they have been reworked or new ones were added. For example, notably:
 
 - new Military Advisor Summary Tab, new Composition Tab, new Battles Tab (history of all battles of all players, now stored persitently in save files even at load again as well)
 - new World Advisor with Geography tabs (BFC 1, BFC 2 and Territory), an Environment tab for pollution/global warming, and a Changes tab for saved World Changes history (WorldBuilder edits and Advanced Start actions), preserved after reloading
-- new Info Screen Score Tab and Timeline tabs
+- new Info Screen Score Tab and Timeline tabs (hides spoilers)
 
-They were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well, and they now also dynamically adjust to game resolution or generally much better so than before.
+Advisors have been also expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors now also dynamically adjust to game resolution or generally much better so than before.
 
 Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
 
@@ -50,19 +63,23 @@ New mechanics as well, including but not only:
 
 Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, the new Marsh feature that holds fertile Grassland hostage for development, the new Peat bonus that gives some Marshes production, and occasionally more when a Marsh is drained, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
 
-Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate logs.
+Many practical changes are made. For example, base AdvCiv kept its BBAI logging levels in the DLL's `BBAILog.h`, so turning a log on or off meant editing and recompiling the DLL; like many other settings, they moved to SAS defines in the XML, so they are now easily tunable. This is deemed valuable not only for modders but also for users, who can now view or generate logs.
 
-Since BBAI log files are usually very long, we generally give them to external LLMs like ChatGPT, whose separate analysis may also give us a different point of view/review from local coding agents (e.g., Codex, Claude Code).
+Some settings, as of now BBAI's log categories and the font sizes, can also be changed while Civ4 runs, without a restart ([Live define overrides](/README.md#live-define-overrides)).
 
-Note: they are now optionally written to a new timestamped file for each new game or loaded save (e.g., `BBAI_<UTC>_<pid>_new1.log` or `SASGameRecord_20261110T165714Z_26088_load1.log`, named by time and process ID) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4.
+BBAI logs are on the heavier side, sometimes several GB (if not more), and rarely needed, so turning a category on or off during play is very handy for agents' AI audits, as is trying font sizes for UI audits or for players tuning the UI.
 
-Each log begins with the new/load lifecycle marker, shared mod/source commit/version and exact DLL-binary identity, currently active BBAI log levels, and then game settings to help doing that.
+We also added more systematic logs, compact yet thorough, such as SASGameRecord (sometimes called SGR, or SAS Game Record), written as `SASGameRecord_*.log`.
 
-A separate SASGameRecord (sometimes called SGR, or SAS Game Record) log, written as `SASGameRecord_*.log`, can also be enabled notably for compact autoplay / AI-benchmark review, recording what happened across the run (economy, expansion, city and battle history, worked plots, diplomacy, initial map/landmass geography, etc.) or to give more gameplay context to complement BBAI's detailed decision traces. Current recorder settings use the greppable `SAS_SGR_*` define family.
+It currently acts like a game's black box: switched on and left on, it records what happened across the run (economy, expansion, city and battle history, worked plots, diplomacy, initial map/landmass geography, etc.), notably for compact autoplay / AI-benchmark review, or to give more gameplay context to complement BBAI's detailed decision traces. Current recorder settings use the greppable `SAS_SGR_*` define family.
 
 It notably also preserves exact high-level AI strategy, victory-route stage and team worst-enemy transitions alongside periodic checkpoints, making shifts in long-term AI intent and diplomatic alignment easier to line up with production, diplomacy and war outcomes without enabling every detailed BBAI category.
 
 This is an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
+
+Note: BBAI and SASGameRecord logs are now optionally written to a new timestamped file for each new game or loaded save (e.g., `BBAI_<UTC>_<pid>_new1.log` or `SASGameRecord_20261110T165714Z_26088_load1.log`, named by time and process ID) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4.
+
+Each log begins with the new/load lifecycle marker, shared mod/source commit/version and exact DLL-binary identity. BBAI's then gives its active log levels and the game settings; SASGameRecord's currently gives more, notably its detail level and switches, the session's settings, and the starting map, war and RNG baselines.
 
 Another significant logging improvement is "flushing":
 
@@ -81,6 +98,9 @@ Additional LLM/agent instrumentation extends this "open brain" view: users and A
 - `SASRuntimeExit_*.json` helps catch failures missed by in-game hooks, such as crashes after live Python/XML edits or DLL/EXE failures. A hidden Windows watcher records recognized runtime-error or crash-dump dialogs while Civ4 is still alive, then its eventual exit time/code.
 - `SASRuntimeScreenshotObserver.ps1` records newly observed screenshot files in `SASRuntimeScreenshots_*.jsonl`, with timestamps, image dimensions and available game context to help find captures from a run.
 - `CvGameCoreDLL.dll.build.json` provides the build-side counterpart: users and AI/LLM agents can follow compilation status and review source/configuration, selected compiler/linker versions, timing, warnings/errors and DLL identity, alongside the enriched `AdvCiv.log` with full compiler output and build summaries.
+- [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) works the other way: it changes some settings while Civ4 runs without a restart, which suits agents that run Civ4 more or less continuously (see [Live define overrides](/README.md#live-define-overrides)).
+  - For example, a UI font audit tries sizes one after another, and a sparse AI audit turns one BBAI log category on for the stretch it studies and off again, each watched in the logs and status files above, with no tedious restart between steps; players can tune the UI, such as upscaling its fonts, the same way.
+  - On top of the permanent ones, overrides may have other uses, such as temporarily setting an AI tunable live for fine-tuning or audits, toward its best value, without tedious restarts, then writing the settled value back to the XML; this works for a define whose code reads it at each use.
 
 Together with live-readable BBAI and SASGameRecord logs, richer and more searchable UWAI diagnostics integrated into BBAI and controlled through SAS defines, enriched compiler logs and embedded DLL provenance, these make it easier to follow runs, investigate problems, and connect observations to the code and binary being tested.
 
@@ -89,7 +109,9 @@ Alongside this observability, other changes move towards "hands-free" play and t
 - AI Auto Play omits unnecessary no-decision notices, including the "it's your turn" popup after the active player dies, so runs can continue unattended. Its default requested duration can also follow game speed (e.g., 501 turns at Normal, 1001 at Marathon).
 - SASFastSave makes save info clearer, especially at a glance, avoids identical filename handling issues, and preserves games you might otherwise forget to save permanently; at game start or when autoplay stops, for example.
   - For example, `ALEXANDER_T0000_HUGE_CUSTOM_CONTINENTS_NORMAL_41500016_41500016_20260909T171232Z_START` identifies the starting save, while `ALEXANDER_T0459_HUGE_CUSTOM_CONTINENTS_SPACE_ZARA_YAQOB_NORMAL_41500016_41500016_20260910T184208Z` identifies the outcome.
-- Scoreboard scrolling and a height limit support long player lists, such as SAS48 games, so it no longer overflows vertically beyond the top of the screen.
+- Base AdvCiv's screens were laid out for at most 18 players, its DLL's limit, with 16 on Huge, while SAS's world sizes beyond Huge reach 48, as in a SAS48 game.
+  - SAS adjusts several screens to such high player counts, such as the Glance tab's and the Debug Info screen's pages, the Espionage tab's compact rows, the Info graph's legend and the Military Advisor's leader buttons; see [UI (High player counts)](/README.md#ui-high-player-counts).
+- In particular, scoreboard scrolling and a height limit support long player lists, such as SAS48 games, so it no longer overflows vertically beyond the top of the screen.
 - On top of this (no pun or yes but anyway), scoreboard autocenter (default as of now ON) automatically keeps the active player in view, so that the new scoreboard scroll feature (up/down with +/- buttons as of now when Scoreboard is full) does not require a manual/tedious user intervention every while or if desired.
 - The Dawn of Man screen, still on by default, can now optionally be turned off, so a new or loaded game opens straight on the map, saving a click each time you start or load a game, for example before autoplaying by hand.
 - Likewise the screens that only inform, the tech splash and the era, wonder, religion and project movies, each have their own switch, all on by default; turned off, the game goes on without waiting for a click, while the event log still reports what happened.
@@ -118,20 +140,31 @@ Together, these close a loop that local agents, such as Claude Code or Codex, ca
 6. The change is reviewed with the user, or directly between agents such as Codex or ChatGPT: is code shape satisfying, right/intended abstraction, does it address the need, no ci to add or that fails? Did regressions in AI, UI, or whatnot appear in a manual, or possibly even automated/batch way now maybe too? Other notable results or observations? Etc.
 7. Eventually committed once and if approved, and work moves on to the next Known Issue or idea noted for later, with the user, or possibly other agents, either in batch or autonomously, or one by one with or without the user being required at each step, or such.
 
-Each step is documented for agents in the files linked above, so the loop needs the user only to choose what to work on and to approve the result.
-
-None of it needs the game in the foreground, or even visible: Civ4 runs in its own window, screenshots capture it under other windows, and other applications such as Chrome, VS Code or File Explorer did not block its launch or capture in our tests.
-
 So an agent such as Claude Code or Codex can investigate an issue, change the code, compile, run the autoplays it needs, read their logs and screenshots, and commit once the change is approved, while the user browses the web or reads code, possibly without noticing it happened.
-
-Example of exceptions:
-
-- A click in the game window, since it moves the real mouse pointer, but runs need none.
-- Or asking another agent such as Codex for a peer-agent review, as in [this example](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#example-a-peer-agent-review-on-2026-11-11), is more visible with our current method, because we use the agents' desktop apps rather than their CLI, so the request is pasted into the other agent's window, which brings it to the front.
 
 Note: we wrote "AI, UI or otherwise" above without thinking of it, then noticed it matches the current signature at the top of every file SAS modifies: "AI, UI, logging, or other modifications first developed in AdvCiv-SAS". We added "logging" so the two match.
 
-Another significant part of the project is [LLM-assisted source analysis](/README.md#llm-assisted-source-analysis): completed historical archaeology follows BtS, K-Mod, AdvCiv and AdvCiv-SAS changes through their actual diffs and lineage, while file-audit records document reviews of combined source and cross-file contracts from complementary angles.
+Other conveniences for agents are in the source's layout, as agents, who write and edit most of the code and docs, read them mostly through greps and diffs; a person reading in an editor may want line wrapping on. We prefer, and where practical CI enforces, one whole unit per line, so a grep or a diff shows a complete thought rather than a fragment cut at an arbitrary width:
+
+- comments and other prose put one logical sentence per line, never a sentence cut mid-way at a fixed character width; CI checks our custom comments (see [Custom-comment logical reflow](/.github/workflows/README.md#custom-comment-logical-reflow));
+  - Unlike the long-standing habit of wrapping text at a fixed width, such as 80 characters, they notably help because a grep or a diff works line by line:
+    - a sentence cut at a fixed width shows up as half a sentence in a hit, and a search for words spanning the cut misses it;
+    - a whole paragraph on one line turns each hit into the whole paragraph, and each one-word edit into a changed paragraph;
+    - a sentence is the unit a reader searches for or changes.
+- a call or a signature stays on one line where that seems safe and still reads well, such as runtime Python calls or C++ function signatures (see AGENTS.md's [Code layout and collapsing](/AGENTS.md#code-layout-and-collapsing));
+- references such as `KI#128.3` (KI: Known Issues) are sprayed throughout the code and docs, wherever an issue's code or docs are, so one grep finds them all (16 files for `KI#128.3` on 2026-11-25);
+  - CI markers tag deliberate exceptions the same way: each place that knowingly departs from a CI rule says why with a marker, such as `ci_define_uncached:` beside a define read left uncached (40 such comments across 17 DLL files that day), so one grep lists every exception and its reason (see [CI markers in source comments](/.github/workflows/README.md#ci-markers-in-source-comments)).
+- diagnostic logs are records rather than prose: BBAI and SASGameRecord rows start with an uppercase record ID followed by named `key=value` fields with XML type names, such as `SETTLER_MISSION_DECISION` with `civ=CIVILIZATION_AMERICA`, so an agent or a script can grep one row family, read its fields and compare runs (see the Main Changes Guide's [Logging (Common)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#logging-common) and the [Logging Inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#sas-ai-and-game-record-diagnostics));
+- inherited manuals and docs are also kept as plain text, such as AdvCiv's [manual.txt](/_0_Legacy/Docs/AdvCiv/manual.txt) beside its PDF and ODT copies, so a grep reaches them too;
+- the code's history is greppable too: `LLM_Helpers/context/commit_diffs/` holds each commit of AdvCiv-SAS, base AdvCiv and K-Mod as one file with its message and diff, and `dev_logs` (Git/SVN logs) their messages alone, so one search, by a name or a whole code pattern, shows which layer added a line, when and why, and what later changed it, which is how a defect is traced to where it came from.
+  - The `commit_diffs` addition in particular began in the light-source ZIP, so external agents such as ChatGPT (web browser) could search our history as if they had our Git.
+  - It then proved just as useful to local agents, such as Codex and Claude Code, which search it in the working tree.
+  - Then later, when [KI#771.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-771.2) (`AIAutoPlay` cache bug) needed evidence older than K-Mod, we also added, as f1rpo had previously mentioned, each revision of Better BTS AI's (BBAI) [pre-Git SVN history](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md#comparison-sources) in the same format, so the same search reaches further back.
+  - For example (2026-11-12), `git log -G getProductionBarPercentages` over 6,750 commits had not finished after 10 minutes, while a search of the folder found the same text in 28 commits in 0.2 s.
+  - A pattern works as well as a name: the regex `^\+.*static.*getDefine(INT|BOOL)\("`, a define read added as a static, matched 264 commits in the same 0.2 s (2026-11-25), 219 of them SAS's, 39 base AdvCiv's, 4 K-Mod's and 2 BBAI revisions, so it shows where and when a habit spread.
+  - A search for the static behind [KI#128.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.4) found AdvCiv's commit that added it; search the folder with ignore files off, such as `rg -u`, as it is Git-ignored (see [AGENTS.md's Source analysis](/AGENTS.md#source-analysis)).
+
+This leads to another significant part of the project, [LLM-assisted source analysis](/README.md#llm-assisted-source-analysis): completed historical archaeology follows BtS, K-Mod, AdvCiv and AdvCiv-SAS changes through their actual diffs and lineage, while file-audit records document reviews of combined source and cross-file contracts from complementary angles.
 
 The completed archaeology records 130+ confirmed candidate bug/issue findings; the findings support incremental fixes alongside normal development.
 
@@ -205,6 +238,8 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;[Inverted BUG options](/README.md#inverted-bug-options)\
 &emsp;[Diplomacy Screen](/README.md#diplomacy-screen)\
 &emsp;[Miscellaneous screens](/README.md#miscellaneous-screens)\
+&emsp;[Debug Mode screens](/README.md#debug-mode-screens)\
+&emsp;[UI (High player counts)](/README.md#ui-high-player-counts)\
 &emsp;[Main Interface rework](/README.md#main-interface-rework)\
 &emsp;&emsp;[City Screen rework](/README.md#city-screen-rework)\
 &emsp;&emsp;[Map view rework (e.g., Scoreboard Toggle and Scroll buttons, Map Annotations Toggle button)](/README.md#map-view-rework-eg-scoreboard-toggle-and-scroll-buttons-map-annotations-toggle-button)\
@@ -260,6 +295,7 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;&emsp;[SAS_Parallel_Lines](/README.md#sas_parallel_lines)\
 &emsp;[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)\
 &emsp;[New .dds for mapscripts in Simple Game](/README.md#new-dds-for-mapscripts-in-simple-game)\
+[Live define overrides](/README.md#live-define-overrides)\
 [SASFastSave](/README.md#sasfastsave)\
 [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)\
 [Long Comments Archive](/README.md#long-comments-archive)\
@@ -272,8 +308,8 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;&emsp;[LLM chat transcripts](/README.md#llm-chat-transcripts)\
 &emsp;[Running Civ4 from the command line](/README.md#running-civ4-from-the-command-line)\
 &emsp;[Agent tools for Civ4 file formats (e.g., .tga, .dds, .fpk, .nif, .kfm, .kf, .bik, .mp3, .wav)](/README.md#agent-tools-for-civ4-file-formats-eg-tga-dds-fpk-nif-kfm-kf-bik-mp3-wav)\
+&emsp;[Manifests of the inherited layers](/README.md#manifests-of-the-inherited-layers)\
 &emsp;[Local tests](/README.md#local-tests)\
-&emsp;[Inherited game text lists](/README.md#inherited-game-text-lists)\
 &emsp;[CI](/README.md#ci)\
 &emsp;[Light-source ZIP](/README.md#light-source-zip)\
 &emsp;[Repository](/README.md#repository)\
@@ -586,14 +622,12 @@ For example moving the espionage screen to now being a tab of the foreign adviso
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.512_policy_advisor%20(3).JPG" alt="1.512_policy_advisor (3).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(1)_hover.JPG" alt="1.513_foreign_advisor (1)_hover.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(2).JPG" alt="1.513_foreign_advisor (2).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(2)_sas48.JPG" alt="1.513_foreign_advisor (2)_sas48.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(3).JPG" alt="1.513_foreign_advisor (3).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.514_foreign_advisor%20(1).JPG" alt="1.514_foreign_advisor (1).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.514_foreign_advisor%20(2)_hover.JPG" alt="1.514_foreign_advisor (2)_hover.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.514_foreign_advisor%20(3).JPG" alt="1.514_foreign_advisor (3).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.514_foreign_advisor%20(4).JPG" alt="1.514_foreign_advisor (4).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(4).JPG" alt="1.513_foreign_advisor (4).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(4)_sas48.JPG" alt="1.513_foreign_advisor (4)_sas48.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(2)_individual.JPG" alt="1.515_military_advisor (2)_individual.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(2)_selected_dots.JPG" alt="1.515_military_advisor (2)_selected_dots.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(1).JPG" alt="1.518_info_screen (1).JPG" width="250"></img>
@@ -663,6 +697,50 @@ Some miscellaneous screens have been beautified, expanded and maximized to suppo
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.983_dan_qayle_screen.JPG" alt="1.983_dan_qayle_screen.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.984_hall_of_fame_screen.JPG" alt="1.984_hall_of_fame_screen.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.985_spaceship_screen.JPG" alt="1.985_spaceship_screen.JPG" width="250"></img>
+
+### Debug Mode screens
+
+The screens Debug Mode opens (`chipotle` cheat code, then `Ctrl + Z`), which base AdvCiv had left at vanilla's sizes or broken:
+
+- The **Debug Info screen** (`Shift + F2`, [CvDebugInfoScreen.py](/Assets/Python/Screens/CvDebugInfoScreen.py)):
+  - It adjusts to the resolution and uses most of the screen, as the advisors do as of now, instead of vanilla's fixed 1024 x 768.
+  - It pages its columns when they do not fit, where it used to cut them off, such as Map Details' bonuses or most civilizations in a SAS48 game ([KI#1105.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2), [KI#134.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.7)); its Map Details headers line up with their values again ([KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)).
+- The **GameFont Display screen**, listing every game font glyph (`Ctrl + Shift + F1`, [GameFontDisplay.py](/Assets/Python/Contrib/GameFontDisplay.py)):
+  - It shows the game font's glyphs again, after an empty table in base AdvCiv too ([KI#1107](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107)).
+  - It fills the screen, with one glyph column per font size 1 to 4, each naming the SAS font types that use it, instead of a vague "Small" and "Big".
+- The Sevopedia's **Cheats** shortcuts page lists the Debug Mode keys it lacked: `Shift + F1` to `F4`, `Ctrl + Shift + F1` and `Shift + [` and `]`, as of now, as base AdvCiv's `advc.007b` block in [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py) binds them.
+
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(1).JPG" alt="1.986_debug_info_screen (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(2).JPG" alt="1.986_debug_info_screen (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(2)_sas48.JPG" alt="1.986_debug_info_screen (2)_sas48.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.987_game_font_display%20(1).JPG" alt="1.987_game_font_display (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.987_game_font_display%20(2).JPG" alt="1.987_game_font_display (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.987_game_font_display%20(3).JPG" alt="1.987_game_font_display (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.987_game_font_display%20(4).JPG" alt="1.987_game_font_display (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.987_game_font_display%20(5).JPG" alt="1.987_game_font_display (5).JPG" width="250"></img>
+
+### UI (High player counts)
+
+Base AdvCiv's screens were laid out for at most 18 players, its DLL's limit, with 16 on Huge. With the [SAS24 to SAS48 world sizes](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena) beyond Huge, a game can have up to 48 players, as in a SAS48 game, and several screens overflowed; so can any size with a 48-civilization DLL, such as base AdvCiv's from f1rpo's [`48civs` branch](https://github.com/f1rpo/AdvCiv/tree/48civs), even Huge, or a modmod's.
+
+The adjustments below followed those world sizes, as the screens did not cleanly support so many players.
+
+As of now, SAS adjusts them to many players:
+
+- The **scoreboard** scrolls instead of running up past the top bar.
+- The Foreign Advisor's **Glance** tab pages its players, and its **Espionage** tab's compact rows fit more of them on screen.
+- The **Info graph**'s legend, which also ran up over its dropdowns, and the **Military Advisor**'s leader buttons shrink to fit.
+- The Debug Mode **Debug Info screen** pages its civilization tabs.
+- Still crowded: the Foreign Advisor's **Relations** tab overlaps at 48, though less than in base AdvCiv, and so does the UN screen shown after a diplomatic victory.
+
+See [UI (High player counts)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-high-player-counts) in the Main Changes Guide, and [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) to [KI#134.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.8) for each screen beside base AdvCiv.
+
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(2)_sas48_page1.JPG" alt="1.513_foreign_advisor (2)_sas48_page1.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(4)_sas48.JPG" alt="1.513_foreign_advisor (4)_sas48.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(1)_sas48.JPG" alt="1.513_foreign_advisor (1)_sas48.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(1)_sas48.JPG" alt="1.518_info_screen (1)_sas48.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(2)_sas48.JPG" alt="1.515_military_advisor (2)_sas48.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(1)_sas48.JPG" alt="1.986_debug_info_screen (1)_sas48.JPG" width="250"></img>
 
 ### Main Interface rework
 
@@ -999,7 +1077,7 @@ Before going more in depth about/in the changes and how to play or such document
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.516_technology_advisor%20(1)_blue.JPG" alt="1.516_technology_advisor (1)_blue.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.516_technology_advisor%20(2)_blue.JPG" alt="1.516_technology_advisor (2)_blue.JPG" width="250"></img>
 
-For more details on how the tech tree was made, which historical timeline it follows, sources, more screenshots and such, upcoming changes if any more, or other information or not or etc, please visit [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md)
+For more details on how the tech tree was made, which historical timeline it follows, sources, more screenshots and such, upcoming changes if any more, or other information or not, please visit [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md)
 
 ## Military Tree and changes
 
@@ -1209,6 +1287,8 @@ AdvCiv-SAS ships one `Assets/CvGameCoreDLL.dll`, compiled for up to 48 civilizat
 
 Because changing the player-slot layout can break save compatibility, keep the same DLL build for an existing game.
 
+Adding these sizes, with up to 48 players, needed UI adjustments, as base AdvCiv's screens were laid out for at most 18; see [UI (High player counts)](/README.md#ui-high-player-counts).
+
 These new World Sizes are based on the XXL World mod's world sizes and are tuned around their listed default player counts.
 
 The adjustment of the XXL World Mod's World sizes was made by GPT-5.2-Codex. For information, here is a comparative .md table showing how the XXL World's World Sizes compare to the AdvCiv-SAS' new World Sizes, and notes, by GPT-5.2-Codex as well.
@@ -1324,6 +1404,31 @@ Generated previews in Simple Game, three distinct scripts: BTG_Cross, Rainforest
 <img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(2).JPG" alt="1.3201_maps_simple_game (2).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(3).JPG" alt="1.3201_maps_simple_game (3).JPG" width="250"></img>
 
+## Live define overrides
+
+The XML is read once, when Civ4 starts, so trying another value of a setting cost a restart each time. That was tedious for agents and players alike when tuning or auditing the upscaled UI's font sizes, or when turning on one BBAI log category for the stretch of an audit: BBAI's logs are on the heavier side of logging, sometimes several GB, and rarely used.
+
+Changing them live continues our work against restarts, such as the screens that follow a resolution change during play ([KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123)) and the settings read at each redraw ([KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128) family).
+
+[`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) overrides settings of the XML while Civ4 runs:
+
+- Edit a line, such as `SAS_UI_FONT_LABEL = 4`, and save. During play it applies within a few seconds; it also applies at a game's start and when the Sevopedia opens a page.
+  - Supported text uses a new size on its next redraw or rebuild; some elements, such as the city billboards, still need a restart.
+- Delete a line to bring the XML value back.
+- The shipped file lists the four font sizes and BBAI's log categories at their XML values, such as logging at 0, so the game is the same out of the box; the XML stays the home of each setting and its default. Those lines win over the XML, even after a restart, so change these settings in the file; `SAS_BBAI_LOG_ON`, which starts the BBAI file, stays in the XML.
+- The shipped settings, the font sizes and BBAI's log categories, are ready to edit; adding or removing a setting is a code task, below.
+- Which settings can change live is listed in [`SASLiveDefineOverridesAllowed.txt`](/SASLiveDefineOverrides/SASLiveDefineOverridesAllowed.txt), with how each follows a change, and the shipped file has one line for each of them; a line for any other setting is refused, as its code may keep its first value, so it is changed in the XML with a restart ([KI#128.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.7)).
+  - From the XML, a setting that follows a change and one that keeps its first value look the same, so the list tells them apart without reading the code.
+  - Settings that can never change safely during a game, such as masters, startup switches, SASGameRecord and privacy opt-ins, are refused with their reason, listed in [`SASLiveDefineOverridesNoEntry.txt`](/SASLiveDefineOverrides/SASLiveDefineOverridesNoEntry.txt).
+- On top of the permanent ones, overrides may have other uses, such as temporarily setting an AI tunable live for fine-tuning or audits, toward its best value, without tedious restarts, then writing the settled value back to the XML.
+  - This works for a define whose code reads it at each use, once it is added to the allowed list after checking its readers; the list is read when Civ4 starts, so a newly listed define needs one restart, after which its value changes live as often as wanted.
+    - Checking the readers is not straightforward: it means reading the C++ and Python code that uses the define. If unsure, ask someone who knows the code, or an AI agent with access to it, and add it at your own risk. Keep such experiments single-player, and the list entry local, unless it is meant to stay.
+- Each applied change, or a refused line, is logged as a `SAS_LIVE_DEFINE_OVERRIDES` row in `PythonDbg.log`; a refused file leaves the values as they were.
+- In multiplayer, each computer reads its own file at its own moment, so do not use it for settings that change the game there.
+- `SAS_LIVE_DEFINE_OVERRIDES_ON=0` in the XML turns the file off.
+
+[`SASLiveDefineOverridesBridge.py`](/Assets/Python/SASLiveDefineOverridesBridge.py) applies the file, and [`SASCurrentDefines.py`](/Assets/Python/SASCurrentDefines.py) gives Python code the current value. See [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5) for the design and its alternatives.
+
 ## SASFastSave
 
 [`SASFastSave.py`](/Assets/Python/SASFastSave.py) can preserve permanent saves at game start, game end and when autoplay stops, reducing the chance of losing a useful game or test result. These are ordinary single-player saves, separate from Civ4's rotating autosaves; SAS defines control which occasions create them.
@@ -1365,7 +1470,7 @@ See [commit/e8659a5e4c4afae41306dfc04e8ec62eeb77eb99](https://github.com/wonderi
 
 Context: after AI performed measurably better following a DLL refactor, the only other change was moving a very heavy XML comment (UnitAI XML info, not C++), which made it a suspect for the improvement and prompted us to archive long comments out of game files (AdvCiv-SAS 5240; see the [archived 5240 release notes](/_1_AdvCiv-SAS/Docs/changelogs_web/5240.txt)).
 
-To keep files readable, we consolidated long comments into [Long_Comments/](/_1_AdvCiv-SAS/Docs/Long_Comments/). See details in [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb) and [PR #17](https://github.com/wonderingabout/AdvCiv-SAS/pull/17).
+To keep files readable, we consolidated long comments into [Long_Comments/](/_1_AdvCiv-SAS/Docs/Long_Comments/). See details in [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb) and [PR#17](https://github.com/wonderingabout/AdvCiv-SAS/pull/17).
 
 Note: we try to balance comment cleanup with keeping concise technical explanations in code when they help maintainers.
 
@@ -1607,19 +1712,33 @@ Searching for marshes, swamps and wetlands found 35 in 20 mods, from Caveman2Cos
 
 [`regenerate_art_samples.py`](/LLM_Helpers/README.md#regenerate_art_samplespy) renders all of these samples again with the current renderer, so none falls behind its fixes, as Grace's still once kept eyes the skinning fix had corrected in her GIFs.
 
-### Local tests
-
-Alongside the automated GitHub CI checks, [`tests/`](/tests/README.md) contains local tests for behavior that needs the development machine's platform or tools. These are run deliberately when changing the relevant subsystem; they do not run during gameplay or normal DLL compilation.
-
-The first is a Windows/VC2003 diagnostic writer test: it compiles the actual logging code into a temporary program and checks file sharing, Unicode paths and recovery from simulated write failures. Run it when changing the writer or investigating missing/corrupted output; full DLL compilation and in-game validation remain separate.
-
-### Inherited game text lists
+### Manifests of the inherited layers
 
 The game's own files (BtS, Warlords and vanilla Civ4) are not in the repo, because we do not know whether republishing them is allowed, and base AdvCiv's text is only in old Git history.
 
-So CI, and agents without a Civ4 install, cannot read them: nothing in the repo shows whether a key such as `TXT_KEY_CIV_KOREA_DESC` (Korea's name, defined only in Warlords text) exists, where it comes from, or what it says.
+So a grep of the repo, by you or any agent, cannot tell whether a key such as `TXT_KEY_CIV_KOREA_DESC` (Korea's name, defined only in Warlords text) exists, where it comes from, or what it says; CI and agents without a Civ4 install cannot even look elsewhere.
 
-Small generated lists stand in for them, holding names, sources and fingerprints but never the content. They sit together in [`_0_Legacy/Docs/Manifests/`](/_0_Legacy/README.md#manifests). Two cover text, in English only, since SAS text files hold English only:
+Small generated TSV manifests stand in for them, holding names, sources and fingerprints but never the content.
+
+They were first made for CI and agents without Civ4, which still need them, but they serve local agents and the user just as well: one grep of the repo answers what would otherwise mean searching the vanilla, Warlords and BtS folders of the install.
+
+They sit together in [`_0_Legacy/Docs/Manifests/`](/_0_Legacy/Docs/Manifests/) ([what each holds](/_0_Legacy/README.md#manifests)). One covers files, and two cover text.
+
+[`inherited_files.tsv`](/_0_Legacy/Docs/Manifests/inherited_files.tsv) lists every Python, XML, C++, `res` and `Config` file the base game and base AdvCiv ship: its path, the layers that ship it, its file events in upstream AdvCiv's history, and any layer keeping it at another path.
+
+Files list sample, as of 2026-11-22:
+
+| path | layers | advcivEvents | otherPaths |
+| --- | --- | --- | --- |
+| `Assets/Python/pyWB/CvWBPopups.py` | `vanilla` | `-` | `-` |
+| `Assets/XML/Buildings/CIV4CityLSystem.xml` | `vanilla,warlords,bts` | `-` | `-` |
+| `Assets/XML/Text/Unit Naming Options.xml` | `advciv` | `2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Unit Naming Options.xml to Assets/XML/Text/Unit Naming Options.xml` | `-` |
+| `Assets/res/cursors/Pointer.ani` | `vanilla,bts` | `-` | `vanilla:Assets/res/Cursors/Pointer.ani` |
+| `CvGameCoreDLL/UWAIReport.cpp` | `advciv` | `2017-04-16 f6ff6a182f added; 2019-12-02 2c186034b3 renamed from CvGameCoreDLL/WarAndPeaceReport.cpp to CvGameCoreDLL/UWAIReport.cpp` | `-` |
+
+For example, `CvWBPopups` exists only in vanilla's `Assets/Python/pyWB/`, which settled where SAS's WorldBuilder popup comes from. It feeds the [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md): which inherited filenames SAS keeps, and when and why it added, removed or renamed the files.
+
+The two text manifests are in English only, as SAS's text files currently hold English only:
 
 - [`xml_sas_text_inherited_hashes.tsv`](/_0_Legacy/Docs/Manifests/xml_sas_text_inherited_hashes.tsv) has one row per inherited text key: its source (base AdvCiv, else BtS, else Warlords, else vanilla) and a short fingerprint (SHA-256) of its English text. The fingerprint tells whether two texts are identical without containing the text.
 - [`xml_sas_text_inherited_names.tsv`](/_0_Legacy/Docs/Manifests/xml_sas_text_inherited_names.tsv) has the readable English names of leaders and civilizations, about 120 rows.
@@ -1650,11 +1769,19 @@ These are the inherited values. SAS overrides some of them in its own text files
 
 Uses:
 
-- **Searching:** grep a key to see whether the game defines it and in which layer, for example while checking a Civ4 reference in an XML file.
+- **Searching, by anyone:** grep a key or a filename to see whether the game defines it and in which layer, for example while checking a Civ4 reference in an XML file or which copy of a Python module runs, without searching the Civ4 install.
 - **External agents** such as ChatGPT, which get the lists in the light-source ZIP but have no Civ4 install.
-- **CI:** [`xml_sas_text_inherited.py`](/.github/workflows/README.md#buildxmlxml_sas_text_inheritedpy) fails when SAS text is identical to the inherited text, [`xml_display_order.py`](/.github/workflows/README.md#buildxmlxml_display_orderpy) keeps the Custom Game lists in name order (see [KI#1073](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073)), and [`sas_text_references.py`](/.github/workflows/README.md#buildxmlsas_text_referencespy) checks that diplomacy keys exist.
+- **CI:** [`xml_sas_text_inherited.py`](/.github/workflows/README.md#buildxmlxml_sas_text_inheritedpy) fails when SAS text is identical to the inherited text, [`xml_display_order.py`](/.github/workflows/README.md#buildxmlxml_display_orderpy) keeps the Custom Game lists in name order (see [KI#1073](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073)), and [`sas_text_references.py`](/.github/workflows/README.md#buildxmlsas_text_referencespy) checks that diplomacy keys exist; [`inherited_files.py`](/.github/workflows/README.md#buildsourceinherited_filespy) fails when SAS starts or stops keeping an inherited filename or importing an inherited Python module without the audit following.
 
-Both are plain TSV with one header row. They are generated from a local Civ4 install with `python .github/workflows/build/xml/xml_sas_text_inherited.py --write --civ4-root "<Civ4 install root>"`; the game files do not change, so they should not need refreshing.
+All are plain TSV with one header row. The text manifests are generated from a local Civ4 install with `python .github/workflows/build/xml/xml_sas_text_inherited.py --write --civ4-root "<Civ4 install root>"`; the game files do not change, so they should not need refreshing.
+
+`inherited_files.tsv` also records base AdvCiv, so it is rewritten with `python .github/workflows/build/source/inherited_files.py --write`, on a computer with Civ4, when SAS takes a newer AdvCiv.
+
+### Local tests
+
+Alongside the automated GitHub CI checks, [`tests/`](/tests/README.md) contains local tests for behavior that needs the development machine's platform or tools. These are run deliberately when changing the relevant subsystem; they do not run during gameplay or normal DLL compilation.
+
+The first is a Windows/VC2003 diagnostic writer test: it compiles the actual logging code into a temporary program and checks file sharing, Unicode paths and recovery from simulated write failures. Run it when changing the writer or investigating missing/corrupted output; full DLL compilation and in-game validation remain separate.
 
 A third, [`inherited_files.tsv`](/_0_Legacy/Docs/Manifests/inherited_files.tsv), covers files rather than text: every Python, XML, C++, `res` and `Config` file the base game and base AdvCiv ship, with its path, layers and file events in upstream AdvCiv's history.
 
@@ -1662,12 +1789,12 @@ It feeds the [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherit
 
 ### CI
 
-- DLL shipping checks require a changed Release DLL/JSON pair, matching successful build evidence and the `Update DLL` commit-message marker; a marker without a changed pair also fails.
+- DLL shipping checks require a changed Release DLL/JSON pair, matching successful build evidence and the `[ci_update_dll]` commit-message marker; a marker without a changed pair also fails.
 - C++-used XML define name additions/removals/renames require updated Release build evidence at default-branch integration; value/comment edits and Python-only names are excluded. See [DLL shipping and rebuild checks](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ci).
 
 GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions.
 
-Some XML checks compare SAS text with Civ4 game text that is not in the repo. Their reference data, generated TSV lists of inherited text, was made for CI but also serves external agents such as ChatGPT and quick greps, so it has its own section: [Inherited game text lists](/README.md#inherited-game-text-lists).
+Some checks compare SAS with Civ4 files that are not in the repo, the game's text and files. They read the manifests of those layers, which also make them greppable for anyone, so the manifests have their own section: [Manifests of the inherited layers](/README.md#manifests-of-the-inherited-layers).
 
 They catch easy-to-forget build-default problems such as enabled BBAI logging, wrong shared UI font defaults, AI Personality Panel predumped-cache issues, XML-tag references in SAS defines, world-size enum/XML drift, map-script classification drift, opening-music setup issues, launch-guard sentinel drift, unusually large integer SAS define values, etc. They can also be run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md).
 
@@ -1675,7 +1802,7 @@ The blocking checks are grouped by repository, hygiene, documentation, XML, asse
 
 For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change).
 
-The AIP predump refresh bot is a separate tested workflow that refreshes `SevoPediaLeaderCachePredumped.py` outside Civ4 and opens a bot PR only when the generated predump actually changes; [PR #31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31) validated no-op, XML comment-only, numeric XML drift, and Python label/display drift cases.
+The AIP predump refresh bot is a separate tested workflow that refreshes `SevoPediaLeaderCachePredumped.py` outside Civ4 and opens a bot PR only when the generated predump actually changes; [PR#31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31) validated no-op, XML comment-only, numeric XML drift, and Python label/display drift cases.
 
 This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-148), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-149), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-150)).
 
@@ -1735,9 +1862,7 @@ A separate `pending_upstream/` snapshot section exposes fetched but not-yet-merg
 
 Use `--fetch-upstream` when ZIP generation should first run `git fetch upstream --prune`; upstream fetching remains opt-in, independently of the runtime update check. This makes upstream-change and merge-conflict review possible from the ZIP alone without misrepresenting pending commits as current source ancestry.
 
-Local Codex agents currently use our Windows Python 2.4 installation; external web ChatGPT currently uses Linux without that installation.
-
-For compatible external agents, a separately provided Python 2.4 package enables the same Civ4 syntax checks; source handoffs include a package-information note under `_SNAPSHOT_CONTEXT`. See [Modding Resources](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#python-24-compatibility-for-modding) for package delivery, reuse and platform details.
+For an external agent without our Windows Python 2.4, such as web ChatGPT, the ZIP's `_SNAPSHOT_CONTEXT` notes a separately provided Python 2.4 package for the same Civ4 syntax checks; see [External agents](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#external-agents).
 
 Very large/generated/binary/redundant historical payloads are summarized instead of embedded; see [`LLM_Helpers/README.md`](/LLM_Helpers/README.md) for details.
 
@@ -1920,7 +2045,7 @@ Full dirty-file lists remain session-log data rather than being serialized into 
 
 #### BBAI logging and head example
 
-BBAI logs provide detailed AI-decision diagnostics whose levels can be adjusted in XML without editing/recompiling the DLL.
+BBAI logs provide detailed AI-decision diagnostics whose levels can be adjusted without editing/recompiling the DLL: `SAS_BBAI_LOG_ON` in the XML turns them on at startup, and each category's level is set in [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt), even during play.
 
 Also, several BBAI log categories were split into separate levels, making it easier to inspect only the relevant subsystem, such as workers, worker-sea / Work Boats, Settlers, overseas transport logistics, military production, spaceship production, one-copy limited-Project production, building production, war target choice, Great Generals, culture, evacuation, citizen allocation, or found-value scoring.
 
@@ -1957,6 +2082,8 @@ The DLL recorder is implemented in [`SASGameRecordLog.cpp`](/CvGameCoreDLL/SASGa
 Its Python bridge uses [`SASGameRecordConfig.py`](/Assets/Python/SASGameRecordConfig.py) for cached logging gates, [`SASGameRecordSettings.py`](/Assets/Python/SASGameRecordSettings.py) for configuration snapshots and changes, and [`SASGameRecordActions.py`](/Assets/Python/SASGameRecordActions.py) for player-action records.
 
 `SASGameRecord_*.log` is a separate compact game record for autoplay, AI-strength, and cheap wall-clock performance review. It records broadly, yet in a detailed but also compact/efficient format most of what happens in a game.
+
+It currently acts like a game's black box: unlike BBAI's heavier logs, turned on by category for an audit, it is meant to be switched on and left on, so a run that turns out interesting already has its record.
 
 For documentation, see notably also:
 
@@ -2161,20 +2288,20 @@ Non-exhaustive list below:
   - Also, we cannot just grey in the main menu (via `NoCustomScenario = 1` in [AdvCiv-SAS.ini](/AdvCiv-SAS.ini)) these play modes in case player add AdvCiv-SAS compatible scenarios that they would be unable to then play; plus this does not fix "Play a Scenario", only "Custom Scenarios", so preferred to just document it as an all around much better and simpler solution.
 - CustomDomAdv, which according to the txt inside it seems to relate to "only settings for the mod components Advanced Unit Naming and Customizable Domestic Advisor (both disabled by default through the BUG menu)" (see [/Settings/About%20this%20folder.txt](/Settings/About%20this%20folder.txt)).
   - Since i don't use it, and is similarly like the translations a bit if not lot tedious or complicated to maintain furthermore, then i am not supporting it in AdvCiv-SAS.
-  - May or not be updated every while or inconsistently but expect it to be unsupported.
+  - May be updated every while or inconsistently but expect it to be unsupported.
 - concepts being updated in their content: see [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
 - savegame compatibility.
   - Anytime an asset is added or removed in the game (e.g. adding a tech, removing a unit or building or other), it should be expected that previous savegames are NOT compatible.
   - Same with any DLL recompile.
   - They may luckily or sometimes somehow work, but as a rule expect that generally they don't, and i will not support old save files, if you want to continue playing on them, use the previous version (see [/README.md#version-number](/README.md#version-number) for info about how we choose version number in advciv-sas) of this mod you were using.
-  - E.g. if AdvCiv-SAS version 4946 worked, and then version 4947 broke comptibility in one way or an other, play it with this version instead.
+  - E.g. if AdvCiv-SAS version 4946 worked, and then version 4947 broke compatibility in one way or an other, play it with this version instead.
   - I have decided to do so as it's beyond way too tedious and i'm really not sure it's worth preserving compatibility considering the code mess it creates xd.
   - Also i don't know how so i'd rather not, but hopefully keep playing on the old version (same version that you used to create this save file) should be fine or not too bad.
   - Note: XML changes such as increasing the cost of this unit or changing the bonus needed in the xml for this building or such should generally if not always be fine, at least seems so to me, but i don't know too much about these, check if accurate.
   - See [KI#46](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46) for the original cleanup and [KI#46.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2) for the follow-up.
-- the old K-Mod Aggressive AI (Legacy): we may ship a fix/tweak/change or change here and there or not, and they may or not work but we as of now don't support them (we don't use or value it since we use UWAI so no need to bother supporting it).
+- the old K-Mod Aggressive AI (Legacy): we may ship a fix/tweak/change or change here and there or not, and they may work but we as of now don't support them (we don't use or value it since we use UWAI so no need to bother supporting it).
 - Legacy Civilopedia: AdvCiv-SAS supports Sevopedia, which is enabled by default. The older Civilopedia option remains in the inherited code but has not been validated in this work; it may function partly and omit SAS information, including Sevopedia-only categories such as Music, Votes and Event Triggers.
-- BUG Military Advisor [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) and BUG Custom Domestic Advisor [CvCustomizableDomesticAdvisor.py](/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py) (in particular about the Custom Domestic Advisor it is lacking the Finance Tab that the AdvCiv-SAS equivalent as of now has); see also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123)): we may ship a fix/tweak/change or change here and there or not, and they may or not work but we as of now don't support them (we have SAS-specific equivalent or clearly better alternative advisors so no need to bother supporting them).
+- BUG Military Advisor [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) and BUG Custom Domestic Advisor [CvCustomizableDomesticAdvisor.py](/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py) (in particular about the Custom Domestic Advisor it is lacking the Finance Tab that the AdvCiv-SAS equivalent as of now has); see also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123)): we may ship a fix/tweak/change or change here and there or not, and they may work but we as of now don't support them (we have SAS-specific equivalent or clearly better alternative advisors so no need to bother supporting them).
 - **Resolutions below 1920 x 1080**: these are old resolutions, too small for the information many SAS screens show, to name just two, the AI Personality Panel's wide table of leaders' AI values and the Military Advisor's Battles tab with its many columns; and I don't play at them myself.
   - The screens are laid out dynamically, from the window size and the text size, so they may happen to work, or work well enough, on a smaller window, but this is unsupported, whatever the result looks like.
 - **Multiplayer gameplay** is unsupported and may have issues. The [two-client LAN walkthrough](/_1_AdvCiv-SAS/Docs/README_Multiple_Instances.md) shows how we adapted the base AdvCiv instructions to run two Steam clients on the same Windows computer and join the same LAN game.

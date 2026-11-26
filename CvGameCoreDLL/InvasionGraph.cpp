@@ -2266,8 +2266,7 @@ void InvasionGraph::Node::clash(scaled rArmyPortion, scaled rTargetArmyPortion)
 
 // <!-- custom: Accept the selected invasion mode so overland clashes use each side's available land-only deployment distance, while fleet-only clashes retain the mixed metric.
 // A non-fleet clash requires only one side to have a qualifying land route, so fall back per side to its valid mixed distance rather than averaging an unavailable -1 land sentinel. See KI#591 and KI#1044. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-scaled InvasionGraph::Node::clashDistance(InvasionGraph::Node const& kOther,
-	bool bNaval) const
+scaled InvasionGraph::Node::clashDistance(InvasionGraph::Node const& kOther, bool bNaval) const
 {
 	UWAICache::City const* pTargetCity = targetCity();
 	UWAICache::City const* pOtherTargetCity = kOther.targetCity();

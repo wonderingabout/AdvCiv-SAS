@@ -27,13 +27,13 @@ def getNumPlotsPercent(argsList):
 	sizeModifiers = {
 		# <!-- custom: Arena was absent from this direct dictionary, causing KeyError; the shifted length guard also bypassed the stored Huge value.
 		# Use the established Duel percentage for Arena. See KI#282.3. (GPT-5.6-Sol) -->
-		WorldSizeTypes.WORLDSIZE_ARENA:		95,
-		WorldSizeTypes.WORLDSIZE_DUEL:		95,
-		WorldSizeTypes.WORLDSIZE_TINY:		77,
-		WorldSizeTypes.WORLDSIZE_SMALL:		83,
-		WorldSizeTypes.WORLDSIZE_STANDARD:	76,
-		WorldSizeTypes.WORLDSIZE_LARGE:		74,
-		WorldSizeTypes.WORLDSIZE_HUGE:		72
+		WorldSizeTypes.WORLDSIZE_ARENA: 95,
+		WorldSizeTypes.WORLDSIZE_DUEL: 95,
+		WorldSizeTypes.WORLDSIZE_TINY: 77,
+		WorldSizeTypes.WORLDSIZE_SMALL: 83,
+		WorldSizeTypes.WORLDSIZE_STANDARD: 76,
+		WorldSizeTypes.WORLDSIZE_LARGE: 74,
+		WorldSizeTypes.WORLDSIZE_HUGE: 72
 	}
 	if iWorldSize >= len(sizeModifiers):
 		return 70
@@ -53,9 +53,9 @@ def getNumCustomMapOptions():
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
-		0:	"TXT_KEY_MAP_SCRIPT_CONTINENTS_SIZE",
-		1:	"TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
-		2:	"TXT_KEY_MAP_SCRIPT_NUMBER_OF_CONTINENTS"
+		0: "TXT_KEY_MAP_SCRIPT_CONTINENTS_SIZE",
+		1: "TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
+		2: "TXT_KEY_MAP_SCRIPT_NUMBER_OF_CONTINENTS"
 		}
 	if not option_names.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -65,26 +65,26 @@ def getCustomMapOptionName(argsList):
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	4,
-		1:	2,
-		2:	5
+		0: 4,
+		1: 2,
+		2: 5
 		}
 	return option_values[iOption]
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_SCRIPT_MASSIVE_CONTINENTS",
 			1: "TXT_KEY_MAP_SCRIPT_NORMAL_CONTINENTS",
 			2: "TXT_KEY_MAP_SCRIPT_SNAKY_CONTINENTS",
 			3: "TXT_KEY_MAP_SCRIPT_VARIED"
 			},
-		1:	{
+		1: {
 			0: "TXT_KEY_MAP_SCRIPT_ISLANDS",
 			1: "TXT_KEY_MAP_SCRIPT_TINY_ISLANDS"
 			},
-		2:	{
+		2: {
 			0: "2",
 			1: "3",
 			2: "4",
@@ -103,9 +103,9 @@ def getCustomMapOptionDescAt(argsList):
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	1,
-		1:	1,
-		2:	0
+		0: 1,
+		1: 1,
+		2: 0
 		}
 	return option_defaults[iOption]
 

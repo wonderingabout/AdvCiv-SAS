@@ -11,6 +11,16 @@ import unittest
 REPO_ROOT = Path(__file__).resolve().parents[4]
 CPP_ROOT = REPO_ROOT / "CvGameCoreDLL"
 GLOBALS_HEADER = CPP_ROOT / "CvGlobals.h"
+OVERRIDES = REPO_ROOT / "SASLiveDefineOverrides" / "SASLiveDefineOverrides.txt"
+
+
+def _overridden_names():
+    # <!-- custom: A define the shipped SASLiveDefineOverrides.txt names changes during play, so it belongs in the enum cache even with one reader: setDefineINT refreshes the entry, and a read costs no more than a static, which would keep the first value.
+    # The hover font size, read only in CvDLLWidgetData::parseHelp, was the first such define, until it was merged into SAS_UI_FONT_LABEL on 2026-11-26.
+    # Families that keep their own cache, such as BBAI's category levels, are refilled through CyGlobalContext::onSASLiveDefineOverridesApplied instead. See KI#128.5. (Claude code Opus 5.5) -->
+    if not OVERRIDES.is_file():
+        return set()
+    return set(re.findall(r"^\s*(SAS_[A-Z0-9_]+)\s*=", OVERRIDES.read_text(encoding="utf-8"), re.M))
 
 
 def _cpp_sources():
@@ -21,8 +31,9 @@ def _cpp_sources():
 
 def _shared_define_names():
     source = GLOBALS_HEADER.read_text(encoding="latin-1")
+    # <!-- custom: Stops at the list's last continued line, not at DO_FOR_EACH_GLOBAL_DEFINE, so a list placed between them is not read as part of this one; added on 2026-11-25, when a short-lived second list sat there. See KI#128.5. (Claude code Opus 5.5) -->
     match = re.search(
-        r"#define\s+DO_FOR_EACH_SAS_SHARED_GLOBAL_DEFINE\(DO\)\s+\\\s*\n(.*?)\n\s*#define\s+DO_FOR_EACH_GLOBAL_DEFINE\(DO\)",
+        r"#define\s+DO_FOR_EACH_SAS_SHARED_GLOBAL_DEFINE\(DO\)\s+\\\s*\n((?:[^\n]*\\\n)*[^\n]*)",
         source,
         re.S,
     )
@@ -51,7 +62,7 @@ class SASSharedGlobalDefineCacheTests(unittest.TestCase):
             counts.update(pattern.findall(path.read_text(encoding="latin-1")))
         failures = [
             "%s has only %d enum-backed consumer(s)" % (name, counts[name])
-            for name in _shared_define_names() if counts[name] < 2
+            for name in _shared_define_names() if counts[name] < 2 and not (counts[name] == 1 and name in _overridden_names())
         ]
         self.assertEqual(failures, [], "\n".join(failures))
 

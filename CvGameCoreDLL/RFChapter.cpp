@@ -22,10 +22,9 @@ RFChapter::RFChapter(int pos, int maxChapters, int playLength) {
 	position = pos;
 	chapters = maxChapters;
 	double meanChapterLength = playLength / (double)maxChapters;
+	// <!-- custom: ci_define_uncached: one chapter is built per Rise and Fall chapter, at game setup. (Claude code Opus 5.5) -->
 	double lengthShift = GC.getDefineINT("RF_CHAPTER_LENGTH_SHIFT_PERCENT") / 100.0;
-	length = fmath::roundToMultiple(meanChapterLength * ::dRange(
-			1 - lengthShift + 2 * pos * (lengthShift / (maxChapters - 1)),
-			0.25, 1.75), 5);
+	length = fmath::roundToMultiple(meanChapterLength * ::dRange(1 - lengthShift + 2 * pos * (lengthShift / (maxChapters - 1)), 0.25, 1.75), 5);
 }
 
 RFChapter::RFChapter(int pos, int maxChapters, int playLength, int len) {

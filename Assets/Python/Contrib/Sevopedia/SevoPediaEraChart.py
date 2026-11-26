@@ -80,7 +80,9 @@ class SevoPediaEraChart:
 		# <!-- custom: Draw era button icons above the table; size matches column width. (Claude Opus 4.5) -->
 		buttonRowH = 0
 		if self.SHOW_ERA_BUTTONS:
-			buttonSize = wNum
+			# <!-- custom: Buttons as wide as an era column grew to about 480 px at 3840 x 2066, so the play button, drawn one column left of the first era, covered the category list.
+			# Cap them at the Field column's width, which the play button sits in, and centre each era button in its column. (Claude code Opus 5.5) -->
+			buttonSize = min(wNum, self.W_FIELD)
 			buttonRowH = buttonSize + 8
 
 			# Position for button row: inside inner panel
@@ -92,7 +94,7 @@ class SevoPediaEraChart:
 				buttonRowStartX = tableX + self.W_FIELD
 
 			if SASVisuals.InterfaceArt.SAS_EMOJI_PLAY_BUTTON:
-				playButtonX = buttonRowStartX - wNum
+				playButtonX = buttonRowStartX - buttonSize
 				# <!-- custom: redirect to first era track (Track 01 of Ancient era) in Sevopedia Music category -->
 				iFirstEraMusicKey = self.top.SAS_getFirstEraMusicKey()
 				if iFirstEraMusicKey != -1:
@@ -107,7 +109,7 @@ class SevoPediaEraChart:
 				info = gc.getEraInfo(iEra)
 				button = info.getButton()
 				if button:
-					btnX = buttonRowStartX + (iEra * wNum)
+					btnX = buttonRowStartX + (iEra * wNum) + ((wNum - buttonSize) / 2)
 					btnY = buttonRowY
 					# <!-- custom: each era button redirects to its movie entry if movie exists. (Claude Opus 4.5) -->
 					if self.top.pediaMovies.hasMovie(SAS_MAGIC_PEDIA_MOVIE_TYPE_ERA, iEra):
@@ -191,41 +193,42 @@ class SevoPediaEraChart:
 		row_specs = (
 			# (field_key, display_label_or_None, getter_name_or_None, icon_token, value_type)
 			# <!-- custom: value_type is bool, int or list (the Techs row), Python's own types: it was the strings "bool", "int" and "techs", and a misspelt "bool" would have shown True/False instead of + without any error. (Claude code Opus 5.5) -->
-			("bNoGoodies",                 "No Goodies",                 "isNoGoodies",                 "btn:skull",        bool),
-			("bAllGoodyTechs",             "All Goody Techs",             "isAllGoodyTechs",             "glyph:research",   bool),
-			("bNoAnimals",                 "No Animals",                 "isNoAnimals",                 "btn:lion",         bool),
-			("bNoBarbUnits",               "No Barb Units",              "isNoBarbUnits",               "btn:skull",        bool),
-			("bNoBarbCities",              "No Barb Cities",             "isNoBarbCities",              "btn:skull",        bool),
-			("iAdvancedStartPoints",       "Advanced Start Points",      "getAdvancedStartPoints",      "glyph:defense",    int),
-			("iStartingUnitMultiplier",    "Starting Unit Multiplier",   "getStartingUnitMultiplier",   "btn:swords",       int),
-			("iStartingDefenseUnits",      "Starting Defense Units",     "getStartingDefenseUnits",     "btn:swords",       int),
-			("iStartingWorkerUnits",       "Starting Worker Units",      "getStartingWorkerUnits",      "glyph:citizen",    int),
-			("iStartingExploreUnits",      "Starting Explore Units",     "getStartingExploreUnits",     "btn:swords",       int),
-			("iStartingGold",              "Starting Gold",              "getStartingGold",             "glyph:gold",       int),
-			("iFreePopulation",            "Free Population",            "getFreePopulation",           "glyph:citizen",    int),
-			("iStartPercent",              "Start Percent",              "getStartPercent",             "glyph:defense",    int),
-			("iGrowthPercent",             None,                         "getGrowthPercent",            "glyph:food",       int),
-			("iTrainPercent",              None,                         "getTrainPercent",             "btn:swords",       int),
-			("iConstructPercent",          None,                         "getConstructPercent",         "glyph:prod",       int),
-			("iCreatePercent",             None,                         "getCreatePercent",            "glyph:prod",       int),
-			("iResearchPercent",           None,                         "getResearchPercent",          "glyph:research",   int),
-			("iTechCostModifier",          "Tech Cost Modifier",         "getTechCostModifier",         "glyph:research",   int),
-			("iAIMaxGroundbreakingPenalty","AI Max Groundbreaking Pen.", "getAIMaxGroundbreakingPenalty","btn:brain",        int),
-			("iHumanMaxGroundbreakingPenalty","Human Max Groundbreaking Pen.","getHumanMaxGroundbreakingPenalty","btn:brain",  int),
-			("iBuildPercent",              None,                         "getBuildPercent",             "glyph:citizen",    int),
-			("iImprovementPercent",        None,                         "getImprovementPercent",       "glyph:citizen",    int),
-			("iGreatPeoplePercent",        None,                         "getGreatPeoplePercent",       "glyph:great_people",int),
-			("iCulturePercent",            None,                         "getCulturePercent",           "glyph:culture",    int),
-			("iAnarchyPercent",            None,                         "getAnarchyPercent",           "btn:fire",         int),
-			("iEventChancePerTurn",        "Event Chance Per Turn",      "getEventChancePerTurn",       "btn:gear",         int),
-			("bAIAgeOfPestilence",          "AI Age Of Pestilence",        "isAIAgeOfPestilence",          "btn:brain",        bool),
-			("bAIAgeOfExploration",         "AI Age Of Exploration",       "isAIAgeOfExploration",         "btn:brain",        bool),
-			("bAIAgeOfPollution",           "AI Age Of Pollution",         "isAIAgeOfPollution",           "btn:brain",        bool),
-			("bAIAgeOfFertility",           "AI Age Of Fertility",         "isAIAgeOfFertility",           "btn:brain",        bool),
-			("bAIAgeOfGuns",                "AI Age Of Guns",              "isAIAgeOfGuns",                "btn:brain",        bool),
-			("bAIAgeOfProduction",          "AI Age Of Production",        "isAIAgeOfProduction",          "btn:brain",        bool),
-			("bAIAtomicAge",                "AI Atomic Age",               "isAIAtomicAge",                "btn:brain",        bool),
-			("Techs",                       "Techs",                       None,                            "glyph:research",   list),
+			# <!-- custom: Columns aligned with tabs, inspired by vanilla Civ4's CvDebugInfoScreen.py dispatch table, instead of runs of spaces that drifted out of line with each rename. See KI#21.8. (Claude code Opus 5.5) -->
+			("bNoGoodies",						"No Goodies",						"isNoGoodies",						"btn:skull",			bool),
+			("bAllGoodyTechs",					"All Goody Techs",					"isAllGoodyTechs",					"glyph:research",		bool),
+			("bNoAnimals",						"No Animals",						"isNoAnimals",						"btn:lion",				bool),
+			("bNoBarbUnits",					"No Barb Units",					"isNoBarbUnits",					"btn:skull",			bool),
+			("bNoBarbCities",					"No Barb Cities",					"isNoBarbCities",					"btn:skull",			bool),
+			("iAdvancedStartPoints",			"Advanced Start Points",			"getAdvancedStartPoints",			"glyph:defense",		int),
+			("iStartingUnitMultiplier",			"Starting Unit Multiplier",			"getStartingUnitMultiplier",		"btn:swords",			int),
+			("iStartingDefenseUnits",			"Starting Defense Units",			"getStartingDefenseUnits",			"btn:swords",			int),
+			("iStartingWorkerUnits",			"Starting Worker Units",			"getStartingWorkerUnits",			"glyph:citizen",		int),
+			("iStartingExploreUnits",			"Starting Explore Units",			"getStartingExploreUnits",			"btn:swords",			int),
+			("iStartingGold",					"Starting Gold",					"getStartingGold",					"glyph:gold",			int),
+			("iFreePopulation",					"Free Population",					"getFreePopulation",				"glyph:citizen",		int),
+			("iStartPercent",					"Start Percent",					"getStartPercent",					"glyph:defense",		int),
+			("iGrowthPercent",					None,								"getGrowthPercent",					"glyph:food",			int),
+			("iTrainPercent",					None,								"getTrainPercent",					"btn:swords",			int),
+			("iConstructPercent",				None,								"getConstructPercent",				"glyph:prod",			int),
+			("iCreatePercent",					None,								"getCreatePercent",					"glyph:prod",			int),
+			("iResearchPercent",				None,								"getResearchPercent",				"glyph:research",		int),
+			("iTechCostModifier",				"Tech Cost Modifier",				"getTechCostModifier",				"glyph:research",		int),
+			("iAIMaxGroundbreakingPenalty",		"AI Max Groundbreaking Pen.",		"getAIMaxGroundbreakingPenalty",	"btn:brain",			int),
+			("iHumanMaxGroundbreakingPenalty",	"Human Max Groundbreaking Pen.",	"getHumanMaxGroundbreakingPenalty",	"btn:brain",			int),
+			("iBuildPercent",					None,								"getBuildPercent",					"glyph:citizen",		int),
+			("iImprovementPercent",				None,								"getImprovementPercent",			"glyph:citizen",		int),
+			("iGreatPeoplePercent",				None,								"getGreatPeoplePercent",			"glyph:great_people",	int),
+			("iCulturePercent",					None,								"getCulturePercent",				"glyph:culture",		int),
+			("iAnarchyPercent",					None,								"getAnarchyPercent",				"btn:fire",				int),
+			("iEventChancePerTurn",				"Event Chance Per Turn",			"getEventChancePerTurn",			"btn:gear",				int),
+			("bAIAgeOfPestilence",				"AI Age Of Pestilence",				"isAIAgeOfPestilence",				"btn:brain",			bool),
+			("bAIAgeOfExploration",				"AI Age Of Exploration",			"isAIAgeOfExploration",				"btn:brain",			bool),
+			("bAIAgeOfPollution",				"AI Age Of Pollution",				"isAIAgeOfPollution",				"btn:brain",			bool),
+			("bAIAgeOfFertility",				"AI Age Of Fertility",				"isAIAgeOfFertility",				"btn:brain",			bool),
+			("bAIAgeOfGuns",					"AI Age Of Guns",					"isAIAgeOfGuns",					"btn:brain",			bool),
+			("bAIAgeOfProduction",				"AI Age Of Production",				"isAIAgeOfProduction",				"btn:brain",			bool),
+			("bAIAtomicAge",					"AI Atomic Age",					"isAIAtomicAge",					"btn:brain",			bool),
+			("Techs",							"Techs",							None,								"glyph:research",		list),
 		)
 
 		field_getters_list = []
@@ -261,13 +264,13 @@ class SevoPediaEraChart:
 		glyph_by_name = {}
 		_glyph_defs = (
 			# (name, glyph_char)
-			("food",         (u"%s" % (SASVisuals.Yield.FOOD_CHAR))),
-			("prod",         (u"%s" % (SASVisuals.Yield.PRODUCTION_CHAR))),
-			("gold",         (u"%s" % (SASVisuals.Commerce.GOLD_CHAR))),
-			("research",     (u"%s" % (SASVisuals.Commerce.RESEARCH_CHAR))),
-			("culture",      (u"%s" % (SASVisuals.Commerce.CULTURE_CHAR))),
-			("citizen",      (u"%s" % (SASVisuals.Font.CITIZEN_CHAR))),
-			("defense",      (u"%s" % (SASVisuals.Font.DEFENSE_CHAR))),
+			("food", (u"%s" % (SASVisuals.Yield.FOOD_CHAR))),
+			("prod", (u"%s" % (SASVisuals.Yield.PRODUCTION_CHAR))),
+			("gold", (u"%s" % (SASVisuals.Commerce.GOLD_CHAR))),
+			("research", (u"%s" % (SASVisuals.Commerce.RESEARCH_CHAR))),
+			("culture", (u"%s" % (SASVisuals.Commerce.CULTURE_CHAR))),
+			("citizen", (u"%s" % (SASVisuals.Font.CITIZEN_CHAR))),
+			("defense", (u"%s" % (SASVisuals.Font.DEFENSE_CHAR))),
 			("great_people", (u"%s" % (SASVisuals.Font.GREAT_PEOPLE_CHAR))),
 		)
 		for name, glyph in _glyph_defs:

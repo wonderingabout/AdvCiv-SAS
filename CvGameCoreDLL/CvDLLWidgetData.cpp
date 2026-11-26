@@ -905,10 +905,13 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
 				widgetDataStruct.m_iData2, true, szBuffer);
 		break;
 	}
-	// <!-- custom: Optionally upscale hover help text via SAS_UI_FONT_HOVER define (Claude code Opus 4.6) -->
+	// <!-- custom: Optionally upscale hover help text via a SAS font define (Claude code Opus 4.6 + Claude code Opus 5.5) -->
 	if (!szBuffer.isEmpty())
 	{
-		static int const iFontSize = GC.getDefineINT("SAS_UI_FONT_HOVER");
+		// <!-- custom: Was a function-local static, which kept the first value, so a size set in SASLiveDefineOverrides.txt during play never showed; the enum cache, which the bridge's setDefineINT refreshes, brings it to the next hover. See KI#128.5. (Claude code Opus 5.5) -->
+		// <!-- custom: Reads the label size since 2026-11-26: hover text had its own define with the same value, retired as it named where text shows rather than its role.
+		// See Docs/Deprecated/global_define_names.md. (Claude code Opus 5.5) -->
+		int const iFontSize = GC.getDefineINT(CvGlobals::SAS_UI_FONT_LABEL);
 		if (iFontSize >= 1 && iFontSize <= 4)
 		{
 			CvWString szWrapped;
@@ -1416,7 +1419,7 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataExternal)
 	case WIDGET_HELP_BONUS_REVEAL:
 		py.jumpToPedia(widgetDataStruct.m_iData2, "Bonus");
 		break;
-	// <!-- custom: fix the obsolete bonus error known issue number 22 in advciv-sas (see known issues readme for details), replace line `py.jumpToPedia(widgetDataStruct.m_iData2, "Bonus");` with one using iData1 as obsolete buildings in tech advisor don't have the id bug, as advised by chatgpt also thanks to my prompt too, and it indeed fixed the issue now -->
+	// <!-- custom: fix the obsolete bonus error of KI#22, replace line `py.jumpToPedia(widgetDataStruct.m_iData2, "Bonus");` with one using iData1 as obsolete buildings in tech advisor don't have the id bug, as advised by chatgpt also thanks to my prompt too, and it indeed fixed the issue now -->
 	case WIDGET_HELP_OBSOLETE_BONUS:
 		py.jumpToPedia(iData1, "Bonus");
 		break;

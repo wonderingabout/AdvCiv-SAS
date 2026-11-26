@@ -2458,8 +2458,7 @@ int CvTeam::getResearchCost(TechTypes eTech, bool bFreeBarbarianResearch, bool b
 	if (kGame.isOption(GAMEOPTION_NO_TECH_TRADING) &&
 		eTechEra > 0 && !kTech.isRepeat())
 	{
-		static scaled const rTECH_COST_NOTRADE_MODIFIER = per100(
-				GC.getDefineINT("TECH_COST_NOTRADE_MODIFIER"));
+		static scaled const rTECH_COST_NOTRADE_MODIFIER = per100(GC.getDefineINT("TECH_COST_NOTRADE_MODIFIER"));
 		scaled rNoTradeAdjustment =
 				(rTECH_COST_NOTRADE_MODIFIER + per100(5) *
 				(eTechEra - fixp(2.5)).abs().pow(fixp(1.5))) *
@@ -2482,7 +2481,7 @@ int CvTeam::getResearchCost(TechTypes eTech, bool bFreeBarbarianResearch, bool b
 	}
 	// <advc.251>
 	rCost *= scaled::max(rModifier, 0);
-	// <!-- custom: see known issue as of now 67 for details -->
+	// <!-- custom: see KI#67 for details -->
 	//int iCost = rCost.roundToMultiple(isHuman() ? 5 : 1);
 	const int iCost = rCost.round();
 	// </advc.251>
@@ -5712,8 +5711,10 @@ void CvTeam::doBarbarianResearch()
 			one or two civs. */
 		if (bNoBarbCities)
 			iCount = std::max(iCount, (2 * iHasTech) / 3);
-		static scaled const rBARBARIAN_FREE_TECH_PERCENT = // advc.opt
-				per100(GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT")); // advc.301
+		// <!-- custom: Collapsed onto one line, so a grep finds the static with its define read; AdvCiv's advc.301 marker, which closed the wrapped line, moved above it, and its advc.opt stays at the end.
+		// cpp_define_reads_cached.py flags a static wrapped onto a later line since 2026-11-26. (Claude code Opus 5.5) -->
+		// advc.301
+		static scaled const rBARBARIAN_FREE_TECH_PERCENT = per100(GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT")); // advc.opt
 		scaled rFreePortion = rBARBARIAN_FREE_TECH_PERCENT *
 				// <advc.301>
 				(1 + per100(GC.getInfo(eLoopTech).get(
@@ -5872,7 +5873,8 @@ void CvTeam::testCircumnavigated()
 
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	// <!-- custom: code/performance optimization: hoist -->
-	static const int iCIRCUMNAVIGATE_FREE_MOVES = GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES");
+	// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	const int iCIRCUMNAVIGATE_FREE_MOVES = GC.getDefineINT(CvGlobals::CIRCUMNAVIGATE_FREE_MOVES);
 	bool const bLogGameRecordCircumnavigation = (gGameRecordLogLevel >= 2);
 	int const iSeaExtraMovesBefore = bLogGameRecordCircumnavigation ? getExtraMoves(DOMAIN_SEA) : 0;
 	bool const bCircumnavigationBonusApplied = (GC.getGame().getElapsedGameTurns() > 1 && iCIRCUMNAVIGATE_FREE_MOVES != 0);

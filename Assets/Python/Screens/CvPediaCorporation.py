@@ -1,5 +1,10 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: Layout only: python_aligned_columns.py's sweep turned the double spaces and tab runs between this file's code tokens, mostly stray slips such as "x =  y" or one-column alignment, into one space; the code is unchanged. See KI#21.8. (Claude code Opus 5.5) -->
 from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
@@ -64,7 +69,7 @@ class CvPediaCorporation:
 		# Top
 		screen.setText(self.top.getNextWidgetName(), "Background", self.top.MENU_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.top.X_MENU, self.top.Y_MENU, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_MAIN, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CORPORATION, -1)
 
-		if self.top.iLastScreen	!= CvScreenEnums.PEDIA_CORPORATION or bNotActive:		
+		if self.top.iLastScreen != CvScreenEnums.PEDIA_CORPORATION or bNotActive:
 			self.placeLinks(true)
 			self.top.iLastScreen = CvScreenEnums.PEDIA_CORPORATION
 		else:

@@ -142,7 +142,7 @@ class SevoPediaReligion:
 		multiListX, multiListY, multiListW, multiListH = get_panel_multilist_rect(xPanel, yPanel, wPanel, hPanel)
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
-		# Find all leaders who have this religion as favorite, <!-- custom: and --> add <!-- custom: them --> all to the list <!-- custom: (not catch them all... or maybe.. or not or yes... xd) -->
+		# Find all leaders who have this religion as favorite, <!-- custom: and --> add <!-- custom: them --> all to the list <!-- custom: (not catch them all... or maybe..... xd) -->
 		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
 			leaderInfo = gc.getLeaderHeadInfo(iLeader)
 			if leaderInfo.getFavoriteReligion() == self.iReligion:

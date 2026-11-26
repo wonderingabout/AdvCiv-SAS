@@ -8891,7 +8891,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<!-- Pacal: was CIVIC_HEREDITARY_RULE -->
 			<FavoriteCivic>CIVIC_CASTE_SYSTEM</FavoriteCivic>
-			<!-- custom: did not find much info for pacal (2) so going with the very succint wiki mention that i could not refute or investigate further in short time and quick data sample (if need else not necessary to explictly refute anwyays etc.) hopefully accurate enough -->
+			<!-- custom: did not find much info for pacal (2) so going with the very succint wiki mention that i could not refute or investigate further in short time and quick data sample (if need else not necessary to explicitly refute anwyays etc.) hopefully accurate enough -->
 			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<!-- Pacal — was TRAIT_FINANCIAL and TRAIT_EXPANSIVE -->
 			<Traits>

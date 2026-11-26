@@ -63,8 +63,7 @@ static __int64 ceilSASReplayDivision(__int64 iDividend, int iPositiveDivisor)
 	return iQuotient;
 }
 
-static bool getSASReplayStartYearArithmeticBounds(int iFinalTurn, CalendarTypes eCalendar,
-	GameSpeedTypes eSpeed, int& iLowerYear, int& iUpperYear)
+static bool getSASReplayStartYearArithmeticBounds(int iFinalTurn, CalendarTypes eCalendar, GameSpeedTypes eSpeed, int& iLowerYear, int& iUpperYear)
 {
 	FAssert(iFinalTurn >= 0);
 	int const iMonthsPerYear = GC.getNumMonthInfos();

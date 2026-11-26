@@ -6,9 +6,11 @@
 ## Copyright (c) 2008 The BUG Mod.
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
-## <!-- custom: Ruff reported E902 "stream did not contain valid UTF-8" at this legacy BUG TechWindow file start. Converting the file to UTF-8 in VS Code fixed the Ruff parser error while preserving the German comments and leaving runtime code unchanged. Credit: ChatGPT 5.5 and Ruff check. (GPT-5.5) -->
+## <!-- custom: Ruff reported E902 "stream did not contain valid UTF-8" at this legacy BUG TechWindow file start. Converting the file to UTF-8 in VS Code fixed the Ruff parser error while preserving the German comments and leaving runtime code unchanged. Credit: ChatGPT 5.5 and Ruff check. See KI#21.7. (GPT-5.5) -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvUtil
 
 # BUG - Options - end
@@ -236,12 +238,15 @@ class CvTechSplashScreen:
 		szAllowsTitleWidgetSIR = "AllowsTitleSIR"
 		screen.setText(szAllowsTitleWidgetSIR, "", szAllowsTitleDescSIR, CvUtil.FONT_LEFT_JUSTIFY, self.X_ALLOWS_PANELSIR+self.iMarginSpace, self.Y_ALLOWS_PANELSIR - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
+		# <!-- custom: Read once before the loop below, which read it for each tech. See KI#128.8. (Claude code Opus 5.5) -->
+		iNumOrTechPrereqs = SASCurrentDefines.getInt("NUM_OR_TECH_PREREQS")
+		iNumAndTechPrereqs = SASCurrentDefines.getInt("NUM_AND_TECH_PREREQS")
 		for j in range(CyGlobalContext().getNumTechInfos()):
-			for k in range(CyGlobalContext().getDefineINT("NUM_OR_TECH_PREREQS")):
+			for k in range(iNumOrTechPrereqs):
 				iPrereq = CyGlobalContext().getTechInfo(j).getPrereqOrTechs(k)
 				if (iPrereq == self.iTech):
 					screen.attachImageButton( panelNameSIR, "", CyGlobalContext().getTechInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_DERIVED_TECH, j, self.iTech, False )
-			for k in range(CyGlobalContext().getDefineINT("NUM_AND_TECH_PREREQS")):
+			for k in range(iNumAndTechPrereqs):
 				iPrereq = CyGlobalContext().getTechInfo(j).getPrereqAndTechs(k)
 				if (iPrereq == self.iTech):
 					screen.attachImageButton( panelNameSIR, "", CyGlobalContext().getTechInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_DERIVED_TECH, j, self.iTech, False )
@@ -251,8 +256,7 @@ class CvTechSplashScreen:
 		# <!-- custom: Disabled title kept with the shared label tag, as the live titles below, so re-enabling it follows them; untested while disabled. (Claude code Opus 5.5) -->
 		# szAllowsTitleDesc = SASTextScale.sasFontTagLabel + localText.getText("TXT_KEY_PEDIA_ALLOWS", ()) + ":" + SASTextScale.SAS_FONT_TAG_CLOSE
 		# szAllowsTitleWidget = "AllowsTitle"
-		# screen.setText(szAllowsTitleWidget, "", szAllowsTitleDesc, CvUtil.FONT_LEFT_JUSTIFY,
-		# 	       self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		# screen.setText(szAllowsTitleWidget, "", szAllowsTitleDesc, CvUtil.FONT_LEFT_JUSTIFY, self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Units Enabled
 		szUnitsTitleDesc = SASTextScale.sasFontTagLabel + localText.getText("TXT_KEY_PEDIA_UNITS_ENABLED", ()) + ":" + SASTextScale.SAS_FONT_TAG_CLOSE

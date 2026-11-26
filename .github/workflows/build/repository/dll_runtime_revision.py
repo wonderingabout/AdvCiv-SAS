@@ -16,6 +16,9 @@ import sys
 # <!-- custom: Reuse Git range selection, Release report/binary verification and tree identities from the existing repository DLL checks. (GPT-6.1-Sol) -->
 from dll_commit_message import ROOT, build_report_errors, commit_id, commits_in_range, event_commits, git
 from dll_define_changes import blob_id, DLL
+# <!-- custom: The shared squash-intent rule, so this check and the recorder checks read a PR alike. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+from revision_history import pull_request_squashes
 
 SOURCE = "CvGameCoreDLL/SASRuntimeStatus.cpp"
 CHECK = ".github/workflows/build/repository/dll_runtime_revision.py"
@@ -113,7 +116,8 @@ def main():
                 return 0
             head = event["pull_request"]["head"]["sha"] if args.event_name == "pull_request" else event["after"]
             commits = event_commits(args.repo_root, args.event_name, event, head)
-            if args.event_name == "pull_request" and any(label.get("name") == "revision:squash" for label in event["pull_request"].get("labels", [])):
+            # <!-- custom: [ci_squash_pr] in the newest commit marks squash intent, shared with the recorder checks. (Claude code Opus 5.5) -->
+            if args.event_name == "pull_request" and pull_request_squashes(args.repo_root, event["pull_request"]):
                 squash_base = git(args.repo_root, "merge-base", event["pull_request"]["base"]["sha"], head).decode().strip()
                 commits = [commit_id(args.repo_root, head)]
         elif args.event_name not in ("local", "workflow_dispatch"):

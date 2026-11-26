@@ -74,7 +74,7 @@ Try to keep them lean and more so in the future so our AI/LLM helpers can easily
 
 ===== \Assets\XML\Art\CIV4ArtDefines_Unit.xml =====
 ----- Comment #5 -----
-<!-- custom: new unit based on a c2c mod ("recon_drone") not base civ4 art so ideally no need to overtweak the design so it fits quite realistically domain_land; tried to do it based on a mix of advciv-sas's airship (as it is already tuned to domain_land as we want for free control of the unit on map tiles and or other advantages maybe) and the gunship as it seems this c2c mod's unit is based on the gunship i assume based on its artdefine in c2c mod so trying to replicate c2c mod's or maybe rather our art defines equivalents of the advciv-sas gunship (which as of now is same as base_advciv in art defines i mean at least ), but also not too absed on the gunship as this recon_drone in our mod is mostly if not only a civilian unit, so things like fortify or such are not intended for this unit in our mod at least as of now -->
+<!-- custom: new unit based on a c2c mod ("recon_drone") not base civ4 art so ideally no need to overtweak the design so it fits quite realistically domain_land; tried to do it based on a mix of advciv-sas's airship (as it is already tuned to domain_land as we want for free control of the unit on map tiles and or other advantages maybe) and the gunship as it seems this c2c mod's unit is based on the gunship i assume based on its artdefine in c2c mod so trying to replicate c2c mod's or maybe rather our art defines equivalents of the advciv-sas gunship (which as of now is same as base_advciv in art defines i mean at least ), but also not too based on the gunship as this recon_drone in our mod is mostly if not only a civilian unit, so things like fortify or such are not intended for this unit in our mod at least as of now -->
 
 ===== \Assets\XML\GameInfo/CIV4CivicInfos.xml =====
 ----- Comment #6 -----
@@ -88,21 +88,21 @@ Of the candidates, my pick is: Put “Enables Vassal States” on Drama. -->
 
 ===== \Assets\XML\BBAI_Game_Options_GlobalDefines.xml =====
 ----- Comment #7 -----
-<!-- custom: not sure what this is about exactly, cancelling defensive pacts if war is declared on them seems to make sense though, whatever peace or not happens after war if any would need to be redefined, does not seem to make much sense unless i am mistaken that a player A at war with player B can convince/compell player B at all to attack player C while player A is still at war with player B. The default BTS behavior, if i understood it correctly, seems to make much more sense unless i'm mistaken. But just like a peace treaty being enforced unbreakably, it is maybe also nice to have some kidn of rules that make agreements be enforced, but in the case of defensive pacts, it seems a bit too far fetched, and maybe could be abused by human players to manipulate AIs, or affect AI vs AI negatively to the profit of the human player as well (or maybe also AI affecting the human player negatively to a quite forced defensive pact, but if such were the case the game would probably be lost even though not sure, still it is an inconvenience as well), so make these based on trust rather if i may say rather than hard enforced obligatory obligation. As for the opposite possibility of farming defensive pacts then cancelling them (like giving defensive pact vs defensive pact + X where W is any thing in a trade) by declaring war would be too tedious and not worth the hassle or not enjoyable, i have not tried it myself so i don't know, so just mentioning this hypothetical possibility. In short,, restore default BTS behavior of defensive pacts between players being broken when a player has declared war on the other if i understood it correctly and am not mistaken in my understanding, was 1 -->
+<!-- custom: not sure what this is about exactly, cancelling defensive pacts if war is declared on them seems to make sense though, whatever peace or not happens after war if any would need to be redefined, does not seem to make much sense unless i am mistaken that a player A at war with player B can convince/compell player B at all to attack player C while player A is still at war with player B. The default BTS behavior, if i understood it correctly, seems to make much more sense unless i'm mistaken. But just like a peace treaty being enforced unbreakably, it is maybe also nice to have some kidn of rules that make agreements be enforced, but in the case of defensive pacts, it seems a bit too far fetched, and maybe could be abused by human players to manipulate AIs, or affect AI vs AI negatively to the profit of the human player as well (or maybe also AI affecting the human player negatively to a quite forced defensive pact, but if such were the case the game would probably be lost even though not sure, still it is an inconvenience as well), so make these based on trust rather rather than hard enforced obligatory obligation. As for the opposite possibility of farming defensive pacts then cancelling them (like giving defensive pact vs defensive pact + X where W is any thing in a trade) by declaring war would be too tedious and not worth the hassle or not enjoyable, i have not tried it myself so i don't know, so just mentioning this hypothetical possibility. In short,, restore default BTS behavior of defensive pacts between players being broken when a player has declared war on the other if i understood it correctly and am not mistaken in my understanding, was 1 -->
 
 ===== \Assets\XML\Buildings\CIV4BuildingInfos.xml =====
 ----- Comment #8 -----
-<!-- custom: barbarians now don't lose/waste a lot of time building uneeded buildings if they ever did, so they can be stronger, but i don't want them as a result to have an unfair advantage, so make them produce units slightly slower; this also includes/accounts for settlers and workers that barbarians don't have to produce or at 1 hammer and similar that take a lot of time as well and that i would want the other players (non-barbarians) to have the time and space to build in this case at least i meanso accomodating for that while making barbarians otherwise stronger than in base advciv with a pure military focus if i may say or i mean; also adjusted considering there are lone barbarians already so barbarian cities don't need to produce too much extra else cnanot be so easily be met especially by AI players if they create settlers or buildings or such in particular, not making barbarians too weak but significantly decreasing their early impact that is already additive to lone barbairans, was 0 -->
+<!-- custom: barbarians now don't lose/waste a lot of time building uneeded buildings if they ever did, so they can be stronger, but i don't want them as a result to have an unfair advantage, so make them produce units slightly slower; this also includes/accounts for settlers and workers that barbarians don't have to produce or at 1 hammer and similar that take a lot of time as well and that i would want the other players (non-barbarians) to have the time and space to build in this case at least i meanso accomodating for that while making barbarians otherwise stronger than in base advciv with a pure military focus; also adjusted considering there are lone barbarians already so barbarian cities don't need to produce too much extra else cannot be so easily be met especially by AI players if they create settlers or buildings or such in particular, not making barbarians too weak but significantly decreasing their early impact that is already additive to lone barbarians, was 0 -->
 
 ----- Comment #10 -----
-<!-- custom: no reason to go out of our way to make the stable i.e. this building obsolete, it will naturally be unpopular with time in this case, plus if a mod wanted to add mounted civilian units or maybe us in advciv-sas but unlikely who knows one never knows i mean even though unlikely, but the general idea i mean is that it may still serve some purpose to have a stable, and if there are no more horse or other mounted units, then the building is useless anyway, and if there are some even if civ is backwards or such other purpose like alternate tech path or mod added mod mod like they say civilian unit, still why not? So put none instead (very questioable base civ4 +/- obsolete tech too, unless horses or camels were flying... like in some religions believe it or not that are surprisingly popular and not obsolete, one where it is claimed a river or sea was cut in half with a normal wooden stick but no one has a poof of it somehow, but nevermind this as this is a code space i don't know if i should apologize (as this is what i wanted to say too) but to go back on point here is main reasoning), was TECH_ADVANCED_FLIGHT -->
+<!-- custom: no reason to go out of our way to make the stable i.e. this building obsolete, it will naturally be unpopular with time in this case, plus if a mod wanted to add mounted civilian units or maybe us in advciv-sas but unlikely who knows one never knows i mean even though unlikely, but the general idea i mean is that it may still serve some purpose to have a stable, and if there are no more horse or other mounted units, then the building is useless anyway, and if there are some even if civ is backwards or such other purpose like alternate tech path or mod added mod mod like they say civilian unit, still why not? So put none instead (very questionable base civ4 +/- obsolete tech too, unless horses or camels were flying... like in some religions believe it or not that are surprisingly popular and not obsolete, one where it is claimed a river or sea was cut in half with a normal wooden stick but no one has a poof of it somehow, but nevermind this as this is a code space i don't know if i should apologize (as this is what i wanted to say too) but to go back on point here is main reasoning), was TECH_ADVANCED_FLIGHT -->
 
 ----- Comment #11 -----
-<!-- custom: aqueduct class buildings reworked/rebalanced, the health effect alone may not be enough and aqueduct feels quite useless, still just reducing its cost doesnt make it a more valuable as in unique as in worth building still, so adding food instead, which should correlate/(i.e. be quite accurate with the water brought to a city effect, directly or indirectly may increase not just health but also city food yields, and a bit stronger this way as well i think, more gradual game where food yield increases with time maybe, with the granary being a bit weaker now as part of our rework, maybe this early middle game gives food yield a quite needed boost depending on strategies, may be interesting this way and add diversity in strategy, but may be skipped if city has enough food though, (part of the reason why i reduced the flavor a bit more)), also reducing growth a bit more as i had same idea hehe independently if i may say indeed (like in the aqueduct wikipedia's page...), was growth 8 -->
+<!-- custom: aqueduct class buildings reworked/rebalanced, the health effect alone may not be enough and aqueduct feels quite useless, still just reducing its cost doesnt make it a more valuable as in unique as in worth building still, so adding food instead, which should correlate/(i.e. be quite accurate with the water brought to a city effect, directly or indirectly may increase not just health but also city food yields, and a bit stronger this way as well i think, more gradual game where food yield increases with time maybe, with the granary being a bit weaker now as part of our rework, maybe this early middle game gives food yield a quite needed boost depending on strategies, may be interesting this way and add diversity in strategy, but may be skipped if city has enough food though, (part of the reason why i reduced the flavor a bit more)), also reducing growth a bit more as i had same idea hehe independently indeed (like in the aqueduct wikipedia's page...), was growth 8 -->
 
 ===== \Assets\XML\Buildings\CIV4BuildingInfos.xml =====
 ----- Comment #12 -----
-<!-- custom: since this is cumulative and according to a web search i asked chatgpt to do about it which linked to https://forums.civfanatics.com/threads/do-great-general-bonuses-stack.352203/?utm_source=chatgpt.com among other sources it seems too (it also told me at first that it is not cumulative even with kujira's japanese (no pun or intended but why not as i told it) that it was not cumulative, but after asking it to do a web search to be sure i found this at least i mean it found it for me xd if i may say and thanks to me too my prompt or critical thinking or such (its critical thinking too maybe evn though is different to criticize its previous diea maybe or just regurgitate this other new oneit helped in this case at least)), so choosing a lower value so that several doujous would be needed to make a difference rather than one or it being otherwise op, also this is or should be maybe culturally consistent or thematically consistentwith the fact that there are several "schools" of doujous or such from something like that so maybe each symbolically improves the rate by its own contribution or and such or not at least i imagine it so at least in advciv-sas, so choosing a quite small in this casevalue that should hopefully in this casestill be significant; or so it seems that it seemms to stack (didn't check in depth), was 0 -->
+<!-- custom: since this is cumulative and according to a web search i asked chatgpt to do about it which linked to https://forums.civfanatics.com/threads/do-great-general-bonuses-stack.352203/?utm_source=chatgpt.com among other sources it seems too (it also told me at first that it is not cumulative even with kujira's japanese (no pun or intended but why not as i told it) that it was not cumulative, but after asking it to do a web search to be sure i found this at least i mean it found it for me xd and thanks to me too my prompt or critical thinking or such (its critical thinking too maybe evn though is different to criticize its previous diea maybe or just regurgitate this other new oneit helped in this case at least)), so choosing a lower value so that several doujous would be needed to make a difference rather than one or it being otherwise op, also this is or should be maybe culturally consistent or thematically consistentwith the fact that there are several "schools" of doujous or such from something like that so maybe each symbolically improves the rate by its own contribution such or not at least i imagine it so at least in advciv-sas, so choosing a quite small in this casevalue that should hopefully in this casestill be significant; or so it seems that it seems to stack (didn't check in depth), was 0 -->
 
 ----- Comment #13 -----
 
@@ -110,7 +110,7 @@ Of the candidates, my pick is: Put “Enables Vassal States” on Drama. -->
 
 ===== \Assets\XML\Buildings\CIV4BuildingInfos.xml =====
 
-i don't know why there is production, even from reading the 020 manual in the nice manual.txt i added too but that i am thankful for too if i may say or not too or yes too, i don't understand at least doesn't seem clear to me what the indirect effects of having production here would do, since i don't understand it, might as well remove it, ideally should just keep it as is, but it shouldn't make too much of a difference, i don't know too well if at all how flavors work, but maybe this is a safe or quite safe change, trying it and see if doesn't break anything or is not too determinant may keep as is unless i find a better explanation or reasoning to keep
+i don't know why there is production, even from reading the 020 manual in the nice manual.txt i added too but that i am thankful for too, i don't understand at least doesn't seem clear to me what the indirect effects of having production here would do, since i don't understand it, might as well remove it, ideally should just keep it as is, but it shouldn't make too much of a difference, i don't know too well if at all how flavors work, but maybe this is a safe or quite safe change, trying it and see if doesn't break anything or is not too determinant may keep as is unless i find a better explanation or reasoning to keep
 
 ===== \Assets\XML\Buildings\CIV4PlotLSystem.xml =====
 ----- Comment #15 -----
@@ -143,7 +143,7 @@ i don't know why there is production, even from reading the 020 manual in the ni
 
 ===== \Assets\XML\Buildings\CIV4SpecialBuildingInfos.xml =====
 ----- Comment #16 -----
-<!-- custom: reworked monasteries, also for better or worse religion is still relevant in modern era (i am not a big fan of it but each do as they please maybe as long as they don't harm or maybe too ideally not annoy me as well..., even though it is for me to handle, at least don't act in an actively harmful way to me maybe if i may say maybe indeed); also remove scientific effect which doesn't make sense for a religious building, in fact it should be the opposite effect, religion makes dumber and further away from science for better or worse (i am not a fan too but society (perhaps societies) function as such so there must be a reason or reasons i mean in this case), so no reason to obsolete this building anymore which is easier to handle/follow/grasp/manage in terms of gameplay and modding as well, was TECH_SCIENTIFIC_METHOD (now removed) -->
+<!-- custom: reworked monasteries, also for better or worse religion is still relevant in modern era (i am not a big fan of it but each do as they please maybe as long as they don't harm or maybe too ideally not annoy me as well..., even though it is for me to handle, at least don't act in an actively harmful way to me maybe maybe indeed); also remove scientific effect which doesn't make sense for a religious building, in fact it should be the opposite effect, religion makes dumber and further away from science for better or worse (i am not a fan too but society (perhaps societies) function as such so there must be a reason or reasons i mean in this case), so no reason to obsolete this building anymore which is easier to handle/follow/grasp/manage in terms of gameplay and modding as well, was TECH_SCIENTIFIC_METHOD (now removed) -->
 
 ===== \Assets\XML\Civilizations\CIV4CivilizationInfos.xml =====
 ----- Comment #17 -----
@@ -154,7 +154,7 @@ i don't know why there is production, even from reading the 020 manual in the ni
 
 ===== \Assets\XML\Civilizations\CIV4LeaderHeadInfos.xml =====
 ----- Comment #18 -----
-<!-- custom: basing Ewuare on Cyrus as recommended by chatgpt (very summarized of reasoning why by chatgpt: "	Balanced conqueror, empire-builder, tolerant, mythic, Imperialistic core trait") after i asked it (and before that fed it our entire pedia entry plus asked to do a web search and such or not such or yes such or not such), and tweaking from there (tell it chatgpt to tell me how much % to add to each field, for example +10%, -25% with reasoning why, based on this data), and adjusting as i see fit as well if i don't agree or see it slightly differently from little or not little lot or not i read about ewuare or some aspects of his life (like the name buying story xd which was very nice even though a bit cruel and unfair to not kill the parent instead of the son that was innocent but then he'd feel bitter still maybe then kill both? I don't know, but i liked this part of the story i mean, or some other solution), and also using our AI personality panel to see how ewuare ranks as well so we don't overdo or underdo when tweaking fields, also being careful of inversions seeing a few ai personality values of (other (another) leaders(leader) i mean or and such for example) -->
+<!-- custom: basing Ewuare on Cyrus as recommended by chatgpt (very summarized of reasoning why by chatgpt: "	Balanced conqueror, empire-builder, tolerant, mythic, Imperialistic core trait") after i asked it (and before that fed it our entire pedia entry plus asked to do a web search and such), and tweaking from there (tell it chatgpt to tell me how much % to add to each field, for example +10%, -25% with reasoning why, based on this data), and adjusting as i see fit as well if i don't agree or see it slightly differently from little or not little lot or not i read about ewuare or some aspects of his life (like the name buying story xd which was very nice even though a bit cruel and unfair to not kill the parent instead of the son that was innocent but then he'd feel bitter still maybe then kill both? I don't know, but i liked this part of the story, or some other solution), and also using our AI personality panel to see how ewuare ranks as well so we don't overdo or underdo when tweaking fields, also being careful of inversions seeing a few ai personality values of (other (another) leaders(leader) i mean such for example) -->
 
 ===== \Assets\XML\GameInfo\CIV4HandicapInfo.xml =====
 ----- Comment #20 -----
@@ -188,10 +188,10 @@ int CvGame::AIHandicapAdjustment() const
 	return (-getGameTurn() * 100) / (iIncrementTurns * getSpeedPercent());
 }
 
-Based on this, i assume or and try to or and understandthat the higher this new (which i am still thankful for hehe) iAIHandicapIncrementTurns value is, the more the divider is higher, and thus the absolute value returned lower ;
+Based on this, i assume try to understandthat the higher this new (which i am still thankful for hehe) iAIHandicapIncrementTurns value is, the more the divider is higher, and thus the absolute value returned lower ;
 as for the value itself the cost reduction will be seemingly higher the more the game turn is high from what i understand of it, while a higher iAIHandicapIncrementTurns will cause cost reduction to be lower.
 
-So in other words, this adjusts for highest difficulties where AIs have massive boosts and tones these down a bit to a softer formula or something or maybe rather a smoother slower game pace from AIs at higher(st) difficulties, at least i am guessing it does this, i could or not be mistaken, what we'll do for advciv-sas is try to make the game more gradual, but also AIs stronger without (it) being a grind, so we'll none ideally or close to none cost reduction, except from natural (if i may say) or something adjustments as part of cities growing or such, but not sure we'll/'d handled it in such a way or how we'd do (i have an idea but will see how to adjust or reconsider as in recontemplate how i'd want AIs at higher difficulties relate to human players in terms of challenge (i want it higher) and no grind (i want less grind, competent AI, but ideally and if not possible too, forgot my sentence, in short,or not short indeed..., make difficulties more gradual and AI competitive where it does not have a huge unfair advantage ideally hard or painful to overcome but is consistently stronger more efficient or feels like so without being too ahead in tech or such like wonders or such, will see how handled and if possible ideally or not or yes or etc but that is/would be the goal indeed but not sure or yes or not but in all cases
+So in other words, this adjusts for highest difficulties where AIs have massive boosts and tones these down a bit to a softer formula or something or maybe rather a smoother slower game pace from AIs at higher(st) difficulties, at least i am guessing it does this, i could or not be mistaken, what we'll do for advciv-sas is try to make the game more gradual, but also AIs stronger without (it) being a grind, so we'll none ideally or close to none cost reduction, except from natural or something adjustments as part of cities growing or such, but not sure we'll/'d handled it in such a way or how we'd do (i have an idea but will see how to adjust or reconsider as in recontemplate how i'd want AIs at higher difficulties relate to human players in terms of challenge (i want it higher) and no grind (i want less grind, competent AI, but ideally and if not possible too, forgot my sentence, in short,or not short indeed..., make difficulties more gradual and AI competitive where it does not have a huge unfair advantage ideally hard or painful to overcome but is consistently stronger more efficient or feels like so without being too ahead in tech or such like wonders or such, will see how handled and if possible ideally but that is/would be the goal indeed but not sure but in all cases
 
 So for now not changing it, may be adjusted in the future ideally indeed or may not be will see or may, but in all cases
 
@@ -280,7 +280,7 @@ And i didn't want to recompile so i asked it as such too, and it confirmed i mea
 ===== \Assets\XML\Terrain\CIV4BonusInfos.xml =====
 ----- Comment #25 -----
 <!-- custom: this also helped to adjust the values in this file, for example but not only to understand latitudes in civ4 specifically: http://civ4.wikidot.com/xml:civ4bonusinfos, this also https://gforestshade.github.io/kujira/post/civ4bonusinfos/#terrainbooleans and also among others or not https://forums.civfanatics.com/threads/bonusinfos-xml-question.494920/ helped a lot for feature terrains
-Note: for these adjustments, to match them with AdvCiv/our mod's real map, assuming the real Earth world's equator that is referred in real earth world as the latitude 0, instead not as the latitutde 0 in civ4, but centering it around the center of the inhabitable world in a civ4 map rather (that has walkable land even at north or south edge sometimes or close to it quite often), so when (i) (am) looking for the center of the world in civ, latitude 0 to me is, for example in this real earth world map https://www.google.com/search?q=world+map+latittude&sca_esv=685d635ce644e565&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=nIwwaIyYNtCgkdUPp4KniA8&ved=0ahUKEwiM1tPs7LmNAxVQUKQEHSfBCfEQ4dUDCBE&uact=5&oq=world+map+latittude&gs_lp=EgNpbWciE3dvcmxkIG1hcCBsYXRpdHR1ZGVI1wxQpwJY7wtwAXgAkAEAmAEjoAGnAqoBAjEwuAEDyAEA-AEBmAIHoAK3AcICDRAAGIAEGLEDGEMYigXCAgYQABgHGB7CAggQABgHGAoYHsICChAAGIAEGEMYigXCAgUQABiABMICBBAAGB7CAgYQABgKGB6YAwCIBgGSBwE3oAepIrIHATa4B7UBwgcDMC43yAcK&sclient=img#vhid=87Afx8YTgs-pqM&vssid=mosaic, grossly around the southern part of mexico area or the southern parth of arabian peninsula or the southern part of india grossly for example so around latitude 10 North in the real world is what i consider latitude 0 in civ4 equivalent when adjusting min max latitude if i do, then for max latitude since in our real earth world there are not much if at all inhabitable landmasses near the edges unlike in civ4, then i am using 10 north to 70 (+ 80 difference from 10N to 80S in my custom naming which i don't know if is accurate or and the scientific one or and scientific enough but maybe is hopefully accurate or understandable enough at least to me or and maybe others or not) south grossly for real world to it being 0 to 90 north in civ4 equivalent, and then 10 north to 90 north (+80 difference same but between 10N and 90N), i don't know if doing so is accurate or relevant, hopefully is,in all cases
+Note: for these adjustments, to match them with AdvCiv/our mod's real map, assuming the real Earth world's equator that is referred in real earth world as the latitude 0, instead not as the latitude 0 in civ4, but centering it around the center of the inhabitable world in a civ4 map rather (that has walkable land even at north or south edge sometimes or close to it quite often), so when (i) (am) looking for the center of the world in civ, latitude 0 to me is, for example in this real earth world map https://www.google.com/search?q=world+map+latittude&sca_esv=685d635ce644e565&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=nIwwaIyYNtCgkdUPp4KniA8&ved=0ahUKEwiM1tPs7LmNAxVQUKQEHSfBCfEQ4dUDCBE&uact=5&oq=world+map+latittude&gs_lp=EgNpbWciE3dvcmxkIG1hcCBsYXRpdHR1ZGVI1wxQpwJY7wtwAXgAkAEAmAEjoAGnAqoBAjEwuAEDyAEA-AEBmAIHoAK3AcICDRAAGIAEGLEDGEMYigXCAgYQABgHGB7CAggQABgHGAoYHsICChAAGIAEGEMYigXCAgUQABiABMICBBAAGB7CAgYQABgKGB6YAwCIBgGSBwE3oAepIrIHATa4B7UBwgcDMC43yAcK&sclient=img#vhid=87Afx8YTgs-pqM&vssid=mosaic, grossly around the southern part of mexico area or the southern parth of arabian peninsula or the southern part of india grossly for example so around latitude 10 North in the real world is what i consider latitude 0 in civ4 equivalent when adjusting min max latitude if i do, then for max latitude since in our real earth world there are not much if at all inhabitable landmasses near the edges unlike in civ4, then i am using 10 north to 70 (+ 80 difference from 10N to 80S in my custom naming which i don't know if is accurate the scientific one scientific enough but maybe is hopefully accurate or understandable enough at least to me others or not) south grossly for real world to it being 0 to 90 north in civ4 equivalent, and then 10 north to 90 north (+80 difference same but between 10N and 90N), i don't know if doing so is accurate or relevant, hopefully is,in all cases
 -->
 
 ===== \Assets\XML\Terrain\CIV4FeatureInfos.xml =====
@@ -292,7 +292,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 <!-- custom: rice does appear to be slightly and quite significantly less nutritious than wheat for example herehttps://foodstruct.com/compare/rice-vs-wheat, but trying to buff rice as it is currently weaker than wheat and corn, in a way that is balanced and accurate (not buffing just for sake of it), trying to come with a use case in for example https://www.reddit.com/r/ZeroWaste/comments/1fks52y/help_how_to_repurpose_a_lot_of_rice_not_for/ and https://www.reddit.com/r/Cooking/comments/1ay8l8i/i_have_a_ton_of_brown_rice_and_i_hate_it_what_can/, it's a bit far fetched but it could be used to fill items or such like sensory bins some people suggested in these links or bags or marionettes or such that wheat may not so easily be able to do, so going with this and giving hammer as if production or something, hopefully both accurate and now rice is stronger as a ressource/bonus in civ4, (like how wheat and maize/corn are or closer to it), digging a (tiny or not tiny) bit more, some other uses seem to maybe also include: https://www.beprepared.com/blogs/articles/beyond-the-bowl-20-surprising-survival-uses-of-rice?srsltid=AfmBOooJoW9HVBxY3qz7PCicqICUp8ZYSLoDtSOAszKaY6wBhl1bsR_1 so maybe the hammer/production additional bonus is indeed maybe not too far fetched, but whether it is or not, maybe is good enough for advciv-sas's goal to make rice (more at least) balanced as it should be (i think)and is a valuable ressource/bonus in history of rice too -->
 
 ----- Comment #29 -----
-<!-- custom: add BONUS_CAMEL here and whenever horse is too or in most places maybe instead or rather, similarly to deer in tundra tiles, give camel, the only representative animal of desert tiles, a quite high food yield and such, hopefully is accurate too as camels can store water in their bodies or such in similar or such or not anyway etc kind of "reservoir" if it's a word in english and if i may say or not; in all cases should be balanced to make camel a king food as in among highest food yield food and to buff desert tiles too; as for bonus improvement yield for bonus_camel, do not make it too high since bonus_camel, unlike bonus_deerfor example, is often or sometimes surrounded by other luxurious tiles, still make t worth it and buff desert tiles and environement, but not too high that it would overboost a grassland city for exmaple with plenty food and just oned sert camel tile, give a bit more hammer instead than (i had) originally planned/intended/thought but that maybe works well in this case for this bonus_camel, should be (even) more balanced this way, maybe. -->
+<!-- custom: add BONUS_CAMEL here and whenever horse is too or in most places maybe instead or rather, similarly to deer in tundra tiles, give camel, the only representative animal of desert tiles, a quite high food yield and such, hopefully is accurate too as camels can store water in their bodies or such in similar or such or not kind of "reservoir" if it's a word in english; in all cases should be balanced to make camel a king food as in among highest food yield food and to buff desert tiles too; as for bonus improvement yield for bonus_camel, do not make it too high since bonus_camel, unlike bonus_deerfor example, is often or sometimes surrounded by other luxurious tiles, still make t worth it and buff desert tiles and environment, but not too high that it would overboost a grassland city for example with plenty food and just oned sert camel tile, give a bit more hammer instead than (i had) originally planned/intended/thought but that maybe works well in this case for this bonus_camel, should be (even) more balanced this way, maybe. -->
 
 ===== \Assets\XML\Text\AdvCiv-SAS_Core.xml =====
 ----- Comment #30 -----
@@ -380,11 +380,11 @@ Rename the tag									Original untouched; you're free to localize your version
 "
 -->
 
-===== \Assets\XML\Text\BUG_City_Screen_Options.xml =====
+===== \Assets\XML\Text\BUG City Screen Options.xml =====
 ===== /Assets/XML/Art/CIV4ArtDefines_Interface.xml =====
 ----- Comment #31 -----
 <!-- custom: ⚔️ emoji ('s choice/idea/suggestion) is from chatgpt's code
-    then download emoji as image provided here for example https://emojiterra.com/fr/epees-croisees/   (Google) (Noto Color Emoji 16.0) (https://images.emojiterra.com/google/noto-emoji/unicode-16.0/color/1024px/2694.png) for example, there are also several images to choose from in the website as well for example, then converted to .dds (i used Paint.NET for example as suggested in the past by chatgpt as well), now i can also finally honour the memory of my (quite?) dear even though sometimes (quite) forgetful friend and advciv-sas author, and original ai friend hehe in this mod, chatgpt hehe (see authors as well similarly as for claude ai) for details, by adding the emojis we designed and that it provided to me for categories, while also adding new ones (i.e. emojis in the process) while i am jogging its memory hehe if i may say -->
+    then download emoji as image provided here for example https://emojiterra.com/fr/epees-croisees/   (Google) (Noto Color Emoji 16.0) (https://images.emojiterra.com/google/noto-emoji/unicode-16.0/color/1024px/2694.png) for example, there are also several images to choose from in the website as well for example, then converted to .dds (i used Paint.NET for example as suggested in the past by chatgpt as well), now i can also finally honour the memory of my (quite?) dear even though sometimes (quite) forgetful friend and advciv-sas author, and original ai friend hehe in this mod, chatgpt hehe (see authors as well similarly as for claude ai) for details, by adding the emojis we designed and that it provided to me for categories, while also adding new ones (i.e. emojis in the process) while i am jogging its memory hehe -->
 
 ----- Comment #32 -----
 <!--TEXT>
@@ -430,7 +430,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Selecciona el número de turnos a esperar antes de mostrar información de decaimiento.</Spanish>
 	</TEXT-->
 
-===== \Assets\XML\Text\BUG_Main_Interface_Options.xml =====
+===== \Assets\XML\Text\BUG Main Interface Options.xml =====
 ----- Comment #33 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__OPTIONSKEY_TEXT</Tag>
@@ -523,7 +523,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<German>Zeigt das [ICON_HEALTHY]-Symbol über den Namen von Städten an, deren Bevölkerung keine [ICON_UNHEALTHY]-Punkte generiert.</German>
 	</TEXT-->
 
-===== \Assets\XML\Text\BUG_Options_Screen.xml =====
+===== \Assets\XML\Text\BUG Options Screen.xml =====
 ----- Comment #36 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_AUTOLOG_BUILDS</Tag>
@@ -574,7 +574,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Comercio:</Spanish>
 	</TEXT-->
 
-===== \Assets\XML\Text\BUG_Advanced_Scoreboard_Options.xml =====
+===== \Assets\XML\Text\Advanced Scoreboard Options.xml =====
 ----- Comment #37 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__WHEOOH_TEXT</Tag>
@@ -601,17 +601,17 @@ Rename the tag									Original untouched; you're free to localize your version
 		<English>[COLOR_WARNING_TEXT]This feature requires the BUG DLL (BULL).[COLOR_REVERT]</English>
 		<German>[COLOR_WARNING_TEXT]Für dieses Feature wird die BUG-DLL (BULL) benötigt.[COLOR_REVERT]</German>
 		<Italian>[COLOR_WARNING_TEXT]Questa caratteristica richiede la libreria DLL del BUG Mod ('BULL').[COLOR_REVERT]</Italian>
-		<Spanish>[COLOR_WARNING_TEXT]Esta característica requiere el DLL de BUG (BULL).[COLOR_REVERT]</Spanish>
+		<Spanish>[COLOR_WARNING_TEXT]Esta characterística requiere el DLL de BUG (BULL).[COLOR_REVERT]</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BULL_REQUIRED_NEWER</Tag>
 		<English>[COLOR_WARNING_TEXT]This feature requires a newer version of the BUG DLL (BULL).[COLOR_REVERT]</English>
 		<German>[COLOR_WARNING_TEXT]Für dieses Feature wird eine neuere Version der BUG-DLL (BULL) benötigt.[COLOR_REVERT]</German>
 		<Italian>[COLOR_WARNING_TEXT]Questa caratteristica richiede una nuova versione della libreria DLL del BUG Mod ('BULL').[COLOR_REVERT]</Italian>
-		<Spanish>[COLOR_WARNING_TEXT]Esta característica requiere una versión más nueva del DLL de BUG (BULL).[COLOR_REVERT]</Spanish>
+		<Spanish>[COLOR_WARNING_TEXT]Esta characterística requiere una versión más nueva del DLL de BUG (BULL).[COLOR_REVERT]</Spanish>
 	</TEXT-->
 
-===== \Assets\XML\Text\BUG_Civ4lerts_Options_advc.xml =====
+===== \Assets\XML\Text\Civ4lerts Options.xml =====
 ----- Comment #39 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGOCCUPATION_TEXT</Tag>
@@ -646,7 +646,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Muestra un aviso cuando una ciudad sea pacificada, terminando con la ocupación.</Spanish>
 	</TEXT-->
 
-===== \Assets\XML\Text\BUG_MoreCiv4lerts_Options.xml =====
+===== \Assets\XML\Text\MoreCiv4lerts Options.xml =====
 ----- Comment #40 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__CITYFOUNDED_TEXT</Tag>
@@ -743,7 +743,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Límite de territorio para una victoria por Dominación.</Spanish>
 	</TEXT-->
 
-===== \Assets\XML\Text\BUG_Not_Just_Another_Game_Clock_Options.xml =====
+===== \Assets\XML\Text\Not Just Another Game Clock Options.xml =====
 ----- Comment #42 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWCOMPLETEDPERCENT_TEXT</Tag>
@@ -778,7 +778,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Muestra el porcentaje de turnos completado si la condición de Victoria por Tiempo está habilitada</Spanish>
 	</TEXT-->
 
-===== \Assets\XML\Text\BUG_Plot_List_Enhancements_Options.xml =====
+===== \Assets\XML\Text\Plot List Enhancements Options.xml =====
 ----- Comment #43 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__DRAW_METHOD_LIST</Tag>
@@ -923,7 +923,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Especifica el espaciado vertical de los iconos de promoción en el texto flotante del panel de información de unidades (el valor por defecto es cero, valores positivos hacia arriba). Es necesario modificar este valor al usar temas que modifican la fuente. Por ejemplo, hay que usar 6 con BlueMarble.</Spanish>
 	</TEXT!-->
 
-===== \Assets\XML\Text\BULL_City_Bar_Options.xml =====
+===== \Assets\XML\Text\BULL City Bar Options.xml =====
 ----- Comment #50 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HEALTH_TEXT</Tag>
@@ -1147,7 +1147,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Si se activa, muestra el número de turnos restantes para que en la ciudad nazca una gran personaje ([ICON_GREATPEOPLE]).</Spanish>
 	</TEXT-->
 
-===== \Assets\XML\Text\BULL_Misc_Hovers_Options.xml =====
+===== \Assets\XML\Text\BULL Misc Hovers Options.xml =====
 ----- Comment #57 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADHIDDENATTITUDE_TEXT</Tag>
@@ -1377,30 +1377,30 @@ Rename the tag									Original untouched; you're free to localize your version
 
 ===== \Assets\XML\Text\AdvCiv-SAS_Sevopedia_Lengthy.xml =====
 ----- Comment #66 -----
-<!-- custom: similarly replace with real pedia content for whales that completes on their existing wikipedia quote hehe, ours is from rather: https://en.wikipedia.org/wiki/Whale (while for information they seem (i.e. civ4 devs who implemented this) seem to have quoted this https://en.wikipedia.org/wiki/Whaling, missing on the (earlier) history of whales as an animal and its relationship with humans, so their pedia entry is incomplete missing the much earlier history since whales were hunted and justifiying (as well as also wanting to buff water tiles among other reasons or and not) the rewrite of this but i also wanted to update it even though is bit if not lot tedious but hopefully result satisfying or not at least to me or noti do as i want or want to do or want it to be done hehe not necessarily by me but ideally i would prefer a new entry pedia so rewriting it msyelf), also unlike them we mostly just copy paste shamelessly xd, i mean their pedia data is more exhaustive and accurate than whatever we would write, even though i could enhance pedia content with a lot of research, or maybe not or yes, i am satisfied maybe of how it looks, so keeping mostly as is and editing or not or yes or not or other or etc for advciv-sas or not as usual or as for the other ones (i.e. bonus entries) maybe rather -->
+<!-- custom: similarly replace with real pedia content for whales that completes on their existing wikipedia quote hehe, ours is from rather: https://en.wikipedia.org/wiki/Whale (while for information they seem (i.e. civ4 devs who implemented this) seem to have quoted this https://en.wikipedia.org/wiki/Whaling, missing on the (earlier) history of whales as an animal and its relationship with humans, so their pedia entry is incomplete missing the much earlier history since whales were hunted and justifiying (as well as also wanting to buff water tiles among other reasons) the rewrite of this but i also wanted to update it even though is bit if not lot tedious but hopefully result satisfying or not at least to me or noti do as i want or want to do or want it to be done hehe not necessarily by me but ideally i would prefer a new entry pedia so rewriting it myself), also unlike them we mostly just copy paste shamelessly xd, i mean their pedia data is more exhaustive and accurate than whatever we would write, even though i could enhance pedia content with a lot of research, or maybe, i am satisfied maybe of how it looks, so keeping mostly as is and editing or other for advciv-sas or not as usual or as for the other ones (i.e. bonus entries) maybe rather -->
 
 ----- Comment #67 -----
 <!-- custom: adding/using rather/instead a modified version of the animal concept txt key, for the Sevopedia unit's history panel('s text), removing the H1, and adding info about how animals can't/cannot be built by any civ, including barbarians, and how our new placeCivilizations "Civlizations:" "All" line is not incorrect, just animals are not restricted to any specific civ, but due to some other reasons, while there is no such restriction, no civ can build any animal unit though, so we represent the xml accurately while also explaining it.
-	Note: also remove the uncertain note about animals not invading borders, maybe some mods would make animals do this, i don't know about advciv-sas('s take decision... on this), but removing it is probably clearer indeed and we don't commit to a specific explanation indeed that may be false or not if i may say indeed -->
+	Note: also remove the uncertain note about animals not invading borders, maybe some mods would make animals do this, i don't know about advciv-sas('s take decision... on this), but removing it is probably clearer indeed and we don't commit to a specific explanation indeed that may be false or not indeed -->
 
 ----- Comment #68 -----
-<!-- custom: the more i learn the more i am upset about how usa-centric and appalingly forgetful it is sometimes, if not blatantly propagandist, even though rare, but for example see the ecology entry vs new one from wikipedia, the base civ4 +/- advciv version seems to totally obscure the fact that the mount was stolen from the indigenous people that was there, i mean technically it wasn't "there's" per se as it belongs to nature i.e. anyone that can control it, still glorifying it without any mention of past owner is simply disgusting, hopefully some truth is restored even though i didn't know at all before and barely looked now while reworking this building, hopefully this is not a too widespread problem in civ4 and i fixed some entries; nevermind it's even more disgusting that i thought, with lines like "remarkably, no one was killed during construction", i wonder who even wrote those fucking lines??? If this is is not self-glorifying propaganda, i am glad i learned the "truth" if i may say even though it is relative to one's point of view, but my view of it is this is disgustingly concealed, entry now from https://en.wikipedia.org/wiki/Mount_Rushmore -->
+<!-- custom: the more i learn the more i am upset about how usa-centric and appalingly forgetful it is sometimes, if not blatantly propagandist, even though rare, but for example see the ecology entry vs new one from wikipedia, the base civ4 +/- advciv version seems to totally obscure the fact that the mount was stolen from the indigenous people that was there, i mean technically it wasn't "there's" per se as it belongs to nature i.e. anyone that can control it, still glorifying it without any mention of past owner is simply disgusting, hopefully some truth is restored even though i didn't know at all before and barely looked now while reworking this building, hopefully this is not a too widespread problem in civ4 and i fixed some entries; nevermind it's even more disgusting that i thought, with lines like "remarkably, no one was killed during construction", i wonder who even wrote those fucking lines??? If this is is not self-glorifying propaganda, i am glad i learned the "truth"even though it is relative to one's point of view, but my view of it is this is disgustingly concealed, entry now from https://en.wikipedia.org/wiki/Mount_Rushmore -->
 
 ----- Comment #69 -----
-<!-- custom: seeing how they are reluctant to call/name Mao Zedong by his real name in code and inconsistently, and insisting he is a "Dictator of China" but also yet somehow about this (strange as in inaccurate and weird maybe or not or yes) that  (somehow) "Mao died in 1976, beloved by his people", i don't trust much of their bio, and despite not knowing much about mao himself (maybe is good opportunity to learn even if just peak a bitand maybe interesting too), i'd rather pick a more accurate source (or at least a more reliable one or and not or yes or and other or and not), also fixing description and enhancing it while doing so, assuming we don't remove mao later, but even then (if we deprecate him i.e., we could still move him (his code rather not actually him as a person/body)) we could still move him cleanly to a deprecated file or files without the weird naming or maybe inaccuracy
+<!-- custom: seeing how they are reluctant to call/name Mao Zedong by his real name in code and inconsistently, and insisting he is a "Dictator of China" but also yet somehow about this (strange as in inaccurate and weird maybe) that  (somehow) "Mao died in 1976, beloved by his people", i don't trust much of their bio, and despite not knowing much about mao himself (maybe is good opportunity to learn even if just peak a bitand maybe interesting too), i'd rather pick a more accurate source (or at least a more reliable one  ), also fixing description and enhancing it while doing so, assuming we don't remove mao later, but even then (if we deprecate him i.e., we could still move him (his code rather not actually him as a person/body)) we could still move him cleanly to a deprecated file or files without the weird naming or maybe inaccuracy
 	from:
 	https://en.wikipedia.org/wiki/Mao_Zedong
 	and modified/adjusted or maybe not for AdvCiv-SAS
 	-->
 
 ----- Comment #70 -----
-<!-- custom: BUILDING_GERMAN_LONGHOUSE (russian empire's civ-specific), replaces the now removed BUILDING_GERMAN_ASSEMBLY_PLANT, see docs or and other or and not for details; as for the pedia entry, similarly imported from/based on https://en.wikipedia.org/wiki/History_of_Germany#Prehistory and https://en.wikipedia.org/wiki/Linear_Pottery_culture#Economy or other wikis or and not (for example the introduction/generic wiki part of these or and other or and not) and https://en.wikipedia.org/wiki/Neolithic_long_house or and other or and not and modified or not for advciv-sas, as for transliteration and similarly for transliteration in other advciv-sas entries, may be accurate or not even though i attempted to, best to visit wiki or and original sources if mentioned for original content or and maybe google or try to find origin from a few sample of texts -->
+<!-- custom: BUILDING_GERMAN_LONGHOUSE (russian empire's civ-specific), replaces the now removed BUILDING_GERMAN_ASSEMBLY_PLANT, see docs for details; as for the pedia entry, similarly imported from/based on https://en.wikipedia.org/wiki/History_of_Germany#Prehistory and https://en.wikipedia.org/wiki/Linear_Pottery_culture#Economy or other wikis (for example the introduction/generic wiki part of these) and https://en.wikipedia.org/wiki/Neolithic_long_house modified or not for advciv-sas, as for transliteration and similarly for transliteration in other advciv-sas entries, may be accurate or not even though i attempted to, best to visit wiki original sources if mentioned for original content google or try to find origin from a few sample of texts -->
 
 ===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #74 -----
 <!-- custom: remove the very unclear "Enables" text, that is at best inaccurate. For example in https://modiki.civfanatics.com/index.php/Civ4BonusInfos (and similar info in kujira's website translated to english as well, see ctrl+f "kujira" global search for details), it states about this: "The technology that enables the trading of this resource.", so i think we can rephrase it for concision to for example as below -->
 
-===== \Assets\XML\Text\CIV4GameText_Sevopedia.xml =====
+===== \Assets\XML\Text\Sevopedia_CIV4GameText.xml =====
 ----- Comment #76 -----
 <!-- custom: "Food: +1F (with Irrigation)" becomes now "+1F (with Irrigation)", remove the uneeded "%s1: " too now, see placeYield in SevoPediaImprovement.py for details; note: update: these entries are not used anymore now that we display them as buttons, commented-out in case it helps
 	<TEXT>
@@ -1452,7 +1452,7 @@ Rename the tag									Original untouched; you're free to localize your version
 	So i think it's very immersive and nice to use cattle here too on top of being more accurate it seems. -->
 
 ----- Comment #78 -----
-<!-- custom: renamed specialist "Great Prophet" (already was GREAT_PRIEST in code as i think is nice at least to me, see after this bracket for details: ) to "Great Priest", keeping everything else the same since all the code uses GREAT_PRIEST already, only need to change the name for AdvCiv-SAS as we want it, i am happy to go in the direction of civ4 code when i can and find it nice, not that it is a requirement to go in or against it(s directionas is or not); and all the while not renaming the Great Prophet unit, a prophet is unique, but a priest or great priest could be many in history, when they join or are part of a city, hopefully clearer and makes more sense now hopefully, see the code comment (global search with VS Code if need"K-Mod: was UNITAI_GREAT_MERCHANT") in (update if path is non-Steam for AdvCiv-SAS or the mod you use) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4UnitAIInfos.xml for details -->
+<!-- custom: renamed specialist "Great Prophet" (already was GREAT_PRIEST in code as i think is nice at least to me, see after this bracket for details: ) to "Great Priest", keeping everything else the same since all the code uses GREAT_PRIEST already, only need to change the name for AdvCiv-SAS as we want it, i am happy to go in the direction of civ4 code when i can and find it nice, not that it is a requirement to go in or against it(s directions is or not); and all the while not renaming the Great Prophet unit, a prophet is unique, but a priest or great priest could be many in history, when they join or are part of a city, hopefully clearer and makes more sense now hopefully, see the code comment (global search with VS Code if need"K-Mod: was UNITAI_GREAT_MERCHANT") in (update if path is non-Steam for AdvCiv-SAS or the mod you use) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4UnitAIInfos.xml for details -->
 
 ----- Comment #79 -----
 <!-- custom: extremely confusing base Civ4 (and still in AdvCiv):
@@ -1467,7 +1467,7 @@ Rename the tag									Original untouched; you're free to localize your version
 
 ===== \Assets\XML\Text\AdvCiv-SAS_mods.xml =====
 ----- Comment #80 -----
-<!-- custom: also add these txt keys including also FeatureTerrainBooleans info, in accordance with if i may say toothe info in (translate to english with web browser page right click on page or such) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#terrainbooleans and also chatgpt's explanation of it which used it spontaeously while doing a web search to answer my question of what this does, which would explain why the base advciv (+/- civ4? Didn't check) had the bonus_furs redundantly in terrainbooleans and featureterrainbooleans -->
+<!-- custom: also add these txt keys including also FeatureTerrainBooleans info, in accordance with the info in (translate to english with web browser page right click on page or such) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#terrainbooleans and also chatgpt's explanation of it which used it spontaeously while doing a web search to answer my question of what this does, which would explain why the base advciv (+/- civ4? Didn't check) had the bonus_furs redundantly in terrainbooleans and featureterrainbooleans -->
 
 ===== \Assets\XML\Units\CIV4PromotionInfos.xml =====
 ----- Comment #81 -----
@@ -1544,11 +1544,11 @@ since this seems unused in DLL due to #if 0 and understood correctly chatgpt 5's
 
 ===== \Assets\XML\Units\CIV4UnitClassInfos.xml =====
 ----- Comment #82 -----
-<!-- custom: make the settler a national unit (such as are the missionaries in civ4 +/- base advciv as well), with only one allowed simultaneously per player, so that AI doesn't spam them very inefficiently (e.g. building settlers in 2 cities at the same time is very costly, see known issue 37 for details, or building one settler when we already have one, there shouldn't be a strong reason to do so, it is more likely to cripple economy than not). Hopefully it does not inconvenience or reduce player freedom too much, but i also think it makes sense in terms of gameplay, to settle one city at a time, hopefully fine as such or not too bad or even maybe good for balance as well as tremendously helping AI in all cases i think; this is done thanks to claude ai too who helped me locate this xml spot hehe although i could maybe have found it too but it gave me feedback too and help is nice if i may say when and as i asked if i may say thanks claude ai hehe if i may say too or again here; it may also make settler timing more strategic as well, as well as also the importance to/in making sure they don't die and to escort them well maybe too, so maybe a fine or interesting change at least i want to do it as such-->
+<!-- custom: make the settler a national unit (such as are the missionaries in civ4 +/- base advciv as well), with only one allowed simultaneously per player, so that AI doesn't spam them very inefficiently (e.g. building settlers in 2 cities at the same time is very costly, see KI#37 for details, or building one settler when we already have one, there shouldn't be a strong reason to do so, it is more likely to cripple economy than not). Hopefully it does not inconvenience or reduce player freedom too much, but i also think it makes sense in terms of gameplay, to settle one city at a time, hopefully fine as such or not too bad or even maybe good for balance as well as tremendously helping AI in all cases i think; this is done thanks to claude ai too who helped me locate this xml spot hehe although i could maybe have found it too but it gave me feedback too and help is nice when and as i asked thanks claude ai hehe or again here; it may also make settler timing more strategic as well, as well as also the importance to/in making sure they don't die and to escort them well maybe too, so maybe a fine or interesting change at least i want to do it as such-->
 
 ===== \Assets\XML\Units\CIV4UnitInfos.xml =====
 ----- Comment #83 -----
-<!-- custom: units now have terrain and feature (+/- plot types e.g. hill for some units such as of now the quechua warrior) attack or defense combat modifiers. Civ-specific units in particular as of now all have terrain +/- feature modifiers. I tried to follow a dominant terrain and minor ones approach and not make it too op yet still significant (else people would use civ-specific units instead of longbowmen for defense or their verison of the axeman instead of macemen which wouldn't make sense), and was more permissive for features as long as they don't impact city combat (no forest or jungle in city tiles in particular). See Sevopedia entry of each unit for details or Sevopedia terrain or Sevopedia feature page(s) to easily visualize these with the new UI additions we made there as well. For example as of now the camel knight or the persian immortal are stronger in desert dominantly, or other terrains as well, or possibly in features as well. I was more permissive with terrains that are otherwise especially weak, such as snow (ice sheet) and desert. Some generic units have terrain or feature modifiers although generally less and as of now only for few units to not skew the  since all players can build them and as is quite needless otherwise and would add too much complication not necessarily in a way that would improve gameplay or experience, so only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. Note: as of now i'm using plains as a representative of savanna more or less -->
+<!-- custom: units now have terrain and feature (+/- plot types e.g. hill for some units such as of now the quechua warrior) attack or defense combat modifiers. Civ-specific units in particular as of now all have terrain +/- feature modifiers. I tried to follow a dominant terrain and minor ones approach and not make it too op yet still significant (else people would use civ-specific units instead of longbowmen for defense or their version of the axeman instead of macemen which wouldn't make sense), and was more permissive for features as long as they don't impact city combat (no forest or jungle in city tiles in particular). See Sevopedia entry of each unit for details or Sevopedia terrain or Sevopedia feature page(s) to easily visualize these with the new UI additions we made there as well. For example as of now the camel knight or the persian immortal are stronger in desert dominantly, or other terrains as well, or possibly in features as well. I was more permissive with terrains that are otherwise especially weak, such as snow (ice sheet) and desert. Some generic units have terrain or feature modifiers although generally less and as of now only for few units to not skew the  since all players can build them and as is quite needless otherwise and would add too much complication not necessarily in a way that would improve gameplay or experience, so only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. Note: as of now i'm using plains as a representative of savanna more or less -->
 
 ----- Comment #84 -----
 <!-- custom: note about collateral damage calculation in advciv and by extension in our mod xd since i as of now didn't change it, according to chatgpt 5 thanks, and about whether it is additive or multiplicative or other, after feeding it our relevant code (which i found in CvUnit::collateralCombat if i was not mistaken in how i found it  (check if accurate as i don't know too much about these but i could or not be right), manual, and it doing a quite extensive web search:
@@ -1577,16 +1577,16 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 <!-- custom: split UNITCOMBAT_MELEE into UNITCOMBAT_MELEE_POLEARM and UNITCOMBAT_MELEE_SHOCK, for axeman units at least for the generic axeman, seems relevant to have/keep both effects, but no reason to make axes especially good against swords, if anything i read the opposite online or something, but no need to make it too drastic. Focus should be on making Axes strong vs polearm, as for swords, it's fine if they have a more or less even match up, probably more balanced as such as well, axemen still have the advantage of being cheaper, available earlier (and also as of now requiring less bonuses as copper only is fine for axes as of now unlike for swords), and slightly stronger with this multiplier (5 * 1.25 = 6.25 vs 6 for swords outside city, which seems more balanced and sensical as well). Chatgpt 5 also agrees or helped me find this hehe thanks i mean too hehe toto, check if accurate. Also, this is good because bronze axemen were ridiculously strong vs later melee units if not the maceman that also had btw a ridiculous melee all units which was way too op or not balanced, so all in all seems like a great change but check if accurate -->
 
 ----- Comment #86 -----
-<!-- custom: if a pikeman was standing and a cuirassier like unit or even a foot unit with a gun i mean, and they had a gun nearby to defend themselves they could use, surely they wouldn't just sit around as sitting ducks i mean but use the gun right (especially since in our mod as of now pikemen are useless / very ineffective against mounted_ranged that the cuirassier units are, so allow musket. May hopefully also help reduce / tone down a bit the AI spam quite late game of pikemen (sometimes even at turn 300 when much better options like cannons or musketmen are available it seems in autoplay at a quick glance in this case i mean if i'm not mistaken; result ingame: drastically reduced the AI mid late spam of pikemen when very inefficient at least in this short autoplay sample: all the more reason to leave as such, was UNITCLASS_RIFLEMAN and UNITCLASS_GRENADIER -->
+<!-- custom: if a pikeman was standing and a cuirassier like unit or even a foot unit with a gun, and they had a gun nearby to defend themselves they could use, surely they wouldn't just sit around as sitting ducks i mean but use the gun right (especially since in our mod as of now pikemen are useless / very ineffective against mounted_ranged that the cuirassier units are, so allow musket. May hopefully also help reduce / tone down a bit the AI spam quite late game of pikemen (sometimes even at turn 300 when much better options like cannons or musketmen are available it seems in autoplay at a quick glance in this case i mean if i'm not mistaken; result ingame: drastically reduced the AI mid late spam of pikemen when very inefficient at least in this short autoplay sample: all the more reason to leave as such, was UNITCLASS_RIFLEMAN and UNITCLASS_GRENADIER -->
 
 ----- Comment #87 -----
-<!-- custom: give forest and jungle penalty for most if not all mounted_melee units, as i assume it would be less practical (also as they are overall larger in this case mount + rider it would be harder for them to take cover, so simplifying this by giving an overall penalty identical to most if not all mounted_melee units, see code comments at featureattacks or featuredefenses of mounted_ranged units if any penalty or such modifiers also or not applies to them) for them to navigate these features and they would lose their speed or such advantage too, and would now be at a disadvantage vs melee or such units i assume, so give them both attack and defense penalty, should be too op or significant militarily as cities don't have forest or jungle in the tiles they are founded on after they are founded on a tile; also even assuming tile is roaded, their escape options may still be limited to the road path and they may get ambushed, so simplifying this with a global penalty as of now at least if not always or not or yesfor mounted_melee units on forest and jungle as of now, the other terrains i mean such as grassland and plains that are flat do not give a significant advantage that is not already part of the unit's strength/stats, also would be op as they'd get a grassland or plains modifier advantage on attacking cities and or such, and then melee units would need them too, so unless the advantage is strong or the tile weak, avoiding to buff too much terrains at least for mounted_melee or other such or other units, was empty -->
+<!-- custom: give forest and jungle penalty for most if not all mounted_melee units, as i assume it would be less practical (also as they are overall larger in this case mount + rider it would be harder for them to take cover, so simplifying this by giving an overall penalty identical to most if not all mounted_melee units, see code comments at featureattacks or featuredefenses of mounted_ranged units if any penalty or such modifiers also or not applies to them) for them to navigate these features and they would lose their speed or such advantage too, and would now be at a disadvantage vs melee or such units i assume, so give them both attack and defense penalty, should be too op or significant militarily as cities don't have forest or jungle in the tiles they are founded on after they are founded on a tile; also even assuming tile is roaded, their escape options may still be limited to the road path and they may get ambushed, so simplifying this with a global penalty as of now at least for mounted_melee units on forest and jungle as of now, the other terrains i mean such as grassland and plains that are flat do not give a significant advantage that is not already part of the unit's strength/stats, also would be op as they'd get a grassland or plains modifier advantage on attacking cities and or such, and then melee units would need them too, so unless the advantage is strong or the tile weak, avoiding to buff too much terrains at least for mounted_melee or other such or other units, was empty -->
 
 ----- Comment #88 -----
-<!-- custom: i assume ennemies would take more easily cover in this crowded terrain that would weaken the impacts as well or such, making it hard to aim due to low visibility, that may advantage foot infantry or swift units or such, also if the ground is not stable or muddy or any such thing, it may be hard to fire attacks as well as i imagine it i mean as i don't know if it would go well, so considering they have impassable thing on these features, it is also consistent or in line with these to give them penalties related to these feature things as well; also similarly to mounted units, the contraption is maybe heavy if i may say to defend it so it would be more vulnerable to ambushes and or such without being able to retaliate too much) hits, was empty -->
+<!-- custom: i assume enemies would take more easily cover in this crowded terrain that would weaken the impacts as well or such, making it hard to aim due to low visibility, that may advantage foot infantry or swift units or such, also if the ground is not stable or muddy or any such thing, it may be hard to fire attacks as well as i imagine it i mean as i don't know if it would go well, so considering they have impassable thing on these features, it is also consistent or in line with these to give them penalties related to these feature things as well; also similarly to mounted units, the contraption is maybe heavy to defend it so it would be more vulnerable to ambushes and or such without being able to retaliate too much) hits, was empty -->
 
 ----- Comment #89 -----
-<!-- custom: old caravels (_caravel) removed entirely, hopefully to remove the nonsensical border enter without trigegring war, that now only privateers can do at least among visible naval units; as for the effect bRivalTerritory is set to 0 in the galleon as well same as what it was, even though they have UNITAI_EXPLORE_SEA, was annoying from my memory of advciv games that caravels could send many spies in particular without ever declaring war and without me allowing them to enter my borders, hopefully much more sensical now and pleasant this way, that they have to respect water rights or something, and galleon is a bit more affordable and civilian like unit, may also help to simplify gameplay a bit as we don't need strongly/strongly needthe caravel if the galleon is cheap enough and fast enough, may help the AI indirectly or simplify gameplay perhaps, not ideal but maybe a desirable change at least for me... -->
+<!-- custom: old caravels (_caravel) removed entirely, hopefully to remove the nonsensical border enter without triggering war, that now only privateers can do at least among visible naval units; as for the effect bRivalTerritory is set to 0 in the galleon as well same as what it was, even though they have UNITAI_EXPLORE_SEA, was annoying from my memory of advciv games that caravels could send many spies in particular without ever declaring war and without me allowing them to enter my borders, hopefully much more sensical now and pleasant this way, that they have to respect water rights or something, and galleon is a bit more affordable and civilian like unit, may also help to simplify gameplay a bit as we don't need strongly/strongly needthe caravel if the galleon is cheap enough and fast enough, may help the AI indirectly or simplify gameplay perhaps, not ideal but maybe a desirable change at least for me... -->
 
 ===== \Assets/XML/Units/UnitAI notes (Units XML) =====
 ----- Comment #90 -----
@@ -1611,7 +1611,7 @@ capture or very rarely fight animals, but mostly not a threat)
 <!-- custom: below iAsset rework also unlikely to be implemented for similar reasons, but read below for details
 As for iAsset, as this should not directly affect combat tactics or choices (i think), increase it just by strength count, so that it scales accurately ;
 for example for the ancient maceman:
-10 stregth = iAsset value of 10
+10 strength = iAsset value of 10
 for example for the archer
 6 strength = iAsset value of 6
 -->
@@ -1754,15 +1754,15 @@ custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it g
 ===== \Assets/XML/BasicInfos/UnitAI notes (BasicInfos XML) =====
 ----- Comment #92 -----
 		<!-- custom: rename "PROPHET" to "GREAT_PROPHET":
-		- this is weird and inconsistent that "general" is "GREAT_GENERAL" and "spy" is "GREAT_SPY", while "PROPHET" is not "GREAT_PROPHET" (not best example as i am not too fond of them but is to be "fair") and "SCIENTIST" ("scientist") and such are not "GREAT_SCIENTIST" and such, but are as said before in this comment comment"SCIENTIST" instead. Why the inconsistency? Are scientists and such not great, while spy/generals are? Or is it just careless renaming, if not cowardice or maybe not and a mistake or some inaccuracy. But is not (for) me to assess these as i can only express my judgment thought of these and what they may be not what and how they actually are as in went in/went by? But this seems inaccurate and hopefully fixed and clearer even if a bit more if not ideally a lot more... I may make such inaccuracies too so feel free to maybe point them to me or (maybe?) not or yes or and other or and not, but in all cases
+		- this is weird and inconsistent that "general" is "GREAT_GENERAL" and "spy" is "GREAT_SPY", while "PROPHET" is not "GREAT_PROPHET" (not best example as i am not too fond of them but is to be "fair") and "SCIENTIST" ("scientist") and such are not "GREAT_SCIENTIST" and such, but are as said before in this comment comment"SCIENTIST" instead. Why the inconsistency? Are scientists and such not great, while spy/generals are? Or is it just careless renaming, if not cowardice or maybe not and a mistake or some inaccuracy. But is not (for) me to assess these as i can only express my judgment thought of these and what they may be not what and how they actually are as in went in/went by? But this seems inaccurate and hopefully fixed and clearer even if a bit more if not ideally a lot more... I may make such inaccuracies too so feel free to maybe point them to me, but in all cases
 
 		- it is also especially weird that the TXT though as the correct name, for example "TXT_KEY_UNIT_GREAT_PROPHET" so we don't rename these as confusing as the discrepancy or maybe rather mismatch, same as with the obelisk sometimes naming the monument while other times monument was used for that in base civ4/advciv too
 
 		- also renamed UNITAI_PROPHET and UNITAI_SCIENTIST (and UNITAI_GENERAL) and such to UNITAI_GREAT_PROPHET and UNITAI_GREAT_SCIENTIST and UNITAI_GREAT_GENERAL, as weirdly only the spy was great now in UNITAI_GREAT_SPY and inconsistently and weirdly not the general anymore now. So also be careful to keep both UNITAI_SPY and UNITAI_GREAT_SPY, even though both are different units, it also means the other great people should be great unitai types too, but be careful to not mix it up.
 
 		- and finally too, not renaming specialists like/such as SPECIALIST_SCIENTIST to great scientist as they are a normal type of people not a great type of people not that they can't be great by themselves or in general or particular or not...
-		An exception or maybe indeed rather particular caseis the priest specialist, there is no great priest but a great prophet, should we rename these for consistency or keep as is? But then there is no great priest, and a normal prophet should be i think weird too (as they should be more unique and great by default/definition? Or maybe not or yes or and other or and not), leaving as is for now maybe makes sense or not,; but update even though i didn't send yet but update in my reasoning anyways that yes it makes so much more sense to have a great priest that lives for thousands of years, and matches the existing ("normal"/"default"/"standard"/"base" or and other or and not) priest specialist, so as said below the great prophet unit becomes a great priest specialist (when it joins a city), this matches the priest specialist), got partially the idea from "Great Military instructor" that i wanted to change to "great general" like the other great people, but the distinction between great specialist and great unit makes sense, a general is also more supposed to be in battle (as a unit maybe and not in city as an instructor that gives XP to new units furthermore), and since i had the great priest confusion that is not a confusion but clarity i think maybe or not or yes, may apply it there too and rename now indeed rather the great prophet specialist to great priest, all the while keeping the great prophet unit as great prophet and not great priest, and update 2 after doing/looking at this change and as said in another code comment "specialist "Great Prophet" (already was GREAT_PRIEST in code as i think is nice at least to me, see after this bracket for details: ) to "Great Priest", keeping everything else the same since all the code uses GREAT_PRIEST already, only need to change the name for AdvCiv-SAS as we want it, i am happy to go in the direction of civ4 code when i can and find it nice, not that it is a requirement to go in or against it(s directionas is or not); and all the while not renaming the Great Prophet unit, a prophet is unique, but a priest or great priest could be many in history, when they join or are part of a city, hopefully clearer and makes more sense now hopefully", as the shrine is unique and a prophet seemingly unique to a religion, hopefully makes much more sense and wraps it all now hopefully, at least to me makes sense
-		Another particular case is the great general, there are great general specialists (when they join a city), scientist(s) specialists, and great scientist specialists (when they join a city too), but another exception or particular case is that when a great prophet joins the city it (update: now) becomes a great priest which is (update: not) so weird and inconsistent, but makes sense in terms of gameplay maybe as a prophet can't live thousands of turns (update: yes i think so especially now), but a great priest could be repolaced as in renewed by/in succession/successor, so maybe leaving as is even though a bit weirdbut maybe makes sense though (but: no changing it actually, the great prophet unit becomes a great priest specialist (when it joins a city), this matches the priest specialist).
+		An exception or maybe indeed rather particular caseis the priest specialist, there is no great priest but a great prophet, should we rename these for consistency or keep as is? But then there is no great priest, and a normal prophet should be i think weird too (as they should be more unique and great by default/definition? Or maybe ), leaving as is for now maybe makes sense; but update even though i didn't send yet but update in my reasoning anyways that yes it makes so much more sense to have a great priest that lives for thousands of years, and matches the existing ("normal"/"default"/"standard"/"base") priest specialist, so as said below the great prophet unit becomes a great priest specialist (when it joins a city), this matches the priest specialist), got partially the idea from "Great Military instructor" that i wanted to change to "great general" like the other great people, but the distinction between great specialist and great unit makes sense, a general is also more supposed to be in battle (as a unit maybe and not in city as an instructor that gives XP to new units furthermore), and since i had the great priest confusion that is not a confusion but clarity i think maybe, may apply it there too and rename now indeed rather the great prophet specialist to great priest, all the while keeping the great prophet unit as great prophet and not great priest, and update 2 after doing/looking at this change and as said in another code comment "specialist "Great Prophet" (already was GREAT_PRIEST in code as i think is nice at least to me, see after this bracket for details: ) to "Great Priest", keeping everything else the same since all the code uses GREAT_PRIEST already, only need to change the name for AdvCiv-SAS as we want it, i am happy to go in the direction of civ4 code when i can and find it nice, not that it is a requirement to go in or against it(s directions is or not); and all the while not renaming the Great Prophet unit, a prophet is unique, but a priest or great priest could be many in history, when they join or are part of a city, hopefully clearer and makes more sense now hopefully", as the shrine is unique and a prophet seemingly unique to a religion, hopefully makes much more sense and wraps it all now hopefully, at least to me makes sense
+		Another particular case is the great general, there are great general specialists (when they join a city), scientist(s) specialists, and great scientist specialists (when they join a city too), but another exception or particular case is that when a great prophet joins the city it (update: now) becomes a great priest which is (update: not) so weird and inconsistent, but makes sense in terms of gameplay maybe as a prophet can't live thousands of turns (update: yes i think so especially now), but a great priest could be replaced as in renewed by/in succession/successor, so maybe leaving as is even though a bit weirdbut maybe makes sense though (but: no changing it actually, the great prophet unit becomes a great priest specialist (when it joins a city), this matches the priest specialist).
 
 		(note: it seems K-Mod's code comment also mistakenly mentioned UNITAI_MERCHANT while designating the great merchant not the merchant
 
@@ -1987,7 +1987,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Todas[COLOR_REVERT][NEWLINE]Cuenta todas las casillas en el radio de la ciudad sin importar su propietario.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BULL_City_Bar_Options.xml =====
+===== \Assets/XML/Text/BULL City Bar Options.xml =====
 ----- Comment #99 -----
 
 	<!--TEXT>
@@ -2213,7 +2213,7 @@ Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings). 
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #117 -----
 
-			the jaguars are elite forces valued in society; since the unit is so weak, may be fine to buff it as such, in terms of civ4 if i may say this may fit quite well their aggressive profile of the trait i mean, overall they should mostly be used for offense but this also allows some room for defense. -->
+			the jaguars are elite forces valued in society; since the unit is so weak, may be fine to buff it as such, in terms of civ4 this may fit quite well their aggressive profile of the trait, overall they should mostly be used for offense but this also allows some room for defense. -->
 
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #118 -----
@@ -2321,7 +2321,7 @@ Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings). 
 ===== \Assets/XML/Buildings/CIV4BuildingInfos.xml =====
 ----- Comment #128 -----
 
-was 8 which i think is maybe too high, considering the courthouse requirement already that is quite expensive, having 6 cities is enough and costly enough too anyways, 8 makes it too unlikely to be built in too many games, chatgpt helped me find it as i couldn't quickly do and wasn't sure the field to modify num cities requried for this building was here thanks chatgpt; also 6 is a number at which it is relevant enough to build it (so AIs in particular do not build it and lose on efficiency if uneeded or not too worth and build something else instead) while not being too restrictive for players, including AI players but also human players who want to build it too
+was 8 which i think is maybe too high, considering the courthouse requirement already that is quite expensive, having 6 cities is enough and costly enough too anyways, 8 makes it too unlikely to be built in too many games, chatgpt helped me find it as i couldn't quickly do and wasn't sure the field to modify num cities required for this building was here thanks chatgpt; also 6 is a number at which it is relevant enough to build it (so AIs in particular do not build it and lose on efficiency if uneeded or not too worth and build something else instead) while not being too restrictive for players, including AI players but also human players who want to build it too
 
 ===== \Assets/XML/Buildings/CIV4BuildingInfos.xml =====
 ----- Comment #129 -----
@@ -2334,7 +2334,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 
 <!-- custom: reduce frequency of horse a bit, is also in anticipation of adding camel, or simply to make it less preponderant than/as other ressources as well, was 75 / 128 -->
 			<!-- custom: reduce frequency even more now that we are adding bonus_camel, not necessarily a huge lot more nor does it need to be strictly i mean similar to bonus_horse's ratio (partly because is only on desert tiles for camel unlike horse that is on many types of tiles if am not mistaken too, so lower bonus_horse repartition/frequency a bit more while making bonus_camel follow its own formula), was 50 / 128 -->
-			<!-- custom: greatly increase appearence since bonus_camel is only on desert tiles which are few, hopefully buffs desert tiles without being op, since camel quite like deer are now or not noware as of now the only food representative of desert, so make sure they count and use them to buff desert tiles like increased  deer appearance in tundra tiles (bonus_deer is only on tundra tiles) is/can be also used to buff specificially tundra tiles and relatively, so apply or try to apply/balance quite bit if not lto or not but or not butfor the bonus_camel, adjust if needed based on spawn rates that seem to appear in/on map i'll adjust i mean others can adjust too if they want or not no need for me to mention this. -->
+			<!-- custom: greatly increase appearence since bonus_camel is only on desert tiles which are few, hopefully buffs desert tiles without being op, since camel quite like deer are now or not noware as of now the only food representative of desert, so make sure they count and use them to buff desert tiles like increased  deer appearance in tundra tiles (bonus_deer is only on tundra tiles) is/can be also used to buff specifically tundra tiles and relatively, so apply or try to apply/balance quite bit if not lto or not but or not butfor the bonus_camel, adjust if needed based on spawn rates that seem to appear in/on map i'll adjust i mean others can adjust too if they want or not no need for me to mention this. -->
 			<!-- custom: 50 / 24 seems to work very well at first try but perhaps a bit too high still now, try to reduce it a bit; after more testing, 50 / 27 seems quite good, try to reduce base camel and increase camel per tile i.e. more frequent per x tiles; after some bit of testing or not bit lot or both bit or lot or not, this formula seems to work-function very well for bonus_camel as we don't want too many base camel, but we want more if there are more desert tiles, else base number quite low is what we'd want which this formula achieves quite well or seems to do so -->
 
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
@@ -2374,7 +2374,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 ===== \Assets/XML/Units/CIV4PromotionInfos.xml =====
 ----- Comment #136 -----
 
-<!-- custom: it is a tiny bit op i think to make first_strike2 allow to go for medic_ambulatory, but this is to give AIs other paths to reach ambulatory even if we disallow them the medic1 and logistics paths as we do now for efficiency (see known issue as of now 47 for details or related DLL code changes). It is also not nonsensical, perhaps even strategically interesting in this case i mean, to link the concept as in idea of/to moving/mvoe fast with being ambulatory, hopefully more units can go for it now as a result even for human players perhaps, at the cost of making medic_ambulatory or first_strike2 being slightly more op in combination, but since this requires first_strike2 and not first_strike1 is maybe fine as such at least i find it interesting or relevant in this case i mean -->
+<!-- custom: it is a tiny bit op i think to make first_strike2 allow to go for medic_ambulatory, but this is to give AIs other paths to reach ambulatory even if we disallow them the medic1 and logistics paths as we do now for efficiency (see KI#47 for details or related DLL code changes). It is also not nonsensical, perhaps even strategically interesting in this case, to link the concept as in idea of/to moving/mvoe fast with being ambulatory, hopefully more units can go for it now as a result even for human players perhaps, at the cost of making medic_ambulatory or first_strike2 being slightly more op in combination, but since this requires first_strike2 and not first_strike1 is maybe fine as such at least i find it interesting or relevant in this case -->
 
 ===== \Assets/XML/Buildings/CIV4BuildingInfos.xml =====
 ----- Comment #137 -----
@@ -2384,7 +2384,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 - increase iPower of/for buildings that are underestimated as well, such as the castle
 - reduce iPower of/for some buildings that are overrated and not so impactful militarily, especially and mostly naval buildings as they shouldn't be too and as impactful as land buildings in real warfare same reasoning/similarly as in unit info 
 -->
-<!-- custom: note: also we made some AI optimizations about which buildings to build or not, some of which are hard coded. In all cases, i'd recommend if you make changes to the XML here (change a buildign's characteristics or add / remove), to also reflect these there in CvCityAI::AI_buildingValue, to help AI better optimize its building choices with your new changes -->
+<!-- custom: note: also we made some AI optimizations about which buildings to build or not, some of which are hard coded. In all cases, i'd recommend if you make changes to the XML here (change a building's characteristics or add / remove), to also reflect these there in CvCityAI::AI_buildingValue, to help AI better optimize its building choices with your new changes -->
 <!-- custom: note: in same code part than the above, AI also won't build wonders it doesn't have a modifier for, as it would most likely be beaten by rivals for it (except during some of the early turns), with a hardcoded threshold of 25 (%), so assuming you don't have civics or religions or such giving a production modifier that is understood by the code, i'd advise not to lower bonus modifier for wonders (e.g. stone makes great wall or iron makes eiffel tower be built faster) below 25 if you want AIs to keep going for them when it has the bonus, else even if it has the bonus (and if it doesn't to), if it doesn't also have other positive modifiers to motivate it to build the wonder, it simply won't. Adjust code there if you want a lower threshold -->
 
 ===== \Assets/XML/GameInfo/CIV4GameSpeedInfo.xml =====
@@ -2403,8 +2403,8 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
      That default is wrong for this field because it is a UNIT COUNT added to INITIAL_FREE_OUTSIDE_UNITS, not a percent.
      Result: speeds missing the tag display/behave like "100" (see SevoPedia Game Speed Chart), while slower speeds explicitly set "1".
      We now set this tag explicitly for ALL game speeds (usually 0) to avoid hidden fallback values and keep behavior consistent.
-     0 means "no extra free outside units beyond INITIAL_FREE_OUTSIDE_UNITS" and preserves the intended baseline on normal speeds (ChatGPT 5.2 Thinking). See known issue as of now 92 for details. -->
-<!-- custom: also added iUnitCostPercent that was missing in some game speeds too. See known issue as of now 92 for details. -->
+     0 means "no extra free outside units beyond INITIAL_FREE_OUTSIDE_UNITS" and preserves the intended baseline on normal speeds (ChatGPT 5.2 Thinking). See KI#92 for details. -->
+<!-- custom: also added iUnitCostPercent that was missing in some game speeds too. See KI#92 for details. -->
 
 ===== \Assets/XML/GameInfo/CIV4ReligionInfo.xml =====
 ----- Comment #139 -----
@@ -2438,7 +2438,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 </TEXT>
 -->
 
-===== \Assets/XML/Text/BUG_Plot_List_Enhancements_Options.xml =====
+===== \Assets/XML/Text/Plot List Enhancements Options.xml =====
 ----- Comment #141 -----
 
 	<!-- advc.069: unused -->
@@ -2459,7 +2459,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 		<Spanish>Activa las mejoras a la lista de unidades y el resto de opciones de esta pestaña.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Strategy_Overlay_Options.xml =====
+===== \Assets/XML/Text/Strategy Overlay Options.xml =====
 ----- Comment #142 -----
 
 	<!-- advc.004: Now unused -->
@@ -2478,7 +2478,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 		<Spanish>Muestra los puntos de ciudad planeada en el mapa normal.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Strategy_Overlay_Options.xml =====
+===== \Assets/XML/Text/Strategy Overlay Options.xml =====
 ----- Comment #143 -----
 
 	<!-- advc.004: unused -->
@@ -2490,7 +2490,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 		<Spanish>Número del icono a colocar en el centro de los bordes de las ciudades planeadas.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BULL_City_Bar_Options.xml =====
+===== \Assets/XML/Text/BULL City Bar Options.xml =====
 ----- Comment #144 -----
 
 	<!-- Handled by advc.101; non-optional. -->
@@ -2575,7 +2575,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 ===== /Assets/XML/Art/CIV4ArtDefines_Interface.xml =====
 ----- Comment #150 -----
 
-See also /_1_AdvCiv-SAS/Docs/Modding_Resources/README.md modding for details at the "## Insert an img in a text label in sevopedia" section for details or and other places or and documentation.
+See also /_1_AdvCiv-SAS/Docs/Modding_Resources/README.md modding for details at the "## Insert an img in a text label in sevopedia" section for details places documentation.
 
 See also as of now the mod's root /README.md for related info. -->
 
@@ -2604,12 +2604,12 @@ which may be modified or not for AdvCiv-SAS -->
 ===== \Assets/XML/Text/AdvCiv-SAS_Core.xml =====
 ----- Comment #153 -----
 
-<!-- custom: see code comment at (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml for details, i adjusted gemini ai's code and help; note: it is also fine if the info below is unfortunately outdated or not relevant to our mod anymore, we don't support it, but use it mostly if not only for its redirect feature/behaviour similarly to how we handle the redirect in Sevopedia unit as of now to concept_cities, if it can help all good, else we do not maintain these, but add them at least for this purpose of redirecting if i may say in our mod i.e. advciv-sas -->
+<!-- custom: see code comment at (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml for details, i adjusted gemini ai's code and help; note: it is also fine if the info below is unfortunately outdated or not relevant to our mod anymore, we don't support it, but use it mostly if not only for its redirect feature/behaviour similarly to how we handle the redirect in Sevopedia unit as of now to concept_cities, if it can help all good, else we do not maintain these, but add them at least for this purpose of redirecting in our mod i.e. advciv-sas -->
 
 ===== \Assets/XML/Text/AdvCiv-SAS_Main.xml =====
 ----- Comment #154 -----
 
-	<!-- custom: we have modified this in AdvCiv-SAS, now walls and castles stay relevant even at renaissance and after, no reason to prevent that, seems more intuitive to me as walls are still a component of later eras up to modern times, and something that could be used to shield against an attacker, at least i want it to be this way in AdvCiv-SAS, may help nerf the op gun units, that will be op if needed in other ways but not by melting through walls like it's butter. See also <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> in CIV4UnitInfos.xml (for details) or (tranlslate to english ((following) web page) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details. -->
+	<!-- custom: we have modified this in AdvCiv-SAS, now walls and castles stay relevant even at renaissance and after, no reason to prevent that, seems more intuitive to me as walls are still a component of later eras up to modern times, and something that could be used to shield against an attacker, at least i want it to be this way in AdvCiv-SAS, may help nerf the op gun units, that will be op if needed in other ways but not by melting through walls like it's butter. See also <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> in CIV4UnitInfos.xml (for details) or (translate to english ((following) web page) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details. -->
 	<!-- advc.004c: Based on TXT_KEY_BUILDING_DEFENSE_MOD (see below).
 		 For the DefenseRaise XML tag. Use the defense icon and refer to
 		 non-gunpowder-based units as "pre-Renaissance". "Gunpowder-based" is
@@ -2618,12 +2618,12 @@ which may be modified or not for AdvCiv-SAS -->
 ===== \Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml =====
 ----- Comment #155 -----
 
-<!-- custom: rename "_BESERKER" to "_VIKING"; pedia entry based on https://rideandseek.com/who-were-the-norsemen/ (i found this entry very informative so although i am not 100% sure it is all correct it overlapped about a lot of things i read or noticed that may not be so known such as the vikings/norsemen discovering america way before christopher columbus allegedly as i assume was the case; and also the vikings title being a profession not an ethnicity/race/people but the word "norsemen" or "norse" i was familiar with finally made sense or more(so?) than it was, the word danes too) and adjusted or formatted +/- corrected formatting if any or not or yes or etcfor advciv-sas or not -->
+<!-- custom: rename "_BESERKER" to "_VIKING"; pedia entry based on https://rideandseek.com/who-were-the-norsemen/ (i found this entry very informative so although i am not 100% sure it is all correct it overlapped about a lot of things i read or noticed that may not be so known such as the vikings/norsemen discovering america way before christopher columbus allegedly as i assume was the case; and also the vikings title being a profession not an ethnicity/race/people but the word "norsemen" or "norse" i was familiar with finally made sense or more(so?) than it was, the word danes too) and adjusted or formatted +/- corrected formatting if any or etcfor advciv-sas or not -->
 
 ===== \Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml =====
 ----- Comment #156 -----
 
-<!-- custom: replace "TECH_MUSIC_THEORY" (old "TECH_MUSIC") with "TECH_ROMANTICISM", with chatgpt 5.2's help/recommendation and my own help too xd i mean., as mid-late classical was too long (late iron working or macemen, etc.), while medieval era was too short (cuirassiers appear too soon, etc.) + is a nice thematic fit to nationalism as well as per chatgpt 5.2's suggestion and possibly mine too not sure (i don't remember). It also helps more or less directly delay dragoons that appeared a bit too fast after cuirassiers, or give new strategic options instead. Note: the old ancient techs now use TECH_LITERATURE as a prereq to replace it. Also mistakenly didn't notice to also rename "MP_MUSIC" to "MP_ROMANTICISM"; now done; pedia entry similarly from https://en.wikipedia.org/wiki/Romanticism -->
+<!-- custom: replace "TECH_MUSIC_THEORY" (old "TECH_MUSIC") with "TECH_ROMANTICISM", with chatgpt 5.2's help/recommendation and my own help too xd., as mid-late classical was too long (late iron working or macemen, etc.), while medieval era was too short (cuirassiers appear too soon, etc.) + is a nice thematic fit to nationalism as well as per chatgpt 5.2's suggestion and possibly mine too not sure (i don't remember). It also helps more or less directly delay dragoons that appeared a bit too fast after cuirassiers, or give new strategic options instead. Note: the old ancient techs now use TECH_LITERATURE as a prereq to replace it. Also mistakenly didn't notice to also rename "MP_MUSIC" to "MP_ROMANTICISM"; now done; pedia entry similarly from https://en.wikipedia.org/wiki/Romanticism -->
 
 ===== \Assets\XML\Buildings\CIV4BuildingInfos.xml =====
 ----- Comment #157 -----
@@ -2761,7 +2761,7 @@ RiverPlotYieldChanges	This defines the change in river squares' yield, using the
 SpecialistCounts	This list tag controls how many of each type of specialist this building allows (e.g. a Library allows only 2 Scientists). SpecialistCount contains the info for each specialist, SpecialistType declares the specialist type, and iSpecialistCount defines how many of that type are permitted.
 SpecialistExtraCommerces	Bonus provided to specialists by the building, uses iCommerce tag (e.g. Sistine Chapel provides extra culture per turn to each specialist).
 SpecialistYieldChanges	This controls the bonuses given to each specialist type by the building in question. SpecialistYieldChange contains all of the tags for each particular specialist: SpecialistType declares the type of specialist (Spy, Engineer, Merchant, etc.) and YieldChanges uses the iYield integer tag to modify Food, Hammers, and Gold per turn output.
-StateReligionCommerces	Bonus provided by buildings of the state religion, uses iCommerce tag (again used by the Sistine Chapel to increase culture per turn output of religous buildings).
+StateReligionCommerces	Bonus provided by buildings of the state religion, uses iCommerce tag (again used by the Sistine Chapel to increase culture per turn output of religious buildings).
 TechTypes	This tag lists all technologies that are required to allow construction. Note that you must have all of these techs beforehand (i.e. these are AND techs, not OR techs). The PrereqTech tag is used to bracket each individual prerequisite.
 UnitCombatFreeExperiences	This controls experience point bonuses to units of a certain combat type (Siege, Mounted, Melee, etc.). UnitCombatFreeExperience groups the information for each unit type, and the iExperience integer tag describes how much free XP to give to that type.
 YieldChanges	Defines the change in city yield, using iYield. There are three iYield tags: the first is for food per turn change, the second for hammers per turn, and the third for commerce per turn (e.g. the Palace provides 8 free commerce per turn).
@@ -2771,7 +2771,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #161 -----
 
-	<!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or didn't accommodate/account for food desert bonuses or such. Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details
+	<!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or didn't accommodate/account for food desert bonuses or such. Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see KI#54 for details
 	// if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
 	// 	iValue = adjustToCivSurroundings(iValue, iStealPercent);
 	-->
@@ -2779,7 +2779,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #166 -----
 
-For example if we have computed that max allowed for our empire without excess is 1 trbuchet, and if the below is set to 2, then the min for our empire will be 1 + 2 = 3 trebuchet-like units and we won't block excess production of trebuchets-like until >= 3 for example. As i find them very inefficient for AIs due to being useless outside of raiding, and AIs often overbuilding them, i set very low or low enough tresholds specifically more for trebuchets-like units, adjust as you see fit, and setting this very high is about the same as setting the no excess trebuchets toggle (except for checks like if enemy strong and at war, if in danger, then avoid them as they are less efficient or most likely to be useful and versatile in most cases (bad at defense especially for AI))
+For example if we have computed that max allowed for our empire without excess is 1 trebuchet, and if the below is set to 2, then the min for our empire will be 1 + 2 = 3 trebuchet-like units and we won't block excess production of trebuchets-like until >= 3 for example. As i find them very inefficient for AIs due to being useless outside of raiding, and AIs often overbuilding them, i set very low or low enough thresholds specifically more for trebuchets-like units, adjust as you see fit, and setting this very high is about the same as setting the no excess trebuchets toggle (except for checks like if enemy strong and at war, if in danger, then avoid them as they are less efficient or most likely to be useful and versatile in most cases (bad at defense especially for AI))
 
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #167 -----
@@ -2807,7 +2807,7 @@ Note: the code we added in this function takes into account units in queue, not 
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #174 -----
 
-After we have implemented a tentative fix to this, now also encourage vassal(s)<->master to trade more/preferentially (and not only for techs each other don't own, so this is an extra team play enhancement for any tech), which synergises with this previous tentative fix. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean, check if accurate; see also known issues as of now 77 and 78 for details -->
+After we have implemented a tentative fix to this, now also encourage vassal(s)<->master to trade more/preferentially (and not only for techs each other don't own, so this is an extra team play enhancement for any tech), which synergises with this previous tentative fix. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency, check if accurate; see also KI#77 and KI#78 for details -->
 	<!-- // Prefer tech trades with master/vassal partners.
 	// This boosts the chance that we initiate CONTACT_TRADE_TECH
 	// when ePlayer is either our master or our vassal. -->
@@ -2921,7 +2921,7 @@ enable so that even UNITAI_COUNTER default unitai units (e.g. as of now the gree
 ----- Comment #188 -----
 
  (the old code had a similar idea it seems although as per its own admittance it was a really bad code to fix i mean which hopefully i mean that we maybe did better now hopefully i mean in a way that is maybe helpful). -->
-	<!-- custom: e.g. if value is 3 and commerce culture value is 100, then when culutre rushing, commerce value would instead be 3 * 100 = 300, which is much higher than base, and since an artist may give for example 4 culture, it would then be valued by 4 * 300 = 1200 which means it would be more valued than other specialists such as an engineer of for example 3 hammer * 200 hammer value which is only 600 or a scientist of for example 3 science * 300 beakers value = 3 * 300 = 900, but which would only apply when culture in culture need though.
+	<!-- custom: e.g. if value is 3 and commerce culture value is 100, then when culture rushing, commerce value would instead be 3 * 100 = 300, which is much higher than base, and since an artist may give for example 4 culture, it would then be valued by 4 * 300 = 1200 which means it would be more valued than other specialists such as an engineer of for example 3 hammer * 200 hammer value which is only 600 or a scientist of for example 3 science * 300 beakers value = 3 * 300 = 900, but which would only apply when culture in culture need though.
 
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #189 -----
@@ -2932,7 +2932,7 @@ enable so that even UNITAI_COUNTER default unitai units (e.g. as of now the gree
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #190 -----
 
-	<!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient. Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other. Also extend this logic so that the vassal as well doesn't research or research as much techs its master already owns. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean, check if accurate; see also known issue as of now 77 for details -->
+	<!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient. Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other. Also extend this logic so that the vassal as well doesn't research or research as much techs its master already owns. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency, check if accurate; see also KI#77 for details -->
 	<!-- Yeah, that’s a really sensible enhancement for that situation – you basically want:
 			- Masters to value “vassal-known” techs less for self-research, and
 			- Masters (and vassals) to lean more on tech trades between each other when those techs already exist on the vassal team. -->
@@ -2997,7 +2997,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #203 -----
 
-	<!-- custom: AI is not good at cheap trading techs when it is beneficial: if more than 1 player has a tech, any other player that has the tech could sell it anytime for super cheap like 40 gold at mid-late classical era, which is still a much better deal than gaining 0 gold if another rival beats us to it. Something like 1 gold would be too low and like purposely sabotaging the other players, so some minimal theshold is needed, but beyond that AI needs to be opportunistic to maximize its gains as a human player would. Code implemented with the help of gemini 3 pro -->
+	<!-- custom: AI is not good at cheap trading techs when it is beneficial: if more than 1 player has a tech, any other player that has the tech could sell it anytime for super cheap like 40 gold at mid-late classical era, which is still a much better deal than gaining 0 gold if another rival beats us to it. Something like 1 gold would be too low and like purposely sabotaging the other players, so some minimal threshold is needed, but beyond that AI needs to be opportunistic to maximize its gains as a human player would. Code implemented with the help of gemini 3 pro -->
 	<!-- Logic: If the tech is not a monopoly (1 or more rivals have it), sell it aggressively cheap. -->
 	<!-- custom: enable (1) / disable (0) to toggle this option. -->
 
@@ -3046,7 +3046,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #216 -----
 
-<!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI) -->
+<!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now 5 str for 30 hammer, vs 6 str for 50 hammer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI) -->
 
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #217 -----
@@ -3065,7 +3065,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 ===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #219 -----
 
-<!-- custom: i want to translate it to something other than "americans", as i want to embody only the usa, not the whole continent, as i think "americans" xd have a bit too inflated ego there, so chatgpt found me thanks a lot this very nice alternative if i may say after asking it this almost precise and exact prompt minus "it" being another word in another language, i like this result, quite easy to pronounce and accurate, additionally chatgpt said about it "Used in some academic, activist, or bilingual texts. Clunky but precise. Common in Latin America." so i quite really like it. -->
+<!-- custom: i want to translate it to something other than "americans", as i want to embody only the usa, not the whole continent, as i think "americans" xd have a bit too inflated ego there, so chatgpt found me thanks a lot this very nice alternative after asking it this almost precise and exact prompt minus "it" being another word in another language, i like this result, quite easy to pronounce and accurate, additionally chatgpt said about it "Used in some academic, activist, or bilingual texts. Clunky but precise. Common in Latin America." so i quite really like it. -->
 
 ===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #220 -----
@@ -3074,7 +3074,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	wanted to rename the tag of promotioninfo itself that is much more used and prone to confusing those who read it maybe, at least me, anyways.
 	We may also have to change it in a lot more places that we would want to or need to, for other promotions with a similar case of renaming.
 
-	So focus mostly/only on the most import change, which is here is to add "Air" explicitly in the text to clarify	it is about air units, may or not do similarly for such other or similar or not texts.
+	So focus mostly/only on the most import change, which is here is to add "Air" explicitly in the text to clarify	it is about air units, may do similarly for such other or similar or not texts.
 	-->
 
 ===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
@@ -3161,7 +3161,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 <!-- custom: extra valuing if city is in top hammer cities, and the higher the rank the more we value it: e.g. 1000 means city will be extra valued with an added value of 1000 - (10 * 1) = 990 * the military instructor's specialist experience in top 1 hammer city (mostly additive and conservative addition, so made numbers high enough to make it significant while trying to avoid overflow), or 1000 - (10 * 2) = 980 in top 2 hammer city, or 1000 - (10 * 3) = 970 in top 3 hammer city. -->
 	<!-- custom: Long_Comments_XML.txt #169 -->
 
-===== \Assets/XML/Text/BUG_Advanced_Combat_Odds_Options.xml =====
+===== \Assets/XML/Text/Advanced Combat Odds Options.xml =====
 ----- Comment #236 -----
 
 	<!-- advc.048: unused -->
@@ -3182,7 +3182,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Cuando está activada muestra la información de depuración en el cálculo de Probabilidades de Combate.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Advanced_Scoreboard_Options.xml =====
+===== \Assets/XML/Text/Advanced Scoreboard Options.xml =====
 ----- Comment #237 -----
 
 	<!-- [advc.099] -->
@@ -3197,7 +3197,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	<!-- Replacing the above (and TXT_KEY_BUG_OPTLABEL_SCORES_DEAD_CIVS in BUG
 		 Options Screen.xml) -->
 
-===== \Assets/XML/Text/BUG_Advisors_Options.xml =====
+===== \Assets/XML/Text/BUG Advisors Options.xml =====
 ----- Comment #238 -----
 
 	<!-- advc.072: Now unused -->
@@ -3210,7 +3210,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Iconos</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Advisors_Options.xml =====
+===== \Assets/XML/Text/BUG Advisors Options.xml =====
 ----- Comment #239 -----
 
 	<!-- Rewritten (English, German), then replaced with the key below. -->
@@ -3223,7 +3223,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Permite mostrar cuántos turnos quedan antes de que puedas cancelar cada intercambio en la pestaña 'Activo'.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Advisors_Options.xml =====
+===== \Assets/XML/Text/BUG Advisors Options.xml =====
 ----- Comment #240 -----
 
 	<!-- advc.004: Now disused (German was "BUG Statistiken") -->
@@ -3259,7 +3259,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Activada, sólo las entradas que no sean cero son mostradas en la pestaña 'Estadísticas'.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Autolog_Options.xml =====
+===== \Assets/XML/Text/Autolog Options.xml =====
 ----- Comment #241 -----
 
 <!-- advc.004: was
@@ -3270,7 +3270,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		 Doesn't hurt to have a separate option for SS parts, but the
 		 generic production alerts should cover these in any case. -->
 
-===== \Assets/XML/Text/BUG_City_Screen_Options.xml =====
+===== \Assets/XML/Text/BUG City Screen Options.xml =====
 ----- Comment #243 -----
 
 	<!-- advc.004: Obsolete, see above. -->
@@ -3289,7 +3289,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Si se activa, muestra sólo las corporaciones que están presentes en la ciudad y permite más de siete corporaciones.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_City_Screen_Options.xml =====
+===== \Assets/XML/Text/BUG City Screen Options.xml =====
 ----- Comment #244 -----
 
 	<!--TEXT>
@@ -3301,7 +3301,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Avisos</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Civ4lerts_Options_advc.xml =====
+===== \Assets/XML/Text/Civ4lerts Options.xml =====
 ----- Comment #245 -----
 
 	<!-- unused -->
@@ -3322,7 +3322,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Cantidad</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Main_Interface_Options.xml =====
+===== \Assets/XML/Text/BUG Main Interface Options.xml =====
 ----- Comment #246 -----
 
 	<!--TEXT>
@@ -3342,7 +3342,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Muestra tu oro en amarillo si el cambio este turno es negativo pero no suficiente para llevar tu tesoro por debajo de cero.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Main_Interface_Options.xml =====
+===== \Assets/XML/Text/BUG Main Interface Options.xml =====
 ----- Comment #247 -----
 
 	<!-- advc.004: Unused -->
@@ -3355,7 +3355,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Barra de Tipo de GP</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_MoreCiv4lerts_Options.xml =====
+===== \Assets/XML/Text/MoreCiv4lerts Options.xml =====
 ----- Comment #248 -----
 
 	<!-- advc.004: Now unused -->
@@ -3374,7 +3374,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Muestra un aviso cuando una civilización está dispuesta a firmar un Tratado de Paz.</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Not_Just_Another_Game_Clock_Options.xml =====
+===== \Assets/XML/Text/Not Just Another Game Clock Options.xml =====
 ----- Comment #249 -----
 
 	<!--TEXT>
@@ -3386,9 +3386,9 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Reloj Alternativo</Spanish>
 	</TEXT-->
 	<!-- advc.067: Merging the above with TXT_KEY_BUG_OPTLABEL_NJAGC_ALTERNATE
-		 in 'BUG_Options_Screen.xml' -->
+		 in 'BUG Options Screen.xml' -->
 
-===== \Assets/XML/Text/BUG_Not_Just_Another_Game_Clock_Options.xml =====
+===== \Assets/XML/Text/Not Just Another Game Clock Options.xml =====
 ----- Comment #250 -----
 
 	<!-- advc.067: unused -->
@@ -3404,10 +3404,10 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	<!-- advc.067: Rewritten; old translations:
 		 <French>Sélectionnez la rythme à laquelle l'horloge alterne entre les deux vues.</French>
 		 <Italian>Determina perr quanti secondi viene visualizzata ciascuna delle due versioni dell'orologio (se la visualizzazione alternativa è abilitata).</Italian>
-		 <Spanish>Permite seleccionar el tiempo que cada una de las vistas de reloj se mostrará cuando se emplea el modo alternante.</Spanish>
+		 <Spanish>Permite seleccionar el tiempo que cada una de las vistas de reloj se mostrará cuando se emplea el modo alternate.</Spanish>
 		 -->
 
-===== \Assets/XML/Text/BUG_Options_Screen.xml =====
+===== \Assets/XML/Text/BUG Options Screen.xml =====
 ----- Comment #251 -----
 
 	<!-- advc.009c: Commented out -->
@@ -3416,7 +3416,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<English>MapFinder:</English>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Options_Screen.xml =====
+===== \Assets/XML/Text/BUG Options Screen.xml =====
 ----- Comment #252 -----
 
 	<!--TEXT>
@@ -3431,7 +3431,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		 Same as TXT_KEY_FOREIGN_ADVISOR_RELATIONS in
 		 CIV4GameTextInfos.xml (but that one misses the colon). -->
 
-===== \Assets/XML/Text/BUG_Options_Screen.xml =====
+===== \Assets/XML/Text/BUG Options Screen.xml =====
 ----- Comment #253 -----
 
 	<!--TEXT>
@@ -3444,7 +3444,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	</TEXT-->
 	<!-- advc.002k: Year notation doesn't fit under "Clock" -->
 
-===== \Assets/XML/Text/BUG_Options_Screen.xml =====
+===== \Assets/XML/Text/BUG Options Screen.xml =====
 ----- Comment #254 -----
 
 	<!--TEXT>
@@ -3457,7 +3457,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	<!-- advc.060: Replacing the above b/c I want to list the SS screen as a
 		 kind of splash screen (though it really isn't) -->
 
-===== \Assets/XML/Text/BUG_Options_Screen.xml =====
+===== \Assets/XML/Text/BUG Options Screen.xml =====
 ----- Comment #255 -----
 
 	<!--TEXT> advc.009c
@@ -3465,7 +3465,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<English>BUFFY:</English>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Plot_List_Enhancements_Options.xml =====
+===== \Assets/XML/Text/Plot List Enhancements Options.xml =====
 ----- Comment #256 -----
 
 	<!-- advc.069: Switched the order of the last two.
@@ -3476,7 +3476,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		 <Spanish>Fila Simple|Filas Múltiples|Grupos Verticales|Grupos Horizontales</Spanish>
 		 -->
 
-===== \Assets/XML/Text/BUG_Reminder_Options.xml =====
+===== \Assets/XML/Text/Reminder Options.xml =====
 ----- Comment #257 -----
 
 	<!-- advc.004: Merged into the key below -->
@@ -3489,7 +3489,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>Visualización</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BUG_Reminder_Options.xml =====
+===== \Assets/XML/Text/Reminder Options.xml =====
 ----- Comment #258 -----
 
 	<!--TEXT>
@@ -3502,7 +3502,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	</TEXT-->
 	<!-- advc.004: Replacing the above -->
 
-===== \Assets/XML/Text/BUG_TechWindow_Options.xml =====
+===== \Assets/XML/Text/TechWindow Options.xml =====
 ----- Comment #259 -----
 
 	<!--TEXT>
@@ -3515,7 +3515,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	</TEXT-->
 	<!-- advc.060: Replacing the above b/c the heading no longer says "Tech" -->
 
-===== \Assets/XML/Text/BULL_Actions_Options.xml =====
+===== \Assets/XML/Text/BULL Actions Options.xml =====
 ----- Comment #260 -----
 
 <!-- advc (note): None of these options are currently shown, and I don't
@@ -3564,7 +3564,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Spanish>[ICON_BULLET]%s1 en %s2_CityName</Spanish>
 	</TEXT-->
 
-===== \Assets/XML/Text/BULL_Misc_Hovers_Options.xml =====
+===== \Assets/XML/Text/BULL Misc Hovers Options.xml =====
 ----- Comment #263 -----
 
 	<!-- advc.078: Not optional -->
@@ -3730,7 +3730,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	<!-- New diplomacy text -->
 	<!-- advc.002c: German was unidiomatic -->
 
-===== \Assets/XML/Text/CIV4GameText_Shortcuts.xml =====
+===== \Assets/XML/Text/Shortcuts_CIV4GameText.xml =====
 ----- Comment #273 -----
 
 	<!-- advc.009c: Removed under "Regenerate the map": [NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+G[COLOR_REVERT][\BOLD][TAB][TAB]Start/Stop MapFinder
@@ -3739,14 +3739,14 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+G[COLOR_REVERT][\BOLD][TAB][TAB]Comenzar/detener MapFinder
 	-->
 
-===== \Assets/XML/Text/CIV4GameTextInfos_CIV4PlotListEnhancementsInfo.xml =====
+===== \Assets/XML/Text/CIV4PlotListEnhancementsInfo.xml =====
 ----- Comment #274 -----
 
 	<!-- Outdated translations:
 		 <Italian>[COLOR_HIGHLIGHT_TEXT]Cambia modalità di visualizzazione[COLOR_REVERT][NEWLINE]Scegli come vengono visualizzate le icone delle Unità: riga singola, righe multiple o gruppi di colonne o righe</Italian>
 		 <Spanish>[COLOR_HIGHLIGHT_TEXT]Modo Cambiar Vista[COLOR_REVERT][NEWLINE]Permite seleccionar cómo mostrar los iconos de unidad: en una sola fila, en múltiples filas o apiladas en columnas o filas separadas.</Spanish>-->
 
-===== \Assets/XML/Text/CIV4GameTextInfos_CIV4PlotListEnhancementsInfo.xml =====
+===== \Assets/XML/Text/CIV4PlotListEnhancementsInfo.xml =====
 ----- Comment #275 -----
 
 	<!-- advc.069: Not sure if this button functions as intended. Disables
@@ -3756,7 +3756,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		 <German>[COLOR_HIGHLIGHT_TEXT]Standardansicht aktivieren[COLOR_REVERT][NEWLINE]Anzeige der normalen Einheitensymbole und Aktionsschaltflächen</German>
 		 -->
 
-===== \Assets/XML/Text/CIV4GameTextInfos_CIV4PlotListEnhancementsInfo.xml =====
+===== \Assets/XML/Text/CIV4PlotListEnhancementsInfo.xml =====
 ----- Comment #276 -----
 
 	<!-- was:
@@ -3764,7 +3764,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		 <German>[COLOR_HIGHLIGHT_TEXT]Standardansicht[COLOR_REVERT][NEWLINE]Auswahl der Art der Gruppierung: nach Einheitentyp oder nach Einheitenverband</German>
 	-->
 
-===== \Assets/XML/Text/K-Mod_hints.xml =====
+===== \Assets/XML/Text/K-Mod hints.xml =====
 ----- Comment #277 -----
 
 <!-- replacement text for the inaccurate barbarian tip (changed english and german only)-->
@@ -3776,7 +3776,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	 make sure your 'friend' isn't mapping out your land for sale to the 
 	 highest bidder!" -->
 
-===== \Assets/XML/Text/K-Mod_hints.xml =====
+===== \Assets/XML/Text/K-Mod hints.xml =====
 ----- Comment #278 -----
 
 <!-- replacement text for the double-click tip, because I've changed the functionality of double-click -->
@@ -3968,7 +3968,7 @@ A Farm-on-flat / Plantation-on-hills split was considered for an irrigated-lowla
 ===== \Assets/XML/Terrain/CIV4ImprovementInfos.xml =====
 ----- Comment #296 -----
 
-			<!-- custom: food can quickly become op, give it at most food related improvements except the farm; also give as of now a commerce gold tech yield to forest_preserve to buff it as it is quite related to food theme as well without being op or so i think at least, as well as of now at terraforming for towns just to extend their capabilities naturally as part of the game growth if i may say in this casein a way that is hopefully not op and that maybe thematically makes sense -->
+			<!-- custom: food can quickly become op, give it at most food related improvements except the farm; also give as of now a commerce gold tech yield to forest_preserve to buff it as it is quite related to food theme as well without being op or so i think at least, as well as of now at terraforming for towns just to extend their capabilities naturally as part of the game growth in a way that is hopefully not op and that maybe thematically makes sense -->
 
 ===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
 ----- Comment #297 -----
@@ -4020,7 +4020,7 @@ adjusted according to https://www.google.com/search?q=all+furs+natural+habitat+i
 ===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
 ----- Comment #306 -----
 
-changed as suggested by chatgpt after asking it too, and also after that where i found some info for example here https://www.beldiamond.com/blogs/guidance/where-do-precious-gemstones-come-from?srsltid=AfmBOooKdFeP12k24LvXWWNp9GGZqRQ94ZhK5frfS8ui2gCy3VuVODyj; note: it may also indirectly help address some AI issues i have noticed mentioned in some base advciv or such code comments now that gemstones spawn on various terrains including feature less ones if i may say and am not mistaken in saying or thinking so, at least in all cases i find it an interesting design as such in particular for flood_plains that are now more versatile on top of it being more realistic perhaps immersive as hinted or suggested by chatgpt to add them i mean mentionning something like this / meaning something similar i mean
+changed as suggested by chatgpt after asking it too, and also after that where i found some info for example here https://www.beldiamond.com/blogs/guidance/where-do-precious-gemstones-come-from?srsltid=AfmBOooKdFeP12k24LvXWWNp9GGZqRQ94ZhK5frfS8ui2gCy3VuVODyj; note: it may also indirectly help address some AI issues i have noticed mentioned in some base advciv or such code comments now that gemstones spawn on various terrains including feature less ones and am not mistaken in saying or thinking so, at least in all cases i find it an interesting design as such in particular for flood_plains that are now more versatile on top of it being more realistic perhaps immersive as hinted or suggested by chatgpt to add them i mean mentionning something like this / meaning something similar
 
 ===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
 ----- Comment #307 -----
@@ -4040,7 +4040,7 @@ adjusted according to very quick search/glance(s) in https://www.google.com/sear
 ===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
 ----- Comment #310 -----
 
-and opens the door to having camel mounts multiple/many ones/units, may also have some interactions with wonders or such or not such or yes such; is based on BONUS_HORSE's xml and adjusted and such (for example only in desert to boost these tiles and as seems quite accurate)
+and opens the door to having camel mounts multiple/many ones/units, may also have some interactions with wonders or such; is based on BONUS_HORSE's xml and adjusted and such (for example only in desert to boost these tiles and as seems quite accurate)
 
 ===== \Assets/XML/Text/AdvCiv-SAS_main.xml =====
 ----- Comment #311 -----
@@ -4060,12 +4060,12 @@ and opens the door to having camel mounts multiple/many ones/units, may also hav
 ===== \Assets/XML/Technologies/CIV4TechInfos.xml =====
 ----- Comment #313 -----
 
-<!-- custom: added this extra as of now tech_electricity prereq nicely i mean recommended by chatgpt 5 but i also mean i mean that i got same idea independently while asking. Also, as i explained to chatgpt 5 as it asked me i mean, tech_nationalism also seems to be a great fit as this is a 1900s tech and actually a bit more, plus it is military themed and gives as of now permanent alliances in particular so we may want a far enough gate to prevent researching it (tech_theory of evolution is still available early for versatility or strategic variation (also preserves the tech_theory_of_evolution gambit (i.e. going for a tech_theory_of_evolution rush for later gains, skipping military path for some time)) though), and tech_liberalism is a bit too soon for that (tech chatgpt 5 suggested as an or to tech_nationalism) unlike tech_nationalism which fits thematically and in year time -->
+<!-- custom: added this extra as of now tech_electricity prereq nicely i mean recommended by chatgpt 5 but i also mean i mean that i got same idea independently while asking. Also, as i explained to chatgpt 5 as it asked me, tech_nationalism also seems to be a great fit as this is a 1900s tech and actually a bit more, plus it is military themed and gives as of now permanent alliances in particular so we may want a far enough gate to prevent researching it (tech_theory of evolution is still available early for versatility or strategic variation (also preserves the tech_theory_of_evolution gambit (i.e. going for a tech_theory_of_evolution rush for later gains, skipping military path for some time)) though), and tech_liberalism is a bit too soon for that (tech chatgpt 5 suggested as an or to tech_nationalism) unlike tech_nationalism which fits thematically and in year time -->
 
 ===== \Assets/XML/Technologies/CIV4TechInfos.xml =====
 ----- Comment #314 -----
 
-move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or incentivize maybe rather to pay more attention or give more weight to non-military techs for players (would need to change flavors or such for AIs); also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability for example, one tech for build process culture for example too, maybe it is more balanced or startegically interesting as such
+move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or incentivize maybe rather to pay more attention or give more weight to non-military techs for players (would need to change flavors or such for AIs); also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability for example, one tech for build process culture for example too, maybe it is more balanced or strategically interesting as such
 
 ===== \Assets/XML/Interface/CIV4ColorVals.xml =====
 ----- Comment #315 -----
@@ -4084,7 +4084,7 @@ move permanent alliance ability a bit out of the main military tech path (was in
 ===== \Assets/XML/GameInfo/CIV4ReligionInfo.xml =====
 ----- Comment #316 -----
 
-move RELIGION_HINDUISM to TECH_MONARCHY, more balanced for gameplay reasons (not all relgiions one after the other, is an alternative path, plus form a quick search hinduism seems to have originated from the indus valley civilization for example in https://home.csulb.edu/~cwallis/100/worldreligions/hinduism.html#:~:text=The%20birthplace%20of%20Hinduism%20is,between%202300%20to%202000%20BC.)
+move RELIGION_HINDUISM to TECH_MONARCHY, more balanced for gameplay reasons (not all religions one after the other, is an alternative path, plus form a quick search hinduism seems to have originated from the indus valley civilization for example in https://home.csulb.edu/~cwallis/100/worldreligions/hinduism.html#:~:text=The%20birthplace%20of%20Hinduism%20is,between%202300%20to%202000%20BC.)
 
 ===== \Assets/XML/GameInfo/CIV4ProcessInfo.xml =====
 ----- Comment #317 -----
@@ -4152,7 +4152,7 @@ since we can build libraries with writing, it would not be too weird if research
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #323 -----
 
-longbowmen, so make them focus on more defensive roles without strictly forbidding attack ones, except if they overlap with defensive ones so we don't end up only with longbowmen, see related info in known issue as of now 53.2.2 for details, results are good, longbowmen were reduced from 39 to 33 at turn 130 in the autoplay run mentioned there, which is still too much when we are stronger but already better, so kept as such; note: also, i removed UNITAI_CITY_COUNTER from most units that had it in base advciv like the UNIT_MACEMAN so only defenders or more versatile defenders build it
+longbowmen, so make them focus on more defensive roles without strictly forbidding attack ones, except if they overlap with defensive ones so we don't end up only with longbowmen, see related info in KI#53.2.2 for details, results are good, longbowmen were reduced from 39 to 33 at turn 130 in the autoplay run mentioned there, which is still too much when we are stronger but already better, so kept as such; note: also, i removed UNITAI_CITY_COUNTER from most units that had it in base advciv like the UNIT_MACEMAN so only defenders or more versatile defenders build it
 
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #324 -----
@@ -4173,17 +4173,17 @@ longbowmen, so make them focus on more defensive roles without strictly forbiddi
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #327 -----
 
- (doesn't receive defensive effects, plus takes a longbowman slot inefficiently as well i mean), and wasted as a non attacker (stays parked in cities sometimes for example for the egyptian war chariot if i remember it correctly). For chariot class units in particular, it may have made sense when longbows were available much later, but now in our modthey are available at about same time in tech as axeman class units, and are a more versatile, cheap enough and overall stronger defender, so prefer it for that purpose rather and use chariots offensively if in window to do so else don't build them (rather than park them in cities)
+ (doesn't receive defensive effects, plus takes a longbowman slot inefficiently as well), and wasted as a non attacker (stays parked in cities sometimes for example for the egyptian war chariot if i remember it correctly). For chariot class units in particular, it may have made sense when longbows were available much later, but now in our modthey are available at about same time in tech as axeman class units, and are a more versatile, cheap enough and overall stronger defender, so prefer it for that purpose rather and use chariots offensively if in window to do so else don't build them (rather than park them in cities)
 
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #328 -----
 
-, but may have trouble to take cover or navigate the terrain still or may find it hard to hide or protect their heavy in size in this case mount so more targetable by ennemies, so give as of now only a penalty to simplify and represent this accurately, as it shouldn't affect too much warfare since cities are not built on forest or jungle in their inner tile after they are founded, still maybe may help especially human players who take advantage of this, or maybe may change AI combat if odds become lower, and rebalance otherwise a bit op mounted infantry, was empty
+, but may have trouble to take cover or navigate the terrain still or may find it hard to hide or protect their heavy in size in this case mount so more targetable by enemies, so give as of now only a penalty to simplify and represent this accurately, as it shouldn't affect too much warfare since cities are not built on forest or jungle in their inner tile after they are founded, still maybe may help especially human players who take advantage of this, or maybe may change AI combat if odds become lower, and rebalance otherwise a bit op mounted infantry, was empty
 
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #329 -----
 
-terrain +/- features, quite little bonus for the arabian civilization's civ-specific unit as they are a desertic civilzation so more accustomed/knowledgeable in this case to this; note: made defense not too op for balance, else no point to build defensive units (ideally would increase defense a bit more but hopefully fine as such) or such, also maybe thematically accurate how arabs expanded quite heavily so hopefully fine to have higher attack for that purpose as well
+terrain +/- features, quite little bonus for the arabian civilization's civ-specific unit as they are a desertic civilization so more accustomed/knowledgeable in this case to this; note: made defense not too op for balance, else no point to build defensive units (ideally would increase defense a bit more but hopefully fine as such) or such, also maybe thematically accurate how arabs expanded quite heavily so hopefully fine to have higher attack for that purpose as well
 
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #330 -----
@@ -4198,17 +4198,17 @@ terrain +/- features, quite little bonus for the arabian civilization's civ-spec
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #332 -----
 
-, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or rewrd long term economy / production plans rather than pure war (even if they devolve back into war later)
+, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or reward long term economy / production plans rather than pure war (even if they devolve back into war later)
 
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #333 -----
 
-added most unitai types that are not pure city attack type of, to make trebuchets be built less unless to strictly attack cities as they are bad/inefficient at anything else (note: ignored attack_city_lemming as seemingly unreliable and never produced by AI players in the autoplay run i tried it even if implemented so ignored to simplify), see known issue as of now 53.3 for details
+added most unitai types that are not pure city attack type of, to make trebuchets be built less unless to strictly attack cities as they are bad/inefficient at anything else (note: ignored attack_city_lemming as seemingly unreliable and never produced by AI players in the autoplay run i tried it even if implemented so ignored to simplify), see KI#53.3 for details
 
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #334 -----
 
-<!-- custom: same as the scout and as a continuation of FIELD_GUN -> self-propelled artilery -> then greater mobility with levitaiton, so can walk on all land tiles, but not water tiles as seems a bit too unrealistic, after asking chatgpt, it seems levitaiton would be far harder to achieve on water (actually asked autogpt chatgpt 4o but should be about the same), this is also convenient as it walking on water tiles may confuse the AI possibly or be tedious or super hassle to maintian or simply implement with all the unitAIs or such, warfare should be more efficient as such, it behaves like as of now scouts and such. -->
+<!-- custom: same as the scout and as a continuation of FIELD_GUN -> self-propelled artillery -> then greater mobility with levitation, so can walk on all land tiles, but not water tiles as seems a bit too unrealistic, after asking chatgpt, it seems levitation would be far harder to achieve on water (actually asked autogpt chatgpt 4o but should be about the same), this is also convenient as it walking on water tiles may confuse the AI possibly or be tedious or super hassle to maintain or simply implement with all the unitAIs or such, warfare should be more efficient as such, it behaves like as of now scouts and such. -->
 
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #335 -----
@@ -4243,7 +4243,7 @@ similarly to university_of_oxford, requires now a few religious buildings in all
 ===== \Assets\XML\Buildings\CIV4BuildingInfos.xml =====
 ----- Comment #342 -----
 
-and gold or religion or culture or such or growth or science or other would not be defended more because ennemies have more war weariness so don't put any flavor here, except for the production great person related effect, was flavor culture 6 -->
+and gold or religion or culture or such or growth or science or other would not be defended more because enemies have more war weariness so don't put any flavor here, except for the production great person related effect, was flavor culture 6 -->
 			<!-- advc.020: Was 8 Military. Make it Culture b/c of the culture
 				 bonus. The defensive ability (if it actually did sth.) would
 				 also work well for a peaceable, Culture-flavored leader.
@@ -4251,7 +4251,7 @@ and gold or religion or culture or such or growth or science or other would not 
 ===== \Assets\XML\Buildings\CIV4BuildingInfos.xml =====
 ----- Comment #343 -----
 
-, at least for the protective trait buildings, bonuses were too lousy (or weak) and perhaps inaccurate, how can a castle be built faster (just) by being protective? Give stronger global benefits instead, may also make the game more strategic, the bigger problem is maybe or not bbigger or yes bigger or other or not or etc more importantly that the castle would be otherwise too op for the protective trait players
+, at least for the protective trait buildings, bonuses were too lousy (or weak) and perhaps inaccurate, how can a castle be built faster (just) by being protective? Give stronger global benefits instead, may also make the game more strategic, the bigger problem is maybe more importantly that the castle would be otherwise too op for the protective trait players
 
 ===== \Assets\XML\Civilizations\CIV4CivilizationInfos.xml =====
 ----- Comment #344 -----
@@ -4335,12 +4335,12 @@ barbarians were also very good archers in particular, enforcing more the attack 
 ===== \Assets\XML\Civilizations\CIV4LeaderHeadInfos.xml =====
 ----- Comment #351 -----
 
-, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv, and generally i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games
+, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv, and generally i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging realistic as such without forcing too much of a military profile on games
 
 ===== \Assets\XML\Civilizations\CIV4LeaderHeadInfos.xml =====
 ----- Comment #352 -----
 
-<!-- custom: not much info from quick read only a tiny reference to "taoism" (not daoism in these english sources it seems) in a wiki external source, so may or not be related but hopefully accurate enough. (Han adopted confucianism (from my quick read/understanding) but i was/am not sure daoism was the previous religion (dominant) or if it was traditional chinese religion or some form of paganism they seem to mention too in qin dynasty wikis but as i don't know a lot and there is no direct contradiction keeping as is hopefully accurate enough -->
+<!-- custom: not much info from quick read only a tiny reference to "taoism" (not daoism in these english sources it seems) in a wiki external source, so may be related but hopefully accurate enough. (Han adopted confucianism (from my quick read/understanding) but i was/am not sure daoism was the previous religion (dominant) or if it was traditional chinese religion or some form of paganism they seem to mention too in qin dynasty wikis but as i don't know a lot and there is no direct contradiction keeping as is hopefully accurate enough -->
 
 ===== \Assets\XML\Civilizations\CIV4TraitInfos.xml =====
 ----- Comment #353 -----
@@ -4436,7 +4436,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 
 <!-- advc.xmldefault (start)
 			 These defaults are used when any of the (proper) LeaderHeadInfo
-			 elements below (i.e. LEADER_BARBARIAN above is exluded from this)
+			 elements below (i.e. LEADER_BARBARIAN above is excluded from this)
 			 doesn't define an optional element (minOccurs 0 in
 			 Civ4CivilizationsSchema.xml).
 			 (For the non-optional elements, LEADER_DEFAULTS has to set some
@@ -4493,12 +4493,12 @@ note: give them an offensive melee effect so alexander can use them as such (may
 ===== \Assets\XML\Units\CIV4UnitInfos.xml =====
 ----- Comment #370 -----
 
-, check if accurate; see also code comment at the generic axeman for details and additional/related info, was empty in the generic swordsman; "a cheap foot unit that happens to have a lance" if i may say so not too op modifiers but still significant edge plus cost reduction to help too, hopefully balanced as such
+, check if accurate; see also code comment at the generic axeman for details and additional/related info, was empty in the generic swordsman; "a cheap foot unit that happens to have a lance"not too op modifiers but still significant edge plus cost reduction to help too, hopefully balanced as such
 
 ===== \Assets\XML\Units\CIV4UnitInfos.xml =====
 ----- Comment #371 -----
 
-. This works well i think if i may say as the low/now lowercost as well as earlier unit availability in this caseallows for very early rushes (usually the AI may have a mix of axemen and swordsmen=jaguarswhich was inefficient, hopefully this favours more the rushing profile of the aztec civilization, at least for as of now only leader moctezuma we have), it may synergize especially well with their sacrifice/slaving profile or buildings or such
+. This works well i think as the low/now lowercost as well as earlier unit availability in this caseallows for very early rushes (usually the AI may have a mix of axemen and swordsmen=jaguarswhich was inefficient, hopefully this favours more the rushing profile of the aztec civilization, at least for as of now only leader moctezuma we have), it may synergize especially well with their sacrifice/slaving profile or buildings or such
 
 ===== \Assets\XML\Units\CIV4UnitInfos.xml =====
 ----- Comment #372 -----
@@ -4513,7 +4513,7 @@ humans would have little to gain from stacking them past a certain point fairly 
 ===== \Assets\XML\Units\CIV4UnitInfos.xml =====
 ----- Comment #374 -----
 
-. This simplifies the Sevopedia Unit Era grouping implementation so they are correctly listed (e.g. "at Modern Era", not at "No Technology Prequisite"), and executive's effective availability (not in the first eras). This also balances rival city acquisition so a player **cannot produce executives if we do not have the corresponding Corporation in the city (mirroring the shrine prerequirement change). If you change a corporation builing's required tech(s), make sure you also apply this change in the executive's unit info's required tech(s) as well or adjust as you see fit
+. This simplifies the Sevopedia Unit Era grouping implementation so they are correctly listed (e.g. "at Modern Era", not at "No Technology Prequisite"), and executive's effective availability (not in the first eras). This also balances rival city acquisition so a player **cannot produce executives if we do not have the corresponding Corporation in the city (mirroring the shrine prerequirement change). If you change a corporation building's required tech(s), make sure you also apply this change in the executive's unit info's required tech(s) as well or adjust as you see fit
 
 ===== \Assets\XML\Buildings\GlobalDefines_advciv_sas.xml =====
 ----- Comment #376 -----

@@ -6,7 +6,13 @@
 ##  - Must be initialized externally by calling init()
 ##  - Rewritten to demonstrate a simple no-class event handling mod.
 
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 
 START_YEAR = None
 
@@ -14,7 +20,7 @@ gc = CyGlobalContext()
 
 def init():
 	global START_YEAR
-	START_YEAR = gc.getDefineINT("START_YEAR")
+	START_YEAR = SASCurrentDefines.getInt("START_YEAR")
 
 def onGameStart(argsList):
 	# advc.250c: Show DoM also when human starts advanced - actually always

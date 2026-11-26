@@ -400,6 +400,8 @@ def showWorldAdvisorScreen(argsList=None):
 
 debugInfoScreen = CvDebugInfoScreen.CvDebugInfoScreen()
 def showDebugInfoScreen():
+	# <!-- custom: The Debug Info screen now leaves the scoreboard the advisors' space, so the scoreboard is redrawn to fit it on opening, as for the advisors. See KI#1105.2. (Claude code Opus 5.5) -->
+	redrawScoreboardForAdvisor(debugInfoScreen)
 	debugInfoScreen.interfaceScreen()
 
 # BUG - Tech Splash Screen - start
@@ -484,36 +486,36 @@ def createCivilopedia():
 								PEDIA_CORPORATION : pediaMainScreen,
 								PEDIA_HISTORY : pediaMainScreen,
 
-								SevoScreenEnums.PEDIA_MAIN		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_TECHS		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_UNITS		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_UNIT_UPGRADES	: pediaMainScreen,
-								SevoScreenEnums.PEDIA_UNIT_CATEGORIES	: pediaMainScreen,
-								SevoScreenEnums.PEDIA_PROMOTIONS	: pediaMainScreen,
-								SevoScreenEnums.PEDIA_PROMOTION_TREE	: pediaMainScreen,
-								SevoScreenEnums.PEDIA_BUILDINGS		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_NATIONAL_WONDERS	: pediaMainScreen,
-								SevoScreenEnums.PEDIA_WORLD_WONDERS	: pediaMainScreen,
-								SevoScreenEnums.PEDIA_PROJECTS		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_SPECIALISTS	: pediaMainScreen,
-								SevoScreenEnums.PEDIA_TERRAINS		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_FEATURES		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_BONUSES		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_IMPROVEMENTS	: pediaMainScreen,
-								SevoScreenEnums.PEDIA_BUILDS		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_ROUTES		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_CIVS		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_LEADERS		: pediaMainScreen,
+								SevoScreenEnums.PEDIA_MAIN : pediaMainScreen,
+								SevoScreenEnums.PEDIA_TECHS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_UNITS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_UNIT_UPGRADES : pediaMainScreen,
+								SevoScreenEnums.PEDIA_UNIT_CATEGORIES : pediaMainScreen,
+								SevoScreenEnums.PEDIA_PROMOTIONS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_PROMOTION_TREE : pediaMainScreen,
+								SevoScreenEnums.PEDIA_BUILDINGS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_NATIONAL_WONDERS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_WORLD_WONDERS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_PROJECTS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_SPECIALISTS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_TERRAINS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_FEATURES : pediaMainScreen,
+								SevoScreenEnums.PEDIA_BONUSES : pediaMainScreen,
+								SevoScreenEnums.PEDIA_IMPROVEMENTS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_BUILDS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_ROUTES : pediaMainScreen,
+								SevoScreenEnums.PEDIA_CIVS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_LEADERS : pediaMainScreen,
 								# SevoScreenEnums.PEDIA_TRAITS		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_CIVICS		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_RELIGIONS		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_CORPORATIONS	: pediaMainScreen,
-								SevoScreenEnums.PEDIA_CONCEPTS		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_BTS_CONCEPTS	: pediaMainScreen,
-								SevoScreenEnums.PEDIA_HINTS		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_SHORTCUTS		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_MOVIES		: pediaMainScreen,
-								SevoScreenEnums.PEDIA_MUSIC		: pediaMainScreen,
+								SevoScreenEnums.PEDIA_CIVICS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_RELIGIONS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_CORPORATIONS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_CONCEPTS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_BTS_CONCEPTS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_HINTS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_SHORTCUTS : pediaMainScreen,
+								SevoScreenEnums.PEDIA_MOVIES : pediaMainScreen,
+								SevoScreenEnums.PEDIA_MUSIC : pediaMainScreen,
 							})
 		global HandleNavigationMap
 		HandleNavigationMap = {
@@ -536,36 +538,36 @@ def createCivilopedia():
 							PEDIA_RELIGION : pediaMainScreen,
 							PEDIA_CORPORATION : pediaMainScreen,
 
-							SevoScreenEnums.PEDIA_MAIN		: pediaMainScreen,
-							SevoScreenEnums.PEDIA_TECHS		: pediaMainScreen,
-							SevoScreenEnums.PEDIA_UNITS		: pediaMainScreen,
-							SevoScreenEnums.PEDIA_UNIT_UPGRADES	: pediaMainScreen,
-							SevoScreenEnums.PEDIA_UNIT_CATEGORIES	: pediaMainScreen,
-							SevoScreenEnums.PEDIA_PROMOTIONS	: pediaMainScreen,
-							SevoScreenEnums.PEDIA_PROMOTION_TREE	: pediaMainScreen,
-							SevoScreenEnums.PEDIA_BUILDINGS		: pediaMainScreen,
-							SevoScreenEnums.PEDIA_NATIONAL_WONDERS	: pediaMainScreen,
-							SevoScreenEnums.PEDIA_WORLD_WONDERS	: pediaMainScreen,
-							SevoScreenEnums.PEDIA_PROJECTS		: pediaMainScreen,
-							SevoScreenEnums.PEDIA_SPECIALISTS	: pediaMainScreen,
-							SevoScreenEnums.PEDIA_TERRAINS		: pediaMainScreen,
-							SevoScreenEnums.PEDIA_FEATURES		: pediaMainScreen,
-							SevoScreenEnums.PEDIA_BONUSES		: pediaMainScreen,
-							SevoScreenEnums.PEDIA_IMPROVEMENTS	: pediaMainScreen,
-							SevoScreenEnums.PEDIA_BUILDS		: pediaMainScreen,
-							SevoScreenEnums.PEDIA_ROUTES		: pediaMainScreen,
-							SevoScreenEnums.PEDIA_CIVS		 	: pediaMainScreen,
-							SevoScreenEnums.PEDIA_LEADERS		: pediaMainScreen,
+							SevoScreenEnums.PEDIA_MAIN : pediaMainScreen,
+							SevoScreenEnums.PEDIA_TECHS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_UNITS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_UNIT_UPGRADES : pediaMainScreen,
+							SevoScreenEnums.PEDIA_UNIT_CATEGORIES : pediaMainScreen,
+							SevoScreenEnums.PEDIA_PROMOTIONS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_PROMOTION_TREE : pediaMainScreen,
+							SevoScreenEnums.PEDIA_BUILDINGS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_NATIONAL_WONDERS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_WORLD_WONDERS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_PROJECTS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_SPECIALISTS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_TERRAINS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_FEATURES : pediaMainScreen,
+							SevoScreenEnums.PEDIA_BONUSES : pediaMainScreen,
+							SevoScreenEnums.PEDIA_IMPROVEMENTS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_BUILDS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_ROUTES : pediaMainScreen,
+							SevoScreenEnums.PEDIA_CIVS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_LEADERS : pediaMainScreen,
 							# SevoScreenEnums.PEDIA_TRAITS		: pediaMainScreen,
-							SevoScreenEnums.PEDIA_CIVICS		: pediaMainScreen,
-							SevoScreenEnums.PEDIA_RELIGIONS		: pediaMainScreen,
-							SevoScreenEnums.PEDIA_CORPORATIONS	: pediaMainScreen,
-							SevoScreenEnums.PEDIA_CONCEPTS		: pediaMainScreen,
-							SevoScreenEnums.PEDIA_BTS_CONCEPTS	: pediaMainScreen,
-							SevoScreenEnums.PEDIA_HINTS			: pediaMainScreen,
-							SevoScreenEnums.PEDIA_SHORTCUTS		: pediaMainScreen,
-							SevoScreenEnums.PEDIA_MOVIES			: pediaMainScreen,
-							SevoScreenEnums.PEDIA_MUSIC			: pediaMainScreen,
+							SevoScreenEnums.PEDIA_CIVICS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_RELIGIONS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_CORPORATIONS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_CONCEPTS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_BTS_CONCEPTS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_HINTS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_SHORTCUTS : pediaMainScreen,
+							SevoScreenEnums.PEDIA_MOVIES : pediaMainScreen,
+							SevoScreenEnums.PEDIA_MUSIC : pediaMainScreen,
 						}
 
 def linkToPedia(argsList):
@@ -878,7 +880,8 @@ def WorldBuilderHandleCityEditNameCB( argsList ):
 def WorldBuilderHandleLandmarkTextCB( argsList ):
 	worldBuilderScreen.handleLandmarkTextCB(argsList)
 	# <!-- custom: WorldBuilder landmark text has an explicit Python apply callback; observe immediately afterward so editor captions do not wait until the next turn/save boundary. (ChatGPT-5.6-Sol) -->
-	if SASGameRecordActions.isEnabled(): SASGameRecordActions.observeMapAnnotations(mainInterface.getHiddenMapAnnotationSignsForSave(), "WORLD_BUILDER_LANDMARK")
+	if SASGameRecordActions.isEnabled():
+		SASGameRecordActions.observeMapAnnotations(mainInterface.getHiddenMapAnnotationSignsForSave(), "WORLD_BUILDER_LANDMARK")
 
 def WorldBuilderHandleUnitEditPullDownCB( argsList ):
 	worldBuilderScreen.handleUnitEditPullDownCB(argsList)
@@ -1302,7 +1305,7 @@ def updateCameraStartDistance(): # Called by DLL and by InputUtil.updateCameraSt
 	gc = CyGlobalContext()
 	if choice == 0:
 		gc.updateCameraStartDistance(False)
-	# If these constants are changed, then they should also be changed in TXT_KEY_BUG_OPT_MAININTERFACE__DEFAULTCAMDISTANCE_HOVER (BUG_Main_Interface_Options.xml).
+	# If these constants are changed, then they should also be changed in TXT_KEY_BUG_OPT_MAININTERFACE__DEFAULTCAMDISTANCE_HOVER (BUG Main Interface Options.xml).
 	elif choice == 1:
 		newVal = 2200
 	elif choice == 2:
@@ -1311,7 +1314,7 @@ def updateCameraStartDistance(): # Called by DLL and by InputUtil.updateCameraSt
 		newVal = 6000
 	else:
 		gc.updateCameraStartDistance(True)
-	if not newVal is None:
+	if newVal is not None:
 		gc.setDefineFLOAT('CAMERA_START_DISTANCE', newVal)
 # </advc.004m>
 
@@ -1445,7 +1448,7 @@ def featAccomplishedOnFocusCallback(argsList):
 #######################################################################################
 ## Handle Close Map
 #######################################################################################
-HandleCloseMap = {  DAWN_OF_MAN : dawnOfMan,
+HandleCloseMap = { DAWN_OF_MAN : dawnOfMan,
 					SPACE_SHIP_SCREEN : spaceShip,			
 					TECH_CHOOSER : techChooser,			
 				# add new screens here
@@ -1454,7 +1457,7 @@ HandleCloseMap = {  DAWN_OF_MAN : dawnOfMan,
 #######################################################################################
 ## Handle Input Map
 #######################################################################################
-HandleInputMap = {  MAIN_INTERFACE : mainInterface,
+HandleInputMap = { MAIN_INTERFACE : mainInterface,
 #					DOMESTIC_ADVISOR : domesticAdvisor,
 					# <!-- custom: route RELIGION_SCREEN input to Policy advisor because Religion is now a native Policy tab. (GPT-5.3-Codex) -->
 					RELIGION_SCREEN : policyAdvisorScreen,

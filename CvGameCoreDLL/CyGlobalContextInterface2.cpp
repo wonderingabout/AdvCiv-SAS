@@ -22,6 +22,8 @@ void CyGlobalContextPythonInterface2(python::class_<CyGlobalContext>& x)
 		.def("setDefineINT", &CyGlobalContext::setDefineINT, "void ( string szName, int iValue )" )
 		.def("setDefineFLOAT", &CyGlobalContext::setDefineFLOAT, "void setDefineFLOAT( string szName, float fValue )" )
 		.def("setDefineSTRING", &CyGlobalContext::setDefineSTRING, "void ( string szName, string szValue )" )
+		// <!-- custom: SASLiveDefineOverridesBridge.py calls it after applying a change, so DLL state built once from defines, such as BBAI's category levels, follows the override. See KI#128.5. (Claude code Opus 5.5) -->
+		.def("onSASLiveDefineOverridesApplied", &CyGlobalContext::onSASLiveDefineOverridesApplied, "void ()" )
 		// <!-- custom: central branded identity plus actual loaded mod filesystem identity, all backed by AdvCiv's ModName. (ChatGPT-5.6-Sol) -->
 		.def("getModDisplayName", &CyGlobalContext::getModDisplayName, "string ()" )
 		.def("getModFolderName", &CyGlobalContext::getModFolderName, "string ()" )

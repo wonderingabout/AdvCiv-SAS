@@ -22,6 +22,8 @@ import ScreenInput
 # <!-- custom: SevoScreenEnums.py was removed; import its unchanged page IDs from the SevoScreenEnums class in CvScreenEnums.py, keeping them distinct from vanilla Civilopedia pages. (GPT-6.1-Sol) -->
 from CvScreenEnums import SevoScreenEnums
 import SASTextScale
+# <!-- custom: SASCurrentDefines reads this module's SAS switches at use, lazily and override-aware, in place of module constants read at import. See KI#128.6. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 # <!-- custom: Font-tag sizing moved from SASFontUtils into SASTextScale; visual resources are kept separately in SASVisualUtils. (ChatGPT-5.6-Sol) -->
 from SASMagicNumbers import *
 from _sevopedia_helpers import *
@@ -34,14 +36,8 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-# <!-- custom: Leader page display toggle (not part of AI cache module). -->
-IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVO_LEADER_TRAITS_SHOW_ICONS") > 0)
-IS_SAS_SEVO_LEADER_AI_ON = (gc.getDefineINT("SAS_SEVO_LEADER_AI_ON") > 0)
-IS_SAS_SEVO_LEADER_ATTITUDE_EMOJI_ON = (gc.getDefineINT("SAS_SEVO_LEADER_ATTITUDE_EMOJI_ON") > 0)
-IS_SAS_SEVO_LEADER_AI_EMOJI_ON = (gc.getDefineINT("SAS_SEVO_LEADER_AI_EMOJI_ON") > 0)
 # <!-- custom: era art feature gate — mirrors the C++ XML-load define.
 # When False, the era art row in the Sevopedia leader attitude panel is never shown. (Claude code Sonnet 4.6) -->
-IS_SAS_LEADERHEAD_ERA_ART = (gc.getDefineINT("SAS_LEADER_XML_ERA_ART_DEFS") > 0)
 SAS_LEADER_ATTITUDE_PREVIEW_ORDER = (AttitudeTypes.ATTITUDE_FURIOUS, AttitudeTypes.ATTITUDE_ANNOYED, AttitudeTypes.ATTITUDE_CAUTIOUS, AttitudeTypes.ATTITUDE_PLEASED, AttitudeTypes.ATTITUDE_FRIENDLY)
 SAS_LEADER_ACTION_PREVIEW_ORDER = ((LeaderheadAction.NO_LEADERANIM, u"no"), (LeaderheadAction.LEADERANIM_GREETING, u"gr"), (LeaderheadAction.LEADERANIM_AGREE, u"ag"), (LeaderheadAction.LEADERANIM_DISAGREE, u"dg"))
 
@@ -99,31 +95,31 @@ class SevoPediaLeader:
 		self.ERA_ICON_SIZE = 16
 		# <!-- custom: cache resolved AI categories once at init for this screen instance (runtime Y-resolution aware); no separate header/symbol cache is needed because this already avoids per-draw rebuild cost.
 		# Also only do this when AIP is enabled; otherwise skip needless setup.
-		# We intentionally don't re-resolve on in-session resolution changes: main interface still needs restart after such changes for correct layout, so dynamic Sevopedia-only redraw adds complexity for little practical gain. (GPT-5.3-Codex) -->
-		if IS_SAS_SEVO_LEADER_AI_ON:
+		# A resolution change during the game needs no code here: SevoPediaMain re-runs its __init__ at a new resolution, which builds this page again. See KI#123.2. (GPT-5.3-Codex + Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if SASCurrentDefines.getInt("SAS_SEVO_LEADER_AI_ON") > 0:
 			iScreenHeight = self.top.getScreen().getYResolution()
 			self.aiRightCategories, self.aiMiddleCategories, self.aiLeftCategories = self.buildAICategoriesForCurrentResolution(iScreenHeight)
 		else:
 			self.aiRightCategories, self.aiMiddleCategories, self.aiLeftCategories = (), (), ()
 
 		self.N_AI_TABLE_NUM = 3
-		iLeaderItemsWidthFont2 = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2")
+		iLeaderItemsWidthFont2 = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2")
 		if iLeaderItemsWidthFont2 <= 0:
 			iLeaderItemsWidthFont2 = self.top.SAS_W_ITEMS_BASE
 		iLabelFont = SASTextScale.getSASUIFontLabel()
 		if iLabelFont <= 1:
-			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1")
+			iLeaderItemsWidthCurrentForGain = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1")
 		elif iLabelFont == 2:
-			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2")
+			iLeaderItemsWidthCurrentForGain = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2")
 		elif iLabelFont == 3:
-			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3")
+			iLeaderItemsWidthCurrentForGain = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3")
 		else:
-			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4")
+			iLeaderItemsWidthCurrentForGain = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4")
 		if iLeaderItemsWidthCurrentForGain <= 0:
 			iLeaderItemsWidthCurrentForGain = self.top.SAS_W_ITEMS_BASE
 		# <!-- custom: keep AIP panel expansion tied to upscaled font widths, but when item-list reduction is disabled on wide screens, keep page-left anchored at base item width so the rest of the page absorbs the squeeze. (GPT-5.3-Codex) -->
 		iLeaderItemsWidthCurrent = iLeaderItemsWidthCurrentForGain
-		iNoReduceMinWidth = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH")
+		iNoReduceMinWidth = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH")
 		if (iNoReduceMinWidth > 0) and (self.top.getScreen().getXResolution() >= iNoReduceMinWidth):
 			iLeaderItemsWidthCurrent = self.top.SAS_W_ITEMS_BASE
 		iLeaderItemsWidthGain = iLeaderItemsWidthFont2 - iLeaderItemsWidthCurrentForGain
@@ -144,7 +140,7 @@ class SevoPediaLeader:
 
 		# <!-- custom: 1) (most) absolute dimensions first -->
 		self.W_AI_PERSONALITY = 290 + iAIPPanelGain
-		# <!-- custom: we also need this information sooner, move it here with the more absolute dimensions of some elements
+		# <!-- custom: we also need this information sooner, move it here with the more absolute dimensions of some elements -->
 		self.W_CIV = 64
 		self.H_CIV = 64
 		self.CIV_MARGIN = 0
@@ -162,8 +158,8 @@ class SevoPediaLeader:
 
 		self.Y_FAVORITES = self.Y_LEADERHEAD_PANE + self.H_LEADERHEAD_PANE + SMALL_MARGIN
 
-		# <!-- custom: we need self.W_HISTORY before the favourites coordinates, (even though the history panel is placed under/after the favourites panel when i constructed the page's "spacing" and dimensions of (and between) panels, anyways) because/as the favourites panel uses/needs/is based on the history panel's (relative) position, anyways -->
-		# <!-- custom: might as well put the other/rest/remaining HISTORY coordinates if doesn't harm and they are perhaps needed too, anyways -->
+		# <!-- custom: we need self.W_HISTORY before the favourites coordinates, (even though the history panel is placed under/after the favourites panel when i constructed the page's "spacing" and dimensions of (and between) panels, anyways) because/as the favourites panel uses/needs/is based on the history panel's (relative) position -->
+		# <!-- custom: might as well put the other/rest/remaining HISTORY coordinates if doesn't harm and they are perhaps needed too -->
 		self.X_HISTORY = self.X_LEADERHEAD_PANE
 		self.Y_HISTORY = self.Y_FAVORITES + self.H_FAVORITES + SMALL_MARGIN
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.W_AI_TOTAL_TABLES_WIDTH - self.X_LEADERHEAD_PANE
@@ -239,10 +235,10 @@ class SevoPediaLeader:
 
 		# <!-- custom: for excluded leader indexes from calculations, leave the zone/space where the AI personality panel was supposed to be especially empty, instead of getting a key error or missing leader from leaders_info_cached; Long_Comments_py.txt #10 -->
 		#
-		if IS_SAS_SEVO_LEADER_AI_ON and (iLeader not in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS):
+		if SASCurrentDefines.getInt("SAS_SEVO_LEADER_AI_ON") > 0 and (iLeader not in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS):
 			self.placeAIPersonalityPanel(iLeader)
 		else:
-			if IS_DEBUG_LEADER and IS_SAS_SEVO_LEADER_AI_ON:
+			if IS_DEBUG_LEADER and SASCurrentDefines.getInt("SAS_SEVO_LEADER_AI_ON") > 0:
 				print("[DEBUG] Leader index iLeader=%d in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS=%s is skipped, leave the place where AI Personality panel was supposed to be entirely empty so we don't get a missing key in leaders_info_cached Error, while signifying clearly enough hopefully that the excluded leader currently selected doesn't have an item in leaders_info_cached and AI Personality Panel at all/is not part of it." % (iLeader, str(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS)))
 		# <!-- custom: normal-mode panels are drawn first; placeHistory() is called last so its expandable overlay remains top-most. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
 		self.placeHistory()
@@ -304,7 +300,7 @@ class SevoPediaLeader:
 
 		# <!-- custom: 3 rows when this leader has era art, 2 rows otherwise. (Claude code Sonnet 4.6) -->
 		leaderEraArts = []
-		if IS_SAS_LEADERHEAD_ERA_ART:
+		if SASCurrentDefines.getInt("SAS_LEADER_XML_ERA_ART_DEFS") > 0:
 			leaderEraArts = self._getLeaderEraArts(self.iLeader)
 		iNumRows = 2
 		if leaderEraArts:
@@ -340,7 +336,7 @@ class SevoPediaLeader:
 		# Keeping inline <img> gives reliable per-button size control despite the minor known vertical lift side effect. (GPT-5.3-Codex) -->
 		for iAttitude in attitudeOrder:
 			szWidget = self.ATTITUDE_BUTTON_WIDGET_BY_ATTITUDE[iAttitude]
-			if IS_SAS_SEVO_LEADER_ATTITUDE_EMOJI_ON:
+			if SASCurrentDefines.getInt("SAS_SEVO_LEADER_ATTITUDE_EMOJI_ON") > 0:
 				szEmojiPath = self.attitudeSelectedEmojiPathByAttitude[iAttitude]
 				iEmojiSize = iUnselectedEmojiSize
 				if iAttitude == self.iSelectedAttitude:
@@ -371,7 +367,7 @@ class SevoPediaLeader:
 			screen.setButtonGFC(szWidget, SASTextScale.labelText(szLabel), "", iActionX, iActionY, iActionButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_LEADER_ACTION, iAction, ButtonStyles.BUTTON_STYLE_STANDARD)
 			iActionX += iActionButtonW + iActionSpacing
 
-		# <!-- custom: era art preview row — only when IS_SAS_LEADERHEAD_ERA_ART and this leader has era art entries. (Claude code Sonnet 4.6) -->
+		# <!-- custom: era art preview row — only when SAS_LEADER_XML_ERA_ART_DEFS is on and this leader has era art entries. (Claude code Sonnet 4.6 + Claude code Opus 5.5) -->
 		if leaderEraArts:
 			self._placeEraRowAt(screen, self.X_ATTITUDES, iActionY + iButtonH + iRowGap, self.W_ATTITUDES, iButtonH, leaderEraArts, named=True)
 
@@ -483,7 +479,7 @@ class SevoPediaLeader:
 		iSpacing = 3
 		iPadding = 6
 		leaderEraArts = []
-		if IS_SAS_LEADERHEAD_ERA_ART:
+		if SASCurrentDefines.getInt("SAS_LEADER_XML_ERA_ART_DEFS") > 0:
 			leaderEraArts = self._getLeaderEraArts(self.iLeader)
 		iNumRows = 2
 		if leaderEraArts:
@@ -496,7 +492,7 @@ class SevoPediaLeader:
 		iAttitudeX = iX + (iW - (iAttitudeCount * iAttitudeButtonW + (iAttitudeCount - 1) * iSpacing)) / 2
 
 		for iAttitude in SAS_LEADER_ATTITUDE_PREVIEW_ORDER:
-			if IS_SAS_SEVO_LEADER_ATTITUDE_EMOJI_ON:
+			if SASCurrentDefines.getInt("SAS_SEVO_LEADER_ATTITUDE_EMOJI_ON") > 0:
 				iEmojiSize = self.ATTITUDE_UNSELECTED_EMOJI_SIZE
 				if iAttitude == self.iSelectedAttitude:
 					iEmojiSize = self.ATTITUDE_SELECTED_EMOJI_SIZE
@@ -556,7 +552,7 @@ class SevoPediaLeader:
 		szSpecialText = szSpecialText[1:]
 
 		# <!-- custom: add trait icons by replacing the trait header text once per leader trait (linked or plain); avoids per-line scans and keeps only traits the leader actually has. (GPT-5.2-Codex) -->
-		if IS_SHOW_TRAIT_ICONS_IN_LEADER:
+		if SASCurrentDefines.getInt("SAS_SEVO_LEADER_TRAITS_SHOW_ICONS") > 0:
 			leader = gc.getLeaderHeadInfo(self.iLeader)
 			for iTrait in xrange(gc.getNumTraitInfos()):
 				if leader.hasTrait(iTrait):
@@ -634,7 +630,7 @@ class SevoPediaLeader:
 				ai_category_x_offset = 0
 			else:
 				header_text = get_header_text(header_key_or_text)
-				if IS_SAS_SEVO_LEADER_AI_EMOJI_ON and szIconButtonPath:
+				if SASCurrentDefines.getInt("SAS_SEVO_LEADER_AI_EMOJI_ON") > 0 and szIconButtonPath:
 					button_size = 16
 					line_button_txt = u"<img=%s size=%s></img>" % (szIconButtonPath, str(button_size))
 					ai_category_header_line = u"%s %s" % (line_button_txt, header_text)

@@ -146,7 +146,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			 the military analysis, but not quite reliably, so this is an
 			 extra cost to discourage wars on multiple fronts. -->
 		<!-- custom: AI is unlikely to win 2+ wars at the same time, almost always likely to end bad for the AI, so may help the AI to further discourage it, was 100 -->
-		<!-- custom: now seemingly tremendously improved multi war threat management thanks to the new "emergency peace code" we added instead (but that these uwai defines helped me locate) in UWAI::Team::considerPeace in UWAIAgent.cpp, see known issue as of now 65 for details -->
+		<!-- custom: now seemingly tremendously improved multi war threat management thanks to the new "emergency peace code" we added instead (but that these uwai defines helped me locate) in UWAI::Team::considerPeace in UWAIAgent.cpp, see KI#65 for details -->
 		<DefineName>UWAI_WEIGHT_DISTRACTION</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
@@ -245,7 +245,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			 a war. Recommended: 10 (or sth. between 0 and 25). -->
 		<!-- custom: testing 25, would this make AIs less willing/likely to fight multi wars, thus increasing AI efficiency?, was 10 -->
 		<!-- custom: now i want to increase this more to see, seemed to perform quite well in the (few) tests i made, was 25 last time i changed it, not to totally prevent it, but very strongly discourage it, it really should be very bad for the AI to fight multi wars in terms of winning, as for roleplaying it is not my core concern especially as this may affect AI performance/strength, was 25 last time i modified it -->
-		<!-- custom: now seemingly tremendously improved multi war threat management thanks to the new "emergency peace code" we added instead (but that these uwai defines helped me locate) in UWAI::Team::considerPeace in UWAIAgent.cpp, see known issue as of now 65 for details -->
+		<!-- custom: now seemingly tremendously improved multi war threat management thanks to the new "emergency peace code" we added instead (but that these uwai defines helped me locate) in UWAI::Team::considerPeace in UWAIAgent.cpp, see KI#65 for details -->
 		<DefineName>UWAI_MULTI_WAR_RELUCTANCE</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
@@ -272,7 +272,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</Define>
 	<!-- Ratio of enemy power to team power for AI to consider running TURTLE (all out defense, no offensive forays) strategy. Equal power would be 100. BBAI default: 250 -->
 	<!-- custom: try turtling sooner to avoid a too late to defend situation. I would want to reduce further this value but would need more changes, as in some cases AI turtles too much early just because one player that is sometimes far from them produces (way) more units than the other players. Maybe this creates a vicious loop where the "angry" unit pomper (think moctezuma/khmer/boudica AI in the early game maybe as an example maybe) sees that they have now less and (in their perception) not enough units (more) than the other rivals, so they produce more, inducing the other players to produce more etc. To prevent that, i am putting the value higher than i would want to, at 160 currently. -->
-	<!-- custom: Ideally if higher than 110 power ratio the AI should start to turtle, else it's a big gamble to bet on not being attacked (for what reason would they hold back on that?), especially with my changes that aim at making the AI more pragmatic and opportunistic, to increase its strength and realism too maybe, so that i can enjoy the game more and hopefully others if they try these changes i made and want a similar type of gameplay (else they may tweak or not it as they see fit maybe)), was 250 -->
+	<!-- custom: Ideally if higher than 110 power ratio the AI should start to turtle, else it's a big gamble to bet on not being attacked (for what reason would they hold back on that?), especially with my changes that aim at making the AI more pragmatic and opportunistic, to increase its strength and realism too maybe, so that i can enjoy the game more and hopefully others if they try these changes i made and want a similar type of gameplay (else they may tweak it as they see fit maybe)), was 250 -->
 	<Define>
 		<DefineName>BBAI_TURTLE_ENEMY_POWER_RATIO</DefineName>
 		<iDefineIntVal>160</iDefineIntVal>

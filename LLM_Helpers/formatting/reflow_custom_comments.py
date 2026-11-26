@@ -27,7 +27,8 @@ SKIP_PATH_PARTS = {
 CODE_OPEN_RE = re.compile(r"^(?P<indent>[ \t]*)(?P<prefix>//|#)[ \t]*<!-- custom:[ \t]*(?P<body>.*)$")
 XML_OPEN_RE = re.compile(r"^(?P<indent>[ \t]*)<!-- custom:[ \t]*(?P<body>.*)$")
 CREDIT_NAME_RE = re.compile(r"(?:ChatGPT|GPT|Codex|Claude|Gemini|DeepSeek|Grok|LLM)", re.IGNORECASE)
-KI_ONLY_RE = re.compile(r"^(?:See(?: also)?|Cf\.)\s+KI#[0-9]", re.IGNORECASE)
+# <!-- custom: A subsystem revision such as SGR214, or "SASGameRecord revision 214", closes a comment like a KI number does: when SASGameRecord's master moved its reasoning from a KI to its revision entry (2026-11-26), its closing "See SGR214" note was pushed onto a line of its own. (Claude code Opus 5.5) -->
+KI_ONLY_RE = re.compile(r"^(?:See(?: also)?|Cf\.)\s+(?:KI#|SGR|Runtime|SASGameRecord revision )[0-9]", re.IGNORECASE)
 WAS_TAIL_RE = re.compile(r"^Was\s+[^.!?]+\.$", re.IGNORECASE)
 CREDIT_ONLY_RE = re.compile(r"^(?:Credit|Credits):\s+.+$", re.IGNORECASE)
 LISTISH_RE = re.compile(r"^(?:[-*+]\s+|\d+[.)]\s+|Row\s+\d+\b|[XY]:\s+|Top[- ]|Bottom[- ]|Left[- ]|Right[- ])", re.IGNORECASE)
@@ -298,8 +299,14 @@ def parse_block(lines, start, suffix):
     return {"end": min(j, len(lines) - 1), "skip": "unterminated custom comment"}
 
 
+# <!-- custom: Whitespace runs collapse to one space outside quotes only: a comment quoting spacing, such as KI#21.8's "x =  y" slip or the map scripts' "#   FILE:    Wheel.py" notices, lost the very spaces it showed when the reflow first ran over python_aligned_columns.py (2026-11-23). (Claude code Opus 5.5) -->
+def collapse_outside_quotes(text):
+    pieces = re.split(r"(\"[^\"\n]*\"|`[^`\n]*`)", text)
+    return "".join(piece if index % 2 else re.sub(r"[ \t]+", " ", piece) for index, piece in enumerate(pieces))
+
+
 def join_physical_parts(parts):
-    cleaned = [re.sub(r"[ \t]+", " ", part.strip()) for part in parts]
+    cleaned = [collapse_outside_quotes(part.strip()) for part in parts]
     if not cleaned:
         return None, "empty"
     out = cleaned[0]

@@ -285,7 +285,7 @@ public:
 
 	int AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea const* pArea = NULL) const;			// Exposed to Python
 
-	// <!-- custom: add helpers to count how many units of a combat type we have or such, to help reduce the excess trebuchets and siege when not relevant (defense, we are weaker, etc.) see known issue as of now 53.3 for details; code provided by chatgpt 5, check if accurate -->
+	// <!-- custom: add helpers to count how many units of a combat type we have or such, to help reduce the excess trebuchets and siege when not relevant (defense, we are weaker, etc.) see KI#53.3 for details; code provided by chatgpt 5, check if accurate -->
 	// Counts units by combat class (e.g. UNITCOMBAT_SIEGE)
 	int AI_countUnitsByCombat(UnitCombatTypes eCombat) const;
 	int AI_countUnitsByCombatNoTrebuchetsLike(UnitCombatTypes eCombat) const;
@@ -361,10 +361,9 @@ public:
 	int AI_enemyTargetMissions(TeamTypes eTargetTeam, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const; // BBAI end
 	bool AI_isAnyEnemyTargetMission(TeamTypes eTargetTeam, CvSelectionGroup* pSkipSelectionGroup = NULL) const { return (AI_enemyTargetMissions(eTargetTeam, pSkipSelectionGroup, 1) >= 1); } // </advc.opt>
 	// advc.003j: unused
-	/*int AI_enemyTargetMissionAIs(MissionAITypes eMissionAI,
-			CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const;
-	int AI_enemyTargetMissionAIs(MissionAITypes* aeMissionAI,
-			int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const;*/
+	// <!-- custom: The disabled signatures below are each collapsed onto one line, like live ones, so a grep finds them whole; untested while disabled. (Claude code Opus 5.5) -->
+	/*int AI_enemyTargetMissionAIs(MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const;
+	int AI_enemyTargetMissionAIs(MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const;*/
 	int AI_wakePlotTargetMissionAIs(CvPlot const& kPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
 	// K-Mod start
 	int AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eDefenceTeam = NO_TEAM, DomainTypes eDomainType = DOMAIN_LAND, int iRange = 0, bool bMoveToTarget = true, bool bCheckMoves = false, bool bNoCache = false, bool bPredictPromotions = false) const; // advc.139

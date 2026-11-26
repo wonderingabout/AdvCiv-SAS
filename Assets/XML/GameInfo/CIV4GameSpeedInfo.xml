@@ -284,7 +284,7 @@ Removed here for concision. (GPT-5.3-Codex) -->
 			<iHurryConscriptAngerPercent>100</iHurryConscriptAngerPercent>
 			<iInflationPercent>30</iInflationPercent>
 			<iInflationOffset>-90</iInflationOffset>
-			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fields that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
+			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fields that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus KI#92 for details. -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
 			<iVictoryDelayPercent>100</iVictoryDelayPercent>
@@ -482,8 +482,7 @@ Removed here for concision. (GPT-5.3-Codex) -->
 			<!-- custom: not sure if we should change it too much but reduce it a bit to match close to gamespeed_epic progression just in case, was -225 -->
 			<!-- was -270 -->
 			<iInflationOffset>-180</iInflationOffset>
-			<!-- custom: not sure if we should change it but aim for exact double just in case.
-			See also known issue as of now 92 for related info; was 85 -->
+			<!-- custom: not sure if we should change it but aim for exact double just in case. See also KI#92 for related info; was 85 -->
 			<!-- Reduce unit expenses ... -->
 			<iUnitCostPercent>90</iUnitCostPercent>
 			<iExtraFreeOutsideUnits>1</iExtraFreeOutsideUnits>
@@ -578,7 +577,7 @@ Removed here for concision. (GPT-5.3-Codex) -->
 			<!-- Keep inflation progression consistent (Normal=30, Epic=20, Marathon=10). -->
 			<iInflationPercent>10</iInflationPercent>
 			<iInflationOffset>-270</iInflationOffset>
-			<!-- Copied from Marathon (helps long games a bit; easy to revisit later if you reintroduce old-unit scrapping). See also known issue as of now 92 for related info -->
+			<!-- custom: Copied from Marathon (helps long games a bit; easy to revisit later if you reintroduce old-unit scrapping). See also KI#92 for related info -->
 			<iUnitCostPercent>90</iUnitCostPercent>
 			<iExtraFreeOutsideUnits>1</iExtraFreeOutsideUnits>
 			<iVictoryDelayPercent>300</iVictoryDelayPercent>
@@ -663,7 +662,7 @@ Removed here for concision. (GPT-5.3-Codex) -->
 			<!-- Inflation progression: Normal (30 / -90), Marathon (10 / -180) -> Very Slow (5 / -360). -->
 			<iInflationPercent>5</iInflationPercent>
 			<iInflationOffset>-360</iInflationOffset>
-			<!-- Keep the Marathon cost relief for long games (easy to tweak later if needed). See also known issue as of now 92 for related info. -->
+			<!-- custom: Keep the Marathon cost relief for long games (easy to tweak later if needed). See also KI#92 for related info. -->
 			<iUnitCostPercent>90</iUnitCostPercent>
 			<iExtraFreeOutsideUnits>1</iExtraFreeOutsideUnits>
 			<iVictoryDelayPercent>400</iVictoryDelayPercent>

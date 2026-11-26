@@ -438,7 +438,7 @@ class Scoreboard:
 		self._iRightOfNameWidth = 0
 		if not bPrepared:
 			self.prepare()
-		# <!-- custom: slice to visible scroll window before drawing; keep sliced so hide(True) on hover only re-shows the visible window. (Claude code Sonnet 4.6) -->
+		# <!-- custom: slice to visible scroll window before drawing; keep sliced so hide(True) on hover only re-shows the visible window. See KI#134.2. (Claude code Sonnet 4.6 + Claude code Opus 5.5) -->
 		if iMaxRows is not None:
 			iScrollOffset = max(0, min(iScrollOffset, max(0, len(self._playerScores) - iMaxRows)))
 			self._playerScores = self._playerScores[iScrollOffset : iScrollOffset + iMaxRows]

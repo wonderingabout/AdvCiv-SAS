@@ -1,6 +1,11 @@
 ## "not too Big or Small". A modified version of "big and small" to scale better with larger maps.
 ## by Karadoc. version 1.4
 # advc: Some tweaks; see in-inline comments. Changes tagged with "advc.mxc" were ported from Mixed_Continents.
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: Layout only: python_aligned_columns.py's sweep turned the double spaces and tab runs between this file's code tokens, mostly stray slips such as "x =  y" or one-column alignment, into one space; the code is unchanged. See KI#21.8. (Claude code Opus 5.5) -->
 
 from CvPythonExtensions import *
 from SAS_WorldSizeUtils import *
@@ -20,13 +25,13 @@ def getNumPlotsPercent(argsList):
 	sizeModifiers = {
 		# <!-- custom: Arena was absent from this direct dictionary, causing KeyError; the shifted length guard also bypassed the stored Huge value.
 		# Use the established Duel percentage for Arena. See KI#282.3. (GPT-5.6-Sol) -->
-		WorldSizeTypes.WORLDSIZE_ARENA:		100,
-		WorldSizeTypes.WORLDSIZE_DUEL:		100,
-		WorldSizeTypes.WORLDSIZE_TINY:		98,
-		WorldSizeTypes.WORLDSIZE_SMALL:		92,
-		WorldSizeTypes.WORLDSIZE_STANDARD:	87,
-		WorldSizeTypes.WORLDSIZE_LARGE:		83,
-		WorldSizeTypes.WORLDSIZE_HUGE:		79
+		WorldSizeTypes.WORLDSIZE_ARENA: 100,
+		WorldSizeTypes.WORLDSIZE_DUEL: 100,
+		WorldSizeTypes.WORLDSIZE_TINY: 98,
+		WorldSizeTypes.WORLDSIZE_SMALL: 92,
+		WorldSizeTypes.WORLDSIZE_STANDARD: 87,
+		WorldSizeTypes.WORLDSIZE_LARGE: 83,
+		WorldSizeTypes.WORLDSIZE_HUGE: 79
 	}
 	if iWorldSize >= len(sizeModifiers):
 		return 75
@@ -42,9 +47,9 @@ def getNumCustomMapOptions():
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
-		0:	"TXT_KEY_MAP_SCRIPT_CONTINENTS_SIZE",
-		1:	"TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
-		2:	"TXT_KEY_MAP_WORLD_WRAP" # kekm.32
+		0: "TXT_KEY_MAP_SCRIPT_CONTINENTS_SIZE",
+		1: "TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
+		2: "TXT_KEY_MAP_WORLD_WRAP" # kekm.32
 		}
 	if not option_names.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -54,26 +59,26 @@ def getCustomMapOptionName(argsList):
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	3,
-		1:	2,
-		2:	3 # kekm.32
+		0: 3,
+		1: 2,
+		2: 3 # kekm.32
 		}
 	return option_values[iOption]
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_SCRIPT_MASSIVE_CONTINENTS",
 			1: "TXT_KEY_MAP_SCRIPT_NORMAL_CONTINENTS",
 			2: "TXT_KEY_MAP_SCRIPT_SNAKY_CONTINENTS"
 			},
-		1:	{
+		1: {
 			0: "TXT_KEY_MAP_SCRIPT_ISLANDS",
 			1: "TXT_KEY_MAP_SCRIPT_TINY_ISLANDS"
 			},
 		# <kekm.32>
-		2:	{
+		2: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
@@ -87,9 +92,9 @@ def getCustomMapOptionDescAt(argsList):
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	1,
-		1:	0,
-		2:	1 # kekm.32
+		0: 1,
+		1: 0,
+		2: 1 # kekm.32
 		}
 	return option_defaults[iOption]
 # <kekm.32>

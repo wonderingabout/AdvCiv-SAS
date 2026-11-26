@@ -9,6 +9,11 @@
 ##
 ## Author: Dresden
 
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+
 from CvPythonExtensions import *
 
 import AttitudeUtil
@@ -60,7 +65,7 @@ def getFavoriteCivicInfo (iPlayer):
 	return favorite
 
 def doUpdate ():
-	# <!-- custom: ruff E714: use "x is not None" instead of "not x is None". (GPT-5.2-Codex (summarized)) -->
+	# <!-- custom: ruff E714: use "x is not None" instead of "not x is None". See KI#21.7. (GPT-5.2-Codex (summarized)) -->
 	# Goes through the current diplomacy situation to determine potential favorite civics for each civ.
 	#
 	# advc.009b: None check added
@@ -246,8 +251,7 @@ class FavoriteCivic:
 	def setFavorite(self, eCivic):
 		# Explicitly sets favorite for this player to given civic.
 		#
-		#BugUtil.debug("FavoriteCivic.setFavorite() attempting to set player %d favorite civic to %d (%s)"
-		#			  % (self.iPlayer, eCivic, gc.getCivicInfo(eCivic).getText()))
+		#BugUtil.debug("FavoriteCivic.setFavorite() attempting to set player %d favorite civic to %d (%s)" % (self.iPlayer, eCivic, gc.getCivicInfo(eCivic).getText()))
 		if (eCivic != NO_CIVIC):
 			self.eFavorite = eCivic
 			self.possibles = None
@@ -375,8 +379,7 @@ class FavoriteCivicDetector:
 		# Called when AI demands you switch to their favorite civic.
 		#
 		ePlayer, eTargetPlayer, eCivic = argsList
-		#BugUtil.debug("FavoriteCivicDetectorEvent.onCivicDemanded(ePlayer = %d, eTargetPlayer = %d, eCivic = %d)"
-		#			  % (ePlayer, eTargetPlayer, eCivic))
+		#BugUtil.debug("FavoriteCivicDetectorEvent.onCivicDemanded(ePlayer = %d, eTargetPlayer = %d, eCivic = %d)" % (ePlayer, eTargetPlayer, eCivic))
 		if gDetectionNecessary:
 			kFavorite = getFavoriteCivicInfo(ePlayer)
 			kFavorite.setFavorite(eCivic)

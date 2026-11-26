@@ -60,7 +60,7 @@ class DLLCommitMessageTests(unittest.TestCase):
                            branch='fixture-branch', commit=self.git('rev-parse', 'HEAD'))
             summary.update(summary_changes or {})
             self.write('Assets/CvGameCoreDLL.dll.build.json', json.dumps(summary).encode())
-        return self.commit('Update DLL')
+        return self.commit('[ci_update_dll]')
 
     def test_current_shipped_evidence_required_without_binary_changes(self):
         self.summary_commit()
@@ -107,7 +107,7 @@ class DLLCommitMessageTests(unittest.TestCase):
 
     def test_stale_summary_fails_and_working_tree_cannot_repair_it(self):
         self.summary_commit()
-        commit = self.dll_commit('Update DLL', b'different DLL')
+        commit = self.dll_commit('[ci_update_dll]', b'different DLL')
         self.write('Assets/CvGameCoreDLL.dll', b'shipped DLL')
         self.assertIn('does not match', checker.check(self.repo, [commit])[0][0])
 
@@ -130,7 +130,7 @@ class DLLCommitMessageTests(unittest.TestCase):
         self.summary_commit()
         (self.repo / 'Assets/CvGameCoreDLL.dll').unlink()
         (self.repo / 'Assets/CvGameCoreDLL.dll.build.json').unlink()
-        commit = self.commit('Update DLL: remove binary')
+        commit = self.commit('[ci_update_dll]: remove binary')
         self.assertEqual(checker.check(self.repo, [commit]), ([], 1))
 
     def test_dll_addition_without_marker_fails(self):
@@ -141,19 +141,19 @@ class DLLCommitMessageTests(unittest.TestCase):
         self.assertIn(commit[:12], errors[0])
 
     def test_title_and_body_markers_pass(self):
-        first = self.dll_commit('Update DLL: install Release build')
-        second = self.dll_commit('Finish source work\n\n- Update DLL: intentional Release build', b'new binary')
+        first = self.dll_commit('[ci_update_dll]: install Release build')
+        second = self.dll_commit('Finish source work\n\n- [ci_update_dll]: intentional Release build', b'new binary')
         self.assertEqual(checker.check(self.repo, [first, second]), ([], 2))
 
     def test_modification_requires_own_marker(self):
-        self.dll_commit('Update DLL')
+        self.dll_commit('[ci_update_dll]')
         bad = self.dll_commit('More source', b'changed binary')
         self.assertEqual(len(checker.check(self.repo, [bad])[0]), 1)
 
     def test_later_marker_does_not_cover_earlier_commit(self):
         bad = self.dll_commit('Accidental binary')
         self.write('source.cpp', b'int changed;')
-        later = self.commit('Update DLL')
+        later = self.commit('[ci_update_dll]')
         commits = checker.commits_in_range(self.repo, self.base, later)
         self.assertEqual(commits, [bad, later])
         self.assertEqual(len(checker.check(self.repo, commits)[0]), 1)
@@ -173,22 +173,23 @@ class DLLCommitMessageTests(unittest.TestCase):
         self.assertEqual(len(checker.check(self.repo, [commit])[0]), 1)
 
     def test_delete_requires_marker(self):
-        self.dll_commit('Update DLL')
+        self.dll_commit('[ci_update_dll]')
         (self.repo / 'Assets/CvGameCoreDLL.dll').unlink()
         commit = self.commit('Remove file')
         self.assertEqual(len(checker.check(self.repo, [commit])[0]), 1)
 
     def test_rename_away_from_dll_suffix_requires_marker(self):
-        self.dll_commit('Update DLL')
+        self.dll_commit('[ci_update_dll]')
         self.git('mv', 'Assets/CvGameCoreDLL.dll', 'Assets/backup.bin')
         commit = self.commit('Rename binary')
         self.assertEqual(checker.dll_paths(self.repo, commit), ['Assets/CvGameCoreDLL.dll'])
         self.assertEqual(len(checker.check(self.repo, [commit])[0]), 1)
 
+    # <!-- custom: The old phrase no longer counts once [ci_update_dll] replaced it (2026-11-22). (Claude code Opus 5.5) -->
     def test_marker_is_exact_case_sensitive_phrase(self):
-        for message in ('update dll', 'UpdateDLL', 'Update DLLs', 'Update old DLL'):
+        for message in ('Update DLL', '[ci_update_DLL]', 'ci_update_dll', '[ci_update dll]'):
             self.assertIsNone(checker.MARKER.search(message))
-        self.assertIsNotNone(checker.MARKER.search('- Update DLL: Release build'))
+        self.assertIsNotNone(checker.MARKER.search('- [ci_update_dll]: Release build'))
 
     def test_root_commit_detects_dll(self):
         self.git('checkout', '--orphan', 'root-binary')
@@ -199,7 +200,7 @@ class DLLCommitMessageTests(unittest.TestCase):
     def test_merge_commit_uses_first_parent(self):
         parent = self.git('branch', '--show-current')
         self.git('checkout', '-qb', 'feature')
-        self.dll_commit('Update DLL')
+        self.dll_commit('[ci_update_dll]')
         self.git('checkout', parent)
         self.git('merge', '--no-ff', '-m', 'Unmarked merge', 'feature')
         merge = self.git('rev-parse', 'HEAD')
@@ -211,7 +212,7 @@ class DLLCommitMessageTests(unittest.TestCase):
         self.git('checkout', '-qb', 'upstream')
         upstream = self.dll_commit('Upstream DLL without the marker')
         self.git('checkout', parent)
-        self.git('merge', '--no-ff', '-m', 'Merge upstream\n\n- Update DLL', 'upstream')
+        self.git('merge', '--no-ff', '-m', 'Merge upstream\n\n- [ci_update_dll]', 'upstream')
         merge = self.git('rev-parse', 'HEAD')
         self.assertEqual(checker.commits_in_range(self.repo, self.base, merge), [merge])
         event = {'before': self.base, 'after': merge, 'commits': [{'id': upstream}, {'id': merge}]}
@@ -225,18 +226,18 @@ class DLLCommitMessageTests(unittest.TestCase):
         self.assertTrue(checker.check(self.repo, selected)[0])
 
     def test_new_branch_push_uses_payload(self):
-        commit = self.dll_commit('Update DLL')
+        commit = self.dll_commit('[ci_update_dll]')
         event = {'before': '0' * 40, 'after': commit, 'commits': [{'id': commit}]}
         self.assertEqual(checker.event_commits(self.repo, 'push', event), [commit])
 
     def test_push_missing_head_fails(self):
-        commit = self.dll_commit('Update DLL')
+        commit = self.dll_commit('[ci_update_dll]')
         with self.assertRaises(RuntimeError):
             checker.event_commits(self.repo, 'push', {'after': commit, 'commits': [{'id': self.base}]})
 
     def test_large_payload_uses_complete_range(self):
         first = self.dll_commit('Accidental binary')
-        second = self.dll_commit('Update DLL', b'new binary')
+        second = self.dll_commit('[ci_update_dll]', b'new binary')
         event = {'before': self.base, 'after': second, 'commits': [{'id': second}]}
         with patch.object(checker, 'PUSH_PAYLOAD_LIMIT', 1):
             self.assertEqual(checker.event_commits(self.repo, 'push', event), [first, second])
@@ -259,7 +260,7 @@ class DLLCommitMessageTests(unittest.TestCase):
         self.assertEqual(checker.event_commits(self.repo, 'push', {'commits': []}), [])
 
     def test_amended_commit_is_checked(self):
-        original = self.dll_commit('Update DLL')
+        original = self.dll_commit('[ci_update_dll]')
         self.git('commit', '--amend', '-qm', 'Marker accidentally removed')
         amended = self.git('rev-parse', 'HEAD')
         self.assertNotEqual(original, amended)
@@ -272,9 +273,9 @@ class DLLCommitMessageTests(unittest.TestCase):
         parent = self.git('branch', '--show-current')
         bad = self.dll_commit('Accidental binary', b'old unmarked binary')
         old_blob = self.git('rev-parse', bad + ':Assets/CvGameCoreDLL.dll')
-        marked = self.dll_commit('Update DLL', b'intentional intermediate binary')
+        marked = self.dll_commit('[ci_update_dll]', b'intentional intermediate binary')
         self.git('checkout', '-qb', 'feature')
-        feature = self.dll_commit('Update DLL', b'current binary')
+        feature = self.dll_commit('[ci_update_dll]', b'current binary')
         self.git('checkout', parent)
         self.git('merge', '--no-ff', '-m', 'Unmarked merge', 'feature')
         merge = self.git('rev-parse', 'HEAD')

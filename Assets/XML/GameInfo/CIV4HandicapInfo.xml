@@ -136,8 +136,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<iBuildTimePercent>100</iBuildTimePercent>
 			<!-- custom: see code comment at iAIGPThresholdPercent.
 			Additionally a grep of "BaseGrowthThresholdPercent" with VS Code's global search lead to the base advciv's manual.txt explanation of this field.
-			I gave it to ChatGPT 5.2 who said it's better for our goals of fair but hard to make it 100 at all handicaps.
-			See for details known issue as of now 91. -->
+			I gave it to ChatGPT 5.2 who said it's better for our goals of fair but hard to make it 100 at all handicaps. See KI#91 for details. -->
 			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
 			<!-- custom: see code comment at iAIGPThresholdPercent -->
 			<iGPThresholdPercent>100</iGPThresholdPercent>
@@ -1290,7 +1289,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
-			<!-- custom: now research percent is 100 at all handicaps for human players, only AI percent varies for conveninence/clarity and consistency -->
+			<!-- custom: now research percent is 100 at all handicaps for human players, only AI percent varies for convenience/clarity and consistency -->
 			<!-- advc.251: was 130 -->
 			<iResearchPercent>100</iResearchPercent>
 			<iTrainPercent>100</iTrainPercent>
@@ -1341,7 +1340,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<!-- advc.313: end -->
 			<iAIBarbarianBonus>0</iAIBarbarianBonus>
-			<!-- custom: now the same at all handicaps for all players, human and AIs, thanks to many AI efficiency improvements, see known issue as of now 52 and related issues if any for details in our doc or in the code; extend this logic indirectly to explorers or such although not directly related, no reason anymore to give freebies there if AIs are comeptent enough -->
+			<!-- custom: now the same at all handicaps for all players, human and AIs, thanks to many AI efficiency improvements, see KI#52 and related issues if any for details in our doc or in the code; extend this logic indirectly to explorers or such although not directly related, no reason anymore to give freebies there if AIs are comeptent enough -->
 			<iStartingDefenseUnits>1</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
@@ -1392,7 +1391,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled xd, as confirmed by chatgpt 5, check if accurate; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather -->
 			<!-- advc.251: Renamed; was 5 per era. -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
-			<!-- custom: i didn't check what it would look like ingame as i don't use this feature, but our AI is noticeably as in much stronger than before i.e. than in base advciv in particular i mean, and i want these difficulties to be real challenges not placeholders, and handicap to be more grindy and less gradual at higher difficulties, so adjusted these a bit, check if accurate as i didn't check the ingame effect but made such a guess -->
+			<!-- custom: i didn't check what it would look like ingame as i don't use this feature, but our AI is noticeably as in much stronger than before i.e. than in base advciv in particular, and i want these difficulties to be real challenges not placeholders, and handicap to be more grindy and less gradual at higher difficulties, so adjusted these a bit, check if accurate as i didn't check the ingame effect but made such a guess -->
 			<!-- advc.250c: was 170 -->
 			<iAIAdvancedStartPercent>200</iAIAdvancedStartPercent>
 			<!-- advc.148 -->

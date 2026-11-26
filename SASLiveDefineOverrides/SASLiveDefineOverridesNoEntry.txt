@@ -1,0 +1,152 @@
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+
+# <!-- custom: Defines that SASLiveDefineOverrides.txt must not override, each named in full with its reason, so a grep for a define finds its line; patterns such as SAS_EXE_P_* were expanded on 2026-11-26 at the user's request, and CI now rejects a "*".
+# The bridge reads it once with the XML and rejects a SASLiveDefineOverrides.txt line naming a listed define, logging its reason, and CI's sas_live_define_overrides.py fails a shipped one. Until 2026-11-26 it was a signpost only CI enforced, so a local line could still change a listed define, leaving a reader that ignores it out of step with one that follows it, as Codex's review (GPT-6.2-Sol) noted; Codex then advised the in-game check.
+# It is not exhaustive: it lists the defines that should not be overridden, not every define an override would miss. Many others are kept in a DLL static or a Python attribute, so an override reaches them only once their readers change; LLM_Helpers/audits/audit_define_timing.py lists each define's readers and how they read it.
+# Since KI#128.7 (2026-11-26) the bridge refuses any define not in SASLiveDefineOverridesAllowed.txt, so such a define is refused too, with a general reason; this file keeps the specific reasons, which the refusal prints first, and no define may be in both.
+# One define per line, its name, a colon and the reason, which CI requires; a family's later lines say "same reason as" its first rather than repeat it, as the user suggested to cut churn; "#" starts a comment line.
+# Settings whose timing was not checked, such as FastSave's or the Dawn of Man screen's, are left out rather than guessed. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+
+# <!-- custom: Never: each takes effect only at startup or is changed by the game itself, so no change to its readers would make an override work. (Claude code Opus 5.5) -->
+SAS_LIVE_DEFINE_OVERRIDES_ON: the switch of the overrides themselves, read once when the bridge first loads
+SAS_BBAI_LOG_ON: a master switch, which decides at startup whether the session's log file exists
+SAS_SGR_LOG_ON: a master switch, which decides at startup, with SAS_SGR_LOG above 0, whether the session's record file and its baseline rows exist
+SAS_SGR_LOG: the record's detail level, fixed per record: raising it skips baselines written only at the record's start, and lowering it leaves RNG tracking and tracked wars inconsistent, as Codex's review (GPT-6.2-Sol) found; a sound change would apply from the next record
+SAS_RUNTIME_STATUS_ON: a master switch, which decides at startup whether the runtime status files exist
+SAS_RUNTIME_SOURCE_WATCH_ON: a master switch, which starts the source watcher at launch
+SAS_RUNTIME_SCREENSHOT_WATCH_ON: a master switch, which starts the screenshot watcher at launch
+SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME: it names the BBAI log file when the file opens
+SAS_SGR_LOG_USE_TIMESTAMPED_FILENAME: it names the SASGameRecord file when the file opens
+SAS_SGR_REVISION: a revision label, which names SASGameRecord's version rather than tuning it
+SAS_RUNTIME_REVISION: a revision label, which names Runtime's version rather than tuning it
+SAS_SAVE_VERSION: copied to SAVE_VERSION at XML load, which saves and CvReplayInfo then read
+SAS_ASSERT_SILENT_ACTION: cached once at XML load by cacheSASAssertionSilentPolicy in FAssert.cpp, which decides how assertion dialogs are answered for the session
+SAS_LEADER_XML_ERA_ART_DEFS: decides at XML load, in a static in CvInfo_Civilization.cpp, whether leaders' EraArtDefineTags are parsed, so turning it on later cannot bring back skipped tags, and turning it off would hide era art the DLL still holds; the Sevopedia's leader page reads it at use since KI#128.6, as Codex's review (GPT-6.2-Sol) noted
+SAS_LAUNCH_GUARD_TEST_INT: a launch guard value, which exists to prove the XML loaded
+SAS_LAUNCH_GUARD_TEST_STRING: same reason as SAS_LAUNCH_GUARD_TEST_INT
+
+SAS_EXE_P_ON: an EXE patch switch, which decides whether the running game's code is rewritten, so flipping it during play is risky; some patches, such as the plot indicator and help text area ones, can be applied again, but a define edit does not reliably apply or undo a patch, as Codex's review (GPT-6.2-Sol) found; Realism Invictus's SelfMod.cpp (r5656), where these patches come from, likewise marks some of its patches as applying only after a restart and others as live, as the user recalled Walter Hawkwood saying
+SAS_EXE_P_STEAM_ON: same reason as SAS_EXE_P_ON
+SAS_EXE_P_GOG_ON: same reason as SAS_EXE_P_ON
+SAS_EXE_P_PLOT_INDICATOR_ON: same reason as SAS_EXE_P_ON
+SAS_EXE_P_HELP_TEXT_AREA_ON: same reason as SAS_EXE_P_ON
+SAS_EXE_P_DYNAM_MAIN_MENU_ON: same reason as SAS_EXE_P_ON
+SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_ON: same reason as SAS_EXE_P_ON
+
+# <!-- custom: Inherited defines the game's own code changes during play with setDefine*, so they act as runtime state rather than settings: an override would be overwritten by the game, or would fight it, at a moment neither chooses.
+# The bridge overrides SAS defines only today, so these lines change nothing yet; they record the reason for the day it reads inherited ones too, as the user asked on 2026-11-26. (Claude code Opus 5.5) -->
+CAMERA_MIN_DISTANCE: changed by the camera controls in CvCameraControls.py
+CAMERA_START_DISTANCE: changed by the camera zoom in CvScreensInterface.py
+CAMERA_CITY_ZOOM_IN_DISTANCE: changed by the game's own Python with setDefineFLOAT, as the other camera distances are
+FIELD_OF_VIEW: set by the main interface from its field-of-view option in CvMainInterface.py
+MINIMAP_RENDER_SIZE: swapped by the Replay screen while it is open and restored when it closes, in CvReplayScreen.py
+PLOTS_PER_RIVER_EDGE: changed by map scripts such as Water.py for one map generation and restored by CvMapGenerator::addRivers
+RIVER_SOURCE_MIN_RIVER_RANGE: same reason as PLOTS_PER_RIVER_EDGE
+RIVER_SOURCE_MIN_SEAWATER_RANGE: same reason as PLOTS_PER_RIVER_EDGE
+
+# <!-- custom: Practical: settings switched on or set once for a run and left so, such as system observers, the main menu's EXE-patched sizes and per-font layout tunings, where a change during play brings little and a restart is fine for the rare benchmark, as the user decided on 2026-11-26; some would follow an override, others are read at a record's start or once per process, and none is listed in SASLiveDefineOverrides.txt. All of SASGameRecord stays here, as listing some of its switches and not others was found unintuitive, and its strength is recording all the small things in one compact, systematic record, so their interactions show, which parts switched on and off would break. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+SAS_RUNTIME_PLAYER_TURN_LIVE_THRESHOLD_MS: Runtime's player-turn live timing, a system observer setting kept in first-use statics; a refill added for it was removed the same day, as an override is not a use it supports
+SAS_RUNTIME_PLAYER_TURN_LIVE_REFRESH_MS: same reason as SAS_RUNTIME_PLAYER_TURN_LIVE_THRESHOLD_MS
+
+SAS_SGR_INTERVAL_T_UNSCALED_GS: part of SASGameRecord, a compact black box kept as one stable record per run; most are read into first-use statics or at the record's start, and the trade market and performance metrics, which would follow an override at the next snapshot, stay with the rest
+SAS_SGR_ACTION_TRACE_ON: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_SYSTEM_CONTEXT_LVL: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_TRADE_MARKET_ON: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_TRADE_MARKET_BONUS_GPT_QUOTES_ON: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_TRADE_MARKET_AI_TECH_VALS_ON: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_PERFORMANCE_METRICS_ON: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_MAP_ASCII_GEOGRAPHY_ON: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_MAP_ASCII_TERRAIN_ON: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_MAP_ASCII_RIVER_ON: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_MAP_ASCII_BONUS_ON: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_MAP_ASCII_FEATURE_ON: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_MAP_ASCII_POLITICAL_ON: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_MAP_ASCII_NATIVE_GEOGRAPHY_ON: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_MAP_ASCII_MAX_WIDTH: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_MAP_ASCII_MAX_HEIGHT: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_MAP_ASCII_CHARS_PER_CELL: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_MAP_ASCII_SCALE_1_PCT: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_MAP_ASCII_SCALE_2_PCT: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+SAS_SGR_MAP_UPPER_MIN_NAT_FOOD_SURPLUS: same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS
+
+SAS_EXE_P_DYNAM_MAIN_MENU_WIDTH_PCT: a size of the main menu box or its globe, set by an EXE patch; once a size looks right it is rarely changed, and a user who wants another restarts, as the user decided on 2026-11-26
+SAS_EXE_P_DYNAM_MAIN_MENU_WIDTH_ADD: same reason as SAS_EXE_P_DYNAM_MAIN_MENU_WIDTH_PCT
+SAS_EXE_P_DYNAM_MAIN_MENU_HEIGHT_PCT: same reason as SAS_EXE_P_DYNAM_MAIN_MENU_WIDTH_PCT
+SAS_EXE_P_DYNAM_MAIN_MENU_HEIGHT_ADD: same reason as SAS_EXE_P_DYNAM_MAIN_MENU_WIDTH_PCT
+SAS_EXE_P_DYNAM_MAIN_MENU_WIDTH_FREE_MIN: same reason as SAS_EXE_P_DYNAM_MAIN_MENU_WIDTH_PCT
+SAS_EXE_P_DYNAM_MAIN_MENU_HEIGHT_FREE_MIN: same reason as SAS_EXE_P_DYNAM_MAIN_MENU_WIDTH_PCT
+SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_WIDTH_PCT: same reason as SAS_EXE_P_DYNAM_MAIN_MENU_WIDTH_PCT
+SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_WIDTH_ADD: same reason as SAS_EXE_P_DYNAM_MAIN_MENU_WIDTH_PCT
+SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_HEIGHT_PCT: same reason as SAS_EXE_P_DYNAM_MAIN_MENU_WIDTH_PCT
+SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_HEIGHT_ADD: same reason as SAS_EXE_P_DYNAM_MAIN_MENU_WIDTH_PCT
+
+SAS_BILLBOARD_SCALE_PCT_FONT_1: a per-font layout tuning, settled once and rarely changed, so a user who wants another restarts, as the user decided on 2026-11-26; it is also written into CIV4DetailManager.xml once at load by SASBillboardScale.py, which an override does not rerun
+SAS_BILLBOARD_SCALE_PCT_FONT_2: same reason as SAS_BILLBOARD_SCALE_PCT_FONT_1
+SAS_BILLBOARD_SCALE_PCT_FONT_3: same reason as SAS_BILLBOARD_SCALE_PCT_FONT_1
+SAS_BILLBOARD_SCALE_PCT_FONT_4: same reason as SAS_BILLBOARD_SCALE_PCT_FONT_1
+
+SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1: a per-font Sevopedia layout tuning, settled once and rarely changed, so a user who wants another restarts, as the user decided on 2026-11-26, although the Sevopedia rebuilds its layout when an override changes
+SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2: same reason as SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
+SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3: same reason as SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
+SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4: same reason as SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
+SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_1: same reason as SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
+SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_2: same reason as SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
+SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_3: same reason as SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
+SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_4: same reason as SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
+
+SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS: SASGameRecord's map text palette, built on first use and kept for the process, so the first map output and every later snapshot share it; a live palette would need validating and recording when the legend changed
+SAS_SGR_MAP_ASCII_TERRAIN_SYMBOLS: same reason as SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS
+SAS_SGR_MAP_ASCII_RIVER_SYMBOLS: same reason as SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS
+SAS_SGR_MAP_ASCII_FEATURE_SYMBOLS: same reason as SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS
+SAS_SGR_MAP_ASCII_BONUS_SYMBOLS: same reason as SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS
+SAS_SGR_MAP_ASCII_POLITICAL_SYMBOLS: same reason as SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS
+SAS_SGR_MAP_ASCII_PLAYER_SYMBOLS: same reason as SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS
+
+# <!-- custom: Privacy: each decides what personal or free-form text SASGameRecord writes, such as chat, paths or INI values; it stays a deliberate edit of the XML before a run rather than a switch flipped during play, as text once written stays in the record, as Codex's review (GPT-6.2-Sol) noted on 2026-11-26. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+SAS_SGR_HARDWARE_IDENTITY_ON: a SASGameRecord privacy opt-in, cached at first use for the process, except the two INI switches, reread at each settings snapshot
+SAS_SGR_EXACT_PATHS_ON: same reason as SAS_SGR_HARDWARE_IDENTITY_ON
+SAS_SGR_PROCESS_CONTEXT_ON: same reason as SAS_SGR_HARDWARE_IDENTITY_ON
+SAS_SGR_CHAT_ALL_TEXT_ON: same reason as SAS_SGR_HARDWARE_IDENTITY_ON
+SAS_SGR_CHAT_TEAM_TEXT_ON: same reason as SAS_SGR_HARDWARE_IDENTITY_ON
+SAS_SGR_CHAT_DIRECT_TEXT_ON: same reason as SAS_SGR_HARDWARE_IDENTITY_ON
+SAS_SGR_MAP_ANNOTATION_TEXT_ON: same reason as SAS_SGR_HARDWARE_IDENTITY_ON
+SAS_SGR_BUG_STRING_VALS_ON: same reason as SAS_SGR_HARDWARE_IDENTITY_ON
+SAS_SGR_INI_PRIVATE_VALS_ON: same reason as SAS_SGR_HARDWARE_IDENTITY_ON
+SAS_SGR_INI_NETWORK_VALS_ON: same reason as SAS_SGR_HARDWARE_IDENTITY_ON
+
+# <!-- custom: Not for now: each is read once into state its code keeps, so an override changes nothing until that reader is made to follow it; a define may leave this section when its reader changes, as Codex's review (GPT-6.2-Sol) advised on 2026-11-26. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+SAS_MENU_MUSIC_SHUFFLE_ON: the main menu's music pool, which CvMainMenuInfo::getSoundtrack builds once with its switch and trigger and refills from that first pool; a live pool would need a menu refresh at a soundtrack boundary
+SAS_MENU_MUSIC_SHUFFLE_TRIGGER_SCRIPT: same reason as SAS_MENU_MUSIC_SHUFFLE_ON
+SAS_MENU_MUSIC_SHUFFLE_SCRIPT_1: same reason as SAS_MENU_MUSIC_SHUFFLE_ON
+SAS_MENU_MUSIC_SHUFFLE_SCRIPT_2: same reason as SAS_MENU_MUSIC_SHUFFLE_ON
+SAS_MENU_MUSIC_SHUFFLE_SCRIPT_3: same reason as SAS_MENU_MUSIC_SHUFFLE_ON
+SAS_MENU_MUSIC_SHUFFLE_SCRIPT_4: same reason as SAS_MENU_MUSIC_SHUFFLE_ON
+SAS_MENU_MUSIC_SHUFFLE_SCRIPT_5: same reason as SAS_MENU_MUSIC_SHUFFLE_ON
+SAS_MENU_MUSIC_SHUFFLE_SCRIPT_6: same reason as SAS_MENU_MUSIC_SHUFFLE_ON
+SAS_MENU_MUSIC_SHUFFLE_SCRIPT_7: same reason as SAS_MENU_MUSIC_SHUFFLE_ON
+SAS_MENU_MUSIC_SHUFFLE_SCRIPT_8: same reason as SAS_MENU_MUSIC_SHUFFLE_ON
+SAS_MENU_MUSIC_SHUFFLE_SCRIPT_9: same reason as SAS_MENU_MUSIC_SHUFFLE_ON
+
+SAS_UNIT_XML_TERRAIN_ATK_MODIFIERS: a gameplay rule read into a first-use static in CvUnitInfo's getters, affecting combat, or for obsolete techs training and the AI
+SAS_UNIT_XML_TERRAIN_DEF_MODIFIERS: same reason as SAS_UNIT_XML_TERRAIN_ATK_MODIFIERS
+SAS_UNIT_XML_FEATURE_ATK_MODIFIERS: same reason as SAS_UNIT_XML_TERRAIN_ATK_MODIFIERS
+SAS_UNIT_XML_FEATURE_DEF_MODIFIERS: same reason as SAS_UNIT_XML_TERRAIN_ATK_MODIFIERS
+SAS_UNIT_XML_OBSOLETE_TECH: same reason as SAS_UNIT_XML_TERRAIN_ATK_MODIFIERS
+
+SAS_BARB_CIVILIAN_COST_CATCH_ON: part of a Barbarian era cost table CvPlayer builds once per process; another game or save in the same process does not refill it
+SAS_BARB_CIVILIAN_COST_ANCIENT_PCT: same reason as SAS_BARB_CIVILIAN_COST_CATCH_ON
+SAS_BARB_CIVILIAN_COST_CLASSICAL_PCT: same reason as SAS_BARB_CIVILIAN_COST_CATCH_ON
+SAS_BARB_CIVILIAN_COST_MEDIEVAL_PCT: same reason as SAS_BARB_CIVILIAN_COST_CATCH_ON
+SAS_BARB_CIVILIAN_COST_RENAISSANCE_PCT: same reason as SAS_BARB_CIVILIAN_COST_CATCH_ON
+SAS_BARB_CIVILIAN_COST_INDUSTRIAL_PCT: same reason as SAS_BARB_CIVILIAN_COST_CATCH_ON
+SAS_BARB_CIVILIAN_COST_MODERN_PCT: same reason as SAS_BARB_CIVILIAN_COST_CATCH_ON
+SAS_BARB_CIVILIAN_COST_FUTURE_PCT: same reason as SAS_BARB_CIVILIAN_COST_CATCH_ON
+SAS_BARB_REG_BLDG_COST_CATCH_ON: same reason as SAS_BARB_CIVILIAN_COST_CATCH_ON
+SAS_BARB_REG_BLDG_COST_ANCIENT_PCT: same reason as SAS_BARB_CIVILIAN_COST_CATCH_ON
+SAS_BARB_REG_BLDG_COST_CLASSICAL_PCT: same reason as SAS_BARB_CIVILIAN_COST_CATCH_ON
+SAS_BARB_REG_BLDG_COST_MEDIEVAL_PCT: same reason as SAS_BARB_CIVILIAN_COST_CATCH_ON
+SAS_BARB_REG_BLDG_COST_RENAISSANCE_PCT: same reason as SAS_BARB_CIVILIAN_COST_CATCH_ON
+SAS_BARB_REG_BLDG_COST_INDUSTRIAL_PCT: same reason as SAS_BARB_CIVILIAN_COST_CATCH_ON
+SAS_BARB_REG_BLDG_COST_MODERN_PCT: same reason as SAS_BARB_CIVILIAN_COST_CATCH_ON
+SAS_BARB_REG_BLDG_COST_FUTURE_PCT: same reason as SAS_BARB_CIVILIAN_COST_CATCH_ON

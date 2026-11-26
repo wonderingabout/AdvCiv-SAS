@@ -36,7 +36,8 @@ def region(text, start, end, label):
 
 
 # <!-- custom: --keep stages only the hunks whose old or new lines hold one of the markers, and leaves every other hunk at HEAD: the opposite of --head, for a commit that takes a few hunks out of a file mostly meant for later commits.
-# A hunk is a run of changes with at most one unchanged line between them, close to git diff -U1's; added on 2026-11-21 for the first of the themed commits to main, whose fix sat among the advisor work in CvMilitaryAdvisor.py. (Claude code Opus 5.5) -->
+# A hunk is a run of changes with at most one unchanged line between them, close to git diff -U1's; added on 2026-11-21 for the first of the themed commits to main, whose fix sat among the advisor work in CvMilitaryAdvisor.py.
+# Unchanged context lines are not searched: on 2026-11-26, --keep SAS_SGR_REVISION found no hunk for a revision bump, as the define's name sits on the unchanged line above its value, so the help and the error now say so; --keep "<iDefineIntVal>216</iDefineIntVal>" staged it. (Claude code Opus 5.5) -->
 def keep_hunks(old, text, markers):
     old_lines = old.splitlines(True)
     new_lines = text.splitlines(True)
@@ -52,7 +53,7 @@ def keep_hunks(old, text, markers):
     found = [marker for marker in markers if any(marker in "".join(old_lines[i1:i2]) + "".join(new_lines[j1:j2]) for (i1, i2, j1, j2) in kept)]
     missing = [marker for marker in markers if marker not in found]
     if missing:
-        raise SystemExit("--keep marker found in no changed hunk: %r" % missing[0])
+        raise SystemExit("--keep marker found in no changed hunk: %r (only the hunk's removed and added lines are searched, not its unchanged context)" % missing[0])
     result = []
     for (tag, i1, i2, j1, j2) in opcodes:
         if tag == "equal" or (i1, i2, j1, j2) not in kept:
@@ -72,9 +73,9 @@ def git(root, args, data=None):
 def main(argv):
     parser = argparse.ArgumentParser(description="Stage a file with chosen regions taken from HEAD or dropped; the working file is not changed.")
     parser.add_argument("path", help="file to stage, relative to the repository root")
-    parser.add_argument("--head", nargs=2, action="append", default=[], metavar=("START", "END"), help="replace the working region from START up to END (END excluded) with HEAD's same region; repeatable")
-    parser.add_argument("--drop", nargs=2, action="append", default=[], metavar=("START", "END"), help="leave the region from START up to END (END excluded) out of the staged version; repeatable")
-    parser.add_argument("--keep", action="append", default=[], metavar="MARKER", help="stage only the changed hunks holding MARKER, every other hunk staying at HEAD; repeatable, and applied before --head and --drop")
+    parser.add_argument("--head", nargs=2, action="append", default=[], metavar=("START", "END"), help="replace the working region from START up to END (END excluded) with HEAD's same region; END may be <EOF> for the file's end; repeatable")
+    parser.add_argument("--drop", nargs=2, action="append", default=[], metavar=("START", "END"), help="leave the region from START up to END (END excluded) out of the staged version; END may be <EOF> for the file's end; repeatable")
+    parser.add_argument("--keep", action="append", default=[], metavar="MARKER", help="stage only the changed hunks whose removed or added lines hold MARKER (unchanged context lines do not count), every other hunk staying at HEAD; repeatable, and applied before --head and --drop")
     parser.add_argument("--dry-run", action="store_true", help="print the staged diff against HEAD without staging")
     args = parser.parse_args(argv)
     if not args.head and not args.drop and not args.keep:

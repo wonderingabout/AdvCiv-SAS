@@ -423,6 +423,12 @@ void CyGame::logSASGameRecordDiagnosticContext(int iRenderQualityLevel, int iAnt
 	if (isSASGameRecordLogEnabled()) ::logSASGameRecordDiagnosticContext(iRenderQualityLevel, iAntiAliasingIndex, iAntiAliasingSamples, iGlobeViewRenderLevel, iMovieQualityLevel);
 }
 
+// <!-- custom: See the declaration in CyGame.h. See SASGameRecord revision 214 (SGR214). (Claude code Opus 5.5) -->
+int CyGame::getSASGameRecordLogLevel() const
+{
+	return ::getSASGameRecordLogLevel();
+}
+
 // <!-- custom: Keep Python's generic settings serialization behind the recorder master gate even though normal callers pre-gate collection; this also protects direct Python calls. The ini= accessor intentionally returns the path only to internal Python and never writes it. (ChatGPT-5.6-Sol) -->
 void CyGame::logSASGameRecordSessionSettings(std::string szEvent, std::string szReason, std::string szSource, std::string szGroup, int iCount, std::string szValues)
 {

@@ -449,7 +449,7 @@ int getSASSpaceshipPartsRequired();
 int getSASTeamSpaceshipPartsPercent(TeamTypes eTeam);
 int getSASVictoryDelayTurnsFromNormalGameSpeed(int iNormalTurns); // <!-- custom: Scale Normal-speed victory-countdown turn gates with the same VictoryDelayPercent used by CvGame::victoryDelay. (GPT-5.6 Thinking) -->
 int getSASTeamStage3SpaceLeaderPartGap(TeamTypes eTeam);
-bool isSASTeamStage3SpaceVictoryThreat(TeamTypes eTeam); // <!-- custom: Stage-3 plus high spaceship completion near the Space-progress leader is a pre-countdown Space threat; save-file 450 Arabia reached the final countdown too late, and save-file 452 showed a raw 10-parts threshold could still fire too late. (GPT-5.5) -->
+bool isSASTeamStage3SpaceVictoryThreat(TeamTypes eTeam); // <!-- custom: Stage-3 plus high spaceship completion near the Space-progress leader is a pre-countdown Space threat; save-file 450 Arabia reached the final countdown too late, and save-file 452 showed a raw 10-parts threshold could still fire too late. See KI#184.2. (GPT-5.5) -->
 bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown = NULL, int* piMaxVictoryStage = NULL); // <!-- custom: Shared by UWAI peace decisions and CvDeal's final guard so blocked victory-denial treaties are rejected before negotiation instead of returning false success. (GPT-5.6-Sol) -->
 bool isSASVictoryDenialPeaceBundleBlocked(TeamTypes eFirstTeam, TeamTypes eSecondTeam, CLinkList<TradeData> const& kFirstList, CLinkList<TradeData> const& kSecondList); // <!-- custom: A non-surrender peace treaty between teams at war that the victory-denial rule keeps from taking effect; lets the AI refuse it on the diplomacy screen as CvDeal would. See KI#1094. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 

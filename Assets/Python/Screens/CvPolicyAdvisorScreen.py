@@ -43,7 +43,7 @@ class CvPolicyAdvisorScreen:
 		self.AREA_NAME = "PolicyAdvisorScreenArea"
 		self.HELP_AREA_NAME = "PolicyAdvisorScreenHelpArea"
 		self.HELP_IMAGE_NAME = "PolicyAdvisorScreenCivicOptionImage"
-		self.DEBUG_DROPDOWN_ID =  "PolicyDropdownWidget"
+		self.DEBUG_DROPDOWN_ID = "PolicyDropdownWidget"
 		self.BACKGROUND_ID = "PolicyBackground"
 		self.HELP_HEADER_NAME = "PolicyAdvisorScreenHeaderName"
 		self.POLICY_OPTION_HEADER_NAME = "PolicyAdvisorScreenOptionHeader"
@@ -63,26 +63,21 @@ class CvPolicyAdvisorScreen:
 		self.HEADINGS_SPACING = 5
 		self.HEADINGS_BOTTOM = 280
 		self.HELP_TOP = 350
-		self.HELP_BOTTOM = 610
 		self.TEXT_MARGIN = 15
 		self.BUTTON_SIZE = 24
 		self.BIG_BUTTON_SIZE = 64
-		self.BOTTOM_LINE_TOP = 630
 		self.BOTTOM_LINE_HEIGHT = 60
 
-		self.Y_EXIT = 726
-		self.Y_CANCEL = 726
-
-		self.Y_SCREEN = 396
+		# <!-- custom: Removed the 1024 x 768 HELP_BOTTOM, BOTTOM_LINE_TOP, Y_EXIT, Y_CANCEL, X_RELIGION_START and DX_RELIGION set here: updateRuntimeLayout sets them from the resolution before every draw, so they were never read; Y_SCREEN was not read at all. See KI#1098.3. (Claude code Opus 5.5) -->
 		self.Z_SCREEN = -6.1
 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
 		self.Z_TEXT = self.Z_SCREEN - 0.2
 
 		self.PolicyAdvisorScreenInputMap = {
-			self.BUTTON_NAME		: self.PolicyButton,
-			self.TEXT_NAME			: self.PolicyButton,
-			self.EXIT_NAME			: self.Revolution,
-			self.CANCEL_NAME		: self.Cancel,
+			self.BUTTON_NAME : self.PolicyButton,
+			self.TEXT_NAME : self.PolicyButton,
+			self.EXIT_NAME : self.Revolution,
+			self.CANCEL_NAME : self.Cancel,
 			}
 
 		self.iActivePlayer = -1
@@ -111,8 +106,6 @@ class CvPolicyAdvisorScreen:
 		self.DZ = -0.2
 		self.LEFT_EDGE_TEXT = 10
 		self.RELIGION_BUTTON_SIZE = 48
-		self.X_RELIGION_START = 180
-		self.DX_RELIGION = 98
 		self.RELIGION_LEFT_LABEL_WIDTH = 180
 		self.RELIGION_RIGHT_PADDING = 16
 		# <!-- custom: use one uniform SASVisuals.Religion row rhythm for top info rows and BUG summary rows. (GPT-5.3-Codex) -->
@@ -642,9 +635,9 @@ class CvPolicyAdvisorScreen:
 
 		szHelpText += CyGameTextMgr().parseCivicInfo(iCivic, False, True, True)
 
-		fX = self.HEADINGS_SPACING  + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * iCivicOption
+		fX = self.HEADINGS_SPACING + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * iCivicOption
 
-		screen.setLabel(self.HELP_HEADER_NAME + str(iCivicOption), "Background",  SASTextScale.sasFontTagLabel + gc.getCivicInfo(self.m_paeDisplayPolicies[iCivicOption]).getDescription().upper() + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, fX + self.HEADINGS_WIDTH/2, self.HELP_TOP + self.TEXT_MARGIN, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.HELP_HEADER_NAME + str(iCivicOption), "Background", SASTextScale.sasFontTagLabel + gc.getCivicInfo(self.m_paeDisplayPolicies[iCivicOption]).getDescription().upper() + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, fX + self.HEADINGS_WIDTH/2, self.HELP_TOP + self.TEXT_MARGIN, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		fY = self.HELP_TOP - self.BIG_BUTTON_SIZE
 		szHelpImageID = self.HELP_IMAGE_NAME + str(iCivicOption)		
@@ -658,7 +651,7 @@ class CvPolicyAdvisorScreen:
 	def drawAllHelpText(self):
 		for i in range (gc.getNumCivicOptionInfos()):		
 
-			fX = self.HEADINGS_SPACING  + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * i
+			fX = self.HEADINGS_SPACING + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * i
 
 			szPaneID = "PolicyHelpTextBackground" + str(i)
 			screen = self.getScreen()
@@ -676,7 +669,7 @@ class CvPolicyAdvisorScreen:
 
 		bChange = False
 		i = 0
-		while (i  < gc.getNumCivicOptionInfos() and not bChange):
+		while (i < gc.getNumCivicOptionInfos() and not bChange):
 			if (self.m_paeCurrentPolicies[i] != self.m_paeOriginalPolicies[i]):
 				bChange = True
 			i += 1		

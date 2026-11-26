@@ -1,0 +1,44 @@
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: The defines SASLiveDefineOverrides.txt may override while Civ4 runs, each named in full with how its readers follow an override; the bridge refuses a line naming any other define, logging that it needs the XML and a restart.
+# From the XML, a define that follows an override and one whose readers keep their first value look the same, so before this list a user could not tell which a line would reach short of reading the callers, as the user pointed out on 2026-11-26; Codex's review (GPT-6.2-Sol) advised a fixed list apart from the values file, so that what the mod supports live changes only in a reviewed commit, not when a line is added.
+# A define joins only after its readers were checked to follow an override, by reading at each use or by a refill on the bridge's change count; CI then keeps them so, and requires one shipped line per listed define at its XML value, so the values file shows every live define.
+# One define per line, its name, a colon and how it follows, as in SASLiveDefineOverridesNoEntry.txt, which explains defines that must never be listed here; "#" starts a comment line. See KI#128.7. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+
+# <!-- custom: UI font sizes, tried during UI upscaling audits. (Claude code Opus 5.5) -->
+SAS_UI_FONT_TINY: Python reads it through SASCurrentDefines at each use, and SASTextScale rebuilds its font tags when the bridge's change count moves
+SAS_UI_FONT_BODY: same reason as SAS_UI_FONT_TINY
+SAS_UI_FONT_LABEL: same reason as SAS_UI_FONT_TINY; the DLL reads it at each hover and help text through AdvCiv's enum cache, which setDefineINT refreshes
+SAS_UI_FONT_TITLE: same reason as SAS_UI_FONT_TINY
+
+# <!-- custom: BBAI log categories, switched on for the stretch an agent audits, as the logs can reach several GB. (Claude code Opus 5.5) -->
+SAS_BBAI_PLAYER_LOG: cacheSASBBAILogSettings copies the category levels once at XML load, and onSASLiveDefineOverridesApplied refills them after each applied change
+SAS_BBAI_TEAM_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_WAR_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_CITY_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_PROD_NO_TARGET_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_MILIT_PROD_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_SPACE_PROD_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_LIMITED_PROJECT_PROD_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_BLDG_PROD_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_CITIZEN_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_UNIT_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_OVERSEAS_TRANSPORT_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_GREAT_GENERAL_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_SETTLER_1ST_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_SETTLER_2PL_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_FOUND_1ST_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_FOUND_2PL_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_EVACUATION_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_WORKER_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_WORKER_SEA_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_MAP_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_DEAL_CANCEL_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_BONUS_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_CULT_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_UWAI_AGENT_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_UWAI_MILIT_ANALYST_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_UWAI_INVASION_GRAPH_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_UWAI_ARMAMENT_FORECAST_LOG: same reason as SAS_BBAI_PLAYER_LOG
+SAS_BBAI_UWAI_WAR_UTILITY_LOG: same reason as SAS_BBAI_PLAYER_LOG

@@ -21,6 +21,8 @@ import ScreenInput
 # This page uses none of those IDs, and the removed constants-only module had no initialization side effects. (GPT-6.1-Sol) -->
 # <!-- custom: Consolidate this dependency at the shared SASVisualUtils/SASTextScale boundary instead of retaining the retired overlapping visual-resource helper imports. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
+# <!-- custom: SASCurrentDefines reads this module's SAS switches at use, lazily and override-aware, in place of module constants read at import. See KI#128.6. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import SASTextScale
 from SASUtils import getInfoTypeOrFail
 
@@ -30,8 +32,6 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-# <!-- custom: change its value if you don't want to see AI information in the special abilities panel -->
-IS_SHOW_AI_INFO = (gc.getDefineINT("SAS_SEVO_UNIT_SHOW_AI_INFORMATION") > 0)
 
 class SevoPediaUnit:
 
@@ -86,8 +86,6 @@ class SevoPediaUnit:
 		# Row 3-4: Of Other Units panel (full width, 2 rows height)
 		# Row 5: Special | History -->
 
-		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
-
 		# Narrow panels width (same as SevoPediaBuilding's obsolete panel)
 		self.W_OBSOLETE_WITH = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.W_CIVILIZATIONS = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
@@ -102,6 +100,7 @@ class SevoPediaUnit:
 		self.X_REQUIRES = self.X_UNIT_PANE
 		self.Y_REQUIRES = self.Y_UNIT_PANE + self.H_UNIT_PANE + SMALL_MARGIN
 		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_UNIT_PANE - MEDIUM_MARGIN - self.W_OBSOLETE_WITH - MEDIUM_MARGIN - self.W_FREE_PROMOTIONS
+		# <!-- custom: Was also set, the same, at the top of this layout, where nothing read it before this. See KI#1098.3. (Claude code Opus 5.5) -->
 		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		self.X_OBSOLETE_WITH = self.X_REQUIRES + self.W_REQUIRES + MEDIUM_MARGIN
@@ -374,7 +373,7 @@ class SevoPediaUnit:
 
 		iPrereq = gc.getUnitInfo(self.iUnit).getPrereqReligion()
 		if iPrereq >= 0:
-			# <!-- custom: fix base advciv bug, replace WidgetTypes.WIDGET_HELP_RELIGION with WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION as is done already by base advciv and successfully in sevopedia building -->
+			# <!-- custom: fix base advciv bug, replace WidgetTypes.WIDGET_HELP_RELIGION with WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION as is done already by base advciv and successfully in sevopedia building. See KI#4. -->
 			screen.attachImageButton(panelName, "", gc.getReligionInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iPrereq, -1, False)
 			isButtonFound = True
 
@@ -543,7 +542,7 @@ class SevoPediaUnit:
 				iButtonIndex += 1
 
 		# Check for UnitCombatMods
-		# <!-- custom: we need to do this in a separate loop according to chatgpt as "i is a UnitClass index; gc.getUnitCombatInfo(i) expects a UnitCombatTypes index" and indeed i don't know if this is the cause but we got an error when trying to refactor too aggressively with claude ai i meanthe code (ignorantly perhaps of me but good to try or not or yes), so making sure i mean to have a separate loop for combat type modifiers in understanding this -->
+		# <!-- custom: we need to do this in a separate loop according to chatgpt as "i is a UnitClass index; gc.getUnitCombatInfo(i) expects a UnitCombatTypes index" and indeed i don't know if this is the cause but we got an error when trying to refactor too aggressively with claude ai i meanthe code (ignorantly perhaps of me but good to try), so making sure i mean to have a separate loop for combat type modifiers in understanding this -->
 		# Check for unit combat types that this unit belongs to
 		if iUnitCombatType != -1:  # Make sure this unit has a combat type
 			# Loop through all units to find those with UnitCombatMods against this combat type
@@ -741,7 +740,7 @@ class SevoPediaUnit:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
-		if IS_SHOW_AI_INFO:
+		if SASCurrentDefines.getInt("SAS_SEVO_UNIT_SHOW_AI_INFORMATION") > 0:
 			txtKeyPanel = "TXT_KEY_PEDIA_SPECIAL_ABILITIES_WITH_SOME_AI_INFORMATION"
 		else:
 			txtKeyPanel = "TXT_KEY_PEDIA_SPECIAL_ABILITIES"
@@ -753,7 +752,7 @@ class SevoPediaUnit:
 
 		bullet = localText.getText("[ICON_BULLET]", ())
 
-		# <!-- custom: show if unit has no military support cost info for example for the robotic_infantry we added in advciv-sas, code provided with the help of chatgpt thanks etc thanks and thanks to me too hehe if i may say in this case, and adjusted for advciv-sas or not by me too -->
+		# <!-- custom: show if unit has no military support cost info for example for the robotic_infantry we added in advciv-sas, code provided with the help of chatgpt thanks etc thanks and thanks to me too hehe, and adjusted for advciv-sas or not by me too -->
 		# Get unit info
 		unitInfo = gc.getUnitInfo(self.iUnit)
 
@@ -761,7 +760,7 @@ class SevoPediaUnit:
 			noMilitarySupportCostText = localText.getText("TXT_KEY_UNIT_NO_MILITARY_SUPPORT_COST", ())
 			szSpecialText += u"\n%s%s" % (bullet, noMilitarySupportCostText)
 
-		# <!-- custom: if unit grants unit(s) on capture, code added thanks to claude ai as well as my prompt and adjustments or such or not or yes or etc -->
+		# <!-- custom: if unit grants unit(s) on capture, code added thanks to claude ai as well as my prompt and adjustments or such -->
 		unitCaptureClassType = unitInfo.getUnitCaptureClassType()
 		if unitCaptureClassType != -1:
 			unitCaptureClassTypeInfo = gc.getUnitClassInfo(unitCaptureClassType)
@@ -769,9 +768,9 @@ class SevoPediaUnit:
 				captureText = localText.getText("TXT_KEY_UNIT_MAY_GRANT_UNITS_ON_CAPTURE", ())
 				szSpecialText += u"\n%s%s: %s" % (bullet, captureText, unitCaptureClassTypeInfo.getType())
 
-		# <!-- custom: add ai info for players and me too hehe: should be valuable for info or balancing, added with the help of claude ai and my prompts and adjustments and inspect or and such...
+		# <!-- custom: add ai info for players and me too hehe: should be valuable for info or balancing, added with the help of claude ai and my prompts and adjustments and inspect such...
 		# if players want to see it xd, as for me yes i want! -->
-		if IS_SHOW_AI_INFO:
+		if SASCurrentDefines.getInt("SAS_SEVO_UNIT_SHOW_AI_INFORMATION") > 0:
 			# Add Default UnitAI
 			defaultUnitAI = unitInfo.getDefaultUnitAIType()
 			if defaultUnitAI != -1:
@@ -779,7 +778,7 @@ class SevoPediaUnit:
 				defaultUnitAIText = str(defaultUnitAI).replace("UNITAI_", "")
 			else:
 				# <!-- custom: also show the absence of it (as of now shown as "NO_UNITAI" in sevopedia unit it seems, abbreviated as of now to "_" for visual clarity / quick scanning) -->
-				defaultUnitAIText =	"_"
+				defaultUnitAIText = "_"
 			# <!-- custom: note: separate info from other non AI entries more cleanly / clearly, so on more new line for first AI entry -->
 			szSpecialText += "\n\n%sDefault UnitAI: %s" % (bullet, defaultUnitAIText)
 
@@ -934,7 +933,7 @@ class SevoPediaUnit:
 		rowListName = self.top.getNextWidgetName()
 		screen.addMultiListControlGFC(rowListName, "", self.X_PROMO_PANE+15, self.Y_PROMO_PANE+40, self.W_PROMO_PANE-20, self.H_PROMO_PANE-40, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, self.PROMOTION_ICON_SIZE, self.PROMOTION_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
-		# <!-- custom: disabling entirely if (isPromotionValid(k, self.iUnit, False) we get too many promotions, but enabling it some are missing (see below in code comments), so as advised by chatgpt checking which promotions belong to the unit through another condition, seems to solve/fix the issue as now we see the missing promotions as per the xml -->
+		# <!-- custom: disabling entirely if (isPromotionValid(k, self.iUnit, False) we get too many promotions, but enabling it some are missing (see below in code comments), so as advised by chatgpt checking which promotions belong to the unit through another condition, seems to solve/fix the issue as now we see the missing promotions as per the xml. See KI#27. -->
 		eUnitCombat = gc.getUnitInfo(self.iUnit).getUnitCombatType()
 		# No promotions to show for units with no combat type
 		if eUnitCombat == -1:

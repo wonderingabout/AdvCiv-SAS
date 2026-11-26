@@ -8,6 +8,9 @@
 from CvPythonExtensions import *
 # <!-- custom: SASPythonLogging replaces the serializer's direct sys.stdout writes with an explicit raw-output path so the generated cache module remains copyable. (GPT-6.1-Sol) -->
 import SASPythonLogging
+# <!-- custom: SASCurrentDefines reads this module's SAS switches at use, lazily and override-aware, in place of module constants read at import.
+# They are inputs to the AI Personality Panel cache, built once per session on the first Leaders page, so a change reaches only a cache not yet built: reading them again cannot rebuild it, as Codex's review (GPT-6.2-Sol) noted. See KI#128.6. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+import SASCurrentDefines
 
 from ai_utils_shared_with_civ4 import *
 from _sevopedia_helpers import *
@@ -16,7 +19,6 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD = (gc.getDefineINT("SAS_SEVO_LEADER_AI_RAW_XML_NAMES_ON") > 0)
 
 # <!-- custom: Long_Comments_py.txt #8 -->
 IS_DEBUG_LEADER = False
@@ -36,8 +38,6 @@ if IS_DEBUG_LEADER:
 	print("[DEBUG] EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS=%s" % str(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS))
 
 # <!-- custom: Long_Comments_py.txt #12 -->
-IS_USE_PREDUMPED_CACHE = (gc.getDefineINT("SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED") > 0)
-IS_DUMP_CACHE_TO_LOG = (gc.getDefineINT("SAS_SEVO_LEADER_AI_CACHE_DUMP_TO_LOG") > 0)
 # Name of the pre-dumped module (without .py extension)
 PREDUMPED_MODULE_NAME = "SevoPediaLeaderCachePredumped"
 
@@ -60,7 +60,7 @@ def dump_leader_cache_to_pythondbg(leaders_info_cached, excluded_leader_types, i
 
 def try_load_predumped_cache():
 	# Attempts to load the pre-dumped cache module.
-	if not IS_USE_PREDUMPED_CACHE:
+	if SASCurrentDefines.getInt("SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED") <= 0:
 		return None
 
 	try:
@@ -73,7 +73,7 @@ def try_load_predumped_cache():
 		return leaders_info_cached
 
 	except:
-		raise ImportError("AI Personality Panel cache IMPORT ERROR: IS_USE_PREDUMPED_CACHE=True but %s.py not found. Please provide a valid precomputed file, or disable SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED in XML SAS defines (GlobalDefines_advciv_sas.xml)." % PREDUMPED_MODULE_NAME)
+		raise ImportError("AI Personality Panel cache IMPORT ERROR: SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED=1 but %s.py not found. Please provide a valid precomputed file, or disable SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED in XML SAS defines (GlobalDefines_advciv_sas.xml)." % PREDUMPED_MODULE_NAME)
 
 def get_leader_cache_predumped_or_compute(compute_func, excluded_leader_types, is_emoji_enabled, is_raw_xml_names):
 	# Main entry point. Either loads pre-dumped cache or computes it.
@@ -89,7 +89,7 @@ def get_leader_cache_predumped_or_compute(compute_func, excluded_leader_types, i
 	leaders_info_cached = compute_func()
 
 	# Dump to log only if enabled via define
-	if IS_DUMP_CACHE_TO_LOG:
+	if SASCurrentDefines.getInt("SAS_SEVO_LEADER_AI_CACHE_DUMP_TO_LOG") > 0:
 		dump_leader_cache_to_pythondbg(leaders_info_cached, excluded_leader_types, is_emoji_enabled, is_raw_xml_names)
 
 	return leaders_info_cached
@@ -171,7 +171,7 @@ def _compute_leader_cache_internal():
 		def get_no_war_attitude_prob(self, iLeader, iAttitude):
 			return gc.getLeaderHeadInfo(iLeader).getNoWarAttitudeProb(iAttitude)
 
-	LEADERS_INFO_CACHED = compute_leaders_info_aip_cache_from_provider(NON_EXCLUDED_LEADERS, Civ4AipValueProvider(), IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD, B_WARN, IS_DEBUG_LEADER)
+	LEADERS_INFO_CACHED = compute_leaders_info_aip_cache_from_provider(NON_EXCLUDED_LEADERS, Civ4AipValueProvider(), SASCurrentDefines.getInt("SAS_SEVO_LEADER_AI_RAW_XML_NAMES_ON") > 0, B_WARN, IS_DEBUG_LEADER)
 
 	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, LEADERS_INFO_CACHED, "LEADERS_INFO_CACHED")
 	check_leaders_dict_only_has_leader_index_keys(LEADERS_INFO_CACHED, "LEADERS_INFO_CACHED")
@@ -186,5 +186,5 @@ def _compute_leader_cache_internal():
 
 def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
 	# Wrapper that either loads pre-dumped cache or computes it
-	return get_leader_cache_predumped_or_compute(compute_func = _compute_leader_cache_internal, excluded_leader_types = AIP_EXCLUDED_LEADER_TYPES, is_emoji_enabled = (gc.getDefineINT("SAS_SEVO_LEADER_AI_EMOJI_ON") > 0), is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD)
+	return get_leader_cache_predumped_or_compute(compute_func = _compute_leader_cache_internal, excluded_leader_types = AIP_EXCLUDED_LEADER_TYPES, is_emoji_enabled = (SASCurrentDefines.getInt("SAS_SEVO_LEADER_AI_EMOJI_ON") > 0), is_raw_xml_names = SASCurrentDefines.getInt("SAS_SEVO_LEADER_AI_RAW_XML_NAMES_ON") > 0)
 

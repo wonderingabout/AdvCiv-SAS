@@ -135,30 +135,31 @@ class SevoPediaWorldSizeChart:
 			# Ordinary map generation doubles each axis into plots, while custom map scripts can override the dimensions and scaling; label their product as cells rather than tiles/plots. See KI#305. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			# <!-- custom: use "Usual" to clarify the grid size may change (e.g., depending on mapscripts like SAS_Longworld being low height and high width) -->
 			# (field_name, display_label_or_None, getter_name_or_None, icon_token)
-			("GridSize",                       "Usual Grid Cells W x H",        None,                               "glyph:map"),
-			("GridRatio",                      "W/H Ratio*",                 None,                               "glyph:map"),
-			("RatioToStandard",                "Ratio to Standard*",        None,                               "glyph:map"),
-			("RatioToLargest",                 "Ratio to Largest*",         None,                               "glyph:map"),
-			("GridCells",                      "WorldInfo Grid Cells*",     None,                               "glyph:map"),
-			("CellsPerDefaultPlayer",          "Cells Per Default Player*", None,                               "glyph:map"),
-			("iDefaultPlayers",                "Default Players",           "getDefaultPlayers",                "glyph:citizen"),
-			("iTargetNumCities",               "Target Num Cities",         "getTargetNumCities",               "glyph:citizen"),
-			("iNumFreeBuildingBonuses",        "Free Building Bonuses",     "getNumFreeBuildingBonuses",        "glyph:prod"),
-			("iBuildingClassPrereqModifier",   "Building Class Prereq Mod", "getBuildingClassPrereqModifier",   "glyph:prod"),
-			("iUnitNameModifier",              "Unit Name Modifier",        "getUnitNameModifier",              "btn:swords"),
-			("iMaxConscriptModifier",          "Max Conscript Mod",         "getMaxConscriptModifier",          "btn:swords"),
-			("iWarWearinessModifier",          "War Weariness Mod",         "getWarWearinessModifier",          "glyph:unhappy"),
-			("iUnitCostPercent",               None,                        "getUnitCostPercent",               "btn:swords"),
-			("iTerrainGrainChange",            None,                        "getTerrainGrainChange",            "btn:herb"),
-			("iFeatureGrainChange",            None,                        "getFeatureGrainChange",            "btn:herb"),
-			("iResearchPercent",               None,                        "getResearchPercent",               "glyph:research"),
-			("iTradeProfitPercent",            None,                        "getTradeProfitPercent",            "glyph:gold"),
-			("iDistanceMaintenancePercent",    None,                        "getDistanceMaintenancePercent",    "glyph:gold"),
-			("iNumCitiesMaintenancePercent",   None,                        "getNumCitiesMaintenancePercent",   "glyph:gold"),
-			("iColonyMaintenancePercent",      None,                        "getColonyMaintenancePercent",      "glyph:gold"),
-			("iCorporationMaintenancePercent", None,                        "getCorporationMaintenancePercent", "glyph:gold"),
-			("iNumCitiesAnarchyPercent",       None,                        "getNumCitiesAnarchyPercent",       "btn:fire"),
-			("iAdvancedStartPointsMod",        "Advanced Start Points Mod", "getAdvancedStartPointsMod",        "glyph:defense"),
+			# <!-- custom: Columns aligned with tabs, inspired by vanilla Civ4's CvDebugInfoScreen.py dispatch table, instead of runs of spaces that drifted out of line with each rename. See KI#21.8. (Claude code Opus 5.5) -->
+			("GridSize",						"Usual Grid Cells W x H",		None,								"glyph:map"),
+			("GridRatio",						"W/H Ratio*",					None,								"glyph:map"),
+			("RatioToStandard",					"Ratio to Standard*",			None,								"glyph:map"),
+			("RatioToLargest",					"Ratio to Largest*",			None,								"glyph:map"),
+			("GridCells",						"WorldInfo Grid Cells*",		None,								"glyph:map"),
+			("CellsPerDefaultPlayer",			"Cells Per Default Player*",	None,								"glyph:map"),
+			("iDefaultPlayers",					"Default Players",				"getDefaultPlayers",				"glyph:citizen"),
+			("iTargetNumCities",				"Target Num Cities",			"getTargetNumCities",				"glyph:citizen"),
+			("iNumFreeBuildingBonuses",			"Free Building Bonuses",		"getNumFreeBuildingBonuses",		"glyph:prod"),
+			("iBuildingClassPrereqModifier",	"Building Class Prereq Mod",	"getBuildingClassPrereqModifier",	"glyph:prod"),
+			("iUnitNameModifier",				"Unit Name Modifier",			"getUnitNameModifier",				"btn:swords"),
+			("iMaxConscriptModifier",			"Max Conscript Mod",			"getMaxConscriptModifier",			"btn:swords"),
+			("iWarWearinessModifier",			"War Weariness Mod",			"getWarWearinessModifier",			"glyph:unhappy"),
+			("iUnitCostPercent",				None,							"getUnitCostPercent",				"btn:swords"),
+			("iTerrainGrainChange",				None,							"getTerrainGrainChange",			"btn:herb"),
+			("iFeatureGrainChange",				None,							"getFeatureGrainChange",			"btn:herb"),
+			("iResearchPercent",				None,							"getResearchPercent",				"glyph:research"),
+			("iTradeProfitPercent",				None,							"getTradeProfitPercent",			"glyph:gold"),
+			("iDistanceMaintenancePercent",		None,							"getDistanceMaintenancePercent",	"glyph:gold"),
+			("iNumCitiesMaintenancePercent",	None,							"getNumCitiesMaintenancePercent",	"glyph:gold"),
+			("iColonyMaintenancePercent",		None,							"getColonyMaintenancePercent",		"glyph:gold"),
+			("iCorporationMaintenancePercent",	None,							"getCorporationMaintenancePercent",	"glyph:gold"),
+			("iNumCitiesAnarchyPercent",		None,							"getNumCitiesAnarchyPercent",		"btn:fire"),
+			("iAdvancedStartPointsMod",			"Advanced Start Points Mod",	"getAdvancedStartPointsMod",		"glyph:defense"),
 		)
 
 		field_getters_list = []
@@ -187,8 +188,8 @@ class SevoPediaWorldSizeChart:
 			# <!-- custom: (name, cached interface-art path).
 			# Reorder entries to change only the icon-theme sort order. (GPT-5.2-Codex (summarized) + ChatGPT-5.6-Sol) -->
 			("swords", SASVisuals.InterfaceArt.SAS_EMOJI_CROSSED_SWORDS),
-			("herb",   SASVisuals.InterfaceArt.SAS_EMOJI_HERB),
-			("fire",   SASVisuals.InterfaceArt.SAS_EMOJI_FIRE),
+			("herb", SASVisuals.InterfaceArt.SAS_EMOJI_HERB),
+			("fire", SASVisuals.InterfaceArt.SAS_EMOJI_FIRE),
 		)
 		for i, (name, szButtonPath) in enumerate(_btn_defs):
 			# Group id only affects sorting by the icon column.
@@ -199,13 +200,13 @@ class SevoPediaWorldSizeChart:
 		# GameFont glyph icons (yields/commerce/symbols).
 		_glyph_defs = (
 			# (name, glyph_char)
-			("map",      (u"%s" % (SASVisuals.Font.MAP_CHAR))),
-			("citizen",  (u"%s" % (SASVisuals.Font.CITIZEN_CHAR))),
-			("prod",     (u"%s" % (SASVisuals.Yield.PRODUCTION_CHAR))),
-			("gold",     (u"%s" % (SASVisuals.Commerce.GOLD_CHAR))),
+			("map", (u"%s" % (SASVisuals.Font.MAP_CHAR))),
+			("citizen", (u"%s" % (SASVisuals.Font.CITIZEN_CHAR))),
+			("prod", (u"%s" % (SASVisuals.Yield.PRODUCTION_CHAR))),
+			("gold", (u"%s" % (SASVisuals.Commerce.GOLD_CHAR))),
 			("research", (u"%s" % (SASVisuals.Commerce.RESEARCH_CHAR))),
-			("defense",  (u"%s" % (SASVisuals.Font.DEFENSE_CHAR))),
-			("unhappy",  (u"%s" % (SASVisuals.Font.UNHAPPY_CHAR))),
+			("defense", (u"%s" % (SASVisuals.Font.DEFENSE_CHAR))),
+			("unhappy", (u"%s" % (SASVisuals.Font.UNHAPPY_CHAR))),
 		)
 		for name, glyph in _glyph_defs:
 			glyph_by_name[name] = (glyph, 0)

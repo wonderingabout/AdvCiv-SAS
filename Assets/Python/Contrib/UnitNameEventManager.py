@@ -66,6 +66,11 @@
 ## 
 ## 10. return name
 ##-------------------------------------------------------------------
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: Layout only: python_aligned_columns.py's sweep turned the double spaces and tab runs between this file's code tokens, mostly stray slips such as "x =  y" or one-column alignment, into one space; the code is unchanged. See KI#21.8. (Claude code Opus 5.5) -->
 
 from CvPythonExtensions import *
 import CvUtil
@@ -106,7 +111,7 @@ class UnitNameEventManager:
 
 		# additions to self.Events
 		moreEvents = {
-			RENAME_EVENT_ID : ('', self.__eventUnitRenameApply,  self.__eventUnitRenameBegin),
+			RENAME_EVENT_ID : ('', self.__eventUnitRenameApply, self.__eventUnitRenameBegin),
 		}
 		eventManager.Events.update(moreEvents)
 		self.eventMgr = eventManager
@@ -473,7 +478,7 @@ class UnitReName(object):
 		ziEnd = conv.find("]", ziStart+1)
 		zsValue = conv[ziStart+1:ziEnd]
 
-		#BUGPrint("UnitNameEM-E1 [" + conv  + "|" + str(ziStart)  + "|" + str(ziEnd)  + "|" + zsValue + "]")
+		#BUGPrint("UnitNameEM-E1 [" + conv + "|" + str(ziStart) + "|" + str(ziEnd) + "|" + zsValue + "]")
 
 		if zsValue == "a":
 			return "ALL"

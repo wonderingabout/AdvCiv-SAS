@@ -171,6 +171,7 @@ struct SASCitySitePlotRankSettings
 {
 	SASCitySitePlotRankSettings()
 	{
+		// <!-- custom: ci_define_uncached: this constructor builds the one static settings object described above. (Claude code Opus 5.5) -->
 		int const iOrdinarySpread = GC.getDefineINT("SAS_SITE_PLOT_RANK_SPREAD_PCT");
 		int const iCapitalSpread = GC.getDefineINT("SAS_SITE_1ST_CITY_RANK_SPREAD_PCT");
 		iOffset = GC.getDefineINT("SAS_SITE_PLOT_RANK_OFFSET");
@@ -1454,7 +1455,7 @@ int AIFoundValue::evaluate()
 			iSpecialFoodPlus += std::max(0, aiNatureYield[YIELD_FOOD] -
 					GC.getFOOD_CONSUMPTION_PER_POPULATION());
 
-			// <!-- custom: add home plot health valorization of fresh water, as it seems to be missing; or if not missing somehow then not strongly enough applied, as AIs blatantly avoid in range fresh water home plot that is arguably better, most likely to not seeing its value if i may say in this case, so opening its eyes or trying to without going overboard and in this case i mean too -->
+			// <!-- custom: add home plot health valorization of fresh water, as it seems to be missing; or if not missing somehow then not strongly enough applied, as AIs blatantly avoid in range fresh water home plot that is arguably better, most likely to not seeing its value, so opening its eyes or trying to without going overboard and in this case i mean too -->
 			if (!p.isWater())
 			{
 				const int iHomeWaterValue = ((p.isRiver() || p.isFreshWater()) ? iExtraValueHomeFreshWaterRiver : 0) + (kSet.isStartingLoc() && p.isFreshWater() ? iStartingHomeFreshWaterValue : 0);
@@ -1595,7 +1596,7 @@ int AIFoundValue::evaluate()
 				int fImp = 0, hImp = 0, cImp = 0;
 				if (eBonusSpecificImprovement != NO_IMPROVEMENT)
 				{
-					// <!-- custom: note to chatgpt 5 or other AIs or such anywyas etc: GC.getImprovementInfo doesn't seem to exist in .cpp files only .py files, while we have plenty instances of using code like `CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);` in the mod's code, code that i did not add myself as well, so use this rather -->
+					// <!-- custom: note to chatgpt 5 or other AIs or such: GC.getImprovementInfo doesn't seem to exist in .cpp files only .py files, while we have plenty instances of using code like `CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);` in the mod's code, code that i did not add myself as well, so use this rather -->
 					// You’re right — in your C++ DLL (AdvCiv/AdvCiv-SAS) the correct accessor is the templated:
 					// C++: GC.getInfo(ImprovementTypes) → CvImprovementInfo&
 					// Python: gc.getImprovementInfo(i) → Python wrapper
@@ -1604,11 +1605,11 @@ int AIFoundValue::evaluate()
 					hImp = impInfo.getImprovementBonusYield(eBonus, YIELD_PRODUCTION);
 					cImp = impInfo.getImprovementBonusYield(eBonus, YIELD_COMMERCE);
 
-					// <!-- custom: use this to detect food bonuses, as according to chatgpt 5 nature yield is not reliable in accurately assessing a tile's yield of a bonus is indeed food bonus or not something else like the city base's tile yield from little i understood of it, check if accurate; also note: for food any food is extremely valuable, even if a commerce bonus that happens to give some improved food, value it much still as recommended by chatgpt 5 and what i understood got the idea to do of it too i mean -->
+					// <!-- custom: use this to detect food bonuses, as according to chatgpt 5 nature yield is not reliable in accurately assessing a tile's yield of a bonus is indeed food bonus or not something else like the city base's tile yield from little i understood of it, check if accurate; also note: for food any food is extremely valuable, even if a commerce bonus that happens to give some improved food, value it much still as recommended by chatgpt 5 and what i understood got the idea to do of it too -->
 					if (fImp >= iMinOnBonusFoodImproveWorth)
 					{
 						// <!-- custom: it seems we sometimes still found on deer tundra in autoplay, try to increase the penalty further, while trying not to increase it too much in case it is locally best to found as such, 400 may seem high but even 300 was not enough although it fluctuated a bit before (all this is with the old formula, not this new one below as untested with old file to know) staying there, i could try 350 maybe but since 400 does fine keep as is for possible edge cases, hopefully this doesn't prevent locally good spots where settling on food is ideal, but even if then, statistically should be better for ai to avoid settling on food bonuses.
-						// update: the other new issue i had of ai settling on camel desert is now averted to much later with our new change to improved yield rather than nature ones, but although ai doesn't settle at turn 50, it considers it at turn 100 when other sites are taken, nearby home plots should be much more attractive, so i guess we are not valuing it enough or something, testing and see hopefully not causing ai to chosoe worse sites just to avoid settling on bonus too much but even if it were to happen that may still be better in most cases although not ideal than settling on food bonuses, ideally i would dig why this happens or such and fix this more cleanly, but hopefully this helps (since issue only happens on desert camel, maybe base desert food yield being so low interferes or some other logics conflicts somewhere else?
+						// update: the other new issue i had of ai settling on camel desert is now averted to much later with our new change to improved yield rather than nature ones, but although ai doesn't settle at turn 50, it considers it at turn 100 when other sites are taken, nearby home plots should be much more attractive, so i guess we are not valuing it enough or something, testing and see hopefully not causing ai to choose worse sites just to avoid settling on bonus too much but even if it were to happen that may still be better in most cases although not ideal than settling on food bonuses, ideally i would dig why this happens or such and fix this more cleanly, but hopefully this helps (since issue only happens on desert camel, maybe base desert food yield being so low interferes or some other logics conflicts somewhere else?
 						// These are just guesses, could be mistaken or not, check if accurate) -->
 						int const iOnBonusFoodPenalty = iBaseValueOnBonusFood * fImp;
 						// <!-- custom: be careful to not mix up as noted by chatgpt 5, we add the cumulative penalty here (a positive number if we penalize, a negative number if we for some reason don't penalize but valorize weirdly instead), then later at the end we subract to iValue this positive penalty number so add penalty to r, do not substract -->
@@ -1670,7 +1671,7 @@ int AIFoundValue::evaluate()
 				// 	r -= 13;
 				// iValue -= r;
 				// if (gFoundLogLevel >= 3) logBBAIFoundDetail("PENALTY_SUBSTRACTED_TO_IVALUE_FOR_FOUNDING_ON", "Penalty (substracted to iValue) %d for founding on bonus", r);
-				// <!-- custom: note: opposite sign now, adding a negative value is clearer than guessing if we're substracting or not -->
+				// <!-- custom: note: opposite sign now, adding a negative value is clearer than guessing if we're subtracting or not -->
 				// <!-- custom: adds a negative -> penalty (ChatGPT-5) -->
 				iValue += r;
 				if (iFoundLogLevel >= 3) logBBAIFoundDetail("PENALTY_ADDED_TO_IVALUE_FOR_FOUNDING_ON", "Penalty (added to iValue) %d for founding on bonus", r);
@@ -1865,7 +1866,7 @@ int AIFoundValue::evaluate()
 				//int const iPenalty = 165;
 				// if (gFoundLogLevel >= 3) logBBAIFoundDetail("FROM_WATER_RESOURCE_NEAR_NON_COASTAL_SITE", "-%d from water resource near non-coastal site", iPenalty);
 				// iValue -= iPenalty;
-				// <!-- custom: note: opposite sign here (addition vs substraction before) unlike in base advciv, so value as of now also has opposite sign in global defines -->
+				// <!-- custom: note: opposite sign here (addition vs subtraction before) unlike in base advciv, so value as of now also has opposite sign in global defines -->
 				iValue += iValueHomeWaterBonusNoCoast;
 				if (iFoundLogLevel >= 3) logBBAIFoundDetail("FROM_WATER_RESOURCE_NEAR_NON_COASTAL_SITE", "%d from water resource near non-coastal site", iValueHomeWaterBonusNoCoast);
 			} // </advc.031>
@@ -2083,8 +2084,7 @@ int AIFoundValue::evaluate()
 
 		if (iLowFoodLocationScore > iMaxToleratedNotCoastalLowFoodScore)
 		{
-			// <!-- custom: old value was sometimes still insufficient even though it helped in some cities; increase low food location penalty more, which successfully solved the issue on testing.
-			// See known issue for details. (Claude code Sonnet 4.5 (summarized)) -->
+			// <!-- custom: old value was sometimes still insufficient even though it helped in some cities; increase low food location penalty more, which successfully solved the issue on testing. See KI#32 for details. (Claude code Sonnet 4.5 (summarized)) -->
 			// iValue += (-50) * iLowFoodLocationScore;
 			iBreakdownLowFood = iBaseValueNotCoastalLowFood * iLowFoodLocationScore;
 			iValue += iBreakdownLowFood;
@@ -2283,7 +2283,7 @@ int AIFoundValue::evaluate()
 	// else if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
 
 	// <!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or didn't accommodate/account for food desert bonuses or such.
-	// Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details -->
+	// Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see KI#54 for details -->
 	// if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
 	// 	iValue = adjustToCivSurroundings(iValue, iStealPercent);
 	const int iBeforeDistance = iValue;
@@ -2791,7 +2791,7 @@ int AIFoundValue::countBadTiles(/* advc.031: */ int& iInnerRadius, int& iUnrevea
 		{
 			// Rational Barbarians wouldn't mind settling one off the coast, but human players do mind, and some really hate this. Therefore, count the outer ring coast as bad if !bCoastal.
 			// <!-- custom: This is separate from the Barbarian coastal value bonus: it keeps the inherited adjacent/inner-focused Barbarian scoring, which can ignore outer-BFC seafood or other long-term captured-city value.
-			// AdvCiv-SAS makes this toggleable because Barbarian cities should also be useful city sites for themselves and later conquerors; set SAS_SITE_BARB_FULL_BFC_ON to use normal full-BFC scoring. (GPT-5.5) -->
+			// AdvCiv-SAS makes this toggleable because Barbarian cities should also be useful city sites for themselves and later conquerors; set SAS_SITE_BARB_FULL_BFC_ON to use normal full-BFC scoring. See KI#177. (GPT-5.5) -->
 			if(p != NULL && p->isWater() && !bCoastal && p->calculateBestNatureYield(YIELD_FOOD, eTeam) <= 1)
 			{
 				iBadTiles++;
@@ -2962,7 +2962,7 @@ bool AIFoundValue::isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCi
 	bool const bInnerRing = adjacentOrSame(*p, kPlot);
 	// <advc.303>
 	// <!-- custom: This was the remaining inherited inner-ring-only Barbarian city-site shortcut.
-	// Gate it with SAS_SITE_BARB_FULL_BFC_ON too, otherwise outer-BFC seafood still gets ignored even when bad-tile checks use full BFC scoring. (GPT-5.5) -->
+	// Gate it with SAS_SITE_BARB_FULL_BFC_ON too, otherwise outer-BFC seafood still gets ignored even when bad-tile checks use full BFC scoring. See KI#177. (GPT-5.5) -->
 	const bool bSAS_SITE_BARB_FULL_BFC_ON = GC.getDefineBOOL(CvGlobals::SAS_SITE_BARB_FULL_BFC_ON);
 	if (bBarbarian && !bSAS_SITE_BARB_FULL_BFC_ON && !bInnerRing)
 		return false; // </advc.303>
@@ -3418,9 +3418,10 @@ int AIFoundValue::calculateCultureModifier(CvPlot const& p, bool bForeignOwned, 
 			advc.045 hides foreign buildings, but it should, in theory, be possible
 			to infer culture buildings from visible tile culture percentages.
 			But will then also have to predict our own culture rate. */
-		static BuildingTypes const eCapitalBuilding = GC.getInfo(
-				pForeignCity->getCivilizationType()).
-				getCivilizationBuildings(GC.getDefineINT("CAPITAL_BUILDINGCLASS"));
+		// <!-- custom: Was one static for the capital building itself, so the first foreign capital evaluated fixed its civilization's capital building for every civilization for the rest of the session; only the building class is fixed, so the static now keeps that.
+		// Harmless with SAS's XML, where every civilization but the Barbarians, which have no capital, builds BUILDING_PALACE, but a mod giving civilizations their own Palace would have had each capital's culture counted as the first one's. See KI#128.4. (Claude code Opus 5.5) -->
+		static int const iCapitalBuildingClass = GC.getDefineINT("CAPITAL_BUILDINGCLASS");
+		BuildingTypes const eCapitalBuilding = GC.getInfo(pForeignCity->getCivilizationType()).getCivilizationBuildings(iCapitalBuildingClass);
 		if (eCapitalBuilding != NO_BUILDING)
 		{
 			iFreeForeignCulture += GC.getInfo(eCapitalBuilding).
@@ -4605,7 +4606,7 @@ bool AIFoundValue::isTooManyTakenTiles(int iTaken, int iResourceValue) const
 	{
 		return (iTaken > NUM_CITY_PLOTS / 6);
 	}
-	// <!-- custom: compete for bonuses by having a bit tighter placement, but still overall do not like to crowd cities too close to each other, is very inefficient, look for best tiels rather in other parts of the code if handled there i mean such as where we refactored/reworked logic or in other places if any, and aim for later big city size -->
+	// <!-- custom: compete for bonuses by having a bit tighter placement, but still overall do not like to crowd cities too close to each other, is very inefficient, look for best tiles rather in other parts of the code if handled there i mean such as where we refactored/reworked logic or in other places if any, and aim for later big city size -->
 	else
 	{
 		return (iTaken > NUM_CITY_PLOTS / 4);
@@ -5074,7 +5075,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 // }
 
 
-// <!-- custom: this adjustToCivSurroundings caused a bug of AI settler settling on bonus camel desert which is very bad in a desert surroudning even worse, it is seemingly called only once in AIFoundValue::evaluate, may as well disable it (including our changes in it) since it is so complicated and who knows where the bugs is(/are?)
+// <!-- custom: this adjustToCivSurroundings caused a bug of AI settler settling on bonus camel desert which is very bad in a desert surrounding even worse, it is seemingly called only once in AIFoundValue::evaluate, may as well disable it (including our changes in it) since it is so complicated and who knows where the bugs is(/are?)
 // and instead migrate only a very simplified version of the logic we want directly inline in its only caller so in AIFoundValue::evaluate, done so with the help of chatgpt 5, check if accurate -->
 // int AIFoundValue::adjustToCivSurroundings(int iValue, int iStealPercent) const
 // {
@@ -5275,7 +5276,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 // 		} // </advc.031>
 // 		// K-Mod.
 
-// 		// <!-- custom: remove long distance penalties, currently cities are too crowded which is inefficient and indeed as said in base advciv a bad AI settlment, i hope this helps, while our overall yield logic that we added makes AI simply go for best sites rather and spreading cities a bit more at least in theory although i didn't check in detail how this works (advised to remove penalty by claude ai as i asked it what this does and how we could spread cities further or something similar) --> 
+// 		// <!-- custom: remove long distance penalties, currently cities are too crowded which is inefficient and indeed as said in base advciv a bad AI settlement, i hope this helps, while our overall yield logic that we added makes AI simply go for best sites rather and spreading cities a bit more at least in theory although i didn't check in detail how this works (advised to remove penalty by claude ai as i asked it what this does and how we could spread cities further or something similar) --> 
 // 		/*  advc.031: Make expansive leaders indifferent about distance 5 vs. 6,
 // 			but don't encourage greater distances. */
 // 		// if (iNearestDistance > iTargetRange +

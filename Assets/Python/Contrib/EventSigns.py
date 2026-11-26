@@ -7,6 +7,11 @@
 ## event interface and displays them once the plot is visible.
 ##
 
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+
 from CvPythonExtensions import *
 
 import BugUtil
@@ -301,7 +306,7 @@ class MapSigns:
 			BugUtil.debug("MapSigns.displaySign() could not show sign; no caption found for player %d on plot %s" % (ePlayer, str(thisKey)))
 			return False
 		if ePlayer == -1:
-			# <!-- custom: ruff F507: 2 placeholders vs 3 substitutions; log full args to match. (GPT-5.2-Codex (summarized)) -->
+			# <!-- custom: ruff F507: 2 placeholders vs 3 substitutions; log full args to match. See KI#21.7. (GPT-5.2-Codex (summarized)) -->
 			BugUtil.debug("MapSigns.displaySign() landmark shown on plot. (szCaption=%s, ePlayer=%d, str(thisKey)=%s)" % (szCaption, ePlayer, str(thisKey)))
 			engine.addLandmark(pPlot, szCaption.encode('latin_1'))
 		else:

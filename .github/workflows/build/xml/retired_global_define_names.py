@@ -70,6 +70,8 @@ HISTORICAL_FILES = {
     "_1_AdvCiv-SAS/Docs/Source_Analysis/historical_source_archaeology.txt",
     "_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log",
     "_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md",
+    # <!-- custom: Like SASGameRecord.md, the Runtime history names each define as it was at its revision; its revision 6 is the rename of SAS_RUNTIME_STATUS_ENABLE itself, detailed on 2026-11-25. (Claude code Opus 5.5) -->
+    "_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md",
 }
 HISTORICAL_DIRECTORIES = ("_1_AdvCiv-SAS/Docs/dev_logs/", "_1_AdvCiv-SAS/Docs/changelogs_web/")
 # <!-- custom: AGENTS includes deliberate old-to-current examples, the lookup one and the rename rule's; its other retired spellings must still fail. (GPT-6.1-Sol + Claude Code Opus 5.5) -->

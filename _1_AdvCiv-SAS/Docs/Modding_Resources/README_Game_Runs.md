@@ -20,6 +20,8 @@ Built and tested by Claude Code Opus 5.5 on 2026-11-10, from a plan drafted with
 &emsp;[The screens outside a game](#the-screens-outside-a-game)\
 &emsp;[Inside a game](#inside-a-game)\
 &emsp;[After a crash](#after-a-crash)\
+&emsp;[A client that will not go away](#a-client-that-will-not-go-away)\
+&emsp;[A running client locks the DLL for Git](#a-running-client-locks-the-dll-for-git)\
 &emsp;[Hearing the game](#hearing-the-game)\
 [What did not work, and why](#what-did-not-work-and-why)\
 [Limits](#limits)
@@ -86,6 +88,8 @@ python LLM_Helpers/game_runs/run_autoplay.py "C:/path/to/save.CivBeyondSwordSave
 - `--verbose` prints the turn as the run advances.
 
 The save is only read. The runner copies the user's `CivilizationIV.ini` so graphics and sound settings match, and deletes that copy when Civ4 closes.
+
+To load a save without playing any turn, for example to check a fix on the position a bug was seen in, use [`start_game.py --load`](/LLM_Helpers/README.md#start_gamepy) instead: `--turns 1` would still play the loaded turn.
 
 ## Start a new game
 
@@ -241,9 +245,18 @@ Tested on 2026-11-10 during an autoplay:
 - One click on the Dawn of Man popup's Continue button reached the game. Its position, `963,809` in a 1926x1120 window, was read off a screenshot, so it holds only for that window size and layout; a different resolution, text scale or UI change moves it. Take a screenshot and read the position again before each click, and prefer a request that needs no click, as autoplay itself does.
 - `hover` moves the pointer to a point without clicking or focusing the window, so a tooltip appears without disturbing a user typing elsewhere. It refuses a point outside the window.
   - It needs Civ4 in front, though: on 2026-11-14 hovering a resource icon on the Foreign Advisor's Bonuses tab showed no tooltip while the agent's console had the focus, and the user's own hover, with Civ4 in front, showed it (`Civ4ScreenShot0027.JPG`, `0028.JPG`). Click an empty spot of the window first, or read the data through SASPilot, as `bonustrade` does for that tab.
+    - The map's plot help works the same way (2026-11-22, checking KI#11.3): after a save loaded with `start_game.py --load`, hovered plots kept showing an earlier plot's help, even after a key press, until the user clicked in the game; the user's own hovers then gave the expected plot.
 - Keystrokes did not: simulated Ctrl+Shift+X and Enter never reached the game, so the tool offers none, and the autoplay request avoids the keyboard. Anyone typing at the PC also cannot disturb a run.
   - Since 2026-11-11 key events carry the scan code a real key press has, and Civ4 accepted them: in the Sevopedia, Down moved to the next entry, Left and Right acted as BACK and NEXT, and `type` filled the search box. Later testing also opened the Ctrl+Shift+X chooser and started and stopped autoplay.
-- Civ4's own screenshot key, which the Runtime screenshot observer records, was not tried from the tools.
+- Civ4's own screenshot key, which the Runtime screenshot observer records, works from the tools: `desktop_windows.py key printscreen --pid PID --hold 1` saves `Civ4ScreenShotNNNN.JPG` in My Games' `ScreenShots` (2026-11-23).
+  - It is the small JPG the repository's screenshots use, about 285 KB for a mostly empty table and 600 KB for a full one at 1920 x 1080, without the window's title bar, so it suits a shot for the repository better than `screenshot`'s PNG.
+  - Check with `screenshot` before each press: two shots of the Debug Info screen came out as the bare map, as an earlier Enter had closed the screen.
+  - That Enter came from choosing a dropdown item with arrow keys: `key` brings Civ4 forward first, which closed the open list, so the arrows and Enter reached the map instead, and a click on a list item did not register either.
+    - [`set_dropdown.py`](/LLM_Helpers/README.md#civ4_ui_mapjson-capture_dropdownspy-and-set_dropdownpy) chooses an item by name; relaunching also worked, as the Debug Info screen opens on its first tab in a new game.
+    - Clicks alone worked on 2026-11-26, checking [KI#1105.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.3) at 1920 x 1080: Shift + F2 through `key`, then a `click` on the closed dropdown at window point (170, 96), which only brought Civ4 forward, a second on its arrow at (310, 96), which opened the list, and a third on "AI Types" at (90, 235), which chose it. With no key press after the list opened, the item click registered.
+- In one session (2026-11-23), with two Civ4 clients open and the user working in other windows, `scroll` moved the GameFont Display screen's table only after a `click` on it, and several scrolls did nothing while the focus had moved elsewhere; `scroll` sends the wheel without forcing the focus, so click the target first and check the result.
+  - Click only where a click does nothing else, such as a table row: on the map or a city screen a click can move a unit, assign a specialist or change production (the user).
+  - A stale picture looks the same as a scroll that did nothing: the default `screenshot` asks a background window to redraw itself, so take `--method screen` to see what the screen shows.
 - Enlarging the window does not add detail either: on 2026-11-11 a 1920x1080 game maximized over a 4K monitor showed the same pixels doubled, so keep the game's own size and crop. See [Look, then act](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#look-then-act).
 
 ### The main menu and the Sevopedia
@@ -413,12 +426,20 @@ Tested on 2026-11-11 with the game windowed at 1920x1080, in a 1926x1120 window 
   - Your Details takes the keyboard: letters typed elsewhere land in its Leader Name box, so click through it only while the user is idle.
 - Civ4 remembers Custom Game settings for the user's next game. Note them before changing any, and set them back afterwards.
 - Other resolutions (2026-11-12, testing the setup-screen EXE patch of [KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082)): set `ScreenWidth`, `ScreenHeight` and `FullScreen` in `CivilizationIV.ini` for the run and restore the file afterwards. The named points fit only 1920x1080, so read positions off a screenshot.
+  - To change the resolution during a game instead (2026-11-24, testing [KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2) and [KI#123.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3)): Ctrl+O opens the Options (Alt+O did nothing), then its Graphics tab, then the Screen Resolution dropdown; choosing an item asks "Do you wish to keep this resolution?", and Yes, then Exit, close it.
+    - The dialog is centred: in a 2566x1480 window the Graphics tab sat at `1020,508`, the dropdown at `1235,612`, Yes at `1346,754` and Exit at `1356,1010`; in a 1926x1120 window at `700,328`, `910,430`, `1026,574` and `1034,828`.
+    - The dropdown's list often opened only on a second click, and a click while it was open closed it, so take a `--method screen` screenshot after each click; a window screenshot did not show the open list. The list scrolls with `scroll`, 26 px per row.
+    - It is not reliable: in the last of six games that day, the list never opened, after seven clicks on its text and arrow and a reopened Options, while the tooltip showed each time; pressing Up scrolled the map instead. [`start_game.py --size`](/LLM_Helpers/README.md#start_gamepy) then starts a game at the other size.
+    - The game saves the new resolution in its profile, so the next `start_game.py` run without `--size` opens at it.
   - A 2560x1380 game opened a 2566x1420 window. The main menu's items stay centred about halfway down: Single Player, then Simple Game, both at `1283,724`.
   - A 3840x2160 fullscreen game started and showed the main menu in a full-size screenshot, but a click there was refused, because `desktop_windows.py` found the user's VS Code window over that point, and its window size came back as 2560x1440, the scaled size. Fullscreen also switches the user's monitor, so prefer a window just under the screen's size.
   - Do not shrink a running game's window to test a smaller screen: on 2026-11-20 a game resized to 1920x1080 with `desktop_windows.py move --size` only stretched its picture, with blurry text and advisors not laid out for 1920, and its SASPilot console was squeezed into a sliver.
-    - Start the game at that resolution instead; `move --size` now refuses sizes below 640x400, while growing a window, such as to fill a 4K monitor, stays useful.
-  - A window as large as a 4K monitor technically fits, but its bottom slides under the taskbar: on 2026-11-12 a 3800x2060 game opened a 3806x2100 window whose OK, in the bottom-right corner, was refused as covered by Explorer, and a 3800x1980 one lost focus.
+    - Start the game at that resolution instead, such as with `capture_screens.py --size 1920x1080`, which sets it in the run's INI copy; `move --size` now refuses sizes below 640x400, while growing a window, such as to fill a 4K monitor, stays useful.
+  - A window as large as a 4K monitor technically fits, but its bottom slides under the taskbar, likely because Civ4's window is not borderless: its title bar and frame add to the game's size: on 2026-11-12 a 3800x2060 game opened a 3806x2100 window whose OK, in the bottom-right corner, was refused as covered by Explorer, and a 3800x1980 one lost focus.
     - Maximize it first instead: start the game at 3840x2060, then `desktop_windows.py move --pid <pid> --monitor 1 full` fits it to the monitor's work area (3844x2102 with its borders), where every control can be clicked. Otherwise lower the INI size well under the screen's.
+    - `full` only resizes the window, though: on 2026-11-24, while an agent tested the Sevopedia at 4K with it, the user noticed the window was not really maximized and showed the difference, a 3838x2062 game area against 3840x2066 with the title bar's maximize button.
+      - Tests should see the screen a player gets, so at the user's request `move --pid <pid> maximize` now does a real Windows maximize on the chosen monitor, at any monitor size; it was checked from a 1920x1080 window to a 3840x2066 client area, with Windows reporting the window as maximized.
+    - Civ4's own Print Screen saves nothing while the window runs past the screen's edge or onto a second monitor ([KI#7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-7), checked 2026-11-24), so maximize such a game before taking `Civ4ScreenShot` images, or use `desktop_windows.py screenshot`.
   - A 1920x1080 fullscreen game could be clicked through, at the screenshot's own coordinates, but ignored `desktop_windows.py close` while still responding, so the agent stopped its own process with `Stop-Process`.
   - Walking Simple Game at 2560x1380 and 3840x2060 (2026-11-12, for the globe patch of [KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082)), positions were read off one screenshot per step, with `capture_screens.py --keep-open` and then `--pid`:
     - Map rows are 24 px apart at every size: Arboria at `225,147` in a 2566x1420 window and at `330,144` in a maximized 3844x2102 one, so row N is at that y plus 24 x N. OK sits at `2493,1395` and `3772,2076`; at 4K, Single Player and then Simple Game are both at `1920,1060`.
@@ -535,6 +556,40 @@ Mapped by Claude Code Opus 5.5 on 2026-11-13 during [KI#1084](/_1_AdvCiv-SAS/Doc
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/game_runs/llm_civ4_crash_dump_dialog.PNG" alt="llm_civ4_crash_dump_dialog.PNG" width="250">
 <img src="/_1_AdvCiv-SAS/Images/LLM/game_runs/llm_civ4_crash_dump_saved.PNG" alt="llm_civ4_crash_dump_saved.PNG" width="250">
+
+### A client that will not go away
+
+A closed client can stay in the process list: Civ4 has quit, but Steam's `steamclient.dll` waits forever while Windows unloads it, a deadlock as inferred from the dumps ([KI#1102](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)). While it stays, a new `Civ4BeyondSword.exe` quits at once, before Python writes a log, and `start_game.py` used to report "Civ4 exited while loading".
+
+Recorded by Claude Code Opus 5.5 on 2026-11-26, after a test game closed with `desktop_windows.py close` hung this way, at the user's request so the next agent recognizes it and goes on.
+
+- How to recognize it: `Get-Process -Id <pid>` shows `HasExited` true, yet the process keeps one thread, its handles and its memory (263 MB that time), and `taskkill /F /PID <pid>` answers that no running instance exists. It owns no window, so it is no hidden dialog as in [After a crash](#after-a-crash).
+- End it: `desktop_windows.terminate_process(<pid>)` opens a handle to it and calls `TerminateProcess`, which released it in a moment on 2026-11-26 from a non-elevated shell; Codex (GPT-6.2-Sol) found this way.
+  - It checks on the same handle that the process is still the one found, by image and creation time, and that its exit is pending, as a pid can be reused (Codex's review).
+  - `start_game.py` does so by itself when `desktop_windows.stuck_civ4_processes()` lists such a client, and says so; `desktop_windows.py close --force` uses it too.
+  - The usual kills left it in place: `Stop-Process -Force` and `taskkill /F`, which answered that no running instance existed, elevated or not; whether they reached `TerminateProcess` was not traced. A debugger attach, resuming its thread and an elevated `Stop-Process` through a scheduled task the user registered all left it in place.
+    - That task, "AdvCiv-SAS Kill Stuck Civ4", was removed the same day, as it did not help; `Unregister-ScheduledTask -TaskName "AdvCiv-SAS Kill Stuck Civ4" -Confirm:$false` in an administrator PowerShell removes one found registered.
+  - Before ending it, a dump keeps the evidence: `MiniDumpWriteDump` from an ordinary process wrote a 569 MB full dump of it, read as in the [DLL Debugging Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md#a-hang-at-exit).
+- If one ever survives that, go on beside it: Civ4's own single-instance check turns a new client away, as inferred, not Steam's running flag, which read 0 that day, and a client started with Civ4's `multiple` argument runs beside it.
+  - `start_game.py` then passes `multiple` by itself; `run_autoplay.py --multiple` and `capture_screens.py --multiple` do it on request.
+  - The leftover keeps `PythonDbg.log` and `PythonErr.log` open, so the new client writes its Python output to `PythonErr2.log`, which ended after start-up that day; check its screens on screen rather than in that log.
+  - `desktop_windows.civ4_processes()` leaves the leftover out, so the tools do not take it for a running game.
+- Agents cannot use the user's Task Manager, which ends it too, as the [Quick Install and Setup Guide](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#if-nothing-happens-when-launching-the-mod) tells players: it runs elevated for an administrator account without asking, and Windows keeps a normal program's input out of an elevated window, so `desktop_windows.py click` cannot press its buttons and now says the target runs elevated; the Claude app's computer use states the same limit, that elevated windows such as Task Manager "cannot be controlled even when granted".
+
+### A running client locks the DLL for Git
+
+While a Civ4 client runs, Windows keeps the mod's `Assets/CvGameCoreDLL.dll` in use, so nothing can replace it. A Git step that rewrites the working files, such as a rebase, a reset or a checkout, then fails partway when it reaches the DLL, as the local test DLL usually differs from the committed one ([DLL inclusion in commits](/AGENTS.md#dll-inclusion-in-commits)).
+
+- Close every AdvCiv-SAS client first, your own test game included: `desktop_windows.py close --mod AdvCiv-SAS --wait 30`. Leaving a test game open for the user to look at is fine until the next Git step.
+- Example (2026-11-26): rewording a commit with `git rebase -i --autostash` while a test game was still open, Claude Code Opus 5.5 got `unable to unlink old 'Assets/CvGameCoreDLL.dll': Invalid argument` and `fatal: could not reset --hard`.
+  - The autostash had already taken the user's unstaged development values, the Debug-opt DLL and an edit, and the failed reset left them out of the working files, held only in the autostash commit named by `.git/rebase-merge/autostash`.
+  - `git rebase --abort` could not run, as the rebase had not really started. Closing the game, then `git checkout HEAD -- Assets/CvGameCoreDLL.dll` and `git stash apply <autostash SHA>`, brought everything back; removing the stale `.git/rebase-merge` folder let the rebase run again.
+  - Nothing was lost, but only because the autostash commit was found.
+- If it happens again, guard the stash before any cleanup, as Codex's review (GPT-6.2-Sol) advised from Git's documentation; this order was not itself rerun.
+  - Find the autostash: `git rev-parse --git-path rebase-merge/autostash` gives the file's path, in a linked worktree too, and the file holds the SHA.
+  - Pin it at once with `git stash store -m "autostash kept" <SHA>`, so it stays in `git stash list` whatever the cleanup does.
+  - Check `git status`, `git diff` and `git diff --staged` against what you expect, and close every Civ4 client.
+  - Try `git rebase --quit` first, which keeps an autostash when Git still recognizes the rebase; then restore the DLL path with `git checkout HEAD -- Assets/CvGameCoreDLL.dll` and apply with `git stash apply --index <SHA>`, which also tries to restore what was staged, where a plain `apply` puts everything back unstaged.
 
 ### Hearing the game
 

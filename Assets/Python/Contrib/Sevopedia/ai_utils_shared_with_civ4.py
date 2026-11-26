@@ -729,7 +729,7 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
 
 		if contact_rand_raw <= 0:
 			# <!-- custom: (and else,) if rand is <=0, AI has a compatible delay but still never engages due to rand, so probability of contact is still 0.
-			# Only outside of these edge cases can the contact probabiltiy be computed if i'm not mistaken, else should be 0 as in this code block/check. -->
+			# Only outside of these edge cases can the contact probability be computed if i'm not mistaken, else should be 0 as in this code block/check. -->
 			# Can try, but refuses to ever engage → Aggregated ContactProb = 0
 			adjusted_rand = 0
 			force_zero_adjusted_values = True # Forced 0 aggregation
@@ -739,7 +739,7 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
 			return adjusted_rand, adjusted_delay, force_zero_adjusted_values
 
 		else:
-			# <!-- custom: (and else,), if both delay and rand are compatible with havig a scaling and acutal contact probability (that we can compute too maybe here indeed), then (to compute this we propose this formula that) the higher the delay the worse/lower the contact prob, and the higher the rand the worse/lower the contact prob (example gandhi's data/values vs montezuma so we should (i think) invert both) -->
+			# <!-- custom: (and else,), if both delay and rand are compatible with having a scaling and actual contact probability (that we can compute too maybe here indeed), then (to compute this we propose this formula that) the higher the delay the worse/lower the contact prob, and the higher the rand the worse/lower the contact prob (example gandhi's data/values vs montezuma so we should (i think) invert both) -->
 			adjusted_rand = contact_rand_raw
 			force_zero_adjusted_values = False # Normal aggregation
 			if is_debug:
@@ -748,10 +748,10 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
 			return adjusted_rand, adjusted_delay, force_zero_adjusted_values
 
 def get_contact_rand_and_delay_invert_flags():
-	# <!-- custom: the higher the contact rand (say 200 > 50), the lower the 1/n = 1/200 vs 1/50 chance of contact event / prob from my memory of the terminology if i may say or words used in kujira about memory fields or such, so we invert -->
+	# <!-- custom: the higher the contact rand (say 200 > 50), the lower the 1/n = 1/200 vs 1/50 chance of contact event / prob from my memory of the terminology or words used in kujira about memory fields or such, so we invert -->
 	b_invert_contact_rands = True
 	# <!-- custom: also, the higher the delay (say 100 > 5 (turns?
-	# )), the longer until next contact, so the lower the contact event / prob, so we invert delays too if i may say or not or yes or etc -->
+	# )), the longer until next contact, so the lower the contact event / prob, so we invert delays too -->
 	b_invert_contact_delays = True
 	return b_invert_contact_rands, b_invert_contact_delays
 
@@ -809,7 +809,7 @@ def get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection
 			return False, False
 		else:
 			# <!-- custom: lower attitude score (ex: -350 < -200) means more intense negative feeling (resentment) (resentful and (more) especially spiteful AI even for (presumably) good deeds), closer to 0 means AI cares less (0 should be		- maximum -		attitudes after normalization (where again AI also, as in positive affection, for this value 0 (after adjustment) attitude, cares the least (at least we model it a such))), so we should invert indeed.
-			# More detail on why and to be careful since these are negative values unlike most civ4 data (a good fail check too maybe to review or learn for me at least anyways), is that since our normalize_to_100 function shifts to 0 distribution before normalizing (i.e. -350 is now -350 + 350 = 0, and -200 is now -200 + 350 = 150) then the lower the score is (0 vs 150 before normalization, which is (after normalization) 0 / 150 * 100 = 0 vs 100 / 150 * 100 = 100, then -350 (now 0) which was more intense(ly negative feeling (resentment)) is the lowest, while -200 (now 100) with the lowest (in comparison relatively) feeling is now the highest in score, so the atititude score should indeed be inverted, hopefully safe nowanyways.
+			# More detail on why and to be careful since these are negative values unlike most civ4 data (a good fail check too maybe to review or learn for me), is that since our normalize_to_100 function shifts to 0 distribution before normalizing (i.e. -350 is now -350 + 350 = 0, and -200 is now -200 + 350 = 150) then the lower the score is (0 vs 150 before normalization, which is (after normalization) 0 / 150 * 100 = 0 vs 100 / 150 * 100 = 100, then -350 (now 0) which was more intense(ly negative feeling (resentment)) is the lowest, while -200 (now 100) with the lowest (in comparison relatively) feeling is now the highest in score, so the attitude score should indeed be inverted, hopefully safe nowanyways.
 			# -->
 			return True, False
 

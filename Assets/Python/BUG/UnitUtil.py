@@ -10,7 +10,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). See KI#21.7. (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
 import BugUtil
@@ -247,9 +247,7 @@ def findObsoleteUnits(units):
 		if upgrades:
 			for eUpgradeUnit in upgrades:
 				if eUpgradeUnit not in units and eUpgradeUnit not in generics:
-#					BugUtil.debug("findObsoleteUnits - %s, cannot build %s", 
-#							unitInfo.getDescription(),
-#							gc.getUnitInfo(eUpgradeUnit).getDescription())
+#					BugUtil.debug("findObsoleteUnits - %s, cannot build %s", unitInfo.getDescription(), gc.getUnitInfo(eUpgradeUnit).getDescription())
 					break
 			else:
 				obsoletes.add(eUnit)

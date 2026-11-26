@@ -1288,7 +1288,8 @@ class CvWorldAdvisorScreen:
 		if iAppliedSteps > 1:
 			szHelp += localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_COMPACT_HELP", (iAppliedSteps, iFirstEntry, iEntry))
 		# <!-- custom: BUG custom help does not inherit table fonts; honor the shared hover setting independently of the table label size. (GPT-6.1-Sol) -->
-		return SASTextScale.sasFontTagHover + szHelp + SASTextScale.SAS_FONT_TAG_CLOSE
+		# <!-- custom: Since 2026-11-26 hover text has the label size, its own define retired, so this tag now matches the table's label size; it stays, as the help still does not inherit it. (Claude code Opus 5.5) -->
+		return SASTextScale.sasFontTagLabel + szHelp + SASTextScale.SAS_FONT_TAG_CLOSE
 
 	def getChangesHistoryTargetHelp(self, eWidget, iEntry, iData2, bOption):
 		if iEntry < 0 or iEntry >= CyGame().getNumSASWorldChangesHistoryEntries():
@@ -1297,7 +1298,7 @@ class CvWorldAdvisorScreen:
 		if tRow is None or not tRow[-1]:
 			return u""
 		# <!-- custom: Apply hover scaling to the full target text, including escaped script contents; the table text itself retains its separate label font. (GPT-6.1-Sol) -->
-		return SASTextScale.sasFontTagHover + tRow[6] + SASTextScale.SAS_FONT_TAG_CLOSE
+		return SASTextScale.sasFontTagLabel + tRow[6] + SASTextScale.SAS_FONT_TAG_CLOSE
 
 	def getChangesHistoryTargetText(self, iEntry):
 		game = CyGame()

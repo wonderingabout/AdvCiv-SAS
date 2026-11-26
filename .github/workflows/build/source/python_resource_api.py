@@ -19,6 +19,8 @@ import xml.etree.ElementTree as ET
 # <!-- custom: Share Git range resolution with the existing source checks rather than giving the API checker a different push/PR comparison policy. (GPT-6.1-Sol) -->
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 from git_context import ensure_base, run_git
+# <!-- custom: The exception note's one spelling, kept in lib/ci_markers.py with the other CI markers since 2026-11-25. (Claude code Opus 5.5) -->
+from ci_markers import RESOURCE_CACHE_DIRECT
 
 ROOT = Path(__file__).resolve().parents[4]
 PROVIDERS = ("SASVisualUtils", "SASTextScale")
@@ -312,6 +314,8 @@ def resource_environment(tree):
     env = {name: (name,) for name in ("CyGlobalContext", "CyArtFileMgr")}
     env["CyGame"] = ("CyGlobalContext", "getGame")
     env["getInfoTypeOrFail"] = ("getInfoTypeOrFail",)
+    # <!-- custom: SASCurrentDefines.getInt is a cached gc.getDefineINT since KI#128.5, so a raw read of a define it serves is the same bypass. (Claude code Opus 5.5) -->
+    env["SASCurrentDefines.getInt"] = ("CyGlobalContext", "getDefineINT")
     for node in tree.body:
         if isinstance(node, ast.Import):
             for item in node.names:
@@ -446,13 +450,16 @@ class ResourceCachePolicy:
             if not isinstance(item, ast.Assign):
                 continue
             origin = resource_origin(item.value, env)
+            # <!-- custom: A value read through SASCurrentDefines.getInt and returned is a cache contract too: SASTextScale's font getters kept the sizes in their own dict until KI#128.5 moved the cache into SASCurrentDefines, after which this check no longer derived its font rules, and a raw gc.getDefineINT('SAS_UI_FONT_BODY') passed (2026-11-26). (Claude code Opus 5.5) -->
+            shared_read = isinstance(item.value, ast.Call) and chain(item.value.func) == ["SASCurrentDefines", "getInt"]
             for target in item.targets:
                 if isinstance(target, ast.Name):
                     env[target.id] = origin
-                elif isinstance(target, ast.Subscript) and origin and (origin[0] in {"CyGlobalContext", "CyArtFileMgr", "getInfoTypeOrFail"}):
+                if (isinstance(target, ast.Subscript) and origin and (origin[0] in {"CyGlobalContext", "CyArtFileMgr", "getInfoTypeOrFail"})) or (isinstance(target, ast.Name) and shared_read):
                     # <!-- custom: Only a lookup whose result is stored in a returned cache is a replacement contract; incidental metadata reads such as trait descriptions are not equivalent to a cached trait icon. (GPT-6.1-Sol) -->
-                    cache = ast.dump(target.value)
-                    returned = any(isinstance(ret, ast.Return) and ret.value is not None and any(ast.dump(part) == cache for part in ast.walk(ret.value)) for ret in ast.walk(function))
+                    # <!-- custom: A returned name is matched by its identifier, as ast.dump keeps its Store or Load context and so never matched. (Claude code Opus 5.5) -->
+                    cache = ("name", target.id) if isinstance(target, ast.Name) else ast.dump(target.value)
+                    returned = any(isinstance(ret, ast.Return) and ret.value is not None and any((isinstance(part, ast.Name) and ("name", part.id) == cache) or ast.dump(part) == cache for part in ast.walk(ret.value)) for ret in ast.walk(function))
                     accessors = set((contracts or {}).get((function.name, cache), ()))
                     if returned and (contracts is None or not function.name.startswith("_")):
                         accessors.add(accessor)
@@ -474,10 +481,10 @@ class ResourceCachePolicy:
         errors = []
         exceptions = {}
         for token in tokenize.generate_tokens(StringIO(source).readline):
-            if token.type == tokenize.COMMENT and "resource-cache-direct:" in token.string:
-                reason = token.string.split("resource-cache-direct:", 1)[1].split("-->", 1)[0].strip()
+            if token.type == tokenize.COMMENT and RESOURCE_CACHE_DIRECT in token.string:
+                reason = token.string.split(RESOURCE_CACHE_DIRECT, 1)[1].split("-->", 1)[0].strip()
                 if not reason or reason.startswith("("):
-                    errors.append((token.start[0], "resource-cache-direct requires a concrete reason"))
+                    errors.append((token.start[0], RESOURCE_CACHE_DIRECT[:-1] + " requires a concrete reason"))
                 else:
                     exceptions[token.start[0]] = reason
         policy = self
@@ -521,12 +528,12 @@ class ResourceCachePolicy:
                     if literals and literal not in literals:
                         continue
                     if not self.allowed(node):
-                        errors.append((node.lineno, "direct resource lookup bypasses shared cache; use " + accessor + " or document resource-cache-direct: reason"))
+                        errors.append((node.lineno, "direct resource lookup bypasses shared cache; use " + accessor + " or document " + RESOURCE_CACHE_DIRECT + " reason"))
                     break
                 self.generic_visit(node)
             def visit_Constant(self, node):
                 if isinstance(node.value, str) and node.value.lower() in policy.literals and not self.allowed(node):
-                    errors.append((node.lineno, "duplicated shared art path; use " + policy.literals[node.value.lower()] + " or document resource-cache-direct: reason"))
+                    errors.append((node.lineno, "duplicated shared art path; use " + policy.literals[node.value.lower()] + " or document " + RESOURCE_CACHE_DIRECT + " reason"))
         Visitor().visit(tree)
         return errors
 

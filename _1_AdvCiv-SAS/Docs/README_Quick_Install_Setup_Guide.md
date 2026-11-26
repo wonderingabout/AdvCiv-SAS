@@ -13,8 +13,10 @@ To install and play this mod AdvCiv-SAS, you can follow the steps in this docume
 [Place a shortcut of the mod on your desktop](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#place-a-shortcut-of-the-mod-on-your-desktop)\
 [If nothing happens when launching the mod](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#if-nothing-happens-when-launching-the-mod)\
 [Configure the mod](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#configure-the-mod)\
-&emsp;[General ideas](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#general-ideas)\
 &emsp;[Disable the Steam overlay](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#disable-the-steam-overlay)\
+&emsp;[Game options](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#game-options)\
+&emsp;[BUG options](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#bug-options)\
+&emsp;[Tuning the mod's settings](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#tuning-the-mods-settings)\
 &emsp;[Settings if you want to develop/modify the mod or try some autoplay or such (skip this section if only playing without wanting extra details)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#settings-if-you-want-to-developmodify-the-mod-or-try-some-autoplay-or-such-skip-this-section-if-only-playing-without-wanting-extra-details)\
 [Multiple instances and LAN multiplayer](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#multiple-instances-and-lan-multiplayer)\
 [Mod Version](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#mod-version)\
@@ -30,7 +32,7 @@ First you need to install (or have it installed already) Civilization 4 Beyond t
 
 If you don't have the game, i recommend buying it from GOG rather than Steam (i have no affiliation with either xd, although i have the steam version myself for convenience and such, as the executable or whatever they call it is cleaner and closer if not entirely unmodified unlike the Steam one, but check to be sure).
 
-It should work fine with the Steam one too, but given the choice again i may have bought it from GOG rather hehe, although it is not certain as Steam one is convenient too for library access of other games or centralized games lbirary for me i mean or such, but i hope this information helps you decide, check i mean too or for extra or updated info if any change has been made since maybe.
+It should work fine with the Steam one too, but given the choice again i may have bought it from GOG rather hehe, although it is not certain as Steam one is convenient too for library access of other games or centralized games library for me i mean or such, but i hope this information helps you decide, check i mean too or for extra or updated info if any change has been made since maybe.
 
 ## Download this mod AdvCiv-SAS
 
@@ -87,7 +89,7 @@ If you don't see the same main menu wallpaper as below when opening AdvCiv-SAS, 
 
 <img src="/_1_AdvCiv-SAS/Images/main_menu/1.300_main_menu_home%20(1).JPG" alt="1.300_main_menu_home (1).JPG" width="250"></img>
 
-Note 2: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Middle-earth mod, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are/should be totally indepedent in theory if i'm not mistaken, the settings or files of one will/should not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
+Note 2: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Middle-earth mod, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are/should be totally independent in theory if i'm not mistaken, the settings or files of one will/should not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
 
 ## If nothing happens when launching the mod
 
@@ -97,6 +99,8 @@ Sometimes, rarely, when launching the mod nothing happens (i.e. the mod does not
 
 - Update (2026-11-20): a dump of such a leftover showed its cause. The previous Civ4 had quit normally but hung while Steam's `steamclient.dll` unloaded, so Steam still counted the game as running; it shows in Task Manager with almost no memory, such as 0.1 MB. See [KI#1102](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102).
   - To help find what makes Steam hang, right click it and choose "Create dump file" before ending it, then keep the `Civ4BeyondSword.DMP` file it names, as Windows' Temp folder gets cleaned.
+- Update (2026-11-26): a third case showed two corrections. Such a leftover can also hold hundreds of MB, 263 MB that time, so its memory alone does not tell it apart; and what turns the new launch away is Civ4's own check for a running copy, not Steam, whose running flag read 0. Ending it in Task Manager stays the fix.
+  - AI agents end it themselves with a direct `TerminateProcess`, as PowerShell's `Stop-Process` and `taskkill` left it in place; see [A client that will not go away](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#a-client-that-will-not-go-away).
 
 Note that sometimes it seems named either "Sid Meier's Civilization 4 : Beyond The Sword (32 bits)", or more rarely "Civ IV: Beyond The Sword" but the cure/fix seems to be the same regardless.
 
@@ -105,7 +109,13 @@ Note that sometimes it seems named either "Sid Meier's Civilization 4 : Beyond T
 
 ## Configure the mod
 
-### General ideas
+### Disable the Steam overlay
+
+Optionally, for steam users, consider disabling the Steam Overlay if you don't use it in Civ4; allows access to the F12 key that won't screenshot anymore (as of now default In-game is Open Sevopedia).
+
+Overlays in general seemed to cause all kinds of issues in Civ4, as seemed to be mentioned on the Realism Invictus CivFanatics forums (not verified here), so if you encounter issues, or if convenient, consider disabling other overlays too.
+
+### Game options
 
 Recommended, change your config as you prefer. For example as for me, i play at 1920x1080 (seems to display best ingame, even though i have a larger screen actually (4K) i also optimized Sevopedia features like the AI personality panel for 1920x1080 (but may work as well for higher resolutions although i didn't test it)) in full screen, but when i need to debug or test the windowed mode is so much more practical.
 
@@ -118,13 +128,17 @@ There are some options i use personally xdin ingame settings then like (from mem
 - single unit graphics
 - numbers on city bar
 
+### BUG options
+
 Then in BUG Menu options i also use this for example hehe but do as you prefer as well (non-exhaustive in case i forgot / didn't show some):
 
 - wide city bars
 
-### Disable the Steam overlay
+### Tuning the mod's settings
 
-Optionally, for steam users, consider disabling the Steam Overlay if you don't use it in Civ4; allows access to the F12 key that won't screenshot anymore (as of now default In-game is Open Sevopedia).
+Many of the mod's settings can be tuned in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml), with Civ4 closed.
+
+A few, such as the font sizes, can also change while Civ4 runs, without a restart; see [Live define overrides](/README.md#live-define-overrides).
 
 ### Settings if you want to develop/modify the mod or try some autoplay or such (skip this section if only playing without wanting extra details)
 

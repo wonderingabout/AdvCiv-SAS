@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- advc.076: Help text for the player options menu; some new, some revised.
 	 For revised text, I've mostly left the Romance-language translations
 	 alone. -->
@@ -218,15 +222,6 @@
 
 	<!-- New: Tooltip for the dropdown menus -->
 	<!-- See "Tbd." in manual about these two -->
-	<!-- advc.092: Changing res really needs a restart now -->
-	<TEXT>
-		<Tag>TXT_KEY_OPTIONS_SCREEN_RES_HELP</Tag>
-		<English>Screen Resolution. If the [COLOR_HIGHLIGHT_TEXT]Scale Up HUD[COLOR_REVERT] option is enabled on the BUG menu, then the game may have to be restarted to re-scale all widgets properly after a change to the screen resolution.</English>
-		<French>R&#233;solution</French>
-		<German>Auflösung. Wenn die Option [COLOR_HIGHLIGHT_TEXT]Anzeige vergrößern[COLOR_REVERT] im BUG-Menü aktiviert ist, kann ein Neustart nötig sein, um die Größe der Schaltflächen korrekt an die veränderte Auflösung anzupassen.</German>
-		<Italian>Risoluzione video</Italian>
-		<Spanish>Resoluci&#243;n de pantalla</Spanish>
-	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_OPTIONS_SCREEN_RENDER_QUALITY_LEVEL_HELP</Tag>
 		<English>Effect unknown</English>

@@ -18,6 +18,8 @@ import BugPath
 # <!-- custom: CvUtil writes SASPilot's structured log rows (pyPrintRecord), and SASAutoplayRequest finds the per-run INI whose [SASPilot] section configures it. (Claude code Opus 5.5) -->
 import CvUtil
 import SASAutoplayRequest
+# <!-- custom: SAS_PILOT_ON is read through main's shared define cache, as python_define_reads_cached.py requires since merging main (2026-11-27); a leaf module, so no cycle. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 
 gc = CyGlobalContext()
 
@@ -56,7 +58,7 @@ def _pilotSection():
 
 def _resolveEnabled():
 	# <!-- custom: The XML switch is read first, as before the session ID came, so a malformed per-run INI cannot stop a pilot that SAS_PILOT_ON turns on (Codex's review); it then runs without a session. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	if gc.getDefineINT("SAS_PILOT_ON") > 0:
+	if SASCurrentDefines.getInt("SAS_PILOT_ON") > 0:
 		try:
 			state["session"] = _pilotSection().get("session")
 		except:

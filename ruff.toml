@@ -8,7 +8,7 @@
 lint.select = ["E", "F"]
 # <!-- custom: Civ4 runs Python 2.4, where `unicode` is a built-in; modern Ruff needs it listed explicitly. (GPT-5.5) -->
 builtins = ["unicode"]
-# <!-- custom: Downloaded map-script originals are immutable archaeology references rather than AdvCiv-SAS runtime source. Keep them greppable without adding upstream lint noise or encouraging cleanup edits. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+# <!-- custom: Downloaded map-script originals are immutable archaeology references rather than AdvCiv-SAS runtime source. Keep them greppable without adding upstream lint noise or encouraging cleanup edits. See KI#21.7. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 extend-exclude = ["LLM_Helpers/context/mapscript_refs"]
 
 # Ignore specific false-positive or mod-specific rules:

@@ -361,8 +361,7 @@ def logCityRecommendationResponse(gc, iButton, iCity, iOrder, iTarget):
 	elif iOrder == OrderTypes.ORDER_CONSTRUCT and iTarget >= 0 and iTarget < gc.getNumBuildingInfos():
 		szKind = "BUILDING"
 		szTarget = gc.getBuildingInfo(iTarget).getType()
-	_emitPythonPopupResponse(game, "cityWarningOnClickedCallback", iButton, SASPopupChoices.CITY_RECOMMENDATION,
-		[("cityId", iCity), ("orderId", iOrder), ("targetKind", szKind), ("targetId", iTarget), ("target", szTarget)])
+	_emitPythonPopupResponse(game, "cityWarningOnClickedCallback", iButton, SASPopupChoices.CITY_RECOMMENDATION, [("cityId", iCity), ("orderId", iOrder), ("targetKind", szKind), ("targetId", iTarget), ("target", szTarget)])
 
 
 # <!-- custom: Liberation and colony recommendations share accept/refuse/examine buttons but trigger different existing operations; preserve that distinction without querying new liberation/area eligibility for diagnostics. (GPT-6.1-Sol) -->
@@ -392,8 +391,7 @@ def logFeatResponse(iButton, iFeat, iContextData2):
 		for szName in sorted(dir(FeatTypes)):
 			if szName.startswith("FEAT_"):
 				_gFeatNames[int(getattr(FeatTypes, szName))] = szName
-	_emitPythonPopupResponse(game, "featAccomplishedOnClickedCallback", iButton, SASPopupChoices.FEAT,
-		[("featId", iFeat), ("feat", _gFeatNames.get(iFeat, "UNKNOWN_FEAT")), ("contextData2", iContextData2)])
+	_emitPythonPopupResponse(game, "featAccomplishedOnClickedCallback", iButton, SASPopupChoices.FEAT, [("featId", iFeat), ("feat", _gFeatNames.get(iFeat, "UNKNOWN_FEAT")), ("contextData2", iContextData2)])
 
 
 # <!-- custom: The three reviewed random-event callbacks carry the responding and other player IDs, with Yes/No meaning war or peace according to the specific handler.

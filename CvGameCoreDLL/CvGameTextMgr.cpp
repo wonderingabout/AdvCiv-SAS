@@ -389,7 +389,8 @@ void CvGameTextMgr::setEspionageMissionHelp(CvWStringBuffer &szBuffer, const CvU
 	else if (pUnit->getFortifyTurns() > 0)
 	{
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-		static const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
+		// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+		const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT(CvGlobals::ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE);
 
 		int iModifier = -pUnit->getFortifyTurns() *
 				iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE;
@@ -3110,6 +3111,9 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
 
 	TeamTypes const eActiveTeam = getActiveTeam();
 	PlayerTypes const eActivePlayer = getActivePlayer();
+	// <!-- custom: The lake label and the fresh water sources can each be turned off, restoring the display inherited from vanilla through base AdvCiv. See KI#1106. (Claude code Opus 5.5) -->
+	static const bool bSAS_MAIN_UI_WATER_TYPE_ON = GC.getDefineBOOL("SAS_MAIN_UI_WATER_TYPE_ON");
+	static const bool bSAS_MAIN_UI_FRESH_WATER_SRC_ON = GC.getDefineBOOL("SAS_MAIN_UI_FRESH_WATER_SRC_ON");
 	CvWString szTempBuffer;
 	// <advc.187>
 	if (kPlot.isActiveVisible(false))
@@ -3266,6 +3270,13 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
 			}
 
 			szString.append(GC.getInfo(kPlot.getTerrainType()).getDescription());
+			// <!-- custom: A lake is a small enclosed water area, whatever its terrain, so name its kind beside the terrain, such as "Coast (Lake)"; SAS_MAIN_UI_WATER_TYPE_ON=0 restores the inherited display. See KI#1106. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			if (bSAS_MAIN_UI_WATER_TYPE_ON && kPlot.isLake())
+			{
+				szString.append(L" (");
+				szString.append(gDLL->getText("TXT_KEY_PLOT_SAS_LAKE"));
+				szString.append(L")");
+			}
 
 			if (kPlot.isWater())
 				szString.append(ENDCOLR);
@@ -3338,6 +3349,34 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
 	{
 		szString.append(NEWLINE);
 		szString.append(gDLL->getText("TXT_KEY_PLOT_FRESH_WATER"));
+		// <!-- custom: Name each source isFreshWater counts, once: a river on the plot, an adjacent lake, an adjacent feature adding fresh water under its XML name; SAS_MAIN_UI_FRESH_WATER_SRC_ON=0 restores plain "Fresh Water". See KI#1106. (Claude code Opus 5.5) -->
+		// <!-- custom: Only neighbors the active team has revealed are named, Debug Mode aware, as a named lake or Oasis would otherwise disclose an unexplored tile; "Fresh Water" itself stays (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if (bSAS_MAIN_UI_FRESH_WATER_SRC_ON)
+		{
+			std::vector<FeatureTypes> aeFreshFeatures;
+			bool bLake = false;
+			FOR_EACH_ADJ_PLOT(kPlot)
+			{
+				if (!pAdj->isRevealed(eActiveTeam, true))
+					continue;
+				if (pAdj->isLake())
+					bLake = true;
+				if (pAdj->isFeature() && GC.getInfo(pAdj->getFeatureType()).isAddsFreshWater() &&
+					std::find(aeFreshFeatures.begin(), aeFreshFeatures.end(), pAdj->getFeatureType()) == aeFreshFeatures.end())
+				{
+					aeFreshFeatures.push_back(pAdj->getFeatureType());
+				}
+			}
+			CvWString szSources;
+			if (kPlot.isRiver())
+				szSources += gDLL->getText("TXT_KEY_PLOT_SAS_RIVER");
+			if (bLake)
+				szSources += (szSources.empty() ? L"" : L", ") + gDLL->getText("TXT_KEY_PLOT_SAS_LAKE");
+			for (size_t i = 0; i < aeFreshFeatures.size(); i++)
+				szSources += (szSources.empty() ? CvWString() : CvWString(L", ")) + GC.getInfo(aeFreshFeatures[i]).getDescription();
+			if (!szSources.empty())
+				szString.append(L" (" + szSources + L")");
+		}
 		// <advc.059>
 		if(pHeadSelectedUnit != NULL &&
 			pHeadSelectedUnit->isFound() && pHeadSelectedUnit->at(kPlot))
@@ -3349,7 +3388,8 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
 		} // </advc.059>
 	}
 
-	if (kPlot.isLake())
+	// <!-- custom: Shown only with SAS_MAIN_UI_WATER_TYPE_ON=0: "Coast (Lake)" on the terrain line says it, and this line read like a land plot's fresh water. See KI#1106. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if (!bSAS_MAIN_UI_WATER_TYPE_ON && kPlot.isLake())
 	{
 		szString.append(NEWLINE);
 		szString.append(gDLL->getText("TXT_KEY_PLOT_FRESH_WATER_LAKE"));
@@ -3419,7 +3459,10 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
 			bool bConnected = GET_PLAYER(eActivePlayer).
 					doesImprovementConnectBonus(ePlotImprovement, eBonus);
 			// Moved up (b/c the route isn't needed for the yields)
-			if(!bCity && !kPlot.isBonusNetwork(eActiveTeam) && !kPlot.isWater() &&
+			// <!-- custom: In Debug Mode the hover shows the plot's real improvement, but isBonusNetwork counts only a road the active team has seen (advc.124), so it asked in red for a road the plot already had.
+			// Debug Mode now also counts the real road; isBonusNetwork keeps its river and terrain rules (Codex's form). See KI#11. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			bool const bNetwork = (kPlot.isBonusNetwork(eActiveTeam) || (kGame.isDebugMode() && kPlot.isRoute()));
+			if(!bCity && !bNetwork && !kPlot.isWater() &&
 				bConnected) // Mention route only if all other pieces in place
 			{
 				//szString.append(gDLL->getText("TXT_KEY_PLOT_REQUIRES_ROUTE"));
@@ -8222,7 +8265,7 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
 	// <!-- custom: skip obsolete bullets in civilopedia text since we now have a dedicated Obsoletes panel in Sevopedia Tech (Claude code Opus 4.5) -->
 	if (!bCivilopediaText)
 	{
-		// <!-- custom: consolidate obsolete buildings, bonuses, and special buildings into comma-separated lines for efficiency (Claude code Sonnet 4.5) -->
+		// <!-- custom: consolidate obsolete buildings, bonuses, and special buildings into comma-separated lines for efficiency. See KI#96. (Claude code Sonnet 4.5) -->
 		//	Obsolete Buildings
 		CvWString szObsoleteBuildings;
 		bool bAnyObsoleteBuildings = false;
@@ -8300,7 +8343,7 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
 
 		if (!bTreeInfo)
 		{
-			// <!-- custom: consolidate obsolete units into a single comma-separated line instead of multiple bullets for efficiency -->
+			// <!-- custom: consolidate obsolete units into a single comma-separated line instead of multiple bullets for efficiency. See KI#96. -->
 			CvWString szObsoleteUnits;
 			bool bAnyObsoleteUnits = false;
 			FOR_EACH_ENUM(Unit)
@@ -8378,7 +8421,7 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
 	//	Enables bridge building...
 	buildBridgeString(szBuffer, eTech, true, bPlayerContext);
 
-	// <!-- custom: new addition, add the this technology "Cannot be traded" or similar for a tech ; (<bTrade> in XML in tech info's bullets) -->
+	// <!-- custom: new addition, add the this technology "Cannot be traded" or similar for a tech ; (<bTrade> in XML in tech info's bullets). See KI#15. -->
 	buildBTradeString(szBuffer, eTech, true, bPlayerContext);
 
 	// <!-- custom: similarly also add the this technology "Can be researched multiple times" or similar for a tech ; (<bRepeat> in XML in tech info's bullets) -->
@@ -9131,7 +9174,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 
 	if (u.getObsoleteTech() != NO_TECH)
 	{
-		// <!-- custom: show ObsoleteTech as a red tech link in unit special abilities (pedia). (GPT-5.2-Codex) -->
+		// <!-- custom: show ObsoleteTech as a red tech link in unit special abilities (pedia). See KI#93. (GPT-5.2-Codex) -->
 		szBuffer.append(NEWLINE);
 		CvWString szTechLink;
 		szTechLink.Format(L"<link=literal>%s</link>",
@@ -9699,7 +9742,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 				u.getDropRange()));
 	}
 
-	// <!-- custom: in sevopedia, similar reasoning as for TXT_KEY_UNIT_CITY_STRENGTH_MOD, remove the fields we don't need anymore as we display them as button with a txtNum under the button in sevopedia unit, while keeping ingame text as is at least for now if not for always or and not -->
+	// <!-- custom: in sevopedia, similar reasoning as for TXT_KEY_UNIT_CITY_STRENGTH_MOD, remove the fields we don't need anymore as we display them as button with a txtNum under the button in sevopedia unit, while keeping ingame text as is at least for now if not for always -->
 	if (!bCivilopediaText)
 	{
 		if (u.getHillsDefenseModifier() == u.getHillsAttackModifier())
@@ -11076,7 +11119,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
 			szBuffer.append(szTempBuffer);
 		}*/ // BtS
 		// K-Mod. Also include base health change from power.
-		// <!-- custom: also display "+0" as well as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case -->
+		// <!-- custom: also display "+0" as well as it is useful info to know that power has unhealthiness of +0 rather than +2 for example if it were the case -->
 		int iPowerHealthChange = GC.getDefineINT(CvGlobals::POWER_HEALTH_CHANGE);
 
 		int iPowerHealthDirtyToAdd;
@@ -11111,16 +11154,16 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER"));
 		// <!-- custom: also add the K-Mod code block nice info for area clean power to not misleadingly assume that areacleanpower power has no unhealthy effect.
-		// But since power is always clean due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one) and part of this K-Mod code.
+		// But since power is always clean due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty power value one) and part of this K-Mod code.
 		// But since i am not sure that dirty power is cancelled in this city if both areacleanpower and dirtypower are specified, added a "(?)"
 		// as well. -->
 		// <!-- custom: split the message info between/to cover clean and dirty cases. -->
 		// K-Mod. Also include base health change from power.
-		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case. -->
+		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealthiness of +0 rather than +2 for example if it were the case. -->
 
 		// K-Mod end
-		// <!-- custom: then add info about the effect and its value in all cities as well, since power is always clean due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one) -->
-		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case -->
+		// <!-- custom: then add info about the effect and its value in all cities as well, since power is always clean due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty power value one) -->
+		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealthiness of +0 rather than +2 for example if it were the case -->
 		szBuffer.append(" " + gDLL->getText("TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_APPENDIX_IN_ALL_CITIES"));
 		int iPowerHealthChangeAll = GC.getDefineINT(CvGlobals::POWER_HEALTH_CHANGE);
 		if (iPowerHealthChangeAll)
@@ -15837,7 +15880,7 @@ void CvGameTextMgr::buildBridgeString(CvWStringBuffer &szBuffer, TechTypes eTech
 	}
 }
 
-// <!-- custom: add the <bTrade> tech info xml flag in sevopedia tech's placeSpecial -->
+// <!-- custom: add the <bTrade> tech info xml flag in sevopedia tech's placeSpecial. See KI#15. -->
 void CvGameTextMgr::buildBTradeString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (!GC.getTechInfo(eTech).isTrade() &&
@@ -20734,7 +20777,8 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMis
 		if (pSpyUnit != NULL)
 		{
 			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-			static const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
+			// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+			const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT(CvGlobals::ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE);
 
 			iTempModifier = -(pSpyUnit->getFortifyTurns() *
 					iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE);

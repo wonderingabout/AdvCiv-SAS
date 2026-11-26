@@ -18,6 +18,10 @@ import subprocess
 import sys
 import tokenize
 
+# <!-- custom: advciv_release, in the shared lib folder, finds the base AdvCiv release SAS last merged, for --upstream-ref's default. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+from advciv_release import merged_release_or_exit
+
 REPO = Path(__file__).resolve().parents[4]
 # <!-- custom: The manifests of what the base game and base AdvCiv ship live in _0_Legacy/Docs/Manifests, not beside the checks: they serve greps, the audit and external agents as well as CI, and they describe inherited material, as _0_Legacy does.
 # Rejected names: data/ (could be anything), Inherited_Lists/ ("inherited" repeats _0_Legacy, and we did not inherit lists); see _0_Legacy/README.md (the user, 2026-11-22). (Claude code Opus 5.5) -->
@@ -42,9 +46,15 @@ PY24_RUNTIME_MODULES = {
 	"imp", "math", "md5", "new", "operator", "os", "pickle", "popen2", "random", "re", "regex",
 	"sets", "sgmllib", "sha", "shutil", "stat", "string", "stringio", "strop", "sys", "thread",
 	"threading", "time", "traceback", "types", "urllib", "urllib2", "user", "warnings", "webbrowser", "xmllib",
+	# <!-- custom: base64, pydoc, smtplib and MimeWriter came with BtS's CvAppInterface.py, copied into SAS on 2026-11-22: imported only inside its functions, pydoc for a CvPythonExtensions help dump and the other three for sending PBEM turns by email; all four are in Python 2.4's Lib. See KI#1104. (Claude code Opus 5.5) -->
+	"base64", "mimewriter", "pydoc", "smtplib",
 }
 # <!-- custom: Optional modules imported inside try/except ImportError: BUG's BugPath tries a player's own CvAltRoot and CvModFolder, and configobj tries validate; none ships with SAS or the game. (Claude code Opus 5.5) -->
 OPTIONAL_IMPORTS = {"cvaltroot", "cvmodfolder", "validate"}
+# <!-- custom: Packages the base game ships under Python/System that only the named SAS modules may import: wxPython, in the vanilla and Warlords System folders, draws Pitboss's setup wizard and admin window, carried with PbMain on 2026-11-26.
+# A package's files do not match a module name in the manifest, so it is listed here, and kept to these importers, as nothing else in SAS runs outside the game window. See KI#1104. (Claude code Opus 5.5) -->
+# <!-- custom: Keyed by path, not module name, so a same-named module elsewhere, such as a PrivateMaps/PbAdmin.py, does not inherit the allowance, as Codex's review found of a first, name-based version (2026-11-26). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+SYSTEM_PACKAGES = {"wx": {"Assets/Python/PitBoss/PbAdmin.py", "Assets/Python/PitBoss/PbWizard.py"}}
 
 
 def layers_for(area, subdir, civ4_root):
@@ -131,8 +141,8 @@ def comparison_sources(area, subdir, suffixes, civ4_root):
 
 TSV_COLUMNS = ("path", "layers", "advcivEvents", "otherPaths")
 # <!-- custom: The local branch holding upstream AdvCiv's own history, the version SAS last merged; its commits are K-Mod's and AdvCiv's, never rewritten, so their SHAs stay valid in a tracked list, while SAS's own commits are left out, as our history gets rewritten (the user, 2026-11-22).
-# Update it, or pass --upstream-ref, after merging a newer AdvCiv. (Claude code Opus 5.5) -->
-DEFAULT_UPSTREAM_REF = "1.14"
+# It was "1.14" written here; advciv_release now finds the newest release branch already merged into HEAD, when a command needs it, so a newer AdvCiv needs no edit once merged; --upstream-ref overrides it.
+# Resolving it only when needed, with a clear error when there is none, follows Codex's review (2026-11-22). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 
 
 def upstream_events(ref):
@@ -297,21 +307,23 @@ def module_imports(text):
 			expect_module = False
 
 
-def imported_modules(paths):
+# <!-- custom: imported_modules and python_importers gained an optional key, naming each importer by its module name as before or, for SYSTEM_PACKAGES, by its repository path (2026-11-26). See KI#1104. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+def imported_modules(paths, key=lambda path: path.stem):
 	found = {}
 	for path in paths:
 		for module in module_imports(path.read_text(encoding="latin-1")):
-			found.setdefault(module, set()).add(path.stem)
+			found.setdefault(module, set()).add(key(path))
 	return found
 
 
-def python_importers(sas_python):
+# <!-- custom: The key passes through to imported_modules, so SYSTEM_PACKAGES can name importers by path (2026-11-26). See KI#1104. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+def python_importers(sas_python, key=lambda path: path.stem):
 	# <!-- custom: PrivateMaps and SASPilot/game also run inside Civ4.
 	# Scan their imports without treating those entrypoints as general Assets/Python modules. (GPT-6.2-Sol) -->
 	paths = list(sas_python.values())
 	for folder in ("PrivateMaps", "SASPilot/game"):
 		paths.extend(repo_area_paths(folder, (".py",)))
-	return imported_modules(paths)
+	return imported_modules(paths, key)
 
 
 def audit_key(area, subdir, key):
@@ -349,14 +361,43 @@ def inherited_imports(tsv_rows):
 	inherited = {row["file"][:-3] for row in tsv_rows if row["area"] == "python" and row["file"] not in sas_python and in_base_game(row)}
 	imported = set()
 	problems = []
+	by_path = python_importers(sas_python, lambda path: path.relative_to(REPO).as_posix())
 	for (module, importers) in sorted(python_importers(sas_python).items()):
 		if module + ".py" in sas_python:
 			continue
 		if module in inherited:
 			imported.add(module)
+		elif module in SYSTEM_PACKAGES:
+			if by_path[module] - SYSTEM_PACKAGES[module]:
+				problems.append("%s imports %s, which SYSTEM_PACKAGES allows only in %s" % (", ".join(sorted(by_path[module] - SYSTEM_PACKAGES[module])), module, ", ".join(sorted(SYSTEM_PACKAGES[module]))))
 		elif module not in PY24_RUNTIME_MODULES | OPTIONAL_IMPORTS:
 			problems.append("%s imports %s, which is neither in SAS or the base game nor listed as a Python 2.4 runtime or optional module" % (", ".join(sorted(importers)), module))
 	return (imported, problems)
+
+
+# <!-- custom: Base-game Python modules SAS's code imports without carrying a copy, each with why it may stay in the base game; any other one fails, as SAS keeps the base-game modules it uses (KI#1104), and an entry nothing imports any more fails too.
+# The user asked that the rule be enforced, not only written (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
+# <!-- custom: techtree left this table when CvForeignAdvisor.py disabled its unused TechTree construction and import (2026-11-23). See KI#1108.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+NOT_CARRIED = {
+	"cvpediamain": "CvScreensInterface.py imports it only when BUG's Sevopedia option is off, to show the old Civilopedia, an unsupported fallback SAS leaves in the base game on purpose (2026-11-23)",
+	"cvpediahistory": "imported beside CvPediaMain for the same fallback",
+}
+
+
+def not_carried_problems(imported):
+	problems = []
+	for module in sorted(imported - set(NOT_CARRIED)):
+		problems.append("SAS imports the base-game module %s without carrying it; copy it with python LLM_Helpers/code_history/inherited_files.py --take-in <path>, or list why in NOT_CARRIED (KI#1104)" % module)
+	for module in sorted(set(NOT_CARRIED) - imported):
+		problems.append("NOT_CARRIED lists %s, which SAS no longer imports from the base game; drop the entry" % module)
+	return problems
+
+
+def text_name_problems(tsv_rows):
+	# <!-- custom: A SAS text file named like a base-game one replaces it, so every key only that file defines stops loading; K-Mod's LoadGlobalText drops the base copy of a same-named file.
+	# SAS's own names never matched one when this was added (2026-11-22). See KI#1104. (Claude code Opus 5.5) -->
+	base = {Path(row["path"]).name.lower(): row["path"] for row in tsv_rows if row["path"].lower().startswith("assets/xml/text/") and in_base_game(row)}
+	return ["Assets/XML/Text/%s has the name of the base game's %s, so it replaces that file and drops the keys only it defines; rename it (KI#1104)" % (path.name, base[path.name.lower()]) for path in sorted((REPO / "Assets" / "XML" / "Text").glob("*.xml")) if path.name.lower() in base]
 
 
 def carried_inherited(tsv_rows):
@@ -395,6 +436,8 @@ def check():
 	lines = audit_text[start:end].splitlines()
 	(imported, import_problems) = inherited_imports(rows)
 	problems += import_problems
+	problems += not_carried_problems(imported)
+	problems += text_name_problems(rows)
 	reasons = ("inherited_files.tsv changed", "SAS started or stopped keeping an inherited filename, or moved its file", "SAS started or stopped importing an inherited Python module")
 	for (marker, reason) in zip(audit_markers(rows, imported), reasons):
 		if marker not in lines:
@@ -406,10 +449,10 @@ def main():
 	parser = argparse.ArgumentParser(description="Check that SAS's copies of base-game files and its inherited Python imports match the inherited files audit.")
 	parser.add_argument("--write", action="store_true", help="rebuild inherited_files.tsv from the local Civ4 install")
 	parser.add_argument("--civ4-root", type=Path, default=DEFAULT_CIV4_ROOT, help="install root containing Assets and Beyond the Sword (used with --write)")
-	parser.add_argument("--upstream-ref", default=DEFAULT_UPSTREAM_REF, help="local branch with upstream AdvCiv's history, for base AdvCiv's file events (used with --write)")
+	parser.add_argument("--upstream-ref", help="branch with upstream AdvCiv's history, for base AdvCiv's file events (used with --write; default: the release SAS last merged)")
 	args = parser.parse_args()
 	if args.write:
-		write_tsv(args.civ4_root, args.upstream_ref)
+		write_tsv(args.civ4_root, merged_release_or_exit(REPO, args.upstream_ref))
 		return 0
 	problems = check()
 	for problem in problems:

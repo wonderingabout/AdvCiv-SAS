@@ -3,10 +3,11 @@ name: Checks - Documentation
 on:
   push:
   pull_request:
-    # <!-- custom: Ignore the long-lived reference compare from main to the mirrored base AdvCiv 1.14 branch.
-    # Keep it open so GitHub tracks the diff, but do not run duplicate PR checks for it. (ChatGPT-5.5) -->
+    # <!-- custom: Ignore the long-lived reference compare from main to the mirrored base AdvCiv release branch, named by its version, such as 1.14.
+    # Keep it open so GitHub tracks the diff, but do not run duplicate PR checks for it.
+    # The pattern matches any version, so a newer AdvCiv's branch needs no edit here (2026-11-22). (ChatGPT-5.5 + Claude code Opus 5.5) -->
     branches-ignore:
-      - "1.14"
+      - "[0-9]+.[0-9]+"
   workflow_dispatch:
 
 jobs:
@@ -30,6 +31,10 @@ jobs:
       - name: Folder indexes
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/folder_indexes.py
+
+      - name: CI markers are spelled once and listed in the workflows README
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/documentation/ci_markers_listed.py
 
       - name: Markdown images
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -78,6 +83,11 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/drive_links.py
 
+      # <!-- custom: Agents read AGENTS.md whole, so keep low-value repeated links out of it; as of now it covers KI links, of which only the first KI mention is linked, to show where the Known Issues live. (Claude code Opus 5.5) -->
+      - name: AGENTS.md low-value repeated links (first KI mention only)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/documentation/agents_low_value_repeated_links.py
+
       # <!-- custom: A disclaimer protects only if readers meet it before anything else, so keep each listed guide's disclaimer directly under its title. (Claude code Opus 5.5) -->
       - name: Guide disclaimers first
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -87,6 +97,17 @@ jobs:
       - name: Retired tool and feature names
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/retired_names.py
+
+      # <!-- custom: A pull request, a KI or an SGR revision is written as one token, such as PR#50, so one grep finds every mention. (Claude code Opus 5.5) -->
+      - name: Numbered references as one token
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/documentation/numbered_references.py
+
+      - name: Requires AdvCiv-SAS version markers
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/documentation/requires_version_markers.py --default-branch-ref "refs/remotes/origin/$DEFAULT_BRANCH" --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
 
       - name: Known Issues update chronology
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

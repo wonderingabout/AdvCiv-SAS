@@ -5,26 +5,31 @@ from CvPythonExtensions import *
 import re
 # <!-- custom: Use the leaf logging module directly for structured font-size diagnostics; importing CvUtil here would create CvUtil -> SASTextScale -> CvUtil. (ChatGPT-5.6-Sol) -->
 import SASPythonLogging
+# <!-- custom: SASCurrentDefines reads the font sizes through one cache that SASLiveDefineOverrides empties when it changes a define, and the bridge's change count tells the font tags below to rebuild; both are leaf modules, so this adds no cycle. See KI#128.5. (Claude code Opus 5.5) -->
+import SASCurrentDefines
+import SASLiveDefineOverridesBridge
 
 gc = CyGlobalContext()
 
 # <!-- custom: Keep SAS text-size defines/tags with the text-scaling helpers that consume them.
 # They formerly lived in SASFontUtils and briefly in the broader UI-resource cache; neither icon/glyph nor art-resource code should be imported merely to format text. (ChatGPT-5.6-Sol) -->
-_SAS_UI_FONT_SIZE_CACHE = {}
+# <!-- custom: The sizes themselves were kept here in _SAS_UI_FONT_SIZE_CACHE, emptied on each override change; SASCurrentDefines now keeps them for every reader, and only which defines were logged is kept here.
+# An out-of-range size was cached as None after its first error, so later tags silently lost their size; it now raises at each read, as a bad value should stay loud. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+_SAS_UI_FONT_SIZE_LOGGED = {}
 _SAS_UI_FONT_PREVIEW = {}
 
 def _getSASUIFontSize(szDefineName):
+	# <!-- custom: A preview set by setUIFontPreview, such as SASPilot's uifont, wins over the define for this session; merging main's live define overrides kept it first, before the shared SASCurrentDefines read. (Claude code Opus 5.5) -->
 	if szDefineName in _SAS_UI_FONT_PREVIEW:
 		return _SAS_UI_FONT_PREVIEW[szDefineName]
-	if szDefineName in _SAS_UI_FONT_SIZE_CACHE:
-		return _SAS_UI_FONT_SIZE_CACHE[szDefineName]
-	iSize = gc.getDefineINT(szDefineName)
+	iSize = SASCurrentDefines.getInt(szDefineName)
 	if iSize < 1 or iSize > 4:
-		_SAS_UI_FONT_SIZE_CACHE[szDefineName] = None
-		raise RuntimeError("SASTextScale: %s=%d out of [1,4] - check GlobalDefines_advciv_sas.xml" % (szDefineName, iSize))
-	_SAS_UI_FONT_SIZE_CACHE[szDefineName] = iSize
+		raise RuntimeError("SASTextScale: %s=%d out of [1,4] - check GlobalDefines_advciv_sas.xml and SASLiveDefineOverrides.txt" % (szDefineName, iSize))
 	# <!-- custom: Font-size resolution is deterministic per define/run, so expose the define and resolved size as searchable fields instead of ad-hoc prose. (ChatGPT-5.6-Sol) -->
-	SASPythonLogging.writeRecord("UI_FONT_SIZE_RESOLVED", "define=%s size=%d" % (szDefineName, iSize))
+	# <!-- custom: Logged once per define, as before overrides: a draft logged each new size, which repeated what SASLiveDefineOverridesBridge's SAS_LIVE_DEFINE_OVERRIDES row already records where the override is set; the user wanted one central log of overrides rather than one per reader (2026-11-26). See KI#128.5. (Claude code Opus 5.5) -->
+	if szDefineName not in _SAS_UI_FONT_SIZE_LOGGED:
+		_SAS_UI_FONT_SIZE_LOGGED[szDefineName] = iSize
+		SASPythonLogging.writeRecord("UI_FONT_SIZE_RESOLVED", "define=%s size=%d" % (szDefineName, iSize))
 	return iSize
 
 
@@ -44,25 +49,26 @@ def getSASUIFontTitle():
 	return _getSASUIFontSize("SAS_UI_FONT_TITLE")
 
 
-def getSASUIFontHover():
-	return _getSASUIFontSize("SAS_UI_FONT_HOVER")
-
-
 class _DynamicFontTag:
 	def __init__(self, szDefineName, bBold=False):
 		self.szDefineName = szDefineName
 		self._isBold = bBold
 		self._cachedTag = None
+		self._iBuiltChangeCount = 0
 		if not bBold:
 			self.bold = _DynamicFontTag(szDefineName, True)
 
 	def _build(self):
+		# <!-- custom: Main interface hovers keep these tag objects for the session, so a tag is built again once SASLiveDefineOverrides changed a define. See KI#128.5. (Claude code Opus 5.5) -->
+		iChangeCount = SASLiveDefineOverridesBridge.getChangeCount()
+		if iChangeCount != self._iBuiltChangeCount:
+			self._cachedTag = None
+			self._iBuiltChangeCount = iChangeCount
 		if self._cachedTag is not None:
 			return self._cachedTag
 		iSize = _getSASUIFontSize(self.szDefineName)
-		if iSize is None:
-			self._cachedTag = u""
-		elif self._isBold:
+		# <!-- custom: The empty tag for a size cached as None went with that cache, as an out-of-range size now raises instead. See KI#128.5. (Claude code Opus 5.5) -->
+		if self._isBold:
 			self._cachedTag = u"<font=%db>" % iSize
 		else:
 			self._cachedTag = u"<font=%d>" % iSize
@@ -83,11 +89,13 @@ class _DynamicFontTag:
 
 SAS_FONT_TAG_CLOSE = u"</font>"
 
+# <!-- custom: Note: there is no hover tag; hover text uses the label tag.
+# A hover define of its own had the label's value, and the user retired it on 2026-11-26, as raising the label meant remembering to raise hover too, while hover always wanted the label's size.
+# See Docs/Deprecated/global_define_names.md. (Claude code Opus 5.5) -->
 sasFontTagTiny = _DynamicFontTag("SAS_UI_FONT_TINY")
 sasFontTagBody = _DynamicFontTag("SAS_UI_FONT_BODY")
 sasFontTagLabel = _DynamicFontTag("SAS_UI_FONT_LABEL")
 sasFontTagTitle = _DynamicFontTag("SAS_UI_FONT_TITLE")
-sasFontTagHover = _DynamicFontTag("SAS_UI_FONT_HOVER")
 
 # <!-- custom: SASPilot can preview the Python layout fonts within one game session.
 # Native widget tooltips cache the hover font separately in the DLL. (GPT-6.2-Sol) -->

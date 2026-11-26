@@ -19,8 +19,11 @@ struct SASBBAILogSettings
 {
 	// <!-- custom: This remains the one cached "any BBAI diagnostics active" bit.
 	// UWAI categories are ordinary BBAI categories now that their separate report sink is gone. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Since 2026-11-26 bEnabled follows the master alone, so it equals bMasterEnabled; it was master and any category above 0.
+	// bAnyCategoryEnabled keeps that second test for work that only a category's rows need. See KI#128.5. (Claude code Opus 5.5) -->
 	bool bEnabled;
 	bool bMasterEnabled;
+	bool bAnyCategoryEnabled;
 	int iPlayerLogLevel;
 	int iTeamLogLevel;
 	int iWarLogLevel;
@@ -54,8 +57,10 @@ struct SASBBAILogSettings
 };
 extern SASBBAILogSettings gSASBBAILogSettings;
 void cacheSASBBAILogSettings();
+void refreshSASBBAILogLevels(); // <!-- custom: Refills the category levels after SASLiveDefineOverrides changes a define, while BBAI logging was on at load. See KI#128.5. (Claude code Opus 5.5) -->
 __forceinline bool isSASBBAILogEnabled() { return gSASBBAILogSettings.bEnabled; }
 __forceinline bool isSASBBAILogMasterEnabled() { return gSASBBAILogSettings.bMasterEnabled; }
+__forceinline bool isSASBBAILogAnyCategoryEnabled() { return gSASBBAILogSettings.bAnyCategoryEnabled; } // <!-- custom: Refilled with the levels at XML load and after each applied override. See KI#128.5. (Claude code Opus 5.5) -->
 int getSASBBAIScoreLogInterval();
 // <!-- custom: Shared first-use cache for the later-city diagnostic switch; the helper self-gates on FOUND_2PL level 2, and site eligibility remains the evaluator's responsibility. See KI#144.4. (GPT-6.1-Sol) -->
 bool isSASBBAILaterCityFoodSupportAuditEnabled();

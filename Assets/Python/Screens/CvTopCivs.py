@@ -7,6 +7,8 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
 import PyHelpers
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvUtil
 import CvScreenEnums
 import random
@@ -100,15 +102,15 @@ class CvTopCivs:
 		# <!-- custom: Kept for the SASGameRecord rows, which name the category by key rather than by its translated text. (Claude code Opus 5.5) -->
 		self.szCategoryKey = TOP_CIVS_CATEGORY_KEYS[randIndex]
 		if(randIndex == 0): # Wealth: Herodotus, Thucydides
-			self.HistorianList = [	localText.getText("TXT_KEY_TOPCIVS_HISTORIAN1", ()), localText.getText("TXT_KEY_TOPCIVS_HISTORIAN2", ()) ]
+			self.HistorianList = [ localText.getText("TXT_KEY_TOPCIVS_HISTORIAN1", ()), localText.getText("TXT_KEY_TOPCIVS_HISTORIAN2", ()) ]
 		elif(randIndex == 1): # Power: Tacitus, Machiavelli
-			self.HistorianList = [	localText.getText("TXT_KEY_TOPCIVS_HISTORIAN9", ()), localText.getText("TXT_KEY_TOPCIVS_HISTORIAN11", ()) ]
+			self.HistorianList = [ localText.getText("TXT_KEY_TOPCIVS_HISTORIAN9", ()), localText.getText("TXT_KEY_TOPCIVS_HISTORIAN11", ()) ]
 		elif(randIndex == 2): # Tech: Gibbon, Pliny
-			self.HistorianList = [	localText.getText("TXT_KEY_TOPCIVS_HISTORIAN3", ()), localText.getText("TXT_KEY_TOPCIVS_HISTORIAN5", ()) ]
+			self.HistorianList = [ localText.getText("TXT_KEY_TOPCIVS_HISTORIAN3", ()), localText.getText("TXT_KEY_TOPCIVS_HISTORIAN5", ()) ]
 		elif(randIndex == 3): # Culture: Bede, McCauley
-			self.HistorianList = [	localText.getText("TXT_KEY_TOPCIVS_HISTORIAN7", ()), localText.getText("TXT_KEY_TOPCIVS_HISTORIAN10", ()) ]
+			self.HistorianList = [ localText.getText("TXT_KEY_TOPCIVS_HISTORIAN7", ()), localText.getText("TXT_KEY_TOPCIVS_HISTORIAN10", ()) ]
 		else: # Size: Livy, Toynbee
-			self.HistorianList = [	localText.getText("TXT_KEY_TOPCIVS_HISTORIAN6", ()), localText.getText("TXT_KEY_TOPCIVS_HISTORIAN8", ()) ]
+			self.HistorianList = [ localText.getText("TXT_KEY_TOPCIVS_HISTORIAN6", ()), localText.getText("TXT_KEY_TOPCIVS_HISTORIAN8", ()) ]
 		# Unassigned: St. Augustine - is he really considered a historian? He's also in the game as a Great Prophet.
 		# </advc.038>
 		#self.HistorianList = [	localText.getText("TXT_KEY_TOPCIVS_HISTORIAN1", ()),
@@ -331,7 +333,7 @@ class CvTopCivs:
 		# Check to see if this is a turn when the screen should pop up
 		if (not CyGame().isNetworkMultiPlayer() and CyGame().getActivePlayer()>=0):
 			# <advc.038>
-			interval = gc.getDefineINT("TOP_CIVS_INTERVAL") # 50 in BtS
+			interval = SASCurrentDefines.getInt("TOP_CIVS_INTERVAL") # 50 in BtS
 			minTurn = 75 # 2 in BtS
 			speedAdjustPercent = gc.getGameSpeedInfo(gc.getGame().getGameSpeedType()).getGrowthPercent()
 			interval = (interval * speedAdjustPercent) / 100

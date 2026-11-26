@@ -1237,7 +1237,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<!-- custom: button from c2c mod as nicely recommended by chatgpt 5.1 among my candidates thanks -->
 			<Button>Art/AdvCiv_SAS/Civics/Protectionism/charters.dds</Button>
-			<!-- custom: note: with the old strict no foreign trade version of this civic, tech prereq could't be too early else AI players would pick it too often which slowed tech pace in autoplay as it was an isolationism civic unlike our reworked one, also it's fine to have it later now that it has competitors civics i mean; plus also this way the as of now free specialist effect is more balanced and not as op so maybe fine as such and better in this way as well i mean. -->
+			<!-- custom: note: with the old strict no foreign trade version of this civic, tech prereq could't be too early else AI players would pick it too often which slowed tech pace in autoplay as it was an isolationism civic unlike our reworked one, also it's fine to have it later now that it has competitors civics; plus also this way the as of now free specialist effect is more balanced and not as op so maybe fine as such and better in this way as well. -->
 			<TechPrereq>TECH_BANKING</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
 			<!-- K-Mod: was MEDIUM -->
@@ -1304,7 +1304,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		</CivicInfo>
 		<CivicInfo> <!-- custom: CIVIC_TRADE_BLOC -->
 			<CivicOptionType>CIVICOPTION_ECONOMY</CivicOptionType>
-			<!-- custom: replace the old CIVIC ENVIRONMENTALISM which had nothing to do with economy, plus: "also their entry was incredibly ideologically stupid, partisan/subjective, and bigoted, just like how the old pedia entry at TECH_ECOLOGY was (now fixed/enhanced i mean) (and ignorant too i mean, not that i know all but it was incredibly stupid, the old entry)" -->
+			<!-- custom: replace the old CIVIC ENVIRONMENTALISM which had nothing to do with economy, plus: "also their entry was incredibly ideologically stupid, partisan/subjective, and bigoted, just like how the old pedia entry at TECH_ECOLOGY was (now fixed/enhanced) (and ignorant too, not that i know all but it was incredibly stupid, the old entry)" -->
 			<Type>CIVIC_TRADE_BLOC</Type>
 			<Description>TXT_KEY_CIVIC_TRADE_BLOC</Description>
 			<Civilopedia>TXT_KEY_CIVIC_TRADE_BLOC_PEDIA</Civilopedia>
@@ -1518,7 +1518,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				<iYield>10</iYield>
 				<iYield>0</iYield>
 			</YieldModifiers>
-			<!-- custom: rework state property so it redistributes wealth i.e. hammer here, as chatgpt 5.1 confirms after i asked it (but check if accurate i mean), was empty -->
+			<!-- custom: rework state property so it redistributes wealth i.e. hammer here, as chatgpt 5.1 confirms after i asked it (but check if accurate), was empty -->
 			<!-- Mechanically, yes:
 				YieldModifiers (all cities): +10% hammers
 				CapitalYieldModifiers (capital only): -20% hammers
@@ -1646,7 +1646,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<iDistanceMaintenanceModifier>0</iDistanceMaintenanceModifier>
 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
-			<!-- custom: promoting meditation or zen or such; add this as a way to buff this civic so it is relevant longer in the middle/late game + idea i got from glancing at chatgpt 5's thoughts plus it confirms it as well after asking it; plus also cleansing one's sould/body may fit this well after considering it, was 0 -->
+			<!-- custom: promoting meditation or zen or such; add this as a way to buff this civic so it is relevant longer in the middle/late game + idea i got from glancing at chatgpt 5's thoughts plus it confirms it as well after asking it; plus also cleansing one's should/body may fit this well after considering it, was 0 -->
 			<!-- Pros: zero micro, AI values it automatically, useful all game.
 			Cons: generic (but still thematically fine: charitable hospitals, sanitation norms). -->
 			<iExtraHealth>1</iExtraHealth>

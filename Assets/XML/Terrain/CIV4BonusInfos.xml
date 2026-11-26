@@ -10,7 +10,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 <!-- -->
 <!-- Bonus Infos -->
 <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #25 -->
-<!-- custom: due to the preexisting warning below, disabling bonuses we don't need/want rather than removing them altogether, so they are available at latest tech, do not give any effect, and do not relate to any other asset, hopefully closest to removing them (functionally) without removing them, the assets affected by this change are rebalanced with another effect instead or left as is if deemed fine to do so As for why they are removed, it is tedious (at leats to me if i may say) or i think it would be since i didn't play much if at all with them, i also don't find it very realistic that art bonuses would have a strong impact on politics and international trade, so disabled for efficiency and no tediousness at least less -->
+<!-- custom: due to the preexisting warning below, disabling bonuses we don't need/want rather than removing them altogether, so they are available at latest tech, do not give any effect, and do not relate to any other asset, hopefully closest to removing them (functionally) without removing them, the assets affected by this change are rebalanced with another effect instead or left as is if deemed fine to do so As for why they are removed, it is tedious (at least to me) or i think it would be since i didn't play much if at all with them, i also don't find it very realistic that art bonuses would have a strong impact on politics and international trade, so disabled for efficiency and no tediousness at least less -->
 <!-- WARNING: It is not recommended that you remove Bonuses due to complications with the LSystem -->
 <!-- advc.129: Changed bonus class of Gold, Silver and Gems from "General"
 	 to new class "Precious". -->
@@ -1032,7 +1032,7 @@ Unlike religions, a bonus's GameFont icon does not depend on this order: it come
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<!-- custom: interesting read that summarizes quite well what i glanced through if i may say or if it's a word maybe rather in english, https://www.january.ai/blog/pork-vs-beef, pork seems to be indeed healthier and leaner from what i understood of it (than beef for example), no strong reason to change it so keep pig as the king food in civ4, after deer now though see code comments at deer in bonusinfo or in improvementinfos too for details -->
+		<!-- custom: interesting read that summarizes quite well what i glanced through, https://www.january.ai/blog/pork-vs-beef, pork seems to be indeed healthier and leaner from what i understood of it (than beef for example), no strong reason to change it so keep pig as the king food in civ4, after deer now though see code comments at deer in bonusinfo or in improvementinfos too for details -->
 		<BonusInfo> <!-- custom: type: BONUS_PIG -->
 			<Type>BONUS_PIG</Type>
 			<Description>TXT_KEY_BONUS_PIG</Description>
@@ -1217,7 +1217,7 @@ Unlike religions, a bonus's GameFont icon does not depend on this order: it come
 			<bFlatlands>1</bFlatlands>
 			<bNoRiverSide>1</bNoRiverSide>
 			<bNormalize>1</bNormalize>
-			<!-- custom: more accurate (heavy population in savanna-like regions (africa, western asia, australia, etc.)), thematic (cultural/religious population differences), and balanced (grass over-repesented in food bonuses and stronger in general) to remove grass and allow sheep as of now only on plains, was TERRAIN_GRASS and TERRAIN_PLAINS -->
+			<!-- custom: more accurate (heavy population in savanna-like regions (africa, western asia, australia, etc.)), thematic (cultural/religious population differences), and balanced (grass over-represented in food bonuses and stronger in general) to remove grass and allow sheep as of now only on plains, was TERRAIN_GRASS and TERRAIN_PLAINS -->
 			<TerrainBooleans>
 				<TerrainBoolean>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
@@ -1991,7 +1991,7 @@ Unlike religions, a bonus's GameFont icon does not depend on this order: it come
 			<FeatureTerrainBooleans/>
 			<bUseLSystem>1</bUseLSystem>
 		</BonusInfo>
-		<!-- custom: reworked and adjusted partly according to wikipedia or other source(s) or not or and what i wanted or not or/a -->
+		<!-- custom: reworked and adjusted partly according to wikipedia or other source(s) or not what i wanted or not or/a -->
 		<BonusInfo> <!-- custom: type: BONUS_WHALE -->
 			<Type>BONUS_WHALE</Type>
 			<Description>TXT_KEY_BONUS_WHALE</Description>
@@ -2010,7 +2010,7 @@ Unlike religions, a bonus's GameFont icon does not depend on this order: it come
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
 			<iAIObjective>0</iAIObjective>
-			<!-- custom: capturing and defeating such a huge animal is impressive, source of awe and fold stories perhaps as per the/a lore or such or other or not, replace with this instead of health base yield change, to not make it (i.e. whales op and also be consistent with other changes (1 ressource/bonus per yield or the opposite rather)) -->
+			<!-- custom: capturing and defeating such a huge animal is impressive, source of awe and fold stories perhaps as per the/a lore or such, replace with this instead of health base yield change, to not make it (i.e. whales op and also be consistent with other changes (1 ressource/bonus per yield or the opposite rather)) -->
 			<iHealth>0</iHealth>
 			<iHappiness>1</iHappiness>
 			<iPlacementOrder>6</iPlacementOrder>
@@ -2025,7 +2025,7 @@ Unlike religions, a bonus's GameFont icon does not depend on this order: it come
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: reducing iPlayer to 0 if need be to make it player-independent too and flat, always constant spanwing, was 67; buff water bonuses.
+			<!-- custom: reducing iPlayer to 0 if need be to make it player-independent too and flat, always constant spawning, was 67; buff water bonuses.
 			Since it was 0, using a higher than 0 value to not disable it according to https://gforestshade.github.io/kujira/post/civ4bonusinfos/#itilesper, was 67 / 0; after tweaking it to 0 / 26 seems still a bit too high in frequency, whale appears a bit too often, reduce it a bit now from 0 / 26 to value(s) below that. -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>29</iTilesPer>

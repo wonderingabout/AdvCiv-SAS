@@ -13,6 +13,7 @@ Record a rename here when it is significant, not when it is old (the user, 2026-
 - [Modding resources](#modding-resources)
 - [Dev logs](#dev-logs)
 - [Better BTS AI's SVN history](#better-bts-ais-svn-history)
+- [Text files with base AdvCiv's names](#text-files-with-base-advcivs-names)
 
 ## Legacy documentation
 
@@ -76,6 +77,7 @@ On the same day, Better BTS AI's SVN export moved into the `commit_diffs` corpus
 | `LLM_Helpers/context/svn_history/bbai/BBAI_r<revision>.diff` | `LLM_Helpers/context/commit_diffs/BBAI_r<revision>.diff` |
 | `LLM_Helpers/context/svn_history/bbai/INDEX.txt` | its rows, segment `BBAI`, in `LLM_Helpers/context/commit_diffs/INDEX.txt` |
 | `LLM_Helpers/context/svn_history/bbai/PATH_HISTORY_INDEX.txt` | its rows, `BBAI r<revision> …`, in `LLM_Helpers/context/commit_diffs/PATH_HISTORY_INDEX.txt` |
+| `LLM_Helpers/formatting/apply_replacements.py` (renamed 2026-11-23, after the heredoc trap it avoids) | `LLM_Helpers/formatting/heredoc_safe_replace.py` |
 
 - Why: we used to keep separate homes for SVN and Git history, its diffs in `svn_history/` and our Git commits in `commit_diffs/`. That was brittle, easy to forget and needless: whichever system recorded it, it is all our history, and in one home a single grep covers every layer.
   - The `BBAI_r*.diff` files stay tracked there, while everything else in `commit_diffs/` is generated and Git-ignored, because our Git cannot regenerate SVN history.
@@ -83,3 +85,51 @@ On the same day, Better BTS AI's SVN export moved into the `commit_diffs` corpus
 - Old names remain where history needs them: commits before the move keep the old paths, and the ZIP still keeps their patches out of our own commit diffs. Known Issues that cited the old folder now cite `commit_diffs/`.
 
 Prepared by Claude code Opus 5.5, 2026-11-17.
+
+## Text files with base AdvCiv's names
+
+On 2026-11-22 the 37 text files SAS had renamed, on 2025-04-02 to `BUG_` prefixes or the `CIV4GameText_*` order and on 2026-01-15 with `_` for spaces, went back to base AdvCiv's exact names, spaces included:
+
+| Old path | Current path |
+| --- | --- |
+| `Assets/XML/Text/BUG_Advanced_Combat_Odds_Options.xml` | `Assets/XML/Text/Advanced Combat Odds Options.xml` |
+| `Assets/XML/Text/BUG_Advanced_Scoreboard_Options.xml` | `Assets/XML/Text/Advanced Scoreboard Options.xml` |
+| `Assets/XML/Text/BUG_AdvancedCombatOdds_advc.xml` | `Assets/XML/Text/AdvancedCombatOdds_CIV4GameText.xml` |
+| `Assets/XML/Text/BUG_Autolog_Options.xml` | `Assets/XML/Text/Autolog Options.xml` |
+| `Assets/XML/Text/BUG_Autolog_CIV4GameText.xml` | `Assets/XML/Text/Autolog_CIV4GameText.xml` |
+| `Assets/XML/Text/BUG_AutoSave_Options.xml` | `Assets/XML/Text/AutoSave Options.xml` |
+| `Assets/XML/Text/BUG_Better_Espionage_Options.xml` | `Assets/XML/Text/Better Espionage Options.xml` |
+| `Assets/XML/Text/BUG_Advisors_Options.xml` | `Assets/XML/Text/BUG Advisors Options.xml` |
+| `Assets/XML/Text/BUG_City_Screen_Options.xml` | `Assets/XML/Text/BUG City Screen Options.xml` |
+| `Assets/XML/Text/BUG_Core_Options.xml` | `Assets/XML/Text/BUG Core Options.xml` |
+| `Assets/XML/Text/BUG_Main_Interface_Options.xml` | `Assets/XML/Text/BUG Main Interface Options.xml` |
+| `Assets/XML/Text/BUG_Options_Screen.xml` | `Assets/XML/Text/BUG Options Screen.xml` |
+| `Assets/XML/Text/BULL_Actions_Options.xml` | `Assets/XML/Text/BULL Actions Options.xml` |
+| `Assets/XML/Text/BULL_City_Bar_Options.xml` | `Assets/XML/Text/BULL City Bar Options.xml` |
+| `Assets/XML/Text/BULL_Misc_Hovers_Options.xml` | `Assets/XML/Text/BULL Misc Hovers Options.xml` |
+| `Assets/XML/Text/BUG_Civ4lerts_Options_advc.xml` | `Assets/XML/Text/Civ4lerts Options.xml` |
+| `Assets/XML/Text/CIV4GameText_Civ4lerts.xml` | `Assets/XML/Text/Civ4lerts_CIV4GameText.xml` |
+| `Assets/XML/Text/CIV4GameTextInfos_CIV4PlotListEnhancementsInfo.xml` | `Assets/XML/Text/CIV4PlotListEnhancementsInfo.xml` |
+| `Assets/XML/Text/CIV4GameText_Colors.xml` | `Assets/XML/Text/Colors_CIV4GameText.xml` |
+| `Assets/XML/Text/BUG_CustDomAdv_Options.xml` | `Assets/XML/Text/CustDomAdv Options.xml` |
+| `Assets/XML/Text/BUG_CustDomAdv.xml` | `Assets/XML/Text/CustDomAdv_CIV4GameText.xml` |
+| `Assets/XML/Text/BUG_EventSigns_Options.xml` | `Assets/XML/Text/EventSigns Options.xml` |
+| `Assets/XML/Text/CIV4GameText_EventSigns.xml` | `Assets/XML/Text/EventSigns_CIV4GameText.xml` |
+| `Assets/XML/Text/Civ4GameText_Events_BTS_CorrectedTranslations.xml` | `Assets/XML/Text/EventText_CorrectedTranslations.xml` |
+| `Assets/XML/Text/K-Mod_hints.xml` | `Assets/XML/Text/K-Mod hints.xml` |
+| `Assets/XML/Text/BUG_MoreCiv4lerts_Options.xml` | `Assets/XML/Text/MoreCiv4lerts Options.xml` |
+| `Assets/XML/Text/BUG_MoreCiv4lerts.xml` | `Assets/XML/Text/MoreCiv4lerts_CIV4GameText.xml` |
+| `Assets/XML/Text/BUG_Not_Just_Another_Game_Clock_Options.xml` | `Assets/XML/Text/Not Just Another Game Clock Options.xml` |
+| `Assets/XML/Text/BUG_Plot_List_Enhancements_Options.xml` | `Assets/XML/Text/Plot List Enhancements Options.xml` |
+| `Assets/XML/Text/BUG_Reminder_Options.xml` | `Assets/XML/Text/Reminder Options.xml` |
+| `Assets/XML/Text/CIV4GameText_Sevopedia.xml` | `Assets/XML/Text/Sevopedia_CIV4GameText.xml` |
+| `Assets/XML/Text/CIV4GameText_Shortcuts.xml` | `Assets/XML/Text/Shortcuts_CIV4GameText.xml` |
+| `Assets/XML/Text/BUG_Strategy_Overlay_Options.xml` | `Assets/XML/Text/Strategy Overlay Options.xml` |
+| `Assets/XML/Text/BUG_StrategyOverlay.xml` | `Assets/XML/Text/StrategyOverlay_CIV4GameText.xml` |
+| `Assets/XML/Text/BUG_TechWindow_Options.xml` | `Assets/XML/Text/TechWindow Options.xml` |
+| `Assets/XML/Text/BUG_Unit_Naming_Options.xml` | `Assets/XML/Text/Unit Naming Options.xml` |
+| `Assets/XML/Text/BUG_Unit_Naming.xml` | `Assets/XML/Text/Unit Naming.xml` |
+
+- Why: the [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#removed-or-renamed-from-base-advciv) listed them as removed from SAS, and with base AdvCiv's names each compares with its upstream copy by name.
+- They shipped in releases and modmods may cite them, so they are recorded here.
+- See also [KI#118](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118): a rule naming game files with `_` was drafted with these renames and dropped, and its update note says why.

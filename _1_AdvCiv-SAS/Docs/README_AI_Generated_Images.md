@@ -58,7 +58,7 @@ People or modders are free to reuse them as long as you mention me and chatgpt (
 
 Note: see full-size images in this [google drive folder link](https://drive.google.com/drive/folders/1V-nLk7gtzB6TPkwATeRLo2vqZ7VK_ai5?usp=sharing) for details of the intermediate and such and final image
 
-First to generate our main menu image/theme, i used as advised by chatgpt Creator Nightcafe Studio (note: about their privacy/notification settings, i'd recommend making them more restrictive, see [README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) but as you prefer if i may say), with this prompt i got the idea to write hehe (and got very lucky with output at first try hehe (couldn't reproduce an as satisfying image in several other tries in this case at least)):
+First to generate our main menu image/theme, i used as advised by chatgpt Creator Nightcafe Studio (note: about their privacy/notification settings, i'd recommend making them more restrictive, see [README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) but as you prefer), with this prompt i got the idea to write hehe (and got very lucky with output at first try hehe (couldn't reproduce an as satisfying image in several other tries in this case at least)):
 
 "Landscape 1920 x 1080 image for a civ4 based mod's wallpaper, showing some natural landscape with a hint of deer or camel, in a calm setting, and in line with civ4 artstyle"
 
@@ -68,13 +68,13 @@ Tip: make sure you download your ai-generated images at each step in case the to
 
 ## Then using then Pixelcut AI to expand it to 1920 x 1080 with new details very nicely
 
-Then the problem was that it was 1024 x 1024 though, although otherwise amazing, so since i didn't want any other image, and trying a few just weren't as good nor near nowhere as good, i wanted to enhance and expand this image to 1920 x 1080 with new details (not stretched), so i found this feature in Creator Nightcafe Studio too i mean, but the result was not as satisfying although not too bad, it was overall much worse quality.
+Then the problem was that it was 1024 x 1024 though, although otherwise amazing, so since i didn't want any other image, and trying a few just weren't as good nor near nowhere as good, i wanted to enhance and expand this image to 1920 x 1080 with new details (not stretched), so i found this feature in Creator Nightcafe Studio too, but the result was not as satisfying although not too bad, it was overall much worse quality.
 
 <img src="https://drive.google.com/thumbnail?id=1PMaPYxcX7ai6xCc8e-hG-sydadjHpjvS" width="150" alt="advciv-sas main menu expanded to 1920 x 1080 (Creator Nightcafe Studio).webp"></img>
 
-I had resigned myself to maybe using it as again it was really not too bad, but i still asked chatgpt xd if i may say if there are tools to expand our images, and to do a web search on it too, and among the results, it advised me the very nice tool Pixelcut AI, as again i really wanted to use our if i may say/this image as i like/love it even maybe a loooooot, but i needed it at 16:9 so 1920 x 1080, and not stretched, and i found this one to be incredibly niiiiice!!! And it succeeded at first try as well!!!!
+I had resigned myself to maybe using it as again it was really not too bad, but i still asked chatgpt xd if there are tools to expand our images, and to do a web search on it too, and among the results, it advised me the very nice tool Pixelcut AI, as again i really wanted to use our /this image as i like/love it even maybe a loooooot, but i needed it at 16:9 so 1920 x 1080, and not stretched, and i found this one to be incredibly niiiiice!!! And it succeeded at first try as well!!!!
 
-(At least in a way i can be and am (very!!!) satified of...)
+(At least in a way i can be and am (very!!!) satisfied of...)
 
 The output is amazing and it is now our main menu image :)
 

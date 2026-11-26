@@ -14,6 +14,7 @@
 #include "CyArtFileMgr.h"
 // <!-- custom: begin - getAudio3DScriptName uses FXml/CvDLLXmlIFaceBase to build the 3D audio script reverse lookup for Sevopedia previews. See KI#141. (GPT-5.5?) -->
 #include "CvDLLXMLIFaceBase.h"
+#include "BBAILog.h" // <!-- custom: refreshSASBBAILogLevels, which onSASLiveDefineOverridesApplied calls. (Claude code Opus 5.5) -->
 // <!-- custom: end - See KI#141. (GPT-5.5?) -->
 
 CyGlobalContext::CyGlobalContext() :
@@ -715,4 +716,10 @@ CvGameSpeedInfo* CyGlobalContext::getGameSpeedInfo(int i) const
 CvTurnTimerInfo* CyGlobalContext::getTurnTimerInfo(int i) const
 {
 	return &(GC.getInfo((TurnTimerTypes)i));
+}
+
+// <!-- custom: BBAI's category levels are the first family refilled here; a family whose state is built once from its defines adds its refill below. See KI#128.5. (Claude code Opus 5.5) -->
+void CyGlobalContext::onSASLiveDefineOverridesApplied()
+{
+	refreshSASBBAILogLevels();
 }

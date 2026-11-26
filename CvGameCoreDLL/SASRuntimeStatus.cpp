@@ -375,7 +375,7 @@ static bool g_bSASRuntimeWindowCloseObservationArmed = false;
 // <!-- custom: Both WM_CLOSE and SC_CLOSE observations update this request timestamp; the field names the shared meaning rather than suggesting only WM_CLOSE is covered. (GPT-6.1-Sol) -->
 static CvString g_szSASRuntimeWindowCloseRequestObservedUtc = "-";
 
-// <!-- custom: Read XML once on first use, then reuse the setting until restart: -1 means unread, 0 means cached off, and 1 means cached on.
+// <!-- custom: ci_define_uncached: read XML once on first use, then reuse the setting until restart: -1 means unread, 0 means cached off, and 1 means cached on.
 // Shutdown checks the stored value directly; if it was never read, skip status publication rather than performing a first XML lookup after XML caches may have been released. (GPT-6.1-Sol) -->
 bool isSASRuntimeStatusEnabled()
 {
@@ -393,6 +393,7 @@ bool isSASRuntimeStatusEnabled()
 
 static bool isSASRuntimeSourceWatchEnabled()
 {
+	// <!-- custom: ci_define_uncached: read once on first use, as isSASRuntimeStatusEnabled does. (Claude code Opus 5.5) -->
 	if (g_iSASRuntimeSourceWatchEnabled < 0)
 		g_iSASRuntimeSourceWatchEnabled = (GC.getDefineINT("SAS_RUNTIME_SOURCE_WATCH_ON") > 0 ? 1 : 0);
 	return g_iSASRuntimeSourceWatchEnabled > 0;

@@ -1,7 +1,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: moved some functions that are not used in games (outside of debugging code or such, not use in a "normal" game if i may say), especially the very nice i mean debug leaderheadinfo one but not only, (another) other functions(function) as well, moving them here as it would be heavy and unclean in this case and would also clutter needlessly the other helpers. -->
+# <!-- custom: moved some functions that are not used in games (outside of debugging code or such, not use in a "normal" game), especially the very nice i mean debug leaderheadinfo one but not only, (another) other functions(function) as well, moving them here as it would be heavy and unclean in this case and would also clutter needlessly the other helpers. -->
 
 # <!-- custom: modified from Claude AI's solution. -->
 # <!-- custom: be careful/make sure to launch this at interfaceScreen level or later, else at __init__ this/the output is still empty, so run this later to have the actual tech info output; but also be careful to not launch/run/call this later than your error line if you have any, else the code execution would stop before you reach your debugger's call and you won't see any debug (e.g. if you have a code error at line 200, call debugger method at line 199 or sooner, not at line 201+ as it would never be reached before execution stops and you don't see debug content), a good place may be the top of interfaceScreen generally i would say but check to be sure -->
@@ -119,7 +119,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader):
 	print("\n\n==== ATTITUDE THRESHOLDS ====")
 	# <!-- custom:, based and comparing xml with debug values for leader_gandhi and leader_ragnar (for the furious value in leader_ragnar), here is the table conversion map of attitude to num: none: -1, furious: 0, annoyed: 1, cautious: 2, pleased: 3, friendly: 4
 	#
-	# Overall very similar to our leaders_data map, with none being last/lowest/most forgiving value (less than furious), and friendly being the highest, so we can use this map of the dll directly without needing to parse atittude str to num for our ranking of leaders in AI personality panel directly -->
+	# Overall very similar to our leaders_data map, with none being last/lowest/most forgiving value (less than furious), and friendly being the highest, so we can use this map of the dll directly without needing to parse attitude str to num for our ranking of leaders in AI personality panel directly -->
 	#
 	# <!-- custom: Among all leaders, LEADER_ELIZABETH and LEADER_TOKUGAWA only have a value of 5 somehow, which triggers an error with our current map:
 	#
@@ -139,7 +139,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader):
 	# 		<MapRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</MapRefuseAttitudeThreshold>
 	# Exactly the same as of LEADER_ELIZABETH, this is the field causing the key error which should map to 4, not to 5
 	#
-	# I have done a global search and they are the only leaders with "<MapRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</MapRefuseAttitudeThreshold>", so this seems most likely intended that map trading in base advciv code at least if not other mods preceding it or and base civ4 or not handle it as such (increment one level of atittude higher than the value, to make map trading harsher, so friendly means they will always refuse map trading i assume / in my assumption, all other leaders don't trigger a key error nor in/at this field nor in any other field, so keep as is and display it accurately as DLL handles it) -->
+	# I have done a global search and they are the only leaders with "<MapRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</MapRefuseAttitudeThreshold>", so this seems most likely intended that map trading in base advciv code at least if not other mods preceding it base civ4 or not handle it as such (increment one level of attitude higher than the value, to make map trading harsher, so friendly means they will always refuse map trading i assume / in my assumption, all other leaders don't trigger a key error nor in/at this field nor in any other field, so keep as is and display it accurately as DLL handles it) -->
 
 	# <!-- custom: Map debug attitude integers back to Civ4 XML constants through the shared AIP helper; includes debug-only 5: "ALWAYS??"
 	# for the AdvCiv map-trade refusal edge case explained above. (ChatGPT-5.5) -->
@@ -162,7 +162,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader):
 	# as we don't need them/display them in ai personality panel; then resume at fields below: -->
 
 	print("\n\n==== FLAVORS ====")
-	# <!-- custom: for flavor fields, unlike nowar (ctrl+f "attitude"), contact (ctrl+f "contact"), and memory (ctrl+f "memory") fields, it seems there are 2 occurences of methods that have "flavor" in their name, so no need to specify a number of values to loop over as in below code -->
+	# <!-- custom: for flavor fields, unlike nowar (ctrl+f "attitude"), contact (ctrl+f "contact"), and memory (ctrl+f "memory") fields, it seems there are 2 occurrences of methods that have "flavor" in their name, so no need to specify a number of values to loop over as in below code -->
 	for i in range(gc.getNumFlavorTypes()):
 		name = gc.getFlavorTypes(i)
 		value = info.getFlavorValue(i)

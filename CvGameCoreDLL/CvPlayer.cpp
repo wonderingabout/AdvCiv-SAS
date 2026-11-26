@@ -4813,6 +4813,67 @@ void CvPlayer::disband(CvCity& kCity) // advc: param was CvCity*
 }
 
 
+// <!-- custom: Whether a unit of this type could enter kPlot, by the same feature and terrain rules as CvUnit::canMoveInto (a passable tech of kTeam, or a route for land units); goody huts create units directly with initUnit, which checks neither.
+// A turn-112 goody hut on Marsh gave our Scout a Catapult (advc.314's strongest Barbarian-trainable unit), which then stood in a plot it could not leave except to one grass plot (SASPilot play, JOAO turn-112 save, 2026-11-22). See KI#1076.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+static bool isSASUnitTypePlotPassable(CvUnitInfo const& kUnit, CvPlot const& kPlot, CvTeam const& kTeam)
+{
+	if (kPlot.isImpassable() && !kUnit.canMoveImpassable())
+		return false;
+	if (kUnit.getDomainType() == DOMAIN_LAND && kPlot.isWater() && !kUnit.isCanMoveAllTerrain())
+		return false;
+	if (kUnit.getDomainType() == DOMAIN_SEA && !kPlot.isWater())
+		return false;
+	if (kUnit.getDomainType() == DOMAIN_SEA && kPlot.getTeam() == kTeam.getID())
+		return true; // <!-- custom: CvUnit::canMoveInto keeps this exception inside our borders. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+	bool const bRoute = (kUnit.getDomainType() == DOMAIN_LAND && kPlot.isRoute());
+	if (kPlot.isFeature() && kUnit.getFeatureImpassable(kPlot.getFeatureType()) && !bRoute)
+	{
+		TechTypes const eTech = kUnit.getFeaturePassableTech(kPlot.getFeatureType());
+		if (eTech == NO_TECH || !kTeam.isHasTech(eTech))
+			return false;
+	}
+	if (kUnit.getTerrainImpassable(kPlot.getTerrainType()) && !bRoute)
+	{
+		TechTypes const eTech = kUnit.getTerrainPassableTech(kPlot.getTerrainType());
+		if (eTech == NO_TECH || !kTeam.isHasTech(eTech))
+			return false;
+	}
+	return true;
+}
+
+
+// <!-- custom: Shared by the friendly hut's eligibility and its reward selection; with a friendly spawn plot it makes no RNG calls, so canReceiveGoody can safely rule out an empty reward.
+// Hostile selection keeps advc.314's randomized ranking; a hostile hut's fallback for a plot its ranked unit cannot enter also passes that plot, so it draws nothing either. See KI#1076.2. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+static UnitTypes selectSASGoodyCombatUnit(CvPlot const* pFriendlyPlot, CvTeam const& kFriendlyTeam)
+{
+	CvPlayer const& kBarbarians = GET_PLAYER(BARBARIAN_PLAYER);
+	CvCivilization const& kCiv = kBarbarians.getCivilization();
+	UnitTypes eBestUnit = NO_UNIT;
+	int iBestValue = 0;
+	for (int i = 0; i < kCiv.getNumUnits(); i++)
+	{
+		UnitTypes eUnit = kCiv.unitAt(i);
+		CvUnitInfo const& kUnit = GC.getInfo(eUnit);
+		if (kUnit.getDomainType() != DOMAIN_LAND || kUnit.getNumPrereqOrBonuses() > 0 ||
+			kUnit.getPrereqAndBonus() != NO_BONUS || kUnit.getCombat() <= 0 ||
+			(kUnit.getPrereqAndTech() != NO_TECH &&
+			GC.getInfo(kUnit.getPrereqAndTech()).getEra() > CvEraInfo::AI_getAgeOfExploration()) ||
+			!kBarbarians.canTrain(eUnit, false, true) ||
+			(pFriendlyPlot != NULL && !isSASUnitTypePlotPassable(kUnit, *pFriendlyPlot, kFriendlyTeam)))
+		{
+			continue;
+		}
+		int const iValue = kUnit.getCombat() + (pFriendlyPlot == NULL ? SyncRandNum(10) : 0);
+		if (iValue > iBestValue)
+		{
+			iBestValue = iValue;
+			eBestUnit = eUnit;
+		}
+	}
+	return eBestUnit;
+}
+
+
 bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) const
 {
 	CvGame const& kGame = GC.getGame();
@@ -4897,6 +4958,9 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		if (eUnit == NO_UNIT)
 			return false;
 		CvUnitInfo const& kUnit = GC.getInfo(eUnit); // advc
+		// <!-- custom: No free unit that could not stand on the hut's plot, such as siege on Marsh; another reward is chosen instead. See KI#1076.2. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+		if (!isSASUnitTypePlotPassable(kUnit, *pPlot, GET_TEAM(getTeam())))
+			return false;
 		if (kUnit.getCombat() > 0 && /* advc.315: */ !kUnit.isMostlyDefensive())
 		{
 			if (//kGame.getElapsedGameTurns() < 20
@@ -4910,8 +4974,9 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		if (isOneCityChallenge() && kUnit.isFound())
 			return false;
 	} // <advc.314> Free unit and no UnitClassType given
+	// <!-- custom: Nor advc.314's strongest-unit reward when no such unit could stand there. See KI#1076.2. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	else if (!kGoody.isBad() && kGoody.getMinBarbarians() > 0 &&
-		(bEarlyMP || bVeryEarlyGame))
+		(bEarlyMP || bVeryEarlyGame || selectSASGoodyCombatUnit(pPlot, GET_TEAM(getTeam())) == NO_UNIT))
 	{
 		return false;
 	} // </advc.314>
@@ -5113,40 +5178,16 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit, boo
 		}
 	}
 	std::vector<UnitTypes> aeBestUnits;
-	CvCivilization const& kCiv = GET_PLAYER(BARBARIAN_PLAYER).getCivilization();
 	/*  When units need to be placed, but no unit class is given.
 		Times 3 b/c MinBarbarians is only a lower bound. */
-	for (int i = 0; i < 3 * kGoody.getMinBarbarians(); i++)
+	if (kGoody.isBad() && kGoody.getUnitClassType() == NO_UNITCLASS &&
+		kGoody.getBarbarianUnitClass() == NO_UNITCLASS)
 	{
-		UnitTypes eBestUnit = NO_UNIT;
-		if (kGoody.getUnitClassType() == NO_UNITCLASS &&
-			kGoody.getBarbarianUnitClass() == NO_UNITCLASS)
+		for (int i = 0; i < 3 * kGoody.getMinBarbarians(); i++)
 		{
-			int iBestValue = 0;
-			for (int j = 0; j < kCiv.getNumUnits(); j++)
-			{
-				UnitTypes eUnit = kCiv.unitAt(j);
-				CvUnitInfo const& kUnit = GC.getInfo(eUnit);
-				if (kUnit.getDomainType() != DOMAIN_LAND)
-					continue;
-				if (kUnit.getNumPrereqOrBonuses() <= 0 &&
-					kUnit.getPrereqAndBonus() == NO_BONUS &&
-					kUnit.getCombat() > 0 &&
-					(kUnit.getPrereqAndTech() == NO_TECH ||
-					GC.getInfo(kUnit.getPrereqAndTech()).getEra() <=
-					CvEraInfo::AI_getAgeOfExploration()) &&
-					GET_PLAYER(BARBARIAN_PLAYER).canTrain(eUnit, false, true))
-				{
-					int iValue = kUnit.getCombat() + (kGoody.isBad() ?
-							SyncRandNum(10) : 0); // Randomize hostile units a bit
-					if (iValue > iBestValue)
-					{
-						iBestValue = iValue;
-						eBestUnit = eUnit;
-					}
-				}
-			}
-			FAssert(eBestUnit != NO_UNIT);
+			UnitTypes const eBestUnit = selectSASGoodyCombatUnit(NULL, GET_TEAM(getTeam()));
+			if (eBestUnit == NO_UNIT)
+				break;
 			aeBestUnits.push_back(eBestUnit);
 		}
 	}
@@ -5161,29 +5202,32 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit, boo
 			// Interpret BarbarianUnitClass as an upgrade to replace UnitClassType
 			if (bUpgrade && kGoody.getBarbarianUnitClass() != NO_UNITCLASS)
 			{
-				eUnitClass = (UnitClassTypes)kGoody.getBarbarianUnitClass();
-				if (bLogGoodyOutcome) kGameRecordResult.bUpgradeApplied = true;
-				// Upgrade applied, don't roll an additional outcome.
-				bNoRecursion = true;
+				UnitClassTypes const eUpgradeClass = (UnitClassTypes)kGoody.getBarbarianUnitClass();
+				UnitTypes const eUpgrade = getCivilization().getUnit(eUpgradeClass);
+				// <!-- custom: Keep the original reward if its upgrade cannot stand on the hut's plot. See KI#1076.2. (GPT-6.2-Sol) -->
+				if (eUpgrade != NO_UNIT && isSASUnitTypePlotPassable(GC.getInfo(eUpgrade), *pPlot, GET_TEAM(getTeam())))
+				{
+					eUnitClass = eUpgradeClass;
+					if (bLogGoodyOutcome) kGameRecordResult.bUpgradeApplied = true;
+					// Upgrade applied, don't roll an additional outcome.
+					bNoRecursion = true;
+				}
 			}
 			eUnit = getCivilization().getUnit(eUnitClass);
 		}
+		else eUnit = selectSASGoodyCombatUnit(pPlot, GET_TEAM(getTeam()));
 		/*  Let MinBarbarians > 1 generate more than 1 unit
 			(though I'm not using this so far; not tested either) */
 		for (int i = 0; i < std::max(1, kGoody.getMinBarbarians()); i++)
 		{
-			UnitTypes eLoopUnit = eUnit;
-			if (eLoopUnit == NO_UNIT && !aeBestUnits.empty())
-				eLoopUnit = aeBestUnits[std::min((int)aeBestUnits.size() - 1, i)];
-			FAssert(eLoopUnit != NO_UNIT);
-			if (eLoopUnit != NO_UNIT)
+			if (eUnit != NO_UNIT && isSASUnitTypePlotPassable(GC.getInfo(eUnit), *pPlot, GET_TEAM(getTeam())))
 			{
-				CvUnit* pNewUnit = initUnit(eLoopUnit, pPlot->getX(), pPlot->getY());
+				CvUnit* pNewUnit = initUnit(eUnit, pPlot->getX(), pPlot->getY());
 				if (pNewUnit == NULL)
 					continue;
 				else FAssert(pNewUnit != NULL);
 				szBuffer = gDLL->getText("TXT_KEY_GOODY_FREE_UNIT",
-						GC.getInfo(eLoopUnit).getDescription());
+						GC.getInfo(eUnit).getDescription());
 				addGoodyMsg(szBuffer, *pPlot, kGoody.getSound());
 				szBuffer.clear();
 				int iPromotionsBefore = 0;
@@ -5241,23 +5285,27 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit, boo
 				{
 					continue;
 				}
+				// <!-- custom: Unit choice moved above the roll (it uses no RNG) so a plot the unit could not enter is skipped before rolling: the inherited check was isImpassable alone, so a Barbarian Catapult could appear in an adjacent Marsh or Jungle it could never leave. See KI#1076.2. (Claude code Opus 5.5) -->
+				UnitTypes eLoopUnit = eUnit;
+				if(eLoopUnit == NO_UNIT && !aeBestUnits.empty())
+				{
+					eLoopUnit = aeBestUnits[
+							std::min((int)aeBestUnits.size() - 1, iBarbCount)];
+				}
+				// <!-- custom: Codex's review of the main port read that a ranked Catapult with only roadless Jungle or Marsh around the hut would spawn nothing, though a Longbowman could stand there; take the strongest unit that can, a search with a plot makes no RNG calls. See KI#1076.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+				if (eUnit == NO_UNIT && eLoopUnit != NO_UNIT && !isSASUnitTypePlotPassable(GC.getInfo(eLoopUnit), *pAdj, GET_TEAM(BARBARIAN_TEAM)))
+					eLoopUnit = selectSASGoodyCombatUnit(pAdj, GET_TEAM(BARBARIAN_TEAM));
+				if (eLoopUnit == NO_UNIT ||!isSASUnitTypePlotPassable(GC.getInfo(eLoopUnit), *pAdj, GET_TEAM(BARBARIAN_TEAM)))
+					continue;
 				if (iPass > 0 || SyncRandSuccess100(iProb))
 				{
-					UnitTypes eLoopUnit = eUnit;
-					if(eLoopUnit == NO_UNIT && !aeBestUnits.empty())
-					{
-						eLoopUnit = aeBestUnits[
-								std::min((int)aeBestUnits.size() - 1, iBarbCount)];
-					}
-					FAssert(eLoopUnit != NO_UNIT);
-					if(eLoopUnit != NO_UNIT)
-					{
-						CvUnit* pBarbarian = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eLoopUnit, pAdj->getX(), pAdj->getY(), (pAdj->isWater() ? UNITAI_ATTACK_SEA : UNITAI_ATTACK));
-						if (bLogGoodyOutcome && pBarbarian != NULL)
-							kGameRecordResult.apBarbarianUnits.push_back(pBarbarian);
-						if (bLogGoodyDetails) logSASGameRecordBarbarianSpawn(pBarbarian, "GOODY_HUT");
-						iBarbCount++;
-					}
+					CvUnit* pBarbarian = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eLoopUnit, pAdj->getX(), pAdj->getY(), (pAdj->isWater() ? UNITAI_ATTACK_SEA : UNITAI_ATTACK));
+					if (pBarbarian == NULL)
+						continue;
+					if (bLogGoodyOutcome)
+						kGameRecordResult.apBarbarianUnits.push_back(pBarbarian);
+					if (bLogGoodyDetails) logSASGameRecordBarbarianSpawn(pBarbarian, "GOODY_HUT");
+					iBarbCount++;
 					if ((iPass > 0 && iBarbCount >= iMinBarbs) || iBarbCount >= iMaxBarbs)
 						break;
 				}
@@ -5611,7 +5659,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 			return false;
 	}
 
-	// <!-- custom: ObsoleteTech stops training once known; default NONE. (GPT-5.2-Codex) -->
+	// <!-- custom: ObsoleteTech stops training once known; default NONE. See KI#93. (GPT-5.2-Codex) -->
 	// <!-- custom: Apply the same candidate/guaranteed-prerequisite context to ObsoleteTech; otherwise prospective applicability could count a unit that disappears before the evaluated building technology is reached. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	TechTypes const eObsoleteTech = GC.getInfo(eUnit).getObsoleteTech();
 	if (eObsoleteTech != NO_TECH && SAS_isTechKnownOrGuaranteedPrerequisiteOf(getTeam(), eObsoleteTech, eAssumeTech))
@@ -5985,7 +6033,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, int iExtraInstances) const //
 			trainingModifierFromHandicap(GC.getInfo(eUnitClass).isWorldUnit())).
 			// <!-- custom: very annoying, do not round to multiples of 5 please...
 			// Ancient macemen 18 hammers cost 20, and swordsman 42 costs 40 while swordsman 43 costs 45, it is a mess and hard to balance.
-			// Meanwhile, AIs have per 1 costs like 22, 17, 38, and it seems this is where we need to change it as chatgpt 5 explained to me, check if accurate, see known issue as of now 67 for details; Also what's even more annoying is that the price change only applies to the human player, so AIs effectively have a different price than the human player, very very annoying and no setting to manage this outside of DLL.
+			// Meanwhile, AIs have per 1 costs like 22, 17, 38, and it seems this is where we need to change it as chatgpt 5 explained to me, check if accurate, see KI#67 for details; Also what's even more annoying is that the price change only applies to the human player, so AIs effectively have a different price than the human player, very very annoying and no setting to manage this outside of DLL.
 			// Since i find it nonsensical and don't care about pretty numbers in this case at least, disabled it entirely -->
 			// Short answer: for your use-case, they’re the same. Use .round() for clarity.
 			// Semantics: roundToMultiple(1) means “round to the nearest multiple of 1," i.e. the nearest integer. That’s exactly what .round() does. For positive values (your costs are positive), they’ll return the same integer.
@@ -6025,7 +6073,7 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 	// <advc.251>
 	iProductionNeeded = (iProductionNeeded * per100(
 			GC.getInfo(getHandicapType()).getConstructPercent())).
-			// <!-- custom: see known issue as of now 67 for details -->
+			// <!-- custom: see KI#67 for details -->
 			// roundToMultiple(isHuman() ? 5 : 1);
 			round();
 	if (!isHuman()) // Barbarians too
@@ -6047,7 +6095,7 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 {
 	CvGame const& kGame = GC.getGame();
-	// <!-- custom: see known issue as of now 67 for details -->
+	// <!-- custom: see KI#67 for details -->
 	// // <advc.251>
 	// int const iBaseCost = GC.getInfo(eProject).getProductionCost();
 	// int iProductionNeeded = iBaseCost; // </advc.251>
@@ -6065,7 +6113,7 @@ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 	// <advc.251>
 	iProductionNeeded = (iProductionNeeded *
 			per100(GC.getInfo(getHandicapType()).getCreatePercent())).
-			// <!-- custom: see known issue as of now 67 for details, below comment by chatgpt 5, check if accurate -->
+			// <!-- custom: see KI#67 for details, below comment by chatgpt 5, check if accurate -->
 			// Yep—you can make projects round to 1 as well. It’s safe and keeps parity with units/buildings if you’ve already switched those.
 			// roundToMultiple(isHuman() ? (iBaseCost > 500 ? 50 : 5) : 1);
 			round();
@@ -7491,7 +7539,8 @@ void CvPlayer::convert(ReligionTypes eReligion, /* <advc.001v> */ bool bForce)
 	changeAnarchyTurns(iAnarchyLength);
 	setLastStateReligion(eReligion);
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-	static const int iMIN_CONVERSION_TURNS = GC.getDefineINT("MIN_CONVERSION_TURNS");
+	// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	const int iMIN_CONVERSION_TURNS = GC.getDefineINT(CvGlobals::MIN_CONVERSION_TURNS);
 	setConversionTimer(std::max(1, ((100 + getAnarchyModifier()) *
 			iMIN_CONVERSION_TURNS) / 100) + iAnarchyLength);
 	// <advc.004x>
@@ -7859,7 +7908,7 @@ int CvPlayer::greatPeopleThreshold(bool bMilitary) const
 	iThreshold /= 100;
 	// <advc.251>
 	iThreshold = (per100(1) * iThreshold * GC.getInfo(
-			// <!-- custom: see known issue as of now 67 for details -->
+			// <!-- custom: see KI#67 for details -->
 			// getHandicapType()).getGPThresholdPercent()).roundToMultiple(
 			// isHuman() ? 5 : 1);
 			getHandicapType()).getGPThresholdPercent()).round();
@@ -8220,7 +8269,8 @@ void CvPlayer::changeAnarchyModifier(int iChange)
 	m_iAnarchyModifier += iChange;
 	if (iOldScale <= 0)
 	{
-		static const int iMIN_CONVERSION_TURNS = GC.getDefineINT("MIN_CONVERSION_TURNS");
+		// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+		const int iMIN_CONVERSION_TURNS = GC.getDefineINT(CvGlobals::MIN_CONVERSION_TURNS);
 		if (getRevolutionTimer() > 0)
 			setRevolutionTimer(getMinTurnsBetweenRevolutions());
 		if (getConversionTimer() > 0)
@@ -13006,7 +13056,8 @@ int CvPlayer::getEspionageMissionCostModifier(EspionageMissionTypes eMission, Pl
 	static int const iESPIONAGE_CITY_HOLY_CITY_MOD = GC.getDefineINT("ESPIONAGE_CITY_HOLY_CITY_MOD");
 	static int const iESPIONAGE_CULTURE_MULTIPLIER_MOD = GC.getDefineINT("ESPIONAGE_CULTURE_MULTIPLIER_MOD");
 	static int const iESPIONAGE_DISTANCE_MULTIPLIER_MOD = GC.getDefineINT("ESPIONAGE_DISTANCE_MULTIPLIER_MOD");
-	static int const iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
+	// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	int const iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT(CvGlobals::ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE);
 	// </advc.opt>
 
 	int iModifier = 100;
@@ -13365,7 +13416,8 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
 				GC.getInfo(eReligion).getDescription()).GetCString();
 		GET_PLAYER(eTargetPlayer).setLastStateReligion(eReligion);
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-		static const int iMIN_CONVERSION_TURNS = GC.getDefineINT("MIN_CONVERSION_TURNS");
+		// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+		const int iMIN_CONVERSION_TURNS = GC.getDefineINT(CvGlobals::MIN_CONVERSION_TURNS);
 		GET_PLAYER(eTargetPlayer).setConversionTimer(std::max(1,
 				((100 + GET_PLAYER(eTargetPlayer).getAnarchyModifier()) *
 				iMIN_CONVERSION_TURNS) / 100));
@@ -14158,7 +14210,7 @@ int CvPlayer::getAdvancedStartCityCost(bool bAdd, CvPlot const* pPlot) const
 		}
 
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-		// <!-- custom: moved above as it was weirdly reused before if i may say as well -->
+		// <!-- custom: moved above as it was weirdly reused before as well -->
 		static const int iADVANCED_START_CITY_PLACEMENT_MAX_RANGE = GC.getDefineINT("ADVANCED_START_CITY_PLACEMENT_MAX_RANGE"); // advc.opt
 		// Is there a distance limit on how far a city can be placed from a player's start/another city?
 		if (iADVANCED_START_CITY_PLACEMENT_MAX_RANGE > 0)
@@ -14242,7 +14294,8 @@ int CvPlayer::getAdvancedStartPopCost(bool bAdd, CvCity const* pCity) const
 	{
 		iPopulation--;
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-		static const int iINITIAL_CITY_POPULATION = GC.getDefineINT("INITIAL_CITY_POPULATION");
+		// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+		const int iINITIAL_CITY_POPULATION = GC.getDefineINT(CvGlobals::INITIAL_CITY_POPULATION);
 		if (iPopulation < iINITIAL_CITY_POPULATION +
 			GC.getInfo(GC.getGame().getStartEra()).getFreePopulation())
 		{
@@ -14779,9 +14832,8 @@ void CvPlayer::verifyGoldCommercePercent()
 	}*/ // BtS
 	// K-Mod
 	bool bValid = isCommerceFlexible(COMMERCE_GOLD);
-	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-	// <!-- custom: code/performance optimization: hoist -->
-	static const int iCOMMERCE_PERCENT_CHANGE_INCREMENTS = GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS");
+	// <!-- custom: Hoisted out of the loop; read through AdvCiv's enum cache, shared with CvPlayerAI::AI_doCommerce, rather than a static of its own. See KI#128.3. (ChatGPT-5 + Claude code Opus 5.5) -->
+	int const iCOMMERCE_PERCENT_CHANGE_INCREMENTS = GC.getDefineINT(CvGlobals::COMMERCE_PERCENT_CHANGE_INCREMENTS);
 	while (bValid && getCommercePercent(COMMERCE_GOLD) < 100 && getGold() + calculateGoldRate() < 0)
 	{
 		bValid = changeCommercePercent(COMMERCE_GOLD, iCOMMERCE_PERCENT_CHANGE_INCREMENTS);
@@ -19405,7 +19457,8 @@ int CvPlayer::getNewCityProductionValue() const
 			kGame.getSpeedPercent()) / 100;
 
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-	static const int iINITIAL_CITY_POPULATION = GC.getDefineINT("INITIAL_CITY_POPULATION");
+	// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	const int iINITIAL_CITY_POPULATION = GC.getDefineINT(CvGlobals::INITIAL_CITY_POPULATION);
 	int iPopulation = iINITIAL_CITY_POPULATION +
 			GC.getInfo(kGame.getStartEra()).getFreePopulation();
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
@@ -19419,7 +19472,7 @@ int CvPlayer::getNewCityProductionValue() const
 	// <advc.251>
 	iValue = (iValue *
 			// Apply production modifier half (b/c getGrowthThreshold is also dependent on handicap)
-			// <!-- custom: see known issue as of now 67 for details -->
+			// <!-- custom: see KI#67 for details -->
 			// (1 + (trainingModifierFromHandicap(false) - 1) / 2)).roundToMultiple(isHuman() ? 5 : 1);
 			(1 + (trainingModifierFromHandicap(false) - 1) / 2)).round();
 	// </advc.251>

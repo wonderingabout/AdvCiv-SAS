@@ -126,7 +126,8 @@ void UWAI::doXML()
 void UWAI::applyPersonalityWeight()
 {
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-	static const int iWeight = GC.getDefineINT("UWAI_PERSONALITY_PERCENT");
+	// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	const int iWeight = GC.getDefineINT(CvGlobals::UWAI_PERSONALITY_PERCENT);
 	if (iWeight == 100)
 		return;
 	std::vector<std::vector<int*>*> personalityMatrix;

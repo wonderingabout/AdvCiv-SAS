@@ -3,9 +3,13 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- Special Unit Infos -->
 <!-- custom: file imported cleanly from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Units\ and modified or not for AdvCiv-SAS -->
-<!-- custom: ObsoleteTech applies to UnitInfos only; SpecialUnitInfos do not use it, so missing tags here are expected. (GPT-5.2-Codex) -->
+<!-- custom: ObsoleteTech applies to UnitInfos only; SpecialUnitInfos do not use it, so missing tags here are expected. See KI#93. (GPT-5.2-Codex) -->
 <Civ4SpecialUnitInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<SpecialUnitInfos>
 		<SpecialUnitInfo>

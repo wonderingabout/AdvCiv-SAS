@@ -6,6 +6,8 @@
 # <!-- custom: note: for comparison with Base AdvCiv purposes, if needed, as of now we also store a single-line version of Base AdvCiv's CvMainInterface.py.
 # See: /_1_AdvCiv-SAS/Docs/examples/source_comparison/CvMainInterface_1_12_singleline.py and [the corresponding readme section] (/LLM_Helpers/README.md#comparison-with-base-advciv-112s-main-interface-processed-similarly) -->
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 # <advc.092>
 from RectLayout import *
 from LayoutDict import *
@@ -75,7 +77,7 @@ WIDGET_ANNOTATIONS_TOGGLE = WidgetUtil.createWidget("WIDGET_ANNOTATIONS_TOGGLE")
 WIDGET_CITY_BREAKDOWNS = WidgetUtil.createWidget("WIDGET_CITY_BREAKDOWNS")
 g_szCityBreakdownsHelp = u""
 def _scoreHelp(szText):
-	return lambda *_: SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
+	return lambda *_: SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 def _cityBreakdownsHelp(*_):
 	return g_szCityBreakdownsHelp
 # <!-- custom: These four hovers named the action but not the current setting, so the player had to click to find out; they now state it, read from the live interface at hover time.
@@ -88,34 +90,34 @@ def _scoreBgStyleHelp(*_):
 	szText = u"Cycle scoreboard background style"
 	if mi.iScoreBgStyleLevel is not None:
 		szText += u" (%d/%d: %s)" % (mi.iScoreBgStyleLevel + 1, len(mi.aScoreBgStyleLevels), mi.aScoreBgStyleLevels[mi.iScoreBgStyleLevel])
-	return SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
+	return SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 def _commerceBgStyleHelp(*_):
 	mi = _getMainInterface()
 	szText = u"Cycle commerce sliders background style"
 	if mi.iCommerceBgStyleLevel is not None:
 		szText += u" (%d/%d: %s)" % (mi.iCommerceBgStyleLevel + 1, len(mi.aScoreBgStyleLevels), mi.aScoreBgStyleLevels[mi.iCommerceBgStyleLevel])
-	return SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
+	return SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 def _scoreExpandToggleHelp(*_):
 	szText = u"Toggle lock scoreboard hover"
 	if _getMainInterface().bScoreAlwaysExpand:
 		szText += u" (Locked)"
 	else:
 		szText += u" (Unlocked)"
-	return SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
+	return SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 def _scoreAutocenterToggleHelp(*_):
 	szText = u"Toggle autocenter scoreboard scroll on the active player "
 	if _getMainInterface().bScoreScrollAutocenterActivePlayer:
 		szText += localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_ON", ())
 	else:
 		szText += localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_OFF", ())
-	return SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
+	return SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 def _annotationsToggleHelp(*_):
 	szText = u"Toggle show map annotations "
 	if _getMainInterface().bAnnotationsVisible:
 		szText += localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_ON", ())
 	else:
 		szText += localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_OFF", ())
-	return SASTextScale.sasFontTagHover + szText + SASTextScale.SAS_FONT_TAG_CLOSE
+	return SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP, _scoreHelp(u"Scroll scoreboard up"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN, _scoreHelp(u"Scroll scoreboard down"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP_FAST, _scoreHelp(u"Scroll scoreboard up (fast)"))
@@ -181,7 +183,7 @@ g_iTimeTextCounter = -1
 g_bRawShowing = False
 g_bYieldView, g_iYieldType = RawYields.getViewAndType(0)
 g_iYieldTiles = RawYields.WORKED_TILES
-RAW_YIELD_HELP = (	"TXT_KEY_RAW_YIELD_VIEW_TRADE", "TXT_KEY_RAW_YIELD_VIEW_FOOD", "TXT_KEY_RAW_YIELD_VIEW_PRODUCTION", "TXT_KEY_RAW_YIELD_VIEW_COMMERCE", "TXT_KEY_RAW_YIELD_TILES_WORKED", "TXT_KEY_RAW_YIELD_TILES_CITY", "TXT_KEY_RAW_YIELD_TILES_OWNED", "TXT_KEY_RAW_YIELD_TILES_ALL"	)
+RAW_YIELD_HELP = ( "TXT_KEY_RAW_YIELD_VIEW_TRADE", "TXT_KEY_RAW_YIELD_VIEW_FOOD", "TXT_KEY_RAW_YIELD_VIEW_PRODUCTION", "TXT_KEY_RAW_YIELD_VIEW_COMMERCE", "TXT_KEY_RAW_YIELD_TILES_WORKED", "TXT_KEY_RAW_YIELD_TILES_CITY", "TXT_KEY_RAW_YIELD_TILES_OWNED", "TXT_KEY_RAW_YIELD_TILES_ALL" )
 # BUG - Raw Yields - end
 # BUG - field of view slider:
 #DEFAULT_FIELD_OF_VIEW = 42 # disabled (replaced) by K-Mod
@@ -590,48 +592,48 @@ class CvMainInterface:
 #		self.PLE.PLE_initialize()
 
 		self.MainInterfaceInputMap = {
-			self.PLE.PLOT_LIST_BUTTON_NAME	: self.PLE.getPlotListButtonName,
-			self.PLE.PLOT_LIST_MINUS_NAME	: self.PLE.getPlotListMinusName,
-			self.PLE.PLOT_LIST_PLUS_NAME	: self.PLE.getPlotListPlusName,
-			self.PLE.PLOT_LIST_UP_NAME		: self.PLE.getPlotListUpName,
-			self.PLE.PLOT_LIST_DOWN_NAME 	: self.PLE.getPlotListDownName,
+			self.PLE.PLOT_LIST_BUTTON_NAME : self.PLE.getPlotListButtonName,
+			self.PLE.PLOT_LIST_MINUS_NAME : self.PLE.getPlotListMinusName,
+			self.PLE.PLOT_LIST_PLUS_NAME : self.PLE.getPlotListPlusName,
+			self.PLE.PLOT_LIST_UP_NAME : self.PLE.getPlotListUpName,
+			self.PLE.PLOT_LIST_DOWN_NAME : self.PLE.getPlotListDownName,
 
-			"PleViewModeStyle1"				: self.PLE.onClickPLEViewMode,
-			self.PLE.PLE_VIEW_MODE			: self.PLE.onClickPLEViewMode,
-			self.PLE.PLE_MODE_STANDARD		: self.PLE.onClickPLEModeStandard,
-			self.PLE.PLE_MODE_MULTILINE		: self.PLE.onClickPLEModeMultiline,
-			self.PLE.PLE_MODE_STACK_VERT	: self.PLE.onClickPLEModeStackVert,
-			self.PLE.PLE_MODE_STACK_HORIZ	: self.PLE.onClickPLEModeStackHoriz,
+			"PleViewModeStyle1" : self.PLE.onClickPLEViewMode,
+			self.PLE.PLE_VIEW_MODE : self.PLE.onClickPLEViewMode,
+			self.PLE.PLE_MODE_STANDARD : self.PLE.onClickPLEModeStandard,
+			self.PLE.PLE_MODE_MULTILINE : self.PLE.onClickPLEModeMultiline,
+			self.PLE.PLE_MODE_STACK_VERT : self.PLE.onClickPLEModeStackVert,
+			self.PLE.PLE_MODE_STACK_HORIZ : self.PLE.onClickPLEModeStackHoriz,
 
-			self.PLE.PLOT_LIST_PROMO_NAME	: self.PLE.unitPromotion,
-			self.PLE.PLOT_LIST_UPGRADE_NAME	: self.PLE.unitUpgrade,
+			self.PLE.PLOT_LIST_PROMO_NAME : self.PLE.unitPromotion,
+			self.PLE.PLOT_LIST_UPGRADE_NAME : self.PLE.unitUpgrade,
 
-			self.PLE.PLE_RESET_FILTERS		: self.PLE.onClickPLEResetFilters,
-			self.PLE.PLE_FILTER_CANMOVE		: self.PLE.onClickPLEFilterCanMove,
-			self.PLE.PLE_FILTER_CANTMOVE	: self.PLE.onClickPLEFilterCantMove,
-			self.PLE.PLE_FILTER_NOTWOUND	: self.PLE.onClickPLEFilterNotWound,
-			self.PLE.PLE_FILTER_WOUND		: self.PLE.onClickPLEFilterWound,
-			self.PLE.PLE_FILTER_LAND		: self.PLE.onClickPLEFilterLand,
-			self.PLE.PLE_FILTER_SEA			: self.PLE.onClickPLEFilterSea,
-			self.PLE.PLE_FILTER_AIR			: self.PLE.onClickPLEFilterAir,
-			self.PLE.PLE_FILTER_MIL			: self.PLE.onClickPLEFilterMil,
-			self.PLE.PLE_FILTER_DOM			: self.PLE.onClickPLEFilterDom,
-			self.PLE.PLE_FILTER_OWN			: self.PLE.onClickPLEFilterOwn,
-			self.PLE.PLE_FILTER_FOREIGN		: self.PLE.onClickPLEFilterForeign,
+			self.PLE.PLE_RESET_FILTERS : self.PLE.onClickPLEResetFilters,
+			self.PLE.PLE_FILTER_CANMOVE : self.PLE.onClickPLEFilterCanMove,
+			self.PLE.PLE_FILTER_CANTMOVE : self.PLE.onClickPLEFilterCantMove,
+			self.PLE.PLE_FILTER_NOTWOUND : self.PLE.onClickPLEFilterNotWound,
+			self.PLE.PLE_FILTER_WOUND : self.PLE.onClickPLEFilterWound,
+			self.PLE.PLE_FILTER_LAND : self.PLE.onClickPLEFilterLand,
+			self.PLE.PLE_FILTER_SEA : self.PLE.onClickPLEFilterSea,
+			self.PLE.PLE_FILTER_AIR : self.PLE.onClickPLEFilterAir,
+			self.PLE.PLE_FILTER_MIL : self.PLE.onClickPLEFilterMil,
+			self.PLE.PLE_FILTER_DOM : self.PLE.onClickPLEFilterDom,
+			self.PLE.PLE_FILTER_OWN : self.PLE.onClickPLEFilterOwn,
+			self.PLE.PLE_FILTER_FOREIGN : self.PLE.onClickPLEFilterForeign,
 
-			self.PLE.PLE_GRP_UNITTYPE		: self.PLE.onClickPLEGrpUnittype,
-			self.PLE.PLE_GRP_GROUPS			: self.PLE.onClickPLEGrpGroups,
-			self.PLE.PLE_GRP_PROMO			: self.PLE.onClickPLEGrpPromo,
-			self.PLE.PLE_GRP_UPGRADE		: self.PLE.onClickPLEGrpUpgrade,
+			self.PLE.PLE_GRP_UNITTYPE : self.PLE.onClickPLEGrpUnittype,
+			self.PLE.PLE_GRP_GROUPS : self.PLE.onClickPLEGrpGroups,
+			self.PLE.PLE_GRP_PROMO : self.PLE.onClickPLEGrpPromo,
+			self.PLE.PLE_GRP_UPGRADE : self.PLE.onClickPLEGrpUpgrade,
 		}
 
-#		self.iVisibleUnits 			= 0
-		self.iMaxPlotListIcons 		= 0
+#		self.iVisibleUnits = 0
+		self.iMaxPlotListIcons = 0
 
-		self.bPLECurrentlyShowing	= False
-		self.bVanCurrentlyShowing	= False
+		self.bPLECurrentlyShowing = False
+		self.bVanCurrentlyShowing = False
 # BUG - draw method
-		self.bBUGCurrentlyShowing	= False
+		self.bBUGCurrentlyShowing = False
 # BUG - draw method
 
 		self.xResolution = 0
@@ -641,6 +643,8 @@ class CvMainInterface:
 # BUG - field of view slider - start
 		self.sFieldOfView_Text = ""
 		self.iField_View_Prev = -1
+		# <!-- custom: True from setScreenDimensions in initState until _setFieldofView has set this build's field of view. See KI#123.4. (Claude code Opus 5.5) -->
+		self.bSASPlotIndicatorFoVStale = False
 		self.iFoVPos_Prev = -1 # advc.090
 # BUG - field of view slider - end
 
@@ -659,6 +663,15 @@ class CvMainInterface:
 		self.iBarExtraRowsExtraManualAdjust = None
 		self.iBarExtraHeightExtraManualAdjust = None
 		self.iCityScreenBlueRibbonExtraLift = None
+		# <!-- custom: Raw values of the five defines that initState and the plot list scale to the resolution on each build, read once per screen instance when first needed.
+		# CvScreensInterface constructs this object at module import, so the reads wait until layout needs them; the scaled attributes are recomputed per build, so the raw values are kept apart, and these XML settings are treated as fixed in normal play.
+		# Lazy attributes, the usual pattern here: the user also questioned the per-object dict helper first used for speed, and Python 2.4's timeit measured a lazy attribute at 0.04 us per read against 0.19 us for the helper, about 4 times faster, on 2026-11-24.
+		# A shared getDefineINTCached in SASUtils was drafted before that but dropped, as the user objected that it would grow over time and hold other files' values, losing the point of a cache kept with its screen. See KI#123.3. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		self.iSAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ_RAW = None
+		self.iSAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT_RAW = None
+		self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ_RAW = None
+		self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET_RAW = None
+		self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET_RAW = None
 		# <!-- custom: cached resolution-scaled width adjustment for the left-side default help text area; positive widens, negative narrows. (Claude code Opus 4.7) -->
 		self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ = None
 		# <!-- custom: cached resolution-scaled offsets for the map-view unit selection bar (PlotListPanel). (Claude code Opus 4.7) -->
@@ -712,7 +725,7 @@ class CvMainInterface:
 		self.iSAS_COMMERCE_SLIDERS_BG_BUTTON_POS = None
 		self.iSAS_MAIN_UI_GG_BAR_CLICK_TAB = None
 		# <!-- custom: scoreboard scroll offset; 0 = show bottom of list (highest-ranked), increases to show lower-ranked players.
-		# Reset when the scoreboard is rebuilt. (Claude code Sonnet 4.6) -->
+		# Reset when the scoreboard is rebuilt. See KI#134.2. (Claude code Sonnet 4.6 + Claude code Opus 5.5) -->
 		self.iScoreScrollOffset = 0
 		self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ON = None
 		# <!-- custom: always-expand scoreboard toggle; when True, expanded columns shown without hovering.
@@ -720,13 +733,15 @@ class CvMainInterface:
 		self.bScoreAlwaysExpand = None
 		self.iSAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON = None
 		# <!-- custom: scoreboard scroll autocenter toggle; when True, redraws keep the scroll slice centered on the active player.
-		# Manual scroll buttons turn it off so deliberate strongest/weakest watching is preserved. (ChatGPT-5.5) -->
+		# Manual scroll buttons turn it off so deliberate strongest/weakest watching is preserved. See KI#134.2. (ChatGPT-5.5 + Claude code Opus 5.5) -->
 		self.bScoreScrollAutocenterActivePlayer = None
 		# <!-- custom: The name width cap of the last draw beside an open advisor; see updateScoreStrings. (Claude code Opus 5.5) -->
 		self.iScoreNameMaxW = None
 		self.bScoreNameFill = False
 		self.iScoreFullW = None
 		self.bScoreNamesCut = False
+		# <!-- custom: Read lazily, as the other scoreboard defines above. See KI#1103.2. (Claude code Opus 5.5) -->
+		self.iSAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON = None
 		# <!-- custom: scoreboard background style cycle (not just opacity: PanelStyles also include plain/colored panels e.g. blue/tan, not only opaque/translucent).
 		# Discrete PanelStyle levels in cycle order.
 		# 0 HUD_HELP is vanilla look.
@@ -783,8 +798,23 @@ class CvMainInterface:
 		#
 		if screen is None:
 			screen = CyGInterfaceScreen("MainInterface", CvScreenEnums.MAIN_INTERFACE)
+		iOldXRes = self.xResolution
+		iOldYRes = self.yResolution
 		self.xResolution = screen.getXResolution()
 		self.yResolution = screen.getYResolution()
+		# <!-- custom: After an in-game resolution change, the map was right until the city screen was opened: there its bottom band was gone and its right panel ran off the screen, and after leaving the city the map's bottom panels were misplaced too (2560 x 1440 to 1920 x 1080, 2026-11-24).
+		# This function lays every rect out again at the new resolution, but _cacheCityScreenSideLiftRects kept the first build's rects for the whole game, and the city screen's lift restored them; a few values scaled through VSPACE/HLEN/VLEN were cached once too.
+		# Clearing them on each build keeps them matched to the rects this build lays out, so no separate resolution cache key is needed; a game load at the same resolution only recomputes them once.
+		# Inline rather than in a helper, as a first draft had it when it cleared them only on a detected resolution change: every build now clears them, so the clearing sits beside the layout it keeps in step with, its only caller. See KI#123.3. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if hasattr(self, "cityScreenSideLiftRects"):
+			del self.cityScreenSideLiftRects
+			del self.cityScreenUpperSideRects
+		self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ = None
+		self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET = None
+		self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET = None
+		# <!-- custom: The game record's graphics settings already log the resolution change itself; this row shows the main interface laid out again for it. (Claude code Opus 5.5) -->
+		if iOldXRes > 0 and (iOldXRes != self.xResolution or iOldYRes != self.yResolution):
+			CvUtil.pyPrintRecord("MAIN_INTERFACE_RESOLUTION_CHANGE", "fromW=%d fromH=%d toW=%d toH=%d" % (iOldXRes, iOldYRes, self.xResolution, self.yResolution))
 
 		#
 		self.hurryPopulation = getInfoTypeOrFail("HURRY_POPULATION")
@@ -801,6 +831,11 @@ class CvMainInterface:
 		# <advc.092>
 		gSetRectangle("Top", RectLayout(None, 0, 0, self.xResolution, self.yResolution))
 		self.bScaleHUD = MainOpt.isEnlargeHUD()
+		# <!-- custom: Reset to unscaled before each build: the factors are module globals, set below only with Scale Up HUD on and above 1024 x 768, so turning the option off, or a change to 1024 x 768, kept the last build's scaling until a Civ4 restart, as base AdvCiv's tooltip for the option said.
+		# Codex (GPT-6.2-Sol) found it reviewing that tooltip, which SAS rewrote to say the option applies on the next game load or resolution change. See KI#123.6. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		import LayoutDict
+		LayoutDict.gSetScaleFactors(1.0, 1.0, 1.0, 1.0)
+		del LayoutDict
 		if self.bScaleHUD:
 			# Divide by the aspects that the original HUD was (presumably) optimized for.
 			xRatio = math.pow(self.xResolution / 1024.0, 0.4)
@@ -821,6 +856,17 @@ class CvMainInterface:
 		# </advc.092>
 		# advc.061:
 		gc.getGame().setScreenDimensions(self.xResolution, self.yResolution)
+		# <!-- custom: When the dimensions change, setScreenDimensions runs AdvCiv's plot indicator size patch (advc.092b), which scales the bonus bubbles by the field of view, but the field of view for this resolution is set only later, by _setFieldofView during redraw.
+		# Logged on 2026-11-24: loading a game at 1920 x 1080, the patch read 42, the XML's FIELD_OF_VIEW, then 39 was set for 1080; after a change in game it reads the previous resolution's.
+		# So the bubbles were sized for another field of view than the one in use; _setFieldofView sizes them again once it has set this build's. See KI#123.4. (Claude code Opus 5.5) -->
+		self.bSASPlotIndicatorFoVStale = True
+		# <!-- custom: Were computed once per game in interfaceScreen; now on each build here, once the advc.092 scale factors VSPACE uses are set, so they follow a resolution change.
+		# Here rather than only cleared: Codex's (GPT-6.2-Sol) review found that a Python module reload calls initState without interfaceScreen, so a cleared value would have stayed None for the city screen's lift and its bottom button list. See KI#123.3. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if self.iSAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ_RAW is None:
+			self.iSAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ_RAW = gc.getDefineINT("SAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ")
+			self.iSAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT_RAW = gc.getDefineINT("SAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT")
+		self.iBarExtraHeightExtraManualAdjust = VSPACE(self.iSAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ_RAW)
+		self.iCityScreenBlueRibbonExtraLift = VSPACE(self.iSAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT_RAW)
 # BUG - Raw Yields - begin
 		global g_bYieldView
 		global g_iYieldType
@@ -953,7 +999,7 @@ class CvMainInterface:
 		iLeftTopTextX = (gRect("TurnLogButton").x() * 2) / 3
 		bTopLeftFlagAndLeftSideTextShift = self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT
 		if bTopLeftFlagAndLeftSideTextShift is None:
-			bTopLeftFlagAndLeftSideTextShift = (gc.getDefineINT("SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT") > 0)
+			bTopLeftFlagAndLeftSideTextShift = (SASCurrentDefines.getInt("SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT") > 0)
 		if bTopLeftFlagAndLeftSideTextShift:
 			# <!-- custom: when this define is off, no flag is drawn here, so the left text (e.g. treasury) keeps its base position (no extra room needed). (GPT-5.3-Codex) -->
 			iLeftTopTextX += HSPACE(18)
@@ -971,9 +1017,10 @@ class CvMainInterface:
 		gSetPoint("EndTurnTextMin", PointLayout(0, gRect("Top").yBottom() - VSPACE(86)))
 		iEndTurnBtnSz = BTNSZ(32)
 		iEndTurnBtnX = gRect("MiniMapPanel").x() - iEndTurnBtnSz - HSPACE(6)
-		iEndTurnBtnY = gRect("LowerRightCorner").yBottom() - iEndTurnBtnSz - VSPACE(4)
-		if not CyInterface().isCityScreenUp():
-			iEndTurnBtnY = gRect("MiniMapPanel").y()
+		# <!-- custom: Was the LowerRightCorner's bottom when this build ran with the city screen open, else the minimap's top.
+		# A game load always builds in map view, so only the minimap's top was used, until a resolution change rebuilt the interface inside the city: the city-screen value then stayed after leaving it, and the end-turn button and city arrows sat by the screen's bottom edge instead of beside the minimap (2560 x 1440 to 1920 x 1080, 2026-11-24).
+		# So the map view's place is used for every build. See KI#123.3. (Claude code Opus 5.5) -->
+		iEndTurnBtnY = gRect("MiniMapPanel").y()
 		gSetSquare("EndTurnButton", "Top", iEndTurnBtnX, iEndTurnBtnY, iEndTurnBtnSz)
 		# <!-- custom: compact BtS-ratio top-left flag slot; runtime drawing is toggled in updateFlag. (GPT-5.3-Codex) -->
 		iFlagWidth = 24
@@ -1086,7 +1133,9 @@ class CvMainInterface:
 		# Helper rects for uniform widget placement inside the side panels
 		# <!-- custom: note: old CityOrgArea code removed since we don't put religions and corporations in the right side panel anymore -->
 		# <!-- custom: move the Bonuses up, but after deleting the old religions and corporations, somehow they are too high, and somehow the higher this value is the lower bonuses are so increasing it to put bonuses down; was +VSPACE(4) -->
-		hMoveBonusesDownTooHigh = +VSPACE(35)
+		# <!-- custom: Was +VSPACE(35), which grows more slowly than the top bar above it: logged at 39 and 42 px against the bar's bottom at 47 and 53 px in 1920 x 1080 and 2560 x 1440, so the first bonus row touched the bar's gold edge at 1440 and ran under it at 4K.
+		# Measured from the bar's bottom instead, the row keeps its 1080 place at every resolution. (Claude code Opus 5.5) -->
+		hMoveBonusesDownTooHigh = gRect("CityScreenTopWidget").yBottom() - gRect("CityRightPanel").y() - VSPACE(7)
 		gSetRect("CityLeftPanelContents", "CityLeftPanel", RectLayout.CENTER, gRect("CityAdjustPanel").yBottom(), -HSPACE(9), gRect("LowerLeftCornerPanel").y() - gRect("LowerLeftCorner").y() + 4)
 		gSetRect("CityRightPanelContents", "CityRightPanel", RectLayout.CENTER, hMoveBonusesDownTooHigh, -HSPACE(9), gRect("LowerRightCornerPanel").y() - gRect("LowerRightCorner").y() + 4)
 		# <!-- custom: move culture bars to the right panel under Great People. (GPT-5.2-Codex) -->
@@ -1115,7 +1164,9 @@ class CvMainInterface:
 		self.m_iNumPlotListButtonsPerRow = ((gRect("BottomButtonMaxSpace").width() + self.iSAS_MAIN_UI_PLOT_LIST_WIDTH_ADJ - 2 * iPlotListUnitBtnSz) / iPlotListUnitBtnSz)
 		# <!-- custom: cache resolution-scaled width adjustment for the left-side help text area; HLEN asserts on negatives, so dispatch via sign. (Claude code Opus 4.7) -->
 		if self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ is None:
-			iHelpAreaWidthAdjustRaw = gc.getDefineINT("SAS_MAIN_UI_HELP_AREA_WIDTH_ADJ")
+			if self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ_RAW is None:
+				self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ_RAW = gc.getDefineINT("SAS_MAIN_UI_HELP_AREA_WIDTH_ADJ")
+			iHelpAreaWidthAdjustRaw = self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ_RAW
 			if iHelpAreaWidthAdjustRaw > 0:
 				self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ = HLEN(iHelpAreaWidthAdjustRaw)
 			elif iHelpAreaWidthAdjustRaw < 0:
@@ -1297,7 +1348,7 @@ class CvMainInterface:
 		return max(CyInterface().determineWidth(SASTextScale.labelText(u"%s:100%%" % SASVisuals.Commerce.char(eCommerce))) for eCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES))
 
 	def getMinimumMapCommerceRightSpace(self):
-		iOffset = max(HSPACE(4), HSPACE(gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_RIGHT_X_OFFSET")))
+		iOffset = max(HSPACE(4), HSPACE(SASCurrentDefines.getInt("SAS_MAIN_UI_MAP_COMMERCE_RIGHT_X_OFFSET")))
 		return iOffset + self.getCommercePercentLabelWidth() + HSPACE(3) + 2 * BTNSZ(20) + HSPACE(0) + max(2, HSPACE(4))
 
 	def setCommerceAdjustRects(self):
@@ -1722,10 +1773,6 @@ class CvMainInterface:
 		if self.iBarExtraRows is None:
 			self.iBarExtraRows = gc.getDefineINT("SAS_MAIN_UI_CITY_BAR_EXTRA_ROWS")
 			self.iBarExtraRowsExtraManualAdjust = gc.getDefineINT("SAS_MAIN_UI_CITY_BAR_EXTRA_ROWS_ADJ")
-		if self.iBarExtraHeightExtraManualAdjust is None:
-			self.iBarExtraHeightExtraManualAdjust = VSPACE(gc.getDefineINT("SAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ"))
-		if self.iCityScreenBlueRibbonExtraLift is None:
-			self.iCityScreenBlueRibbonExtraLift = VSPACE(gc.getDefineINT("SAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT"))
 		if self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS is None:
 			self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS = (gc.getDefineINT("SAS_MAIN_UI_PROD_QUEUE_BUTTONS") > 0)
 		if self.IS_SAS_MAIN_UI_CITY_SHOW_PLOT_LIST is None:
@@ -2040,7 +2087,8 @@ class CvMainInterface:
 		self.addStackedBar("NationalityBar", WidgetTypes.WIDGET_HELP_NATIONALITY)
 		screen.hide("NationalityBar")
 
-		# <!-- custom: score scroll buttons; shown only when player count exceeds available scoreboard rows. (Claude code Sonnet 4.6) -->
+		# <!-- custom: score scroll buttons; shown only when player count exceeds available scoreboard rows.
+		# Base AdvCiv's scoreboard had no row limit, so with 48 civilizations it ran up past the top bar and over the turn counter. See KI#134.2. (Claude code Sonnet 4.6 + Claude code Opus 5.5) -->
 		self.setStyledButton("ScoreScrollUp", ButtonStyles.BUTTON_STYLE_CITY_PLUS, WIDGET_SCORE_SCROLL_UP, -1, -1)
 		screen.hide("ScoreScrollUp")
 		self.setStyledButton("ScoreScrollDown", ButtonStyles.BUTTON_STYLE_CITY_MINUS, WIDGET_SCORE_SCROLL_DOWN, -1, -1)
@@ -2279,7 +2327,9 @@ class CvMainInterface:
 		iCols = self.numPlotListButtonsPerRow()
 		# <!-- custom: lazy-cache resolution-scaled unit-bar offsets; HLEN/VLEN assert on negatives, so dispatch via sign. (Claude code Opus 4.7) -->
 		if self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET is None:
-			iRawPLPX = gc.getDefineINT("SAS_MAIN_UI_PLOT_LIST_X_OFFSET")
+			if self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET_RAW is None:
+				self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET_RAW = gc.getDefineINT("SAS_MAIN_UI_PLOT_LIST_X_OFFSET")
+			iRawPLPX = self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET_RAW
 			if iRawPLPX > 0:
 				self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET = HLEN(iRawPLPX)
 			elif iRawPLPX < 0:
@@ -2287,7 +2337,9 @@ class CvMainInterface:
 			else:
 				self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET = 0
 		if self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET is None:
-			iRawPLPY = gc.getDefineINT("SAS_MAIN_UI_PLOT_LIST_Y_OFFSET")
+			if self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET_RAW is None:
+				self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET_RAW = gc.getDefineINT("SAS_MAIN_UI_PLOT_LIST_Y_OFFSET")
+			iRawPLPY = self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET_RAW
 			if iRawPLPY > 0:
 				self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET = VLEN(iRawPLPY)
 			elif iRawPLPY < 0:
@@ -2683,7 +2735,7 @@ class CvMainInterface:
 		if (CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_HIDE_ALL or CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_MINIMAP_ONLY or CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_ADVANCED_START):
 			return
 		# <!-- custom: Replace the former screen-instance define cache with one read per commerce-control redraw so explicit runtime increment changes reach both +/- buttons; retain local reuse within this draw. See KI#128.2. (Claude code Sonnet 4.6 + GPT-6.1-Sol) -->
-		iCommercePercentChangeIncrements = gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")
+		iCommercePercentChangeIncrements = SASCurrentDefines.getInt("COMMERCE_PERCENT_CHANGE_INCREMENTS")
 		if self.iSAS_COMMERCE_SLIDERS_FAST_INCR_PCT is None:
 			self.iSAS_COMMERCE_SLIDERS_FAST_INCR_PCT = gc.getDefineINT("SAS_COMMERCE_SLIDERS_FAST_INCR_PCT")
 		# <!-- custom: BUG's Min/Max pair only when setCommerceAdjustRects found room for it: beside the Tech Advisor at 1920 px it would fall off the screen's edge. (Claude code Opus 5.5) -->
@@ -3305,7 +3357,7 @@ class CvMainInterface:
 							screen.show(szStringIcon)
 
 						if bEnable:
-							iPlotListFrameSize = self.plotListUnitButtonSize()  - self.plotListUnitFrameThickness()
+							iPlotListFrameSize = self.plotListUnitButtonSize() - self.plotListUnitFrameThickness()
 							try: # advc.009b (work around crash upon reloading scripts)
 								lPlotListBtn = gRect("PlotListButton" + str(iCount))
 							except KeyError:
@@ -6032,7 +6084,7 @@ class CvMainInterface:
 				szCultureHoverResult = u"Modifier: %s\n%s\nRate: %s per turn\nProgress: %s\nTurns: %s" % (szCultureHoverModifier, szCultureHoverPostModifier, szCultureHoverRate, szCultureHoverProgress, szTurns.strip(u"()"))
 				szCultureBreakdownHelp = u"%s\n%s\n%s" % (szCultureHoverTitle, szCultureHoverSources, szCultureHoverResult)
 				# <!-- custom: Hovering either compact breakdown shows both related city-output summaries, avoiding mouse movement (aims to reduce user tedium) between adjacent rows while retaining separate readable sections. (GPT-5.6-Sol) -->
-				g_szCityBreakdownsHelp = SASTextScale.sasFontTagHover + szSpecialistBreakdownHelp + u"\n\n" + szCultureBreakdownHelp + SASTextScale.SAS_FONT_TAG_CLOSE
+				g_szCityBreakdownsHelp = SASTextScale.sasFontTagLabel + szSpecialistBreakdownHelp + u"\n\n" + szCultureBreakdownHelp + SASTextScale.SAS_FONT_TAG_CLOSE
 
 				iXRight = iX
 				iY2 = gRect("GreatPeopleBar").y() - 22
@@ -6453,11 +6505,23 @@ class CvMainInterface:
 	# Without an aligned scoreboard (BUG's Align Icons off) iScoreFullW stays None and names are never cut.
 	# iSpace is the space the opening advisor leaves, which CvScreensInterface passes. (Claude code Opus 5.5) -->
 	def isScoreboardRedrawNeededForAdvisor(self, bOpening, iSpace=0):
+		# <!-- custom: With the map scoreboard already fitted to the space these advisors leave, opening or closing one changes nothing, so the redraw is skipped. See KI#1103.2. (Claude code Opus 5.5) -->
+		if self._isScoreboardMapFitOn():
+			return False
 		if not bOpening:
 			return self.bScoreNamesCut
 		if self.iScoreFullW is None:
 			return False
 		return self.iScoreFullW > self.getScoreboardRoomW(CyGInterfaceScreen("MainInterface", CvScreenEnums.MAIN_INTERFACE), iSpace)
+
+	# <!-- custom: The user noticed the scoreboard's left edge moving between the map and an open advisor, even at 1920 x 1080 and font 3, which was tiring to watch: names were cut to the advisor's space only while one was open, so on the map the scoreboard kept its full width.
+	# Debug-mode measures on a turn-380 SAS24 save put the map scoreboard 10 to 60 px wider than that space at fonts 3 and 4, 1080p and 1440p, while the commerce sliders above it start at that space in both views (2026-11-24).
+	# When on, the map fits the scoreboard to the same space, so it stays put and lines up with the sliders, at the cost of cut names with no advisor open.
+	# A method rather than the usual inline lazy read, as _scoreboardFastScrollStep is, since both the scoreboard draw and isScoreboardRedrawNeededForAdvisor read it. See KI#1103.2. (Claude code Opus 5.5) -->
+	def _isScoreboardMapFitOn(self):
+		if self.iSAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON is None:
+			self.iSAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON = gc.getDefineINT("SAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON")
+		return self.iSAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON > 0
 
 	# <!-- custom: How far the scoreboard's right edge sits inside the screen's, a few px. (Claude code Opus 5.5) -->
 	def getScoreboardEdgeW(self, screen):
@@ -6504,7 +6568,7 @@ class CvMainInterface:
 		iCount = 0
 		iBtnHeight = VLEN(22)
 		# <advc.092> The Scoreboard module will use this too
-		# <!-- custom: compute available scoreboard height and cap visible rows; show scroll buttons when player count exceeds capacity. (Claude code Sonnet 4.6) -->
+		# <!-- custom: compute available scoreboard height and cap visible rows; show scroll buttons when player count exceeds capacity. See KI#134.2. (Claude code Sonnet 4.6 + Claude code Opus 5.5) -->
 		# <!-- custom: buttons sit just above GlobeToggle; iScoreBottom is panel text-bottom = buttons_y - gap - iSidePad, so panel is exactly symmetric (9px each side) matching original. (Claude code Sonnet 4.6) -->
 		iSScrollBtnSz = gRect("ScoreScrollUp").width()
 		iSScrollY = gRect("GlobeToggle").y() - iSScrollBtnSz  # buttons flush above GlobeToggle
@@ -6618,7 +6682,8 @@ class CvMainInterface:
 			# <!-- custom: Local import, as elsewhere here: CvScreensInterface imports this module during startup.
 			# It holds the advisors and knows which is open. (Claude code Opus 5.5) -->
 			import CvScreensInterface
-			iSpace = CvScreensInterface.getOpenAdvisorScoreboardSpace()
+			# <!-- custom: On the map too when SAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON is on, the space the commerce sliders use; the Tech Advisor still gives its own. See KI#1103.2. (Claude code Opus 5.5) -->
+			iSpace = CvScreensInterface.getOpenAdvisorScoreboardSpace(bUseStandardOnMap=self._isScoreboardMapFitOn())
 			if iSpace is not None:
 				iRoomW = self.getScoreboardRoomW(screen, iSpace)
 			if iRoomW is not None:
@@ -6992,7 +7057,7 @@ class CvMainInterface:
 		else:
 			szHelpText = CyInterface().getHelpString()
 			if (szHelpText.find("<font=") == -1):
-				szTag = SASTextScale.sasFontTagHover._build()
+				szTag = SASTextScale.sasFontTagLabel._build()
 				if szTag:
 					szHelpText = szTag + szHelpText + SASTextScale.SAS_FONT_TAG_CLOSE
 			screen.setHelpTextString(szHelpText)
@@ -7461,7 +7526,7 @@ class CvMainInterface:
 					SASGameRecordActions.logScoreboardChange(SASGameRecordActions.SCROLL_DOWN, sasBefore, self.iScoreScrollOffset, self.iScoreBgStyleLevel, self.bScoreAlwaysExpand, self.bScoreScrollAutocenterActivePlayer)
 					return 1
 				# <!-- custom: fast scoreboard scroll keeps the useful medium jump but drops the too-niche fastest tier.
-				# Manual scroll disables autocenter before redraw; updateScoreStrings clamps overshoot to [0, total - rows]. (Claude code Opus 4.7 + ChatGPT-5.5 + GPT-5.5) -->
+				# Manual scroll disables autocenter before redraw; updateScoreStrings clamps overshoot to [0, total - rows]. See KI#134.2. (Claude code Opus 4.7 + ChatGPT-5.5 + GPT-5.5 + Claude code Opus 5.5) -->
 				elif fn == "ScoreScrollUpFast":
 					SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_SCOREBOARD, SASGameRecordActions.SCROLL_UP_FAST)
 					sasBefore = SASGameRecordActions.captureScoreboardState(self.iScoreScrollOffset, self.iScoreBgStyleLevel, self.bScoreAlwaysExpand, self.bScoreScrollAutocenterActivePlayer)
@@ -7487,7 +7552,7 @@ class CvMainInterface:
 					SASGameRecordActions.logScoreboardChange(SASGameRecordActions.CENTER_ACTIVE_PLAYER, sasBefore, self.iScoreScrollOffset, self.iScoreBgStyleLevel, self.bScoreAlwaysExpand, self.bScoreScrollAutocenterActivePlayer)
 					return 1
 				# <!-- custom: persistent scoreboard scroll autocenter toggle.
-				# When turned on, center immediately and keep centering on later score redraws until a manual scroll button turns it off. (ChatGPT-5.5) -->
+				# When turned on, center immediately and keep centering on later score redraws until a manual scroll button turns it off. See KI#134.2. (ChatGPT-5.5 + Claude code Opus 5.5) -->
 				elif fn == "ScoreScrollAutocenterActivePlayerToggle":
 					SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_SCOREBOARD, SASGameRecordActions.AUTOCENTER_TOGGLE)
 					sasBefore = SASGameRecordActions.captureScoreboardState(self.iScoreScrollOffset, self.iScoreBgStyleLevel, self.bScoreAlwaysExpand, self.bScoreScrollAutocenterActivePlayer)
@@ -7670,6 +7735,12 @@ class CvMainInterface:
 		if self.iField_View_Prev != iFoV:
 			gc.setDefineFLOAT("FIELD_OF_VIEW", float(iFoV))
 			self.iField_View_Prev = iFoV
+			# <!-- custom: Only for the first field of view of each interface build, not for moves of the FoV slider, where AdvCiv chose not to redraw the globe layer to avoid stutter (advc.092b).
+			# The redraw also runs when the patch is off or BUG's "BtS" size ignores the field of view, which Codex's (GPT-6.2-Sol) review noted; it is at most one per interface build, on a load or a resolution change, so it is kept rather than checked for. See KI#123.4. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			if self.bSASPlotIndicatorFoVStale:
+				cyUpdatePlotIndicatorSize()
+				CyInterface().setDirty(InterfaceDirtyBits.GlobeLayer_DIRTY_BIT, True)
+		self.bSASPlotIndicatorFoVStale = False
 
 	def setFieldofView_Text(self, screen):
 		# advc.090: was self.iField_View

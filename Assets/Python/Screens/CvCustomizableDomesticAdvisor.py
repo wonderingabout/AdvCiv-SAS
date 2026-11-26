@@ -57,6 +57,8 @@
 # <!-- custom: AdvCiv-SAS retains this inherited BUG screen while applying repo-wide fail-loud/consistency cleanup; immutable glyph caches previously rebuilt per advisor instance now delegate to SASVisualUtils. (Claude code Opus 4.7 + ChatGPT-5.6-Sol) -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 from SASUtils import getInfoTypeOrFail
 
 import PyHelpers
@@ -205,90 +207,91 @@ class CvCustomizableDomesticAdvisor:
 		# advc.004: Cut from the list initializer below (sat between "GOLD" and "GREATPOEPLE").
 		# These columns leak info about rival cities.
 				#
-				# ("GRANK_BASE_COMMERCE",		42,		"int",	None,					None,					0,									self.findGlobalBaseYieldRateRank, YieldTypes.YIELD_COMMERCE,		"u\"B\" + self.commerceIcon + u\"g\""),
-				# ("GRANK_BASE_FOOD",			42,		"int",	None,					None,					0,									self.findGlobalBaseYieldRateRank, YieldTypes.YIELD_FOOD,			"u\"B\" + self.foodIcon + u\"g\""),
-				# ("GRANK_BASE_PRODUCTION",	42,		"int",	None,					None,					0,									self.findGlobalBaseYieldRateRank, YieldTypes.YIELD_PRODUCTION,		"u\"B\" + self.hammerIcon + u\"g\""),
-				# ("GRANK_COMMERCE",			38,		"int",	None,					None,					0,									self.findGlobalYieldRateRank, YieldTypes.YIELD_COMMERCE,			"self.commerceIcon + u\"g\""),
-				# ("GRANK_FOOD",				38,		"int",	None,					None,					0,									self.findGlobalYieldRateRank, YieldTypes.YIELD_FOOD,				"self.foodIcon + u\"g\""),
-				# ("GRANK_PRODUCTION",		38,		"int",	None,					None,					0,									self.findGlobalYieldRateRank, YieldTypes.YIELD_PRODUCTION,			"self.hammerIcon + u\"g\""),
-				# ("GRANK_CULTURE",			38,		"int",	None,					None,					0,									self.findGlobalCommerceRateRank, CommerceTypes.COMMERCE_CULTURE,	"self.cultureIcon + u\"g\""),
-				# ("GRANK_GOLD",				38,		"int",	None,					None,					0,									self.findGlobalCommerceRateRank, CommerceTypes.COMMERCE_GOLD,		"self.goldIcon + u\"g\""),
-				# ("GRANK_RESEARCH",			38,		"int",	None,					None,					0,									self.findGlobalCommerceRateRank, CommerceTypes.COMMERCE_RESEARCH,	"self.researchIcon + u\"g\""),
+				# ("GRANK_BASE_COMMERCE",	42, "int", None, None, 0, self.findGlobalBaseYieldRateRank, YieldTypes.YIELD_COMMERCE,		"u\"B\" + self.commerceIcon + u\"g\""),
+				# ("GRANK_BASE_FOOD",		42, "int", None, None, 0, self.findGlobalBaseYieldRateRank, YieldTypes.YIELD_FOOD,			"u\"B\" + self.foodIcon + u\"g\""),
+				# ("GRANK_BASE_PRODUCTION",	42, "int", None, None, 0, self.findGlobalBaseYieldRateRank, YieldTypes.YIELD_PRODUCTION,	"u\"B\" + self.hammerIcon + u\"g\""),
+				# ("GRANK_COMMERCE",		38, "int", None, None, 0, self.findGlobalYieldRateRank, YieldTypes.YIELD_COMMERCE,			"self.commerceIcon + u\"g\""),
+				# ("GRANK_FOOD",			38, "int", None, None, 0, self.findGlobalYieldRateRank, YieldTypes.YIELD_FOOD,				"self.foodIcon + u\"g\""),
+				# ("GRANK_PRODUCTION",		38, "int", None, None, 0, self.findGlobalYieldRateRank, YieldTypes.YIELD_PRODUCTION,		"self.hammerIcon + u\"g\""),
+				# ("GRANK_CULTURE",			38, "int", None, None, 0, self.findGlobalCommerceRateRank, CommerceTypes.COMMERCE_CULTURE,	"self.cultureIcon + u\"g\""),
+				# ("GRANK_GOLD",			38, "int", None, None, 0, self.findGlobalCommerceRateRank, CommerceTypes.COMMERCE_GOLD,		"self.goldIcon + u\"g\""),
+				# ("GRANK_RESEARCH",		38, "int", None, None, 0, self.findGlobalCommerceRateRank, CommerceTypes.COMMERCE_RESEARCH,	"self.researchIcon + u\"g\""),
 				#
 		self.COLUMNS_LIST = [
-				# Name                      Width    Type   CyCityFunction0			CyCityFunction1			Arg									selfFunction							Arg							Title
+				# <!-- custom: Columns aligned with tabs on 4-column stops, as the Sevopedia charts are; rows this long wrap with word wrap on, so zoom out (Ctrl+- in VS Code) until each row fits on one line to see the column alignment. See KI#21.8. (Claude code Opus 5.5) -->
+				# Name						Width	Type	CyCityFunction0						CyCityFunction1					Arg									selfFunction							Arg						Title
 
-				("NAME",					95,		"text",	CyCity.getName,			None,					0,									None,									None,						"localText.getText(\"TXT_KEY_DOMESTIC_ADVISOR_NAME\", ()).upper()"),
-				("ADVISE_CULTURE",			150,	"text",	None,					None,					0,									self.advise,							"Culture",					"localText.getText(\"TXT_KEY_CONCEPT_CULTURE\", ()).upper()"),
-				("ADVISE_MILITARY",			150,	"text",	None,					None,					0,									self.advise,							"Military",					"localText.getText(\"TXT_KEY_ADVISOR_MILITARY\", ()).upper()"),
-				("ADVISE_NUTTY",			150,	"text",	None,					None,					0,									self.advise,							"Nutty",					"u\"NUTTY\""),
-				("ADVISE_RELIGION",			150,	"text",	None,					None,					0,									self.advise,							"SASVisuals.Religion",					"localText.getText(\"TXT_KEY_CONCEPT_RELIGION\", ()).upper()"),
-				("ADVISE_RESEARCH",			150,	"text",	None,					None,					0,									self.advise,							"Research",					"localText.getText(\"TXT_KEY_COMMERCE_RESEARCH\", ()).upper()"),
-				("ADVISE_SPACESHIP",		150,	"text",	None,					None,					0,									self.advise,							"Spaceship",				"localText.getText(\"TXT_KEY_CONCEPT_SPACESHIP\", ()).upper()"),
-				("AUTOMATION",				80,		"text",	None,					None,					0,									self.calculateAutomation,				None,						"u\"AUTO\""),
-				("BASE_COMMERCE",			38,		"int",	None,					CyCity.getBaseYieldRate, YieldTypes.YIELD_COMMERCE,			None,									None,						"u\"B\" + SASVisuals.Yield.COMMERCE_CHAR"),
-				("BASE_FOOD",				38,		"int",	None,					CyCity.getBaseYieldRate, YieldTypes.YIELD_FOOD,				None,									None,						"u\"B\" + SASVisuals.Yield.FOOD_CHAR"),
-				("BASE_PRODUCTION",			38,		"int",	None,					CyCity.getBaseYieldRate, YieldTypes.YIELD_PRODUCTION,		None,									None,						"u\"B\" + SASVisuals.Yield.PRODUCTION_CHAR"),
-				("CONSCRIPT_ANGER",			38,		"int",	None,					None,					0,									self.calculateConscriptAnger,			None,						"u\"D\" + SASVisuals.Font.UNHAPPY_CHAR"),
-				("CONSCRIPT_UNIT",			90,		"text",	None,					None,					0,									self.calculateConscriptUnit,			None,						"localText.getText(\"TXT_KEY_CONCEPT_DRAFT\", ()).upper()"),
-				("COULD_CONSCRIPT_UNIT",	90,		"text",	None,					None,					0,									self.calculatePotentialConscriptUnit,	None,						"localText.getText(\"TXT_KEY_CONCEPT_DRAFT\", ()).upper() + u\"#\""),
-				("CORPORATIONS",			90,		"text",	None,					None,					0,									self.calculateCorporations,				None,						"localText.getText(\"TXT_KEY_CONCEPT_CORPORATIONS\", ()).upper()"),
-				("CULTURE",					53,		"int",	None,					None,					0,									self.calculateTotalCulture,				None,						"SASVisuals.Commerce.CULTURE_CHAR"),
-				("CULTURE_RATE",			38,		"int",	None,					CyCity.getCommerceRate, CommerceTypes.COMMERCE_CULTURE,		None,									None,						"SASVisuals.Commerce.CULTURE_CHAR + u\"R\""),
-				("CULTURE_TURNS",			38,		"int",	None,					None,					None,								self.calculateCultureTurns,				None,						"SASVisuals.Commerce.CULTURE_CHAR + u\"T\""),
-				("DEFENSE",					60,		"int",	None,					None,					0,									self.calculateDefense,					None,						"SASVisuals.Font.DEFENSE_CHAR"),
-				("ESPIONAGE",			    38,		"int",	None,					CyCity.getCommerceRate, CommerceTypes.COMMERCE_ESPIONAGE,	None,									None,						"SASVisuals.Commerce.ESPIONAGE_CHAR"),
-				("ESPIONAGE_DEF",			60,		"int",	CyCity.getEspionageDefenseModifier,	None,		0,									self.calculateEspionageDefense,			None,						"SASVisuals.Commerce.ESPIONAGE_CHAR + u\"%\""),
-				("FEATURES",				106,	"text",	None,					None,					0,									self.calculateFeatures,					None,						"localText.getText(\"TXT_KEY_MISC_FEATURES\", ())"),
-				("FOOD",					35,		"int",	None,					None,					0,									self.calculateFood,						None,						"SASVisuals.Yield.FOOD_CHAR"),
-				("FOUNDED",					80,		"date",	None,					None,					0,									self.calculateFounded,					None,						"localText.getText(\"TXT_KEY_DOMESTIC_ADVISOR_FOUNDED\", ()).upper()"),
-				("FREE_EXPERIENCE_LAND",	30,		"int",	None,					None,					0,									self.calculateFreeExperience,			"L",						"SASVisuals.DynamicFont.DOMAIN_LAND_CHAR"),
-				("FREE_EXPERIENCE_SEA",		30,		"int",	None,					None,					0,									self.calculateFreeExperience,			"S",						"SASVisuals.DynamicFont.DOMAIN_SEA_CHAR"),
-				("FREE_EXPERIENCE_AIR",		30,		"int",	None,					None,					0,									self.calculateFreeExperience,			"A",						"SASVisuals.DynamicFont.DOMAIN_AIR_CHAR"),
-				("GARRISON",				30,		"int",	CyCity.getMilitaryHappinessUnits,	None,		0,									None,									None,						"SASVisuals.Font.STRENGTH_CHAR"),
-				("GOLD",					38,		"int",	None,					CyCity.getCommerceRate, CommerceTypes.COMMERCE_GOLD,		None,									None,						"SASVisuals.Commerce.GOLD_CHAR"),
-				("GREATPEOPLE",				45,		"int",	CyCity.getGreatPeopleProgress,	None,			0,									None,									None,						"SASVisuals.Font.GREAT_PEOPLE_CHAR"),
-				("GREATPEOPLE_RATE",		38,		"int",	CyCity.getGreatPeopleRate,		None,			0,									None,									None,						"SASVisuals.Font.GREAT_PEOPLE_CHAR + u\"R\""),
-				("GREATPEOPLE_TURNS",		38,		"int",	None,					None,					None,								self.calculateGreatPeopleTurns,			None,						"SASVisuals.Font.GREAT_PEOPLE_CHAR + u\"T\""),
-				("GROWTH",					35,		"int",	None,					None,					0,									self.calculateGrowth,					None,						"SASVisuals.Font.BAD_FOOD_CHAR"),
-				("HAPPY",					30,		"int",	None,					None,					0,									self.calculateNetHappiness,				None,						"SASVisuals.Font.HAPPY_CHAR"),
-				("HEALTH",					30,		"int",	None,					None,					0,									self.calculateNetHealth,				None,						"SASVisuals.Font.HEALTHY_CHAR"),
-				("HURRY_GOLD",				38,		"int",	None,					None,					0,									self.calculateHurryGoldCost,			None,						"u\"H\" + SASVisuals.Commerce.GOLD_CHAR"),
-				("HURRY_POP",				38,		"int",	None,					None,					0,									self.calculateWhipPopulation,			None,						"u\"H\" + SASVisuals.Font.ANGRY_POP_CHAR"),
-				("HURRY_POP_EXTRA",			38,		"int",	None,					None,					0,									self.calculateWhipOverflowProduction,	None,						"u\"H\" + SASVisuals.Yield.PRODUCTION_CHAR"),
-				("HURRY_POP_GOLD",			38,		"int",	None,					None,					0,									self.calculateWhipOverflowGold,			None,						"u\"H\" + SASVisuals.Commerce.GOLD_CHAR"),
-				("HURRY_POP_ANGER",			38,		"int",	None,					None,					0,									self.calculateWhipAnger,				None,						"u\"H\" + SASVisuals.Font.UNHAPPY_CHAR"),
-				("LIBERATE",				35,		"int",	None,					None,					0,									self.canLiberate,						None,						"SASVisuals.Font.OCCUPATION_CHAR"),
+				("NAME",					95,		"text",	CyCity.getName,						None,							0,									None,									None,					"localText.getText(\"TXT_KEY_DOMESTIC_ADVISOR_NAME\", ()).upper()"),
+				("ADVISE_CULTURE",			150,	"text",	None,								None,							0,									self.advise,							"Culture",				"localText.getText(\"TXT_KEY_CONCEPT_CULTURE\", ()).upper()"),
+				("ADVISE_MILITARY",			150,	"text",	None,								None,							0,									self.advise,							"Military",				"localText.getText(\"TXT_KEY_ADVISOR_MILITARY\", ()).upper()"),
+				("ADVISE_NUTTY",			150,	"text",	None,								None,							0,									self.advise,							"Nutty",				"u\"NUTTY\""),
+				("ADVISE_RELIGION",			150,	"text",	None,								None,							0,									self.advise,							"SASVisuals.Religion",	"localText.getText(\"TXT_KEY_CONCEPT_RELIGION\", ()).upper()"),
+				("ADVISE_RESEARCH",			150,	"text",	None,								None,							0,									self.advise,							"Research",				"localText.getText(\"TXT_KEY_COMMERCE_RESEARCH\", ()).upper()"),
+				("ADVISE_SPACESHIP",		150,	"text",	None,								None,							0,									self.advise,							"Spaceship",			"localText.getText(\"TXT_KEY_CONCEPT_SPACESHIP\", ()).upper()"),
+				("AUTOMATION",				80,		"text",	None,								None,							0,									self.calculateAutomation,				None,					"u\"AUTO\""),
+				("BASE_COMMERCE",			38,		"int",	None,								CyCity.getBaseYieldRate,		YieldTypes.YIELD_COMMERCE,			None,									None,					"u\"B\" + SASVisuals.Yield.COMMERCE_CHAR"),
+				("BASE_FOOD",				38,		"int",	None,								CyCity.getBaseYieldRate,		YieldTypes.YIELD_FOOD,				None,									None,					"u\"B\" + SASVisuals.Yield.FOOD_CHAR"),
+				("BASE_PRODUCTION",			38,		"int",	None,								CyCity.getBaseYieldRate,		YieldTypes.YIELD_PRODUCTION,		None,									None,					"u\"B\" + SASVisuals.Yield.PRODUCTION_CHAR"),
+				("CONSCRIPT_ANGER",			38,		"int",	None,								None,							0,									self.calculateConscriptAnger,			None,					"u\"D\" + SASVisuals.Font.UNHAPPY_CHAR"),
+				("CONSCRIPT_UNIT",			90,		"text",	None,								None,							0,									self.calculateConscriptUnit,			None,					"localText.getText(\"TXT_KEY_CONCEPT_DRAFT\", ()).upper()"),
+				("COULD_CONSCRIPT_UNIT",	90,		"text",	None,								None,							0,									self.calculatePotentialConscriptUnit,	None,					"localText.getText(\"TXT_KEY_CONCEPT_DRAFT\", ()).upper() + u\"#\""),
+				("CORPORATIONS",			90,		"text",	None,								None,							0,									self.calculateCorporations,				None,					"localText.getText(\"TXT_KEY_CONCEPT_CORPORATIONS\", ()).upper()"),
+				("CULTURE",					53,		"int",	None,								None,							0,									self.calculateTotalCulture,				None,					"SASVisuals.Commerce.CULTURE_CHAR"),
+				("CULTURE_RATE",			38,		"int",	None,								CyCity.getCommerceRate,			CommerceTypes.COMMERCE_CULTURE,		None,									None,					"SASVisuals.Commerce.CULTURE_CHAR + u\"R\""),
+				("CULTURE_TURNS",			38,		"int",	None,								None,							None,								self.calculateCultureTurns,				None,					"SASVisuals.Commerce.CULTURE_CHAR + u\"T\""),
+				("DEFENSE",					60,		"int",	None,								None,							0,									self.calculateDefense,					None,					"SASVisuals.Font.DEFENSE_CHAR"),
+				("ESPIONAGE",				38,		"int",	None,								CyCity.getCommerceRate,			CommerceTypes.COMMERCE_ESPIONAGE,	None,									None,					"SASVisuals.Commerce.ESPIONAGE_CHAR"),
+				("ESPIONAGE_DEF",			60,		"int",	CyCity.getEspionageDefenseModifier,	None,							0,									self.calculateEspionageDefense,			None,					"SASVisuals.Commerce.ESPIONAGE_CHAR + u\"%\""),
+				("FEATURES",				106,	"text",	None,								None,							0,									self.calculateFeatures,					None,					"localText.getText(\"TXT_KEY_MISC_FEATURES\", ())"),
+				("FOOD",					35,		"int",	None,								None,							0,									self.calculateFood,						None,					"SASVisuals.Yield.FOOD_CHAR"),
+				("FOUNDED",					80,		"date",	None,								None,							0,									self.calculateFounded,					None,					"localText.getText(\"TXT_KEY_DOMESTIC_ADVISOR_FOUNDED\", ()).upper()"),
+				("FREE_EXPERIENCE_LAND",	30,		"int",	None,								None,							0,									self.calculateFreeExperience,			"L",					"SASVisuals.DynamicFont.DOMAIN_LAND_CHAR"),
+				("FREE_EXPERIENCE_SEA",		30,		"int",	None,								None,							0,									self.calculateFreeExperience,			"S",					"SASVisuals.DynamicFont.DOMAIN_SEA_CHAR"),
+				("FREE_EXPERIENCE_AIR",		30,		"int",	None,								None,							0,									self.calculateFreeExperience,			"A",					"SASVisuals.DynamicFont.DOMAIN_AIR_CHAR"),
+				("GARRISON",				30,		"int",	CyCity.getMilitaryHappinessUnits,	None,							0,									None,									None,					"SASVisuals.Font.STRENGTH_CHAR"),
+				("GOLD",					38,		"int",	None,								CyCity.getCommerceRate,			CommerceTypes.COMMERCE_GOLD,		None,									None,					"SASVisuals.Commerce.GOLD_CHAR"),
+				("GREATPEOPLE",				45,		"int",	CyCity.getGreatPeopleProgress,		None,							0,									None,									None,					"SASVisuals.Font.GREAT_PEOPLE_CHAR"),
+				("GREATPEOPLE_RATE",		38,		"int",	CyCity.getGreatPeopleRate,			None,							0,									None,									None,					"SASVisuals.Font.GREAT_PEOPLE_CHAR + u\"R\""),
+				("GREATPEOPLE_TURNS",		38,		"int",	None,								None,							None,								self.calculateGreatPeopleTurns,			None,					"SASVisuals.Font.GREAT_PEOPLE_CHAR + u\"T\""),
+				("GROWTH",					35,		"int",	None,								None,							0,									self.calculateGrowth,					None,					"SASVisuals.Font.BAD_FOOD_CHAR"),
+				("HAPPY",					30,		"int",	None,								None,							0,									self.calculateNetHappiness,				None,					"SASVisuals.Font.HAPPY_CHAR"),
+				("HEALTH",					30,		"int",	None,								None,							0,									self.calculateNetHealth,				None,					"SASVisuals.Font.HEALTHY_CHAR"),
+				("HURRY_GOLD",				38,		"int",	None,								None,							0,									self.calculateHurryGoldCost,			None,					"u\"H\" + SASVisuals.Commerce.GOLD_CHAR"),
+				("HURRY_POP",				38,		"int",	None,								None,							0,									self.calculateWhipPopulation,			None,					"u\"H\" + SASVisuals.Font.ANGRY_POP_CHAR"),
+				("HURRY_POP_EXTRA",			38,		"int",	None,								None,							0,									self.calculateWhipOverflowProduction,	None,					"u\"H\" + SASVisuals.Yield.PRODUCTION_CHAR"),
+				("HURRY_POP_GOLD",			38,		"int",	None,								None,							0,									self.calculateWhipOverflowGold,			None,					"u\"H\" + SASVisuals.Commerce.GOLD_CHAR"),
+				("HURRY_POP_ANGER",			38,		"int",	None,								None,							0,									self.calculateWhipAnger,				None,					"u\"H\" + SASVisuals.Font.UNHAPPY_CHAR"),
+				("LIBERATE",				35,		"int",	None,								None,							0,									self.canLiberate,						None,					"SASVisuals.Font.OCCUPATION_CHAR"),
 				# advc.004: Wrap CyCity.getX/Y into self.getX/Y
-				("LOCATION_X",				50,		"int",	None,					None,					0,									self.getX,								None,						"u\"X\""),
-				("LOCATION_Y",				50,		"int",	None,					None,					0,									self.getY,								None,						"u\"Y\""),
-				("MAINTENANCE",				30,		"int",	CyCity.getMaintenance,	None,					0,									None,									None,						"SASVisuals.Font.BAD_GOLD_CHAR"),
-				("NRANK_BASE_COMMERCE",		42,		"int",	None,					CyCity.findBaseYieldRateRank, YieldTypes.YIELD_COMMERCE,	None,									None,						"u\"B\" + SASVisuals.Yield.COMMERCE_CHAR + u\"n\""),
-				("NRANK_BASE_FOOD",			42,		"int",	None,					CyCity.findBaseYieldRateRank, YieldTypes.YIELD_FOOD,		None,									None,						"u\"B\" + SASVisuals.Yield.FOOD_CHAR + u\"n\""),
-				("NRANK_BASE_PRODUCTION",	42,		"int",	None,					CyCity.findBaseYieldRateRank, YieldTypes.YIELD_PRODUCTION,	None,									None,						"u\"B\" + SASVisuals.Yield.PRODUCTION_CHAR + u\"n\""),
-				("NRANK_COMMERCE",			38,		"int",	None,					CyCity.findYieldRateRank, YieldTypes.YIELD_COMMERCE,		None,									None,						"SASVisuals.Yield.COMMERCE_CHAR + u\"n\""),
-				("NRANK_FOOD",				38,		"int",	None,					CyCity.findYieldRateRank, YieldTypes.YIELD_FOOD,			None,									None,						"SASVisuals.Yield.FOOD_CHAR + u\"n\""),
-				("NRANK_PRODUCTION",		38,		"int",	None,					CyCity.findYieldRateRank, YieldTypes.YIELD_PRODUCTION,		None,									None,						"SASVisuals.Yield.PRODUCTION_CHAR + u\"n\""),
-				("NRANK_CULTURE",			38,		"int",	None,					CyCity.findCommerceRateRank, CommerceTypes.COMMERCE_CULTURE,	None,								None,						"SASVisuals.Commerce.CULTURE_CHAR + u\"n\""),
-				("NRANK_GOLD",				38,		"int",	None,					CyCity.findCommerceRateRank, CommerceTypes.COMMERCE_GOLD,	None,									None,						"SASVisuals.Commerce.GOLD_CHAR + u\"n\""),
-				("NRANK_RESEARCH",			38,		"int",	None,					CyCity.findCommerceRateRank, CommerceTypes.COMMERCE_RESEARCH,	None,								None,						"SASVisuals.Commerce.RESEARCH_CHAR + u\"n\""),
-				("NUM_SPECIALIST_GG",		30,		"int",	None,					None,					0,									self.countFreeSpecialists,				"GREAT_GENERAL",			"SASVisuals.DynamicFont.MILITARY_INSTRUCTOR_CHAR"),
-				("POPULATION",				35,		"int",	CyCity.getPopulation,	None,					0,									None,									None,						"localText.getText(\"TXT_KEY_POPULATION\", ()).upper()"),
-				("POPULATION_REAL",			65,		"int",	CyCity.getRealPopulation,	None,				0,									None,									None,						"localText.getText(\"TXT_KEY_POPULATION\", ()).upper() + u\"#\""),
-				("POWER",					50,		"text",	None,					None,					0,									self.calculatePower,					None,						"SASVisuals.Font.POWER_CHAR"),
-				("PRODUCING",				90,		"text",	None,					None,					0,									self.calculateProducing,				None,						"localText.getText(\"TXT_KEY_DOMESTIC_ADVISOR_PRODUCING\", ())"),
-				("PRODUCING_TURNS",			33,		"int",	None,					None,					0,									self.calculateProducingTurns,			None,						"SASVisuals.Yield.PRODUCTION_CHAR + u\"T\""),
-				("PRODUCTION",				38,		"int",	None,					None,					0,									self.calculateProduction,				None,						"SASVisuals.Yield.PRODUCTION_CHAR"),
-				("RELIGIONS",				90,		"text",	None,					None,					0,									self.calculateReligions,				None,						"localText.getText(\"TXT_KEY_ADVISOR_RELIGION\", ()).upper()"),
-				("RESEARCH",				38,		"int",	None,					CyCity.getCommerceRate, CommerceTypes.COMMERCE_RESEARCH,	None,									None,						"SASVisuals.Commerce.RESEARCH_CHAR"),
-				("SPECIALISTS",				209,	"text",	None,					None,					0,									self.calculateSpecialists,				None,						"localText.getText(\"TXT_KEY_CONCEPT_SPECIALISTS\", ()).upper()"),
-				("THREATS",					60,		"text",	None,					None,					0,									self.calculateThreats,					None,						"u\"Threats\""),
-				("TRADE",					30,		"int",	None,					None,					0,									self.calculateTrade,					None,						"SASVisuals.Font.TRADE_CHAR"),
-				("TRADE_DOMESTIC",			30,		"int",	None,					None,					0,									self.calculateTrade,					"D",						"u\"D\" + SASVisuals.Font.TRADE_CHAR"),
-				("TRADE_FOREIGN",			30,		"int",	None,					None,					0,									self.calculateTrade,					"F",						"u\"F\" + SASVisuals.Font.TRADE_CHAR"),
-				("TRADE_ROUTES",			30,		"int",	None,					None,					0,									self.countTradeRoutes,					None,						"u\"#\" + SASVisuals.Font.TRADE_CHAR"),
-				("TRADE_ROUTES_DOMESTIC",	30,		"int",	None,					None,					0,									self.countTradeRoutes,					"D",						"u\"D#\" + SASVisuals.Font.TRADE_CHAR"),
-				("TRADE_ROUTES_FOREIGN",	30,		"int",	None,					None,					0,									self.countTradeRoutes,					"F",						"u\"F#\" + SASVisuals.Font.TRADE_CHAR"),
+				("LOCATION_X",				50,		"int",	None,								None,							0,									self.getX,								None,					"u\"X\""),
+				("LOCATION_Y",				50,		"int",	None,								None,							0,									self.getY,								None,					"u\"Y\""),
+				("MAINTENANCE",				30,		"int",	CyCity.getMaintenance,				None,							0,									None,									None,					"SASVisuals.Font.BAD_GOLD_CHAR"),
+				("NRANK_BASE_COMMERCE",		42,		"int",	None,								CyCity.findBaseYieldRateRank,	YieldTypes.YIELD_COMMERCE,			None,									None,					"u\"B\" + SASVisuals.Yield.COMMERCE_CHAR + u\"n\""),
+				("NRANK_BASE_FOOD",			42,		"int",	None,								CyCity.findBaseYieldRateRank,	YieldTypes.YIELD_FOOD,				None,									None,					"u\"B\" + SASVisuals.Yield.FOOD_CHAR + u\"n\""),
+				("NRANK_BASE_PRODUCTION",	42,		"int",	None,								CyCity.findBaseYieldRateRank,	YieldTypes.YIELD_PRODUCTION,		None,									None,					"u\"B\" + SASVisuals.Yield.PRODUCTION_CHAR + u\"n\""),
+				("NRANK_COMMERCE",			38,		"int",	None,								CyCity.findYieldRateRank,		YieldTypes.YIELD_COMMERCE,			None,									None,					"SASVisuals.Yield.COMMERCE_CHAR + u\"n\""),
+				("NRANK_FOOD",				38,		"int",	None,								CyCity.findYieldRateRank,		YieldTypes.YIELD_FOOD,				None,									None,					"SASVisuals.Yield.FOOD_CHAR + u\"n\""),
+				("NRANK_PRODUCTION",		38,		"int",	None,								CyCity.findYieldRateRank,		YieldTypes.YIELD_PRODUCTION,		None,									None,					"SASVisuals.Yield.PRODUCTION_CHAR + u\"n\""),
+				("NRANK_CULTURE",			38,		"int",	None,								CyCity.findCommerceRateRank,	CommerceTypes.COMMERCE_CULTURE,		None,									None,					"SASVisuals.Commerce.CULTURE_CHAR + u\"n\""),
+				("NRANK_GOLD",				38,		"int",	None,								CyCity.findCommerceRateRank,	CommerceTypes.COMMERCE_GOLD,		None,									None,					"SASVisuals.Commerce.GOLD_CHAR + u\"n\""),
+				("NRANK_RESEARCH",			38,		"int",	None,								CyCity.findCommerceRateRank,	CommerceTypes.COMMERCE_RESEARCH,	None,									None,					"SASVisuals.Commerce.RESEARCH_CHAR + u\"n\""),
+				("NUM_SPECIALIST_GG",		30,		"int",	None,								None,							0,									self.countFreeSpecialists,				"GREAT_GENERAL",		"SASVisuals.DynamicFont.MILITARY_INSTRUCTOR_CHAR"),
+				("POPULATION",				35,		"int",	CyCity.getPopulation,				None,							0,									None,									None,					"localText.getText(\"TXT_KEY_POPULATION\", ()).upper()"),
+				("POPULATION_REAL",			65,		"int",	CyCity.getRealPopulation,			None,							0,									None,									None,					"localText.getText(\"TXT_KEY_POPULATION\", ()).upper() + u\"#\""),
+				("POWER",					50,		"text",	None,								None,							0,									self.calculatePower,					None,					"SASVisuals.Font.POWER_CHAR"),
+				("PRODUCING",				90,		"text",	None,								None,							0,									self.calculateProducing,				None,					"localText.getText(\"TXT_KEY_DOMESTIC_ADVISOR_PRODUCING\", ())"),
+				("PRODUCING_TURNS",			33,		"int",	None,								None,							0,									self.calculateProducingTurns,			None,					"SASVisuals.Yield.PRODUCTION_CHAR + u\"T\""),
+				("PRODUCTION",				38,		"int",	None,								None,							0,									self.calculateProduction,				None,					"SASVisuals.Yield.PRODUCTION_CHAR"),
+				("RELIGIONS",				90,		"text",	None,								None,							0,									self.calculateReligions,				None,					"localText.getText(\"TXT_KEY_ADVISOR_RELIGION\", ()).upper()"),
+				("RESEARCH",				38,		"int",	None,								CyCity.getCommerceRate,			CommerceTypes.COMMERCE_RESEARCH,	None,									None,					"SASVisuals.Commerce.RESEARCH_CHAR"),
+				("SPECIALISTS",				209,	"text",	None,								None,							0,									self.calculateSpecialists,				None,					"localText.getText(\"TXT_KEY_CONCEPT_SPECIALISTS\", ()).upper()"),
+				("THREATS",					60,		"text",	None,								None,							0,									self.calculateThreats,					None,					"u\"Threats\""),
+				("TRADE",					30,		"int",	None,								None,							0,									self.calculateTrade,					None,					"SASVisuals.Font.TRADE_CHAR"),
+				("TRADE_DOMESTIC",			30,		"int",	None,								None,							0,									self.calculateTrade,					"D",					"u\"D\" + SASVisuals.Font.TRADE_CHAR"),
+				("TRADE_FOREIGN",			30,		"int",	None,								None,							0,									self.calculateTrade,					"F",					"u\"F\" + SASVisuals.Font.TRADE_CHAR"),
+				("TRADE_ROUTES",			30,		"int",	None,								None,							0,									self.countTradeRoutes,					None,					"u\"#\" + SASVisuals.Font.TRADE_CHAR"),
+				("TRADE_ROUTES_DOMESTIC",	30,		"int",	None,								None,							0,									self.countTradeRoutes,					"D",					"u\"D#\" + SASVisuals.Font.TRADE_CHAR"),
+				("TRADE_ROUTES_FOREIGN",	30,		"int",	None,								None,							0,									self.countTradeRoutes,					"F",					"u\"F#\" + SASVisuals.Font.TRADE_CHAR"),
 			]
 
 		# Values to check to see if we need to color the number as a problem
@@ -364,30 +367,30 @@ class CvCustomizableDomesticAdvisor:
 
 		# Input handling functions
 		self.DomesticScreenInputMap = {
-			self.SPECIALIST_PLUS_NAME	: self.HandleSpecialistPlus,
-			self.SPECIALIST_MINUS_NAME	: self.HandleSpecialistMinus,
-			self.EXIT_NAME				: self.DomesticExit,
+			self.SPECIALIST_PLUS_NAME : self.HandleSpecialistPlus,
+			self.SPECIALIST_MINUS_NAME : self.HandleSpecialistMinus,
+			self.EXIT_NAME : self.DomesticExit,
 
-			self.ADDCOLUMN_NAME			: self.AddCol,
-			self.DELCOLUMN_NAME			: self.DelCol,
-			self.COLUMNUP_NAME			: self.MoveColUp,
-			self.COLUMNDN_NAME			: self.MoveColDn,
-			self.COLUMN_SHRINK_NAME		: self.shrinkCol,
-			self.COLUMN_WIDEN_NAME		: self.widenCol,
+			self.ADDCOLUMN_NAME : self.AddCol,
+			self.DELCOLUMN_NAME : self.DelCol,
+			self.COLUMNUP_NAME : self.MoveColUp,
+			self.COLUMNDN_NAME : self.MoveColDn,
+			self.COLUMN_SHRINK_NAME : self.shrinkCol,
+			self.COLUMN_WIDEN_NAME : self.widenCol,
 
-			self.START_CUSTOMIZING_NAME	: self.ModifyPage,
-			self.SAVE_NAME				: self.save,
-			self.ADD_PAGE_NAME			: self.addPage,
-			self.DEL_PAGE_NAME			: self.delPage,
-			self.PREV_PAGE_NAME			: self.previousPage,
-			self.NEXT_PAGE_NAME			: self.nextPage,
-			self.PAGE_UP_NAME			: self.upPage,
-			self.PAGE_DOWN_NAME			: self.downPage,
+			self.START_CUSTOMIZING_NAME : self.ModifyPage,
+			self.SAVE_NAME : self.save,
+			self.ADD_PAGE_NAME : self.addPage,
+			self.DEL_PAGE_NAME : self.delPage,
+			self.PREV_PAGE_NAME : self.previousPage,
+			self.NEXT_PAGE_NAME : self.nextPage,
+			self.PAGE_UP_NAME : self.upPage,
+			self.PAGE_DOWN_NAME : self.downPage,
 
-			self.TOGGLE_SPECS_NAME		: self.toggleShowSpecialistControls,
+			self.TOGGLE_SPECS_NAME : self.toggleShowSpecialistControls,
 
-			self.RELOAD_PAGES_NAME		: self.reloadPages,
-			self.RENAME_PAGE_NAME		: self.renamePage,
+			self.RELOAD_PAGES_NAME : self.reloadPages,
+			self.RENAME_PAGE_NAME : self.renamePage,
 
 			}
 
@@ -1204,7 +1207,7 @@ class CvCustomizableDomesticAdvisor:
 		nTotalTradeProfit = 0
 
 		# For each trade route possible
-		for nTradeRoute in range (gc.getDefineINT("MAX_TRADE_ROUTES")):
+		for nTradeRoute in range (SASCurrentDefines.getInt("MAX_TRADE_ROUTES")):
 			# Get the next trade city
 			pTradeCity = city.getTradeCity(nTradeRoute)
 			# Not quite sure what this does but it's in the MainInterface
@@ -1227,7 +1230,7 @@ class CvCustomizableDomesticAdvisor:
 		nRoutes = 0
 
 		# For each trade route possible
-		for nTradeRoute in range (gc.getDefineINT("MAX_TRADE_ROUTES")):
+		for nTradeRoute in range (SASCurrentDefines.getInt("MAX_TRADE_ROUTES")):
 			# Get the next trade city
 			pTradeCity = city.getTradeCity(nTradeRoute)
 			# Not quite sure what this does but it's in the MainInterface
@@ -1378,8 +1381,8 @@ class CvCustomizableDomesticAdvisor:
 			if CityScreenOpt.isWhipAssistOverflowCountCurrentProduction():
 				iOverflow = iOverflow + city.getCurrentProductionDifference(True, False)
 			iMaxOverflow = min(city.getProductionNeeded(), iOverflow)
-			iOverflowGold = max(0, iOverflow - iMaxOverflow) * gc.getDefineINT("MAXED_UNIT_GOLD_PERCENT") / 100
-			iOverflow =  100 * iMaxOverflow / city.getBaseYieldRateModifier(self.YIELD_PRODUCTION, city.getProductionModifier())
+			iOverflowGold = max(0, iOverflow - iMaxOverflow) * SASCurrentDefines.getInt("MAXED_UNIT_GOLD_PERCENT") / 100
+			iOverflow = 100 * iMaxOverflow / city.getBaseYieldRateModifier(self.YIELD_PRODUCTION, city.getProductionModifier())
 			return unicode(iOverflow), unicode(iOverflowGold)
 		else:
 			return self.objectNotPossible, self.objectNotPossible
@@ -1836,7 +1839,7 @@ class CvCustomizableDomesticAdvisor:
 						for j in range(gc.getNumBonusInfos()):
 							if city.hasBonus(j):
 								iHappiness += info.getBonusHappinessChanges(j)
-						value = iHappiness  / float(info.getProductionCost())
+						value = iHappiness / float(info.getProductionCost())
 						if(value > bestData):
 							bestOrder = bldg
 							bestData = value
@@ -2122,9 +2125,10 @@ class CvCustomizableDomesticAdvisor:
 			for value, key in columns:
 				iTotalColW += self.columnWidth[key]
 			# Filling up nTableWidth entirely makes the columns too wide for some reason(?).
-			fHScaleFactor = min(2, max((self.nTableWidth - 50.0) / iTotalColW,
-					# I don't think we should shrink columns when player configures too many
-					1))
+			# <!-- custom: Collapsed onto one line by python_multiline_calls.py --fix; the comment below sat inside the brackets and moved above unchanged.
+			# It explains max()'s last argument, 1. See KI#21.7. (Claude code Opus 5.5) -->
+			# I don't think we should shrink columns when player configures too many
+			fHScaleFactor = min(2, max((self.nTableWidth - 50.0) / iTotalColW, 1))
 			# <!-- custom: minimally upscale main customizable-domestic table text (rows + non-building headers): keep base AdvCiv width logic and just bump the two legacy font steps by +1 for readability. (GPT-5.3-Codex) -->
 			# <!-- custom: Those <font=3>/<font=4> cells showed larger than the regular Domestic Advisor's (the user, Civ4ScreenShot0186), so they now take the same SAS_UI_FONT_LABEL tag as its Overview tables. (Claude code Opus 5.5) -->
 			# (The three uses of these tags in the code below aren't tagged w/ comments)
@@ -2569,7 +2573,7 @@ class CvCustomizableDomesticAdvisor:
 		list = self.getReverseSortedColumnSelection(screen)
 		for i in list:
 			col = columns[i]
-			wider  = (col[0], col[1] + 1, col[2])
+			wider = (col[0], col[1] + 1, col[2])
 			del columns[i]
 			columns.insert(i, wider)
 
@@ -2771,13 +2775,13 @@ class CvCustomizableDomesticAdvisor:
 		if(self.PAGES is None):
 			if(self.isFlavorful):
 				# advc.002b: Column width increased for CULTURE (was 53), PRODUCTION, GOLD, RESEARCH (were 38).
-				self.PAGES =	[
+				self.PAGES = [
 					{
 						"name" : "Executive Summary", 
 						"showSpecControls" : False,
 						"showCultureLegend" : False,
 						"showGPLegend" : False,
-						"columns" :	[
+						"columns" : [
 							("NAME", 95, "text"),
 							("AUTOMATION", 80, "text"),
 							("FEATURES", 92, "text"),
@@ -2829,13 +2833,13 @@ class CvCustomizableDomesticAdvisor:
 						"showSpecControls" : False,
 						"showCultureLegend" : False,
 						"showGPLegend" : False,
-						"columns" :	[
+						"columns" : [
 							("NAME", 95, "text"),
 							("POPULATION", 35, "int"),
 							("FEATURES", 92, "text"),
 							("RELIGIONS", 90, "text"),
 							("GOLD", 38, "int"),
-							("NRANK_GOLD",	38, "int"),
+							("NRANK_GOLD", 38, "int"),
 							("RESEARCH", 38, "int"),
 							("NRANK_RESEARCH", 38, "int"),
 							("CULTURE_RATE", 38, "int"),
@@ -2850,13 +2854,13 @@ class CvCustomizableDomesticAdvisor:
 						"showSpecControls" : False,
 						"showCultureLegend" : False,
 						"showGPLegend" : False,
-						"columns" :	[
+						"columns" : [
 							("NAME", 95, "text"),
 							("POPULATION", 35, "int"),
 							("FEATURES", 92, "text"),
 							("RELIGIONS", 90, "text"),
 							("GOLD", 38, "int"),
-							("GRANK_GOLD",	38, "int"),
+							("GRANK_GOLD", 38, "int"),
 							("RESEARCH", 38, "int"),
 							("GRANK_RESEARCH", 38, "int"),
 							("CULTURE_RATE", 38, "int"),
@@ -2888,13 +2892,13 @@ class CvCustomizableDomesticAdvisor:
 					}
 					]
 			else:
-				self.PAGES =	[
+				self.PAGES = [
 					{
 						"name" : "Default View", 
 						"showSpecControls" : False,
 						"showCultureLegend" : False,
 						"showGPLegend" : False,
-						"columns" :	[
+						"columns" : [
 							("NAME", 95, "text"),
 							("AUTOMATION", 80, "text"),
 							("FEATURES", 92, "text"),

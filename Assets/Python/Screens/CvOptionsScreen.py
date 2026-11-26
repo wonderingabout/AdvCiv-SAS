@@ -1,9 +1,16 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: Layout only: python_aligned_columns.py's sweep turned the double spaces and tab runs between this file's code tokens, mostly stray slips such as "x =  y" or one-column alignment, into one space; the code is unchanged. See KI#21.8. (Claude code Opus 5.5) -->
 
 # For Input see CvOptionsScreenCallbackInterface in Python\EntryPoints\
 
 import CvUtil
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 from CvPythonExtensions import *
 
 # globals
@@ -18,10 +25,10 @@ class CvOptionsScreen:
 
 		self.iScreenHeight = 50
 
-		self.iGameOptionsTabID		= 0
-		self.iGraphicOptionsTabID	= 1
-		self.iAudioOptionsTabID		= 2
-		self.iOtherOptionsTabID	        = 3
+		self.iGameOptionsTabID = 0
+		self.iGraphicOptionsTabID = 1
+		self.iAudioOptionsTabID = 2
+		self.iOtherOptionsTabID = 3
 
 		self.callbackIFace = "CvOptionsScreenCallbackInterface"
 
@@ -336,13 +343,13 @@ class CvOptionsScreen:
 			bContinue = true
 
 			if (iOptionLoop == PlayerOptionTypes.PLAYEROPTION_MODDER_1):
-				if (gc.getDefineINT("USE_MODDERS_PLAYEROPTION_1") == 0):
+				if (SASCurrentDefines.getInt("USE_MODDERS_PLAYEROPTION_1") == 0):
 					bContinue = false
 			elif (iOptionLoop == PlayerOptionTypes.PLAYEROPTION_MODDER_2):
-				if (gc.getDefineINT("USE_MODDERS_PLAYEROPTION_2") == 0):
+				if (SASCurrentDefines.getInt("USE_MODDERS_PLAYEROPTION_2") == 0):
 					bContinue = false
 			elif (iOptionLoop == PlayerOptionTypes.PLAYEROPTION_MODDER_3):
-				if (gc.getDefineINT("USE_MODDERS_PLAYEROPTION_3") == 0):
+				if (SASCurrentDefines.getInt("USE_MODDERS_PLAYEROPTION_3") == 0):
 					bContinue = false
 
 			if (bContinue):

@@ -31,7 +31,7 @@ Imported material remains subject to its original rights and provenance; moving 
 | [`xml_sas_text_inherited_names.tsv`](/_0_Legacy/Docs/Manifests/xml_sas_text_inherited_names.tsv) | the same | leader and civilization names in readable English |
 | [`xml_text_undefined_inherited.tsv`](/_0_Legacy/Docs/Manifests/xml_text_undefined_inherited.tsv) | hand | base AdvCiv's own undefined text keys |
 
-- The root README's [Inherited game text lists](/README.md#inherited-game-text-lists) explains what the text lists are for.
+- The root README's [Manifests of the inherited layers](/README.md#manifests-of-the-inherited-layers) explains what they are for.
 - Where and why here (the user, 2026-11-22):
   - They first sat beside the CI check that writes each, four in `.github/workflows/build/xml/` and one in `build/source/`, so finding them meant knowing every check; then together in `.github/workflows/data/`.
   - They serve more than CI, such as greps, the audit and external agents, and they describe inherited material, which is what `_0_Legacy` holds for archaeology, comparison and agent review. So they moved here, where the light-source ZIP already includes them.

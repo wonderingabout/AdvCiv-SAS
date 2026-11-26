@@ -102,9 +102,11 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). See KI#21.7. (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 # <!-- custom: Consolidate this dependency at the shared SASVisualUtils/SASTextScale boundary instead of retaining the retired overlapping visual-resource helper imports. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 import CvEventManager
@@ -116,6 +118,8 @@ import SASDefineGuard
 import SASBillboardScale
 import SASBattleHistory
 import SASFastSave
+# <!-- custom: Rereads SASLiveDefineOverrides during play. See KI#128.5. (Claude code Opus 5.5) -->
+import SASLiveDefineOverridesBridge
 # <advc.007b>
 import CvUtil
 import CvScreensInterface
@@ -602,7 +606,7 @@ class BugEventManager(CvEventManager.CvEventManager):
 		# K-Mod, only enable these features if the cheat mode is enabled.
 		#return getChtLvl()
 		# advc.127: Replacing the above. ChtLvl is always 0 in multiplayer.
-		return (getChtLvl() or (CyGame().isGameMultiPlayer() and gc.getDefineINT("ENABLE_AUTOPLAY_MULTIPLAYER") > 0))
+		return (getChtLvl() or (CyGame().isGameMultiPlayer() and SASCurrentDefines.getInt("ENABLE_AUTOPLAY_MULTIPLAYER") > 0))
 
 EVENT_FUNCTION_MAP = {
 	"kbdEvent": BugEventManager._handleConsumableEvent,
@@ -660,6 +664,8 @@ def configure(logging=None, noLogEvents=None):
 	# CvGame::autoSave keeps a matching warning so the tempting old location is not reused. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	g_eventManager.addEventHandler("GameStart", SASFastSave.saveGameStart)
 	g_eventManager.addEventHandler("gameUpdate", g_eventManager.onGameUpdate)
+	# <!-- custom: Rereads SASLiveDefineOverrides every few game updates during play; the first load runs in CvAppInterface.preGameStart. See KI#128.5. (Claude code Opus 5.5) -->
+	g_eventManager.addEventHandler("gameUpdate", SASLiveDefineOverridesBridge.onGameUpdate)
 	# --
 
 	# <!-- custom: scale city billboard based on SAS font body level (Claude code Opus 4.6) -->

@@ -38,10 +38,10 @@ def getNumHiddenCustomMapOptions():
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
-		0:	"TXT_KEY_MAP_SCRIPT_NUMBER_OF_LARGE_ISLANDS",
-		1:	"TXT_KEY_MAP_SCRIPT_NUMBER_OF_TINY_ISLANDS",
-		2:  "TXT_KEY_MAP_WORLD_WRAP",
-		3:  "TXT_KEY_CONCEPT_RESOURCES"
+		0: "TXT_KEY_MAP_SCRIPT_NUMBER_OF_LARGE_ISLANDS",
+		1: "TXT_KEY_MAP_SCRIPT_NUMBER_OF_TINY_ISLANDS",
+		2: "TXT_KEY_MAP_WORLD_WRAP",
+		3: "TXT_KEY_CONCEPT_RESOURCES"
 		}
 	if not option_names.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -51,33 +51,33 @@ def getCustomMapOptionName(argsList):
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	3,
-		1:	4,
-		2:  3,
-		3:  2
+		0: 3,
+		1: 4,
+		2: 3,
+		3: 2
 		}
 	return option_values[iOption]
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_SCRIPT_1_PER_PLAYER",
 			1: "TXT_KEY_MAP_SCRIPT_EXTRAS",
 			2: "TXT_KEY_MAP_SCRIPT_SEVERAL_EXTRAS"
 			},
-		1:	{
+		1: {
 			0: "TXT_KEY_MAP_SCRIPT_NO_TINY_ISLANDS",
 			1: "TXT_KEY_MAP_SCRIPT_FEW_TINY_ISLANDS",
 			2: "TXT_KEY_MAP_SCRIPT_VARIOUS_TINY_ISLANDS",
 			3: "TXT_KEY_MAP_SCRIPT_MANY_TINY_ISLANDS"
 			},
-		2:	{
+		2: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 			},
-		3:	{
+		3: {
 			0: "TXT_KEY_WORLD_STANDARD",
 			1: "TXT_KEY_MAP_BALANCED"
 			}
@@ -90,20 +90,20 @@ def getCustomMapOptionDescAt(argsList):
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	0,
-		1:	2,
-		2:  1,
-		3:  0
+		0: 0,
+		1: 2,
+		2: 1,
+		3: 0
 		}
 	return option_defaults[iOption]
 
 def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
 	option_random = {
-		0:	true,
-		1:	true,
-		2:	false,
-		3:  false
+		0: true,
+		1: true,
+		2: false,
+		3: false
 		}
 	return option_random[iOption]
 

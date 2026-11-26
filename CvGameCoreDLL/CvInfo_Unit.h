@@ -125,7 +125,7 @@ public: /*  All const functions are exposed to Python except some related to art
 	CorporationTypes getPrereqCorporation() const { return m_ePrereqCorporation; }
 	BuildingTypes getPrereqBuilding() const { return m_ePrereqBuilding; }
 	TechTypes getPrereqAndTech() const { return m_ePrereqAndTech; }
-	// <!-- custom: ObsoleteTech blocks training once known; default NONE keeps unit always buildable. (GPT-5.2-Codex) -->
+	// <!-- custom: ObsoleteTech blocks training once known; default NONE keeps unit always buildable. See KI#93. (GPT-5.2-Codex) -->
 	TechTypes getObsoleteTech() const;
 	bool isTechRequired(TechTypes eTech) const; // advc.003w: Replacing global isTechRequiredForUnit
 	BonusTypes getPrereqAndBonus() const { return m_ePrereqAndBonus; }

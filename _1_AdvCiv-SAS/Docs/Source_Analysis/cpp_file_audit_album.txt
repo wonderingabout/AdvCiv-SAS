@@ -188202,7 +188202,7 @@ ambiguity or an incomplete scan; it is a one-token spelling mismatch.
 
 LIVE CURRENT ACTIVATION
 -----------------------
-`BUG_Advanced_Scoreboard_Options.xml`'s
+`Advanced Scoreboard Options.xml`'s
 `TXT_KEY_BUG_OPT_SCORES__DISPLAYORDER_HOVER` explains the Advanced Scoreboard Display Order. Its
 English text says:
 

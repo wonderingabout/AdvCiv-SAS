@@ -10,8 +10,14 @@ import re
 # <!-- custom: subprocess reads Git and pathlib reads the corpus and the guide. (Claude code Opus 5.5) -->
 import subprocess
 from pathlib import Path
+# <!-- custom: sys puts CI's shared lib folder on the path for advciv_release. (Claude code Opus 5.5) -->
+import sys
 # <!-- custom: read_revision_headers reads Better BTS AI's revision headers in commit_diffs/. (Claude code Opus 5.5) -->
 from svn_history_to_diffs import read_revision_headers
+
+sys.path.insert(0, str(next(path for path in Path(__file__).resolve().parents if path.name == "LLM_Helpers").parent / ".github" / "workflows" / "lib"))
+# <!-- custom: advciv_release finds the base AdvCiv release SAS last merged, which was "upstream/1.14" written into --upstream-ref's default (2026-11-22). (Claude code Opus 5.5) -->
+from advciv_release import merged_release_or_exit
 
 
 # <!-- custom: Caution: tracing each model's contribution is hazy, so the model tables are only a general indication and the real picture may be quite different.
@@ -30,9 +36,19 @@ CREDIT_TOKEN = re.compile(r"claude(?P<cp>[ -]code|[ -]ai)?[ -](?P<cf>opus|sonnet
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Regenerate the History lineage tables of the Source Analysis guide from Git, commit_diffs and the SVN history export.")
-    parser.add_argument("--upstream-ref", default="upstream/1.14", help="Fetched AdvCiv ref used to separate upstream commits from SAS work")
+    parser.add_argument("--upstream-ref", help="AdvCiv ref used to separate upstream commits from SAS work (default: upstream/<version> of the release SAS last merged)")
     parser.add_argument("--write", action="store_true", help="Replace the tables in the guide. Without it, print them.")
     return parser.parse_args()
+
+
+def default_upstream_ref(explicit: str | None) -> str:
+    # <!-- custom: The tables count the commits the fetched upstream line has that SAS has not merged, so they read upstream/<version> of the release SAS last merged: a merged-only ref would leave those commits out. (Claude code Opus 5.5) -->
+    if explicit:
+        return explicit
+    release = merged_release_or_exit()
+    candidate = "upstream/" + release.rsplit("/", 1)[-1]
+    found = subprocess.run(["git", "rev-parse", "-q", "--verify", candidate + "^{commit}"], capture_output=True).returncode == 0
+    return candidate if found else release
 
 
 def git(*args: str) -> str:
@@ -218,9 +234,10 @@ def replace_table(lines: list[str], table: list[str]) -> None:
 
 def main() -> int:
     args = parse_args()
+    upstream_ref = default_upstream_ref(args.upstream_ref)
     segments = load_segments()
     svn = load_svn()
-    tables = [project_table(segments, svn, args.upstream_ref), author_table(segments, svn, args.upstream_ref), title_table(segments), credit_table(segments)]
+    tables = [project_table(segments, svn, upstream_ref), author_table(segments, svn, upstream_ref), title_table(segments), credit_table(segments)]
     if not args.write:
         print("\n\n".join("\n".join(table) for table in tables))
         return 0

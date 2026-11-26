@@ -1,6 +1,6 @@
 # Known issues
 
-Some known issues about AdvCiv code or earlier or AdvCiv-SAS specific code that may be fixed someday or not. For addtional information that may not be in this doc, see other docs or files.
+Some known issues about AdvCiv code or earlier or AdvCiv-SAS specific code that may be fixed someday or not. For additional information that may not be in this doc, see other docs or files.
 
 Note: if a google drive link is missing or redundantly copy pasted from one known issue to another, you might be able to find it in their parent folder here in this [Base AdvCiv Known Issues examples](https://drive.google.com/drive/folders/11wTFHidBHTutXXyiaRAhayA7y7d5Rg-8?usp=sharing). Not all issues have a drive folder, but as of now most do.
 
@@ -16,10 +16,12 @@ Note 4: integer KI numbers form a continuous ledger:
 
 Stable `#ki-number` anchors keep links valid when an entry title or status is refined.
 
-Note 5: despite the name, this is not only a list of defects. An entry records any issue worth knowing about and what was investigated and decided, e.g. fixed, worked around, reverted, refactored, retired, rejected, clarified, pending, or updates, changes or corrections or enhancements since then, mistaken assumptions, confirmations or related occurences, new findings/information, and so on.
+Note 5: despite the name, this is not only a list of defects. An entry records any issue worth knowing about and what was investigated and decided, e.g. fixed, worked around, reverted, refactored, retired, rejected, clarified, pending, or updates, changes or corrections or enhancements since then, mistaken assumptions, confirmations or related occurrences, new findings/information, and so on.
 
 - The reasoning stays with the decision, so later work can see why something was done rather than only what.
 - Code comments end with `See KI#...`, so a grep for the number finds both the entry and every related part of the code.
+  - A plain `KI#7` also matches `KI#70` to `KI#79` and `KI#700` onward, so end a short number with a word boundary: `rg "KI#7\b"` finds `KI#7` and its follow-ups such as `KI#7.2`, as `\b` stops at a digit but not at `.`, and `rg -P "KI#7(?![\d.])"` finds `KI#7` alone. In links, `#ki-7)` is exact.
+  - Zero-padded numbers such as `KI#00007` would grep without this, but were not adopted (2026-11-24), as the boundary grep above already tells the numbers apart, so padding is not needed.
 
 ## Menu
 
@@ -36,8 +38,9 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#8 - Do not edit python files while running the game, even modifying unused/unreached code may cause weird errors](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-8)\
 [KI#9 - Art (and maybe other assets too or not) XML assets silently causing a game crash during init/game load/startup instead of telling us which asset was missing (no error)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-9)\
 [KI#10 - some text characters in XML TXT_KEY tags are not displayed correctly ingame (as `?` or causing other arti(e?)facts maybe too indeed for example), while some like `&` cause an XML error and asset failing to load entirely](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-10)\
-[KI#11 - In Debug mode, in map view, unexplored tile by the active player if improved, shows as red for example "with Road" or "with Pasture", even though a road is already there and text should be white instead or removed entirely; and other weird debug mode display issue(s)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11)\
-[KI#11.2 - In debug mode, another weird bug is at wonder list while world wonder has not been built in said civs at least not all](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.2)\
+[KI#11 - (Fixed inherited AdvCiv, Debug Mode only) The plot hover asked in red for a road the plot already had, "Wheat +1 (with Road)" above "Farm" and "Road": it counted only a road the active team had seen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11)\
+[KI#11.2 - (Rejected false positive: Debug Mode lists rivals' wonders in progress) In debug mode, another weird bug is at wonder list while world wonder has not been built in said civs at least not all](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.2)\
+[KI#11.3 - (Fixed inherited vanilla, Debug Mode only) A sheep on plains showed 1 food instead of 2 in Debug Mode: the plot hover then shows the plot's stored yield, which counts no resource on a plot nobody owns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3)\
 [KI#12 - (now fixed) Special/generic building monastery's button inconsistently using (uses/was using rather) the hindu specific monastery button instead of a generic button like the (abstract? / generic) generic temple and generic cathedral were](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-12)\
 [KI#13 - (now fixed/reworked) As an appendix to 12 - just before, shrines now also appear in tech tree at their religion's tech requirement unlike in base advciv / civ4 too](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-13)\
 [KI#14 - (now removed/fixed if it is a fix) duplicate ArtRef Name="building:BUILDING_LIGHTHOUSE" and same for ArtRef Name="building:BUILDING_HARBOR" and ArtRef Name="building:BUILDING_CARTHAGE_COTHON" in CIV4CityLSystem.xml](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-14)\
@@ -47,10 +50,12 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#17.5 - (now fixed) similarly missing base advcivspecific xml fields in gc of Sevopedia leader, now exposed there as well these new getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-17.5)\
 [KI#18 - Very inconsistent naming in some assets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-18)\
 [KI#19 - Unused or unclearly named art assets (e.g., _ASIAN/_CHINESE/_EURASIAN mixed up), and some are used while others are not](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-19)\
-[KI#20 - Negative and inconsistent DLL ajusted nowarattitudeprobs for some leaders, like leader_alexander that/who has nowarattitude prob furious of -2 lower than furious 0 and lower than cautious 14](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-20)\
+[KI#20 - Negative and inconsistent DLL adjusted nowarattitudeprobs for some leaders, like leader_alexander that/who has nowarattitude prob furious of -2 lower than furious 0 and lower than cautious 14](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-20)\
 [KI#21 - (Now fixed) missing "Cannot enter" terrain or feature info in map view of unit effects, unlike in Sevopedia (where it is also not clear enough about restrictions (cultural borders + not affected by roads, now added this info as well))](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21)\
 [KI#21.5 - (Addressed / fixed) - Removed the giant configobj docstring very inefficiently in the python code, and commented out most if not all as well](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.5)\
 [KI#21.6 - (Addressed) Old python code not being optimized, with many ruff linter (that we added) VS Code errors that don't allow to read the files](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.6)\
+[KI#21.7 - (Addressed, guarded by CI) SAS's Ruff and multi-line cleanups kept coming undone: a year of hand sweeps had no CI gate for these rules, so on 2026-11-22 64 Ruff findings and 25 multi-line calls were back or left](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7)\
+[KI#21.8 - (Addressed, guarded by CI) Runtime Python lined its tables up with runs of spaces, which drifted out of line with each rename, and held stray double spaces, while vanilla Civ4's `CvDebugInfoScreen.py` lined its dispatch table up with tabs: 2,269 lines in 89 files now use tabs for tables of two or more columns and one space elsewhere](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.8)\
 [KI#22 - (Now fixed) Obsolete bonuses (such as BONUS_ELEPHANTS) in tech advisor (i.e. tech tree view) failing to redirect to Sevopedia bonus with id none causing an error, unlike obsolete buildings (like BUILDING_SPIRAL_MINARET for example) successfully showing the building item's page](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22)\
 [KI#22.5 - (Addressed) Seemingly fixed weird flavors or XML fields: Mistakes?](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22.5)\
 [KI#22.6 - (Addressed) XML tweaks and fixes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22.6)\
@@ -85,7 +90,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#39 - (Seemingly fixed or enhanced) Make AI workers move sooner to City B or City C or such, and vice versa, if current city is already improved enough and don't need to be over improved, while other cities are not improved enough and would much rather need it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-39)\
 [KI#40 - (Seemingly fixed / addressed) Tremendous/Major Plot allocation improvement 2: If we are high in happiness, favour food tiles much more, and hammer tiles much less if happiness is really high (favour growth dynamically and plot allocation of these the more we can afford it), even if production is slightly reduced short term as a result, it auto corrects at high happiness, with seemingly much stronger AI and developped cities as a result (excluded if food is production (e.g. worker, settler, etc))](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-40)\
 [KI#41 - (Seemingly fixed) Beyond Tremendously Improved AI worker mobility, flexibility, and reliability, now favouring minimal big city improvement (come back to it later but don't delay improving smaller ones), quick moving to smaller ones, and spending longer to improve smaller ones as they grow fast, as well as being braver in our own cultural borders or moving to other cities needing improvements rather than being parked in current city and such other changes to increase AI efficiency reliably, and other changes if any thanks to chatgpt 5 and me too](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-41)\
-[KI#42 - (Enhanced/Addressed) Tune AI's preferred based UNITAI based on war status (offense mode, defense mode, combined power ratios of ennemies, etc if any other), general sanity checks and efficiency, city size, map type (land heavy vs water heavy vs other if any for example), general suicide or such tendencies, etc](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-42)\
+[KI#42 - (Enhanced/Addressed) Tune AI's preferred based UNITAI based on war status (offense mode, defense mode, combined power ratios of enemies, etc if any other), general sanity checks and efficiency, city size, map type (land heavy vs water heavy vs other if any for example), general suicide or such tendencies, etc](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-42)\
 [KI#43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0), settling too soon instead of digging a bit for better sites, and other related changes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-43)\
 [KI#44 - (Enhanced) Make/Encourage AI settlers walk away from bad starting sites](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-44)\
 [KI#44.5 - (Fixed SAS citizen-assignment regression) Citizen specialist could be impossible even when absolutely necessary](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-44.5)\
@@ -93,7 +98,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#45 - (Addressed / Patched / Worked around) AI cities assigning too soon or too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-45)\
 [KI#46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46)\
 [KI#46.2 - (Cleaned up inherited AdvCiv and SAS save readers, guarded by CI) Remove the remaining legacy save paths after the original uiFlag cleanup](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2)\
-[KI#47 - (Fixed / Addressed / Enhanced) AI choosing poorly promotions for its units: now added a set of hard rules in which case some promotions are not good and to ignore as is most efificient in most times, and rarely cases where some promotions are best to always go first for (e.g. as of no city_garrison first for unitai_city_defense, city_raider first for unitai_attack_city, etc if any more)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-47)\
+[KI#47 - (Fixed / Addressed / Enhanced) AI choosing poorly promotions for its units: now added a set of hard rules in which case some promotions are not good and to ignore as is most efficient in most times, and rarely cases where some promotions are best to always go first for (e.g. as of no city_garrison first for unitai_city_defense, city_raider first for unitai_attack_city, etc if any more)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-47)\
 [KI#48 - (Historical first SAS building-value rework; regular-building hard gates superseded by KI#48.5, Wonder policy rework continued in KI#48.9) AI building walls when already safe/strong, Wonders while weak/in danger, and related hard building-policy rules](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48)\
 [KI#48.2 - (Historical SAS happiness-prefilter enhancement; regular-building hard gate superseded by KI#48.5) Kish built a Theatre instead of immediately useful happiness infrastructure](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.2)\
 [KI#48.3 - (Fixed AdvCiv-SAS bug) Building prefilter double-counted unhealthy food loss](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.3)\
@@ -204,18 +209,37 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#121 - (Fixed) Base AdvCiv bug: `CvVoteSourceInfo` parses `ReligionCommerces` into the wrong array](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-121)\
 [KI#122 - (Fixed) While adding Sevopedia EventTriggerInfo missing getters, found and fixed 3 DLL Python-binding bugs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-122)\
 [KI#123 - (Fixed) BUG Domestic/Military advisor variant toggles required restarting Civ4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123)\
+[KI#123.2 - (Fixed incomplete inherited AdvCiv solution) BUG's Sevopedia stays at 1024 x 768 at any resolution, even after a restart; AdvCiv made the Sevopedia scale with the resolution, but only once per session: after 1920 x 1080 to 2560 x 1440 in game, the reopened Sevopedia stayed at 1920 x 1080 until a tedious Civ4 restart](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2)\
+[KI#123.3 - (Fixed SAS) After a resolution change in game, the city screen and then the map kept parts of the old resolution's layout until a restart: after 2560 x 1440 to 1920 x 1080, the city screen lost its bottom band and its right panel ran off the screen, as SAS kept the city screen's panel rects from the first interface build of the game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3)\
+[KI#123.4 - (Fixed inherited AdvCiv) The map's bonus bubbles drew at a size meant for another field of view: AdvCiv's size patch ran before the field of view for the resolution was set, so it used the XML's 42 when a game was loaded and the previous resolution's after a change in game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.4)\
+[KI#123.5 - (Fixed incomplete inherited AdvCiv solution) Vanilla's Replay screen stays a 1024 x 768 box at any resolution; AdvCiv made it scale with the resolution, but laid it out only once per session: after 1920 x 1080 to 2560 x 1440, the reopened replay stayed at 1920 x 1080 until a tedious Civ4 restart](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.5)\
+[KI#123.6 - (Fixed inherited AdvCiv) Turning BUG's Scale Up HUD off kept the main interface scaled until a Civ4 restart: AdvCiv's advc.092 set its scale factors only while the option was on, so a game load or resolution change kept the previous build's](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.6)\
 [KI#124 - (Fixed) Likely Base AdvCiv issue: map-view unit bar overflows into hovered/expanded scoreboard](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-124)\
 [KI#125 - (Fixed) Base AdvCiv issue: Sevopedia Back/Next history is lost on exit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-125)\
 [KI#126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-126)\
 [KI#127 - (Worked around) DLL max players / Worldsize default players mismatch causing very sparse games, and players not being notified of it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-127)\
 [KI#128 - (Seemingly fixed / worked around) Runtime UI define/style changes could produce crashy Python-like behavior](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128)\
 [KI#128.2 - (Addressed inherited AdvCiv runtime-define cache risk) Nuclear effects retained first-read damage/destruction values](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.2)\
+[KI#128.3 - (Improved incomplete inherited AdvCiv caching, guarded by CI) AdvCiv cached 198 of the DLL's 467 define reads by name, its hot ones; SAS cached most of the rest, and one SAS diagnostic read its define for each plot it scanned](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3)\
+[KI#128.4 - (Fixed latent inherited AdvCiv) The AI's city-site culture estimate kept the first foreign capital's civilization-specific capital building for every civilization: a static held a value that differs per civilization, harmless only while every civilization builds the same Palace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.4)\
+[KI#128.5 - (Improved SAS) Trying another value of a SAS define, such as a font size, cost a Civ4 restart per try, as the XML is read once; SASLiveDefineOverrides.txt now overrides SAS defines on top of the XML while Civ4 runs, and deleting a line brings the XML value back](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5)\
+[KI#128.6 - (Improved SAS and inherited BUG, guarded by CI) 16 Python define reads ran at import, 15 SAS Sevopedia switches and BUG's PEACE_TREATY_LENGTH, so each kept its first value for the session and no override reached it; they are read at use now, and CI rejects new ones](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.6)\
+[KI#128.7 - (Improved SAS, guarded by CI) A user could not tell which defines SASLiveDefineOverrides.txt reaches: one that follows an override and one whose readers keep their first value look the same in the XML, and both logged APPLIED; SASLiveDefineOverridesAllowed.txt now lists the live ones, and the bridge refuses any other](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.7)\
+[KI#128.8 - (Fixed inherited Better BTS AI and BUG) Python read a define again at each pass of a loop: ChangePlayer read BARBARIAN_LEADER once per leader, and the Tech Window read its two tech-prerequisite counts once per tech; each is now read once before its loop](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.8)\
+[KI#128.9 - (Improved SAS and inherited, guarded by CI) Python read defines by name with no caching rule, unlike the DLL: a read through gc cost 279 ns, and five ran once per leader or per tech inside a loop; they now go through a cache, SASCurrentDefines' reads went from 167 ns to about 80 ns, while a kept self.x, at 18 ns, stays the faster choice for a hot path, and CI requires a cache or a stated reason for each read, as in C++](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.9)\
 [KI#129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-129)\
 [KI#130 - (Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-130)\
 [KI#131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-131)\
 [KI#132 - (Enhanced) Base AdvCiv issue of not showing rival gold-per-turn on Foreign Trade Advisor Bonuses tab when not connected to their trade network](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-132)\
 [KI#133 - (Fixed) Base AdvCiv issue of Sevopedia Index's legacy sort-key cleanup (`TXT_KEY_*` prefix-strip + `"The X"` comma-flip) scattering untranslated entries instead of clustering them (hurts diagnosis of missing translations), sorting items differently than the type-specific pedia pages and than natural alphabetical order, and incurring needless per-entry build-time cost (especially wasteful in non-English locales)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-133)\
 [KI#134 - (Fixed) Base AdvCiv issue: Foreign Diplomacy Advisor Glance tab column icons overflow horizontally with 24+ rival players](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134)\
+[KI#134.2 - (Fixed inherited AdvCiv, SAS48) With 48 civilizations the scoreboard ran up past the top bar and over the turn counter, as base AdvCiv drew every player in one column with no height limit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2)\
+[KI#134.3 - (Fixed inherited AdvCiv, SAS48) With 48 civilizations the Info screen Graph tab's legend ran up over the title, the player dropdown and the Score and Entire History dropdowns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.3)\
+[KI#134.4 - (Fixed inherited AdvCiv, SAS48) With 48 civilizations the Military Advisor's leader buttons spilled a third row below their panel, over the map's frame](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.4)\
+[KI#134.5 - (Fixed inherited AdvCiv, SAS48) With 48 civilizations the Espionage screen's two-line rows crowded each leader's weight and "per Turn" into the next row](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.5)\
+[KI#134.6 - (Improved inherited AdvCiv, SAS48) With 48 civilizations the Foreign Advisor's Relations web overlaps its leaders' portraits and attitude labels, still as of now though less than in base AdvCiv](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.6)\
+[KI#134.7 - (Fixed SAS48 enhancement, Debug Mode only) With 48 civilizations the Debug Mode screen CvDebugInfoScreen.py (Shift + F2) could show only up to 19 of the civilization columns of Team Relations and its other per-civilization tabs, even at the full-screen size that fits a Huge map's 16 on one page; it pages them, as the Glance tab does since KI#134](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.7)\
+[KI#134.8 - (Open inherited vanilla, SAS48) With 48 civilizations the UN screen, shown after a diplomatic victory, has its ring of leaders cover its own portraits and names](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.8)\
 [KI#135 - (Fixed) Likely Base AdvCiv issue: turn-status text collided with the diplomacy screen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-135)\
 [KI#136 - (Fixed SAS red-circle regression; the popup was minimized by the Minimize Pop-Ups option, not missing) Choose-production popup does not re-fire when a city finishes production; city then sits idle for many turns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136)\
 [KI#137 - (Fixed) Beyond the Game mod issue: BTG Cross reused Huge grid size for every world size of Huge and below](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-137)\
@@ -257,6 +281,18 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#163 - (Retired tentative hardening) Rare non-reproducible autoplay crash variant related to `CvSelectionGroup::deleteUnitNode` and `CvSelectionGroup::clearUnits`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-163)\
 [KI#164 - (Fixed) Base Civ4 Oasis map script had shadowed Python callbacks (found by the Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-164)\
 [KI#165 - (Fixed) Base AdvCiv bug: Dormant RectLayout `upperLeft` helper returned undefined `Point` instead of `PointLayout` (found by Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165)\
+[KI#165.2 - (Fixed inherited vanilla) `PyHelpers.py`'s dormant `getUnlockedReligionIdxList` built `religionlist` but appended to and returned `religionList`, a name never defined](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.2)\
+[KI#165.3 - (Fixed inherited vanilla) `PyHelpers.py` used bare `PyInfo` member names and undefined list names in dormant info helpers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.3)\
+[KI#165.4 - (Fixed inherited vanilla) `PyPlayer.getPlotList` read `i` instead of the owned plot's `iIndex`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.4)\
+[KI#165.5 - (Fixed inherited BUG) `UnitPlotListUtil.py`'s unused prototype lost its screen, grid and method receivers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.5)\
+[KI#165.6 - (Fixed inherited vanilla) `CvCameraControls.updateTurn` assigned `fTurnModifer` and read `fTurnModifier`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.6)\
+[KI#165.7 - (Fixed SAS) `CvMapGeneratorUtil`'s fallback for extra world sizes silently used Huge because `gc` was undefined](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.7)\
+[KI#165.8 - (Fixed inherited vanilla) Sirian's `MultilayeredFractal` example used undefined region latitudes and grains](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.8)\
+[KI#165.9 - (Fixed inherited Warlords) `onSelectionGroupPushMission` tested an undefined `pHeadUnit` when logging was enabled](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.9)\
+[KI#165.10 - (Fixed inherited BtS) `onCorporationRemove` logged an undefined `iReligion` instead of the corporation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.10)\
+[KI#165.11 - (Fixed inherited BUG) `IconGrid_BUG.deleteAllWidgets` incremented an uninitialized `currentX`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.11)\
+[KI#165.12 - (Fixed inherited Planet Generator) `mdArray.__len__` read `self` without accepting a receiver](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.12)\
+[KI#165.13 - (Fixed inherited vanilla, seemingly unused in SAS) `CvUnitController.ProcessEvent` read `MoveFormation_BoxRange`, while its table is `MoveFormation_BoxRanges`, and an enum found in no engine file, so its first move would raise `NameError`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.13)\
 [KI#166 - (Fixed/Addressed) Base AdvCiv issue of trying to support reading mod (e.g., AdvCiv/AdvCiv-SAS) replay/Hall of Fame data in unmodded BTS, or unmodded BTS replay/Hall of Fame data in the mod (e.g., AdvCiv/AdvCiv-SAS): replays no longer try to use vanilla BtS-compatible replay storage after shifted XML enum order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166)\
 [KI#166.2 - (Fixed/Addressed SAS replay-identity follow-up exposed by SASAssertions) AdvCiv's packed replay ID could let incompatible AdvC/legacy shared-ID replays reach current SAS field bounds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.2)\
 [KI#166.3 - (Fixed inherited AdvCiv replay bounds) Valid mod-mod start years were rejected, and invalid final turns did not stop parsing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.3)\
@@ -1253,6 +1289,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1074 - (Fixed SAS migration gaps, visual only) Plot and city art rules still named the removed Winery or an RI-only layout, so Grapes Plantations, Farms and the Chieftain's Hall missed their intended art rules](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1074)\
 [KI#1075 - (Fixed SAS era-scaling oversight) Late-era Advanced Starts had too few points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1075)\
 [KI#1076 - (Reverted AdvCiv advc.057 for land units) Wheeled units could enter impassable Jungle, Forest and Marsh inside their own borders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1076)\
+[KI#1076.2 - (Fixed latent vanilla Civ4 goody-hut placement weakness, widened by AdvCiv's advc.314 and activated by SAS siege rules) A goody hut on Marsh gave our Scout a Catapult that could move only onto one grass plot beside it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1076.2)\
 [KI#1077 - (Clarified inherited AdvCiv display) City health help hid fractional feature health and lumped feature types, so a single Marsh seemed to have no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1077)\
 [KI#1078 - (Worked around inherited BtS limits for new SAS Peat) A bonus could not be found when a feature was cleared, unlike ore found by mining, and XML cannot keep Marsh under a Farm only on Rice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1078)\
 [KI#1079 - (Guarded inherited BtS/AdvCiv mismatch with SAS CI) Python showed at most 5 corporation inputs, although the game uses every input listed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1079)\
@@ -1263,6 +1300,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1083 - (Fixed inherited BtS bug) BtS's setup screens titled map script options "SELECT A ELEPHANT" or "SELECT A REGIONS", from a generic "Select a" prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1083)\
 [KI#1084 - (Open, not caused by SASPilot) Leaving a Huge turn-305 game for another save crashed Civ4 inside the EXE, every time, while loading that save first worked](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1084)\
 [KI#1085 - (Fixed AdvCiv-SAS bug, guarded by CI) SAS's split of BtS's melee unit combat left two feat popups without text, so the first Swordsman's congratulation showed TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085)\
+[KI#1085.2 - (Fixed inherited vanilla, untested in SAS) The Pitboss server's patch dialog would ask its question as TXT_KEY_PITBOSS_PATCH_AVAILABLE_DESC, a key vanilla's PbWizard.py uses but base-game text lacks](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085.2)\
 [KI#1086 - (Fixed AdvCiv-SAS bug, guarded by CI) SAS's move of the Sevopedia colors into SASVisuals missed one reader, so Down in the Index after a search raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1086)\
 [KI#1087 - (Fixed AdvCiv-SAS bug, guarded by CI) SAS's split of BtS's melee unit combat left BUG's Unit Naming without options for the two new types, so with Unit Naming on every Spearman or Swordsman raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1087)\
 [KI#1088 - (Open; only the SASPilot work could trigger it, and it avoids it) Loading a save while a diplomacy screen was open sometimes crashed Civ4 while it tore down the game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1088)\
@@ -1280,11 +1318,23 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1097 - (Guarded by CI) Edits that changed a file's line endings between LF and CRLF made a handful of real changes show as thousands of changed lines](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097)\
 [KI#1098 - (Fixed inherited vanilla Civ4 and BUG-era slips and a SAS one, guarded by CI) Three code lines repeated the line above them: CvDanQuayle.py assigned SCORE_ID twice, CvCustomizableDomesticAdvisor.py hid the rename button twice, and SevoPediaMusic.py set the music title label twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098)\
 [KI#1098.2 - (Fixed inherited Civ4 and AdvCiv duplicate includes, guarded by CI) CvPlayer.cpp and FDialogTemplate.cpp each included one header twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.2)\
+[KI#1098.3 - (Fixed SAS dead stores, and inherited BtS, K-Mod and BUG ones, guarded by CI) Python layout values were set, then set again before anything read them: SAS's Sevopedia Terrain page wrote H_RELEVANT_UNITS twice from the same sum, and SAS's full-screen layouts left vanilla's 1024 x 768 values unread in three screens' `__init__`, as BtS had in Dawn of Man's](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.3)\
 [KI#1099 - (Guarded by CI, inherited BtS code fixed by AdvCiv) Non-standard C++ that VC2003 accepts, such as CyPlayer::disbandUnit returning a void call or NULL through ?:, kept the DLL from building with a standard-conforming compiler](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1099)\
 [KI#1100 - (Fixed AdvCiv-SAS bug) The World Advisor's Changes tab listed an Advanced Start Automate row above the buys it made, as its row was written once the AI had spent the points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1100)\
 [KI#1101 - (Fixed AdvCiv-SAS merge slip, SASPilot branch only) The Info Screen's Timeline tab raised "global name 'iNumMessages' is not defined", as a merge of main put its Greatest Civilizations filter, twice, into a method without that variable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101)\
 [KI#1102 - (Open, a Steam client bug outside the mod's code) A closed Civ4 sometimes never finishes exiting, as Steam's steamclient.dll waits forever while unloading, so Steam still sees the game running and the shortcut starts nothing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)\
-[KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103)
+[KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103)\
+[KI#1103.2 - (Fixed SAS) The scoreboard's left edge moved whenever an advisor opened or closed, even at 1920 x 1080 and font 3: it cut leader names to the advisors' space only while one was open, so on the map it kept its full width, 10 to 60 px wider in debug mode](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103.2)\
+[KI#1104 - (AdvCiv-SAS design rule) SAS keeps its own copy of every base-game Python file it uses, changed or not, as it took in CvTechSplashScreen.py, CIV4ProcessInfo.xml and CIV4WorldPickerInfos.xml when first needed: SASPilot's WorldBuilder work found the WorldBuilder screen running from BtS's copy, outside the repository](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)\
+[KI#1105 - (Fixed inherited vanilla, Debug Mode only) The Map Details table showed a continent's 576 tiles under "Area" and its 5 starting plots under "Size": its header row had one extra column](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)\
+[KI#1105.2 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen CvDebugInfoScreen.py (Shift + F2) sat at a fixed 1024 x 768, and its table never showed the columns past its right edge, so even on a Huge map Team Relations lost the last 4 of its 16 civilizations and Map Details its bonuses after about the 8th](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2)\
+[KI#1105.3 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen's Unit AI rows read UNITAI_SETTLE where vanilla meant SETTLE: strName.strip("UNITAI_") dropped its result, and kept, strip would have turned UNITAI_ATTACK_CITY into CK_CITY](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.3)\
+[KI#1106 - (Clarified inherited vanilla) The plot hover called a lake tile "Coast", then wrote "Fresh Water Lake" where a land plot's fresh water goes, and never said where a land plot's "Fresh Water" came from](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1106)\
+[KI#1107 - (Fixed inherited AdvCiv, Debug Mode only) The Debug Mode screen GameFontDisplay.py (Ctrl + Shift + F1), which lists every game font glyph, showed an empty table, as its row count assumed symbol codes starting near 8193 and so came out at -7667 with codes starting at 450, in base AdvCiv and SAS alike](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107)\
+[KI#1107.2 - (Fixed AdvCiv-SAS bug, Debug Mode only) SAS's move onto the SASVisualUtils cache had broken GameFontDisplay.py's lookup of each glyph's religion, corporation or bonus with .index() on the cache's tuples, which Python 2.4 lacks, hidden behind KI#1107's empty table until its fix let rows draw](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107.2)\
+[KI#1108 - (Gated inherited AdvCiv) Default builds compiled the unused implementation of ReproTest.cpp, base AdvCiv's reproducibility test, though its ENABLE_REPRO_TEST switch is off by default](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108)\
+[KI#1108.2 - (Fixed inherited BtS) The Foreign Advisors rebuilt BtS's tech prerequisite graph, TechTree, on every opening and tab click, pairing each of the 92 techs, as in BtS, base AdvCiv and, as of now, SAS, with every tech, 92 x 92 = 8,464 pairs, a count growing with the square of a mod's techs, though it was unread even in BtS's own Foreign Advisor](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108.2)\
+[KI#1109 - (Fixed inherited AdvCiv regression) Setting a string define from Python stored a bool instead: after `setDefineSTRING`, the next `getDefineSTRING` of that define raised "unidentifiable C++ exception", as AdvCiv's FVariableSystem refactor had no `char const*` setter, so the value fell to `setValue(bool)`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1109)
 
 <a id="ki-1"></a>
 
@@ -1346,7 +1396,7 @@ Some of these such as iLoveOfPeace are not used in AdvCiv; i disabled (commented
 
 Leaving as is otherwise (except from hiding most or commenting out unused ones such as iLovePeace (in AdvCiv) anyways) for now if not always or not.
 
-We may also spread some values more (i.e. in AdvCiv-SAS etc anyways) that are way too often shared between leaders, not just the common to all leaders, may be a good opportunity perhaps, but not sure or guarnateed, for now only mentioning the issue.
+We may also spread some values more (i.e. in AdvCiv-SAS etc anyways) that are way too often shared between leaders, not just the common to all leaders, may be a good opportunity perhaps, but not sure or guaranteed, for now only mentioning the issue.
 
 <a id="ki-2"></a>
 
@@ -1394,7 +1444,7 @@ It is almost certainly a mistake and should be:
             }
 ```
 
-Our generate_leaders_data.py (see the related python docs for details) sucessfully detected/detects it, for example before fixing the XML of Gandhi we have:
+Our generate_leaders_data.py (see the related python docs for details) successfully detected/detects it, for example before fixing the XML of Gandhi we have:
 
 ```cmd
 [WARNING] Duplicate NoWarAttitudeProb 'ATTITUDE_PLEASED' for leader LEADER_GANDHI
@@ -1410,9 +1460,9 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
 C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS>
 ```
 
-So i had the idea to generalize this approach to find if we don't have other such duplicates and perhaps may improve our XML data and reliability, and the result is as explained in the related docs, currently if not always or not etc anyways version 3.3 as per chatgpt's naming and greta help in doing this (coded all i only gave pointers and feedback, joint collaboration hehe anyways.)
+So i had the idea to generalize this approach to find if we don't have other such duplicates and perhaps may improve our XML data and reliability, and the result is as explained in the related docs, currently if not always anyways version 3.3 as per chatgpt's naming and great help in doing this (coded all i only gave pointers and feedback, joint collaboration hehe anyways.)
 
-Since there are false positives, i am not sure how to interpret it, but hopefully useful enopugh, so adding this script here, and funcitonal enough (skim through results you known false for example maybe i mean, anyways)
+Since there are false positives, i am not sure how to interpret it, but hopefully useful enough, so adding this script here, and functional enough (skim through results you known false for example maybe, anyways)
 
 Results are very good, if you have good eyes or are very patient or know where and what to look at or other things or not anyways, we successfully spot it specifically (Gandhi's seemingly('s?) mistake/typo/bug)
 
@@ -1424,7 +1474,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 In base advCiv code, after implementing the barbarians boost to make them more economically viable or strong...
 
-Barbarians are still trying to build wonders sometimes, the base AdvCiv code does not prevent that, or at least not always maybe or not or yes indeed; and even complete them sometimes actually, for example(s):
+Barbarians are still trying to build wonders sometimes, the base AdvCiv code does not prevent that, or at least not always maybe indeed; and even complete them sometimes actually, for example(s):
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1p5O09XzbbrM5x2hxFD6RGvBpuU8RzPAd?usp=sharing)
 
@@ -1432,7 +1482,7 @@ There may be(/have been,) other cases like these, and i don't know if the cause 
 
 I tried to fix it by using iWonderConstructRand -9999 on LEADER_BARBARIAN in leader head infos xml file, but they still build national and world wonders alike, and all the buildingclass NONE spaghetti code whether it is here (for national wonders) or not (for world wonders) does not change anything, they even build shrines like the mahadhobi as of now me writing this anyways, is not necessarily a bad design, but ideally i would want them to focus more on warmongering their key role in advciv-sas and be more efficient in that.
 
-So/And i removed all such old logic of buildingclass NONE in (adjust if non-steam game or other mod path you have to where your advciv-sas or other mod you're using or not etc is) `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml`.
+So/And i removed all such old logic of buildingclass NONE in (adjust if non-steam game or other mod path you have to where your advciv-sas or other mod you're using is) `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml`.
 
 I had tried tweaking/changing WonderConstructRand but seemingly no change at all.
 
@@ -1447,9 +1497,9 @@ Lines such as:
 				</Building>
 ```
 
-Were totally ineffective, so i have removed them as well for as of now for wonders i mean.
+Were totally ineffective, so i have removed them as well for as of now for wonders.
 
-Thanks to chatgpt's help, and following recent as of now DLL changes such as in [README_Known_Issues.md#ki-24](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-24), it seems to finally be fixed by patching the DLL directly instead in [/CvGameCoreDLL/CvCityAI.cpp](/CvGameCoreDLL/CvCityAI.cpp) in `CvCityAI::AI_chooseBuilding`, as of now only for world wonders (no need to forbid national wonders too strongly as of now at least if not always or not or yes or etc)
+Thanks to chatgpt's help, and following recent as of now DLL changes such as in [KI#24](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-24), it seems to finally be fixed by patching the DLL directly instead in [/CvGameCoreDLL/CvCityAI.cpp](/CvGameCoreDLL/CvCityAI.cpp) in `CvCityAI::AI_chooseBuilding`, as of now only for world wonders (no need to forbid national wonders too strongly as of now at least if not always)
 
 Update (2026-11-06): the patch rejected a world wonder only after it had won `AI_bestBuildingThreshold`'s selection, so `AI_chooseBuilding` returned false and the Barbarian city lost that building pick instead of choosing its next-best building.
 
@@ -1542,7 +1592,7 @@ But clicking in AdvCiv in Sevopediabuilding for example on any religious temple'
 
 Among the mods i tried, only Realism Invictus's Sevopedia unit's placerequires's religion button works as intended and successfully redirects to the religion's page
 
-I tried to import its code but their gc uses difference methods that we don't have it seems like getNumPrereqAndBonuses and such, may not be hard to fix or not, but leaving as is, finding how realism invictus does it, or finding yourself the cause if you want to investigate it, may help solve it.
+I tried to import its code but their gc uses difference methods that we don't have it seems like getNumPrereqAndBonuses and such, may not be hard to fix, but leaving as is, finding how realism invictus does it, or finding yourself the cause if you want to investigate it, may help solve it.
 
 As for me this is quite minor, and even though i would have loved (really) to fix it, leaving a note here rather as i don't know also how nested in the code the issue is, i would ideally but anyways love to dive deeper but doing other code things, at least for now if not always or maybe not, if so (that i would look again), hopefully these lines may (then) serve as a reminder of the issue and the current status of solving it (i have found in realism invictus mod it works fine unlike in other mods (that i tried about/for this issue), can investigate from there maybe)
 
@@ -1558,25 +1608,25 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 More context of how i implemented the change in the .cpp and such can be found in this Google Drive about Claude AI's first prompt i successfully implemented in AdvCiv-SAS, [/_1_AdvCiv-SAS/Docs/README_Authors.md#claude-web-chat](/_1_AdvCiv-SAS/Docs/README_Authors.md#claude-web-chat)
 
-I don't know if fastdep compiel was the cause or just some weird corruption unnotified happened (i don't know a lot about these if at all hehe but it was reproducible, and my player name also unusually changed just after this fast compile so i can quite confidently say it is maybe indeed related(for example after checking indeed Civ4ScreenShot3010 in the advciv-sas's mod journey drive (see main README.md for link), with last compiled DLL before this Claude AI related .cpp change and recompile, had my windows username as default player name as can be seen in screenshot, but the screenshots of the issue in the drive linked above, that happen between Civ4ScreenShot3095(new game not yet started after the cpp changes and recompile) and Civ4ScreenShot3096 (where issue is solved)); in short if my long sentence still makes sense xd and i didnt get tangled into it if this is a word too, default civ4 player game suddenly changed from windows username to steam username (that i didnt want to show in screenshots too as is private to me, and this coincidated if this is a wordwith this screen being stuck issue))
+I don't know if fastdep compile was the cause or just some weird corruption unnotified happened (i don't know a lot about these if at all hehe but it was reproducible, and my player name also unusually changed just after this fast compile so i can quite confidently say it is maybe indeed related(for example after checking indeed Civ4ScreenShot3010 in the advciv-sas's mod journey drive (see main README.md for link), with last compiled DLL before this Claude AI related .cpp change and recompile, had my windows username as default player name as can be seen in screenshot, but the screenshots of the issue in the drive linked above, that happen between Civ4ScreenShot3095(new game not yet started after the cpp changes and recompile) and Civ4ScreenShot3096 (where issue is solved)); in short if my long sentence still makes sense xd and i didnt get tangled into it if this is a word too, default civ4 player game suddenly changed from windows username to steam username (that i didnt want to show in screenshots too as is private to me, and this coincidated if this is a wordwith this screen being stuck issue))
 
-To solve it, or at least after doing this issue that was reproducible is now solved, i deleted (adjust to where your mod path is) for example for me this is where the folder temp_files/Release/ is: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\temp_files\Release\, this folder (i deleted it), and after recompiling cleanly, now i can play with windows username as usual, even though i had to change back the steam username to the name i wanted (first manually ingame at new game settings screen, then after seeing it works in CivilizationIV.ini (see [Windows_shortcuts](/_1_AdvCiv-SAS/Windows_shortcuts/))), here and for testing at least if not always or not or maybe not but for testing or not if i want or not or and other or and not or do or not or etc or etc, the windows username is fine with me ("PC" in the screenshots)
+To solve it, or at least after doing this issue that was reproducible is now solved, i deleted (adjust to where your mod path is) for example for me this is where the folder temp_files/Release/ is: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\temp_files\Release\, this folder (i deleted it), and after recompiling cleanly, now i can play with windows username as usual, even though i had to change back the steam username to the name i wanted (first manually ingame at new game settings screen, then after seeing it works in CivilizationIV.ini (see [Windows_shortcuts](/_1_AdvCiv-SAS/Windows_shortcuts/))), here and for testing at least, the windows username is fine with me ("PC" in the screenshots)
 
-Not sure what the issue was, would have liked to be notified of the error/corruption cause of it somehow, but program runs fine as usual now, so maybe corrupted unnotified compilation, or fastdep issue perhaps (even though fastdep compiles seemed to work fine in the past as in just yesterday/the day before for the [unitai renaming (commit)](https://github.com/wonderingabout/AdvCiv-SAS/commit/701e2e31279d7ab152f91b431a81c1bae9c22734)as long as is solved is all good maybe even though bit weird but unsettling but whatever it is/was is maybe consistently solved now (not gauranteed, may or not be the case))
+Not sure what the issue was, would have liked to be notified of the error/corruption cause of it somehow, but program runs fine as usual now, so maybe corrupted unnotified compilation, or fastdep issue perhaps (even though fastdep compiles seemed to work fine in the past as in just yesterday/the day before for the [unitai renaming (commit)](https://github.com/wonderingabout/AdvCiv-SAS/commit/701e2e31279d7ab152f91b431a81c1bae9c22734)as long as is solved is all good maybe even though bit weird but unsettling but whatever it is/was is maybe consistently solved now (not guaranteed, may be the case))
 
-So hopefully fine and solved now even though not sure and not guaranteed but maybe is hopefully or maybe not, in all cases hopefully this info is helpful to me or and others or and not.
+So hopefully fine and solved now even though not sure and not guaranteed but maybe is hopefully or maybe not, in all cases hopefully this info is helpful to me others.
 
-See also [README_Known_Issues.md#ki-38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38)
+See also [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38)
 
 <a id="ki-6"></a>
 
 ## KI#6 - (now worked around) Too long XML code comments cause errors or game crashes
 
-Related to [example/issue 9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-9)
+Related to [KI#9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-9)
 
 Be careful of having too long XML code comments, they (seem to indeed) cause game crashes (or maybe errors too?) in some circumstances, i assume it is especially due to or caused by if it's not samenested code comments more specifically, since i don't know more, it is only speculation on my end, but moving these nested code comments outside of the XML did fix the early game crash issue that is reproducible.
 
-Something to keep in mind perhaps while doing XML code comments, that if they have to be long, move them outside of the XML tree entirely maybe, or at least outside the nested ones maybe, tweak this advice or opinion or feel or not feel or yes feel but maybe rather too view/thought as you see fit.
+Something to keep in mind perhaps while doing XML code comments, that if they have to be long, move them outside of the XML tree entirely maybe, or at least outside the nested ones maybe, tweak this advice or opinion or feel but maybe rather too view/thought as you see fit.
 
 More details here too in: [Long_Comments_XML.txt](/_1_AdvCiv-SAS/Docs/Long_Comments/Long_Comments_XML.txt) #94 (search for `AudioDefines nested-comments crash notes`)
 
@@ -1584,7 +1634,13 @@ More details here too in: [Long_Comments_XML.txt](/_1_AdvCiv-SAS/Docs/Long_Comme
 
 ## KI#7 - Screenshots on multi screen display (if playing civ4 with "windowed" and not fullscreen as well) don't work if not taken in primary screen
 
-On windows 10 at least if not in other systems as well, at least in my machine, since i play in windowed while debugging and such or other dev needs or not which is much more convenient, if i put the game window on my second (or any alternative/equivalent or not that may or not exist and that is not main screen) screen, then pressing the - Print Screen - key consistently does not create a new screenshot in (replace with your relevant user path) `C:\Users\PC\Documents\My Games\beyond the sword\ScreenShots\`, but putting the game window back to main screen, (then) the print screen key successfully creates a new screenshot (image) file, for example Civ4ScreenShot4272.JPG as of now.
+On windows 10 at least if not in other systems as well, at least in my machine, since i play in windowed while debugging and such or other dev needs or not which is much more convenient, if i put the game window on my second (or any alternative/equivalent or not that may exist and that is not main screen) screen, then pressing the - Print Screen - key consistently does not create a new screenshot in (replace with your relevant user path) `C:\Users\PC\Documents\My Games\beyond the sword\ScreenShots\`, but putting the game window back to main screen, (then) the print screen key successfully creates a new screenshot (image) file, for example Civ4ScreenShot4272.JPG as of now.
+
+Update (2026-11-24): the rule is broader than a second screen. The user noticed Print Screen also failing for a window running past the screen's edge, and Claude Code Opus 5.5 checked it on a 4K primary monitor with a second one to its right, pressing Print Screen through `desktop_windows.py`:
+
+- Saved: a window fully on the primary monitor, at 1920 x 1080 and at 2560 x 1440, and one resized over the work area with `move full` or maximized with `move maximize`.
+- Not saved: a window fully on the second monitor, one straddling onto it (2000 to 5844 px with the second monitor from 3840 px), and one running past the primary monitor's bottom edge, where no monitor is.
+- So Civ4 saves a screenshot only while its window lies entirely on the primary monitor. A game as large as the screen, such as 4K on a 4K monitor, overflows at the bottom unless maximized, likely because Civ4's window is not borderless: its title bar and frame add to its size; a smaller one, such as 1440p there, needs nothing.
 
 <a id="ki-7.2"></a>
 
@@ -1604,13 +1660,13 @@ The reason First's view was missing while both clients ran is unconfirmed, as is
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1gyaLERKrDAUbiQeVWl4S7T7tPJB0soR3?usp=sharing), or to copy the err log (path from Notepad++, adjust with your windows username or equivalent configuration/version of this that fits/suits your system username or other settings (C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log).
 
-If such issues happen, maybe restart the game and hopefully all fixed, ideally modify python files before game is launched to prevent that, unless you know what or why you are doing (it) or other (reason) or and not as you prefer
+If such issues happen, maybe restart the game and hopefully all fixed, ideally modify python files before game is launched to prevent that, unless you know what or why you are doing (it) or other (reason) as you prefer
 
 <a id="ki-9"></a>
 
 ## KI#9 - Art (and maybe other assets too or not) XML assets silently causing a game crash during init/game load/startup instead of telling us which asset was missing (no error)
 
-Related to [example/issue 6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-6)
+Related to [KI#6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-6)
 
 For example, while i was renaming `_GEMS` to `_GEMSTONES`, everywhere (with VS Code global search), except one part i had forgotten:
 
@@ -1660,7 +1716,7 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
   2572,10: a(S'BONUS_GEMSTONES'
 ```
 
-Here as seen above, i had forgotten to rename `118,23: 			<Type>ART_DEF_BONUS_GEMS</Type>` to `118,23: 			<Type>ART_DEF_BONUS_GEMSTONES</Type>` as well, but instead of getting the usual error like in unitinfos xml or such from little or not little i experimented ith xml of civ4 in the past since doing this advciv-sas mod, here we have a silent crash instead of an error, and inspecting the err log or dbg log of pytohn in civ4 shows us nothing, file is empty, the app init log (in C:\Users\PC\Documents\My Games\beyond the sword\Logs\init.log) is not too helpful either:
+Here as seen above, i had forgotten to rename `118,23: 			<Type>ART_DEF_BONUS_GEMS</Type>` to `118,23: 			<Type>ART_DEF_BONUS_GEMSTONES</Type>` as well, but instead of getting the usual error like in unitinfos xml or such from little or not little i experimented ith xml of civ4 in the past since doing this advciv-sas mod, here we have a silent crash instead of an error, and inspecting the err log or dbg log of python in civ4 shows us nothing, file is empty, the app init log (in C:\Users\PC\Documents\My Games\beyond the sword\Logs\init.log) is not too helpful either:
 
 ```log
 [38971.390] DBG: CIV Init
@@ -1692,7 +1748,7 @@ Here as seen above, i had forgotten to rename `118,23: 			<Type>ART_DEF_BONUS_GE
 
 But it seems last element we loaded successfully or (maybe?) crashed at while trying to load was "Font"s?? Could this be related to art assests or referring/being a reference/mention to(/of?) them perhaps or not?
 
-In all cases, unless i am mistaken or not too knowledgeable about this issue or this part of civ4 knowledge or experience or and other or and not, this does not help us directly like as if for exmapel it told us error missing asset X at line etc asset not found or something.
+In all cases, unless i am mistaken or not too knowledgeable about this issue or this part of civ4 knowledge or experience, this does not help us directly like as if for exmapel it told us error missing asset X at line etc asset not found or something.
 
 So it seems art xml assets need special attention especially in the case of errors, not as easy to handle, but fixing it now works:
 
@@ -1787,21 +1843,21 @@ Update (2026-11-04): the `BONUS_GEMSTONES` / `ART_DEF_BONUS_GEMSTONES` names in 
 
 Some characters are not displayed correctly and instead show as `?` or cause weird artifacts like being bold inconsistently or such. Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1LeTNL4kKHgQJdZ0mLNzHaOCKkenR9duh?usp=sharing).
 
-They genererally are language specific chars, for example some chars in `Phāṇita` or `Bhāvaprakāśa` or  maybe too (test to be sure if this point/issue i am raising is accurate or not, should be but may not be valid/updated anymore if someone fixed it somehow or other or if i am mistaken or maybe not or yes or not or and other or and not).
+They genererally are language specific chars, for example some chars in `Phāṇita` or `Bhāvaprakāśa` or  maybe too (test to be sure if this point/issue i am raising is accurate or not, should be but may not be valid/updated anymore if someone fixed it somehow or other or if i am mistaken or maybe ).
 
-Or some other examples like `खण्ड` or such are likely to not display correctly or cause errors (check ingame or in docs or woemwhere where you can find such info or and other or and not as you prefer or and not or other or and not).
+Or some other examples like `खण्ड` or such are likely to not display correctly or cause errors (check ingame or in docs or woemwhere where you can find such info as you prefer).
 
 Some characters like the `&` seem to cause an XML error with a real error message and such, and asset failing to load entirely (revert to base civ4 one rather than our version of it), see screenshots for details in the drive link above for details.
 
 And some characters like `–` seem to cause the text to be weird and inconsistently bold (see screenshot(s) for example if provided indeed)
 
-The solution i use is to simplify these chars generally, for example rename `–` to `-`, or using `_` instead of `खण्ड` to signify it is a language char (some other approaches may work like romanizing, it is an example i went with most simple and accurate in my case/need), or rename for example `Phāṇita` to `Phanita`, or for example also `Dačice` to `Dacice` (again is an example do as you prefer or not or do or not or and other or and not)
+The solution i use is to simplify these chars generally, for example rename `–` to `-`, or using `_` instead of `खण्ड` to signify it is a language char (some other approaches may work like romanizing, it is an example i went with most simple and accurate in my case/need), or rename for example `Phāṇita` to `Phanita`, or for example also `Dačice` to `Dacice` (again is an example do as you prefer)
 
 Adjust this advice/feedback as you see fit.
 
 <a id="ki-11"></a>
 
-## KI#11 - In Debug mode, in map view, unexplored tile by the active player if improved, shows as red for example "with Road" or "with Pasture", even though a road is already there and text should be white instead or removed entirely; and other weird debug mode display issue(s)
+## KI#11 - (Fixed inherited AdvCiv, Debug Mode only) The plot hover asked in red for a road the plot already had, "Wheat +1 (with Road)" above "Farm" and "Road": it counted only a road the active team had seen
 
 This is a small bug so just mentioning it, and perhaps it is even intended to be this way, but ideally in debug mode (ctrl+z and "chipotle"), an unexplored tile by the tile active player
 
@@ -1809,23 +1865,89 @@ As this is debug-only, and to not cause further issues, only mentioning it for n
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1lXQ8pyE0A6TJGqlnf4In3V7QuJ0lBhIR?usp=sharing)
 
-Another weird display issue/bug in debug mode is for examples yields are not accurately accounted in some conditions, for example in screenshots 5465, 5466, 5467 of/in the drive link just above, sheep plains natural yield should be 1 food of plains + 1 food natural yield change of sheep so 2 food, but is displayed as 1 food only for this tile with map reveal (ctrl+z debug mode) vs 2 food accurately seemingly, without map reveal.
+Update (2026-11-22): the second issue this entry reported, a sheep on plains at 1 food instead of 2 with Debug Mode's map reveal, has its own cause, so its two paragraphs moved word for word to [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3); this entry keeps the red "with Road" text.
 
-I don't know what the exact issue is as i didn't investigate it, but still is an issue, just mentioning it here, may be helpful, hopefully exhaustive too as i wanted or not wanted or yes wanted or other or and not...
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080), [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105).
+
+Update (2026-11-23): reproduced, explained and fixed; only the red "Road" was a bug, so the title now names it alone.
+
+- The original screenshots, in the Drive folder above, sorted:
+  - The bug: `Civ4ScreenShot5386`, a Pig with Pasture and Road, and `Civ4ScreenShot5387`, Gemstones with Mine and Road; each listed its road and still asked "with Road" in red.
+  - Not a bug, the hover working as intended: `Civ4ScreenShot5384` and `Civ4ScreenShot5385`, whose Gemstones and Pig had no Mine or Pasture yet, so the red "Mine" and "Pasture" named the improvement each plot lacked.
+  - No red, as expected: `Civ4ScreenShot5389` and `Civ4ScreenShot5390`, a Spanish Maize with Farm and Road.
+- Reproduced (the user's screenshots, a Huge Pangaea at turn 101, India active, Debug Mode on, now in the same Drive folder):
+  - The bug: (33,46) German Wheat with Farm and Road (`Civ4ScreenShot0459`), (61,43) Carthaginian Cattle with Pasture and Road (`Civ4ScreenShot0460`), (68,43) Khmer Pig with Pasture and Road (`Civ4ScreenShot0467`), (70,41) Khmer Rice with Farm and Road (`Civ4ScreenShot0468`).
+  - No red, as expected: an own plot, (55,43) Silk with Plantation and Road (`Civ4ScreenShot0469`), and a visible one, (44,45) Indian Marble with Quarry and Road (`Civ4ScreenShot0470`); so it looked fixed at a glance, the user noted.
+- Cause, read from the code: `CvGameTextMgr::setPlotHelp` takes the improvement from `getRevealedImprovementType(eActiveTeam, true)`, the plot's real one in Debug Mode, but asks for a road when `CvPlot::isBonusNetwork(eActiveTeam)` is false, and since AdvCiv's advc.124 that counts only a road the active team has seen. So only rivals' roads the active team had not seen, or not since they were built, showed it.
+- Origin, inherited from base AdvCiv, which brought the two views apart in two steps:
+  - Vanilla Civ4 took the plot's real improvement (`getImprovementType`) and counted its real road, as `isBonusNetwork` read `isRoute()`; Warlords, BtS, Better BTS AI and K-Mod kept both, so none of them had the mismatch.
+  - advc.124 (pre-SAS practical 1306, `558603f2b2`, 2018-04-26) made `isBonusNetwork` require a road the team has seen, `isRoute() && getRevealedRouteType(eTeam, false) != NO_ROUTE`, while the hover still read the real improvement.
+  - advc.001 (pre-SAS practical 1379, `38e8f897d`, 2018-11-10, "Misc. changes (human/AI handicaps, tile help text)") made the hover's improvement the seen one, with Debug Mode's override, which aligned the two views outside Debug Mode and left this mismatch in it.
+  - Codex's review (GPT-6.2-Sol) found this: Claude Code Opus 5.5 had first labelled it vanilla, from the hover code of each layer alone, without comparing what their `isBonusNetwork` counts.
+  - Asked by the user to make sure, Codex then rechecked the origin labels of the recent KIs against the installed files, the historical source snapshots and the `commit_diffs` corpus (2026-11-23): KI#11 was the only wrong one, and the vanilla origins of KI#11.3, KI#1105, KI#165.2 to KI#165.12 and the example behind KI#21.8 hold up.
+- Fixed (2026-11-23): in Debug Mode the road check also counts the plot's real road, as the hover's own route line shows it, by `isBonusNetwork(eActiveTeam) || (isDebugMode() && isRoute())`, Codex's shorter form of the first draft, which leaves rivers and trade terrain to `isBonusNetwork`; without Debug Mode nothing changes.
+  - Checked in game with a Debug-opt build on that game's turn-100 save: (33,46) and (61,43) no longer ask for a road, the coal Mine at (63,44), which has none, still does, as does the user's coal Mine at (54,38) (`Civ4ScreenShot0476`).
+  - (57,41), a Stone Quarry with no road, does not ask for one (`Civ4ScreenShot0471`), as expected: its 1 commerce on desert shows a river plot, which `isBonusNetwork` counts when the team has river trade or owns the plot, a BtS rule of `isRiverNetwork`. This only says the plot needs no road; whether the resource reaches a city depends on the wider trade network (`isTradeNetworkConnected`).
+- Roads give no yield in this mod: `CIV4RouteInfos.xml` gives routes no yields, and the only route yields are improvements' railroad bonuses; "with Road" asks for the road only to connect the resource.
+
+Found by the user; explained and fixed by Claude Code Opus 5.5 with the user's screenshots and Codex's (GPT-6.2-Sol) review (2026-11-23), the day after [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3) came up during the base-game Python copies work of [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50) ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)), from the same look at the Debug Mode issues the user remembered.
 
 <a id="ki-11.2"></a>
 
-## KI#11.2 - In debug mode, another weird bug is at wonder list while world wonder has not been built in said civs at least not all
+## KI#11.2 - (Rejected false positive: Debug Mode lists rivals' wonders in progress) In debug mode, another weird bug is at wonder list while world wonder has not been built in said civs at least not all
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1dtHQbjW9Z55O_KryENWcJsrlMhUVqyTH?usp=sharing)
 
-Similarly to [known issue number 11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), this seems to be a debug mode only bug, as when toggling off debug mode while still in same game (ctrl+z as of now if not always or not), a wonder is shown to have been built by many civs, with the date showing hammer icon instead of a data number year or such, and looking inside said cities, no world wonder exists, so this seems to be a visual bug specific to debug mode, i didn't check all cities, but a few said to have the world wonder didn't have it, and since it is supposed to be "unique" i.e. only 1 in entire world (not civ-specific as civ4 says about "unique" in another way) i forgot my sentencei assume this is not too important to fix, but mentioning it for exhaustiveness and in case it helps but or not but or yes but
+Similarly to [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), this seems to be a debug mode only bug, as when toggling off debug mode while still in same game (ctrl+z as of now if not always or not), a wonder is shown to have been built by many civs, with the date showing hammer icon instead of a data number year or such, and looking inside said cities, no world wonder exists, so this seems to be a visual bug specific to debug mode, i didn't check all cities, but a few said to have the world wonder didn't have it, and since it is supposed to be "unique" i.e. only 1 in entire world (not civ-specific as civ4 says about "unique" in another way) i forgot my sentencei assume this is not too important to fix, but mentioning it for exhaustiveness and in case it helps
+
+Update (2026-11-22): rejected as a false positive, as the user suspected: these were rivals building the same wonder, not built copies of it.
+
+- In the Info Screen's wonders tab, the hammer marks a wonder in progress, not a built one: `-9999` stands in for its year, as a comment in [`CvInfoScreen.py`](/Assets/Python/Screens/CvInfoScreen.py) says.
+- BUG's `calculateWondersList_BUG` there lists other civilizations' wonders in progress whenever Debug Mode is on (its `bDebug`), as well as through an Investigate City mission; base AdvCiv's advc.001d only stops it listing the active team's twice.
+- So in Debug Mode, every civilization building the same world wonder shows it with a hammer, which fits the report. Read from the code by Claude Code Opus 5.5; the report saw it after turning Debug Mode off, which the screen may not have redrawn for.
+- The entry's own screenshots confirm it: in `Civ4ScreenShot0664` (turn 90, 1300 BC) the World Wonders list shows Shwedagon Paya for Rome (Antium), Holy Rome (Aachen), Babylon (Akkad) and the Ottomans (Istanbul), and Stonehenge for Mongolia, each with the in-progress icon in the Date column, while the wonders actually built, such as the Pagan Shrine and the Colossus, show their years; Antium's city banner on the map reads Shwedagon Paya, its current build, and no city had completed it (taken with an older SAS interface).
+
+<a id="ki-11.3"></a>
+
+## KI#11.3 - (Fixed inherited vanilla, Debug Mode only) A sheep on plains showed 1 food instead of 2 in Debug Mode: the plot hover then shows the plot's stored yield, which counts no resource on a plot nobody owns
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1u48pxKmIwmc0TZ7CifyX4DpKKBs18--D?usp=sharing).
+
+Split from [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11) on 2026-11-22, which reported it beside an unrelated red "with Road" text; the user found that the two issues shared one entry. Its original report, moved word for word:
+
+Another weird display issue/bug in debug mode is for examples yields are not accurately accounted in some conditions, for example in screenshots 5465, 5466, 5467 of/in the drive link just above, sheep plains natural yield should be 1 food of plains + 1 food natural yield change of sheep so 2 food, but is displayed as 1 food only for this tile with map reveal (ctrl+z debug mode) vs 2 food accurately seemingly, without map reveal.
+
+I don't know what the exact issue is as i didn't investigate it, but still is an issue, just mentioning it here, may be helpful, hopefully exhaustive too as i wanted...
+
+- What was seen: the entry's screenshots, from turn 100: with Debug Mode's map reveal on (`Civ4ScreenShot5465`, `Civ4ScreenShot5466`), the hover over a sheep on plains read "Plains, 1 food, 1 commerce", and without it (`Civ4ScreenShot5467`) "Plains, 2 food, 1 commerce", plains' 1 food plus the sheep's 1.
+- Cause, read from the code: in Debug Mode, `CvPlot::calculateYield` returns the plot's stored `getYield` for any hover instead of computing the yield the active team would see.
+  - The stored yield is computed for the plot's owner, and with no owner `calculateNatureYield` gets `NO_TEAM`, which, as a comment there notes, ignores bonus resources; so an unowned sheep tile stores 1 food. The sheep in the screenshots stood outside every border.
+  - Without Debug Mode the hover computes the yield for the active team, which sees the sheep, hence 2 food.
+  - Gameplay is not affected: a plot is worked only once owned, when its stored yield counts the resource.
+- Origin: vanilla Civ4's `CvPlot::calculateYield` already returned `getYield(eYield)` first whenever `bDisplay` and Debug Mode were set, as the Warlords and BtS copies in Civ4CE do; base AdvCiv's advc.129d only moved the check below two early returns.
+- Left open: a fix would compute the displayed yield for the active team in Debug Mode too, or for the plot's owner when there is one; not tried.
+- How it came up again (2026-11-22): during the base-game Python copies work of [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104), checking KI#1105's Map Details table in Debug Mode (`Civ4ScreenShot0448`, `Civ4ScreenShot0449`) prompted the user to look at the other Debug Mode issues the user remembered, this one among them, reproduced next (`Civ4ScreenShot0450`).
+- Reproduced in the current SAS (2026-11-22, the user's `Civ4ScreenShot0450` and a hover check): at turn 0 on a small Pangaea, Debug Mode's hover over an unowned sheep on plains, plot (40,17), read "Plains, 1 food, 1 production".
+  - With Debug Mode off the plot was still unexplored at turn 0, so it showed no hover to compare; the report's `Civ4ScreenShot5467` covers that side, at 2 food.
+  - The user then walked a Settler all the way around to it and compared the same plot at turn 22: "Plains, 2 food, 1 production" with Debug Mode off (`Civ4ScreenShot0452`) and "Plains, 1 food, 1 production" with it on (`Civ4ScreenShot0453`), the plot still unowned.
+- Fixed (2026-11-22): in Debug Mode, `CvPlot::calculateYield` now returns the stored yield only for an owned plot, whose stored yield is the true one; an unowned plot falls through to the active team's view, as without Debug Mode. The custom comment there says so.
+  - Checked in game with a Debug-opt build on the user's turn-22 save: with Debug Mode on, plot (40,17) read "Plains, 2 food, 1 production" (`Civ4ScreenShot0457`).
+    - The user's after-fix shots in the entry's folder show both sides: the sheep plot at 2 food with Debug Mode off (`Civ4ScreenShot0455`) as on (`Civ4ScreenShot0457`), and the Settler's neighbouring plot (39,18), plains with fresh water and no resource, at 1 food with Debug Mode off (`Civ4ScreenShot0456`) as on (`Civ4ScreenShot0458`), so a plot with no resource reads as before.
+- Archaeology (2026-11-22), with Civ4CE's copies of the Firaxis source: vanilla's `CvPlot::calculateYield` already returns `getYield(eYield)` first whenever `bDisplay` and Debug Mode are set, and its non-display path computes the stored yield with `calculateNatureYield(eYield, NO_TEAM)` for an unowned plot, whose `if (eTeam != NO_TEAM)` skips `getBonusType`; Warlords and BtS kept both.
+  - Base AdvCiv's commit `48e93752d0` (practical 2362, "Don't place unreachable water resources") only moved the Debug Mode check below two early returns, as advc.129d; no Better BTS AI, K-Mod or SAS commit in the `commit_diffs` corpus changed it before this fix.
+- Codex's review (2026-11-22) noted that an unowned plot now shows the active team's view: a resource the team cannot use yet, for lack of its tech, adds nothing, though the Debug Mode hover names it.
+  - Kept on purpose (the user): with no owner, nobody can get that yield yet, so the active team's view is the meaningful one, as without Debug Mode.
+  - An owned plot keeps its owner's stored yield, which uses the owner's techs, so a rival that already has the tech shows the resource counted, as it really gets it.
+
+Found by Claude Code Opus 5.5 from the user's screenshots (2026-11-22), during the base-game Python copies work of [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50) ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)), though committed after it: checking KI#1105's Map Details table in Debug Mode led the user to the other Debug Mode issues the user remembered, this one first.
+
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080), [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105).
 
 <a id="ki-12"></a>
 
 ## KI#12 - (now fixed) Special/generic building monastery's button inconsistently using (uses/was using rather) the hindu specific monastery button instead of a generic button like the (abstract? / generic) generic temple and generic cathedral were
 
-Hopefully clearer and more consistent now or yes or etc
+Hopefully clearer and more consistent now
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1LyGR9fEuI6HZLtn-R5qxgdlVFPVmhUAc?usp=sharing)
 
@@ -1877,9 +1999,9 @@ in:
 		</ArtRef>
 ```
 
-seems like a duplicate, should be safe to remove, but marking it down here if i may say as i don't know a lot about these and to be safe, should be safe to do so though but is for exhaustiveness too perhaps...
+seems like a duplicate, should be safe to remove, but marking it down here as i don't know a lot about these and to be safe, should be safe to do so though but is for exhaustiveness too perhaps...
 
-also note as in code comment of it edited or not or yes or to fit quite well in this .md readme: "<!-- custom: remove seemingly duplicate `<ArtRef Name="building:BUILDING_LIGHTHOUSE">` (removed 1st occurence to be safe that it is not the one used in the game, the 2nd one seems more exhaustive too from the little i can see of it) -->
+also note as in code comment of it edited or to fit quite well in this .md readme: "<!-- custom: remove seemingly duplicate `<ArtRef Name="building:BUILDING_LIGHTHOUSE">` (removed 1st occurence to be safe that it is not the one used in the game, the 2nd one seems more exhaustive too from the little i can see of it) -->
 
 did similarly for the `<ArtRef Name="building:BUILDING_HARBOR">` and `<ArtRef Name="building:BUILDING_CARTHAGE_COTHON">` seemingly duplicated too
 
@@ -1887,7 +2009,7 @@ did similarly for the `<ArtRef Name="building:BUILDING_HARBOR">` and `<ArtRef Na
 
 ## KI#15 - (now fixed) Missing this technology "Cannot be traded" (bTrade) information in Sevopedia tech and tech advisor
 
-Fixed missing this technology "Cannot be traded" information in Sevopedia tech "Special Abilities" (placeSpecial in py code) and in tech/technology advsior too, see also [UI (Ingame)](/README.md#ui-ingame) for details and [Modding_Resources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor) for a lot more details.
+Fixed missing this technology "Cannot be traded" information in Sevopedia tech "Special Abilities" (placeSpecial in py code) and in tech/technology advisor too, see also [UI (Ingame)](/README.md#ui-ingame) for details and [Modding_Resources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor) for a lot more details.
 
 See also [example 1.6: techs category (Starting and Untradeable Techs Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-16-techs-category-starting-and-untradeable-techs-charts-and-other-changes) for details or additional info.
 
@@ -1909,7 +2031,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 Similarly to fetching most fields of leader info now directly from XML and not strictly requiring leaders_data.py, at least in debug functions, we need/miss the (BBAI) victory weights in the Sevopedia leader gc's methods it seems (see [Sevopedia debug dumps](/_1_AdvCiv-SAS/Docs/Sevopedia/Debug/) for details, now added the new methods as part of this fix as shown below, see also drive link above in this example issue too)
 
-To do that, and expanding on previous debugging now successful of flavors, nowarattitudeprobs, contact fields, and memory fields (note about all these fields see also [Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)), only BBAI victory weights remain so that we may fetch all directly from XML or at least be able to attempt to do so without requiring ideally leaders_data.py anymore, after asking chatgpt too, i noticed for example for `getMaxWarRand` (if we want to see where the BBAI is missing that getMaxWarRand is though for example to hopefully add it in this case) (with VS Code 's global search too i noticed it i mean if i may say indeed(see screenshots for details/examples)), modified the (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CyInfoInterface3.cpp file to add such new getters, and also reusing existing getter names for such BBAI victory weights fields that are/were already existing in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvInfo_Civilization.h, with chatgpt's help thanks.
+To do that, and expanding on previous debugging now successful of flavors, nowarattitudeprobs, contact fields, and memory fields (note about all these fields see also [Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)), only BBAI victory weights remain so that we may fetch all directly from XML or at least be able to attempt to do so without requiring ideally leaders_data.py anymore, after asking chatgpt too, i noticed for example for `getMaxWarRand` (if we want to see where the BBAI is missing that getMaxWarRand is though for example to hopefully add it in this case) (with VS Code 's global search too i noticed it indeed(see screenshots for details/examples)), modified the (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CyInfoInterface3.cpp file to add such new getters, and also reusing existing getter names for such BBAI victory weights fields that are/were already existing in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvInfo_Civilization.h, with chatgpt's help thanks.
 
 Now the getters are added in Sevopedia leader, and we successfully see the real DLL modified values for the victory weights too, for example for leader gandhi as of now:
 
@@ -1925,7 +2047,7 @@ Domination Victory Weight: 0
 Diplomacy Victory Weight: 79
 ```
 
-Nice to have this data as well now, as is in our XML too, we may use it to remove the leaders_data.py dependency from our intial old code that depends on this external script due to no BBAI weights before in leader info in Sevopedia, and also because i didn't know at the time how to access contact fields, i hadn't thought to inspect gc and gc leader info ('s inner debugn link above in this example issue) as well perhaps for other uses maybe, for now we added the data at least.
+Nice to have this data as well now, as is in our XML too, we may use it to remove the leaders_data.py dependency from our initial old code that depends on this external script due to no BBAI weights before in leader info in Sevopedia, and also because i didn't know at the time how to access contact fields, i hadn't thought to inspect gc and gc leader info ('s inner debugn link above in this example issue) as well perhaps for other uses maybe, for now we added the data at least.
 
 Note: the value seem/are different from raw xml fields's values, this seems normal as well as the DLL alters/modifys the values in some conditions or something, may be better to replicate/display the real DLL specific/advciv(-sas in our case i.e. advciv-sas) ingame data as it is
 
@@ -1933,7 +2055,7 @@ Note: the value seem/are different from raw xml fields's values, this seems norm
 
 ## KI#17.5 - (now fixed) similarly missing base advcivspecific xml fields in gc of Sevopedia leader, now exposed there as well these new getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold
 
-Now exposed(/exposing?) these to python as well of gc 's Sevopedia leader as well, similarly to how BBAI victory wieghts are now exposed too/as well: getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold
+Now exposed(/exposing?) these to python as well of gc 's Sevopedia leader as well, similarly to how BBAI victory weights are now exposed too/as well: getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold
 
 <a id="ki-18"></a>
 
@@ -1949,7 +2071,7 @@ For example _UTOPIA for `_COMMUNISM`, `_OBELISK` for monument sometimes and othe
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Ie5Uln9-vquy601oCUex3QIsgWCGnUXl?usp=sharing)
 
-Quite related to [README_Known_Issues.md#ki-14](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-14) and also while cleaning up in [README_Known_Issues.md#ki-18](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-18)
+Quite related to [KI#14](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-14) and also while cleaning up in [KI#18](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-18)
 
 The `ART_DEF_UNIT_ARCHER_EURASIAN` (see screenshots 6708, 6709, 6710, 6711 in drive linked in/at this example issue for what it looks like) seems to be unused in base advciv, in civ4 too, and in most mods it seems as well from a VS Code global search.
 
@@ -1963,11 +2085,11 @@ We rename assets e.g., from `ART_DEF_UNIT_ARCHER_ASIAN` to `ART_DEF_UNIT_LONGBOW
 
 <a id="ki-20"></a>
 
-## KI#20 - Negative and inconsistent DLL ajusted nowarattitudeprobs for some leaders, like leader_alexander that/who has nowarattitude prob furious of -2 lower than furious 0 and lower than cautious 14
+## KI#20 - Negative and inconsistent DLL adjusted nowarattitudeprobs for some leaders, like leader_alexander that/who has nowarattitude prob furious of -2 lower than furious 0 and lower than cautious 14
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1zPIMTN97zhubyrHBzAVLjCb2-YAFmLqG?usp=sharing)
 
-Some leaders like Alexander (III the great for example have a value for noWarAttitudeProb Furious of -2 DLL ajusted, which is lower than furious and doesnt seem to make sense.
+Some leaders like Alexander (III the great for example have a value for noWarAttitudeProb Furious of -2 DLL adjusted, which is lower than furious and doesnt seem to make sense.
 
 Alexander's XML is like this:
 
@@ -2027,11 +2149,11 @@ Now solved.
 
 As part of adding terrain or feature restrictions to some units like chariot units and some siege units (catapults and trebuchets i.e. early siege units as of now only at least), i noticed the info is not displayed clearly in Sevopedia unit's place Special (it doesn't mention this effect applies only in cultural borders, and that for all tiles regardless of whether tile is roaded or not, has no impact on the effect (i.e. roaded or unroaded in cultural borders is walkable but unroaded or roaded outside of cultural borders is not walkable regardless of road status, and unlike in some games like civ3 where adding a road fixed or unlocked the limitation))
 
-For the Sevopedia unit part, it was modifying the XML as usual if i may say.
+For the Sevopedia unit part, it was modifying the XML as usual.
 
 But for the ingame part, it is first time i modify successfully (and even tried actually) the unit effects bullet points, now to also display this info, even though it is on a shorter display, we successfully loop through these terrain(s) or feature(s) and display them as such (only tested for features, but i assume would work-function similarly for terrains for example for workboat's ocean terrain restriction)
 
-It was thanks to chatgpt's help as well and my prompts and digging too, even though it struggled at times if i may say and annoyed me bit i mean, i was quite used or expected it if i may say and together we solved it(may have been harder if i was not prepared for suchmost likely)
+It was thanks to chatgpt's help as well and my prompts and digging too, even though it struggled at times and annoyed me bit, i was quite used or expected it and together we solved it(may have been harder if i was not prepared for suchmost likely)
 
 First to solve this i followed the trail of the txt key in Sevopedia unit, then found it is only once and not twice, and missing in map view.
 
@@ -2055,17 +2177,17 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 Commented-out most python docstrings, instead with a `#`, as for very long ones, they are moved to specific files instead, for example as of now the changelog giant (500+ line approximately from my memory) in configobj.py has been moved to [Long_Comments_py.txt](/_1_AdvCiv-SAS/Docs/Long_Comments/Long_Comments_py.txt).
 
-Exceptions are for example test docstrings as comenting them out causes ingame errors for example in configobj py file, and empty if commented out which causes ingame error with VS Code unexpected indent at the next function (i.e. if i comment-out this function that has only a docstirng, everything else being a comment out or empty, then the function below it has unexpected indent error, which causes ingame errors as well, such as in eventsigns py file for example), and maybe some ambiguous other cases if i have forgotten them or maybe not, hopefully this increases even if a bit if not lot loading times and reduces memory usage from what i understand chatgpt's explanation, and as according to/advised by chatgpt, they are not used ingame, and from my quick autoplay test(s) game seems to run fine without it.
+Exceptions are for example test docstrings as commenting them out causes ingame errors for example in configobj py file, and empty if commented out which causes ingame error with VS Code unexpected indent at the next function (i.e. if i comment-out this function that has only a docstirng, everything else being a comment out or empty, then the function below it has unexpected indent error, which causes ingame errors as well, such as in eventsigns py file for example), and maybe some ambiguous other cases if i have forgotten them or maybe not, hopefully this increases even if a bit if not lot loading times and reduces memory usage from what i understand chatgpt's explanation, and as according to/advised by chatgpt, they are not used ingame, and from my quick autoplay test(s) game seems to run fine without it.
 
 Added info if helps here.
 
-Similar to python comment trimming to one line, but this time not for performance as it seems one giant comment line vs a 10 line comment has exact same performance in xml parsing from what i understood of chatgpt's explanation (due to parser still reading the entire comment line regardless, not skipping like in python seenig a `#` for example), but doing so as it helps for word wrapping, but since performance seems to be the same based on my understanding of and on too chatgpt's explanation, less incentive to do so and optimize it, even though i am still quite motivated maybe i think to be fair, but less or no benefit or less to do so.
+Similar to python comment trimming to one line, but this time not for performance as it seems one giant comment line vs a 10 line comment has exact same performance in xml parsing from what i understood of chatgpt's explanation (due to parser still reading the entire comment line regardless, not skipping like in python seeing a `#` for example), but doing so as it helps for word wrapping, but since performance seems to be the same based on my understanding of and on too chatgpt's explanation, less incentive to do so and optimize it, even though i am still quite motivated maybe i think to be fair, but less or no benefit or less to do so.
 
 Not in known issues as well similarly to python comment cleanup issue.
 
-Note: in case i was too aggressive with these and somehow caused bugs, we may revert to old python code and then only move the config obj docstring to common docs rather, but ideally i'd like to keep all as i belive code is bit cleaner.
+Note: in case i was too aggressive with these and somehow caused bugs, we may revert to old python code and then only move the config obj docstring to common docs rather, but ideally i'd like to keep all as i believe code is bit cleaner.
 
-I did try to reread multiple times and hopefully didn't make a mistake, but in case we did, may revert if needed to old python code and tweak more consevatively from there if needed, see next issue as of now 21.6 for details.
+I did try to reread multiple times and hopefully didn't make a mistake, but in case we did, may revert if needed to old python code and tweak more conservatively from there if needed, see next issue, KI#21.6, for details.
 
 <a id="ki-21.6"></a>
 
@@ -2073,21 +2195,143 @@ I did try to reread multiple times and hopefully didn't make a mistake, but in c
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/19qLLdFNSuJXdoeS8-laSDQT81iigAG3q)
 
-Using ruff linter (vs code extension) and chatgpt to fix or sanitize a lot of ruff warnings or errors in our/the python code (see notes at some useful tools in readme as well about rust for details and also see google drive link there for examples, as well as additional info from (what is written) here maybe too), while minding to be python 2.4 comaptible for civ4 this is the version civ4 uses.
+Using ruff linter (vs code extension) and chatgpt to fix or sanitize a lot of ruff warnings or errors in our/the python code (see notes at some useful tools in readme as well about rust for details and also see google drive link there for examples, as well as additional info from (what is written) here maybe too), while minding to be python 2.4 compatible for civ4 this is the version civ4 uses.
 
-Examples include fixing suboptimal multiple statements per line, but also needless semicolons at end of line, bare except instead of catching with Exception or similarfrom what i understand of chatgpt's explanation and rephrasing it while understanding it in my own way too from my past knowlege too, inconsistent use of tabs and indentations, and many others even though some/most seem to be detected by pylance it helps that ruff flags them all too and some not detected by pylance it seems as well thanks
+Examples include fixing suboptimal multiple statements per line, but also needless semicolons at end of line, bare except instead of catching with Exception or similarfrom what i understand of chatgpt's explanation and rephrasing it while understanding it in my own way too from my past knowledge too, inconsistent use of tabs and indentations, and many others even though some/most seem to be detected by pylance it helps that ruff flags them all too and some not detected by pylance it seems as well thanks
 
-Also a lot of cleaning up of poor code formatting that i annoted if i may say as much as possible but i may not have done all purposely or not i mean hopefully quite accurate i mean most importantly exhaustive, also tried to remove needless imports like `import string` when deemed possible by rewriting code a bit with ruff or pylance's warnings/errors as well as chatgpt's help and my prompts too, as well also as real fixes like mismatch in placeholder count in string format
+Also a lot of cleaning up of poor code formatting that i annoted as much as possible but i may not have done all purposely or not i mean hopefully quite accurate i mean most importantly exhaustive, also tried to remove needless imports like `import string` when deemed possible by rewriting code a bit with ruff or pylance's warnings/errors as well as chatgpt's help and my prompts too, as well also as real fixes like mismatch in placeholder count in string format
 
-Note: in case i was too aggressive with these and somehow caused bugs, we may revert to old python code and then only move the config obj docstring to common docs rather, but ideally i'd like to keep all as i belive code is bit cleaner.
+Note: in case i was too aggressive with these and somehow caused bugs, we may revert to old python code and then only move the config obj docstring to common docs rather, but ideally i'd like to keep all as i believe code is bit cleaner.
 
-I did try to reread multiple times and hopefully didn't make a mistake, but in case we did, may revert if needed to old python code and tweak more consevatively from there if needed, as said in issue as of now 21.5 as well.
+I did try to reread multiple times and hopefully didn't make a mistake, but in case we did, may revert if needed to old python code and tweak more conservatively from there if needed, as said in KI#21.5 as well.
 
-Note 2: example case of where i was too aggressive and caused a bug by remoing an unused variable shown [here in this commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/56ea046e0da6e55652841d4cc3181b92e294323c#diff-354807997b1a5f7626ae7eee99c7f4841125b08e0dd67675269502697cc9fdc6L145-R147), so although a variable itself is unused doesn't mean the call was.
+Note 2: example case of where i was too aggressive and caused a bug by removing an unused variable shown [here in this commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/56ea046e0da6e55652841d4cc3181b92e294323c#diff-354807997b1a5f7626ae7eee99c7f4841125b08e0dd67675269502697cc9fdc6L145-R147), so although a variable itself is unused doesn't mean the call was.
 
 Preserving the call while removing the old unused variable was the/a correct way to fix the ruff warning instead of simply removing the line, which was my mistake but perhaps a good example of cases where some extra caution is needed
 
 Note 3: reverted some of them to be safe and as not necessary to fix all of them (e.g. bare except rule added to exceptions in [/ruff.toml](/ruff.toml)).
+
+Update (2026-11-22): the cleanup above is practical 4844 to 4847, 2025-06-26 to 2025-06-27; Note 2's regression was introduced on 2025-07-13 and fixed on 2025-07-24. [KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7) retraces the later sweeps and the CI that now guards some of their rules.
+
+<a id="ki-21.7"></a>
+
+## KI#21.7 - (Addressed, guarded by CI) SAS's Ruff and multi-line cleanups kept coming undone: a year of hand sweeps had no CI gate for these rules, so on 2026-11-22 64 Ruff findings and 25 multi-line calls were back or left
+
+KI#21.6 records the first Ruff cleanup. This entry retraces what followed, from the [`commit_diffs`](/LLM_Helpers/context/commit_diffs/) corpus, practical numbers and dates included, and what was done once the pattern showed (2026-11-22).
+
+**What the sweeps did, without a gate:**
+
+- 2025-06-26 to 2025-06-27 (practical 4844 `363dca74cf`, 4847 `2973ba48f3`): Ruff and markdownlint added as VS Code extensions, and "tons of ruff and pylance" findings fixed by hand (KI#21.6).
+  - That pass also collapsed a multi-line call in `TechWindow.py` and slipped a `y` before `WidgetTypes`, a `NameError` found much later ([KI#392](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-392)).
+  - Another Ruff fix broke the Sevopedia: on 2025-07-13 (4874 `4516bcdd59`), `iRow = screen.appendTableRow(szTable)` in `SevoPediaPromotion.py` was removed as an unused variable (F841), but the call added each unit combat's row, so a promotion listed only its first one. Restoring the call without the name fixed it on 2025-07-24 (4900 `56ea046e0d`), KI#21.6's Note 2.
+  - Both show the caution these sweeps need: a lint fix changes code, so an unused name can hide a needed call, and a collapse can mistype a word.
+  - 2025-12-19 (5211 `90da888635`): some changes reverted to be safe; bare `except` (E722) has been ignored in [`ruff.toml`](/ruff.toml) since 2025-12-25 (5255 `a9da325fd7`).
+- 2026-05-02 to 2026-05-16 (5738 `7868026fd4` to 5807 `e65191a992`): multi-line statements and comments collapsed to one line with `collapse_multiline_brackets.py` and LLM passes (pull request #23, "no-multiline"); untouched BUG files got the header saying SAS changes them only in such minor ways.
+- 2026-05-29 to 2026-05-31 (5865 to 5891):
+  - Parser blockers first, so Ruff could read the files at all, both on 2026-05-29: Python 2 `print` statements (5865 `fa6b78670d`) and `raise` values (5866 `54505f4c7c`).
+  - Then one rule at a time: E711 (5867 `452bbb8183`, 2026-05-29), E713 by regular expression (5868 `ea84ad6420`, 2026-05-29) and with Ruff's own `--fix` (5883 `61f12eb683`, 2026-05-30), E701 in nine passes (5869 `2933726ba0` to 5876 `9c8ec3e402` on 2026-05-29, and 5884 `c1758a63b3` on 2026-05-30), E702 (5877 `ececa8d173`, 5878 `230e455497`, 2026-05-29), E703 (5879 `fee7a8170b`, 2026-05-29), E401 (5890 `10ebfdab4e`, 2026-05-31).
+  - E101 (mixed tabs and spaces) fell from about 1,068 to 259 by the count in 5891's message, which also gives 349 E101 reports left in Ruff's total, with new helpers: `collapse_multiline_calls.py` (5880 `005b40a4dc`), `collapse_multiline_calls2.py` (5881 `882d6f2e34`) and `fix_matrix_indent.py` (5882 `ca81ed7166`), all on 2026-05-30, and `collapse_multiline_parens_safe.py` (5891 `e4893dee90`, 2026-05-31).
+  - Map scripts were the messiest: broad indentation scripts gave misleading results, so `BTG_Cross.py`, `BTG_Grid.py`, `Terra.py`, `Oasis.py` and four others were repaired by hand with ChatGPT and reviewed (5892 `0e6854abcd`, 2026-05-31), then `RandomScriptMap.py` on 2026-06-01 (5896 `17fe7e5319`).
+- 2026-06-01 to 2026-06-04: flat literals collapsed (5898 `c20ef76a64`, 2026-06-01), and Ruff's E902 fixed by converting files to UTF-8 (5910 `93ce591ae9`, 2026-06-04).
+- 2026-06-20 (5964 `0759bd4dba`): [`python-ruff.yml`](/.github/workflows/python-ruff.yml) added on GitHub, failing only on parse errors and Pyflakes (E9, F); it found [KI#164](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-164) and [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165). Layout rules such as E701 stayed warnings in the full report.
+  - Base AdvCiv took two of these Ruff findings upstream from SAS's forum posts: the `configobj.py` comment writer ([KI#143](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-143), AdvCiv `c2605f98d8`, 2026-06-05) and `RectLayout.py`'s undefined `Point` (KI#165, AdvCiv `13a7fe526c`, 2026-06-20, the same day as the workflow).
+- 2026-08-20 (6188 `8d8cba5f65`, which base AdvCiv and Taurus cite by its earlier SHA `b5704a2476`): adding byte-preserved third-party map-script originals for archaeology, now [`mapscript_refs`](/LLM_Helpers/context/mapscript_refs/), also excluded them from Ruff in `python-ruff.yml` and `ruff.toml`, as they stay exactly as found and would otherwise flood the report.
+  - That commit's tiny-island fix ([KI#262](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-262)) was adopted by base AdvCiv the next day (`26b5f482f8`, 2026-08-21) and by Taurus the same day ([`05dda99`](https://github.com/f1rpo/Taurus/commit/05dda99316b7eec75c6bc8adbf9dec79d94b75c1)).
+- 2026-08-21 to 2026-08-24, in Taurus: f1rpo added several Warlords and BtS map scripts, each followed by a commit taking SAS's fixes for it.
+  - After adding BtS's `RandomScriptMap.py`, [`45fa699`](https://github.com/f1rpo/Taurus/commit/45fa699019300138de0eaab4344c478f0f7f4ff4) (2026-08-21) fixed its errors "mostly from SAS", crediting SAS for fixes such as `isValidBoth` and the map bounds.
+  - f1rpo also found its semicolon-joined statements (E702) on his own, which SAS had fixed in May, split them, and added a header warning about the file's mixed indentation (E101).
+  - It also found a double write SAS still has: `shiftRegionPlots` sets `stripRadius = min(15, iStrip)`, then overwrites it with `stripRadius = max(3, iStrip)`, so the cap of 15 never applies. Its message expected linters and LLMs to find much more in such scripts.
+
+**What came back, counted on 2026-11-22:** E701 10, E702 13, E703 25, E714 3, E711 1, E401 1, E101 11 after the collapses below, and 25 multi-line calls plus 10 commented-out ones. E713 alone stayed at zero. `git blame` shows three sources:
+
+- New code: the [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104) base-game copies brought most of it the same day (6838 `ec887dbd9e`, 2026-11-22), such as the seven one-line `if (fxnKey==1): return …` in `CvAppInterface.py`, the E101 table in `CvDebugInfoScreen.py` and 18 multi-line calls; SAS code added later brought a few, such as `CvScreensInterface.py`'s E701 (6693 `e11c562882`, 2026-10-27) and `CvWBDesc.py`'s `if line==None:` (6772 `1d6a223865`, 2026-11-17).
+- The sweeps themselves: the E713 regular-expression pass wrote `if item not in tpR : tpR.append(item)` on one line in `BTG_Cross.py` and `BTG_Grid.py`, an E701, and the E701 and E702 passes left E101 and E702 lines in the tooling helper `comment_cleanup_pass_v2.py`.
+- Calls the collapse helpers' patterns did not know, such as `szText += getText(…, (` and `a, b = _readIniValues(`.
+
+**What was done (2026-11-22):**
+
+- Practical 6841 `dbbc733221` (2026-11-22): [`python_multiline_calls.py`](/.github/workflows/README.md#buildsourcepython_multiline_callspy) fails on a multi-line call in `Assets/Python` or `PrivateMaps`, commented-out ones included, and its `--fix` collapses what it flags; the 25 calls and 10 commented-out ones were collapsed.
+  - One showed why the layout mattered beyond grepping: `CvWorldBuilderScreen.py`'s `attachPanelAt` passed its empty title and help text as two `""` lines in a row, which [`adjacent_duplicate_lines.py`](/.github/workflows/README.md#buildrepositoryadjacent_duplicate_linespy) flagged as a likely pasted line; on one line the pair is no longer two lines.
+  - Codex's review found that `--fix` could rewrite a triple-quoted string that looked like commented-out code, and that a Windows-1252 ellipsis byte shifted line numbers; both were fixed with tests.
+- Practical 6842 `2b8a034d3a` (2026-11-22): E703, E714 and E401 promoted to failures in `python-ruff.yml`, after fixing the 29 findings with Ruff's own safe fixes.
+- Left as warnings by that commit: E701, E702, E711 and E101, whose 35 findings needed hand edits; E713 had none.
+- Practical 6845 (2026-11-22): those 35 were fixed by hand, and E701, E702, E711, E713 and E101 promoted to failures too.
+  - E701 and E702 statements were split onto their own lines, such as `CvAppInterface.py`'s seven `if (fxnKey==1): return …`; E711's `line==None` became `line is None`.
+  - E101: `CvDebugInfoScreen.py`'s dispatch table was indented with five tabs and a space, now three tabs, keeping its columns aligned with the tabs inside each row.
+- Practical 6846 (2026-11-22): `python_multiline_calls.py` now also flags a call whose comment inside is not a provenance marker, and a flat list or tuple that wraps; four were fixed.
+  - Both movie screens' `setButtonGFC(… "", #self.EXIT_TEXT,` call had escaped through its comment, which now sits above the collapsed call with a note on where it was; `CvCustomizableDomesticAdvisor.py`'s note on `max(…, 1)` moved the same way.
+  - `CvDebugInfoScreen.py`'s 14 `CivInfoItems` strings were wrapped over two lines at an arbitrary point; lists with one item per line, such as `SASGameRecordSettings.py`'s key lists, stay as they are.
+  - Flagging comments inside also exposed a quote of a base AdvCiv call inside a `custom:` note in `SevoPediaReligion.py`, which the commented-out rule then took for disabled code; lines inside such a note are now skipped.
+  - The branch had bumped SASGameRecord twice for these layout changes, 210 and then 211; 211 was folded back into 210, as the squash gives main one change.
+
+Retraced with Claude Code Opus 5.5; Codex (GPT-6.2-Sol) reviewed the check and the Ruff promotion.
+
+Pull request (2026-11-22): [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50). The branch is squash-merged, so the practical numbers 6838 to 6846 and SHAs above name its separate commits, which stay reachable on that page rather than on main.
+
+Update (2026-11-22): the same layout gap held for aligned columns, which runtime Python lined up with runs of spaces; [KI#21.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.8) fixed them and added their check.
+
+<a id="ki-21.8"></a>
+
+## KI#21.8 - (Addressed, guarded by CI) Runtime Python lined its tables up with runs of spaces, which drifted out of line with each rename, and held stray double spaces, while vanilla Civ4's `CvDebugInfoScreen.py` lined its dispatch table up with tabs: 2,269 lines in 89 files now use tabs for tables of two or more columns and one space elsewhere
+
+**How it was found (2026-11-22):** reviewing the [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104) copies, the user noticed that `CvDebugInfoScreen.py`'s dispatch table, which only vanilla Civ4 ships, aligned its columns with tabs:
+
+```python
+			0 : { 'DESC':	"Team Relations", 			'DATA':	self.drawTeamRelations },
+```
+
+SAS's own Sevopedia charts, about 190 rows in `SevoPediaEraChart.py`, `SevoPediaGameSpeedChart.py`, `SevoPediaHandicapChart.py` and `SevoPediaWorldSizeChart.py`, used runs of spaces instead, and some had drifted out of line, such as `SevoPediaWorldSizeChart.py`'s `"W/H Ratio*"`, a few spaces short of its column.
+
+**Why tabs:** a column moves by whole tab stops, so most renames leave the rest of the table in place, with far fewer characters. Tabs line up only at the width they were laid out with, so [`.editorconfig`](/.editorconfig) pins 4 for runtime Python, the width VS Code uses by default, for editors and GitHub's file view.
+
+- A long table such as `CvCustomizableDomesticAdvisor.py`'s `COLUMNS_LIST` shows its grid only when its rows fit the editor: with VS Code's word wrap on, zooming out (Ctrl+-) until each row fits on one line shows the column alignment, as the user's screenshot did; a note above that table says so.
+
+**What was done:**
+
+- [`python_aligned_columns.py`](/.github/workflows/README.md#buildsourcepython_aligned_columnspy) fails, as a formatter's check does, on a line whose spacing between code tokens in `Assets/Python` or `PrivateMaps` differs from the layout its `--fix` gives: tabs for a table with two or more columns to align, each one tab past its widest entry, and one space everywhere else.
+- As AGENTS.md asks of a new check, its `--fix` first ran over the whole repository: 2,269 lines in 89 files, from SAS's charts and `SevoPediaMain.py` to BUG's notify map, PLE's filter flags, `CvEventManager.py`'s event map and the map scripts' option tables. Many were stray double spaces, such as `self.TAB_TOC   = "Contents"` or `elif  fThreat < 35:`.
+  - The tables that keep tabs are the four charts, `COLUMNS_LIST`, two `setText` pairs in `SevoPediaMain.py`, and a handful of short ones their authors aligned in `PerfectMongoose.py` and `Planet_Generator_0_68.py`.
+  - Each SAS chart table has a note crediting `CvDebugInfoScreen.py`'s tab alignment, and `COLUMNS_LIST` one saying to zoom out to see its columns. `COLUMNS_LIST`'s column header is a prose comment aligned with spaces, which the check leaves alone, so it was laid on the new tab stops by hand; its rows whose entries had overflowed their column, `ESPIONAGE_DEF` and the `NRANK_*` rows, now fit.
+  - Twelve inherited files touched only by the sweep, such as `MonkeyTools.py` and `Fractal.py`, got the SAS header with a note saying the change is layout only, as source provenance asks of a changed file.
+  - Source provenance read `PerfectMongoose.py`'s `from array  import array` becoming `from array import array` as one import removed and another added; a removed and an added directive that differ only in whitespace now count as unchanged.
+
+**The user's refinements (2026-11-22 to 2026-11-23):** the first sweep tab-aligned every table it found, and reviewing it the user asked for less.
+
+- The map scripts' option dicts, such as `Ring.py`'s `4:  "TXT_KEY_MAP_WORLD_WRAP"` with one-digit keys, had turned into a tab that aligned nothing; a column whose cells are all as wide now gets one space.
+- `Tectonics.py`'s `xMoves =\t\t[` rows were already tab-only, so the first sweep skipped them; tab tables are now laid out too, so every table follows one layout.
+- A key-to-value map such as `SAS_WorldSizeUtils.py`'s `WorldSizeTypes.WORLDSIZE_ARENA:  1,`, an enum or an assignment list gains little from one aligned column, and the charts' name-to-icon tables were "unremarkable" in the user's word; only a table with two or more columns to align keeps tabs.
+  - `CvDebugInfoScreen.py`'s dispatch table itself has only one, so it is one space now; the Sevopedia charts are the tab tables to follow.
+- Commented-out code follows the same rule, as `CvCustomizableDomesticAdvisor.py`'s disabled `GRANK_*` rows showed.
+
+**How `--fix` got there:** each draft went wrong in a way the next fixed, and each case is now a test.
+
+- The first split each line at its own wide gaps only. `SevoPediaWorldSizeChart.py`'s `"Building Class Prereq Mod"` row had one space before its next column, so two of its columns merged and every row's later columns moved ten tabs out.
+- The second counted every boundary between tokens as a possible column. `CvCustomizableDomesticAdvisor.py`'s rows hold `CyCity.getCommerceRate` where a neighbour holds `None`, so a name was split at its dot.
+  - Columns now meet only after a `,` or `:` or around an `=`, where a row with no space after its commas, such as `SevoPediaEraChart.py`'s `("iAIMaxGroundbreakingPenalty","AI Max Groundbreaking Pen.",`, still keeps its place.
+- Two adjacent lines of different shape, `SevoPediaMain.py`'s `HEAD_TEXT` and `BACK_TEXT`, were lined up as one table. Only rows with as many separators share columns now.
+- `COLUMNS_LIST`'s `# advc.004:` note between rows split it into two tables laid on different tab stops. A table now runs on through comment lines.
+- A table's widest row often has one space before its next column, so it showed no alignment of its own and was left out. Such a row now joins its table; two such rows in a row end it, and a table still needs two rows that align, so `x =  y` beside `z = 1` stays a slip, not a column.
+- Tables were grown from whichever flagged line came first, judging neighbours by their current alignment, so passes over `SevoPediaMain.py`'s widget IDs flipped between two layouts. Every table of a file is now found up front from its structure, and a second `--fix` changes nothing.
+- Commented-out code: the map scripts' `#   FILE:    Wheel.py` notices parse in Python 3 as variable annotations, a syntax Python 2.4 does not have, so they would have been taken for code; a line that parses as an annotation on a plain name stays prose.
+  - The disabled `GRANK_*` rows were first laid out as if they started at column 0, while they start at column 18 after their `# ` prefix, so their tab stops came out wrong; each run is now laid out at its real column.
+
+**Codex (GPT-6.2-Sol)'s review (2026-11-23):** six findings, each now a test.
+
+- A call's comma and a slice's colon paired `left = foo(a, b)` and `right = bar[long_key: very_long]` as a table; separators now match in kind and bracket depth.
+- `# x =  y` inside a triple-quoted string, live or commented out, was laid out as commented-out code, changing the string; only lines the tokenizer sees as comments count, and lines on or between commented-out triple quotes stay as written.
+- Source provenance's new whitespace rule also collapsed spaces inside an include's quotes, so `#include "foo  bar.h"` becoming `"foo bar.h"` passed as unchanged; only whitespace between a directive's tokens is layout now.
+- `add_sas_header.py` mixed line endings on CRLF files, rejected UTF-8 files with a BOM and wrote the files that passed while another failed; it now keeps both and writes nothing until every file passes.
+- The docs called `CvDebugInfoScreen.py` a BtS file, while only vanilla Civ4 ships it, and cited its table as the current example though it is single-spaced now.
+- Lines the sweep touched kept inherited trailing whitespace, which `git diff --check` flagged; lines `--fix` rewrites now drop it.
+- Claude Code Opus 5.5 first applied only the last four: it had read Codex's reply through `tail -5`, which cut off the first two; Codex's own log, read with `openai_chat_export_to_txt.py codex --tail`, showed them.
+
+**The comment reflow check:** [`reflow_custom_comments.py`](/LLM_Helpers/README.md#reflow_custom_commentspy) collapsed every whitespace run in a custom comment, so this round's comments quoting spacing, such as `"x =  y"`, lost the very spaces they showed. It now keeps whitespace inside double quotes and backticks.
+
+**Not covered:** prose comments, strings, the gap before a trailing comment and tooling Python under `.github`, `LLM_Helpers` and `tests`, which is indented with spaces.
+
+See also [KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7) for the multi-line call and Ruff gates.
+
+Found and refined by the user; the check and the sweep by Claude Code Opus 5.5, with Codex (GPT-6.2-Sol)'s review finding the six issues above.
 
 <a id="ki-22"></a>
 
@@ -2123,7 +2367,7 @@ Or am i mistaken somehow, or is it as i expect a mistake or not too sensical fla
 
 In all cases, it is now as of now i meanchanged in advciv-sas to growth and gold based flavors among others or not, see xml for updated values or details.
 
-Fixed the stealth bomber and other units having a lower collateral damage limit than its base collateral damage (`<iCollateralDamage>100</iCollateralDamage>` vs `<iCollateralDamageLimit>50</iCollateralDamageLimit>`), which i don't know a lot about but seems like a mistake or inconsistent with most units (why put a higher than the limit damage, again i could be mistaken about how this works-functions, but we (i.e. mexd...) also wanted to add more collateral damage support so now all units have some (swordsmen could throw shurikens) collateral damage limit, even though collateral damage itself starts at 0 for most units still; such info is now displayed in Sevopedia unit chart (as of now named "Combat" category, as well as in each unit's Sevopedia unit placeSpecial (as of now named "Special Abilities" panel)), and also ingame in map view when hovering over the unit, in its effects panel (we also now show more reliably the extra collateral damage info there as well, see Sevopedia ingame or xml for details or updated values); hopefully or not or yes or etc i am not mistaken in doing so or it is helpful or not or yes or etc)
+Fixed the stealth bomber and other units having a lower collateral damage limit than its base collateral damage (`<iCollateralDamage>100</iCollateralDamage>` vs `<iCollateralDamageLimit>50</iCollateralDamageLimit>`), which i don't know a lot about but seems like a mistake or inconsistent with most units (why put a higher than the limit damage, again i could be mistaken about how this works-functions, but we (i.e. mexd...) also wanted to add more collateral damage support so now all units have some (swordsmen could throw shurikens) collateral damage limit, even though collateral damage itself starts at 0 for most units still; such info is now displayed in Sevopedia unit chart (as of now named "Combat" category, as well as in each unit's Sevopedia unit placeSpecial (as of now named "Special Abilities" panel)), and also ingame in map view when hovering over the unit, in its effects panel (we also now show more reliably the extra collateral damage info there as well, see Sevopedia ingame or xml for details or updated values); hopefully i am not mistaken in doing so or it is helpful)
 
 <a id="ki-22.6"></a>
 
@@ -2165,27 +2409,27 @@ This is not efficient nor ideal, i don't know what the cause is, if it's because
 
 Added the files, screenshots and save files there, in case it helps and to revisit them later if needed.
 
-In another autoplay after this one (save file not appended here i.e. not in the drive link of this issue number if i may say) the issue seems to have happened again in a barbarian city, but lasted luch shorter, only a few turns, so maybe the issue is not critical if resolves by itself still is reproducible in this case, ideally would be solved, added data if helps.
+In another autoplay after this one (save file not appended here i.e. not in the drive link of this issue number) the issue seems to have happened again in a barbarian city, but lasted luch shorter, only a few turns, so maybe the issue is not critical if resolves by itself still is reproducible in this case, ideally would be solved, added data if helps.
 
-It is also possible that these are rare instances, as it seems to have happened so far only on costal/naval cities so far from little autoplay i paid attention to focusing/noticing this problem/issue, so may not be critical again i mean or may be, but ideally would be nice if solved, but i don't know how to so so i hope this data helps, leaving as is for now.
+It is also possible that these are rare instances, as it seems to have happened so far only on coastal/naval cities so far from little autoplay i paid attention to focusing/noticing this problem/issue, so may not be critical again i mean or may be, but ideally would be nice if solved, but i don't know how to so so i hope this data helps, leaving as is for now.
 
 update: having tried again later this save file 173 turn number 50, the issue is consistently reproducible, and i have increased the hammer cost to higher values like 5 and 20 to see if it was the issue but the issue persists exactly almost the same, just instead of being stuck on always 1 turn until production for many turns, it is now apparent the issue is rather with looping, as say for a 20 hammer worker the countdown reduces fine at each turn at the hammer cost is getting completed, but issue is that often no new unit is produced at end of the cycle when hammer cost is completed, instead it seems like a new loop starts over at 0 hammer.
 
 I have also found issue is not whales or some other water bonus as another east barbarian city in same save file has no problem having upgraded bonuses in these cities, but the difference is this city has a harbor (reworked in xml in advciv-sas, not like the base advciv's harbord, it is now in our mod the first water building) unlike the city with the bug.
 
-But after making the change of now workboats requiring a harbor (see xml for details and reasoning why) (and a barbarian_harbor specifically for barbarian player's barbarian_workboat), the issue remains the same, so issue is not that the eastern barbarian city that could improve the water bonsues successfully had a harbor either unlike western barbarian city with the bug.
+But after making the change of now workboats requiring a harbor (see xml for details and reasoning why) (and a barbarian_harbor specifically for barbarian player's barbarian_workboat), the issue remains the same, so issue is not that the eastern barbarian city that could improve the water bonuses successfully had a harbor either unlike western barbarian city with the bug.
 
 So i do not know exactly what is happening, eastern city is also on a lone island but this doesn't seem to be the cause as it successfully improves its water bonuses unlike western city, but i have noticed eastern city is also stuck producing workboats as well.
 
 In the end, i still don't know the cause nor how to fix it, but this helped balance the workboats that may be op in some early starts with a lot of land food plus water food.
 
-I have added screenshots of these new results if i may say.
+I have added screenshots of these new results.
 
 Update 2: i have found the issue and seemingly fixed it now.
 
 The workboat is now successfully produced in one turn.
 
-It seemingly was in `CvUnitAI::AI_workerSeaMove`, commented-out the scrapping code that applied only to AI sea workers and which also matched what i found ingame as well (never had the issue in base advciv as a human player i mean, so i assume it only affected AI players).
+It seemingly was in `CvUnitAI::AI_workerSeaMove`, commented-out the scrapping code that applied only to AI sea workers and which also matched what i found ingame as well (never had the issue in base advciv as a human player, so i assume it only affected AI players).
 
 I found it with a global search on `UNITAI_SEA_WORKER` and some digging, with chatgpt 5's help and suggestions and my own ideas too.
 
@@ -2201,19 +2445,19 @@ Next issue now is that AIs produce a bit too many workboats, for example there a
 
 I assume this is what old code attempted to solve but very inefficient, or maybe it had some other purpose +/- as well or not maybe.
 
-Ideally we'd want to count in advance the amount of workboats we need based on water bonsues in cultural borders (to get health even if out of city radius), and produce exactly only the number of workboats to access currently accessible (e.g. coast only) unimproved bonuses, so no need to scrap them later, which i'll attempt to do later in another known issue, but this is still tremendously better than being stuck in a loop for dozen turns and seemingly for many AI cities, which is very crippling, so hopefully a lot better now.
+Ideally we'd want to count in advance the amount of workboats we need based on water bonuses in cultural borders (to get health even if out of city radius), and produce exactly only the number of workboats to access currently accessible (e.g. coast only) unimproved bonuses, so no need to scrap them later, which i'll attempt to do later in another known issue, but this is still tremendously better than being stuck in a loop for dozen turns and seemingly for many AI cities, which is very crippling, so hopefully a lot better now.
 
-See also although not directly related but anwyays etc: [52 - (Beyond Tremendously improved) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-52).
+See also although not directly related but anwyays etc: [KI#52 - (Beyond Tremendously improved) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-52).
 
 <a id="ki-23.2"></a>
 
 ## KI#23.2 - (Attemptingly partially addressed/reduced) AI players producing more workboats than needed which then stay parked in city or go explore
 
-Not a critical issue as it is in fact less than i thought in known issue as of now [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-23) above in this doc, but i tried to reduce the AI producing a bit too much workboats, mostly by doing changes as advised by chatgpt and claude ai (and approved by gemini ai too) if they are not all and myself mistaken but could be the case but check to be sure, in `CvCityAI::AI_neededSeaWorkers`, changing look ahead from 5 to 0 (check explanation there as it has the AI(s) explaining it better than i would n this case).
+Not a critical issue as it is in fact less than i thought in [KI#23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-23) above in this doc, but i tried to reduce the AI producing a bit too much workboats, mostly by doing changes as advised by chatgpt and claude ai (and approved by gemini ai too) if they are not all and myself mistaken but could be the case but check to be sure, in `CvCityAI::AI_neededSeaWorkers`, changing look ahead from 5 to 0 (check explanation there as it has the AI(s) explaining it better than i would n this case).
 
 It seems some cities still have an extra workboat, but some cities don't, not sure the change made a different, but since it seems harmless, and AIs agree at least those i askedit should be so, left as such, but check to be sure.
 
-Note: change was originally done in an attempt to solve a bug i had created while disabling functionally getimprovementvalue, info about it in this doc or in the code comment at function mentioned in this known issue as of now 23.2 too but check to be sure, and since the bug is now fixed, i kept this change since is conservative, obvious, and seemingly harmless but check to be sure.
+Note: change was originally done in an attempt to solve a bug i had created while disabling functionally getimprovementvalue, info about it in this doc or in the code comment at the function mentioned in KI#23.2 too but check to be sure, and since the bug is now fixed, i kept this change since is conservative, obvious, and seemingly harmless but check to be sure.
 
 <a id="ki-24"></a>
 
@@ -2221,7 +2465,7 @@ Note: change was originally done in an attempt to solve a bug i had created whil
 
 Note 2: this specific one should not be relevant anymore as we have overhauled AI worker builds entirely, but just in case and to be exhaustive too.
 
-Note: as of now the changes in the DLL described below in this section can be found in this [advciv-sas commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/6d82d51fe1e3a3262d7c69af67daaacb927175e4) among a few other unrelated changes but or not but or yes buthopefuly helpful or not or yes or etc
+Note: as of now the changes in the DLL described below in this section can be found in this [advciv-sas commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/6d82d51fe1e3a3262d7c69af67daaacb927175e4) among a few other unrelated changes, but hopefully helpful
 
 This is an issue i had more extensively documented in the known issues about advciv civfanatics thread (see link somewhere in [README.md#me-wonderingabout](/_1_AdvCiv-SAS/Docs/README_Authors.md#me-wonderingabout)), that AIs often build forts on top of existing improvements.
 
@@ -2231,7 +2475,7 @@ This should be very inefficient in most cases as forts,... :
 - yield less than improvements
 - it is unlikely a human or other player would ideally attack units garrisoned there as it is not advantageous to do so
 - it is especially inefficient where/when an improvement is already built that connects the ressource/bonus yet the AI undoes that extremely inefficiently for lower yields and other such disadvantages discussed before or not
-- it is also cheaper / more efficient i think at least if i may say in this case at leastto let the ennemy destroy/pillage an improvement and rebuild it later than to carry fort very low yields on each improved ressource/bonus all the game
+- it is also cheaper / more efficient i think at least to let the enemy destroy/pillage an improvement and rebuild it later than to carry fort very low yields on each improved ressource/bonus all the game
 
 There are some other disadvantages such as:
 
@@ -2243,9 +2487,9 @@ However it could potentially be useful in some cases:
 - prebuild the connection to a ressource/bonus, but generally the improvement would be available at same time if not before the ressource/bonus becomes visible, unless talking a blind preconnection attempt but way too inefficient
 - possibly some other +/- more minor advantages
 
-Overall i feel/think it would be better for the AI to not bother with forts at all, so i tried/am trying to add more restrictions or and cases where the AI would simply, to simplify the logic, skip entirely forts, which should in most cases help the AI.
+Overall i feel/think it would be better for the AI to not bother with forts at all, so i tried/am trying to add more restrictions cases where the AI would simply, to simplify the logic, skip entirely forts, which should in most cases help the AI.
 
-So although i don't know too much how to do this, but can manage a bit maybe, i made such changes in the DLL with chatgpt's help, as of now untested (see the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md) for updated status if any there or and cpp files)
+So although i don't know too much how to do this, but can manage a bit maybe, i made such changes in the DLL with chatgpt's help, as of now untested (see the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md) for updated status if any there cpp files)
 
 <a id="ki-25"></a>
 
@@ -2263,7 +2507,7 @@ But while it seemingly may have improved it a bit, AI still settles on metals, a
 
 As i don't know too much about these but am very eager to improve these ideally...
 
-I asked chatgpt and trying to fix/tweak quite cautiously this logic, quite similarly than in [README_Known_Issues.md#ki-24](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-24)
+I asked chatgpt and trying to fix/tweak quite cautiously this logic, quite similarly than in [KI#24](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-24)
 
 ### General rules for settling on (i.e. home plot) bonuses
 
@@ -2281,11 +2525,11 @@ This preserves the bonus for later improvement, unless local conditions strongly
 
 ### About water bonuses/ressources in range but ignored by AI settling instead a non-coastal location
 
-Attempt to fix/address this as well by making the penalty in that case much stronger, as of now increased from -165 to -400 (seems to have been -800 in k-mod, see [/CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp) for details or updated value), hopefully helps the AI consider more often water ressources or at least not ignore them when they are in range of their city sites considerations if i may say in this case at least maybe
+Attempt to fix/address this as well by making the penalty in that case much stronger, as of now increased from -165 to -400 (seems to have been -800 in k-mod, see [/CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp) for details or updated value), hopefully helps the AI consider more often water ressources or at least not ignore them when they are in range of their city sites considerations maybe
 
 ### Results
 
-I only tested it a bit (a few autoplay glances at turn 100), but the results seem extremely good and really much better, may test more to be sure or ask player feedback after mod release or and such if we do release it as planned/intended in this case but anwyays etc, so i would say to take this with a bit of caution maybe, but overall it does seems AIs almost always if not always maximize planting/settling their cities around found bonuses in the radius and not planting on them, cannot tell too much or if this is just small sample but it does seem to make a big difference.
+I only tested it a bit (a few autoplay glances at turn 100), but the results seem extremely good and really much better, may test more to be sure or ask player feedback after mod release such if we do release it as planned/intended in this case but anwyays etc, so i would say to take this with a bit of caution maybe, but overall it does seems AIs almost always if not always maximize planting/settling their cities around found bonuses in the radius and not planting on them, cannot tell too much or if this is just small sample but it does seem to make a big difference.
 
 Update: since latest refactor, although i didn't retest it yet, i'd expect results to be even better now with the fine tuning we added based on terrain (e.g. hill plains good to settle on for production bonuses for example, but less the more they yield then improve them rather), test it to be sure but should be extremely good, but since i didn't recheck it, test it to be sure.
 
@@ -2295,7 +2539,7 @@ Update: since latest refactor, although i didn't retest it yet, i'd expect resul
 
 For non-bonus tiles, also added code that tells the AI which tiles are best to have in our environment, and a different logic for the home plot to settle on, with chatgpt 5 and other ai or models 's help as well if i'm not mistaken. Also adjusted and with different values (see below for details).
 
-Done similarly to [README_Known_Issues.md#ki-25](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-25).
+Done similarly to [KI#25](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-25).
 
 Done by modifying in `AIFoundValue::evaluate()` in as of now CitySiteEvaluator.cpp, see there for details, or the documentation below if still accurate or updated.
 
@@ -2344,7 +2588,7 @@ These rules are implemented with value changes, for example flatland plains is a
 
 But before this "home plot" (i.e. the tile where our city will be when we found it) optimization, the value is largely decided by the settle nearby logic rather, and many other factors computed as well that we added or that were already here before our mod for most.
 
-This is logical for mathematical reasons, 1 tile has less value change than the 17 other tiles in city radius (e.g. if we say settling on 1 grass tile is bad and there are 20 (in the big fat cross) other flatland grass tiles, with other nice things like rivers, bonus etc, we won't mind barely due to all other valorization, but if we find a very good desert tile to settle on, surrounded by not so good 20 plain tiles, we won't be too hyped either, so this is like a small extra optimization if all things are quite similar otherwise for other home plot candidates, but still hopefully helps fine tune it further, and no reason not to if we can and which i liked to do if i may say as well (i was very frustrated with previous AI settle decisions before if i may say and in this case))
+This is logical for mathematical reasons, 1 tile has less value change than the 17 other tiles in city radius (e.g. if we say settling on 1 grass tile is bad and there are 20 (in the big fat cross) other flatland grass tiles, with other nice things like rivers, bonus etc, we won't mind barely due to all other valorization, but if we find a very good desert tile to settle on, surrounded by not so good 20 plain tiles, we won't be too hyped either, so this is like a small extra optimization if all things are quite similar otherwise for other home plot candidates, but still hopefully helps fine tune it further, and no reason not to if we can and which i liked to do as well (i was very frustrated with previous AI settle decisions before and in this case))
 
 In addition to improvements for not settling on bonus tiles, this non-bonus and home plot tiles optimization, here is important and nice to also help the AI found and place better its cities and be more competitive or enjoyable to play with/against perhaps, at least i enjoyed adding them.
 
@@ -2368,7 +2612,7 @@ Note: we can't settle on oasis if i'm not mistakenso not shown in table and sect
 
 ### Results from these (non-home plot and non-bonus) settling on and settling near changes
 
-Results so far seem to be that it does seem to help quite a lot from the few autoplay i ran, but perhaps numbers could be increased a bit, just, i wouldn't want it to compete with the bonus/malus system or overlap of bonus on tiles, or too high values may have some unexpected values who knows in city settling or such other or not civ4 ingame behaviours if i may say maybe.
+Results so far seem to be that it does seem to help quite a lot from the few autoplay i ran, but perhaps numbers could be increased a bit, just, i wouldn't want it to compete with the bonus/malus system or overlap of bonus on tiles, or too high values may have some unexpected values who knows in city settling or such other or not civ4 ingame behaviours maybe.
 
 I am not sure it always improves AI settling behaviour; there may be some cases where locally AI makes worse settling choices due to these changes, but in most cases, at least in theory, and although i don't know too much about these, generally/maybe it should improve AI settling choices even if a bit if not more than a bitmaybe, but test to be sure.
 
@@ -2450,7 +2694,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 Some promotions were missing in Sevopedia unit's placePromotions, for example for the generic swordsman or the zulu impi (melee units combat type), they didn't show collateral damage 1 and collateral damage 2 (as of now renamed from base advciv +/- civ4's barrage promotions).
 
-So thanks to chatgpt's help, i found the cause althoguh i suspected it too intuitively hehe, but chatgpt told me the issue and provided me and in this code a working alternative condition of as of now `gc.getPromotionInfo(k).getUnitCombat(eUnitCombat)` (note: `eUnitCombat = gc.getUnitInfo(self.iUnit).getUnitCombatType()`) instead of `isPromotionValid(k, self.iUnit, False)` that was too strict, but just disabling this old too strict condition showed too many promotions even the ones these units shouldn't have access to such as of now collateral damage 3 and 4 for example.
+So thanks to chatgpt's help, i found the cause although i suspected it too intuitively hehe, but chatgpt told me the issue and provided me and in this code a working alternative condition of as of now `gc.getPromotionInfo(k).getUnitCombat(eUnitCombat)` (note: `eUnitCombat = gc.getUnitInfo(self.iUnit).getUnitCombatType()`) instead of `isPromotionValid(k, self.iUnit, False)` that was too strict, but just disabling this old too strict condition showed too many promotions even the ones these units shouldn't have access to such as of now collateral damage 3 and 4 for example.
 
 This seems to fix the issue (see screenshots for details, as we specifically now see the missing promotions on top of same old ones (didn't check in detail but there seem to be more than before and also to have relevant ones, check screenshots or xml for details or comparison or such)).
 
@@ -2488,7 +2732,7 @@ So it appears that the do research or whatever related or similar to it fails an
 
 So based on this, the crash is caused by impossible prereqs, but an actual error message such as impossible to process the doResearch command would be nicer, as well as ideally not crashing.
 
-Ideally i would fix it, but is tedious, and most importantly, the issue should disappear when we have proper tech preresq not the fake ones that are not functionnal and just taken from any tech i could find to replace with our new techs.
+Ideally i would fix it, but is tedious, and most importantly, the issue should disappear when we have proper tech prereqs not the fake ones that are not functional and just taken from any tech i could find to replace with our new techs.
 
 So this is only a temporary issue, although less ideal, it is probably most efficient to leave as it is.
 
@@ -2496,7 +2740,7 @@ It is also maybe more reliable to have a silent crash rather than adding a compl
 
 So seems safer and most efficient to leave it as it is, and just keep in mind if tech advisor crashes happen again, that issue may be faulty tech prereqs.
 
-See also, although not directly related: [README_Known_Issues.md#ki-22](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22)
+See also, although not directly related: [KI#22](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22)
 
 2026-11-03 follow-up (with the help of Claude code Opus 5.5 thanks):
 
@@ -2515,7 +2759,7 @@ This is an issue i had in base advciv, and this solution may not necessarily in 
 
 Rewrote/refactored `CvUnitAI::AI_bestCityBuild` with gemini ai's help for most thanks to its persistence in particular (see [/_1_AdvCiv-SAS/Docs/README_Authors.md#gemini-ai](/_1_AdvCiv-SAS/Docs/README_Authors.md#gemini-ai)) for details.
 
-I have written most details there, so only adding here as less tedious to do so, a few screenshots in the google drive link folder mentioned at the top of this known issue section (as of now number 30).
+I have written most details there, so only adding here as less tedious to do so, a few screenshots in the google drive link folder mentioned at the top of this known issue section (KI#30).
 
 These changes hopefully fix this issue (see "Boston" screenshot in this google drive (as of now screenshot 1478)).
 
@@ -2523,7 +2767,7 @@ Although i couldn't reproduce it directly since worker behaviour changed in more
 
 In some cases, see screenshot 1499, other tiles seem to prevail, most likely due to other code parts, but it corrected soon enough and the silver was improved soon after which was the main purpose/goal of these changes (in base advciv i would have a bonus not improved for a few dozen turns if not more if i remember it correctly, which was very unimmersive), so hopefully AI is more efficient this way.
 
-As part of this change, i tried to increase AI worker efficiency by having them max put one worker to a tile to improve: if a worker is improving it already, skip it and go to another tile instead (there may be some delay until a worker goes there and starts improving it resulting in some ineffiencies of traveling there while a worker is also already travelling there, perhaps closer or not, but it seems to correct better, as soon as the closest worker starts, the other workers bounces back fast to another tile if i may say)
+As part of this change, i tried to increase AI worker efficiency by having them max put one worker to a tile to improve: if a worker is improving it already, skip it and go to another tile instead (there may be some delay until a worker goes there and starts improving it resulting in some ineffiencies of traveling there while a worker is also already travelling there, perhaps closer or not, but it seems to correct better, as soon as the closest worker starts, the other workers bounces back fast to another tile)
 
 This is not always the best choice, but i believe generally AI would be more efficient this way.
 
@@ -2539,7 +2783,7 @@ I have noticed that commenting out the `CvUnitAI::AI_improveBonus` function enti
 
 Also disabled functionally `CvCityAI::AI_getImprovementValue` and `CvUnitAI::AI_irrigateTerritory` which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains or flatland grass or other unwanted interferences, see these functions (or whatever remains of them for details, as well as screenshots 1858 (no farm on spices plains and no farms on flood plains either since we're not starving) and 1863 (still no farm even at turn 150, now building plantation as intended and city looks very nice improved) for comparison.
 
-Also not shown but no farms on flatland grass anymore since we're not starving there as well. We now have greater if not total control over our AI workers or close to it, and this improves ai efficiency further and is thanks to chatgpt and co or such like claude ai and such if i may say too (and thanks to me too)
+Also not shown but no farms on flatland grass anymore since we're not starving there as well. We now have greater if not total control over our AI workers or close to it, and this improves ai efficiency further and is thanks to chatgpt and co or such like claude ai and such (and thanks to me too)
 
 ### update 3
 
@@ -2633,7 +2877,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 Rewrite and greatly simplify `BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)`, so that we deprioritize routes for AI workers, and build them only in very rare cases, especially in the early game where yields are so important (now prioritize yields over move speed advantage, should help AI a lot in most cases hopefully at least i think so in this case), and AI workers would often in base advciv waste time building roads first, sometimes even forgetting to improve the bonus in particular, or other tiles.
 
-I hope this makes AI sharper and more efficient, with a cleaner and much simpler best build override, thanks to gemini ai as well and thanks to me too if i may say in this case.
+I hope this makes AI sharper and more efficient, with a cleaner and much simpler best build override, thanks to gemini ai as well and thanks to me too.
 
 Areas of improvement not related to our code change:
 
@@ -2695,7 +2939,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 It was an issue i had in base advciv, when AI is in a low environment, say many tundra tiles for example, it is likely city would starve soon, so settling on the coast if in reach is much more valuable.
 
-I added a code that counts low terrain or feature tiles in city radius, and if a certain amount is reached (as of now >= 7 medium low (snow, desert (and shoudln't be counted but peak as well but to be safe))), then we consider this environment to be low-food, and get discouraged if our tile is not coastal.
+I added a code that counts low terrain or feature tiles in city radius, and if a certain amount is reached (as of now >= 7 medium low (snow, desert (and shouldn't be counted but peak as well but to be safe))), then we consider this environment to be low-food, and get discouraged if our tile is not coastal.
 
 The food penalty is increasing with the among of low-food tiles pas this threshold.
 
@@ -2705,7 +2949,7 @@ This means that what was a good spot is now not anymore a good spot, and AI will
 
 As can be seen in screenshots, with some previous changes i made, AI had a seemingly better understanding or/annd reactionto which bonuses are valuable and to settle near and not on, such as in screenshot 1475, here i assume to successfully grab the water bonuses thankfully thanks to our changes i assume that incentivize this more, however in screenshot 1476, these changes still did not compell AI to settle on coast and corinth in full tundra/snow is starved soon, which could have been avoided just by settling one tile south or somewhere near that for a much higher potential city relatively.
 
-After these new changes i implemented in this known issue as of now 32, we can see that for example, AI still values water bonuses for coastal planting (screenshot 1580), but now also successfully settles on the coast even if there is no water bonus in range, just to avoid the low-food environment early starving (screenshot 1585 in now city sparta).
+After these new changes i implemented in KI#32, we can see that for example, AI still values water bonuses for coastal planting (screenshot 1580), but now also successfully settles on the coast even if there is no water bonus in range, just to avoid the low-food environment early starving (screenshot 1585 in now city sparta).
 
 In particular, thanks to the changes and buffs we made to coastal planting, it may be a bit stronger to plant on coast than in base advciv, relatively, although land should still be quite better as of now at least.
 
@@ -2727,7 +2971,7 @@ This is done by completely ignoring base advciv +/- civ4 algorithms or logic, an
 
 Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting.
 
-Oscillation (i.e. AI workers constantly changing their minds and ovrwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent if not any, or cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc) and semi-holy ones (farms in low-food environments, cottages in high-food environments as of now for example too), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency.
+Oscillation (i.e. AI workers constantly changing their minds and overwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent if not any, or cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc) and semi-holy ones (farms in low-food environments, cottages in high-food environments as of now for example too), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency.
 
 Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills.
 
@@ -2738,8 +2982,8 @@ In screenshots, it can be seen that:
 - at turn 50, before any of our changes to this function(screenshot 1525), mecca has farms on grapes plains although plantations are unavailable, and it barely improved its much more profitable grassland tiles.
   - Also, there is a hamlet (!!!) on plains iron which is now destroyed so all investment is lost, and not using this to improve other tiles and now have say a hamlet grassland ideally for example or something similar. It seems a plains has a cottage on it instead of grassland, very inefficient and waste of good tiles.
 - at turn 50 again, but after our changes, in an early and conservative and much earlier version of our changes (screenshot 1571), mecca is beyond comparison so much more improved, with many villages at turn 50 on grassland, and the grapes have been ignored since we don't have plantation, so workers were not wasted.
-  - Needless to say AI is tremendously stronger now with these changes, the iron is ignored as well, although in some runs there seemed to be a cottage at the time in the aztec city (if not always, improving without bonus specific improvement tiles with bonuses should now happen much less often). Plains are ignored succesfully now until we build on higher food tiles first as intended.
-- at turn 50 again again (screenshot 1641), mecca is still strongly developed, although a bit less advanced cottages but they are present, but it is better settled (not on hill grassland anymore due to some unrelated changes i made in the meantime, and its production potential is stronger The aztec cities are doing very well too, not improving nor capitalizing on any plains tile until grass for example are handled first, and bonuses are improved very early in the game as per past changes now fine tuned a bit if i may say or enforced/made sure no issue).
+  - Needless to say AI is tremendously stronger now with these changes, the iron is ignored as well, although in some runs there seemed to be a cottage at the time in the aztec city (if not always, improving without bonus specific improvement tiles with bonuses should now happen much less often). Plains are ignored successfully now until we build on higher food tiles first as intended.
+- at turn 50 again again (screenshot 1641), mecca is still strongly developed, although a bit less advanced cottages but they are present, but it is better settled (not on hill grassland anymore due to some unrelated changes i made in the meantime, and its production potential is stronger The aztec cities are doing very well too, not improving nor capitalizing on any plains tile until grass for example are handled first, and bonuses are improved very early in the game as per past changes now fine tuned a bit or enforced/made sure no issue).
   AI is now amazingly stronger and more efficient at improving its cities.
 
 Gemini ai and claude ai in particular helped me a lot do these as well as myself.
@@ -2766,9 +3010,9 @@ This is shit citizen allocation and i hope to fix it.
 
 Hopefully AI is already much stronger with our changes but thanks for past but i hope i can improve these things among others or not.
 
-update : update: also disabled functionally `CvCityAI::AI_getImprovementValue` and `CvUnitAI::AI_irrigateTerritory` which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains, see update note 2: at [README_Known_Issues.md#ki-30](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-30) for details with screenshots there as well for comparison
+update : update: also disabled functionally `CvCityAI::AI_getImprovementValue` and `CvUnitAI::AI_irrigateTerritory` which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains, see update note 2: at [KI#30](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-30) for details with screenshots there as well for comparison
 
-update 2: now also handles roading choice of build on not connected but connectable bonuses in BFC with other patches, see update 2 at [31 - (Attemptingly fixed) Deprioritize routes for AI workers in favour of yields first](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-31) for details
+update 2: now also handles roading choice of build on not connected but connectable bonuses in BFC with other patches, see update 2 at [KI#31 - (Attemptingly fixed) Deprioritize routes for AI workers in favour of yields first](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-31) for details
 
 <a id="ki-33.2"></a>
 
@@ -3236,7 +3480,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 These are a few of major k-mod bugs or very suboptimal city population plot allocation issues i have encountered.
 
-I noticed them while still in save file 334 which is a save file which helped me a lot enhance the AI (save file at turn 0 in drive in this known issue or related ones as of now) if i may say with gemini ai and claude ai's help as well for most and my help too xd...
+I noticed them while still in save file 334 which is a save file which helped me a lot enhance the AI (save file at turn 0 in drive in this known issue or related ones as of now) with gemini ai and claude ai's help as well for most and my help too xd...
 
 About the issues fixed here or patched if not fully fixed, as can be seen in screenshots, before the fixes/patches:
 
@@ -3245,33 +3489,33 @@ About the issues fixed here or patched if not fully fixed, as can be seen in scr
 - Screenshots 1595 and 1596 (the "Prague screenshots"): a city is stagnant while unhappy as well (1 citizen). Problem: the city allocates a 2 food 1 hammer tile instead of a 5 food 1 commerce tile.
   - I don't believe 1 hammer is better than 3 food, we may want to grow, even if unhappy, and who knows, slave later, or maybe in the meantime unhappiness situation would improve, and we'd be happy to have the extra citizen, potentially also the food bar full and growing in the meantime.
   - But don't overdo this, no point in growing too much if too many citizens are unhappy, but it needs some help here i think, even at the cost of some production, value food a bit more i think, but be careful to not overdo it
-- Screenshots 1472 (and 1475 too if it is indeed from same time) (the "Boston Screenshots" again if i may say): a city is building a worker (food is production (same for the settler too and as of now)), but it could allocate the fish in anticipation of the worker being completed, so that city could grow at end of project.
+- Screenshots 1472 (and 1475 too if it is indeed from same time) (the "Boston Screenshots" again): a city is building a worker (food is production (same for the settler too and as of now)), but it could allocate the fish in anticipation of the worker being completed, so that city could grow at end of project.
   - 3 hammer (and 1 commerce) is same as 3 food (and 1 commerce as well) to produce a worker, but the food is more likely than not, in most cases to be useful, especially for this tundra city that is low on food, so allocate rather the food than the hammer, if all other things are equal).
 - Screenshot 1473 (the "Mycenian screenshot"): a city is stagnant, but it has many food tiles it could use to grow.
   Even if city is barbarian, the flatland grass tiles could be allocated.
   Note: the specialist usage seems a bit aggressive so we may want to tone it down early so cities can grow more, maybe, but not sure, kept as reference if want to see it later/again
 
-The fixes: they are tentative and quite conservative, perhaps patches in some cases, i am not really sure i found the exact or all causes, but i hope these changes help a lot, as seen in these screenshots, not in same order as before in order to make explanation easier for me (sorry for inconsistency or inconvenience hopefully fine or not too bad to read but as it is maybe too but or not but or yes):
+The fixes: they are tentative and quite conservative, perhaps patches in some cases, i am not really sure i found the exact or all causes, but i hope these changes help a lot, as seen in these screenshots, not in same order as before in order to make explanation easier for me (sorry for inconsistency or inconvenience hopefully fine or not too bad to read but as it is maybe too):
 
 - the "Boston Screenshots" issue: i didn't test it, but i think one of the lines if not the line triggering it or related to it was `iValue += bFoodIsProduction ? 0 : (iFoodYieldTimes100+50)/100;` in `CvCityAI::AI_yieldValue`.
   - Problem of this approach is that to produce a worker or settler, 3 hammer or 3 food is the exact same, it is 3 production, therefore food should be valued just as much, not 0.
   - When worker is completed, city would be in a position to continue to grow, instead of stagnate or starve, even if a bit. I am not sure this is the only way or thing to fix and didn't check since, but i hope this helps. As of now, it is as such: `iValue += ((iFoodYieldTimes100+50)/100);` with some implementations differences (see below).
-  - It seems that in screenshots 1665 and 1666 (screenshot 1673 with the milder final version of the patch seems to indicate a good response as well, with the 2 food tile being used to produce a worker rather than the 1 food 1 hammer one, which should be better after this production (i.e. of a worker i mean) ends if), although it used a more exteme approach to try to fix and debug it (see below at ulundi screenshots), when producing a settler, the city does use food yields now even if it is just a small sampel and it could have happened due to other reasons (such as no good hammer tile to compete with the food yields maybe), but indirectly this would also mean developing cottages and such more while producing a settler or worker, here in a flood plains cottage, which is a bit stronger than a 2 food 1 hammer flatland grass forest tile.
+  - It seems that in screenshots 1665 and 1666 (screenshot 1673 with the milder final version of the patch seems to indicate a good response as well, with the 2 food tile being used to produce a worker rather than the 1 food 1 hammer one, which should be better after this production (i.e. of a worker) ends if), although it used a more extreme approach to try to fix and debug it (see below at ulundi screenshots), when producing a settler, the city does use food yields now even if it is just a small sample and it could have happened due to other reasons (such as no good hammer tile to compete with the food yields maybe), but indirectly this would also mean developing cottages and such more while producing a settler or worker, here in a flood plains cottage, which is a bit stronger than a 2 food 1 hammer flatland grass forest tile.
   - Although i am no sure this fixes it, it does seem to be better or at least not worse in this sample, while not deteriorating city behaviour early, hopefully helps and better this way.
 - the "Ulundi screenshots" issue: in screenshots 1573 and 1574, similarly here, or rather not my bad, but i would say at least that we can maybe fix it or patch it at that line.
   - I tried and implemented other tentative ways to boost food quite conservatively, else cities are very unhappy, low production and high pop (screenshot 1663 and 1664), and similarly the same at aachen (screenshots 1666 and 1667), which is inefficient, but at least all food plots were allocated, very nice ! This indicated that issue could be addressed this way, even if in a milder way.
   - So i added a check that if we are unhappy (reusing old k-mod or civ4 bits for that but with a new check) value food only a bit more, but if we are happy (i.e. that we'd have room to grow), value food quite a bit extra more (but not too much i tried else we'd go back to high pop low production very angry inefficient city).
-  - So by giving a food boost but relatively milder one, we now grow but only a bit more, when angry, not a lot more (and when not angry (i.e. happy city) we'd grow a lot more although not shown here)). I didn't contine to check what happens at next turns, but in screenshots 1669 and 1670 for example after this fix or tentative patch, plot allocation seems now to be very very good.
+  - So by giving a food boost but relatively milder one, we now grow but only a bit more, when angry, not a lot more (and when not angry (i.e. happy city) we'd grow a lot more although not shown here)). I didn't continue to check what happens at next turns, but in screenshots 1669 and 1670 for example after this fix or tentative patch, plot allocation seems now to be very very good.
   - Production is high, and city is not starving, growing moderately, which is about perfect i'd say. After all we could slave as said before and would very much need or want the pop if our unhappiness solves.
   - Aachen (screenshot 1672, but difference is city is not unhappy (i.e. is happy)) has also a very good food profile, with high plot plots all allocated and fast growth and quite high production, about perfect too!! Very good response or behaviour in screenshot 1674 as well in karakoum, which is happy too with high food and high production.
-- As for the "Prague screenshots" (stagnant city not allocating food), i didn't retest it since prague was settled elsewhere many times, as shown in screnshot 1673, and consistently, i don't know if my change caused this somehow, but this is a fine choice too and a good location, after removing the jungle it is a quite strong grass spot, although a bit weak before that, and is coastal too so good for late game.
-  - So i don't have a definitive repsonse but i hope all in all these changes help a lot. Also, i don't know when i took this screenshot but seemingly later during the test changes phase, but seemingly AI would prefer a 1 food 1 hammer 1 commerce flatland plains cottage over an improved 5 food 1 commerce sheep grassland, just because it has 1 unhappy citizen. 1 hammer is not superior to 5 food!!!
-  - (or 4 food with the diff even), even if unhappy, extra pop could be used later to slave or when unhapiness is solved food would be more full even if we produce slightly less to do so!!!
+- As for the "Prague screenshots" (stagnant city not allocating food), i didn't retest it since prague was settled elsewhere many times, as shown in screenshot 1673, and consistently, i don't know if my change caused this somehow, but this is a fine choice too and a good location, after removing the jungle it is a quite strong grass spot, although a bit weak before that, and is coastal too so good for late game.
+  - So i don't have a definitive response but i hope all in all these changes help a lot. Also, i don't know when i took this screenshot but seemingly later during the test changes phase, but seemingly AI would prefer a 1 food 1 hammer 1 commerce flatland plains cottage over an improved 5 food 1 commerce sheep grassland, just because it has 1 unhappy citizen. 1 hammer is not superior to 5 food!!!
+  - (or 4 food with the diff even), even if unhappy, extra pop could be used later to slave or when unhappiness is solved food would be more full even if we produce slightly less to do so!!!
 
 The code that seemed to make a nice and decisive positive difference it seems to me at leastwas as of now this one i added:
 
 ```cpp
-		// <!-- custom: commented-out line below (that was a test to try to fix known issue 34 which is seemingly done or at least bypassed at the cost of angry cities still growing and having lower production) fixes it or so it seems, but at the cost of lowered produciton, even if cities have few angry citizens, try to make it more fine-tuned to city current state: we value food as long as we are not angry, if we are angry, value production in an attempt to build things that would make us go out of unhappiness, but even if we don't, no point in growing further, the citizen won't be allocated; results of this change seem to be very good, cities are not starving anymore unallocating food tiles, they grow until unhappy, then it seems to halt but the food tiles are still reasonable allocated even though production is now high as well and growth slow it seems from quick testing / glances, although this is a patch and not full fix, i hope this helps the issue a lot, or so it seems from quick testing -->
+		// <!-- custom: commented-out line below (that was a test to try to fix KI#34 which is seemingly done or at least bypassed at the cost of angry cities still growing and having lower production) fixes it or so it seems, but at the cost of lowered produciton, even if cities have few angry citizens, try to make it more fine-tuned to city current state: we value food as long as we are not angry, if we are angry, value production in an attempt to build things that would make us go out of unhappiness, but even if we don't, no point in growing further, the citizen won't be allocated; results of this change seem to be very good, cities are not starving anymore unallocating food tiles, they grow until unhappy, then it seems to halt but the food tiles are still reasonable allocated even though production is now high as well and growth slow it seems from quick testing / glances, although this is a patch and not full fix, i hope this helps the issue a lot, or so it seems from quick testing -->
 		// iValue += ((iFoodYieldTimes100+50)/100) * 100;
 		// <!-- custom: note: also include 0 happiness (i.e not unhappy) as it seems in another same file, ulundi again was starving while not unhappy nor happy (at 0 exactly) instead of allocating a food tile
 		if (iHappinessLevel >= 0)
@@ -3294,11 +3538,11 @@ The city was just at happiness cap (5 happy vs 5 unhappy = 0, although i am not 
 
 The issue happened again with this change in screenshots 1695 and 1696 (starting from turn 50, the exact same save file that was already at turn 50), but after ending turn, fixed itself at screenshots 1697 and 1698 right away the next, with the very nice sheep hill grassland now allocated and starvation solved :) So i hope this fixes the issue or at least i'd like to think so.
 
-If not, i hope and in all cases too i mean if i may say that it helped, and that AI is now stronger or not weaker than it was thanks to this change (production seems good and strong too in this example ).
+If not, i hope and in all cases too that it helped, and that AI is now stronger or not weaker than it was thanks to this change (production seems good and strong too in this example ).
 
 Hopefully AI is a bit stronger with this changed i attempted to make in a balanced way (not too much food, not as it was too much production)
 
-See also [README_Known_Issues.md#ki-40-if-i-am-not-mistaken-but](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-40) for quite related info
+See also [KI#40](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-40) for quite related info
 
 Update: now mitigated by high food loss from unhealthiness (as per corresponding SAS define) as inefficient to grow further (e.g., York size 25 with 25 health 36 unhealth (-11 food) and 39 happy 27 unhappy, +3 food per turn still, should not grow more and work specialists or other yields than food rather to increase efficiency).
 
@@ -3308,7 +3552,7 @@ Update: now mitigated by high food loss from unhealthiness (as per corresponding
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/15-WwGpkgFQ87O6t-tCQtJCAeiWQdQRXD?usp=sharing).
 
-It is from when i was still playing base advciv, but it is an issue i had found (that i had named example 148, to be more precise 148.1 for the screenshot file), so the save file(s) or screenhsots linked in this google drive issue come from base advciv nor our mod, see for details the list of base advciv issues i had compiled as in listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i made.
+It is from when i was still playing base advciv, but it is an issue i had found (that i had named example 148, to be more precise 148.1 for the screenshot file), so the save file(s) or screenshots linked in this google drive issue come from base advciv nor our mod, see for details the list of base advciv issues i had compiled as in listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i made.
 
 I did not test it since then, but i hope the patch/tweak/ tentative fix i added in as of now`CvCityAI::AI_bestUnit` helps and addresses that, making AI much more land-focused and overall stronger, even if it would now come i assume although i didn't check/test in this case at the cost of being military weaker on naval warfare, but i hope in most cases it would most benefit AI largely to do so.
 
@@ -3316,7 +3560,7 @@ I also fixed thanks to gemini ai various other conditions where we don't want th
 
 See also [KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-42) which generalizes, fixes and tunes this approach based on other conditions while otherwise preserving base advciv code behaviour. Hopefully a lot more efficient but also responsive/effective AI UNITAI choices but check to be sure.
 
-update: see enhancement of this in [53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or of more importantly building galleons and privateers in droves and excess, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53)
+update: see enhancement of this in [KI#53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or of more importantly building galleons and privateers in droves and excess, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53)
 
 <a id="ki-36"></a>
 
@@ -3324,7 +3568,7 @@ update: see enhancement of this in [53 - (Beyond Tremendously Improved) Naval de
 
 No screenshots from that time except save files, that i'd prefer not to rescreenshot now, however i had listed this issue in example 47 in the list of base advciv issues i had compiled as in listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i made, where it happened 2 times to/for Augustus AI making it/himmuch weaker militarily and my conquest of him much easier in this game (although he/itwas still surprisingly strong so is like a wasted chance in this case at least)
 
-In all cases, i have in a similar function than in [README_Known_Issues.md#ki-35) (while doing this known issue as well](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-35) (while doing this known issue as well), a spot where we could add such a restriction to settler building.
+In all cases, i have in a similar function than in [KI#35](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-35) (while doing this known issue as well), a spot where we could add such a restriction to settler building.
 
 Hopefully AI is now much stronger with this change as well although i didn't test it since i made it.
 
@@ -3334,13 +3578,13 @@ Hopefully AI is now much stronger with this change as well although i didn't tes
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Uf1OOilcGXfyNix7EwXYhQCcsd-bq4Pa?usp=sharing).
 
-Expanding on previous issue as of now in number 36, i have also noticed, now in this as of now known issue number 37, that for example in screenhot 1680, AI was building 2 settlers at same time.
+Expanding on previous KI#36, i have also noticed, now in KI#37, that for example in screenshot 1680, AI was building 2 settlers at same time.
 
 It is very inefficient, and i thought that building one settler in top city (for efficiency, as weakest city may take a long time to build it hindering its growth or not getting settler ready on time; ideally i would handle that too but not done for simplicity and as of now simply building in any city that does it) is enough.
 
 Instead of tediously telling AI which city to build its settler on, and only in 1 city at a time, as the hammer loss is huge of building 2 settlers, and also not if we already have a settler unit existing, as founding too many cities may result in economical inefficiency so build them gradually rather instead of spam then crash i'd say i think, making the settler a national unit seems a very very nice tradeoff and easy way to achieve that.
 
-On top of that, it also adds strategy, as now settlers are more precious if i may say in this case at least, as although their price is same as before, killing/hunting a player's settler is worth more, potentially even worth going to war for depending on tempo and your or a player's strategy (kind of how declaring war to (attempt to) steal a worker (now restored in advciv-sas unlike in base advciv, see [README_Main_Changes_Guide.md#civilian-units](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#civilian-units) for details) may be good intiative).
+On top of that, it also adds strategy, as now settlers are more precious, as although their price is same as before, killing/hunting a player's settler is worth more, potentially even worth going to war for depending on tempo and your or a player's strategy (kind of how declaring war to (attempt to) steal a worker (now restored in advciv-sas unlike in base advciv, see [README_Main_Changes_Guide.md#civilian-units](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#civilian-units) for details) may be good intiative).
 
 So AIs and all players must get better or be more strategic or value more guarding their settlers, as losing one is a higher blow if one may say, as although cost is same, city building would be significantly more delayed.
 
@@ -3366,7 +3610,7 @@ Its city location is also nice in these screenshots 1689 and such, hopefully tha
 
 Also this change is also thanks to claude ai which (who?) helped me locate where to make units national in the xml although i could have found myself but it helped still thanks claude ai.
 
-Note: after retesting from turn save file at turn 0 to be sure, and also due to the below as of now known issue 38 so i wanted to test again anyway and since they seemed to do same when starting from save file that is at turn 50 if i'm not mistaken, i wanted to try from save file that is at turn 0 instead, i have found they did it even nicer, and settled extremely ambitiously a super nice city not too far from their capital, very very nice, see screenshots 1701 and 1702 (skipped 1700 since 1702 was more nicely centered around city but 1700 was first centered around city if i may say before 1701) for details.
+Note: after retesting from turn save file at turn 0 to be sure, and also due to the below KI#38 so i wanted to test again anyway and since they seemed to do same when starting from save file that is at turn 50 if i'm not mistaken, i wanted to try from save file that is at turn 0 instead, i have found they did it even nicer, and settled extremely ambitiously a super nice city not too far from their capital, very very nice, see screenshots 1701 and 1702 (skipped 1700 since 1702 was more nicely centered around city but 1700 was first centered around city before 1701) for details.
 
 <a id="ki-38"></a>
 
@@ -3374,17 +3618,17 @@ Note: after retesting from turn save file at turn 0 to be sure, and also due to 
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1rjgs7CbmxP78ixCWrf4W-a8xn_7mT68k?usp=sharing).
 
-I have no idea why, and this is one of the strangest issues i have encountered so far in base advciv or rather advciv-sas, but recompiling dll after adding a code comment or tweaking it, for peace of mind in my case, resulted in a compile error at very end (see screenshots for details, log missing as i thought it was a regular issue or simply forgot to save it apart back it up, and overwritten at next compile due to my carelessness hehe if i may say but i hope the screenshot helps enough at least even though log would have been ideal maybe unless screenshot has all info).
+I have no idea why, and this is one of the strangest issues i have encountered so far in base advciv or rather advciv-sas, but recompiling dll after adding a code comment or tweaking it, for peace of mind in my case, resulted in a compile error at very end (see screenshots for details, log missing as i thought it was a regular issue or simply forgot to save it apart back it up, and overwritten at next compile due to my carelessness hehe but i hope the screenshot helps enough at least even though log would have been ideal maybe unless screenshot has all info).
 
 This should not have happened, as i only changed code comments, which should be inconsequential regardless of what i type in them.
 
-However, after recompiling, with exact same source files, no change at all (except maybe ctrl+z ctrl+y ctrl+s just to make sure i had no other change or for some other related or not reason), then suddenly compile succeeded.
+However, after recompiling, with exact same source files, no change at all (except maybe ctrl+z ctrl+y ctrl+s just to make sure i had no other change or for some other related reason), then suddenly compile succeeded.
 
 At this point, or in general, i'd say my best guess would be a cosmic ray fell on my PC somehow and corrupted a bit like in the mario speedrun and as it happened to nasa.
 
-But in all cases, and more seriously really, even though my previous guess was quite serious too, i'd recommend if all seems good otherwise, to make sure you remove all content in temp_files folder (as i have found fast compile seems to cause issues and i strictly avoid it unless doing quick testing never for final dll as of now at least, as mentioned in [README_Known_Issues.md#ki-5)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-5) too; and note too: i think i also made extra sure here that i did delete it as well just before launching the faulty compile, hence my guess that it would be something else like a cosmic ray or something else maybe like a quantic ray xd maybe??
+But in all cases, and more seriously really, even though my previous guess was quite serious too, i'd recommend if all seems good otherwise, to make sure you remove all content in temp_files folder (as i have found fast compile seems to cause issues and i strictly avoid it unless doing quick testing never for final dll as of now at least, as mentioned in [KI#5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-5) too; and note too: i think i also made extra sure here that i did delete it as well just before launching the faulty compile, hence my guess that it would be something else like a cosmic ray or something else maybe like a quantic ray xd maybe??
 
-Added this extra clarification as part of reading claude ai's answer or the beginning of it, which gave me the idea to add this, hopefully clearer with this although maybe uneeded or maybe needed in this case i mean but in all cases), and compile again, which in this case, again strangely but all goood maybe xd if i may say although i would have liked to know how maybe too indeed.
+Added this extra clarification as part of reading claude ai's answer or the beginning of it, which gave me the idea to add this, hopefully clearer with this although maybe uneeded or maybe needed in this case i mean but in all cases), and compile again, which in this case, again strangely but all good maybe xd although i would have liked to know how maybe too indeed.
 
 So adding this info for reference if helps.
 
@@ -3418,7 +3662,7 @@ The build report's `tempBefore` and SGR's `reusableArtifactBaseline` still recor
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1BnMPUrCSNI2q_yBj6ooC-xhoWT-vguxm?usp=sharing).
 
-Another very weird weird weird! Xd... But this is definitely weird i mean.
+Another very weird weird weird! Xd... But this is definitely weird.
 
 I compiled the DLL while solving an issue or attempting to (related to a crash ingame at turn 156 with bestycitybuild function fixed by a guard i was trying to remove, but this is not the point, the point is read after brackets to see it i mean but anyways) but then i got very weird XML errors at game launch as in screenshots.
 
@@ -3783,7 +4027,7 @@ It passed, because it allowed form feed as an old page break, although no text f
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1eabVp0msOXluGcyoKZzUHhNubsyAOR37?usp=sharing).
 
-After our AI workers had nice and efficient, at least nicer and more effiicent worker routine and algorithm/priorities or more often, the issue i noticed is city A and city B are overimproved, while City C badly needed improvements but was under improved, as can be seen for example in screenshots 1728 and 1729, where Ectabana is not improved barely, while AI workers continue to over improve city A that can't allocate any more tiles anyway due to its pop limit (why improve 15+ tiles when pop is around 10, go to city B or city C or such other cities if any)
+After our AI workers had nice and efficient, at least nicer and more efficient worker routine and algorithm/priorities or more often, the issue i noticed is city A and city B are overimproved, while City C badly needed improvements but was under improved, as can be seen for example in screenshots 1728 and 1729, where Ectabana is not improved barely, while AI workers continue to over improve city A that can't allocate any more tiles anyway due to its pop limit (why improve 15+ tiles when pop is around 10, go to city B or city C or such other cities if any)
 
 So i added a fix to that in `CvUnitAI::AI_workerMove`, with chatgpt o3's help too, see there for details.
 
@@ -3791,7 +4035,7 @@ After recompiling and testing these changes, as can be seen from existing screen
 
 update: added an extra tweak so that workers stay longer in city B (small cities), as they are expected to grow fast, so don't leave at 2 improved plots if city size is size 2, improve say 4 or 5 plots (see code there for details)
 
-update 2: tremendously improved and tweaked since then in [README_Known_Issues.md#ki-41](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-41), see there for details too i mean
+update 2: tremendously improved and tweaked since then in [KI#41](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-41), see there for details too
 
 <a id="ki-40"></a>
 
@@ -3803,7 +4047,7 @@ As can be seen in existing screenshots between 1742 and 1745, AI, here China AI,
 
 Although the hammer is nice though, it is better to capitalize on food early (which can be symbolized very well as having happiness surplus (e.g. 9 happy and 1 unhappy is 8 happiness surplus)).
 
-So thanks to chatgpt 3-o, and my prompt and adjustments or not or yes or etcbut it helped me lot too, i added a patch/fix/tweak in as of now `CvCityAI::AI_yieldValue`, to value food yields in plots the more happiness we have (for example as of now if i'm not mistakenwith 9 happy and 1 unhappy so 9 - 1 = 8 happy surplus, we'd have the food value now being multiplied by 8, but if happy surplus is only 2 (say 9 happy 7 unhappy for example) then the food multiplier would only be 2 which seems fine as it is quite mild maybe (i don't know but i assume seeing very quickly other mulitplicative calculations in this function but only glanced and from my memory of it so check to be sure) but still encouraging growth).
+So thanks to chatgpt 3-o, and my prompt and adjustments or etcbut it helped me lot too, i added a patch/fix/tweak in as of now `CvCityAI::AI_yieldValue`, to value food yields in plots the more happiness we have (for example as of now if i'm not mistakenwith 9 happy and 1 unhappy so 9 - 1 = 8 happy surplus, we'd have the food value now being multiplied by 8, but if happy surplus is only 2 (say 9 happy 7 unhappy for example) then the food multiplier would only be 2 which seems fine as it is quite mild maybe (i don't know but i assume seeing very quickly other multiplicative calculations in this function but only glanced and from my memory of it so check to be sure) but still encouraging growth).
 
 As an extra nice addition suggested by chatgpt 3-o, and that i tweaked too, if we are happy to very happy (as of now 3+ happiness surplus (e.g. 7 happy - 4 unhappy = 3 happiness surplus)), then we also reduce the value of hammer/production, as indeed, it is more valuable to grow, we'd allocate the high production tiles naturally as we have more population, and as long as we have extra happiness, better use it.
 
@@ -3813,7 +4057,7 @@ Then, when we are close to happiness cap (i.e. happiness about equal to unhappin
 
 Also added the food is production exception, i.e. if we're producing a worker or settler, 6 hammer is better than 3 food. Provided we can bounce back to food allocation, which is not guaranteed. But thankfully, AI allocates and swaps tiles dynamically, this is extremely nice.
 
-As for results, see existing screenshots between 1760 and 1782, but they are extremely good or so it seems in this situaiton at least.
+As for results, see existing screenshots between 1760 and 1782, but they are extremely good or so it seems in this situation at least.
 
 At low pop, china AI best on food, and its cities quickly grow, and actively ignore the copper tasty 0 food 6 hammer tile, seemingly except when producing a worker as they should, then bounce back to food.
 
@@ -3821,9 +4065,9 @@ China AI's city slaves twice, and has much more buildings at turn 100, effective
 
 And China AI could build the great wall in time in its capital too, so high pop cities do not fall into too much food trap, this is a dynamic fix/patch/enhancement or fine-tuning, i don't know if it always apply, but i'd tend to say AI is much stronger thanks to it at least in this sample, other cities seem to behave fine at quick glance too (see the few screenshots there in this drive link for details).
 
-I'm very happy of this result, thanks a lot to chatgpt 3-o for help despite the nagging and that it annoyed me hehe on math as i told it too it did hehe, but this helped me and helped a lot if i may say which i told it too, fix the formula and such thanks lot.
+I'm very happy of this result, thanks a lot to chatgpt 3-o for help despite the nagging and that it annoyed me hehe on math as i told it too it did hehe, but this helped me and helped a lot which i told it too, fix the formula and such thanks lot.
 
-See also [README_Known_Issues.md#ki-34](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-34) for quite related info
+See also [KI#34](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-34) for quite related info
 
 Update: now mitigated by high food loss from unhealthiness (as per corresponding SAS define) as inefficient to grow further.
 
@@ -3837,7 +4081,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 There are many tremendous improvements to AI worker efficiency and flexibility in this known issue.
 
-These were aimed originally to solve the AI not moving to city B or city C soon enough or enough issue, as was attempted initially in [README_Known_Issues.md#ki-39](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-39), and i tweaked it a bit more than solving this further, with chatgpt-5 's help and my prompts and adjustments or not or yes or etctoo.
+These were aimed originally to solve the AI not moving to city B or city C soon enough or enough issue, as was attempted initially in [KI#39](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-39), and i tweaked it a bit more than solving this further, with chatgpt-5 's help and my prompts and adjustments or etctoo.
 
 As can be seen in existing screenshots between 1838 and 1934, even late in the game, jungle cities that were quite farm from core cities, although not too far really, would not be improved at all!!
 
@@ -3882,11 +4126,11 @@ They can always come back to city A if needed later (e.g. if city A has grown si
 
 Note: slightly related note: now that we use one worker per tile, originally for efficiency, AI workers are now very hard to capture/hoard :) So this is a very nice side effect, no need to be so scared about losing workers, just go for it.
 
-In the late game anyway, workers are not worth too much so fine if they are captured or destroyed, may even be good for economy actually (or worse to whoever captures them if an AI and it doesn't gift them or destroy them), and early ennemies are often not mobile enough and even if they are fine or not too bad, at least not worth the disadvantage of running away from nice to improve tiles that could directly benefit the city(ies).
+In the late game anyway, workers are not worth too much so fine if they are captured or destroyed, may even be good for economy actually (or worse to whoever captures them if an AI and it doesn't gift them or destroy them), and early enemies are often not mobile enough and even if they are fine or not too bad, at least not worth the disadvantage of running away from nice to improve tiles that could directly benefit the city(ies).
 
 Hopefully this helps reduce if not solve the issue of AI workers always interrupting their builds, which is very inefficient too, but i didn't test it, they do seem less mobile as in interrupting then resuming very inefficiently same builds, which would be nice if true, but i didn't test it too much nor looked into it to know for sure, so i can only assume it hopefully helps but check to be sure.
 
-No more worker stacks to fear being cpatured for the AI or to protect or snatch for human players, i believe it's all in all much better on top of efficiency gains for AI workers.
+No more worker stacks to fear being captured for the AI or to protect or snatch for human players, i believe it's all in all much better on top of efficiency gains for AI workers.
 
 Again situation seems to have improved a bit, no overly improving core cities anymore as well if not already done before, but still jungle tiles in these a bit far cities are still not improved.
 
@@ -3912,17 +4156,17 @@ Persia AI's city C is quickly and very fast improved at turn +/- 100 (97-105 in 
 
 So all in all this is extremely nice, and i am thankful to all who helped me like chatgpt 5, those mentioned here or not, base advciv, kmod, etc firaxis for making this framework, and i am glad it is enhanced so much.
 
-I may have to reduce handicap settings now as AI would be unbeatable now with handicap that is too high, as its AI workers are now very very efficient i think, minus etxra tweaks we'd need like late game adjust for state property or whatever chatgpt 5 mentioned too, that we do partly indirectly but check bestcitybuild function in cvunitai or future known issues after this one if any.
+I may have to reduce handicap settings now as AI would be unbeatable now with handicap that is too high, as its AI workers are now very very efficient i think, minus extra tweaks we'd need like late game adjust for state property or whatever chatgpt 5 mentioned too, that we do partly indirectly but check bestcitybuild function in cvunitai or future known issues after this one if any.
 
 This is extremely satisfying, although i hope to improve it further based on autoplay and what i see, but i hope AI and AI workers can be a satisfying challenge now, after all economy and working tiles is key, maybe humans could automate reliably at lower levels if lazy or want to learn and get a really good result if the code applies here as well, but in all cases.
 
-Update: see also related known issue as of nowwith extra very nice improvement(s) to wake from retreat logic causing parking in rare cases: [50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)
+Update: see also, with extra very nice improvement(s) to wake from retreat logic causing parking in rare cases, [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)
 
 <a id="ki-42"></a>
 
-## KI#42 - (Enhanced/Addressed) Tune AI's preferred based UNITAI based on war status (offense mode, defense mode, combined power ratios of ennemies, etc if any other), general sanity checks and efficiency, city size, map type (land heavy vs water heavy vs other if any for example), general suicide or such tendencies, etc
+## KI#42 - (Enhanced/Addressed) Tune AI's preferred based UNITAI based on war status (offense mode, defense mode, combined power ratios of enemies, etc if any other), general sanity checks and efficiency, city size, map type (land heavy vs water heavy vs other if any for example), general suicide or such tendencies, etc
 
-Note: see also [README_Known_Issues.md#ki-35](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-35)
+Note: see also [KI#35](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-35)
 
 See also: [Modding resources (Mapscripts)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#mapscripts).
 
@@ -3937,24 +4181,24 @@ Here are the things i changed:
 - restricted settlers for AIs to be built only in capital, and only if city pop >= 5 (i.e. not <= 4). This is so they can use more efficiently the food as production, as it's much easier to produce a settler using food from the many population count additionally to existing hammer yields as well, than it is at low pop.
   - And if city stagnates, it is very efficient too, at least food is put to use instead of stagnating. There are other advantages, such as seemingly a bit less barbarian captures, and more units early. We may use 1 or 2 spots, but barbarian captures happen much less, and secondary cities can grow more.
   - This change is in line with the settler now being a national unit as of now (1 allowed for whole empire including existing unit, check the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md) for updated values or info, or Sevopedia or xml).
-  - As for small new cities, it guarantees they grow as well instead of being stuck producing a settler for a long time, as hapepned many times and was the original reason why i did this to begin with, then expanded on it.
-  - I added a patch, although should never happen with the settler being a national unit and only in capital, but that if city is very small and stagnant, switch to worker instead, but since only cpaital as of now produces them and it grows fast, this shouldn't happen but if changed this patch would help as well small cities being stuck in a very lnog settler production and being stagnant, in fact it's necessary now else our capital can't produce a settler, as chatgpt 5 noticed or noted as well.
-  - Update: also as it mentioned to me to add here as well, there are exceptions such as a city somehow being stagnant, then even if pop is small, we are not using the food anyway, so may as well take our chances and build a settler, as it rightly told me to add to this doc hehe which i forogt but i think this is a quite good summary otherwise...
+  - As for small new cities, it guarantees they grow as well instead of being stuck producing a settler for a long time, as happened many times and was the original reason why i did this to begin with, then expanded on it.
+  - I added a patch, although should never happen with the settler being a national unit and only in capital, but that if city is very small and stagnant, switch to worker instead, but since only capital as of now produces them and it grows fast, this shouldn't happen but if changed this patch would help as well small cities being stuck in a very lnog settler production and being stagnant, in fact it's necessary now else our capital can't produce a settler, as chatgpt 5 noticed or noted as well.
+  - Update: also as it mentioned to me to add here as well, there are exceptions such as a city somehow being stagnant, then even if pop is small, we are not using the food anyway, so may as well take our chances and build a settler, as it rightly told me to add to this doc hehe which i forgot but i think this is a quite good summary otherwise...
 - free window: during the first as of now 75 turns at normal game speed (adjusted based on game speed), the AI will have free production of settler (minus restrictions said before). So it can take its time and grow freely. Then after this window, it will consider which strategy to take, either offense mode, or defense mode, or other maybe which i added hardcoded in cvcityAI.
   - Based on these, it may not build settlers anymore and start to stack units. This is something i had a problem with in base advciv, of AI expanding again and again while it was near me, instead of preparing for the likely war. Hopefully AI would react better to these.
-- additionally, tweaked unitais, although i don't know how effective these changes will be or if i did them at the right place, in `CvCityAI::AI_bestUnit` and `CvCityAI::AI_bestUnitAI` and `CvCityAI::AI_chooseProduction` functions as of now in cvcityai. It does seem though as of now to be taken quite well into acocunt, but test to be sure.
-  - This also depends on map type (less on naval maps, a lot more on land maps, hybrid in other maps, see above links in this known issue for details), but now for example if an AI enters offense mode, and the map is a land map, say pangea, continents, etc, as best as we could classify them i mean with chatgpt 5 if i may say so check if accurate and if works as intended test to be sure, AI will more or less ignore unitais that don't help it directly in war as we instructed it, so it will value a lot more `UNITAI_ATTACK` or `UNITAI_ATTACK_CITY` for example, a bit of `UNITAI_RESERVE` (visible in debug mode (ctrl+z and "chipotle") by holding ctrl or alt i forgot which while hovering on a unit or unit stack), and this means its units won't wander or such and attack more decisively at least in theory, and vice versa in defense mode they'd value these less and unitais such as `UNITAI_CITY_DEFENSE`, `UNITAI_CITY_SPECIAL`, `UNITAI_RESERVE` etc if any more as well i mean too, for the most part.
+- additionally, tweaked unitais, although i don't know how effective these changes will be or if i did them at the right place, in `CvCityAI::AI_bestUnit` and `CvCityAI::AI_bestUnitAI` and `CvCityAI::AI_chooseProduction` functions as of now in cvcityai. It does seem though as of now to be taken quite well into account, but test to be sure.
+  - This also depends on map type (less on naval maps, a lot more on land maps, hybrid in other maps, see above links in this known issue for details), but now for example if an AI enters offense mode, and the map is a land map, say pangea, continents, etc, as best as we could classify them i mean with chatgpt 5 check if accurate and if works as intended test to be sure, AI will more or less ignore unitais that don't help it directly in war as we instructed it, so it will value a lot more `UNITAI_ATTACK` or `UNITAI_ATTACK_CITY` for example, a bit of `UNITAI_RESERVE` (visible in debug mode (ctrl+z and "chipotle") by holding ctrl or alt i forgot which while hovering on a unit or unit stack), and this means its units won't wander or such and attack more decisively at least in theory, and vice versa in defense mode they'd value these less and unitais such as `UNITAI_CITY_DEFENSE`, `UNITAI_CITY_SPECIAL`, `UNITAI_RESERVE` etc if any more as well i mean too, for the most part.
   - Hopefully helps the AI better execute its attacks but many things could influence it. It will not care to produce any naval or such unitais units. So it can produce say a swordsman with the attack_city or attack or even reserve unitais maybe, but naval units can't have these, and their unitais like `UNITAI_ATTACK_SEA` or such are tremendously less valued.
-  - This avoids the issue i had in base advciv of AI having 10 galleons but barely any land defender on a pangea if i'm not mistaken, see above links for details as well. In naval maps, if detcted as such with our code, this is toned down a bit, but the general idea remains to protect our cities first and foremost, and aim for most effiicent roles, see cvcityai for details.
+  - This avoids the issue i had in base advciv of AI having 10 galleons but barely any land defender on a pangea if i'm not mistaken, see above links for details as well. In naval maps, if detected as such with our code, this is toned down a bit, but the general idea remains to protect our cities first and foremost, and aim for most efficient roles, see cvcityai for details.
   - Also, is this galleon / trireme / galley really worth the 2-3 extra axemen / swordsmen / extra worker or half settler? Probably not, and wastes turns time to build not just ressources as in yields, so we are delayed in war plans, tech etc. I believe it is more efficient to do so at least for AIs and in most cases.
-  - I didn't test code too much, but based on it semeingly having much less barbarian successful invasions, and on the theory of efficiency behind it as i explained and ideas i got and autoplay results, it seems better for the AI to go slower, even if we lose 1-2 city spots or wonders, the benefits are larger it seems. This is a summary i attempted to do of the changes and again didn't test too much so far; while i hope it helps the AI, i am not necessarily too open to feedback, so if you want broader discussion i would suggest sharing your experience in another Civ4/modding community you trust, i do hope that it helps and is enjoyable to play though.
+  - I didn't test code too much, but based on it seemingly having much less barbarian successful invasions, and on the theory of efficiency behind it as i explained and ideas i got and autoplay results, it seems better for the AI to go slower, even if we lose 1-2 city spots or wonders, the benefits are larger it seems. This is a summary i attempted to do of the changes and again didn't test too much so far; while i hope it helps the AI, i am not necessarily too open to feedback, so if you want broader discussion i would suggest sharing your experience in another Civ4/modding community you trust, i do hope that it helps and is enjoyable to play though.
   - I also hope these changes fix base advciv issue of AI abandonning capital city, sometimes in a way that ruins the entire game, just to attack 1 unit.
-  - I didn't test it, but i hope with these unitais that now exclude colalteral, pillage, etc, units would be more efficient in not doing so, and better guard cities, as well as be, when on offense mode, more focused on their goal, at least in theory, but many other parts of the code could interfere or i could have gotten the logic wrong somehow.
+  - I didn't test it, but i hope with these unitais that now exclude collateral, pillage, etc, units would be more efficient in not doing so, and better guard cities, as well as be, when on offense mode, more focused on their goal, at least in theory, but many other parts of the code could interfere or i could have gotten the logic wrong somehow.
   - It seems to be applied quite well in few autoplays at a quick glance, which maybe helps making AI stronger but test to be sure.
 
 Update: now caching mapname is landheavy or mapname is navalheavy info as boolean only once per map load (new game, load save, etc if anymore we hopefully handle, see the new `CvGame::recomputeMapnameHeaviness` we added for details and their corresponding new `m_bLandHeavyMapname` and `m_bNavalHeavyMapname` (check if accurate as i don't know too much about these, done with the help of chatgpt 5).
 
-Seems to be behaving as intended though from quick testing in autoplay (as much land units in land maps with low naval units as intended, and many naval units in naval heavy maps, so hopefully safe enough or safe and working as intended i mean if i may say but check to be sure).
+Seems to be behaving as intended though from quick testing in autoplay (as much land units in land maps with low naval units as intended, and many naval units in naval heavy maps, so hopefully safe enough or safe and working as intended but check to be sure).
 
 Update 2: include more map types and change the way we evaluate this, see code for details
 
@@ -3992,7 +4236,7 @@ Note: part of the reason why its growth was slower is due to using a specialist 
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1G0PcE4CyEcVUJCoOyzM4970U7YSARM5O?usp=sharing).
 
-This tremedously improves again AI settler preferences by doing targeted but really impactful changes in `AIFoundValue::evaluate()`.
+This tremendously improves again AI settler preferences by doing targeted but really impactful changes in `AIFoundValue::evaluate()`.
 
 Also chatgpt 5 helped me a lot for it and other AIs too like claude ai, deepseek ai, it was a huge mess due to the `return 0;` and overflow avoiding attempts or weird code behaviorus i didn't want to mess with too much as long as it worked / would work which it didn't for a long while xd but thankfully it does now, and AI is strong shiny and awesome, i believe even on settlers games would be challenging and interesting, but there are many areas AI can improve still and i hope i can contribute to but not guaranteed may or may not.
 
@@ -4004,7 +4248,7 @@ This makes AI starting points a lot stronger, especially for bad starts such as 
 
 Other cities behave also better, by moving to a more central position, they indirectly are reserving a nice spot for their city 2 or city 3, and in fact the original moscow AI spot is nice for a city 3 or city 4, but for capital it's not enough and moscow AI was certain to fall behind.
 
-In continuation with our changes at previous known issue as of now [43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-43), the AI settlers have up to 5 free unpenalized turns to choose their best spot, much unlike in base advciv or civ4 too unless i'm not aware of it or mistaken maybe or just not knowledgeable if the case.
+In continuation with our changes at previous [KI#43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-43), the AI settlers have up to 5 free unpenalized turns to choose their best spot, much unlike in base advciv or civ4 too unless i'm not aware of it or mistaken maybe or just not knowledgeable if the case.
 
 I believe Moscow AI will have a much better game as a result, and it really walked 5 path turns to this spot, which is very nice.
 
@@ -4012,9 +4256,9 @@ But it is not automatic, for example Edo AI (kingdom of benin) chose to still se
 
 But many AIs moved away, to i believe better spots, see screenshots for details.
 
-Paris AI was also surrounded in water tiles (9 non bonus water tiles so it had met threshold too), but its site was quite good, still, forcing it to move away, the site is slightly better, as although it chooses to found on grass cow/cattle, it is actually better when i think about it, as there is 1 free food yield (i didn't tell them about this, only the free yield for hill plains hehe but still they preferred it nice if i may say although i could tell them too but fine as such as a general rule maybeespecially if they handle fine these edge cases), more land tiles so more cottages or worskhops or potential to do so, nice for a capital, and still enough food bonuses on water, and fresh water, so all in all much better than original start i think, although really not intuitive.
+Paris AI was also surrounded in water tiles (9 non bonus water tiles so it had met threshold too), but its site was quite good, still, forcing it to move away, the site is slightly better, as although it chooses to found on grass cow/cattle, it is actually better when i think about it, as there is 1 free food yield (i didn't tell them about this, only the free yield for hill plains hehe but still they preferred it nice although i could tell them too but fine as such as a general rule maybeespecially if they handle fine these edge cases), more land tiles so more cottages or workshops or potential to do so, nice for a capital, and still enough food bonuses on water, and fresh water, so all in all much better than original start i think, although really not intuitive.
 
-I did many other changes small or not, for example, teaching AIs to heavily faovur settling on hill plains due to many advantages it provides, see the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md) for details.
+I did many other changes small or not, for example, teaching AIs to heavily favour settling on hill plains due to many advantages it provides, see the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md) for details.
 
 Timbuktu AI also was the last one i told by tweaking value to move away from the 3 desert, to 3 any other land tiles (did same for Constantinople AI telling it not to settle on flood plains further more despite how good it seemed, see screenshots (e.g. 2174 still had the issue for constantinople AI vs not in later ones) for details too).
 
@@ -4060,7 +4304,7 @@ However, most of these seem to be either false positives or never effectively ad
 
 Update 2: seemingly now fixed by reapplying the patch in `CvCityAI::AI_jobChangeValue` that was somehow removed at some point in one of the advciv-sas changes i added i guess.
 
-Now no assert firing at t100 with a debug dll anymore vs a few to quite a few if not more xd i mean.
+Now no assert firing at t100 with a debug dll anymore vs a few to quite a few if not more xd.
 
 Also none even at t170+ from quick autoplay testing, so it seems fixed or issue is greatly reduced, thanks to chatgpt 5.1's help.
 
@@ -4130,7 +4374,7 @@ Expression:  false
 Message:  SAS citizen debug: T300 city=Cumae (21,17) owner=PC: no type=SPECIALIST_CITIZEN auto specialists for human players.
 ```
 
-We seem to have the same assert cascade issue though as in [KI#44.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-44.5), but as long as it works maybe this is not urgent, although ideally would investigate it, but not urgent if i ever do it i mean.
+We seem to have the same assert cascade issue though as in [KI#44.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-44.5), but as long as it works maybe this is not urgent, although ideally would investigate it, but not urgent if i ever do it.
 
 <a id="ki-45"></a>
 
@@ -4138,24 +4382,24 @@ We seem to have the same assert cascade issue though as in [KI#44.5](/_1_AdvCiv-
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1f58Su5b-Y3Vgu1th8K3EYWZvuYC47u_t?usp=sharing).
 
-Note: these are not exhaustive, i noticed the issue happen in many cities as well at least quite a few, prompting me to do this/these changes which hopefully help the AI be stronger and more reliable in its specialist choices (or non-choices if i may say in this case), see as of now below for details.
+Note: these are not exhaustive, i noticed the issue happen in many cities as well at least quite a few, prompting me to do this/these changes which hopefully help the AI be stronger and more reliable in its specialist choices (or non-choices), see as of now below for details.
 
 In continuation with the changes to disallow the citizen specialist as it is really a bad choice (see [KI#44.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-44.5) for details) that AIs would often go for, in `CvCityAI::AI_jobChangeValue`, also added a few extra sanity rules in this function for specialist allocation, which attempt to patch the logic rather than globally or tediously enhance it in an uncertain to be or easily reliable and better.
 
-So adding, rather and instead some sanity checks that hopefully help the AI be more efficient with its choice, making saner ones if i may say or statistically going to be most often helpful, while not killing versatility hopefully, which as of now are (see `CvCityAI::AI_jobChangeValue` or related functions if any for updates on these (as of now only in this function) (and also added with the help of chatgpt 5 too thanks):
+So adding, rather and instead some sanity checks that hopefully help the AI be more efficient with its choice, making saner ones or statistically going to be most often helpful, while not killing versatility hopefully, which as of now are (see `CvCityAI::AI_jobChangeValue` or related functions if any for updates on these (as of now only in this function) (and also added with the help of chatgpt 5 too thanks):
 
 - low population cities (as of now <= 4) should never assign any specialist at all (they should focus on growth almost always, and if they can't grow, on yields then or whatever else they can do, should more often than not be helpful).
-  See example of AI issues addressed with(/by?) this change in screenshots of this known issue.
-  Hopefully helps AI a lot be competitive if i may say in this case.
+  - See example of AI issues addressed with(/by?) this change in screenshots of this known issue.
+  - Hopefully helps AI a lot be competitive.
 - mid size cities (as of now <= 7) with other conditions such as happy extra happiness (as of now >= 1 surplus (e.g. 8 happiness 6 unhappiness)) and extra food to accommodate this growth (as of now food difference >= 2 and not food is production that changes this formula) should favour growth and not assign any specialist.
   - Hopefully this helps AI grow its cities faster while not killing versatility, as when they stagnate or are too big, they would fall back again to previous rules which seem otherwise to work quite well minus the edge case of low pop cities that don't grow at all due to too early specialist, which i hope these intend to patch/work around while making AI stronger as a result too as well in most cases at least
 - for barbarians, on top of these rules, which should affect most of its cities, only allow the scientist specialist, as they have no use for the priest or spy or such, but the scientist specifically may help them stay relevant longer in tech without killing versatility, especially if we make them stronger later in the game so they don't disappear too soon but as of now hopefully this helps the AI as well in case it assigned such specialists.
 
 Hopefully they help AI be stronger and more reliable in its specialist choices or rather maybe non-choices here
 
-Note: on the plus side as well, not having to think about specialists at all in some conditions will probably save quite a lto or a bit at least if i may say of computation as well as a nice side effect too hopefully while preserving versatility or preserving it enough and assuming our change works as intended (would need to test more to be sure)
+Note: on the plus side as well, not having to think about specialists at all in some conditions will probably save quite a lto or a bit at least of computation as well as a nice side effect too hopefully while preserving versatility or preserving it enough and assuming our change works as intended (would need to test more to be sure)
 
-update: after a bit further evaluation, i have decided to generalize the previous rule as quick patch, as for example in screenshot as of now 2270, edo city (kingdom of bening) is size 12, can grow (stagnant with a specialist equals food is 2 without (in fact more due to poorly assigned tiles but it's another issue that looks or may be tedious to fix although would be nice)) but chooses instead to assign a specialist, so generalizing the "grow when you can" policy.
+update: after a bit further evaluation, i have decided to generalize the previous rule as quick patch, as for example in screenshot as of now 2270, edo city (kingdom of being) is size 12, can grow (stagnant with a specialist equals food is 2 without (in fact more due to poorly assigned tiles but it's another issue that looks or may be tedious to fix although would be nice)) but chooses instead to assign a specialist, so generalizing the "grow when you can" policy.
 
 <a id="ki-46"></a>
 
@@ -4163,7 +4407,7 @@ update: after a bit further evaluation, i have decided to generalize the previou
 
 In the DLL i have cleaned up the old `uiFlag` code that was super redundant and messy, with the help of chatgpt 5 and a bit of claude ai too. I don't know too much about these, but if i understood and understand i mean too correctly this code was responsible for keeping savegame compatibility.
 
-While it would be nice if old savegames could be preserved across all versions, it is ridiculously complicated to do so, and the previous code was beyond a mess xd (at least to me). I have cleaned up all of it, which saved about 50 kB from the DLL size as of now, and is hopefully much cleaner in this case i mean.
+While it would be nice if old savegames could be preserved across all versions, it is ridiculously complicated to do so, and the previous code was beyond a mess xd (at least to me). I have cleaned up all of it, which saved about 50 kB from the DLL size as of now, and is hopefully much cleaner in this case.
 
 As a result, savegames are not compatible whenever a breaking change is made in AdvCiv-SAS. See related info at [/README.md#not-supported-in-advciv-sas](/README.md#not-supported-in-advciv-sas) as well.
 
@@ -4249,7 +4493,7 @@ Claude Code Opus 5.5 independently checked reader/writer parity and smoke-tested
 
 <a id="ki-47"></a>
 
-## KI#47 - (Fixed / Addressed / Enhanced) AI choosing poorly promotions for its units: now added a set of hard rules in which case some promotions are not good and to ignore as is most efificient in most times, and rarely cases where some promotions are best to always go first for (e.g. as of no city_garrison first for unitai_city_defense, city_raider first for unitai_attack_city, etc if any more)
+## KI#47 - (Fixed / Addressed / Enhanced) AI choosing poorly promotions for its units: now added a set of hard rules in which case some promotions are not good and to ignore as is most efficient in most times, and rarely cases where some promotions are best to always go first for (e.g. as of no city_garrison first for unitai_city_defense, city_raider first for unitai_attack_city, etc if any more)
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1xbBTVeF_vqn5DbyIpqkSl-__0pFs0hRX?usp=sharing).
 
@@ -4261,7 +4505,7 @@ I added with chatgpt 5's help and my adjustments and prompts and such (in `CvUni
 
 This can be seen in existing screenshots between 2237 and 2403 (which are not the most representative of how bad AI choices were, but they give some context/examples of how it could often be suboptimal or ineffective promotions as explained before).
 
-Below is a summary of these by chatgpt 5 which i adjusted a bit and suggested this or that but that it otherwise very nicely for the most part put apart (no pun), check if accurate, and if it has been updated since then in function mentioned as of now above in this known issue as of 47.
+Below is a summary of these by chatgpt 5 which i adjusted a bit and suggested this or that but that it otherwise very nicely for the most part put apart (no pun), check if accurate, and if it has been updated since then in function mentioned as of now above in KI#47.
 
 ### 1) Hard Blocks (global)
 
@@ -4336,7 +4580,7 @@ CITY_DEFENSE, CITY_SPECIAL
 | **RESERVE**, **RESERVE\_SEA** | **No special boost/forbid** (beyond global hard blocks) | They swing between shuffling defense and opportunistic offense; over-constraining can hurt. |
 | **COUNTER**, **CITY\_COUNTER** | **No special boost/forbid** (beyond global hard blocks) | Mixed behavior (intercepts near cities but also attacks nearby threats). Let base scoring decide. |
 
-### Results of known issue 47 changes
+### Results of KI#47 changes
 
 As can be seen in existing screenshots between 2423 and 2451, AI is now much more effective, or at least significantly more effective at picking promotions: attackers often have city_raider promotion or some other offensive related or compatible in this casepromotions if relevant, defenders more often go for city_garrison which is about best in unitai_city_defense, but some offensive longbowmen go for combat or such which is fine as ai uses the to attack and it's decent still as a defensive promotion if attacked by an enemy before this unit leaves its city.
 
@@ -4363,7 +4607,7 @@ Similarly, AIs would a bit too often build wonders, i assume even in cases where
 
 Or, it is useless to build stable if we don't have horse nor camel nor elephants bonus.
 
-Culture is not determining factor early especially if we are behind, so invest on 2.5 swordsmen rather than a collosseum, or any more urgent building.
+Culture is not determining factor early especially if we are behind, so invest on 2.5 swordsmen rather than a colosseum, or any more urgent building.
 
 Etc for other buildings.
 
@@ -4543,7 +4787,7 @@ if (isWonder) {
 }
 ```
 
-### Results of known issue 48
+### Results of KI#48
 
 You can see the difference between the 2 runs (48 is the old DLL, before the changes, and 48.2 is the new DLL, after the changes) in the screenshots as mentioned as of now above.
 
@@ -4625,9 +4869,9 @@ So now with the help of chatgpt 5 i added to use instead for our pre-checksthe n
 
 Also, i rectified the `iEffectiveFood` formula into an additional (no pun) as of now `iEffectiveFoodAfterBuiltHappy` variable instead for our as of now happiness buildings pre-check(s)so that we add to our food reserve the food we would gain from making the unhappy citizens happy after our building is built.
 
-For example, if our building gives 1 happiness in total (including relevant bonuses and all), we'd gain 2 food in our calculation (as each citizen consumes 2 food if i'm not mistaken, is not strictly accurate as there's no guarantee we have high enough food tiles remaning to work, still anything is better than unhappy citizens so count it as such).
+For example, if our building gives 1 happiness in total (including relevant bonuses and all), we'd gain 2 food in our calculation (as each citizen consumes 2 food if i'm not mistaken, is not strictly accurate as there's no guarantee we have high enough food tiles remaining to work, still anything is better than unhappy citizens so count it as such).
 
-As a result, we hopefully no longer mistakenly block our nice pre-check of not building the happiness building if food is low (as food would become naturally higher in most/almost all casesas/after the unhappy citizen works tiles instead or does whatever or not or yes or etc).
+As a result, we hopefully no longer mistakenly block our nice pre-check of not building the happiness building if food is low (as food would become naturally higher in most/almost all casesas/after the unhappy citizen works tiles instead or does whatever).
 
 As a result of these changes and tweaks, it seems we get very very good results!!!
 
@@ -4641,11 +4885,11 @@ After the changes (existing screenshots between 279 and 280), we instead build a
 
 Thanks to these it seems, kish city is now pop 13 instead at turn 150 (resuming from same save file at turn 100)!!!
 
-Which is tremendously better, both very nice hill grassland tiles are worked and improved since we have the population to accommodate them(/these?), and interesting thing is kish city switched from 3 scientists ebfore changes at pop 10 to now 3 merchants at pop 13 (the slider is 100% commerce too), so some code written by someone or many people or not xd leverages the market being built and goes for merchants which is more efficient than scientists here since we have no library after our changes but have a market so better use it!!
+Which is tremendously better, both very nice hill grassland tiles are worked and improved since we have the population to accommodate them(/these?), and interesting thing is kish city switched from 3 scientists before changes at pop 10 to now 3 merchants at pop 13 (the slider is 100% commerce too), so some code written by someone or many people or not xd leverages the market being built and goes for merchants which is more efficient than scientists here since we have no library after our changes but have a market so better use it!!
 
 I would have never thought of skipping library to build a market to gain happiness and then switch to merchant economy xd, that's super smart!!!
 
-Our production is still good, but city much better, and much better longterm potential even if we have slightly less untis as a result but are still the military leader at turn 150 (would be worth even if we lost quite a bit of power but is fine in such case).
+Our production is still good, but city much better, and much better longterm potential even if we have slightly less units as a result but are still the military leader at turn 150 (would be worth even if we lost quite a bit of power but is fine in such case).
 
 So all in all seems like a very good safe and balanced change that should make AI much stronger especially at middle game and city growing!! But check to be sure.
 
@@ -4717,7 +4961,7 @@ Diagnosed and fixed with the help of GPT-5.6-Sol, thanks.
 
 ## KI#48.5 - (Greatly Reworked/Enhanced; regular-building audit complete) September 2026 AI regular-building valuation: replace hard SAS category gates with audited inherited additive valuation and targeted evidence-backed corrections
 
-Current implementation/review PR: [#43 - Codex/building value health rework](https://github.com/wonderingabout/AdvCiv-SAS/pull/43). This follows the September 2026 [Worker AI rework PR #40](https://github.com/wonderingabout/AdvCiv-SAS/pull/40), [Settler AI rework PR #41](https://github.com/wonderingabout/AdvCiv-SAS/pull/41), and [dynamic bonus-value PR #42](https://github.com/wonderingabout/AdvCiv-SAS/pull/42).
+Current implementation/review PR: [#43 - Codex/building value health rework](https://github.com/wonderingabout/AdvCiv-SAS/pull/43). This follows the September 2026 [Worker AI rework PR#40](https://github.com/wonderingabout/AdvCiv-SAS/pull/40), [Settler AI rework PR#41](https://github.com/wonderingabout/AdvCiv-SAS/pull/41), and [dynamic bonus-value PR#42](https://github.com/wonderingabout/AdvCiv-SAS/pull/42).
 
 ### September 2026 second rework: audit the old regular-building policy instead of mechanically translating it
 
@@ -7435,7 +7679,7 @@ The changes are as of now in `CvUnitAI::AI_update`, `CvUnitAI::AI_guardCityMinDe
 
 In particular about the changes in `CvUnitAI::AI_update`, if i understand it correctly and as i asked chatgpt 5 to do and based on screenshots results as well i fed it, regardless of unitai, we ask 2 defenders per new city, instead of often 1.
 
-This seems almost always if not always respected now, and it seems there are less barbarian invasions now (see screnshots for details and check if accurate as well).
+This seems almost always if not always respected now, and it seems there are less barbarian invasions now (see screenshots for details and check if accurate as well).
 
 I expect AI to be significantly stronger thanks to these changes, although there are other areas where it could improve, but not losing as often early cities, despite barbarians being very strong in our mod, is nice to have.
 
@@ -7630,7 +7874,7 @@ Investigated and implemented with the help of ChatGPT-5.6-Sol, GPT-6.1-Sol and w
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1IliQAuUug2clSrVHToD6D8cMqOUmxxEM?usp=sharing)
 
-While solving/analyzingknown issue as of now 49, i have noticed Persia AI had 10+ workers parked in city A at turn 200, yet one of the cities was totally unimproved and would badly benefit from using them. Even at turn 210, the workers had moved but only to go to another city instead in retreat mode.
+While solving/analyzing KI#49, i have noticed Persia AI had 10+ workers parked in city A at turn 200, yet one of the cities was totally unimproved and would badly benefit from using them. Even at turn 210, the workers had moved but only to go to another city instead in retreat mode.
 
 I have asked chatgpt 5 with screenshots and such of the issue (see existing screenshots between 2683 and 2686, as well as the missionai_retreat screenshot for how it was before the fix between turns 200 and 210 if i'm not mistaken).
 
@@ -7668,7 +7912,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 This is an issue i had noticed in advciv, in example 69.3 of the list issues (i had named it example 69.3 when i was still playing base advciv here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i had made at that time, also available in this google drive's issue), but it happened only once at least i noticed it only once, but it did seem to affect several cities in the screenshot, but since it was the turn after victory i didn't think too much of it and said it's maybe not too urgent, although not ideal, but documented it still if helps.
 
-But while solving/addressing known issue as of now 49, i have noticed this again, but now in early cities, and several cities, entering what seems like no production at all for 1 or several turns.
+But while solving/addressing KI#49, i have noticed this again, but now in early cities, and several cities, entering what seems like no production at all for 1 or several turns.
 
 For example, in screenshots 2633 (2) and 2634, kyoto has no production, when anything could be best since it is free to produce units if nothing else is good, else the hammer is wasted.
 
@@ -7676,7 +7920,7 @@ In screenshot 2706, it can be seen the issue is happening in many cities.
 
 Also in screenshot 2694, the issue also is happening in ulundi ai city, so it looks quite widespread but not obvious if one is not looking carefully at each turn in cities, as it often only happens for 1 turn, but not always.
 
-It also doesn't happen just these turns or runs but would be long to document all, pehraps uneeded, what matters is the issue happens, and often enough to be an issue, where moscow ai and native american ai's cities are also in no production (no entry emoji/button as chatgpt 5 calls it hehe), not only japan ai's city.
+It also doesn't happen just these turns or runs but would be long to document all, perhaps uneeded, what matters is the issue happens, and often enough to be an issue, where moscow ai and native american ai's cities are also in no production (no entry emoji/button as chatgpt 5 calls it hehe), not only japan ai's city.
 
 But japan ai's no production happened for many turns, something like +/- 5 turns on a row, so i thought it would be a nice place to investigate and try to improve it, as usual with chatgpt 5's help thanks and trial and error xd or other ai if needed or i want to try them xd or such.
 
@@ -7701,9 +7945,9 @@ I still don't know why the no production happened/happens, but it seems we now c
 
 Thanks to the improvement in AI efficiency, i have adjusted down a bit handicap (as of now only `iAITrainPercent` relative to how they were in advciv-sas which is not exactly like in base advciv, but tries to be gradually harder) costs to match this change.
 
-Update: added siege units to excluded fallback units as they are not versatile enough, see [53.3 (Tremendously Improved) AI overbuilding siege units, in particular trebuchets but not only, where they are detrimental to do build, in particular when weaker but not only](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.3) for related info
+Update: added siege units to excluded fallback units as they are not versatile enough, see [KI#53.3 - (Tremendously Improved) AI overbuilding siege units, in particular trebuchets but not only, where they are detrimental to do build, in particular when weaker but not only](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.3) for related info
 
-Update 2: updated since then to prefer civ-specific units and other tweaks if any, see [53.2.2 (Seemingly greatly enhanced) AI overproducing defenders early on, especially longbowmen but not only, replaced with an early produce more versatile units especially civ-specific ones when defended enough (at least in theory) in CvCityAI::AI_chooseUnit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.2.2) for details
+Update 2: updated since then to prefer civ-specific units and other tweaks if any, see [KI#53.2.2 - (Seemingly greatly enhanced) AI overproducing defenders early on, especially longbowmen but not only, replaced with an early produce more versatile units especially civ-specific ones when defended enough (at least in theory) in CvCityAI::AI_chooseUnit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.2.2) for details
 
 Update 3: added offense only and defense only alternate logic (fallback to overall units if none available) as i have found/guessed this is where most excess longbowmen came from as they would bypass restrictions in `CvCityAI::AI_chooseUnit`, tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
 
@@ -7832,7 +8076,7 @@ Found during the September 2026 building-value rework with the help of ChatGPT-5
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1JHA0QsVUyBiKy_BDFgXFb-wYG_t-EcUc?usp=sharing)
 
-So this is another major AI improvement of a major issue we had in base advciv +/- civ4: for example japan AI would between turns 37 and 44, scrap 2 of its newly produced ancient macemen (update: now archers) (now added as a patch to the no produciton at all during that time in [51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)).
+So this is another major AI improvement of a major issue we had in base advciv +/- civ4: for example japan AI would between turns 37 and 44, scrap 2 of its newly produced ancient macemen (update: now archers) (now added as a patch to the no produciton at all during that time in [KI#51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)).
 
 As a result, it was weaker, and this likely contributed to barbarians successfully invading it and japan ai having a bad game.
 
@@ -7840,7 +8084,7 @@ As can be seen in existing screenshots between 2742 and 2753, our ancient macema
 
 I tried doing changes in `CvPlayerAI::AI_doMilitary` or other related function(s) but it was ineffective nor unfortunately helping to solve this at all.
 
-The screenhots mentioned just before were actually before these, and still same issue if not worse nor slightly better, still about the same it seems.
+The screenshots mentioned just before were actually before these, and still same issue if not worse nor slightly better, still about the same it seems.
 
 So chatgpt 5 then got the brilliant idea to add our logic in `CvUnit::canScrap`, or as i called it xd, "scrap the scrapping", or was it "scrapping the scrap" as it called it i think if i'm not mistkane but regardless, this is where we added our code, and effect was immediate, as can be seen in existing screenshots between 2757 and 2764.
 
@@ -7894,7 +8138,7 @@ The results of before/after change are resumed by chatgpt 5's own analysis of ea
 >
 >The after sequence confirms the source fix (blocking scrap for the relevant units) works: counts only go up when production finishes, and never down on the following turn — even with small negative GPT.
 
-One issue i have noticed, not related to this change, but linked to [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-23) indirectly, is AI in some rare cases, despite our tentative changes in other known issues, overproduces galleons and privateers (like 20+ mixed galleons privateers which is insane when most rivals stick to +/- 5 which is much more reasonable), and dies as a result (short-circuit(s) somewhere or is our logic to prevent this other issue ineffective somehow despite showing good results on unitai land types?), at turns 200-220, this would be our next issue to investigate ideally if we do.
+One issue i have noticed, not related to this change, but linked to [KI#23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-23) indirectly, is AI in some rare cases, despite our tentative changes in other known issues, overproduces galleons and privateers (like 20+ mixed galleons privateers which is insane when most rivals stick to +/- 5 which is much more reasonable), and dies as a result (short-circuit(s) somewhere or is our logic to prevent this other issue ineffective somehow despite showing good results on unitai land types?), at turns 200-220, this would be our next issue to investigate ideally if we do.
 
 For now, since all seems to work great, i'll simply adjust handicap and no other economy change, hopefully AI is stronger thanks to these and games can be more even, less of a grind, as we had envisioned while / as was one of the goals i had / issues i had noticed when i had started making this mod.
 
@@ -7904,13 +8148,13 @@ For now, since all seems to work great, i'll simply adjust handicap and no other
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1vHCLdFvm9cQpE_7rXnRL3X9zOQDxTAgH?usp=sharing)
 
-This is also a major AI improvement/refinement, it expands on previous known issue as of now 52 approach, as while solving said known issue, i had noticed Khmer AI's naval cities were producing privateers and galleons like crazy around turn 200, despite most AIs doing fine and only having few such units.
+This is also a major AI improvement/refinement, it expands on previous KI#52 approach, as while solving said known issue, i had noticed Khmer AI's naval cities were producing privateers and galleons like crazy around turn 200, despite most AIs doing fine and only having few such units.
 
 As a result, it got invaded 20 turns later with poor land military and lost its capital, and essentially lost. But this could have been easily avoided or at least much better, if decision was made sooner to build land units instead of naval, quite useless on pangea further more, especially past a certain threshold.
 
-We had handled or attempted to handle this issue in [35 - (Attemptingly fixed/addressed) AI building too many military naval units then gets invaded on land](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-35), but i guess the approach was conservative, or maybe rather didn't cover the many short-circuits to our logic or such (maybe, this is a guess, check if accurate).
+We had handled or attempted to handle this issue in [KI#35 - (Attemptingly fixed/addressed) AI building too many military naval units then gets invaded on land](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-35), but i guess the approach was conservative, or maybe rather didn't cover the many short-circuits to our logic or such (maybe, this is a guess, check if accurate).
 
-It also seemed although i didn't check too much that some of those privateers disappeared, like the infinite loop issue in [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-23).
+It also seemed although i didn't check too much that some of those privateers disappeared, like the infinite loop issue in [KI#23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-23).
 
 Still who knows if this or maybe other such loop issues silently didn't happen.
 
@@ -7918,7 +8162,7 @@ At this point i didn't and don't trust the code anymore, let's implement global 
 
 And chatgpt 5 helped me a lot thanks too, including for part of the documentation of this issue below as well.
 
-So just like in known issue as of now 52, we generalized the production control and overproduction management by putting our prechecks at the source, which seems to be `CvCityAI::AI_chooseUnit`.
+So just like in KI#52, we generalized the production control and overproduction management by putting our prechecks at the source, which seems to be `CvCityAI::AI_chooseUnit`.
 
 I did some refactoring as well with the help of chatgpt 5so the overloaded function now calls the 2nd overloaded one since they ultimately perform the same task duplicated, and so we can control it all so nice xd in one place.
 
@@ -7944,7 +8188,7 @@ Yet we feel compelled to produce more naval units, which is definitely already u
 
 We then die and lose our capital 20 turns later more or less pathetically or tragically, what use were the boats for.
 
-Again, this issue was existing in base advciv, but i thought we had prevented it enough in known issue 35, but i guess our logic is overriden in many places xd or short circuited, this new logic we added explained below should be much more effective!
+Again, this issue was existing in base advciv, but i thought we had prevented it enough in KI#35, but i guess our logic is overriden in many places xd or short circuited, this new logic we added explained below should be much more effective!
 
 But check to be sure.
 
@@ -7968,7 +8212,7 @@ Unlikely i'll update them so remember they are general info if not updated (i co
 
 Also about below chatgpt 5 explanation that helps very nicely thanks a lot chatgpt 5, i have formatted it a bit as well but otherwise didn't check much if at all, check if accurate.
 
-Note: i went beyond fixing the issue at hand and added some nice extra sanity cheks like icbm or worker max count per era and such as shown below, i hope AI is a lot more competitive, possibly silent issues like unknown scrapping or loops are solved by now, check for economic bankruptcy as i didn't guard against it assuming AI is rich enough or threatened enough to make it compensate its excess or handicap lowered enough so it can't overproduce so easily which is a win for us at least me xd if not some other players or not or etc.
+Note: i went beyond fixing the issue at hand and added some nice extra sanity checks like icbm or worker max count per era and such as shown below, i hope AI is a lot more competitive, possibly silent issues like unknown scrapping or loops are solved by now, check for economic bankruptcy as i didn't guard against it assuming AI is rich enough or threatened enough to make it compensate its excess or handicap lowered enough so it can't overproduce so easily which is a win for us at least me xd if not some other players or not.
 
 ### Update: the later KI#33.2 Worker investigation exposed a gap between this policy and the late Worker fallback
 
@@ -8221,11 +8465,11 @@ Before the changes (existing screenshots between 395 and 400 and a few other nam
 
 In particular, we can see almost of all of these are UNITAI_CITY_DEFENSE or UNITAI_CITY_COUNTER, which is insane, needless, and very inefficient for this low city count.
 
-After our changes (existing screenhots between 401 and 415), somehow the game plays out a bit differently, and joao ai has a 4th city a bit far but much less units, and a very versatile composition of spearmen, a few axemen and chariots, also, since he has few cities, some of his longbowmen were produced as UNITAI_COUNTER as per our code.
+After our changes (existing screenshots between 401 and 415), somehow the game plays out a bit differently, and joao ai has a 4th city a bit far but much less units, and a very versatile composition of spearmen, a few axemen and chariots, also, since he has few cities, some of his longbowmen were produced as UNITAI_COUNTER as per our code.
 
 All in all, a very nice gain, and hopefully a much better late game although i didn't test it yet.
 
-Justinian AI also had it play out differently after our changes (but seemingly reproducible, just as was for joao ai after the changes), now he only has 4 cities, but still too many longbowmen (about 19 at turn 130) for some reason after changes, yet, despite having much less cities (had 5 more or less at quick glance before our changes), he however has a mobile troop of counter longbowmen as can be seen in screenshot, to hopefully make some military gains or at least replace them fast enough and not go bankrupt (with so few cities no need to accumulate excess defenders i mean, aim to expand or die rather i would say as we'd lose late game anyway), so i think the results are very good!!!
+Justinian AI also had it play out differently after our changes (but seemingly reproducible, just as was for joao ai after the changes), now he only has 4 cities, but still too many longbowmen (about 19 at turn 130) for some reason after changes, yet, despite having much less cities (had 5 more or less at quick glance before our changes), he however has a mobile troop of counter longbowmen as can be seen in screenshot, to hopefully make some military gains or at least replace them fast enough and not go bankrupt (with so few cities no need to accumulate excess defenders, aim to expand or die rather i would say as we'd lose late game anyway), so i think the results are very good!!!
 
 I was curious, so i continued autoplay to turn 200 to compare to before, and now joao ai and justinian ai have much better outcomes, joao ai settles a new city and punishes inca ai by taking a city from him (although he was stronger it seems at a glance after changes for some reason(butterfly effect xd maybe or randomness but good we made gains with our changes and they are not detrimental longterm it seems at a glance based on this autoplay)), as for justinian ai, he makes military gains as well it seems, i suppose his early military edge and the extra roaming stack of longbowmen helps give an early edge, instead of having too much excess defenders and then somehow collapsing.
 
@@ -8233,7 +8477,7 @@ All in all looks very good.
 
 Note: for simplicity and also to not alter too much base advciv +/- civ4 behaviour, we only tweak the UNITAIs of the units we produce if these criterion are met, but do not alter war decisions or such, still it seems base advciv or at least now our mod's code picks up well enough on this available stack and uses it seems (although i didn't look in detail).
 
-Defense seems to be preserved since we targeted mostly low city empires or ones with mostly defenders (might backfire a bit for large empires so maybe we could make the check stricter but maybe they can gamble a bit early on and bet on them producing enough units midgame to fill all cities, while low city empires would aimed for targetted invasions to attempt to overcome low city number ideally).
+Defense seems to be preserved since we targeted mostly low city empires or ones with mostly defenders (might backfire a bit for large empires so maybe we could make the check stricter but maybe they can gamble a bit early on and bet on them producing enough units midgame to fill all cities, while low city empires would aimed for targeted invasions to attempt to overcome low city number ideally).
 
 <a id="ki-53.2.2"></a>
 
@@ -8263,11 +8507,11 @@ If you're curious about this run, i shared some / a few of the screenshots [ther
 
 So overall very good results it seems!
 
-While doing this, i also enhanced the code of the fallback unit choice `CvCity::doTurn()` in as of now [51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51) with quite similar logic as well (actually improved it while doing changes here and then ported these improvements in a relevant wayto the chooseunit function).
+While doing this, i also enhanced the code of the fallback unit choice `CvCity::doTurn()` in [KI#51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51) with quite similar logic as well (actually improved it while doing changes here and then ported these improvements in a relevant wayto the chooseunit function).
 
 Update: we as of now now favour civ-specific counter units just as much, with an optional config flag not to in sas defines.
 
-Update 2: see another example of windbg usage to bugfix (i don't know too much about these but seems to help looking at these error messages and .dmp analyze results and feeding them to chatgpt 5 or such other ai for review, check if accurate): [Known issue #71](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-71)
+Update 2: see another example of windbg usage to bugfix (i don't know too much about these but seems to help looking at these error messages and .dmp analyze results and feeding them to chatgpt 5 or such other ai for review, check if accurate): [KI#71](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-71)
 
 <a id="ki-53.3"></a>
 
@@ -8277,7 +8521,7 @@ Queue-005 WIP287 found that rejecting one concrete siege candidate suppressed a 
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/180Hnkhno1HgQb9rzPu-EA9ahH0dr-36K?usp=sharing).
 
-This is another nice AI enhancement :). I have noticed after doing known issue as of now 53.2 that for example when continuing the game, our autoplay ai and maybe other players too produce way too many trebuchets (i had noticed the issue with cannons too before).
+This is another nice AI enhancement :). I have noticed after doing KI#53.2 that for example when continuing the game, our autoplay ai and maybe other players too produce way too many trebuchets (i had noticed the issue with cannons too before).
 
 It is also an issue quite often mentioned by players it seems, so i'm glad i could have enhanced it.
 
@@ -8287,7 +8531,7 @@ So i implemented a logic in `CvCityAI::AI_chooseUnit`, that i then generalized a
 
 The results ingame are very good.
 
-The game took a different turn (no pun) starting just before olmec was razed in the early game (for example mongol AI got an early big conquest even though was beaten down later), and at turn 200 instead of having useless extra trebuchets, we have a strong 16 unit stack of macemen, horse knights, etc, attacaking julius caesar AI, exactly as we wanted.
+The game took a different turn (no pun) starting just before olmec was razed in the early game (for example mongol AI got an early big conquest even though was beaten down later), and at turn 200 instead of having useless extra trebuchets, we have a strong 16 unit stack of macemen, horse knights, etc, attacking julius caesar AI, exactly as we wanted.
 
 note: was before german hussars were moved to a later mounted unit.
 
@@ -8295,7 +8539,7 @@ Also, german AI seems to benefit more from these changes, as in the mid-late gam
 
 (around turn 280 instead of turn 330 before the changes), with a very impressive production and unit count with our current balance settings (that don't give per era freebies or exponential reduction to cost or such anymore), with a very impressive composition at turn 285 where he winsof 54 hussars, 26 camel cuirassiers, 26 pikemen, 5 cannons, 25 musketmen, 26 pikemen, and a bunch of / few other units in small count.
 
-(Another difference is also julius caesar ai was much stronger this run, securing several/many cities instead of shriking).
+(Another difference is also julius caesar ai was much stronger this run, securing several/many cities instead of shrinking).
 
 Downside is we seem to underproduce siege units a bit, but this is fine, especially early, where they shouldn't be too efficient to use if not for attacking cities, so as long as we have a bit of enough should be hopefully fine, else we can tone it down (or up). Left as such for now.
 
@@ -8351,13 +8595,13 @@ This is another very nice change, that should make AI significantly stronger and
 
 I have noticed AI produce ancient macemen if left unchecked even at turn 100 which is especially useless, and as they are so cheap they tend to quickly pile up.
 
-In our mod, ancient macemen have more strength than archers but are worse at city combat (plus archers are available very early at as of now tech_hunting, so some civs even start with them directly, and so i meanwe should really avoid overstacking ancient macemen after our minimal offense or such very early needs which i think i am not and based on results below too but check to be sure i mean), so after the very early game they are mostly useless, plus archers are more versatile and help us fill our defensive quotas so better choice long term.
+In our mod, ancient macemen have more strength than archers but are worse at city combat (plus archers are available very early at as of now tech_hunting, so some civs even start with them directly, and so i meanwe should really avoid overstacking ancient macemen after our minimal offense or such very early needs which i think i am not and based on results below too but check to be sure), so after the very early game they are mostly useless, plus archers are more versatile and help us fill our defensive quotas so better choice long term.
 
 And since archers are more expensive, we will build less so will go bankrupt not as soon, spend less time upgrading ancient macemen but instead directly build axemen or swordsmen or such, at least seems so in autoplay.
 
 So we now make it even stricter after turn as of now 50 adjusted to game speed.
 
-As compared to before changes (see screenshots in known issue [53.2.2 (Seemingly greatly enhanced) AI overproducing defenders early on, especially longbowmen but not only, replaced with an early produce more versatile units especially civ-specific ones when defended enough (at least in theory) in CvCityAI::AI_chooseUnit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.2.2) for comparison, including the cfc forum link there for the other map's compositions) in `CvCityAI::AI_chooseUnit` to fix this very cheap combat units being produced issue, we have now much less ancient macemen at turn +/- 100, and more stronger units like swordsmen or such in composition of AI players, which seems very sane, more efficient economically and militarily, and very strong too at least significantly stronger it seems (e.g. 3 vs 11 ancient macemen at turns 100-130 for example from what i remember of it).
+As compared to before changes (see screenshots in [KI#53.2.2 - (Seemingly greatly enhanced) AI overproducing defenders early on, especially longbowmen but not only, replaced with an early produce more versatile units especially civ-specific ones when defended enough (at least in theory) in CvCityAI::AI_chooseUnit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.2.2) for comparison, including the cfc forum link there for the other map's compositions) in `CvCityAI::AI_chooseUnit` to fix this very cheap combat units being produced issue, we have now much less ancient macemen at turn +/- 100, and more stronger units like swordsmen or such in composition of AI players, which seems very sane, more efficient economically and militarily, and very strong too at least significantly stronger it seems (e.g. 3 vs 11 ancient macemen at turns 100-130 for example from what i remember of it).
 
 Note: the way the code is as of now written, it may apply to scouts as well since they have strength/combat as well if i'm not mistaken, but the cap should be large enough that it shouldn't be a concern (unless we overproduce them then fine to limit them as well).
 
@@ -8724,7 +8968,7 @@ As can be seen in existing screenshots between 3073 and 3089, AI would settle an
 
 But in the early game AI would not consider this site as among its best (no colored circle at that plot for any player so i assume it means this), only later on, at turn 51 (not at turn 50)
 
-I have tried to find why, and comment out like a madman xd if i may say and told chatgpt 5 too, blindly, until i found the issue, specifically caused by enabling these lines:
+I have tried to find why, and comment out like a madman xd and told chatgpt 5 too, blindly, until i found the issue, specifically caused by enabling these lines:
 
 ```cpp
 	// if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
@@ -8733,7 +8977,7 @@ I have tried to find why, and comment out like a madman xd if i may say and told
 
 Yet again another shitty base advciv +/- civ4 code.
 
-It's such a huge mess i said screw this, let's rewrite it much simpler, so this `AIFoundValue::adjustToCivSurroundings` function is now disabled, which fixes our issue, and i have enabled distance penalty code and culture press checks in a much simpler manner with the help of chatgpt 5 if i may say thanks a lot, inline in the only caller of this function (`AIFoundValue::evaluate` if i'm not mistaken).
+It's such a huge mess i said screw this, let's rewrite it much simpler, so this `AIFoundValue::adjustToCivSurroundings` function is now disabled, which fixes our issue, and i have enabled distance penalty code and culture press checks in a much simpler manner with the help of chatgpt 5 thanks a lot, inline in the only caller of this function (`AIFoundValue::evaluate` if i'm not mistaken).
 
 Testing ingame is extremely good, as can be seen in existing screenshots between 3131 and 3141.
 
@@ -8762,7 +9006,7 @@ The crashes didn't happen until i stopped relying in the fallback NO_BUILD retur
 
 So after i strengthened these null or such checks (i don't know too much about these but it did fix the issue) in `CvUnitAI::AI_bestCityBuild`, issue was now fixed, and i do not rely on it anymore and have no crash at turn 77, yay!
 
-If i may say.
+.
 
 Since all seemed to work well and no crash, i kept it as such. Until a few more autoplays later (i.e. of other save files), when i now got a crash again at turn 68, that i could fix by uncommenting another safety i had added in `CvUnitAI::AI_nextCityToImprove` which is:
 
@@ -8784,7 +9028,7 @@ Update: fixed!!! The culprit was not our now strengthened (and before that nicel
 				pBestPlot->getX(), pBestPlot->getY(),
 				eMission == MISSION_ROUTE_TO ? MOVE_SAFE_TERRITORY : NO_MOVEMENT_FLAGS, // advc.pf
 				false, false, MISSIONAI_BUILD, pBestPlot);
-		// <!-- custom: don't rely on this anymore, we get nice and reliable builds from AI_bestCityBuild, but this line interferred with it and caused the crash at turn 68, at least commenting it out fixes it and we can remove our safety guard above. See code comments in this function or known issue as of now 55 for details, tricky bug found by chatgpt 5 too thanks a lot thanks to my prompts too and or such -->
+		// <!-- custom: don't rely on this anymore, we get nice and reliable builds from AI_bestCityBuild, but this line interferred with it and caused the crash at turn 68, at least commenting it out fixes it and we can remove our safety guard above. See code comments in this function or KI#55 for details, tricky bug found by chatgpt 5 too thanks a lot thanks to my prompts too and or such -->
 		//eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
 		//
 		getGroup()->pushMission(MISSION_BUILD,
@@ -8797,7 +9041,7 @@ So as i said in as of now one of the code comments related to this fix, at this 
 
 If you have a crash again, consider adding or reenabling such checks in or near our rewritten AI_bestCityBuild callers which are very few as of now.
 
-Update too no pun: see [56 - (Fixed) Most likely base advciv +/- civ4 crash at turn 156 fixed by commenting out the !getPlot().isSamePlotGroup(*pBestPlot, getOwner()) check in CvUnitAI::AI_nextCityToImprove else block (old code)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-56) for related subsequent crash at turn 156 and extra fixes.
+Update too no pun: see [KI#56 - (Fixed) Most likely base advciv +/- civ4 crash at turn 156 fixed by commenting out the !getPlot().isSamePlotGroup(*pBestPlot, getOwner()) check in CvUnitAI::AI_nextCityToImprove else block (old code)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-56) for related subsequent crash at turn 156 and extra fixes.
 
 <a id="ki-56"></a>
 
@@ -8805,7 +9049,7 @@ Update too no pun: see [56 - (Fixed) Most likely base advciv +/- civ4 crash at t
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1bUMSFijm5cAD48Fy-RSnvu-1oI1G2IpV?usp=sharing)
 
-So this is a tricky crash that we got after fixing the crash at turn 68 above (see known issue as of now 55 for details).
+So this is a tricky crash that we got after fixing the crash at turn 68 above (see KI#55 for details).
 
 We since then don't rely on the old "guard" that was in fact a hard reject so of course we got/had no crash anymore (or no more xd?)since we rejected all builds xd, as chatgpt 5 told me if i understood it correctly, which was very bad, so now this old hard reject is not used anymore, and instead through trial and error and blindly commenting out myself hehe, i found the issue to be in the else block (i.e. the non-bonus roading old base advciv +/- civ4 logic that we kept as an alternative path) in `CvUnitAI::AI_nextCityToImprove`.
 
@@ -8836,13 +9080,13 @@ So now code is as of now as such instead in `CvUnitAI::AI_nextCityToImprove` in 
 
 And yay no crash!!
 
-Considering i recompiled it several times including after polishing code comments and still no crash at t200, and considering it always crashed when starting from this autoplay save file (in drive link) and doing exactly 100 turns (doing 50 turns then resuming didn't seem to reliably if at all cause the issue although i didn't dig too much to be sure, do 100 tursn from here if you want to investigate it so from turn 100 to turn 200 to trigger the crash at turn 156 in like 10+ runs i did or something similar if less if i may say we would always crash so i would consider it reproducible from this save file with this number of autoplay turns), i'd consider the issue solved since i tested it a few times with a few recompiled versions of this change, no issue to turn 200.
+Considering i recompiled it several times including after polishing code comments and still no crash at t200, and considering it always crashed when starting from this autoplay save file (in drive link) and doing exactly 100 turns (doing 50 turns then resuming didn't seem to reliably if at all cause the issue although i didn't dig too much to be sure, do 100 turns from here if you want to investigate it so from turn 100 to turn 200 to trigger the crash at turn 156 in like 10+ runs i did or something similar if less we would always crash so i would consider it reproducible from this save file with this number of autoplay turns), i'd consider the issue solved since i tested it a few times with a few recompiled versions of this change, no issue to turn 200.
 
-I am very happy of this result and of us (i.e. me or maybe players xd) being able to keep AI worker efficiency and also solve what i think is/was nowan old base advciv +/- civ4 crash (likely due to tinkering with pointers or such or who knows what), that was hidden by the betterplotbuild assignment as explained in known issue as of now 55 i guess or something similar or perhaps it is related to how we rewrote bestcitybuild function but less likely, but i don't know too much about these, ask chatgpt 5 to be sure!
+I am very happy of this result and of us (i.e. me or maybe players xd) being able to keep AI worker efficiency and also solve what i think is/was nowan old base advciv +/- civ4 crash (likely due to tinkering with pointers or such or who knows what), that was hidden by the betterplotbuild assignment as explained in KI#55 i guess or something similar or perhaps it is related to how we rewrote bestcitybuild function but less likely, but i don't know too much about these, ask chatgpt 5 to be sure!
 
-Or some other AI (or), and check if accurate too if i may say!.
+Or some other AI, and check if accurate too!.
 
-See also: [58 - (Fixed/Enhanced) Reproducible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block based on the (more?) code at CvUnitAI::AI_connectPlot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-58)
+See also: [KI#58 - (Fixed/Enhanced) Reproducible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block based on the (more?) code at CvUnitAI::AI_connectPlot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-58)
 
 <a id="ki-57"></a>
 
@@ -8850,7 +9094,7 @@ See also: [58 - (Fixed/Enhanced) Reproducible crash at turn 95 in another map, r
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/15z0uxT_RxClHNk0u7HnlcmqdmA9gLNkO?usp=sharing)
 
-I cannot reproduce it from same save file at least not in a few retries (even exiting program and retrying), so cannot investigate this further, but it seems in rare cases (didn't happen in more or less 5+ 200 turns autoplays i tried since last known issue fix as of now 56) we still crash quite early in this case i mean, at turn 94 in this example.
+I cannot reproduce it from same save file at least not in a few retries (even exiting program and retrying), so cannot investigate this further, but it seems in rare cases (didn't happen in more or less 5+ 200 turns autoplays i tried since the KI#56 fix) we still crash quite early in this case, at turn 94 in this example.
 
 No idea what the cause is, but could be DLL related based on the .dmp (see screenshot) (although this is just a guess, check if accurate and i don't know too much about these).
 
@@ -8870,7 +9114,7 @@ Very unlikely to be caused by this pure xml civilization info change, especially
 
 I did as in previous issues, uncommenting i.e. reenabling the hard reject in `CvUnitAI::AI_nextCityToImprove` fixed the issue, so it pinpointed it a small scale of likely culprits. As this is not optimal, i also tried commenting out the else block which also fixes the issue.
 
-Then i tried changing a few things blindly or empirically +/- with the help of chatgpt 5 or some other ais like grok 4 or and such but no luck.
+Then i tried changing a few things blindly or empirically +/- with the help of chatgpt 5 or some other ais like grok 4 such but no luck.
 
 After looking at other code samples and how they use ROUTE_TO, it seemed like the code at `CvUnitAI::AI_connectPlot` was very reliable, at least worth a try, i quickly glanced but it seemed so and also based on how chatgpt 5 mentioned it when i gave it some code samples among other ones.
 
@@ -8880,10 +9124,10 @@ It seems to enhance our roading logic too although i only checked or glanced rat
 
 A few notes now that this is seemingly solved reliably and nicely enhanced it seems:
 
-- this is a rare crash, a few games autoplayed end to end fine after the fix of crash at turn 156 in [56 - (Fixed) Most likely base advciv +/- civ4 crash at turn 156 fixed by commenting out the !getPlot().isSamePlotGroup(*pBestPlot, getOwner()) check in CvUnitAI::AI_nextCityToImprove else block (old code)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-56) (btw coincidence of issue 56 and turn 156 crash xd i just noticed but purely coincidental really(but still cool)).
+- this is a rare crash, a few games autoplayed end to end fine after the fix of crash at turn 156 in [KI#56 - (Fixed) Most likely base advciv +/- civ4 crash at turn 156 fixed by commenting out the !getPlot().isSamePlotGroup(*pBestPlot, getOwner()) check in CvUnitAI::AI_nextCityToImprove else block (old code)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-56) (btw coincidence of issue 56 and turn 156 crash xd i just noticed but purely coincidental really(but still cool)).
   - It is reliably reproducible 100% though from same save file it seems though so rare in the sense that many other maps play fine after our last fix, so hopefully code is even mre robust now (and not just going back and forth between fixing and unfixing xd, at least i think so (that code is more robust))
 - observation: if i autoplay 35 turns only, so 50->85, then autoplay X amount of turns, say 20 turns, to say 85->105 then we don't crash anymore weirdly. Despite me not reloading nor anything but just holding off for a little while to save.
-  - This is consistent though with what i had observed in known issue as of now 56 where i couldn't reproduce the crash if starting from a closer save point but always could from a farther one, very weird though but there must be some explanation, it also means saving could maybe help somehow workaround unknown crashes for players?
+  - This is consistent though with what i had observed in KI#56 where i couldn't reproduce the crash if starting from a closer save point but always could from a farther one, very weird though but there must be some explanation, it also means saving could maybe help somehow workaround unknown crashes for players?
 - while attempting to fix, i added an extra safety in `CvUnitAI::AI_betterPlotBuild`. Although it didn't help fix it and seemingly wasn't related to our crash (didn't cause it, didn't help fix it) but it seems fine and safe to add, as recommended and provided by chatgpt 5 thanks to my prompts and such too.
   - In case a future crash happens there, hopefully this would help prevent it, and hopefully it doesn't break anything. Consider tinkering with it to troubleshoot and see if it is still needed or not now, or if it makes any difference.
   - Seems like a good practice to add, but i didn't rewrite the other functions (that call it) so i don't know too much if at all what this would cause in terms of gameplay. Cities seem to mostly be improved fine so kept as such, check if accurate (also added for my sanity xd)
@@ -8909,7 +9153,7 @@ A few notes now that this is seemingly solved reliably and nicely enhanced it se
 
 Now all cities of all AI players are improved and roaded fine and fast enough nicely it seems, except elephantine city that is not improved nor roaded at all at turn 200+, then after it is roaded gets nicely improved a very nice and strong city, but a bit too late, so trying to make workers move there faster as our next known issue.
 
-See also: [60 - (Fixed) Seemingly rare reproducible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did, check if accurate)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-60)
+See also: [KI#60 - (Fixed) Seemingly rare reproducible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did, check if accurate)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-60)
 
 <a id="ki-59"></a>
 
@@ -8917,7 +9161,7 @@ See also: [60 - (Fixed) Seemingly rare reproducible crash at turn 283 in CvUnitA
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1FrLep_WV4E8kkdvw6zs0EB-YP0-1z1ea?usp=sharing)
 
-After fixing previous known issue as of now 58, i have (had?) noticed that some cities are neglected for a long time like elephantine city at turn 200 in one of the first screenshot in this known issue.
+After fixing previous KI#58, i have (had?) noticed that some cities are neglected for a long time like elephantine city at turn 200 in one of the first screenshot in this known issue.
 
 Then looking more closely, i also noticed that at turn 100 we don't move fast enough to some cities, and overimprove some other cities.
 
@@ -8927,7 +9171,7 @@ I tweaked the code at (in?)
 
 Thanks to these changes that at least in theory should improve things a bit, we do seem to notice better i.e. sooner improvement in these cities, for example elephantine is improved at turn 190-200 vs turn +/- 230 before, and the nothern city is still improved around turn 190 as before.
 
-These could be autoplay fluctuations, but i repeated it a few times, then started from turn 0 again instead of turn 100 save file of the original save file of this known issue as of now 59 that is at turn 100, and even at turn 100 some cities seem to be improved a bit more.
+These could be autoplay fluctuations, but i repeated it a few times, then started from turn 0 again instead of turn 100 save file of the original save file of KI#59 that is at turn 100, and even at turn 100 some cities seem to be improved a bit more.
 
 Again, could be autoplay fluctuations, but it does seem to be slightly better, and since it doesn't break anything, and theoretically improves/enhances old code, i am comitting it as such.
 
@@ -8941,11 +9185,11 @@ Note: as for screenshots, see existing screenshots between 3387 to 3395 for how 
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1uOm6zvQjV4D018oyMHYMGOcUtBNVyKn4?usp=sharing)
 
-As usual a crash that was fixed by reenabling our hard reject in `CvUnitAI::AI_nextCityToImprove` as explained in [58 - (Fixed/Enhanced) Reproducible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block based on the (more?) code at CvUnitAI::AI_connectPlot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-58).
+As usual a crash that was fixed by reenabling our hard reject in `CvUnitAI::AI_nextCityToImprove` as explained in [KI#58 - (Fixed/Enhanced) Reproducible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block based on the (more?) code at CvUnitAI::AI_connectPlot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-58).
 
 But this is very suboptimal, so i asked chatgpt 5 if it had an idea of how to fix this based on our previous documentation and current code.
 
-I didn't feed it the .dmp as in the drive link of this known issue, but it does seem like a pointer or such issue from little i know about these (more precisely about what it shows rather: exception code "0xC0000005" and exception information "The thread tried to read from or write to a virtual address for which it does not have the appropriate access." in VS C++ 2010 Express since it also opens .dmp files nicely thanks i mean).
+I didn't feed it the .dmp as in the drive link of this known issue, but it does seem like a pointer or such issue from little i know about these (more precisely about what it shows rather: exception code "0xC0000005" and exception information "The thread tried to read from or write to a virtual address for which it does not have the appropriate access." in VS C++ 2010 Express since it also opens .dmp files nicely thanks).
 
 Notes:
 
@@ -8962,7 +9206,7 @@ Ideally i would undo these one by one, until i find culprit, and only mention th
 
 The issue seems now fixed as i tested it twice and it seems to not crash anymore from turn 200, while it crashed reliably twice before from turn 200 as well.
 
-To complement this doc since i don't understand too much about it, i asked chatgpt 5 to provide some info on what it changed or the issue in general or and such, here is below what it said (i edited it a bit as there was an inaccuracy line which i removed from below that said we changed betterplotbuild when we in fact changed it long ago not now), check if accurate as i don't know too much about these):
+To complement this doc since i don't understand too much about it, i asked chatgpt 5 to provide some info on what it changed or the issue in general such, here is below what it said (i edited it a bit as there was an inaccuracy line which i removed from below that said we changed betterplotbuild when we in fact changed it long ago not now), check if accurate as i don't know too much about these):
 
 >**What went wrong (T283) & what we changed**
 >
@@ -9023,9 +9267,9 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 This is an issue i had a long time in base advciv and even in advciv-sas as our mod is based on it.
 
-That AIs would often be baited or somehow decide to attack a very faraway rival with most of their military (as they should i mean to attack, but they shouldn't attack a too far rival no matter how tempting, if they can't fall back in time to prevent opportunism from ennemies due to their core cities being much less defended as a result, and since AIs seemingly can't do that as of now at least (they were not programmed or don't do so it seems as of now / so far, then better add a simple sanity check to not attack too faraway rivals)).
+That AIs would often be baited or somehow decide to attack a very faraway rival with most of their military (as they should i mean to attack, but they shouldn't attack a too far rival no matter how tempting, if they can't fall back in time to prevent opportunism from enemies due to their core cities being much less defended as a result, and since AIs seemingly can't do that as of now at least (they were not programmed or don't do so it seems as of now / so far, then better add a simple sanity check to not attack too faraway rivals)).
 
-I added this tentative patch in `Risk::preEvaluate` in WarUtilityAspect.cpp with the help of chatgpt 5 and my adjustments or not or yes or etc(check if accurate as i don't know a lot about these but i aimed for a conservative code that seems very effective, while allowing enough wars to happen otherwise it seems), and it seems to yield extremely good results.
+I added this tentative patch in `Risk::preEvaluate` in WarUtilityAspect.cpp with the help of chatgpt 5 and my adjustments (check if accurate as i don't know a lot about these but i aimed for a conservative code that seems very effective, while allowing enough wars to happen otherwise it seems), and it seems to yield extremely good results.
 
 In recent map i tested (a few times to be sure) in autoplay, before the changes (existing screenshots between 198 and 201) at turn 200 we are spain ai and leading at turn 200, but we attack japan ai (which are a bit far from us even though not that much but not contiguous, and maya ai was a much better and weaker target instead for example, so definitely not an ideal target) and capture kyoto, but now we have 13 camel cuirassiers parked there, and if cyrus ai (the main rival in this save file, contiguous to us also in all our land) were to declare war on us, they woudlnt be able to easily go back to our cities, which are more thinly defended as well btw.
 
@@ -9033,7 +9277,7 @@ So attacking japan ai is very risky and most likely a huge mistake.
 
 In turns 250 to 300, cyrus ai attacks us while we are attacking maya ai, and were already thinner, as a result we go from being the leader militarily to easily collapsing to cyrus ai who leads a very effective assault due to our stupid mistakes and greed.
 
-To fix this, i added a max distance to us risk hard reject if distance is too high, empirically with the value of 2 and then 3 (not sure what these values are, but 8 initially suggested by chatgpt 5 was useless, and i tried 2 before ditching the seemingly useless code but it nicely then yieleded extrmely good results, that are reproducible it seems as well) for versatility and not too strict war behaviour (would be bit boring indeed).
+To fix this, i added a max distance to us risk hard reject if distance is too high, empirically with the value of 2 and then 3 (not sure what these values are, but 8 initially suggested by chatgpt 5 was useless, and i tried 2 before ditching the seemingly useless code but it nicely then yieleded extremely good results, that are reproducible it seems as well) for versatility and not too strict war behaviour (would be bit boring indeed).
 
 Now, resuming from this save file 200 (i tried it a few times and with value of 2 and 3 to be sure, results seem more or less very consistent minus possible small variations if any but same trend), as a result, depending on if we go for the 2 turn or 3 turn route, it seems that we (our autoplay attack) generally, from the same turn 200 save file:
 
@@ -9041,7 +9285,7 @@ Now, resuming from this save file 200 (i tried it a few times and with value of 
   - We then at turn 280 also have alexander ai vassalized, a strong and focused empire, and our strongest rival is only at 0.5 ratio of us militarily so essentially won it seems
 - then in the 3 turn (existing screenshots between 205 and 206) version to try it tooand maybe add versatility or such, we attacked alexander ai instead (due to turn window wider possibly as he is bit farther but still contiguous to us or some politics made it so i didn't look) who is now our vassal, while maya ai is unattacked and now grows strong; as for cyrus ai he doesn't seem a threat to us, and our units are focused and not overspread like before our change, at turn 250.
   - Our military is very good: 33 camel cuirassiers, 22 cannons, 17 pikemen, etc for lower count units. At this point also we are in fact already at war with cyrus ai, who is weaker than us, and i think it's a great move. At turn 300, it's even better, cyrus ai has collapsed, and usa ai and maya ai are the big top dogs now, with a military close to us in military ratio.
-  - As for us our troops are mostly focused (issue with attacking islands on pangea but we didnt send that much units so suboptimal to fix ideally but not as urgent vs how it was), we have lost units overall but our ennemies don't have that much more, i didn't check in detail but i guess many wars happened xd, all in all it's a good outcome for us.
+  - As for us our troops are mostly focused (issue with attacking islands on pangea but we didnt send that much units so suboptimal to fix ideally but not as urgent vs how it was), we have lost units overall but our enemies don't have that much more, i didn't check in detail but i guess many wars happened xd, all in all it's a good outcome for us.
 
 Based on this data, it seems cyrus ai who is sandwiched between most rival to his central position was actually the most vulnerable, and could mostly prey on everyone due to most ais playing stupid and getting baited, leaving their core cities defenseless and in easy reach with their troops being very far.
 
@@ -9049,7 +9293,7 @@ I ran it from scratch at turn 0 to be sure, and now cyrus ai wins instead, i did
 
 As for us, what matters is AIs don't get baited as much if at all now at least on land warfare, so they can better keep securing their lead unless enemy is stronger or some weird politics like cyrus ai telling maya ai to declare war on us in the scratch run after our change from little i saw or remember of it.
 
-As results seem very good, i added this change now. As for the don't invade small islands in one landmass-like maps, i'll try to implement it in next knwon issues (not guaranteed, i may or may not do so).
+As results seem very good, i added this change now. As for the don't invade small islands in one landmass-like maps, i'll try to implement it in next known issues (not guaranteed, i may or may not do so).
 
 Later KI#197.9 military-production diagnostics showed that the original 3-turn land-contact hard reject had become too restrictive as a general pre-war sanity gate.
 
@@ -9085,7 +9329,7 @@ I basically commented-out entirely the "chance of evacuating code" and any "this
 
 Results are seemingly extremely good!!!
 
-Now (see existing screenshots between 213 and 217) our 11 unit stack successfully evacuates the city, and julius caesar ai captures it without blood xd (i think he had lost 1 unit before the change vs our 11 defending units then, still very bad trade to fight it there for us i mean).
+Now (see existing screenshots between 213 and 217) our 11 unit stack successfully evacuates the city, and julius caesar ai captures it without blood xd (i think he had lost 1 unit before the change vs our 11 defending units then, still very bad trade to fight it there for us).
 
 From there, i continued to autoplay it, and our AI makes a comeback in the game, eventually taking back the city with a strong position.
 
@@ -9105,9 +9349,9 @@ Also, i could tweak this nice evacuating logic because it was already there so t
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Beau785h18Pp90KTlkl9F8uCrK_oqL4o?usp=sharing).
 
-Following known issue as of now 62, next issue was to prevent the weird back and forth of going to attack a city stack only to withdraw when seeing the enemy stack is too strong, and losing one or a few units while doing so (potentially a lot more if we can't retreat in time or are ambushed or need to urgently defend cities or such).
+Following KI#62, next issue was to prevent the weird back and forth of going to attack a city stack only to withdraw when seeing the enemy stack is too strong, and losing one or a few units while doing so (potentially a lot more if we can't retreat in time or are ambushed or need to urgently defend cities or such).
 
-As in known issue as of now 62 however though, the behaviour does not happen if i autoplay 3 turns on a row vs 1 more turn from save file after 62 was solved, but still i added a code with the help/recommendation of chatgpt 5 (check if accurate) that seems like a very nice sanity check in `CvUnitAI::AI_attackCityMove` to go attack a city only if the existing `bTargetTooStrong` is false (don't attack too strong cities instead of attacking then withdrawing very inefficiently and in a risky way which makes it even worse).
+As in KI#62 however though, the behaviour does not happen if i autoplay 3 turns on a row vs 1 more turn from save file after 62 was solved, but still i added a code with the help/recommendation of chatgpt 5 (check if accurate) that seems like a very nice sanity check in `CvUnitAI::AI_attackCityMove` to go attack a city only if the existing `bTargetTooStrong` is false (don't attack too strong cities instead of attacking then withdrawing very inefficiently and in a risky way which makes it even worse).
 
 Since i couldn't test issue here, i don't know if it is solved, but maybe it helps. The issue existed in base advciv too but tedious to especially test it and all, so as it seems harmless, kept as such if helps.
 
@@ -9129,7 +9373,7 @@ This is because capturing such cities has high cost and low gains especially ear
 - higher city maintenance cost across all cities not just this new one (that may cost more if far away) (also regardless of razing we get the gold on capture so not much to do here anymore)
 - low yields due to generally low pop or not enough improvements
 - even if we have such high pop and improvements, AIs are not too good at spreading forces, often it meant having a big stack stuck in this low pop city and core cities left defenseless.
-  We have added changes in known issue as of now 61 so we dont attack such faraway cities ideally, but if we somehow do in the early game, then raze them rather and favour empire contiguity
+  - We have added changes in KI#61 so we dont attack such faraway cities ideally, but if we somehow do in the early game, then raze them rather and favour empire contiguity
 - other positive side effects, due to the city being destroyed, the place is not fog busted anymore (although i don't know if barbarian cities count as fog busting xd and prevent random barbarian spawn or not), so if it is far from us, it would or may mean more barbarians for our rivals (which (barbarians) are very strong as of now in advciv-sas (at least quite strong xd)) so this should help us focus our forces and energy defensively and offensively and hopefully lead to better outcomes
 - possibly other reasons/advantages if any.
 
@@ -9155,7 +9399,7 @@ But then a new barbarian city (Phoenician) spawns nearby (of the old numidian ci
 
 Also, it shows our code is not paranoid and still allows close enough cities to be captured, which is good and nice to know!
 
-(if i may say).
+.
 
 So all in all this seems like a very nice code and enhancement of the AI razing behaviour, which should make AI quite a lot stronger and influence the early game quite heavily:)
 
@@ -9248,9 +9492,9 @@ So to dig why this happened i asked chatgpt 5 to look at the event log screensho
 
 So based on this, i thought that at first, before fixing the cause (not switching religion to match other leader's religions, although it would make game bit boring if all leaders have same religion but if best move maybe do so), it was a too good opportunity to pass xd to finally fix the too many wars at same time issue and then test it after fix.
 
-So in `UWAI::Team::considerPeace` in UWAIAgent.cpp i added with the help of chatgpt 5 (check if accurate) sanity "emergency peace" pre-checks, so that we make peace urgently no matter what if we have 3+ (see code for details) wars at same time, or if we have 2+ wars at same time but the combined power of our ennemies is > 160 % of our power (e.g. 2 ennemies having 0.8 (= 80% if i'm not mistaken) (or e.g. 0.9 + 0.7, or 1.0 + 1.6, etc.) times our power is enough that combined they would be a threat enough to urgently make peace) then urgently make peace no matter what before they ravage us xd.
+So in `UWAI::Team::considerPeace` in UWAIAgent.cpp i added with the help of chatgpt 5 (check if accurate) sanity "emergency peace" pre-checks, so that we make peace urgently no matter what if we have 3+ (see code for details) wars at same time, or if we have 2+ wars at same time but the combined power of our enemies is > 160 % of our power (e.g. 2 enemies having 0.8 (= 80% if i'm not mistaken) (or e.g. 0.9 + 0.7, or 1.0 + 1.6, etc.) times our power is enough that combined they would be a threat enough to urgently make peace) then urgently make peace no matter what before they ravage us xd.
 
-The second check is especially good as even if we have 2 wars, if say ennemies have 0.5 0.6 in total it would be only 0.5 + 0.6 = 1.1 times our power so we can handle it fine no need to trigger emergency peace, however 3+ wars alone is already too late by the time we react to that if rivals are strong.
+The second check is especially good as even if we have 2 wars, if say enemies have 0.5 0.6 in total it would be only 0.5 + 0.6 = 1.1 times our power so we can handle it fine no need to trigger emergency peace, however 3+ wars alone is already too late by the time we react to that if rivals are strong.
 
 So i wanted something hybrid of 3+ wars or alternatively 2+ wars rather if strong threat which i think we do nicely here and simple(also not enough wars would be boring, so i'm glad we have found this middle ground where plenty wars still happen but AI now seemingly nicely handles it seems the multi war threat based on opponents' strength).
 
@@ -9292,7 +9536,7 @@ Chatgpt 5 analyzed the event log as such (put run 2 only for concision)
 >- The pattern you see (decisive capture → quick peace → shift target) is exactly what our "don’t let multi-wars spiral" nudge encourages.
 >- Even if the hard trigger didn’t fire every time, the added checks reduce the chance of her continuing a costly war while another one starts.
 
-It seems not important anymore or urgent to fix the cause (religious dogpile) as it adds some game variety, and more importantly in this game hatshepsut ai captured rome ai (surprisingly historically accurate xd although is a random generated map and although i don't know too much this timeline's real history but i know they were invovled with each other on some level) so their holy pagan city synergized nicely with hatshepsut ai's paganism as well, so may be fine to leave as such i don't know for sure, however i had the issue in base advciv of strongest ai switching religion then making an enemy of everyone stupidly so may need some tweaking possibly even though i don't know where but i could use this save file as a base for that maybe (however is not guaranteed i may or may not do so).
+It seems not important anymore or urgent to fix the cause (religious dogpile) as it adds some game variety, and more importantly in this game hatshepsut ai captured rome ai (surprisingly historically accurate xd although is a random generated map and although i don't know too much this timeline's real history but i know they were involved with each other on some level) so their holy pagan city synergized nicely with hatshepsut ai's paganism as well, so may be fine to leave as such i don't know for sure, however i had the issue in base advciv of strongest ai switching religion then making an enemy of everyone stupidly so may need some tweaking possibly even though i don't know where but i could use this save file as a base for that maybe (however is not guaranteed i may or may not do so).
 
 As for this change of seemingly much better"emergency peace" prechecks, AI should be much stronger as well thanks to these hopefully and possibly be better at keeping its lead while still keeping the ability to bully the weak (i.e. many weak players) in multi wars for its interest (e.g. shortly before turn 200 hastsheput ai goes at it again and declares war on pacal 2 ai who was dying anyway and who is nearby so nice gain for her and safe as well).
 
@@ -9326,7 +9570,7 @@ Note: there are several nuances to this, not all detailed (see code for the chan
 
 - not applied to wonders so we save computation plus they are not built in all cities so even if a wonder gains effects from bonuses, it's only in one city more or less and simpler to handle as such
 - not applied to cathedrals as it is a rare building
-- simplified for temples and monasteries as not that many religions are in a game, and even if that would be the case, generally AIs woudn't build 7 temples in all cities so fine to handle as such to simplify.
+- simplified for temples and monasteries as not that many religions are in a game, and even if that would be the case, generally AIs wouldn't build 7 temples in all cities so fine to handle as such to simplify.
 - applied less strictly to coastal buildings, as not all cities are coastal even in water heavy maps, but some may be so give a little extra value for the bonus in trade but not as much
 - as a part of applying these changes, bonuses now value slightly less than before, to nerf a bit the too easy trading, and also make maize not become too expensive especially early on.
 
@@ -9346,7 +9590,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 It was very very annoying, thankfully i mean now fixed/corrected in advciv-sas.
 
-Now all players, be it human or AI, have a 1 hammer rounded production (units, buildings, projects (all in `CvPlayer::getProductionNeeded` functions if i'm not mistaken)) cost, or tech, great people, or such other costs too or not or etc it seems (`CvPlayer::greatPeopleThreshold` and `CvPlayer::getNewCityProductionValue` and `CvTeam::getResearchCost`).
+Now all players, be it human or AI, have a 1 hammer rounded production (units, buildings, projects (all in `CvPlayer::getProductionNeeded` functions if i'm not mistaken)) cost, or tech, great people, or such other costs too or not it seems (`CvPlayer::greatPeopleThreshold` and `CvPlayer::getNewCityProductionValue` and `CvTeam::getResearchCost`).
 
 Example of code:
 
@@ -9438,7 +9682,7 @@ Found through the completed CvCityAI current-tree pass in the C++ File Audit Alb
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1grZBqkHYUqtXAhdqRxpSqqa759_Q7gsI?usp=sharing).
 
-WinDbg !analyze -v result viewable in .txt as of now at above link for reference i mean(full dmp with a debug dll (i don't know too much about these so check if accurate and if i did it correctly i mean, with chatgpt 5's help and review as well thanks i mean too)).
+WinDbg !analyze -v result viewable in .txt as of now at above link for reference i mean(full dmp with a debug dll (i don't know too much about these so check if accurate and if i did it correctly, with chatgpt 5's help and review as well thanks i mean too)).
 
 See code comments there i.e. in `CvBuildInfo::isFeatureRemove` for details.
 
@@ -9450,7 +9694,7 @@ See code comments there i.e. in `CvBuildInfo::isFeatureRemove` for details.
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1oWBp58ADUKAHAAUnXGIARciHF47ncuW8?usp=sharing).
 
-I patched 3 locations in `CvCityAI::AI_chooseProduction` and 1 location in `CvCityAI::AI_bestBuildingThreshold` that caused the assert to fire i mean, but i may have missed some, so i hope the general extra assert (if iNum is negative if i understand it correctly) we added in `getInt` with chatgpt 5 i mean thanks i meanwill be helpful to spot other similar issues.
+I patched 3 locations in `CvCityAI::AI_chooseProduction` and 1 location in `CvCityAI::AI_bestBuildingThreshold` that caused the assert to fire, but i may have missed some, so i hope the general extra assert (if iNum is negative if i understand it correctly) we added in `getInt` with chatgpt 5 i mean thanks i meanwill be helpful to spot other similar issues.
 
 WinDbg !analyze -v result viewable in .txt as of now at above link.
 
@@ -9534,7 +9778,7 @@ Also added high need logic for culture (quite similar to previous code) and for 
 
 Added logic to tone it down a bit as we were switching a bit too much, now based on anarchy turns cost.
 
-Results in autoplay are very very good i mean. Now even in the early game we go back and forth between caste system and slavery, and later on serfdom and in particular finally our civic_wage_labor is now quite popular among ais, and the distribution is quite even.
+Results in autoplay are very very good. Now even in the early game we go back and forth between caste system and slavery, and later on serfdom and in particular finally our civic_wage_labor is now quite popular among ais, and the distribution is quite even.
 
 Ideally i'd find ways to prevent oscillation or excessive oscillation at least maybe, but hopefully AI should be much stronger and responsive to change (no point to run scientists if we are about to be steamrolled, value engineers or serfdom or such more i mean maybe).
 
@@ -9657,7 +9901,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 After [KI#78](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-78)'s update change, it still seems we are slow to trade military science (for dragoons) to our master, even though rameses vassal has it long ago.
 
-Added with the help of chatgpt 5.1 logic in `CvPlayerAI::AI_doDiplo` so that before contacting a player for any tech trade, we first consider if the tech does not already exist in our master-vasssal(s) locus, and if so do not contact players that are not part of it.
+Added with the help of chatgpt 5.1 logic in `CvPlayerAI::AI_doDiplo` so that before contacting a player for any tech trade, we first consider if the tech does not already exist in our master-vassal(s) locus, and if so do not contact players that are not part of it.
 
 Hopefully this indirectly helps contact players of our locus first for a tech we don't have.
 
@@ -9700,7 +9944,7 @@ Similarly, a stronger vassal is also more likely to be more useful to its master
 >
 >Rational Logic: By sharing tech, the Master isn't being "nice"; they are upgrading their own buffer state. A Vassal with Riflemen (via trade) can actually defend the Master's borders, whereas a Vassal stuck with Longbows is just dead weight. It turns the Vassal into a functional asset.
 
-So all in all it does seem like a suitable change in most cases to bet on i mean.
+So all in all it does seem like a suitable change in most cases to bet on.
 
 <a id="ki-80"></a>
 
@@ -9728,7 +9972,7 @@ So this seems to help a lot, although it could just be noise, but it does not se
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1d_UFDfZ76O1nY8FEZFa-Yh1NCBMN3dfa?usp=sharing).
 
-AI seemingly was often too slow or straight up not valuing for research key military techs (with a high enough FLAVOR_MILITARY, see sas defines for details) at all, even when it was weaker and at risk of dying (economy or such techs would be useless to it at best, and at worst they would be researching them for their ennemies when they conquer them (kind of like how AI used to do/be for wonders before our changes i mean.)).
+AI seemingly was often too slow or straight up not valuing for research key military techs (with a high enough FLAVOR_MILITARY, see sas defines for details) at all, even when it was weaker and at risk of dying (economy or such techs would be useless to it at best, and at worst they would be researching them for their enemies when they conquer them (kind of like how AI used to do/be for wonders before our changes.)).
 
 After our changes in `CvPlayerAI::AI_techValue`, game changed from Ewuare winning at turn 382 quite hardly (but still as he always did in many runs so far) to him finally losing to Saladin and Rameses despite Ewuare having an initial early lead (but that he could not sustain after our changes it seems), and the game being even closer, and at a stalemate even at turn 400s between Saladin and Rameses who controlled about half the world each (Saladin eventually won a Space victory at turn 469 and was seemingly stronger eventually even though this was shortly game would have otherwise ended on time not long later).
 
@@ -9813,7 +10057,7 @@ And now also using our own advciv-sas save file (see drive link for details)
 
 Trick: autoplay on settler we are more likely to be stronger and thus to have rivals, helped quickly get a save file sample for screenshots and testing.
 
-Update 2: now added to a helper (`CvDLLWidgetData::parseVassalWillingnessHelp`) to avoid reuse and as is cleaner as such i mean, with gemini 3 pro's help as well thanks.
+Update 2: now added to a helper (`CvDLLWidgetData::parseVassalWillingnessHelp`) to avoid reuse and as is cleaner as such, with gemini 3 pro's help as well thanks.
 
 <a id="ki-85"></a>
 
@@ -9839,7 +10083,7 @@ For concision, i put the rationale here since the issue is solved, no need to cl
 
 ```py
 		# advc.004a: Adding this guard b/c the new code somehow can't handle calls via preGameStart (CvAppInterface) if the map is very large. Still seems to get updated properly if the player opens the Tech Advisor on turn 0.
-		# <!-- custom: note: trying to comment out the turn > 0 check below. to have our indicators at turn 0 seemingly does indeed lead to an error. However the base advciv's comment is slightly mistaken it seems if i'm not mistaken, as i could reproduce it for example when creating a new game noble pangea normal game speed standard size. As per gemini 3 pro, the error i had was indeed caused by this, so reverted it to base advciv behaviour (i thought the bug info would helps players unaware the feature of BUG's bulbing indicators (including me i mean, i didn't know about it so wanted to share it.; i hope the note helps in our various docs mentionning this)). See for details known issue as of now 85 -->
+		# <!-- custom: note: trying to comment out the turn > 0 check below. to have our indicators at turn 0 seemingly does indeed lead to an error. However the base advciv's comment is slightly mistaken it seems if i'm not mistaken, as i could reproduce it for example when creating a new game noble pangea normal game speed standard size. As per gemini 3 pro, the error i had was indeed caused by this, so reverted it to base advciv behaviour (i thought the bug info would helps players unaware the feature of BUG's bulbing indicators (including me, i didn't know about it so wanted to share it.; i hope the note helps in our various docs mentionning this)). See KI#85 for details -->
 		# <!-- custom: as for this feature, it seems to me that this is safer to simply disable it (i.e. keep base advciv code as it was), and this feature (turn 0 bulbing indicators) is definitely not critical nor mandatory enough to justify this, so reverted it to how it was -->
 		#
 		# The error AttributeError: TechPrefs instance has no attribute 'lTechsByFlavor' occurs because the game attempts to update the Tech Preferences during the initialization phase (preGameStart), before the necessary data (like the Active Player's tech state) is fully ready.
@@ -9865,7 +10109,7 @@ For concision, i put the rationale here since the issue is solved, no need to cl
 
 Hopefully regardless of which, this helps document and confirm the issue, as well as giving players info in other related docs on the existence of the BUG tech bulbing indicators and how to enable them, in case they didn't know about them.
 
-Update: somehow sometimes they appear at turn 0 and sometimes not, what matters is we reverted to base advciv code as the key information there i mean. and that code seemingly no longer crashes now.
+Update: somehow sometimes they appear at turn 0 and sometimes not, what matters is we reverted to base advciv code as the key information there. and that code seemingly no longer crashes now.
 
 It also did happen on a standard size map if i remember it correctly not just very large ones, and works fine as is now so leaving it as is.
 
@@ -9891,7 +10135,7 @@ Issue and fixed described in [/README.md#external-file-access-in-civ4-ingame-on-
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1ahGT4Wdts_EywCgUFjSyOfEFzpDk3ows?usp=sharing).
 
-AI had a problem of spending too much time and gold to upgrade units that are often not worth ugprading at all (better let them die and build new ones than tech snail for dozens of turns sometimes).
+AI had a problem of spending too much time and gold to upgrade units that are often not worth upgrading at all (better let them die and build new ones than tech snail for dozens of turns sometimes).
 
 Here are some extra details i moved away from the cpp file as chatgpt 5.2 nicely did in its solution to another but related issue thanks.
 
@@ -9909,7 +10153,7 @@ Very good results in autoplay it seems, in short, especially in the later game, 
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1pIXiY183a1NpEBSxr5zFUtcg56rwAXwV?usp=sharing).
 
-Data exatracted from the screenshots mostly thanks to ChatGPT 5.2 as it was very accurate (Note: i also tried to do this with Gemini 3 pro but it had many mistakes which is already way too many).
+Data extracted from the screenshots mostly thanks to ChatGPT 5.2 as it was very accurate (Note: i also tried to do this with Gemini 3 pro but it had many mistakes which is already way too many).
 
 The samples start from same save file turn 295 and are autoplayed 10 turns to turn 305 with each DLL.
 
@@ -10807,7 +11051,7 @@ I had checked before in youtube, and it lists in one video for example:
 
 So it looks like Base AdvCiv used a different asset for Napeolon than Civ4!
 
-I relied on the youtube or similar type of lsiting rather, and so i created a new napoleon asset music as par tof AdvCiv-SAS music additions, but didn't change De Gaulle since i thought he would inherit the old music and had its own asset, my mistake to have overlooked this!
+I relied on the youtube or similar type of listing rather, and so i created a new napoleon asset music as par tof AdvCiv-SAS music additions, but didn't change De Gaulle since i thought he would inherit the old music and had its own asset, my mistake to have overlooked this!
 
 Fixed by adding De Gaulle specific assets with the help of Claude code Sonnet 4.5, that now use `Napoleon_early` as a distinct music than what Louis uses (`Louis_early`), and finally by keeping Napoleon with its own new AdvCiv-SAS specific music which is neither of these so each leader has its own music.
 
@@ -10854,7 +11098,7 @@ But Oracle was obsolete yet its 2 GP was seemingly still counted in base total, 
 
 Our specialist breakdown was correct and helped spot the base AdvCiv bug.
 
-After adding +GB from obsoelte buildings with the help of GPT-5.2-Codex thanks, now hover displays info that matches what the DLL provides (total of 8 with 3 + 3 + 2 = 8) so looks fixed now.
+After adding +GB from obsolete buildings with the help of GPT-5.2-Codex thanks, now hover displays info that matches what the DLL provides (total of 8 with 3 + 3 + 2 = 8) so looks fixed now.
 
 Also added in the main interface's building list as part of adding it in AdvCiv-SAS for buildings.
 
@@ -10866,7 +11110,7 @@ Change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp) and [CvMainInter
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1NFO6NeYgEF6GDZDWkMW8qXfSZNWQ72m7?usp=sharing).
 
-Running an autplay of 500 turns with the 48 civs DLL after generating the map, we get a crash at 332 semeingly related to `CvCity::getProductionBarPercentages`.
+Running an autplay of 500 turns with the 48 civs DLL after generating the map, we get a crash at 332 seemingly related to `CvCity::getProductionBarPercentages`.
 
 After Claude code Opus 4.5 fixed it, the new DLL doesn't crash and game plays end to end so looks solved.
 
@@ -11507,6 +11751,12 @@ So among them we as of now only renamed `indian sreni.dds` to `indian_sreni.dds`
 
 Note: since then the `Buildings/Natya_Shastra/indian sreni.dds` button was removed and the corresponding asset as of now now uses another art.
 
+Update (2026-11-22): a rule naming every game file with `_` instead of spaces was drafted from this issue and dropped the same day.
+
+- It began with the [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#removed-or-renamed-from-base-advciv): 37 text files SAS had renamed, some with `_` for spaces, went back to base AdvCiv's exact names, spaces included, such as `Unit Naming Options.xml`; [Renamed repository paths](/_1_AdvCiv-SAS/Docs/Deprecated/repository_paths.md#text-files-with-base-advcivs-names) maps them.
+- Extending this issue's rule to every file under `Assets` reached into imported art: models store their texture and animation names inside their binaries, such as `building n shared03 2 map.dds` in `Bronzeshop_barb.nif`, so the check needed exemptions read from the models, then path fallbacks, while it renamed imported files such as Grace O'Malley's `John II.kfm` and Napoleon's diplomacy track `Symphony_No_25_in_G minor_K_183_I_Allegro_con_brio.mp3`. The user judged it more complicated than tidier names were worth.
+- So the rule stays as this issue left it: `art_button_paths.py` rejects spaces in DDS buttons, the failure seen here. A text file's name never reaches `<img>` markup, as Civ4 loads every file in `xml\text`, so its spaces are harmless.
+
 <a id="ki-118.2"></a>
 
 ## KI#118.2 - (Fixed AdvCiv-SAS regression) Same family as KI#118's icon paths: the Victory screen raised a Python exception and drew only part of its table once an unmet team had built the Apostolic Palace or United Nations
@@ -11570,7 +11820,7 @@ Observed issue:
 
 - The per-era leader art feature (gated by a SAS define) picks the era from the first alive player using a given leader. In the common case (unique leaders per game) this is correct.
 - When the same leader is assigned to multiple players (unrestricted leaders, or custom scenarios placing e.g. De Gaulle on 3 civs), all duplicates render with the lowest-index player's era art — even if player A is in Classical while player B is in Industrial.
-  This is acceptable because a leader used several times by diffetrent players is a rare occurence that happens outside of normal play.
+  - This is acceptable because a leader used several times by different players is a rare occurrence that happens outside of normal play.
 
 Why not fixed:
 
@@ -11681,6 +11931,119 @@ ERR: Python function showDomesticAdvisor failed, module CvScreensInterface
 File changed:
 
 - [Assets/Python/EntryPoints/CvScreensInterface.py](/Assets/Python/EntryPoints/CvScreensInterface.py)
+
+Update (2026-11-24): [KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2) follows the same pattern for a resolution change: the Sevopedia, built once per game, is now rebuilt when the resolution differs from the one it was built at.
+
+Update (2026-11-24): [KI#123.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3) does the same for the main interface, whose city-screen panel rects SAS had kept from the first build of the game.
+
+Update (2026-11-24): [KI#123.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.4), the map's bonus bubbles sized for another field of view, inherited from AdvCiv and found while testing resolution changes.
+
+Update (2026-11-24): [KI#123.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.5), the Replay screen, which AdvCiv laid out once per session, now lays out on every opening.
+
+Update (2026-11-24): five option tooltips still said a restart was needed, and now say when each option takes effect instead, in [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml):
+
+- The resolution dropdown (`TXT_KEY_OPTIONS_SCREEN_RES_HELP`): base AdvCiv's advc.092 text said a restart might be needed with Scale Up HUD on; the screens above now follow a change.
+- The BUG Military Advisor and Customizable Domestic Advisor options: base AdvCiv's "(restart required)" had been stale since this KI's fix, which applies them at the advisor's next opening.
+- The tech splash layout: base AdvCiv's "Restart required." was already stale there, as K-Mod's change hook, which AdvCiv routes through `BugScreenInit.py` (advc.009b), drops the splash screen, so the next one shown uses the new layout.
+- Scale Up HUD: the main interface reads it in `initState`, which runs on each game load and resolution change, so it takes effect then rather than after a restart; switching it off needed a restart until [KI#123.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.6).
+- Codex (GPT-6.2-Sol) reviewed the tooltips: it found KI#123.6, and corrected the tech splash hook's origin and the resolution wording.
+
+<a id="ki-123.2"></a>
+
+## KI#123.2 - (Fixed incomplete inherited AdvCiv solution) BUG's Sevopedia stays at 1024 x 768 at any resolution, even after a restart; AdvCiv made the Sevopedia scale with the resolution, but only once per session: after 1920 x 1080 to 2560 x 1440 in game, the reopened Sevopedia stayed at 1920 x 1080 until a tedious Civ4 restart
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1PFWXpfxYVExQGVKmmDnkMu5KjhrVuN5b?usp=sharing).
+
+- What it was, in base AdvCiv 1.14, from the user's screenshots of its Sevopedia opened from the main menu (2026-11-24), both ways:
+  - At 1920 x 1080 it filled the screen within its margins (`Civ4ScreenShot0682`); after a change to 2560 x 1440 it kept its 1920 x 1080 size in the top-left corner (`0683`).
+  - At 2560 x 1440 it filled the screen (`0684`); after a change to 1920 x 1080 it kept its 2560 x 1440 size, running off the bottom and right edges (`0685`).
+  - SAS's Sevopedia kept that once-per-session layout until this fix.
+- Origin, from the `commit_diffs` corpus:
+  - BUG's Sevopedia, as in K-Mod's copy, was always a 1024 x 768 box (`W_SCREEN = 1024`) centred on the screen, whatever the resolution: a resolution change never affected it, so it needed no restart, but it left the rest of a larger screen unused.
+  - Base AdvCiv's advc.004y, "Wide-screen Sevopedia (tentative)", practical 1505 (`077dae13b2`, 2019-05-17), made it fill the screen by taking its size from the resolution, but read it only once, in `__init__`, so after a change it kept its first size for the session.
+    - So the restart need came with an improvement that stopped short of resolution changes made during play, rather than a regression: BUG's box never used the larger screen at all.
+    - Its layout was not hard-coded, though: `SevoPediaMain.__init__` read the resolution and built its 22 page objects there, each anchored on the main frame (`X_PEDIA_PAGE`, `R_PEDIA_PAGE`, `B_PEDIA_PAGE`), some widths scaled by the resolution over 1024, such as the Unit page's `W_UNIT_PANE`.
+    - So re-running `__init__`, as the fix below does, would have been enough in base AdvCiv too, unlike the advisors, whose fixed 1024 x 768 boxes SAS had to lay out anew.
+  - SAS practical 5635 (`6ae1dc83d0`, 2026-04-10) added two comments keeping the Sevopedia restart-based "because main interface still needs restart after in-session resolution switches".
+- Fixed (2026-11-24): `pediaJump` in [`SevoPediaMain.py`](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py), which every opening, link and Back/Next goes through, compares the resolution with the one the instance was built at and, on a change, re-runs `__init__` on the same object, carrying over Back/Next history and active player.
+  - Re-running `__init__` rather than a layout helper: its 24 page classes, such as the Leader page in [`SevoPediaLeader.py`](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py), take their layout from the frame in their own `__init__`, so a helper would have meant splitting each of them too; a rebuild costs about as much as the first opening, once per resolution change.
+  - Codex's (GPT-6.2-Sol) review of the draft found two more cases: an open movie or music player would be forgotten by the new page objects, so they are closed first; and a rebuild while the screen was still active would skip `createScreen`, so the rebuild waits until the Sevopedia is next opened. Neither case was seen in game.
+  - Its frame no longer starts from advc.004y's 1024 x 768: SAS had set the margins to 0 and supports nothing below 1920 x 1080, so the frame was always the resolution, which it now is directly.
+  - Each rebuild writes a `SEVOPEDIA_RESOLUTION_CHANGE` row to `PythonDbg.log`, with the old and new sizes.
+- Tested (2026-11-24) by Claude Code Opus 5.5 in a turn-0 game through `desktop_windows.py`: after 1920 x 1080 to 2560 x 1440 in the Options, the Sevopedia filled the new window, with `SEVOPEDIA_RESOLUTION_CHANGE fromW=1920 fromH=1080 toW=2560 toH=1440` and no Python error.
+- The advisors had followed a resolution change since SAS laid them out each time they open (practical 5580, 2026-03-21, onward); the Sevopedia now does too.
+- Update (2026-11-24): [KI#123.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.5), the Replay screen, has the same history: a fixed 1024 x 768 box before AdvCiv, which made it fill the screen but laid it out once per session.
+
+<a id="ki-123.3"></a>
+
+## KI#123.3 - (Fixed SAS) After a resolution change in game, the city screen and then the map kept parts of the old resolution's layout until a restart: after 2560 x 1440 to 1920 x 1080, the city screen lost its bottom band and its right panel ran off the screen, as SAS kept the city screen's panel rects from the first interface build of the game
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1pTpdKjBxXABZhwAvpNcOQiIRpFlHaUyW?usp=sharing).
+
+- What it was, in a turn-101 game switched between 2560 x 1440 and 1920 x 1080 in the Options (2026-11-24), compared with the same save loaded at each resolution:
+  - The map was right after the change, until the city screen was opened: its bottom band was gone, the production buttons sat over the map and the right panel's culture lines ran off the bottom.
+  - After leaving the city, the map's bottom corner panels, unit bar and minimap were misplaced too.
+  - With the city screen open during the change, the city screen was right, but after leaving it the end-turn button and the city arrows sat by the screen's bottom edge instead of beside the minimap.
+- Cause: the engine runs `interfaceScreen`, and so `initState`, again after a resolution change, and `initState` lays every rect out at the new resolution, but [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) kept three things from an earlier build:
+  - `_cacheCityScreenSideLiftRects` captured the bottom and side panel rects once per game, behind a `hasattr` guard, and the city screen's lift restored them on entering and leaving the city.
+  - Five offsets scaled through `VSPACE`/`HLEN`/`VLEN` were cached once, such as the city screen's blue ribbon lift.
+  - `initState` put the end-turn button at the lower-right corner's bottom when the city screen was open at build time, else at the minimap's top; a game load always builds in map view, so only a rebuild inside the city used the first.
+- Origin, from the `commit_diffs` corpus: SAS's main interface revamp added the rect cache and the end-turn branch, practical 5384 (`978e8252b3`, 2026-01-28), and the blue ribbon and bar offsets came with practical 5690 (`bdd90ecbc3`, 2026-04-20).
+  - BtS, BUG and base AdvCiv rebuilt their layout on each build with no such cache, and base AdvCiv's main interface followed a resolution change, as the user tested in game the same day.
+- Fixed (2026-11-24): `initState` clears the rect cache and the resolution-scaled offsets on every build, so they always match the rects that build lays out, computes the two city offsets there once the scale factors are set, and places the end-turn button beside the minimap on every build.
+  - Codex's (GPT-6.2-Sol) review found that a Python module reload calls `initState` without `interfaceScreen`, so the two city offsets, at first only cleared, would have stayed `None` for the city screen's lift; computing them in `initState` covers both.
+  - A first fix drafted the day before cleared the caches only when the resolution differed from the last build's, reset advc.092's Enlarge HUD scale factors too, which only matters at 1024 x 768 or below, and missed the end-turn button; this one was redone from a fresh reproduction on the current code.
+  - Each rebuild at a new resolution writes a `MAIN_INTERFACE_RESOLUTION_CHANGE` row to `PythonDbg.log`, with the old and new sizes; SASGameRecord already records the change itself in its `CIV4_GRAPHICS_PROFILE` settings.
+- Tested (2026-11-24) by Claude Code Opus 5.5 through `desktop_windows.py`, both ways between 2560 x 1440 and 1920 x 1080, changing on the map and then visiting a city, and changing with the city screen open and then leaving it; each view matched the same save loaded at that resolution, with no Python error.
+
+<a id="ki-123.4"></a>
+
+## KI#123.4 - (Fixed inherited AdvCiv) The map's bonus bubbles drew at a size meant for another field of view: AdvCiv's size patch ran before the field of view for the resolution was set, so it used the XML's 42 when a game was loaded and the previous resolution's after a change in game
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1loyNEQ5hdesnU3GF8I5TTHHa3byvdBf8?usp=sharing).
+
+- How the size is set: AdvCiv patches the bubble size into the EXE (`PlotIndicatorSizeMod` in [SelfMod.cpp](/CvGameCoreDLL/SelfMod.cpp)), scaled by the square root of 40 / field of view (FoV) to keep a bubble about a quarter of a tile wide.
+  - `initState` in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) runs it through `setScreenDimensions`, while the FoV for the resolution, 37 x height / 1024 above 1024 px tall, is set later, by `setFieldofView` during `redraw`.
+- Reproduced on 2026-11-24 with temporary log rows: loading a game at 1920 x 1080, the patch read 42, the XML's `FIELD_OF_VIEW`, and 39 was set for 1080 a second later; after a change in game the patch reads the previous resolution's FoV.
+  - The previous day the user had seen the bubbles about 1.5 times larger after 4K to 1080p than in a game started at 1080p; Codex's (GPT-6.2-Sol) review noted that this ordering alone predicts the opposite there, as the stale 4K FoV of 78 against a fresh 42 scales the bubbles by about 0.73, so the logs establish the ordering, not the cause of that observation.
+- Origin, from the `commit_diffs` corpus and base AdvCiv 1.14's copy of the file:
+  - AdvCiv advc.004m set the default FoV from the screen height, its base going from 42 to 37 in practical 3791 (`91e1f2153a`, 2022-05-08).
+  - AdvCiv advc.092b added the size patch with its FoV scaling, called from `setScreenDimensions`, in practical 3792 (`55390b0167`, 2022-05-08); this set the order in which the patch runs before advc.004m's FoV.
+  - Base AdvCiv 1.14 keeps that order: on a resolution change it invalidates the globe layer (its advc.001 note, "Avoid warped plot indicators upon changing resolution") and runs the patch again (advc.092b), still before the new FoV is set.
+- Fixed (2026-11-24): `initState` marks the size stale after `setScreenDimensions`, and `_setFieldofView`, once it has set the first FoV of that interface build, runs the patch again through `cyUpdatePlotIndicatorSize`, which BUG's Plot Indicator Size option calls too, and redraws the globe layer.
+  - FoV slider moves still do not run it again: AdvCiv chose not to redraw the globe layer then, to avoid stutter.
+  - The globe redraw also runs when the patch is off or BUG's "BtS" size, which ignores the FoV, is chosen; Codex's review noted it, and it is at most one per interface build, so it is kept.
+  - With the FoV-sensitive patch on, that is any BUG Plot Indicator Size other than "BtS", a game loaded above 1080p now sizes the bubbles from its own FoV, so they are smaller than before, as AdvCiv's formula intends; BUG's Plot Indicator Size option still sets the size by hand.
+- Tested on 2026-11-24 by Claude Code Opus 5.5, with a temporary log row: a game loaded at 1920 x 1080 sized them again with FoV 39, and after a change to 2560 x 1440 with 52, the new resolution's own, with no Python error.
+
+<a id="ki-123.5"></a>
+
+## KI#123.5 - (Fixed incomplete inherited AdvCiv solution) Vanilla's Replay screen stays a 1024 x 768 box at any resolution; AdvCiv made it scale with the resolution, but laid it out only once per session: after 1920 x 1080 to 2560 x 1440, the reopened replay stayed at 1920 x 1080 until a tedious Civ4 restart
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1wUKnwqpAiCewBuigd2Z9vuAgYroselO_?usp=sharing).
+
+- What it was, from the user's screenshots (`Civ4ScreenShot0693` to `0697`, 2026-11-24): at the main menu, the Hall of Fame and a game's Replay filled the screen at 1920 x 1080; after switching to 2560 x 1440 in the main menu's Options, the Hall of Fame filled 2560 x 1440, but the Replay opened at its old 1920 x 1080 frame in the top-left corner, with the Hall of Fame around it.
+  - Base AdvCiv 1.14 does the same, as the user tested the same day the other way round (`Civ4ScreenShot0698` to `0702`): the replay filled 2560 x 1440, and after a switch to 1920 x 1080 kept its 2560 x 1440 size, running off the right and bottom edges.
+- Origin, from the `commit_diffs` corpus and vanilla's copy in Civ4CE, which BtS uses:
+  - Vanilla's Replay screen was a fixed 1024 x 768 box centred on the screen, so it kept no stale dimensions, but used little of a larger screen.
+  - Base AdvCiv copied the file in practical 1741 (`d408c0233f`, 2019-10-10), and advc.106m, practical 1742 (`1402076091`, the same day), sized it from the resolution in `calculateLayout`, behind a `bLayoutDone` flag commented "Use this to avoid calling calculateLayout more than once", so once per session.
+  - SAS made it fill the screen with no margins, practical 5649 (2026-04-13), and kept the flag.
+- Fixed (2026-11-24): [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py) drops the flag, so `calculateLayout`, a few sums, runs on every opening.
+  - The first fix kept the layout cached until the resolution changed; Codex's (GPT-6.2-Sol) review found that this kept another stale value, pre-existing behind the flag: `showScreen` narrows `W_MAP` to fit a tall map, so a later replay at the same resolution inherited the narrow width, at 1920 x 1080 695 px instead of 1226 for a wider map.
+  - Codex also checked every entry point: the game's own replay call, the Hall of Fame and the debug shortcut all go through `showScreen`, which lays out before creating widgets.
+- Tested by the user with the fix (`Civ4ScreenShot0703` to `0707`, 2026-11-24): the replay filled 1920 x 1080, and after a switch to 2560 x 1440 from the main menu filled the new window too.
+- The same history as [KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2), the Sevopedia: a fixed 1024 x 768 box before AdvCiv, which made it fill the screen but laid it out once per session.
+- Other screens: a search for once-per-session layouts found only BUG's Customizable Domestic Advisor, whose position flag BUG already resets on its `ResolutionChanged` event (`BUG Advisors.xml`), so the Replay screen was the last of the KI#123 family's inherited cases; base AdvCiv 1.14 registers that event the same way, as BUG wrote it.
+
+<a id="ki-123.6"></a>
+
+## KI#123.6 - (Fixed inherited AdvCiv) Turning BUG's Scale Up HUD off kept the main interface scaled until a Civ4 restart: AdvCiv's advc.092 set its scale factors only while the option was on, so a game load or resolution change kept the previous build's
+
+- What it was: `initState` in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) sets the `LayoutDict` scale factors, which are module globals, only when Scale Up HUD is on and the screen is above 1024 x 768; otherwise it left them as the last build set them.
+  - So turning the option off, or a change to 1024 x 768, kept the old scaling until a restart, which base AdvCiv's tooltip for the option admitted ("Changes won't apply properly until Civ 4 is restarted").
+- Found (2026-11-24) by Codex's (GPT-6.2-Sol) review of SAS's rewrite of that tooltip, under [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123), to say the option applies at the next game load or resolution change: true when turning it on, not off.
+- Fixed (2026-11-24): `initState` resets the factors to 1.0 before each build, then scales only with the option on.
+- Tested the same day: a game loaded at 1920 x 1080 with the option on; the option turned off in the BUG menu, then the resolution changed in Options. The main interface rebuilt unscaled: the unit panel went from about 395 to 345 pixels wide, and the minimap and buttons shrank to match.
 
 <a id="ki-124"></a>
 
@@ -11817,6 +12180,502 @@ Files changed:
 - The user confirmed successful DLL compilation and an in-game smoke test with no obvious issue. Explicit runtime define-change and nuclear-effect tests remain pending.
 
 Investigated, repaired and documented with the help of GPT-6.1-Sol; the earlier Python caching work retains its Claude code Sonnet 4.6 credit.
+
+<a id="ki-128.3"></a>
+
+## KI#128.3 - (Improved incomplete inherited AdvCiv caching, guarded by CI) AdvCiv cached 198 of the DLL's 467 define reads by name, its hot ones; SAS cached most of the rest, and one SAS diagnostic read its define for each plot it scanned
+
+### What AdvCiv left and what SAS did
+
+- `GC.getDefineINT("NAME")` looks the name up in a string map on every call. Base AdvCiv 1.14 (`upstream/1.14`) reads defines by name 467 times: 198 in function-local statics, mostly tagged `advc.opt`, such as `CvUnit`'s interception and healing rates, and 269 read anew on each call.
+  - The 269 were mostly cold: event-driven or per-turn code such as `CvUnit::setXY`'s capture war weariness (`WW_UNIT_CAPTURED`), `CvPlayer::calculatePollution`'s global warming weights or help-text builders such as `CvGameTextMgr::setEspionageCostHelp`. So AdvCiv had cached where it mattered and stopped there, an unfinished step rather than a regression.
+- SAS finished most of it in six "performance optimizations" commits from 2025-10-04 to 2025-11-01, SAS practicals 5034 (`c3d736ff5c`) to 5083 (`118d145c30`), besides caching SAS's own new defines the same way.
+  - Counting reads of non-SAS define names in snapshots, from SAS 5033 (`8a4001086b`) just before to 5083 just after: statics rose from 198 to 401 and uncached reads fell from 270 to 52, some reads being removed or moved; snapshots show the net change, not each conversion.
+  - Later passes followed: the Python lazy define caches of [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128) (SAS 5785, `6e6bca43e`, 2026-05-11); SASGameRecord 131's written C++ define-cache policy (SAS 6585, `fdcd91c77`, 2026-10-06); and 28 recurring SAS settings moved into AdvCiv's enum-indexed `CvGlobals` cache (SAS 6691, `1629edc69`, 2026-10-27).
+  - No speedup was measured for any of them; the reads they removed cost a string lookup each, which matters only on a recurring path.
+- 55 reads of non-SAS define names remain uncached in SAS (406 are statics), some of them SAS's own reads of older names.
+  - They run at setup or on other infrequent paths, such as once per turn in `CvGame::doVoteSelection`, on a resolution change for `CAMERA_BASE_CITY_DISTANCE`, or in `CvMapGenerator::addRivers`, which reads fresh by design since [KI#243](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-243); none runs per plot or per unit, so they stay as they are.
+  - Codex's second review (GPT-6.2-Sol) corrected these numbers: the first count used the local `../AdvCiv` copy, which is on its `sasgamerecord-1.14` branch with SASGameRecord added, rather than the pristine `upstream/1.14` (`5970334b64`), counted `const static` as uncached, and claimed 206 conversions the snapshots cannot show.
+
+### The SAS slip and the guard (2026-11-25)
+
+- An audit asked whether every SAS define that needs caching was cached: of 545 SAS reads by name, 484 were statics and 59 ran once or rarely, but `SAS_logFirstCityShadowScoutEntry`, behind BBAI's first-city Settler level 3, read `SAS_1ST_CITY_SCOUT_FOG_END_REF_PLOT_MULT` for each frontier plot and step, while the gameplay path beside it already kept the same define in a static. It now reads it once too.
+- [`cpp_define_reads_cached.py`](/.github/workflows/README.md#buildsourcecpp_define_reads_cachedpy) now fails a SAS define read by name outside a static unless its function says why with a `ci_define_uncached:` comment, which the 59 now carry; `--all-defines` reports the inherited reads too.
+  - It writes down and enforces what was already the habit, a reason beside an uncached read, which nothing checked; the token is listed with the other [CI markers in source comments](/.github/workflows/README.md#ci-markers-in-source-comments).
+  - Codex's review (GPT-6.2-Sol) found the first version's gaps, such as a marker inside a string counting, and two `SelfMod.cpp` comments wrongly saying "once"; the check's README entry lists them.
+- Runtime Python's SAS define reads sit at module level, in screen `__init__` methods, behind lazy caches or once per screen opening or map generation, so they need no such check.
+
+### Which cache, and why not one for every define
+
+- Both caches remove the string lookup, and they cost about the same, so speed alone does not choose between them:
+  - A function-local static holds its value, 4 bytes, plus a guard bit for the function. The first call reads the define by name; each later call tests the guard, one load and a branch the processor predicts, then loads the value.
+  - AdvCiv's enum cache holds the value in one array in `CvGlobals`, and its inline getter loads the array's address, then the value: two loads, the second waiting on the first, and no branch.
+  - Each is around a nanosecond, against a string-map lookup on every call; neither difference was measured, and about 500 cached defines take a few KB either way.
+- The enum cache fits a define that several recurring functions or files share: one home to find, rename or retune it, and no copies drifting apart. A define used in one function, read once at setup, or transformed before use stays a local static, as AGENTS.md's caching rules say.
+  - On 2026-11-25 each of its 28 SAS entries was used by two to four functions, so none needs to move back to a static.
+  - Four SAS defines were kept in statics in several functions that run all game: `SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT` in `CvCityAI::AI_chooseProduction`, `CvCityAI::AI_chooseUnit` and `SAS_tryAttachCityEscortToSettler`, `SAS_BLDG_PICK_WW_EAGERNESS_PCT` and `SAS_BLDG_PICK_WW_LOCAL_DOM_MIN_PWR_PCT` in `AI_bestBuildingThreshold` and `SAS_getWorldWonderSelectionValuePercent`, and `SAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON` in `AI_updateSafety` and `AI_evacuateCity`.
+    - They moved to the enum cache the same day for that single home, not for speed, as they read as fast either way; a 150-turn autoplay with the rebuilt Debug-opt DLL reached world wonders, evacuations and Settler escorts with no error.
+  - Four more are kept in statics in two functions each but left out on purpose, as the user pointed out (2026-11-25): `SAS_1ST_CITY_FOUND_MAX_T_UNSCALED_GS`, `SAS_1ST_CITY_SCOUT_FOG_END_REF_PLOT_MULT`, `SAS_1ST_CITY_CORE_IMPROVE_VAL_PCT` and `SAS_PROD_1ST_SETTLER_ESCORT_MAX_T_NORM_GS` are read only while a player founds its first city or trains its first Settler, or behind BBAI's Settler logging, so they run in a game's first turns, not all game.
+    - The rest of the 19 SAS defines read in more than one function run once or rarely, such as map generation, the EXE patches, `SAS_SAVE_VERSION` or SASGameRecord's session rows.
+- Centralizing is not the problem; the container is. The enum must live in `CvGlobals.h`, which nearly every DLL file includes, so each new entry rebuilds the whole DLL, and a list of every SAS define there would grow without end, far from the code and comments each value belongs to.
+  - A shared home included only by the files that need it would not have that cost; the Python shared modules stayed small for the same reason, and their giant-module cases were what defeated the purpose.
+- Related but separate: [KI#1001.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001.2) shortened SAS define names to AdvCiv's naming scale, for tidiness and greppability rather than speed, and [KI#1001](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001) kept text values within the inherited 256-byte buffer.
+- The Python side keeps its own pattern, lazy `None` caches and module-level reads, since KI#128; Python has no `const`. An idea considered on 2026-11-25, a Python file outside `Assets` read while the game runs so some UI layout values could change without a restart, would concern restarts, not caching.
+
+Audited, fixed and documented by Claude Code Opus 5.5, with Codex's (GPT-6.2-Sol) review.
+
+Update (2026-11-25): the check covered SAS defines only, with `--all-defines` merely listing the 52 inherited reads by name. The user pointed out that inherited code runs just the same, so a new uncached inherited read deserved the same check; [`cpp_define_reads_cached.py`](/.github/workflows/README.md#buildsourcecpp_define_reads_cachedpy) now checks every define.
+
+- None of the 52 recurs: they run at XML load, game setup or map generation, when a Secretary-General timer runs out, when a Rise and Fall chapter ends, or when the field of view or resolution changes. Each of their 22 functions now says why with a `ci_define_uncached:` comment.
+- Two of those comments answer older uncertain notes beside them:
+  - `CvGlobals::updateCameraStartDistance` rereads `FIELD_OF_VIEW` because the main interface's slider changes it during play (`CvMainInterface.py`), while its static keeps `CAMERA_START_DISTANCE`'s XML value on purpose, as BUG's default camera distance option overwrites that define (advc.004m, as in base AdvCiv).
+  - `CvGame::reset` reads `STANDARD_HANDICAP` at each game start or load, and its constructor call skips the read, as XML is not loaded then.
+
+- The same day, 10 inherited defines moved to the enum cache, at the end of AdvCiv's own list in `CvGlobals.h`, by the rule the four SAS ones followed: functions in several files read them all game, each keeping its own static.
+  - The user found the first by chance: `COMMERCE_PERCENT_CHANGE_INCREMENTS`, kept in a static by `CvPlayerAI::AI_doCommerce` since K-Mod and by `CvPlayer::verifyGoldCommercePercent` since SAS 5083's performance pass (`118d145c30`, 2025-11-01), which hoisted a read the loop repeated; Rise and Fall's `abandonPlans` read it by name.
+    - Two sound caches, then, but two homes.
+  - Asked whether others qualified, a list of every define read in two or more functions found 11 more, of which nine moved: `MIN_CONVERSION_TURNS`, `INITIAL_CITY_POPULATION`, `RELIGION_INFLUENCE_RANDOM_WEIGHT`, `UWAI_PERSONALITY_PERCENT`, `CIRCUMNAVIGATE_FREE_MOVES` and four espionage costs such as `ESPIONAGE_INTERCEPT_SPENDING_MAX`.
+    - Their readers in help text, such as `CvGameTextMgr`, moved too, so the hover text and the rule it describes read the same value.
+  - Left as statics: defines whose readers sit in one file, such as global warming's `GLOBAL_WARMING_PROB` and five terrain and feature types in `CvGame::doGlobalWarming` and `getRandGWPlot`, which already share a home, and defines read in two places only when one is help text, setup or a log row.
+  - `STANDARD_HANDICAP` and `CAPITAL_BUILDINGCLASS` moved too, then back: a 150-turn autoplay with them in the cache crashed while creating the new game.
+    - `CvXMLLoadUtility::SetPostGlobalsGlobalDefines` turns such type-name defines into indices after `cacheGlobals` has filled the cache, through `GetDefinesVarSystem()->SetValue`, which never refreshes it, so the cache kept the unresolved value; Codex's review (GPT-6.2-Sol) flagged the same load order unprompted.
+  - The check now fails any of the 31 `SetGlobalDefine` names in the enum cache, and `CvGlobals.h` says why beside the list.
+- While at it, the user asked to drop the old notes beside these reads that hedged with "check if accurate", as the new comments now say why; where a note had cited ChatGPT-5, its credit stays on the comment that replaced it.
+- The user also asked whether any read split its `getDefineINT(` and the name across lines, which hides the read from a grep. None did, and the check now fails such a split; a statement holding a read may still span lines, as tables of reads and long conditions read better split, so short two- or three-line ones such as `rTECH_COST_NOTRADE_MODIFIER`'s static were collapsed by hand instead.
+  - Scanning those statements found [KI#128.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.4).
+
+Pointed out by the user; done by Claude Code Opus 5.5.
+
+<a id="ki-128.4"></a>
+
+## KI#128.4 - (Fixed latent inherited AdvCiv) The AI's city-site culture estimate kept the first foreign capital's civilization-specific capital building for every civilization: a static held a value that differs per civilization, harmless only while every civilization builds the same Palace
+
+- `CitySiteEvaluator`'s culture estimate for a site near a foreign capital adds that capital building's culture, looked up from the foreign city's civilization. AdvCiv kept the looked-up building in a function-local `static`, so the first foreign capital evaluated in a session fixed it for every civilization afterwards.
+  - Only the building class, `CAPITAL_BUILDINGCLASS`, is the same for everyone; the static now keeps that, and the building is looked up per civilization, an array lookup.
+- Harmless with SAS's XML: every civilization builds `BUILDING_PALACE` except the Barbarians, whose cities are never capitals. A mod-mod giving civilizations their own Palace with different culture would have had each foreign capital counted as the first one's.
+- AdvCiv added it in practical 1861 (`891273d300`, 2019-12-21, "AI city placement tweaks"), and practical 1918 (`d78d567f9b`, 2020-01-10) rewrote the expression and kept the static; K-Mod 1.46 and Better BTS AI r597 have no such block.
+  - Codex's review (GPT-6.2-Sol) traced the commits and confirmed the fix.
+  - A first `rg` over the local `commit_diffs` missed them, as ripgrep skips the Git-ignored generated diffs even inside that folder; AGENTS.md's Source analysis now says to search with ignore files off.
+- The C++ File Audit Album did not cover this static, but found its closest relative, F217 ([KI#540](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-540)): UWAICache kept the first feature at -50 health or worse as Fallout, Jungle in SAS.
+  - It also records hidden-information findings in the same function: the lookup still takes the foreign civilization from the plot's working city, which [KI#498](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-498) records as a pending knowledge-boundary leak, unchanged here.
+- Same family as [KI#128.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.2), a static keeping a first-read value that can change; found while scanning multi-line statements holding define reads for [KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3).
+
+Found and fixed by Claude Code Opus 5.5, with Codex's (GPT-6.2-Sol) review.
+
+<a id="ki-128.5"></a>
+
+## KI#128.5 - (Improved SAS) Trying another value of a SAS define, such as a font size, cost a Civ4 restart per try, as the XML is read once; SASLiveDefineOverrides.txt now overrides SAS defines on top of the XML while Civ4 runs, and deleting a line brings the XML value back
+
+- Context: after the C++ define-cache audits of [KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3) and [KI#128.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.4), the work moved on to the Python layer on 2026-11-25, where how to cache define reads was still open. Its inventory counted 263 reads of 207 defines in 67 files.
+  - A small subset, 34 SAS layout values such as `SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3`, stood out: an earlier rule would make such pixel values code constants, but the user pointed out that this would scatter values that are handy to tune in one place, while keeping them as defines still cost a restart per try.
+  - So those were looked at first, together with an idea that had waited since 2026-11-10: changing defines at runtime rather than only at startup.
+- The issue: Civ4 reads `GlobalDefines_advciv_sas.xml` once at startup, so each try of a value, such as a Sevopedia width or the hover font size the DLL reads, meant a restart. Editing the XML during play was no answer either, as [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128) showed.
+  - The font upscaling work had shown the cost: adjusting a font size meant restarting Civ4 for each try, which was tedious and needless.
+- First design: move such defines out of the XML into one plain values file, `SASLiveDefinesResort.txt`, which a bridge module rereads during play. A prototype moved the five Sevopedia Leader item-list widths, then `SAS_UI_FONT_HOVER`, the first one the DLL reads.
+  - Two ideas came from SASPilot: the file sits outside `Assets`, as an edited file under `Assets` makes Civ4 reinitialize its Python, and a bridge module reads it while the game runs.
+  - Unlike SASPilot's commands it is data, not Python: Codex's review (GPT-6.2-Sol) noted that a file run as Python can do part of its work before an error stops it, so the whole file is parsed and checked before anything applies, and a bad edit is rejected and logged.
+  - No file watcher: the bridge rereads the small file and compares its whole text at each Sevopedia jump and every 20 game updates, an interval taken from SASPilot. A game update is one `CvGame::update` step, several per frame at most and none between turns or in WorldBuilder.
+    - Measured under Python 2.4, a reread cost 21 to 34 µs, and an edit applied 4.3 seconds after the save in an idle game; a shorter interval would need measuring in a foreground game and an autoplay, as the rate follows frames per second.
+    - An edit that changes only comments or line endings keeps the change count, so it rebuilds nothing; the first test raised it for a CRLF save of the same values.
+    - Comments first lived in the file with the values. Best of 5 rounds of 5,000, a reread took 21.8 µs with the 3.6 KB commented file and 21.3 µs with a 229-byte values-only one, as opening the file costs nearly all of it; a parse after a change took 12.2 µs against 5.1 µs. Comments were cheap, yet the file became values only, which CI enforces, so each define's comment has one home in the XML.
+  - `setDefineINT` updates a define and AdvCiv's enum cache, but not a function-local `static`: `CvDLLWidgetData.cpp` kept the hover size in one, so an edit never showed, and the prototype switched it to `GC.getDefineINT(CvGlobals::SAS_UI_FONT_HOVER)` at each hover; the hover size was later retired into `SAS_UI_FONT_LABEL`, below.
+  - Code that builds something once from a value rebuilds when the bridge's change count moves: `SASTextScale`'s font tags, and the Sevopedia's layout, as after a resolution change ([KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2)); with the Sevopedia open it is hidden and drawn again, and Back/Next history survives.
+  - `BugPath.getModDir()` is `None` at the main menu (`TypeError: len() of unsized object`), so the bridge builds its path from the EXE's folder and `getModPathInRoot`.
+  - Codex's review reproduced a failing setter that left part of a change applied and the file never reread, so a push that raises rolls back what it pushed and retries at the next reread.
+  - A table of bounds was added after Codex found a hover size of 5 accepted, then removed: a range belongs to the readers, and a copy in the carrier would drift from theirs. So the bridge checks only a line's form; `SASTextScale` raises on a font size outside 1 to 4, and the DLL ignores one.
+  - Codex also noted that identical files alone do not keep a multiplayer game in sync, as clients reread at different moments: a gameplay value needs a load boundary, such as loading a save, verified before anything relies on it.
+- What one home cost: with no XML value underneath, each gap needed machinery of its own.
+  - Neither tested startup hook applied the values before the main menu, BugEventManager's setup and `CvAppInterface.preGameStart` running only once a game starts, though a Sevopedia opened from the menu does. So the DLL got its own reader of the file for the hover size at XML load, and a list of its live defines in `CvGlobals.h` that CI kept equal to the bridge's.
+    - That reader took the first matching line and checked no range, unlike the bridge's parse, so the two could disagree about one file: a reason not to bring back a second parser.
+  - An empty or half-saved file would have left readers with no value, so a reread could add names but never drop one.
+  - Python readers had to call the bridge instead of `gc.getDefineINT`, and `SASTextScale` named each font size it routed, as CI wanted a quoted name in each call.
+  - About 13 CI checks and `toggle_dev_diagnostics.py` read define values from the XML only, so a moved define would drop out of them. Development values stay unstaged in any case; a Git clean filter that resets them on staging was set aside, as each clone must register it, what is staged would differ from what is seen, and shipped values would get a second home.
+  - Moving a define out and back meant rewriting XML tags and comments into one plain line and back, which the user found tedious for humans and agents alike.
+  - Scope rules followed: a value set once, such as the Sevopedia widths, and a switch read only at startup stay in the XML; the startup-only ones are listed with a reason each in a NoEntry file beside the values, a signpost the game never reads and CI enforces.
+- Next, the scope raised whether logging levels could change live; as each family would need its own rule for a level changed mid-session, the logging masters were weighed, and the levels stay on their startup path.
+  - Codex's review (GPT-6.2-Sol) kept a master where it controls a service, a dependency or a useful whole-subsystem off: `SAS_EXE_P_ON` stays as an unpatched baseline, `SAS_RUNTIME_STATUS_ON` stays as both Runtime watchers start under it, and SASGameRecord keeps its one level.
+  - `SAS_BBAI_LOG_ON` can go, in its own change, as each of its 29 category levels already switches its subject; the score interval's fallback (`BBAILog.cpp:154`), the `BBAI_LOG_SETTINGS` row and SASGameRecord's BBAI profile follow, and a local setup with the master at 0 and positive levels needs zeroing.
+- Second design, the same day: the user proposed keeping each define in both places, and Codex's review recommended the same as an override layer.
+  - Why: each define keeps its comment, its place among the related defines and its value in the XML, so nobody worries about where a comment goes or rewrites tags into one plain line and back; the CI checks that read the XML keep working, and most of the machinery above goes away. The cost is a shipped value written twice, which CI keeps equal.
+  - "Resort" fit a define moving away for a stay, which no longer happens, so the file became [`SASLiveDefineOverrides/SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt), read by [`SASLiveDefineOverridesBridge.py`](/Assets/Python/SASLiveDefineOverridesBridge.py), with [`SASLiveDefineOverridesNoEntry.txt`](/SASLiveDefineOverrides/SASLiveDefineOverridesNoEntry.txt) beside it.
+  - The XML stays the home of every define, its value and comment. A `SAS_NAME = integer` line in the file wins while Civ4 runs, and deleting it pushes the XML file's value back.
+  - The bridge pushes every override with `setDefineINT`, so any reader that asks at each use, in the DLL or through Python's `gc.getDefineINT`, sees it with no code for that define. The DLL's reader of the file, its separate list, the bridge's own read functions and the no-drop rule went away, and the hover size now sits beside the label size in `DO_FOR_EACH_SAS_SHARED_GLOBAL_DEFINE`.
+  - Only a reader that keeps a value needs care, once per consumer rather than per define: `SASTextScale` clears its kept sizes and tags when the change count moves, and the Sevopedia rebuilds and, since Codex's next review found its Leader widths kept at their old values, reads its defines again.
+  - A line must name an integer define of `GlobalDefines_advciv_sas.xml`, as `setDefineINT` would create any name silently. Codex's review then found that a failed first read of the XML left its names empty and rejected every line for good, and that a `<Define>` inside an XML comment counted as one; the names are now kept only once read whole, with comments removed first.
+  - A failed push now rolls back to the values the defines held just before it, not to the XML's, and the file is retried even if the rollback fails.
+  - Limits, from the same review: a module XML loaded after `GlobalDefines_advciv_sas.xml` could set the same define, which deletion would not restore, though no SAS module sets one; and after Civ4 reinitializes its Python, the bridge no longer knows the overrides the DLL still holds, so a line deleted before its first reread stays applied until a restart.
+  - A shipped line must equal its XML value, so the game plays the same with the overrides on or off; the user wants font sizes shipped there as a demonstration. Codex noted that even an equal line pins the value against a later XML edit.
+  - `SAS_LIVE_DEFINE_OVERRIDES_ON` turns it off, as a master earns its place when it controls a service, here a file read during play.
+  - Overrides apply from the bridge's first load, when a game starts, at a Sevopedia page or a few seconds into play; until then the defines hold their XML values.
+  - [`sas_live_define_overrides.py`](/.github/workflows/README.md#buildsourcesas_live_define_overridespy) fails a shipped override that differs from the XML or names a NoEntry define, and a define it names kept in a Python module global, a `self.` attribute or a DLL `static`.
+    - With `--staged`, as `ci_report.py` runs it, the values and the XML come from the index, while the NoEntry list and the sources come from the working tree.
+    - Codex found what it misses: its cache patterns cover the shipped names only and miss a lazy global or a `self.` cache split across lines; and NoEntry is CI-only, so a local line can still push a startup or gameplay define, which needs an explicit boundary before players or multiplayer rely on it.
+  - Tested on 2026-11-25 with a new Debug-opt DLL only, assertions on: the hover was size 2 from an override at game start, 4 after an edit during play, and the XML's 3 after the line was deleted; a misspelled name was rejected with the hover unchanged, and `PythonErr.log` stayed empty.
+    - After the fixes from Codex's last review, the same cycle passed again, with the line then set back to 4. The paths those fixes guard, a failed first XML read and a failed push, were not exercised in game, nor the Sevopedia's reread of its defines.
+    - Not tested: a font size at a cold main menu, a Release DLL, and multiplayer.
+- Then, on 2026-11-26, a universal answer to readers that keep a value: the user did not want each define handled on its own, so [`SASCurrentDefines.py`](/Assets/Python/SASCurrentDefines.py) offers one cached read, `SASCurrentDefines.getInt("SAS_NAME")`, whose cache empties when the bridge's change count moves, so a reader using it sees an override with no code of its own.
+  - Codex's review advised a prototype on a few readers, opt-in for raw SAS integers, as a value built from a define, such as a font tag or a layout, still belongs to its owner: `SASTextScale`'s font sizes and SevoPediaMain's Leader item-list width getter use it, while the font tags and the Sevopedia layout keep their own rebuild.
+  - A central cache had been set aside for C++ in [KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3), as its enum list must name every define in `CvGlobals.h`, rebuilding the whole DLL for each one and keeping values away from their code.
+    - `SASCurrentDefines` has neither cost: it keeps no list, as each reader passes its define's name where it reads it and the cache fills itself, and it needs no compile.
+  - Codex's next review (GPT-6.2-Sol) found its limit: the cache empties on the bridge's writes only, so a define that other code changes during play, such as `FIELD_OF_VIEW` in `CvMainInterface.py` or the river values `Water.py` sets, would read stale through it; such defines are read with `gc` at each use.
+    - The same review added the main menu's music shuffle, `SAS_SAVE_VERSION` and the billboard multipliers to the NoEntry list, as each is read into state built once, and advised taking the other font sizes and the logging families in changes of their own.
+  - `SASTextScale` had cached an out-of-range font size as `None` after its first error, so later tags silently lost their size; it now raises at each read.
+  - Measured under Python 2.4, best of 5 runs of 200,000 reads: 135 ns per `SASCurrentDefines.getInt` against 15 ns for a kept attribute, then 151 ns once it had float and string caches beside it, so a screen reading 50 defines per redraw pays about 7 µs; a hot loop over cells should still copy the value into a local.
+  - Tested in game with the Sevopedia open on a Leader page: an override of `SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3` from 200 to 400 widened the item list at the next Down press, and deleting the line narrowed it again at the next one, with `PythonErr.log` empty.
+- To choose which defines to ship and which to keep out, without guessing per family, [`audit_define_timing.py`](/LLM_Helpers/README.md#audit_define_timingpy) lists each SAS define's readers and how they read it (2026-11-26). Of 762, about 590 are kept somewhere, mostly in DLL statics (about 450), 8 are read only at startup, and under 90 show no cache.
+  - Codex's review (GPT-6.2-Sol) found that "no cache" can still mean "built once", so the verdict is named for what it can tell. It also moved SGR's map symbols into NoEntry, as their palette is built once per process.
+  - Several families are kept, and so stay in the XML, until their readers change: the Barbarian era cost tables, built once per process in `CvPlayer`; the `SAS_UNIT_XML_*` switches, first-use statics in `CvUnitInfo`'s getters; and BBAI's category levels, copied once by `cacheSASBBAILogSettings`.
+  - Map-generation defines vary by reader: Peirce's and Planet's grid percentages are reread at each size request and Earth2's thresholds at each start assignment, while others are cached for the process.
+- The NoEntry list names each define in full since 2026-11-26: patterns such as `SAS_EXE_P_*` hid a define's line from a grep for it, so the user asked for full names, and CI rejects a `*`.
+  - It has two sections, as the user proposed: never, defines read only at startup or changed by the game itself, and not for now, defines read once by code that could be changed to follow an override, such as the main menu's music pool, the billboard rewrite, SGR's palette, the `SAS_UNIT_XML_*` switches and the Barbarian era cost tables.
+- Overrides are logged where they are set, and only there: the bridge's `SAS_LIVE_DEFINE_OVERRIDES` row records each change and the active set (2026-11-26).
+  - Drafts had also logged them in their readers, a Sevopedia row on each rebuild and a font-size row for each new size; the user pointed out that each further reader would add another, scattering the overrides' history, so both went. It is the same point the user made about caching, which each reader once handled on its own until `SASCurrentDefines` took it over.
+  - Likewise, readers do not ask the bridge to reread its file: during play it rereads by itself on game updates. The Sevopedia is the exception, asking at each jump, as it can be opened from the main menu, where no game update runs; the user asked on 2026-11-26 whether every reader of a live define would need such a call, and none does.
+  - The Sevopedia's `SEVOPEDIA_RESOLUTION_CHANGE` row stays, as the resolution change is the Sevopedia's own concern, detected and handled there alone, while a define override is a more general one.
+- Uses beyond font sizes, discussed with the user; each is a possible extension, with what it would need:
+  - AI values under test: reloading the same save with another value, then setting the XML once satisfied, saves a restart per try. Most AI defines sit in DLL `static`s, about 590 of them, so each needs its reader moved to the enum cache or a read at each use first; and a value that changes the game should reach the game's record, which `PythonDbg.log` alone does not keep past the next launch.
+  - Logging levels changed during a session: BBAI's category levels only gate rows, but the DLL keeps them in globals filled at load, so a push would need a hook that refills them; a SASGameRecord level also decides whether the record file and its first rows exist, so it needs a rule for a change mid-session.
+  - AI benchmarking, autoplays comparing values: one file applies to one computer, so clients that need their own values fit the per-run overrides below better.
+- Related ideas kept apart: Realism Invictus's restored Python hot reload (r5603) serves developers editing code and rereads the same XML defines, so it neither replaces nor conflicts with overrides; per-run overrides in `run_autoplay.py`'s INI, an earlier idea for logging levels, would still give each client its own values.
+
+The other four font sizes followed (2026-11-26): `SAS_UI_FONT_TINY`, `SAS_UI_FONT_BODY`, `SAS_UI_FONT_LABEL` and `SAS_UI_FONT_TITLE` now sit in the shipped overrides file beside the hover, each equal to its XML value.
+
+- A search of their readers found none to change: the font tags rebuild on the change count, each advisor lays itself out from the label size at each opening, the Sevopedia's category width comes from `__init__`, which its rebuild reruns, the city screen reads the size at each redraw, and the DLL reads `SAS_UI_FONT_LABEL` through the enum cache.
+- Tested in game on a turn-150 Huge save at 1926 x 1120, Debug-opt DLL:
+  - With no screen open, `SAS_UI_FONT_LABEL = 4` reached only the turn line, which redraws at each update; the scoreboard, research count and unit panel kept size 3, as they redraw only when their dirty bits are set.
+    - So after a change, the bridge's game-update reread now marks the whole main interface dirty with `makeInterfaceDirty`. AdvCiv notes in `CvPlayer.cpp` that it costs far more than one dirty bit, but it runs only on a change, and it reaches any define the main interface reads, not only fonts.
+    - Retested: label 4, then all four sizes changed at once, then all removed; the scoreboard, era label and unit panel followed within one reread each time, and `PythonErr.log` stayed empty.
+  - An open Domestic Advisor kept the text it had drawn after the label went from 4 to 3, and showed 3 when reopened, so advisors follow at their next opening.
+  - A line equal to its XML value still counts as a change, logged as `SAS_UI_FONT_BODY:xml2->2`, so adding the shipped lines redrew the interface once.
+- `SAS_UI_FONT_BODY` does not reach the city billboards: `SASBillboardScale.py` writes them into `CIV4DetailManager.xml` from the body size once at load, which is why its `SAS_BILLBOARD_SCALE_PCT_FONT_*` multipliers are in NoEntry.
+- Label 4 at this width crowded the scoreboard's left column. A restart at label 4 likely looks the same, as the scoreboard reads the size at each redraw, but this was not compared.
+
+BBAI's category levels followed next (2026-11-26). `cacheSASBBAILogSettings` copies them into `gSASBBAILogSettings` once at XML load, so an override reached none of BBAI's gates.
+
+- Rather than a binding per family, the bridge calls one DLL entry point after each applied change, `CyGlobalContext::onSASLiveDefineOverridesApplied`, which calls `refreshSASBBAILogLevels`; a later family that keeps state built from its defines adds its refill there.
+- The refill runs only while BBAI logging was on at load, and keeps `SAS_BBAI_LOG_ON` and the enabled flag as they were: they decide at load whether a session file starts, and callers gate on the levels alone, so a level turned on in a session without a file would write before one starts.
+- A change during play writes `BBAI_LOG_SETTINGS_CHANGED` into the BBAI file, as the file records its levels in `BBAI_LOG_SETTINGS` at its start and would otherwise misstate them. It records the file's own settings rather than the override, which the bridge's row records.
+- Tested in game on the turn-150 save with a new Debug-opt DLL, `SAS_BBAI_LOG_ON` and `SAS_BBAI_PLAYER_LOG` at 1 in the XML:
+  - `SAS_BBAI_UNIT_LOG = 1` wrote `BBAI_LOG_SETTINGS_CHANGED changes=SAS_BBAI_UNIT_LOG:0->1`.
+  - Replacing it with `SAS_BBAI_CITY_LOG = 1` wrote `SAS_BBAI_CITY_LOG:0->1,SAS_BBAI_UNIT_LOG:1->0`, and the next turn wrote 15 `CITY_PRODUCTION_ORDER` rows, where the turn before had none.
+  - Deleting the line wrote `SAS_BBAI_CITY_LOG:1->0`, and the next turn wrote its 17 `PLAYER_TURN_STATUS` rows but no `CITY_PRODUCTION_ORDER`; `PythonErr.log` stayed empty.
+  - Not tested: a session with BBAI off at load, where the refill is meant to do nothing.
+- Unlike the font sizes, BBAI's levels are not shipped in the overrides file.
+  - The 29 lines at their XML value of 0 passed CI, but a line wins over the XML, so turning a level on in the XML, as `toggle_dev_diagnostics.py` and the usual development set-up do, would have stayed at 0.
+  - Codex had noted that an equal line pins its value against a later XML edit; that matters most for the defines edited most often in the XML.
+- NoEntry's repeated reasons were shortened the same day, at the user's suggestion: a family's first line keeps its reason, and the others say "same reason as" it, naming it so each line stays traceable if lines move. A blank line now separates each family.
+  - The file went from 17 to 10 KB, while each define keeps its own line.
+
+SASGameRecord and Runtime followed through the same entry point (2026-11-26), as an experiment removed the same day; the account below is of that experiment.
+
+- SGR's `SAS_SGR_PERFORMANCE_METRICS_ON` and three `SAS_SGR_TRADE_MARKET_*` switches were first-use statics; `cacheSASGameRecordLiveSwitches` filled them at XML load and after each applied change.
+  - None builds state at the record's start, so a new value applied from the next snapshot. A change during play wrote `GAME_RECORD_SESSION_SETTINGS ... event=CHANGE reason=SAS_LIVE_DEFINE_OVERRIDES`, reusing the row SGR already wrote for runtime view changes.
+  - Reverted the same day, with Runtime's: the user found listing four of SGR's switches while the rest stayed out unintuitive, and placed all of SGR with the system settings, a compact black box switched on and left on, where a restart is fine for the rare benchmark; Codex's review (GPT-6.2-Sol) agreed.
+    - The four first-use statics are back, the refill and its change row went, and SGR needs no revision for it.
+- Runtime's player-turn live threshold and refresh were function-local statics read on every game update during AI turns; they stayed cached, and `refreshSASRuntimeLiveSettings` marked them unread so the next use reread them. Each status snapshot writes both, so no row was added.
+  - Reverted the same day: the user placed Runtime with the system settings switched on once and left on, so its timing values joined NoEntry for that practical reason, and Codex's review (GPT-6.2-Sol) advised removing a refill for an unsupported use; the statics, and Runtime's revision 19, are back.
+- Neither family had moved to AdvCiv's enum cache: each kept its own cache, refilled on a change, so gameplay reads stayed what they were, and the enum's costs from [KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3) are avoided; the user asked, and the enum stays for defines read directly at each use.
+- Tested in game before the revert, on the turn-150 save with SGR at 3 and Runtime on in the XML, BBAI off:
+  - `SAS_SGR_TRADE_MARKET_ON = 0` wrote `values=SAS_SGR_TRADE_MARKET_ON=1>0`, and turn 150, a snapshot turn, wrote no `GAME_RECORD_TRADE_MARKET` row, where the session before, with the switch fixed on, wrote 14. Setting it back wrote `0>1`; the next snapshot turn was not reached.
+  - `SAS_RUNTIME_PLAYER_TURN_LIVE_THRESHOLD_MS = 500` showed as `"playerTurnLiveThresholdMilliseconds": 500` in the next status file, where it had been 3000.
+  - `SAS_BBAI_PLAYER_LOG = 1` started no BBAI file, as BBAI was off at load, which closes the case left untested above.
+
+The hover font size was then retired into `SAS_UI_FONT_LABEL` (2026-11-26), in a change of its own: reviewing the font lines, the user pointed out that raising the label to 4 meant remembering to raise hover too, while hover always wanted the label's size.
+
+- [`global_define_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md) maps the old name; the entries above keep it, as they record what was tested then.
+
+Codex's review of these families (GPT-6.2-Sol, 2026-11-26) found three faults, each fixed the same day:
+
+- The bridge called the DLL refill after it had counted and logged the change, so a failing call, such as with a DLL older than the bridge, raised out of `preGameStart`, and the refill was never retried.
+  - The call now runs inside the push: a failure rolls the defines back, refills from the restored values, and leaves the file to be retried, which a new CI test checks with a refill that fails once.
+  - The shipped DLL must match the bridge, so the commit carries a Release DLL.
+- The BBAI and SGR change rows were gated on `isFinalInitialized`, which is saved game state, not the log's: it is true during a load before the files rotate, and false after a new game's files have already written their settings.
+  - They are now gated on the writer's own session, BBAI's started session sequence and SGR's open record, so a row goes to whichever file is open, and a file opened later shows the new values in its own settings row.
+- SGR joined several changes with commas, while `GAME_RECORD_SESSION_SETTINGS` schema 1 separates pairs with `;`, so two changes at once would have read as one entry; they now use `;`.
+- Retested with a rebuilt Debug-opt DLL: overriding the performance metrics and trade market together wrote `count=2 values=SAS_SGR_PERFORMANCE_METRICS_ON=1>0;SAS_SGR_TRADE_MARKET_ON=1>0` into the open record, and removing both wrote the reverse.
+
+The `preGameStart` hook above relies on [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104), which carried `CvAppInterface.py` into the mod on 2026-11-22 with the other base-game Python files SAS uses. That copy made the first application point an ordinary SAS edit rather than a change to a BtS file outside the repository, as the user pointed out.
+
+The user then asked whether SASGameRecord, and any other family, should get a master of its own, so its level could be overridden like BBAI's categories (2026-11-26). Codex's review (GPT-6.2-Sol) found that a master alone would not make a mid-record level change sound:
+
+- Raising `SAS_SGR_LOG` from 1 to 3 after a load misses the war and RNG baselines and the map and river rows written only when the record starts.
+- Lowering it leaves RNG tracking on, can skip the peace of a war the record already tracks, and a return to 3 resumes city compaction from an old cache. A `CHANGE` row would only describe those gaps.
+- These findings confirmed that the master was worth adding for its own sake, as the user had judged: the level, fixed per record, could never serve as a live switch. It came as `SAS_SGR_LOG_ON` in [SASGameRecord revision 214](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md#revision-214---sas-practical-6868) (SGR214), split out as its own commit.
+- So the level stays fixed per record, and NoEntry now gives that reason. A sound change would apply from the next record: since SGR214, Python's `SASGameRecordConfig` and `DiplomacyUtil` read one effective level from the DLL, so it would need that level set before the native new-game or load gate, and the Python cache cleared when a record starts.
+- No other family needs one: Runtime and its watchers sit under `SAS_RUNTIME_STATUS_ON`, BBAI's categories under `SAS_BBAI_LOG_ON`, `SAS_SGR_SYSTEM_CONTEXT_LVL` under SGR, and assertions, SASPilot, BUG's logging and the Sevopedia and advisor dumps have switches of their own.
+- One limit remained: with BBAI's master on but every category at 0 at load, BBAI stayed off, so a later category override could not start it.
+  - The user then asked that categories at 0 be valid under an armed master, logging nothing until one is raised, midway through a test or for a comparison. So `SAS_BBAI_LOG_ON=1` alone now starts the session file.
+    - An all-zero session's file holds its lifecycle, provenance, settings and RNG-state rows, but no category's rows.
+    - `CvCityAI` prepares city names for those rows only while some category is above 0, a flag refilled with the levels, as Codex's review (GPT-6.2-Sol) found the name copied on every production choice otherwise.
+  - SGR's profile field `bbaiAnyCategoryEffective` is now counted from the levels, keeping its meaning.
+  - Tested in game: with the master at 1 and every category at 0, the BBAI file held its session rows but no category's rows; `SAS_BBAI_PLAYER_LOG = 1` then wrote `BBAI_LOG_SETTINGS_CHANGED changes=SAS_BBAI_PLAYER_LOG:0->1`, and the next turn its 17 `PLAYER_TURN_STATUS` rows.
+
+Which defines the shipped file lists was then settled as one rule (2026-11-26), after the user found the file, with only fonts in it, missing what overrides were wanted for in the first place.
+
+- The rule, the user's: overrides serve sparse audits without tedious restarts, as the in-game resolution support does. A define is listed when changing it during play takes effect and it is something one changes within a session; the file holds live lines only, never commented-out ones, so each line is either in use or absent for a recorded reason.
+- Listed: the four font sizes, and BBAI's 29 category levels.
+  - BBAI reverses the earlier choice above to leave its levels out: once its categories are changed in this file rather than in the XML, the pinning no longer surprises, and deleting a line still brings the XML value back.
+  - The case is strong: BBAI logs reach several GB a session, so a category is best on only for the stretch audited, such as the first city, then Workers, then production; or an agent auditing an AI change turns BBAI on for a few turns, collects what it needs, and tests other things in the same session.
+- Not listed, in NoEntry with their reason, so they are excluded rather than forgotten:
+  - Runtime, its watchers and timing values, as system observers switched on for a run and left on, where a change brings little; the refill added for the timing values was removed, see above.
+  - All of SASGameRecord. Its four live switches were listed for a while, but listing some of its switches and not others was unintuitive, as the user said. Its strength is recording all the small things in one compact, systematic record, so their interactions show, and a restart is fine for the rare benchmark. Codex's review (GPT-6.2-Sol) agreed, so its refill went too.
+    - A trade-off, as the user put it: ideally SGR would be live too, but in practice it is always on, unlike BBAI, which is heavy and turned on sporadically.
+  - SGR's privacy opt-ins, such as chat, paths and INI text, have a section of their own: text once written stays in the record, so they stay a deliberate edit of the XML before a run.
+  - The new NoEntry sections, practical and privacy, join never and not for now.
+  - The EXE patches split the same way, as the user proposed: their switches stay under never, as they decide whether the running game's code is rewritten, risky to flip during play, while the main menu box's and globe's sizes go to practical, as once a size looks right it is rarely changed, and a user who wants another can restart.
+  - Realism Invictus's `SelfMod.cpp` (r5656), where the patches come from, marks some of its patches as applying only after a restart and others as live, which the user recalled Walter Hawkwood saying; NoEntry's reason cites it.
+  - The per-font layout tunings follow the same practical reason, as the user noted: the Sevopedia's widths per font and the billboard multipliers per font are settled once, while the font sizes they follow stay listed. The Leader widths would follow an override, as tested above, but are not something one changes in a session.
+- Not listed and not in NoEntry: defines whose readers keep their value, such as most AI tunables, as NoEntry is not exhaustive; site evaluation and UWAI values, whose timing is mixed; and map generation values, which apply only to the next map.
+  - The define-timing audit had reported 21 AI production values (`SAS_PROD_MIN_*`, `SAS_PROD_SECURED_*`) as read at use; Codex found them in first-use static arrays in `CvCityAI.cpp`, which the audit's backward walk missed at the initializer's `= {`, so the audit now reports them as kept.
+- A CI rule guards the split: a shipped line may not name a define `toggle_dev_diagnostics.py` switches in the XML, as the line would silently undo the toggle.
+- Adding a line is not enough to make another define live, as the user asked: its readers must follow the change first, in the DLL and in Python alike.
+  - In the DLL, a reader kept in a `static` needs a read at each use or the enum cache, and state built from several defines needs a refill through `CyGlobalContext::onSASLiveDefineOverridesApplied`, as BBAI's levels have.
+  - In Python, a module global or `self.` attribute needs `SASCurrentDefines`, and something built once from a define, such as the Sevopedia's layout, needs a rebuild when the change count moves.
+  - [`sas_live_define_overrides.py`](/.github/workflows/README.md#buildsourcesas_live_define_overridespy) fails a shipped line whose reader keeps its value, and [`audit_define_timing.py`](/LLM_Helpers/README.md#audit_define_timingpy) shows how each define is read, so either tells whether a define needs that work first.
+  - Most of the remaining SAS defines are AI tunables kept in statics. Making one live is usually a small code change, but it changes gameplay during a game, which multiplayer cannot keep in step, so it is done when an audit needs it rather than ahead of time.
+- The four font sizes stay listed with a scope: an override reaches text on its next redraw or rebuild, while the body size's billboard scaling, written once at load, does not, as Codex noted.
+- Tested in game with a rebuilt Debug-opt DLL: with `SAS_BBAI_LOG_ON=1` and the shipped lines holding every category at 0, changing `SAS_BBAI_CITY_LOG` to 1 in the overrides file wrote `BBAI_LOG_SETTINGS_CHANGED changes=SAS_BBAI_CITY_LOG:0->1`, and the next turn 22 `CITY_PRODUCTION_ORDER` rows, each with its city name; SGR's restored statics still wrote its 14 trade-market rows at turn 150.
+
+The overall design was then reviewed against the alternatives (2026-11-26), as the user asked whether something better existed, such as Realism Invictus's Python reload, which ChatGPT had researched before.
+
+Codex's review (GPT-6.2-Sol), quoted with its links pointed at repository paths and Realism Invictus's files named:
+
+> **The external override file was the right choice for live font tuning and short BBAI audits.** I'd keep the design and tighten its runtime scope. None of the reload alternatives gives the same coverage with less risk.
+
+| Approach | What it reaches | Verdict |
+| --- | --- | --- |
+| **Current SAS override file** | Typed setters update the define map and the relevant DLL numeric caches. `SASCurrentDefines` refreshes its Python cache, and the explicit DLL hook refills BBAI. Materialized UI state still needs a redraw or rebuild. Other DLL statics keep their original values. | **Best fit for both uses.** Small file, separate from shipped XML, with validation and rollback. [Bridge](/Assets/Python/SASLiveDefineOverridesBridge.py) · [Native setters](/CvGameCoreDLL/CvGlobals.cpp) · [BBAI refill hook](/CvGameCoreDLL/CyGlobalContext.cpp) |
+| **Realism Invictus Python reload** | Reloads Python code, reinitializes BUG and rebuilds the main interface. I found no call from those hooks to reread GlobalDefines XML or refresh the DLL's enum cache, native statics, or BBAI settings. RI also handles a circular-import race and temporarily suppresses cyclic GC and heavy debug logging. | **Complementary for editing code.** It would still need the native setter and refill for this task. Reload entry point: RI's `Assets/Python/EntryPoints/CvEventInterface.py`; BUG reload handling: RI's `Assets/Python/Components/BUG/BugInit.py` |
+| **Watch `GlobalDefines_advciv_sas.xml`** | Could reach exactly the same readers if it filtered edits and used the same setter, refill and redraw path. It would still need to handle partial writes and modular precedence. | **Worse for temporary edits.** It mixes experiments with committed defaults. Keeping the live file outside `Assets` is also prudent. The observed Python reload hazard establishes a reason for caution, while whether saving this particular XML triggers it remains unverified. |
+| **Rerun DLL `SetGlobalDefines`** | Rereads inherited, SAS and modular XML, rewrites `SAVE_VERSION`, and recaches globals, assertion policy, BBAI and SGR. It still leaves arbitrary DLL statics and Python caches intact. | **Worse.** The loader mutates state in place and can return early on error. It can overwrite game-managed values or reconfigure recording after a session has already started. [DLL loader](/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp) |
+| **BUG options or SASPilot commands** | With the same setter, cache notification and refill, they can reach the same readers. BUG makes settings discoverable, while a SASPilot command could apply a change immediately without polling. | **Complementary.** For BBAI alone, a dedicated command might be simpler. For both use cases, keep one apply path so file, UI and command changes behave identically. [Existing BUG option callbacks](/Assets/Config/BUG%20Core.xml) |
+
+- Codex suggested two improvements. The first was taken: the bridge now reads `SASLiveDefineOverridesNoEntry.txt` with the XML and rejects a line naming a listed define, logged as `REJECTED` with that define's reason, so NoEntry decides in game as well as in CI, as the user agreed.
+  - Tested in game: `SAS_SGR_TRADE_MARKET_ON = 0` added to the file was rejected with the other values kept. Its reason was first logged as "same reason as SAS_SGR_INTERVAL_T_UNSCALED_GS", the family pointer, so the bridge now follows such a pointer to the reason itself.
+- The second, restoring on deletion the value a define held before its first override rather than the XML file's, was declined, with the evidence above: after Civ4 reinitializes Python, the bridge forgets what it held while the DLL keeps the override, so a captured value could be the override itself, the reason the XML's value is restored. The module XML case it would fix stays a recorded limit, as no SAS module sets a SAS define.
+- Why BBAI took so little: an earlier refactor, for speed and iteration, had moved BBAI's 29 per-getter first-use statics into one registry, `aSASBBAILogCategories`, filled by one loop into the `gSASBBAILogSettings` struct, so the live refill is that loop run again.
+  - The struct is itself a global cache read directly at every gate, so AdvCiv's enum cache would add nothing but a whole-DLL rebuild per name ([KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3)); the enum suits a single define read directly at each use, such as `SAS_UI_FONT_LABEL`.
+  - SGR's level had been moved to one global the same way, which made its master a single change; its other switches and Runtime's timing values stayed first-use statics.
+
+The user then asked whether BUG options would have done as well, including for the DLL, and how each scales. The conclusion, which Codex's review (GPT-6.2-Sol) confirmed:
+
+- Making a define's readers follow a change costs the same whatever the front end, once per family, such as BBAI's refill or a read at each use instead of a static.
+- On top of that, an override line needs nothing but the line, as the bridge accepts any SAS define by name; listing BBAI's 29 categories took 29 lines.
+- A BUG option also needs its declaration and default in BUG's XML (`BUG Core.xml`), a label and hover text, a place on an options tab (`BugSystemOptionsTab.py`) and the player's INI for storage. Its change callback can be shared by all options, as BUG's own logging options do (`BugOptions.py`), and would have to push the define and call the same refill; a BUG option alone never reaches the DLL.
+- So overrides scale better as a developer's board of dials, while BUG options suit a few settings players should find on a screen; either works through one apply path. With SASPilot, a command could flip either as easily as editing a line, and at once.
+  - Overrides are a tool for developers and agents, not a player feature, and SAS has no options of its own on screen, so options for them would clutter the UI with settings players never need, as the user noted.
+    - The font sizes are the exception, as players may want them for a large screen or their eyesight, which could make them a player option one day; BBAI's categories serve developers only. Hidden BUG options, declared without a screen entry, would only rebuild a text file the long way: an INI still edited by hand, plus BUG's declarations and its rules on which value wins.
+- Codex also showed a way around the declined restore: keeping each define's value from before its first override, and the set of active overrides, in state the DLL owns, which outlives a Python reinitialization, and reconciling on each reread. Restoring the XML file's value stays for now, with its module-XML and missed-deletion limits recorded above.
+- And it noted that the NoEntry check is a denylist: a SAS define nobody has reviewed is still accepted, which the CI check of readers covers for shipped lines only.
+
+Where this leaves the restarts this entry began with (2026-11-26):
+
+- Gone for the values tried again and again within a session: the font sizes, the restarts that started this work, and BBAI's categories, the heaviest logs.
+- Kept, as the sensible way, for settings switched on or set once for a run, such as SASGameRecord, Runtime, the EXE patches and the per-font layout tunings, where a restart costs little next to the code each would need to follow a change; NoEntry gives each its reason.
+  - A restart is also what keeps multiplayer in step, as the user pointed out: every client loads the same XML at the same point, while each rereads its own overrides file at its own moment, so a value that changes the game is changed in the XML, before a restart.
+  - Even BBAI's categories are meant, not proven, to leave the game unchanged: diagnostics must only observe, never draw on the game's RNG or touch its caches, as AGENTS.md requires, and SGR checks its RNG seeds around its checkpoints, but not every logging path has been verified, as the user cautioned.
+    - So in multiplayer, turning a category on in one client is a risk; in single player, where overrides serve, a path that broke the rule would show as a different game, worth finding.
+    - Auditing it, by replaying a save with each recorder on and off and fixing any logging path that diverges, is a low-priority follow-up: development runs keep SASGameRecord on, so they stay comparable with each other, and only comparisons against runs with it off, or mixed multiplayer, would be skewed.
+- All in all, the design keeps the benefits of caching defines while making live the ones that matter, as the user summed it up.
+  - Reading every define live, from the XML or by name at each use, would have given up the caching [KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3) and [KI#128.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.4) put in place.
+    - A static or a struct field turns back into a lookup by name, and in Python a kept attribute costs 0.017 µs against 0.15 µs through `SASCurrentDefines`, as measured above.
+    - The defines sit in a `stdext::hash_map` keyed by `std::string` (`FVariableSystem.h`), so more defines barely slow a lookup; each read by name still builds and hashes the name, so the cost grows with how often defines are read, and the AI's per-plot and per-unit loops read them millions of times a game, as the user asked.
+    - A live XML would also bring the multiplayer and Python-reinitialization risks recorded above.
+  - Here the readers keep their caches, and only the families chosen refill them when a value changes.
+- That matches this family's aim since [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128): to remove a restart where it costs real time again and again, not everywhere at any price. Another define joins the file when an audit needs it to change during play, once its readers follow.
+
+Codex's review of the staged commit (GPT-6.2-Sol, 2026-11-26) found two more faults, each fixed the same day:
+
+- The CI check's `--staged` mode read the values and the XML from the index but NoEntry, the bridge and the scanned readers from disk, so a staged forbidden line passed once its NoEntry line was removed unstaged. `RepoSource` now reads every file from the index.
+  - Codex's check of that fix found two more gaps: it fetched every blob in the index, art and music included, 555 MiB for a check of a few hundred text files, and the development values still came from disk. It now fetches only the files the check reads, and reads `define_values.py` from the index too.
+- A save caught midway, such as an emptied file, parsed as valid, so a poll could apply it as deleted lines, then apply the full file again. During play a changed file now applies only once two consecutive polls read the same text; the reads at a game's start and at a Sevopedia jump still apply at once, so one of them can still catch a save midway.
+  - A failed read between the two polls starts over, as Codex's check of the fix reproduced an empty file applied around a failed read.
+  - The extra poll per edit costs a few seconds, which the user found fine: these are knobs changed now and then, with no one waiting on them.
+  - Tested in game with the Debug-opt DLL on a new turn-0 game: an edit of `SAS_UI_FONT_LABEL` applied 8.5 seconds after the save, two polls; three windows of about 3 seconds with the file emptied, each shorter than a poll, applied nothing; an emptied file held for 12 seconds applied after 6.4 seconds, and restoring it applied after 9.4. `PythonErr.log` stayed empty.
+  - A window shorter than a poll might fall between two polls; with polls about 4.2 seconds apart, at least one of the three windows was very likely read.
+
+Reviewing the docs (2026-11-26), the user noted that, on top of the permanent lines, overrides may have other uses, such as temporarily setting an AI tunable live for fine-tuning or audits, toward its best value, without tedious restarts, then writing the settled value back to the XML; this works for a define whose code reads it at each use.
+
+Implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol).
+
+Smoke-tested with the shipped Release DLL on 2026-11-26, as Codex's review (GPT-6.2-Sol) advised, since the tests above used Debug-opt:
+
+- With `SAS_SGR_LOG_ON=0`, a new game wrote no SASGameRecord file; `SAS_UI_FONT_LABEL = 4` in the overrides file logged `APPLIED`, so the DLL's `onSASLiveDefineOverridesApplied` hook answered, and setting it back logged `APPLIED` again.
+- With `SAS_SGR_LOG_ON=1` and `SAS_SGR_LOG=3`, the record's `GAME_RECORD_LOG_SETTINGS` started `SAS_SGR_LOG_ON=1 SAS_SGR_LOG=3`, followed by 43 Python `GAME_RECORD_SESSION_SETTINGS` rows. `PythonErr.log` stayed empty in both games.
+
+The same day, following Google AI's feedback on this entry (likely Gemini 4 Hydrogen, not confirmed), which flagged the Python-reinitialization limit recorded above, the user asked whether it was real and worth fixing.
+
+It is real: after a reinitialization, the bridge no longer knows the overrides the DLL still holds, so a line deleted before its next reread keeps its override until a restart, or until the line is added and deleted again.
+
+Claude Code Opus 5.5 and Codex (GPT-6.2-Sol) judged a fix better deferred, as the case is rare and mild, and a sound fix costs more than it saves:
+
+- A fix comparing each define's current value with its XML value cannot tell who changed it, so restoring the differences could undo values set by a module XML or by other code.
+- The window lasts until the bridge's first successful reread after the reinitialization; as settled polls need two reads and some screens send no game updates, it is not a fixed few seconds.
+- A possible extension would be to test whether a marker kept on Python's `sys` module survives Civ4's reinitialization, as Realism Invictus's `BugInit.py` relies on; if it does, the bridge could keep its active overrides across it, and if not, a record of them owned by the DLL remains the full fix.
+
+Correction (2026-11-26), while reviewing [KI#128.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.7): the values-only file above was the user's request for speed too, not only for a single home for each define's comment, as the file is reread at every poll during play.
+
+- A poll whose text matches the last one stops at the comparison, so the file is parsed only after an edit; a comment there would cost only its bytes' read and comparison at each poll, about 0.5 µs going by the reread measured above, which does not grow over a session.
+- SASLiveDefineOverridesAllowed.txt and NoEntry keep their comments, as they are read once at startup and explain how each define's readers follow an override rather than what the define does, which Codex's review (GPT-6.2-Sol) confirmed.
+
+<a id="ki-128.6"></a>
+
+## KI#128.6 - (Improved SAS and inherited BUG, guarded by CI) 16 Python define reads ran at import, 15 SAS Sevopedia switches and BUG's PEACE_TREATY_LENGTH, so each kept its first value for the session and no override reached it; they are read at use now, and CI rejects new ones
+
+- Context: the Python define inventory that started [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5) was finished on 2026-11-26, covering inherited defines as well as SAS ones, as the user asked, the Python counterpart of the C++ audits of [KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3) and [KI#128.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.4).
+- [`audit_define_timing.py`](/LLM_Helpers/README.md#audit_define_timingpy) first listed 33 import-time reads; 16 were real, after two audit errors were fixed:
+  - 14 sat in `CvMapGeneratorUtil.py`'s `__init__` bodies, whose signatures span several lines with AdvCiv's `# </advc.137>` at a lower indent, which made the audit close the def;
+  - 2 were `SASDefineGuard.py` constants holding a define's name, which read nothing.
+- The 16 real ones were module constants such as `IS_SHOW_AI_INFO = (gc.getDefineINT("SAS_SEVO_UNIT_SHOW_AI_INFORMATION") > 0)`, read once at import, so each kept its first value for the session and no override from `SASLiveDefineOverrides.txt` reached it.
+  - The 15 SAS switches, in `_sevopedia_helpers.py` and six Sevopedia pages, are read at use through `SASCurrentDefines.getInt`, which caches lazily and empties when an override changes, so no module needs its own cache.
+  - BUG's `PEACE_TREATY_LENGTH` in `MoreCiv4lerts.py` is read with `gc` at use, as BUG's `DealUtil.py` and `TradeUtil.py` already read it.
+- The 49 inherited reads made at each use were checked for hot paths: each runs on a click, a screen draw, an alert or once a turn, so none needed a cache.
+  - The busiest-looking ones, the score reads in `CvGameUtils.calculateScore` and `CvUtil.getScoreComponent` and those in `doCityCaptureGold`, never run: `USE_CALCULATE_SCORE_CALLBACK` and `USE_IS_CITY_CAPTURE_GOLD_CALLBACK` are 0.
+- [`python_define_reads_import.py`](/.github/workflows/README.md#buildsourcepython_define_reads_importpy) now fails on a define read at module level or in a class body; run repo-wide on the old files, it found the same 16, and none after the fix.
+- Not covered: reads in `__init__` of screens that `CvScreensInterface.py` builds at import, such as `mainInterface = CvMainInterface.CvMainInterface()`, run at import too; the inventory counts 51 SAS and 4 inherited `__init__` reads, not all of them in such screens.
+
+Implemented with the help of Claude Code Opus 5.5.
+
+Tested on 2026-11-26 from the main menu's Sevopedia with [`capture_screens.py`](/LLM_Helpers/README.md#capture_screenspy): the Units, Bonuses, Leaders, Traits and Techs pages drew their switch-controlled parts, such as Saladin's AI personality panel, era-art row and trait icons and the Ancient Maceman's AI information, and `PythonErr.log` stayed empty.
+
+Codex's review (GPT-6.2-Sol) the same day found:
+
+- The check missed reads in a def's default arguments, in a lambda's, and beside a lambda, such as `(lambda: None, gc.getDefineINT("X"))`, as it treated a whole line holding `def` or `lambda` as a function body; a def's body now starts at the colon closing its header, and a lambda's body ends at the comma or bracket closing it.
+  - The audit likewise skipped reads on a def's own line and now leaves them to read by hand; none exists today.
+- `SAS_LEADER_XML_ERA_ART_DEFS`, now read at use by the leader page, decides at XML load in a DLL static whether era art is parsed, so it joined `SASLiveDefineOverridesNoEntry.txt`: an override would leave the page and the loaded art out of step.
+- The AI Personality Panel's switches feed a cache built once per session, so a change reaches only a cache not yet built; a comment in `SevoPediaLeaderAIPValues.py` says so.
+
+The user asked whether caching these switches in `__init__` would be faster:
+
+- Under Python 2.4, a `self.` attribute read took 74 ns and `SASCurrentDefines.getInt` 230 ns, best of 5 runs of 200,000; a page reads one to three of them per draw, well under a microsecond, while an attribute would keep its value for the session, so no override would reach it.
+- The Sevopedia is built on its first opening, its modules imported then too, so `__init__` would read them no later. Codex agreed to keep `SASCurrentDefines` for such UI switches, and attribute caches for hot code.
+
+Hot reads at use were checked next (2026-11-26), as the last step of this audit: [`audit_define_timing.py`](/LLM_Helpers/README.md#audit_define_timingpy)` --scope inherited` lists 49 inherited Python reads at use, and none needed a cache.
+
+- Each runs once per screen draw, popup, message, turn or callback, such as `COMMERCE_PERCENT_CHANGE_INCREMENTS` per redraw ([KI#128.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.2)), `PEACE_TREATY_LENGTH` per deal or the `SCORE_*` factors in `CvGameUtils.calculateScore`, which does not run, as `USE_CALCULATE_SCORE_CALLBACK` is 0.
+- The only loop is the Customizable Domestic Advisor's trade columns: `range(gc.getDefineINT("MAX_TRADE_ROUTES"))` reads the define once per city and column, while each route then calls `calculateTradeYield` for each yield, which costs far more.
+- So they stay read at use, which also keeps them following a change, as `FIELD_OF_VIEW` needs since other code sets it.
+- The screens built at import, such as `CvScreensInterface`'s `mainInterface = CvMainInterface.CvMainInterface()`, read 51 SAS and 4 inherited defines in their `__init__`, so at import; Codex agreed that this is a pass of its own, as it changes how those screens are built.
+
+Update (2026-11-26): that pass found the last bullet mistaken. Following what module-level code calls, the `__init__` of each class built there, base classes, functions and what those call in turn, found no define read that runs at import in the paths it follows, on this commit's tree as on the newest: the 51 SAS and 4 inherited `__init__` reads sit in classes built later, mostly Sevopedia pages built on first opening and the Customizable Domestic Advisor, as the bullet before it already allowed ("not all of them in such screens").
+
+- Its only finds were two `SASGameRecordConfig` reads behind `CvEventInterface.py`'s module-level `initAfterReload()`, which reaches them only when `BugInit.init()` succeeds; it needs `CyGame().isFinalInitialized()`, so not on the normal first import, while the game is still initializing, and in practice only after a Python reload in a running game.
+  - That call now carries the `ci_import_call:` marker saying so; Codex's review (GPT-6.2-Sol) confirmed the reasoning from `BugInit.py`, noting that a first import delayed until the game is initialized would run them too.
+- [`python_define_reads_import.py`](/.github/workflows/README.md#buildsourcepython_define_reads_importpy) now runs that pass too, so a read added on such a path fails, the 25 map scripts' `balancer = BonusBalancer()` included.
+  - Codex's review (GPT-6.2-Sol) reproduced the paths a first, line-based version missed or misread, so "none" holds only for the paths the pass follows, which its README entry lists.
+- So no screen needed rebuilding: the reads kept in `__init__` take their value when the class is first built, after setup, and none of the 64 defines they read is in `SASLiveDefineOverridesAllowed.txt`, so an override of one is refused rather than silently ignored ([KI#128.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.7)).
+
+<a id="ki-128.7"></a>
+
+## KI#128.7 - (Improved SAS, guarded by CI) A user could not tell which defines SASLiveDefineOverrides.txt reaches: one that follows an override and one whose readers keep their first value look the same in the XML, and both logged APPLIED; SASLiveDefineOverridesAllowed.txt now lists the live ones, and the bridge refuses any other
+
+- Context: while reviewing [KI#128.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.6) on 2026-11-26, the user saw that the Sevopedia switches it moved to `SASCurrentDefines` now follow an override, yet appear in neither `SASLiveDefineOverrides.txt` nor `SASLiveDefineOverridesNoEntry.txt`, and asked how a user could tell which defines are live.
+  - "From an external perspective, in the XML they look the same; does a user need to grep, kind of tediously, the callers?"
+- There were three states, only two of them visible:
+  - a define with a shipped line, the font sizes and BBAI's 29 log categories, was live, and CI checked that its readers follow an override;
+  - a define in NoEntry was refused, with its reason logged;
+  - any other was applied and logged `APPLIED` whether or not anything followed it: an override reached it only if each reader read it at use, while a DLL `static` or a Python attribute made it a silent no-op, which only reading the callers or [`audit_define_timing.py`](/LLM_Helpers/README.md#audit_define_timingpy) could tell.
+- Claude Code Opus 5.5 offered three options and recommended the first:
+  - an allowlist: a fixed list of the live defines, the bridge refusing any other line;
+  - a mark in each live define's XML comment, checked by CI, which would leave the third state for the rest;
+  - a warning, `APPLIED (unverified)`, for an unlisted define, which would still leave the user guessing.
+- Codex's review (GPT-6.2-Sol) chose the allowlist, as a file of its own rather than the values file's names: the list says what the mod supports live and changes only in a reviewed commit, while the values file says what is overridden now; deriving one from the other would let a line added locally become approved after a restart.
+  - NoEntry stays as the explanation, with no define in both; the bridge prints its reason first, and a general one for any other define outside the list.
+  - Adding a define, even for a temporary AI-tuning experiment, follows a check of its readers and the state they keep, and such experiments stay single-player until peers can apply a change at the same synchronized moment.
+  - It leaves the Python reinitialization limit of [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5) as it was.
+- [`SASLiveDefineOverridesAllowed.txt`](/SASLiveDefineOverrides/SASLiveDefineOverridesAllowed.txt) lists the 33 defines of the shipped lines, each with how its readers follow an override, in NoEntry's `NAME: reason` form.
+  - [`SASLiveDefineOverridesBridge.py`](/Assets/Python/SASLiveDefineOverridesBridge.py) reads it with the XML, once, and refuses a file naming any other define: "not in SASLiveDefineOverridesAllowed.txt, so live overrides are unsupported for it: change it in GlobalDefines_advciv_sas.xml and restart Civ4".
+  - [`sas_live_define_overrides.py`](/.github/workflows/README.md#buildsourcesas_live_define_overridespy) fails a shipped line outside the list, a listed define without a shipped line, so the values file shows every live define, and a define in both lists; its reader scan covers every listed define.
+- The KI#128.6 Sevopedia switches stay off the list: some still have readers that keep their value, such as `SevoPediaMain.py`'s `self.IS_SAS_SEVO_LEADER_AI_ON`, and the user judged them rarely changed.
+- Before the commit, the user doubted the list was worth its added complexity, as it began as an answer to a question. Asked whether to keep it at all, Codex (GPT-6.2-Sol) advised keeping it: refusing unchecked defines prevents false `APPLIED` results in audits, which one short list for 33 settings is proportionate to.
+  - It noted that requiring a shipped line for each listed define writes each XML value twice, which a subset would avoid; that requirement is kept, so the values file alone shows every live setting, ready to edit, which was the user's question.
+- The user then asked whether the Allowed and NoEntry lists, read by the game, should lose their comments as the values file had, and whether the values file should get comments back.
+  - As [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5)'s correction records, speed decides neither: the two lists are read once at startup, and the values file costs about 0.5 µs more per poll with comments.
+  - The lists keep their comments, which explain how each define's readers follow an override, found nowhere else.
+  - The values file stays values only, with no header pointing to the XML and the Allowed list either. The user leaned that way once the root README and the Main Changes Guide said that adding a define to the list is not straightforward and is done at one's own risk, asking someone who knows the code or an AI agent if unsure, as its likely editors are agents making quick edits to few values.
+  - Codex (GPT-6.2-Sol) agreed: the XML and the Allowed list already explain each setting and the README points to them, so a header would be mildly useful to someone opening the file directly but would not earn a CI exception.
+
+Implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol).
+
+Tested on 2026-11-26 from the main menu's Sevopedia, each page jump forcing a read: with `SAS_SEVO_UNIT_SHOW_AI_INFORMATION = 0` added, the bridge logged `REJECTED` with the reason above and kept the defines as they were; replacing it with `SAS_UI_FONT_LABEL = 4` in the same session logged `APPLIED` with `SAS_UI_FONT_LABEL:xml3->4`, and restoring the file logged `4->3`. `PythonErr.log` stayed empty.
+
+<a id="ki-128.8"></a>
+
+## KI#128.8 - (Fixed inherited Better BTS AI and BUG) Python read a define again at each pass of a loop: ChangePlayer read BARBARIAN_LEADER once per leader, and the Tech Window read its two tech-prerequisite counts once per tech; each is now read once before its loop
+
+Found on 2026-11-26 during the Python define-caching work, by its rule that a read inside a loop needs a reason inside that loop.
+
+- `ChangePlayer.changePersonality` read `gc.getDefineINT("BARBARIAN_LEADER")` in the condition of its loop over every leader, and `TechWindow.interfaceScreen` and `TechWindowWide.interfaceScreen` read `NUM_OR_TECH_PREREQS` and `NUM_AND_TECH_PREREQS` in the headers of loops nested in their loop over every tech.
+- None gave a wrong result: each read the same value again, at about 280 ns a read through `gc` as measured in game, so 184 reads per tech-discovered popup with BtS's 92 techs, as Codex's review (GPT-6.2-Sol) counted, and dozens per personality change, a cheat action.
+- Each is now read once before its loop, in a local the loop uses.
+
+Where they came from, traced through the `commit_diffs` corpus and the inherited-files manifest at the user's request:
+
+- `ChangePlayer.py` is jdog5000's ChangePlayer Mod. It entered Better BTS AI in SVN r387 (2008-09-06, version 0.37) with the read already inside the loop.
+  - K-Mod brought it in with its first asset commit (`593c549b51`, 2010-12-27, practical 4), as `Assets/Python/K-Mod/ChangePlayer.py`.
+  - AdvCiv reindented it (practical 1526) and moved it to `Assets/Python/Contrib/` (`3cb7780c3e`, 2020-02-16); SAS left it as it was until this fix.
+- `TechWindow.py` and `TechWindowWide.py` are the BUG Mod's ("Copyright (c) 2008 The BUG Mod", originally by SirRethcir, enhanced by Roamty, Caesium and Guarav), and came with the same K-Mod commit.
+  - The loops sit in a block marked with German "Eingefügt" ("inserted") comments.
+  - SAS's earlier commits to these files changed other lines: practicals 4847 (Ruff and Pylance warnings), 5284 (comment summaries) and 6838 (one call per line).
+- Neither file is in vanilla, Warlords or BtS: `inherited_files.tsv` lists both in the AdvCiv layer only. BUG's own history is not in the corpus, so which BUG version wrote the Tech Window reads was not traced.
+
+Implemented with the help of Claude Code Opus 5.5.
+
+<a id="ki-128.9"></a>
+
+## KI#128.9 - (Improved SAS and inherited, guarded by CI) Python read defines by name with no caching rule, unlike the DLL: a read through gc cost 279 ns, and five ran once per leader or per tech inside a loop; they now go through a cache, SASCurrentDefines' reads went from 167 ns to about 80 ns, while a kept self.x, at 18 ns, stays the faster choice for a hot path, and CI requires a cache or a stated reason for each read, as in C++
+
+- Context: once [KI#128.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.6) found none of Python's inherited reads at use hot, the user asked on 2026-11-26 whether Python should, as the DLL does since [KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3), require a cache or a stated reason for each define read by name, for sanity and reliability, rather than relying on someone remembering to check.
+- [`python_define_reads_cached.py`](/.github/workflows/README.md#buildsourcepython_define_reads_cachedpy) does so, with the same `ci_define_uncached:` marker as the C++ check, so one grep lists the exemptions of both; SAS and inherited reads are checked alike, as in C++.
+  - A cache is `SASCurrentDefines`, an attribute of `self`, a declared global, or a read under a lazy guard on one of them, such as `getGGBarTextMode`'s `if self.iSAS_MAIN_UI_GG_BAR_TEXT is None:` or `addMarshesAtPlot`'s `if getattr(self, "marshes", None) is None:`.
+  - A guard on a parameter is no cache: `CvMapGeneratorUtil`'s `if fracXExp is None:` falls back to the define at each call.
+  - As in C++, a read inside a loop body needs its reason inside that loop.
+- Run over the whole repository first, it found 97 reads by name outside a cache in 54 functions of 36 files, 49 of SAS defines and 48 of inherited ones.
+  - The loop rule found five reads made at each pass: `ChangePlayer.changePersonality` read `BARBARIAN_LEADER` for each leader, and `TechWindow` and `TechWindowWide` read `NUM_OR_TECH_PREREQS` and `NUM_AND_TECH_PREREQS` for each tech. They are now read once before their loop ([KI#128.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.8)).
+  - The check's first draft had two gaps, each found while applying it.
+    - A comment just inside a loop was credited to its function, so a reason first placed there, "read once per tech-discovered popup", passed while the read ran once per tech; a comment between a block's header and its first statement now belongs to that block.
+    - Any attribute counted as a cache, so MoreCiv4lerts' `tradeData.iData = gc.getDefineINT("PEACE_TREATY_LENGTH")`, a field of a deal built at each call, passed; only an attribute of `self` counts now.
+
+How the reads were cached, step by step (2026-11-26):
+
+- The first draft gave each of the 54 functions a stated reason, such as once per map generation, once per deal or once per redraw, judging them all too rare to matter.
+  - The user questioned that: once per deal is not zero, and once per tech is a lot. A probe at game start then measured, best of 5 rounds of 20,000 reads, 279 ns a read through `gc.getDefineINT` against 167 ns through `SASCurrentDefines`, as a read through `gc` crosses into the DLL, which builds a C++ string from the name and looks it up each time.
+- So all 97 reads went through `SASCurrentDefines`, one shared cache for every module, so a define read in several files, such as `START_YEAR`, `PEACE_TREATY_LENGTH` or `EVENT_MESSAGE_TIME`, is fetched once.
+  - The one exception is Water.py's `PLOTS_PER_RIVER_EDGE`, which map scripts set themselves for their rivers ([KI#243](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-243)); `SASCurrentDefines` empties only on the overrides bridge's writes, so it would miss that change, and the read keeps `gc` with a stated reason.
+- The user then asked whether the cache could be faster. Most of its 167 ns was calling the bridge's change count at each read, not the dictionary: Python keeps a string's hash, so the lookup itself is cheap, while the slow string work is the DLL's.
+  - The bridge now calls listeners after each applied change, through `addChangeListener`, and `SASCurrentDefines` registers one at import that empties its caches, so a cached read is one dictionary lookup.
+  - Measured under Python 2.4, best of 5 rounds of 200,000 reads: `SASCurrentDefines` went from 191 ns to about 80 ns, against 39 ns for a lazy `self` attribute behind an `is None` guard and 18 ns for a plain one.
+    - All the reads measured that day, the read through `gc` in game, best of 5 rounds of 20,000, as it needs the DLL, and the others under Python 2.4 outside the game:
+
+      | Read | Cost per read |
+      | --- | --- |
+      | `gc.getDefineINT("X")`, in game | 279 ns |
+      | `SASCurrentDefines.getInt("X")`, asking the change count at each read | 167 ns in game, 191 ns under Python 2.4 |
+      | `SASCurrentDefines.getInt("X")`, emptied by the bridge | about 80 ns |
+      | lazy guard, `if self.y is None: ...` then `self.y` | 39 ns |
+      | plain kept attribute, `self.x` | 18 ns |
+
+    - So a kept `self.x` is the fastest read, over four times faster than `SASCurrentDefines`, which suits a hot path, while `SASCurrentDefines` needs one line, shares one copy across modules and follows a live override.
+  - The shared pool is one dictionary per type, about 60 names; a lookup costs the same whatever its size, so adding names does not make it heavier.
+- The in-game test of that change was blocked: a force-stopped test client stayed listed with `HasExited` true while another process held it, and every new client quit while loading, before Python started. `desktop_windows.civ4_processes()` now leaves out such a client, so `start_game.py` no longer refuses to start because of one.
+- The user then asked whether per-module lazy caches, `self.x` in methods and a module global in module functions, would be better still for defines that never change during play, as they are faster per read, and whether keeping many copies of a define across modules matters.
+  - None of the 97 can change live: the bridge never overrides inherited defines, and none of the SAS ones is in [`SASLiveDefineOverridesAllowed.txt`](/SASLiveDefineOverrides/SASLiveDefineOverridesAllowed.txt), whose check fails a reader that keeps the value of a listed define ([KI#128.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.7)).
+  - The cost would be about 55 cache blocks in 34 files, for about 40 to 60 ns saved a read on paths that run per deal, alert, hover, redraw or popup.
+
+Codex's review (GPT-6.2-Sol, 2026-11-26) advised keeping `SASCurrentDefines` as the default:
+
+- The 40 to 60 ns a read does not justify some 55 cache blocks; a copy of a define costs little memory, but many copies make it harder to see when each is filled or refreshed, and a shared cache of about 60 names is small.
+- Local caches suit a hot path that profiling shows, or a value whose lifetime an object already owns.
+- It found gaps in the check, each now tested: a store into `self` counted as a cache in any method or loop, though it reads at each call or pass; an unrelated guard such as `if self.ready and value is None:` passed; a read split after its bracket was missed; an outer loop's marker covered an inner loop, and a `while` condition, run at each test, followed the function's marker; and a valid one-line `if self.x is None: self.x = ...` failed.
+  - Making these strict turned up nine more reads stored in methods that run again: six SAS switches in `CvInfoScreen.initText`, run at each opening, Civ4lerts' `TEMP_HAPPY` and the Dawn of Man screen's `START_YEAR`, which now go through `SASCurrentDefines`, and `CvReplayScreen`'s `MINIMAP_RENDER_SIZE`, which that screen sets and restores itself, so it keeps `gc` with a stated reason.
+  - A test of the fix also showed that a comment line before a dedent comes before the dedent's tokens, so a function-level reason after a loop was credited to the loop; a comment now counts for the blocks its column sits in.
+- A listener that raised would have skipped the others, the log row and the redraw, and rereading the same text never notifies again, so each listener's error is now caught and logged in the `APPLIED` row; a rollback that itself fails also notifies the listeners, as it may leave the defines changed.
+
+The five reads repeated at each pass of a loop, inherited from Better BTS AI and BUG, are [KI#128.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.8), with their origin.
+
+- The other reads stored again where they run again were no slip: Civ4lerts' `TEMP_HAPPY` and the Dawn of Man screen's `START_YEAR`, in an `init` from K-Mod's first asset commit, and SAS's six `CvInfoScreen.initText` switches, whose comment meant them to be computed "cheaply ... once", while `initText` runs at each opening of the Info screen; all now go through `SASCurrentDefines`.
+
+Implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol).
 
 <a id="ki-129"></a>
 
@@ -12040,6 +12899,121 @@ Files changed:
 
 - [Assets/Python/Screens/CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py)
 
+Update (2026-11-23): [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) to [KI#134.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.8) compare the other screens with 48 civilizations, base AdvCiv beside SAS48, one follow-up per screen; KI#134.2 also shows the Glance tab's three pages.
+
+<a id="ki-134.2"></a>
+
+## KI#134.2 - (Fixed inherited AdvCiv, SAS48) With 48 civilizations the scoreboard ran up past the top bar and over the turn counter, as base AdvCiv drew every player in one column with no height limit
+
+How it was found (2026-11-23): while paging the Debug Info screen for a SAS48 game ([KI#1105.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2)), the user wondered whether we had ever filed the SAS48 overflows, which were noted only in scattered places: KI#134 for the Glance tab, [KI#228](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-228) and the Main Changes Guide for the scoreboard.
+
+The user then played a 48-civilization Huge game in base AdvCiv, with the DLL built from f1rpo's [`48civs` branch](https://github.com/f1rpo/AdvCiv/tree/48civs), since SAS's screens have drifted too far to show the old layouts, and took the same screens in a SAS48 game at turn 151 (1920 x 1080). Each screen got its own follow-up, KI#134.2 to KI#134.8.
+
+- Base AdvCiv: the column runs up past the top bar, over the turn counter.
+- SAS, since AdvCiv-SAS practical 5667: the scoreboard stops above the commerce sliders, showing only the rows that fit, and scrolls through the rest.
+  - Scroll buttons, shown only when the players outnumber the rows: + and - move one row, the fast pair `SAS_SCOREBOARD_SCROLL_FAST_INCR` rows.
+  - A button centers the scroll on the active player, and an autocenter toggle keeps it centered on later redraws until a manual scroll turns it off; `SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON` sets its starting state.
+  - How it grew: practical 5667 added the row cap and the + and - buttons, and 5809 the fast pair and a third, fastest pair.
+  - Then 5968, "Scoreboard controls" ([PR#28](https://github.com/wonderingabout/AdvCiv-SAS/pull/28), 2026-06-22), dropped the fastest pair: about 29 rows show at 1080p for up to 48 players, the fast step is tunable, and a third pair was cumbersome and took room from other buttons.
+  - The same PR added the centering button and the autocenter toggle, a persistent toggle like the scoreboard's existing lock-hover one, which it made start on.
+  - [KI#228](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-228) fixed that scrolling's clash with BUG's Max Players cap.
+- Code: [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) caps the rows, keeps the scroll offset and draws the buttons, [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) slices the visible rows, and both defines sit in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml); their comments point here.
+
+Screens that fit at 48 with nothing special done for them: the Info screen's Score tab (SAS only, a scrolling table), the Replay screen, whose event list scrolls, and Your Place in History.
+The Sevopedia lists XML entries rather than players, so 48 civilizations change nothing there; only its Leaders and Civilizations arrows, which step through the met players, have more stops.
+
+The Debug Info screen (Debug Mode only, Shift + F2) needs pages for its civilization views at 48 even at full size: see [KI#134.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.7).
+
+<img src="/_0_Legacy/Images/ui_other/0.410_scoreboard_huge_48civs.JPG" alt="0.410_scoreboard_huge_48civs.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(2)_sas48.JPG" alt="1.518_info_screen (2)_sas48.JPG" width="250">
+
+The Glance tab's three pages (KI#134) and the Info tab in SAS48, for completeness:
+
+<img src="/_0_Legacy/Images/advisors/0.401_foreign_advisor_glance%20(1)_huge_48civs.JPG" alt="0.401_foreign_advisor_glance (1)_huge_48civs.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(2)_sas48_page1.JPG" alt="1.513_foreign_advisor (2)_sas48_page1.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(2)_sas48_page2.JPG" alt="1.513_foreign_advisor (2)_sas48_page2.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(2)_sas48_page3.JPG" alt="1.513_foreign_advisor (2)_sas48_page3.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(3)_sas48.JPG" alt="1.513_foreign_advisor (3)_sas48.JPG" width="250">
+
+<a id="ki-134.3"></a>
+
+## KI#134.3 - (Fixed inherited AdvCiv, SAS48) With 48 civilizations the Info screen Graph tab's legend ran up over the title, the player dropdown and the Score and Entire History dropdowns
+
+Found with [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) (2026-11-23).
+
+- Base AdvCiv: the 48 legend rows outgrow the space below the dropdowns and climb over them.
+- SAS: all 48 rows fit below the dropdowns, as [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) caps the legend's row height to fit any number of players.
+
+<img src="/_0_Legacy/Images/advisors/0.900_info_screen_graph_huge_48civs.JPG" alt="0.900_info_screen_graph_huge_48civs.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(1)_sas48.JPG" alt="1.518_info_screen (1)_sas48.JPG" width="250">
+
+<a id="ki-134.4"></a>
+
+## KI#134.4 - (Fixed inherited AdvCiv, SAS48) With 48 civilizations the Military Advisor's leader buttons spilled a third row below their panel, over the map's frame
+
+Found with [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) (2026-11-23).
+
+- Base AdvCiv: two rows of buttons fill the panel, and the last three civilizations and the Barbarians drop below it.
+- SAS: the panel holds the 48 in five rows of ten, as [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) picks the largest button size that fits the whole roster.
+
+<img src="/_0_Legacy/Images/advisors/0.500_military_advisor_huge_48civs.JPG" alt="0.500_military_advisor_huge_48civs.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(2)_sas48.JPG" alt="1.515_military_advisor (2)_sas48.JPG" width="250">
+
+<a id="ki-134.5"></a>
+
+## KI#134.5 - (Fixed inherited AdvCiv, SAS48) With 48 civilizations the Espionage screen's two-line rows crowded each leader's weight and "per Turn" into the next row
+
+Found with [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) (2026-11-23).
+
+- Base AdvCiv: the list scrolls, about 17 rows at a time, but its rows are too short for their two lines, so the text of one row runs into the next.
+- SAS: the Espionage tab's compact one-line rows fit about 28 of the 47 rivals on screen at 1080p, so a SAS48 list scrolls less, and read cleanly, with a Legend link for the fields, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py); `SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH` in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) switches them on above 17 met rivals.
+
+<img src="/_0_Legacy/Images/advisors/0.440_espionage_screen%20(2)_huge_48civs.JPG" alt="0.440_espionage_screen (2)_huge_48civs.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(4)_sas48.JPG" alt="1.513_foreign_advisor (4)_sas48.JPG" width="250">
+
+<a id="ki-134.6"></a>
+
+## KI#134.6 - (Improved inherited AdvCiv, SAS48) With 48 civilizations the Foreign Advisor's Relations web overlaps its leaders' portraits and attitude labels, still as of now though less than in base AdvCiv
+
+Found with [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) (2026-11-23).
+
+- Base AdvCiv: the known leaders sit on a half-ring in a small panel, so at 48 the portraits pile up and their names and attitudes become unreadable.
+- SAS: the larger radius of [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), 64% of the screen height, spreads them more, but the portraits and labels still overlap; the user finds the tab hard to read.
+- A possible extension would be the web-style layout the user suggested, with us at the centre, reusing the UN screen's ring.
+
+<img src="/_0_Legacy/Images/advisors/0.400_foreign_advisor_relations_huge_48civs.JPG" alt="0.400_foreign_advisor_relations_huge_48civs.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(1)_sas48.JPG" alt="1.513_foreign_advisor (1)_sas48.JPG" width="250">
+
+<a id="ki-134.7"></a>
+
+## KI#134.7 - (Fixed SAS48 enhancement, Debug Mode only) With 48 civilizations the Debug Mode screen CvDebugInfoScreen.py (Shift + F2) could show only up to 19 of the civilization columns of Team Relations and its other per-civilization tabs, even at the full-screen size that fits a Huge map's 16 on one page; it pages them, as the Glance tab does since KI#134
+
+Found with [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) (2026-11-23), while comparing screenshots of the Debug Info screen on Huge and SAS48 maps.
+
+- Base AdvCiv: vanilla's fixed 1024 x 768 screen cuts the civilization views even on a Huge map, which [KI#1105.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2) records.
+- SAS: KI#1105.2 made the screen full-size, which holds a Huge map's civilizations on one page, but not 48: at 1080p a page holds up to 19 columns.
+  - So in a SAS48 game, Team Relations, Player Attitudes and the other per-civilization tabs page with the same arrows and "Page 2 / 3" label as Map Details, three pages for 48, as the Glance tab pages its players ([KI#134](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134)).
+  - That paging came with KI#1105.2's fix in [CvDebugInfoScreen.py](/Assets/Python/Screens/CvDebugInfoScreen.py); this entry records the part a higher player count needs.
+- Map Details pages at any size, Huge included, so its paging belongs to KI#1105.2 alone.
+
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(1).JPG" alt="1.986_debug_info_screen (1).JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(1)_sas48.JPG" alt="1.986_debug_info_screen (1)_sas48.JPG" width="250">
+
+<a id="ki-134.8"></a>
+
+## KI#134.8 - (Open inherited vanilla, SAS48) With 48 civilizations the UN screen, shown after a diplomatic victory, has its ring of leaders cover its own portraits and names
+
+Found with [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) (2026-11-23).
+
+- Base AdvCiv and SAS alike: [CvUNVictoryScreen.py](/Assets/Python/Screens/CvUNVictoryScreen.py) keeps the base game's fixed 1024 x 768 panel and ring radius, so at 48 the portraits and names cover one another.
+- SAS has carried the base-game copy since [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50) without changing its layout as of now.
+- The game shows it when a United Nations or Apostolic Palace vote wins the game: `CvGame.cpp` adds the `showUnVictoryScreen` popup for a victory whose `isDiploVote()` holds, beside the victory movie's branch. It only greets the winner, with no effect on the game.
+  - Debug Mode's Shift + F4 (AdvCiv's `advc.007b` keys in `BugEventManager.py`) also opens it at any time.
+- Correction (2026-11-23): Claude Code Opus 5.5 first wrote that only Debug Mode opens this screen, as the Shift + F4 key was the only caller it had looked at. Later the same day, listing which screens the DLL opens by name, while weighing which base-game Python files to carry, found the diplomatic-victory popup in `CvGame.cpp`, so a player who wins by vote sees it too.
+
+<img src="/_0_Legacy/Images/ui_other/0.988_un_screen_huge_48civs.JPG" alt="0.988_un_screen_huge_48civs.JPG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.988_un_screen_sas48.JPG" alt="1.988_un_screen_sas48.JPG" width="250">
+
 <a id="ki-135"></a>
 
 ## KI#135 - (Fixed) Likely Base AdvCiv issue: turn-status text collided with the diplomacy screen
@@ -12126,7 +13100,7 @@ Retired tentative crash fixes (2026-11-03): every crash fix made before PDB-assi
 | [KI#163](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-163) | `8dc2e88cc`, 5957, 2026-06-18 | Direct teardown in `CvSelectionGroup::clearUnits`; null-node guard in `deleteUnitNode` | Bypassed the normal automation, mission and activity cleanup when clearing a group |
 | [KI#171](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-171) | `d2ccd468a`, 6000, 2026-07-02 | `NO_PLAYER` handling in `CvPlot::checkLateEra` | None observed |
 
-Crash fixes kept (reviewed 2026-11-03). Dates are from the first commit that tagged the KI in the source, except KI#56/58/60, dated from their fix code.
+Crash fixes kept (reviewed 2026-11-03). Dates are from the first commit that tagged the KI in the source, except KI#56, KI#58 and KI#60, dated from their fix code.
 
 | KI | Commit, practical, date | Fix | Why kept |
 | --- | --- | --- | --- |
@@ -12451,6 +13425,8 @@ Fix:
 File changed:
 
 - [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)
+
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080), [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105).
 
 <a id="ki-143"></a>
 
@@ -13678,7 +14654,7 @@ FAIL XML suspicious angle tags
   - Assets/XML/Text/ActualQuotesText_BtS.xml: line 265: extra closing angle after tag: <French>>Certainement pas ! L'honneur des [OUR_CIV_SHORT:3] exige que cette guerre continue jusqu'à ce que vous soyez réduits en bouillie.</French>
   - Assets/XML/Text/BUG_CIV4GameText.xml: line 30: extra closing angle after tag: <English>Created by The BUG Mod.</English>>
   - Assets/XML/Text/BUG_Main_Interface_Options.xml: line 110: extra closing angle after tag: <German>Textfarbe bei negativem Einkommen, das den Goldvorrat übersteigt.</German>>
-  - Assets/XML/Text/CIV4GameText_advc.xml: line 6054: extra closing angle after tag: <French>>Force les membres permanents à vous (!) déclarer la guerre (%d1_ReqNum vote(s) sur %d2_TotNum requis)</French>
+  - Assets/XML/Text/CIV4GameText_advc.xml: line 6054: extra closing angle after tag: <French>>Force les members permanents à vous (!) déclarer la guerre (%d1_ReqNum vote(s) sur %d2_TotNum requis)</French>
   - Assets/XML/Text/CIV4GameText_advc_rf.xml: line 384: extra closing angle after tag: <German>Wir befinden uns im Krieg mit %s1_Civ!</German>>
 Error: Process completed with exit code 1.
 ```
@@ -14656,6 +15632,159 @@ The nearby `__str__` returning text like `"Point(...)"` is different: that is on
 The fix changed `upperLeft()` to return the local `PointLayout` class, matching `RectLayout.offsetPoint()` and the rest of the active layout code.
 
 Found thanks to Python Ruff and fixed with the help of GPT-5.5 (on Codex) and ChatGPT-5.5 (who also helped implement/draft this workflow) thanks (Although tbh another LLM or maybe it was GPT-5.5 too had mentioned it but i had overlooked/omitted it or forgot to look into it; now fixed it seems).
+
+<a id="ki-165.2"></a>
+
+## KI#165.2 - (Fixed inherited vanilla) `PyHelpers.py`'s dormant `getUnlockedReligionIdxList` built `religionlist` but appended to and returned `religionList`, a name never defined
+
+`PyHelpers.py`'s `PyTechInfo.getUnlockedReligionIdxList` started an empty `religionlist`, then called `religionList.append(i)` and returned `religionList`, differently capitalized. Any call would have raised `NameError: global name 'religionList' is not defined`; nothing in SAS calls it, so like KI#165's `Point` it stayed dormant.
+
+- Found on 2026-11-22 while switching the KI#1104 copy of `PyHelpers.py` to `SASVisualUtils`' religion glyphs in `getReligionButton`, the function just below it.
+- Vanilla Civ4, Warlords and BtS all have the same capitalization bug in `Assets/Python/PyHelpers.py`. The Better BTS AI 1.01 release, K-Mod 1.46 and base AdvCiv 1.14 ship no `PyHelpers.py` override. SAS used the BtS copy until KI#1104 brought that file into the mod.
+- Ruff's full report flagged both references to `religionList` as `F405` because `from CvPythonExtensions import *` could supply the name. It also flagged the unused `religionlist` assignment as `F841`. The Ruff gate in `python-ruff.yml` ignores both rules.
+- The fix names the list `religionList` throughout.
+- See also the mirror case, a name that exists when it should not: Python keeps a loop's variable after the loop ends.
+  - In `generate_leaders_data.py`, the script that then generated the leader data behind the Sevopedia Leader rewrite (SAS practical 4835, `41755fedd2`, 2025-06-22), a loop read a variable left over from an earlier loop instead of its own.
+  - It silently used that loop's last value instead of failing, a bug that took hours to find.
+  - The commit message illustrates it with `x1` and `x2` but does not name the variables actually involved.
+  - That commit gave each loop's variables its own suffix, so that a slip names nothing and fails at once: `leader_type_1`, `leader_data_1` and `contact_type_1` in the first loop, `contact_type_2` and `leader_type_2` in the second, `contact_type_3`, `leader_type_3` and `leader_data_3` in the third, and `contact_type_4` in the fourth.
+  - The script left the repository with SAS practical 5287 (`121d7739ae`, 2026-01-03), so these names now exist only in its history.
+  - Ruff's `F405` resolution, which [`star_import_names.py`](/.github/workflows/README.md#buildpythonstar_import_namespy) checks, cannot see that case, as the reused name is defined.
+
+- How it was found (2026-11-22): by chance, while amending PR#50's squash commit to move the KI#1104 copies' art lookups onto SASVisualUtils' cache, as `getReligionButton` sits just below this function.
+  - The user then asked for a CI check, to look for siblings rather than stop at the one found by chance: [`star_import_names.py`](/.github/workflows/README.md#buildpythonstar_import_namespy), run once over the whole repository, found 35 more names nothing defines, now [KI#165.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.3) to [KI#165.12](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.12), and fails on any new one.
+  - So one chance finding became a systematic sweep and a guard; most of the siblings sat in the same KI#1104 copies, such as `PyHelpers.py`, which SAS had run from the base game until then. See also [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104).
+
+Found by Claude Code Opus 5.5 (2026-11-22); Codex (GPT-6.2-Sol) traced it through each layer and reproduced the `NameError` in Python 2.4.
+
+<a id="ki-165.3"></a>
+
+## KI#165.3 - (Fixed inherited vanilla) `PyHelpers.py` used bare `PyInfo` member names and undefined list names in dormant info helpers
+
+The installed vanilla, Warlords and BtS copies use bare names such as `TechnologyInfo` and `InfoDictionary` inside method bodies. Those members are on `PyInfo`. The class body can use its own names while building its dictionary, but a method body does not look them up there. Better BTS AI 1.01, K-Mod 1.46 and base AdvCiv 1.14 ship no `PyHelpers.py` override. SAS used the BtS copy until KI#1104.
+
+The fix qualifies those references in the dispatchers and getters. The unit prerequisite helpers also used the unit wrapper for technology and bonus IDs. `getListUnlockedUnitInfos` now iterates the returned unit IDs directly instead of indexing an undefined `idList`.
+
+`FeatureInfo.getFeatureTerrainList` now uses the DLL's `isTerrain`, appends the terrain ID, and returns `featureTerrainList` with its declared spelling. I found no SAS callers outside the affected helper chains.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.4"></a>
+
+## KI#165.4 - (Fixed inherited vanilla) `PyPlayer.getPlotList` read `i` instead of the owned plot's `iIndex`
+
+The installed vanilla, Warlords and BtS copies all iterate `iIndex` and then call `plotByIndex(i)`. An empty list returns normally. Any owned plot exposes the undefined name. The indirect callers are `getPlotsWithBonus` and `getNumImprovementPlots` in the same module. I found no SAS caller of that chain. KI#1104 copied the BtS implementation. The fix passes `iIndex` to the map lookup.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.5"></a>
+
+## KI#165.5 - (Fixed inherited BUG) `UnitPlotListUtil.py`'s unused prototype lost its screen, grid and method receivers
+
+The independent BUG history contains the missing `PleOpt`, `UnitUtil` and `_getMission` receiver by `f3a3f13364` (2009-06-26). The 2009-06-27 rewrite (`0c9c242f7a`) adds bare coordinate and screen names. The July 14 and 15 revisions (`82015d8dc4`, `5d9586fec2`) contain the unbound panel and unit snapshots and the promotion callback calls.
+
+K-Mod brought the prototype in with `593c549b51` (2010-12-27). Base AdvCiv and SAS preserve it. [BUG source history](https://github.com/dharkness/civ4bug/commits/master/CustomAssets/Python/BUG/UnitPlotListUtil.py)
+
+There is no SAS import or BUG configuration registration for this prototype. `BugUnitPlot.py` provides the maintained plot list. The repair gives the prototype explicit receivers for its BUG options and mission lookups, screen, grid and unit methods.
+
+Its grid now follows the documented zero-based, bottom-row-first order. The promotion methods use previous and current slot snapshots with guards for empty slots.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.6"></a>
+
+## KI#165.6 - (Fixed inherited vanilla) `CvCameraControls.updateTurn` assigned `fTurnModifer` and read `fTurnModifier`
+
+The installed vanilla and BtS copies have the discrepancy. Warlords ships no override. Base AdvCiv copied the BtS file in `bb6397f363` (2022-01-18), and SAS retained it. `CvEventManager.onUpdate` can forward to the camera controller, but I found no SAS caller arming the turn with `doTurnCamera`. AdvCiv also noted that the old update callback appeared obsolete.
+
+Use one spelling for both reads and the assignment. The historical turn-direction and destination logic was outside this typo fix.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.7"></a>
+
+## KI#165.7 - (Fixed SAS) `CvMapGeneratorUtil`'s fallback for extra world sizes silently used Huge because `gc` was undefined
+
+SAS practical 5311, `77dc1e64a7` (2026-01-08), added the nearest-size lookup to Sirian's dormant `MultilayeredFractal.generatePlotsByRegion` template. Both uses of bare `gc` were new. The inherited method's class already had `self.gc`, and the bare `except` treated the resulting `NameError` as a lookup failure. The fallback consequently used Huge for any size missing from the example's table.
+
+Use `self.gc` for both lookups. The 25 checked SAS subclasses override the template method, so this repair does not change their map generation.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.8"></a>
+
+## KI#165.8 - (Fixed inherited vanilla) Sirian's `MultilayeredFractal` example used undefined region latitudes and grains
+
+The installed vanilla and Warlords `CvMapGeneratorUtil.py` template uses `regiononeNorthLat`, `regiononeSouthLat`, `regiononeGrain` and `archGrain` without definitions. The installed BtS layer has no copy. Better BTS AI already preserves these lines in SVN r482 (2009-08-09) and ships them in 1.01. K-Mod contains them in `593c549b51` (2010-12-27), and base AdvCiv and SAS retain the sample.
+
+The checked SAS map scripts provide their own `generatePlotsByRegion`, so none uses these example values. Keep the tutorial runnable with explicit latitudes enclosing its example subcontinent, and use the sample's existing world-size grain values for the first region and archipelago branch.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.9"></a>
+
+## KI#165.9 - (Fixed inherited Warlords) `onSelectionGroupPushMission` tested an undefined `pHeadUnit` when logging was enabled
+
+The handler is absent from the installed vanilla copy. Warlords and BtS unpack an owner, mission, count and unit IDs but test `pHeadUnit`, which they never bind. The Better BTS AI 1.01 and K-Mod 1.46 trees have no `CvEventManager.py` override. Base AdvCiv's `e11525d303` (2017-08-24) contains the slip and SAS retains it.
+
+The DLL dispatches the event from the selection-group mission path. AdvCiv's legacy switch leaves `__LOG_PUSH_MISSION` off, so normal play returned before the failing guard. Use the event's unit count for that guard. The log only prints the mission number.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.10"></a>
+
+## KI#165.10 - (Fixed inherited BtS) `onCorporationRemove` logged an undefined `iReligion` instead of the corporation
+
+BtS's `CvEventManager.py` added the corporation removal handler with an `iCorporation` argument, then used the religion-removal lookup unchanged. Vanilla and Warlords have no corporation-removal handler. The same code is in base AdvCiv and SAS. The registered handler returns before the bad lookup unless the legacy religion-spread logging switch is enabled.
+
+Use `getCorporationInfo(iCorporation)`, as the neighboring corporation callbacks already do.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.11"></a>
+
+## KI#165.11 - (Fixed inherited BUG) `IconGrid_BUG.deleteAllWidgets` incremented an uninitialized `currentX`
+
+The unused increment appears in the BUG SVN mirror at `1a03ccf8e4` (2009-05-12), in K-Mod's initial asset import `593c549b51` (2010-12-27), and in base AdvCiv and SAS. [BUG source snapshot](https://github.com/dharkness/civ4bug/blob/1a03ccf8e448aaf625afcdf03551a12d93e64488/CustomAssets/Python/Screens/IconGrid_BUG.py)
+
+The Foreign Advisor and BUG Military Advisor use the grid, but I found no call to this grid's `deleteAllWidgets`. If called with a populated labeled group, the increment would raise `UnboundLocalError`.
+
+Remove the coordinate increment and its label guard. The method deletes widgets by name and never uses the coordinate.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+<a id="ki-165.12"></a>
+
+## KI#165.12 - (Fixed inherited Planet Generator) `mdArray.__len__` read `self` without accepting a receiver
+
+The byte-preserved Planet Generator 0.68 and BTG copies both have `def __len__():` under `mdArray`, as does the C2C copy. SAS's Planet import `eaa9a887f9` (2026-02-11) preserved it. Python would reject the implicit receiver before executing the body when asked for the length of an `mdArray` or subclass such as `worldArray`.
+
+The map creates `worldArray` during plot generation, but I found no direct length call on that object. Add the receiver as the author's other array classes already do.
+
+Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
+
+Update (2026-11-23): [KI#1108.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108.2) is the opposite case, working inherited Python that ran for nothing, BtS's TechTree in the Foreign Advisor.
+
+<a id="ki-165.13"></a>
+
+## KI#165.13 - (Fixed inherited vanilla, seemingly unused in SAS) `CvUnitController.ProcessEvent` read `MoveFormation_BoxRange`, while its table is `MoveFormation_BoxRanges`, and an enum found in no engine file, so its first move would raise `NameError`
+
+Vanilla's `Assets/Python/pyUnit/CvUnitController.py`, which only vanilla ships, lays out up to five sub-units of a moving unit in formation. Its `ProcessEvent` holds three slips:
+
+- It reads `MoveFormation_BoxRange`, while the table it defines is `MoveFormation_BoxRanges`.
+- The table holds five rows of one to five sub-units' boxes, four coordinates each, though its first row is labelled "Two", and it is indexed by the number alive, so five sub-units would overrun it; which offset was meant is unclear.
+- It passes `BehaviourStoppingCriterion.STOPCRIT_DESTINATION`, a name unresolved in every source and binary checked: `Civ4BeyondSword.exe`, `Civ4BeyondSword_PitBoss.exe`, BtS's DLL and the Python files.
+
+No caller was found beyond `CvUnitControlInterface.ProcessEvent`, its wrapper, and none was seen in BtS: no engine file checked names that function or the `CvUnitControlInterface` module, which the EXE registers with every other module in `EntryPoints`, and registration alone does not show a call. Better BTS AI, K-Mod and base AdvCiv never carried the file.
+
+SAS carried the file with `CvUnitControlInterface.py`, the first of the base-game entry points it carries by [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)'s rule, and `ProcessEvent` now returns 0 at once, which hands the event to the engine's default handling, as `CvUnitControlInterface`'s docstring describes, instead of the `NameError` its first move would raise. The body is kept as comments, its trailing semicolons dropped for CI's Ruff.
+
+- Codex's review (GPT-6.2-Sol) preferred this to fixing the name and index, which would enable a custom animation path relying on unverified bindings.
+- The module still calls `random.seed(37)` if imported, reseeding Python's own `random`, not the game's synchronized random numbers, as vanilla's copy did.
+
+Found by [`star_import_names.py`](/.github/workflows/README.md#buildpythonstar_import_namespy) on 2026-11-26, once the file was carried; Ruff's own report lists the same names as F405.
+
+What the fix does for SAS, as the user asked: with no caller found, it most likely changes nothing in play; it is tidiness that removes a `NameError` waiting for any caller and lets the undefined-name check pass with no exception for this file, so the check keeps catching new slips.
 
 <a id="ki-166"></a>
 
@@ -30823,6 +31952,8 @@ An AZERTY single-player retest confirmed that Ctrl+Z toggles Debug mode again.
 
 Found during ChatGPT-5.6-Sol's C026 `CvDllPythonEvents.cpp` audit; implemented, reviewed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
 
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080), [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105).
+
 <a id="ki-623"></a>
 
 ## KI#623 - (Pending Architectural inherited K-Mod pathfinder defect incompletely addressed by AdvCiv) Reparented paths retain stale danger legality
@@ -33012,7 +34143,7 @@ The naming error did not itself alter gameplay or synchronized RNG, but it obscu
 
 The local is now named `iMaxPalaceTurns`, preserving the exact expression and call while making the inherited contract explicit.
 
-This is a separate behavior-neutral follow-up to the capital-relocation audit family, not a revival of F445/KI#768's retracted yield-rank theory. Found during the PR #43 AI building-value / Wonder-policy rework and traced and clarified with the help of GPT-5.6-Sol, thanks.
+This is a separate behavior-neutral follow-up to the capital-relocation audit family, not a revival of F445/KI#768's retracted yield-rank theory. Found during the PR#43 AI building-value / Wonder-policy rework and traced and clarified with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-769"></a>
 
@@ -34103,7 +35234,7 @@ K-Mod caches neutral `AI_buildingValue()` results in each city's `m_aiConstructi
 
 This issue was originally album-found as **F498** during ChatGPT-5.6-Sol's C031-WIP242-WIP243 `CvPlayer.cpp` deep re-audit.
 
-It was rediscovered concretely during the PR #43 AI building-value / Wonder-policy rework, when KI#48.15's World-Wonder placement migration made speculative cross-city building evaluation much easier to observe.
+It was rediscovered concretely during the PR#43 AI building-value / Wonder-policy rework, when KI#48.15's World-Wonder placement migration made speculative cross-city building evaluation much easier to observe.
 
 ### Confirmed lifetime failure modes
 
@@ -34163,7 +35294,7 @@ This does not claim that every hypothetical semantic cache-key collision is impo
 
 See **KI#48.15** for the World-Wonder placement migration that rediscovered and first partially repaired this inherited cache-lifetime issue.
 
-Found as F498 during ChatGPT-5.6-Sol's C031-WIP242-WIP243 `CvPlayer.cpp` deep re-audit; rediscovered, instrumented, partially fixed and then fully validated/fixed for the demonstrated lifetime defect during the PR #43 AI building-value / Wonder-policy rework with BBAI diagnostics and SASGameRecord deterministic comparison, with testing and review by wonderingabout, thanks.
+Found as F498 during ChatGPT-5.6-Sol's C031-WIP242-WIP243 `CvPlayer.cpp` deep re-audit; rediscovered, instrumented, partially fixed and then fully validated/fixed for the demonstrated lifetime defect during the PR#43 AI building-value / Wonder-policy rework with BBAI diagnostics and SASGameRecord deterministic comparison, with testing and review by wonderingabout, thanks.
 
 <a id="ki-822"></a>
 
@@ -36637,6 +37768,8 @@ AdvC practical 2033 introduced the player-ID duration mapping and Base AdvC 1.14
 
 Found as F704/provisional KI#1025 during ChatGPT-5.6-Sol's C031-WIP636-C031-WIP637 `ReproTest.cpp` audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
+Update (2026-11-23): [KI#1108](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108) records how `ReproTest.cpp`'s implementation was kept out of default builds, with its origin.
+
 <a id="ki-1026"></a>
 
 ## KI#1026 - (Provisional Pending inherited AdvC gameplay defect) Barbarian Shelf counts loaded land cargo as ships
@@ -37427,6 +38560,8 @@ Compilation and the same fresh autoplay completed successfully. The selected-pla
 
 Found as F746/provisional KI#1067 during ChatGPT-5.6-Sol's C031-WIP864 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080), [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105).
+
 <a id="ki-1068"></a>
 
 ## KI#1068 - (Fixed AdvCiv-SAS Sevopedia repair regression) EventTrigger corporation-era inference ignored HQ-building technology gates
@@ -37715,6 +38850,31 @@ In SAS, these restrictions represent physical limits: Chariots, Catapults, Trebu
 
 Raised by wonderingabout; investigated and implemented with the help of Claude code Opus 5.5, thanks.
 
+- Update (2026-11-22): these siege rules let a goody hut leave a Catapult on a Marsh from which it could move only onto one grass plot; see [KI#1076.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1076.2).
+
+<a id="ki-1076.2"></a>
+
+## KI#1076.2 - (Fixed latent vanilla Civ4 goody-hut placement weakness, widened by AdvCiv's advc.314 and activated by SAS siege rules) A goody hut on Marsh gave our Scout a Catapult that could move only onto one grass plot beside it
+
+- On 2026-11-22, playing the JOAO turn-112 Advanced Start save through SASPilot, a Catapult stood idle on Marsh at 26,22. SASPilot's `path` found no route to a neighbouring plot, as SAS makes Jungle, Forest and Marsh impassable to siege off a route ([KI#1076](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1076)); of the plots beside it, only one grass plot could be entered.
+- The game's SASGameRecord showed how it got there: at turn 112 our Scout entered a goody hut on that Marsh and received `GOODY_WARRIOR` (`GAME_RECORD_ACTION type=GOODY_RECEIVED x=26 y=22`), and `receiveGoody` created the Catapult with `initUnit` on the hut's plot, which checks neither feature nor terrain impassables.
+- Origin: one weakness, latent in every layer until SAS.
+  - Since vanilla Civ4, a hut places its units without asking whether that unit type can enter the plot: a friendly hut's unit goes onto the hut's plot through `initUnit`, and a hostile hut's Barbarians onto adjacent plots checked only for peaks (`isImpassable()`). Warlords, BtS, Better BTS AI and K-Mod kept it unchanged.
+  - It was harmless there: no land unit in BtS has a feature or terrain restriction, and the friendly unit was a fixed Warrior.
+  - AdvCiv's advc.314 widened it with v0.92c (`7afb62a4b`, 2018-04-15): both kinds of hut now take the strongest land unit the Barbarians can train, which can be siege. Still latent in AdvCiv, whose units have no feature restrictions either.
+  - SAS activated it by making Jungle, Forest and Marsh impassable to wheeled siege, Marsh on 2026-11-07, so an advc.314 Catapult on a Marsh hut, or a hostile one beside it, had no legal way out. [KI#1076](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1076)'s own-border change played no part, as huts stand on unowned land.
+- Fix ([`CvPlayer.cpp`](/CvGameCoreDLL/CvPlayer.cpp)): a friendly hut skips unit types that could not enter the hut's plot, and a hostile hut skips adjacent plots its chosen unit could not enter, both through `isSASUnitTypePlotPassable`, which follows `CvUnit::canMoveInto`'s feature and terrain rules (a passable tech, or a route for land units).
+  - The friendly reward is excluded before drawing an outcome if no eligible unit can stand there. Eligibility and reward selection share the same deterministic search. An explicit reward's upgrade keeps the original unit if the upgrade cannot stand there.
+  - The hostile candidate ranking still consumes its original random draws. Looking up an already ranked candidate consumes none, so the spawn loop can check its plot first. Skipped plots no longer consume a spawn roll.
+- Tested with a Debug-opt build on the same game, reloaded at turn 120: `receiveGoody` on the 26,22 Marsh ten times with `GOODY_WARRIOR` gave a Longbowman each time, which can stand there, where the old DLL had given the Catapult; ten `GOODY_BARBARIANS_STRONG` placed three Barbarian Longbowmen in the adjacent Jungle and Marsh, and no new unit stood on a plot it could not enter.
+  - After Codex's rework of the reward selection, its rebuilt Debug-opt gave a Longbowman on Marsh, no free unit on a peak, and allowed a Catapult on a road through Forest.
+
+Found by Claude Code Opus 5.5 while playing through SASPilot for the user's normal-play pass, 2026-11-22; the shared reward selection is Codex's (GPT-6.2-Sol) from its review.
+
+- Update (2026-11-26): brought to main from the SASPilot work ([PR#47](https://github.com/wonderingabout/AdvCiv-SAS/pull/47)). Codex's review of the port read that a hostile hut whose ranked unit, such as a Catapult, could enter none of the free plots around it, such as roadless Jungle or Marsh, would spawn nothing, though a Longbowman could stand there.
+  - Such a plot now takes the strongest Barbarian unit that can enter it, from the same search with the plot given, which makes no RNG calls. Not tested in game.
+  - The AdvCiv 1.14 branch's newest code on GitHub (2026-11-26, last commit 2026-10-15) places hut units as the local copy does.
+
 <a id="ki-1077"></a>
 
 ## KI#1077 - (Clarified inherited AdvCiv display) City health help hid fractional feature health and lumped feature types, so a single Marsh seemed to have no effect
@@ -37840,6 +39000,8 @@ To reproduce: run `python LLM_Helpers/game_runs/run_autoplay.py <save> --turns 1
 The difference is in the exact game, not something a player would notice: the user often turns Debug Mode on a few or dozens of turns into a game and saw nothing unusual. Only two runs that should be identical reveal it, which is why it matters for comparisons and benchmarks.
 
 Found by Claude code Opus 5.5 while testing parallel autoplay runs requested by wonderingabout, thanks.
+
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105).
 
 <a id="ki-1081"></a>
 
@@ -37980,6 +39142,21 @@ Found by Claude code Opus 5.5 on 2026-11-13, while playing through SASPilot.
     - Seventeen keys left the list, 51 remain; where a player would see these texts was not traced.
   - Codex also noted that keys assembled at run time are invisible to the check. Looking for families keyed by unit combat found KI#1087, BUG's Unit Naming options, which has its own check.
 
+<a id="ki-1085.2"></a>
+
+## KI#1085.2 - (Fixed inherited vanilla, untested in SAS) The Pitboss server's patch dialog would ask its question as TXT_KEY_PITBOSS_PATCH_AVAILABLE_DESC, a key vanilla's PbWizard.py uses but base-game text lacks
+
+`PbWizard.patchAvailable`, which the Pitboss server calls through `PbMain.patchAvailable` when told of a patch, opens a Yes/No dialog titled `TXT_KEY_PITBOSS_PATCH_AVAILABLE_TITLE` ("Patch Available") asking `TXT_KEY_PITBOSS_PATCH_AVAILABLE_DESC`.
+
+- Vanilla's `CIV4GameText_Misc1.xml` defines the title but not the question, and the vanilla, Warlords and BtS copies of `PbWizard.py` all use it, so the dialog would show the key itself.
+- Untested in SAS: only a Pitboss server told of a patch opens the dialog, and no SAS test has run one.
+
+SAS carried `PbWizard.py` with the Pitboss server's other files ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)), and [`sas_text_references.py`](/.github/workflows/README.md#buildxmlsas_text_referencespy) then failed on the key.
+
+- [`AdvCiv-SAS_main.xml`](/Assets/XML/Text/AdvCiv-SAS_main.xml) now defines it, in English only, with Caveman2Cosmos's wording from its `PitBoss_CIV4GameText.xml`: "Would you like to install the latest updates?".
+
+Found on 2026-11-26 by Claude Code Opus 5.5 while carrying the base-game entry points.
+
 <a id="ki-1086"></a>
 
 ## KI#1086 - (Fixed AdvCiv-SAS bug, guarded by CI) SAS's move of the Sevopedia colors into SASVisuals missed one reader, so Down in the Index after a search raised a Python exception
@@ -38104,6 +39281,8 @@ Found and fixed by Claude Code Opus 5.5. SDK provenance checked by Codex (GPT-6.
 
 Found by Claude code Opus 5.5 on 2026-11-17, searching all wrappers for KI#1091's pattern while bringing it over from the SASPilot work, after wonderingabout agreed to fix the pattern rather than the one case.
 
+- Update (2026-11-20): [KI#1091.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.3) found the same family in native code: asked with no target, the airlift, air bomb and nuke checks read past the map.
+
 <a id="ki-1091.3"></a>
 
 ## KI#1091.3 - (Fixed inherited vanilla Civ4 bug) Asking from Python whether a unit could airlift, air bomb or nuke, with no target, read past the map: SASPilot's `unit` raised "unidentifiable C++ exception" for a Paratrooper in a city
@@ -38124,6 +39303,13 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
   - The functions that run these missions, such as `paradrop` and `nuke`, also read their plot unchecked, but only after `canStartMission` has accepted it.
 
 Found and fixed by Claude Code Opus 5.5 on 2026-11-20, while testing SASPilotUI's `uiplot` on a late save.
+
+- Update (2026-11-26): brought to main from the SASPilot work ([PR#47](https://github.com/wonderingabout/AdvCiv-SAS/pull/47)).
+  - Better BTS AI (r597) and K-Mod 1.46 keep BtS's code in all three checks, passing `plotINLINE`'s NULL on, so the slip ran unchanged from vanilla to AdvCiv.
+  - Codex's review of the port found that a NULL check was not enough: `CvMap::plot` wraps coordinates, as `INVALID_PLOT_COORD`'s note in `CvDefines.h` says -1 is a valid wrap coordinate, so on a map wrapping both ways `-1, -1` is the opposite corner, while the Air Bomb and Nuke executions read the coordinates as given through `getPlot`, which does not wrap.
+    - The three checks now require `isPlot`, real map coordinates; Nuke checks it before `plotDistance`, whose subtraction would overflow on `INVALID_PLOT_COORD`.
+  - Codex found no caller passing other coordinates: the AI takes them from plots or cities, and the three actions' buttons use targeted interface modes. The EXE's click path itself was not tested.
+  - The AdvCiv 1.14 branch's newest code on GitHub (2026-11-26, last commit 2026-10-15) has the same three reads as the local copy.
 
 <a id="ki-1092"></a>
 
@@ -38315,7 +39501,7 @@ Found and fixed by Claude code Fable 5.2, checked by Codex (GPT-6.1-Sol).
   - Only the README's endings and the SHAs citing those commits changed: the dev log, SASGameRecord's revision history and the Modding Resources README now cite the new ones.
   - The force push made GitHub's date check, `future_dates.py`, judge the rewritten commits again, including two from the evening of 2026-11-16 that had written "2026-11-17" a day early before the KI#1090 commit corrected them, so that push showed a red cross. Recreating the two newest commits with a new commit time and pushing again made CI judge only those two, which passed.
   - The two noisy diffs disappeared: the KI#1094 commit now shows 389 lines added and 39 removed instead of 2,118 and 1,768, and the 2026-11-16 commit 416 and 170. Its SHA changed with the rewrite, from `2b7c59cab` to `e183db41c`.
-- Guarded since 2026-11-17 by [`line_ending_churn.py`](/.github/workflows/README.md#buildhygieneline_ending_churnpy), so nobody has to notice a line count or remember April: a commit fails when 20 or more of a file's changed lines differ only in their endings. A deliberate conversion passes with `Convert line endings` in its message.
+- Guarded since 2026-11-17 by [`line_ending_churn.py`](/.github/workflows/README.md#buildhygieneline_ending_churnpy), so nobody has to notice a line count or remember April: a commit fails when 20 or more of a file's changed lines differ only in their endings. A deliberate conversion passes with `[ci_convert_line_endings]` in its message (`Convert line endings` before 2026-11-22).
   - Tools that rewrite a whole file, such as `sed -i` in Git Bash or PowerShell's `Set-Content`, can switch its endings; LLM_Helpers' editing helpers keep each file's style.
 
 Noticed by wonderingabout, who also recalled the 2026-04-12 workaround that traced it back; the check by Claude code Opus 5.5.
@@ -38354,6 +39540,23 @@ warning: in the working copy of 'LLM_Helpers/formatting/fix_line_endings.py', LF
 - Since `.gitattributes` says `eol=lf`, those can no longer appear. The reverse one did instead, `CRLF will be replaced by LF`, for the working copies still CRLF from before: 1,345 files in the user's folder.
 - The 1,339 without local edits were rewritten as LF from the repository, so the warning now shows only for a file holding local edits made before the conversion, and goes once that file is committed, as staging stores it as LF.
   - `git checkout -- <file>` alone left them CRLF, since Git skips a file it sees as unchanged; each was deleted and then checked out again.
+
+2026-11-25 update: the reverse warning came back for files an agent had just rewritten, when the user exported the uncommitted changes for review (computer name replaced by x's, the same number of characters):
+
+```text
+2026-11-25 18:38:34
+PC@xxxxxxxxxxxxxxx MINGW64 /c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS (main)
+$ cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && git diff --staged --ignore-space-at-eol > "C:/Users/PC/Downloads/uncommitted_staged_changes_no_eol_$(date +%Y%m%dT%H%M%S).diff" && git diff --ignore-space-at-eol > "C:/Users/PC/Downloads/uncommitted_changes_no_eol_$(date +%Y%m%dT%H%M%S).diff"
+warning: in the working copy of '.github/workflows/README.md', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of '_1_AdvCiv-SAS/Docs/README_Known_Issues.md', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of '_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md', CRLF will be replaced by LF the next time Git touches it
+```
+
+- Claude Code Opus 5.5 had rewritten six files in rename passes with Python's `Path.write_text`, which on Windows turns each `\n` into CRLF; the three above were tracked, and three new, untracked files were CRLF too. The Edit tool and `write_bytes` had kept LF everywhere else.
+- No check had flagged them: Git restores LF when a file is staged, so commits stay clean, `line_endings.py` passed files that were wholly CRLF rather than mixed, and `line_ending_churn.py` looks only at commits. Only what reads the working file, such as this export, showed it.
+- At the user's request, `line_endings.py` now also fails a tracked text file stored LF but written CRLF or mixed on disk, from Git's own report (`git ls-files --eol`, column `w/`). It can fire only locally, as a fresh checkout follows `.gitattributes`; the kinds kept CRLF (`-text`) are left to the stored-endings rule, and a file not yet tracked is not covered.
+  - Run over the whole repository first, it found one more: `Assets/CvGameCoreDLL.dll.build.json`, mixed on disk while Git stored it clean, now rewritten as LF with no content change.
+- AGENTS.md's line-endings note now names Python's `write_text` and `open(..., "w")` among the tools that switch a file's endings, with `write_bytes` or `newline=""` as the way to keep them.
 
 <a id="ki-1098"></a>
 
@@ -38395,6 +39598,30 @@ During the AdvCiv 1.14 merge through `5970334b6` on 2026-11-19, the old-save cle
   - The [C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt) recorded the duplicate. `989eb50ce` removed it and kept both reasons in the remaining include comment. That cleanup had no duplicate-include CI check.
 
 Found and fixed by Codex (GPT-6.2-Sol).
+
+<a id="ki-1098.3"></a>
+
+## KI#1098.3 - (Fixed SAS dead stores, and inherited BtS, K-Mod and BUG ones, guarded by CI) Python layout values were set, then set again before anything read them: SAS's Sevopedia Terrain page wrote H_RELEVANT_UNITS twice from the same sum, and SAS's full-screen layouts left vanilla's 1024 x 768 values unread in three screens' `__init__`, as BtS had in Dawn of Man's
+
+- The same family as [KI#1098](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098)'s repeated lines, but the copies are not adjacent and differ: a store such as `self.X_LINK = 50` is overwritten by `self.X_LINK = 0` before any read, so a reader takes the first value for live.
+  - Nothing changed in game: the removed values were never read.
+- How it came up (2026-11-24): while fixing [KI#123.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.5)'s Replay screen and testing resolution changes, Claude Code Opus 5.5 found screens whose `__init__` set a 1024 x 768 layout that a runtime method set again from the resolution before any read.
+- Within one method, fixed (2026-11-24):
+  - `SevoPediaTerrain.py`: `H_RELEVANT_UNITS`, set twice from the same sum since SAS practical 5353 (`d12cdf8d7e`, 2026-01-17); `SevoPediaUnit.py`: `H_REQUIRES`, set twice since 5337 (`fb9054847f`, 2026-01-15), whose second `H_REQUIRES = 110` 5459 then made `NON_MULTILIST_PANEL_STANDARD_HEIGHT` like the first. Neither exists in base AdvCiv.
+  - `CvMilitaryAdvisor.py`: `X_TEXT`, whose fixed 625 was live from vanilla through base AdvCiv; SAS practical 5777 kept its right-aligned formula and added the balanced split that overwrites it, and 5779 based the split on `W_MAP_MINIMAP`.
+  - `CvForeignAdvisor.py`: `X_LINK = 0`, BtS's Exotic Foreign Advisor value, which computed its `DX_LINK` until K-Mod (`3265fc03b6`, 2012-04-14) commented out that read, leaving it unread there.
+    - SAS's merge of the two advisors (practical 5578, `bbbd9fea2c`, 2026-03-20) brought it in over the ordinary advisor's `X_LINK = 50`, live from vanilla through base AdvCiv (`xLink = self.X_LINK`), and dropped that read, so neither is read now; the inherited line stays.
+  - `PLE.py`: `sPLEMode = PLE_MODE_MULTILINE`, which the option's default view mode replaced three lines later; BUG's own, as its public SVN `PLE.py` has both stores, as do K-Mod's and base AdvCiv's copies.
+- Across methods, fixed (2026-11-24): fixed 1024 x 768 values set in `__init__`, which each screen's runtime layout replaced before any use. Vanilla used them as its live layout; the screen that later sets them again made them dead:
+  - `CvDanQuayle.py`: screen, exit, leaderhead, list, score and text positions, live in vanilla and base AdvCiv, which read no resolution; SAS's full-screen layout pass in `interfaceScreen` now sets them from it. `Y_SCREEN` was not read at all.
+  - `CvDawnOfMan.py`: the whole layout, live in vanilla and Warlords; BtS added `calculateSizesAndPositions`, which sets it all again; K-Mod ships no copy, so BtS's served there, and base AdvCiv's own copy kept the dead one; some of its values already differed from the live ones in BtS, such as `Y_STATS_TEXT` 75 rather than 60 below the title.
+  - `CvHallOfFameScreen.py`: the screen, exit and dropdown fields, live in vanilla and base AdvCiv, which SAS's replay-style layout in `updateLayoutForResolution` now sets from the resolution; the table's 1018 x 545 was written inline upstream, and SAS practical 5657 named it `TABLE_W`/`TABLE_H` in `__init__` and overwrote both in the same commit; the values that do not depend on the resolution are now set only in `__init__`.
+  - `CvPolicyAdvisorScreen.py`: `HELP_BOTTOM`, `BOTTOM_LINE_TOP`, `Y_EXIT`, `Y_CANCEL`, `X_RELIGION_START` and `DX_RELIGION`, live in vanilla's Civics and Religion screens and in base AdvCiv's, whose Civics screen reads the screen width for horizontal sizes but keeps these fixed vertical ones; SAS merged both into this advisor, and its `updateRuntimeLayout` now sets them; `DX_CORPORATION` and `X_CORPORATION_START` stay, as they are its fallback when no corporation exists.
+- Guarded by [`python_dead_stores.py`](/.github/workflows/README.md#buildsourcepython_dead_storespy) within one method; the report-only [`audit_screen_init_layout.py`](/LLM_Helpers/README.md#audit_screen_init_layoutpy) lists the cross-method candidates, which need a reading each.
+  - A first scan found 26 pairs; 13 were reads through a method call, such as `getNextWidgetName()` advancing `nWidgetCount`, or an early `return`, so the check counts those as possible reads.
+  - Eight more were `self.plotTypes = []` right before the store that fills it, in `CvMapGeneratorUtil.py` and the map scripts, an inherited reset idiom that misleads no reader; the check accepts an empty list reset.
+- Provenance traced the same day through each layer's own copy (vanilla, Warlords, BtS, K-Mod, base AdvCiv) and SAS's history, after the user asked whether the first title's "inherited" held for SAS's own `H_RELEVANT_UNITS`: most of these are SAS's. Codex's (GPT-6.2-Sol) review of that tracing added the commits above and K-Mod's part in `X_LINK`.
+  - Codex's (GPT-6.2-Sol) review confirmed each removed placeholder is set before any read, and reproduced false positives in the check's first version: a `#` inside a string, stores inside a docstring, a `try` whose `finally` reads the first value, and an alias of `self`. It now tokenizes each file and leaves those cases unchecked.
 
 <a id="ki-1099"></a>
 
@@ -38478,6 +39705,23 @@ Civ4BeyondSword -> msvcr71!exit -> kernel32!ExitProcessImplementation -> ntdll!R
 
 Found by Claude Code Opus 5.5 on 2026-11-20 from the user's Task Manager dump of the leftover Civ4 (pid 32660), whose dump, logs and CDB output are kept in `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261120_steamclient_exit_hang/`; the user asking for this entry.
 
+Update (2026-11-26): a third case, studied while it lasted at the user's request, as it blocked an in-game test of the Python define-caching work.
+
+- A turn-0 test game started by `start_game.py` was closed with `desktop_windows.py close`, then `Stop-Process -Force`; it stayed listed with one thread, 615 handles and 263 MB.
+  - A full dump written with `MiniDumpWriteDump` showed the same stack: `msvcr71!exit`, `ExitProcess`, `LdrShutdownProcess`, then `steamclient` waiting in `NtWaitForAlertByThreadId`. Dump and CDB output are in `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261126_steamclient_exit_hang/`.
+  - The user suspected the Python edits made meanwhile, as these hangs seemed to come during Python work; here the exit had begun at the close, before the edits, and the earlier cases followed ordinary closes, so the edits are unlikely to be the trigger.
+- The usual kills did not release it: `Stop-Process -Force` and `taskkill /F`, whose answer was that no running instance existed; attaching and detaching a debugger; resuming the process and its thread, never suspended; and `Stop-Process -Force` run elevated through a scheduled task the user registered for it, which ran with result 0 and changed nothing.
+  - The user's Task Manager runs elevated, as Windows starts it for an administrator account without asking; neither `desktop_windows.py` nor the Claude app's computer use can click an elevated window.
+- Codex (GPT-6.2-Sol), asked by the user to try with its own tools, then ended it from a non-elevated shell, at medium integrity: `Get-Process` did not find the pid there while CIM and `tasklist` listed it, so it opened a handle with `PROCESS_TERMINATE | PROCESS_QUERY_LIMITED_INFORMATION | SYNCHRONIZE`, read exit code 0 and an unsignaled wait, called `TerminateProcess`, and the handle signaled within 1.5 s; CIM and `tasklist` then no longer listed it.
+  - Whether `Stop-Process` and `taskkill` had reached `TerminateProcess` was not traced; they left it in place, and `taskkill` answered that no running instance existed.
+  - `desktop_windows.terminate_process()` now does as Codex did; `close --force` uses it, and `start_game.py` ends a client hung at exit with it before launching.
+    - It first checks on the same handle the image, the creation time and a pending exit, as a pid can be reused (Codex's review).
+    - `process_state()` reads running, exiting, gone or unknown from a handle, as the exit code, already 0, had made `close` report the client exited (Codex's review).
+- What blocks a new client is not Steam's running flag, which read `RunningAppID` 0 and `Running` 0 for app 8800, but, as inferred, Civ4's own single-instance check: a client started with Civ4's `multiple` argument ran beside the leftover; the object it checks was not identified.
+  - `start_game.py` now passes `multiple` when `desktop_windows.stuck_civ4_processes()` finds such a leftover, so an agent working alone can go on.
+  - The leftover still holds `PythonDbg.log` and `PythonErr.log`, so the second client wrote its Python output to `PythonErr2.log`, which ended after start-up; its screens and a live override were checked on screen instead.
+- So an agent ends such a leftover itself, after a dump if one is wanted, and starts a new client with `multiple` should one ever survive `TerminateProcess`. See [A client that will not go away](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#a-client-that-will-not-go-away).
+
 <a id="ki-1103"></a>
 
 ## KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout
@@ -38501,3 +39745,307 @@ Not a bug but a rule several layouts follow, written down here so each place can
   - The commerce sliders beside the Technology Advisor, which fall back to fewer buttons and rates below the sliders in a narrow strip.
 
 Pondered on by the user and Claude Code Opus 5.5 while fitting the advisors and the scoreboard at larger fonts (2026-11-19 to 21), with Codex's (GPT-6.2-Sol) reviews of the layouts that follow it, such as the commerce sliders' fallback beside the Technology Advisor.
+
+<a id="ki-1103.2"></a>
+
+## KI#1103.2 - (Fixed SAS) The scoreboard's left edge moved whenever an advisor opened or closed, even at 1920 x 1080 and font 3: it cut leader names to the advisors' space only while one was open, so on the map it kept its full width, 10 to 60 px wider in debug mode
+
+- What it was: the user found it tiring to watch the scoreboard shift each time an advisor opened or closed (2026-11-24).
+  - Under [KI#1103](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103)'s rule, advisors leave the scoreboard a fixed space, 393 px at font 3 and 455 at font 4 above 1920 px, and while one is open the scoreboard shortens leader names to fit it; the commerce sliders above start at that space in both views.
+  - On the map nothing cut the names, so the scoreboard took its full width; whether it lined up with the sliders depended on its content: the 393 px came from this save's turn-380 scoreboard without debug mode, about 394 px.
+  - Base AdvCiv's scoreboard never moved: nothing there cut its names, and most of its advisors were fixed 1024 x 768 boxes in the middle of the screen. The movement came with SAS's name cutting beside advisors (2026-11-20), so this fixes an SAS side effect.
+- Measured on 2026-11-24 on that turn-380 SAS24 save in debug mode, which adds every player's power ratio, research and percent columns: on the map the scoreboard ran about 10 px past the sliders at font 3 and 1080p, 20 at font 3 and 1440p, and 60 at font 4 and 1080p; with the Domestic Advisor open, it met the advisor's edge.
+  - Resolution made only a few px of difference, as the sliders' `SAS_MAIN_UI_MAP_COMMERCE_RIGHT_X_OFFSET` scales with it.
+- Fixed (2026-11-24): with `SAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON` (on by default), the map fits the scoreboard to the same space as the advisors, so it stays put and lines up with the sliders ([CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py)).
+  - It costs shortened names with no advisor open, so `0` keeps the full width and whole names on the map, as before.
+  - Opening or closing one of these advisors then changes nothing, so its scoreboard redraw is skipped.
+  - Tested in game the same day: map and Domestic Advisor views showed the scoreboard in the same place at 1920 x 1080 and 2560 x 1440, at font 3 in debug mode, with no Python error.
+- Limits, from Codex's (GPT-6.2-Sol) review the same day:
+  - It holds for BUG's aligned scoreboard with leader names shown; with Align Icons off it draws apart, and with Display Name off there are no names to cut.
+  - The Technology Advisor still leaves its own space, narrower below 2560 px, so opening it can still move the scoreboard; it redraws the scoreboard itself on opening and closing.
+  - Only names are cut, so columns that alone exceed the space, as beside that advisor, still do.
+  - A scoreboard narrower than the space, as in early games with few players, still ends short of the sliders: fitting only shortens names, it does not widen.
+
+<a id="ki-1104"></a>
+
+## KI#1104 - (AdvCiv-SAS design rule) SAS keeps its own copy of every base-game Python file it uses, changed or not, as it took in CvTechSplashScreen.py, CIV4ProcessInfo.xml and CIV4WorldPickerInfos.xml when first needed: SASPilot's WorldBuilder work found the WorldBuilder screen running from BtS's copy, outside the repository
+
+Not a bug but a rule, written down so the files it covers can point to it.
+
+- How it was found (2026-11-22): SASPilot's WorldBuilder work asked whether the WorldBuilder screen that runs is ours.
+  - It was not: `CvWorldBuilderScreen.py`, `CvWorldBuilderDiplomacyScreen.py` and `CvWBInterface.py` ran from BtS and `CvWBPopups.py` from vanilla; only `CvWBDesc.py`, which saves and loads WorldBuilder files, was in SAS. See [WorldBuilder](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#worldbuilder) in the inherited files audit.
+  - Auditing more broadly, 76 base-game Python files had no copy in SAS. The `load_module` lines of 7 `PythonDbg.log` files (2026-10-19 to 2026-11-22: new games, autoplay, Sevopedia, diplomacy, WorldBuilder) showed 19 of them loading.
+    - Static imports alone gave a different set: `CvDiplomacyInterface`, `CvGFCScreen` and `CvScreen` load without any SAS import, while `CvPediaMain` and `CvPediaHistory` are imported by inherited files that never run.
+    - A first count, case-sensitive, missed `CvUNVictoryScreen`, which the logs name `CvUnVictoryScreen` as `CvScreensInterface.py` imports it; Codex caught it while checking the copies.
+    - `CvTranslator`, `CvMapScriptInterface` and `CvUnitControlInterface` appear only as `EntryPoint module:` lines, so the other 57 are not observed by the import hook rather than proven unused (Codex's reading).
+  - The 19 loaded ones by use: every game (`CvGameUtils`'s rule hooks, `PyHelpers`, `DomPyHelpers`, `ScreenInput`, `CvAppInterface`, `CvPopupInterface`, `CvDiplomacyInterface`, and `CvPediaScreen` and `CvScreen`, which the Sevopedia pages subclass), WorldBuilder (its two screens, `CvWBPopups`, `CvWBInterface`), a victory (`CvVictoryMovieScreen`, and `CvUNVictoryScreen` for a diplomatic one, which `CvGame.cpp` shows when the victory `isDiploVote()`), the intro movie unless the ini turns it off (`CvIntroMovieScreen`), and Debug Mode's Shift+F2 screen (`CvDebugInfoScreen` and its base `CvGFCScreen`).
+    - `TechTree` only loads: see below.
+  - The 57 others, by likely use; none was traced call by call:
+    - specific use: 3 entry points the game registers (`CvMapScriptInterface`, `CvTranslator`, `CvUnitControlInterface`), Pitboss (`PbMain`, `PbAdmin`, `PbWizard`), the tutorial (`CvTutorialQuestScreen`, `CvQuestManager`) and vanilla's 21-file `email` package, which `CvAppInterface`'s PBEM email sending reaches through `smtplib`;
+    - the old Civilopedia (`CvPediaMain`, `CvPediaHistory` and 13 `CvPedia*` pages): used only when a player turns off BUG's Sevopedia option (Advisors tab), as [`CvScreensInterface.py`](/Assets/Python/EntryPoints/CvScreensInterface.py) then shows it instead; a first reading here called it obsolete, until the import behind that option was checked (2026-11-22);
+    - obsolete: screens base AdvCiv or SAS replaced such as `CvCorporationScreen` and `CvFinanceAdvisor`, the vanilla unit-control helpers (`Unit`, `UnitEntity`, `CvUnitController`) and developer leftovers such as `CvDefineEditor`, `CvPerfTest` and `vector`.
+    - [`inherited_files.py --loaded`](/LLM_Helpers/README.md#inherited_filespy) lists them again from the current logs; it also lists 4 base-game screens base AdvCiv had already replaced under other names, such as `CvCivicsScreen.py`.
+- Why: we kept looking back and forth for files we may have forgotten, which layer a running file comes from and whether it must be copied before a change.
+  - SAS had taken files in that way each time it first needed one, which this rule extends:
+    - Python: [`CvTechSplashScreen.py`](/Assets/Python/Screens/CvTechSplashScreen.py) and [`CvWonderMovieScreen.py`](/Assets/Python/Screens/CvWonderMovieScreen.py) from BtS (2026-04-14);
+    - XML: `CIV4ProcessInfo.xml` from Realism Invictus (2025-03-24) and `CIV4WorldPickerInfos.xml` for the SAS24 to SAS48 world sizes (2026-01-08);
+    - map scripts: 42 of SAS's 50, from the base game and third-party mods, starting with `aDebugMap.py` and `Highlands.py` (2026-02-03); see [Map scripts](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#not-traced) in the audit.
+  - Those came in when SAS changed or offered them, often fixed in the same commit, such as "Fix Oasis.py" (2026-02-08). A first commit that copies the file unchanged keeps the later diff to SAS's own change; the base copy also stays in the Civ4 install to diff against.
+  - So what decides is whether SAS uses a file, not whether SAS has changed it yet: a file SAS uses should be in the repository, greppable and diffable for every agent, and ready for a later change; doing it once ends the question.
+  - A first payoff the same day: once in the repository, the copies met SAS's CI, and its duplicate-line check on `CvDebugInfoScreen.py` led to [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105), a vanilla table bug that had gone unseen while the file ran from the install, where no check or search of ours reached it.
+  - An unused file stays out, even when something imports it: [`CvForeignAdvisor.py`](/Assets/Python/Screens/CvForeignAdvisor.py) imports `TechTree` and constructs it (`self.objTechTree = TechTree.TechTree()`), and nothing then reads the stored object.
+  - Runtime does not change: the game takes a mod's file before BtS's, Warlords' and vanilla's, so an unchanged copy loads the same code. See [Which copy runs](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#which-copy-runs) in the inherited files audit, which also records the loading claims corrected on the way.
+  - Base AdvCiv and K-Mod ship only base-game files they changed: on 2026-11-22, none of their 81 and 50 Python and XML files sharing a BtS path was byte-identical to it.
+- Done (2026-11-22): the files the logs above showed loading, other than `TechTree.py`, were copied, each with the SAS header and a comment naming its source's layer and full path, and which layers ship it, such as BtS's `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\Python\Screens\CvWorldBuilderScreen.py` (the newest of the vanilla Civ4, Warlords and BtS copies).
+  - `CvGameUtils`, `DomPyHelpers`, `PyHelpers`, `ScreenInput`, `CvAppInterface`, `CvDiplomacyInterface`, `CvPopupInterface`, `CvWBInterface`, `CvWBPopups`, `CvDebugInfoScreen`, `CvGFCScreen`, `CvIntroMovieScreen`, `CvPediaScreen`, `CvScreen`, `CvUNVictoryScreen`, `CvVictoryMovieScreen`, `CvWorldBuilderDiplomacyScreen`, `CvWorldBuilderScreen`.
+  - From then on each copy is an ordinary SAS file: its header already makes it a changed file, and later changes carry their own comments, as in any inherited file SAS keeps.
+    - A list of the copies with content hashes, which CI checks would skip while a copy stayed byte-identical, was considered and dropped: tedious, brittle and more upkeep for little gain, since whether a copy still matches its source does not matter in the end (the user, 2026-11-22).
+    - So the copies were fixed where CI failed on them: their Python 2 `print` statements became single-string `print(...)` calls, which Python 2.4 still parses, with `%s` keeping the one space Python 2 put between comma-separated items, so Ruff's critical gate no longer stops at a syntax error and can analyze these files; their other Ruff findings deserve a lint pass of their own.
+    - `CvWBInterface.py`'s 14 lookups of the settings and players a WorldBuilder file names stay raw, with an exception in `raw_getinfotype.py` like `CvWBDesc.py`'s: Codex checked that a file can omit a value or write NONE, as unused player slots do, and `findInfoTypeNum` returns -1 for those, which the strict helper would turn into an error; base AdvCiv's advc.001 tolerates such files because BtS loaded them. Comments at both lookup groups say so.
+      - This follows AGENTS.md rather than bending it: it asks for `findInfoTypeNumOrFail` on static or literal tags, and lets dynamic or guarded legacy lookups stay raw once reviewed, as these were.
+        - Being dynamic, read from the file rather than written in our code, only takes them out of that literal-tag rule; the strict helper handles dynamic strings too. What keeps them raw is the empty and `NONE` values, which it would raise on.
+    - The rest of what CI found was fixed in the files: final newlines Firaxis's files lacked, a trailing note on each line meant twice (the totals row of `CvDebugInfoScreen.py` leaves two columns empty), and a run of 3 blank lines in `PyHelpers.py`.
+      - The multi-line calls and Ruff findings the copies brought back, `CvWorldBuilderScreen.py`'s `attachPanelAt` among them, are in [KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7).
+    - Left for later: source provenance reads the copies' 365 or so Firaxis comments as new comments without a model credit, and the resource-API rule their 31 direct resource lookups as new code, since both judge every line of a newly added file as new.
+      - Codex suggested accepting only comments found word for word in the verified source copies, but GitHub's runners have no Civ4 install to compare with, and a draft commit holding the plain copies does not survive the squash merge, so CI would need another baseline.
+      - A narrower exception would accept a new file's comments when its header names a base-game source the manifest lists, checked for real only where the Civ4 install exists; it would make GitHub's CI trust the header, which is not ideal, as the rule would no longer stand on its own (the user, 2026-11-22).
+    - The same squash rule applies to the audit: regenerating it on the draft branch wrote that draft commit beside the copies, which was reverted; `--inventory` runs once the squashed commit is on main.
+  - Why CI: a written rule alone is unreliable, as the user put it once the rule was written, since anyone, the user and agents alike, can forget it or slip; this session's own slips, such as the case-sensitive count that missed `CvUNVictoryScreen` and the old Civilopedia first called obsolete, show how easily that happens.
+  - Enforced by CI (2026-11-22), as the user asked: [`inherited_files.py`](/.github/workflows/README.md#buildsourceinherited_filespy) fails when SAS imports a base-game Python module it does not carry, unless its `NOT_CARRIED` table says why (`TechTree`, and the old Civilopedia's `CvPediaMain` and `CvPediaHistory` while carrying that fallback is undecided), and when a SAS text file takes a base-game text file's name.
+    - Modules the EXE loads by name, with no import in Python, stay outside what CI can see; `--loaded` compares them with the logs.
+  - Undecided on 2026-11-22: whether the rule extends to the 42 data XML files SAS reads whole from the base game, such as `GlobalDefines.xml` and `CIV4ClimateInfo.xml`, listed in the audit; the same reasoning would bring all of them in, as the game reads each at startup.
+    - Text files are left out on purpose: the game loads every layer's text files together, so SAS overrides single keys in its own files instead. A SAS text file must not take a base-game text file's name, as it would replace that file; see [Which copy runs](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#which-copy-runs).
+
+- Pull request: [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50). The branch is squash-merged, so its separate commits, such as `ec887dbd9e`, `7463f070dc` and `36fcfde727`, stay reachable on that page rather than on main.
+
+Asked for by the user while auditing SAS's inherited files with Claude Code Opus 5.5 (2026-11-22), with Codex's (GPT-6.2-Sol) review of the loading question and of each copy.
+
+Update (2026-11-22): once in the repository, the copies met SAS's CI, and `PyHelpers.py`'s dormant `religionList` slip turned up, which led to a check for such names and its 35 siblings. See also [KI#165.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.2).
+
+Update (2026-11-22): the source-provenance gap left for later above is closed: [`source_change_provenance.py`](/.github/workflows/README.md#buildsourcesource_change_provenancepy) now counts a new file's original comments and imports as inherited when the layer and path from `Assets/` in its leading copy note match the inherited-files manifest.
+
+The full install path remains in the note for readers. The push after the PR#50 squash had failed on those comments and imports.
+
+Update (2026-11-23): the [audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md) records the decisions on what was left, with Codex (GPT-6.2-Sol) reviewing.
+
+- TechTree's unused construction is disabled ([KI#1108.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108.2)), and the old Civilopedia fallback stays in the base game on purpose.
+- Five modules the EXE registers by name, which no SAS Python imports, will be carried, `CvMapScriptInterface.py` among them, with the Pitboss helpers' `wx` allowed for those files only.
+- The 42 data XML files are no longer undecided: SAS will carry those its rules, AI or UI rely on, such as `GlobalDefines.xml`, and keeps art and presentation files listed in the audit until an edit justifies a copy.
+
+Update (2026-11-26): carrying the base-game files paid off a few days later.
+
+[KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5)'s live define overrides first apply in `CvAppInterface.preGameStart`, before a game's screens are built, and `CvAppInterface.py` is one of the 18 files carried here. Without that copy, the hook would have meant editing a BtS file outside the repository, as the user noted.
+
+Update (2026-11-26): the five entry points the EXE registers by name are carried, as decided on 2026-11-23, with what they import: `CvMapScriptInterface.py` (Warlords), `CvTranslator.py` and `PbMain.py` (BtS), `CvDebugInterface.py` and `CvUnitControlInterface.py` (vanilla), `CvUnitController.py` (vanilla) and the Pitboss server's `PbWizard.py` and `PbAdmin.py` (BtS).
+
+- Their code tokens equal the originals' but for what CI asks: the SAS header, one-line calls and tab-aligned columns in the Pitboss files and `CvUnitController.py`, and Ruff's gated rules, which `python-ruff.yml` fails on: Python 2 `print x` statements in `PbMain.py` and `CvDebugInterface.py` wrapped as `print(x)`, trailing semicolons dropped, `== None` made `is None` in `PbWizard.py`, one tab-and-space indent fixed and one multiple import split.
+  - Two inherited vanilla slips the checks found on the way, one seemingly unused in SAS and one untested in SAS, were fixed in their own commits, each carrying the files it lives in: `CvUnitController.ProcessEvent` now returns 0 rather than reach vanilla's broken body ([KI#165.13](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.13)), and `PbWizard.py`'s patch dialog has text for its question ([KI#1085.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085.2)).
+  - `CyPitboss`, defined by the Pitboss EXE, joined [`star_import_names.py`](/.github/workflows/README.md#buildpythonstar_import_namespy)'s verified engine names.
+- Registration does not show which functions the engine calls, so the strings of `Civ4BeyondSword.exe` and `Civ4BeyondSword_PitBoss.exe` and the DLL's calls were searched for each function name.
+  - Found: every `PbMain` callback in the Pitboss EXE but `sendEmail`, which the DLL's `CvPythonCaller::sendEmailReminder` calls, the strings `PbMain` and `update` stored side by side; `CvTranslator.finishText` and `CvDebugInterface.toggleDebugMode` in both EXEs.
+    - Codex's review (GPT-6.2-Sol) found the EXE's code referencing `run` and `create` together with `PbMain`, which settles `run`, a name too short and common to stand on a string search alone.
+  - [`python_engine_callbacks.py`](/.github/workflows/README.md#buildsourcepython_engine_callbackspy) now fails when one of these loses its top-level `def`: nothing in SAS calls them, so a cleanup would otherwise pass CI and break only in game or on a Pitboss server.
+  - No engine file names `CvUnitControlInterface.ProcessEvent`, `CvDebugInterface.parseText`, `CvTranslator.printOutText` or the module name `CvUnitControlInterface`, so they stay as copied, unchecked.
+- `wx`, wxPython in vanilla's and Warlords' `Python/System`, is allowed for `PbAdmin` and `PbWizard` only, by path, in [`inherited_files.py`](/.github/workflows/README.md#buildsourceinherited_filespy)'s `SYSTEM_PACKAGES`.
+- Not tested on a Pitboss server; a normal game logs the same `EntryPoint module:` lines as before, now from SAS's copies.
+
+Implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol), who proposed the curated callback list and the `wx` scope on 2026-11-23.
+
+<a id="ki-1105"></a>
+
+## KI#1105 - (Fixed inherited vanilla, Debug Mode only) The Map Details table showed a continent's 576 tiles under "Area" and its 5 starting plots under "Size": its header row had one extra column
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1I-GIAjNJA9xAsC0RSDXWDP0265UYCJV-?usp=sharing).
+
+- Where: Debug Mode, Shift+F2 (the debug info screen), the Map Details tab, drawn by `generateBonusDistributionList` in [`CvDebugInfoScreen.py`](/Assets/Python/Screens/CvDebugInfoScreen.py).
+- What: `title_list` held 6 headers, `BonusDistro`, `Area`, `Size`, `Starting Plots`, `Unique Bonus Types` and `Total Bonuses`, then one letter per bonus, while each row holds 5 values, area ID, tiles, starting plots, unique bonus types and total bonuses, then one count per bonus.
+  - `setTableData` fills both from column 0, so every value after the area ID sat one header to the left of its field, and the last column stayed empty.
+  - Seen in game (2026-11-22, a small Pangaea): the main continent's row read 576, 5, 15 and 71 under "Area", "Size", "Starting Plots" and "Unique Bonus Types", its tiles, starting plots, unique bonus types and total bonuses (the user's `Civ4ScreenShot0449`; `Civ4ScreenShot0448` shows the screen's Team Relations tab lining up).
+    - The "Failed to load python module CvScreensInterface" dialog over that screenshot is most likely unrelated: Claude Code Opus 5.5 had edited Python files under `Assets/` while that game ran, and its traceback was lost when the next launch overwrote the log; a game started after the edits showed no error.
+- Origin: vanilla Civ4's `Assets/Python/Screens/CvDebugInfoScreen.py`; Warlords and BtS never replaced the file, and no Better BTS AI, K-Mod, base AdvCiv or SAS commit in the `commit_diffs` corpus changed it, so it ran unchanged from vanilla until SAS took it in for [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104). Caveman2Cosmos ships the same `title_list`.
+- How it was found: making the copy pass CI. Its totals row appends `""` twice, which `adjacent_duplicate_lines.py` flags, and naming the field each one stands for meant reading the row against its headers.
+  - Claude Code Opus 5.5 first named them after the headers they sit under, "Starting Plots" and "Unique Bonus Types"; reading `setTableData` showed the shift, Codex confirmed it from the code, and the game showed it.
+- Debug Mode only opens the screen; the bug was in the screen's own header list. Another display bug only Debug Mode reaches has its own cause: [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), whose plot hover showed a sheep on plains at 1 food instead of 2.
+- Fixed (2026-11-23, at the user's request once the shift was shown in game): `title_list` drops the `Area` header, so column 0's `BonusDistro` titles the area IDs, the way the screen's other tabs put their title over their row labels, such as Team Relations' "Teams", and every later header now stands over its own value.
+  - Before, on the user's turn-0 save of a Huge Water map: the main continent's row read its 1505 tiles under "Area", 16 starting plots under "Size", 15 unique bonus types under "Starting Plots", 197 bonuses under "Unique Bonus Types" and the first bonus's 8 under "Total Bonuses"; each water area's tile count likewise sat under "Area".
+  - After, on the same save: 1505 under "Size", 16 under "Starting Plots", 15 under "Unique Bonus Types", 197 under "Total Bonuses" and 8 under the first bonus's letter, with no empty last column.
+  - The totals row, not scrolled to in game, was checked from the code by Codex (GPT-6.2-Sol): the map's plot count now falls under "Size", its two blanks under "Starting Plots" and "Unique Bonus Types", and its sums under their own headers.
+  - The vanilla headers' own wording is kept, "Size" for the tile count included; only the extra header goes.
+
+Found by Claude Code Opus 5.5 with Codex (GPT-6.2-Sol) while bringing the base-game Python files SAS uses into the repository (2026-11-22); fixed by Claude Code Opus 5.5 with Codex's review (GPT-6.2-Sol) (2026-11-23).
+
+See also (2026-11-22), the other issues Debug Mode reaches or causes, each with its own cause: [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11), [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3), [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-142), [KI#622](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622), [KI#1067](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067), [KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080).
+
+<a id="ki-1105.2"></a>
+
+## KI#1105.2 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen CvDebugInfoScreen.py (Shift + F2) sat at a fixed 1024 x 768, and its table never showed the columns past its right edge, so even on a Huge map Team Relations lost the last 4 of its 16 civilizations and Map Details its bonuses after about the 8th
+
+- Where: Debug Mode, `Shift + F2`, every tab of [`CvDebugInfoScreen.py`](/Assets/Python/Screens/CvDebugInfoScreen.py): Team Relations, Player Attitudes, Civic Info, Civ Info, AI Types, Available Bonuses and Map Details.
+- What: vanilla drew the screen at a fixed 1024 x 768, with a 1000 x 580 table at (0, 100), 150 px for the first column and 70 for each other; the table does not scroll sideways, so every column past its right edge was out of reach, not merely off screen.
+  - On a turn-0 Huge game in base AdvCiv, Team Relations showed 12 of its 16 civilizations, losing Charlemagne, Hatshepsut, Darius and Hannibal (the legacy shot below); on the user's turn-0 Huge Water save, Map Details showed about 8 of its bonus columns (2026-11-23).
+  - Its exit, drawn with `setExitText`, ignored right justification: once the rework first moved it to the advisors' exit anchor near the screen's right edge, it was cut to "EX"; vanilla's own spot at (502, 12) showed it whole.
+- Origin: vanilla Civ4's own file, unchanged by Warlords, BtS, Better BTS AI, K-Mod and base AdvCiv, as [KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)'s archaeology found; base AdvCiv shows the same fixed screen in the user's legacy shot [`0.986_debug_info_screen.JPG`](/_0_Legacy/Images/ui_other/0.986_debug_info_screen.JPG).
+- Fixed (2026-11-23, at the user's request after KI#1105):
+  - The screen takes the advisors' shared layout, the area left of the scoreboard and below the tech bar, and leaves the scoreboard their space; its exit is the advisors' close text.
+  - On a Huge map the full-screen table holds all of Team Relations' civilizations on one page: [`1.986_debug_info_screen (1).JPG`](/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(1).JPG).
+  - Map Details' bonuses still do not fit, even on Huge, so when the columns cannot all fit at 70 px, the first stays and the others page with arrows and "Page 1 / 3" in the bottom bar, as the Foreign Advisor's Glance tab pages its players: three pages on the Huge game, [`1.986_debug_info_screen (2).JPG`](/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(2).JPG), and likewise three in a SAS48 game, [`1.986_debug_info_screen (2)_sas48.JPG`](/_1_AdvCiv-SAS/Images/ui_other/1.986_debug_info_screen%20(2)_sas48.JPG).
+  - Codex's review (GPT-6.2-Sol) had the columns leave the vertical scrollbar's 14 px, after a full SAS48 page left 12 px beside it, and found that a page change resets the vertical scroll, as the Python API cannot read or set it.
+
+Found by the user, who asked to fit the screen like the other advisors and then saw its table not turning pages at SAS48 size; fixed by Claude Code Opus 5.5 with Codex's (GPT-6.2-Sol) reviews, the second of which also checked the shortcut map, the staged docs and the screenshots (2026-11-23).
+
+Update (2026-11-23): [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) to [KI#134.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.8) compare the other screens with 48 civilizations, base AdvCiv beside SAS48; KI#134.7 is this screen's civilization views, which need pages at 48 even at full size.
+
+<a id="ki-1105.3"></a>
+
+## KI#1105.3 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen's Unit AI rows read UNITAI_SETTLE where vanilla meant SETTLE: strName.strip("UNITAI_") dropped its result, and kept, strip would have turned UNITAI_ATTACK_CITY into CK_CITY
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1t0Ll7nFcnx-JGOqzjgmMyK3qZKv89wMy?usp=sharing).
+
+`CvDebugInfoScreen.py`'s Unit AI view, one of the Debug Mode screen's (Shift + F2) tables, names each row by its UnitAI's description, which `CIV4UnitAIInfos.xml` sets to the type itself, such as `UNITAI_SETTLE`.
+
+- Vanilla then calls `strName.strip("UNITAI_")` without keeping the result, as Python strings cannot change in place, so every row kept its prefix, which pushed the longer names past the column at 1920 x 1080, cut to `UNITAI_ATTAC...` and `UNITAI_CITY_D...` (seen in game on 2026-11-26, vanilla's line put back for the user's screenshot).
+- Kept, it would have done worse: `strip` removes any of the given characters from both ends, not a prefix, so `UNITAI_ATTACK_CITY` would read `CK_CITY` while `UNITAI_SETTLE` reads `SETTLE`.
+- Only vanilla ships the screen; SAS carried it on 2026-11-22 ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)).
+
+The row now drops the `UNITAI_` prefix when it starts the name, as meant. Checked in game on 2026-11-26 in a turn-0 Debug Mode game: the AI Types view lists `SETTLE`, `ATTACK_CITY`, `CITY_DEFENSE` and `GREAT_PROPHET`, the user having asked for a quick look.
+
+Found on 2026-11-26 by Claude Code Opus 5.5, auditing the carried base-game Python for slips CI does not gate: Ruff's full report, which CI shows without failing on, flags `strip` with a multi-character string as B005.
+
+<a id="ki-1106"></a>
+
+## KI#1106 - (Clarified inherited vanilla) The plot hover called a lake tile "Coast", then wrote "Fresh Water Lake" where a land plot's fresh water goes, and never said where a land plot's "Fresh Water" came from
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1_rYueGPHiszmztHEo7CDI1rsv5cSFInj?usp=sharing).
+
+- What was misleading (the user, 2026-11-23, `Civ4ScreenShot0478`, `Civ4ScreenShot0479`):
+  - A lake tile read "Coast", the sea shore's word: a lake is a small enclosed water area (`CvArea::isLake`), whatever its terrain, and its tiles are usually Coast; its kind came only a line later, "Fresh Water Lake".
+  - That line sat where a land plot's "Fresh Water" goes, so a line describing what the tile is read like the fresh water that land gets, which decides irrigation and a city's health.
+  - A land plot said only "Fresh Water", which could be a river on the plot, an adjacent lake or an adjacent Oasis; a river also carries trade and gives river yields, unlike the others, so the source mattered, as the river Stone Quarry of [KI#11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11) showed.
+- Origin: vanilla Civ4's `CvGameTextMgr::setPlotHelp` already printed "Fresh Water" for a land plot and "Fresh Water Lake" for a lake tile, at the same place in the hover, never both on one tile, as water is never fresh water there and land is never a lake; Warlords, BtS, Better BTS AI, K-Mod and base AdvCiv kept both lines.
+- Clarified (2026-11-23):
+  - A lake tile names its kind after its terrain, such as "Coast (Lake)", and the separate "Fresh Water Lake" line is dropped, as it described the plot, not the fresh water a land plot gets.
+  - A land plot reads "Fresh Water (River)", "Fresh Water (Lake)" or a list such as "Fresh Water (River, Lake, Oasis)", naming each source `CvPlot::isFreshWater` counts once: a river on the plot, an adjacent lake, and an adjacent feature whose XML adds fresh water, under its own name, so a modmod's feature shows too. Several sources do not stack, as fresh water is yes or no.
+    - Only sources on tiles the active team has revealed are named, including tiles explored earlier: an adjacent lake or Oasis on an unrevealed tile is left out, Debug Mode aware, while "Fresh Water" itself shows as before. Codex's review (GPT-6.2-Sol) found that the first draft named them anyway, which would have disclosed unexplored tiles.
+  - "River" and "Lake" are new SAS text keys, `TXT_KEY_PLOT_SAS_RIVER` and `TXT_KEY_PLOT_SAS_LAKE`.
+  - Each part can be turned off on its own by setting its define to 0 in `GlobalDefines_advciv_sas.xml` and restarting Civ4, restoring the display inherited from vanilla through base AdvCiv: `SAS_MAIN_UI_WATER_TYPE_ON` for the lake label, with the old "Fresh Water Lake" line, and `SAS_MAIN_UI_FRESH_WATER_SRC_ON` for the sources. Two switches rather than one, so a player can keep either (the user).
+    - Both ship on (the user, 2026-11-23): fresh water is yes or no, so a second source changes nothing, but without the list a player is left wondering what kind of fresh water a plot has, and a river also carries trade and river yields. Turning the sources off was weighed, as rivers and lakes show on the map; the define keeps that choice for a player who finds the list distracting.
+  - A possible extension would be an icon for each source, which would make the line quicker to scan (the user).
+- Checked in game with a Debug-opt build on the user's turn-100 save of a Huge Pangaea: the lake by Carthage, (62,44), read "Coast (Lake)" with no second line; (61,44), (61,43) and (63,44) beside it read "Fresh Water (Lake)"; (68,35) and (61,48) read "Fresh Water (River)".
+  - On the user's turn-0 save of a Huge Water map, with the final build: (37,6) and (37,7), a river beside a lake, read "Fresh Water (River, Lake)", and that lake, (38,7), "Coast (Lake)"; with both switches at 0 they read plain "Fresh Water" and "Coast" plus "Fresh Water Lake", the inherited display.
+  - Not seen in game: an Oasis, as no save's Oases were located, and the revealed-only rule, as Debug Mode reveals every tile; both go through the same code as the cases above.
+
+Asked for by the user, who found the lake tile's "Coast" misleading; implemented by Claude Code Opus 5.5 with Codex's (GPT-6.2-Sol) review (2026-11-23).
+
+<a id="ki-1107"></a>
+
+## KI#1107 - (Fixed inherited AdvCiv, Debug Mode only) The Debug Mode screen GameFontDisplay.py (Ctrl + Shift + F1), which lists every game font glyph, showed an empty table, as its row count assumed symbol codes starting near 8193 and so came out at -7667 with codes starting at 450, in base AdvCiv and SAS alike
+
+- Where: Debug Mode, `Ctrl + Shift + F1`, Nightinggale's GameFont Display, which base AdvCiv took in as `advc.gfd` ([`GameFontDisplay.py`](/Assets/Python/Contrib/GameFontDisplay.py)): a table of every game font glyph with its code, its button and the XML type it stands for.
+- What (2026-11-23, the user): the screen drew its header row and nothing else, with no Python error; base AdvCiv 1.14, started from its own mod folder, showed the same empty table, as in the user's legacy shot [`0.987_game_font_display.JPG`](/_0_Legacy/Images/ui_other/0.987_game_font_display.JPG).
+- How it was found, in order (2026-11-23):
+  - Looking over the Debug Mode keys that had just joined the Sevopedia's Cheats page, the user found this one "not working properly" in SAS; Claude Code Opus 5.5 opened it in the user's SAS client and saw the empty table; the user then started base AdvCiv 1.14, whose display was empty too, so the issue was inherited.
+  - A diagnostic write gave the first symbol's code as 450, which put the row count at -7667; fixing the count let rows draw, and the first one raised an error, a separate SAS bug the empty table had hidden, recorded as [KI#1107.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107.2).
+  - With both fixed, the user asked to enhance the screen, as it used about 750 of 1920 px, then for a column per font size; Codex's review followed, and the two issues were split into this entry and KI#1107.2.
+- Cause, inherited AdvCiv: the row count is `FontSymbols.MAX_NUM_SYMBOLS + getSymbolID(HAPPY_CHAR) - 8193 + 49`, rows past 280 shifted by 8193, which assumes the symbols' codes start near 8193.
+  - A diagnostic write from SAS's copy read `getSymbolID(HAPPY_CHAR)` as 450, so the count was 27 + 450 - 8193 + 49 = -7667, and `range(-7667)` drew no row, silently.
+  - Why the code is 450 here, rather than the 8483 or so the formula was written for: `CvGameTextMgr::assignFontIds` gives the yields the codes from the `iFirstSymbolCode` the EXE passes it (256 here, as the yield glyphs sit at rows 256 to 258), then the commerce, religion, corporation and bonus rows, and `HAPPY_CHAR` first in the block of other symbols after them (Codex's reading); which value the EXE passed in the setup the formula was written for was not found.
+- Archaeology, from the `commit_diffs` corpus and the dev logs:
+  - 2019-08-13, base AdvCiv `40649c33d1` (practical 1622), "Add new files for GameFont Display mod component": the count was `- 8483 + 10`, every row shifted by 8483.
+  - 2024-12-28, base AdvCiv `4af5fc4686` (practical 4255), "GameFont Display shows letters": `- 8193 + 49`, rows up to 280 for letters, the rest shifted by 8193; both versions draw nothing with a first symbol at 450.
+  - SAS's own changes to the file, all read in the `commit_diffs` corpus (2026-11-23): practicals 4847, 5211, 5372, 5816, 5898 and 6743 only changed layout or imports, and 6649 (`6cca292506`) moved its reads onto the SASVisualUtils cache: the row count's `getSymbolID` through `SASVisuals.Font.ordinal`, the same value, and the glyph lookup onto `tuple.index()`, [KI#1107.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107.2); so nothing of SAS's changed the row count.
+  - Since when it was broken, asked by the user: no commit shows it, as both formulas, `- 8483 + 10` from 2019 and `- 8193 + 49` from 2024, give a negative count with a first symbol at 450, so in this setup the screen could not draw under either.
+    - `assignFontIds` is a `DllExport` the EXE calls with the first symbol code; f1rpo's 2024 change, which kept the icons drawing beside the new letters, implies codes in the 8000s in his setup, so the difference most likely lies in what the EXE passes in a given setup, not in a commit; either way, the formula hard-codes a code range that this setup does not use, so the fault is base AdvCiv's; SAS's `.index()` slip sat behind it, hidden until the rows drew.
+    - The game font files are not the cause: base AdvCiv changed `GameFont.tga` at practicals 1414 and 1548, before the screen came in at 1622, and SAS from 4764 to 6733, yet base AdvCiv 1.14 with its own font showed the same empty table.
+    - The base AdvCiv that showed it was the user's SGR-branch copy, but its `GameFont.tga`, `GameFont_75.tga` and `GameFontDisplay.py` match the pristine 1.14 copy (`AdvCiv_base_1.14_renamed`) byte for byte (SHA-1 2026-11-23), so this is base AdvCiv 1.14 as released.
+- Fixed (2026-11-23):
+  - The symbols now start where `assignFontIds` put the first yield: rows 0 to 280 hold the letters, then the symbols follow directly when they start above them, or the rows run straight through when they start lower, up to the last symbol plus the same 49.
+    - A first fix kept the 8193 jump for any first symbol above 8193, which Codex found would draw only 77 rows at 8194; the first yield's code fits every layout, though an 8483 layout now starts its symbols at row 281 rather than after 8474's empty codes.
+- Enhanced at the user's request, as the screen used about 750 of 1920 px and its "Small" and "Big" columns did not say which font size each showed:
+  - The table fills the screen less a 40 px margin; one glyph column per font size 1 to 4, each header naming the SAS font types its size has now, such as "3 (Label, Hover)", read from the `SAS_UI_FONT_*` defines; then Button and Type.
+  - Text takes `SASTextScale`'s label font with a proper `</font>`, where the old cells closed a `<font=2>` with a malformed `<font/>`; each glyph column keeps its fixed size, as that size is what it shows.
+    - A first try set the old Small column to the label font, and rows 425 to 431 went blank: sizes up to 2 draw from `GameFont_75.tga`, larger ones from `GameFont.tga`, and only the former has those glyphs.
+  - Buttons are 24 px, the rows' height: 32 px overlapped the rows, which `setTableRowHeight` did not grow.
+- Checked in game on the user's turn-0 Water save, as a second client beside the user's base AdvCiv: the rows draw from the letters through the bonuses, Peat and Camel with their buttons and types, and the headers read "1 (Tiny)", "2 (Body)", "3 (Label, Hover)" and "4 (Title)".
+
+Found by the user, who asked to enhance the screen; traced and fixed by Claude Code Opus 5.5 with Codex's (GPT-6.2-Sol) review, which also checked the three commits of the archaeology against Git and the `commit_diffs` corpus (2026-11-23).
+
+<a id="ki-1107.2"></a>
+
+## KI#1107.2 - (Fixed AdvCiv-SAS bug, Debug Mode only) SAS's move onto the SASVisualUtils cache had broken GameFontDisplay.py's lookup of each glyph's religion, corporation or bonus with .index() on the cache's tuples, which Python 2.4 lacks, hidden behind KI#1107's empty table until its fix let rows draw
+
+- Where: `getInfoPointerFromGameFont` in [`GameFontDisplay.py`](/Assets/Python/Contrib/GameFontDisplay.py), which finds, for each glyph code the screen lists, the religion, corporation, bonus or built-in symbol that owns it, to show its button and XML type.
+- What: base AdvCiv looped over the infos comparing `getChar()`; SAS's visual-resource refactor replaced the loops with `SASVisuals.Religion.ordinals().index(iIndex)` and the like, and `Font.chars().index(...)`, but `ordinals()` and `chars()` return tuples, and Python 2.4 tuples have no `.index()` (it came in 2.6).
+- No effect a player saw: the lookup runs once per row, and [KI#1107](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107)'s row count already gave no rows, so it never ran; it would have failed on the first row as soon as the count was right.
+- How it was found (2026-11-23): fixing KI#1107's row count in SAS's copy, only row 0 drew, under Civ4's "Python Exception" dialog reading `AttributeError: 'tuple' object has no attribute 'index'`.
+  - Reproduced the same day by putting the old lookup back for one run, as the first run's `PythonErr.log` had been overwritten; the log read, verbatim:
+
+```text
+Traceback (most recent call last):
+  File "BugEventManager", line 381, in _handleConsumableEvent
+  File "BugEventManager", line 511, in onKbdEvent
+  File "GameFontDisplay", line 84, in interfaceScreen
+  File "GameFontDisplay", line 111, in getInfoPointerFromGameFont
+AttributeError: 'tuple' object has no attribute 'index'
+```
+
+- Why only this screen: the other screens use the cache forward, from an entry to its glyph, such as `SASVisuals.Bonus.char(iBonus)` or `ordinals()[i]`, indexing a tuple by position, which Python 2.4 supports; this screen alone goes backward, from a glyph code to its entry, the reverse search tuples lack.
+  - A search of `Assets/Python` and `PrivateMaps` for `ordinals().index` and `chars().index` found no other use.
+  - Our Python 2.4 compile check sees syntax, not a method missing at run time, and the screen never drew a row to fail, so nothing caught it when the refactor landed.
+- Origin: SAS `6cca292506` (practical 6649, 2026-10-20), "Centralize Python visual resources and check their API contracts", whose diff removes base AdvCiv's `if infoPointer.getChar() == iIndex: return infoPointer` loops.
+- Fixed (2026-11-23): one dict from character code to entry, built once per opening, replaces the four searches per row and keeps their order, religion, corporation, bonus, then the built-in symbols.
+- Guarded (2026-11-23, the user's suggestion): `test_python_visual_resources.py` now fails on `.index()` or `.count()` after `ordinals()` or `chars()` in any game Python file, naming the dict as the fix; it finds all four calls in the broken version and none now.
+  - [`SASVisualUtils.py`](/Assets/Python/SASVisualUtils.py) says the same beside `ordinals()` and `chars()`, where a reverse lookup would start, and each note names the other.
+
+Found by Claude Code Opus 5.5 while fixing KI#1107, and split from it at the user's request, as two separate issues read more clearly than one (2026-11-23).
+
+<a id="ki-1108"></a>
+
+## KI#1108 - (Gated inherited AdvCiv) Default builds compiled the unused implementation of ReproTest.cpp, base AdvCiv's reproducibility test, though its ENABLE_REPRO_TEST switch is off by default
+
+- What it is: `advc.repro`, base AdvCiv's test of whether AI Auto Play replays the same way.
+  - With `ENABLE_REPRO_TEST` defined, right-clicking an AI leader in the Foreign Advisor quick-saves, autoplays as many turns as that player's ID, keeps the synchronized save data, quick-loads, autoplays again and asserts the two match.
+- What was wrong: `ReproTest.h` leaves the `#define ENABLE_REPRO_TEST` line commented, so no build runs the test, yet default builds, Release included, compiled `ReproTest.cpp`'s implementation; the Makefile collects every `.cpp` file.
+  - Whether it then remained in the linked DLL is not established, as Release links with `/OPT:REF`; Codex (GPT-6.2-Sol) drew that line between compiled and linked in his review.
+- Origin, from the `commit_diffs` corpus: base AdvCiv's `fe4f9ef0fb` (2020-03-10), "Code for testing whether AI Auto Play sequence is reproducible", added `ReproTest.cpp` and `ReproTest.h`, and `1835de0196` wrote the test's start and end to the logs.
+- Gated (2026-06-24, AdvCiv-SAS practical 5972, `1ccad77782`): `ReproTest.cpp`'s implementation, after its two includes, sits inside `#ifdef ENABLE_REPRO_TEST`, so default builds no longer compile it unless that line is uncommented on purpose; gameplay is unchanged.
+  - It was the first result of [`find_cpp_dead_code_candidates.py`](/LLM_Helpers/audits/find_cpp_dead_code_candidates.py), added in the same commit, and the Main Changes Guide described it as "Build cleanup" without a KI.
+  - Filed on 2026-11-23, after the gating, as the first of a family: inherited code that ran or was compiled for nothing, kept out of what runs. [KI#1108.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108.2), BtS's TechTree in the Foreign Advisor, is its Python case.
+- Related: [KI#1024](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1024) and [KI#1025](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1025) are defects inside the test itself, found later while auditing `ReproTest.cpp`.
+- Earlier removals made inside other fixes, before this family had a KI: dead XML knobs and an unused selector in [KI#48.9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.9), the obsolete `EFAImprovedInfo` BUG option in [KI#139](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-139), and needless early `BugPath` calls in [KI#110](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-110).
+
+<a id="ki-1108.2"></a>
+
+## KI#1108.2 - (Fixed inherited BtS) The Foreign Advisors rebuilt BtS's tech prerequisite graph, TechTree, on every opening and tab click, pairing each of the 92 techs, as in BtS, base AdvCiv and, as of now, SAS, with every tech, 92 x 92 = 8,464 pairs, a count growing with the square of a mod's techs, though it was unread even in BtS's own Foreign Advisor
+
+- What it was: BtS's `TechTree.py` builds, for each tech, its required (AND) and optional (OR) prerequisites from the tech XML, then for each tech the techs it leads to, checking every tech against every other.
+  - With 92 techs, as in BtS, base AdvCiv and, as of now, SAS, and 4 AND plus 4 OR prerequisite slots per tech, that is 736 prerequisite reads, each two calls into the DLL, then 92 x 92 = 8,464 tech pairs with up to two list checks each, so up to 16,928, on every opening and every tab click of both Foreign Advisors, Diplomacy (F3) and Trade (F4), which share the class, as the DLL routes each tab click through `showForeignAdvisorScreen` and so `interfaceScreen`; not once per game, load or instance.
+  - The pairs grow with the square of the tech count; with the mods installed locally on 2026-11-23: BtS, base AdvCiv and SAS 92 x 92 = 8,464, Middle-earth 88 x 88 = 7,744, BASE 6.4 159 x 159 = 25,281, Realism Invictus 203 x 203 = 41,209 and Caveman2Cosmos 943 x 943 = 889,249.
+  - It offers `RequiredPrereqs`, `OptionalPrereqs`, `RequiredLeadsTo` and `OptionalLeadsTo`; a search of the installed Python of vanilla, Warlords, BtS, K-Mod, base AdvCiv and SAS on 2026-11-23 found them called nowhere but in `TechTree.py` itself.
+- Where: [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) imported it and built `self.objTechTree = TechTree.TechTree()` in `interfaceScreen`, and nothing read `objTechTree`.
+  - The Foreign Advisor's Techs tab, `drawTechDeals`, never used it.
+- Origin: BtS's own `CvExoticForeignAdvisor.py` already built it and never read it. No layer had a use for it; each took the whole file and changed other parts, so the unread line rode along. From the `commit_diffs` corpus:
+  - Better BTS AI's r381 (2008-08-07) added its copy of the file, line included, and r529 (2010-03-01) removed that copy again.
+  - K-Mod's initial asset commit `593c549b51` took the whole file, and base AdvCiv kept it.
+  - SAS practical 5578 (`bbbd9fea2c`) merged `CvExoticForeignAdvisor.py` into `CvForeignAdvisor.py`, carrying the import and the construction over.
+  - Both files first appear in BtS: vanilla and Warlords ship neither `TechTree.py` nor `CvExoticForeignAdvisor.py`, as their installed folders showed on 2026-11-23.
+  - Why BtS left it is not recorded.
+- How it was found (2026-11-23): the base-game files audit ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)) listed `TechTree` as the one base-game module SAS loaded without carrying it, and CI's `NOT_CARRIED` table already said nothing reads the object; asked what it is, Claude Code Opus 5.5 read the module and found it rebuilt on each opening and tab click, and Codex (GPT-6.2-Sol) confirmed no reader in SAS's tree.
+- Fixed: the import and the construction are disabled in place, kept as comments with this KI, rather than deleted, at the user's request, so the lines stay grep-able and come back by uncommenting; `TechTree` left `NOT_CARRIED`, and the audit records the decision. The time saved was not measured.
+- Related:
+  - The same idea in C++: [KI#1108](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108), `ReproTest.cpp`'s implementation, compiled in default builds though disabled, now gated behind `ENABLE_REPRO_TEST`.
+  - The opposite case: [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165)'s family is broken dormant Python that never runs, fixed so it would work; this is working Python that ran for nothing.
+
+<a id="ki-1109"></a>
+
+## KI#1109 - (Fixed inherited AdvCiv regression) Setting a string define from Python stored a bool instead: after `setDefineSTRING`, the next `getDefineSTRING` of that define raised "unidentifiable C++ exception", as AdvCiv's FVariableSystem refactor had no `char const*` setter, so the value fell to `setValue(bool)`
+
+- Found on 2026-11-26, as a finding of its own, during the live define overrides work (KI#128.5), while adding string overrides to `SASLiveDefineOverrides.txt`: an override of `SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS` applied, then deleting the line logged `outcome=PUSH_FAILED keptChangeCount=2 reason="unidentifiable C++ exception"`, raised by the bridge's `getDefineSTRING` of the value it was about to restore.
+- Cause: BtS's `FVariableSystem` had a separate `SetValue` per type, `SetValue(char const* szVariable, char const* szValue)` among them, which copied the string.
+  - AdvCiv's "Refactor FVariableSystem" (`AdvCivPreSAS_2572_84fe6d9512.diff`, pre-SAS practical 2572) replaced them with one template calling `FVariable::setValue`, whose overloads cover `char*` and `wchar*` but not their `char const*` and `wchar const*` forms.
+  - `CvGlobals::setDefineSTRING` passes a `char const*`, so the compiler took `setValue(bool)` through the pointer-to-bool conversion: the define became a bool `true`, and the next `getDefineSTRING` read that bool as a text pointer.
+  - The XML loader passes non-const strings, so the XML's text defines were never affected; nothing in SAS called `setDefineSTRING` until the bridge did, so the regression stayed latent.
+- Fix: `FVariable` gains `setValue(char const*)` and `setValue(wchar const*)`, which copy the string as BtS did; they are inline methods, so the class layout the EXE relies on is unchanged.
+- The bridge's rollback kept the game running, and `PythonErr.log` stayed empty; the define stayed a bool in that session, so the test game was closed.
+- Retested the same day with a Debug-opt DLL holding the fix: overriding `SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS`, changing it, deleting the line, then setting a value with an escaped quote and deleting it again each logged `outcome=APPLIED`, the deletions restoring the XML's text, with `PythonErr.log` empty.
+
+Found and fixed by Claude Code Opus 5.5; Codex (GPT-6.2-Sol) reviewed the change set holding it and kept the fix in scope.

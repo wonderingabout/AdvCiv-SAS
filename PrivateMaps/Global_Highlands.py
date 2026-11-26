@@ -35,11 +35,11 @@ def getNumHiddenCustomMapOptions():
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
-		0:	"TXT_KEY_MAP_SCRIPT_MOUNTAIN_PATTERN",
-		1:	"TXT_KEY_MAP_SCRIPT_MOUNTAIN_DENSITY",
-		2:	"TXT_KEY_MAP_SCRIPT_LANDMASS_SIZE",
-		3:  "TXT_KEY_MAP_WORLD_WRAP",
-		4:  "TXT_KEY_CONCEPT_RESOURCES"
+		0: "TXT_KEY_MAP_SCRIPT_MOUNTAIN_PATTERN",
+		1: "TXT_KEY_MAP_SCRIPT_MOUNTAIN_DENSITY",
+		2: "TXT_KEY_MAP_SCRIPT_LANDMASS_SIZE",
+		3: "TXT_KEY_MAP_WORLD_WRAP",
+		4: "TXT_KEY_CONCEPT_RESOURCES"
 		}
 	if not option_names.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -49,39 +49,39 @@ def getCustomMapOptionName(argsList):
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	3,
-		1:	3,
-		2:	4,
-		3:  3,
-		4:  2
+		0: 3,
+		1: 3,
+		2: 4,
+		3: 3,
+		4: 2
 		}
 	return option_values[iOption]
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_SCRIPT_SCATTERED",
 			1: "TXT_KEY_MAP_SCRIPT_RIDGELINES",
 			2: "TXT_KEY_MAP_SCRIPT_CLUSTERED"
 			},
-		1:	{
+		1: {
 			0: "TXT_KEY_MAP_SCRIPT_DENSE_PEAKS",
 			1: "TXT_KEY_MAP_SCRIPT_NORMAL_PEAKS",
 			2: "TXT_KEY_MAP_SCRIPT_THIN_PEAKS"
 			},
-		2:	{
+		2: {
 			0: "TXT_KEY_MAP_SCRIPT_MASSIVE_CONTINENTS",
 			1: "TXT_KEY_MAP_SCRIPT_NORMAL_CONTINENTS",
 			2: "TXT_KEY_MAP_SCRIPT_SNAKY_CONTINENTS",
 			3: "TXT_KEY_MAP_SCRIPT_RANDOM"
 			},
-		3:	{
+		3: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 			},
-		4:	{
+		4: {
 			0: "TXT_KEY_WORLD_STANDARD",
 			1: "TXT_KEY_MAP_BALANCED"
 			}
@@ -94,22 +94,22 @@ def getCustomMapOptionDescAt(argsList):
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	1,
-		1:	1,
-		2:	3,
-		3:  1,
-		4:  0
+		0: 1,
+		1: 1,
+		2: 3,
+		3: 1,
+		4: 0
 		}
 	return option_defaults[iOption]
 
 def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
 	option_random = {
-		0:	true,
-		1:	true,
-		2:	false,
-		3:	false,
-		4:  false
+		0: true,
+		1: true,
+		2: false,
+		3: false,
+		4: false
 		}
 	return option_random[iOption]
 
@@ -236,17 +236,17 @@ def generatePlotTypes():
 	# <!-- custom: Global Highlands retained the legacy six-tier table, making Arena fall upward to Huge grain and leaving SAS24-48 one grain coarser than the established Highlands extension.
 	# Keep both sibling scripts aligned. See KI#279. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	worldsizes = {
-		WorldSizeTypes.WORLDSIZE_ARENA:     [3,4,5],
-		WorldSizeTypes.WORLDSIZE_DUEL:      [3,4,5],
-		WorldSizeTypes.WORLDSIZE_TINY:      [3,4,5],
-		WorldSizeTypes.WORLDSIZE_SMALL:     [4,5,6],
-		WorldSizeTypes.WORLDSIZE_STANDARD:  [4,5,6],
-		WorldSizeTypes.WORLDSIZE_LARGE:     [4,5,6],
-		WorldSizeTypes.WORLDSIZE_HUGE:      [4,5,6],
-		WorldSizeTypes.WORLDSIZE_SAS24:     [5,6,7],
-		WorldSizeTypes.WORLDSIZE_SAS32:     [5,6,7],
-		WorldSizeTypes.WORLDSIZE_SAS40:     [5,6,7],
-		WorldSizeTypes.WORLDSIZE_SAS48:     [5,6,7]
+		WorldSizeTypes.WORLDSIZE_ARENA: [3,4,5],
+		WorldSizeTypes.WORLDSIZE_DUEL: [3,4,5],
+		WorldSizeTypes.WORLDSIZE_TINY: [3,4,5],
+		WorldSizeTypes.WORLDSIZE_SMALL: [4,5,6],
+		WorldSizeTypes.WORLDSIZE_STANDARD: [4,5,6],
+		WorldSizeTypes.WORLDSIZE_LARGE: [4,5,6],
+		WorldSizeTypes.WORLDSIZE_HUGE: [4,5,6],
+		WorldSizeTypes.WORLDSIZE_SAS24: [5,6,7],
+		WorldSizeTypes.WORLDSIZE_SAS32: [5,6,7],
+		WorldSizeTypes.WORLDSIZE_SAS40: [5,6,7],
+		WorldSizeTypes.WORLDSIZE_SAS48: [5,6,7]
 		}
 	grain_list = list(sas_lookup_world_size(map.getWorldSize(), worldsizes))
 	grain_list.reverse()

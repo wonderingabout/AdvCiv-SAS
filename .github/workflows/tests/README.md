@@ -17,6 +17,7 @@ Tests are named for the helper or area they exercise and grouped under the same 
 | `documentation/` | Markdown, generated documents and long-comment references |
 | `exe_patches/` | See the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md) and [disclaimer](/LICENSE.md#the-games-executable). |
 | `hygiene/` | Repository text/path hygiene |
+| `python/` | Runtime Python checks run with Ruff, such as names hidden by star imports |
 | `repository/` | DLL shipping and commit-diff packaging |
 | `source/` | Source conventions and related manual source-editing helpers |
 | `xml/` | Define usage and asset technology rules |
