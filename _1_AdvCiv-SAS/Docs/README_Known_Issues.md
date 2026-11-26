@@ -39754,6 +39754,21 @@ Update (2026-11-26): carrying the base-game files paid off a few days later.
 
 [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5)'s live define overrides first apply in `CvAppInterface.preGameStart`, before a game's screens are built, and `CvAppInterface.py` is one of the 18 files carried here. Without that copy, the hook would have meant editing a BtS file outside the repository, as the user noted.
 
+Update (2026-11-26): the five entry points the EXE registers by name are carried, as decided on 2026-11-23, with what they import: `CvMapScriptInterface.py` (Warlords), `CvTranslator.py` and `PbMain.py` (BtS), `CvDebugInterface.py` and `CvUnitControlInterface.py` (vanilla), `CvUnitController.py` (vanilla) and the Pitboss server's `PbWizard.py` and `PbAdmin.py` (BtS).
+
+- Their code tokens equal the originals' but for what CI asks: the SAS header, one-line calls and tab-aligned columns in the Pitboss files and `CvUnitController.py`, and Ruff's gated rules, which `python-ruff.yml` fails on: Python 2 `print x` statements in `PbMain.py` and `CvDebugInterface.py` wrapped as `print(x)`, trailing semicolons dropped, `== None` made `is None` in `PbWizard.py`, one tab-and-space indent fixed and one multiple import split.
+  - Two inherited vanilla slips the checks found on the way, one seemingly unused in SAS and one untested in SAS, were fixed in their own commits, each carrying the files it lives in: `CvUnitController.ProcessEvent` now returns 0 rather than reach vanilla's broken body ([KI#165.13](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.13)), and `PbWizard.py`'s patch dialog has text for its question ([KI#1085.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085.2)).
+  - `CyPitboss`, defined by the Pitboss EXE, joined [`star_import_names.py`](/.github/workflows/README.md#buildpythonstar_import_namespy)'s verified engine names.
+- Registration does not show which functions the engine calls, so the strings of `Civ4BeyondSword.exe` and `Civ4BeyondSword_PitBoss.exe` and the DLL's calls were searched for each function name.
+  - Found: every `PbMain` callback in the Pitboss EXE but `sendEmail`, which the DLL's `CvPythonCaller::sendEmailReminder` calls, the strings `PbMain` and `update` stored side by side; `CvTranslator.finishText` and `CvDebugInterface.toggleDebugMode` in both EXEs.
+    - Codex's review (GPT-6.2-Sol) found the EXE's code referencing `run` and `create` together with `PbMain`, which settles `run`, a name too short and common to stand on a string search alone.
+  - [`python_engine_callbacks.py`](/.github/workflows/README.md#buildsourcepython_engine_callbackspy) now fails when one of these loses its top-level `def`: nothing in SAS calls them, so a cleanup would otherwise pass CI and break only in game or on a Pitboss server.
+  - No engine file names `CvUnitControlInterface.ProcessEvent`, `CvDebugInterface.parseText`, `CvTranslator.printOutText` or the module name `CvUnitControlInterface`, so they stay as copied, unchecked.
+- `wx`, wxPython in vanilla's and Warlords' `Python/System`, is allowed for `PbAdmin` and `PbWizard` only, by path, in [`inherited_files.py`](/.github/workflows/README.md#buildsourceinherited_filespy)'s `SYSTEM_PACKAGES`.
+- Not tested on a Pitboss server; a normal game logs the same `EntryPoint module:` lines as before, now from SAS's copies.
+
+Implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol), who proposed the curated callback list and the `wx` scope on 2026-11-23.
+
 <a id="ki-1105"></a>
 
 ## KI#1105 - (Fixed inherited vanilla, Debug Mode only) The Map Details table showed a continent's 576 tiles under "Area" and its 5 starting plots under "Size": its header row had one extra column

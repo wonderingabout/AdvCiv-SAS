@@ -18,6 +18,10 @@ import re
 # <!-- custom: subprocess reads Git path operations, dates and titles for --inventory. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 import subprocess
 import sys
+# <!-- custom: difflib, io and tokenize compare a SAS copy's code tokens with its base-game original for --compare. (Claude code Opus 5.5) -->
+import difflib
+import io
+import tokenize
 
 REPO = next(path for path in Path(__file__).resolve().parents if path.name == "LLM_Helpers").parent
 _SPEC = importlib.util.spec_from_file_location("inherited_files_check", REPO / ".github/workflows/build/source/inherited_files.py")
@@ -260,7 +264,8 @@ def sas_side_events(changes, *, by_module=False):
 			preposition = " at " if other is None else (" to " if action.endswith("from") else " from ")
 			location += preposition + chr(96) + path + chr(96)
 		events.append(("%s " + chr(96) + "%s" + chr(96) + ", %s%s: %s") % (date, sha, action, location, first_clause(title)))
-	return "; ".join(events) or "no SAS-side file event found"
+	# <!-- custom: The events come from Git's history, so a file the commit holding this audit adds has none yet: "no SAS-side file event found" read as if it had never been committed, as Codex's review noted of the 2026-11-26 entry points; the next --inventory fills it in. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	return "; ".join(events) or "no SAS-side file event yet when generated, as for a file the same commit adds"
 
 
 def file_events(changes, *, by_module=False):
@@ -494,6 +499,69 @@ def take_in(paths, civ4_root):
 	return 0
 
 
+STRUCTURE_TOKENS = {tokenize.NEWLINE: "<NEWLINE>", tokenize.INDENT: "<INDENT>", tokenize.DEDENT: "<DEDENT>"}
+
+
+def code_tokens(text):
+	# <!-- custom: The tokens that make code, with their lines.
+	# Comments and the line breaks inside a statement (NL) are left out, so a reflowed call or a new comment compares equal, while statement ends and indentation stay, as markers.
+	# A first version dropped those too, so a call moved out of an if block compared equal, as Codex's review (GPT-6.2-Sol) reproduced (2026-11-26). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	tokens = []
+	for token in tokenize.generate_tokens(io.StringIO(text).readline):
+		if token.type in STRUCTURE_TOKENS:
+			tokens.append((STRUCTURE_TOKENS[token.type], token.start[0]))
+		elif token.type not in (tokenize.COMMENT, tokenize.NL, tokenize.ENDMARKER):
+			tokens.append((token.string, token.start[0]))
+	# <!-- custom: A print(x) the Ruff gate asked for counts as the original's print x, but only as a whole one-operand statement: print (1, 2) prints a tuple and print (a+b)*c computes otherwise, which a first version equated (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	dropped = set()
+	for index, (string, _) in enumerate(tokens):
+		starts_statement = index == 0 or tokens[index - 1][0] in STRUCTURE_TOKENS.values()
+		if string != "print" or not starts_statement or index + 1 >= len(tokens) or tokens[index + 1][0] != "(":
+			continue
+		depth, top_level_comma, close = 0, False, None
+		for position in range(index + 1, len(tokens)):
+			inner = tokens[position][0]
+			if inner in ("(", "[", "{"):
+				depth += 1
+			elif inner in (")", "]", "}"):
+				depth -= 1
+				if depth == 0:
+					close = position
+					break
+			elif inner == "," and depth == 1:
+				top_level_comma = True
+		if close is not None and not top_level_comma and (close + 1 == len(tokens) or tokens[close + 1][0] == "<NEWLINE>"):
+			dropped.update((index + 1, close))
+	return [token for position, token in enumerate(tokens) if position not in dropped]
+
+
+def line_range(tokens, start, end):
+	# <!-- custom: The lines a span covers, a range when it spans several, and "end" for an insertion past the last token or in an empty file, rather than the last unrelated token's line (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if start >= len(tokens):
+		return "end"
+	first, last = tokens[start][1], tokens[max(start, end - 1)][1]
+	return "%d" % first if first == last else "%d-%d" % (first, last)
+
+
+def compare_copies(paths, civ4_root):
+	# <!-- custom: Shows where a SAS copy's code differs from the newest base-game layer's, beyond layout and comments: each differing span with both line numbers.
+	# Written on 2026-11-26 from the one-off comparison that checked the carried entry points after CI's layout and Ruff fixes (KI#1104), so a later carry or audit can check its copies the same way. (Claude code Opus 5.5) -->
+	rows = {row["path"].lower(): row for row in check.read_tsv() if row["area"] == "python" and check.in_base_game(row)}
+	for path in paths:
+		row = rows.get(path.replace("\\", "/").lower())
+		if row is None:
+			raise SystemExit("%s: not a base-game Python file in inherited_files.tsv" % path)
+		layer = [name for name in row["layers"].split(",") if name in LAYER_FOLDERS][-1]
+		rel = check.base_game_path(row)
+		ours = code_tokens((REPO / rel).read_text(encoding="latin-1"))
+		theirs = code_tokens((civ4_root / (LAYER_FOLDERS[layer] + rel)).read_text(encoding="latin-1"))
+		spans = [opcode for opcode in difflib.SequenceMatcher(None, [token for token, _ in theirs], [token for token, _ in ours], autojunk=False).get_opcodes() if opcode[0] != "equal"]
+		print("%s vs %s's copy: %s" % (rel, COPY_LAYER_NAMES[layer], "same code tokens, a one-operand print(x) counting as print x" if not spans else "%d span(s) differ" % len(spans)))
+		for (tag, i1, i2, j1, j2) in spans:
+			print("  base line %s -> SAS line %s: %s -> %s" % (line_range(theirs, i1, i2), line_range(ours, j1, j2), " ".join(token for token, _ in theirs[i1:i2])[:80] or "-", " ".join(token for token, _ in ours[j1:j2])[:80] or "-"))
+	return 0
+
+
 def main():
 	parser = argparse.ArgumentParser(description="List which inherited Python, XML or C++ filenames SAS keeps or still takes from the base game, with their lineage.")
 	parser.add_argument("area", nargs="?", choices=[entry[0] for entry in check.AREAS])
@@ -505,12 +573,15 @@ def main():
 	parser.add_argument("--grep", help="only files whose name contains this text (case-insensitive)")
 	parser.add_argument("--summary", action="store_true", help="print counts instead of rows")
 	parser.add_argument("--loaded", nargs="?", const=LOGS, type=Path, metavar="LOG_DIR", help="compare the base-game Python files SAS lacks with the modules PythonDbg logs show loading (default: Civ4's Logs folder)")
+	parser.add_argument("--compare", nargs="+", metavar="PATH", help="compare these SAS copies of base-game Python files, such as Assets/Python/EntryPoints/PbMain.py, with the newest base-game layer's, beyond layout and comments")
 	parser.add_argument("--take-in", nargs="+", metavar="PATH", help="copy these base-game Python files, such as Assets/Python/Screens/CvScreen.py, into SAS with a source comment")
 	args = parser.parse_args()
 	if args.loaded:
 		return report_loaded(args.loaded)
 	if args.take_in:
 		return take_in(args.take_in, args.civ4_root)
+	if args.compare:
+		return compare_copies(args.compare, args.civ4_root)
 	# <!-- custom: --upstream-ref applies to --inventory too; it was ignored there, which Codex found in review (2026-11-22). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	upstream_ref = check.merged_release_or_exit(REPO, args.upstream_ref)
 	if args.inventory:

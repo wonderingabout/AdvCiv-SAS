@@ -21,6 +21,7 @@ Built and tested by Claude Code Opus 5.5 on 2026-11-10, from a plan drafted with
 &emsp;[Inside a game](#inside-a-game)\
 &emsp;[After a crash](#after-a-crash)\
 &emsp;[A client that will not go away](#a-client-that-will-not-go-away)\
+&emsp;[A running client locks the DLL for Git](#a-running-client-locks-the-dll-for-git)\
 &emsp;[Hearing the game](#hearing-the-game)\
 [What did not work, and why](#what-did-not-work-and-why)\
 [Limits](#limits)
@@ -565,6 +566,21 @@ Recorded by Claude Code Opus 5.5 on 2026-11-26, after a test game closed with `d
   - The leftover keeps `PythonDbg.log` and `PythonErr.log` open, so the new client writes its Python output to `PythonErr2.log`, which ended after start-up that day; check its screens on screen rather than in that log.
   - `desktop_windows.civ4_processes()` leaves the leftover out, so the tools do not take it for a running game.
 - Agents cannot use the user's Task Manager, which ends it too, as the [Quick Install and Setup Guide](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#if-nothing-happens-when-launching-the-mod) tells players: it runs elevated for an administrator account without asking, and Windows keeps a normal program's input out of an elevated window, so `desktop_windows.py click` cannot press its buttons and now says the target runs elevated; the Claude app's computer use states the same limit, that elevated windows such as Task Manager "cannot be controlled even when granted".
+
+### A running client locks the DLL for Git
+
+While a Civ4 client runs, Windows keeps the mod's `Assets/CvGameCoreDLL.dll` in use, so nothing can replace it. A Git step that rewrites the working files, such as a rebase, a reset or a checkout, then fails partway when it reaches the DLL, as the local test DLL usually differs from the committed one ([DLL inclusion in commits](/AGENTS.md#dll-inclusion-in-commits)).
+
+- Close every AdvCiv-SAS client first, your own test game included: `desktop_windows.py close --mod AdvCiv-SAS --wait 30`. Leaving a test game open for the user to look at is fine until the next Git step.
+- Example (2026-11-26): rewording a commit with `git rebase -i --autostash` while a test game was still open, Claude Code Opus 5.5 got `unable to unlink old 'Assets/CvGameCoreDLL.dll': Invalid argument` and `fatal: could not reset --hard`.
+  - The autostash had already taken the user's unstaged development values, the Debug-opt DLL and an edit, and the failed reset left them out of the working files, held only in the autostash commit named by `.git/rebase-merge/autostash`.
+  - `git rebase --abort` could not run, as the rebase had not really started. Closing the game, then `git checkout HEAD -- Assets/CvGameCoreDLL.dll` and `git stash apply <autostash SHA>`, brought everything back; removing the stale `.git/rebase-merge` folder let the rebase run again.
+  - Nothing was lost, but only because the autostash commit was found.
+- If it happens again, guard the stash before any cleanup, as Codex's review (GPT-6.2-Sol) advised from Git's documentation; this order was not itself rerun.
+  - Find the autostash: `git rev-parse --git-path rebase-merge/autostash` gives the file's path, in a linked worktree too, and the file holds the SHA.
+  - Pin it at once with `git stash store -m "autostash kept" <SHA>`, so it stays in `git stash list` whatever the cleanup does.
+  - Check `git status`, `git diff` and `git diff --staged` against what you expect, and close every Civ4 client.
+  - Try `git rebase --quit` first, which keeps an autostash when Git still recognizes the rebase; then restore the DLL path with `git checkout HEAD -- Assets/CvGameCoreDLL.dll` and apply with `git stash apply --index <SHA>`, which also tries to restore what was staged, where a plain `apply` puts everything back unstaged.
 
 ### Hearing the game
 

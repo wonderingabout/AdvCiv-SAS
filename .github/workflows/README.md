@@ -129,6 +129,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/python_dead_stores.py`](#buildsourcepython_dead_storespy)
     - [`build/source/python_define_reads_cached.py`](#buildsourcepython_define_reads_cachedpy)
     - [`build/source/python_define_reads_import.py`](#buildsourcepython_define_reads_importpy)
+    - [`build/source/python_engine_callbacks.py`](#buildsourcepython_engine_callbackspy)
     - [`build/source/python_multiline_calls.py`](#buildsourcepython_multiline_callspy)
     - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
@@ -1592,6 +1593,18 @@ Fails when runtime Python in `Assets/Python` or `PrivateMaps` reads a GlobalDefi
 
 ```bash
 python .github/workflows/build/source/python_define_reads_import.py
+```
+
+#### `build/source/python_engine_callbacks.py`
+
+Fails when a base-game entry point SAS carries loses a top-level function the engine calls by name: `PbMain.py`'s Pitboss callbacks, `CvTranslator.finishText` and `CvDebugInterface.toggleDebugMode`. Nothing in SAS calls them, so a cleanup or rename would pass every other check and fail only in game or on a Pitboss server.
+
+- Added on 2026-11-26 for [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104), when those entry points were carried. The list is curated: each name was found as a string in `Civ4BeyondSword.exe` or `Civ4BeyondSword_PitBoss.exe`, or in the DLL's `CvPythonCaller.cpp`, and the table says where.
+- The EXE registers every module in `EntryPoints` and every map script as an `EntryPoint module:`, so registration alone does not show which functions it calls; `CvMapScriptInterface.py`'s map script stubs are left out, and functions no engine file names, such as `CvUnitControlInterface.ProcessEvent`, are not listed.
+- It reads Python tokens, so only a `def` at column 0 counts: a method, a commented-out def or one inside a string does not satisfy it. A first, line-based version took a def in a triple-quoted string for real, as Codex's review (GPT-6.2-Sol) reproduced.
+
+```bash
+python .github/workflows/build/source/python_engine_callbacks.py
 ```
 
 #### `build/source/python_multiline_calls.py`

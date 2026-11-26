@@ -48,6 +48,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/inherited_files.py
 
+      - name: Carried base-game entry points keep the functions the engine calls by name
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/python_engine_callbacks.py
+
       - name: Byte comparisons in CI scripts say why
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/checkout_byte_compares.py

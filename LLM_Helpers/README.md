@@ -109,6 +109,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`audit_define_timing.py`](#audit_define_timingpy)
     - [`audit_define_keys.py`](#audit_define_keyspy)
     - [`audit_unused_text_keys.py`](#audit_unused_text_keyspy)
+    - [`audit_engine_names.py`](#audit_engine_namespy)
   - [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)
 - [`balance/`](#balance)
   - [Game speed helper scripts](#game-speed-helper-scripts)
@@ -528,6 +529,22 @@ python LLM_Helpers\audits\audit_unused_text_keys.py
 python LLM_Helpers\audits\audit_unused_text_keys.py --text-glob "Assets/XML/Text/AdvCiv-SAS_*.xml"
 python LLM_Helpers\audits\audit_unused_text_keys.py --prefix TXT_KEY_SAS
 python LLM_Helpers\audits\audit_unused_text_keys.py --no-external --no-output-file
+```
+
+#### `audit_engine_names.py`
+
+Reports which Civ4 binaries hold each given name as a string of its own, NUL-terminated ASCII or UTF-16, by default in `Civ4BeyondSword.exe`, `Civ4BeyondSword_PitBoss.exe` and BtS's `CvGameCoreDLL.dll`, and where SAS's DLL source quotes it; `--context` shows the strings stored beside the first hit. It answers whether the engine may call a Python function by name, which no SAS Python call shows.
+
+- A hit is the name as a whole stored string: ended by a NUL (two in UTF-16) and not preceded by a printable character, so `CallbackName` does not match inside `refreshCallbackNames`. Zero hits means no such stored literal in these files, not that the engine never calls the name, as a name can be built at run time.
+  - Codex's review (GPT-6.2-Sol) found a first version counting bare UTF-16 bytes, which matched inside longer names, and requiring a NUL before an ASCII name, which missed one at the file's start or after other binary data (2026-11-26).
+- It reads the installed files as they are and decompiles nothing: the Steam EXE's code is encrypted on disk, as the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#dump_exe_imagepy) explains, but its strings are not.
+- Written on 2026-11-26 from the one-off searches that settled which functions of the carried base-game entry points the engine calls by name ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)), the evidence behind [`python_engine_callbacks.py`](/.github/workflows/README.md#buildsourcepython_engine_callbackspy).
+  - The context shows each callback beside its module's name, such as `CvTranslator | [finishText]` in both EXEs and `PbMain | [sendEmail]` in the DLL, while the main EXE's `update` sits among unrelated strings.
+  - A name found nowhere, such as `CvUnitController`'s `ProcessEvent`, has no stored literal in these files ([KI#165.13](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.13)); a short or common name can match an unrelated string, which the context tells apart.
+- First written for `exe_analysis/`; the user asked whether it belonged there, and as it only reads strings, it moved here beside the other usage audits.
+
+```powershell
+python LLM_Helpers\audits\audit_engine_names.py finishText sendEmail ProcessEvent --context
 ```
 
 Example output (real run, `--text-glob "Assets/XML/Text/AdvCiv-SAS_*.xml"`; exit 1 because candidates were found):
@@ -1002,11 +1019,15 @@ The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_
   - It matches names without case, as Civ4 does: a first, case-sensitive comparison missed `CvUNVictoryScreen`, which the logs name `CvUnVictoryScreen`, until Codex caught it (2026-11-22).
 - `--take-in PATH...` copies base-game Python files SAS uses into SAS, from the newest layer providing each, adding only the SAS header and a comment naming the source; put your model credit in that comment. From then on each is an ordinary SAS file.
   - It began as a scratchpad script for KI#1104's first copies, which Codex then checked against their sources one by one.
+  - `--compare PATH...` shows where a SAS copy's code differs from the newest base-game layer's, beyond comments and line breaks inside a statement, one row per differing span with both line ranges. On 2026-11-26 it listed exactly the commented Ruff fixes and KI#165.13's disabled body in the eight carried entry points.
+    - Statement ends and indentation count, shown as `<NEWLINE>`, `<INDENT>` and `<DEDENT>`, so a call moved out of an `if` block differs; a whole one-operand `print(x)` statement counts as the original's `print x`, but `print (1, 2)`, a tuple, and `print (a+b)*c` do not.
+    - Codex's review (GPT-6.2-Sol) reproduced all three passing as equal in a first version, which dropped statement structure and every `print` parenthesis.
   - A file with Firaxis's notice on line 2 keeps it first, the SAS header following; a file without one, such as vanilla's `pyUnit/CvUnitController.py`, gets the SAS header on top, which the first version refused (2026-11-26).
 
 ```bash
 python LLM_Helpers/code_history/inherited_files.py --loaded
 python LLM_Helpers/code_history/inherited_files.py --take-in Assets/Python/Screens/CvScreen.py
+python LLM_Helpers/code_history/inherited_files.py --compare Assets/Python/EntryPoints/PbMain.py
 python LLM_Helpers/code_history/inherited_files.py --inventory
 python LLM_Helpers/code_history/inherited_files.py python --grep wb
 python LLM_Helpers/code_history/inherited_files.py xml --summary
