@@ -4811,6 +4811,67 @@ void CvPlayer::disband(CvCity& kCity) // advc: param was CvCity*
 }
 
 
+// <!-- custom: Whether a unit of this type could enter kPlot, by the same feature and terrain rules as CvUnit::canMoveInto (a passable tech of kTeam, or a route for land units); goody huts create units directly with initUnit, which checks neither.
+// A turn-112 goody hut on Marsh gave our Scout a Catapult (advc.314's strongest Barbarian-trainable unit), which then stood in a plot it could not leave except to one grass plot (SASPilot play, JOAO turn-112 save, 2026-11-22). See KI#1076.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+static bool isSASUnitTypePlotPassable(CvUnitInfo const& kUnit, CvPlot const& kPlot, CvTeam const& kTeam)
+{
+	if (kPlot.isImpassable() && !kUnit.canMoveImpassable())
+		return false;
+	if (kUnit.getDomainType() == DOMAIN_LAND && kPlot.isWater() && !kUnit.isCanMoveAllTerrain())
+		return false;
+	if (kUnit.getDomainType() == DOMAIN_SEA && !kPlot.isWater())
+		return false;
+	if (kUnit.getDomainType() == DOMAIN_SEA && kPlot.getTeam() == kTeam.getID())
+		return true; // <!-- custom: CvUnit::canMoveInto keeps this exception inside our borders. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+	bool const bRoute = (kUnit.getDomainType() == DOMAIN_LAND && kPlot.isRoute());
+	if (kPlot.isFeature() && kUnit.getFeatureImpassable(kPlot.getFeatureType()) && !bRoute)
+	{
+		TechTypes const eTech = kUnit.getFeaturePassableTech(kPlot.getFeatureType());
+		if (eTech == NO_TECH || !kTeam.isHasTech(eTech))
+			return false;
+	}
+	if (kUnit.getTerrainImpassable(kPlot.getTerrainType()) && !bRoute)
+	{
+		TechTypes const eTech = kUnit.getTerrainPassableTech(kPlot.getTerrainType());
+		if (eTech == NO_TECH || !kTeam.isHasTech(eTech))
+			return false;
+	}
+	return true;
+}
+
+
+// <!-- custom: Shared by the friendly hut's eligibility and its reward selection; with a friendly spawn plot it makes no RNG calls, so canReceiveGoody can safely rule out an empty reward.
+// Hostile selection keeps advc.314's randomized ranking; a hostile hut's fallback for a plot its ranked unit cannot enter also passes that plot, so it draws nothing either. See KI#1076.2. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+static UnitTypes selectSASGoodyCombatUnit(CvPlot const* pFriendlyPlot, CvTeam const& kFriendlyTeam)
+{
+	CvPlayer const& kBarbarians = GET_PLAYER(BARBARIAN_PLAYER);
+	CvCivilization const& kCiv = kBarbarians.getCivilization();
+	UnitTypes eBestUnit = NO_UNIT;
+	int iBestValue = 0;
+	for (int i = 0; i < kCiv.getNumUnits(); i++)
+	{
+		UnitTypes eUnit = kCiv.unitAt(i);
+		CvUnitInfo const& kUnit = GC.getInfo(eUnit);
+		if (kUnit.getDomainType() != DOMAIN_LAND || kUnit.getNumPrereqOrBonuses() > 0 ||
+			kUnit.getPrereqAndBonus() != NO_BONUS || kUnit.getCombat() <= 0 ||
+			(kUnit.getPrereqAndTech() != NO_TECH &&
+			GC.getInfo(kUnit.getPrereqAndTech()).getEra() > CvEraInfo::AI_getAgeOfExploration()) ||
+			!kBarbarians.canTrain(eUnit, false, true) ||
+			(pFriendlyPlot != NULL && !isSASUnitTypePlotPassable(kUnit, *pFriendlyPlot, kFriendlyTeam)))
+		{
+			continue;
+		}
+		int const iValue = kUnit.getCombat() + (pFriendlyPlot == NULL ? SyncRandNum(10) : 0);
+		if (iValue > iBestValue)
+		{
+			iBestValue = iValue;
+			eBestUnit = eUnit;
+		}
+	}
+	return eBestUnit;
+}
+
+
 bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) const
 {
 	CvGame const& kGame = GC.getGame();
@@ -4895,6 +4956,9 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		if (eUnit == NO_UNIT)
 			return false;
 		CvUnitInfo const& kUnit = GC.getInfo(eUnit); // advc
+		// <!-- custom: No free unit that could not stand on the hut's plot, such as siege on Marsh; another reward is chosen instead. See KI#1076.2. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+		if (!isSASUnitTypePlotPassable(kUnit, *pPlot, GET_TEAM(getTeam())))
+			return false;
 		if (kUnit.getCombat() > 0 && /* advc.315: */ !kUnit.isMostlyDefensive())
 		{
 			if (//kGame.getElapsedGameTurns() < 20
@@ -4908,8 +4972,9 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		if (isOneCityChallenge() && kUnit.isFound())
 			return false;
 	} // <advc.314> Free unit and no UnitClassType given
+	// <!-- custom: Nor advc.314's strongest-unit reward when no such unit could stand there. See KI#1076.2. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	else if (!kGoody.isBad() && kGoody.getMinBarbarians() > 0 &&
-		(bEarlyMP || bVeryEarlyGame))
+		(bEarlyMP || bVeryEarlyGame || selectSASGoodyCombatUnit(pPlot, GET_TEAM(getTeam())) == NO_UNIT))
 	{
 		return false;
 	} // </advc.314>
@@ -5111,40 +5176,16 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit, boo
 		}
 	}
 	std::vector<UnitTypes> aeBestUnits;
-	CvCivilization const& kCiv = GET_PLAYER(BARBARIAN_PLAYER).getCivilization();
 	/*  When units need to be placed, but no unit class is given.
 		Times 3 b/c MinBarbarians is only a lower bound. */
-	for (int i = 0; i < 3 * kGoody.getMinBarbarians(); i++)
+	if (kGoody.isBad() && kGoody.getUnitClassType() == NO_UNITCLASS &&
+		kGoody.getBarbarianUnitClass() == NO_UNITCLASS)
 	{
-		UnitTypes eBestUnit = NO_UNIT;
-		if (kGoody.getUnitClassType() == NO_UNITCLASS &&
-			kGoody.getBarbarianUnitClass() == NO_UNITCLASS)
+		for (int i = 0; i < 3 * kGoody.getMinBarbarians(); i++)
 		{
-			int iBestValue = 0;
-			for (int j = 0; j < kCiv.getNumUnits(); j++)
-			{
-				UnitTypes eUnit = kCiv.unitAt(j);
-				CvUnitInfo const& kUnit = GC.getInfo(eUnit);
-				if (kUnit.getDomainType() != DOMAIN_LAND)
-					continue;
-				if (kUnit.getNumPrereqOrBonuses() <= 0 &&
-					kUnit.getPrereqAndBonus() == NO_BONUS &&
-					kUnit.getCombat() > 0 &&
-					(kUnit.getPrereqAndTech() == NO_TECH ||
-					GC.getInfo(kUnit.getPrereqAndTech()).getEra() <=
-					CvEraInfo::AI_getAgeOfExploration()) &&
-					GET_PLAYER(BARBARIAN_PLAYER).canTrain(eUnit, false, true))
-				{
-					int iValue = kUnit.getCombat() + (kGoody.isBad() ?
-							SyncRandNum(10) : 0); // Randomize hostile units a bit
-					if (iValue > iBestValue)
-					{
-						iBestValue = iValue;
-						eBestUnit = eUnit;
-					}
-				}
-			}
-			FAssert(eBestUnit != NO_UNIT);
+			UnitTypes const eBestUnit = selectSASGoodyCombatUnit(NULL, GET_TEAM(getTeam()));
+			if (eBestUnit == NO_UNIT)
+				break;
 			aeBestUnits.push_back(eBestUnit);
 		}
 	}
@@ -5159,29 +5200,32 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit, boo
 			// Interpret BarbarianUnitClass as an upgrade to replace UnitClassType
 			if (bUpgrade && kGoody.getBarbarianUnitClass() != NO_UNITCLASS)
 			{
-				eUnitClass = (UnitClassTypes)kGoody.getBarbarianUnitClass();
-				if (bLogGoodyOutcome) kGameRecordResult.bUpgradeApplied = true;
-				// Upgrade applied, don't roll an additional outcome.
-				bNoRecursion = true;
+				UnitClassTypes const eUpgradeClass = (UnitClassTypes)kGoody.getBarbarianUnitClass();
+				UnitTypes const eUpgrade = getCivilization().getUnit(eUpgradeClass);
+				// <!-- custom: Keep the original reward if its upgrade cannot stand on the hut's plot. See KI#1076.2. (GPT-6.2-Sol) -->
+				if (eUpgrade != NO_UNIT && isSASUnitTypePlotPassable(GC.getInfo(eUpgrade), *pPlot, GET_TEAM(getTeam())))
+				{
+					eUnitClass = eUpgradeClass;
+					if (bLogGoodyOutcome) kGameRecordResult.bUpgradeApplied = true;
+					// Upgrade applied, don't roll an additional outcome.
+					bNoRecursion = true;
+				}
 			}
 			eUnit = getCivilization().getUnit(eUnitClass);
 		}
+		else eUnit = selectSASGoodyCombatUnit(pPlot, GET_TEAM(getTeam()));
 		/*  Let MinBarbarians > 1 generate more than 1 unit
 			(though I'm not using this so far; not tested either) */
 		for (int i = 0; i < std::max(1, kGoody.getMinBarbarians()); i++)
 		{
-			UnitTypes eLoopUnit = eUnit;
-			if (eLoopUnit == NO_UNIT && !aeBestUnits.empty())
-				eLoopUnit = aeBestUnits[std::min((int)aeBestUnits.size() - 1, i)];
-			FAssert(eLoopUnit != NO_UNIT);
-			if (eLoopUnit != NO_UNIT)
+			if (eUnit != NO_UNIT && isSASUnitTypePlotPassable(GC.getInfo(eUnit), *pPlot, GET_TEAM(getTeam())))
 			{
-				CvUnit* pNewUnit = initUnit(eLoopUnit, pPlot->getX(), pPlot->getY());
+				CvUnit* pNewUnit = initUnit(eUnit, pPlot->getX(), pPlot->getY());
 				if (pNewUnit == NULL)
 					continue;
 				else FAssert(pNewUnit != NULL);
 				szBuffer = gDLL->getText("TXT_KEY_GOODY_FREE_UNIT",
-						GC.getInfo(eLoopUnit).getDescription());
+						GC.getInfo(eUnit).getDescription());
 				addGoodyMsg(szBuffer, *pPlot, kGoody.getSound());
 				szBuffer.clear();
 				int iPromotionsBefore = 0;
@@ -5239,23 +5283,27 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit, boo
 				{
 					continue;
 				}
+				// <!-- custom: Unit choice moved above the roll (it uses no RNG) so a plot the unit could not enter is skipped before rolling: the inherited check was isImpassable alone, so a Barbarian Catapult could appear in an adjacent Marsh or Jungle it could never leave. See KI#1076.2. (Claude code Opus 5.5) -->
+				UnitTypes eLoopUnit = eUnit;
+				if(eLoopUnit == NO_UNIT && !aeBestUnits.empty())
+				{
+					eLoopUnit = aeBestUnits[
+							std::min((int)aeBestUnits.size() - 1, iBarbCount)];
+				}
+				// <!-- custom: Codex's review of the main port read that a ranked Catapult with only roadless Jungle or Marsh around the hut would spawn nothing, though a Longbowman could stand there; take the strongest unit that can, a search with a plot makes no RNG calls. See KI#1076.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+				if (eUnit == NO_UNIT && eLoopUnit != NO_UNIT && !isSASUnitTypePlotPassable(GC.getInfo(eLoopUnit), *pAdj, GET_TEAM(BARBARIAN_TEAM)))
+					eLoopUnit = selectSASGoodyCombatUnit(pAdj, GET_TEAM(BARBARIAN_TEAM));
+				if (eLoopUnit == NO_UNIT ||!isSASUnitTypePlotPassable(GC.getInfo(eLoopUnit), *pAdj, GET_TEAM(BARBARIAN_TEAM)))
+					continue;
 				if (iPass > 0 || SyncRandSuccess100(iProb))
 				{
-					UnitTypes eLoopUnit = eUnit;
-					if(eLoopUnit == NO_UNIT && !aeBestUnits.empty())
-					{
-						eLoopUnit = aeBestUnits[
-								std::min((int)aeBestUnits.size() - 1, iBarbCount)];
-					}
-					FAssert(eLoopUnit != NO_UNIT);
-					if(eLoopUnit != NO_UNIT)
-					{
-						CvUnit* pBarbarian = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eLoopUnit, pAdj->getX(), pAdj->getY(), (pAdj->isWater() ? UNITAI_ATTACK_SEA : UNITAI_ATTACK));
-						if (bLogGoodyOutcome && pBarbarian != NULL)
-							kGameRecordResult.apBarbarianUnits.push_back(pBarbarian);
-						if (bLogGoodyDetails) logSASGameRecordBarbarianSpawn(pBarbarian, "GOODY_HUT");
-						iBarbCount++;
-					}
+					CvUnit* pBarbarian = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eLoopUnit, pAdj->getX(), pAdj->getY(), (pAdj->isWater() ? UNITAI_ATTACK_SEA : UNITAI_ATTACK));
+					if (pBarbarian == NULL)
+						continue;
+					if (bLogGoodyOutcome)
+						kGameRecordResult.apBarbarianUnits.push_back(pBarbarian);
+					if (bLogGoodyDetails) logSASGameRecordBarbarianSpawn(pBarbarian, "GOODY_HUT");
+					iBarbCount++;
 					if ((iPass > 0 && iBarbCount >= iMinBarbs) || iBarbCount >= iMaxBarbs)
 						break;
 				}
