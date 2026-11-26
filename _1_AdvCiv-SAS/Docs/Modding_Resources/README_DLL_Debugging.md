@@ -237,6 +237,9 @@ Set-Content -Path cdb_cmds.txt -Encoding ascii -Value ".effmach x86", "kv 40", "
 
 - On 2026-11-20 it gave one thread, stopped in `steamclient` during `LdrShutdownProcess` after `msvcr71!exit`: Steam's DLL waiting forever while it unloaded.
   - Microsoft's public symbols name the Windows frames; `steamclient` has none, so its frames show as offsets from its exports.
+- On 2026-11-26 a third case held 263 MB, not 0.1 MB, and gave the same stack ([KI#1102](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)).
+  - Its dump came without Task Manager: `MiniDumpWriteDump` from an ordinary process, with full memory, handle data and thread info, wrote 569 MB.
+  - An agent then ends the leftover with `desktop_windows.terminate_process()`, which calls `TerminateProcess` on a handle of it; `Stop-Process` and `taskkill /F` had left it in place. See [A client that will not go away](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#a-client-that-will-not-go-away).
 - Sysinternals Handle (`handle64.exe -a "Civ4BeyondSword.exe(<pid>)"`), tried the same day to find what held the leftover open, listed only the process's own handles without administrator rights; the dump answered the question.
 
 ## Attaching to a running game

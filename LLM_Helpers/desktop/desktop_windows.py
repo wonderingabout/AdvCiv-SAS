@@ -192,6 +192,29 @@ def window_pid(hwnd):
 	return owner.value
 
 
+def process_elevated(pid):
+	# <!-- custom: True when the process runs with administrator rights, read from its token; a token this tool may not open counts as elevated, as only a higher-rights process refuses.
+	# Lets click name the real cause when Windows blocks its input. (Claude code Opus 5.5) -->
+	kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+	advapi32 = ctypes.WinDLL("advapi32", use_last_error=True)
+	kernel32.OpenProcess.restype = wt.HANDLE
+	process = kernel32.OpenProcess(0x1000, False, pid)
+	if not process:
+		return False
+	token = wt.HANDLE()
+	try:
+		if not advapi32.OpenProcessToken(process, 0x0008, ctypes.byref(token)):
+			return ctypes.get_last_error() == 5
+		elevation = wt.DWORD()
+		size = wt.DWORD()
+		advapi32.GetTokenInformation(token, 20, ctypes.byref(elevation), ctypes.sizeof(elevation), ctypes.byref(size))
+		return bool(elevation.value)
+	finally:
+		if token:
+			kernel32.CloseHandle(token)
+		kernel32.CloseHandle(process)
+
+
 def bring_to_front(hwnd, pid, allow_click=True):
 	# <!-- custom: Focus restoration passes allow_click=False so returning to the user's window never presses its title bar. (GPT-6.1-Sol) -->
 	# <!-- custom: Windows' foreground lock refuses SetForegroundWindow from a background process: on 2026-11-10 pastes between the Codex and Claude apps failed twice, each time leaving the app last typed into in front.
@@ -251,6 +274,9 @@ def click(pid, x, y, modifiers=(), double=False, give_back=False):
 	cursor = wt.POINT()
 	USER32.GetCursorPos(ctypes.byref(cursor))
 	if (cursor.x, cursor.y) != (screen_x, screen_y):
+		# <!-- custom: Windows refuses to move the cursor or send input into an elevated window from a program that is not, so this check tripped each time on the user's Task Manager on 2026-11-26 and blamed a mouse move; it now says why. (Claude code Opus 5.5) -->
+		if process_elevated(pid) and not process_elevated(os.getpid()):
+			raise RuntimeError("process %d runs elevated, and Windows keeps input from this non-elevated tool out of its windows; nothing was pressed" % pid)
 		raise RuntimeError("the mouse moved to %d,%d before the click at %d,%d; nothing was pressed" % (cursor.x, cursor.y, screen_x, screen_y))
 	if window_pid(USER32.GetForegroundWindow()) != pid:
 		raise RuntimeError("another window came to the front before the click; nothing was pressed")
@@ -813,18 +839,119 @@ def save_dump(pid, kind="full", timeout=300.0):
 	raise SystemExit("no finished dump at %s within %g s" % (DUMP_FILE, timeout))
 
 
-def process_alive(pid):
-	handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)  # <!-- custom: PROCESS_QUERY_LIMITED_INFORMATION (Claude Code Opus 5.5) -->
-	if not handle:
-		return False
+# <!-- custom: Native process probes, with explicit prototypes so handles keep their full width. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+_KERNEL32 = ctypes.WinDLL("kernel32", use_last_error=True)
+_KERNEL32.OpenProcess.argtypes = (wt.DWORD, wt.BOOL, wt.DWORD)
+_KERNEL32.OpenProcess.restype = wt.HANDLE
+_KERNEL32.GetExitCodeProcess.argtypes = (wt.HANDLE, ctypes.POINTER(wt.DWORD))
+_KERNEL32.GetExitCodeProcess.restype = wt.BOOL
+_KERNEL32.WaitForSingleObject.argtypes = (wt.HANDLE, wt.DWORD)
+_KERNEL32.WaitForSingleObject.restype = wt.DWORD
+_KERNEL32.TerminateProcess.argtypes = (wt.HANDLE, wt.UINT)
+_KERNEL32.TerminateProcess.restype = wt.BOOL
+_KERNEL32.GetProcessTimes.argtypes = (wt.HANDLE, ctypes.POINTER(wt.FILETIME), ctypes.POINTER(wt.FILETIME), ctypes.POINTER(wt.FILETIME), ctypes.POINTER(wt.FILETIME))
+_KERNEL32.GetProcessTimes.restype = wt.BOOL
+_KERNEL32.QueryFullProcessImageNameW.argtypes = (wt.HANDLE, wt.DWORD, wt.LPWSTR, ctypes.POINTER(wt.DWORD))
+_KERNEL32.QueryFullProcessImageNameW.restype = wt.BOOL
+_KERNEL32.CloseHandle.argtypes = (wt.HANDLE,)
+_KERNEL32.CloseHandle.restype = wt.BOOL
+_PROCESS_TERMINATE = 0x0001
+_PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+_SYNCHRONIZE = 0x00100000
+_STILL_ACTIVE = 259
+_WAIT_OBJECT_0 = 0
+_WAIT_TIMEOUT = 0x102
+_ERROR_INVALID_PARAMETER = 87
+
+
+def _handle_state(handle):
+	# <!-- custom: running, exiting (the exit code is set but the handle has not signaled: a client hung at exit, KI#1102), gone, or unknown when a call fails. (Claude code Opus 5.5) -->
+	wait = _KERNEL32.WaitForSingleObject(handle, 0)
+	if wait == _WAIT_OBJECT_0:
+		return "gone"
+	if wait != _WAIT_TIMEOUT:
+		return "unknown"
 	code = wt.DWORD()
-	ctypes.windll.kernel32.GetExitCodeProcess(handle, ctypes.byref(code))
-	ctypes.windll.kernel32.CloseHandle(handle)
-	return code.value == 259  # <!-- custom: STILL_ACTIVE (Claude Code Opus 5.5) -->
+	if not _KERNEL32.GetExitCodeProcess(handle, ctypes.byref(code)):
+		return "unknown"
+	return "running" if code.value == _STILL_ACTIVE else "exiting"
 
 
-def civ4_processes():
-	# <!-- custom: Return [(pid, command line)] for every running Civ4 client. (Claude Code Opus 5.5) -->
+def _creation_time(handle):
+	times = [wt.FILETIME() for _ in range(4)]
+	if not _KERNEL32.GetProcessTimes(handle, *[ctypes.byref(time_) for time_ in times]):
+		return None
+	return (times[0].dwHighDateTime << 32) | times[0].dwLowDateTime
+
+
+def _image_name(handle):
+	size = wt.DWORD(1024)
+	buffer = ctypes.create_unicode_buffer(size.value)
+	if not _KERNEL32.QueryFullProcessImageNameW(handle, 0, buffer, ctypes.byref(size)):
+		return None
+	return buffer.value.rsplit("\\", 1)[-1]
+
+
+def process_state(pid):
+	# <!-- custom: running, exiting, gone or unknown, from a handle of the process rather than its exit code alone: that code read 0 for a client hung at exit (KI#1102), so close reported it exited while it stayed and kept Civ4's single-instance lock (2026-11-26).
+	# An access-denied open is unknown, not gone, as Codex's review (GPT-6.2-Sol) found the first version took any failed open or wait for an exit. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	handle = _KERNEL32.OpenProcess(_PROCESS_QUERY_LIMITED_INFORMATION | _SYNCHRONIZE, False, pid)
+	if not handle:
+		return "gone" if ctypes.get_last_error() == _ERROR_INVALID_PARAMETER else "unknown"
+	try:
+		return _handle_state(handle)
+	finally:
+		_KERNEL32.CloseHandle(handle)
+
+
+def process_alive(pid):
+	# <!-- custom: True while the process runs, or when its state cannot be read; a client hung at exit has quit its game, so callers waiting for a game to end treat it as ended, and close ends it on --force. (Claude code Opus 5.5) -->
+	return process_state(pid) in ("running", "unknown")
+
+
+def process_identity(pid):
+	# <!-- custom: (image name, creation time) of a live or exiting process, None when it cannot be read, so a caller can check that a pid still names the process it found before acting on it. (Claude code Opus 5.5) -->
+	handle = _KERNEL32.OpenProcess(_PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
+	if not handle:
+		return None
+	try:
+		return (_image_name(handle), _creation_time(handle))
+	finally:
+		_KERNEL32.CloseHandle(handle)
+
+
+def terminate_process(pid, wait_ms=5000, expect=None, only_exiting=False):
+	# <!-- custom: Ends a process with TerminateProcess on a handle of its own and waits for that handle to signal; returns (ended, message).
+	# On 2026-11-26 Stop-Process, taskkill /F and an elevated Stop-Process through a scheduled task left a client hung at exit (KI#1102) in place, whether or not they reached TerminateProcess, which was not traced; Codex (GPT-6.2-Sol) then ended it this way from a non-elevated shell.
+	# expect, an identity from process_identity, and only_exiting are checked on the same handle before the call, as a pid freed between finding a process and ending it can name another one (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	handle = _KERNEL32.OpenProcess(_PROCESS_TERMINATE | _PROCESS_QUERY_LIMITED_INFORMATION | _SYNCHRONIZE, False, pid)
+	if not handle:
+		error = ctypes.get_last_error()
+		if error == _ERROR_INVALID_PARAMETER:
+			return True, "process %d is already gone" % pid
+		return False, "could not open process %d (error %d)" % (pid, error)
+	try:
+		state = _handle_state(handle)
+		if state == "gone":
+			return True, "process %d had already ended" % pid
+		if expect is not None and (_image_name(handle), _creation_time(handle)) != expect:
+			return False, "process %d is no longer the one found; left alone" % pid
+		if only_exiting and state != "exiting":
+			return False, "process %d is %s, not hung at exit; left alone" % (pid, state)
+		if not _KERNEL32.TerminateProcess(handle, 1):
+			error = ctypes.get_last_error()
+			if _KERNEL32.WaitForSingleObject(handle, 0) == _WAIT_OBJECT_0:
+				return True, "process %d ended" % pid
+			return False, "TerminateProcess failed on process %d (error %d)" % (pid, error)
+		if _KERNEL32.WaitForSingleObject(handle, wait_ms) == _WAIT_OBJECT_0:
+			return True, "process %d ended" % pid
+		return False, "process %d did not end within %d ms of TerminateProcess" % (pid, wait_ms)
+	finally:
+		_KERNEL32.CloseHandle(handle)
+
+
+def _civ4_candidates():
+	# <!-- custom: [(pid, command line)] of every Civ4 process Windows lists, from one CIM query; Get-Process could not find a client hung at exit in Codex's shell while CIM and tasklist listed it (2026-11-26), so each candidate is then probed natively. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	command = "Get-CimInstance Win32_Process -Filter \"Name='%s'\" | ForEach-Object { \"$($_.ProcessId)`t$($_.CommandLine)\" }" % EXE_NAME
 	output = subprocess.run(["powershell", "-NoProfile", "-Command", command], capture_output=True, text=True, check=True).stdout
 	result = []
@@ -833,6 +960,39 @@ def civ4_processes():
 			pid, cmd = line.split("\t", 1)
 			result.append((int(pid), cmd))
 	return result
+
+
+def stuck_civ4_processes():
+	# <!-- custom: Return the pids of Civ4 clients hung at exit, a waiting steamclient frame in the dumps (KI#1102), which stay listed and, as inferred from a client started with Civ4's multiple argument running beside one, hold Civ4's single-instance lock.
+	# Found on 2026-11-26; terminate_process ends one.
+	# See README_Game_Runs.md, "A client that will not go away". (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	return [pid for pid, _ in stuck_civ4_clients()]
+
+
+def stuck_civ4_clients():
+	# <!-- custom: [(pid, identity)] of Civ4 clients hung at exit, the identity read on the same handle that showed the pending exit and the Civ4 image, for terminate_process(expect=...).
+	# Codex's review (GPT-6.2-Sol) found that reading it on a later handle could identify a process that reused the pid meanwhile. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	result = []
+	for pid, _ in _civ4_candidates():
+		handle = _KERNEL32.OpenProcess(_PROCESS_QUERY_LIMITED_INFORMATION | _SYNCHRONIZE, False, pid)
+		if not handle:
+			continue
+		try:
+			if _handle_state(handle) != "exiting":
+				continue
+			identity = (_image_name(handle), _creation_time(handle))
+			if identity[0] and identity[0].lower() == EXE_NAME.lower() and identity[1] is not None:
+				result.append((pid, identity))
+		finally:
+			_KERNEL32.CloseHandle(handle)
+	return result
+
+
+def civ4_processes():
+	# <!-- custom: Return [(pid, command line)] for every running Civ4 client. (Claude Code Opus 5.5) -->
+	# <!-- custom: A client hung at exit (KI#1102) stays listed and is left out, as it runs no game: on 2026-11-26 one made start_game.py refuse to start another.
+	# One whose state cannot be read counts as running. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	return [(pid, cmd) for pid, cmd in _civ4_candidates() if process_state(pid) in ("running", "unknown")]
 
 
 # <!-- custom: Python and XML saved under Assets while an AdvCiv-SAS client runs break that game, so an agent closes such clients first; on 2026-11-20 an agent edited advisor Python while the user's own client ran, which the user said agents should simply close themselves.
@@ -865,16 +1025,36 @@ def close_clients(pid, mod, wait, force):
 			print("no window for process %d" % p)
 		else:
 			print("WM_CLOSE sent to %d" % p)
+	# <!-- custom: An exit passes through "exiting" while DLLs unload and may write their last logs, so a client counts as hung at exit (KI#1102) only once it has been exiting for 15 s. (Claude code Opus 5.5) -->
 	deadline = time.time() + wait
-	while wait > 0 and time.time() < deadline and [p for p in pids if process_alive(p)]:
+	exiting_since = {}
+	while wait > 0 and time.time() < deadline:
+		waiting = False
+		for p in pids:
+			state = process_state(p)
+			if state == "exiting":
+				exiting_since.setdefault(p, time.time())
+				waiting = waiting or time.time() - exiting_since[p] < 15
+			elif state != "gone":
+				waiting = True
+		if not waiting:
+			break
 		time.sleep(0.5)
 	for p in pids:
-		if not process_alive(p):
+		state = process_state(p)
+		if state == "gone":
 			if wait > 0:
 				print("process %d exited" % p)
+		# <!-- custom: A client that quit but hangs at exit (KI#1102) was reported exited on 2026-11-26 while it stayed listed; it is reported as such, and ended on --force. (Claude code Opus 5.5) -->
+		elif state == "exiting" and not force:
+			if wait > 0:
+				print("process %d quit its game but is hung at exit (KI#1102); add --force to end it" % p)
 		elif force:
-			subprocess.run(["taskkill", "/F", "/PID", str(p)], capture_output=True)
-			print("process %d still ran after %g s; ended it" % (p, wait))
+			# <!-- custom: TerminateProcess on a handle of its own, as taskkill /F left a client hung at exit (KI#1102) in place on 2026-11-26. (Claude code Opus 5.5) -->
+			ended, message = terminate_process(p)
+			if not ended:
+				sys.exit("%s; ask the user to end it in Task Manager" % message)
+			print("process %d was %s after %g s; %s" % (p, state, wait, message))
 		elif wait > 0:
 			sys.exit("process %d still runs after %g s; add --force to end it" % (p, wait))
 

@@ -54,7 +54,8 @@ def wait_until_settled(pid: int, timeout: float = 600) -> None:
 
 # <!-- custom: Gained mod, AdvCiv-SAS by default so earlier callers start the same game, to start another mod such as base AdvCiv and compare a screen with SAS's (2026-11-23). See KI#1107. (Claude code Opus 5.5) -->
 # <!-- custom: Gained size, None by default so earlier callers keep the profile's resolution, to start a game at a chosen resolution (2026-11-24). See KI#123.4. (Claude code Opus 5.5) -->
-def start(script: str, world_size: str, options: list[str], debug_mode: bool, ini_prefix: str = "SASStart", era: str | None = None, mod: str = "AdvCiv-SAS", size: str | None = None) -> tuple[int, Path]:
+# <!-- custom: Gained multiple, Civ4's launch argument for a client beside another, which main passes when a stuck client holds Civ4's single-instance lock (2026-11-26). (Claude code Opus 5.5) -->
+def start(script: str, world_size: str, options: list[str], debug_mode: bool, ini_prefix: str = "SASStart", era: str | None = None, mod: str = "AdvCiv-SAS", size: str | None = None, multiple: bool = False) -> tuple[int, Path]:
 	base_ini = run_autoplay.USER_DIR / "CivilizationIV.ini"
 	current = re.search(r"(?mi)^\s*GameOptions\s*=\s*(\d+)", base_ini.read_bytes().decode("latin-1"))
 	settings = {"QuickStart": "1", "Map": script, "WorldSize": world_size}
@@ -78,7 +79,7 @@ def start(script: str, world_size: str, options: list[str], debug_mode: bool, in
 	try:
 		# <!-- custom: mod= picks the mod, as for a save; added on 2026-11-23 to start base AdvCiv and compare a screen with SAS's, the game font display.
 		# Quoted whole, as capture_screens.py does, since --list-mods shows names with spaces such as "AdvCiv Plus" (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-		pid = d.launch_detached('ini=%s "mod=\\%s"' % (ini_name, mod))
+		pid = d.launch_detached('ini=%s "mod=\\%s"%s' % (ini_name, mod, " multiple" if multiple else ""))
 		wait_until_settled(pid)
 		if debug_mode:
 			d.key(pid, "ctrl+z")
@@ -97,7 +98,8 @@ def start(script: str, world_size: str, options: list[str], debug_mode: bool, in
 # <!-- custom: Gained mod, AdvCiv-SAS by default, as start did, for a save of another mod (2026-11-23). See KI#1107. (Claude code Opus 5.5) -->
 # <!-- custom: Gained size, as start has, to load a late-game save at a chosen resolution: on 2026-11-24 a turn-0 game could not show the scoreboard and commerce sliders side by side, as the sliders are hidden then and the scoreboard is narrow.
 # It returns the per-run INI too, None without size, so the caller can remove it after the game. (Claude code Opus 5.5) -->
-def load(save: Path, debug_mode: bool, mod: str = "AdvCiv-SAS", size: str | None = None) -> tuple[int, Path | None]:
+# <!-- custom: Gained multiple, as start did (2026-11-26). (Claude code Opus 5.5) -->
+def load(save: Path, debug_mode: bool, mod: str = "AdvCiv-SAS", size: str | None = None, multiple: bool = False) -> tuple[int, Path | None]:
 	# <!-- custom: Loads a save into AdvCiv-SAS and leaves it open, with no autoplay, so a fix can be checked on the very position a bug was seen in; run_autoplay.py --turns 1 would play that turn first.
 	# Written on 2026-11-22 to check KI#11.3 on the user's turn-22 save, after a hand-typed launch failed: "mod=\AdvCiv-SAS" passed through python -c in Bash lost its backslash (Win32_Process.Create failed: 9), the pitfall AGENTS.md describes, so the arguments are built here.
 	# /FXSLOAD comes first and quoted, as run_autoplay.py found; mod= names the mod, as the save alone does not pick it. (Claude code Opus 5.5) -->
@@ -117,7 +119,7 @@ def load(save: Path, debug_mode: bool, mod: str = "AdvCiv-SAS", size: str | None
 			run_autoplay.write_request_ini(run_autoplay.USER_DIR / "CivilizationIV.ini", ini_path, None, False, "-", "Agent", {"ScreenWidth": str(int(width)), "ScreenHeight": str(int(height))})
 			# <!-- custom: After /FXSLOAD, as run_autoplay.py orders them. (Claude code Opus 5.5) -->
 			ini_argument = " ini=%s" % ini_name
-		pid = d.launch_detached('/FXSLOAD="%s"%s "mod=\\%s"' % (save, ini_argument, mod))
+		pid = d.launch_detached('/FXSLOAD="%s"%s "mod=\\%s"%s' % (save, ini_argument, mod, " multiple" if multiple else ""))
 		wait_until_settled(pid)
 		# <!-- custom: A settled window can also be the main menu or an error dialog, so the load is confirmed from this process's own runtime status when SAS_RUNTIME_STATUS_ON writes one (Codex's review, 2026-11-22). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		statuses = sorted(run_autoplay.USER_DIR.joinpath("Logs").glob("SASRuntimeStatus_*_%d.json" % pid))
@@ -163,11 +165,20 @@ def main() -> int:
 		return 0
 	if d.civ4_processes():
 		raise SystemExit("Civ4 is already running: drive it with --pid in the other tools, or close it first")
+	# <!-- custom: A client hung at exit (KI#1102) stays listed, and a plain launch then quits at once ("Civ4 exited while loading"), as inferred from Civ4's single-instance check.
+	# It is ended with TerminateProcess on a handle of its own, as Stop-Process and taskkill left one in place on 2026-11-26, once that handle shows the same image and creation time and a pending exit, since a pid can be reused (Codex's review); one that stays is left, and the new client starts beside it with Civ4's multiple argument.
+	# See README_Game_Runs.md, "A client that will not go away". (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	for pid, identity in d.stuck_civ4_clients():
+		ended, message = d.terminate_process(pid, expect=identity, only_exiting=True)
+		print("Civ4 client %d is hung at exit (KI#1102); %s" % (pid, message))
+	stuck = d.stuck_civ4_processes()
+	if stuck:
+		print("stuck Civ4 client(s) %s hold the single-instance lock; starting with Civ4's multiple argument" % ", ".join(str(pid) for pid in stuck))
 	if args.load:
-		pid, ini_path = load(args.load, args.debug_mode, args.mod, args.size)
+		pid, ini_path = load(args.load, args.debug_mode, args.mod, args.size, multiple=bool(stuck))
 		print("pid %d; loaded %s" % (pid, args.load) + ("" if ini_path is None else "; per-run INI %s (delete it, and its .bak, after closing the game)" % ini_path))
 		return 0
-	pid, ini_path = start(args.map, args.world_size, args.option, args.debug_mode, era=args.era, mod=args.mod, size=args.size)
+	pid, ini_path = start(args.map, args.world_size, args.option, args.debug_mode, era=args.era, mod=args.mod, size=args.size, multiple=bool(stuck))
 	print("pid %d; per-run INI %s (delete it, and its .bak, after closing the game)" % (pid, ini_path))
 	return 0
 

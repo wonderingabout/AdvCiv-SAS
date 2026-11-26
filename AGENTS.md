@@ -1198,6 +1198,7 @@ Get-ChildItem -Path 'CvGameCoreDLL/Project/*/CvGameCoreDLL.dll.build.json' -File
   - The user may also be browsing the Sevopedia or playing casually, with no current test, autoplay or later replay depending on the files being edited.
   - If AdvCiv-SAS itself is running, close it and go on, unless the user has said to leave it alone: the user's standing rule (2026-11-12) is that agents may close or reuse the user's Civ4 instances without asking, as under [Research and references](#source-analysis).
     - [`desktop_windows.py close --mod AdvCiv-SAS --wait 30`](/LLM_Helpers/README.md#desktop_windowspy) closes every such client and waits for it to exit; add `--force` for one that ignores the close.
+      - A client hung at exit (KI#1102) stays listed and blocks new ones; `--force` and `start_game.py` end it with `TerminateProcess` on a handle of it, as `Stop-Process` and `taskkill` left one in place. See [A client that will not go away](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#a-client-that-will-not-go-away).
     - Asking costs the user a round trip, and the result is the same as the user closing it. Reuse the open client when the task allows it, since that is cheaper than closing and relaunching.
     - Example (2026-11-12): an agent found the user's AdvCiv-SAS client open, held a define rename and 18 preview runs, and asked twice; the user replied that agents do not need to ask.
 

@@ -255,16 +255,29 @@ def wait_for_outcome(pid, launched, args, run_id):
 
 def close_civ4(pid, wait_seconds=90):
 	# <!-- custom: Ask politely first; force only if the window does not close, so logs are flushed by Civ4's own shutdown. (Claude Code Opus 5.5) -->
-	if desktop_windows.request_close(pid):
-		end = time.monotonic() + wait_seconds
+	# <!-- custom: An exit passes through "exiting" while DLLs unload and may write their last logs, so only a client still exiting after 15 s counts as hung at exit (KI#1102). (Claude code Opus 5.5) -->
+	# <!-- custom: A client already exiting has no window to close, so the grace period runs for it too; the first version skipped it then, as Codex's review (GPT-6.2-Sol) found. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	requested = desktop_windows.request_close(pid)
+	if requested or desktop_windows.process_state(pid) == "exiting":
+		end = time.monotonic() + (wait_seconds if requested else 16)
+		exiting_since = None
 		while time.monotonic() < end:
-			if not desktop_windows.process_alive(pid):
+			state = desktop_windows.process_state(pid)
+			if state == "gone":
 				return "CLOSED"
+			if state == "exiting":
+				exiting_since = exiting_since or time.monotonic()
+				if time.monotonic() - exiting_since > 15:
+					break
 			time.sleep(1)
-	if not desktop_windows.process_alive(pid):
+	# <!-- custom: A client that quit but hangs at exit (KI#1102) holds Civ4's single-instance lock, as inferred, so it is ended too; TerminateProcess on a handle of its own replaces taskkill /F, which left one in place on 2026-11-26. (Claude code Opus 5.5) -->
+	state = desktop_windows.process_state(pid)
+	if state == "gone":
 		return "CLOSED"
-	os.system("taskkill /PID %d /F >NUL 2>&1" % pid)
-	return "KILLED"
+	ended, message = desktop_windows.terminate_process(pid)
+	if state == "exiting":
+		return "CLOSED_HUNG_ENDED" if ended else "CLOSED_HUNG"
+	return "KILLED" if ended else "KILL_FAILED"
 
 
 def main():
@@ -380,7 +393,8 @@ def main():
 		if pid is None or not args.keep_open:
 			try:
 				if pid is not None:
-					closed = close_civ4(pid) if desktop_windows.process_alive(pid) else "ALREADY_EXITED"
+					# <!-- custom: Any state but gone goes to close_civ4, as a client already exiting may hang there (KI#1102); process_alive counts it as ended, so it skipped the cleanup, as Codex's review (GPT-6.2-Sol) found. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+					closed = close_civ4(pid) if desktop_windows.process_state(pid) != "gone" else "ALREADY_EXITED"
 			finally:
 				# <!-- custom: Civ4 also leaves a .bak copy of the INI it was started with; 56 of them had piled up in the game folder by 2026-11-12. (Claude code Opus 5.5) -->
 				for leftover in (ini_path, ini_path.with_name(ini_path.name + ".bak")):

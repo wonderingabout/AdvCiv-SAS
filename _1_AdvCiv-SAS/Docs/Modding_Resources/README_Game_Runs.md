@@ -20,6 +20,7 @@ Built and tested by Claude Code Opus 5.5 on 2026-11-10, from a plan drafted with
 &emsp;[The screens outside a game](#the-screens-outside-a-game)\
 &emsp;[Inside a game](#inside-a-game)\
 &emsp;[After a crash](#after-a-crash)\
+&emsp;[A client that will not go away](#a-client-that-will-not-go-away)\
 &emsp;[Hearing the game](#hearing-the-game)\
 [What did not work, and why](#what-did-not-work-and-why)\
 [Limits](#limits)
@@ -545,6 +546,25 @@ Mapped by Claude Code Opus 5.5 on 2026-11-13 during [KI#1084](/_1_AdvCiv-SAS/Doc
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/game_runs/llm_civ4_crash_dump_dialog.PNG" alt="llm_civ4_crash_dump_dialog.PNG" width="250">
 <img src="/_1_AdvCiv-SAS/Images/LLM/game_runs/llm_civ4_crash_dump_saved.PNG" alt="llm_civ4_crash_dump_saved.PNG" width="250">
+
+### A client that will not go away
+
+A closed client can stay in the process list: Civ4 has quit, but Steam's `steamclient.dll` waits forever while Windows unloads it, a deadlock as inferred from the dumps ([KI#1102](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)). While it stays, a new `Civ4BeyondSword.exe` quits at once, before Python writes a log, and `start_game.py` used to report "Civ4 exited while loading".
+
+Recorded by Claude Code Opus 5.5 on 2026-11-26, after a test game closed with `desktop_windows.py close` hung this way, at the user's request so the next agent recognizes it and goes on.
+
+- How to recognize it: `Get-Process -Id <pid>` shows `HasExited` true, yet the process keeps one thread, its handles and its memory (263 MB that time), and `taskkill /F /PID <pid>` answers that no running instance exists. It owns no window, so it is no hidden dialog as in [After a crash](#after-a-crash).
+- End it: `desktop_windows.terminate_process(<pid>)` opens a handle to it and calls `TerminateProcess`, which released it in a moment on 2026-11-26 from a non-elevated shell; Codex (GPT-6.2-Sol) found this way.
+  - It checks on the same handle that the process is still the one found, by image and creation time, and that its exit is pending, as a pid can be reused (Codex's review).
+  - `start_game.py` does so by itself when `desktop_windows.stuck_civ4_processes()` lists such a client, and says so; `desktop_windows.py close --force` uses it too.
+  - The usual kills left it in place: `Stop-Process -Force` and `taskkill /F`, which answered that no running instance existed, elevated or not; whether they reached `TerminateProcess` was not traced. A debugger attach, resuming its thread and an elevated `Stop-Process` through a scheduled task the user registered all left it in place.
+    - That task, "AdvCiv-SAS Kill Stuck Civ4", was removed the same day, as it did not help; `Unregister-ScheduledTask -TaskName "AdvCiv-SAS Kill Stuck Civ4" -Confirm:$false` in an administrator PowerShell removes one found registered.
+  - Before ending it, a dump keeps the evidence: `MiniDumpWriteDump` from an ordinary process wrote a 569 MB full dump of it, read as in the [DLL Debugging Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md#a-hang-at-exit).
+- If one ever survives that, go on beside it: Civ4's own single-instance check turns a new client away, as inferred, not Steam's running flag, which read 0 that day, and a client started with Civ4's `multiple` argument runs beside it.
+  - `start_game.py` then passes `multiple` by itself; `run_autoplay.py --multiple` and `capture_screens.py --multiple` do it on request.
+  - The leftover keeps `PythonDbg.log` and `PythonErr.log` open, so the new client writes its Python output to `PythonErr2.log`, which ended after start-up that day; check its screens on screen rather than in that log.
+  - `desktop_windows.civ4_processes()` leaves the leftover out, so the tools do not take it for a running game.
+- Agents cannot use the user's Task Manager, which ends it too, as the [Quick Install and Setup Guide](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#if-nothing-happens-when-launching-the-mod) tells players: it runs elevated for an administrator account without asking, and Windows keeps a normal program's input out of an elevated window, so `desktop_windows.py click` cannot press its buttons and now says the target runs elevated; the Claude app's computer use states the same limit, that elevated windows such as Task Manager "cannot be controlled even when granted".
 
 ### Hearing the game
 

@@ -39498,6 +39498,23 @@ Civ4BeyondSword -> msvcr71!exit -> kernel32!ExitProcessImplementation -> ntdll!R
 
 Found by Claude Code Opus 5.5 on 2026-11-20 from the user's Task Manager dump of the leftover Civ4 (pid 32660), whose dump, logs and CDB output are kept in `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261120_steamclient_exit_hang/`; the user asking for this entry.
 
+Update (2026-11-26): a third case, studied while it lasted at the user's request, as it blocked an in-game test of the Python define-caching work.
+
+- A turn-0 test game started by `start_game.py` was closed with `desktop_windows.py close`, then `Stop-Process -Force`; it stayed listed with one thread, 615 handles and 263 MB.
+  - A full dump written with `MiniDumpWriteDump` showed the same stack: `msvcr71!exit`, `ExitProcess`, `LdrShutdownProcess`, then `steamclient` waiting in `NtWaitForAlertByThreadId`. Dump and CDB output are in `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261126_steamclient_exit_hang/`.
+  - The user suspected the Python edits made meanwhile, as these hangs seemed to come during Python work; here the exit had begun at the close, before the edits, and the earlier cases followed ordinary closes, so the edits are unlikely to be the trigger.
+- The usual kills did not release it: `Stop-Process -Force` and `taskkill /F`, whose answer was that no running instance existed; attaching and detaching a debugger; resuming the process and its thread, never suspended; and `Stop-Process -Force` run elevated through a scheduled task the user registered for it, which ran with result 0 and changed nothing.
+  - The user's Task Manager runs elevated, as Windows starts it for an administrator account without asking; neither `desktop_windows.py` nor the Claude app's computer use can click an elevated window.
+- Codex (GPT-6.2-Sol), asked by the user to try with its own tools, then ended it from a non-elevated shell, at medium integrity: `Get-Process` did not find the pid there while CIM and `tasklist` listed it, so it opened a handle with `PROCESS_TERMINATE | PROCESS_QUERY_LIMITED_INFORMATION | SYNCHRONIZE`, read exit code 0 and an unsignaled wait, called `TerminateProcess`, and the handle signaled within 1.5 s; CIM and `tasklist` then no longer listed it.
+  - Whether `Stop-Process` and `taskkill` had reached `TerminateProcess` was not traced; they left it in place, and `taskkill` answered that no running instance existed.
+  - `desktop_windows.terminate_process()` now does as Codex did; `close --force` uses it, and `start_game.py` ends a client hung at exit with it before launching.
+    - It first checks on the same handle the image, the creation time and a pending exit, as a pid can be reused (Codex's review).
+    - `process_state()` reads running, exiting, gone or unknown from a handle, as the exit code, already 0, had made `close` report the client exited (Codex's review).
+- What blocks a new client is not Steam's running flag, which read `RunningAppID` 0 and `Running` 0 for app 8800, but, as inferred, Civ4's own single-instance check: a client started with Civ4's `multiple` argument ran beside the leftover; the object it checks was not identified.
+  - `start_game.py` now passes `multiple` when `desktop_windows.stuck_civ4_processes()` finds such a leftover, so an agent working alone can go on.
+  - The leftover still holds `PythonDbg.log` and `PythonErr.log`, so the second client wrote its Python output to `PythonErr2.log`, which ended after start-up; its screens and a live override were checked on screen instead.
+- So an agent ends such a leftover itself, after a dump if one is wanted, and starts a new client with `multiple` should one ever survive `TerminateProcess`. See [A client that will not go away](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#a-client-that-will-not-go-away).
+
 <a id="ki-1103"></a>
 
 ## KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout
