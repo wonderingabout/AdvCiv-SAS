@@ -12555,6 +12555,14 @@ Hot reads at use were checked next (2026-11-26), as the last step of this audit:
 - So they stay read at use, which also keeps them following a change, as `FIELD_OF_VIEW` needs since other code sets it.
 - The screens built at import, such as `CvScreensInterface`'s `mainInterface = CvMainInterface.CvMainInterface()`, read 51 SAS and 4 inherited defines in their `__init__`, so at import; Codex agreed that this is a pass of its own, as it changes how those screens are built.
 
+Update (2026-11-26): that pass found the last bullet mistaken. Following what module-level code calls, the `__init__` of each class built there, base classes, functions and what those call in turn, found no define read that runs at import in the paths it follows, on this commit's tree as on the newest: the 51 SAS and 4 inherited `__init__` reads sit in classes built later, mostly Sevopedia pages built on first opening and the Customizable Domestic Advisor, as the bullet before it already allowed ("not all of them in such screens").
+
+- Its only finds were two `SASGameRecordConfig` reads behind `CvEventInterface.py`'s module-level `initAfterReload()`, which reaches them only when `BugInit.init()` succeeds; it needs `CyGame().isFinalInitialized()`, so not on the normal first import, while the game is still initializing, and in practice only after a Python reload in a running game.
+  - That call now carries the `ci_import_call:` marker saying so; Codex's review (GPT-6.2-Sol) confirmed the reasoning from `BugInit.py`, noting that a first import delayed until the game is initialized would run them too.
+- [`python_define_reads_import.py`](/.github/workflows/README.md#buildsourcepython_define_reads_importpy) now runs that pass too, so a read added on such a path fails, the 25 map scripts' `balancer = BonusBalancer()` included.
+  - Codex's review (GPT-6.2-Sol) reproduced the paths a first, line-based version missed or misread, so "none" holds only for the paths the pass follows, which its README entry lists.
+- So no screen needed rebuilding: the reads kept in `__init__` take their value when the class is first built, after setup, and none of the 64 defines they read is in `SASLiveDefineOverridesAllowed.txt`, so an override of one is refused rather than silently ignored ([KI#128.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.7)).
+
 <a id="ki-128.7"></a>
 
 ## KI#128.7 - (Improved SAS, guarded by CI) A user could not tell which defines SASLiveDefineOverrides.txt reaches: one that follows an override and one whose readers keep their first value look the same in the XML, and both logged APPLIED; SASLiveDefineOverridesAllowed.txt now lists the live ones, and the bridge refuses any other

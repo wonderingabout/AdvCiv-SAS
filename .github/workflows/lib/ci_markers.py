@@ -14,3 +14,5 @@ SQUASH_PR = "[ci_squash_pr]"
 RESOURCE_CACHE_DIRECT = "resource-cache-direct:"
 STRING_COMPARE_EXEMPTION = "sas-ci-string-compare-exemption:"
 DEFINE_UNCACHED = "ci_define_uncached:"
+# <!-- custom: A module-level call whose define reads cannot run at import, for the reason given, such as CvEventInterface's initAfterReload(), whose reads sit behind BugInit.init(), which does not succeed while the game is still initializing; python_define_reads_import.py does not follow it (2026-11-26). See KI#128.6. (Claude code Opus 5.5) -->
+IMPORT_CALL = "ci_import_call:"

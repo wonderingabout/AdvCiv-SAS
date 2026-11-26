@@ -135,4 +135,5 @@ def initAfterReload():
 			SASGameRecordActions.observeMapAnnotations(CvScreensInterface.mainInterface.getHiddenMapAnnotationSignsForSave(), "PYTHON_RELOAD")
 			SASGameRecordActions.observeDotMapMarkers(CvStrategyOverlay.getDotMap(), "PYTHON_RELOAD")
 
+# <!-- custom: ci_import_call: every define read below this call runs only once BugInit.init() succeeds, which needs CyGame().isFinalInitialized() and BUG not yet initialized, so not on the normal first import, while the game is still initializing, as the function's own note says; in practice that is after a Python reload in a running game, once defines are loaded. See KI#128.6. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 initAfterReload()
