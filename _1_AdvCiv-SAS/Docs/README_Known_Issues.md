@@ -1323,7 +1323,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1107 - (Fixed inherited AdvCiv, Debug Mode only) The Debug Mode screen GameFontDisplay.py (Ctrl + Shift + F1), which lists every game font glyph, showed an empty table, as its row count assumed symbol codes starting near 8193 and so came out at -7667 with codes starting at 450, in base AdvCiv and SAS alike](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107)\
 [KI#1107.2 - (Fixed AdvCiv-SAS bug, Debug Mode only) SAS's move onto the SASVisualUtils cache had broken GameFontDisplay.py's lookup of each glyph's religion, corporation or bonus with .index() on the cache's tuples, which Python 2.4 lacks, hidden behind KI#1107's empty table until its fix let rows draw](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107.2)\
 [KI#1108 - (Gated inherited AdvCiv) Default builds compiled the unused implementation of ReproTest.cpp, base AdvCiv's reproducibility test, though its ENABLE_REPRO_TEST switch is off by default](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108)\
-[KI#1108.2 - (Fixed inherited BtS) The Foreign Advisors rebuilt BtS's tech prerequisite graph, TechTree, on every opening and tab click, pairing each of the 92 techs, as in BtS, base AdvCiv and, as of now, SAS, with every tech, 92 x 92 = 8,464 pairs, a count growing with the square of a mod's techs, though it was unread even in BtS's own Foreign Advisor](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108.2)
+[KI#1108.2 - (Fixed inherited BtS) The Foreign Advisors rebuilt BtS's tech prerequisite graph, TechTree, on every opening and tab click, pairing each of the 92 techs, as in BtS, base AdvCiv and, as of now, SAS, with every tech, 92 x 92 = 8,464 pairs, a count growing with the square of a mod's techs, though it was unread even in BtS's own Foreign Advisor](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108.2)\
+[KI#1109 - (Fixed inherited AdvCiv regression) Setting a string define from Python stored a bool instead: after `setDefineSTRING`, the next `getDefineSTRING` of that define raised "unidentifiable C++ exception", as AdvCiv's FVariableSystem refactor had no `char const*` setter, so the value fell to `setValue(bool)`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1109)
 
 <a id="ki-1"></a>
 
@@ -39432,3 +39433,18 @@ Found by Claude Code Opus 5.5 while fixing KI#1107, and split from it at the use
 - Related:
   - The same idea in C++: [KI#1108](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108), `ReproTest.cpp`'s implementation, compiled in default builds though disabled, now gated behind `ENABLE_REPRO_TEST`.
   - The opposite case: [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165)'s family is broken dormant Python that never runs, fixed so it would work; this is working Python that ran for nothing.
+
+<a id="ki-1109"></a>
+
+## KI#1109 - (Fixed inherited AdvCiv regression) Setting a string define from Python stored a bool instead: after `setDefineSTRING`, the next `getDefineSTRING` of that define raised "unidentifiable C++ exception", as AdvCiv's FVariableSystem refactor had no `char const*` setter, so the value fell to `setValue(bool)`
+
+- Found on 2026-11-26, as a finding of its own, during the live define overrides work (KI#128.5), while adding string overrides to `SASLiveDefineOverrides.txt`: an override of `SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS` applied, then deleting the line logged `outcome=PUSH_FAILED keptChangeCount=2 reason="unidentifiable C++ exception"`, raised by the bridge's `getDefineSTRING` of the value it was about to restore.
+- Cause: BtS's `FVariableSystem` had a separate `SetValue` per type, `SetValue(char const* szVariable, char const* szValue)` among them, which copied the string.
+  - AdvCiv's "Refactor FVariableSystem" (`AdvCivPreSAS_2572_84fe6d9512.diff`, pre-SAS practical 2572) replaced them with one template calling `FVariable::setValue`, whose overloads cover `char*` and `wchar*` but not their `char const*` and `wchar const*` forms.
+  - `CvGlobals::setDefineSTRING` passes a `char const*`, so the compiler took `setValue(bool)` through the pointer-to-bool conversion: the define became a bool `true`, and the next `getDefineSTRING` read that bool as a text pointer.
+  - The XML loader passes non-const strings, so the XML's text defines were never affected; nothing in SAS called `setDefineSTRING` until the bridge did, so the regression stayed latent.
+- Fix: `FVariable` gains `setValue(char const*)` and `setValue(wchar const*)`, which copy the string as BtS did; they are inline methods, so the class layout the EXE relies on is unchanged.
+- The bridge's rollback kept the game running, and `PythonErr.log` stayed empty; the define stayed a bool in that session, so the test game was closed.
+- Retested the same day with a Debug-opt DLL holding the fix: overriding `SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS`, changing it, deleting the line, then setting a value with an escaped quote and deleting it again each logged `outcome=APPLIED`, the deletions restoring the XML's text, with `PythonErr.log` empty.
+
+Found and fixed by Claude Code Opus 5.5; Codex (GPT-6.2-Sol) reviewed the change set holding it and kept the fix in scope.
