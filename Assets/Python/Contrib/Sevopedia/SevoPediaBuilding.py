@@ -749,7 +749,7 @@ class SevoPediaBuilding:
 				# Check if the special building has an obsolete tech
 				iObsoleteTech = specialBuildingInfo.getObsoleteTech()
 
-		# <!-- custom: after having checked both directly for an obsolete tech, or indirectly through special building, now display button if any:
+		# <!-- custom: after having checked both directly for an obsolete tech, or indirectly through special building, now display button if any: -->
 		if iObsoleteTech != -1:
 			screen.attachImageButton(panelName, "", gc.getTechInfo(iObsoleteTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iObsoleteTech, -1, False)
 

@@ -25,7 +25,7 @@ from xml_defines import get_default_repo_root
 SCAN_RELATIVE_DIRS = (Path("Assets/Python"), Path("PrivateMaps"))
 ASSIGNMENT_OPS = {"=", "+=", "-=", "*=", "/=", "%=", "|=", "&=", "^=", "<<=", ">>=", "**=", "//="}
 OPENERS = {"(": ")", "[": "]", "{": "}"}
-# <!-- custom: AdvCiv's tags such as "advc.092", "<advc.092>" or "advc.002b:", and SAS's "<!-- custom:" notes. (Claude code Opus 5.5) -->
+# <!-- custom: AdvCiv's tags such as "advc.092", "<advc.092>" or "advc.002b:", and SAS's custom notes. (Claude code Opus 5.5) -->
 PROVENANCE_MARKER = re.compile(r"\badvc\.\w|<!-- custom:")
 LINE_DIRECTIVE = re.compile(r"#\s*(noqa|type:|pylint:|pyright:|fmt:|ruff:|pragma)", re.IGNORECASE)
 

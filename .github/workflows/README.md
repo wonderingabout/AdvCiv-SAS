@@ -119,6 +119,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/checkout_byte_compares.py`](#buildsourcecheckout_byte_comparespy)
     - [`build/source/cpp_define_reads_cached.py`](#buildsourcecpp_define_reads_cachedpy)
     - [`build/source/cpp_standard_conformance.py`](#buildsourcecpp_standard_conformancepy)
+    - [`build/source/custom_comment_closing.py`](#buildsourcecustom_comment_closingpy)
     - [`build/source/custom_comment_indentation.py`](#buildsourcecustom_comment_indentationpy)
     - [`build/source/float_format_int_division.py`](#buildsourcefloat_format_int_divisionpy)
     - [`build/source/inherited_files.py`](#buildsourceinherited_filespy)
@@ -1456,6 +1457,20 @@ Fails when the DLL source brings back one of the non-standard C++ forms that Adv
 - An `#include` path with a backslash, such as `".\cvreplaymessage.h"`.
 - Varargs read through the address after a named parameter, `(char*)(&format+1)`, instead of `va_start`.
 - It scans every tracked C/C++ file under `CvGameCoreDLL/`, skipping comments and string literals. It does not cover the other cases that commit fixed, such as narrow `"+"` passed to a wide `%s` format or a `void*` parameter that should be `void const*`.
+
+#### `build/source/custom_comment_closing.py`
+
+Fails when a `# <!-- custom: ...` or `// <!-- custom: ...` comment in Python or C++ is left open: its `-->` must come before the next code line, before another custom comment opens, or before the file ends.
+
+- Why: an open note silently merges with the next one, losing its end and credit unseen. On 2026-11-26 a scripted edit of `SASCurrentDefines.py` removed the line that closed one, and the next note's `-->` then closed both, so the reflow helper saw one valid block; the user asked for this check.
+- It scans runtime Python, map scripts, DLL sources and the repository's own Python tools; XML comments are `xml_comments.py`'s.
+- A marker counts only after the line's comment start, outside any string, so checks and tools that hold the marker in a string pass; the first run flagged a dozen such.
+- Python comments come from the tokenizer and C++ `/* */` blocks are tracked, so a marker in a triple-quoted string is no note, a note opened in a block comment must close before its `*/`, and markers on one line are read in order; Codex's review (GPT-6.2-Sol) found each gap in the first, line-based version.
+- Run over the whole repository first, it found seven older comments never closed, in three Sevopedia pages, `CvCityAI.cpp`, `CvUnit.cpp` and two adjacent notes in `CvUnitAI.cpp`; each got its `-->`.
+
+```bash
+python .github/workflows/build/source/custom_comment_closing.py
+```
 
 #### `build/source/custom_comment_indentation.py`
 

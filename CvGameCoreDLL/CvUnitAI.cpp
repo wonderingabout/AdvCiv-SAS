@@ -5611,8 +5611,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	} // K-Mod end
 
 	// <!-- custom: rewrite this to fix fatal flaw of not returning any best plot if our selected best plot happens to be unpathable, plus other seemingly bugs as well -->
-	// <!-- custom: make sure AI workers always improve bonuses before anything else. This attempts to fix/address the "Boston screenshot" issue, where AI in a tundra environment mined two hill tiles and did not improve a nearby deer in city radius at all at turn 75, which would have helped the city grow, and even build the current worker city was building just as fast(see screenshot and doc at known issues readme as of now number 30).
-	// <!-- custom: rewrite addresses suboptimal behavior - old code pathfinding-recomputed best plot even after pass 1 computation. More efficient to compute decrementally from best candidate to worse until one is found, then early return, rather than compute all plots including ones that won't be best. New code is cleaner and easier to customize. Credit: Gemini AI. (Claude code Sonnet 4.5 (summarized)) -->
+	// <!-- custom: make sure AI workers always improve bonuses before anything else.
+	// This attempts to fix/address the "Boston screenshot" issue, where AI in a tundra environment mined two hill tiles and did not improve a nearby deer in city radius at all at turn 75, which would have helped the city grow, and even build the current worker city was building just as fast(see screenshot and doc at known issues readme as of now number 30). -->
+	// <!-- custom: rewrite addresses suboptimal behavior - old code pathfinding-recomputed best plot even after pass 1 computation.
+	// More efficient to compute decrementally from best candidate to worse until one is found, then early return, rather than compute all plots including ones that won't be best.
+	// New code is cleaner and easier to customize. Credit: Gemini AI. (Claude code Sonnet 4.5 (summarized)) -->
 
 	std::vector<CandidatePlot> candidatePlots;
 

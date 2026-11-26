@@ -218,7 +218,7 @@ class SevoPediaImprovement:
 
 		# <!-- custom: move base yield info from yields panel to the improvement_pane panel, prettier or/adn clearer/more accurate as well maybe (a bit like in sevopedia terrain and sevopedia feature) -->
 		# <!-- custom: line removed that seemed safe to do see diff with earlier code for comparison if needed -->
-		# <!-- custom: this part is for yields that do not require any additional tech than the one required to gain access to the ressources (for example + 2 hammer with mine, + 4 commerce with town)
+		# <!-- custom: this part is for yields that do not require any additional tech than the one required to gain access to the ressources (for example + 2 hammer with mine, + 4 commerce with town) -->
 		s = u""
 		nCount = 0
 

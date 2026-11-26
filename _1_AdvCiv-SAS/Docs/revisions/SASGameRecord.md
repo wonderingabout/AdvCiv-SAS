@@ -117,7 +117,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 215 - SAS practical 6874
 
 - **Date:** 2026-11-26
-- **Git commit:** pending
+- **Git commit:** `d7503a4c603220e8d4f76af85ada18dff4af7816`
 - **Functional:** No (the same two values are read through a cache)
 - **Change:** `SASGameRecordSettings._collectConfiguredFiles` reads `SAS_SGR_INI_PRIVATE_VALS_ON` and `SAS_SGR_INI_NETWORK_VALS_ON` through `SASCurrentDefines` instead of `gc.getDefineINT`, as every Python read by name now goes through a cache or states why not ([KI#128.9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.9)).
 

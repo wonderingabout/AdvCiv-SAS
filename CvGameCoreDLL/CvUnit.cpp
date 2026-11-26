@@ -3426,7 +3426,7 @@ bool CvUnit::canScrap(SASUnitScrapEligibility* peEligibility) const
 
 	if (bSAS_SCRAP_ON && !isHuman())
 	{
-		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see KI#52 or other related docs for details or updated info)
+		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see KI#52 or other related docs for details or updated info) -->
 		const CvUnitInfo& kUnitInfo = getUnitInfo();
 		// <!-- custom: ObsoleteTech lets us retire obsolete units efficiently; allow a global toggle for no-obsolete-scrap experiments. (GPT-5.2-Codex) -->
 		const bool bSAS_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL(CvGlobals::SAS_SCRAP_OBSOLETE_TECH);

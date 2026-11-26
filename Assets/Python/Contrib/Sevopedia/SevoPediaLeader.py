@@ -140,7 +140,7 @@ class SevoPediaLeader:
 
 		# <!-- custom: 1) (most) absolute dimensions first -->
 		self.W_AI_PERSONALITY = 290 + iAIPPanelGain
-		# <!-- custom: we also need this information sooner, move it here with the more absolute dimensions of some elements
+		# <!-- custom: we also need this information sooner, move it here with the more absolute dimensions of some elements -->
 		self.W_CIV = 64
 		self.H_CIV = 64
 		self.CIV_MARGIN = 0

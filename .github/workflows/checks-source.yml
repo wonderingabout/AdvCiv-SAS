@@ -120,6 +120,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python LLM_Helpers/formatting/reflow_custom_comments.py --check
 
+      - name: Custom comments close before code or the next custom comment
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/custom_comment_closing.py
+
       - name: Custom-comment indentation
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/custom_comment_indentation.py
