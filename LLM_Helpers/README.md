@@ -1080,6 +1080,10 @@ python LLM_Helpers\commits\stage_partial.py Assets\Python\SASUtils.py --head "de
     - Run it before saving Python or XML under `Assets`, which breaks a running game: on 2026-11-20 an agent edited advisor Python while the user's own client ran.
     - `--force` ends a client with `terminate_process()`, `TerminateProcess` on a handle of it, as `taskkill /F` left a client hung at exit ([KI#1102](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)) in place on 2026-11-26; `process_state()` reads running, exiting, gone or unknown from a handle, as the exit code alone made such a client look exited, and `terminate_process()` checks the process's image and creation time and a pending exit on the same handle before ending it, as a pid can be reused (Codex's review).
     - `stuck_civ4_processes()` lists such clients, and `civ4_processes()` leaves them out; see [A client that will not go away](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#a-client-that-will-not-go-away).
+  - `dismiss --pid --count` closes up to that many of the game's "Python Exception" dialogs, which Python cannot close: it finds each OK button from the window's pixels and looks again after each click.
+    - It clicks only under a title matching the text mask in `layouts/civ4_python_exception_title.txt`, and only when exactly one such dialog is up, as a game popup has the same buttons.
+    - Written for SASPilot's Python error checks on its branch ([PR#47](https://github.com/wonderingabout/AdvCiv-SAS/pull/47)), whose guide explains them; any agent driving Civ4 can use it.
+  - `click --button right` right-clicks, as many Civ4 icons open their Sevopedia page on a right click; added on 2026-11-20, when it opened a leader's page from the Military Advisor's leader buttons, and showed that a list box row's right click reaches neither the DLL nor the screen.
   - `click` on an elevated window, such as the user's Task Manager, fails: Windows keeps a normal program's input out of it, and the tool says the target runs elevated (2026-11-26).
   - `hover` moves the pointer without clicking or taking focus, to reveal a tooltip. On 2026-11-10 it read the Codex app's usage reset times.
   - `move` places a window on a monitor: `full`, `maximize` (a real Windows maximize, added on 2026-11-24, as `full` only resizes the window), `left` or `right` half, `topleft` or `bottomleft` at its own size, or `beside --beside <pid>`; `positions save|restore|list <name>` keeps named layouts of the Claude app, the Codex app and Civ4 in `layouts/window_positions.json`, found by program name. Both added on 2026-11-14; see [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md).
@@ -1402,12 +1406,25 @@ python LLM_Helpers/dll_builds/build_dll.py syntax CvGameInterface.cpp CyGame.cpp
 python LLM_Helpers/dll_builds/build_dll.py build --configuration Debug-opt
 ```
 
+```bash
+python LLM_Helpers/dll_builds/build_dll.py build --install --close
+```
+
 - `build` defaults to a Debug-opt `REBUILD`, which cleans `temp_files/<target>` first, as the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md) asks; `--configuration Release` for a shipped DLL.
 - `syntax` takes file names in `CvGameCoreDLL` or paths, and writes no objects: three changed files took 9 seconds on 2026-11-13, against about 10 minutes for a build.
 - Why: started without `vcvars32`, `build_with_report.ps1` failed within 4 seconds with cmd's "not recognized as a command" and no compiler line (2026-11-13). Earlier sessions had each written a `.bat` for this into their own scratchpad, which the next session could not see.
 - The `PATH` change came from its first build, the same day: `cmd.exe` inherited Git Bash's `PATH`, so the Makefile's `FIND /C /V ""` ran Git's Unix `find`, which crawled all of `C:` while nmake waited.
   - The build report stayed `RUNNING` with no `cl.exe` running, and `AdvCiv.log` ended in `FIND: '/C/$Recycle.Bin/...': Permission denied` lines. A build that seems stuck is worth those two checks. See [KI#38.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7).
 - Read the exit code `build` returns rather than one after a pipe: `build | tail` reported 0 for that stopped build.
+- `install` copies the built DLL into `Assets` for a local test, the DLL alone, as its `.build.json` joins it only for a shipped Release update; `build --install` does both.
+  - It installs only a DLL its build report calls a successful build of that configuration, with the same hash, and refuses while a Civ4 runs this mod, which `--close` closes first.
+  - It writes the copy beside the installed DLL under a name of its own, checks it against the hash the build report attests, then swaps it in by a rename, so a failed copy leaves the old DLL in place (Codex's review).
+    - Against the report rather than the build folder's file, since 2026-11-27: Codex's review of the main port saw that a build finishing during `--close` would replace that file, so a check against it would pass bytes the report never attested.
+  - Why: each DLL test on 2026-11-20 took these steps by hand, closing Civ4, copying the DLL and starting the game again, until the user asked for a script.
+  - A Civ4 that had exited but still showed in the process list once kept the old DLL open, so a copy failed with "Device or resource busy".
+    - Windows refuses to overwrite a DLL any process has loaded, so a lock with any Civ4 still alive is refused; with none alive, Windows still lets the file be renamed, so `install` renames it to `CvGameCoreDLL.dll.locked_<time>_<pid>` beside it, prints that path, and copies the new one in.
+      - Beside it rather than in `%TEMP%`, as first written, since `os.replace` cannot move a file to another drive, and Steam's folder can sit on another drive than the system's (Codex's review, 2026-11-27); the leftover can be deleted once that process is gone.
+  - It finds this mod's clients with `desktop_windows.client_mod`, which also reads the `Mod` line of a client's `ini=` file: the first version looked only for the mod's name in the command line, missed a SASPilot client and replaced the DLL under it.
 
 ### `debug_dll.py`
 

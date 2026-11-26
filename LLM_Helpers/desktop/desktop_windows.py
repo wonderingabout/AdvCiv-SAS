@@ -186,6 +186,20 @@ def window_point(pid, x, y):
 	return hwnd, left + x, top + y
 
 
+def client_offset(pid):
+	# <!-- custom: Where the game area starts inside pid's window, as a window-relative point: Civ4's own screenshots and its 1920 x 1080 layouts count from there, while click, hover and screenshot count from the window's corner, title bar and border included (3, 37 for a windowed 1920 x 1080 client on 2026-11-21). (Claude Code Opus 5.5) -->
+	make_dpi_aware()
+	hwnd = find_window(pid)
+	if hwnd is None:
+		raise RuntimeError("no visible window for process %d" % pid)
+	left, top, _right, _bottom = window_rect(hwnd)
+	origin = wt.POINT(0, 0)
+	# <!-- custom: ClientToScreen's result is checked, as a failure left the point at 0, 0 and gave a wrong offset rather than an error (Codex's review of the main port). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if not USER32.ClientToScreen(hwnd, ctypes.byref(origin)):
+		raise RuntimeError("ClientToScreen failed for process %d's window" % pid)
+	return origin.x - left, origin.y - top
+
+
 def window_pid(hwnd):
 	owner = wt.DWORD()
 	USER32.GetWindowThreadProcessId(hwnd, ctypes.byref(owner))
@@ -253,7 +267,9 @@ def bring_to_front(hwnd, pid, allow_click=True):
 	return USER32.GetForegroundWindow()
 
 
-def click(pid, x, y, modifiers=(), double=False, give_back=False):
+def click(pid, x, y, modifiers=(), double=False, give_back=False, button="left"):
+	# <!-- custom: button picks the mouse button from DRAG_BUTTONS; a right click opens the Sevopedia from many Civ4 widgets, which agents could not test before (2026-11-20). (Claude code Opus 5.5) -->
+	_, button_down_flag, button_up_flag = DRAG_BUTTONS[button]
 	# <!-- custom: give_back returns the focus to the user's window after the click.
 	# Only the command line sets it: paste calls click first, and giving the focus back there made Ctrl+V land in the user's window on 2026-11-17. (Claude code Opus 5.5) -->
 	# <!-- custom: The caller can request a chord or double click so both forms use the same bounds and ownership checks. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
@@ -290,15 +306,15 @@ def click(pid, x, y, modifiers=(), double=False, give_back=False):
 			time.sleep(0.04)
 		# <!-- custom: double presses twice within the double-click time, as opening a city from its banner needs. (Claude Code Opus 5.5) -->
 		for _ in range(2 if double else 1):
-			USER32.mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+			USER32.mouse_event(button_down_flag, 0, 0, 0, 0)
 			button_down = True
 			time.sleep(0.05)
-			USER32.mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+			USER32.mouse_event(button_up_flag, 0, 0, 0, 0)
 			button_down = False
 			time.sleep(0.05)
 	finally:
 		if button_down:
-			USER32.mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+			USER32.mouse_event(button_up_flag, 0, 0, 0, 0)
 		for modifier in reversed(pressed):
 			key_event(modifier, up=True)
 	# <!-- custom: key, type and paste gave the focus back to the user's window, but click left the target in front, so a user working in VS Code during an agent's clicks found Civ4 in front (2026-11-17).
@@ -401,10 +417,12 @@ KEYEVENTF_KEYUP = 0x0002
 VK_CONTROL = 0x11
 # <!-- custom: Each key is (virtual key, modifiers); ctrl+enter queues a message in the Claude app or Codex while it works ("Ctrl+Enter to queue for later"); ctrl+a then backspace clears a box the agent filled itself. (Claude Code Opus 5.5) -->
 KEYS = {"enter": (0x0D, ()), "esc": (0x1B, ()), "ctrl+enter": (0x0D, (VK_CONTROL,)), "ctrl+a": (ord("A"), (VK_CONTROL,)), "backspace": (0x08, ()),
-	"left": (0x25, ()), "up": (0x26, ()), "right": (0x27, ()), "down": (0x28, ()), "pgup": (0x21, ()), "pgdn": (0x22, ()), "home": (0x24, ()), "end": (0x23, ())}
+	"left": (0x25, ()), "up": (0x26, ()), "right": (0x27, ()), "down": (0x28, ()), "pgup": (0x21, ()), "pgdn": (0x22, ()), "home": (0x24, ()), "end": (0x23, ()),
+	# <!-- custom: Print Screen makes Civ4 save its own screenshot of the game area, in the format the INI names (JPG by default), to ScreenShots (2026-11-21, for the docs' screenshots). (Claude Code Opus 5.5) -->
+	"printscreen": (0x2C, ())}
 KEYEVENTF_EXTENDEDKEY = 0x0001
 # <!-- custom: Arrow, page, home, end, insert and delete keys sit on the extended keyboard, so their events need KEYEVENTF_EXTENDEDKEY, or a program reading scan codes sees the number pad's keys instead. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
-EXTENDED_KEYS = {0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x2D, 0x2E}
+EXTENDED_KEYS = {0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x2C, 0x2D, 0x2E}
 
 
 def clipboard_text():
@@ -678,6 +696,121 @@ def find_button(pid, label, title_prefix=None):
 
 	USER32.EnumWindows(proc_type(top), 0)
 	return found[0] if found else None
+
+
+def _cream(pixel):
+	return pixel[0] > 140 and pixel[1] > 120 and pixel[0] - pixel[2] > 25
+
+
+# <!-- custom: The dark pixels of the "Python Exception" title, cut from a real dialog's title bar on 2026-11-20 (from 4 pixels right of the bar's left edge and 2 above its top, 166x24), so a dialog is recognized by its title rather than by its buttons.
+# Kept as text, # dark and .
+# light: it reads as the title, diffs as text, and CI keeps images to the Images folders. (Claude code Opus 5.5) -->
+PYTHON_EXCEPTION_TITLE = Path(__file__).resolve().parent / "layouts" / "civ4_python_exception_title.txt"
+
+
+def _band(image, center, y):
+	left = center
+	while left > 0 and _cream(image.getpixel((left, y))):
+		left -= 1
+	right = center
+	while right < image.width - 1 and _cream(image.getpixel((right, y))):
+		right += 1
+	return (left + 1, right - left)
+
+
+def _titleMatches(image, template, left, y):
+	# <!-- custom: The share of the template's pixels whose dark or light matches the window, the same threshold as the template was cut with. (Claude code Opus 5.5) -->
+	width = len(template[0])
+	box = (left + 3, y - 2, left + 3 + width, y - 2 + len(template))
+	if box[0] < 0 or box[1] < 0 or box[2] > image.width or box[3] > image.height:
+		return False
+	region = image.crop(box)
+	same = 0
+	for yy in range(len(template)):
+		for xx in range(width):
+			if (sum(region.getpixel((xx, yy))) < 300) == (template[yy][xx] == "#"):
+				same += 1
+	return same >= 0.95 * width * len(template)
+
+
+def find_dialog_ok(image):
+	# <!-- custom: The OK buttons of the game's "Python Exception" dialogs, as (x, y) window points: they are drawn by the game, so find_button cannot see them, and Python has no call to close them.
+	# Measured on 2026-11-20 at 1926x1120: each dialog is centred, its title bar a cream band 371 to 499 pixels wide on the centre column, its OK a cream band about 61 wide below it, under the blue body.
+	# An OK counts only below a title bar whose text matches PYTHON_EXCEPTION_TITLE, with no other title between: Codex's review saw that a cream button under blue could be a game popup's choice.
+	# The point clicked is 4 pixels into the OK, above its dark letters. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	template = PYTHON_EXCEPTION_TITLE.read_text(encoding="utf-8").split()
+	center = image.width // 2
+	found = []
+	previous = False
+	bTitle = False
+	for y in range(2, image.height - 8):
+		now = _cream(image.getpixel((center, y)))
+		if now and not previous:
+			(left, width) = _band(image, center, y)
+			above = image.getpixel((center, y - 2))
+			# <!-- custom: A title bar is a wide band at least 12 rows tall: the thin cream line under it is as wide, and in the first version it reset the match. (Claude code Opus 5.5) -->
+			iRows = 0
+			while y + iRows < image.height and iRows < 12 and _cream(image.getpixel((center, y + iRows))):
+				iRows += 1
+			if width >= 250 and iRows >= 12:
+				bTitle = _titleMatches(image, template, left, y)
+			elif bTitle and 30 <= width <= 150 and above[2] > above[0] + 20:
+				found.append((center, y + 4))
+				bTitle = False
+		previous = now
+	return found
+
+
+def dismiss_dialogs(pid, count):
+	# <!-- custom: Close up to count of the game's dialogs by their OK, one at a time, looking again after each click: stacked dialogs show several OKs and only the top one answers, so on 2026-11-20 122 blind clicks at one point closed 75 of 120 Python error dialogs.
+	# Only for dialogs known to be there, such as the Python errors SASPilot's 'pyerrors' counts: a game popup has the same cream buttons, and its first one may be a choice. (Claude code Opus 5.5) -->
+	# <!-- custom: A click counts when the OKs or the text above the lowest one changed: identical stacked dialogs put their OK at the same point, so the points alone did not show the close. (Claude code Opus 5.5) -->
+	make_dpi_aware()
+	closed = 0
+	misses = 0
+	while closed < count and misses < 3:
+		# <!-- custom: Brought forward before looking, and looked at twice, as Codex's review of the main port noted that click raises the window after the look, so a panel the game put up meanwhile in the same process would take a click meant for an OK; the click goes only where two looks 0.3 s apart agree. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		hwnd = find_window(pid)
+		if hwnd is None:
+			raise RuntimeError("no visible window for process %d" % pid)
+		# <!-- custom: Refused unless the window is really in front, judged by its process as bring_to_front does, before the looks and again just before the click: Codex's second review noted that a failed activation, or focus moving between the looks and the click, let click bring it forward only after the looks, as before. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		bring_to_front(hwnd, pid)
+		if window_pid(USER32.GetForegroundWindow()) != pid:
+			raise RuntimeError("process %d's window did not come to the front; no dialog was clicked" % pid)
+		time.sleep(0.3)
+		image = print_window_image(hwnd)
+		points = find_dialog_ok(image)
+		if not points:
+			break
+		# <!-- custom: Clicked only when exactly one Python Exception dialog is found: with two, which is on top cannot be told from the pixels, and the first version then tried the other end (Codex's review); stacked dialogs of one size show one. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if len(points) != 1:
+			break
+		target = points[0]
+		before = (points, hash(image.crop((target[0] - 250, max(0, target[1] - 160), target[0] + 250, target[1] - 8)).tobytes()))
+		time.sleep(0.3)
+		again = print_window_image(hwnd)
+		if find_dialog_ok(again) != points or hash(again.crop((target[0] - 250, max(0, target[1] - 160), target[0] + 250, target[1] - 8)).tobytes()) != before[1]:
+			misses += 1
+			continue
+		if window_pid(USER32.GetForegroundWindow()) != pid:
+			raise RuntimeError("process %d's window lost the front before the click; no dialog was clicked" % pid)
+		# <!-- custom: click presses nothing when the user's mouse moved just before it (the first run stopped there, 2026-11-20), so wait until the user is idle and look again. (Claude code Opus 5.5) -->
+		try:
+			click(pid, target[0], target[1])
+		except RuntimeError as error:
+			if "mouse moved" not in str(error):
+				raise
+			wait_for_idle_user(2.0, 120.0)
+			continue
+		time.sleep(0.4)
+		image = print_window_image(find_window(pid))
+		after = find_dialog_ok(image)
+		if after != points or (after and hash(image.crop((target[0] - 250, max(0, target[1] - 160), target[0] + 250, target[1] - 8)).tobytes()) != before[1]):
+			closed += 1
+			misses = 0
+		else:
+			misses += 1
+	return closed
 
 
 def visible_windows(predicate):
@@ -1358,7 +1491,7 @@ def main():
 	shot.add_argument("--pid", type=int, required=True)
 	shot.add_argument("--out", required=True)
 	shot.add_argument("--method", choices=("window", "screen"), default="window", help="window: PrintWindow, works while covered; screen: bring to front and grab the screen area")
-	press = sub.add_parser("click", help="left-click a window-relative point (physical pixels, as in screenshots)")
+	press = sub.add_parser("click", help="click a window-relative point (physical pixels, as in screenshots), with the left button unless --button says otherwise")
 	press.add_argument("--pid", type=int, required=True)
 	press.add_argument("x", type=int, nargs="?")
 	press.add_argument("y", type=int, nargs="?")
@@ -1366,6 +1499,7 @@ def main():
 	press.add_argument("--layout", help="desktop usage layout from app_layouts.json")
 	press.add_argument("--with", dest="modifiers", action="append", choices=("ctrl", "shift", "alt"), default=[], help="hold this key during the click; repeat for several")
 	press.add_argument("--double", action="store_true", help="double-click")
+	press.add_argument("--button", choices=sorted(DRAG_BUTTONS), default="left", help="the mouse button, such as right for a Sevopedia link's right click")
 	point = sub.add_parser("hover", help="move the pointer to a window-relative point without clicking or focusing, e.g. to show a tooltip")
 	point.add_argument("--pid", type=int, required=True)
 	point.add_argument("--front", action="store_true", help="bring the window forward first, through its title bar; Civ4's plot help needs it")
@@ -1401,6 +1535,9 @@ def main():
 	press_key.add_argument("name", help="a key or combination such as enter, f10, ctrl+left or ctrl+shift+x")
 	press_key.add_argument("--count", type=int, default=1, help="press it this many times")
 	press_key.add_argument("--hold", type=float, default=0.5, help="seconds to keep the window in front after the last press, so a game reads it")
+	dismiss = sub.add_parser("dismiss", help="close up to --count of the game's own dialogs, such as its Python Exception boxes, by their OK button, found from the window's pixels; only for dialogs known to be there, as a game popup has the same buttons")
+	dismiss.add_argument("--pid", type=int, required=True)
+	dismiss.add_argument("--count", type=int, required=True, help="the most dialogs to close, such as the writes SASPilot's pyerrors counted")
 	typing = sub.add_parser("type", help="bring the window to the front and type text as key presses, using the active keyboard layout")
 	typing.add_argument("--pid", type=int, required=True)
 	typing.add_argument("text")
@@ -1475,7 +1612,7 @@ def main():
 		elif args.x is None or args.y is None:
 			sys.exit("%s needs x and y, or --point NAME" % args.command)
 		if args.command == "click":
-			print("clicked screen point %d,%d" % click(args.pid, args.x, args.y, tuple(MODIFIER_VKS[m] for m in args.modifiers), args.double, give_back=True))
+			print("clicked screen point %d,%d" % click(args.pid, args.x, args.y, tuple(MODIFIER_VKS[m] for m in args.modifiers), args.double, give_back=True, button=args.button))
 		else:
 			print("pointer at screen point %d,%d" % hover(args.pid, args.x, args.y, args.front))
 	elif args.command == "drag":
@@ -1497,6 +1634,8 @@ def main():
 	elif args.command == "key":
 		key(args.pid, args.name, args.hold, args.count)
 		print("pressed %s %d time(s)" % (args.name, args.count))
+	elif args.command == "dismiss":
+		print("closed %d dialog(s)" % dismiss_dialogs(args.pid, args.count))
 	elif args.command == "type":
 		type_text(args.pid, args.text, us_keys=args.us_keys)
 		print("typed %d characters" % len(args.text))
