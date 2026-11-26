@@ -1289,6 +1289,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1074 - (Fixed SAS migration gaps, visual only) Plot and city art rules still named the removed Winery or an RI-only layout, so Grapes Plantations, Farms and the Chieftain's Hall missed their intended art rules](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1074)\
 [KI#1075 - (Fixed SAS era-scaling oversight) Late-era Advanced Starts had too few points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1075)\
 [KI#1076 - (Reverted AdvCiv advc.057 for land units) Wheeled units could enter impassable Jungle, Forest and Marsh inside their own borders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1076)\
+[KI#1076.2 - (Fixed latent vanilla Civ4 goody-hut placement weakness, widened by AdvCiv's advc.314 and activated by SAS siege rules) A goody hut on Marsh gave our Scout a Catapult that could move only onto one grass plot beside it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1076.2)\
 [KI#1077 - (Clarified inherited AdvCiv display) City health help hid fractional feature health and lumped feature types, so a single Marsh seemed to have no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1077)\
 [KI#1078 - (Worked around inherited BtS limits for new SAS Peat) A bonus could not be found when a feature was cleared, unlike ore found by mining, and XML cannot keep Marsh under a Farm only on Rice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1078)\
 [KI#1079 - (Guarded inherited BtS/AdvCiv mismatch with SAS CI) Python showed at most 5 corporation inputs, although the game uses every input listed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1079)\
@@ -38844,6 +38845,31 @@ In SAS, these restrictions represent physical limits: Chariots, Catapults, Trebu
 - This needs a rebuilt DLL and has not been tested in game; AI movement around Forest and Jungle with siege stacks is the main thing to watch.
 
 Raised by wonderingabout; investigated and implemented with the help of Claude code Opus 5.5, thanks.
+
+- Update (2026-11-22): these siege rules let a goody hut leave a Catapult on a Marsh from which it could move only onto one grass plot; see [KI#1076.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1076.2).
+
+<a id="ki-1076.2"></a>
+
+## KI#1076.2 - (Fixed latent vanilla Civ4 goody-hut placement weakness, widened by AdvCiv's advc.314 and activated by SAS siege rules) A goody hut on Marsh gave our Scout a Catapult that could move only onto one grass plot beside it
+
+- On 2026-11-22, playing the JOAO turn-112 Advanced Start save through SASPilot, a Catapult stood idle on Marsh at 26,22. SASPilot's `path` found no route to a neighbouring plot, as SAS makes Jungle, Forest and Marsh impassable to siege off a route ([KI#1076](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1076)); of the plots beside it, only one grass plot could be entered.
+- The game's SASGameRecord showed how it got there: at turn 112 our Scout entered a goody hut on that Marsh and received `GOODY_WARRIOR` (`GAME_RECORD_ACTION type=GOODY_RECEIVED x=26 y=22`), and `receiveGoody` created the Catapult with `initUnit` on the hut's plot, which checks neither feature nor terrain impassables.
+- Origin: one weakness, latent in every layer until SAS.
+  - Since vanilla Civ4, a hut places its units without asking whether that unit type can enter the plot: a friendly hut's unit goes onto the hut's plot through `initUnit`, and a hostile hut's Barbarians onto adjacent plots checked only for peaks (`isImpassable()`). Warlords, BtS, Better BTS AI and K-Mod kept it unchanged.
+  - It was harmless there: no land unit in BtS has a feature or terrain restriction, and the friendly unit was a fixed Warrior.
+  - AdvCiv's advc.314 widened it with v0.92c (`7afb62a4b`, 2018-04-15): both kinds of hut now take the strongest land unit the Barbarians can train, which can be siege. Still latent in AdvCiv, whose units have no feature restrictions either.
+  - SAS activated it by making Jungle, Forest and Marsh impassable to wheeled siege, Marsh on 2026-11-07, so an advc.314 Catapult on a Marsh hut, or a hostile one beside it, had no legal way out. [KI#1076](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1076)'s own-border change played no part, as huts stand on unowned land.
+- Fix ([`CvPlayer.cpp`](/CvGameCoreDLL/CvPlayer.cpp)): a friendly hut skips unit types that could not enter the hut's plot, and a hostile hut skips adjacent plots its chosen unit could not enter, both through `isSASUnitTypePlotPassable`, which follows `CvUnit::canMoveInto`'s feature and terrain rules (a passable tech, or a route for land units).
+  - The friendly reward is excluded before drawing an outcome if no eligible unit can stand there. Eligibility and reward selection share the same deterministic search. An explicit reward's upgrade keeps the original unit if the upgrade cannot stand there.
+  - The hostile candidate ranking still consumes its original random draws. Looking up an already ranked candidate consumes none, so the spawn loop can check its plot first. Skipped plots no longer consume a spawn roll.
+- Tested with a Debug-opt build on the same game, reloaded at turn 120: `receiveGoody` on the 26,22 Marsh ten times with `GOODY_WARRIOR` gave a Longbowman each time, which can stand there, where the old DLL had given the Catapult; ten `GOODY_BARBARIANS_STRONG` placed three Barbarian Longbowmen in the adjacent Jungle and Marsh, and no new unit stood on a plot it could not enter.
+  - After Codex's rework of the reward selection, its rebuilt Debug-opt gave a Longbowman on Marsh, no free unit on a peak, and allowed a Catapult on a road through Forest.
+
+Found by Claude Code Opus 5.5 while playing through SASPilot for the user's normal-play pass, 2026-11-22; the shared reward selection is Codex's (GPT-6.2-Sol) from its review.
+
+- Update (2026-11-26): brought to main from the SASPilot work ([PR#47](https://github.com/wonderingabout/AdvCiv-SAS/pull/47)). Codex's review of the port read that a hostile hut whose ranked unit, such as a Catapult, could enter none of the free plots around it, such as roadless Jungle or Marsh, would spawn nothing, though a Longbowman could stand there.
+  - Such a plot now takes the strongest Barbarian unit that can enter it, from the same search with the plot given, which makes no RNG calls. Not tested in game.
+  - The AdvCiv 1.14 branch's newest code on GitHub (2026-11-26, last commit 2026-10-15) places hut units as the local copy does.
 
 <a id="ki-1077"></a>
 
