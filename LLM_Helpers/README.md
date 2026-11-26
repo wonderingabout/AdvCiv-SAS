@@ -418,18 +418,25 @@ python LLM_Helpers/audits/audit_screen_init_layout.py --only-resolution Assets/P
 
 #### `audit_define_timing.py`
 
-Report-only audit of when each SAS define of `GlobalDefines_advciv_sas.xml` takes effect, from how its readers in the DLL and runtime Python read it: no cache detected, kept (in a DLL static, member or global, a Python module variable, an `__init__` value, an attribute or a lazy cache), or only while loading or setting up.
+Report-only audit of when each GlobalDefines define, SAS or inherited, takes effect, from how its readers in the DLL and runtime Python read it: no cache detected, kept (in a DLL static, member or global, a Python module variable, an `__init__` value, an attribute or a lazy cache), or only while loading or setting up.
 
 - Written on 2026-11-26 to choose which defines [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) may override and which belong in its NoEntry list; see [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5).
   - A kept reader needs its read changed before an override reaches it, and a startup-only define belongs in NoEntry.
   - "No cache detected" was "ready" at first: Codex's review (GPT-6.2-Sol) pointed out that a read fresh each time its function runs may sit in a function that runs only during setup, such as the main menu's music pool, so check before relying on an override.
 - It follows a C++ reader one level up: a read inside a helper whose every caller keeps the result or runs at load counts as kept or startup, as BBAI's category levels are, which `cacheSASBBAILogSettings` copies once.
 - Heuristic and text-based, so verdicts marked "by hand" need reading: a name built at runtime, such as `"SAS_BILLBOARD_SCALE_PCT_FONT_%d" % i`, one listed in a table another function reads, or one whose enclosing function it cannot tell.
-- Writes `LLM_Helpers/outputs/define_timing.md`, with counts per verdict and family and every reader per define; `--define NAME` prints one define's readers.
+- Since 2026-11-26 it covers inherited defines too, as the user asked for the Python define inventory: it reads every file `CvXMLLoadUtility::SetGlobalDefines` loads, in that order, from the mod or else from BtS's `Assets/XML`, and labels each define by the file that first defines it.
+  - A define only the EXE reads, as many of BtS's `GlobalDefines.xml` and `PythonCallbackDefines.xml` are, shows as unread.
+- Its first Python inventory, the same day, listed 33 reads as import-time, of which 16 were not ([KI#128.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.6)):
+  - 14 in `CvMapGeneratorUtil.py`'s `__init__` bodies, whose signatures span several lines with AdvCiv's `# </advc.137>` at a lower indent, which closed the def; a line starting inside open brackets now keeps its scope;
+  - 2 in `SASDefineGuard.py`, constants holding a define's name, such as `SAS_LAUNCH_GUARD_TEST_INT_DEFINE = "SAS_LAUNCH_GUARD_TEST_INT"`, which read nothing and are now skipped.
+  - [`python_define_reads_import.py`](/.github/workflows/README.md#buildsourcepython_define_reads_importpy), which tokenizes scope independently, found the same 16 real ones.
+- Writes `LLM_Helpers/outputs/define_timing.md`, with counts per verdict, origin and family and every reader per define; `--scope sas` or `--scope inherited` narrows it, and `--define NAME` prints one define's readers.
 
 ```bash
 python LLM_Helpers/audits/audit_define_timing.py
 python LLM_Helpers/audits/audit_define_timing.py --define SAS_UI_FONT_LABEL
+python LLM_Helpers/audits/audit_define_timing.py --scope inherited --out LLM_Helpers/outputs/define_timing_inherited.md
 ```
 
 #### `audit_define_keys.py`

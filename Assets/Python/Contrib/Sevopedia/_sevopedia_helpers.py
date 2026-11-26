@@ -9,13 +9,13 @@ import re
 # <!-- custom: Route shared visual resources through the centralized SASVisualUtils namespace after retiring overlapping helper/cache imports; keep one canonical visual-resource boundary. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 import SASTextScale
+# <!-- custom: SASCurrentDefines reads this module's SAS switches at use, lazily and override-aware, in place of module constants read at import. See KI#128.6. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 from SASUtils import getNewConceptID
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (gc.getDefineINT("SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON") > 0)
-IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
 
 # <!-- custom: constants useful for numTxt under button placement in a grid-like manner, i got the idea to move them here rather to enhance reuse and remove redundance thanks to chatgpt general comment about them hehe thanks thanks chatgpt etc and me toot thanks; note: these are for non-multilist panels, commented-out if we don't need them but kept for reference still if may serve someday -->
 #HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 9
@@ -421,7 +421,7 @@ def get_concept_id(concept_type):
 	return -1
 
 def place_new_concept_legend_link(top, new_concept_type):
-	if not IS_SAS_SHOW_LEGEND_LINK:
+	if SASCurrentDefines.getInt("SAS_SHOW_LEGEND_LINK") <= 0:
 		return
 	iConcept = getNewConceptID(new_concept_type)
 	if iConcept < 0:
@@ -865,7 +865,7 @@ def chart_format_tech_list(value, return_list, none_text, abbrev_tech_names=None
 	return ", ".join(out)
 
 def chart_add_csv_log_button(screen, top, x, y, w, xPos=None, yPos=None):
-	if not IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON:
+	if SASCurrentDefines.getInt("SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON") <= 0:
 		return ""
 
 	# <!-- custom: mirror Timeline LOG sizing: keep compact default, slightly enlarge only when label font is upscaled (4) so "LOG" remains readable. (GPT-5.3-Codex) -->

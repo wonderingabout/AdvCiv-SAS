@@ -14,6 +14,8 @@ import ScreenInput
 # This page uses none of those IDs, and the removed constants-only module had no initialization side effects. (GPT-6.1-Sol) -->
 # <!-- custom: Consolidate this dependency at the shared SASVisualUtils/SASTextScale boundary instead of retaining the retired overlapping visual-resource helper imports. (ChatGPT-5.6-Sol) -->
 import SASTextScale
+# <!-- custom: SASCurrentDefines reads this module's SAS switches at use, lazily and override-aware, in place of module constants read at import. See KI#128.6. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 
 import re
 from _sevopedia_helpers import *
@@ -22,8 +24,6 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-IS_SHOW_ZERO_TRAIT_PAIRS = (gc.getDefineINT("SAS_SEVO_TRAIT_SHOW_ZERO_PAIRS") > 0)
-IS_SHOW_ZERO_TRAIT_PAIRS_LEFT = (gc.getDefineINT("SAS_SEVO_TRAIT_SHOW_ZERO_PAIRS_LEFT") > 0)
 TRAIT_STATS_FIXED_LEADER_COLS = 6
 TRAIT_STATS_ICON_COL_W = INCHART_ICON_SIZE + INCHART_ICON_SPACING
 TRAIT_STATS_RIGHT_TABLE_SCROLLBAR_TAIL_W = 18
@@ -88,7 +88,7 @@ def precomputeTraitStatisticsCache():
 		if sort2 < sort1:
 			return t2, t1
 		return t1, t2
-	if IS_SHOW_ZERO_TRAIT_PAIRS:
+	if SASCurrentDefines.getInt("SAS_SEVO_TRAIT_SHOW_ZERO_PAIRS") > 0:
 		for t1 in range(numTraits):
 			for t2 in range(t1 + 1, numTraits):
 				ids = pairCounts.get((t1, t2), [])
@@ -352,7 +352,7 @@ class SevoPediaTrait:
 			return []
 
 		pairingData = []
-		if IS_SHOW_ZERO_TRAIT_PAIRS_LEFT:
+		if SASCurrentDefines.getInt("SAS_SEVO_TRAIT_SHOW_ZERO_PAIRS_LEFT") > 0:
 			for otherTrait, leadersWithOther in traitLeaders.items():
 				if otherTrait == self.iTrait:
 					continue

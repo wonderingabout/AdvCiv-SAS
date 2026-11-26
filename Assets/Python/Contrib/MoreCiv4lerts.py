@@ -30,8 +30,6 @@ PyPlayer = PyHelpers.PyPlayer
 PyCity = PyHelpers.PyCity
 PyInfo = PyHelpers.PyInfo
 
-PEACE_TREATY_LENGTH = gc.getDefineINT("PEACE_TREATY_LENGTH")
-
 class MoreCiv4lerts:
 
 	def __init__(self, eventManager):
@@ -659,7 +657,8 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
 		iPlayerID = player.getID()
 		tradeData = TradeData()
 		tradeData.ItemType = TradeableItems.TRADE_PEACE_TREATY
-		tradeData.iData = PEACE_TREATY_LENGTH
+		# <!-- custom: Was a module constant read at import; read at use, as BUG's DealUtil.py and TradeUtil.py read it. See KI#128.6. (Claude code Opus 5.5) -->
+		tradeData.iData = gc.getDefineINT("PEACE_TREATY_LENGTH")
 		currentTrades = set()
 		for loopPlayer in TradeUtil.getPeaceTradePartners(player):
 			if (loopPlayer.canTradeItem(iPlayerID, tradeData, False)):

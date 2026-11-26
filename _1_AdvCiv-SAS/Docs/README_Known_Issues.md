@@ -223,6 +223,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#128.3 - (Improved incomplete inherited AdvCiv caching, guarded by CI) AdvCiv cached 198 of the DLL's 467 define reads by name, its hot ones; SAS cached most of the rest, and one SAS diagnostic read its define for each plot it scanned](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3)\
 [KI#128.4 - (Fixed latent inherited AdvCiv) The AI's city-site culture estimate kept the first foreign capital's civilization-specific capital building for every civilization: a static held a value that differs per civilization, harmless only while every civilization builds the same Palace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.4)\
 [KI#128.5 - (Improved SAS) Trying another value of a SAS define, such as a font size, cost a Civ4 restart per try, as the XML is read once; SASLiveDefineOverrides.txt now overrides SAS defines on top of the XML while Civ4 runs, and deleting a line brings the XML value back](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5)\
+[KI#128.6 - (Improved SAS and inherited BUG, guarded by CI) 16 Python define reads ran at import, 15 SAS Sevopedia switches and BUG's PEACE_TREATY_LENGTH, so each kept its first value for the session and no override reached it; they are read at use now, and CI rejects new ones](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.6)\
 [KI#129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-129)\
 [KI#130 - (Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-130)\
 [KI#131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-131)\
@@ -12503,6 +12504,38 @@ Claude Code Opus 5.5 and Codex (GPT-6.2-Sol) judged a fix better deferred, as th
 - A fix comparing each define's current value with its XML value cannot tell who changed it, so restoring the differences could undo values set by a module XML or by other code.
 - The window lasts until the bridge's first successful reread after the reinitialization; as settled polls need two reads and some screens send no game updates, it is not a fixed few seconds.
 - A possible extension would be to test whether a marker kept on Python's `sys` module survives Civ4's reinitialization, as Realism Invictus's `BugInit.py` relies on; if it does, the bridge could keep its active overrides across it, and if not, a record of them owned by the DLL remains the full fix.
+
+<a id="ki-128.6"></a>
+
+## KI#128.6 - (Improved SAS and inherited BUG, guarded by CI) 16 Python define reads ran at import, 15 SAS Sevopedia switches and BUG's PEACE_TREATY_LENGTH, so each kept its first value for the session and no override reached it; they are read at use now, and CI rejects new ones
+
+- Context: the Python define inventory that started [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5) was finished on 2026-11-26, covering inherited defines as well as SAS ones, as the user asked, the Python counterpart of the C++ audits of [KI#128.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.3) and [KI#128.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.4).
+- [`audit_define_timing.py`](/LLM_Helpers/README.md#audit_define_timingpy) first listed 33 import-time reads; 16 were real, after two audit errors were fixed:
+  - 14 sat in `CvMapGeneratorUtil.py`'s `__init__` bodies, whose signatures span several lines with AdvCiv's `# </advc.137>` at a lower indent, which made the audit close the def;
+  - 2 were `SASDefineGuard.py` constants holding a define's name, which read nothing.
+- The 16 real ones were module constants such as `IS_SHOW_AI_INFO = (gc.getDefineINT("SAS_SEVO_UNIT_SHOW_AI_INFORMATION") > 0)`, read once at import, so each kept its first value for the session and no override from `SASLiveDefineOverrides.txt` reached it.
+  - The 15 SAS switches, in `_sevopedia_helpers.py` and six Sevopedia pages, are read at use through `SASCurrentDefines.getInt`, which caches lazily and empties when an override changes, so no module needs its own cache.
+  - BUG's `PEACE_TREATY_LENGTH` in `MoreCiv4lerts.py` is read with `gc` at use, as BUG's `DealUtil.py` and `TradeUtil.py` already read it.
+- The 49 inherited reads made at each use were checked for hot paths: each runs on a click, a screen draw, an alert or once a turn, so none needed a cache.
+  - The busiest-looking ones, the score reads in `CvGameUtils.calculateScore` and `CvUtil.getScoreComponent` and those in `doCityCaptureGold`, never run: `USE_CALCULATE_SCORE_CALLBACK` and `USE_IS_CITY_CAPTURE_GOLD_CALLBACK` are 0.
+- [`python_define_reads_import.py`](/.github/workflows/README.md#buildsourcepython_define_reads_importpy) now fails on a define read at module level or in a class body; run repo-wide on the old files, it found the same 16, and none after the fix.
+- Not covered: reads in `__init__` of screens that `CvScreensInterface.py` builds at import, such as `mainInterface = CvMainInterface.CvMainInterface()`, run at import too; the inventory counts 51 SAS and 4 inherited `__init__` reads, not all of them in such screens.
+
+Implemented with the help of Claude Code Opus 5.5.
+
+Tested on 2026-11-26 from the main menu's Sevopedia with [`capture_screens.py`](/LLM_Helpers/README.md#capture_screenspy): the Units, Bonuses, Leaders, Traits and Techs pages drew their switch-controlled parts, such as Saladin's AI personality panel, era-art row and trait icons and the Ancient Maceman's AI information, and `PythonErr.log` stayed empty.
+
+Codex's review (GPT-6.2-Sol) the same day found:
+
+- The check missed reads in a def's default arguments, in a lambda's, and beside a lambda, such as `(lambda: None, gc.getDefineINT("X"))`, as it treated a whole line holding `def` or `lambda` as a function body; a def's body now starts at the colon closing its header, and a lambda's body ends at the comma or bracket closing it.
+  - The audit likewise skipped reads on a def's own line and now leaves them to read by hand; none exists today.
+- `SAS_LEADER_XML_ERA_ART_DEFS`, now read at use by the leader page, decides at XML load in a DLL static whether era art is parsed, so it joined `SASLiveDefineOverridesNoEntry.txt`: an override would leave the page and the loaded art out of step.
+- The AI Personality Panel's switches feed a cache built once per session, so a change reaches only a cache not yet built; a comment in `SevoPediaLeaderAIPValues.py` says so.
+
+The user asked whether caching these switches in `__init__` would be faster:
+
+- Under Python 2.4, a `self.` attribute read took 74 ns and `SASCurrentDefines.getInt` 230 ns, best of 5 runs of 200,000; a page reads one to three of them per draw, well under a microsecond, while an attribute would keep its value for the session, so no override would reach it.
+- The Sevopedia is built on its first opening, its modules imported then too, so `__init__` would read them no later. Codex agreed to keep `SASCurrentDefines` for such UI switches, and attribute caches for hot code.
 
 <a id="ki-129"></a>
 

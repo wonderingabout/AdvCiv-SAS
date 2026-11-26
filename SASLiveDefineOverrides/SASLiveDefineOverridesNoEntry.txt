@@ -21,6 +21,7 @@ SAS_SGR_REVISION: a revision label, which names SASGameRecord's version rather t
 SAS_RUNTIME_REVISION: a revision label, which names Runtime's version rather than tuning it
 SAS_SAVE_VERSION: copied to SAVE_VERSION at XML load, which saves and CvReplayInfo then read
 SAS_ASSERT_SILENT_ACTION: cached once at XML load by cacheSASAssertionSilentPolicy in FAssert.cpp, which decides how assertion dialogs are answered for the session
+SAS_LEADER_XML_ERA_ART_DEFS: decides at XML load, in a static in CvInfo_Civilization.cpp, whether leaders' EraArtDefineTags are parsed, so turning it on later cannot bring back skipped tags, and turning it off would hide era art the DLL still holds; the Sevopedia's leader page reads it at use since KI#128.6, as Codex's review (GPT-6.2-Sol) noted
 SAS_LAUNCH_GUARD_TEST_INT: a launch guard value, which exists to prove the XML loaded
 SAS_LAUNCH_GUARD_TEST_STRING: same reason as SAS_LAUNCH_GUARD_TEST_INT
 

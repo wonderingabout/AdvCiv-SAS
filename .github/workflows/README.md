@@ -126,6 +126,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/python_aligned_columns.py`](#buildsourcepython_aligned_columnspy)
     - [`build/source/python_binding_targets.py`](#buildsourcepython_binding_targetspy)
     - [`build/source/python_dead_stores.py`](#buildsourcepython_dead_storespy)
+    - [`build/source/python_define_reads_import.py`](#buildsourcepython_define_reads_importpy)
     - [`build/source/python_multiline_calls.py`](#buildsourcepython_multiline_callspy)
     - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
@@ -1545,6 +1546,19 @@ Fails when runtime Python in `Assets/Python` or `PrivateMaps` stores `self.X` tw
 
 ```bash
 python .github/workflows/build/source/python_dead_stores.py
+```
+
+#### `build/source/python_define_reads_import.py`
+
+Fails when runtime Python in `Assets/Python` or `PrivateMaps` reads a GlobalDefine at import, at module level or in a class body, through `getDefineINT`, `getDefineFLOAT`, `getDefineSTRING`, `getDefineBOOL` or `SASCurrentDefines`: the value is then kept for the session, so an override from [`SASLiveDefineOverrides.txt`](/README.md#live-define-overrides) never reaches it, and AGENTS.md prefers reading after setup, as early reads were linked to instability in [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128).
+
+- Added on 2026-11-26 for [KI#128.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.6). Run repo-wide first, it found 16 such reads, 15 SAS switches in the Sevopedia and BUG's `PEACE_TREATY_LENGTH` in `MoreCiv4lerts.py`, all now read at use; [`audit_define_timing.py`](/LLM_Helpers/README.md#audit_define_timingpy) found the same 16.
+- Files are tokenized, so a define's name in a comment or string is no read, and scope comes from the tokens rather than the indentation: a def whose signature spans several lines, with comments at another indent between them, still encloses its body, as in `CvMapGeneratorUtil.py`.
+- A read inside a def's body, a one-line def's included, or a lambda's body runs only when called, so it passes; it does not follow calls, so a def called at import, such as a screen's `__init__` when `CvScreensInterface.py` builds the screen, is not checked.
+  - A def's header and a lambda's arguments run where they stand, so a read in a default argument fails, as Codex's review (GPT-6.2-Sol) found when the first version passed `def f(x=gc.getDefineINT("X"))`.
+
+```bash
+python .github/workflows/build/source/python_define_reads_import.py
 ```
 
 #### `build/source/python_multiline_calls.py`

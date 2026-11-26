@@ -24,9 +24,14 @@ sys.path.insert(0, str(REPO / ".github" / "workflows" / "lib"))
 # <!-- custom: The C++ comment blanker the define-cache CI check uses, so a name in a comment is no reader. (Claude code Opus 5.5) -->
 from cpp_define_reads_cached import blank_source
 
-XML = REPO / "Assets" / "XML" / "GlobalDefines_advciv_sas.xml"
-DEFINE = re.compile(r"<DefineName>\s*(SAS_\w+)\s*</DefineName>\s*<(iDefineIntVal|fDefineFloatVal|DefineTextVal)>")
+# <!-- custom: Inherited defines are audited too since 2026-11-26, as the user asked: the Python define inventory covers every define Python reads, SAS and inherited, and the C++ check already covered both (KI#128.4).
+# The files and their order come from CvXMLLoadUtility::SetGlobalDefines, so the list cannot drift from what the DLL loads; each is read from the mod if it has a copy, else from BtS's Assets/XML, two folders up, and skipped when absent, as on a machine without the game.
+# A define read only by the EXE, as some BtS ones are, shows as unread here. (Claude code Opus 5.5) -->
+LOADER = REPO / "CvGameCoreDLL" / "CvXMLLoadUtilitySet.cpp"
+BTS_XML = REPO.parents[1] / "Assets" / "XML"
+DEFINE = re.compile(r"<DefineName>\s*([A-Z][A-Z0-9_]*)\s*</DefineName>\s*<(iDefineIntVal|fDefineFloatVal|DefineTextVal)>")
 KINDS = {"iDefineIntVal": "int", "fDefineFloatVal": "float", "DefineTextVal": "string"}
+NAME = r"[A-Z][A-Z0-9_]+"
 # <!-- custom: Function names that run while loading XML, a save or a map, or setting up a session: a define read only there takes effect at startup. (Claude code Opus 5.5) -->
 # <!-- custom: A word must end where the name's next word starts, so "readiness" is no "read": Codex's review (GPT-6.2-Sol) reproduced it counted as setup. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 LOAD_NAMES = re.compile(r"(^|_|::)([Ii]nit|[Cc]ache|[Ll]oad|[Rr]ead|[Ss]etGlobal|[Cc]onfigure|[Ss]etup|preGameStart|beforeGeneration|[Gg]enerate|addRivers|onGameLoad|onGameStart)(?=[A-Z_0-9]|$)|initialize|::Cv\w+$")
@@ -35,9 +40,31 @@ PY_DEF = re.compile(r"^(\s*)def\s+(\w+)\s*\(")
 PY_CLASS = re.compile(r"^(\s*)class\s+(\w+)")
 
 
-def read_defines():
-	text = re.sub(r"<!--.*?-->", "", XML.read_text(encoding="utf-8"), flags=re.S)
-	return {name: KINDS[tag] for name, tag in DEFINE.findall(text)}
+def define_files():
+	# <!-- custom: The GlobalDefines files in the DLL's load order, each with the path read, the mod's copy first. (Claude code Opus 5.5) -->
+	order = re.findall(r'ReadGlobalDefines\("xml\\\\(\w+\.xml)"', LOADER.read_text(encoding="latin-1"))
+	files = []
+	for file_name in order:
+		for folder in (REPO / "Assets" / "XML", BTS_XML):
+			if (folder / file_name).is_file():
+				files.append((file_name, folder / file_name))
+				break
+	return files
+
+
+def read_defines(scope="all"):
+	# <!-- custom: Each define as name -> (kind, origin), the origin being the first file of the load order to define it, so "SAS" for GlobalDefines_advciv_sas.xml's own and the file's name for an inherited one. (Claude code Opus 5.5) -->
+	names = {}
+	for file_name, path in define_files():
+		text = re.sub(r"<!--.*?-->", "", path.read_text(encoding="utf-8", errors="replace"), flags=re.S)
+		for name, tag in DEFINE.findall(text):
+			if name not in names:
+				names[name] = (KINDS[tag], "SAS" if file_name == "GlobalDefines_advciv_sas.xml" else file_name)
+	if scope == "sas":
+		return {name: value for name, value in names.items() if value[1] == "SAS"}
+	if scope == "inherited":
+		return {name: value for name, value in names.items() if value[1] != "SAS"}
+	return names
 
 
 def cpp_line_kind(line, previous, function):
@@ -95,7 +122,7 @@ def call_index(rows):
 def cpp_readers(names, rows):
 	readers = defaultdict(list)
 	index = call_index(rows)
-	pattern = re.compile(r"(?:\"(SAS_\w+)\"|CvGlobals::(SAS_\w+)|\bDO\((SAS_\w+)\))")
+	pattern = re.compile(r"(?:\"(" + NAME + r")\"|CvGlobals::(" + NAME + r")|\bDO\((" + NAME + r")\))")
 	for file_name, number, function, line, previous in rows:
 		for match in pattern.finditer(line):
 			name = match.group(1) or match.group(2) or match.group(3)
@@ -147,7 +174,7 @@ def built_name_readers(names, readers, rows):
 
 
 def python_readers(names, readers):
-	pattern = re.compile(r"[\"'](SAS_\w+)[\"']")
+	pattern = re.compile(r"[\"'](" + NAME + r")[\"']")
 	for top in ("Assets/Python", "PrivateMaps"):
 		for path in sorted((REPO / top).rglob("*.py")):
 			rel = path.relative_to(REPO).as_posix()
@@ -155,11 +182,25 @@ def python_readers(names, readers):
 			lines = source.split("\n")
 			# <!-- custom: Comments are blanked by token position, so a "#" inside a string does not cut a read short, as splitting on "#" did; a file the tokenizer rejects keeps that split. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 			blanked = list(lines)
+			# <!-- custom: A line that starts inside open brackets continues a statement, so its indent says nothing about scope.
+			# CvMapGeneratorUtil's __init__ signatures span several lines with AdvCiv's "# </advc.137>" among them; popping the def there labelled 14 reads in their bodies import-time. (Claude code Opus 5.5) -->
+			continued = set()
 			try:
+				depth = 0
+				seen = set()
 				for token in tokenize.generate_tokens(io.StringIO(source).readline):
 					if token.type == tokenize.COMMENT:
 						row, col = token.start
 						blanked[row - 1] = blanked[row - 1][:col]
+					if token.start[0] not in seen:
+						seen.add(token.start[0])
+						if depth > 0:
+							continued.add(token.start[0])
+					if token.type == tokenize.OP:
+						if token.string in "([{":
+							depth += 1
+						elif token.string in ")]}":
+							depth -= 1
 			except (tokenize.TokenError, IndentationError, SyntaxError):
 				blanked = [line.split("#", 1)[0] for line in lines]
 			stack = []
@@ -167,17 +208,20 @@ def python_readers(names, readers):
 				stripped = line.strip()
 				if not stripped or stripped.startswith("#"):
 					continue
-				indent = len(line) - len(line.lstrip())
-				while stack and stack[-1][0] >= indent:
-					stack.pop()
-				head = PY_DEF.match(line)
-				if head:
-					stack.append((len(head.group(1)), head.group(2), "def"))
-					continue
-				head = PY_CLASS.match(line)
-				if head:
-					stack.append((len(head.group(1)), head.group(2), "class"))
-					continue
+				def_line = False
+				if number not in continued:
+					indent = len(line) - len(line.lstrip())
+					while stack and stack[-1][0] >= indent:
+						stack.pop()
+					head = PY_DEF.match(line)
+					# <!-- custom: A read on a def's own line was skipped; it may be a default argument, run at import, or a one-line body, run at each call, so it is scanned and left to read by hand, as Codex's review (GPT-6.2-Sol) found. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+					if head:
+						stack.append((len(head.group(1)), head.group(2), "def"))
+						def_line = True
+					head = PY_CLASS.match(line)
+					if head:
+						stack.append((len(head.group(1)), head.group(2), "class"))
+						continue
 				code = blanked[number - 1]
 				for match in pattern.finditer(code):
 					name = match.group(1)
@@ -188,6 +232,11 @@ def python_readers(names, readers):
 					before = "\n".join(lines[max(0, number - 4):number - 1])
 					if "SASCurrentDefines." in code or "_DynamicFontTag(" in code or "_getSASUIFontSize(" in code:
 						how = "at use: shared cache"
+					# <!-- custom: A bare name kept in a constant, as SASDefineGuard's SAS_LAUNCH_GUARD_TEST_INT_DEFINE = "SAS_LAUNCH_GUARD_TEST_INT", reads nothing; the read is where the constant is used. (Claude code Opus 5.5) -->
+					elif re.match(r"\s*\w+\s*=\s*[\"']\w+[\"']\s*$", code):
+						continue
+					elif def_line:
+						how = "scope unknown: def line"
 					elif not defs:
 						how = "kept: import"
 					elif function == "__init__":
@@ -228,11 +277,12 @@ def family(name):
 
 
 def main(argv=None):
-	parser = argparse.ArgumentParser(description="Report when each SAS define takes effect, from how its readers read it, to choose overridable and NoEntry defines.")
+	parser = argparse.ArgumentParser(description="Report when each GlobalDefines define, SAS or inherited, takes effect, from how its readers read it, to choose overridable and NoEntry defines and audit caching.")
 	parser.add_argument("--define", help="show the readers of one define")
+	parser.add_argument("--scope", choices=("all", "sas", "inherited"), default="all", help="which defines to report: SAS ones (GlobalDefines_advciv_sas.xml), inherited ones, or both")
 	parser.add_argument("--out", type=Path, default=REPO / "LLM_Helpers" / "outputs" / "define_timing.md")
 	args = parser.parse_args(argv)
-	names = read_defines()
+	names = read_defines(args.scope)
 	rows = cpp_lines()
 	readers = built_name_readers(names, python_readers(names, cpp_readers(names, rows)), rows)
 	if args.define:
@@ -242,11 +292,13 @@ def main(argv=None):
 		return 0
 	counts = defaultdict(int)
 	families = defaultdict(lambda: defaultdict(list))
+	origins = defaultdict(lambda: defaultdict(int))
 	for name in sorted(names):
 		v = verdict(readers.get(name, []))
 		counts[v] += 1
 		families[family(name)][v].append(name)
-	out = ["# SAS define timing", "", "Generated by `LLM_Helpers/audits/audit_define_timing.py`; heuristic, see its header.", "",
+		origins[names[name][1]][v] += 1
+	out = ["# Define timing", "", f"Generated by `LLM_Helpers/audits/audit_define_timing.py --scope {args.scope}`; heuristic, see its header.", "",
 		"- no cache detected: every reader asks each time its code runs; that code may still run only during setup, so check before relying on an override.",
 		"- kept: a reader keeps the value (static, member, import, `__init__`, attribute or lazy cache), so it needs work first.",
 		"- startup: read only while loading or setting up: NoEntry candidates.",
@@ -255,6 +307,9 @@ def main(argv=None):
 		"- unread: no literal reader found.", "",
 		"| Verdict | Count |", "| --- | --- |"]
 	out += [f"| {v} | {counts[v]} |" for v in ("no cache detected", "kept", "startup", "mixed", "by hand", "unread")]
+	out += ["", "## By origin", "", "The file of the DLL's load order that first defines it; SAS is GlobalDefines_advciv_sas.xml.", "", "| Origin | no cache | kept | startup | mixed | by hand | unread |", "| --- | --- | --- | --- | --- | --- | --- |"]
+	for origin in sorted(origins):
+		out.append(f"| {origin} | " + " | ".join(str(origins[origin][v]) for v in ("no cache detected", "kept", "startup", "mixed", "by hand", "unread")) + " |")
 	out += ["", "## By family", "", "| Family | no cache | kept | startup | mixed | by hand | unread |", "| --- | --- | --- | --- | --- | --- | --- |"]
 	for fam in sorted(families):
 		row = families[fam]
@@ -262,7 +317,7 @@ def main(argv=None):
 	out += ["", "## Defines", ""]
 	for name in sorted(names):
 		entries = readers.get(name, [])
-		out.append(f"### {name} ({names[name]}): {verdict(entries)}")
+		out.append(f"### {name} ({names[name][0]}, {names[name][1]}): {verdict(entries)}")
 		out.append("")
 		for lang, where, function, how in entries:
 			out.append(f"- {lang} `{where}` in `{function}`: {how}")

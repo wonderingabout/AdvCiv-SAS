@@ -92,6 +92,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/python_dead_stores.py
 
+      - name: Runtime Python reads no define at import
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/python_define_reads_import.py
+
       - name: Runtime Python aligns columns with tabs and leaves one space elsewhere
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/python_aligned_columns.py

@@ -21,6 +21,8 @@ import ScreenInput
 # This page uses none of those IDs, and the removed constants-only module had no initialization side effects. (GPT-6.1-Sol) -->
 # <!-- custom: Consolidate this dependency at the shared SASVisualUtils/SASTextScale boundary instead of retaining the retired overlapping visual-resource helper imports. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
+# <!-- custom: SASCurrentDefines reads this module's SAS switches at use, lazily and override-aware, in place of module constants read at import. See KI#128.6. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import SASTextScale
 from SASUtils import getInfoTypeOrFail
 
@@ -30,8 +32,6 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-# <!-- custom: change its value if you don't want to see AI information in the special abilities panel -->
-IS_SHOW_AI_INFO = (gc.getDefineINT("SAS_SEVO_UNIT_SHOW_AI_INFORMATION") > 0)
 
 class SevoPediaUnit:
 
@@ -740,7 +740,7 @@ class SevoPediaUnit:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
-		if IS_SHOW_AI_INFO:
+		if SASCurrentDefines.getInt("SAS_SEVO_UNIT_SHOW_AI_INFORMATION") > 0:
 			txtKeyPanel = "TXT_KEY_PEDIA_SPECIAL_ABILITIES_WITH_SOME_AI_INFORMATION"
 		else:
 			txtKeyPanel = "TXT_KEY_PEDIA_SPECIAL_ABILITIES"
@@ -770,7 +770,7 @@ class SevoPediaUnit:
 
 		# <!-- custom: add ai info for players and me too hehe: should be valuable for info or balancing, added with the help of claude ai and my prompts and adjustments and inspect such...
 		# if players want to see it xd, as for me yes i want! -->
-		if IS_SHOW_AI_INFO:
+		if SASCurrentDefines.getInt("SAS_SEVO_UNIT_SHOW_AI_INFORMATION") > 0:
 			# Add Default UnitAI
 			defaultUnitAI = unitInfo.getDefaultUnitAIType()
 			if defaultUnitAI != -1:
