@@ -51,6 +51,10 @@ PY24_RUNTIME_MODULES = {
 }
 # <!-- custom: Optional modules imported inside try/except ImportError: BUG's BugPath tries a player's own CvAltRoot and CvModFolder, and configobj tries validate; none ships with SAS or the game. (Claude code Opus 5.5) -->
 OPTIONAL_IMPORTS = {"cvaltroot", "cvmodfolder", "validate"}
+# <!-- custom: Packages the base game ships under Python/System that only the named SAS modules may import: wxPython, in the vanilla and Warlords System folders, draws Pitboss's setup wizard and admin window, carried with PbMain on 2026-11-26.
+# A package's files do not match a module name in the manifest, so it is listed here, and kept to these importers, as nothing else in SAS runs outside the game window. See KI#1104. (Claude code Opus 5.5) -->
+# <!-- custom: Keyed by path, not module name, so a same-named module elsewhere, such as a PrivateMaps/PbAdmin.py, does not inherit the allowance, as Codex's review found of a first, name-based version (2026-11-26). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+SYSTEM_PACKAGES = {"wx": {"Assets/Python/PitBoss/PbAdmin.py", "Assets/Python/PitBoss/PbWizard.py"}}
 
 
 def layers_for(area, subdir, civ4_root):
@@ -303,21 +307,23 @@ def module_imports(text):
 			expect_module = False
 
 
-def imported_modules(paths):
+# <!-- custom: imported_modules and python_importers gained an optional key, naming each importer by its module name as before or, for SYSTEM_PACKAGES, by its repository path (2026-11-26). See KI#1104. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+def imported_modules(paths, key=lambda path: path.stem):
 	found = {}
 	for path in paths:
 		for module in module_imports(path.read_text(encoding="latin-1")):
-			found.setdefault(module, set()).add(path.stem)
+			found.setdefault(module, set()).add(key(path))
 	return found
 
 
-def python_importers(sas_python):
+# <!-- custom: The key passes through to imported_modules, so SYSTEM_PACKAGES can name importers by path (2026-11-26). See KI#1104. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+def python_importers(sas_python, key=lambda path: path.stem):
 	# <!-- custom: PrivateMaps and SASPilot/game also run inside Civ4.
 	# Scan their imports without treating those entrypoints as general Assets/Python modules. (GPT-6.2-Sol) -->
 	paths = list(sas_python.values())
 	for folder in ("PrivateMaps", "SASPilot/game"):
 		paths.extend(repo_area_paths(folder, (".py",)))
-	return imported_modules(paths)
+	return imported_modules(paths, key)
 
 
 def audit_key(area, subdir, key):
@@ -355,11 +361,15 @@ def inherited_imports(tsv_rows):
 	inherited = {row["file"][:-3] for row in tsv_rows if row["area"] == "python" and row["file"] not in sas_python and in_base_game(row)}
 	imported = set()
 	problems = []
+	by_path = python_importers(sas_python, lambda path: path.relative_to(REPO).as_posix())
 	for (module, importers) in sorted(python_importers(sas_python).items()):
 		if module + ".py" in sas_python:
 			continue
 		if module in inherited:
 			imported.add(module)
+		elif module in SYSTEM_PACKAGES:
+			if by_path[module] - SYSTEM_PACKAGES[module]:
+				problems.append("%s imports %s, which SYSTEM_PACKAGES allows only in %s" % (", ".join(sorted(by_path[module] - SYSTEM_PACKAGES[module])), module, ", ".join(sorted(SYSTEM_PACKAGES[module]))))
 		elif module not in PY24_RUNTIME_MODULES | OPTIONAL_IMPORTS:
 			problems.append("%s imports %s, which is neither in SAS or the base game nor listed as a Python 2.4 runtime or optional module" % (", ".join(sorted(importers)), module))
 	return (imported, problems)

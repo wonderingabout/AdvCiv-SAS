@@ -47,6 +47,8 @@ ENGINE_NAMES = frozenset((
 	"plotXY", "refreshWBEditCtrlCorporationButtons", "refreshWBEditCtrlReligionButtons", "saveDiplomacySettings",
 	"setDiplomacySettings", "setFocusToCVG", "setNoIntroMovie", "setWBInitialCtrlTabPlacement",
 	"shuffleList", "toggleAlarm",
+	# <!-- custom: CyPitboss, the Pitboss server's Python class, is defined by Civ4BeyondSword_PitBoss.exe, which holds the name 74 times; PbAdmin.py and PbWizard.py, carried on 2026-11-26, use it. See KI#1104. (Claude code Opus 5.5) -->
+	"CyPitboss",
 ))
 # <!-- custom: The BUG reference documents class headings and method signatures.
 # Only headings can supply a module-level name.

@@ -1495,6 +1495,7 @@ Keeps the [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_
 - SAS imports a base-game Python module it does not carry, unless `NOT_CARRIED` says why, as SAS keeps the base-game modules it uses ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)); an entry nothing imports any more fails too;
 - a SAS text file has a base-game text file's name, which would replace that file and drop the keys only it defines (KI#1104);
 - a static import is outside SAS, the base game, and the known Python 2.4 runtime and optional modules (the scan covers `Assets/Python`, `PrivateMaps`, and `SASPilot/game`);
+- a module outside its `SYSTEM_PACKAGES` importers imports a package the base game ships under `Python/System`: `wx`, wxPython, is allowed in the Pitboss server's `Assets/Python/PitBoss/PbAdmin.py` and `PbWizard.py` only, by path, carried on 2026-11-26 (KI#1104);
 - the audit was generated from another inherited list.
 
 After a failure, run [`inherited_files.py --inventory`](/LLM_Helpers/README.md#inherited_filespy), which needs only Git, and review the audit's reasons.

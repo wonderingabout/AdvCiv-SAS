@@ -5140,4 +5140,9 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__ENLARGEHUD_HOVER</Tag>
 		<English>When checked, the size of panels, buttons and the minimap is increased based on the rendering resolution. No effect when the resolution is set to the minimum (1024 x 768). Takes effect the next time a game is loaded or the resolution changes.</English>
 	</TEXT>
+	<!-- custom: Vanilla's PbWizard.py asks this in the Pitboss server's patch dialog, but base-game text lacked it; wording from Caveman2Cosmos's PitBoss_CIV4GameText.xml. See KI#1085.2. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PITBOSS_PATCH_AVAILABLE_DESC</Tag>
+		<English>Would you like to install the latest updates?</English>
+	</TEXT>
 </Civ4GameText>

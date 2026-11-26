@@ -1299,6 +1299,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1083 - (Fixed inherited BtS bug) BtS's setup screens titled map script options "SELECT A ELEPHANT" or "SELECT A REGIONS", from a generic "Select a" prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1083)\
 [KI#1084 - (Open, not caused by SASPilot) Leaving a Huge turn-305 game for another save crashed Civ4 inside the EXE, every time, while loading that save first worked](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1084)\
 [KI#1085 - (Fixed AdvCiv-SAS bug, guarded by CI) SAS's split of BtS's melee unit combat left two feat popups without text, so the first Swordsman's congratulation showed TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085)\
+[KI#1085.2 - (Fixed inherited vanilla, untested in SAS) The Pitboss server's patch dialog would ask its question as TXT_KEY_PITBOSS_PATCH_AVAILABLE_DESC, a key vanilla's PbWizard.py uses but base-game text lacks](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085.2)\
 [KI#1086 - (Fixed AdvCiv-SAS bug, guarded by CI) SAS's move of the Sevopedia colors into SASVisuals missed one reader, so Down in the Index after a search raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1086)\
 [KI#1087 - (Fixed AdvCiv-SAS bug, guarded by CI) SAS's split of BtS's melee unit combat left BUG's Unit Naming without options for the two new types, so with Unit Naming on every Spearman or Swordsman raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1087)\
 [KI#1088 - (Open; only the SASPilot work could trigger it, and it avoids it) Loading a save while a diplomacy screen was open sometimes crashed Civ4 while it tore down the game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1088)\
@@ -39100,6 +39101,21 @@ Found by Claude code Opus 5.5 on 2026-11-13, while playing through SASPilot.
     - In game Next Unit reads "Next Unit" with "Cycle unit selection to the next unit on the tile."
     - Seventeen keys left the list, 51 remain; where a player would see these texts was not traced.
   - Codex also noted that keys assembled at run time are invisible to the check. Looking for families keyed by unit combat found KI#1087, BUG's Unit Naming options, which has its own check.
+
+<a id="ki-1085.2"></a>
+
+## KI#1085.2 - (Fixed inherited vanilla, untested in SAS) The Pitboss server's patch dialog would ask its question as TXT_KEY_PITBOSS_PATCH_AVAILABLE_DESC, a key vanilla's PbWizard.py uses but base-game text lacks
+
+`PbWizard.patchAvailable`, which the Pitboss server calls through `PbMain.patchAvailable` when told of a patch, opens a Yes/No dialog titled `TXT_KEY_PITBOSS_PATCH_AVAILABLE_TITLE` ("Patch Available") asking `TXT_KEY_PITBOSS_PATCH_AVAILABLE_DESC`.
+
+- Vanilla's `CIV4GameText_Misc1.xml` defines the title but not the question, and the vanilla, Warlords and BtS copies of `PbWizard.py` all use it, so the dialog would show the key itself.
+- Untested in SAS: only a Pitboss server told of a patch opens the dialog, and no SAS test has run one.
+
+SAS carried `PbWizard.py` with the Pitboss server's other files ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)), and [`sas_text_references.py`](/.github/workflows/README.md#buildxmlsas_text_referencespy) then failed on the key.
+
+- [`AdvCiv-SAS_main.xml`](/Assets/XML/Text/AdvCiv-SAS_main.xml) now defines it, in English only, with Caveman2Cosmos's wording from its `PitBoss_CIV4GameText.xml`: "Would you like to install the latest updates?".
+
+Found on 2026-11-26 by Claude Code Opus 5.5 while carrying the base-game entry points.
 
 <a id="ki-1086"></a>
 
