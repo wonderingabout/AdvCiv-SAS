@@ -25,7 +25,8 @@ from sas_live_define_overrides_file import ALLOWED_RELATIVE, VALUES_RELATIVE, XM
 from cpp_define_reads_cached import blank_source
 
 
-PYTHON_ROOTS = ("Assets/Python", "PrivateMaps")
+# <!-- custom: SASPilot/game holds SASPilotCommands.py and SASPilotUI.py, which run inside the game's Python 2.4 too; Codex's review of the 2026-11-27 merge of main found by-name reads there this check had skipped. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+PYTHON_ROOTS = ("Assets/Python", "PrivateMaps", "SASPilot/game")
 
 
 def python_files(source: RepoSource):

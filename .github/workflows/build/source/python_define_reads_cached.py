@@ -25,7 +25,8 @@ from xml_defines import get_default_repo_root
 from ci_markers import DEFINE_UNCACHED as MARKER
 
 
-SCAN_RELATIVE_DIRS = (Path("Assets/Python"), Path("PrivateMaps"))
+# <!-- custom: SASPilot/game holds SASPilotCommands.py and SASPilotUI.py, which run inside the game's Python 2.4 too; Codex's review of the 2026-11-27 merge of main found by-name reads there this check had skipped. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+SCAN_RELATIVE_DIRS = (Path("Assets/Python"), Path("PrivateMaps"), Path("SASPilot/game"))
 READERS = ("getDefineINT", "getDefineFLOAT", "getDefineSTRING", "getDefineBOOL")
 
 

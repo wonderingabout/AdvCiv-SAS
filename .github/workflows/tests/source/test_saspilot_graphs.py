@@ -31,7 +31,8 @@ class PilotGraphTests(unittest.TestCase):
         extension.CyGlobalContext = lambda: None
         extension.AutomateTypes = object()
         extension.TradeableItems = SimpleNamespace(TRADE_TECHNOLOGIES=1, TRADE_RESOURCES=2, TRADE_CIVIC=3, TRADE_RELIGION=4)
-        with patch.dict(sys.modules, {"CvPythonExtensions": extension, "CvScreensInterface": ModuleType("CvScreensInterface")}):
+        # <!-- custom: SASCurrentDefines too, imported since the commands read their defines through it (2026-11-27); these graph tests read none. (Claude code Opus 5.5) -->
+        with patch.dict(sys.modules, {"CvPythonExtensions": extension, "CvScreensInterface": ModuleType("CvScreensInterface"), "SASCurrentDefines": ModuleType("SASCurrentDefines")}):
             commands = runpy.run_path(str(COMMANDS))
         self.scope = commands["cmd_graph"].__globals__
 

@@ -25,6 +25,8 @@ import sys
 import time
 import traceback
 import CvScreensInterface
+# <!-- custom: SASCurrentDefines reads the inherited defines the geography, deal and builds commands show, as main's python_define_reads_cached.py requires once it covered SASPilot/game (Codex's review of the 2026-11-27 merge); a leaf module, so no cycle. See KI#128.9. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+import SASCurrentDefines
 
 gc = CyGlobalContext()
 
@@ -3475,15 +3477,15 @@ def cmd_geography(args):
 	iTeamsAlive = len([1 for i in range(gc.getMAX_CIV_TEAMS()) if gc.getTeam(i).isAlive() and not gc.getTeam(i).isMinorCiv() and not gc.getTeam(i).isBarbarian()])
 	iMetTeams = len([1 for i in range(gc.getMAX_CIV_TEAMS()) if i != iTeam and gc.getTeam(i).isAlive() and not gc.getTeam(i).isMinorCiv() and not gc.getTeam(i).isBarbarian() and team.isHasMet(i)])
 	szContact = "We have seen %d%% of the map and met %d of %d rivals." % ((iLandSeen + iWaterSeen) * 100 / max(1, cyMap.numPlots()), len(rivals), iRivalsAlive)
-	if not gc.getDefineINT("TECH_DIFFUSION_ENABLE"):
-		iMax = gc.getDefineINT("TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER")
+	if not SASCurrentDefines.getInt("TECH_DIFFUSION_ENABLE"):
+		iMax = SASCurrentDefines.getInt("TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER")
 		# <!-- custom: Our own team counts among the teams alive but never knows the tech it researches, so everyone met gives (teams alive - 1) / teams alive of the modifier: 28% of 30 with 15 teams, not the 30% the first wording said. (Claude code Opus 5.5) -->
 		szContact += " Contact speeds research: each met team knowing a tech adds %d%% / %d teams alive to it, so ours tops out at %.2f%% against %.2f%% with everyone met; met teams also trade techs, open borders and resources." % (iMax, iTeamsAlive, iMax * iMetTeams / float(max(1, iTeamsAlive)), iMax * (iTeamsAlive - 1) / float(max(1, iTeamsAlive)))
 	takeaways.append(szContact)
 	overseas = [r["name"] for r in rivals if not r["sharesOurLandmass"] and not r["openBorders"] and not r["atWar"]]
 	if overseas:
 		# <!-- custom: CvTeam::isFreeTrade needs open borders for foreign trade routes, CvCity adds OVERSEAS_TRADE_MODIFIER to a route to another landmass, and CvUnit::canEnterTerritory keeps our units and ships out of their borders without open borders or war. (Claude code Opus 5.5) -->
-		takeaways.append("No open borders with overseas rivals %s: open borders allow foreign trade routes, which to another landmass also earn the overseas bonus (%d%%), and let our ships and units enter their borders, to explore past them or reach further rivals." % (", ".join(overseas), gc.getDefineINT("OVERSEAS_TRADE_MODIFIER")))
+		takeaways.append("No open borders with overseas rivals %s: open borders allow foreign trade routes, which to another landmass also earn the overseas bonus (%d%%), and let our ships and units enter their borders, to explore past them or reach further rivals." % (", ".join(overseas), SASCurrentDefines.getInt("OVERSEAS_TRADE_MODIFIER")))
 	oceanShips = [s for s in crossing["ships"] if s["canEnterOcean"]]
 	if others and not landRivals:
 		if crossing["landmassesReachedAlongCoast"]:
@@ -5352,7 +5354,7 @@ def cmd_deals(args):
 
 def _dealTurnsToCancel(deal):
 	# <!-- custom: CvDeal::turnsToCancel, which Python cannot call: the deal's first turn plus PEACE_TREATY_LENGTH, less the current turn (advc.034 shortens it for a disengagement, which this leaves out, so for one it can say later than the game, never earlier, as Codex's review noted in round 37). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	return deal.getInitialGameTurn() + gc.getDefineINT("PEACE_TREATY_LENGTH") - gc.getGame().getGameTurn()
+	return deal.getInitialGameTurn() + SASCurrentDefines.getInt("PEACE_TREATY_LENGTH") - gc.getGame().getGameTurn()
 
 
 _HELP["canceldeal"] = "Cancel one of our deals, as the Foreign Advisor's cancel button does: it raises the same confirmation popup, which 'answer' then confirms (button 0) or declines (button 1). Refused before the game allows it ('deals' gives turnsToCancel) and for deals holding a vassal item. args: deal (ID from 'deals')."
@@ -6414,7 +6416,7 @@ def cmd_builds(args):
 			# <!-- custom: The plot's reasons, as the plot check gives no reason of its own; CvPlot::canBuild asks canHaveImprovement before the feature, so a Mine on flat Marsh is refused for the terrain, not for draining the Marsh. (Claude code Opus 5.5) -->
 			if info.getImprovement() >= 0 and not plot.canHaveImprovement(info.getImprovement(), unit.getTeam(), True):
 				reason = "%s cannot be on this plot (terrain, feature or another rule)" % gc.getImprovementInfo(info.getImprovement()).getType()
-			elif iFeature >= 0 and info.isFeatureRemove(iFeature) and iOwner < 0 and not gc.getDefineINT("CAN_CHOP_UNOWNED_FEATURES"):
+			elif iFeature >= 0 and info.isFeatureRemove(iFeature) and iOwner < 0 and not SASCurrentDefines.getInt("CAN_CHOP_UNOWNED_FEATURES"):
 				reason = "removes %s, which unclaimed land does not allow (advc.119, CAN_CHOP_UNOWNED_FEATURES)" % gc.getFeatureInfo(iFeature).getType()
 			elif iFeature >= 0 and info.isFeatureRemove(iFeature) and iOwner >= 0 and gc.getPlayer(iOwner).getTeam() != unit.getTeam():
 				reason = "removes %s on another team's land" % gc.getFeatureInfo(iFeature).getType()

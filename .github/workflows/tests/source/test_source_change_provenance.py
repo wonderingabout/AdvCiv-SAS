@@ -199,7 +199,8 @@ class SourceChangeProvenanceTests(unittest.TestCase):
     # <!-- custom: A Claude model named without its family fails in each language, while the full name and prose mentions pass. (Claude code Opus 5.5) -->
     def test_incomplete_model_credit(self):
         for path, prefix in (("LLM_Helpers/test.py", "# "), ("CvGameCoreDLL/Test.cpp", "// "), ("Assets/XML/Test.xml", "")):
-            for credit in ("Claude code Opus 4.6 + Opus 5.5", "code Opus 5.5", "Sonnet 4.6", "GPT-6.2-Sol, fable 5.2"):
+            # <!-- custom: The versionless and nested-note cases are Codex's, from its review of the 2026-11-27 merge into the SASPilot branch. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+            for credit in ("Claude code Opus 4.6 + Opus 5.5", "code Opus 5.5", "Sonnet 4.6", "GPT-6.2-Sol, fable 5.2", "Claude code Fable 5.2 + Opus", "GPT-6.2-Sol + code Sonnet", "Claude code Fable 5.2 + Opus 5.5 (review + test)"):
                 with self.subTest(path=path, credit=credit):
                     source = prefix + "<!-- custom: Explain this. (" + credit + ") -->\n"
                     self.assertTrue(any("leaves out the model family" in error for error in self.errors(path, "", source)))

@@ -98,7 +98,7 @@ sasFontTagLabel = _DynamicFontTag("SAS_UI_FONT_LABEL")
 sasFontTagTitle = _DynamicFontTag("SAS_UI_FONT_TITLE")
 
 # <!-- custom: SASPilot can preview the Python layout fonts within one game session.
-# Native widget tooltips cache the hover font separately in the DLL. (GPT-6.2-Sol) -->
+# Native widget tooltips do not follow the preview: since main's live define overrides (merged 2026-11-27), CvDLLWidgetData reads the label size from the define cache at each hover, while the preview stays in Python; the DLL no longer caches its own hover size. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 # <!-- custom: Not gated on SASPilot's switch: nothing changes until a caller sets a preview, and another caller, such as an in-game font option shown live, could use it too; SASPilot's uifont is the first. (Claude code Opus 5.5) -->
 _PREVIEW_FONT_TAGS = {"tiny": sasFontTagTiny, "body": sasFontTagBody, "label": sasFontTagLabel, "title": sasFontTagTitle}
 

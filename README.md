@@ -1783,10 +1783,6 @@ Alongside the automated GitHub CI checks, [`tests/`](/tests/README.md) contains 
 
 The first is a Windows/VC2003 diagnostic writer test: it compiles the actual logging code into a temporary program and checks file sharing, Unicode paths and recovery from simulated write failures. Run it when changing the writer or investigating missing/corrupted output; full DLL compilation and in-game validation remain separate.
 
-A third, [`inherited_files.tsv`](/_0_Legacy/Docs/Manifests/inherited_files.tsv), covers files rather than text: every Python, XML, C++, `res` and `Config` file the base game and base AdvCiv ship, with its path, layers and file events in upstream AdvCiv's history.
-
-It feeds the [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md): which inherited filenames SAS keeps, and when and why it added, removed or renamed the files.
-
 ### CI
 
 - DLL shipping checks require a changed Release DLL/JSON pair, matching successful build evidence and the `[ci_update_dll]` commit-message marker; a marker without a changed pair also fails.
