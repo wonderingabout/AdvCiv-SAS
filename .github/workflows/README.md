@@ -475,7 +475,7 @@ The guard checks registration, shipped values and filename literals in the decla
 
 Keeps the blocking SASGameRecord CI intentionally small:
 
-- `SAS_SGR_LOG` must be `0` in committed defaults.
+- `SAS_SGR_LOG_ON` must be `0` in committed defaults, and `SAS_SGR_LOG` `0` too, so a player turns on the master, then picks a level, as with BBAI; until [SASGameRecord revision 214](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md#revision-214---sas-practical-6868), `SAS_SGR_LOG` alone was the switch and had to be `0`.
 - `SAS_SGR_ACTION_TRACE_ON` must be `1`, and `SAS_SGR_SYSTEM_CONTEXT_LVL` must be `2`.
 - `SAS_WORLD_CHANGES_SCRIPT_TEXT_ON` must be `1`: saved Changes history retains applied WorldBuilder script text by default even when SGR logging is disabled. Local opt-out tests must not change the committed default.
 - Hardware identity, exact paths and process-context opt-ins must each be `0`; these checks catch accidentally committed diagnostic test overrides.
@@ -1669,6 +1669,7 @@ It enforces these review rules introduced after repeated provenance mistakes:
 - newly authored or substantively rewritten source comments use `<!-- custom: ... (model credit) -->`; model-authored comments need the credit, while user-authored comments may omit it. Missing model credits are advisory warnings, not helper failures; unchanged/moved inherited comments and whitespace-only reflow remain valid, while stale inherited comments may simply be removed;
 - when a nearby replacement custom comment retains identical or substantially unchanged prose, recognized existing credits in its trailing parenthesized credit list are preserved; dropping one contributor still fails even if another credit remains. Credit reordering/additions and whitespace reflow are allowed, as are whole-comment deletions and unrelated replacements;
 - parenthesized custom-comment credits reject the known misspellings `Chat-GPT` and `catgpt`, ignoring case. Prose mentions and other model names remain allowed; this is a small typo guard, not a list of approved models;
+- a parenthesized credit naming a Claude model without its family, such as `Opus 5.5` or `code Opus 5.5`, fails; write it in full, such as `Claude code Opus 5.5`. Claude Code Opus 5.5 wrote `(Claude code Opus 4.6 + Opus 5.5)` on 2026-11-26, which the user caught in review, while the credit parser skipped the bare name as no known family;
 - newly introduced source separators of three or more blank lines fail; use at most two.
   - Extra separators can accumulate during agent patching or leave inconsistent runs of four or five blank lines without a structural purpose. This guard prevents that formatting noise after the initial cleanup.
   - Changed Python, C/C++ and XML are compared against the base. Unchanged or shortened inherited runs remain allowed; multiline strings, block comments and XML text are protected.

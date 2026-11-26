@@ -1217,7 +1217,7 @@ python LLM_Helpers/desktop/contact_sheet.py --out captures/sheet.png --columns 3
 
 [`summarize_first_city_scouting.py`](/LLM_Helpers/diagnostics/summarize_first_city_scouting.py) streams one or many opening SGR logs and optionally pairs BBAI logs by process identity and load ordinal. This turns first-capital scouting traces into reviewable summaries across test maps, without adding runtime work or log rows. It covers initial Settlers, not general Scout/Explorer efficiency.
 
-- Record `SAS_SGR_LOG >= 2` for unit IDs and observed scouting origins. Optional `SAS_BBAI_LOG_ON=1` and `SAS_BBAI_SETTLER_LOG=3` add selected-candidate reveal estimates; full FOUND scoring is not required. Set controls before launch and leave shipping defaults disabled.
+- Record with `SAS_SGR_LOG_ON=1` and `SAS_SGR_LOG >= 2` for unit IDs and observed scouting origins. Optional `SAS_BBAI_LOG_ON=1` and `SAS_BBAI_SETTLER_1ST_LOG=3` add selected-candidate reveal estimates; full FOUND scoring is not required. Set controls before launch and leave shipping defaults disabled.
 - Pass SGR paths or quoted globs; repeat `--bbai` for BBAI paths/globs. Extract archived logs first. A separate file is required per session. New/load headers identify sessions; absent or ambiguous matches remain explicitly unpaired.
 - Observed A-B-A origins and revisits are review flags. Requested endpoints alone do not establish arrival. Return-to-found actions remain separate; there is no arbitrary universal founding-time cutoff.
 - Positive estimated information with zero oracle reveals identifies a scoring discrepancy worth inspecting. Oracle counts are pre-move diagnostic estimates, not measured reveals caused by that unit. BBAI lacks unit IDs here, so those selections remain player-level evidence.

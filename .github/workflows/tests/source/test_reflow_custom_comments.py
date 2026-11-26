@@ -81,6 +81,11 @@ class ReflowCustomCommentsTests(unittest.TestCase):
         self.assertFalse(result.endswith("\n"))
         self.assertTrue(self.transform(source + "\n", ".py").endswith("\n"))
 
+    # <!-- custom: A subsystem revision closes a comment like a KI number. (Claude code Opus 5.5) -->
+    def test_revision_reference_stays_on_last_sentence(self):
+        source = '// <!-- custom: The level is fixed per record. See SASGameRecord revision 214 (SGR214). (Claude code Opus 5.5) -->\n'
+        self.assertEqual(self.transform(source), source)
+
     def test_reflow_is_idempotent(self):
         source = '// <!-- custom: First observation. Another observation. See KI#234. (GPT-5.5) -->\n'
         result = self.transform(source)

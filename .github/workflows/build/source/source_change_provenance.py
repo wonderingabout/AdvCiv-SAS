@@ -351,6 +351,21 @@ def credit_spelling_errors(path: str, block: CommentBlock) -> list[str]:
     return errors
 
 
+# <!-- custom: A Claude model's name alone, such as "Opus 5.5" or "code Opus 5.5", leaves out which family and app wrote the comment, so the credit reads "Claude code Opus 5.5" in full.
+# On 2026-11-26 Claude Code Opus 5.5 wrote "(Claude code Opus 4.6 + Opus 5.5)" while restoring an earlier credit, which the user caught in review; the credit parser skipped "Opus 5.5" as no known family, so no rule saw it. (Claude code Opus 5.5) -->
+INCOMPLETE_CREDIT_RE = re.compile(r"^(?:code\s+)?(?:Opus|Sonnet|Haiku|Fable)\b", re.IGNORECASE)
+
+
+def incomplete_credit_errors(path: str, block: CommentBlock) -> list[str]:
+    errors = []
+    for credit in re.finditer(r"\(([^()]*)\)\s*-->", block.raw):
+        for part in re.split(r"\s*[+,;/]\s*|\s+(?:and|&)\s+", credit.group(1)):
+            if INCOMPLETE_CREDIT_RE.match(part.strip()):
+                line = block.start + block.raw.count("\n", 0, credit.start())
+                errors.append("%s:%d: model credit '%s' leaves out the model family; name it in full, such as Claude code Opus 5.5" % (path, line, part.strip()))
+    return errors
+
+
 SAS_HEADER_LINE_RE = re.compile(r"^(?:AI, UI, logging, or other modifications first developed in AdvCiv-SAS|\(c\)\s+2026\s+wonderingabout\b)", re.IGNORECASE)
 
 
@@ -1155,6 +1170,7 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
     old_custom_text = {block.normalized for block in old_comments if block.custom}
     for block in added_custom:
         errors.extend(credit_spelling_errors(path, block))
+        errors.extend(incomplete_credit_errors(path, block))
         errors.extend(stranded_reference_errors(path, block))
         if block.normalized not in old_custom_text:
             errors.extend(generic_credit_errors(path, block))
@@ -1330,7 +1346,7 @@ def check(repo: Path, base_ref: str | None, event_name: str | None = None, warni
 # Each *_errors rule that check_change or check calls is listed here, either as repo-wide, run over every tracked source file on each run, or as diff-only with the reason the whole repository does not meet it; an unlisted rule fails the check, so a new one cannot land without that decision.
 # The counts are from the scan of 2026-11-21.
 # Rules written inline in check_change, such as the interface and import comments, are not covered. (Claude code Opus 5.5) -->
-REPO_WIDE_RULES = ("stranded_reference_errors", "blank_line_errors", "credit_spelling_errors", "cascading_comment_errors")
+REPO_WIDE_RULES = ("stranded_reference_errors", "blank_line_errors", "credit_spelling_errors", "incomplete_credit_errors", "cascading_comment_errors")
 DIFF_ONLY_RULES = {
     "generic_credit_errors": "4 older comments credit only 'ChatGPT', and which model wrote them is not recorded",
     "modification_header_errors": "188 untouched inherited files carry no SAS header, which AGENTS.md allows until a file is changed",
@@ -1375,6 +1391,7 @@ def repo_wide_rule_errors(repo: Path) -> list[str]:
             if block.custom:
                 errors.extend(stranded_reference_errors(path, block))
                 errors.extend(credit_spelling_errors(path, block))
+                errors.extend(incomplete_credit_errors(path, block))
     return errors
 
 

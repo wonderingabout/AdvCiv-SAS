@@ -61,16 +61,6 @@
 #include <utility> // <!-- custom: Needed for Great Person odds pairs in game-record city rows. (ChatGPT-5.5) -->
 #include <vector> // <!-- custom: Used for compact dynamic buckets in game-record known-area, BFC development, advisor, tech-era, worker/settler, and unit-composition rows. (ChatGPT-5.5) -->
 
-static int getClampedSASGameRecordLogLevel(char const* szDefineName)
-{
-	const int iLevel = GC.getDefineINT(szDefineName);
-	if (iLevel < 0)
-		return 0;
-	if (iLevel > 3)
-		return 3;
-	return iLevel;
-}
-
 // <!-- custom: Dedicated structured game-record log for autoplay comparison, general game analysis, and external LLM review.
 // This is independent from SAS_BBAI_LOG_ON because it is a run-report artifact rather than classic AI-decision diagnostics, and writes to SASGameRecord_*.log when enabled.
 // Use ACTION rows rather than generic EVENT rows to avoid confusion with Civ4 random events; dedicated GAME_RECORD_RANDOM_EVENT_* rows are reserved specifically for actual EventTrigger/EventInfo lifecycle boundaries.
@@ -83,9 +73,31 @@ static int getClampedSASGameRecordLogLevel(char const* szDefineName)
 int g_iSASGameRecordLogLevel = 0;
 bool g_bSASGameRecordActionTraceEnabled = false;
 
+// <!-- custom: Keeps only the effective level: 0 while SAS_SGR_LOG_ON is 0, else SAS_SGR_LOG, 0 to 3, where 0 records nothing, as BBAI's categories at 0 under its master do.
+// Until 2026-11-26 SAS_SGR_LOG was master and level at once, clamped to 0..3 with 0 meaning off; the user split the master out, as one define mixed whether a record exists with how detailed it is.
+// A first version also rejected level 0 under an armed master, as Codex's review (GPT-6.2-Sol) had advised; tested in game, its error box struck the user as overreacting, as 0 simply means no record, so only values that cannot be meant, a master other than 0 or 1 or a level outside 0 to 3, show an XML error box, which Release builds show too, and leave the recorder off. See SASGameRecord revision 214 (SGR214).
+// The master must be exactly 0 or 1: a version before took any positive value as on and any negative as off, which Codex's next review found looser than the define's contract. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 void cacheSASGameRecordLogLevel()
 {
-	g_iSASGameRecordLogLevel = getClampedSASGameRecordLogLevel("SAS_SGR_LOG");
+	// <!-- custom: ci_define_uncached: both are read once, at XML load. (Claude code Opus 5.5) -->
+	g_iSASGameRecordLogLevel = 0;
+	int const iOn = GC.getDefineINT("SAS_SGR_LOG_ON");
+	int const iLevel = GC.getDefineINT("SAS_SGR_LOG");
+	if ((iOn != 0 && iOn != 1) || iLevel < 0 || iLevel > 3)
+	{
+		// <!-- custom: Shown once per DLL process, across saves: in the 2026-11-26 test the box was still there after OK was pressed; a second load of the defines at startup is the suspected cause, not traced, as Codex's review (GPT-6.2-Sol) asked to state. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		static bool bShown = false;
+		if (!bShown)
+		{
+			bShown = true;
+			CvString szMessage;
+			szMessage.Format("SAS_SGR_LOG_ON is %d and SAS_SGR_LOG is %d; SAS_SGR_LOG_ON must be 0 or 1, and SAS_SGR_LOG 0 to 3, so SASGameRecord stays off for this session. See SASGameRecord revision 214 (SGR214).", iOn, iLevel);
+			gDLL->MessageBox(szMessage.GetCString(), "XML Error");
+		}
+		return;
+	}
+	if (iOn == 1)
+		g_iSASGameRecordLogLevel = iLevel;
 }
 
 // <!-- custom: Resolve the revision-151+ action subject once after XML loading; hot control/player/UI call sites then use the cached Boolean without repeated define lookups. (ChatGPT-5.6-Sol) -->
@@ -2105,8 +2117,8 @@ static void flushSASGameRecordInitializingActions(bool bContextComplete)
 
 void logSASGameRecord(TCHAR* format, ... )
 {
-	static const bool bEnabled = isSASGameRecordLogEnabled();
-	if (!bEnabled)
+	// <!-- custom: Was a first-use static copy of isSASGameRecordLogEnabled(), redundant with the level cached at XML load; the inline read is as cheap, and keeps one source of truth, as Codex's review (GPT-6.2-Sol) noted. See SASGameRecord revision 214 (SGR214). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if (!isSASGameRecordLogEnabled())
 		return;
 	// <!-- custom: CITY_BOMBARD is buffered only across consecutive equivalent actions.
 	// Flush it before the next ordinary GameRecord row so repeated siege clicks become one synthetic line without losing same-turn ordering relative to battles or other actions. (GPT-5.6 Thinking) -->
@@ -2588,6 +2600,8 @@ static CvString getSASGameRecordLogSettingFields()
 	// <!-- custom: ci_define_uncached: runs once per session snapshot, as above. (Claude code Opus 5.5) -->
 	SASGameRecordLogSetting const aSettings[] =
 	{
+		// <!-- custom: The master, which is always 1 here, as no record is written otherwise; listed so the row names both of the record's controls since SASGameRecord revision 214 (SGR214), as Codex's review (GPT-6.2-Sol) suggested. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		{ "SAS_SGR_LOG_ON", isSASGameRecordLogEnabled() },
 		{ "SAS_SGR_LOG", getSASGameRecordLogLevel() },
 		{ "SAS_SGR_INTERVAL_T_UNSCALED_GS", getSASGameRecordTurnInterval() },
 		{ "SAS_SGR_LOG_USE_TIMESTAMPED_FILENAME", isSASGameRecordTimestampedFilenameEnabled() },

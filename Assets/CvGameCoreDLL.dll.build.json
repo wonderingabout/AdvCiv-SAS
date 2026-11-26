@@ -4,7 +4,7 @@
     "configuration":  "Release",
     "target":  "Release",
     "request":  "REBUILD",
-    "startedUtc":  "2026-11-26T10:21:26.429Z",
+    "startedUtc":  "2026-11-26T11:24:01.926Z",
     "branch":  "UNAVAILABLE",
     "commit":  "UNAVAILABLE",
     "workingTreeStatus":  "UNAVAILABLE",
@@ -17,39 +17,53 @@
                        "ancestorState":  "OBSERVED",
                        "ancestors":  [
                                          {
-                                             "processId":  16856,
+                                             "processId":  20260,
                                              "name":  "cmd.exe",
                                              "path":  "C:\\Windows\\system32\\cmd.exe",
                                              "fileVersion":  "10.0.19041.4522 (WinBuild.160101.0800)",
                                              "productVersion":  "10.0.19041.4522"
                                          },
                                          {
-                                             "processId":  5748,
+                                             "processId":  27048,
                                              "name":  "python.exe",
                                              "path":  "C:\\Users\\PC\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
                                              "fileVersion":  "3.14.10",
                                              "productVersion":  "3.14.10"
                                          },
                                          {
-                                             "processId":  20176,
+                                             "processId":  28964,
                                              "name":  "py.exe",
                                              "path":  "C:\\Users\\PC\\AppData\\Local\\Programs\\Python\\Launcher\\py.exe",
                                              "fileVersion":  "3.14.10",
                                              "productVersion":  "3.14.10"
                                          },
                                          {
-                                             "processId":  29932,
-                                             "name":  "powershell.exe",
-                                             "path":  "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-                                             "fileVersion":  "10.0.19041.4522 (WinBuild.160101.0800)",
-                                             "productVersion":  "10.0.19041.4522"
+                                             "processId":  1668,
+                                             "name":  "bash.exe",
+                                             "path":  "C:\\Program Files\\Git\\bin\\..\\usr\\bin\\bash.exe",
+                                             "fileVersion":  null,
+                                             "productVersion":  null
                                          },
                                          {
-                                             "processId":  26832,
-                                             "name":  "cmd.exe",
-                                             "path":  "C:\\Windows\\System32\\cmd.exe",
-                                             "fileVersion":  "10.0.19041.4522 (WinBuild.160101.0800)",
-                                             "productVersion":  "10.0.19041.4522"
+                                             "processId":  27408,
+                                             "name":  "bash.exe",
+                                             "path":  "C:\\Program Files\\Git\\bin\\..\\usr\\bin\\bash.exe",
+                                             "fileVersion":  null,
+                                             "productVersion":  null
+                                         },
+                                         {
+                                             "processId":  22128,
+                                             "name":  "bash.exe",
+                                             "path":  "C:\\Program Files\\Git\\bin\\..\\usr\\bin\\bash.exe",
+                                             "fileVersion":  null,
+                                             "productVersion":  null
+                                         },
+                                         {
+                                             "processId":  11660,
+                                             "name":  "bash.exe",
+                                             "path":  "C:\\Program Files\\Git\\bin\\bash.exe",
+                                             "fileVersion":  "2.53.0.windows.2",
+                                             "productVersion":  "2.53.0.windows.2"
                                          },
                                          {
                                              "processId":  6592,
@@ -57,20 +71,6 @@
                                              "path":  "C:\\Users\\PC\\AppData\\Local\\Claude-Data\\claude_pzs8sxrjxfjjc\\claude-code\\2.1.330\\9424831ad51c\\claude.exe",
                                              "fileVersion":  "2.1.330.0",
                                              "productVersion":  "2.1.330.0"
-                                         },
-                                         {
-                                             "processId":  1932,
-                                             "name":  "claude.exe",
-                                             "path":  "C:\\Program Files\\WindowsApps\\Claude_6.28899.6.0_x64__pzs8sxrjxfjjc\\app\\Claude.exe",
-                                             "fileVersion":  "6.28899.6",
-                                             "productVersion":  "6.28899.6"
-                                         },
-                                         {
-                                             "processId":  18204,
-                                             "name":  "claude.exe",
-                                             "path":  "C:\\Program Files\\WindowsApps\\Claude_6.28899.6.0_x64__pzs8sxrjxfjjc\\app\\Claude.exe",
-                                             "fileVersion":  "6.28899.6",
-                                             "productVersion":  "6.28899.6"
                                          }
                                      ]
                    },
@@ -119,16 +119,16 @@
                              "reason":  "GIT_UNAVAILABLE"
                          },
     "tempBefore":  {
-                       "directoryPresent":  true,
-                       "objectCount":  169,
+                       "directoryPresent":  false,
+                       "objectCount":  0,
                        "incompleteMarkerCount":  0,
-                       "pchPresent":  true,
+                       "pchPresent":  false,
                        "pdbPresent":  false
                    },
     "dllBefore":  {
                       "sizeBytes":  8470528,
-                      "modifiedUtc":  "2026-11-26T10:16:41.158Z",
-                      "sha256":  "7BA9C85E6536D11CFC002A97CD9ECC8923D0A772B755520A982419271D7389DC"
+                      "modifiedUtc":  "2026-11-26T11:18:33.479Z",
+                      "sha256":  "075490F97CA129329CEE6ABD2D25D7D2A9FDA604039123E3C1F63B65E8FBAA94"
                   },
     "status":  "SUCCEEDED",
     "logFile":  "AdvCiv.log",
@@ -569,7 +569,7 @@
                               {
                                   "path":  "CvGameCoreDLL/CvDLLWidgetData.cpp",
                                   "sizeBytes":  230918,
-                                  "modifiedUtc":  "2026-11-26T10:21:25.754Z",
+                                  "modifiedUtc":  "2026-11-26T10:36:32.838Z",
                                   "sha256":  "272C07AD5B0E26695B0E497D5A33F0902C3C3DA02F238A2E00F696D749A67981"
                               },
                               {
@@ -1402,15 +1402,15 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CyGame.cpp",
-                                  "sizeBytes":  53062,
-                                  "modifiedUtc":  "2026-11-26T09:59:42.610Z",
-                                  "sha256":  "4AD33D3A06EE6896DFBD6311AB68AC5889DD0B2F2C0683B124421EF2DA0EB893"
+                                  "sizeBytes":  53267,
+                                  "modifiedUtc":  "2026-11-26T11:24:01.501Z",
+                                  "sha256":  "7577000C1229CAA0A314DF439E7ECF1FFE161814B077C36D8C3EEF01C8C45D99"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CyGame.h",
-                                  "sizeBytes":  20744,
-                                  "modifiedUtc":  "2026-11-26T09:59:42.611Z",
-                                  "sha256":  "B862F60BA1B25034043C2A4A85858692AD9A30312FE00594C6D34A9D3E8EFB13"
+                                  "sizeBytes":  21078,
+                                  "modifiedUtc":  "2026-11-26T11:24:01.501Z",
+                                  "sha256":  "AEDB97929659745048DD23A69EFA21906986D2C1FE7CF4442223E4F9EC8996A1"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CyGameCoreUtils.cpp",
@@ -1433,10 +1433,10 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CyGameInterface.cpp",
-                                  "sizeBytes":  32308,
-                                  "modifiedUtc":  "2026-11-26T09:59:42.612Z",
-                                  "sha256":  "E548FC42A6F2048C7DEA8053D811D6183D52BDC7896A0E5FADA2940F3961112C",
-                                  "pythonBindingsSha256":  "7299ADE0E687F0E8968D66A5D0B72F60D292F44CF60B1B559460316E12B40732"
+                                  "sizeBytes":  32671,
+                                  "modifiedUtc":  "2026-11-26T11:24:01.501Z",
+                                  "sha256":  "3E5E3A12E8D2A02EA60836A0CE7D098D55E281F749C398C9C4BAACBD4C8998BC",
+                                  "pythonBindingsSha256":  "B55A248B8D3D90B2B02ED962440177197BF0949BD82128C4663C72DDAA7E9659"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CyGameTextMgr.cpp",
@@ -2126,15 +2126,15 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/SASGameRecordLog.cpp",
-                                  "sizeBytes":  1227154,
-                                  "modifiedUtc":  "2026-11-26T09:59:42.652Z",
-                                  "sha256":  "8973F84CB8789145524FD0889FD8848FFB946732DC41BD6C7269304E5385C2EC"
+                                  "sizeBytes":  1229496,
+                                  "modifiedUtc":  "2026-11-26T11:24:01.502Z",
+                                  "sha256":  "E90A604776510ADB49AC3623BB642CCE5AD944F2137CAAF45B5357E6909EA139"
                               },
                               {
                                   "path":  "CvGameCoreDLL/SASGameRecordLog.h",
-                                  "sizeBytes":  137155,
-                                  "modifiedUtc":  "2026-11-26T09:59:42.653Z",
-                                  "sha256":  "DEE65E84F3F294A052AFF9CDF71E02884BB76A86C4120C579138BB29B074371A"
+                                  "sizeBytes":  137293,
+                                  "modifiedUtc":  "2026-11-26T11:24:01.502Z",
+                                  "sha256":  "09D3D1F52C2A1A8CD0AC7BDF1FB49DDBC084A94EE54A76F4B6850A3F58F16352"
                               },
                               {
                                   "path":  "CvGameCoreDLL/SASRuntimeStatus.cpp",
@@ -2356,34 +2356,58 @@
     "sincePreviousBuild":  {
                                "available":  true,
                                "scope":  "PREVIOUS_BUILD_END_TO_CURRENT_BUILD_START",
-                               "previousStartedUtc":  "2026-11-26T10:14:45.447Z",
-                               "previousEndedUtc":  "2026-11-26T10:16:41.204Z",
+                               "previousStartedUtc":  "2026-11-26T11:16:37.346Z",
+                               "previousEndedUtc":  "2026-11-26T11:18:33.533Z",
                                "previousConfiguration":  "Release",
                                "previousRequest":  "REBUILD",
                                "previousStatus":  "SUCCEEDED",
                                "previousCommit":  "UNAVAILABLE",
                                "previousFileCount":  362,
                                "currentFileCount":  362,
-                               "changedCount":  1,
+                               "changedCount":  5,
                                "changes":  [
                                                {
-                                                   "path":  "CvGameCoreDLL/CvDLLWidgetData.cpp",
+                                                   "path":  "CvGameCoreDLL/CyGame.cpp",
+                                                   "change":  "TIMESTAMP_ONLY",
+                                                   "beforeModifiedUtc":  "2026-11-26T11:16:36.898Z",
+                                                   "afterModifiedUtc":  "2026-11-26T11:24:01.501Z"
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/CyGame.h",
                                                    "change":  "CONTENT_CHANGED",
                                                    "after":  {
-                                                                 "sizeBytes":  230918,
-                                                                 "modifiedUtc":  "2026-11-26T10:21:25.754Z",
-                                                                 "sha256":  "272C07AD5B0E26695B0E497D5A33F0902C3C3DA02F238A2E00F696D749A67981"
+                                                                 "sizeBytes":  21078,
+                                                                 "modifiedUtc":  "2026-11-26T11:24:01.501Z",
+                                                                 "sha256":  "AEDB97929659745048DD23A69EFA21906986D2C1FE7CF4442223E4F9EC8996A1"
                                                              },
                                                    "before":  {
-                                                                  "sizeBytes":  230906,
-                                                                  "modifiedUtc":  "2026-11-26T10:14:44.775Z",
-                                                                  "sha256":  "FE8A82CB21319FC3CF46553E50FD491470AE67D3246A7C17385A87B67686437E"
+                                                                  "sizeBytes":  21060,
+                                                                  "modifiedUtc":  "2026-11-26T11:16:36.898Z",
+                                                                  "sha256":  "23675244ED84750D846DD612C9F27FB669BD672710B5F5191D2CCC737CF39C11"
                                                               }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/CyGameInterface.cpp",
+                                                   "change":  "TIMESTAMP_ONLY",
+                                                   "beforeModifiedUtc":  "2026-11-26T11:16:36.899Z",
+                                                   "afterModifiedUtc":  "2026-11-26T11:24:01.501Z"
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/SASGameRecordLog.cpp",
+                                                   "change":  "TIMESTAMP_ONLY",
+                                                   "beforeModifiedUtc":  "2026-11-26T11:16:36.899Z",
+                                                   "afterModifiedUtc":  "2026-11-26T11:24:01.502Z"
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/SASGameRecordLog.h",
+                                                   "change":  "TIMESTAMP_ONLY",
+                                                   "beforeModifiedUtc":  "2026-11-26T11:16:36.899Z",
+                                                   "afterModifiedUtc":  "2026-11-26T11:24:01.502Z"
                                                }
                                            ]
                            },
-    "endedUtc":  "2026-11-26T10:23:21.995Z",
-    "durationMilliseconds":  115550,
+    "endedUtc":  "2026-11-26T11:26:00.622Z",
+    "durationMilliseconds":  118694,
     "exitCode":  0,
     "warningCount":  0,
     "errorCount":  0,
@@ -2408,8 +2432,8 @@
                   },
     "dllAfter":  {
                      "sizeBytes":  8470528,
-                     "modifiedUtc":  "2026-11-26T10:23:21.947Z",
-                     "sha256":  "92AA150D7BC5610A951EF1BA81A0EA6DFD53AE5C44E607CA5B2F36B58AD6673D"
+                     "modifiedUtc":  "2026-11-26T11:26:00.562Z",
+                     "sha256":  "F57EC42E6ECD022B232B8BEE6E9425B488284F505C3AC04EA823DB424DB3C5AE"
                  },
     "buildInputChanges":  [
 

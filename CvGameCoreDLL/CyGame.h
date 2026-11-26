@@ -110,6 +110,8 @@ public:
 	void logSASGameRecordDiagnosticContext(int iRenderQualityLevel, int iAntiAliasingIndex, int iAntiAliasingSamples, int iGlobeViewRenderLevel, int iMovieQualityLevel);
 	// <!-- custom: Session-configuration timeline bridge plus level-2+ native runtime-view snapshot and internal active-INI resolver; caller-side gates avoid Python collection work when SASGameRecord is disabled. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	void logSASGameRecordSessionSettings(std::string szEvent, std::string szReason, std::string szSource, std::string szGroup, int iCount, std::string szValues);
+	// <!-- custom: The recorder's effective level, 0 while SAS_SGR_LOG_ON is 0, so Python gates on the same value as the DLL rather than reading SAS_SGR_LOG itself, which alone no longer turns the record on or off. See SASGameRecord revision 214 (SGR214). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	int getSASGameRecordLogLevel() const;
 	void logSASGameRecordRuntimeViewStateSnapshot(std::string szReason);
 	// <!-- custom: Revision 151 bridges Python-owned screen/navigation and local interface state into the native recorder without exposing a generic arbitrary-log-string API.
 	// Callers still pre-gate level 2+. (ChatGPT-5.6-Sol) -->

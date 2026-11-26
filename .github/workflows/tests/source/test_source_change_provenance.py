@@ -196,6 +196,17 @@ class SourceChangeProvenanceTests(unittest.TestCase):
                 source = prefix + "<!-- custom: Mention catgpt and Chat-GPT as examples. (" + name + ") -->\n"
                 self.assertFalse(any("misspelled model credit" in error for error in self.errors(path, "", source)))
 
+    # <!-- custom: A Claude model named without its family fails in each language, while the full name and prose mentions pass. (Claude code Opus 5.5) -->
+    def test_incomplete_model_credit(self):
+        for path, prefix in (("LLM_Helpers/test.py", "# "), ("CvGameCoreDLL/Test.cpp", "// "), ("Assets/XML/Test.xml", "")):
+            for credit in ("Claude code Opus 4.6 + Opus 5.5", "code Opus 5.5", "Sonnet 4.6", "GPT-6.2-Sol, fable 5.2"):
+                with self.subTest(path=path, credit=credit):
+                    source = prefix + "<!-- custom: Explain this. (" + credit + ") -->\n"
+                    self.assertTrue(any("leaves out the model family" in error for error in self.errors(path, "", source)))
+            for credit in ("Claude code Opus 4.6 + Claude code Opus 5.5", "Claude Sonnet 5.5", "GPT-6.2-Sol"):
+                source = prefix + "<!-- custom: Opus 5.5 wrote this, as prose. (" + credit + ") -->\n"
+                self.assertFalse(any("leaves out the model family" in error for error in self.errors(path, "", source)))
+
     def test_new_noncustom_comment_fails_but_credentialed_custom_passes(self):
         old = "int value = 1;\n"
         bad = "// New explanation.\nint value = 1;\n"

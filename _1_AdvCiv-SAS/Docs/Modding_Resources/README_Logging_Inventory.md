@@ -140,7 +140,7 @@ The files below do not belong to one logging framework. Civ4 accumulated several
 | `StartingPos.log` | AdvCiv | AdvCiv's Starting Position Iteration work began publicly on 2020-05-27 as a fairer-start algorithm; this log traces that subsystem when enabled. | Algorithm trace, not general diagnostics. Header/run context is preferable to verbose per-line timestamps. |
 | `juggle_log.txt`, `combat.txt` | K-Mod/AdvCiv developer diagnostics | Compile-time specialist diagnostics: citizen-assignment efficiency and combat-odds verification respectively. Exact first introduction was not established here. | Preserve as experiment datasets. A small metadata header is safer than making every record verbose. |
 | `uwai<turn>.log` | AdvCiv `UWAIReport` | Separate war-evaluation reports, with Textile markup, turn-number filenames and report interval/threshold controls. Writers include `UWAIAgent`, `MilitaryAnalyst`, `InvasionGraph`, `ArmamentForecast`, `WarEvaluator` and `WarUtilityAspect`. | Historical in SAS: the standalone report files/logger were retired in favor of five independently controlled BBAI categories; see [UWAI diagnostics comparison](#uwai-diagnostics-standalone-advciv-reports-vs-current-bbai-records). |
-| `SASGameRecord_*.log` | AdvCiv-SAS | A new structured game record, complementing inherited BBAI decision traces with run context, periodic state, gameplay history and reproduction evidence. | Independent `SAS_SGR_LOG`; its [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) documents recorder changes. |
+| `SASGameRecord_*.log` | AdvCiv-SAS | A new structured game record, complementing inherited BBAI decision traces with run context, periodic state, gameplay history and reproduction evidence. | Independent `SAS_SGR_LOG_ON`, with its detail in `SAS_SGR_LOG`; its [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) documents recorder changes. |
 | `SASRuntimeStatus.json`, `SASRuntimeHistory_*.jsonl`, `SASRuntimeExit_*.json`, screenshot companions, optional source-watch companions | AdvCiv-SAS | Latest runtime/process evidence, confirmed screenshot-file observations and optional live mod-source/configuration disk-edit observations. | Independent `SAS_RUNTIME_STATUS_ON`; source watching additionally requires default-off `SAS_RUNTIME_SOURCE_WATCH_ON`. Its [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md) documents runtime-recorder changes. |
 
 ### Modernization principles
@@ -448,7 +448,11 @@ For example, `SAS_SGR_MAP_ASCII_SCALE_1_PCT` and `SAS_SGR_MAP_ASCII_SCALE_2_PCT`
 
 The first name previously read `SAS_SGR_MAP_ASCII_OVERVIEW_1_SCALE_PCT`: `MAP_ASCII` already identifies the text map, so dropping `OVERVIEW` makes it shorter and avoids suggesting the unrelated Domestic Advisor Overview tabs. The second setting follows the same pattern.
 
-Enable `SAS_SGR_LOG` in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml); `0` disables the recorder independently of BBAI. `SAS_SGR_LOG_USE_TIMESTAMPED_FILENAME` selects per-session `SASGameRecord_*.log` files or the fixed `SASGameRecord.log` name.
+Enable `SAS_SGR_LOG_ON` in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml), and set its detail with `SAS_SGR_LOG`, 1 to 3, where 0 records nothing; `SAS_SGR_LOG_ON=0` disables the recorder independently of BBAI.
+
+Until [SASGameRecord revision 214](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md#revision-214---sas-practical-6868), `SAS_SGR_LOG` alone did both, with `0` meaning off.
+
+`SAS_SGR_LOG_USE_TIMESTAMPED_FILENAME` selects per-session `SASGameRecord_*.log` files or the fixed `SASGameRecord.log` name.
 
 The record brings together map/geography context, settings and provenance, economy/expansion, city and battle history, diplomacy and military composition. It also records exact AI strategy/victory-stage transitions, RNG evidence and shared diagnostic-writer health according to the selected level and supporting switches.
 

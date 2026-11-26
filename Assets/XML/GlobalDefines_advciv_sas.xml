@@ -2422,8 +2422,16 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 	<!-- custom: Dedicated structured SASGameRecord report, notably for autoplay comparison, general game analysis, user-assistance summaries, and external LLM review.
 	This is independent from the classic SAS_BBAI_LOG_ON diagnostic master switch and writes to SASGameRecord_*.log, so it can produce compact GAME_RECORD_* rows without broad AI-decision spam.
-	The record has one overall log-level define: 0 disables it, while higher values enable more detail; subject-specific supporting switches can suppress selected expensive/noisy families without becoming separate recorder masters.
-	The level is cached once after all GlobalDefines/module overrides load so widespread disabled hooks are direct integer checks; change it before launching/reloading the DLL rather than expecting a runtime Define mutation to retune the recorder (the prior implementation also cached its first resolved value). (ChatGPT-5.5 + GPT-5.5 + ChatGPT-5.6-Sol) -->
+	Subject-specific supporting switches below can suppress selected expensive/noisy families without becoming separate recorder masters. (ChatGPT-5.5 + GPT-5.5 + ChatGPT-5.6-Sol) -->
+	<!-- custom: Master switch of SASGameRecord: 1 writes a record for each new game and loaded save, at the detail SAS_SGR_LOG sets when that is above 0; 0 writes none.
+	Read once at load. See SASGameRecord revision 214 (SGR214). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	<Define>
+		<DefineName>SAS_SGR_LOG_ON</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Detail of SASGameRecord while SAS_SGR_LOG_ON is 1, where 0 records nothing; the record notably covers the starting map and its geography, periodic economy, expansion and military state, and the history of cities, battles, wars and diplomacy.
+	Broadly, 1 keeps compact start context and periodic snapshots; 2 adds the chronicle as it happens, notably techs, wars, city captures, Great People and, with SAS_SGR_ACTION_TRACE_ON, the player's actions; 3 adds detail for deep reviews and run comparisons, notably per-city development, RNG/state checkpoints and, with SAS_SGR_TRADE_MARKET_ON, the active player's trade market.
+	Read once at load and fixed for each record, as some rows are written only when a record starts; restart Civ4 or reload the mod to change it. See SASGameRecord revision 214 (SGR214). (ChatGPT-5.6-Sol + Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -2593,7 +2601,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: Anonymous runtime metrics for SAS game-record performance review.
 	1 records Civ4 process memory, system memory-load percentage, available 32-bit process address space, and foreground/minimized state at full snapshots.
 	0 skips all corresponding operating-system queries and dynamic PSAPI loading while preserving millisecond timing and every gameplay record row; stable fields remain present as -1.
-	This setting has no effect while SAS_SGR_LOG is 0. (GPT-5.6-Sol) -->
+	This setting has no effect while SAS_SGR_LOG_ON is 0. (GPT-5.6-Sol + Claude code Opus 5.5) -->
 	<!-- custom: Keep revision-151+ causal user/action/interface rows independently suppressible at recorder level 2+.
 	Default: 1; notably preserves End Turn/save-load/control requests, popup choices, active-human commerce changes, Python screen/Sevopedia events, city-screen transitions, scoreboard/annotation state, and camera results; 0 skips that whole action trace while retaining revision-150 session settings/runtime-view state and all unrelated recorder families.
 	The DLL and Python callers cache this fixed startup setting after XML is ready, so restart/reload the mod after changing it. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
@@ -2635,7 +2643,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Hardware identity, exact paths and process inspection additionally require their separate opt-ins below, so richer diagnostics do not implicitly disclose device models or personal folder names.
 	Profile values are sampled after GameStart/OnLoad; display context waits for graphics initialization.
 	No per-turn hardware polling is added.
-	Clamped to 0..3; independent from dynamic performance metrics and inactive while SAS_SGR_LOG is 0. (GPT-5.6-Sol + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	Clamped to 0..3; independent from dynamic performance metrics and inactive while SAS_SGR_LOG_ON is 0. (GPT-5.6-Sol + ChatGPT-5.6-Sol + GPT-6.1-Sol + Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_SGR_SYSTEM_CONTEXT_LVL</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
@@ -2687,7 +2695,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>213</iDefineIntVal>
+		<iDefineIntVal>214</iDefineIntVal>
 	</Define>
 
 

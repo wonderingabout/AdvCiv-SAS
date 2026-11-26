@@ -114,6 +114,23 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 214 - SAS practical 6868
+
+- **Date:** 2026-11-26
+- **Git commit:** pending
+- **Functional:** Yes
+- **Change:** A master, `SAS_SGR_LOG_ON`, decides whether a record is written; `SAS_SGR_LOG` keeps its name as the detail level, 1 to 3, with 0 recording nothing.
+  - Until now `SAS_SGR_LOG` was master and level at once, clamped to 0..3 with `0` meaning off. A master other than 0 or 1, or a level outside 0 to 3, shows an XML error box once per DLL process and leaves the recorder off, rather than being clamped.
+  - Python's `SASGameRecordConfig` and BUG's `DiplomacyUtil` read the DLL's effective level through the new `CyGame.getSASGameRecordLogLevel()`, instead of each caching `SAS_SGR_LOG`; `logSASGameRecord` reads the cached level inline instead of its own first-use copy.
+  - `GAME_RECORD_LOG_SETTINGS` adds `SAS_SGR_LOG_ON=1` before `SAS_SGR_LOG`. Both ship at `0`, as BBAI's master and categories do, and development values are 1 and 3, in [`define_values.py`](/LLM_Helpers/README.md#define_valuespy).
+  - Why: the record began as SASGameSummary with a single define (SAS practical 6022, #37), whose comment said it "currently has no separate master switch because the summary has only one log-level define". BBAI, inherited with many category knobs, had a master above them from the start, which made sense there.
+    - When SGR151 (practical 6636) added the action-trace switch (now `SAS_SGR_ACTION_TRACE_ON`), the comment was reworded rather than a master added, as other subject switches such as performance metrics (practical 6104) had been before: subject switches "can suppress selected expensive/noisy families without becoming separate recorder masters". The record kept growing under that one define.
+    - During the SASLiveDefineOverrides work (KI#128.5), the user raised it again: one define mixed whether a record exists with how detailed it is, and a later split of SGR into families like BBAI's categories would want a parent switch.
+    - A master did not make the level live: Codex's review (GPT-6.2-Sol) found that raising it mid-record skips rows written only when the record starts, and lowering it leaves RNG tracking and tracked wars inconsistent, so the level stays fixed per record.
+    - Codex had also advised rejecting level 0 under an armed master; tested in game, its error box struck the user as overreacting, as 0 simply means no record, like BBAI's categories at 0 under their master. The box was still showing after OK was pressed, so it is now shown once per DLL process; a second load of the defines at startup is the suspected cause, not traced.
+  - Tested: in game with a Debug-opt DLL, master 1 and level 3 wrote a record whose `GAME_RECORD_LOG_SETTINGS` starts `SAS_SGR_LOG_ON=1 SAS_SGR_LOG=3`, with Python's session-settings rows present; master 1 and level 0 wrote no record and showed no box. Not tested: the box since its once-per-process guard, and a Release DLL in game.
+  - Implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol).
+
 ### Revision 213 - SAS practical 6865
 
 - **Date:** 2026-11-25

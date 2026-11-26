@@ -104,6 +104,8 @@ void CyGamePythonInterface()
 		.def("logSASGameRecordDiagnosticContext", &CyGame::logSASGameRecordDiagnosticContext, "void (int renderQualityLevel, int antiAliasingIndex, int antiAliasingSamples, int globeViewRenderLevel, int movieQualityLevel) - record finalized session diagnostic settings")
 		// <!-- custom: Compact configuration baseline/change rows, native runtime-view baseline and internal alternate-INI discovery for SASGameRecord; the INI path itself is not logged. (ChatGPT-5.6-Sol) -->
 		.def("logSASGameRecordSessionSettings", &CyGame::logSASGameRecordSessionSettings)
+		// <!-- custom: Python's SASGameRecordConfig reads the recorder's effective level here, so it agrees with the DLL now that SAS_SGR_LOG_ON is the master. See SASGameRecord revision 214 (SGR214). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		.def("getSASGameRecordLogLevel", &CyGame::getSASGameRecordLogLevel, "int () - SASGameRecord's effective level, 0 when off")
 		.def("logSASGameRecordRuntimeViewStateSnapshot", &CyGame::logSASGameRecordRuntimeViewStateSnapshot)
 		// <!-- custom: Narrow revision-151 UI bridges accept only controlled screen/action labels or pre-serialized scalar interface state; no arbitrary user text crosses into the recorder. (ChatGPT-5.6-Sol) -->
 		.def("logSASGameRecordScreenAction", &CyGame::logSASGameRecordScreenAction)

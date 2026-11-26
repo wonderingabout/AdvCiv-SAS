@@ -694,6 +694,8 @@ This permission stays separate from `SAS_SCRAP_ON`, which selects SAS policy opt
 
 The former Settler and Found umbrella settings were split into independent first-city (`_1ST_LOG`) and later-city (`_2PL_LOG`) categories. Both historical spellings in each family have the same replacements.
 
+`SAS_SGR_LOG` kept its name on 2026-11-26 but became the detail level, 1 to 3, under a new master, `SAS_SGR_LOG_ON`: an old `0` now means `SAS_SGR_LOG_ON=0`, and an old 1 to 3 means `SAS_SGR_LOG_ON=1` with the same level; a level of `0` under an armed master records nothing. See [SASGameRecord revision 214](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md#revision-214---sas-practical-6868).
+
 `SAS_UI_FONT_HOVER` was merged into `SAS_UI_FONT_LABEL` on 2026-11-26 rather than renamed: both shipped at 3, and raising the label to 4 meant remembering to raise hover too, which players could miss or find unclear, while hover always wanted the label's size.
 
 The user retired it; it also named where text shows, while tiny, body, label and title name the text's role. A setup that gave hover text its own size now sets it with the label.
