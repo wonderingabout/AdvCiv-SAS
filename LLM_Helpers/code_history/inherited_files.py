@@ -479,11 +479,17 @@ def take_in(paths, civ4_root):
 		if target.exists():
 			raise SystemExit("%s: already in SAS" % rel)
 		lines = (civ4_root / source).read_bytes().decode("ascii").replace("\r\n", "\n").split("\n")
-		if "Copyright Firaxis Games" not in lines[1]:
-			raise SystemExit("%s: no Firaxis notice on line 2; add the header by hand" % source)
-		header = ["#", "# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)", "# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)", "#", "# <!-- custom: Copied from %s's %s (%s), the copy SAS ran before (%s). See KI#1104. (model credit) -->" % (COPY_LAYER_NAMES[layer], (civ4_root / source).resolve(), shipped_by(layers), datetime.now().strftime("%Y-%m-%d"))]
+		header = ["# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)", "# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)", "#", "# <!-- custom: Copied from %s's %s (%s), the copy SAS ran before (%s). See KI#1104. (model credit) -->" % (COPY_LAYER_NAMES[layer], (civ4_root / source).resolve(), shipped_by(layers), datetime.now().strftime("%Y-%m-%d"))]
+		# <!-- custom: vanilla's pyUnit/CvUnitController.py starts with its imports and carries no notice, which the first version refused (2026-11-26); such a file now gets the SAS header on top, and a file with Firaxis's notice on line 2 keeps it first. (Claude code Opus 5.5) -->
+		# <!-- custom: Codex's review noted that a shebang or encoding line must stay first, where Python looks for it, and that "copyright" can come in any case; such files are refused for a hand-made header (2026-11-26). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if len(lines) > 1 and "Copyright Firaxis Games" in lines[1]:
+			lines = lines[:2] + ["#"] + header + lines[2:]
+		elif lines[0].startswith("#!") or any("coding" in line for line in lines[:2]) or any("copyright" in line.lower() for line in lines[:10]):
+			raise SystemExit("%s: a shebang, encoding line or copyright notice away from line 2; add the header by hand" % source)
+		else:
+			lines = header + [""] + lines
 		target.parent.mkdir(parents=True, exist_ok=True)
-		target.write_bytes("\n".join(lines[:2] + header + lines[2:]).encode("ascii"))
+		target.write_bytes("\n".join(lines).encode("ascii"))
 		print("copied %s -> %s; put your model credit in its comment" % (source, rel))
 	return 0
 

@@ -1002,6 +1002,7 @@ The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_
   - It matches names without case, as Civ4 does: a first, case-sensitive comparison missed `CvUNVictoryScreen`, which the logs name `CvUnVictoryScreen`, until Codex caught it (2026-11-22).
 - `--take-in PATH...` copies base-game Python files SAS uses into SAS, from the newest layer providing each, adding only the SAS header and a comment naming the source; put your model credit in that comment. From then on each is an ordinary SAS file.
   - It began as a scratchpad script for KI#1104's first copies, which Codex then checked against their sources one by one.
+  - A file with Firaxis's notice on line 2 keeps it first, the SAS header following; a file without one, such as vanilla's `pyUnit/CvUnitController.py`, gets the SAS header on top, which the first version refused (2026-11-26).
 
 ```bash
 python LLM_Helpers/code_history/inherited_files.py --loaded

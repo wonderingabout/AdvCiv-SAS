@@ -292,6 +292,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#165.10 - (Fixed inherited BtS) `onCorporationRemove` logged an undefined `iReligion` instead of the corporation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.10)\
 [KI#165.11 - (Fixed inherited BUG) `IconGrid_BUG.deleteAllWidgets` incremented an uninitialized `currentX`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.11)\
 [KI#165.12 - (Fixed inherited Planet Generator) `mdArray.__len__` read `self` without accepting a receiver](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.12)\
+[KI#165.13 - (Fixed inherited vanilla, seemingly unused in SAS) `CvUnitController.ProcessEvent` read `MoveFormation_BoxRange`, while its table is `MoveFormation_BoxRanges`, and an enum found in no engine file, so its first move would raise `NameError`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.13)\
 [KI#166 - (Fixed/Addressed) Base AdvCiv issue of trying to support reading mod (e.g., AdvCiv/AdvCiv-SAS) replay/Hall of Fame data in unmodded BTS, or unmodded BTS replay/Hall of Fame data in the mod (e.g., AdvCiv/AdvCiv-SAS): replays no longer try to use vanilla BtS-compatible replay storage after shifted XML enum order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166)\
 [KI#166.2 - (Fixed/Addressed SAS replay-identity follow-up exposed by SASAssertions) AdvCiv's packed replay ID could let incompatible AdvC/legacy shared-ID replays reach current SAS field bounds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.2)\
 [KI#166.3 - (Fixed inherited AdvCiv replay bounds) Valid mod-mod start years were rejected, and invalid final turns did not stop parsing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.3)\
@@ -15751,6 +15752,27 @@ The map creates `worldArray` during plot generation, but I found no direct lengt
 Found by the F405 star-import name check on 2026-11-22 (GPT-6.2-Sol).
 
 Update (2026-11-23): [KI#1108.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108.2) is the opposite case, working inherited Python that ran for nothing, BtS's TechTree in the Foreign Advisor.
+
+<a id="ki-165.13"></a>
+
+## KI#165.13 - (Fixed inherited vanilla, seemingly unused in SAS) `CvUnitController.ProcessEvent` read `MoveFormation_BoxRange`, while its table is `MoveFormation_BoxRanges`, and an enum found in no engine file, so its first move would raise `NameError`
+
+Vanilla's `Assets/Python/pyUnit/CvUnitController.py`, which only vanilla ships, lays out up to five sub-units of a moving unit in formation. Its `ProcessEvent` holds three slips:
+
+- It reads `MoveFormation_BoxRange`, while the table it defines is `MoveFormation_BoxRanges`.
+- The table holds five rows of one to five sub-units' boxes, four coordinates each, though its first row is labelled "Two", and it is indexed by the number alive, so five sub-units would overrun it; which offset was meant is unclear.
+- It passes `BehaviourStoppingCriterion.STOPCRIT_DESTINATION`, a name unresolved in every source and binary checked: `Civ4BeyondSword.exe`, `Civ4BeyondSword_PitBoss.exe`, BtS's DLL and the Python files.
+
+No caller was found beyond `CvUnitControlInterface.ProcessEvent`, its wrapper, and none was seen in BtS: no engine file checked names that function or the `CvUnitControlInterface` module, which the EXE registers with every other module in `EntryPoints`, and registration alone does not show a call. Better BTS AI, K-Mod and base AdvCiv never carried the file.
+
+SAS carried the file with `CvUnitControlInterface.py`, the first of the base-game entry points it carries by [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)'s rule, and `ProcessEvent` now returns 0 at once, which hands the event to the engine's default handling, as `CvUnitControlInterface`'s docstring describes, instead of the `NameError` its first move would raise. The body is kept as comments, its trailing semicolons dropped for CI's Ruff.
+
+- Codex's review (GPT-6.2-Sol) preferred this to fixing the name and index, which would enable a custom animation path relying on unverified bindings.
+- The module still calls `random.seed(37)` if imported, reseeding Python's own `random`, not the game's synchronized random numbers, as vanilla's copy did.
+
+Found by [`star_import_names.py`](/.github/workflows/README.md#buildpythonstar_import_namespy) on 2026-11-26, once the file was carried; Ruff's own report lists the same names as F405.
+
+What the fix does for SAS, as the user asked: with no caller found, it most likely changes nothing in play; it is tidiness that removes a `NameError` waiting for any caller and lets the undefined-name check pass with no exception for this file, so the check keeps catching new slips.
 
 <a id="ki-166"></a>
 
