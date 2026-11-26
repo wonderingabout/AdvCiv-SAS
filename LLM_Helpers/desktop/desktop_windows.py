@@ -194,7 +194,9 @@ def client_offset(pid):
 		raise RuntimeError("no visible window for process %d" % pid)
 	left, top, _right, _bottom = window_rect(hwnd)
 	origin = wt.POINT(0, 0)
-	USER32.ClientToScreen(hwnd, ctypes.byref(origin))
+	# <!-- custom: ClientToScreen's result is checked, as a failure left the point at 0, 0 and gave a wrong offset rather than an error (Codex's review of the main port). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if not USER32.ClientToScreen(hwnd, ctypes.byref(origin)):
+		raise RuntimeError("ClientToScreen failed for process %d's window" % pid)
 	return origin.x - left, origin.y - top
 
 
@@ -767,7 +769,16 @@ def dismiss_dialogs(pid, count):
 	closed = 0
 	misses = 0
 	while closed < count and misses < 3:
-		image = print_window_image(find_window(pid))
+		# <!-- custom: Brought forward before looking, and looked at twice, as Codex's review of the main port noted that click raises the window after the look, so a panel the game put up meanwhile in the same process would take a click meant for an OK; the click goes only where two looks 0.3 s apart agree. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		hwnd = find_window(pid)
+		if hwnd is None:
+			raise RuntimeError("no visible window for process %d" % pid)
+		# <!-- custom: Refused unless the window is really in front, judged by its process as bring_to_front does, before the looks and again just before the click: Codex's second review noted that a failed activation, or focus moving between the looks and the click, let click bring it forward only after the looks, as before. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		bring_to_front(hwnd, pid)
+		if window_pid(USER32.GetForegroundWindow()) != pid:
+			raise RuntimeError("process %d's window did not come to the front; no dialog was clicked" % pid)
+		time.sleep(0.3)
+		image = print_window_image(hwnd)
 		points = find_dialog_ok(image)
 		if not points:
 			break
@@ -776,6 +787,13 @@ def dismiss_dialogs(pid, count):
 			break
 		target = points[0]
 		before = (points, hash(image.crop((target[0] - 250, max(0, target[1] - 160), target[0] + 250, target[1] - 8)).tobytes()))
+		time.sleep(0.3)
+		again = print_window_image(hwnd)
+		if find_dialog_ok(again) != points or hash(again.crop((target[0] - 250, max(0, target[1] - 160), target[0] + 250, target[1] - 8)).tobytes()) != before[1]:
+			misses += 1
+			continue
+		if window_pid(USER32.GetForegroundWindow()) != pid:
+			raise RuntimeError("process %d's window lost the front before the click; no dialog was clicked" % pid)
 		# <!-- custom: click presses nothing when the user's mouse moved just before it (the first run stopped there, 2026-11-20), so wait until the user is idle and look again. (Claude code Opus 5.5) -->
 		try:
 			click(pid, target[0], target[1])
@@ -793,6 +811,8 @@ def dismiss_dialogs(pid, count):
 		else:
 			misses += 1
 	return closed
+
+
 def visible_windows(predicate):
 	found = []
 	proc_type = ctypes.WINFUNCTYPE(wt.BOOL, wt.HWND, wt.LPARAM)

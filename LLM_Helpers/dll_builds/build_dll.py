@@ -91,37 +91,50 @@ def install(configuration: str, close: bool) -> int:
 		print("Civ4 runs with this mod and has the DLL loaded; close it%s:\n  %s" % ("" if close else ", or pass --close", "\n  ".join(clients)))
 		return 1
 	# <!-- custom: Written beside the installed DLL and checked first, then swapped in by a rename, so a failed write never leaves Assets with half a DLL or none (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-	staged = INSTALLED.with_name(INSTALLED.name + ".new")
-	staged.write_bytes(built.read_bytes())
-	if sha256(staged) != sha256(built):
-		staged.unlink()
-		print("the copy to %s differs from %s" % (staged, built))
-		return 1
+	# <!-- custom: Checked against the report's hash, not the build folder's file: Codex's review of the main port saw that a build finishing during --close would replace that file, so both sides of the check would agree on bytes the report never attested.
+	# The copy gets a name of its own, as two installers at once shared one ".new" file. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	import tempfile
+	import time
+	handle, staged_name = tempfile.mkstemp(dir=str(INSTALLED.parent), prefix=INSTALLED.name + ".", suffix=".new")
+	os.close(handle)
+	staged = Path(staged_name)
+	# <!-- custom: The copy is removed on every way out but two: swapped in, or kept on purpose when putting the old DLL back failed too.
+	# Codex's second review ran the code against throwaway DLLs with os.replace forced to fail: the installed DLL stayed intact, but the .new copy remained in Assets. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	bKeepStaged = False
 	try:
-		os.replace(staged, INSTALLED)
-	except PermissionError:
-		# <!-- custom: Windows refuses to overwrite a DLL any process has loaded, which is a surer sign than the mod name: a command line names the mod asked for, not the DLL loaded (Codex's review).
-		# So a lock with any Civ4 still alive is refused; only with none alive, as with pid 32660, is the locked file renamed, which Windows allows, to the temp folder, and put back if the swap still fails. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-		sys.path.insert(0, str(DESKTOP_WINDOWS.parent))
-		import desktop_windows
-		alive = [pid for (pid, _) in desktop_windows.civ4_processes() if desktop_windows.process_alive(pid)]
-		if alive:
-			staged.unlink()
-			print("%s is in use and Civ4 processes still run (%s); close them first" % (INSTALLED, ", ".join([str(pid) for pid in alive])))
+		staged.write_bytes(built.read_bytes())
+		if sha256(staged) != expected:
+			print("the copy to %s is not the DLL the build report attests (%s); build again" % (staged, expected[:12]))
 			return 1
-		# <!-- custom: tempfile for the folder the locked DLL moves to, and time for its name, needed only on this path. (Claude code Opus 5.5) -->
-		import tempfile
-		import time
-		aside = Path(tempfile.gettempdir()) / "AdvCiv-SAS_locked_dlls" / ("CvGameCoreDLL_%s.dll" % time.strftime("%Y%m%dT%H%M%S"))
-		aside.parent.mkdir(parents=True, exist_ok=True)
-		os.replace(INSTALLED, aside)
 		try:
 			os.replace(staged, INSTALLED)
-		except OSError:
-			os.replace(aside, INSTALLED)
-			raise
-		print("the installed DLL was locked by a Civ4 that has exited; moved it to %s" % aside)
-	print("installed %s DLL (%s) to %s" % (configuration, sha256(built)[:12], INSTALLED))
+		except PermissionError:
+			# <!-- custom: Windows refuses to overwrite a DLL any process has loaded, which is a surer sign than the mod name: a command line names the mod asked for, not the DLL loaded (Codex's review).
+			# So a lock with any Civ4 still alive is refused; only with none alive, as with pid 32660, is the locked file renamed, which Windows allows, and put back if the swap still fails. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			sys.path.insert(0, str(DESKTOP_WINDOWS.parent))
+			import desktop_windows
+			alive = [pid for (pid, _) in desktop_windows.civ4_processes() if desktop_windows.process_alive(pid)]
+			if alive:
+				print("%s is in use and Civ4 processes still run (%s); close them first" % (INSTALLED, ", ".join([str(pid) for pid in alive])))
+				return 1
+			# <!-- custom: Moved aside beside it rather than to %TEMP%: os.replace needs one volume, and Steam's folder can sit on another drive than the system's, as Codex's review of the main port noted; a backup next to Assets' DLL is easier to find too. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			aside = INSTALLED.with_name("%s.locked_%s_%d" % (INSTALLED.name, time.strftime("%Y%m%dT%H%M%S"), os.getpid()))
+			os.replace(INSTALLED, aside)
+			try:
+				os.replace(staged, INSTALLED)
+			except OSError:
+				try:
+					os.replace(aside, INSTALLED)
+				except OSError:
+					bKeepStaged = True
+					print("the swap failed and putting the old DLL back failed too: it is kept at %s, the new one at %s" % (aside, staged))
+					raise
+				raise
+			print("the installed DLL was locked by a Civ4 that has exited; moved it to %s, which can be deleted once that process is gone" % aside)
+	finally:
+		if not bKeepStaged and staged.exists():
+			staged.unlink()
+	print("installed %s DLL (%s) to %s" % (configuration, expected[:12], INSTALLED))
 	return 0
 
 

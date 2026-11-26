@@ -18,6 +18,9 @@
 # <!-- custom: Other targets used to stay visible in git status as a reminder to delete them before the next build. Since 2026-11-11 build_with_report.ps1 refuses a BUILD while a target folder holds files, so every target is ignored.
 # The whole folder is ignored too: a tracked .gitkeep kept it in fresh clones for the old CI check, but the Makefile creates it when missing, so the placeholder was dropped. (Claude Code Opus 5.5) -->
 /CvGameCoreDLL/Project/temp_files/
+# <!-- custom: build_dll.py install's copy in progress, and a locked DLL it renamed aside and keeps until that Civ4 is gone, neither meant for a commit (Codex's review, 2026-11-27). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+/Assets/CvGameCoreDLL.dll.*.new
+/Assets/CvGameCoreDLL.dll.locked_*
 *.opensdf
 *.sdf
 *.suo
