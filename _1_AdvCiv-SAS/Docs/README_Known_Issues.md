@@ -224,6 +224,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#128.4 - (Fixed latent inherited AdvCiv) The AI's city-site culture estimate kept the first foreign capital's civilization-specific capital building for every civilization: a static held a value that differs per civilization, harmless only while every civilization builds the same Palace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.4)\
 [KI#128.5 - (Improved SAS) Trying another value of a SAS define, such as a font size, cost a Civ4 restart per try, as the XML is read once; SASLiveDefineOverrides.txt now overrides SAS defines on top of the XML while Civ4 runs, and deleting a line brings the XML value back](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5)\
 [KI#128.6 - (Improved SAS and inherited BUG, guarded by CI) 16 Python define reads ran at import, 15 SAS Sevopedia switches and BUG's PEACE_TREATY_LENGTH, so each kept its first value for the session and no override reached it; they are read at use now, and CI rejects new ones](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.6)\
+[KI#128.7 - (Improved SAS, guarded by CI) A user could not tell which defines SASLiveDefineOverrides.txt reaches: one that follows an override and one whose readers keep their first value look the same in the XML, and both logged APPLIED; SASLiveDefineOverridesAllowed.txt now lists the live ones, and the bridge refuses any other](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.7)\
 [KI#129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-129)\
 [KI#130 - (Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-130)\
 [KI#131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-131)\
@@ -12505,6 +12506,11 @@ Claude Code Opus 5.5 and Codex (GPT-6.2-Sol) judged a fix better deferred, as th
 - The window lasts until the bridge's first successful reread after the reinitialization; as settled polls need two reads and some screens send no game updates, it is not a fixed few seconds.
 - A possible extension would be to test whether a marker kept on Python's `sys` module survives Civ4's reinitialization, as Realism Invictus's `BugInit.py` relies on; if it does, the bridge could keep its active overrides across it, and if not, a record of them owned by the DLL remains the full fix.
 
+Correction (2026-11-26), while reviewing [KI#128.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.7): the values-only file above was the user's request for speed too, not only for a single home for each define's comment, as the file is reread at every poll during play.
+
+- A poll whose text matches the last one stops at the comparison, so the file is parsed only after an edit; a comment there would cost only its bytes' read and comparison at each poll, about 0.5 µs going by the reread measured above, which does not grow over a session.
+- SASLiveDefineOverridesAllowed.txt and NoEntry keep their comments, as they are read once at startup and explain how each define's readers follow an override rather than what the define does, which Codex's review (GPT-6.2-Sol) confirmed.
+
 <a id="ki-128.6"></a>
 
 ## KI#128.6 - (Improved SAS and inherited BUG, guarded by CI) 16 Python define reads ran at import, 15 SAS Sevopedia switches and BUG's PEACE_TREATY_LENGTH, so each kept its first value for the session and no override reached it; they are read at use now, and CI rejects new ones
@@ -12536,6 +12542,40 @@ The user asked whether caching these switches in `__init__` would be faster:
 
 - Under Python 2.4, a `self.` attribute read took 74 ns and `SASCurrentDefines.getInt` 230 ns, best of 5 runs of 200,000; a page reads one to three of them per draw, well under a microsecond, while an attribute would keep its value for the session, so no override would reach it.
 - The Sevopedia is built on its first opening, its modules imported then too, so `__init__` would read them no later. Codex agreed to keep `SASCurrentDefines` for such UI switches, and attribute caches for hot code.
+
+<a id="ki-128.7"></a>
+
+## KI#128.7 - (Improved SAS, guarded by CI) A user could not tell which defines SASLiveDefineOverrides.txt reaches: one that follows an override and one whose readers keep their first value look the same in the XML, and both logged APPLIED; SASLiveDefineOverridesAllowed.txt now lists the live ones, and the bridge refuses any other
+
+- Context: while reviewing [KI#128.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.6) on 2026-11-26, the user saw that the Sevopedia switches it moved to `SASCurrentDefines` now follow an override, yet appear in neither `SASLiveDefineOverrides.txt` nor `SASLiveDefineOverridesNoEntry.txt`, and asked how a user could tell which defines are live.
+  - "From an external perspective, in the XML they look the same; does a user need to grep, kind of tediously, the callers?"
+- There were three states, only two of them visible:
+  - a define with a shipped line, the font sizes and BBAI's 29 log categories, was live, and CI checked that its readers follow an override;
+  - a define in NoEntry was refused, with its reason logged;
+  - any other was applied and logged `APPLIED` whether or not anything followed it: an override reached it only if each reader read it at use, while a DLL `static` or a Python attribute made it a silent no-op, which only reading the callers or [`audit_define_timing.py`](/LLM_Helpers/README.md#audit_define_timingpy) could tell.
+- Claude Code Opus 5.5 offered three options and recommended the first:
+  - an allowlist: a fixed list of the live defines, the bridge refusing any other line;
+  - a mark in each live define's XML comment, checked by CI, which would leave the third state for the rest;
+  - a warning, `APPLIED (unverified)`, for an unlisted define, which would still leave the user guessing.
+- Codex's review (GPT-6.2-Sol) chose the allowlist, as a file of its own rather than the values file's names: the list says what the mod supports live and changes only in a reviewed commit, while the values file says what is overridden now; deriving one from the other would let a line added locally become approved after a restart.
+  - NoEntry stays as the explanation, with no define in both; the bridge prints its reason first, and a general one for any other define outside the list.
+  - Adding a define, even for a temporary AI-tuning experiment, follows a check of its readers and the state they keep, and such experiments stay single-player until peers can apply a change at the same synchronized moment.
+  - It leaves the Python reinitialization limit of [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5) as it was.
+- [`SASLiveDefineOverridesAllowed.txt`](/SASLiveDefineOverrides/SASLiveDefineOverridesAllowed.txt) lists the 33 defines of the shipped lines, each with how its readers follow an override, in NoEntry's `NAME: reason` form.
+  - [`SASLiveDefineOverridesBridge.py`](/Assets/Python/SASLiveDefineOverridesBridge.py) reads it with the XML, once, and refuses a file naming any other define: "not in SASLiveDefineOverridesAllowed.txt, so live overrides are unsupported for it: change it in GlobalDefines_advciv_sas.xml and restart Civ4".
+  - [`sas_live_define_overrides.py`](/.github/workflows/README.md#buildsourcesas_live_define_overridespy) fails a shipped line outside the list, a listed define without a shipped line, so the values file shows every live define, and a define in both lists; its reader scan covers every listed define.
+- The KI#128.6 Sevopedia switches stay off the list: some still have readers that keep their value, such as `SevoPediaMain.py`'s `self.IS_SAS_SEVO_LEADER_AI_ON`, and the user judged them rarely changed.
+- Before the commit, the user doubted the list was worth its added complexity, as it began as an answer to a question. Asked whether to keep it at all, Codex (GPT-6.2-Sol) advised keeping it: refusing unchecked defines prevents false `APPLIED` results in audits, which one short list for 33 settings is proportionate to.
+  - It noted that requiring a shipped line for each listed define writes each XML value twice, which a subset would avoid; that requirement is kept, so the values file alone shows every live setting, ready to edit, which was the user's question.
+- The user then asked whether the Allowed and NoEntry lists, read by the game, should lose their comments as the values file had, and whether the values file should get comments back.
+  - As [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5)'s correction records, speed decides neither: the two lists are read once at startup, and the values file costs about 0.5 µs more per poll with comments.
+  - The lists keep their comments, which explain how each define's readers follow an override, found nowhere else.
+  - The values file stays values only, with no header pointing to the XML and the Allowed list either. The user leaned that way once the root README and the Main Changes Guide said that adding a define to the list is not straightforward and is done at one's own risk, asking someone who knows the code or an AI agent if unsure, as its likely editors are agents making quick edits to few values.
+  - Codex (GPT-6.2-Sol) agreed: the XML and the Allowed list already explain each setting and the README points to them, so a header would be mildly useful to someone opening the file directly but would not earn a CI exception.
+
+Implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol).
+
+Tested on 2026-11-26 from the main menu's Sevopedia, each page jump forcing a read: with `SAS_SEVO_UNIT_SHOW_AI_INFORMATION = 0` added, the bridge logged `REJECTED` with the reason above and kept the defines as they were; replacing it with `SAS_UI_FONT_LABEL = 4` in the same session logged `APPLIED` with `SAS_UI_FONT_LABEL:xml3->4`, and restoring the file logged `4->3`. `PythonErr.log` stayed empty.
 
 <a id="ki-129"></a>
 

@@ -19,7 +19,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 # <!-- custom: The shared repository-root default and the index reader the other shipped-default checks use for --staged, as local overrides usually stay unstaged. (Claude code Opus 5.5) -->
 from xml_defines import add_staged_argument, get_default_repo_root
 # <!-- custom: The game's own parser, the XML's integer defines and the NoEntry rules. (Claude code Opus 5.5) -->
-from sas_live_define_overrides_file import VALUES_RELATIVE, XML_RELATIVE, RepoSource, development_values, read_no_entry, read_values, xml_values
+# <!-- custom: ALLOWED_RELATIVE and read_allowed read SASLiveDefineOverridesAllowed.txt, the list of live defines. See KI#128.7. (Claude code Opus 5.5) -->
+from sas_live_define_overrides_file import ALLOWED_RELATIVE, VALUES_RELATIVE, XML_RELATIVE, RepoSource, development_values, read_allowed, read_no_entry, read_values, xml_values
 # <!-- custom: The C++ comment blanker the define-cache check uses, which keeps string contents, where the names are. (Claude code Opus 5.5) -->
 from cpp_define_reads_cached import blank_source
 
@@ -56,9 +57,22 @@ def problems(repo_root: Path, values: dict[str, object], xml_values: dict[str, t
 	source = source or RepoSource(repo_root)
 	found = []
 	no_entry = read_no_entry(repo_root, source=source)
+	no_entry_names = set(name for name, _ in no_entry)
 	dev_values = development_values(source)
-	names = sorted(values)
-	for name in names:
+	# <!-- custom: The allowed list says what the mod supports live, and the shipped file shows each of those defines at its XML value, so whoever opens it sees every live define; a define in neither file is refused in game. See KI#128.7. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	allowed = [name for name, _ in read_allowed(repo_root, source=source)]
+	for name in allowed:
+		if name not in xml_values:
+			found.append(f"{name}: in {ALLOWED_RELATIVE} but no define in {XML_RELATIVE}")
+		if name in no_entry_names:
+			found.append(f"{name}: in both {ALLOWED_RELATIVE} and SASLiveDefineOverridesNoEntry.txt; a define is either supported live or never overridden")
+		if name not in values:
+			found.append(f"{name}: in {ALLOWED_RELATIVE} but has no shipped line in {VALUES_RELATIVE}; ship it at its XML value, so the file shows every live define")
+	for name in values:
+		if name not in allowed:
+			found.append(f"{name}: has a shipped line but is not in {ALLOWED_RELATIVE}, so the game refuses it; list it there once its readers follow an override, or drop the line")
+	names = sorted(set(values) | set(name for name in allowed if name in xml_values))
+	for name in sorted(values):
 		if values[name] != xml_values[name][1]:
 			found.append(f"{name}: {values[name]!r} in the shipped overrides but {xml_values[name][1]!r} in {XML_RELATIVE}; a shipped override equals its XML value, so the game is the same with the overrides on or off")
 		for listed, reason in no_entry:

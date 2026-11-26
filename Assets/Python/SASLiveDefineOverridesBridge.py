@@ -23,6 +23,8 @@ _STRING_ESCAPE = re.compile(r"\\(.)")
 _FILE = ("SASLiveDefineOverrides", "SASLiveDefineOverrides.txt")
 _XML = ("Assets", "XML", "GlobalDefines_advciv_sas.xml")
 _NO_ENTRY = ("SASLiveDefineOverrides", "SASLiveDefineOverridesNoEntry.txt")
+# <!-- custom: The defines the mod supports live, apart from the values file, so adding a line cannot make a define live; any other define is refused. See KI#128.7. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+_ALLOWED = ("SASLiveDefineOverrides", "SASLiveDefineOverridesAllowed.txt")
 _NO_ENTRY_LINE = re.compile(r"^([A-Z0-9_]+):\s*(.*?)\s*$")
 # <!-- custom: XML comments are removed before the defines are matched: Codex's review (GPT-6.2-Sol) reproduced a <Define> inside a comment being read as a real one. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 _XML_COMMENT = re.compile(r"<!--.*?-->", re.S)
@@ -36,6 +38,7 @@ _GAME_UPDATE_TICKS = 20
 _enabled = None
 _xmlValues = None
 _noEntry = None
+_allowed = None
 _values = {}
 _text = None
 _pending = None
@@ -94,8 +97,8 @@ def _show(kind, value):
 	return "%d" % value
 
 
-def _parseNoEntry(text):
-	# <!-- custom: Each define SASLiveDefineOverridesNoEntry.txt names, as name -> reason; comment and blank lines are skipped.
+def _parseNamedReasons(text):
+	# <!-- custom: Each define SASLiveDefineOverridesNoEntry.txt or SASLiveDefineOverridesAllowed.txt names, as name -> reason; comment and blank lines are skipped.
 	# CI checks the file's form, so a line that does not match is skipped here rather than failing the bridge. (Claude code Opus 5.5) -->
 	noEntry = {}
 	for line in text.replace("\r\n", "\n").split("\n"):
@@ -113,7 +116,8 @@ def _parseNoEntry(text):
 	return noEntry
 
 
-def _parse(text, xmlValues, noEntry=None):
+# <!-- custom: allowed was added with SASLiveDefineOverridesAllowed.txt, as name -> reason; None skips the check, which the CI tests rely on. See KI#128.7. (Claude code Opus 5.5) -->
+def _parse(text, xmlValues, noEntry=None, allowed=None):
 	# <!-- custom: Raises ValueError naming the line of the first problem: a line that is not SAS_NAME = value, a name set twice, a name that is no SAS define of GlobalDefines_advciv_sas.xml, or a value that does not fit the define's type.
 	# The name matters as setDefineINT creates an entry for any name, so a typo would otherwise apply to nothing, silently. (Claude code Opus 5.5) -->
 	values = {}
@@ -135,6 +139,10 @@ def _parse(text, xmlValues, noEntry=None):
 		# <!-- custom: NoEntry was a signpost CI alone enforced, so a local line could still reach a privacy opt-in or a define whose readers keep their value; Codex's review (GPT-6.2-Sol) advised enforcing it here too, and the user agreed on 2026-11-26, so the list decides in game as well. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		if noEntry and key in noEntry:
 			raise ValueError("line %d: %s is in SASLiveDefineOverridesNoEntry.txt: %s" % (iLine, key, noEntry[key]))
+		# <!-- custom: A define outside the allowed list may have readers that keep their first value, so its override could apply and reach nothing, silently; refusing it says so instead.
+		# NoEntry is checked first, so a define listed there gets its own reason. See KI#128.7. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if allowed is not None and key not in allowed:
+			raise ValueError("line %d: %s is not in SASLiveDefineOverridesAllowed.txt, so live overrides are unsupported for it: change it in GlobalDefines_advciv_sas.xml and restart Civ4" % (iLine, key))
 		kind = xmlValues[key][0]
 		value = _parseValue(kind, match.group(2))
 		if value is None:
@@ -179,7 +187,7 @@ def refresh(bSettle=False):
 	# The game-update polls settle, at the cost of one more poll per edit; the reads at a game's start and at a Sevopedia jump apply at once, as a reader waits on them, so a save caught midway by one of those reads still applies.
 	# A failed read forgets the pending text, so the two reads are consecutive polls, not two successful reads around a failed one, as Codex's review (GPT-6.2-Sol) reproduced.
 	# A bad file keeps the defines as they were and is logged, as the XML values underneath keep the game working. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-	global _xmlValues, _noEntry, _values, _text, _pending, _changeCount
+	global _xmlValues, _noEntry, _allowed, _values, _text, _pending, _changeCount
 	if not _isEnabled():
 		return _changeCount
 	try:
@@ -187,10 +195,12 @@ def refresh(bSettle=False):
 		# <!-- custom: Kept only once read whole: the first version set the dictionary before opening the XML, so a failed first read left it empty and rejected every line for good, as Codex's review (GPT-6.2-Sol) reproduced. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		# <!-- custom: Read as bytes, not decoded: Python 2.4 then hands setDefineSTRING a plain string, and a str of UTF-8 bytes matches the same patterns. (Claude code Opus 5.5) -->
 		if _xmlValues is None:
-			# <!-- custom: The NoEntry list is read with the XML, once; both are kept only once both were read whole. (Claude code Opus 5.5) -->
-			noEntry = _parseNoEntry(_readBytes(_NO_ENTRY))
+			# <!-- custom: The NoEntry and allowed lists are read with the XML, once; all three are kept only once all were read whole. (Claude code Opus 5.5) -->
+			noEntry = _parseNamedReasons(_readBytes(_NO_ENTRY))
+			allowed = _parseNamedReasons(_readBytes(_ALLOWED))
 			_xmlValues = _parseXml(_readBytes(_XML))
 			_noEntry = noEntry
+			_allowed = allowed
 	except (IOError, OSError):
 		_pending = None
 		SASPythonLogging.writeRecord("SAS_LIVE_DEFINE_OVERRIDES", "outcome=READ_RETRY error=\"%s\"" % str(sys.exc_info()[1]).replace("\"", "'"))
@@ -204,7 +214,7 @@ def refresh(bSettle=False):
 	_pending = None
 	_text = text
 	try:
-		values = _parse(text, _xmlValues, _noEntry)
+		values = _parse(text, _xmlValues, _noEntry, _allowed)
 	except ValueError:
 		SASPythonLogging.writeRecord("SAS_LIVE_DEFINE_OVERRIDES", "outcome=REJECTED keptChangeCount=%d reason=\"%s\"" % (_changeCount, str(sys.exc_info()[1]).replace("\"", "'")))
 		return _changeCount

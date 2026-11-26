@@ -198,6 +198,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: 1 lets SASLiveDefineOverrides/SASLiveDefineOverrides.txt override SAS defines while Civ4 runs, so a value such as a font size can be tried without a restart; each line there wins over this file, and deleting it brings this file's value back.
 	0 never reads that file, and every define keeps this file's value; shipped lines there equal this file's values, so the game is the same either way, without live edits.
 	Read once, at the bridge's first load. See KI#128.5. (Claude code Opus 5.5) -->
+	<!-- custom: Only the defines listed in SASLiveDefineOverrides/SASLiveDefineOverridesAllowed.txt can change live, as from this file one that follows a change and one whose code keeps its first value look the same; a line for any other define is refused, so it is changed here with a restart. See KI#128.7. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	<Define>
 		<DefineName>SAS_LIVE_DEFINE_OVERRIDES_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>

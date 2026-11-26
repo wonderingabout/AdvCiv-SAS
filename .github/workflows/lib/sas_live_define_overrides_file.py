@@ -18,6 +18,7 @@ import types
 
 VALUES_RELATIVE = "SASLiveDefineOverrides/SASLiveDefineOverrides.txt"
 NO_ENTRY_RELATIVE = "SASLiveDefineOverrides/SASLiveDefineOverridesNoEntry.txt"
+ALLOWED_RELATIVE = "SASLiveDefineOverrides/SASLiveDefineOverridesAllowed.txt"
 BRIDGE_RELATIVE = "Assets/Python/SASLiveDefineOverridesBridge.py"
 XML_RELATIVE = "Assets/XML/GlobalDefines_advciv_sas.xml"
 
@@ -108,8 +109,17 @@ def read_no_entry(repo_root: Path, text: str | None = None, source: RepoSource |
 	# Each line names one define in full: patterns such as SAS_EXE_P_* were allowed at first, but a grep for a define then missed its line, so the user asked on 2026-11-26 for full names, and a "*" is now rejected.
 	# Raises ValueError on a line that is not "NAME: reason".
 	# text overrides the file, for tests. See KI#128.5. (Claude code Opus 5.5) -->
+	return read_named_reasons(repo_root, NO_ENTRY_RELATIVE, text, source)
+
+
+def read_allowed(repo_root: Path, text: str | None = None, source: RepoSource | None = None) -> list[tuple[str, str]]:
+	# <!-- custom: The defines the mod supports live, as (name, reason) pairs from SASLiveDefineOverridesAllowed.txt, in NoEntry's form. See KI#128.7. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	return read_named_reasons(repo_root, ALLOWED_RELATIVE, text, source)
+
+
+def read_named_reasons(repo_root: Path, relative: str, text: str | None = None, source: RepoSource | None = None) -> list[tuple[str, str]]:
 	if text is None:
-		text = (source or RepoSource(repo_root)).read(NO_ENTRY_RELATIVE)
+		text = (source or RepoSource(repo_root)).read(relative)
 	rules = []
 	for number, line in enumerate(text.splitlines(), 1):
 		line = line.strip()
@@ -117,7 +127,7 @@ def read_no_entry(repo_root: Path, text: str | None = None, source: RepoSource |
 			continue
 		name, colon, reason = line.partition(":")
 		if not colon or not re.fullmatch(r"[A-Z0-9_]+", name.strip()) or not reason.strip():
-			raise ValueError(f"{NO_ENTRY_RELATIVE} line {number}: expected NAME: reason, one define named in full, got {line!r}")
+			raise ValueError(f"{relative} line {number}: expected NAME: reason, one define named in full, got {line!r}")
 		rules.append((name.strip(), reason.strip()))
 	return rules
 

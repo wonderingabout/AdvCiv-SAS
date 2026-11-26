@@ -3,6 +3,8 @@
 
 # <!-- custom: pathlib, shutil and tempfile build a small fake repository around the real bridge; sys and unittest import and run the check. See KI#128.5. (Claude code Opus 5.5) -->
 from pathlib import Path
+# <!-- custom: re finds the names a test's overrides set, for its allowed list. (Claude code Opus 5.5) -->
+import re
 import shutil
 import sys
 import tempfile
@@ -31,23 +33,30 @@ class SASLiveDefineOverridesTests(unittest.TestCase):
 	def write(self, relative, text):
 		(self.root / relative).write_text(text, encoding="utf-8")
 
+	def allow(self, names):
+		# <!-- custom: Each test's allowed list names the defines its overrides set, so a test checks its own rule; the allowlist's rules have their own tests below. See KI#128.7. (Claude code Opus 5.5) -->
+		self.write("SASLiveDefineOverrides/SASLiveDefineOverridesAllowed.txt", "".join("%s: test\n" % name for name in names))
+
 	def run_check(self, overrides):
 		self.write("SASLiveDefineOverrides/SASLiveDefineOverrides.txt", overrides)
+		self.allow(sorted(set(re.findall(r"^(SAS_\w+)", overrides, re.M))))
 		return checker.main(["--repo-root", str(self.root)])
 
-	def problems(self, values):
+	# <!-- custom: allowed was added with SASLiveDefineOverridesAllowed.txt; left out, it allows exactly the given values, so the older tests keep their meaning. See KI#128.7. (Claude code Opus 5.5) -->
+	def problems(self, values, allowed=None):
+		self.allow(sorted(values) if allowed is None else allowed)
 		return checker.problems(self.root, values, checker.xml_values(self.root))
 
 	def test_bridge_rejects_a_no_entry_define(self):
 		# <!-- custom: The bridge enforces NoEntry in game too since 2026-11-26, as Codex's review (GPT-6.2-Sol) advised; the shipped list's own lines parse with it. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		import sas_live_define_overrides_file as lib
 		bridge = lib.load_bridge(REPO_ROOT)
-		no_entry = bridge._parseNoEntry("# comment\n\nSAS_A: a reason\nSAS_B: same reason as SAS_A\n")
+		no_entry = bridge._parseNamedReasons("# comment\n\nSAS_A: a reason\nSAS_B: same reason as SAS_A\n")
 		self.assertEqual(no_entry, {"SAS_A": "a reason", "SAS_B": "a reason"})
 		with self.assertRaises(ValueError) as caught:
 			bridge._parse("SAS_A = 1\n", bridge._parseXml(XML), no_entry)
 		self.assertIn("a reason", str(caught.exception))
-		shipped = bridge._parseNoEntry((REPO_ROOT / "SASLiveDefineOverrides" / "SASLiveDefineOverridesNoEntry.txt").read_text(encoding="utf-8"))
+		shipped = bridge._parseNamedReasons((REPO_ROOT / "SASLiveDefineOverrides" / "SASLiveDefineOverridesNoEntry.txt").read_text(encoding="utf-8"))
 		self.assertIn("SAS_SGR_LOG_ON", shipped)
 
 	def test_define_the_dev_toggle_switches_fails(self):
@@ -82,7 +91,7 @@ class SASLiveDefineOverridesTests(unittest.TestCase):
 
 		fake = FakeGlobals()
 		bridge.CyGlobalContext = lambda: fake
-		files = {"SASLiveDefineOverrides.txt": "SAS_A = 2\n", "GlobalDefines_advciv_sas.xml": XML, "SASLiveDefineOverridesNoEntry.txt": ""}
+		files = {"SASLiveDefineOverrides.txt": "SAS_A = 2\n", "GlobalDefines_advciv_sas.xml": XML, "SASLiveDefineOverridesNoEntry.txt": "", "SASLiveDefineOverridesAllowed.txt": "SAS_A: test\n"}
 		bridge._readBytes = lambda parts: files[parts[-1]]
 		self.assertEqual(bridge.refresh(), 0)
 		self.assertEqual(fake.defines["SAS_A"], 1)
@@ -115,7 +124,7 @@ class SASLiveDefineOverridesTests(unittest.TestCase):
 
 		fake = FakeGlobals()
 		bridge.CyGlobalContext = lambda: fake
-		files = {"SASLiveDefineOverrides.txt": "SAS_A = 2\n", "GlobalDefines_advciv_sas.xml": XML, "SASLiveDefineOverridesNoEntry.txt": ""}
+		files = {"SASLiveDefineOverrides.txt": "SAS_A = 2\n", "GlobalDefines_advciv_sas.xml": XML, "SASLiveDefineOverridesNoEntry.txt": "", "SASLiveDefineOverridesAllowed.txt": "SAS_A: test\n"}
 		bridge._readBytes = lambda parts: files[parts[-1]]
 		self.assertEqual(bridge.refresh(), 1)
 		files["SASLiveDefineOverrides.txt"] = ""
@@ -138,6 +147,26 @@ class SASLiveDefineOverridesTests(unittest.TestCase):
 		bridge._readBytes = read
 		self.assertEqual(bridge.refresh(True), 2)
 		self.assertEqual(bridge.refresh(True), 3)
+
+	# <!-- custom: The allowed list decides what is live: the bridge refuses a define outside it, and CI keeps it and the shipped lines the same set, apart from NoEntry. See KI#128.7. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	def test_bridge_refuses_a_define_outside_the_allowed_list(self):
+		import sas_live_define_overrides_file as lib
+		bridge = lib.load_bridge(REPO_ROOT)
+		with self.assertRaises(ValueError) as caught:
+			bridge._parse("SAS_A = 1\n", bridge._parseXml(XML), {}, {"SAS_T": "test"})
+		self.assertIn("not in SASLiveDefineOverridesAllowed.txt", str(caught.exception))
+		self.assertEqual(bridge._parse("SAS_A = 1\n", bridge._parseXml(XML), {}, {"SAS_A": "test"}), {"SAS_A": 1})
+		shipped = bridge._parseNamedReasons((REPO_ROOT / "SASLiveDefineOverrides" / "SASLiveDefineOverridesAllowed.txt").read_text(encoding="utf-8"))
+		self.assertIn("SAS_UI_FONT_LABEL", shipped)
+
+	def test_shipped_line_outside_the_allowed_list_fails(self):
+		self.assertTrue(any("is not in SASLiveDefineOverrides/SASLiveDefineOverridesAllowed.txt" in problem for problem in self.problems({"SAS_A": 1}, allowed=[])))
+
+	def test_allowed_define_without_a_shipped_line_fails(self):
+		self.assertTrue(any("has no shipped line" in problem for problem in self.problems({}, allowed=["SAS_A"])))
+
+	def test_allowed_define_in_no_entry_fails(self):
+		self.assertTrue(any("in both" in problem for problem in self.problems({"SAS_LIVE_DEFINE_OVERRIDES_ON": 1})))
 
 	def test_override_equal_to_the_xml_passes(self):
 		self.assertEqual(self.run_check("SAS_A = 1\n"), 0)
@@ -173,7 +202,7 @@ class SASLiveDefineOverridesTests(unittest.TestCase):
 		self.assertEqual(self.run_check("SAS_A = 1\nSAS_A = 1\n"), 1)
 
 	def test_no_entry_define_fails(self):
-		self.assertIn("no override may name it", self.problems({"SAS_LIVE_DEFINE_OVERRIDES_ON": 1})[0])
+		self.assertTrue(any("no override may name it" in problem for problem in self.problems({"SAS_LIVE_DEFINE_OVERRIDES_ON": 1})))
 
 	def test_no_entry_pattern_is_rejected(self):
 		# <!-- custom: Each NoEntry line names a define in full since 2026-11-26, so a grep for a define finds its line. (Claude code Opus 5.5) -->
@@ -215,6 +244,7 @@ class SASLiveDefineOverridesTests(unittest.TestCase):
 		import stat
 		self.addCleanup(lambda: [os.chmod(path, stat.S_IWRITE) for path in (self.root / ".git").rglob("*") if path.is_file()])
 		self.write("SASLiveDefineOverrides/SASLiveDefineOverrides.txt", "SAS_LIVE_DEFINE_OVERRIDES_ON = 1\n")
+		self.allow(["SAS_LIVE_DEFINE_OVERRIDES_ON"])
 		git("add", "-A")
 		self.write("SASLiveDefineOverrides/SASLiveDefineOverridesNoEntry.txt", "# emptied on disk only\n")
 		self.assertEqual(checker.main(["--repo-root", str(self.root)]), 0)
@@ -222,6 +252,7 @@ class SASLiveDefineOverridesTests(unittest.TestCase):
 		# <!-- custom: The development values come from the index too, as Codex's next review (GPT-6.2-Sol) found them imported from disk. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		self.write("Assets/XML/GlobalDefines_advciv_sas.xml", XML + "<Define><DefineName>SAS_SGR_LOG</DefineName><iDefineIntVal>0</iDefineIntVal></Define>\n")
 		self.write("SASLiveDefineOverrides/SASLiveDefineOverrides.txt", "SAS_SGR_LOG = 0\n")
+		self.allow(["SAS_SGR_LOG"])
 		self.write("SASLiveDefineOverrides/SASLiveDefineOverridesNoEntry.txt", "# none\n")
 		git("add", "-A")
 		self.write("LLM_Helpers/diagnostics/define_values.py", "DEVELOPMENT_VALUES = {}\n")
@@ -232,7 +263,7 @@ class SASLiveDefineOverridesTests(unittest.TestCase):
 		# <!-- custom: The staged content, as ci_report.py checks it, since a local override usually stays unstaged; skipped until the files are in the index. (Claude code Opus 5.5) -->
 		try:
 			result = checker.main(["--staged"])
-		except RuntimeError:
+		except (RuntimeError, FileNotFoundError):
 			self.skipTest("SASLiveDefineOverrides.txt is not staged")
 		self.assertEqual(result, 0)
 
