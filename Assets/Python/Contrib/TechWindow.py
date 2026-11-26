@@ -231,13 +231,16 @@ class CvTechSplashScreen:
 		szAllowsTitleWidgetSIR = "AllowsTitleSIR"
 		screen.setText(szAllowsTitleWidgetSIR, "", szAllowsTitleDescSIR, CvUtil.FONT_LEFT_JUSTIFY, self.X_ALLOWS_PANELSIR+self.iMarginSpace, self.Y_ALLOWS_PANELSIR - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
+		# <!-- custom: Read once before the loop below, which read it for each tech. See KI#128.8. (Claude code Opus 5.5) -->
+		iNumOrTechPrereqs = CyGlobalContext().getDefineINT("NUM_OR_TECH_PREREQS")
+		iNumAndTechPrereqs = CyGlobalContext().getDefineINT("NUM_AND_TECH_PREREQS")
 		for j in range(CyGlobalContext().getNumTechInfos()):
-			for k in range(CyGlobalContext().getDefineINT("NUM_OR_TECH_PREREQS")):
+			for k in range(iNumOrTechPrereqs):
 				iPrereq = CyGlobalContext().getTechInfo(j).getPrereqOrTechs(k)
 				# <!-- custom: fix weird indentation and tabs/spaces issues that trigger Pylance/Ruff warnings. See KI#21.7. (GPT-5.2-Codex (summarized)) -->
 				if (iPrereq == self.iTech):
 					screen.attachImageButton( panelNameSIR, "", CyGlobalContext().getTechInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_DERIVED_TECH, j, self.iTech, False )
-			for k in range(CyGlobalContext().getDefineINT("NUM_AND_TECH_PREREQS")):
+			for k in range(iNumAndTechPrereqs):
 				iPrereq = CyGlobalContext().getTechInfo(j).getPrereqAndTechs(k)
 				if (iPrereq == self.iTech):
 					screen.attachImageButton( panelNameSIR, "", CyGlobalContext().getTechInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_DERIVED_TECH, j, self.iTech, False )

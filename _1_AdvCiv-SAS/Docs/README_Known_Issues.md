@@ -225,6 +225,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#128.5 - (Improved SAS) Trying another value of a SAS define, such as a font size, cost a Civ4 restart per try, as the XML is read once; SASLiveDefineOverrides.txt now overrides SAS defines on top of the XML while Civ4 runs, and deleting a line brings the XML value back](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5)\
 [KI#128.6 - (Improved SAS and inherited BUG, guarded by CI) 16 Python define reads ran at import, 15 SAS Sevopedia switches and BUG's PEACE_TREATY_LENGTH, so each kept its first value for the session and no override reached it; they are read at use now, and CI rejects new ones](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.6)\
 [KI#128.7 - (Improved SAS, guarded by CI) A user could not tell which defines SASLiveDefineOverrides.txt reaches: one that follows an override and one whose readers keep their first value look the same in the XML, and both logged APPLIED; SASLiveDefineOverridesAllowed.txt now lists the live ones, and the bridge refuses any other](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.7)\
+[KI#128.8 - (Fixed inherited Better BTS AI and BUG) Python read a define again at each pass of a loop: ChangePlayer read BARBARIAN_LEADER once per leader, and the Tech Window read its two tech-prerequisite counts once per tech; each is now read once before its loop](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.8)\
 [KI#129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-129)\
 [KI#130 - (Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-130)\
 [KI#131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-131)\
@@ -12576,6 +12577,28 @@ The user asked whether caching these switches in `__init__` would be faster:
 Implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol).
 
 Tested on 2026-11-26 from the main menu's Sevopedia, each page jump forcing a read: with `SAS_SEVO_UNIT_SHOW_AI_INFORMATION = 0` added, the bridge logged `REJECTED` with the reason above and kept the defines as they were; replacing it with `SAS_UI_FONT_LABEL = 4` in the same session logged `APPLIED` with `SAS_UI_FONT_LABEL:xml3->4`, and restoring the file logged `4->3`. `PythonErr.log` stayed empty.
+
+<a id="ki-128.8"></a>
+
+## KI#128.8 - (Fixed inherited Better BTS AI and BUG) Python read a define again at each pass of a loop: ChangePlayer read BARBARIAN_LEADER once per leader, and the Tech Window read its two tech-prerequisite counts once per tech; each is now read once before its loop
+
+Found on 2026-11-26 during the Python define-caching work, by its rule that a read inside a loop needs a reason inside that loop.
+
+- `ChangePlayer.changePersonality` read `gc.getDefineINT("BARBARIAN_LEADER")` in the condition of its loop over every leader, and `TechWindow.interfaceScreen` and `TechWindowWide.interfaceScreen` read `NUM_OR_TECH_PREREQS` and `NUM_AND_TECH_PREREQS` in the headers of loops nested in their loop over every tech.
+- None gave a wrong result: each read the same value again, at about 280 ns a read through `gc` as measured in game, so 184 reads per tech-discovered popup with BtS's 92 techs, as Codex's review (GPT-6.2-Sol) counted, and dozens per personality change, a cheat action.
+- Each is now read once before its loop, in a local the loop uses.
+
+Where they came from, traced through the `commit_diffs` corpus and the inherited-files manifest at the user's request:
+
+- `ChangePlayer.py` is jdog5000's ChangePlayer Mod. It entered Better BTS AI in SVN r387 (2008-09-06, version 0.37) with the read already inside the loop.
+  - K-Mod brought it in with its first asset commit (`593c549b51`, 2010-12-27, practical 4), as `Assets/Python/K-Mod/ChangePlayer.py`.
+  - AdvCiv reindented it (practical 1526) and moved it to `Assets/Python/Contrib/` (`3cb7780c3e`, 2020-02-16); SAS left it as it was until this fix.
+- `TechWindow.py` and `TechWindowWide.py` are the BUG Mod's ("Copyright (c) 2008 The BUG Mod", originally by SirRethcir, enhanced by Roamty, Caesium and Guarav), and came with the same K-Mod commit.
+  - The loops sit in a block marked with German "Eingefügt" ("inserted") comments.
+  - SAS's earlier commits to these files changed other lines: practicals 4847 (Ruff and Pylance warnings), 5284 (comment summaries) and 6838 (one call per line).
+- Neither file is in vanilla, Warlords or BtS: `inherited_files.tsv` lists both in the AdvCiv layer only. BUG's own history is not in the corpus, so which BUG version wrote the Tech Window reads was not traced.
+
+Implemented with the help of Claude Code Opus 5.5.
 
 <a id="ki-129"></a>
 

@@ -282,8 +282,10 @@ def changePersonality( playerIdx, newPersonality = -1 ) :
 		iBestValue = 0
 		newPersonality = -1
 
+		# <!-- custom: Read once before the loop below, which read it for each leader. See KI#128.8. (Claude code Opus 5.5) -->
+		iBarbarianLeader = gc.getDefineINT("BARBARIAN_LEADER")
 		for iI in range(0,gc.getNumLeaderHeadInfos()) :
-			if (not iI == gc.getDefineINT("BARBARIAN_LEADER")) :
+			if (not iI == iBarbarianLeader) :
 				iValue = (1 + game.getSorenRandNum(10000, "Choosing Personality"))
 
 				for iJ in range(0,gc.getMAX_CIV_PLAYERS()) :
