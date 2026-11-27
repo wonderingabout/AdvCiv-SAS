@@ -1328,6 +1328,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103)\
 [KI#1103.2 - (Fixed SAS) The scoreboard's left edge moved whenever an advisor opened or closed, even at 1920 x 1080 and font 3: it cut leader names to the advisors' space only while one was open, so on the map it kept its full width, 10 to 60 px wider in debug mode](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103.2)\
 [KI#1104 - (AdvCiv-SAS design rule) SAS keeps its own copy of every base-game Python file it uses, changed or not, as it took in CvTechSplashScreen.py, CIV4ProcessInfo.xml and CIV4WorldPickerInfos.xml when first needed: SASPilot's WorldBuilder work found the WorldBuilder screen running from BtS's copy, outside the repository](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)\
+[KI#1104.2 - (AdvCiv-SAS design rule, data files) SAS now carries BtS's GlobalDefines.xml, the only define file the game loads that the repository did not hold, so 405 of the 1,448 defines it loads, such as the EXE's CAMERA_* values, could not be found by a search of the mod](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)\
 [KI#1105 - (Fixed inherited vanilla, Debug Mode only) The Map Details table showed a continent's 576 tiles under "Area" and its 5 starting plots under "Size": its header row had one extra column](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)\
 [KI#1105.2 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen CvDebugInfoScreen.py (Shift + F2) sat at a fixed 1024 x 768, and its table never showed the columns past its right edge, so even on a Huge map Team Relations lost the last 4 of its 16 civilizations and Map Details its bonuses after about the 8th](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2)\
 [KI#1105.3 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen's Unit AI rows read UNITAI_SETTLE where vanilla meant SETTLE: strName.strip("UNITAI_") dropped its result, and kept, strip would have turned UNITAI_ATTACK_CITY into CK_CITY](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.3)\
@@ -39900,6 +39901,48 @@ Update (2026-11-27): it paid off again with [KI#117.2](/_1_AdvCiv-SAS/Docs/READM
 
 - 13 of its 43 calls are `onPbemSend`'s error lines in `CvAppInterface.py`, such as "Error establishing connection.".
   - In BtS's copy, outside the repository, neither the fix nor its check would have reached them.
+
+<a id="ki-1104.2"></a>
+
+## KI#1104.2 - (AdvCiv-SAS design rule, data files) SAS now carries BtS's GlobalDefines.xml, the only define file the game loads that the repository did not hold, so 405 of the 1,448 defines it loads, such as the EXE's CAMERA_* values, could not be found by a search of the mod
+
+Screenshots/files for this issue: none, as the copy changes nothing on screen.
+
+[KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)'s rule, applied to the first data file.
+
+- How it was found (2026-11-27): while decluttering `GlobalDefines_advciv_sas.xml`, the user asked who reads each define, SAS's and the inherited ones alike, and whether the inherited define files should come in too.
+  - [`audit_define_timing.py --readers`](/LLM_Helpers/README.md#audit_define_timingpy) answered both. It lists every define the DLL loads, in its loading order, and searches the DLL source, the runtime Python and the two BtS EXEs for each name. It writes `LLM_Helpers/outputs/define_readers.md`, which Git ignores.
+- What it found, as reported that day, before any define moved:
+
+**Who reads the 1,447 defines** (from all the files the DLL loads, in its order):
+
+| Origin | DLL | Python only | both | EXE only | none found |
+| --- | --- | --- | --- | --- | --- |
+| SAS | 594 | **163** | 9 | 0 | 3 |
+| BtS `GlobalDefines.xml` | 295 | 5 | 44 | 35 | 26 |
+| AdvCiv's files (advc, Alt, devel, AI variables, etc.) | 176 | 3 | 3 | 0 | 29 |
+| `PythonCallbackDefines.xml` | 0 | 0 | 0 | 0 | 62 |
+
+- BtS's "Python only" 5 include the 2 that Python and the EXE both read, such as `FIELD_OF_VIEW`; the later report splits them into their own column.
+- The total is 1,448, not 1,447: the audit skipped AdvCiv's `THRESH-BAD-FEAT-PER-CITY`, declared in `GlobalDefines_advc.xml` and read by the DLL, as its pattern took no hyphen in a name, which Codex's review (GPT-6.2-Sol) found and is now fixed.
+- Of the define files the game loads, only BtS's `GlobalDefines.xml` had no copy in the repository: its 405 defines, such as the `CAMERA_*` and `AIR_PATROL_*` values only the EXE reads, could be checked only in the Civ4 install.
+- So SAS now carries a copy of it, with the SAS header and a copy note naming its source, as [CvAppInterface.py](/Assets/Python/EntryPoints/CvAppInterface.py) has.
+  - A mod's file at the same path replaces the base game's: the DLL asks for one primary path per file, so the copy loads in BtS's place. The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md) records the decision and counts it among the files SAS keeps.
+  - Its 34 names that a file loaded later declares again, 26 in AdvCiv's `GlobalDefines_advc.xml`, such as `MIN_VERSION`, 7 in `GlobalDefinesAlt.xml` and 1 in `AI_Variables_GlobalDefines.xml`, were removed from the copy, at the user's suggestion; it keeps the other 371.
+    - `CvXMLLoadUtility::SetGlobalDefines` reads `GlobalDefines.xml` first and `FVariableSystem::SetValue` replaces an earlier value, so BtS's declarations of them were never the ones loaded, and no value changes.
+    - Kept, each would have been a duplicate the uniqueness check had to allow; the copy's header lists BtS's value of each and the file whose declaration loads, such as `START_YEAR`.
+    - The first pass removed 40, as it matched names inside comments too: six, such as `GlobalDefinesAlt.xml`'s commented-out `BASE_REVOLT_OCCUPATION_TURNS` and `POWER_HEALTH_CHANGE` and `TechDiffusion_GlobalDefines.xml`'s `TECH_COST_KNOWN_PREREQ_MODIFIER`, are declared nowhere else, and removing them would have dropped the base revolt duration from 2 turns to 0 and the power health penalties, as Codex's review (GPT-6.2-Sol) found; a load test could not, as a missing define still loads.
+    - So the 34 were chosen by an XML parse, which skips comments, and the values the game ends up with were compared, BtS's file against the copy, each followed by the files the DLL loads after it: all 1,448 defines matched. [`global_defines_redeclared.py`](/.github/workflows/README.md#buildxmlglobal_defines_redeclaredpy) now fails when a listed name is not declared in the file named.
+  - Four CI checks failed on the copy, as they had assumed every define file in the repository was SAS's or AdvCiv's; the [CI README](/.github/workflows/README.md) records each:
+    - [`source_change_provenance.py`](/.github/workflows/README.md#buildsourcesource_change_provenancepy) took its Firaxis comments for new ones, as it accepted a copy note in Python files only;
+    - [`global_define_name_style.py`](/.github/workflows/README.md#buildxmlglobal_define_name_stylepy) held BtS's names, such as the 46-byte `INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT`, to SAS's 42-byte target;
+    - [`global_defines_nonempty.py`](/.github/workflows/README.md#buildxmlglobal_defines_nonemptypy) read AdvCiv's deliberate redeclarations, such as `MIN_VERSION` in `GlobalDefines_advc.xml`, as duplicates, and stays strict now that those names left the copy;
+    - [`dll_define_changes.py`](/.github/workflows/README.md#buildrepositorydll_define_changespy) asked for a rebuilt DLL for the copy's "added" names, which the game already loaded from BtS's own copy; it now waives the whole file in the commit that adds or removes it, and checks later edits to it as usual.
+  - Tested in game: a turn-301 Huge save loaded as before, with all 207 XML files, `xml\GlobalDefines.xml` among them, logged `outcome=SUCCEEDED` in `xml.log` and an empty `PythonErr.log`.
+- The 26 BtS defines no reader was found for, such as `INITIAL_CITY_MAINTENANCE` and `MAX_CIVIC_OPTIONS`, stay: some may be read under names built at runtime, as the 29 `UWAI_WEIGHT_*` and 62 `USE_*_CALLBACK` are likely to be.
+- The other data files SAS's rules, AI or UI rely on, such as `GlobalTypes.xml` and the basic infos, are still read from the base game; the audit lists them.
+
+Prompted by the user's question; implemented with the help of Claude Code Opus 5.5.
 
 <a id="ki-1105"></a>
 

@@ -434,11 +434,15 @@ Report-only audit of when each GlobalDefines define, SAS or inherited, takes eff
   - 2 in `SASDefineGuard.py`, constants holding a define's name, such as `SAS_LAUNCH_GUARD_TEST_INT_DEFINE = "SAS_LAUNCH_GUARD_TEST_INT"`, which read nothing and are now skipped.
   - [`python_define_reads_import.py`](/.github/workflows/README.md#buildsourcepython_define_reads_importpy), which tokenizes scope independently, found the same 16 real ones.
 - Writes `LLM_Helpers/outputs/define_timing.md`, with counts per verdict, origin and family and every reader per define; `--scope sas` or `--scope inherited` narrows it, and `--define NAME` prints one define's readers.
+- `--readers` writes `LLM_Helpers/outputs/define_readers.md` instead: who reads each define, the DLL, Python, both, BtS's EXEs alone, through `audit_engine_names.py`'s string search, or nobody found.
+  - Added on 2026-11-27 for the user's question of which defines could leave GlobalDefines for a central Python settings file: of 1,448, 163 SAS defines were read by Python alone, and BtS's `GlobalDefines.xml` was the only define file the repository lacked ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)).
+  - A define in AdvCiv's GlobalDefines enum list counts for the DLL, which caches it; the first run set those aside, so `COMBAT_DAMAGE` showed as read by nobody.
 
 ```bash
 python LLM_Helpers/audits/audit_define_timing.py
 python LLM_Helpers/audits/audit_define_timing.py --define SAS_UI_FONT_LABEL
 python LLM_Helpers/audits/audit_define_timing.py --scope inherited --out LLM_Helpers/outputs/define_timing_inherited.md
+python LLM_Helpers/audits/audit_define_timing.py --readers
 ```
 
 #### `audit_define_keys.py`

@@ -29,9 +29,12 @@ from cpp_define_reads_cached import blank_source
 # A define read only by the EXE, as some BtS ones are, shows as unread here. (Claude code Opus 5.5) -->
 LOADER = REPO / "CvGameCoreDLL" / "CvXMLLoadUtilitySet.cpp"
 BTS_XML = REPO.parents[1] / "Assets" / "XML"
-DEFINE = re.compile(r"<DefineName>\s*([A-Z][A-Z0-9_]*)\s*</DefineName>\s*<(iDefineIntVal|fDefineFloatVal|DefineTextVal)>")
+# <!-- custom: A hyphen too, as AdvCiv's THRESH-BAD-FEAT-PER-CITY, which the DLL reads, has them; the first version skipped it and counted 1,447 defines instead of 1,448, as Codex's review (GPT-6.2-Sol) found. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+DEFINE = re.compile(r"<DefineName>\s*([A-Z][A-Z0-9_-]*)\s*</DefineName>\s*<(iDefineIntVal|fDefineFloatVal|DefineTextVal)>")
 KINDS = {"iDefineIntVal": "int", "fDefineFloatVal": "float", "DefineTextVal": "string"}
 NAME = r"[A-Z][A-Z0-9_]+"
+# <!-- custom: A name read in quotes may hold a hyphen, as THRESH-BAD-FEAT-PER-CITY does, while an identifier such as CvGlobals::NAME cannot, so the quoted searches use their own pattern; with NAME alone, that define still showed as unread, as Codex's review (GPT-6.2-Sol) found. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+QUOTED_NAME = r"[A-Z][A-Z0-9_-]+"
 # <!-- custom: Function names that run while loading XML, a save or a map, or setting up a session: a define read only there takes effect at startup. (Claude code Opus 5.5) -->
 # <!-- custom: A word must end where the name's next word starts, so "readiness" is no "read": Codex's review (GPT-6.2-Sol) reproduced it counted as setup. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 LOAD_NAMES = re.compile(r"(^|_|::)([Ii]nit|[Cc]ache|[Ll]oad|[Rr]ead|[Ss]etGlobal|[Cc]onfigure|[Ss]etup|preGameStart|beforeGeneration|[Gg]enerate|addRivers|onGameLoad|onGameStart)(?=[A-Z_0-9]|$)|initialize|::Cv\w+$")
@@ -122,7 +125,7 @@ def call_index(rows):
 def cpp_readers(names, rows):
 	readers = defaultdict(list)
 	index = call_index(rows)
-	pattern = re.compile(r"(?:\"(" + NAME + r")\"|CvGlobals::(" + NAME + r")|\bDO\((" + NAME + r")\))")
+	pattern = re.compile(r"(?:\"(" + QUOTED_NAME + r")\"|CvGlobals::(" + NAME + r")|\bDO\((" + NAME + r")\))")
 	for file_name, number, function, line, previous in rows:
 		for match in pattern.finditer(line):
 			name = match.group(1) or match.group(2) or match.group(3)
@@ -174,7 +177,7 @@ def built_name_readers(names, readers, rows):
 
 
 def python_readers(names, readers):
-	pattern = re.compile(r"[\"'](" + NAME + r")[\"']")
+	pattern = re.compile(r"[\"'](" + QUOTED_NAME + r")[\"']")
 	for top in ("Assets/Python", "PrivateMaps"):
 		for path in sorted((REPO / top).rglob("*.py")):
 			rel = path.relative_to(REPO).as_posix()
@@ -276,15 +279,103 @@ def family(name):
 	return "_".join(parts[:3]) if len(parts) > 3 else name
 
 
+def reader_side(entries):
+	# <!-- custom: Who reads a define in source: the DLL, Python, both, or none.
+	# A define in AdvCiv's GlobalDefines enum list counts for the DLL, which caches it and reads it as GC.getDefineINT(CvGlobals::X): the first run set those mentions aside, so COMBAT_DAMAGE showed as read by nobody. (Claude code Opus 5.5) -->
+	langs = set(lang for lang, _, _, how in entries)
+	if langs == {"C++", "Python"}:
+		return "both"
+	if langs == {"C++"}:
+		return "DLL"
+	if langs == {"Python"}:
+		return "Python"
+	return "none"
+
+
+def exe_hits(names):
+	# <!-- custom: For each name, the binaries among BtS's two EXEs whose strings hold it, through audit_engine_names.py's matching, so a define only the EXE reads, as many of BtS's are, is told from a dead one; empty when the game is not installed. (Claude code Opus 5.5) -->
+	sys.path.insert(0, str(REPO / "LLM_Helpers" / "audits"))
+	import audit_engine_names as engine
+	found = defaultdict(list)
+	# <!-- custom: The binaries actually searched, which the report names, so a missing EXE does not pass for "Python only", as Codex's review (GPT-6.2-Sol) asked. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	found["__searched__"] = []
+	for path in engine.DEFAULT_FILES[:2]:
+		if not path.is_file():
+			continue
+		found["__searched__"].append(path.name)
+		data = path.read_bytes()
+		for name in names:
+			if engine.ascii_hits(data, name) or engine.wide_hits(data, name):
+				found[name].append(path.name)
+	return found
+
+
+def cpp_prefix_names(names, rows):
+	# <!-- custom: The names a C++ line could build at runtime from a literal prefix ending in "_", as built_name_readers matches, but for every name: that function looks only at names no literal reads, so a literal Python read hid a DLL reader building the name from a prefix, as Codex's review (GPT-6.2-Sol) reproduced. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	prefix_pattern = re.compile(r"[\"'](SAS_[A-Z0-9_]*_)[\"'%]")
+	found = set()
+	for _, _, _, line, _ in rows:
+		for match in prefix_pattern.finditer(line):
+			found.update(name for name in names if name.startswith(match.group(1)))
+	return found
+
+
+def readers_report(names, readers, rows, scope, out_path):
+	# <!-- custom: Written for the user's question of which defines could leave GlobalDefines for a central Python settings file: a define only Python reads, with no live override, needs no XML, while one the DLL or the EXE reads must stay. (Claude code Opus 5.5) -->
+	sides = dict((name, reader_side(readers.get(name, []))) for name in names)
+	# <!-- custom: Every name is searched in the EXEs and against C++ prefixes, not only the unread ones: the first version did so for names no source read, so FIELD_OF_VIEW, which Python and both EXEs read, looked Python-only, as Codex's review reproduced.
+	# A define Python and the EXE read shows as Python+EXE, and one Python reads by literal while the DLL may build its name shows as both, so the Python-only column holds just the defines nothing else reads. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	exe = exe_hits(list(names))
+	searched = exe.pop("__searched__")
+	built = cpp_prefix_names(names, rows)
+	for name in names:
+		if sides[name] == "Python" and name in built:
+			sides[name] = "both"
+		if name in exe:
+			sides[name] = {"none": "EXE", "Python": "Python+EXE"}.get(sides[name], sides[name])
+	columns = ("DLL", "Python", "both", "Python+EXE", "EXE", "none")
+	origins = defaultdict(lambda: defaultdict(int))
+	for name in names:
+		origins[names[name][1]][sides[name]] += 1
+	out = ["# Define readers", "", f"Generated by `LLM_Helpers/audits/audit_define_timing.py --readers --scope {scope}`; heuristic and text-based, see its header.", "",
+		"- DLL, Python, both: who reads the define by its literal name in source; a name built at runtime counts for the side that builds it.",
+		"- Python+EXE: Python reads it and BtS's EXE or Pitboss EXE holds the name, so it stays in the XML.",
+		"- EXE: no reader in source, but BtS's EXE or Pitboss EXE holds the name, so the engine likely reads it.",
+		"- none: no reader in source and not in the EXEs: likely dead, or read under a name this audit cannot see.", "",
+		"EXEs searched: " + (", ".join(searched) or "none found, so EXE readers are unknown and Python-only defines may still be read by the engine"), "",
+		"| Origin | " + " | ".join(columns) + " |", "| --- | " + " | ".join("---" for _ in columns) + " |"]
+	for origin in sorted(origins):
+		out.append(f"| {origin} | " + " | ".join(str(origins[origin][side]) for side in columns) + " |")
+	for side, title in (("Python", "Python only, by origin and family"), ("EXE", "Read by the EXE only"), ("none", "No reader found")):
+		out += ["", f"## {title}", ""]
+		groups = defaultdict(list)
+		for name in sorted(names):
+			if sides[name] == side:
+				groups[(names[name][1], family(name))].append(name)
+		for (origin, fam), members in sorted(groups.items()):
+			out.append(f"- {origin}, `{fam}` ({len(members)}): " + ", ".join(f"`{member}`" for member in members))
+	out_path.parent.mkdir(parents=True, exist_ok=True)
+	out_path.write_bytes("\n".join(out).encode("utf-8"))
+	totals = defaultdict(int)
+	for side in sides.values():
+		totals[side] += 1
+	print(" ".join(f"{side}={totals[side]}" for side in columns) + f" of {len(names)}; wrote {out_path}")
+	return 0
+
+
 def main(argv=None):
 	parser = argparse.ArgumentParser(description="Report when each GlobalDefines define, SAS or inherited, takes effect, from how its readers read it, to choose overridable and NoEntry defines and audit caching.")
 	parser.add_argument("--define", help="show the readers of one define")
 	parser.add_argument("--scope", choices=("all", "sas", "inherited"), default="all", help="which defines to report: SAS ones (GlobalDefines_advciv_sas.xml), inherited ones, or both")
-	parser.add_argument("--out", type=Path, default=REPO / "LLM_Helpers" / "outputs" / "define_timing.md")
+	parser.add_argument("--readers", action="store_true", help="report who reads each define, the DLL, Python, both, the EXE or nobody, to LLM_Helpers/outputs/define_readers.md")
+	parser.add_argument("--out", type=Path, default=None)
 	args = parser.parse_args(argv)
 	names = read_defines(args.scope)
 	rows = cpp_lines()
 	readers = built_name_readers(names, python_readers(names, cpp_readers(names, rows)), rows)
+	if args.readers:
+		return readers_report(names, readers, rows, args.scope, args.out or REPO / "LLM_Helpers" / "outputs" / "define_readers.md")
+	args.out = args.out or REPO / "LLM_Helpers" / "outputs" / "define_timing.md"
 	if args.define:
 		for row in readers.get(args.define, []):
 			print("  ".join(row))

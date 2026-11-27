@@ -33,6 +33,11 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/global_defines_nonempty.py
 
+      # <!-- custom: The carried BtS GlobalDefines.xml's removed names must each be declared in the later file it names, outside comments (KI#1104.2). (Claude code Opus 5.5) -->
+      - name: Carried GlobalDefines redeclarations
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/xml/global_defines_redeclared.py
+
       - name: Global define fixed-buffer lengths
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/global_define_lengths.py

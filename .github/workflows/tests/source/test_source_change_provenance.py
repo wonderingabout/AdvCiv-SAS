@@ -114,6 +114,18 @@ class SourceChangeProvenanceTests(unittest.TestCase):
             self.assertFalse(checker.has_base_game_copy_header(text, {"vanilla": path}))
             self.assertTrue(checker.has_base_game_copy_header(text, {"bts": path}))
 
+    # <!-- custom: An XML copy's note is an XML comment, as for BtS's GlobalDefines.xml; it counts only in the header, before the first element. See KI#1104.2. (Claude code Opus 5.5) -->
+    def test_base_game_xml_copy_header(self):
+        path = "Assets/XML/GlobalDefines.xml"
+        text = ("<?xml version=\"1.0\"?>\n<!-- Sid Meier's Civilization 4 -->\n<!--\nAI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)\n-->\n"
+            "<!-- custom: Copied from BtS's C:\\Civ4\\Beyond the Sword\\Assets\\XML\\GlobalDefines.xml (the newest copy). See KI#1104.2. (Claude code Opus 5.5) -->\n"
+            "<Civ4Defines>\n\t<!-- a define -->\n</Civ4Defines>\n")
+        sources = {"bts": path}
+        self.assertTrue(checker.has_base_game_copy_header(text, sources))
+        self.assertFalse(checker.has_base_game_copy_header(text.replace("GlobalDefines.xml (", "Other.xml ("), sources))
+        moved = text.replace("<Civ4Defines>\n", "").replace("<?xml version=\"1.0\"?>\n", "<?xml version=\"1.0\"?>\n<Civ4Defines>\n")
+        self.assertFalse(checker.has_base_game_copy_header(moved, sources))
+
     # <!-- custom: Exercise multiline custom C++ comments, including delimiter-only edits that retain identical prose, while preserving string literals, inherited blocks and single-line inline annotations. (GPT-6.1-Sol) -->
     def test_multiline_custom_cpp_block_comments(self):
         path = "CvGameCoreDLL/Test.cpp"

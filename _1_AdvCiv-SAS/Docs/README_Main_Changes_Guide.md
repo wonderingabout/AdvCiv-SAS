@@ -445,6 +445,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - A base-game file SAS uses comes in even when SAS leaves it unmodified.
     - So a later change is an ordinary edit: AdvCiv-SAS lacked `CIV4ProcessInfo.xml`, for example, so it could not modify the file until taking it in.
     - One SAS does not use stays in the base game, such as `TechTree.py`, which the Foreign Advisor constructs but never reads.
+  - (Requires AdvCiv-SAS 6887+) The first data file follows: BtS's [`GlobalDefines.xml`](/Assets/XML/GlobalDefines.xml), the only define file the game loads that the repository lacked, so all 1,448 defines it loads can now be found in the mod. See [KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2).
   - The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md) lists which base-game and base AdvCiv files SAS keeps, takes in or leaves out, and the [manifests](/README.md#manifests-of-the-inherited-layers) what each layer ships.
 
 ### Code/Performance optimizations

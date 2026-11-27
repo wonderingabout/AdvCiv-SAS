@@ -33,16 +33,21 @@ class GlobalDefineNameStyleTests(unittest.TestCase):
         return style.check(self.repo)[0]
 
     def test_exact_42_byte_name_passes(self):
-        self.write_define("Assets/XML/GlobalDefines.xml", "N" * 42)
+        self.write_define("Assets/XML/GlobalDefines_advc.xml", "N" * 42)
         self.assertEqual(self.errors(), [])
 
     def test_43_byte_name_fails(self):
-        self.write_define("Assets/XML/GlobalDefines.xml", "N" * 43)
+        self.write_define("Assets/XML/GlobalDefines_advc.xml", "N" * 43)
         self.assertTrue(any("DefineName is 43 UTF-8 bytes" in error for error in self.errors()))
 
     def test_counts_utf8_bytes_not_characters(self):
-        self.write_define("Assets/XML/GlobalDefines.xml", "é" * 22)
+        self.write_define("Assets/XML/GlobalDefines_advc.xml", "é" * 22)
         self.assertTrue(any("DefineName is 44 UTF-8 bytes" in error for error in self.errors()))
+
+    # <!-- custom: BtS's own names in its carried GlobalDefines.xml are not ours to shorten, such as INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT; AdvCiv's and SAS's files keep the target. See KI#1104.2. (Claude code Opus 5.5) -->
+    def test_base_game_file_names_are_exempt(self):
+        self.write_define("Assets/XML/GlobalDefines.xml", "N" * 46)
+        self.assertEqual(self.errors(), [])
 
     def test_inherited_names_are_not_exempt(self):
         self.write_define("Assets/XML/GlobalDefinesAlt.xml", "INHERITED_" + "X" * 34)

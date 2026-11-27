@@ -161,6 +161,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/global_define_lengths.py`](#buildxmlglobal_define_lengthspy)
     - [`build/xml/global_define_name_style.py`](#buildxmlglobal_define_name_stylepy)
     - [`build/xml/global_defines_nonempty.py`](#buildxmlglobal_defines_nonemptypy)
+    - [`build/xml/global_defines_redeclared.py`](#buildxmlglobal_defines_redeclaredpy)
     - [`build/xml/launch_guard.py`](#buildxmllaunch_guardpy)
     - [`build/xml/marsh_bonuses.py`](#buildxmlmarsh_bonusespy)
     - [`LLM_Helpers/balance/military_tree_continuity.py`](#llm_helpersbalancemilitary_tree_continuitypy)
@@ -1111,6 +1112,8 @@ Adding, removing or renaming an XML define consumed by C++ requires an updated s
 
 - Discover `DefineName` declarations throughout `Assets/XML/**/*.xml`, regardless of filename or name prefix, and compare their combined name sets against each selected commit's first parent; inspect both C++ source trees for those names, ignoring comments.
 - Moving an unchanged name between XML files, value/comment edits and Python-only define names require no rebuild. This is a conservative static reference check; dynamically constructed names and preprocessor reachability are not resolved.
+- Taking in BtS's `GlobalDefines.xml`, or dropping SAS's copy of it, needs none either: its names count on both sides of that commit, as the game loads BtS's own copy otherwise ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)).
+  - The whole file is waived in that commit only; a name later added to or removed from the carried file is checked as usual. Codex's review (GPT-6.2-Sol) noted that a new name slipped into the copy as it came in would pass, which a list of BtS's names would close, but that one-off commit is reviewed against the install instead of keeping a second copy of the names.
 - Feature-branch pushes defer enforcement. PRs targeting the default branch and default-branch pushes require the integration head's DLL to differ from the binary before each affected change, with matching successful Release JSON evidence.
 - Intermediate source commits can share a later Release build at the integration head; each binary-changing commit still needs its own `[ci_update_dll]` marker and build evidence under the existing intent check.
 - Local/manual runs check the selected head commit; `--base-ref` checks a complete range. Amended pushes inspect the new commit identities without relying on a discarded push-before object.
@@ -1871,6 +1874,7 @@ python .github/workflows/build/source/source_change_provenance.py --base-ref <ba
 A base-game file SAS takes in whole, as [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104) asks, keeps its original comments and imports without custom notes: a file new to the checked range counts them as inherited when its leading source header says "Copied from" and the layer and path from `Assets/` match the [inherited-files manifest](/_0_Legacy/Docs/Manifests/inherited_files.tsv). The full install path stays in the header for readers.
 
 - Before this (2026-11-22), every push whose range held the KI#1104 copies failed on their hundreds of Firaxis comments, as main did after the PR#50 squash and its amend.
+- An XML copy counts the same way, its note being an XML comment before the first element, since BtS's `GlobalDefines.xml` came in by the same rule ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)); before, its Firaxis comments failed here as new.
 - GitHub's runners have no Civ4 install to compare the copy with, so the header is trusted once the manifest confirms the path; the copy's custom notes and SAS header are still checked as usual.
 
 #### `build/source/string_label_compares.py`
@@ -2007,6 +2011,10 @@ Enforces the preventive desired `DefineName` maximum of 42 UTF-8 bytes across th
 
 Every Define in `GlobalDefines_advciv_sas.xml` must also start with `SAS_`; inherited files retain their existing naming. This catches misplaced generic keys such as the moved `SAVE_VERSION`, now configured as `SAS_SAVE_VERSION` with the old engine/BUG key derived during loading.
 
+BtS's `GlobalDefines.xml`, which SAS carries as the game's base define file ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)), is exempt from the 42-byte target, as its names, such as the 46-byte `INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT`, are BtS's own.
+
+- The 255-byte loader-safety limit still applies to it.
+
 The 42-byte target comes from Base AdvCiv 1.14, SAS's direct parent, whose supplied define names top out at 42 bytes. It is a readability/headroom naming policy, not a Civ4 engine limit; KI#1001's separate 255-byte checker remains the hard loader-safety boundary.
 
 Shipped names, additions and renames must remain within the 42-byte target; if a clear name cannot fit without obscure abbreviations or loss of important units/semantics, review the policy rather than hiding meaning.
@@ -2021,7 +2029,19 @@ All shipped names share the check, including inherited and SAS names. Duplicate 
 
 The engine permits overrides, but this check requires uniqueness within the shipped files rather than silently accepting load-order-dependent duplicates. It does not compare against unshipped base-game files or separately installed mods; an intentional override within the shipped set requires explicit review of the check.
 
+When SAS took in BtS's `GlobalDefines.xml` ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)), the 34 names that later files declare again, such as `MIN_VERSION` in `GlobalDefines_advc.xml`, were removed from the copy instead of being allowed here, so the check stays strict; the copy's header keeps BtS's values.
+
 We check this because we suspect they may possibly cause unclear errors; for intentional "empty" string-like behavior, explicit values such as `NONE` are clearer and more reliable.
+
+#### `build/xml/global_defines_redeclared.py`
+
+Holds true the list in the carried BtS `GlobalDefines.xml`'s header of the names it leaves out because a file the DLL loads later declares them again ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)): each listed name must be declared in the named file, as an XML parse finds it, so outside comments, and no longer in the copy.
+
+- The named file must be one `CvXMLLoadUtility::SetGlobalDefines` reads after `GlobalDefines.xml`, taken from the loader's source, and the header's stated count must match its list, so an emptied list fails too.
+
+- Why: the first removal matched names inside comments too, such as `GlobalDefinesAlt.xml`'s commented-out `BASE_REVOLT_OCCUPATION_TURNS`, and removed six that nothing redeclares, which would have dropped the base revolt duration from 2 turns to 0 and the power health penalties.
+  - Codex's review (GPT-6.2-Sol) found it; a load test could not, as a missing define still loads.
+- Five tests: a real redeclaration passes; a name only in a comment, a name still in the copy, a file the DLL never loads and a count that does not match fail, the last two found by Codex's second look.
 
 #### `build/xml/launch_guard.py`
 
