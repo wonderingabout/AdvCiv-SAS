@@ -56,6 +56,8 @@ import SASGameRecordActions
 # <!-- custom: SASPilot serves the agent pilot's mailbox from screen updates; it returns at once unless SASPilot is on. (Claude code Opus 5.5) -->
 import SASPilot
 import SASPopupChoices # <!-- custom: The Python popup handlers use named IDs from the catalog that creates their buttons, avoiding a second numeric convention in gameplay dispatch. (GPT-6.1-Sol) -->
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml, among them the informing screens' switches. (Claude code Opus 5.5) -->
+import SASSessionTunables
 # <!-- custom: Structured interface diagnostics now use CvUtil.pyPrintRecord, so the former BugUtil-only writer import is no longer needed; the same shared stream layer still supplies row timestamps. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 # K-Mod
 import BugOptionsScreen
@@ -326,16 +328,10 @@ def showVictoryMovie(argsList):
 	victoryMovie.interfaceScreen(argsList[0])
 
 # <!-- custom: Switches for screens that only inform, as SAS_UI_DAWN_OF_MAN_ON is for Dawn of Man: an agent or an unattended run must click through each one, and what they say also reaches the event log ("You have discovered Navigation!").
-# Checked here, where the EXE shows them, so a splash the DLL launches (advc: CvTeam::setHasTech) is covered as well as the one CvEventManager.py queues.
-# Read once, lazily, after GlobalDefines are loaded. (Claude code Opus 5.5) -->
-_sasInfoScreenSwitches = {}
-
-
+# Checked here, where the EXE shows them, so a splash the DLL launches (advc: CvTeam::setHasTech) is covered as well as the one CvEventManager.py queues. (Claude code Opus 5.5) -->
+# <!-- custom: Were read once, lazily, after GlobalDefines loaded; the switches now live in SASSessionTunables, as only Python reads them (KI#128.11), so each is a plain module attribute, read by name with getattr; the lazy cache and the CyGlobalContext() lookup it held went with the XML. (Claude code Opus 5.5) -->
 def _isSASInfoScreenShown(szDefine):
-	if szDefine not in _sasInfoScreenSwitches:
-		# <!-- custom: CyGlobalContext(), as this module has no global gc (see KI#113). (Claude code Opus 5.5) -->
-		_sasInfoScreenSwitches[szDefine] = (CyGlobalContext().getDefineINT(szDefine) > 0)
-	return _sasInfoScreenSwitches[szDefine]
+	return getattr(SASSessionTunables, szDefine) > 0
 
 
 wonderMovie = CvWonderMovieScreen.CvWonderMovieScreen()

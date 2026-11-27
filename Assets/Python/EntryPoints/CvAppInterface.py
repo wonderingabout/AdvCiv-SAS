@@ -21,6 +21,8 @@ import CvUtil
 #
 
 from CvPythonExtensions import *
+# <!-- custom: SASTextScale's addMessage and addImmediateMessage give Python's messages the label font the DLL gives its own, as CyInterface()'s went to the EXE at the stock size. See KI#117.2. (Claude code Opus 5.5) -->
+import SASTextScale
 
 # globals
 gc = CyGlobalContext()
@@ -151,33 +153,33 @@ def onPbemSend(argsList):
 		smtp.sendmail(szFromAddr, szToAddr, message.getvalue())
 		smtp.quit()
 	except smtplib.SMTPAuthenticationError, e:
-		CyInterface().addImmediateMessage("Authentication Error: The server didn't accept the username/password combination provided.", "")	
-		CyInterface().addImmediateMessage("Error %d: %s" % (e.smtp_code, e.smtp_error), "")	
+		SASTextScale.addImmediateMessage("Authentication Error: The server didn't accept the username/password combination provided.", "")	
+		SASTextScale.addImmediateMessage("Error %d: %s" % (e.smtp_code, e.smtp_error), "")	
 		return 1
 	except smtplib.SMTPHeloError, e:
-		CyInterface().addImmediateMessage("The server refused our HELO reply.", "")	
-		CyInterface().addImmediateMessage("Error %d: %s" % (e.smtp_code, e.smtp_error), "")	
+		SASTextScale.addImmediateMessage("The server refused our HELO reply.", "")	
+		SASTextScale.addImmediateMessage("Error %d: %s" % (e.smtp_code, e.smtp_error), "")	
 		return 1
 	except smtplib.SMTPConnectError, e:
-		CyInterface().addImmediateMessage("Error establishing connection.", "")	
-		CyInterface().addImmediateMessage("Error %d: %s" % (e.smtp_code, e.smtp_error), "")	
+		SASTextScale.addImmediateMessage("Error establishing connection.", "")	
+		SASTextScale.addImmediateMessage("Error %d: %s" % (e.smtp_code, e.smtp_error), "")	
 		return 1
 	except smtplib.SMTPDataError, e:
-		CyInterface().addImmediateMessage("The SMTP server didn't accept the data.", "")	
-		CyInterface().addImmediateMessage("Error %d: %s" % (e.smtp_code, e.smtp_error), "")	
+		SASTextScale.addImmediateMessage("The SMTP server didn't accept the data.", "")	
+		SASTextScale.addImmediateMessage("Error %d: %s" % (e.smtp_code, e.smtp_error), "")	
 		return 1
 	except smtplib.SMTPRecipientsRefused, e:
-		CyInterface().addImmediateMessage("All recipient addresses refused.", "")	
+		SASTextScale.addImmediateMessage("All recipient addresses refused.", "")	
 		return 1
 	except smtplib.SMTPSenderRefused, e:
-		CyInterface().addImmediateMessage("Sender address refused.", "")	
-		CyInterface().addImmediateMessage("Error %d: %s" % (e.smtp_code, e.smtp_error), "")	
+		SASTextScale.addImmediateMessage("Sender address refused.", "")	
+		SASTextScale.addImmediateMessage("Error %d: %s" % (e.smtp_code, e.smtp_error), "")	
 		return 1
 	except smtplib.SMTPResponseException, e:
-		CyInterface().addImmediateMessage("Error %d: %s" % (e.smtp_code, e.smtp_error), "")	
+		SASTextScale.addImmediateMessage("Error %d: %s" % (e.smtp_code, e.smtp_error), "")	
 		return 1
 	except smtplib.SMTPServerDisconnected:
-		CyInterface().addImmediateMessage("Not connected to any SMTP server", "")	
+		SASTextScale.addImmediateMessage("Not connected to any SMTP server", "")	
 		return 1
 	except:
 		return 1

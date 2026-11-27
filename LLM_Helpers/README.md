@@ -180,6 +180,8 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
     - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
     - [`heredoc_safe_replace.py`](#heredoc_safe_replacepy)
+    - [`hoist_loop_text_lookups.py`](#hoist_loop_text_lookupspy)
+    - [`move_defines_to_tunables.py`](#move_defines_to_tunablespy)
     - [`fix_line_endings.py`](#fix_line_endingspy)
     - [`rename_identifiers.py`](#rename_identifierspy)
   - [C++ source cleanup helpers](#c-source-cleanup-helpers)
@@ -440,11 +442,15 @@ Report-only audit of when each GlobalDefines define, SAS or inherited, takes eff
   - 2 in `SASDefineGuard.py`, constants holding a define's name, such as `SAS_LAUNCH_GUARD_TEST_INT_DEFINE = "SAS_LAUNCH_GUARD_TEST_INT"`, which read nothing and are now skipped.
   - [`python_define_reads_import.py`](/.github/workflows/README.md#buildsourcepython_define_reads_importpy), which tokenizes scope independently, found the same 16 real ones.
 - Writes `LLM_Helpers/outputs/define_timing.md`, with counts per verdict, origin and family and every reader per define; `--scope sas` or `--scope inherited` narrows it, and `--define NAME` prints one define's readers.
+- `--readers` writes `LLM_Helpers/outputs/define_readers.md` instead: who reads each define, the DLL, Python, both, BtS's EXEs alone, through `audit_engine_names.py`'s string search, or nobody found.
+  - Added on 2026-11-27 for the user's question of which defines could leave GlobalDefines for a central Python settings file: of 1,448, 163 SAS defines were read by Python alone, and BtS's `GlobalDefines.xml` was the only define file the repository lacked ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)).
+  - A define in AdvCiv's GlobalDefines enum list counts for the DLL, which caches it; the first run set those aside, so `COMBAT_DAMAGE` showed as read by nobody.
 
 ```bash
 python LLM_Helpers/audits/audit_define_timing.py
 python LLM_Helpers/audits/audit_define_timing.py --define SAS_UI_FONT_LABEL
 python LLM_Helpers/audits/audit_define_timing.py --scope inherited --out LLM_Helpers/outputs/define_timing_inherited.md
+python LLM_Helpers/audits/audit_define_timing.py --readers
 ```
 
 #### `audit_define_keys.py`
@@ -1030,10 +1036,13 @@ The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_
     - Statement ends and indentation count, shown as `<NEWLINE>`, `<INDENT>` and `<DEDENT>`, so a call moved out of an `if` block differs; a whole one-operand `print(x)` statement counts as the original's `print x`, but `print (1, 2)`, a tuple, and `print (a+b)*c` do not.
     - Codex's review (GPT-6.2-Sol) reproduced all three passing as equal in a first version, which dropped statement structure and every `print` parenthesis.
   - A file with Firaxis's notice on line 2 keeps it first, the SAS header following; a file without one, such as vanilla's `pyUnit/CvUnitController.py`, gets the SAS header on top, which the first version refused (2026-11-26).
+- `--take-in-xml PATH... --reason TEXT --credit MODEL --ki KI#N` does the same for base-game data XML, adding the SAS header and a copy note after Firaxis's notice, or after the XML declaration when a file has none, such as `CIV4FormationInfos.xml`. The note ends with the reason, model credit and KI given, so all copies of one carry read alike.
+  - Added for KI#1104.3's 26 files (2026-11-27), after `GlobalDefines.xml`'s carry (KI#1104.2) had been done by hand. Each copy keeps its source's bytes, read and written as Latin-1, with only the line endings turned to LF, as the repository stores them.
 
 ```bash
 python LLM_Helpers/code_history/inherited_files.py --loaded
 python LLM_Helpers/code_history/inherited_files.py --take-in Assets/Python/Screens/CvScreen.py
+python LLM_Helpers/code_history/inherited_files.py --take-in-xml Assets/XML/GlobalTypes.xml --reason "so the data it holds can be found by a search of the repository and checked by CI" --credit "Claude code Opus 5.5" --ki "KI#1104.3"
 python LLM_Helpers/code_history/inherited_files.py --compare Assets/Python/EntryPoints/PbMain.py
 python LLM_Helpers/code_history/inherited_files.py --inventory
 python LLM_Helpers/code_history/inherited_files.py python --grep wb
@@ -1366,6 +1375,7 @@ python LLM_Helpers\diagnostics\summarize_sasgamerecord_volume.py "C:\path\SASGam
 - Switches the usual unstaged development diagnostics in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) on or back to their shipped defaults, so they need not be re-edited by hand around each commit, amend or rebase.
   - The set and both its values live in [`define_values.py`](#define_valuespy): `DEVELOPMENT_VALUES` lists what `on` sets, beside the shipped values the CI checks require, so both settings of each define are seen and changed in one place; edit it as preferences change.
   - A toggled define without a shipped value there stops the script.
+  - It edits each setting where it lives: the XML for what the DLL or the EXE reads, and [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py) for the names `SESSION_TUNABLE_NAMES` lists, such as the informing screens' switches; `stage` stages both files with shipped values (KI#128.11).
   - `on` includes All, Team and Direct chat text in local SGR logs. For a channel-isolation test, enable only the desired chat switch in XML instead.
   - `off` restores the shipped values, including withholding text for all three chat channels. Use `status` to print the current values without writing.
   - `on` also skips the Dawn of Man screen (`SAS_UI_DAWN_OF_MAN_ON=0`), which players keep; [`hands_free_defaults.py`](/.github/workflows/README.md#buildruntimehands_free_defaultspy) checks that it ships as `1`.
@@ -1816,6 +1826,32 @@ Applies exact text replacements to one file from a patch file, for edits too man
 
 ```bash
 python ./LLM_Helpers/formatting/heredoc_safe_replace.py CvGameCoreDLL/CvPlayer.cpp patch.txt --dry-run
+```
+
+#### `hoist_loop_text_lookups.py`
+
+Reads each fixed-key text lookup that [`python_text_lookups_cached.py`](/.github/workflows/README.md#buildsourcepython_text_lookups_cachedpy) finds inside a loop once before the outermost loop of its function, as a local such as `szTextTopcivsUnknown`, with a custom comment above it, and uses that local in the loop.
+
+- Written on 2026-11-27 for the check's first repo-wide run, which found 93 lookups in 20 files; it imports the check, so the two cannot disagree on which lookups sit in a loop. See [KI#128.10](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.10).
+- It reports what it cannot do safely, a lookup split over lines or a local name already in the file, for a hand fix; it writes LF files only. Review the diff after use.
+
+```bash
+python ./LLM_Helpers/formatting/hoist_loop_text_lookups.py --dry-run
+```
+
+#### `move_defines_to_tunables.py`
+
+Moves SAS defines that only Python reads from [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) into [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py), each with its comment, in XML order, and switches their Python reads, such as `gc.getDefineINT("SAS_X")`, to `SASSessionTunables.SAS_X`, adding a commented import where a file needs one.
+
+- Written for the move of 2026-11-27, which grew from a 23-define pilot run by two scratch scripts to 138 settings.
+- It does not choose the names: take those [`audit_define_timing.py --readers`](#audit_define_timingpy) lists as read by Python only, minus those [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) may change and those our tooling or CI reads from the XML, such as [`define_values.py`](#define_valuespy)'s.
+- Dry run by default. It lists every mention it cannot switch, such as a name built at runtime (`"SAS_X_%d" % i`), for a hand fix.
+- It rewrites only real calls: a match on another object's `gc`, or inside a string or comment as Python's tokenizer finds them, multiline strings included, is reported instead; text values are decoded from XML; and it writes nothing until the whole run is computed and checked, `SASSessionTunables.py` existing included.
+  - Codex's reviews (GPT-6.2-Sol) found the earlier versions rewrote such text, copied `&amp;` as is, and wrote files before a later step failed.
+  - It moves only the comment directly above a define, so a second comment stacked above that one stays in the XML; the first run left two such comments, the terrain inputs' heading and the Marsh share's note, which were moved by hand.
+
+```bash
+python ./LLM_Helpers/formatting/move_defines_to_tunables.py names.txt --heading "# <!-- custom: ... -->" --import-comment "# <!-- custom: ... -->"
 ```
 
 #### `fix_line_endings.py`

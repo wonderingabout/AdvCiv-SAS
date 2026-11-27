@@ -112,6 +112,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`lib/git_context.py`](#libgit_contextpy)
     - [`lib/reference_spellings.py`](#libreference_spellingspy)
     - [`lib/revision_history.py`](#librevision_historypy)
+    - [`lib/runtime_python.py`](#libruntime_pythonpy)
     - [`lib/sas_live_define_overrides_file.py`](#libsas_live_define_overrides_filepy)
     - [`lib/xml_defines.py`](#libxml_definespy)
   - [Source](#source)
@@ -130,9 +131,13 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/python_define_reads_cached.py`](#buildsourcepython_define_reads_cachedpy)
     - [`build/source/python_define_reads_import.py`](#buildsourcepython_define_reads_importpy)
     - [`build/source/python_engine_callbacks.py`](#buildsourcepython_engine_callbackspy)
+    - [`build/source/python_message_font.py`](#buildsourcepython_message_fontpy)
     - [`build/source/python_multiline_calls.py`](#buildsourcepython_multiline_callspy)
+    - [`build/source/python_pure_modules.py`](#buildsourcepython_pure_modulespy)
     - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
+    - [`build/source/python_runtime_placement.py`](#buildsourcepython_runtime_placementpy)
+    - [`build/source/python_text_lookups_cached.py`](#buildsourcepython_text_lookups_cachedpy)
     - [`build/source/python_wrapper_null_args.py`](#buildsourcepython_wrapper_null_argspy)
     - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
     - [`build/source/sas_live_define_overrides.py`](#buildsourcesas_live_define_overridespy)
@@ -153,10 +158,12 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/corporation_prereq_bonuses.py`](#buildxmlcorporation_prereq_bonusespy)
     - [`build/xml/define_int_bounds.py`](#buildxmldefine_int_boundspy)
     - [`build/xml/define_tag_refs.py`](#buildxmldefine_tag_refspy)
+    - [`build/xml/dll_enum_xml_order.py`](#buildxmldll_enum_xml_orderpy)
     - [`build/xml/feature_impassables.py`](#buildxmlfeature_impassablespy)
     - [`build/xml/global_define_lengths.py`](#buildxmlglobal_define_lengthspy)
     - [`build/xml/global_define_name_style.py`](#buildxmlglobal_define_name_stylepy)
     - [`build/xml/global_defines_nonempty.py`](#buildxmlglobal_defines_nonemptypy)
+    - [`build/xml/global_defines_redeclared.py`](#buildxmlglobal_defines_redeclaredpy)
     - [`build/xml/launch_guard.py`](#buildxmllaunch_guardpy)
     - [`build/xml/marsh_bonuses.py`](#buildxmlmarsh_bonusespy)
     - [`LLM_Helpers/balance/military_tree_continuity.py`](#llm_helpersbalancemilitary_tree_continuitypy)
@@ -187,6 +194,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/xml_suspicious_angle_tags.py`](#buildxmlxml_suspicious_angle_tagspy)
     - [`build/xml/xml_suspicious_text_chars.py`](#buildxmlxml_suspicious_text_charspy)
     - [`build/xml/xml_text_duplicate_tags.py`](#buildxmlxml_text_duplicate_tagspy)
+    - [`build/xml/xml_type_references.py`](#buildxmlxml_type_referencespy)
 - [CI markers in commit messages](#ci-markers-in-commit-messages)
 - [CI markers in source comments](#ci-markers-in-source-comments)
 - [Run Locally](#run-locally)
@@ -341,7 +349,7 @@ SASPilot graph tests in the source suite cover tech prerequisite groups against 
 
 #### `build/assets/advisor_defaults.py`
 
-Keeps `SAS_MILIT_UI_BATTLE_XY_ON=1` in shipped XML so Battles coordinates are sortable by default; setting it to 0 remains a local option when screen width is scarce.
+Keeps `SAS_MILIT_UI_BATTLE_XY_ON=1` shipped, in [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py) since it moved from the XML, so Battles coordinates are sortable by default; setting it to 0 remains a local option when screen width is scarce.
 
 `SAS_WORLD_CHANGES_SHOW_INTERMEDIATE_ON=0` keeps the Changes view compact by default; setting it to 1 displays each permitted raw event separately. `SAS_WORLD_CHANGES_SHOW_CANCELLED_ON=0` also omits eligible cancelled rows from the summary; setting it to 1 restores those rows. Both SHOW toggles therefore default to 0.
 
@@ -1112,6 +1120,8 @@ Adding, removing or renaming an XML define consumed by C++ requires an updated s
 
 - Discover `DefineName` declarations throughout `Assets/XML/**/*.xml`, regardless of filename or name prefix, and compare their combined name sets against each selected commit's first parent; inspect both C++ source trees for those names, ignoring comments.
 - Moving an unchanged name between XML files, value/comment edits and Python-only define names require no rebuild. This is a conservative static reference check; dynamically constructed names and preprocessor reachability are not resolved.
+- Taking in BtS's `GlobalDefines.xml`, or dropping SAS's copy of it, needs none either: its names count on both sides of that commit, as the game loads BtS's own copy otherwise ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)).
+  - The whole file is waived in that commit only; a name later added to or removed from the carried file is checked as usual. Codex's review (GPT-6.2-Sol) noted that a new name slipped into the copy as it came in would pass, which a list of BtS's names would close, but that one-off commit is reviewed against the install instead of keeping a second copy of the names.
 - Feature-branch pushes defer enforcement. PRs targeting the default branch and default-branch pushes require the integration head's DLL to differ from the binary before each affected change, with matching successful Release JSON evidence.
 - Intermediate source commits can share a later Release build at the integration head; each binary-changing commit still needs its own `[ci_update_dll]` marker and build evidence under the existing intent check.
 - Local/manual runs check the selected head commit; `--base-ref` checks a complete range. Amended pushes inspect the new commit identities without relying on a discarded push-before object.
@@ -1344,6 +1354,7 @@ Requires the shipped values of the hands-free switches, which spare players clic
   - And since 2026-11-27 for the tech splash and the era, wonder, religion and project movies (`SAS_UI_TECH_SPLASH_ON`, `SAS_UI_ERA_MOVIE_ON`, `SAS_UI_WONDER_MOVIE_ON`, `SAS_UI_RELIGION_MOVIE_ON`, `SAS_UI_PROJECT_MOVIE_ON`), first added on the SASPilot branch on 2026-11-13.
 - The others are not changed locally, but one switched off by mistake would bring back what it removes: AI Auto Play's no-decision popups and its speed-scaled default turns, SASFastSave's start, end and autoplay-stop saves, scoreboard autocenter, and silent assertion handling (`SAS_ASSERT_SILENT_ACTION=1`).
 - Like the diagnostic-default checks it accepts `--staged`, which the local CI runner uses.
+- It reads [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py) as well as the XML, where `SAS_FAST_SAVE_GAME_START_ON`, `SAS_FAST_SAVE_AUTOPLAY_STOP_ON`, `SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON` and `SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON` moved, as `SESSION_TUNABLE_NAMES` in [`define_values.py`](/LLM_Helpers/README.md#define_valuespy) lists; `read_global_define_ints(..., session_names=...)` reads only the names a check lists from there, and fails on a name found in both files whatever its type ([KI#128.11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.11)).
 
 #### `build/runtime/mapscripts.py`
 
@@ -1392,6 +1403,15 @@ Holds the one-token spellings of numbered references, such as `PR#50`, `KI#1104`
 #### `lib/revision_history.py`
 
 Parses diagnostic revision history entries and validates their Change fields for the SASGameRecord and Runtime checks, and reads `[ci_squash_pr]` to tell whether a PR is intended to be squash-merged.
+
+#### `lib/runtime_python.py`
+
+Lists the folders the game runs Python from, `Assets/Python` and `PrivateMaps`, which every runtime Python check scans, from the Python 2.4 compile to the define and text caching checks.
+
+- Each check held its own copy of the list until 2026-11-27, so a new runtime folder had to be added to each by hand: one check still listed `LLM_Helpers/saspilot` after SASPilot's game files moved to the root `SASPilot/` folder on its branch, while the others never had it. A branch that runs Python from another folder, such as SASPilot's `SASPilot/game`, now adds it here once.
+- Scanning every `.py` file instead would trip on code the game never runs, such as `_1_AdvCiv-SAS/Docs/examples/source_comparison/CvMainInterface_1_12_singleline.py`, base AdvCiv 1.12's main interface collapsed to one line per call for comparison; tooling Python in `LLM_Helpers` and `.github` runs under Python 3 outside the game, so it is not listed either.
+- A plain tuple, as `python24_compile.py` imports it under Python 2.4 itself.
+- `RUNTIME_PYTHON_FILES` lists single files the game runs from a folder of modern tooling, each with its reason, empty on main and so far read only as an allowance by the placement check, and `REFERENCE_PYTHON_PREFIXES` the reference copies never run; [`python_runtime_placement.py`](#buildsourcepython_runtime_placementpy) fails on game Python outside both lists.
 
 #### `lib/sas_live_define_overrides_file.py`
 
@@ -1583,6 +1603,8 @@ The Python counterpart of [`cpp_define_reads_cached.py`](#buildsourcecpp_define_
 - Codex's review (GPT-6.2-Sol) found the first version's gaps, each now tested: a store into `self` in any method or loop counted as a cache, an unrelated guard such as `if self.ready and value is None:` passed, a read split after its bracket was missed, an outer loop's marker covered an inner one, and a valid one-line `if self.x is None: self.x = ...` failed.
 - Module-level and class-body reads are left to [`python_define_reads_import.py`](#buildsourcepython_define_reads_importpy), and reads through a variable name, as `SASCurrentDefines` and the overrides bridge make, are the caches themselves.
 - Added on 2026-11-26 for [KI#128.9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.9), SAS and inherited defines alike, as in C++. Run repo-wide first, it found 97 reads in 54 functions; five ran in a loop, once per leader or tech, and are now read once before it, and all but the river define go through `SASCurrentDefines`.
+- It also fails when a `SASCurrentDefines` read fills a cache kept for the session, in `__init__` or under such a lazy guard: `SASCurrentDefines` is for a read at each use, which live overrides refresh, and a kept attribute for a value fixed for the session, read with `gc`, so keeping a `SASCurrentDefines` value mixes the two.
+  - Added on 2026-11-27, after the user caught `CvMainInterface.py`'s new units-waiting switch filled that way. Run repo-wide first, it found no other case; a related slip from the KI#128.9 pass, a local copied from an attribute and filled through `SASCurrentDefines` when empty, which this rule does not see, was fixed by hand in `initState`.
 
 ```bash
 python .github/workflows/build/source/python_define_reads_cached.py
@@ -1619,6 +1641,19 @@ Fails when a base-game entry point SAS carries loses a top-level function the en
 python .github/workflows/build/source/python_engine_callbacks.py
 ```
 
+#### `build/source/python_message_font.py`
+
+Fails on a runtime Python call to `addMessage` or `addImmediateMessage` on anything but `SASTextScale`, or to `addCombatMessage` outside `CvUtil.addCombatMessageScaled`: `CvDLLInterfaceIFaceBase::addMessage` wraps every message the DLL adds in the label font, but `CyInterface()`'s go to the EXE directly, so at an upscaled label size Python's messages were smaller than the DLL's beside them.
+
+- A gap left since SAS's message upscaling of 2026-04-14, which enlarged the DLL's messages and the Combat Log; the user noticed it: MoreCiv4lerts' "Cyrus will export Iron" sat small under the DLL's "Global Warming strikes near …".
+  - Run repo-wide first, the check found 43 direct calls in 14 files, now routed through `SASTextScale.addMessage` and `addImmediateMessage`, which apply `labelText` as the DLL does; combat lines already went through `CvUtil`'s helper.
+- A heuristic read from tokens, so comments and strings do not count: it looks at calls on `CyInterface()` or a name the file binds to it, such as `BugUtil`'s `interface`, and allows them only inside the three forwarding functions; a receiver passed in from elsewhere is not seen.
+  - Codex's review (GPT-6.2-Sol) found the first draft exempted whole files and flagged unrelated methods such as `inbox.addMessage(record)`. See [KI#117.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-117.2).
+
+```bash
+python .github/workflows/build/source/python_message_font.py
+```
+
 #### `build/source/python_multiline_calls.py`
 
 Fails when a call in `Assets/Python` or `PrivateMaps` spans several lines, commented-out calls included, as searches find them too: one line per call greps, compares and lints better, as [AGENTS.md](/AGENTS.md#code-layout-and-collapsing) prefers unless that makes it overly complicated. `--fix` collapses what it flags.
@@ -1630,6 +1665,18 @@ Fails when a call in `Assets/Python` or `PrivateMaps` spans several lines, comme
 - A comment inside moves, unchanged, onto its own line above the collapsed one, as the movie screens' `#self.EXIT_TEXT,` did; only provenance markers keep a call multi-line, such as AdvCiv's `# <advc.092>` around the arguments it changed, or a SAS `custom:` note, and line-scoped directives such as `# noqa`, which only work on their own line; a comment after the closing bracket stays at the end of the collapsed line.
   - Above moved comments, `--fix` writes a custom note saying where they came from, credited with `--credit "<model>"`, which it then requires: alone, the movie screens' `#self.EXIT_TEXT,` read like a stray line.
 - Tables, conditions and multi-line strings stay multi-line, as do quotes inside a multi-line `custom:` note, such as `SevoPediaReligion.py`'s copy of a base AdvCiv call; tooling Python under `.github`, `LLM_Helpers` and `tests` is not checked.
+
+#### `build/source/python_pure_modules.py`
+
+Fails when a runtime Python module whose comment carries `ci_pure_module:` holds anything at top level but comments and names bound to plain values, numbers, strings, booleans, `None` or tuples, lists and dicts of them: no import, call, `def`, `class` or computed value.
+
+- So any module can import it at any time, early in startup, from a map script or another leaf module, with no load-order or circular-import risk.
+- `SASMagicNumbers.py`'s header had asked to stay import-free since 2026-06 with nothing to hold it; it and `SASSessionTunables.py`, the home of the settings only Python reads since 2026-11-27, carry the marker, and the user wanted a check so that purity is not left to memory.
+- The marker is read from comments only, so a string holding it marks nothing.
+
+```bash
+python .github/workflows/build/source/python_pure_modules.py
+```
 
 #### `build/source/python_resource_api.py`
 
@@ -1685,6 +1732,34 @@ Why logical lines rather than a width:
 - Runtime Python calls follow the same idea, one call per line, as [`python_multiline_calls.py`](#buildsourcepython_multiline_callspy) checks.
 
 Preview with `python LLM_Helpers/formatting/reflow_custom_comments.py --diff`, then use `--apply` on selected files and review the result. See [the helper documentation](/LLM_Helpers/README.md#custom-comment-logical-reflow) for scope and examples.
+
+#### `build/source/python_runtime_placement.py`
+
+Fails on a Python file outside the folders and files [`lib/runtime_python.py`](#libruntime_pythonpy) lists that imports `CvPythonExtensions`, the engine module only the game provides: such game Python would escape every runtime Python check at once, as SASPilot's game files did in `LLM_Helpers/saspilot`, scanned by one check and not the others.
+
+- It reads tokens, so a mention in a comment or a string, such as the CI stubs' `sys.modules["CvPythonExtensions"]`, does not count; it splits a line at `;` and after a one-line `if ...:`, and reads the module position, so `import os as CvPythonExtensions` is no hit.
+- It checks the files Git tracks, plus new ones it does not ignore, so a local `.venv` or ignored scratch is never walked, and skips the reference copies the lib file lists: without that list, 158 copies of game Python would hit, 131 in `LLM_Helpers/context`, mostly the original map scripts, and base AdvCiv 1.12's single-line main interface among them.
+- Codex's review (GPT-6.2-Sol) reproduced the first draft's misses, each now tested: `x = 1; import CvPythonExtensions`, `if enabled: from CvPythonExtensions import *`, a UTF-8 BOM before the first import, and the alias counted as a module.
+- The import is a one-way signal, as Codex's review (GPT-6.2-Sol) put it: a loader can run a payload that uses the engine without importing it, so a loader such as SASPilot's should point at listed paths too.
+- On main nothing outside `Assets/Python` and `PrivateMaps` imports it. On the branches, Codex found files the game runs from folders of modern tooling: SASPilot's `SASPilot/checks/trade_items_parity.py` and the transplanter's `SASSaveTransplanterExport.py` and `SASSaveTransplanterUnitState.py`, which go in the lib file's `RUNTIME_PYTHON_FILES` with their reasons rather than as whole folders. Added on 2026-11-27.
+  - That list is only an allowance for this check so far: the other runtime checks scan the folders alone, so a branch listing a file there also says what checks it, until they read the list too.
+
+```bash
+python .github/workflows/build/source/python_runtime_placement.py
+```
+
+#### `build/source/python_text_lookups_cached.py`
+
+The text counterpart of [KI#128.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.8)'s define reads in loops: fails when runtime Python looks a fixed text key up inside the body of a `for` or `while` loop, such as `localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())` once per vote source, as the text is the same at each pass.
+
+- Measured in game on 2026-11-27, best of 5 rounds of 20,000: a fixed-key `getText` cost about 0.8 microseconds, one with two arguments about 3.6, a fresh `CyTranslator()` each call about 1.3, and a kept local or attribute about 0.02.
+- So only lookups in loops are checked. Run repo-wide first, the check found 93 in 20 files, now each read once before the outermost loop of its function by [`hoist_loop_text_lookups.py`](/LLM_Helpers/README.md#hoist_loop_text_lookupspy); the other 1,150 or so fixed lookups run once per call, about 0.08 ms for 100, too little to be worth the churn.
+- Not seen: a lookup with arguments, which builds a new text each time; one in a list comprehension or a `while`'s condition; and one in a helper that a loop calls, as the check does not follow calls.
+- It scans the folders in [`lib/runtime_python.py`](/.github/workflows/lib/runtime_python.py), the shared list of folders the game runs Python from. See [KI#128.10](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.10).
+
+```bash
+python .github/workflows/build/source/python_text_lookups_cached.py
+```
 
 #### `build/source/python_wrapper_null_args.py`
 
@@ -1820,6 +1895,7 @@ python .github/workflows/build/source/source_change_provenance.py --base-ref <ba
 A base-game file SAS takes in whole, as [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104) asks, keeps its original comments and imports without custom notes: a file new to the checked range counts them as inherited when its leading source header says "Copied from" and the layer and path from `Assets/` match the [inherited-files manifest](/_0_Legacy/Docs/Manifests/inherited_files.tsv). The full install path stays in the header for readers.
 
 - Before this (2026-11-22), every push whose range held the KI#1104 copies failed on their hundreds of Firaxis comments, as main did after the PR#50 squash and its amend.
+- An XML copy counts the same way, its note being an XML comment before the first element, since BtS's `GlobalDefines.xml` came in by the same rule ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)); before, its Firaxis comments failed here as new.
 - GitHub's runners have no Civ4 install to compare the copy with, so the header is trusted once the manifest confirms the path; the copy's custom notes and SAS header are still checked as usual.
 
 #### `build/source/string_label_compares.py`
@@ -1927,6 +2003,21 @@ Verifies `GlobalDefines_advciv_sas.xml` integer values stay within `[-100000, 10
 
 Verifies any SAS `DefineTextVal` token that looks like a known Civ4 XML tag (e.g. bonuses, techs, building classes, units, promotions) references a real XML `<Type>` value; successful matches are printed by default, and `--quiet` suppresses them.
 
+#### `build/xml/dll_enum_xml_order.py`
+
+Checks that the DLL's hand-written enums in `CvEnums.h` list the same types, in the same order, as the XML they index ([KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3)), 25 of them: `ANIMATIONPATH_*` against `Civ4AnimationPathInfos.xml`, the attitudes, domains, calendars and force controls against their carried info files, and the automate, direction and function types against `GlobalTypes.xml`.
+
+- A scan of every `ENUM_START` block against the repository's XML types then found 17 more whose XML SAS carried earlier but no check compared, such as `MissionTypes`, `UnitAITypes`, `GameOptionTypes` and `DenialTypes`; all match.
+- Rows are read as the DLL's loader reads them, from the first row forward, every sibling whatever its tag, a sibling without one `<Type>` being reported: vanilla's `CIV4GraphicOptionInfos.xml`, copied by BtS and SAS, wraps `GRAPHICOPTION_CITY_DETAIL` in `<PlayerOptionInfo>`, which the game still loads as the third graphic option.
+
+- Why: the DLL indexes the XML's rows by these enums, so a type added, removed or moved on one side only would shift every later row onto the wrong value without any load error. Until SAS carried these files, the XML side sat in the base game, out of reach of any check.
+  - Codex's review (GPT-6.2-Sol) suggested the animation paths; the other hand-written enums whose XML SAS carries follow the same rule.
+- The `DO(...)` enums of `CvEnumMacros.h`, such as `EntityEventTypes`, are sized from the XML at load, so they cannot drift and are not checked.
+- One enum value has no XML row and is allowed by name: BtS's `FUNC_STEPKEY`, after the last row, where it shifts nothing. An explicit value equal to its member's position shifts nothing either, as AdvCiv's `GAMEOPTION_LEAD_ANY_CIV = 7`.
+- Explicit values fail, except a leading `NONE = -1` and a value equal to its member's position, as any other would shift the rows while the names still compared in order; block comments are skipped; Codex's review (GPT-6.2-Sol) reproduced `ANIMATIONPATH_IDLE = 4` passing in the first version.
+- Comments are removed before the enum is found, so a comment naming `ENUM_END` cannot cut it short, and a preprocessor line before a row, such as `#if 0`, fails, while one guarding only the count, as `DirectionTypes`' `#ifdef _USRDLL` does, is allowed; Codex's second review reproduced both cases.
+- Eight tests: a matching list passes, as do values at their position and a row under another tag; swapped rows, a row the enum lacks, an enum value after the last row, an explicit value and a row under `#if 0` fail; the enum's `NONE`, comments, a comment naming `ENUM_END` and the masks after the count are skipped.
+
 #### `build/xml/feature_impassables.py`
 
 Verifies that every unit with `FeatureImpassables` blocks the same set of features.
@@ -1956,6 +2047,10 @@ Enforces the preventive desired `DefineName` maximum of 42 UTF-8 bytes across th
 
 Every Define in `GlobalDefines_advciv_sas.xml` must also start with `SAS_`; inherited files retain their existing naming. This catches misplaced generic keys such as the moved `SAVE_VERSION`, now configured as `SAS_SAVE_VERSION` with the old engine/BUG key derived during loading.
 
+BtS's `GlobalDefines.xml`, which SAS carries as the game's base define file ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)), is exempt from the 42-byte target, as its names, such as the 46-byte `INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT`, are BtS's own.
+
+- The 255-byte loader-safety limit still applies to it.
+
 The 42-byte target comes from Base AdvCiv 1.14, SAS's direct parent, whose supplied define names top out at 42 bytes. It is a readability/headroom naming policy, not a Civ4 engine limit; KI#1001's separate 255-byte checker remains the hard loader-safety boundary.
 
 Shipped names, additions and renames must remain within the 42-byte target; if a clear name cannot fit without obscure abbreviations or loss of important units/semantics, review the policy rather than hiding meaning.
@@ -1970,7 +2065,19 @@ All shipped names share the check, including inherited and SAS names. Duplicate 
 
 The engine permits overrides, but this check requires uniqueness within the shipped files rather than silently accepting load-order-dependent duplicates. It does not compare against unshipped base-game files or separately installed mods; an intentional override within the shipped set requires explicit review of the check.
 
+When SAS took in BtS's `GlobalDefines.xml` ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)), the 34 names that later files declare again, such as `MIN_VERSION` in `GlobalDefines_advc.xml`, were removed from the copy instead of being allowed here, so the check stays strict; the copy's header keeps BtS's values.
+
 We check this because we suspect they may possibly cause unclear errors; for intentional "empty" string-like behavior, explicit values such as `NONE` are clearer and more reliable.
+
+#### `build/xml/global_defines_redeclared.py`
+
+Holds true the list in the carried BtS `GlobalDefines.xml`'s header of the names it leaves out because a file the DLL loads later declares them again ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)): each listed name must be declared in the named file, as an XML parse finds it, so outside comments, and no longer in the copy.
+
+- The named file must be one `CvXMLLoadUtility::SetGlobalDefines` reads after `GlobalDefines.xml`, taken from the loader's source, and the header's stated count must match its list, so an emptied list fails too.
+
+- Why: the first removal matched names inside comments too, such as `GlobalDefinesAlt.xml`'s commented-out `BASE_REVOLT_OCCUPATION_TURNS`, and removed six that nothing redeclares, which would have dropped the base revolt duration from 2 turns to 0 and the power health penalties.
+  - Codex's review (GPT-6.2-Sol) found it; a load test could not, as a missing define still loads.
+- Five tests: a real redeclaration passes; a name only in a comment, a name still in the copy, a file the DLL never loads and a count that does not match fail, the last two found by Codex's second look.
 
 #### `build/xml/launch_guard.py`
 
@@ -2075,6 +2182,8 @@ The other direction too: every `TXT_KEY` used by active mod XML, Config, Python,
 Inherited text counts only where BtS, Warlords or vanilla define it, from the hash list's `game` column: base AdvCiv's original files are not loaded by SAS, which carries its own copies, so 2,302 tags defined only there would otherwise pass while the game shows the key.
 
 Base AdvCiv's own undefined keys are listed in [`xml_text_undefined_inherited.tsv`](/_0_Legacy/Docs/Manifests/xml_text_undefined_inherited.tsv). See [KI#1085](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085).
+
+So are the base game's: the 22 keys the files carried for [KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3) use that no layer's text defines, such as `TXT_KEY_CALENDAR_YEARS` and `TXT_KEY_UPKEEP_LOW_HELP`; the copies change nothing there, as the base game's files used the same keys.
 
 It also verifies that buildings, units, civilizations, and leaders with SAS-owned descriptions reference Civilopedia keys defined in the mod's GameText files, unless the pedia text is explicitly confirmed as inherited from the base game or expansion.
 
@@ -2240,6 +2349,20 @@ Inspired by the old AdvCiv-SAS blind [scan_xml_duplicates-3.3.py](/LLM_Helpers/a
 
 This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894) and fix XML text duplicate errors. See [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-149).
 
+#### `build/xml/xml_type_references.py`
+
+Checks that references to types the carried base-game XML defines name a defined type ([KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3)), each rule a tag, the files holding it and the file defining its types:
+
+- each unit's `<FormationType>` against `CIV4FormationInfos.xml`, the formations' `<EventType>`, the build infos' `<EntityEvent>` and the missions' `<EntityEventType>` against `Civ4EntityEventInfos.xml`, the entity events' `<AnimationPathType>` against `Civ4AnimationPathInfos.xml`, and the paths' `<Category>` and `<Operator>` against `Civ4AnimationInfos.xml` and `GlobalTypes.xml`;
+- each civilization's `<DefaultPlayerColor>` against `CIV4PlayerColorInfos.xml`, whose three color tags must name colors of `CIV4ColorVals.xml`;
+- every `<Advisor>` against `CIV4AdvisorInfos.xml`, and each terrain's `<ArtDefineTag>` against `CIV4ArtDefines_Terrain.xml`.
+
+- Why: until SAS carried the defining files, they sat in the base game, out of reach of any check, so a misspelt reference, such as `FORMATION_TYPE_RANGE` for `FORMATION_TYPE_RANGED`, could only show in game, if at all.
+  - Codex's review (GPT-6.2-Sol) suggested the formation and animation chain; the other references to the carried files are checked the same way.
+- `NONE` and an empty value count as no reference, and a rule that finds no reference at all fails, as after a tag rename it would check nothing.
+- Codex's review (GPT-6.2-Sol) found the first version missing the missions' `<EntityEventType>`, a misspelt sleep mission passing.
+- Three tests: a defined type passes; a misspelt one and a rule with no reference fail.
+
 ## CI markers in commit messages
 
 A marker is one bracketed token in a commit message, title or body, usually on a body line such as `- [ci_update_dll]`. It states an intent the change alone cannot show, so CI checks the change against that intent.
@@ -2279,6 +2402,7 @@ A source marker is a token in a comment that tells one check why the line or fun
 | --- | --- | --- |
 | `ci_define_uncached:` | a define read by name outside a static runs once or rarely, so it needs no cache; in Python, a define other code sets during play, so `SASCurrentDefines` would miss the change | every other read in the DLL and in runtime Python, and a read inside a loop unless the marker sits in that loop. See [`build/source/cpp_define_reads_cached.py`](#buildsourcecpp_define_reads_cachedpy) and [`build/source/python_define_reads_cached.py`](#buildsourcepython_define_reads_cachedpy). |
 | `ci_import_call:` | a module-level call whose define reads cannot run at import, for the reason given, such as `CvEventInterface.py`'s `initAfterReload()`, whose reads run only once `BugInit.init()` succeeds, not while the game is still initializing | every other module-level call, and reads made at module level or in a class body. See [`build/source/python_define_reads_import.py`](#buildsourcepython_define_reads_importpy). |
+| `ci_pure_module:` | the module holds plain values only and imports nothing, such as `SASMagicNumbers.py` and `SASSessionTunables.py`, so any module can import it at any time | that its top level holds nothing but comments and names bound to plain values. See [`build/source/python_pure_modules.py`](#buildsourcepython_pure_modulespy). |
 | `resource-cache-direct:` | a runtime Python lookup reads a resource directly instead of through its shared cache, for the concrete reason given | that a reason follows the token, and every other lookup. See [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy). |
 | `sas-ci-string-compare-exemption:` | a runtime Python comparison with a short string literal is right as it is, such as a BUG option type | every other such comparison. See [`build/source/string_label_compares.py`](#buildsourcestring_label_comparespy). |
 

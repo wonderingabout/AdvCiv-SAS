@@ -530,12 +530,14 @@ class SevoPediaEventTrigger:
 					parts.append(SASVisuals.Font.STAR_CHAR + u" " + make_pedia_link(combatInfo.getDescription()) + u": " + make_pedia_link(promoInfo.getDescription()))
 
 		# <!-- custom: <FreeSpecialistCounts> — grants N free specialists of a given type in the target city (e.g. Noble Knights Done_3: +1 Great Priest). Probed per SASVisuals.Specialist index, same pattern as UnitClass above. (Claude code Opus 4.7) -->
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextPediaSasEventEffectFreeSpecialist = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_SPECIALIST", ())
 		for iSp in range(gc.getNumSpecialistInfos()):
 			iCount = eventInfo.getFreeSpecialistCount(iSp)
 			if iCount != 0:
 				specInfo = gc.getSpecialistInfo(iSp)
 				if specInfo:
-					parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_SPECIALIST", ()) + u": %dx %s" % (iCount, make_pedia_link(specInfo.getDescription())))
+					parts.append(szTextPediaSasEventEffectFreeSpecialist + u": %dx %s" % (iCount, make_pedia_link(specInfo.getDescription())))
 
 		# Other less-common scalar fields that can still carry the whole effect on their own.
 		szPythonCanDo = eventInfo.getPythonCanDo()
@@ -581,12 +583,16 @@ class SevoPediaEventTrigger:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PILLAGE_IMPROVEMENTS", ()) + u": " + szPillageCount)
 
 		# <!-- custom: <PlotExtraYields> — permanent yield bonus on the target plot, indexed by SASVisuals.Yield type. Same list-struct probe pattern as the per-BuildingClass extras. Useful for events like "The Volcano has fertilized this plot: +2 food". (Claude code Opus 4.7) -->
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextPediaSasEventEffectPlotExtraYield = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PLOT_EXTRA_YIELD", ())
 		for iY in range(YieldTypes.NUM_YIELD_TYPES):
 			iExtra = eventInfo.getPlotExtraYield(iY)
 			if iExtra != 0:
-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PLOT_EXTRA_YIELD", ()) + u": %+d %s" % (iExtra, SASVisuals.Yield.char(iY)))
+				parts.append(szTextPediaSasEventEffectPlotExtraYield + u": %+d %s" % (iExtra, SASVisuals.Yield.char(iY)))
 
 		# <!-- custom: <AdditionalEvents> — follow-up events that may fire after this one, each with a %chance and a turn delay. Probed per event index (same pattern as the BuildingClass scan). Surfaces event chains like "This opens a quest that will resolve in N turns". (Claude code Opus 4.7) -->
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextPediaSasEventEffectAdditionalEvent = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ADDITIONAL_EVENT", ())
 		for iOtherEvent in range(gc.getNumEventInfos()):
 			iChance = eventInfo.getAdditionalEventChance(iOtherEvent)
 			if iChance <= 0:
@@ -599,13 +605,15 @@ class SevoPediaEventTrigger:
 			if (not szOtherName) or len(szOtherName.strip()) == 0:
 				szOtherName = otherInfo.getType()
 			if iTime > 0:
-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ADDITIONAL_EVENT", ()) + u": %s (%d%%, %d turns)" % (szOtherName, iChance, iTime))
+				parts.append(szTextPediaSasEventEffectAdditionalEvent + u": %s (%d%%, %d turns)" % (szOtherName, iChance, iTime))
 			else:
-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ADDITIONAL_EVENT", ()) + u": %s (%d%%)" % (szOtherName, iChance))
+				parts.append(szTextPediaSasEventEffectAdditionalEvent + u": %s (%d%%)" % (szOtherName, iChance))
 
 		# <!-- custom: Surface event-chain cleanup and presentation/script text hooks too.
 		# These are not always direct mechanical rewards, but they are populated CvEventInfo effects/metadata and otherwise some cards misleadingly fall through to "No direct effect".
 		# Keep labels explicit so readers know what kind of field it is. (GPT-5.5) -->
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextPediaSasEventEffectClearEvent = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CLEAR_EVENT", ())
 		for iOtherEvent in range(gc.getNumEventInfos()):
 			iChance = eventInfo.getClearEventChance(iOtherEvent)
 			if iChance <= 0:
@@ -616,12 +624,14 @@ class SevoPediaEventTrigger:
 			szOtherName = otherInfo.getDescription()
 			if (not szOtherName) or len(szOtherName.strip()) == 0:
 				szOtherName = otherInfo.getType()
-			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CLEAR_EVENT", ()) + u": %s (%d%%)" % (szOtherName, iChance))
+			parts.append(szTextPediaSasEventEffectClearEvent + u": %s (%d%%)" % (szOtherName, iChance))
 
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextPediaSasEventEffectWorldNews = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_WORLD_NEWS", ())
 		for iNews in range(eventInfo.getNumWorldNews()):
 			szWorldNewsKey = eventInfo.getWorldNews(iNews)
 			if szWorldNewsKey and len(szWorldNewsKey.strip()) > 0:
-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_WORLD_NEWS", ()) + u": " + localText.getText(str(szWorldNewsKey), ()))
+				parts.append(szTextPediaSasEventEffectWorldNews + u": " + localText.getText(str(szWorldNewsKey), ()))
 		szLocalInfoKey = eventInfo.getLocalInfoTextKey()
 		if szLocalInfoKey and len(szLocalInfoKey.strip()) > 0:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_LOCAL_INFO", ()) + u": " + localText.getText(str(szLocalInfoKey), ()))

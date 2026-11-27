@@ -11,7 +11,8 @@ import sys
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[4]
-COLLECTIONS = {"BonusArtInfos": "BonusArtInfo", "BuildingArtInfos": "BuildingArtInfo", "CivilizationArtInfos": "CivilizationArtInfo", "FeatureArtInfos": "FeatureArtInfo", "ImprovementArtInfos": "ImprovementArtInfo", "InterfaceArtInfos": "InterfaceArtInfo", "LeaderheadArtInfos": "LeaderheadArtInfo", "MiscArtInfos": "MiscArtInfo", "MovieArtInfos": "MovieArtInfo", "UnitArtInfos": "UnitArtInfo"}
+# <!-- custom: Gained TerrainArtInfos when SAS carried BtS's CIV4ArtDefines_Terrain.xml, the one ArtDefines file it had lacked, which this list then rejected (KI#1104.3). (Claude code Opus 5.5) -->
+COLLECTIONS = {"TerrainArtInfos": "TerrainArtInfo","BonusArtInfos": "BonusArtInfo", "BuildingArtInfos": "BuildingArtInfo", "CivilizationArtInfos": "CivilizationArtInfo", "FeatureArtInfos": "FeatureArtInfo", "ImprovementArtInfos": "ImprovementArtInfo", "InterfaceArtInfos": "InterfaceArtInfo", "LeaderheadArtInfos": "LeaderheadArtInfo", "MiscArtInfos": "MiscArtInfo", "MovieArtInfos": "MovieArtInfo", "UnitArtInfos": "UnitArtInfo"}
 
 def name(node):
     return node.tag.rsplit("}", 1)[-1]

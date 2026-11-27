@@ -5,8 +5,8 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
 from CvPythonExtensions import *
-# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
-import SASCurrentDefines
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml, such as SAS_MAIN_UI_MAP_COMMERCE_ANCHOR_RIGHT, this module's only define, so its SASCurrentDefines import went with it. (Claude code Opus 5.5) -->
+import SASSessionTunables
 import CvUtil
 import ScreenInput
 import CvScreenEnums
@@ -206,11 +206,11 @@ class CvTechChooser:
 	def updateRuntimeLayout(self, screen):
 		# <!-- custom: runtime geometry wrapper to mirror Info/Foreign advisor structure: keep resolution-dependent bounds in one place and out of init-time setup. (GPT-5.3-Codex) -->
 		if self.iSAS_TECH_UI_SCOREBOARD_SWAP_MAX_WIDTH is None:
-			self.iSAS_TECH_UI_SCOREBOARD_SWAP_MAX_WIDTH = gc.getDefineINT("SAS_TECH_UI_SCOREBOARD_SWAP_MAX_WIDTH")
+			self.iSAS_TECH_UI_SCOREBOARD_SWAP_MAX_WIDTH = SASSessionTunables.SAS_TECH_UI_SCOREBOARD_SWAP_MAX_WIDTH
 		if self.iSAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE is None:
-			self.iSAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE = gc.getDefineINT("SAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE")
+			self.iSAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE = SASSessionTunables.SAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE
 		if self.iSAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE is None:
-			self.iSAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE = gc.getDefineINT("SAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE")
+			self.iSAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE = SASSessionTunables.SAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE
 		iRightSpaceForScoreboard = getAdvisorScoreboardSpace(screen.getXResolution(), SASTextScale.getSASUIFontLabel())
 		iTopSpaceForTechBar = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
 		# <!-- custom: optional right-space replacement for scoreboard; on lower resolutions this lets users render a larger advisor so one more tech-tree column can be visible. (GPT-5.3-Codex) -->
@@ -220,7 +220,7 @@ class CvTechChooser:
 			iTopSpaceForTechBar = self.iSAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE
 		# <!-- custom: Preserve room for the percentage and the ordinary +/- buttons when the map sliders use the right strip.
 		# The HUD handles optional buttons and rates separately. (GPT-6.2-Sol) -->
-		if SASCurrentDefines.getInt("SAS_MAIN_UI_MAP_COMMERCE_ANCHOR_RIGHT") > 0:
+		if SASSessionTunables.SAS_MAIN_UI_MAP_COMMERCE_ANCHOR_RIGHT > 0:
 			import CvScreensInterface
 			iRightSpaceForScoreboard = max(iRightSpaceForScoreboard, CvScreensInterface.mainInterface.getMinimumMapCommerceRightSpace())
 		else:

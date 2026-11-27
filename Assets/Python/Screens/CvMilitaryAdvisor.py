@@ -15,6 +15,8 @@ import SASTextScale
 # <!-- custom: Route shared visual resources through the centralized SASVisualUtils namespace after retiring overlapping helper/cache imports; keep one canonical visual-resource boundary. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 from SASUtils import *
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 PyPlayer = PyHelpers.PyPlayer
 PyInfo = PyHelpers.PyInfo
@@ -162,24 +164,24 @@ class CvMilitaryAdvisor:
 		# Cache once after screen setup starts; empirically, this helper pattern fixed that crashy behaviour so runtime XML changes simply have no effect until the required Civ4 restart.
 		# Check each cached define's sentinel instead of only the first one for cheap exhaustive safety. See KI#128. (GPT-5.5) -->
 		if self.iSAS_MILIT_UI_DEFAULT_TAB is None:
-			self.iSAS_MILIT_UI_DEFAULT_TAB = gc.getDefineINT("SAS_MILIT_UI_DEFAULT_TAB")
+			self.iSAS_MILIT_UI_DEFAULT_TAB = SASSessionTunables.SAS_MILIT_UI_DEFAULT_TAB
 			if self.iSAS_MILIT_UI_DEFAULT_TAB not in self.PAGE_IDS:
 				raise ValueError("SAS_MILIT_UI_DEFAULT_TAB must be a zero-based tab position from 0 to %d" % (len(self.PAGE_IDS) - 1))
 		if self.IS_SAS_MILIT_UI_UNIT_COMBATS_UNITS_ICONS is None:
-			self.IS_SAS_MILIT_UI_UNIT_COMBATS_UNITS_ICONS = (gc.getDefineINT("SAS_MILIT_UI_UNIT_COMBATS_UNITS_ICONS") > 0)
+			self.IS_SAS_MILIT_UI_UNIT_COMBATS_UNITS_ICONS = (SASSessionTunables.SAS_MILIT_UI_UNIT_COMBATS_UNITS_ICONS > 0)
 		if self.iSAS_MILIT_UI_BASE_ICON_SIZE is None:
-			self.iSAS_MILIT_UI_BASE_ICON_SIZE = gc.getDefineINT("SAS_MILIT_UI_BASE_ICON_SIZE")
+			self.iSAS_MILIT_UI_BASE_ICON_SIZE = SASSessionTunables.SAS_MILIT_UI_BASE_ICON_SIZE
 		if self.iSAS_MILIT_UI_HI_RES_ICON_MIN_HEIGHT is None:
-			self.iSAS_MILIT_UI_HI_RES_ICON_MIN_HEIGHT = gc.getDefineINT("SAS_MILIT_UI_HI_RES_ICON_MIN_HEIGHT")
+			self.iSAS_MILIT_UI_HI_RES_ICON_MIN_HEIGHT = SASSessionTunables.SAS_MILIT_UI_HI_RES_ICON_MIN_HEIGHT
 		if self.iSAS_MILIT_UI_HI_RES_ICON_SIZE is None:
-			self.iSAS_MILIT_UI_HI_RES_ICON_SIZE = gc.getDefineINT("SAS_MILIT_UI_HI_RES_ICON_SIZE")
+			self.iSAS_MILIT_UI_HI_RES_ICON_SIZE = SASSessionTunables.SAS_MILIT_UI_HI_RES_ICON_SIZE
 		if self.IS_SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON is None:
-			self.IS_SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON = (gc.getDefineINT("SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON") > 0)
+			self.IS_SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON = (SASSessionTunables.SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON > 0)
 		# <!-- custom: Cache optional numeric axes with the other layout settings; disabling axes preserves scarce 1080p width for unit names. (GPT-6.1-Sol) -->
 		if self.IS_SAS_MILIT_UI_BATTLE_XY_ON is None:
-			self.IS_SAS_MILIT_UI_BATTLE_XY_ON = (gc.getDefineINT("SAS_MILIT_UI_BATTLE_XY_ON") > 0)
+			self.IS_SAS_MILIT_UI_BATTLE_XY_ON = (SASSessionTunables.SAS_MILIT_UI_BATTLE_XY_ON > 0)
 		if self.IS_SAS_MILIT_UI_BATTLES_LOG_BUTTON_ON is None:
-			self.IS_SAS_MILIT_UI_BATTLES_LOG_BUTTON_ON = (gc.getDefineINT("SAS_MILIT_UI_BATTLES_LOG_BUTTON_ON") > 0)
+			self.IS_SAS_MILIT_UI_BATTLES_LOG_BUTTON_ON = (SASSessionTunables.SAS_MILIT_UI_BATTLES_LOG_BUTTON_ON > 0)
 		if self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT is None:
 			self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT = gc.getDefineINT("INITIAL_OUTSIDE_UNIT_GOLD_PERCENT")
 		if self.iNUM_BUILDING_AND_TECH_PREREQS is None:

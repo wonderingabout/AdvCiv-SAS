@@ -225,7 +225,7 @@ Its findings and continuation cursor remain historical evidence, and it currentl
 
 ## Focused reviews
 
-[`inherited_files_audit.md`](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md) lists every Python, XML, C++, `res` and `Config` file vanilla, Warlords, BtS and base AdvCiv provide, whether SAS carries it, when SAS added, removed or renamed it and why, with WorldBuilder as the first subsystem traced (2026-11-22); its helper writes the full per-file list as a report, and a CI check keeps the audit current.
+[`inherited_files_audit.md`](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md) lists every Python, XML, C++, `res` and `Config` file vanilla, Warlords, BtS and base AdvCiv provide, whether SAS carries it, when SAS added, removed or renamed it and why, with WorldBuilder as the first subsystem traced (2026-11-22), and was settled for today's needs on 2026-11-27, every base-game file SAS uses being carried or decided, which a later need may change; its helper writes the full per-file list as a report, and a CI check keeps the audit current.
 
 [`global_define_name_length_review.md`](/_1_AdvCiv-SAS/Docs/Source_Analysis/global_define_name_length_review.md) documents the completed GlobalDefine cleanup and current naming policy/census, compares it with inherited/reference XML, and separates the 42-byte desired naming maximum from KI#1001's hard 255-byte loader boundary.
 

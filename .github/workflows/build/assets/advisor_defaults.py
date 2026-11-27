@@ -17,5 +17,8 @@ EXPECTED_ADVISOR_DEFINES = {
     "SAS_WORLD_CHANGES_SHOW_CANCELLED_ON": 0,
 }
 
+# <!-- custom: All three moved to SASSessionTunables.py, as only Python reads them (KI#128.11). (Claude code Opus 5.5) -->
+SESSION_TUNABLE_NAMES = ("SAS_MILIT_UI_BATTLE_XY_ON", "SAS_WORLD_CHANGES_SHOW_INTERMEDIATE_ON", "SAS_WORLD_CHANGES_SHOW_CANCELLED_ON")
+
 if __name__ == "__main__":
-    main_from_expected_values("advisor defaults", EXPECTED_ADVISOR_DEFINES, "Check shipped advisor presentation defaults.")
+    main_from_expected_values("advisor defaults", EXPECTED_ADVISOR_DEFINES, "Check shipped advisor presentation defaults.", SESSION_TUNABLE_NAMES)

@@ -455,16 +455,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Spanish>Muestra los puntos de movimiento para unidades como una fracción en el panel de información.</Spanish>
 	</TEXT>
 
-	<!-- advc.004: German translation was too unwieldy -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKMOVEMENTPOINTS_TEXT</Tag>
-		<English>Stack Movement Points</English>
-		<French>Stack Movement Points</French>
-		<German>Gruppen-Bewegungspunkte</German>
-		<Italian>Punti Movimento di gruppo</Italian>
-		<Spanish>Apilar Puntos de Movimiento</Spanish>
-	</TEXT>
-
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKMOVEMENTPOINTS_HOVER</Tag>
@@ -474,33 +464,14 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Spanish>Si se activa, muestra en el panel de información los puntos de movimiento mínimos y máximos para todas las unidades seleccionadas.</Spanish>
 	</TEXT>
 
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONS_TEXT</Tag>
-		<English>Stack Promotions</English>
-		<German>Einheitenverband-Beförderungen</German>
-		<Italian>Stack Promotions</Italian>
-		<Spanish>Apilar ascensos</Spanish>
-	</TEXT>
-
 	<!-- advc.004: Minor changes to the next three keys -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONS_HOVER</Tag>
-		<English>When checked, shows all promotions possessed by at least one unit in the selected stack on the Info pane.</English>
-		<German>Zeigt in der Detailanzeige alle Beförderungen an, über die zumindest eine Einheit des ausgewählten Verbandes verfügt.</German>
-		<Spanish>Si se activa, muestra los ascensos poseídos por al menos una de las unidades del grupo.</Spanish>
-	</TEXT>
+	<!-- custom: Of those three, only STACKPROMOTIONCOUNTS_TEXT stays here; the two hovers moved to AdvCiv-SAS_main.xml, saying "group" for "stack". (Claude code Opus 5.5) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONCOUNTS_TEXT</Tag>
 		<English>Counts</English>
 		<German>Anzahl</German>
 		<Italian>Counts</Italian>
 		<Spanish>Número</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONCOUNTS_HOVER</Tag>
-		<English>When checked, the stack promotion icons on the Info pane show the number of units in the selected stack that possess each promotion (if that number is greater than one).</English>
-		<German>Zeigt in der Detailanzeige für jede Beförderung an, wie viele Einheiten im ausgewählten Verband über diese Beförderung verfügen (wenn mehrere Einheiten über die Beförderung verfügen).</German>
-		<Spanish>Muestra el número de unidades del grupo que poseen una determinada promoción, en el caso de que haya más de una.</Spanish>
 	</TEXT>
 
 	<!-- advc.004: Was "Some", but I think it's easier to think of it as the
@@ -527,13 +498,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<English>All</English>
 		<German>Alle</German>
 		<Spanish>Todas</Spanish>
-	</TEXT>
-
-	<!-- advc.004: This was just a repetition of the "Counts" hover text -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONCOLORALL_HOVER</Tag>
-		<English>If all units in a stack possess a given promotion, use this color instead of the one above.</English>
-		<German>Diese Farbe wird anstatt der obigen verwendet, wenn eine Beförderung allen Einheiten des Verbandes gemeinsam ist.</German>
 	</TEXT>
 
 	<!-- advc.061 (I've given this option a simpler name in AdvCiv 1.07;

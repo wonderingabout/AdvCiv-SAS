@@ -50,6 +50,8 @@ import FavoriteCivicDetector
 import TradeUtil
 # <!-- custom: Remove the advisor's old FontUtil dependency; shared immutable/dynamic glyph resources now come through SASVisualUtils. (ChatGPT-5.6-Sol) -->
 from SASTextScale import labelText, appendListBoxStringLabel, setTableTextLabel
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 # globals
 gc = CyGlobalContext()
@@ -1624,7 +1626,7 @@ class CvForeignAdvisor:
 		# <!-- custom: build ordered column list for pagination (Claude Code Sonnet 4.6) -->
 		self.ltGlanceColumns = [i for i in range(gc.getMAX_PLAYERS()) if self.ltPlayerMet[i] and i != self.iActiveLeader]
 		if self.GLANCE_MAX_PLAYERS_PER_PAGE is None:
-			self.GLANCE_MAX_PLAYERS_PER_PAGE = gc.getDefineINT("SAS_FOREIGN_UI_GLANCE_MAX_PLAYERS_PER_PAGE")
+			self.GLANCE_MAX_PLAYERS_PER_PAGE = SASSessionTunables.SAS_FOREIGN_UI_GLANCE_MAX_PLAYERS_PER_PAGE
 		nPageCols = min(len(self.ltGlanceColumns), self.GLANCE_MAX_PLAYERS_PER_PAGE)
 		self.iGlanceNumPages = max(1, (len(self.ltGlanceColumns) + self.GLANCE_MAX_PLAYERS_PER_PAGE - 1) / self.GLANCE_MAX_PLAYERS_PER_PAGE)
 		# <!-- custom: preserve last page across reopens; clamp in case player count changed. (Claude Code Sonnet 4.6) -->
@@ -2862,7 +2864,7 @@ class CvForeignAdvisor:
 
 	def useCompactEspionageRows(self):
 		if self.SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH is None:
-			self.SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH = gc.getDefineINT("SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH")
+			self.SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH = SASSessionTunables.SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH
 		return (self.SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH <= 0 or len(self.ESP_aiKnownPlayers) > self.SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH)
 
 	def getCompactEspionageRowColumns(self):
@@ -2982,6 +2984,8 @@ class CvForeignAdvisor:
 				screen.setTableColumnHeader(szMissionsTable, 3, "", wTable3)
 
 				# Loop through all Missions
+				# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+				szTextEspionageSabotage = localText.getText("TXT_KEY_ESPIONAGE_SABOTAGE", ())
 				for iPass in range(3): # advc.120d
 					for iMissionLoop in range(gc.getNumEspionageMissionInfos()):
 
@@ -3059,7 +3063,7 @@ class CvForeignAdvisor:
 							# </advc.120d>
 							# <!-- custom: Choose the grouped Sabotage label before applying prerequisite tint, so the replacement keeps both the icon and the disabled styling. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 							if isSabotage and pMission.getDestroyProductionCostFactor() > 0:
-								szText = SASVisuals.Font.STRENGTH_CHAR + u" " + localText.getText("TXT_KEY_ESPIONAGE_SABOTAGE", ())
+								szText = SASVisuals.Font.STRENGTH_CHAR + u" " + szTextEspionageSabotage
 							else:
 								szText = self.getEspionageMissionChar(pMission) + pMission.getDescription() + szTechText
 

@@ -48,6 +48,15 @@ def declared_names(repo, revision):
     return names
 
 
+# <!-- custom: The base game's define file, which SAS carries (KI#1104.2), and the names one revision of a single file declares. (Claude code Opus 5.5) -->
+BASE_GAME_DEFINES = "Assets/XML/GlobalDefines.xml"
+
+
+def file_names(repo, revision, path):
+    root = ET.fromstring(git(repo, "show", "%s:%s" % (revision, path)))
+    return {node.text.strip() for node in root.iter() if node.tag.split("}")[-1] == "DefineName" and node.text and node.text.strip()}
+
+
 # <!-- custom: Inspect both source trees so a removed/renamed consumer cannot disappear from the rebuild decision.
 # Ignore comments; this is a conservative static name-reference check, not proof of preprocessor reachability or dynamically constructed names. (GPT-6.1-Sol) -->
 def cpp_references(repo, revision, names):
@@ -86,6 +95,15 @@ def check(repo, commits, head):
                 name_cache[revision] = declared_names(repo, revision)
         before = name_cache[parent]
         after = name_cache[commit]
+        # <!-- custom: Taking BtS's GlobalDefines.xml in, or dropping SAS's copy of it, changes no name the game loads, as the game reads BtS's own copy otherwise; the carry's 405 names failed here as added (KI#1104.2).
+        # So when a commit adds or removes the whole file, its names count on both sides; an edit to the carried file is compared as usual.
+        # The whole file is waived in that commit: Codex's review (GPT-6.2-Sol) noted that a new name the DLL reads, slipped into the copy as it came in, would pass, and a list of BtS's names closed that, but the user preferred no second copy of 405 names for a one-off commit that a review compares with the install. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+        parent_base = blob_id(repo, parent, BASE_GAME_DEFINES)
+        commit_base = blob_id(repo, commit, BASE_GAME_DEFINES)
+        if (parent_base is None) != (commit_base is None):
+            carried = file_names(repo, commit if commit_base else parent, BASE_GAME_DEFINES)
+            before = before | carried
+            after = after | carried
         changed = before ^ after
         used = cpp_references(repo, parent, changed) | cpp_references(repo, commit, changed)
         if not used:

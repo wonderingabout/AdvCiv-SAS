@@ -604,14 +604,18 @@ def settings_check():
 	import toggle_dev_diagnostics
 	# <!-- custom: The settings agent runs want besides the toggle's list moved to define_values.py as AGENT_RUN_VALUES on 2026-11-19, so each switched value has one home. (Claude code Opus 5.5) -->
 	from define_values import AGENT_RUN_VALUES
-	text = toggle_dev_diagnostics.DEFINES_PATH.read_bytes().decode("utf-8")
+	# <!-- custom: Settings only Python reads moved to SASSessionTunables.py on main (KI#128.11), so each is read from the file holding it through the toggle's own reader; reading the XML alone reported the seven informing screens' switches as unset, as Codex's review (GPT-6.2-Sol) of the 2026-11-27 merge reproduced. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	texts = toggle_dev_diagnostics.read_texts()
 	wanted = dict([(name, dev) for (name, (shipped, dev)) in toggle_dev_diagnostics.DEV_DIAGNOSTICS.items()])
 	wanted.update(AGENT_RUN_VALUES)
 	rows = []
 	for name, value in sorted(wanted.items()):
-		matches = toggle_dev_diagnostics.define_pattern(name).findall(text)
-		current = len(matches) == 1 and matches[0][1] or None
-		rows.append({"file": "GlobalDefines_advciv_sas.xml", "name": name, "current": current, "recommended": str(value), "ok": current == str(value)})
+		try:
+			current = str(toggle_dev_diagnostics.get_value(texts, name))
+		except SystemExit:
+			current = None
+		holder = "SASSessionTunables.py" if name in toggle_dev_diagnostics.SESSION_TUNABLE_NAMES else "GlobalDefines_advciv_sas.xml"
+		rows.append({"file": holder, "name": name, "current": current, "recommended": str(value), "ok": current == str(value)})
 	# <!-- custom: CivilizationIV.ini settings too (the user, 2026-11-14): LoggingEnabled for PythonErr.log and the other Civ4 logs, GenerateCrashDumps for a dump to debug a crash with, FullScreen 0 so screenshots and window layouts work, HidePythonExceptions 0 so a Python error shows.
 	# Keys are matched without regard to case, as the file writes them in lower case. (Claude code Opus 5.5) -->
 	ini_path = MAILBOX_ROOT.parent / "CivilizationIV.ini"

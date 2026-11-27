@@ -22,6 +22,9 @@ MAX_DEFINE_BYTES = 255
 ROOT_PATTERNS = ("*GlobalDefines*.xml", "PythonCallbackDefines.xml")
 MODULE_PATTERNS = ("*_GlobalDefines.xml", "*_PythonCallbackDefines.xml")
 PART_NAME = re.compile(r"^(.+)_PART_([0-9]+)$")
+# <!-- custom: BtS's GlobalDefines.xml, which SAS carries as the game's base define file (KI#1104.2).
+# The name-style check exempts it, as its names are BtS's own; the loader-safety limit above applies to it as to any file. (Claude code Opus 5.5) -->
+BASE_GAME_DEFINES = Path("Assets/XML/GlobalDefines.xml")
 
 
 def loaded_define_paths(repo_root: Path) -> list[Path]:

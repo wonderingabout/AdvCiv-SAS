@@ -23,8 +23,9 @@ from xml_defines import get_default_repo_root
 from ci_markers import IMPORT_CALL
 
 
-# <!-- custom: SASPilot/game holds SASPilotCommands.py and SASPilotUI.py, which run inside the game's Python 2.4 too; Codex's review of the 2026-11-27 merge of main found by-name reads there this check had skipped. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-SCAN_RELATIVE_DIRS = (Path("Assets/Python"), Path("PrivateMaps"), Path("SASPilot/game"))
+# <!-- custom: The folders the game runs Python from come from lib/runtime_python.py, one list for every runtime Python check, so a new one is added once (2026-11-27). (Claude code Opus 5.5) -->
+from runtime_python import RUNTIME_PYTHON_DIRS
+SCAN_RELATIVE_DIRS = tuple(Path(folder) for folder in RUNTIME_PYTHON_DIRS)
 READERS = ("getDefineINT", "getDefineFLOAT", "getDefineSTRING", "getDefineBOOL")
 # <!-- custom: SASCurrentDefines read at import would cache as early, so its getters count too, after their module name. (Claude code Opus 5.5) -->
 CURRENT_READERS = ("getInt", "getFloat", "getString")

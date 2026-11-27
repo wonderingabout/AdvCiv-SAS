@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
+<!-- Sid Meier's Civilization 4 -->
+<!-- Copyright Firaxis Games 2005 -->
+<!-- -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
+<!-- custom: Copied from BtS's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\BasicInfos\CIV4AttitudeInfos.xml (only BtS ships it), the copy SAS loaded before (2026-11-27), so the data it holds can be found by a search of the repository and checked by CI, as the inherited files audit's Base-game data XML by reader section explains. See KI#1104 and KI#1104.3. (Claude code Opus 5.5) -->
+<!-- Basic Infos -->
+<Civ4AttitudeInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
+	<AttitudeInfos>
+		<AttitudeInfo>
+			<Type>ATTITUDE_FURIOUS</Type>
+			<Description>TXT_KEY_ATTITUDE_FURIOUS</Description>
+		</AttitudeInfo>
+		<AttitudeInfo>
+			<Type>ATTITUDE_ANNOYED</Type>
+			<Description>TXT_KEY_ATTITUDE_ANNOYED</Description>
+		</AttitudeInfo>
+		<AttitudeInfo>
+			<Type>ATTITUDE_CAUTIOUS</Type>
+			<Description>TXT_KEY_ATTITUDE_CAUTIOUS</Description>
+		</AttitudeInfo>
+		<AttitudeInfo>
+			<Type>ATTITUDE_PLEASED</Type>
+			<Description>TXT_KEY_ATTITUDE_PLEASED</Description>
+		</AttitudeInfo>
+		<AttitudeInfo>
+			<Type>ATTITUDE_FRIENDLY</Type>
+			<Description>TXT_KEY_ATTITUDE_FRIENDLY</Description>
+		</AttitudeInfo>
+	</AttitudeInfos>
+</Civ4AttitudeInfos>

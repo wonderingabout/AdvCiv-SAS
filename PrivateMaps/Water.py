@@ -15,6 +15,8 @@ import CvMapGeneratorUtil
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from SAS_WorldSizeUtils import *
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 
@@ -77,7 +79,7 @@ class WaterFractalWorld(CvMapGeneratorUtil.FractalWorld):
 		iHillsBottom2 = self.hillsFrac.getHeightFromPercent(max((self.hillGroupTwoBase - hill2range), 0))
 		iHillsTop2 = self.hillsFrac.getHeightFromPercent(min((self.hillGroupTwoBase + hill2range), 100))
 		iBasePeakPercent = int(100 * increase(self.peakPercent / 100.0, 2.3))
-		iPeakPercentScale = SASCurrentDefines.getInt("SAS_WATER_MAP_PEAK_PCT_OF_BASE")
+		iPeakPercentScale = SASSessionTunables.SAS_WATER_MAP_PEAK_PCT_OF_BASE
 		iPeakPercent = (iBasePeakPercent * iPeakPercentScale) / 100
 		if iPeakPercent < 0:
 			iPeakPercent = 0

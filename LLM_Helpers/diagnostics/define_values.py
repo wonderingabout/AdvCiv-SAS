@@ -64,6 +64,12 @@ EXPECTED_HANDS_FREE_VALUES = {
 
 SHIPPED_VALUES = {**EXPECTED_GAME_RECORD_DEFAULTS, **EXPECTED_RUNTIME_DEFAULTS, **EXPECTED_HANDS_FREE_VALUES}
 
+# <!-- custom: The shipped values above that live in Assets/Python/SASSessionTunables.py rather than the XML, as only Python reads them (KI#128.11); the checks read these names from there and the rest from the XML.
+# toggle_dev_diagnostics.py switches the ones in DEVELOPMENT_VALUES in whichever file holds them; it first edited the XML only, which had kept the seven informing screens' switches, such as SAS_UI_DAWN_OF_MAN_ON, there. (Claude code Opus 5.5) -->
+SESSION_TUNABLE_NAMES = ("SAS_SGR_BUG_STRING_VALS_ON", "SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON", "SAS_FAST_SAVE_GAME_START_ON", "SAS_FAST_SAVE_AUTOPLAY_STOP_ON", "SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON")
+# <!-- custom: The informing screens' switches, which the toggle sets to 0 for development, in the same file. (Claude code Opus 5.5) -->
+SESSION_TUNABLE_NAMES += ("SAS_UI_DAWN_OF_MAN_ON", "SAS_UI_TECH_SPLASH_ON", "SAS_UI_ERA_MOVIE_ON", "SAS_UI_WONDER_MOVIE_ON", "SAS_UI_RELIGION_MOVIE_ON", "SAS_UI_PROJECT_MOVIE_ON", "SAS_UI_TOP_CIVS_ON")
+
 # <!-- custom: The values toggle_dev_diagnostics.py "on" sets locally; CI never reads them.
 # They sit beside the shipped values so both settings of each switched define can be seen and changed in one place. (Claude code Opus 5.5) -->
 DEVELOPMENT_VALUES = {

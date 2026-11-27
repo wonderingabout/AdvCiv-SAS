@@ -12,6 +12,8 @@ import SASTextScale
 # <!-- custom: SASCurrentDefines reads this module's SAS switches at use, lazily and override-aware, in place of module constants read at import. See KI#128.6. (Claude code Opus 5.5) -->
 import SASCurrentDefines
 from SASUtils import getNewConceptID
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -107,7 +109,7 @@ def init_sas_pedia_playground_cache():
     global g_iSasPediaPanelStyleIdx, g_iSasPediaBgIdx, g_iSasPediaTextColorIdx
     global IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ON
     if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ON is None:
-        IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ON = (gc.getDefineINT("SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ON") > 0)
+        IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ON = (SASSessionTunables.SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ON > 0)
     if not IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ON:
         if SAS_PEDIA_PANEL_STYLE_NAMES is None:
             SAS_PEDIA_PANEL_STYLE_NAMES = ()
@@ -421,7 +423,7 @@ def get_concept_id(concept_type):
 	return -1
 
 def place_new_concept_legend_link(top, new_concept_type):
-	if SASCurrentDefines.getInt("SAS_SHOW_LEGEND_LINK") <= 0:
+	if SASSessionTunables.SAS_SHOW_LEGEND_LINK <= 0:
 		return
 	iConcept = getNewConceptID(new_concept_type)
 	if iConcept < 0:
@@ -865,7 +867,7 @@ def chart_format_tech_list(value, return_list, none_text, abbrev_tech_names=None
 	return ", ".join(out)
 
 def chart_add_csv_log_button(screen, top, x, y, w, xPos=None, yPos=None):
-	if SASCurrentDefines.getInt("SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON") <= 0:
+	if SASSessionTunables.SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON <= 0:
 		return ""
 
 	# <!-- custom: mirror Timeline LOG sizing: keep compact default, slightly enlarge only when label font is upscaled (4) so "LOG" remains readable. (GPT-5.3-Codex) -->

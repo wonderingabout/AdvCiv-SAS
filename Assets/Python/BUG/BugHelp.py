@@ -14,6 +14,8 @@
 #
 
 from CvPythonExtensions import *
+# <!-- custom: SASTextScale's addMessage and addImmediateMessage give Python's messages the label font the DLL gives its own, as CyInterface()'s went to the EXE at the stock size. See KI#117.2. (Claude code Opus 5.5) -->
+import SASTextScale
 import Popup as PyPopup
 import BugPath
 import BugUtil
@@ -43,7 +45,7 @@ def launch(argsList=None):
 		if file:
 			import os
 			message = BugUtil.getPlainText("TXT_KEY_BUG_HELP_OPENING")
-			CyInterface().addImmediateMessage(message, "")
+			SASTextScale.addImmediateMessage(message, "")
 			os.startfile(file)
 			return True
 		else:

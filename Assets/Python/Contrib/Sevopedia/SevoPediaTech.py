@@ -30,6 +30,8 @@ import SASTextScale
 # <!-- custom: Font-tag sizing moved from SASFontUtils into SASTextScale; visual resources are kept separately in SASVisualUtils. (ChatGPT-5.6-Sol) -->
 
 from _sevopedia_helpers import *
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -544,7 +546,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, -1, False)
 
 			# Now add red X overlays on top of all buttons (if enabled via SAS define)
-			if SASCurrentDefines.getInt("SAS_SEVO_TECH_SHOW_OBSOLETES_RED_X") > 0:
+			if SASSessionTunables.SAS_SEVO_TECH_SHOW_OBSOLETES_RED_X > 0:
 				# Since attachImageButton positions are managed by the panel, we need to use a different approach
 				# We'll add the overlays as separate DDS graphics at calculated positions
 				# The panel adds a label "  " first, then buttons start after that
@@ -633,11 +635,13 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		screen.attachLabel(panelName, "", "  ")
 		bButtonFound = False
 		bHasAnd = False
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextAnd = localText.getText("TXT_KEY_AND", ())
 		for j in range(gc.getNUM_AND_TECH_PREREQS()):
 			eTech = gc.getTechInfo(self.iTech).getPrereqAndTechs(j)
 			if (eTech > -1):
 				if bHasAnd:
-					screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_AND", ())))
+					screen.attachLabel(panelName, "", SASTextScale.labelText(szTextAnd))
 				else:
 					bHasAnd = True
 				screen.attachImageButton(panelName, "", gc.getTechInfo(eTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_REQUIRED_TECH, eTech, j, False)
@@ -657,11 +661,13 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		if len(szLeftDelimeter) > 0:
 			screen.attachLabel(panelName, "", SASTextScale.labelText(szLeftDelimeter))
 		bFirst = True
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextOr = localText.getText("TXT_KEY_OR", ())
 		for j in range(gc.getNUM_OR_TECH_PREREQS()):
 			eTech = gc.getTechInfo(self.iTech).getPrereqOrTechs(j)
 			if (eTech > -1):
 				if (not bFirst):
-					screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_OR", ())))
+					screen.attachLabel(panelName, "", SASTextScale.labelText(szTextOr))
 				else:
 					bFirst = False
 				screen.attachImageButton(panelName, "", gc.getTechInfo(eTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_REQUIRED_TECH, eTech, j, False)

@@ -15,6 +15,8 @@
 # Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASTextScale's addMessage and addImmediateMessage give Python's messages the label font the DLL gives its own, as CyInterface()'s went to the EXE at the stock size. See KI#117.2. (Claude code Opus 5.5) -->
+import SASTextScale
 from SASUtils import getInfoTypeOrFail
 import CvUtil
 import Popup as PyPopup
@@ -78,7 +80,7 @@ def StartLogger(vsFileName):
 	Logger.setLogFileName(szfileName)
 	if (not AutologOpt.isSilent()):
 		message = BugUtil.getText("TXT_KEY_AUTOLOG_LOGGING_GAME", (szfileName, ))
-		CyInterface().addMessage(CyGame().getActivePlayer(), True, 10, message, None, 2, None, ColorTypes(8), 0, 0, False, False)
+		SASTextScale.addMessage(CyGame().getActivePlayer(), True, 10, message, None, 2, None, ColorTypes(8), 0, 0, False, False)
 
 class autologEventManager:
 
@@ -118,7 +120,7 @@ class autologEventManager:
 		else:
 			setLoggingOn(False)
 			message = BugUtil.getPlainText("TXT_KEY_AUTOLOG_NO_LOGGING")
-			CyInterface().addMessage(CyGame().getActivePlayer(), True, 10, message, None, 2, None, ColorTypes(8), 0, 0, False, False)
+			SASTextScale.addMessage(CyGame().getActivePlayer(), True, 10, message, None, 2, None, ColorTypes(8), 0, 0, False, False)
 
 	def __CUSTOM_ENTRY_EVENT_IDBegin(self, argsList):
 		if isLoggingOn():
@@ -136,7 +138,7 @@ class autologEventManager:
 				Logger.writeLog(message, vPrefix=AutologOpt.getPrefix())
 
 				if (not AutologOpt.isSilent()):
-					CyInterface().addMessage(CyGame().getActivePlayer(), True, 10, message, None, 2, None, ColorTypes(8), 0, 0, False, False)
+					SASTextScale.addMessage(CyGame().getActivePlayer(), True, 10, message, None, 2, None, ColorTypes(8), 0, 0, False, False)
 
 class AbstractAutoLogEvent(object):
 
@@ -285,7 +287,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 				self.iBattleEscAttacking = 0
 
 				message = BugUtil.getPlainText("TXT_KEY_AUTOLOG_BATTLE_STATS_WRITTEN")
-				CyInterface().addMessage(CyGame().getActivePlayer(), True, 10, message, None, 2, None, ColorTypes(8), 0, 0, False, False)
+				SASTextScale.addMessage(CyGame().getActivePlayer(), True, 10, message, None, 2, None, ColorTypes(8), 0, 0, False, False)
 				return 1
 
 	def onLoadGame(self, argsList):

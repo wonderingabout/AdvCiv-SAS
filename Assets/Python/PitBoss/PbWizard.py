@@ -956,6 +956,13 @@ class StagingPage(wx.wizard.WizardPageSimple):
 		
 		# Create a row - enough for the max players in a Pitboss game
 		rowNum = 0
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextPitbossWho = localText.getText("TXT_KEY_PITBOSS_WHO", ())
+		szTextPitbossCiv = localText.getText("TXT_KEY_PITBOSS_CIV", ())
+		szTextPitbossLeader = localText.getText("TXT_KEY_PITBOSS_LEADER", ())
+		szTextPitbossTeam = localText.getText("TXT_KEY_PITBOSS_TEAM", ())
+		szTextPitbossDifficulty = localText.getText("TXT_KEY_PITBOSS_DIFFICULTY", ())
+		szTextPitbossStatus = localText.getText("TXT_KEY_PITBOSS_STATUS", ())
 		for rowNum in range(gc.getMAX_CIV_PLAYERS()):
 			# Create the border box
 			border = wx.StaticBox(playerPanel, -1, (localText.getText("TXT_KEY_PITBOSS_PLAYER", (rowNum+1, ))), (0,(rowNum*30)))
@@ -967,7 +974,7 @@ class StagingPage(wx.wizard.WizardPageSimple):
 			
 			# Slot status dropdown
 			itemSizer = wx.BoxSizer(wx.VERTICAL)
-			txt = wx.StaticText(playerPanel, -1, (localText.getText("TXT_KEY_PITBOSS_WHO", ())))
+			txt = wx.StaticText(playerPanel, -1, (szTextPitbossWho))
 			dropDown = wx.Choice(playerPanel, rowNum, (-1,-1), choices=slotStatusList)
 			dropDown.SetSelection(playerData.iWho)
 			itemSizer.Add(txt)
@@ -978,7 +985,7 @@ class StagingPage(wx.wizard.WizardPageSimple):
 			
 			# Civ dropdown
 			itemSizer = wx.BoxSizer(wx.VERTICAL)
-			txt = wx.StaticText(playerPanel, -1, (localText.getText("TXT_KEY_PITBOSS_CIV", ())))
+			txt = wx.StaticText(playerPanel, -1, (szTextPitbossCiv))
 			dropDown = wx.Choice(playerPanel, rowNum, (-1,-1), choices=civList)
 			dropDown.SetSelection(playerData.iCiv+1)
 			itemSizer.Add(txt)
@@ -989,7 +996,7 @@ class StagingPage(wx.wizard.WizardPageSimple):
 			
 			# Leader dropdown
 			itemSizer = wx.BoxSizer(wx.VERTICAL)
-			txt = wx.StaticText(playerPanel, -1, (localText.getText("TXT_KEY_PITBOSS_LEADER", ())))
+			txt = wx.StaticText(playerPanel, -1, (szTextPitbossLeader))
 			dropDown = wx.Choice(playerPanel, rowNum, (-1,-1), choices=leaderList)
 			dropDown.SetSelection(playerData.iLeader+1)
 			itemSizer.Add(txt)
@@ -1000,7 +1007,7 @@ class StagingPage(wx.wizard.WizardPageSimple):
 			
 			# Team dropdown
 			itemSizer = wx.BoxSizer(wx.VERTICAL)
-			txt = wx.StaticText(playerPanel, -1, (localText.getText("TXT_KEY_PITBOSS_TEAM", ())))
+			txt = wx.StaticText(playerPanel, -1, (szTextPitbossTeam))
 			dropDown = wx.Choice(playerPanel, rowNum, (-1,-1), choices=teamList)
 			dropDown.SetSelection(playerData.iTeam)
 			itemSizer.Add(txt)
@@ -1011,7 +1018,7 @@ class StagingPage(wx.wizard.WizardPageSimple):
 			
 			# Difficulty dropdown
 			itemSizer = wx.BoxSizer(wx.VERTICAL)
-			txt = wx.StaticText(playerPanel, -1, (localText.getText("TXT_KEY_PITBOSS_DIFFICULTY", ())))
+			txt = wx.StaticText(playerPanel, -1, (szTextPitbossDifficulty))
 			dropDown = wx.Choice(playerPanel, rowNum, (-1,-1), choices=diffList)
 			dropDown.SetSelection(playerData.iDifficulty)
 			itemSizer.Add(txt)
@@ -1022,7 +1029,7 @@ class StagingPage(wx.wizard.WizardPageSimple):
 			
 			# Ready status
 			itemSizer = wx.BoxSizer(wx.VERTICAL)
-			txt = wx.StaticText(playerPanel, -1, (localText.getText("TXT_KEY_PITBOSS_STATUS", ())))
+			txt = wx.StaticText(playerPanel, -1, (szTextPitbossStatus))
 			statusTxt = wx.StaticText(playerPanel, rowNum, playerData.getStatusText())
 			itemSizer.Add(txt)
 			itemSizer.Add(statusTxt)

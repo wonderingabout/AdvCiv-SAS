@@ -15,7 +15,10 @@ import xml.etree.ElementTree as ET
 WORLD_INFO_RELATIVE_PATH = Path("Assets/XML/GameInfo/CIV4WorldInfo.xml")
 CV_ENUMS_RELATIVE_PATH = Path("CvGameCoreDLL/CvEnums.h")
 CY_ENUMS_INTERFACE_RELATIVE_PATH = Path("CvGameCoreDLL/CyEnumsInterface.cpp")
-PYTHON_RUNTIME_PATHS = (Path("Assets/Python"), Path("PrivateMaps"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+# <!-- custom: The folders the game runs Python from come from lib/runtime_python.py, one list for every runtime Python check, so a new one is added once (2026-11-27). (Claude code Opus 5.5) -->
+from runtime_python import RUNTIME_PYTHON_DIRS
+PYTHON_RUNTIME_PATHS = tuple(Path(folder) for folder in RUNTIME_PYTHON_DIRS)
 OLD_MAGIC_PREFIX = "SAS_MAGIC_WORLDSIZE_"
 
 

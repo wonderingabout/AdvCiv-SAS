@@ -49,7 +49,7 @@ More screenshot samples in the [sevopedia reworks Google Drive folder](https://d
 
 ### how to enable/disable emoji buttons in Sevopedia leader
 
-You can enable/disable emojis in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
+You can enable/disable emojis with `SAS_SEVO_LEADER_AI_EMOJI_ON` in [SASSessionTunables.py](/Assets/Python/SASSessionTunables.py).
 
 Here is how it would look like without emojis for example:
 
@@ -61,7 +61,7 @@ See the corresponding [legend](/README.md#legends) in Sevopedia Mods Info.
 
 ### how to show keys or suffixes instead of abbreviated custom labels
 
-Similarly to how was done for emoji images, there is also a tunable/knob in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml)that you can configure to show only key names or suffix names (shrunk if too long to fit table length, for example `MaxWarRand` (shrunk if too long)) instead of abbreviated custom labels such as `T.W. Likely` for example; useful for calibrating or if you'd prefer to display it as such.
+Similarly to how was done for emoji images, there is also a tunable/knob, `SAS_SEVO_LEADER_AI_RAW_XML_NAMES_ON` in [SASSessionTunables.py](/Assets/Python/SASSessionTunables.py), that you can configure to show only key names or suffix names (shrunk if too long to fit table length, for example `MaxWarRand` (shrunk if too long)) instead of abbreviated custom labels such as `T.W. Likely` for example; useful for calibrating or if you'd prefer to display it as such.
 
 Here is an example below of it would look like with this set to `True`:
 
