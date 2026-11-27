@@ -26,7 +26,9 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "game_runs"))
 sys.path.insert(0, str(HERE.parent / "desktop"))
-sys.path.insert(0, str(HERE.parent / "saspilot"))
+# <!-- custom: SASPilot moved from LLM_Helpers/saspilot to the mod's root on 2026-11-20; Codex's review of the 2026-11-27 merge of saspilot found this path and the client's below left behind, so --help raised ModuleNotFoundError. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+SASPILOT = HERE.parents[1] / "SASPilot"
+sys.path.insert(0, str(SASPILOT))
 # <!-- custom: run_autoplay writes the per-run INI and closes Civ4, desktop_windows launches and clicks, SASPilotClient talks to the current build. (Claude code Fable 5.2) -->
 import desktop_windows
 import run_autoplay
@@ -221,7 +223,7 @@ def export_world_current(save, prefix, timeout):
 	refuse_running_civ4()
 	prefix = Path(prefix)
 	prefix.parent.mkdir(parents=True, exist_ok=True)
-	completed = subprocess.run([sys.executable, str(HERE.parent / "saspilot" / "SASPilotClient.py"), "--timeout", str(timeout), "--save", str(save), "start"], capture_output=True, text=True)
+	completed = subprocess.run([sys.executable, str(SASPILOT / "SASPilotClient.py"), "--timeout", str(timeout), "--save", str(save), "start"], capture_output=True, text=True)
 	if completed.returncode != 0:
 		raise SystemExit("SASPilot could not load %s: %s" % (save, completed.stderr[-2000:]))
 	pid = json.loads(completed.stdout)["pid"]

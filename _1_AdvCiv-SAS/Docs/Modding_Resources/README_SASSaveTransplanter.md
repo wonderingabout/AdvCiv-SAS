@@ -173,7 +173,7 @@ python LLM_Helpers/sassavetransplanter/SASSaveTransplanter.py transplant "<a cur
 
 ## Where it stands (2026-11-16)
 
-On the `sassavetransplanter` branch since 2026-11-16, built on `saspilot`, which it needs: `LLM_Helpers/sassavetransplanter/`, this guide, the one-line `bNeverAlive` fix in `Assets/Python/pyWB/CvWBDesc.py` ([KI#1095](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1095)), and `requestFromJson` in `LLM_Helpers/saspilot/SASPilotCommands.py` ([KI#1096](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1096)).
+On the `sassavetransplanter` branch since 2026-11-16, built on `saspilot`, which it needs: `LLM_Helpers/sassavetransplanter/`, this guide, the one-line `bNeverAlive` fix in `Assets/Python/pyWB/CvWBDesc.py` ([KI#1095](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1095)), and `requestFromJson` in `SASPilot/game/SASPilotCommands.py` (in `LLM_Helpers/saspilot/` until SASPilot moved to the root on 2026-11-20) ([KI#1096](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1096)).
 
 Run outputs are in `Downloads/AdvCiv-SAS_LLM/save_transplants`, and the 4986 source build is installed as `Mods/AdvCiv-SAS-4986`.
 
