@@ -7,6 +7,8 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md).
 
 from CvPythonExtensions import *
+# <!-- custom: SASTextScale's addMessage and addImmediateMessage give Python's messages the label font the DLL gives its own, as CyInterface()'s went to the EXE at the stock size. See KI#117.2. (Claude code Opus 5.5) -->
+import SASTextScale
 # <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
 import SASCurrentDefines
 import CvUtil
@@ -160,11 +162,11 @@ def changeCivHandler( playerID, netUserData, popupReturn ) :
 	success = changeCiv( playerIdx, newCivType, newLeaderType, -1 )
 
 	if( success ) :
-		CyInterface().addImmediateMessage("Player %d has been changed"%(playerIdx),"")
+		SASTextScale.addImmediateMessage("Player %d has been changed"%(playerIdx),"")
 		if (LOG_DEBUG):
 			CvUtil.pyPrintRecord("CHANGE_CIV_RESULT", "playerId=%d outcome=SUCCEEDED" % playerIdx)
 	else :
-		CyInterface().addImmediateMessage("An error occured in changeCiv.","")
+		SASTextScale.addImmediateMessage("An error occured in changeCiv.","")
 		if (LOG_DEBUG):
 			CvUtil.pyPrintRecord("CHANGE_CIV_RESULT", "playerId=%d outcome=FAILED" % playerIdx)
 		return
@@ -238,7 +240,7 @@ def changeHumanHandler( playerID, netUserData, popupReturn ) :
 	if( newHumanIdx == oldHumanIdx ) :
 		if (LOG_DEBUG):
 			CvUtil.pyPrintRecord("CHANGE_HUMAN_RESULT", "fromPlayerId=%d toPlayerId=%d outcome=NO_CHANGE" % (oldHumanIdx, newHumanIdx))
-		CyInterface().addImmediateMessage("You retain control of the %s"%(oldPlayer.getCivilizationDescription(0)),"")
+		SASTextScale.addImmediateMessage("You retain control of the %s"%(oldPlayer.getCivilizationDescription(0)),"")
 		return
 
 	if (LOG_DEBUG):
@@ -252,11 +254,11 @@ def changeHumanHandler( playerID, netUserData, popupReturn ) :
 ##			for i in range(0,gc.getMAX_CIV_PLAYERS()) :
 ##				if (LOG_DEBUG):
 ##					CvUtil.pyPrint( "   CP : Player %d is human %d"%(i,gc.getPlayer(i).isHuman()))
-		CyInterface().addImmediateMessage("You now control the %s"%(newPlayer.getCivilizationDescription(0)),"")
+		SASTextScale.addImmediateMessage("You now control the %s"%(newPlayer.getCivilizationDescription(0)),"")
 	else :
 		if (LOG_DEBUG):
 			CvUtil.pyPrintRecord("CHANGE_HUMAN_RESULT", "fromPlayerId=%d toPlayerId=%d outcome=FAILED humanPlayerCount=%d" % (oldHumanIdx, newHumanIdx, game.getNumHumanPlayers()))
-		CyInterface().addImmediateMessage("An error occured in changeHuman ...","")
+		SASTextScale.addImmediateMessage("An error occured in changeHuman ...","")
 
 ########################## Player modification functions ###########################################
 

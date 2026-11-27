@@ -112,6 +112,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/python_runtime_placement.py
 
+      - name: Runtime Python adds on-screen messages in the label font, as the DLL does
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/python_message_font.py
+
       - name: Runtime Python aligns columns with tabs and leaves one space elsewhere
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/python_aligned_columns.py

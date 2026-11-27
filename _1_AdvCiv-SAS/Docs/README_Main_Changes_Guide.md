@@ -2921,8 +2921,11 @@ Assuming the calculation is correct and reliable, the higher the drive, the more
     - **advisors**
     - **sevopedia**
     - most of **diplomacy screen** (when it was possible) in [CvDiplomacy.py](/Assets/Python/CvDiplomacy.py) and `CvPlayer::getItemTradeString` (for trading table)
-    - **Event Log** window (as of now only **Event Log** and **Combat Log** tabs are supported) and **event message popup** (top-center) in [CvUtil.py](/Assets/Python/CvUtil.py) and [CvEventManager.py](/Assets/Python/CvEventManager.py) and `CvDLLInterfaceIFaceBase::addMessage`
-      - Event related message upscaling **only applies to new messages written after upscaling is enabled**, not to previously written event messages before upscaling was applied.
+    - **Event Log** window (as of now only **Event Log** and **Combat Log** tabs are supported) and **event message popup** (top-center): all messages land there, but each is enlarged by the code that adds it, so each path has its own hook:
+      - the DLL's messages, such as "Ice Cap has melted …", "Global Warming strikes near …", "Deal Canceled: …", wars, wonders and civics, through `CvDLLInterfaceIFaceBase::addMessage`;
+      - Python's Combat Log lines, through the combat helper in [CvUtil.py](/Assets/Python/CvUtil.py), used by [CvEventManager.py](/Assets/Python/CvEventManager.py);
+      - (Requires AdvCiv-SAS 6886+) Python's other messages, such as BUG's alerts ("Cyrus will export Iron", "Wang Kon is the new worst enemy of Hannibal"), random events, reminders and autolog, through [SASTextScale.py](/Assets/Python/SASTextScale.py); before, this path was missing, so they kept the stock size. See [KI#117.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-117.2).
+      - Message upscaling **only applies to new messages written after upscaling is enabled**, not to messages written before, such as those a save already holds.
     - miscellaneous screens such as the [CvEraMovieScreen.py](/Assets/Python/Screens/CvEraMovieScreen.py) (i.e. the e.g., "You have entered the Renaissance era!" screen), [CvWonderMovieScreen.py](/Assets/Python/Screens/CvWonderMovieScreen.py) (from hardcoded `<font=4b>` to SAS FONT `TITLE` (more readable without bold)) and [CvSpaceShipScreen.py](/Assets/Python/Screens/CvSpaceShipScreen.py)
     - and other places where font size could be changed
   - Made some **UI adjustments when needed to accommodate the larger text**.

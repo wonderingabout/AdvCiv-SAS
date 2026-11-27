@@ -202,6 +202,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#115.2 - (Fixed inherited vanilla Civ4 slips) Victory screen's Victories tab: a culture row testing the wrong team, a religion row printing the wrong share](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-115.2)\
 [KI#116 - (Worked around) Foreign Diplomacy Advisor Glance tab clips trailing status icons at upscaled label fonts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-116)\
 [KI#117 - (Fixed) Score Tab attitude icon chars disappearing at upscaled label fonts (`SAS_UI_FONT_LABEL` 3/4)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-117)\
+[KI#117.2 - (Fixed incomplete SAS upscaling, guarded by CI) At an upscaled label font, messages added from Python, such as MoreCiv4lerts' "Cyrus will export Iron", stayed at the stock size under the DLL's enlarged "Global Warming strikes near ...", as SAS enlarged only the messages the DLL adds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-117.2)\
 [KI#118 - (Worked around) Military Advisor inline `<img>` icons can render magenta for button paths with spaces/parentheses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118)\
 [KI#118.2 - (Fixed AdvCiv-SAS regression) Same family as KI#118's icon paths: the Victory screen raised a Python exception and drew only part of its table once an unmet team had built the Apostolic Palace or United Nations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118.2)\
 [KI#119 - (Fixed) Sevopedia category opening on blank placeholder rows (`item == -1`) and polluting BACK/NEXT history](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-119)\
@@ -11706,6 +11707,29 @@ Fix applied:
 Note: these higher quality icons are as of now also used for the sevopedia leader attitude button icons (as DDS icons, not textual chars though), that used previously the 16x16 lower quality icons of base civ4 and that looked pixelated at higher dds icon; now the higher-quality version looks better at higher icon size.
 
 To add them as dds, we used Game Font Editor (V0.6) for Civ 4 by Asaf (select icon -> export -> .PNG), reduced dds to 20x20 (with Paint.NET canvas resize of these .PNG) (else they don't not display ingame), and then converted to .dds with Paint.NET.
+
+<a id="ki-117.2"></a>
+
+## KI#117.2 - (Fixed incomplete SAS upscaling, guarded by CI) At an upscaled label font, messages added from Python, such as MoreCiv4lerts' "Cyrus will export Iron", stayed at the stock size under the DLL's enlarged "Global Warming strikes near ...", as SAS enlarged only the messages the DLL adds
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1GQP8Cje3ImFl2ONMI2eKkddyoaLqm-FL?usp=sharing).
+
+A gap left since SAS's message upscaling of 2026-04-14 (ffa01b3373, "upscale some of the event messages (when possible and if supported)"), which enlarged the DLL's messages and the Combat Log; the user noticed it and reproduced it in a turn-303 Huge game at `SAS_UI_FONT_LABEL` 3: in the top-center message ticker, the blue "Cyrus will export Iron" was drawn smaller than the white "Global Warming strikes near Nagara Jayasri, Teotihuacan" below it.
+
+- Why: SAS enlarges messages at one place, `CvDLLInterfaceIFaceBase::addMessage` in [CvDLLInterfaceIFaceBase.cpp](/CvGameCoreDLL/CvDLLInterfaceIFaceBase.cpp), which wraps the text in the label font before handing it to the EXE. A message Python adds through `CyInterface().addMessage(...)` or `addImmediateMessage(...)` goes to the EXE directly, so it never passed through that wrapper.
+  - BUG's alerts (Civ4lerts, MoreCiv4lerts, reminders, autolog), the random events written in Python and the debug and status lines of AI Auto Play, ChangePlayer and others were all affected: 43 calls in 14 files.
+    - 13 of them are `onPbemSend`'s error lines in [CvAppInterface.py](/Assets/Python/EntryPoints/CvAppInterface.py), which SAS took in from BtS on 2026-11-22 ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)); in BtS's copy, outside the repository, neither the fix nor the check could have reached them.
+  - Combat Log lines had the same gap and were already fixed by `CvUtil.addCombatMessageScaled`, which applies `SASTextScale.labelText` before `addCombatMessage`.
+- Fix: [SASTextScale.py](/Assets/Python/SASTextScale.py) gains `addMessage` and `addImmediateMessage`, which apply `labelText`, as the DLL does, and forward to `CyInterface()`; all 43 calls now go through them. Like the DLL, a text already holding a `<font=` tag is left as it is, and the size follows a live override of `SAS_UI_FONT_LABEL`.
+- [`python_message_font.py`](/.github/workflows/README.md#buildsourcepython_message_fontpy) fails on a new direct call, `addCombatMessage` included outside `CvUtil`'s helper.
+- Codex's review (GPT-6.2-Sol) found two slips in the first version, now fixed:
+  - The helpers raised when the live label size was invalid, such as `SAS_UI_FONT_LABEL = 5` set through [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt). A message often comes before the rest of a game event, such as the hurricane's building removal in `CvRandomEventInterface.py`, which the raise would skip, so they now send the text plain, as the DLL does.
+  - The check exempted whole files, so a direct call anywhere in `CvUtil.py` passed, and flagged unrelated methods such as `inbox.addMessage(record)`; it now looks only at calls on `CyInterface()` and allows them only inside the three forwarding functions.
+- Checked in game by replaying the turn that made the message: the game's turn-301 save, `ASOKA_T0301_HUGE_PANGAEA_NORMAL_9704081_9704081_20261121T103336Z_STOP.CivBeyondSwordSave`, which opens at turn 302, then Gunship in Nobamba and End Turn, once with the old code and once with the fix; the replay took the same path both times.
+  - With the old code, turn 303's Python alerts, "Cyrus will export Iron", "Isabella I is no longer the worst enemy of Boudica" and "Wang Kon is the new worst enemy of Hannibal", came up smaller than the DLL's "Ice Cap has melted in 1 Ocean tile" and "Global Warming strikes near Luxemburg!"; with the fix, the same lines, in the same order, matched them.
+  - The alerts arrive several seconds after the turn starts, after the cancelled-deal screens. A message stored in a save keeps the size it was added with, so loading the turn-302 save, as the first screenshot did, shows the old small line whatever the code; the Event Log's list draws all lines alike either way.
+
+Found by the user; fixed with the help of Claude Code Opus 5.5.
 
 <a id="ki-118"></a>
 
@@ -39871,6 +39895,11 @@ Update (2026-11-26): the five entry points the EXE registers by name are carried
 - Not tested on a Pitboss server; a normal game logs the same `EntryPoint module:` lines as before, now from SAS's copies.
 
 Implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol), who proposed the curated callback list and the `wx` scope on 2026-11-23.
+
+Update (2026-11-27): it paid off again with [KI#117.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-117.2), Python's messages left at the stock font, which confirms that taking the files in was the right call.
+
+- 13 of its 43 calls are `onPbemSend`'s error lines in `CvAppInterface.py`, such as "Error establishing connection.".
+  - In BtS's copy, outside the repository, neither the fix nor its check would have reached them.
 
 <a id="ki-1105"></a>
 

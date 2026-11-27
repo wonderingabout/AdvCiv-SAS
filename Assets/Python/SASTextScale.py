@@ -130,6 +130,23 @@ def stripFontTags(szText):
 	szUnicode = SAS_FONT_CLOSE_RE.sub(u"", szUnicode)
 	return szUnicode
 
+# <!-- custom: Added addMessage and addImmediateMessage below as the Python counterparts of CvDLLInterfaceIFaceBase::addMessage, which wraps every message the DLL adds in the label font.
+# A message Python added through CyInterface().addMessage or addImmediateMessage went to the EXE directly and kept the stock size, so at label size 3 MoreCiv4lerts' "Cyrus will export Iron" sat small under the DLL's larger "Global Warming strikes near ..." in the user's screenshot.
+# Every Python message goes through these, which python_message_font.py checks; like the DLL, a text already holding a <font=...> tag is left as it is, and the size follows a live override, as labelText reads it at each call. See KI#117.2. (Claude code Opus 5.5) -->
+# <!-- custom: A label size outside 1 to 4 sends the text plain, as the DLL's wrapSASLabelFontText does, rather than raising as labelText does elsewhere: a message often comes before the rest of a game event, such as the hurricane's building removal in CvRandomEventInterface.py, which a raise here would skip, as Codex's review (GPT-6.2-Sol) reproduced with SAS_UI_FONT_LABEL = 5 set live.
+# The size is checked by labelText's own RuntimeError rather than a read here: a first draft read SAS_UI_FONT_LABEL in this function, which python_define_reads_import.py flagged as reachable at import through BugConfig's init() and BugUtil.logToScreen. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+def _messageText(szString):
+	try:
+		return labelText(szString)
+	except RuntimeError:
+		return szString
+
+def addMessage(ePlayer, bForce, iLength, szString, *args):
+	CyInterface().addMessage(ePlayer, bForce, iLength, _messageText(szString), *args)
+
+def addImmediateMessage(szString, szSound):
+	CyInterface().addImmediateMessage(_messageText(szString), szSound)
+
 def tinyText(szText):
 	return applyFontTag(szText, sasFontTagTiny)
 

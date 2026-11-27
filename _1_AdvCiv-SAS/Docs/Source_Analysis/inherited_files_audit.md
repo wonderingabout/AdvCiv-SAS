@@ -155,6 +155,11 @@ The reasons behind the generated lists of [files taken in](#files-taken-in-from-
   - `Assets/XML/Buildings/CIV4CityLSystem.xml`, the one file taken in and dropped again, was Warlords' version, not BtS's, which "does not hardcode any asset name", and players had reported building models missing from the map; so BtS's copy loads, and [`building_art_lsystem_names_bts.tsv`](/_0_Legacy/Docs/Manifests/building_art_lsystem_names_bts.tsv) lets CI check its names.
   - `Assets/XML/Buildings/CIV4LSystemSchema.xml` exists only in vanilla, which still provides it.
 - Python: the tech splash and wonder movie screens were copied from BtS for their rework (2026-04-14).
+  - The other base-game Python files SAS uses came in on 2026-11-22 ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)), and the five entry points the EXE registers by name on 2026-11-26, with what they import.
+  - That paid off within a week:
+    - once in the repository, the copies met SAS's CI, which found `PyHelpers.py`'s dormant `religionList` slip (see [KI#165.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.2)) and, among the entry points, vanilla's broken `CvUnitController.ProcessEvent` body ([KI#165.13](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.13)) and `PbWizard.py`'s patch dialog without text ([KI#1085.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085.2));
+    - [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5)'s live define overrides first apply in `CvAppInterface.preGameStart`, which would otherwise have meant editing a BtS file outside the repository;
+    - 13 of [KI#117.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-117.2)'s 43 Python message calls left at the stock font are `CvAppInterface.py`'s `onPbemSend` error lines, which neither the fix nor its check could have reached in BtS's copy.
 
 ### Removed or renamed from base AdvCiv
 

@@ -142,6 +142,8 @@
 # <!-- custom: The inherited BUG header above still names FontUtil in its historical docs/TODO; live symbol replacement now routes through SASVisualUtils because FontUtil is retired by the centralized visual-resource refactor. (ChatGPT-5.6-Sol) -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASTextScale's addMessage and addImmediateMessage give Python's messages the label font the DLL gives its own, as CyInterface()'s went to the EXE at the stock size. See KI#117.2. (Claude code Opus 5.5) -->
+import SASTextScale
 # <!-- custom: SASPythonLogging owns stdout/stderr row timestamps; importing the leaf helper here also covers callers that load BUG before CvUtil. (GPT-6.1-Sol) -->
 import SASPythonLogging
 import ColorUtil
@@ -284,7 +286,7 @@ def log(level, message, args=()):
 def logToScreen(message):
 	# Displays the message in the on-screen message area after escaping < and >.
 	#
-	interface.addImmediateMessage(escapeXml(message), "")
+	SASTextScale.addImmediateMessage(escapeXml(message), "")
 
 def logSASPythonDiagnostic(message):
 	# <!-- custom: Keep this as BUG's generic compatibility writer behind the inherited logToFile alias; structured SAS record rows use SASPythonLogging.writeRecord/CvUtil.pyPrintRecord instead.

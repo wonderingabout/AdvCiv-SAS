@@ -131,6 +131,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/python_define_reads_cached.py`](#buildsourcepython_define_reads_cachedpy)
     - [`build/source/python_define_reads_import.py`](#buildsourcepython_define_reads_importpy)
     - [`build/source/python_engine_callbacks.py`](#buildsourcepython_engine_callbackspy)
+    - [`build/source/python_message_font.py`](#buildsourcepython_message_fontpy)
     - [`build/source/python_multiline_calls.py`](#buildsourcepython_multiline_callspy)
     - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
@@ -1626,6 +1627,19 @@ Fails when a base-game entry point SAS carries loses a top-level function the en
 
 ```bash
 python .github/workflows/build/source/python_engine_callbacks.py
+```
+
+#### `build/source/python_message_font.py`
+
+Fails on a runtime Python call to `addMessage` or `addImmediateMessage` on anything but `SASTextScale`, or to `addCombatMessage` outside `CvUtil.addCombatMessageScaled`: `CvDLLInterfaceIFaceBase::addMessage` wraps every message the DLL adds in the label font, but `CyInterface()`'s go to the EXE directly, so at an upscaled label size Python's messages were smaller than the DLL's beside them.
+
+- A gap left since SAS's message upscaling of 2026-04-14, which enlarged the DLL's messages and the Combat Log; the user noticed it: MoreCiv4lerts' "Cyrus will export Iron" sat small under the DLL's "Global Warming strikes near …".
+  - Run repo-wide first, the check found 43 direct calls in 14 files, now routed through `SASTextScale.addMessage` and `addImmediateMessage`, which apply `labelText` as the DLL does; combat lines already went through `CvUtil`'s helper.
+- A heuristic read from tokens, so comments and strings do not count: it looks at calls on `CyInterface()` or a name the file binds to it, such as `BugUtil`'s `interface`, and allows them only inside the three forwarding functions; a receiver passed in from elsewhere is not seen.
+  - Codex's review (GPT-6.2-Sol) found the first draft exempted whole files and flagged unrelated methods such as `inbox.addMessage(record)`. See [KI#117.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-117.2).
+
+```bash
+python .github/workflows/build/source/python_message_font.py
 ```
 
 #### `build/source/python_multiline_calls.py`

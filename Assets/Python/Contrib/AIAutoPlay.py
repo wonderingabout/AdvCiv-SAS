@@ -9,6 +9,8 @@
 #
 
 from CvPythonExtensions import *
+# <!-- custom: SASTextScale's addMessage and addImmediateMessage give Python's messages the label font the DLL gives its own, as CyInterface()'s went to the EXE at the stock size. See KI#117.2. (Claude code Opus 5.5) -->
+import SASTextScale
 import CvScreenEnums
 import CvTopCivs
 import CvUtil
@@ -151,7 +153,7 @@ class AIAutoPlay :
 		CvUtil.pyPrintRecord("AI_AUTOPLAY_PICK_HUMAN_RESPONSE", "playerId=%d" % iPlayerID)
 
 		if( popupReturn.getButtonClicked() == 0 ):  # if you pressed cancel
-			CyInterface().addImmediateMessage("Kill your remaining units if you'd like to see end game screens","")
+			SASTextScale.addImmediateMessage("Kill your remaining units if you'd like to see end game screens","")
 			return
 
 		toKillPlayer = gc.getActivePlayer()
@@ -400,7 +402,7 @@ class AIAutoPlay :
 		# </BM1>
 		if (self.numTurns > 0):
 			if (self.LOG_DEBUG):
-				CyInterface().addImmediateMessage("Fully automating for %d turns"%(self.numTurns),"")
+				SASTextScale.addImmediateMessage("Fully automating for %d turns"%(self.numTurns),"")
 			game.setAIAutoPlay(self.numTurns)
 	# Erik <BM1>
 	def onAutoPlayComplete(self, argsList):

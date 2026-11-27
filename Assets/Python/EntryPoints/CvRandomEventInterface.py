@@ -18,6 +18,8 @@ import SASCurrentDefines
 import SASGameRecordActions # <!-- custom: The three named Python event-reply callbacks need readable SGR input evidence independently from subsequent war/peace outcomes; the shared helper owns gating and serialization. (GPT-6.1-Sol) -->
 import SASPopupChoices # <!-- custom: Event reply creation and gameplay dispatch share the same Yes/No IDs and readable action names, independently from diagnostic enablement. (GPT-6.1-Sol) -->
 from CvPythonExtensions import *
+# <!-- custom: SASTextScale's addMessage and addImmediateMessage give Python's messages the label font the DLL gives its own, as CyInterface()'s went to the EXE at the stock size. See KI#117.2. (Claude code Opus 5.5) -->
+import SASTextScale
 # <!-- custom: Route shared visual resources through the centralized SASVisualUtils namespace after retiring overlapping helper/cache imports; keep one canonical visual-resource boundary. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 from SASUtils import findInfoTypeNumOrFail, getInfoTypeOrFail
@@ -533,14 +535,14 @@ def applyLooters3(argsList):
 		if len(listBuildings) > 0:
 			iBuilding = listBuildings[gc.getGame().getSorenRandNum(len(listBuildings), "Looters event building destroyed")]
 			szBuffer = localText.getText("TXT_KEY_EVENT_CITY_IMPROVEMENT_DESTROYED", (gc.getBuildingInfo(iBuilding).getTextKey(), ))
-			CyInterface().addMessage(kTriggeredData.eOtherPlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), SASVisuals.Color.RED, city.getX(), city.getY(), true, true)
+			SASTextScale.addMessage(kTriggeredData.eOtherPlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), SASVisuals.Color.RED, city.getX(), city.getY(), true, true)
 			city.setNumRealBuilding(iBuilding, 0)
 			iNumBuildingsDestroyed += 1
 			listBuildings.remove(iBuilding)
 
 	if iNumBuildingsDestroyed > 0:
 		szBuffer = localText.getText("TXT_KEY_EVENT_NUM_BUILDINGS_DESTROYED", (iNumBuildingsDestroyed, gc.getPlayer(kTriggeredData.eOtherPlayer).getCivilizationAdjectiveKey(), city.getNameKey()))
-		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, SASVisuals.Color.WHITE, -1, -1, true, true)
+		SASTextScale.addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, SASVisuals.Color.WHITE, -1, -1, true, true)
 
 ######## BROTHERS IN NEED ###########
 
@@ -642,13 +644,13 @@ def applyHurricane1(argsList):
 	if len(listCheapBuildings) > 0:
 		iBuilding = listCheapBuildings[gc.getGame().getSorenRandNum(len(listCheapBuildings), "Hurricane event cheap building destroyed")]
 		szBuffer = localText.getText("TXT_KEY_EVENT_CITY_IMPROVEMENT_DESTROYED", (gc.getBuildingInfo(iBuilding).getTextKey(), ))
-		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), SASVisuals.Color.RED, city.getX(), city.getY(), true, true)
+		SASTextScale.addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), SASVisuals.Color.RED, city.getX(), city.getY(), true, true)
 		city.setNumRealBuilding(iBuilding, 0)
 
 	if len(listExpensiveBuildings) > 0:
 		iBuilding = listExpensiveBuildings[gc.getGame().getSorenRandNum(len(listExpensiveBuildings), "Hurricane event expensive building destroyed")]
 		szBuffer = localText.getText("TXT_KEY_EVENT_CITY_IMPROVEMENT_DESTROYED", (gc.getBuildingInfo(iBuilding).getTextKey(), ))
-		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), SASVisuals.Color.RED, city.getX(), city.getY(), true, true)
+		SASTextScale.addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), SASVisuals.Color.RED, city.getX(), city.getY(), true, true)
 		city.setNumRealBuilding(iBuilding, 0)
 
 ######## CYCLONE ###########
@@ -727,7 +729,7 @@ def applyTsunami2(argsList):
 		if len(listBuildings) > 0:
 			iBuilding = listBuildings[gc.getGame().getSorenRandNum(len(listBuildings), "Tsunami event building destroyed")]
 			szBuffer = localText.getText("TXT_KEY_EVENT_CITY_IMPROVEMENT_DESTROYED", (gc.getBuildingInfo(iBuilding).getTextKey(), ))
-			CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), SASVisuals.Color.RED, city.getX(), city.getY(), true, true)
+			SASTextScale.addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), SASVisuals.Color.RED, city.getX(), city.getY(), true, true)
 			city.setNumRealBuilding(iBuilding, 0)
 			listBuildings.remove(iBuilding)
 
@@ -828,7 +830,7 @@ def applyVolcano1(argsList):
 			else:
 				plot_owner = kTriggeredData.ePlayer
 			if (gc.getPlayer(plot_owner).isHuman()):
-				CyInterface().addMessage(plot_owner, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getImprovementInfo(iImprovement).getButton(), SASVisuals.Color.RED, plot.getX(), plot.getY(), true, true)
+				SASTextScale.addMessage(plot_owner, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getImprovementInfo(iImprovement).getButton(), SASVisuals.Color.RED, plot.getX(), plot.getY(), true, true)
 			# K-Mod end
 			if iImprovement in listRuins:
 				plot.setImprovementType(iRuins)
@@ -870,7 +872,7 @@ def applyVolcano1(argsList):
 		else:
 			plot_owner = kTriggeredData.ePlayer
 		if (gc.getPlayer(plot_owner).isHuman()):
-			CyInterface().addMessage(plot_owner, false, gc.getEVENT_MESSAGE_TIME(), szTextEventVolcanoFertility, "", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, SASVisuals.Color.WHITE, plot.getX(), plot.getY(), true, true)
+			SASTextScale.addMessage(plot_owner, false, gc.getEVENT_MESSAGE_TIME(), szTextEventVolcanoFertility, "", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, SASVisuals.Color.WHITE, plot.getX(), plot.getY(), true, true)
 		listPlots.remove(plot)
 # K-Mod end
 
@@ -1011,7 +1013,7 @@ def applySaltpeter(argsList):
 		iCount -= 1
 		# advc.enum: was getGame()...
 		gc.getMap().setPlotExtraYield(loopPlot[1].getX(), loopPlot[1].getY(), YieldTypes.YIELD_COMMERCE, 1)
-		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szTextEventSaltpeterDiscovered, "", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, SASVisuals.Color.WHITE, loopPlot[1].getX(), loopPlot[1].getY(), true, true)
+		SASTextScale.addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szTextEventSaltpeterDiscovered, "", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, SASVisuals.Color.WHITE, loopPlot[1].getX(), loopPlot[1].getY(), true, true)
 		# EventSigns start -- Add landmark for other plots, if there is still a yield change
 		placeLandmark(loopPlot[1], sEventType, 0, 0, 1, True, -1) # K-Mod. (originally it used iFood, iProd, iComm -- and that's not correct.)
 		# EventSigns end
@@ -1185,7 +1187,7 @@ def applyInfluenza2(argsList):
 		(iDist, loopCity) = listCities[i]
 		loopCity.changePopulation(-2)
 		szBuffer = localText.getText("TXT_KEY_EVENT_INFLUENZA_HIT_CITY", (loopCity.getNameKey(), ))
-		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_PILLAGE", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, SASVisuals.Color.RED, loopCity.getX(), loopCity.getY(), true, true)
+		SASTextScale.addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_PILLAGE", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, SASVisuals.Color.RED, loopCity.getX(), loopCity.getY(), true, true)
 
 def getHelpInfluenza2(argsList):
 	iEvent = argsList[0]
@@ -2487,7 +2489,7 @@ def applyMasterBlacksmithDone1(argsList):
 	plot.setBonusType(iBonus)
 
 	szBuffer = localText.getText("TXT_KEY_MISC_DISCOVERED_NEW_RESOURCE", (gc.getBonusInfo(iBonus).getTextKey(), city.getNameKey()))
-	CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_DISCOVERBONUS", InterfaceMessageTypes.MESSAGE_TYPE_MINOR_EVENT, gc.getBonusInfo(iBonus).getButton(), SASVisuals.Color.WHITE, plot.getX(), plot.getY(), true, true)
+	SASTextScale.addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_DISCOVERBONUS", InterfaceMessageTypes.MESSAGE_TYPE_MINOR_EVENT, gc.getBonusInfo(iBonus).getButton(), SASVisuals.Color.WHITE, plot.getX(), plot.getY(), true, true)
 
 def canApplyMasterBlacksmithDone3(argsList):
 	iEvent = argsList[0]

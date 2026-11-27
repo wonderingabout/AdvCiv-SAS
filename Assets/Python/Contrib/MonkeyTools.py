@@ -11,6 +11,8 @@
 # <!-- custom: Layout only: python_aligned_columns.py's sweep turned the double spaces and tab runs between this file's code tokens, mostly stray slips such as "x =  y" or one-column alignment, into one space; the code is unchanged. See KI#21.8. (Claude code Opus 5.5) -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASTextScale's addMessage and addImmediateMessage give Python's messages the label font the DLL gives its own, as CyInterface()'s went to the EXE at the stock size. See KI#117.2. (Claude code Opus 5.5) -->
+import SASTextScale
 import CvUtil
 import PyHelpers
 import CvEventInterface
@@ -28,7 +30,7 @@ def debug(argsList):
 	printToLog = True
 	message = "%s" %(argsList)
 	if (printToScr):
-		CyInterface().addImmediateMessage(message,"")
+		SASTextScale.addImmediateMessage(message,"")
 	if (printToLog):
 		CvUtil.pyPrint(message)
 	return 0
