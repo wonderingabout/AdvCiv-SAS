@@ -42,6 +42,8 @@ import GameUtil
 #BUG: Change Graphs - start
 import BugCore
 import BugUtil
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 AdvisorOpt = BugCore.game.Advisors
 ScoreOpt = BugCore.game.Scores
 #BUG: Change Graphs - end
@@ -454,13 +456,13 @@ class CvInfoScreen:
 		self.sCityWonders = BugUtil.getPlainText("TXT_KEY_WONDER_CITY")
 
 		# <!-- custom: not strictly for text but use this to compute cheaply our sas defines once -->
-		self.IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (SASCurrentDefines.getInt("SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON") > 0)
+		self.IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (SASSessionTunables.SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON > 0)
 		# <!-- custom: cache toggle; when disabled, timeline entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
-		self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON = (SASCurrentDefines.getInt("SAS_INFO_UI_TIMELINE_CACHE_ON") > 0)
-		self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON = (SASCurrentDefines.getInt("SAS_INFO_UI_TIMELINE_TOP_CIVS_ON") > 0)
-		self.SAS_INFO_UI_SCORE_MAX_RENDER_THRESH = SASCurrentDefines.getInt("SAS_INFO_UI_SCORE_MAX_RENDER_THRESH")
-		self.iSAS_INFO_UI_GRAPH_X_GRID_LINES = SASCurrentDefines.getInt("SAS_INFO_UI_GRAPH_X_GRID_LINES")
-		self.iSAS_INFO_UI_GRAPH_Y_GRID_LINES = SASCurrentDefines.getInt("SAS_INFO_UI_GRAPH_Y_GRID_LINES")
+		self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON = (SASSessionTunables.SAS_INFO_UI_TIMELINE_CACHE_ON > 0)
+		self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON = (SASSessionTunables.SAS_INFO_UI_TIMELINE_TOP_CIVS_ON > 0)
+		self.SAS_INFO_UI_SCORE_MAX_RENDER_THRESH = SASSessionTunables.SAS_INFO_UI_SCORE_MAX_RENDER_THRESH
+		self.iSAS_INFO_UI_GRAPH_X_GRID_LINES = SASSessionTunables.SAS_INFO_UI_GRAPH_X_GRID_LINES
+		self.iSAS_INFO_UI_GRAPH_Y_GRID_LINES = SASSessionTunables.SAS_INFO_UI_GRAPH_Y_GRID_LINES
 
 	def reset(self):
 

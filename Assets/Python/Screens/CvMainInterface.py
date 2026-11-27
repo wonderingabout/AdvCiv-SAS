@@ -8,6 +8,8 @@
 from CvPythonExtensions import *
 # <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
 import SASCurrentDefines
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml, such as SAS_MAIN_UI_UNITS_WAITING_ON. (Claude code Opus 5.5) -->
+import SASSessionTunables
 # <advc.092>
 from RectLayout import *
 from LayoutDict import *
@@ -204,7 +206,7 @@ class CvMainInterface:
 
 	def _scoreboardFastScrollStep(self):
 		if self.iSAS_SCOREBOARD_SCROLL_FAST_INCR is None:
-			self.iSAS_SCOREBOARD_SCROLL_FAST_INCR = gc.getDefineINT("SAS_SCOREBOARD_SCROLL_FAST_INCR")
+			self.iSAS_SCOREBOARD_SCROLL_FAST_INCR = SASSessionTunables.SAS_SCOREBOARD_SCROLL_FAST_INCR
 		return self.iSAS_SCOREBOARD_SCROLL_FAST_INCR
 
 	# <!-- custom: shared scoreboard traversal for normal drawing, scroll slicing, and active-player scroll centering.
@@ -790,8 +792,8 @@ class CvMainInterface:
 		# <!-- custom: scoreboard background style cycle (not just opacity: PanelStyles also include plain/colored panels e.g. blue/tan, not only opaque/translucent).
 		# Discrete PanelStyle levels in cycle order.
 		# 0 HUD_HELP is vanilla look.
-		# If you add or reorder styles here, update the matching SAS_SCOREBOARD_BG_DEFAULT_STYLE legend comment in GlobalDefines_advciv_sas.xml to keep them in sync.
-		# Starting level comes from the SAS_SCOREBOARD_BG_DEFAULT_STYLE define. (Claude code Opus 4.7) -->
+		# If you add or reorder styles here, update the matching SAS_SCOREBOARD_BG_DEFAULT_STYLE legend comment in SASSessionTunables.py, its home now, to keep them in sync.
+		# Starting level comes from the SAS_SCOREBOARD_BG_DEFAULT_STYLE setting. (Claude code Opus 4.7 + Claude code Opus 5.5) -->
 		self.iScoreBgStyleLevel = None
 		self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE = None
 		self.aScoreBgStyleLevels = [PanelStyles.PANEL_STYLE_HUD_HELP, PanelStyles.PANEL_STYLE_SOLID, PanelStyles.PANEL_STYLE_MAIN, PanelStyles.PANEL_STYLE_MAIN_BLACK50, PanelStyles.PANEL_STYLE_MAIN_BLACK25, PanelStyles.PANEL_STYLE_EMPTY]
@@ -908,8 +910,8 @@ class CvMainInterface:
 		# <!-- custom: Were computed once per game in interfaceScreen; now on each build here, once the advc.092 scale factors VSPACE uses are set, so they follow a resolution change.
 		# Here rather than only cleared: Codex's (GPT-6.2-Sol) review found that a Python module reload calls initState without interfaceScreen, so a cleared value would have stayed None for the city screen's lift and its bottom button list. See KI#123.3. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		if self.iSAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ_RAW is None:
-			self.iSAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ_RAW = gc.getDefineINT("SAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ")
-			self.iSAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT_RAW = gc.getDefineINT("SAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT")
+			self.iSAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ_RAW = SASSessionTunables.SAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ
+			self.iSAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT_RAW = SASSessionTunables.SAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT
 		self.iBarExtraHeightExtraManualAdjust = VSPACE(self.iSAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ_RAW)
 		self.iCityScreenBlueRibbonExtraLift = VSPACE(self.iSAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT_RAW)
 # BUG - Raw Yields - begin
@@ -1044,7 +1046,7 @@ class CvMainInterface:
 		iLeftTopTextX = (gRect("TurnLogButton").x() * 2) / 3
 		# <!-- custom: Filled here when initState runs before interfaceScreen, as on a Python reload; it read the define through SASCurrentDefines into a local and left the attribute empty, so it read again on each call, and a value kept for the session belongs in the attribute, read with gc (the user's point, 2026-11-27). (Claude code Opus 5.5) -->
 		if self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT is None:
-			self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT = (gc.getDefineINT("SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT") > 0)
+			self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT = (SASSessionTunables.SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT > 0)
 		bTopLeftFlagAndLeftSideTextShift = self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT
 		if bTopLeftFlagAndLeftSideTextShift:
 			# <!-- custom: when this define is off, no flag is drawn here, so the left text (e.g. treasury) keeps its base position (no extra room needed). (GPT-5.3-Codex) -->
@@ -1206,12 +1208,12 @@ class CvMainInterface:
 		# <!-- custom: lazy-cache HARD-px unit-bar width adjustment; no resolution scaling because scoreboard width is font-driven, not resolution-scaled.
 		# Negative shrinks row (fewer buttons per row), helping avoid scoreboard / off-screen overflow on multi-row stacks. See KI#124. (Claude code Opus 4.7) -->
 		if self.iSAS_MAIN_UI_PLOT_LIST_WIDTH_ADJ is None:
-			self.iSAS_MAIN_UI_PLOT_LIST_WIDTH_ADJ = gc.getDefineINT("SAS_MAIN_UI_PLOT_LIST_WIDTH_ADJ")
+			self.iSAS_MAIN_UI_PLOT_LIST_WIDTH_ADJ = SASSessionTunables.SAS_MAIN_UI_PLOT_LIST_WIDTH_ADJ
 		self.m_iNumPlotListButtonsPerRow = ((gRect("BottomButtonMaxSpace").width() + self.iSAS_MAIN_UI_PLOT_LIST_WIDTH_ADJ - 2 * iPlotListUnitBtnSz) / iPlotListUnitBtnSz)
 		# <!-- custom: cache resolution-scaled width adjustment for the left-side help text area; HLEN asserts on negatives, so dispatch via sign. (Claude code Opus 4.7) -->
 		if self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ is None:
 			if self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ_RAW is None:
-				self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ_RAW = gc.getDefineINT("SAS_MAIN_UI_HELP_AREA_WIDTH_ADJ")
+				self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ_RAW = SASSessionTunables.SAS_MAIN_UI_HELP_AREA_WIDTH_ADJ
 			iHelpAreaWidthAdjustRaw = self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ_RAW
 			if iHelpAreaWidthAdjustRaw > 0:
 				self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ = HLEN(iHelpAreaWidthAdjustRaw)
@@ -1404,9 +1406,9 @@ class CvMainInterface:
 	# <!-- custom: The map view's three commerce block defines, read together once into the attributes setCommerceAdjustRects uses; getMinimumMapCommerceRightSpace read the X offset by name on each call, while the same define was already kept here (2026-11-27). (Claude code Opus 5.5) -->
 	def _readMapCommerceOffsets(self):
 		if self.iSAS_COMMERCE_MAP_X_OFFSET is None:
-			self.iSAS_COMMERCE_MAP_X_OFFSET = gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_RIGHT_X_OFFSET")
-			self.iSAS_COMMERCE_MAP_Y_OFFSET = gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_RIGHT_Y_OFFSET")
-			self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT = (gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_ANCHOR_RIGHT") > 0)
+			self.iSAS_COMMERCE_MAP_X_OFFSET = SASSessionTunables.SAS_MAIN_UI_MAP_COMMERCE_RIGHT_X_OFFSET
+			self.iSAS_COMMERCE_MAP_Y_OFFSET = SASSessionTunables.SAS_MAIN_UI_MAP_COMMERCE_RIGHT_Y_OFFSET
+			self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT = (SASSessionTunables.SAS_MAIN_UI_MAP_COMMERCE_ANCHOR_RIGHT > 0)
 
 	def getMinimumMapCommerceRightSpace(self):
 		# <!-- custom: See _readMapCommerceOffsets. (Claude code Opus 5.5) -->
@@ -1427,9 +1429,9 @@ class CvMainInterface:
 		self.bCommerceMinMaxFits = True
 		if bCityScreen:
 			if self.iSAS_COMMERCE_CITY_X_OFFSET is None:
-				self.iSAS_COMMERCE_CITY_X_OFFSET = gc.getDefineINT("SAS_MAIN_UI_CITY_COMMERCE_RIGHT_X_OFFSET")
-				self.iSAS_COMMERCE_CITY_Y_OFFSET = gc.getDefineINT("SAS_MAIN_UI_CITY_COMMERCE_RIGHT_Y_OFFSET")
-				self.IS_SAS_COMMERCE_CITY_ANCHOR_RIGHT = (gc.getDefineINT("SAS_MAIN_UI_CITY_COMMERCE_ANCHOR_RIGHT") > 0)
+				self.iSAS_COMMERCE_CITY_X_OFFSET = SASSessionTunables.SAS_MAIN_UI_CITY_COMMERCE_RIGHT_X_OFFSET
+				self.iSAS_COMMERCE_CITY_Y_OFFSET = SASSessionTunables.SAS_MAIN_UI_CITY_COMMERCE_RIGHT_Y_OFFSET
+				self.IS_SAS_COMMERCE_CITY_ANCHOR_RIGHT = (SASSessionTunables.SAS_MAIN_UI_CITY_COMMERCE_ANCHOR_RIGHT > 0)
 			iRightCommerceBlockXOffset = self.iSAS_COMMERCE_CITY_X_OFFSET
 			iRightCommerceBlockYOffset = self.iSAS_COMMERCE_CITY_Y_OFFSET
 			bCommerceBlockAnchorRight = self.IS_SAS_COMMERCE_CITY_ANCHOR_RIGHT
@@ -1832,20 +1834,20 @@ class CvMainInterface:
 		# <!-- custom: compute cheaply once so it is cheaper.
 		# Note: done here rather than in init since it somehow doesn't work unlike in some other files -->
 		if self.iBarExtraRows is None:
-			self.iBarExtraRows = gc.getDefineINT("SAS_MAIN_UI_CITY_BAR_EXTRA_ROWS")
-			self.iBarExtraRowsExtraManualAdjust = gc.getDefineINT("SAS_MAIN_UI_CITY_BAR_EXTRA_ROWS_ADJ")
+			self.iBarExtraRows = SASSessionTunables.SAS_MAIN_UI_CITY_BAR_EXTRA_ROWS
+			self.iBarExtraRowsExtraManualAdjust = SASSessionTunables.SAS_MAIN_UI_CITY_BAR_EXTRA_ROWS_ADJ
 		if self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS is None:
-			self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS = (gc.getDefineINT("SAS_MAIN_UI_PROD_QUEUE_BUTTONS") > 0)
+			self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS = (SASSessionTunables.SAS_MAIN_UI_PROD_QUEUE_BUTTONS > 0)
 		if self.IS_SAS_MAIN_UI_CITY_SHOW_PLOT_LIST is None:
-			self.IS_SAS_MAIN_UI_CITY_SHOW_PLOT_LIST = (gc.getDefineINT("SAS_MAIN_UI_CITY_SHOW_PLOT_LIST") > 0)
+			self.IS_SAS_MAIN_UI_CITY_SHOW_PLOT_LIST = (SASSessionTunables.SAS_MAIN_UI_CITY_SHOW_PLOT_LIST > 0)
 		if self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE is None:
-			self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE = gc.getDefineINT("SAS_MAIN_UI_CITY_BONUS_ICON_MODE")
+			self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE = SASSessionTunables.SAS_MAIN_UI_CITY_BONUS_ICON_MODE
 			if self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE < 0 or self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE > 2:
 				raise RuntimeError("SAS_MAIN_UI_CITY_BONUS_ICON_MODE must be 0, 1, or 2")
 		if self.IS_SAS_MAIN_UI_UNIT_INFO_BUTTON is None:
-			self.IS_SAS_MAIN_UI_UNIT_INFO_BUTTON = (gc.getDefineINT("SAS_MAIN_UI_UNIT_INFO_BUTTON") > 0)
+			self.IS_SAS_MAIN_UI_UNIT_INFO_BUTTON = (SASSessionTunables.SAS_MAIN_UI_UNIT_INFO_BUTTON > 0)
 		if self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT is None:
-			self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT = (gc.getDefineINT("SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT") > 0)
+			self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT = (SASSessionTunables.SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT > 0)
 		lTop = gRect("Top")
 
 		self.setDefaultHelpTextArea()
@@ -2389,7 +2391,7 @@ class CvMainInterface:
 		# <!-- custom: lazy-cache resolution-scaled unit-bar offsets; HLEN/VLEN assert on negatives, so dispatch via sign. (Claude code Opus 4.7) -->
 		if self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET is None:
 			if self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET_RAW is None:
-				self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET_RAW = gc.getDefineINT("SAS_MAIN_UI_PLOT_LIST_X_OFFSET")
+				self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET_RAW = SASSessionTunables.SAS_MAIN_UI_PLOT_LIST_X_OFFSET
 			iRawPLPX = self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET_RAW
 			if iRawPLPX > 0:
 				self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET = HLEN(iRawPLPX)
@@ -2399,7 +2401,7 @@ class CvMainInterface:
 				self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET = 0
 		if self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET is None:
 			if self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET_RAW is None:
-				self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET_RAW = gc.getDefineINT("SAS_MAIN_UI_PLOT_LIST_Y_OFFSET")
+				self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET_RAW = SASSessionTunables.SAS_MAIN_UI_PLOT_LIST_Y_OFFSET
 			iRawPLPY = self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET_RAW
 			if iRawPLPY > 0:
 				self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET = VLEN(iRawPLPY)
@@ -2798,7 +2800,7 @@ class CvMainInterface:
 		# <!-- custom: Replace the former screen-instance define cache with one read per commerce-control redraw so explicit runtime increment changes reach both +/- buttons; retain local reuse within this draw. See KI#128.2. (Claude code Sonnet 4.6 + GPT-6.1-Sol) -->
 		iCommercePercentChangeIncrements = SASCurrentDefines.getInt("COMMERCE_PERCENT_CHANGE_INCREMENTS")
 		if self.iSAS_COMMERCE_SLIDERS_FAST_INCR_PCT is None:
-			self.iSAS_COMMERCE_SLIDERS_FAST_INCR_PCT = gc.getDefineINT("SAS_COMMERCE_SLIDERS_FAST_INCR_PCT")
+			self.iSAS_COMMERCE_SLIDERS_FAST_INCR_PCT = SASSessionTunables.SAS_COMMERCE_SLIDERS_FAST_INCR_PCT
 		# <!-- custom: BUG's Min/Max pair only when setCommerceAdjustRects found room for it: beside the Tech Advisor at 1920 px it would fall off the screen's edge. (Claude code Opus 5.5) -->
 		bShowMinMax = self.bCommerceMinMaxFits and MainOpt.isShowMinMaxCommerceButtons()
 		# <advc.092>
@@ -4337,7 +4339,7 @@ class CvMainInterface:
 			# Since the sliders line up with the scoreboard, the rates fit beside them again, so SAS_COMMERCE_SLIDERS_RATE_SHOW picks beside, below or both (the user, 2026-11-20).
 			# Where they do not fit beside, as with the Tech Advisor open at 1920 px, which leaves the sliders less room, they show below instead. (GPT-5.5 + Claude code Opus 5.5) -->
 			if self.iSAS_COMMERCE_SLIDERS_RATE_SHOW is None:
-				self.iSAS_COMMERCE_SLIDERS_RATE_SHOW = gc.getDefineINT("SAS_COMMERCE_SLIDERS_RATE_SHOW")
+				self.iSAS_COMMERCE_SLIDERS_RATE_SHOW = SASSessionTunables.SAS_COMMERCE_SLIDERS_RATE_SHOW
 			aRateRows = []
 			for i in range(CommerceTypes.NUM_COMMERCE_TYPES):
 				eCommerce = (i + 1) % CommerceTypes.NUM_COMMERCE_TYPES
@@ -4678,13 +4680,13 @@ class CvMainInterface:
 	# <!-- custom: SAS_COMMERCE_SLIDERS_BG_BUTTON_POS, read once; see where updateGameDataStrings places the button. (Claude code Opus 5.5) -->
 	def getCommerceBgButtonPos(self):
 		if self.iSAS_COMMERCE_SLIDERS_BG_BUTTON_POS is None:
-			self.iSAS_COMMERCE_SLIDERS_BG_BUTTON_POS = gc.getDefineINT("SAS_COMMERCE_SLIDERS_BG_BUTTON_POS")
+			self.iSAS_COMMERCE_SLIDERS_BG_BUTTON_POS = SASSessionTunables.SAS_COMMERCE_SLIDERS_BG_BUTTON_POS
 		return self.iSAS_COMMERCE_SLIDERS_BG_BUTTON_POS
 
 	# <!-- custom: SAS_MAIN_UI_GG_BAR_TEXT, read once: what the Great General bar's text shows; 0 = no text, 1 = stored / threshold, 2 = base AdvCiv's experience still needed, 3 = both. (Claude code Opus 5.5) -->
 	def getGGBarTextMode(self):
 		if self.iSAS_MAIN_UI_GG_BAR_TEXT is None:
-			iMode = gc.getDefineINT("SAS_MAIN_UI_GG_BAR_TEXT")
+			iMode = SASSessionTunables.SAS_MAIN_UI_GG_BAR_TEXT
 			if not 0 <= iMode <= 3:
 				raise ValueError("SAS_MAIN_UI_GG_BAR_TEXT is %d; use 0, 1, 2 or 3" % iMode)
 			self.iSAS_MAIN_UI_GG_BAR_TEXT = iMode
@@ -5024,7 +5026,7 @@ class CvMainInterface:
 		szBuffer += u"%s: %d - %d (%s)" % (pHeadSelectedCity.getName(), iPop, iCultureTotal, szFoundYear)
 		# <!-- custom: See _sasCityPositionSuffix; pre-gated on its switch, kept in an attribute (see __init__), so with it off nothing is called. (Claude code Opus 5.5) -->
 		if self.bSAS_MAIN_UI_CITY_POSITION_ON is None:
-			self.bSAS_MAIN_UI_CITY_POSITION_ON = (gc.getDefineINT("SAS_MAIN_UI_CITY_POSITION_ON") > 0)
+			self.bSAS_MAIN_UI_CITY_POSITION_ON = (SASSessionTunables.SAS_MAIN_UI_CITY_POSITION_ON > 0)
 		if self.bSAS_MAIN_UI_CITY_POSITION_ON:
 			szBuffer += self._sasCityPositionSuffix(pHeadSelectedCity)
 
@@ -6347,7 +6349,7 @@ class CvMainInterface:
 					szBuffer += u" %.1f - %.1f%s" % (fMinMoves, fMaxMoves, SASVisuals.Font.MOVES_CHAR)
 			# <!-- custom: See _sasUnitsWaitingSuffix; pre-gated on its switch, kept in an attribute (see __init__), so with it off nothing is called. (Claude code Opus 5.5) -->
 			if self.bSAS_MAIN_UI_UNITS_WAITING_ON is None:
-				self.bSAS_MAIN_UI_UNITS_WAITING_ON = (gc.getDefineINT("SAS_MAIN_UI_UNITS_WAITING_ON") > 0)
+				self.bSAS_MAIN_UI_UNITS_WAITING_ON = (SASSessionTunables.SAS_MAIN_UI_UNITS_WAITING_ON > 0)
 			if self.bSAS_MAIN_UI_UNITS_WAITING_ON:
 				szBuffer += self._sasUnitsWaitingSuffix()
 			if (szBuffer.find("<font=") == -1):
@@ -6415,7 +6417,7 @@ class CvMainInterface:
 				szBuffer = localText.getText("INTERFACE_PANE_UNIT_NAME_HOT_KEY", (pHeadSelectedUnit.getHotKeyNumber(), pHeadSelectedUnit.getName()))
 			# <!-- custom: See _sasUnitsWaitingSuffix; pre-gated on its switch, kept in an attribute (see __init__), so with it off nothing is called. (Claude code Opus 5.5) -->
 			if self.bSAS_MAIN_UI_UNITS_WAITING_ON is None:
-				self.bSAS_MAIN_UI_UNITS_WAITING_ON = (gc.getDefineINT("SAS_MAIN_UI_UNITS_WAITING_ON") > 0)
+				self.bSAS_MAIN_UI_UNITS_WAITING_ON = (SASSessionTunables.SAS_MAIN_UI_UNITS_WAITING_ON > 0)
 			if self.bSAS_MAIN_UI_UNITS_WAITING_ON:
 				szBuffer += self._sasUnitsWaitingSuffix()
 			if (len(szBuffer) > 60):
@@ -6542,7 +6544,7 @@ class CvMainInterface:
 	# <!-- custom: As _applyScoreBackgroundStyle below, for the commerce sliders' background. (Claude code Opus 5.5) -->
 	def _applyCommerceBackgroundStyle(self):
 		if self.iCommerceBgStyleLevel is None:
-			self.iCommerceBgStyleLevel = gc.getDefineINT("SAS_COMMERCE_SLIDERS_BG_DEFAULT_STYLE")
+			self.iCommerceBgStyleLevel = SASSessionTunables.SAS_COMMERCE_SLIDERS_BG_DEFAULT_STYLE
 		eStyle = self.aScoreBgStyleLevels[self.iCommerceBgStyleLevel]
 		if eStyle == self._eCommerceBgStyleApplied:
 			return
@@ -6558,7 +6560,7 @@ class CvMainInterface:
 	def _applyScoreBackgroundStyle(self):
 		if self.iScoreBgStyleLevel is None:
 			if self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE is None:
-				self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE = gc.getDefineINT("SAS_SCOREBOARD_BG_DEFAULT_STYLE")
+				self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE = SASSessionTunables.SAS_SCOREBOARD_BG_DEFAULT_STYLE
 			self.iScoreBgStyleLevel = self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE
 		eStyle = self.aScoreBgStyleLevels[self.iScoreBgStyleLevel]
 		if eStyle == self._eScoreBgStyleApplied:
@@ -6596,7 +6598,7 @@ class CvMainInterface:
 	# A method rather than the usual inline lazy read, as _scoreboardFastScrollStep is, since both the scoreboard draw and isScoreboardRedrawNeededForAdvisor read it. See KI#1103.2. (Claude code Opus 5.5) -->
 	def _isScoreboardMapFitOn(self):
 		if self.iSAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON is None:
-			self.iSAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON = gc.getDefineINT("SAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON")
+			self.iSAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON = SASSessionTunables.SAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON
 		return self.iSAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON > 0
 
 	# <!-- custom: How far the scoreboard's right edge sits inside the screen's, a few px. (Claude code Opus 5.5) -->
@@ -6669,7 +6671,7 @@ class CvMainInterface:
 		# <!-- custom: seed the lock-hover default once, close to the first real scoreboard use; handleInput only toggles after this button exists. (ChatGPT-5.5) -->
 		if self.bScoreAlwaysExpand is None:
 			if self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ON is None:
-				self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ON = gc.getDefineINT("SAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ON")
+				self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ON = SASSessionTunables.SAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ON
 			self.bScoreAlwaysExpand = (self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ON > 0)
 		screen.setState("ScoreExpandToggle", self.bScoreAlwaysExpand)
 		# <!-- custom: swap emoji per state. (Claude code Opus 4.7) -->
@@ -6682,7 +6684,7 @@ class CvMainInterface:
 		# The in-game toggle controls runtime behavior afterward; manual scroll buttons turn it off. (ChatGPT-5.5) -->
 		if self.bScoreScrollAutocenterActivePlayer is None:
 			if self.iSAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON is None:
-				self.iSAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON = gc.getDefineINT("SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON")
+				self.iSAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON = SASSessionTunables.SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON
 			self.bScoreScrollAutocenterActivePlayer = (self.iSAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON > 0)
 		screen.setState("ScoreScrollAutocenterActivePlayerToggle", self.bScoreScrollAutocenterActivePlayer)
 		if self.bScoreScrollAutocenterActivePlayer:
@@ -7717,7 +7719,7 @@ class CvMainInterface:
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and (inputClass.getFunctionName().startswith("TwoLineGGBar") or inputClass.getFunctionName().startswith("OneLineGGBar") or inputClass.getFunctionName().startswith("GreatGeneralBarText"))):
 			import CvScreensInterface
 			if self.iSAS_MAIN_UI_GG_BAR_CLICK_TAB is None:
-				self.iSAS_MAIN_UI_GG_BAR_CLICK_TAB = gc.getDefineINT("SAS_MAIN_UI_GG_BAR_CLICK_TAB")
+				self.iSAS_MAIN_UI_GG_BAR_CLICK_TAB = SASSessionTunables.SAS_MAIN_UI_GG_BAR_CLICK_TAB
 			CvScreensInterface.showMilitaryAdvisorTab(self.iSAS_MAIN_UI_GG_BAR_CLICK_TAB)
 			return 1
 

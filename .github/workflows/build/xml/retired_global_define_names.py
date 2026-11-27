@@ -112,7 +112,12 @@ def current_sas_names(repo_root: Path) -> set[str]:
     if not path.is_file():
         return set()
     text = path.read_text(encoding="utf-8", errors="replace")
-    return set(re.findall(r"<DefineName>\s*(SAS_[^<\s]+)\s*</DefineName>", text))
+    names = set(re.findall(r"<DefineName>\s*(SAS_[^<\s]+)\s*</DefineName>", text))
+    # <!-- custom: Tunables only Python reads moved to Assets/Python/SASSessionTunables.py with their define names, so a name bound at its top level is declared too; the move first failed here for the 19 main-interface names the retired-name table maps to. (Claude code Opus 5.5) -->
+    tunables = repo_root / "Assets/Python/SASSessionTunables.py"
+    if tunables.is_file():
+        names.update(re.findall(r"^(SAS_[A-Z0-9_]+)\s*=", tunables.read_text(encoding="utf-8", errors="replace"), re.MULTILINE))
+    return names
 
 
 def check(repo_root: Path) -> tuple[list[str], dict[str, int]]:

@@ -5,6 +5,7 @@
 # Values do not need to be shared to live here; a named home is useful when the number would otherwise be obscure, collision-prone, or likely to drift.
 # Keep this module import-free so maps, advisors, Sevopedia, and utility modules can import it without pulling in CvPythonExtensions, CyGlobalContext, screen helpers, or SASUtils runtime state.
 # Prefix exports with SAS_MAGIC_ to reduce accidental global-name collisions in files that use from-module import-star. (GPT-5.5) -->
+# <!-- custom: ci_pure_module: python_pure_modules.py now checks the import-free rule above, as it does for SASSessionTunables.py. (Claude code Opus 5.5) -->
 
 # <!-- custom: WIDGET_PYTHON data1 routing IDs used by Sevopedia and cross-screen pedia jumps such as Tech Chooser Build links.
 # Keep these unique across pedia handlers; data1 selects the route and data2 carries the actual item/action payload.

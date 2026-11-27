@@ -229,6 +229,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#128.8 - (Fixed inherited Better BTS AI and BUG) Python read a define again at each pass of a loop: ChangePlayer read BARBARIAN_LEADER once per leader, and the Tech Window read its two tech-prerequisite counts once per tech; each is now read once before its loop](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.8)\
 [KI#128.9 - (Improved SAS and inherited, guarded by CI) Python read defines by name with no caching rule, unlike the DLL: a read through gc cost 279 ns, and five ran once per leader or per tech inside a loop; they now go through a cache, SASCurrentDefines' reads went from 167 ns to about 80 ns, while a kept self.x, at 18 ns, stays the faster choice for a hot path, and CI requires a cache or a stated reason for each read, as in C++](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.9)\
 [KI#128.10 - (Improved SAS and inherited, guarded by CI) Python looked the same fixed text up again at each pass of a loop, 93 times in 20 files, such as the Victory screen's "Unknown" team name once per vote source: a fixed-key getText cost about 0.8 microseconds in game against 0.02 for a kept local, and each is now read once before its loop](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.10)\
+[KI#128.11 - (AdvCiv-SAS design, guarded by CI) The 152 SAS settings only Python reads, such as SAS_MAIN_UI_UNITS_WAITING_ON, SAS_SEVO_TECHS_GROUP_BY_ERA or SAS_MAPGEN_STANDARD_MARSH_PCT, moved from GlobalDefines_advciv_sas.xml, whose about 770 defines made a setting slow to find, to one plain Python file, SASSessionTunables.py](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.11)\
 [KI#129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-129)\
 [KI#130 - (Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-130)\
 [KI#131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-131)\
@@ -12739,6 +12740,31 @@ Update (2026-11-27): the other fixed lookups, outside loops, are left as they ar
 - The check stays lexical: following helpers that a loop calls would meet method overrides and aliasing for a sub-microsecond cost, so Codex advised a report-only pass first, should a repeated pattern turn up.
 - The same day, [`python_runtime_placement.py`](/.github/workflows/README.md#buildsourcepython_runtime_placementpy) began failing on game Python outside the folders `lib/runtime_python.py` lists, which would escape every runtime Python check at once.
 
+<a id="ki-128.11"></a>
+
+## KI#128.11 - (AdvCiv-SAS design, guarded by CI) The 152 SAS settings only Python reads, such as SAS_MAIN_UI_UNITS_WAITING_ON, SAS_SEVO_TECHS_GROUP_BY_ERA or SAS_MAPGEN_STANDARD_MARSH_PCT, moved from GlobalDefines_advciv_sas.xml, whose about 770 defines made a setting slow to find, to one plain Python file, SASSessionTunables.py
+
+Screenshots/files for this issue: none, as the move changes nothing on screen.
+
+- Why (2026-11-27): finding a setting in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml), for a player or an agent, meant searching a long file mostly about AI and logging the DLL reads, while a setting Python alone reads gains nothing from the XML; the user wanted one central place for them.
+- How they were found: [`audit_define_timing.py --readers`](/LLM_Helpers/README.md#audit_define_timingpy) listed 163 SAS defines read by Python only ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)).
+- What moved: 152 of them, each with its name, value and comment, into [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py), where a search for a name finds it; their reads now name `SASSessionTunables.X`.
+  - 23 main-interface ones as a pilot, then 115 with [`move_defines_to_tunables.py`](/LLM_Helpers/README.md#move_defines_to_tunablespy), then 14 whose CI checks and tools first had to read the new file too, at the user's question why `SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON`, `SAS_MILIT_UI_BATTLE_XY_ON` and the AI Personality Panel's switches had stayed:
+    - `SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON`, `SAS_MILIT_UI_BATTLE_XY_ON`, `SAS_WORLD_CHANGES_SHOW_INTERMEDIATE_ON`, `SAS_WORLD_CHANGES_SHOW_CANCELLED_ON`;
+    - `SAS_SEVO_LEADER_AI_ON`, `SAS_SEVO_LEADER_AI_CACHE_DUMP_TO_LOG`, `SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED`, `SAS_SEVO_LEADER_AI_EMOJI_ON`, `SAS_SEVO_LEADER_AI_RAW_XML_NAMES_ON`;
+    - `SAS_FAST_SAVE_GAME_START_ON`, `SAS_FAST_SAVE_AUTOPLAY_STOP_ON`, `SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON`, `SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS`, `SAS_SGR_BUG_STRING_VALS_ON`.
+- What stays in the XML, the other 11:
+  - `SAS_UI_FONT_BODY`, `SAS_UI_FONT_TINY` and `SAS_UI_FONT_TITLE`, which [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) changes during play, and `SAS_LIVE_DEFINE_OVERRIDES_ON`, the overrides' own switch, which their bridge reads with the XML;
+  - `SAS_UI_DAWN_OF_MAN_ON`, `SAS_UI_TECH_SPLASH_ON`, `SAS_UI_ERA_MOVIE_ON`, `SAS_UI_WONDER_MOVIE_ON`, `SAS_UI_RELIGION_MOVIE_ON`, `SAS_UI_PROJECT_MOVIE_ON` and `SAS_UI_TOP_CIVS_ON`, which [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) switches in the XML for development; moving them would need the toggle to edit the Python file too.
+- What keeps it so:
+  - [`python_pure_modules.py`](/.github/workflows/README.md#buildsourcepython_pure_modulespy) fails when the file gains an import, a call or a computed value, so any screen or map script can import it at any time;
+  - the shipped-value checks, such as `aip.py`, `advisor_defaults.py` and `hands_free_defaults.py`, read the settings they name from the file and the rest from the XML, through `read_global_define_ints(..., session_names=...)`, which fails on a name found in both files whatever its type, so a Python value cannot stand in for an XML define, as Codex's review (GPT-6.2-Sol) found a first version allowed;
+  - `retired_global_define_names.py` counts its names as declared.
+- Like the XML, an edit takes effect at the next Civ4 start, as the file's first comment says; the name was chosen with Codex (GPT-6.2-Sol), as its header records.
+- Tested in game: a save loaded, the Military, Foreign, Info and Victory advisors and the Sevopedia opened, and new maps generated with Continents, Peirce, Water, Earth2 and Planet Generator, each with an empty `PythonErr.log`.
+
+The user's idea; implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol), whose review found the helper would also rewrite a lookup inside a string or on another object's `gc`.
+
 <a id="ki-129"></a>
 
 ## KI#129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs
@@ -13032,6 +13058,8 @@ Found with [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) (2026
 
 <img src="/_0_Legacy/Images/advisors/0.440_espionage_screen%20(2)_huge_48civs.JPG" alt="0.440_espionage_screen (2)_huge_48civs.JPG" width="250">
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(4)_sas48.JPG" alt="1.513_foreign_advisor (4)_sas48.JPG" width="250">
+
+Update (2026-11-27): `SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH` moved with the other settings only Python reads to [SASSessionTunables.py](/Assets/Python/SASSessionTunables.py), where it is changed now.
 
 <a id="ki-134.6"></a>
 

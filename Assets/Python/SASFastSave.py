@@ -11,6 +11,8 @@ import time
 import BugPath
 import BugUtil
 import CvUtil
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 
@@ -23,7 +25,7 @@ _SAS_FAST_SAVE_AUTOPLAY_STOP_ON = None
 def _isGameStartSaveEnabled():
 	global _SAS_FAST_SAVE_GAME_START_ON
 	if _SAS_FAST_SAVE_GAME_START_ON is None:
-		_SAS_FAST_SAVE_GAME_START_ON = (gc.getDefineINT("SAS_FAST_SAVE_GAME_START_ON") > 0)
+		_SAS_FAST_SAVE_GAME_START_ON = (SASSessionTunables.SAS_FAST_SAVE_GAME_START_ON > 0)
 	return _SAS_FAST_SAVE_GAME_START_ON
 
 def _isGameEndSaveEnabled():
@@ -35,7 +37,7 @@ def _isGameEndSaveEnabled():
 def _isAutoPlayStopSaveEnabled():
 	global _SAS_FAST_SAVE_AUTOPLAY_STOP_ON
 	if _SAS_FAST_SAVE_AUTOPLAY_STOP_ON is None:
-		_SAS_FAST_SAVE_AUTOPLAY_STOP_ON = (gc.getDefineINT("SAS_FAST_SAVE_AUTOPLAY_STOP_ON") > 0)
+		_SAS_FAST_SAVE_AUTOPLAY_STOP_ON = (SASSessionTunables.SAS_FAST_SAVE_AUTOPLAY_STOP_ON > 0)
 	return _SAS_FAST_SAVE_AUTOPLAY_STOP_ON
 
 def _safeToken(szText, szPrefix="", iMaxLen=24):

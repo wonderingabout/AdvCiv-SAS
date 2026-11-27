@@ -140,7 +140,8 @@ def main() -> int:
 	args = parser.parse_args()
 
 	try:
-		defines = read_global_define_ints(args.repo_root)
+		# <!-- custom: The font size stays an XML define, as the overrides change it, while the four billboard percents moved to SASSessionTunables.py, so they are named for the shared reader. (Claude code Opus 5.5) -->
+		defines = read_global_define_ints(args.repo_root, session_names=("SAS_BILLBOARD_SCALE_PCT_FONT_1", "SAS_BILLBOARD_SCALE_PCT_FONT_2", "SAS_BILLBOARD_SCALE_PCT_FONT_3", "SAS_BILLBOARD_SCALE_PCT_FONT_4"))
 		font_body, percent = get_active_billboard_percent(defines)
 		base_keys = read_base_billboard_keys(args.repo_root)
 		expected = expected_keys(base_keys, percent)

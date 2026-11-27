@@ -136,9 +136,11 @@ Then in BUG Menu options i also use this for example hehe but do as you prefer a
 
 ### Tuning the mod's settings
 
-Many of the mod's settings can be tuned in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml), with Civ4 closed.
+Many of the mod's settings can be tuned in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml), and those only Python reads, such as the interface's, in [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py), both with Civ4 closed.
 
 A few, such as the font sizes, can also change while Civ4 runs, without a restart; see [Live define overrides](/README.md#live-define-overrides).
+
+Note: the root README's [Tunability](/README.md#tunability) explains which file holds which setting, and why.
 
 ### Settings if you want to develop/modify the mod or try some autoplay or such (skip this section if only playing without wanting extra details)
 

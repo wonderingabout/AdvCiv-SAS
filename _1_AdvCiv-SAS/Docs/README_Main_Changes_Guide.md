@@ -16,7 +16,7 @@ For technical details, see notably the root [README](/README.md) or other docs u
 
 Exact values and balance numbers are generally given only as examples, so this guide does not drift with every rebalance and stays focused on a broad but exhaustive overview and its rationale; see the Sevopedia or the XML for current values.
 
-Many of these changes are partially or entirely tunable via [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+Many of these changes are partially or entirely tunable via [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml), or, for the settings only Python reads, via [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py).
 
 - **Player-tunable options (SAS defines):**
   - When this guide mentions DLL code locations (for example `CvUnitInfo::getTerrainAttackModifier`), that is just to document where the behavior comes from.
@@ -370,6 +370,17 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 
 ### System - Misc
 
+- (Requires AdvCiv-SAS 6888+) **Tunables only Python reads moved to [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py):** 152 SAS settings the DLL and the EXE never read left [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) for a plain Python file, with the same names, values and comments.
+  - Such as the main interface's `SAS_MAIN_UI_UNITS_WAITING_ON`, the Sevopedia's grouping switches such as `SAS_SEVO_TECHS_GROUP_BY_ERA`, the advisors' such as `SAS_MILIT_UI_DEFAULT_TAB`, the scoreboard's and the commerce sliders' styles, and map generation's terrain and feature shares such as `SAS_MAPGEN_STANDARD_MARSH_PCT`.
+  - Why: the XML holds about 770 SAS defines, so finding a setting there, for a player or an agent, meant searching a long file mostly about AI and logging the DLL reads; settings Python alone reads gain nothing from it.
+  - Its name says how long the values hold, a whole Civ4 session, as [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) is named for changes during play.
+    - Its first comment says what that means: restart Civ4 to apply an edit, as loading another save keeps the current values.
+    - Tunables, as they are plain values edited by hand rather than defines the engine loads, while Settings could suggest BUG's options menu; Restart, the other finalist for Session, is an action rather than a state like live.
+  - Like the XML, a change takes effect at the next Civ4 start; the defines meant to change during play, such as the font sizes, stay in the XML, where [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) reaches them.
+  - The file holds plain values only and imports nothing, which a CI check keeps; a typo in it stops the module loading rather than giving an XML error message.
+  - 11 settings only Python reads stay in the XML. See [KI#128.11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.11) for each one's reason.
+    - The font sizes `SAS_UI_FONT_BODY`, `SAS_UI_FONT_TINY` and `SAS_UI_FONT_TITLE`, which [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) changes during play, and that file's own switch, `SAS_LIVE_DEFINE_OVERRIDES_ON`.
+    - The switches the development toggle sets in the XML: `SAS_UI_DAWN_OF_MAN_ON`, `SAS_UI_TECH_SPLASH_ON`, `SAS_UI_ERA_MOVIE_ON`, `SAS_UI_WONDER_MOVIE_ON`, `SAS_UI_RELIGION_MOVIE_ON`, `SAS_UI_PROJECT_MOVIE_ON` and `SAS_UI_TOP_CIVS_ON`.
 - (Requires AdvCiv-SAS 6869+) **Live define overrides:** change a setting while Civ4 runs, without a restart, through [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt).
   - Why: the XML is read once at startup, so each try of a font size while tuning or auditing the upscaled UI, or each BBAI log category turned on for part of an audit, cost a restart; BBAI's logs are on the heavier side of logging, sometimes several GB, and rarely used, so a category is best on only for the stretch audited. Handy for agents and players alike.
     - It continues our work against restarts, such as the screens that follow a resolution change during play ([KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123)) and the settings read at each redraw ([KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128) family).
@@ -3392,7 +3403,7 @@ Make some of the data-dense advisors use using a **higher contrast background th
     - A waiting group of 10 units, units joined to move together (see "Unit Group" under [Renaming](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming)), adds 10 to the waiting count, not 1, even if one of them is already out of moves, as the game selects the whole group at once.
     - The total, such as `151`, counts every unit you own, cargo, Great People and spies included.
   - Both serve agents playing from screenshots as well as players: one look at the panel tells how much of the turn is left, or which city of the list is open.
-  - `SAS_MAIN_UI_UNITS_WAITING_ON` and `SAS_MAIN_UI_CITY_POSITION_ON` turn each off; both ship as `1`. See [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
+  - `SAS_MAIN_UI_UNITS_WAITING_ON` and `SAS_MAIN_UI_CITY_POSITION_ON` turn each off; both ship as `1`. See [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [SASSessionTunables.py](/Assets/Python/SASSessionTunables.py).
 - (Requires AdvCiv-SAS 6732+) **Main Interface (City Screen) - City health from surroundings is broken down:** the help showed only a rounded total, so a city with one Marsh seemed unaffected, and it named Forest but lumped Jungle and Marsh together as "Features" with no tile counts.
   - It now lists each feature and improvement with its count and value, and the exact total before the city rounds it to whole points; for example `+2 from Features (2.25 before rounding)`, then `Jungle: 4 x 0.50` and `Marsh: 1 x 0.25`. See [KI#1077](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1077).
   - `SAS_MAIN_UI_CITY_HEALTH_HELP_DETAIL` chooses the detail: 0 keeps the base AdvCiv rounded total, 1 adds the exact total, 2 also lists each source.

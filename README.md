@@ -202,6 +202,7 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;[Legacy references (e.g. AdvCiv, K-Mod, BTS, etc.)](/README.md#legacy-references-eg-advciv-k-mod-bts-etc)\
 [Full exhaustive very long and exhaustive changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes)\
 [Main Changes Guide](/README.md#main-changes-guide)\
+[Tunability](/README.md#tunability)\
 [UI (Main Menu)](/README.md#ui-main-menu)\
 &emsp;[Home page](/README.md#home-page)\
 &emsp;[Multiple random Main Menu Musics](/README.md#multiple-random-main-menu-musics)\
@@ -336,9 +337,12 @@ For license, reuse, distribution and possibly other terms, including project-spe
 
 ## How to play?
 
-In-game configuration uses [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml); [`SASDefineGuard.py`](/Assets/Python/SASDefineGuard.py) reports missing or incorrect launch sentinels.
-
 If you are a new player or want to play this mod and would like a few instructions on how to install it and play it, i have provided a few instructions in the [README_Quick_Install_Setup_Guide.md](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md)
+
+Note: settings live in three places, depending on who reads them and whether they may change during play; see [Tunability](/README.md#tunability).
+
+- If you had changed a setting in `GlobalDefines_advciv_sas.xml` that has since moved to `SASSessionTunables.py`, set your value again there.
+- [`SASDefineGuard.py`](/Assets/Python/SASDefineGuard.py) reports missing or incorrect launch sentinels.
 
 ## Artifacts and references (docs, images, examples)
 
@@ -379,6 +383,24 @@ For release-by-release AdvCiv-SAS history, see:
 ## Main Changes Guide
 
 For a more compact and broad overview of the changes from base AdvCiv to AdvCiv-SAS latest, see the main changes guide. I have written it with the help of chatgpt and gemini (check if info is accurate); i sometimes edited it. You can view it here [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md).
+
+## Tunability
+
+A setting lives in one of three places, chosen by who reads it and when it may change, so each file stays short and says what its settings are for.
+
+| File | Holds | Takes effect |
+| --- | --- | --- |
+| [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml), with the inherited define files such as BtS's [`GlobalDefines.xml`](/Assets/XML/GlobalDefines.xml) | what the DLL or the EXE reads, such as the AI's tunables and the logging levels | at the next Civ4 start |
+| [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) | changes to selected XML settings during play, such as the font sizes and BBAI's log categories | within seconds, while Civ4 runs |
+| [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py) | the settings only Python reads, such as `SAS_MAIN_UI_UNITS_WAITING_ON`, `SAS_SEVO_TECHS_GROUP_BY_ERA` or `SAS_MAPGEN_STANDARD_MARSH_PCT` | at the next Civ4 start |
+
+- **The XML** is what the engine loads. SAS's own settings sit in `GlobalDefines_advciv_sas.xml`, apart from the inherited files, which SAS carries so every loaded define can be found in the repository ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)).
+- **The live overrides** exist so that audits and testing need no restart: an agent turns one BBAI log category on for the stretch it studies, or tries font sizes one after another, and players can tune the font the same way; see [Live define overrides](/README.md#live-define-overrides).
+- **The session tunables** are the settings no engine code reads, moved out of the XML ([KI#128.11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.11)).
+  - The XML had grown to about 770 SAS defines, mostly AI and logging, so a player or an agent searching for an interface setting had a long file to go through, and it would only have kept growing.
+  - Like the XML, the file is read once, so an edit needs a restart; a read is also the fastest of the three, about 0.02 microseconds against about 0.28 through the XML's `gc.getDefineINT`.
+  - It holds plain values only, which CI keeps, so any screen or map script can import it.
+- **For a new setting:** the DLL or the EXE reads it, so the XML; Python alone reads it, so `SASSessionTunables.py`; it should change during play, so the XML plus an entry in the overrides' allowed list.
 
 ## UI (Main Menu)
 
@@ -983,7 +1005,7 @@ note 3: if you want to mod and modify the XML Civ4 leader info or shared AI Pers
 
 The refresh workflow runs automatically after pushes to known AIP predump dependency files and can also be started manually from the Actions tab; if the generated predump changes, it opens/updates a bot PR containing only `SevoPediaLeaderCachePredumped.py`.
 
-If needed, you can still refresh locally with `.github/workflows/build/runtime/aip_predump_values.py --write`, or disable the option to use the predumped file (see toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)). The old in-game `PythonDbg.log` dump path remains a manual fallback.
+If needed, you can still refresh locally with `.github/workflows/build/runtime/aip_predump_values.py --write`, or disable the option to use the predumped file, `SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED` in [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py). The old in-game `PythonDbg.log` dump path remains a manual fallback.
 
 This predump file was added for perfance optimization, so players don't always recompute these values that do not change on their end, and rarely so even for modders, and should scale better (if i'm not mistaken) as there are more leaders or xml fields in a mod vs computing them once every time the civ4 game is launched. See: [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md)
 

@@ -30,6 +30,8 @@ import SASTextScale
 # <!-- custom: Font-tag sizing moved from SASFontUtils into SASTextScale; visual resources are kept separately in SASVisualUtils. (ChatGPT-5.6-Sol) -->
 
 from _sevopedia_helpers import *
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -544,7 +546,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, -1, False)
 
 			# Now add red X overlays on top of all buttons (if enabled via SAS define)
-			if SASCurrentDefines.getInt("SAS_SEVO_TECH_SHOW_OBSOLETES_RED_X") > 0:
+			if SASSessionTunables.SAS_SEVO_TECH_SHOW_OBSOLETES_RED_X > 0:
 				# Since attachImageButton positions are managed by the panel, we need to use a different approach
 				# We'll add the overlays as separate DDS graphics at calculated positions
 				# The panel adds a label "  " first, then buttons start after that

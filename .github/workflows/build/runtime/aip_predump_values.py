@@ -225,7 +225,17 @@ def read_global_define_int(repo_root: Path, define_name: str) -> int:
 			if text is None:
 				raise ValueError(f"{path}: {define_name} missing iDefineIntVal")
 			return parse_int(text, path, define_name, "iDefineIntVal")
-	raise ValueError(f"Could not find {define_name} under Assets/XML")
+	# <!-- custom: The panel's settings only Python reads, such as SAS_SEVO_LEADER_AI_EMOJI_ON, moved to Assets/Python/SASSessionTunables.py, a plain-values module read here without importing it. (Claude code Opus 5.5) -->
+	tunables = repo_root / "Assets" / "Python" / "SASSessionTunables.py"
+	if tunables.is_file():
+		for node in ast.parse(tunables.read_text(encoding="utf-8")).body:
+			if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name) and node.targets[0].id == define_name:
+				# <!-- custom: An integer only, as an XML iDefineIntVal is; the first version coerced a string or float with int(), as Codex's review (GPT-6.2-Sol) found. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+				value = ast.literal_eval(node.value)
+				if type(value) is not int:
+					raise ValueError(f"{define_name}: expected an integer in SASSessionTunables.py, found {value!r}")
+				return value
+	raise ValueError(f"Could not find {define_name} under Assets/XML or in Assets/Python/SASSessionTunables.py")
 
 
 def median_fraction(values: List[int]) -> Fraction:

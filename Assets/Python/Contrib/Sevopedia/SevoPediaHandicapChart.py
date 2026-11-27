@@ -15,6 +15,8 @@ import SASVisualUtils as SASVisuals
 import CvUtil
 import re
 from _sevopedia_helpers import *
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -29,8 +31,8 @@ class SevoPediaHandicapChart:
 		self.ROW_H = CHART_TABLE_ROW_H
 		self.W_ICON = CHART_TABLE_W_ICON
 		self.W_FIELD = 380
-		self.IS_SAS_SEVO_HANDICAP_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVO_HANDICAP_CHART_HEADER_ICONS") > 0)
-		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVO_HANDICAP_CHART_FILL_PCT")
+		self.IS_SAS_SEVO_HANDICAP_CHART_HEADER_ICONS = (SASSessionTunables.SAS_SEVO_HANDICAP_CHART_HEADER_ICONS > 0)
+		self.TABLE_FILL_PERCENT = SASSessionTunables.SAS_SEVO_HANDICAP_CHART_FILL_PCT
 		if self.TABLE_FILL_PERCENT <= 0:
 			raise ValueError("[FATAL] SAS_SEVO_HANDICAP_CHART_FILL_PCT must be >= 1.")
 
@@ -262,9 +264,9 @@ class SevoPediaHandicapChart:
 					goody_types.append(gt)
 		goody_groups = tuple(goody_groups_list)
 
-		anchor_field = SASCurrentDefines.getString("SAS_SEVO_HANDICAP_CHART_ANCHOR_FIELD")  # <!-- custom: through SASCurrentDefines; the table itself is cached via _cachedTable. See KI#128.9. (Claude code Sonnet 4.6 + Claude code Opus 5.5) -->
+		anchor_field = SASSessionTunables.SAS_SEVO_HANDICAP_CHART_ANCHOR_FIELD  # <!-- custom: from SASSessionTunables.py, before that through SASCurrentDefines; the table itself is cached via _cachedTable. See KI#128.9. (Claude code Sonnet 4.6 + Claude code Opus 5.5) -->
 		if not anchor_field:
-			raise ValueError("[FATAL] Missing SAS_SEVO_HANDICAP_CHART_ANCHOR_FIELD define.")
+			raise ValueError("[FATAL] Missing SAS_SEVO_HANDICAP_CHART_ANCHOR_FIELD setting in SASSessionTunables.py.")
 
 		abbrev_tech_names = {
 			"Animal Husbandry": "Animal H.",

@@ -9,6 +9,8 @@ on:
       - 'Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml'
       - 'Assets/XML/AI_Variables_GlobalDefines.xml'
       - 'Assets/XML/GlobalDefines_advciv_sas.xml'
+      # <!-- custom: SAS_SEVO_LEADER_AI_EMOJI_ON and SAS_SEVO_LEADER_AI_RAW_XML_NAMES_ON, which the predump reflects, moved to SASSessionTunables.py. (Claude code Opus 5.5) -->
+      - 'Assets/Python/SASSessionTunables.py'
       - 'Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py'
       - 'Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py'
       - '.github/workflows/build/runtime/aip_predump_values.py'

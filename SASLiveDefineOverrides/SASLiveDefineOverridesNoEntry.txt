@@ -81,20 +81,6 @@ SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_WIDTH_ADD: same reason as SAS_EXE_P_DYNAM_MAIN_M
 SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_HEIGHT_PCT: same reason as SAS_EXE_P_DYNAM_MAIN_MENU_WIDTH_PCT
 SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_HEIGHT_ADD: same reason as SAS_EXE_P_DYNAM_MAIN_MENU_WIDTH_PCT
 
-SAS_BILLBOARD_SCALE_PCT_FONT_1: a per-font layout tuning, settled once and rarely changed, so a user who wants another restarts, as the user decided on 2026-11-26; it is also written into CIV4DetailManager.xml once at load by SASBillboardScale.py, which an override does not rerun
-SAS_BILLBOARD_SCALE_PCT_FONT_2: same reason as SAS_BILLBOARD_SCALE_PCT_FONT_1
-SAS_BILLBOARD_SCALE_PCT_FONT_3: same reason as SAS_BILLBOARD_SCALE_PCT_FONT_1
-SAS_BILLBOARD_SCALE_PCT_FONT_4: same reason as SAS_BILLBOARD_SCALE_PCT_FONT_1
-
-SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1: a per-font Sevopedia layout tuning, settled once and rarely changed, so a user who wants another restarts, as the user decided on 2026-11-26, although the Sevopedia rebuilds its layout when an override changes
-SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2: same reason as SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
-SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3: same reason as SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
-SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4: same reason as SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
-SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_1: same reason as SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
-SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_2: same reason as SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
-SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_3: same reason as SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
-SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_4: same reason as SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
-
 SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS: SASGameRecord's map text palette, built on first use and kept for the process, so the first map output and every later snapshot share it; a live palette would need validating and recording when the legend changed
 SAS_SGR_MAP_ASCII_TERRAIN_SYMBOLS: same reason as SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS
 SAS_SGR_MAP_ASCII_RIVER_SYMBOLS: same reason as SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS
@@ -111,7 +97,6 @@ SAS_SGR_CHAT_ALL_TEXT_ON: same reason as SAS_SGR_HARDWARE_IDENTITY_ON
 SAS_SGR_CHAT_TEAM_TEXT_ON: same reason as SAS_SGR_HARDWARE_IDENTITY_ON
 SAS_SGR_CHAT_DIRECT_TEXT_ON: same reason as SAS_SGR_HARDWARE_IDENTITY_ON
 SAS_SGR_MAP_ANNOTATION_TEXT_ON: same reason as SAS_SGR_HARDWARE_IDENTITY_ON
-SAS_SGR_BUG_STRING_VALS_ON: same reason as SAS_SGR_HARDWARE_IDENTITY_ON
 SAS_SGR_INI_PRIVATE_VALS_ON: same reason as SAS_SGR_HARDWARE_IDENTITY_ON
 SAS_SGR_INI_NETWORK_VALS_ON: same reason as SAS_SGR_HARDWARE_IDENTITY_ON
 

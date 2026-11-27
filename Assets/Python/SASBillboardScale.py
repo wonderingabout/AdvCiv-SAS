@@ -14,6 +14,8 @@ import BugPath
 import BugUtil
 # <!-- custom: Consume the surviving shared helper directly after retiring the overlapping SASUIResources dependency; avoid keeping a redundant visual-resource facade. (ChatGPT-5.6-Sol) -->
 import SASTextScale
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml, such as the billboard percents below. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 
@@ -28,7 +30,8 @@ def _getMultiplierPercent(iFontBody):
 	if iFontBody < 1 or iFontBody > 4:
 		return 100
 	szDefine = "SAS_BILLBOARD_SCALE_PCT_FONT_%d" % iFontBody
-	iPercent = gc.getDefineINT(szDefine)
+	# <!-- custom: The four percents moved from GlobalDefines_advciv_sas.xml to SASSessionTunables.py, so the name built above is looked up there. (Claude code Opus 5.5) -->
+	iPercent = getattr(SASSessionTunables, szDefine)
 	if iPercent < 10 or iPercent > 500:
 		BugUtil.warn("SASBillboardScale: %s=%d out of range [10..500], using 100", szDefine, iPercent)
 		return 100

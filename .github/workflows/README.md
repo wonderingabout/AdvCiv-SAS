@@ -133,6 +133,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/python_engine_callbacks.py`](#buildsourcepython_engine_callbackspy)
     - [`build/source/python_message_font.py`](#buildsourcepython_message_fontpy)
     - [`build/source/python_multiline_calls.py`](#buildsourcepython_multiline_callspy)
+    - [`build/source/python_pure_modules.py`](#buildsourcepython_pure_modulespy)
     - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`build/source/python_runtime_placement.py`](#buildsourcepython_runtime_placementpy)
@@ -344,7 +345,7 @@ The `-t` argument keeps test package names distinct from standard-library module
 
 #### `build/assets/advisor_defaults.py`
 
-Keeps `SAS_MILIT_UI_BATTLE_XY_ON=1` in shipped XML so Battles coordinates are sortable by default; setting it to 0 remains a local option when screen width is scarce.
+Keeps `SAS_MILIT_UI_BATTLE_XY_ON=1` shipped, in [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py) since it moved from the XML, so Battles coordinates are sortable by default; setting it to 0 remains a local option when screen width is scarce.
 
 `SAS_WORLD_CHANGES_SHOW_INTERMEDIATE_ON=0` keeps the Changes view compact by default; setting it to 1 displays each permitted raw event separately. `SAS_WORLD_CHANGES_SHOW_CANCELLED_ON=0` also omits eligible cancelled rows from the summary; setting it to 1 restores those rows. Both SHOW toggles therefore default to 0.
 
@@ -1346,6 +1347,7 @@ Requires the shipped values of the hands-free switches, which spare players clic
   - And since 2026-11-27 for the tech splash and the era, wonder, religion and project movies (`SAS_UI_TECH_SPLASH_ON`, `SAS_UI_ERA_MOVIE_ON`, `SAS_UI_WONDER_MOVIE_ON`, `SAS_UI_RELIGION_MOVIE_ON`, `SAS_UI_PROJECT_MOVIE_ON`), first added on the SASPilot branch on 2026-11-13.
 - The others are not changed locally, but one switched off by mistake would bring back what it removes: AI Auto Play's no-decision popups and its speed-scaled default turns, SASFastSave's start, end and autoplay-stop saves, scoreboard autocenter, and silent assertion handling (`SAS_ASSERT_SILENT_ACTION=1`).
 - Like the diagnostic-default checks it accepts `--staged`, which the local CI runner uses.
+- It reads [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py) as well as the XML, where `SAS_FAST_SAVE_GAME_START_ON`, `SAS_FAST_SAVE_AUTOPLAY_STOP_ON`, `SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON` and `SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON` moved, as `SESSION_TUNABLE_NAMES` in [`define_values.py`](/LLM_Helpers/README.md#define_valuespy) lists; `read_global_define_ints(..., session_names=...)` reads only the names a check lists from there, and fails on a name found in both files whatever its type ([KI#128.11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.11)).
 
 #### `build/runtime/mapscripts.py`
 
@@ -1656,6 +1658,18 @@ Fails when a call in `Assets/Python` or `PrivateMaps` spans several lines, comme
 - A comment inside moves, unchanged, onto its own line above the collapsed one, as the movie screens' `#self.EXIT_TEXT,` did; only provenance markers keep a call multi-line, such as AdvCiv's `# <advc.092>` around the arguments it changed, or a SAS `custom:` note, and line-scoped directives such as `# noqa`, which only work on their own line; a comment after the closing bracket stays at the end of the collapsed line.
   - Above moved comments, `--fix` writes a custom note saying where they came from, credited with `--credit "<model>"`, which it then requires: alone, the movie screens' `#self.EXIT_TEXT,` read like a stray line.
 - Tables, conditions and multi-line strings stay multi-line, as do quotes inside a multi-line `custom:` note, such as `SevoPediaReligion.py`'s copy of a base AdvCiv call; tooling Python under `.github`, `LLM_Helpers` and `tests` is not checked.
+
+#### `build/source/python_pure_modules.py`
+
+Fails when a runtime Python module whose comment carries `ci_pure_module:` holds anything at top level but comments and names bound to plain values, numbers, strings, booleans, `None` or tuples, lists and dicts of them: no import, call, `def`, `class` or computed value.
+
+- So any module can import it at any time, early in startup, from a map script or another leaf module, with no load-order or circular-import risk.
+- `SASMagicNumbers.py`'s header had asked to stay import-free since 2026-06 with nothing to hold it; it and `SASSessionTunables.py`, the home of the settings only Python reads since 2026-11-27, carry the marker, and the user wanted a check so that purity is not left to memory.
+- The marker is read from comments only, so a string holding it marks nothing.
+
+```bash
+python .github/workflows/build/source/python_pure_modules.py
+```
 
 #### `build/source/python_resource_api.py`
 
@@ -2350,6 +2364,7 @@ A source marker is a token in a comment that tells one check why the line or fun
 | --- | --- | --- |
 | `ci_define_uncached:` | a define read by name outside a static runs once or rarely, so it needs no cache; in Python, a define other code sets during play, so `SASCurrentDefines` would miss the change | every other read in the DLL and in runtime Python, and a read inside a loop unless the marker sits in that loop. See [`build/source/cpp_define_reads_cached.py`](#buildsourcecpp_define_reads_cachedpy) and [`build/source/python_define_reads_cached.py`](#buildsourcepython_define_reads_cachedpy). |
 | `ci_import_call:` | a module-level call whose define reads cannot run at import, for the reason given, such as `CvEventInterface.py`'s `initAfterReload()`, whose reads run only once `BugInit.init()` succeeds, not while the game is still initializing | every other module-level call, and reads made at module level or in a class body. See [`build/source/python_define_reads_import.py`](#buildsourcepython_define_reads_importpy). |
+| `ci_pure_module:` | the module holds plain values only and imports nothing, such as `SASMagicNumbers.py` and `SASSessionTunables.py`, so any module can import it at any time | that its top level holds nothing but comments and names bound to plain values. See [`build/source/python_pure_modules.py`](#buildsourcepython_pure_modulespy). |
 | `resource-cache-direct:` | a runtime Python lookup reads a resource directly instead of through its shared cache, for the concrete reason given | that a reason follows the token, and every other lookup. See [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy). |
 | `sas-ci-string-compare-exemption:` | a runtime Python comparison with a short string literal is right as it is, such as a BUG option type | every other such comparison. See [`build/source/string_label_compares.py`](#buildsourcestring_label_comparespy). |
 

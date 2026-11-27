@@ -176,6 +176,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
     - [`heredoc_safe_replace.py`](#heredoc_safe_replacepy)
     - [`hoist_loop_text_lookups.py`](#hoist_loop_text_lookupspy)
+    - [`move_defines_to_tunables.py`](#move_defines_to_tunablespy)
     - [`fix_line_endings.py`](#fix_line_endingspy)
     - [`rename_identifiers.py`](#rename_identifierspy)
   - [C++ source cleanup helpers](#c-source-cleanup-helpers)
@@ -1815,6 +1816,21 @@ Reads each fixed-key text lookup that [`python_text_lookups_cached.py`](/.github
 
 ```bash
 python ./LLM_Helpers/formatting/hoist_loop_text_lookups.py --dry-run
+```
+
+#### `move_defines_to_tunables.py`
+
+Moves SAS defines that only Python reads from [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) into [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py), each with its comment, in XML order, and switches their Python reads, such as `gc.getDefineINT("SAS_X")`, to `SASSessionTunables.SAS_X`, adding a commented import where a file needs one.
+
+- Written for the move of 2026-11-27, which grew from a 23-define pilot run by two scratch scripts to 138 settings.
+- It does not choose the names: take those [`audit_define_timing.py --readers`](#audit_define_timingpy) lists as read by Python only, minus those [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) may change and those our tooling or CI reads from the XML, such as [`define_values.py`](#define_valuespy)'s.
+- Dry run by default. It lists every mention it cannot switch, such as a name built at runtime (`"SAS_X_%d" % i`), for a hand fix.
+- It rewrites only real calls: a match on another object's `gc`, or inside a string or comment as Python's tokenizer finds them, multiline strings included, is reported instead; text values are decoded from XML; and it writes nothing until the whole run is computed and checked, `SASSessionTunables.py` existing included.
+  - Codex's reviews (GPT-6.2-Sol) found the earlier versions rewrote such text, copied `&amp;` as is, and wrote files before a later step failed.
+  - It moves only the comment directly above a define, so a second comment stacked above that one stays in the XML; the first run left two such comments, the terrain inputs' heading and the Marsh share's note, which were moved by hand.
+
+```bash
+python ./LLM_Helpers/formatting/move_defines_to_tunables.py names.txt --heading "# <!-- custom: ... -->" --import-comment "# <!-- custom: ... -->"
 ```
 
 #### `fix_line_endings.py`

@@ -22,6 +22,8 @@ import SASAutoplayRequest # <!-- custom: Starts autoplay requested by an [SASAut
 
 import ChangePlayer
 import time # Erik (BM1)
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 # globals
 gc = CyGlobalContext()
@@ -37,13 +39,13 @@ _SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS = None
 def _isDefaultTurnsScaledByGameSpeed():
 	global _SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON
 	if _SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON is None:
-		_SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON = (gc.getDefineINT("SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON") > 0)
+		_SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON = (SASSessionTunables.SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON > 0)
 	return _SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON
 
 def _getDefaultTurnsUnscaled():
 	global _SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS
 	if _SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS is None:
-		_SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS = max(1, gc.getDefineINT("SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS"))
+		_SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS = max(1, SASSessionTunables.SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS)
 	return _SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS
 
 class AIAutoPlay :

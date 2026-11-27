@@ -7,6 +7,8 @@
 # Restart/reload the mod after XML edits. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 # <!-- custom: CyGame gives the recorder's effective level from the DLL. (Claude code Opus 5.5) -->
 from CvPythonExtensions import CyGlobalContext, CyGame
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 _g_logLevel = None
 _g_systemContextLevel = None
@@ -51,5 +53,5 @@ def getMapAnnotationTextEnabled():
 def getBugStringValuesEnabled():
 	global _g_bugStringValuesEnabled
 	if _g_bugStringValuesEnabled is None:
-		_g_bugStringValuesEnabled = (CyGlobalContext().getDefineINT("SAS_SGR_BUG_STRING_VALS_ON") > 0)
+		_g_bugStringValuesEnabled = (SASSessionTunables.SAS_SGR_BUG_STRING_VALS_ON > 0)
 	return _g_bugStringValuesEnabled

@@ -19,6 +19,8 @@ import SASCurrentDefines
 
 import re
 from _sevopedia_helpers import *
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -88,7 +90,7 @@ def precomputeTraitStatisticsCache():
 		if sort2 < sort1:
 			return t2, t1
 		return t1, t2
-	if SASCurrentDefines.getInt("SAS_SEVO_TRAIT_SHOW_ZERO_PAIRS") > 0:
+	if SASSessionTunables.SAS_SEVO_TRAIT_SHOW_ZERO_PAIRS > 0:
 		for t1 in range(numTraits):
 			for t2 in range(t1 + 1, numTraits):
 				ids = pairCounts.get((t1, t2), [])
@@ -352,7 +354,7 @@ class SevoPediaTrait:
 			return []
 
 		pairingData = []
-		if SASCurrentDefines.getInt("SAS_SEVO_TRAIT_SHOW_ZERO_PAIRS_LEFT") > 0:
+		if SASSessionTunables.SAS_SEVO_TRAIT_SHOW_ZERO_PAIRS_LEFT > 0:
 			for otherTrait, leadersWithOther in traitLeaders.items():
 				if otherTrait == self.iTrait:
 					continue

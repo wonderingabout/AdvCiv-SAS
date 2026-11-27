@@ -24,6 +24,8 @@ import TechUtil
 import SASVisualUtils as SASVisuals
 import SASTextScale
 from SASUtils import *
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 # <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base victory-screen text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
 # <!-- custom: add trait icons in the Settings tab (claude opus 4.5). -->
 
@@ -939,7 +941,7 @@ class CvVictoryScreen:
 	# <!-- custom: The vote sources the Resolutions and Members tabs show: those voting now, and with SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES also those whose building stands but no longer vote, such as an Apostolic Palace late in a game. (Claude code Opus 5.5) -->
 	def getShownVoteSources(self):
 		if self.SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES is None:
-			self.SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES = (gc.getDefineINT("SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES") > 0)
+			self.SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES = (SASSessionTunables.SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES > 0)
 		aiSources = []
 		for iSource in range(gc.getNumVoteSourceInfos()):
 			if gc.getGame().isDiploVote(iSource):
@@ -1442,7 +1444,7 @@ class CvVictoryScreen:
 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_SEA_LEVEL", (gc.getSeaLevelInfo(m.getSeaLevel()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		# <!-- custom: Show the same cached landHeavy/navalHeavy AI map-heaviness flags used by DLL behavior and BBAI_GAME_SETTINGS, so they can be checked in-game without enabling logs. (GPT-5.5) -->
 		if self.SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS is None:
-			self.SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS = (gc.getDefineINT("SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS") > 0)
+			self.SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS = (SASSessionTunables.SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS > 0)
 		if self.SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS:
 			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SAS_VICTORY_SETTINGS_AI_MAP_HEAVINESS", (int(g.isLandHeavyMapnameCached()), int(g.isNavalHeavyMapnameCached()))), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# <advc.190b>

@@ -12,6 +12,8 @@ import SASVisualUtils as SASVisuals
 import SASTextScale
 # <!-- custom: Reuse BUG's named widget/hover registration for read-only Changes action help and targets without a native encyclopedia widget. (GPT-6.1-Sol) -->
 import WidgetUtil
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -959,7 +961,7 @@ class CvWorldAdvisorScreen:
 	def getChangesHistoryDisplayGroups(self):
 		# <!-- custom: Raw display is an opt-in alternative to compact spinner runs; cache the UI-only setting on first use, with no change to saved events, SGR or LOG output. (GPT-6.1-Sol) -->
 		if self.bChangesShowIntermediate is None:
-			self.bChangesShowIntermediate = (gc.getDefineINT("SAS_WORLD_CHANGES_SHOW_INTERMEDIATE_ON") > 0)
+			self.bChangesShowIntermediate = (SASSessionTunables.SAS_WORLD_CHANGES_SHOW_INTERMEDIATE_ON > 0)
 		game = CyGame()
 		aGroups = []
 		iOpenGroup = -1
@@ -986,7 +988,7 @@ class CvWorldAdvisorScreen:
 		# <!-- custom: Showing intermediate steps is the inspection override: it skips cancellation filtering too, so every permitted event remains visible. (GPT-6.1-Sol) -->
 		if not self.bChangesShowIntermediate:
 			if self.bChangesShowCancelled is None:
-				self.bChangesShowCancelled = (gc.getDefineINT("SAS_WORLD_CHANGES_SHOW_CANCELLED_ON") > 0)
+				self.bChangesShowCancelled = (SASSessionTunables.SAS_WORLD_CHANGES_SHOW_CANCELLED_ON > 0)
 			if not self.bChangesShowCancelled:
 				return self.filterChangesHistoryCancellations(aGroups)
 		return aGroups

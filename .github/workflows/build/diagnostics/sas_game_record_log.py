@@ -19,7 +19,8 @@ from xml_defines import add_staged_argument, get_default_repo_root, read_global_
 from revision_history import change_errors
 # <!-- custom: The shipped recorder values moved to LLM_Helpers/diagnostics/define_values.py so toggle_dev_diagnostics.py reads the same list. (Claude code Opus 5.5) -->
 sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "LLM_Helpers" / "diagnostics"))
-from define_values import EXPECTED_GAME_RECORD_DEFAULTS
+# <!-- custom: SESSION_TUNABLE_NAMES too, the shipped values now read from SASSessionTunables.py (KI#128.11). (Claude code Opus 5.5) -->
+from define_values import EXPECTED_GAME_RECORD_DEFAULTS, SESSION_TUNABLE_NAMES
 
 
 REVISION_DEFINES = Path("Assets/XML/GlobalDefines_advciv_sas.xml")
@@ -50,7 +51,8 @@ def check_revision(repo_root: Path, defines: dict[str, int] | None = None, stage
         return failures
 
     if defines is None:
-        defines = read_global_define_ints(repo_root, staged)
+        # <!-- custom: session_names, the shipped values that moved to SASSessionTunables.py, listed in define_values.py with the values themselves. (Claude code Opus 5.5) -->
+        defines = read_global_define_ints(repo_root, staged, session_names=SESSION_TUNABLE_NAMES)
     if staged:
         history = read_staged_bytes(repo_root, REVISION_HISTORY.as_posix()).decode("utf-8", "replace")
         source = read_staged_bytes(repo_root, REVISION_SOURCE.as_posix()).decode("utf-8", "replace")
@@ -82,7 +84,8 @@ def main() -> int:
     add_staged_argument(parser)
     args = parser.parse_args()
 
-    defines = read_global_define_ints(args.repo_root, args.staged)
+    # <!-- custom: session_names, the shipped values that moved to SASSessionTunables.py, listed in define_values.py with the values themselves. (Claude code Opus 5.5) -->
+    defines = read_global_define_ints(args.repo_root, args.staged, session_names=SESSION_TUNABLE_NAMES)
     failures = require_int_values(defines, EXPECTED_GAME_RECORD_DEFAULTS)
     failures.extend(check_revision(args.repo_root, defines, args.staged))
     if failures:

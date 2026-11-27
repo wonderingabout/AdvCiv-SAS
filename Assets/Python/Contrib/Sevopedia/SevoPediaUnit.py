@@ -27,6 +27,8 @@ import SASTextScale
 from SASUtils import getInfoTypeOrFail
 
 from _sevopedia_helpers import *
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -744,7 +746,7 @@ class SevoPediaUnit:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
-		if SASCurrentDefines.getInt("SAS_SEVO_UNIT_SHOW_AI_INFORMATION") > 0:
+		if SASSessionTunables.SAS_SEVO_UNIT_SHOW_AI_INFORMATION > 0:
 			txtKeyPanel = "TXT_KEY_PEDIA_SPECIAL_ABILITIES_WITH_SOME_AI_INFORMATION"
 		else:
 			txtKeyPanel = "TXT_KEY_PEDIA_SPECIAL_ABILITIES"
@@ -774,7 +776,7 @@ class SevoPediaUnit:
 
 		# <!-- custom: add ai info for players and me too hehe: should be valuable for info or balancing, added with the help of claude ai and my prompts and adjustments and inspect such...
 		# if players want to see it xd, as for me yes i want! -->
-		if SASCurrentDefines.getInt("SAS_SEVO_UNIT_SHOW_AI_INFORMATION") > 0:
+		if SASSessionTunables.SAS_SEVO_UNIT_SHOW_AI_INFORMATION > 0:
 			# Add Default UnitAI
 			defaultUnitAI = unitInfo.getDefaultUnitAIType()
 			if defaultUnitAI != -1:
