@@ -126,7 +126,9 @@ def findings(path, old, new, edited_lines=None):
                   if needs_split(body)]
     # <!-- custom: The full-document cleanup exposed expensive repeated-line matching in large issue histories; avoid Git-line matching when there is no reportable block. (GPT-6.1-Sol) -->
     continuations = list(unmarked_child_lines(new))
-    if not candidates and not continuations:
+    # <!-- custom: Long table rows count too, or this early return skipped them: the first version of the table rule passed every row, which its test caught. (Claude code Opus 5.5) -->
+    tables = list(long_table_rows(new))
+    if not candidates and not continuations and not tables:
         return []
     edited = edited_lines
     if edited is None:
@@ -140,7 +142,26 @@ def findings(path, old, new, edited_lines=None):
         affected = edited.intersection(lines)
         if affected:
             errors.append(f"{path}:{min(affected) + 1}: edited prose block reaches {prose.DEFAULT_MIN_LINE_LEN} characters and has separate sentences; group distinct thoughts into blank-line paragraphs or child bullets (soft newlines do not split a rendered paragraph)")
+    for line in tables:
+        if line in edited:
+            errors.append(f"{path}:{line + 1}: edited table row reaches {TABLE_ROW_MAX} characters; keep the row a short summary and move its details into a table of its own, one row per field or check, linked from the cell")
     return errors
+
+
+# <!-- custom: Tables were outside the prose check, so the SASPilot guide's `reminders` row grew to 5710 characters, one check appended after another, until the user found it on 2026-11-19; it became a table of its own, one row per check.
+# An added or edited row over TABLE_ROW_MAX fails, while untouched long rows wait for their next edit. (Claude code Opus 5.5) -->
+TABLE_ROW_MAX = 1000
+
+
+def long_table_rows(text):
+    in_fence = False
+    for index, line in enumerate(text.splitlines()):
+        stripped = line.lstrip()
+        if stripped.startswith(("```", "~~~")):
+            in_fence = not in_fence
+            continue
+        if not in_fence and stripped.startswith("|") and len(line) >= TABLE_ROW_MAX:
+            yield index
 
 
 # <!-- custom: Always scan tracked Markdown for the concrete list-rendering defect; the earlier changed-files-only scope missed four older instances.

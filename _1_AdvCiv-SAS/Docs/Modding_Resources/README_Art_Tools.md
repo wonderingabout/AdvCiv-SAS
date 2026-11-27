@@ -765,7 +765,17 @@ Religions and corporations are different: the DLL gives them their icons in XML 
 
 The user edits the fonts with [Game Font Editor (v0.6) for Civ4](https://forums.civfanatics.com/resources/game-font-editor-v0-6-for-civ-4.17276/) by Asaf, listed in [README_References.md](/_1_AdvCiv-SAS/Docs/README_References.md). It shows the glyph grid, imports and exports single glyphs as images, and computes their alpha.
 
-Its screenshots of both fonts are kept beside them, as `advciv-sas_gamefont_tga.PNG` and `advciv-sas_gamefont_75_tga.PNG`, with other mods' fonts as PNG previews in `Assets/Res/Fonts/other_mods/`.
+Its screenshots of both fonts are kept beside them, as `advciv-sas_gamefont_tga.PNG` and `advciv-sas_gamefont_75_tga.PNG`, with other mods' fonts as PNG previews in `Assets/Res/Fonts/other_mods/`:
+
+| Mod | Previews |
+| --- | --- |
+| Base AdvCiv | `base_advciv_gamefont_tga.PNG`, `base_advciv_gamefont_75_tga.PNG` |
+| Caveman2Cosmos | `c2c_gamefont_tga.PNG`, `c2c_gamefont_75_tga.PNG`, and `c2c_gamefont_120_unused_poc_tga.PNG`, an unused proof-of-concept font |
+| HR | `hr_gamefont_tga.PNG`, `hr_gamefont_75_tga.PNG` |
+| Middle-earth | `m-e_gamefont_tga.PNG`, `m-e_gamefont_75_tga.PNG` |
+| Neoteric World | `nw_gamefont_tga.PNG`, `nw_gamefont_75_tga.PNG` |
+| PAE | `pae_gamefont_tga.PNG`, `pae_gamefont_75_tga.PNG` |
+| Realism Invictus | `ri_gamefont_tga.PNG`, `ri_gamefont_75_tga.PNG` |
 
 ### Editing as an agent
 

@@ -5,6 +5,8 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvUtil
 import ScreenInput
 import CvScreenEnums
@@ -198,7 +200,7 @@ class CvTechChooser:
 
 		# Hide the screen
 		screen.hideScreen()
-		# <!-- custom: force scoreboard redraw when closing Tech Chooser so any Tech-Chooser-specific alignment/layout rules revert immediately. (GPT-5.3-Codex) -->
+		# <!-- custom: force scoreboard redraw when closing Tech Chooser so any Tech-Chooser-specific layout rules revert immediately; these were right-aligned names, now names fitted to the strip it leaves (CvScreensInterface.getOpenAdvisorScoreboardSpace). (GPT-5.3-Codex + Claude code Opus 5.5) -->
 		CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, True)
 
 	def updateRuntimeLayout(self, screen):
@@ -209,18 +211,25 @@ class CvTechChooser:
 			self.iSAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE = gc.getDefineINT("SAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE")
 		if self.iSAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE is None:
 			self.iSAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE = gc.getDefineINT("SAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE")
-		iRightSpaceForScoreboard = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
+		iRightSpaceForScoreboard = getAdvisorScoreboardSpace(screen.getXResolution(), SASTextScale.getSASUIFontLabel())
 		iTopSpaceForTechBar = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
 		# <!-- custom: optional right-space replacement for scoreboard; on lower resolutions this lets users render a larger advisor so one more tech-tree column can be visible. (GPT-5.3-Codex) -->
 		if self.iSAS_TECH_UI_SCOREBOARD_SWAP_MAX_WIDTH > 0 and screen.getXResolution() < self.iSAS_TECH_UI_SCOREBOARD_SWAP_MAX_WIDTH:
 			iRightSpaceForScoreboard = self.iSAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE
 			# <!-- custom: optional low-res top-space replacement paired with the low-res width swap; useful to keep map-view advisor buttons accessible when Tech Chooser is widened. (GPT-5.3-Codex) -->
 			iTopSpaceForTechBar = self.iSAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE
-		if iRightSpaceForScoreboard < 0:
-			iRightSpaceForScoreboard = 0
+		# <!-- custom: Preserve room for the percentage and the ordinary +/- buttons when the map sliders use the right strip.
+		# The HUD handles optional buttons and rates separately. (GPT-6.2-Sol) -->
+		if SASCurrentDefines.getInt("SAS_MAIN_UI_MAP_COMMERCE_ANCHOR_RIGHT") > 0:
+			import CvScreensInterface
+			iRightSpaceForScoreboard = max(iRightSpaceForScoreboard, CvScreensInterface.mainInterface.getMinimumMapCommerceRightSpace())
+		else:
+			iRightSpaceForScoreboard = max(0, iRightSpaceForScoreboard)
 		if iTopSpaceForTechBar < 0:
 			iTopSpaceForTechBar = 0
 		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS, iRightSpaceForScoreboard, iTopSpaceForTechBar, SAS_ADVISOR_BOTTOM_SPACE)
+		# <!-- custom: Kept for the scoreboard, which fits leader names into this space while the Tech Advisor is open. (Claude code Opus 5.5) -->
+		self.iRightSpaceForScoreboard = iRightSpaceForScoreboard
 		self.iX_LEFT_START = self.iSAS_TECH_GRID_LEFT_START
 		self.iX_LEFT_START_OR_PREREQS = self.iX_LEFT_START - 6
 		# <!-- custom: keep GP prefs aligned with the tech grid and Exit/footer anchors at any resolution. (GPT-5.3-Codex) -->
@@ -240,7 +249,7 @@ class CvTechChooser:
 
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
-		# <!-- custom: force scoreboard redraw when opening Tech Chooser so Tech-Chooser-specific scoreboard alignment applies immediately (not only after hover-triggered redraw). (GPT-5.3-Codex) -->
+		# <!-- custom: force scoreboard redraw when opening Tech Chooser so its Tech-Chooser-specific scoreboard layout, once right-aligned names and now names fitted to the strip it leaves, applies immediately (not only after hover-triggered redraw). (GPT-5.3-Codex + Claude code Opus 5.5) -->
 		CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, True)
 
 		screen.hide("AddTechButton")
@@ -412,7 +421,7 @@ class CvTechChooser:
 		# <!-- custom: tried removing the turn > 0 guard to show indicators at turn 0, but it does error.
 		# The base AdvCiv comment seems slightly mistaken: I reproduced the issue on a new game (Noble, Pangaea, Normal, Standard).
 		# Gemini 3 Pro confirmed the cause, so we keep base AdvCiv behavior.
-		# I wanted the BUG bulbing indicators noted for players; see known issue 85. (GPT-5.2-Codex (summarized)) -->
+		# I wanted the BUG bulbing indicators noted for players; see KI#85. (GPT-5.2-Codex (summarized)) -->
 		# <!-- custom: keeping this feature disabled is safer; turn 0 bulbing indicators are not critical, so revert to base AdvCiv behavior. (GPT-5.2-Codex (summarized)) -->
 		if CyGame().getElapsedGameTurns() > 0:
 			self.updateTechPrefs()
@@ -1505,7 +1514,7 @@ class CvTechChooser:
 			screen.hide("AddTechButton")
 
 	def onClose(self):
-		# <!-- custom: ensure scoreboard alignment state resets even when Tech Chooser closes through onClose (not hideScreen). (GPT-5.3-Codex) -->
+		# <!-- custom: ensure the scoreboard's Tech-Chooser-specific layout, now its fitted names, resets even when Tech Chooser closes through onClose (not hideScreen). (GPT-5.3-Codex + Claude code Opus 5.5) -->
 		CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, True)
 		pPlayer = gc.getPlayer(self.iCivSelected)
 		if (pPlayer.getAdvancedStartPoints() >= 0):
@@ -1515,42 +1524,42 @@ class CvTechChooser:
 class TechChooserMaps:
 
 	TechChooserInputMap = {
-		'TechRecord'			: CvTechChooser().TechRecord,
-		'TechID'				: CvTechChooser().ParentClick,
-		'TechPane'				: CvTechChooser().ParentClick,
-		'TechButtonID'			: CvTechChooser().ParentClick,
-		'TechButtonBorder'		: CvTechChooser().ParentClick,
-		'Unit'					: CvTechChooser().ParentClick,
-		'Building'				: CvTechChooser().ParentClick,
-		'Obsolete'				: CvTechChooser().ParentClick,
-		'ObsoleteX'				: CvTechChooser().ParentClick,
-		'Move'					: CvTechChooser().ParentClick,
-		'FreeUnit'				: CvTechChooser().ParentClick,
-		'FeatureProduction'			: CvTechChooser().ParentClick,
-		'Worker'				: CvTechChooser().ParentClick,
-		'TradeRoutes'			: CvTechChooser().ParentClick,
-		'HealthRate'			: CvTechChooser().ParentClick,
-		'HappinessRate'			: CvTechChooser().ParentClick,
-		'FreeTech'				: CvTechChooser().ParentClick,
-		'LOS'					: CvTechChooser().ParentClick,
-		'MapCenter'				: CvTechChooser().ParentClick,
-		'MapReveal'				: CvTechChooser().ParentClick,
-		'MapTrade'				: CvTechChooser().ParentClick,
-		'TechTrade'				: CvTechChooser().ParentClick,
-		'OpenBorders'		: CvTechChooser().ParentClick,
-		'BuildBridge'			: CvTechChooser().ParentClick,
-		'Irrigation'			: CvTechChooser().ParentClick,
-		'Improvement'			: CvTechChooser().ParentClick,
-		'DomainExtraMoves'			: CvTechChooser().ParentClick,
-		'AdjustButton'			: CvTechChooser().ParentClick,
-		'TerrainTradeButton'	: CvTechChooser().ParentClick,
-		'SpecialBuildingButton'	: CvTechChooser().ParentClick,
-		'YieldChangeButton'		: CvTechChooser().ParentClick,
-		'BonusRevealButton'		: CvTechChooser().ParentClick,
-		'CivicRevealButton'		: CvTechChooser().ParentClick,
-		'ProjectInfoButton'		: CvTechChooser().ParentClick,
-		'ProcessInfoButton'		: CvTechChooser().ParentClick,
-		'FoundReligionButton'	: CvTechChooser().ParentClick,
-		'CivDropDown'			: CvTechChooser().CivDropDown,
+		'TechRecord' : CvTechChooser().TechRecord,
+		'TechID' : CvTechChooser().ParentClick,
+		'TechPane' : CvTechChooser().ParentClick,
+		'TechButtonID' : CvTechChooser().ParentClick,
+		'TechButtonBorder' : CvTechChooser().ParentClick,
+		'Unit' : CvTechChooser().ParentClick,
+		'Building' : CvTechChooser().ParentClick,
+		'Obsolete' : CvTechChooser().ParentClick,
+		'ObsoleteX' : CvTechChooser().ParentClick,
+		'Move' : CvTechChooser().ParentClick,
+		'FreeUnit' : CvTechChooser().ParentClick,
+		'FeatureProduction' : CvTechChooser().ParentClick,
+		'Worker' : CvTechChooser().ParentClick,
+		'TradeRoutes' : CvTechChooser().ParentClick,
+		'HealthRate' : CvTechChooser().ParentClick,
+		'HappinessRate' : CvTechChooser().ParentClick,
+		'FreeTech' : CvTechChooser().ParentClick,
+		'LOS' : CvTechChooser().ParentClick,
+		'MapCenter' : CvTechChooser().ParentClick,
+		'MapReveal' : CvTechChooser().ParentClick,
+		'MapTrade' : CvTechChooser().ParentClick,
+		'TechTrade' : CvTechChooser().ParentClick,
+		'OpenBorders' : CvTechChooser().ParentClick,
+		'BuildBridge' : CvTechChooser().ParentClick,
+		'Irrigation' : CvTechChooser().ParentClick,
+		'Improvement' : CvTechChooser().ParentClick,
+		'DomainExtraMoves' : CvTechChooser().ParentClick,
+		'AdjustButton' : CvTechChooser().ParentClick,
+		'TerrainTradeButton' : CvTechChooser().ParentClick,
+		'SpecialBuildingButton' : CvTechChooser().ParentClick,
+		'YieldChangeButton' : CvTechChooser().ParentClick,
+		'BonusRevealButton' : CvTechChooser().ParentClick,
+		'CivicRevealButton' : CvTechChooser().ParentClick,
+		'ProjectInfoButton' : CvTechChooser().ParentClick,
+		'ProcessInfoButton' : CvTechChooser().ParentClick,
+		'FoundReligionButton' : CvTechChooser().ParentClick,
+		'CivDropDown' : CvTechChooser().CivDropDown,
 		}
 

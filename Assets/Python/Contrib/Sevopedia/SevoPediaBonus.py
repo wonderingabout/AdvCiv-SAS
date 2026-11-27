@@ -21,6 +21,8 @@ from CvScreenEnums import SevoScreenEnums
 # <!-- custom: Consolidate this dependency at the shared SASVisualUtils/SASTextScale boundary instead of retaining the retired overlapping visual-resource helper imports. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 import SASTextScale
+# <!-- custom: SASCurrentDefines reads this module's SAS switches at use, lazily and override-aware, in place of module constants read at import. See KI#128.6. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 
 from _sevopedia_helpers import *
 
@@ -28,8 +30,6 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-# <!-- custom: change its value if you don't want to see AI information in the special abilities panel -->
-IS_SHOW_AI_INFO = (gc.getDefineINT("SAS_SEVO_BONUS_SHOW_AI_INFORMATION") > 0)
 
 class SevoPediaBonus:
 
@@ -345,7 +345,7 @@ class SevoPediaBonus:
 				entries.append((info.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, u""))
 
 		# <!-- custom: in the aluminium bonus, all projects show the apostolic palace in the tooltip, and redirect to the apostolic palace instead of the correct project.
-		# Fixed with the help of chatgpt 5.2 thanks -->
+		# Fixed with the help of chatgpt 5.2 thanks. See KI#86. -->
 		# <advc.004y>
 		for iProject in range(gc.getNumProjectInfos()):
 			info = gc.getProjectInfo(iProject)
@@ -503,7 +503,7 @@ class SevoPediaBonus:
 		panelName = self.top.getNextWidgetName()
 
 		# <!-- custom: code added with the help of claude ai thanks based on our existing code on advciv-sas and my prompt too or such -->
-		if IS_SHOW_AI_INFO:
+		if SASCurrentDefines.getInt("SAS_SEVO_BONUS_SHOW_AI_INFORMATION") > 0:
 			txtKeyPanel = "TXT_KEY_PEDIA_EFFECTS_WITH_SOME_AI_INFORMATION"
 		else:
 			txtKeyPanel = "TXT_KEY_PEDIA_EFFECTS"
@@ -513,7 +513,7 @@ class SevoPediaBonus:
 		listName = self.top.getNextWidgetName()
 		szSpecialText = CyGameTextMgr().getBonusHelp(self.iBonus, True)[1:]
 
-		if IS_SHOW_AI_INFO:
+		if SASCurrentDefines.getInt("SAS_SEVO_BONUS_SHOW_AI_INFORMATION") > 0:
 			bullet = localText.getText("[ICON_BULLET]", ())
 
 			# Get bonus info

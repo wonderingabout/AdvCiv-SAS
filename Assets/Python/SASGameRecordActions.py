@@ -361,8 +361,7 @@ def logCityRecommendationResponse(gc, iButton, iCity, iOrder, iTarget):
 	elif iOrder == OrderTypes.ORDER_CONSTRUCT and iTarget >= 0 and iTarget < gc.getNumBuildingInfos():
 		szKind = "BUILDING"
 		szTarget = gc.getBuildingInfo(iTarget).getType()
-	_emitPythonPopupResponse(game, "cityWarningOnClickedCallback", iButton, SASPopupChoices.CITY_RECOMMENDATION,
-		[("cityId", iCity), ("orderId", iOrder), ("targetKind", szKind), ("targetId", iTarget), ("target", szTarget)])
+	_emitPythonPopupResponse(game, "cityWarningOnClickedCallback", iButton, SASPopupChoices.CITY_RECOMMENDATION, [("cityId", iCity), ("orderId", iOrder), ("targetKind", szKind), ("targetId", iTarget), ("target", szTarget)])
 
 
 # <!-- custom: Liberation and colony recommendations share accept/refuse/examine buttons but trigger different existing operations; preserve that distinction without querying new liberation/area eligibility for diagnostics. (GPT-6.1-Sol) -->
@@ -392,8 +391,7 @@ def logFeatResponse(iButton, iFeat, iContextData2):
 		for szName in sorted(dir(FeatTypes)):
 			if szName.startswith("FEAT_"):
 				_gFeatNames[int(getattr(FeatTypes, szName))] = szName
-	_emitPythonPopupResponse(game, "featAccomplishedOnClickedCallback", iButton, SASPopupChoices.FEAT,
-		[("featId", iFeat), ("feat", _gFeatNames.get(iFeat, "UNKNOWN_FEAT")), ("contextData2", iContextData2)])
+	_emitPythonPopupResponse(game, "featAccomplishedOnClickedCallback", iButton, SASPopupChoices.FEAT, [("featId", iFeat), ("feat", _gFeatNames.get(iFeat, "UNKNOWN_FEAT")), ("contextData2", iContextData2)])
 
 
 # <!-- custom: The three reviewed random-event callbacks carry the responding and other player IDs, with Yes/No meaning war or peace according to the specific handler.
@@ -423,3 +421,20 @@ def logEventTriggerResponse(gc, iButton, iPlayer):
 	elif iButton == gc.getNumEventTriggerInfos():
 		szChoice = "CANCEL"
 	_emitPythonPopupResponse(game, "triggerRandomEvent", iButton, None, [("targetPlayer", iPlayer), ("eventTriggerId", iButton), ("eventTrigger", szTarget)], szChoice)
+
+
+# <!-- custom: The Greatest Civilizations rows, moved here from CvTopCivs.printList so the screen keeps only a pre-gated hook, as the other recorder helpers do.
+# Unlike the action-trace helpers above, these are level-1 history rows, and unlike them this helper does not check the level itself: callers must pre-gate on SASGameRecordConfig.getLogLevel() >= 1, so a disabled record skips the call and its argument work.
+# The C++ bridges check gGameRecordLogLevel again only as a backstop.
+# The all-player record: every alive player the ranking compared, with the value behind its rank, not only what the viewer read; guarded for a DLL without the bindings. (Claude code Opus 5.5) -->
+def logTopCivs(gc, szCategoryKey, szHistorian, aiTopCivsValues, iListed, iUnknownListed, bShown):
+	game = gc.getGame()
+	if not hasattr(game, "logSASGameRecordTopCivs"):
+		return
+	iViewer = game.getActivePlayer()
+	kViewerTeam = gc.getTeam(gc.getPlayer(iViewer).getTeam())
+	game.logSASGameRecordTopCivs(szCategoryKey, szHistorian, iListed, len(aiTopCivsValues), iUnknownListed, bShown)
+	for iRankLoop in range(len(aiTopCivsValues)):
+		(iValue, iRankPlayer) = aiTopCivsValues[iRankLoop]
+		bKnown = iRankPlayer == iViewer or kViewerTeam.isHasMet(gc.getPlayer(iRankPlayer).getTeam())
+		game.logSASGameRecordTopCivsRank(szCategoryKey, iRankLoop + 1, iRankPlayer, iValue, iRankLoop < iListed, bKnown)

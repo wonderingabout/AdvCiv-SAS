@@ -32,7 +32,8 @@ DEFAULT_OUT = REPO / "LLM_Helpers" / "outputs" / "ci_report.txt"
 NOT_RUN = ("runtime-aip-predump-refresh.yml", "python24-compile.yml")
 PYTHON24 = Path(r"C:\Python24\python.exe")
 # <!-- custom: The checks of shipped diagnostic and hands-free defaults read staged content here, as development values usually stay enabled and unstaged. (Claude code Opus 5.5) -->
-STAGED_CHECKS = re.compile(r"(build/(?:diagnostics/(?:bbai_log|runtime_status|sas_game_record_log)|runtime/hands_free_defaults)\.py)")
+# <!-- custom: sas_live_define_overrides joined on 2026-11-25, as a local override to try a value usually stays unstaged too. (Claude code Opus 5.5) -->
+STAGED_CHECKS = re.compile(r"(build/(?:diagnostics/(?:bbai_log|runtime_status|sas_game_record_log)|runtime/hands_free_defaults|source/sas_live_define_overrides)\.py)")
 LOG_LINES = 200
 PLACEHOLDER_MESSAGE = "Local CI candidate (no commit message given)\n"
 
@@ -136,12 +137,16 @@ def local_report(args):
 	else:
 		message = git("log", "-1", "--format=%B")
 	commits = git("rev-list", "--reverse", "%s..%s" % (base, head)).split() or [head]
-	expressions = {"github.event_name": "push", "github.event.pull_request.base.sha || github.event.before": base, "github.event.before": base, "github.sha": head, "github.ref_name": "main", "github.event.repository.default_branch": "main", "github.ref": "refs/heads/main", "github.workspace": REPO.as_posix()}
+	# <!-- custom: The simulated push goes to the checked-out branch, as GitHub's would: always naming main made a feature branch's draft carrying [ci_squash_pr] fail squash_pr_number.py locally, though it passes on GitHub (Codex's review, 2026-11-23).
+	# A detached HEAD is treated as main. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	branch = git("rev-parse", "--abbrev-ref", "HEAD")
+	branch = "main" if branch == "HEAD" else branch
+	expressions = {"github.event_name": "push", "github.event.pull_request.base.sha || github.event.before": base, "github.event.before": base, "github.sha": head, "github.ref_name": branch, "github.event.repository.default_branch": "main", "github.ref": "refs/heads/" + branch, "github.workspace": REPO.as_posix()}
 	with tempfile.TemporaryDirectory() as folder:
 		event_path = Path(folder) / "event.json"
 		# <!-- custom: The push event's fields the checks read; without a real file six of them failed with Permission denied. (Claude code Opus 5.5) -->
-		event_path.write_text(json.dumps({"before": base, "after": head, "ref": "refs/heads/main", "forced": False, "head_commit": {"id": head, "message": message}, "commits": [{"id": commit, "message": git("log", "-1", "--format=%B", commit)} for commit in commits], "repository": {"default_branch": "main"}}), encoding="utf-8")
-		shared_env = {"GITHUB_SHA": head, "GITHUB_EVENT_NAME": "push", "GITHUB_REF_NAME": "main", "GITHUB_WORKSPACE": str(REPO), "GITHUB_EVENT_PATH": str(event_path), "GITHUB_OUTPUT": os.devnull, "GITHUB_STEP_SUMMARY": os.devnull, "PYTHONIOENCODING": "utf-8"}
+		event_path.write_text(json.dumps({"before": base, "after": head, "ref": "refs/heads/" + branch, "forced": False, "head_commit": {"id": head, "message": message}, "commits": [{"id": commit, "message": git("log", "-1", "--format=%B", commit)} for commit in commits], "repository": {"default_branch": "main"}}), encoding="utf-8")
+		shared_env = {"GITHUB_SHA": head, "GITHUB_EVENT_NAME": "push", "GITHUB_REF_NAME": branch, "GITHUB_WORKSPACE": str(REPO), "GITHUB_EVENT_PATH": str(event_path), "GITHUB_OUTPUT": os.devnull, "GITHUB_STEP_SUMMARY": os.devnull, "PYTHONIOENCODING": "utf-8"}
 		native, missing = native_steps()
 		steps = workflow_steps(expressions) + native
 		bash = bash_program()
@@ -149,7 +154,7 @@ def local_report(args):
 			results = list(pool.map(lambda step: run_step(step, shared_env, bash), steps))
 	failures = [result for result in results if result[1]]
 	if staged:
-		judged = "Staged changes judged as a temporary commit %s on HEAD, compared with %s, with %s." % (head[:12], base[:12], "the message from %s" % args.message if args.message else "a placeholder message, so the title and Update DLL checks may fail: pass --message with the draft")
+		judged = "Staged changes judged as a temporary commit %s on HEAD, compared with %s, with %s." % (head[:12], base[:12], "the message from %s" % args.message if args.message else "a placeholder message, so the title and [ci_update_dll] checks may fail: pass --message with the draft")
 	else:
 		judged = "Nothing staged, so the commit checks judge HEAD %s, compared with %s; stage the candidate for them to judge it." % (head[:12], base[:12])
 	lines = ["Local CI report: %d of %d steps failed" % (len(failures), len(results)), judged, "Other checks read the working tree, unstaged development values included."]

@@ -101,7 +101,7 @@ class CvPediaBonus:
 		# Top
 		screen.setText(self.top.getNextWidgetName(), "Background", self.top.MENU_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.top.X_MENU, self.top.Y_MENU, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_MAIN, CivilopediaPageTypes.CIVILOPEDIA_PAGE_BONUS, -1)
 
-		if self.top.iLastScreen	!= CvScreenEnums.PEDIA_BONUS or bNotActive:		
+		if self.top.iLastScreen != CvScreenEnums.PEDIA_BONUS or bNotActive:
 			self.placeLinks(true)
 			self.top.iLastScreen = CvScreenEnums.PEDIA_BONUS
 		else:

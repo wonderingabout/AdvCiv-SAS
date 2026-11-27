@@ -4,6 +4,8 @@ Primary audience: coding agents (Claude Code, Codex, etc.) invoking these script
 
 This folder contains external development tools, mostly Python 3 scripts, for tasks outside Civ4's embedded Python runtime.
 
+SASPilot, which reads and drives a running game, has its own root folder, [`SASPilot/`](/SASPilot/README.md), since 2026-11-20.
+
 Platform-specific test programs live separately under [`tests/`](/tests/README.md); workflow-helper regression tests live under [`.github/workflows/tests/`](/.github/workflows/tests/README.md).
 
 These scripts are meant for LLM-assisted workflows, balancing workflows, code review, refactoring support, report generation, and other tooling.
@@ -29,24 +31,24 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `audits/` | reports of problems to review: [`ci_report.py`](#ci_reportpy), [`audit_define_keys.py`](#audit_define_keyspy), [`audit_unused_text_keys.py`](#audit_unused_text_keyspy), [`audit_cpp_logging_pregates.py`](#audit_cpp_logging_pregatespy) and others |
 | `balance/` | gameplay values and their tuning: [`compare_handicap_infos.py`](#compare_handicap_infospy), [`autotune_speed_from_xml.py`](#autotune_speed_from_xmlpy), [`compare_speed_summaries.py`](#compare_speed_summariespy), [`military_tree_continuity.py`](#military_tree_continuitypy) |
 | `chat_exports/` | readable transcripts of Claude Code, Codex and ChatGPT chats: [`claude_session_export_to_txt.py`](#claude_session_export_to_txtpy), [`openai_chat_export_to_txt.py`](#codex-and-chatgpt-transcript-helper), and `chat_export_paths.py`, which they share |
-| `code_history/` | where code came from: [`svn_history_to_diffs.py`](#svn_history_to_diffspy), [`git_history_to_diffs.py`](#git_history_to_diffspy), [`svn_history_verify.py`](#svn_history_verifypy), [`svn_export_to_dev_log.py`](#svn_export_to_dev_logpy), [`history_lineage_tables.py`](#history_lineage_tablespy), and [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy), whose manual lists AdvCiv's changes by `advc.` tag |
+| `code_history/` | where code came from: [`svn_history_to_diffs.py`](#svn_history_to_diffspy), [`git_history_to_diffs.py`](#git_history_to_diffspy), [`svn_history_verify.py`](#svn_history_verifypy), [`svn_export_to_dev_log.py`](#svn_export_to_dev_logpy), [`history_lineage_tables.py`](#history_lineage_tablespy), [`inherited_files.py`](#inherited_filespy), and [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy), whose manual lists AdvCiv's changes by `advc.` tag |
+| `commits/` | preparing a commit: [`stage_partial.py`](#stage_partialpy) stages part of a file without touching it |
 | `context/` | reference corpora rather than helpers: `commit_diffs/`, generated except Better BTS AI's tracked SVN revisions, and [map-script originals](#inherited-map-script-reference-sources) |
 | `desktop/` | controlling the computer rather than the game, for any app, in the two groups below; `layouts/` holds the apps' click points and saved window layouts |
 | `desktop/`: windows and agent apps | [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into, lays out or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app |
-| `desktop/`: records and captures | [`git_bash_history.py`](#git_bash_historypy) prints what the user did in Git Bash or VS Code's Git; [`contact_sheet.py`](#contact_sheetpy) puts the same regions of several captures on one labelled sheet; [`sound_check.py`](#sound_checkpy) records and measures what the speakers play |
+| `desktop/`: records and captures | [`git_bash_history.py`](#git_bash_historypy) prints what the user did in Git Bash or VS Code's Git; [`contact_sheet.py`](#contact_sheetpy) puts the same regions of several captures on one labelled sheet; [`sound_check.py`](#sound_checkpy) records and measures what the speakers play; [`screen_record.py`](#screen_recordpy) records a monitor while a command runs and keeps the frames that changed |
 | `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) with its [`define_values.py`](#define_valuespy) |
 | `dll_builds/` | building, checking and debugging the DLL from an agent's shell: [`build_dll.py`](#build_dllpy) and [`debug_dll.py`](#debug_dllpy) |
 | `exe_analysis/` | see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#helpers-in-llm_helpersexe_analysis) |
 | `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy), [`rename_identifiers.py`](#rename_identifierspy) and others |
 | `game_runs/` | running the game itself without a person at the keyboard, in the five groups below |
-| `game_runs/`: starting and playing | [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`start_game.py`](#start_gamepy) starts a turn-0 game with a chosen map, size and game options and leaves it open; reading and driving a running game as JSON is the job of [`saspilot/`](#saspilot) |
+| `game_runs/`: starting and playing | [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`start_game.py`](#start_gamepy) starts a turn-0 game with a chosen map, size and game options and leaves it open; reading and driving a running game as JSON is the job of [`SASPilot/`](/SASPilot/README.md) at the root |
 | `game_runs/`: screen map | the screen map `civ4_ui_map.json`, with [`set_dropdown.py`](#civ4_ui_mapjson-capture_dropdownspy-and-set_dropdownpy), which chooses a dropdown item by name, and `capture_dropdowns.py`, which captures their lists; [`map_sevopedia.py`](#map_sevopediapy) maps each Sevopedia page's panels and EXPAND buttons |
 | `game_runs/`: checking clicks | [`check_points.py`](#check_pointspy) clicks named Civ4 points and reports what changed; [`run_steps.py`](#run_stepspy) runs clicks, keys and hovers in order with a capture of each on one sheet |
-| `game_runs/`: captures | [`capture_screens.py`](#capture_screenspy) launches Civ4 itself, at any resolution or in fullscreen if asked, clicks through screens and saves full-size captures |
+| `game_runs/`: captures | [`capture_screens.py`](#capture_screenspy) launches Civ4 itself, at any resolution or in fullscreen if asked, clicks through screens and saves full-size captures; [`doc_screenshots.py`](#doc_screenshotspy) retakes the docs' screenshots from a list |
 | `game_runs/`: art from the game | [`map_preview_dds.py`](#map_preview_ddspy) makes a map script's Simple Game preview from its minimap, with [`simple_game_scripts.py`](#simple_game_scriptspy) saying which scripts Simple Game lists |
 | `housekeeping/` | keeping the development computer tidy: [`archive_old_files.py`](#archive_old_filespy) moves a folder's older entries into a dated subfolder; [`redact_image.py`](#redact_imagepy) covers personal details in a screenshot; [`python_versions.py`](#python_versionspy) reports when the helpers can move to a newer Python |
 | `packaging/` | building context corpora, for a light-source ZIP or locally: [`make_light_source_zip.py`](#make_light_source_zippy), [`refresh_commit_diffs.py`](#refresh_commit_diffspy) and `light_source_python24_linux.py` |
-| `saspilot/` | reading and driving a running game through SASPilot, the in-game bridge, as JSON rather than screenshots and clicks: [`SASPilotClient.py`](#saspilotclientpy-and-saspilotcommandspy) and the commands it sends, `SASPilotCommands.py`; SASPilotConsole for watching; the scouting and site helpers; `SASPilotReplay.py` with its `sequences/`, and in-game `checks/`. Moved out of `game_runs/` on 2026-11-15, as the user saw piloting as a job of its own, and each script renamed `SASPilot<Role>.py` to match the console window's name |
 | `sassavetransplanter/` | recreating the turn-0 world of a save the current build can no longer load: [`SASSaveTransplanter.py`](#sassavetransplanter) has the old build export the world as a WorldBuilder file, maps renamed types and lets the current build write it as a new save. Added on 2026-11-16 by Claude Code Fable 5.2; see the [SASSaveTransplanter guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASSaveTransplanter.md) |
 
 - Run a helper from the repository root by its path, for example `python LLM_Helpers/audits/ci_report.py`.
@@ -106,8 +108,11 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
   - [`find_cpp_dead_code_candidates.py`](#find_cpp_dead_code_candidatespy)
   - [Static audit helpers](#static-audit-helpers)
     - [`audit_cpp_logging_pregates.py`](#audit_cpp_logging_pregatespy)
+    - [`audit_screen_init_layout.py`](#audit_screen_init_layoutpy)
+    - [`audit_define_timing.py`](#audit_define_timingpy)
     - [`audit_define_keys.py`](#audit_define_keyspy)
     - [`audit_unused_text_keys.py`](#audit_unused_text_keyspy)
+    - [`audit_engine_names.py`](#audit_engine_namespy)
   - [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)
 - [`balance/`](#balance)
   - [Game speed helper scripts](#game-speed-helper-scripts)
@@ -130,6 +135,9 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
   - [`svn_history_verify.py`](#svn_history_verifypy)
   - [`svn_export_to_dev_log.py`](#svn_export_to_dev_logpy)
   - [`history_lineage_tables.py`](#history_lineage_tablespy)
+  - [`inherited_files.py`](#inherited_filespy)
+- [`commits/`](#commits)
+  - [`stage_partial.py`](#stage_partialpy)
 - [`context/`](#context)
   - [Inherited map-script reference sources](#inherited-map-script-reference-sources)
 - [`desktop/`](#desktop)
@@ -139,6 +147,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`git_bash_history.py`](#git_bash_historypy)
     - [`contact_sheet.py`](#contact_sheetpy)
     - [`sound_check.py`](#sound_checkpy)
+    - [`screen_record.py`](#screen_recordpy)
 - [`diagnostics/`](#diagnostics)
   - [SASGameRecord comparison helpers](#sasgamerecord-comparison-helpers)
     - [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy)
@@ -158,6 +167,8 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
   - [Console colors](#console-colors)
     - [`console_colors.py`](#console_colorspy)
   - [Source blank-line cleanup](#source-blank-line-cleanup)
+  - [SAS header after a sweep](#sas-header-after-a-sweep)
+    - [`add_sas_header.py`](#add_sas_headerpy)
   - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`reflow_custom_comments.py`](#reflow_custom_commentspy)
   - [Python source cleanup helpers](#python-source-cleanup-helpers)
@@ -168,7 +179,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`collapse_flat_literals.py`](#collapse_flat_literalspy)
     - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
     - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
-    - [`apply_replacements.py`](#apply_replacementspy)
+    - [`heredoc_safe_replace.py`](#heredoc_safe_replacepy)
     - [`fix_line_endings.py`](#fix_line_endingspy)
     - [`rename_identifiers.py`](#rename_identifierspy)
   - [C++ source cleanup helpers](#c-source-cleanup-helpers)
@@ -195,6 +206,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`hover_tooltips.py`, `export_pedia_concepts.py` and `export_bug_options.py`](#hover_tooltipspy-export_pedia_conceptspy-and-export_bug_optionspy)
     - [`check_points.py`](#check_pointspy)
     - [`run_steps.py`](#run_stepspy)
+    - [`doc_screenshots.py`](#doc_screenshotspy)
     - [`capture_screens.py`](#capture_screenspy)
     - [`map_preview_dds.py`](#map_preview_ddspy)
     - [`simple_game_scripts.py`](#simple_game_scriptspy)
@@ -203,6 +215,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
 - [`housekeeping/`](#housekeeping)
   - [Folder upkeep](#folder-upkeep)
     - [`archive_old_files.py`](#archive_old_filespy)
+    - [`unzip_flat.py`](#unzip_flatpy)
   - [Screenshot privacy](#screenshot-privacy)
     - [`redact_image.py`](#redact_imagepy)
   - [Python upkeep](#python-upkeep)
@@ -217,9 +230,6 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
         - [Full-refresh example](#full-refresh-example)
       - [Notes (light_source ZIP)](#notes-light_source-zip)
     - [`refresh_commit_diffs.py`](#refresh_commit_diffspy)
-- [`saspilot/`](#saspilot)
-  - [Piloting a running game](#piloting-a-running-game)
-    - [`SASPilotClient.py` and `SASPilotCommands.py`](#saspilotclientpy-and-saspilotcommandspy)
 - [`sassavetransplanter/`](#sassavetransplanter)
 - [General notes for future LLM helpers](#general-notes-for-future-llm-helpers)
 
@@ -343,9 +353,11 @@ Writes every CI failure to one text file, so one pass can fix them all rather th
     - On 2026-11-09 a run compared with the parent passed, as `plot_scene.py` was new there, while GitHub, comparing with the replaced commit, failed a changed signature.
   - Most checks read the working tree. Eight judge the commits of a push instead: the SASGameRecord and Runtime revision checks, the commit-reference check, the four DLL checks and the KI title check.
     - So staged changes become a temporary commit on top of HEAD, made with `git commit-tree`, which moves no branch and touches no file, and those checks judge it as the pushed commit. Unstaged development values stay out, as they would from the real commit.
-    - `--message FILE` gives that commit the draft message; without it, a placeholder makes the title and `Update DLL` checks fail as a reminder. With nothing staged, they judge HEAD.
+    - `--message FILE` gives that commit the draft message; without it, a placeholder makes the title and `[ci_update_dll]` checks fail as a reminder. With nothing staged, they judge HEAD.
     - Before 2026-11-12 these checks only saw commits, so an uncommitted candidate passed them without being judged. A run passed locally while GitHub failed the commit that followed: `map_preview_dds.py` had begun reading SGR rows without the `SAS_SGR_REVISION` bump the rule asks for. Rerun on that state, the new run fails the same check, as GitHub did.
   - The diagnostic default checks read staged content, so unstaged development values do not fail them.
+  - To judge a candidate without touching the user's index, point `GIT_INDEX_FILE` at a copy of `.git/index` and stage into the copy, such as everything but `GlobalDefines_advciv_sas.xml`'s development values.
+    - The helper-test groups of `checks-tests.yml` then fail, as the temporary repositories they create inherit `GIT_INDEX_FILE`, and their `git add .` exits with 128; on 2026-11-24 all five failed that way and passed, 576 tests, when run again without it. Run them separately, with `GIT_INDEX_FILE` unset.
   - Markdownlint and Python 2.4 run through local Node.js and `C:\Python24\python.exe`; a missing tool is listed as not covered. The predump refresh workflow is not run.
 - `python LLM_Helpers/audits/ci_report.py github`: reads GitHub's results for a commit, `--sha` or HEAD. Failed workflows and steps come from the public API; their failure text needs `gh auth login` once, as GitHub gives logs only to signed-in users.
 - Output: `LLM_Helpers/outputs/ci_report.txt`, Git-ignored, or `--out`. Exit code 1 when something failed or GitHub's run has not finished.
@@ -397,6 +409,42 @@ Advisory C++ audit for obvious BBAI/SASGameRecord caller-side pre-gating omissio
 ```bash
 python LLM_Helpers/audits/audit_cpp_logging_pregates.py CvGameCoreDLL
 python LLM_Helpers/audits/audit_cpp_logging_pregates.py CvGameCoreDLL/CvCity.cpp --late-gates
+```
+
+#### `audit_screen_init_layout.py`
+
+Report-only audit of Civ4 Python screens: per class, the upper-case layout values, such as `W_SCREEN` or `X_EXIT`, set in `__init__` and set again in another method, and those no code in their own file reads: a shared helper may still read one, as the Legend helper in `SASUtils.py` reads the Hall of Fame's `Z_CONTROLS`.
+
+- Written for [KI#1098.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.3), whose screens set 1024 x 768 placeholders in `__init__` that a runtime layout replaced before any use; it found them in `CvDanQuayle.py`, `CvHallOfFameScreen.py`, `CvDawnOfMan.py` and `CvPolicyAdvisorScreen.py`.
+  - A value set again only under a condition stays, as the Policy Advisor's `DX_CORPORATION` does: it is the fallback when no corporation exists.
+- `--only-resolution` limits it to classes that read `getXResolution`/`getYResolution` somewhere; `--all-names` adds lower-case state such as `bPlaying`, which is usually meant to start in `__init__` and change later.
+- Heuristic and text-based: it does not follow inheritance, `getattr` or reads from other modules, such as a Sevopedia page's `self.top.W_PEDIA_PAGE`, so check each hit before removing anything. The [`python_dead_stores.py`](/.github/workflows/README.md#buildsourcepython_dead_storespy) CI check guards the same mistake within one method.
+
+```bash
+python LLM_Helpers/audits/audit_screen_init_layout.py --only-resolution Assets/Python
+```
+
+#### `audit_define_timing.py`
+
+Report-only audit of when each GlobalDefines define, SAS or inherited, takes effect, from how its readers in the DLL and runtime Python read it: no cache detected, kept (in a DLL static, member or global, a Python module variable, an `__init__` value, an attribute or a lazy cache), or only while loading or setting up.
+
+- Written on 2026-11-26 to choose which defines [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) may override and which belong in its NoEntry list; see [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5).
+  - A kept reader needs its read changed before an override reaches it, and a startup-only define belongs in NoEntry.
+  - "No cache detected" was "ready" at first: Codex's review (GPT-6.2-Sol) pointed out that a read fresh each time its function runs may sit in a function that runs only during setup, such as the main menu's music pool, so check before relying on an override.
+- It follows a C++ reader one level up: a read inside a helper whose every caller keeps the result or runs at load counts as kept or startup, as BBAI's category levels are, which `cacheSASBBAILogSettings` copies once.
+- Heuristic and text-based, so verdicts marked "by hand" need reading: a name built at runtime, such as `"SAS_BILLBOARD_SCALE_PCT_FONT_%d" % i`, one listed in a table another function reads, or one whose enclosing function it cannot tell.
+- Since 2026-11-26 it covers inherited defines too, as the user asked for the Python define inventory: it reads every file `CvXMLLoadUtility::SetGlobalDefines` loads, in that order, from the mod or else from BtS's `Assets/XML`, and labels each define by the file that first defines it.
+  - A define only the EXE reads, as many of BtS's `GlobalDefines.xml` and `PythonCallbackDefines.xml` are, shows as unread.
+- Its first Python inventory, the same day, listed 33 reads as import-time, of which 16 were not ([KI#128.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.6)):
+  - 14 in `CvMapGeneratorUtil.py`'s `__init__` bodies, whose signatures span several lines with AdvCiv's `# </advc.137>` at a lower indent, which closed the def; a line starting inside open brackets now keeps its scope;
+  - 2 in `SASDefineGuard.py`, constants holding a define's name, such as `SAS_LAUNCH_GUARD_TEST_INT_DEFINE = "SAS_LAUNCH_GUARD_TEST_INT"`, which read nothing and are now skipped.
+  - [`python_define_reads_import.py`](/.github/workflows/README.md#buildsourcepython_define_reads_importpy), which tokenizes scope independently, found the same 16 real ones.
+- Writes `LLM_Helpers/outputs/define_timing.md`, with counts per verdict, origin and family and every reader per define; `--scope sas` or `--scope inherited` narrows it, and `--define NAME` prints one define's readers.
+
+```bash
+python LLM_Helpers/audits/audit_define_timing.py
+python LLM_Helpers/audits/audit_define_timing.py --define SAS_UI_FONT_LABEL
+python LLM_Helpers/audits/audit_define_timing.py --scope inherited --out LLM_Helpers/outputs/define_timing_inherited.md
 ```
 
 #### `audit_define_keys.py`
@@ -488,6 +536,22 @@ python LLM_Helpers\audits\audit_unused_text_keys.py
 python LLM_Helpers\audits\audit_unused_text_keys.py --text-glob "Assets/XML/Text/AdvCiv-SAS_*.xml"
 python LLM_Helpers\audits\audit_unused_text_keys.py --prefix TXT_KEY_SAS
 python LLM_Helpers\audits\audit_unused_text_keys.py --no-external --no-output-file
+```
+
+#### `audit_engine_names.py`
+
+Reports which Civ4 binaries hold each given name as a string of its own, NUL-terminated ASCII or UTF-16, by default in `Civ4BeyondSword.exe`, `Civ4BeyondSword_PitBoss.exe` and BtS's `CvGameCoreDLL.dll`, and where SAS's DLL source quotes it; `--context` shows the strings stored beside the first hit. It answers whether the engine may call a Python function by name, which no SAS Python call shows.
+
+- A hit is the name as a whole stored string: ended by a NUL (two in UTF-16) and not preceded by a printable character, so `CallbackName` does not match inside `refreshCallbackNames`. Zero hits means no such stored literal in these files, not that the engine never calls the name, as a name can be built at run time.
+  - Codex's review (GPT-6.2-Sol) found a first version counting bare UTF-16 bytes, which matched inside longer names, and requiring a NUL before an ASCII name, which missed one at the file's start or after other binary data (2026-11-26).
+- It reads the installed files as they are and decompiles nothing: the Steam EXE's code is encrypted on disk, as the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#dump_exe_imagepy) explains, but its strings are not.
+- Written on 2026-11-26 from the one-off searches that settled which functions of the carried base-game entry points the engine calls by name ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)), the evidence behind [`python_engine_callbacks.py`](/.github/workflows/README.md#buildsourcepython_engine_callbackspy).
+  - The context shows each callback beside its module's name, such as `CvTranslator | [finishText]` in both EXEs and `PbMain | [sendEmail]` in the DLL, while the main EXE's `update` sits among unrelated strings.
+  - A name found nowhere, such as `CvUnitController`'s `ProcessEvent`, has no stored literal in these files ([KI#165.13](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.13)); a short or common name can match an unrelated string, which the context tells apart.
+- First written for `exe_analysis/`; the user asked whether it belonged there, and as it only reads strings, it moved here beside the other usage audits.
+
+```powershell
+python LLM_Helpers\audits\audit_engine_names.py finishText sendEmail ProcessEvent --context
 ```
 
 Example output (real run, `--text-glob "Assets/XML/Text/AdvCiv-SAS_*.xml"`; exit 1 because candidates were found):
@@ -783,6 +847,8 @@ The exporter writes a timestamped `chatgpt-share-<share-id>-<timestamp>.txt` to 
   - Copying from the chat view captured only a small slice of a long session, and `/export` was unavailable in the desktop session.
 - Keeps user and Claude messages in full and reduces each tool call to a one-line `[tool: name - description]` marker; thinking and raw tool output are omitted.
   - On the first use, this reduced a 2 MB `transcript.jsonl` to about 24 KB.
+- Includes the messages the user sends while Claude is working, as USER entries starting `[sent mid-turn]`, at their place in the timeline.
+  - The log keeps them not as user records but as `queued_command` attachments whose origin is `human`; the export skipped them until 2026-11-23, when tracing who found KI#1107 turned up the user's mid-turn "ncie you have soemreaciton now hehe" only in the raw log. One session held 342 such messages, all missing; queued task notifications stay out.
 - Uses the same [numbered speaker markers](#codex-and-chatgpt-transcript-helper) as the Codex and ChatGPT helper. When a Claude log record has multiple text blocks, each exported block gets its own number and uses that record’s timestamp.
 - Uses only Python 3's standard library and writes `claude-<input-stem>.txt` in the shared export folder by default:
 
@@ -890,9 +956,12 @@ The Git counterpart of [`svn_history_to_diffs.py`](#svn_history_to_diffspy), for
 - It works on a blobless clone (`git clone --filter=blob:none`). Binary files and `--summarize` paths are listed without their contents, so their blobs are never downloaded; text diffs fetch what they need.
 - Interrupted runs resume, and failures are collected and reported together, as with the SVN exporter.
 - A first trial on 2026-11-12 exported C2C's newest 30 commits in about 2 minutes, 3.2 MB, mostly spent downloading blobs; the full 9,293 commits would take hours, so run it in the background.
+- `--rev newest-release` exports the highest version-named branch, read with the same rule base AdvCiv's release branches use (`release_version` in `.github/workflows/lib/advciv_release.py`).
+  - Added on 2026-11-22 for Taurus, which develops on a branch named by its version: its `main` last changed on 2026-05-23, its `1.04` on 2026-08-24, so neither the default branch nor a version written into the command stays the newest. Its 230 commits exported in under a minute ([KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7) cites one).
 
 ```bash
 py -u LLM_Helpers/code_history/git_history_to_diffs.py --repo "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/mod_repos/c2c_github" --out "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/git_history/c2c" --label C2C --summarize "UnpackedArt/*" --summarize "ArtSource/*" --summarize "Assets/art/*" --summarize "Assets/Sounds/*" --newest-first
+py -u LLM_Helpers/code_history/git_history_to_diffs.py --repo "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/mod_repos/Taurus" --rev newest-release --out "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/git_history/taurus" --label Taurus
 ```
 
 ### `svn_history_verify.py`
@@ -935,6 +1004,62 @@ Generates the tables of the [History lineage](/_1_AdvCiv-SAS/Docs/Source_Analysi
 python LLM_Helpers/code_history/history_lineage_tables.py --write
 ```
 
+### `inherited_files.py`
+
+Lists Python, XML and C++ file matches across SAS and the base-game layers, whether SAS's copy differs from the BtS and base AdvCiv copies, which SAS modules import a Python module, and the first and last indexed commit for each matching path, including deleted overrides, in `commit_diffs/`.
+
+The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md) records what it found and why.
+
+- Added on 2026-11-22, when the user and Codex proposed tracing which inherited files run and when each copy entered our lineage, starting with WorldBuilder.
+- Pass `--civ4-root` for per-area comparisons outside the Civ4 install. The base AdvCiv comparison reads Git blobs from the upstream ref, which `--upstream-ref` can override. It shares its layer definitions with the [CI check](/.github/workflows/README.md#buildsourceinherited_filespy) of the same name, so both agree.
+- The draft took a file missing from BtS for unused, but `CvWBPopups.py` exists only in vanilla and loads for SAS's `CvEventManager`: the inventory now keeps matching copies in all three base-game layers.
+- Commits come from `PATH_HISTORY_INDEX.txt`; `--summary` names its newest commit, so run [`refresh_commit_diffs.py`](#refresh_commit_diffspy) first when it lags.
+- `--inventory` writes a report, `inherited_files_inventory_<UTC>.tsv` in `LLM_Helpers/outputs/`, and the audit's generated part.
+  - The report lists every inherited file, base AdvCiv's included, and every new SAS file, in tree order, with its path, layers, its file events in upstream AdvCiv's history, SAS's status and its file-level events in our history (added, removed, added again, renamed or moved, with date and full title).
+  - The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#generated-tables)'s generated part holds the counts, the file lists, a tree of every inherited file and the base-game Python modules SAS's Python files import, mostly through inherited files SAS kept.
+  - The user asked for it on 2026-11-22, to see what SAS integrates and why, so the rest can be decided deliberately.
+  - It needs only Git and the CI check's [`inherited_files.tsv`](/_0_Legacy/Docs/Manifests/inherited_files.tsv), which lists what the base game and base AdvCiv ship; SAS's side comes from the tree.
+  - Events name date, SHA and title, no practical number, as the same number names different commits in different segments; SAS's SHAs change with any rewrite of our history, so rerun it after one.
+  - Its audit's "Why it has this shape" records the choices made with the user, such as file events only, one path per file and no log of our history in the audit.
+- `--loaded` compares the base-game Python files SAS has no copy of with the modules every `PythonDbg*.log` in Civ4's Logs folder, archived ones included, shows loading; pass another folder after it to read that one. See [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104).
+  - It sorts them into loaded, registered only as an entry point, and not observed. Entry points such as `CvTranslator` never print `load_module`, so not observed is not proof of non-use.
+  - It matches names without case, as Civ4 does: a first, case-sensitive comparison missed `CvUNVictoryScreen`, which the logs name `CvUnVictoryScreen`, until Codex caught it (2026-11-22).
+- `--take-in PATH...` copies base-game Python files SAS uses into SAS, from the newest layer providing each, adding only the SAS header and a comment naming the source; put your model credit in that comment. From then on each is an ordinary SAS file.
+  - It began as a scratchpad script for KI#1104's first copies, which Codex then checked against their sources one by one.
+  - `--compare PATH...` shows where a SAS copy's code differs from the newest base-game layer's, beyond comments and line breaks inside a statement, one row per differing span with both line ranges. On 2026-11-26 it listed exactly the commented Ruff fixes and KI#165.13's disabled body in the eight carried entry points.
+    - Statement ends and indentation count, shown as `<NEWLINE>`, `<INDENT>` and `<DEDENT>`, so a call moved out of an `if` block differs; a whole one-operand `print(x)` statement counts as the original's `print x`, but `print (1, 2)`, a tuple, and `print (a+b)*c` do not.
+    - Codex's review (GPT-6.2-Sol) reproduced all three passing as equal in a first version, which dropped statement structure and every `print` parenthesis.
+  - A file with Firaxis's notice on line 2 keeps it first, the SAS header following; a file without one, such as vanilla's `pyUnit/CvUnitController.py`, gets the SAS header on top, which the first version refused (2026-11-26).
+
+```bash
+python LLM_Helpers/code_history/inherited_files.py --loaded
+python LLM_Helpers/code_history/inherited_files.py --take-in Assets/Python/Screens/CvScreen.py
+python LLM_Helpers/code_history/inherited_files.py --compare Assets/Python/EntryPoints/PbMain.py
+python LLM_Helpers/code_history/inherited_files.py --inventory
+python LLM_Helpers/code_history/inherited_files.py python --grep wb
+python LLM_Helpers/code_history/inherited_files.py xml --summary
+```
+
+## `commits/`
+
+Helpers that prepare a commit.
+
+### `stage_partial.py`
+
+Stages a file with chosen regions taken from HEAD or dropped, leaving the working file as it is: the non-interactive counterpart of `git add -p`, which agents cannot drive.
+
+- `--head START END` puts HEAD's version of the region from START up to END (END excluded) into the staged file; `--drop START END` leaves the region out. Both repeat, and markers take escapes such as `\n`.
+- `--keep MARKER` stages only the changed hunks holding MARKER, every other hunk staying at HEAD: the opposite of `--head`, for a commit that takes a few hunks out of a file mostly meant for later commits. It runs before `--head` and `--drop`, which can then trim a kept hunk that holds more than one change.
+  - Added on 2026-11-21 for the themed commits of the UI round, whose first took the Military Summary's fix out of CvMilitaryAdvisor.py's advisor work; `<EOF>` as an end marker ends a region at the file's end, for an entry appended last.
+  - Its first version staged CvMilitaryAdvisor.py without its first 341 and last 356 lines: difflib's `get_grouped_opcodes` trims the matcher's own cached opcode list, so the opcodes are copied before grouping.
+- A marker found twice or not at all stops the helper, so a region is never guessed. `--dry-run` prints the staged diff against HEAD without staging.
+- Markers with backslashes or newlines are safest passed from a Python script rather than the shell: Claude Code's Bash tool halved `\\\n` on 2026-11-21, as AGENTS.md warns.
+- Added on 2026-11-19, when the SASPilot strategy commit had to leave out the Greatest Civilizations work in the same files, kept for its own commit; a scratch script did it first, and the user asked that such scripts join the repository.
+
+```powershell
+python LLM_Helpers\commits\stage_partial.py SASPilot\game\SASPilotCommands.py --head "def cmd_topcivs(args):" "\n\n\n" --dry-run
+```
+
 ## `context/`
 
 ### Inherited map-script reference sources
@@ -958,9 +1083,21 @@ python LLM_Helpers/code_history/history_lineage_tables.py --write
 #### `desktop_windows.py`
 
 - `screenshot`, `click`, `hover`, `scroll`, `paste`, `key` and `close` act on any app's window chosen by process ID: Civ4, or another agent's app such as Codex or the Claude app. `list` prints the running Civ4 clients and their command lines.
+  - `close --mod AdvCiv-SAS --wait 30 --force` closes every client running that mod, found by its `mod=` argument or, for an agent-started client, its `ini=` file's `Mod` line, waits for each to exit, and ends one that ignores WM_CLOSE; a client of another mod is left alone.
+    - Run it before saving Python or XML under `Assets`, which breaks a running game: on 2026-11-20 an agent edited advisor Python while the user's own client ran.
+    - `--force` ends a client with `terminate_process()`, `TerminateProcess` on a handle of it, as `taskkill /F` left a client hung at exit ([KI#1102](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)) in place on 2026-11-26; `process_state()` reads running, exiting, gone or unknown from a handle, as the exit code alone made such a client look exited, and `terminate_process()` checks the process's image and creation time and a pending exit on the same handle before ending it, as a pid can be reused (Codex's review).
+    - `stuck_civ4_processes()` lists such clients, and `civ4_processes()` leaves them out; see [A client that will not go away](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#a-client-that-will-not-go-away).
+  - `click --button right` right-clicks, as many Civ4 icons open their Sevopedia page on a right click; added on 2026-11-20, when it opened a leader's page from the Military Advisor's leader buttons, and showed that a list box row's right click reaches neither the DLL nor the screen.
+  - `click` on an elevated window, such as the user's Task Manager, fails: Windows keeps a normal program's input out of it, and the tool says the target runs elevated (2026-11-26).
   - `hover` moves the pointer without clicking or taking focus, to reveal a tooltip. On 2026-11-10 it read the Codex app's usage reset times.
-  - `move` places a window on a monitor: `full`, `left` or `right` half, `topleft` or `bottomleft` at its own size, or `beside --beside <pid>`; `positions save|restore|list <name>` keeps named layouts of the Claude app, the Codex app and Civ4 in `layouts/window_positions.json`, found by program name. Both added on 2026-11-14; see [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md).
+  - `move` places a window on a monitor: `full`, `maximize` (a real Windows maximize, added on 2026-11-24, as `full` only resizes the window), `left` or `right` half, `topleft` or `bottomleft` at its own size, or `beside --beside <pid>`; `positions save|restore|list <name>` keeps named layouts of the Claude app, the Codex app and Civ4 in `layouts/window_positions.json`, found by program name. Both added on 2026-11-14; see [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md).
   - `dump --pid` presses Full Dump at Civ4's crash prompt by its label, waits until the writer lets go of the file, checks the process ID the dump records and copies it to `Civ4BeyondSword_<pid>_<time>.dmp`, as every Civ4 writes the same file name ([KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)). Added on 2026-11-13; not yet tried on a real prompt.
+  - `save-download` answers the Save As dialog the Claude app opens for each download from the agent's browser pane, which blocks the app until answered; run `wait-idle` before the click that starts the download, then `save-download --title https://drive.usercontent.google.com/ --expect Civ4ScreenShot5385.JPG` (any start of the dialog's title, the download's URL, and the file name the site shows). Added on 2026-11-23, tried with the user on single Drive files and a Drive folder ZIP.
+    - It saves into `Downloads` (`--folder` for another) by the absolute path, so the clash check holds whatever folder the dialog opened in, and never replaces a file: a name already there gets the time, `Civ4ScreenShot5385_20261123T091130.JPG`, the user's idea. Success is that exact file arriving.
+    - It stops and leaves the dialog to the user when the name differs from `--expect`, or when the keyboard or mouse was used while the dialog was up, checked again just before Save: a Drive ZIP took seconds to prepare, its dialog opened while the user was typing, and "he" became the file name. A prompt over the dialog is left open too.
+    - Found by testing, and why it works by IDs and searches: the name box is an Edit nested in a `FloatNotifySink`, not control 1148 on the dialog; the replace prompt is a task dialog whose Yes and No both have ID 0; and behind that prompt the Save dialog is hidden and disabled, not closed. Choosing a free name first means no prompt comes up at all.
+    - Codex's review (GPT-6.2-Sol, 2026-11-23) found the gaps the first version left: typing before the dialog was first seen passed, any new file in `Downloads` counted as the result, a bare name was relative to the dialog's folder, and the prompt's last button was pressed as if it were No. Each is fixed as above, and the mismatch, clash and free-name cases were tried live after.
+  - `button LABEL --title PREFIX` (or `--pid`) presses a button by its text in any window, waits until the window no longer exists, as a hidden one is not closed (Codex's review), and lists what is still open if it does not.
   - `paste` clicks a message box and pastes text without sending it, restoring the clipboard's text; `key enter` then sends it, or `key ctrl+enter` queues it in an app that is still working. Claude Code and Codex message each other this way; see the [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#agents-talking-to-each-other).
   - Named `civ4_window.py` until 2026-11-10, before it was committed: it began as a Civ4 helper and was renamed once it drove other apps too.
 - `screenshot --crop LEFT TOP RIGHT BOTTOM --scale 0.5` keeps one part of the window and shrinks it: a full 3840-pixel window costs many tokens per read, a crop of the part that matters a fraction.
@@ -982,7 +1119,7 @@ python LLM_Helpers/code_history/history_lineage_tables.py --write
 - `click` and `hover` take `--point NAME` instead of x and y: a named Civ4 point from [`civ4_points.json`](/LLM_Helpers/game_runs/ui_maps/civ4_points.json), such as `main_menu_sevopedia` or `pedia_units`, with each point's measurement date.
   - Points are window-relative, so where the window sits does not matter, but its size does: each layout is keyed by the window's outer size, and a window of another size is refused rather than clicked in the wrong spot.
   - When a resolution, text scale or UI change moves a point, read it off a screenshot and update the file, or add a layout for the new window size.
-- `monitors` lists each monitor's work area, the screen minus the taskbar, numbered from the left. `move --pid PID --monitor N full|left|right` places a window on that whole area or one half of it, without raising it or taking focus.
+- `monitors` lists each monitor's work area, the screen minus the taskbar, numbered from the left. `move --pid PID --monitor N full|maximize|left|right` places a window on that whole area or one half of it, or maximizes it there, without raising it or taking focus.
   - Added on 2026-11-11 to put the Claude and Codex apps side by side on one monitor; see [Side by side on one monitor](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#side-by-side-on-one-monitor).
 
 ```bash
@@ -1005,10 +1142,14 @@ python LLM_Helpers/desktop/desktop_windows.py click --pid 15692 963 809
   - Each layout sits on one line, unlike program-written JSON such as the Runtime files, so the layouts line up like table rows and a re-measure edits one line.
   - Keeping them as data means re-measuring edits no code. Each run reads the file at its start, so a fixed layout applies from the next send on, while code another agent is running, such as a background `--wait-reply`, is left alone.
   - `--check-box` reports the layout picked and whether the message box is empty, without sending; run it after moving a window or updating an app.
+  - The check fails closed. Any candidate area holding more than 5 dark pixels means a draft. "Empty" needs exactly one area whose `frame`, the composer's measured top border, is in place and whose placeholder gray starts at the area's left edge. Anything else stops the send, asking for a new measurement.
+    - Example (2026-11-26): after the user changed the apps' zoom, Claude's old area caught the + button and the caret, so an empty box read as 6 dark pixels and held Codex's reply, while Codex's old area lay below its text line, where a short draft would have read as empty and been pasted over.
+    - A first fix picked the area holding the most ink; Codex's review (GPT-6.2-Sol) showed that ink is not identity, as a gray toolbar could outscore the real line holding a short draft, hence the frame. Fixtures in [`test_agent_message_box.py`](/.github/workflows/tests/repository/test_agent_message_box.py) cover these cases.
 - **Re-measuring a layout:** app updates, a new screen or window size, or an opened panel can move the message box. When `--check-box` finds no layout, reads an empty box as not empty, or a send lands wrong:
   1. Screenshot the bottom of the window, e.g. `desktop_windows.py screenshot --pid PID --crop 0 1850 WIDTH 2110 --scale 0.5`. The printed `window=` rectangle gives the outer width.
   2. Find the placeholder text in the empty box ("Work with Codex", "Enter to send…"). `box` is a point on that line; `text` runs from about 20 px right of where the text starts, past the blinking cursor, to just left of the buttons, about 25 px above and below the line. Scale crop coordinates back up and add the crop's offset.
-  3. Update or add the layout in `app_layouts.json`: `width`, `box`, `text`, `measured` (the date) and `conditions` (screen, panels, app version). No code change is needed.
+  3. Update or add the layout in `app_layouts.json`: `width`, `box`, `text`, `frame`, `measured` (the date) and `conditions` (screen, panels, app version, zoom). No code change is needed.
+     - The Claude app shows its zoom at the bottom right when a zoom shortcut is pressed, with steps of 100, 110, 120, 131 and 144% seen on 2026-11-26; Codex shows it at the top right after a View > Zoom choice, 150% that day.
   4. Check it: `--check-box` should report the layout and an empty box. To check that text is noticed too, paste a word with `desktop_windows.py paste` without sending, run `--check-box` again, then clear the box with `key ctrl+a` and `key backspace`.
 - `--start` opens the target app when it has no window, then sends; with no message it only opens it. Added on 2026-11-15, when the user closed Codex and asked that agents be able to reopen it rather than ask.
   - Store apps have no stable `.exe` path, as `WindowsApps` holds a folder per version, so it opens them through `explorer.exe` and `shell:AppsFolder` with each app's AppUserModelID, kept as `launch` in `app_layouts.json` (from PowerShell `Get-StartApps`; Codex lists as ChatGPT, package `OpenAI.Codex`).
@@ -1113,6 +1254,22 @@ python LLM_Helpers/desktop/sound_check.py --seconds 6 --front 21184 --wave-png w
 
 - Added with help of Claude Code Opus 5.5.
 
+#### `screen_record.py`
+
+- Records one monitor's work area, the screen without the taskbar and Start menu, with ffmpeg's `gdigrab`, optionally while running a command given after `--`. It then saves the frames whose picture changed as `frame_NNN.png`, which an agent reads or tiles with [`contact_sheet.py`](#contact_sheetpy).
+- No OBS is needed: ffmpeg is already installed and runs without a window to drive. OBS remains the tool for long demo recordings with scenes and sound.
+- Written on 2026-11-19, when a SASPilot save from 2026-11-15 made Civ4 quit within a second of loading. The user saw a popup flash; polling Civ4's windows found only the startup box and the game window, as Civ4 draws its popups inside the game window. The recording showed "Load Error: Failed to uncompress game data", then "Load Failed.".
+  - The save predated the base AdvCiv 1.14 merge, which widened CvPlayer's religion and corporation city counts and moved its save flag from 22 to 23, mirroring AdvCiv. SAS kept no reader for flag 22, so the old save's stream no longer lines up (KI#46).
+  - Below: the five changed frames, tiled with `contact_sheet.py` (the startup box, the desktop, the loading window, the two popups over the loading screen, then the desktop after the exit), and the popups enlarged from the fourth frame.
+- `--fps` (default 20) must be high enough for what flashes; `--scene` (default 0.02) lowers to keep more frames.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_screen_record_civ4_load_failed_frames.PNG" alt="llm_screen_record_civ4_load_failed_frames.PNG" width="250"> <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_screen_record_civ4_load_failed_popups.PNG" alt="llm_screen_record_civ4_load_failed_popups.PNG" width="250">
+
+```bash
+python LLM_Helpers/desktop/screen_record.py --out captures --seconds 16 -- python SASPilot/SASPilotClient.py --save my_save --no-wait start
+python LLM_Helpers/desktop/contact_sheet.py --out captures/sheet.png --columns 3 --scale 0.25 captures/frame_*.png
+```
+
 ## `diagnostics/`
 
 ### SASGameRecord comparison helpers
@@ -1121,7 +1278,7 @@ python LLM_Helpers/desktop/sound_check.py --seconds 6 --front 21184 --wave-png w
 
 [`summarize_first_city_scouting.py`](/LLM_Helpers/diagnostics/summarize_first_city_scouting.py) streams one or many opening SGR logs and optionally pairs BBAI logs by process identity and load ordinal. This turns first-capital scouting traces into reviewable summaries across test maps, without adding runtime work or log rows. It covers initial Settlers, not general Scout/Explorer efficiency.
 
-- Record `SAS_SGR_LOG >= 2` for unit IDs and observed scouting origins. Optional `SAS_BBAI_LOG_ON=1` and `SAS_BBAI_SETTLER_LOG=3` add selected-candidate reveal estimates; full FOUND scoring is not required. Set controls before launch and leave shipping defaults disabled.
+- Record with `SAS_SGR_LOG_ON=1` and `SAS_SGR_LOG >= 2` for unit IDs and observed scouting origins. Optional `SAS_BBAI_LOG_ON=1` in the XML and `SAS_BBAI_SETTLER_1ST_LOG = 3` in `SASLiveDefineOverrides.txt` add selected-candidate reveal estimates; full FOUND scoring is not required. Set controls before launch and leave shipping defaults disabled.
 - Pass SGR paths or quoted globs; repeat `--bbai` for BBAI paths/globs. Extract archived logs first. A separate file is required per session. New/load headers identify sessions; absent or ambiguous matches remain explicitly unpaired.
 - Observed A-B-A origins and revisits are review flags. Requested endpoints alone do not establish arrival. Return-to-found actions remain separate; there is no arbitrary universal founding-time cutoff.
 - Positive estimated information with zero oracle reveals identifies a scoring discrepancy worth inspecting. Oracle counts are pre-move diagnostic estimates, not measured reveals caused by that unit. BBAI lacks unit IDs here, so those selections remain player-level evidence.
@@ -1218,6 +1375,8 @@ python LLM_Helpers\diagnostics\summarize_sasgamerecord_volume.py "C:\path\SASGam
   - `status` also lists every other integer define that differs from the committed XML, so a value changed locally outside the table, which `off` would not reset, shows up without another list to keep.
 - Edits only those values in place and preserves the file's CRLF line endings.
 - Refuses to write while `Civ4BeyondSword.exe` is running, because live XML edits during a run have produced XML errors and crashes.
+- `stage` stages the file with the shipped values and leaves the working file, and any game reading it, unchanged; it works with Civ4 open, where `off` and `on` around `git add` do not.
+  - Added on 2026-11-19, when a commit came while the user had Civ4 open on a game.
 
 ```bash
 python ./LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on
@@ -1251,12 +1410,25 @@ python LLM_Helpers/dll_builds/build_dll.py syntax CvGameInterface.cpp CyGame.cpp
 python LLM_Helpers/dll_builds/build_dll.py build --configuration Debug-opt
 ```
 
+```bash
+python LLM_Helpers/dll_builds/build_dll.py build --install --close
+```
+
 - `build` defaults to a Debug-opt `REBUILD`, which cleans `temp_files/<target>` first, as the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md) asks; `--configuration Release` for a shipped DLL.
 - `syntax` takes file names in `CvGameCoreDLL` or paths, and writes no objects: three changed files took 9 seconds on 2026-11-13, against about 10 minutes for a build.
 - Why: started without `vcvars32`, `build_with_report.ps1` failed within 4 seconds with cmd's "not recognized as a command" and no compiler line (2026-11-13). Earlier sessions had each written a `.bat` for this into their own scratchpad, which the next session could not see.
 - The `PATH` change came from its first build, the same day: `cmd.exe` inherited Git Bash's `PATH`, so the Makefile's `FIND /C /V ""` ran Git's Unix `find`, which crawled all of `C:` while nmake waited.
   - The build report stayed `RUNNING` with no `cl.exe` running, and `AdvCiv.log` ended in `FIND: '/C/$Recycle.Bin/...': Permission denied` lines. A build that seems stuck is worth those two checks. See [KI#38.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7).
 - Read the exit code `build` returns rather than one after a pipe: `build | tail` reported 0 for that stopped build.
+- `install` copies the built DLL into `Assets` for a local test, the DLL alone, as its `.build.json` joins it only for a shipped Release update; `build --install` does both.
+  - It installs only a DLL its build report calls a successful build of that configuration, with the same hash, and refuses while a Civ4 runs this mod, which `--close` closes first.
+  - It writes the copy beside the installed DLL under a name of its own, checks it against the hash the build report attests, then swaps it in by a rename, so a failed copy leaves the old DLL in place (Codex's review).
+    - Against the report rather than the build folder's file, since 2026-11-27: Codex's review of the main port saw that a build finishing during `--close` would replace that file, so a check against it would pass bytes the report never attested.
+  - Why: each DLL test on 2026-11-20 took these steps by hand, closing Civ4, copying the DLL and starting the game again, until the user asked for a script.
+  - A Civ4 that had exited but still showed in the process list once kept the old DLL open, so a copy failed with "Device or resource busy".
+    - Windows refuses to overwrite a DLL any process has loaded, so a lock with any Civ4 still alive is refused; with none alive, Windows still lets the file be renamed, so `install` renames it to `CvGameCoreDLL.dll.locked_<time>_<pid>` beside it, prints that path, and copies the new one in.
+      - Beside it rather than in `%TEMP%`, as first written, since `os.replace` cannot move a file to another drive, and Steam's folder can sit on another drive than the system's (Codex's review, 2026-11-27); the leftover can be deleted once that process is gone.
+  - It finds this mod's clients with `desktop_windows.client_mod`, which also reads the `Mod` line of a client's `ini=` file: the first version looked only for the mod's name in the command line, missed a SASPilot client and replaced the DLL under it.
 
 ### `debug_dll.py`
 
@@ -1340,6 +1512,21 @@ python LLM_Helpers/formatting/trim_source_blank_lines.py
 python LLM_Helpers/formatting/trim_source_blank_lines.py Assets/Python/CvUtil.py --apply
 ```
 
+### SAS header after a sweep
+
+#### `add_sas_header.py`
+
+[`add_sas_header.py`](/LLM_Helpers/formatting/add_sas_header.py) adds the SAS modification header to inherited Python files after their own leading notices, with an optional credited custom note saying what changed and why.
+
+- A sweep that changes inherited files, such as [`python_aligned_columns.py`](/.github/workflows/README.md#buildsourcepython_aligned_columnspy)`--fix` or [`python_multiline_calls.py`](/.github/workflows/README.md#buildsourcepython_multiline_callspy)`--fix`, makes the source-provenance check ask each changed file for the header; `--from-provenance` takes the files it reports, `--base-ref HEAD` comparing with the last commit.
+- Added on 2026-11-23, after [KI#21.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.8)'s spacing sweep needed the header in twelve files, from a scratch script that first doubled a notice block's closing `#` line.
+- Preview is the default; `--apply` writes, and only once every file has passed its checks. A file that already has the header, or has no leading notices, is skipped and named.
+
+```powershell
+python LLM_Helpers/formatting/add_sas_header.py --from-provenance --base-ref HEAD
+python LLM_Helpers/formatting/add_sas_header.py --from-provenance --base-ref HEAD --note "Layout only: ... See KI#21.8." --credit "Claude code Opus 5.5" --apply
+```
+
 ### Custom-comment logical reflow
 
 #### `reflow_custom_comments.py`
@@ -1389,6 +1576,7 @@ The older [`comment_cleanup_pass_v2.py`](#comment_cleanup_pass_v2py) remains a h
 
 Conservative source-rewrite helper for Python files.
 
+- For runtime Python (`Assets/Python`, `PrivateMaps`), prefer [`python_multiline_calls.py --fix`](/.github/workflows/README.md#buildsourcepython_multiline_callspy), the CI check that keeps such calls out: it fixes exactly what it flags, including `x += f(` and `a, b = f(`, which this helper's patterns miss ([KI#21.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-21.7)).
 - Collapses multiline call-like statements and simple parenthesized return expressions into one line.
 - Useful for making Civ4 Python calls easier to grep/review and for reducing harmless continuation-indent noise.
 - Skips statements containing comments, multiline strings, explicit backslash continuations, and large list/dict/table assignments.
@@ -1602,16 +1790,32 @@ Example:
 python LLM_Helpers\formatting\collapse_multiline_brackets.py Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py
 ```
 
-#### `apply_replacements.py`
+#### `heredoc_safe_replace.py`
 
 Applies exact text replacements to one file from a patch file, for edits too many or too long to make one by one.
 
+- Named for the trap it avoids (renamed from `apply_replacements.py` on 2026-11-23): write the patch file with the Write tool, which keeps backslashes, and pass only its path through the shell; a test patch holding `\\`, `\n`, `\t` and `[\BOLD]` came through unchanged.
+  - Writing this very line through a heredoc turned its `\\` into `\`, its `\n` into a line break and its `\t` into a tab, as the helper's new name warns.
+  - Created on 2026-11-13 as `apply_replacements.py`, it still went unnoticed: on 2026-11-23 Claude Code Opus 5.5 wrote the same read, count-check, replace and write script inline through heredocs all day, halving backslashes, as the old name never came to mind.
+    - So, at the user's suggestion, it took a name saying which trap it avoids, and AGENTS.md's backslash rule names it, as of now, so the next agent meets it where the trap is described.
 - The patch file holds blocks of `<<<<<<< OLD`, the text to find, `=======`, the text to put, and `>>>>>>> NEW`, each marker on its own line. Every old text must occur exactly once, or `--count` times; otherwise nothing is written and every failing block is listed.
+  - For example, the test patch, which replaced one line of a Python file with its backslashes intact:
+
+    ```text
+    <<<<<<< OLD
+    path = "C:\\Users\\PC"
+    =======
+    path = "C:\\Program Files\\Civ4"  # \n and \t stay literal, [\BOLD] too
+    >>>>>>> NEW
+    ```
+
+  - The example lives here rather than in AGENTS.md, whose backslash rule keeps only the slip and a one-line cure linking to it: an agent who meets the heredoc trap follows the link, and the others need not read the format (the user, 2026-11-23).
+
 - Keeps the file's CRLF or LF and its encoding (`--encoding cp1252` for legacy sources); `--dry-run` only checks.
 - Why it exists: on 2026-11-13 two agents patching SASPilot wrote this script about ten times in their scratchpads. Passing the texts through a shell kept failing: heredocs mangled backslashes and regex escapes, an apostrophe ended a quoted block, and `sed` left mixed line endings. Write the patch file with the agent's file-writing tool, which involves no shell quoting.
 
 ```bash
-python ./LLM_Helpers/formatting/apply_replacements.py CvGameCoreDLL/CvPlayer.cpp patch.txt --dry-run
+python ./LLM_Helpers/formatting/heredoc_safe_replace.py CvGameCoreDLL/CvPlayer.cpp patch.txt --dry-run
 ```
 
 #### `fix_line_endings.py`
@@ -1623,7 +1827,9 @@ External cleanup helper for line-ending hygiene.
 - Defaults to active repo text-like files and excludes generated/reference folders such as `LLM_Helpers/outputs`, `_1_AdvCiv-SAS/Docs/examples` and the verbatim `LLM_Helpers/context/mapscript_refs` corpus.
 - Preserves each file's dominant existing line-ending style by default, so it does not force the whole repo to LF or CRLF.
 - Adds a final newline to non-empty text files by default; use `--no-final-newline` only when deliberately preserving a missing final newline.
-- Use `--eol lf` or `--eol crlf` only for deliberate normalization passes; their commit needs `Convert line endings` in its message, or [`line_ending_churn.py`](/.github/workflows/README.md#buildhygieneline_ending_churnpy) fails it. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
+  - It adds it after the last line with content: vanilla's `CvDiplomacyInterface.py` ended on a whitespace-only line without a newline, and appending one left the file ending in two blank lines (2026-11-22, KI#1104).
+- `--trim-trailing-blank-lines` also drops blank lines before an existing final newline. It is opt-in: 60 tracked files ended that way on 2026-11-22, many inherited, and touching one only for whitespace makes provenance ask for its SAS header.
+- Use `--eol lf` or `--eol crlf` only for deliberate normalization passes; their commit needs `[ci_convert_line_endings]` in its message, or [`line_ending_churn.py`](/.github/workflows/README.md#buildhygieneline_ending_churnpy) fails it. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
 - Always review the diff before committing generated source changes.
 
 Examples:
@@ -2047,6 +2253,8 @@ Conservative source-rewrite helper for active Markdown documentation.
 - `--check` checks source-line reflow locally. The automated `.github/workflows/build/documentation/markdown_prose_changes.py` check flags added/edited prose blocks of at least 400 characters with safe sentence boundaries. A split needs at least 100 characters on each side so short headings/follow-ups stay attached.
   - Soft newlines do not satisfy the block check: use a few coherent blank-line paragraphs or child bullets, keeping related short sentences together.
   - The earlier broad cleanup over-split ordinary prose. Review candidate boundaries rather than automatically making every sentence a paragraph.
+- `--child-bullets` makes a long list item's later sentences child bullets two spaces under it, the visible structure the prose check asks for; plain paragraphs keep soft newlines, as their structure needs review. `--lines` limits a pass to given line numbers, such as the ones `markdown_prose_changes.py` flags.
+  - Added on 2026-11-19, when 14 flagged bullets of the SASPilot docs were first split by a scratch script; review that each child still reads as part of its parent.
 - Semantic visible restructuring remains a human/LLM review task. In particular, convert evidence/validation/update/part-2 material into nested sub-bullets only when it genuinely belongs to the same change; distinct changes remain peer bullets.
 - Preserves the input line-ending style and is idempotent after a successful pass.
 - Always review the diff before committing.
@@ -2057,6 +2265,7 @@ Examples:
 python LLM_Helpers\formatting\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\README_Known_Issues.md --diff
 python LLM_Helpers\formatting\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\README_Known_Issues.md --in-place
 python LLM_Helpers\formatting\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\README_Main_Changes_Guide.md --in-place
+python LLM_Helpers\formatting\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\Modding_Resources\README_SASPilot_Playtests.md --child-bullets --lines 443,449 --diff
 ```
 
 ## `game_runs/`
@@ -2151,6 +2360,18 @@ python LLM_Helpers/game_runs/run_steps.py --pid 20608 --out steps.png --crop 0 3
 
 - In GPT-6.1-Sol's live check on 2026-11-12, this sequence opened Sevopedia from the main menu, filtered Units, selected the War Chariot and captured its tooltip. Replace the example PID with the target client's PID. The runner was added by Claude Code Opus 5.5.
 
+#### `doc_screenshots.py`
+
+- Taking the docs' screenshots by hand is preferred for now: choosing the save and the moment is what shows UI faults (the user, 2026-11-21). The list keeps the preferred saves and views, and the runner is for bulk refreshes when a change touches many shots, such as the commerce sliders' background.
+- Retakes the docs' screenshots listed in [`doc_screenshots.json`](/LLM_Helpers/game_runs/doc_screenshots.json): one Civ4 client per save role, each screen opened and each tab pressed by name through SASPilot, then Civ4's own Print Screen through `SASPilotClient.py shot`, written over the image in `_1_AdvCiv-SAS/Images`. Review the result with `git diff` before staging.
+  - Each list entry names its image, save role, screen, the tabs or buttons to press, an optional point to hover in the 1920 x 1080 game area (the real pointer goes there, so the game draws the tooltip, as the Relations tab's attitude breakdown needs) and presses that undo a toggle afterwards.
+  - The save roles (`t201`, `t301`, `sas48`) name local saves with a note on how to make a new one, as saves break across commits.
+- `--list` prints the list and what it does not cover yet; `--only '*military*'` and `--save t201` narrow it; `--dry-run` says what it would take.
+- Before each shot it waits until nobody has used the keyboard or mouse for 2 seconds, brings the window forward, places the pointer, then checks that the pointer stayed and that only that screen is open, without a city screen; otherwise it takes the shot again.
+  - Written on 2026-11-21 by Claude Code Opus 5.5, after the user moving the mouse during the first run clicked a city open and two shots showed its city screen.
+  - The first check also failed every time on its own: `shot`'s Print Screen brought the window forward by clicking its title bar, which moved the pointer, so the window is now brought forward before the pointer is placed.
+- The method, and why Civ4's own JPG rather than `desktop_windows.py screenshot`, are in the [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#screenshots-for-the-docs).
+
 #### `capture_screens.py`
 
 - Launches Civ4 into a mod itself, runs `point:SCREEN.CONTROL`, `click:X,Y`, `hover:X,Y`, `key:NAME` (such as `ctrl+w`), `shot:NAME` and `wait:SECONDS` steps, saves each `shot` as a full-size PNG, then closes its own client.
@@ -2206,8 +2427,18 @@ python LLM_Helpers/game_runs/map_preview_dds.py Wheel --pick 2 --chooser "Claude
   - It waits until the window is full size and two captures 3 s apart barely differ, and `--debug-mode` then presses Ctrl+Z to reveal the map.
 - Written on 2026-11-12 to map WorldBuilder on a 48-player SAS48 map and the Advanced Start screen.
   - `--option GAMEOPTION_ADVANCED_START` starts Advanced Start with 0 points, since QuickStart skips the setup's Advanced Start Base Points; go through Custom Game for points, as the UI map's `advanced_start` screen describes.
+- `--era ERA_INDUSTRIAL` sets the start era, as the INI's QuickStart `Era` key does; added on 2026-11-19 for a later-era sample, as older late-game saves no longer loaded. For a developed late game, `run_autoplay.py --era` with Advanced Start gives every civ its points and plays the turns.
+- `--size 1920x1080` starts at that resolution through the run's INI copy, as `map_preview_dds.py` does; added on 2026-11-24 to compare a game started at a resolution with one switched to it in game ([KI#123.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.4)). A resolution chosen in game is saved in the profile, so the next run without `--size` opens at it.
+  - `--load` takes `--size` too, through its own per-run INI, since later the same day a late-game save was needed at both sizes: a turn-0 game hides the commerce sliders and has a narrow scoreboard.
+  - With `--debug-mode`, a popup open on load, such as an AI's diplomacy offer, can take the Ctrl+Z, so check that the map is revealed; on 2026-11-24 one did, and three captures meant for debug mode were not.
+
+- A client hung at exit ([KI#1102](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)) blocks a new client, by Civ4's single-instance check as inferred, so one used to quit at once ("Civ4 exited while loading"); since 2026-11-26 the script ends such a client with `desktop_windows.terminate_process()` first, and starts beside one that survives with Civ4's `multiple` argument.
+
+- `--load SAVE` loads a save into AdvCiv-SAS instead and leaves it open with no autoplay, so a fix can be checked on the position a bug was seen in; `run_autoplay.py --turns 1` would play that turn first. `--debug-mode` still applies.
+  - Added on 2026-11-22 to check [KI#11.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-11.3) on the user's turn-22 save, after a hand-typed launch through `python -c` in Bash lost the backslash of `mod=\AdvCiv-SAS`; the helper builds the arguments in Python.
 
 ```bash
+python LLM_Helpers/game_runs/start_game.py --load "C:/Users/PC/Documents/My Games/beyond the sword/Saves/single/Agent BC-9500_moved_to_sheep_plains_2.CivBeyondSwordSave" --debug-mode
 python LLM_Helpers/game_runs/start_game.py --map Pangaea --world-size WORLDSIZE_SAS48 --debug-mode
 python LLM_Helpers/game_runs/start_game.py --option GAMEOPTION_ADVANCED_START
 ```
@@ -2219,6 +2450,7 @@ python LLM_Helpers/game_runs/start_game.py --option GAMEOPTION_ADVANCED_START
   - `--overlays DIR` saves each page with its found boxes numbered, to check the result; `--categories` limits the run.
 - It waits until the user has been idle before each click: on its first run the user's typing landed in the Sevopedia's search box once a click had brought Civ4 forward, and emptied the entry list.
 - The map also describes the page kinds and what EXPAND does, and names the unit page's panels as an example. Rerun it after a resolution or Sevopedia code change.
+- In a game, SASPilot's `uiopen pedia` and `uipress` reach the same entries and EXPAND buttons by name, with no coordinates, since 2026-11-20; see [Screens and buttons by name](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#screens-and-buttons-by-name-saspilotui). The map stays for the Sevopedia opened from the main menu, where SASPilot does not run.
 - Each box or button is written on one line, such as `[377, 107, 1130, 290]`: plain indented JSON put every number on its own line, which made the file 1,492 lines long and hard to scan. On Codex's suggestion (2026-11-11) the writer keeps number lists together, and the file shrank to 476 lines with the same parsed data.
 
 ```bash
@@ -2244,6 +2476,22 @@ python LLM_Helpers/housekeeping/archive_old_files.py --all --apply
 
 - `--all` checks every known folder; `run_autoplay.py` calls the same check at the end of each run, so the folders it fills stay under about 1,000 entries without anyone remembering.
 - `--dumps` lists Civ4 crash dumps in `Temp` and `Downloads/AdvCiv-SAS_LLM/crash_dumps/` with their size and age, as dumps clutter by size rather than count; it deletes nothing. `run_autoplay.py` runs it quietly after each run, so it prints only past 5 GB in all or for a `Temp` copy over a week old. On 2026-11-18 it listed 3 kept dumps, 2.74 GB.
+
+#### `unzip_flat.py`
+
+Writes a ZIP's files under their own names into one short folder, leaving out its folders.
+
+- Why: a Known Issue's Drive folder downloads as a ZIP whose inner folder carries the KI's whole title, KI#11's 268 characters, so in `Downloads` its paths pass Windows' 260-character limit and 7-Zip could not extract them (the user, 2026-11-23).
+- It writes nothing when two files share a name, compared as Windows does, ignoring case, when a name is one Windows reserves, such as `NUL.txt`, or when one is already in the folder, and it creates each file exclusively.
+
+- Codex's review (GPT-6.2-Sol) extracted `a/Shot.JPG` and `b/shot.jpg` from a test ZIP: the first version let the second overwrite the first, as Windows ignores case.
+
+```bash
+python LLM_Helpers/housekeeping/unzip_flat.py "C:/Users/PC/Downloads/drive-download-20261122T134656Z-1-001.zip" --out "C:/Users/PC/Downloads/ki11"
+```
+
+- Tried on KI#11's folder ZIP: its six screenshots came out byte for byte the user's copies.
+- Added with help of Claude Code Opus 5.5.
 
 ### Screenshot privacy
 
@@ -2629,53 +2877,6 @@ From the repository root:
 ```bash
 python LLM_Helpers/packaging/refresh_commit_diffs.py
 python LLM_Helpers/packaging/refresh_commit_diffs.py --dry-run
-```
-
-## `saspilot/`
-
-### Piloting a running game
-
-- Why a folder of its own: SASPilot started in `game_runs/` beside the autoplay and click tools, but it is a job of its own, reading and driving a game as JSON, and had grown to seven scripts and two data folders. The user asked for its own folder on 2026-11-15.
-  - Inside it the old `pilot_` prefix said nothing, so `pilot_checks/` and `pilot_sequences/` became `checks/` and `sequences/`.
-  - The folder is `saspilot/`, not `pilot/`: a bare "pilot" leaves a reader wondering what it is, while SASPilot names the feature, as SGR and BBAI logging do, and greps as one word (the user's point).
-  - `run_autoplay.py` stays in `game_runs/` and `desktop_windows.py` sits in [`desktop/`](#desktop), as other tools use them too; `SASPilotClient.py` and `SASPilotConsole.py` add those folders to their import path.
-- Why `SASPilot<Role>.py`: the console window was already called SASPilotConsole, and the user wanted script and window to share one name, so the other scripts followed.
-  - `SASPilotClient.py`, not `SASPilot.py`, for the old `pilot.py`: [`SASPilot.py`](/Assets/Python/SASPilot.py) is already the in-game bridge that answers it, and two files of one name would make every grep and link ambiguous. Client says what it is: the desktop side of that bridge. `Core` or `Main` were considered and said less.
-  - A CamelCase name had been avoided at first, lest it read as another in-game file like `SASPilotCommands.py`; the folder now tells them apart, as Civ4 loads only `SASPilotCommands.py` from it, and the desktop scripts start with a shebang and argparse.
-  - The helpers import the client as `import SASPilotClient as pilot`, so their code still reads `pilot.request(...)`.
-
-#### `SASPilotClient.py` and `SASPilotCommands.py`
-
-- `SASPilotClient.py` is the command-line client of SASPilot: it starts a piloted game (`start`), then reads and drives it as JSON, such as `todo`, `units`, `city city=Carthage`, `move unit=16385 x=40 y=28`, `produce`, `research`, `endturn`, `save`, `autoplay`, `info type=UNIT_WARRIOR`, and `py "<code>"` to run Python inside the game. `help` lists the commands.
-- `SASPilotCommands.py` holds those commands. It is Python 2.4 run inside Civ4, loaded from this folder by [SASPilot.py](/Assets/Python/SASPilot.py) and reloaded when it changes, so commands can be added while a game runs. It sits here because the EXE reinitializes its Python when a `.py` under `Assets` changes.
-  - The Python 2.4 compile check covers `Assets/Python` and `PrivateMaps` only, so check this file by hand: `C:\Python24\python.exe -c "import py_compile; py_compile.compile('LLM_Helpers/saspilot/SASPilotCommands.py', doraise=True)"` writes a `.pyc` beside it; delete that afterwards.
-- SASPilot is off unless `SAS_PILOT_ON` is 1 or the launch INI has `[SASPilot] On = 1`, which `SASPilotClient.py start` writes.
-- Commands, measurements, what failed first and the limits (popups, diplomacy, the main menu) are in the [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md).
-- Written on 2026-11-13 by Claude Code Fable 5.2, when the user asked for a way to pilot the active player from the command line rather than through screenshots and clicks.
-- `SASPilotReplay.py` replays a sequence from [`sequences/`](/LLM_Helpers/saspilot/sequences/), a list of pilot commands against a save, and lists each reply that differs from the last accepted run (`--accept`), so a DLL rebuild or a command edit that changes an answer shows up at once.
-  - Added the same day by Claude Code Opus 5.5, after about ten DLL rebuilds checked by hand only; see [Replaying commands](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#replaying-commands).
-  - `fogplay_t105_freetech.json` takes the Oracle's free tech at turn 105 of the 2026-11-13 fog-on playthrough; `fogplay_t115_core.json` reads most commands with fog on at turn 115, opens and leaves diplomacy, and ends a turn; `fogplay_t116_queued_build.json` queues a Work Boat's fishing boats behind its move and checks they are built; `fogplay_t148_trade_table.json` puts Navigation on Pacal's trade table and expects his 65-gold counter-offer, which an empty trade table had given away for free. Their saves are local, in `Saves/single`.
-- `SASPilotClient.py` appends every request to a per-client command log, `Logs/SASPilot_<processStartUtc>_<pid>.jsonl`, with the agent's `note=` reason; [`SASPilotConsole.py`](/LLM_Helpers/saspilot/SASPilotConsole.py) opens SASPilotConsole, showing orders by default and reads with `--all`.
-  - Added by Claude Code Opus 5.5 on 2026-11-14 so the user can watch an agent play and a game can be reviewed afterwards beside SASGameRecord; see [SASPilotConsole](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#saspilotconsole).
-- [`SASPilotScout.py`](/LLM_Helpers/saspilot/SASPilotScout.py) is a read-only opening experiment for locked play clients.
-  - It shortlists frontier destinations from the fogged grid and checks travel times with Civ4's pathfinder.
-  - `--around X,Y` (with `--band` and `--ccw`) loops around a city, and each choice gives the best-defended plot to stop on this turn; it refuses a wounded unit and stops near visible animals, rules added after the 2026-11-14 playthroughs lost a Warrior's health to a Lion and a Scout to a Bear.
-  - See [the scouting trial](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#scouting-trial).
-- [`SASPilotExplore.py`](/LLM_Helpers/saspilot/SASPilotExplore.py) moves several scouting units a turn at a time, each looping around its own center with `SASPilotScout.py`'s choices (`UNIT:X,Y:MIN,MAX[:ccw,nohut]`), one plot per step, huts first, then ends the turn; it stops on a hostile next to a unit and on new messages, reminders or idle units.
-  - Grown from a scratch driver over the 2026-11-14 playthroughs; see [the scouting trial](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#scouting-trial).
-- [`SASPilotSites.py`](/LLM_Helpers/saspilot/SASPilotSites.py) compares candidate city sites from the fogged grid before a Settler exists: resources, fresh water, coast, hill, grassland, overlap, unknown plots and distance to rival borders, with a heuristic score whose parts come from the user's reviews of the same playthroughs. Advice, not fact: it prints the facts beside the score.
-- [`SASPilotPlots.py`](/LLM_Helpers/saspilot/SASPilotPlots.py) judges plots in numbers rather than pictures, with numpy and scipy, which Civ4's Python 2.4 lacks: `layer` prints food, production, commerce, owner or coast as a grid you can read row by row, or with `--sum` each plot's total over a city radius, and `regions` lists landmasses and unowned clusters with their sizes.
-  - With `--potential food,production,commerce`, each plot counts its best improvement by those weights, from the in-game `potential` command (`--later` adds builds a tech away), so a site with two unimproved Clams no longer reads as plain coast.
-  - The square is centered on an anchor, `--x/--y`, `--unit`, `--city`, `--bonus` or `--camera`, with `--radius` for its size, so a large map such as SAS48 is read a crop at a time.
-  - It reads `plots`, which gives every revealed plot's yields under fog, where `grid` gives them only for plots in sight.
-  - Begun at the user's request in the islands replay (2026-11-15), for Workers and military as well as settling.
-- [`SASPilotTurns.py`](/LLM_Helpers/saspilot/SASPilotTurns.py) ends turns until something needs the agent (`todo`'s `blocking`), handling only routine steps: the ships named with `--explorers` scout one plot at a time toward `seareach`'s recommendation; with `--peace-on-contact` a first-contact greeting gets peace; with `--refuse-recommendations` the advisor's production popup is refused; an AI offer of techs we already have is rejected.
-  - After each turn it prints only the new reminders and messages.
-  - Written in the islands replay (2026-11-15) after the same shell loop had been rewritten many times, and once ended six turns against an open diplomacy screen.
-- [`checks/`](/LLM_Helpers/saspilot/checks/) holds snippets run inside the game with `SASPilotClient.py py @<file>`. `trade_items_parity.py` compares the C++ trade table (`getSASPilotTradeItemsJson`) with the Python loop it replaced, for every pair of players, and lists any entry only one side has; written for that port's first test on 2026-11-13 and kept to recheck either side after a change.
-
-```bash
-python LLM_Helpers/saspilot/SASPilotReplay.py LLM_Helpers/saspilot/sequences/fogplay_t115_core.json
 ```
 
 ## `sassavetransplanter/`

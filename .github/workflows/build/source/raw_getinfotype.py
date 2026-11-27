@@ -45,6 +45,11 @@ ALLOWED_RELATIVE_PATH_REASONS = {
 		RAW_GETINFOTYPE_NAME: "WorldBuilder save/load reads dynamic scenario strings",
 		RAW_FINDINFOTYPE_NAME: "WorldBuilder save/load reads dynamic scenario strings",
 	},
+	# <!-- custom: BtS's CvWBInterface.py, copied into SAS on 2026-11-22, looks up the game and map settings a WorldBuilder file names (world size, climate, sea level, era, speed, calendar, options, victories) and each player's leader, civilization, handicap and color.
+	# Codex checked all 14 lookups: a file can omit a value or write NONE, as unused player slots do, and findInfoTypeNum's -1 is relied on there, where the strict helper would raise; an unknown nonempty tag already fails through CvUtil.pyAssert. See KI#1104. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	Path("Assets/Python/EntryPoints/CvWBInterface.py"): {
+		RAW_FINDINFOTYPE_NAME: "WorldBuilder load reads omitted and NONE values as -1, such as unused player slots",
+	},
 }
 
 # Function-scope exceptions. These helpers are allowed to call the raw API/wrapper internally;

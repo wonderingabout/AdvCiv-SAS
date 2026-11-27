@@ -66,8 +66,9 @@ def read_shortcuts():
 				group = "%s: %s" % (match.group(1).lower(), heading.group(1).strip())
 			key = re.search(r"\[BOLD\](.*?)\[\\BOLD\]", line)
 			if key:
-				name = re.sub(r"\[[^\]]*\]", "", key.group(1)).strip()
-				action = re.sub(r"\s+", " ", re.sub(r"\[[^\]]*\]", " ", line[key.end():])).strip()
+				# <!-- custom: Tags are uppercase names, such as [COLOR_REVERT] or [\BOLD]; the first pattern, any "[...]", also took the key's own bracket in "Shift + [[COLOR_REVERT]", so Shift + [ read as "Shift +" when the Cheats page gained it (2026-11-23). (Claude code Opus 5.5) -->
+				name = re.sub(r"\[\\?[A-Z][A-Z0-9_]*\]", "", key.group(1)).strip()
+				action = re.sub(r"\s+", " ", re.sub(r"\[\\?[A-Z][A-Z0-9_]*\]", " ", line[key.end():])).strip()
 				if name and action:
 					groups.setdefault(group, []).append([name, action])
 	return groups

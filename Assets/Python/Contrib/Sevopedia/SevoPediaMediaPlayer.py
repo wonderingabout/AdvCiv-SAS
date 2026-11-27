@@ -154,7 +154,9 @@ class SevoPediaMediaPlayer:
 		iLeftX = iScreenW / 2 - iTotalW / 2
 		return iLeftX + iIndex * (iSize + iGap)
 
-	def placeQueueList(self, screen, iScreenW, iScreenH, items, currentIndex, groupByIndex, groupLabels, itemIcons):
+	# <!-- custom: itemLinks, when given, holds each item's (widget, data1, data2) Sevopedia link, such as (WIDGET_PEDIA_JUMP_TO_BUILDING, iWonder, 1), or None: the list's rows had no hover or link, while the entries' pages already open their movie (the user, 2026-11-21, Civ4ScreenShot0187).
+	# The list takes no selection, so a row's click has no other use. (Claude code Opus 5.5) -->
+	def placeQueueList(self, screen, iScreenW, iScreenH, items, currentIndex, groupByIndex, groupLabels, itemIcons, itemLinks=None):
 		if (items is None) or (len(items) == 0):
 			return
 
@@ -248,9 +250,14 @@ class SevoPediaMediaPlayer:
 			szButton = ""
 			if (itemIcons is not None) and (i < len(itemIcons)):
 				szButton = itemIcons[i]
+			eWidget = WidgetTypes.WIDGET_GENERAL
+			iData1 = -1
+			iData2 = -1
+			if (itemLinks is not None) and (i < len(itemLinks)) and (itemLinks[i] is not None):
+				(eWidget, iData1, iData2) = itemLinks[i]
 			iRow = screen.appendTableRow(self.queueListId)
-			screen.setTableText(self.queueListId, 0, iRow, "", szButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(self.queueListId, 1, iRow, szLabel, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(self.queueListId, 0, iRow, "", szButton, eWidget, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(self.queueListId, 1, iRow, szLabel, "", eWidget, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
 			iRows += 1
 			i += 1
 
@@ -442,12 +449,17 @@ class SevoPediaMediaPlayer:
 		self.currentLabelY = self.timerLabelY
 		self._updateTimerLabel()
 
-	def setCurrentLabel(self, screen, szLabel):
+	# <!-- custom: Only the title text takes the page link, so clicking the picture still behaves as before. (GPT-6.2-Sol) -->
+	def setCurrentLabel(self, screen, szLabel, pageLink=None):
 		if not szLabel:
 			return
 		if self.currentLabelX <= 0:
 			return
-		screen.setLabel(self.currentLabelId, "Background", SASTextScale.labelText(szLabel), CvUtil.FONT_LEFT_JUSTIFY, self.currentLabelX, self.currentLabelY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		if pageLink is None:
+			screen.setLabel(self.currentLabelId, "Background", SASTextScale.labelText(szLabel), CvUtil.FONT_LEFT_JUSTIFY, self.currentLabelX, self.currentLabelY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		else:
+			eWidget, iData1, iData2 = pageLink
+			screen.setText(self.currentLabelId, "Background", SASTextScale.labelText(szLabel), CvUtil.FONT_LEFT_JUSTIFY, self.currentLabelX, self.currentLabelY, -0.1, FontTypes.SMALL_FONT, eWidget, iData1, iData2)
 
 	def startTimer(self):
 		self.timerSeconds = 0
@@ -536,8 +548,14 @@ class SevoPediaMediaPlayer:
 				if self.toggleCallback is not None:
 					self.toggleCallback()
 				return True
+			# <!-- custom: Let a title click reach its native jump, or stay on the overlay when the title has no page.
+			# The normal overlay close first returns to the media index. (GPT-6.2-Sol) -->
+			if szName == self.currentLabelId:
+				return False
 			# Exit button, or click anywhere on the overlay (image/title/background or movie/nif/dds/title/background) to close.
-			if szName == self.exitId or szName.startswith(self.clickPrefix):
+			# <!-- custom: The queue's native links navigate on their own.
+			# Leave unlinked rows, such as victory movies, out of click-to-close handling. (GPT-6.2-Sol) -->
+			if szName == self.exitId or (szName.startswith(self.clickPrefix) and szName != self.queueListId):
 				closeCallback()
 				return True
 

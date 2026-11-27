@@ -31,7 +31,7 @@ import re
 import MonkeyTools # advc.085: For checking Ctrl key
 import LayoutDict # advc.092
 import CvScreensInterface # advc.092
-import CvScreenEnums
+# <!-- custom: Removed import CvScreenEnums, added only for the Tech Chooser's right-aligned names, which the caller's name fitting replaced. (Claude code Opus 5.5) -->
 import SASTextScale
 # <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base scoreboard text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
 
@@ -225,12 +225,14 @@ class Scoreboard:
 	def setID(self, value):
 		self._set(ID, smallText(value))
 
-	def setName(self, value):
+	# <!-- custom: Added szRawName, the name without color markup, so draw can shorten it inside the colored value. (Claude code Opus 5.5) -->
+	def setName(self, value, szRawName):
 		# advc.085: See setScore
 		widgetData = None
 		if gc.getPlayer(self._currPlayerScore.getID()).isAlive():
 			widgetData = self._getContactWidget()
 		self._set(NAME, smallText(value), widgetData)
+		self._currPlayerScore.setRawName(szRawName)
 
 	def setNotMet(self):
 		self._set(NOT_MET)
@@ -255,7 +257,8 @@ class Scoreboard:
 			if (ScoreOpt.isShowResearchIcons()):
 				self._set(RESEARCH, tech)
 			else:
-				self._set(RESEARCH, smallText(gc.getTechInfo(tech).getDescription()))
+				# <!-- custom: The text form had no hover, unlike the icon form; it now carries the icon's widget, data2 0 included so hovering expands the scoreboard alike (advc.085). (Claude code Opus 5.5) -->
+				self._set(RESEARCH, smallText(gc.getTechInfo(tech).getDescription()), (WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, tech, 0))
 		#if turns >= 0: # advc.004x
 		#	self._set(RESEARCH_TURNS, smallText(u"(%d)" % turns))
 		# <advc.085> Replacing the two lines above
@@ -277,8 +280,9 @@ class Scoreboard:
 	def setPact(self):
 		self._set(PACT, True, self._getDealWidget(TradeableItems.TRADE_DEFENSIVE_PACT))
 
-	def setReligion(self, value):
-		self._set(RELIGION, smallText(value))
+	# <!-- custom: The state religion icon had no hover; it now hovers and opens the religion's Sevopedia page, as the research icon does for its tech. (Claude code Opus 5.5) -->
+	def setReligion(self, value, eReligion):
+		self._set(RELIGION, smallText(value), (WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, eReligion, 1))
 
 	def setAttitude(self, value):
 		self._set(ATTITUDE, smallText(value))
@@ -422,14 +426,19 @@ class Scoreboard:
 		return ((ScoreOpt.isShowDeadCivs() and p.isEverAlive()) or p.isAlive())
 	# </advc.085>
 
-	def draw(self, screen, iScrollOffset=0, iMaxRows=None, bForceExpanded=False, bPrepared=False):
+	# <!-- custom: Added iNameMaxW, a width cap for the name column, and the drawn width as return value, so the caller can redraw with shorter names when the scoreboard overflows; with bNameFill, iNameMaxW is the name column's exact width, wider names shortened and narrower ones padded. (Claude code Opus 5.5) -->
+	def draw(self, screen, iScrollOffset=0, iMaxRows=None, bForceExpanded=False, bPrepared=False, iNameMaxW=None, bNameFill=False):
 		# Sorts and draws the scoreboard right-to-left, bottom-to-top.
 		#
 		timer = BugUtil.Timer("scores")
 		self.hide(screen)
+		# <!-- custom: Reset per draw, for a scoreboard without a name column. (Claude code Opus 5.5) -->
+		self._iNameWidth = 0
+		self._iDrawnNameWidth = 0
+		self._iRightOfNameWidth = 0
 		if not bPrepared:
 			self.prepare()
-		# <!-- custom: slice to visible scroll window before drawing; keep sliced so hide(True) on hover only re-shows the visible window. (Claude code Sonnet 4.6) -->
+		# <!-- custom: slice to visible scroll window before drawing; keep sliced so hide(True) on hover only re-shows the visible window. See KI#134.2. (Claude code Sonnet 4.6 + Claude code Opus 5.5) -->
 		if iMaxRows is not None:
 			iScrollOffset = max(0, min(iScrollOffset, max(0, len(self._playerScores) - iMaxRows)))
 			self._playerScores = self._playerScores[iScrollOffset : iScrollOffset + iMaxRows]
@@ -483,11 +492,8 @@ class Scoreboard:
 		# </advc.085>
 		format = re.findall('(-?[0-9]+|[^0-9])', szDisplayOrder.replace(' ', '').upper())
 		format.reverse()
-		# <!-- custom: when Tech Chooser is open, right-align scoreboard names to recover usable width near the left edge of the panel; keep normal alignment elsewhere. (GPT-5.3-Codex) -->
+		# <!-- custom: Removed the Tech Chooser's forced right-aligned names: they showed only the ends of names, such as "e O'Malley"; the caller now cuts names to fit instead, read from their start. (GPT-5.3-Codex + Claude code Opus 5.5) -->
 		bLeftAlignName = ScoreOpt.isLeftAlignName()
-		bTechChooserActive = CyGInterfaceScreen("TechChooser", CvScreenEnums.TECH_CHOOSER).isActive()
-		if bTechChooserActive:
-			bLeftAlignName = False
 		for k in format:
 			if k == '-':
 				spacing = 0
@@ -572,6 +578,17 @@ class Scoreboard:
 				if (width == 0):
 					spacing = defaultSpacing
 					continue
+				# <!-- custom: Cap the name column at iNameMaxW, or with bNameFill set it to exactly iNameMaxW, and keep the widths the caller measures the room with. (Claude code Opus 5.5) -->
+				bTrimName = False
+				if c == NAME:
+					self._iNameWidth = width
+					if iNameMaxW is not None and width > iNameMaxW:
+						width = iNameMaxW
+						bTrimName = True
+					elif iNameMaxW is not None and bNameFill:
+						width = iNameMaxW
+					self._iDrawnNameWidth = width
+					self._iRightOfNameWidth = totalWidth + spacing
 				x -= spacing
 				for p, playerScore in enumerate(self._playerScores):
 					# advc.085: Moved up, insert player ID.
@@ -583,6 +600,9 @@ class Scoreboard:
 								value = VASSAL_PREFIX + value
 							else:
 								value += VASSAL_POSTFIX
+						# <!-- custom: Shorten only names wider than the capped column. (Claude code Opus 5.5) -->
+						if bTrimName:
+							value = playerScore.getNameTrimmedToWidth(value, width)
 						displayValue = SASTextScale.labelText(value)
 						align = CvUtil.FONT_RIGHT_JUSTIFY
 						adjustX = 0
@@ -670,6 +690,18 @@ class Scoreboard:
 
 		#screen.show( "ScoreBackground" ) # advc.004z: Handled by caller now
 		timer.log()
+		# <!-- custom: The drawn width, for the caller to compare with the room beside an open advisor. (Claude code Opus 5.5) -->
+		return totalWidth
+
+	# <!-- custom: The name column's width before and after the iNameMaxW cap of the last draw, and the width of the columns on its right, its spacing included. (Claude code Opus 5.5) -->
+	def getNameWidth(self):
+		return self._iNameWidth
+
+	def getDrawnNameWidth(self):
+		return self._iDrawnNameWidth
+
+	def getRightOfNameWidth(self):
+		return self._iRightOfNameWidth
 
 class TeamScores:
 	def __init__(self, scoreboard, team, rank):
@@ -732,6 +764,34 @@ class PlayerScore:
 		self._values = [None] * NUM_PARTS
 		self._widgets = [None] * NUM_PARTS
 		self._sortKey = None
+		# <!-- custom: The name without its color markup or brackets, which getNameTrimmedToWidth shortens inside the colored value. (Claude code Opus 5.5) -->
+		self._rawName = None
+
+	def setRawName(self, szRawName):
+		self._rawName = szRawName
+
+	# <!-- custom: Shortens the raw name inside the colored value, ending it with ".", until it fits iMaxW.
+	# Only the name's first occurrence outside a tag changes: a first version replaced every occurrence, so a player named "color" would also have rewritten its <color=...> and </color> tags (Claude code Opus 5.5 + GPT-6.2-Sol). -->
+	def getNameTrimmedToWidth(self, szValue, iMaxW):
+		iStart = self._findRawNameOutsideTags(szValue)
+		if iStart < 0:
+			return szValue
+		szBefore = szValue[:iStart]
+		szAfter = szValue[iStart + len(self._rawName):]
+		szRaw = self._rawName
+		szTrimmed = szValue
+		while len(szRaw) > 1 and CyInterface().determineWidth(SASTextScale.labelText(szTrimmed)) > iMaxW:
+			szRaw = szRaw[:-1]
+			szTrimmed = szBefore + szRaw.rstrip() + u"." + szAfter
+		return szTrimmed
+
+	def _findRawNameOutsideTags(self, szValue):
+		iStart = szValue.find(self._rawName)
+		while iStart >= 0:
+			if szValue.rfind(u"<", 0, iStart) <= szValue.rfind(u">", 0, iStart):
+				return iStart
+			iStart = szValue.find(self._rawName, iStart + 1)
+		return -1
 
 	def player(self):
 		return self._player

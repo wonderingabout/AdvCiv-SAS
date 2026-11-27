@@ -69,18 +69,18 @@ def getNumHiddenCustomMapOptions():
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
-		0:	"TXT_KEY_MAP_WORLD_WRAP",
-		1:	"Mirrored Hubs",
-		2:	"TXT_KEY_MAP_SCRIPT_SPOKE_WIDTH",
-		3:	"Regions",
-		4:	"Oil and Aluminium",
-		5:	"Elephant",
-		6:	"Precious Metal",
-		7:	"Positioning",
-		8:	"Forest Density",
-		9:	"Start Distance",
+		0: "TXT_KEY_MAP_WORLD_WRAP",
+		1: "Mirrored Hubs",
+		2: "TXT_KEY_MAP_SCRIPT_SPOKE_WIDTH",
+		3: "Regions",
+		4: "Oil and Aluminium",
+		5: "Elephant",
+		6: "Precious Metal",
+		7: "Positioning",
+		8: "Forest Density",
+		9: "Start Distance",
 		10: "Central Hub",
-		11:	"Desert"
+		11: "Desert"
 		}
 	if not option_names.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -92,16 +92,16 @@ def getNumCustomMapOptionValues(argsList):
 	# <!-- custom: SAS exposed BTG's dormant fourth Positioning label, but Crossed executed the same mapping as Together.
 	# Restore the original three selectable modes until a distinct Crossed policy exists. See KI#272. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	option_values = {
-		0:	3,
-		1:	4,
-		2:	6,
-		3:	4,
-		4:	2,
-		5:	2,
-		6:	2,
-		7:	3,
-		8:	4,
-		9:	4,
+		0: 3,
+		1: 4,
+		2: 6,
+		3: 4,
+		4: 2,
+		5: 2,
+		6: 2,
+		7: 3,
+		8: 4,
+		9: 4,
 		10: 3,
 		11: 2
 		}
@@ -110,18 +110,18 @@ def getNumCustomMapOptionValues(argsList):
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 			},
-		1:	{
+		1: {
 			0: "No",
 			1: "Yes - Shape only (not position)",
 			2: "Yes - Shape and position",
 			3: "Yes - Mirrored"
 			},
-		2:	{
+		2: {
 			0: "TXT_KEY_MAIN_MENU_NONE",
 			1: "TXT_KEY_MAP_SCRIPT_1_PLOT_WIDE",
 			2: "TXT_KEY_MAP_SCRIPT_2_PLOTS_WIDE",
@@ -129,47 +129,47 @@ def getCustomMapOptionDescAt(argsList):
 			4: "TXT_KEY_MAP_SCRIPT_4_PLOTS_WIDE",
 			5: "TXT_KEY_MAP_SCRIPT_5_PLOTS_WIDE"			
 			},
-		3:	{
+		3: {
 			0: "4 Regions",
 			1: "5 Regions",
 			2: "9 Regions",
 			3: "7 Regions",			
 			},
-		4:	{
+		4: {
 			0: "Standard",
 			1: "Within 5 tiles"
 			},
-		5:	{
+		5: {
 			0: "Standard",
 			1: "Within 7 tiles"
 			},
-		6:	{
+		6: {
 			0: "Standard",
 			1: "Within 7 tiles"
 			},
-		7:	{
+		7: {
 			0: "Numerical Order",
 			1: "Full position shuffle",
 			2: "Outside positions, together"
 			},
-		8:	{
+		8: {
 			0: "High - 60% (Game base)",
 			1: "Standard - 40% (map base)",
 			2: "Scarce - 25%",
 			3: "Rare - 10%"
 			},
-		9:	{
+		9: {
 			0: "Normal - 16 Tiles away",
 			1: "Far - 20 Tiles away",
 			2: "Close - 12 Tiles away",
 			3: "Super Close - 8 Tiles away"
 			},	
-		10:	{
+		10: {
 			0: "Normal Hub",
 			1: "Wealthy Hub",			
 			2: "Amazing Hub"
 			},
-		11:	{
+		11: {
 			0: "Normal",
 			1: "None - replace by grassland"
 			}
@@ -182,35 +182,35 @@ def getCustomMapOptionDescAt(argsList):
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	2,
-		1:	0,
-		2:	5,
-		3:	1,
-		4:	1,
-		5:	0,
-		6:	0,
-		7:	2,
-		8:	1,
-		9:	2,
-		10:	0,
-		11:	0
+		0: 2,
+		1: 0,
+		2: 5,
+		3: 1,
+		4: 1,
+		5: 0,
+		6: 0,
+		7: 2,
+		8: 1,
+		9: 2,
+		10: 0,
+		11: 0
 		}
 	return option_defaults[iOption]
 
 def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
 	option_random = {
-		0:	false,
-		1:	false,
-		2:	false,
-		3:	false,
-		4:	true,
-		5:	true,
-		6:	true,
-		7:	true,
-		8:	true,
-		9:	true,
-		10:	true,
+		0: false,
+		1: false,
+		2: false,
+		3: false,
+		4: true,
+		5: true,
+		6: true,
+		7: true,
+		8: true,
+		9: true,
+		10: true,
 		11: true
 		}
 	return option_random[iOption]
@@ -341,7 +341,7 @@ def beforeGeneration():
 		remaining_regionsTwo.append(loopy)#2.21z Cheezey		
 
 	# Templates are nested by keys: {NumRegions: {RegionID: [WestLon, EastLon, SouthLat, NorthLat]}}
-	templates =  {4: {0: [0.0, 0.334, 0.334, 0.667],
+	templates = {4: {0: [0.0, 0.334, 0.334, 0.667],
 				1: [0.667, 1.0, 0.334, 0.667],
 				2: [0.334, 0.667, 0.0, 0.334],
 				3: [0.334, 0.667, 0.667, 1.0]},
@@ -996,7 +996,8 @@ def assignStartingPlots():
 		if region_duplicated[0] in best_regions :
 					tpR = [region_duplicated[0]]
 					for item in best_regions :
-							if item not in tpR : tpR.append(item)
+							if item not in tpR :
+								tpR.append(item)
 					best_regions = tpR
 		else :
 			print("you missed something there O.o")

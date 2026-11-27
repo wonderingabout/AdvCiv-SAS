@@ -54,6 +54,13 @@ def pending_errors(before, after):
             if value == "pending" and previous.get(number) == "pending"]
 
 
+# <!-- custom: The practical number each heading states, by revision; a heading without one, as in older fixtures, is not checked.
+# A finalized entry's commit is fixed, so its practical number, git rev-list --count of that commit, is known; a pending one depends on how its branch lands, so it stays unchecked, as the README explains.
+# Hand-written numbers had all matched (233 entries on 2026-11-26), but nothing caught a slip, which the user raised after the SASLiveDefineOverrides chunks were reordered before committing (KI#128.5). (Claude code Opus 5.5) -->
+def stated_practicals(text):
+    return {int(match.group(1)): int(match.group(2)) for match in re.finditer(r"^### Revision (\d+) - SAS practical (\d+)\b", text, re.MULTILINE)}
+
+
 def runtime_revision(repo, commit):
     return runtime.revision(read(repo, commit, runtime.SOURCE), read(repo, commit, runtime.DEFINES))
 
@@ -62,6 +69,7 @@ def runtime_revision(repo, commit):
 # A rewritten/squashed branch must reconcile its references; unchanged merges preserve valid commit identities. (GPT-6.1-Sol) -->
 def reference_errors(repo, path, reader, default_commit, first_marker=1):
     entries = references(read(repo, None, path))
+    practicals = stated_practicals(read(repo, None, path))
     default_revision = reader(repo, default_commit) if default_commit else None
     canonical = set() if default_commit is None else set(subprocess.check_output(
         ["git", "rev-list", default_commit], cwd=repo, text=True).splitlines())
@@ -80,6 +88,10 @@ def reference_errors(repo, path, reader, default_commit, first_marker=1):
             errors.append(f"revision {number}: Git commit absent from eligible ancestry; reconcile after amend/rebase/squash")
         elif number >= first_marker and reader(repo, value) != number:
             errors.append(f"revision {number}: Git commit does not contain its matching recorder revision")
+        elif number in practicals:
+            count = int(subprocess.check_output(["git", "rev-list", "--count", value], cwd=repo, text=True))
+            if count != practicals[number]:
+                errors.append(f"revision {number}: heading says SAS practical {practicals[number]}, but its Git commit is practical {count}")
     return errors
 
 

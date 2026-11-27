@@ -67,15 +67,15 @@ def getNumHiddenCustomMapOptions():
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
-		0:	"TXT_KEY_MAP_WORLD_WRAP",
-		1:	"Mirrored Hubs",
-		2:	"TXT_KEY_MAP_SCRIPT_SPOKE_WIDTH",
-		3:	"Lines Count",
-		4:	"Precious Metal",
-		5:	"Empty Land",
-		6:	"Forest Density",
-		7:	"Start Distance",
-		8:	"Desert",
+		0: "TXT_KEY_MAP_WORLD_WRAP",
+		1: "Mirrored Hubs",
+		2: "TXT_KEY_MAP_SCRIPT_SPOKE_WIDTH",
+		3: "Lines Count",
+		4: "Precious Metal",
+		5: "Empty Land",
+		6: "Forest Density",
+		7: "Start Distance",
+		8: "Desert",
 		9: "Starting Units"
 		}
 	if not option_names.has_key(iOption):
@@ -86,16 +86,16 @@ def getCustomMapOptionName(argsList):
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	3,
-		1:	4,
-		2:	6,
-		3:	3,
-		4:	2,
-		5:	2,
-		6:	4,
-		7:	3,
-		8:	2,
-		9:	2
+		0: 3,
+		1: 4,
+		2: 6,
+		3: 3,
+		4: 2,
+		5: 2,
+		6: 4,
+		7: 3,
+		8: 2,
+		9: 2
 		}
 	if not option_values.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -104,18 +104,18 @@ def getNumCustomMapOptionValues(argsList):
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 			},
-		1:	{
+		1: {
 			0: "No",
 			1: "Yes - Shape only (not position)",
 			2: "Yes - Shape and position",
 			3: "Yes - Mirrored"
 			},
-		2:	{
+		2: {
 			0: "TXT_KEY_MAIN_MENU_NONE",
 			1: "TXT_KEY_MAP_SCRIPT_1_PLOT_WIDE",
 			2: "TXT_KEY_MAP_SCRIPT_2_PLOTS_WIDE",
@@ -123,35 +123,35 @@ def getCustomMapOptionDescAt(argsList):
 			4: "TXT_KEY_MAP_SCRIPT_4_PLOTS_WIDE",
 			5: "TXT_KEY_MAP_SCRIPT_5_PLOTS_WIDE"			
 			},
-		3:	{
+		3: {
 			0: "1 Line  Flat",
 			1: "2 Lines Rectangle",
 			2: "3 Lines Tall"
 			},
-		4:	{
+		4: {
 			0: "Standard",
 			1: "Within 7 tiles"
 			},
-		5:	{
+		5: {
 			0: "Yes - Leave empty ocean when no player",
 			1: "No - Fill in the space as if there would be someone"
 			},
-		6:	{
+		6: {
 			0: "High - 60% (Game base)",
 			1: "Standard - 40% (map base)",
 			2: "Scarce - 25%",
 			3: "Rare - 10%"
 			},
-		7:	{
+		7: {
 			0: "Normal - 16 Tiles away",
 			1: "Far - 20 Tiles away",
 			2: "Far Mixed - 20 Tiles Horizontal, 16 Vertical"
 			},	
-		8:	{
+		8: {
 			0: "Normal",
 			1: "None - replace by grassland"
 			},	
-		9:	{
+		9: {
 			0: "Normal - Scattered",
 			1: "Special - Together Same Tile"
 			}
@@ -166,15 +166,15 @@ def getCustomMapOptionDescAt(argsList):
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	2,
-		1:	2,
-		2:	3,
-		3:	2,
-		4:	0,
-		5:	0,
-		6:	1,
-		7:	0,
-		8:	0,
+		0: 2,
+		1: 2,
+		2: 3,
+		3: 2,
+		4: 0,
+		5: 0,
+		6: 1,
+		7: 0,
+		8: 0,
 		9: 0
 		}
 	if not option_defaults.has_key(iOption):
@@ -184,16 +184,16 @@ def getCustomMapOptionDefault(argsList):
 def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
 	option_random = {
-		0:	false,
-		1:	false,
-		2:	false,
-		3:	false,
-		4:	true,
-		5:	true,
-		6:	true,
-		7:	true,
-		8:	true,
-		9:	true
+		0: false,
+		1: false,
+		2: false,
+		3: false,
+		4: true,
+		5: true,
+		6: true,
+		7: true,
+		8: true,
+		9: true
 		}
 	if not option_random.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -237,97 +237,97 @@ def getGridSize(argsList):
 		if (CyMap().getCustomMapOption(7) == 0):
 			if (CyMap().getCustomMapOption(3) == 0):
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_ARENA:		(6,4),
-					WorldSizeTypes.WORLDSIZE_DUEL:		(8,4),
-					WorldSizeTypes.WORLDSIZE_TINY:		(12,4),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(16,4),
-					WorldSizeTypes.WORLDSIZE_STANDARD:		(21,4),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(23,4),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(26,4)
+					WorldSizeTypes.WORLDSIZE_ARENA: (6,4),
+					WorldSizeTypes.WORLDSIZE_DUEL: (8,4),
+					WorldSizeTypes.WORLDSIZE_TINY: (12,4),
+					WorldSizeTypes.WORLDSIZE_SMALL: (16,4),
+					WorldSizeTypes.WORLDSIZE_STANDARD: (21,4),
+					WorldSizeTypes.WORLDSIZE_LARGE: (23,4),
+					WorldSizeTypes.WORLDSIZE_HUGE: (26,4)
 				}
 			elif (CyMap().getCustomMapOption(3) == 1):
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_ARENA:		(6,4),
-					WorldSizeTypes.WORLDSIZE_DUEL:		(8,4),
-					WorldSizeTypes.WORLDSIZE_TINY:		(8,8),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(12,8),
-					WorldSizeTypes.WORLDSIZE_STANDARD:		(16,8),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(21,8),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(23,8)
+					WorldSizeTypes.WORLDSIZE_ARENA: (6,4),
+					WorldSizeTypes.WORLDSIZE_DUEL: (8,4),
+					WorldSizeTypes.WORLDSIZE_TINY: (8,8),
+					WorldSizeTypes.WORLDSIZE_SMALL: (12,8),
+					WorldSizeTypes.WORLDSIZE_STANDARD: (16,8),
+					WorldSizeTypes.WORLDSIZE_LARGE: (21,8),
+					WorldSizeTypes.WORLDSIZE_HUGE: (23,8)
 				}	
 			else:
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_ARENA:		(4,6),
-					WorldSizeTypes.WORLDSIZE_DUEL:		(4,8),
-					WorldSizeTypes.WORLDSIZE_TINY:		(4,12),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(8,12),
-					WorldSizeTypes.WORLDSIZE_STANDARD:		(12,12),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(16,12),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(21,12)# not set up
+					WorldSizeTypes.WORLDSIZE_ARENA: (4,6),
+					WorldSizeTypes.WORLDSIZE_DUEL: (4,8),
+					WorldSizeTypes.WORLDSIZE_TINY: (4,12),
+					WorldSizeTypes.WORLDSIZE_SMALL: (8,12),
+					WorldSizeTypes.WORLDSIZE_STANDARD: (12,12),
+					WorldSizeTypes.WORLDSIZE_LARGE: (16,12),
+					WorldSizeTypes.WORLDSIZE_HUGE: (21,12)# not set up
 				}
 
 		elif (CyMap().getCustomMapOption(7) == 1): # Section 2 - if the map is clicked for larger (20)
 			if (CyMap().getCustomMapOption(3) == 0):
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_ARENA:		(8,5),
-					WorldSizeTypes.WORLDSIZE_DUEL:		(10,5),
-					WorldSizeTypes.WORLDSIZE_TINY:		(15,5),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(20,5),
-					WorldSizeTypes.WORLDSIZE_STANDARD:		(26,5),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(29,5),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(32,5)
+					WorldSizeTypes.WORLDSIZE_ARENA: (8,5),
+					WorldSizeTypes.WORLDSIZE_DUEL: (10,5),
+					WorldSizeTypes.WORLDSIZE_TINY: (15,5),
+					WorldSizeTypes.WORLDSIZE_SMALL: (20,5),
+					WorldSizeTypes.WORLDSIZE_STANDARD: (26,5),
+					WorldSizeTypes.WORLDSIZE_LARGE: (29,5),
+					WorldSizeTypes.WORLDSIZE_HUGE: (32,5)
 				}
 			elif (CyMap().getCustomMapOption(3) == 1):
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_ARENA:		(8,5),
-					WorldSizeTypes.WORLDSIZE_DUEL:		(10,5),
-					WorldSizeTypes.WORLDSIZE_TINY:		(10,10),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(15,10),
-					WorldSizeTypes.WORLDSIZE_STANDARD:		(20,10),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(26,10),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(29,10)
+					WorldSizeTypes.WORLDSIZE_ARENA: (8,5),
+					WorldSizeTypes.WORLDSIZE_DUEL: (10,5),
+					WorldSizeTypes.WORLDSIZE_TINY: (10,10),
+					WorldSizeTypes.WORLDSIZE_SMALL: (15,10),
+					WorldSizeTypes.WORLDSIZE_STANDARD: (20,10),
+					WorldSizeTypes.WORLDSIZE_LARGE: (26,10),
+					WorldSizeTypes.WORLDSIZE_HUGE: (29,10)
 				}	
 			else:
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_ARENA:		(5,8),
-					WorldSizeTypes.WORLDSIZE_DUEL:		(5,10),
-					WorldSizeTypes.WORLDSIZE_TINY:		(5,15),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(10,15),
-					WorldSizeTypes.WORLDSIZE_STANDARD:		(15,15),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(20,15),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(26,15)
+					WorldSizeTypes.WORLDSIZE_ARENA: (5,8),
+					WorldSizeTypes.WORLDSIZE_DUEL: (5,10),
+					WorldSizeTypes.WORLDSIZE_TINY: (5,15),
+					WorldSizeTypes.WORLDSIZE_SMALL: (10,15),
+					WorldSizeTypes.WORLDSIZE_STANDARD: (15,15),
+					WorldSizeTypes.WORLDSIZE_LARGE: (20,15),
+					WorldSizeTypes.WORLDSIZE_HUGE: (26,15)
 				}
 
 		else : # Section 3 - if 20x16
 			if (CyMap().getCustomMapOption(3) == 0):
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_ARENA:		(8,4),
-					WorldSizeTypes.WORLDSIZE_DUEL:		(10,4),
-					WorldSizeTypes.WORLDSIZE_TINY:		(15,4),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(20,4),
-					WorldSizeTypes.WORLDSIZE_STANDARD:		(26,4),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(29,4),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(32,4)
+					WorldSizeTypes.WORLDSIZE_ARENA: (8,4),
+					WorldSizeTypes.WORLDSIZE_DUEL: (10,4),
+					WorldSizeTypes.WORLDSIZE_TINY: (15,4),
+					WorldSizeTypes.WORLDSIZE_SMALL: (20,4),
+					WorldSizeTypes.WORLDSIZE_STANDARD: (26,4),
+					WorldSizeTypes.WORLDSIZE_LARGE: (29,4),
+					WorldSizeTypes.WORLDSIZE_HUGE: (32,4)
 				}
 			elif (CyMap().getCustomMapOption(3) == 1):
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_ARENA:		(8,4),
-					WorldSizeTypes.WORLDSIZE_DUEL:		(10,4),
-					WorldSizeTypes.WORLDSIZE_TINY:		(10,8),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(15,8),
-					WorldSizeTypes.WORLDSIZE_STANDARD:		(20,8),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(26,8),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(29,8)
+					WorldSizeTypes.WORLDSIZE_ARENA: (8,4),
+					WorldSizeTypes.WORLDSIZE_DUEL: (10,4),
+					WorldSizeTypes.WORLDSIZE_TINY: (10,8),
+					WorldSizeTypes.WORLDSIZE_SMALL: (15,8),
+					WorldSizeTypes.WORLDSIZE_STANDARD: (20,8),
+					WorldSizeTypes.WORLDSIZE_LARGE: (26,8),
+					WorldSizeTypes.WORLDSIZE_HUGE: (29,8)
 				}	
 			else:
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_ARENA:		(4,8),
-					WorldSizeTypes.WORLDSIZE_DUEL:		(4,10),
-					WorldSizeTypes.WORLDSIZE_TINY:		(4,15),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(10,12),
-					WorldSizeTypes.WORLDSIZE_STANDARD:		(15,12),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(20,12),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(26,12)
+					WorldSizeTypes.WORLDSIZE_ARENA: (4,8),
+					WorldSizeTypes.WORLDSIZE_DUEL: (4,10),
+					WorldSizeTypes.WORLDSIZE_TINY: (4,15),
+					WorldSizeTypes.WORLDSIZE_SMALL: (10,12),
+					WorldSizeTypes.WORLDSIZE_STANDARD: (15,12),
+					WorldSizeTypes.WORLDSIZE_LARGE: (20,12),
+					WorldSizeTypes.WORLDSIZE_HUGE: (26,12)
 				}			
 
 		[eWorldSize] = argsList
@@ -522,7 +522,7 @@ def beforeGeneration():
 						11: [0.833, 1.0, 0.50, 1.0]},
 		}
 	else:
-		templates =  {2: {0: [0.0, 1.0, 0.0, 0.5],
+		templates = {2: {0: [0.0, 1.0, 0.0, 0.5],
 					1: [0.0, 1.0, 0.5, 1.0]},
 				3: {0: [0.0, 1.0, 0.0, 0.334],
 					1: [0.0, 1.0, 0.334, 0.667],
@@ -1183,7 +1183,8 @@ def assignStartingPlots():
 		if region_duplicated[0] in best_regions :
 					tpR = [region_duplicated[0]]
 					for item in best_regions :
-							if item not in tpR : tpR.append(item)
+							if item not in tpR :
+								tpR.append(item)
 					best_regions = tpR
 		else :
 			print("you missed something there O.o")

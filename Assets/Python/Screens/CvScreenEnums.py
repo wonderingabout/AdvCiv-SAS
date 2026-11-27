@@ -20,6 +20,7 @@ FOREIGN_ADVISOR = 4
 # <!-- custom: legacy screen id 5 now maps to Foreign Diplomacy naming. (GPT-5.3-Codex) -->
 FOREIGN_DIPLOMACY_SCREEN = 5
 WONDER_MOVIE_SCREEN = 6
+# <!-- custom: Now opens the Policy Advisor's Religion tab; HandleInputMap routes it to policyAdvisorScreen. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 RELIGION_SCREEN = 7
 INTRO_MOVIE_SCREEN = 8
 # <!-- custom: canonical policy advisor screen id; removed civics/policy alias layer for strict naming consistency. (GPT-5.3-Codex) -->
@@ -41,8 +42,10 @@ WORLDBUILDER_SCREEN = 23
 WORLDBUILDER_DIPLOMACY_SCREEN = 24
 VICTORY_MOVIE_SCREEN = 25
 UN_SCREEN = 26
+# <!-- custom: Now opens the Foreign Diplomacy Advisor's Espionage tab; HandleInputMap routes it to foreignDiplomacyAdvisor. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 ESPIONAGE_ADVISOR = 27
 SPACE_SHIP_SCREEN = 28
+# <!-- custom: Now opens the Policy Advisor's Corporation tab; HandleInputMap routes it to policyAdvisorScreen. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 CORPORATION_SCREEN = 29
 # <!-- custom: split Foreign advisor shell id for diplomacy/intel cluster (F3 slot). (GPT-5.3-Codex) -->
 FOREIGN_DIPLOMACY_ADVISOR = 30
@@ -83,44 +86,44 @@ PEDIA_HISTORY = PEDIA_HINTS+1#CivilopediaPageTypes.CIVILOPEDIA_PAGE_HISTORY + PE
 # <!-- custom: Moved the constants from the removed SevoScreenEnums.py into class SevoScreenEnums in CvScreenEnums.py, so general/vanilla and Sevopedia IDs share one catalog without renumbering.
 # The inherited Sevopedia definitions overlap vanilla page IDs and PEDIA_MAIN names; the class keeps those meanings distinct. (GPT-6.1-Sol) -->
 class SevoScreenEnums:
-	PEDIA_MAIN		= 200
-	PEDIA_TECHS		= 201
-	PEDIA_UNITS		= 202
-	PEDIA_UNIT_UPGRADES	= 203
-	PEDIA_UNIT_CATEGORIES	= 204
-	PEDIA_PROMOTIONS	= 205
-	PEDIA_PROMOTION_TREE	= 206
-	PEDIA_BUILDINGS		= 207
-	PEDIA_NATIONAL_WONDERS	= 208
-	PEDIA_WORLD_WONDERS	= 209
-	PEDIA_PROJECTS		= 210
-	PEDIA_SPECIALISTS	= 211
-	PEDIA_TERRAINS		= 212
-	PEDIA_FEATURES		= 213
-	PEDIA_BONUSES		= 214
-	PEDIA_IMPROVEMENTS	= 215
-	PEDIA_BUILDS		= 232
-	PEDIA_CIVS			= 216
-	PEDIA_LEADERS		= 217
-	PEDIA_TRAITS		= 218 # <!-- custom: advc.004y: Restored; retain the trait category in the consolidated catalog. (GPT-6.1-Sol) -->
-	PEDIA_CIVICS		= 219
-	PEDIA_RELIGIONS		= 220
-	PEDIA_CORPORATIONS	= 221
-	PEDIA_CONCEPTS		= 222
-	PEDIA_BTS_CONCEPTS	= 223
-	PEDIA_HINTS		   	= 224
-	PEDIA_SHORTCUTS 	= 225
-	PEDIA_HANDICAP_CHART	= 226
-	PEDIA_INDEX		= 227
-	PEDIA_STRATEGY  	= 228
-	PEDIA_GAME_SPEED_CHART	= 229
-	PEDIA_WORLD_SIZE_CHART	= 230
-	PEDIA_ERA_CHART		= 231
-	PEDIA_MOVIES		= 233
-	PEDIA_MUSIC		= 234
-	PEDIA_VOTES		= 235
-	PEDIA_EVENT_TRIGGERS	= 236
-	PEDIA_ROUTES		= 237
+	PEDIA_MAIN = 200
+	PEDIA_TECHS = 201
+	PEDIA_UNITS = 202
+	PEDIA_UNIT_UPGRADES = 203
+	PEDIA_UNIT_CATEGORIES = 204
+	PEDIA_PROMOTIONS = 205
+	PEDIA_PROMOTION_TREE = 206
+	PEDIA_BUILDINGS = 207
+	PEDIA_NATIONAL_WONDERS = 208
+	PEDIA_WORLD_WONDERS = 209
+	PEDIA_PROJECTS = 210
+	PEDIA_SPECIALISTS = 211
+	PEDIA_TERRAINS = 212
+	PEDIA_FEATURES = 213
+	PEDIA_BONUSES = 214
+	PEDIA_IMPROVEMENTS = 215
+	PEDIA_BUILDS = 232
+	PEDIA_CIVS = 216
+	PEDIA_LEADERS = 217
+	PEDIA_TRAITS = 218 # <!-- custom: advc.004y: Restored; retain the trait category in the consolidated catalog. (GPT-6.1-Sol) -->
+	PEDIA_CIVICS = 219
+	PEDIA_RELIGIONS = 220
+	PEDIA_CORPORATIONS = 221
+	PEDIA_CONCEPTS = 222
+	PEDIA_BTS_CONCEPTS = 223
+	PEDIA_HINTS = 224
+	PEDIA_SHORTCUTS = 225
+	PEDIA_HANDICAP_CHART = 226
+	PEDIA_INDEX = 227
+	PEDIA_STRATEGY = 228
+	PEDIA_GAME_SPEED_CHART = 229
+	PEDIA_WORLD_SIZE_CHART = 230
+	PEDIA_ERA_CHART = 231
+	PEDIA_MOVIES = 233
+	PEDIA_MUSIC = 234
+	PEDIA_VOTES = 235
+	PEDIA_EVENT_TRIGGERS = 236
+	PEDIA_ROUTES = 237
 
 
 # <!-- custom: Enrich Python screen diagnostics by deriving names once from this catalog, instead of repeating ID-to-name tables at log callers.

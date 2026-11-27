@@ -387,6 +387,8 @@ public:
 		as Python isn't that fast anyway, can just use getDefineINT(char const*). */
 	// <!-- custom: Stable SAS integer/bool Defines shared by several recurring C++ paths use AdvCiv's enum-indexed global cache instead of separate function-local string caches.
 	// One-shot/setup-only settings and values whose useful cache is a caller-specific transformed result deliberately stay local. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: The last four joined on 2026-11-25, when an audit found them kept in statics in two or three functions that run all game; a clamp, where one applies, stays at each caller.
+	// Defines read only in a game's first turns, such as SAS_1ST_CITY_FOUND_MAX_T_UNSCALED_GS, stay statics. See KI#128.3. (Claude code Opus 5.5) -->
 	#define DO_FOR_EACH_SAS_SHARED_GLOBAL_DEFINE(DO) \
 		DO(SAS_TREB_LIKE_MIN_CITY_ATK_THRESH) \
 		DO(SAS_SITE_BARB_FULL_BFC_ON) \
@@ -410,12 +412,17 @@ public:
 		DO(SAS_CITY_LONG_TERM_WW_DIST_OVERRIDE_ON) \
 		DO(SAS_CULT_PROCESS_MIN_PRESSURE_FACTOR) \
 		DO(SAS_TECH_VAL_MILIT_FLAVOR_MIN) \
+		/* <!-- custom: The label font size, read with each hover and label; SASLiveDefineOverrides can change it during play with setDefineINT, which refreshes this entry, where a static would keep the first value. See KI#128.5. (Claude code Opus 5.5) --> */ \
 		DO(SAS_UI_FONT_LABEL) \
 		DO(SAS_UWAI_VICT_DENY_ON) \
 		DO(SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS) \
 		DO(SAS_UWAI_VICT_DENY_REFUSE_STAGE4_PEACE_ON) \
 		DO(SAS_UWAI_VICT_DENY_REFUSE_S3_SPACE_ON) \
-		DO(SAS_UWAI_EMERG_PEACE_ENEMY_PWR_THRESH)
+		DO(SAS_UWAI_EMERG_PEACE_ENEMY_PWR_THRESH) \
+		DO(SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT) \
+		DO(SAS_BLDG_PICK_WW_EAGERNESS_PCT) \
+		DO(SAS_BLDG_PICK_WW_LOCAL_DOM_MIN_PWR_PCT) \
+		DO(SAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON)
 	#define DO_FOR_EACH_GLOBAL_DEFINE(DO) \
 		DO(EXTRA_YIELD) /* K-Mod */ \
 		DO(CITY_RADIUS_DECAY) /* advc.130s */ \
@@ -563,6 +570,18 @@ public:
 		DO(SHOW_ODDS_IN_COMBAT_MESSAGES) /* advc.048 */ \
 		DO(CAN_CHOP_UNOWNED_FEATURES) /* advc.119 */ \
 		DO(DEFY_RESOLUTION_POP_ANGER) /* advc.118b */ \
+		/* <!-- custom: Inherited defines that functions in several files read all game and each kept in a static, such as COMMERCE_PERCENT_CHANGE_INCREMENTS in CvPlayer::verifyGoldCommercePercent and CvPlayerAI::AI_doCommerce; one home since 2026-11-25. See KI#128.3. (Claude code Opus 5.5) --> */ \
+		/* <!-- custom: Not the defines CvXMLLoadUtility::SetPostGlobalsGlobalDefines turns from XML type names into indices, such as STANDARD_HANDICAP or CAPITAL_BUILDINGCLASS: it sets them through GetDefinesVarSystem()->SetValue after cacheGlobals has filled this cache, so the cache would keep a stale value; moving those two crashed new-game creation in a test on 2026-11-25. cpp_define_reads_cached.py checks it. (Claude code Opus 5.5) --> */ \
+		DO(COMMERCE_PERCENT_CHANGE_INCREMENTS) \
+		DO(ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE) \
+		DO(MIN_CONVERSION_TURNS) \
+		DO(INITIAL_CITY_POPULATION) \
+		DO(ESPIONAGE_SPY_MISSION_ESCAPE_MOD) \
+		DO(ESPIONAGE_INTERCEPT_SPENDING_MAX) \
+		DO(ESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION) \
+		DO(RELIGION_INFLUENCE_RANDOM_WEIGHT) \
+		DO(UWAI_PERSONALITY_PERCENT) \
+		DO(CIRCUMNAVIGATE_FREE_MOVES) \
 		DO_FOR_EACH_SAS_SHARED_GLOBAL_DEFINE(DO)
 	#define MAKE_ENUMERATOR(VAR) VAR,
 	enum GlobalDefines

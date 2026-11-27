@@ -10,6 +10,8 @@
 ## The EVENTLIST that are being notified can be found 
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvUtil
 import CvScreensInterface
 import CvDebugTools
@@ -93,86 +95,86 @@ class CvEventManager:
 
 		## EVENTLIST
 		self.EventHandlerMap = {
-			'mouseEvent'			: self.onMouseEvent,
-			'kbdEvent' 				: self.onKbdEvent,
-			'ModNetMessage'					: self.onModNetMessage,
-			'Init'					: self.onInit,
-			'Update'				: self.onUpdate,
-			'UnInit'				: self.onUnInit,
-			'OnSave'				: self.onSaveGame,
-			'OnPreSave'				: self.onPreSave,
-			'OnLoad'				: self.onLoadGame,
-			'GameStart'				: self.onGameStart,
-			'GameEnd'				: self.onGameEnd,
-			'plotRevealed' 			: self.onPlotRevealed,
-			'plotFeatureRemoved' 	: self.onPlotFeatureRemoved,
-			'plotPicked'			: self.onPlotPicked,
-			'nukeExplosion'			: self.onNukeExplosion,
-			'gotoPlotSet'			: self.onGotoPlotSet,
-			'BeginGameTurn'			: self.onBeginGameTurn,
-			'EndGameTurn'			: self.onEndGameTurn,
-			'BeginPlayerTurn'		: self.onBeginPlayerTurn,
-			'EndPlayerTurn'			: self.onEndPlayerTurn,
-			'endTurnReady'			: self.onEndTurnReady,
-			'combatResult' 			: self.onCombatResult,
-			'sasBattleHistoryCombatDetails'	: self.onSASBattleHistoryCombatDetails,
-			'sasBattleHistoryCombatRetreat'	: self.onSASBattleHistoryCombatRetreat,
-			'combatLogCalc'	 		: self.onCombatLogCalc,
-			'combatLogHit'				: self.onCombatLogHit,
-			'improvementBuilt' 		: self.onImprovementBuilt,
-			'improvementDestroyed' 		: self.onImprovementDestroyed,
-			'routeBuilt' 		: self.onRouteBuilt,
-			'firstContact' 			: self.onFirstContact,
-			'cityBuilt' 			: self.onCityBuilt,
-			'cityRazed'				: self.onCityRazed,
-			'cityAcquired' 			: self.onCityAcquired,
-			'cityAcquiredAndKept' 	: self.onCityAcquiredAndKept,
-			'cityLost'				: self.onCityLost,
-			'cultureExpansion' 		: self.onCultureExpansion,
-			'cityGrowth' 			: self.onCityGrowth,
-			'cityDoTurn' 			: self.onCityDoTurn,
-			'cityBuildingUnit'	: self.onCityBuildingUnit,
-			'cityBuildingBuilding'	: self.onCityBuildingBuilding,
-			'cityRename'				: self.onCityRename,
-			'cityHurry'				: self.onCityHurry,
-			'selectionGroupPushMission'		: self.onSelectionGroupPushMission,
-			'unitMove' 				: self.onUnitMove,
-			'unitSetXY' 			: self.onUnitSetXY,
-			'unitCreated' 			: self.onUnitCreated,
-			'unitBuilt' 			: self.onUnitBuilt,
-			'unitKilled'			: self.onUnitKilled,
-			'unitLost'				: self.onUnitLost,
-			'unitCaptured'			: self.onUnitCaptured,
-			'unitPromoted'			: self.onUnitPromoted,
-			'unitSelected'			: self.onUnitSelected, 
-			'UnitRename'				: self.onUnitRename,
-			'unitPillage'				: self.onUnitPillage,
-			'unitSpreadReligionAttempt'	: self.onUnitSpreadReligionAttempt,
-			'unitGifted'				: self.onUnitGifted,
-			'unitBuildImprovement'				: self.onUnitBuildImprovement,
-			'goodyReceived'        	: self.onGoodyReceived,
-			'greatPersonBorn'      	: self.onGreatPersonBorn,
-			'buildingBuilt' 		: self.onBuildingBuilt,
-			'projectBuilt' 			: self.onProjectBuilt,
-			'techAcquired'			: self.onTechAcquired,
-			'techSelected'			: self.onTechSelected,
-			'religionFounded'		: self.onReligionFounded,
-			'religionSpread'		: self.onReligionSpread, 
-			'religionRemove'		: self.onReligionRemove, 
-			'corporationFounded'	: self.onCorporationFounded,
-			'corporationSpread'		: self.onCorporationSpread, 
-			'corporationRemove'		: self.onCorporationRemove, 
-			'goldenAge'				: self.onGoldenAge,
-			'endGoldenAge'			: self.onEndGoldenAge,
-			'chat' 					: self.onChat,
-			'victory'				: self.onVictory,
-			'vassalState'			: self.onVassalState,
-			'changeWar'				: self.onChangeWar,
-			'setPlayerAlive'		: self.onSetPlayerAlive,
-			'playerChangeStateReligion'		: self.onPlayerChangeStateReligion,
-			'playerGoldTrade'		: self.onPlayerGoldTrade,
-			'windowActivation'		: self.onWindowActivation,
-			'gameUpdate'			: self.onGameUpdate,		# sample generic event
+			'mouseEvent' : self.onMouseEvent,
+			'kbdEvent' : self.onKbdEvent,
+			'ModNetMessage' : self.onModNetMessage,
+			'Init' : self.onInit,
+			'Update' : self.onUpdate,
+			'UnInit' : self.onUnInit,
+			'OnSave' : self.onSaveGame,
+			'OnPreSave' : self.onPreSave,
+			'OnLoad' : self.onLoadGame,
+			'GameStart' : self.onGameStart,
+			'GameEnd' : self.onGameEnd,
+			'plotRevealed' : self.onPlotRevealed,
+			'plotFeatureRemoved' : self.onPlotFeatureRemoved,
+			'plotPicked' : self.onPlotPicked,
+			'nukeExplosion' : self.onNukeExplosion,
+			'gotoPlotSet' : self.onGotoPlotSet,
+			'BeginGameTurn' : self.onBeginGameTurn,
+			'EndGameTurn' : self.onEndGameTurn,
+			'BeginPlayerTurn' : self.onBeginPlayerTurn,
+			'EndPlayerTurn' : self.onEndPlayerTurn,
+			'endTurnReady' : self.onEndTurnReady,
+			'combatResult' : self.onCombatResult,
+			'sasBattleHistoryCombatDetails' : self.onSASBattleHistoryCombatDetails,
+			'sasBattleHistoryCombatRetreat' : self.onSASBattleHistoryCombatRetreat,
+			'combatLogCalc' : self.onCombatLogCalc,
+			'combatLogHit' : self.onCombatLogHit,
+			'improvementBuilt' : self.onImprovementBuilt,
+			'improvementDestroyed' : self.onImprovementDestroyed,
+			'routeBuilt' : self.onRouteBuilt,
+			'firstContact' : self.onFirstContact,
+			'cityBuilt' : self.onCityBuilt,
+			'cityRazed' : self.onCityRazed,
+			'cityAcquired' : self.onCityAcquired,
+			'cityAcquiredAndKept' : self.onCityAcquiredAndKept,
+			'cityLost' : self.onCityLost,
+			'cultureExpansion' : self.onCultureExpansion,
+			'cityGrowth' : self.onCityGrowth,
+			'cityDoTurn' : self.onCityDoTurn,
+			'cityBuildingUnit' : self.onCityBuildingUnit,
+			'cityBuildingBuilding' : self.onCityBuildingBuilding,
+			'cityRename' : self.onCityRename,
+			'cityHurry' : self.onCityHurry,
+			'selectionGroupPushMission' : self.onSelectionGroupPushMission,
+			'unitMove' : self.onUnitMove,
+			'unitSetXY' : self.onUnitSetXY,
+			'unitCreated' : self.onUnitCreated,
+			'unitBuilt' : self.onUnitBuilt,
+			'unitKilled' : self.onUnitKilled,
+			'unitLost' : self.onUnitLost,
+			'unitCaptured' : self.onUnitCaptured,
+			'unitPromoted' : self.onUnitPromoted,
+			'unitSelected' : self.onUnitSelected,
+			'UnitRename' : self.onUnitRename,
+			'unitPillage' : self.onUnitPillage,
+			'unitSpreadReligionAttempt' : self.onUnitSpreadReligionAttempt,
+			'unitGifted' : self.onUnitGifted,
+			'unitBuildImprovement' : self.onUnitBuildImprovement,
+			'goodyReceived' : self.onGoodyReceived,
+			'greatPersonBorn' : self.onGreatPersonBorn,
+			'buildingBuilt' : self.onBuildingBuilt,
+			'projectBuilt' : self.onProjectBuilt,
+			'techAcquired' : self.onTechAcquired,
+			'techSelected' : self.onTechSelected,
+			'religionFounded' : self.onReligionFounded,
+			'religionSpread' : self.onReligionSpread,
+			'religionRemove' : self.onReligionRemove,
+			'corporationFounded' : self.onCorporationFounded,
+			'corporationSpread' : self.onCorporationSpread,
+			'corporationRemove' : self.onCorporationRemove,
+			'goldenAge' : self.onGoldenAge,
+			'endGoldenAge' : self.onEndGoldenAge,
+			'chat' : self.onChat,
+			'victory' : self.onVictory,
+			'vassalState' : self.onVassalState,
+			'changeWar' : self.onChangeWar,
+			'setPlayerAlive' : self.onSetPlayerAlive,
+			'playerChangeStateReligion' : self.onPlayerChangeStateReligion,
+			'playerGoldTrade' : self.onPlayerGoldTrade,
+			'windowActivation' : self.onWindowActivation,
+			'gameUpdate' : self.onGameUpdate,		# sample generic event
 		}
 
 		################## Events List ###############################
@@ -298,7 +300,7 @@ class CvEventManager:
 	# advc.704: Trigger DoM from the DLL instead
 	def onGameStart(self, argsList):
 		'Called at the start of the game'
-		if (gc.getGame().getGameTurnYear() == gc.getDefineINT("START_YEAR") and not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_ADVANCED_START) and not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL)):
+		if (gc.getGame().getGameTurnYear() == SASCurrentDefines.getInt("START_YEAR") and not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_ADVANCED_START) and not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL)):
 			for iPlayer in range(gc.getMAX_PLAYERS()):
 				player = gc.getPlayer(iPlayer)
 				if (player.isAlive() and player.isHuman()):
@@ -561,7 +563,8 @@ class CvEventManager:
 
 		if (not self.__LOG_PUSH_MISSION):
 			return
-		if pHeadUnit:
+		# <!-- custom: The event supplies a unit count and IDs, so keep the unit guard without looking for an undefined head unit. See KI#165.9. (GPT-6.2-Sol) -->
+		if iNumUnits > 0:
 			CvUtil.pyPrint("Selection Group pushed mission %d" %(eMission))
 
 	def onUnitMove(self, argsList):
@@ -771,7 +774,8 @@ class CvEventManager:
 		player = PyPlayer(iOwner)
 		if (not self.__LOG_RELIGIONSPREAD):
 			return
-		CvUtil.pyPrint('%s has been removed from Player %d Civilization %s city of %s' %(gc.getReligionInfo(iReligion).getDescription(), iOwner, player.getCivilizationName(), pRemoveCity.getName()))
+		# <!-- custom: Use this event's corporation ID and lookup when legacy logging is enabled. See KI#165.10. (GPT-6.2-Sol) -->
+		CvUtil.pyPrint('%s has been removed from Player %d Civilization %s city of %s' %(gc.getCorporationInfo(iCorporation).getDescription(), iOwner, player.getCivilizationName(), pRemoveCity.getName()))
 
 	def onGoldenAge(self, argsList):
 		'Golden Age'

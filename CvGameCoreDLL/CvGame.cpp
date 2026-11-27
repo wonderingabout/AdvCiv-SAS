@@ -801,10 +801,9 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 	m_eHandicap = eHandicap;
 	// <advc.127>
-	// <!-- custom: note: not doing static const here as there seems to be some required init condition and as recommended by chatgpt 5, check if accurate -->
-	m_eAIHandicap = (bConstructorCall ? NO_HANDICAP :
-			// (XML not loaded when constructor called)
-			(HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP")); // </advc.127>
+	// <!-- custom: ci_define_uncached: reset runs at each game start or load, not on a recurring path; the constructor call skips the read, as XML is not loaded then. (ChatGPT-5 + Claude code Opus 5.5) -->
+	// (XML not loaded when constructor called)
+	m_eAIHandicap = (bConstructorCall ? NO_HANDICAP : (HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP")); // </advc.127>
 	m_ePausePlayer = NO_PLAYER;
 	m_eBestLandUnit = NO_UNIT;
 	m_eWinner = NO_TEAM;
@@ -2123,7 +2122,7 @@ void CvGame::normalizeRemoveBadFeatures()
 	// <!-- custom: THRESH-BAD-FEAT-PER-CITY only governs the outer city ring; the inner ring was always cleared and the ring loop below gave every land plot up to one tile past the city radius another removal chance.
 	// SAS sets peak and bad-terrain removal to 0 so maps are not made better on purpose, but these two feature removals had no switch, so a new Pangaea lost much of its Marsh around starts.
 	// The "Balanced" map option (NORMALIZE_HIGH) keeps clearing as in BtS, as advc.108 documents.
-	// One-shot per map generation, so read directly. See KI#284.3. (Claude code Opus 5.5) -->
+	// ci_define_uncached: one-shot per map generation, so read directly. See KI#284.3. (Claude code Opus 5.5) -->
 	bool const bSASClearInnerBadFeatures = (GC.getDefineBOOL("SAS_MAPGEN_NORM_BAD_FEATURE_INNER_ON") || m_eNormalizationLevel >= NORMALIZE_HIGH);
 	bool const bSASClearRingBadFeatures = (GC.getDefineBOOL("SAS_MAPGEN_NORM_BAD_FEATURE_RING_ON") || m_eNormalizationLevel >= NORMALIZE_HIGH);
 
@@ -5160,7 +5159,8 @@ void CvGame::makeCircumnavigated()
 
 bool CvGame::circumnavigationAvailable() const
 {
-	static bool const bCIRCUMNAVIGATE_FREE_MOVES = GC.getDefineBOOL("CIRCUMNAVIGATE_FREE_MOVES"); // advc.opt
+	// <!-- custom: Was a function-local static; functions in several files read this define all game, so it moved to AdvCiv's shared enum cache, one home for them all. See KI#128.3. (Claude code Opus 5.5) -->
+	bool const bCIRCUMNAVIGATE_FREE_MOVES = GC.getDefineBOOL(CvGlobals::CIRCUMNAVIGATE_FREE_MOVES); // advc.opt
 	if (!bCIRCUMNAVIGATE_FREE_MOVES)
 		return false;
 
@@ -7589,7 +7589,7 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 			int iValue = citySiteEval.evaluate(kPlot);
 			const int iRawValue = iValue;
 			// <!-- custom: Do not let Barbarian area-priority adjustment resurrect rejected city sites.
-			// In the Mauryan test, raw 0 at 30,23 became areaAdjusted 1 in bSkipCivAreas and was founded despite the detailed evaluator hard-rejecting it. (GPT-5.5) -->
+			// In the Mauryan test, raw 0 at 30,23 became areaAdjusted 1 in bSkipCivAreas and was founded despite the detailed evaluator hard-rejecting it. See KI#177. (GPT-5.5) -->
 			if (iRawValue <= 0)
 				continue;
 			if (iTargetCitiesMultiplier > 100)
@@ -7671,7 +7671,7 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 					apTopPlots[i]->getArea().getID());
 			}
 			// <!-- custom: Barbarian cities are spawned by a global scan rather than normal Settler city-site lists, and old Barbarian scoring can ignore outer-BFC seafood or other long-term capture value.
-			// Log nearby alternatives so cases like Yue-Chi, Sarmatian, Aryan, and Numidian can show whether the selected spawn tile or a one-tile shift was actually better. (GPT-5.5) -->
+			// Log nearby alternatives so cases like Yue-Chi, Sarmatian, Aryan, and Numidian can show whether the selected spawn tile or a one-tile shift was actually better. See KI#177. (GPT-5.5) -->
 			// <!-- custom: Removing CitySiteEvaluator::log() also removed its best adjacent/distance-2 summaries.
 			// Retain the best raw eligible alternative in each ring during this existing diagnostic scan, then compare with the actual chooser's selected raw score; do not mix randomized final scores with raw scores or repeat evaluations.
 			// Ineligible plots are reported but not scored. See KI#505.2. (GPT-6.1-Sol) -->
@@ -7681,7 +7681,7 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 			// <!-- custom: Label these logging-only alternatives separately from the global chooser's real evaluations; setting context changes only the log label. See KI#505.2. (GPT-6.1-Sol) -->
 			diagnosticEval.setLogContext(SAS_FOUND_LOG_BARBARIAN_COMPARISON);
 			// <!-- custom: Local found-value comparisons can show a better one-tile shift that the actual Barbarian creator skipped because it belongs to an area that does not currently want another Barbarian city.
-			// Log chooser-side eligibility around the selected plot so bad-looking Barbarian settlements can be diagnosed from the real creation filters, not only from post-selection site value. (GPT-5.5) -->
+			// Log chooser-side eligibility around the selected plot so bad-looking Barbarian settlements can be diagnosed from the real creation filters, not only from post-selection site value. See KI#177. (GPT-5.5) -->
 			for (int iDX = -2; iDX <= 2; iDX++)
 			{
 				for (int iDY = -2; iDY <= 2; iDY++)
@@ -10346,6 +10346,17 @@ static char const* getSASAdvancedStartHistoryOperation(AdvancedStartActionTypes 
 	return (bAdd ? "ADD" : "REMOVE");
 }
 
+// <!-- custom: Moves the newest Changes history row to iIndex, keeping the order of the rows in between; Advanced Start's Automate row uses it to sit where the automation began. See KI#1100. (Claude code Opus 5.5) -->
+void CvGame::moveLastSASWorldChangesHistoryEntryTo(int iIndex)
+{
+	int const iLast = (int)m_aSASWorldChangesHistory.size() - 1;
+	if (iIndex < 0 || iIndex >= iLast)
+		return;
+	SASWorldChangesHistoryEntry const kEntry = m_aSASWorldChangesHistory[iLast];
+	m_aSASWorldChangesHistory.pop_back();
+	m_aSASWorldChangesHistory.insert(m_aSASWorldChangesHistory.begin() + iIndex, kEntry);
+}
+
 // <!-- custom: Persist each successful Advanced Start mutation/completion in order, including the actual resolved target and budget transition.
 // Failed network choices remain diagnostic-only CHOICE rows and do not enter save history. (ChatGPT-5.6-Sol) -->
 void CvGame::recordSASAdvancedStartHistory(PlayerTypes ePlayer, AdvancedStartActionTypes eAction, int iX, int iY, int iRequestedData, int iResolvedData, bool bAdd, int iQuotedCost, int iPointsBefore, int iGoldBefore, int iCityId, int iObjectId)
@@ -11611,6 +11622,7 @@ void CvGame::doVoteSelection()
 				changeSecretaryGeneralTimer(eVS, -1);
 			else
 			{
+				// <!-- custom: ci_define_uncached: reached only when a vote source's Secretary-General timer runs out. (Claude code Opus 5.5) -->
 				setSecretaryGeneralTimer(eVS, GC.getDefineINT("DIPLO_VOTE_SECRETARY_GENERAL_INTERVAL"));
 				FOR_EACH_ENUM(Vote)
 				{

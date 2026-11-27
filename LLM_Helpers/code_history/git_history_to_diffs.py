@@ -4,7 +4,7 @@
 # Our own commit_diffs/ come from make_light_source_zip.py, whose exclusions and history segments are specific to AdvCiv-SAS; this helper is for other repositories, such as Caveman2Cosmos's GitHub clone. (Claude code Opus 5.5) -->
 from __future__ import annotations
 
-# <!-- custom: Standard library only, like svn_history_to_diffs.py: argparse for options, fnmatch for --summarize globs, re for email redaction, subprocess to run git. (Claude code Opus 5.5) -->
+# <!-- custom: Standard library only, like svn_history_to_diffs.py, apart from CI's shared lib below: argparse for options, fnmatch for --summarize globs, re for email redaction, subprocess to run git. (Claude code Opus 5.5) -->
 import argparse
 import fnmatch
 import re
@@ -13,6 +13,10 @@ import sys
 # <!-- custom: ThreadPoolExecutor exports commits in parallel; Path handles files. (Claude code Opus 5.5) -->
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
+
+# <!-- custom: CI's shared lib holds advciv_release, whose release_version reads a version-named branch such as 1.14 or 1.04. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(next(path for path in Path(__file__).resolve().parents if path.name == "LLM_Helpers").parent / ".github" / "workflows" / "lib"))
+from advciv_release import release_version
 
 DEFAULT_MAX_FILE_PATCH_BYTES = 2 * 1024 * 1024
 DEFAULT_MAX_FILE_CHANGED_LINES = 10_000
@@ -30,7 +34,7 @@ def parse_args() -> argparse.Namespace:
 	parser.add_argument("--repo", required=True, help="Path of the Git working copy or clone, which may be blobless")
 	parser.add_argument("--out", required=True, help="Output folder. Existing commit files are kept, so an interrupted run resumes.")
 	parser.add_argument("--label", required=True, help="Short name that prefixes each file, for example C2C")
-	parser.add_argument("--rev", default="HEAD", help="Commit whose ancestry is exported (default HEAD)")
+	parser.add_argument("--rev", default="HEAD", help="Commit whose ancestry is exported (default HEAD); newest-release picks the highest version-named branch, such as Taurus's 1.04")
 	parser.add_argument("--first", type=int, default=1, help="First commit number to export, counting the oldest as 1")
 	parser.add_argument("--last", type=int, default=None, help="Last commit number to export (default: the newest)")
 	parser.add_argument("--summarize", action="append", default=[], metavar="GLOB", help="Path glob to list without fetching its contents, such as art folders. Repeatable.")
@@ -159,9 +163,29 @@ def write_indexes(repo: Path, numbered: list[tuple[int, dict]], args: argparse.N
 	(args.out / "PATH_HISTORY_INDEX.txt").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 
+def newest_release_ref(repo: Path) -> str:
+	# <!-- custom: Taurus, like base AdvCiv, develops on a branch named by its version, and its default branch is not the newest: on 2026-11-22 Taurus's main last changed on 2026-05-23, its 1.04 on 2026-08-24.
+	# A version written into a command goes stale with the next release, so this reads the branch names as base AdvCiv's shared rule does. See KI#21.7. (Claude code Opus 5.5) -->
+	# <!-- custom: Only local branches and origin's are searched; on a tie origin's wins, as Codex noted a stale or locally changed 1.04 would otherwise change the export (2026-11-22); --rev with a name still overrides. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	refs = git(repo, "for-each-ref", "--format=%(refname)", "refs/heads", "refs/remotes/origin").split()
+	refs.sort(key=lambda ref: not ref.startswith("refs/remotes/origin/"))
+	found = {}
+	for ref in refs:
+		match = re.fullmatch(r"refs/(?:heads|remotes/origin)/(.+)", ref)
+		version = release_version(match.group(1), prefix="") if match else None
+		if version is not None and version not in found:
+			found[version] = ref
+	if not found:
+		raise SystemExit("--rev newest-release: no branch named by a version, such as 1.04, in %s" % repo)
+	return found[max(found)]
+
+
 def main() -> int:
 	args = parse_args()
 	repo = Path(args.repo).resolve()
+	if args.rev == "newest-release":
+		args.rev = newest_release_ref(repo)
+		print("newest release branch: %s" % args.rev)
 	args.out = Path(args.out)
 	args.out.mkdir(parents=True, exist_ok=True)
 	# <!-- custom: A repository without an origin remote, such as a local fixture, made git fail here; its own path names the source instead. (Claude code Opus 5.5 + GPT-6.1-Sol) -->

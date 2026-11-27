@@ -5,6 +5,10 @@
 ## Date 	: 24.03.2006
 ## version 	: 1.2
 ## 
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: Layout only: python_aligned_columns.py's sweep turned the double spaces and tab runs between this file's code tokens, mostly stray slips such as "x =  y" or one-column alignment, into one space; the code is unchanged. See KI#21.8. (Claude code Opus 5.5) -->
 
 from CvPythonExtensions import *
 import CvUtil
@@ -358,23 +362,23 @@ def getPlotHealFactor(pUnit):
 
 	# heal rates for certain areas. They are usually stored in the GlobalDefines.XML but can't be read out with a standard API function.
 	# So I placed them here as constants.
-	ENEMY_HEAL_RATE				= 5
-	NEUTRAL_HEAL_RATE			= 10
-	FRIENDLY_HEAL_RATE			= 15
-	CITY_HEAL_RATE				= 20
+	ENEMY_HEAL_RATE = 5
+	NEUTRAL_HEAL_RATE = 10
+	FRIENDLY_HEAL_RATE = 15
+	CITY_HEAL_RATE = 20
 
 	# set/reset some variables
 	pPlot = pUnit.plot()
-	iSameTileHealFactor 		= 0
-	iAdjacentTileHealFactor 	= 0
-	iBuildingHealFactor 		= 0
-	iSelfHealFactor 			= 0
-	iPromotionHealFactor 		= 0
-	iTileHealFactor 			= 0
-	iActivePlayer 				= CyGame().getActivePlayer()
-	pActivePlayer 				= gc.getPlayer(iActivePlayer)
-	iActivePlayerTeam 			= pActivePlayer.getTeam()
-	eDomain 					= gc.getUnitInfo(pUnit.getUnitType()).getDomainType()
+	iSameTileHealFactor = 0
+	iAdjacentTileHealFactor = 0
+	iBuildingHealFactor = 0
+	iSelfHealFactor = 0
+	iPromotionHealFactor = 0
+	iTileHealFactor = 0
+	iActivePlayer = CyGame().getActivePlayer()
+	pActivePlayer = gc.getPlayer(iActivePlayer)
+	iActivePlayerTeam = pActivePlayer.getTeam()
+	eDomain = gc.getUnitInfo(pUnit.getUnitType()).getDomainType()
 
 	# a sea or air unit in a city, behaves like a land unit
 	if pPlot.isCity():
@@ -419,18 +423,18 @@ def getPlotHealFactor(pUnit):
 	# calculate the self heal factor by the location and promotion
 	iTeam = pPlot.getTeam()
 	pTeam = gc.getTeam(iTeam)		
-	iSelfHealFactor 		= NEUTRAL_HEAL_RATE
-	iPromotionHealFactor 	= pUnit.getExtraNeutralHeal()
+	iSelfHealFactor = NEUTRAL_HEAL_RATE
+	iPromotionHealFactor = pUnit.getExtraNeutralHeal()
 	if pPlot.isCity():
-		iSelfHealFactor 		= CITY_HEAL_RATE
-		iPromotionHealFactor 	= pUnit.getExtraFriendlyHeal()
+		iSelfHealFactor = CITY_HEAL_RATE
+		iPromotionHealFactor = pUnit.getExtraFriendlyHeal()
 	elif (iTeam == iActivePlayerTeam):
-		iSelfHealFactor 		= FRIENDLY_HEAL_RATE
-		iPromotionHealFactor 	= pUnit.getExtraFriendlyHeal()
+		iSelfHealFactor = FRIENDLY_HEAL_RATE
+		iPromotionHealFactor = pUnit.getExtraFriendlyHeal()
 	elif (iTeam != TeamTypes.NO_TEAM):
 		if (pTeam.isAtWar(iActivePlayerTeam)):
-			iSelfHealFactor 		= ENEMY_HEAL_RATE
-			iPromotionHealFactor 	= pUnit.getExtraEnemyHeal()
+			iSelfHealFactor = ENEMY_HEAL_RATE
+			iPromotionHealFactor = pUnit.getExtraEnemyHeal()
 
 	# calculate the heal factor by city buildings
 	if pPlot.isCity():

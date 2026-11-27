@@ -8,6 +8,8 @@
 from __future__ import annotations
 
 import argparse
+# <!-- custom: ast reads this file's own rule calls for the rule registry (rule_registry_errors). (Claude code Opus 5.5) -->
+import ast
 # <!-- custom: Counter tracks how many removed inherited blocks each header-free added block may still match. (Claude code Opus 5.5) -->
 from collections import Counter, defaultdict
 from dataclasses import dataclass
@@ -126,6 +128,8 @@ def maintained_source_path(path: str) -> bool:
             lower.startswith("assets/python/")
             or lower.startswith("privatemaps/")
             or lower.startswith("llm_helpers/")
+            # <!-- custom: SASPilot moved from LLM_Helpers to the root on 2026-11-20; Codex's review found it had left this check's scope. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+            or lower.startswith("saspilot/")
             or lower.startswith("tests/")
             or lower.startswith(".github/workflows/")
         )
@@ -349,6 +353,26 @@ def credit_spelling_errors(path: str, block: CommentBlock) -> list[str]:
     return errors
 
 
+# <!-- custom: A Claude model's name alone, such as "Opus 5.5" or "code Opus 5.5", leaves out which family and app wrote the comment, so the credit reads "Claude code Opus 5.5" in full.
+# On 2026-11-26 Claude Code Opus 5.5 wrote "(Claude code Opus 4.6 + Opus 5.5)" while restoring an earlier credit, which the user caught in review; the credit parser skipped "Opus 5.5" as no known family, so no rule saw it. (Claude code Opus 5.5) -->
+# <!-- custom: Merging main into the SASPilot branch on 2026-11-27 met that branch's own rule for the same slip, from 2026-11-20, whose tests main's rule failed: it missed a part with its own note, such as "+ Opus 5.5 (review)", and flagged a closing aside such as "(Opus 5.5 reproduced this)".
+# So a part's notes are dropped first and the whole remaining label must be a bare model name, as that rule did. (Claude code Opus 5.5) -->
+# <!-- custom: Codex's review of that merge found the first combined version too loose: it needed a version, so "+ Opus" and "+ code Sonnet" passed, which main's prefix check rejected, and it split on + before dropping notes, so "+ Opus 5.5 (review + test)" passed too.
+# The notes are now dropped from the whole list before it is split, and the version is optional. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+INCOMPLETE_CREDIT_RE = re.compile(r"(?:code\s+)?(?:Opus|Sonnet|Haiku|Fable|Mythos)(?:[ \t-]+\d+(?:\.\d+)*)?", re.IGNORECASE)
+
+
+def incomplete_credit_errors(path: str, block: CommentBlock) -> list[str]:
+    errors = []
+    for credit in re.finditer(r"\(([^()]*(?:\([^()]*\)[^()]*)*)\)\s*-->", block.raw):
+        for part in re.split(r"\s*[+,;/]\s*|\s+(?:and|&)\s+", re.sub(r"\s*\([^()]*\)", "", credit.group(1))):
+            label = part.strip()
+            if INCOMPLETE_CREDIT_RE.fullmatch(label):
+                line = block.start + block.raw.count("\n", 0, credit.start())
+                errors.append("%s:%d: model credit '%s' leaves out the model family; name it in full, such as Claude code Opus 5.5" % (path, line, label))
+    return errors
+
+
 SAS_HEADER_LINE_RE = re.compile(r"^(?:AI, UI, logging, or other modifications first developed in AdvCiv-SAS|\(c\)\s+2026\s+wonderingabout\b)", re.IGNORECASE)
 
 
@@ -405,6 +429,21 @@ def disabled_code_line(line: str, suffix: str) -> bool:
     if CPP_CODE_END_RE.search(text) or CPP_CODE_START_RE.match(text):
         return True
     return bool(CPP_CONTINUATION_RE.search(text) and text.endswith((",", ")", "(", "&&", "||", "+", "-", "*", "/", "?", ":")))
+
+
+# <!-- custom: A closing "See KI#..." belongs at the end of the last prose line, as AGENTS.md's comment rules say; on a line of its own it reads as a stray fragment.
+# The Sevopedia scoreboard comment of 2026-11-21 had "See KI#1103 for ..." alone on its last line, which the user caught in review.
+# Before the rule, one scan of every custom comment in the repo found a single other case, CvDeal.cpp's KI#605 note, fixed with it; from then on only new or rewritten comments are checked. (Claude code Opus 5.5) -->
+STRANDED_REFERENCE_RE = re.compile(r"^(?:See |see )(?:KI#|also KI#)")
+
+
+def stranded_reference_errors(path: str, block: CommentBlock) -> list[str]:
+    lines = comment_payload_lines(block)
+    errors = []
+    for index, line in enumerate(lines):
+        if index > 0 and STRANDED_REFERENCE_RE.match(line.lstrip("#/ ")):
+            errors.append(f"{path}:{block.start + index}: a comment line starts with a KI reference; put it at the end of the line before, as the comment's closing note")
+    return errors
 
 
 def comment_payload_lines(block: CommentBlock) -> list[str]:
@@ -549,6 +588,16 @@ def import_include_changes(old_text: str, new_text: str, suffix: str):
             found = directive_kind(new_lines[index], suffix)
             if found:
                 directives.append(("added", index + 1, found[0], found[1], new_lines[index].strip()))
+        # <!-- custom: A removed and an added directive that differ only in whitespace are a layout change, not a new dependency: python_aligned_columns.py's sweep turned PerfectMongoose.py's "from array  import array" into "from array import array", which read as one import removed and another added (2026-11-22).
+        # Only whitespace between the directive's tokens counts: Codex's review (2026-11-23) found that collapsing it everywhere passed #include "foo  bar.h" becoming "foo bar.h" as unchanged, though it names another file. See KI#21.8. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+        def layout(text):
+            pieces = re.split(r"(\"[^\"]*\"|<[^>]*>)", text)
+            return "".join(piece if index % 2 else " ".join(piece.split()) for index, piece in enumerate(pieces))
+
+        removed = [layout(entry[4]) for entry in directives if entry[0] == "removed"]
+        added = [layout(entry[4]) for entry in directives if entry[0] == "added"]
+        same = [text for text in removed if text in added]
+        directives = [entry for entry in directives if layout(entry[4]) not in same]
         if directives:
             changes.append((j1 + 1, max(j1 + 1, j2), directives))
     return changes
@@ -1019,7 +1068,56 @@ PREDUMP_GENERATOR_MARKER = "# Generated by: .github/workflows/build/runtime/aip_
 # Other provenance failures retain their blocking results. (GPT-6.1-Sol) -->
 # <!-- custom: Moving SAS text overrides that matched base AdvCiv back into the inherited CIV4GameText_advc.xml failed here, because restored AdvCiv comments such as "advc.005: was Asoka" looked newly authored in that file.
 # restored_comment lets check() accept a comment that existed verbatim earlier in the same file's history; rewritten wording still fails. (Claude code Opus 5.5) -->
-def check_change(path: str, old_text: str | None, new_text: str | None, warnings: list[str] | None = None, restored_comment=None) -> list[str]:
+# <!-- custom: A base-game file SAS takes in whole, as KI#1104 asks, arrived with hundreds of Firaxis comments and imports that this check read as new and uncredited, so every push whose range held the copy failed, as main's did after the PR#50 squash and its amend (2026-11-22).
+# GitHub's runners have no Civ4 install to compare the copy with, so the copy's own SAS header is trusted when it names a base-game layer and the inherited-files manifest lists that file at the same path; its original comments and imports then count as inherited, while its custom notes and SAS headers are checked as usual. (Claude code Opus 5.5) -->
+BASE_GAME_COPY = re.compile(r"^#\s*<!-- custom: Copied from (vanilla Civ4|Warlords|BtS)'s (.+?\.py)(?=\s|\.(?:\s|$)|$)")
+MANIFEST = Path("_0_Legacy/Docs/Manifests/inherited_files.tsv")
+BASE_GAME_LAYERS = {"vanilla Civ4": "vanilla", "Warlords": "warlords", "BtS": "bts"}
+EXPANSION_FOLDERS = {"warlords": "warlords", "bts": "beyond the sword"}
+
+
+def base_game_manifest_paths(repo: Path) -> dict[str, dict[str, str]]:
+    manifest = repo / MANIFEST
+    if not manifest.is_file():
+        return {}
+    paths = {}
+    for line in manifest.read_text(encoding="utf-8").splitlines()[1:]:
+        fields = line.split("\t")
+        if len(fields) != 4:
+            continue
+        path, layers, _, other_paths = fields
+        alternate = dict(item.split(":", 1) for item in other_paths.split(";") if ":" in item)
+        sources = {layer: alternate.get(layer, path) for layer in layers.split(",") if layer in BASE_GAME_LAYERS.values()}
+        if sources:
+            paths[path] = sources
+    return paths
+
+
+def has_base_game_copy_header(text: str, sources: dict[str, str]) -> bool:
+    # <!-- custom: Keep the original install path in the header for readers.
+    # Check the expansion folder and the path from Assets against the manifest so the prefix can vary by install. (GPT-6.2-Sol) -->
+    for line in text.lstrip("\ufeff").splitlines():
+        if line.strip() and not line.startswith("#"):
+            break
+        match = BASE_GAME_COPY.match(line)
+        if not match:
+            continue
+        layer = BASE_GAME_LAYERS[match[1]]
+        expected = sources.get(layer)
+        prefix, separator, relative = match[2].replace("\\", "/").casefold().rpartition("/assets/")
+        if not expected or not separator or "assets/" + relative != expected.casefold():
+            continue
+        parent = prefix.rsplit("/", 1)[-1]
+        if layer == "vanilla":
+            if parent and parent not in EXPANSION_FOLDERS.values():
+                return True
+        elif parent == EXPANSION_FOLDERS[layer]:
+            return True
+    return False
+
+
+# <!-- custom: base_copy added: True for a file new in the range that is a manifest-listed base-game copy, whose original comments and imports are then not reported. (Claude code Opus 5.5) -->
+def check_change(path: str, old_text: str | None, new_text: str | None, warnings: list[str] | None = None, restored_comment=None, base_copy: bool = False) -> list[str]:
     suffix = Path(path).suffix.lower()
     if suffix not in SOURCE_SUFFIXES or new_text is None:
         return []
@@ -1066,7 +1164,7 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
     for index, block in enumerate(added_legacy):
         if generated_header:
             continue
-        if exempt_new_comment(block) or index in code_exempt or quoted_source_block(block, new_comments) or (restored_comment is not None and restored_comment(block.raw)):
+        if base_copy or exempt_new_comment(block) or index in code_exempt or quoted_source_block(block, new_comments) or (restored_comment is not None and restored_comment(block.raw)):
             continue
         if removed_without_header[without_sas_header(block)] > 0:
             removed_without_header[without_sas_header(block)] -= 1
@@ -1079,6 +1177,8 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
     old_custom_text = {block.normalized for block in old_comments if block.custom}
     for block in added_custom:
         errors.extend(credit_spelling_errors(path, block))
+        errors.extend(incomplete_credit_errors(path, block))
+        errors.extend(stranded_reference_errors(path, block))
         if block.normalized not in old_custom_text:
             errors.extend(generic_credit_errors(path, block))
         if not block.credited and block.normalized not in old_custom_text and warnings is not None:
@@ -1122,7 +1222,7 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
 
     # <!-- custom: New files also introduce dependencies whose purpose must be recorded; only untouched inherited directives are outside this diff-aware rule.
     # Check proximity to each directive, not the entire diff hunk: a new-file hunk spans the whole file and would otherwise accept an unrelated distant comment. (GPT-6.1-Sol) -->
-    if suffix in CPP_SUFFIXES | PY_SUFFIXES:
+    if suffix in CPP_SUFFIXES | PY_SUFFIXES and not base_copy:
         for _start, _end, directives in import_include_changes(old_text, new_text, suffix):
             for action, line, _kind, target, _raw in directives:
                 position = line if action == "added" else map_old_line_to_new(line, opcodes)
@@ -1215,6 +1315,7 @@ def check(repo: Path, base_ref: str | None, event_name: str | None = None, warni
     count = 0
     renamed = renamed_paths(repo, base)
     upstream_parents = merged_parents(repo, base)
+    base_game_paths = base_game_manifest_paths(repo)
     for path in changed_paths(repo, base):
         old = git_text(repo, base, renamed.get(path, path))
         new = current_text(repo, path)
@@ -1237,12 +1338,68 @@ def check(repo: Path, base_ref: str | None, event_name: str | None = None, warni
                 return True
             # <!-- custom: Multiline comments are parsed with LF, so a CRLF file also needs the CRLF spelling to match. (Claude code Opus 5.5) -->
             needles = list(dict.fromkeys((raw, raw.replace("\r\n", "\n").replace("\n", "\r\n"))))
+            # <!-- custom: Search the file's history under its current name too: giving 37 text files base AdvCiv's names back restored base comments such as "advc.064: Moved from 'BUG City Screen Options.xml'", which the file held under that same name before SAS renamed it to BULL_Misc_Hovers_Options.xml; the base-name history alone began at that rename, so all 8 failed as rewritten (2026-11-22). (Claude code Opus 5.5) -->
             for needle in needles:
-                if run_git(repo, "log", "-1", "--format=%H", "-S", needle, base, "--", history_path, check=False).stdout.strip():
-                    return True
+                for searched_path in dict.fromkeys((history_path, path)):
+                    if run_git(repo, "log", "-1", "--format=%H", "-S", needle, base, "--", searched_path, check=False).stdout.strip():
+                        return True
             return False
-        errors.extend(check_change(path, old, new, warnings, restored_comment))
+        base_copy = old is None and path in base_game_paths and has_base_game_copy_header(new, base_game_paths[path])
+        errors.extend(check_change(path, old, new, warnings, restored_comment, base_copy))
     return errors, count
+
+
+# <!-- custom: Every rule this check applies must hold across the whole repository from the commit that adds it, then it may be checked on changed files only; AGENTS.md said so, but the user did not trust a written rule alone (2026-11-21), so this enforces it.
+# Each *_errors rule that check_change or check calls is listed here, either as repo-wide, run over every tracked source file on each run, or as diff-only with the reason the whole repository does not meet it; an unlisted rule fails the check, so a new one cannot land without that decision.
+# The counts are from the scan of 2026-11-21.
+# Rules written inline in check_change, such as the interface and import comments, are not covered. (Claude code Opus 5.5) -->
+REPO_WIDE_RULES = ("stranded_reference_errors", "blank_line_errors", "credit_spelling_errors", "incomplete_credit_errors", "cascading_comment_errors")
+DIFF_ONLY_RULES = {
+    "generic_credit_errors": "4 older comments credit only 'ChatGPT', and which model wrote them is not recorded",
+    "modification_header_errors": "188 untouched inherited files carry no SAS header, which AGENTS.md allows until a file is changed",
+    "modification_header_order_errors": "8 older files place their header before the rule's order",
+    "python_inline_suite_errors": "6 inherited one-line suites stay as written until their code is edited",
+    "cpp_json_format_errors": "2 older JSON format strings predate the rule",
+    "cpp_save_layout_gate_errors": "compares a file's old and new save layout, so it needs a base",
+}
+
+
+def rule_registry_errors() -> list[str]:
+    tree = ast.parse(Path(__file__).read_text(encoding="utf-8"))
+    called = set()
+    for node in tree.body:
+        if isinstance(node, ast.FunctionDef) and node.name in ("check_change", "check"):
+            for call in ast.walk(node):
+                if isinstance(call, ast.Call) and isinstance(call.func, ast.Name) and call.func.id.endswith("_errors"):
+                    called.add(call.func.id)
+    errors = []
+    for name in sorted(called):
+        if name in REPO_WIDE_RULES and name in DIFF_ONLY_RULES:
+            errors.append(f"rule {name} is listed both as repo-wide and as diff-only")
+        elif name not in REPO_WIDE_RULES and name not in DIFF_ONLY_RULES:
+            errors.append(f"rule {name} is in neither REPO_WIDE_RULES nor DIFF_ONLY_RULES; run it over the whole repository first, then list it as repo-wide, or as diff-only with the reason")
+    return errors
+
+
+def repo_wide_rule_errors(repo: Path) -> list[str]:
+    # <!-- custom: The same files the diff-aware check covers (maintained_source_path), so a rule's scope does not change between the two modes. (Claude code Opus 5.5) -->
+    listed = run_git(repo, "ls-files", "-z").stdout.decode("utf-8").split("\0")
+    errors = []
+    for path in listed:
+        if not path or not maintained_source_path(path):
+            continue
+        suffix = Path(path).suffix.lower()
+        text = current_text(repo, path)
+        if text is None:
+            continue
+        errors.extend(blank_line_errors(path, "", text, suffix))
+        for block in comments(text, suffix):
+            errors.extend(cascading_comment_errors(path, block, suffix))
+            if block.custom:
+                errors.extend(stranded_reference_errors(path, block))
+                errors.extend(credit_spelling_errors(path, block))
+                errors.extend(incomplete_credit_errors(path, block))
+    return errors
 
 
 def main() -> int:
@@ -1256,10 +1413,13 @@ def main() -> int:
     warnings = []
     try:
         errors, files_checked = check(args.repo_root, args.base_ref, args.event_name, warnings)
+        # <!-- custom: The rule registry and the repo-wide rules run on every check, whatever the base; see REPO_WIDE_RULES. (Claude code Opus 5.5) -->
+        errors.extend(rule_registry_errors())
+        errors.extend(repo_wide_rule_errors(args.repo_root))
     except (RuntimeError, OSError, ValueError) as exc:
         print("FAIL source change provenance setup: %s" % exc)
         return 1
-    print("FAIL source change provenance" if errors else "PASS source change provenance (%d changed source file(s) checked)" % files_checked)
+    print("FAIL source change provenance" if errors else "PASS source change provenance (%d changed source file(s) checked, repo-wide rules on all)" % files_checked)
     for error in errors:
         print("  - " + error)
     for warning in warnings:

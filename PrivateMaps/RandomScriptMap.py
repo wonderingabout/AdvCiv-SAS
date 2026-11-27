@@ -173,7 +173,7 @@ def getNumCustomMapOptions():
 #
 def getCustomMapOptionName(argsList):
 	dummy = argsList[0]
-	if (dummy == 0)  :
+	if (dummy == 0) :
 		szName = "TXT_KEY_MAP_SCRIPT_CREATION_METHOD"
 	elif (dummy == 1):
 		szName = "TXT_KEY_MAP_SCRIPT_AI_START"
@@ -189,7 +189,7 @@ def getCustomMapOptionName(argsList):
 #
 def getNumCustomMapOptionValues(argsList):
 	dummy = argsList[0]
-	if (dummy == 0)  :
+	if (dummy == 0) :
 		return 8 # Force Script
 	elif (dummy == 1):
 		return 3 # AI Start
@@ -210,7 +210,7 @@ def getCustomMapOptionDescAt(argsList):
 	startAi_names = ["TXT_KEY_MAP_SCRIPT_NO_CONDITIONS", "TXT_KEY_MAP_SCRIPT_DEFAULT", "TXT_KEY_MAP_SCRIPT_ALL_IN_OLD_WORLD"]
 	# <!-- custom: The combined validator requires coastal land on the largest continent; use an SAS key instead of BTS's misleading "or" label. See KI#275.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	startPl_names = ["TXT_KEY_MAP_SCRIPT_SAME_AS_AI", "TXT_KEY_MAP_SCRIPT_NEAR_COAST", "TXT_KEY_MAP_SCRIPT_LARGEST_CONTINENT", "TXT_KEY_MAP_SCRIPT_SAS_COASTAL_LARGEST_CONTINENT"]
-	if (dummy == 0)  :
+	if (dummy == 0) :
 		szName = genMethod_names[iSelection]
 	elif (dummy == 1):
 		szName = startAi_names[iSelection]
@@ -225,7 +225,7 @@ def getCustomMapOptionDescAt(argsList):
 #
 def isRandomCustomMapOption(argsList):
 	dummy = argsList[0]
-	if (dummy == 0)   :
+	if (dummy == 0) :
 		return False
 	elif (dummy == 1) :
 		return False
@@ -240,7 +240,7 @@ def isRandomCustomMapOption(argsList):
 #
 def getCustomMapOptionDefault(argsList):
 	dummy = argsList[0]
-	if (dummy == 0)  :
+	if (dummy == 0) :
 		return c_genMethodDefault
 	elif (dummy == 1):
 		return c_aiStartDefault
@@ -877,13 +877,13 @@ class R_PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         # The following grain matrix is specific to Pangaea.py
         sizekey = self.map.getWorldSize()
         sizevalues = {
-            WorldSizeTypes.WORLDSIZE_ARENA:     3,
-            WorldSizeTypes.WORLDSIZE_DUEL:      3,
-            WorldSizeTypes.WORLDSIZE_TINY:      3,
-            WorldSizeTypes.WORLDSIZE_SMALL:     4,
-            WorldSizeTypes.WORLDSIZE_STANDARD:  4,
-            WorldSizeTypes.WORLDSIZE_LARGE:     4,
-            WorldSizeTypes.WORLDSIZE_HUGE:      5
+            WorldSizeTypes.WORLDSIZE_ARENA: 3,
+            WorldSizeTypes.WORLDSIZE_DUEL: 3,
+            WorldSizeTypes.WORLDSIZE_TINY: 3,
+            WorldSizeTypes.WORLDSIZE_SMALL: 4,
+            WorldSizeTypes.WORLDSIZE_STANDARD: 4,
+            WorldSizeTypes.WORLDSIZE_LARGE: 4,
+            WorldSizeTypes.WORLDSIZE_HUGE: 5
             }
         grain = sas_lookup_world_size(sizekey, sizevalues)
 
@@ -1028,13 +1028,13 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         # The following grain matrix is specific to Terra.py
         sizekey = self.map.getWorldSize()
         sizevalues = {
-            WorldSizeTypes.WORLDSIZE_ARENA:     (3,2,1,2),
-            WorldSizeTypes.WORLDSIZE_DUEL:      (3,2,1,2),
-            WorldSizeTypes.WORLDSIZE_TINY:      (3,2,1,2),
-            WorldSizeTypes.WORLDSIZE_SMALL:     (4,2,1,2),
-            WorldSizeTypes.WORLDSIZE_STANDARD:  (4,2,1,2),
-            WorldSizeTypes.WORLDSIZE_LARGE:     (4,2,1,2),
-            WorldSizeTypes.WORLDSIZE_HUGE:      (5,2,1,2)
+            WorldSizeTypes.WORLDSIZE_ARENA: (3,2,1,2),
+            WorldSizeTypes.WORLDSIZE_DUEL: (3,2,1,2),
+            WorldSizeTypes.WORLDSIZE_TINY: (3,2,1,2),
+            WorldSizeTypes.WORLDSIZE_SMALL: (4,2,1,2),
+            WorldSizeTypes.WORLDSIZE_STANDARD: (4,2,1,2),
+            WorldSizeTypes.WORLDSIZE_LARGE: (4,2,1,2),
+            WorldSizeTypes.WORLDSIZE_HUGE: (5,2,1,2)
             }
         (archGrain, contGrain, gaeaGrain, eurasiaGrain) = sas_lookup_world_size(sizekey, sizevalues)
 

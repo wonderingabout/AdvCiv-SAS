@@ -3,10 +3,11 @@ name: Checks - Hygiene
 on:
   push:
   pull_request:
-    # <!-- custom: Ignore the long-lived reference compare from main to the mirrored base AdvCiv 1.14 branch.
-    # Keep it open so GitHub tracks the diff, but do not run duplicate PR checks for it. (ChatGPT-5.5) -->
+    # <!-- custom: Ignore the long-lived reference compare from main to the mirrored base AdvCiv release branch, named by its version, such as 1.14.
+    # Keep it open so GitHub tracks the diff, but do not run duplicate PR checks for it.
+    # The pattern matches any version, so a newer AdvCiv's branch needs no edit here (2026-11-22). (ChatGPT-5.5 + Claude code Opus 5.5) -->
     branches-ignore:
-      - "1.14"
+      - "[0-9]+.[0-9]+"
   workflow_dispatch:
 
 jobs:

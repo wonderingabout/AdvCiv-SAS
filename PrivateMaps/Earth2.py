@@ -11,6 +11,8 @@
 #
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvUtil
 import CvMapGeneratorUtil
 from CvMapGeneratorUtil import MultilayeredFractal
@@ -85,8 +87,8 @@ def findStartingPlot(argsList):
 	iNumPlayers = gcLocal.getGame().countCivPlayersEverAlive()
 	iBiggestAreaID = map.findBiggestArea(False).getID()
 
-	iAfricaMinPlayers = gcLocal.getDefineINT("SAS_EARTH2_AFRICA_STARTS_MIN_PLAYERS")
-	iFullWorldMinPlayers = gcLocal.getDefineINT("SAS_EARTH2_WORLD_STARTS_MIN_PLAYERS")
+	iAfricaMinPlayers = SASCurrentDefines.getInt("SAS_EARTH2_AFRICA_STARTS_MIN_PLAYERS")
+	iFullWorldMinPlayers = SASCurrentDefines.getInt("SAS_EARTH2_WORLD_STARTS_MIN_PLAYERS")
 
 	iAfricaWestX = int(map.getGridWidth() * 0.50)
 	iAfricaEastX = int(map.getGridWidth() * 0.68)
@@ -120,13 +122,13 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         # <!-- custom: Earth2's legacy grain table omitted Arena, so the smallest tier fell upward to Huge grain.
         # Give Arena the intended Duel/Tiny tuple; SAS24-48 intentionally retain Huge grain alongside Earth2's fixed-Huge grid policy. See KI#282. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
         sizevalues = {
-            WorldSizeTypes.WORLDSIZE_ARENA:     (3,2,1),
-            WorldSizeTypes.WORLDSIZE_DUEL:      (3,2,1),
-            WorldSizeTypes.WORLDSIZE_TINY:      (3,2,1),
-            WorldSizeTypes.WORLDSIZE_SMALL:     (4,2,1),
-            WorldSizeTypes.WORLDSIZE_STANDARD:  (4,2,1),
-            WorldSizeTypes.WORLDSIZE_LARGE:     (4,2,1),
-            WorldSizeTypes.WORLDSIZE_HUGE:      (5,2,1)
+            WorldSizeTypes.WORLDSIZE_ARENA: (3,2,1),
+            WorldSizeTypes.WORLDSIZE_DUEL: (3,2,1),
+            WorldSizeTypes.WORLDSIZE_TINY: (3,2,1),
+            WorldSizeTypes.WORLDSIZE_SMALL: (4,2,1),
+            WorldSizeTypes.WORLDSIZE_STANDARD: (4,2,1),
+            WorldSizeTypes.WORLDSIZE_LARGE: (4,2,1),
+            WorldSizeTypes.WORLDSIZE_HUGE: (5,2,1)
             }
         (ScatterGrain, BalanceGrain, GatherGrain) = sas_lookup_world_size(sizekey, sizevalues)
 

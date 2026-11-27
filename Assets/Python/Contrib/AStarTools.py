@@ -9,6 +9,11 @@
 ##   - Must be initialized externally by calling init()
 ##
 ## Modified for The BUG Mod by EmperorFool
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: Layout only: python_aligned_columns.py's sweep turned the double spaces and tab runs between this file's code tokens, mostly stray slips such as "x =  y" or one-column alignment, into one space; the code is unchanged. See KI#21.8. (Claude code Opus 5.5) -->
 
 from CvPythonExtensions import *
 
@@ -32,19 +37,19 @@ gc = CyGlobalContext()
 class AStar:
 
 	def __init__(self):
-		self.pOpenList 				= AStarList()
-		self.pCloseList 			= AStarList()
-		self.pTargetPlot 			= None
-		self.pFromPlot 				= None
-		self.pUnit 					= None
-		self.fHeuristicMvmtFactor 	= 0.0 				# possible smallest cost value a move from plot to plot will take
-		self.fHeuristicTieBreak		= float(1.0/1000.0) 	# assuming the paths are shorter than 400 steps
-		self.bResultValid			= false
-		self.iLoopCount				= 0
-		self.eDomain 				= 0
-		self.bIgnoreMovesLeft		= false
-		self.MODE_AREA				= 'A'
-		self.MODE_PATH				= 'P'
+		self.pOpenList = AStarList()
+		self.pCloseList = AStarList()
+		self.pTargetPlot = None
+		self.pFromPlot = None
+		self.pUnit = None
+		self.fHeuristicMvmtFactor = 0.0 				# possible smallest cost value a move from plot to plot will take
+		self.fHeuristicTieBreak = float(1.0/1000.0) 	# assuming the paths are shorter than 400 steps
+		self.bResultValid = false
+		self.iLoopCount = 0
+		self.eDomain = 0
+		self.bIgnoreMovesLeft = false
+		self.MODE_AREA = 'A'
+		self.MODE_PATH = 'P'
 
 	# moves a plot from open list to close list
 	def moveToClose(self, pPlot):
@@ -89,10 +94,10 @@ class AStar:
 		self.eDomain = pUnitTypeInfo.getDomainType()
 		if (self.eDomain == DomainTypes.DOMAIN_SEA):
 			# all sea plots have movements costs of 60/plot
-			self.fHeuristicMvmtFactor 	= 60.0
+			self.fHeuristicMvmtFactor = 60.0
 		else:
 			# min possible movement costs of 12/plot
-			self.fHeuristicMvmtFactor 	= 12.0 
+			self.fHeuristicMvmtFactor = 12.0
 
 	# checks in case of sea plots, if there is a landbridge between the two plots
 	def fnCheckLandBridge(self, pPlot, x, y):
@@ -187,8 +192,8 @@ class AStar:
 	def getPath(self):
 		lPath = []
 		if self.bResultValid:
-			pWorkPlot 	= self.pTargetPlot
-			pParentPlot	= self.pTargetPlot
+			pWorkPlot = self.pTargetPlot
+			pParentPlot = self.pTargetPlot
 			while true:
 				# adding target plot to the path
 				lPath.append(self.pCloseList.getXY(pWorkPlot))
@@ -230,15 +235,15 @@ class AStar:
 		self.nMode = self.MODE_PATH
 
 		# setting some variables
-		self.pTargetPlot 		= pToPlot
-		self.pFromPlot 			= pFromPlot
-		self.pUnit 				= pUnit
-		pNewPlot 				= pFromPlot
-		pCurrentPlot			= pFromPlot
-		bBreak 					= false
-		self.iLoopCount			= 0
-		self.iMovesLeft			= pUnit.movesLeft()
-		self.bIgnoreMovesLeft	= bIgnoreMovesLeft
+		self.pTargetPlot = pToPlot
+		self.pFromPlot = pFromPlot
+		self.pUnit = pUnit
+		pNewPlot = pFromPlot
+		pCurrentPlot = pFromPlot
+		bBreak = false
+		self.iLoopCount = 0
+		self.iMovesLeft = pUnit.movesLeft()
+		self.bIgnoreMovesLeft = bIgnoreMovesLeft
 
 		# perfrom some checks ...
 		if ((pFromPlot.getX() == pToPlot.getX()) and (pFromPlot.getY() == pToPlot.getY())):
@@ -267,7 +272,7 @@ class AStar:
 				break
 			# find the plot with the lowest costs on the open list
 			pCurrentPlot = self.pOpenList.findMinFCost()
-			self.iLoopCount	+= 1
+			self.iLoopCount += 1
 
 		# return the G-Costs of the Target Plot
 		if bBreak:
@@ -325,15 +330,15 @@ class AStar:
 		self.nMode = self.MODE_AREA
 
 		# setting some variables
-		self.pTargetPlot 		= None
-		self.pFromPlot 			= pFromPlot
-		self.pUnit 				= pUnit
-		pNewPlot 				= pFromPlot
-		pCurrentPlot			= pFromPlot
-		bBreak 					= false
-		self.iLoopCount			= 0
-		self.iMovesLeft			= pUnit.movesLeft()
-		self.bIgnoreMovesLeft	= false
+		self.pTargetPlot = None
+		self.pFromPlot = pFromPlot
+		self.pUnit = pUnit
+		pNewPlot = pFromPlot
+		pCurrentPlot = pFromPlot
+		bBreak = false
+		self.iLoopCount = 0
+		self.iMovesLeft = pUnit.movesLeft()
+		self.bIgnoreMovesLeft = false
 
 		# calculates some values for the heuristic
 		self.calculateHeuristicFactors()
@@ -350,7 +355,7 @@ class AStar:
 				break
 			# find the plot with the lowest costs on the open list
 			pCurrentPlot = self.pOpenList.findMinFCost()
-			self.iLoopCount	+= 1
+			self.iLoopCount += 1
 
 		# return the G-Costs of the Target Plot
 		iReturn = 1
@@ -373,17 +378,17 @@ class AStar:
 class AStarMoveArea:
 
 	def __init__(self):
-		self.dPlotList 					= {}
-		self.AS 						= AStar()
-		self.pUnit 						= 0
-		self.pFromPlot 					= 0
-		self.PLE_HIGHLIGHT_PLOTS	 	= PlotLandscapeLayers.PLOT_LANDSCAPE_LAYER_REVEALED_PLOTS 
-		self.lArea 						= []
-		self.iActivePlayerTeam			= 0
-		self.iActivePlayer				= 0
+		self.dPlotList = {}
+		self.AS = AStar()
+		self.pUnit = 0
+		self.pFromPlot = 0
+		self.PLE_HIGHLIGHT_PLOTS = PlotLandscapeLayers.PLOT_LANDSCAPE_LAYER_REVEALED_PLOTS
+		self.lArea = []
+		self.iActivePlayerTeam = 0
+		self.iActivePlayer = 0
 
 		# color values
-		self.COL_NO						= "COLOR_CLEAR"
+		self.COL_NO = "COLOR_CLEAR"
 
 	# converts a CyPlot into a tuple (x,y)
 	def getPlotXY(self, pPlot):
@@ -485,15 +490,15 @@ class AStarMoveArea:
 	# 
 	def highlightMoveArea(self, pUnit):
 		# init some variables
-		self.pUnit 				= pUnit
-		self.pFromPlot 			= pUnit.plot()
-		self.dPlotList 			= {}
-		self.iMovesLeft 		= self.pUnit.movesLeft()
-		pUnitTypeInfo 			= gc.getUnitInfo(self.pUnit.getUnitType())
-		self.eDomain 			= pUnitTypeInfo.getDomainType()
-		self.iActivePlayer 		= CyGame().getActivePlayer()
-		pActivePlayer 			= gc.getPlayer(self.iActivePlayer)
-		self.iActivePlayerTeam 	= pActivePlayer.getTeam()
+		self.pUnit = pUnit
+		self.pFromPlot = pUnit.plot()
+		self.dPlotList = {}
+		self.iMovesLeft = self.pUnit.movesLeft()
+		pUnitTypeInfo = gc.getUnitInfo(self.pUnit.getUnitType())
+		self.eDomain = pUnitTypeInfo.getDomainType()
+		self.iActivePlayer = CyGame().getActivePlayer()
+		pActivePlayer = gc.getPlayer(self.iActivePlayer)
+		self.iActivePlayerTeam = pActivePlayer.getTeam()
 
 		# add from plot to OK list
 		self.dPlotList[self.getPlotXY(self.pFromPlot)] = 0

@@ -14,6 +14,8 @@
 
 
 EXPECTED_GAME_RECORD_DEFAULTS = {
+	# <!-- custom: Since SASGameRecord revision 214 (SGR214) the master and the level both ship at 0, as BBAI's master and categories do; until then SAS_SGR_LOG was both. (Claude code Opus 5.5) -->
+	"SAS_SGR_LOG_ON": 0,
 	"SAS_SGR_LOG": 0,
 	# <!-- custom: Ship action tracing ready for deliberately enabled records while the recorder master stays off; catch accidental staging of an actions-off test override. (GPT-6.1-Sol) -->
 	"SAS_SGR_ACTION_TRACE_ON": 1,
@@ -50,6 +52,7 @@ EXPECTED_HANDS_FREE_VALUES = {
 	"SAS_UI_WONDER_MOVIE_ON": 1,
 	"SAS_UI_RELIGION_MOVIE_ON": 1,
 	"SAS_UI_PROJECT_MOVIE_ON": 1,
+	"SAS_UI_TOP_CIVS_ON": 1,
 	"SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON": 1,
 	"SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON": 1,
 	"SAS_FAST_SAVE_GAME_START_ON": 1,
@@ -64,6 +67,7 @@ SHIPPED_VALUES = {**EXPECTED_GAME_RECORD_DEFAULTS, **EXPECTED_RUNTIME_DEFAULTS, 
 # <!-- custom: The values toggle_dev_diagnostics.py "on" sets locally; CI never reads them.
 # They sit beside the shipped values so both settings of each switched define can be seen and changed in one place. (Claude code Opus 5.5) -->
 DEVELOPMENT_VALUES = {
+	"SAS_SGR_LOG_ON": 1,
 	"SAS_SGR_LOG": 3,
 	"SAS_SGR_MAP_ANNOTATION_TEXT_ON": 1,
 	# <!-- custom: The local chat test profile captures all three channels; off restores each privacy default. (GPT-6.1-Sol) -->
@@ -81,6 +85,8 @@ DEVELOPMENT_VALUES = {
 	"SAS_UI_WONDER_MOVIE_ON": 0,
 	"SAS_UI_RELIGION_MOVIE_ON": 0,
 	"SAS_UI_PROJECT_MOVIE_ON": 0,
+	# <!-- custom: The Greatest Civilizations screen, recorded as a Timeline row either way (2026-11-19). (Claude code Opus 5.5) -->
+	"SAS_UI_TOP_CIVS_ON": 0,
 }
 
 # <!-- custom: Settings that agent runs want besides the toggled ones, which SASPilotClient.py lists in its greeting: informational popups dismissed during autoplay.

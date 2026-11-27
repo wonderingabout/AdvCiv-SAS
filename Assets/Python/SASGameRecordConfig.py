@@ -5,7 +5,8 @@
 # Start at None: modules can load before XML is ready, so resolve only when a runtime/session callback first needs the level.
 # Like the DLL's fixed loaded-define caches, these values remain constant for the Python session; revision 151 also caches the action-trace subject switch here so disabled UI hooks avoid repeated XML lookups.
 # Restart/reload the mod after XML edits. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
-from CvPythonExtensions import CyGlobalContext
+# <!-- custom: CyGame gives the recorder's effective level from the DLL. (Claude code Opus 5.5) -->
+from CvPythonExtensions import CyGlobalContext, CyGame
 
 _g_logLevel = None
 _g_systemContextLevel = None
@@ -16,8 +17,10 @@ _g_bugStringValuesEnabled = None
 
 def getLogLevel():
 	global _g_logLevel
+	# <!-- custom: Read from the DLL since SASGameRecord revision 214 (SGR214): SAS_SGR_LOG became the detail level under the SAS_SGR_LOG_ON master, so reading it here would have kept Python logging while the DLL was off; one effective level keeps both in step, as Codex's review (GPT-6.2-Sol) advised.
+	# Still cached for the session, as the level is fixed per record and read only at load; a later next-record setting would need this cache cleared when a record starts. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	if _g_logLevel is None:
-		_g_logLevel = max(0, min(3, CyGlobalContext().getDefineINT("SAS_SGR_LOG")))
+		_g_logLevel = CyGame().getSASGameRecordLogLevel()
 	return _g_logLevel
 
 

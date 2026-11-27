@@ -26,85 +26,38 @@ class CvDawnOfMan:
 	"Dawn of man screen"
 	def __init__(self, iScreenID):
 		self.iScreenID = iScreenID
+		# <!-- custom: Whether the open screen is a preview; see interfaceScreen. (Claude code Opus 5.5) -->
+		self.bPreview = False
 
-		self.X_SCREEN = 0
-		self.Y_SCREEN = 0
-		self.W_SCREEN = 1024
-		self.H_SCREEN = 768
+		# <!-- custom: Removed BtS's copy of the layout set here at 1024 x 768, which calculateSizesAndPositions sets again from the resolution each time interfaceScreen opens the screen, so it was never read; some of its values already differed from the live ones in BtS, such as Y_STATS_TEXT 75 rather than 60 below the title. See KI#1098.3. (Claude code Opus 5.5) -->
 
-		self.W_TECH = 425
-		self.H_TECH = 80
-
-		# <!-- custom: widen Dawn of Man panel to reduce wrapping for longer civ unit/building lines at upscaled fonts, then rebalance top vs bottom panel heights so the leader/info section has enough room without overgrowing the lower blue panel.
-		# Text blocks use SAS label/title scaling helpers for readability consistency. (GPT-5.3-Codex) -->
-		self.W_MAIN_PANEL = 800 # Was 550
-
-		self.H_MAIN_PANEL = 590
-
-		self.X_MAIN_PANEL = (self.W_SCREEN/2) - (self.W_MAIN_PANEL/2)# Was 250
-
-		self.Y_MAIN_PANEL = 70
-
-		self.iMarginSpace = 15
-
-		self.X_HEADER_PANEL = self.X_MAIN_PANEL + self.iMarginSpace
-		self.Y_HEADER_PANEL = self.Y_MAIN_PANEL + self.iMarginSpace
-		self.W_HEADER_PANEL = self.W_MAIN_PANEL - (self.iMarginSpace * 2)
-		self.H_HEADER_PANEL = int(self.H_MAIN_PANEL * (2.0 / 5.0)) + 55
-
-		self.X_LEADER_ICON = self.X_HEADER_PANEL + self.iMarginSpace
-		self.Y_LEADER_ICON = self.Y_HEADER_PANEL + self.iMarginSpace
-		self.H_LEADER_ICON = self.H_HEADER_PANEL - (15 * 2)
-		self.W_LEADER_ICON = int(self.H_LEADER_ICON / 1.272727)#110
-
-		self.X_FANCY_ICON1 = self.X_HEADER_PANEL + 170
-		self.X_FANCY_ICON2 = self.X_HEADER_PANEL + (self.W_MAIN_PANEL - 120) # Was 430
-		self.Y_FANCY_ICON = (self.Y_HEADER_PANEL + self.iMarginSpace + 6) - 6
-		self.WH_FANCY_ICON = 64
-
-		self.W_LEADER_TITLE_TEXT = int(self.W_HEADER_PANEL * 2 / 5)
-		self.X_LEADER_TITLE_TEXT = (self.X_FANCY_ICON1+self.WH_FANCY_ICON)+((self.X_FANCY_ICON2 - (self.X_FANCY_ICON1+self.WH_FANCY_ICON))/2) - (self.W_LEADER_TITLE_TEXT/2)
-
-		self.Y_LEADER_TITLE_TEXT = self.Y_HEADER_PANEL + self.iMarginSpace + 6
-		self.H_LEADER_TITLE_TEXT = self.H_HEADER_PANEL / 2
-
-		self.X_STATS_TEXT = self.X_FANCY_ICON1# + self.W_LEADER_ICON + (self.iMarginSpace * 2) + 5
-		self.Y_STATS_TEXT = self.Y_LEADER_TITLE_TEXT + 75
-		self.W_STATS_TEXT = int(self.W_HEADER_PANEL * (5 / 7.0)) + (self.iMarginSpace * 2)
-		self.H_STATS_TEXT = int(self.H_HEADER_PANEL * (3 / 5.0)) - (self.iMarginSpace * 2)
-
-		self.X_TEXT_PANEL = self.X_HEADER_PANEL
-		self.Y_TEXT_PANEL = self.Y_HEADER_PANEL + self.H_HEADER_PANEL + self.iMarginSpace - 10 #10 is the fudge factor
-		self.W_TEXT_PANEL = self.W_HEADER_PANEL
-		self.H_TEXT_PANEL = self.H_MAIN_PANEL - self.H_HEADER_PANEL - (self.iMarginSpace * 3) + 10 #10 is the fudge factor
-		self.iTEXT_PANEL_MARGIN = 30
-
-		self.W_EXIT = 120
-		self.H_EXIT = 30
-
-		self.X_EXIT = (self.W_SCREEN/2) - (self.W_EXIT/2) # Was 460
-		self.Y_EXIT = self.Y_MAIN_PANEL + 440
-
-	def interfaceScreen(self):
+	# <!-- custom: Was interfaceScreen(self); bPreview, false for the game's own calls, lets SASPilotUI's uisplash show the screen in a running game: it opens at once, ignores SAS_UI_DAWN_OF_MAN_ON and, on close, leaves the unit selection sounds as they are. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	def interfaceScreen(self, bPreview=False):
 		'Use a popup to display the opening text'
 		if ( CyGame().isPitbossHost() ):
 			return
 		# <!-- custom: Every Dawn of Man trigger ends here: CvEventManager and the All Eras mod at game start, the DLL after map regeneration or in Rise and Fall, and a popup queued in a save made at game start, which is how it appeared when loading a T0 save.
 		# Skipping here covers them all.
 		# onClose would have re-enabled unit selection sounds, so do that instead. (Claude Code Opus 5.5) -->
-		if not _isDawnOfManShown():
+		if not bPreview and not _isDawnOfManShown():
 			CyInterface().setSoundSelectionReady(true)
 			return
 
 		self.calculateSizesAndPositions()
 
 		self.player = gc.getPlayer(gc.getGame().getActivePlayer())
-		self.EXIT_TEXT = SASTextScale.sasFontTagTitle + localText.getText("TXT_KEY_SCREEN_CONTINUE", ()) + SASTextScale.SAS_FONT_TAG_CLOSE
+		# <!-- custom: The splash and dialog screens gave their OK/Exit button the title font, the label font or none, so the same fixed-size button read out of proportion with the screen's own text from one screen to the next; all now take the label font, as the rest of their text does (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		self.EXIT_TEXT = SASTextScale.sasFontTagLabel + localText.getText("TXT_KEY_SCREEN_CONTINUE", ()) + SASTextScale.SAS_FONT_TAG_CLOSE
 
 		# Create screen
 
 		screen = CyGInterfaceScreen( "CvDawnOfMan", self.iScreenID )		
-		screen.showScreen(PopupStates.POPUPSTATE_QUEUED, False)
+		# <!-- custom: A SASPilot preview opens immediately in a running game and leaves the real Dawn of Man switch alone. (GPT-6.2-Sol) -->
+		self.bPreview = bPreview
+		ePopupState = PopupStates.POPUPSTATE_QUEUED
+		if bPreview:
+			ePopupState = PopupStates.POPUPSTATE_IMMEDIATE
+		screen.showScreen(ePopupState, False)
 		screen.showWindowBackground( False )
 		screen.setDimensions(self.X_SCREEN, screen.centerY(self.Y_SCREEN), self.W_SCREEN, self.H_SCREEN)
 		screen.enableWorldSounds( false )
@@ -148,7 +101,8 @@ class CvDawnOfMan:
 		# <!-- custom: prepend each trait name with its SASVisuals.Trait font-symbol icon (e.g. happy char for Charismatic, defense char for Protective) so the Dawn of Man header uses the same compact trait display as Victory Screen Settings, and reads without requiring pedia-jump wiring.
 		# Mirrors SevoPediaLeader trait-icon injection. (Claude code Sonnet 4.6 + GPT-5.5) -->
 		szNameText += SASTextScale.sasFontTagLabel + SASVisuals.Trait.getLeaderTraitsWithIcons(self.player.getLeaderType(), self.player.getCivilizationType()) + SASTextScale.SAS_FONT_TAG_CLOSE
-		screen.addMultilineText( "NameText", szNameText, self.X_LEADER_TITLE_TEXT, self.Y_LEADER_TITLE_TEXT, self.W_LEADER_TITLE_TEXT, self.H_LEADER_TITLE_TEXT, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		# <!-- custom: The leader's name, civilization and traits open the leader's Sevopedia page and hover its help (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		screen.addMultilineText( "NameText", szNameText, self.X_LEADER_TITLE_TEXT, self.Y_LEADER_TITLE_TEXT, self.W_LEADER_TITLE_TEXT, self.H_LEADER_TITLE_TEXT, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, self.player.getLeaderType(), self.player.getCivilizationType(), CvUtil.FONT_CENTER_JUSTIFY)
 
 		if not isLaterEraStart: # advc.250c: No free tech
 			screen.addMultilineText( "HeaderText2", SASTextScale.labelText(localText.getText("TXT_KEY_FREE_TECHS", ()) + ":"), self.X_STATS_TEXT, self.Y_STATS_TEXT+15, self.W_STATS_TEXT, self.H_STATS_TEXT, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -251,7 +205,10 @@ class CvDawnOfMan:
 		return
 
 	def onClose(self):
-		CyInterface().setSoundSelectionReady(true)		
+		# <!-- custom: Only the real game-start screen releases its sound-selection gate.
+		# A mid-game preview never takes ownership of that state. (GPT-6.2-Sol) -->
+		if not self.bPreview:
+			CyInterface().setSoundSelectionReady(true)
 		return 0
 
 	def calculateSizesAndPositions(self):
@@ -266,6 +223,8 @@ class CvDawnOfMan:
 		self.W_TECH = 425
 		self.H_TECH = 80
 
+		# <!-- custom: widen Dawn of Man panel to reduce wrapping for longer civ unit/building lines at upscaled fonts, then rebalance top vs bottom panel heights so the leader/info section has enough room without overgrowing the lower blue panel.
+		# Text blocks use SAS label/title scaling helpers for readability consistency. (GPT-5.3-Codex) -->
 		self.W_MAIN_PANEL = 800 # Was 550
 
 		self.H_MAIN_PANEL = 590 # advc.002b: Was 525.

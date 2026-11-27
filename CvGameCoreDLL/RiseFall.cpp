@@ -81,6 +81,7 @@ void RiseFall::init() {
 			return;
 		}
 	}
+	// <!-- custom: ci_define_uncached: Rise and Fall's setup, once per game, like the reads below. (Claude code Opus 5.5) -->
 	int maxChapters = GC.getDefineINT("RF_CHAPTERS_BASE");
 	CvGameSpeedInfo& speed = GC.getInfo(g.getGameSpeedType());
 	double chapterModifier = (speed.getGoldenAgePercent() + 150) / 250.0;
@@ -446,6 +447,7 @@ void RiseFall::atActiveTurnStart() {
 			chapters[i]->setScoreShown(true);
 		}
 	}
+	// <!-- custom: ci_define_uncached: the read below is reached only on a chapter's last turn, as the tests before it fail first otherwise. (Claude code Opus 5.5) -->
 	if(pos < ((int)chapters.size()) - 1 &&
 			gameTurn == currentCh.getEndTurn() &&
 			GC.getDefineINT("RF_ENABLE_FINAL_TURN_POPUP") > 0) {
@@ -707,7 +709,8 @@ void RiseFall::abandonPlans(PlayerTypes civId) {
 			(advc.061). Should test this some time. */
 	}
 	// Set research slider to a balanced-budget position
-	int incr = GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS");
+	// <!-- custom: Read through AdvCiv's enum cache, as CvPlayer and CvPlayerAI do. See KI#128.3. (Claude code Opus 5.5) -->
+	int incr = GC.getDefineINT(CvGlobals::COMMERCE_PERCENT_CHANGE_INCREMENTS);
 	civ.setCommercePercent(COMMERCE_RESEARCH, 100);
 	while(civ.calculateGoldRate() < 0 && civ.getCommercePercent(COMMERCE_RESEARCH) > 9)
 		civ.setCommercePercent(COMMERCE_RESEARCH,

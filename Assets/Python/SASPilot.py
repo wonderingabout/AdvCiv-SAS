@@ -2,9 +2,9 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
 # <!-- custom: SASPilot lets an external agent read and drive the running game from the command line instead of through the UI: requests arrive as JSON files in a per-process mailbox folder, run inside the game's Python, and are answered as JSON files.
-# This module is only the stable loader: it decides once whether SASPilot is on, then on game updates and screen updates hands the mailbox to LLM_Helpers/saspilot/SASPilotCommands.py, loaded from disk and reloaded when that file changes.
+# This module is only the stable loader: it decides once whether SASPilot is on, then on game updates and screen updates hands the mailbox to SASPilot/game/SASPilotCommands.py, loaded from disk and reloaded when that file changes.
 # Off unless SAS_PILOT_ON is 1 or the ini= launch file has an [SASPilot] section with On = 1, so ordinary players pay one comparison per game update and per frame.
-# See LLM_Helpers/saspilot/SASPilotClient.py and _1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md. (Claude code Fable 5.2) -->
+# See SASPilot/SASPilotClient.py and _1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md. (Claude code Fable 5.2) -->
 
 # <!-- custom: imp loads the command module from its file, os handles the mailbox folder and PID, sys and traceback report a failed reload; BugPath finds the mod and user folders; SASAutoplayRequest shares its ini= reader. (Claude code Fable 5.2) -->
 from CvPythonExtensions import *
@@ -18,6 +18,8 @@ import BugPath
 # <!-- custom: CvUtil writes SASPilot's structured log rows (pyPrintRecord), and SASAutoplayRequest finds the per-run INI whose [SASPilot] section configures it. (Claude code Opus 5.5) -->
 import CvUtil
 import SASAutoplayRequest
+# <!-- custom: SAS_PILOT_ON is read through main's shared define cache, as python_define_reads_cached.py requires since merging main (2026-11-27); a leaf module, so no cycle. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 
 gc = CyGlobalContext()
 
@@ -56,7 +58,7 @@ def _pilotSection():
 
 def _resolveEnabled():
 	# <!-- custom: The XML switch is read first, as before the session ID came, so a malformed per-run INI cannot stop a pilot that SAS_PILOT_ON turns on (Codex's review); it then runs without a session. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	if gc.getDefineINT("SAS_PILOT_ON") > 0:
+	if SASCurrentDefines.getInt("SAS_PILOT_ON") > 0:
 		try:
 			state["session"] = _pilotSection().get("session")
 		except:
@@ -83,22 +85,30 @@ def _readCommandsFile():
 
 def _loadCommands(bCompareContent=False):
 	global _commands, _commandsStamp, _commandsDigest, _szReloadError
-	stamp = _fileStamp(_commandsPath)
-	data = None
+	# <!-- custom: A tool that saves by replacing the file can leave it missing for a moment, which os.stat reports as OSError; the next check retries. (Claude code Opus 5.5) -->
+	try:
+		stamp = _fileStamp(_commandsPath)
+	except OSError:
+		return
+	if stamp == _commandsStamp and not bCompareContent:
+		return
+	# <!-- custom: The read can meet a save in progress: on 2026-11-19 a script rewriting SASPilotCommands.py made it fail with IOError Errno 13 (Permission denied), and the traceback reached PythonErr.log.
+	# The stamp was also set before the read, so a failed read counted as loaded until the next content check.
+	# Now a failed read leaves the stamp as it was and returns quietly; the next check, a fraction of a second later, reads the finished file. (Claude code Opus 5.5) -->
+	try:
+		data = _readCommandsFile()
+	except IOError:
+		CvUtil.pyPrintRecord("SAS_PILOT", "outcome=COMMANDS_READ_RETRY errno=%s" % sys.exc_info()[1].errno)
+		return
 	if stamp == _commandsStamp:
 		# <!-- custom: ChatGPT's review (2026-11-14): an edit of the same size within the same second keeps (size, mtime), so it could be missed for good.
 		# The content's MD5 is compared every SASPilot._DIGEST_EVERY_CHECKS checks rather than every check, as reading 110 KB a few times a second would cost every player-visible frame more than the rare miss it catches. (Claude code Opus 5.5 + ChatGPT-5.6-Sol) -->
-		if not bCompareContent:
-			return
-		data = _readCommandsFile()
 		if md5.new(data).hexdigest() == _commandsDigest:
 			return
 	_commandsStamp = stamp
 	try:
 		# <!-- custom: Civ4 caches the mod's Python at startup, so an ordinary import or reload() would return the code from launch (civai found the same); loading from the file picks up edits without restarting Civ4.
 		# imp.load_source did that but left a SASPilotCommands.pyc beside the source, so compile the text ourselves into a fresh module. (Claude code Fable 5.2) -->
-		if data is None:
-			data = _readCommandsFile()
 		_commandsDigest = md5.new(data).hexdigest()
 		source = data.replace("\r\n", "\n")
 		module = imp.new_module(_COMMANDS_NAME)
@@ -116,11 +126,15 @@ def _loadCommands(bCompareContent=False):
 		sys.stderr.write(_szReloadError)
 
 
-def _start():
+def _setCommandsPath():
 	global _commandsPath
 	# <!-- custom: The command file first sat in Assets/Python: saving an edit there made the running Civ4 reinitialize its Python, after which PythonErr.log filled with "Can't find module CvScreensInterface" and the mailbox went unanswered (2026-11-13).
-	# Moving it to Assets/SASPilot did the same, so the EXE watches all of Assets; LLM_Helpers/saspilot, beside its client SASPilotClient.py, is outside it (LLM_Helpers/game_runs until 2026-11-15). (Claude code Fable 5.2) -->
-	_commandsPath = os.path.join(BugPath.getModDir(), "LLM_Helpers", "saspilot", _COMMANDS_NAME + ".py")
+	# Moving it to Assets/SASPilot did the same, so the EXE watches all of Assets; SASPilot/game at the mod's root, beside its client SASPilotClient.py in SASPilot/, is outside it (LLM_Helpers/game_runs until 2026-11-15, then LLM_Helpers/saspilot until 2026-11-20). (Claude code Fable 5.2 + Claude code Opus 5.5) -->
+	_commandsPath = os.path.join(BugPath.getModDir(), "SASPilot", "game", _COMMANDS_NAME + ".py")
+
+
+def _start():
+	_setCommandsPath()
 	# <!-- custom: One folder per process, named by PID like our logs, so several clients can each be piloted. See KI#1081. (Claude code Fable 5.2) -->
 	mailbox = os.path.join(BugPath.getRootDir(), "SASPilot", str(os.getpid()))
 	if not os.path.isdir(mailbox):
@@ -209,6 +223,25 @@ def onLoad(argsList):
 			gc.getGame().setSASPilotPopupsHeld(True)
 	except:
 		_keepTickError("OnLoad")
+
+
+def aroundMainInterfaceBuild(bBefore):
+	# <!-- custom: Called before and after the main interface's build at game start, which comes before the first game update starts SASPilot, so the command file is loaded here if needed, as onLoad reads the switch.
+	# SASPilotUI records that build: the advisor, minimap and scoreboard buttons are created only then.
+	# Errors are kept as tick errors, never raised into the build. (Claude code Opus 5.5) -->
+	try:
+		bOn = _bEnabled
+		if bOn is None:
+			bOn = _resolveEnabled()
+		if not bOn:
+			return
+		if _commands is None:
+			_setCommandsPath()
+			_loadCommands()
+		if _commands is not None and hasattr(_commands, "aroundMainInterfaceBuild"):
+			_commands.aroundMainInterfaceBuild(state, bBefore)
+	except:
+		_keepTickError("MainInterfaceBuild")
 
 
 def onUpdate(argsList):

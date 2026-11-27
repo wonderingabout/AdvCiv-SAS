@@ -1,3 +1,6 @@
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+
 from CvPythonExtensions import *
 import SASGameRecordConfig # <!-- custom: Share lazy None-initialized level caches across recorder callbacks; disabled runs still avoid importing the settings collectors. (GPT-6.1-Sol) -->
 import CvScreensInterface
@@ -42,7 +45,7 @@ def restartPopup(bForceShowing = False):
 		popup.launch()
 
 def isNumber(s):
-	# <!-- custom: ruff E741: "l" is ambiguous; use "char" instead (per ChatGPT). (GPT-5.2-Codex (summarized)) -->
+	# <!-- custom: ruff E741: "l" is ambiguous; use "char" instead (per ChatGPT). See KI#21.7. (GPT-5.2-Codex (summarized)) -->
 	for char in s:
 		# <!-- custom: use a literal digits string instead of string.digits; remove string import. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
 		if char not in "0123456789":

@@ -94,6 +94,8 @@ public:
 	// <!-- custom: Use a Unicode root instead of narrow text and return checkpoint success instead of void; Python can preserve non-ASCII paths and detect failed live-inspection output. (GPT-6.1-Sol) -->
 	void setSASDiagnosticLogRoot(std::wstring szRootDirectory);
 	bool flushSASDiagnosticLogs();
+	// <!-- custom: A replay message from Python, visible only to iPlayer's team, so a screen that only that team saw, such as the Greatest Civilizations, is kept in the save and listed on that team's Timeline. (Claude code Opus 5.5) -->
+	void addSASTeamReplayMessage(int iPlayer, std::wstring szText);
 	// <!-- custom: Bridge screen show/hide through one cached native gate before inspecting editor/Advanced Start state; native code orders mode and visibility observations for either EXE callback ordering. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	void updateSASRuntimeStatusWorldBuilderScreen(bool bVisible);
 	void beginSASWorldBuilderBulkEdit();
@@ -108,6 +110,8 @@ public:
 	void logSASGameRecordDiagnosticContext(int iRenderQualityLevel, int iAntiAliasingIndex, int iAntiAliasingSamples, int iGlobeViewRenderLevel, int iMovieQualityLevel);
 	// <!-- custom: Session-configuration timeline bridge plus level-2+ native runtime-view snapshot and internal active-INI resolver; caller-side gates avoid Python collection work when SASGameRecord is disabled. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	void logSASGameRecordSessionSettings(std::string szEvent, std::string szReason, std::string szSource, std::string szGroup, int iCount, std::string szValues);
+	// <!-- custom: The recorder's effective level, 0 while SAS_SGR_LOG_ON is 0, so Python gates on the same value as the DLL rather than reading SAS_SGR_LOG itself, which alone no longer turns the record on or off. See SASGameRecord revision 214 (SGR214). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	int getSASGameRecordLogLevel() const;
 	void logSASGameRecordRuntimeViewStateSnapshot(std::string szReason);
 	// <!-- custom: Revision 151 bridges Python-owned screen/navigation and local interface state into the native recorder without exposing a generic arbitrary-log-string API.
 	// Callers still pre-gate level 2+. (ChatGPT-5.6-Sol) -->
@@ -119,6 +123,9 @@ public:
 	// <!-- custom: Narrow DotMap bridge passes only persisted scalar marker state; color type/channels are resolved natively from the current XML ID. (ChatGPT-5.6-Sol) -->
 	void logSASGameRecordDotMapSummary(std::string szEvent, std::string szReason, int iTotal, bool bOverlayVisible, int iAdded, int iEdited, int iRemoved);
 	void logSASGameRecordDotMapMarker(std::string szEvent, std::string szReason, int iOwnerPlayer, int iX, int iY, int iOldColor, int iOldLayer, int iNewColor, int iNewLayer);
+	// <!-- custom: SASGameRecord rows for a Greatest Civilizations ranking; CvTopCivs.py pre-gates at level 1, and these check it again as a backstop. (Claude code Opus 5.5) -->
+	void logSASGameRecordTopCivs(std::string szCategory, std::wstring szHistorian, int iListed, int iRanked, int iUnknownListed, bool bShown);
+	void logSASGameRecordTopCivsRank(std::string szCategory, int iRank, int iPlayer, int iValue, bool bListed, bool bKnown);
 	std::string getSASGameRecordIniFileArgument() const;
 	// <!-- custom: Python diplomacy bridge for the exact package of AI ordinary offers rejected by a human.
 	// Raw item/data pairs are converted and logged only at SASGameRecord level 2+. (ChatGPT-5.6-Sol) -->
@@ -393,6 +400,8 @@ public:
 	std::string joinSASPilotGroup(int iPlayer, int iUnit, int iHeadUnit); // <!-- custom: For SASPilot's 'group' command. (Claude code Opus 5.5) -->
 	bool chooseSASPilotFreeTech(int iTech, int iHeldId); // <!-- custom: For SASPilot's 'freetech' command. (Claude code Opus 5.5) -->
 	bool isSASPilotChoosingFreeTech(); // <!-- custom: For SASPilot's 'todo': whether a free tech is still owed, which a chooser left on display cannot tell. (Claude code Opus 5.5) -->
+	bool executeSASPilotWidget(int iWidgetType, int iData1, int iData2, bool bOption, bool bAlt); // <!-- custom: For SASPilotUI's 'uipress'. (Claude code Opus 5.5) -->
+	std::wstring getSASPilotWidgetHelp(int iWidgetType, int iData1, int iData2, bool bOption); // <!-- custom: For SASPilotUI's 'uihover'. (Claude code Opus 5.5) -->
 	bool dropSASPilotPopup(int iHeldId, int iButtonPopupType, int iData1, int iData3, std::wstring szText); // <!-- custom: For SASPilot's notices. (Claude code Opus 5.5) -->
 
 	void setCityBarWidth(bool bWide); // advc.095

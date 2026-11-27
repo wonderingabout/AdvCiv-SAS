@@ -13,6 +13,8 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
 import CvUtil
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import SASGameRecordActions # <!-- custom: The three named Python event-reply callbacks need readable SGR input evidence independently from subsequent war/peace outcomes; the shared helper owns gating and serialization. (GPT-6.1-Sol) -->
 import SASPopupChoices # <!-- custom: Event reply creation and gameplay dispatch share the same Yes/No IDs and readable action names, independently from diagnostic enablement. (GPT-6.1-Sol) -->
 from CvPythonExtensions import *
@@ -315,7 +317,7 @@ def getHelpWeddingFeud2(argsList):
 	iEvent = argsList[0]
 	event = gc.getEventInfo(iEvent)
 	kTriggeredData = argsList[1]
-	szHelp = localText.getText("TXT_KEY_EVENT_WEDDING_FEUD_2_HELP", (gc.getDefineINT("TEMP_HAPPY"), 30, SASVisuals.Religion.ordinal(kTriggeredData.eReligion)))
+	szHelp = localText.getText("TXT_KEY_EVENT_WEDDING_FEUD_2_HELP", (SASCurrentDefines.getInt("TEMP_HAPPY"), 30, SASVisuals.Religion.ordinal(kTriggeredData.eReligion)))
 
 	return szHelp
 
@@ -507,7 +509,7 @@ def canApplyLooters3(argsList):
 
 	iNumBuildings = 0	
 	for iBuilding in range(gc.getNumBuildingInfos()):
-		if (city.getNumRealBuilding(iBuilding) > 0 and gc.getBuildingInfo(iBuilding).getProductionCost() <= 100 and gc.getBuildingInfo(iBuilding).getProductionCost() > 0  and not isLimitedWonderClass(gc.getBuildingInfo(iBuilding).getBuildingClassType())):
+		if (city.getNumRealBuilding(iBuilding) > 0 and gc.getBuildingInfo(iBuilding).getProductionCost() <= 100 and gc.getBuildingInfo(iBuilding).getProductionCost() > 0 and not isLimitedWonderClass(gc.getBuildingInfo(iBuilding).getBuildingClassType())):
 			iNumBuildings += 1
 
 	return (iNumBuildings > 0)
@@ -524,7 +526,7 @@ def applyLooters3(argsList):
 
 	listBuildings = []	
 	for iBuilding in range(gc.getNumBuildingInfos()):
-		if (city.getNumRealBuilding(iBuilding) > 0 and gc.getBuildingInfo(iBuilding).getProductionCost() <= 100 and gc.getBuildingInfo(iBuilding).getProductionCost() > 0  and not isLimitedWonderClass(gc.getBuildingInfo(iBuilding).getBuildingClassType())):
+		if (city.getNumRealBuilding(iBuilding) > 0 and gc.getBuildingInfo(iBuilding).getProductionCost() <= 100 and gc.getBuildingInfo(iBuilding).getProductionCost() > 0 and not isLimitedWonderClass(gc.getBuildingInfo(iBuilding).getBuildingClassType())):
 			listBuildings.append(iBuilding)
 
 	for i in range(iNumBuildings+1):
@@ -718,7 +720,7 @@ def applyTsunami2(argsList):
 
 	listBuildings = []	
 	for iBuilding in range(gc.getNumBuildingInfos()):
-		if (city.getNumRealBuilding(iBuilding) > 0 and gc.getBuildingInfo(iBuilding).getProductionCost() > 0  and not isLimitedWonderClass(gc.getBuildingInfo(iBuilding).getBuildingClassType())):
+		if (city.getNumRealBuilding(iBuilding) > 0 and gc.getBuildingInfo(iBuilding).getProductionCost() > 0 and not isLimitedWonderClass(gc.getBuildingInfo(iBuilding).getBuildingClassType())):
 			listBuildings.append(iBuilding)
 
 	for i in range(5):
@@ -1196,17 +1198,17 @@ def canTriggerSoloFlight(argsList):
 
 	map = gc.getMap()	
 	if map.getWorldSize() == findInfoTypeNumOrFail(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_DUEL'):
-		iMinLandmass  = 3
+		iMinLandmass = 3
 	elif map.getWorldSize() == findInfoTypeNumOrFail(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_TINY'):
-		iMinLandmass  = 4
+		iMinLandmass = 4
 	elif map.getWorldSize() == findInfoTypeNumOrFail(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_SMALL'):
-		iMinLandmass  = 6
+		iMinLandmass = 6
 	elif map.getWorldSize() == findInfoTypeNumOrFail(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_STANDARD'):
-		iMinLandmass  = 8
+		iMinLandmass = 8
 	elif map.getWorldSize() == findInfoTypeNumOrFail(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_LARGE'):
-		iMinLandmass  = 10
+		iMinLandmass = 10
 	else:
-		iMinLandmass  = 12
+		iMinLandmass = 12
 
 	if (map.getNumLandAreas() < iMinLandmass):
 		return false
@@ -1861,17 +1863,17 @@ def numUnitsUprising(playerId):
 	# BtS code (deleted at the call locations):
 	#map = gc.getMap()
 	#if map.getWorldSize() == CvUtil.findInfoTypeNum(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_DUEL'):
-	#	iNumUnits  = 1
+	#	iNumUnits = 1
 	#elif map.getWorldSize() == CvUtil.findInfoTypeNum(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_TINY'):
-	#	iNumUnits  = 2
+	#	iNumUnits = 2
 	#elif map.getWorldSize() == CvUtil.findInfoTypeNum(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_SMALL'):
-	#	iNumUnits  = 3
+	#	iNumUnits = 3
 	#elif map.getWorldSize() == CvUtil.findInfoTypeNum(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_STANDARD'):
-	#	iNumUnits  = 4
+	#	iNumUnits = 4
 	#elif map.getWorldSize() == CvUtil.findInfoTypeNum(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_LARGE'):
-	#	iNumUnits  = 5
+	#	iNumUnits = 5
 	#else: 
-	#	iNumUnits  = 6
+	#	iNumUnits = 6
 
 	#r = 2;
 	#for i in range(gc.getPlayer(playerId).getCurrentEra() + 1):
@@ -3687,7 +3689,7 @@ def doGreatBeast3(argsList):
 
 def getHelpGreatBeast3(argsList):
 	kTriggeredData = argsList[1]
-	szHelp = localText.getText("TXT_KEY_EVENT_GREAT_BEAST_3_HELP", (gc.getDefineINT("TEMP_HAPPY"), 40, SASVisuals.Religion.ordinal(kTriggeredData.eReligion)))
+	szHelp = localText.getText("TXT_KEY_EVENT_GREAT_BEAST_3_HELP", (SASCurrentDefines.getInt("TEMP_HAPPY"), 40, SASVisuals.Religion.ordinal(kTriggeredData.eReligion)))
 
 	return szHelp
 

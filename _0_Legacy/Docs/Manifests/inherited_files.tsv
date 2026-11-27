@@ -1,0 +1,922 @@
+path	layers	advcivEvents	otherPaths
+Assets/Python/System/email/__init__.py	vanilla	-	-
+Assets/Python/System/email/_parseaddr.py	vanilla	-	-
+Assets/Python/Contrib/AIAutoPlay.py	advciv	2010-12-27 593c549b51 added; 2020-02-16 3cb7780c3e renamed from Assets/Python/K-Mod/AIAutoPlay.py to Assets/Python/Contrib/AIAutoPlay.py	-
+Assets/Python/Contrib/AStarTools.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/AttitudeUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/_DebugTools/AudioLogParser.py	vanilla	-	-
+Assets/Python/Contrib/autolog.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/autologEventManager.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/AutoSave.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/System/email/base64MIME.py	vanilla	-	-
+Assets/Python/BUG/Tabs/BugACOOptionsTab.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/Tabs/BugAlertsOptionsTab.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/Tabs/BugAutologOptionsTab.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugConfig.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugConfigTracker.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/Tabs/BugConfigTrackerTab.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugCore.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugData.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugDll.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/Tabs/BugErrorOptionsTab.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugEventManager.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugFile.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugGameUtils.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugHelp.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugInit.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/Tabs/BugMapOptionsTab.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/Tabs/BugNJAGCOptionsTab.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugOptions.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugOptionsScreen.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugOptionsTab.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugPath.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/Tabs/BugPleOptionsTab.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/Tabs/BugScoreOptionsTab.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugScreen.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugScreenInit.py	advciv	2019-09-20 2cc2f4cf4d added	-
+Assets/Python/BUG/Tabs/BugSystemOptionsTab.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugTypes.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/Tabs/BugUnitNameOptionsTab.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugUnitPlot.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugUpdateChecker.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/BugUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/ChangePlayer.py	advciv	2010-12-27 593c549b51 added; 2020-02-16 3cb7780c3e renamed from Assets/Python/K-Mod/ChangePlayer.py to Assets/Python/Contrib/ChangePlayer.py	-
+Assets/Python/System/email/Charset.py	vanilla	-	-
+Assets/Python/BUG/CityUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Civ4lerts.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/ColorUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/configobj.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/CvAdvisorScreen.py	vanilla	-	-
+Assets/Python/CvAdvisorUtils.py	vanilla,bts,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/CvAllErasDawnOfManScreenEventManager.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/EntryPoints/CvAppInterface.py	vanilla,warlords,bts	-	-
+Assets/Python/Screens/CvBUGMilitaryAdvisor.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/CvCameraControls.py	vanilla,bts,advciv	2022-01-18 bb6397f363 added	-
+Assets/Python/Screens/CvCivicsScreen.py	vanilla,advciv	2015-03-31 efe8a852fa added	-
+Assets/Python/Screens/CvCorporationScreen.py	bts	-	-
+Assets/Python/Screens/CvCustomizableDomesticAdvisor.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/CvDanQuayle.py	vanilla,advciv	2017-08-24 e11525d303 added	-
+Assets/Python/Screens/CvDawnOfMan.py	vanilla,warlords,bts,advciv	2017-04-16 f6ff6a182f added	-
+Assets/Python/Screens/CvDebugInfoScreen.py	vanilla	-	-
+Assets/Python/EntryPoints/CvDebugInterface.py	vanilla	-	-
+Assets/Python/CvDebugTools.py	vanilla,bts,advciv	2018-11-30 40f76ddd83 added	-
+Assets/Python/CvDefineEditor.py	vanilla	-	-
+Assets/Python/CvDiplomacy.py	vanilla,warlords,bts,advciv	2011-10-19 a7ba76d735 added	-
+Assets/Python/EntryPoints/CvDiplomacyInterface.py	vanilla	-	-
+Assets/Python/Screens/CvDomesticAdvisor.py	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/CvDotMapOverlayScreen.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/CvEraMovieScreen.py	vanilla,advciv	2012-04-19 99b7b91d6d added	-
+Assets/Python/Screens/CvEspionageAdvisor.py	bts,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/EntryPoints/CvEventInterface.py	vanilla,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/CvEventManager.py	vanilla,warlords,bts,advciv	2017-08-24 e11525d303 added	-
+Assets/Python/Screens/CvExoticForeignAdvisor.py	bts,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/CvFinanceAdvisor.py	vanilla,warlords	-	-
+Assets/Python/Screens/CvForeignAdvisor.py	vanilla,warlords,bts,advciv	2012-04-10 8912a5b08e added	-
+Assets/Python/EntryPoints/CvGameInterface.py	vanilla,warlords,bts,advciv	2019-08-27 553b1a0f8d added	-
+Assets/Python/EntryPoints/CvGameInterfaceFile.py	warlords,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/CvGameUtils.py	vanilla,warlords,bts	-	-
+Assets/Python/Screens/CvGFCScreen.py	vanilla	-	-
+Assets/Python/Screens/CvHallOfFameScreen.py	vanilla,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/CvInfoScreen.py	vanilla,bts,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/CvIntroMovieScreen.py	vanilla,warlords,bts	-	-
+Assets/Python/Screens/CvMainInterface.py	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/CvMapGeneratorUtil.py	vanilla,warlords,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/EntryPoints/CvMapScriptInterface.py	vanilla,warlords	-	-
+Assets/Python/Screens/CvMilitaryAdvisor.py	vanilla,warlords,bts,advciv	2018-02-15 ad5faf8aa2 added	-
+Assets/Python/Contrib/CvModName.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/CvOptionsScreen.py	vanilla,bts,advciv	2012-03-17 b440de71cd added	-
+Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py	vanilla,warlords,bts,advciv	2019-03-01 2eba1fcc8e added	-
+Assets/Python/Contrib/CvOverlayScreenUtils.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/CvPediaBonus.py	vanilla,bts,advciv	2012-03-14 6821c2ec58 added	-
+Assets/Python/Screens/CvPediaBuilding.py	vanilla,warlords,bts	-	-
+Assets/Python/Screens/CvPediaCivic.py	vanilla	-	-
+Assets/Python/Screens/CvPediaCivilization.py	vanilla,warlords,bts	-	-
+Assets/Python/Screens/CvPediaCorporation.py	bts,advciv	2019-07-28 60417ea5ba added	-
+Assets/Python/Screens/CvPediaFeature.py	vanilla	-	-
+Assets/Python/Screens/CvPediaHistory.py	vanilla,bts	-	-
+Assets/Python/Screens/CvPediaImprovement.py	vanilla,warlords,bts	-	-
+Assets/Python/Screens/CvPediaLeader.py	vanilla,warlords,bts	-	-
+Assets/Python/Screens/CvPediaMain.py	vanilla,warlords,bts	-	-
+Assets/Python/Screens/CvPediaProject.py	vanilla,bts	-	-
+Assets/Python/Screens/CvPediaPromotion.py	vanilla,warlords,bts,advciv	2011-01-14 49ef4110a7 added	-
+Assets/Python/Screens/CvPediaReligion.py	vanilla,warlords	-	-
+Assets/Python/Screens/CvPediaScreen.py	vanilla	-	-
+Assets/Python/Screens/CvPediaSpecialist.py	vanilla,warlords	-	-
+Assets/Python/Screens/CvPediaTech.py	vanilla,warlords,bts	-	-
+Assets/Python/Screens/CvPediaTerrain.py	vanilla	-	-
+Assets/Python/Screens/CvPediaUnit.py	vanilla,warlords,bts	-	-
+Assets/Python/Screens/CvPediaUnitChart.py	vanilla,warlords,bts	-	-
+Assets/Python/CvPerfTest.py	vanilla,bts	-	-
+Assets/Python/EntryPoints/CvPopupInterface.py	vanilla	-	-
+Assets/Python/CvQuestManager.py	vanilla	-	-
+Assets/Python/EntryPoints/CvRandomEventInterface.py	bts,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/CvReligionScreen.py	vanilla,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/CvReplayScreen.py	vanilla,advciv	2019-10-10 d408c0233f added	-
+Assets/Python/Screens/CvScreen.py	vanilla	-	-
+Assets/Python/Screens/CvScreenEnums.py	vanilla,bts,advciv	2019-08-13 40649c33d1 added	-
+Assets/Python/EntryPoints/CvScreensInterface.py	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/CvScreenUtils.py	vanilla	-	-
+Assets/Python/EntryPoints/CvScreenUtilsInterface.py	vanilla,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/CvSpaceShipScreen.py	bts,advciv	2014-12-01 a92a8220e2 added	-
+Assets/Python/Contrib/CvStrategyOverlay.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/CvTechChooser.py	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/CvTechSplashScreen.py	vanilla,bts	-	-
+Assets/Python/Screens/CvTopCivs.py	vanilla,advciv	2017-04-16 f6ff6a182f added	-
+Assets/Python/EntryPoints/CvTranslator.py	vanilla,warlords,bts	-	-
+Assets/Python/Screens/CvTutorialQuestScreen.py	vanilla	-	-
+Assets/Python/EntryPoints/CvUnitControlInterface.py	vanilla	-	-
+Assets/Python/pyUnit/CvUnitController.py	vanilla	-	-
+Assets/Python/Screens/CvUNVictoryScreen.py	vanilla	-	-
+Assets/Python/CvUtil.py	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/CvVictoryMovieScreen.py	vanilla	-	-
+Assets/Python/Screens/CvVictoryScreen.py	vanilla,bts,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/pyWB/CvWBDesc.py	vanilla,warlords,bts,advciv	2019-11-29 cb71ee53fb added	-
+Assets/Python/EntryPoints/CvWBInterface.py	vanilla,warlords,bts	2019-11-29 cb71ee53fb added; 2019-11-29 422ef93dae deleted	-
+Assets/Python/pyWB/CvWBPopups.py	vanilla	-	-
+Assets/Python/Screens/CvWonderMovieScreen.py	vanilla,bts	-	-
+Assets/Python/Screens/CvWorldBuilderDiplomacyScreen.py	vanilla,warlords,bts	-	-
+Assets/Python/Screens/CvWorldBuilderScreen.py	vanilla,warlords,bts	-	-
+Assets/Python/BUG/DealUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/DiplomacyUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/DomPyHelpers.py	bts	-	-
+Assets/Python/Screens/EconomicsAdvisor.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/System/email/Encoders.py	vanilla	-	-
+Assets/Python/System/email/Errors.py	vanilla	-	-
+Assets/Python/Contrib/EventSigns.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/FavoriteCivicDetector.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/System/email/FeedParser.py	vanilla	-	-
+Assets/Python/BUG/FontUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/GameFontDisplay.py	advciv	2019-08-13 40649c33d1 added; 2024-12-21 3a1be555d4 renamed from Assets/Python/GameFontDisplay.py to Assets/Python/Contrib/GameFontDisplay.py	-
+Assets/Python/BUG/GameUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/System/email/Generator.py	vanilla	-	-
+Assets/Python/BUG/GGUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/GPUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/System/email/Header.py	vanilla	-	-
+Assets/Python/Screens/IconGrid.py	bts	-	-
+Assets/Python/Screens/IconGrid_BUG.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/InputUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/System/email/Iterators.py	vanilla	-	-
+Assets/Python/Screens/LayoutDict.py	advciv	2022-04-29 e491d6d576 added	-
+Assets/Python/System/email/Message.py	vanilla	-	-
+Assets/Python/System/email/MIMEAudio.py	vanilla	-	-
+Assets/Python/System/email/MIMEBase.py	vanilla	-	-
+Assets/Python/System/email/MIMEImage.py	vanilla	-	-
+Assets/Python/System/email/MIMEMessage.py	vanilla	-	-
+Assets/Python/System/email/MIMEMultipart.py	vanilla	-	-
+Assets/Python/System/email/MIMENonMultipart.py	vanilla	-	-
+Assets/Python/System/email/MIMEText.py	vanilla	-	-
+Assets/Python/Contrib/MinimapOptions.py	advciv	2020-12-27 91eb2d616b added	-
+Assets/Python/Contrib/MonkeyTools.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/MoreCiv4lerts.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/OOSLogger.py	advciv	2019-03-27 81c89a9e05 added; 2020-02-16 3cb7780c3e renamed from Assets/Python/Kek-Mod/OOSLogger.py to Assets/Python/Contrib/OOSLogger.py	-
+Assets/Python/System/email/Parser.py	vanilla	-	-
+Assets/Python/PitBoss/PbAdmin.py	vanilla,warlords,bts	-	-
+Assets/Python/EntryPoints/PbMain.py	vanilla,bts	-	-
+Assets/Python/PitBoss/PbWizard.py	vanilla,warlords,bts	-	-
+Assets/Python/BUG/PlayerUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/PLE.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/PlotListEnhancements.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/pyHelper/Popup.py	vanilla,advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/ProgressBarUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/PyHelpers.py	vanilla,warlords,bts	-	-
+Assets/Python/System/email/quopriMIME.py	vanilla	-	-
+Assets/Python/Contrib/RandomNameUtils.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/RawYields.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/RectLayout.py	advciv	2022-04-29 e491d6d576 added	-
+Assets/Python/BUG/ReligionUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/ReminderEventManager.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Roman.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/savemap.py	advciv	2020-02-16 376eb20a0a added	-
+Assets/Python/BUG/Scoreboard.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/ScreenInput.py	vanilla	-	-
+Assets/Python/Contrib/SdToolKit.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaMain.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaProject.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaTech.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoPediaUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/SpyUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/StatusDump.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/StatusDumpEventManager.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/SvnUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/TechPrefs.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Screens/TechTree.py	bts	-	-
+Assets/Python/BUG/TechUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/TechWindow.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/TechWindowWide.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/Tester.py	advciv	2010-12-27 593c549b51 added; 2020-02-16 3cb7780c3e renamed from Assets/Python/K-Mod/Tester.py to Assets/Python/Contrib/Tester.py	-
+Assets/Python/BUG/TradeUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/TraitUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/TriggerEvent.py	advciv	2023-02-20 6b77f345a5 added	-
+Assets/Python/pyHelper/Unit.py	vanilla	-	-
+Assets/Python/pyHelper/UnitEntity.py	vanilla	-	-
+Assets/Python/BUG/UnitGrouper.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/UnitNameEventManager.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/UnitPlotListUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/Contrib/UnitUpgradesGraph.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/BUG/UnitUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/Python/System/email/Utils.py	vanilla	-	-
+Assets/Python/vector.py	vanilla	-	-
+Assets/Python/BUG/WidgetUtil.py	advciv	2010-12-27 593c549b51 added	-
+Assets/XML/AI_Variables_GlobalDefines.xml	advciv	2017-08-17 fcf9a50f00 added	-
+Assets/XML/Art/CIV4ArtDefines_Bonus.xml	vanilla,warlords,bts	-	-
+Assets/XML/Art/CIV4ArtDefines_Building.xml	vanilla,warlords,bts	-	-
+Assets/XML/Art/CIV4ArtDefines_Civilization.xml	vanilla,warlords,bts	-	-
+Assets/XML/Art/CIV4ArtDefines_Feature.xml	vanilla,warlords,bts	-	-
+Assets/XML/Art/CIV4ArtDefines_Improvement.xml	vanilla,bts,advciv	2018-04-15 7afb62a4bb added	-
+Assets/XML/Art/CIV4ArtDefines_Interface.xml	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Art/CIV4ArtDefines_Interface.xml to Assets/XML/Art/CIV4ArtDefines_Interface.xml	-
+Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml	vanilla,warlords,bts	-	-
+Assets/XML/Art/CIV4ArtDefines_Misc.xml	vanilla,warlords,bts,advciv	2017-04-16 f6ff6a182f added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Art/CIV4ArtDefines_Misc.xml to Assets/XML/Art/CIV4ArtDefines_Misc.xml	-
+Assets/XML/Art/CIV4ArtDefines_Movie.xml	vanilla,warlords,bts	-	-
+Assets/XML/Art/CIV4ArtDefines_Terrain.xml	vanilla,warlords,bts	-	-
+Assets/XML/Art/CIV4ArtDefines_Unit.xml	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Art/CIV4ArtDefines_Unit.xml to Assets/XML/Art/CIV4ArtDefines_Unit.xml	-
+Assets/XML/Art/CIV4ArtDefinesSchema.xml	vanilla,warlords,bts	-	-
+Assets/XML/Art/CIV4MainMenus.xml	bts	-	-
+Assets/XML/Art/CIV4RiverModelInfos.xml	vanilla	-	-
+Assets/XML/Art/CIV4RouteModelInfos.xml	vanilla,bts	-	-
+Assets/XML/Audio/Audio2DScripts.xml	vanilla,warlords,bts,advciv	2011-07-13 fe2bf2e39a added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Audio/Audio2DScripts.xml to Assets/XML/Audio/Audio2DScripts.xml	-
+Assets/XML/Audio/Audio3DScripts.xml	vanilla,warlords,bts	-	-
+Assets/XML/Audio/AudioDefines.xml	vanilla,warlords,bts,advciv	2011-07-13 fe2bf2e39a added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Audio/AudioDefines.xml to Assets/XML/Audio/AudioDefines.xml	-
+Assets/XML/Audio/AudioDefinesSchema.xml	vanilla,warlords	-	-
+Assets/XML/Audio/AudioScriptSchema.xml	vanilla,warlords,bts	-	-
+Assets/XML/Audio/AudioSoundscapeScripts.xml	vanilla,warlords,bts	-	-
+Assets/XML/BasicInfos/CIV4AttitudeInfos.xml	bts	-	-
+Assets/XML/BasicInfos/CIV4BasicInfos.xml	vanilla,warlords,bts	-	-
+Assets/XML/BasicInfos/CIV4BasicInfoSchema.xml	vanilla,bts	-	-
+Assets/XML/BasicInfos/CIV4CalendarInfos.xml	bts	-	-
+Assets/XML/BasicInfos/CIV4CityTabInfos.xml	bts	-	-
+Assets/XML/BasicInfos/CIV4DenialInfos.xml	bts,advciv	2019-09-27 4527519ab5 added	-
+Assets/XML/BasicInfos/CIV4DomainInfos.xml	bts	-	-
+Assets/XML/BasicInfos/CIV4InvisibleInfos.xml	bts	-	-
+Assets/XML/BasicInfos/CIV4MemoryInfos.xml	bts,advciv	2017-04-16 f6ff6a182f added; 2019-06-10 f9630f66c1 renamed from Assets/xml/BasicInfos/CIV4MemoryInfos.xml to Assets/XML/BasicInfos/CIV4MemoryInfos.xml	-
+Assets/XML/BasicInfos/CIV4MonthInfos.xml	bts	-	-
+Assets/XML/BasicInfos/CIV4NewConceptInfos.xml	bts,advciv	2018-12-27 aa7146bdee added	-
+Assets/XML/BasicInfos/CIV4SeasonInfos.xml	bts	-	-
+Assets/XML/BasicInfos/CIV4UnitAIInfos.xml	bts,advciv	2011-09-09 e9a204b667 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/BasicInfos/CIV4UnitAIInfos.xml to Assets/XML/BasicInfos/CIV4UnitAIInfos.xml	-
+Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml	bts	-	-
+Assets/XML/BBAI_Game_Options_GlobalDefines.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/BBAI_Game_Options_GlobalDefines.xml to Assets/XML/BBAI_Game_Options_GlobalDefines.xml	-
+Assets/XML/Buildings/CIV4BuildingClassInfos.xml	vanilla,warlords,bts	-	-
+Assets/XML/Buildings/CIV4BuildingInfos.xml	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added; 2017-04-24 ccf5d7b95d renamed from Assets/xml/buildings/CIV4BuildingInfos.xml to Assets/XML/Buildings/CIV4BuildingInfos.xml	-
+Assets/XML/Buildings/CIV4BuildingsSchema.xml	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added; 2017-04-24 ccf5d7b95d renamed from Assets/xml/buildings/CIV4BuildingsSchema.xml to Assets/XML/Buildings/CIV4BuildingsSchema.xml	-
+Assets/XML/Buildings/CIV4CityLSystem.xml	vanilla,warlords,bts	-	-
+Assets/XML/Buildings/CIV4LSystemSchema.xml	vanilla	-	-
+Assets/XML/Buildings/CIV4PlotLSystem.xml	vanilla,warlords,bts	-	-
+Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml	vanilla,bts	-	-
+Assets/XML/CIV4GlobalDefinesSchema.xml	vanilla	-	-
+Assets/XML/CIV4GlobalTypesSchema.xml	vanilla	-	-
+Assets/XML/Civilizations/CIV4CivilizationInfos.xml	vanilla,warlords,bts,advciv	2017-04-16 f6ff6a182f added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Civilizations/CIV4CivilizationInfos.xml to Assets/XML/Civilizations/CIV4CivilizationInfos.xml	-
+Assets/XML/Civilizations/CIV4CivilizationsSchema.xml	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Civilizations/CIV4CivilizationsSchema.xml to Assets/XML/Civilizations/CIV4CivilizationsSchema.xml	-
+Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml to Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml	-
+Assets/XML/Civilizations/CIV4TraitInfos.xml	vanilla,warlords,advciv	2021-06-10 5d5f62301a added	-
+Assets/XML/Civilizations/CIV4UnitArtStyleTypeInfos.xml	bts	-	-
+Assets/XML/Events/CIV4EventInfos.xml	bts,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Events/CIV4EventInfos.xml to Assets/XML/Events/CIV4EventInfos.xml	-
+Assets/XML/Events/CIV4EventSchema.xml	bts	-	-
+Assets/XML/Events/CIV4EventTriggerInfos.xml	bts,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Events/CIV4EventTriggerInfos.xml to Assets/XML/Events/CIV4EventTriggerInfos.xml	-
+Assets/XML/GameInfo/CIV4CivicInfos.xml	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/GameInfo/CIV4CivicInfos.xml to Assets/XML/GameInfo/CIV4CivicInfos.xml	-
+Assets/XML/GameInfo/CIV4CivicOptionInfos.xml	vanilla	-	-
+Assets/XML/GameInfo/CIV4ClimateInfo.xml	vanilla	-	-
+Assets/XML/GameInfo/CIV4CommerceInfo.xml	vanilla,bts,advciv	2011-12-15 18f7e73a43 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/GameInfo/CIV4CommerceInfo.xml to Assets/XML/GameInfo/CIV4CommerceInfo.xml	-
+Assets/XML/GameInfo/CIV4CorporationInfo.xml	bts,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/GameInfo/CIV4CorporationInfo.xml to Assets/XML/GameInfo/CIV4CorporationInfo.xml	-
+Assets/XML/GameInfo/CIV4CultureLevelInfo.xml	vanilla,advciv	2021-03-03 1e596a706f added	-
+Assets/XML/GameInfo/CIV4CursorInfo.xml	vanilla,bts	-	-
+Assets/XML/GameInfo/CIV4DiplomacyInfos.xml	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/GameInfo/CIV4DiplomacyInfos.xml to Assets/XML/GameInfo/CIV4DiplomacyInfos.xml	-
+Assets/XML/GameInfo/CIV4EmphasizeInfo.xml	vanilla	-	-
+Assets/XML/GameInfo/CIV4EraInfos.xml	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/GameInfo/CIV4EraInfos.xml to Assets/XML/GameInfo/CIV4EraInfos.xml	-
+Assets/XML/GameInfo/CIV4EspionageMissionInfo.xml	bts,advciv	2011-08-07 26af73be45 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/GameInfo/CIV4EspionageMissionInfo.xml to Assets/XML/GameInfo/CIV4EspionageMissionInfo.xml	-
+Assets/XML/GameInfo/CIV4ForceControlInfos.xml	vanilla,bts	-	-
+Assets/XML/GameInfo/CIV4GameInfoSchema.xml	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/GameInfo/CIV4GameInfoSchema.xml to Assets/XML/GameInfo/CIV4GameInfoSchema.xml	-
+Assets/XML/GameInfo/CIV4GameOptionInfos.xml	vanilla,warlords,bts,advciv	2017-04-16 f6ff6a182f added; 2019-06-10 f9630f66c1 renamed from Assets/xml/GameInfo/CIV4GameOptionInfos.xml to Assets/XML/GameInfo/CIV4GameOptionInfos.xml	-
+Assets/XML/GameInfo/CIV4GameSpeedInfo.xml	vanilla,warlords,bts,advciv	2017-04-16 f6ff6a182f added; 2019-06-10 f9630f66c1 renamed from Assets/xml/GameInfo/CIV4GameSpeedInfo.xml to Assets/XML/GameInfo/CIV4GameSpeedInfo.xml	-
+Assets/XML/GameInfo/CIV4GoodyInfo.xml	vanilla,advciv	2018-04-15 7afb62a4bb added	-
+Assets/XML/GameInfo/CIV4GraphicOptionInfos.xml	vanilla,bts,advciv	2019-03-02 784ff51b3a added	-
+Assets/XML/GameInfo/CIV4HandicapInfo.xml	vanilla,warlords,bts,advciv	2017-04-16 f6ff6a182f added; 2019-06-10 f9630f66c1 renamed from Assets/xml/GameInfo/CIV4HandicapInfo.xml to Assets/XML/GameInfo/CIV4HandicapInfo.xml	-
+Assets/XML/GameInfo/CIV4Hints.xml	vanilla,bts,advciv	2011-09-05 49492c73ab added; 2019-06-10 f9630f66c1 renamed from Assets/xml/GameInfo/CIV4Hints.xml to Assets/XML/GameInfo/CIV4Hints.xml	-
+Assets/XML/GameInfo/CIV4HurryInfo.xml	vanilla,advciv	2022-02-15 9b0645a506 added	-
+Assets/XML/GameInfo/CIV4MPOptionInfos.xml	vanilla,warlords,bts	-	-
+Assets/XML/GameInfo/CIV4PlayerOptionInfos.xml	vanilla,bts,advciv	2017-04-16 f6ff6a182f added; 2019-06-10 f9630f66c1 renamed from Assets/xml/GameInfo/CIV4PlayerOptionInfos.xml to Assets/XML/GameInfo/CIV4PlayerOptionInfos.xml	-
+Assets/XML/GameInfo/CIV4ProcessInfo.xml	vanilla,warlords	-	-
+Assets/XML/GameInfo/CIV4ProjectInfo.xml	vanilla,bts,advciv	2021-06-17 583f674d17 added	-
+Assets/XML/GameInfo/CIV4ReligionInfo.xml	vanilla,bts	-	-
+Assets/XML/GameInfo/CIV4SeaLevelInfo.xml	vanilla,advciv	2019-01-09 08c4a24a42 added	-
+Assets/XML/GameInfo/CIV4SpecialistInfos.xml	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/GameInfo/CIV4SpecialistInfos.xml to Assets/XML/GameInfo/CIV4SpecialistInfos.xml	-
+Assets/XML/GameInfo/CIV4TurnTimerInfo.xml	vanilla	-	-
+Assets/XML/GameInfo/CIV4UpKeepInfo.xml	vanilla	2011-08-07 26af73be45 added; 2011-08-08 8aff352e99 added; 2019-05-04 7562d834f4 deleted	-
+Assets/XML/GameInfo/CIV4VictoryInfo.xml	vanilla,bts,advciv	2022-10-27 554ef58300 added	-
+Assets/XML/GameInfo/CIV4VoteInfo.xml	vanilla,bts	-	-
+Assets/XML/GameInfo/CIV4VoteSourceInfos.xml	bts,advciv	2021-10-12 328d12c51a added	-
+Assets/XML/GameInfo/CIV4WorldInfo.xml	vanilla,warlords,bts,advciv	2017-04-16 f6ff6a182f added; 2019-06-10 f9630f66c1 renamed from Assets/xml/GameInfo/CIV4WorldInfo.xml to Assets/XML/GameInfo/CIV4WorldInfo.xml	-
+Assets/XML/GlobalDefines.xml	vanilla,warlords,bts	-	-
+Assets/XML/GlobalDefines_advc.xml	advciv	2017-04-16 f6ff6a182f added; 2019-06-10 f9630f66c1 renamed from Assets/xml/GlobalDefines_advc.xml to Assets/XML/GlobalDefines_advc.xml	-
+Assets/XML/GlobalDefines_devel.xml	advciv	2018-05-19 6af01f82d3 added	-
+Assets/XML/GlobalDefinesAlt.xml	vanilla,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/GlobalDefinesAlt.xml to Assets/XML/GlobalDefinesAlt.xml	-
+Assets/XML/GlobalTypes.xml	vanilla,warlords,bts	-	-
+Assets/XML/Interface/CIV4AdvisorInfos.xml	vanilla	-	-
+Assets/XML/Interface/CIV4CameraInfos.xml	vanilla	-	-
+Assets/XML/Interface/CIV4ColorVals.xml	vanilla,warlords,bts,advciv	2017-11-05 71fa4eef1a added	-
+Assets/XML/Interface/CIV4InterfaceModeInfos.xml	vanilla,bts,advciv	2021-01-18 25619cdfbb added	-
+Assets/XML/Interface/CIV4InterfaceSchema.xml	vanilla,bts	-	-
+Assets/XML/Interface/CIV4PlayerColorInfos.xml	vanilla,warlords,bts	-	-
+Assets/XML/Interface/CIV4SlideShowInfos.xml	vanilla,warlords,bts	-	-
+Assets/XML/Interface/CIV4SlideShowRandomInfos.xml	bts	-	-
+Assets/XML/Interface/CIV4SpaceShipInfos.xml	bts	-	-
+Assets/XML/Interface/CIV4ThroneRoomCameraInfos.xml	bts	-	-
+Assets/XML/Interface/CIV4ThroneRoomInfos.xml	vanilla,bts	-	-
+Assets/XML/Interface/CIV4ThroneRoomStyleInfos.xml	vanilla	-	-
+Assets/XML/Interface/CIV4WorldPickerInfos.xml	vanilla,bts	-	-
+Assets/XML/LeadFromBehind_GlobalDefines.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/LeadFromBehind_GlobalDefines.xml to Assets/XML/LeadFromBehind_GlobalDefines.xml	-
+Assets/XML/Misc/CIV4AttachableInfos.xml	vanilla,warlords,bts	-	-
+Assets/XML/Misc/CIV4CameraOverlayInfos.xml	bts	-	-
+Assets/XML/Misc/CIV4DetailManager.xml	vanilla,bts,advciv	2018-01-16 5fa8e19726 added	-
+Assets/XML/Misc/CIV4DetailManagerSchema.xml	vanilla	-	-
+Assets/XML/Misc/CIV4EffectInfos.xml	vanilla,warlords,bts	-	-
+Assets/XML/Misc/CIV4MiscSchema.xml	vanilla,warlords,bts,advciv	2022-11-19 48b243aa8c added	-
+Assets/XML/Misc/CIV4QuestInfos.xml	vanilla	-	-
+Assets/XML/Misc/CIV4RiverInfos.xml	vanilla,bts	-	-
+Assets/XML/Misc/CIV4RouteInfos.xml	vanilla,bts,advciv	2022-11-19 48b243aa8c added	-
+Assets/XML/Misc/CIV4TerrainPlaneInfos.xml	bts	-	-
+Assets/XML/Misc/CIV4TutorialInfos.xml	vanilla	-	-
+Assets/XML/Misc/CIV4TutorialSchema.xml	vanilla	-	-
+Assets/XML/Misc/CIV4WaterPlaneInfos.xml	vanilla,bts	-	-
+Assets/XML/PythonCallbackDefines.xml	bts,advciv	2011-10-09 c390d49c6f added; 2019-06-10 f9630f66c1 renamed from Assets/xml/PythonCallbackDefines.xml to Assets/XML/PythonCallbackDefines.xml	-
+Assets/XML/TechDiffusion_GlobalDefines.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/TechDiffusion_GlobalDefines.xml to Assets/XML/TechDiffusion_GlobalDefines.xml	-
+Assets/XML/Technologies/CIV4TechInfos.xml	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added; 2012-05-15 9a6f57339e deleted; 2015-03-21 85f2184ea2 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Technologies/CIV4TechInfos.xml to Assets/XML/Technologies/CIV4TechInfos.xml	-
+Assets/XML/Technologies/CIV4TechnologiesSchema.xml	vanilla,warlords,bts,advciv	2015-03-21 85f2184ea2 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Technologies/CIV4TechnologiesSchema.xml to Assets/XML/Technologies/CIV4TechnologiesSchema.xml	-
+Assets/XML/Terrain/CIV4BonusClassInfos.xml	vanilla,advciv	2017-04-16 f6ff6a182f added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Terrain/CIV4BonusClassInfos.xml to Assets/XML/Terrain/CIV4BonusClassInfos.xml	-
+Assets/XML/Terrain/CIV4BonusInfos.xml	vanilla,warlords,advciv	2017-04-16 f6ff6a182f added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Terrain/CIV4BonusInfos.xml to Assets/XML/Terrain/CIV4BonusInfos.xml	-
+Assets/XML/Terrain/CIV4FeatureInfos.xml	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Terrain/CIV4FeatureInfos.xml to Assets/XML/Terrain/CIV4FeatureInfos.xml	-
+Assets/XML/Terrain/CIV4ImprovementInfos.xml	vanilla,warlords,bts,advciv	2011-01-02 f21f5260e3 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Terrain/CIV4ImprovementInfos.xml to Assets/XML/Terrain/CIV4ImprovementInfos.xml	-
+Assets/XML/Terrain/CIV4SymbolMeshPaths.xml	vanilla	-	-
+Assets/XML/Terrain/CIV4TerrainInfos.xml	vanilla,warlords,bts,advciv	2017-08-24 e11525d303 added	-
+Assets/XML/Terrain/CIV4TerrainSchema.xml	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Terrain/CIV4TerrainSchema.xml to Assets/XML/Terrain/CIV4TerrainSchema.xml	-
+Assets/XML/Terrain/CIV4TerrainSettings.xml	vanilla,advciv	2022-03-11 926c353ea3 added	-
+Assets/XML/Terrain/CIV4YieldInfos.xml	vanilla,advciv	2012-03-14 02287b7c46 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Terrain/CIV4YieldInfos.xml to Assets/XML/Terrain/CIV4YieldInfos.xml	-
+Assets/XML/Text/ActualQuotesText.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/CIV4DiplomacyText.xml to Assets/XML/Text/CIV4DiplomacyText.xml; 2021-02-19 a6ddfad421 renamed from Assets/XML/Text/CIV4DiplomacyText.xml to Assets/XML/Text/ActualQuotesText.xml	-
+Assets/XML/Text/ActualQuotesText_BtS.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/CIV4GameText_DiplomacyText_BTS.xml to Assets/XML/Text/CIV4GameText_DiplomacyText_BTS.xml; 2021-02-19 a6ddfad421 renamed from Assets/XML/Text/CIV4GameText_DiplomacyText_BTS.xml to Assets/XML/Text/ActualQuotesText_BtS.xml	-
+Assets/XML/Text/ActualQuotesText_WL.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/CIV4GameText_Warlords_Diplomacy.xml to Assets/XML/Text/CIV4GameText_Warlords_Diplomacy.xml; 2021-02-19 a6ddfad421 renamed from Assets/XML/Text/CIV4GameText_Warlords_Diplomacy.xml to Assets/XML/Text/ActualQuotesText_WL.xml	-
+Assets/XML/Text/Advanced Combat Odds Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Advanced Combat Odds Options.xml to Assets/XML/Text/Advanced Combat Odds Options.xml	-
+Assets/XML/Text/Advanced Scoreboard Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Advanced Scoreboard Options.xml to Assets/XML/Text/Advanced Scoreboard Options.xml	-
+Assets/XML/Text/AdvancedCombatOdds_CIV4GameText.xml	advciv	2011-08-17 d5c68c5392 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/AdvancedCombatOdds_CIV4GameText.xml to Assets/XML/Text/AdvancedCombatOdds_CIV4GameText.xml	-
+Assets/XML/Text/Autolog Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Autolog Options.xml to Assets/XML/Text/Autolog Options.xml	-
+Assets/XML/Text/Autolog_CIV4GameText.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Autolog_CIV4GameText.xml to Assets/XML/Text/Autolog_CIV4GameText.xml	-
+Assets/XML/Text/AutoSave Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/AutoSave Options.xml to Assets/XML/Text/AutoSave Options.xml	-
+Assets/XML/Text/Better Espionage Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Better Espionage Options.xml to Assets/XML/Text/Better Espionage Options.xml	-
+Assets/XML/Text/BUFFY_CIV4GameText.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/BUFFY_CIV4GameText.xml to Assets/XML/Text/BUFFY_CIV4GameText.xml	-
+Assets/XML/Text/BUG Advisors Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/BUG Advisors Options.xml to Assets/XML/Text/BUG Advisors Options.xml	-
+Assets/XML/Text/BUG City Screen Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/BUG City Screen Options.xml to Assets/XML/Text/BUG City Screen Options.xml	-
+Assets/XML/Text/BUG Core Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/BUG Core Options.xml to Assets/XML/Text/BUG Core Options.xml	-
+Assets/XML/Text/BUG Main Interface Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/BUG Main Interface Options.xml to Assets/XML/Text/BUG Main Interface Options.xml	-
+Assets/XML/Text/BUG Options Screen.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/BUG Options Screen.xml to Assets/XML/Text/BUG Options Screen.xml	-
+Assets/XML/Text/BUG_CIV4GameText.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/BUG_CIV4GameText.xml to Assets/XML/Text/BUG_CIV4GameText.xml	-
+Assets/XML/Text/BULL Actions Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/BULL Actions Options.xml to Assets/XML/Text/BULL Actions Options.xml	-
+Assets/XML/Text/BULL City Bar Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/BULL City Bar Options.xml to Assets/XML/Text/BULL City Bar Options.xml	-
+Assets/XML/Text/BULL Misc Hovers Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/BULL Misc Hovers Options.xml to Assets/XML/Text/BULL Misc Hovers Options.xml	-
+Assets/XML/Text/BULL_CIV4GameText.xml	advciv	2012-02-10 8478443165 added; 2012-02-17 f442b7090b deleted; 2012-02-20 843d4fa887 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/BULL_CIV4GameText.xml to Assets/XML/Text/BULL_CIV4GameText.xml	-
+Assets/XML/Text/CIV4DiplomacyText.xml	vanilla	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/CIV4DiplomacyText.xml to Assets/XML/Text/CIV4DiplomacyText.xml; 2021-02-19 a6ddfad421 renamed to Assets/XML/Text/ActualQuotesText.xml	-
+Assets/XML/Text/CIV4GameText_advc.xml	advciv	2017-04-16 f6ff6a182f added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/CIV4GameText_advc.xml to Assets/XML/Text/CIV4GameText_advc.xml	-
+Assets/XML/Text/CIV4GameText_advc_hints.xml	advciv	2017-04-16 f6ff6a182f added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/CIV4GameText_advc.008d.xml to Assets/XML/Text/CIV4GameText_advc.008d.xml; 2020-08-22 25fcb0aa66 renamed from Assets/XML/Text/CIV4GameText_advc.008d.xml to Assets/XML/Text/CIV4GameText_advc_hints.xml	-
+Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml	advciv	2019-03-01 26a314f197 added; 2020-08-22 25fcb0aa66 renamed from Assets/XML/Text/CIV4GameText_advc.076.xml to Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml	-
+Assets/XML/Text/CIV4GameText_advc_pedia.xml	advciv	2017-04-16 f6ff6a182f added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/CIV4GameText_advc.008.xml to Assets/XML/Text/CIV4GameText_advc.008.xml; 2020-08-22 25fcb0aa66 renamed from Assets/XML/Text/CIV4GameText_advc.008.xml to Assets/XML/Text/CIV4GameText_advc_pedia.xml	-
+Assets/XML/Text/CIV4GameText_advc_rf.xml	advciv	2022-02-27 f5cb4da6e9 added	-
+Assets/XML/Text/CIV4GameText_advc_wonders.xml	advciv	2018-05-02 a939fbeefb added; 2020-08-22 25fcb0aa66 renamed from Assets/XML/Text/CIV4GameText_advc.008e.xml to Assets/XML/Text/CIV4GameText_advc_wonders.xml	-
+Assets/XML/Text/CIV4GameText_AIAutoPlay.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/CIV4GameText_AIAutoPlay.xml to Assets/XML/Text/CIV4GameText_AIAutoPlay.xml	-
+Assets/XML/Text/CIV4GameText_BetterBTSAI.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/CIV4GameText_BetterBTSAI.xml to Assets/XML/Text/CIV4GameText_BetterBTSAI.xml	-
+Assets/XML/Text/CIV4GameText_BTS.xml	bts	-	-
+Assets/XML/Text/CIV4GameText_BTS_Fixed.xml	bts	-	-
+Assets/XML/Text/CIV4GameText_BTS_FourthRoundTranslation.xml	bts	-	-
+Assets/XML/Text/CIV4GameText_BTS_PatchText.xml	bts	-	-
+Assets/XML/Text/CIV4GameText_Cities_BTS.xml	bts	-	-
+Assets/XML/Text/CIV4GameText_Civilopedia_Bonuses.xml	vanilla	-	-
+Assets/XML/Text/CIV4GameText_Civilopedia_BTS.xml	bts	-	-
+Assets/XML/Text/CIV4GameText_Civilopedia_BuildingsProjects.xml	vanilla	-	-
+Assets/XML/Text/CIV4GameText_Civilopedia_CivicsReligion.xml	vanilla	-	-
+Assets/XML/Text/CIV4GameText_Civilopedia_CivLeaders.xml	vanilla	-	-
+Assets/XML/Text/CIV4GameText_Civilopedia_Concepts.xml	vanilla	-	-
+Assets/XML/Text/CIV4GameText_Civilopedia_Techs.xml	vanilla	-	-
+Assets/XML/Text/CIV4GameText_Civilopedia_Units.xml	vanilla	-	-
+Assets/XML/Text/CIV4GameText_DiplomacyText_BTS.xml	bts	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/CIV4GameText_DiplomacyText_BTS.xml to Assets/XML/Text/CIV4GameText_DiplomacyText_BTS.xml; 2021-02-19 a6ddfad421 renamed to Assets/XML/Text/ActualQuotesText_BtS.xml	-
+Assets/XML/Text/Civ4GameText_Earth18Civs.xml	advciv	2018-05-28 f45077d73a added	-
+Assets/XML/Text/CIV4GameText_Events_BTS.xml	bts	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/CIV4GameText_Events_BTS.xml to Assets/XML/Text/CIV4GameText_Events_BTS.xml; 2021-02-19 6b8e01b3f7 renamed to Assets/XML/Text/EventText_CorrectedTranslations.xml	-
+Assets/XML/Text/CIV4GameText_Help.xml	vanilla	-	-
+Assets/XML/Text/Civ4GameText_K-Mod.xml	advciv	2010-12-27 f365ec24f1 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Civ4GameText_K-Mod.xml to Assets/XML/Text/Civ4GameText_K-Mod.xml	-
+Assets/XML/Text/CIV4GameText_Misc1.xml	vanilla	-	-
+Assets/XML/Text/CIV4GameText_New.xml	vanilla	-	-
+Assets/XML/Text/CIV4GameText_Objects_BTS.xml	bts	-	-
+Assets/XML/Text/CIV4GameText_Strategy.xml	vanilla	-	-
+Assets/XML/Text/CIV4GameText_UnofficialPatch.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/CIV4GameText_UnofficialPatch.xml to Assets/XML/Text/CIV4GameText_UnofficialPatch.xml	-
+Assets/XML/Text/CIV4GameText_Warlords.xml	warlords	-	-
+Assets/XML/Text/CIV4GameText_Warlords_Changed.xml	warlords	-	-
+Assets/XML/Text/CIV4GameText_Warlords_Civ4Changed.xml	warlords	-	-
+Assets/XML/Text/CIV4GameText_Warlords_Civilopedia.xml	warlords	-	-
+Assets/XML/Text/CIV4GameText_Warlords_Diplomacy.xml	warlords	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/CIV4GameText_Warlords_Diplomacy.xml to Assets/XML/Text/CIV4GameText_Warlords_Diplomacy.xml; 2021-02-19 a6ddfad421 renamed to Assets/XML/Text/ActualQuotesText_WL.xml	-
+Assets/XML/Text/CIV4GameText_Warlords_Objects.xml	warlords	-	-
+Assets/XML/Text/CIV4GameText_Warlords_Strategy.xml	warlords	-	-
+Assets/XML/Text/CIV4GameTextChanged_BTS.xml	bts	-	-
+Assets/XML/Text/CIV4GameTextInfos.xml	vanilla	-	-
+Assets/XML/Text/CIV4GameTextInfos_Cities.xml	vanilla	-	-
+Assets/XML/Text/CIV4GameTextInfos_GreatPeople.xml	vanilla	-	-
+Assets/XML/Text/CIV4GameTextInfos_Objects.xml	vanilla	-	-
+Assets/XML/Text/Civ4lerts Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Civ4lerts Options.xml to Assets/XML/Text/Civ4lerts Options.xml	-
+Assets/XML/Text/Civ4lerts_CIV4GameText.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Civ4lerts_CIV4GameText.xml to Assets/XML/Text/Civ4lerts_CIV4GameText.xml	-
+Assets/XML/Text/CIV4PlotListEnhancementsInfo.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/CIV4PlotListEnhancementsInfo.xml to Assets/XML/Text/CIV4PlotListEnhancementsInfo.xml	-
+Assets/XML/Text/Colors_CIV4GameText.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Colors_CIV4GameText.xml to Assets/XML/Text/Colors_CIV4GameText.xml	-
+Assets/XML/Text/CustDomAdv Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/CustDomAdv Options.xml to Assets/XML/Text/CustDomAdv Options.xml	-
+Assets/XML/Text/CustDomAdv_CIV4GameText.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/CustDomAdv_CIV4GameText.xml to Assets/XML/Text/CustDomAdv_CIV4GameText.xml	-
+Assets/XML/Text/EventSigns Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/EventSigns Options.xml to Assets/XML/Text/EventSigns Options.xml	-
+Assets/XML/Text/EventSigns_CIV4GameText.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/EventSigns_CIV4GameText.xml to Assets/XML/Text/EventSigns_CIV4GameText.xml	-
+Assets/XML/Text/EventText_CorrectedTranslations.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/CIV4GameText_Events_BTS.xml to Assets/XML/Text/CIV4GameText_Events_BTS.xml; 2021-02-19 6b8e01b3f7 renamed from Assets/XML/Text/CIV4GameText_Events_BTS.xml to Assets/XML/Text/EventText_CorrectedTranslations.xml	-
+Assets/XML/Text/HiddenAttitudes_CIV4GameText.xml	advciv	2017-04-16 f6ff6a182f added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/HiddenAttitudes_CIV4GameText.xml to Assets/XML/Text/HiddenAttitudes_CIV4GameText.xml	-
+Assets/XML/Text/K-Mod hints.xml	advciv	2011-09-05 49492c73ab added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/K-Mod hints.xml to Assets/XML/Text/K-Mod hints.xml	-
+Assets/XML/Text/MoreCiv4lerts Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/MoreCiv4lerts Options.xml to Assets/XML/Text/MoreCiv4lerts Options.xml	-
+Assets/XML/Text/MoreCiv4lerts_CIV4GameText.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/MoreCiv4lerts_CIV4GameText.xml to Assets/XML/Text/MoreCiv4lerts_CIV4GameText.xml	-
+Assets/XML/Text/Not Just Another Game Clock Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Not Just Another Game Clock Options.xml to Assets/XML/Text/Not Just Another Game Clock Options.xml	-
+Assets/XML/Text/Plot List Enhancements Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Plot List Enhancements Options.xml to Assets/XML/Text/Plot List Enhancements Options.xml	-
+Assets/XML/Text/Reminder Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Reminder Options.xml to Assets/XML/Text/Reminder Options.xml	-
+Assets/XML/Text/Sevopedia_CIV4GameText.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Sevopedia_CIV4GameText.xml to Assets/XML/Text/Sevopedia_CIV4GameText.xml	-
+Assets/XML/Text/Shortcuts_CIV4GameText.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Shortcuts_CIV4GameText.xml to Assets/XML/Text/Shortcuts_CIV4GameText.xml	-
+Assets/XML/Text/Strategy Overlay Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Strategy Overlay Options.xml to Assets/XML/Text/Strategy Overlay Options.xml	-
+Assets/XML/Text/StrategyOverlay_CIV4GameText.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/StrategyOverlay_CIV4GameText.xml to Assets/XML/Text/StrategyOverlay_CIV4GameText.xml	-
+Assets/XML/Text/TechWindow Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/TechWindow Options.xml to Assets/XML/Text/TechWindow Options.xml	-
+Assets/XML/Text/Unit Naming Options.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Unit Naming Options.xml to Assets/XML/Text/Unit Naming Options.xml	-
+Assets/XML/Text/Unit Naming.xml	advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Text/Unit Naming.xml to Assets/XML/Text/Unit Naming.xml	-
+Assets/XML/TrueStarts/CIV4TruBonusInfos.xml	advciv	2022-01-30 4977b513da added	-
+Assets/XML/TrueStarts/CIV4TruCivInfos.xml	advciv	2022-01-30 4977b513da added	-
+Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml	advciv	2022-01-30 4977b513da added	-
+Assets/XML/TrueStarts/CIV4TruLeaderInfos.xml	advciv	2022-01-30 4977b513da added	-
+Assets/XML/Units/Civ4AnimationInfos.xml	vanilla,warlords,bts	-	-
+Assets/XML/Units/Civ4AnimationPathInfos.xml	bts	-	-
+Assets/XML/Units/CIV4AutomateInfos.xml	vanilla,bts	-	-
+Assets/XML/Units/CIV4BuildInfos.xml	vanilla,warlords,bts,advciv	2015-04-04 e64ee07342 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Units/CIV4BuildInfos.xml to Assets/XML/Units/CIV4BuildInfos.xml	-
+Assets/XML/Units/CIV4CommandInfos.xml	vanilla,advciv	2022-07-05 69a6c512b0 added	-
+Assets/XML/Units/CIV4ControlInfos.xml	vanilla,warlords,bts,advciv	2021-01-31 3b431b62e9 added	-
+Assets/XML/Units/Civ4EntityEventInfos.xml	bts	-	-
+Assets/XML/Units/CIV4FormationInfos.xml	vanilla,warlords,bts	-	-
+Assets/XML/Units/Civ4FormationSchema.xml	vanilla,warlords,bts	-	-
+Assets/XML/Units/CIV4MissionInfos.xml	vanilla,warlords,bts,advciv	2018-12-27 aa7146bdee added	-
+Assets/XML/Units/CIV4PromotionInfos.xml	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Units/CIV4PromotionInfos.xml to Assets/XML/Units/CIV4PromotionInfos.xml	-
+Assets/XML/Units/CIV4SpecialUnitInfos.xml	vanilla,bts	-	-
+Assets/XML/Units/CIV4UnitClassInfos.xml	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Units/CIV4UnitClassInfos.xml to Assets/XML/Units/CIV4UnitClassInfos.xml	-
+Assets/XML/Units/CIV4UnitInfos.xml	vanilla,warlords,bts,advciv	2010-12-27 593c549b51 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Units/CIV4UnitInfos.xml to Assets/XML/Units/CIV4UnitInfos.xml	-
+Assets/XML/Units/CIV4UnitSchema.xml	vanilla,warlords,bts,advciv	2011-01-07 0964a4eee4 added; 2019-06-10 f9630f66c1 renamed from Assets/xml/Units/CIV4UnitSchema.xml to Assets/XML/Units/CIV4UnitSchema.xml	-
+CvGameCoreDLL/_precompile.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/ACOText.cpp	advciv	2021-02-16 3917a1fe9b added	-
+CvGameCoreDLL/AdvCiv4lerts.cpp	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/AdvCiv4lerts.h	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/AgentIterator.cpp	advciv	2019-11-22 54d082c835 added	-
+CvGameCoreDLL/AgentIterator.h	advciv	2019-11-15 6029d4205c added	-
+CvGameCoreDLL/AgentIteratorTest.cpp	advciv	2019-11-22 54d082c835 added	-
+CvGameCoreDLL/AgentPredicates.h	advciv	2019-11-15 6029d4205c added	-
+CvGameCoreDLL/AI_Defines.h	bts	2010-12-27 2414225e64 added; 2019-07-31 49bc0f540e renamed to CvGameCoreDLL/BBAI_Defines.h	-
+CvGameCoreDLL/AIStrategies.h	advciv	2010-12-27 2414225e64 added; 2019-07-31 49bc0f540e renamed from CvGameCoreDLL/AI_Defines.h to CvGameCoreDLL/BBAI_Defines.h; 2019-12-30 fb95766b0b renamed from CvGameCoreDLL/BBAI_Defines.h to CvGameCoreDLL/AIStrategies.h	-
+CvGameCoreDLL/AIStrengthMemoryMap.cpp	advciv	2020-11-17 96c6996a71 added	-
+CvGameCoreDLL/AIStrengthMemoryMap.h	advciv	2020-11-17 96c6996a71 added	-
+CvGameCoreDLL/ArithmeticTraits.cpp	advciv	2021-10-12 93819e74a4 added	-
+CvGameCoreDLL/ArithmeticTraits.h	advciv	2021-08-17 59a3e31900 added	-
+CvGameCoreDLL/ArithmeticUtils.h	advciv	2021-08-17 59a3e31900 added	-
+CvGameCoreDLL/ArmamentForecast.cpp	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/ArmamentForecast.h	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/BarbarianWeightMap.cpp	advciv	2021-08-24 4ee50e1f90 added	-
+CvGameCoreDLL/BarbarianWeightMap.h	advciv	2021-08-24 4ee50e1f90 added	-
+CvGameCoreDLL/BBAILog.cpp	advciv	2010-12-27 2414225e64 added; 2019-07-12 868f118f48 renamed from CvGameCoreDLL/BetterBTSAI.cpp to CvGameCoreDLL/BBAILog.cpp	-
+CvGameCoreDLL/BBAILog.h	advciv	2010-12-27 2414225e64 added; 2019-07-12 868f118f48 renamed from CvGameCoreDLL/BetterBTSAI.h to CvGameCoreDLL/BBAILog.h	-
+CvGameCoreDLL/BitUtil.h	advciv	2019-10-22 d166644ae5 added	-
+CvGameCoreDLL/BoostPythonPCH.h	advciv	2020-05-27 c72d1f177d added	-
+CvGameCoreDLL/CityPlotIterator.h	advciv	2020-01-07 32028ef437 added	-
+CvGameCoreDLL/CitySiteEvaluator.cpp	advciv	2019-12-15 078fc9bd7c added	-
+CvGameCoreDLL/CitySiteEvaluator.h	advciv	2019-12-15 078fc9bd7c added	-
+CvGameCoreDLL/CombatOdds.cpp	advciv	2021-02-16 e8bfef1ca5 added	-
+CvGameCoreDLL/CombatOdds.h	advciv	2021-02-16 e8bfef1ca5 added	-
+CvGameCoreDLL/CoreAI.h	advciv	2019-09-11 1c56cc6ac1 added; 2020-01-20 b4f5304462 renamed from CvGameCoreDLL/CvAI.h to CvGameCoreDLL/CoreAI.h	-
+CvGameCoreDLL/CvAgents.cpp	advciv	2019-11-15 6029d4205c added	-
+CvGameCoreDLL/CvAgents.h	advciv	2019-11-15 6029d4205c added	-
+CvGameCoreDLL/CvArea.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvArea.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvArtFileMgr.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvArtFileMgr.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvBugOptions.cpp	advciv	2011-08-17 d5c68c5392 added	-
+CvGameCoreDLL/CvBugOptions.h	advciv	2011-08-17 d5c68c5392 added	-
+CvGameCoreDLL/CvCity.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvCity.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvCityAI.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvCityAI.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvCivilization.cpp	advciv	2019-08-24 871585f8e8 added	-
+CvGameCoreDLL/CvCivilization.h	advciv	2019-08-24 871585f8e8 added	-
+CvGameCoreDLL/CvDeal.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDeal.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDefines.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDiploParameters.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDiploParameters.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLButtonPopup.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLButtonPopup.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLDataStreamIFaceBase.h	vanilla,warlords,bts	2010-12-27 2414225e64 added; 2019-07-23 5cc92bd17b deleted	-
+CvGameCoreDLL/CvDLLEngineIFaceBase.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLEntity.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLEntity.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLEntityIFaceBase.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLEventReporterIFaceBase.h	vanilla,warlords,bts	2010-12-27 2414225e64 added; 2020-08-15 70802892fb deleted	-
+CvGameCoreDLL/CvDLLFAStarIFaceBase.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLFlagEntityIFaceBase.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLIniParserIFaceBase.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLInterfaceIFaceBase.cpp	advciv	2018-05-08 9c2f251278 added; 2019-05-07 20e0f16882 renamed from CvGameCoreDLL/CvDLLInterfaceIBase2.cpp to CvGameCoreDLL/CvDLLInterfaceIBase.cpp; 2021-08-17 100abefbcb renamed from CvGameCoreDLL/CvDLLInterfaceIBase.cpp to CvGameCoreDLL/CvDLLInterfaceIFaceBase.cpp	-
+CvGameCoreDLL/CvDLLInterfaceIFaceBase.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLLogger.cpp	advciv	2019-08-27 553b1a0f8d added	-
+CvGameCoreDLL/CvDLLLogger.h	advciv	2019-08-27 553b1a0f8d added	-
+CvGameCoreDLL/CvDLLPlotBuilderIFaceBase.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLPython.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDllPythonEvents.cpp	bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDllPythonEvents.h	bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLPythonIFaceBase.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLSymbolIFaceBase.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDllTranslator.cpp	bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDllTranslator.h	bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLUtilityIFaceBase.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLWidgetData.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLWidgetData.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvDLLXMLIFaceBase.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvEnumMacros.h	advciv	2019-10-15 53f3b1f1db added; 2019-10-17 1c110c45e5 renamed from CvGameCoreDLL/CvEnumHelpers.h to CvGameCoreDLL/CvInfoEnums.h; 2021-08-17 59a3e31900 renamed from CvGameCoreDLL/CvInfoEnums.h to CvGameCoreDLL/CvEnumMacros.h	-
+CvGameCoreDLL/CvEnums.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvEventReporter.cpp	bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvEventReporter.h	bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvFractal.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvFractal.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvGame.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvGame.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvGameAI.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvGameAI.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvGameCoreDLL.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvGameCoreDLL.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvGameCoreDLLDefNew.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvGameCoreDLLUndefNew.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvGameCoreUtils.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvGameCoreUtils.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvGameInterface.cpp	bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvGamePlay.h	advciv	2019-05-07 20e0f16882 added	-
+CvGameCoreDLL/CvGameTextMgr.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvGameTextMgr.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvGlobals.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvGlobals.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvHallOfFameInfo.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvHallOfFameInfo.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvInfo_All.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Asset.cpp	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Asset.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Base.cpp	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Base.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Build.cpp	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Build.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Building.cpp	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Building.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_City.cpp	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_City.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Civics.cpp	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Civics.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Civilization.cpp	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Civilization.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Command.cpp	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Command.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_EnumMap.h	advciv	2021-06-04 0e04fd7f79 added	-
+CvGameCoreDLL/CvInfo_GameOption.cpp	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_GameOption.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Misc.cpp	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Misc.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Organization.cpp	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Organization.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_RandomEvent.cpp	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_RandomEvent.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Symbol.cpp	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Symbol.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Tech.cpp	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Tech.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Terrain.cpp	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Terrain.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_TrueStarts.cpp	advciv	2022-01-30 4977b513da added	-
+CvGameCoreDLL/CvInfo_TrueStarts.h	advciv	2022-01-30 4977b513da added	-
+CvGameCoreDLL/CvInfo_Unit.cpp	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Unit.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Water.cpp	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfo_Water.h	advciv	2019-08-22 3a78c0725b added	-
+CvGameCoreDLL/CvInfos.cpp	vanilla,warlords,bts	2010-12-27 2414225e64 added; 2019-08-22 3a78c0725b deleted	-
+CvGameCoreDLL/CvInfos.h	vanilla,warlords,bts	2010-12-27 2414225e64 added; 2019-08-22 3a78c0725b deleted	-
+CvGameCoreDLL/CvInfoWater.cpp	vanilla,warlords,bts	2010-12-27 2414225e64 added; 2019-08-22 3a78c0725b deleted	-
+CvGameCoreDLL/CvInfoWater.h	vanilla,warlords,bts	2010-12-27 2414225e64 added; 2019-08-22 3a78c0725b deleted	-
+CvGameCoreDLL/CvInitCore.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvInitCore.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvMap.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvMap.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvMapGenerator.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvMapGenerator.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvMemoryManager.cpp	advciv	2019-11-05 06fa393c41 added	-
+CvGameCoreDLL/CvMemoryManager.h	advciv	2020-05-27 c72d1f177d added	-
+CvGameCoreDLL/CvMessageControl.cpp	bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvMessageControl.h	bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvMessageData.cpp	bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvMessageData.h	bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvPlayer.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvPlayer.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvPlayerAI.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvPlayerAI.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvPlot.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvPlot.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvPlotGroup.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvPlotGroup.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvPopupInfo.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvPopupInfo.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvPopupReturn.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvPopupReturn.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvPythonCaller.cpp	advciv	2019-08-27 553b1a0f8d added	-
+CvGameCoreDLL/CvPythonCaller.h	advciv	2019-08-27 553b1a0f8d added	-
+CvGameCoreDLL/CvRandom.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvRandom.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvReplayInfo.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvReplayInfo.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvReplayMessage.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvReplayMessage.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvSelectionGroup.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvSelectionGroup.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvSelectionGroupAI.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvSelectionGroupAI.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvStatistics.cpp	bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvStatistics.h	bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvString.cpp	advciv	2020-05-07 3861499f43 added	-
+CvGameCoreDLL/CvString.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvStructs.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvStructs.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvTalkingHeadMessage.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvTalkingHeadMessage.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvTeam.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvTeam.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvTeamAI.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvTeamAI.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvTextScreens.cpp	vanilla,warlords,bts	2010-12-27 2414225e64 added; 2018-10-09 aa0ea958c4 deleted	-
+CvGameCoreDLL/CvUnit.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvUnit.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvUnitAI.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvUnitAI.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvVirtualWrappers.cpp	advciv	2019-09-09 3028ffa87b added	-
+CvGameCoreDLL/CvXMLLoadUtility.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvXMLLoadUtility.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvXMLLoadUtilityGet.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvXMLLoadUtilityInit.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CvXMLLoadUtilitySet.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyArea.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyArea.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyAreaInterface.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyArgsList.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyArgsList.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyArtFileMgr.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyArtFileMgr.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyArtFileMgrInterface.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyCity.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyCity.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyCityInterface1.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyCityInterface2.cpp	advciv	2019-04-20 e785cc4238 added	-
+CvGameCoreDLL/CyDeal.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyDeal.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyEnumsInterface.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyGame.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyGame.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyGameCoreUtils.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyGameCoreUtils.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyGameCoreUtilsInterface.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyGameInterface.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyGameTextMgr.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyGameTextMgr.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyGameTextMgrInterface.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyGlobalContext.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyGlobalContext.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyGlobalContextInterface1.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyGlobalContextInterface2.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyGlobalContextInterface3.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyGlobalContextInterface4.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyHallOfFameInfo.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyHallOfFameInfo.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyHallOfFameInterface.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyInfoInterface1.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyInfoInterface2.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyInfoInterface3.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyInfoWrapper.h	advciv	2020-01-12 7e5b97aa28 added	-
+CvGameCoreDLL/CyMap.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyMap.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyMapGenerator.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyMapGenerator.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyMapGeneratorInterface.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyMapInterface.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyMessageControl.cpp	bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyMessageControl.h	bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyMessageControlInterface.cpp	bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyPlayer.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyPlayer.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyPlayerInterface1.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyPlayerInterface2.cpp	bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyPlot.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyPlot.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyPlotInterface1.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyRandomInterface.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyReplayInfo.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyReplayInfo.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CySelectionGroup.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CySelectionGroup.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CySelectionGroupInterface.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyStructsInterface1.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyTeam.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyTeam.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyTeamInterface.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyUnit.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyUnit.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/CyUnitInterface1.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/DepthFirstPlotSearch.h	advciv	2022-11-11 cf83cd90b3 added	-
+CvGameCoreDLL/EnumMap.h	advciv	2019-10-09 9230b90e5b added	-
+CvGameCoreDLL/EnumMapTest.cpp	advciv	2019-10-28 00e2b4c3f8 added	-
+CvGameCoreDLL/EnumTraits.h	advciv	2021-08-17 59a3e31900 added	-
+CvGameCoreDLL/FAssert.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/FAssert.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/FAStarFunc.cpp	advciv	2020-09-27 50ce0a8733 added	-
+CvGameCoreDLL/FAStarFunc.h	advciv	2020-09-27 50ce0a8733 added	-
+CvGameCoreDLL/FAStarNode.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/FDataStreamBase.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/FDialogTemplate.cpp	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/FDialogTemplate.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/FFreeListArray.h	vanilla,warlords,bts	2010-12-27 2414225e64 added; 2020-01-24 206f9c6a96 deleted	-
+CvGameCoreDLL/FFreeListArrayBase.h	vanilla,warlords,bts	2010-12-27 2414225e64 added; 2020-01-24 206f9c6a96 deleted	-
+CvGameCoreDLL/FFreeListTrashArray.cpp	advciv	2020-01-24 206f9c6a96 added	-
+CvGameCoreDLL/FFreeListTrashArray.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/FInputDevice.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/FixedPointPowTables.h	advciv	2020-02-04 c16d688b14 added	-
+CvGameCoreDLL/FProfiler.cpp	advciv	2019-11-05 06fa393c41 added	-
+CvGameCoreDLL/FProfiler.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/FreeListTraversal.h	advciv	2020-01-24 206f9c6a96 added	-
+CvGameCoreDLL/FVariableSystem.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/FVariableSystem.inl	vanilla,warlords,bts,advciv	2012-02-11 ad6f3c01a5 added	-
+CvGameCoreDLL/GameBryo.h	advciv	2020-05-27 c72d1f177d added	-
+CvGameCoreDLL/GroupPathFinder.cpp	advciv	2020-10-16 dec1b27a14 added	-
+CvGameCoreDLL/GroupPathFinder.h	advciv	2020-10-16 dec1b27a14 added	-
+CvGameCoreDLL/IntegerConversion.h	advciv	2021-08-17 59a3e31900 added	-
+CvGameCoreDLL/IntegerTraits.h	advciv	2021-07-27 bf30b6baa0 added	-
+CvGameCoreDLL/interfaceDirtyBits.inl	vanilla,warlords,bts,advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/InvasionGraph.cpp	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/InvasionGraph.h	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/KmodPathFinder.h	advciv	2011-11-19 3d1097eb4f added; 2020-10-16 3a035b4092 renamed to CvGameCoreDLL/KmodPathFinderLegacy.h; 2020-10-16 dec1b27a14 added	-
+CvGameCoreDLL/KmodPathFinderLegacy.cpp	advciv	2011-11-19 3d1097eb4f added; 2020-10-16 3a035b4092 renamed from CvGameCoreDLL/KmodPathFinder.cpp to CvGameCoreDLL/KmodPathFinderLegacy.cpp	-
+CvGameCoreDLL/KmodPathFinderLegacy.h	advciv	2011-11-19 3d1097eb4f added; 2020-10-16 3a035b4092 renamed from CvGameCoreDLL/KmodPathFinder.h to CvGameCoreDLL/KmodPathFinderLegacy.h	-
+CvGameCoreDLL/LinkedList.h	vanilla,warlords,bts,advciv	2010-12-27 2414225e64 added	-
+CvGameCoreDLL/LinkedListTraversal.h	advciv	2020-09-13 87b95e1e2b added	-
+CvGameCoreDLL/MilitaryAnalyst.cpp	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/MilitaryAnalyst.h	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/MilitaryBranch.cpp	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/MilitaryBranch.h	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/ModName.cpp	advciv	2022-06-29 f4af0bc3e0 added	-
+CvGameCoreDLL/ModName.h	advciv	2022-06-29 f4af0bc3e0 added	-
+CvGameCoreDLL/PlayerHistory.cpp	advciv	2020-11-01 f6f7fd0b4b added	-
+CvGameCoreDLL/PlayerHistory.h	advciv	2020-11-01 f6f7fd0b4b added	-
+CvGameCoreDLL/PlotAdjListTraversal.h	advciv	2020-10-27 c85286c3bf added	-
+CvGameCoreDLL/PlotRadiusIterator.cpp	advciv	2020-01-09 085ab2c9b6 added	-
+CvGameCoreDLL/PlotRadiusIterator.h	advciv	2020-01-09 085ab2c9b6 added	-
+CvGameCoreDLL/PlotRange.h	advciv	2020-01-09 085ab2c9b6 added	-
+CvGameCoreDLL/PragmaWarnings.h	advciv	2020-09-21 d6f5189db4 added	-
+CvGameCoreDLL/Project/resource.h	advciv	2019-04-27 c461608111 added	-
+CvGameCoreDLL/ReproTest.cpp	advciv	2020-03-10 fe4f9ef0fb added	-
+CvGameCoreDLL/ReproTest.h	advciv	2020-03-10 fe4f9ef0fb added	-
+CvGameCoreDLL/resource.h	bts	2010-12-27 2414225e64 added; 2019-05-14 3e233e6794 deleted	-
+CvGameCoreDLL/RFChapter.cpp	advciv	2017-08-24 e11525d303 added	-
+CvGameCoreDLL/RFChapter.h	advciv	2017-08-24 e11525d303 added	-
+CvGameCoreDLL/RFChapterScore.cpp	advciv	2017-08-24 e11525d303 added	-
+CvGameCoreDLL/RFChapterScore.h	advciv	2017-08-24 e11525d303 added	-
+CvGameCoreDLL/RFTotalScore.cpp	advciv	2017-08-24 e11525d303 added	-
+CvGameCoreDLL/RFTotalScore.h	advciv	2017-08-24 e11525d303 added	-
+CvGameCoreDLL/RiseFall.cpp	advciv	2017-08-24 e11525d303 added	-
+CvGameCoreDLL/RiseFall.h	advciv	2017-08-24 e11525d303 added	-
+CvGameCoreDLL/ScaledNum.h	advciv	2020-02-04 c16d688b14 added; 2020-05-20 41c61c00e0 renamed from CvGameCoreDLL/ScaledInt.h to CvGameCoreDLL/ScaledNum.h	-
+CvGameCoreDLL/ScaledNumFwd.h	advciv	2021-08-17 59a3e31900 added	-
+CvGameCoreDLL/ScaledNumTest.cpp	advciv	2020-02-04 c16d688b14 added; 2020-05-20 41c61c00e0 renamed from CvGameCoreDLL/ScaledIntTest.cpp to CvGameCoreDLL/ScaledNumTest.cpp	-
+CvGameCoreDLL/SelfMod.cpp	advciv	2022-05-08 55390b0167 added	-
+CvGameCoreDLL/SelfMod.h	advciv	2022-05-08 55390b0167 added	-
+CvGameCoreDLL/Shelf.cpp	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/Shelf.h	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/StartingPositionIteration.cpp	advciv	2020-05-28 a70e4ce3a1 added	-
+CvGameCoreDLL/StartingPositionIteration.h	advciv	2020-05-28 a70e4ce3a1 added	-
+CvGameCoreDLL/StartPointsAsHandicap.cpp	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/StartPointsAsHandicap.h	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/TeamPathFinder.cpp	advciv	2020-10-19 147c51de86 added	-
+CvGameCoreDLL/TeamPathFinder.h	advciv	2020-10-19 147c51de86 added	-
+CvGameCoreDLL/Trigonometry.h	advciv	2020-05-27 c72d1f177d added	-
+CvGameCoreDLL/TrueStarts.cpp	advciv	2022-01-30 4977b513da added	-
+CvGameCoreDLL/TrueStarts.h	advciv	2022-01-30 4977b513da added	-
+CvGameCoreDLL/TSCProfiler.cpp	advciv	2019-11-05 031365f32f added	-
+CvGameCoreDLL/TSCProfiler.h	advciv	2019-11-05 031365f32f added	-
+CvGameCoreDLL/TypeChoice.h	advciv	2020-02-22 ca9bcfb831 added	-
+CvGameCoreDLL/UnofficialPatch.h	bts	-	-
+CvGameCoreDLL/UWAI.cpp	advciv	2017-04-16 f6ff6a182f added; 2019-12-02 2c186034b3 renamed from CvGameCoreDLL/WarAndPeaceAI.cpp to CvGameCoreDLL/UWAI.cpp	-
+CvGameCoreDLL/UWAI.h	advciv	2017-04-16 f6ff6a182f added; 2019-12-02 2c186034b3 renamed from CvGameCoreDLL/WarAndPeaceAI.h to CvGameCoreDLL/UWAI.h	-
+CvGameCoreDLL/UWAIAgent.cpp	advciv	2019-05-07 20e0f16882 added; 2019-12-02 2c186034b3 renamed from CvGameCoreDLL/WarAndPeaceAgent.cpp to CvGameCoreDLL/UWAIAgent.cpp	-
+CvGameCoreDLL/UWAIAgent.h	advciv	2019-05-07 20e0f16882 added; 2019-12-02 2c186034b3 renamed from CvGameCoreDLL/WarAndPeaceAgent.h to CvGameCoreDLL/UWAIAgent.h	-
+CvGameCoreDLL/UWAICache.cpp	advciv	2017-04-16 f6ff6a182f added; 2019-12-02 2c186034b3 renamed from CvGameCoreDLL/WarAndPeaceCache.cpp to CvGameCoreDLL/UWAICache.cpp	-
+CvGameCoreDLL/UWAICache.h	advciv	2017-04-16 f6ff6a182f added; 2019-12-02 2c186034b3 renamed from CvGameCoreDLL/WarAndPeaceCache.h to CvGameCoreDLL/UWAICache.h	-
+CvGameCoreDLL/UWAIReport.cpp	advciv	2017-04-16 f6ff6a182f added; 2019-12-02 2c186034b3 renamed from CvGameCoreDLL/WarAndPeaceReport.cpp to CvGameCoreDLL/UWAIReport.cpp	-
+CvGameCoreDLL/UWAIReport.h	advciv	2017-04-16 f6ff6a182f added; 2019-12-02 2c186034b3 renamed from CvGameCoreDLL/WarAndPeaceReport.h to CvGameCoreDLL/UWAIReport.h	-
+CvGameCoreDLL/UWAISets.h	advciv	2019-11-25 854cb8058c added	-
+CvGameCoreDLL/WarEvalParameters.cpp	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/WarEvalParameters.h	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/WarEvaluator.cpp	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/WarEvaluator.h	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/WarUtilityAspect.cpp	advciv	2017-04-16 f6ff6a182f added	-
+CvGameCoreDLL/WarUtilityAspect.h	advciv	2017-04-16 f6ff6a182f added	-
+Assets/res/BeyondTheSword_BoxArt.jpg	bts	-	-
+Assets/res/bts_splash.bmp	bts	-	-
+Assets/res/Civ4BtS.ico	bts	-	-
+Assets/res/Civ4BtS.jpg	bts	-	-
+Assets/res/Civ4BtS_SaveGame.ico	bts	-	-
+Assets/res/Civ4Game.ico	vanilla	-	-
+Assets/res/Civ4SaveGame.ico	vanilla	-	-
+Assets/res/CIV_Warlords_16.ico	warlords	-	-
+Assets/res/CIV_Warlords_32.ico	warlords	-	-
+Assets/res/CIV_Warlords_64.ico	warlords	-	-
+Assets/res/CivIV-INIT.bmp	vanilla,warlords,bts	-	-
+Assets/res/Cursors/Airbomb.ani	vanilla	-	-
+Assets/res/Cursors/Airlift.ani	vanilla	-	-
+Assets/res/Cursors/Airstrike.ani	vanilla	-	-
+Assets/res/Cursors/Build.ani	vanilla	-	-
+Assets/res/Cursors/BuildLarge.ani	vanilla	-	-
+Assets/res/Cursors/Claim.ani	vanilla	-	-
+Assets/res/Cursors/Deplete.ani	vanilla	-	-
+Assets/res/Cursors/Edit.ani	vanilla	-	-
+Assets/res/Cursors/EMP.ani	vanilla	-	-
+Assets/res/Cursors/Found.ani	vanilla	-	-
+Assets/res/Cursors/GoTo.ani	vanilla	-	-
+Assets/res/Cursors/Grip.ani	vanilla	-	-
+Assets/res/Cursors/Link.ani	vanilla	-	-
+Assets/res/Cursors/Mine.ani	vanilla	-	-
+Assets/res/Cursors/Move.ani	vanilla	-	-
+Assets/res/Cursors/Mutiny.ani	vanilla	-	-
+Assets/res/Cursors/Nuke.ani	vanilla	-	-
+Assets/res/Cursors/Ping.ani	vanilla	-	-
+Assets/res/cursors/Pointer.ani	vanilla,bts	-	vanilla:Assets/res/Cursors/Pointer.ani
+Assets/res/Cursors/Rebase.ani	vanilla	-	-
+Assets/res/Cursors/Recon.ani	vanilla	-	-
+Assets/res/Cursors/Repair.ani	vanilla	-	-
+Assets/res/Cursors/RouteTo.ani	vanilla	-	-
+Assets/res/Cursors/Size All.ani	vanilla	-	-
+Assets/res/Cursors/Size Diagonal 1.ani	vanilla	-	-
+Assets/res/Cursors/Size Diagonal 2.ani	vanilla	-	-
+Assets/res/Cursors/Size H.ani	vanilla	-	-
+Assets/res/Cursors/Size V.ani	vanilla	-	-
+Assets/res/Cursors/Split H.ani	vanilla	-	-
+Assets/res/Cursors/Split V.ani	vanilla	-	-
+Assets/res/Cursors/Stasis.ani	vanilla	-	-
+Assets/Res/Cursors/Waiting.ani	vanilla,bts,advciv	2025-01-06 16a302a62a added	vanilla:Assets/res/Cursors/Waiting.ani;bts:Assets/res/cursors/Waiting.ani
+Assets/Res/Fonts/GameFont.tga	vanilla,bts,advciv	2019-01-30 b3272cda38 added	vanilla:Assets/res/Fonts/GameFont.tga;bts:Assets/res/Fonts/GameFont.tga
+Assets/Res/Fonts/GameFont_75.tga	vanilla,bts,advciv	2010-12-27 593c549b51 added	vanilla:Assets/res/Fonts/GameFont_75.tga;bts:Assets/res/Fonts/GameFont_75.tga
+Assets/res/Fonts/MonoSpacedConsoleFont.tga	vanilla	-	-
+Assets/res/Fonts/NumberFont-Sylfaen64px.tga	vanilla	-	-
+Assets/res/Fonts/sylfaen.ttf	vanilla	-	-
+Assets/res/SpartanHelm.ico	vanilla	-	-
+Assets/res/Warlords.jpg	warlords	-	-
+Assets/res/Warlords_BoxArt.jpg	warlords	-	-
+Assets/Config/Advanced Combat Odds.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/Advanced Scoreboard.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/All Eras Dawn of Man Screen.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/Autolog.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/AutoSave.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/Better Espionage.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/BUG Advisors.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/BUG City Screen.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/BUG Config.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/BUG Core.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/BUG Main Interface.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/BULL Actions.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/BULL City Bar.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/BULL Core.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/BULL Misc Hovers.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/Civ4lerts.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/Customizable Domestic Advisor.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/EventSigns.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/FavoriteCivicDetector.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/init.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/MoreCiv4lerts.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/Not Just Another Game Clock.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/OOSLogger.xml	advciv	2019-03-27 81c89a9e05 added	-
+Assets/Config/Plot List Enhancements.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/Reminder.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/StatusDump.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/Strategy Overlay.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/TechWindow.xml	advciv	2010-12-27 593c549b51 added	-
+Assets/Config/Trigger Event.xml	advciv	2023-02-20 6b77f345a5 added	-
+Assets/Config/Unit Naming.xml	advciv	2010-12-27 593c549b51 added	-

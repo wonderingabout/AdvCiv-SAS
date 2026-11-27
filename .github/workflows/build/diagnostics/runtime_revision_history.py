@@ -14,7 +14,9 @@ import xml.etree.ElementTree as ET
 # title_label_error shares the rule that a bumping commit's title names its revision. (GPT-6.1-Sol + Claude code Opus 5.5) -->
 from sas_revision_history import ROOT, changed_paths, git_show, revision_transitions, resolve_default_branch, title_label_error
 # <!-- custom: SASGameRecord's shared-helper path setup also exposes the common entry parser; both histories require real Change text while retaining their distinct bump policies. (GPT-6.1-Sol) -->
-from revision_history import change_errors, revision_entries
+# <!-- custom: functional_errors requires each history entry's Functional Yes/No line, beside its Change text; FUNCTIONAL_SINCE is the last revision written before it, so older commits are not judged by it.
+# change_layout_errors keeps an entry's text in its list, checked on the working tree. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+from revision_history import FUNCTIONAL_SINCE, change_errors, change_layout_errors, functional_errors, revision_entries
 
 SOURCE = "CvGameCoreDLL/SASRuntimeStatus.cpp"
 DEFINES = "Assets/XML/GlobalDefines_advciv_sas.xml"
@@ -45,20 +47,22 @@ def revision(source, defines=""):
 
 
 # <!-- custom: Accept the XML snapshot alongside native source so current labels and historical compiled revisions share the same history validation. (GPT-6.1-Sol) -->
-def history_errors(source, history, defines=""):
+# <!-- custom: functional_above added on 2026-11-25: Functional lines are required only on revisions after it, FUNCTIONAL_SINCE for a commit and 0, every entry, for the working tree. (Claude code Opus 5.5) -->
+def history_errors(source, history, defines="", functional_above=0):
     value = revision(source, defines)
     entries = [number for number, _body in revision_entries(history)]
     if value is None or value < 1:
         return ["missing positive SAS_RUNTIME_REVISION"]
     if entries != list(range(value, 0, -1)):
         return [f"runtime history must contain revisions {value} through 1 exactly once, latest first"]
-    return change_errors(history)
+    return change_errors(history) + functional_errors(history, above=functional_above) + (change_layout_errors(history) if functional_above == 0 else [])
 
 
 def read(repo, commit, path):
     if commit is None:
         file = repo / path
-        return file.read_text(encoding="utf-8") if file.is_file() else ""
+        # <!-- custom: Read the working copy as leniently as a committed blob below: many inherited BUG and AdvCiv text files are Windows-1252, and renaming them back to base AdvCiv's names made this strict read fail with "'utf-8' codec can't decode byte 0xe0" (2026-11-22). (Claude code Opus 5.5) -->
+        return file.read_text(encoding="utf-8", errors="replace") if file.is_file() else ""
     data = git_show(repo, commit, path)
     return "" if data is None else data.decode("utf-8", "replace")
 
@@ -76,7 +80,8 @@ def qualifies(repo, parent, commit):
         return True
     for path in paths:
         # <!-- custom: LLM_Helpers/ holds local tooling the game never loads; toggle_dev_diagnostics.py naming SAS_RUNTIME_* defines was miscounted as a Runtime implementation change. (Claude code Opus 5.5) -->
-        if path.startswith(("tests/", ".github/", "LLM_Helpers/")) or Path(path).suffix.lower() not in {".cpp", ".h", ".py", ".xml"}:
+        # <!-- custom: SASPilot/, moved out of LLM_Helpers on 2026-11-20, is skipped likewise: SASPilotClient.py names SAS_RUNTIME_* settings but implements no Runtime output. (Claude code Opus 5.5) -->
+        if path.startswith(("tests/", ".github/", "LLM_Helpers/", "SASPilot/")) or Path(path).suffix.lower() not in {".cpp", ".h", ".py", ".xml"}:
             continue
         args = ["git", "diff", "--unified=0", "--ignore-cr-at-eol", parent]
         if commit is not None:
@@ -94,7 +99,8 @@ def transition_errors(repo, parent, commit):
     previous_source = read(repo, parent, SOURCE) if parent else ""
     if not source and not previous_source:
         return []
-    errors = history_errors(source, read(repo, commit, HISTORY), read(repo, commit, DEFINES))
+    # <!-- custom: The working tree needs every entry labeled; a commit, only the revisions after the label's start, so older commits in a pushed range pass while a new revision must be labeled where it is added. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+    errors = history_errors(source, read(repo, commit, HISTORY), read(repo, commit, DEFINES), 0 if commit is None else FUNCTIONAL_SINCE["Runtime"])
     previous = revision(previous_source, read(repo, parent, DEFINES)) if previous_source else 0
     current = revision(source, read(repo, commit, DEFINES))
     if previous is None or current is None:

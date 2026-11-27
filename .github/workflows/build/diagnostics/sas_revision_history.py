@@ -20,7 +20,10 @@ import xml.etree.ElementTree as ET
 
 # <!-- custom: Share visible history-entry parsing and Change-field checks with the current-default and runtime guards; per-commit validation also catches an explanation deferred to a later commit. (GPT-6.1-Sol) -->
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
-from revision_history import change_errors, revision_entries
+# <!-- custom: pull_request_squashes added, the squash-intent rule shared with dll_runtime_revision.py: [ci_squash_pr] in the PR's newest commit message. (Claude code Opus 5.5) -->
+# <!-- custom: functional_errors requires each history entry's Functional Yes/No line, beside its Change text; FUNCTIONAL_SINCE is the last revision written before it, so older commits are not judged by it.
+# change_layout_errors keeps an entry's text in its list, checked on the working tree. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+from revision_history import FUNCTIONAL_SINCE, change_errors, change_layout_errors, functional_errors, pull_request_squashes, revision_entries
 
 ROOT = Path(__file__).resolve().parents[4]
 HISTORY = Path("_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md")
@@ -264,9 +267,9 @@ def progression_commits(repo, default_branch_commit, event_name="local", event_d
     return result.stdout.splitlines()
 
 
-# <!-- custom: A PR explicitly labeled revision:squash represents one eventual integration commit.
+# <!-- custom: A PR whose newest commit message carries [ci_squash_pr] represents one eventual integration commit; a revision:squash label said so before 2026-11-22.
 # Compare its merge base with the complete candidate, allowing intermediate revision corrections without accepting a final jump or missing bump.
-# Ordinary PRs retain per-commit checks; feature-branch pushes defer progression to the PR because a push payload does not contain its merge intent. (GPT-6.1-Sol) -->
+# Ordinary PRs retain per-commit checks; feature-branch pushes defer progression to the PR because a push payload does not contain its merge intent. (GPT-6.1-Sol + Claude code Opus 5.5) -->
 def revision_transitions(repo, default_branch_commit, event_name="local", event_data=None, squash=False):
     event = event_data or {}
     if event_name == "push":
@@ -275,7 +278,8 @@ def revision_transitions(repo, default_branch_commit, event_name="local", event_
             return []
     if event_name == "pull_request":
         pull = event.get("pull_request", {})
-        squash = any(label.get("name") == "revision:squash" for label in pull.get("labels", []))
+        # <!-- custom: [ci_squash_pr] in the newest commit marks squash intent; see pull_request_squashes. (Claude code Opus 5.5) -->
+        squash = pull_request_squashes(repo, pull)
         if squash:
             tip = pull.get("head", {}).get("sha")
             target = pull.get("base", {}).get("sha")
@@ -332,6 +336,8 @@ def check_progression(repo, default_branch_ref=None, event_name="local", event_d
         if delta == 1:
             history = git_show(repo, commit, HISTORY.as_posix())
             errors.extend(f"commit {short}: {error}" for error in change_errors("" if history is None else history.decode("utf-8", "replace"), current))
+            # <!-- custom: A revision after the label's start must carry its Functional line in the commit that adds it, not in a later one, as Codex's review (GPT-6.2-Sol) reproduced. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+            errors.extend(f"commit {short}: {error}" for error in functional_errors("" if history is None else history.decode("utf-8", "replace"), current, FUNCTIONAL_SINCE["SASGameRecord"]))
             title_error = title_label_error(repo, parent, commit, f"SGR{current}")
             if title_error:
                 errors.append(f"commit {short}: {title_error}")
@@ -354,7 +360,7 @@ def check_history(repo, default_branch_ref=None):
     entries = revision_entries(text)
     if not entries:
         return ["no revision history entries"]
-    errors = change_errors(text)
+    errors = change_errors(text) + functional_errors(text) + change_layout_errors(text)
     for index, (revision, body) in enumerate(entries):
         value = re.search(r"^- \*\*Git commit:\*\* (.+)$", body, re.MULTILINE)
         if value is None:

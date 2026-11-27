@@ -24,6 +24,9 @@ WIDGET_SAS_CHANGES_TARGET = WidgetUtil.createWidget("WIDGET_SAS_CHANGES_TARGET")
 class CvWorldAdvisorScreen:
 	"World Advisor"
 
+	# <!-- custom: This advisor leaves the scoreboard the space getAdvisorScoreboardSpace gives, so the scoreboard shortens leader names to fit beside it; CvScreensInterface finds open advisors by this marker. (Claude code Opus 5.5) -->
+	SAS_LEAVES_SCOREBOARD_SPACE = True
+
 	def __init__(self, screenId):
 		self.screenId = screenId
 		self.SCREEN_NAME = "WorldAdvisorScreen"
@@ -35,7 +38,6 @@ class CvWorldAdvisorScreen:
 		self.Z_HELP_AREA = self.Z_CONTROLS - 1
 
 		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
-		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
 		self.H_TOP_SPACE_FOR_TECH_BAR = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
 		self.H_BOTTOM_SPACE = SAS_ADVISOR_BOTTOM_SPACE
 
@@ -49,6 +51,10 @@ class CvWorldAdvisorScreen:
 		self.BFC_CITY_COL_WIDTH = 170
 		self.BFC_ZOOM_COL_WIDTH = 28
 		self.BFC_ICON_SIZE = 24
+		# <!-- custom: The header icons' offset from the table's top; see addHeaderIconLink. (Claude code Opus 5.5) -->
+		self.BFC_HEADER_ICON_Y = 2
+		# <!-- custom: Where a header's text starts in its column; see setHeaderTextWithIconLink. (Claude code Opus 5.5) -->
+		self.BFC_HEADER_TEXT_X = 6
 
 		self.ENV_INNER_MARGIN = 24
 		self.ENV_COLUMN_GAP = 20
@@ -106,6 +112,9 @@ class CvWorldAdvisorScreen:
 			"GAME": "WORLDBUILDER_NORMAL_TAB_MODE",
 			"VISIBILITY": "WORLDBUILDER_REVEAL_TILE_MODE",
 		}
+		# <!-- custom: Advanced Start actions, resolved on first use: the CITY and MAP categories gave City, Culture, Population and Building one icon and Improvement and Route another, and Automate and Begin Game shared a third (the user, 2026-11-21).
+		# Each now shows what does that job in the game; Building, Unit, Tech and Visibility keep their category's, which no other action shares. (Claude code Opus 5.5) -->
+		self.CHANGES_ADVANCED_START_ART = None
 		WidgetUtil.setWidgetHelpFunction(WIDGET_SAS_CHANGES_ACTION, self.getChangesHistoryActionHelp)
 		WidgetUtil.setWidgetHelpFunction(WIDGET_SAS_CHANGES_TARGET, self.getChangesHistoryTargetHelp)
 
@@ -138,7 +147,7 @@ class CvWorldAdvisorScreen:
 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
 
 	def updateRuntimeLayout(self, screen):
-		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
+		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, getAdvisorScoreboardSpace(screen.getXResolution(), SASTextScale.getSASUIFontLabel()), self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
 
@@ -186,6 +195,8 @@ class CvWorldAdvisorScreen:
 		self.EXIT_TEXT = SASTextScale.sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE
 		self.iTerrainPeak = getInfoTypeOrFail("TERRAIN_PEAK")
 		self.iTerrainHill = getInfoTypeOrFail("TERRAIN_HILL")
+		# <!-- custom: For the River header and row link to the Rivers concept page. (Claude code Opus 5.5) -->
+		self.iConceptRivers = findInfoTypeNumOrFail(gc.getConceptInfo, gc.getNumConceptInfos, "CONCEPT_RIVERS")
 		self.BUTTON_TERRAIN_PEAK = gc.getTerrainInfo(self.iTerrainPeak).getButton()
 		self.BUTTON_TERRAIN_HILL = gc.getTerrainInfo(self.iTerrainHill).getButton()
 		# <!-- custom: River has no terrain type (it's a plot-edge property), so reuse the WorldBuilder river-placement art.
@@ -396,10 +407,13 @@ class CvWorldAdvisorScreen:
 		screen.setTableColumnHeader(szTable, 4, SASTextScale.sasFontTagLabel + self.TEXT_BFC + SASTextScale.SAS_FONT_TAG_CLOSE, iDataW)
 		screen.setTableColumnHeader(szTable, 5, SASTextScale.sasFontTagLabel + self.TEXT_WATER + SASTextScale.SAS_FONT_TAG_CLOSE, iDataW)
 		# <!-- custom: Plot-type columns have room for icon + text; Peak and Hill buttons are visually similar, so labels avoid ambiguity. (GPT-5.5) -->
-		screen.setTableColumnHeader(szTable, 6, SASTextScale.labelImageText(self.BUTTON_TERRAIN_PEAK, self.BFC_ICON_SIZE, self.TEXT_PEAK), iDataW)
-		screen.setTableColumnHeader(szTable, 7, SASTextScale.labelImageText(self.BUTTON_TERRAIN_HILL, self.BFC_ICON_SIZE, self.TEXT_HILL), iDataW)
+		# <!-- custom: Their inline header icons had no hover or link (the user, 2026-11-20), so the header keeps its text and the icon becomes a linked button after it, like addHeaderIconLink's.
+		# Headers are left-aligned, so the button sits at the text's measured end; at the column's right edge it read as the next column's icon. (Claude code Opus 5.5) -->
+		iDataX = self.BFC_X_TABLE + self.BFC_ZOOM_COL_WIDTH + iCityW
+		self.setHeaderTextWithIconLink(screen, szTable, 6, self.TEXT_PEAK, iDataX, iDataW, self.BUTTON_TERRAIN_PEAK, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, self.iTerrainPeak, -1)
+		self.setHeaderTextWithIconLink(screen, szTable, 7, self.TEXT_HILL, iDataX, iDataW, self.BUTTON_TERRAIN_HILL, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, self.iTerrainHill, -1)
 		screen.setTableColumnHeader(szTable, 8, SASTextScale.sasFontTagLabel + self.TEXT_FLAT + SASTextScale.SAS_FONT_TAG_CLOSE, iDataW)
-		screen.setTableColumnHeader(szTable, 9, SASTextScale.labelImageText(SASVisuals.InterfaceArt.WORLDBUILDER_RIVER_PLACEMENT, self.BFC_ICON_SIZE, self.TEXT_RIVER), iDataW)
+		self.setHeaderTextWithIconLink(screen, szTable, 9, self.TEXT_RIVER, iDataX, iDataW, SASVisuals.InterfaceArt.WORLDBUILDER_RIVER_PLACEMENT, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, self.iConceptRivers)
 		screen.setTableColumnHeader(szTable, 10, SASTextScale.sasFontTagLabel + self.TEXT_LAKE + SASTextScale.SAS_FONT_TAG_CLOSE, iDataW)
 		screen.setTableColumnHeader(szTable, 11, SASTextScale.sasFontTagLabel + self.TEXT_COASTAL + SASTextScale.SAS_FONT_TAG_CLOSE, iDataW)
 
@@ -440,11 +454,12 @@ class CvWorldAdvisorScreen:
 		screen.setTableColumnHeader(szTable, 0, "", self.BFC_ZOOM_COL_WIDTH)
 		screen.setTableColumnHeader(szTable, 1, SASTextScale.sasFontTagLabel + self.TEXT_CITY + SASTextScale.SAS_FONT_TAG_CLOSE, self.BFC_CITY_COL_WIDTH)
 		iCol = 2
+		iDataX = self.BFC_X_TABLE + self.BFC_ZOOM_COL_WIDTH + self.BFC_CITY_COL_WIDTH
 		for iTerrain in aiTerrainColumns:
-			screen.setTableColumnHeader(szTable, iCol, SASTextScale.labelImageText(gc.getTerrainInfo(iTerrain).getButton(), self.BFC_ICON_SIZE), iDataW)
+			self.addHeaderIconLink(screen, szTable, iCol, gc.getTerrainInfo(iTerrain).getButton(), iDataX + (iCol - 2) * iDataW, self.BFC_Y_TERRAIN_TABLE, iDataW, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain)
 			iCol += 1
 		for iFeature in aiFeatureColumns:
-			screen.setTableColumnHeader(szTable, iCol, SASTextScale.labelImageText(gc.getFeatureInfo(iFeature).getButton(), self.BFC_ICON_SIZE), iDataW)
+			self.addHeaderIconLink(screen, szTable, iCol, gc.getFeatureInfo(iFeature).getButton(), iDataX + (iCol - 2) * iDataW, self.BFC_Y_TERRAIN_TABLE, iDataW, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature)
 			iCol += 1
 
 		for iRow in range(len(aszRows)):
@@ -478,14 +493,29 @@ class CvWorldAdvisorScreen:
 			self.setBFCCountCell(screen, szTable, iCol, iRow, rowData[7][iFeature])
 			iCol += 1
 
+	# <!-- custom: Keep the sortable plot heading and put its link after the measured text.
+	# Shrink the icon to the remaining column space and leave only the heading if it would be too small to click.
+	# The Territory row keeps the same link. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	def setHeaderTextWithIconLink(self, screen, szTable, iCol, szText, iDataX, iDataW, szButton, eWidget, iData1, iData2):
+		iX = iDataX + (iCol - 2) * iDataW
+		columnRect = (iX, self.BFC_Y_PLOT_TABLE, iDataW, self.BFC_ICON_SIZE)
+		SASTextScale.setTableColumnHeaderLabelWithLink(screen, szTable, iCol, szText, columnRect, self.getNextWidgetName(), szButton, (eWidget, iData1, iData2), self.BFC_HEADER_TEXT_X, self.BFC_HEADER_ICON_Y)
+
+	# <!-- custom: Table headers cannot carry actions, so draw the linked icon over its column and leave the rest of the header available for sorting (screenshots Civ4ScreenShot0127, 0128).
+	# The Rivers concept uses the second data field. (Claude code Opus 5.5) -->
+	# <!-- custom: Leave padding inside the header and keep the click target within the column at narrow widths. (GPT-6.2-Sol) -->
+	# <!-- custom: Now through SASTextScale.setTableColumnHeaderIconLink, shared with the Domestic Advisor's specialist headers, which also sets the blank header. (Claude code Opus 5.5) -->
+	def addHeaderIconLink(self, screen, szTable, iCol, szButton, iX, iY, iW, eWidget, iData, iData2=-1):
+		SASTextScale.setTableColumnHeaderIconLink(screen, szTable, iCol, (iX, iY, iW, self.BFC_ICON_SIZE), self.getNextWidgetName(), szButton, (eWidget, iData, iData2), self.BFC_HEADER_ICON_Y)
+
 	def drawBFC2Tab(self):
 		aiBonusColumns = []
 		for iBonus in range(gc.getNumBonusInfos()):
 			if gc.getBonusInfo(iBonus).getPlacementOrder() >= 0:
 				aiBonusColumns.append(iBonus)
 		aszRows, aaiBonusCounts, aaiImprovementCounts, aaiRouteCounts = self.collectBFC2Data()
-		self.drawBFC2IconTable(aszRows, [(aiBonusColumns, gc.getBonusInfo, aaiBonusCounts)], self.BFC_Y_PLOT_TABLE, self.BFC_H_PLOT_TABLE)
-		self.drawBFC2IconTable(aszRows, [(range(gc.getNumImprovementInfos()), gc.getImprovementInfo, aaiImprovementCounts), (range(gc.getNumRouteInfos()), gc.getRouteInfo, aaiRouteCounts)], self.BFC_Y_TERRAIN_TABLE, self.BFC_H_TERRAIN_TABLE)
+		self.drawBFC2IconTable(aszRows, [(aiBonusColumns, gc.getBonusInfo, aaiBonusCounts, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS)], self.BFC_Y_PLOT_TABLE, self.BFC_H_PLOT_TABLE)
+		self.drawBFC2IconTable(aszRows, [(range(gc.getNumImprovementInfos()), gc.getImprovementInfo, aaiImprovementCounts, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT), (range(gc.getNumRouteInfos()), gc.getRouteInfo, aaiRouteCounts, WidgetTypes.WIDGET_PEDIA_JUMP_TO_ROUTE)], self.BFC_Y_TERRAIN_TABLE, self.BFC_H_TERRAIN_TABLE)
 
 	def collectBFC2Data(self):
 		player = gc.getPlayer(self.iActivePlayer)
@@ -519,13 +549,13 @@ class CvWorldAdvisorScreen:
 			(pCity, iter) = player.nextCity(iter, False)
 		return aszRows, aaiBonusCounts, aaiImprovementCounts, aaiRouteCounts
 
-	# <!-- custom: aoGroups is a list of (aiColumns, fnGetInfo, aaiCounts) tuples; aaiCounts[iCity][iType] holds the per-city count for that group.
+	# <!-- custom: aoGroups is a list of (aiColumns, fnGetInfo, aaiCounts, eWidget) tuples; aaiCounts[iCity][iType] holds the per-city count for that group, and eWidget links its header icons to the Sevopedia.
 	# Multi-group support lets one BFC 2 table render two icon families side by side (improvements + routes). (Claude code Opus 4.7) -->
 	def drawBFC2IconTable(self, aszRows, aoGroups, iY, iH):
 		screen = self.getScreen()
 		szTable = self.getNextWidgetName()
 		iNumDataCols = 0
-		for aiColumns, fnGetInfo, aaiCounts in aoGroups:
+		for aiColumns, fnGetInfo, aaiCounts, eWidget in aoGroups:
 			iNumDataCols += len(aiColumns)
 		iNumCols = 2 + iNumDataCols
 		screen.addTableControlGFC(szTable, iNumCols, self.BFC_X_TABLE, iY, self.BFC_W_TABLE, iH, True, True, self.BFC_ICON_SIZE, self.BFC_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
@@ -536,9 +566,9 @@ class CvWorldAdvisorScreen:
 		screen.setTableColumnHeader(szTable, 0, "", self.BFC_ZOOM_COL_WIDTH)
 		screen.setTableColumnHeader(szTable, 1, SASTextScale.sasFontTagLabel + self.TEXT_CITY + SASTextScale.SAS_FONT_TAG_CLOSE, self.BFC_CITY_COL_WIDTH)
 		iColIdx = 2
-		for aiColumns, fnGetInfo, aaiCounts in aoGroups:
+		for aiColumns, fnGetInfo, aaiCounts, eWidget in aoGroups:
 			for iType in aiColumns:
-				screen.setTableColumnHeader(szTable, iColIdx, SASTextScale.labelImageText(fnGetInfo(iType).getButton(), self.BFC_ICON_SIZE), iDataW)
+				self.addHeaderIconLink(screen, szTable, iColIdx, fnGetInfo(iType).getButton(), self.BFC_X_TABLE + self.BFC_ZOOM_COL_WIDTH + self.BFC_CITY_COL_WIDTH + (iColIdx - 2) * iDataW, iY, iDataW, eWidget, iType)
 				iColIdx += 1
 
 		for iRow in range(len(aszRows)):
@@ -558,7 +588,7 @@ class CvWorldAdvisorScreen:
 			screen.setTableText(szTable, 0, iRow, u"", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			screen.setTableText(szTable, 1, iRow, SASTextScale.sasFontTagLabel + szCityName + SASTextScale.SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		iColIdx = 2
-		for aiColumns, fnGetInfo, aaiCounts in aoGroups:
+		for aiColumns, fnGetInfo, aaiCounts, eWidget in aoGroups:
 			for iType in aiColumns:
 				if bIsTotal:
 					iCount = 0
@@ -654,15 +684,16 @@ class CvWorldAdvisorScreen:
 				if iImprovement >= 0:
 					aaiImprovementCounts[iImprovement][iBucket] += 1
 
+		# <!-- custom: The Peak, Hill and River rows took no clicks; they now open their Sevopedia pages, River the Rivers concept, whose page needs the widget's data2, the rows' last value. (Claude code Opus 5.5) -->
 		aPlotRows = [
-			[self.TEXT_WATER, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[1][0], aiPlotCounts[1][1]],
-			[self.TEXT_PEAK, self.BUTTON_TERRAIN_PEAK, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[2][0], aiPlotCounts[2][1]],
-			[self.TEXT_HILL, self.BUTTON_TERRAIN_HILL, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[3][0], aiPlotCounts[3][1]],
-			[self.TEXT_FLAT, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[4][0], aiPlotCounts[4][1]],
-			[self.TEXT_RIVER, SASVisuals.InterfaceArt.WORLDBUILDER_RIVER_PLACEMENT, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[5][0], aiPlotCounts[5][1]],
-			[self.TEXT_LAKE, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[6][0], aiPlotCounts[6][1]],
-			[self.TEXT_COASTAL, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[7][0], aiPlotCounts[7][1]],
-			[self.TEXT_TOTAL, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[0][0], aiPlotCounts[0][1]],
+			[self.TEXT_WATER, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[1][0], aiPlotCounts[1][1], -1],
+			[self.TEXT_PEAK, self.BUTTON_TERRAIN_PEAK, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, self.iTerrainPeak, aiPlotCounts[2][0], aiPlotCounts[2][1], -1],
+			[self.TEXT_HILL, self.BUTTON_TERRAIN_HILL, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, self.iTerrainHill, aiPlotCounts[3][0], aiPlotCounts[3][1], -1],
+			[self.TEXT_FLAT, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[4][0], aiPlotCounts[4][1], -1],
+			[self.TEXT_RIVER, SASVisuals.InterfaceArt.WORLDBUILDER_RIVER_PLACEMENT, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, aiPlotCounts[5][0], aiPlotCounts[5][1], self.iConceptRivers],
+			[self.TEXT_LAKE, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[6][0], aiPlotCounts[6][1], -1],
+			[self.TEXT_COASTAL, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[7][0], aiPlotCounts[7][1], -1],
+			[self.TEXT_TOTAL, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[0][0], aiPlotCounts[0][1], -1],
 			]
 		# <!-- custom: Peak and Hill are plot-shape categories, not real terrain here: e.g. a Grassland Hill still has Grassland as getTerrainType().
 		# Keep them in Plots, not Terrain. (GPT-5.5) -->
@@ -706,7 +737,7 @@ class CvWorldAdvisorScreen:
 
 	def appendTerritoryInfoRow(self, aRows, info, eWidget, iData, aiCounts):
 		# <!-- custom: Keep zero-count rows in Territory so each table doubles as a stable checklist of map types known to the mod; players can still sort by BFC/Sub/Tot to put present assets first. (GPT-5.5) -->
-		aRows.append([info.getDescription(), info.getButton(), eWidget, iData, aiCounts[0], aiCounts[1]])
+		aRows.append([info.getDescription(), info.getButton(), eWidget, iData, aiCounts[0], aiCounts[1], -1])
 
 	def drawTerritoryCountTable(self, aRows, szTitle, iX, iY, iW, iH):
 		screen = self.getScreen()
@@ -722,7 +753,7 @@ class CvWorldAdvisorScreen:
 		for iRow in range(len(aRows)):
 			screen.appendTableRow(szTable)
 			row = aRows[iRow]
-			screen.setTableText(szTable, 0, iRow, SASTextScale.sasFontTagLabel + row[0] + SASTextScale.SAS_FONT_TAG_CLOSE, row[1], row[2], row[3], -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, 0, iRow, SASTextScale.sasFontTagLabel + row[0] + SASTextScale.SAS_FONT_TAG_CLOSE, row[1], row[2], row[3], row[6], CvUtil.FONT_LEFT_JUSTIFY)
 			self.setBFCCountCell(screen, szTable, 1, iRow, row[4])
 			self.setBFCCountCell(screen, szTable, 2, iRow, row[5])
 			self.setBFCCountCell(screen, szTable, 3, iRow, row[4] + row[5])
@@ -782,8 +813,22 @@ class CvWorldAdvisorScreen:
 		# <!-- custom: Keep civilization, leader and player ID in separate sortable columns; repeated leaders in mod-mods or unusual settings must not force leader grouping to sort by player ID.
 		# Keep X/Y beside their far-right jump button; the maximized bounds allow wider action/target text and restore coordinate width for scaled text.
 		# Cost remains the flexible column, reserving 18 pixels for the scrollbar. (GPT-6.1-Sol) -->
-		aiWidths = [56, 60, 88, 37, 28, 28, 36, 210, 230, 96, 96] + [78] * (len(self.CHANGES_NUMERIC_LABELS) - 3)
-		aiWidths.extend([max(70, iW - sum(aiWidths) - 90 - 28 - 18), 45, 45, 28])
+		# <!-- custom: The number columns were fixed widths (56 for "#", 78 for points and gold), so at font 4 a 4-digit "#" showed as "15...", and Cost took the leftover with a 70 px floor that a narrow window could push past the table.
+		# Number columns now come from the shared getAdvisorNumberColW rule (5 digits for "#", points, gold and Cost, 4 for Turn, 3 for X/Y), and Action and Target, the text columns, share what is left in their former 210:230 ratio (the user, 2026-11-19).
+		# An Industrial Advanced Start on SAS24 already wrote 1126 rows before turn 251, and its 6900 points filled 4 digits, so "#", points and gold get a fifth. (Claude code Opus 5.5) -->
+		iSeqW = getAdvisorNumberColW(5)
+		iTurnW = getAdvisorNumberColW(4)
+		iValueW = getAdvisorNumberColW(5)
+		iAxisW = getAdvisorNumberColW(3)
+		iScrollbarGutterW = 18
+		iTextColMinW = 120
+		# <!-- custom: The player column was 36, which cut player 23 to its first digit at font 4; 3 characters leave room for SAS48 IDs and the header. (Claude code Opus 5.5) -->
+		aiLeftWidths = [iSeqW, iTurnW, 88, 37, 28, 28, getAdvisorNumberColW(3)]
+		aiRightWidths = [96, 96] + [iValueW] * (len(self.CHANGES_NUMERIC_LABELS) - 2) + [iAxisW, iAxisW, 28]
+		iTextW = iW - sum(aiLeftWidths) - sum(aiRightWidths) - iScrollbarGutterW
+		iActionW = max(iTextColMinW, iTextW * 210 / 440)
+		iTargetW = max(iTextColMinW, iTextW - iActionW)
+		aiWidths = aiLeftWidths + [iActionW, iTargetW] + aiRightWidths
 		for iCol in range(iNumCols):
 			screen.setTableColumnHeader(self.CHANGES_TABLE_ID, iCol, SASTextScale.sasFontTagLabel + aszHeaders[iCol] + SASTextScale.SAS_FONT_TAG_CLOSE, aiWidths[iCol])
 
@@ -1182,12 +1227,29 @@ class CvWorldAdvisorScreen:
 			if game.getSASWorldChangesHistoryNewValue(iEntry):
 				return SASVisuals.InterfaceArt.WORLDBUILDER_REVEAL_ALL_TILES
 			return SASVisuals.InterfaceArt.WORLDBUILDER_UNREVEAL_ALL_TILES
+		if game.getSASWorldChangesHistorySourceName(iEntry) == "ADVANCED_START":
+			szPath = self.getChangesHistoryAdvancedStartButton(szAction)
+			if szPath:
+				return szPath
 		szArt = self.CHANGES_ACTION_ART.get(szAction)
 		if szArt is None:
 			szArt = self.CHANGES_CATEGORY_ART.get(game.getSASWorldChangesHistoryCategoryName(iEntry))
 		if szArt is None:
 			return ""
 		return SASVisuals.InterfaceArt.getPath(szArt)
+
+	def getChangesHistoryAdvancedStartButton(self, szAction):
+		if self.CHANGES_ADVANCED_START_ART is None:
+			self.CHANGES_ADVANCED_START_ART = {
+				"CITY": SASVisuals.StaticArt.FOUND_CITY_BUTTON,
+				"POPULATION": SASVisuals.Specialist.getButton(getInfoTypeOrFail("SPECIALIST_CITIZEN")),
+				"CULTURE": SASVisuals.Specialist.getButton(getInfoTypeOrFail("SPECIALIST_ARTIST")),
+				"IMPROVEMENT": gc.getUnitInfo(getInfoTypeOrFail("UNIT_WORKER")).getButton(),
+				"ROUTE": gc.getBuildInfo(getInfoTypeOrFail("BUILD_ROAD")).getButton(),
+				"AUTOMATE": gc.getAutomateInfo(int(AutomateTypes.AUTOMATE_BUILD)).getButton(),
+				"EXIT": SASVisuals.InterfaceArt.getPath("WORLDBUILDER_EXIT"),
+			}
+		return self.CHANGES_ADVANCED_START_ART.get(szAction, "")
 
 	# <!-- custom: Reuse native icon/help/pedia widgets from Territory, Composition and Battles rather than custom encyclopedia routing.
 	# A missing/removed XML target keeps its saved text/ID; no live unit/city lookup can replace historical identity.
@@ -1226,7 +1288,8 @@ class CvWorldAdvisorScreen:
 		if iAppliedSteps > 1:
 			szHelp += localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_COMPACT_HELP", (iAppliedSteps, iFirstEntry, iEntry))
 		# <!-- custom: BUG custom help does not inherit table fonts; honor the shared hover setting independently of the table label size. (GPT-6.1-Sol) -->
-		return SASTextScale.sasFontTagHover + szHelp + SASTextScale.SAS_FONT_TAG_CLOSE
+		# <!-- custom: Since 2026-11-26 hover text has the label size, its own define retired, so this tag now matches the table's label size; it stays, as the help still does not inherit it. (Claude code Opus 5.5) -->
+		return SASTextScale.sasFontTagLabel + szHelp + SASTextScale.SAS_FONT_TAG_CLOSE
 
 	def getChangesHistoryTargetHelp(self, eWidget, iEntry, iData2, bOption):
 		if iEntry < 0 or iEntry >= CyGame().getNumSASWorldChangesHistoryEntries():
@@ -1235,7 +1298,7 @@ class CvWorldAdvisorScreen:
 		if tRow is None or not tRow[-1]:
 			return u""
 		# <!-- custom: Apply hover scaling to the full target text, including escaped script contents; the table text itself retains its separate label font. (GPT-6.1-Sol) -->
-		return SASTextScale.sasFontTagHover + tRow[6] + SASTextScale.SAS_FONT_TAG_CLOSE
+		return SASTextScale.sasFontTagLabel + tRow[6] + SASTextScale.SAS_FONT_TAG_CLOSE
 
 	def getChangesHistoryTargetText(self, iEntry):
 		game = CyGame()
@@ -1362,7 +1425,8 @@ class CvWorldAdvisorScreen:
 		iGwEventTally = game.getGwEventTally()
 		iSeverityRating = game.calculateGwSeverityRating()
 
-		szText = self.TEXT_GW_SEVERITY_RATING + ": "
+		# <!-- custom: The tab was plain text throughout (the user, 2026-11-21, Civ4ScreenShot0177): the title and the pollution, population, buildings, electricity and offsets rows now start with their game-font icon. (Claude code Opus 5.5) -->
+		szText = SASVisuals.Font.UNHEALTHY_CHAR + u" " + self.TEXT_GW_SEVERITY_RATING + ": "
 		# advc.137: Better use separate keys
 		if iSeverityRating < 30:
 			szText += localText.getColorText("TXT_KEY_LOW", (), SASVisuals.Color.GREEN).upper()
@@ -1398,15 +1462,15 @@ class CvWorldAdvisorScreen:
 		iLocalDefence = game.calculateGwLandDefence(self.iActivePlayer)
 
 		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_ENV_POLLUTION + ":" + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + SASVisuals.Font.UNHEALTHY_CHAR + u" " + self.TEXT_ENV_POLLUTION + ":" + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
 
 		if iPopulation != 0:
 			yLocation += Y_SPACING
-			screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_ENV_POPULATION + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POPULATION, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + SASVisuals.Font.CITIZEN_CHAR + u" " + self.TEXT_ENV_POPULATION + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POPULATION, -1)
 			screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + unicode(iPopulation) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POPULATION, -1)
 		if iBuildings != 0:
 			yLocation += Y_SPACING
-			screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_ENV_BUILDINGS + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BUILDINGS, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + SASVisuals.Yield.PRODUCTION_CHAR + u" " + self.TEXT_ENV_BUILDINGS + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BUILDINGS, -1)
 			screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + unicode(iBuildings) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BUILDINGS, -1)
 		if iResources != 0:
 			yLocation += Y_SPACING
@@ -1414,14 +1478,14 @@ class CvWorldAdvisorScreen:
 			screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + unicode(iResources) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BONUSES, -1)
 		if iPower != 0:
 			yLocation += Y_SPACING
-			screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_ENV_ELECTRICITY + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POWER, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + SASVisuals.Font.POWER_CHAR + u" " + self.TEXT_ENV_ELECTRICITY + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POWER, -1)
 			screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + unicode(iPower) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POWER, -1)
 
 		yLocation += Y_SPACING
 		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_ENV_TOTAL + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
 		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + unicode(iLocalPollution) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
 		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_ENV_TOTAL_OFFSETS + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + SASVisuals.Font.HEALTHY_CHAR + u" " + self.TEXT_ENV_TOTAL_OFFSETS + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
 		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + unicode(-iLocalDefence) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
 		yLocation += 1.5 * Y_SPACING
 		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_ENV_TOTAL_IMPACT + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -1441,10 +1505,10 @@ class CvWorldAdvisorScreen:
 		iChangeRate = iGlobalPollution - iGlobalDefence - iThreshold - iGlobalWarmingIndex * self.iGLOBAL_WARMING_RESTORATION_RATE / 100
 
 		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_ENV_TOTAL_POLLUTION + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_ALL, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + SASVisuals.Font.UNHEALTHY_CHAR + u" " + self.TEXT_ENV_TOTAL_POLLUTION + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_ALL, -1)
 		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + unicode(iGlobalPollution) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_ALL, -1)
 		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_ENV_TOTAL_OFFSETS + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + SASVisuals.Font.HEALTHY_CHAR + u" " + self.TEXT_ENV_TOTAL_OFFSETS + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
 		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + unicode(-iGlobalDefence) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
 		yLocation += 1.5 * Y_SPACING
 		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_ENV_THRESHOLD + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)

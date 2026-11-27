@@ -47,7 +47,8 @@ class RuntimeRevisionTests(unittest.TestCase):
 
     def record(self, value, comment=""):
         self.write(history.SOURCE, f"enum {{ SAS_RUNTIME_REVISION = {value} }};\n// {comment}\n")
-        self.write(history.HISTORY, "\n".join(f"### Revision {number}\n\n- **Change:** Fixture behavior.\n" for number in range(value, 0, -1)))
+        # <!-- custom: Fixture entries carry the Functional line every history entry needs since 2026-11-25. (Claude code Opus 5.5) -->
+        self.write(history.HISTORY, "\n".join(f"### Revision {number}\n\n- **Functional:** Yes\n- **Change:** Fixture behavior.\n" for number in range(value, 0, -1)))
 
     def check_push(self, tip):
         return history.check(self.repo, "main", "push", {"before": self.base, "after": tip})
@@ -62,7 +63,7 @@ class RuntimeRevisionTests(unittest.TestCase):
         self.assertEqual(self.check_push(self.commit()), [])
         self.write(history.DEFINES, xml(3))
         self.write('Assets/SASRuntimeExitObserver.ps1', '# changed observer\n')
-        self.write(history.HISTORY, '### Revision 3\n- **Change:** Observer update.\n' + (self.repo / history.HISTORY).read_text(encoding='utf-8'))
+        self.write(history.HISTORY, '### Revision 3\n- **Functional:** Yes\n- **Change:** Observer update.\n' + (self.repo / history.HISTORY).read_text(encoding='utf-8'))
         self.assertEqual(self.check_push(self.commit()), [])
         self.write(history.DEFINES, xml(4).replace('</Defines>', '<Define><DefineName>SAS_RUNTIME_REVISION</DefineName><iDefineIntVal>4</iDefineIntVal></Define></Defines>'))
         self.assertTrue(any('positive SAS_RUNTIME_REVISION' in error for error in history.transition_errors(self.repo, 'HEAD', None)))
@@ -150,7 +151,11 @@ class RuntimeRevisionTests(unittest.TestCase):
         self.commit()
         self.record(2, "consolidated implementation")
         tip = self.commit()
-        event = {'pull_request': {'base': {'sha': self.introduction}, 'head': {'sha': tip}, 'labels': [{'name': 'revision:squash'}]}}
+        # <!-- custom: The squash intent comes from [ci_squash_pr] in the newest commit message, replacing the revision:squash label (2026-11-22). (Claude code Opus 5.5) -->
+        title = self.git("log", "-1", "--format=%s").strip()
+        self.git("commit", "--amend", "-qm", title + "\n\n- [ci_squash_pr]")
+        tip = self.git("rev-parse", "HEAD").strip()
+        event = {'pull_request': {'base': {'sha': self.introduction}, 'head': {'sha': tip}}}
         self.assertEqual(history.check(self.repo, 'main', 'pull_request', event), [])
         self.assertEqual(history.check(self.repo, 'main', squash=True), [])
         self.record(3, "unnecessary extra bump")

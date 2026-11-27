@@ -233,6 +233,7 @@ bool CvXMLLoadUtility::SetGlobalDefines()
 	#endif
 	// <!-- custom: SAS's XML file keeps its SAS_ namespace, but the installed EXE contains the inherited SAVE_VERSION key and BUG's GameUtil still reads that name.
 	// Derive this compatibility key from the single editable SAS_SAVE_VERSION after all modular overrides, before global caches are initialized; do not maintain two XML identity values. See KI#166.2. (GPT-6.1-Sol) -->
+	// <!-- custom: ci_define_uncached: read once, at XML load. (Claude code Opus 5.5) -->
 	GC.getDefinesVarSystem()->SetValue("SAVE_VERSION", GC.getDefineINT("SAS_SAVE_VERSION"));
 	GC.cacheGlobals();
 	// <!-- custom: Activate optional silent assertion handling only after every GlobalDefines/module override has had its final say; earlier startup failures keep the normal dialog and still log.

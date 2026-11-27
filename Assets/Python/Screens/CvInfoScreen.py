@@ -9,6 +9,8 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvUtil
 import ScreenInput
 import CvScreenEnums
@@ -52,6 +54,9 @@ localText = CyTranslator()
 class CvInfoScreen:
 	"Info Screen! Contains the Demographics, Wonders / Top Cities and Statistics Screens"
 
+	# <!-- custom: This advisor leaves the scoreboard the space getAdvisorScoreboardSpace gives, so the scoreboard shortens leader names to fit beside it; CvScreensInterface finds open advisors by this marker. (Claude code Opus 5.5) -->
+	SAS_LEAVES_SCOREBOARD_SPACE = True
+
 	def __init__(self, screenId):
 
 		# <advc.077> Settings for Demographics tab
@@ -87,7 +92,6 @@ class CvInfoScreen:
 		self.Z_HELP_AREA = self.Z_CONTROLS - 1
 
 		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
-		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
 		self.H_TOP_SPACE_FOR_TECH_BAR = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
 		self.H_BOTTOM_SPACE = SAS_ADVISOR_BOTTOM_SPACE
 
@@ -104,21 +108,21 @@ class CvInfoScreen:
 		self.PAGE_LINK_WIDTH = [] # game text is not available at the time this function is called, so we can't calculate the widths yet.
 		# K-Mod end
 
-		self.graphEnd		= CyGame().getGameTurn() - 1
-		self.graphZoom		= self.graphEnd - CyGame().getStartTurn()
-		self.nWidgetCount	= 0
-		self.nLineCount		= 0
+		self.graphEnd = CyGame().getGameTurn() - 1
+		self.graphZoom = self.graphEnd - CyGame().getStartTurn()
+		self.nWidgetCount = 0
+		self.nLineCount = 0
 
 		# This is used to allow the wonders screen to refresh without redrawing everything
 		self.iNumWondersPermanentWidgets = 0
 
 		# <!-- custom: Score Tab ID insertion; all later tab IDs shift by +1. (GPT-5.3-Codex) -->
-		self.iGraphID			= 0
-		self.iScoreID			= 1
-		self.iTimelineID		= 2
-		self.iDemographicsID	= 3
-		self.iTopCitiesID		= 4
-		self.iStatsID			= 5
+		self.iGraphID = 0
+		self.iScoreID = 1
+		self.iTimelineID = 2
+		self.iDemographicsID = 3
+		self.iTopCitiesID = 4
+		self.iStatsID = 5
 
 		# <!-- custom: move screen-independent Info Screen layout constants to init; updateRuntimeLayout now focuses on runtime-dependent geometry. (GPT-5.3-Codex) -->
 		# <!-- custom: X/Y margins are screen-independent constants set in init. (GPT-5.3-Codex) -->
@@ -234,22 +238,24 @@ class CvInfoScreen:
 		self.iGraph_Smoothing_7in1 = -1
 		self.iGraph_Smoothing_3in1 = -1
 
-		self.TOTAL_SCORE	= 0
-		self.ECONOMY_SCORE	= 1
-		self.INDUSTRY_SCORE	= 2
-		self.AGRICULTURE_SCORE	= 3
-		self.POWER_SCORE	= 4
-		self.CULTURE_SCORE	= 5
-		self.ESPIONAGE_SCORE	= 6
-		self.NUM_SCORES		= 7
-		self.RANGE_SCORES	= range(self.NUM_SCORES)
+		self.TOTAL_SCORE = 0
+		self.ECONOMY_SCORE = 1
+		self.INDUSTRY_SCORE = 2
+		self.AGRICULTURE_SCORE = 3
+		self.POWER_SCORE = 4
+		self.CULTURE_SCORE = 5
+		self.ESPIONAGE_SCORE = 6
+		self.NUM_SCORES = 7
+		self.RANGE_SCORES = range(self.NUM_SCORES)
 
-		self.scoreCache	= []
+		self.scoreCache = []
 		for t in self.RANGE_SCORES:
 			self.scoreCache.append(None)
 
 		# <!-- custom: Timeline tab cache - precompiled regex patterns for performance (Claude Opus 4.5) -->
 		self.RE_COLOR_OPEN = re.compile(r"<color=.*?>")
+		# <!-- custom: A Greatest Civilizations rank row, "3) An Unknown Civilization", for SAS_INFO_UI_TIMELINE_TOP_CIVS_ON. (Claude code Opus 5.5) -->
+		self.RE_TOP_CIVS_RANK = re.compile(r"^\d+\) ")
 		self.RE_COLOR_CLOSE = re.compile(r"</color>")
 
 		# <!-- custom: Timeline tab aggressive cache - instance vars instead of dict for speed (Claude Opus 4.5) -->
@@ -299,7 +305,7 @@ class CvInfoScreen:
 		self.EXIT_TEXT = SASTextScale.sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE
 
 		self.TEXT_THOUSANDS_SEPARATOR_COMMA = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR_COMMA", ())
-		self.TEXT_SHOW_ALL_PLAYERS =  localText.getText("TXT_KEY_SHOW_ALL_PLAYERS", ())
+		self.TEXT_SHOW_ALL_PLAYERS = localText.getText("TXT_KEY_SHOW_ALL_PLAYERS", ())
 		self.TEXT_SHOW_ALL_PLAYERS_GRAY = localText.getColorText("TXT_KEY_SHOW_ALL_PLAYERS", (), SASVisuals.Color.PLAYER_GRAY).upper()
 
 		self.TEXT_ENTIRE_TIMELINE = localText.getText("TXT_KEY_SAS_INFO_ENTIRE_TIMELINE", ())
@@ -353,10 +359,10 @@ class CvInfoScreen:
 		# <!-- custom: move these up from drawTextChart as we don't need to compute them every time if i'm not mistaken, and simplified into one variable (old code deleted). -->
 		# New: Append icons, and use different text keys for economy, industry, agriculture.
 		# Add measure after a colon (and commented out below)
-		self.szEconomyTitle =  localText.getText("TXT_KEY_DEMOGRAPHICS_ECONOMY_TEXT", ()) + (u" (%s+%s)" % (SASVisuals.Commerce.GOLD_CHAR, SASVisuals.Commerce.RESEARCH_CHAR)) + ": " + self.TEXT_ECONOMY_MEASURE
-		self.szIndustryTitle =  localText.getText("TXT_KEY_DEMOGRAPHICS_INDUSTRY_TEXT", ()) + (u" (%s)" % SASVisuals.Yield.PRODUCTION_CHAR) + ": " + self.TEXT_INDUSTRY_MEASURE
+		self.szEconomyTitle = localText.getText("TXT_KEY_DEMOGRAPHICS_ECONOMY_TEXT", ()) + (u" (%s+%s)" % (SASVisuals.Commerce.GOLD_CHAR, SASVisuals.Commerce.RESEARCH_CHAR)) + ": " + self.TEXT_ECONOMY_MEASURE
+		self.szIndustryTitle = localText.getText("TXT_KEY_DEMOGRAPHICS_INDUSTRY_TEXT", ()) + (u" (%s)" % SASVisuals.Yield.PRODUCTION_CHAR) + ": " + self.TEXT_INDUSTRY_MEASURE
 		self.szAgricultureTitle = localText.getText("TXT_KEY_DEMOGRAPHICS_AGRICULTURE_TEXT", ()) + (u" (%s)" % SASVisuals.Yield.FOOD_CHAR) + ": " + self.TEXT_AGRICULTURE_MEASURE
-		self.szMilitaryTitle =  self.TEXT_MILITARY + (u" (%s)" % SASVisuals.Font.STRENGTH_CHAR)
+		self.szMilitaryTitle = self.TEXT_MILITARY + (u" (%s)" % SASVisuals.Font.STRENGTH_CHAR)
 		self.szHappinessTitle = self.TEXT_HAPPINESS + (u" (%s)" % SASVisuals.Font.HAPPY_CHAR)
 		self.szHealthTitle = self.TEXT_HEALTH + (u" (%s)" % SASVisuals.Font.HEALTHY_CHAR) + ": " + self.TEXT_HEALTH_MEASURE
 		self.szExpTitle = self.TEXT_EXP + (u" (%s)" % SASVisuals.Font.TRADE_CHAR) + ": " + self.TEXT_EXP_MEASURE
@@ -448,10 +454,13 @@ class CvInfoScreen:
 		self.sCityWonders = BugUtil.getPlainText("TXT_KEY_WONDER_CITY")
 
 		# <!-- custom: not strictly for text but use this to compute cheaply our sas defines once -->
-		self.IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (gc.getDefineINT("SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON") > 0)
+		self.IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (SASCurrentDefines.getInt("SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON") > 0)
 		# <!-- custom: cache toggle; when disabled, timeline entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
-		self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON = (gc.getDefineINT("SAS_INFO_UI_TIMELINE_CACHE_ON") > 0)
-		self.SAS_INFO_UI_SCORE_MAX_RENDER_THRESH = gc.getDefineINT("SAS_INFO_UI_SCORE_MAX_RENDER_THRESH")
+		self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON = (SASCurrentDefines.getInt("SAS_INFO_UI_TIMELINE_CACHE_ON") > 0)
+		self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON = (SASCurrentDefines.getInt("SAS_INFO_UI_TIMELINE_TOP_CIVS_ON") > 0)
+		self.SAS_INFO_UI_SCORE_MAX_RENDER_THRESH = SASCurrentDefines.getInt("SAS_INFO_UI_SCORE_MAX_RENDER_THRESH")
+		self.iSAS_INFO_UI_GRAPH_X_GRID_LINES = SASCurrentDefines.getInt("SAS_INFO_UI_GRAPH_X_GRID_LINES")
+		self.iSAS_INFO_UI_GRAPH_Y_GRID_LINES = SASCurrentDefines.getInt("SAS_INFO_UI_GRAPH_Y_GRID_LINES")
 
 	def reset(self):
 
@@ -470,7 +479,7 @@ class CvInfoScreen:
 		self.iShowingPlayer = -1
 
 		for t in self.RANGE_SCORES:
-			self.scoreCache[t]	= None
+			self.scoreCache[t] = None
 
 	def resetWonders(self):
 
@@ -493,7 +502,7 @@ class CvInfoScreen:
 
 	def updateRuntimeLayout(self, screen):
 		# <!-- custom: compute Info Screen geometry at runtime from the current resolution; this matches Foreign Advisor's pattern and avoids stale init-time layout. (GPT-5.3-Codex) -->
-		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
+		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, getAdvisorScoreboardSpace(screen.getXResolution(), SASTextScale.getSASUIFontLabel()), self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, _ = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
 
@@ -734,6 +743,11 @@ class CvInfoScreen:
 
 		screen = self.getScreen()
 		if screen.isActive():
+			# <!-- custom: The scoreboard stays clickable beside Info.
+			# Its power-ratio click must reach Score even when another Info tab is already open. (GPT-6.2-Sol) -->
+			if 0 < iTabID < len(self.PAGE_NAME_LIST) and iTabID != self.iActiveTab:
+				self.iActiveTab = iTabID
+				self.redrawContents()
 			return
 		self.updateRuntimeLayout(screen)
 		self.initText()
@@ -804,11 +818,14 @@ class CvInfoScreen:
 		self.iNumPermanentWidgets = self.nWidgetCount
 
 		# Reset variables
-		self.graphEnd	= CyGame().getGameTurn() - 1
-		self.graphZoom	= self.graphEnd - CyGame().getStartTurn()
+		self.graphEnd = CyGame().getGameTurn() - 1
+		self.graphZoom = self.graphEnd - CyGame().getStartTurn()
 
 #		self.iActiveTab = iTabID
-		if self.iActiveTab == -1 or self.iActiveTab >= len(self.PAGE_NAME_LIST):
+		# <!-- custom: The Info key passes 0 and opens the tab last shown, as before; a positive ID opens that tab, as the scoreboard's power ratio asks for the Score tab (CvDLLWidgetData's WIDGET_POWER_RATIO). (Claude code Opus 5.5) -->
+		if 0 < iTabID < len(self.PAGE_NAME_LIST):
+			self.iActiveTab = iTabID
+		elif self.iActiveTab == -1 or self.iActiveTab >= len(self.PAGE_NAME_LIST):
 			self.iActiveTab = self.iGraphID
 
 		if (self.iNumPlayersMet > 1):
@@ -936,8 +953,24 @@ class CvInfoScreen:
 		# <!-- custom: The Timeline entries from the perspective of self.iActivePlayer / iActiveTeam / bRevealAll, newest first, as (turn, date, uncoloured text, colour, replay player, message type, player met, public announcement) tuples.
 		# A public announcement is a religion or corporation founding or a world wonder, reworded to its faraway-land text where the tab does so; the player is the replay's own, so a caller must not name an unmet one. (Claude code Opus 5.5) -->
 		records = []
-		if replayInfo.getNumReplayMessages() <= 0:
+		# <!-- custom: Read here: the 2026-11-20 merge of main brought main's Greatest Civilizations filter, written inside buildTimelineCache where iNumMessages is defined, into this method, twice, and pressing the Timeline tab raised "global name 'iNumMessages' is not defined" (found by SASPilotUISweep.py). See KI#1101. (Claude code Opus 5.5) -->
+		iNumMessages = replayInfo.getNumReplayMessages()
+		if iNumMessages <= 0:
 			return records
+
+		# <!-- custom: SAS_INFO_UI_TIMELINE_TOP_CIVS_ON 0 hides the Greatest Civilizations rankings (CvTopCivs.py): each title row and the rank rows written just before it in the same turn by the same player, as SASPilot's 'topcivs' groups them.
+		# The title is matched in the current language, so rows saved in another language stay listed; a known limit kept for simplicity, as SAS adds English text only (Codex's review, 2026-11-19). (Claude code Opus 5.5) -->
+		dHiddenMessages = {}
+		if not self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON:
+			szTopCivsTitle = localText.getText("TXT_KEY_TOPCIVS_TITLE", ())
+			for iMessage in range(iNumMessages):
+				if not replayInfo.getReplayMessageText(iMessage).startswith(szTopCivsTitle):
+					continue
+				dHiddenMessages[iMessage] = True
+				iRow = iMessage - 1
+				while iRow >= 0 and replayInfo.getReplayMessageTurn(iRow) == replayInfo.getReplayMessageTurn(iMessage) and replayInfo.getReplayMessagePlayer(iRow) == replayInfo.getReplayMessagePlayer(iMessage) and self.RE_TOP_CIVS_RANK.match(replayInfo.getReplayMessageText(iRow)):
+					dHiddenMessages[iRow] = True
+					iRow -= 1
 
 		# Build unknown colors dict once
 		dUnknownColors = {}
@@ -964,7 +997,10 @@ class CvInfoScreen:
 			aReligionFoundingTexts = self.getReligionFoundingTimelineTexts()
 
 		# Iterate backwards (newest first) so no reverse needed later
-		for iMessage in range(replayInfo.getNumReplayMessages() - 1, -1, -1):
+		for iMessage in range(iNumMessages - 1, -1, -1):
+			# <!-- custom: Skip the Greatest Civilizations rows dHiddenMessages marks above, when SAS_INFO_UI_TIMELINE_TOP_CIVS_ON is 0. (Claude code Opus 5.5) -->
+			if dHiddenMessages.has_key(iMessage):
+				continue
 			iPlayer = replayInfo.getReplayMessagePlayer(iMessage)
 			iX = replayInfo.getReplayMessagePlotX(iMessage)
 			iY = replayInfo.getReplayMessagePlotY(iMessage)
@@ -1203,7 +1239,7 @@ class CvInfoScreen:
 		iAttW = iMinColW + 2
 		iAttNumW = iMinColW + 2
 		iColorW = iMinColW
-		# <!-- custom: avoid shriking ID below the normal compact column minimum: double-digit player IDs clip in the Civ4 table widget, e.g. "10" or "11" drawing as "1." or "1" (when font upscaled) with iPidW = iMinColW (42) - 10. (ChatGPT-5.5) -->
+		# <!-- custom: avoid shrinking ID below the normal compact column minimum: double-digit player IDs clip in the Civ4 table widget, e.g. "10" or "11" drawing as "1." or "1" (when font upscaled) with iPidW = iMinColW (42) - 10. (ChatGPT-5.5) -->
 		iPidW = iMinColW
 		iResearchPctW = iPidW
 		# <!-- custom: keep Tech width equal to '%' width because both are compact progress/count metrics and are near each other, so matched width reads cleaner; Tech is fine as 2-digit like '%' in AdvCiv-SAS (no 3-digit tech counts expected). (GPT-5.3-Codex) -->
@@ -1354,19 +1390,18 @@ class CvInfoScreen:
 					elif iTrait2 < 0:
 						iTrait2 = iTraitLoop
 						break
-			szTrait1 = u""
-			szTrait2 = u""
-			if iTrait1 > -1:
-				szTrait1 = SASVisuals.Trait.getIcon(iTrait1)
-			if iTrait2 > -1:
-				szTrait2 = SASVisuals.Trait.getIcon(iTrait2)
-			SASTextScale.setTableTextLabel(screen, szTable, iColTrait1, iRow, szTrait1, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-			SASTextScale.setTableTextLabel(screen, szTable, iColTrait2, iRow, szTrait2, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			# <!-- custom: The trait, research and state religion icons had no hover; they now hover and open their Sevopedia page, as the Sevopedia charts' icons do. (Claude code Opus 5.5) -->
+			for (iColTrait, iTrait) in ((iColTrait1, iTrait1), (iColTrait2, iTrait2)):
+				if iTrait > -1:
+					SASTextScale.setTableTextLabel(screen, szTable, iColTrait, iRow, SASVisuals.Trait.getIcon(iTrait), "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_TRAIT, iTrait, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				else:
+					SASTextScale.setTableTextLabel(screen, szTable, iColTrait, iRow, u"", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 			iScore = game.getPlayerScore(ePlayer)
-			eScoreWidget = WidgetTypes.WIDGET_GENERAL
 			if ePlayer == eActivePlayer:
 				eScoreWidget = WidgetTypes.WIDGET_SCORE_BREAKDOWN
+			else:
+				eScoreWidget = WidgetTypes.WIDGET_GENERAL
 			# <!-- custom: data2=-1 preserves the active-player score breakdown without triggering the scoreboard-only data2=0 expansion control. See KI#388. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			# <!-- custom: Score-tab sort fix: Civ4 table sorting is type-aware, and values inserted with setTableText sort lexicographically (e.g. "96" before "413"), which broke PoT/C and other numeric columns.
 			# Use setTableInt for numeric fields so ordering is truly numeric, while still keeping setTableText fallbacks where values are unknown/hidden so blanks remain blank instead of fake defaults. (GPT-5.3-Codex) -->
@@ -1493,7 +1528,12 @@ class CvInfoScreen:
 						iProgressPct = max(0, min(99, iProgressPct))
 						szResearchPct = str(iProgressPct)
 			SASTextScale.setTableIntLabel(screen, szTable, iColTechs, iRow, str(teamTechCounts[eTeam]), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
-			SASTextScale.setTableTextLabel(screen, szTable, iColResearch, iRow, getAdvisorIconSortKey(iResearchSortGroup, iRow), szResearchButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			# <!-- custom: data2 is 1, not 0: the DLL's advc.085 hook expands the scoreboard for a tech widget with data2 0. (Claude code Opus 5.5) -->
+			if szResearchButton:
+				eResearchWidget = WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH
+			else:
+				eResearchWidget = WidgetTypes.WIDGET_GENERAL
+			SASTextScale.setTableTextLabel(screen, szTable, iColResearch, iRow, getAdvisorIconSortKey(iResearchSortGroup, iRow), szResearchButton, eResearchWidget, eCurrentResearch, 1, CvUtil.FONT_CENTER_JUSTIFY)
 			if iProgressPct > -1:
 				SASTextScale.setTableIntLabel(screen, szTable, iColResearchPct, iRow, str(iProgressPct), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 			else:
@@ -1519,14 +1559,15 @@ class CvInfoScreen:
 				szPact = SASVisuals.Font.DEFENSIVE_PACT_CHAR
 			SASTextScale.setTableTextLabel(screen, szTable, iColPact, iRow, szPact, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
-			szReligion = u""
 			eStateReligion = pPlayer.getStateReligion()
 			if bMet and eStateReligion != -1:
 				if pPlayer.hasHolyCity(eStateReligion):
 					szReligion = SASVisuals.Religion.holyCityChar(eStateReligion)
 				else:
 					szReligion = SASVisuals.Religion.char(eStateReligion)
-			SASTextScale.setTableTextLabel(screen, szTable, iColReligion, iRow, szReligion, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				SASTextScale.setTableTextLabel(screen, szTable, iColReligion, iRow, szReligion, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, eStateReligion, 1, CvUtil.FONT_CENTER_JUSTIFY)
+			else:
+				SASTextScale.setTableTextLabel(screen, szTable, iColReligion, iRow, u"", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 			# <!-- custom: note: textual attitude icon chars used to disappear when text was upscaled (label 3/4) while displaying fine at label 2 or lower; fixed by adding attitude glyph coverage in GameFont.tga (they had only existed in GameFont_75.tga). See KI#117. (Claude code Opus 4.6 + GPT-5.3-Codex) -->
 			szAttitude = u""
@@ -1542,10 +1583,12 @@ class CvInfoScreen:
 				if iAttColor >= 0:
 					szAttitudeNum = localText.changeTextColor(szAttitudeNum, iAttColor)
 				bHasAttitudeNum = True
-			SASTextScale.setTableTextLabel(screen, szTable, iColAttitude, iRow, szAttitude, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			# <!-- custom: The attitude cells had no hover or click; they now show the Glance tab's attitude breakdown (WIDGET_LEADERHEAD_RELATIONS: this player's attitude toward the perspective player), and handleInput opens that Glance tab on a click (the user, 2026-11-21). (Claude code Opus 5.5) -->
 			if bHasAttitudeNum:
-				SASTextScale.setTableIntLabel(screen, szTable, iColAttitudeNum, iRow, szAttitudeNum, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+				SASTextScale.setTableTextLabel(screen, szTable, iColAttitude, iRow, szAttitude, "", WidgetTypes.WIDGET_LEADERHEAD_RELATIONS, ePlayer, eActivePlayer, CvUtil.FONT_CENTER_JUSTIFY)
+				SASTextScale.setTableIntLabel(screen, szTable, iColAttitudeNum, iRow, szAttitudeNum, "", WidgetTypes.WIDGET_LEADERHEAD_RELATIONS, ePlayer, eActivePlayer, CvUtil.FONT_RIGHT_JUSTIFY)
 			else:
+				SASTextScale.setTableTextLabel(screen, szTable, iColAttitude, iRow, u"", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 				SASTextScale.setTableTextLabel(screen, szTable, iColAttitudeNum, iRow, szAttitudeNum, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 
 			szWontTalk = u""
@@ -1714,7 +1757,7 @@ class CvInfoScreen:
 			last += 50
 
 		if AdvisorOpt.isGraphs():
-			screen.setText(self.sGraph1in1, "", "1/1", CvUtil.FONT_CENTER_JUSTIFY, 22,  90, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setText(self.sGraph1in1, "", "1/1", CvUtil.FONT_CENTER_JUSTIFY, 22, 90, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 			screen.setText(self.sGraph3in1, "", "3/1", CvUtil.FONT_CENTER_JUSTIFY, 22, 110, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 			screen.setText(self.sGraph7in1, "", "7/1", CvUtil.FONT_CENTER_JUSTIFY, 22, 130, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 			screen.setLabel(self.getNextWidgetName(), "", self.BUG_GRAPH_HELP, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_EXIT - 40, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
@@ -1775,9 +1818,9 @@ class CvInfoScreen:
 				self.scoreCache[scoreType].append(None)
 			else:
 				self.scoreCache[scoreType].append([])
-				firstTurn	= CyGame().getStartTurn()
-				thisTurn	= CyGame().getGameTurn()
-				turn	= firstTurn
+				firstTurn = CyGame().getStartTurn()
+				thisTurn = CyGame().getGameTurn()
+				turn = firstTurn
 				# advc.091:
 				bHideBeginning = (scoreType == self.TOTAL_SCORE and not self.pActivePlayer.hasEverSeenDemographics(p) and p in self.aiPlayersMetNAEspionage)
 				while (turn <= thisTurn):
@@ -2013,7 +2056,7 @@ class CvInfoScreen:
 
 		# Draw x-labels
 		self.drawXLabel(screen, firstTurn, iX_LEFT_LABEL, CvUtil.FONT_LEFT_JUSTIFY)
-		self.drawXLabel(screen, lastTurn,  self.X_RIGHT_LABEL, CvUtil.FONT_RIGHT_JUSTIFY)
+		self.drawXLabel(screen, lastTurn, self.X_RIGHT_LABEL, CvUtil.FONT_RIGHT_JUSTIFY)
 
 		# Don't draw anything the first turn
 		if (firstTurn >= lastTurn):
@@ -2056,6 +2099,9 @@ class CvInfoScreen:
 				self.drawXLabel ( screen, turn, iX_GRAPH + int(xFactor * (turn - firstTurn)) )
 				turn = firstTurn + 3 * (lastTurn - firstTurn) / 4
 				self.drawXLabel ( screen, turn, iX_GRAPH + int(xFactor * (turn - firstTurn)) )
+
+		# <!-- custom: The gridlines and their year and value labels, drawn before the players' lines; see drawGraphGrid. (Claude code Opus 5.5) -->
+		self.drawGraphGrid(screen, zsGRAPH_CANVAS_ID, iX_GRAPH, iY_GRAPH, iW_GRAPH, iH_GRAPH, firstTurn, lastTurn, xFactor, yFactor, min, max)
 
 #		self.timer.log("drawGraph - max, min")
 #		self.timer.start()
@@ -2184,7 +2230,8 @@ class CvInfoScreen:
 		if iW_LEGEND > iLegendMaxW:
 			iW_LEGEND = iLegendMaxW
 		# <!-- custom: cap row height at runtime so the legend fits between dropdown controls and graph bottom with any number of players.
-		# H_LEGEND_TEXT is the preferred height; shrink only when needed. (Claude code Sonnet 4.6) -->
+		# H_LEGEND_TEXT is the preferred height; shrink only when needed.
+		# Base AdvCiv's legend of 48 civilizations ran up over the title and the dropdowns, while this one fits. See KI#134.3. (Claude code Sonnet 4.6 + Claude code Opus 5.5) -->
 		if AdvisorOpt.isGraphs():
 			iExtraRows = 4
 		else:
@@ -2256,10 +2303,11 @@ class CvInfoScreen:
 			szNameWithLeader = SASTextScale.sasFontTagLabel + (u"%s %s" % (szLeaderImg, strColor)) + SASTextScale.SAS_FONT_TAG_CLOSE
 
 #BUG: Change Graphs - start
-			if AdvisorOpt.isGraphs():
-				screen.setText(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + iXLegendText, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			else:
-				screen.setLabel(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + iXLegendText, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			# <!-- custom: The legend's leaders had no hover or Sevopedia link (screenshot Civ4ScreenShot0124), but a click on a name toggles its graph line, so a Sevopedia widget would have opened the Sevopedia on that click too.
+			# WIDGET_HELP_LEADER_HEAD gives the scoreboard's leader hover and opens the Sevopedia on a Ctrl+click only, leaving the plain click to the toggle (the user, 2026-11-20).
+			# A right click, tried first, reaches neither the DLL nor this screen on a text widget (SASPilot's uiprobe).
+			# Without BUG's graphs option the names were labels, which take no click, so the toggle was BUG's only; they are now text there too, for the Ctrl+click, and a plain click does nothing, as before. (Claude code Opus 5.5) -->
+			screen.setText(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + iXLegendText, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_HELP_LEADER_HEAD, p, -1)
 #BUG: Change Graphs - end
 
 			yLine += iRowH
@@ -2447,6 +2495,17 @@ class CvInfoScreen:
 				return gc.getLeaderHeadInfo(player.getLeaderType()).getButton()
 		return ""
 
+	# <!-- custom: The best/worst leader names had no hover or link, unlike the Score tab's; a cell showing the leader's button now opens their Sevopedia page.
+	# Cells hiding an unmet leader keep no button and stay inert. (Claude code Opus 5.5) -->
+	def setPlayerCell(self, screen, szTable, iCol, iRow, valuePlayerPair, aiGroup, iFont):
+		szButton = self.getPlayerButton(valuePlayerPair, aiGroup)
+		szText = self.getPlayerStr(valuePlayerPair, aiGroup)
+		if szButton:
+			player = gc.getPlayer(valuePlayerPair[1])
+			SASTextScale.setTableTextLabel(screen, szTable, iCol, iRow, szText, szButton, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, player.getLeaderType(), player.getCivilizationType(), iFont)
+		else:
+			SASTextScale.setTableTextLabel(screen, szTable, iCol, iRow, szText, szButton, WidgetTypes.WIDGET_GENERAL, -1, -1, iFont)
+
 	def getValueStr(self, valuePlayerPair, szMeasure = ""):
 		return self.getPlayerValueStr(valuePlayerPair, szMeasure)[1]
 
@@ -2612,28 +2671,28 @@ class CvInfoScreen:
 		bShowBest = (not self.bShowBestKnown or self.bRevealAll or iKnownRivalDemogr > 0)
 		if bShowBest:
 			# Removed 'i' prefix from variables b/c they're pairs now
-			economyGameBest	= self.getBest(aiGroupEconomy)
-			industryGameBest	= self.getBest(aiGroupIndustry)
-			agricultureGameBest	= self.getBest(aiGroupAgriculture)
-			militaryGameBest	= self.getBest(aiGroupMilitary)
-			landAreaGameBest	= self.getBest(aiGroupLandArea)
-			populationGameBest	= self.getBest(aiGroupPopulation)
-			happinessGameBest	= self.getBest(aiGroupHappiness)
-			healthGameBest		= self.getBest(aiGroupHealth)
-			netTradeGameBest	= self.getBest(aiGroupNetTrade)
+			economyGameBest = self.getBest(aiGroupEconomy)
+			industryGameBest = self.getBest(aiGroupIndustry)
+			agricultureGameBest = self.getBest(aiGroupAgriculture)
+			militaryGameBest = self.getBest(aiGroupMilitary)
+			landAreaGameBest = self.getBest(aiGroupLandArea)
+			populationGameBest = self.getBest(aiGroupPopulation)
+			happinessGameBest = self.getBest(aiGroupHappiness)
+			healthGameBest = self.getBest(aiGroupHealth)
+			netTradeGameBest = self.getBest(aiGroupNetTrade)
 		#else: # Will show the column header in any case
 		#	iColumns -= 1
 		bShowWorst = (((not self.bShowBestKnown or self.bRevealAll) and iActiveRivals > 1) or iKnownRivalDemogr > 1)
 		if bShowWorst:
-			economyGameWorst	= self.getWorst(aiGroupEconomy)
-			industryGameWorst	= self.getWorst(aiGroupIndustry)
-			agricultureGameWorst	= self.getWorst(aiGroupAgriculture)
-			militaryGameWorst	= self.getWorst(aiGroupMilitary)
-			landAreaGameWorst	= self.getWorst(aiGroupLandArea)
-			populationGameWorst	= self.getWorst(aiGroupPopulation)
-			happinessGameWorst	= self.getWorst(aiGroupHappiness)
-			healthGameWorst	= self.getWorst(aiGroupHealth)
-			netTradeGameWorst	= self.getWorst(aiGroupNetTrade)
+			economyGameWorst = self.getWorst(aiGroupEconomy)
+			industryGameWorst = self.getWorst(aiGroupIndustry)
+			agricultureGameWorst = self.getWorst(aiGroupAgriculture)
+			militaryGameWorst = self.getWorst(aiGroupMilitary)
+			landAreaGameWorst = self.getWorst(aiGroupLandArea)
+			populationGameWorst = self.getWorst(aiGroupPopulation)
+			happinessGameWorst = self.getWorst(aiGroupHappiness)
+			healthGameWorst = self.getWorst(aiGroupHealth)
+			netTradeGameWorst = self.getWorst(aiGroupNetTrade)
 		else:
 			iColumns -= 1
 		bShowAvg = (iActiveRivals > 3)
@@ -2786,33 +2845,33 @@ class CvInfoScreen:
 		#iCol = 2
 		if bShowBest:
 			# Replaced str(i...GameBest) with getPlayerStr and getValueStr, and put them in separate rows.
-			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 1, self.getPlayerStr(economyGameBest, aiGroupEconomy), self.getPlayerButton(economyGameBest, aiGroupEconomy), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			self.setPlayerCell(screen, szTable, iBestCol, 1, economyGameBest, aiGroupEconomy, chartRowFont)
 			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 0, self.getValueStr(economyGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 4, self.getPlayerStr(industryGameBest, aiGroupIndustry), self.getPlayerButton(industryGameBest, aiGroupIndustry), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			self.setPlayerCell(screen, szTable, iBestCol, 4, industryGameBest, aiGroupIndustry, chartRowFont)
 			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 3, self.getValueStr(industryGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 7, self.getPlayerStr(agricultureGameBest, aiGroupAgriculture), self.getPlayerButton(agricultureGameBest, aiGroupAgriculture), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			self.setPlayerCell(screen, szTable, iBestCol, 7, agricultureGameBest, aiGroupAgriculture, chartRowFont)
 			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 6, self.getValueStr(agricultureGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 10, self.getPlayerStr(militaryGameBest, aiGroupMilitary), self.getPlayerButton(militaryGameBest, aiGroupMilitary), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			self.setPlayerCell(screen, szTable, iBestCol, 10, militaryGameBest, aiGroupMilitary, chartRowFont)
 			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 9, self.getValueStr(militaryGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 12
-			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 13, self.getPlayerStr(landAreaGameBest, aiGroupLandArea), self.getPlayerButton(landAreaGameBest, aiGroupLandArea), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			self.setPlayerCell(screen, szTable, iBestCol, 13, landAreaGameBest, aiGroupLandArea, chartRowFont)
 			# row was 11
 			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 12, self.getValueStr(landAreaGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 15
-			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 16, self.getPlayerStr(populationGameBest, aiGroupPopulation), self.getPlayerButton(populationGameBest, aiGroupPopulation), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			self.setPlayerCell(screen, szTable, iBestCol, 16, populationGameBest, aiGroupPopulation, chartRowFont)
 			# row was 14
 			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 15, self.getValueStr(populationGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 17
-			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 19, self.getPlayerStr(happinessGameBest, aiGroupHappiness), self.getPlayerButton(happinessGameBest, aiGroupHappiness), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			self.setPlayerCell(screen, szTable, iBestCol, 19, happinessGameBest, aiGroupHappiness, chartRowFont)
 			# row was 16
 			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 18, self.getValueStr(happinessGameBest, self.TEXT_HAPPINESS_MEASURE), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 19
-			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 22, self.getPlayerStr(healthGameBest, aiGroupHealth), self.getPlayerButton(healthGameBest, aiGroupHealth), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			self.setPlayerCell(screen, szTable, iBestCol, 22, healthGameBest, aiGroupHealth, chartRowFont)
 			# row was 18
 			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 21, self.getValueStr(healthGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			if self.bShowExports:
 				# row was 22
-				SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 25, self.getPlayerStr(netTradeGameBest, aiGroupNetTrade), self.getPlayerButton(netTradeGameBest, aiGroupNetTrade), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+				self.setPlayerCell(screen, szTable, iBestCol, 25, netTradeGameBest, aiGroupNetTrade, chartRowFont)
 				SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 24, self.getValueStr(netTradeGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 
 		#iCol = 3
@@ -2837,33 +2896,33 @@ class CvInfoScreen:
 		#iCol = 4
 		if bShowWorst:
 			# Replaced str(i...GameWorst) with getPlayerStr and getValueStr, and put them in a separate rows.
-			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 1, self.getPlayerStr(economyGameWorst, aiGroupEconomy), self.getPlayerButton(economyGameWorst, aiGroupEconomy), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			self.setPlayerCell(screen, szTable, iWorstCol, 1, economyGameWorst, aiGroupEconomy, chartRowFont)
 			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 0, self.getValueStr(economyGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 4, self.getPlayerStr(industryGameWorst, aiGroupIndustry), self.getPlayerButton(industryGameWorst, aiGroupIndustry), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			self.setPlayerCell(screen, szTable, iWorstCol, 4, industryGameWorst, aiGroupIndustry, chartRowFont)
 			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 3, self.getValueStr(industryGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 7, self.getPlayerStr(agricultureGameWorst, aiGroupAgriculture), self.getPlayerButton(agricultureGameWorst, aiGroupAgriculture), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			self.setPlayerCell(screen, szTable, iWorstCol, 7, agricultureGameWorst, aiGroupAgriculture, chartRowFont)
 			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 6, self.getValueStr(agricultureGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 10, self.getPlayerStr(militaryGameWorst, aiGroupMilitary), self.getPlayerButton(militaryGameWorst, aiGroupMilitary), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			self.setPlayerCell(screen, szTable, iWorstCol, 10, militaryGameWorst, aiGroupMilitary, chartRowFont)
 			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 9, self.getValueStr(militaryGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 12
-			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 13, self.getPlayerStr(landAreaGameWorst, aiGroupLandArea), self.getPlayerButton(landAreaGameWorst, aiGroupLandArea), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			self.setPlayerCell(screen, szTable, iWorstCol, 13, landAreaGameWorst, aiGroupLandArea, chartRowFont)
 			# row was 11
 			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 12, self.getValueStr(landAreaGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 15
-			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 16, self.getPlayerStr(populationGameWorst, aiGroupPopulation), self.getPlayerButton(populationGameWorst, aiGroupPopulation), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			self.setPlayerCell(screen, szTable, iWorstCol, 16, populationGameWorst, aiGroupPopulation, chartRowFont)
 			# row was 14
 			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 15, self.getValueStr(populationGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 17
-			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 19, self.getPlayerStr(happinessGameWorst, aiGroupHappiness), self.getPlayerButton(happinessGameWorst, aiGroupHappiness), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			self.setPlayerCell(screen, szTable, iWorstCol, 19, happinessGameWorst, aiGroupHappiness, chartRowFont)
 			# row was 16
 			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 18, self.getValueStr(happinessGameWorst, self.TEXT_HAPPINESS_MEASURE), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 19
-			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 22, self.getPlayerStr(healthGameWorst, aiGroupHealth), self.getPlayerButton(healthGameWorst, aiGroupHealth), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			self.setPlayerCell(screen, szTable, iWorstCol, 22, healthGameWorst, aiGroupHealth, chartRowFont)
 			# row was 18
 			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 21, self.getValueStr(healthGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			if self.bShowExports:
 				# row was 22
-				SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 25, self.getPlayerStr(netTradeGameWorst, aiGroupNetTrade), self.getPlayerButton(netTradeGameWorst, aiGroupNetTrade), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+				self.setPlayerCell(screen, szTable, iWorstCol, 25, netTradeGameWorst, aiGroupNetTrade, chartRowFont)
 				# row was 21
 				SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 24, self.getValueStr(netTradeGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 
@@ -3146,9 +3205,9 @@ class CvInfoScreen:
 
 			sDesc = SASTextScale.sasFontTagTitle + sDesc + SASTextScale.SAS_FONT_TAG_CLOSE
 
-			screen.setImageButton(self.BUGWorldWonderWidget, sWW,  self.X_WONDERS_DROPDOWN +  0, self.Y_WONDERS_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_WORLD_WONDERS, -1, -1)
-			screen.setImageButton(self.BUGNatWonderWidget, sNW,  self.X_WONDERS_DROPDOWN + 30, self.Y_WONDERS_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_NATIONAL_WONDERS, -1, -1)
-			screen.setImageButton(self.BUGProjectWidget, sPj,  self.X_WONDERS_DROPDOWN + 60, self.Y_WONDERS_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_PROJECTS, -1, -1)
+			screen.setImageButton(self.BUGWorldWonderWidget, sWW, self.X_WONDERS_DROPDOWN + 0, self.Y_WONDERS_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_WORLD_WONDERS, -1, -1)
+			screen.setImageButton(self.BUGNatWonderWidget, sNW, self.X_WONDERS_DROPDOWN + 30, self.Y_WONDERS_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_NATIONAL_WONDERS, -1, -1)
+			screen.setImageButton(self.BUGProjectWidget, sPj, self.X_WONDERS_DROPDOWN + 60, self.Y_WONDERS_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_PROJECTS, -1, -1)
 
 			screen.setLabel(self.getNextWidgetName(), "Background", sDesc, CvUtil.FONT_LEFT_JUSTIFY, self.X_WONDERS_DROPDOWN + 100, self.Y_WONDERS_DROPDOWN + 3, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		else:
@@ -3205,7 +3264,7 @@ class CvInfoScreen:
 				szWonderCity = ""
 				self.aszWonderCity.append(szWonderCity)
 
-				SASTextScale.appendListBoxStringLabel(screen,  self.szWondersListBox, szProjectName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+				SASTextScale.appendListBoxStringLabel(screen, self.szWondersListBox, szProjectName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 			for iWonderLoop in range(self.iNumWonders):
 
@@ -3220,7 +3279,7 @@ class CvInfoScreen:
 				szWonderCity = self.aaWondersBuilt[iWonderLoop][3]
 				self.aszWonderCity.append(szWonderCity)
 
-				SASTextScale.appendListBoxStringLabel(screen,  self.szWondersListBox, szProjectName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+				SASTextScale.appendListBoxStringLabel(screen, self.szWondersListBox, szProjectName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		else:
 
@@ -3239,7 +3298,7 @@ class CvInfoScreen:
 				szWonderCity = ""
 				self.aszWonderCity.append(szWonderCity)
 
-				SASTextScale.appendListBoxStringLabel(screen,  self.szWondersListBox, szWonderName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+				SASTextScale.appendListBoxStringLabel(screen, self.szWondersListBox, szWonderName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 			for iWonderLoop in range(self.iNumWonders):
 
@@ -3254,7 +3313,7 @@ class CvInfoScreen:
 				szWonderCity = self.aaWondersBuilt[iWonderLoop][3]
 				self.aszWonderCity.append(szWonderCity)
 
-				SASTextScale.appendListBoxStringLabel(screen,  self.szWondersListBox, szWonderName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+				SASTextScale.appendListBoxStringLabel(screen, self.szWondersListBox, szWonderName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 	def drawWondersList(self):
 
@@ -3338,7 +3397,8 @@ class CvInfoScreen:
 				iIconX = self.X_PROJECT_ICON - self.W_PROJECT_ICON / 2
 				iIconY = self.Y_PROJECT_ICON - self.W_PROJECT_ICON / 2
 
-				screen.addDDSGFC(self.getNextWidgetName(), gc.getProjectInfo(self.iWonderID).getButton(), iIconX, iIconY, self.W_PROJECT_ICON, self.W_PROJECT_ICON, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				# <!-- custom: The project's icon had no hover; it now opens the project's Sevopedia page (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+				screen.addDDSGFC(self.getNextWidgetName(), gc.getProjectInfo(self.iWonderID).getButton(), iIconX, iIconY, self.W_PROJECT_ICON, self.W_PROJECT_ICON, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, self.iWonderID, 1 )
 
 				# Special Abilities ListBox
 				self.szSpecialTitleWidget = self.getNextWidgetName()
@@ -3356,7 +3416,7 @@ class CvInfoScreen:
 				splitText = szSpecialText.split("\n")
 				for special in splitText:
 					if len( special ) != 0:
-						SASTextScale.appendListBoxStringLabel(screen,  listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+						SASTextScale.appendListBoxStringLabel(screen, listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 			else:
 
@@ -3454,7 +3514,7 @@ class CvInfoScreen:
 				splitText = szSpecialText.split("\n")
 				for special in splitText:
 					if len( special ) != 0:
-						SASTextScale.appendListBoxStringLabel(screen,  listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+						SASTextScale.appendListBoxStringLabel(screen, listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 	def calculateWondersList(self):
 
@@ -3853,7 +3913,7 @@ class CvInfoScreen:
 			screen.appendTableRow(self.szWondersTable)
 			# if bKnown and bRevealed:
 			# 	SASTextScale.setTableTextLabel(screen, self.szWondersTable, 0, iWonderLoop+iWBB, "", zoomArt, WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
-			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 0, iWonderLoop+iWBB, ""            , pWonderInfo.getButton(), iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 0, iWonderLoop+iWBB, "" , pWonderInfo.getButton(), iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 1, iWonderLoop+iWBB, szWonderName, "", iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 2, iWonderLoop+iWBB, szTurnYearBuilt, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 3, iWonderLoop+iWBB, szWonderBuiltBy, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -3938,7 +3998,8 @@ class CvInfoScreen:
 		#player = gc.getPlayer(gc.getGame().getActivePlayer())
 		player = gc.getPlayer(self.iActivePlayer) # K-Mod
 		szLeaderWidget = self.getNextWidgetName()
-		screen.addLeaderheadGFC(szLeaderWidget, player.getLeaderType(), AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADER_ICON, self.Y_LEADER_ICON, self.W_LEADER_ICON, self.H_LEADER_ICON, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		# <!-- custom: The portrait had no hover; it now opens our leader's Sevopedia page, as the Score tab's leader cells do. (Claude code Opus 5.5) -->
+		screen.addLeaderheadGFC(szLeaderWidget, player.getLeaderType(), AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADER_ICON, self.Y_LEADER_ICON, self.W_LEADER_ICON, self.H_LEADER_ICON, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, player.getLeaderType(), player.getCivilizationType())
 
 		# Leader Name
 		self.szLeaderNameWidget = self.getNextWidgetName()
@@ -4153,6 +4214,81 @@ class CvInfoScreen:
 	def getLog10(self, x):
 		return math.log10(max(1,x))
 
+	# <!-- custom: The step of 1, 2 or 5 times a power of 10 that splits iRange into the number of parts closest to iLines, so gridlines fall on round values: 50, 100, 150 rather than 47, 94, 141.
+	# A first version took the smallest step giving at most iLines parts, which for scores up to 1,080 and 5 lines was 500, so only 2 lines showed; 200 gives 5 (2026-11-21). (Claude code Opus 5.5) -->
+	def getGraphGridStep(self, iRange, iLines):
+		iBestStep = 1
+		iPower = 1
+		while iPower <= iRange:
+			for iFactor in (1, 2, 5):
+				iStep = iPower * iFactor
+				if abs(iRange / iStep - iLines) < abs(iRange / iBestStep - iLines):
+					iBestStep = iStep
+			iPower *= 10
+		return iBestStep
+
+	# <!-- custom: The graphs had no gridlines, so a line's height read the same whether the top was 500 or 6,000, and a turn between the labels had to be guessed (the user, 2026-11-21, Civ4ScreenShot0165).
+	# Vertical lines fall on round turn numbers rather than years: the x axis is linear in turns, while years per turn change with the era, so round years would be unevenly spaced.
+	# Horizontal lines fall on round values, or on powers of 10 with BUG's log scale.
+	# SAS_INFO_UI_GRAPH_X_GRID_LINES and _Y_GRID_LINES give about how many of each; 0 turns that axis's off.
+	# Labels only on the one large graph, where they fit. (Claude code Opus 5.5) -->
+	def drawGraphGrid(self, screen, szCanvas, iX, iY, iW, iH, iFirstTurn, iLastTurn, fXFactor, fYFactor, iMinValue, iMaxValue):
+		bLabels = (not AdvisorOpt.isGraphs()) or self.Graph_Status_Current == self.Graph_Status_1in1
+		# <!-- custom: Grey rather than dark grey, which competed with the darker player lines (2026-11-21). (Claude code Opus 5.5) -->
+		eColor = SASVisuals.Color.GREY
+		iXLines = min(self.iSAS_INFO_UI_GRAPH_X_GRID_LINES, max(1, iW / 8))
+		iYLines = min(self.iSAS_INFO_UI_GRAPH_Y_GRID_LINES, max(1, iH / 8))
+		# <!-- custom: Keep the lines but omit labels that would collide.
+		# Use the rendered text width for turn labels and reserve a font-sized row for values and the top axis. (GPT-6.2-Sol) -->
+		iLabelHeight = max(20, 8 * SASTextScale.getSASUIFontLabel())
+		iTopLabelBand = 0
+		if iXLines > 0:
+			iStep = self.getGraphGridStep(iLastTurn - iFirstTurn, iXLines)
+			iTurn = (iFirstTurn / iStep + 1) * iStep
+			iNextLabelX = 0
+			while iTurn < iLastTurn:
+				x = int(fXFactor * (iTurn - iFirstTurn))
+				screen.addLineGFC(szCanvas, self.getNextLineName(), x, 0, x, iH, eColor)
+				if bLabels:
+					szLabel = SASTextScale.labelText(u"T%d" % iTurn)
+					# <!-- custom: The year under the turn, as the axis labels below show both (the user, 2026-11-21); the wider of the two decides whether the pair fits. (Claude code Opus 5.5) -->
+					szYear = SASTextScale.labelText(self.getTurnDate(iTurn))
+					iHalfWidth = (max(CyInterface().determineWidth(szLabel), CyInterface().determineWidth(szYear)) + 1) / 2
+					if x - iHalfWidth >= iNextLabelX and x + iHalfWidth <= iW:
+						screen.setLabel(self.getNextWidgetName(), "", szLabel, CvUtil.FONT_CENTER_JUSTIFY, iX + x, iY + 2, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+						screen.setLabel(self.getNextWidgetName(), "", szYear, CvUtil.FONT_CENTER_JUSTIFY, iX + x, iY + 2 + iLabelHeight, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+						iNextLabelX = x + iHalfWidth + 4
+						iTopLabelBand = 2 + 2 * iLabelHeight
+				iTurn += iStep
+		if iYLines > 0:
+			aiValues = []
+			bLogScale = AdvisorOpt.isGraphsLogScale()
+			if bLogScale:
+				iValue = 10
+				while iValue < iMaxValue:
+					if iValue > iMinValue:
+						aiValues.append(iValue)
+					iValue *= 10
+				iStride = max(1, (len(aiValues) + iYLines - 1) / iYLines)
+				aiValues = aiValues[::iStride]
+			else:
+				iStep = self.getGraphGridStep(iMaxValue - iMinValue, iYLines)
+				iValue = (iMinValue / iStep + 1) * iStep
+				while iValue < iMaxValue:
+					aiValues.append(iValue)
+					iValue += iStep
+			iNextLabelBottom = iH
+			for iValue in aiValues:
+				if bLogScale:
+					y = iH - int(fYFactor * (self.getLog10(iValue) - self.getLog10(iMinValue)))
+				else:
+					y = iH - int(fYFactor * (iValue - iMinValue))
+				screen.addLineGFC(szCanvas, self.getNextLineName(), 0, y, iW, y, eColor)
+				iLabelTop = y - iLabelHeight
+				if bLabels and iLabelTop >= iTopLabelBand and y <= iNextLabelBottom:
+					screen.setLabel(self.getNextWidgetName(), "", SASTextScale.labelText(unicode(iValue)), CvUtil.FONT_LEFT_JUSTIFY, iX + 4, iY + iLabelTop, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					iNextLabelBottom = iLabelTop - 2
+
 	def getTurnDate(self,turn):
 
 		year = CyGame().getTurnYear(turn)
@@ -4214,12 +4350,13 @@ class CvInfoScreen:
 		szWidgetName = inputClass.getFunctionName() + str(inputClass.getID())
 		code = inputClass.getNotifyCode()
 
-		# Exit
-		if ( szWidgetName == self.szExitButtonName and code == NotifyCode.NOTIFY_CLICKED \
-				or inputClass.getData() == int(InputTypes.KB_RETURN) ):
-			# Reset Wonders so nothing lingers next time the screen is opened
-			self.resetWonders()
+		# <!-- custom: A table selection sends its row number in getData(), which can equal KB_RETURN.
+		# Only a keyboard notification can use Enter to close Info. (GPT-6.2-Sol) -->
+		if (szWidgetName == self.szExitButtonName and code == NotifyCode.NOTIFY_CLICKED or
+				code == NotifyCode.NOTIFY_CHARACTER and inputClass.getData() == int(InputTypes.KB_RETURN)):
+			self.resetWonders() # Reset Wonders so nothing lingers next time the screen is opened
 			screen.hideScreen()
+			return 1
 
 		# Slide graph
 		if (szWidgetName == self.graphLeftButtonID and code == NotifyCode.NOTIFY_CLICKED):
@@ -4230,13 +4367,23 @@ class CvInfoScreen:
 			self.slideGraph(2 * self.graphZoom / 5)
 			self.drawGraphs()
 
+		# <!-- custom: The Score tab's attitude cells open the Foreign Advisor's Glance tab, which shows every attitude pair; its attitude cells open this Score tab back.
+		# A click on a table cell arrives as NOTIFY_LISTBOX_ITEM_SELECTED, with the cell's widget and the column as getMouseX(), not as NOTIFY_CLICKED, which the first version tested and so never caught (uiprobe of a real click, 2026-11-21). (Claude code Opus 5.5) -->
+		if (code == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED and self.iActiveTab == self.iScoreID and
+				inputClass.getButtonType() == WidgetTypes.WIDGET_LEADERHEAD_RELATIONS and not (inputClass.getFlags() & MouseFlags.MOUSE_RBUTTONUP)):
+			import CvScreensInterface
+			screen.hideScreen()
+			CvScreensInterface.showForeignAdvisorScreen([CvScreensInterface.foreignDiplomacyAdvisor.SCREEN_DICT["GLANCE"]])
+			return 1
+
 		BugUtil.debug("A:" + szShortWidgetName)
 
 		# Dropdown Box/ ListBox
 		if (code == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED):
 
-			# Debug dropdown
-			if (inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID):
+			# <!-- custom: With no debug dropdown its ID is empty, which is also what the EXE sends for table cells.
+			# Only resolve a perspective for a real dropdown. (GPT-6.2-Sol) -->
+			if self.DEBUG_DROPDOWN_ID and inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID:
 				self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(screen, self.DEBUG_DROPDOWN_ID)
 				self.reset() # advc.001d
 				self.pActivePlayer = gc.getPlayer(self.iActivePlayer)
@@ -4387,8 +4534,9 @@ class CvInfoScreen:
 					self.Graph_Status_Prior = self.Graph_Status_Current
 					self.drawGraphs()
 
+				# <!-- custom: A Ctrl+click on a legend name opens the leader's Sevopedia page instead (WIDGET_HELP_LEADER_HEAD), so it leaves the line as it is. (Claude code Opus 5.5) -->
 				for i in range(gc.getMAX_CIV_PLAYERS()):
-					if szWidgetName == self.sPlayerTextWidget[i]:
+					if szWidgetName == self.sPlayerTextWidget[i] and not inputClass.isCtrlKeyDown():
 						self.bPlayerInclude[i] = not self.bPlayerInclude[i]
 						self.drawGraphs()
 						break

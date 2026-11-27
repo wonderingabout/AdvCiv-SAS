@@ -4,7 +4,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: changes here are minor (e.g. collapsed multiline statements to single-line for grep/readability such as ctors/__str__/_calc* calls/__init__ param-doc signatures, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+# <!-- custom: changes here are minor (e.g. collapsed multiline statements to single-line for grep/readability such as ctors/__str__/_calc* calls/__init__ param-doc signatures, and similar low-risk consistency tweaks). See KI#21.7. (Claude code Opus 4.7) -->
 
 # (Not naming this "Point2D" to avoid potential clashes with other modules)
 class PointLayout:
@@ -34,7 +34,7 @@ class RectLayout(object):
 	_RESERVED_CONST = 10000
 	_ALIGN_CENTER = _RESERVED_CONST
 	_ALIGN_OPPOSITE = _RESERVED_CONST + 1
-	_MAX_LENGTH =  2 * _RESERVED_CONST
+	_MAX_LENGTH = 2 * _RESERVED_CONST
 
 	LEFT = 0
 	TOP = 0

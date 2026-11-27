@@ -203,7 +203,14 @@
       ["Ctrl + Shift + F", "Hide debug overlay text (after opening Debug Menu)"],
       ["Shift + 4", "Increase gold by +1000"],
       ["Shift + +", "Add +1 population to selected city"],
-      ["Ctrl + Shift + Left Click", "Insert popup (place unit/city on clicked plot)"]
+      ["Ctrl + Shift + Left Click", "Insert popup (place unit/city on clicked plot)"],
+      ["Shift + F1", "Replay screen"],
+      ["Shift + F2", "Debug Info screen (team relations, attitudes, civics, AI types, bonuses, map areas)"],
+      ["Shift + F3", "Dan Quayle screen (rank among historical leaders)"],
+      ["Shift + F4", "UN Victory screen"],
+      ["Ctrl + Shift + F1", "Game font display (every game font glyph)"],
+      ["Shift + [", "Hovered unit: 10 more damage"],
+      ["Shift + ]", "Hovered unit: 10 less damage"]
     ]
   },
   "screens": {

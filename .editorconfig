@@ -1,0 +1,9 @@
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: Runtime Python aligns table columns with tabs, which line up only at the tab width they were laid out with, so it is pinned at 4 for editors and GitHub's file view; python_aligned_columns.py --fix uses the same width. See KI#21.8. (Claude code Opus 5.5) -->
+root = true
+
+[{Assets/Python,PrivateMaps}/**.py]
+indent_style = tab
+tab_width = 4

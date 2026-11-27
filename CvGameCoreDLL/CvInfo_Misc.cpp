@@ -1193,7 +1193,7 @@ bool CvGameText::read(CvXMLLoadUtility* pXML, const std::string& language_name)
 		int iNumLanguages = getNumLanguages();
 		if (iNumLanguages <= 0)
 		{
-			// <!-- custom: doesn't seem safe or easy or worth changing this, as also discussed with chatgpt 5, so not changing this, check if accurate -->
+			// <!-- custom: ci_define_uncached: read only until the language count is set, on the first text entry loaded. (ChatGPT-5 + Claude code Opus 5.5) -->
 			iNumLanguages = std::min(gDLL->getXMLIFace()->GetNumSiblings(pXML->GetXML()), GC.getDefineINT("MAX_NUM_LANGUAGES"));
 			setNumLanguages(iNumLanguages);
 		}
@@ -1861,6 +1861,7 @@ std::string CvMainMenuInfo::getSoundtrack() const
 		return m_szSoundtrack;
 
 	// <!-- custom: shuffle-bag state: aszAllScripts = configured pool, aszRemainingScripts = not yet played in current cycle. (GPT-5.3-Codex) -->
+	// <!-- custom: ci_define_uncached: the nine script names below are read once, while bInit is false. (Claude code Opus 5.5) -->
 	static bool bInit = false;
 	static std::vector<CvString> aszAllScripts;
 	static std::vector<CvString> aszRemainingScripts;

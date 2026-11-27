@@ -51,15 +51,18 @@ class CvEraMovieScreen:
 		# Header...
 		szHeader = SASTextScale.titleText(localText.getText("TXT_KEY_ERA_SPLASH_SCREEN", (gc.getEraInfo(iEra).getTextKey(), )))
 		szHeaderId = "EraTitleHeader" + str(iEra)
-		screen.setText(szHeaderId, "Background", szHeader, CvUtil.FONT_CENTER_JUSTIFY, self.W_SCREEN / 2, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		# <!-- custom: The title opens the era's Sevopedia page and hovers its help, as the picture below does. (Claude code Opus 5.5) -->
+		screen.setText(szHeaderId, "Background", szHeader, CvUtil.FONT_CENTER_JUSTIFY, self.W_SCREEN / 2, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_JUMP_TO_ERA, iEra, 1)
 
-		screen.setButtonGFC("EraExit" + str(iEra), SASTextScale.titleText(localText.getText("TXT_KEY_MAIN_MENU_OK", ())), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT, self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
+		# <!-- custom: The splash and dialog screens gave their OK/Exit button the title font, the label font or none, so the same fixed-size button read out of proportion with the screen's own text from one screen to the next; all now take the label font, as the rest of their text does (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		screen.setButtonGFC("EraExit" + str(iEra), SASTextScale.labelText(localText.getText("TXT_KEY_MAIN_MENU_OK", ())), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT, self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
 
 		# Play the movie
 		# <!-- custom: remove old hardcoded era button path, now use the new XML field <Button> we added -->
 		szMovie = gc.getEraInfo(iEra).getButton()
 
-		screen.addDDSGFC("EraMovieMovie" + str(iEra), szMovie, 27, 50, 720, 540, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		# <!-- custom: The picture is the screen's largest part, so it hovers the era's help and opens its Sevopedia page too; a first version linked only the title, while the user meant the picture (2026-11-21). (Claude code Opus 5.5) -->
+		screen.addDDSGFC("EraMovieMovie" + str(iEra), szMovie, 27, 50, 720, 540, WidgetTypes.WIDGET_PEDIA_JUMP_TO_ERA, iEra, 1 )
 
 		return 0
 

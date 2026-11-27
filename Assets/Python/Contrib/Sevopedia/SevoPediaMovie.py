@@ -149,7 +149,8 @@ class SevoPediaMovie:
 		else:
 			self.mediaPlayer.clearTvPanel(screen)
 		self.mediaPlayer.placeTimerLabel(screen, iScreenW, iScreenH)
-		self.mediaPlayer.setCurrentLabel(screen, self.getMovieTitle(iMovieType, iMovieId))
+		pageLink = self.SAS_getMoviePediaLink(self.top.SAS_packMovieKey(iMovieType, iMovieId))
+		self.mediaPlayer.setCurrentLabel(screen, self.getMovieTitle(iMovieType, iMovieId), pageLink)
 		self.mediaPlayer.startTimer()
 
 		# <!-- custom: The last branch was a bare else, so any other kind was played as a BIK without an error; name all three kinds and fail on any other. (Claude code Opus 5.5) -->
@@ -186,23 +187,24 @@ class SevoPediaMovie:
 			self.mediaPlayer.clearQueueList(screen)
 			szPrev, szNext = self.SAS_getAdjacentMovieLabels()
 			self.mediaPlayer.placePrevNextLabels(screen, iScreenW, iScreenH, szPrev, szNext)
-			self.mediaPlayer.setCurrentLabel(screen, self.getMovieTitle(iMovieType, iMovieId))
 		else:
-			self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMovieLabels, self.SAS_playableMovieIndex, self.SAS_playableMovieGroupByIndex, self.SAS_playableMovieGroupLabels, self.SAS_playableMovieIcons)
+			self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMovieLabels, self.SAS_playableMovieIndex, self.SAS_playableMovieGroupByIndex, self.SAS_playableMovieGroupLabels, self.SAS_playableMovieIcons, [self.SAS_getMoviePediaLink(iPacked) for iPacked in self.SAS_playableMovies])
 
 	def closeMoviePlayer(self):
 		if not self.mediaPlayer.isOpen:
 			return
 
-		self.restoreNoMoviesOption()
+		self.leaveMoviePlayer()
+		self.top.pediaJump(SevoScreenEnums.PEDIA_MOVIES, self.iMovie, False, False)
 
+	# <!-- custom: closeMoviePlayer without its jump back to the movie page, for a queue row that opens its entry's page instead. (Claude code Opus 5.5) -->
+	def leaveMoviePlayer(self):
+		self.restoreNoMoviesOption()
 		# <!-- custom: try to stop the specific 2D sound via Destroy2DSound(handle); if that fails, fall back to
 		# CyInterface().stop2DSound() as a global 2D stop for stubborn handles. Credit: CIV4BUG API docs.
 		# (GPT-5.2-Codex (summarized)) -->
 		self.mediaPlayer.stopSound()
 		self.mediaPlayer.closeScreen()
-
-		self.top.pediaJump(SevoScreenEnums.PEDIA_MOVIES, self.iMovie, False, False)
 
 	# <!-- custom: Movie playback temporarily disables the user's No Movies option.
 	# Ordinary close restored it, but Movie-to-Music bypassed that path and leaked the changed preference for the rest of the session; centralizing restoration fixes every transition that actually leaves Movie mode. See KI#299. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
@@ -358,11 +360,24 @@ class SevoPediaMovie:
 		iFirstMusic = self.top.pediaMusic.SAS_getFirstPlayableMusic()
 		if iFirstMusic == -1:
 			return
-		self.restoreNoMoviesOption()
-		self.mediaPlayer.stopSound()
-		self.mediaPlayer.closeScreen()
+		self.leaveMoviePlayer()
 		self.top.pediaJump(SevoScreenEnums.PEDIA_MUSIC, iFirstMusic, True, False)
 		self.top.pediaMusic.playMusic(iFirstMusic)
+
+	# <!-- custom: The Sevopedia link of a movie's entry for the player's list, or None for a victory, whose movie has no page of its own. (Claude code Opus 5.5) -->
+	def SAS_getMoviePediaLink(self, iPacked):
+		iMovieType, iMovieId = self.top.SAS_unpackMovieKey(iPacked)
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_WONDER:
+			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iMovieId, 1)
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_PROJECT:
+			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iMovieId, 1)
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_RELIGION:
+			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iMovieId, 1)
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_CORPORATION:
+			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iMovieId, 1)
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_ERA:
+			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_ERA, iMovieId, 1)
+		return None
 
 	def getMovieInfo(self, iMovieType, iMovieId):
 		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_VICTORY:

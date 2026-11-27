@@ -36,17 +36,11 @@ APPS = json.loads(LAYOUTS_FILE.read_text(encoding="utf-8"))["apps"]
 LAYOUT_NAMES = sorted({name for app in APPS.values() for name in app["layouts"]})
 
 
-def pick_layout(app, pid, name):
-	# <!-- custom: The named layout if given; otherwise the one whose width is within 100 px of the window's, or None when no layout fits, so the caller must pass --box and --text-area. (Claude Code Opus 5.5) -->
-	layouts = APPS[app]["layouts"]
-	if name:
-		return name, layouts[name]
+def matching_layouts(app, pid):
+	# <!-- custom: Was pick_layout, which returned the first layout whose width is within 100 px of the window's; now every such layout, as one width can have several, such as before and after a zoom change, and read_box picks among them from a screenshot. (Claude Code Opus 5.5) -->
 	desktop_windows.make_dpi_aware()
 	left, _top, right, _bottom = desktop_windows.window_rect(desktop_windows.find_window(pid))
-	for key, layout in layouts.items():
-		if abs((right - left) - layout["width"]) <= 100:
-			return key, layout
-	return None, None
+	return [(key, layout) for key, layout in APPS[app]["layouts"].items() if abs((right - left) - layout["width"]) <= 100]
 
 
 def find_pid(process, required=True):
@@ -84,18 +78,96 @@ def start_app(name, timeout, settle, positions):
 	return pid
 
 
-def dark_pixels(pid, area):
-	# <!-- custom: Typed text is near black, the placeholder ("Work with Codex", "Enter to send...") is light gray, so counting dark pixels tells an empty box from a draft. (Claude Code Opus 5.5) -->
-	# <!-- custom: Pillow reads the screenshot; imported here so --dry-run works without it. (Claude Code Opus 5.5) -->
-	from PIL import Image
-	path = Path(tempfile.gettempdir()) / "agent_message_check.png"
-	desktop_windows.screenshot(pid, path)
-	image = Image.open(path).convert("RGB")
+def area_reading(image, area):
+	# <!-- custom: Typed text is near black, the placeholder ("Work with Codex", "Ctrl+Enter to queue") is gray, so counting dark pixels tells an empty box from a draft.
+	# Returns (dark, gray, gray_left) over every other pixel, gray_left being the leftmost gray column or None; gray stops at a channel sum of 620, below the box's own border (213 per channel), and counts the placeholder (195 to 205) and the anti-aliased edges of typed text. (Claude Code Opus 5.5) -->
 	left, top, right, bottom = area
 	# <!-- custom: A maximized layout forced on a half-width window reached past its edge and crashed with "image index out of range"; name the mismatch instead. (Claude Code Opus 5.5) -->
 	if right > image.width or bottom > image.height:
 		sys.exit("the text area %s lies outside the %dx%d window; is --layout right for it?" % (area, image.width, image.height))
-	return sum(1 for x in range(left, right, 2) for y in range(top, bottom, 2) if sum(image.getpixel((x, y))) < 200)
+	dark = 0
+	gray = 0
+	gray_left = None
+	for x in range(left, right, 2):
+		for y in range(top, bottom, 2):
+			pixel = image.getpixel((x, y))
+			if sum(pixel) < 200:
+				dark += 1
+			elif sum(pixel) <= 620 and max(pixel) - min(pixel) < 30:
+				gray += 1
+				if gray_left is None:
+					gray_left = x
+	return dark, gray, gray_left
+
+
+# <!-- custom: Measured on 2026-11-26: an area on the text line read about 250 gray pixels from the placeholder, while a stale one clipping its edge read 38 to 39. (Claude Code Opus 5.5) -->
+MIN_PLACEHOLDER_GRAY = 80
+# <!-- custom: Each text area starts just right of the caret, where the placeholder and typed text begin, so the placeholder's gray starts at the area's left edge; the sampling step is 2 pixels. (Claude Code Opus 5.5) -->
+PLACEHOLDER_LEFT_TOLERANCE = 8
+
+
+def frame_found(image, frame):
+	# <!-- custom: The composer's top border, a gray line with the box's white inside just below it, sampled every 8 pixels between its measured ends; at least 90% must match.
+	# It anchors the box's identity on its own chrome rather than on its contents, as Codex's review (GPT-6.2-Sol) advised after reproducing a gray toolbar at the area's left edge reading as an empty box.
+	# A multi-line draft grows the box upward and moves the frame, which also fails closed. (Claude Code Opus 5.5 + GPT-6.2-Sol) -->
+	left, right, y, value = frame
+	if y + 3 >= image.height or right > image.width:
+		return False
+	samples = range(left + 20, right - 20, 8)
+	matches = 0
+	for x in samples:
+		edge = sum(image.getpixel((x, y))) / 3.0
+		inside = sum(image.getpixel((x, y + 3))) / 3.0
+		if abs(edge - value) <= 10 and inside - edge >= 10:
+			matches += 1
+	return matches >= 0.9 * len(samples)
+
+
+def decide_box(readings):
+	# <!-- custom: Takes (name, area, dark, gray, gray_left, frame) per candidate area, frame being whether its composer border was found, and returns ("EMPTY" or "NOT_EMPTY", index) or ("UNKNOWN", reason); kept free of screenshots so CI can test it with fixtures.
+	# A draft anywhere fails closed: any area with more than 5 dark pixels means not empty.
+	# "Empty" needs exactly one area with its composer frame in place and its placeholder gray starting at its left edge; none or several means unknown.
+	# A first version picked the area with the most ink, which Codex's review (GPT-6.2-Sol) showed is evidence of ink, not of identity: a stale crop over a gray toolbar could outscore the real crop holding a short draft, and the paste would land beside it. (Claude Code Opus 5.5 + GPT-6.2-Sol) -->
+	darkest = None
+	for index, (_name, _area, dark, _gray, _gray_left, _frame) in enumerate(readings):
+		if dark > 5 and (darkest is None or dark > readings[darkest][2]):
+			darkest = index
+	if darkest is not None:
+		return "NOT_EMPTY", darkest
+	matches = [index for index, (_name, area, _dark, gray, gray_left, frame) in enumerate(readings) if frame and gray >= MIN_PLACEHOLDER_GRAY and gray_left is not None and gray_left - area[0] <= PLACEHOLDER_LEFT_TOLERANCE]
+	if len(matches) == 1:
+		return "EMPTY", matches[0]
+	if matches:
+		return "UNKNOWN", "several areas (%s) show the placeholder" % ", ".join(readings[index][0] for index in matches)
+	return "UNKNOWN", "no area (%s) shows the placeholder at its left edge inside its composer frame" % ", ".join(reading[0] for reading in readings)
+
+
+def read_box(app, pid, name, text_area):
+	# <!-- custom: Returns (layout name, layout, text area, dark pixels, verdict) for the message box, verdict EMPTY or NOT_EMPTY, or exits when the box cannot be identified; None when no layout matches the window.
+	# On 2026-11-26 the user changed the apps' zoom, and each stored area went stale its own way: Claude's caught the + button and the caret, so an empty box read as 6 dark pixels and Codex's reply was held; Codex's lay below a text line that had moved up, so a short draft would have read as empty and been pasted over.
+	# A zoom setting cannot be read from the window, and app updates move the box just the same, so one screenshot decides through decide_box. (Claude Code Opus 5.5 + GPT-6.2-Sol) -->
+	# <!-- custom: Pillow reads the screenshot; imported here so --dry-run works without it. (Claude Code Opus 5.5) -->
+	from PIL import Image
+	layouts = APPS[app]["layouts"]
+	if name:
+		# <!-- custom: A named layout with --text-area keeps the layout's click point and checks the given area, as before 2026-11-26; Codex's review (GPT-6.2-Sol) caught the first rewrite dropping the named layout there. (Claude Code Opus 5.5 + GPT-6.2-Sol) -->
+		candidates = [(name, layouts[name], tuple(text_area or layouts[name]["text"]))]
+	elif text_area:
+		candidates = [("custom", None, tuple(text_area))]
+	else:
+		candidates = [(key, layout, tuple(layout["text"])) for key, layout in matching_layouts(app, pid)]
+	if not candidates:
+		return None
+	path = Path(tempfile.gettempdir()) / "agent_message_check.png"
+	desktop_windows.screenshot(pid, path)
+	image = Image.open(path).convert("RGB")
+	# <!-- custom: A hand-given --text-area without a layout counts as its own identity, being measured by whoever passes it; a layout needs its measured frame. (Claude Code Opus 5.5) -->
+	readings = [(key, area) + area_reading(image, area) + ((layout is None) or ("frame" in layout and frame_found(image, layout["frame"])),) for key, layout, area in candidates]
+	verdict, detail = decide_box(readings)
+	if verdict == "UNKNOWN":
+		sys.exit("cannot identify the %s message box: %s; it may hold a very short draft, or the zoom, the window size or an app update has moved it; screenshot it, and if it moved, measure its layout in app_layouts.json" % (app, detail))
+	key, layout, area = candidates[detail]
+	return key, layout, area, readings[detail][2], verdict
 
 
 def build(sender, text, reply):
@@ -251,6 +323,21 @@ def reply_since(app, before, marker, seen=None):
 	return None
 
 
+# <!-- custom: --wait-for first started from each log's current size, so it found only a message the app had not started yet; on 2026-11-19 Codex had already answered a review, and the wait sat on a reply that was already in its log.
+# So start each log at the line holding the header when it is there, which finds an answered, running or queued message alike, and at its end otherwise. (Claude Code Opus 5.5) -->
+def marker_offsets(app, marker):
+	needles = [marker.encode("utf-8"), json.dumps(marker)[1:-1].encode("ascii")]
+	offsets = {}
+	for path, size in log_sizes(app).items():
+		with path.open("rb") as stream:
+			data = stream.read(size)
+		# <!-- custom: The first match: Codex copies the message into a later "compacted" record, and starting there missed it. (Claude Code Opus 5.5) -->
+		hits = [i for i in [data.find(needle) for needle in needles] if i >= 0]
+		found = min(hits) if hits else -1
+		offsets[path] = (data.rfind(b"\n", 0, found) + 1) if found >= 0 else size
+	return offsets
+
+
 def wait_reply(app, before, marker, timeout, arrival_timeout=120):
 	# <!-- custom: On 2026-11-11 Claude Code waited for a Codex review with a shell loop on the newest log, so neither agent nor user had to check Codex's window or guess how long to wait; this keeps that loop, and works the other way for Codex waiting on Claude Code. (Claude Code Opus 5.5) -->
 	# <!-- custom: The reply wait used to watch only for the turn's end, so a message that never reached the app looked like a slow reply: on 2026-11-17 a paste went to the user's window instead of Codex and the wait ran its full 30 minutes.
@@ -300,12 +387,12 @@ def main():
 	sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 	if args.wait_for:
 		# <!-- custom: On 2026-11-18 a --queue send's wait stopped after 2 minutes, saying the message did not reach Codex, although it sat in Codex's queue: an app logs a queued message only when it starts on it, so the arrival check does not apply to one, and resending to wait again would have queued it twice.
-		# This picks up the wait for a message already sent and still queued; it reads the logs from now on, so it cannot find a message the app has already started. (Claude Code Opus 5.5) -->
+		# This picks up the wait for a message already sent, queued or not. (Claude Code Opus 5.5) -->
 		if not args.to:
 			parser.error("--wait-for needs --to")
 		name = {"codex": "Codex", "claude": "Claude Code"}[args.to]
 		print("waiting for %s to end the turn holding %s..." % (name, args.wait_for), flush=True)
-		result = wait_reply(args.to, log_sizes(args.to), args.wait_for, args.wait_timeout, None)
+		result = wait_reply(args.to, marker_offsets(args.to, args.wait_for), args.wait_for, args.wait_timeout, None)
 		if result is None:
 			sys.exit("no reply from %s within %d seconds" % (name, args.wait_timeout))
 		if result[1] is None:
@@ -332,12 +419,13 @@ def main():
 		if not args.to:
 			parser.error("--check-box needs --to")
 		pid = find_pid(APPS[args.to]["process"])
-		layout_name, layout = pick_layout(args.to, pid, args.layout)
-		if layout is None and not args.text_area:
+		reading = read_box(args.to, pid, args.layout, args.text_area)
+		if reading is None:
 			sys.exit("no layout in app_layouts.json matches the %s window's width; pass --layout or --text-area, or measure the window and add its layout there" % args.to)
-		dark = dark_pixels(pid, tuple(args.text_area or layout["text"]))
-		print("%s (pid %d): layout %s, %d dark pixels in the text area, %s" % (args.to, pid, layout_name or "custom", dark, "empty" if dark <= 5 else "not empty"))
-		sys.exit(0 if dark <= 5 else 1)
+		layout_name, _layout, _area, dark, verdict = reading
+		print("%s (pid %d): layout %s, %d dark pixels in the text area, %s" % (args.to, pid, layout_name, dark, "empty" if verdict == "EMPTY" else "not empty"))
+		# <!-- custom: Was "verdict == 'EMPTY' and 0 or 1", a Python 2.4 idiom that always gave 1, as 0 is false; Codex's review (GPT-6.2-Sol) caught it. (Claude Code Opus 5.5 + GPT-6.2-Sol) -->
+		sys.exit(0 if verdict == "EMPTY" else 1)
 	if not (args.to and args.sender and args.reply and (args.text is not None or args.file)):
 		parser.error("sending needs --to, --sender, --reply and --text or --file")
 
@@ -348,24 +436,32 @@ def main():
 		print(message)
 		return
 	pid = find_pid(app["process"])
-	layout_name, layout = pick_layout(args.to, pid, args.layout)
-	if layout is None and not (args.box and args.text_area):
-		sys.exit("no layout in app_layouts.json matches the %s window's width; pass --layout, or --box and --text-area after a screenshot, and add the measured layout there" % args.to)
-	text_area = tuple(args.text_area or layout["text"])
-	box = tuple(args.box or layout["box"])
-	print("layout: %s" % (layout_name or "custom"))
 	# <!-- custom: The empty-box check alone was not enough: on 2026-11-10 a send through this helper still arrived with the user's keystrokes at both ends ("and re" before the header, "diso" after the Reply: line), typed during the second the target was in front.
 	# Waiting until the user has been idle for a moment closes most of that gap; the delimiters catch what still slips in. (Claude Code Opus 5.5) -->
 	if not desktop_windows.wait_for_idle_user(args.idle_seconds, args.idle_timeout):
 		sys.exit("the user kept typing or moving the mouse for %d seconds; not sending" % args.idle_timeout)
-	dark = dark_pixels(pid, text_area)
-	if dark > 5:
+	# <!-- custom: The box is read after the idle wait, from the same screenshot that picks the layout, so the reading is as fresh as it can be before the paste. (Claude Code Opus 5.5) -->
+	reading = read_box(args.to, pid, args.layout, args.text_area)
+	if reading is None or (reading[1] is None and not args.box):
+		sys.exit("no layout in app_layouts.json matches the %s window's width; pass --layout, or --box and --text-area after a screenshot, and add the measured layout there" % args.to)
+	layout_name, layout, _area, dark, verdict = reading
+	box = tuple(args.box or layout["box"])
+	print("layout: %s" % layout_name)
+	if verdict != "EMPTY":
 		sys.exit("the %s message box is not empty (%d dark pixels): someone may be typing there; not sending" % (args.to, dark))
 	before = log_sizes(args.to) if args.wait_reply else None
-	desktop_windows.paste(pid, box[0], box[1], message, "ctrl+enter" if args.queue else "enter")
+	# <!-- custom: paste stops when the target loses focus during the click, paste and Enter; say what happened rather than show a traceback. (Claude Code Opus 5.5) -->
+	try:
+		desktop_windows.paste(pid, box[0], box[1], message, "ctrl+enter" if args.queue else "enter")
+	except RuntimeError as error:
+		sys.exit("not sent to %s: %s; send again once the user is idle" % (args.to, error))
 	print("sent to %s (pid %d):" % (args.to, pid))
 	print(message)
 	print("Check the sent message: anything before its header or after its closing tag was not yours.")
+	# <!-- custom: On 2026-11-19 a review went to Codex with --reply "Claude app" and no --wait-reply; Codex answered in its own window and nothing woke the sender, so the user wondered why no reply came.
+	# Name the header to wait on, since the reply is otherwise read only by someone who looks. (Claude Code Opus 5.5) -->
+	if not args.wait_reply and args.reply != "none needed":
+		print('Nothing waits for the reply: run again with --wait-for "%s" in the background to be woken when it ends.' % message[:message.index(" UTC]") + 5])
 	if args.wait_reply:
 		name = {"codex": "Codex", "claude": "Claude Code"}[args.to]
 		print("waiting for %s to end the turn holding this message..." % name, flush=True)

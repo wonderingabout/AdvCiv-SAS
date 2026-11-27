@@ -9,13 +9,13 @@ import re
 # <!-- custom: Route shared visual resources through the centralized SASVisualUtils namespace after retiring overlapping helper/cache imports; keep one canonical visual-resource boundary. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 import SASTextScale
+# <!-- custom: SASCurrentDefines reads this module's SAS switches at use, lazily and override-aware, in place of module constants read at import. See KI#128.6. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 from SASUtils import getNewConceptID
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (gc.getDefineINT("SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON") > 0)
-IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
 
 # <!-- custom: constants useful for numTxt under button placement in a grid-like manner, i got the idea to move them here rather to enhance reuse and remove redundance thanks to chatgpt general comment about them hehe thanks thanks chatgpt etc and me toot thanks; note: these are for non-multilist panels, commented-out if we don't need them but kept for reference still if may serve someday -->
 #HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 9
@@ -421,7 +421,7 @@ def get_concept_id(concept_type):
 	return -1
 
 def place_new_concept_legend_link(top, new_concept_type):
-	if not IS_SAS_SHOW_LEGEND_LINK:
+	if SASCurrentDefines.getInt("SAS_SHOW_LEGEND_LINK") <= 0:
 		return
 	iConcept = getNewConceptID(new_concept_type)
 	if iConcept < 0:
@@ -723,7 +723,7 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 	buttonColumn = iButtonIndex % maxButtonsPerRow
 	buttonRow = iButtonIndex // maxButtonsPerRow
 
-	# <!-- custom: note: since we start at 0 in this nice system chatgpt and claude ai if i may say helped me design and adjust thanks, we don't need to handle the 1th no spacing with next item of the list, as anything multilied by 0 negates spacing, this applies to both column and row calculation(s); however we just add a X correction to start not at leftmost part of the button anyways but instead at center/middle of button to place our first and onwards numTxT -->
+	# <!-- custom: note: since we start at 0 in this nice system chatgpt and claude ai helped me design and adjust thanks, we don't need to handle the 1th no spacing with next item of the list, as anything multiplied by 0 negates spacing, this applies to both column and row calculation(s); however we just add a X correction to start not at leftmost part of the button anyways but instead at center/middle of button to place our first and onwards numTxT -->
 	startAtMiddleOfButtonCorrectionX = +1 * (int(button_size / 2))
 
 	# <!-- custom: note: in this code, it seems we are still slightly off vs an ideally centered label, i don't know what the exact cause is, but maybe we can use this as a parameter to control more precisely label positioning based on/depending on numTxt and such as we prefer (center more or less aggressively depending on whether numTxt is expected to be long (like "+25/+100" for example) vs short (for example"+25%") in trying it as such, so we add a tiny bit of in this case extra x correction (extraCorrectionX) etc -->
@@ -732,7 +732,7 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 	if iLabelFont > 2:
 		textX += (-3 * (iLabelFont - 2))
 
-	# <!-- custom: similarly to extraCorrectionX, we are slightly off for some reason here so adjust Y position of the numTxt multine text, but since this is the same for all buttons unlike in extraCorrectionX (i.e. regardless of numTxt length), then it is fine i think to hardcode it here for convenience and efficiency at least i want to do so hopefully convenient or helpful or not or yes or etc to do so -->
+	# <!-- custom: similarly to extraCorrectionX, we are slightly off for some reason here so adjust Y position of the numTxt multine text, but since this is the same for all buttons unlike in extraCorrectionX (i.e. regardless of numTxt length), then it is fine i think to hardcode it here for convenience and efficiency at least i want to do so hopefully convenient or helpful to do so -->
 	extraCorrectionY = -9
 	textY = multiListY + button_size + extraCorrectionY + (buttonRow * button_size) + (buttonRow * HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING)
 
@@ -865,7 +865,7 @@ def chart_format_tech_list(value, return_list, none_text, abbrev_tech_names=None
 	return ", ".join(out)
 
 def chart_add_csv_log_button(screen, top, x, y, w, xPos=None, yPos=None):
-	if not IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON:
+	if SASCurrentDefines.getInt("SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON") <= 0:
 		return ""
 
 	# <!-- custom: mirror Timeline LOG sizing: keep compact default, slightly enlarge only when label font is upscaled (4) so "LOG" remains readable. (GPT-5.3-Codex) -->

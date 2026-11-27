@@ -3,7 +3,7 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 # <!-- custom: Local test DLLs, including a Debug-opt build, were accidentally shipped with source changes instead of the deliberately updated Release DLL.
 # Source commits can be more frequent than distributed Release DLL updates; an installed test DLL is therefore not automatically a binary intended for Git.
-# Require the explicit Update DLL phrase in each binary-changing commit's own title/body so accidental binary staging produces a CI failure rather than silently shipping it.
+# Require the explicit [ci_update_dll] marker (Update DLL before 2026-11-22) in each binary-changing commit's own title/body so accidental binary staging produces a CI failure rather than silently shipping it.
 # A later commit's message cannot establish intent for an earlier accidental binary.
 # Inspect Git trees, not a local installed DLL. (GPT-6.1-Sol) -->
 
@@ -21,7 +21,12 @@ import sys
 
 # <!-- custom: Resolve repository/shared-helper paths from this subject subfolder after the workflow-tool reorganization. (GPT-6.1-Sol) -->
 ROOT = Path(__file__).resolve().parents[4]
-MARKER = re.compile(r"(?<!\w)Update DLL(?!\w)")
+# <!-- custom: The shared marker spelling, kept once in lib/ci_markers.py with the other commit-message markers. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+from ci_markers import UPDATE_DLL
+# <!-- custom: The shared squash-intent rule, so a PR marked [ci_squash_pr] is judged here as the revision checks judge it. (Claude code Opus 5.5) -->
+from revision_history import pull_request_squashes
+MARKER = re.compile(re.escape(UPDATE_DLL))
 PUSH_PAYLOAD_LIMIT = 2048
 
 
@@ -73,8 +78,9 @@ def event_commits(repo, event_name, event, head="HEAD"):
 
 
 # <!-- custom: Share the first-parent path diff with report validation so JSON-only changes cannot bypass the DLL pair/intent rule. (GPT-6.1-Sol) -->
-def changed_paths(repo, commit):
-    lineage = git(repo, "rev-list", "--parents", "-n", "1", commit).decode().split()
+# <!-- custom: base added for a PR marked [ci_squash_pr]: its tip is then compared with the PR's merge base, as the one squash commit will be. (Claude code Opus 5.5) -->
+def changed_paths(repo, commit, base=None):
+    lineage = [commit, base] if base else git(repo, "rev-list", "--parents", "-n", "1", commit).decode().split()
     # <!-- custom: Compare merge commits to their first parent, just as the branch's new committed tree is compared to its prior tip.
 	# This catches an unmarked binary introduced by a merge as well as by an ordinary commit.
 	# Root commits include additions.
@@ -147,14 +153,15 @@ def shipped_build_errors(repo, head):
     return build_report_errors(repo, head, ["Assets/CvGameCoreDLL.dll"])
 
 
-# <!-- custom: With build reporting available, a DLL and its JSON must change together and carry Update DLL; that marker without a pair also fails.
+# <!-- custom: With build reporting available, a DLL and its JSON must change together and carry [ci_update_dll]; that marker without a pair also fails.
 # Apply pair enforcement prospectively from the reporting wrapper, while older binary commits retain their original intent check. (GPT-6.1-Sol) -->
-def check(repo, commits):
+# <!-- custom: base added for a PR marked [ci_squash_pr]: its commits become one squash commit, so a DLL rebuilt along the way only needs its final pair and the marker in the newest message, which the squash message must then carry too; squash_message.py lists that before the merge. (Claude code Opus 5.5) -->
+def check(repo, commits, base=None):
     errors = []
     updated = 0
     for ref in dict.fromkeys(commits):
         commit = commit_id(repo, ref)
-        changed = set(changed_paths(repo, commit))
+        changed = set(changed_paths(repo, commit, base))
         paths = sorted(path for path in changed if path.lower().endswith(".dll"))
         reports = sorted(path for path in changed if path.lower().endswith(".dll.build.json"))
         message = git(repo, "show", "-s", "--format=%B", commit).decode("utf-8", errors="replace")
@@ -162,7 +169,7 @@ def check(repo, commits):
         paired_policy = bool(git(repo, "ls-tree", commit, "--", "CvGameCoreDLL/Project/build_with_report.ps1").strip())
         if not paths and not (paired_policy and reports):
             if paired_policy and marked:
-                errors.append(f"{commit[:12]}: contains 'Update DLL' but no DLL/build-JSON pair changed")
+                errors.append(f"{commit[:12]}: contains '{UPDATE_DLL}' but no DLL/build-JSON pair changed")
             continue
         updated += bool(paths)
         affected = sorted(set(paths) | {path[:-len(".build.json")] for path in reports}) if paired_policy else paths
@@ -173,12 +180,12 @@ def check(repo, commits):
                 if dll not in changed or report not in changed:
                     errors.append(f"{commit[:12]}: {dll} and {report} must both change in this commit (including paired additions, removals or renames)")
         if not marked:
-            errors.append(f"{commit[:12]}: changes {', '.join(affected)} but its commit title/body lacks the exact phrase 'Update DLL'")
+            errors.append(f"{commit[:12]}: changes {', '.join(affected)} but its commit title/body lacks the marker '{UPDATE_DLL}'")
     return errors, updated
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Require Update DLL and matching Release build evidence for tracked DLL updates.")
+    parser = argparse.ArgumentParser(description="Require %s and matching Release build evidence for tracked DLL updates." % UPDATE_DLL)
     parser.add_argument("--repo-root", type=Path, default=ROOT)
     parser.add_argument("--base-ref", help="explicit range base; omitted for a local single-commit check")
     parser.add_argument("--head-ref", default="HEAD")
@@ -188,6 +195,7 @@ def main():
     try:
         head = args.head_ref
         deleted = False
+        squash_base = None
         if args.base_ref:
             commits = commits_in_range(args.repo_root, args.base_ref, args.head_ref)
         elif args.event_path:
@@ -195,14 +203,16 @@ def main():
             deleted = args.event_name == "push" and event.get("deleted", False)
             if args.event_name == "pull_request":
                 head = event["pull_request"]["head"]["sha"]
+                if pull_request_squashes(args.repo_root, event["pull_request"]):
+                    squash_base = git(args.repo_root, "merge-base", event["pull_request"]["base"]["sha"], head).decode().strip()
             elif args.event_name == "push" and not deleted:
                 head = event["after"]
-            commits = event_commits(args.repo_root, args.event_name, event, args.head_ref)
+            commits = [head] if squash_base else event_commits(args.repo_root, args.event_name, event, args.head_ref)
         elif args.event_name in {"push", "pull_request"}:
             raise RuntimeError("push/PR checks require --event-path or --base-ref; refusing to check only the last commit")
         else:
             commits = [commit_id(args.repo_root, args.head_ref)]
-        errors, updated = check(args.repo_root, commits)
+        errors, updated = check(args.repo_root, commits, squash_base)
         if not deleted:
             errors = list(dict.fromkeys([*errors, *shipped_build_errors(args.repo_root, head)]))
     except (RuntimeError, OSError, ValueError, KeyError, TypeError) as exc:

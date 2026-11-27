@@ -22,10 +22,10 @@ class CvPopupInfo; // <!-- custom: Player popup-choice logging accepts the exist
 // This is not a classic BBAI diagnostic category: it has its own XML defines, its own SASGameRecord_*.log files, and its own lightweight public header.
 // Call sites should still gate before invoking helpers so disabled logging does not compute logging-only arguments.
 // Pointer-only hooks use forward declarations here to avoid pulling city/unit headers into ordinary game files. (ChatGPT-5.5 + GPT-5.5) -->
-// <!-- custom: SAS_SGR_LOG is copied once after all GlobalDefines/module overrides finish loading.
+// <!-- custom: The effective level, from SAS_SGR_LOG_ON and SAS_SGR_LOG since SASGameRecord revision 214 (SGR214) (SAS_SGR_LOG alone before), is copied once after all GlobalDefines/module overrides finish loading.
 // Keep the steady-state hot gate as a direct integer read: SASGameRecord hooks are intentionally widespread, and an out-of-line getter would impose a cross-translation-unit function call even at level 0 in ordinary non-LTCG Release builds.
 // Before XML setup completes the zero-initialized cache safely means disabled.
-// Callers must treat the cache as read-only and continue using gGameRecordLogLevel/getSASGameRecordLogLevel; only cacheSASGameRecordLogLevel writes it during GlobalDefines setup. (ChatGPT-5.6-Sol) -->
+// Callers must treat the cache as read-only and continue using gGameRecordLogLevel/getSASGameRecordLogLevel; only cacheSASGameRecordLogLevel writes it during GlobalDefines setup. (ChatGPT-5.6-Sol + Claude code Opus 5.5) -->
 extern int g_iSASGameRecordLogLevel;
 void cacheSASGameRecordLogLevel();
 // <!-- custom: Revision 151 keeps the causal action/interface subject independently suppressible without making every hot caller query XML.
@@ -132,6 +132,10 @@ void logSASGameRecordMapAnnotation(char const* szEvent, char const* szReason, in
 // <!-- custom: BUG DotMap planning markers have stable player/plot identity and controlled XML color IDs; record snapshots/deltas separately from arbitrary caption annotations. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordDotMapSummary(char const* szEvent, char const* szReason, int iTotal, bool bOverlayVisible, int iAdded, int iEdited, int iRemoved);
 void logSASGameRecordDotMapMarker(char const* szEvent, char const* szReason, int iOwnerPlayer, int iX, int iY, int iOldColor, int iOldLayer, int iNewColor, int iNewLayer);
+// <!-- custom: Each Greatest Civilizations ranking (CvTopCivs.py through SASGameRecordActions.logTopCivs): a summary row and one row per alive player with the value behind its rank, for the all-player record; the Timeline keeps only what the viewer read.
+// Placed after the DotMap pair, which the first draft split. (Claude code Opus 5.5) -->
+void logSASGameRecordTopCivs(char const* szCategory, char const* szHistorian, int iListed, int iRanked, int iUnknownListed, bool bShown);
+void logSASGameRecordTopCivsRank(char const* szCategory, int iRank, int iPlayer, int iValue, bool bListed, bool bKnown);
 // <!-- custom: Result and session-boundary rows let parsers distinguish an established game outcome from orderly recorder rollover; Runtime external exit evidence remains authoritative for process termination/crash observation. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordGameResult(char const* szEvent);
 // <!-- custom: Four camera toggles have authoritative pre/post Boolean getters.

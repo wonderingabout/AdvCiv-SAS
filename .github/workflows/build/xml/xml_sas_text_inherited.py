@@ -26,9 +26,9 @@ from xml_defines import get_default_repo_root
 BASE_ADVCIV_COMMIT = "0d81edb6443827986a2d620a5bf7b4faaaaafe46"
 TEXT_DIR = "Assets/XML/Text"
 SAS_TEXT_GLOB = "AdvCiv-SAS*.xml"
-MANIFEST = Path(__file__).with_name("xml_sas_text_inherited_hashes.tsv")
+MANIFEST = Path(__file__).resolve().parents[4] / "_0_Legacy" / "Docs" / "Manifests" / "xml_sas_text_inherited_hashes.tsv"
 # <!-- custom: Hashes cannot be read or sorted, so checks that need inherited English (xml_display_order.py) get readable names, limited to the keys they use. (Claude code Opus 5.5) -->
-NAMES = Path(__file__).with_name("xml_sas_text_inherited_names.tsv")
+NAMES = Path(__file__).resolve().parents[4] / "_0_Legacy" / "Docs" / "Manifests" / "xml_sas_text_inherited_names.tsv"
 NAME_KEY_SOURCES = (("Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml", ("Description",)), ("Assets/XML/Civilizations/CIV4CivilizationInfos.xml", ("Description", "ShortDescription")))
 # <!-- custom: The first draft left Warlords out, assuming BtS does not load it.
 # It then kept TXT_KEY_CONCEPT_IRRIGATION (Warlords-only) as SAS text, and the AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1_CORRECTED line that the leader ID restore had deleted was wrongly restored as missing.

@@ -86,9 +86,34 @@ def _armRequest(szTrigger):
 		for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
 			if gc.getPlayer(iPlayer).isAlive():
 				gc.getPlayer(iPlayer).setAdvancedStartPoints(iPoints)
+	# <!-- custom: Without AdvancedStartPoints, a QuickStart Advanced Start run gave every civ 0 points, so the AI founded one small city each, and the run waited on the Begin button with our points unspent (2026-11-19, SAS24 Pangaea from the Industrial era).
+	# So civs still at 0 get the points the Custom Game screen would give, and the active player's are spent by the same automation as the Advanced Start screen's button before the phase ends, as Begin would end it.
+	# That automation writes the Changes tab's Automate row, placed where it began, before the buys it made. See KI#1100. (Claude code Opus 5.5) -->
+	if szTrigger == "GAME_START" and CyGame().isOption(GameOptionTypes.GAMEOPTION_ADVANCED_START):
+		if not request.get("advancedstartpoints"):
+			_setCustomGameAdvancedStartPoints()
+		iActive = CyGame().getActivePlayer()
+		if iActive >= 0 and gc.getPlayer(iActive).getAdvancedStartPoints() >= 0:
+			CyMessageControl().sendAdvancedStartAction(AdvancedStartActionTypes.ADVANCEDSTARTACTION_AUTOMATE, iActive, -1, -1, -1, True)
+			CyMessageControl().sendAdvancedStartAction(AdvancedStartActionTypes.ADVANCEDSTARTACTION_EXIT, iActive, -1, -1, -1, True)
 	_iPendingTurns = iTurns
 	_bPendingDebugMode = bDebugMode
 	CvUtil.pyPrintRecord("SAS_AUTOPLAY_REQUEST", "outcome=ARMED trigger=%s turns=%d debugMode=%d ini=%s" % (szTrigger, iTurns, int(_bPendingDebugMode), path))
+
+
+# <!-- custom: The Custom Game screen's points, as CvInitCore::resetAdvancedStartPoints and CvPlayer's game-start setup compute them: the start era's points times the world size's percent, then the player's handicap percent, and for an AI the game handicap's AI percent; advc.250c's minimum is left out, as it is not exposed to Python. (Claude code Opus 5.5) -->
+def _setCustomGameAdvancedStartPoints():
+	game = CyGame()
+	iBase = gc.getEraInfo(game.getStartEra()).getAdvancedStartPoints() * gc.getWorldInfo(CyMap().getWorldSize()).getAdvancedStartPointsMod() / 100
+	for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
+		player = gc.getPlayer(iPlayer)
+		if not player.isAlive() or player.getAdvancedStartPoints() != 0:
+			continue
+		iPoints = iBase * gc.getHandicapInfo(player.getHandicapType()).getAdvancedStartPointsMod() / 100
+		if not player.isHuman():
+			iPoints = iPoints * gc.getHandicapInfo(game.getHandicapType()).getAIAdvancedStartPercent() / 100
+		player.setAdvancedStartPoints(iPoints)
+	CvUtil.pyPrintRecord("SAS_AUTOPLAY_REQUEST", "outcome=ADVANCED_START_POINTS base=%d" % iBase)
 
 
 # <!-- custom: CvInitCore::applySASRequestedLeaders sets the requested leaders before the game starts but can only assert on a bad name; compare the started game with the request here so a mismatch fails loudly in PythonErr.log, where run_autoplay.py reports it. (Claude Code Opus 5.5) -->

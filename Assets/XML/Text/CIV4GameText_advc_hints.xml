@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- custom: Keep only English text keys in this file; German/French/Italian/Spanish entries were intentionally removed for AdvCiv-SAS cleanup consistency and to solve formatting errors from mixed encodings/translations. (GPT-5.3-Codex) -->
 <Civ4GameText xmlns="http://www.firaxis.com">
 <!-- "A negative event that afflicts one of your rivals is, in effect, like a
@@ -614,7 +618,7 @@ The later TXT_KEY_HINT_61 block says nearly the same thing, uses the refined "ta
 	 translations. K-Mod removed all but one of the BUG hints. Many of them are
 	 aimed at beginners, others are already covered by my own hints; so this is
 	 the only one that I want to include (in addition to the one in
-	 'K-Mod_hints.xml'). -->
+	 'K-Mod hints.xml'). -->
 <TEXT>
 	<Tag>TXT_KEY_BUG_HINT_INTERFACE_4</Tag>
 	<English>To cancel the missions of all your Workers, select one of them and click the [COLOR_HIGHLIGHT_TEXT]Cancel Mission[COLOR_REVERT] button while holding down the [ALT] key.</English>

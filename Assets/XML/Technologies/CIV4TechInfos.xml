@@ -2822,7 +2822,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: was flavor religion 3 culture 6 military 0 (add FLAVOR_MILITARY to account for vassal state addition to this tech now as of now i mean.)
+			<!-- custom: was flavor religion 3 culture 6 military 0 (add FLAVOR_MILITARY to account for vassal state addition to this tech now as of now.)
 			science 8. -->
 			<Flavors>
 				<Flavor>
@@ -2870,7 +2870,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<iTradeRoutes>0</iTradeRoutes>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
-			<!-- custom: currently TECH_LIBERALISM is bloated and too strong already, giving theory_of_evolution some purpsoe while also making sense in terms of gameplay, searching it means falling behind in military path so i hope it can be worth it this way to choose this alternative path and for versatile startegy too, was 0 -->
+			<!-- custom: currently TECH_LIBERALISM is bloated and too strong already, giving theory_of_evolution some purpose while also making sense in terms of gameplay, searching it means falling behind in military path so i hope it can be worth it this way to choose this alternative path and for versatile startegy too, was 0 -->
 			<iFirstFreeTechs>1</iFirstFreeTechs>
 			<iAsset>40</iAsset>
 			<iPower>0</iPower>
@@ -3529,7 +3529,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<OrPreReqs>
 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
 			</OrPreReqs>
-			<!-- custom: nicely fits copernic theme and fighting previous religious or such preconceptions with the power of reality i mean if i may say for better or worse xd -->
+			<!-- custom: nicely fits copernic theme and fighting previous religious or such preconceptions with the power of reality for better or worse xd -->
 			<AndPreReqs>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 				<PrereqTech>TECH_NATURALISM</PrereqTech>
@@ -5642,7 +5642,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<OrPreReqs>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
 			</OrPreReqs>
-			<!-- custom: as nicely recommended by chatgpt 5 thanks (more balanced as more easily reachable, and also i meanit mentioned very relevantly if i may say thanksalchemy being related to it which historically i guess is more or less the case thanks really i mean i added it as of now as such), instead of my original TECH_BROADER_EDUCATION idea that was too strict -->
+			<!-- custom: as nicely recommended by chatgpt 5 thanks (more balanced as more easily reachable, and also i meanit mentioned very relevantly thanksalchemy being related to it which historically i guess is more or less the case thanks really i mean i added it as of now as such), instead of my original TECH_BROADER_EDUCATION idea that was too strict -->
 			<AndPreReqs>
 				<PrereqTech>TECH_MEDICINE</PrereqTech>
 			</AndPreReqs>
@@ -6646,7 +6646,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<iPower>0</iPower>
 			<!-- custom: similarly to changes now displaying bTrade info, we now also display bRepeat info in tech advisor and sevopedia tech, see also similarly buildBRepeatString -->
 			<bRepeat>0</bRepeat>
-			<!-- custom: note: bTrade fields are now visible from the c++ code through buildBTradeString, see there for details or in our mod's docs or and such other relevant place -->
+			<!-- custom: note: bTrade fields are now visible from the c++ code through buildBTradeString, see there for details or in our mod's docs such other relevant place -->
 			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>

@@ -89,6 +89,31 @@ class SourceChangeProvenanceTests(unittest.TestCase):
     def errors(self, path, old, new):
         return checker.check_change(path, old, new)
 
+    # <!-- custom: A manifest-listed base-game copy keeps its original comments and imports without custom notes, as the KI#1104 copies need; the same file as an ordinary new file still fails (2026-11-22). (Claude code Opus 5.5) -->
+    def test_base_game_copy_keeps_its_original_comments(self):
+        path = "Assets/Python/PyHelpers.py"
+        text = ("# Sid Meier's Civilization 4\n# Copyright Firaxis Games 2005\n#\n"
+            "# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)\n"
+            "# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)\n#\n"
+            "# <!-- custom: Copied from BtS's C:\\Civ4\\Beyond the Sword\\Assets\\Python\\PyHelpers.py. See KI#1104. (Claude code Opus 5.5) -->\n\n"
+            "import CvUtil\n\n# helper for players\ndef f():\n\treturn 1\n")
+        self.assertEqual(checker.check_change(path, None, text, None, None, True), [])
+        self.assertTrue(checker.check_change(path, None, text))
+        with tempfile.TemporaryDirectory() as folder:
+            repo = Path(folder)
+            manifest = repo / checker.MANIFEST
+            manifest.parent.mkdir(parents=True)
+            manifest.write_text("path\tlayers\tadvcivEvents\totherPaths\nAssets/Python/PyHelpers.py\tvanilla,warlords,bts\t-\t-\nAssets/Python/CvUtil.py\tadvciv\t-\t-\n", encoding="utf-8")
+            sources = checker.base_game_manifest_paths(repo)
+            self.assertEqual(sources, {path: {"vanilla": path, "warlords": path, "bts": path}})
+            self.assertTrue(checker.has_base_game_copy_header(text, sources[path]))
+            self.assertTrue(checker.has_base_game_copy_header(text.replace(chr(92), "/"), sources[path]))
+            self.assertFalse(checker.has_base_game_copy_header("pass\n" + text, sources[path]))
+            self.assertFalse(checker.has_base_game_copy_header(text.replace("PyHelpers.py", "Elsewhere/PyHelpers.py"), sources[path]))
+            self.assertFalse(checker.has_base_game_copy_header(text.replace("BtS's", "Warlords's"), sources[path]))
+            self.assertFalse(checker.has_base_game_copy_header(text, {"vanilla": path}))
+            self.assertTrue(checker.has_base_game_copy_header(text, {"bts": path}))
+
     # <!-- custom: Exercise multiline custom C++ comments, including delimiter-only edits that retain identical prose, while preserving string literals, inherited blocks and single-line inline annotations. (GPT-6.1-Sol) -->
     def test_multiline_custom_cpp_block_comments(self):
         path = "CvGameCoreDLL/Test.cpp"
@@ -171,6 +196,18 @@ class SourceChangeProvenanceTests(unittest.TestCase):
                 source = prefix + "<!-- custom: Mention catgpt and Chat-GPT as examples. (" + name + ") -->\n"
                 self.assertFalse(any("misspelled model credit" in error for error in self.errors(path, "", source)))
 
+    # <!-- custom: A Claude model named without its family fails in each language, while the full name and prose mentions pass. (Claude code Opus 5.5) -->
+    def test_incomplete_model_credit(self):
+        for path, prefix in (("LLM_Helpers/test.py", "# "), ("CvGameCoreDLL/Test.cpp", "// "), ("Assets/XML/Test.xml", "")):
+            # <!-- custom: The versionless and nested-note cases are Codex's, from its review of the 2026-11-27 merge into the SASPilot branch. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+            for credit in ("Claude code Opus 4.6 + Opus 5.5", "code Opus 5.5", "Sonnet 4.6", "GPT-6.2-Sol, fable 5.2", "Claude code Fable 5.2 + Opus", "GPT-6.2-Sol + code Sonnet", "Claude code Fable 5.2 + Opus 5.5 (review + test)"):
+                with self.subTest(path=path, credit=credit):
+                    source = prefix + "<!-- custom: Explain this. (" + credit + ") -->\n"
+                    self.assertTrue(any("leaves out the model family" in error for error in self.errors(path, "", source)))
+            for credit in ("Claude code Opus 4.6 + Claude code Opus 5.5", "Claude Sonnet 5.5", "GPT-6.2-Sol"):
+                source = prefix + "<!-- custom: Opus 5.5 wrote this, as prose. (" + credit + ") -->\n"
+                self.assertFalse(any("leaves out the model family" in error for error in self.errors(path, "", source)))
+
     def test_new_noncustom_comment_fails_but_credentialed_custom_passes(self):
         old = "int value = 1;\n"
         bad = "// New explanation.\nint value = 1;\n"
@@ -221,6 +258,19 @@ class SourceChangeProvenanceTests(unittest.TestCase):
                 with self.subTest(path=path, credit=credit):
                     source = prefix + "<!-- custom: Explain this. (" + credit + ") -->\n"
                     self.assertFalse(any("names only the app or model family" in error for error in self.errors(path, "", source)))
+
+    # <!-- custom: A joined part naming a Claude model without the app fails in new prose; the full form and an unchanged old comment pass. (Claude code Opus 5.5) -->
+    def test_joined_claude_credit_names_the_app(self):
+        for path, prefix in (("LLM_Helpers/test.py", "# "), ("CvGameCoreDLL/Test.cpp", "// "), ("Assets/XML/Test.xml", "")):
+            for credit in ("Claude code Fable 5.2 + Opus 5.5", "Opus 5.5", "GPT-6.2-Sol + Sonnet 4.5", "Claude code Fable 5.2 + Opus 5.5 (review)"):
+                with self.subTest(path=path, credit=credit):
+                    source = prefix + "<!-- custom: Explain this. (" + credit + ") -->\n"
+                    self.assertTrue(any("leaves out the model family" in error for error in self.errors(path, "", source)))
+                    self.assertEqual(self.errors(path, source, source), [])
+            for credit in ("Claude code Fable 5.2 + Claude code Opus 5.5", "GPT-6.1-Sol + Claude code Opus 5.5 + GPT-6.2-Sol", "Claude Sonnet 4.5 (summarized)", "Opus 5.5 reproduced this"):
+                with self.subTest(path=path, credit=credit):
+                    source = prefix + "<!-- custom: Explain this. (" + credit + ") -->\n"
+                    self.assertFalse(any("leaves out the model family" in error for error in self.errors(path, "", source)))
 
     # <!-- custom: Refining a generic family credit is more precise provenance, not a dropped contributor; the reverse remains a lossy rewrite. (ChatGPT-5.6-Sol) -->
     def test_generic_model_credit_can_be_refined_but_not_generalized(self):
@@ -312,6 +362,11 @@ class SourceChangeProvenanceTests(unittest.TestCase):
         good = '// <!-- custom: Replace Old.h with New.h because the used declaration now lives there. (GPT-6.1-Sol) -->\n#include "New.h"\nint value;\n'
         self.assertTrue(any("include/import change" in error for error in self.errors("CvGameCoreDLL/Test.cpp", old, bad)))
         self.assertEqual(self.errors("CvGameCoreDLL/Test.cpp", old, good), [])
+
+    # <!-- custom: Whitespace between a directive's tokens is layout, as KI#21.8's sweep changed in "from array  import array", but inside an include's quotes it names another file (Codex's review, 2026-11-23). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+    def test_directive_layout_change_is_not_a_dependency_change(self):
+        self.assertEqual(self.errors("Assets/Python/Test.py", "from array  import array\nx = 1\n", "from array import array\nx = 1\n"), [])
+        self.assertTrue(any("include/import change" in error for error in self.errors("CvGameCoreDLL/Test.cpp", '#include "foo  bar.h"\nint value;\n', '#include "foo bar.h"\nint value;\n')))
 
     def test_removed_python_import_requires_rationale(self):
         old = "import old_module\nvalue = 1\n"
@@ -677,6 +732,26 @@ class SourceChangeProvenanceTests(unittest.TestCase):
         xml_old = "<Root>\n<!--<Define><DefineName>OLD_NAME</DefineName></Define>-->\n</Root>\n"
         xml_new = "<Root>\n" + xml_note + "<!--<Define><DefineName>NEW_NAME</DefineName></Define>-->\n</Root>\n"
         self.assertEqual(self.errors("Assets/XML/Test.xml", xml_old, xml_new), [])
+
+    # <!-- custom: A KI reference alone on a comment's last line failed review on 2026-11-21; it belongs at the end of the line before. (Claude code Opus 5.5) -->
+    def test_stranded_ki_reference_line(self):
+        old = "value = 1\n"
+        stranded = "value = 1\n# <!-- custom: The sliders line up with the scoreboard.\n# See KI#1103 for the history. (Claude code Opus 5.5) -->\nother = 2\n"
+        self.assertTrue(any("starts with a KI reference" in error for error in self.errors("Assets/Python/Test.py", old, stranded)))
+        closing = "value = 1\n# <!-- custom: The sliders line up with the scoreboard.\n# The history came first. See KI#1103. (Claude code Opus 5.5) -->\nother = 2\n"
+        self.assertEqual(self.errors("Assets/Python/Test.py", old, closing), [])
+        cpp = "int value = 1;\n// <!-- custom: The proxies record once.\n// See KI#605. (Claude code Opus 5.5) -->\nint other = 2;\n"
+        self.assertTrue(any("starts with a KI reference" in error for error in self.errors("CvGameCoreDLL/Test.cpp", "int value = 1;\n", cpp)))
+
+    # <!-- custom: Every rule is listed as repo-wide or diff-only, and dropping one from its list fails the registry, so a new rule cannot be added without that decision (the user, 2026-11-21). (Claude code Opus 5.5) -->
+    def test_rule_registry(self):
+        self.assertEqual(checker.rule_registry_errors(), [])
+        saved = checker.REPO_WIDE_RULES
+        try:
+            checker.REPO_WIDE_RULES = tuple(name for name in saved if name != "stranded_reference_errors")
+            self.assertTrue(any("stranded_reference_errors is in neither" in error for error in checker.rule_registry_errors()))
+        finally:
+            checker.REPO_WIDE_RULES = saved
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 {
   "copyright": "AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy). (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md). JSON allows no comments, so this notice and the description below are fields.",
-  "about": "Window-relative points (physical pixels from the window's top-left corner, as in desktop_windows.py screenshots) where agent_message.py clicks each app's message box and checks it is empty. width is the window's outer width used to pick a layout. text is the area (left, top, right, bottom) that must hold no dark text; it starts just right of where the blinking text cursor sits. When an app update or a new layout moves these, re-measure as the LLM_Helpers README's agent_message.py section describes and update measured. Each composer layout under apps stays on one line so window sizes compare like table rows. The usage layouts keep named controls and crops on separate lines so an agent can find or update one entry directly.",
+  "about": "Window-relative points (physical pixels from the window's top-left corner, as in desktop_windows.py screenshots) where agent_message.py clicks each app's message box and checks it is empty. width is the window's outer width used to pick a layout. text is the area (left, top, right, bottom) that must hold no dark text; it starts just right of where the blinking text cursor sits. frame is the composer's top border (left, right, y, gray value), which must be found in place before a box reads as empty; a layout without one never does. When an app update or a new layout moves these, re-measure as the LLM_Helpers README's agent_message.py section describes and update measured. Each composer layout under apps stays on one line so window sizes compare like table rows. The usage layouts keep named controls and crops on separate lines so an agent can find or update one entry directly.",
   "usage": {
     "about": "GPT-6.1-Sol mapped these usage controls from live captures on 2026-11-13 and Claude Code's 2026-11-10/11 test commands. Coordinates and crops are physical pixels relative to the outer window. A matching size is necessary, and the user must verify the named screen and panel state on a fresh capture before acting.",
     "layouts": {
@@ -116,7 +116,7 @@
       "launch": "OpenAI.Codex_2p2nqsd0c76g0!App",
       "layouts": {
         "4k-max": {"width": 3840, "box": [2250, 1929], "text": [1650, 1905, 2900, 1955], "measured": "2026-11-10", "conditions": "maximized on a 3840x2100 work area"},
-        "4k-half": {"width": 1920, "box": [900, 1932], "text": [370, 1905, 1500, 1960], "measured": "2026-11-11", "conditions": "right half of a 3840x2100 work area, chat list collapsed, Codex 26.1106.6628.0"}
+        "4k-half": {"width": 1920, "box": [900, 1897], "text": [222, 1880, 1800, 1915], "frame": [232, 1805, 1842, 239], "measured": "2026-11-26", "conditions": "right half of a 3840x2100 work area, chat list collapsed, at 150% zoom, which Codex shows at the top right after a View > Zoom choice (the user, 2026-11-26), after the user changed the zoom; the composer had grown a toolbar row below its text line, which sits at y 1886 to 1909 from x 218, so the 2026-11-11 area (box 900, 1932; text 370, 1905, 1500, 1960) lay below it and would have missed a short draft"}
       }
     },
     "claude": {
@@ -124,7 +124,7 @@
       "launch": "Claude_pzs8sxrjxfjjc!Claude",
       "layouts": {
         "4k-max": {"width": 3862, "box": [2100, 2007], "text": [1650, 1975, 2550, 2035], "measured": "2026-11-10", "conditions": "maximized on a 3840x2100 work area"},
-        "4k-half": {"width": 1940, "box": [700, 2000], "text": [170, 1978, 1210, 2022], "measured": "2026-11-17", "conditions": "left half of a 3840x2100 work area, chat list and session rail collapsed; the box had narrowed since 2026-11-11, so the old text area covered its stop and mic buttons (x 1236 and 1293) and read the empty box as full"}
+        "4k-half": {"width": 1940, "box": [900, 1968], "text": [240, 1950, 1600, 1990], "frame": [162, 1778, 1918, 219], "measured": "2026-11-26", "conditions": "left half of a 3840x2100 work area, chat list and session rail collapsed, at 144% zoom, which the app shows at the bottom right when a zoom shortcut is pressed (the user, 2026-11-26), after the user changed the zoom; the text line moved to y 1952 to 1985, with the + button at x 175 to 201 and the caret at x 236, so the 2026-11-17 area (box 700, 2000; text 170, 1978, 1210, 2022), likely measured at the default 100%, caught both and read an empty box as 6 dark pixels. On 2026-11-17 the box had narrowed since 2026-11-11, so an older area had covered its stop and mic buttons"}
       }
     }
   }

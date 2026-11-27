@@ -44,6 +44,22 @@ class StoredLineEndingTests(unittest.TestCase):
 		self.stage("art.dds", b"\0\r\n\0")
 		self.assertEqual(checker.stored_crlf_issues(self.repo), [])
 
+	# <!-- custom: The working-file rule added on 2026-11-25, after six files rewritten with CRLF reached the user's exported diff while Git still stored them LF. See KI#1097. (Claude code Opus 5.5) -->
+	def eol_report(self):
+		return subprocess.run(["git", "-c", "core.quotepath=off", "ls-files", "--eol"], cwd=self.repo, capture_output=True, check=True).stdout.decode("utf-8")
+
+	def test_working_crlf_over_stored_lf_fails(self):
+		(self.repo / ".gitattributes").write_bytes(b"* text=auto eol=lf\n*.thm -text\n")
+		self.stage("doc.md", b"one\ntwo\n")
+		(self.repo / "doc.md").write_bytes(b"one\r\ntwo\r\n")
+		self.assertEqual([issue.relative_path.as_posix() for issue in checker.worktree_eol_issues(self.eol_report())], ["doc.md"])
+
+	def test_working_lf_and_crlf_kinds_pass(self):
+		(self.repo / ".gitattributes").write_bytes(b"* text=auto eol=lf\n*.thm -text\n")
+		self.stage("doc.md", b"one\ntwo\n")
+		self.stage("skin.thm", b"a\r\nb\r\n")
+		self.assertEqual(checker.worktree_eol_issues(self.eol_report()), [])
+
 
 if __name__ == "__main__":
 	unittest.main()

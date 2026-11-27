@@ -87,6 +87,8 @@ void CyGamePythonInterface()
 		// <!-- custom: Let BUG supply its resolved user root and expose a deliberate live-inspection flush for the shared native BBAI/SASGameRecord writer. (ChatGPT-5.6-Sol) -->
 		.def("setSASDiagnosticLogRoot", &CyGame::setSASDiagnosticLogRoot)
 		.def("flushSASDiagnosticLogs", &CyGame::flushSASDiagnosticLogs, "bool () - publish pending diagnostics; false indicates failed output")
+		// <!-- custom: Python needs to keep a screen only one team saw, such as the Greatest Civilizations, in the save and on that team's Timeline; replay messages are both, and none could be added from Python before. (Claude code Opus 5.5) -->
+		.def("addSASTeamReplayMessage", &CyGame::addSASTeamReplayMessage, "void (int iPlayer, wstring text) - add a coordinate-less replay message visible only to iPlayer's team")
 		// <!-- custom: Python owns WorldBuilder screen show/hide callbacks; expose their literal visibility notification so the native recorder can distinguish screen visibility from mode and filter Advanced Start behind its cached enable gate. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 		.def("updateSASRuntimeStatusWorldBuilderScreen", &CyGame::updateSASRuntimeStatusWorldBuilderScreen, "void (bool) - report observed WorldBuilder Python screen visibility")
 		// <!-- custom: The Python WorldBuilder reveal-all loop brackets its many plot setters so save history records one bulk mutation instead of thousands of duplicate per-plot entries. (ChatGPT-5.6-Sol) -->
@@ -102,6 +104,8 @@ void CyGamePythonInterface()
 		.def("logSASGameRecordDiagnosticContext", &CyGame::logSASGameRecordDiagnosticContext, "void (int renderQualityLevel, int antiAliasingIndex, int antiAliasingSamples, int globeViewRenderLevel, int movieQualityLevel) - record finalized session diagnostic settings")
 		// <!-- custom: Compact configuration baseline/change rows, native runtime-view baseline and internal alternate-INI discovery for SASGameRecord; the INI path itself is not logged. (ChatGPT-5.6-Sol) -->
 		.def("logSASGameRecordSessionSettings", &CyGame::logSASGameRecordSessionSettings)
+		// <!-- custom: Python's SASGameRecordConfig reads the recorder's effective level here, so it agrees with the DLL now that SAS_SGR_LOG_ON is the master. See SASGameRecord revision 214 (SGR214). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		.def("getSASGameRecordLogLevel", &CyGame::getSASGameRecordLogLevel, "int () - SASGameRecord's effective level, 0 when off")
 		.def("logSASGameRecordRuntimeViewStateSnapshot", &CyGame::logSASGameRecordRuntimeViewStateSnapshot)
 		// <!-- custom: Narrow revision-151 UI bridges accept only controlled screen/action labels or pre-serialized scalar interface state; no arbitrary user text crosses into the recorder. (ChatGPT-5.6-Sol) -->
 		.def("logSASGameRecordScreenAction", &CyGame::logSASGameRecordScreenAction)
@@ -112,6 +116,9 @@ void CyGamePythonInterface()
 		// <!-- custom: Persisted BUG DotMap planning markers use a typed scalar bridge, distinct from free-form text annotations and generic Python log strings. (ChatGPT-5.6-Sol) -->
 		.def("logSASGameRecordDotMapSummary", &CyGame::logSASGameRecordDotMapSummary)
 		.def("logSASGameRecordDotMapMarker", &CyGame::logSASGameRecordDotMapMarker)
+		// <!-- custom: CvTopCivs.py computes each Greatest Civilizations ranking in Python, so the SASGameRecord rows for it come from there. (Claude code Opus 5.5) -->
+		.def("logSASGameRecordTopCivs", &CyGame::logSASGameRecordTopCivs, "void (string category, wstring historian, int listed, int ranked, int unknownListed, bool shown) - SASGameRecord summary row of a Greatest Civilizations ranking")
+		.def("logSASGameRecordTopCivsRank", &CyGame::logSASGameRecordTopCivsRank, "void (string category, int rank, int player, int value, bool listed, bool known) - SASGameRecord row of one player in that ranking")
 		.def("getSASGameRecordIniFileArgument", &CyGame::getSASGameRecordIniFileArgument)
 		// <!-- custom: Internal BUG diplomacy bridge; captures only resolved AI->human ordinary offers rejected at the UI boundary. (ChatGPT-5.6-Sol) -->
 		.def("logSASGameRecordRejectedAIOffer", &CyGame::logSASGameRecordRejectedAIOffer)
@@ -396,6 +403,10 @@ void CyGamePythonInterface()
 		// <!-- custom: SASPilot's notices dropped popups through closeSASPilotPopups, whose killAll relaunches the popups on display (Codex's review); this drops one exactly. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 		.def("dropSASPilotPopup", &CyGame::dropSASPilotPopup, "bool (int iHeldId, int iButtonPopupType, int iData1, int iData3, wstring szText) - drop the held popup with that ID, or with -1 the first queued one matching type, data1, data3 and text")
 		.def("chooseSASPilotFreeTech", &CyGame::chooseSASPilotFreeTech, "bool (int iTech, int iHeldId) - choose a free tech as the tech chooser does, through the held chooser with that ID")
+		// <!-- custom: SASPilotUI clicks typed widgets by name, which the EXE otherwise hands to CvDLLWidgetData::executeAction only from a real click. (Claude code Opus 5.5) -->
+		.def("executeSASPilotWidget", &CyGame::executeSASPilotWidget, "bool (int /*WidgetTypes*/ iWidgetType, int iData1, int iData2, bool bOption, bool bAlt) - run a widget's click action, or with bAlt its right-click action, as a click on it would; executeAction's own return, false for most widgets")
+		// <!-- custom: SASPilotUI reads a widget's hover text, which the EXE asks of CvDLLWidgetData::parseHelp only on a real hover. (Claude code Opus 5.5) -->
+		.def("getSASPilotWidgetHelp", &CyGame::getSASPilotWidgetHelp, "wstring (int /*WidgetTypes*/ iWidgetType, int iData1, int iData2, bool bOption) - the hover text the window shows for this widget")
 		.def("isSASPilotChoosingFreeTech", &CyGame::isSASPilotChoosingFreeTech, "bool () - whether the active player still owes a free tech choice")
 		.def("proposeSASPilotDeal", &CyGame::proposeSASPilotDeal, "string (int iPlayer, int iOther, string szWeGive, string szTheyGive) - propose a deal to an AI as 'kind:data,...' lists; JSON with whether it was accepted and made")
 		// <!-- custom: Python cannot put items on the EXE's trade table; SASPilot's 'contact' opens the table with a deal on it so the screen's own replies, "What would you want?"

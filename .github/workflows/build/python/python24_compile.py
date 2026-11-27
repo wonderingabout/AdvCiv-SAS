@@ -16,6 +16,9 @@ import tempfile
 SCAN_RELATIVE_DIRS = (
 	"Assets/Python",
 	"PrivateMaps",
+	# <!-- custom: The SASPilot modules Civ4 loads from outside Assets, to avoid the EXE reload path, still run under Python 2.4.
+	# The check named only SASPilotCommands.py, so SASPilotUI.py beside it went unchecked; since 2026-11-20 the whole folder is scanned. (GPT-6.1-Sol + Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	"SASPilot/game",
 )
 
 IGNORED_DIR_NAMES = (
@@ -77,11 +80,6 @@ def iter_python_files(repo_root):
 			for file_name in file_names:
 				if file_name.endswith(".py"):
 					paths.append(os.path.join(dir_path, file_name))
-	# <!-- custom: Civ4 loads this command module directly from outside Assets to avoid the EXE reload path.
-	# It still runs under Python 2.4. (GPT-6.1-Sol) -->
-	pilot_commands = os.path.join(repo_root, "LLM_Helpers/saspilot/SASPilotCommands.py")
-	if os.path.isfile(pilot_commands):
-		paths.append(pilot_commands)
 	paths.sort()
 	return paths
 

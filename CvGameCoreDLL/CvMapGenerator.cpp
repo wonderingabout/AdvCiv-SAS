@@ -263,6 +263,7 @@ void CvMapGenerator::addRivers()
 	// <!-- custom: Water.py temporarily changes the default river generator's defines.
 	// Snapshot them before the map-script callback, consume the active values after it, then restore the shared globals so Water remains effective and cannot contaminate later map generations.
 	// CvGlobals::getInstance() is intentional: AdvCiv's GC accessor is const, but restoring changed defines requires the established mutable singleton accessor. See KI#243. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: ci_define_uncached: these reads must stay live, as Water.py changes the river defines for one map generation and they are restored after it. See KI#243. (Claude code Opus 5.5) -->
 	CvGlobals& kGlobals = CvGlobals::getInstance();
 	const int iOriginalRiverSourceRange = kGlobals.getDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE");
 	const int iOriginalSeaWaterRange = kGlobals.getDefineINT("RIVER_SOURCE_MIN_SEAWATER_RANGE");

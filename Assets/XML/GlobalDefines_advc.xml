@@ -120,7 +120,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		 power ratio is multiplied in CvTeamAI::AI_declareWarTradeVal.
 		 Recommended: 300% to make the AI more reluctant to DoW a more powerful
 		 civ; 100 for original behavior. -->
-	<!-- custom: trying to increase this, not sure if helpful or not or taken into account, but tring it, we don't want to be baited into a war we can't win!
+	<!-- custom: trying to increase this, not sure if helpful or not or taken into account, but trying it, we don't want to be baited into a war we can't win!
 	Was 300 -->
     <Define>
         <DefineName>WAR_TRADEVAL_POWER_WEIGHT</DefineName>
@@ -198,7 +198,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		 are not shown to the player, even if the "show friendly moves" option
 		 is enabled. Exception: You still see foreign Missionaries and Executives
 		 move within your borders. Recommended: 0; 1 for original behavior. -->
-	<!-- custom: trying 1 as i think religion is more important now, maybe a bit excessive but players may even want to target misssionaries which i may rework too maybe, was 0 -->
+	<!-- custom: trying 1 as i think religion is more important now, maybe a bit excessive but players may even want to target missionaries which i may rework too maybe, was 0 -->
 	<Define>
 		<DefineName>SHOW_FRIENDLY_MISSIONARY_MOVES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -806,7 +806,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		 The BtS routine for protecting noncombatants isn't affected by
 		 this. Set to 0 or less for BtS behavior: combat units never
 		 evacuate. -->
-	<!-- custom: try to make them evacuate slightly sooner if i understood this correctly, but not too much sooner i mean, as there is a good chance attacker would lose out too much, or be dissuaded to attack due to high losses even if city is capturable, so do not evacuate cities that have a chance to survive that is high enough, but do not stay and die needlessly when the outcome is quite clear so AI has a comeback chance later maybe, so reduce it a bit to evacuate sooner but not too much to not over evacuate, maybe also rather from a realism standpoint they may fight and die rather than evacuate but i find this idea stupid, better flee than die is more startegic in this case at least, so reduce it a bit but not too much more as originally planned anyways in this case etc, was 150 -->
+	<!-- custom: try to make them evacuate slightly sooner if i understood this correctly, but not too much sooner, as there is a good chance attacker would lose out too much, or be dissuaded to attack due to high losses even if city is capturable, so do not evacuate cities that have a chance to survive that is high enough, but do not stay and die needlessly when the outcome is quite clear so AI has a comeback chance later maybe, so reduce it a bit to evacuate sooner but not too much to not over evacuate, maybe also rather from a realism standpoint they may fight and die rather than evacuate but i find this idea stupid, better flee than die is more strategic in this case at least, so reduce it a bit but not too much more as originally planned anyways in this case etc, was 150 -->
     <Define>
         <DefineName>AI_EVACUATION_THRESH</DefineName>
         <iDefineIntVal>138</iDefineIntVal>
@@ -979,7 +979,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<!-- [advc.025] Culture that spreads from a capitulated vassal to its
 		 master is multiplied by this percentage. 100 for BtS behavior
 		 (normal spread); recommended: 50. -->
-	<!-- custom: gain less culture from capitulation, after all it's more like the loser civ is assimilated than merging (even though some exchange may happen, mostly they'd have to give up their cultural habits in favor of the empire/winner's one to be part of their empire), plus it would be too easy of a way to gain culture through military/conquest, but no need to make it too drastic either as some culture is most likely transfered as well, was 50 -->
+	<!-- custom: gain less culture from capitulation, after all it's more like the loser civ is assimilated than merging (even though some exchange may happen, mostly they'd have to give up their cultural habits in favor of the empire/winner's one to be part of their empire), plus it would be too easy of a way to gain culture through military/conquest, but no need to make it too drastic either as some culture is most likely transferred as well, was 50 -->
 	<Define>
 		<DefineName>CAPITULATED_TO_MASTER_CULTURE_PERCENT</DefineName>
 		<iDefineIntVal>30</iDefineIntVal>
@@ -1392,7 +1392,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<!-- Replaces the base chance above on the turn that war has been declared
 		 on a captured unit's owner. Use 100 for BtS behavior. Recommended: 0,
 		 to discourage surprise attacks against workers. -->
-	<!-- custom: do not discourage attack, suprise attack and profit are important components of war, would help make the AI but also the human player rewarded for more efficient and opportunistic strategies, maybe more realistic this way too for better or worse but no reason to explicitly prevent it, this is a fine and realistic mechanic i would say part of the natural way a war happens, do not discourage it, at least in advciv-sas, was 0 -->
+	<!-- custom: do not discourage attack, surprise attack and profit are important components of war, would help make the AI but also the human player rewarded for more efficient and opportunistic strategies, maybe more realistic this way too for better or worse but no reason to explicitly prevent it, this is a fine and realistic mechanic i would say part of the natural way a war happens, do not discourage it, at least in advciv-sas, was 0 -->
 	<Define>
 		<DefineName>DOW_UNIT_CAPTURE_CHANCE</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
@@ -1429,7 +1429,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<iDefineIntVal>1000</iDefineIntVal>
 	</Define>
 
-	<!-- custom: first tried -100 000, now reduced to -50 000 since we have less early start games if i may say or if accurate, see also (adjust to your mod path) CIV4GameSpeedInfo.xml for details -->
+	<!-- custom: first tried -100 000, now reduced to -50 000 since we have less early start games, see also (adjust to your mod path) CIV4GameSpeedInfo.xml for details -->
 	<Define>
 		<DefineName>START_YEAR</DefineName>
 		<iDefineIntVal>-50000</iDefineIntVal>

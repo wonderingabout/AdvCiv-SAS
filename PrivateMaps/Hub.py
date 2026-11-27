@@ -45,12 +45,12 @@ def getCustomMapOptionName(argsList):
 	"""
 	[iOption] = argsList
 	option_names = {
-		0:	"TXT_KEY_MAP_SCRIPT_AREAS_PER_PLAYER",
-		1:	"TXT_KEY_MAP_SCRIPT_LAND_SHAPE",
-		2:	"TXT_KEY_MAP_SCRIPT_NEUTRAL_TERRITORY",
-		3:	"TXT_KEY_MAP_SCRIPT_ISTHMUS_WIDTH",
-		4:  "TXT_KEY_MAP_WORLD_WRAP",
-		5:  "TXT_KEY_CONCEPT_RESOURCES"
+		0: "TXT_KEY_MAP_SCRIPT_AREAS_PER_PLAYER",
+		1: "TXT_KEY_MAP_SCRIPT_LAND_SHAPE",
+		2: "TXT_KEY_MAP_SCRIPT_NEUTRAL_TERRITORY",
+		3: "TXT_KEY_MAP_SCRIPT_ISTHMUS_WIDTH",
+		4: "TXT_KEY_MAP_WORLD_WRAP",
+		5: "TXT_KEY_CONCEPT_RESOURCES"
 		}
 	if not option_names.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -60,44 +60,44 @@ def getCustomMapOptionName(argsList):
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	2,
-		1:	3,
-		2:	4,
-		3:	3,
-		4:  3,
-		5:  2
+		0: 2,
+		1: 3,
+		2: 4,
+		3: 3,
+		4: 3,
+		5: 2
 		}
 	return option_values[iOption]
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_SCRIPT_1_PER_PLAYER",
 			1: "TXT_KEY_MAP_SCRIPT_2_10_PLAYERS_MAX"
 			},
-		1:	{
+		1: {
 			0: "TXT_KEY_MAP_SCRIPT_NATURAL",
 			1: "TXT_KEY_MAP_SCRIPT_PRESSED",
 			2: "TXT_KEY_MAP_SCRIPT_SOLID"
 			},
-		2:	{
+		2: {
 			0: "TXT_KEY_MAP_SCRIPT_VARIED",
 			1: "TXT_KEY_MAP_SCRIPT_PRESSED",
 			2: "TXT_KEY_MAP_SCRIPT_NATURAL",
 			3: "TXT_KEY_MAP_SCRIPT_ISLANDS"
 			},
-		3:	{
+		3: {
 			0: "TXT_KEY_MAP_SCRIPT_1_PLOT_WIDE",
 			1: "TXT_KEY_MAP_SCRIPT_2_PLOTS_WIDE",
 			2: "TXT_KEY_MAP_SCRIPT_3_PLOTS_WIDE"
 			},
-		4:	{
+		4: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 			},
-		5:	{
+		5: {
 			0: "TXT_KEY_WORLD_STANDARD",
 			1: "TXT_KEY_MAP_BALANCED"
 			}
@@ -110,24 +110,24 @@ def getCustomMapOptionDescAt(argsList):
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	0,
-		1:	-1,
-		2:	-1,
-		3:	1,
-		4:  0,
-		5:  0
+		0: 0,
+		1: -1,
+		2: -1,
+		3: 1,
+		4: 0,
+		5: 0
 		}
 	return option_defaults[iOption]
 
 def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
 	option_random = {
-		0:	true,
-		1:	true,
-		2:	true,
-		3:	true,
-		4:	false,
-		5:  false
+		0: true,
+		1: true,
+		2: true,
+		3: true,
+		4: false,
+		5: false
 		}
 	return option_random[iOption]
 

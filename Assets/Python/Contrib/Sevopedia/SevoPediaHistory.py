@@ -87,19 +87,8 @@ class SevoPediaHistory:
 		if iDirtyFiles >= 0:
 			szDirtyFileCount = str(iDirtyFiles)
 
-		szText = localText.getText("TXT_KEY_SAS_VERSION_PEDIA_RUNTIME_DETAILS", (
-			CvModName.getDisplayNameAndVersion(),
-			knownText(CvModName.getVersion()),
-			knownText(CvModName.getCommitHash()),
-			knownText(CvModName.getBranch()),
-			knownText(CvModName.getCommitDate()),
-			knownText(CvModName.getSourceMetadataType()),
-			dirtyText(iDirty),
-			szDirtyFileCount))
-		szText += localText.getText("TXT_KEY_SAS_VERSION_PEDIA_RUNTIME_PATH_DETAILS", (
-			knownText(CvModName.getFolderName()),
-			knownText(CvModName.getPathInRoot()),
-			szDirtyFiles))
+		szText = localText.getText("TXT_KEY_SAS_VERSION_PEDIA_RUNTIME_DETAILS", (CvModName.getDisplayNameAndVersion(), knownText(CvModName.getVersion()), knownText(CvModName.getCommitHash()), knownText(CvModName.getBranch()), knownText(CvModName.getCommitDate()), knownText(CvModName.getSourceMetadataType()), dirtyText(iDirty), szDirtyFileCount))
+		szText += localText.getText("TXT_KEY_SAS_VERSION_PEDIA_RUNTIME_PATH_DETAILS", (knownText(CvModName.getFolderName()), knownText(CvModName.getPathInRoot()), szDirtyFiles))
 
 		g = gc.getGame()
 		iEntries = g.getNumSASVersionHistoryEntries()
@@ -111,12 +100,7 @@ class SevoPediaHistory:
 			szRole = localText.getText("TXT_KEY_SAS_VERSION_ROLE_CREATION", ())
 			if iEntry > 0:
 				szRole = localText.getText("TXT_KEY_SAS_VERSION_ROLE_TRANSITION", ())
-			szText += localText.getText("TXT_KEY_SAS_VERSION_PEDIA_GAME_HISTORY_ENTRY", (
-				szRole,
-				g.getSASVersionHistoryTurn(iEntry),
-				knownText(g.getSASVersionHistoryVersion(iEntry)),
-				knownText(g.getSASVersionHistoryCommitHash(iEntry)),
-				dirtyText(g.getSASVersionHistoryDirtyState(iEntry))))
+			szText += localText.getText("TXT_KEY_SAS_VERSION_PEDIA_GAME_HISTORY_ENTRY", (szRole, g.getSASVersionHistoryTurn(iEntry), knownText(g.getSASVersionHistoryVersion(iEntry)), knownText(g.getSASVersionHistoryCommitHash(iEntry)), dirtyText(g.getSASVersionHistoryDirtyState(iEntry))))
 		return szText
 
 	def handleInput (self, inputClass):

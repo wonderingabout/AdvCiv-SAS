@@ -3,10 +3,11 @@ name: Checks - Source
 on:
   push:
   pull_request:
-    # <!-- custom: Ignore the long-lived reference compare from main to the mirrored base AdvCiv 1.14 branch.
-    # Keep it open so GitHub tracks the diff, but do not run duplicate PR checks for it. (ChatGPT-5.5) -->
+    # <!-- custom: Ignore the long-lived reference compare from main to the mirrored base AdvCiv release branch, named by its version, such as 1.14.
+    # Keep it open so GitHub tracks the diff, but do not run duplicate PR checks for it.
+    # The pattern matches any version, so a newer AdvCiv's branch needs no edit here (2026-11-22). (ChatGPT-5.5 + Claude code Opus 5.5) -->
     branches-ignore:
-      - "1.14"
+      - "[0-9]+.[0-9]+"
   workflow_dispatch:
 
 jobs:
@@ -43,6 +44,14 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/sevopedia_top_attributes.py
 
+      - name: Copies of base-game files and inherited Python imports match the inherited files audit
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/inherited_files.py
+
+      - name: Carried base-game entry points keep the functions the engine calls by name
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/python_engine_callbacks.py
+
       - name: Byte comparisons in CI scripts say why
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/checkout_byte_compares.py
@@ -51,9 +60,21 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/cpp_standard_conformance.py
 
+      - name: DLL source reads each SAS define once, or says why not
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/cpp_define_reads_cached.py
+
+      - name: Shipped SASLiveDefineOverrides equal their XML values and reach their readers
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/sas_live_define_overrides.py
+
       - name: Switched define values are written only in LLM_Helpers/diagnostics/define_values.py
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/shared_define_values.py
+
+      - name: Every advisor leaving the scoreboard space carries SAS_LEAVES_SCOREBOARD_SPACE
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/advisor_scoreboard_space.py
 
       - name: Runtime Python never starts a button path as u""
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -66,6 +87,26 @@ jobs:
       - name: Runtime Python never formats an integer division with %.Nf
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/float_format_int_division.py
+
+      - name: Runtime Python writes each call on one line
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/python_multiline_calls.py
+
+      - name: Runtime Python stores no attribute twice before a read
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/python_dead_stores.py
+
+      - name: Runtime Python reads no define at import
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/python_define_reads_import.py
+
+      - name: Runtime Python caches each define it reads by name, or says why not
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/python_define_reads_cached.py
+
+      - name: Runtime Python aligns columns with tabs and leaves one space elsewhere
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/python_aligned_columns.py
 
       - name: Python bindings point at their own enumerator or method
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -82,6 +123,10 @@ jobs:
       - name: Custom-comment logical reflow
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python LLM_Helpers/formatting/reflow_custom_comments.py --check
+
+      - name: Custom comments close before code or the next custom comment
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/custom_comment_closing.py
 
       - name: Custom-comment indentation
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

@@ -25,6 +25,15 @@ class MarkdownProseChangesTests(unittest.TestCase):
         for good in ["- Save checkpoint.\n  - Loading strips it.\n", "- Wrapped sentence continues\n  on the next line.\n", "- Example:\n\n  ```python\n  call()\n  ```\n"]:
             self.assertEqual(checker.findings("README.md", "", good), [])
 
+    # <!-- custom: The SASPilot guide's `reminders` row reached 5710 characters unnoticed, as tables were outside the prose check (2026-11-19); an added or edited long row fails, an untouched one waits, and a fenced one is code. (Claude code Opus 5.5) -->
+    def test_long_table_row_fails_only_when_edited(self):
+        row = "| `check` | " + "detail, " * (checker.TABLE_ROW_MAX // 8) + "|\n"
+        table = "| Name | What |\n| --- | --- |\n"
+        self.assertTrue(checker.findings("README.md", "", table + row))
+        self.assertEqual(checker.findings("README.md", table + row, table + row + "\nShort addition.\n"), [])
+        self.assertEqual(checker.findings("README.md", "", table + "| `check` | short |\n"), [])
+        self.assertEqual(checker.findings("README.md", "", "```text\n" + row + "```\n"), [])
+
     def test_new_and_changed_prose_fails_but_untouched_history_passes(self):
         self.assertTrue(checker.findings("README.md", "", LONG + "\n"))
         self.assertTrue(checker.findings("README.md", LONG + "\n", LONG.replace("First", "Updated") + "\n"))

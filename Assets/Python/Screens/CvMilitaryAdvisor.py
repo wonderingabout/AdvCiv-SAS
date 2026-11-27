@@ -27,6 +27,9 @@ localText = CyTranslator()
 class CvMilitaryAdvisor:
 	"Military Advisor"
 
+	# <!-- custom: This advisor leaves the scoreboard the space getAdvisorScoreboardSpace gives, so the scoreboard shortens leader names to fit beside it; CvScreensInterface finds open advisors by this marker. (Claude code Opus 5.5) -->
+	SAS_LEAVES_SCOREBOARD_SPACE = True
+
 	def __init__(self, screenId):
 
 		self.screenId = screenId
@@ -78,7 +81,6 @@ class CvMilitaryAdvisor:
 
 		# <!-- custom: keep screen-independent advisor shell constants in init; compute runtime resolution-dependent geometry in updateRuntimeLayout via SASUtils helpers. (GPT-5.3-Codex) -->
 		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
-		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
 		self.H_TOP_SPACE_FOR_TECH_BAR = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
 		self.H_BOTTOM_SPACE = SAS_ADVISOR_BOTTOM_SPACE
 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
@@ -338,13 +340,10 @@ class CvMilitaryAdvisor:
 		self.RESULT_WON = 0
 		self.RESULT_LOST = 1
 		self.RESULT_RETREAT = 2
-		# <!-- custom: regular gold coin via CommerceInfo.getChar() (matches Domestic Advisor gold headers).
-		# Earlier we used FontSymbols.BAD_GOLD_CHAR, the red maintenance-coin variant, which was visually wrong for normal cost subtotals.
-		# Hammer comes from YIELD_PRODUCTION. (Claude code Opus 4.7, GPT-5.5) -->
 
 	def updateRuntimeLayout(self, screen):
 		# <!-- custom: compute runtime shell bounds/anchors through shared helpers so Military Advisor follows the same runtime layout flow as Foreign/Info/Domestic. (GPT-5.3-Codex) -->
-		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
+		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, getAdvisorScoreboardSpace(screen.getXResolution(), SASTextScale.getSASUIFontLabel()), self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, _, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.Y_LINK = self.Y_EXIT
 
@@ -355,7 +354,7 @@ class CvMilitaryAdvisor:
 		iAdvisorMargin = 20
 		iLeaderToMapMinimapGap = 5
 		iBottomReserve = 15
-		self.X_TEXT = self.W_SCREEN - iAdvisorMargin - self.W_TEXT
+		# <!-- custom: Removed X_TEXT = W_SCREEN - iAdvisorMargin - W_TEXT here, the right-aligned unit list of an earlier layout: the balanced split below set it again before anything read it. See KI#1098.3. (Claude code Opus 5.5) -->
 		self.Y_TEXT = self.Y_LEADERS
 		self.H_TEXT = self.H_SCREEN - self.Y_TEXT - 55 - iAdvisorMargin
 
@@ -546,6 +545,8 @@ class CvMilitaryAdvisor:
 		self.selectedUnitList = []
 		self.restoreMapSelectedPlayers()
 
+		# <!-- custom: The Map tab had no legend, so its Ctrl+click and right-click Sevopedia shortcuts were not discoverable (the user, 2026-11-20). (Claude code Opus 5.5) -->
+		placeAdvisorLegendLink(self, "CONCEPT_SAS_MILITARY_ADVISOR_MAP_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
 		self.drawCombatExperience()
 
 		self.refresh(true)
@@ -568,9 +569,15 @@ class CvMilitaryAdvisor:
 		return iCombat
 
 	def getBattleStoredStrengthText(self, iStrength):
-		if iStrength > 0:
-			return u"%.2f" % (iStrength / 100.0)
-		return u""
+		# <!-- custom: At most 4 digits, cut rather than rounded so 99.99 never reads 100.0: "2.00", "12.34", "123.4", "1234", from the stored strength x100.
+		# A 3-digit strength is rare and its second decimal matters little, and a 6-character "123.45" set the strength columns' width; capping it narrows all six (the user, 2026-11-19). (Claude code Opus 5.5) -->
+		if iStrength <= 0:
+			return u""
+		if iStrength < 10000:
+			return u"%d.%02d" % (iStrength / 100, iStrength % 100)
+		if iStrength < 100000:
+			return u"%d.%d" % (iStrength / 100, (iStrength % 100) / 10)
+		return u"%d" % (iStrength / 100)
 
 	def getBattleEntryColumns(self, entry):
 		if len(entry) < 7:
@@ -841,14 +848,18 @@ class CvMilitaryAdvisor:
 		screen.addTableControlGFC(self.BATTLE_TABLE_ID, self.BATTLE_NUM_COLS, iTableX, iTableY, iTableW, iTableH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(self.BATTLE_TABLE_ID)
 		screen.setStyle(self.BATTLE_TABLE_ID, "Table_StandardCiv_Style")
-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 0, self.TEXT_BATTLE_TURN, 55)
-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 1, self.TEXT_BATTLE_YEAR, 104)
+		iTurnColW = getAdvisorNumberColW(4)
+		# <!-- custom: was 104; 8 characters fit the widest year, such as "12750 BC", 88 px at font 4, and the rest goes to the unit names; 9 left about 23 px unused at font 4. (Claude code Opus 5.5) -->
+		iYearColW = getAdvisorNumberColW(8)
+		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 0, self.TEXT_BATTLE_TURN, iTurnColW)
+		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 1, self.TEXT_BATTLE_YEAR, iYearColW)
 		iResultColW = 35
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 2, u"R", iResultColW)
 		iPlotColW = 35
 		# <!-- custom: use one shared 2-digit-friendly width for compact numeric columns (E%, base strength, XP, PID, Cap#).
 		# Values like 100%, 3-digit strength, or 3-digit XP may clip, but this preserves the plot-camera column when the vertical scrollbar appears. (GPT-5.5) -->
-		iTwoDigitColW = 38
+		# <!-- custom: was 38; the shared rule sizes 3 characters, for the 3-letter "PID" header or a 100% odds. (Claude code Opus 5.5) -->
+		iTwoDigitColW = getAdvisorNumberColW(3)
 		iEstOddsColW = iTwoDigitColW
 		iRoleColW = 35
 		iBaseColW = iTwoDigitColW
@@ -863,7 +874,8 @@ class CvMilitaryAdvisor:
 			iTerrainColW = 35
 			iFeatureColW = 35
 			iHillPeakColW = 35
-		iStrengthColW = 78
+		# <!-- custom: was 78, for a 6-character "123.45"; getBattleStoredStrengthText now shows 5 at most, such as "99.99" or "123.4". (Claude code Opus 5.5) -->
+		iStrengthColW = getAdvisorNumberColW(4, True)
 		# <!-- custom: reserve right-side width for the table scrollbar gutter so unit-name text does not clip under it; Battles fills fast so the scrollbar is the common case.
 		# Matches CvInfoScreen's 14px convention. (Claude code Opus 4.7) -->
 		iScrollbarGutterW = 14
@@ -871,9 +883,12 @@ class CvMilitaryAdvisor:
 		# The remaining width is split equally between Our Unit and Their Unit, so both text columns grow at higher resolutions. (GPT-6.1-Sol) -->
 		iAxisColW = 0
 		if self.IS_SAS_MILIT_UI_BATTLE_XY_ON:
-			iAxisColW = 45
+			iAxisColW = getAdvisorNumberColW(3)
 		iUnitColBudget = iTableW - iScrollbarGutterW - 2 * iAxisColW
-		iUnitColW = max(105, (iUnitColBudget - 55 - 105 - iResultColW - iEstOddsColW - iRoleColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - iXPColW - 35 - 35 - iPIDColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - iXPColW - iCaptureCountColW - iCaptureUnitColW - iHillPeakColW - iTerrainColW - iFeatureColW - iPlotColW) / 2)
+		# <!-- custom: The unit columns take what is left, as V/M does on the Info Screen's Score tab, but a fixed 105 px minimum made the row wider than the table in a 1926 px window (about 1480 px of table), cutting off the camera column after Y (2026-11-19).
+		# So they may shrink further, to a floor where a name still shows its start before the ellipsis the table adds, as "Ancie..." did; the year column was also subtracted as 105 while drawn 104. (Claude code Opus 5.5) -->
+		iUnitColMinW = 60
+		iUnitColW = max(iUnitColMinW, (iUnitColBudget - iTurnColW - iYearColW - iResultColW - iEstOddsColW - iRoleColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - iXPColW - 35 - 35 - iPIDColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - iXPColW - iCaptureCountColW - iCaptureUnitColW - iHillPeakColW - iTerrainColW - iFeatureColW - iPlotColW) / 2)
 		# <!-- custom: show battles from the inspected player's perspective: our unit is always on the left and their unit follows immediately, so each row reads as a direct matchup.
 		# Our repeated civ/leader/PID are omitted because the dropdown/log PerspectivePlayer already identifies us. (GPT-5.5) -->
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 3, self.TEXT_BATTLE_EST_ODDS, iEstOddsColW)
@@ -1161,6 +1176,11 @@ class CvMilitaryAdvisor:
 				iSpyUnits += 1
 			if pUnitInfo.isHiddenNationality():
 				iHiddenNatUnits += 1
+			# <!-- custom: Standalone Great Generals have no combat strength.
+			# Count units that can grant a leader promotion even when they fail canFight(), so the Summary sees the General before it attaches or settles. (GPT-6.2-Sol) -->
+			bStandaloneGeneral = pUnitInfo.getLeaderPromotion() >= 0
+			if bStandaloneGeneral:
+				iStandaloneGenerals += 1
 			bMilitary = pUnit.canFight()
 			if bMilitary:
 				iMilitary += 1
@@ -1189,12 +1209,9 @@ class CvMilitaryAdvisor:
 						iHighestCostUnitType = iUnitType
 				iXpSum += pUnit.getExperience()
 				iLevelSum += pUnit.getLevel()
-				# <!-- custom: getLeaderPromotion() >= 0 means this UnitInfo is a Great General template (it carries a leader promotion to grant on attach), so the unit ITSELF is a standalone GG.
-				# Otherwise check whether the unit has previously received PROMOTION_LEADER (i.e. a regular combat unit that absorbed a GG).
-				# The two cases are exclusive. (Claude code Opus 4.7) -->
-				if pUnitInfo.getLeaderPromotion() >= 0:
-					iStandaloneGenerals += 1
-				elif pUnit.isHasPromotion(self.iPromoLeader):
+				# <!-- custom: PROMOTION_LEADER identifies an attached General.
+				# Keep that count separate from standalone units that can grant the promotion. (Claude code Opus 4.7 + GPT-6.2-Sol) -->
+				if not bStandaloneGeneral and pUnit.isHasPromotion(self.iPromoLeader):
 					iLedByGeneral += 1
 				# <!-- custom: hit-points-based health % (uses currHitPoints/maxHitPoints rather than 100-getDamage so promotion/building max-HP overrides are reflected). iMinHealth=-1 sentinel because 0 is a valid (dying) value. (Claude code Opus 4.7) -->
 				iMaxHp = pUnit.maxHitPoints()
@@ -1619,8 +1636,8 @@ class CvMilitaryAdvisor:
 		return iRowY + 1
 
 	def getSummaryCostResultText(self, szFormula, iResult, iColor):
-		# <!-- custom: every caller of this helper produces a Support-column gold amount, so suffix the result with the normal gold coin; formula operands remain unitless counts, rates, and multipliers. (Claude code Opus 4.7, GPT-5.5) -->
-		return szFormula + u" = " + localText.changeTextColor(unicode(iResult) + SASVisuals.Commerce.char(CommerceTypes.COMMERCE_GOLD), iColor)
+		# <!-- custom: every caller of this helper produces a Support-column gold amount, so use the expense coin on positive deductions, as Finance does; formula operands remain unitless counts, rates, and multipliers. (Claude code Opus 4.7, GPT-5.5) -->
+		return szFormula + u" = " + localText.changeTextColor(SASVisuals.Commerce.goldCostText(iResult), iColor)
 
 	def summaryBuildingHasMilitarySupportEffect(self, kInfo):
 		# <!-- custom: semantic Military Summary predicate: local/global XP, military/domain production, Great-General generation, unit-combat/domain XP, or a free promotion.
@@ -1846,7 +1863,7 @@ class CvMilitaryAdvisor:
 			szUnitSupplyLabel = u"%s (%s)" % (szUnitSupplyLabel, self.TEXT_SUMMARY_ANARCHY)
 			szTotalGoldLabel = u"%s (%s)" % (szTotalGoldLabel, self.TEXT_SUMMARY_ANARCHY)
 		szUnitCostText = self.getSummaryCostResultText(u"%d + %d + %d" % (dStats["regular_unit_cost"], dStats["military_unit_cost"], dStats["extra_unit_cost"]), dStats["raw_unit_cost"], iUnitCostColor)
-		szUnitSupplyText = unicode(dStats["raw_unit_supply"]) + SASVisuals.Commerce.char(CommerceTypes.COMMERCE_GOLD)
+		szUnitSupplyText = SASVisuals.Commerce.goldCostText(dStats["raw_unit_supply"])
 		szFreeUsedCapText = u"%d/%d" % (dStats["free_used_units"], dStats["free_units"])
 		szFreeUsedMilitaryCapText = u"%d/%d" % (dStats["free_used_military_units"], dStats["free_military_units"])
 		if dStats["inflation_percent"] > 0:
@@ -1860,7 +1877,7 @@ class CvMilitaryAdvisor:
 		if dStats["base_supply_cost"] != dStats["raw_unit_supply"]:
 			# <!-- custom: AI handicap multiplies the base supply cost (CvPlayer.cpp:6301-6308).
 			# When the post-handicap value differs we show both: pre-handicap subtotal -> handicap-adjusted final, both as gold. (Claude code Opus 4.7) -->
-			szOutsideRateText = u"(%d x %d) / 100 = %d%s -> %s" % (dStats["paid_outside"], dStats["gold_per_outside_unit"], dStats["base_supply_cost"], SASVisuals.Commerce.char(CommerceTypes.COMMERCE_GOLD), localText.changeTextColor(unicode(dStats["raw_unit_supply"]) + SASVisuals.Commerce.char(CommerceTypes.COMMERCE_GOLD), iUnitSupplyColor))
+			szOutsideRateText = u"(%d x %d) / 100 = %s -> %s" % (dStats["paid_outside"], dStats["gold_per_outside_unit"], SASVisuals.Commerce.goldCostText(dStats["base_supply_cost"]), localText.changeTextColor(SASVisuals.Commerce.goldCostText(dStats["raw_unit_supply"]), iUnitSupplyColor))
 		# <!-- custom: rendered support tree:
 		# Total Units
 		#   Free Used/Cap / Paid / P x R x M
@@ -1891,7 +1908,7 @@ class CvMilitaryAdvisor:
 			(self.TEXT_SUMMARY_FREE_USED_CAP_SHORT, szFreeUsedMilitaryCapText, eNone, -1, -1, 2, -1),
 			(self.TEXT_SUMMARY_PAID_SHORT, unicode(dStats["paid_military_units"]), eNone, -1, -1, 2, -1),
 			(self.TEXT_SUMMARY_GOLD_PER_MIL_UNIT, self.getSummaryCostResultText(u"(%d x %d) / 100" % (dStats["paid_military_units"], dStats["gold_per_military_unit"]), dStats["military_unit_cost"], iUnitCostColor), eHelpUnitCost, self.iActivePlayer, 1, 2, -1),
-			(self.TEXT_SUMMARY_EXTRA_COST, unicode(dStats["extra_unit_cost"]) + SASVisuals.Commerce.char(CommerceTypes.COMMERCE_GOLD), eHelpUnitCost, self.iActivePlayer, 1, 2, iUnitCostColor),
+			(self.TEXT_SUMMARY_EXTRA_COST, SASVisuals.Commerce.goldCostText(dStats["extra_unit_cost"]), eHelpUnitCost, self.iActivePlayer, 1, 2, iUnitCostColor),
 			(None, None, eNone, -1, -1, 0, -1),
 			(szUnitCostLabel, szUnitCostText, eHelpUnitCost, self.iActivePlayer, 1, 1, -1),
 			(None, None, eNone, -1, -1, 0, -1),
@@ -2135,7 +2152,9 @@ class CvMilitaryAdvisor:
 			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_RATE_EXTRA, SASVisuals.Color.EMPTY)
 			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_EMPTY, SASVisuals.Color.EMPTY)
 			screen.setBarPercentage(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_STORED, float(iExperience) / float(iGreatPeopleThreshold))
-			screen.setLabel(self.GREAT_GENERAL_LABEL_ID, "", SASTextScale.sasFontTagLabel + self.TEXT_COMBAT_EXPERIENCE + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GREAT_GENERAL_BAR + self.W_GREAT_GENERAL_BAR/2, self.Y_GREAT_GENERAL_BAR + 6, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
+			# <!-- custom: The label named the bar but not its values, which the main interface's Great General bar shows as "stored / threshold"; it now shows them too (the user, 2026-11-20). (Claude code Opus 5.5) -->
+			szText = u"%s: %d / %d" % (self.TEXT_COMBAT_EXPERIENCE, iExperience, iGreatPeopleThreshold)
+			screen.setLabel(self.GREAT_GENERAL_LABEL_ID, "", SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GREAT_GENERAL_BAR + self.W_GREAT_GENERAL_BAR/2, self.Y_GREAT_GENERAL_BAR + 6, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
 
 	# returns a unique ID for a widget in this screen
 	def getNextWidgetName(self):
@@ -2465,7 +2484,8 @@ class CvMilitaryAdvisor:
 
 		iNumLeaders = len(listLeaders)
 		# <!-- custom: choose the largest 8-pixel leader-button size that makes the entire current roster fit inside the leader panel.
-		# Square/narrow map aspect ratios can make W_LEADERS much smaller than on ordinary wide maps, so a single fixed overflow size could still exceed H_LEADERS with SAS48; normal layouts keep the preferred 64-pixel size. (ChatGPT-5.6-Sol) -->
+		# Square/narrow map aspect ratios can make W_LEADERS much smaller than on ordinary wide maps, so a single fixed overflow size could still exceed H_LEADERS with SAS48; normal layouts keep the preferred 64-pixel size.
+		# Base AdvCiv's leader buttons spilled a third row below their panel with 48 civilizations. See KI#134.4. (ChatGPT-5.6-Sol + Claude code Opus 5.5) -->
 		iButtonSize = self.LEADER_BUTTON_SIZE
 		while iButtonSize > self.LEADER_BUTTON_SIZE_STEP:
 			iColumns = max(1, int(self.W_LEADERS / (iButtonSize + self.LEADER_MARGIN)))

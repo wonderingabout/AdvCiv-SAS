@@ -85,6 +85,14 @@ def main() -> None:
     for row in rows:
         record = json.loads(row)
         role = record.get("type")
+        # <!-- custom: A message the user sends while Claude works is not a user record but an attachment of type queued_command, origin kind "human"; the export skipped all 342 of them in one session, so a check of who said what (KI#1107's discovery, 2026-11-23) found the user's mid-turn "ncie you have soemreaciton now hehe" only in the raw log.
+        # They are exported as USER entries marked [sent mid-turn]; queued task notifications, origin kind task-notification, stay out. (Claude code Opus 5.5) -->
+        attachment = record.get("attachment") if role == "attachment" else None
+        if isinstance(attachment, dict) and attachment.get("type") == "queued_command" and (attachment.get("origin") or {}).get("kind") == "human":
+            text = attachment.get("prompt", "")
+            if isinstance(text, str) and text.strip():
+                parts.append(format_message(counters, "USER", "[sent mid-turn] " + text.strip(), record.get("timestamp") or attachment.get("timestamp")) + "\n")
+            continue
         if role not in ("user", "assistant"):
             continue
         label = "USER" if role == "user" else "CLAUDE"

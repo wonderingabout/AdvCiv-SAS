@@ -59,6 +59,10 @@ import BugUtil
 # <!-- custom: Route shared visual resources through the centralized SASVisualUtils namespace after retiring overlapping helper/cache imports; keep one canonical visual-resource boundary. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 import SASTextScale
+# <!-- custom: The shared cached read of SAS defines that SASLiveDefineOverrides can change, used for the Leader item-list widths. See KI#128.5. (Claude code Opus 5.5) -->
+import SASCurrentDefines
+# <!-- custom: pediaJump rereads SASLiveDefineOverrides and rebuilds the layout when it changed a define, such as the label font size the layout is sized from. See KI#128.5. (Claude code Opus 5.5) -->
+import SASLiveDefineOverridesBridge
 from SASUtils import getInfoTypeOrFail
 from SASMagicNumbers import *
 
@@ -78,29 +82,29 @@ AdvisorOpt = BugCore.game.Advisors
 class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def __init__(self):
-		self.PEDIA_MAIN_SCREEN	= "PediaMainScreen"
-		self.INTERFACE_ART_INFO	= "SCREEN_BG_OPAQUE"
+		self.PEDIA_MAIN_SCREEN = "PediaMainScreen"
+		self.INTERFACE_ART_INFO = "SCREEN_BG_OPAQUE"
 
-		self.TAB_TOC   = "Contents"
+		self.TAB_TOC = "Contents"
 		self.TAB_INDEX = "Index"
 		self.SAS_USE_BOTTOM_TABS = False
 
-		self.WIDGET_ID		= "PediaMainWidget"
-		self.BACKGROUND_ID	= "PediaMainBackground"
-		self.TOP_PANEL_ID	= "PediaMainTopPanel"
-		self.BOT_PANEL_ID	= "PediaMainBottomPanel"
-		self.HEAD_ID		= "PediaMainHeader"
-		self.TOC_ID			= "PediaMainContents"
-		self.INDEX_ID		= "PediaMainIndex"
-		self.BACK_ID		= "PediaMainBack"
-		self.NEXT_ID		= "PediaMainForward"
+		self.WIDGET_ID = "PediaMainWidget"
+		self.BACKGROUND_ID = "PediaMainBackground"
+		self.TOP_PANEL_ID = "PediaMainTopPanel"
+		self.BOT_PANEL_ID = "PediaMainBottomPanel"
+		self.HEAD_ID = "PediaMainHeader"
+		self.TOC_ID = "PediaMainContents"
+		self.INDEX_ID = "PediaMainIndex"
+		self.BACK_ID = "PediaMainBack"
+		self.NEXT_ID = "PediaMainForward"
 		self.SAS_CLEAR_ID = "PediaMainClear"
 		self.SAS_GAME_PLAYER_ID_PREV_ID = "PediaMainGamePlayerIdPrev"
 		self.SAS_GAME_PLAYER_ID_NEXT_ID = "PediaMainGamePlayerIdNext"
-		self.EXIT_ID		= "PediaMainExit"
-		self.CATEGORY_LIST_ID	= "PediaMainCategoryList"
-		self.ITEM_LIST_ID	= "PediaMainItemList"
-		self.UPGRADES_GRAPH_ID	= "PediaMainUpgradesGraph"
+		self.EXIT_ID = "PediaMainExit"
+		self.CATEGORY_LIST_ID = "PediaMainCategoryList"
+		self.ITEM_LIST_ID = "PediaMainItemList"
+		self.UPGRADES_GRAPH_ID = "PediaMainUpgradesGraph"
 
 		# <!-- custom: search bar for the left item list (initially based on how Realism Invictus does it) (chatgpt 5.2 + claude opus 4.5 + Claude code Opus 5.5) -->
 		self.SAS_SEARCH_PANEL_ID = "PediaMainSearchPanel"
@@ -113,32 +117,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_SEARCH_H = 32
 		self.SAS_SEARCH_KEYBOARD_CHARS = (u"(", u")", u"_", u"/", u"*", u"+", u"-", u"=", u"[", u"]", u"'", u"#", u"&", u"~", u";", u",", u":", u"!", u"?", u".", u"@", u"\\", u"|", u"<", u">")
 		# <!-- custom: End - search bar for the left item list (initially based on how Realism Invictus does it) (chatgpt 5.2 + claude opus 4.5 + Claude code Opus 5.5) -->
-		self.H_SCREEN = 768
-		self.W_SCREEN = 1024
-
-		# <advc.004y>
-		self.bWideScreen = True
-		self.bFullScreen = True
-		if self.bFullScreen:
-			self.bWideScreen = True
-		# <!-- custom: Not much value in being able to see the elements at the edge parts of the screen, however i think the extra room can be useful to fit more data or simply enlarge the view, hopefully making it all clearer and more pleasant to see.
-		# Other mods use the entire screen for the sevopedia, tested removing margins and i like it very much so removed them now. -->
-		self.HORIZONTAL_MARGIN = 0
-		# VERTICAL_MARGIN: Want the Advisor buttons to remain visible. BOTTOM_MARGIN could be 0, but I don't think asymmetrical margins look good.
-		self.TOP_MARGIN = 0
-		self.BOTTOM_MARGIN = 0
-		if self.bWideScreen:
-			self.W_SCREEN = max(self.W_SCREEN, self.getScreen().getXResolution() - 2 * self.HORIZONTAL_MARGIN)
-			if self.W_SCREEN <= 1024:
-				self.bWideScreen = False
-				self.bFullScreen = False
-		if self.bFullScreen:
-			self.H_SCREEN = max(self.H_SCREEN, self.getScreen().getYResolution() - self.BOTTOM_MARGIN - self.TOP_MARGIN)
-			if self.H_SCREEN <= 768:
-				self.bFullScreen = False
-		#self.X_SCREEN = 500 # now unused
-		#self.Y_SCREEN = 396 # unused to begin with
-		# </advc.004y>
+		# <!-- custom: The frame is the whole screen, from the resolution this layout and its pages were built for; pediaJump rebuilds them at another. See KI#123.2.
+		# Base AdvCiv's advc.004y started from a 1024 x 768 frame, widened it to the resolution minus margins, and kept a centred 1024 x 768 box on screens no larger than that.
+		# SAS had already set the margins to 0, "Other mods use the entire screen for the sevopedia, tested removing margins and i like it very much so removed them now.", and supports nothing below 1920 x 1080, so the frame was always the resolution; the 1024 x 768 start, margins and wide/full-screen flags are removed. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		self.SAS_iBuiltXRes = self.getScreen().getXResolution()
+		self.SAS_iBuiltYRes = self.getScreen().getYResolution()
+		# <!-- custom: The SASLiveDefineOverrides change count this layout was built from; pediaJump rebuilds when it changes, as it does for the resolution. (Claude code Opus 5.5) -->
+		self.SAS_iBuiltSASLiveDefineOverridesChangeCount = SASLiveDefineOverridesBridge.getChangeCount()
+		self.W_SCREEN = self.SAS_iBuiltXRes
+		self.H_SCREEN = self.SAS_iBuiltYRes
 
 		self.H_PANEL = 55
 
@@ -161,20 +148,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if SASTextScale.getSASUIFontLabel() > 3:
 			iCategoryWidth = 166
 		self.W_CATEGORIES = iCategoryWidth
-		# <advc.004y>
-		if self.bWideScreen:
-			self.W_CATEGORIES = iCategoryWidth
-		# </advc.004y>
 		self.H_CATEGORIES = (self.Y_BOT_PANEL + 3) - self.Y_CATEGORIES
 
 		self.X_ITEMS = self.X_CATEGORIES + self.W_CATEGORIES + 2
 		self.Y_ITEMS = self.Y_CATEGORIES
 		# <!-- custom: same reasoning as for/in smaller categories, did not test but should be fine with the new space was 210 -->
 		self.W_ITEMS = 230
-		# <advc.004y>
-		if self.bWideScreen:
-			self.W_ITEMS = 230
-		# </advc.004y>
 		self.H_ITEMS = self.H_CATEGORIES
 
 		self.X_PEDIA_PAGE = self.X_ITEMS + self.W_ITEMS + 18
@@ -283,11 +262,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_TECH_STATISTICS_PREBUILT = False
 		self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE = False
 
-		self.pediaBuilding	= SevoPediaBuilding.SevoPediaBuilding(self)
-		self.pediaLeader	= SevoPediaLeader.SevoPediaLeader(self)
-		self.pediaIndex     = SevoPediaIndex.SevoPediaIndex(self)
-		self.pediaMovies    = SevoPediaMovie.SevoPediaMovie(self)
-		self.pediaMusic     = SevoPediaMusic.SevoPediaMusic(self)
+		self.pediaBuilding = SevoPediaBuilding.SevoPediaBuilding(self)
+		self.pediaLeader = SevoPediaLeader.SevoPediaLeader(self)
+		self.pediaIndex = SevoPediaIndex.SevoPediaIndex(self)
+		self.pediaMovies = SevoPediaMovie.SevoPediaMovie(self)
+		self.pediaMusic = SevoPediaMusic.SevoPediaMusic(self)
 		# <!-- custom: keep a shared handicap chart instance so its internal table cache survives between openings. (GPT-5.2-Codex) -->
 		self.pediaHandicapChart = SevoPediaHandicapChart.SevoPediaHandicapChart(self)
 		# <!-- custom: keep a shared game speed chart instance so its internal table cache survives between openings. (GPT-5.2-Codex) -->
@@ -417,34 +396,34 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		)
 
 		# <!-- custom: Cache Sevopedia grouping/layout defines on screen construction; shared highlight colors are resolved by SASVisualUtils instead of a screen-owned color cache. (GPT-6.1-Sol) -->
-		self.IS_SAS_SEVO_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVO_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
-		self.IS_SAS_SEVO_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_TECHS_GROUP_BY_ERA") > 0)
-		self.IS_SAS_SEVO_BLDGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_BLDGS_GROUP_BY_ERA") > 0)
-		self.IS_SAS_SEVO_UNITS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_UNITS_GROUP_BY_ERA") > 0)
-		self.IS_SAS_SEVO_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_CORPORATIONS_GROUP_BY_ERA") > 0)
-		self.IS_SAS_SEVO_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_RELIGIONS_GROUP_BY_ERA") > 0)
-		self.IS_SAS_SEVO_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_PROJECTS_GROUP_BY_ERA") > 0)
-		self.IS_SAS_SEVO_ROUTES_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_ROUTES_GROUP_BY_ERA") > 0)
-		self.SAS_SEVO_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVO_MUSIC_ITEMS_WIDTH")
-		self.SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH")
-		self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1 = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1")
-		self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2 = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2")
-		self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3 = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3")
-		self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4 = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4")
-		self.IS_SAS_SEVO_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVO_SPECIALISTS_GROUP_BY_TYPE") > 0)
-		self.IS_SAS_SEVO_BONUSES_GROUP_BY_IMPROVE = (gc.getDefineINT("SAS_SEVO_BONUSES_GROUP_BY_IMPROVE") > 0)
-		self.IS_SAS_SEVO_IMPROVES_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVO_IMPROVES_GROUP_BY_TERRAIN") > 0)
-		self.IS_SAS_SEVO_BUILDS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVO_BUILDS_GROUP_BY_TYPE") > 0)
-		self.IS_SAS_SEVO_TERRAINS_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVO_TERRAINS_GROUP_BY_LAND_WATER") > 0)
-		self.IS_SAS_SEVO_FEATURES_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVO_FEATURES_GROUP_BY_LAND_WATER") > 0)
-		self.IS_SAS_SEVO_CIVS_GROUP_BY_ARTSTYLE = (gc.getDefineINT("SAS_SEVO_CIVS_GROUP_BY_ARTSTYLE") > 0)
-		self.IS_SAS_SEVO_LEADERS_GROUP_BY_CIV = (gc.getDefineINT("SAS_SEVO_LEADERS_GROUP_BY_CIV") > 0)
-		self.IS_SAS_SEVO_SEARCH_SPECIAL_CHAR_LINKS_ON = (gc.getDefineINT("SAS_SEVO_SEARCH_SPECIAL_CHAR_LINKS_ON") > 0)
-		self.IS_SAS_SEVO_LEADER_AI_ON = (gc.getDefineINT("SAS_SEVO_LEADER_AI_ON") > 0)
-		self.IS_SAS_SEVO_MUSIC_LEADER_INTRO_PEACE_1ST_ONLY = (gc.getDefineINT("SAS_SEVO_MUSIC_LEADER_INTRO_PEACE_1ST_ONLY") > 0)
-		self.IS_SAS_SEVO_MUSIC_LEADER_PEACE_1ST_ONLY = (gc.getDefineINT("SAS_SEVO_MUSIC_LEADER_PEACE_1ST_ONLY") > 0)
-		self.IS_SAS_SEVO_MUSIC_LEADER_INTRO_WAR_1ST_ONLY = (gc.getDefineINT("SAS_SEVO_MUSIC_LEADER_INTRO_WAR_1ST_ONLY") > 0)
-		self.IS_SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY = (gc.getDefineINT("SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY") > 0)
+		# <!-- custom: Read once per screen instance: SAS_rebuildLayout re-runs __init__ on this same object at a new resolution, and these XML settings are treated as fixed in normal play, so the values derived from them are kept rather than read again.
+		# The attributes survive the re-run, so they are the cache; the sentinel is the last one set, so a run cut short does not mark the block done.
+		# Unlike the main interface, whose raw define values are kept apart from the values it scales to the resolution, these are used as read. See KI#123.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if not hasattr(self, "IS_SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY"):
+			self.IS_SAS_SEVO_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVO_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
+			self.IS_SAS_SEVO_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_TECHS_GROUP_BY_ERA") > 0)
+			self.IS_SAS_SEVO_BLDGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_BLDGS_GROUP_BY_ERA") > 0)
+			self.IS_SAS_SEVO_UNITS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_UNITS_GROUP_BY_ERA") > 0)
+			self.IS_SAS_SEVO_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_CORPORATIONS_GROUP_BY_ERA") > 0)
+			self.IS_SAS_SEVO_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_RELIGIONS_GROUP_BY_ERA") > 0)
+			self.IS_SAS_SEVO_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_PROJECTS_GROUP_BY_ERA") > 0)
+			self.IS_SAS_SEVO_ROUTES_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_ROUTES_GROUP_BY_ERA") > 0)
+			self.SAS_SEVO_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVO_MUSIC_ITEMS_WIDTH")
+			# <!-- custom: The five Leader item-list widths were kept here as attributes; SAS_getLeaderItemsWidthByCurrentUIFont now reads them through SASCurrentDefines, as a prototype of its shared cache, so an override reaches the next layout. See KI#128.5. (Claude code Opus 5.5) -->
+			self.IS_SAS_SEVO_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVO_SPECIALISTS_GROUP_BY_TYPE") > 0)
+			self.IS_SAS_SEVO_BONUSES_GROUP_BY_IMPROVE = (gc.getDefineINT("SAS_SEVO_BONUSES_GROUP_BY_IMPROVE") > 0)
+			self.IS_SAS_SEVO_IMPROVES_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVO_IMPROVES_GROUP_BY_TERRAIN") > 0)
+			self.IS_SAS_SEVO_BUILDS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVO_BUILDS_GROUP_BY_TYPE") > 0)
+			self.IS_SAS_SEVO_TERRAINS_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVO_TERRAINS_GROUP_BY_LAND_WATER") > 0)
+			self.IS_SAS_SEVO_FEATURES_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVO_FEATURES_GROUP_BY_LAND_WATER") > 0)
+			self.IS_SAS_SEVO_CIVS_GROUP_BY_ARTSTYLE = (gc.getDefineINT("SAS_SEVO_CIVS_GROUP_BY_ARTSTYLE") > 0)
+			self.IS_SAS_SEVO_LEADERS_GROUP_BY_CIV = (gc.getDefineINT("SAS_SEVO_LEADERS_GROUP_BY_CIV") > 0)
+			self.IS_SAS_SEVO_SEARCH_SPECIAL_CHAR_LINKS_ON = (gc.getDefineINT("SAS_SEVO_SEARCH_SPECIAL_CHAR_LINKS_ON") > 0)
+			self.IS_SAS_SEVO_LEADER_AI_ON = (gc.getDefineINT("SAS_SEVO_LEADER_AI_ON") > 0)
+			self.IS_SAS_SEVO_MUSIC_LEADER_INTRO_PEACE_1ST_ONLY = (gc.getDefineINT("SAS_SEVO_MUSIC_LEADER_INTRO_PEACE_1ST_ONLY") > 0)
+			self.IS_SAS_SEVO_MUSIC_LEADER_PEACE_1ST_ONLY = (gc.getDefineINT("SAS_SEVO_MUSIC_LEADER_PEACE_1ST_ONLY") > 0)
+			self.IS_SAS_SEVO_MUSIC_LEADER_INTRO_WAR_1ST_ONLY = (gc.getDefineINT("SAS_SEVO_MUSIC_LEADER_INTRO_WAR_1ST_ONLY") > 0)
+			self.IS_SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY = (gc.getDefineINT("SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY") > 0)
 
 	# <!-- custom: search bar helper methods (chatgpt 5.2 + claude opus 4.5) -->
 	def SAS_safeDeleteWidget(self, screen, szWidget):
@@ -462,6 +441,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		for szWidget in self.SAS_searchKeyboardIds:
 			self.SAS_safeDeleteWidget(screen, szWidget)
 		self.SAS_searchKeyboardIds = []
+
+	# <!-- custom: The pages that call SAS_prepareSpecialPageDeletingItemList, so they have no item list to select in when jumped to (pediaJump); a new such page joins them here.
+	# A class attribute, read once per jump. (Claude code Opus 5.5) -->
+	SAS_CATEGORIES_WITHOUT_ITEM_LIST = (SevoScreenEnums.PEDIA_UNIT_UPGRADES, SevoScreenEnums.PEDIA_PROMOTION_TREE, SevoScreenEnums.PEDIA_HINTS, SevoScreenEnums.PEDIA_HANDICAP_CHART, SevoScreenEnums.PEDIA_GAME_SPEED_CHART, SevoScreenEnums.PEDIA_WORLD_SIZE_CHART, SevoScreenEnums.PEDIA_ERA_CHART)
 
 	# <!-- custom: clear search state for special pages that delete the item list (chatgpt 5.2 + claude opus 4.5) -->
 	def SAS_prepareSpecialPageDeletingItemList(self, screen):
@@ -802,9 +785,51 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# This lets players inspect several entries (e.g. Leader AIP pages), exit to the map, reopen Sevopedia, and still use Back/Next instead of rebuilding the same navigation chain. See KI#125. (GPT-5.5) -->
 		self.pediaJump(current[0], current[1], False, True, SASGameRecordActions.SHOW)
 
+	# <!-- custom: After an in-game resolution change, the Sevopedia opened at the old resolution's size, as __init__ computes its layout, and each page object its own, once per game.
+	# Every opening, link and Back/Next goes through pediaJump, so it compares the resolution there, two cheap calls, and re-runs __init__ on a change: the same object, which CvScreensInterface's input maps keep, with Back/Next history and active player carried over.
+	# Codex's (GPT-6.2-Sol) review found two cases: an open movie or music player would be forgotten by the new page objects, so they are closed first; and with the screen still active, createScreen would be skipped, so the rebuild waits for the next opening.
+	# Note: pediaJump also closes both players on every navigation, a few lines after its rebuild check, so the close here is redundant there; it is kept so the rebuild stays safe from any other caller, and moving the check below that close would need a new in-game test for no change in behaviour. See KI#123.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	# <!-- custom: Was SAS_rebuildForResolution, which also logged the resolution change; a change of SASLiveDefineOverrides rebuilds through it too, so each caller logs its own reason. (Claude code Opus 5.5) -->
+	def SAS_rebuildLayout(self, bRereadDefines=False):
+		# <!-- custom: bRereadDefines drops the sentinel of the define block in __init__, so it reads its defines again: a rebuild after an override left the Leader widths at their old values, as Codex's review (GPT-6.2-Sol) found; a resolution change keeps them, as before. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if bRereadDefines and hasattr(self, "IS_SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY"):
+			del self.IS_SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY
+		if self.pediaMovies.isMoviePlayerOpen():
+			self.pediaMovies.leaveMoviePlayer()
+		if self.pediaMusic.isMusicPlayerOpen():
+			self.pediaMusic.leaveMusicPlayer()
+		kept = (self.pediaHistory, self.pediaFuture, self.SAS_lastPediaJump, self.iActivePlayer, self.iCategory, self.iItem)
+		self.__init__()
+		(self.pediaHistory, self.pediaFuture, self.SAS_lastPediaJump, self.iActivePlayer, self.iCategory, self.iItem) = kept
+
 	# <!-- custom: Optional action label lets Back/Forward preserve their cause while ordinary callers keep NAVIGATE; final normalized category/item values remain the authoritative destination. (ChatGPT-5.6-Sol) -->
 	def pediaJump(self, iCategory, iItem, bRemoveFwdList, bIsLink, szSASAction=SASGameRecordActions.NAVIGATE):
-		# <!-- custom: note: fixed a (seemingly base advciv) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed so reverted everything as base advciv code was minus this extra code comment, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or known issue number 22 as of now in known issues of advciv-sas readme for details as well. -->
+		# <!-- custom: Rebuild the layout and pages first if the resolution changed since they were built. See KI#123.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		screen = self.getScreen()
+		iNewW = screen.getXResolution()
+		iNewH = screen.getYResolution()
+		# <!-- custom: The Sevopedia asks the bridge to reread its overrides at each jump because it can be opened from the main menu, where no game update runs the bridge's own reread.
+		# Other readers do not need such a call: during play the bridge rereads by itself, and the bridge alone applies and logs a change. See KI#128.5. (Claude code Opus 5.5) -->
+		iSASLiveDefineOverridesChangeCount = SASLiveDefineOverridesBridge.refresh()
+		# <!-- custom: Pages copy widths in __init__ (Codex's review, GPT-6.2-Sol), so a change of overrides rebuilds the layout as a resolution change does, at the next click even with the Sevopedia open.
+		# Only the resolution change is logged here, being the Sevopedia's own; logging overrides in each reader would scatter their history, as the user pointed out. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if not screen.isActive():
+			if iNewW != self.SAS_iBuiltXRes or iNewH != self.SAS_iBuiltYRes:
+				CvUtil.pyPrintRecord("SEVOPEDIA_RESOLUTION_CHANGE", "fromW=%d fromH=%d toW=%d toH=%d" % (self.SAS_iBuiltXRes, self.SAS_iBuiltYRes, iNewW, iNewH))
+				self.SAS_rebuildLayout()
+			elif iSASLiveDefineOverridesChangeCount != self.SAS_iBuiltSASLiveDefineOverridesChangeCount:
+				self.SAS_rebuildLayout(True)
+		elif iSASLiveDefineOverridesChangeCount != self.SAS_iBuiltSASLiveDefineOverridesChangeCount:
+			screen.hideScreen()
+			self.SAS_rebuildLayout(True)
+		# <!-- custom: note: fixed a (seemingly base advciv) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed so reverted everything as base advciv code was minus this extra code comment, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or KI#22 for details as well. -->
+		# <!-- custom: Close the media overlay when a title or queue link actually navigates.
+		# Waiting for a named table event can miss the jump and leave the timer writing to a hidden screen.
+		# Movie cleanup also restores No Movies (KI#299). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if self.pediaMovies.isMoviePlayerOpen():
+			self.pediaMovies.leaveMoviePlayer()
+		if self.pediaMusic.isMusicPlayerOpen():
+			self.pediaMusic.leaveMusicPlayer()
 		bAddToHistory = False
 		if (not self.pediaHistory):
 			bAddToHistory = True
@@ -853,7 +878,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		iListIndex = self.SAS_categoryEnumToIndex.get(iCategory, -1)
 		if iListIndex != -1:
 			screen.setSelectedListBoxStringGFC(self.CATEGORY_LIST_ID, iListIndex)
-		if (iCategory not in (SevoScreenEnums.PEDIA_UNIT_UPGRADES, SevoScreenEnums.PEDIA_PROMOTION_TREE, SevoScreenEnums.PEDIA_HINTS)):
+		# <!-- custom: Was the inherited three, upgrades, promotion tree and hints; the charts delete the item list too, so a jump into one, such as the Victory screen's Legendary cities link to the speeds chart, raised "SevoPediaMain instance has no attribute 'list'" when the Sevopedia had not drawn a list yet.
+		# The pages are now listed once, in SAS_CATEGORIES_WITHOUT_ITEM_LIST, beside the helper they call. See KI#113. (Claude code Opus 5.5) -->
+		if (iCategory not in self.SAS_CATEGORIES_WITHOUT_ITEM_LIST):
 			screen.enableSelect(self.ITEM_LIST_ID, True)
 			if (self.iItemIndex != -1):
 				BugUtil.debug("Deselecting item %d" % self.iItemIndex)
@@ -936,7 +963,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if iCategory is None:
 			iCategory = self.SAS_defaultCategory
 		self.deleteAllWidgets()
-		# <!-- custom: keep Sevopedia layout as restart-based for resolution changes; main interface still needs restart after in-session resolution switches to avoid broken layout, so we don't add dynamic per-resolution reflow across Sevopedia screens. (GPT-5.3-Codex) -->
 		screen = self.getScreen()
 		if iCategory == SevoScreenEnums.PEDIA_MUSIC:
 			iMusicItemsWidth = self.SAS_SEVO_MUSIC_ITEMS_WIDTH
@@ -955,8 +981,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				self.SAS_safeDeleteWidget(screen, self.TOC_ID)
 				self.SAS_safeDeleteWidget(screen, self.INDEX_ID)
 			if self.SAS_USE_BOTTOM_TABS:
-				screen.setText(self.TOC_ID, "Background", self.TOC_ACTIVE_TEXT,   CvUtil.FONT_LEFT_JUSTIFY,   self.X_TOC,   self.Y_TOC,   0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
-				screen.setText(self.INDEX_ID, "Background", self.INDEX_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_INDEX, self.Y_INDEX, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
+				screen.setText(self.TOC_ID, "Background", self.TOC_ACTIVE_TEXT,	CvUtil.FONT_LEFT_JUSTIFY, self.X_TOC,	self.Y_TOC,		0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText(self.INDEX_ID, "Background", self.INDEX_TEXT,	CvUtil.FONT_LEFT_JUSTIFY, self.X_INDEX,	self.Y_INDEX,	0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			screen.show(self.BACK_ID)
 			screen.show(self.NEXT_ID)
 			screen.show(self.SAS_CLEAR_ID)
@@ -1006,8 +1032,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.deleteAllWidgets()
 		self.deleteListWidgets()
 		screen = self.getScreen()
-		screen.setText(self.TOC_ID, "Background", self.TOC_TEXT,   CvUtil.FONT_LEFT_JUSTIFY,   self.X_TOC,   self.Y_TOC,   0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
-		screen.setText(self.INDEX_ID, "Background", self.INDEX_ACTIVE_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_INDEX, self.Y_INDEX, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
+		screen.setText(self.TOC_ID, "Background", self.TOC_TEXT,			CvUtil.FONT_LEFT_JUSTIFY, self.X_TOC,	self.Y_TOC,		0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setText(self.INDEX_ID, "Background", self.INDEX_ACTIVE_TEXT,	CvUtil.FONT_LEFT_JUSTIFY, self.X_INDEX,	self.Y_INDEX,	0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.hide(self.BACK_ID)
 		screen.hide(self.NEXT_ID)
 		screen.hide(self.SAS_CLEAR_ID)
@@ -1028,11 +1054,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def setPediaCommonWidgets(self):
 		# advc.004y: was TXT_KEY_SEVOPEDIA_TITLE
-		self.HEAD_TEXT = SASTextScale.sasFontTagTitle.bold + localText.getText("TXT_KEY_CIVILOPEDIA_TITLE",      ())         + SASTextScale.SAS_FONT_TAG_CLOSE
-		self.BACK_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_BACK",    ()).upper())
+		self.HEAD_TEXT = SASTextScale.sasFontTagTitle.bold + localText.getText("TXT_KEY_CIVILOPEDIA_TITLE", ()) + SASTextScale.SAS_FONT_TAG_CLOSE
+		self.BACK_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_BACK", ()).upper())
 		self.NEXT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper())
 		self.SAS_CLEAR_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SAS_CLEAR", ()).upper())
-		self.EXIT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT",    ()).upper())
+		self.EXIT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper())
 		# <!-- custom: build grey labels for global footer controls that stay visible but may be inactive.
 		# Page-specific Legend links still appear only when applicable: no Legend means no page legend, not an inactive global command. See KI#126. (GPT-5.5) -->
 		eLightGrey = SASVisuals.Color.LIGHT_GREY
@@ -1045,10 +1071,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_GAME_PLAYER_ID_NEXT_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SAS_GAME_PLAYER_ID_NEXT", (-1,)), eLightGrey))
 
 		self.TOC_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()).upper())
-		self.INDEX_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX",  ()).upper())
+		self.INDEX_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX", ()).upper())
 		eYellow = SASVisuals.Color.YELLOW
 		self.TOC_ACTIVE_TEXT = SASTextScale.titleText(localText.getColorText("TXT_KEY_PEDIA_SCREEN_CONTENTS", (), eYellow).upper())
-		self.INDEX_ACTIVE_TEXT = SASTextScale.titleText(localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX",  (), eYellow).upper())
+		self.INDEX_ACTIVE_TEXT = SASTextScale.titleText(localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX", (), eYellow).upper())
 
 		# <!-- custom: Re-translate category labels whenever the shared Sevopedia screen is created, while order/icons/keys come from the minimal runtime display rows derived during __init__. (ChatGPT-5.6-Sol) -->
 		self.categoryList = []
@@ -1063,17 +1089,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen.addDDSGFC(self.BACKGROUND_ID, SASVisuals.InterfaceArt.getPath(self.INTERFACE_ART_INFO), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.addPanel(self.TOP_PANEL_ID, u"", u"", True, False, self.X_TOP_PANEL, self.Y_TOP_PANEL, self.W_TOP_PANEL, self.H_TOP_PANEL, PanelStyles.PANEL_STYLE_TOPBAR)
 		screen.addPanel(self.BOT_PANEL_ID, u"", u"", True, False, self.X_BOT_PANEL, self.Y_BOT_PANEL, self.W_BOT_PANEL, self.H_BOT_PANEL, PanelStyles.PANEL_STYLE_BOTTOMBAR)
-		# <advc.004y>
-		X_SCREEN = self.HORIZONTAL_MARGIN
-		Y_SCREEN = self.BOTTOM_MARGIN
-		if not self.bWideScreen:
-			X_SCREEN = screen.centerX(0)
-		if not self.bFullScreen:
-			Y_SCREEN = screen.centerY(0)
-		# </advc.004y>
-		screen.setDimensions(X_SCREEN, Y_SCREEN, self.W_SCREEN, self.H_SCREEN)
+		# <!-- custom: Was advc.004y's centring of a 1024 x 768 frame on small screens; the frame is now always the whole screen, see __init__. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		screen.setDimensions(0, 0, self.W_SCREEN, self.H_SCREEN)
 
-		screen.setText(self.HEAD_ID, "Background", self.HEAD_TEXT, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
+		screen.setText(self.HEAD_ID, "Background", self.HEAD_TEXT, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		# <!-- custom: Note: removed generic footer setText from this common-widgets block because it became redundant/no longer relevant here; footer link placement is now handled in showContents where category-specific behavior (Leader AIP overflow exception) is applied. (GPT-5.3-Codex) -->
 
 	def SAS_getFooterLegendX(self):
@@ -1491,7 +1510,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def getTerrainList(self):
 		if self.SAS_cacheTerrainsTuple is None:
-			# <!-- custom: also show terrain_peak and terrain_hill in sevopedia terrains display even though they are plot types but with the changes in sevopedia terrain (new placeRelevantUnits and placeUnitsImpassable panels as of now), these still provide very valuable info so adding them helps a lot; code provided with the help of chatgpt thanks and previous reworks i did with it or with claude ai or and such -->
+			# <!-- custom: also show terrain_peak and terrain_hill in sevopedia terrains display even though they are plot types but with the changes in sevopedia terrain (new placeRelevantUnits and placeUnitsImpassable panels as of now), these still provide very valuable info so adding them helps a lot; code provided with the help of chatgpt thanks and previous reworks i did with it or with claude ai such -->
 			# Note: TERRAIN_HILL and TERRAIN_PEAK already exist in CIV4TerrainInfos.xml, but have <bGraphicalOnly>1</bGraphicalOnly>, so they are hidden by the normal list. For Sevopedia, we want them visible, so we include GraphicalOnly here.
 			baseList = self.getUnfilteredSortedList(gc.getNumTerrainInfos(), gc.getTerrainInfo)
 			if self.IS_SAS_SEVO_TERRAINS_GROUP_BY_LAND_WATER:
@@ -2674,19 +2693,23 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.W_PEDIA_PAGE = self.R_PEDIA_PAGE - self.X_PEDIA_PAGE
 
 	def SAS_getLeaderItemsWidthByCurrentUIFont(self):
+		# <!-- custom: Advisors currently meet the same limit: at 1920 px and font 4 the scoreboard needs more width than they leave it, while 2560 px has room for both.
+		# The resolution considerations were first written above getAdvisorScoreboardSpace in SASUtils.py (2026-11-20). See KI#1103. (Claude code Opus 5.5) -->
 		# <!-- custom: nonpositive cutoff disables wide-screen reduction; without the positive guard every normal resolution met a 0/-1 cutoff and forced base width, reversing the documented setting. See KI#230. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		if (self.SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH > 0) and (self.getScreen().getXResolution() >= self.SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH):
+		# <!-- custom: Read through SASCurrentDefines, whose cache SASLiveDefineOverrides empties on a change, instead of attributes set once in __init__. See KI#128.5. (Claude code Opus 5.5) -->
+		iFullMinWidth = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH")
+		if (iFullMinWidth > 0) and (self.getScreen().getXResolution() >= iFullMinWidth):
 			return self.SAS_W_ITEMS_BASE
 
 		iLabelFont = SASTextScale.getSASUIFontLabel()
 		if iLabelFont <= 1:
-			iWidth = self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
+			iWidth = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1")
 		elif iLabelFont == 2:
-			iWidth = self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2
+			iWidth = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2")
 		elif iLabelFont == 3:
-			iWidth = self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3
+			iWidth = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3")
 		else:
-			iWidth = self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4
+			iWidth = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4")
 		if iWidth <= 0:
 			return self.SAS_W_ITEMS_BASE
 		return iWidth

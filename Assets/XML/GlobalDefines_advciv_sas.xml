@@ -195,6 +195,18 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 
+	<!-- custom: 1 lets SASLiveDefineOverrides/SASLiveDefineOverrides.txt override SAS defines while Civ4 runs, so a value such as a font size can be tried without a restart; each line there wins over this file, and deleting it brings this file's value back.
+	0 never reads that file, and every define keeps this file's value; shipped lines there equal this file's values, so the game is the same either way, without live edits.
+	Read once, at the bridge's first load. See KI#128.5. (Claude code Opus 5.5) -->
+	<!-- custom: Only the defines listed in SASLiveDefineOverrides/SASLiveDefineOverridesAllowed.txt can change live, as from this file one that follows a change and one whose code keeps its first value look the same; a line for any other define is refused, so it is changed here with a restart. See KI#128.7. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	<Define>
+		<DefineName>SAS_LIVE_DEFINE_OVERRIDES_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: The four font sizes below are set in SASLiveDefineOverrides/SASLiveDefineOverrides.txt, whose shipped lines win over this file, even after a restart, and apply during play; this file keeps the value a deleted line returns to. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	<!-- custom: shared UI tiny font size used for compact labels where screen space is limited.
 	Keep in [1..4] (GPT-5.3-Codex).
 	Base Civ4 Font size: 1. -->
@@ -212,6 +224,9 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: shared UI label font size for emphasized labels and section captions.
 	Keep in [1..4] (GPT-5.3-Codex).
 	Base Civ4 Font size: 3. -->
+	<!-- custom: Also the size of hover help text, which had its own define with the same value until 2026-11-26: raising the label to 4 meant remembering to raise hover too, which players could miss or find unclear, while hover always wanted the label's size, so the user retired it.
+	Base Civ4 drew hover text at 2, its small font; Long_Comments_XML.txt #106.
+	See Docs/Deprecated/global_define_names.md. (Claude code Opus 4.6 + Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_UI_FONT_LABEL</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
@@ -222,13 +237,6 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<Define>
 		<DefineName>SAS_UI_FONT_TITLE</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
-	</Define>
-	<!-- custom: shared UI hover/tooltip font size for widget hover help text (e.g., building info, city name popup, specialist/culture breakdown hover); Long_Comments_XML.txt #106.
-	Keep in [1..4]. (Claude code Opus 4.6).
-	Base Civ4 Font size: 2. -->
-	<Define>
-		<DefineName>SAS_UI_FONT_HOVER</DefineName>
-		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
 
 
@@ -318,7 +326,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 	<!-- custom: scoreboard fast-scroll step.
-	The normal + / - buttons move one row; the fast + / - buttons move this many rows per click, with offset clamped to the first/last valid slice. (Claude code Opus 4.7 + ChatGPT-5.5 + GPT-5.5) -->
+	The normal + / - buttons move one row; the fast + / - buttons move this many rows per click, with offset clamped to the first/last valid slice.
+	Base AdvCiv's scoreboard had no row limit or scrolling, so with 48 civilizations it ran up over the turn counter. See KI#134.2. (Claude code Opus 4.7 + ChatGPT-5.5 + GPT-5.5 + Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_SCOREBOARD_SCROLL_FAST_INCR</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
@@ -340,9 +349,15 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: scoreboard scroll autocenter default state.
 	0 = keep the current scroll slice across redraws; 1 = start each new game / loaded save with autocenter enabled so overflowing scoreboards stay centered on the active player until manually toggled off.
 	Manual scroll buttons also turn autocenter off.
-	This only sets the initial state; the in-game autocenter button still toggles it normally. (ChatGPT-5.5) -->
+	This only sets the initial state; the in-game autocenter button still toggles it normally. See KI#134.2. (ChatGPT-5.5 + Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 = on the map too, fit the scoreboard to the space advisors leave it, shortening leader names as beside an open advisor, so it keeps the same width whether a standard advisor is open or not and lines up with the commerce sliders; 0 = keep its full width on the map, with whole names.
+	The Technology Advisor still gives its own space, narrower below 2560 px, and only names are cut, not columns. See KI#1103.2. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_SCOREBOARD_MAP_FIT_ADVISOR_SPACE_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: commerce sliders second (Min/Max) + + and - - pair step size (e.g., setting it to 50 makes it require 2 clicks to go from 0% to 100% (0->50->100) and vice versa for - -).
@@ -351,6 +366,25 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<Define>
 		<DefineName>SAS_COMMERCE_SLIDERS_FAST_INCR_PCT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: Where the map view shows each commerce's per-turn rate: 1 = in green beside its slider, as base AdvCiv does; 2 = in one compact row below the sliders, as SAS did when Min/Max buttons were on; 3 = both.
+	Where the rates do not fit beside the sliders, as with the Technology Advisor open at 1920 px, they show below instead. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_COMMERCE_SLIDERS_RATE_SHOW</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: The commerce sliders' background style at each save load / new game, cycled in game by its button (placed by SAS_COMMERCE_SLIDERS_BG_BUTTON_POS); the levels are SAS_SCOREBOARD_BG_DEFAULT_STYLE's, from 0 = HUD_HELP to 5 = EMPTY (no background, as before it existed).
+	The scoreboard already had a background, while the slider text over the map had none and was hard to read, so the sliders got one too.
+	The blue PANEL_STYLE_MAIN (2) chosen first (the user, 2026-11-20) hid the map under it; the default is now the scoreboard's own, HUD_HELP (0), so both read alike, and it stays a setting apart from SAS_SCOREBOARD_BG_DEFAULT_STYLE so each can be tuned (the user, 2026-11-21, Civ4ScreenShot0263). (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_COMMERCE_SLIDERS_BG_DEFAULT_STYLE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Where the commerce sliders' background style button sits: 0 = the panel's bottom-right, 1 = left of the scoreboard's buttons, 2 = left of the advisor buttons, just above the sliders; -1 = no button, the background then staying at SAS_COMMERCE_SLIDERS_BG_DEFAULT_STYLE's style (the user, 2026-11-21).
+	At the panel's bottom-right it stood out over the map (the user, 2026-11-21). (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_COMMERCE_SLIDERS_BG_BUTTON_POS</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 
 
@@ -363,7 +397,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_TECH_UI_SCOREBOARD_SWAP_MAX_WIDTH</DefineName>
 		<iDefineIntVal>2560</iDefineIntVal>
 	</Define>
-	<!-- custom: Tech Chooser alternate right-side reserved space for scoreboard when low-res swap is active. Lower value => wider tech tree and more chance to fit one extra column at low resolution. Higher value => preserves more scoreboard/map area. This is mainly useful on lower resolutions where reclaiming some scoreboard space can make one more tech-tree column visible. Use 0 for maximum squeeze during low-res mode. (GPT-5.3-Codex); for example at 1080p a value of 206 allows to show exactly one more technology advisor column -->
+	<!-- custom: Tech Chooser alternate right-side reserved space for scoreboard when low-res swap is active. Lower value => wider tech tree and more chance to fit one extra column at low resolution. Higher value => preserves more scoreboard/map area. This is mainly useful on lower resolutions where reclaiming some scoreboard space can make one more tech-tree column visible. Use 0 for maximum squeeze during low-res mode. (GPT-5.3-Codex); for example at 1080p a value of 206 allows to show exactly one more technology advisor column.
+	With right-anchored map sliders, the strip still keeps enough room for their percentage and ordinary plus and minus buttons. (GPT-6.2-Sol) -->
 	<Define>
 		<DefineName>SAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE</DefineName>
 		<iDefineIntVal>206</iDefineIntVal>
@@ -381,7 +416,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	</Define>
 	<!-- custom: Foreign Advisor Espionage tab: switch the target-player list to compact single-line rows when met rivals are above this value.
 	A value of 17 keeps the normal two-line layout for standard 18-player games, but compacts 18+ known rivals for SAS24/SAS48-style games.
-	Set to 0 to always use compact rows. (GPT-5.5-Thinking + GPT-5.5?) -->
+	Set to 0 to always use compact rows.
+	Base AdvCiv's two-line rows crowded into each other with 48 civilizations. See KI#134.5. (GPT-5.5-Thinking + GPT-5.5? + Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH</DefineName>
 		<iDefineIntVal>17</iDefineIntVal>
@@ -757,6 +793,23 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_INFO_UI_TIMELINE_CACHE_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Gridlines on the Info screen's graphs, about this many on each axis, at round turn numbers (x) and round values (y), or powers of 10 with the log scale; 0 turns that axis's off.
+	Without them a line's height read the same whatever the top value, and a turn between the date labels had to be guessed (the user, 2026-11-21). (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_INFO_UI_GRAPH_X_GRID_LINES</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_INFO_UI_GRAPH_Y_GRID_LINES</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 lists each Greatest Civilizations ranking on the Timeline tab (a title row and one row per rank); 0 hides them there, for players who find them noise.
+	They stay in the save, the replay and SASPilot either way, so turning it back on shows past rankings again (the user's idea, 2026-11-19).
+	On by default: a ranking comes a few times a game, mostly early, while "X is the first to discover Y" rows come far more often. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_INFO_UI_TIMELINE_TOP_CIVS_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: widen the Info Screen Score Tab laterally only when visible players reach this threshold. (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_INFO_UI_SCORE_MAX_RENDER_THRESH</DefineName>
@@ -770,6 +823,13 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<Define>
 		<DefineName>SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 also shows a vote source whose building stands but no longer votes, such as an Apostolic Palace late in a game, in the Victory screen's Resolutions and Members tabs, tagged (INACTIVE); 0 shows only the sources voting now, as before.
+	It ships off: the game keeps only whether each resolution is in force now, not what an inactive source decided, so its section is mostly empty (2026-11-21, Civ4ScreenShot0383).
+	It stays a switch for players who want every source listed, and for modmods whose sources turn on and off during a game. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
 
@@ -854,6 +914,18 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_MAIN_UI_HELP_AREA_WIDTH_ADJ</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
+	<!-- custom: Plot hover: 1 names a lake tile's kind after its terrain, such as "Coast (Lake)"; 0 restores the display inherited from vanilla through base AdvCiv, "Coast" with a separate "Fresh Water Lake" line; restart Civ4 after a change.
+	Listed before SAS_MAIN_UI_FRESH_WATER_SRC_ON in the order their lines show in the hover: the terrain line, then Fresh Water. See KI#1106. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	<Define>
+		<DefineName>SAS_MAIN_UI_WATER_TYPE_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Plot hover: 1 names where a land plot's fresh water comes from, such as "Fresh Water (River, Lake)", counting only tiles the player has revealed; 0 keeps the inherited plain "Fresh Water"; restart Civ4 after a change.
+	Ships at 1 (the user, 2026-11-23): fresh water is yes or no, so a second source changes nothing, but without the list a player is left wondering what kind of fresh water a plot has, and a river also carries trade and river yields; 0 suits a player who finds it distracting, as rivers and lakes show on the map. See KI#1106. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	<Define>
+		<DefineName>SAS_MAIN_UI_FRESH_WATER_SRC_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: shift the map-view unit bar horizontally (resolution-scaled pixels). Positive = right, negative = left. (Claude code Opus 4.7). (Base AdvCiv value: 0) -->
 	<Define>
 		<DefineName>SAS_MAIN_UI_PLOT_LIST_X_OFFSET</DefineName>
@@ -869,15 +941,29 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_MAIN_UI_PLOT_LIST_WIDTH_ADJ</DefineName>
 		<iDefineIntVal>-120</iDefineIntVal>
 	</Define>
-	<!-- custom: map-view commerce block anchor side: 1 = anchor to InterfaceTopRight, 0 = anchor to InterfaceTopLeft. (GPT-5.3-Codex) -->
+	<!-- custom: What the Great General bar's text shows: 0 = no text; 1 = stored / threshold experience, such as "9 / 29"; 2 = base AdvCiv's experience still needed, such as "20"; 3 = both, such as "9 / 29 (20)".
+	The bar's width follows the text, base AdvCiv's for 0 and 2. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_MAIN_UI_GG_BAR_TEXT</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: The Military Advisor tab a click on the Great General bar opens: 0 = Summary, 1 = Map, 2 = Battles, 3 = Composition.
+	Battles by default, the fights that earn the experience, as the advisor's own button and F5 already open it on its last tab, which starts as Map (the user, 2026-11-21). (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_MAIN_UI_GG_BAR_CLICK_TAB</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: map-view commerce block anchor side: 1 = anchor to InterfaceTopRight, 0 = anchor to InterfaceTopLeft. (GPT-5.3-Codex)
+	In map view, 1 now anchors to where advisors leave the scoreboard its space, the Technology Advisor's own while it is open, so the sliders line up with the scoreboard. (Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_MAIN_UI_MAP_COMMERCE_ANCHOR_RIGHT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: horizontal offset for the map-view commerce block anchor. (GPT-5.3-Codex); currently commerce slider row's left commerce icons are a bit too close to the tech chooser, but this is so when upscaled 4 to 5 digit commerce rate (e.g., 1024/Turn) may fit without overflowing to the right, also Technlogy Advisor is as of now the only overflowing to the right into scoreboard, so prefer always having room for high commerce rate numbers in all other views outside Technology Advisor rather -->
+	<!-- custom: horizontal offset for the map-view commerce block anchor. (GPT-5.3-Codex)
+	Was 178 from InterfaceTopRight, which kept the sliders clear of the Technology Advisor at 1920 px but far right of the scoreboard; now from the anchor above, a few px right of the advisors' edge, as the scoreboard's war dots start about 6 px right of it. (Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_MAIN_UI_MAP_COMMERCE_RIGHT_X_OFFSET</DefineName>
-		<iDefineIntVal>178</iDefineIntVal>
+		<iDefineIntVal>6</iDefineIntVal>
 	</Define>
 	<!-- custom: vertical offset for the same map-view commerce block anchor; negative moves up, positive moves down. (GPT-5.3-Codex) -->
 	<Define>
@@ -1596,14 +1682,14 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<iDefineIntVal>350</iDefineIntVal>
 	</Define>
 	<!-- custom: Base AdvCiv/K-Mod Barbarian city scoring mainly considers adjacent/inner plots, which can ignore seafood and other valuable outer-BFC plots that matter once the city is captured by a major civilization.
-	Default 0 preserves base behavior; set to 1 to use normal full-BFC scoring for Barbarian city placement. (GPT-5.5) -->
+	Default 0 preserves base behavior; set to 1 to use normal full-BFC scoring for Barbarian city placement. See KI#177. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_SITE_BARB_FULL_BFC_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Base AdvCiv/K-Mod adds random variation to Barbarian city-site values, but this can override clearly stronger sites.
 	The random bonus is +0..N-1 percent: for example, 50 changes value 1000 to 1000..1490, 5 changes it to 1000..1040, 1 leaves it at 1000 so effectively disables it but still calls the random path, however 0 disables the random path entirely (value would stay 1000 the same though but cleaner/simpler code).
-	Base behavior is 50. (GPT-5.5) -->
+	Base behavior is 50. See KI#177. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_SITE_BARB_CITY_SITE_RANDOM_PCT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -2129,14 +2215,16 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 	<!-- custom: BBAI log levels were hidden in base AdvCiv's CvGameCoreDLL/BBAILog.h, so enabling BBAI logging (LOG_AI / LOG_FOUND_VALUE), disabling it again, or adjusting its detail required a DLL edit and recompile.
-	AdvCiv-SAS exposes them as XML-tunable SAS defines instead, so a DLL modification and recompile are no longer needed; restart Civ4 to apply changes. (GPT-5.5?); Long_Comments_XML.txt #376. -->
+	AdvCiv-SAS exposes them as XML-tunable SAS defines instead, so a DLL modification and recompile are no longer needed; restart Civ4 to apply a change of SAS_BBAI_LOG_ON, while the category levels change during play through SASLiveDefineOverrides.txt, as below. (Claude code Opus 5.5 + GPT-5.5?); Long_Comments_XML.txt #376. -->
 	<!-- custom: Master switch for classic BBAI AI-decision diagnostics.
 	0 disables the SAS_BBAI_* diagnostic categories regardless of their levels below; 1 uses those category levels.
 	The independent SAS_SGR_* report can still run with this disabled. (GPT-5.5? + GPT-5.5 + GPT-6.1-Sol (define-name update)) -->
+	<!-- custom: Since 2026-11-26, 1 starts the session's BBAI file even with every category at 0, which then logs nothing until a category is raised, such as through SASLiveDefineOverrides midway through a test; before, such a session wrote no file. See KI#128.5. (Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_BBAI_LOG_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: BBAI's category levels below are set in SASLiveDefineOverrides/SASLiveDefineOverrides.txt, whose shipped lines win over this file, even after a restart, and apply during play, while SAS_BBAI_LOG_ON above stays here, read at startup; this file keeps the value a deleted line returns to. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	<!-- custom: Log levels: 0=None, 1=important decisions only, 2=many decisions, 3=all logging. (GPT-5.5?) -->
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
 	<Define>
@@ -2355,8 +2443,16 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 	<!-- custom: Dedicated structured SASGameRecord report, notably for autoplay comparison, general game analysis, user-assistance summaries, and external LLM review.
 	This is independent from the classic SAS_BBAI_LOG_ON diagnostic master switch and writes to SASGameRecord_*.log, so it can produce compact GAME_RECORD_* rows without broad AI-decision spam.
-	The record has one overall log-level define: 0 disables it, while higher values enable more detail; subject-specific supporting switches can suppress selected expensive/noisy families without becoming separate recorder masters.
-	The level is cached once after all GlobalDefines/module overrides load so widespread disabled hooks are direct integer checks; change it before launching/reloading the DLL rather than expecting a runtime Define mutation to retune the recorder (the prior implementation also cached its first resolved value). (ChatGPT-5.5 + GPT-5.5 + ChatGPT-5.6-Sol) -->
+	Subject-specific supporting switches below can suppress selected expensive/noisy families without becoming separate recorder masters. (ChatGPT-5.5 + GPT-5.5 + ChatGPT-5.6-Sol) -->
+	<!-- custom: Master switch of SASGameRecord: 1 writes a record for each new game and loaded save, at the detail SAS_SGR_LOG sets when that is above 0; 0 writes none.
+	Read once at load. See SASGameRecord revision 214 (SGR214). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	<Define>
+		<DefineName>SAS_SGR_LOG_ON</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Detail of SASGameRecord while SAS_SGR_LOG_ON is 1, where 0 records nothing; the record notably covers the starting map and its geography, periodic economy, expansion and military state, and the history of cities, battles, wars and diplomacy.
+	Broadly, 1 keeps compact start context and periodic snapshots; 2 adds the chronicle as it happens, notably techs, wars, city captures, Great People and, with SAS_SGR_ACTION_TRACE_ON, the player's actions; 3 adds detail for deep reviews and run comparisons, notably per-city development, RNG/state checkpoints and, with SAS_SGR_TRADE_MARKET_ON, the active player's trade market.
+	Read once at load and fixed for each record, as some rows are written only when a record starts; restart Civ4 or reload the mod to change it. See SASGameRecord revision 214 (SGR214). (ChatGPT-5.6-Sol + Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -2526,7 +2622,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: Anonymous runtime metrics for SAS game-record performance review.
 	1 records Civ4 process memory, system memory-load percentage, available 32-bit process address space, and foreground/minimized state at full snapshots.
 	0 skips all corresponding operating-system queries and dynamic PSAPI loading while preserving millisecond timing and every gameplay record row; stable fields remain present as -1.
-	This setting has no effect while SAS_SGR_LOG is 0. (GPT-5.6-Sol) -->
+	This setting has no effect while SAS_SGR_LOG_ON is 0. (GPT-5.6-Sol + Claude code Opus 5.5) -->
 	<!-- custom: Keep revision-151+ causal user/action/interface rows independently suppressible at recorder level 2+.
 	Default: 1; notably preserves End Turn/save-load/control requests, popup choices, active-human commerce changes, Python screen/Sevopedia events, city-screen transitions, scoreboard/annotation state, and camera results; 0 skips that whole action trace while retaining revision-150 session settings/runtime-view state and all unrelated recorder families.
 	The DLL and Python callers cache this fixed startup setting after XML is ready, so restart/reload the mod after changing it. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
@@ -2568,7 +2664,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Hardware identity, exact paths and process inspection additionally require their separate opt-ins below, so richer diagnostics do not implicitly disclose device models or personal folder names.
 	Profile values are sampled after GameStart/OnLoad; display context waits for graphics initialization.
 	No per-turn hardware polling is added.
-	Clamped to 0..3; independent from dynamic performance metrics and inactive while SAS_SGR_LOG is 0. (GPT-5.6-Sol + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	Clamped to 0..3; independent from dynamic performance metrics and inactive while SAS_SGR_LOG_ON is 0. (GPT-5.6-Sol + ChatGPT-5.6-Sol + GPT-6.1-Sol + Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_SGR_SYSTEM_CONTEXT_LVL</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
@@ -2620,7 +2716,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>210</iDefineIntVal>
+		<iDefineIntVal>218</iDefineIntVal>
 	</Define>
 
 
@@ -2706,7 +2802,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Cached only when Runtime is first enabled, then retained through shutdown; observer-only updates do not require a DLL rebuild merely to change this label. (GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_RUNTIME_REVISION</DefineName>
-		<iDefineIntVal>18</iDefineIntVal>
+		<iDefineIntVal>19</iDefineIntVal>
 	</Define>
 
 
@@ -2749,7 +2845,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: 1 lets an external agent read and drive this game from the command line: SASPilot.py then serves JSON requests from the folder SASPilot/<process ID> beside CivilizationIV.ini, including arbitrary Python run inside the game.
-	0 (default) leaves it off for players; a launch whose ini= file has an [SASPilot] section with On = 1 switches it on for that process only, which is how LLM_Helpers/saspilot/SASPilotClient.py starts its games.
+	0 (default) leaves it off for players; a launch whose ini= file has an [SASPilot] section with On = 1 switches it on for that process only, which is how SASPilot/SASPilotClient.py starts its games.
 	Read once, on the first game update. (Claude code Fable 5.2) -->
 	<Define>
 		<DefineName>SAS_PILOT_ON</DefineName>
@@ -2793,6 +2889,13 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Ships as 1; the development toggle sets 0 locally. (Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_UI_PROJECT_MOVIE_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 shows the Greatest Civilizations screen when it comes, as in base AdvCiv; 0 skips it.
+	Either way its ranking is recorded as a Timeline row in the save, so nothing is lost; at turn 82 of the 2026-11-19 validation run it waited on its Exit button in an agent game.
+	Ships as 1; LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on sets 0 locally. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_UI_TOP_CIVS_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
@@ -3778,12 +3881,12 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 
-	<!-- custom: enable AI stack attack order that spends low-power/low-XP units first in AI_getBestGroupAttacker (1 on, 0 off). (GPT-5.2-Codex) -->
+	<!-- custom: enable AI stack attack order that spends low-power/low-XP units first in AI_getBestGroupAttacker (1 on, 0 off). See KI#89. (GPT-5.2-Codex) -->
 	<Define>
 		<DefineName>SAS_GROUP_ATK_LOW_PWR_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: minimum health percent to break ties by lower health when attack-ordering low-power units (e.g. 60). (GPT-5.2-Codex) -->
+	<!-- custom: minimum health percent to break ties by lower health when attack-ordering low-power units (e.g. 60). See KI#89. (GPT-5.2-Codex) -->
 	<Define>
 		<DefineName>SAS_GROUP_ATK_LOW_PWR_MIN_HEALTH_PCT</DefineName>
 		<iDefineIntVal>60</iDefineIntVal>
@@ -3818,7 +3921,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 
-	<!-- custom: enable this so that multi effect bonuses (e.g. wheat has +1 healh and +1 with granary which is effectively 2 health) are valued as such; Long_Comments_XML.txt #179 -->
+	<!-- custom: enable this so that multi effect bonuses (e.g. wheat has +1 health and +1 with granary which is effectively 2 health) are valued as such; Long_Comments_XML.txt #179 -->
 	<Define>
 		<DefineName>SAS_BONUS_TRADE_MULTI_EFFECT_VAL_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -3892,7 +3995,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- Consider tech "key military" if its FLAVOR_MILITARY is at least this. -->
-	<!-- custom: e.g. if flavor military of a tech is 8, then this is considered a key military tech for our below tech value changes -->
+	<!-- custom: e.g. if flavor military of a tech is 8, then this is considered a key military tech for our below tech value changes. See KI#81. -->
 	<Define>
 		<DefineName>SAS_TECH_VAL_MILIT_FLAVOR_MIN</DefineName>
 		<iDefineIntVal>6</iDefineIntVal>
@@ -3906,7 +4009,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 
-	<!-- custom: additionally to our self research tech value changes based on if our ennemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal -->
+	<!-- custom: additionally to our self research tech value changes based on if our enemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal -->
 	<!-- bias trade valuation toward key military techs when we're clearly outgunned -->
 	<!-- custom: Long_Comments_XML.txt #112 -->
 	<Define>
@@ -3972,7 +4075,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 
-	<!-- custom: adjust tech trade contact frequency / willingness of contact depending on how strong/dangerous our rival is. -->
+	<!-- custom: adjust tech trade contact frequency / willingness of contact depending on how strong/dangerous our rival is. See KI#80. -->
 	<!-- custom: note: this is not applied between members of a master-vassal(s) locus, as master<->vassal(s) are not in direct and immediate competition but more like trying to come through and not die right away short term so it is not so relevant for them -->
 	<!-- custom: enable (1) / disable (0) to toggle this option. -->
 	<Define>
@@ -4047,7 +4150,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 
-	<!-- custom: how much we value each civic's unlimited specialist based on their yield(s) -->
+	<!-- custom: how much we value each civic's unlimited specialist based on their yield(s). See KI#76. -->
 	<Define>
 		<DefineName>SAS_CIVIC_VAL_UNLIM_SPEC_FOOD_VAL</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
@@ -4065,7 +4168,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_CIVIC_VAL_UNLIM_SPEC_YIELD_COM_VAL</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
-	<!-- custom: how much we value each civic's unlimited specialist based on their commerce(s) -->
+	<!-- custom: how much we value each civic's unlimited specialist based on their commerce(s). See KI#76. -->
 	<Define>
 		<DefineName>SAS_CIVIC_VAL_UNLIM_SPEC_COM_RESEARCH_VAL</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
@@ -4362,7 +4465,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_PROMOTION_VAL_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: low value so a promotion does not get picked (assuming no other logic overrides ours as seems to happen sometimes for rare unexpected medic promotions, although generalyl our code seems as of now quite/very effective but check to be sure) -->
+	<!-- custom: low value so a promotion does not get picked (assuming no other logic overrides ours as seems to happen sometimes for rare unexpected medic promotions, although generally our code seems as of now quite/very effective but check to be sure) -->
 	<Define>
 		<DefineName>SAS_PROMOTION_VAL_FORBIDDEN</DefineName>
 		<iDefineIntVal>-100000</iDefineIntVal>
@@ -4671,7 +4774,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	</Define>
 	<!-- custom: Direct victory-denial war is only allowed if nearest cities are within this distance.
 	Farther or naval-heavy threats can still receive the utility boost, but normal preparation remains safer than a blind direct war. (GPT-5.5) -->
-	<!-- custom: The AdvCiv-SAS war-target contact guard also uses this limit in cached path turns for an otherwise eligible emergency, so its normal shorter limit cannot veto the same direct-war policy. (GPT-5.6-Sol) -->
+	<!-- custom: The AdvCiv-SAS war-target contact guard also uses this limit in cached path turns for an otherwise eligible emergency, so its normal shorter limit cannot veto the same direct-war policy. See KI#184.2. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_UWAI_VICT_DENY_DIRECT_MAX_DIST</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>

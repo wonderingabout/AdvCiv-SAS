@@ -555,13 +555,13 @@ class CvMilitaryAdvisor:
 		if fThreat < 15:
 			sColour = "COLOR_PLAYER_GREEN"
 			sThreat = localText.getText("TXT_KEY_MILITARY_THREAT_INDEX_LOW", ())
-		elif  fThreat < 35:
+		elif fThreat < 35:
 			sColour = "COLOR_PLAYER_BLUE"
 			sThreat = localText.getText("TXT_KEY_MILITARY_THREAT_INDEX_MINOR", ())
-		elif  fThreat < 55:
+		elif fThreat < 55:
 			sColour = "COLOR_PLAYER_YELLOW"
 			sThreat = localText.getText("TXT_KEY_MILITARY_THREAT_INDEX_ELEVATED", ())
-		elif  fThreat < 75:
+		elif fThreat < 75:
 			sColour = "COLOR_PLAYER_ORANGE"
 			sThreat = localText.getText("TXT_KEY_MILITARY_THREAT_INDEX_HIGH", ())
 		else:
@@ -582,9 +582,7 @@ class CvMilitaryAdvisor:
 			self.iconGrid.addIcon(iRow, self.Col_WEnemy, gc.getLeaderHeadInfo(pWorstEnemy.getLeaderType()).getButton(), 45, WidgetTypes.WIDGET_LEADERHEAD_RELATIONS, iLeader, pWorstEnemy.getID())
 		else:
 			pass
-			#self.iconGrid.addIcon(iRow, self.Col_WEnemy,
-			#						ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CANCEL").getPath(), 35, 
-			#						WidgetTypes.WIDGET_GENERAL, -1)
+			#self.iconGrid.addIcon(iRow, self.Col_WEnemy, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CANCEL").getPath(), 35, WidgetTypes.WIDGET_GENERAL, -1)
 
 #### Strategic Advantages Tab ####
 

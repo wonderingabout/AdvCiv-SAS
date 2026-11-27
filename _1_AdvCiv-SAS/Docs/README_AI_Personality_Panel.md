@@ -24,7 +24,7 @@ AI attributes (at least i call them this way not sure it is their exact name but
 [Notes about performance optimization of the AI Personality panel caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)\
 [If you want to mod](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#if-you-want-to-mod)\
 [Note about some ai attributes being ignored](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored)\
-[Currently if not always unfinished todo or(/and?) not or etc anyways](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#currently-if-not-always-unfinished-todo-orand-not-or-etc-anyways)\
+[Currently unfinished (todo)](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#currently-unfinished-todo)\
 [Note about the value of 0 not always being 0, and a value > 0 sometimes being 0](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#note-about-the-value-of-0-not-always-being-0-and-a-value--0-sometimes-being-0)
 
 ## Sources about XML AI Attributes and their meaning
@@ -93,8 +93,8 @@ Finally, the last main point to know regarding this AI personality panel is the 
 <img src="/_1_AdvCiv-SAS/Images/sevopedia/1.806_sevopedia_mods_info_legend%20(2).JPG" alt="1.806_sevopedia_mods_info_legend (2).JPG" width="250"></img>
 
 - first column: "label", a shortened or full descriptive text, like/such as "T.W Likely" (a shortened explanation of what iMaxWarRand means ingame), as said earlier.
-  - This column contains the raw value too, for exhaustiveness, for example "T.W Likely (50)" for moctezuma, 50 is the raw value, or "T.W Likely (400)" for Gandhi, 400 is the raw value, for raw ai atributes.
-  - For aggregated ai aattributes, like contact probs, positive and negative memory resentments and affections, etc, the raw value is also displayed, but since there are many components (raw values) used to calculate the aggregated ai attribute, we instead display each of them "/" separated, for example for gandhi in the negative memory resentment category, the "D.W on FR (-200/120)" line shows that Gandhi has a raw ai attribute memory attitude percent of -200 (i.e. Gandhi resents quite strongly you declaring war on his friends) and a memory decay of 120.
+  - This column contains the raw value too, for exhaustiveness, for example "T.W Likely (50)" for moctezuma, 50 is the raw value, or "T.W Likely (400)" for Gandhi, 400 is the raw value, for raw ai attributes.
+  - For aggregated ai attributes, like contact probs, positive and negative memory resentments and affections, etc, the raw value is also displayed, but since there are many components (raw values) used to calculate the aggregated ai attribute, we instead display each of them "/" separated, for example for gandhi in the negative memory resentment category, the "D.W on FR (-200/120)" line shows that Gandhi has a raw ai attribute memory attitude percent of -200 (i.e. Gandhi resents quite strongly you declaring war on his friends) and a memory decay of 120.
   - And for Moctezuma, for the same "D.W on Fr" negative memory resentment, Moctezuma does not resent as much (memory attitude percent of -100, and memory decay same though of 120 (currently btw decays are same among all leaders (in civ4/advciv and thus advciv-sas too), not ideal but maybe functional))
 - second column: the normalized score is displayed.
   - As we explained before at the ranking calculation part, these scores are normalized, which means score is minimum 0 and maximum 100.
@@ -103,10 +103,10 @@ Finally, the last main point to know regarding this AI personality panel is the 
   - Note that this code is entirely dynamic, you can add more leaders and they'll get the new values and participate and possibly completely upset the best/worse performers ranking depending on their values (if they are different from current leaders ones, and how much), and you could also additionally tweak the existing leaders xml values.
   - (If you think for example the roman leaders underperform in war, you may tweak their xml.
   - As for aggregated ai attributes, they also display normalized scores, but since they are already normalized at their creation by definition, before leaders_data.py is (has finished being) generated), they are still displayed as normalized scores (min 0, max 100, unless all leaders have an equal score/value then all leaders get 50), but since they are already normalized, they are not re-normalized during caching and Sevopedia Leader computation.
-  - In short, they can be intepreted similarly as raw ai attributes.
+  - In short, they can be interpreted similarly as raw ai attributes.
 - third column: scale, this is an indicative display, raw ai attributes and aggregated ai attributes are graded graphically 10 by 10 with a symbol, but raw ai attributes use a "+" symbol, while ai aggregated symbols use a "#" symbol (trying to be visually clear while also civ4-compatible).
   - So for example maxwarrand 400 gandhi has a score of 0 normalized among all leaders (it is highest score i.e Gandhi is the least war-like leader(s (if others have a value of 400 too))) so his scale is "++++++++++" (100th percentile), while moctezuma has a warrand of 50, score 100 among all leaders (very war-like (in a "T.W war Likely" way highest leader(s (if other have same value of 50))), so his scale is "" (0th percentile)).
-  - Aggregated ai attributes follow a similar logic, so for example for the contact offer probabilites ai aggregated attribute, shaka has a "Tr Tech (30/5)" score of 79, meanings he is likely, relatively to all leaders, to contact you for a tech trade offer, and 79th percentile is a bit short of 80 but still 7 scales/symbols so he will be "#######".
+  - Aggregated ai attributes follow a similar logic, so for example for the contact offer probabilities ai aggregated attribute, shaka has a "Tr Tech (30/5)" score of 79, meanings he is likely, relatively to all leaders, to contact you for a tech trade offer, and 79th percentile is a bit short of 80 but still 7 scales/symbols so he will be "#######".
   - If the value is 50 sharp, for raw ai attributes or ai aggregated attributes, the symbol will also be "+++++" or "#####".
   - This is especially important because the last symbol is "=====", which only happens if, for both raw ai attributes and ai aggregated attributes, if all leaders have strictly the same raw value for this attribute aggregated or raw is same in this case functionally, i.e. they'll both get an equal scale symbol, and precisely 5 scales, also all leaders will scale 50.
   - So 50 "+++++", 50 "#####", and 50 "=====" all have different meanings, one being respectively only for raw ai attributes scoring of said leader, the other of similarly same ai aggregated value of said leader, while the last being the display of an equal value among all leaders for an easier read as chatgpt (see [Authors](/README.md#authors) for details) advised me indeed, nice suggestion :)
@@ -129,9 +129,9 @@ The little extra bonus is for example at least is the one that comes to my mind 
 
 May have to check if i want) of having a small theoretical lag (didn't test but i assume maybe caching may generate a micro lag that would be visible for the user on Leaders category's click), but/however after list is loaded, there is some delay until the user clicks on/selects desired leader to display, so this is perfect time to smoothly load the precomputed cache silently without it being visible in terms of performance because nothing else is changing, if such a lag even exists as i didn't check or test but i assume and find this design more plasant.
 
-Using a function call gives us also more control than hardcoded code in Sevopedia leader and i really like this part as well so we know when and why we build it and can selectively not do so as needed or and wanted, i really like this design efficient and smart even though shold not be of me to say and perhaps can still be improved, but i believe it is quite efficient as it is in general, even though it could still be improved though, i like as it is as of now.
+Using a function call gives us also more control than hardcoded code in Sevopedia leader and i really like this part as well so we know when and why we build it and can selectively not do so as needed wanted, i really like this design efficient and smart even though should not be of me to say and perhaps can still be improved, but i believe it is quite efficient as it is in general, even though it could still be improved though, i like as it is as of now.
 
-This is also very nice because now in VS Code in Sevopedia leader we can also "unwrap" or rather "wrap" maybe i mean "undevelop" the function i don't know how to explain but click on the arrow at left of function name at line number, and we compress=hide all this caching code very nicely to directly and only read the Sevopedia leader remaining code we want so i hadn't planend it as such but is very nice side effect.
+This is also very nice because now in VS Code in Sevopedia leader we can also "unwrap" or rather "wrap" maybe i mean "undevelop" the function i don't know how to explain but click on the arrow at left of function name at line number, and we compress=hide all this caching code very nicely to directly and only read the Sevopedia leader remaining code we want so i hadn't planned it as such but is very nice side effect.
 
 Also, loading the precache rather than pre-caching and recomputing at each civ4 game launch, has the advantage for players that they don't need to always recompute these values that do not change on their end, and rarely so even for modders, every time they start civ4.
 
@@ -160,7 +160,7 @@ During development, the full-tuple checker caught 394 stale label entries, inclu
 
 ## Note about some ai attributes being ignored
 
-Some AI attributes (raw or aggregated if i were to make them anyways (maybe, not guaranteed, may or may not indeed too, etc anyways)) are not in the data, either because ai panel is incomplete yet (see below in the [README_AI_Personality_Panel.md#currently-if-not-always-unfinished-todo-orand-not-or-etc-anyways](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#currently-if-not-always-unfinished-todo-orand-not-or-etc-anyways)), or because i have assessed that these are not used anymore in AdvCiv (i may have forgotten some or not, but for example iLoveOfPeace XML AI attribute is not used anymore in AdvCiv if i'm not mistaken, as shown in this code comment for example from [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml) (adapt if you don't use the Steam version of Civ4 (and by extension of AdvCiv-SAS etc anyways...)):
+Some AI attributes (raw or aggregated if i were to make them anyways (maybe, not guaranteed, may or may not indeed too, etc anyways)) are not in the data, either because ai panel is incomplete yet (see below in the [Currently unfinished (todo)](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#currently-unfinished-todo)), or because i have assessed that these are not used anymore in AdvCiv (i may have forgotten some or not, but for example iLoveOfPeace XML AI attribute is not used anymore in AdvCiv if i'm not mistaken, as shown in this code comment for example from [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml) (adapt if you don't use the Steam version of Civ4 (and by extension of AdvCiv-SAS etc anyways...)):
 
 ```xml
 			<!-- advc.104: No AdvCiv leader uses this; for mod-mods maybe. See
@@ -172,12 +172,12 @@ Some AI attributes (raw or aggregated if i were to make them anyways (maybe, not
 And since our mod AdvCiv-SAS is based on AdvCiv, we don't use it by extension anyways.
 )
 
-## Currently if not always unfinished todo or(/and?) not or etc anyways
+## Currently unfinished (todo)
 
-Currently, again as of me now writing this doc, there are a few attirbutes missing from the table, such as:
+Currently, again as of me now writing this doc, there are a few attributes missing from the table, such as:
 
 - Attitude changes +/- limits +/- divisors aggregation (may aggregate them too for easier read), or move some of them in (other categories (like "core personality, etc))
-- improvements (would be nice if i could (we? with chatgpt)) also display leader preferences for which improvements (such values exist in xml), for example some leaders prefer mines, others farms etc, with their scale and before that normalized score too (plus raw value in label too ideally) would be even nicer, but there are many improvements, wouuld need to find a way to comapct the view, perhaps only showing values > 0.
+- improvements (would be nice if i could (we? with chatgpt)) also display leader preferences for which improvements (such values exist in xml), for example some leaders prefer mines, others farms etc, with their scale and before that normalized score too (plus raw value in label too ideally) would be even nicer, but there are many improvements, would need to find a way to compact the view, perhaps only showing values > 0.
 - unitais (which ai leaders build for example more ai settle units, or more ai sea explore units for example if i'm not mistaken, etc.) with scales and normalized score(s) (before that) and ranking (as thus if that is a word/expression anyways) would be very nice too, perhaps in a compact way like for improvements, especially if some room is freed somewhere in the panel (or writing under the panel xd.. works too maybe indeed)
 
 ## Note about the value of 0 not always being 0, and a value > 0 sometimes being 0

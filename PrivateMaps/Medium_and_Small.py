@@ -48,9 +48,9 @@ def getNumCustomMapOptions():
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
-		0:	"TXT_KEY_MAP_SCRIPT_CONTINENTS_SIZE",
-		1:	"TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
-		2:	"TXT_KEY_MAP_SCRIPT_ISLAND_OVERLAP"
+		0: "TXT_KEY_MAP_SCRIPT_CONTINENTS_SIZE",
+		1: "TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
+		2: "TXT_KEY_MAP_SCRIPT_ISLAND_OVERLAP"
 		}
 	if not option_names.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -60,27 +60,27 @@ def getCustomMapOptionName(argsList):
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	5,
-		1:	2,
-		2:	2
+		0: 5,
+		1: 2,
+		2: 2
 		}
 	return option_values[iOption]
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_SCRIPT_NORMAL_CONTINENTS",
 			1: "TXT_KEY_MAP_SCRIPT_UNPREDICTABLE",
 			2: "TXT_KEY_MAP_SCRIPT_SNAKY_CONTINENTS",
 			3: "TXT_KEY_MAP_SCRIPT_ISLANDS",
 			4: "TXT_KEY_MAP_SCRIPT_RANDOM"
 			},
-		1:	{
+		1: {
 			0: "TXT_KEY_MAP_SCRIPT_ISLANDS",
 			1: "TXT_KEY_MAP_SCRIPT_TINY_ISLANDS"
 			},
-		2:	{
+		2: {
 			0: "TXT_KEY_MAP_SCRIPT_ISLAND_REGION_SEPARATE",
 			1: "TXT_KEY_MAP_SCRIPT_ISLANDS_MIXED_IN"
 			}
@@ -93,18 +93,18 @@ def getCustomMapOptionDescAt(argsList):
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	4,
-		1:	1,
-		2:	0
+		0: 4,
+		1: 1,
+		2: 0
 		}
 	return option_defaults[iOption]
 
 def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
 	option_random = {
-		0:	false,
-		1:	true,
-		2:	true
+		0: false,
+		1: true,
+		2: true
 		}
 	return option_random[iOption]
 

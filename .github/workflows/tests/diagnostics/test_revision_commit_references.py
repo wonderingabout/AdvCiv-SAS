@@ -110,6 +110,14 @@ class RevisionCommitReferenceTests(unittest.TestCase):
         self.write(refs.runtime.HISTORY, self.document(squashed))
         self.assertEqual(refs.reference_errors(self.repo, refs.runtime.HISTORY, refs.runtime_revision, squashed), [])
 
+    # <!-- custom: A finalized entry's stated practical number must be its commit's count; the introduction is the fixture's second commit. (Claude code Opus 5.5) -->
+    def test_finalized_practical_number_matches_its_commit(self):
+        for stated, expect_error in ((2, False), (5, True)):
+            with self.subTest(stated=stated):
+                self.write(refs.runtime.HISTORY, f"### Revision 1 - SAS practical {stated}\n- **Git commit:** `{self.introduction}`\n- **Change:** Fixture behavior.\n")
+                errors = refs.reference_errors(self.repo, refs.runtime.HISTORY, refs.runtime_revision, self.base)
+                self.assertEqual(any("heading says SAS practical" in error for error in errors), expect_error, errors)
+
     def test_ancestral_hash_with_wrong_revision_fails(self):
         self.write(refs.runtime.HISTORY, self.document(self.base))
         self.assertTrue(any("matching recorder revision" in error for error in refs.reference_errors(

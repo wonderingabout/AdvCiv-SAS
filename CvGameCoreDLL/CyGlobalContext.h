@@ -281,6 +281,8 @@ public:
 	void setDefineINT(const char * szName, int iValue) { return kGlobals.setDefineINT(szName, iValue); }
 	void setDefineFLOAT(const char * szName, float fValue) { return kGlobals.setDefineFLOAT(szName, fValue); }
 	void setDefineSTRING(const char * szName, const char * szValue) { return kGlobals.setDefineSTRING(szName, szValue); }
+	// <!-- custom: Called by SASLiveDefineOverridesBridge.py after it applies a change, so DLL state built once from defines is built again; one entry point for every such family rather than one binding each. See KI#128.5. (Claude code Opus 5.5) -->
+	void onSASLiveDefineOverridesApplied();
 
 	int getMOVE_DENOMINATOR() const { return kGlobals.getMOVE_DENOMINATOR(); }
 	int getFOOD_CONSUMPTION_PER_POPULATION() const { return kGlobals.getFOOD_CONSUMPTION_PER_POPULATION(); }

@@ -2,6 +2,8 @@
 
 `SASRuntimeStatus.json` describes the latest observed state; its companion `SASRuntimeHistory_*.jsonl` retains timed activity transitions. Both report the same XML `SAS_RUNTIME_REVISION` as `revision`, identifying their recorder implementation independently of SASGameRecord's revision.
 
+The [shared rules](/_1_AdvCiv-SAS/Docs/revisions/README.md#shared-rules) for every revisioned subsystem apply here; what follows is Runtime's own.
+
 Increment once per commit changing the loaded runtime recorder, its interfaces, configuration, call sites or shared runtime services, including implementation comments/provenance. Keep one pending revision throughout drafting and amend cycles.
 
 The label is cached once when Runtime is enabled; it identifies the configured recorder implementation, not the loaded binary. DLL/build/source provenance separately identifies native code.
@@ -16,10 +18,18 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 ## History
 
+### Revision 19 - SAS practical 6862
+
+- **Date:** 2026-11-25
+- **Git commit:** `4b7b04c214918e7313246fb83aa269495bf46187`
+- **Functional:** No (comments only)
+- **Change:** Comments only, with no change to what is published: `isSASRuntimeStatusEnabled` and `isSASRuntimeSourceWatchEnabled` say why they read their define by name, with a `ci_define_uncached:` comment, which the new [`cpp_define_reads_cached.py`](/.github/workflows/README.md#buildsourcecpp_define_reads_cachedpy) check asks of every SAS define read outside a static.
+
 ### Revision 18 - SAS practical 6746
 
 - **Date:** 2026-11-11
 - **Git commit:** `5ff32ab18353af4a4ed28081bab25b422410829b`
+- **Functional:** Yes
 - **Change:** Give each Civ4 process its own status file, so two clients running at once on the same Windows computer no longer overwrite each other's current state.
   - Each process also writes `SASRuntimeStatus_<processStartUtc>_<processId>.json`, named like its `SASRuntimeHistory_*.jsonl`, with the same content as the shared `SASRuntimeStatus.json`. The shared file keeps showing the latest writer, so existing readers work unchanged.
   - The exit, dialog, screenshot and source observers now receive the per-process path. Two clients launched with `multiple` shared one status file, so the first client's screenshot rows reported `STATUS_IDENTITY_MISMATCH` against the second client's status (see `changes_new.md`).
@@ -30,6 +40,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 - **Date:** 2026-11-10
 - **Git commit:** `f926c7ab5f988920d872076656a2613b7d75ba41`
+- **Functional:** No (shared formatter, same output)
 - **Change:** Use the shared XML type formatter for the active turn's civilization in Runtime status and history, preserving the civilization type token and the dash for a missing civilization.
   - Align Runtime's DLL shipping policy with SGR. This formatter change preserves the observer contract, so the source can land without shipping a new binary. When a commit ships a Release DLL alongside native Runtime changes, CI still checks the report against those sources.
   - The Runtime revision check also gained the rule that a commit bumping this revision names it in its title, such as `(Runtime17)`. Under this history's policy a CI change is not a Runtime change, so it is noted here only because it landed in this commit; the SGR history counts its own checker as an SGR change and lists the same rule under SGR197.
@@ -38,6 +49,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 - **Date:** 2026-10-29
 - **Git commit:** `8f06c5384ac3131e06cd3360307eb48f8aaae9b8`
+- **Functional:** Yes
 - **Change:** Recognize the reviewed same-process Gamebryo/NiDX9 video-memory-allocation dialog family and capture one bounded external failure-time memory/Runtime-context sample without treating the message as a diagnosis.
   - Move `SAS_RUNTIME_REVISION` from a compiled constant to SAS XML, cached only on enabled initialization and retained through teardown. CI reads both historical compiled and current XML labels; native Runtime changes require a matching Release build, while observer/XML-only changes do not.
   - `SASRuntimeDialogObserver.cs` accepts title `ERROR` only when bounded Static text contains the exact `Failed to allocate video memory.` phrase plus a `Gamebryo2_0` / `NiDX9` / `.cpp` source reference.
@@ -56,6 +68,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 - **Date:** 2026-10-28
 - **Git commit:** `10f2ee5a5571f3d26e65810ddde4dfa55335027c`
+- **Functional:** Yes
 - **Change:** Separate human end-turn readiness from player-turn wall time and record compact pre-end-turn order context without per-frame unit scans.
   - The existing `updateTestEndTurn` UI boundary now reports when the inherited end-turn message becomes active or is revoked because new orderable work appears. Runtime measures only those ready-message intervals; `HUMAN_INPUT` remains broader wall time including thinking, popups and screens.
   - Accepted `CONTROL_ENDTURN` / `CONTROL_ENDTURN_ALT` / `CONTROL_FORCEENDTURN` requests capture one `end_turn_context` row before `sendTurnComplete`.
@@ -70,6 +83,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 - **Date:** 2026-10-28
 - **Git commit:** `59f88590b4b2f03174ac1dc3d5fda6c6d48fed9f`
+- **Functional:** Yes
 - **Change:** Observe confirmed screenshot files externally and correlate them with the matching Runtime process/session context without treating a Print Screen request as proof that capture succeeded.
   - With `SAS_RUNTIME_STATUS_ON=1`, the independent default-off `SAS_RUNTIME_SCREENSHOT_WATCH_ON=1` launches adjacent `Assets/SASRuntimeScreenshotObserver.ps1` through the already attached exit observer after exact process/start identity is confirmed; no additional game input, screenshot request or directory polling is introduced.
   - The watcher derives Civ4's native user `ScreenShots` directory from the target executable folder and Documents/My Games convention used by the engine diagnostics. It ignores pre-existing files and records only future `.jpg`/`.jpeg`/`.png`/`.bmp` create/change/rename bursts after short per-file coalescing.
@@ -83,6 +97,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 - **Date:** 2026-10-28
 - **Git commit:** `12251f88fda55a5994d04bc20d88011376228bd2`
+- **Functional:** Yes
 - **Change:** Add native sequential player-turn timing for external Runtime diagnostics without turning every player boundary into a disk-write event.
   - `CvPlayer::setTurnActive` supplies authoritative activation, main active interval and ending boundaries. Current JSON distinguishes the actually processed player/team/civilization and `AI_MOVES`, `HUMAN_INPUT` or `ENDING` phase from the existing `activePlayer`, which remains UI ownership.
   - Every measured player is retained in memory; the authoritative completed-game-turn boundary appends one `player_turn_summary` JSONL row containing fast and slow players plus activation/main/ending durations. Missing/interrupted boundaries, including a load that resumes after activation, set `complete=0` rather than fabricating timing.
@@ -97,6 +112,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 - **Date:** 2026-10-26
 - **Git commit:** `9e6e527431b576ecc8622f7230eacb8084b0e9ff`
+- **Functional:** Yes
 - **Change:** Add an optional external live-source observer for mod-source/configuration disk edits while Runtime diagnostics are enabled, without claiming that Civ4 reloaded or executed the changed files.
   - `SAS_RUNTIME_SOURCE_WATCH_ON=1` launches adjacent `Assets/SASRuntimeSourceObserver.ps1`; the shipped default is 0, and ordinary Runtime status does not start the watcher.
   - The companion uses recursive `FileSystemWatcher` events for Python/XML/BUG Config, PrivateMaps scripts/scenarios, Resource themes, mod Settings and mod-root INI files, coalesces rapid save/rename bursts per path, then records mod-relative path, observed actions/times, final presence/size/write time and bounded SHA-256 evidence. File contents are never copied.
@@ -111,6 +127,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 - **Date:** 2026-10-26
 - **Git commit:** `7fb4c4308559b1d658f1ea0d8b6b4c19e6bd95da`
+- **Functional:** Yes
 - **Change:** Observe the captured Microsoft Visual C++ Runtime Library error and Civ4 Program Execution Problem dump-choice dialogs while Civ4 remains alive, complementing the process-exit wait. PowerShell compiles the adjacent `Assets/SASRuntimeDialogObserver.cs` through the installed .NET tooling; the game DLL does not compile or load this managed listener.
   - A process-filtered, out-of-context WinEvent listener with an initial window scan detects recognized visible dialogs and later hide/destroy observations. It reads only bounded standard text from the recognized target dialog and never clicks or dismisses it.
     - The dump reporter’s known Edit 1004 is guarded by its message and three dump-choice buttons; ordinary popups/assertions are excluded.
@@ -122,6 +139,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 - **Date:** 2026-10-26
 - **Git commit:** `def6878daa1cc7115e13e173c4de2bf967e90e84`
+- **Functional:** Yes
 - **Change:** Enabled runtime diagnostics launch the adjacent `Assets/SASRuntimeExitObserver.ps1` as a hidden, same-user Windows PowerShell process. It waits for the matching process handle and records final exit time/code even when Civ4 cannot execute its shutdown hooks.
   - The current JSON exposes the launched observer PID and Win32 launch error; launch success does not prove attachment. The separate `SASRuntimeExit_<process-start UTC>_<PID>.json` first confirms handle attachment with WAITING, then records EXITED and the final result independently of current-status readability.
   - After an observed exit, `exitObservation` records signed/hex exit code, UTC and history-append result. `lastInProcessUpdatedUtc` preserves the last game-owned observation.
@@ -133,12 +151,14 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 - **Date:** 2026-10-26
 - **Git commit:** `86385960a026023db376c265eebfa794af77ba07`
+- **Functional:** No (comment credits only)
 - **Change:** Normalize contributor credits in runtime implementation comments by removing the optional reviewer-role label; retain existing author attribution. The revision advances under the implementation-comment policy; recorder behavior and output fields are unchanged.
 
 ### Revision 8 - SAS practical 6680
 
 - **Date:** 2026-10-24
 - **Git commit:** `7030fbbe4fe8b48f2b548c6c54daeb4a9c118b34`
+- **Functional:** Yes
 - **Change:** Add cached source/branch provenance to the standalone runtime view so external agents can interpret a practical count correctly when Civ4 is running from a feature, reproducer or diverged branch.
   - Current `SASRuntimeStatus.json` and the JSONL `run` record add `sourceIdentity` with exact current commit/count/branch, locally known default commit/count, merge-base commit/count, branch relation, current-only/default-only commit counts, combined/staged/unstaged tracked runtime-code/rules fingerprints, and the number of staged/unstaged per-file diff entries available in the shared cache.
   - Diagnostic ancestry/patch resolution stays behind the runtime-status enable gate in a separate `ModName` cache, so basic version UI does not trigger it; enabled transition updates do not repeatedly invoke Git. No fetch is attempted, and shallow/missing default ancestry remains explicit.
@@ -149,6 +169,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 - **Date:** 2026-10-23
 - **Git commit:** `a9f16ef4a2a969ced13de011b19f795938977705`
+- **Functional:** Yes
 - **Change:** Expose native ButtonPopup interaction as a compact event-driven wait state without turning UI prompts into gameplay/activity intervals.
   - `BUTTON_POPUP_FOCUSED` begins `buttonPopupAwaitingInteraction=1` only from `CvDLLButtonPopup::OnFocus`, after popup-specific stale/cancellation checks. Focus is stronger evidence than merely queueing/launching a popup: the EXE has reached its native focus/interaction callback for that ButtonPopup. It is not claimed as an exact rendered-frame timestamp.
     - The snapshot/history retain fixed `buttonPopupType`/numeric ID, active player and focus time. No popup body, edit-box text, player-entered name/password/mail/server value, or arbitrary Python text is recorded.
@@ -165,12 +186,14 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 - **Date:** 2026-10-21
 - **Git commit:** `73fba8f1cf408ebac14cf28c170fbb9090d6f1b7`
-- **Change:** Rename the enable setting to `SAS_RUNTIME_STATUS_ON` with the GlobalDefine naming review (KI#1001.2). Its default, cached enable check and runtime observations are unchanged.
+- **Functional:** No (define rename, same behavior)
+- **Change:** Rename the enable setting from `SAS_RUNTIME_STATUS_ENABLE` to `SAS_RUNTIME_STATUS_ON` with the GlobalDefine naming review (KI#1001.2); `SASRuntimeStatus.cpp` reads the new name. Its default, cached enable check and runtime observations are unchanged.
 
 ### Revision 5 - SAS practical 6646
 
 - **Date:** 2026-10-19
 - **Git commit:** `61c86a8949e29f1c6f0cd0379c563c70596d54ca`
+- **Functional:** Yes
 - **Change:** Add stronger event-driven menu and initialization observations where the Python/UI interfaces expose state, while keeping unavailable EXE presentation facts explicitly unresolved.
   - `MAIN_MENU_STATE_OBSERVED` records the first positive `CyInterface().isInMainMenu()` sample in a no-game interval, but only when an explicit menu-capable Python screen entry point already runs. `mainMenuStateObservedUtc` therefore proves menu state at that callback; it is not claimed as the initial rendered-menu arrival time.
   - Civilopedia visibility distinguishes `MAIN_MENU` and `IN_GAME` context in both the current JSON and history. The top-level entry covers standard Civilopedia/Sevopedia; Sevopedia's shared screen-creation hook also covers direct in-game page links.
@@ -192,6 +215,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 - **Date:** 2026-10-19
 - **Git commit:** `5174aae5d8ec4b2172ca4a8bd31e08f6c4429700`
+- **Functional:** Yes
 - **Change:** Observe Windows close messages as distinct best-effort exit-request evidence without replacing Civ4's window procedure.
   - When runtime status is enabled, observe both sent messages (`WH_CALLWNDPROC`) and queue removal (`WH_GETMESSAGE`) on the window's thread.
     - Before a visible window is available, arm on the lifecycle caller's thread and bind a later top-level close target; later lifecycle callbacks can retarget the hooks.
@@ -211,6 +235,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 - **Date:** 2026-10-19
 - **Git commit:** `39a7ad075bd95ce94f6bb683b3436da693ec4033`
+- **Functional:** Yes
 - **Change:** Make each per-process JSONL timeline more useful as a standalone archive while removing repeated constant identity from every transition.
   - Add one typed `run` record with process start/PID, DLL-load UTC and full loaded-DLL identity. Transition records retain the recorder revision and compact run ID so a copied/grepped line still identifies its source run without repeating the full identity object.
   - Add one typed `session` record for each ready new/load session, normally before its first ready transition, with session timestamps/counters, ready-game turn/active-player IDs, map/game configuration and known loaded-save checkpoint evidence. Capture that context once so a later retry preserves the original ready observation even after the game advances or resets.
@@ -221,6 +246,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 - **Date:** 2026-10-18
 - **Git commit:** `e58d41b6e8a6e6fe69993c4b8aa056f8679d82bd`
+- **Functional:** Yes
 - **Change:** Add event-driven presentation/lifecycle observations without frame polling or side-effectful diagnostic queries.
   - Record the EXE's existing main-menu scene and loading-screen asset requests as explicitly named evidence, without treating either request as proof that a rendered frame reached the user.
   - Distinguish native WorldBuilder mode from the Python WorldBuilder screen; time active editor intervals as their own coarse activity while recording screen show/hide separately and ignoring Advanced Start's reuse of the same Python screen.
@@ -232,6 +258,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 - **Date:** 2026-10-18
 - **Git commit:** `b0ddbda713d15d04f229a377af1d0c392e886351`
+- **Functional:** Yes
 - **Change:** Publish optional current-state observations and a per-process activity timeline so agents can inspect creation, loading and autoplay while Civ4 remains open, with timing and loaded-DLL identity to interpret those observations.
   - Use one implementation revision across both outputs, replacing the draft's separate layout `schema` labels. The number refers to this history; it does not select compatibility branches or identify the Windows process.
   - Keep snapshot and activity serials as independent per-process counters: snapshots can advance each completed turn, while activity serials connect transitions with the snapshot that describes them.
@@ -239,16 +266,6 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 ## Maintenance template
 
-Increment XML `SAS_RUNTIME_REVISION` once for the next qualifying commit and prepend one entry:
+The entry template, the `pending` commit and the other [shared rules](/_1_AdvCiv-SAS/Docs/revisions/README.md#shared-rules) apply; increment `SAS_RUNTIME_REVISION` once for the next qualifying commit.
 
-```markdown
-### Revision N - SAS practical XXXX
-
-- **Date:** YYYY-MM-DD
-- **Git commit:** pending
-- **Change:** Explain the runtime-recorder change and why it matters to readers of its observations.
-```
-
-Keep only the latest entry's Git commit as `pending` in its introducing commit; finalize it in the next commit, even without another recorder change. Reconcile hashes and practical numbers after an amend, rebase or squash; ordinary merges preserve the original commit identities.
-
-Do not put the current commit's own SHA into its entry: editing the document would change that SHA again. Exact loaded-DLL identity remains separate evidence in both runtime files.
+Exact loaded-DLL identity remains separate evidence in both runtime files.

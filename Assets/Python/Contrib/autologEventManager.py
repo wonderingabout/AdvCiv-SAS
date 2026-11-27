@@ -618,17 +618,17 @@ class AutoLogEvent(AbstractAutoLogEvent):
 			if iPlayer == CyGame().getActivePlayer():
 				GoodyTypeMap = {
 						-1: BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_NOTHING"),
-						0:	BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_LITTLEGOLD"),
-						1:	BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_LOTSOFGOLD"),
-						2:	BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_MAP"),
-						3:	BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_SETTLER"),
-						4:	BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_WARRIOR"),
-						5:	BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_SCOUT"),
-						6:	BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_WORKER"),
-						7:	BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_XP"),
-						8:	BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_HEALING"),
-						9:	BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_TECH"),
-						10:	BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_WEAKHOSTILES"),
+						0: BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_LITTLEGOLD"),
+						1: BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_LOTSOFGOLD"),
+						2: BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_MAP"),
+						3: BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_SETTLER"),
+						4: BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_WARRIOR"),
+						5: BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_SCOUT"),
+						6: BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_WORKER"),
+						7: BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_XP"),
+						8: BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_HEALING"),
+						9: BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_TECH"),
+						10: BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_WEAKHOSTILES"),
 						11: BugUtil.getPlainText("TXT_KEY_AUTOLOG_VILLAGE_RESULT_STRONGHOSTILES")
 					}
 				message = BugUtil.getText("TXT_KEY_AUTOLOG_VILLAGE_RESULT", (GoodyTypeMap[iGoodyType], ))

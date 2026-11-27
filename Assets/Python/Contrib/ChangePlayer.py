@@ -7,6 +7,8 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md).
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvUtil
 import PyHelpers
 import Popup as PyPopup
@@ -282,8 +284,10 @@ def changePersonality( playerIdx, newPersonality = -1 ) :
 		iBestValue = 0
 		newPersonality = -1
 
+		# <!-- custom: Read once before the loop below, which read it for each leader. See KI#128.8. (Claude code Opus 5.5) -->
+		iBarbarianLeader = SASCurrentDefines.getInt("BARBARIAN_LEADER")
 		for iI in range(0,gc.getNumLeaderHeadInfos()) :
-			if (not iI == gc.getDefineINT("BARBARIAN_LEADER")) :
+			if (not iI == iBarbarianLeader) :
 				iValue = (1 + game.getSorenRandNum(10000, "Choosing Personality"))
 
 				for iJ in range(0,gc.getMAX_CIV_PLAYERS()) :

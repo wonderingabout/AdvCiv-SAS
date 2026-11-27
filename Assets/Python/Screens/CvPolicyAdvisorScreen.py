@@ -28,6 +28,9 @@ AdvisorOpt = BugCore.game.Advisors
 class CvPolicyAdvisorScreen:
 	"Policy Advisor Screen"
 
+	# <!-- custom: This advisor leaves the scoreboard the space getAdvisorScoreboardSpace gives, so the scoreboard shortens leader names to fit beside it; CvScreensInterface finds open advisors by this marker. (Claude code Opus 5.5) -->
+	SAS_LEAVES_SCOREBOARD_SPACE = True
+
 	def __init__(self):
 		self.SCREEN_NAME = "PolicyAdvisorScreen"
 		self.CANCEL_NAME = "PolicyCancel"
@@ -40,7 +43,7 @@ class CvPolicyAdvisorScreen:
 		self.AREA_NAME = "PolicyAdvisorScreenArea"
 		self.HELP_AREA_NAME = "PolicyAdvisorScreenHelpArea"
 		self.HELP_IMAGE_NAME = "PolicyAdvisorScreenCivicOptionImage"
-		self.DEBUG_DROPDOWN_ID =  "PolicyDropdownWidget"
+		self.DEBUG_DROPDOWN_ID = "PolicyDropdownWidget"
 		self.BACKGROUND_ID = "PolicyBackground"
 		self.HELP_HEADER_NAME = "PolicyAdvisorScreenHeaderName"
 		self.POLICY_OPTION_HEADER_NAME = "PolicyAdvisorScreenOptionHeader"
@@ -53,7 +56,6 @@ class CvPolicyAdvisorScreen:
 
 		# <!-- custom: keep screen-independent advisor edge constants in init; compute runtime resolution-dependent bounds in interfaceScreen via shared SASUtils helpers. (GPT-5.3-Codex) -->
 		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
-		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
 		self.H_TOP_SPACE_FOR_TECH_BAR = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
 		self.H_BOTTOM_SPACE = SAS_ADVISOR_BOTTOM_SPACE
 
@@ -61,26 +63,21 @@ class CvPolicyAdvisorScreen:
 		self.HEADINGS_SPACING = 5
 		self.HEADINGS_BOTTOM = 280
 		self.HELP_TOP = 350
-		self.HELP_BOTTOM = 610
 		self.TEXT_MARGIN = 15
 		self.BUTTON_SIZE = 24
 		self.BIG_BUTTON_SIZE = 64
-		self.BOTTOM_LINE_TOP = 630
 		self.BOTTOM_LINE_HEIGHT = 60
 
-		self.Y_EXIT = 726
-		self.Y_CANCEL = 726
-
-		self.Y_SCREEN = 396
+		# <!-- custom: Removed the 1024 x 768 HELP_BOTTOM, BOTTOM_LINE_TOP, Y_EXIT, Y_CANCEL, X_RELIGION_START and DX_RELIGION set here: updateRuntimeLayout sets them from the resolution before every draw, so they were never read; Y_SCREEN was not read at all. See KI#1098.3. (Claude code Opus 5.5) -->
 		self.Z_SCREEN = -6.1
 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
 		self.Z_TEXT = self.Z_SCREEN - 0.2
 
 		self.PolicyAdvisorScreenInputMap = {
-			self.BUTTON_NAME		: self.PolicyButton,
-			self.TEXT_NAME			: self.PolicyButton,
-			self.EXIT_NAME			: self.Revolution,
-			self.CANCEL_NAME		: self.Cancel,
+			self.BUTTON_NAME : self.PolicyButton,
+			self.TEXT_NAME : self.PolicyButton,
+			self.EXIT_NAME : self.Revolution,
+			self.CANCEL_NAME : self.Cancel,
 			}
 
 		self.iActivePlayer = -1
@@ -109,8 +106,6 @@ class CvPolicyAdvisorScreen:
 		self.DZ = -0.2
 		self.LEFT_EDGE_TEXT = 10
 		self.RELIGION_BUTTON_SIZE = 48
-		self.X_RELIGION_START = 180
-		self.DX_RELIGION = 98
 		self.RELIGION_LEFT_LABEL_WIDTH = 180
 		self.RELIGION_RIGHT_PADDING = 16
 		# <!-- custom: use one uniform SASVisuals.Religion row rhythm for top info rows and BUG summary rows. (GPT-5.3-Codex) -->
@@ -175,6 +170,9 @@ class CvPolicyAdvisorScreen:
 		# <!-- custom: keep a distinct HQ (ID) cap constant for future independent tuning, but currently match SASVisuals.Religion's ID-row cap. (GPT-5.3-Codex) -->
 		self.CORPORATION_HQ_MAX_CHARS_WITH_ID = self.RELIGION_HOLY_CITY_OWNER_MAX_CHARS_WITH_ID
 		self.CORPORATION_BUTTON_SIZE = 48
+		# <!-- custom: The largest size and the gap of the Consumes and Generates bonus buttons; see drawCorporationBonusLinks. (Claude code Opus 5.5) -->
+		self.CORPORATION_BONUS_ICON_SIZE = 24
+		self.CORPORATION_BONUS_ICON_GAP = 2
 		self.X_CORPORATION_START = 155
 		self.DX_CORPORATION = 116
 		self.Y_CORPORATION_BUTTONS = 35
@@ -249,7 +247,7 @@ class CvPolicyAdvisorScreen:
 		self.LABEL_UNKNOWN = SASTextScale.sasFontTagLabel + self.TEXT_UNKNOWN + SASTextScale.SAS_FONT_TAG_CLOSE
 
 	def updateRuntimeLayout(self, screen):
-		self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
+		self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, getAdvisorScoreboardSpace(screen.getXResolution(), SASTextScale.getSASUIFontLabel()), self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.X_CANCEL = self.W_SCREEN / 2
 		self.X_SCREEN = self.W_SCREEN / 2
@@ -427,6 +425,10 @@ class CvPolicyAdvisorScreen:
 			screen.deleteWidget(self.getCorporationTextName(iCorp) + "Generates")
 			screen.deleteWidget(self.getCorporationTextName(iCorp) + "GeneratesYields")
 			screen.deleteWidget(self.getCorporationTextName(iCorp) + "Consumes")
+			# <!-- custom: The bonus buttons of drawCorporationBonusLinks. (Claude code Opus 5.5) -->
+			for i in range(iMaxBonusRows):
+				screen.deleteWidget(self.getCorporationTextName(iCorp) + "ConsumesBonus" + str(i))
+			screen.deleteWidget(self.getCorporationTextName(iCorp) + "GeneratesBonus0")
 			screen.deleteWidget(self.getCorporationTextName(iCorp) + "BonusList")
 			# <!-- custom: legacy cleanup for old wrapped bonus row widgets kept for one-way compatibility with earlier UI iterations. (GPT-5.3-Codex) -->
 			for iRow in range(iMaxBonusRows + 1):
@@ -546,7 +548,8 @@ class CvPolicyAdvisorScreen:
 				if (gc.getCivicInfo(j).getCivicOptionType() == i):										
 					fY += 2 * self.TEXT_MARGIN
 
-					screen.addCheckBoxGFC(self.getPolicyButtonName(j), gc.getCivicInfo(j).getButton(), SASVisuals.InterfaceArt.BUTTON_HILITE_SQUARE, fX + self.BUTTON_SIZE/2, fY, self.BUTTON_SIZE, self.BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
+					# <!-- custom: The buttons had no hover; WIDGET_HELP_CIVIC adds the civic's help, leaving the clicks to PolicyButton. (Claude code Opus 5.5) -->
+					screen.addCheckBoxGFC(self.getPolicyButtonName(j), gc.getCivicInfo(j).getButton(), SASVisuals.InterfaceArt.BUTTON_HILITE_SQUARE, fX + self.BUTTON_SIZE/2, fY, self.BUTTON_SIZE, self.BUTTON_SIZE, WidgetTypes.WIDGET_HELP_CIVIC, j, -1, ButtonStyles.BUTTON_STYLE_LABEL)
 
 					screen.setText(self.getPolicyTextName(j), "", SASTextScale.sasFontTagLabel + gc.getCivicInfo(j).getDescription() + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, fX + self.BUTTON_SIZE + self.TEXT_MARGIN, fY, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
@@ -632,9 +635,9 @@ class CvPolicyAdvisorScreen:
 
 		szHelpText += CyGameTextMgr().parseCivicInfo(iCivic, False, True, True)
 
-		fX = self.HEADINGS_SPACING  + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * iCivicOption
+		fX = self.HEADINGS_SPACING + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * iCivicOption
 
-		screen.setLabel(self.HELP_HEADER_NAME + str(iCivicOption), "Background",  SASTextScale.sasFontTagLabel + gc.getCivicInfo(self.m_paeDisplayPolicies[iCivicOption]).getDescription().upper() + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, fX + self.HEADINGS_WIDTH/2, self.HELP_TOP + self.TEXT_MARGIN, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.HELP_HEADER_NAME + str(iCivicOption), "Background", SASTextScale.sasFontTagLabel + gc.getCivicInfo(self.m_paeDisplayPolicies[iCivicOption]).getDescription().upper() + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, fX + self.HEADINGS_WIDTH/2, self.HELP_TOP + self.TEXT_MARGIN, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		fY = self.HELP_TOP - self.BIG_BUTTON_SIZE
 		szHelpImageID = self.HELP_IMAGE_NAME + str(iCivicOption)		
@@ -648,7 +651,7 @@ class CvPolicyAdvisorScreen:
 	def drawAllHelpText(self):
 		for i in range (gc.getNumCivicOptionInfos()):		
 
-			fX = self.HEADINGS_SPACING  + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * i
+			fX = self.HEADINGS_SPACING + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * i
 
 			szPaneID = "PolicyHelpTextBackground" + str(i)
 			screen = self.getScreen()
@@ -666,7 +669,7 @@ class CvPolicyAdvisorScreen:
 
 		bChange = False
 		i = 0
-		while (i  < gc.getNumCivicOptionInfos() and not bChange):
+		while (i < gc.getNumCivicOptionInfos() and not bChange):
 			if (self.m_paeCurrentPolicies[i] != self.m_paeOriginalPolicies[i]):
 				bChange = True
 			i += 1		
@@ -738,10 +741,11 @@ class CvPolicyAdvisorScreen:
 		iButtonOffset = self.RELIGION_BUTTON_SIZE / 2
 		for iRel in self.RELIGIONS:
 			szButtonName = self.getReligionButtonName(iRel)
+			# <!-- custom: The buttons had no hover; the native WIDGET_HELP_RELIGION adds the religion's help and has no click action, leaving the clicks to ReligionScreenButton. (Claude code Opus 5.5) -->
 			if gc.getGame().getReligionGameTurnFounded(iRel) >= 0:
-				screen.addCheckBoxGFCAt(szArea, szButtonName, gc.getReligionInfo(iRel).getButton(), SASVisuals.InterfaceArt.BUTTON_HILITE_SQUARE, xLoop - iButtonOffset, 5, self.RELIGION_BUTTON_SIZE, self.RELIGION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
+				screen.addCheckBoxGFCAt(szArea, szButtonName, gc.getReligionInfo(iRel).getButton(), SASVisuals.InterfaceArt.BUTTON_HILITE_SQUARE, xLoop - iButtonOffset, 5, self.RELIGION_BUTTON_SIZE, self.RELIGION_BUTTON_SIZE, WidgetTypes.WIDGET_HELP_RELIGION, iRel, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
 			else:
-				screen.setImageButtonAt(szButtonName, szArea, gc.getReligionInfo(iRel).getButtonDisabled(), xLoop - iButtonOffset, 5, self.RELIGION_BUTTON_SIZE, self.RELIGION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setImageButtonAt(szButtonName, szArea, gc.getReligionInfo(iRel).getButtonDisabled(), xLoop - iButtonOffset, 5, self.RELIGION_BUTTON_SIZE, self.RELIGION_BUTTON_SIZE, WidgetTypes.WIDGET_HELP_RELIGION, iRel, -1)
 			screen.setLabelAt(self.getReligionTextName(iRel), szArea, SASTextScale.sasFontTagLabel + gc.getReligionInfo(iRel).getDescription() + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_RELIGION_NAME, self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop += self.DX_RELIGION
 
@@ -1070,6 +1074,11 @@ class CvPolicyAdvisorScreen:
 		return szText[:iMaxLeaderChars - 1] + u"." + szSuffix
 
 	def ReligionScreenButton(self, inputClass):
+		# <!-- custom: Right click opens the religion's Sevopedia page, as it already did for the civics (PolicyButton); left click still selects. The no-religion button has none. (Claude code Opus 5.5) -->
+		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and (inputClass.getFlags() & MouseFlags.MOUSE_RBUTTONUP):
+			if inputClass.getID() < gc.getNumReligionInfos():
+				CvScreensInterface.pediaJumpToReligion((inputClass.getID(), ))
+			return 1
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
 			if inputClass.getID() == gc.getNumReligionInfos() or gc.getGame().getReligionGameTurnFounded(inputClass.getID()) >= 0:
 				self.iReligionSelected = inputClass.getID()
@@ -1124,35 +1133,39 @@ class CvPolicyAdvisorScreen:
 		for iCorp in range(gc.getNumCorporationInfos()):
 			szButtonName = self.getCorporationButtonName(iCorp)
 			kCorpInfo = gc.getCorporationInfo(iCorp)
-			screen.addCheckBoxGFCAt(self.CORPORATION_PANEL_ID, szButtonName, kCorpInfo.getButton(), SASVisuals.InterfaceArt.BUTTON_HILITE_SQUARE, xLoop - iButtonOffset, self.Y_CORPORATION_BUTTONS - iButtonOffset, self.CORPORATION_BUTTON_SIZE, self.CORPORATION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
+			# <!-- custom: The buttons had no hover; WIDGET_HELP_CORPORATION adds the corporation's help, leaving the clicks to CorporationScreenButton. (Claude code Opus 5.5) -->
+			screen.addCheckBoxGFCAt(self.CORPORATION_PANEL_ID, szButtonName, kCorpInfo.getButton(), SASVisuals.InterfaceArt.BUTTON_HILITE_SQUARE, xLoop - iButtonOffset, self.Y_CORPORATION_BUTTONS - iButtonOffset, self.CORPORATION_BUTTON_SIZE, self.CORPORATION_BUTTON_SIZE, WidgetTypes.WIDGET_HELP_CORPORATION, iCorp, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
 			xLoop += self.DX_CORPORATION
 
 		xLoop = self.X_CORPORATION_START
 		for iCorp in range(gc.getNumCorporationInfos()):
-			szGreatPerson = u""
-			iFoundingUnit = -1
-			for iBuilding in range(gc.getNumBuildingInfos()):
-				if gc.getBuildingInfo(iBuilding).getFoundsCorporation() == iCorp:
+			iBuilding = -1
+			for iCandidate in range(gc.getNumBuildingInfos()):
+				if gc.getBuildingInfo(iCandidate).getFoundsCorporation() == iCorp:
+					iBuilding = iCandidate
 					break
-			for iUnit in range(gc.getNumUnitInfos()):
-				kUnitInfo = gc.getUnitInfo(iUnit)
-				if kUnitInfo.getBuildings(iBuilding) or kUnitInfo.getForceBuildings(iBuilding):
-					iFoundingUnit = iUnit
-					szGreatPerson = kUnitInfo.getDescription()
-					break
-			iBuiltByLeftX = xLoop - 44
-			if iFoundingUnit != -1:
-				# <!-- custom: render Built by as a true inline pair (icon + text) by using one shared left anchor per column. (GPT-5.3-Codex) -->
-				screen.setImageButtonAt(self.getCorporationTextName(iCorp) + "GreatPersonIcon", self.CORPORATION_PANEL_ID, kUnitInfo.getButton(), iBuiltByLeftX, self.Y_CORPORATION_GREAT_PERSON, 24, 24, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			screen.setLabelAt(self.getCorporationTextName(iCorp) + "GreatPerson", self.CORPORATION_PANEL_ID, SASTextScale.sasFontTagLabel + szGreatPerson + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, iBuiltByLeftX + 22, self.Y_CORPORATION_GREAT_PERSON, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			if iBuilding >= 0:
+				for iUnit in range(gc.getNumUnitInfos()):
+					kUnitInfo = gc.getUnitInfo(iUnit)
+					if kUnitInfo.getBuildings(iBuilding) or kUnitInfo.getForceBuildings(iBuilding):
+						# <!-- custom: Render Built by as a linked icon and clickable text.
+						# Labels do not reliably receive clicks, and a corporation without a founding building or unit has no link. (GPT-5.3-Codex + Claude code Opus 5.5 + GPT-6.2-Sol) -->
+						iBuiltByLeftX = xLoop - 44
+						szName = self.getCorporationTextName(iCorp) + "GreatPerson"
+						screen.setImageButtonAt(szName + "Icon", self.CORPORATION_PANEL_ID, kUnitInfo.getButton(), iBuiltByLeftX, self.Y_CORPORATION_GREAT_PERSON, 24, 24, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, -1)
+						screen.setTextAt(szName, self.CORPORATION_PANEL_ID, SASTextScale.labelText(kUnitInfo.getDescription()), CvUtil.FONT_LEFT_JUSTIFY, iBuiltByLeftX + 26, self.Y_CORPORATION_GREAT_PERSON, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, -1)
+						break
 			xLoop += self.DX_CORPORATION
 
 		xLoop = self.X_CORPORATION_START
 		for iCorp in range(gc.getNumCorporationInfos()):
 			# <!-- custom: cache corporation info once per column and reuse across all row renderers to avoid repeated lookups in the same draw pass. (GPT-5.3-Codex) -->
 			kCorpInfo = gc.getCorporationInfo(iCorp)
-			screen.setLabelAt(self.getCorporationTextName(iCorp) + "Consumes", self.CORPORATION_PANEL_ID, SASTextScale.sasFontTagLabel + self.getCorporationConsumedText(kCorpInfo) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_CONSUMES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			screen.setLabelAt(self.getCorporationTextName(iCorp) + "Generates", self.CORPORATION_PANEL_ID, SASTextScale.sasFontTagLabel + self.getCorporationGeneratedBonusText(kCorpInfo) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_GENERATES_BONUS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			self.drawCorporationBonusLinks(screen, self.getCorporationTextName(iCorp) + "Consumes", self.getCorporationConsumedBonuses(kCorpInfo), xLoop, self.Y_CORPORATION_CONSUMES)
+			aeProduced = []
+			if kCorpInfo.getBonusProduced() != -1:
+				aeProduced.append(kCorpInfo.getBonusProduced())
+			self.drawCorporationBonusLinks(screen, self.getCorporationTextName(iCorp) + "Generates", aeProduced, xLoop, self.Y_CORPORATION_GENERATES_BONUS)
 			screen.setLabelAt(self.getCorporationTextName(iCorp) + "GeneratesYields", self.CORPORATION_PANEL_ID, SASTextScale.sasFontTagLabel + self.getCorporationGeneratedText(kCorpInfo) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_GENERATES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop += self.DX_CORPORATION
 
@@ -1236,24 +1249,29 @@ class CvPolicyAdvisorScreen:
 			return gc.getPlayer(self.iActivePlayer).getTeam()
 		return gc.getPlayer(CyGame().getActivePlayer()).getTeam()
 
-	def getCorporationConsumedText(self, kCorpInfo):
-		# <!-- custom: keep consumed prerequisites as a single natural comma-separated bonus-char list; no row splitting needed at current panel width. (GPT-5.3-Codex) -->
-		szText = u""
+	# <!-- custom: Was getCorporationConsumedText, which joined the bonus characters into one label; it now returns the bonuses themselves, for drawCorporationBonusLinks to draw as linked buttons. (Claude code Opus 5.5) -->
+	def getCorporationConsumedBonuses(self, kCorpInfo):
+		aeBonuses = []
 		for iRequired in range(self.NUM_CORPORATION_PREREQ_BONUSES):
 			eBonus = kCorpInfo.getPrereqBonus(iRequired)
 			if eBonus != -1:
-				if len(szText) > 0:
-					szText += u", "
-				szText += u"%s" % (SASVisuals.Bonus.char(eBonus),)
-		if len(szText) <= 0:
-			return u"-"
-		return szText
+				aeBonuses.append(eBonus)
+		return aeBonuses
 
-	def getCorporationGeneratedBonusText(self, kCorpInfo):
-		eBonus = kCorpInfo.getBonusProduced()
-		if eBonus == -1:
-			return u"-"
-		return u"%s" % (SASVisuals.Bonus.char(eBonus),)
+	# <!-- custom: The Consumes and Generates rows were one label of comma-separated bonus chars (GPT-5.3-Codex), so a bonus had no hover or Sevopedia link (the user, 2026-11-20).
+	# Center the actual set of inputs in its column and keep a gutter between corporations.
+	# A short list can use full-size icons; an empty list shows "-". (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	def drawCorporationBonusLinks(self, screen, szName, aeBonuses, iX, iY):
+		if len(aeBonuses) == 0:
+			screen.setLabelAt(szName, self.CORPORATION_PANEL_ID, SASTextScale.sasFontTagLabel + u"-" + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, iX, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			return
+		iCount = len(aeBonuses)
+		iGap = self.CORPORATION_BONUS_ICON_GAP
+		iSize = min(self.CORPORATION_BONUS_ICON_SIZE, (self.DX_CORPORATION - (iCount + 1) * iGap) / iCount)
+		iLeftX = iX - (iCount * iSize + (iCount - 1) * iGap) / 2
+		iIconY = iY + (self.CORPORATION_ROW_STEP_Y - iSize) / 2
+		for i in range(iCount):
+			screen.setImageButtonAt(szName + "Bonus" + str(i), self.CORPORATION_PANEL_ID, gc.getBonusInfo(aeBonuses[i]).getButton(), iLeftX + i * (iSize + iGap), iIconY, iSize, iSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, aeBonuses[i], -1)
 
 	def drawCorporationCityInfo(self, iCorporation):
 		screen = self.getScreen()
@@ -1317,6 +1335,10 @@ class CvPolicyAdvisorScreen:
 		screen.setText(self.EXIT_NAME, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, 1, 0)
 
 	def CorporationScreenButton(self, inputClass):
+		# <!-- custom: As for religions: right click opens the corporation's Sevopedia page. (Claude code Opus 5.5) -->
+		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and (inputClass.getFlags() & MouseFlags.MOUSE_RBUTTONUP):
+			CvScreensInterface.pediaJumpToCorporation((inputClass.getID(), ))
+			return 1
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
 			if self.iCorporationSelected == inputClass.getID():
 				self.iCorporationSelected = -1

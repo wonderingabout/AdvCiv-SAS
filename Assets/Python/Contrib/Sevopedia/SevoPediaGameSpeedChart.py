@@ -6,6 +6,8 @@
 #
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 # <!-- custom: Route shared visual resources through the centralized SASVisualUtils namespace after retiring overlapping helper/cache imports; keep one canonical visual-resource boundary. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 import SASTextScale
@@ -35,7 +37,7 @@ class SevoPediaGameSpeedChart:
 			self.W_FIELD = gc.getDefineINT("SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_4")
 		if self.W_FIELD <= 0:
 			raise ValueError("[FATAL] SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_* must be >= 1.")
-		iNoReduceMinWidth = gc.getDefineINT("SAS_SEVO_SPEED_FIELD_FULL_MIN_WIDTH")
+		iNoReduceMinWidth = SASCurrentDefines.getInt("SAS_SEVO_SPEED_FIELD_FULL_MIN_WIDTH")
 		if (iNoReduceMinWidth > 0) and (self.top.getScreen().getXResolution() >= iNoReduceMinWidth):
 			self.W_FIELD = gc.getDefineINT("SAS_SEVO_SPEED_FIELD_FULL_COL_WIDTH")
 			if self.W_FIELD <= 0:
@@ -45,12 +47,19 @@ class SevoPediaGameSpeedChart:
 		if self.TABLE_FILL_PERCENT <= 0:
 			raise ValueError("[FATAL] SAS_SEVO_SPEED_CHART_FILL_PCT must be >= 1.")
 
-	def interfaceScreen(self):
+	# <!-- custom: A link such as the Victory screen's Legendary cities highlights the game speed's column and the culture level's row, as the Eras chart does for an era; the chart has no item pages.
+	# iFocus is WIDGET_PEDIA_JUMP_TO_GAME_SPEED's packed speed + numSpeeds * (culture level + 1), or -1 from the category list. See KI#113. (Claude code Opus 5.5) -->
+	def interfaceScreen(self, iFocus=-1):
 		screen = self.top.getScreen()
-		self._drawTable(screen)
+		if iFocus < 0:
+			self._drawTable(screen, -1, -1)
+		else:
+			iNumSpeeds = gc.getNumGameSpeedInfos()
+			self._drawTable(screen, iFocus % iNumSpeeds, iFocus / iNumSpeeds - 1)
 		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_SPEED_CHART_LEGEND")
 
-	def _drawTable(self, screen):
+	# <!-- custom: Was _drawTable(self, screen); iFocusSpeed and iFocusCultureLevel, unpacked from iFocus above, name the column and row a link highlights, each -1 for none. (Claude code Opus 5.5) -->
+	def _drawTable(self, screen, iFocusSpeed, iFocusCultureLevel):
 		x = self.top.X_ITEMS
 		y = self.top.Y_PEDIA_PAGE
 		w = self.top.W_SCREEN - self.top.X_ITEMS - self.MARGIN
@@ -102,15 +111,28 @@ class SevoPediaGameSpeedChart:
 				colW = self.W_FIELD
 			else:
 				colW = wNum
-			setHeader(table, iCol, header[iCol], colW)
+			if iFocusSpeed >= 0 and iCol == nCols - value_cols + iFocusSpeed:
+				setHeader(table, iCol, localText.changeTextColor(header[iCol], SASVisuals.Color.HIGHLIGHT_TEXT), colW)
+			else:
+				setHeader(table, iCol, header[iCol], colW)
 
-		for row in rows:
+		# <!-- custom: The culture rows are normally at the bottom.
+		# Put the linked threshold first so it is visible immediately, even in a short window, while browsing and CSV export keep the normal row order. (GPT-6.2-Sol) -->
+		iFocusRow = -1
+		if 0 <= iFocusCultureLevel < gc.getNumCultureLevelInfos():
+			iCultureRow = len(rows) - gc.getNumCultureLevelInfos() + iFocusCultureLevel
+			rows.insert(0, rows.pop(iCultureRow))
+			iFocusRow = 0
+		for iDataRow in range(len(rows)):
+			row = rows[iDataRow]
 			iRow = appendRow(table)
 			for iCol in range(nCols):
-				if iCol < len(row):
-					cell = row[iCol]
-				else:
+				if iCol >= len(row):
 					cell = u""
+				elif iDataRow == iFocusRow and not isinstance(row[iCol], tuple):
+					cell = localText.changeTextColor(row[iCol], SASVisuals.Color.HIGHLIGHT_TEXT)
+				else:
+					cell = row[iCol]
 
 				# Icon column: cell is (text, buttonPath) tuple
 				if self.IS_SAS_SEVO_SPEED_CHART_HEADER_ICONS and iCol == 0:
@@ -161,40 +183,41 @@ class SevoPediaGameSpeedChart:
 		# <!-- custom: "btn:<name>" -> cached SASVisuals InterfaceArt path; the symbolic name remains local chart metadata only; was ("btn", <name>), now the other charts' token form, read by chart_icon_cell. (GPT-5.2-Codex (summarized) + ChatGPT-5.6-Sol + Claude code Opus 5.5) -->
 		#   "glyph:<name>"   -> GameFont glyph (yield/commerce/symbol char)
 		row_specs = (
-			("iGrowthPercent",              "getGrowthPercent",              "glyph:food"),
-			("iTrainPercent",               "getTrainPercent",               "btn:swords"),
-			("iConstructPercent",           "getConstructPercent",           "glyph:prod"),
-			("iCreatePercent",              "getCreatePercent",              "glyph:prod"),
-			("iResearchPercent",            "getResearchPercent",            "glyph:research"),
-			("iBuildPercent",               "getBuildPercent",               "glyph:citizen"),
-			("iImprovementPercent",         "getImprovementPercent",         "glyph:citizen"),
-			("iGreatPeoplePercent",         "getGreatPeoplePercent",         "glyph:great_people"),
-			("iCulturePercent",             "getCulturePercent",             "glyph:culture"),
-			("iAnarchyPercent",             "getAnarchyPercent",             "btn:fire"),
-			("iBarbPercent",                "getBarbPercent",                "btn:skull"),
-			("iFeatureProductionPercent",   "getFeatureProductionPercent",   "glyph:citizen"),
-			("iUnitDiscoverPercent",        "getUnitDiscoverPercent",        "glyph:research"),
-			("iUnitHurryPercent",           "getUnitHurryPercent",           "glyph:prod"),
-			("iUnitTradePercent",           "getUnitTradePercent",           "btn:swords"),
-			("iUnitGreatWorkPercent",       "getUnitGreatWorkPercent",       "glyph:culture"),
-			("iGoldenAgePercent",           "getGoldenAgePercent",           "glyph:golden_age"),
-			("iHurryPercent",               "getHurryPercent",               "glyph:prod"),
-			("iHurryConscriptAngerPercent", "getHurryConscriptAngerPercent", "glyph:happy"),
-			("iInflationPercent",           "getInflationPercent",           "glyph:gold"),
-			("iInflationOffset",            "getInflationOffset",            "glyph:gold"),
-			("iUnitCostPercent",            "getUnitCostPercent",            "btn:swords"),
-			("iExtraFreeOutsideUnits",      "getExtraFreeOutsideUnits",      "btn:swords"),
-			("iVictoryDelayPercent",        "getVictoryDelayPercent",        "btn:trophy"),
-			("iAIMemoryRandPercent",        "getAIMemoryRandPercent",        "btn:brain"),
-			("iAIContactRandPercent",       "getAIContactRandPercent",       "btn:dove"),
-			("iAIContactDelayPercent",      "getAIContactDelayPercent",      "btn:hourglass"),
-			("iFullTradeCreditPercent",     "getFullTradeCreditPercent",     "glyph:gold"),
-			("iRevoltDivPercent",           "getRevoltDivPercent",           "btn:fire"),
-			("iReligionSpreadDivPercent",   "getReligionSpreadDivPercent",   "btn:dove"),
-			("iEventRollSidesPercent",      "getEventRollSidesPercent",      "btn:gear"),
-			("iVoteIntervalPercent",        "getVoteIntervalPercent",        "btn:dove"),
-			("NumTurnIncrements",           None,                            "btn:hourglass"),
-			("TotalTurns",                  None,                            "btn:hourglass"),
+			# <!-- custom: Columns aligned with tabs, inspired by vanilla Civ4's CvDebugInfoScreen.py dispatch table, instead of runs of spaces that drifted out of line with each rename. See KI#21.8. (Claude code Opus 5.5) -->
+			("iGrowthPercent",				"getGrowthPercent",					"glyph:food"),
+			("iTrainPercent",				"getTrainPercent",					"btn:swords"),
+			("iConstructPercent",			"getConstructPercent",				"glyph:prod"),
+			("iCreatePercent",				"getCreatePercent",					"glyph:prod"),
+			("iResearchPercent",			"getResearchPercent",				"glyph:research"),
+			("iBuildPercent",				"getBuildPercent",					"glyph:citizen"),
+			("iImprovementPercent",			"getImprovementPercent",			"glyph:citizen"),
+			("iGreatPeoplePercent",			"getGreatPeoplePercent",			"glyph:great_people"),
+			("iCulturePercent",				"getCulturePercent",				"glyph:culture"),
+			("iAnarchyPercent",				"getAnarchyPercent",				"btn:fire"),
+			("iBarbPercent",				"getBarbPercent",					"btn:skull"),
+			("iFeatureProductionPercent",	"getFeatureProductionPercent",		"glyph:citizen"),
+			("iUnitDiscoverPercent",		"getUnitDiscoverPercent",			"glyph:research"),
+			("iUnitHurryPercent",			"getUnitHurryPercent",				"glyph:prod"),
+			("iUnitTradePercent",			"getUnitTradePercent",				"btn:swords"),
+			("iUnitGreatWorkPercent",		"getUnitGreatWorkPercent",			"glyph:culture"),
+			("iGoldenAgePercent",			"getGoldenAgePercent",				"glyph:golden_age"),
+			("iHurryPercent",				"getHurryPercent",					"glyph:prod"),
+			("iHurryConscriptAngerPercent",	"getHurryConscriptAngerPercent",	"glyph:happy"),
+			("iInflationPercent",			"getInflationPercent",				"glyph:gold"),
+			("iInflationOffset",			"getInflationOffset",				"glyph:gold"),
+			("iUnitCostPercent",			"getUnitCostPercent",				"btn:swords"),
+			("iExtraFreeOutsideUnits",		"getExtraFreeOutsideUnits",			"btn:swords"),
+			("iVictoryDelayPercent",		"getVictoryDelayPercent",			"btn:trophy"),
+			("iAIMemoryRandPercent",		"getAIMemoryRandPercent",			"btn:brain"),
+			("iAIContactRandPercent",		"getAIContactRandPercent",			"btn:dove"),
+			("iAIContactDelayPercent",		"getAIContactDelayPercent",			"btn:hourglass"),
+			("iFullTradeCreditPercent",		"getFullTradeCreditPercent",		"glyph:gold"),
+			("iRevoltDivPercent",			"getRevoltDivPercent",				"btn:fire"),
+			("iReligionSpreadDivPercent",	"getReligionSpreadDivPercent",		"btn:dove"),
+			("iEventRollSidesPercent",		"getEventRollSidesPercent",			"btn:gear"),
+			("iVoteIntervalPercent",		"getVoteIntervalPercent",			"btn:dove"),
+			("NumTurnIncrements",			None,								"btn:hourglass"),
+			("TotalTurns",					None,								"btn:hourglass"),
 		)
 
 		# Derived rows have no getter (getter_name is None): values are computed from per-increment data, not read from a single XML field. Mark them with '*' in the display label.
@@ -232,16 +255,16 @@ class SevoPediaGameSpeedChart:
 		# GameFont glyph icons (yields/commerce/symbols).
 		_glyph_defs = (
 			# (name, glyph_char)
-			("food",         (u"%s" % (SASVisuals.Yield.FOOD_CHAR))),
-			("prod",         (u"%s" % (SASVisuals.Yield.PRODUCTION_CHAR))),
-			("gold",         (u"%s" % (SASVisuals.Commerce.GOLD_CHAR))),
-			("research",     (u"%s" % (SASVisuals.Commerce.RESEARCH_CHAR))),
-			("culture",      (u"%s" % (SASVisuals.Commerce.CULTURE_CHAR))),
-			("happy",        (u"%s" % (SASVisuals.Font.HAPPY_CHAR))),
-			("defense",      (u"%s" % (SASVisuals.Font.DEFENSE_CHAR))),
-			("citizen",      (u"%s" % (SASVisuals.Font.CITIZEN_CHAR))),
+			("food", (u"%s" % (SASVisuals.Yield.FOOD_CHAR))),
+			("prod", (u"%s" % (SASVisuals.Yield.PRODUCTION_CHAR))),
+			("gold", (u"%s" % (SASVisuals.Commerce.GOLD_CHAR))),
+			("research", (u"%s" % (SASVisuals.Commerce.RESEARCH_CHAR))),
+			("culture", (u"%s" % (SASVisuals.Commerce.CULTURE_CHAR))),
+			("happy", (u"%s" % (SASVisuals.Font.HAPPY_CHAR))),
+			("defense", (u"%s" % (SASVisuals.Font.DEFENSE_CHAR))),
+			("citizen", (u"%s" % (SASVisuals.Font.CITIZEN_CHAR))),
 			("great_people", (u"%s" % (SASVisuals.Font.GREAT_PEOPLE_CHAR))),
-			("golden_age",   SASVisuals.Font.char(getattr(FontSymbols, "GOLDEN_AGE_CHAR", FontSymbols.GREAT_PEOPLE_CHAR))),
+			("golden_age", SASVisuals.Font.char(getattr(FontSymbols, "GOLDEN_AGE_CHAR", FontSymbols.GREAT_PEOPLE_CHAR))),
 		)
 		for i, (name, glyph) in enumerate(_glyph_defs):
 			glyph_by_name[name] = (glyph, (i + 1) * 10)
@@ -298,7 +321,7 @@ class SevoPediaGameSpeedChart:
 			parsed_data[speed_type] = speed_dict
 
 		# Derived summary rows: NumTurnIncrements / TotalTurns; plus Calendar rows (Calendar_01 .. Calendar_NN).
-		start_year = gc.getDefineINT("START_YEAR")  # <!-- custom: not cached: read once only -->
+		start_year = SASCurrentDefines.getInt("START_YEAR")  # <!-- custom: not cached: read once only -->
 		max_increments = 0
 		total_turns_by_speed = {}
 

@@ -301,7 +301,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GENERALS_FREE</Tag>
-		<English>Great Generals</English>
+		<English>Unattached Generals</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GENERALED</Tag>
@@ -935,7 +935,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 
 
-	<!-- custom: we don't use strategy tags at all anymore in AdvCiv-SAS, they will be empty just to have the tag existing, but it shuold never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia -->
+	<!-- custom: we don't use strategy tags at all anymore in AdvCiv-SAS, they will be empty just to have the tag existing, but it should never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia -->
 	<TEXT>
 		<Tag>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Tag>
 		<English></English>
@@ -1159,6 +1159,10 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<English>Open the Eras chart at %s1_Era</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_OPEN_GAME_SPEED_CHART</Tag>
+		<English>Open the Speeds chart at %s1_Speed</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_OPEN_EVENT_TRIGGER</Tag>
 		<English>Open event trigger: %s1_Trigger</English>
 	</TEXT>
@@ -1178,6 +1182,18 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_BUILD_HOVER_TIME</Tag>
 		<English>Base build time: %d1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_GREAT_GENERAL_BAR</Tag>
+		<English>%s1 %d2 / %d3</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_HOVER_TOGGLE_ON</Tag>
+		<English>(ON)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_HOVER_TOGGLE_OFF</Tag>
+		<English>(OFF)</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_OPEN_VOTE</Tag>
@@ -1479,6 +1495,85 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<English>Legendary cities</English>
 	</TEXT>
 	<!-- custom: fallback texts for Victory Advisor vote-source tabs when AP/UN entries are unavailable; keep tabs exhaustive and explain status clearly. (GPT-5.3-Codex) -->
+	<!-- custom: Column headers of the Victory screen's Resolutions and Members tables, and their outcome text. (Claude code Opus 5.5) -->
+	<!-- custom: The city screen's maintenance hover lists costs, so its lines take the red maintenance coin, as the Finance tab's expenses do, instead of the plain [ICON_GOLD] of BtS and Warlords (the user, 2026-11-21, Civ4ScreenShot0297). (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_MISC_NUM_MAINT_FLOAT</Tag>
+		<English>%s1_NumMaint [ICON_BAD_GOLD]:[SPACE]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MISC_NUM_CITIES_FLOAT</Tag>
+		<English>%s1_MaintNum [ICON_BAD_GOLD]: Number of Cities</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MISC_COLONY_MAINT_FLOAT</Tag>
+		<English>%s1_MaintNum [ICON_BAD_GOLD]: Colonial expenses</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MISC_CORPORATION_MAINT_FLOAT</Tag>
+		<English>%s1_MaintNum [ICON_BAD_GOLD]: Corporation payments</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MISC_TOTAL_MAINT_FLOAT</Tag>
+		<English>%s1_Num [ICON_BAD_GOLD] Total Maintenance</English>
+	</TEXT>
+	<!-- custom: The Resolutions and Members tabs' headings and note for a vote source that votes now or no longer does. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_SOURCE_ACTIVE</Tag>
+		<English>Active</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_SOURCE_INACTIVE</Tag>
+		<English>Inactive</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_MEMBERS_INACTIVE</Tag>
+		<English>Inactive: no member votes here now.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_RESOLUTION</Tag>
+		<English>Resolution</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_EFFECT</Tag>
+		<English>Effect</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_REQUIRED</Tag>
+		<English>Required</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_TOTAL</Tag>
+		<English>Total</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_OUTCOME</Tag>
+		<English>Outcome</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_LEADER</Tag>
+		<English>Leader</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_VOTES</Tag>
+		<English>Votes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_PLAYER</Tag>
+		<English>Player</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_TEAM</Tag>
+		<English>Team</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_COL_STATUS</Tag>
+		<English>Status</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_OUTCOME_PASSED</Tag>
+		<English>Passed</English>
+	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_VOTE_SOURCE_NOT_ACTIVE</Tag>
 		<English>No resolution yet: requires one of the below.</English>
@@ -1486,11 +1581,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_MEMBERS_NO_VOTING_YET</Tag>
 		<English>No voting members yet: requires one of the below.</English>
-	</TEXT>
-	<!-- custom: dedicated vote-requirement line for Victory screen tabs; unlike TXT_KEY_POPUP_ELECTION_OPTION, this key has no leading optional placeholder, so spacing remains stable without Python-side trimming. (GPT-5.3-Codex) -->
-	<TEXT>
-		<Tag>TXT_KEY_SAS_POPUP_ELECTION_OPTION_REQUIRES_ONLY</Tag>
-		<English>(Requires %d1_ReqNum of %d2_TotNum Total Votes)</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_NOT_ACTIVE_SHORT</Tag>
@@ -2280,6 +2370,19 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_SAS_INFO_TIMELINE_UNKNOWN_CITY</Tag>
 		<English>an unknown city</English>
+	</TEXT>
+	<!-- custom: Timeline rows for a Greatest Civilizations screen, one per rank under a title row: one long row overflowed and lost the unknown civilizations' places, and a leader name alone can repeat (the user, 2026-11-19). (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_TOPCIVS_TIMELINE_TITLE</Tag>
+		<English>%s1, %s2, by %s3</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_TOPCIVS_TIMELINE_RANK</Tag>
+		<English>%d1) %s2 of %s3, player %d4, team %d5</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_TOPCIVS_TIMELINE_RANK_UNKNOWN</Tag>
+		<English>%d1) %s2</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_INFO_ENTIRE_TIMELINE</Tag>
@@ -3508,7 +3611,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_TECH_SACRED_ARCHITECTURE_QUOTE</Tag>
 		<English>"And on the pedestal these words appear: 'My name is Ozymandias, king of kings: Look on my works, ye Mighty, and despair!' Nothing beside remains." - Percy Bysshe Shelley</English>
 	</TEXT>
-	<!-- custom: rename _UTOPIA to _COMMUNISM, similarly extarcted -->
+	<!-- custom: rename _UTOPIA to _COMMUNISM, similarly extracted -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_COMMUNISM_QUOTE</Tag>
 		<English>"When I give food to the poor, they call me a saint. When I ask why the poor have no food, they call me a communist." - Dom Helder Camara</English>
@@ -3604,7 +3707,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_TECH_DEPOPULATION_QUOTE</Tag>
 		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
 	</TEXT>
-	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least; update: with the quote of tech_guilds (now removed) -->
+	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa; update: with the quote of tech_guilds (now removed) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ECONOMICS_QUOTE</Tag>
 		<English>"People of the same trade seldom meet together, even for merriment and diversion, but the conversation ends in a conspiracy against the public." - Adam Smith</English>
@@ -3721,7 +3824,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_CIV_AMERICA_ADJECTIVE</Tag>
 		<English>US American</English>
 	</TEXT>
-	<!-- custom: rename "Amerindian Empire" back if i may say in this case at leastto "Native American Empire" -->
+	<!-- custom: rename "Amerindian Empire" back to "Native American Empire" -->
 	<!-- advc.002b: Overwrites values in CIV4GameText_Objects_BTS.xml. -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_NATIVE_AMERICA_DESC</Tag>
@@ -4448,6 +4551,15 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_FLAT</Tag>
 		<English>Flat</English>
 	</TEXT>
+	<!-- custom: The plot hover's "Coast (Lake)" and fresh water sources, such as "Fresh Water (River, Lake)". See KI#1106. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PLOT_SAS_RIVER</Tag>
+		<English>River</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PLOT_SAS_LAKE</Tag>
+		<English>Lake</English>
+	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_RIVER</Tag>
 		<English>River</English>
@@ -5077,5 +5189,37 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_COMPACT_HELP</Tag>
 		<English>[NEWLINE]Compact view: %d1 contiguous applied WorldBuilder edits (#%d2-#%d3). LOG exports the raw events.</English>
+	</TEXT>
+	<!-- custom: Was base AdvCiv's TXT_KEY_OPTIONS_SCREEN_RES_HELP in CIV4GameText_advc_OptionsScreen.xml, removed there as SAS keeps changed text only in its own files.
+	Its English named the dropdown, then said: "If the [COLOR_HIGHLIGHT_TEXT]Scale Up HUD[COLOR_REVERT] option is enabled on the BUG menu, then the game may have to be restarted to re-scale all widgets properly after a change to the screen resolution."
+	SAS's advisors lay themselves out on each opening, and the Sevopedia, the main interface, the map's bonus bubbles and the Replay screen now follow a resolution change too, so no restart is needed. See KI#123.2, KI#123.3, KI#123.4 and KI#123.5. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_OPTIONS_SCREEN_RES_HELP</Tag>
+		<English>Screen Resolution. No restart is needed: the main interface adjusts to a new resolution at once, and screens such as the advisors, the Sevopedia and the Replay screen when next opened.</English>
+	</TEXT>
+	<!-- custom: Was BUG's text, as edited by base AdvCiv (advc.004) in BUG Advisors Options.xml, which said "(restart required)"; SAS rebuilds the advisor when this option changes, so the next opening uses it. See KI#123. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGMA_HOVER</Tag>
+		<English>Enables the BUG Military Advisor, which allows the unit list to be sorted and grouped, lists possible alliances and shows strategic resources available to rivals. Takes effect the next time the advisor opens.</English>
+	</TEXT>
+	<!-- custom: Was BUG's text, as edited by base AdvCiv (advc.004) in CustDomAdv Options.xml, which said "(restart required)"; SAS rebuilds the advisor when this option changes, so the next opening uses it. See KI#123. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_CUSTDOMADV__ENABLED_HOVER</Tag>
+		<English>Enables the Customizable Domestic Advisor. Takes effect the next time the advisor opens.</English>
+	</TEXT>
+	<!-- custom: Was base AdvCiv's text (advc.004) in TechWindow Options.xml, ending "Restart required.", which was already stale there: K-Mod's change hook on this option, deleteTechSplash, which AdvCiv routes through BugScreenInit.py (advc.009b), drops the splash screen so the next one shown builds the chosen layout (Codex's review). See KI#123. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__VIEWTYPE_HOVER</Tag>
+		<English>The layout of the popup ("splash screen") shown after discovering a new technology. The [COLOR_HIGHLIGHT_TEXT]Extended[COLOR_REVERT] layout spreads the information across five panes instead of two. [COLOR_HIGHLIGHT_TEXT]Wide[COLOR_REVERT] is the same as Extended, but in a larger (wider) window.[NEWLINE]Takes effect at the next tech splash shown.</English>
+	</TEXT>
+	<!-- custom: Was base AdvCiv's text (advc.092) in BUG Main Interface Options.xml, ending "Changes won't apply properly until Civ 4 is restarted."; the main interface reads this option in initState, which runs on each game load and each resolution change, and since KI#123.6 also unscales when it is off. See KI#123 and KI#123.6. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__ENLARGEHUD_HOVER</Tag>
+		<English>When checked, the size of panels, buttons and the minimap is increased based on the rendering resolution. No effect when the resolution is set to the minimum (1024 x 768). Takes effect the next time a game is loaded or the resolution changes.</English>
+	</TEXT>
+	<!-- custom: Vanilla's PbWizard.py asks this in the Pitboss server's patch dialog, but base-game text lacked it; wording from Caveman2Cosmos's PitBoss_CIV4GameText.xml. See KI#1085.2. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PITBOSS_PATCH_AVAILABLE_DESC</Tag>
+		<English>Would you like to install the latest updates?</English>
 	</TEXT>
 </Civ4GameText>

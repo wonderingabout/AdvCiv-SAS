@@ -181,7 +181,8 @@ def looks_risky(line, in_fence):
     return False
 
 
-def split_prose_line(line, min_line_len):
+# <!-- custom: Gained child_bullets (default False keeps the soft-newline behaviour for every existing caller), for --child-bullets. (Claude code Opus 5.5) -->
+def split_prose_line(line, min_line_len, child_bullets=False):
     if len(line) < min_line_len:
         return [line]
 
@@ -190,6 +191,11 @@ def split_prose_line(line, min_line_len):
         prefix = list_match.group(1)
         body = list_match.group(2)
         continuation = " " * len(prefix.expandtabs(4))
+        # <!-- custom: --child-bullets makes a long list item's later sentences child bullets, the visible structure the prose check asks for, instead of soft newlines that render as one block; the 2026-11-19 SASPilot docs needed it for 14 flagged bullets, first done by a scratch script.
+        # The child sits two spaces under the item's own marker, this repository's nesting. (Claude code Opus 5.5) -->
+        if child_bullets:
+            indent = prefix[:len(prefix) - len(prefix.lstrip())]
+            continuation = indent + "  - "
     else:
         plain_match = PLAIN_PREFIX_RE.match(line)
         if not plain_match:
@@ -221,7 +227,8 @@ def split_prose_line(line, min_line_len):
     return [prefix + parts[0]] + [continuation + part for part in parts[1:]]
 
 
-def transform_text(text, newline, min_line_len):
+# <!-- custom: Gained child_bullets and only_lines, both defaulting to the earlier behaviour: only_lines restricts the pass to given 1-based line numbers, such as the ones markdown_prose_changes.py flags, so untouched prose is left alone. (Claude code Opus 5.5) -->
+def transform_text(text, newline, min_line_len, child_bullets=False, only_lines=None):
     source_lines = text.splitlines()
     output_lines = []
     changed_lines = 0
@@ -231,7 +238,7 @@ def transform_text(text, newline, min_line_len):
     fence_len = 0
     in_html_comment = False
 
-    for line in source_lines:
+    for line_number, line in enumerate(source_lines, 1):
         stripped = line.lstrip()
 
         # <!-- custom: Changed-prose review must not reflow prose-looking lines inside a multiline HTML comment; preserve these blocks verbatim, including mixed comment/visible lines that need manual review. (GPT-6.1-Sol) -->
@@ -257,11 +264,11 @@ def transform_text(text, newline, min_line_len):
             output_lines.append(line)
             continue
 
-        if looks_risky(line, in_fence):
+        if looks_risky(line, in_fence) or (only_lines is not None and line_number not in only_lines):
             output_lines.append(line)
             continue
 
-        split_lines = split_prose_line(line, min_line_len)
+        split_lines = split_prose_line(line, min_line_len, child_bullets)
         output_lines.extend(split_lines)
         if len(split_lines) > 1:
             changed_lines += 1
@@ -299,7 +306,12 @@ def main(argv):
         help="return nonzero if any file needs reflow; the optional markdown_prose_changes.py helper can restrict audits to edited lines",
     )
     parser.add_argument("--min-line-len", type=int, default=DEFAULT_MIN_LINE_LEN)
+    parser.add_argument("--child-bullets", action="store_true", help="make a long list item's later sentences child bullets instead of soft newlines; plain paragraphs keep soft newlines, as their structure needs review")
+    parser.add_argument("--lines", help="only these 1-based line numbers, comma-separated, such as the ones markdown_prose_changes.py flags (one file)")
     args = parser.parse_args(argv)
+    only_lines = None
+    if args.lines:
+        only_lines = set([int(n) for n in args.lines.split(",") if n.strip()])
 
     if args.min_line_len < 80:
         print("ERROR: --min-line-len must be at least 80.", file=sys.stderr)
@@ -318,7 +330,7 @@ def main(argv):
         newline = line_ending_from_bytes(raw)
 
         new_text, changed_lines, inserted_breaks = transform_text(
-            text, newline, args.min_line_len
+            text, newline, args.min_line_len, args.child_bullets, only_lines
         )
         if new_text == text:
             continue

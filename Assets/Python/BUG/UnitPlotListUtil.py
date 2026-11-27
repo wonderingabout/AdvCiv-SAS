@@ -18,6 +18,11 @@ import SASVisualUtils as SASVisuals
 from SASUtils import getInfoTypeOrFail
 import MonkeyTools as mt
 import BugUtil
+# <!-- custom: Reuse the maintained plot list's BUG options and move-mission names in this dormant prototype. See KI#165.5. (GPT-6.2-Sol) -->
+import BugCore
+import UnitUtil
+
+PleOpt = BugCore.game.PLE
 
 # globals
 gc = CyGlobalContext()
@@ -34,7 +39,8 @@ sBupStringBase = "BUGUnitPlotString"
 cUplSize = 34
 cUplSpacing = 3
 
-def updatePLEOptions():
+# <!-- custom: Pass the snapshot whose option flags are filled before drawing. See KI#165.5. (GPT-6.2-Sol) -->
+def updatePLEOptions(self):
 	# Capture these for looping over the plot's units
 	self.bShowWoundedIndicator = PleOpt.isShowWoundedIndicator()
 	self.bShowGreatGeneralIndicator = PleOpt.isShowGreatGeneralIndicator()
@@ -53,7 +59,6 @@ def updatePLEOptions():
 ## - x counts the columns across the panel, from 0 to max - 1
 ## - y counts the rows down the panel, from 0 to max - 1
 
-## _getx and _gety return the number of pixels for each unitplot from the top left of the panel (not from the top left of the screen!)
 
 class UnitList:
 	def __init__(self, vScreen, vCols, vRows, yRes):
@@ -66,22 +71,22 @@ class UnitList:
 		_y = yRes - 169 - cUplSpacing + (1 - vRows) * cUplSize
 		_w = vCols * cUplSize + cUplSpacing
 		_h = vRows * cUplSize + cUplSpacing
-		screen.addPanel(sBupPanel, u"", u"", True, False, _x, _y, _w, _h, PanelStyles.PANEL_STYLE_EMPTY)
+		# <!-- custom: Own the screen, panel and plots here.
+		# The documented grid is zero-based and fills from the bottom row. See KI#165.5. (GPT-6.2-Sol) -->
+		self.screen.addPanel(self.sBupPanel, u"", u"", True, False, _x, _y, _w, _h, PanelStyles.PANEL_STYLE_EMPTY)
 
-		UnitPlots = []
+		self.unitPlots = []
 		for i in range(vCols * vRows):
-			UnitPlots.append(UnitPlot(sBupPanel, i, _getx(i), _gety(i)))
+			self.unitPlots.append(UnitPlot(self.screen, self.sBupPanel, i, self._getx(i), self._gety(i)))
 
 	def _getx(self, iIndex):
-		_col = iIndex % iCols
-		return _col - 1
+		return iIndex % self.iCols
 
 	def _gety(self, iIndex):
-		_row = iIndex / iCols
-		return iRows - irow
+		return self.iRows - 1 - iIndex // self.iCols
 
 	def _getIndex(self, x, y):
-		return (iRows - y) * iCols + x - 1
+		return (self.iRows - 1 - y) * self.iCols + x
 
 #	def getMaxCol(self):
 #		return ((self.xResolution - (iMultiListXL+iMultiListXR) - 68) / 34)
@@ -108,14 +113,17 @@ class UnitList:
 ## - yPixel is the number of vertically pixels from the top left of the BUG unit plot list panel
 
 class UnitPlot:
-	def __init__(self, vBupPanel, iIndex, x, y):
+	# <!-- custom: Use the supplied screen and each axis's own pixel conversion when creating the promotion frame. See KI#165.5. (GPT-6.2-Sol) -->
+	def __init__(self, screen, vBupPanel, iIndex, x, y):
+		self.screen = screen
 		self.sBupString = sBupStringBase + str(iIndex)
-		xPixel = _getxPixel(x)
-		yPixel = _getyPixel(x)
+		self.reset()
+		xPixel = self._getxPixel(x)
+		yPixel = self._getyPixel(y)
 
 		# add promo frame
-		screen.addDDSGFCAt(_getPromoString(), vBupPanel, SASVisuals.InterfaceArt.OVERLAY_PROMOTION_FRAME, xPixel + 2, yPixel + 2, 32, 32, WidgetTypes.WIDGET_PLOT_LIST, iIndex, -1, False )
-		screen.hide(_getPromoString())
+		self.screen.addDDSGFCAt(self._getPromoString(), vBupPanel, SASVisuals.InterfaceArt.OVERLAY_PROMOTION_FRAME, xPixel + 2, yPixel + 2, 32, 32, WidgetTypes.WIDGET_PLOT_LIST, iIndex, -1, False )
+		self.screen.hide(self._getPromoString())
 
 	def _getxPixel(self, x):
 		return x * cUplSize + cUplSpacing
@@ -127,7 +135,7 @@ class UnitPlot:
 #cUplSize = 34
 #cUplSpacing = 3
 
-#				szStringPromoFrame  = szString + "PromoFrame"
+#				szStringPromoFrame = szString + "PromoFrame"
 
 #		for i in range( self.iMaxPlotListIcons ):
 #			szString = self.PLOT_LIST_BUTTON_NAME + str(i)
@@ -139,70 +147,62 @@ class UnitPlot:
 #			screen.hide( szString + "ActionIcon" )
 #			screen.hide( szString + "Upgrade" )
 
+	# <!-- custom: Keep both snapshots on the plot and call its own promotion methods.
+	# An empty slot has no unit snapshot. See KI#165.5. (GPT-6.2-Sol) -->
 	def reset(self):
-		pCurrUnit = None
+		self.pPrevUnit = None
+		self.pCurrUnit = None
 
-	def refresh(self, pUnit):  # or should this be draw()?
-		self.pPrevUnit = pCurrUnit
-		self.pCurrUnit = UnitDisplay(pUnit)
+	def refresh(self, pUnit):
+		self.pPrevUnit = self.pCurrUnit
+		self.pCurrUnit = None
+		if pUnit is not None and not pUnit.isNone():
+			self.pCurrUnit = UnitDisplay(pUnit)
 
-		# Unit Plot
 		if self.pCurrUnit is None:
-			if self.pPrevUnit is not None:
-				# current unit is blank, previous unit was not blank
-				_erasePromo()
-			#else:
-				# current unit is blank, previous unit was blank
-				# nothing to do
+			self._erasePromo()
+		elif self.pPrevUnit is None:
+			self._drawPromo()
 		else:
-			if self.pPrevUnit is not None:
-				# current unit is not blank, previous unit was not blank
-				_updatePromo()
-			else:
-				# current unit is not blank, previous unit was blank
-				_drawPromo()
+			self._updatePromo()
 
-	def _updatePromo():
-		if not self.pPrevUnit.bPromo:
+	# <!-- custom: Read both slot snapshots through the plot instance. See KI#165.5. (GPT-6.2-Sol) -->
+	def _updatePromo(self):
+		if self.pCurrUnit.bPromo and not self.pPrevUnit.bPromo:
 			self._showPromo()
-		elif not self.pCurrUnit.bPromo:
+		elif self.pPrevUnit.bPromo and not self.pCurrUnit.bPromo:
 			self._hidePromo()
 
-	def _drawPromo():
-		# test if you really want to show it
-		if self.pPrevUnit is None:
-			if self.pCurrUnit.bPromo:
-				_showPromo()
-		else:
-			if (self.pCurrUnit.bPromo and not self.pPrevUnit.bPromo):
-				_showPromo()
+	# <!-- custom: Read the current snapshot through the plot instance. See KI#165.5. (GPT-6.2-Sol) -->
+	def _drawPromo(self):
+		if self.pCurrUnit.bPromo:
+			self._showPromo()
 
-	def _erasePromo():
-		# test if you really want to hide it
-		if self.pCurrUnit is None:
-			if self.pPrevUnit.bPromo:
-				_hidePromo()
-		else:
-			if (self.pPrevUnit.bPromo and not self.pCurrUnit.bPromo):
-				_hidePromo()
+	# <!-- custom: Read the previous snapshot through the plot instance. See KI#165.5. (GPT-6.2-Sol) -->
+	def _erasePromo(self):
+		if self.pPrevUnit is not None and self.pPrevUnit.bPromo:
+			self._hidePromo()
 
-	def _hidePromo():
-		# just hide the stupid thing
-		self.screen.hide(_getPromoString())
+	# <!-- custom: Hide the frame on this plot's screen. See KI#165.5. (GPT-6.2-Sol) -->
+	def _hidePromo(self):
+		self.screen.hide(self._getPromoString())
 
-	def _showPromo():
-		# just show the stupid thing
-		self.screen.show(_getPromoString())
+	# <!-- custom: Show the frame on this plot's screen. See KI#165.5. (GPT-6.2-Sol) -->
+	def _showPromo(self):
+		self.screen.show(self._getPromoString())
 
-	def _getPromoString():
+	# <!-- custom: Resolve the frame name from this plot's stored prefix. See KI#165.5. (GPT-6.2-Sol) -->
+	def _getPromoString(self):
 		return self.sBupString + "PromoFrame"
 
 class UnitDisplay:
 	def __init__(self, pUnit):
 		self.bSelected = pUnit.IsSelected()
 		self.eUnit = pUnit.getUnitType()
-		self.sDotState, self.iDotxSize, self.iDotySize, self.iDotxOffset, self.iDotyOffset = _getDOTInfo(pUnit)
-		self.sMission = _getMission(pUnit)
+		# <!-- custom: Load the options before reading indicators and call the snapshot's two helpers through self. See KI#165.5. (GPT-6.2-Sol) -->
+		updatePLEOptions(self)
+		self.sDotState, self.iDotxSize, self.iDotySize, self.iDotxOffset, self.iDotyOffset = self._getDOTInfo(pUnit)
+		self.sMission = self._getMission(pUnit)
 		self.bPromo = pUnit.isPromotionReady()
 		self.bGG = iLeaderPromo != -1 and pUnit.isHasPromotion(iLeaderPromo)
 		self.bUpgrade = mt.checkAnyUpgrade(pUnit)

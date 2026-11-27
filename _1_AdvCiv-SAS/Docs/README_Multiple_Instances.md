@@ -20,7 +20,7 @@ The screenshots follow a Steam test from 2026-11-10. We named the two clients `F
 Give each client its own settings file so you can give it a distinct player name. Both clients can load the same copy of the mod.
 
 1. Close Civ4, then make two copies of `CivilizationIV.ini` beside `Civ4BeyondSword.exe`. Give them different filenames so you can pass one to each launch command. We used `SASChatTest-First.ini` and `SASChatTest-Second.ini`.
-2. In both copies, set `Mod = Mods\AdvCiv-SAS` to load the mod and `FullScreen = 0` to run in a window. Give each client a distinct `Alias` so you can tell them apart in-game. We used `Alias = First` and `Alias = Second`. If you also want to compare the game records, enable `SAS_SGR_LOG` before launching.
+2. In both copies, set `Mod = Mods\AdvCiv-SAS` to load the mod and `FullScreen = 0` to run in a window. Give each client a distinct `Alias` so you can tell them apart in-game. We used `Alias = First` and `Alias = Second`. If you also want to compare the game records, enable `SAS_SGR_LOG_ON` before launching.
 
 Here is a full-path example from our Steam installation. Both INI copies go beside `Civ4BeyondSword.exe` in the inner `Beyond the Sword` folder. If Steam is installed elsewhere, find the folder that contains your executable and place both copies there.
 

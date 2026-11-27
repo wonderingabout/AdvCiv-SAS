@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- advc.008: Pedia texts (very few) moved to CIV4GameText_advc_pedia.xml -->
 <Civ4GameText xmlns="http://www.firaxis.com">
 
@@ -504,7 +508,7 @@
 		<Italian>[ICON_BULLET]Perdita dei miglioramenti delle caselle vicino all'eruzione</Italian>
 		<Spanish>[ICON_BULLET]P&#233;rdida de mejoras de casillas cerca de la erupci&#243;n.[NEWLINE][ICON_BULLET]Probabilidad de +1[ICON_FOOD] en casillas cercanas a la erupción</Spanish>
 	</TEXT>
-	<!-- custom: remove bug unwrapped in TEXT XML text <English>[ICON_BULLET]+1[ICON_COMMERCE] in %d1 additional [NUM1:tile:tiles]</English>, moved to long comment instead; Long_Comments_XML.txt #272 -->
+	<!-- custom: remove bug unwrapped in TEXT XML text <English>[ICON_BULLET]+1[ICON_COMMERCE] in %d1 additional [NUM1:tile:tiles]</English>, moved to long comment instead; Long_Comments_XML.txt #272. See KI#99. -->
 	<TEXT>
 		<Tag>USER_DIPLO_WARPLAN_1</Tag>
 		<English>Join us in preparing for war...</English>

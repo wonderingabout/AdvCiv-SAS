@@ -15,6 +15,8 @@
 # For contrast, true alternatives are independent variants (e.g. "CvBUGMilitaryAdvisor.py" / "CvMilitaryAdvisor.py"), while major screens like "CvMainInterface.py" and "CvInfoScreen.py" are lengthy but unified files. (GPT-5.3-Codex) -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvUtil
 import ScreenInput
 import CvScreenEnums
@@ -36,7 +38,8 @@ import IconGrid_BUG
 
 import DomPyHelpers
 from PyHelpers import PyPlayer as EspionagePyPlayer
-import TechTree
+# <!-- custom: Disabled with its only use below: BtS's TechTree graph, unread even in BtS's own CvExoticForeignAdvisor.py. See KI#1108.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+#import TechTree
 import AttitudeUtil
 import BugCore
 import BugDll
@@ -73,6 +76,9 @@ def ForeignAdvisorPrint (stuff):
 class CvForeignAdvisor:
 	"Foreign Advisor Screen"
 
+	# <!-- custom: This advisor leaves the scoreboard the space getAdvisorScoreboardSpace gives, so the scoreboard shortens leader names to fit beside it; CvScreensInterface finds open advisors by this marker. (Claude code Opus 5.5) -->
+	SAS_LEAVES_SCOREBOARD_SPACE = True
+
 	def __init__(self):
 		self.iScreen = -1
 		self.nWidgetCount = 0
@@ -80,14 +86,13 @@ class CvForeignAdvisor:
 		self.WIDGET_ID = "ForeignAdvisorWidget"
 		self.LINE_ID = "ForeignAdvisorLine"
 		self.SCREEN_NAME = "ForeignTradeAdvisor"
-		self.DEBUG_DROPDOWN_ID =  "ForeignAdvisorDropdownWidget"
+		self.DEBUG_DROPDOWN_ID = "ForeignAdvisorDropdownWidget"
 		self.EXIT_ID = "ForeignAdvisorExitWidget"
 		self.BACKGROUND_ID = "ForeignAdvisorBackground"
 
 		# <!-- custom: these are screen-independent edge constants (safe in __init__); runtime geometry that depends on actual resolution is computed in interfaceScreen.
 		# Constants are shared through SASUtils so advisor screens use one source of truth. (GPT-5.3-Codex) -->
 		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
-		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
 		self.H_TOP_SPACE_FOR_TECH_BAR = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
 		self.H_BOTTOM_SPACE = SAS_ADVISOR_BOTTOM_SPACE
 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
@@ -112,9 +117,9 @@ class CvForeignAdvisor:
 
 		self.GLANCE_HEADER = "ForeignAdvisorGlanceHeader"
 		self.GLANCE_BUTTON = "ForeignAdvisorPlusMinus"
-		self.X_LINK = 0
+		# <!-- custom: Removed X_LINK = 0, which the merge with the Exotic Foreign Advisor (2026-03-20) brought in over the X_LINK = 50 above; nothing reads either. See KI#1098.3. (Claude code Opus 5.5) -->
 
-		# <!-- custom: remove these iExtraWidth and iExtraHeight-like as we don't want yellow margins: they are distracting and not not useful; channge with the help of gemini pro 3 thanks. -->
+		# <!-- custom: remove these iExtraWidth and iExtraHeight-like as we don't want yellow margins: they are distracting and not not useful; change with the help of gemini pro 3 thanks. -->
 		# self.X_GLANCE_OFFSET = 6 # advc.004: was 10
 		# self.Y_GLANCE_OFFSET = 3
 		self.X_GLANCE_OFFSET = 0
@@ -122,7 +127,7 @@ class CvForeignAdvisor:
 		self.GLANCE_BUTTON_SIZE = 46
 		self.PLUS_MINUS_SIZE = 25
 		self.bGlancePlus = True
-		# <!-- custom: add glance tab column pagination because with 24+ players the column icons overflow the screen width while vertical scrolling still works fine; we use arrow navigation rather than switching to a table widget, which would lose the per-cell widget type interactions (attitude popups, war-trade clicks). See KI#134. (Claude Code Sonnet 4.6+ Claude code Opus 4.7) -->
+		# <!-- custom: add glance tab column pagination because with 24+ players the column icons overflow the screen width while vertical scrolling still works fine; we use arrow navigation rather than switching to a table widget, which would lose the per-cell widget type interactions (attitude popups, war-trade clicks). See KI#134 and, for the other screens with 48 civilizations, KI#134.2 to KI#134.8. (Claude Code Sonnet 4.6+ Claude code Opus 4.7 + Claude code Opus 5.5) -->
 		self.iGlancePage = 0
 		self.iGlanceNumPages = 1
 		self.ltGlanceColumns = []
@@ -201,6 +206,8 @@ class CvForeignAdvisor:
 
 		# Space between the two panels.
 		self.RES_PANEL_SPACE = 0
+		# <!-- custom: How far the Bonuses grid rises above its panel, into the space under the bonus panel; see initTradeTable. (Claude code Opus 5.5) -->
+		self.RES_GRID_LIFT = 12
 
 		#############################
 		# Technologies view options #
@@ -279,7 +286,7 @@ class CvForeignAdvisor:
 		# <!-- custom: shared size for treaty icons rendered inline in active-deals text. (GPT-5.3-Codex) -->
 		self.SAS_TREATY_ICON_SIZE = 24
 		# <!-- custom: Espionage tab persistent state/constants; runtime geometry is computed in interfaceScreen from actual resolution. (GPT-5.3-Codex) -->
-		self.ESP_DEBUG_DROPDOWN_ID =  "EspionageAdvisorDropdownWidget"
+		self.ESP_DEBUG_DROPDOWN_ID = "EspionageAdvisorDropdownWidget"
 		self.ESP_WIDGET_ID = "EspionageAdvisorWidget"
 		self.ESP_BORDER_WIDTH = 4
 		self.ESP_PANE_HEIGHT = 450
@@ -448,7 +455,7 @@ class CvForeignAdvisor:
 
 	def updateRuntimeLayout(self, screen):
 		# <!-- custom: runtime layout wrapper (same structure as CvInfoScreen) so resolution-dependent bounds/anchors are centralized. (GPT-5.3-Codex) -->
-		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
+		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, getAdvisorScoreboardSpace(screen.getXResolution(), SASTextScale.getSASUIFontLabel()), self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.Y_LEGEND = self.H_SCREEN - self.H_LEGEND - 75
 		self.X_LEADER_CIRCLE_TOP = self.X_SCREEN + 10
@@ -556,7 +563,9 @@ class CvForeignAdvisor:
 		self.WILLING_VASSAL_ICON = smallSymbol(FontSymbols.SILVER_STAR_CHAR) # using a crown/strength symbol for vassalization
 		self.VASSAL_ICON = smallSymbol(FontSymbols.STRENGTH_CHAR)  # or use a different symbol
 
-		self.objTechTree = TechTree.TechTree()
+		# <!-- custom: Disabled: this rebuilt BtS's TechTree graph on every opening and tab click of both Foreign Advisors, 92 x 92 = 8,464 tech pairs as of now, growing with the square of the tech count, and nothing read self.objTechTree.
+		# Kept as a disabled reference, untested while disabled. See KI#1108.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		#self.objTechTree = TechTree.TechTree()
 
 		if (iScreen < 0):
 			if (self.iScreen < 0):
@@ -725,7 +734,7 @@ class CvForeignAdvisor:
 		# topBottomMargin = 50
 		leftRightMargin = 0
 		# <!-- custom: 43 is a bit nicer as it overflows less on the top and bottom, but we lose one leader row with it with the current inter row spacing as of now, so keep 42 rather despite the slight overflowing outside the top and bottom edges as of now -->
-		# <!-- custom: note: does not necessarily lead to one more leader row as it seems (but not sure, check if accurate as this is just a guess of mine even though it does seem to be as such but check to be sure) rows can be higher if they have more lines as of now in the foreign advisor's active tab but doing as such for consistency as well as in base advciv code as well coincidentally i mean. -->
+		# <!-- custom: note: does not necessarily lead to one more leader row as it seems (but not sure, check if accurate as this is just a guess of mine even though it does seem to be as such but check to be sure) rows can be higher if they have more lines as of now in the foreign advisor's active tab but doing as such for consistency as well as in base advciv code as well coincidentally. -->
 		topBottomMargin = 42
 		mainPanelWidth = self.W_SCREEN - 2 * leftRightMargin
 		mainPanelHeight = self.H_SCREEN - 2 * topBottomMargin
@@ -743,7 +752,7 @@ class CvForeignAdvisor:
 			# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution -->
 			objLoopPlayer = gc.getPlayer(iLoopPlayer)
 
-			if (objLoopPlayer.isAlive() and iLoopPlayer != self.iActiveLeader and not objLoopPlayer.isBarbarian() and  not objLoopPlayer.isMinorCiv()):
+			if (objLoopPlayer.isAlive() and iLoopPlayer != self.iActiveLeader and not objLoopPlayer.isBarbarian() and not objLoopPlayer.isMinorCiv()):
 				if (gc.getTeam(objLoopPlayer.getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam()) or gc.getGame().isDebugMode()):
 					nDeals = 0				
 					for i in range(gc.getGame().getIndexAfterLastDeal()):
@@ -862,7 +871,8 @@ class CvForeignAdvisor:
 			self.ESP_iActiveCityID = -1
 			self.ESP_iSelectedMission = -1
 		self.drawEspionageContents()
-		# <!-- custom: compact Espionage rows remove repeated labels/icons to keep SAS48 controls readable, so keep a quiet Sevopedia legend link for the field meanings. (GPT-5.5-Thinking + GPT-5.5?) -->
+		# <!-- custom: compact Espionage rows remove repeated labels/icons to keep SAS48 controls readable, so keep a quiet Sevopedia legend link for the field meanings.
+		# Base AdvCiv's two-line rows crowded each weight and "per Turn" into the next row with 48 civilizations. See KI#134.5. (GPT-5.5-Thinking + GPT-5.5? + Claude code Opus 5.5) -->
 		placeAdvisorLegendLink(self, "CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
 		self.refreshEspionageScreen()
 
@@ -892,6 +902,41 @@ class CvForeignAdvisor:
 
 	def getScreen(self):
 		return CyGInterfaceScreen(self.SCREEN_NAME + str(self.iScreen), CvScreenEnums.FOREIGN_ADVISOR)
+
+	# <!-- custom: Show the same AI attitude icon, signed score and hover breakdown as Glance (the user, 2026-11-21, Civ4ScreenShot0209).
+	# hasAttitude checks contact between the two leaders.
+	# Also check the real player's contact with both: a selected or debug-perspective leader can outlast the view that exposed it.
+	# Use the same gate for the score and the native hover. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	def getRelationsLabel(self, iPlayer, iTarget):
+		eWidget = WidgetTypes.WIDGET_GENERAL
+		if not AttitudeUtil.hasAttitude(iPlayer, iTarget):
+			return u"", eWidget
+		pPlayer = gc.getPlayer(iPlayer)
+		iPlayerTeam = pPlayer.getTeam()
+		iTargetTeam = gc.getPlayer(iTarget).getTeam()
+		game = gc.getGame()
+		if not game.isDebugMode():
+			iViewerTeam = game.getActiveTeam()
+			pViewerTeam = gc.getTeam(iViewerTeam)
+			if ((iPlayerTeam != iViewerTeam and not pViewerTeam.isHasMet(iPlayerTeam)) or
+				(iTargetTeam != iViewerTeam and not pViewerTeam.isHasMet(iTargetTeam))):
+				return u"", eWidget
+
+		parts = []
+		if gc.getTeam(iPlayerTeam).isVassal(iTargetTeam):
+			parts.append(self.TEXT_MISC_VASSAL_SHORT)
+		elif gc.getTeam(iTargetTeam).isVassal(iPlayerTeam):
+			parts.append(self.TEXT_MISC_MASTER)
+		if not pPlayer.isHuman():
+			iAttitude = pPlayer.AI_getAttitude(iTarget)
+			szIcon = SASVisuals.Attitude.getIcon(iAttitude)
+			szDesc = gc.getAttitudeInfo(iAttitude).getDescription()
+			szScore = BugUtil.colorText(u"%+d" % AttitudeUtil.getAttitudeCount(iPlayer, iTarget), SASVisuals.Attitude.getColor(iAttitude))
+			parts.append(u"%s %s %s" % (szIcon, szDesc, szScore))
+			eWidget = WidgetTypes.WIDGET_LEADERHEAD_RELATIONS
+		if parts:
+			return u" (" + u", ".join(parts) + u")", eWidget
+		return u"", eWidget
 
 	def drawRelationsBase(self, bInitial):
 
@@ -934,6 +979,7 @@ class CvForeignAdvisor:
 		# This sets radius to roughly 75% of screen height. Adjust 0.75 as needed.
 		# fRadius = (self.H_SCREEN * 0.75) - self.H_LEADER
 		fRadius = (self.H_SCREEN * 64) / 100
+		# <!-- custom: The larger radius spreads 48 civilizations more than base AdvCiv's half-ring did, but their portraits and attitude labels still overlap as of now. See KI#134.6. (Claude code Opus 5.5) -->
 
 		fLeaderArcTop = fLeaderTop + self.H_LEADER + 10
 		if iCount < 8:
@@ -984,8 +1030,6 @@ class CvForeignAdvisor:
 			iBaseLeader = self.iSelectedLeader
 		else:
 			iBaseLeader = self.iActiveLeader
-
-		playerBase = gc.getPlayer(iBaseLeader)
 		# K-Mod end
 		szLeaderHead = self.getNextWidgetName()
 		#screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(playerActive.getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, self.X_LEADER_CIRCLE_TOP - iLeaderWidth/2, int(fLeaderTop), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, -1, ButtonStyles.BUTTON_STYLE_LABEL)
@@ -1000,20 +1044,11 @@ class CvForeignAdvisor:
 
 		# K-Mod. vassal / master label
 		szName = self.getNextWidgetName()
-		szText = u""
-		player = playerActive
-		if iBaseLeader != self.iActiveLeader and gc.getTeam(player.getTeam()).isHasMet(playerBase.getTeam()):
-			if (gc.getTeam(player.getTeam()).isVassal(playerBase.getTeam())):
-				szText += self.TEXT_MISC_VASSAL_SHORT
-			elif (gc.getTeam(playerBase.getTeam()).isVassal(player.getTeam())):
-				szText += self.TEXT_MISC_MASTER
-			if not playerActive.isHuman():
-				if szText != "":
-					szText += ", "
-				szText += gc.getAttitudeInfo(playerActive.AI_getAttitude(iBaseLeader)).getDescription()
-			if szText != "":
-				szText = " (" + szText + ")"
-		screen.setLabel(szName, "", labelText(szText), CvUtil.FONT_CENTER_JUSTIFY, self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight + 25, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		# <!-- custom: The text built here inline is now getRelationsLabel's, shared with the circle's leaders, so playerBase above is gone.
+		# setText sends clicks to handleInput, like the portrait. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+		szText, eWidget = self.getRelationsLabel(self.iActiveLeader, iBaseLeader)
+		if szText:
+			screen.setText(szName, "", labelText(szText), CvUtil.FONT_CENTER_JUSTIFY, self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight + 25, 0, FontTypes.GAME_FONT, eWidget, self.iActiveLeader, iBaseLeader)
 		# K-Mod end
 
 		# angle increment in radians (180 degree range)
@@ -1043,20 +1078,12 @@ class CvForeignAdvisor:
 			screen.setLabel(szName, "", szText, CvUtil.FONT_CENTER_JUSTIFY, fX + iLeaderWidth/2, fY + iLeaderHeight + 5, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 			# Leader attitude towards active player. (rewritten by K-Mod)
+			# <!-- custom: K-Mod's vassal/master and attitude text, built here and again for the center leader, now comes from getRelationsLabel, which adds the attitude's icon, score and hover.
+			# It is toward iBaseLeader, the selected leader, as K-Mod's already was: the active player only until another is selected. (Claude code Opus 5.5) -->
 			szName = self.getNextWidgetName()
-			szText = u""
-			if iBaseLeader != iPlayer and gc.getTeam(player.getTeam()).isHasMet(playerBase.getTeam()):
-				if (gc.getTeam(player.getTeam()).isVassal(playerBase.getTeam())):
-					szText += self.TEXT_MISC_VASSAL_SHORT
-				elif (gc.getTeam(playerBase.getTeam()).isVassal(player.getTeam())):
-					szText += self.TEXT_MISC_MASTER
-				if not gc.getPlayer(iPlayer).isHuman():
-					if szText != "":
-						szText += ", "
-					szText += gc.getAttitudeInfo(gc.getPlayer(iPlayer).AI_getAttitude(iBaseLeader)).getDescription()
-				if szText != "":
-					szText = " (" + szText + ")"
-			screen.setLabel(szName, "", labelText(szText), CvUtil.FONT_CENTER_JUSTIFY, fX + iLeaderWidth/2, fY + iLeaderHeight + 25, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			szText, eWidget = self.getRelationsLabel(iPlayer, iBaseLeader)
+			if szText:
+				screen.setText(szName, "", labelText(szText), CvUtil.FONT_CENTER_JUSTIFY, fX + iLeaderWidth/2, fY + iLeaderHeight + 25, 0, FontTypes.GAME_FONT, eWidget, iPlayer, iBaseLeader)
 
 		# draw lines
 		for iSelectedLeader in range(gc.getMAX_PLAYERS()):
@@ -1275,7 +1302,7 @@ class CvForeignAdvisor:
 
 				screen.attachTextGFC(infoPanelName, "", labelText(szPlayerReligion), FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				# advc.004: BULL widget help enabled
-				screen.attachTextGFC(infoPanelName, "", labelText(localText.getText("TXT_KEY_FOREIGN_ADVISOR_TRADE", (self.calculateTrade (self.iActiveLeader, iLoopPlayer)[0], ))), FontTypes.GAME_FONT,  WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
+				screen.attachTextGFC(infoPanelName, "", labelText(localText.getText("TXT_KEY_FOREIGN_ADVISOR_TRADE", (self.calculateTrade (self.iActiveLeader, iLoopPlayer)[0], ))), FontTypes.GAME_FONT, WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
 
 				screen.attachTextGFC(infoPanelName, "", labelText(szCivicsPreText), FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
@@ -1533,6 +1560,8 @@ class CvForeignAdvisor:
 		# ForeignAdvisorPrint ("Entered drawGlance")
 
 		screen = self.getScreen()
+		# <!-- custom: The tab had no legend, so its cells' meaning and their click to the Info screen's Score tab were not discoverable (the user, 2026-11-21). (Claude code Opus 5.5) -->
+		placeAdvisorLegendLink(self, "CONCEPT_SAS_FOREIGN_ADVISOR_GLANCE_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
 
 		# <advc.066> Reduce panel height when there are few civs
 		self.mainPanelHeight = self.H_SCREEN - 155
@@ -1891,9 +1920,14 @@ class CvForeignAdvisor:
 		self.RES_LEFT_RIGHT_SPACE = self.MIN_LEFT_RIGHT_SPACE - 5
 		self.RES_TOP_BOTTOM_SPACE = max(22, self.MIN_TOP_BOTTOM_SPACE - 18)
 		gridX = self.RES_LEFT_RIGHT_SPACE + 6
-		gridY = self.RES_TOP_BOTTOM_SPACE + self.RES_SURPLUS_HEIGHT + self.RES_PANEL_SPACE + self.TITLE_HEIGHT + 6
+		# <!-- custom: The grid's blank-labelled column groups no longer reserve a title band (see advc.004w in IconGrid_BUG.py), so the grid starts right below the bonus panel instead of TITLE_HEIGHT lower.
+		# Its rows' border is also 2 instead of 3: both were needed to fit one more row, 12 rather than 11 at 1080p, as Techs and Cities show. (Claude code Opus 5.5) -->
+		gridY = self.RES_TOP_BOTTOM_SPACE + self.RES_SURPLUS_HEIGHT + self.RES_PANEL_SPACE + 6
 		gridWidth = self.W_SCREEN - 2 * gridX
 		gridHeight = self.H_SCREEN - gridY - self.RES_TOP_BOTTOM_SPACE - 6
+		# <!-- custom: The last row then touched the footer, so the grid is lifted into the empty space under the bonus panel with its height unchanged; the blue panel behind it stays. (Claude code Opus 5.5) -->
+		gridY -= self.RES_GRID_LIFT
+		self.resIconGrid.rowBorderWidth = 2
 		self.resIconGrid.setPosition(gridX, gridY)
 		self.resIconGrid.setSize(gridWidth, gridHeight)
 
@@ -2359,7 +2393,7 @@ class CvForeignAdvisor:
 		# <!-- custom: note: empirically, it seems that reducing width to have symmetrical margins than on the left side causes buttons (or is it icons?)
 		# like the war declare or peace one to be too close to the leader's button.
 		# On the other hand, the right space is useless in itself, and we have no other column on the right, so it's fine if it overfills beyond the screen on the right side, as long as it helps have enough space from the leader button.
-		# Could maybe ideally fix this more properly but may be possibly very tedious and is fine enough as such i mean if i may say so left as such as long as it displays nicely on the left side.
+		# Could maybe ideally fix this more properly but may be possibly very tedious and is fine enough as such left as such as long as it displays nicely on the left side.
 		# (comparing it to the foreign advisor's tech tab and trying to have a more or less identical left side display seems more important). -->
 		iExtraWidth = 10
 
@@ -2504,9 +2538,51 @@ class CvForeignAdvisor:
 	### END CHANGES ENHANCED INTERFACE MOD ###
 	##########################################
 
+	# <!-- custom: The mission rows were plain text (the user, 2026-11-21, Civ4ScreenShot0180).
+	# Each now starts with a game-font character for what it does, read from the mission's own effects rather than its name, so a modmod's mission gets one too; "" for a mission with none of these effects. (Claude code Opus 5.5) -->
+	def getEspionageMissionChar(self, pMission):
+		if pMission.getBuyTechCostFactor() > 0 or pMission.isSeeResearch():
+			szChar = SASVisuals.Commerce.char(CommerceTypes.COMMERCE_RESEARCH)
+		elif pMission.getStealTreasuryTypes() > 0:
+			szChar = SASVisuals.Commerce.GOLD_CHAR
+		elif pMission.getCityInsertCultureAmountFactor() > 0:
+			szChar = SASVisuals.Commerce.char(CommerceTypes.COMMERCE_CULTURE)
+		elif pMission.getCityPoisonWaterCounter() > 0:
+			szChar = SASVisuals.Font.UNHEALTHY_CHAR
+		elif pMission.getCityUnhappinessCounter() > 0:
+			szChar = SASVisuals.Font.UNHAPPY_CHAR
+		elif pMission.getCityRevoltCounter() > 0:
+			szChar = SASVisuals.Font.OCCUPATION_CHAR
+		elif pMission.getSwitchReligionCostFactor() > 0:
+			szChar = SASVisuals.Font.RELIGION_CHAR
+		elif pMission.getDestroyProductionCostFactor() > 0:
+			szChar = SASVisuals.Yield.PRODUCTION_CHAR
+		# <!-- custom: Influence Civics and Sabotage were the two missions left without one (the user, 2026-11-21, Civ4ScreenShot0250): the silver star for forcing a civic, a mark of authority, and the strength sword for destroying a building, unit, project or tile improvement; neither is used by another mission.
+		# AdvCiv shows the destroy missions as one Sabotage row (advc.120d below), which takes the sword too. (Claude code Opus 5.5) -->
+		elif pMission.getSwitchCivicCostFactor() > 0 or pMission.getPlayerAnarchyCounter() > 0:
+			szChar = SASVisuals.Font.SILVER_STAR_CHAR
+		elif pMission.isDestroyImprovement() or pMission.getDestroyBuildingCostFactor() > 0 or pMission.getDestroyUnitCostFactor() > 0 or pMission.getDestroyProjectCostFactor() > 0:
+			szChar = SASVisuals.Font.STRENGTH_CHAR
+		elif pMission.getCounterespionageNumTurns() > 0:
+			szChar = SASVisuals.Commerce.char(CommerceTypes.COMMERCE_ESPIONAGE)
+		elif pMission.isSeeDemographics():
+			szChar = SASVisuals.Font.CITIZEN_CHAR
+		elif pMission.isInvestigateCity() or pMission.getVisibilityLevel() > 0:
+			szChar = SASVisuals.Font.MAP_CHAR
+		else:
+			return u""
+		return szChar + u" "
+
 	# Handles the input for this screen...
 	def handleInput (self, inputClass):
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
+			# <!-- custom: A left click on a Glance attitude cell selected its leader and redrew the tab, which shows no selection, so it did nothing visible.
+			# It now opens the Info screen's Score tab, whose attitude cells open this tab back (the user, 2026-11-21). (Claude code Opus 5.5) -->
+			if self.iScreen == self.SCREEN_DICT["GLANCE"] and (inputClass.getButtonType() == WidgetTypes.WIDGET_LEADERHEAD_RELATIONS or inputClass.getButtonType() == WidgetTypes.WIDGET_LH_GLANCE) and (inputClass.getFlags() & MouseFlags.MOUSE_LBUTTONUP):
+				import CvScreensInterface
+				self.getScreen().hideScreen()
+				CvScreensInterface.showInfoScreen([CvScreensInterface.infoScreen.iScoreID, 0])
+				return 1
 			# advc.004: Removed BugDLL call from second condition
 			if inputClass.getButtonType() == WidgetTypes.WIDGET_LEADERHEAD or inputClass.getButtonType() == WidgetTypes.WIDGET_LEADERHEAD_RELATIONS:
 				if (inputClass.getFlags() & MouseFlags.MOUSE_LBUTTONUP):
@@ -2622,8 +2698,7 @@ class CvForeignAdvisor:
 		# Redundant now that global commerce sliders are visible on the right; preserving this block commented
 		# keeps rollback trivial if we want a dedicated Espionage header again later. (GPT-5.3-Codex) -->
 		#self.ESP_szTotalPaneWidget = "TotalPane"
-		#screen.addPanel( self.ESP_szTotalPaneWidget, "", "", true, true,
-		#	self.ESP_X_TOTAL_PANE, self.ESP_Y_TOTAL_PANE, self.ESP_W_TOTAL_PANE, self.ESP_H_TOTAL_PANE, PanelStyles.PANEL_STYLE_MAIN )
+		#screen.addPanel( self.ESP_szTotalPaneWidget, "", "", true, true, self.ESP_X_TOTAL_PANE, self.ESP_Y_TOTAL_PANE, self.ESP_W_TOTAL_PANE, self.ESP_H_TOTAL_PANE, PanelStyles.PANEL_STYLE_MAIN )
 		#
 		## <advc.120c> Replace TOTAL_NUM_EPS text with espionage slider
 		## (The slider is in the refresh function though)
@@ -2941,7 +3016,7 @@ class CvForeignAdvisor:
 								if (pMission.getTechPrereq() != -1):
 									szTechText = " (%s)" %(gc.getTechInfo(pMission.getTechPrereq()).getDescription())
 
-								szText = pMission.getDescription() + szTechText
+								szText = self.getEspionageMissionChar(pMission) + pMission.getDescription() + szTechText
 
 								if (pMission.getTechPrereq() != -1):
 									pTeam = gc.getTeam(pActivePlayer.getTeam())
@@ -2982,7 +3057,11 @@ class CvForeignAdvisor:
 									szTechText = " (%s)" %(gc.getTechInfo(stealTech).getDescription())
 							missingPrereq = False
 							# </advc.120d>
-							szText = pMission.getDescription() + szTechText
+							# <!-- custom: Choose the grouped Sabotage label before applying prerequisite tint, so the replacement keeps both the icon and the disabled styling. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+							if isSabotage and pMission.getDestroyProductionCostFactor() > 0:
+								szText = SASVisuals.Font.STRENGTH_CHAR + u" " + localText.getText("TXT_KEY_ESPIONAGE_SABOTAGE", ())
+							else:
+								szText = self.getEspionageMissionChar(pMission) + pMission.getDescription() + szTechText
 
 							if (pMission.getTechPrereq() != -1):
 								pTeam = gc.getTeam(pActivePlayer.getTeam())
@@ -3003,7 +3082,6 @@ class CvForeignAdvisor:
 							elif isSabotage:
 								if pMission.getDestroyProductionCostFactor() > 0:
 									costStr = "?"
-									szText = localText.getText("TXT_KEY_ESPIONAGE_SABOTAGE", ())
 								elif pMission.getDestroyProjectCostFactor() <= 0 or iCost <= 0:
 									continue
 							if pMission.getStealTreasuryTypes() > 0 and iCost > 0:
@@ -3146,11 +3224,11 @@ class CvForeignAdvisor:
 		x = self.ESP_X_TOTAL_PANE
 		y = self.ESP_Y_TOTAL_PANE
 		# <!-- custom: Replace the former screen-instance define cache with one read per commerce-control redraw so explicit runtime increment changes reach both +/- buttons; retain local reuse within this draw. See KI#128.2. (Claude code Sonnet 4.6 + GPT-6.1-Sol) -->
-		iCommercePercentChangeIncrements = gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")
+		iCommercePercentChangeIncrements = SASCurrentDefines.getInt("COMMERCE_PERCENT_CHANGE_INCREMENTS")
 		screen.setButtonGFC("plusButton", u"", "", x + self.ESP_TEXT_MARGIN, y + self.ESP_TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, iCommercePercentChangeIncrements, ButtonStyles.BUTTON_STYLE_CITY_PLUS )
 		screen.setButtonGFC("minusButton", u"", "", x + self.ESP_TEXT_MARGIN + 24, y + self.ESP_TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, -iCommercePercentChangeIncrements, ButtonStyles.BUTTON_STYLE_CITY_MINUS )
 		szText = SASTextScale.sasFontTagLabel + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(pActivePlayer.getCommercePercent(eCommerce)) + u"%)" + SASTextScale.SAS_FONT_TAG_CLOSE
-		screen.setLabel("espRateLabel", "Background",  szText, CvUtil.FONT_LEFT_JUSTIFY, x + self.ESP_TEXT_MARGIN + 50, y + self.ESP_TEXT_MARGIN, self.ESP_Z_CONTROLS + self.ESP_DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel("espRateLabel", "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, x + self.ESP_TEXT_MARGIN + 50, y + self.ESP_TEXT_MARGIN, self.ESP_Z_CONTROLS + self.ESP_DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		szRate = SASTextScale.sasFontTagLabel + unicode(pActivePlayer.getCommerceRate(CommerceTypes(eCommerce))) + SASTextScale.SAS_FONT_TAG_CLOSE
 		screen.setLabel("espRate", "Background", szRate, CvUtil.FONT_RIGHT_JUSTIFY, x + self.ESP_PANE_WIDTH - self.ESP_TEXT_MARGIN, y + self.ESP_TEXT_MARGIN, self.ESP_Z_CONTROLS + self.ESP_DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		# Update labels
@@ -3159,7 +3237,7 @@ class CvForeignAdvisor:
 		# Same code as above, except for the buttons
 		eCommerce = CommerceTypes.COMMERCE_ESPIONAGE
 		szText = SASTextScale.sasFontTagLabel + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(pActivePlayer.getCommercePercent(eCommerce)) + u"%)" + SASTextScale.SAS_FONT_TAG_CLOSE
-		screen.setLabel("espRateLabel", "Background",  szText, CvUtil.FONT_LEFT_JUSTIFY, x + self.ESP_TEXT_MARGIN + 50, y + self.ESP_TEXT_MARGIN, self.ESP_Z_CONTROLS + self.ESP_DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel("espRateLabel", "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, x + self.ESP_TEXT_MARGIN + 50, y + self.ESP_TEXT_MARGIN, self.ESP_Z_CONTROLS + self.ESP_DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		szRate = SASTextScale.sasFontTagLabel + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getCommerceRate(CommerceTypes(eCommerce)), )))) + SASTextScale.SAS_FONT_TAG_CLOSE
 		screen.setLabel("espRate", "Background", szRate, CvUtil.FONT_RIGHT_JUSTIFY, x + self.ESP_PANE_WIDTH + self.ESP_TEXT_MARGIN, y + self.ESP_TEXT_MARGIN, self.ESP_Z_CONTROLS + self.ESP_DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 	# </advc.120c>

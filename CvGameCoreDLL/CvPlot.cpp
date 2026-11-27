@@ -5134,8 +5134,7 @@ void CvPlot::updateCityRoute(bool bUpdatePlotGroup)
 	RouteTypes eCityRoute = GET_PLAYER(getOwner()).getBestRoute();
 	if (eCityRoute == NO_ROUTE)
 	{	// <advc.opt>
-		static const RouteTypes eINITIAL_CITY_ROUTE_TYPE = (RouteTypes)
-				GC.getDefineINT("INITIAL_CITY_ROUTE_TYPE"); // </advc.opt>
+		static const RouteTypes eINITIAL_CITY_ROUTE_TYPE = (RouteTypes)GC.getDefineINT("INITIAL_CITY_ROUTE_TYPE"); // </advc.opt>
 		eCityRoute = eINITIAL_CITY_ROUTE_TYPE;
 	}
 	setRouteType(eCityRoute, bUpdatePlotGroup);
@@ -5853,7 +5852,10 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay) const
 	if (!isPotentialCityWork())
 		return 0;
 
-	if (bDisplay && GC.getGame().isDebugMode()) // (advc.129d: Moved down)
+	// <!-- custom: Debug Mode showed the stored yield of every plot, but an unowned plot stores its yield for NO_TEAM, which counts no bonus resource, so an unowned sheep on plains read 1 food instead of 2 (inherited from vanilla).
+	// Owned plots keep the stored yield, the true one, with the owner's techs; an unowned plot falls through to the active team's view, as without Debug Mode.
+	// So a resource the active team cannot use yet adds nothing there, on purpose: with no owner, nobody can get it yet (the user, after Codex's review). See KI#11.3. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if (bDisplay && GC.getGame().isDebugMode() && isOwned()) // (advc.129d: Moved down)
 		return getYield(eYield);
 
 	PlayerTypes ePlayer;

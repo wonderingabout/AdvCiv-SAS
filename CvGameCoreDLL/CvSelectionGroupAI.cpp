@@ -203,7 +203,7 @@ bool CvSelectionGroupAI::AI_update()
 				(int)isForceUpdate(), (int)AI_isGroupAttack(), (int)AI_isForceSeparate(),
 				iAttempts, iMaxAttempts
 			).c_str());
-			// <!-- custom: now we have more info thanks chatgpt 5 and thanks to me too i guess i mean if i may say as well -->
+			// <!-- custom: now we have more info thanks chatgpt 5 and thanks to me too i guess as well -->
 			// Assert Failed
 			// File:  ..\.\CvSelectionGroupAI.cpp
 			// Line:  180
@@ -493,7 +493,7 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 		// <!-- custom: For AI stack attacks, spend expendable units first to preserve elite finishers.
 		// This is economically efficient: older/weaker units cost upkeep but scale poorly, while elite units are costly to lose and can secure the fight if early attacks go badly; keeping them as finishers preserves flexibility and escape odds.
 		// Once bombard is done and we have decided to attack, siege/collateral units go first because they are less useful on defense and have already contributed their main value; this also front-loads collateral damage to soften the defenders.
-		// Order by lowest effective power, then lowest XP; among healthy units (>= SAS_GROUP_ATK_LOW_PWR_MIN_HEALTH_PCT), lower health first. (GPT-5.2-Codex + GPT-6.1-Sol (define-name update)) -->
+		// Order by lowest effective power, then lowest XP; among healthy units (>= SAS_GROUP_ATK_LOW_PWR_MIN_HEALTH_PCT), lower health first. See KI#89. (GPT-5.2-Codex + GPT-6.1-Sol (define-name update)) -->
 		if (bUseLowPower)
 		{
 			int const iOdds = kLoopUnit.AI_attackOdds(pPlot, bPotentialEnemy);

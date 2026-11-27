@@ -148,6 +148,7 @@ class IconGrid_BUG:
 		self.rowHeaderHeight = 17
 		self.scrollArrowSize = 24
 		self.rowBorderWidth = 3
+		self.bBlankGroupLabels = False # <!-- custom: Set by createGrid; see advc.004w there. (Claude code Opus 5.5) -->
 		self.scrollSpace = 3
 
 		iTemp = [0, 0, 35, 30, 0]
@@ -192,7 +193,7 @@ class IconGrid_BUG:
 	def setMinColumnSpace(self, iVal):
 		self.minColSpace = iVal
 
-	def	setMinRowSpace(self, iVal):
+	def setMinRowSpace(self, iVal):
 		self.minRowSpace = iVal
 
 	def setSize(self, iWidth, iHeight):
@@ -620,9 +621,12 @@ class IconGrid_BUG:
 			self.colGroupHeight = self.groupTitleHeight + self.headerHeight + 8
 			self.headerY = self.yStart + self.groupTitleHeight + 3
 			# <advc.004w> I don't quite know what I'm doing here. I want the "tan" panels, but not the group headings.
+			# <!-- custom: advc.004w moved yStart up by the title's height, so the panels' blank title band sat empty above the header, and colGroupHeight still counted that title, leaving as much unused at the bottom: the Foreign Trade Bonuses tab showed one row fewer than Techs at 1080p.
+			# Without a title the panels now start at yStart and are only as tall as the header, as addGroups gives them no title text. (Claude code Opus 5.5) -->
+			self.bBlankGroupLabels = bBlankLabels
 			if bBlankLabels:
+				self.colGroupHeight = self.headerHeight + 8
 				self.headerY = self.yStart + 3
-				self.yStart = self.yStart - self.groupTitleHeight
 			# </advc.004w>
 			self.firstRowY = self.headerY + self.headerHeight + 7
 			availableHeight = self.height - self.colGroupHeight - 5
@@ -678,6 +682,13 @@ class IconGrid_BUG:
 		self.screen.setImageButton( self.pageDownArrow, SASVisuals.InterfaceArt.SCROLL_PAGE_DOWN_ARROW, x, y - (self.scrollArrowSize + 4), self.scrollArrowSize, self.scrollArrowSize, WidgetTypes.WIDGET_GENERAL, self.SCROLL_PAGE_DOWN, -1 )
 		self.screen.setImageButton( self.scrollBottomArrow, SASVisuals.InterfaceArt.SCROLL_BOTTOM_ARROW, x, y, self.scrollArrowSize, self.scrollArrowSize, WidgetTypes.WIDGET_GENERAL, self.SCROLL_BOTTOM, -1 )
 
+	# <!-- custom: A blank label still gave the panel a title band; no title text gives none.
+	# Called after addGroups resets groupLabelOffset, as the inherited code read it: built before that, the first heading kept a caller's three spaces while the others had two (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	def getGroupTitle(self, colGroup):
+		if self.bBlankGroupLabels:
+			return ""
+		return self.groupLabelOffset + colGroup.label
+
 	def addGroups(self):
 		self.groupPanelName = self.getNextWidgetName()
 
@@ -702,10 +713,10 @@ class IconGrid_BUG:
 				colGroupWidth -= self.colSpace
 				if (colGroup.length == 1):
 					self.groupLabelOffset = "  "
-					self.screen.addPanel( self.groupPanelName + str(index), self.groupLabelOffset + colGroup.label, "", False, False, colGroupX, self.yStart, colGroupWidth + 7, self.colGroupHeight, PanelStyles.PANEL_STYLE_EMPTY )
+					self.screen.addPanel( self.groupPanelName + str(index), self.getGroupTitle(colGroup), "", False, False, colGroupX, self.yStart, colGroupWidth + 7, self.colGroupHeight, PanelStyles.PANEL_STYLE_EMPTY )
 				else:
 					self.groupLabelOffset = "  "
-					self.screen.addPanel( self.groupPanelName + str(index), self.groupLabelOffset + colGroup.label, "", False, False, colGroupX, self.yStart, colGroupWidth + 7, self.colGroupHeight, PanelStyles.PANEL_STYLE_MAIN_TAN )
+					self.screen.addPanel( self.groupPanelName + str(index), self.getGroupTitle(colGroup), "", False, False, colGroupX, self.yStart, colGroupWidth + 7, self.colGroupHeight, PanelStyles.PANEL_STYLE_MAIN_TAN )
 				colGroupX += colGroupWidth + self.colSpace
 			else:
 				for offset in range(colGroup.length):
@@ -909,9 +920,8 @@ class IconGrid_BUG:
 			startIndex = 0
 			for groupIndex in range(len(self.columnGroups)):
 				colGroup = self.columnGroups[groupIndex]
-				if (colGroup.label != ""):
-					currentX += self.groupBorder
-
+				# <!-- custom: Widget deletion uses names.
+				# The copied layout increment read a coordinate this method never sets. See KI#165.11. (GPT-6.2-Sol) -->
 				for offset in range(colGroup.length):
 					if (self.columns[startIndex + offset] == GRID_ICON_COLUMN):
 						self.screen.hide(self.rowName + str(rowIndex) + "_" + str(startIndex + offset))

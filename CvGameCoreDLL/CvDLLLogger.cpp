@@ -128,7 +128,7 @@ void appendPercentage(std::ostringstream& os, wchar const* szLabel, int iAbsolut
 
 void CvDLLLogger::logMapStats(bool bAfterNormalization)
 {
-	// <!-- custom: i am not sure this is safe to static const so left as such, gain should be minimal as well but these are pure speculative guesses of mine//me as i don't know too much if at all about these, check if accurate -->
+	// <!-- custom: ci_define_uncached: runs once after map generation and once after normalization; nothing sets LOG_MAP_STATS during play, so a static would be safe but would save nothing. (Claude code Opus 5.5) -->
 	if (!isEnabled() || !GC.getDefineBOOL("LOG_MAP_STATS"))
 		return;
 	std::ostringstream out;

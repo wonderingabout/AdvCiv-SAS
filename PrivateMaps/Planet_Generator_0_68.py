@@ -16,6 +16,8 @@
 # <!-- custom: Long_Comments_py.txt #14 -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import CvUtil
 from CvUtil import *
 import CvMapGeneratorUtil
@@ -141,14 +143,14 @@ selection_names_and_values = [
 					],
 					[ #Continent scattering:
 					["Random (without archipelago)","random",False],
-					["Solid, no islands around",		[0,	0,	0,	0],True],# 0,0,0,0 == bypass
-					["Rare small islands (default)",	[1,	3,	0.5,1],True], #Min, Max, ChangeChance, MaxDif
-					["Common islands",					[3,	6,	0.4,2],True],
-					["Rare islands - common islands",	[1,	5,	0.3,2],True],
-					["Rare islands - many islands",		[1,	8,	0.3,3],True],
-					["Common islands - many islands",	[3,	10,	0.4,2],True],
-					["Coast varies alot",				[1,	12,	0.3,5],True],
-					["Archipelago continents",			[8,	15,	0.5,2],False],
+					["Solid, no islands around",		[0, 0,	0,		0],True],# 0,0,0,0 == bypass
+					["Rare small islands (default)",	[1, 3,	0.5,	1],True], #Min, Max, ChangeChance, MaxDif
+					["Common islands",					[3, 6,	0.4,	2],True],
+					["Rare islands - common islands",	[1, 5,	0.3,	2],True],
+					["Rare islands - many islands",		[1, 8,	0.3,	3],True],
+					["Common islands - many islands",	[3, 10,	0.4,	2],True],
+					["Coast varies alot",				[1, 12,	0.3,	5],True],
+					["Archipelago continents",			[8, 15,	0.5,	2],False],
 					],
 					[ #Continent size:
 					["Random selection","random",False],
@@ -341,7 +343,7 @@ chosenWorldType = -1
 # <!-- custom: Scale WorldInfo terrain cells through SAS_PLANET_GENERATOR_GRID_PCT, but retain the smallest default-supported 6x4 terrain-cell grid so low percentages cannot produce zero dimensions or four-plot-high edge seeds. See KI#260. (GPT-5.3-Codex; ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 def getPlanetScaledGridSize(iWidth, iHeight):
 	cgc = CyGlobalContext()
-	iGridPercent = cgc.getDefineINT("SAS_PLANET_GENERATOR_GRID_PCT")
+	iGridPercent = SASCurrentDefines.getInt("SAS_PLANET_GENERATOR_GRID_PCT")
 	if iGridPercent < 1:
 		iGridPercent = 1
 	elif iGridPercent > 100:
@@ -639,7 +641,9 @@ class mdArray:
 	def get(self):
 		return self._data
 
-	def __len__():
+	# <!-- custom: Python passes the array to __len__ as its receiver.
+	# Accept self before reading the backing data. See KI#165.12. (GPT-6.2-Sol) -->
+	def __len__(self):
 		return len(self._data)
 
 #for saving grid data, wraps in w
@@ -914,7 +918,7 @@ class TileBuilder:
 				partsAround = bArray()
 				for tile in tiles:
 					tx, ty = tile
-					toffset =  world.getOffset([tx, ty])
+					toffset = world.getOffset([tx, ty])
 					partId = self.continentPartAllTiles[toffset]
 					if partId is not None:
 						partsAround[partId] = partId
@@ -3156,7 +3160,7 @@ def addBonusType(argsList):
 def canPlaceBonusAt(argsList):
 	"Can override to determine if a	bonus can be placed	at the specified plot"
 	"""WARNING:	If addBonuses()	is overriden then this function	will not automatically be called."""
-	pPlot =	argsList[0]
+	pPlot = argsList[0]
 	CyPythonMgr().allowDefaultImpl()
 
 #Step 6: place goody huts
@@ -3554,7 +3558,7 @@ if (sys.platform == 'darwin'):
 			if "Warlords" in civ4Dir:
 				civ4Dir = "Civilization IV Warlords"
 			myDocuments = os.path.join(os.environ['HOME'], "Documents")
-			finalFolder =  os.path.join(myDocuments, civ4Dir)
+			finalFolder = os.path.join(myDocuments, civ4Dir)
 			return finalFolder
 		except:
 			return ""
@@ -3622,7 +3626,7 @@ def getCustomMapOptionDescAt(argsList):
     return unicode(selection_names_and_values[iOption][iSelection][0])
 
 def getCustomMapOptionDefault(argsList):
-	index =	argsList[0]
+	index = argsList[0]
 	return selection_defaults[index]
 
 def saveMapOptionDefaults():
