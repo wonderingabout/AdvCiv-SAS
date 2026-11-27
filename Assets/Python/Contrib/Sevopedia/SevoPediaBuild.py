@@ -262,22 +262,28 @@ class SevoPediaBuild:
 
 		bullet = localText.getText("[ICON_BULLET]", ())
 
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextPediaBuildFeatureStructInfo = localText.getText("TXT_KEY_PEDIA_BUILD_FEATURE_STRUCT_INFO", ())
+		szTextPediaBuildFeature = localText.getText("TXT_KEY_PEDIA_BUILD_FEATURE", ())
+		szTextPediaBuildRemoveTime = localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_TIME", ())
+		szTextPediaBuildRemoveProduction = localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_PRODUCTION", ())
+		szTextPediaBuildRemovesFeatureSimple = localText.getText("TXT_KEY_PEDIA_BUILD_REMOVES_FEATURE_SIMPLE", ())
 		for i, (iFeature, featureTech, featureTime, featureProduction, bRemove) in enumerate(featureStructs):
 			featureInfo = gc.getFeatureInfo(iFeature)
 			panelX = self.X_FEATURE_STRUCTS + (i * (panelW + MEDIUM_MARGIN))
-			panelTitle = u"%s: %s" % (localText.getText("TXT_KEY_PEDIA_BUILD_FEATURE_STRUCT_INFO", ()), featureInfo.getDescription())
+			panelTitle = u"%s: %s" % (szTextPediaBuildFeatureStructInfo, featureInfo.getDescription())
 			panelName = self.top.getNextWidgetName()
 			screen.addPanel(panelName, panelTitle, "", False, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
 			screen.attachLabel(panelName, "", "  ")
 
 			lines = []
-			lines.append(u"%s%s: %s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_FEATURE", ()), featureInfo.getDescription()))
+			lines.append(u"%s%s: %s" % (bullet, szTextPediaBuildFeature, featureInfo.getDescription()))
 			if featureTime > 0:
-				lines.append(u"%s%s: %d" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_TIME", ()), featureTime))
+				lines.append(u"%s%s: %d" % (bullet, szTextPediaBuildRemoveTime, featureTime))
 			if featureProduction > 0:
-				lines.append(u"%s+%d%s %s" % (bullet, featureProduction, localText.getText("[ICON_PRODUCTION]", ()), localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_PRODUCTION", ())))
+				lines.append(u"%s+%d%s %s" % (bullet, featureProduction, localText.getText("[ICON_PRODUCTION]", ()), szTextPediaBuildRemoveProduction))
 			if bRemove and featureTime == 0 and featureProduction == 0:
-				lines.append(u"%s%s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_REMOVES_FEATURE_SIMPLE", ())))
+				lines.append(u"%s%s" % (bullet, szTextPediaBuildRemovesFeatureSimple))
 			textName = self.top.getNextWidgetName()
 			text = u"\n".join(lines)
 			# <!-- custom: Use the DLL's discovery text so this panel and the Marsh hover share the same rule. See KI#1078. (Claude code Opus 5.5 + GPT-6.1-Sol) -->

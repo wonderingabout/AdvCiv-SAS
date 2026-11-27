@@ -9,7 +9,12 @@
 ## EF: Turned into a real queue, can be disabled
 ##-------------------------------------------------------------------
 
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+
 from CvPythonExtensions import *
+# <!-- custom: SASTextScale's addMessage and addImmediateMessage give Python's messages the label font the DLL gives its own, as CyInterface()'s went to the EXE at the stock size. See KI#117.2. (Claude code Opus 5.5) -->
+import SASTextScale
 #import CvMainInterface # advc: unused
 import CvUtil
 import Popup as PyPopup
@@ -153,7 +158,7 @@ class ReminderEventManager:
 						g_turnReminderTexts += ", "
 					g_turnReminderTexts += self.reminder.message
 				if (ReminderOpt.isShowMessage()):
-					CyInterface().addMessage(PlayerUtil.getActivePlayerID(), True, 10, self.reminder.message, None, 0, None, ColorTypes(8), 0, 0, False, False)
+					SASTextScale.addMessage(PlayerUtil.getActivePlayerID(), True, 10, self.reminder.message, None, 0, None, ColorTypes(8), 0, 0, False, False)
 				if (ReminderOpt.isShowPopup()):
 					popup = PyPopup.PyPopup(eventId, EventContextTypes.EVENTCONTEXT_SELF)
 					popup.setHeaderString(self.reminder.message)

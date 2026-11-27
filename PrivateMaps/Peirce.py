@@ -23,6 +23,8 @@ from SASUtils import getInfoTypeOrFail
 from SAS_WorldSizeUtils import sas_warn_simple_game_stale_option_once
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 # <!-- custom: PlotTypes are engine enums (not XML Type tags), so use PlotTypes.* constants here; `getInfoTypeOrFail(...)` is for XML tags such as TERRAIN_*/FEATURE_*/BONUS_* only. (GPT-5.3-Codex) -->
@@ -131,7 +133,7 @@ def getGridSize(argsList):
 	kWorld = cgc.getWorldInfo(eWorldSize)
 	iMinWorldSide = min(kWorld.getGridWidth(), kWorld.getGridHeight())
 	# <!-- custom: Peirce uses square grids; scale from selected world-size min side with a global define so Arena..SAS48 can be tuned centrally like Planet Generator. (GPT-5.3-Codex) -->
-	iGridPercent = SASCurrentDefines.getInt("SAS_PEIRCE_GRID_PCT")
+	iGridPercent = SASSessionTunables.SAS_PEIRCE_GRID_PCT
 	iGridPercent = max(1, min(200, iGridPercent))
 	iBaseSide = max(8, int((iMinWorldSide * iGridPercent + 50) / 100))
 	# <!-- custom: Keep original Peirce-type relative sizing (normalized from old Huge tables). (GPT-5.3-Codex) -->

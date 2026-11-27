@@ -396,15 +396,20 @@ class CvWorldBuilderScreen:
 
 		popup.setHeaderString(localText.getText("TXT_KEY_WB_CHANGE_ALL_PLOTS",()))
 
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextWbAddMountain = localText.getText("TXT_KEY_WB_ADD_MOUNTAIN",())
+		szTextWbAddHill = localText.getText("TXT_KEY_WB_ADD_HILL",())
+		szTextWbAddGrass = localText.getText("TXT_KEY_WB_ADD_GRASS",())
+		szTextWbAddOcean = localText.getText("TXT_KEY_WB_ADD_OCEAN",())
 		for i in range (PlotTypes.NUM_PLOT_TYPES):
 			if (i==0):
-				popup.addButton(localText.getText("TXT_KEY_WB_ADD_MOUNTAIN",()))
+				popup.addButton(szTextWbAddMountain)
 			elif(i==1):
-				popup.addButton(localText.getText("TXT_KEY_WB_ADD_HILL",()))
+				popup.addButton(szTextWbAddHill)
 			elif(i==2):
-				popup.addButton(localText.getText("TXT_KEY_WB_ADD_GRASS",()))
+				popup.addButton(szTextWbAddGrass)
 			elif(i==3):
-				popup.addButton(localText.getText("TXT_KEY_WB_ADD_OCEAN",()))
+				popup.addButton(szTextWbAddOcean)
 
 		popup.addButton(localText.getText("TXT_KEY_SCREEN_CANCEL", ()))
 		popup.launch(False)

@@ -16,3 +16,5 @@ STRING_COMPARE_EXEMPTION = "sas-ci-string-compare-exemption:"
 DEFINE_UNCACHED = "ci_define_uncached:"
 # <!-- custom: A module-level call whose define reads cannot run at import, for the reason given, such as CvEventInterface's initAfterReload(), whose reads sit behind BugInit.init(), which does not succeed while the game is still initializing; python_define_reads_import.py does not follow it (2026-11-26). See KI#128.6. (Claude code Opus 5.5) -->
 IMPORT_CALL = "ci_import_call:"
+# <!-- custom: A module that holds plain values only and imports nothing, such as SASMagicNumbers.py and SASSessionTunables.py, so any module can import it at any time; python_pure_modules.py keeps it so. (Claude code Opus 5.5) -->
+PURE_MODULE = "ci_pure_module:"

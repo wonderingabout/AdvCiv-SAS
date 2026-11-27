@@ -25,6 +25,8 @@ import SASTextScale
 import SASCurrentDefines
 
 from _sevopedia_helpers import *
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -503,7 +505,7 @@ class SevoPediaBonus:
 		panelName = self.top.getNextWidgetName()
 
 		# <!-- custom: code added with the help of claude ai thanks based on our existing code on advciv-sas and my prompt too or such -->
-		if SASCurrentDefines.getInt("SAS_SEVO_BONUS_SHOW_AI_INFORMATION") > 0:
+		if SASSessionTunables.SAS_SEVO_BONUS_SHOW_AI_INFORMATION > 0:
 			txtKeyPanel = "TXT_KEY_PEDIA_EFFECTS_WITH_SOME_AI_INFORMATION"
 		else:
 			txtKeyPanel = "TXT_KEY_PEDIA_EFFECTS"
@@ -513,7 +515,7 @@ class SevoPediaBonus:
 		listName = self.top.getNextWidgetName()
 		szSpecialText = CyGameTextMgr().getBonusHelp(self.iBonus, True)[1:]
 
-		if SASCurrentDefines.getInt("SAS_SEVO_BONUS_SHOW_AI_INFORMATION") > 0:
+		if SASSessionTunables.SAS_SEVO_BONUS_SHOW_AI_INFORMATION > 0:
 			bullet = localText.getText("[ICON_BULLET]", ())
 
 			# Get bonus info

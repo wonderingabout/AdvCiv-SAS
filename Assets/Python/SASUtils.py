@@ -5,25 +5,28 @@ from CvPythonExtensions import *
 import CvUtil
 # <!-- custom: Consume the surviving shared helper directly after retiring the overlapping SASUIResources dependency; avoid keeping a redundant visual-resource facade. (ChatGPT-5.6-Sol) -->
 import SASTextScale
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 localText = CyTranslator()
 
 # <!-- custom: lazy-init cache for SAS_SHOW_LEGEND_LINK GlobalDefine.
 # Cannot be resolved at module import time because SASUtils is imported before CyGlobalContext finishes loading XML defines (eager init returns False and the legend link silently disappears).
-# Resolved on first use via _isLegendLinkEnabled, matching the lazy-init-to-None approach used by other AdvCiv-SAS advisors. (Claude code Opus 4.7) -->
+# Resolved on first use via _isLegendLinkEnabled, matching the lazy-init-to-None approach used by other AdvCiv-SAS advisors.
+# The setting now lives in SASSessionTunables.py, which import time could read; the lazy read is kept as it was. (Claude code Opus 4.7 + Claude code Opus 5.5) -->
 _IS_SAS_SHOW_LEGEND_LINK = None
 def _isLegendLinkEnabled():
 	global _IS_SAS_SHOW_LEGEND_LINK
 	if _IS_SAS_SHOW_LEGEND_LINK is None:
-		_IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
+		_IS_SAS_SHOW_LEGEND_LINK = (SASSessionTunables.SAS_SHOW_LEGEND_LINK > 0)
 	return _IS_SAS_SHOW_LEGEND_LINK
 
 _IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE = None
 def _isAdvisorVassalPerspectiveEnabled():
 	global _IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE
 	if _IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE is None:
-		_IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE = (gc.getDefineINT("SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE") > 0)
+		_IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE = (SASSessionTunables.SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE > 0)
 	return _IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE
 
 # <advc.077>
@@ -309,7 +312,7 @@ def getNewConceptID(szConceptType):
 # <!-- custom: shared advisor "Legend" link helper, factored from CvInfoScreen's Score-tab pattern so any AdvCiv-SAS advisor can drop a Sevopedia legend link with one call.
 # Advisor legend links use smaller SASTextScale.sasFontTagLabel rather than Sevopedia's footer-sized SASTextScale.sasFontTagTitle because an in-game screen link should stay quiet.
 # Caller passes the screen object (must expose getScreen, getNextWidgetName, Z_CONTROLS), the NewConcept XML type, and the (X,Y) anchor in screen coords.
-# Skips silently when the SAS_SHOW_LEGEND_LINK GlobalDefine is off or the concept is missing.
+# Skips silently when the SAS_SHOW_LEGEND_LINK setting is off or the concept is missing.
 # setText params mirror the Score-tab call exactly: WIDGET_PEDIA_DESCRIPTION + CIVILOPEDIA_PAGE_CONCEPT_NEW + concept ID is the pedia jump that actually resolves through SevoPediaMain.pediaJump. (Claude code Opus 4.7 + GPT-5.5) -->
 def placeAdvisorLegendLink(top, szConceptType, iX, iY, eJustify=None):
 	if not _isLegendLinkEnabled():

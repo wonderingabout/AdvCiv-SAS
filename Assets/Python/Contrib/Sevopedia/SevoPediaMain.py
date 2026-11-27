@@ -71,6 +71,8 @@ import _sevopedia_main_groupings as SAS_MainGroupings
 import SASDefineGuard
 # <!-- custom: Sevopedia owns its final normalized category/item navigation in Python; log only numeric destinations and fixed action labels, never search text. (ChatGPT-5.6-Sol) -->
 import SASGameRecordActions
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -400,30 +402,31 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# The attributes survive the re-run, so they are the cache; the sentinel is the last one set, so a run cut short does not mark the block done.
 		# Unlike the main interface, whose raw define values are kept apart from the values it scales to the resolution, these are used as read. See KI#123.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		if not hasattr(self, "IS_SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY"):
-			self.IS_SAS_SEVO_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVO_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
-			self.IS_SAS_SEVO_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_TECHS_GROUP_BY_ERA") > 0)
-			self.IS_SAS_SEVO_BLDGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_BLDGS_GROUP_BY_ERA") > 0)
-			self.IS_SAS_SEVO_UNITS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_UNITS_GROUP_BY_ERA") > 0)
-			self.IS_SAS_SEVO_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_CORPORATIONS_GROUP_BY_ERA") > 0)
-			self.IS_SAS_SEVO_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_RELIGIONS_GROUP_BY_ERA") > 0)
-			self.IS_SAS_SEVO_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_PROJECTS_GROUP_BY_ERA") > 0)
-			self.IS_SAS_SEVO_ROUTES_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_ROUTES_GROUP_BY_ERA") > 0)
-			self.SAS_SEVO_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVO_MUSIC_ITEMS_WIDTH")
-			# <!-- custom: The five Leader item-list widths were kept here as attributes; SAS_getLeaderItemsWidthByCurrentUIFont now reads them through SASCurrentDefines, as a prototype of its shared cache, so an override reaches the next layout. See KI#128.5. (Claude code Opus 5.5) -->
-			self.IS_SAS_SEVO_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVO_SPECIALISTS_GROUP_BY_TYPE") > 0)
-			self.IS_SAS_SEVO_BONUSES_GROUP_BY_IMPROVE = (gc.getDefineINT("SAS_SEVO_BONUSES_GROUP_BY_IMPROVE") > 0)
-			self.IS_SAS_SEVO_IMPROVES_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVO_IMPROVES_GROUP_BY_TERRAIN") > 0)
-			self.IS_SAS_SEVO_BUILDS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVO_BUILDS_GROUP_BY_TYPE") > 0)
-			self.IS_SAS_SEVO_TERRAINS_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVO_TERRAINS_GROUP_BY_LAND_WATER") > 0)
-			self.IS_SAS_SEVO_FEATURES_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVO_FEATURES_GROUP_BY_LAND_WATER") > 0)
-			self.IS_SAS_SEVO_CIVS_GROUP_BY_ARTSTYLE = (gc.getDefineINT("SAS_SEVO_CIVS_GROUP_BY_ARTSTYLE") > 0)
-			self.IS_SAS_SEVO_LEADERS_GROUP_BY_CIV = (gc.getDefineINT("SAS_SEVO_LEADERS_GROUP_BY_CIV") > 0)
-			self.IS_SAS_SEVO_SEARCH_SPECIAL_CHAR_LINKS_ON = (gc.getDefineINT("SAS_SEVO_SEARCH_SPECIAL_CHAR_LINKS_ON") > 0)
-			self.IS_SAS_SEVO_LEADER_AI_ON = (gc.getDefineINT("SAS_SEVO_LEADER_AI_ON") > 0)
-			self.IS_SAS_SEVO_MUSIC_LEADER_INTRO_PEACE_1ST_ONLY = (gc.getDefineINT("SAS_SEVO_MUSIC_LEADER_INTRO_PEACE_1ST_ONLY") > 0)
-			self.IS_SAS_SEVO_MUSIC_LEADER_PEACE_1ST_ONLY = (gc.getDefineINT("SAS_SEVO_MUSIC_LEADER_PEACE_1ST_ONLY") > 0)
-			self.IS_SAS_SEVO_MUSIC_LEADER_INTRO_WAR_1ST_ONLY = (gc.getDefineINT("SAS_SEVO_MUSIC_LEADER_INTRO_WAR_1ST_ONLY") > 0)
-			self.IS_SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY = (gc.getDefineINT("SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY") > 0)
+			self.IS_SAS_SEVO_CIVICS_GROUP_BY_CIVIC_TYPES = (SASSessionTunables.SAS_SEVO_CIVICS_GROUP_BY_CIVIC_TYPES > 0)
+			self.IS_SAS_SEVO_TECHS_GROUP_BY_ERA = (SASSessionTunables.SAS_SEVO_TECHS_GROUP_BY_ERA > 0)
+			self.IS_SAS_SEVO_BLDGS_GROUP_BY_ERA = (SASSessionTunables.SAS_SEVO_BLDGS_GROUP_BY_ERA > 0)
+			self.IS_SAS_SEVO_UNITS_GROUP_BY_ERA = (SASSessionTunables.SAS_SEVO_UNITS_GROUP_BY_ERA > 0)
+			self.IS_SAS_SEVO_CORPORATIONS_GROUP_BY_ERA = (SASSessionTunables.SAS_SEVO_CORPORATIONS_GROUP_BY_ERA > 0)
+			self.IS_SAS_SEVO_RELIGIONS_GROUP_BY_ERA = (SASSessionTunables.SAS_SEVO_RELIGIONS_GROUP_BY_ERA > 0)
+			self.IS_SAS_SEVO_PROJECTS_GROUP_BY_ERA = (SASSessionTunables.SAS_SEVO_PROJECTS_GROUP_BY_ERA > 0)
+			self.IS_SAS_SEVO_ROUTES_GROUP_BY_ERA = (SASSessionTunables.SAS_SEVO_ROUTES_GROUP_BY_ERA > 0)
+			self.SAS_SEVO_MUSIC_ITEMS_WIDTH = SASSessionTunables.SAS_SEVO_MUSIC_ITEMS_WIDTH
+			# <!-- custom: The five Leader item-list widths were kept here as attributes; SAS_getLeaderItemsWidthByCurrentUIFont now reads them through SASCurrentDefines, as a prototype of its shared cache, so an override reaches the next layout. See KI#128.5.
+			# They are now in SASSessionTunables.py, which an override does not reach, as the overrides' no-entry list had already refused them. (Claude code Opus 5.5) -->
+			self.IS_SAS_SEVO_SPECIALISTS_GROUP_BY_TYPE = (SASSessionTunables.SAS_SEVO_SPECIALISTS_GROUP_BY_TYPE > 0)
+			self.IS_SAS_SEVO_BONUSES_GROUP_BY_IMPROVE = (SASSessionTunables.SAS_SEVO_BONUSES_GROUP_BY_IMPROVE > 0)
+			self.IS_SAS_SEVO_IMPROVES_GROUP_BY_TERRAIN = (SASSessionTunables.SAS_SEVO_IMPROVES_GROUP_BY_TERRAIN > 0)
+			self.IS_SAS_SEVO_BUILDS_GROUP_BY_TYPE = (SASSessionTunables.SAS_SEVO_BUILDS_GROUP_BY_TYPE > 0)
+			self.IS_SAS_SEVO_TERRAINS_GROUP_BY_LAND_WATER = (SASSessionTunables.SAS_SEVO_TERRAINS_GROUP_BY_LAND_WATER > 0)
+			self.IS_SAS_SEVO_FEATURES_GROUP_BY_LAND_WATER = (SASSessionTunables.SAS_SEVO_FEATURES_GROUP_BY_LAND_WATER > 0)
+			self.IS_SAS_SEVO_CIVS_GROUP_BY_ARTSTYLE = (SASSessionTunables.SAS_SEVO_CIVS_GROUP_BY_ARTSTYLE > 0)
+			self.IS_SAS_SEVO_LEADERS_GROUP_BY_CIV = (SASSessionTunables.SAS_SEVO_LEADERS_GROUP_BY_CIV > 0)
+			self.IS_SAS_SEVO_SEARCH_SPECIAL_CHAR_LINKS_ON = (SASSessionTunables.SAS_SEVO_SEARCH_SPECIAL_CHAR_LINKS_ON > 0)
+			self.IS_SAS_SEVO_LEADER_AI_ON = (SASSessionTunables.SAS_SEVO_LEADER_AI_ON > 0)
+			self.IS_SAS_SEVO_MUSIC_LEADER_INTRO_PEACE_1ST_ONLY = (SASSessionTunables.SAS_SEVO_MUSIC_LEADER_INTRO_PEACE_1ST_ONLY > 0)
+			self.IS_SAS_SEVO_MUSIC_LEADER_PEACE_1ST_ONLY = (SASSessionTunables.SAS_SEVO_MUSIC_LEADER_PEACE_1ST_ONLY > 0)
+			self.IS_SAS_SEVO_MUSIC_LEADER_INTRO_WAR_1ST_ONLY = (SASSessionTunables.SAS_SEVO_MUSIC_LEADER_INTRO_WAR_1ST_ONLY > 0)
+			self.IS_SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY = (SASSessionTunables.SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY > 0)
 
 	# <!-- custom: search bar helper methods (chatgpt 5.2 + claude opus 4.5) -->
 	def SAS_safeDeleteWidget(self, screen, szWidget):
@@ -791,7 +794,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	# Note: pediaJump also closes both players on every navigation, a few lines after its rebuild check, so the close here is redundant there; it is kept so the rebuild stays safe from any other caller, and moving the check below that close would need a new in-game test for no change in behaviour. See KI#123.2. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	# <!-- custom: Was SAS_rebuildForResolution, which also logged the resolution change; a change of SASLiveDefineOverrides rebuilds through it too, so each caller logs its own reason. (Claude code Opus 5.5) -->
 	def SAS_rebuildLayout(self, bRereadDefines=False):
-		# <!-- custom: bRereadDefines drops the sentinel of the define block in __init__, so it reads its defines again: a rebuild after an override left the Leader widths at their old values, as Codex's review (GPT-6.2-Sol) found; a resolution change keeps them, as before. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		# <!-- custom: bRereadDefines drops the sentinel of the define block in __init__, so it reads its defines again: a rebuild after an override left the Leader widths at their old values, as Codex's review (GPT-6.2-Sol) found; a resolution change keeps them, as before. See KI#128.5.
+		# Since the move to SASSessionTunables.py, the Leader widths and the other settings of that block can no longer change during play, so the reread changes nothing; it is kept, as removing it would be a behaviour change to test for no gain. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		if bRereadDefines and hasattr(self, "IS_SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY"):
 			del self.IS_SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY
 		if self.pediaMovies.isMoviePlayerOpen():
@@ -2696,20 +2700,21 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: Advisors currently meet the same limit: at 1920 px and font 4 the scoreboard needs more width than they leave it, while 2560 px has room for both.
 		# The resolution considerations were first written above getAdvisorScoreboardSpace in SASUtils.py (2026-11-20). See KI#1103. (Claude code Opus 5.5) -->
 		# <!-- custom: nonpositive cutoff disables wide-screen reduction; without the positive guard every normal resolution met a 0/-1 cutoff and forced base width, reversing the documented setting. See KI#230. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		# <!-- custom: Read through SASCurrentDefines, whose cache SASLiveDefineOverrides empties on a change, instead of attributes set once in __init__. See KI#128.5. (Claude code Opus 5.5) -->
-		iFullMinWidth = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH")
+		# <!-- custom: Read through SASCurrentDefines, whose cache SASLiveDefineOverrides empties on a change, instead of attributes set once in __init__. See KI#128.5.
+		# Now read from SASSessionTunables.py, where the widths moved. (Claude code Opus 5.5) -->
+		iFullMinWidth = SASSessionTunables.SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH
 		if (iFullMinWidth > 0) and (self.getScreen().getXResolution() >= iFullMinWidth):
 			return self.SAS_W_ITEMS_BASE
 
 		iLabelFont = SASTextScale.getSASUIFontLabel()
 		if iLabelFont <= 1:
-			iWidth = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1")
+			iWidth = SASSessionTunables.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
 		elif iLabelFont == 2:
-			iWidth = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2")
+			iWidth = SASSessionTunables.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2
 		elif iLabelFont == 3:
-			iWidth = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3")
+			iWidth = SASSessionTunables.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3
 		else:
-			iWidth = SASCurrentDefines.getInt("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4")
+			iWidth = SASSessionTunables.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4
 		if iWidth <= 0:
 			return self.SAS_W_ITEMS_BASE
 		return iWidth

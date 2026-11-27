@@ -12,6 +12,8 @@ import PyHelpers
 import Popup as PyPopup
 import CvScreenEnums
 from CvPythonExtensions import *
+# <!-- custom: SASTextScale's addMessage and addImmediateMessage give Python's messages the label font the DLL gives its own, as CyInterface()'s went to the EXE at the stock size. See KI#117.2. (Claude code Opus 5.5) -->
+import SASTextScale
 # <!-- custom: Route shared visual resources through the centralized SASVisualUtils namespace after retiring overlapping helper/cache imports; keep one canonical visual-resource boundary. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 
@@ -50,7 +52,7 @@ class CvDebugTools:
 
 	def setDebugMode( self, bVal ):
 		self._bDebugMode = bVal		
-		CyInterface().addImmediateMessage( "CvDebugTools.setDebugMode set to %s" % self.bDebugMode, "" )
+		SASTextScale.addImmediateMessage( "CvDebugTools.setDebugMode set to %s" % self.bDebugMode, "" )
 
 	def notifyInput( self, argsList ):
 		#print "Python Debug Mode Notify"

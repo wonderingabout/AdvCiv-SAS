@@ -499,6 +499,8 @@ class SevoPediaBuilding:
 		iCorporation = gc.getBuildingInfo(self.iBuilding).getFoundsCorporation()
 		bFirst = True
 		if iCorporation >= 0:
+			# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+			szTextOr = localText.getText("TXT_KEY_OR", ())
 			for k in range(gc.getNUM_CORPORATION_PREREQ_BONUSES()):
 				iPrereqCorporationBonus = gc.getCorporationInfo(iCorporation).getPrereqBonus(k)
 				if iPrereqCorporationBonus >= 0:
@@ -507,7 +509,7 @@ class SevoPediaBuilding:
 
 					# <!-- custom: then before incrementing the position for the next numTxt, handle the "or" numTxt placement of the current button we just placed -->
 					if not bFirst:
-						numTxt = localText.getText("TXT_KEY_OR", ())
+						numTxt = szTextOr
 						# <!-- custom: "or" numTxt aligned between this button and the previous one -->
 						extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_x_inbetween_buttons(MULTILIST_BUTTON_SIZE)
 						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
@@ -533,6 +535,8 @@ class SevoPediaBuilding:
 		if iSpecialBuildingType >= 0:
 			bFirst = True
 
+			# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+			szTextOr = localText.getText("TXT_KEY_OR", ())
 			for iProject in range(gc.getNumProjectInfos()):
 				projectInfo = gc.getProjectInfo(iProject)
 				if projectInfo.getEveryoneSpecialBuilding() == iSpecialBuildingType:
@@ -541,7 +545,7 @@ class SevoPediaBuilding:
 					if not bFirst:
 						# <!-- custom: workaround as our code doesn't handle inconsistent occurence size (a button is 64px currently if not always or not, but a label "or" would be smaller than 64px, messing the txtNums alignment of subsequent buttons (if any), so to not rewrite all our code or tweak it too deeply, maybe this alternative solution is/can be quite elegant too instead, of putting the "or" label rather as a txtNum just between the buttons, and belonging to the new 2nd button we are adding (no "or" if first project so maybe more sensical or intuitive this way even though is still a hack but maybe not so bad), not having thus to rewrite our otherwise working code. -->
 						# Also since our next button is a project, if we were to use this "or", it is fine to be a bit more aggressive with the adjustment and place the txtNum right inbetween both buttons, as no txtNum will be left or right of this txtNum directly in contact with it and colliding or being merged in unintended way, so i quite like this elegant solution :) hehe. -->
-						numTxt = localText.getText("TXT_KEY_OR", ())
+						numTxt = szTextOr
 						# <!-- custom: "or" numTxt aligned between this button and the previous one -->
 						extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_x_inbetween_buttons(MULTILIST_BUTTON_SIZE)
 						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)

@@ -202,6 +202,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#115.2 - (Fixed inherited vanilla Civ4 slips) Victory screen's Victories tab: a culture row testing the wrong team, a religion row printing the wrong share](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-115.2)\
 [KI#116 - (Worked around) Foreign Diplomacy Advisor Glance tab clips trailing status icons at upscaled label fonts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-116)\
 [KI#117 - (Fixed) Score Tab attitude icon chars disappearing at upscaled label fonts (`SAS_UI_FONT_LABEL` 3/4)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-117)\
+[KI#117.2 - (Fixed incomplete SAS upscaling, guarded by CI) At an upscaled label font, messages added from Python, such as MoreCiv4lerts' "Cyrus will export Iron", stayed at the stock size under the DLL's enlarged "Global Warming strikes near ...", as SAS enlarged only the messages the DLL adds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-117.2)\
 [KI#118 - (Worked around) Military Advisor inline `<img>` icons can render magenta for button paths with spaces/parentheses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118)\
 [KI#118.2 - (Fixed AdvCiv-SAS regression) Same family as KI#118's icon paths: the Victory screen raised a Python exception and drew only part of its table once an unmet team had built the Apostolic Palace or United Nations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118.2)\
 [KI#119 - (Fixed) Sevopedia category opening on blank placeholder rows (`item == -1`) and polluting BACK/NEXT history](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-119)\
@@ -227,6 +228,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#128.7 - (Improved SAS, guarded by CI) A user could not tell which defines SASLiveDefineOverrides.txt reaches: one that follows an override and one whose readers keep their first value look the same in the XML, and both logged APPLIED; SASLiveDefineOverridesAllowed.txt now lists the live ones, and the bridge refuses any other](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.7)\
 [KI#128.8 - (Fixed inherited Better BTS AI and BUG) Python read a define again at each pass of a loop: ChangePlayer read BARBARIAN_LEADER once per leader, and the Tech Window read its two tech-prerequisite counts once per tech; each is now read once before its loop](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.8)\
 [KI#128.9 - (Improved SAS and inherited, guarded by CI) Python read defines by name with no caching rule, unlike the DLL: a read through gc cost 279 ns, and five ran once per leader or per tech inside a loop; they now go through a cache, SASCurrentDefines' reads went from 167 ns to about 80 ns, while a kept self.x, at 18 ns, stays the faster choice for a hot path, and CI requires a cache or a stated reason for each read, as in C++](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.9)\
+[KI#128.10 - (Improved SAS and inherited, guarded by CI) Python looked the same fixed text up again at each pass of a loop, 93 times in 20 files, such as the Victory screen's "Unknown" team name once per vote source: a fixed-key getText cost about 0.8 microseconds in game against 0.02 for a kept local, and each is now read once before its loop](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.10)\
+[KI#128.11 - (AdvCiv-SAS design, guarded by CI) The 152 SAS settings only Python reads, such as SAS_MAIN_UI_UNITS_WAITING_ON, SAS_SEVO_TECHS_GROUP_BY_ERA or SAS_MAPGEN_STANDARD_MARSH_PCT, moved from GlobalDefines_advciv_sas.xml, whose about 770 defines made a setting slow to find, to one plain Python file, SASSessionTunables.py](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.11)\
 [KI#129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-129)\
 [KI#130 - (Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-130)\
 [KI#131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-131)\
@@ -433,7 +436,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#266 - (Fixed inherited map-script bug) Custom Continents six-continent template shifted an inner layer on the wrong axis](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-266)\
 [KI#267 - (Fixed inherited map-script bug) Sparse player IDs lost handcrafted starts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-267)\
 [KI#268 - (Fixed inherited third-party BTG bug) Lagoon Top v Bottom could retry forever with unequal teams](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-268)\
-[KI#269 - (Fixed AdvCiv-SAS bug) Lagoon land-band widths used stale pre-Arena world-size indices](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-269)\
+[KI#269 - (Fixed SAS bugs on an inherited weakness, guarded by CI) Inserting Arena before Duel shifted every world size that code still counted in BtS's order, unnoticed at the time: Lagoon's land bands and, months earlier, the DLL's own world-size enum took the next-larger size's settings, such as Large getting Huge's](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-269)\
 [KI#270 - (Fixed inherited third-party BTG bug) Lagoon shifted wrapped geography without shifting fixed-coordinate follow-up logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-270)\
 [KI#271 - (Fixed AdvCiv-SAS bug) Cross reused physical hubs and could duplicate starts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-271)\
 [KI#272 - (Fixed AdvCiv-SAS bug) Cross exposed an unimplemented Crossed positioning choice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-272)\
@@ -1326,6 +1329,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103)\
 [KI#1103.2 - (Fixed SAS) The scoreboard's left edge moved whenever an advisor opened or closed, even at 1920 x 1080 and font 3: it cut leader names to the advisors' space only while one was open, so on the map it kept its full width, 10 to 60 px wider in debug mode](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103.2)\
 [KI#1104 - (AdvCiv-SAS design rule) SAS keeps its own copy of every base-game Python file it uses, changed or not, as it took in CvTechSplashScreen.py, CIV4ProcessInfo.xml and CIV4WorldPickerInfos.xml when first needed: SASPilot's WorldBuilder work found the WorldBuilder screen running from BtS's copy, outside the repository](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)\
+[KI#1104.2 - (AdvCiv-SAS design rule, data files) SAS now carries BtS's GlobalDefines.xml, the only define file the game loads that the repository did not hold, so 405 of the 1,448 defines it loads, such as the EXE's CAMERA_* values, could not be found by a search of the mod](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)\
+[KI#1104.3 - (AdvCiv-SAS design rule, data files) SAS now carries 26 more base-game data XML files, such as GlobalTypes.xml, the basic infos, the player colors and the unit formations, so the types SAS's own XML names, such as each unit's formation type and each civilization's player color, can be found and checked in the repository](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3)\
 [KI#1105 - (Fixed inherited vanilla, Debug Mode only) The Map Details table showed a continent's 576 tiles under "Area" and its 5 starting plots under "Size": its header row had one extra column](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)\
 [KI#1105.2 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen CvDebugInfoScreen.py (Shift + F2) sat at a fixed 1024 x 768, and its table never showed the columns past its right edge, so even on a Huge map Team Relations lost the last 4 of its 16 civilizations and Map Details its bonuses after about the 8th](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2)\
 [KI#1105.3 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen's Unit AI rows read UNITAI_SETTLE where vanilla meant SETTLE: strName.strip("UNITAI_") dropped its result, and kept, strip would have turned UNITAI_ATTACK_CITY into CK_CITY](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.3)\
@@ -11706,6 +11711,29 @@ Note: these higher quality icons are as of now also used for the sevopedia leade
 
 To add them as dds, we used Game Font Editor (V0.6) for Civ 4 by Asaf (select icon -> export -> .PNG), reduced dds to 20x20 (with Paint.NET canvas resize of these .PNG) (else they don't not display ingame), and then converted to .dds with Paint.NET.
 
+<a id="ki-117.2"></a>
+
+## KI#117.2 - (Fixed incomplete SAS upscaling, guarded by CI) At an upscaled label font, messages added from Python, such as MoreCiv4lerts' "Cyrus will export Iron", stayed at the stock size under the DLL's enlarged "Global Warming strikes near ...", as SAS enlarged only the messages the DLL adds
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1GQP8Cje3ImFl2ONMI2eKkddyoaLqm-FL?usp=sharing).
+
+A gap left since SAS's message upscaling of 2026-04-14 (ffa01b3373, "upscale some of the event messages (when possible and if supported)"), which enlarged the DLL's messages and the Combat Log; the user noticed it and reproduced it in a turn-303 Huge game at `SAS_UI_FONT_LABEL` 3: in the top-center message ticker, the blue "Cyrus will export Iron" was drawn smaller than the white "Global Warming strikes near Nagara Jayasri, Teotihuacan" below it.
+
+- Why: SAS enlarges messages at one place, `CvDLLInterfaceIFaceBase::addMessage` in [CvDLLInterfaceIFaceBase.cpp](/CvGameCoreDLL/CvDLLInterfaceIFaceBase.cpp), which wraps the text in the label font before handing it to the EXE. A message Python adds through `CyInterface().addMessage(...)` or `addImmediateMessage(...)` goes to the EXE directly, so it never passed through that wrapper.
+  - BUG's alerts (Civ4lerts, MoreCiv4lerts, reminders, autolog), the random events written in Python and the debug and status lines of AI Auto Play, ChangePlayer and others were all affected: 43 calls in 14 files.
+    - 13 of them are `onPbemSend`'s error lines in [CvAppInterface.py](/Assets/Python/EntryPoints/CvAppInterface.py), which SAS took in from BtS on 2026-11-22 ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)); in BtS's copy, outside the repository, neither the fix nor the check could have reached them.
+  - Combat Log lines had the same gap and were already fixed by `CvUtil.addCombatMessageScaled`, which applies `SASTextScale.labelText` before `addCombatMessage`.
+- Fix: [SASTextScale.py](/Assets/Python/SASTextScale.py) gains `addMessage` and `addImmediateMessage`, which apply `labelText`, as the DLL does, and forward to `CyInterface()`; all 43 calls now go through them. Like the DLL, a text already holding a `<font=` tag is left as it is, and the size follows a live override of `SAS_UI_FONT_LABEL`.
+- [`python_message_font.py`](/.github/workflows/README.md#buildsourcepython_message_fontpy) fails on a new direct call, `addCombatMessage` included outside `CvUtil`'s helper.
+- Codex's review (GPT-6.2-Sol) found two slips in the first version, now fixed:
+  - The helpers raised when the live label size was invalid, such as `SAS_UI_FONT_LABEL = 5` set through [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt). A message often comes before the rest of a game event, such as the hurricane's building removal in `CvRandomEventInterface.py`, which the raise would skip, so they now send the text plain, as the DLL does.
+  - The check exempted whole files, so a direct call anywhere in `CvUtil.py` passed, and flagged unrelated methods such as `inbox.addMessage(record)`; it now looks only at calls on `CyInterface()` and allows them only inside the three forwarding functions.
+- Checked in game by replaying the turn that made the message: the game's turn-301 save, `ASOKA_T0301_HUGE_PANGAEA_NORMAL_9704081_9704081_20261121T103336Z_STOP.CivBeyondSwordSave`, which opens at turn 302, then Gunship in Nobamba and End Turn, once with the old code and once with the fix; the replay took the same path both times.
+  - With the old code, turn 303's Python alerts, "Cyrus will export Iron", "Isabella I is no longer the worst enemy of Boudica" and "Wang Kon is the new worst enemy of Hannibal", came up smaller than the DLL's "Ice Cap has melted in 1 Ocean tile" and "Global Warming strikes near Luxemburg!"; with the fix, the same lines, in the same order, matched them.
+  - The alerts arrive several seconds after the turn starts, after the cancelled-deal screens. A message stored in a save keeps the size it was added with, so loading the turn-302 save, as the first screenshot did, shows the old small line whatever the code; the Event Log's list draws all lines alike either way.
+
+Found by the user; fixed with the help of Claude Code Opus 5.5.
+
 <a id="ki-118"></a>
 
 ## KI#118 - (Worked around) Military Advisor inline `<img>` icons can render magenta for button paths with spaces/parentheses
@@ -12677,6 +12705,70 @@ The five reads repeated at each pass of a loop, inherited from Better BTS AI and
 
 Implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol).
 
+<a id="ki-128.10"></a>
+
+## KI#128.10 - (Improved SAS and inherited, guarded by CI) Python looked the same fixed text up again at each pass of a loop, 93 times in 20 files, such as the Victory screen's "Unknown" team name once per vote source: a fixed-key getText cost about 0.8 microseconds in game against 0.02 for a kept local, and each is now read once before its loop
+
+Found on 2026-11-27, while the units-waiting count was added to the main interface: the user asked for its text to be read once and kept rather than looked up at each redraw, then for every fixed text key in `CvMainInterface.py` to be cached, then whether the rest of the Python needed the same.
+
+- Why under KI#128: the family began with restarts after live define edits, but its follow-ups grew into one question, a value looked up again where it could be kept; KI#128.8, a define read at each pass of a loop, is this issue's mechanism with defines rather than texts.
+
+- Measured first, as KI#128.9 did for defines: a temporary probe at game start timed 20,000 calls, best of 5 rounds.
+
+  | Call | Cost |
+  | --- | --- |
+  | `localText.getText("TXT_KEY_X", ())`, a fixed key, SAS's or BtS's | about 0.8 microseconds |
+  | `localText.getText("TXT_KEY_MAIN_CITY_DEFENSE", (iChar, 25))`, two arguments | about 3.6 microseconds |
+  | `CyTranslator().getText("TXT_KEY_X", ())`, a new translator each call | about 1.3 microseconds |
+  | `u"  (%d %s)" % (57, self.szText)`, a number formatted into a kept word | about 0.3 microseconds |
+  | a kept local or attribute | about 0.02 microseconds |
+
+- So a fixed lookup costs about three times a define read through `gc` (279 ns) and about 40 times a kept value. Most of the 1,243 fixed lookups in runtime Python run once when a screen or page opens, about 0.08 ms for 100, too little to be worth the churn; what adds up is a lookup inside a loop, run once per row, player or item for the same text.
+- [`python_text_lookups_cached.py`](/.github/workflows/README.md#buildsourcepython_text_lookups_cachedpy), run repo-wide first, found 93 such lookups in 20 files, inherited and SAS alike, among them 16 in `CvVictoryScreen.py`, 10 in `CvInfoScreen.py`, 9 in the Sevopedia's `_sevopedia_main_groupings.py` and 7 in `CvTopCivs.py`; where each line came from was not traced, as none gave a wrong result.
+- [`hoist_loop_text_lookups.py`](/LLM_Helpers/README.md#hoist_loop_text_lookupspy) read each once before the outermost loop of its function, in a local named after its key, such as `szTextTopcivsUnknown`, with a custom comment citing this KI; the check now fails on a new one.
+- The check does not see a lookup with arguments, which builds a new text each time, one in a list comprehension or a `while`'s condition, or one in a helper that a loop calls, as it does not follow calls.
+- The same work moved the folders the game runs Python from into one list, [`lib/runtime_python.py`](/.github/workflows/README.md#libruntime_pythonpy), which 14 runtime Python checks now share: each held its own copy before, and one still listed `LLM_Helpers/saspilot` after SASPilot's game files moved to the root `SASPilot/` folder on its branch.
+  - The user asked for an explicit list rather than a scan of every `.py` file, which would trip on code the game never runs, such as base AdvCiv 1.12's main interface collapsed to one line per call in the docs examples.
+
+Implemented with the help of Claude Code Opus 5.5.
+
+Update (2026-11-27): the other fixed lookups, outside loops, are left as they are for now. The user would rather cache them all, but set it aside for other work, as it looks tedious; leaving them is not judged the better choice, and what follows is kept for when it is taken up again.
+
+- In proportion the gain is clear: a kept text costs about 0.02 microseconds against 0.8 for a fixed lookup, about 40 times less per call; only in absolute terms is it small.
+- All of them together, about 1,150, cost about 0.9 ms if each ran once: 394 in the Sevopedia and 305 in the advisors, which run when a page opens or a tab is clicked, about 0.3 ms for an area if each of its lookups ran once, an estimate from the count of call sites rather than a measured cost per opening, against roughly 700 edits; profiling the real calls stays the next step.
+- Codex's review (GPT-6.2-Sol) found the main interface already handled, as its redraws run only when their part changed and its help strings copy the engine's text, and named the hover paths as the likelier candidates: the unit plot list's unit info pane (`PLE.py`'s `showUnitInfoPane`, with fixed Level, Experience and healing texts) when the mouse enters a unit icon, and BUG's widget hovers through `BugUtil.getText`, which also substitutes symbols.
+- So the next step, when taken, is to count the real calls per second while hovering units and cycling, then cache what shows up, extending the caches that already refresh on a language change, as the main interface's and the Foreign Advisor's do, rather than adding one per module.
+- The check stays lexical: following helpers that a loop calls would meet method overrides and aliasing for a sub-microsecond cost, so Codex advised a report-only pass first, should a repeated pattern turn up.
+- The same day, [`python_runtime_placement.py`](/.github/workflows/README.md#buildsourcepython_runtime_placementpy) began failing on game Python outside the folders `lib/runtime_python.py` lists, which would escape every runtime Python check at once.
+
+<a id="ki-128.11"></a>
+
+## KI#128.11 - (AdvCiv-SAS design, guarded by CI) The 152 SAS settings only Python reads, such as SAS_MAIN_UI_UNITS_WAITING_ON, SAS_SEVO_TECHS_GROUP_BY_ERA or SAS_MAPGEN_STANDARD_MARSH_PCT, moved from GlobalDefines_advciv_sas.xml, whose about 770 defines made a setting slow to find, to one plain Python file, SASSessionTunables.py
+
+Screenshots/files for this issue: none, as the move changes nothing on screen.
+
+- Why (2026-11-27): finding a setting in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml), for a player or an agent, meant searching a long file mostly about AI and logging the DLL reads, while a setting Python alone reads gains nothing from the XML; the user wanted one central place for them.
+- How they were found: [`audit_define_timing.py --readers`](/LLM_Helpers/README.md#audit_define_timingpy) listed 163 SAS defines read by Python only ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)).
+- What moved: 152 of them, each with its name, value and comment, into [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py), where a search for a name finds it; their reads now name `SASSessionTunables.X`.
+  - 23 main-interface ones as a pilot, then 115 with [`move_defines_to_tunables.py`](/LLM_Helpers/README.md#move_defines_to_tunablespy), then 14 whose CI checks and tools first had to read the new file too, at the user's question why `SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON`, `SAS_MILIT_UI_BATTLE_XY_ON` and the AI Personality Panel's switches had stayed:
+    - `SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON`, `SAS_MILIT_UI_BATTLE_XY_ON`, `SAS_WORLD_CHANGES_SHOW_INTERMEDIATE_ON`, `SAS_WORLD_CHANGES_SHOW_CANCELLED_ON`;
+    - `SAS_SEVO_LEADER_AI_ON`, `SAS_SEVO_LEADER_AI_CACHE_DUMP_TO_LOG`, `SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED`, `SAS_SEVO_LEADER_AI_EMOJI_ON`, `SAS_SEVO_LEADER_AI_RAW_XML_NAMES_ON`;
+    - `SAS_FAST_SAVE_GAME_START_ON`, `SAS_FAST_SAVE_AUTOPLAY_STOP_ON`, `SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON`, `SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS`, `SAS_SGR_BUG_STRING_VALS_ON`.
+- What stays in the XML, the other 11:
+  - `SAS_UI_FONT_BODY`, `SAS_UI_FONT_TINY` and `SAS_UI_FONT_TITLE`, which [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) changes during play, and `SAS_LIVE_DEFINE_OVERRIDES_ON`, the overrides' own switch, which their bridge reads with the XML;
+  - `SAS_UI_DAWN_OF_MAN_ON`, `SAS_UI_TECH_SPLASH_ON`, `SAS_UI_ERA_MOVIE_ON`, `SAS_UI_WONDER_MOVIE_ON`, `SAS_UI_RELIGION_MOVIE_ON`, `SAS_UI_PROJECT_MOVIE_ON` and `SAS_UI_TOP_CIVS_ON`, which [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) switches in the XML for development; moving them would need the toggle to edit the Python file too.
+- What keeps it so:
+  - [`python_pure_modules.py`](/.github/workflows/README.md#buildsourcepython_pure_modulespy) fails when the file gains an import, a call or a computed value, so any screen or map script can import it at any time;
+  - the shipped-value checks, such as `aip.py`, `advisor_defaults.py` and `hands_free_defaults.py`, read the settings they name from the file and the rest from the XML, through `read_global_define_ints(..., session_names=...)`, which fails on a name found in both files whatever its type, so a Python value cannot stand in for an XML define, as Codex's review (GPT-6.2-Sol) found a first version allowed;
+  - `retired_global_define_names.py` counts its names as declared.
+- Like the XML, an edit takes effect at the next Civ4 start, as the file's first comment says; the name was chosen with Codex (GPT-6.2-Sol), as its header records.
+- Tested in game: a save loaded, the Military, Foreign, Info and Victory advisors and the Sevopedia opened, and new maps generated with Continents, Peirce, Water, Earth2 and Planet Generator, each with an empty `PythonErr.log`.
+
+The user's idea; implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol), whose review found the helper would also rewrite a lookup inside a string or on another object's `gc`.
+
+- Update (2026-11-27): [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) now switches a setting in whichever file holds it, the XML or `SASSessionTunables.py`, so the seven informing screens' switches, `SAS_UI_DAWN_OF_MAN_ON`, `SAS_UI_TECH_SPLASH_ON`, `SAS_UI_ERA_MOVIE_ON`, `SAS_UI_WONDER_MOVIE_ON`, `SAS_UI_RELIGION_MOVIE_ON`, `SAS_UI_PROJECT_MOVIE_ON` and `SAS_UI_TOP_CIVS_ON`, moved there too, with [`move_defines_to_tunables.py`](/LLM_Helpers/README.md#move_defines_to_tunablespy); four settings only Python reads stay in the XML, the three font sizes and `SAS_LIVE_DEFINE_OVERRIDES_ON`, which the live overrides need there.
+  - `CvScreensInterface.py` looks five of them up by a name it is given, which the helper reports rather than rewrites, so it reads them with `getattr(SASSessionTunables, szDefine)`.
+
 <a id="ki-129"></a>
 
 ## KI#129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs
@@ -12971,6 +13063,8 @@ Found with [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2) (2026
 <img src="/_0_Legacy/Images/advisors/0.440_espionage_screen%20(2)_huge_48civs.JPG" alt="0.440_espionage_screen (2)_huge_48civs.JPG" width="250">
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(4)_sas48.JPG" alt="1.513_foreign_advisor (4)_sas48.JPG" width="250">
 
+Update (2026-11-27): `SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH` moved with the other settings only Python reads to [SASSessionTunables.py](/Assets/Python/SASSessionTunables.py), where it is changed now.
+
 <a id="ki-134.6"></a>
 
 ## KI#134.6 - (Improved inherited AdvCiv, SAS48) With 48 civilizations the Foreign Advisor's Relations web overlaps its leaders' portraits and attitude labels, still as of now though less than in base AdvCiv
@@ -13163,6 +13257,8 @@ File changed:
 - [PrivateMaps/Global_Highlands.py](/PrivateMaps/Global_Highlands.py)
 
 Update: now added AdvCiv-SAS new worldsizes (as of now ARENA, SAS24, SAS32, SAS40,, SAS48) to DLL too.
+
+Update (2026-11-27): that DLL change realigned `WorldSizeTypes` after Arena's insertion had shifted `WORLDSIZE_HUGE` onto Large; see [KI#269](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-269)'s update, which also records the 25 other hand-written enums CI now checks.
 
 <a id="ki-139"></a>
 
@@ -22627,7 +22723,7 @@ Found and investigated through the systematic AdvCiv-SAS archaeology with the he
 
 <a id="ki-269"></a>
 
-## KI#269 - (Fixed AdvCiv-SAS bug) Lagoon land-band widths used stale pre-Arena world-size indices
+## KI#269 - (Fixed SAS bugs on an inherited weakness, guarded by CI) Inserting Arena before Duel shifted every world size that code still counted in BtS's order, unnoticed at the time: Lagoon's land bands and, months earlier, the DLL's own world-size enum took the next-larger size's settings, such as Large getting Huge's
 
 BTG Lagoon's outer solid/partial land-band and bridge widths were derived by subtracting the raw world-size enum from a BTS-era bias.
 
@@ -22648,6 +22744,75 @@ The bridge option remains a separate one-tile addition, and no grid dimensions, 
 A Huge Lagoon game generated and completed an 11-turn autoplay with an empty refreshed `PythonErr.log`.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+Update (2026-11-27): while carrying base-game data XML into SAS ([KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3)), this issue arose again, not as an actual bug this time but as a weakness that showed up during the systematic [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md). It is now guarded by CI; here is why, below.
+
+- Reviewing the plan for that carry, Codex (GPT-6.2-Sol) suggested checking the order of the animation paths' rows against the DLL's `ANIMATIONPATH_*` enum; the carry added that check, [`dll_enum_xml_order.py`](/.github/workflows/README.md#buildxmldll_enum_xml_orderpy), for the 8 enums whose XML it brought in.
+  - Shortly after, a scan of every `ENUM_START` block in `CvEnums.h` against the repository's XML found 17 more such pairs, whose XML SAS had carried earlier, such as `MissionTypes`, `UnitAITypes`, `GameOptionTypes` and `DenialTypes`; all 25 match today.
+- The weakness: some lists exist twice, as the rows of an XML file and as a C++ enum typed out by hand in `CvEnums.h`, and the game finds an XML row by the enum's value, so both must list the same types in the same order. The hand-written enums come from vanilla's SDK, so the weakness is as old as Civ4.
+  - The user asked how these enums work in practice and how they relate to the game, and Claude Code Opus 5.5 explained it with the game options:
+
+`CIV4GameOptionInfos.xml` lists the options the setup screen shows, row by row:
+
+```xml
+<Type>GAMEOPTION_ADVANCED_START</Type>              <!-- row 0 -->
+<Type>GAMEOPTION_SPAH</Type>                        <!-- row 1 -->
+<Type>GAMEOPTION_NO_CITY_FLIPPING</Type>            <!-- row 2 -->
+<Type>GAMEOPTION_NO_FLIPPING_AFTER_CONQUEST</Type>  <!-- row 3 -->
+<Type>GAMEOPTION_NO_BARBARIANS</Type>               <!-- row 4 -->
+<Type>GAMEOPTION_RAGING_BARBARIANS</Type>           <!-- row 5 -->
+```
+
+`CvEnums.h` types the same list out by hand, each name standing for its position:
+
+```cpp
+GAMEOPTION_ADVANCED_START = 0,
+GAMEOPTION_SPAH,                       // 1
+GAMEOPTION_NO_CITY_FLIPPING,           // 2
+GAMEOPTION_NO_FLIPPING_AFTER_CONQUEST, // 3
+GAMEOPTION_NO_BARBARIANS,              // 4
+GAMEOPTION_RAGING_BARBARIANS,          // 5
+```
+
+The AI then asks, in `CvCityAI.cpp`:
+
+```cpp
+bool const bNoBarbarians = kGame.isOption(GAMEOPTION_NO_BARBARIANS);
+```
+
+To the compiled game, that means "is option 4 ticked?". The box the player ticked in the setup screen is the XML's row 4, so the two agree, but only because both lists are in the same order.
+
+Now say a modder adds a new option to the XML at row 2 and forgets `CvEnums.h`. No Barbarians moves down to row 5, while the C++ still asks about option 4, which is now No Flipping After Conquest.
+
+So the code reads the wrong option without any error: a player ticking No Barbarians still gets barbarians. With the check, CI now fails on such a slip and names the row:
+
+```text
+row 2 is GAMEOPTION_MY_NEW_OPTION, but GameOptionTypes in CvEnums.h has GAMEOPTION_NO_CITY_FLIPPING there
+```
+
+- The user then asked whether it deserved a KI of its own, and recalled the SAS48 world sizes, asking whether a KI recorded them not being in the DLL.
+- Looking into it confirmed that this was more than a weakness on paper: SAS had really hit it, with the DLL's own world-size enum, and nobody noticed at the time:
+  - SAS 5311 (`77dc1e64a7`, 2026-01-08) added Arena as row 0 of `CIV4WorldInfo.xml`, and SAS24 to SAS48 after Huge, while `CvEnums.h` kept BtS's Duel to Huge `WorldSizeTypes`.
+  - So `WORLDSIZE_HUGE` stayed 5, which now selected Large, and every other hard-coded size likewise pointed one row too low; the sizes appended after Huge shifted nothing.
+  - As the user recalled, it showed as Large maps getting Huge's settings, and was worked around in steps before the DLL itself was fixed (from the `commit_diffs` corpus):
+    - the release 5400, published on 2026-01-31, shipped with the shift, about three weeks after it came in;
+    - SAS 5406 to 5436 (from 2026-02-03) adapted the map scripts to the new sizes, `Highlands` first, converting the enum to plain integers for their own size tables;
+    - SAS 5855 (`63884cdbf7`, 2026-05-22) named the runtime indices `SAS_WORLDSIZE_ARENA` = 0 to Huge = 6 in Python, as "the old hardcoded WorldSizeTypes enum still has WORLDSIZE_HUGE=5", and fixed the map scripts found taking a neighbouring size's table, such as `Water.py` and `PerfectMongoose.py`; SAS 5864 moved them to `SASMagicNumbers.py` as `SAS_MAGIC_WORLDSIZE_*`;
+    - the release 5860, published on 2026-05-24, and its Update 4 of 2026-06-04 still had the DLL's enum shifted, with Python working around it.
+  - SAS 5971 (`c9e951c6d6`, 2026-06-24) realigned the C++ and Python enums, removed the `SAS_MAGIC_WORLDSIZE_*` numbers and made [`worldsizes.py`](/.github/workflows/README.md#buildruntimeworldsizespy) check their alignment, as `CvEnums.h`'s comment above `WorldSizeTypes` records; the release 6020, tagged on 2026-07-07 and published on 2026-07-08, was the first with it.
+  - [KI#138](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-138)'s closing update, "now added AdvCiv-SAS new worldsizes ... to DLL too", was its only trace in the Known Issues until now.
+- So the world sizes and the 25 other pairs are now guarded by CI: `worldsizes.py` and `dll_enum_xml_order.py` fail when a hand-written enum and its XML rows fall out of step.
+- Where it lives: Codex (GPT-6.2-Sol) first suggested a new KI#138.2, and Claude Code Opus 5.5 agreed.
+  - The user objected that KI#138 is about an inherited map script's own sizes, not world-size drift on an otherwise fine map, and recalled the issues where inherited maps came out too big or too small in SAS once Arena was inserted.
+  - That brought us back to this entry: Lagoon's land bands, above, were keyed on world-size numbers counted in BtS's order, so Arena's insertion gave each size the next-larger one's widths, the same drift as the DLL's enum, one layer up.
+  - It was first written as KI#269.2; the user then noted that nothing new broke today, the DLL's fix being SAS 5971's and only the guard new, so it became this update of KI#269.
+  - Its neighbours from the same insertion: [KI#282.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-282.3), five map scripts raising `KeyError` on Arena's sizes, and [KI#278.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-278.2), Arena Rainforest too small.
+- Two harmless oddities the check had to follow:
+  - vanilla's own `CIV4GraphicOptionInfos.xml`, copied by BtS and SAS, wraps its third row, `GRAPHICOPTION_CITY_DETAIL`, in `<PlayerOptionInfo>`, which the game still loads in its place, as the loader steps through sibling rows whatever their tag; the check reads rows the same way;
+  - AdvCiv pins some `GameOptionTypes` values, such as `GAMEOPTION_LEAD_ANY_CIV = 7`, where they already sit, which shifts nothing, so a value equal to its position is allowed.
+- Related, with another mechanism: [KI#1090](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090) and [KI#1090.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090.2), Python bindings that gave an enum name its neighbour's value, which `python_binding_targets.py` guards.
+
+Found by Claude Code Opus 5.5 with Codex (GPT-6.2-Sol), whose review suggested the check and found the commit that introduced the world-size shift; the precedent and this entry's place came from the user's questions.
 
 <a id="ki-270"></a>
 
@@ -39850,6 +40015,86 @@ Update (2026-11-26): the five entry points the EXE registers by name are carried
 - Not tested on a Pitboss server; a normal game logs the same `EntryPoint module:` lines as before, now from SAS's copies.
 
 Implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol), who proposed the curated callback list and the `wx` scope on 2026-11-23.
+
+Update (2026-11-27): it paid off again with [KI#117.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-117.2), Python's messages left at the stock font, which confirms that taking the files in was the right call.
+
+- 13 of its 43 calls are `onPbemSend`'s error lines in `CvAppInterface.py`, such as "Error establishing connection.".
+  - In BtS's copy, outside the repository, neither the fix nor its check would have reached them.
+
+<a id="ki-1104.2"></a>
+
+## KI#1104.2 - (AdvCiv-SAS design rule, data files) SAS now carries BtS's GlobalDefines.xml, the only define file the game loads that the repository did not hold, so 405 of the 1,448 defines it loads, such as the EXE's CAMERA_* values, could not be found by a search of the mod
+
+Screenshots/files for this issue: none, as the copy changes nothing on screen.
+
+[KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)'s rule, applied to the first data file.
+
+- How it was found (2026-11-27): while decluttering `GlobalDefines_advciv_sas.xml`, the user asked who reads each define, SAS's and the inherited ones alike, and whether the inherited define files should come in too.
+  - [`audit_define_timing.py --readers`](/LLM_Helpers/README.md#audit_define_timingpy) answered both. It lists every define the DLL loads, in its loading order, and searches the DLL source, the runtime Python and the two BtS EXEs for each name. It writes `LLM_Helpers/outputs/define_readers.md`, which Git ignores.
+- What it found, as reported that day, before any define moved:
+
+**Who reads the 1,447 defines** (from all the files the DLL loads, in its order):
+
+| Origin | DLL | Python only | both | EXE only | none found |
+| --- | --- | --- | --- | --- | --- |
+| SAS | 594 | **163** | 9 | 0 | 3 |
+| BtS `GlobalDefines.xml` | 295 | 5 | 44 | 35 | 26 |
+| AdvCiv's files (advc, Alt, devel, AI variables, etc.) | 176 | 3 | 3 | 0 | 29 |
+| `PythonCallbackDefines.xml` | 0 | 0 | 0 | 0 | 62 |
+
+- BtS's "Python only" 5 include the 2 that Python and the EXE both read, such as `FIELD_OF_VIEW`; the later report splits them into their own column.
+- The total is 1,448, not 1,447: the audit skipped AdvCiv's `THRESH-BAD-FEAT-PER-CITY`, declared in `GlobalDefines_advc.xml` and read by the DLL, as its pattern took no hyphen in a name, which Codex's review (GPT-6.2-Sol) found and is now fixed.
+- Of the define files the game loads, only BtS's `GlobalDefines.xml` had no copy in the repository: its 405 defines, such as the `CAMERA_*` and `AIR_PATROL_*` values only the EXE reads, could be checked only in the Civ4 install.
+- So SAS now carries a copy of it, with the SAS header and a copy note naming its source, as [CvAppInterface.py](/Assets/Python/EntryPoints/CvAppInterface.py) has.
+  - A mod's file at the same path replaces the base game's: the DLL asks for one primary path per file, so the copy loads in BtS's place. The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md) records the decision and counts it among the files SAS keeps.
+  - Its 34 names that a file loaded later declares again, 26 in AdvCiv's `GlobalDefines_advc.xml`, such as `MIN_VERSION`, 7 in `GlobalDefinesAlt.xml` and 1 in `AI_Variables_GlobalDefines.xml`, were removed from the copy, at the user's suggestion; it keeps the other 371.
+    - `CvXMLLoadUtility::SetGlobalDefines` reads `GlobalDefines.xml` first and `FVariableSystem::SetValue` replaces an earlier value, so BtS's declarations of them were never the ones loaded, and no value changes.
+    - Kept, each would have been a duplicate the uniqueness check had to allow; the copy's header lists BtS's value of each and the file whose declaration loads, such as `START_YEAR`.
+    - The first pass removed 40, as it matched names inside comments too: six, such as `GlobalDefinesAlt.xml`'s commented-out `BASE_REVOLT_OCCUPATION_TURNS` and `POWER_HEALTH_CHANGE` and `TechDiffusion_GlobalDefines.xml`'s `TECH_COST_KNOWN_PREREQ_MODIFIER`, are declared nowhere else, and removing them would have dropped the base revolt duration from 2 turns to 0 and the power health penalties, as Codex's review (GPT-6.2-Sol) found; a load test could not, as a missing define still loads.
+    - So the 34 were chosen by an XML parse, which skips comments, and the values the game ends up with were compared, BtS's file against the copy, each followed by the files the DLL loads after it: all 1,448 defines matched. [`global_defines_redeclared.py`](/.github/workflows/README.md#buildxmlglobal_defines_redeclaredpy) now fails when a listed name is not declared in the file named.
+  - Four CI checks failed on the copy, as they had assumed every define file in the repository was SAS's or AdvCiv's; the [CI README](/.github/workflows/README.md) records each:
+    - [`source_change_provenance.py`](/.github/workflows/README.md#buildsourcesource_change_provenancepy) took its Firaxis comments for new ones, as it accepted a copy note in Python files only;
+    - [`global_define_name_style.py`](/.github/workflows/README.md#buildxmlglobal_define_name_stylepy) held BtS's names, such as the 46-byte `INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT`, to SAS's 42-byte target;
+    - [`global_defines_nonempty.py`](/.github/workflows/README.md#buildxmlglobal_defines_nonemptypy) read AdvCiv's deliberate redeclarations, such as `MIN_VERSION` in `GlobalDefines_advc.xml`, as duplicates, and stays strict now that those names left the copy;
+    - [`dll_define_changes.py`](/.github/workflows/README.md#buildrepositorydll_define_changespy) asked for a rebuilt DLL for the copy's "added" names, which the game already loaded from BtS's own copy; it now waives the whole file in the commit that adds or removes it, and checks later edits to it as usual.
+  - Tested in game: a turn-301 Huge save loaded as before, with all 207 XML files, `xml\GlobalDefines.xml` among them, logged `outcome=SUCCEEDED` in `xml.log` and an empty `PythonErr.log`.
+- The 26 BtS defines no reader was found for, such as `INITIAL_CITY_MAINTENANCE` and `MAX_CIVIC_OPTIONS`, stay: some may be read under names built at runtime, as the 29 `UWAI_WEIGHT_*` and 62 `USE_*_CALLBACK` are likely to be.
+- The other data files SAS's rules, AI or UI rely on, such as `GlobalTypes.xml` and the basic infos, are still read from the base game; the audit lists them.
+
+Prompted by the user's question; implemented with the help of Claude Code Opus 5.5.
+
+Update (2026-11-27): 26 of those other data files came in later the same day, among them `GlobalTypes.xml` and the basic infos; see [KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3).
+
+<a id="ki-1104.3"></a>
+
+## KI#1104.3 - (AdvCiv-SAS design rule, data files) SAS now carries 26 more base-game data XML files, such as GlobalTypes.xml, the basic infos, the player colors and the unit formations, so the types SAS's own XML names, such as each unit's formation type and each civilization's player color, can be found and checked in the repository
+
+Screenshots/files for this issue: none, as the copies change nothing on screen.
+
+[KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)'s rule, continued from [KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)'s `GlobalDefines.xml`.
+
+- What was left (2026-11-27): 41 base-game data XML files SAS had no copy of, three of them read by no active SAS DLL loader. Their folders did not tell data from presentation: `Misc/` holds both `CIV4RouteInfos.xml`, which SAS already carries for route movement and yields, and `CIV4WaterPlaneInfos.xml`, which only draws water.
+- So they were sorted by what reads them, from the DLL's loader `CvXMLLoadUtilitySet.cpp`, in the [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#base-game-data-xml-by-reader), each with its full path, what it holds and why it is carried or not. The user chose the 26 from that table:
+  - the 15 rule files the DLL reads, such as `GlobalTypes.xml`, `CIV4AttitudeInfos.xml`, `CIV4CivicOptionInfos.xml` and `CIV4ClimateInfo.xml`: they shape the rules, the AI and map generation as SAS's own rule XML does;
+  - the files whose types SAS's XML names: `CIV4PlayerColorInfos.xml`, `CIV4AdvisorInfos.xml`, `CIV4ArtDefines_Terrain.xml`, `Civ4EntityEventInfos.xml` and `CIV4FormationInfos.xml`, with `Civ4AnimationInfos.xml` and `Civ4AnimationPathInfos.xml` behind them, data that could also serve, for example, a Sevopedia page on unit actions;
+  - four small UI and drawing files, `CIV4MainMenus.xml`, `CIV4CursorInfo.xml`, `CIV4SpaceShipInfos.xml` and `CIV4CameraOverlayInfos.xml`, so a SAS screen or setting that touches them has its data at hand.
+- What stays in the base game, each with its reason in the audit:
+  - the slideshow, tutorial, throne room, map drawing and unit drawing files, presentation that SAS does not change;
+  - `CIV4RiverInfos.xml`, `CIV4QuestInfos.xml` and `CIV4CameraInfos.xml`, which no active SAS DLL loader reads, as AdvCiv commented out their loading (`advc.003j: unused`), so a copy would invite edits that do nothing;
+  - the throne room's three files describe a feature Firaxis cut before release; BtS still ships its unused Egyptian room's art, which nothing in any layer opens.
+- How: each is the newest layer's copy with only the SAS header and a copy note naming its source, as `GlobalDefines.xml` has, written by [`inherited_files.py --take-in-xml`](/LLM_Helpers/README.md#inherited_filespy), which `--take-in` had done for Python only; each copy, minus its header, was compared with its source and matched, and each parses.
+  - One copy has one more change: BtS's `CIV4SpaceShipInfos.xml` holds its declaration, notice, comment and root element on one line, which now gets one item per line, as Firaxis's other files lay it out, so the SAS header can follow the notice.
+  - A mod's file at the same path replaces the base game's, as the DLL asks for one primary path per file, so an unchanged copy loads as before.
+- Codex's review (GPT-6.2-Sol) found no blocker, confirmed the 41 paths as each file's newest layer, and corrected the audit's first table, among others: formations place the several figures of one unit, not separate units sharing a plot, and no Sevopedia page reads the main menus, which the Options screen and SAS's main menu music hooks do.
+- Two CI checks now cover what only the copies make checkable:
+  - [`dll_enum_xml_order.py`](/.github/workflows/README.md#buildxmldll_enum_xml_orderpy): the DLL's hand-written enums in `CvEnums.h`, such as `ANIMATIONPATH_*` and `ATTITUDE_*`, must list the carried XML's types in the same order, as the DLL indexes the rows by them; all 8 match, BtS's `FUNC_STEPKEY` being the one enum value with no row, allowed by name; an explicit value inside such an enum fails, as it would shift the rows while the names still compared in order (Codex's review).
+  - [`xml_type_references.py`](/.github/workflows/README.md#buildxmlxml_type_referencespy): references to the carried files' types, such as a unit's `FORMATION_TYPE_*` or a civilization's `PLAYERCOLOR_*`, must name a defined type; all 1,321 do, the missions' `<EntityEventType>` among them, which Codex's review (GPT-6.2-Sol) found the first version missed.
+- Tested in game: a new Standard Pangaea game started, with all 207 XML files, the 26 copies among them, logged `outcome=SUCCEEDED` in `xml.log`, an empty `PythonErr.log`, and the map, units and colors drawn as before.
+
+Prompted by the user's question whether the inherited data XML should come in too; implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol).
+
+- Update (2026-11-27): a scan of every `ENUM_START` block in `CvEnums.h` against the repository's XML types found 17 more hand-written enums whose XML SAS had carried earlier, such as `MissionTypes`, `UnitAITypes`, `GameOptionTypes` and `DenialTypes`; [`dll_enum_xml_order.py`](/.github/workflows/README.md#buildxmldll_enum_xml_orderpy) now checks all 25, and all match; it accepts only a leading `NONE = -1` and explicit values equal to their row's position, which shift nothing; [KI#269](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-269) records the check, with the world-size precedent.
+  - Reading the rows as the loader does showed vanilla's own `CIV4GraphicOptionInfos.xml` wrapping `GRAPHICOPTION_CITY_DETAIL` in `<PlayerOptionInfo>`, which the game still loads in its place.
 
 <a id="ki-1105"></a>
 

@@ -8,19 +8,16 @@ from CvPythonExtensions import *
 # <!-- custom: Route shared visual resources through the centralized SASVisualUtils namespace after retiring overlapping helper/cache imports; keep one canonical visual-resource boundary. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 import SASTextScale
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 gc = CyGlobalContext()
 
-# <!-- custom: Read SAS_UI_DAWN_OF_MAN_ON once, lazily, after GlobalDefines are loaded. (Claude Code Opus 5.5) -->
-_SAS_UI_DAWN_OF_MAN_ON = None
-
+# <!-- custom: Was read once, lazily, after GlobalDefines loaded; SAS_UI_DAWN_OF_MAN_ON now lives in SASSessionTunables, a plain module attribute, so it is read directly. (Claude Code Opus 5.5) -->
 def _isDawnOfManShown():
-	global _SAS_UI_DAWN_OF_MAN_ON
-	if _SAS_UI_DAWN_OF_MAN_ON is None:
-		_SAS_UI_DAWN_OF_MAN_ON = (gc.getDefineINT("SAS_UI_DAWN_OF_MAN_ON") > 0)
-	return _SAS_UI_DAWN_OF_MAN_ON
+	return SASSessionTunables.SAS_UI_DAWN_OF_MAN_ON > 0
 
 class CvDawnOfMan:
 	"Dawn of man screen"

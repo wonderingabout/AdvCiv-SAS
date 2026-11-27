@@ -15,6 +15,8 @@ import SASTextScale
 
 from _sevopedia_helpers import *
 from SevoPediaMediaPlayer import SevoPediaMediaPlayer
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -39,7 +41,7 @@ class SevoPediaMusic:
 		self.SAS_musicGroupLastIndex = None
 
 		# Offset for the extra width of Music items list vs base width
-		I_SAS_SEVO_MUSIC_ITEMS_WIDTH = SASCurrentDefines.getInt("SAS_SEVO_MUSIC_ITEMS_WIDTH")
+		I_SAS_SEVO_MUSIC_ITEMS_WIDTH = SASSessionTunables.SAS_SEVO_MUSIC_ITEMS_WIDTH
 		if I_SAS_SEVO_MUSIC_ITEMS_WIDTH <= 0:
 			I_SAS_SEVO_MUSIC_ITEMS_WIDTH = self.top.W_ITEMS
 		iExtraWidth = I_SAS_SEVO_MUSIC_ITEMS_WIDTH - self.top.W_ITEMS

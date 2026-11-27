@@ -244,6 +244,10 @@ Use these specialized records for inherited regressions, suspicious behavior cha
       - Why it was unclear: the old title was technically true, but "Fixed inherited AdvCiv" and its closing clause read as if AdvCiv had broken the Sevopedia, while BUG's never followed the resolution at all; AdvCiv improved it and only stopped short of changes during play.
         - It also skipped the chain of causality, a common slip for agents: naming the mods where an issue occurs rather than what each one did to it. Without that, a reader cannot tell a step back from an unfinished step forward.
         - Before labelling a defect, ask what the layer before it did: a step back is a "regression", an unfinished step forward "incomplete".
+    - Example 6: DLL enums and their XML rows (KI#269, 2026-11-27):
+      - Misleading (Claude Code Opus 5.5's first title): "Expand the DLL enum and XML row-order check from 8 to 25 hand-written enums, such as GameOptionTypes and MissionTypes, so a row added or moved on one side only fails CI instead of quietly shifting every later row, as SAS's Arena once shifted WORLDSIZE_HUGE onto Large".
+      - Clearer (after the user's remark): "Document an inherited weakness, DLL enums typed out by hand that must list their XML rows in the same order, and the SAS bug it caused, Large maps getting Huge's settings once Arena was inserted before Duel, and guard 25 such enums with CI from now on".
+      - Why it was unclear: the commit changed only a CI check and docs, yet its title, led by the check's mechanism and ending on "shifted WORLDSIZE_HUGE onto Large", read as if it had changed the DLL or reordered the XML rows, neither of which it did; the user noted it "sounds like you changed the DLL".
 - [`historical_source_archaeology.txt`](/_1_AdvCiv-SAS/Docs/Source_Analysis/historical_source_archaeology.txt) records the completed commit-oriented lineage sweep; use the workflow above for new questions rather than treating that one record as the definition of archaeology.
 - For AdvCiv-SAS release-history/provenance questions, use [`Docs/changelogs_web/`](/_1_AdvCiv-SAS/Docs/changelogs_web/) for manually archived published CivFanatics/ModDB release text and [`Docs/dev_logs/`](/_1_AdvCiv-SAS/Docs/dev_logs/) for the detailed tracked commit history.
   - The published changelog copies are historical source material, not a replacement for current source/Git when exact implementation state matters.
@@ -831,7 +835,7 @@ Clear, accurate explanations help users and developers understand the code and i
 - When doing performance optimizations, a local variable is enough, and best, when only one call needs the value; keep a longer-lived cache for values reused across calls.
   - Example: `CvMainInterface.updatePercentButtons` holds both side by side.
     - The local `iCommercePercentChangeIncrements = gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")` is read once per redraw and reused for every commerce type's +/- buttons, so a change to the define reaches the next redraw (KI#128.2).
-    - The instance cache `self.iSAS_COMMERCE_SLIDERS_FAST_INCR_PCT = gc.getDefineINT("SAS_COMMERCE_SLIDERS_FAST_INCR_PCT")` keeps its value for the whole session.
+    - The instance cache `self.iSAS_COMMERCE_SLIDERS_FAST_INCR_PCT = SASSessionTunables.SAS_COMMERCE_SLIDERS_FAST_INCR_PCT` keeps a setting fixed for the whole session, which moved from the XML to [SASSessionTunables.py](/Assets/Python/SASSessionTunables.py) as only Python reads it.
 - Some reads are better left uncached: a value read once, where a cache would cost more than it saves, or, more rarely, one that may change between calls, where a cache keeps a stale value and so can cause bugs.
   - Example (KI#243): `CvMapGenerator::addRivers` reads `const int iOriginalRiverSourceRange = kGlobals.getDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE");` on each map generation, lets a map script such as Water.py override it, then puts it back with `kGlobals.setDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE", iOriginalRiverSourceRange);`.
     - An earlier SAS optimization had made these reads `static const`, so the first map generated fixed the river values for the rest of the session.
@@ -840,6 +844,7 @@ Clear, accurate explanations help users and developers understand the code and i
     - In C++, for a SAS define the DLL reads by name outside a static, that note is a `ci_define_uncached:` comment, which CI checks (see the C++ caching rules below).
     - In Python, a read by name goes through `SASCurrentDefines` instead, even once per map or popup, about 80 ns a read against 279 ns through `gc`; only a define other code sets during play, which it would miss, keeps `gc` with that comment. [`python_define_reads_cached.py`](/.github/workflows/README.md#buildsourcepython_define_reads_cachedpy) checks both (KI#128.9).
       - A kept `self.x` is faster still, 18 ns, so it stays the choice for a hot path, such as a loop over every plot.
+      - It is one or the other: a kept attribute is filled with `gc`, as `SASCurrentDefines` in front of it would be a second cache that also seems to follow overrides, which it does not; `python_define_reads_cached.py` fails on that mix (2026-11-27).
 
 #### Naming, diagnostics and text encoding
 
@@ -912,6 +917,9 @@ Clear, accurate explanations help users and developers understand the code and i
 #### Runtime compatibility
 
 - Assume Python 2.4 constraints: avoid closures and ternary operators, define variables before use, and prefer tabs for indentation.
+- Python has no block scope: a name set in a loop, an `if` branch, a Python 2.4 list comprehension or an `except X, e` stays set until the function returns, so reusing a name for a similar but separate step can silently read the earlier step's value instead of failing.
+  - So in a function with several similar steps, give each its own names (e.g. `leader_type_1`, `leader_type_2`), so that a slip fails with `NameError`. This happened in the old `generate_leaders_data.py`, where a loop read the previous loop's last value (see KI#165.2).
+  - At module level, `import *` brings another module's names in the same silent way; see [Modules, shared constants and helper ownership](#modules-shared-constants-and-helper-ownership).
 
 #### Visual resources and UI fonts
 
@@ -981,7 +989,7 @@ Clear, accurate explanations help users and developers understand the code and i
       - So outside a running test, keep each line equal to its XML value, and always at commit, where CI checks it: the XML stays the one home of each setting and its shipped default, such as logging at 0, and a changed line is a local experiment that stays unstaged.
   - Before caching a define with the lazy pattern above, consider whether caching is safe for the value and its uses; for example, it may not yet be available or may be changed/refreshed during the game. Adjust the approach when needed rather than applying the pattern mechanically.
     - Example: C++ KI#243 retained the first map's river defines, altering later generations; `CvMapGenerator::addRivers()` now reads/restores overrides per generation.
-- It seems definebool does not exist in python, so use boolean comparison on int rather; e.g., `IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (gc.getDefineINT("SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON") > 0)`. Does not apply to C++ though that has defineBOOL.
+- It seems definebool does not exist in python, so use boolean comparison on int rather; e.g., `IS_SAS_UI_TOP_CIVS_ON = (gc.getDefineINT("SAS_UI_TOP_CIVS_ON") > 0)`. Does not apply to C++ though that has defineBOOL.
 - Avoid silent fallbacks or placeholder defaults when data is missing; prefer fatal errors with clear messages so issues surface early, and validate list structures (e.g., assert expected prefixes/types in debug checks).
 - Prefer strict XML lookup helpers from `SASUtils` over raw lookups for static/literal tags: use `getInfoTypeOrFail("TAG")` instead of raw `gc.getInfoTypeForString("TAG")`, and use `findInfoTypeNumOrFail(gc.getXInfo, gc.getNumXInfos, "TAG")` instead of raw `CvUtil.findInfoTypeNum(...)`.
   - This keeps missing or renamed XML tags loud instead of silently returning `-1`; it helped catch incorrect direction-string usage in Planet Generator map (e.g., `getInfoTypeOrFail("DIRECTION_NORTH")` instead of `DirectionTypes.DIRECTION_NORTH*`) and incorrect plot/terrain-style lookups (e.g., `getInfoTypeOrFail("PLOT_PEAK")` instead of `PlotTypes.PLOT_PEAK` in Peirce map).
@@ -1001,6 +1009,8 @@ Clear, accurate explanations help users and developers understand the code and i
   - This avoids circular dependencies while keeping high-use helpers practical.
 - Keep magic numbers/constants in [SASMagicNumbers.py](/Assets/Python/SASMagicNumbers.py) when they benefit from a named home, especially when they are imported across advisors, Sevopedia, and utilities.
   - This module should stay import-free: no `CvPythonExtensions`, no `gc`, no screen helpers, and no `SASUtils`, so it remains a safe leaf module and does not create circular-dependency or load-order risk.
+    - Its comment carries `ci_pure_module:`, which [`python_pure_modules.py`](/.github/workflows/README.md#buildsourcepython_pure_modulespy) checks, as for [SASSessionTunables.py](/Assets/Python/SASSessionTunables.py), its sibling for player settings: a setting only Python reads lives there rather than in `GlobalDefines_advciv_sas.xml`, which keeps what the DLL or the EXE reads and the defines `SASLiveDefineOverrides.txt` may change during play (2026-11-27).
+      - The root README's [Tunability](/README.md#tunability) sets out the three homes of a setting and where a new one goes, and KI#128.11 names each setting only Python reads that stays in the XML, with why.
   - Prefix exported names with `SAS_MAGIC_` to reduce accidental global-name collisions in files that use from-module import-star.
   - Useful examples: `SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND = 6807` is shared by the expandable text panels of many Sevopedia pages instead of being defined in each; `SAS_MAGIC_PEDIA_PYTHON_LEADER_ATTITUDE = 6805` was originally local to Sevopedia Leader but also checked by Sevopedia Main, so centralizing avoids widget-id drift/collision.
 - When extracting shared code to helpers, group all patterns together if similar enough otherwise (e.g. all enum prefixes in one tuple) for simplicity, even if some prefixes are only used by one caller.
@@ -1013,7 +1023,7 @@ Clear, accurate explanations help users and developers understand the code and i
 ### XML
 
 - In `Assets/XML/GlobalDefines_advciv_sas.xml`, keep related blocks adjacent or separate thematic groups with exactly three blank lines: users read and edit this configuration file directly, so the wider separators make its sections easier to scan. Preserve blank lines inside comments and text values. Other XML files retain their existing spacing conventions.
-  - Group by what a define is for, not by how it is used. For example, the recorders (assertions, BBAI, SASGameRecord, Runtime) observe the game and stay off for players, while the hands-free switches after them (FastSave, the AI Auto Play defaults, `SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON`, `SAS_UI_DAWN_OF_MAN_ON`) change what a player sees or must click.
+  - Group by what a define is for, not by how it is used. For example, the recorders (assertions, BBAI, SASGameRecord, Runtime) observe the game and stay off for players, while the hands-free switches after them (`SAS_FAST_SAVE_GAME_END_ON`, `SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON`) change what a player sees or must click.
     - Both serve unattended runs, so they sit next to each other, but they are different concepts, so three blank lines separate the two groups, while the hands-free switches stay adjacent to one another.
 - Any new XML text should go to our AdvCiv-SAS files such as [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml) (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG`), and only in `<English>`.
 - Example of exception: long Civilopedia blurbs (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG_PEDIA`) in [AdvCiv-SAS_Sevopedia_Lengthy.xml](/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml), even when it uses a stub (because it will be filled later with lengthy content).

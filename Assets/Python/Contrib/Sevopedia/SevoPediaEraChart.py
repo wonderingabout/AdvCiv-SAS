@@ -13,6 +13,8 @@ import CvUtil
 # <!-- custom: SevoScreenEnums.py was removed; import its unchanged page IDs from the SevoScreenEnums class in CvScreenEnums.py, keeping them distinct from vanilla Civilopedia pages. (GPT-6.1-Sol) -->
 from CvScreenEnums import SevoScreenEnums
 from _sevopedia_helpers import *
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -27,12 +29,12 @@ class SevoPediaEraChart:
 		self.ROW_H = CHART_TABLE_ROW_H
 		self.W_ICON = CHART_TABLE_W_ICON
 		self.W_FIELD = 290
-		self.IS_SAS_SEVO_ERA_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVO_ERA_CHART_HEADER_ICONS") > 0)
-		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVO_ERA_CHART_FILL_PCT")
+		self.IS_SAS_SEVO_ERA_CHART_HEADER_ICONS = (SASSessionTunables.SAS_SEVO_ERA_CHART_HEADER_ICONS > 0)
+		self.TABLE_FILL_PERCENT = SASSessionTunables.SAS_SEVO_ERA_CHART_FILL_PCT
 		if self.TABLE_FILL_PERCENT <= 0:
 			raise ValueError("[FATAL] SAS_SEVO_ERA_CHART_FILL_PCT must be >= 1.")
 		# <!-- custom: Toggle to show/hide era button row above the table. (Claude Opus 4.5) -->
-		self.SHOW_ERA_BUTTONS = (gc.getDefineINT("SAS_SEVO_ERA_CHART_SHOW_ERA_BUTTONS") > 0)
+		self.SHOW_ERA_BUTTONS = (SASSessionTunables.SAS_SEVO_ERA_CHART_SHOW_ERA_BUTTONS > 0)
 
 		# <!-- custom: Cache emoji icon path for performance. (GPT-5.2-Codex (summarized)) -->
 

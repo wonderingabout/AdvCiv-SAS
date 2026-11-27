@@ -20,6 +20,9 @@ EXPECTED_AI_PERSONALITY_DEFINES = {
 	"SAS_SEVO_LEADER_AI_CACHE_DUMP_TO_LOG": 0,
 }
 
+# <!-- custom: All three moved to SASSessionTunables.py, as only Python reads them (KI#128.11). (Claude code Opus 5.5) -->
+SESSION_TUNABLE_NAMES = ("SAS_SEVO_LEADER_AI_ON", "SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED", "SAS_SEVO_LEADER_AI_CACHE_DUMP_TO_LOG")
+
 PREDUMP_RELATIVE_PATH = Path("Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py")
 PREDUMP_MIN_SIZE_BYTES = 10000
 
@@ -44,7 +47,8 @@ def main() -> int:
 	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
 	args = parser.parse_args()
 
-	defines = read_global_define_ints(args.repo_root)
+	# <!-- custom: session_names, as these shipped values moved to SASSessionTunables.py. (Claude code Opus 5.5) -->
+	defines = read_global_define_ints(args.repo_root, session_names=SESSION_TUNABLE_NAMES)
 	failures = require_int_values(defines, EXPECTED_AI_PERSONALITY_DEFINES)
 	failures.extend(check_predump_file(args.repo_root))
 

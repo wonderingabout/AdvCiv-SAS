@@ -44,7 +44,8 @@ def check(repo_root: Path) -> tuple[list[str], dict[str, object]]:
                 prefix_failures.append(f"{relative}: {label} DefineName must start with SAS_ in the SAS-owned defines file")
             if name_bytes > max_name[0]:
                 max_name = (name_bytes, label, relative)
-            if name_bytes > DESIRED_MAX_DEFINE_NAME_BYTES:
+            # <!-- custom: BtS's own names, such as INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT at 46 bytes, are not ours to shorten; the target applies to names SAS and AdvCiv chose. See KI#1104.2. (Claude code Opus 5.5) -->
+            if name_bytes > DESIRED_MAX_DEFINE_NAME_BYTES and relative.as_posix() != lengths.BASE_GAME_DEFINES.as_posix():
                 violations.append((name_bytes, label, relative))
 
     violations.sort(key=lambda item: (-item[0], item[1], str(item[2])))

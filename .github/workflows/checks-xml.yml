@@ -29,9 +29,24 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/define_tag_refs.py
 
+      # <!-- custom: The DLL's hand-written enums must list the carried XML's types in the same order (KI#1104.3). (Claude code Opus 5.5) -->
+      - name: DLL enum and XML order
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/xml/dll_enum_xml_order.py
+
+      # <!-- custom: References to types the carried base-game XML defines must name a defined type (KI#1104.3). (Claude code Opus 5.5) -->
+      - name: XML type references
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/xml/xml_type_references.py
+
       - name: Global define content and uniqueness
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/global_defines_nonempty.py
+
+      # <!-- custom: The carried BtS GlobalDefines.xml's removed names must each be declared in the later file it names, outside comments (KI#1104.2). (Claude code Opus 5.5) -->
+      - name: Carried GlobalDefines redeclarations
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/xml/global_defines_redeclared.py
 
       - name: Global define fixed-buffer lengths
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

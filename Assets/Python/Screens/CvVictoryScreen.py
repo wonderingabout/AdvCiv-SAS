@@ -24,6 +24,8 @@ import TechUtil
 import SASVisualUtils as SASVisuals
 import SASTextScale
 from SASUtils import *
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 # <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base victory-screen text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
 # <!-- custom: add trait icons in the Settings tab (claude opus 4.5). -->
 
@@ -486,6 +488,8 @@ class CvVictoryScreen:
 
 		aiVoteSources = dRequirements.keys()
 		aiVoteSources.sort()
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextTopcivsUnknown = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
 		for iVoteSource in aiVoteSources:
 			iVoteBuildingClass, iUNTeam, bUnknown = dRequirements[iVoteSource]
 			iBuildingType = gc.getBuildingClassInfo(iVoteBuildingClass).getDefaultBuildingIndex()
@@ -497,7 +501,7 @@ class CvVictoryScreen:
 			if gc.getGame().isDiploVote(iVoteSource):
 				if iUNTeam != -1:
 					if bUnknown:
-						szTeamName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
+						szTeamName = szTextTopcivsUnknown
 					else:
 						szTeamName = gc.getTeam(iUNTeam).getName()
 					szStatus = localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (szTeamName, ))
@@ -937,7 +941,7 @@ class CvVictoryScreen:
 	# <!-- custom: The vote sources the Resolutions and Members tabs show: those voting now, and with SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES also those whose building stands but no longer vote, such as an Apostolic Palace late in a game. (Claude code Opus 5.5) -->
 	def getShownVoteSources(self):
 		if self.SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES is None:
-			self.SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES = (gc.getDefineINT("SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES") > 0)
+			self.SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES = (SASSessionTunables.SAS_VICT_UI_SHOW_INACTIVE_VOTE_SOURCES > 0)
 		aiSources = []
 		for iSource in range(gc.getNumVoteSourceInfos()):
 			if gc.getGame().isDiploVote(iSource):
@@ -1172,6 +1176,9 @@ class CvVictoryScreen:
 		extGame = gc.getGame().getGameState() == GameStateTypes.GAMESTATE_EXTENDED
 		currentTurn = gc.getGame().getGameTurn()
 		maxChapters = gc.getGame().getMaxChapters()
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextRfChapterFinal = localText.getText("TXT_KEY_RF_CHAPTER_FINAL", ())
+		szTextRfChapterScoreEnd = localText.getText("TXT_KEY_RF_CHAPTER_SCORE_END", ())
 		for i in range(maxChapters):
 			startTurn = gc.getGame().getChapterStart(i)
 			endTurn = gc.getGame().getChapterEnd(i)
@@ -1216,7 +1223,7 @@ class CvVictoryScreen:
 				if remaining > 1:
 					s += self.highlight(localText.getText("TXT_KEY_RF_CHAPTER_REMAIN", (remaining,)))
 				else:
-					s += self.highlight(localText.getText("TXT_KEY_RF_CHAPTER_FINAL", ()))
+					s += self.highlight(szTextRfChapterFinal)
 				s += ")"
 			elif currentTurn >= scoreTurn:
 				# Doesn't actually imply that the chapter's already scored b/c
@@ -1235,7 +1242,7 @@ class CvVictoryScreen:
 			# [4] Scoring turn
 			s = localText.getText("TXT_KEY_RF_CHAPTER_SCORE_TURN", (scoreTurn,))
 			if i == maxChapters - 1 and scoreTurn < 0:
-				s = localText.getText("TXT_KEY_RF_CHAPTER_SCORE_END", ())
+				s = szTextRfChapterScoreEnd
 			elif currentTurn >= scoreTurn:
 				s = self.highlight(s)
 			if not extGame or currentTurn >= scoreTurn:
@@ -1437,7 +1444,7 @@ class CvVictoryScreen:
 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_SEA_LEVEL", (gc.getSeaLevelInfo(m.getSeaLevel()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		# <!-- custom: Show the same cached landHeavy/navalHeavy AI map-heaviness flags used by DLL behavior and BBAI_GAME_SETTINGS, so they can be checked in-game without enabling logs. (GPT-5.5) -->
 		if self.SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS is None:
-			self.SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS = (gc.getDefineINT("SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS") > 0)
+			self.SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS = (SASSessionTunables.SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS > 0)
 		if self.SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS:
 			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SAS_VICTORY_SETTINGS_AI_MAP_HEAVINESS", (int(g.isLandHeavyMapnameCached()), int(g.isNavalHeavyMapnameCached()))), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# <advc.190b>
@@ -1483,10 +1490,12 @@ class CvVictoryScreen:
 		iHistoryEntries = g.getNumSASVersionHistoryEntries()
 		if iHistoryEntries > 0:
 			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SAS_VERSION_UI_SAVE_HISTORY", ()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+			szTextSasVersionUnknown = localText.getText("TXT_KEY_SAS_VERSION_UNKNOWN", ())
 			for iHistory in range(iHistoryEntries):
 				szHistoryDetails = CvModName.formatVersionDetails(g.getSASVersionHistoryVersion(iHistory), g.getSASVersionHistoryCommitHash(iHistory), g.getSASVersionHistoryDirtyState(iHistory))
 				if not szHistoryDetails:
-					szHistoryDetails = localText.getText("TXT_KEY_SAS_VERSION_UNKNOWN", ())
+					szHistoryDetails = szTextSasVersionUnknown
 				szHistoryKey = "TXT_KEY_SAS_VERSION_UI_CREATED"
 				if iHistory > 0:
 					szHistoryKey = "TXT_KEY_SAS_VERSION_UI_TRANSITION"
@@ -1502,6 +1511,8 @@ class CvVictoryScreen:
 		screen.addListBoxGFC(szOptionsTable, "", self.SETTINGS_PANEL_X2 + self.MARGIN, self.SETTINGS_PANEL_Y + self.MARGIN, self.SETTINGS_PANEL_WIDTH - 2*self.MARGIN, self.SETTINGS_PANEL_HEIGHT - 2*self.MARGIN, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(szOptionsTable, False)
 		bSPaH = g.isOption(GameOptionTypes.GAMEOPTION_SPAH) # advc.250b
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextBarbStart = localText.getText("TXT_KEY_BARB_START", ())
 		for i in range(GameOptionTypes.NUM_GAMEOPTION_TYPES):
 			if g.isOption(i):
 				# <advc.104> Handle Aggressive AI below; skip it here.
@@ -1521,14 +1532,16 @@ class CvVictoryScreen:
 					# Stop displaying after some time [Since v0.94: Don't show the start turn at all.]
 					if False and iBarbarianStartTurn + 25 > g.getGameTurn():
 						szDescr += "\n\t("
-						szDescr += localText.getText("TXT_KEY_BARB_START", ())
+						szDescr += szTextBarbStart
 						szDescr += " " + str(iBarbarianStartTurn) + ")"
 				# </advc.300>
 				SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, szDescr, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# <advc.190a> Disabled victory conditions. Some overlap with CvReplayInfo::addSettingsMsg
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextVictoryDisabled = localText.getText("TXT_KEY_VICTORY_DISABLED",())
 		for i in range(gc.getNumVictoryInfos()):
 			if not g.isVictoryValid(i):
-				SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, gc.getVictoryInfo(i).getDescription() + " " + localText.getText("TXT_KEY_VICTORY_DISABLED",()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, gc.getVictoryInfo(i).getDescription() + " " + szTextVictoryDisabled, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# </advc.190a>
 
 		# <advc.104> AI settings
@@ -1615,11 +1628,13 @@ class CvVictoryScreen:
 
 			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# <advc.190c>
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextRivalNotMet = localText.getText("TXT_KEY_RIVAL_NOT_MET", ())
 		for p in knownRivalsNotMet:
 			# Don't call CvPlayer functions here. Use XML data b/c that's what appears during game setup.
 			szLeader = gc.getLeaderHeadInfo(p.getLeaderType()).getDescription()
 			szCiv = gc.getCivilizationInfo(p.getCivilizationType()).getShortDescription(0)
-			szRivalInfo = localText.getText("TXT_KEY_RIVAL_NOT_MET", ())
+			szRivalInfo = szTextRivalNotMet
 			szRivalInfo += ": "
 
 			if (not p.wasCivRandomlyChosen() and not p.wasLeaderRandomlyChosen()) or g.isDebugMode():
@@ -1789,6 +1804,13 @@ class CvVictoryScreen:
 		szActivePlayerNameWithColon = activePlayer.getName() + ":"
 		szActivePlayerButton = self.getLeaderButton(self.iActivePlayer)
 
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextProjectApolloProgram = localText.getText("TXT_KEY_PROJECT_APOLLO_PROGRAM", ())
+		szTextVictoryScreenNotBuilt = localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ())
+		szTextGlobelayerStrategyView = localText.getText("TXT_KEY_GLOBELAYER_STRATEGY_VIEW", ())
+		szTextSpaceShipScreenArrival = localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_ARRIVAL", ())
+		szTextReplayScreenTurns = localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ())
+		szTextTopcivsUnknown = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
 		for iLoopVC in range(gc.getNumVictoryInfos()):
 			victory = gc.getVictoryInfo(iLoopVC)
 			if gc.getGame().isVictoryValid(iLoopVC):
@@ -2042,22 +2064,22 @@ class CvVictoryScreen:
 							iApollo = gc.getProjectInfo(i).getAnyoneProjectPrereq()
 							if not self.isApolloBuilt():
 								iRow = screen.appendTableRow(szTable)
-								SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_PROJECT_APOLLO_PROGRAM", ()), "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iApollo, 1, CvUtil.FONT_LEFT_JUSTIFY)
+								SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szTextProjectApolloProgram, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iApollo, 1, CvUtil.FONT_LEFT_JUSTIFY)
 								SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-								SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+								SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, szTextVictoryScreenNotBuilt, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 								bEntriesFound = True
 								break
 							else:
 								if not bApolloShown:
 									bApolloShown = True
 									iRow = screen.appendTableRow(szTable)
-									SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_PROJECT_APOLLO_PROGRAM", ()), "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iApollo, 1, CvUtil.FONT_LEFT_JUSTIFY)
+									SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szTextProjectApolloProgram, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iApollo, 1, CvUtil.FONT_LEFT_JUSTIFY)
 
 									if self.isApolloBuiltbyTeam(activePlayer.getTeam()):
 										SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (activePlayer.getTeam().getName(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 									else:
 										SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-										SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+										SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, szTextVictoryScreenNotBuilt, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 									if (iBestProjectTeam != -1):
 										SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (gc.getTeam(iBestProjectTeam).getName(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -2168,15 +2190,15 @@ class CvVictoryScreen:
 
 				#add spaceship button
 				if (bSpaceshipFound):
-					screen.setButtonGFC("SpaceShipButton" + str(iLoopVC), SASTextScale.labelText(localText.getText("TXT_KEY_GLOBELAYER_STRATEGY_VIEW", ())), "", 0, 0, 15, 10, WidgetTypes.WIDGET_GENERAL, self.SPACESHIP_SCREEN_BUTTON, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
+					screen.setButtonGFC("SpaceShipButton" + str(iLoopVC), SASTextScale.labelText(szTextGlobelayerStrategyView), "", 0, 0, 15, 10, WidgetTypes.WIDGET_GENERAL, self.SPACESHIP_SCREEN_BUTTON, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
 					screen.attachControlToTableCell("SpaceShipButton" + str(iLoopVC), szTable, iVictoryTitleRow, 1)
 
 					victoryDelay = gc.getTeam(iActiveTeam).getVictoryCountdown(iLoopVC)
 					if((victoryDelay > 0) and (gc.getGame().getGameState() != GameStateTypes.GAMESTATE_EXTENDED)):
 						victoryDate = CyGameTextMgr().getTimeStr(gc.getGame().getGameTurn() + victoryDelay, False)
-						SASTextScale.setTableTextLabel(screen, szTable, 2, iVictoryTitleRow, localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_ARRIVAL", ()) + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 2, iVictoryTitleRow, szTextSpaceShipScreenArrival + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 						SASTextScale.setTableTextLabel(screen, szTable, 3, iVictoryTitleRow, victoryDate, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						SASTextScale.setTableTextLabel(screen, szTable, 4, iVictoryTitleRow, localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ()) + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 4, iVictoryTitleRow, szTextReplayScreenTurns + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 						SASTextScale.setTableTextLabel(screen, szTable, 5, iVictoryTitleRow, str(victoryDelay), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 				if (victory.isDiploVote()):
@@ -2190,7 +2212,7 @@ class CvVictoryScreen:
 
 						if (iUNTeam != -1):
 							if bUnknown:
-								szName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
+								szName = szTextTopcivsUnknown
 								# <!-- custom: The icon is a plain string, as setTableText takes the button path as char const*: u"" raised a Boost ArgumentError and broke the whole Victory screen once an unmet team had built the Apostolic Palace (SAS48 island autoplay, turn 120, 2026-11-15). See KI#118.2. (Claude code Opus 5.5) -->
 								self.setLeaderCell(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (szName, )), "", -1, CvUtil.FONT_LEFT_JUSTIFY)
 								# <!-- custom: No date for a builder you have not met, whose name is hidden too. (Claude code Opus 5.5) -->
@@ -2209,7 +2231,7 @@ class CvVictoryScreen:
 								SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, self.getBuildingClassBuiltText(iUNTeam, iVoteBuildingClass), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 						else:
-							SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szTextVictoryScreenNotBuilt, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 							SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, u"-", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 						if iUNTeam != -1:
 							self.setVoteSourceChairCells(screen, szTable, iRow, gc.getBuildingInfo(iBuildingType).getVoteSourceType())

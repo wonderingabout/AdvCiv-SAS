@@ -914,6 +914,8 @@ def SAS_getTechsGroupedByEra(bSortLists):
 		groups[iEra].append((szName, iTech))
 
 	# Emit era groups in order
+	# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+	szTextPediaEra = localText.getText("TXT_KEY_PEDIA_ERA", ())
 	for iEra in range(iNumEras):
 		tmp = groups.get(iEra, None)
 		if not tmp:
@@ -921,7 +923,7 @@ def SAS_getTechsGroupedByEra(bSortLists):
 
 		if techsList:
 			techsList.append(("", -1))  # spacer between eras
-		techsList.append((gc.getEraInfo(iEra).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+		techsList.append((gc.getEraInfo(iEra).getDescription() + " " + szTextPediaEra, -1))
 
 		for x in tmp:
 			techsList.append(x)
@@ -966,6 +968,8 @@ def SAS_getUnitsGroupedByEra_fromBaseList(baseList, bSortLists, getUnitAvailabil
 			unitsList.append(x)
 
 	# Era groups in order
+	# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+	szTextPediaEra = localText.getText("TXT_KEY_PEDIA_ERA", ())
 	for iEraLoop in range(iNumEras):
 		tmp = groups.get(iEraLoop, None)
 		if not tmp:
@@ -974,7 +978,7 @@ def SAS_getUnitsGroupedByEra_fromBaseList(baseList, bSortLists, getUnitAvailabil
 		if unitsList:
 			unitsList.append(("", -1))
 
-		unitsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+		unitsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + szTextPediaEra, -1))
 		for x in tmp:
 			unitsList.append(x)
 
@@ -1017,6 +1021,8 @@ def SAS_getBuildingsGroupedByEra_fromBaseList(baseList, bSortLists, getBuildingA
 			buildingsList.append(x)
 
 	# Era groups in order
+	# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+	szTextPediaEra = localText.getText("TXT_KEY_PEDIA_ERA", ())
 	for iEraLoop in range(iNumEras):
 		tmp = groups.get(iEraLoop, None)
 		if not tmp:
@@ -1025,7 +1031,7 @@ def SAS_getBuildingsGroupedByEra_fromBaseList(baseList, bSortLists, getBuildingA
 		if buildingsList:
 			buildingsList.append(("", -1))
 
-		buildingsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+		buildingsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + szTextPediaEra, -1))
 		for x in tmp:
 			buildingsList.append(x)
 
@@ -1062,6 +1068,8 @@ def SAS_getGroupedByEra_fromBaseList(baseList, getAvailabilityEraFn):
 			itemsList.append(x)
 
 	# Era groups in order
+	# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+	szTextPediaEra = localText.getText("TXT_KEY_PEDIA_ERA", ())
 	for iEraLoop in range(iNumEras):
 		tmp = groups.get(iEraLoop, None)
 		if not tmp:
@@ -1070,7 +1078,7 @@ def SAS_getGroupedByEra_fromBaseList(baseList, getAvailabilityEraFn):
 		if itemsList:
 			itemsList.append(("", -1))
 
-		itemsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+		itemsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + szTextPediaEra, -1))
 		for x in tmp:
 			itemsList.append(x)
 
@@ -1129,6 +1137,8 @@ def SAS_getReligionsGroupedByEra_fromBaseList(baseList, bSortLists, getReligionA
 			religionsList.append(x)
 
 	# Era groups in order
+	# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+	szTextPediaEra = localText.getText("TXT_KEY_PEDIA_ERA", ())
 	for iEraLoop in range(iNumEras):
 		tmp = groups.get(iEraLoop, None)
 		if not tmp:
@@ -1137,7 +1147,7 @@ def SAS_getReligionsGroupedByEra_fromBaseList(baseList, bSortLists, getReligionA
 		if religionsList:
 			religionsList.append(("", -1))
 
-		religionsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+		religionsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + szTextPediaEra, -1))
 		for x in tmp:
 			religionsList.append(x)
 
@@ -1178,6 +1188,8 @@ def SAS_getCorporationsGroupedByEra_fromBaseList(baseList, bSortLists, getCorpor
 		for x in noTech:
 			corpsList.append(x)
 
+	# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+	szTextPediaEra = localText.getText("TXT_KEY_PEDIA_ERA", ())
 	for iEraLoop in range(iNumEras):
 		tmp = groups.get(iEraLoop, None)
 		if not tmp:
@@ -1186,7 +1198,7 @@ def SAS_getCorporationsGroupedByEra_fromBaseList(baseList, bSortLists, getCorpor
 		if corpsList:
 			corpsList.append(("", -1))
 
-		corpsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+		corpsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + szTextPediaEra, -1))
 		for x in tmp:
 			corpsList.append(x)
 
@@ -1803,11 +1815,13 @@ def SAS_getMoviesListGroupedByType(bSortLists, packMovieKey, unpackMovieKey, iTy
 			baseList.append((info.getDescription(), packMovieKey(iTypeReligion, iReligion)))
 
 	# Era movies (list all eras, even if no movie file exists; the page will hide the Play button)
+	# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+	szTextPediaEra = localText.getText("TXT_KEY_PEDIA_ERA", ())
 	for iEra in range(gc.getNumEraInfos()):
 		info = gc.getEraInfo(iEra)
 		if not info:
 			continue
-		szEraName = info.getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ())
+		szEraName = info.getDescription() + " " + szTextPediaEra
 		baseList.append((szEraName, packMovieKey(iTypeEra, iEra)))
 
 	# Corporation movies
@@ -1916,6 +1930,8 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 			techByEra[iEra] = tmp
 		tmp.append((szName, iPacked))
 
+	# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+	szTextPediaSasMusicGroupingTechQuotes = localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_TECH_QUOTES", ())
 	for iEra in range(gc.getNumEraInfos()):
 		info = gc.getEraInfo(iEra)
 		if not info:
@@ -1926,10 +1942,12 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 		szEraName = info.getDescription()
 		if szEraName.endswith(" Era"):
 			szEraName = szEraName[:-len(" Era")]
-		szQuotesHeader = localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_TECH_QUOTES", ())
+		szQuotesHeader = szTextPediaSasMusicGroupingTechQuotes
 		_SAS_addSection(listEntries, szQuotesHeader + " (" + szEraName + ")", items)
 
 	# Era soundtrack tracks (grouped by Era)
+	# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+	szTextPediaEra = localText.getText("TXT_KEY_PEDIA_ERA", ())
 	for iEra in range(gc.getNumEraInfos()):
 		info = gc.getEraInfo(iEra)
 		if not info:
@@ -1965,7 +1983,7 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 		if bSortLists:
 			eraItems.sort()
 
-		szEraName = info.getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ())
+		szEraName = info.getDescription() + " " + szTextPediaEra
 		_SAS_addSection(listEntries, szEraName, eraItems)
 
 	# Leader music (intro/peace/war buckets)

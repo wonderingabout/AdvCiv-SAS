@@ -18,6 +18,8 @@ import SASTextScale
 # <!-- custom: SASGameRecordConfig for the cached SGR level that pre-gates the ranking's rows, SASGameRecordActions for the helper that writes them. (Claude code Opus 5.5) -->
 import SASGameRecordConfig
 import SASGameRecordActions
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 PyPlayer = PyHelpers.PyPlayer
 gc = CyGlobalContext()
@@ -26,7 +28,7 @@ localText = CyTranslator()
 NUM_CIVILIZATIONS = 8
 
 TOP_CIVS_CATEGORY_KEYS = ("WEALTH", "POWER", "TECH", "CULTURE", "SIZE")
-# <!-- custom: Lazy caches of SAS_UI_TOP_CIVS_ON and SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON, read on the first ranking after XML has loaded; define edits need a Civ4 restart anyway. (Claude code Opus 5.5) -->
+# <!-- custom: Lazy caches of SAS_UI_TOP_CIVS_ON, from SASSessionTunables, and SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON, from the XML, read on the first ranking after XML has loaded; edits to either need a Civ4 restart anyway. (Claude code Opus 5.5) -->
 g_bTopCivsOn = None
 g_bDismissInfoPopupsOn = None
 
@@ -156,7 +158,7 @@ class CvTopCivs:
 		# The advc.038 draws above stay first, so the game's random sequence is the same either way. (Claude code Opus 5.5) -->
 		global g_bTopCivsOn, g_bDismissInfoPopupsOn
 		if g_bTopCivsOn is None:
-			g_bTopCivsOn = gc.getDefineINT("SAS_UI_TOP_CIVS_ON") > 0
+			g_bTopCivsOn = SASSessionTunables.SAS_UI_TOP_CIVS_ON > 0
 			g_bDismissInfoPopupsOn = gc.getDefineINT("SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON") > 0
 		self.szHistorian = szHistorianRand
 		self.bDraw = g_bTopCivsOn and not (g_bDismissInfoPopupsOn and CyGame().getAIAutoPlay() > 0)
@@ -213,11 +215,17 @@ class CvTopCivs:
 		self.aiTopCivsValues = []
 
 		# Loop through all players except the barbs
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextTopcivsWealth = localText.getText("TXT_KEY_TOPCIVS_WEALTH", ())
+		szTextTopcivsPower = localText.getText("TXT_KEY_TOPCIVS_POWER", ())
+		szTextTopcivsTech = localText.getText("TXT_KEY_TOPCIVS_TECH", ())
+		szTextTopcivsCulture = localText.getText("TXT_KEY_TOPCIVS_CULTURE", ())
+		szTextTopcivsSize = localText.getText("TXT_KEY_TOPCIVS_SIZE", ())
 		for iPlayerLoop in range(gc.getMAX_PLAYERS()-1):
 
 			if (gc.getPlayer(iPlayerLoop).isAlive()):
 
-				if (szType == localText.getText("TXT_KEY_TOPCIVS_WEALTH", ())):
+				if (szType == szTextTopcivsWealth):
 					# <advc.038> Replacing the two lines below
 					gnp = gc.getTeam(gc.getPlayer(iPlayerLoop).getTeam()).AI_estimateYieldRate(iPlayerLoop, YieldTypes.YIELD_COMMERCE)
 					self.aiTopCivsValues.append([gnp, iPlayerLoop])
@@ -225,11 +233,11 @@ class CvTopCivs:
 					#self.aiTopCivsValues.append([gc.getPlayer(iPlayerLoop).getGold(), iPlayerLoop])
 					#print("Player %d Num Gold: %d" %(iPlayerLoop, gc.getPlayer(iPlayerLoop).getGold()))
 
-				if (szType == localText.getText("TXT_KEY_TOPCIVS_POWER", ())):
+				if (szType == szTextTopcivsPower):
 
 					self.aiTopCivsValues.append([gc.getPlayer(iPlayerLoop).getPower(), iPlayerLoop])
 
-				if (szType == localText.getText("TXT_KEY_TOPCIVS_TECH", ())):
+				if (szType == szTextTopcivsTech):
 
 					iPlayerNumTechs = 0
 					iPlayerTechCosts = 0 # advc.038
@@ -246,11 +254,11 @@ class CvTopCivs:
 					#self.aiTopCivsValues.append([iPlayerNumTechs, iPlayerLoop])
 					#advc.038: Replacing the above
 					self.aiTopCivsValues.append([iPlayerTechCosts, iPlayerLoop])
-				if (szType == localText.getText("TXT_KEY_TOPCIVS_CULTURE", ())):
+				if (szType == szTextTopcivsCulture):
 
 					self.aiTopCivsValues.append([gc.getPlayer(iPlayerLoop).countTotalCulture(), iPlayerLoop])
 
-				if (szType == localText.getText("TXT_KEY_TOPCIVS_SIZE", ())):
+				if (szType == szTextTopcivsSize):
 
 					self.aiTopCivsValues.append([gc.getPlayer(iPlayerLoop).getTotalLand(), iPlayerLoop])
 
@@ -274,6 +282,8 @@ class CvTopCivs:
 		pViewerTeam = gc.getTeam(gc.getPlayer(iViewer).getTeam())
 		ranks = []
 		rankTexts = []
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextTopcivsUnknown = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
 		for iRankLoop in range(min(iRanks, len(self.aiTopCivsValues))):
 			iRankPlayer = self.aiTopCivsValues[iRankLoop][1]
 			if iRankPlayer == iViewer or pViewerTeam.isHasMet(gc.getPlayer(iRankPlayer).getTeam()):
@@ -283,7 +293,7 @@ class CvTopCivs:
 				rankTexts.append(localText.getText("TXT_KEY_SAS_TOPCIVS_TIMELINE_RANK", (iRankLoop + 1, pRankPlayer.getName(), pRankPlayer.getCivilizationShortDescription(0), iRankPlayer, pRankPlayer.getTeam())))
 			else:
 				ranks.append(-1)
-				rankTexts.append(localText.getText("TXT_KEY_SAS_TOPCIVS_TIMELINE_RANK_UNKNOWN", (iRankLoop + 1, localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ()))))
+				rankTexts.append(localText.getText("TXT_KEY_SAS_TOPCIVS_TIMELINE_RANK_UNKNOWN", (iRankLoop + 1, szTextTopcivsUnknown)))
 		# <!-- custom: A g_lastShown global first kept the last ranking for SASPilot, but it outlived a load of an earlier save and a hot-seat change of viewer (Codex's review, 2026-11-19); the replay rows cover it. (Claude code Opus 5.5) -->
 		# <!-- custom: Guarded: a DLL built before addSASTeamReplayMessage keeps the screen working without the record.
 		# The Timeline lists newest first, so the ranks go in from the last to the first and the title last, to read top down in rank order.
@@ -298,6 +308,8 @@ class CvTopCivs:
 			SASGameRecordActions.logTopCivs(gc, self.szCategoryKey, self.szHistorian, self.aiTopCivsValues, len(ranks), ranks.count(-1), self.bDraw)
 		if not self.bDraw:
 			return
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextTopcivsUnknown = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
 		for iRankLoop in range(iRanks): # </advc.038>
 
 			if (iRankLoop > len(self.aiTopCivsValues)-1):
@@ -319,7 +331,7 @@ class CvTopCivs:
 					szCivText = localText.getText("TXT_KEY_TOPCIVS_TEXT3", (szPlayerName, self.RankList[iRankLoop]))
 
 				else:
-					szCivText = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
+					szCivText = szTextTopcivsUnknown
 
 				szWidgetName = "Text" + str(iRankLoop)
 				szWidgetDesc = "%d) %s" % (iRankLoop + 1, szCivText)

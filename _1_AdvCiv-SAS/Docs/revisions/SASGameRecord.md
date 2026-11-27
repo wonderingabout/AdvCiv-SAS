@@ -114,10 +114,10 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 217 - SAS practical 6944 (SASPilot branch)
+### Revision 218 - SAS practical 6961 (SASPilot branch)
 
-- **Date:** 2026-11-18
-- **Git commit:** `43dcbb24b976430f6eb283b232f90b3f9443674e`
+- **Date:** 2026-11-27
+- **Git commit:** pending
 - **Functional:** No (comments only)
 - **Change:** No change to the record: custom comments that mention SASGameRecord, in `CvPlayer.h`, `SASPilotClient.py` and `SASPilotCommands.py`, were reflowed one sentence per line for the CI comment check, with their wording unchanged, and comments in SASGameRecord-related files renamed the retired "the pilot" to SASPilot.
   - First made as revision 202 in commit `f005c06cce13db7a64971009789ca770b6acd3c5` (2026-11-15) on the SASPilot branch, then 204 when main was merged into it on 2026-11-17 (`b57f87e3382783e7d19020606d64edd11fdb0851`), as main had used 202 and 203 meanwhile.
@@ -125,6 +125,14 @@ Only the listed collections use this convention; other compact fields retain the
   - Merging main on 2026-11-19, which had used 205 to 208 meanwhile, made it 209.
   - Merging main on 2026-11-20, which used 209 for the Greatest Civilizations rows first made here, made it 210; those rows are now main's revision 209, below.
   - Merging main on 2026-11-27, which used 210 to 216 meanwhile, made it 217.
+  - Merging main again on 2026-11-27, which used 217 for moving `SAS_SGR_BUG_STRING_VALS_ON` to `SASSessionTunables.py`, made it 218.
+
+### Revision 217 - SAS practical 6888
+
+- **Date:** 2026-11-27
+- **Git commit:** `f4cd91a202718d42ca645615d78509259bd817dc`
+- **Functional:** No (the same value, read from another file)
+- **Change:** `SAS_SGR_BUG_STRING_VALS_ON` moved from `GlobalDefines_advciv_sas.xml` to [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py), with the other settings only Python reads, so `SASGameRecordConfig` reads `SASSessionTunables.SAS_SGR_BUG_STRING_VALS_ON` instead of `getDefineINT`, and `sas_game_record_log.py` checks its shipped value there ([KI#128.11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.11)).
 
 ### Revision 216 - SAS practical 6882
 

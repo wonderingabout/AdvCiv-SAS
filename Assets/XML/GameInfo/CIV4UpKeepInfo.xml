@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jesse Smith (Firaxis Games) -->
+<!-- Sid Meier's Civilization 4 -->
+<!-- Copyright Firaxis Games 2005 -->
+<!-- -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
+<!-- custom: Copied from vanilla Civ4's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\GameInfo\CIV4UpKeepInfo.xml (only vanilla Civ4 ships it), the copy SAS loaded before (2026-11-27), so the data it holds can be found by a search of the repository and checked by CI, as the inherited files audit's Base-game data XML by reader section explains. See KI#1104 and KI#1104.3. (Claude code Opus 5.5) -->
+<!-- Upkeep -->
+<Civ4UpkeepInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
+	<UpkeepInfos>
+		<UpkeepInfo>
+			<Type>UPKEEP_LOW</Type>
+			<Description>TXT_KEY_UPKEEP_LOW</Description>
+			<Strategy>TXT_KEY_UPKEEP_LOW_HELP</Strategy>
+			<iPopulationPercent>8</iPopulationPercent>
+			<iCityPercent>40</iCityPercent>
+		</UpkeepInfo>
+		<UpkeepInfo>
+			<Type>UPKEEP_MEDIUM</Type>
+			<Description>TXT_KEY_UPKEEP_MEDIUM</Description>
+			<Strategy>TXT_KEY_UPKEEP_MEDIUM_HELP</Strategy>
+			<iPopulationPercent>12</iPopulationPercent>
+			<iCityPercent>50</iCityPercent>
+		</UpkeepInfo>
+		<UpkeepInfo>
+			<Type>UPKEEP_HIGH</Type>
+			<Description>TXT_KEY_UPKEEP_HIGH</Description>
+			<Strategy>TXT_KEY_UPKEEP_HIGH_HELP</Strategy>
+			<iPopulationPercent>16</iPopulationPercent>
+			<iCityPercent>60</iCityPercent>
+		</UpkeepInfo>
+	</UpkeepInfos>
+</Civ4UpkeepInfo>

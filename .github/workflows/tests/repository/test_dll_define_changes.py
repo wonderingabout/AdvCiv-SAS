@@ -73,6 +73,18 @@ class DLLDefineChangesTests(unittest.TestCase):
         self.assertTrue(errors)
         self.assertEqual(affected, {"FOOD_CONSUMPTION_PER_POPULATION"})
 
+    # <!-- custom: Taking in BtS's GlobalDefines.xml adds no name the game did not already load from BtS's own copy, so it passes; a later name added to the carried file is still checked. See KI#1104.2. (Claude code Opus 5.5) -->
+    def test_base_game_define_file_carry_passes(self):
+        self.defines(["FOOD_CONSUMPTION_PER_POPULATION"], path=checker.BASE_GAME_DEFINES)
+        self.write("CvGameCoreDLL/example.cpp", b'getDefineINT("SAS_OLD"); getDefineINT("FOOD_CONSUMPTION_PER_POPULATION"); getDefineINT("NEW_BASE_NAME");')
+        carry = self.commit()
+        self.assertEqual(checker.check(self.repo, [carry], carry), ([], set()))
+        self.defines(["FOOD_CONSUMPTION_PER_POPULATION", "NEW_BASE_NAME"], path=checker.BASE_GAME_DEFINES)
+        head = self.commit()
+        errors, affected = checker.check(self.repo, [head], head)
+        self.assertTrue(errors)
+        self.assertEqual(affected, {"NEW_BASE_NAME"})
+
     def test_define_move_between_files_passes(self):
         self.defines([])
         self.defines(["SAS_OLD"], path="Assets/XML/Custom/rules.xml")

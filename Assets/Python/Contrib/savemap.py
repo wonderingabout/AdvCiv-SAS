@@ -12,6 +12,8 @@
 # Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups, hoists). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+# <!-- custom: SASTextScale's addMessage and addImmediateMessage give Python's messages the label font the DLL gives its own, as CyInterface()'s went to the EXE at the stock size. See KI#117.2. (Claude code Opus 5.5) -->
+import SASTextScale
 from SASUtils import getInfoTypeOrFail
 import os
 # <advc.savem>
@@ -544,5 +546,5 @@ def _showOnScreenMessage(msg, bExtraLong = False):
 	szMsgTime = "EVENT_MESSAGE_TIME"
 	if bExtraLong:
 		szMsgTime += "_LONG"
-	CyInterface().addMessage(CyGame().getActivePlayer(), True, gc.getDefineINT(szMsgTime), msg, None, InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, ColorTypes(-1), 0, 0, False, False)
+	SASTextScale.addMessage(CyGame().getActivePlayer(), True, gc.getDefineINT(szMsgTime), msg, None, InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, ColorTypes(-1), 0, 0, False, False)
 # </advc.savem>

@@ -20,6 +20,8 @@ from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from SAS_WorldSizeUtils import *
 from SASUtils import getInfoTypeOrFail
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 # MULTILAYERED FRACTAL NOTES
 #
@@ -87,8 +89,8 @@ def findStartingPlot(argsList):
 	iNumPlayers = gcLocal.getGame().countCivPlayersEverAlive()
 	iBiggestAreaID = map.findBiggestArea(False).getID()
 
-	iAfricaMinPlayers = SASCurrentDefines.getInt("SAS_EARTH2_AFRICA_STARTS_MIN_PLAYERS")
-	iFullWorldMinPlayers = SASCurrentDefines.getInt("SAS_EARTH2_WORLD_STARTS_MIN_PLAYERS")
+	iAfricaMinPlayers = SASSessionTunables.SAS_EARTH2_AFRICA_STARTS_MIN_PLAYERS
+	iFullWorldMinPlayers = SASSessionTunables.SAS_EARTH2_WORLD_STARTS_MIN_PLAYERS
 
 	iAfricaWestX = int(map.getGridWidth() * 0.50)
 	iAfricaEastX = int(map.getGridWidth() * 0.68)

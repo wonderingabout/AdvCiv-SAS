@@ -5,6 +5,9 @@
 ## Copyright (c) 2007-2008 The BUG Mod.
 ##
 ## Author: EmperorFool
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
 import BugOptionsTab
 
@@ -108,7 +111,8 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
 #		self.addCheckbox(screen, panel, "BUFFY__WarningsSettings")
 
 	def createInfoPanePanel(self, screen, panel):
-		self.addLabel(screen, panel, "InfoPane", "Unit/Stack Info:")
+		# <!-- custom: was "Unit/Stack Info:"; the options under it describe the selected group, which the unit panel now calls "Unit Group" (TXT_KEY_UNIT_STACK in AdvCiv-SAS_main.xml). (Claude code Opus 5.5) -->
+		self.addLabel(screen, panel, "InfoPane", "Unit/Group Info:")
 		self.addCheckbox(screen, panel, "MainInterface__UnitMovementPointsFraction")
 		self.addCheckbox(screen, panel, "MainInterface__StackMovementPoints")
 		self.addCheckbox(screen, panel, "MainInterface__StackPromotions")

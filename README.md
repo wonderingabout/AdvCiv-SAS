@@ -214,6 +214,7 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;[Legacy references (e.g. AdvCiv, K-Mod, BTS, etc.)](/README.md#legacy-references-eg-advciv-k-mod-bts-etc)\
 [Full exhaustive very long and exhaustive changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes)\
 [Main Changes Guide](/README.md#main-changes-guide)\
+[Tunability](/README.md#tunability)\
 [UI (Main Menu)](/README.md#ui-main-menu)\
 &emsp;[Home page](/README.md#home-page)\
 &emsp;[Multiple random Main Menu Musics](/README.md#multiple-random-main-menu-musics)\
@@ -348,9 +349,12 @@ For license, reuse, distribution and possibly other terms, including project-spe
 
 ## How to play?
 
-In-game configuration uses [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml); [`SASDefineGuard.py`](/Assets/Python/SASDefineGuard.py) reports missing or incorrect launch sentinels.
-
 If you are a new player or want to play this mod and would like a few instructions on how to install it and play it, i have provided a few instructions in the [README_Quick_Install_Setup_Guide.md](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md)
+
+Note: settings live in three places, depending on who reads them and whether they may change during play; see [Tunability](/README.md#tunability).
+
+- If you had changed a setting in `GlobalDefines_advciv_sas.xml` that has since moved to `SASSessionTunables.py`, set your value again there.
+- [`SASDefineGuard.py`](/Assets/Python/SASDefineGuard.py) reports missing or incorrect launch sentinels.
 
 ## Artifacts and references (docs, images, examples)
 
@@ -391,6 +395,36 @@ For release-by-release AdvCiv-SAS history, see:
 ## Main Changes Guide
 
 For a more compact and broad overview of the changes from base AdvCiv to AdvCiv-SAS latest, see the main changes guide. I have written it with the help of chatgpt and gemini (check if info is accurate); i sometimes edited it. You can view it here [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md).
+
+## Tunability
+
+A setting lives in one of three places, chosen by who reads it and when it may change, so each file stays short and says what its settings are for.
+
+| File | Holds | Takes effect |
+| --- | --- | --- |
+| [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml), with the inherited define files such as BtS's [`GlobalDefines.xml`](/Assets/XML/GlobalDefines.xml) | what the DLL or the EXE reads, such as the AI's tunables and the logging levels | at the next Civ4 start |
+| [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) | changes to selected XML settings during play, such as the font sizes and BBAI's log categories | within seconds, while Civ4 runs |
+| [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py) | the settings only Python reads, such as `SAS_MAIN_UI_UNITS_WAITING_ON`, `SAS_SEVO_TECHS_GROUP_BY_ERA` or `SAS_MAPGEN_STANDARD_MARSH_PCT` | at the next Civ4 start |
+
+- **The XML** is what the engine loads. SAS's own settings sit in `GlobalDefines_advciv_sas.xml`, apart from the inherited files, which SAS carries so every loaded define can be found in the repository ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)).
+- **The live overrides** exist so that audits and testing need no restart: an agent turns one BBAI log category on for the stretch it studies, or tries font sizes one after another, and players can tune the font the same way; see [Live define overrides](/README.md#live-define-overrides).
+- **The session tunables** are the settings no engine code reads, moved out of the XML ([KI#128.11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.11)).
+  - The XML had grown to about 770 SAS defines, mostly AI and logging, so a player or an agent searching for an interface setting had a long file to go through, and it would only have kept growing.
+  - Like the XML, the file is read once, so an edit needs a restart; a read is also the fastest of the three, about 0.02 microseconds against about 0.28 through the XML's `gc.getDefineINT`.
+  - It holds plain values only, which CI keeps, so any screen or map script can import it.
+- **For a new setting:** the DLL or the EXE reads it, so the XML; Python alone reads it, so `SASSessionTunables.py`; it should change during play, so the XML plus an entry in the overrides' allowed list.
+
+Note for modders: AdvCiv-SAS carries its own copy of many base-game Civ4 files it uses, changed or not, so they can be found, edited and checked by CI in the mod itself rather than in the Civ4 install ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)). Some hold tunable data, others plain code:
+
+- **Python code**:
+  - game Python, such as [`CvAppInterface.py`](/Assets/Python/EntryPoints/CvAppInterface.py), where the live define overrides first apply, [`CvWorldBuilderScreen.py`](/Assets/Python/Screens/CvWorldBuilderScreen.py) and [`CvDebugInfoScreen.py`](/Assets/Python/Screens/CvDebugInfoScreen.py), whose Map Details table SAS fixed ([KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105));
+    - once in the repository, CI also found slips in them, such as vanilla's broken `CvUnitController.ProcessEvent` ([KI#165.13](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.13)), `PyHelpers.py`'s `religionList` ([KI#165.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.2)) and `PbWizard.py`'s patch dialog without text ([KI#1085.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085.2));
+  - map scripts: every base-game map script, 35 of them, sits in [`PrivateMaps/`](/PrivateMaps/), many with SAS fixes, such as [`Oasis.py`](/PrivateMaps/Oasis.py) and [`Archipelago.py`](/PrivateMaps/Archipelago.py), whose `isFreshWater` was missing its parentheses.
+- **XML data** the rules, the AI or SAS's own XML rely on:
+  - such as BtS's [`GlobalDefines.xml`](/Assets/XML/GlobalDefines.xml) ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)), [`GlobalTypes.xml`](/Assets/XML/GlobalTypes.xml), the civic categories in [`CIV4CivicOptionInfos.xml`](/Assets/XML/GameInfo/CIV4CivicOptionInfos.xml), the player colors in [`CIV4PlayerColorInfos.xml`](/Assets/XML/Interface/CIV4PlayerColorInfos.xml) and the unit formations in [`CIV4FormationInfos.xml`](/Assets/XML/Units/CIV4FormationInfos.xml) ([KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3)), and [`CIV4WorldPickerInfos.xml`](/Assets/XML/Interface/CIV4WorldPickerInfos.xml), which SAS changed for its SAS24 to SAS48 world sizes;
+  - presentation SAS does not change, such as the loading slideshow, the water and cloud textures or the unused throne room, stays in the base game.
+
+The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md) lists which base-game files SAS carries, which it leaves in the base game, and why.
 
 ## UI (Main Menu)
 
@@ -750,6 +784,8 @@ Some common changes to city screen and map view include the tech bar's detail be
 
 Also moved map to the right (idea from the C2C mod thanks).
 
+Among other notable changes, the main interface now shows more of what was tedious to keep in mind, for players and agents playing from screenshots alike, such as how many units still wait for orders out of all your units, to see how close you are to ending the turn (`Worker  (52 / 151 waiting)`), or which of your cities the city screen shows, in the order its arrows go through them (`[4/17]`); see the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py).
+
 #### City Screen rework
 
 Added some missing info such as the great person "+n (ICON)" information in any relevant building's row, which is handy to have and that was tedious to check through hovering.
@@ -760,7 +796,7 @@ Also beautified several other things, such as enlarging side panels to display m
 
 Additionally, also added a new specialists breakdown as of now on bottom-right and a culture breakdown. Also added an option to add one or several extra rows (tunable) in the production chooser bar. These all help reduce tedious hovering and provide useful info at a glance.
 
-The city screen has been heavily reworked, beautified, and enhanced, for example by splitting the old draft group into draft menu on one side with a new draft button, and config options as a one liner above the minimap zone, plus added new building list filtering options (Show all buildings, Show World Wonders only, etc.) as clickable buttons (based on how the C2C mod does it thanks), enhanced with detailed information (like `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`).
+The city screen has been heavily reworked, beautified, and enhanced, for example by splitting the old draft group into draft menu on one side with a new draft button, and config options as a one liner above the minimap zone, plus added new building list filtering options (Show all buildings, Show World Wonders only, etc.) as clickable buttons (based on how the C2C mod does it thanks), enhanced with detailed information (like `Nuremberg: 12 - 1779 (1120 BC)  [4/17]` or `Growing - 30/43 (4 Turns)`).
 
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.400_city_screen%20(1)_spec_break_relig_gp_bldg.JPG" alt="1.400_city_screen (1)_spec_break_relig_gp_bldg.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.400_city_screen%20(2)_spec_break_corp.JPG" alt="1.400_city_screen (2)_spec_break_corp.JPG" width="250"></img>
@@ -769,7 +805,7 @@ The city screen has been heavily reworked, beautified, and enhanced, for example
 
 City billboard scaling follows the selected font size through [`SASBillboardScale.py`](/Assets/Python/SASBillboardScale.py).
 
-Outside the city screen, UI has been reworked too: moved away the flag from production buttons bars (was needless and cumbersome there: better show more buttons instead: moved optionally to top panel as detailed in main changes guide), added buttons for unit stack and currently selected unit, moved and reordered end turn buttons and other controls, now near the map in a very pretty end turn group with a curved visual effect. Screenshots visible in the other ingame previews.
+Outside the city screen, UI has been reworked too: moved away the flag from production buttons bars (was needless and cumbersome there: better show more buttons instead: moved optionally to top panel as detailed in main changes guide), added buttons for the selected unit group and currently selected unit, moved and reordered end turn buttons and other controls, now near the map in a very pretty end turn group with a curved visual effect. Screenshots visible in the other ingame previews.
 
 Besides these and other changes in the main changes guide or code only, a notable change is the new toggle or scroll buttons in map view.
 
@@ -995,7 +1031,7 @@ note 3: if you want to mod and modify the XML Civ4 leader info or shared AI Pers
 
 The refresh workflow runs automatically after pushes to known AIP predump dependency files and can also be started manually from the Actions tab; if the generated predump changes, it opens/updates a bot PR containing only `SevoPediaLeaderCachePredumped.py`.
 
-If needed, you can still refresh locally with `.github/workflows/build/runtime/aip_predump_values.py --write`, or disable the option to use the predumped file (see toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)). The old in-game `PythonDbg.log` dump path remains a manual fallback.
+If needed, you can still refresh locally with `.github/workflows/build/runtime/aip_predump_values.py --write`, or disable the option to use the predumped file, `SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED` in [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py). The old in-game `PythonDbg.log` dump path remains a manual fallback.
 
 This predump file was added for perfance optimization, so players don't always recompute these values that do not change on their end, and rarely so even for modders, and should scale better (if i'm not mistaken) as there are more leaders or xml fields in a mod vs computing them once every time the civ4 game is launched. See: [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md)
 
@@ -1311,6 +1347,8 @@ In AdvCiv-SAS, Standard is 39 x 28 = 1092 cells for 8 players (~137 cells/player
 These are not final playable-plot counts; the map script controls their conversion or override.
 
 Note 3: XXL map scripts also override grid sizes directly (e.g., XXL World Pangaea uses 16 x 10 for Standard and 40 x 25 for XXL in `PrivateMaps/Pangaea.py`), so the XML sizes aren’t the only source of truth; this keeps XXL maps smaller while still advertising higher default player counts.
+
+Note 4: the DLL also lists the world sizes by hand, in the XML's order; when Arena was inserted before Duel, that list was left behind, so Large maps got Huge's settings until AdvCiv-SAS later fixed that bug. CI now checks that list and 25 others like it; see [KI#269](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-269).
 
 See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
 

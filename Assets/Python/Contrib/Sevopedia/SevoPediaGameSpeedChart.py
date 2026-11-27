@@ -13,6 +13,8 @@ import SASVisualUtils as SASVisuals
 import SASTextScale
 import CvUtil
 from _sevopedia_helpers import *
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -28,22 +30,22 @@ class SevoPediaGameSpeedChart:
 		self.W_ICON = CHART_TABLE_W_ICON
 		iLabelFont = SASTextScale.getSASUIFontLabel()
 		if iLabelFont <= 1:
-			self.W_FIELD = gc.getDefineINT("SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_1")
+			self.W_FIELD = SASSessionTunables.SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_1
 		elif iLabelFont == 2:
-			self.W_FIELD = gc.getDefineINT("SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_2")
+			self.W_FIELD = SASSessionTunables.SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_2
 		elif iLabelFont == 3:
-			self.W_FIELD = gc.getDefineINT("SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_3")
+			self.W_FIELD = SASSessionTunables.SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_3
 		else:
-			self.W_FIELD = gc.getDefineINT("SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_4")
+			self.W_FIELD = SASSessionTunables.SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_4
 		if self.W_FIELD <= 0:
 			raise ValueError("[FATAL] SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_* must be >= 1.")
-		iNoReduceMinWidth = SASCurrentDefines.getInt("SAS_SEVO_SPEED_FIELD_FULL_MIN_WIDTH")
+		iNoReduceMinWidth = SASSessionTunables.SAS_SEVO_SPEED_FIELD_FULL_MIN_WIDTH
 		if (iNoReduceMinWidth > 0) and (self.top.getScreen().getXResolution() >= iNoReduceMinWidth):
-			self.W_FIELD = gc.getDefineINT("SAS_SEVO_SPEED_FIELD_FULL_COL_WIDTH")
+			self.W_FIELD = SASSessionTunables.SAS_SEVO_SPEED_FIELD_FULL_COL_WIDTH
 			if self.W_FIELD <= 0:
 				raise ValueError("[FATAL] SAS_SEVO_SPEED_FIELD_FULL_COL_WIDTH must be >= 1.")
-		self.IS_SAS_SEVO_SPEED_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVO_SPEED_CHART_HEADER_ICONS") > 0)
-		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVO_SPEED_CHART_FILL_PCT")
+		self.IS_SAS_SEVO_SPEED_CHART_HEADER_ICONS = (SASSessionTunables.SAS_SEVO_SPEED_CHART_HEADER_ICONS > 0)
+		self.TABLE_FILL_PERCENT = SASSessionTunables.SAS_SEVO_SPEED_CHART_FILL_PCT
 		if self.TABLE_FILL_PERCENT <= 0:
 			raise ValueError("[FATAL] SAS_SEVO_SPEED_CHART_FILL_PCT must be >= 1.")
 

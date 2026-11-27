@@ -131,6 +131,32 @@ def write_request_ini(base_ini, out_ini, turns, debug_mode, run_id, alias, game_
 	out_ini.write_bytes("\r\n".join(lines).encode("latin-1"))
 
 
+# <!-- custom: The per-run INIs our helpers write into the game folder, named by prefix, UTC or local time and process ID, such as SASAutoplay_20261123T102236Z_34312.ini, each with the .bak copy Civ4 leaves beside it.
+# The whole name is matched, not the prefix alone: Codex's review (GPT-6.2-Sol) reproduced the first version deleting a hand-named SASStart_my_profile.ini. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+RUN_INI_NAME = re.compile(r"^SAS(Autoplay|Start|Load|Preview|Capture)_\d{8}T\d{6}Z?_\d+\.ini(\.bak)?$")
+# <!-- custom: An INI younger than this may belong to another run that wrote it and has not launched Civ4 yet, which Codex's review also reproduced deleting; a launch takes seconds, so ten minutes leaves a wide margin. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+RUN_INI_MIN_AGE_SECONDS = 600
+
+
+# <!-- custom: A run that leaves its client open, such as start_game.py or run_autoplay.py --keep-open, cannot remove its INI, since the game is still using it, so 53 SASAutoplay_*.ini and .bak files had piled up in the game folder.
+# The next run removes them instead, but only while no Civ4 runs, as an open client may still be using its INI, and never keep, such as a --base-ini that happens to match; other INIs there, such as the user's, are never touched. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+def remove_run_inis(civ4_dir=desktop_windows.DEFAULT_CIV4_DIR, keep=()):
+	if desktop_windows.civ4_processes():
+		return 0
+	kept = {Path(path).resolve() for path in keep}
+	cutoff = time.time() - RUN_INI_MIN_AGE_SECONDS
+	removed = 0
+	for path in Path(civ4_dir).iterdir():
+		# <!-- custom: The cleanup is optional, so a folder with a matching name, a locked file or one another run removed first is skipped rather than stopping the launch; Codex's review (GPT-6.2-Sol) reproduced a PermissionError from such a folder. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		try:
+			if RUN_INI_NAME.match(path.name) and path.is_file() and path.resolve() not in kept and path.stat().st_mtime < cutoff:
+				path.unlink()
+				removed += 1
+		except OSError:
+			continue
+	return removed
+
+
 def find_history(pid, since):
 	# <!-- custom: Runtime names its history SASRuntimeHistory_<processStartUtc>_<pid>.jsonl; the PID alone could match an older run. (Claude Code Opus 5.5) -->
 	for path in LOGS_DIR.glob("SASRuntimeHistory_*_%d.jsonl" % pid):
@@ -352,6 +378,10 @@ def main():
 	running = desktop_windows.civ4_processes()
 	if running and not args.multiple:
 		sys.exit("Civ4 is already running (%s); close it or pass --multiple" % ", ".join(str(pid) for pid, _ in running))
+	# <!-- custom: Removes earlier runs' INIs left behind by clients kept open; see remove_run_inis. (Claude code Opus 5.5) -->
+	removed = remove_run_inis(args.civ4_dir, keep=(args.base_ini,))
+	if removed:
+		print("removed %d leftover per-run INI file(s) from earlier runs" % removed, flush=True)
 	majority, odd = toggle_dev_diagnostics.read_mixed_values()
 	if odd:
 		print("warning: development defines are mostly %s, but not %s; run LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on or off to make them consistent" % (majority, ", ".join(odd)), flush=True)

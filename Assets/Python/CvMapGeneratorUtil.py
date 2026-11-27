@@ -12,6 +12,8 @@ import CvUtil
 import random
 from math import sqrt
 import sys
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 # NOTES ABOUT THE MAP UTILITIES
 #
@@ -26,7 +28,7 @@ import sys
 # - Bob Thomas	September 23, 2005
 
 # advc.129c: Master switch for turning off all my terrain changes (they're not extensive enough to justify new subclasses)
-# <!-- custom: SAS_MAPGEN_STANDARD_TERRAIN_ON makes this base AdvCiv choice independently tunable through XML while retaining bEarthlike for map-script and mod-mod compatibility. (GPT-5.6-Sol) -->
+# <!-- custom: SAS_MAPGEN_STANDARD_TERRAIN_ON makes this base AdvCiv choice independently tunable, through SASSessionTunables.py, while retaining bEarthlike for map-script and mod-mod compatibility. (GPT-5.6-Sol) -->
 bEarthlike = True
 
 # advc.tsl: Consult the DLL for this
@@ -35,7 +37,7 @@ SAS_MAPGEN_LATITUDE_TERRAIN_ON = None
 def isSASAdvCivLatitudeTerrainEnabled():
 	global SAS_MAPGEN_LATITUDE_TERRAIN_ON
 	if SAS_MAPGEN_LATITUDE_TERRAIN_ON is None:
-		SAS_MAPGEN_LATITUDE_TERRAIN_ON = (CyGlobalContext().getDefineINT("SAS_MAPGEN_LATITUDE_TERRAIN_ON") > 0)
+		SAS_MAPGEN_LATITUDE_TERRAIN_ON = (SASSessionTunables.SAS_MAPGEN_LATITUDE_TERRAIN_ON > 0)
 	return SAS_MAPGEN_LATITUDE_TERRAIN_ON
 
 def latitudeAtPlot(map, iX, iY, iHeight):
@@ -104,9 +106,9 @@ class FractalWorld:
 		self.gc = CyGlobalContext()
 		# <!-- custom: Preserve explicit map-script fractal exponents; use the centralized AdvCiv/BTS-compatible defaults only when omitted. (GPT-5.6-Sol) -->
 		if fracXExp is None:
-			fracXExp = SASCurrentDefines.getInt("SAS_MAPGEN_FRACTAL_DEFAULT_X_EXP")
+			fracXExp = SASSessionTunables.SAS_MAPGEN_FRACTAL_DEFAULT_X_EXP
 		if fracYExp is None:
-			fracYExp = SASCurrentDefines.getInt("SAS_MAPGEN_FRACTAL_DEFAULT_Y_EXP")
+			fracYExp = SASSessionTunables.SAS_MAPGEN_FRACTAL_DEFAULT_Y_EXP
 		self.map = self.gc.getMap()
 		self.iNumPlotsX = self.map.getGridWidth()
 		self.iNumPlotsY = self.map.getGridHeight()
@@ -127,7 +129,7 @@ class FractalWorld:
 		self.hillGroupTwoRange = self.gc.getClimateInfo(self.map.getClimate()).getHillRange()
 		# <advc.129c>
 		global bEarthlike
-		if bEarthlike and SASCurrentDefines.getInt("SAS_MAPGEN_STANDARD_TERRAIN_ON") > 0:
+		if bEarthlike and SASSessionTunables.SAS_MAPGEN_STANDARD_TERRAIN_ON > 0:
 			self.hillGroupTwoRange += 1
 		# </advc.129c>
 		self.hillGroupTwoBase = 75
@@ -143,9 +145,9 @@ class FractalWorld:
 		#
 		# <!-- custom: Preserve explicit map-script grain values; use the centralized shared-generator defaults only when omitted. (GPT-5.6-Sol) -->
 		if continent_grain is None:
-			continent_grain = SASCurrentDefines.getInt("SAS_MAPGEN_FRACTAL_DEFAULT_CONTINENT_GRAIN")
+			continent_grain = SASSessionTunables.SAS_MAPGEN_FRACTAL_DEFAULT_CONTINENT_GRAIN
 		if rift_grain is None:
-			rift_grain = SASCurrentDefines.getInt("SAS_MAPGEN_FRACTAL_DEFAULT_RIFT_GRAIN")
+			rift_grain = SASSessionTunables.SAS_MAPGEN_FRACTAL_DEFAULT_RIFT_GRAIN
 		iFlags = self.iFlags
 		if invert_heights:
 			iFlags += CyFractal.FracVals.FRAC_INVERT_HEIGHTS
@@ -269,9 +271,9 @@ class FractalWorld:
 		self.checkForOverrideDefaultUserInputVariances()
 		# <!-- custom: Use centralized defaults only when a map script does not supply its own water percentage or hills/Peaks grain. (GPT-5.6-Sol) -->
 		if water_percent is None:
-			water_percent = SASCurrentDefines.getInt("SAS_MAPGEN_FRACTAL_DEFAULT_WATER_PCT")
+			water_percent = SASSessionTunables.SAS_MAPGEN_FRACTAL_DEFAULT_WATER_PCT
 		if grain_amount is None:
-			grain_amount = SASCurrentDefines.getInt("SAS_MAPGEN_FRACTAL_DEFAULT_HILLS_GRAIN")
+			grain_amount = SASSessionTunables.SAS_MAPGEN_FRACTAL_DEFAULT_HILLS_GRAIN
 
 		self.hillsFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		self.peaksFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount+1, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
@@ -294,7 +296,7 @@ class FractalWorld:
 		iHillsBottom2 = self.hillsFrac.getHeightFromPercent(max((self.hillGroupTwoBase - self.hillGroupTwoRange), 0))
 		iHillsTop2 = self.hillsFrac.getHeightFromPercent(min((self.hillGroupTwoBase + self.hillGroupTwoRange), 100))
 		# advc.030: *8/7 to compensate for the removal of coastal peaks
-		bSASAdvCivCoastalPeakReduction = (SASCurrentDefines.getInt("SAS_MAPGEN_COASTAL_PEAK_REDUCTION_ON") > 0)
+		bSASAdvCivCoastalPeakReduction = (SASSessionTunables.SAS_MAPGEN_COASTAL_PEAK_REDUCTION_ON > 0)
 		if bSASAdvCivCoastalPeakReduction:
 			iPeakPercent = (self.peakPercent * 8) / 7
 		else:
@@ -788,9 +790,9 @@ class MultilayeredFractal:
 		self.gc = CyGlobalContext()
 		# <!-- custom: Preserve explicit map-script fractal exponents; use the centralized defaults only when omitted. (GPT-5.6-Sol) -->
 		if fracXExp is None:
-			fracXExp = SASCurrentDefines.getInt("SAS_MAPGEN_FRACTAL_DEFAULT_X_EXP")
+			fracXExp = SASSessionTunables.SAS_MAPGEN_FRACTAL_DEFAULT_X_EXP
 		if fracYExp is None:
-			fracYExp = SASCurrentDefines.getInt("SAS_MAPGEN_FRACTAL_DEFAULT_Y_EXP")
+			fracYExp = SASSessionTunables.SAS_MAPGEN_FRACTAL_DEFAULT_Y_EXP
 		self.map = self.gc.getMap()
 		self.iW = self.map.getGridWidth()
 		self.iH = self.map.getGridHeight()
@@ -935,7 +937,7 @@ class MultilayeredFractal:
 		iHillsBottom2 = regionHillsFrac.getHeightFromPercent(max((75 - self.gc.getClimateInfo(self.map.getClimate()).getHillRange()), 0))
 		iHillsTop2 = regionHillsFrac.getHeightFromPercent(min((75 + self.gc.getClimateInfo(self.map.getClimate()).getHillRange()), 100))
 		# advc.030: *8/7
-		bSASAdvCivCoastalPeakReduction = (SASCurrentDefines.getInt("SAS_MAPGEN_COASTAL_PEAK_REDUCTION_ON") > 0)
+		bSASAdvCivCoastalPeakReduction = (SASSessionTunables.SAS_MAPGEN_COASTAL_PEAK_REDUCTION_ON > 0)
 		if bSASAdvCivCoastalPeakReduction:
 			iPeakPercent = (8*self.gc.getClimateInfo(self.map.getClimate()).getPeakPercent())/7
 		else:
@@ -1181,27 +1183,27 @@ class TerrainGenerator:
 		self.map = CyMap()
 		# <!-- custom: Preserve explicit map-script fractal exponents and terrain grain; use the centralized defaults only when omitted. (GPT-5.6-Sol) -->
 		if fracXExp is None:
-			fracXExp = SASCurrentDefines.getInt("SAS_MAPGEN_FRACTAL_DEFAULT_X_EXP")
+			fracXExp = SASSessionTunables.SAS_MAPGEN_FRACTAL_DEFAULT_X_EXP
 		if fracYExp is None:
-			fracYExp = SASCurrentDefines.getInt("SAS_MAPGEN_FRACTAL_DEFAULT_Y_EXP")
+			fracYExp = SASSessionTunables.SAS_MAPGEN_FRACTAL_DEFAULT_Y_EXP
 		if grain_amount is None:
-			grain_amount = SASCurrentDefines.getInt("SAS_MAPGEN_STANDARD_TERRAIN_GRAIN")
+			grain_amount = SASSessionTunables.SAS_MAPGEN_STANDARD_TERRAIN_GRAIN
 		# <!-- custom: Preserve explicit map-script terrain percentages and latitude thresholds; use the centralized defaults only when the caller omits them.
 		# Divide integer percentages by 100.0 for Python 2.4 floating-point division. (GPT-5.6-Sol) -->
 		if iDesertPercent is None:
-			iDesertPercent = SASCurrentDefines.getInt("SAS_MAPGEN_STANDARD_DESERT_PCT")
+			iDesertPercent = SASSessionTunables.SAS_MAPGEN_STANDARD_DESERT_PCT
 		if iPlainsPercent is None:
-			iPlainsPercent = SASCurrentDefines.getInt("SAS_MAPGEN_STANDARD_PLAINS_PCT")
+			iPlainsPercent = SASSessionTunables.SAS_MAPGEN_STANDARD_PLAINS_PCT
 		if fSnowLatitude is None:
-			fSnowLatitude = SASCurrentDefines.getInt("SAS_MAPGEN_STANDARD_SNOW_LAT_PCT") / 100.0
+			fSnowLatitude = SASSessionTunables.SAS_MAPGEN_STANDARD_SNOW_LAT_PCT / 100.0
 		if fTundraLatitude is None:
-			fTundraLatitude = SASCurrentDefines.getInt("SAS_MAPGEN_STANDARD_TUNDRA_LAT_PCT") / 100.0
+			fTundraLatitude = SASSessionTunables.SAS_MAPGEN_STANDARD_TUNDRA_LAT_PCT / 100.0
 		if fGrassLatitude is None:
-			fGrassLatitude = SASCurrentDefines.getInt("SAS_MAPGEN_STANDARD_GRASS_LAT_PCT") / 100.0
+			fGrassLatitude = SASSessionTunables.SAS_MAPGEN_STANDARD_GRASS_LAT_PCT / 100.0
 		if fDesertBottomLatitude is None:
-			fDesertBottomLatitude = SASCurrentDefines.getInt("SAS_MAPGEN_STANDARD_DESERT_BOTTOM_LAT_PCT") / 100.0
+			fDesertBottomLatitude = SASSessionTunables.SAS_MAPGEN_STANDARD_DESERT_BOTTOM_LAT_PCT / 100.0
 		if fDesertTopLatitude is None:
-			fDesertTopLatitude = SASCurrentDefines.getInt("SAS_MAPGEN_STANDARD_DESERT_TOP_LAT_PCT") / 100.0
+			fDesertTopLatitude = SASSessionTunables.SAS_MAPGEN_STANDARD_DESERT_TOP_LAT_PCT / 100.0
 		# <advc.129c>
 		self.processCustomizations()
 		if self.bEarthlike:
@@ -1404,7 +1406,7 @@ class TerrainGenerator:
 		global bEarthlike
 		# <!-- custom: Map-script subclasses may replace __init__ without setting self.gc.
 		# Reading this once-per-generation define locally preserves that inherited compatibility contract. See KI#284.2. (GPT-5.6-Sol) -->
-		if not bEarthlike or SASCurrentDefines.getInt("SAS_MAPGEN_STANDARD_TERRAIN_ON") <= 0:
+		if not bEarthlike or SASSessionTunables.SAS_MAPGEN_STANDARD_TERRAIN_ON <= 0:
 			return
 		self.bEarthlike = True
 		# Everything except getLatitudeAtPlot is essential
@@ -1424,17 +1426,17 @@ class FeatureGenerator:
 		self.map = CyMap()
 		# <!-- custom: Preserve explicit map-script fractal exponents, feature grains, and feature percentages; use the centralized defaults only when omitted. (GPT-5.6-Sol) -->
 		if fracXExp is None:
-			fracXExp = SASCurrentDefines.getInt("SAS_MAPGEN_FRACTAL_DEFAULT_X_EXP")
+			fracXExp = SASSessionTunables.SAS_MAPGEN_FRACTAL_DEFAULT_X_EXP
 		if fracYExp is None:
-			fracYExp = SASCurrentDefines.getInt("SAS_MAPGEN_FRACTAL_DEFAULT_Y_EXP")
+			fracYExp = SASSessionTunables.SAS_MAPGEN_FRACTAL_DEFAULT_Y_EXP
 		if jungle_grain is None:
-			jungle_grain = SASCurrentDefines.getInt("SAS_MAPGEN_STANDARD_JUNGLE_GRAIN")
+			jungle_grain = SASSessionTunables.SAS_MAPGEN_STANDARD_JUNGLE_GRAIN
 		if forest_grain is None:
-			forest_grain = SASCurrentDefines.getInt("SAS_MAPGEN_STANDARD_FOREST_GRAIN")
+			forest_grain = SASSessionTunables.SAS_MAPGEN_STANDARD_FOREST_GRAIN
 		if iJunglePercent is None:
-			iJunglePercent = SASCurrentDefines.getInt("SAS_MAPGEN_STANDARD_JUNGLE_PCT")
+			iJunglePercent = SASSessionTunables.SAS_MAPGEN_STANDARD_JUNGLE_PCT
 		if iForestPercent is None:
-			iForestPercent = SASCurrentDefines.getInt("SAS_MAPGEN_STANDARD_FOREST_PCT")
+			iForestPercent = SASSessionTunables.SAS_MAPGEN_STANDARD_FOREST_PCT
 		self.mapRand = self.gc.getGame().getMapRand()
 		self.jungles = CyFractal()
 		self.forests = CyFractal()
@@ -1484,7 +1486,7 @@ class FeatureGenerator:
 		# Keep BTS coordinate-order traversal available independently. (GPT-5.6-Sol) -->
 		# <!-- custom: Map-script subclasses may replace __init__ without setting self.gc.
 		# Reading this once-per-generation define locally preserves that inherited compatibility contract. See KI#284.2. (GPT-5.6-Sol) -->
-		if SASCurrentDefines.getInt("SAS_MAPGEN_FEATURE_PLACEMENT_ORDER_ON") <= 0:
+		if SASSessionTunables.SAS_MAPGEN_FEATURE_PLACEMENT_ORDER_ON <= 0:
 			for iX in range(self.iGridW):
 				for iY in range(self.iGridH):
 					self.addFeaturesAtPlot(iX, iY)
@@ -1562,10 +1564,10 @@ class FeatureGenerator:
 				iFlags += CyFractal.FracVals.FRAC_WRAP_X
 			if cyMap.isWrapY():
 				iFlags += CyFractal.FracVals.FRAC_WRAP_Y
-			iGrain = gc.getDefineINT("SAS_MAPGEN_STANDARD_MARSH_GRAIN") + gc.getWorldInfo(cyMap.getWorldSize()).getFeatureGrainChange()
+			iGrain = SASSessionTunables.SAS_MAPGEN_STANDARD_MARSH_GRAIN + gc.getWorldInfo(cyMap.getWorldSize()).getFeatureGrainChange()
 			self.marshes = CyFractal()
-			self.marshes.fracInit(cyMap.getGridWidth(), cyMap.getGridHeight(), iGrain, gc.getGame().getMapRand(), iFlags, gc.getDefineINT("SAS_MAPGEN_FRACTAL_DEFAULT_X_EXP"), gc.getDefineINT("SAS_MAPGEN_FRACTAL_DEFAULT_Y_EXP"))
-			self.iMarshLevel = self.marshes.getHeightFromPercent(100 - gc.getDefineINT("SAS_MAPGEN_STANDARD_MARSH_PCT"))
+			self.marshes.fracInit(cyMap.getGridWidth(), cyMap.getGridHeight(), iGrain, gc.getGame().getMapRand(), iFlags, SASSessionTunables.SAS_MAPGEN_FRACTAL_DEFAULT_X_EXP, SASSessionTunables.SAS_MAPGEN_FRACTAL_DEFAULT_Y_EXP)
+			self.iMarshLevel = self.marshes.getHeightFromPercent(100 - SASSessionTunables.SAS_MAPGEN_STANDARD_MARSH_PCT)
 			self.featureMarsh = getInfoTypeOrFail("FEATURE_MARSH")
 		if pPlot.canHaveFeature(self.featureMarsh):
 			if self.marshes.getHeight(iX, iY) >= self.iMarshLevel:

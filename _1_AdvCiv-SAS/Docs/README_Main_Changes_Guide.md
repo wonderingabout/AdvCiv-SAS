@@ -16,7 +16,7 @@ For technical details, see notably the root [README](/README.md) or other docs u
 
 Exact values and balance numbers are generally given only as examples, so this guide does not drift with every rebalance and stays focused on a broad but exhaustive overview and its rationale; see the Sevopedia or the XML for current values.
 
-Many of these changes are partially or entirely tunable via [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+Many of these changes are partially or entirely tunable via [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml), or, for the settings only Python reads, via [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py).
 
 - **Player-tunable options (SAS defines):**
   - When this guide mentions DLL code locations (for example `CvUnitInfo::getTerrainAttackModifier`), that is just to document where the behavior comes from.
@@ -157,6 +157,21 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 - "Demographics" → "Info Screen" (correct advisor name: does not only show the Demographics tab of the Info Screen) (Sevopedia Shortcuts)
 - "Victory Status" and "Victory Conditions" → "Victory Screen" (similar inconsistent naming in Sevopedia Shortcuts)
 - "Units" -> "Start Scroll at Units (Production Chooser Bar)" (City Screen) (clearer and so it is not confused with the new AdvCiv-SAS Building Filter buttons' behaviour (filter on click vs set default scroll position))
+- (Requires AdvCiv-SAS 6884+) "Unit Stack" → "Unit Group" on the selected unit's panel, such as "Unit Group (2):" for a group of two units, as it shows a group, not a stack.
+  - A stack is all the units that happen to be on one plot, selected or not, such as 20 Swordsmen, 5 Catapults and 2 Workers sitting next to a city, about to attack the city.
+  - A group is one, a few, or all of the units on one plot, joined to move together, which the game selects and moves as one. A unit on its own is a group of one.
+  - So that stack of 20 Swordsmen, 5 Catapults and 2 Workers may be:
+    - one group of all 27 units;
+    - one group of 20 Swordsmen, another group of 5 Catapults, and yet another group of 2 Workers, so 3 groups in total;
+    - one group of 12 Swordsmen, another group of 8 Swordsmen and 4 Catapults, another group of 1 Catapult and 1 Worker, and yet another group of 1 Worker, so 4 groups in total;
+    - or 27 groups containing one unit each.
+  - Therefore, units are not a group just because they sit on the same plot: they form a stack, and become a group only once selected together, with Shift-click or the Group button; no order, such as move, fortify or skip turn, is needed. They then stay joined, turn after turn, until you split them.
+  - So "Unit Group" names what the panel shows: the units the game selects, moves and counts together, as in the waiting count.
+    - It is also the game's own name: the code calls a group a selection group, `CvSelectionGroup` in [CvSelectionGroup.cpp](/CvGameCoreDLL/CvSelectionGroup.cpp), and has no "stack" object, as "Bonus" above matches the code's `CvBonusInfo` where the text said "Resource".
+  - The BUG options for that panel follow, such as "Group Movement Points" and "Group Promotions" under "Unit/Group Info:".
+  - Not renamed: the AI's code and defines, such as `AI_stackAttackCity` or `SAS_MIN_ATK_CITY_STACK_UNITS`, BUG's saved option keys, such as "Stack Movement Points", and BtS's "Stack Attack" option.
+    - In the AI, "stack" often means all the units on a plot, so each name would need checking against what its code counts; inherited names would no longer match BtS, BBAI, K-Mod and base AdvCiv when comparing; renamed defines would no longer match players' edited XML; and BUG stores players' choices under those keys.
+  - Note: BtS usually did the same, but when the current selection was not exactly one group, Shift-click only added a unit to the selection without joining it; K-Mod made Shift-click always join, which AdvCiv and SAS inherit.
 
 ### XML Asset Naming and Taxonomy
 
@@ -355,6 +370,16 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 
 ### System - Misc
 
+- (Requires AdvCiv-SAS 6888+) **Tunables only Python reads moved to [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py):** 152 SAS settings the DLL and the EXE never read left [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) for a plain Python file, with the same names, values and comments.
+  - Such as the main interface's `SAS_MAIN_UI_UNITS_WAITING_ON`, the Sevopedia's grouping switches such as `SAS_SEVO_TECHS_GROUP_BY_ERA`, the advisors' such as `SAS_MILIT_UI_DEFAULT_TAB`, the scoreboard's and the commerce sliders' styles, and map generation's terrain and feature shares such as `SAS_MAPGEN_STANDARD_MARSH_PCT`.
+  - Why: the XML holds about 770 SAS defines, so finding a setting there, for a player or an agent, meant searching a long file mostly about AI and logging the DLL reads; settings Python alone reads gain nothing from it.
+  - Its name says how long the values hold, a whole Civ4 session, as [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) is named for changes during play.
+    - Its first comment says what that means: restart Civ4 to apply an edit, as loading another save keeps the current values.
+    - Tunables, as they are plain values edited by hand rather than defines the engine loads, while Settings could suggest BUG's options menu; Restart, the other finalist for Session, is an action rather than a state like live.
+  - Like the XML, a change takes effect at the next Civ4 start; the defines meant to change during play, such as the font sizes, stay in the XML, where [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) reaches them.
+  - The file holds plain values only and imports nothing, which a CI check keeps; a typo in it stops the module loading rather than giving an XML error message.
+  - (Requires AdvCiv-SAS 6891+) 4 settings only Python reads stay in the XML: the font sizes `SAS_UI_FONT_BODY`, `SAS_UI_FONT_TINY` and `SAS_UI_FONT_TITLE`, which [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) changes during play, and that file's own switch, `SAS_LIVE_DEFINE_OVERRIDES_ON`. See [KI#128.11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.11).
+    - The informing screens' switches, such as `SAS_UI_DAWN_OF_MAN_ON`, moved too, once the development toggle could switch them in `SASSessionTunables.py`.
 - (Requires AdvCiv-SAS 6869+) **Live define overrides:** change a setting while Civ4 runs, without a restart, through [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt).
   - Why: the XML is read once at startup, so each try of a font size while tuning or auditing the upscaled UI, or each BBAI log category turned on for part of an audit, cost a restart; BBAI's logs are on the heavier side of logging, sometimes several GB, and rarely used, so a category is best on only for the stretch audited. Handy for agents and players alike.
     - It continues our work against restarts, such as the screens that follow a resolution change during play ([KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123)) and the settings read at each redraw ([KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128) family).
@@ -396,17 +421,17 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - This saves a click each time a game starts or loads, for example before starting AI Auto Play by hand, and a game left open after an unattended run does not wait on it either.
   - As of now it is not needed for agent-started autoplay: on 2026-11-11, with the screen on, a loaded save and a new game each completed 5 turns of AI Auto Play, side by side with `multiple`, and both final screenshots showed the map. It may still reduce tedium indirectly, one way or another.
   - It ships as `1`, so players still see the screen by default; [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) `on` sets `0` locally for development, and CI checks the shipped value.
-  - See [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) and [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
+  - See [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) and [SASSessionTunables.py](/Assets/Python/SASSessionTunables.py).
 - (Requires AdvCiv-SAS 6829+) **Skip the Greatest Civilizations screen:** with `SAS_UI_TOP_CIVS_ON=0`, the game goes on without waiting on that screen; its ranking is recorded as Timeline rows either way, so skipping it loses nothing.
   - Why: at turn 82 of a 2026-11-19 validation run it waited on its Exit button in an agent game.
   - For example "The Greatest Civilizations, Wealthiest, by Herodotus", then one row per rank such as "1) Cyrus of Persia, player 4, team 4" or "3) An Unknown Civilization"; see [README.md: Timeline Tab](/README.md#timeline-tab-in-the-info-screen-advisor).
   - It ships as `1`, so players still see the screen by default; [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) `on` sets `0` locally, as for Dawn of Man, and CI checks the shipped value.
-  - See [CvTopCivs.py](/Assets/Python/Screens/CvTopCivs.py) and [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
+  - See [CvTopCivs.py](/Assets/Python/Screens/CvTopCivs.py) and [SASSessionTunables.py](/Assets/Python/SASSessionTunables.py).
 - (Requires AdvCiv-SAS 6883+) **Skip the other screens that only inform:** `SAS_UI_TECH_SPLASH_ON`, `SAS_UI_ERA_MOVIE_ON`, `SAS_UI_WONDER_MOVIE_ON`, `SAS_UI_RELIGION_MOVIE_ON` and `SAS_UI_PROJECT_MOVIE_ON`, each `0`, skip the tech splash and the era, wonder, religion and project movies, so the game does not wait on their Continue buttons.
   - Each has its own switch, so a player can, for example, keep wonder movies and skip the rest. All ship as `1`; [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) `on` sets them to `0` locally, as for Dawn of Man, and CI checks the shipped values.
   - Why: on 2026-11-13, during the SASPilot work ([PR#47](https://github.com/wonderingabout/AdvCiv-SAS/pull/47)), a tech bought from an AI put its splash on display at once, and the game waited on Continue while the agent saw nothing waiting. What these screens say also reaches the event log, such as "You have discovered Navigation!".
   - They are skipped where the game shows them, so a tech splash the DLL launches is covered too. Feat popups, such as "first Swordsman", already have a switch of their own: the Advisor Popups player option.
-  - See [CvScreensInterface.py](/Assets/Python/EntryPoints/CvScreensInterface.py) and [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
+  - See [CvScreensInterface.py](/Assets/Python/EntryPoints/CvScreensInterface.py) and [SASSessionTunables.py](/Assets/Python/SASSessionTunables.py).
 - (Requires AdvCiv-SAS 6746+) **AI Auto Play can start without the keyboard:** a launch settings file passed as `ini=` can hold an `[SASAutoplay]` section with `Turns`, and optionally `DebugMode` and `RunId`; the game starts that many turns of autoplay right after loading a save, or after starting a new game when the file also sets `QuickStart = 1`.
   - Ordinary launches never read it, since they pass no `ini=` file.
   - [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy) uses it to launch Civ4 into a save, autoplay, report the result and exit, so an agent can test a change without the user at the PC. See [SASAutoplayRequest.py](/Assets/Python/SASAutoplayRequest.py).
@@ -430,7 +455,12 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - A base-game file SAS uses comes in even when SAS leaves it unmodified.
     - So a later change is an ordinary edit: AdvCiv-SAS lacked `CIV4ProcessInfo.xml`, for example, so it could not modify the file until taking it in.
     - One SAS does not use stays in the base game, such as `TechTree.py`, which the Foreign Advisor constructs but never reads.
+  - Once in the repository, the copies meet SAS's CI, which found inherited slips in them, such as vanilla's broken `CvUnitController.ProcessEvent` ([KI#165.13](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.13)), [`PyHelpers.py`](/Assets/Python/PyHelpers.py)'s `religionList` ([KI#165.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.2)) and [`PbWizard.py`](/Assets/Python/PitBoss/PbWizard.py)'s patch dialog without text ([KI#1085.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085.2)); [`CvDebugInfoScreen.py`](/Assets/Python/Screens/CvDebugInfoScreen.py)'s Map Details table, whose values sat one header to the left, was fixed the same way ([KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)).
+  - The map scripts were already there: every base-game map script, 35 of them, sits in [`PrivateMaps/`](/PrivateMaps/), many with SAS fixes, such as [`Archipelago.py`](/PrivateMaps/Archipelago.py)'s `isFreshWater`, which was missing its parentheses.
+  - (Requires AdvCiv-SAS 6887+) The first data file follows: BtS's [`GlobalDefines.xml`](/Assets/XML/GlobalDefines.xml), the only define file the game loads that the repository lacked, so all 1,448 defines it loads can now be found in the mod. See [KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2).
+  - (Requires AdvCiv-SAS 6889+) 26 more data files follow, such as [`GlobalTypes.xml`](/Assets/XML/GlobalTypes.xml), the basic infos, the player colors and the unit formations: the rules the DLL reads and the types SAS's own XML names, so both can be found and checked in the mod; presentation files SAS does not change stay in the base game. See [KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3).
   - The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md) lists which base-game and base AdvCiv files SAS keeps, takes in or leaves out, and the [manifests](/README.md#manifests-of-the-inherited-layers) what each layer ships.
+  - The root README's [Tunability](/README.md#tunability) section sums these files up for modders, beside where SAS's own settings live.
 
 ### Code/Performance optimizations
 
@@ -1448,6 +1478,7 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_L
 
 - **48 Civs DLL** is the **default and only bundled DLL**, supporting the larger SAS24/SAS32/SAS40/SAS48 world sizes and their higher default player counts. (Requires AdvCiv-SAS 6590+) One maintained DLL avoids switching builds during testing or playing; games with fewer civilizations are still supported.
   - The screens that adjust to its many players are listed in [UI (High player counts)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-high-player-counts).
+  - The DLL's hand-written world sizes follow the XML's order: Arena's insertion before Duel once had Large maps get Huge's settings, until AdvCiv-SAS later fixed that bug, and CI now checks such lists; see [KI#269](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-269).
 - Add a **notification at game start** (once per session) when the active DLL's **maximum civilization count** is lower than the selected world size's **default player count**.
   - (Requires AdvCiv-SAS 6590+) For example, a user compiling a custom 18-civ DLL and selecting SAS48 would receive a warning that the map may never be fully populated, with advice to use or compile a DLL with sufficient capacity and start a new game.
   - The check uses the active DLL's actual capacity and the current world-size XML values.
@@ -2906,8 +2937,11 @@ Assuming the calculation is correct and reliable, the higher the drive, the more
     - **advisors**
     - **sevopedia**
     - most of **diplomacy screen** (when it was possible) in [CvDiplomacy.py](/Assets/Python/CvDiplomacy.py) and `CvPlayer::getItemTradeString` (for trading table)
-    - **Event Log** window (as of now only **Event Log** and **Combat Log** tabs are supported) and **event message popup** (top-center) in [CvUtil.py](/Assets/Python/CvUtil.py) and [CvEventManager.py](/Assets/Python/CvEventManager.py) and `CvDLLInterfaceIFaceBase::addMessage`
-      - Event related message upscaling **only applies to new messages written after upscaling is enabled**, not to previously written event messages before upscaling was applied.
+    - **Event Log** window (as of now only **Event Log** and **Combat Log** tabs are supported) and **event message popup** (top-center): all messages land there, but each is enlarged by the code that adds it, so each path has its own hook:
+      - the DLL's messages, such as "Ice Cap has melted …", "Global Warming strikes near …", "Deal Canceled: …", wars, wonders and civics, through `CvDLLInterfaceIFaceBase::addMessage`;
+      - Python's Combat Log lines, through the combat helper in [CvUtil.py](/Assets/Python/CvUtil.py), used by [CvEventManager.py](/Assets/Python/CvEventManager.py);
+      - (Requires AdvCiv-SAS 6886+) Python's other messages, such as BUG's alerts ("Cyrus will export Iron", "Wang Kon is the new worst enemy of Hannibal"), random events, reminders and autolog, through [SASTextScale.py](/Assets/Python/SASTextScale.py); before, this path was missing, so they kept the stock size. See [KI#117.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-117.2).
+      - Message upscaling **only applies to new messages written after upscaling is enabled**, not to messages written before, such as those a save already holds.
     - miscellaneous screens such as the [CvEraMovieScreen.py](/Assets/Python/Screens/CvEraMovieScreen.py) (i.e. the e.g., "You have entered the Renaissance era!" screen), [CvWonderMovieScreen.py](/Assets/Python/Screens/CvWonderMovieScreen.py) (from hardcoded `<font=4b>` to SAS FONT `TITLE` (more readable without bold)) and [CvSpaceShipScreen.py](/Assets/Python/Screens/CvSpaceShipScreen.py)
     - and other places where font size could be changed
   - Made some **UI adjustments when needed to accommodate the larger text**.
@@ -3360,6 +3394,20 @@ Make some of the data-dense advisors use using a **higher contrast background th
   - The lower row separately and permanently shows Build Culture and No-Espionage's transferred Espionage as post-modifier additions (including zero values), followed by the exact final Culture rate and progress.
   - Integral values omit redundant `.00`, while nonzero hundredths remain exact.
   - See [KI#1063](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1063).
+- (Requires AdvCiv-SAS 6884+) **Main Interface - Cycling units or cities tells how many are left:** the selected unit's panel shows how many of your units still wait for orders, out of all your units, such as `Worker  (52 / 151 waiting)`, and the city screen's title shows the city's place in your city list, such as `[4/17]` in `Nuremberg: 12 - 1779 (1120 BC)  [4/17]`.
+  - Cities show their place: `[4/17]` means this is the 4th of your 17 cities, in the order the city screen's left and right arrows go through them.
+    - Why: going through your cities one by one, remembering which one this is, the 1st, the 4th, or nearly the last, was tedious.
+    - That order is the order the cities became yours, founded or captured, except that a new city takes the place of one you lost. It stays the same from turn to turn, so a city keeps its number.
+  - Units show a count instead: `52 / 151 waiting` means 52 units have not had orders yet this turn, out of your total 151 units.
+    - Why: with many units, what matters is how many are left before your turn can end; 3 of 15 and 3 of 200 tell very different stories. Cities never hold up the end of a turn, so they need no such count.
+    - The count does not depend on which unit you move first: each unit given orders lowers it by one, whatever the order.
+    - Units show no place, unlike cities, as they have no fixed list: when one unit is done, the game selects the waiting unit closest to it on the map. Finish with a Worker in the west, and the Tank beside it comes next; start with an Archer in the east instead, and the Tank comes much later.
+      - A place such as `[3/151]` would therefore have shown the same Tank as `[3/151]` one turn and `[40/151]` the next, depending only on which unit you started with, and told nothing.
+    - So units do not mirror the cities' place and use totals instead, waiting units out of all units, because that better helps you know how far you are from having played all your units and ending the turn.
+    - A waiting group of 10 units, units joined to move together (see "Unit Group" under [Renaming](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming)), adds 10 to the waiting count, not 1, even if one of them is already out of moves, as the game selects the whole group at once.
+    - The total, such as `151`, counts every unit you own, cargo, Great People and spies included.
+  - Both serve agents playing from screenshots as well as players: one look at the panel tells how much of the turn is left, or which city of the list is open.
+  - `SAS_MAIN_UI_UNITS_WAITING_ON` and `SAS_MAIN_UI_CITY_POSITION_ON` turn each off; both ship as `1`. See [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [SASSessionTunables.py](/Assets/Python/SASSessionTunables.py).
 - (Requires AdvCiv-SAS 6732+) **Main Interface (City Screen) - City health from surroundings is broken down:** the help showed only a rounded total, so a city with one Marsh seemed unaffected, and it named Forest but lumped Jungle and Marsh together as "Features" with no tile counts.
   - It now lists each feature and improvement with its count and value, and the exact total before the city rounds it to whole points; for example `+2 from Features (2.25 before rounding)`, then `Jungle: 4 x 0.50` and `Marsh: 1 x 0.25`. See [KI#1077](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1077).
   - `SAS_MAIN_UI_CITY_HEALTH_HELP_DETAIL` chooses the detail: 0 keeps the base AdvCiv rounded total, 1 adds the exact total, 2 also lists each source.
@@ -3369,7 +3417,7 @@ Make some of the data-dense advisors use using a **higher contrast background th
   - **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes.
   - These changes allow to now display more information and reduce the need for scrolling or hovering.
   - Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**.
-  - Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`.
+  - Enhanced the **city bar** and **other bars**, e.g., `Growing - 30/43 (4 Turns)`; the city bar's example is under **Main Interface - Cycling units or cities tells how many are left** above.
   - Adjust **city camera** to the north (tunable) so extra rows can be shown without overflowing into bottom BFC plots in `CvGame::onCityScreenChange`.
   - And other changes.
   - See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-101).
@@ -3383,7 +3431,7 @@ Make some of the data-dense advisors use using a **higher contrast background th
   - Add **commerce sliders fast increment buttons** (`++ and --` optional buttons ("Min/Max Buttons in BUG Menu")) in city screen (matching the ones in map view) (not added in Finance Tab or Espionage Tab because these still have access to commerce sliders as of now at their right in map view).
   - Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py).
 - **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**.
-  - Added buttons to unit stack, selected unit.
+  - Added buttons to the selected unit group and the selected unit.
   - Added **help text box** (`DefaultHelpArea`) (on the left side) optional **width adjustment** (negative value shrinks it).
   - Make **x and y positions** (resolution-scaled), and **width** (hard pixel; not resolution-scaled) of the **unit bar** (`PlotListPanel`) **adjustable**, and **fix horizontal overflow of unit bar into scoreboard** when unit bar is full and scoreboard is hovered on (or toggle lock scoreboard hover is ON) (see [KI#124](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-124)).
   - Make **left-click on GP bar** open the **corresponding city's city screen**.

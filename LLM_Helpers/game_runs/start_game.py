@@ -171,15 +171,19 @@ def main() -> int:
 	for pid, identity in d.stuck_civ4_clients():
 		ended, message = d.terminate_process(pid, expect=identity, only_exiting=True)
 		print("Civ4 client %d is hung at exit (KI#1102); %s" % (pid, message))
+	# <!-- custom: This script leaves its game open, so it cannot remove its own INI; the next run removes the ones earlier runs left, through run_autoplay.remove_run_inis. (Claude code Opus 5.5) -->
+	removed = run_autoplay.remove_run_inis()
+	if removed:
+		print("removed %d leftover per-run INI file(s) from earlier runs" % removed)
 	stuck = d.stuck_civ4_processes()
 	if stuck:
 		print("stuck Civ4 client(s) %s hold the single-instance lock; starting with Civ4's multiple argument" % ", ".join(str(pid) for pid in stuck))
 	if args.load:
 		pid, ini_path = load(args.load, args.debug_mode, args.mod, args.size, multiple=bool(stuck))
-		print("pid %d; loaded %s" % (pid, args.load) + ("" if ini_path is None else "; per-run INI %s (delete it, and its .bak, after closing the game)" % ini_path))
+		print("pid %d; loaded %s" % (pid, args.load) + ("" if ini_path is None else "; per-run INI %s (the next start_game.py or run_autoplay.py run removes it once the game is closed)" % ini_path))
 		return 0
 	pid, ini_path = start(args.map, args.world_size, args.option, args.debug_mode, era=args.era, mod=args.mod, size=args.size, multiple=bool(stuck))
-	print("pid %d; per-run INI %s (delete it, and its .bak, after closing the game)" % (pid, ini_path))
+	print("pid %d; per-run INI %s (the next start_game.py or run_autoplay.py run removes it once the game is closed)" % (pid, ini_path))
 	return 0
 
 

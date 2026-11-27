@@ -17,7 +17,8 @@ import sys
 
 def unescape(text):
     # <!-- custom: Markers come from a shell, so escapes such as \n are decoded here; a Bash heredoc or script would halve the backslashes (AGENTS.md, Naming, diagnostics and text encoding). (Claude code Opus 5.5) -->
-    return codecs.decode(text, "unicode_escape")
+    # <!-- custom: unicode_escape alone read a non-ASCII marker as UTF-8 bytes, so "x → y" became mojibake and was reported not found; turning such characters into \u escapes first lets them pass through unchanged. (Claude code Opus 5.5) -->
+    return codecs.decode(text.encode("latin-1", "backslashreplace"), "unicode_escape")
 
 
 def region(text, start, end, label):
@@ -78,6 +79,8 @@ def main(argv):
     parser.add_argument("--keep", action="append", default=[], metavar="MARKER", help="stage only the changed hunks whose removed or added lines hold MARKER (unchanged context lines do not count), every other hunk staying at HEAD; repeatable, and applied before --head and --drop")
     parser.add_argument("--dry-run", action="store_true", help="print the staged diff against HEAD without staging")
     args = parser.parse_args(argv)
+    # <!-- custom: Windows consoles default to cp1252, and a dry run printing a line holding a character such as → stopped with UnicodeEncodeError, so print UTF-8. (Claude code Opus 5.5) -->
+    sys.stdout.reconfigure(encoding="utf-8")
     if not args.head and not args.drop and not args.keep:
         raise SystemExit("give at least one --keep marker or --head or --drop region")
     root = git(".", ["rev-parse", "--show-toplevel"]).decode("utf-8").strip()

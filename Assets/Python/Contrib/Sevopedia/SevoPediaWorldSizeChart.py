@@ -10,6 +10,8 @@ from CvPythonExtensions import *
 import SASVisualUtils as SASVisuals
 import CvUtil
 from _sevopedia_helpers import *
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -24,8 +26,8 @@ class SevoPediaWorldSizeChart:
 		self.ROW_H = CHART_TABLE_ROW_H
 		self.W_ICON = CHART_TABLE_W_ICON
 		self.W_FIELD = 280
-		self.IS_SAS_SEVO_WORLD_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVO_WORLD_CHART_HEADER_ICONS") > 0)
-		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVO_WORLD_CHART_FILL_PCT")
+		self.IS_SAS_SEVO_WORLD_CHART_HEADER_ICONS = (SASSessionTunables.SAS_SEVO_WORLD_CHART_HEADER_ICONS > 0)
+		self.TABLE_FILL_PERCENT = SASSessionTunables.SAS_SEVO_WORLD_CHART_FILL_PCT
 		if self.TABLE_FILL_PERCENT <= 0:
 			raise ValueError("[FATAL] SAS_SEVO_WORLD_CHART_FILL_PCT must be >= 1.")
 

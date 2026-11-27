@@ -35,7 +35,8 @@ def fingerprint(root=ROOT):
 
 
 def write(root=ROOT):
-    (root / FINGERPRINT).write_text(json.dumps({"fingerprint": fingerprint(root), "files": list(RENDERER_FILES)}, indent=1) + "\n", encoding="utf-8")
+    # <!-- custom: Written as bytes with LF, as the repository stores it: write_text turned each line break into CRLF on Windows, which line_endings.py reported after a regeneration. (Claude code Opus 5.5) -->
+    (root / FINGERPRINT).write_bytes((json.dumps({"fingerprint": fingerprint(root), "files": list(RENDERER_FILES)}, indent=1) + "\n").encode("utf-8"))
 
 
 def check(root=ROOT):

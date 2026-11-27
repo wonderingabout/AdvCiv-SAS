@@ -499,6 +499,48 @@ def take_in(paths, civ4_root):
 	return 0
 
 
+def take_in_xml(paths, civ4_root, reason, credit, ki):
+	# <!-- custom: The XML counterpart of take_in: copies base-game data XML into SAS from the newest layer providing each, adding only the SAS header and a comment naming the source and why it was carried.
+	# Written for KI#1104.3's 26 files, which GlobalDefines.xml's carry (KI#1104.2) had done by hand; the header goes where that copy has it, after Firaxis's notice and the empty comment closing it, or after the XML declaration when a file has no notice, such as CIV4FormationInfos.xml.
+	# BtS's CIV4SpaceShipInfos.xml holds its declaration, notice, "Space Ship" comment and root element on one line, so the first version put the header inside the root element, which source_change_provenance.py then could not find; that first line now gets one item per line, as Firaxis's other files lay it out, the one change to the source's text.
+	# The text is read and written as Latin-1, so any byte comes back as it was; only the line endings become LF, as the repository stores them. (Claude code Opus 5.5) -->
+	rows = {row["path"].lower(): row for row in check.read_tsv() if row["area"] == "xml" and check.in_base_game(row)}
+	for path in paths:
+		row = rows.get(path.replace("\\", "/").lower())
+		if row is None:
+			raise SystemExit("%s: not a base-game XML file in inherited_files.tsv" % path)
+		layers = [name for name in row["layers"].split(",") if name in LAYER_FOLDERS]
+		layer = layers[-1]
+		rel = check.base_game_path(row)
+		source = LAYER_FOLDERS[layer] + rel
+		target = REPO / rel
+		if target.exists():
+			raise SystemExit("%s: already in SAS" % rel)
+		lines = (civ4_root / source).read_bytes().decode("latin-1").replace("\r\n", "\n").split("\n")
+		if not lines[0].startswith("<?xml"):
+			raise SystemExit("%s: no XML declaration on line 1; add the header by hand" % source)
+		lines = re.split(r"(?<=>)(?=<)", lines[0]) + lines[1:]
+		note = "<!-- custom: Copied from %s's %s (%s), the copy SAS loaded before (%s), %s. See KI#1104 and %s. (%s) -->" % (COPY_LAYER_NAMES[layer], (civ4_root / source).resolve(), shipped_by(layers), datetime.now().strftime("%Y-%m-%d"), reason, ki, credit)
+		header = ["<!--", "AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)", "(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)", "-->", note]
+		notice = [index for index, line in enumerate(lines[:6]) if "Copyright Firaxis Games" in line]
+		if notice:
+			at = notice[0] + 1
+			if at < len(lines) and lines[at].strip() == "<!-- -->":
+				at += 1
+		else:
+			at = 1
+		if any("--" in line for line in header[1:3]) or "--" in note[len("<!-- custom:"):-len("-->")]:
+			raise SystemExit("%s: the header would hold '--', which ends an XML comment" % rel)
+		lines = lines[:at] + header + lines[at:]
+		# <!-- custom: A file ends with a line break, as line_endings.py requires; BtS's CIV4FormationInfos.xml and CIV4SpaceShipInfos.xml had none, which that check reported on the first copies. (Claude code Opus 5.5) -->
+		if lines[-1] != "":
+			lines.append("")
+		target.parent.mkdir(parents=True, exist_ok=True)
+		target.write_bytes("\n".join(lines).encode("latin-1"))
+		print("copied %s -> %s" % (source, rel))
+	return 0
+
+
 STRUCTURE_TOKENS = {tokenize.NEWLINE: "<NEWLINE>", tokenize.INDENT: "<INDENT>", tokenize.DEDENT: "<DEDENT>"}
 
 
@@ -575,11 +617,20 @@ def main():
 	parser.add_argument("--loaded", nargs="?", const=LOGS, type=Path, metavar="LOG_DIR", help="compare the base-game Python files SAS lacks with the modules PythonDbg logs show loading (default: Civ4's Logs folder)")
 	parser.add_argument("--compare", nargs="+", metavar="PATH", help="compare these SAS copies of base-game Python files, such as Assets/Python/EntryPoints/PbMain.py, with the newest base-game layer's, beyond layout and comments")
 	parser.add_argument("--take-in", nargs="+", metavar="PATH", help="copy these base-game Python files, such as Assets/Python/Screens/CvScreen.py, into SAS with a source comment")
+	# <!-- custom: For XML, --take-in-xml with the reason each copy note gives, the model credit and the KI; added for KI#1104.3. (Claude code Opus 5.5) -->
+	parser.add_argument("--take-in-xml", nargs="+", metavar="PATH", help="copy these base-game XML files, such as Assets/XML/GlobalTypes.xml, into SAS with the SAS header and a source comment; needs --reason, --credit and --ki")
+	parser.add_argument("--reason", help="for --take-in-xml: why the files are carried, ending the copy note's sentence, such as 'so the rule data it holds can be found and checked in the repository'")
+	parser.add_argument("--credit", help="for --take-in-xml: the model credit closing the copy note, such as 'Claude code Opus 5.5'")
+	parser.add_argument("--ki", help="for --take-in-xml: the Known Issue the carry belongs to, such as KI#1104.3")
 	args = parser.parse_args()
 	if args.loaded:
 		return report_loaded(args.loaded)
 	if args.take_in:
 		return take_in(args.take_in, args.civ4_root)
+	if args.take_in_xml:
+		if not (args.reason and args.credit and args.ki):
+			raise SystemExit("--take-in-xml needs --reason, --credit and --ki")
+		return take_in_xml(args.take_in_xml, args.civ4_root, args.reason, args.credit, args.ki)
 	if args.compare:
 		return compare_copies(args.compare, args.civ4_root)
 	# <!-- custom: --upstream-ref applies to --inventory too; it was ignored there, which Codex found in review (2026-11-22). (Claude code Opus 5.5 + GPT-6.2-Sol) -->

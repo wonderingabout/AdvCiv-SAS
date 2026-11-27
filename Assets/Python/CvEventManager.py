@@ -10,6 +10,8 @@
 ## The EVENTLIST that are being notified can be found 
 
 from CvPythonExtensions import *
+# <!-- custom: SASTextScale's addMessage and addImmediateMessage give Python's messages the label font the DLL gives its own, as CyInterface()'s went to the EXE at the stock size. See KI#117.2. (Claude code Opus 5.5) -->
+import SASTextScale
 # <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
 import SASCurrentDefines
 import CvUtil
@@ -235,7 +237,7 @@ class CvEventManager:
 		'Report an Event to Events.log '
 		if (gc.getGame().getActivePlayer() != -1):
 			message = "DEBUG Event: %s (%s)" %(entry[0], gc.getActivePlayer().getName())
-			CyInterface().addImmediateMessage(message,"")
+			SASTextScale.addImmediateMessage(message,"")
 			CvUtil.pyPrint(message)
 		return 0
 
