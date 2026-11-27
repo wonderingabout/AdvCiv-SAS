@@ -263,21 +263,15 @@ class CvForeignAdvisor:
 			"ESPIONAGE": self.drawEspionage,
 			}
 
-		self.TXT_KEY_DICT = {
-			"BONUS": "TXT_KEY_FOREIGN_ADVISOR_RESOURCES",
-			"TECH": "TXT_KEY_FOREIGN_ADVISOR_TECHS",
-			"RELATIONS": "TXT_KEY_FOREIGN_ADVISOR_RELATIONS",
-			# <!-- custom: renamed Active tab label to Treaties to match the reduced scope (no bonus clutter). (GPT-5.3-Codex) -->
-			"ACTIVE_TRADE": "TXT_KEY_FOREIGN_ADVISOR_TREATIES",
-			"INFO": "TXT_KEY_FOREIGN_ADVISOR_INFO",
-			"ESPIONAGE": "TXT_KEY_SAS_ESPIONAGE_SHORT",
-			"GLANCE": "TXT_KEY_FOREIGN_ADVISOR_GLANCE",
-			"CITIES": "TXT_KEY_CONCEPT_CITIES", # advc.ctr
-			}
+		# <!-- custom: The tabs' keys and label text keys come from CvScreenEnums.ADVISOR_TABS, the shared tab registry, which now holds this screen's former TXT_KEY_DICT with its notes (the Treaties label, advc.ctr's Cities tab). See KI#1110. (Claude code Opus 5.5) -->
+		self.TXT_KEY_DICT = {}
+		for szAdvisor in ("foreigntrade", "foreigndiplomacy"):
+			for (szKey, szTextKey, szOption) in CvScreenEnums.getAdvisorTabs(szAdvisor):
+				self.TXT_KEY_DICT[szKey] = szTextKey
 
 		# <!-- custom: keep the two Foreign-advisor tab clusters explicit: F4 uses trade tabs, while CvForeignDiplomacyAdvisor selects the diplomacy/intel tabs. (GPT-5.5) -->
-		self.TRADE_TAB_KEYS = ["ACTIVE_TRADE", "BONUS", "TECH", "CITIES"]
-		self.DIPLOMACY_TAB_KEYS = ["RELATIONS", "GLANCE", "INFO", "ESPIONAGE"]
+		self.TRADE_TAB_KEYS = CvScreenEnums.getAdvisorTabKeys("foreigntrade")
+		self.DIPLOMACY_TAB_KEYS = CvScreenEnums.getAdvisorTabKeys("foreigndiplomacy")
 		self.FOREIGN_TAB_KEYS = self.TRADE_TAB_KEYS
 
 		# K-Mod

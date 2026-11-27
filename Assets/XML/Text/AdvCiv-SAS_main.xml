@@ -118,6 +118,23 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_MILITARY_STRATADV_RESOURCES</Tag>
 		<English>Bonuses</English>
 	</TEXT>
+	<!-- custom: The Domestic Advisor's Overview tab labels, which were English literals in CvDomesticAdvisor.py, for the shared tab registry CvScreenEnums.ADVISOR_TABS. See KI#1110. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_DOMESTIC_ADVISOR_OVERVIEW1_TAB</Tag>
+		<English>Overview 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_DOMESTIC_ADVISOR_OVERVIEW2_TAB</Tag>
+		<English>Overview 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_DOMESTIC_ADVISOR_OVERVIEW3_TAB</Tag>
+		<English>Overview 3</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_DOMESTIC_ADVISOR_OVERVIEW4_TAB</Tag>
+		<English>Overview 4</English>
+	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TAB</Tag>
 		<English>Summary</English>

@@ -117,6 +117,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`lib/xml_defines.py`](#libxml_definespy)
   - [Source](#source)
     - [`build/source/advisor_scoreboard_space.py`](#buildsourceadvisor_scoreboard_spacepy)
+    - [`build/source/advisor_tab_registry.py`](#buildsourceadvisor_tab_registrypy)
     - [`build/source/checkout_byte_compares.py`](#buildsourcecheckout_byte_comparespy)
     - [`build/source/cpp_define_reads_cached.py`](#buildsourcecpp_define_reads_cachedpy)
     - [`build/source/cpp_standard_conformance.py`](#buildsourcecpp_standard_conformancepy)
@@ -1433,6 +1434,15 @@ Fails when an `Assets/Python` file calls `getAdvisorScoreboardSpace` without dec
 - Added on 2026-11-20, when the marker replaced a hand-kept list of 8 screen IDs in `CvMainInterface.py`, which a new advisor could have missed.
 - The check follows a direct-call convention rather than resolving inheritance: the advisor class that calls the helper declares the marker in its own file. A subclass inheriting both, such as `CvForeignDiplomacyAdvisor`, needs nothing.
 - Definitions and comments do not count as calls. `CvScreensInterface.py`, which looks up the open advisor's space, and `CvTechChooser.py`, whose space is read apart, are exempt with their reasons in the check.
+
+#### `build/source/advisor_tab_registry.py`
+
+Fails when the advisors' footer tabs stop coming from one place, `ADVISOR_TABS` in [`CvScreenEnums.py`](/Assets/Python/Screens/CvScreenEnums.py): when a screen calls `drawAdvisorFooterTabs` without reading the registry or sets `PAGE_NAME_LIST` from a literal list, when an advisor's hotkey comment differs from its control's `HotKey` in `CIV4ControlInfos.xml`, when a label text key is in no SAS text file nor the inherited text list, when an advisor or tab key repeats, or when SASPilotUI's `_TAB_COMMANDS` misses a registry tab or keeps one the registry dropped.
+
+- Added on 2026-11-22 with the registry ([KI#1110](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1110)): the tabs had lived in seven hard-coded shapes, so code needing every tab opened each screen, and a hand-kept copy would drift. A new tab is now added in the registry, and this check makes it get a label text key and a SASPilot command entry (the command, or `None` with a note).
+- The test feeds it a small registry: a stale hotkey comment, an unknown text key, a screen with its own list and a tab with no command entry each fail.
+- Each entry's command must be a `cmd_` function of `SASPilotCommands.py` or `SASPilotUI.py`, and `None` needs its note: keys alone were checked first, so `battlez` for `battles` passed and `uitabs all=1` advertised a command that does not exist (Codex's review, 2026-11-27).
+- The DLL opens the Info screen on a page by number (`py.showInfoScreen(1)` for Score in `CvDLLWidgetData.cpp`), so `DLL_INFO_PAGES` names the tab each such number means, and the check fails when the registry puts another tab there or the DLL passes a number it does not name (Codex's review, 2026-11-22).
 
 #### `build/source/checkout_byte_compares.py`
 

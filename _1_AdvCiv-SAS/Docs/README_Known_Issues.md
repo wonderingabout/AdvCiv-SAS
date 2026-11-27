@@ -1339,7 +1339,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1107.2 - (Fixed AdvCiv-SAS bug, Debug Mode only) SAS's move onto the SASVisualUtils cache had broken GameFontDisplay.py's lookup of each glyph's religion, corporation or bonus with .index() on the cache's tuples, which Python 2.4 lacks, hidden behind KI#1107's empty table until its fix let rows draw](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107.2)\
 [KI#1108 - (Gated inherited AdvCiv) Default builds compiled the unused implementation of ReproTest.cpp, base AdvCiv's reproducibility test, though its ENABLE_REPRO_TEST switch is off by default](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108)\
 [KI#1108.2 - (Fixed inherited BtS) The Foreign Advisors rebuilt BtS's tech prerequisite graph, TechTree, on every opening and tab click, pairing each of the 92 techs, as in BtS, base AdvCiv and, as of now, SAS, with every tech, 92 x 92 = 8,464 pairs, a count growing with the square of a mod's techs, though it was unread even in BtS's own Foreign Advisor](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108.2)\
-[KI#1109 - (Fixed inherited AdvCiv regression) Setting a string define from Python stored a bool instead: after `setDefineSTRING`, the next `getDefineSTRING` of that define raised "unidentifiable C++ exception", as AdvCiv's FVariableSystem refactor had no `char const*` setter, so the value fell to `setValue(bool)`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1109)
+[KI#1109 - (Fixed inherited AdvCiv regression) Setting a string define from Python stored a bool instead: after `setDefineSTRING`, the next `getDefineSTRING` of that define raised "unidentifiable C++ exception", as AdvCiv's FVariableSystem refactor had no `char const*` setter, so the value fell to `setValue(bool)`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1109)\
+[KI#1110 - (Centralized inherited and SAS advisor tab lists, guarded by CI) The advisors' footer tabs lived in seven hard-coded shapes, so code needing every tab opened each screen and agents guessed tab numbers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1110)
 
 <a id="ki-1"></a>
 
@@ -40294,3 +40295,21 @@ Found by Claude Code Opus 5.5 while fixing KI#1107, and split from it at the use
 - Retested the same day with a Debug-opt DLL holding the fix: overriding `SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS`, changing it, deleting the line, then setting a value with an escaped quote and deleting it again each logged `outcome=APPLIED`, the deletions restoring the XML's text, with `PythonErr.log` empty.
 
 Found and fixed by Claude Code Opus 5.5; Codex (GPT-6.2-Sol) reviewed the change set holding it and kept the fix in scope.
+
+<a id="ki-1110"></a>
+
+## KI#1110 - (Centralized inherited and SAS advisor tab lists, guarded by CI) The advisors' footer tabs lived in seven hard-coded shapes, so code needing every tab opened each screen and agents guessed tab numbers
+
+- Each tabbed advisor kept its own tab list in its own shape:
+  - the Military and Policy advisors a widget-ID list beside a list of labels, and Domestic its labels as English literals ("OVERVIEW 1" to "OVERVIEW 4");
+  - the World Advisor and the Info screen a list of text keys, with widget IDs and labels built while drawing (the Info screen's tab bar is K-Mod's rewrite);
+  - the Foreign Advisor two key sets in one class, and the Victory screen names built at draw time, with advc.703's Rise and Fall tab added only under that game option;
+  - and five of them their page numbers as literals repeating that order (`PAGE_OVERVIEW1 = 0`, `iTerritoryID = 2`...).
+- So code that needed every tab had to open each screen and read what it drew: SASPilot's `uitabs`, the UI sweep's hand-counted minimum per screen, and on 2026-11-22 the audit of which tabs have a command. Agents before `uitabs` guessed tab numbers, which the user found tedious.
+- Fix (the user's idea, 2026-11-22, modelled on `SevoScreenEnums`): [`CvScreenEnums.py`](/Assets/Python/Screens/CvScreenEnums.py)'s `ADVISOR_TABS` lists every tabbed advisor in hotkey order (F1 to F9) with its control, and each tab's key, label text key and the game option it needs.
+  - The screens draw their labels from it (`getAdvisorTabLabels` and `getAdvisorTabTextKeys`, the first in [`SASUtils.py`](/Assets/Python/SASUtils.py)) and take their page numbers from it (`getAdvisorTabIndex`), resolved when each advisor is initialized, so per-frame code still compares integers; their widget names and input handling are unchanged.
+  - SASPilot's `uitabs all=1` reads it without opening a screen, with each tab's command; `uiopen tab=` takes a tab key; [`SASPilotTabAudit.py`](/SASPilot/SASPilotTabAudit.py) opens every tab by key; [`SASPilotUISweep.py`](/SASPilot/SASPilotUISweep.py) compares the drawn tabs with it instead of a hand count.
+  - [`advisor_tab_registry.py`](/.github/workflows/README.md#buildsourceadvisor_tab_registrypy) fails when a screen draws tabs without the registry or from a literal list, when a hotkey comment differs from `CIV4ControlInfos.xml`, when a label text key exists nowhere, or when SASPilot's command map misses a tab.
+- The November 22 candidate was tested in game at turn 307 of the ASOKA Huge save: every label matched the previous drawing, the sweep found 0 problems over 12 screens, and the audit opened all 35 tabs shown (the Rise and Fall tab is hidden there).
+
+Raised by wonderingabout; implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol), who reviewed it, 2026-11-22.

@@ -7,6 +7,8 @@
 from CvPythonExtensions import *
 import CvUtil
 from SASUtils import *
+# <!-- custom: CvScreenEnums holds ADVISOR_TABS, the shared tab registry this screen's tab text and page numbers come from. See KI#1110. (Claude code Opus 5.5) -->
+import CvScreenEnums
 # <!-- custom: Route shared visual resources through the centralized SASVisualUtils namespace after retiring overlapping helper/cache imports; keep one canonical visual-resource boundary. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 import SASTextScale
@@ -64,15 +66,16 @@ class CvWorldAdvisorScreen:
 		self.ENV_Y_SPACING = 30
 		self.ENV_TEXT_MARGIN = 15
 
-		# <!-- custom: Keep Environment after the territory pages and put Changes last as the more specialized persisted setup/editor provenance view. (Claude code Opus 4.7 + ChatGPT-5.6-Sol) -->
-		self.PAGE_NAME_LIST = ["TXT_KEY_WORLD_ADVISOR_BFC1_TAB", "TXT_KEY_WORLD_ADVISOR_BFC2_TAB", "TXT_KEY_WORLD_ADVISOR_TERRITORY_TAB", "TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB", "TXT_KEY_WORLD_ADVISOR_CHANGES_TAB"]
+		# <!-- custom: The tabs' text keys come from CvScreenEnums.ADVISOR_TABS, the shared tab registry, which also gives the page IDs below, by each tab's position. See KI#1110. (Claude code Opus 5.5) -->
+		self.PAGE_NAME_LIST = CvScreenEnums.getAdvisorTabTextKeys("world")
 		self.PAGE_LINK_WIDTH = []
-		self.iBFC1ID = 0
-		self.iBFC2ID = 1
-		self.iTerritoryID = 2
-		self.iEnvironmentID = 3
+		# <!-- custom: Page numbers are the tabs' positions in CvScreenEnums.ADVISOR_TABS, the shared tab registry, rather than literals that repeated its order. See KI#1110. (Claude code Opus 5.5) -->
+		self.iBFC1ID = CvScreenEnums.getAdvisorTabIndex("world", "BFC1")
+		self.iBFC2ID = CvScreenEnums.getAdvisorTabIndex("world", "BFC2")
+		self.iTerritoryID = CvScreenEnums.getAdvisorTabIndex("world", "TERRITORY")
+		self.iEnvironmentID = CvScreenEnums.getAdvisorTabIndex("world", "ENVIRONMENT")
 		# <!-- custom: Use Changes consistently for this tab's local state, helpers and localization keys; its save-owned history also includes Advanced Start. (GPT-6.1-Sol) -->
-		self.iChangesID = 4
+		self.iChangesID = CvScreenEnums.getAdvisorTabIndex("world", "CHANGES")
 		self.iActiveTab = self.iBFC1ID
 		self.DEBUG_DROPDOWN_ID = "WorldAdvisorDropdownWidget"
 		self.CHANGES_JUMP_COLUMN = -1

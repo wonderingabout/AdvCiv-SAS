@@ -103,9 +103,18 @@ class CvInfoScreen:
 		# K-Mod
 		self.iLanguageLoaded = -1
 
-		# <!-- custom: Score Tab registration in the Info screen tab bar/order. (GPT-5.3-Codex) -->
-		self.PAGE_NAME_LIST = ["TXT_KEY_INFO_GRAPH", "TXT_KEY_GAME_SCORE", "TXT_KEY_SAS_INFO_TIMELINE", "TXT_KEY_DEMO_SCREEN_TITLE", "TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT", "TXT_KEY_INFO_SCREEN_STATISTICS_TITLE"]
-		self.PAGE_DRAW_LIST = [self.drawGraphTab, self.drawScoreTab, self.drawTimelineTab, self.drawDemographicsTab, self.drawTopCitiesTab, self.drawStatsTab]
+		# <!-- custom: The tabs' text keys and order come from CvScreenEnums.ADVISOR_TABS, the shared tab registry, and each draw function is matched by the tab's key rather than by position, so the two lists cannot pair a label with another tab's page.
+		# Tab numbers given from outside (such as the scoreboard's power ratio opening Score) still follow the registry's order. See KI#1110. (Claude code Opus 5.5) -->
+		self.PAGE_NAME_LIST = CvScreenEnums.getAdvisorTabTextKeys("info")
+		drawByKey = {
+			"GRAPH": self.drawGraphTab,
+			"SCORE": self.drawScoreTab,
+			"TIMELINE": self.drawTimelineTab,
+			"DEMOGRAPHICS": self.drawDemographicsTab,
+			"TOP_CITIES": self.drawTopCitiesTab,
+			"STATISTICS": self.drawStatsTab,
+		}
+		self.PAGE_DRAW_LIST = [drawByKey[szKey] for szKey in CvScreenEnums.getAdvisorTabKeys("info")]
 
 		self.PAGE_LINK_WIDTH = [] # game text is not available at the time this function is called, so we can't calculate the widths yet.
 		# K-Mod end
@@ -119,12 +128,13 @@ class CvInfoScreen:
 		self.iNumWondersPermanentWidgets = 0
 
 		# <!-- custom: Score Tab ID insertion; all later tab IDs shift by +1. (GPT-5.3-Codex) -->
-		self.iGraphID = 0
-		self.iScoreID = 1
-		self.iTimelineID = 2
-		self.iDemographicsID = 3
-		self.iTopCitiesID = 4
-		self.iStatsID = 5
+		# <!-- custom: Page numbers are the tabs' positions in CvScreenEnums.ADVISOR_TABS, the shared tab registry, rather than literals that repeated its order. See KI#1110. (Claude code Opus 5.5) -->
+		self.iGraphID = CvScreenEnums.getAdvisorTabIndex("info", "GRAPH")
+		self.iScoreID = CvScreenEnums.getAdvisorTabIndex("info", "SCORE")
+		self.iTimelineID = CvScreenEnums.getAdvisorTabIndex("info", "TIMELINE")
+		self.iDemographicsID = CvScreenEnums.getAdvisorTabIndex("info", "DEMOGRAPHICS")
+		self.iTopCitiesID = CvScreenEnums.getAdvisorTabIndex("info", "TOP_CITIES")
+		self.iStatsID = CvScreenEnums.getAdvisorTabIndex("info", "STATISTICS")
 
 		# <!-- custom: move screen-independent Info Screen layout constants to init; updateRuntimeLayout now focuses on runtime-dependent geometry. (GPT-5.3-Codex) -->
 		# <!-- custom: X/Y margins are screen-independent constants set in init. (GPT-5.3-Codex) -->

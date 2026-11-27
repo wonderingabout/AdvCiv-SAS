@@ -26,6 +26,8 @@ import SASTextScale
 from SASUtils import *
 # <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
 import SASSessionTunables
+# <!-- custom: CvScreenEnums holds ADVISOR_TABS, the shared tab registry this screen's tabs are paired with by key. See KI#1110. (Claude code Opus 5.5) -->
+import CvScreenEnums
 # <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base victory-screen text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
 # <!-- custom: add trait icons in the Settings tab (claude opus 4.5). -->
 
@@ -73,8 +75,12 @@ class CvVictoryScreen:
 		self.SETTINGS_TAB_ID = "SettingsTabWidget"
 		self.UN_RESOLUTION_TAB_ID = "VotingTabWidget"
 		self.UN_MEMBERS_TAB_ID = "MembersTabWidget"
-		self.PAGE_SCREEN_IDS = [VICTORY_CONDITION_SCREEN, GAME_SETTINGS_SCREEN, UN_RESOLUTION_SCREEN, UN_MEMBERS_SCREEN]
-		self.PAGE_TAB_IDS = [self.VC_TAB_ID, self.SETTINGS_TAB_ID, self.UN_RESOLUTION_TAB_ID, self.UN_MEMBERS_TAB_ID]
+		# <!-- custom: Each tab's page screen and widget ID by its key in CvScreenEnums.ADVISOR_TABS, and the lists built in the registry's order, so the labels it gives (getAdvisorTabLabels) stay paired with their pages if the registry is reordered; Codex's review found these lists positional. See KI#1110. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		dPageScreen = {"VICTORIES": VICTORY_CONDITION_SCREEN, "SETTINGS": GAME_SETTINGS_SCREEN, "RESOLUTIONS": UN_RESOLUTION_SCREEN, "MEMBERS": UN_MEMBERS_SCREEN}
+		dPageTab = {"VICTORIES": self.VC_TAB_ID, "SETTINGS": self.SETTINGS_TAB_ID, "RESOLUTIONS": self.UN_RESOLUTION_TAB_ID, "MEMBERS": self.UN_MEMBERS_TAB_ID}
+		aszKeys = [szKey for (szKey, szTextKey, szOption) in CvScreenEnums.getAdvisorTabs("victory") if szOption is None]
+		self.PAGE_SCREEN_IDS = [dPageScreen[szKey] for szKey in aszKeys]
+		self.PAGE_TAB_IDS = [dPageTab[szKey] for szKey in aszKeys]
 		self.PAGE_NAME_LIST = []
 		self.PAGE_LINK_WIDTH = []
 		self.SPACESHIP_SCREEN_BUTTON = 1234
@@ -251,12 +257,10 @@ class CvVictoryScreen:
 		self.TEXT_THOUSANDS_SEPARATOR_COMMA = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR_COMMA", ())
 		self.EXIT_TEXT = SASTextScale.sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE
 		self.HEADER_TEXT = SASTextScale.sasFontTagTitle.bold + localText.getText("TXT_KEY_VICTORY_SCREEN_TITLE", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE
-		self.TAB_VICTORIES = localText.getText("TXT_KEY_MAIN_MENU_VICTORIES", ()).upper()
-		self.TAB_SETTINGS = localText.getText("TXT_KEY_MAIN_MENU_SETTINGS", ()).upper()
-		self.TAB_VOTING = localText.getText("TXT_KEY_VOTING_TITLE", ()).upper()
-		self.TAB_MEMBERS = localText.getText("TXT_KEY_MEMBERS_TITLE", ()).upper()
-		self.TAB_SCORE = localText.getText("TXT_KEY_GAME_SCORE", ()).upper()
-		self.PAGE_NAME_LIST[:] = [self.TAB_VICTORIES, self.TAB_SETTINGS, self.TAB_VOTING, self.TAB_MEMBERS]
+		# <!-- custom: Tab labels come from CvScreenEnums.ADVISOR_TABS, the shared tab registry; the Rise and Fall score tab needs its game option, so drawTabs still adds it only then (advc.703). See KI#1110. (Claude code Opus 5.5) -->
+		self.TAB_SETTINGS = getAdvisorTabLabel("victory", "SETTINGS")
+		self.TAB_SCORE = getAdvisorTabLabel("victory", "RISE_FALL_SCORE")
+		self.PAGE_NAME_LIST[:] = getAdvisorTabLabels("victory")
 		self.TEXT_DIPLOMATIC = localText.getText("TXT_KEY_BUG_VICTORY_DIPLOMATIC", ())
 		self.LABEL_SETTINGS_HEADER = SASTextScale.sasFontTagLabel.bold + self.TAB_SETTINGS + SASTextScale.SAS_FONT_TAG_CLOSE
 		self.LABEL_OPTIONS_HEADER = SASTextScale.sasFontTagLabel.bold + localText.getText("TXT_KEY_MAIN_MENU_CUSTOM_SETUP_OPTIONS", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE

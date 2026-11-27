@@ -47,9 +47,10 @@ class CvPolicyAdvisorScreen:
 		self.BACKGROUND_ID = "PolicyBackground"
 		self.HELP_HEADER_NAME = "PolicyAdvisorScreenHeaderName"
 		self.POLICY_OPTION_HEADER_NAME = "PolicyAdvisorScreenOptionHeader"
-		self.PAGE_POLICY = 0
-		self.PAGE_RELIGION = 1
-		self.PAGE_CORPORATION = 2
+		# <!-- custom: Page numbers are the tabs' positions in CvScreenEnums.ADVISOR_TABS, the shared tab registry, rather than literals that repeated its order. See KI#1110. (Claude code Opus 5.5) -->
+		self.PAGE_POLICY = CvScreenEnums.getAdvisorTabIndex("policy", "CIVICS")
+		self.PAGE_RELIGION = CvScreenEnums.getAdvisorTabIndex("policy", "RELIGIONS")
+		self.PAGE_CORPORATION = CvScreenEnums.getAdvisorTabIndex("policy", "CORPORATIONS")
 		self.iPage = self.PAGE_POLICY
 		self.PAGE_TAB_IDS = ["PolicyTabButton0", "PolicyTabButton1", "PolicyTabButton2"]
 		self.PAGE_LINK_WIDTH = []
@@ -207,12 +208,9 @@ class CvPolicyAdvisorScreen:
 		self.TEXT_EXIT = SASTextScale.sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE
 		self.TEXT_REVOLUTION = SASTextScale.sasFontTagTitle + localText.getText("TXT_KEY_CONCEPT_REVOLUTION", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE
 		self.TEXT_NO_UPKEEP = localText.getText("TXT_KEY_CIVICS_SCREEN_NO_UPKEEP", ())
-		# <!-- custom: tab captions should name subsections, not advisor screens; keep them concise like other merged advisors. (GPT-5.3-Codex) -->
-		self.TEXT_TAB_POLICY = localText.getText("TXT_KEY_CONCEPT_CIVICS", ()).upper()
-		# <!-- custom: use dedicated plural tab text keys for subsection clarity and consistency with merged-advisor naming (not singular/abbreviated). (GPT-5.3-Codex) -->
-		self.TEXT_TAB_RELIGION = localText.getText("TXT_KEY_POLICY_TAB_RELIGIONS", ()).upper()
-		self.TEXT_TAB_CORPORATION = localText.getText("TXT_KEY_POLICY_TAB_CORPORATIONS", ()).upper()
-		self.PAGE_NAME_LIST = [self.TEXT_TAB_POLICY, self.TEXT_TAB_RELIGION, self.TEXT_TAB_CORPORATION]
+		# <!-- custom: Tab labels come from CvScreenEnums.ADVISOR_TABS, the shared tab registry (Claude code Opus 5.5).
+		# Tab captions name subsections, not advisor screens, with dedicated plural tab text keys for subsection clarity and consistency with merged-advisor naming (not singular/abbreviated). (GPT-5.3-Codex + Claude code Opus 5.5) -->
+		self.PAGE_NAME_LIST = getAdvisorTabLabels("policy")
 		self.EXIT_TEXT = self.TEXT_EXIT
 		self.CONVERT_TEXT = SASTextScale.sasFontTagTitle + localText.getText("TXT_KEY_RELIGION_CONVERT", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE
 		self.TEXT_RELIGION_NO_STATE = localText.getText("TXT_KEY_RELIGION_SCREEN_NO_STATE", ())

@@ -69,11 +69,12 @@ class CvDomesticAdvisor:
 		self.OVERVIEW4_HEADER_ICON_ID = "Overview4SpecialistHeader"
 		self.OVERVIEW_HEADER_ICON_Y = 2
 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
-		self.PAGE_OVERVIEW1 = 0
-		self.PAGE_OVERVIEW2 = 1
-		self.PAGE_OVERVIEW3 = 2
-		self.PAGE_OVERVIEW4 = 3
-		self.PAGE_FINANCE = 4
+		# <!-- custom: Page numbers are the tabs' positions in CvScreenEnums.ADVISOR_TABS, the shared tab registry, rather than literals that repeated its order. See KI#1110. (Claude code Opus 5.5) -->
+		self.PAGE_OVERVIEW1 = CvScreenEnums.getAdvisorTabIndex("domestic", "OVERVIEW1")
+		self.PAGE_OVERVIEW2 = CvScreenEnums.getAdvisorTabIndex("domestic", "OVERVIEW2")
+		self.PAGE_OVERVIEW3 = CvScreenEnums.getAdvisorTabIndex("domestic", "OVERVIEW3")
+		self.PAGE_OVERVIEW4 = CvScreenEnums.getAdvisorTabIndex("domestic", "OVERVIEW4")
+		self.PAGE_FINANCE = CvScreenEnums.getAdvisorTabIndex("domestic", "FINANCE")
 		# <!-- custom: add Overview 2/3/4 tabs for BUG-style per-city status, culture/GP progress, and people/organization data in the AdvCiv-SAS non-BUG Domestic Advisor. (Claude code Opus 4.7; cleaned/extended by GPT-5.5) -->
 		self.PAGE_IDS = [self.PAGE_OVERVIEW1, self.PAGE_OVERVIEW2, self.PAGE_OVERVIEW3, self.PAGE_OVERVIEW4, self.PAGE_FINANCE]
 		self.OVERVIEW_PAGE_IDS = [self.PAGE_OVERVIEW1, self.PAGE_OVERVIEW2, self.PAGE_OVERVIEW3, self.PAGE_OVERVIEW4]
@@ -106,11 +107,6 @@ class CvDomesticAdvisor:
 		self.FINANCE_Y_SPACING = 30
 		self.FINANCE_Z_CONTROLS = -2.3
 		self.FINANCE_DZ = -0.2
-		# <!-- custom: tab labels that do not depend on runtime geometry stay in init/initText; only link widths are runtime-dependent. (GPT-5.3-Codex) -->
-		self.TEXT_TAB_OVERVIEW1 = "OVERVIEW 1"
-		self.TEXT_TAB_OVERVIEW2 = "OVERVIEW 2"
-		self.TEXT_TAB_OVERVIEW3 = "OVERVIEW 3"
-		self.TEXT_TAB_OVERVIEW4 = "OVERVIEW 4"
 		self.aOverview4Specialists = []
 
 	def initText(self):
@@ -144,8 +140,9 @@ class CvDomesticAdvisor:
 			self.aOverview4Specialists.append(eSpec)
 		self.SCREEN_TITLE = SASTextScale.sasFontTagTitle.bold + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE
 		self.TEXT_EXIT = SASTextScale.sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE
-		self.TEXT_TAB_FINANCE = localText.getText("TXT_KEY_ECONOMICS_ADVISOR_FINANCE_TAB", ()).upper()
-		self.PAGE_NAME_LIST = [self.TEXT_TAB_OVERVIEW1, self.TEXT_TAB_OVERVIEW2, self.TEXT_TAB_OVERVIEW3, self.TEXT_TAB_OVERVIEW4, self.TEXT_TAB_FINANCE]
+		# <!-- custom: Tab labels come from CvScreenEnums.ADVISOR_TABS, the shared tab registry; tab labels that do not depend on runtime geometry stay in init/initText, and only link widths are runtime-dependent (GPT-5.3-Codex).
+		# The Overview labels were the English literals "OVERVIEW 1" to "OVERVIEW 4" and now have text keys. (Claude code Opus 5.5) -->
+		self.PAGE_NAME_LIST = getAdvisorTabLabels("domestic")
 		self.PROCESS_WEALTH = getInfoTypeOrFail("PROCESS_WEALTH")
 		self.COLOR_POSITIVE_PREFIX = localText.getText("TXT_KEY_COLOR_POSITIVE", ())
 		self.COLOR_NEGATIVE_PREFIX = localText.getText("TXT_KEY_COLOR_NEGATIVE", ())

@@ -117,7 +117,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 218 - SAS practical 6961 (SASPilot branch)
 
 - **Date:** 2026-11-27
-- **Git commit:** pending
+- **Git commit:** `6f723c12598532ff9f502174d9f247026fe042e0`
 - **Functional:** No (comments only)
 - **Change:** No change to the record: custom comments that mention SASGameRecord, in `CvPlayer.h`, `SASPilotClient.py` and `SASPilotCommands.py`, were reflowed one sentence per line for the CI comment check, with their wording unchanged, and comments in SASGameRecord-related files renamed the retired "the pilot" to SASPilot.
   - First made as revision 202 in commit `f005c06cce13db7a64971009789ca770b6acd3c5` (2026-11-15) on the SASPilot branch, then 204 when main was merged into it on 2026-11-17 (`b57f87e3382783e7d19020606d64edd11fdb0851`), as main had used 202 and 203 meanwhile.

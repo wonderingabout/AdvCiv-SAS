@@ -7,6 +7,8 @@ import CvUtil
 import SASTextScale
 # <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
 import SASSessionTunables
+# <!-- custom: For ADVISOR_TABS, the registry the advisors' footer tab labels come from (getAdvisorTabLabels); CvScreenEnums imports only CvPythonExtensions, so this adds no cycle. See KI#1110. (Claude code Opus 5.5) -->
+import CvScreenEnums
 
 gc = CyGlobalContext()
 localText = CyTranslator()
@@ -165,6 +167,18 @@ def drawAdvisorFooterTabRows(screen, aTabRows, iActivePageID, iYLink, iZ, iColor
 			iData2 = -1
 		screen.setText(szWidgetID, "", SASTextScale.sasFontTagTitle + szLabel + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, iX + iWidth / 2, iYLink, iZ, FontTypes.TITLE_FONT, eWidget, iData1, iData2)
 		iX += iWidth
+
+def getAdvisorTabLabels(szAdvisor):
+	# <!-- custom: The labels of an advisor's always-shown tabs from CvScreenEnums.ADVISOR_TABS, in order and uppercase as the footer draws them; a tab that needs a game option (the Victory screen's Rise and Fall score) is left to its screen, which adds it when the option is on. See KI#1110. (Claude code Opus 5.5) -->
+	return [localText.getText(szTextKey, ()).upper() for (szKey, szTextKey, szOption) in CvScreenEnums.getAdvisorTabs(szAdvisor) if szOption is None]
+
+
+def getAdvisorTabLabel(szAdvisor, szTabKey):
+	for (szKey, szTextKey, szOption) in CvScreenEnums.getAdvisorTabs(szAdvisor):
+		if szKey == szTabKey:
+			return localText.getText(szTextKey, ()).upper()
+	raise KeyError("no tab %s in advisor %s" % (szTabKey, szAdvisor))
+
 
 def drawAdvisorFooterTabs(screen, aWidgetIDs, aLabels, aiWidths, iActivePageID, iYLink, iZ, iColorYellow, eInactiveWidget=WidgetTypes.WIDGET_GENERAL, aiInactiveData1=None, iInactiveData2=-1, iXStart=0):
 	aTabRows = []
