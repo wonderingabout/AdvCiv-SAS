@@ -402,6 +402,18 @@ A setting lives in one of three places, chosen by who reads it and when it may c
   - It holds plain values only, which CI keeps, so any screen or map script can import it.
 - **For a new setting:** the DLL or the EXE reads it, so the XML; Python alone reads it, so `SASSessionTunables.py`; it should change during play, so the XML plus an entry in the overrides' allowed list.
 
+Note for modders: AdvCiv-SAS carries its own copy of many base-game Civ4 files it uses, changed or not, so they can be found, edited and checked by CI in the mod itself rather than in the Civ4 install ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)). Some hold tunable data, others plain code:
+
+- **Python code**:
+  - game Python, such as [`CvAppInterface.py`](/Assets/Python/EntryPoints/CvAppInterface.py), where the live define overrides first apply, [`CvWorldBuilderScreen.py`](/Assets/Python/Screens/CvWorldBuilderScreen.py) and [`CvDebugInfoScreen.py`](/Assets/Python/Screens/CvDebugInfoScreen.py), whose Map Details table SAS fixed ([KI#1105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105));
+    - once in the repository, CI also found slips in them, such as vanilla's broken `CvUnitController.ProcessEvent` ([KI#165.13](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.13)), `PyHelpers.py`'s `religionList` ([KI#165.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.2)) and `PbWizard.py`'s patch dialog without text ([KI#1085.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085.2));
+  - map scripts: every base-game map script, 35 of them, sits in [`PrivateMaps/`](/PrivateMaps/), many with SAS fixes, such as [`Oasis.py`](/PrivateMaps/Oasis.py) and [`Archipelago.py`](/PrivateMaps/Archipelago.py), whose `isFreshWater` was missing its parentheses.
+- **XML data** the rules, the AI or SAS's own XML rely on:
+  - such as BtS's [`GlobalDefines.xml`](/Assets/XML/GlobalDefines.xml) ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)), [`GlobalTypes.xml`](/Assets/XML/GlobalTypes.xml), the civic categories in [`CIV4CivicOptionInfos.xml`](/Assets/XML/GameInfo/CIV4CivicOptionInfos.xml), the player colors in [`CIV4PlayerColorInfos.xml`](/Assets/XML/Interface/CIV4PlayerColorInfos.xml) and the unit formations in [`CIV4FormationInfos.xml`](/Assets/XML/Units/CIV4FormationInfos.xml) ([KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3)), and [`CIV4WorldPickerInfos.xml`](/Assets/XML/Interface/CIV4WorldPickerInfos.xml), which SAS changed for its SAS24 to SAS48 world sizes;
+  - presentation SAS does not change, such as the loading slideshow, the water and cloud textures or the unused throne room, stays in the base game.
+
+The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md) lists which base-game files SAS carries, which it leaves in the base game, and why.
+
 ## UI (Main Menu)
 
 ### Home page

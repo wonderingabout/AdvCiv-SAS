@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jesse Smith (Firaxis Games) -->
+<!-- Sid Meier's Civilization 4 -->
+<!-- Copyright Firaxis Games 2005 -->
+<!-- -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
+<!-- custom: Copied from vanilla Civ4's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\GameInfo\CIV4CivicOptionInfos.xml (only vanilla Civ4 ships it), the copy SAS loaded before (2026-11-27), so the data it holds can be found by a search of the repository and checked by CI, as the inherited files audit's Base-game data XML by reader section explains. See KI#1104 and KI#1104.3. (Claude code Opus 5.5) -->
+<!-- Civic Option -->
+<Civ4CivicOptionInfos xmlns="x-schema:CIV4GameInfoSchema.xml">
+	<CivicOptionInfos>
+		<CivicOptionInfo>
+			<Type>CIVICOPTION_GOVERNMENT</Type>
+			<Description>TXT_KEY_CIVICOPTION_GOVERNMENT</Description>
+			<TraitNoUpkeeps/>
+		</CivicOptionInfo>
+		<CivicOptionInfo>
+			<Type>CIVICOPTION_LEGAL</Type>
+			<Description>TXT_KEY_CIVICOPTION_LEGAL</Description>
+			<TraitNoUpkeeps/>
+		</CivicOptionInfo>
+		<CivicOptionInfo>
+			<Type>CIVICOPTION_LABOR</Type>
+			<Description>TXT_KEY_CIVICOPTION_LABOR</Description>
+			<TraitNoUpkeeps/>
+		</CivicOptionInfo>
+		<CivicOptionInfo>
+			<Type>CIVICOPTION_ECONOMY</Type>
+			<Description>TXT_KEY_CIVICOPTION_ECONOMY</Description>
+			<TraitNoUpkeeps/>
+		</CivicOptionInfo>
+		<CivicOptionInfo>
+			<Type>CIVICOPTION_RELIGION</Type>
+			<Description>TXT_KEY_CIVICOPTION_RELIGION</Description>
+			<TraitNoUpkeeps/>
+		</CivicOptionInfo>
+	</CivicOptionInfos>
+</Civ4CivicOptionInfos>

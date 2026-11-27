@@ -1029,10 +1029,13 @@ The [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_
     - Statement ends and indentation count, shown as `<NEWLINE>`, `<INDENT>` and `<DEDENT>`, so a call moved out of an `if` block differs; a whole one-operand `print(x)` statement counts as the original's `print x`, but `print (1, 2)`, a tuple, and `print (a+b)*c` do not.
     - Codex's review (GPT-6.2-Sol) reproduced all three passing as equal in a first version, which dropped statement structure and every `print` parenthesis.
   - A file with Firaxis's notice on line 2 keeps it first, the SAS header following; a file without one, such as vanilla's `pyUnit/CvUnitController.py`, gets the SAS header on top, which the first version refused (2026-11-26).
+- `--take-in-xml PATH... --reason TEXT --credit MODEL --ki KI#N` does the same for base-game data XML, adding the SAS header and a copy note after Firaxis's notice, or after the XML declaration when a file has none, such as `CIV4FormationInfos.xml`. The note ends with the reason, model credit and KI given, so all copies of one carry read alike.
+  - Added for KI#1104.3's 26 files (2026-11-27), after `GlobalDefines.xml`'s carry (KI#1104.2) had been done by hand. Each copy keeps its source's bytes, read and written as Latin-1, with only the line endings turned to LF, as the repository stores them.
 
 ```bash
 python LLM_Helpers/code_history/inherited_files.py --loaded
 python LLM_Helpers/code_history/inherited_files.py --take-in Assets/Python/Screens/CvScreen.py
+python LLM_Helpers/code_history/inherited_files.py --take-in-xml Assets/XML/GlobalTypes.xml --reason "so the data it holds can be found by a search of the repository and checked by CI" --credit "Claude code Opus 5.5" --ki "KI#1104.3"
 python LLM_Helpers/code_history/inherited_files.py --compare Assets/Python/EntryPoints/PbMain.py
 python LLM_Helpers/code_history/inherited_files.py --inventory
 python LLM_Helpers/code_history/inherited_files.py python --grep wb

@@ -29,7 +29,7 @@ Imported material remains subject to its original rights and provenance; moving 
 | [`inherited_files.tsv`](/_0_Legacy/Docs/Manifests/inherited_files.tsv) | [`inherited_files.py`](/.github/workflows/README.md#buildsourceinherited_filespy) `--write` | every Python, XML, C++, `res` and `Config` file the base game and base AdvCiv ship, with its upstream file events; it feeds the [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md) |
 | [`xml_sas_text_inherited_hashes.tsv`](/_0_Legacy/Docs/Manifests/xml_sas_text_inherited_hashes.tsv) | [`xml_sas_text_inherited.py`](/.github/workflows/README.md#buildxmlxml_sas_text_inheritedpy) `--write` | every inherited text key's source and English hash |
 | [`xml_sas_text_inherited_names.tsv`](/_0_Legacy/Docs/Manifests/xml_sas_text_inherited_names.tsv) | the same | leader and civilization names in readable English |
-| [`xml_text_undefined_inherited.tsv`](/_0_Legacy/Docs/Manifests/xml_text_undefined_inherited.tsv) | hand | base AdvCiv's own undefined text keys |
+| [`xml_text_undefined_inherited.tsv`](/_0_Legacy/Docs/Manifests/xml_text_undefined_inherited.tsv) | hand | the undefined text keys base AdvCiv and the carried base-game files use (KI#1085, KI#1104.3) |
 
 - The root README's [Manifests of the inherited layers](/README.md#manifests-of-the-inherited-layers) explains what they are for.
 - Where and why here (the user, 2026-11-22):

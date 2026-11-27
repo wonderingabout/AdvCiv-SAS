@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by tomw (Firaxis Games) -->
+<!-- Sid Meier's Civilization 4 -->
+<!-- Copyright Firaxis Games 2005 -->
+<!-- -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
+<!-- custom: Copied from BtS's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Misc\CIV4CameraOverlayInfos.xml (only BtS ships it), the copy SAS loaded before (2026-11-27), so the data it holds can be found by a search of the repository and checked by CI, as the inherited files audit's Base-game data XML by reader section explains. See KI#1104 and KI#1104.3. (Claude code Opus 5.5) -->
+<!-- Camera overlays are textures that draw right in front of the camera in the order below. -JW -->
+<Civ4CameraOverlayInfos xmlns="x-schema:CIV4MiscSchema.xml">
+	<CameraOverlayInfos>
+		<CameraOverlayInfo>
+			<bVisible>1</bVisible>
+			<TextureFile>Art/Terrain/PlotTextures/Dark_Background_Overlay.dds</TextureFile>
+			<CameraOverlayType>CAMERA_OVERLAY_DECAL</CameraOverlayType>
+		</CameraOverlayInfo>
+		<CameraOverlayInfo>
+			<bVisible>0</bVisible>
+			<TextureFile>Art/Terrain/PlotTextures/Light_Forground_Overlay.dds</TextureFile>
+			<CameraOverlayType>CAMERA_OVERLAY_ADDITIVE</CameraOverlayType>
+		</CameraOverlayInfo>
+	</CameraOverlayInfos>
+</Civ4CameraOverlayInfos>

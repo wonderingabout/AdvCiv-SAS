@@ -1330,6 +1330,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1103.2 - (Fixed SAS) The scoreboard's left edge moved whenever an advisor opened or closed, even at 1920 x 1080 and font 3: it cut leader names to the advisors' space only while one was open, so on the map it kept its full width, 10 to 60 px wider in debug mode](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103.2)\
 [KI#1104 - (AdvCiv-SAS design rule) SAS keeps its own copy of every base-game Python file it uses, changed or not, as it took in CvTechSplashScreen.py, CIV4ProcessInfo.xml and CIV4WorldPickerInfos.xml when first needed: SASPilot's WorldBuilder work found the WorldBuilder screen running from BtS's copy, outside the repository](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)\
 [KI#1104.2 - (AdvCiv-SAS design rule, data files) SAS now carries BtS's GlobalDefines.xml, the only define file the game loads that the repository did not hold, so 405 of the 1,448 defines it loads, such as the EXE's CAMERA_* values, could not be found by a search of the mod](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)\
+[KI#1104.3 - (AdvCiv-SAS design rule, data files) SAS now carries 26 more base-game data XML files, such as GlobalTypes.xml, the basic infos, the player colors and the unit formations, so the types SAS's own XML names, such as each unit's formation type and each civilization's player color, can be found and checked in the repository](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3)\
 [KI#1105 - (Fixed inherited vanilla, Debug Mode only) The Map Details table showed a continent's 576 tiles under "Area" and its 5 starting plots under "Size": its header row had one extra column](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105)\
 [KI#1105.2 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen CvDebugInfoScreen.py (Shift + F2) sat at a fixed 1024 x 768, and its table never showed the columns past its right edge, so even on a Huge map Team Relations lost the last 4 of its 16 civilizations and Map Details its bonuses after about the 8th](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2)\
 [KI#1105.3 - (Fixed inherited vanilla, Debug Mode only) The Debug Mode screen's Unit AI rows read UNITAI_SETTLE where vanilla meant SETTLE: strName.strip("UNITAI_") dropped its result, and kept, strip would have turned UNITAI_ATTACK_CITY into CK_CITY](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.3)\
@@ -39971,6 +39972,36 @@ Screenshots/files for this issue: none, as the copy changes nothing on screen.
 - The other data files SAS's rules, AI or UI rely on, such as `GlobalTypes.xml` and the basic infos, are still read from the base game; the audit lists them.
 
 Prompted by the user's question; implemented with the help of Claude Code Opus 5.5.
+
+Update (2026-11-27): 26 of those other data files came in later the same day, among them `GlobalTypes.xml` and the basic infos; see [KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3).
+
+<a id="ki-1104.3"></a>
+
+## KI#1104.3 - (AdvCiv-SAS design rule, data files) SAS now carries 26 more base-game data XML files, such as GlobalTypes.xml, the basic infos, the player colors and the unit formations, so the types SAS's own XML names, such as each unit's formation type and each civilization's player color, can be found and checked in the repository
+
+Screenshots/files for this issue: none, as the copies change nothing on screen.
+
+[KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)'s rule, continued from [KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)'s `GlobalDefines.xml`.
+
+- What was left (2026-11-27): 41 base-game data XML files SAS had no copy of, three of them read by no active SAS DLL loader. Their folders did not tell data from presentation: `Misc/` holds both `CIV4RouteInfos.xml`, which SAS already carries for route movement and yields, and `CIV4WaterPlaneInfos.xml`, which only draws water.
+- So they were sorted by what reads them, from the DLL's loader `CvXMLLoadUtilitySet.cpp`, in the [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md#base-game-data-xml-by-reader), each with its full path, what it holds and why it is carried or not. The user chose the 26 from that table:
+  - the 15 rule files the DLL reads, such as `GlobalTypes.xml`, `CIV4AttitudeInfos.xml`, `CIV4CivicOptionInfos.xml` and `CIV4ClimateInfo.xml`: they shape the rules, the AI and map generation as SAS's own rule XML does;
+  - the files whose types SAS's XML names: `CIV4PlayerColorInfos.xml`, `CIV4AdvisorInfos.xml`, `CIV4ArtDefines_Terrain.xml`, `Civ4EntityEventInfos.xml` and `CIV4FormationInfos.xml`, with `Civ4AnimationInfos.xml` and `Civ4AnimationPathInfos.xml` behind them, data that could also serve, for example, a Sevopedia page on unit actions;
+  - four small UI and drawing files, `CIV4MainMenus.xml`, `CIV4CursorInfo.xml`, `CIV4SpaceShipInfos.xml` and `CIV4CameraOverlayInfos.xml`, so a SAS screen or setting that touches them has its data at hand.
+- What stays in the base game, each with its reason in the audit:
+  - the slideshow, tutorial, throne room, map drawing and unit drawing files, presentation that SAS does not change;
+  - `CIV4RiverInfos.xml`, `CIV4QuestInfos.xml` and `CIV4CameraInfos.xml`, which no active SAS DLL loader reads, as AdvCiv commented out their loading (`advc.003j: unused`), so a copy would invite edits that do nothing;
+  - the throne room's three files describe a feature Firaxis cut before release; BtS still ships its unused Egyptian room's art, which nothing in any layer opens.
+- How: each is the newest layer's copy with only the SAS header and a copy note naming its source, as `GlobalDefines.xml` has, written by [`inherited_files.py --take-in-xml`](/LLM_Helpers/README.md#inherited_filespy), which `--take-in` had done for Python only; each copy, minus its header, was compared with its source and matched, and each parses.
+  - One copy has one more change: BtS's `CIV4SpaceShipInfos.xml` holds its declaration, notice, comment and root element on one line, which now gets one item per line, as Firaxis's other files lay it out, so the SAS header can follow the notice.
+  - A mod's file at the same path replaces the base game's, as the DLL asks for one primary path per file, so an unchanged copy loads as before.
+- Codex's review (GPT-6.2-Sol) found no blocker, confirmed the 41 paths as each file's newest layer, and corrected the audit's first table, among others: formations place the several figures of one unit, not separate units sharing a plot, and no Sevopedia page reads the main menus, which the Options screen and SAS's main menu music hooks do.
+- Two CI checks now cover what only the copies make checkable:
+  - [`dll_enum_xml_order.py`](/.github/workflows/README.md#buildxmldll_enum_xml_orderpy): the DLL's hand-written enums in `CvEnums.h`, such as `ANIMATIONPATH_*` and `ATTITUDE_*`, must list the carried XML's types in the same order, as the DLL indexes the rows by them; all 8 match, BtS's `FUNC_STEPKEY` being the one enum value with no row, allowed by name; an explicit value inside such an enum fails, as it would shift the rows while the names still compared in order (Codex's review).
+  - [`xml_type_references.py`](/.github/workflows/README.md#buildxmlxml_type_referencespy): references to the carried files' types, such as a unit's `FORMATION_TYPE_*` or a civilization's `PLAYERCOLOR_*`, must name a defined type; all 1,321 do, the missions' `<EntityEventType>` among them, which Codex's review (GPT-6.2-Sol) found the first version missed.
+- Tested in game: a new Standard Pangaea game started, with all 207 XML files, the 26 copies among them, logged `outcome=SUCCEEDED` in `xml.log`, an empty `PythonErr.log`, and the map, units and colors drawn as before.
+
+Prompted by the user's question whether the inherited data XML should come in too; implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol).
 
 <a id="ki-1105"></a>
 

@@ -117,9 +117,13 @@ Overlays in general seemed to cause all kinds of issues in Civ4, as seemed to be
 
 ### Game options
 
-Recommended, change your config as you prefer. For example as for me, i play at 1920x1080 (seems to display best ingame, even though i have a larger screen actually (4K) i also optimized Sevopedia features like the AI personality panel for 1920x1080 (but may work as well for higher resolutions although i didn't test it)) in full screen, but when i need to debug or test the windowed mode is so much more practical.
+Change your config as you prefer. As for me i find these to work well for example:
 
-There are some options i use personally xdin ingame settings then like (from memory since i can't find the txt files where i stored it if i ever did (which i think i did)), so do as you prefer, but as for me i use these civ4 options for example if not already enabled before (non-exhaustive in case i forgot / didn't show some):
+- i play at 1920x1080 (seems to display best ingame, even though i have a larger screen actually (4K) i also optimized Sevopedia features like the AI personality panel for 1920x1080 (but may work as well for higher resolutions although i didn't test it))
+- in full screen, but when i need to debug or test the windowed mode is so much more practical.
+- skip the intro movie at civ4 launch (`nointromovie = 1` in `Documents\My Games\beyond the sword\CivilizationIV.ini`).
+
+There are some ingame options i use personally in ingame settings that like (not exhaustive as i don't remember or rechecked them all), as you prefer:
 
 - wait at end of turn
 - quick attack

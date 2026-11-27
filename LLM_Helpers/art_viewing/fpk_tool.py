@@ -15,9 +15,17 @@ import struct
 import sys
 
 
+def windows_path(path):
+	# <!-- custom: Git Bash passes a path such as /c/Program Files/... unchanged when it sits inside an argument list built by a script, and Windows Python read it as C:\c\Program Files\..., so listing BtS's Art0.FPK from Git Bash failed with FileNotFoundError; the drive form is turned into C:/... here. (Claude code Opus 5.5) -->
+	text = str(path)
+	if sys.platform == "win32" and len(text) >= 3 and text[0] == "/" and text[1].isalpha() and text[2] == "/":
+		text = text[1].upper() + ":" + text[2:]
+	return Path(text)
+
+
 class FpkArchive:
 	def __init__(self, path):
-		self.path = Path(path)
+		self.path = windows_path(path)
 		self.file = open(self.path, "rb")
 		version, magic = struct.unpack("<I4s", self.file.read(8))
 		if magic != b"FPK_":
@@ -53,7 +61,8 @@ def main():
 	p.add_argument("pattern", nargs="?", default="*")
 	p = sub.add_parser("extract", help="extract matching files under OUT, keeping their folders")
 	p.add_argument("fpk")
-	p.add_argument("out", type=Path)
+	# <!-- custom: Kept a string until windows_path converts it: a Path made by argparse had already turned /c/... into \c\..., as Codex's review (GPT-6.2-Sol) reproduced. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	p.add_argument("out")
 	p.add_argument("pattern", nargs="?", default="*")
 	args = parser.parse_args()
 	archive = FpkArchive(args.fpk)
@@ -63,11 +72,12 @@ def main():
 			print("%10d  %s" % (archive.entries[name.lower()][1], name))
 		print("%d of %d file(s)" % (len(names), len(archive.entries)))
 		return
+	out = windows_path(args.out)
 	for name in names:
-		target = args.out / name
+		target = out / name
 		target.parent.mkdir(parents=True, exist_ok=True)
 		target.write_bytes(archive.read(name))
-	print("extracted %d file(s) to %s" % (len(names), args.out))
+	print("extracted %d file(s) to %s" % (len(names), out))
 
 
 if __name__ == "__main__":

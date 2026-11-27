@@ -23,6 +23,7 @@ It began with a narrower question from the SASPilot work, whether the WorldBuild
   - [Removed or renamed from base AdvCiv](#removed-or-renamed-from-base-advciv)
 - [WorldBuilder](#worldbuilder)
 - [Not traced](#not-traced)
+- [Base-game data XML by reader](#base-game-data-xml-by-reader)
 - [Generated tables](#generated-tables)
   - [Counts](#counts)
   - [Files taken in from the base game](#files-taken-in-from-the-base-game)
@@ -246,14 +247,75 @@ The question the audit started from. Of the five WorldBuilder modules, SAS has i
   - Update (2026-11-27): an audit of who reads each of the 1,448 defines the DLL loads, [`audit_define_timing.py --readers`](/LLM_Helpers/README.md#audit_define_timingpy), found BtS's `GlobalDefines.xml` the only define file SAS has no copy of: 405 defines, of which the DLL reads 295, Python alone 3, both 44, Python and the EXEs 2, such as `FIELD_OF_VIEW`, BtS's EXEs alone 35, such as the `CAMERA_*` and `AIR_PATROL_*` values, and nothing in source or the EXEs 26, such as `INITIAL_CITY_MAINTENANCE` and `MAX_CIVIC_OPTIONS`.
     - So it came first among the data files to carry, and SAS took it in the same day ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)): the copy changes no value the game loads, as above, its 34 names that later files declare again having been removed from it, and makes every define the game loads greppable in the repository; the 26 unread ones are noted, not removed, as some may be read under names built at runtime.
     - The same audit found 163 SAS defines only Python reads; SAS's main-interface ones moved to `Assets/Python/SASSessionTunables.py` the same day, out of the XML the DLL loads.
+  - Update (2026-11-27): the other 41 are sorted by what reads them in [Base-game data XML by reader](#base-game-data-xml-by-reader), each with its full path, so data can be told from presentation by its reader rather than by its folder.
 - Files AdvCiv dropped before the version we compare with.
   - The tables start from what each layer ships. A former upstream override can still appear in a base-game row sharing its path. The upstream branch and the `commit_diffs` corpus hold the broader history.
+
+## Base-game data XML by reader
+
+The 41 base-game data XML files SAS has no copy of, after `GlobalDefines.xml` (2026-11-27), grouped by what reads them, from the DLL's loader `CvGameCoreDLL/CvXMLLoadUtilitySet.cpp`.
+
+- Why by reader: a folder name does not tell data from presentation.
+  - `Misc/` holds both `CIV4RouteInfos.xml`, which SAS carries for route movement and yields, and `CIV4WaterPlaneInfos.xml`, which only draws water.
+  - `Interface/` holds both `CIV4PlayerColorInfos.xml`, which every civilization points to, and the throne room's files.
+- Paths start from the Civ4 install folder, `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\`, and name each file's newest layer, which the game loads: `Beyond the Sword/Assets/` for BtS, `Assets/` for vanilla; none of the 41 is newest in Warlords.
+- "Carry" is the plan the user chose on 2026-11-27, done the same day the way `GlobalDefines.xml` was ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)): the 26 files are SAS's since, unchanged but for the SAS header and a copy note ([KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3)); "Base game" means the copy stays there until an edit or a recurring inspection needs one in SAS.
+- Why carry, by group:
+  - Rules the DLL reads: they shape the rules, the AI and map generation as SAS's own rule XML does, so in the repository they can be found by grep, show in a diff when changed and fall under CI's XML checks, rather than sitting unseen in the install.
+  - Data other XML points to: SAS's XML names their types, such as each civilization's `PLAYERCOLOR_*` or each unit's `FORMATION_TYPE_*`, so CI can check a reference against them, and a new SAS entry that needs one, such as a civilization's colors or a terrain's art, has its file at hand.
+  - The few UI and drawing files carried, main menus, cursors, the spaceship and camera overlays: they are small, and a SAS screen or setting that touches them then has all its data in the repository.
+- For the groups the DLL loads for the EXE, no DLL or Python game logic was found reading them beyond the loader and its getters; their engine use was not traced.
+- Codex (GPT-6.2-Sol) reviewed the table on 2026-11-27: the 41 paths are each file's newest layer, an unchanged copy at the same path should load the same, as the DLL resolves one primary path and loads `Modules` files only when enabled (off in the shipped INI), and the carried files' schema names should stay as they are rather than schemas being copied; schemas and art resolve in the EXE, so a game is started once after the carry to confirm it, `CIV4FormationInfos.xml`'s own `Civ4FormationSchema.xml` included.
+
+| Reader | File | What it holds | Plan |
+| --- | --- | --- | --- |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/GlobalTypes.xml` | Enum lists the engine reads, such as `FunctionTypes`, `DirectionTypes`, `AutomateTypes` and `FlavorTypes`; domains have their own file, `CIV4DomainInfos.xml` | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/BasicInfos/CIV4AttitudeInfos.xml` | Diplomacy attitudes, Furious to Friendly | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/BasicInfos/CIV4CalendarInfos.xml` | Calendar types for turn dates | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/BasicInfos/CIV4DomainInfos.xml` | Land, sea, air and immobile domains | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/BasicInfos/CIV4InvisibleInfos.xml` | The invisibility types `INVISIBLE_SUBMARINE` and `INVISIBLE_STEALTH`; SAS's Spy uses `bInvisible` instead, with no invisibility type | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/BasicInfos/CIV4MonthInfos.xml` | Months for turn dates | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/BasicInfos/CIV4SeasonInfos.xml` | Seasons for turn dates | Carry |
+| Rules the DLL reads | `Assets/XML/GameInfo/CIV4CivicOptionInfos.xml` | Civic categories, such as Government and Labor | Carry |
+| Rules the DLL reads | `Assets/XML/GameInfo/CIV4ClimateInfo.xml` | Map generation climates | Carry |
+| Rules the DLL reads | `Assets/XML/GameInfo/CIV4EmphasizeInfo.xml` | City governor emphasis, such as food or production | Carry |
+| Rules the DLL reads | `Assets/XML/GameInfo/CIV4TurnTimerInfo.xml` | Turn timer lengths | Carry |
+| Rules the DLL reads | `Assets/XML/GameInfo/CIV4UpKeepInfo.xml` | Civic upkeep levels | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/GameInfo/CIV4ForceControlInfos.xml` | Game setup settings a host can force | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/GameInfo/CIV4MPOptionInfos.xml` | Multiplayer options | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/Units/CIV4AutomateInfos.xml` | Unit automation types | Carry |
+| Data other XML points to | `Beyond the Sword/Assets/XML/Interface/CIV4PlayerColorInfos.xml` | Each civilization's primary, secondary and text colors, from the `CIV4ColorVals.xml` SAS carries | Carry |
+| Data other XML points to | `Assets/XML/Interface/CIV4AdvisorInfos.xml` | Advisor categories that unit and building infos name in `<Advisor>` | Carry |
+| Data other XML points to | `Beyond the Sword/Assets/XML/Art/CIV4ArtDefines_Terrain.xml` | Each terrain's art, which `CIV4TerrainInfos.xml` names; the one `ArtDefines` file of 11 SAS lacks | Carry |
+| Data other XML points to | `Beyond the Sword/Assets/XML/Units/Civ4EntityEventInfos.xml` | The 34 `ENTITY_EVENT_*` types, such as `ENTITY_EVENT_BUILD`, `ENTITY_EVENT_FORTIFY` and `ENTITY_EVENT_PILLAGE`, which SAS's build and mission infos name, each mapped to the unit animations it plays; the DLL also takes the bombard explosion from `MISSION_BOMBARD`'s entity event (`CvPlayer.cpp`) | Carry |
+| UI the DLL loads | `Beyond the Sword/Assets/XML/Art/CIV4MainMenus.xml` | Main menu backgrounds, which the Options screen's opening menu choice (`CvOptionsScreen.py`) and SAS's main menu music hooks (`CvInfo_Misc.cpp`) read | Carry |
+| UI the DLL loads | `Beyond the Sword/Assets/XML/GameInfo/CIV4CursorInfo.xml` | Mouse cursors | Carry |
+| UI the DLL loads | `Beyond the Sword/Assets/XML/Interface/CIV4SlideShowInfos.xml` | Loading screen slideshows | Base game |
+| UI the DLL loads | `Beyond the Sword/Assets/XML/Interface/CIV4SpaceShipInfos.xml` | Spaceship screen layout | Carry |
+| UI the DLL loads | `Beyond the Sword/Assets/XML/Interface/CIV4ThroneRoomCameraInfos.xml` | Throne room cameras, loaded only when the EXE asks, through the exported `getNumThroneRoomInfos` (`LoadThroneRoomInfo`) | Base game |
+| UI the DLL loads | `Beyond the Sword/Assets/XML/Interface/CIV4ThroneRoomInfos.xml` | Throne room events: the camera moves of a throne room Firaxis cut before release; BtS still ships its unused Egyptian room in `Beyond the Sword/Assets/Art/Interface/Screens/Throne/`, which no Python or screen in any layer opens; no source a web search found, CivFanatics forum threads among them, such as [Egyptian Throne Room for BtS](https://forums.civfanatics.com/threads/egyptian-throne-room-for-bts.232235), which found the same art, hints that it is a working feature in game, and the [Civilization Modding Wiki](https://modiki.civfanatics.com/index.php/Civ4ThroneRoomeInfos) calls it never implemented (both 2026-11-27) | Base game |
+| UI the DLL loads | `Assets/XML/Interface/CIV4ThroneRoomStyleInfos.xml` | Throne room styles | Base game |
+| UI the DLL loads | `Assets/XML/Misc/CIV4TutorialInfos.xml` | Tutorial messages | Base game |
+| Map drawing the DLL loads for the EXE | `Beyond the Sword/Assets/XML/Misc/CIV4WaterPlaneInfos.xml` | Water surface textures | Base game |
+| Map drawing the DLL loads for the EXE | `Beyond the Sword/Assets/XML/Misc/CIV4TerrainPlaneInfos.xml` | Cloud and fog-of-war planes | Base game |
+| Map drawing the DLL loads for the EXE | `Beyond the Sword/Assets/XML/Misc/CIV4CameraOverlayInfos.xml` | Two textures drawn in front of the map camera, one shown and one hidden by `bVisible`; the shown one is black, transparent but for a soft band along its top edge, and the hidden one adds a faint glow along its bottom edge; where the EXE places them, and any other use through its exported getter, was not traced | Carry: small, so carried with the rest rather than judged alone |
+| Map drawing the DLL loads for the EXE | `Assets/XML/Art/CIV4RiverModelInfos.xml` | River models | Base game |
+| Map drawing the DLL loads for the EXE | `Beyond the Sword/Assets/XML/Art/CIV4RouteModelInfos.xml` | Road and railroad models | Base game |
+| Unit drawing the DLL loads for the EXE | `Beyond the Sword/Assets/XML/Units/CIV4FormationInfos.xml` | Where the several models of one unit stand, such as a Swordsman's three figures, General and Siege entries included, for the `FORMATION_TYPE_*` that each unit in SAS's `CIV4UnitInfos.xml` names | Carry |
+| Unit drawing the DLL loads for the EXE | `Beyond the Sword/Assets/XML/Units/Civ4AnimationInfos.xml` | The `ANIMCAT_*` unit animation categories the animation paths are built from | Carry |
+| Unit drawing the DLL loads for the EXE | `Beyond the Sword/Assets/XML/Units/Civ4AnimationPathInfos.xml` | The `ANIMATIONPATH_*` unit animation sequences, such as attack and death, which the DLL also hard-codes in the same order as an enum in `CvEnums.h`; kept with the formations, categories and entity events as data worth having in the repository, which could serve, for example, a Sevopedia page on unit actions (the user, 2026-11-27) | Carry |
+| The EXE alone | `Beyond the Sword/Assets/XML/Audio/AudioSoundscapeScripts.xml` | Ambient sound | Base game |
+| The EXE alone | `Assets/XML/Terrain/CIV4SymbolMeshPaths.xml` | Yield symbol meshes on plots; no SAS DLL loader reads it, and its file name was not found in the installed EXE, so its direct reader is unverified | Base game |
+| The EXE alone | `Beyond the Sword/Assets/XML/Buildings/CIV4CityLSystem.xml` | City building layout; SAS carried Warlords' copy, which lost building models, and dropped it | Base game |
+| No active SAS DLL loader | `Beyond the Sword/Assets/XML/Misc/CIV4RiverInfos.xml` | River data; AdvCiv commented out its loading, `advc.003j: unused` | Not carried: a copy would invite edits that do nothing |
+| No active SAS DLL loader | `Assets/XML/Misc/CIV4QuestInfos.xml` | Quest data; loading commented out, `advc.003j` | Not carried, as above |
+| No active SAS DLL loader | `Assets/XML/Interface/CIV4CameraInfos.xml` | Camera data; loading commented out, `advc.003j` | Not carried, as above |
 
 ## Generated tables
 
 <!-- generated by inherited_files.py inventory: edit the script, not this part -->
 <!-- inherited_files.tsv f5af83b0c1f84315 -->
-<!-- inherited filenames SAS keeps f02fdcf4071ccfda -->
+<!-- inherited filenames SAS keeps a96e6eadda33bcb1 -->
 <!-- inherited Python imports 88a4c1dc42af15fa -->
 
 Generated by [`inherited_files.py`](/LLM_Helpers/README.md#inherited_filespy) `--inventory`. The same run writes every inherited and new SAS file, its layers, its file events in base AdvCiv's history and in ours, and SAS's status to a timestamped `inherited_files_inventory_<UTC>.tsv` in the Git-ignored `LLM_Helpers/outputs/`.
@@ -269,15 +331,15 @@ Each inherited file counts once, under the newest layer that provides it.
 
 | Provider | Files | Filename kept by SAS | Not in SAS |
 | --- | --- | --- | --- |
-| vanilla | 115 | 13 | 102 |
+| vanilla | 115 | 19 | 96 |
 | Warlords | 18 | 2 | 16 |
-| BtS | 114 | 36 | 78 |
+| BtS | 114 | 56 | 58 |
 | Base AdvCiv | 674 | 662 | 12 |
 
 | Area | Inherited files | Filename kept by SAS | SAS overrides absent from base AdvCiv | Base AdvCiv files absent from SAS |
 | --- | --- | --- | --- | --- |
 | Python | 239 | 180 | 28 | 9 |
-| XML | 239 | 152 | 23 | 1 |
+| XML | 239 | 178 | 49 | 1 |
 | C++ | 362 | 348 | 0 | 2 |
 | res | 51 | 3 | 0 | 0 |
 | Config | 30 | 30 | 0 | 0 |
@@ -320,22 +382,48 @@ Base-game filenames that SAS keeps and base AdvCiv lacks.
 - `Assets/XML/Art/CIV4ArtDefines_Feature.xml`: 2025-05-22 `86d9c24298`, added: buff rice a bit, change wheat button (HR mod import), rename \_CORN to \_MAIZE
 - `Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml`: 2025-04-11 `9f5b34201d`, added: add leader art (portait) of Ogiso Igodo (Kingdom Og Benin) looks very nice, or as nice as could i think, but anyways (full title in the report)
 - `Assets/XML/Art/CIV4ArtDefines_Movie.xml`: 2025-05-07 `50e7c8749e`, added: rename religion "Taoism" to "Daoism", import from BTS (or rarely other) sources cleanly some files (full title in the report)
+- `Assets/XML/Art/CIV4ArtDefines_Terrain.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Art/CIV4MainMenus.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
 - `Assets/XML/Audio/Audio3DScripts.xml`: 2025-05-07 `50e7c8749e`, added: rename religion "Taoism" to "Daoism", import from BTS (or rarely other) sources cleanly some files (full title in the report)
+- `Assets/XML/BasicInfos/CIV4AttitudeInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
 - `Assets/XML/BasicInfos/CIV4BasicInfos.xml`: 2025-04-07 `c2488bd788`, added: rename "Game Concepts" and "BtS Concepts", without necessarily matching order, "Mods Info" and "Bts Info (Outdated)" (full title in the report)
+- `Assets/XML/BasicInfos/CIV4CalendarInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
 - `Assets/XML/BasicInfos/CIV4CityTabInfos.xml`: 2026-05-24 `1548510c78`, added: make city screen bonuses optionally larger icons if there is room and if some of the tunable rendering modes are set (full title in the report)
+- `Assets/XML/BasicInfos/CIV4DomainInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/BasicInfos/CIV4InvisibleInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/BasicInfos/CIV4MonthInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/BasicInfos/CIV4SeasonInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
 - `Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml`: 2025-04-08 `280ba37fb9`, added: successfully converted archer combat type to archer\_bow\_short
 - `Assets/XML/Buildings/CIV4BuildingClassInfos.xml`: 2025-05-07 `50e7c8749e`, added: rename religion "Taoism" to "Daoism", import from BTS (or rarely other) sources cleanly some files (full title in the report)
 - `Assets/XML/Buildings/CIV4PlotLSystem.xml`: 2025-06-14 `44cb420869`, added: add camel bonus/ressource and camel units, expose to python gc sevopedia leader BBAI victory weights getters and some missing attitude threshold getters too if (full title in the report)
 - `Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml`: 2025-05-21 `e82115dc5a`, added: refactor and enhance sevopedia categories (mostly building, unit, bonus/ressource anyways etc) (full title in the report)
 - `Assets/XML/Civilizations/CIV4UnitArtStyleTypeInfos.xml`: 2025-06-09 `17509a8b68`, added: buff the BUILDING\_GREAT\_LIGHTHOUSE, rework harbor and lighthouse buildings (unfinished), removed caravel class and unit entirely (full title in the report)
+- `Assets/XML/GameInfo/CIV4CivicOptionInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/GameInfo/CIV4ClimateInfo.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/GameInfo/CIV4CursorInfo.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/GameInfo/CIV4EmphasizeInfo.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/GameInfo/CIV4ForceControlInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/GameInfo/CIV4MPOptionInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
 - `Assets/XML/GameInfo/CIV4ProcessInfo.xml`: 2025-03-24 `f9b371954c`, added: add CIV4ProcessInfo.xml imported it from a realism invictus mod folder (full title in the report)
 - `Assets/XML/GameInfo/CIV4ReligionInfo.xml`: 2025-05-07 `50e7c8749e`, added: rename religion "Taoism" to "Daoism", import from BTS (or rarely other) sources cleanly some files (full title in the report)
+- `Assets/XML/GameInfo/CIV4TurnTimerInfo.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/GameInfo/CIV4UpKeepInfo.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
 - `Assets/XML/GameInfo/CIV4VoteInfo.xml`: 2025-11-11 `a85a49b1af`, added: rename CIVIC\_EMANCIPATION to CIVIC\_WAGE\_LABOR and rework, rework and buff CIVIC\_SERFDOM to be agrarian-based, and other changes
-- `Assets/XML/GlobalDefines.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/GlobalDefines.xml`: 2026-11-27 `e8970a99e8`, added: Carry BtS's GlobalDefines.xml, the only define file the game loads that the repository lacked, so all 1,448 loaded defines, such as the EXE's CAMERA\_ values (full title in the report)
+- `Assets/XML/GlobalTypes.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Interface/CIV4AdvisorInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Interface/CIV4PlayerColorInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
 - `Assets/XML/Interface/CIV4SlideShowRandomInfos.xml`: 2025-05-14 `c4dbfdcaf1`, added: partly/mostly add paganism button (import from HR mod), add info about base AdvCiv/Civ4 bug of too long XML code comment causing game crash (full title in the report)
+- `Assets/XML/Interface/CIV4SpaceShipInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
 - `Assets/XML/Interface/CIV4WorldPickerInfos.xml`: 2026-01-08 `77dc1e64a7`, added: Add new World Sizes (SAS24, SAS32, SAS40, SAS48
 - `Assets/XML/Misc/CIV4AttachableInfos.xml`: 2025-06-09 `17509a8b68`, added: buff the BUILDING\_GREAT\_LIGHTHOUSE, rework harbor and lighthouse buildings (unfinished), removed caravel class and unit entirely (full title in the report)
+- `Assets/XML/Misc/CIV4CameraOverlayInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
 - `Assets/XML/Misc/CIV4EffectInfos.xml`: 2025-05-14 `c4dbfdcaf1`, added: partly/mostly add paganism button (import from HR mod), add info about base AdvCiv/Civ4 bug of too long XML code comment causing game crash (full title in the report)
+- `Assets/XML/Units/Civ4AnimationInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Units/Civ4AnimationPathInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Units/CIV4AutomateInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Units/Civ4EntityEventInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Units/CIV4FormationInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
 - `Assets/XML/Units/CIV4SpecialUnitInfos.xml`: 2025-05-21 `e82115dc5a`, added: refactor and enhance sevopedia categories (mostly building, unit, bonus/ressource anyways etc) (full title in the report)
 
 ### Files taken in and dropped again
@@ -713,7 +801,7 @@ Every inherited file in its folder, with its comparison layer and whether SAS ke
     - `GlobalDefines_advc.xml`: filename kept by SAS, also in base AdvCiv
     - `GlobalDefines_devel.xml`: filename kept by SAS, also in base AdvCiv
     - `GlobalDefinesAlt.xml`: filename kept by SAS, also in base AdvCiv
-    - `GlobalTypes.xml`: from BtS, not in SAS
+    - `GlobalTypes.xml`: filename kept by SAS, also in BtS
     - `LeadFromBehind_GlobalDefines.xml`: filename kept by SAS, also in base AdvCiv
     - `PythonCallbackDefines.xml`: filename kept by SAS, also in base AdvCiv
     - `TechDiffusion_GlobalDefines.xml`: filename kept by SAS, also in base AdvCiv
@@ -727,10 +815,10 @@ Every inherited file in its folder, with its comparison layer and whether SAS ke
       - `CIV4ArtDefines_Leaderhead.xml`: filename kept by SAS, also in BtS
       - `CIV4ArtDefines_Misc.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4ArtDefines_Movie.xml`: filename kept by SAS, also in BtS
-      - `CIV4ArtDefines_Terrain.xml`: from BtS, not in SAS
+      - `CIV4ArtDefines_Terrain.xml`: filename kept by SAS, also in BtS
       - `CIV4ArtDefines_Unit.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4ArtDefinesSchema.xml`: from BtS, not in SAS
-      - `CIV4MainMenus.xml`: from BtS, not in SAS
+      - `CIV4MainMenus.xml`: filename kept by SAS, also in BtS
       - `CIV4RiverModelInfos.xml`: from vanilla, not in SAS
       - `CIV4RouteModelInfos.xml`: from BtS, not in SAS
     - `Audio/`
@@ -741,18 +829,18 @@ Every inherited file in its folder, with its comparison layer and whether SAS ke
       - `AudioScriptSchema.xml`: from BtS, not in SAS
       - `AudioSoundscapeScripts.xml`: from BtS, not in SAS
     - `BasicInfos/`
-      - `CIV4AttitudeInfos.xml`: from BtS, not in SAS
+      - `CIV4AttitudeInfos.xml`: filename kept by SAS, also in BtS
       - `CIV4BasicInfos.xml`: filename kept by SAS, also in BtS
       - `CIV4BasicInfoSchema.xml`: from BtS, not in SAS
-      - `CIV4CalendarInfos.xml`: from BtS, not in SAS
+      - `CIV4CalendarInfos.xml`: filename kept by SAS, also in BtS
       - `CIV4CityTabInfos.xml`: filename kept by SAS, also in BtS
       - `CIV4DenialInfos.xml`: filename kept by SAS, also in base AdvCiv
-      - `CIV4DomainInfos.xml`: from BtS, not in SAS
-      - `CIV4InvisibleInfos.xml`: from BtS, not in SAS
+      - `CIV4DomainInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4InvisibleInfos.xml`: filename kept by SAS, also in BtS
       - `CIV4MemoryInfos.xml`: filename kept by SAS, also in base AdvCiv
-      - `CIV4MonthInfos.xml`: from BtS, not in SAS
+      - `CIV4MonthInfos.xml`: filename kept by SAS, also in BtS
       - `CIV4NewConceptInfos.xml`: filename kept by SAS, also in base AdvCiv
-      - `CIV4SeasonInfos.xml`: from BtS, not in SAS
+      - `CIV4SeasonInfos.xml`: filename kept by SAS, also in BtS
       - `CIV4UnitAIInfos.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4UnitCombatInfos.xml`: filename kept by SAS, also in BtS
     - `Buildings/`
@@ -775,17 +863,17 @@ Every inherited file in its folder, with its comparison layer and whether SAS ke
       - `CIV4EventTriggerInfos.xml`: filename kept by SAS, also in base AdvCiv
     - `GameInfo/`
       - `CIV4CivicInfos.xml`: filename kept by SAS, also in base AdvCiv
-      - `CIV4CivicOptionInfos.xml`: from vanilla, not in SAS
-      - `CIV4ClimateInfo.xml`: from vanilla, not in SAS
+      - `CIV4CivicOptionInfos.xml`: filename kept by SAS, also in vanilla
+      - `CIV4ClimateInfo.xml`: filename kept by SAS, also in vanilla
       - `CIV4CommerceInfo.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4CorporationInfo.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4CultureLevelInfo.xml`: filename kept by SAS, also in base AdvCiv
-      - `CIV4CursorInfo.xml`: from BtS, not in SAS
+      - `CIV4CursorInfo.xml`: filename kept by SAS, also in BtS
       - `CIV4DiplomacyInfos.xml`: filename kept by SAS, also in base AdvCiv
-      - `CIV4EmphasizeInfo.xml`: from vanilla, not in SAS
+      - `CIV4EmphasizeInfo.xml`: filename kept by SAS, also in vanilla
       - `CIV4EraInfos.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4EspionageMissionInfo.xml`: filename kept by SAS, also in base AdvCiv
-      - `CIV4ForceControlInfos.xml`: from BtS, not in SAS
+      - `CIV4ForceControlInfos.xml`: filename kept by SAS, also in BtS
       - `CIV4GameInfoSchema.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4GameOptionInfos.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4GameSpeedInfo.xml`: filename kept by SAS, also in base AdvCiv
@@ -794,36 +882,36 @@ Every inherited file in its folder, with its comparison layer and whether SAS ke
       - `CIV4HandicapInfo.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4Hints.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4HurryInfo.xml`: filename kept by SAS, also in base AdvCiv
-      - `CIV4MPOptionInfos.xml`: from BtS, not in SAS
+      - `CIV4MPOptionInfos.xml`: filename kept by SAS, also in BtS
       - `CIV4PlayerOptionInfos.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4ProcessInfo.xml`: filename kept by SAS, also in Warlords
       - `CIV4ProjectInfo.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4ReligionInfo.xml`: filename kept by SAS, also in BtS
       - `CIV4SeaLevelInfo.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4SpecialistInfos.xml`: filename kept by SAS, also in base AdvCiv
-      - `CIV4TurnTimerInfo.xml`: from vanilla, not in SAS
-      - `CIV4UpKeepInfo.xml`: from vanilla, not in SAS
+      - `CIV4TurnTimerInfo.xml`: filename kept by SAS, also in vanilla
+      - `CIV4UpKeepInfo.xml`: filename kept by SAS, also in vanilla
       - `CIV4VictoryInfo.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4VoteInfo.xml`: filename kept by SAS, also in BtS
       - `CIV4VoteSourceInfos.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4WorldInfo.xml`: filename kept by SAS, also in base AdvCiv
     - `Interface/`
-      - `CIV4AdvisorInfos.xml`: from vanilla, not in SAS
+      - `CIV4AdvisorInfos.xml`: filename kept by SAS, also in vanilla
       - `CIV4CameraInfos.xml`: from vanilla, not in SAS
       - `CIV4ColorVals.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4InterfaceModeInfos.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4InterfaceSchema.xml`: from BtS, not in SAS
-      - `CIV4PlayerColorInfos.xml`: from BtS, not in SAS
+      - `CIV4PlayerColorInfos.xml`: filename kept by SAS, also in BtS
       - `CIV4SlideShowInfos.xml`: from BtS, not in SAS
       - `CIV4SlideShowRandomInfos.xml`: filename kept by SAS, also in BtS
-      - `CIV4SpaceShipInfos.xml`: from BtS, not in SAS
+      - `CIV4SpaceShipInfos.xml`: filename kept by SAS, also in BtS
       - `CIV4ThroneRoomCameraInfos.xml`: from BtS, not in SAS
       - `CIV4ThroneRoomInfos.xml`: from BtS, not in SAS
       - `CIV4ThroneRoomStyleInfos.xml`: from vanilla, not in SAS
       - `CIV4WorldPickerInfos.xml`: filename kept by SAS, also in BtS
     - `Misc/`
       - `CIV4AttachableInfos.xml`: filename kept by SAS, also in BtS
-      - `CIV4CameraOverlayInfos.xml`: from BtS, not in SAS
+      - `CIV4CameraOverlayInfos.xml`: filename kept by SAS, also in BtS
       - `CIV4DetailManager.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4DetailManagerSchema.xml`: from vanilla, not in SAS
       - `CIV4EffectInfos.xml`: filename kept by SAS, also in BtS
@@ -943,14 +1031,14 @@ Every inherited file in its folder, with its comparison layer and whether SAS ke
       - `CIV4TrueStartsSchema.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4TruLeaderInfos.xml`: filename kept by SAS, also in base AdvCiv
     - `Units/`
-      - `Civ4AnimationInfos.xml`: from BtS, not in SAS
-      - `Civ4AnimationPathInfos.xml`: from BtS, not in SAS
-      - `CIV4AutomateInfos.xml`: from BtS, not in SAS
+      - `Civ4AnimationInfos.xml`: filename kept by SAS, also in BtS
+      - `Civ4AnimationPathInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4AutomateInfos.xml`: filename kept by SAS, also in BtS
       - `CIV4BuildInfos.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4CommandInfos.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4ControlInfos.xml`: filename kept by SAS, also in base AdvCiv
-      - `Civ4EntityEventInfos.xml`: from BtS, not in SAS
-      - `CIV4FormationInfos.xml`: from BtS, not in SAS
+      - `Civ4EntityEventInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4FormationInfos.xml`: filename kept by SAS, also in BtS
       - `Civ4FormationSchema.xml`: from BtS, not in SAS
       - `CIV4MissionInfos.xml`: filename kept by SAS, also in base AdvCiv
       - `CIV4PromotionInfos.xml`: filename kept by SAS, also in base AdvCiv

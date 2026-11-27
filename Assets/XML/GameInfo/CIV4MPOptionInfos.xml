@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Firaxis Games (Firaxis Games) -->
+<!-- Sid Meier's Civilization 4 -->
+<!-- Copyright Firaxis Games 2005 -->
+<!-- -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
+<!-- custom: Copied from BtS's C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\GameInfo\CIV4MPOptionInfos.xml (the newest of the vanilla Civ4, Warlords and BtS copies), the copy SAS loaded before (2026-11-27), so the data it holds can be found by a search of the repository and checked by CI, as the inherited files audit's Base-game data XML by reader section explains. See KI#1104 and KI#1104.3. (Claude code Opus 5.5) -->
+<!-- MPOptionInfos - This structure describes the name for each multiplayer option. -->
+<Civ4MPOptionInfos xmlns="x-schema:CIV4GameInfoSchema.xml">
+	<MPOptionInfos>
+		<MPOptionInfo>
+			<Type>MPOPTION_SIMULTANEOUS_TURNS</Type>
+			<Description>TXT_KEY_MP_OPTION_SIMULTANEOUS_TURNS</Description>
+			<Help>TXT_KEY_MP_OPTION_SIMULTANEOUS_TURNS_HELP</Help>
+			<bDefault>0</bDefault>
+		</MPOptionInfo>
+		<MPOptionInfo>
+			<Type>MPOPTION_TAKEOVER_AI</Type>
+			<Description>TXT_KEY_MP_OPTION_TAKEOVER_AI</Description>
+			<Help>TXT_KEY_MP_OPTION_TAKEOVER_AI_HELP</Help>
+			<bDefault>1</bDefault>
+		</MPOptionInfo>
+		<MPOptionInfo>
+			<Type>MPOPTION_SHUFFLE_TEAMS</Type>
+			<Description>TXT_KEY_MP_OPTION_SHUFFLE_TEAMS</Description>
+			<Help>TXT_KEY_MP_OPTION_SHUFFLE_TEAMS_HELP</Help>
+			<bDefault>0</bDefault>
+		</MPOptionInfo>
+		<MPOptionInfo>
+			<Type>MPOPTION_ANONYMOUS</Type>
+			<Description>TXT_KEY_MP_OPTION_ANONYMOUS</Description>
+			<Help>TXT_KEY_MP_OPTION_ANONYMOUS_HELP</Help>
+			<bDefault>0</bDefault>
+		</MPOptionInfo>
+		<MPOptionInfo>
+			<Type>MPOPTION_TURN_TIMER</Type>
+			<Description>TXT_KEY_MP_OPTION_TURN_TIMER</Description>
+			<Help>TXT_KEY_MP_OPTION_TURN_TIMER_HELP</Help>
+			<bDefault>0</bDefault>
+		</MPOptionInfo>
+	</MPOptionInfos>
+</Civ4MPOptionInfos>

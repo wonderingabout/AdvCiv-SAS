@@ -158,6 +158,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/corporation_prereq_bonuses.py`](#buildxmlcorporation_prereq_bonusespy)
     - [`build/xml/define_int_bounds.py`](#buildxmldefine_int_boundspy)
     - [`build/xml/define_tag_refs.py`](#buildxmldefine_tag_refspy)
+    - [`build/xml/dll_enum_xml_order.py`](#buildxmldll_enum_xml_orderpy)
     - [`build/xml/feature_impassables.py`](#buildxmlfeature_impassablespy)
     - [`build/xml/global_define_lengths.py`](#buildxmlglobal_define_lengthspy)
     - [`build/xml/global_define_name_style.py`](#buildxmlglobal_define_name_stylepy)
@@ -193,6 +194,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/xml_suspicious_angle_tags.py`](#buildxmlxml_suspicious_angle_tagspy)
     - [`build/xml/xml_suspicious_text_chars.py`](#buildxmlxml_suspicious_text_charspy)
     - [`build/xml/xml_text_duplicate_tags.py`](#buildxmlxml_text_duplicate_tagspy)
+    - [`build/xml/xml_type_references.py`](#buildxmlxml_type_referencespy)
 - [CI markers in commit messages](#ci-markers-in-commit-messages)
 - [CI markers in source comments](#ci-markers-in-source-comments)
 - [Run Locally](#run-locally)
@@ -1996,6 +1998,18 @@ Verifies `GlobalDefines_advciv_sas.xml` integer values stay within `[-100000, 10
 
 Verifies any SAS `DefineTextVal` token that looks like a known Civ4 XML tag (e.g. bonuses, techs, building classes, units, promotions) references a real XML `<Type>` value; successful matches are printed by default, and `--quiet` suppresses them.
 
+#### `build/xml/dll_enum_xml_order.py`
+
+Checks that the DLL's hand-written enums in `CvEnums.h` list the same types, in the same order, as the carried XML they index ([KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3)): `ANIMATIONPATH_*` against `Civ4AnimationPathInfos.xml`, the attitudes, domains, calendars and force controls against their info files, and the automate, direction and function types against `GlobalTypes.xml`.
+
+- Why: the DLL indexes the XML's rows by these enums, so a type added, removed or moved on one side only would shift every later row onto the wrong value without any load error. Until SAS carried these files, the XML side sat in the base game, out of reach of any check.
+  - Codex's review (GPT-6.2-Sol) suggested the animation paths; the other hand-written enums whose XML SAS carries follow the same rule.
+- The `DO(...)` enums of `CvEnumMacros.h`, such as `EntityEventTypes`, are sized from the XML at load, so they cannot drift and are not checked.
+- One enum value has no XML row and is allowed by name: BtS's `FUNC_STEPKEY`, after the last row, where it shifts nothing.
+- An explicit value other than the leading `NONE = -1` fails, as it would shift the rows while the names still compared in order, and block comments are skipped; Codex's review (GPT-6.2-Sol) reproduced `ANIMATIONPATH_IDLE = 4` passing in the first version.
+- Comments are removed before the enum is found, so a comment naming `ENUM_END` cannot cut it short, and a preprocessor line before a row, such as `#if 0`, fails, while one guarding only the count, as `DirectionTypes`' `#ifdef _USRDLL` does, is allowed; Codex's second review reproduced both cases.
+- Seven tests: a matching list passes; swapped rows, a row the enum lacks, an enum value after the last row, an explicit value and a row under `#if 0` fail; the enum's `NONE`, comments, a comment naming `ENUM_END` and the masks after the count are skipped.
+
 #### `build/xml/feature_impassables.py`
 
 Verifies that every unit with `FeatureImpassables` blocks the same set of features.
@@ -2161,6 +2175,8 @@ Inherited text counts only where BtS, Warlords or vanilla define it, from the ha
 
 Base AdvCiv's own undefined keys are listed in [`xml_text_undefined_inherited.tsv`](/_0_Legacy/Docs/Manifests/xml_text_undefined_inherited.tsv). See [KI#1085](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085).
 
+So are the base game's: the 22 keys the files carried for [KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3) use that no layer's text defines, such as `TXT_KEY_CALENDAR_YEARS` and `TXT_KEY_UPKEEP_LOW_HELP`; the copies change nothing there, as the base game's files used the same keys.
+
 It also verifies that buildings, units, civilizations, and leaders with SAS-owned descriptions reference Civilopedia keys defined in the mod's GameText files, unless the pedia text is explicitly confirmed as inherited from the base game or expansion.
 
 Other explicit exceptions cover confirmed inherited base references, empirically confirmed EXE runtime references with no static reference, and BUG option-key families constructed dynamically at runtime. Every passing run prints the exact keys in each exception group so accepted uncertainty stays visible in CI.
@@ -2324,6 +2340,20 @@ Verifies each GameText `TXT_KEY`-style `<TEXT>/<Tag>` entry under `Assets/XML/Te
 Inspired by the old AdvCiv-SAS blind [scan_xml_duplicates-3.3.py](/LLM_Helpers/audits/scan_xml_duplicates-3.3.py) (see [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](/LLM_Helpers/README.md#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)).
 
 This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894) and fix XML text duplicate errors. See [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-149).
+
+#### `build/xml/xml_type_references.py`
+
+Checks that references to types the carried base-game XML defines name a defined type ([KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3)), each rule a tag, the files holding it and the file defining its types:
+
+- each unit's `<FormationType>` against `CIV4FormationInfos.xml`, the formations' `<EventType>`, the build infos' `<EntityEvent>` and the missions' `<EntityEventType>` against `Civ4EntityEventInfos.xml`, the entity events' `<AnimationPathType>` against `Civ4AnimationPathInfos.xml`, and the paths' `<Category>` and `<Operator>` against `Civ4AnimationInfos.xml` and `GlobalTypes.xml`;
+- each civilization's `<DefaultPlayerColor>` against `CIV4PlayerColorInfos.xml`, whose three color tags must name colors of `CIV4ColorVals.xml`;
+- every `<Advisor>` against `CIV4AdvisorInfos.xml`, and each terrain's `<ArtDefineTag>` against `CIV4ArtDefines_Terrain.xml`.
+
+- Why: until SAS carried the defining files, they sat in the base game, out of reach of any check, so a misspelt reference, such as `FORMATION_TYPE_RANGE` for `FORMATION_TYPE_RANGED`, could only show in game, if at all.
+  - Codex's review (GPT-6.2-Sol) suggested the formation and animation chain; the other references to the carried files are checked the same way.
+- `NONE` and an empty value count as no reference, and a rule that finds no reference at all fails, as after a tag rename it would check nothing.
+- Codex's review (GPT-6.2-Sol) found the first version missing the missions' `<EntityEventType>`, a misspelt sleep mission passing.
+- Three tests: a defined type passes; a misspelt one and a rule with no reference fail.
 
 ## CI markers in commit messages
 

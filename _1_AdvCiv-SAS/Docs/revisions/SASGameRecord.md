@@ -117,7 +117,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 217 - SAS practical 6888
 
 - **Date:** 2026-11-27
-- **Git commit:** pending
+- **Git commit:** `f4cd91a202718d42ca645615d78509259bd817dc`
 - **Functional:** No (the same value, read from another file)
 - **Change:** `SAS_SGR_BUG_STRING_VALS_ON` moved from `GlobalDefines_advciv_sas.xml` to [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py), with the other settings only Python reads, so `SASGameRecordConfig` reads `SASSessionTunables.SAS_SGR_BUG_STRING_VALS_ON` instead of `getDefineINT`, and `sas_game_record_log.py` checks its shipped value there ([KI#128.11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.11)).
 
