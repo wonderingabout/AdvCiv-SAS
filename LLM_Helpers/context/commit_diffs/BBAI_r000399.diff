@@ -1,0 +1,369 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 399
+# Author: jdog5000
+# Date: 2008-11-03T08:06:17.932542Z
+# Coverage: full
+# Message:
+#   0.41 revision B
+#   
+#   Added unofficial patch 0.21 by Dresden
+# Changed paths (9):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CyUnit.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@398
++++ /trunk/CvGameCoreDLL/CvCity.cpp@399
+@@ -10789,6 +10789,11 @@
+ 			}
+ 			setUnitProduction(eTrainUnit, 0);
+ 
++			// Unofficial Patch Start
++			// * Limited which production modifiers affect gold from production overflow. 1/3
++			iLostProduction *= getBaseYieldRateModifier(YIELD_PRODUCTION);
++			iLostProduction /= std::max(1, getBaseYieldRateModifier(YIELD_PRODUCTION, getProductionModifier(eTrainUnit)));
++			// Unofficial Patch End
+ 			int iProductionGold = ((iLostProduction * GC.getDefineINT("MAXED_UNIT_GOLD_PERCENT")) / 100);
+ 			if (iProductionGold > 0)
+ 			{
+@@ -10861,6 +10866,11 @@
+ 			}
+ 			setBuildingProduction(eConstructBuilding, 0);
+ 
++			// Unofficial Patch Start
++			// * Limited which production modifiers affect gold from production overflow. 2/3
++			iLostProduction *= getBaseYieldRateModifier(YIELD_PRODUCTION);
++			iLostProduction /= std::max(1, getBaseYieldRateModifier(YIELD_PRODUCTION, getProductionModifier(eConstructBuilding)));
++			// Unofficial Patch End
+ 			int iProductionGold = ((iLostProduction * GC.getDefineINT("MAXED_BUILDING_GOLD_PERCENT")) / 100);
+ 			if (iProductionGold > 0)
+ 			{
+@@ -10948,6 +10958,11 @@
+ 			}
+ 			setProjectProduction(eCreateProject, 0);
+ 
++			// Unofficial Patch Start
++			// * Limited which production modifiers affect gold from production overflow. 3/3
++			iLostProduction *= getBaseYieldRateModifier(YIELD_PRODUCTION);
++			iLostProduction /= std::max(1, getBaseYieldRateModifier(YIELD_PRODUCTION, getProductionModifier(eCreateProject)));
++			// Unofficial Patch End
+ 			int iProductionGold = ((iLostProduction * GC.getDefineINT("MAXED_PROJECT_GOLD_PERCENT")) / 100);
+ 			if (iProductionGold > 0)
+ 			{
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@398
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@399
+@@ -3518,18 +3518,18 @@
+ 	CvWString szTempBuffer;
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						10/7/08				jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						11/02/08			jdog5000	*/
+ 	/**																				*/
+ 	/**																				*/
+ 	/********************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.41A");
++	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.41B");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+-	szTempBuffer.Format(L"%S", "==========================");
++	szTempBuffer.Format(L"==========================");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+-	szBuffer.append(NEWLINE);
++
+ 	/********************************************************************************/
+ 	/**		BETTER_BTS_AI_MOD						END								*/
+ 	/********************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@398
++++ /trunk/CvGameCoreDLL/CvGame.cpp@399
+@@ -2901,6 +2901,11 @@
+ 				kData.kVoteOption.szText.empty();
+ 				kData.kVoteOption.ePlayer = NO_PLAYER;
+ 				setVoteOutcome(kData, NO_PLAYER_VOTE);
++
++				// Unofficial Patch Start
++				// * Certain situations which invalidated Secretary General/AP Resident will now force the next vote to be an election.
++				setSecretaryGeneralTimer(eVoteSource, 0);
++				// Unofficial Patch End
+ 			}
+ 		}
+ 	}
+@@ -2981,7 +2986,10 @@
+ 		{
+ 			if (kPlayer.getParent() == NO_PLAYER)
+ 			{
+-				setTeamsEverAlive.insert(iI);
++				// Unofficial Patch Start
++				// * Fixed team-counting bug that would cause some mapscripts to fail. [DanF5571]
++				setTeamsEverAlive.insert(kPlayer.getTeam());
++				// Unofficial Patch End
+ 			}
+ 		}
+ 	}
+@@ -8988,6 +8996,14 @@
+ 			}
+ 		}
+ 
++		// Unofficial Patch Start
++		// * Certain situations which invalidated Secretary General/AP Resident will now force the next vote to be an election.
++		if (!bPassed && GC.getVoteInfo(eVote).isSecretaryGeneral())
++		{
++			setSecretaryGeneralTimer(eVoteSource, 0);
++		}
++		// Unofficial Patch End
++
+ 		deleteVoteTriggered(pVoteTriggered->getID());
+ 	}
+ }
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@398
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@399
+@@ -14069,17 +14069,23 @@
+ 				/********************************************************************************/
+ 				iCultureAmount = std::max(1, iCultureAmount);
+ 
++				// Unofficial Patch Start
++				// * Fixed espionage spread culture mission to insert the listed 5% of culture rather than the current .05%
++				// Note: This next line is the only thing they had in 3.13
++				//pCity->changeCulture(getID(), iCultureAmount, true, true);
++				
+ 				int iNumTurnsApplied = (GC.getDefineINT("GREAT_WORKS_CULTURE_TURNS") * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getUnitGreatWorkPercent()) / 100;
+ 
+ 				for (int i = 0; i < iNumTurnsApplied; ++i)
+ 				{
+-					pCity->changeCultureTimes100(getID(), iCultureAmount / iNumTurnsApplied, true, true);
++					pCity->changeCulture(getID(), iCultureAmount / iNumTurnsApplied, true, true);
+ 				}
+ 
+ 				if (iNumTurnsApplied > 0)
+ 				{
+-					pCity->changeCultureTimes100(getID(), iCultureAmount % iNumTurnsApplied, false, true);
+-				}
++					pCity->changeCulture(getID(), iCultureAmount % iNumTurnsApplied, false, true);
++				}
++				// Unofficial Patch End
+ 
+ 				bSomethingHappened = true;
+ 			}
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@398
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@399
+@@ -6618,7 +6618,14 @@
+ 		int iTempValue;
+ 		int iI, iJ;
+ 
+-		if ((GC.getBonusInfo(eBonus).getTechObsolete() == NO_TECH) || !GET_TEAM(getTeam()).isHasTech((TechTypes)(GC.getBonusInfo(eBonus).getTechObsolete())))
++		// Unofficial Patch Start
++		// * Obsolete resources no longer considered worthless in trade; their value is now controlled by the BONUS_OBSOLETE_VALUE_MODIFIER Global Define. 1/2
++		int iObsoleteValueModifier = std::min(0,GC.getDefineINT("BONUS_OBSOLETE_VALUE_MODIFIER"));
++		bool bBonusIsObsolete = ((GC.getBonusInfo(eBonus).getTechObsolete() != NO_TECH) && GET_TEAM(getTeam()).isHasTech((TechTypes)(GC.getBonusInfo(eBonus).getTechObsolete())));
++
++		// This block is skipped if the bonus is obsolete and obsolete bonuses have no value.
++		if ( !bBonusIsObsolete || (iObsoleteValueModifier != 0) )
++		// Unofficial Patch End
+ 		{
+ 		iValue += (GC.getBonusInfo(eBonus).getHappiness() * 100);
+ 		iValue += (GC.getBonusInfo(eBonus).getHealth() * 100);
+@@ -6929,7 +6936,15 @@
+ 		iValue /= 10;
+ 		}
+ 
+-	    
++		// Unofficial Patch Start
++		// * Obsolete resources no longer considered worthless in trade; their value is now controlled by the BONUS_OBSOLETE_VALUE_MODIFIER Global Define. 2/2
++		if (bBonusIsObsolete)
++		{
++			iValue *= iObsoleteValueModifier;
++			iValue /= 100;
++		}
++		// Unofficial Patch End
++
+ 		//clamp value non-negative
+ 		m_aiBonusValue[eBonus] = std::max(0, iValue);
+ 	}
+@@ -7465,25 +7480,17 @@
+ 		return DENIAL_ANGER_CIVIC;
+ 	}
+ 
+-	if (GC.getLeaderHeadInfo(getPersonalityType()).getFavoriteCivic() != NO_CIVIC)
+-	{
+-		if (isCivic((CivicTypes)(GC.getLeaderHeadInfo(getPersonalityType()).getFavoriteCivic())))
+-		{
+-			/********************************************************************************/
+-			/**		BETTER_BTS_AI_MOD						7/22/08				jdog5000	*/
+-			/**																				*/
+-			/**		Diplomacy AI															*/
+-			/********************************************************************************/
+-			// Only block the civs favorite civic category, not all civics when running favorite civic
+-			if( GC.getCivicInfo(eCivic).getCivicOptionType() == GC.getCivicInfo((CivicTypes)GC.getLeaderHeadInfo(getPersonalityType()).getFavoriteCivic()).getCivicOptionType() )
+-			{
+-				return DENIAL_FAVORITE_CIVIC;
+-			}
+-			/********************************************************************************/
+-			/**		BETTER_BTS_AI_MOD						END								*/
+-			/********************************************************************************/
+-		}
+-	}
++	// Unofficial Patch Start
++	// * AI will now only redline its actual Favorite Civic with DENIAL_FAVORITE_CIVIC rather than all of them. [DanF5571]
++	CivicTypes eFavoriteCivic = (CivicTypes)GC.getLeaderHeadInfo(getPersonalityType()).getFavoriteCivic();
++	if (eFavoriteCivic != NO_CIVIC)
++	{
++		if (isCivic(eFavoriteCivic) && (GC.getCivicInfo(eCivic).getCivicOptionType() == GC.getCivicInfo(eFavoriteCivic).getCivicOptionType()))
++		{
++			return DENIAL_FAVORITE_CIVIC;
++		}
++	}
++	// Unofficial Patch End
+ 
+ 	if (GC.getCivilizationInfo(getCivilizationType()).getCivilizationInitialCivics(GC.getCivicInfo(eCivic).getCivicOptionType()) == eCivic)
+ 	{
+@@ -9365,7 +9372,15 @@
+ 
+ 	iConnectedForeignCities = countPotentialForeignTradeCitiesConnected();
+ 	iTotalReligonCount = countTotalHasReligion();
+-	iHighestReligionCount = findHighestHasReligionCount();
++    // Unofficial Patch Start
++    // * Modified AI civic valuation to more accurately consider state religion preference.
++	ReligionTypes eBestReligion = AI_bestReligion();
++	if (eBestReligion == NO_RELIGION)
++	{
++		eBestReligion = getStateReligion();
++	}
++	iHighestReligionCount = ((eBestReligion == NO_RELIGION) ? 0 : getHasReligionCount(eBestReligion));
++	// Unofficial Patch End
+ 	iWarmongerPercent = 25000 / std::max(100, (100 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand())); 
+ 
+ 	iValue = (getNumCities() * 6);
+@@ -11184,6 +11199,17 @@
+ 		AI_changeCivicTimer(-1);
+ 		return;
+ 	}
++
++	// Unofficial Patch Start
++	// * AI will change civics during Golden Ages
++	/*if (getMaxAnarchyTurns() > 0)
++	{
++		if (isGoldenAge())
++		{
++			return;
++		}
++	}*/
++	// Unofficial Patch End
+ 
+ 	if (!canRevolution(NULL))
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@398
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@399
+@@ -5313,7 +5313,18 @@
+ 			}
+ 		}
+ 
+-		if (NO_FEATURE != eOldImprovement && GC.getImprovementInfo(eOldImprovement).isActsAsCity())
++		// Unofficial Patch Start
++		// * Building or removing a fort will now force a plotgroup update to verify resource connections.
++		if ( (NO_IMPROVEMENT != getImprovementType() && GC.getImprovementInfo(getImprovementType()).isActsAsCity()) ||
++			 (NO_IMPROVEMENT != eOldImprovement && GC.getImprovementInfo(eOldImprovement).isActsAsCity()) )
++		{
++			//GC.getGameINLINE().updatePlotGroups();
++			updatePlotGroup();
++		}
++
++		// Also, a nearly inconsequential fix here using the proper NO_IMPROVEMENT instead of NO_FEATURE
++		if (NO_IMPROVEMENT != eOldImprovement && GC.getImprovementInfo(eOldImprovement).isActsAsCity())
++		// Unofficial Patch End
+ 		{
+ 			verifyUnitValidPlot();
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@398
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@399
+@@ -205,7 +205,22 @@
+ 		{
+ 			if (getActivityType() == ACTIVITY_MISSION)
+ 			{
+-				if (GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot(), 2) > 0)
++				// Unofficial Patch Start
++				// * Spies really no longer interrupt their mission when moving next to an enemy unit
++				bool bNonSpy = false;
++				for (CLLNode<IDInfo>* pUnitNode = headUnitNode(); pUnitNode != NULL; pUnitNode = nextUnitNode(pUnitNode))
++				{
++					CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++					// For all invisible units, use !pLoopUnit->alwaysInvisible()
++					if (!pLoopUnit->isSpy())
++					{
++						bNonSpy = true;
++						break;
++					}
++				}
++
++				if (bNonSpy && GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot(), 2) > 0)
++				// Unofficial Patch End
+ 				{
+ 					clearMissionQueue();
+ 				}
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@398
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@399
+@@ -7042,6 +7042,10 @@
+ 		iExtra = getExtraChanceFirstStrikes() + getExtraFirstStrikes() * 2;
+ 		iTemp *= 100 + iExtra * 15;
+ 		iTemp /= 100;
++		// Unofficial Patch Start
++		// * Fixed bug where some AI unit types mistakenly ignored the value of first-strike promotions. [ViterboKnight]
++		iValue += (iTemp * 1);
++		// Unofficial Patch End
+ 	}
+ 	else
+ 	{
+@@ -10296,10 +10300,13 @@
+ 
+ 	pCity = plot()->getPlotCity();
+ 
+-	if (pCity == NULL)
++    // Unofficial Patch Start
++    // * Fixed bug where AI Great Engineers would hurry wonders in rival cities.
++	if ( (pCity == NULL) || (pCity->getOwner() != getOwner()) )
+ 	{
+ 		return false;
+ 	}
++	// Unofficial Patch End
+ 
+ 	iBestValue = 0;
+ 	eBestBuilding = NO_BUILDING;
+
+Index: /trunk/CvGameCoreDLL/CyUnit.cpp
+--- /trunk/CvGameCoreDLL/CyUnit.cpp@398
++++ /trunk/CvGameCoreDLL/CyUnit.cpp@399
+@@ -1393,7 +1393,10 @@
+ 
+ int CyUnit::getRevoltProtection() const
+ {
+-	return m_pUnit ? m_pUnit->getExtraHillsDefensePercent() : -1;
++	// Unofficial Patch Start
++	// * Fixed bug with CyUnit::getRevoltProtection() returning the wrong value.
++	return m_pUnit ? m_pUnit->getRevoltProtection() : -1;
++	// Unofficial Patch End
+ }
+ 
+ int CyUnit::getCollateralDamageProtection() const
+

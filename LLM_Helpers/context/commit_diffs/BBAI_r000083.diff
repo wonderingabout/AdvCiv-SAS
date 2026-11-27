@@ -1,0 +1,183 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 83
+# Author: blakeciv
+# Date: 2006-11-16T12:10:21.427259Z
+# Coverage: full
+# Message:
+#   Fixed the infinite hang bug for good it was caused by a unit trying to join the unitgroup it is already in.
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@82
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@83
+@@ -2668,6 +2668,12 @@
+ 	{
+ 		if (pLoopSelectionGroup->isBusy())
+ 		{
++		    if (pLoopSelectionGroup->getNumUnits() == 0)
++		    {
++		        pLoopSelectionGroup->kill();
++		        return false;
++		    }
++
+ 			return true;
+ 		}
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@82
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@83
+@@ -857,6 +857,7 @@
+ 	CLinkList<int> finalGroupCycle;
+ 	int iValue;
+ 
++
+ 	if (!hasBusyUnit())
+ 	{
+ 		pCurrUnitNode = headGroupCycleNode();
+@@ -926,6 +927,8 @@
+ 
+ 			pCurrUnitNode = finalGroupCycle.head();
+ 
++
++            
+ 			while (pCurrUnitNode != NULL)
+ 			{
+ 				if (getSelectionGroup(pCurrUnitNode->m_data)->AI_update())
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@82
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@83
+@@ -1530,7 +1530,7 @@
+ 	}
+ 
+ 
+-    if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 0))
++    if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 0, true))
+     {
+         return;
+     }
+@@ -4509,7 +4509,7 @@
+ 
+ 	for(pLoopUnit = GET_PLAYER(getOwnerINLINE()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(getOwnerINLINE()).nextUnit(&iLoop))
+ 	{
+-		if (pLoopUnit != this)
++		if ((pLoopUnit != this) && (pLoopUnit->getGroup() != getGroup()))
+ 		{
+ 			if (AI_plotValid(pLoopUnit->plot()))
+ 			{
+@@ -4580,7 +4580,7 @@
+ 	return false;
+ }
+ 
+-bool CvUnitAI::AI_groupMergeRange(UnitAITypes eUnitAI, int iRange, bool bBiggerOnly)
++bool CvUnitAI::AI_groupMergeRange(UnitAITypes eUnitAI, int iRange, bool bBiggerOnly, bool bAllowRegrouping)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -4593,6 +4593,14 @@
+     CLLNode<IDInfo>* pUnitNode;
+ 	CvPlot* pLoopPlot;
+ 	int iDX, iDY;
++	
++    if (!bAllowRegrouping)
++	{
++		if (getGroup()->getNumUnits() > 1)
++		{
++			return false;
++		}
++	}
+ 
+ 	iBestValue = MAX_INT;
+ 	pBestUnit = NULL;
+@@ -5545,9 +5553,9 @@
+                     getGroup()->pushMission(MISSION_SKIP);
+                     return true;
+                 }
+-                return false;
+             }
+         }
++        return false;
+ 	}
+ 
+ 	pEntityNode = getGroup()->headUnitNode();
+@@ -5587,20 +5595,18 @@
+ 					if (pLoopUnit->healTurns(pLoopUnit->plot()) <= iMaxPath)
+ 					{
+ 					    aeDamagedUnits.push_back(pLoopUnit);
+-                        //pLoopUnit->joinGroup(NULL);
+ 					}
+ 				}
+ 			}
+ 		}
+ 	}
++	if (iHurtUnitCount == 0)
++	{
++	    return false;
++	}
+ 	
+     if (plot()->isCity() && (plot()->getOwnerINLINE() == getOwnerINLINE()))
+ 	{
+-	    if (iHurtUnitCount == getGroup()->getNumUnits())
+-	    {
+-            getGroup()->pushMission(MISSION_SKIP);
+-            return true;
+-	    }
+         for (unsigned int iI = 0; iI < aeDamagedUnits.size(); iI++)
+         {
+             //FAssert(aeDamagedUnits[iI] != this);
+@@ -5609,7 +5615,7 @@
+         }
+ 	}
+ 	
+-	if ((iHurtUnitCount * 3) > pGroup->getNumUnits())
++	if ((iHurtUnitCount * 2) > pGroup->getNumUnits())
+ 	{
+ 	    if (healRate(plot()) >= 10)
+ 	    {
+@@ -10650,7 +10656,7 @@
+ 
+ 	CvPlot* pLoopPlot;
+ 	CvPlot* pBestPlot;
+-	int iSearchRange;
++	int iSearchRange = iRange;
+ 	int iPathTurns;
+ 	int iValue;
+ 	int iBestValue;
+@@ -10671,8 +10677,6 @@
+ 		for (iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
+ 		{
+ 			pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+-			
+-			if (!atWar(getTeam(),pLoopPlot->getTeam()))
+ 
+ 			if (pLoopPlot != NULL)
+ 			{
+@@ -10680,7 +10684,7 @@
+ 				{
+ 					if (pLoopPlot->isCity() || (pLoopPlot->isCity(true)))
+ 					{
+-                        if (canMoveInto(pLoopPlot, true) && (generatePath(pLoopPlot, 0, true, &iPathTurns) && (iPathTurns <= 1)))
++                        if (canMoveInto(pLoopPlot, false) && (generatePath(pLoopPlot, 0, true, &iPathTurns) && (iPathTurns <= 1)))
+                         {
+                             iValue = 1;
+                             if (pLoopPlot->getPlotCity() != NULL)
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@82
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@83
+@@ -178,7 +178,7 @@
+ 
+     bool AI_stackAttackCity(int iRange, int iPowerThreshold, bool bFollow = true);
+     bool AI_moveIntoCity(int iRange);
+-    bool AI_groupMergeRange(UnitAITypes eUnitAI, int iRange, bool bBiggerOnly = true);
++    bool AI_groupMergeRange(UnitAITypes eUnitAI, int iRange, bool bBiggerOnly = true, bool bAllowRegrouping = false);
+ 
+ };
+ 
+

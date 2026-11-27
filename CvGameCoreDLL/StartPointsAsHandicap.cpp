@@ -35,6 +35,8 @@ StartPointsAsHandicap::~StartPointsAsHandicap() {
 
 void StartPointsAsHandicap::reset() {
 
+	// <!-- custom: Map regeneration/reinitialization starts a new SPaH disclosure state; only an actual later randomization sets it again. See KI#1032. (GPT-5.6-Sol) -->
+	randPoints = false;
 	for(size_t i = 0; i < civs.size(); i++)
 		SAFE_DELETE(civs[i]);
 	civs.clear();
@@ -58,6 +60,7 @@ void StartPointsAsHandicap::setInitialItems() {
 	for(int i = 0; i < nCivs; i++)
 		report += CvString::format("Points assigned to id %d: %d\n",
 				i, civs[i]->startPoints_configured());
+	// <!-- custom: ci_define_uncached: runs once at game setup. (Claude code Opus 5.5) -->
 	if(randomize)
 		randomize = GC.getDefineINT("SPAH_RANDOMIZE") > 0;
 	if(randomize) {
@@ -218,6 +221,9 @@ void StartPointsAsHandicap::randomizePoints() {
 	int middleAIIndex = nHuman + nAI / 2;
 	if(nAI < 4)
 		return;
+	// <!-- custom: AdvC already serialized and displayed this flag but never set it, hiding that configured point values were randomized.
+	// Set it only once the randomization path can execute. See KI#1032. (GPT-5.6-Sol) -->
+	randPoints = true;
 	// Special pair [n-2],[2] (a sort of wrap-around)
 	bounce(nCivs - 2, nHuman + 1);
 	if(nAI < 6)
@@ -324,6 +330,7 @@ void StartPointsAsHandicap::updatePointsDisplayString(bool bTab) const {
 	wostringstream s;
 	s << "Start Points As Handicap\n"
 			<< ind << "(distribution: ";
+	// <!-- custom: ci_define_uncached: runs at setup, on loading a save, and when the settings screen or a replay shows the points, not in the turn loop. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	bool showActual = (GC.getDefineINT("SPAH_SHOW_RANDOMIZED") > 0);
 	for(int i = nHuman; i < nCivs; i++) {
 		int pts = showActual ? civs[i]->startPoints_actual() :

@@ -1,0 +1,1078 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 502
+# Author: jdog5000
+# Date: 2009-10-26T20:08:19.366470Z
+# Coverage: full
+# Message:
+#   0.82 pre release
+#   
+#   More logging of trades
+#   Further espionage AI improvements
+#   Changes to AI_doWar and war planning
+# Changed paths (6):
+#   M /trunk/CvGameCoreDLL/CvDeal.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.h
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.h
+
+Index: /trunk/CvGameCoreDLL/CvDeal.cpp
+--- /trunk/CvGameCoreDLL/CvDeal.cpp@501
++++ /trunk/CvGameCoreDLL/CvDeal.cpp@502
+@@ -706,6 +706,18 @@
+ 	case TRADE_TECHNOLOGIES:
+ 		GET_TEAM(GET_PLAYER(eToPlayer).getTeam()).setHasTech(((TechTypes)trade.m_iData), true, eToPlayer, true, true);
+ 		GET_TEAM(GET_PLAYER(eToPlayer).getTeam()).setNoTradeTech(((TechTypes)trade.m_iData), true);
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
++/*                                                                                              */
++/* AI logging                                                                                   */
++/************************************************************************************************/
++		if( gTeamLogLevel >= 2 )
++		{
++			logBBAI("    Player %d (%S) trades tech %s due to TRADE_TECHNOLOGIES with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), GC.getTechInfo((TechTypes)trade.m_iData).getDescription(), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++		}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ 		for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 		{
+@@ -729,6 +741,18 @@
+ 	case TRADE_RESOURCES:
+ 		GET_PLAYER(eFromPlayer).changeBonusExport(((BonusTypes)trade.m_iData), 1);
+ 		GET_PLAYER(eToPlayer).changeBonusImport(((BonusTypes)trade.m_iData), 1);
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
++/*                                                                                              */
++/* AI logging                                                                                   */
++/************************************************************************************************/
++			if( gTeamLogLevel >= 2 )
++			{
++				logBBAI("    Player %d (%S) trades bonus type %s due to TRADE_RESOURCES with %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), GC.getBonusInfo((BonusTypes)trade.m_iData).getDescription(), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++			}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 		bSave = true;
+ 		break;
+ 
+@@ -736,6 +760,18 @@
+ 		pCity = GET_PLAYER(eFromPlayer).getCity(trade.m_iData);
+ 		if (pCity != NULL)
+ 		{
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
++/*                                                                                              */
++/* AI logging                                                                                   */
++/************************************************************************************************/
++			if( gTeamLogLevel >= 2 )
++			{
++				logBBAI("    Player %d (%S) gives city %s due to TRADE_CITIES with %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), pCity->getName(), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++			}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 			pCity->doTask(TASK_GIFT, eToPlayer);
+ 		}
+ 		break;
+@@ -745,6 +781,19 @@
+ 		GET_PLAYER(eToPlayer).changeGold(trade.m_iData);
+ 		GET_PLAYER(eFromPlayer).AI_changeGoldTradedTo(eToPlayer, trade.m_iData);
+ 
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
++/*                                                                                              */
++/* AI logging                                                                                   */
++/************************************************************************************************/
++		if( gTeamLogLevel >= 2 )
++		{
++			logBBAI("    Player %d (%S) trades gold %d due to TRADE_GOLD with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), trade.m_iData, eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++		}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
++
+ 		// Python Event
+ 		CvEventReporter::getInstance().playerGoldTrade(eFromPlayer, eToPlayer, trade.m_iData);
+ 
+@@ -753,6 +802,20 @@
+ 	case TRADE_GOLD_PER_TURN:
+ 		GET_PLAYER(eFromPlayer).changeGoldPerTurnByPlayer(eToPlayer, -(trade.m_iData));
+ 		GET_PLAYER(eToPlayer).changeGoldPerTurnByPlayer(eFromPlayer, trade.m_iData);
++
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
++/*                                                                                              */
++/* AI logging                                                                                   */
++/************************************************************************************************/
++		if( gTeamLogLevel >= 2 )
++		{
++			logBBAI("    Player %d (%S) trades gold per turn %d due to TRADE_GOLD_PER_TURN with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), trade.m_iData, eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++		}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
++
+ 		bSave = true;
+ 		break;
+ 
+@@ -777,6 +840,19 @@
+ 				} 
+ 			} 
+ 		} 
++
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
++/*                                                                                              */
++/* AI logging                                                                                   */
++/************************************************************************************************/
++		if( gTeamLogLevel >= 2 )
++		{
++			logBBAI("    Player %d (%S) trades maps due to TRADE_MAPS with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++		}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 		break;
+ 
+ 	case TRADE_SURRENDER:
+@@ -785,6 +861,18 @@
+ 		{
+ 			startTeamTrade(trade.m_eItemType, GET_PLAYER(eFromPlayer).getTeam(), GET_PLAYER(eToPlayer).getTeam(), false);
+ 			GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).setVassal(GET_PLAYER(eToPlayer).getTeam(), true, TRADE_SURRENDER == trade.m_eItemType);
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
++/*                                                                                              */
++/* AI logging                                                                                   */
++/************************************************************************************************/
++			if( gTeamLogLevel >= 2 )
++			{
++				logBBAI("    Player %d (%S) trades themselves as vassal due to %S with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), (TRADE_SURRENDER == trade.m_eItemType ? "TRADE_SURRENDER" : "TRADE_VASSAL"), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++			}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 		}
+ 		else
+ 		{
+@@ -800,10 +888,10 @@
+ /*                                                                                              */
+ /* AI logging                                                                                   */
+ /************************************************************************************************/
+-					if( gTeamLogLevel >= 2 )
+-					{
+-						logBBAI("    Team %d (%S) makes peace with team %d due to TRADE_PEACE with %d", GET_PLAYER(eFromPlayer).getTeam(), GET_PLAYER(eFromPlayer).getCivilizationDescription(0), trade.m_iData, eToPlayer );
+-					}
++		if( gTeamLogLevel >= 2 )
++		{
++			logBBAI("    Team %d (%S) makes peace with team %d due to TRADE_PEACE with %d (%S)", GET_PLAYER(eFromPlayer).getTeam(), GET_PLAYER(eFromPlayer).getCivilizationDescription(0), trade.m_iData, eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++		}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -816,10 +904,10 @@
+ /*                                                                                              */
+ /* AI logging                                                                                   */
+ /************************************************************************************************/
+-					if( gTeamLogLevel >= 2 )
+-					{
+-						logBBAI("    Team %d (%S) declares war on team %d due to TRADE_WAR with %d", GET_PLAYER(eFromPlayer).getTeam(), GET_PLAYER(eFromPlayer).getCivilizationDescription(0), trade.m_iData, eToPlayer );
+-					}
++		if( gTeamLogLevel >= 2 )
++		{
++			logBBAI("    Team %d (%S) declares war on team %d due to TRADE_WAR with %d (%S)", GET_PLAYER(eFromPlayer).getTeam(), GET_PLAYER(eFromPlayer).getCivilizationDescription(0), trade.m_iData, eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++		}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -850,6 +938,18 @@
+ 				}
+ 			}
+ 		}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
++/*                                                                                              */
++/* AI logging                                                                                   */
++/************************************************************************************************/
++		if( gTeamLogLevel >= 2 )
++		{
++			logBBAI("    Player %d (%S) signs embargo against team %d due to TRADE_EMBARGO with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), (TeamTypes)trade.m_iData, eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++		}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 		break;
+ 
+ 	case TRADE_CIVIC:
+@@ -868,7 +968,18 @@
+ 		{
+ 			GET_PLAYER(eFromPlayer).AI_setCivicTimer(GC.getDefineINT("PEACE_TREATY_LENGTH"));
+ 		}
+-
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
++/*                                                                                              */
++/* AI logging                                                                                   */
++/************************************************************************************************/
++		if( gTeamLogLevel >= 2 )
++		{
++			logBBAI("    Player %d (%S) switched civics due to TRADE_CIVICS with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++		}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 		SAFE_DELETE_ARRAY(paeNewCivics);
+ 		break;
+ 
+@@ -879,6 +990,18 @@
+ 		{
+ 			GET_PLAYER(eFromPlayer).AI_setReligionTimer(GC.getDefineINT("PEACE_TREATY_LENGTH"));
+ 		}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
++/*                                                                                              */
++/* AI logging                                                                                   */
++/************************************************************************************************/
++		if( gTeamLogLevel >= 2 )
++		{
++			logBBAI("    Player %d (%S) switched religions due to TRADE_RELIGION with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++		}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 		break;
+ 
+ 	case TRADE_OPEN_BORDERS:
+@@ -886,6 +1009,18 @@
+ 		{
+ 			startTeamTrade(TRADE_OPEN_BORDERS, GET_PLAYER(eFromPlayer).getTeam(), GET_PLAYER(eToPlayer).getTeam(), true);
+ 			GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).setOpenBorders(((TeamTypes)(GET_PLAYER(eToPlayer).getTeam())), true);
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
++/*                                                                                              */
++/* AI logging                                                                                   */
++/************************************************************************************************/
++		if( gTeamLogLevel >= 2 )
++		{
++			logBBAI("    Player %d (%S) signs open borders due to TRADE_OPEN_BORDERS with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++		}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 		}
+ 		else
+ 		{
+@@ -898,6 +1033,18 @@
+ 		{
+ 			startTeamTrade(TRADE_DEFENSIVE_PACT, GET_PLAYER(eFromPlayer).getTeam(), GET_PLAYER(eToPlayer).getTeam(), true);
+ 			GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).setDefensivePact(((TeamTypes)(GET_PLAYER(eToPlayer).getTeam())), true);
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
++/*                                                                                              */
++/* AI logging                                                                                   */
++/************************************************************************************************/
++			if( gTeamLogLevel >= 2 )
++			{
++				logBBAI("    Player %d (%S) signs defensive pact due to TRADE_DEFENSIVE_PACT with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++			}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 		}
+ 		else
+ 		{
+@@ -910,6 +1057,18 @@
+ 
+ 	case TRADE_PEACE_TREATY:
+ 		GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).setForcePeace(((TeamTypes)(GET_PLAYER(eToPlayer).getTeam())), true);
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
++/*                                                                                              */
++/* AI logging                                                                                   */
++/************************************************************************************************/
++		if( gTeamLogLevel >= 2 )
++		{
++			logBBAI("    Player %d (%S) signs peace treaty due to TRADE_PEACE_TREATY with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++		}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 		bSave = true;
+ 		break;
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@501
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@502
+@@ -10709,7 +10709,7 @@
+ 				}
+ 			}
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      10/26/09                                jdog5000      */
+ /*                                                                                              */
+ /* AI logging                                                                                   */
+ /************************************************************************************************/
+@@ -10718,7 +10718,7 @@
+ 			{
+ 				CvWStringBuffer szBuffer;
+ 
+-				logBBAI("    Player %d (%S) has %d cities, %d pop, %d power", getID(), getCivilizationDescription(0), getNumCities(), getTotalPopulation(), getPower());
++				logBBAI("    Player %d (%S) has %d cities, %d pop, %d power, %d tech percent", getID(), getCivilizationDescription(0), getNumCities(), getTotalPopulation(), getPower(), GET_TEAM(getTeam()).getBestKnownTechScorePercent());
+ 
+ 				if( GET_PLAYER(getID()).AI_isFinancialTrouble() )
+ 				{
+@@ -10731,17 +10731,26 @@
+ 				{
+ 					if( iI != getTeam() && GET_TEAM(getTeam()).isHasMet((TeamTypes)iI) )
+ 					{
+-						szBuffer.append(CvWString::format(L"%d,", iI));
++						if( GET_TEAM((TeamTypes)iI).isAlive() )
++						{
++							szBuffer.append(CvWString::format(L"%d,", iI));
++						}
+ 					}
+ 				}
+ 
+-				szBuffer.append(CvWString::format(L";  at war with: "));
+-
+-				for( int iI = 0; iI < MAX_CIV_TEAMS; iI++ )
+-				{
+-					if( iI != getTeam() && GET_TEAM(getTeam()).isAtWar((TeamTypes)iI) )
++				if( GET_TEAM(getTeam()).getAtWarCount(false) > 0 )
++				{
++					szBuffer.append(CvWString::format(L";  at war with: "));
++
++					for( int iI = 0; iI < MAX_CIV_TEAMS; iI++ )
+ 					{
+-						szBuffer.append(CvWString::format(L"%d,", iI));
++						if( iI != getTeam() && GET_TEAM(getTeam()).isAtWar((TeamTypes)iI) )
++						{
++							if( GET_TEAM((TeamTypes)iI).isAlive() )
++							{
++								szBuffer.append(CvWString::format(L"%d,", iI));
++							}
++						}
+ 					}
+ 				}
+ 				
+@@ -10749,7 +10758,7 @@
+ 
+ 				szBuffer.clear();
+ 
+-				if( GET_TEAM(getTeam()).getAtWarCount(true) > 0 ) logBBAI("    Enemy power %%: %d", GET_TEAM(getTeam()).AI_getEnemyPowerPercent());
++				if( GET_TEAM(getTeam()).getAtWarCount(false) > 0 ) logBBAI("    Enemy power perc: %d", GET_TEAM(getTeam()).AI_getEnemyPowerPercent());
+ 			}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@501
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@502
+@@ -9960,6 +9960,7 @@
+ 	
+ 	if (!isStateReligion())
+ 	{
++		// Free religion
+ 		iSpreadInternalValue += 500;
+ 		bStateReligion = true;
+ 	}
+@@ -10002,7 +10003,6 @@
+ 	
+ 	if (iOurCitiesHave < iOurCitiesCount)
+ 	{
+-		// BBAI TODO: Spread to last few cities!
+ 		iSpreadInternalValue *= 30 + ((100 * (iOurCitiesCount - iOurCitiesHave))/ iOurCitiesCount);
+ 		iSpreadInternalValue /= 100;
+ 		iSpreadInternalValue += iGoldValue;
+@@ -10459,24 +10459,69 @@
+ 
+ 			if (NULL != pMissionPlot && pMissionPlot->isOwned())
+ 			{
+-			MissionAITypes eGroupMissionAI = pLoopSelectionGroup->AI_getMissionAIType();
+-			for (int iMissionAIIndex = 0; iMissionAIIndex < iMissionAICount; iMissionAIIndex++)
+-			{
++				MissionAITypes eGroupMissionAI = pLoopSelectionGroup->AI_getMissionAIType();
++				for (int iMissionAIIndex = 0; iMissionAIIndex < iMissionAICount; iMissionAIIndex++)
++				{
+ 					if (eGroupMissionAI == aeMissionAI[iMissionAIIndex] || NO_MISSIONAI == aeMissionAI[iMissionAIIndex])
+-				{
+-					if (GET_TEAM(getTeam()).AI_isChosenWar(pMissionPlot->getTeam()))
+-					{
+-						iCount += pLoopSelectionGroup->getNumUnits();
+-						iCount += pLoopSelectionGroup->getCargo();
+-					}
+-				}
+-			}
+-		}
+-	}
++					{
++						if (GET_TEAM(getTeam()).AI_isChosenWar(pMissionPlot->getTeam()))
++						{
++							iCount += pLoopSelectionGroup->getNumUnits();
++							iCount += pLoopSelectionGroup->getCargo();
++						}
++					}
++				}
++			}
++		}
+ 	}
+ 
+ 	return iCount;
+ }
++
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/26/09                                jdog5000      */
++/*                                                                                              */
++/* General AI                                                                                   */
++/************************************************************************************************/
++int CvPlayerAI::AI_enemyTargetMissionAIs(TeamTypes eTargetTeam, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup) const
++{
++	PROFILE_FUNC();
++
++	int iCount = 0;
++
++	int iLoop;
++	for(CvSelectionGroup* pLoopSelectionGroup = firstSelectionGroup(&iLoop); pLoopSelectionGroup; pLoopSelectionGroup = nextSelectionGroup(&iLoop))
++	{
++		if (pLoopSelectionGroup != pSkipSelectionGroup)
++		{
++			CvPlot* pMissionPlot = pLoopSelectionGroup->AI_getMissionAIPlot();
++
++			if (NULL != pMissionPlot && pMissionPlot->isOwned())
++			{
++				MissionAITypes eGroupMissionAI = pLoopSelectionGroup->AI_getMissionAIType();
++				for (int iMissionAIIndex = 0; iMissionAIIndex < iMissionAICount; iMissionAIIndex++)
++				{
++					if (eGroupMissionAI == aeMissionAI[iMissionAIIndex] || NO_MISSIONAI == aeMissionAI[iMissionAIIndex])
++					{
++						if( pMissionPlot->getTeam() == eTargetTeam )
++						{
++							if (GET_TEAM(getTeam()).AI_isChosenWar(pMissionPlot->getTeam()))
++							{
++								iCount += pLoopSelectionGroup->getNumUnits();
++								iCount += pLoopSelectionGroup->getCargo();
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++
++	return iCount;
++}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ int CvPlayerAI::AI_wakePlotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup) const
+ {
+@@ -11337,11 +11382,6 @@
+ 		return 0;
+ 	}
+ 
+-//	if (GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(eTargetTeam) - iCost < GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).getEspionagePointsAgainstTeam(getTeam()))
+-//	{
+-//		return 0;
+-//	}
+-
+ 	int iValue = 0;
+ 	if (GC.getEspionageMissionInfo(eMission).isDestroyImprovement())
+ 	{
+@@ -11387,6 +11427,7 @@
+ 						CvBuildingInfo& kBuilding = GC.getBuildingInfo((BuildingTypes)iData);
+ 						if ((kBuilding.getProductionCost() > 1) && !isWorldWonderClass((BuildingClassTypes)kBuilding.getBuildingClassType()))
+ 						{
++							// BBAI TODO: Should this be based on production cost of building?  Others are
+ 							/*int iEspionageFlags = 0;
+ 							iEspionageFlags |= BUILDINGFOCUS_FOOD;
+ 							iEspionageFlags |= BUILDINGFOCUS_PRODUCTION;
+@@ -11474,7 +11515,7 @@
+ 	if (GC.getEspionageMissionInfo(eMission).getStealTreasuryTypes() > 0)
+ 	{
+ 		int iGoldStolen = iData;
+-		iValue += (GET_PLAYER(eTargetPlayer).AI_isFinancialTrouble() ? 6 : 2) * (2 * std::max(0, iGoldStolen - iCost));
++		iValue += ((GET_PLAYER(eTargetPlayer).AI_isFinancialTrouble() || AI_isFinancialTrouble()) ? 6 : 2) * (2 * std::max(0, iGoldStolen - iCost));
+ 	}
+ 
+ 	if (GC.getEspionageMissionInfo(eMission).getCounterespionageNumTurns() > 0)
+@@ -11565,7 +11606,14 @@
+ 	{
+ 		if (iCost < GET_TEAM(getTeam()).getResearchLeft((TechTypes)iData) * 4 / 3)
+ 		{
+-			iValue += GET_TEAM(getTeam()).AI_techTradeVal((TechTypes)iData, GET_PLAYER(eTargetPlayer).getTeam());
++			int iTempValue = GET_TEAM(getTeam()).AI_techTradeVal((TechTypes)iData, GET_PLAYER(eTargetPlayer).getTeam());
++
++			if( GET_TEAM(getTeam()).getBestKnownTechScorePercent() < 85 )
++			{
++				iTempValue *= 2;
++			}
++
++			iValue += iTempValue;
+ 		}
+ 	}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.h
+--- /trunk/CvGameCoreDLL/CvPlayerAI.h@501
++++ /trunk/CvGameCoreDLL/CvPlayerAI.h@502
+@@ -210,10 +210,11 @@
+ 	int AI_enemyTargetMissionAIs(MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+ 	int AI_wakePlotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/11/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      10/26/09                                jdog5000      */
+ /*                                                                                              */
+ /* General AI                                                                                   */
+ /************************************************************************************************/
++	int AI_enemyTargetMissionAIs(TeamTypes eTargetTeam, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+ 	int AI_unitTargetMissionAIs(CvUnit* pUnit, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup, int iMaxPathTurns) const;
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@501
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@502
+@@ -406,6 +406,7 @@
+ 			{
+ 				return AREAAI_ASSAULT;
+ 			}
++
+ 			if ((countNumAIUnitsByArea(pArea, UNITAI_ATTACK) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_CITY) + countNumAIUnitsByArea(pArea, UNITAI_PILLAGE) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_AIR)) > (((AI_countMilitaryWeight(pArea) * 20) / 100) + 1))
+ 			{
+ 				return AREAAI_OFFENSIVE; // XXX does this ever happen?
+@@ -485,21 +486,18 @@
+ 			{
+ 				int iPower = countPowerByArea(pArea);
+ 				int iEnemyPower = countEnemyPowerByArea(pArea);
+-				if( AI_isPrimaryArea(pArea) )
++				if( AI_isPrimaryArea(pArea) && AI_getWarSuccessCapitulationRatio() < -50 )
+ 				{
+ 					// Use defensive stance if enemy has strong presence, we've been losing badly
+ 					if( iPower < iEnemyPower )
+ 					{
+-						if( AI_getWarSuccessCapitulationRatio() < -50 )
+-						{
+-							return AREAAI_DEFENSIVE;
+-						}
++						return AREAAI_DEFENSIVE;
+ 					}
+ 				}
+ 				else
+ 				{
+ 					// Use defensive area AI right after invasions, to force vulnerable captured cities to be better defended
+-					if( 3*iPower < iEnemyPower )
++					if( 2*iPower < iEnemyPower )
+ 					{
+ 						return AREAAI_DEFENSIVE;
+ 					}
+@@ -2109,10 +2107,14 @@
+ }
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      07/20/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      10/26/09                                jdog5000      */
+ /*                                                                                              */
+ /* War Strategy AI                                                                              */
+ /************************************************************************************************/
++/// \brief Compute how close our wars are to capitulation.
++///
++/// At -99, this means we're losing on net enough to capitulate.  At +99, we're winning enough
++/// to perhaps have another player capitulate to us.
+ int CvTeamAI::AI_getWarSuccessCapitulationRatio() const
+ {
+ 	int iSumWarSuccess = 0;
+@@ -2129,8 +2131,6 @@
+ 		}
+ 	}
+ 
+-	getTeam((TeamTypes)0);
+-
+ 	int iDivisor = std::max(25, std::min(getNumCities(), 4) * GC.getDefineINT("WAR_SUCCESS_CITY_CAPTURING"));
+ 
+ 	iSumWarSuccess = range((100*iSumWarSuccess)/iDivisor, -99, 99);
+@@ -2138,7 +2138,10 @@
+ 	return iSumWarSuccess;
+ }
+ 
+-int CvTeamAI::AI_getEnemyPowerPercent() const
++/// \brief Compute power of enemies as percentage of our power.
++///
++///
++int CvTeamAI::AI_getEnemyPowerPercent( bool bConsiderOthers ) const
+ {
+ 	int iEnemyPower = 0;
+ 
+@@ -2150,11 +2153,18 @@
+ 			{
+ 				if( isAtWar((TeamTypes)iI) )
+ 				{
+-					iEnemyPower += (220*GET_TEAM((TeamTypes)iI).getPower(false))/((AI_hasCitiesInPrimaryArea((TeamTypes)iI) ? 2 : 3) * std::max(1, GET_TEAM((TeamTypes)iI).getAtWarCount(true,true)));
++					int iTempPower = 220 * GET_TEAM((TeamTypes)iI).getPower(false);
++					iTempPower /= (AI_hasCitiesInPrimaryArea((TeamTypes)iI) ? 2 : 3);
++					iTempPower /= std::max(1, (bConsiderOthers ? GET_TEAM((TeamTypes)iI).getAtWarCount(true,true) : 1));
++					iEnemyPower += iTempPower;
+ 				}
+ 				else if( AI_isChosenWar((TeamTypes)iI) )
+ 				{
+-					iEnemyPower += (240*GET_TEAM((TeamTypes)iI).getDefensivePower())/((AI_isLandTarget((TeamTypes)iI) ? 2 : 3) * (1 + GET_TEAM((TeamTypes)iI).getAtWarCount(true,true)));
++					// Haven't declared war yet
++					int iTempPower = 240 * GET_TEAM((TeamTypes)iI).getDefensivePower();
++					iTempPower /= (AI_hasCitiesInPrimaryArea((TeamTypes)iI) ? 2 : 3);
++					iTempPower /= 1 + (bConsiderOthers ? GET_TEAM((TeamTypes)iI).getAtWarCount(true,true) : 0);
++					iEnemyPower += iTempPower;
+ 				}
+ 			}
+ 		}
+@@ -3806,7 +3816,14 @@
+ /************************************************************************************************/
+ 
+ 
+-
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/26/09                                jdog5000      */
++/*                                                                                              */
++/* War Strategy, AI logging                                                                     */
++/************************************************************************************************/			
++/// \brief Make war decisions, mainly for starting or switching war plans.
++///
++///
+ void CvTeamAI::AI_doWar()
+ {
+ 	PROFILE_FUNC();
+@@ -3815,7 +3832,6 @@
+ 	TeamTypes eBestTeam;
+ 	bool bAreaValid;
+ 	bool bShareValid;
+-	bool bOffensiveValid;
+ 	int iNoWarRoll;
+ 	int iOurPower;
+ 	int iDogpilePower;
+@@ -3844,6 +3860,8 @@
+ 		return;
+ 	}
+ 
++	int iEnemyPowerPercent = AI_getEnemyPowerPercent();
++
+ 	for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 	{
+ 		if (GET_TEAM((TeamTypes)iI).isAlive())
+@@ -3852,12 +3870,6 @@
+ 			{
+ 				int iTimeModifier = 100;
+ 				{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/19/09                                jdog5000      */
+-/*                                                                                              */
+-/* War strategy AI                                                                              */
+-/************************************************************************************************/
+-					int iEnemyPowerPercent = AI_getEnemyPowerPercent();
+ 					int iThreshold = (80*AI_maxWarNearbyPowerRatio())/100;
+ 
+ 					if( iEnemyPowerPercent < iThreshold )
+@@ -3865,28 +3877,20 @@
+ 						iTimeModifier *= iEnemyPowerPercent;
+ 						iTimeModifier /= iThreshold;
+ 					}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 					
+ 					iTimeModifier *= 50 + GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getTrainPercent();
+ 					iTimeModifier /= 150;
+ 					FAssert(iTimeModifier > 0);
+ 				}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/			
+ 				if (AI_getWarPlan((TeamTypes)iI) == WARPLAN_ATTACKED_RECENT)
+ 				{
+ 					FAssert(isAtWar((TeamTypes)iI));
+ 
+ 					if (AI_getAtWarCounter((TeamTypes)iI) > ((GET_TEAM((TeamTypes)iI).AI_isLandTarget(getID())) ? 9 : 3))
+ 					{
+-						if( gTeamLogLevel >= 2 )
++						if( gTeamLogLevel >= 1 )
+ 						{
+-							logBBAI("      Team %d (%S) switching WARPLANS from ATTACKED_RECENT to ATTACKED", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0) );
++							logBBAI("      Team %d (%S) switching WARPLANS against team %d (%S) from ATTACKED_RECENT to ATTACKED with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, GET_PLAYER(GET_TEAM((TeamTypes)iI).getLeaderID()).getCivilizationDescription(0), iEnemyPowerPercent );
+ 						}
+ 						AI_setWarPlan(((TeamTypes)iI), WARPLAN_ATTACKED);
+ 					}
+@@ -3899,7 +3903,7 @@
+ 					{
+ 						if( gTeamLogLevel >= 1 )
+ 						{
+-							logBBAI("      Team %d (%S) switching WARPLANS from PREPARING_LIMITED to LIMITED", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0) );
++							logBBAI("      Team %d (%S) switching WARPLANS against team %d (%S) from PREPARING_LIMITED to LIMITED with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, GET_PLAYER(GET_TEAM((TeamTypes)iI).getLeaderID()).getCivilizationDescription(0), iEnemyPowerPercent );
+ 						}
+ 						AI_setWarPlan(((TeamTypes)iI), WARPLAN_LIMITED);
+ 					}
+@@ -3910,7 +3914,7 @@
+ 
+ 					if (AI_getWarPlanStateCounter((TeamTypes)iI) > ((10 * iTimeModifier) / 100))
+ 					{
+-						bAreaValid = true;
++						bAreaValid = false;
+ 						bShareValid = false;
+ 
+ 						for(pLoopArea = GC.getMapINLINE().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMapINLINE().nextArea(&iLoop))
+@@ -3921,26 +3925,25 @@
+ 								{
+ 									bShareValid = true;
+ 
+-									bOffensiveValid = false;
+-
+-									if (AI_calculateAreaAIType(pLoopArea, true) == AREAAI_OFFENSIVE)
+-									{
+-										bOffensiveValid = true;
+-									}
+-
+-									if (!bOffensiveValid)
++									AreaAITypes eAreaAI = AI_calculateAreaAIType(pLoopArea, true);
++
++									if ( eAreaAI == AREAAI_DEFENSIVE)
+ 									{
+ 										bAreaValid = false;
++									}
++									else if( eAreaAI == AREAAI_OFFENSIVE )
++									{
++										bAreaValid = true;
+ 									}
+ 								}
+ 							}
+ 						}
+ 
+-						if (bAreaValid || !bShareValid)
++						if ((bAreaValid && iEnemyPowerPercent < 140) || (!bShareValid && iEnemyPowerPercent < 110))
+ 						{
+ 							if( gTeamLogLevel >= 1 )
+ 							{
+-								logBBAI("      Team %d (%S) switching WARPLANS from PREPARING_TOTAL to TOTAL", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0) );
++								logBBAI("      Team %d (%S) switching WARPLANS against team %d (%S) from PREPARING_TOTAL to TOTAL with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, GET_PLAYER(GET_TEAM((TeamTypes)iI).getLeaderID()).getCivilizationDescription(0), iEnemyPowerPercent );
+ 							}
+ 							AI_setWarPlan(((TeamTypes)iI), WARPLAN_TOTAL);
+ 						}
+@@ -3950,13 +3953,14 @@
+ 							{
+ 								logBBAI("      Team %d (%S) abandoning WARPLAN_TOTAL_PREPARING", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0) );
+ 							}
++							if( gTeamLogLevel >= 1 )
++							{
++								logBBAI("      Team %d (%S) abandoning WARPLAN_TOTAL_PREPARING against team %d (%S) with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, GET_PLAYER(GET_TEAM((TeamTypes)iI).getLeaderID()).getCivilizationDescription(0), iEnemyPowerPercent );
++							}
+ 							AI_setWarPlan(((TeamTypes)iI), NO_WARPLAN);
+ 						}
+ 					}
+ 				}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 			}
+ 		}
+ 	}
+@@ -4015,13 +4019,38 @@
+ 									{
+ 										if (AI_getAtWarCounter((TeamTypes)iI) > 20)
+ 										{
+-											// removed this, it prevents conquest and domination victories
+-											// have to make sure diplomacy begs for mercy properly in AI-AI relations
+-											//if (AI_getAtWarCounter((TeamTypes)iI) > 50)
+-											//{
+-											//	makePeace((TeamTypes)iI);
+-											//	break;
+-											//}
++											if( AI_getWarSuccess((TeamTypes)iI) + GET_TEAM((TeamTypes)iI).AI_getWarSuccess(getID()) < 2*GC.getDefineINT("WAR_SUCCESS_ATTACKING") )
++											{
++												if( (GC.getGameINLINE().getSorenRandNum(8, "AI Make Peace 1") == 0) )
++												{
++													bool bValid = true;
++
++													for( int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++ )
++													{
++														if( GET_PLAYER((PlayerTypes)iPlayer).getTeam() == getID() )
++														{
++															MissionAITypes eMissionAI = MISSIONAI_ASSAULT;
++															if( GET_PLAYER((PlayerTypes)iPlayer).AI_enemyTargetMissionAIs((TeamTypes)iI, &eMissionAI, 1) > 0 )
++															{
++																bValid = false;
++																break;
++															}
++														}
++													}
++
++													if( bValid )
++													{
++														makePeace((TeamTypes)iI);
++
++														if( gTeamLogLevel >= 1 )
++														{
++															logBBAI("  Team %d (%S) making peace due to time and no fighting", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0) );
++														}
++
++														break;
++													}
++												}
++											}
+ 
+ 											if (AI_getAtWarCounter((TeamTypes)iI) > ((AI_getWarPlan((TeamTypes)iI) == WARPLAN_TOTAL) ? 40 : 30))
+ 											{
+@@ -4029,18 +4058,10 @@
+ 												int iTheirValue = GET_TEAM((TeamTypes)iI).AI_endWarVal(getID());
+ 												if ((iOurValue > (iTheirValue / 2)) && (iTheirValue > (iOurValue / 2)))
+ 												{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+ 													if( gTeamLogLevel >= 1 )
+ 													{
+ 														logBBAI("  Team %d (%S) making peace due to time and endWarVal %d vs their %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0) , iOurValue, iTheirValue );
+ 													}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 													makePeace((TeamTypes)iI);
+ 													break;
+ 												}
+@@ -4050,18 +4071,10 @@
+ 											{
+ 												if (GET_TEAM((TeamTypes)iI).getAtWarCount(true) == 1)
+ 												{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+ 													if( gTeamLogLevel >= 1 )
+ 													{
+ 														logBBAI("  Team %d (%S) making peace due to being only dog-piler left", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0) );
+ 													}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 													makePeace((TeamTypes)iI);
+ 													break;
+ 												}
+@@ -4076,8 +4089,9 @@
+ 			}
+ 		}
+ 	}
++
+ 	// if no war plans, consider starting one!
+-	else if (getAnyWarPlanCount(true) == 0)
++	if (getAnyWarPlanCount(true) == 0 || AI_getEnemyPowerPercent(true) < 50)
+ 	{
+ 		bool bAggressive = GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI);
+ 		
+@@ -4223,18 +4237,10 @@
+ 								{
+ 									if (canDeclareWar((TeamTypes)iI))
+ 									{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/25/09                                jdog5000      */
+-/*                                                                                              */
+-/* War Strategy AI                                                                              */
+-/************************************************************************************************/
+ 										if( GET_TEAM((TeamTypes)iI).isAVassal() && !AI_isOkayVassalTarget((TeamTypes)iI) )
+ 										{
+ 											continue;
+ 										}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 										if (iNoWarRoll >= AI_noWarAttitudeProb(AI_getAttitude((TeamTypes)iI)))
+ 										{
+@@ -4253,18 +4259,10 @@
+ 													{
+ 														iValue = AI_startWarVal((TeamTypes)iI);
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+ 														if( iValue > 0 && gTeamLogLevel >= 2 )
+ 														{
+ 															logBBAI("      Team %d (%S) considering starting TOTAL war with team %d with value %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, iValue );
+ 														}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 														if (iValue > iBestValue)
+ 														{
+@@ -4283,18 +4281,11 @@
+ 
+ 					if (eBestTeam != NO_TEAM)
+ 					{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+-						if( iValue > 0 && gTeamLogLevel >= 1 )
++						if( gTeamLogLevel >= 1 )
+ 						{
+ 							logBBAI("    Team %d (%S) starting TOTAL war preparations against team %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI );
+ 						}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++
+ 						AI_setWarPlan(eBestTeam, (iDaggerCount > 0) ? WARPLAN_TOTAL : WARPLAN_PREPARING_TOTAL);
+ 						break;
+ 					}
+@@ -4327,18 +4318,10 @@
+ 							{
+ 								if (canDeclareWar((TeamTypes)iI))
+ 								{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/25/09                                jdog5000      */
+-/*                                                                                              */
+-/* War Strategy AI                                                                              */
+-/************************************************************************************************/
+ 									if( GET_TEAM((TeamTypes)iI).isAVassal() && !AI_isOkayVassalTarget((TeamTypes)iI) )
+ 									{
+ 										continue;
+ 									}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 									if (iNoWarRoll >= AI_noWarAttitudeProb(AI_getAttitude((TeamTypes)iI)))
+ 									{
+@@ -4348,18 +4331,10 @@
+ 											{
+ 												iValue = AI_startWarVal((TeamTypes)iI);
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+ 												if( iValue > 0 && gTeamLogLevel >= 2 )
+ 												{
+ 													logBBAI("      Team %d (%S) considering starting LIMITED war with team %d with value %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, iValue );
+ 												}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 												if (iValue > iBestValue)
+ 												{
+@@ -4378,18 +4353,11 @@
+ 
+ 				if (eBestTeam != NO_TEAM)
+ 				{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+-					if( iValue > 0 && gTeamLogLevel >= 1 )
++					if( gTeamLogLevel >= 1 )
+ 					{
+ 						logBBAI("    Team %d (%S) starting LIMITED war preparations against team %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI );
+ 					}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++
+ 					AI_setWarPlan(eBestTeam, (iDaggerCount > 0) ? WARPLAN_LIMITED : WARPLAN_PREPARING_LIMITED);
+ 				}
+ 			}
+@@ -4412,18 +4380,11 @@
+ 							{
+ 								if (canDeclareWar((TeamTypes)iI))
+ 								{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/25/09                                jdog5000      */
+-/*                                                                                              */
+-/* War Strategy AI                                                                              */
+-/************************************************************************************************/
+ 									if( GET_TEAM((TeamTypes)iI).isAVassal() && !AI_isOkayVassalTarget((TeamTypes)iI) )
+ 									{
+ 										continue;
+ 									}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++
+ 									if (iNoWarRoll >= AI_noWarAttitudeProb(AI_getAttitude((TeamTypes)iI)))
+ 									{
+ 										if (GET_TEAM((TeamTypes)iI).getAtWarCount(true) > 0)
+@@ -4452,18 +4413,10 @@
+ 												{
+ 													iValue = AI_startWarVal((TeamTypes)iI);
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+ 													if( iValue > 0 && gTeamLogLevel >= 2 )
+ 													{
+ 														logBBAI("      Team %d (%S) considering starting DOGPILE war with team %d with value %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, iValue );
+ 													}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 													if (iValue > iBestValue)
+ 													{
+@@ -4483,24 +4436,20 @@
+ 
+ 				if (eBestTeam != NO_TEAM)
+ 				{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+-					if( iValue > 0 && gTeamLogLevel >= 1 )
++					if( gTeamLogLevel >= 1 )
+ 					{
+ 						logBBAI("  Team %d (%S) starting DOGPILE war preparations with team %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI );
+ 					}
++					AI_setWarPlan(eBestTeam, WARPLAN_DOGPILE);
++				}
++			}
++		}
++	}
++}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-					AI_setWarPlan(eBestTeam, WARPLAN_DOGPILE);
+-				}
+-			}
+-		}
+-	}
+-}
++
+ 
+ //returns true if war is veto'd by rolls.
+ bool CvTeamAI::AI_performNoWarRolls(TeamTypes eTeam)
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.h
+--- /trunk/CvGameCoreDLL/CvTeamAI.h@501
++++ /trunk/CvGameCoreDLL/CvTeamAI.h@502
+@@ -104,7 +104,7 @@
+ /* War Strategy AI                                                                              */
+ /************************************************************************************************/
+ 	int AI_getWarSuccessCapitulationRatio() const;
+-	int AI_getEnemyPowerPercent() const;
++	int AI_getEnemyPowerPercent( bool bConsiderOthers = false ) const;
+ 	bool AI_acceptSurrender( TeamTypes eSurrenderTeam );
+ 	bool AI_isOkayVassalTarget( TeamTypes eTeam );
+ /************************************************************************************************/
+

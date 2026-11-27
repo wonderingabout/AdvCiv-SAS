@@ -30,9 +30,12 @@
 #	Copyright (c) 2007 Firaxis Games, Inc. All rights reserved.
 #-----------------------------------------------------------------------------
 #
-
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
 
 from CvPythonExtensions import *
+from SAS_WorldSizeUtils import *
 import CvUtil
 import CvMapGeneratorUtil
 from CvMapGeneratorUtil import TerrainGenerator
@@ -56,24 +59,26 @@ def getNumPlotsPercent(argsList):
 	if iWorldSize < 0:
 		return 100
 	sizeModifiers = {
-		WorldSizeTypes.WORLDSIZE_DUEL:		100,
-		WorldSizeTypes.WORLDSIZE_TINY:		98,
-		WorldSizeTypes.WORLDSIZE_SMALL:		95,
-		WorldSizeTypes.WORLDSIZE_STANDARD:	92,
-		WorldSizeTypes.WORLDSIZE_LARGE:		88,
-		WorldSizeTypes.WORLDSIZE_HUGE:		84
+		# <!-- custom: Arena was absent from this direct dictionary, causing KeyError; the shifted length guard also bypassed the stored Huge value.
+		# Use the established Duel percentage for Arena. See KI#282.3. (GPT-5.6-Sol) -->
+		WorldSizeTypes.WORLDSIZE_ARENA: 100,
+		WorldSizeTypes.WORLDSIZE_DUEL: 100,
+		WorldSizeTypes.WORLDSIZE_TINY: 98,
+		WorldSizeTypes.WORLDSIZE_SMALL: 95,
+		WorldSizeTypes.WORLDSIZE_STANDARD: 92,
+		WorldSizeTypes.WORLDSIZE_LARGE: 88,
+		WorldSizeTypes.WORLDSIZE_HUGE: 84
 	}
 	if iWorldSize >= len(sizeModifiers):
 		return 80
 	return sizeModifiers[iWorldSize]
 
 def isAdvancedMap():
-	"This map should not show up in simple mode"
+	# <!-- custom: shown in Simple Game again, as in BtS: it was hidden to keep the list short enough for the EXE's fixed 850 x 569 box, which SAS_EXE_P_DYNAM_MAIN_MENU_ON now sizes from the game window. See KI#1082. (Claude code Opus 5.5) -->
 	return 0
 
 def getNumCustomMapOptions():
 	return 5 # advc.mxc
-
 
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
@@ -82,38 +87,38 @@ def getCustomMapOptionName(argsList):
 		#1:	"TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
 		#2:	"TXT_KEY_MAP_SCRIPT_ISLAND_OVERLAP",
 		# <advc.mxc> There's no fundamental difference between the two size parameters.
-		0:	"Region 1",
-		1:	"Region 2",
-		2:	"Overlap", # </advc.mxc>
-		3:	"TXT_KEY_MAP_WORLD_WRAP", # advc.mxc
-		4:	"Terrain Clumping"
+		0: "Region 1",
+		1: "Region 2",
+		2: "Overlap", # </advc.mxc>
+		3: "TXT_KEY_MAP_WORLD_WRAP", # advc.mxc
+		4: "Terrain Clumping"
 		#,5:  "Add Water",
 		#6:	"Reduce Desert",
 		#7:	"Add Plains",
 		}
+	if not option_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
-
 
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	5, # advc.mxc: was 3
-		1:	5,
-		2:	2,
-		3:	3, # advc.mxc: world wrap
-		4:	4
+		0: 5, # advc.mxc: was 3
+		1: 5,
+		2: 2,
+		3: 3, # advc.mxc: world wrap
+		4: 4
 		#,5:4,
 		#6:	6,
 		#7:	6
 		}
 	return option_values[iOption]
 
-
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_SCRIPT_MASSIVE_CONTINENTS",
 			1: "TXT_KEY_MAP_SCRIPT_NORMAL_CONTINENTS",
 			2: "TXT_KEY_MAP_SCRIPT_SNAKY_CONTINENTS",
@@ -121,26 +126,26 @@ def getCustomMapOptionDescAt(argsList):
 			3: "TXT_KEY_MAP_SCRIPT_ISLANDS",
 			4: "TXT_KEY_MAP_SCRIPT_TINY_ISLANDS" # </advc.mxc>
 			},
-		1:	{ # advc.mxc: Use (BtS) TXT_KEYs instead of English-only string literals
+		1: { # advc.mxc: Use (BtS) TXT_KEYs instead of English-only string literals
 			0: "TXT_KEY_MAP_SCRIPT_MASSIVE_CONTINENTS",
 			1: "TXT_KEY_MAP_SCRIPT_NORMAL_CONTINENTS",
 			2: "TXT_KEY_MAP_SCRIPT_SNAKY_CONTINENTS",
 			3: "TXT_KEY_MAP_SCRIPT_ISLANDS",
 			4: "TXT_KEY_MAP_SCRIPT_TINY_ISLANDS"
 			},
-		2:	{
+		2: {
 			#0: "TXT_KEY_MAP_SCRIPT_ISLAND_REGION_SEPARATE",
 			#1: "TXT_KEY_MAP_SCRIPT_ISLANDS_MIXED_IN"
 			0: "Separate regions",
 			1: "Regions mixed together"
 			},
 		# <advc.mxc>
-		3:	{
+		3: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 			}, # </advc.mxc>
-		4:	{
+		4: {
 			0: "Very Clumped",
 			1: "Clumped",
 			2: "Normal",
@@ -170,29 +175,28 @@ def getCustomMapOptionDescAt(argsList):
 		#	5: "75%"
 		#	}
 		}
+	if not selection_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-
 
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	1,
-		1:	2, # advc.mxc: was 3 (islands), now snaky
-		2:	1, # advc.mxc: was 2 (separate regions), now mixed
-		3:	1, # advc.mxc: cylinder
-		4:	2
+		0: 1,
+		1: 2, # advc.mxc: was 3 (islands), now snaky
+		2: 1, # advc.mxc: was 2 (separate regions), now mixed
+		3: 1, # advc.mxc: cylinder
+		4: 2
 		#,5:0,
 		#6:	0,
 		#7:	0
 		}
 	return option_defaults[iOption]
 
-
 # <advc.mxc>
 def getWrapX():
 	return (CyMap().getCustomMapOption(3) >= 1)
-
 
 def getWrapY():
 	return (CyMap().getCustomMapOption(3) == 2)
@@ -209,7 +213,6 @@ def beforeGeneration():
 	# Binary shift roll (for horizontal shifting if Island Region Separate).
 	xShiftRoll = dice.get(2, "Region Shift, Horizontal - Big and Small PYTHON")
 	print("xShiftRoll", xShiftRoll)
-
 
 class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 	def generatePlotsByRegion(self):
@@ -261,7 +264,8 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				tinyWestLon = 0.01 * self.dice.get(85, "Tiny Longitude - Custom Continents PYTHON")
 				tinyWestX = int(self.iW * tinyWestLon)
 				tinySouthLat = 0.01 * self.dice.get(85, "Tiny Latitude - Custom Continents PYTHON")
-				# advc.001 (from SAS): was * tinyWestLon
+				# <!-- custom: The inherited script rolled an independent latitude but derived Y from longitude, diagonally correlating supposedly random tiny-island patches.
+				# Use the latitude roll while preserving RNG order. See KI#262. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				tinySouthY = int(self.iH * tinySouthLat)
 				tinyWidth = int(self.iW * 0.15)
 				tinyHeight = int(self.iH * 0.15)
@@ -326,27 +330,25 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		#print "Done"
 		return self.wholeworldPlotTypes
 
-
-'''
-Regional Variables Key:   (params of generatePlotsInRegion)
-
-iWaterPercent,
-iRegionWidth, iRegionHeight,
-iRegionWestX, iRegionSouthY,
-iRegionGrain, iRegionHillsGrain,
-iRegionPlotFlags, iRegionTerrainFlags,
-iRegionFracXExp, iRegionFracYExp,
-bShift, iStrip,
-rift_grain, has_center_rift,
-invert_heights
-'''
+#
+# Regional Variables Key:   (params of generatePlotsInRegion)
+#
+# iWaterPercent,
+# iRegionWidth, iRegionHeight,
+# iRegionWestX, iRegionSouthY,
+# iRegionGrain, iRegionHillsGrain,
+# iRegionPlotFlags, iRegionTerrainFlags,
+# iRegionFracXExp, iRegionFracYExp,
+# bShift, iStrip,
+# rift_grain, has_center_rift,
+# invert_heights
+#
 
 def generatePlotTypes():
 	NiTextOut("Setting Plot Types (Python Custom Continents) ...")
 	fractal_world = BnSMultilayeredFractal()
 	plotTypes = fractal_world.generatePlotsByRegion()
 	return plotTypes
-
 
 def generateTerrainTypes():
 
@@ -394,7 +396,6 @@ def generateTerrainTypes():
 
 	terrainTypes = terraingen.generateTerrain()
 	return terrainTypes
-
 
 def addFeatures():
 	NiTextOut("Adding Features (Python Custom Continents) ...")

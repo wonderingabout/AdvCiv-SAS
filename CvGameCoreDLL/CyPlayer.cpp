@@ -8,25 +8,54 @@
 #include "CyArea.h"
 #include "CySelectionGroup.h"
 #include "CvMap.h"
+#include "CvCity.h" // <!-- custom: WorldBuilder ADD_CITY history reads the newly created native city ID; CvPlayer headers only forward-declare CvCity. (ChatGPT-5.6-Sol) -->
+#include "CvUnit.h" // <!-- custom: WorldBuilder ADD_UNIT history reads the newly created native unit ID; CvPlayer headers only forward-declare CvUnit. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Civilization.h" // <!-- custom: WorldBuilder leader/civilization history records stable XML type tokens; GC.getInfo requires the complete info classes here. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Unit.h" // <!-- custom: WorldBuilder unit-creation history records the stable unit XML type token; GC.getInfo requires CvUnitInfo complete here. (ChatGPT-5.6-Sol) -->
+#include "CvGame.h" // <!-- custom: Direct Python/WorldBuilder city initialization now excludes pre-game setup from SASGameRecord transactions, which requires the full CvGame definition for isFinalInitialized. (GPT-5.6-Sol) -->
 #include "CvDLLPythonIFaceBase.h"
+#include "SASGameRecordLog.h" // <!-- custom: Attribute direct live Python/WorldBuilder city initialization that bypasses CvPlayer::found. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 
 CyPlayer::CyPlayer() : m_pPlayer(NULL) {}
-CyPlayer::CyPlayer(CvPlayer* pPlayer) : m_pPlayer(
-	pPlayer == NULL ? NULL : &pPlayer->AI()) // advc.003u
+CyPlayer::CyPlayer(CvPlayer* pPlayer) : m_pPlayer(pPlayer == NULL ? NULL : &pPlayer->AI()) // advc.003u
 {}
 //CvPlayer* CyPlayer::getPlayer() { return m_pPlayer; } // advc: unused
+
+static bool isSASWorldBuilderPlayerEditContext()
+{
+	return GC.getGame().isSASWorldBuilderScreenVisible() && !GC.getGame().isInAdvancedStart();
+}
+
 
 // CHANGE_PLAYER, 08/27/08. jdog5000:
 void CyPlayer::changeLeader(int /*LeaderHeadTypes*/ eNewLeader)
 {
 	if (m_pPlayer)
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderPlayerEditContext();
+		LeaderHeadTypes const eOld = (bWorldBuilderEdit ? m_pPlayer->getLeaderType() : LeaderHeadTypes());
 		m_pPlayer->changeLeader((LeaderHeadTypes)eNewLeader);
+		if (bWorldBuilderEdit && eOld != m_pPlayer->getLeaderType())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_PLAYER, "SET_LEADER", -1, -1, m_pPlayer->getID(), -1, "LEADER", GC.getInfo(m_pPlayer->getLeaderType()).getType(), eOld, m_pPlayer->getLeaderType());
+		}
+	}
 }
 
 void CyPlayer::changeCiv(int /*CivilizationTypes*/ eNewCiv)
 {
 	if (m_pPlayer)
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderPlayerEditContext();
+		CivilizationTypes const eOld = (bWorldBuilderEdit ? m_pPlayer->getCivilizationType() : CivilizationTypes());
 		m_pPlayer->changeCiv((CivilizationTypes)eNewCiv);
+		if (bWorldBuilderEdit && eOld != m_pPlayer->getCivilizationType())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_PLAYER, "SET_CIVILIZATION", -1, -1, m_pPlayer->getID(), -1, "CIVILIZATION", GC.getInfo(m_pPlayer->getCivilizationType()).getType(), eOld, m_pPlayer->getCivilizationType());
+		}
+	}
 }
 void CyPlayer::setIsHuman(bool bNewValue)
 {
@@ -69,7 +98,20 @@ CyPlot* CyPlayer::findStartingPlot(bool bRandomize)
 
 CyCity* CyPlayer::initCity(int x, int y)
 {
-	return m_pPlayer ? new CyCity(m_pPlayer->initCity(x, y, true, true)) : NULL;
+	if (m_pPlayer == NULL)
+		return NULL;
+	int const iSASGameRecordLogLevel = gGameRecordLogLevel;
+	bool const bRecordLiveChange = (iSASGameRecordLogLevel >= 2 && GC.getGame().isFinalInitialized());
+	bool const bWorldBuilderEdit = isSASWorldBuilderPlayerEditContext();
+	bool const bWorldBuilder = (bRecordLiveChange && bWorldBuilderEdit);
+	SASGameRecordTransactionScope kSASPythonCityInitTransaction(bWorldBuilder ? "WORLDBUILDER_CITY_INIT" : "PYTHON_CITY_INIT", bRecordLiveChange);
+	SASGameRecordPlotOwnerChangeCauseScope kSASPythonCityInitOwnerCause(bWorldBuilder ? SAS_PLOT_OWNER_CAUSE_WORLDBUILDER : SAS_PLOT_OWNER_CAUSE_PYTHON_EXTERNAL, iSASGameRecordLogLevel >= 3 && bRecordLiveChange);
+	CvCity* pCity = m_pPlayer->initCity(x, y, true, true);
+	if (bWorldBuilderEdit && pCity != NULL)
+	{
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "ADD_CITY", x, y, m_pPlayer->getID(), pCity->getID(), "CITY", "-", 0, 1);
+	}
+	return new CyCity(pCity);
 }
 
 void CyPlayer::acquireCity(CyCity* pCity, bool bConquest, bool bTrade)
@@ -94,15 +136,24 @@ std::wstring CyPlayer::getNewCityName()
 
 CyUnit* CyPlayer::initUnit(int /*UnitTypes*/ iIndex, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection)
 {
-	return m_pPlayer ? new CyUnit(m_pPlayer->initUnit((UnitTypes) iIndex, iX, iY, eUnitAI, eFacingDirection)) : NULL;
+	if (m_pPlayer == NULL)
+		return NULL;
+	CvUnit* pUnit = m_pPlayer->initUnit((UnitTypes)iIndex, iX, iY, eUnitAI, eFacingDirection);
+	if (pUnit != NULL && isSASWorldBuilderPlayerEditContext())
+	{
+		char const* szUnit = (iIndex >= 0 && iIndex < GC.getNumUnitInfos() ? GC.getInfo((UnitTypes)iIndex).getType() : "-");
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_UNIT, "ADD_UNIT", iX, iY, m_pPlayer->getID(), pUnit->getID(), "UNIT", szUnit, -1, iIndex, false, false, true);
+	}
+	return new CyUnit(pUnit);
 }
 
 void CyPlayer::disbandUnit(bool bAnnounce)
 {
-	//return m_pPlayer ? m_pPlayer->disbandUnit(bAnnounce) : NULL;
-	// <advc.001>
+	// <!-- custom: AdvCiv's advc.001 checks the player before calling the void disband operation. (GPT-6.2-Sol) -->
+	// <!-- custom: The old one-line form returned a conditional expression whose branches were the void disbandUnit call and NULL, which standard C++ rejects; VC2003 accepted it, so behavior is unchanged.
+	// AdvCiv rewrote such BtS code in 616238930 so the DLL can also build with a standard-conforming compiler such as Clang. See KI#1099. (Claude code Opus 5.5) -->
 	if (m_pPlayer)
-		m_pPlayer->disbandUnit(bAnnounce); // </advc.001>
+		m_pPlayer->disbandUnit(bAnnounce);
 }
 
 void CyPlayer::killUnits()
@@ -202,14 +253,14 @@ std::wstring CyPlayer::getStateReligionKey()
 
 std::wstring CyPlayer::getBestAttackUnitName(int iForm)
 {
-	if (m_pPlayer != NULL) // advc.cppstd: Replacing conditional operator
+	if (m_pPlayer != NULL) // <!-- custom: Keep AdvCiv's explicit null check before returning wide text. See KI#1099. (GPT-6.2-Sol) -->
 		return m_pPlayer->getBestAttackUnitName((uint)iForm);
 	return std::wstring();
 }
 
 std::wstring CyPlayer::getWorstEnemyName()
 {
-	if (m_pPlayer != NULL) // advc.cppstd: Replacing conditional operator
+	if (m_pPlayer != NULL) // <!-- custom: Keep AdvCiv's explicit null check before returning wide text. See KI#1099. (GPT-6.2-Sol) -->
 		return m_pPlayer->getWorstEnemyName();
 	return std::wstring();
 }
@@ -544,10 +595,45 @@ int CyPlayer::calculateUnitCost()
 	return m_pPlayer ? m_pPlayer->calculateUnitCost() : -1;
 }
 
+// <!-- custom: Start Military Advisor Summary tab support-cost breakdown exposure.
+// Python previously had to approximate these values and could not show the real unit-cost multiplier path. (GPT-5.5) -->
+python::tuple CyPlayer::calculateUnitCostBreakdown()
+{
+	// <!-- custom: expose CvPlayer::calculateUnitCost's exact intermediate values to Python so the Military Advisor Summary tab can show the real support math instead of approximating hidden K-Mod multipliers in Python.
+	// Tuple order: free units, free military, paid units, paid military, unit-cost multiplier, regular unit cost, military cost, extra cost, total pre-inflation. (GPT-5.5) -->
+	if (!m_pPlayer)
+		return python::make_tuple();
+	int iFreeUnits, iFreeMilitaryUnits, iPaidUnits, iPaidMilitaryUnits,
+			iUnitCost, iMilitaryCost, iExtraCost;
+	int iTotal = m_pPlayer->calculateUnitCost(iFreeUnits, iFreeMilitaryUnits,
+			iPaidUnits, iPaidMilitaryUnits, iUnitCost, iMilitaryCost,
+			iExtraCost);
+	python::tuple kBreakdown = python::make_tuple(iFreeUnits, iFreeMilitaryUnits, iPaidUnits,
+			iPaidMilitaryUnits, m_pPlayer->getUnitCostMultiplier(), iUnitCost,
+			iMilitaryCost, iExtraCost, iTotal);
+	return kBreakdown;
+}
+// <!-- custom: End Military Advisor Summary tab support-cost breakdown exposure. (GPT-5.5) -->
+
 int CyPlayer::calculateUnitSupply()
 {
 	return m_pPlayer ? m_pPlayer->calculateUnitSupply() : -1;
 }
+
+// <!-- custom: Start Military Advisor Summary tab outside-supply breakdown exposure; Python needs the DLL-paid outside-unit count and subtotal to show the actual calculation. (GPT-5.5) -->
+python::tuple CyPlayer::calculateUnitSupplyBreakdown()
+{
+	// <!-- custom: expose CvPlayer::calculateUnitSupply's exact paid-outside count and pre-inflation subtotal to Python; this includes AdvCiv game-speed extra free outside units that were not otherwise exposed to Python.
+	// Tuple order: paid outside units, base/pre-inflation supply cost, total pre-inflation supply cost. (GPT-5.5) -->
+	if (!m_pPlayer)
+		return python::make_tuple();
+	int iPaidOutsideUnits, iBaseSupplyCost;
+	int iTotal = m_pPlayer->calculateUnitSupply(iPaidOutsideUnits,
+			iBaseSupplyCost);
+	python::tuple kBreakdown = python::make_tuple(iPaidOutsideUnits, iBaseSupplyCost, iTotal);
+	return kBreakdown;
+}
+// <!-- custom: End Military Advisor Summary tab outside-supply breakdown exposure. (GPT-5.5) -->
 
 int CyPlayer::calculatePreInflatedCosts()
 {
@@ -878,7 +964,16 @@ int CyPlayer::getGold()
 void CyPlayer::setGold(int iNewValue)
 {
 	if (m_pPlayer)
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderPlayerEditContext();
+		int const iOldValue = (bWorldBuilderEdit ? m_pPlayer->getGold() : 0);
 		m_pPlayer->setGold(iNewValue);
+		if (bWorldBuilderEdit && iOldValue != m_pPlayer->getGold())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_PLAYER, "SET_GOLD", -1, -1, m_pPlayer->getID(), -1, "GOLD", "-", iOldValue, m_pPlayer->getGold());
+		}
+	}
 }
 
 void CyPlayer::changeGold(int iChange)
@@ -921,17 +1016,20 @@ int CyPlayer::getAdvancedStartCityCost(bool bAdd, CyPlot* pPlot)
 
 int CyPlayer::getAdvancedStartPopCost(bool bAdd, CyCity* pCity)
 {
-	return m_pPlayer ? m_pPlayer->getAdvancedStartPopCost(bAdd, pCity->getCity()) : -1;
+	// <!-- custom: Python's None now passes as NULL, as the native function allows; it was dereferenced. See KI#1091.2. (Claude code Opus 5.5) -->
+	return m_pPlayer ? m_pPlayer->getAdvancedStartPopCost(bAdd, (pCity == NULL ? NULL : pCity->getCity())) : -1;
 }
 
 int CyPlayer::getAdvancedStartCultureCost(bool bAdd, CyCity* pCity)
 {
-	return m_pPlayer ? m_pPlayer->getAdvancedStartCultureCost(bAdd, pCity->getCity()) : -1;
+	// <!-- custom: Python's None now passes as NULL, as the native function allows; it was dereferenced. See KI#1091.2. (Claude code Opus 5.5) -->
+	return m_pPlayer ? m_pPlayer->getAdvancedStartCultureCost(bAdd, (pCity == NULL ? NULL : pCity->getCity())) : -1;
 }
 
 int CyPlayer::getAdvancedStartBuildingCost(int /*BuildingTypes*/ eBuilding, bool bAdd, CyCity* pCity)
 {
-	return m_pPlayer ? m_pPlayer->getAdvancedStartBuildingCost((BuildingTypes) eBuilding, bAdd, pCity->getCity()) : -1;
+	// <!-- custom: Python's None now passes as NULL, as the native function allows; it was dereferenced. See KI#1091.2. (Claude code Opus 5.5) -->
+	return m_pPlayer ? m_pPlayer->getAdvancedStartBuildingCost((BuildingTypes) eBuilding, bAdd, (pCity == NULL ? NULL : pCity->getCity())) : -1;
 }
 
 int CyPlayer::getAdvancedStartImprovementCost(int /*ImprovementTypes*/ eImprovement, bool bAdd, CyPlot* pPlot)
@@ -969,8 +1067,7 @@ int CyPlayer::getEspionageMissionCost(int /*EspionageMissionTypes*/ eMission, in
 	return m_pPlayer ? m_pPlayer->getEspionageMissionCost((EspionageMissionTypes) eMission, (PlayerTypes) eTargetPlayer, NULL != pPlot ? pPlot->getPlot() : NULL, iExtraData) : -1;
 }
 // <advc.120d>
-int CyPlayer::getEspionageGoldQuantity(int eMission, int eTargetPlayer,
-		CyCity* pCity) {
+int CyPlayer::getEspionageGoldQuantity(int eMission, int eTargetPlayer, CyCity* pCity) {
 	if(m_pPlayer == NULL)
 		return -1;
 	return m_pPlayer->getEspionageGoldQuantity((EspionageMissionTypes)eMission,
@@ -2264,16 +2361,30 @@ int CyPlayer::AI_getAttitudeExtra(int /*PlayerTypes*/ eIndex)
 	return m_pPlayer ? m_pPlayer->AI_getAttitudeExtra((PlayerTypes)eIndex) : -1;
 }
 
+// <!-- custom: The inherited WorldBuilder diplomacy slider/reset uses this attitude setter; capture directed player-pair changes in saved history, with no extra getter reads outside the editor and no rows for unchanged values. (GPT-6.1-Sol) -->
 void CyPlayer::AI_setAttitudeExtra(int /*PlayerTypes*/ eIndex, int iNewValue)
 {
 	if (m_pPlayer)
+	{
+		bool const bWorldBuilderEdit = isSASWorldBuilderPlayerEditContext();
+		int const iOldValue = (bWorldBuilderEdit ? m_pPlayer->AI_getAttitudeExtra((PlayerTypes)eIndex) : 0);
 		m_pPlayer->AI_setAttitudeExtra((PlayerTypes)eIndex, iNewValue);
+		if (bWorldBuilderEdit && iOldValue != m_pPlayer->AI_getAttitudeExtra((PlayerTypes)eIndex))
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_PLAYER, "SET_ATTITUDE_EXTRA", -1, -1, m_pPlayer->getID(), eIndex, "ATTITUDE_PLAYER", "-", iOldValue, m_pPlayer->AI_getAttitudeExtra((PlayerTypes)eIndex));
+	}
 }
 
+// <!-- custom: The inherited WorldBuilder diplomacy slider/reset uses this attitude setter; capture directed player-pair changes in saved history, with no extra getter reads outside the editor and no rows for unchanged values. (GPT-6.1-Sol) -->
 void CyPlayer::AI_changeAttitudeExtra(int /*PlayerTypes*/ eIndex, int iChange)
 {
 	if (m_pPlayer)
+	{
+		bool const bWorldBuilderEdit = isSASWorldBuilderPlayerEditContext();
+		int const iOldValue = (bWorldBuilderEdit ? m_pPlayer->AI_getAttitudeExtra((PlayerTypes)eIndex) : 0);
 		m_pPlayer->AI_changeAttitudeExtra((PlayerTypes)eIndex, iChange);
+		if (bWorldBuilderEdit && iOldValue != m_pPlayer->AI_getAttitudeExtra((PlayerTypes)eIndex))
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_PLAYER, "SET_ATTITUDE_EXTRA", -1, -1, m_pPlayer->getID(), eIndex, "ATTITUDE_PLAYER", "-", iOldValue, m_pPlayer->AI_getAttitudeExtra((PlayerTypes)eIndex));
+	}
 }
 
 int CyPlayer::AI_getMemoryCount(int /*PlayerTypes*/ eIndex1, int /*MemoryTypes*/ eIndex2)

@@ -1,0 +1,32 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 218
+# Author: iustus
+# Date: 2006-12-19T19:27:31.755509Z
+# Coverage: full
+# Message:
+#   added a bit of randomness to picking the city to assault, if it is more than 3 turns pathing away, then +/- 33% on the number of turns to pick a target
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@217
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@218
+@@ -8701,6 +8701,16 @@
+ 
+ 								iValue *= 1000;
+ 
++								// if more than 3 turns to get there, then put some randomness into our preference of distance
++								// +/- 33%
++								if (iPathTurns > 3)
++								{
++									int iPathAdjustment = GC.getGameINLINE().getSorenRandNum(67, "AI Assault Target");
++
++									iPathTurns *= 66 + iPathAdjustment;
++									iPathTurns /= 100;
++								}
++
+ 								iValue /= (iPathTurns + 1);
+ 
+ 								if (iValue > iBestValue)
+

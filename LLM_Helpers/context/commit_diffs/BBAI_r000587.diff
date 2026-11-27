@@ -1,0 +1,32 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 587
+# Author: jdog5000
+# Date: 2010-06-29T06:40:18.034177Z
+# Coverage: full
+# Message:
+#   devel version 1.01e
+# Changed paths (2):
+#   M /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+#   M /trunk/Better BTS AI/readme.txt
+
+Index: /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/readme.txt
+--- /trunk/Better BTS AI/readme.txt@586
++++ /trunk/Better BTS AI/readme.txt@587
+@@ -98,10 +98,12 @@
+ - If AI is preparing a dogpile attack and the enemies of its target break off war, then it will replan
+ - Improved AI detection of when its wars were cold and it might as well break them off
+ - When AI has many more units in enemy territory or en route than its enemies have in its territory, it is now less inclined make peace.  Conversely, you can now move a big attack force into AI territory and sue for peace.  Replaced prior flawed city danger based method and expanded to include non-Aggressive AI games.
++- AI decisions to raze cities now factor in cultural victory, resources, how good a holy city is, and how likely the conquerer is to hold the city
+ 
+ War tactics
+ - Fixed issue where AI would pull back its troops to its own borders to regroup instead of regrouping in enemy territory
+ - AI now puts extra emphasis on state religion holy cities of enemies in picking target cities (thanks Lunar Mongoose)
++- More changes to AI target city values to put higher value on wonders, holy cities, and needed resources
+ 
+ City AI
+ - AIs in isolated starts now will build fewer units until they meet somebody
+

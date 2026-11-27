@@ -1,0 +1,1421 @@
+# Inherited files audit
+
+Every Python, XML, C++, `res` and `Config` file that vanilla Civ4, Warlords, Beyond the Sword and base AdvCiv provide, how far SAS integrates each one, and why. The goal is to bring in only what SAS needs, and to decide the rest deliberately later, rather than by accident (the user, 2026-11-22).
+
+It began with a narrower question from the SASPilot work, whether the WorldBuilder screen that runs is ours (2026-11-22), answered under [WorldBuilder](#worldbuilder).
+
+Status (2026-11-27): done for today's needs, as settled with the user; a later need might reopen it.
+
+SAS carries every base-game Python file it uses ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)), every base-game map script, and the define and data XML its rules, AI and own XML rely on ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2), [KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3)); every other base-game file is decided in the sections below, each with its reason.
+
+- A base-game file comes in later only when an edit needs it, as `CIV4ProcessInfo.xml` once did; the copy then goes in a commit of its own before the edit, so the edit's diff shows only SAS's change.
+- The generated tables and their CI check still follow the repository, so they stay current without the audit being reopened.
+
+- This file:
+  - its hand-written sections give what a commit title cannot: which copy actually runs, and the reasons by subsystem;
+  - its [generated part](#generated-tables) holds the counts, the lists of files SAS took in, dropped again or removed, each with its full path and events, a tree of folders, and the base-game Python modules that SAS's Python files import while SAS has no module of the same name.
+- The report, `inherited_files_inventory_<UTC>.tsv` in the Git-ignored `LLM_Helpers/outputs/`, lists every inherited file and every new SAS file in tree order, one row each:
+  - its path and the layers providing it;
+  - its file events in upstream AdvCiv's history and in ours, with full commit titles;
+  - SAS's status;
+  - filter it by its `sas` or `ourEvents` column, or grep it for a name.
+
+## Menu
+
+- [How to read and refresh it](#how-to-read-and-refresh-it)
+  - [Why it has this shape](#why-it-has-this-shape)
+- [Which copy runs](#which-copy-runs)
+- [Decisions by subsystem](#decisions-by-subsystem)
+  - [Taken in from the base game](#taken-in-from-the-base-game)
+  - [Removed or renamed from base AdvCiv](#removed-or-renamed-from-base-advciv)
+- [WorldBuilder](#worldbuilder)
+- [Not traced](#not-traced)
+- [Base-game data XML by reader](#base-game-data-xml-by-reader)
+- [Generated tables](#generated-tables)
+  - [Counts](#counts)
+  - [Files taken in from the base game](#files-taken-in-from-the-base-game)
+  - [Files taken in and dropped again](#files-taken-in-and-dropped-again)
+  - [Files removed or renamed from base AdvCiv](#files-removed-or-renamed-from-base-advciv)
+  - [By folder](#by-folder)
+
+## How to read and refresh it
+
+- "Base AdvCiv" is upstream AdvCiv as SAS last merged it:
+  - read from its newest release branch, `1.14` as of 2026-11-22, which [`advciv_release.py`](/.github/workflows/README.md#libadvciv_releasepy) finds, so no version is written into the scripts;
+  - a newer AdvCiv needs its branch fetched, or `--upstream-ref`, and the list rewritten;
+  - the wording does not name a version (the user, 2026-11-22).
+- [`inherited_files.tsv`](/_0_Legacy/Docs/Manifests/inherited_files.tsv) records what the base game and base AdvCiv ship, one row per file, never its content:
+  - its path as the newest layer providing it ships it, and the layers that ship it;
+  - its additions, deletions and renames in upstream AdvCiv, including old overrides whose path now falls back to the base game;
+  - any layer keeping it at another path;
+  - it changes only when those layers do; rewrite it then with the CI check's `--write` on a computer with Civ4.
+- The report adds SAS's side:
+  - its `sas` column says whether SAS keeps the filename, that is has a file at that path or, for Python, a file of that name in any folder, and where when its path differs;
+  - for a Python module SAS has no module of that name for, it says whether a Python file in SAS's tree has a static import for the inherited copy; the EXE or another inherited module can still load it;
+    - "SAS's tree" includes the inherited files SAS keeps, and those make all of the imports: on 2026-11-22, before SAS took most of them in ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)), every importer of the 17 modules then listed was a BtS, BUG or base AdvCiv file SAS kept, with the same import in base AdvCiv, and SAS had added none.
+      - These are the base-game modules the inherited code still runs on, not modules SAS chose.
+      - "Inherited" means from upstream, not older than SAS: base AdvCiv kept changing after SAS's first commit of its own (2025-03-23), with 114 commits up to the 1.14 release SAS merged (`5970334b64`, 2026-10-15), 15 of them in Python, such as `0c3a059b46` (2026-08-25) "Fix missing route (Railroad) hover text in BUG tech splash". None of them added a Python or XML file;
+  - a kept filename says nothing about content: SAS may have rewritten the file entirely or taken it from another mod, as with `Assets/XML/GameInfo/CIV4ProcessInfo.xml` from Realism Invictus; this audit leaves content to the commits;
+  - its `ourEvents` column has the file events in our whole history, with date, SHA and title, as do this file's generated lists.
+- After a history rewrite (squash, rebase, amend), rerun `--inventory`: SAS's SHAs change with it, and CI cannot notice, as it may check out without the full history.
+- [`inherited_files.py`](/LLM_Helpers/README.md#inherited_filespy) in `LLM_Helpers/code_history/`:
+  - `--inventory` writes the report and the generated part here, from the list and Git, without Civ4;
+  - an area, `python`, `xml`, `cpp`, `res` or `config`, prints its files with more detail, such as each Python module's importers. Its base AdvCiv comparison uses the upstream Git ref too;
+  - for example, `py LLM_Helpers/code_history/inherited_files.py python --grep wb` lists the WorldBuilder modules.
+- The [CI check](/.github/workflows/README.md#buildsourceinherited_filespy) of the same name keeps the generated part current (the user's request, 2026-11-22):
+  - the part records three fingerprints: of the list, of SAS's paths for the inherited filenames it keeps, and of the inherited Python modules SAS imports;
+  - rerun `--inventory` and review the reasons here when the check fails because SAS started or stopped keeping an inherited filename, or moved its file;
+  - or because SAS started or stopped importing an inherited Python module;
+  - or because the list was rewritten.
+- What stays current and what does not:
+  - kept current by CI: everything in the generated part that comes from the list and SAS's tree, that is the counts, the folder tree, the membership of the three file lists and the imports list; each changes only with one of the three fingerprints, so none can drift unnoticed (a probe giving SAS a copy of `CvPerfTest.py` failed the check, 2026-11-22);
+  - not checked: the events in the generated lists, which come from history, so rerun `--inventory` after a rewrite; and the hand-written sections, which state reasons and dated observations, such as "28 of 63 files on 2026-11-22", rather than current counts.
+
+### Why it has this shape
+
+The shape came from several rounds with the user on 2026-11-22; each choice below replaced a draft that did not serve the goal, so keep them when extending the audit.
+
+- What it lists:
+  - Everything inherited, not only SAS's copies.
+    - The first draft listed SAS's own copies, which cannot show what SAS lacks.
+    - Starting from what vanilla, Warlords, BtS and base AdvCiv ship makes a gap visible before anyone decides whether to fill it.
+  - File events only: added, removed, added again, renamed or moved.
+    - A draft showed each file's latest change, which were content edits such as renaming Rice or a religion, noise for what SAS takes and leaves.
+  - Every event, not only the first.
+    - A file can be added, removed, added again or renamed, such as `CvGameCoreDLL/UWAIReport.cpp`, added in 2017 as `WarAndPeaceReport.cpp` and renamed in 2019.
+  - The layers stop at base AdvCiv.
+    - It already holds what it took from K-Mod, Better BTS AI and BUG, and its events show that provenance; what AdvCiv left out of those mods was its decision, not SAS's.
+    - When looking for a feature AdvCiv did not take, a K-Mod or BUG tree can be compared the same way as an extra layer.
+- Where each fact lives:
+  - Upstream facts and SAS facts apart.
+    - `inherited_files.tsv` holds only what the base game and base AdvCiv ship.
+    - A first version also stored whether SAS kept each file and whether its copy differed, which needed Civ4 to refresh after every SAS file change.
+  - Base AdvCiv from its upstream branch, not the local `Mods/AdvCiv` folder.
+    - That folder also held SAS files upstream never had, `GlobalDefines_advciv_sas.xml` and `SASGameRecordLog.cpp` and `.h`, which the first list counted as AdvCiv's.
+  - Commits by date and SHA.
+    - Upstream AdvCiv's history is never rewritten, so its SHAs stay valid in the tracked list; SAS's own commits stay out of that list.
+    - SAS's SHAs appear only in this file's generated lists and the report, so each event leads straight to its commit; a draft left them out as rewrites change them, which the user found less useful (2026-11-22), so regenerate after a rewrite instead.
+    - No practical numbers, as the same number names different commits in different segments.
+  - The full per-file list as a report in `LLM_Helpers/outputs/`, not tracked.
+    - A tracked list of SAS's files would churn with every SAS change and every history rewrite.
+    - A Markdown table of 924 rows was hard to read.
+  - One file for one subject.
+    - A separate inventory file beside this one was confusing, so the readable part is generated into this file between markers.
+  - No log of our history in this file.
+    - A per-commit log of file events listed our history, which belongs to Git, went stale on a squash without CI noticing, and repeated what the report holds per file.
+    - The reasons that matter are grouped by subsystem below.
+- How it reads:
+  - One path per file, not one per tree.
+    - A draft gave each tree its own path column, which repeated `Assets/Python/CvMapGeneratorUtil.py` four times.
+    - Another layer's path appears only where it differs, such as BtS's `Assets/res/cursors/` against the others' `Cursors/`.
+    - The real path, not only the lower-case key Civ4 and Windows match by, shows where a file sits, such as vanilla's `Assets/Python/pyWB/CvWBPopups.py`.
+  - A tree, not an alphabetical list.
+    - The report is sorted by path and this file counts each folder, so a folder SAS left mostly inherited stands out, such as `Assets/Python/Screens`, where SAS kept the filenames of 28 of 63 files on 2026-11-22.
+  - No hand table of inherited Python modules SAS uses.
+    - It described upstream's choices, not ours, whether made before SAS began or merged in later with a base AdvCiv release; one generated line names them by the file that runs, as part of how far SAS integrates what it inherits.
+  - "Base AdvCiv", not a version number, so a newer AdvCiv does not leave stale wording.
+  - "Keeps the filename", not "carries".
+    - The audit first said SAS "carries" an inherited file when it has one at that path, which reads as if SAS kept the inherited file itself.
+    - SAS may have rewritten the file entirely or taken it from another mod, such as `Assets/XML/GameInfo/CIV4ProcessInfo.xml` from Realism Invictus; what the audit measures is only whether the filename was kept: the same path, or for Python the same filename in any folder.
+    - "Filename", not just "name": in Civ4, "name" can also mean a text key or an asset name.
+  - Every file named, never a wildcard such as `CIV4ArtDefines_*`, which hides exactly the names a gap search looks for.
+  - Short parent bullets with sub-bullets, as long paragraphs and lists in one line were hard to scan.
+- What CI checks: only inherited-file decisions.
+  - A draft fingerprinted every SAS file, so most feature commits, adding a module of SAS's own, would have had to regenerate this file for a count.
+  - Only SAS starting or stopping to keep an inherited filename, or to import an inherited module, is worth that.
+
+## Which copy runs
+
+- Python: the newest copy by module name runs, with SAS above BtS, Warlords and vanilla.
+  - Civ4's `moduleSearchDirs` in `PythonDbg.log` include `python\screens\` and `python\pywb\`, and the tables match game-script imports by basename.
+  - Evidence: `CvWBPopups.py` exists only in vanilla's `Assets/Python/pyWB/` among the active asset layers, SAS disables CustomAssets by default, SAS's `CvEventManager.py` imports it, and `PythonDbg.log` shows `load_module CvWBPopups` (2026-11-22).
+  - The EXE also loads some modules by name, with no import in our code: the same log shows `CvWBInterface` loading `CvWBDesc` just before `WB_SAVE_BEGIN` and a successful save.
+  - It is a disk inventory: Python packages, the interpreter's own `sys.path`, and modules loaded only through other base-game files have their own resolution paths.
+- XML: matched by relative path.
+  - `LoadGlobalClassInfo` requests one primary XML file through the EXE file manager, then adds modular files when enabled.
+  - `LoadGlobalText` enumerates `xml\text\*.xml` instead, so distinct text files can contribute keys from older layers, such as `TXT_KEY_CIV_KOREA_DESC` from Warlords; see [Manifests of the inherited layers](/README.md#manifests-of-the-inherited-layers).
+  - The audit has no per-file runtime evidence for fallback on non-text XML missing from BtS.
+  - A same-named file in SAS replaces the base game's, text files included (checked 2026-11-22, [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)):
+    - Codex first warned that a copied XML file could change which definitions load, then found no such case in the loader (`CvXMLLoadUtilitySet.cpp`) and withdrew it; its remaining point is later drift, which a separate copy commit before any edit keeps visible.
+    - Claude Code Opus 5.5 first said a same-named copy of a base-game text file would load its keys a second time, which was wrong: `LoadGlobalText` lists every `xml\text\*.xml` of every layer, and K-Mod's comment there says a file present in both the mod and the base game is "loaded from the mod folder anyway", so it drops the duplicate and the mod's copy replaces the base one, as for Python and other XML (`CvXMLLoadUtilitySet.cpp`, checked 2026-11-22).
+    - So a SAS text file must not take a base-game text file's name, such as `CIV4GameText_BTS.xml`: it would replace that file, and every key only that file defines would stop loading.
+      - SAS's own `AdvCiv-SAS_*.xml` names cannot collide; the 37 text files given back base AdvCiv's names on 2026-11-22 were checked not to match any vanilla, Warlords or BtS text file, and base AdvCiv is not a layer under SAS.
+- C++: only SAS's `CvGameCoreDLL` source tree is built.
+  - The Firaxis SDK copies are comparison sources.
+  - A same-path comparison tells us about a whole file; code can also survive in a renamed or split file.
+
+## Decisions by subsystem
+
+The reasons behind the generated lists of [files taken in](#files-taken-in-from-the-base-game), [taken in and dropped again](#files-taken-in-and-dropped-again), and [removed or renamed](#files-removed-or-renamed-from-base-advciv), grouped by subsystem. The lists name every file with its full path and events; this section says only what a commit title cannot.
+
+### Taken in from the base game
+
+- Art, audio and effects:
+  - copied from 2025-04 onward as SAS added art, such as the Benin leader and buttons from the HR mod;
+  - the religion rename to Daoism (2025-05-07, `50e7c8749e`) brought in several files "cleanly" from BtS at once, for art, audio and effects alike;
+  - later ones came with the Lighthouse rework and the Paganism button.
+- Rules:
+  - each came with the rule change its first commit names, such as the archer combat split (2025-04-08) or the Wage Labor civic (2025-11-11);
+  - `Assets/XML/GameInfo/CIV4ProcessInfo.xml` came from Realism Invictus, not the base game (2025-03-24, `f9b371954c`), replacing vanilla's and Warlords' copies.
+- World sizes: `Assets/XML/Interface/CIV4WorldPickerInfos.xml` holds the SAS24 to SAS48 world sizes (2026-01-08).
+- L-systems, the building layouts on the map:
+  - `Assets/XML/Buildings/CIV4PlotLSystem.xml` came with the Camel; [KI#1074](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1074) later fixed its Grapes and Winery leftovers and added a CI check of its links.
+  - `Assets/XML/Buildings/CIV4CityLSystem.xml`, the one file taken in and dropped again, was Warlords' version, not BtS's, which "does not hardcode any asset name", and players had reported building models missing from the map; so BtS's copy loads, and [`building_art_lsystem_names_bts.tsv`](/_0_Legacy/Docs/Manifests/building_art_lsystem_names_bts.tsv) lets CI check its names.
+  - `Assets/XML/Buildings/CIV4LSystemSchema.xml` exists only in vanilla, which still provides it.
+- Python: the tech splash and wonder movie screens were copied from BtS for their rework (2026-04-14).
+  - The other base-game Python files SAS uses came in on 2026-11-22 ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)), and the five entry points the EXE registers by name on 2026-11-26, with what they import.
+  - That paid off within a week:
+    - once in the repository, the copies met SAS's CI, which found `PyHelpers.py`'s dormant `religionList` slip (see [KI#165.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.2)) and, among the entry points, vanilla's broken `CvUnitController.ProcessEvent` body ([KI#165.13](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.13)) and `PbWizard.py`'s patch dialog without text ([KI#1085.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085.2));
+    - [KI#128.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.5)'s live define overrides first apply in `CvAppInterface.preGameStart`, which would otherwise have meant editing a BtS file outside the repository;
+    - 13 of [KI#117.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-117.2)'s 43 Python message calls left at the stock font are `CvAppInterface.py`'s `onPbemSend` error lines, which neither the fix nor its check could have reached in BtS's copy.
+
+### Removed or renamed from base AdvCiv
+
+- Advisors merged into tabs, March 2026:
+  - the Exotic Foreign Advisor into the Foreign Advisor, with Espionage as its tab;
+  - the Economics Advisor's environment tab into the Info screen;
+  - the Civics and Religion screens into the Policy Advisor;
+  - BtS's and vanilla's copies remain on disk, and nothing in SAS currently imports them.
+- Helpers centralized, 2026-10-20:
+  - `FontUtil.py`, `GGUtil.py` and `TraitUtil.py` into `Assets/Python/SASVisualUtils.py`;
+  - `SevoScreenEnums.py` into `Assets/Python/Screens/CvScreenEnums.py`.
+- Text files:
+  - SAS renamed 28 of them on 2025-04-02, to `BUG_` prefixes or the `CIV4GameText_*` order, such as `Colors_CIV4GameText.xml` to `CIV4GameText_Colors.xml`; Civ4 loads every file in `xml\text`, so the keys loaded under any name.
+  - 2026-01-15 replaced the spaces left in their names, and in 9 others, with `_`, such as `BUG Core Options.xml` to `BUG_Core_Options.xml`.
+  - 2026-11-22 gave all 37 base AdvCiv's exact names back, spaces included, so each file can be compared with its upstream copy by name (the user, 2026-11-22); the 2025-04-02 names had also mixed BUG features with AdvCiv text, such as `BUG_AdvancedCombatOdds_advc.xml`.
+    - A rule naming game files with `_` was drafted with them and dropped the same day: it reached into imported art, whose names models store inside their binaries, and grew more complicated than tidier names were worth (the user, 2026-11-22). `art_button_paths.py` still rejects spaces in DDS buttons, the known failure of [KI#118](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118).
+    - No key is defined in two of SAS's text files, and BtS, Warlords and vanilla ship none of these names, so the renames cannot change which file a key loads from (checked 2026-11-22).
+  - `CIV4GameText_advc_pedia.xml` was renamed with the Barbarian rework (2025-05-10), then merged into `Assets/XML/Text/AdvCiv-SAS_main.xml` with the other `_Custom` text files (2026-01-15, `a44b7c6997`), so it is currently the one text file SAS does not keep.
+- UWAI's reports: `CvGameCoreDLL/UWAIReport.cpp` and `.h` were removed with [KI#505.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-505.3) (2026-10-08), when UWAI's reports moved into BBAI logging behind pre-gated levels.
+
+## WorldBuilder
+
+The question the audit started from. Of the five WorldBuilder modules, SAS has its own file only for `CvWBDesc`, as of 2026-11-22.
+
+- `CvWorldBuilderScreen` and `CvWorldBuilderDiplomacyScreen` run from BtS.
+  - Vanilla had them first, then each expansion its own copy.
+  - SAS's `CvScreensInterface.py` forwards the editor's callbacks to them, and `CvEventManager.py` imports the screen for its events.
+- `CvWBPopups` runs from vanilla.
+  - No expansion replaced it, and BtS's own `CvEventManager.py` imports it as ours does.
+- `CvWBDesc` and `CvWBInterface` read and write WorldBuilder files.
+  - f1rpo copied both from BtS into AdvCiv on 2019-11-29 (`cb71ee53fb`, "To be modified further in the next commit"), so that a 48-civ DLL could read scenarios made by an 18-civ one: [advc.056] reads a file correctly as long as its player IDs stay below `MAX_CIV_PLAYERS` (`422ef93dae`).
+  - The same commit deleted `CvWBInterface.py` again: "Didn't change CvWBInterface.py after all". So BtS's `CvWBInterface` runs and imports `CvWBDesc` by name, which finds ours.
+  - AdvCiv later changed `CvWBDesc` for starting sites in team games and stripped non-ASCII characters from signs on saving.
+  - SAS's changes were lint passes, structured `PythonDbg.log` diagnostics, failing loudly on a misspelt label, and [KI#1095](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1095): advc.056 marked the padded player slots as `neverAlive`, a name nothing reads, instead of `bNeverAlive`.
+- So for SASPilot's WorldBuilder work:
+  - a callback lands in BtS's screen, and a file problem in our `CvWBDesc`;
+  - to change the screen itself, copy it from BtS first, in a commit of its own, so the next diff shows only our change.
+- Update, later the same day: SAS now carries unchanged copies of `CvWorldBuilderScreen`, `CvWorldBuilderDiplomacyScreen`, `CvWBPopups` and `CvWBInterface`, with the other base-game Python files it uses, so a change to the screen is an ordinary edit of SAS's own file. See [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104).
+
+## Not traced
+
+- Map scripts.
+  - The manifest lists no `PublicMaps` or `PrivateMaps` file, so the base game's 60 map scripts, base AdvCiv's 8 map scripts and SAS's 50 map scripts (2026-11-22) are not in the manifest's tables.
+  - SAS keeps the map scripts it changes in its own `PrivateMaps/`, base-game map scripts included: `Oasis.py`, from Warlords' `PublicMaps/`, came into SAS on 2026-02-08 (`f1180bfc25`, "Fix Oasis.py"); base AdvCiv 1.14 does not have `Oasis.py`.
+    - Taurus ([f1rpo/Taurus](https://github.com/f1rpo/Taurus)), AdvCiv's author's other AdvCiv-based mod, which we compare with but do not inherit from, ships some of the same map scripts, such as `Oasis.py` and `Archipelago.py`.
+      - Taurus copied these map scripts from the base game, mostly after SAS did, and adopted SAS's fixes, marked `trs.fix (from SAS)`, in six of its map scripts, such as Archipelago's `isFreshWater` that "was missing parentheses".
+      - Taurus's branch `1.04` dates these map scripts: Arboria and Boreal came to Taurus on 2025-03-15 (`042b4afafc`, "Add copies of BtS, base game maps that need bugfixing"), before SAS took its copies; Oasis, Custom Continents and RandomScriptMap on 2026-08-21 (`8a802ce39c`, "Add Oasis script from WL"), and Archipelago and Islands on 2026-08-24 (`d98b9535e3`), half a year after SAS took these five map scripts in, on 2026-02-08 to 2026-02-10.
+      - Taurus's `main` branch, last updated 2026-05-23, had none of those five map scripts on 2026-11-22; `1.04` is the Taurus branch to compare with.
+    - SAS's first copies came from the base game: on 2026-11-22, SAS's first `Archipelago.py` differed from Warlords' `Archipelago.py` by 5 lines and from Taurus's by 8 lines, and SAS's first `Oasis.py` differed from Warlords' `Oasis.py` by 62 lines and from Taurus's by 84 lines.
+  - Where SAS's map scripts come from is documented elsewhere:
+    - the [Mapscripts](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#mapscripts) section of the Modding Resources guide: the four folders map scripts load from and each map script's map type;
+    - [`mapscript_refs`](/LLM_Helpers/context/mapscript_refs/README.md): the downloaded third-party originals, such as Beyond the Game 2.43's `BTG_Cross.py` and Planet Generator 0.68, for comparison with SAS's copies.
+  - Base AdvCiv added no map script after SAS began: base AdvCiv's 8 map scripts were added from 2011 to 2019, and base AdvCiv's later map-script commits changed those existing map scripts, such as `26b5f482f8` (2026-08-21) "Fix tiny-island placement in Mixed Continents script", which came into SAS with the 1.14 merge.
+- Art and Sounds.
+  - The base game packs most of its art in FPK archives, and both are thousands of binaries.
+  - The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md) covers reading them.
+- Why SAS does not keep the other inherited filenames.
+  - Mostly, SAS has not needed to change them; a file appears in the decisions above only when a commit brought it in, removed or renamed it.
+  - Text files in particular: Civ4 loads every layer's text files together, so SAS overrides single keys in its own `Assets/XML/Text/AdvCiv-SAS_*.xml` files rather than copying a base-game text file. On 2026-11-22, 33 of the 71 files in `XML/Text/` whose filenames SAS does not keep were such base-game files; the other 38 were base AdvCiv's, renamed or merged by SAS.
+- Use of the base-game Python modules SAS neither keeps by filename nor imports.
+  - They were not checked for use by the EXE or by other inherited modules, apart from `CvWBInterface` and the `CvPedia*` pages that `CvPediaMain` imports.
+  - Vanilla's 21 email library modules, such as `mimetext.py`, are among them.
+  - Update, later the same day: the `load_module` lines of 7 `PythonDbg.log` files showed which base-game modules load under SAS, and SAS took in each one it uses; the others are not observed by that import hook, which proves no non-use. See [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104).
+- Decisions on the remaining Python, 2026-11-23, with Codex (GPT-6.2-Sol) reviewing.
+  - `TechTree.py` (BtS): `CvForeignAdvisor.py` rebuilt its tech prerequisite graph on every opening and tab click of the Foreign Advisors and never read it, as BtS's own `CvExoticForeignAdvisor.py` already did. Its import and construction are now disabled in place, kept as comments, rather than the module carried; see [KI#1108.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108.2).
+  - The old Civilopedia (`CvPediaMain`, `CvPediaHistory`): SAS imports it only when BUG's Sevopedia option is off, an unsupported fallback. It stays in the base game on purpose, listed in CI's `NOT_CARRIED`.
+  - Five modules the EXE registers by name at startup, each an `EntryPoint module:` line in `PythonDbg.log`, which no SAS Python imports, so CI's import scan cannot see them: `CvMapScriptInterface.py` (Warlords), `CvTranslator.py` and `PbMain.py` (BtS), `CvDebugInterface.py` and `CvUnitControlInterface.py` (vanilla).
+    - To carry, by [KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)'s rule, with what they import: `CvUnitController.py`, and `PbWizard.py` and `PbAdmin.py` for the Pitboss server.
+    - Codex found that the Pitboss helpers import `wx`, Civ4's installed wxPython under Warlords' `Python/System`, which CI should allow for those files only. Registration shows an entry point exists, not which of its functions a normal game calls, so CI should check a curated list of engine callbacks apart from the map scripts the log also registers.
+    - Done on 2026-11-26: the eight files were taken in with `inherited_files.py --take-in`, each from its newest layer.
+      - Their code tokens equal the originals' but for the SAS header and the layout and Ruff fixes CI asks for, each commented, and two inherited vanilla slips the checks found, one seemingly unused in SAS and one untested in SAS.
+      - [KI#165.13](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165.13): `CvUnitController.ProcessEvent` now declines its event. [KI#1085.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085.2): `PbWizard.py`'s patch dialog had no text for its question.
+      - `CvUnitController.py` has no Firaxis notice, so `--take-in` now puts the header on top of such a file instead of refusing it.
+    - CI's `SYSTEM_PACKAGES` allows `wx` in `PbAdmin` and `PbWizard` only.
+      - [`python_engine_callbacks.py`](/.github/workflows/README.md#buildsourcepython_engine_callbackspy) checks the curated callbacks.
+      - Each name was found as a string in `Civ4BeyondSword_PitBoss.exe` (all of `PbMain`'s but `sendEmail`, which the DLL's `CvPythonCaller::sendEmailReminder` calls) or in both EXEs (`CvTranslator.finishText`, `CvDebugInterface.toggleDebugMode`).
+    - No engine file names `CvUnitControlInterface.ProcessEvent`, `CvDebugInterface.parseText` or `CvTranslator.printOutText`, nor the module name `CvUnitControlInterface` itself, so the EXE may only register that module from the `EntryPoints` folder; these functions are outside the callback check.
+      - `CvUnitControlInterface.ProcessEvent`, the wrapper, and `parseText` and `printOutText` stay as copied, while the handler the wrapper calls, `CvUnitController.ProcessEvent`, now declines its event (KI#165.13).
+      - `CvMapScriptInterface.py` holds the map script stubs and Firaxis's notes on them; the map generator calls the active map script, not it.
+- Data XML: 87 base-game XML files are installed fallback candidates SAS has no copy of: 42 data, 33 text and 12 schemas. The inventory picks each file's layer by disk path, and none of the 42 comes from Warlords (30 BtS, 12 vanilla).
+  - Decided with Codex, to do in a later commit: carry the data files SAS's rules, AI or UI rely on, such as `GlobalDefines.xml`, `GlobalTypes.xml`, the basic infos, civic options, upkeep, climate, emphasis, automation and player colors, and keep the art, camera, throne-room and similar presentation files listed here until an edit or a recurring inspection justifies a copy.
+  - For the files the DLL loads, a mod's data file at the same path replaces the base game's: the DLL asks for one primary path per info file, then its modular additions, and `GlobalDefines.xml` loads before the Alt, callback, AdvCiv and SAS override files, so an identical copy keeps the same definitions. Files the EXE reads itself, such as the city L-system and audio, are outside that trace.
+  - For comparison, none of 59 mods installed locally carries all 42 (most: Beyond The Game 29, Caveman2Cosmos 24, Realism Invictus 15); mods mostly carry what they change.
+  - Update (2026-11-27): an audit of who reads each of the 1,448 defines the DLL loads, [`audit_define_timing.py --readers`](/LLM_Helpers/README.md#audit_define_timingpy), found BtS's `GlobalDefines.xml` the only define file SAS has no copy of: 405 defines, of which the DLL reads 295, Python alone 3, both 44, Python and the EXEs 2, such as `FIELD_OF_VIEW`, BtS's EXEs alone 35, such as the `CAMERA_*` and `AIR_PATROL_*` values, and nothing in source or the EXEs 26, such as `INITIAL_CITY_MAINTENANCE` and `MAX_CIVIC_OPTIONS`.
+    - So it came first among the data files to carry, and SAS took it in the same day ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)): the copy changes no value the game loads, as above, its 34 names that later files declare again having been removed from it, and makes every define the game loads greppable in the repository; the 26 unread ones are noted, not removed, as some may be read under names built at runtime.
+    - The same audit found 163 SAS defines only Python reads; SAS's main-interface ones moved to `Assets/Python/SASSessionTunables.py` the same day, out of the XML the DLL loads.
+  - Update (2026-11-27): the other 41 are sorted by what reads them in [Base-game data XML by reader](#base-game-data-xml-by-reader), each with its full path, so data can be told from presentation by its reader rather than by its folder.
+- Files AdvCiv dropped before the version we compare with.
+  - The tables start from what each layer ships. A former upstream override can still appear in a base-game row sharing its path. The upstream branch and the `commit_diffs` corpus hold the broader history.
+
+## Base-game data XML by reader
+
+The 41 base-game data XML files SAS has no copy of, after `GlobalDefines.xml` (2026-11-27), grouped by what reads them, from the DLL's loader `CvGameCoreDLL/CvXMLLoadUtilitySet.cpp`.
+
+- Why by reader: a folder name does not tell data from presentation.
+  - `Misc/` holds both `CIV4RouteInfos.xml`, which SAS carries for route movement and yields, and `CIV4WaterPlaneInfos.xml`, which only draws water.
+  - `Interface/` holds both `CIV4PlayerColorInfos.xml`, which every civilization points to, and the throne room's files.
+- Paths start from the Civ4 install folder, `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\`, and name each file's newest layer, which the game loads: `Beyond the Sword/Assets/` for BtS, `Assets/` for vanilla; none of the 41 is newest in Warlords.
+- "Carry" is the plan the user chose on 2026-11-27, done the same day the way `GlobalDefines.xml` was ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2)): the 26 files are SAS's since, unchanged but for the SAS header and a copy note ([KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3)); "Base game" means the copy stays there until an edit or a recurring inspection needs one in SAS.
+- Why carry, by group:
+  - Rules the DLL reads: they shape the rules, the AI and map generation as SAS's own rule XML does, so in the repository they can be found by grep, show in a diff when changed and fall under CI's XML checks, rather than sitting unseen in the install.
+  - Data other XML points to: SAS's XML names their types, such as each civilization's `PLAYERCOLOR_*` or each unit's `FORMATION_TYPE_*`, so CI can check a reference against them, and a new SAS entry that needs one, such as a civilization's colors or a terrain's art, has its file at hand.
+  - The few UI and drawing files carried, main menus, cursors, the spaceship and camera overlays: they are small, and a SAS screen or setting that touches them then has all its data in the repository.
+- For the groups the DLL loads for the EXE, no DLL or Python game logic was found reading them beyond the loader and its getters; their engine use was not traced.
+- Codex (GPT-6.2-Sol) reviewed the table on 2026-11-27: the 41 paths are each file's newest layer, an unchanged copy at the same path should load the same, as the DLL resolves one primary path and loads `Modules` files only when enabled (off in the shipped INI), and the carried files' schema names should stay as they are rather than schemas being copied; schemas and art resolve in the EXE, so a game is started once after the carry to confirm it, `CIV4FormationInfos.xml`'s own `Civ4FormationSchema.xml` included.
+
+| Reader | File | What it holds | Plan |
+| --- | --- | --- | --- |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/GlobalTypes.xml` | Enum lists the engine reads, such as `FunctionTypes`, `DirectionTypes`, `AutomateTypes` and `FlavorTypes`; domains have their own file, `CIV4DomainInfos.xml` | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/BasicInfos/CIV4AttitudeInfos.xml` | Diplomacy attitudes, Furious to Friendly | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/BasicInfos/CIV4CalendarInfos.xml` | Calendar types for turn dates | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/BasicInfos/CIV4DomainInfos.xml` | Land, sea, air and immobile domains | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/BasicInfos/CIV4InvisibleInfos.xml` | The invisibility types `INVISIBLE_SUBMARINE` and `INVISIBLE_STEALTH`; SAS's Spy uses `bInvisible` instead, with no invisibility type | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/BasicInfos/CIV4MonthInfos.xml` | Months for turn dates | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/BasicInfos/CIV4SeasonInfos.xml` | Seasons for turn dates | Carry |
+| Rules the DLL reads | `Assets/XML/GameInfo/CIV4CivicOptionInfos.xml` | Civic categories, such as Government and Labor | Carry |
+| Rules the DLL reads | `Assets/XML/GameInfo/CIV4ClimateInfo.xml` | Map generation climates | Carry |
+| Rules the DLL reads | `Assets/XML/GameInfo/CIV4EmphasizeInfo.xml` | City governor emphasis, such as food or production | Carry |
+| Rules the DLL reads | `Assets/XML/GameInfo/CIV4TurnTimerInfo.xml` | Turn timer lengths | Carry |
+| Rules the DLL reads | `Assets/XML/GameInfo/CIV4UpKeepInfo.xml` | Civic upkeep levels | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/GameInfo/CIV4ForceControlInfos.xml` | Game setup settings a host can force | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/GameInfo/CIV4MPOptionInfos.xml` | Multiplayer options | Carry |
+| Rules the DLL reads | `Beyond the Sword/Assets/XML/Units/CIV4AutomateInfos.xml` | Unit automation types | Carry |
+| Data other XML points to | `Beyond the Sword/Assets/XML/Interface/CIV4PlayerColorInfos.xml` | Each civilization's primary, secondary and text colors, from the `CIV4ColorVals.xml` SAS carries | Carry |
+| Data other XML points to | `Assets/XML/Interface/CIV4AdvisorInfos.xml` | Advisor categories that unit and building infos name in `<Advisor>` | Carry |
+| Data other XML points to | `Beyond the Sword/Assets/XML/Art/CIV4ArtDefines_Terrain.xml` | Each terrain's art, which `CIV4TerrainInfos.xml` names; the one `ArtDefines` file of 11 SAS lacks | Carry |
+| Data other XML points to | `Beyond the Sword/Assets/XML/Units/Civ4EntityEventInfos.xml` | The 34 `ENTITY_EVENT_*` types, such as `ENTITY_EVENT_BUILD`, `ENTITY_EVENT_FORTIFY` and `ENTITY_EVENT_PILLAGE`, which SAS's build and mission infos name, each mapped to the unit animations it plays; the DLL also takes the bombard explosion from `MISSION_BOMBARD`'s entity event (`CvPlayer.cpp`) | Carry |
+| UI the DLL loads | `Beyond the Sword/Assets/XML/Art/CIV4MainMenus.xml` | Main menu backgrounds, which the Options screen's opening menu choice (`CvOptionsScreen.py`) and SAS's main menu music hooks (`CvInfo_Misc.cpp`) read | Carry |
+| UI the DLL loads | `Beyond the Sword/Assets/XML/GameInfo/CIV4CursorInfo.xml` | Mouse cursors | Carry |
+| UI the DLL loads | `Beyond the Sword/Assets/XML/Interface/CIV4SlideShowInfos.xml` | Loading screen slideshows | Base game |
+| UI the DLL loads | `Beyond the Sword/Assets/XML/Interface/CIV4SpaceShipInfos.xml` | Spaceship screen layout | Carry |
+| UI the DLL loads | `Beyond the Sword/Assets/XML/Interface/CIV4ThroneRoomCameraInfos.xml` | Throne room cameras, loaded only when the EXE asks, through the exported `getNumThroneRoomInfos` (`LoadThroneRoomInfo`) | Base game |
+| UI the DLL loads | `Beyond the Sword/Assets/XML/Interface/CIV4ThroneRoomInfos.xml` | Throne room events: the camera moves of a throne room Firaxis cut before release; BtS still ships its unused Egyptian room in `Beyond the Sword/Assets/Art/Interface/Screens/Throne/`, which no Python or screen in any layer opens; no source a web search found, CivFanatics forum threads among them, such as [Egyptian Throne Room for BtS](https://forums.civfanatics.com/threads/egyptian-throne-room-for-bts.232235), which found the same art, hints that it is a working feature in game, and the [Civilization Modding Wiki](https://modiki.civfanatics.com/index.php/Civ4ThroneRoomeInfos) calls it never implemented (both 2026-11-27) | Base game |
+| UI the DLL loads | `Assets/XML/Interface/CIV4ThroneRoomStyleInfos.xml` | Throne room styles | Base game |
+| UI the DLL loads | `Assets/XML/Misc/CIV4TutorialInfos.xml` | Tutorial messages | Base game |
+| Map drawing the DLL loads for the EXE | `Beyond the Sword/Assets/XML/Misc/CIV4WaterPlaneInfos.xml` | Water surface textures | Base game |
+| Map drawing the DLL loads for the EXE | `Beyond the Sword/Assets/XML/Misc/CIV4TerrainPlaneInfos.xml` | Cloud and fog-of-war planes | Base game |
+| Map drawing the DLL loads for the EXE | `Beyond the Sword/Assets/XML/Misc/CIV4CameraOverlayInfos.xml` | Two textures drawn in front of the map camera, one shown and one hidden by `bVisible`; the shown one is black, transparent but for a soft band along its top edge, and the hidden one adds a faint glow along its bottom edge; where the EXE places them, and any other use through its exported getter, was not traced | Carry: small, so carried with the rest rather than judged alone |
+| Map drawing the DLL loads for the EXE | `Assets/XML/Art/CIV4RiverModelInfos.xml` | River models | Base game |
+| Map drawing the DLL loads for the EXE | `Beyond the Sword/Assets/XML/Art/CIV4RouteModelInfos.xml` | Road and railroad models | Base game |
+| Unit drawing the DLL loads for the EXE | `Beyond the Sword/Assets/XML/Units/CIV4FormationInfos.xml` | Where the several models of one unit stand, such as a Swordsman's three figures, General and Siege entries included, for the `FORMATION_TYPE_*` that each unit in SAS's `CIV4UnitInfos.xml` names | Carry |
+| Unit drawing the DLL loads for the EXE | `Beyond the Sword/Assets/XML/Units/Civ4AnimationInfos.xml` | The `ANIMCAT_*` unit animation categories the animation paths are built from | Carry |
+| Unit drawing the DLL loads for the EXE | `Beyond the Sword/Assets/XML/Units/Civ4AnimationPathInfos.xml` | The `ANIMATIONPATH_*` unit animation sequences, such as attack and death, which the DLL also hard-codes in the same order as an enum in `CvEnums.h`; kept with the formations, categories and entity events as data worth having in the repository, which could serve, for example, a Sevopedia page on unit actions (the user, 2026-11-27) | Carry |
+| The EXE alone | `Beyond the Sword/Assets/XML/Audio/AudioSoundscapeScripts.xml` | Ambient sound | Base game |
+| The EXE alone | `Assets/XML/Terrain/CIV4SymbolMeshPaths.xml` | Yield symbol meshes on plots; no SAS DLL loader reads it, and its file name was not found in the installed EXE, so its direct reader is unverified | Base game |
+| The EXE alone | `Beyond the Sword/Assets/XML/Buildings/CIV4CityLSystem.xml` | City building layout; SAS carried Warlords' copy, which lost building models, and dropped it | Base game |
+| No active SAS DLL loader | `Beyond the Sword/Assets/XML/Misc/CIV4RiverInfos.xml` | River data; AdvCiv commented out its loading, `advc.003j: unused` | Not carried: a copy would invite edits that do nothing |
+| No active SAS DLL loader | `Assets/XML/Misc/CIV4QuestInfos.xml` | Quest data; loading commented out, `advc.003j` | Not carried, as above |
+| No active SAS DLL loader | `Assets/XML/Interface/CIV4CameraInfos.xml` | Camera data; loading commented out, `advc.003j` | Not carried, as above |
+
+## Generated tables
+
+<!-- generated by inherited_files.py inventory: edit the script, not this part -->
+<!-- inherited_files.tsv f5af83b0c1f84315 -->
+<!-- inherited filenames SAS keeps a96e6eadda33bcb1 -->
+<!-- inherited Python imports 88a4c1dc42af15fa -->
+
+Generated by [`inherited_files.py`](/LLM_Helpers/README.md#inherited_filespy) `--inventory`. The same run writes every inherited and new SAS file, its layers, its file events in base AdvCiv's history and in ours, and SAS's status to a timestamped `inherited_files_inventory_<UTC>.tsv` in the Git-ignored `LLM_Helpers/outputs/`.
+
+Base-game Python modules imported by SAS's Python files, inherited importers included, without a module of the same name in SAS:
+
+- `Assets/Python/Screens/CvPediaHistory.py`
+- `Assets/Python/Screens/CvPediaMain.py`
+
+### Counts
+
+Each inherited file counts once, under the newest layer that provides it.
+
+| Provider | Files | Filename kept by SAS | Not in SAS |
+| --- | --- | --- | --- |
+| vanilla | 115 | 19 | 96 |
+| Warlords | 18 | 2 | 16 |
+| BtS | 114 | 56 | 58 |
+| Base AdvCiv | 674 | 662 | 12 |
+
+| Area | Inherited files | Filename kept by SAS | SAS overrides absent from base AdvCiv | Base AdvCiv files absent from SAS |
+| --- | --- | --- | --- | --- |
+| Python | 239 | 180 | 28 | 9 |
+| XML | 239 | 178 | 49 | 1 |
+| C++ | 362 | 348 | 0 | 2 |
+| res | 51 | 3 | 0 | 0 |
+| Config | 30 | 30 | 0 | 0 |
+
+### Files taken in from the base game
+
+Base-game filenames that SAS keeps and base AdvCiv lacks.
+
+- `Assets/Python/CvGameUtils.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/Python/DomPyHelpers.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/Python/EntryPoints/CvAppInterface.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/Python/EntryPoints/CvDebugInterface.py`: 2026-11-26 `b051a95fdc`, added: Carry the last base-game Python entry points the EXE registers by name, CvMapScriptInterface, CvTranslator and CvDebugInterface (full title in the report)
+- `Assets/Python/EntryPoints/CvDiplomacyInterface.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/Python/EntryPoints/CvMapScriptInterface.py`: 2026-11-26 `b051a95fdc`, added: Carry the last base-game Python entry points the EXE registers by name, CvMapScriptInterface, CvTranslator and CvDebugInterface (full title in the report)
+- `Assets/Python/EntryPoints/CvPopupInterface.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/Python/EntryPoints/CvTranslator.py`: 2026-11-26 `b051a95fdc`, added: Carry the last base-game Python entry points the EXE registers by name, CvMapScriptInterface, CvTranslator and CvDebugInterface (full title in the report)
+- `Assets/Python/EntryPoints/CvUnitControlInterface.py`: 2026-11-26 `d7e4e7109b`, added: Fix inherited vanilla CvUnitController.ProcessEvent, seemingly unused in SAS, whose first unit move would raise NameError on MoveFormation\_BoxRange (full title in the report)
+- `Assets/Python/EntryPoints/CvWBInterface.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/Python/EntryPoints/PbMain.py`: 2026-11-26 `bf6a0ce2c8`, added: Fix inherited vanilla Pitboss patch dialog, untested in SAS, that would ask its question as TXT\_KEY\_PITBOSS\_PATCH\_AVAILABLE\_DESC (full title in the report)
+- `Assets/Python/PitBoss/PbAdmin.py`: 2026-11-26 `bf6a0ce2c8`, added: Fix inherited vanilla Pitboss patch dialog, untested in SAS, that would ask its question as TXT\_KEY\_PITBOSS\_PATCH\_AVAILABLE\_DESC (full title in the report)
+- `Assets/Python/PitBoss/PbWizard.py`: 2026-11-26 `bf6a0ce2c8`, added: Fix inherited vanilla Pitboss patch dialog, untested in SAS, that would ask its question as TXT\_KEY\_PITBOSS\_PATCH\_AVAILABLE\_DESC (full title in the report)
+- `Assets/Python/PyHelpers.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/Python/pyUnit/CvUnitController.py`: 2026-11-26 `d7e4e7109b`, added: Fix inherited vanilla CvUnitController.ProcessEvent, seemingly unused in SAS, whose first unit move would raise NameError on MoveFormation\_BoxRange (full title in the report)
+- `Assets/Python/pyWB/CvWBPopups.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/Python/ScreenInput.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/Python/Screens/CvDebugInfoScreen.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/Python/Screens/CvGFCScreen.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/Python/Screens/CvIntroMovieScreen.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/Python/Screens/CvPediaScreen.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/Python/Screens/CvScreen.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/Python/Screens/CvTechSplashScreen.py`: 2026-04-14 `e43ac9a5a3`, added: add CvTechSplashScreen.py (from BTS)
+- `Assets/Python/Screens/CvUNVictoryScreen.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/Python/Screens/CvVictoryMovieScreen.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/Python/Screens/CvWonderMovieScreen.py`: 2026-04-14 `5977fad88c`, added: add CvWonderMovieScreen.py (with sloppy code removed)
+- `Assets/Python/Screens/CvWorldBuilderDiplomacyScreen.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/Python/Screens/CvWorldBuilderScreen.py`: 2026-11-22 `0f5ef710ea`, added: Carry every base-game Python file SAS uses in the mod itself, and keep runtime Python one call per line and clear of eight Ruff slips with CI (KI#1104, KI#21.7 (full title in the report)
+- `Assets/XML/Art/CIV4ArtDefines_Bonus.xml`: 2025-05-21 `e5ed0454fa`, added: replace silk button with HR mod's silk button (imported here in AdvCiv-SAS now (thanks a lot (for this button HR mod i thank you anyways etc) anyways etc))
+- `Assets/XML/Art/CIV4ArtDefines_Building.xml`: 2025-05-07 `50e7c8749e`, added: rename religion "Taoism" to "Daoism", import from BTS (or rarely other) sources cleanly some files (full title in the report)
+- `Assets/XML/Art/CIV4ArtDefines_Civilization.xml`: 2025-05-13 `244a5a501d`, added: refactor and beautify sevopediabuilding, simplify art asset folder tree, switch to art animations assets from other mods( (full title in the report)
+- `Assets/XML/Art/CIV4ArtDefines_Feature.xml`: 2025-05-22 `86d9c24298`, added: buff rice a bit, change wheat button (HR mod import), rename \_CORN to \_MAIZE
+- `Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml`: 2025-04-11 `9f5b34201d`, added: add leader art (portait) of Ogiso Igodo (Kingdom Og Benin) looks very nice, or as nice as could i think, but anyways (full title in the report)
+- `Assets/XML/Art/CIV4ArtDefines_Movie.xml`: 2025-05-07 `50e7c8749e`, added: rename religion "Taoism" to "Daoism", import from BTS (or rarely other) sources cleanly some files (full title in the report)
+- `Assets/XML/Art/CIV4ArtDefines_Terrain.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Art/CIV4MainMenus.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Audio/Audio3DScripts.xml`: 2025-05-07 `50e7c8749e`, added: rename religion "Taoism" to "Daoism", import from BTS (or rarely other) sources cleanly some files (full title in the report)
+- `Assets/XML/BasicInfos/CIV4AttitudeInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/BasicInfos/CIV4BasicInfos.xml`: 2025-04-07 `c2488bd788`, added: rename "Game Concepts" and "BtS Concepts", without necessarily matching order, "Mods Info" and "Bts Info (Outdated)" (full title in the report)
+- `Assets/XML/BasicInfos/CIV4CalendarInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/BasicInfos/CIV4CityTabInfos.xml`: 2026-05-24 `1548510c78`, added: make city screen bonuses optionally larger icons if there is room and if some of the tunable rendering modes are set (full title in the report)
+- `Assets/XML/BasicInfos/CIV4DomainInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/BasicInfos/CIV4InvisibleInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/BasicInfos/CIV4MonthInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/BasicInfos/CIV4SeasonInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml`: 2025-04-08 `280ba37fb9`, added: successfully converted archer combat type to archer\_bow\_short
+- `Assets/XML/Buildings/CIV4BuildingClassInfos.xml`: 2025-05-07 `50e7c8749e`, added: rename religion "Taoism" to "Daoism", import from BTS (or rarely other) sources cleanly some files (full title in the report)
+- `Assets/XML/Buildings/CIV4PlotLSystem.xml`: 2025-06-14 `44cb420869`, added: add camel bonus/ressource and camel units, expose to python gc sevopedia leader BBAI victory weights getters and some missing attitude threshold getters too if (full title in the report)
+- `Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml`: 2025-05-21 `e82115dc5a`, added: refactor and enhance sevopedia categories (mostly building, unit, bonus/ressource anyways etc) (full title in the report)
+- `Assets/XML/Civilizations/CIV4UnitArtStyleTypeInfos.xml`: 2025-06-09 `17509a8b68`, added: buff the BUILDING\_GREAT\_LIGHTHOUSE, rework harbor and lighthouse buildings (unfinished), removed caravel class and unit entirely (full title in the report)
+- `Assets/XML/GameInfo/CIV4CivicOptionInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/GameInfo/CIV4ClimateInfo.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/GameInfo/CIV4CursorInfo.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/GameInfo/CIV4EmphasizeInfo.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/GameInfo/CIV4ForceControlInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/GameInfo/CIV4MPOptionInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/GameInfo/CIV4ProcessInfo.xml`: 2025-03-24 `f9b371954c`, added: add CIV4ProcessInfo.xml imported it from a realism invictus mod folder (full title in the report)
+- `Assets/XML/GameInfo/CIV4ReligionInfo.xml`: 2025-05-07 `50e7c8749e`, added: rename religion "Taoism" to "Daoism", import from BTS (or rarely other) sources cleanly some files (full title in the report)
+- `Assets/XML/GameInfo/CIV4TurnTimerInfo.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/GameInfo/CIV4UpKeepInfo.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/GameInfo/CIV4VoteInfo.xml`: 2025-11-11 `a85a49b1af`, added: rename CIVIC\_EMANCIPATION to CIVIC\_WAGE\_LABOR and rework, rework and buff CIVIC\_SERFDOM to be agrarian-based, and other changes
+- `Assets/XML/GlobalDefines.xml`: 2026-11-27 `e8970a99e8`, added: Carry BtS's GlobalDefines.xml, the only define file the game loads that the repository lacked, so all 1,448 loaded defines, such as the EXE's CAMERA\_ values (full title in the report)
+- `Assets/XML/GlobalTypes.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Interface/CIV4AdvisorInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Interface/CIV4PlayerColorInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Interface/CIV4SlideShowRandomInfos.xml`: 2025-05-14 `c4dbfdcaf1`, added: partly/mostly add paganism button (import from HR mod), add info about base AdvCiv/Civ4 bug of too long XML code comment causing game crash (full title in the report)
+- `Assets/XML/Interface/CIV4SpaceShipInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Interface/CIV4WorldPickerInfos.xml`: 2026-01-08 `77dc1e64a7`, added: Add new World Sizes (SAS24, SAS32, SAS40, SAS48
+- `Assets/XML/Misc/CIV4AttachableInfos.xml`: 2025-06-09 `17509a8b68`, added: buff the BUILDING\_GREAT\_LIGHTHOUSE, rework harbor and lighthouse buildings (unfinished), removed caravel class and unit entirely (full title in the report)
+- `Assets/XML/Misc/CIV4CameraOverlayInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Misc/CIV4EffectInfos.xml`: 2025-05-14 `c4dbfdcaf1`, added: partly/mostly add paganism button (import from HR mod), add info about base AdvCiv/Civ4 bug of too long XML code comment causing game crash (full title in the report)
+- `Assets/XML/Units/Civ4AnimationInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Units/Civ4AnimationPathInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Units/CIV4AutomateInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Units/Civ4EntityEventInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Units/CIV4FormationInfos.xml`: no SAS-side file event yet when generated, as for a file the same commit adds
+- `Assets/XML/Units/CIV4SpecialUnitInfos.xml`: 2025-05-21 `e82115dc5a`, added: refactor and enhance sevopedia categories (mostly building, unit, bonus/ressource anyways etc) (full title in the report)
+
+### Files taken in and dropped again
+
+Base-game filenames absent from both SAS and base AdvCiv for which Git records a SAS-side arrival followed by a departure.
+
+- `Assets/XML/Buildings/CIV4CityLSystem.xml`: 2025-05-07 `50e7c8749e`, added: rename religion "Taoism" to "Daoism", import from BTS (or rarely other) sources cleanly some files (full title in the report); 2026-01-30 `fe6866cda1`, deleted: remove CIV4CityLSystem.xml
+
+### Files removed or renamed from base AdvCiv
+
+Base AdvCiv filenames absent from SAS. The list shows the SAS-side deletion or rename where Git records one.
+
+- `Assets/Python/BUG/FontUtil.py`: 2026-10-20 `6cca292506`, deleted: Centralize Python visual resources and check their API contracts
+- `Assets/Python/BUG/GGUtil.py`: 2026-10-20 `6cca292506`, deleted: Centralize Python visual resources and check their API contracts
+- `Assets/Python/BUG/TraitUtil.py`: 2026-10-20 `6cca292506`, deleted: Centralize Python visual resources and check their API contracts
+- `Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py`: 2026-10-20 `d3a70be20a`, deleted: Improve Python diagnostics, centralize SevoScreenEnums in CvScreenEnums, and enforce source provenance
+- `Assets/Python/Screens/CvCivicsScreen.py`: 2026-03-25 `d7073ea436`, renamed to `Assets/Python/Screens/CvPolicyAdvisorScreen.py`: rename to policy advisor 3
+- `Assets/Python/Screens/CvEspionageAdvisor.py`: 2026-03-22 `e138ad4f82`, deleted: merge the espionage screen into the foreign advisor so it is one of its tabs now
+- `Assets/Python/Screens/CvExoticForeignAdvisor.py`: 2026-03-20 `bbbd9fea2c`, deleted: merge CvForeignAdvisor.py and CvExoticForeignAdvisor.py into a single unified file
+- `Assets/Python/Screens/CvReligionScreen.py`: 2026-03-26 `662f1d53c0`, deleted: beautify and enhance religion tab, remove old CvReligionScreen.py
+- `Assets/Python/Screens/EconomicsAdvisor.py`: 2026-03-25 `9953b9f0ad`, deleted: move the environment tab to the info screen, delete EconomicsAdvisor.py
+- `Assets/XML/Text/CIV4GameText_advc_pedia.xml`: 2025-05-10 `bf00d29700`, renamed to `Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml`: major barbarian rework, + other changes major barbarian reword i am very happy about but anyways etc (full title in the report)
+- `CvGameCoreDLL/UWAIReport.cpp`: 2026-10-08 `c722096302`, deleted: KI#505.3: Fix inherited AdvCiv UWAI diagnostic work running while logging is disabled
+- `CvGameCoreDLL/UWAIReport.h`: 2026-10-08 `c722096302`, deleted: KI#505.3: Fix inherited AdvCiv UWAI diagnostic work running while logging is disabled
+
+### By folder
+
+Every inherited file in its folder, with its comparison layer and whether SAS keeps the filename. The file's contents may have changed or come from another mod.
+
+- `Assets/`
+  - `Config/`
+    - `Advanced Combat Odds.xml`: filename kept by SAS, also in base AdvCiv
+    - `Advanced Scoreboard.xml`: filename kept by SAS, also in base AdvCiv
+    - `All Eras Dawn of Man Screen.xml`: filename kept by SAS, also in base AdvCiv
+    - `Autolog.xml`: filename kept by SAS, also in base AdvCiv
+    - `AutoSave.xml`: filename kept by SAS, also in base AdvCiv
+    - `Better Espionage.xml`: filename kept by SAS, also in base AdvCiv
+    - `BUG Advisors.xml`: filename kept by SAS, also in base AdvCiv
+    - `BUG City Screen.xml`: filename kept by SAS, also in base AdvCiv
+    - `BUG Config.xml`: filename kept by SAS, also in base AdvCiv
+    - `BUG Core.xml`: filename kept by SAS, also in base AdvCiv
+    - `BUG Main Interface.xml`: filename kept by SAS, also in base AdvCiv
+    - `BULL Actions.xml`: filename kept by SAS, also in base AdvCiv
+    - `BULL City Bar.xml`: filename kept by SAS, also in base AdvCiv
+    - `BULL Core.xml`: filename kept by SAS, also in base AdvCiv
+    - `BULL Misc Hovers.xml`: filename kept by SAS, also in base AdvCiv
+    - `Civ4lerts.xml`: filename kept by SAS, also in base AdvCiv
+    - `Customizable Domestic Advisor.xml`: filename kept by SAS, also in base AdvCiv
+    - `EventSigns.xml`: filename kept by SAS, also in base AdvCiv
+    - `FavoriteCivicDetector.xml`: filename kept by SAS, also in base AdvCiv
+    - `init.xml`: filename kept by SAS, also in base AdvCiv
+    - `MoreCiv4lerts.xml`: filename kept by SAS, also in base AdvCiv
+    - `Not Just Another Game Clock.xml`: filename kept by SAS, also in base AdvCiv
+    - `OOSLogger.xml`: filename kept by SAS, also in base AdvCiv
+    - `Plot List Enhancements.xml`: filename kept by SAS, also in base AdvCiv
+    - `Reminder.xml`: filename kept by SAS, also in base AdvCiv
+    - `StatusDump.xml`: filename kept by SAS, also in base AdvCiv
+    - `Strategy Overlay.xml`: filename kept by SAS, also in base AdvCiv
+    - `TechWindow.xml`: filename kept by SAS, also in base AdvCiv
+    - `Trigger Event.xml`: filename kept by SAS, also in base AdvCiv
+    - `Unit Naming.xml`: filename kept by SAS, also in base AdvCiv
+  - `Python/`
+    - `CvAdvisorUtils.py`: filename kept by SAS, also in base AdvCiv
+    - `CvCameraControls.py`: filename kept by SAS, also in base AdvCiv
+    - `CvDebugTools.py`: filename kept by SAS, also in base AdvCiv
+    - `CvDefineEditor.py`: from vanilla, not in SAS
+    - `CvDiplomacy.py`: filename kept by SAS, also in base AdvCiv
+    - `CvEventManager.py`: filename kept by SAS, also in base AdvCiv
+    - `CvGameUtils.py`: filename kept by SAS, also in BtS
+    - `CvMapGeneratorUtil.py`: filename kept by SAS, also in base AdvCiv
+    - `CvPerfTest.py`: from BtS, not in SAS
+    - `CvQuestManager.py`: from vanilla, not in SAS
+    - `CvScreenUtils.py`: from vanilla, not in SAS
+    - `CvUtil.py`: filename kept by SAS, also in base AdvCiv
+    - `DomPyHelpers.py`: filename kept by SAS, also in BtS
+    - `PyHelpers.py`: filename kept by SAS, also in BtS
+    - `ScreenInput.py`: filename kept by SAS, also in vanilla
+    - `vector.py`: from vanilla, not in SAS
+    - `_DebugTools/`
+      - `AudioLogParser.py`: from vanilla, not in SAS
+    - `BUG/`
+      - `AttitudeUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `BugConfig.py`: filename kept by SAS, also in base AdvCiv
+      - `BugConfigTracker.py`: filename kept by SAS, also in base AdvCiv
+      - `BugCore.py`: filename kept by SAS, also in base AdvCiv
+      - `BugData.py`: filename kept by SAS, also in base AdvCiv
+      - `BugDll.py`: filename kept by SAS, also in base AdvCiv
+      - `BugEventManager.py`: filename kept by SAS, also in base AdvCiv
+      - `BugFile.py`: filename kept by SAS, also in base AdvCiv
+      - `BugGameUtils.py`: filename kept by SAS, also in base AdvCiv
+      - `BugHelp.py`: filename kept by SAS, also in base AdvCiv
+      - `BugInit.py`: filename kept by SAS, also in base AdvCiv
+      - `BugOptions.py`: filename kept by SAS, also in base AdvCiv
+      - `BugOptionsScreen.py`: filename kept by SAS, also in base AdvCiv
+      - `BugOptionsTab.py`: filename kept by SAS, also in base AdvCiv
+      - `BugPath.py`: filename kept by SAS, also in base AdvCiv
+      - `BugScreen.py`: filename kept by SAS, also in base AdvCiv
+      - `BugScreenInit.py`: filename kept by SAS, also in base AdvCiv
+      - `BugTypes.py`: filename kept by SAS, also in base AdvCiv
+      - `BugUnitPlot.py`: filename kept by SAS, also in base AdvCiv
+      - `BugUpdateChecker.py`: filename kept by SAS, also in base AdvCiv
+      - `BugUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `CityUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `ColorUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `configobj.py`: filename kept by SAS, also in base AdvCiv
+      - `DealUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `DiplomacyUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `FontUtil.py`: base AdvCiv filename absent from SAS (see the list above)
+      - `GameUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `GGUtil.py`: base AdvCiv filename absent from SAS (see the list above)
+      - `GPUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `InputUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `PlayerUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `ProgressBarUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `RawYields.py`: filename kept by SAS, also in base AdvCiv
+      - `ReligionUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `Scoreboard.py`: filename kept by SAS, also in base AdvCiv
+      - `SpyUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `SvnUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `TechPrefs.py`: filename kept by SAS, also in base AdvCiv
+      - `TechUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `TradeUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `TraitUtil.py`: base AdvCiv filename absent from SAS (see the list above)
+      - `UnitGrouper.py`: filename kept by SAS, also in base AdvCiv
+      - `UnitPlotListUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `UnitUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `WidgetUtil.py`: filename kept by SAS, also in base AdvCiv
+      - `Tabs/`
+        - `BugACOOptionsTab.py`: filename kept by SAS, also in base AdvCiv
+        - `BugAdvisorOptionsTab.py`: filename kept by SAS, also in base AdvCiv
+        - `BugAlertsOptionsTab.py`: filename kept by SAS, also in base AdvCiv
+        - `BugAutologOptionsTab.py`: filename kept by SAS, also in base AdvCiv
+        - `BugCityScreenOptionsTab.py`: filename kept by SAS, also in base AdvCiv
+        - `BugConfigTrackerTab.py`: filename kept by SAS, also in base AdvCiv
+        - `BugErrorOptionsTab.py`: filename kept by SAS, also in base AdvCiv
+        - `BugGeneralOptionsTab.py`: filename kept by SAS, also in base AdvCiv
+        - `BugMapOptionsTab.py`: filename kept by SAS, also in base AdvCiv
+        - `BugNJAGCOptionsTab.py`: filename kept by SAS, also in base AdvCiv
+        - `BugPleOptionsTab.py`: filename kept by SAS, also in base AdvCiv
+        - `BugScoreOptionsTab.py`: filename kept by SAS, also in base AdvCiv
+        - `BugSystemOptionsTab.py`: filename kept by SAS, also in base AdvCiv
+        - `BugUnitNameOptionsTab.py`: filename kept by SAS, also in base AdvCiv
+    - `Contrib/`
+      - `AIAutoPlay.py`: filename kept by SAS, also in base AdvCiv
+      - `AStarTools.py`: filename kept by SAS, also in base AdvCiv
+      - `autolog.py`: filename kept by SAS, also in base AdvCiv
+      - `autologEventManager.py`: filename kept by SAS, also in base AdvCiv
+      - `AutoSave.py`: filename kept by SAS, also in base AdvCiv
+      - `ChangePlayer.py`: filename kept by SAS, also in base AdvCiv
+      - `Civ4lerts.py`: filename kept by SAS, also in base AdvCiv
+      - `CvAllErasDawnOfManScreenEventManager.py`: filename kept by SAS, also in base AdvCiv
+      - `CvModName.py`: filename kept by SAS, also in base AdvCiv
+      - `CvOverlayScreenUtils.py`: filename kept by SAS, also in base AdvCiv
+      - `CvStrategyOverlay.py`: filename kept by SAS, also in base AdvCiv
+      - `EventSigns.py`: filename kept by SAS, also in base AdvCiv
+      - `FavoriteCivicDetector.py`: filename kept by SAS, also in base AdvCiv
+      - `GameFontDisplay.py`: filename kept by SAS, also in base AdvCiv
+      - `MinimapOptions.py`: filename kept by SAS, also in base AdvCiv
+      - `MonkeyTools.py`: filename kept by SAS, also in base AdvCiv
+      - `MoreCiv4lerts.py`: filename kept by SAS, also in base AdvCiv
+      - `OOSLogger.py`: filename kept by SAS, also in base AdvCiv
+      - `PlotListEnhancements.py`: filename kept by SAS, also in base AdvCiv
+      - `RandomNameUtils.py`: filename kept by SAS, also in base AdvCiv
+      - `ReminderEventManager.py`: filename kept by SAS, also in base AdvCiv
+      - `Roman.py`: filename kept by SAS, also in base AdvCiv
+      - `savemap.py`: filename kept by SAS, also in base AdvCiv
+      - `SdToolKit.py`: filename kept by SAS, also in base AdvCiv
+      - `StatusDump.py`: filename kept by SAS, also in base AdvCiv
+      - `StatusDumpEventManager.py`: filename kept by SAS, also in base AdvCiv
+      - `TechWindow.py`: filename kept by SAS, also in base AdvCiv
+      - `TechWindowWide.py`: filename kept by SAS, also in base AdvCiv
+      - `Tester.py`: filename kept by SAS, also in base AdvCiv
+      - `TriggerEvent.py`: filename kept by SAS, also in base AdvCiv
+      - `UnitNameEventManager.py`: filename kept by SAS, also in base AdvCiv
+      - `UnitUpgradesGraph.py`: filename kept by SAS, also in base AdvCiv
+      - `Sevopedia/`
+        - `SevoPediaBonus.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaBuilding.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaCivic.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaCivilization.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaCorporation.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaFeature.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaHistory.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaImprovement.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaIndex.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaLeader.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaMain.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaProject.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaPromotion.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaReligion.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaSpecialist.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaTech.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaTerrain.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaTrait.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaUnit.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaUnitChart.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoPediaUtil.py`: filename kept by SAS, also in base AdvCiv
+        - `SevoScreenEnums.py`: base AdvCiv filename absent from SAS (see the list above)
+    - `EntryPoints/`
+      - `CvAppInterface.py`: filename kept by SAS, also in BtS
+      - `CvDebugInterface.py`: filename kept by SAS, also in vanilla
+      - `CvDiplomacyInterface.py`: filename kept by SAS, also in vanilla
+      - `CvEventInterface.py`: filename kept by SAS, also in base AdvCiv
+      - `CvGameInterface.py`: filename kept by SAS, also in base AdvCiv
+      - `CvGameInterfaceFile.py`: filename kept by SAS, also in base AdvCiv
+      - `CvMapScriptInterface.py`: filename kept by SAS, also in Warlords
+      - `CvOptionsScreenCallbackInterface.py`: filename kept by SAS, also in base AdvCiv
+      - `CvPopupInterface.py`: filename kept by SAS, also in vanilla
+      - `CvRandomEventInterface.py`: filename kept by SAS, also in base AdvCiv
+      - `CvScreensInterface.py`: filename kept by SAS, also in base AdvCiv
+      - `CvScreenUtilsInterface.py`: filename kept by SAS, also in base AdvCiv
+      - `CvTranslator.py`: filename kept by SAS, also in BtS
+      - `CvUnitControlInterface.py`: filename kept by SAS, also in vanilla
+      - `CvWBInterface.py`: filename kept by SAS, also in BtS
+      - `PbMain.py`: filename kept by SAS, also in BtS
+    - `PitBoss/`
+      - `PbAdmin.py`: filename kept by SAS, also in BtS
+      - `PbWizard.py`: filename kept by SAS, also in BtS
+    - `pyHelper/`
+      - `Popup.py`: filename kept by SAS, also in base AdvCiv
+      - `Unit.py`: from vanilla, not in SAS
+      - `UnitEntity.py`: from vanilla, not in SAS
+    - `pyUnit/`
+      - `CvUnitController.py`: filename kept by SAS, also in vanilla
+    - `pyWB/`
+      - `CvWBDesc.py`: filename kept by SAS, also in base AdvCiv
+      - `CvWBPopups.py`: filename kept by SAS, also in vanilla
+    - `Screens/`
+      - `CvAdvisorScreen.py`: from vanilla, not in SAS
+      - `CvBUGMilitaryAdvisor.py`: filename kept by SAS, also in base AdvCiv
+      - `CvCivicsScreen.py`: base AdvCiv filename absent from SAS (see the list above)
+      - `CvCorporationScreen.py`: from BtS, not in SAS
+      - `CvCustomizableDomesticAdvisor.py`: filename kept by SAS, also in base AdvCiv
+      - `CvDanQuayle.py`: filename kept by SAS, also in base AdvCiv
+      - `CvDawnOfMan.py`: filename kept by SAS, also in base AdvCiv
+      - `CvDebugInfoScreen.py`: filename kept by SAS, also in vanilla
+      - `CvDomesticAdvisor.py`: filename kept by SAS, also in base AdvCiv
+      - `CvDotMapOverlayScreen.py`: filename kept by SAS, also in base AdvCiv
+      - `CvEraMovieScreen.py`: filename kept by SAS, also in base AdvCiv
+      - `CvEspionageAdvisor.py`: base AdvCiv filename absent from SAS (see the list above)
+      - `CvExoticForeignAdvisor.py`: base AdvCiv filename absent from SAS (see the list above)
+      - `CvFinanceAdvisor.py`: from Warlords, not in SAS
+      - `CvForeignAdvisor.py`: filename kept by SAS, also in base AdvCiv
+      - `CvGFCScreen.py`: filename kept by SAS, also in vanilla
+      - `CvHallOfFameScreen.py`: filename kept by SAS, also in base AdvCiv
+      - `CvInfoScreen.py`: filename kept by SAS, also in base AdvCiv
+      - `CvIntroMovieScreen.py`: filename kept by SAS, also in BtS
+      - `CvMainInterface.py`: filename kept by SAS, also in base AdvCiv
+      - `CvMilitaryAdvisor.py`: filename kept by SAS, also in base AdvCiv
+      - `CvOptionsScreen.py`: filename kept by SAS, also in base AdvCiv
+      - `CvPediaBonus.py`: filename kept by SAS, also in base AdvCiv
+      - `CvPediaBuilding.py`: from BtS, not in SAS
+      - `CvPediaCivic.py`: from vanilla, not in SAS
+      - `CvPediaCivilization.py`: from BtS, not in SAS
+      - `CvPediaCorporation.py`: filename kept by SAS, also in base AdvCiv
+      - `CvPediaFeature.py`: from vanilla, not in SAS
+      - `CvPediaHistory.py`: from BtS, not in SAS
+      - `CvPediaImprovement.py`: from BtS, not in SAS
+      - `CvPediaLeader.py`: from BtS, not in SAS
+      - `CvPediaMain.py`: from BtS, not in SAS
+      - `CvPediaProject.py`: from BtS, not in SAS
+      - `CvPediaPromotion.py`: filename kept by SAS, also in base AdvCiv
+      - `CvPediaReligion.py`: from Warlords, not in SAS
+      - `CvPediaScreen.py`: filename kept by SAS, also in vanilla
+      - `CvPediaSpecialist.py`: from Warlords, not in SAS
+      - `CvPediaTech.py`: from BtS, not in SAS
+      - `CvPediaTerrain.py`: from vanilla, not in SAS
+      - `CvPediaUnit.py`: from BtS, not in SAS
+      - `CvPediaUnitChart.py`: from BtS, not in SAS
+      - `CvReligionScreen.py`: base AdvCiv filename absent from SAS (see the list above)
+      - `CvReplayScreen.py`: filename kept by SAS, also in base AdvCiv
+      - `CvScreen.py`: filename kept by SAS, also in vanilla
+      - `CvScreenEnums.py`: filename kept by SAS, also in base AdvCiv
+      - `CvSpaceShipScreen.py`: filename kept by SAS, also in base AdvCiv
+      - `CvTechChooser.py`: filename kept by SAS, also in base AdvCiv
+      - `CvTechSplashScreen.py`: filename kept by SAS, also in BtS
+      - `CvTopCivs.py`: filename kept by SAS, also in base AdvCiv
+      - `CvTutorialQuestScreen.py`: from vanilla, not in SAS
+      - `CvUNVictoryScreen.py`: filename kept by SAS, also in vanilla
+      - `CvVictoryMovieScreen.py`: filename kept by SAS, also in vanilla
+      - `CvVictoryScreen.py`: filename kept by SAS, also in base AdvCiv
+      - `CvWonderMovieScreen.py`: filename kept by SAS, also in BtS
+      - `CvWorldBuilderDiplomacyScreen.py`: filename kept by SAS, also in BtS
+      - `CvWorldBuilderScreen.py`: filename kept by SAS, also in BtS
+      - `EconomicsAdvisor.py`: base AdvCiv filename absent from SAS (see the list above)
+      - `IconGrid.py`: from BtS, not in SAS
+      - `IconGrid_BUG.py`: filename kept by SAS, also in base AdvCiv
+      - `LayoutDict.py`: filename kept by SAS, also in base AdvCiv
+      - `PLE.py`: filename kept by SAS, also in base AdvCiv
+      - `RectLayout.py`: filename kept by SAS, also in base AdvCiv
+      - `TechTree.py`: from BtS, not in SAS
+    - `System/`
+      - `email/`
+        - `__init__.py`: from vanilla, not in SAS
+        - `_parseaddr.py`: from vanilla, not in SAS
+        - `base64MIME.py`: from vanilla, not in SAS
+        - `Charset.py`: from vanilla, not in SAS
+        - `Encoders.py`: from vanilla, not in SAS
+        - `Errors.py`: from vanilla, not in SAS
+        - `FeedParser.py`: from vanilla, not in SAS
+        - `Generator.py`: from vanilla, not in SAS
+        - `Header.py`: from vanilla, not in SAS
+        - `Iterators.py`: from vanilla, not in SAS
+        - `Message.py`: from vanilla, not in SAS
+        - `MIMEAudio.py`: from vanilla, not in SAS
+        - `MIMEBase.py`: from vanilla, not in SAS
+        - `MIMEImage.py`: from vanilla, not in SAS
+        - `MIMEMessage.py`: from vanilla, not in SAS
+        - `MIMEMultipart.py`: from vanilla, not in SAS
+        - `MIMENonMultipart.py`: from vanilla, not in SAS
+        - `MIMEText.py`: from vanilla, not in SAS
+        - `Parser.py`: from vanilla, not in SAS
+        - `quopriMIME.py`: from vanilla, not in SAS
+        - `Utils.py`: from vanilla, not in SAS
+  - `res/`
+    - `BeyondTheSword_BoxArt.jpg`: from BtS, not in SAS
+    - `bts_splash.bmp`: from BtS, not in SAS
+    - `Civ4BtS.ico`: from BtS, not in SAS
+    - `Civ4BtS.jpg`: from BtS, not in SAS
+    - `Civ4BtS_SaveGame.ico`: from BtS, not in SAS
+    - `Civ4Game.ico`: from vanilla, not in SAS
+    - `Civ4SaveGame.ico`: from vanilla, not in SAS
+    - `CIV_Warlords_16.ico`: from Warlords, not in SAS
+    - `CIV_Warlords_32.ico`: from Warlords, not in SAS
+    - `CIV_Warlords_64.ico`: from Warlords, not in SAS
+    - `CivIV-INIT.bmp`: from BtS, not in SAS
+    - `SpartanHelm.ico`: from vanilla, not in SAS
+    - `Warlords.jpg`: from Warlords, not in SAS
+    - `Warlords_BoxArt.jpg`: from Warlords, not in SAS
+    - `Cursors/`
+      - `Airbomb.ani`: from vanilla, not in SAS
+      - `Airlift.ani`: from vanilla, not in SAS
+      - `Airstrike.ani`: from vanilla, not in SAS
+      - `Build.ani`: from vanilla, not in SAS
+      - `BuildLarge.ani`: from vanilla, not in SAS
+      - `Claim.ani`: from vanilla, not in SAS
+      - `Deplete.ani`: from vanilla, not in SAS
+      - `Edit.ani`: from vanilla, not in SAS
+      - `EMP.ani`: from vanilla, not in SAS
+      - `Found.ani`: from vanilla, not in SAS
+      - `GoTo.ani`: from vanilla, not in SAS
+      - `Grip.ani`: from vanilla, not in SAS
+      - `Link.ani`: from vanilla, not in SAS
+      - `Mine.ani`: from vanilla, not in SAS
+      - `Move.ani`: from vanilla, not in SAS
+      - `Mutiny.ani`: from vanilla, not in SAS
+      - `Nuke.ani`: from vanilla, not in SAS
+      - `Ping.ani`: from vanilla, not in SAS
+      - `Pointer.ani`: from BtS, not in SAS
+      - `Rebase.ani`: from vanilla, not in SAS
+      - `Recon.ani`: from vanilla, not in SAS
+      - `Repair.ani`: from vanilla, not in SAS
+      - `RouteTo.ani`: from vanilla, not in SAS
+      - `Size All.ani`: from vanilla, not in SAS
+      - `Size Diagonal 1.ani`: from vanilla, not in SAS
+      - `Size Diagonal 2.ani`: from vanilla, not in SAS
+      - `Size H.ani`: from vanilla, not in SAS
+      - `Size V.ani`: from vanilla, not in SAS
+      - `Split H.ani`: from vanilla, not in SAS
+      - `Split V.ani`: from vanilla, not in SAS
+      - `Stasis.ani`: from vanilla, not in SAS
+      - `Waiting.ani`: filename kept by SAS, also in base AdvCiv
+    - `Fonts/`
+      - `GameFont.tga`: filename kept by SAS, also in base AdvCiv
+      - `GameFont_75.tga`: filename kept by SAS, also in base AdvCiv
+      - `MonoSpacedConsoleFont.tga`: from vanilla, not in SAS
+      - `NumberFont-Sylfaen64px.tga`: from vanilla, not in SAS
+      - `sylfaen.ttf`: from vanilla, not in SAS
+  - `XML/`
+    - `AI_Variables_GlobalDefines.xml`: filename kept by SAS, also in base AdvCiv
+    - `BBAI_Game_Options_GlobalDefines.xml`: filename kept by SAS, also in base AdvCiv
+    - `CIV4GlobalDefinesSchema.xml`: from vanilla, not in SAS
+    - `CIV4GlobalTypesSchema.xml`: from vanilla, not in SAS
+    - `GlobalDefines.xml`: filename kept by SAS, also in BtS
+    - `GlobalDefines_advc.xml`: filename kept by SAS, also in base AdvCiv
+    - `GlobalDefines_devel.xml`: filename kept by SAS, also in base AdvCiv
+    - `GlobalDefinesAlt.xml`: filename kept by SAS, also in base AdvCiv
+    - `GlobalTypes.xml`: filename kept by SAS, also in BtS
+    - `LeadFromBehind_GlobalDefines.xml`: filename kept by SAS, also in base AdvCiv
+    - `PythonCallbackDefines.xml`: filename kept by SAS, also in base AdvCiv
+    - `TechDiffusion_GlobalDefines.xml`: filename kept by SAS, also in base AdvCiv
+    - `Art/`
+      - `CIV4ArtDefines_Bonus.xml`: filename kept by SAS, also in BtS
+      - `CIV4ArtDefines_Building.xml`: filename kept by SAS, also in BtS
+      - `CIV4ArtDefines_Civilization.xml`: filename kept by SAS, also in BtS
+      - `CIV4ArtDefines_Feature.xml`: filename kept by SAS, also in BtS
+      - `CIV4ArtDefines_Improvement.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4ArtDefines_Interface.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4ArtDefines_Leaderhead.xml`: filename kept by SAS, also in BtS
+      - `CIV4ArtDefines_Misc.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4ArtDefines_Movie.xml`: filename kept by SAS, also in BtS
+      - `CIV4ArtDefines_Terrain.xml`: filename kept by SAS, also in BtS
+      - `CIV4ArtDefines_Unit.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4ArtDefinesSchema.xml`: from BtS, not in SAS
+      - `CIV4MainMenus.xml`: filename kept by SAS, also in BtS
+      - `CIV4RiverModelInfos.xml`: from vanilla, not in SAS
+      - `CIV4RouteModelInfos.xml`: from BtS, not in SAS
+    - `Audio/`
+      - `Audio2DScripts.xml`: filename kept by SAS, also in base AdvCiv
+      - `Audio3DScripts.xml`: filename kept by SAS, also in BtS
+      - `AudioDefines.xml`: filename kept by SAS, also in base AdvCiv
+      - `AudioDefinesSchema.xml`: from Warlords, not in SAS
+      - `AudioScriptSchema.xml`: from BtS, not in SAS
+      - `AudioSoundscapeScripts.xml`: from BtS, not in SAS
+    - `BasicInfos/`
+      - `CIV4AttitudeInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4BasicInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4BasicInfoSchema.xml`: from BtS, not in SAS
+      - `CIV4CalendarInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4CityTabInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4DenialInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4DomainInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4InvisibleInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4MemoryInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4MonthInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4NewConceptInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4SeasonInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4UnitAIInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4UnitCombatInfos.xml`: filename kept by SAS, also in BtS
+    - `Buildings/`
+      - `CIV4BuildingClassInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4BuildingInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4BuildingsSchema.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4CityLSystem.xml`: from BtS, not in SAS
+      - `CIV4LSystemSchema.xml`: from vanilla, not in SAS
+      - `CIV4PlotLSystem.xml`: filename kept by SAS, also in BtS
+      - `CIV4SpecialBuildingInfos.xml`: filename kept by SAS, also in BtS
+    - `Civilizations/`
+      - `CIV4CivilizationInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4CivilizationsSchema.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4LeaderHeadInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4TraitInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4UnitArtStyleTypeInfos.xml`: filename kept by SAS, also in BtS
+    - `Events/`
+      - `CIV4EventInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4EventSchema.xml`: from BtS, not in SAS
+      - `CIV4EventTriggerInfos.xml`: filename kept by SAS, also in base AdvCiv
+    - `GameInfo/`
+      - `CIV4CivicInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4CivicOptionInfos.xml`: filename kept by SAS, also in vanilla
+      - `CIV4ClimateInfo.xml`: filename kept by SAS, also in vanilla
+      - `CIV4CommerceInfo.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4CorporationInfo.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4CultureLevelInfo.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4CursorInfo.xml`: filename kept by SAS, also in BtS
+      - `CIV4DiplomacyInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4EmphasizeInfo.xml`: filename kept by SAS, also in vanilla
+      - `CIV4EraInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4EspionageMissionInfo.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4ForceControlInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4GameInfoSchema.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4GameOptionInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4GameSpeedInfo.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4GoodyInfo.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4GraphicOptionInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4HandicapInfo.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4Hints.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4HurryInfo.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4MPOptionInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4PlayerOptionInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4ProcessInfo.xml`: filename kept by SAS, also in Warlords
+      - `CIV4ProjectInfo.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4ReligionInfo.xml`: filename kept by SAS, also in BtS
+      - `CIV4SeaLevelInfo.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4SpecialistInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4TurnTimerInfo.xml`: filename kept by SAS, also in vanilla
+      - `CIV4UpKeepInfo.xml`: filename kept by SAS, also in vanilla
+      - `CIV4VictoryInfo.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4VoteInfo.xml`: filename kept by SAS, also in BtS
+      - `CIV4VoteSourceInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4WorldInfo.xml`: filename kept by SAS, also in base AdvCiv
+    - `Interface/`
+      - `CIV4AdvisorInfos.xml`: filename kept by SAS, also in vanilla
+      - `CIV4CameraInfos.xml`: from vanilla, not in SAS
+      - `CIV4ColorVals.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4InterfaceModeInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4InterfaceSchema.xml`: from BtS, not in SAS
+      - `CIV4PlayerColorInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4SlideShowInfos.xml`: from BtS, not in SAS
+      - `CIV4SlideShowRandomInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4SpaceShipInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4ThroneRoomCameraInfos.xml`: from BtS, not in SAS
+      - `CIV4ThroneRoomInfos.xml`: from BtS, not in SAS
+      - `CIV4ThroneRoomStyleInfos.xml`: from vanilla, not in SAS
+      - `CIV4WorldPickerInfos.xml`: filename kept by SAS, also in BtS
+    - `Misc/`
+      - `CIV4AttachableInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4CameraOverlayInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4DetailManager.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4DetailManagerSchema.xml`: from vanilla, not in SAS
+      - `CIV4EffectInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4MiscSchema.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4QuestInfos.xml`: from vanilla, not in SAS
+      - `CIV4RiverInfos.xml`: from BtS, not in SAS
+      - `CIV4RouteInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4TerrainPlaneInfos.xml`: from BtS, not in SAS
+      - `CIV4TutorialInfos.xml`: from vanilla, not in SAS
+      - `CIV4TutorialSchema.xml`: from vanilla, not in SAS
+      - `CIV4WaterPlaneInfos.xml`: from BtS, not in SAS
+    - `Technologies/`
+      - `CIV4TechInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4TechnologiesSchema.xml`: filename kept by SAS, also in base AdvCiv
+    - `Terrain/`
+      - `CIV4BonusClassInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4BonusInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4FeatureInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4ImprovementInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4SymbolMeshPaths.xml`: from vanilla, not in SAS
+      - `CIV4TerrainInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4TerrainSchema.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4TerrainSettings.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4YieldInfos.xml`: filename kept by SAS, also in base AdvCiv
+    - `Text/`
+      - `ActualQuotesText.xml`: filename kept by SAS, also in base AdvCiv
+      - `ActualQuotesText_BtS.xml`: filename kept by SAS, also in base AdvCiv
+      - `ActualQuotesText_WL.xml`: filename kept by SAS, also in base AdvCiv
+      - `Advanced Combat Odds Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Advanced Scoreboard Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `AdvancedCombatOdds_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `Autolog Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Autolog_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `AutoSave Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Better Espionage Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `BUFFY_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `BUG Advisors Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `BUG City Screen Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `BUG Core Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `BUG Main Interface Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `BUG Options Screen.xml`: filename kept by SAS, also in base AdvCiv
+      - `BUG_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `BULL Actions Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `BULL City Bar Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `BULL Misc Hovers Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `BULL_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4DiplomacyText.xml`: from vanilla, not in SAS
+      - `CIV4GameText_advc.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4GameText_advc_hints.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4GameText_advc_OptionsScreen.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4GameText_advc_pedia.xml`: base AdvCiv filename absent from SAS (see the list above)
+      - `CIV4GameText_advc_rf.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4GameText_advc_wonders.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4GameText_AIAutoPlay.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4GameText_BetterBTSAI.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4GameText_BTS.xml`: from BtS, not in SAS
+      - `CIV4GameText_BTS_Fixed.xml`: from BtS, not in SAS
+      - `CIV4GameText_BTS_FourthRoundTranslation.xml`: from BtS, not in SAS
+      - `CIV4GameText_BTS_PatchText.xml`: from BtS, not in SAS
+      - `CIV4GameText_Cities_BTS.xml`: from BtS, not in SAS
+      - `CIV4GameText_Civilopedia_Bonuses.xml`: from vanilla, not in SAS
+      - `CIV4GameText_Civilopedia_BTS.xml`: from BtS, not in SAS
+      - `CIV4GameText_Civilopedia_BuildingsProjects.xml`: from vanilla, not in SAS
+      - `CIV4GameText_Civilopedia_CivicsReligion.xml`: from vanilla, not in SAS
+      - `CIV4GameText_Civilopedia_CivLeaders.xml`: from vanilla, not in SAS
+      - `CIV4GameText_Civilopedia_Concepts.xml`: from vanilla, not in SAS
+      - `CIV4GameText_Civilopedia_Techs.xml`: from vanilla, not in SAS
+      - `CIV4GameText_Civilopedia_Units.xml`: from vanilla, not in SAS
+      - `CIV4GameText_DiplomacyText_BTS.xml`: from BtS, not in SAS
+      - `Civ4GameText_Earth18Civs.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4GameText_Events_BTS.xml`: from BtS, not in SAS
+      - `CIV4GameText_Help.xml`: from vanilla, not in SAS
+      - `Civ4GameText_K-Mod.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4GameText_Misc1.xml`: from vanilla, not in SAS
+      - `CIV4GameText_New.xml`: from vanilla, not in SAS
+      - `CIV4GameText_Objects_BTS.xml`: from BtS, not in SAS
+      - `CIV4GameText_Strategy.xml`: from vanilla, not in SAS
+      - `CIV4GameText_UnofficialPatch.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4GameText_Warlords.xml`: from Warlords, not in SAS
+      - `CIV4GameText_Warlords_Changed.xml`: from Warlords, not in SAS
+      - `CIV4GameText_Warlords_Civ4Changed.xml`: from Warlords, not in SAS
+      - `CIV4GameText_Warlords_Civilopedia.xml`: from Warlords, not in SAS
+      - `CIV4GameText_Warlords_Diplomacy.xml`: from Warlords, not in SAS
+      - `CIV4GameText_Warlords_Objects.xml`: from Warlords, not in SAS
+      - `CIV4GameText_Warlords_Strategy.xml`: from Warlords, not in SAS
+      - `CIV4GameTextChanged_BTS.xml`: from BtS, not in SAS
+      - `CIV4GameTextInfos.xml`: from vanilla, not in SAS
+      - `CIV4GameTextInfos_Cities.xml`: from vanilla, not in SAS
+      - `CIV4GameTextInfos_GreatPeople.xml`: from vanilla, not in SAS
+      - `CIV4GameTextInfos_Objects.xml`: from vanilla, not in SAS
+      - `Civ4lerts Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Civ4lerts_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4PlotListEnhancementsInfo.xml`: filename kept by SAS, also in base AdvCiv
+      - `Colors_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `CustDomAdv Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `CustDomAdv_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `EventSigns Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `EventSigns_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `EventText_CorrectedTranslations.xml`: filename kept by SAS, also in base AdvCiv
+      - `HiddenAttitudes_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `K-Mod hints.xml`: filename kept by SAS, also in base AdvCiv
+      - `MoreCiv4lerts Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `MoreCiv4lerts_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `Not Just Another Game Clock Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Plot List Enhancements Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Reminder Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Sevopedia_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `Shortcuts_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `Strategy Overlay Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `StrategyOverlay_CIV4GameText.xml`: filename kept by SAS, also in base AdvCiv
+      - `TechWindow Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Unit Naming Options.xml`: filename kept by SAS, also in base AdvCiv
+      - `Unit Naming.xml`: filename kept by SAS, also in base AdvCiv
+    - `TrueStarts/`
+      - `CIV4TruBonusInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4TruCivInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4TrueStartsSchema.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4TruLeaderInfos.xml`: filename kept by SAS, also in base AdvCiv
+    - `Units/`
+      - `Civ4AnimationInfos.xml`: filename kept by SAS, also in BtS
+      - `Civ4AnimationPathInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4AutomateInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4BuildInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4CommandInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4ControlInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `Civ4EntityEventInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4FormationInfos.xml`: filename kept by SAS, also in BtS
+      - `Civ4FormationSchema.xml`: from BtS, not in SAS
+      - `CIV4MissionInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4PromotionInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4SpecialUnitInfos.xml`: filename kept by SAS, also in BtS
+      - `CIV4UnitClassInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4UnitInfos.xml`: filename kept by SAS, also in base AdvCiv
+      - `CIV4UnitSchema.xml`: filename kept by SAS, also in base AdvCiv
+- `CvGameCoreDLL/`
+  - `_precompile.cpp`: filename kept by SAS, also in base AdvCiv
+  - `ACOText.cpp`: filename kept by SAS, also in base AdvCiv
+  - `AdvCiv4lerts.cpp`: filename kept by SAS, also in base AdvCiv
+  - `AdvCiv4lerts.h`: filename kept by SAS, also in base AdvCiv
+  - `AgentIterator.cpp`: filename kept by SAS, also in base AdvCiv
+  - `AgentIterator.h`: filename kept by SAS, also in base AdvCiv
+  - `AgentIteratorTest.cpp`: filename kept by SAS, also in base AdvCiv
+  - `AgentPredicates.h`: filename kept by SAS, also in base AdvCiv
+  - `AI_Defines.h`: from BtS, not in SAS
+  - `AIStrategies.h`: filename kept by SAS, also in base AdvCiv
+  - `AIStrengthMemoryMap.cpp`: filename kept by SAS, also in base AdvCiv
+  - `AIStrengthMemoryMap.h`: filename kept by SAS, also in base AdvCiv
+  - `ArithmeticTraits.cpp`: filename kept by SAS, also in base AdvCiv
+  - `ArithmeticTraits.h`: filename kept by SAS, also in base AdvCiv
+  - `ArithmeticUtils.h`: filename kept by SAS, also in base AdvCiv
+  - `ArmamentForecast.cpp`: filename kept by SAS, also in base AdvCiv
+  - `ArmamentForecast.h`: filename kept by SAS, also in base AdvCiv
+  - `BarbarianWeightMap.cpp`: filename kept by SAS, also in base AdvCiv
+  - `BarbarianWeightMap.h`: filename kept by SAS, also in base AdvCiv
+  - `BBAILog.cpp`: filename kept by SAS, also in base AdvCiv
+  - `BBAILog.h`: filename kept by SAS, also in base AdvCiv
+  - `BitUtil.h`: filename kept by SAS, also in base AdvCiv
+  - `BoostPythonPCH.h`: filename kept by SAS, also in base AdvCiv
+  - `CityPlotIterator.h`: filename kept by SAS, also in base AdvCiv
+  - `CitySiteEvaluator.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CitySiteEvaluator.h`: filename kept by SAS, also in base AdvCiv
+  - `CombatOdds.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CombatOdds.h`: filename kept by SAS, also in base AdvCiv
+  - `CoreAI.h`: filename kept by SAS, also in base AdvCiv
+  - `CvAgents.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvAgents.h`: filename kept by SAS, also in base AdvCiv
+  - `CvArea.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvArea.h`: filename kept by SAS, also in base AdvCiv
+  - `CvArtFileMgr.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvArtFileMgr.h`: filename kept by SAS, also in base AdvCiv
+  - `CvBugOptions.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvBugOptions.h`: filename kept by SAS, also in base AdvCiv
+  - `CvCity.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvCity.h`: filename kept by SAS, also in base AdvCiv
+  - `CvCityAI.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvCityAI.h`: filename kept by SAS, also in base AdvCiv
+  - `CvCivilization.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvCivilization.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDeal.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvDeal.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDefines.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDiploParameters.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvDiploParameters.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLButtonPopup.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLButtonPopup.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLDataStreamIFaceBase.h`: from BtS, not in SAS
+  - `CvDLLEngineIFaceBase.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLEntity.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLEntity.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLEntityIFaceBase.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLEventReporterIFaceBase.h`: from BtS, not in SAS
+  - `CvDLLFAStarIFaceBase.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLFlagEntityIFaceBase.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLIniParserIFaceBase.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLInterfaceIFaceBase.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLInterfaceIFaceBase.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLLogger.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLLogger.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLPlotBuilderIFaceBase.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLPython.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvDllPythonEvents.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvDllPythonEvents.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLPythonIFaceBase.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLSymbolIFaceBase.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDllTranslator.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvDllTranslator.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLUtilityIFaceBase.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLWidgetData.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLWidgetData.h`: filename kept by SAS, also in base AdvCiv
+  - `CvDLLXMLIFaceBase.h`: filename kept by SAS, also in base AdvCiv
+  - `CvEnumMacros.h`: filename kept by SAS, also in base AdvCiv
+  - `CvEnums.h`: filename kept by SAS, also in base AdvCiv
+  - `CvEventReporter.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvEventReporter.h`: filename kept by SAS, also in base AdvCiv
+  - `CvFractal.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvFractal.h`: filename kept by SAS, also in base AdvCiv
+  - `CvGame.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvGame.h`: filename kept by SAS, also in base AdvCiv
+  - `CvGameAI.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvGameAI.h`: filename kept by SAS, also in base AdvCiv
+  - `CvGameCoreDLL.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvGameCoreDLL.h`: filename kept by SAS, also in base AdvCiv
+  - `CvGameCoreDLLDefNew.h`: filename kept by SAS, also in base AdvCiv
+  - `CvGameCoreDLLUndefNew.h`: filename kept by SAS, also in base AdvCiv
+  - `CvGameCoreUtils.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvGameCoreUtils.h`: filename kept by SAS, also in base AdvCiv
+  - `CvGameInterface.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvGamePlay.h`: filename kept by SAS, also in base AdvCiv
+  - `CvGameTextMgr.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvGameTextMgr.h`: filename kept by SAS, also in base AdvCiv
+  - `CvGlobals.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvGlobals.h`: filename kept by SAS, also in base AdvCiv
+  - `CvHallOfFameInfo.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvHallOfFameInfo.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_All.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Asset.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Asset.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Base.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Base.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Build.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Build.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Building.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Building.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_City.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_City.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Civics.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Civics.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Civilization.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Civilization.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Command.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Command.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_EnumMap.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_GameOption.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_GameOption.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Misc.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Misc.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Organization.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Organization.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_RandomEvent.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_RandomEvent.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Symbol.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Symbol.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Tech.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Tech.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Terrain.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Terrain.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_TrueStarts.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_TrueStarts.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Unit.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Unit.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Water.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInfo_Water.h`: filename kept by SAS, also in base AdvCiv
+  - `CvInfos.cpp`: from BtS, not in SAS
+  - `CvInfos.h`: from BtS, not in SAS
+  - `CvInfoWater.cpp`: from BtS, not in SAS
+  - `CvInfoWater.h`: from BtS, not in SAS
+  - `CvInitCore.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvInitCore.h`: filename kept by SAS, also in base AdvCiv
+  - `CvMap.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvMap.h`: filename kept by SAS, also in base AdvCiv
+  - `CvMapGenerator.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvMapGenerator.h`: filename kept by SAS, also in base AdvCiv
+  - `CvMemoryManager.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvMemoryManager.h`: filename kept by SAS, also in base AdvCiv
+  - `CvMessageControl.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvMessageControl.h`: filename kept by SAS, also in base AdvCiv
+  - `CvMessageData.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvMessageData.h`: filename kept by SAS, also in base AdvCiv
+  - `CvPlayer.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvPlayer.h`: filename kept by SAS, also in base AdvCiv
+  - `CvPlayerAI.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvPlayerAI.h`: filename kept by SAS, also in base AdvCiv
+  - `CvPlot.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvPlot.h`: filename kept by SAS, also in base AdvCiv
+  - `CvPlotGroup.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvPlotGroup.h`: filename kept by SAS, also in base AdvCiv
+  - `CvPopupInfo.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvPopupInfo.h`: filename kept by SAS, also in base AdvCiv
+  - `CvPopupReturn.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvPopupReturn.h`: filename kept by SAS, also in base AdvCiv
+  - `CvPythonCaller.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvPythonCaller.h`: filename kept by SAS, also in base AdvCiv
+  - `CvRandom.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvRandom.h`: filename kept by SAS, also in base AdvCiv
+  - `CvReplayInfo.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvReplayInfo.h`: filename kept by SAS, also in base AdvCiv
+  - `CvReplayMessage.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvReplayMessage.h`: filename kept by SAS, also in base AdvCiv
+  - `CvSelectionGroup.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvSelectionGroup.h`: filename kept by SAS, also in base AdvCiv
+  - `CvSelectionGroupAI.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvSelectionGroupAI.h`: filename kept by SAS, also in base AdvCiv
+  - `CvStatistics.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvStatistics.h`: filename kept by SAS, also in base AdvCiv
+  - `CvString.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvString.h`: filename kept by SAS, also in base AdvCiv
+  - `CvStructs.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvStructs.h`: filename kept by SAS, also in base AdvCiv
+  - `CvTalkingHeadMessage.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvTalkingHeadMessage.h`: filename kept by SAS, also in base AdvCiv
+  - `CvTeam.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvTeam.h`: filename kept by SAS, also in base AdvCiv
+  - `CvTeamAI.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvTeamAI.h`: filename kept by SAS, also in base AdvCiv
+  - `CvTextScreens.cpp`: from BtS, not in SAS
+  - `CvUnit.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvUnit.h`: filename kept by SAS, also in base AdvCiv
+  - `CvUnitAI.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvUnitAI.h`: filename kept by SAS, also in base AdvCiv
+  - `CvVirtualWrappers.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvXMLLoadUtility.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvXMLLoadUtility.h`: filename kept by SAS, also in base AdvCiv
+  - `CvXMLLoadUtilityGet.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvXMLLoadUtilityInit.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CvXMLLoadUtilitySet.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyArea.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyArea.h`: filename kept by SAS, also in base AdvCiv
+  - `CyAreaInterface.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyArgsList.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyArgsList.h`: filename kept by SAS, also in base AdvCiv
+  - `CyArtFileMgr.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyArtFileMgr.h`: filename kept by SAS, also in base AdvCiv
+  - `CyArtFileMgrInterface.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyCity.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyCity.h`: filename kept by SAS, also in base AdvCiv
+  - `CyCityInterface1.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyCityInterface2.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyDeal.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyDeal.h`: filename kept by SAS, also in base AdvCiv
+  - `CyEnumsInterface.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyGame.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyGame.h`: filename kept by SAS, also in base AdvCiv
+  - `CyGameCoreUtils.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyGameCoreUtils.h`: filename kept by SAS, also in base AdvCiv
+  - `CyGameCoreUtilsInterface.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyGameInterface.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyGameTextMgr.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyGameTextMgr.h`: filename kept by SAS, also in base AdvCiv
+  - `CyGameTextMgrInterface.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyGlobalContext.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyGlobalContext.h`: filename kept by SAS, also in base AdvCiv
+  - `CyGlobalContextInterface1.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyGlobalContextInterface2.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyGlobalContextInterface3.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyGlobalContextInterface4.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyHallOfFameInfo.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyHallOfFameInfo.h`: filename kept by SAS, also in base AdvCiv
+  - `CyHallOfFameInterface.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyInfoInterface1.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyInfoInterface2.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyInfoInterface3.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyInfoWrapper.h`: filename kept by SAS, also in base AdvCiv
+  - `CyMap.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyMap.h`: filename kept by SAS, also in base AdvCiv
+  - `CyMapGenerator.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyMapGenerator.h`: filename kept by SAS, also in base AdvCiv
+  - `CyMapGeneratorInterface.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyMapInterface.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyMessageControl.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyMessageControl.h`: filename kept by SAS, also in base AdvCiv
+  - `CyMessageControlInterface.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyPlayer.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyPlayer.h`: filename kept by SAS, also in base AdvCiv
+  - `CyPlayerInterface1.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyPlayerInterface2.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyPlot.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyPlot.h`: filename kept by SAS, also in base AdvCiv
+  - `CyPlotInterface1.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyRandomInterface.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyReplayInfo.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyReplayInfo.h`: filename kept by SAS, also in base AdvCiv
+  - `CySelectionGroup.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CySelectionGroup.h`: filename kept by SAS, also in base AdvCiv
+  - `CySelectionGroupInterface.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyStructsInterface1.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyTeam.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyTeam.h`: filename kept by SAS, also in base AdvCiv
+  - `CyTeamInterface.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyUnit.cpp`: filename kept by SAS, also in base AdvCiv
+  - `CyUnit.h`: filename kept by SAS, also in base AdvCiv
+  - `CyUnitInterface1.cpp`: filename kept by SAS, also in base AdvCiv
+  - `DepthFirstPlotSearch.h`: filename kept by SAS, also in base AdvCiv
+  - `EnumMap.h`: filename kept by SAS, also in base AdvCiv
+  - `EnumMapTest.cpp`: filename kept by SAS, also in base AdvCiv
+  - `EnumTraits.h`: filename kept by SAS, also in base AdvCiv
+  - `FAssert.cpp`: filename kept by SAS, also in base AdvCiv
+  - `FAssert.h`: filename kept by SAS, also in base AdvCiv
+  - `FAStarFunc.cpp`: filename kept by SAS, also in base AdvCiv
+  - `FAStarFunc.h`: filename kept by SAS, also in base AdvCiv
+  - `FAStarNode.h`: filename kept by SAS, also in base AdvCiv
+  - `FDataStreamBase.h`: filename kept by SAS, also in base AdvCiv
+  - `FDialogTemplate.cpp`: filename kept by SAS, also in base AdvCiv
+  - `FDialogTemplate.h`: filename kept by SAS, also in base AdvCiv
+  - `FFreeListArray.h`: from BtS, not in SAS
+  - `FFreeListArrayBase.h`: from BtS, not in SAS
+  - `FFreeListTrashArray.cpp`: filename kept by SAS, also in base AdvCiv
+  - `FFreeListTrashArray.h`: filename kept by SAS, also in base AdvCiv
+  - `FInputDevice.h`: filename kept by SAS, also in base AdvCiv
+  - `FixedPointPowTables.h`: filename kept by SAS, also in base AdvCiv
+  - `FProfiler.cpp`: filename kept by SAS, also in base AdvCiv
+  - `FProfiler.h`: filename kept by SAS, also in base AdvCiv
+  - `FreeListTraversal.h`: filename kept by SAS, also in base AdvCiv
+  - `FVariableSystem.h`: filename kept by SAS, also in base AdvCiv
+  - `FVariableSystem.inl`: filename kept by SAS, also in base AdvCiv
+  - `GameBryo.h`: filename kept by SAS, also in base AdvCiv
+  - `GroupPathFinder.cpp`: filename kept by SAS, also in base AdvCiv
+  - `GroupPathFinder.h`: filename kept by SAS, also in base AdvCiv
+  - `IntegerConversion.h`: filename kept by SAS, also in base AdvCiv
+  - `IntegerTraits.h`: filename kept by SAS, also in base AdvCiv
+  - `interfaceDirtyBits.inl`: filename kept by SAS, also in base AdvCiv
+  - `InvasionGraph.cpp`: filename kept by SAS, also in base AdvCiv
+  - `InvasionGraph.h`: filename kept by SAS, also in base AdvCiv
+  - `KmodPathFinder.h`: filename kept by SAS, also in base AdvCiv
+  - `KmodPathFinderLegacy.cpp`: filename kept by SAS, also in base AdvCiv
+  - `KmodPathFinderLegacy.h`: filename kept by SAS, also in base AdvCiv
+  - `LinkedList.h`: filename kept by SAS, also in base AdvCiv
+  - `LinkedListTraversal.h`: filename kept by SAS, also in base AdvCiv
+  - `MilitaryAnalyst.cpp`: filename kept by SAS, also in base AdvCiv
+  - `MilitaryAnalyst.h`: filename kept by SAS, also in base AdvCiv
+  - `MilitaryBranch.cpp`: filename kept by SAS, also in base AdvCiv
+  - `MilitaryBranch.h`: filename kept by SAS, also in base AdvCiv
+  - `ModName.cpp`: filename kept by SAS, also in base AdvCiv
+  - `ModName.h`: filename kept by SAS, also in base AdvCiv
+  - `PlayerHistory.cpp`: filename kept by SAS, also in base AdvCiv
+  - `PlayerHistory.h`: filename kept by SAS, also in base AdvCiv
+  - `PlotAdjListTraversal.h`: filename kept by SAS, also in base AdvCiv
+  - `PlotRadiusIterator.cpp`: filename kept by SAS, also in base AdvCiv
+  - `PlotRadiusIterator.h`: filename kept by SAS, also in base AdvCiv
+  - `PlotRange.h`: filename kept by SAS, also in base AdvCiv
+  - `PragmaWarnings.h`: filename kept by SAS, also in base AdvCiv
+  - `ReproTest.cpp`: filename kept by SAS, also in base AdvCiv
+  - `ReproTest.h`: filename kept by SAS, also in base AdvCiv
+  - `resource.h`: from BtS, not in SAS
+  - `RFChapter.cpp`: filename kept by SAS, also in base AdvCiv
+  - `RFChapter.h`: filename kept by SAS, also in base AdvCiv
+  - `RFChapterScore.cpp`: filename kept by SAS, also in base AdvCiv
+  - `RFChapterScore.h`: filename kept by SAS, also in base AdvCiv
+  - `RFTotalScore.cpp`: filename kept by SAS, also in base AdvCiv
+  - `RFTotalScore.h`: filename kept by SAS, also in base AdvCiv
+  - `RiseFall.cpp`: filename kept by SAS, also in base AdvCiv
+  - `RiseFall.h`: filename kept by SAS, also in base AdvCiv
+  - `ScaledNum.h`: filename kept by SAS, also in base AdvCiv
+  - `ScaledNumFwd.h`: filename kept by SAS, also in base AdvCiv
+  - `ScaledNumTest.cpp`: filename kept by SAS, also in base AdvCiv
+  - `SelfMod.cpp`: filename kept by SAS, also in base AdvCiv
+  - `SelfMod.h`: filename kept by SAS, also in base AdvCiv
+  - `Shelf.cpp`: filename kept by SAS, also in base AdvCiv
+  - `Shelf.h`: filename kept by SAS, also in base AdvCiv
+  - `StartingPositionIteration.cpp`: filename kept by SAS, also in base AdvCiv
+  - `StartingPositionIteration.h`: filename kept by SAS, also in base AdvCiv
+  - `StartPointsAsHandicap.cpp`: filename kept by SAS, also in base AdvCiv
+  - `StartPointsAsHandicap.h`: filename kept by SAS, also in base AdvCiv
+  - `TeamPathFinder.cpp`: filename kept by SAS, also in base AdvCiv
+  - `TeamPathFinder.h`: filename kept by SAS, also in base AdvCiv
+  - `Trigonometry.h`: filename kept by SAS, also in base AdvCiv
+  - `TrueStarts.cpp`: filename kept by SAS, also in base AdvCiv
+  - `TrueStarts.h`: filename kept by SAS, also in base AdvCiv
+  - `TSCProfiler.cpp`: filename kept by SAS, also in base AdvCiv
+  - `TSCProfiler.h`: filename kept by SAS, also in base AdvCiv
+  - `TypeChoice.h`: filename kept by SAS, also in base AdvCiv
+  - `UnofficialPatch.h`: from BtS, not in SAS
+  - `UWAI.cpp`: filename kept by SAS, also in base AdvCiv
+  - `UWAI.h`: filename kept by SAS, also in base AdvCiv
+  - `UWAIAgent.cpp`: filename kept by SAS, also in base AdvCiv
+  - `UWAIAgent.h`: filename kept by SAS, also in base AdvCiv
+  - `UWAICache.cpp`: filename kept by SAS, also in base AdvCiv
+  - `UWAICache.h`: filename kept by SAS, also in base AdvCiv
+  - `UWAIReport.cpp`: base AdvCiv filename absent from SAS (see the list above)
+  - `UWAIReport.h`: base AdvCiv filename absent from SAS (see the list above)
+  - `UWAISets.h`: filename kept by SAS, also in base AdvCiv
+  - `WarEvalParameters.cpp`: filename kept by SAS, also in base AdvCiv
+  - `WarEvalParameters.h`: filename kept by SAS, also in base AdvCiv
+  - `WarEvaluator.cpp`: filename kept by SAS, also in base AdvCiv
+  - `WarEvaluator.h`: filename kept by SAS, also in base AdvCiv
+  - `WarUtilityAspect.cpp`: filename kept by SAS, also in base AdvCiv
+  - `WarUtilityAspect.h`: filename kept by SAS, also in base AdvCiv
+  - `Project/`
+    - `resource.h`: filename kept by SAS, also in base AdvCiv
+
+<!-- end of the part generated by inherited_files.py -->

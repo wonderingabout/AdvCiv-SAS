@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+
+from pathlib import Path
+import sys
+
+# <!-- custom: Reuse the shared XML-default validator; Battles coordinates are useful by default, while users can disable the columns locally when width is scarce. (GPT-6.1-Sol) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+
+from xml_defines import main_from_expected_values
+
+# <!-- custom: Related SHOW toggles share positive polarity and default 0: intermediate steps and eligible cancelled rows stay out of the summary unless requested. (GPT-6.1-Sol) -->
+EXPECTED_ADVISOR_DEFINES = {
+    "SAS_MILIT_UI_BATTLE_XY_ON": 1,
+    "SAS_WORLD_CHANGES_SHOW_INTERMEDIATE_ON": 0,
+    "SAS_WORLD_CHANGES_SHOW_CANCELLED_ON": 0,
+}
+
+# <!-- custom: All three moved to SASSessionTunables.py, as only Python reads them (KI#128.11). (Claude code Opus 5.5) -->
+SESSION_TUNABLE_NAMES = ("SAS_MILIT_UI_BATTLE_XY_ON", "SAS_WORLD_CHANGES_SHOW_INTERMEDIATE_ON", "SAS_WORLD_CHANGES_SHOW_CANCELLED_ON")
+
+if __name__ == "__main__":
+    main_from_expected_values("advisor defaults", EXPECTED_ADVISOR_DEFINES, "Check shipped advisor presentation defaults.", SESSION_TUNABLE_NAMES)

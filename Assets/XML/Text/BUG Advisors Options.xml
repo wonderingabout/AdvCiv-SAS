@@ -5,6 +5,10 @@
 
 	Copyright (c) 2009 The BUG Mod.
 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <Civ4GameText xmlns="http://www.firaxis.com">
 
 <!-- Finance Advisor -->
@@ -23,20 +27,6 @@
 		<Italian>Quando è selezionato, visualizza il Consigliere Economico del BUG mod (è richiesto un  perchè il cambiamento abbia effetto).</Italian>
 		<Spanish>Permite emplear el consejero financiero incluído en BUG (requiere reiniciar).</Spanish>
 	</TEXT>
-
-<!-- Exotic Foreign Advisor -->
-
-	<!-- advc.004: The tab is called "Einblick" in German (though "Überblick"
-		 would perhaps indeed be a better name) -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_TEXT</Tag>
-		<English>Glance Tab</English>
-		<French>Page Coup d'Oeuil</French>
-		<German>Einblick</German>
-		<Italian>Tabella "Occhiata"</Italian>
-		<Spanish>Pestaña Mirar</Spanish>
-	</TEXT>
-	
 	<!-- advc.004: Note about patch history added; German rewritten. -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_HOVER</Tag>
@@ -47,15 +37,12 @@
 		<Italian>Quando è selezionato, visualizza la tabella "Occhiata" nella schermata del Consigliere Estero (utilizzando l'Exotic Foreign Advisor Mod).</Italian>
 		<Spanish>Activa la pestaña 'Mirar' en el consejero de asuntos exteriores.</Spanish>
 	</TEXT>
-	<!-- advc.072: Now unused -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCEATTITUDES_TEXT</Tag>
-		<English>Smilies</English>
-		<French>Smileys</French>
-		<German>Smilies</German>
-		<Italian>Icone</Italian>
-		<Spanish>Iconos</Spanish>
-	</TEXT-->
+
+<!-- Foreign Advisor -->
+
+	<!-- custom: note: removed TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_TEXT since we as of now no longer have the Show Glance Tab option in Advisors (BUG Menu) (now always ON) -->
+
+	<!-- custom: Long_Comments_XML.txt #238 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCEATTITUDES_LIST</Tag>
 		<English>Numbers|Smilies|Both</English>
@@ -63,7 +50,7 @@
 		<Italian>Numeri|Icone|Entrambi</Italian>
 		<Spanish>Números|Iconos|Ambos</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCEATTITUDES_HOVER</Tag>
@@ -82,7 +69,7 @@
 		<Italian>Scheda Informazioni migliorata</Italian>
 		<Spanish>Información Mejorada</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Rewritten (English, German) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAIMPROVEDINFO_HOVER</Tag>
@@ -113,15 +100,7 @@
 		<Italian>Tab "Attivo"|Accordi attuali|Entrambi|Only Tooltip</Italian>
 		<Spanish>Tab "Activo"|Current Deals|Ambos|Only Tooltip</Spanish>
 	</TEXT>
-	<!-- Rewritten (English, German), then replaced with the key below. -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFADEALTURNSLEFT_HOVER</Tag>
-		<English>When checked, the "Active" tab shows the remaining number of turns until cancellation for deals that cannot currently be canceled. (Regardless of this setting, the turns to cancel are shown when hovering over a deal.)</English>
-		<French>When checked, shows how many turns are left before you can cancel each deal on the 'Active' tab.</French>
-		<German>Zeigt im Reiter "Aktiv" an, wann Vereinbarungen gekündigt werden können, die zur Zeit unkündbar sind. (Unabhängig von dieser Option wird die verbleibende Mindestlaufzeit auch im Hilfetext der Vereinbarung angezeigt.)</German>
-		<Italian>Quando è selezionato, mostra quanti turni sono rimasti prima che si possa annullare un accordo.</Italian>
-		<Spanish>Permite mostrar cuántos turnos quedan antes de que puedas cancelar cada intercambio en la pestaña 'Activo'.</Spanish>
-	</TEXT-->
+	<!-- custom: Long_Comments_XML.txt #239 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__DEALTURNSLEFT_HOVER</Tag>
 		<English>Where to show the remaining number of turns until cancellation for deals that cannot currently be canceled.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Active Tab[COLOR_REVERT]: On the "Active" tab of the Foreign Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Current Deals[COLOR_REVERT]: On the trade table when listing the current deals.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Both[COLOR_REVERT]: On the "Active" tab and the trade table.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Only Tooltip[COLOR_REVERT]: Show the turns to cancel only when hovering over a deal on the "Active" tab or the trade table.</English>
@@ -137,8 +116,6 @@
 		<Italian>Volontà di guerra</Italian>
 		<Spanish>Guerras patrocinadas</Spanish>
 	</TEXT>
-	<!-- Translations based on TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_TEXT in
-		 BUG Advisors Options.xml -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAWARTRADES_HOVER</Tag>
 		<English>When checked, the Glance tab shows fist icons to indicate which leaders are currently willing to start a war at your request.</English>
@@ -148,25 +125,6 @@
 		<Spanish>Si se activa, la pestaña Mirar muestra iconos de puño para indicar qué líderes están dispuestos a iniciar una guerra a su petición.</Spanish>
 	</TEXT>
 
-	<!-- advc.ctr (FIS translations are placeholders) -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFACITYTRADES_TEXT</Tag>
-		<English>Cities Tab</English>
-		<French>Villes</French>
-		<German>Städte-Bildschirm</German>
-		<Italian>Citt&#224;</Italian>
-		<Spanish>Ciudades</Spanish>
-	</TEXT>
-	<!-- Translations based on TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_TEXT in
-		 BUG Advisors Options.xml -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFACITYTRADES_HOVER</Tag>
-		<English>When checked, a tab "Cities" is added to the Foreign Advisor screen, showing which cities the other players are willing to trade.</English>
-		<French>When checked, a tab "Villes" is added to the Foreign Advisor screen, showing which cities the other players are willing to trade.</French>
-		<German>Zeigt auf dem Auslandsberater-Bildschirm den Reiter "Städte" an, welcher die Städte aufführt, mit denen Ihre Mitspieler bereit sind, Handel zu treiben.</German>
-		<Italian>When checked, a tab "Città" is added to the Foreign Advisor screen, showing which cities the other players are willing to trade.</Italian>
-		<Spanish>When checked, a tab "Ciudades" is added to the Foreign Advisor screen, showing which cities the other players are willing to trade.</Spanish>
-	</TEXT>
 
 <!-- Military Advisor -->
 
@@ -176,36 +134,6 @@
 		<German>BUG-Militärberater</German>
 		<Italian>BUG Military Advisor</Italian>
 		<Spanish>Consejero Militar BUG</Spanish>
-	</TEXT>
-	
-	<!-- advc.004: Summary of features added -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGMA_HOVER</Tag>
-		<English>Enables the BUG Military Advisor (restart required), which allows the unit list to be sorted and grouped, lists possible alliances and shows strategic resources available to rivals.</English>
-		<German>Aktiviert den BUG-Militärberater (Neustart erforderlich) mit Sortierfunktionen für die Einheitenliste sowie Informationen über gegnerische strategische Ressourcen und mögliche Bündnisse.</German>
-		<Italian>Quando è selezionato, utilizza il Consigliere Militare del BUG Mod (è richiesto un  perchè il cambiamento abbia effetto).</Italian>
-		<Spanish>Permite emplear el consejero militar incluído en BUG (requiere reiniciar)</Spanish>
-	</TEXT>
-
-<!-- Technology Advisor -->
-
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__GPTECHPREFS_TEXT</Tag>
-		<English>GP Research</English>
-		<French>Recherche des PI</French>
-		<German>GP-Technologien</German>
-		<Italian>Ricerche dei GP</Italian>
-		<Spanish>Investigación de GP</Spanish>
-	</TEXT>
-	
-	<!-- advc.004: Rewritten (English, German) -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__GPTECHPREFS_HOVER</Tag>
-		<English>When checked, information about the technologies that Great People can discover is displayed in the footer of the Technology Advisor screen (tech tree).</English>
-		<French>En activant, montre la technologie que chaque Personnage Illustre peut découvrir.</French>
-		<German>Zeigt in der Fußzeile des Technologiebaums an, welche Technologien von großen Persönlichkeiten entdeckt werden können.</German>
-		<Italian>Quando è selezionato, visualizza la tecnologia ricercata da ogni Grande Personaggio nella schermata del Consigliere Tecnologico.</Italian>
-		<Spanish>Si se activa, permite mostrar la tecnología que cada tipo de Gran Persona podría investigar.</Spanish>
 	</TEXT>
 
 	<!-- advc.004: Now unused -->
@@ -225,7 +153,7 @@
 		<Italian>Quando è selezionato, la larghezza della schermata del Consigliere Tecnologico è legata alla risoluzione dello schermo (è richiesto un riavvio perchè il cambiamento abbia effetto).</Italian>
 		<Spanish>Si se activa, el ancho de la ventana del consejero de tecnología quedará unido a la resolución de pantalla en uso (requiere reiniciar).</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Plural -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__SHOWTECHERA_TEXT</Tag>
@@ -234,7 +162,7 @@
 		<Italian>Mostra Era</Italian>
 		<Spanish>Mostrar Era</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Rewritten (English, German) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__SHOWTECHERA_HOVER</Tag>
@@ -244,25 +172,6 @@
 		<Spanish>Permite mostrar la era asociada a una tecnología dada.</Spanish>
 	</TEXT>
 
-<!-- Religion Advisor -->
-
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGRELIGIOUSTAB_TEXT</Tag>
-		<English>BUG Religion Advisor</English>
-		<German>BUG-Religionsberater</German>
-		<Italian>Consigliere Religioso</Italian>
-		<Spanish>Consejero Religioso BUG</Spanish>
-	</TEXT>
-	
-	<!-- advc.004: Rewritten (English, German) -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGRELIGIOUSTAB_HOVER</Tag>
-		<English>Enables the BUG Religion Advisor, which shows your cities in a sortable table and displays information about religious buildings.</English>
-		<German>Aktiviert den BUG-Religionsberater mit einer sortierbaren Städtetabelle und Informationen über alle religiösen Gebäude.</German>
-		<Italian>Quando è selezionato, mostra informazioni aggiuntive nella schermata del Consigliere Religioso.</Italian>
-		<Spanish>Si se activa, muestra información extra en la ventana de Religión.</Spanish>
-	</TEXT>
-	
 	<!-- advc.004: Minor changes to these two -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__SHOWRELIGIONS_TEXT</Tag>
@@ -278,7 +187,7 @@
 		<Italian>Tutte|Fondate|del Giocatore</Italian>
 		<Spanish>Todas|Fundadas|Jugador</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Clarified that this only applies to the BUG Advisor -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__SHOWRELIGIONS_HOVER</Tag>
@@ -340,7 +249,7 @@
 		<Italian>Scala logaritmica</Italian>
 		<Spanish>Escala Logarítmica</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGGRAPHSLOGSCALE_HOVER</Tag>
@@ -358,7 +267,7 @@
 		<Italian>Scheda Grafici</Italian>
 		<Spanish>Pestaña Gráfica</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004s: Mention moving average -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGGRAPHSTAB_HOVER</Tag>
@@ -367,8 +276,8 @@
 		<Italian>Quando è selezionato, mostra la Scheda dei Grafici nel formato modificato del BUG Mod.</Italian>
 		<Spanish>Si se activa, las gráficas son mostradas en el formato BUG.</Spanish>
 	</TEXT>
-	
-	<!-- advc.004: was just "Wonders Tab"  -->
+
+	<!-- advc.004: was just "Wonders Tab" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGINFOWONDERS_TEXT</Tag>
 		<English>BUG Wonders Tab</English>
@@ -385,7 +294,7 @@
 		<Italian>Quando è selezionato, mostra la Scheda delle Meraviglie nel formato modificato del BUG Mod.</Italian>
 		<Spanish>Activa la versión BUG de la información de maravillas.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: plural -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGINFOWONDERSPLAYERCOLOR_TEXT</Tag>
@@ -394,7 +303,7 @@
 		<Italian>Usa Colore del Giocatore</Italian>
 		<Spanish>Color del Jugador</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: rewritten (English, German) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGINFOWONDERSPLAYERCOLOR_HOVER</Tag>
@@ -403,42 +312,8 @@
 		<Italian>Quando selezionato, mostra le meraviglie nella versione BUG della tabella meraviglie usando il colore del giocatore che le possiede.</Italian>
 		<Spanish>Muestra las maravillas empleando el color del jugador que las ha construído.</Spanish>
 	</TEXT>
-	
-	<!-- advc.004: Now disused (German was "BUG Statistiken") -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGSTATSTAB_TEXT</Tag>
-		<English>Improvement Stats</English>
-		<German>Zus. Statistiken</German>
-		<Italian>Scheda Statistiche</Italian>
-		<Spanish>Estadísticas de mejoras</Spanish>
-	</TEXT-->
-	<!-- advc.004: Now disused (English, German rewritten) -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGSTATSTAB_HOVER</Tag>
-		<English>When checked, the "Statistics" tab shows how many improvements you currently own of each improvement type.</English>
-		<German>Zeigt auf dem Reiter "Statistik" für jeden Typ von Geländeverbesserung an, wie viele Verbesserungen dieses Typs Sie derzeit besitzen.</German>
-		<Italian>Quando è selezionato, mostra la Scheda delle Statistiche nella versione migliorata del BUG Mod</Italian>
-		<Spanish>Muestra mejoras de casillas en la pestaña 'Estadísticas'.</Spanish>
-	</TEXT-->
-	
-	<!-- advc.004: No longer used -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__NONZEROSTATSONLY_TEXT</Tag>
-		<English>Non-Zero Stats Only</English>
-		<German>Nur Nicht-Nullwerte</German>
-		<Italian>Solo statistiche maggiori di zero</Italian>
-		<Spanish>Solo estadísticas que no sean cero</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__NONZEROSTATSONLY_HOVER</Tag>
-		<English>When checked, only non-zero entries are displayed in the Stats tab.</English>
-		<German>Wenn aktiviert, werden im Statistiken-Reiter nur von Null verschiedene Werte angezeigt.</German>
-		<Italian>Quando è selezionato, solo le statistiche maggiori di zero sono mostrate nella tabella Statistiche.</Italian>
-		<Spanish>Activada, sólo las entradas que no sean cero son mostradas en la pestaña 'Estadísticas'.</Spanish>
-	</TEXT-->
-	
-	
-<!-- Sevopedia -->
+	<!-- custom: Long_Comments_XML.txt #240 -->
+	<!-- Sevopedia -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__SEVOPEDIA_TEXT</Tag>
 		<English>Enabled</English>
@@ -450,13 +325,13 @@
 	<!-- advc.004y: Info about known issue added -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__SEVOPEDIA_HOVER</Tag>
-		<English>Enables the Sevopedia layout of the Civilopedia (requires restart). Known issue: Regardless of this setting, if the Civilopedia is accessed from the Opening Menu, Sevopedia is automatically enabled and remains enabled until the game is restarted.</English>
+		<English>Enables the Sevopedia layout of the Sevopedia (requires restart). Known issue: Regardless of this setting, if the Sevopedia is accessed from the Opening Menu, Sevopedia is automatically enabled and remains enabled until the game is restarted.</English>
 		<French>En activant, utilise le Sevopedia (requièrt un redémarrage).</French>
 		<German>Aktiviert das Sevopedia-Layout für die Zivilopädie (erfordert Neustart). Bekanntes Problem: Bei Zugriff auf die Zivilopädie vom Hauptmenü aus wird Sevopedia in jedem Fall aktiviert und bleibt dann bis zum nächsten Neustart aktiv.</German>
-		<Italian>Quando è selezionato, viene utilizzata la Sevopedia invece della Civilopedia (è richiesto un riavvio perchè il cambiamento abbia effetto).</Italian>
+		<Italian>Quando è selezionato, viene utilizzata la Sevopedia invece della Sevopedia (è richiesto un riavvio perchè il cambiamento abbia effetto).</Italian>
 		<Spanish>Si se activa, emplea la Sevopedia (requiere reiniciar).</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: A bit better than "sort lists"? -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__SEVOPEDIASORTITEMLIST_TEXT</Tag>

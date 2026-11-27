@@ -1,0 +1,31 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 246
+# Author: blakeciv
+# Date: 2007-01-06T19:57:15.217369Z
+# Coverage: full
+# Message:
+#   Removed debug stuff.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@245
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@246
+@@ -10583,14 +10583,13 @@
+ 					if (pLoopUnit->plot()->getBestDefender(getID()) == pLoopUnit)
+ 					{
+ 						bValid = false;
+-					}				
++					}
+ 				}
+ 			}
+ 		}
+ 		
+ 		if (bValid)
+ 		{
+-			pLoopUnit->setName(L"Kitchen Sink");
+ 			pLoopUnit->AI_setUnitAIType(UNITAI_ATTACK_CITY);			
+ 		}
+ 	}
+

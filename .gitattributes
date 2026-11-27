@@ -1,0 +1,110 @@
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: Text is stored and checked out as LF whatever each clone's core.autocrlf, so a tool can no longer store a file in CRLF and switch every line, as on 2026-11-16; binary files are left alone. See KI#1097. (Claude code Opus 5.5) -->
+* text=auto eol=lf
+# <!-- custom: Forced CRLF: these kinds are CRLF everywhere, stored and checked out. -text makes Git keep their bytes unconverted, and line_endings.py fails if one is ever stored with LF or mixed endings; Git has no single attribute meaning "CRLF everywhere", as eol=crlf stores LF.
+# Why each: theme files are parsed by the Civ4 EXE, whose reading of LF themes was never tried, and Windows' batch files and Visual Studio's project files want CRLF.
+# One style per kind, with no kind stored in one style and checked out in the other.
+# These files are text all the same: -text only switches off Git's line-ending conversion, while diffs and merges still treat them as text, unlike "binary". (Claude code Opus 5.5) -->
+*.thm -text
+*.bat -text
+*.cmd -text
+*.sln -text
+*.vcxproj -text
+
+# <!-- custom: unclutter the player zip; keep only for cloning or such thanks to chatgpt 5.1's help -->
+# Example: keep in repo, exclude from Download ZIP / archives
+
+# Common image formats (global archive exclude)
+*.png   export-ignore
+*.PNG   export-ignore
+*.jpg   export-ignore
+*.JPG   export-ignore
+*.jpeg  export-ignore
+*.JPEG  export-ignore
+*.gif   export-ignore
+*.GIF   export-ignore
+*.bmp   export-ignore
+*.BMP   export-ignore
+*.webp  export-ignore
+*.WEBP  export-ignore
+*.tif   export-ignore
+*.TIF   export-ignore
+*.tiff  export-ignore
+*.TIFF  export-ignore
+*.svg   export-ignore
+*.SVG   export-ignore
+*.avif  export-ignore
+*.AVIF  export-ignore
+*.heic  export-ignore
+*.HEIC  export-ignore
+# <!-- custom: Paint.NET files in capitalization as well as chatgpt 5.1 confirms and corrected me too thanks -->
+# Paint.NET files in any casing
+*.pdn  export-ignore
+*.PDN  export-ignore
+
+# <!-- custom: config and LLM info -->
+/AGENTS.md            export-ignore
+/.claude/             export-ignore
+/.vscode/             export-ignore
+/.markdownlint.jsonc  export-ignore
+/ruff.toml            export-ignore
+
+# <!-- custom: Keep LLM_Helpers in GitHub/source ZIP downloads because it contains compact review/tuning scripts and docs, notably make_light_source_zip.py, that help LLM/code-agent analysis.
+# Generated LLM_Helpers/outputs files stay out through .gitignore. (GPT-5.5) -->
+
+# <!-- custom: Keep source-analysis progress and albums tracked so future clones and AI/LLM helpers can resume them, but exclude the whole development-analysis folder from player/download archives.
+# Future C++/Python/XML or other analyses need no individual export-ignore entry. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+/_1_AdvCiv-SAS/Docs/Source_Analysis/    export-ignore
+/_1_AdvCiv-SAS/Docs/Source_Analysis/**  export-ignore
+
+# <!-- custom: Keep tracked development-context metadata, rewrite archaeology, and imported references out of player archives; generated commit_diffs are Git-ignored separately. (GPT-5.6-Sol) -->
+/LLM_Helpers/context/                    export-ignore
+/LLM_Helpers/context/**                  export-ignore
+
+# <!-- custom: Keep greppable downloaded map-script originals in Git and the dedicated light-source ZIP for inherited-bug archaeology, but exclude this non-runtime third-party corpus from player/GitHub Download ZIP archives.
+# Suppress ordinary diffs/language statistics for the verbatim upstream files while leaving the local README reviewable. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+/LLM_Helpers/context/mapscript_refs/                export-ignore
+/LLM_Helpers/context/mapscript_refs/**              export-ignore
+/LLM_Helpers/context/mapscript_refs/**/*.py         -diff linguist-vendored
+/LLM_Helpers/context/mapscript_refs/**/*.txt        -diff linguist-vendored
+/LLM_Helpers/context/mapscript_refs/**/*.properties -diff linguist-vendored
+
+# <!-- custom: Better BTS AI's SVN history is tracked inside commit_diffs/ like mapscript_refs, since our Git cannot regenerate it. Suppress ordinary diffs and language statistics so the commits that touch it stay reviewable. (Claude code Opus 5.5) -->
+/LLM_Helpers/context/commit_diffs/BBAI_r*.diff      -diff linguist-vendored
+
+# <!-- custom: Expand the immutable SAS version-anchor describe string plus exact commit/date into the runtime archive marker for GitHub/git-archive downloads.
+# The anchor version + Git describe distance reproduces the practical commit count without a manually maintained VERSION file.
+# Branch and dirty state still require a live Git worktree. (ChatGPT-5.6-Sol) -->
+/Assets/SASModVersion.txt export-subst
+
+# <!-- custom: GitHub Actions checks and repo metadata are development infrastructure, not player release content. (ChatGPT-5.5 + GPT-5.5) -->
+/.github/             export-ignore
+/.gitattributes       export-ignore
+/.gitignore           export-ignore
+
+# <!-- custom: include most documentation/reference material as it may be useful in downloaded ZIPs, including the legacy manuals, API docs and dev logs, and the current Docs/changelogs_web, Modding_Resources and Docs/Sevopedia/Debug. -->
+/Assets/Res/Fonts/other_mods/                             export-ignore
+
+# <!-- custom: Include compact documentation examples such as runtime JSON/JSONL and build reports in player/GitHub Download ZIP archives.
+# Exclude the large raw SASGameRecord/assertion captures and historical source-comparison files; these remain tracked and available to the dedicated light-source ZIP. (GPT-5.6 + GPT-6.1-Sol) -->
+/_1_AdvCiv-SAS/Docs/examples/assertions    export-ignore
+/_1_AdvCiv-SAS/Docs/examples/assertions/**  export-ignore
+/_1_AdvCiv-SAS/Docs/examples/sasgamerecord    export-ignore
+/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/**  export-ignore
+/_1_AdvCiv-SAS/Docs/examples/source_comparison    export-ignore
+/_1_AdvCiv-SAS/Docs/examples/source_comparison/**  export-ignore
+# <!-- custom: The fpk_tool.py example holds a file extracted from Assets/BML.fpk, which players already have inside that archive. (Claude code Opus 5.5) -->
+/_1_AdvCiv-SAS/Docs/examples/fpk    export-ignore
+/_1_AdvCiv-SAS/Docs/examples/fpk/**  export-ignore
+
+# <!-- custom: The EXE patch helpers and their guide are for studying the game's EXE, which players do not need; keep them in Git and the light-source ZIP for agents, but out of player/GitHub Download ZIP archives. The decrypted EXE copy itself is never in the repository.
+# Keep every other file that describes what the guide holds out of these archives too, such as /AGENTS.md and /.github/ (folder_indexes.py and the workflows README) above. A file that ships, such as LLM_Helpers/README.md or the Modding Resources README, may only link to the guide and its disclaimer. exe_patches_export_ignore.py fails if these lines go missing, and exe_internals_placement.py if a shipping file describes the EXE's internals; both live in .github/workflows/build/exe_patches/. (Claude code Opus 5.5) -->
+/LLM_Helpers/exe_analysis/    export-ignore
+/LLM_Helpers/exe_analysis/**  export-ignore
+/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md  export-ignore
+
+# <!-- custom: Local platform-specific harnesses are development tools, not gameplay/release content; keep them in Git and the dedicated light-source ZIP. (GPT-6.1-Sol) -->
+/tests/    export-ignore
+/tests/**  export-ignore

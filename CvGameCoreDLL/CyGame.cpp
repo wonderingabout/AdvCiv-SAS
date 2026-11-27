@@ -9,6 +9,47 @@
 #include "CyDeal.h"
 #include "CyReplayInfo.h"
 #include "CvMap.h" // advc.enum
+#include "CvCity.h" // <!-- custom: WorldBuilder holy-city/headquarters history dereferences native CvCity pointers; the existing headers only forward-declare CvCity. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Organization.h" // <!-- custom: WorldBuilder history records stable religion/corporation XML type tokens; GC.getInfo requires the complete organization info types here. (ChatGPT-5.6-Sol) -->
+#include "CvDLLPythonIFaceBase.h" // <!-- custom: Needed for the concrete Python-interface method used by the rejected-offer bridge; CvDLLUtilityIFaceBase only forward-declares this type. (ChatGPT-5.6-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Bridge resolved Python diplomacy-UI events and post-handler session diagnostics into the factual game record; AI valuation remains elsewhere. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+#include "CvPlayer.h" // <!-- custom: addSASTeamReplayMessage reads players through GET_PLAYER, which CvGameAI.h only forward-declares; without it cl.exe /Zs reported C3861 "'GET_PLAYER': identifier not found". On the SASPilot branch its popup wrappers had already brought this include, so the binding first compiled there without it. (Claude code Opus 5.5) -->
+#include "CvGameCoreUtils.h" // <!-- custom: Python supplies BUG's resolved user root and can request a live shared BBAI/SASGameRecord buffer flush without going through the EXE logger. (ChatGPT-5.6-Sol) -->
+
+namespace
+{
+	// <!-- custom: Python diplomacy already owns the rejected offer as TradeData objects.
+	// Pass only raw item/data integer pairs across the wrapper, then rebuild canonical TradeData here so SASGameRecord keeps one C++ trade serializer.
+	// The caller is already a rare resolved UI event. (ChatGPT-5.6-Sol) -->
+	bool getSASGameRecordTradeListFromPython(boost::python::list const& kFlatItems, CLinkList<TradeData>& kOut)
+	{
+		int const iLength = (int)PySequence_Size(kFlatItems.ptr());
+		if (iLength < 0 || iLength % 2 != 0)
+			return false;
+		if (iLength == 0)
+			return true;
+
+		int* piValues = NULL;
+		gDLL->getPythonIFace()->putSeqInArray(kFlatItems.ptr(), &piValues);
+		if (piValues == NULL)
+			return false;
+		bool bValid = true;
+		for (int i = 0; i < iLength; i += 2)
+		{
+			int const iItemType = piValues[i];
+			if (iItemType < 0 || iItemType >= NUM_TRADEABLE_ITEMS)
+			{
+				bValid = false;
+				break;
+			}
+			TradeData kItem;
+			setTradeItem(&kItem, (TradeableItems)iItemType, piValues[i + 1]);
+			kOut.insertAtEnd(kItem);
+		}
+		delete[] piValues;
+		return bValid;
+	}
+}
 
 void CyGame::updateScore(bool bForce)
 {
@@ -283,6 +324,392 @@ int CyGame::getElapsedGameTurns()
 	return m_kGame.getElapsedGameTurns();
 }
 
+// <!-- custom: Accept Unicode rather than narrow text from BUG's resolved user root so CvAltRoot/non-ASCII paths reach the wide Win32 writer without a lossy code-page conversion. (GPT-6.1-Sol) -->
+void CyGame::setSASDiagnosticLogRoot(std::wstring szRootDirectory)
+{
+	setSASDiagnosticLogRootDirectory(szRootDirectory.c_str());
+}
+
+// <!-- custom: Return the shared checkpoint result to Python so manual live inspection can detect failed output; lifecycle callers may ignore it and successful ordinary rows are already submitted immediately. (GPT-6.1-Sol) -->
+bool CyGame::flushSASDiagnosticLogs()
+{
+	return ::flushSASDiagnosticLogs();
+}
+
+// <!-- custom: The Greatest Civilizations screen (CvTopCivs.py) ranked us 2nd in culture at turn 82 of the 2026-11-19 validation run, and its ranking was gone once closed; the user wanted each screen kept in the save and on the Timeline.
+// Replay messages are both, and KI#337's visibility mask limits this one to the viewer's team, as its "Unknown Civilization" lines are that team's view; a coordinate-less major event. (Claude code Opus 5.5) -->
+void CyGame::addSASTeamReplayMessage(int iPlayer, std::wstring szText)
+{
+	if (iPlayer < 0 || iPlayer >= MAX_PLAYERS)
+		return;
+	CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+	qword uiTeamMask = 0;
+	// <!-- custom: A plain loop over the players: MemberIter is not declared in this file's includes, which cl.exe /Zs reported (C3861). (Claude code Opus 5.5) -->
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		if (GET_PLAYER((PlayerTypes)i).getTeam() == kPlayer.getTeam())
+			uiTeamMask |= ((qword)1 << i);
+	}
+	// <!-- custom: NO_COLOR, which addReplayMessage turns to white as for other plain rows: the player's own colour, Ireland's dark green, was hard to read on the Timeline's background (first test, 2026-11-19). (Claude code Opus 5.5) -->
+	m_kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, kPlayer.getID(), szText.c_str(), NO_COLOR, INVALID_PLOT_COORD, INVALID_PLOT_COORD, uiTeamMask);
+}
+
+// <!-- custom: Python owns the actual WorldBuilder screen lifecycle.
+// Always pass that literal visibility into CvGame's persisted edit-history attribution, independently of optional runtime logging.
+// Runtime status remains separately gated/default-off and still treats Advanced Start as distinct from ordinary WorldBuilder mode. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void CyGame::updateSASRuntimeStatusWorldBuilderScreen(bool bVisible)
+{
+	if (!m_kGame.isInAdvancedStart())
+		m_kGame.setSASWorldBuilderScreenVisible(bVisible);
+	if (!isSASRuntimeStatusEnabled())
+		return;
+	if (bVisible)
+	{
+		if (!m_kGame.isInAdvancedStart())
+		{
+			::updateSASRuntimeStatusWorldBuilderMode(gDLL->GetWorldBuilderMode());
+			::updateSASRuntimeStatusWorldBuilderScreen(true);
+		}
+	}
+	else
+	{
+		::updateSASRuntimeStatusWorldBuilderScreen(false);
+		if (!gDLL->GetWorldBuilderMode())
+			::updateSASRuntimeStatusWorldBuilderMode(false);
+	}
+}
+
+void CyGame::beginSASWorldBuilderBulkEdit()
+{
+	m_kGame.beginSASWorldBuilderBulkEdit();
+}
+
+void CyGame::endSASWorldBuilderBulkReveal(int eTeam, bool bReveal, bool bCompleted)
+{
+	m_kGame.endSASWorldBuilderBulkReveal((TeamTypes)eTeam, bReveal, bCompleted);
+}
+
+
+// <!-- custom: Python must skip diagnostic-only interface/screen reads before evaluating notification arguments.
+// Reuse the native first-use cached enable flag instead of adding a second Python XML cache. (GPT-6.1-Sol) -->
+bool CyGame::isSASRuntimeStatusRecordingEnabled() const
+{
+	return ::isSASRuntimeStatusEnabled();
+}
+
+// <!-- custom: These infrequent Python callbacks own the EXE/UI observations; bridge literal menu/game context and screen visibility into the default-off native recorder. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void CyGame::updateSASRuntimeStatusMainMenuState(bool bInMainMenu)
+{
+	if (isSASRuntimeStatusEnabled()) ::updateSASRuntimeStatusMainMenuState(bInMainMenu);
+}
+
+void CyGame::updateSASRuntimeStatusPreGameStart()
+{
+	if (isSASRuntimeStatusEnabled()) ::updateSASRuntimeStatusPreGameStart();
+}
+
+void CyGame::updateSASRuntimeStatusCivilopedia(bool bVisible, bool bInMainMenu)
+{
+	if (isSASRuntimeStatusEnabled()) ::updateSASRuntimeStatusCivilopedia(bVisible, bInMainMenu);
+}
+
+// <!-- custom: Bridge only the post-Python lifecycle observation; the cached native gate also protects direct Python callers before any option reads or formatting.
+// Python contributes only graphics-profile values unavailable through the DLL API; native code owns canonical formatting and all other diagnostics. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void CyGame::logSASGameRecordDiagnosticContext(int iRenderQualityLevel, int iAntiAliasingIndex, int iAntiAliasingSamples, int iGlobeViewRenderLevel, int iMovieQualityLevel)
+{
+	if (isSASGameRecordLogEnabled()) ::logSASGameRecordDiagnosticContext(iRenderQualityLevel, iAntiAliasingIndex, iAntiAliasingSamples, iGlobeViewRenderLevel, iMovieQualityLevel);
+}
+
+// <!-- custom: See the declaration in CyGame.h. See SASGameRecord revision 214 (SGR214). (Claude code Opus 5.5) -->
+int CyGame::getSASGameRecordLogLevel() const
+{
+	return ::getSASGameRecordLogLevel();
+}
+
+// <!-- custom: Keep Python's generic settings serialization behind the recorder master gate even though normal callers pre-gate collection; this also protects direct Python calls. The ini= accessor intentionally returns the path only to internal Python and never writes it. (ChatGPT-5.6-Sol) -->
+void CyGame::logSASGameRecordSessionSettings(std::string szEvent, std::string szReason, std::string szSource, std::string szGroup, int iCount, std::string szValues)
+{
+	if (isSASGameRecordLogEnabled()) ::logSASGameRecordSessionSettings(szEvent.c_str(), szReason.c_str(), szSource.c_str(), szGroup.c_str(), iCount, szValues.c_str());
+}
+
+// <!-- custom: Runtime map-view state must come from the native engine/interface rather than configured profile values; expose one level-2+ gated snapshot for GameStart/OnLoad/Python-reload baselines. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void CyGame::logSASGameRecordRuntimeViewStateSnapshot(std::string szReason)
+{
+	if (gGameRecordLogLevel >= 2) ::logSASGameRecordRuntimeViewStateSnapshot(szReason.c_str());
+}
+
+// <!-- custom: Python action helpers pre-gate before constructing this bridge, but enforce the revision-151 subject switch here too so direct Python calls cannot bypass the configured suppression policy. (ChatGPT-5.6-Sol) -->
+void CyGame::logSASGameRecordScreenAction(std::string szScreen, std::string szAction, int iPrimary, int iSecondary)
+{
+	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) ::logSASGameRecordScreenAction(szScreen.c_str(), szAction.c_str(), iPrimary, iSecondary);
+}
+
+void CyGame::logSASGameRecordInterfaceState(std::string szComponent, std::string szEvent, std::string szReason, int iCount, std::string szValues)
+{
+	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) ::logSASGameRecordInterfaceState(szComponent.c_str(), szEvent.c_str(), szReason.c_str(), iCount, szValues.c_str());
+}
+
+// <!-- custom: Python reconstructs logical Alt+S annotations from visible engine signs plus SAS's hidden-sign cache; native code owns final privacy-bounded quoting/serialization.
+// Python checks cached switches before enumeration, caption encoding and bridge argument conversion; these CyGame members are required by the Python binding.
+// Recheck before calling the native serializer so direct bridge calls also respect the level-2 action-trace policy. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void CyGame::logSASGameRecordMapAnnotationSummary(std::string szEvent, std::string szReason, int iTotal, int iVisible, int iHidden, int iAdded, int iEdited, int iRemoved, bool bContentWithheld)
+{
+	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) ::logSASGameRecordMapAnnotationSummary(szEvent.c_str(), szReason.c_str(), iTotal, iVisible, iHidden, iAdded, iEdited, iRemoved, bContentWithheld);
+}
+
+void CyGame::logSASGameRecordMapAnnotation(std::string szEvent, std::string szReason, int iOwnerPlayer, int iX, int iY, bool bHidden, std::string szOldCaption, std::string szNewCaption, bool bContentWithheld)
+{
+	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) ::logSASGameRecordMapAnnotation(szEvent.c_str(), szReason.c_str(), iOwnerPlayer, iX, iY, bHidden, szOldCaption.c_str(), szNewCaption.c_str(), bContentWithheld);
+}
+
+// <!-- custom: DotMap callers pre-gate dictionary traversal; enforce the same native level-2/action switch before serialization so direct bridge use cannot bypass recorder policy. (ChatGPT-5.6-Sol) -->
+void CyGame::logSASGameRecordDotMapSummary(std::string szEvent, std::string szReason, int iTotal, bool bOverlayVisible, int iAdded, int iEdited, int iRemoved)
+{
+	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) ::logSASGameRecordDotMapSummary(szEvent.c_str(), szReason.c_str(), iTotal, bOverlayVisible, iAdded, iEdited, iRemoved);
+}
+
+void CyGame::logSASGameRecordDotMapMarker(std::string szEvent, std::string szReason, int iOwnerPlayer, int iX, int iY, int iOldColor, int iOldLayer, int iNewColor, int iNewLayer)
+{
+	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) ::logSASGameRecordDotMapMarker(szEvent.c_str(), szReason.c_str(), iOwnerPlayer, iX, iY, iOldColor, iOldLayer, iNewColor, iNewLayer);
+}
+
+// <!-- custom: A rare game-history fact, so level 1, the compact factual history, rather than the level-2 action trace.
+// The gate is the caller's: CvTopCivs.py checks the same cached level before calling SASGameRecordActions.logTopCivs, so a disabled record never reaches here and never evaluates the arguments.
+// This check, after the call, is only a backstop that keeps a caller that forgot from writing; it cannot save that caller's argument work, so a new Python caller must pre-gate too. (Claude code Opus 5.5) -->
+void CyGame::logSASGameRecordTopCivs(std::string szCategory, std::wstring szHistorian, int iListed, int iRanked, int iUnknownListed, bool bShown)
+{
+	if (gGameRecordLogLevel >= 1) ::logSASGameRecordTopCivs(szCategory.c_str(), CvString(szHistorian).GetCString(), iListed, iRanked, iUnknownListed, bShown);
+}
+
+void CyGame::logSASGameRecordTopCivsRank(std::string szCategory, int iRank, int iPlayer, int iValue, bool bListed, bool bKnown)
+{
+	if (gGameRecordLogLevel >= 1) ::logSASGameRecordTopCivsRank(szCategory.c_str(), iRank, iPlayer, iValue, bListed, bKnown);
+}
+
+std::string CyGame::getSASGameRecordIniFileArgument() const
+{
+	return ::getSASGameRecordIniFileArgument();
+}
+
+// <!-- custom: BUG DiplomacyUtil can see the exact package when a human rejects an AI ordinary trade offer, while the EXE does not expose that rejected package through a clean DLL callback.
+// Caller contract: Python must pre-gate level 2+ before constructing the raw lists and entering this bridge.
+// Do not add an internal recorder-level gate here: it would be too late to save Python list construction and would duplicate the caller's responsibility.
+// The bridge validates only payload correctness, then lets SASGameRecord own canonical formatting. (ChatGPT-5.6-Sol) -->
+void CyGame::logSASGameRecordRejectedAIOffer(int iProposer, int iResponder, boost::python::list& kProposerGives, boost::python::list& kResponderGives)
+{
+	if (iProposer < 0 || iProposer >= MAX_PLAYERS || iResponder < 0 || iResponder >= MAX_PLAYERS)
+		return;
+
+	CLinkList<TradeData> kProposerList;
+	CLinkList<TradeData> kResponderList;
+	if (!getSASGameRecordTradeListFromPython(kProposerGives, kProposerList) || !getSASGameRecordTradeListFromPython(kResponderGives, kResponderList))
+		return;
+	logSASGameRecordAIToHumanOfferRejected((PlayerTypes)iProposer, (PlayerTypes)iResponder, kProposerList, kResponderList);
+}
+
+// <!-- custom: SASFastSave remains the single owner of filename construction; this bridge only supplies the exact final basename/reason to the immediately following serialization checkpoint. (ChatGPT-5.6-Sol) -->
+void CyGame::setSASFastSaveContext(std::string szReason, std::string szOriginalBasename)
+{
+	m_kGame.setSASFastSaveContext(szReason.c_str(), szOriginalBasename.c_str());
+}
+
+void CyGame::clearSASFastSaveContext()
+{
+	m_kGame.clearSASFastSaveContext();
+}
+
+
+// <!-- custom: Thin Python-facing accessors keep save-version history read-only; presentation policy belongs to later UI code. (ChatGPT-5.6-Sol) -->
+int CyGame::getNumSASVersionHistoryEntries() const
+{
+	return m_kGame.getNumSASVersionHistoryEntries();
+}
+
+int CyGame::getSASVersionHistoryTurn(int iIndex) const
+{
+	return m_kGame.getSASVersionHistoryTurn(iIndex);
+}
+
+std::string CyGame::getSASVersionHistoryVersion(int iIndex) const
+{
+	return m_kGame.getSASVersionHistoryVersion(iIndex);
+}
+
+std::string CyGame::getSASVersionHistoryCommitHash(int iIndex) const
+{
+	return m_kGame.getSASVersionHistoryCommitHash(iIndex);
+}
+
+int CyGame::getSASVersionHistoryDirtyState(int iIndex) const
+{
+	return m_kGame.getSASVersionHistoryDirtyState(iIndex);
+}
+
+int CyGame::getNumSASWorldChangesHistoryEntries() const
+{
+	return m_kGame.getNumSASWorldChangesHistoryEntries();
+}
+
+int CyGame::getSASWorldChangesHistorySource(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistorySource(iIndex);
+}
+
+std::string CyGame::getSASWorldChangesHistorySourceName(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistorySourceName(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryCategory(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryCategory(iIndex);
+}
+
+std::string CyGame::getSASWorldChangesHistoryCategoryName(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryCategoryName(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryActor(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryActor(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryActorTeam(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryActorTeam(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryTargetPlayer(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryTargetPlayer(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryTargetTeam(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryTargetTeam(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryTurn(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryTurn(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryYear(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryYear(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryElapsedTurn(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryElapsedTurn(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryVersionIndex(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryVersionIndex(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryX(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryX(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryY(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryY(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryCityId(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryCityId(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryObjectId(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryObjectId(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryRequestedDataId(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryRequestedDataId(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryResolvedDataId(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryResolvedDataId(iIndex);
+}
+
+std::string CyGame::getSASWorldChangesHistoryAction(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryAction(iIndex);
+}
+
+std::string CyGame::getSASWorldChangesHistoryOperation(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryOperation(iIndex);
+}
+
+std::string CyGame::getSASWorldChangesHistoryTargetKind(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryTargetKind(iIndex);
+}
+
+std::string CyGame::getSASWorldChangesHistoryTarget(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryTarget(iIndex);
+}
+
+bool CyGame::getSASWorldChangesHistoryOldValueValid(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryOldValueValid(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryOldValue(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryOldValue(iIndex);
+}
+
+bool CyGame::getSASWorldChangesHistoryNewValueValid(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryNewValueValid(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryNewValue(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryNewValue(iIndex);
+}
+
+bool CyGame::getSASWorldChangesHistoryContentWithheld(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryContentWithheld(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryQuotedCost(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryQuotedCost(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryPointsBefore(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryPointsBefore(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryPointsAfter(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryPointsAfter(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryGoldBefore(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryGoldBefore(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryGoldAfter(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryGoldAfter(iIndex);
+}
+
 int CyGame::getMaxTurns() const
 {
 	return m_kGame.getMaxTurns();
@@ -330,7 +757,14 @@ int CyGame::getStartYear() const
 
 void CyGame::setStartYear(int iNewValue)
 {
+	// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+	bool const bWorldBuilderEdit = m_kGame.isSASWorldBuilderScreenVisible() && !m_kGame.isInAdvancedStart();
+	int const iOldValue = (bWorldBuilderEdit ? m_kGame.getStartYear() : 0);
 	m_kGame.setStartYear(iNewValue);
+	if (bWorldBuilderEdit && iOldValue != m_kGame.getStartYear())
+	{
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_GAME, "SET_START_YEAR", -1, -1, NO_PLAYER, -1, "YEAR", "-", iOldValue, m_kGame.getStartYear());
+	}
 }
 
 int CyGame::getEstimateEndTurn() const
@@ -498,6 +932,16 @@ void CyGame::setAIAutoPlay(int iNewValue)
 	m_kGame.setAIAutoPlay(iNewValue);
 }
 
+// <!-- custom: Python's AI Auto Play controller needs a separate explicit-stop API because the legacy setAIAutoPlay(0) cannot report why automation ended.
+// Validate the Python enum value before forwarding it to CvGame. See KI#203. (GPT-5.6-Sol) -->
+void CyGame::endAIAutoPlay(int iEndCause)
+{
+	SASAutoPlayEndCause eEndCause = (SASAutoPlayEndCause)iEndCause;
+	if (eEndCause < SAS_AUTOPLAY_END_SCHEDULED || eEndCause > SAS_AUTOPLAY_END_OTHER)
+		eEndCause = SAS_AUTOPLAY_END_OTHER;
+	m_kGame.setAIAutoPlay(0, true, eEndCause);
+}
+
 // K-Mod, 11/dec/10, start
 int CyGame::getGlobalWarmingIndex() const
 {
@@ -608,6 +1052,17 @@ bool CyGame::isSimultaneousTeamTurns()
 bool CyGame::isFinalInitialized()
 {
 	return m_kGame.isFinalInitialized();
+}
+
+// <!-- custom: expose the cached AI map heaviness classification so Python UI reports the same land/naval-heavy result used by DLL behavior and BBAI logging. (GPT-5.5) -->
+bool CyGame::isLandHeavyMapnameCached() const
+{
+	return m_kGame.isLandHeavyMapnameCached();
+}
+
+bool CyGame::isNavalHeavyMapnameCached() const
+{
+	return m_kGame.isNavalHeavyMapnameCached();
 }
 // advc.061:
 void CyGame::setScreenDimensions(int iWidth, int iHeight)
@@ -880,12 +1335,29 @@ CyCity* CyGame::getHolyCity(int /*ReligionTypes*/ eIndex)
 
 void CyGame::setHolyCity(int /*ReligionTypes*/ eIndex, CyCity* pNewValue, bool bAnnounce)
 {
+	// <!-- custom: Old/new city identity queries serve editor history only; skip them outside the WorldBuilder context. (GPT-6.1-Sol) -->
+	bool const bWorldBuilderEdit = m_kGame.isSASWorldBuilderScreenVisible() && !m_kGame.isInAdvancedStart();
+	CvCity const* pOldCity = (bWorldBuilderEdit ? m_kGame.getHolyCity((ReligionTypes)eIndex) : NULL);
 	m_kGame.setHolyCity((ReligionTypes) eIndex, pNewValue->getCity(), bAnnounce);
+	CvCity const* pNewCity = (bWorldBuilderEdit ? m_kGame.getHolyCity((ReligionTypes)eIndex) : NULL);
+	if (bWorldBuilderEdit && pOldCity != pNewCity)
+	{
+		char const* szReligion = (eIndex >= 0 && eIndex < GC.getNumReligionInfos() ? GC.getInfo((ReligionTypes)eIndex).getType() : "-");
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "SET_HOLY_CITY", pNewCity == NULL ? -1 : pNewCity->getX(), pNewCity == NULL ? -1 : pNewCity->getY(), pNewCity == NULL ? NO_PLAYER : pNewCity->getOwner(), pNewCity == NULL ? -1 : pNewCity->getID(), "RELIGION", szReligion, pOldCity == NULL ? -1 : pOldCity->getID(), pNewCity == NULL ? -1 : pNewCity->getID());
+	}
 }
 
 void CyGame::clearHolyCity(int /*ReligionTypes*/ eIndex)
 {
+	// <!-- custom: Old/new city identity queries serve editor history only; skip them outside the WorldBuilder context. (GPT-6.1-Sol) -->
+	bool const bWorldBuilderEdit = m_kGame.isSASWorldBuilderScreenVisible() && !m_kGame.isInAdvancedStart();
+	CvCity const* pOldCity = (bWorldBuilderEdit ? m_kGame.getHolyCity((ReligionTypes)eIndex) : NULL);
 	m_kGame.setHolyCity((ReligionTypes) eIndex, NULL, false);
+	if (bWorldBuilderEdit && pOldCity != NULL)
+	{
+		char const* szReligion = (eIndex >= 0 && eIndex < GC.getNumReligionInfos() ? GC.getInfo((ReligionTypes)eIndex).getType() : "-");
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "CLEAR_HOLY_CITY", pOldCity->getX(), pOldCity->getY(), pOldCity->getOwner(), pOldCity->getID(), "RELIGION", szReligion, pOldCity->getID(), -1);
+	}
 }
 
 CyCity* CyGame::getHeadquarters(int /*CorporationTypes*/ eIndex)
@@ -895,12 +1367,29 @@ CyCity* CyGame::getHeadquarters(int /*CorporationTypes*/ eIndex)
 
 void CyGame::setHeadquarters(int /*CorporationTypes*/ eIndex, CyCity* pNewValue, bool bAnnounce)
 {
+	// <!-- custom: Old/new city identity queries serve editor history only; skip them outside the WorldBuilder context. (GPT-6.1-Sol) -->
+	bool const bWorldBuilderEdit = m_kGame.isSASWorldBuilderScreenVisible() && !m_kGame.isInAdvancedStart();
+	CvCity const* pOldCity = (bWorldBuilderEdit ? m_kGame.getHeadquarters((CorporationTypes)eIndex) : NULL);
 	m_kGame.setHeadquarters((CorporationTypes) eIndex, pNewValue->getCity(), bAnnounce);
+	CvCity const* pNewCity = (bWorldBuilderEdit ? m_kGame.getHeadquarters((CorporationTypes)eIndex) : NULL);
+	if (bWorldBuilderEdit && pOldCity != pNewCity)
+	{
+		char const* szCorporation = (eIndex >= 0 && eIndex < GC.getNumCorporationInfos() ? GC.getInfo((CorporationTypes)eIndex).getType() : "-");
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "SET_HEADQUARTERS", pNewCity == NULL ? -1 : pNewCity->getX(), pNewCity == NULL ? -1 : pNewCity->getY(), pNewCity == NULL ? NO_PLAYER : pNewCity->getOwner(), pNewCity == NULL ? -1 : pNewCity->getID(), "CORPORATION", szCorporation, pOldCity == NULL ? -1 : pOldCity->getID(), pNewCity == NULL ? -1 : pNewCity->getID());
+	}
 }
 
 void CyGame::clearHeadquarters(int /*CorporationTypes*/ eIndex)
 {
+	// <!-- custom: Old/new city identity queries serve editor history only; skip them outside the WorldBuilder context. (GPT-6.1-Sol) -->
+	bool const bWorldBuilderEdit = m_kGame.isSASWorldBuilderScreenVisible() && !m_kGame.isInAdvancedStart();
+	CvCity const* pOldCity = (bWorldBuilderEdit ? m_kGame.getHeadquarters((CorporationTypes)eIndex) : NULL);
 	m_kGame.setHeadquarters((CorporationTypes) eIndex, NULL, false);
+	if (bWorldBuilderEdit && pOldCity != NULL)
+	{
+		char const* szCorporation = (eIndex >= 0 && eIndex < GC.getNumCorporationInfos() ? GC.getInfo((CorporationTypes)eIndex).getType() : "-");
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "CLEAR_HEADQUARTERS", pOldCity->getX(), pOldCity->getY(), pOldCity->getOwner(), pOldCity->getID(), "CORPORATION", szCorporation, pOldCity->getID(), -1);
+	}
 }
 
 int CyGame::getPlayerVote(int /*PlayerTypes*/ eOwnerIndex, int iVoteId)
@@ -915,12 +1404,26 @@ std::string CyGame::getScriptData() const
 
 void CyGame::setScriptData(std::string szNewValue)
 {
+	bool const bWorldBuilderEdit = m_kGame.isSASWorldBuilderScreenVisible() && !m_kGame.isInAdvancedStart();
+	std::string szOldScript;
+	if (bWorldBuilderEdit) szOldScript = m_kGame.getScriptData();
 	m_kGame.setScriptData(szNewValue);
+	if (bWorldBuilderEdit && szOldScript != m_kGame.getScriptData())
+	{
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_GAME, "SET_SCRIPT", -1, -1, NO_PLAYER, -1, "SCRIPT", "-", -1, -1, true, false, false);
+	}
 }
 
 void CyGame::setName(TCHAR* szNewValue)
 {
+	bool const bWorldBuilderEdit = m_kGame.isSASWorldBuilderScreenVisible() && !m_kGame.isInAdvancedStart();
+	CvWString szOldName;
+	if (bWorldBuilderEdit) szOldName = m_kGame.getName();
 	m_kGame.setName(szNewValue);
+	if (bWorldBuilderEdit && szOldName != m_kGame.getName())
+	{
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_GAME, "SET_NAME", -1, -1, NO_PLAYER, -1, "NAME", "-", -1, -1, true, false, false);
+	}
 }
 
 std::wstring CyGame::getName()
@@ -961,6 +1464,24 @@ CvRandom& CyGame::getMapRand()
 int CyGame::getMapRandNum(int iNum, TCHAR* pszLog)
 {
 	return m_kGame.getMapRandNum(iNum, pszLog);
+}
+
+// <!-- custom: Return AdvCiv's serialized initial active player rather than the current active player; this remains stable across autoplay defeat/handoff and lets Fast Save use the original player's XML leader identity. (ChatGPT-5.6-Sol) -->
+int /*PlayerTypes*/ CyGame::getInitialActivePlayer() const
+{
+	return m_kGame.getInitialActivePlayer();
+}
+
+// <!-- custom: Return the serialized initial map RNG seed without touching current RNG state; Python uses it as the stable map component of SAS fast-save filenames. (ChatGPT-5.6-Sol) -->
+unsigned int CyGame::getInitialMapRandSeed() const
+{
+	return m_kGame.getInitialRandSeed().first;
+}
+
+// <!-- custom: Return the serialized initial sync RNG seed without touching current RNG state; Python uses it as the stable gameplay-lineage component of SAS fast-save filenames. (ChatGPT-5.6-Sol) -->
+unsigned int CyGame::getInitialSyncRandSeed() const
+{
+	return m_kGame.getInitialRandSeed().second;
 }
 
 CvRandom& CyGame::getSorenRand()

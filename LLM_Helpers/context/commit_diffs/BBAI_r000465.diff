@@ -1,0 +1,498 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 465
+# Author: jdog5000
+# Date: 2009-06-14T02:37:01.759065Z
+# Coverage: full
+# Message:
+#   0.80A
+#   
+#   Added a couple bits back from old UP dropped in 3.19 merge
+#   Tweaks for Barbarian player so they don't think they're in financial trouble
+#   Accelerate war declarations when AI is ahead in power
+# Changed paths (8):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvInfos.h
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@464
++++ /trunk/CvGameCoreDLL/CvCity.cpp@465
+@@ -10890,7 +10890,8 @@
+ 			// max overflow is the value of the item produced (to eliminate prebuild exploits)
+ 			int iOverflow = getBuildingProduction(eConstructBuilding) - iProductionNeeded;
+ 			int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifference(false, false));
+-			int iMaxOverflowForGold = std::max(iProductionNeeded, getProductionDifference(getProductionNeeded(), getProduction(), 0, isFoodProduction(), false));
++			// Unofficial Patch Start
++			int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+ 			iOverflow = std::min(iMaxOverflow, iOverflow);
+ 			if (iOverflow > 0)
+ 			{
+@@ -10898,7 +10899,12 @@
+ 			}
+ 			setBuildingProduction(eConstructBuilding, 0);
+ 
+-			int iProductionGold = std::max(0, iOverflow - iMaxOverflowForGold) * GC.getDefineINT("MAXED_BUILDING_GOLD_PERCENT") / 100;
++			// Unofficial Patch Start
++			// * Limited which production modifiers affect gold from production overflow. 2/3
++			iLostProduction *= getBaseYieldRateModifier(YIELD_PRODUCTION);
++			iLostProduction /= std::max(1, getBaseYieldRateModifier(YIELD_PRODUCTION, getProductionModifier(eConstructBuilding)));
++			// Unofficial Patch End
++			int iProductionGold = ((iLostProduction * GC.getDefineINT("MAXED_BUILDING_GOLD_PERCENT")) / 100);
+ 			if (iProductionGold > 0)
+ 			{
+ 				GET_PLAYER(getOwnerINLINE()).changeGold(iProductionGold);
+@@ -10976,7 +10982,8 @@
+ 			// max overflow is the value of the item produced (to eliminate pre-build exploits)
+ 			iOverflow = getProjectProduction(eCreateProject) - iProductionNeeded;
+ 			int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifference(false, false));
+-			int iMaxOverflowForGold = std::max(iProductionNeeded, getProductionDifference(getProductionNeeded(), getProduction(), 0, isFoodProduction(), false));
++			// Unofficial Patch Start
++			int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+ 			iOverflow = std::min(iMaxOverflow, iOverflow);
+ 			if (iOverflow > 0)
+ 			{
+@@ -10984,7 +10991,12 @@
+ 			}
+ 			setProjectProduction(eCreateProject, 0);
+ 
+-			int iProductionGold = std::max(0, iOverflow - iMaxOverflowForGold) * GC.getDefineINT("MAXED_PROJECT_GOLD_PERCENT") / 100;
++
++			// * Limited which production modifiers affect gold from production overflow. 3/3
++			iLostProduction *= getBaseYieldRateModifier(YIELD_PRODUCTION);
++			iLostProduction /= std::max(1, getBaseYieldRateModifier(YIELD_PRODUCTION, getProductionModifier(eCreateProject)));
++			// Unofficial Patch End
++			int iProductionGold = ((iLostProduction * GC.getDefineINT("MAXED_PROJECT_GOLD_PERCENT")) / 100);
+ 			if (iProductionGold > 0)
+ 			{
+ 				GET_PLAYER(getOwnerINLINE()).changeGold(iProductionGold);
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@464
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@465
+@@ -1466,8 +1466,7 @@
+ /**																				*/
+ /**		City AI																	*/
+ /********************************************************************************/
+-	// BBAI TODO: This is very general ... AI will build attack units for other reasons
+-	// Also, with no attack city units their stack won't group, they just run in pairs
++	// BBAI TODO: Check that this works to produce early rushes on tight maps
+ 	if (!bGetBetterUnits && (bIsCapitalArea) && (iAreaBestFoundValue < (iMinFoundValue * 2)))
+ 	{
+ 		//Building city hunting stack.
+@@ -1578,7 +1577,6 @@
+ 	{
+ 		return;
+ 	}
+-	
+ 
+ 	int iSpreadUnitThreshold = 1000;
+ /*************************************************************************************************/
+@@ -1671,8 +1669,6 @@
+ 				{
+ 					iSettlerSeaNeeded = std::min(1, iSettlerSeaNeeded);
+ 				}
+-
+-				// BBAI TODO: Limit boats based on total number of settlers?  Land war?
+ 				
+ 				if (kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_SETTLER_SEA) < iSettlerSeaNeeded)
+ 				{
+@@ -1841,14 +1837,25 @@
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+ 	
+-	if (iBestSpreadUnitValue > ((iSpreadUnitThreshold * 60) / 100))
+-	{
+-		if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
+-		{
+-			return;
+-		}
+-		FAssertMsg(false, "AI_bestSpreadUnit should provide a valid unit when it returns true");
+-	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      06/12/09                                jdog5000      */
++/**                                                                                              */
++/** City AI                                                                                      */
++/*************************************************************************************************/
++	if( !bDanger )
++	{
++		if (iBestSpreadUnitValue > ((iSpreadUnitThreshold * (bLandWar ? 80 : 60)) / 100))
++		{
++			if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
++			{
++				return;
++			}
++			FAssertMsg(false, "AI_bestSpreadUnit should provide a valid unit when it returns true");
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	
+ 	int iMaxUnitSpending = (bAggressiveAI ? 7 : 3) + iBuildUnitProb / 3;
+     if (bAlwaysPeace)
+@@ -1896,10 +1903,12 @@
+ 	}
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/16/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      06/12/09                                jdog5000      */
+ /**                                                                                              */
+ /** City AI                                                                                      */
+ /*************************************************************************************************/
++	int iCarriers = kPlayer.AI_totalUnitAIs(UNITAI_CARRIER_SEA);
++	
+ 	// Revamped logic for production for invasions
+     if (iUnitCostPercentage < (iMaxUnitSpending + 10))
+ 	{
+@@ -2033,8 +2042,6 @@
+ 				}
+ 			}
+ 
+-			int iCarriers = kPlayer.AI_totalUnitAIs(UNITAI_CARRIER_SEA);
+-
+ 			if (iUnitCostPercentage < (iMaxUnitSpending))
+ 			{
+ 				if (NULL != pAssaultWaterArea)
+@@ -2104,31 +2111,7 @@
+ 			}			
+ 
+ 			if (iUnitCostPercentage < (iMaxUnitSpending))
+-			{			
+-				if (iCarriers > 0 && !bImportantCity)
+-				{
+-					UnitTypes eBestCarrierUnit = NO_UNIT;  
+-					kPlayer.AI_bestCityUnitAIValue(UNITAI_CARRIER_SEA, NULL, &eBestCarrierUnit);
+-					if (eBestCarrierUnit != NO_UNIT)
+-					{
+-						FAssert(GC.getUnitInfo(eBestCarrierUnit).getDomainCargo() == DOMAIN_AIR);
+-						
+-						int iCarrierAirNeeded = iCarriers * GC.getUnitInfo(eBestCarrierUnit).getCargoSpace();
+-
+-						// Reduce chances if city gives no air experience
+-						if( (iFreeAirExperience > 0) || (GC.getGame().getSorenRandNum(3, "AI train carrier air") == 0) )
+-						{
+-							if (kPlayer.AI_totalUnitAIs(UNITAI_CARRIER_AIR) < iCarrierAirNeeded)
+-							{
+-								if (AI_chooseUnit(UNITAI_CARRIER_AIR))
+-								{
+-									return;
+-								}
+-							}
+-						}
+-					}
+-				}
+-			
++			{
+ 				int iMissileCarriers = kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_CARRIER_SEA);
+ 			
+ 				if (!bFinancialTrouble && iMissileCarriers > 0 && !bImportantCity)
+@@ -2161,9 +2144,6 @@
+ 			}
+ 		}
+ 	}
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                       END                                                  */
+-/*************************************************************************************************/
+ 	
+ 	UnitTypeWeightArray airUnitTypes;
+ 
+@@ -2223,11 +2203,6 @@
+ 					return;
+ 				}
+ 			}
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      12/01/08                                jdog5000      */
+-/**                                                                                              */
+-/** City AI                                                                                      */
+-/*************************************************************************************************/
+ 			// Additional check for air defenses
+ 			int iFightersHave = kPlayer.AI_getNumAIUnits(UNITAI_DEFENSE_AIR);
+ 
+@@ -2238,11 +2213,39 @@
+ 					return;
+ 				}
+ 			}
++		}
++	}
++
++	// Check for whether to produce planes to fill carriers
++	if (iUnitCostPercentage < (iMaxUnitSpending))
++	{			
++		if (iCarriers > 0 && !bImportantCity)
++		{
++			UnitTypes eBestCarrierUnit = NO_UNIT;  
++			kPlayer.AI_bestCityUnitAIValue(UNITAI_CARRIER_SEA, NULL, &eBestCarrierUnit);
++			if (eBestCarrierUnit != NO_UNIT)
++			{
++				FAssert(GC.getUnitInfo(eBestCarrierUnit).getDomainCargo() == DOMAIN_AIR);
++				
++				int iCarrierAirNeeded = iCarriers * GC.getUnitInfo(eBestCarrierUnit).getCargoSpace();
++
++				// Reduce chances if city gives no air experience
++				if( (iFreeAirExperience > 0) || (GC.getGame().getSorenRandNum(3, "AI train carrier air") == 0) )
++				{
++					if (kPlayer.AI_totalUnitAIs(UNITAI_CARRIER_AIR) < iCarrierAirNeeded)
++					{
++						if (AI_chooseUnit(UNITAI_CARRIER_AIR))
++						{
++							return;
++						}
++					}
++				}
++			}
++		}
++	}
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+-		}
+-	}
+ 	
+ 	if (!bAlwaysPeace && !(bLandWar || bAssault) && (kPlayer.AI_isDoStrategy(AI_STRATEGY_OWABWNW) || (GC.getGame().getSorenRandNum(12, "AI consider Nuke") == 0)))
+ 	{
+@@ -5284,7 +5287,6 @@
+ /** Air AI                                                                                       */
+ /*************************************************************************************************/
+ 					// If enemy has no bombers, don't need to defend as much
+-					// BBAI TODO: Any other UNITAIs to consider
+ 					if( GET_PLAYER(pLoopPlot->getOwner()).AI_totalUnitAIs(UNITAI_ATTACK_AIR) == 0 )
+ 					{
+ 						continue;
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@464
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@465
+@@ -4271,7 +4271,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.77B");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.80A");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvInfos.h
+--- /trunk/CvGameCoreDLL/CvInfos.h@464
++++ /trunk/CvGameCoreDLL/CvInfos.h@465
+@@ -3984,6 +3984,7 @@
+ 	virtual ~CvReligionInfo();
+ 
+ 	int getChar() const;								// Exposed to Python
++	
+ 	void setChar(int i);			
+ 	int getHolyCityChar() const;				// Exposed to Python
+ 	void setHolyCityChar(int i);			
+@@ -4064,6 +4065,7 @@
+ 	virtual ~CvCorporationInfo();
+ 
+ 	int getChar() const;								// Exposed to Python
++	
+ 	void setChar(int i);			
+ 	int getHeadquarterChar() const;				// Exposed to Python
+ 	void setHeadquarterChar(int i);			
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@464
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@465
+@@ -178,11 +178,22 @@
+ 	m_iReligionTimer = 0;
+ 	m_iExtraGoldTarget = 0;
+ 
+-	for (iI = 0; iI < NUM_UNITAI_TYPES; iI++)
+-	{
+-		m_aiNumTrainAIUnits[iI] = 0;
+-		m_aiNumAIUnits[iI] = 0;
+-	}
++/*************************************************************************************************/
++/** CHANGE_PLAYER                         06/08/09                                 jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++	if( bConstructor || getNumUnits() == 0 )
++	{
++		for (iI = 0; iI < NUM_UNITAI_TYPES; iI++)
++		{
++			m_aiNumTrainAIUnits[iI] = 0;
++			m_aiNumAIUnits[iI] = 0;
++		}
++	}
++/*************************************************************************************************/
++/** CHANGE_PLAYER                           END                                                  */
++/*************************************************************************************************/
+ 
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+@@ -1633,7 +1644,19 @@
+ 	switch (eCommerce)
+ 	{
+ 	case COMMERCE_RESEARCH:
+-		if (AI_avoidScience())
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      06/12/09                                jdog5000      */
++/**                                                                                              */
++/** Barbarian AI                                                                                 */
++/*************************************************************************************************/
++		if( isBarbarian() )
++		{
++			iWeight /= 2;
++		}
++		else if (AI_avoidScience())
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		{
+ 			if (isNoResearchAvailable())
+ 			{
+@@ -1647,11 +1670,15 @@
+ 		break;
+ 	case COMMERCE_GOLD:
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      04/29/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      06/12/09                                jdog5000      */
+ /**                                                                                              */
+-/** Gold AI				                                                                         */
++/** Gold AI, Barbarian AI                                                                        */
+ /*************************************************************************************************/
+-		if (getCommercePercent(COMMERCE_GOLD) > 70)
++		if( isBarbarian() )
++		{
++			iWeight /= 2;
++		}
++		else if (getCommercePercent(COMMERCE_GOLD) > 70)
+ 		{
+ 			//avoid strikes
+ 			if (getGoldPerTurn() < -getGold()/100)
+@@ -2845,6 +2872,22 @@
+ 	if (pCity->isHolyCity())
+ 	{
+ 		iValue += 2;
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/11/08                                jdog5000      */
++/**                                                                                              */
++/** War strategy AI                                                                              */
++/*************************************************************************************************/
++		if( getStateReligion() != NO_RELIGION )
++		{
++			if( pCity->isHolyCity(getStateReligion()) )
++			{
++				iValue += 2;
++			}
++		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	}
+ 
+ 	if (pCity->isEverOwned(getID()))
+@@ -3221,6 +3264,19 @@
+ // XXX
+ bool CvPlayerAI::AI_isFinancialTrouble() const
+ {
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      06/12/09                                jdog5000      */
++/**                                                                                              */
++/** Barbarian AI                                                                                 */
++/*************************************************************************************************/
++	if( isBarbarian() )
++	{
++		return false;
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	//if (getCommercePercent(COMMERCE_GOLD) > 50)
+ 	{
+ 		int iNetCommerce = 1 + getCommerceRate(COMMERCE_GOLD) + getCommerceRate(COMMERCE_RESEARCH) + std::max(0, getGoldPerTurn());
+@@ -8531,10 +8587,18 @@
+ 		break;
+ 
+ 	case UNITAI_ATTACK:
+-		iFastMoverMultiplier = AI_isDoStrategy(AI_STRATEGY_FASTMOVERS) ? 2 : 1;
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      06/12/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++		iFastMoverMultiplier = AI_isDoStrategy(AI_STRATEGY_FASTMOVERS) ? 3 : 1;
+ 		
+ 		iValue += iCombatValue;
+-		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getMoves() * iFastMoverMultiplier) / 2);
++		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getMoves() * iFastMoverMultiplier) / 3);
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getWithdrawalProbability()) / 100);
+ 		if (GC.getUnitInfo(eUnit).getCombatLimit() < 100)
+ 		{
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@464
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@465
+@@ -1832,8 +1832,6 @@
+ 		int iAveragePower = iTotalPower / std::max(1, GC.getGameINLINE().countCivTeamsAlive());
+ */
+ 
+-		// Note to self:  Adapt this for Revolution
+-
+ 		int iTotalPower = 0;
+ 		int iNumNonVassals = 0;
+ 		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+@@ -3752,16 +3750,25 @@
+ 			{
+ 				int iTimeModifier = 100;
+ 				{
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      03/18/09                                jdog5000      */
++/**                                                                                              */
++/** War strategy AI                                                                              */
++/*************************************************************************************************/
++					// Count enemy defensive power, start accelerated build up at 1.5x instead of 2x
+ 					int iOurPower = getPower(true);
+-					int iTheirPower = GET_TEAM((TeamTypes)iI).getPower(true);
++					int iTheirPower = GET_TEAM((TeamTypes)iI).getDefensivePower();
+ 					
+ 					int iRatio = (1 + iOurPower) / (1 + iTheirPower);
+ 					
+-					if (iRatio > 200)
++					if (iRatio > 150)
+ 					{
+ 						iTimeModifier *= 100;
+-						iTimeModifier /= iRatio - 100;
+-					}
++						iTimeModifier /= iRatio - 50;
++					}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 					
+ 					iTimeModifier *= 50 + GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getTrainPercent();
+ 					iTimeModifier /= 150;
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@464
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@465
+@@ -11624,7 +11624,10 @@
+ 	std::map<CvUnit*, int>::iterator it;
+ 
+ 	int iCollateralStrength = (getDomainType() == DOMAIN_AIR ? airBaseCombatStr() : baseCombatStr()) * collateralDamage() / 100;
+-	if (iCollateralStrength == 0)
++	// Unofficial Patch Start
++	// * Barrage promotions made working again on Tanks and other units with no base collateral ability
++	if (iCollateralStrength == 0 && getExtraCollateralDamage() == 0)
++	// Unofficial Patch End
+ 	{
+ 		return;
+ 	}
+

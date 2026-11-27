@@ -1,0 +1,96 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 3
+# Author: iustus
+# Date: 2006-10-15T00:30:46.698610Z
+# Coverage: summary-only
+# Message:
+#   Initial check in, Firaxis 1.61 drop (partial, boost part 1)
+# Changed paths (26):
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/minmax.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/minmax_element.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/case_conv.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/classification.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/collection_traits.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/compare.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/concept.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/config.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/constants.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/case_conv.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/classification.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/collection_traits.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/find_format.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/find_format_all.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/find_format_store.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/find_iterator.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/finder.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/finder_regex.hpp
+#   A /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/formatter.hpp
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/minmax.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/minmax_element.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/case_conv.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/classification.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/collection_traits.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/compare.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/concept.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/config.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/constants.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/case_conv.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/classification.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/collection_traits.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/find_format.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/find_format_all.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/find_format_store.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/find_iterator.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/finder.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/finder_regex.hpp
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Boost-1.32.0/include/boost/algorithm/string/detail/formatter.hpp
+# Omitted: matches --summarize
+

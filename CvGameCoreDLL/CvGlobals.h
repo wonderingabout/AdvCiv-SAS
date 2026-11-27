@@ -94,21 +94,15 @@ public:
 
 	CvMap& getMap() const { return *m_map; } // advc.inl: was "getMapINLINE"
 	// advc.003u: return type was CvGameAI&
-	CvGame& getGame() const // advc.inl: was "getGameINLINE
-	{	/*	Can't be helped; this function has to be inlined,
-			and I won't include CvGameAI.h here. */
-		return *reinterpret_cast<CvGame*>(m_game);
-	} 
+	/* Can't be helped; this function has to be inlined, and I won't include CvGameAI.h here. */
+	CvGame& getGame() const { return *reinterpret_cast<CvGame*>(m_game); } // advc.inl: was "getGameINLINE
 	CvGameAI& AI_getGame() const { return *m_game; } // advc.003u
 	CvAgents& getAgents() const { return *m_agents; } // advc.agents
 	CvMap& getMapExternal(); // advc.inl: Exported through .def file
 	CvGameAI& getGameExternal(); // advc.inl: Exported through .def file
 	DllExport CvGameAI* getGamePointer();
 	// <advc.003y>
-	CvPythonCaller const* getPythonCaller() const
-	{
-		return m_pPythonCaller;
-	} // </advc.003y>
+	CvPythonCaller const* getPythonCaller() const { return m_pPythonCaller; } // </advc.003y>
 	DllExport CvRandom& getASyncRand() { return *m_asyncRand; }
 	CvRandom& getASyncRand() const { return *m_asyncRand; } // advc
 	DllExport CMessageQueue& getMessageQueue();
@@ -144,10 +138,7 @@ public:
 	bool isSynchLogging() const { return m_bSynchLogging; }
 	bool isOverwriteLogs() const { return m_bOverwriteLogs; }
 	// <advc>
-	CvDLLLogger& getLogger() const
-	{
-		return *m_pLogger;
-	} // </advc>
+	CvDLLLogger& getLogger() const { return *m_pLogger; } // </advc>
 
 	// advc: Inlined and constified
 	DllExport int* getPlotDirectionX() { return m_aiPlotDirectionX; }
@@ -159,18 +150,8 @@ public:
 	DllExport int* getPlotCardinalDirectionY() { return m_aiPlotCardinalDirectionY; };
 	int const* getPlotCardinalDirectionY() const { return m_aiPlotCardinalDirectionY; };
 	DllExport DirectionTypes getXYDirection(int i, int j) { CvGlobals const& kThis = *this; return kThis.getXYDirection(i,j); }
-	DirectionTypes getXYDirection(int i, int j) const
-	{
-		FAssertBounds(0, DIRECTION_DIAMETER, i);
-		FAssertBounds(0, DIRECTION_DIAMETER, j);
-		return m_aaeXYDirection[i][j];
-	}
-	CityPlotTypes getXYCityPlot(int i, int j) const // advc.enum: return type was int
-	{
-		FAssertBounds(0, CITY_PLOTS_DIAMETER, i);
-		FAssertBounds(0, CITY_PLOTS_DIAMETER, j);
-		return m_aaeXYCityPlot[i][j];
-	}
+	DirectionTypes getXYDirection(int i, int j) const { FAssertBounds(0, DIRECTION_DIAMETER, i); FAssertBounds(0, DIRECTION_DIAMETER, j); return m_aaeXYDirection[i][j]; }
+	CityPlotTypes getXYCityPlot(int i, int j) const { FAssertBounds(0, CITY_PLOTS_DIAMETER, i); FAssertBounds(0, CITY_PLOTS_DIAMETER, j); return m_aaeXYCityPlot[i][j]; } // advc.enum: return type was int
 	int const* getCityPlotX() const { return m_aiCityPlotX; }
 	int const* getCityPlotY() const { return m_aiCityPlotY; }
 	int const* getCityPlotPriority() const { return m_aiCityPlotPriority; }
@@ -306,19 +287,9 @@ public:
 	DO_FOR_EACH_DYN_INFO_TYPE(MAKE_INFO_ACCESSORS_DYN)
 	DO_FOR_EACH_INT_INFO_TYPE(MAKE_INFO_ACCESSORS_INT)
 	// World(Size)Info: awkward to generate through a macro
-	CvWorldInfo& getInfo(WorldSizeTypes eWorld) const
-	{
-		FAssertBounds(0, getNumWorldInfos(), eWorld);
-		return *m_paWorldInfo[eWorld];
-	}
-	int getNumWorldInfos() const
-	{
-		return (int)m_paWorldInfo.size();
-	}
-	CvWorldInfo& getWorldInfo(int iWorld) const
-	{
-		return getInfo(static_cast<WorldSizeTypes>(iWorld));
-	}
+	CvWorldInfo& getInfo(WorldSizeTypes eWorld) const { FAssertBounds(0, getNumWorldInfos(), eWorld); return *m_paWorldInfo[eWorld]; }
+	int getNumWorldInfos() const { return (int)m_paWorldInfo.size(); }
+	CvWorldInfo& getWorldInfo(int iWorld) const { return getInfo(static_cast<WorldSizeTypes>(iWorld)); }
 #pragma endregion InfoAccessors
 	// </advc.enum>
 
@@ -364,7 +335,7 @@ public:
 	CvString& getDiplomacyPowerTypes(DiplomacyPowerTypes e);
 
 	CvString*& getAutomateTypes();
-	CvString& getAutomateTypes(AutomateTypes e);
+	CvString const& getAutomateTypes(AutomateTypes e) const; // <!-- custom: Read the loaded automation token through const GC for diagnostic labels. (GPT-6.1-Sol) -->
 
 	CvString*& getDirectionTypes();
 	CvString& getDirectionTypes(AutomateTypes e);
@@ -393,19 +364,14 @@ public:
 	bool isCachingDone() const { return (m_aiGlobalDefinesCache != NULL); } // advc.003c
 
 	// ***** EXPOSED TO PYTHON *****
-	int getDefineINT(char const* szName) const
-	{
-		return getDefineINT(szName, 0); // advc.opt: Call the BBAI version
-	}
+	// advc.opt: Call the BBAI version
+	int getDefineINT(char const* szName) const { return getDefineINT(szName, 0); }
 	// advc: Separate function for external calls (exported through .def file)
 	int getDefineINTExternal(char const* szName) const;
 	// BETTER_BTS_AI_MOD, Efficiency, Options, 02/21/10, jdog5000:
 	int getDefineINT(char const* szName, int iDefault) const;
 	// <advc>
-	bool getDefineBOOL(char const* szName, bool bDefault = false) const
-	{
-		return (getDefineINT(szName, (int)bDefault) > 0);
-	} // </advc>
+	bool getDefineBOOL(char const* szName, bool bDefault = false) const { return (getDefineINT(szName, (int)bDefault) > 0); } // </advc>
 	DllExport float getDefineFLOAT(char const* szName) const;
 	/*	advc (note): Global TextVals loaded by CvXMLLoadUtility::
 		SetPostGlobalsGlobalDefines need to be accessed through getDefineINT instead. */
@@ -419,6 +385,44 @@ public:
 #pragma region GlobalDefines
 	/*  Access cached integer GlobalDefines through enum values. Not exposed to Python
 		as Python isn't that fast anyway, can just use getDefineINT(char const*). */
+	// <!-- custom: Stable SAS integer/bool Defines shared by several recurring C++ paths use AdvCiv's enum-indexed global cache instead of separate function-local string caches.
+	// One-shot/setup-only settings and values whose useful cache is a caller-specific transformed result deliberately stay local. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: The last four joined on 2026-11-25, when an audit found them kept in statics in two or three functions that run all game; a clamp, where one applies, stays at each caller.
+	// Defines read only in a game's first turns, such as SAS_1ST_CITY_FOUND_MAX_T_UNSCALED_GS, stay statics. See KI#128.3. (Claude code Opus 5.5) -->
+	#define DO_FOR_EACH_SAS_SHARED_GLOBAL_DEFINE(DO) \
+		DO(SAS_TREB_LIKE_MIN_CITY_ATK_THRESH) \
+		DO(SAS_SITE_BARB_FULL_BFC_ON) \
+		DO(SAS_SITE_NAT_YIELD_SELF_FEED_EXTRA_VAL) \
+		DO(SAS_SITE_NAT_YIELD_SELF_FEED_FOOD_VAL) \
+		DO(SAS_SITE_NAT_YIELD_SELF_FEED_PROD_VAL) \
+		DO(SAS_SITE_NAT_YIELD_SELF_FEED_COM_VAL) \
+		DO(SAS_SITE_BONUS_HEALTH_VAL) \
+		DO(SAS_SITE_BONUS_HAPPY_VAL) \
+		DO(SAS_SITE_MIN_OUTER_PLOT_POT_YIELD_SCORE) \
+		DO(SAS_WORKER_P0_CHOP_ON) \
+		DO(SAS_WORKER_FORT_AIRBASE_ON) \
+		DO(SAS_PROD_SETTLER_ESCORT_COORD_ON) \
+		DO(SAS_SCRAP_AI_ABSOLUTELY_ON) \
+		DO(SAS_SCRAP_OBSOLETE_TECH) \
+		DO(SAS_SETTLER_EXPOSED_FOUND_ESCORT_ON) \
+		DO(SAS_SPACE_VICT_DENY_CAPITAL_RUSH_ON) \
+		DO(SAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON) \
+		DO(SAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL) \
+		DO(SAS_GOVERNOR_HAPPY_GROW_MAX_UNHEALTH_FOOD) \
+		DO(SAS_CITY_LONG_TERM_WW_DIST_OVERRIDE_ON) \
+		DO(SAS_CULT_PROCESS_MIN_PRESSURE_FACTOR) \
+		DO(SAS_TECH_VAL_MILIT_FLAVOR_MIN) \
+		/* <!-- custom: The label font size, read with each hover and label; SASLiveDefineOverrides can change it during play with setDefineINT, which refreshes this entry, where a static would keep the first value. See KI#128.5. (Claude code Opus 5.5) --> */ \
+		DO(SAS_UI_FONT_LABEL) \
+		DO(SAS_UWAI_VICT_DENY_ON) \
+		DO(SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS) \
+		DO(SAS_UWAI_VICT_DENY_REFUSE_STAGE4_PEACE_ON) \
+		DO(SAS_UWAI_VICT_DENY_REFUSE_S3_SPACE_ON) \
+		DO(SAS_UWAI_EMERG_PEACE_ENEMY_PWR_THRESH) \
+		DO(SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT) \
+		DO(SAS_BLDG_PICK_WW_EAGERNESS_PCT) \
+		DO(SAS_BLDG_PICK_WW_LOCAL_DOM_MIN_PWR_PCT) \
+		DO(SAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON)
 	#define DO_FOR_EACH_GLOBAL_DEFINE(DO) \
 		DO(EXTRA_YIELD) /* K-Mod */ \
 		DO(CITY_RADIUS_DECAY) /* advc.130s */ \
@@ -565,7 +569,20 @@ public:
 		DO(DOW_UNIT_CAPTURE_CHANCE) /* advc.010 */ \
 		DO(SHOW_ODDS_IN_COMBAT_MESSAGES) /* advc.048 */ \
 		DO(CAN_CHOP_UNOWNED_FEATURES) /* advc.119 */ \
-		DO(DEFY_RESOLUTION_POP_ANGER) /* advc.118b */
+		DO(DEFY_RESOLUTION_POP_ANGER) /* advc.118b */ \
+		/* <!-- custom: Inherited defines that functions in several files read all game and each kept in a static, such as COMMERCE_PERCENT_CHANGE_INCREMENTS in CvPlayer::verifyGoldCommercePercent and CvPlayerAI::AI_doCommerce; one home since 2026-11-25. See KI#128.3. (Claude code Opus 5.5) --> */ \
+		/* <!-- custom: Not the defines CvXMLLoadUtility::SetPostGlobalsGlobalDefines turns from XML type names into indices, such as STANDARD_HANDICAP or CAPITAL_BUILDINGCLASS: it sets them through GetDefinesVarSystem()->SetValue after cacheGlobals has filled this cache, so the cache would keep a stale value; moving those two crashed new-game creation in a test on 2026-11-25. cpp_define_reads_cached.py checks it. (Claude code Opus 5.5) --> */ \
+		DO(COMMERCE_PERCENT_CHANGE_INCREMENTS) \
+		DO(ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE) \
+		DO(MIN_CONVERSION_TURNS) \
+		DO(INITIAL_CITY_POPULATION) \
+		DO(ESPIONAGE_SPY_MISSION_ESCAPE_MOD) \
+		DO(ESPIONAGE_INTERCEPT_SPENDING_MAX) \
+		DO(ESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION) \
+		DO(RELIGION_INFLUENCE_RANDOM_WEIGHT) \
+		DO(UWAI_PERSONALITY_PERCENT) \
+		DO(CIRCUMNAVIGATE_FREE_MOVES) \
+		DO_FOR_EACH_SAS_SHARED_GLOBAL_DEFINE(DO)
 	#define MAKE_ENUMERATOR(VAR) VAR,
 	enum GlobalDefines
 	{
@@ -573,14 +590,8 @@ public:
 		DO_FOR_EACH_GLOBAL_DEFINE(MAKE_ENUMERATOR)
 		NUM_GLOBAL_DEFINES
 	};
-	int getDefineINT(GlobalDefines eVarName) const
-	{
-		return m_aiGlobalDefinesCache[eVarName];
-	}
-	bool getDefineBOOL(GlobalDefines eVarName) const
-	{
-		return (getDefineINT(eVarName) > 0);
-	}
+	int getDefineINT(GlobalDefines eVarName) const { return m_aiGlobalDefinesCache[eVarName]; }
+	bool getDefineBOOL(GlobalDefines eVarName) const { return (getDefineINT(eVarName) > 0); }
 	// Keep these as wrappers; too many call locations to change, or DllExport.
 	// These are all exposed to Python
 	int getMOVE_DENOMINATOR() const { return getDefineINT(MOVE_DENOMINATOR); }
@@ -605,17 +616,9 @@ public:
 	int getMAX_SEA_PATROL_RANGE() const { return 1; }
 	/*  <advc.opt> (TextVals can't be loaded by cacheGlobals. Hence also won't be
 		updated when a setDefine... function is called.) */
-	ImprovementTypes getRUINS_IMPROVEMENT() const
-	{
-		FAssertMsg(m_eRUINS_IMPROVEMENT != NO_IMPROVEMENT, "RUINS_IMPROVEMENT accessed before CvXMLLoadUtility::SetPostGlobalsGlobalDefines");
-		return m_eRUINS_IMPROVEMENT;
-	}
+	ImprovementTypes getRUINS_IMPROVEMENT() const { FAssertMsg(m_eRUINS_IMPROVEMENT != NO_IMPROVEMENT, "RUINS_IMPROVEMENT accessed before CvXMLLoadUtility::SetPostGlobalsGlobalDefines"); return m_eRUINS_IMPROVEMENT; }
 	void setRUINS_IMPROVEMENT(int iVal);
-	SpecialistTypes getDEFAULT_SPECIALIST() const
-	{
-		FAssertMsg(m_eDEFAULT_SPECIALIST != NO_SPECIALIST, "DEFAULT_SPECIALIST accessed before CvXMLLoadUtility::SetPostGlobalsGlobalDefines");
-		return m_eDEFAULT_SPECIALIST;
-	}
+	SpecialistTypes getDEFAULT_SPECIALIST() const { FAssertMsg(m_eDEFAULT_SPECIALIST != NO_SPECIALIST, "DEFAULT_SPECIALIST accessed before CvXMLLoadUtility::SetPostGlobalsGlobalDefines"); return m_eDEFAULT_SPECIALIST; }
 	void setDEFAULT_SPECIALIST(int iVal);
 	TerrainTypes getWATER_TERRAIN(bool bShallow) const
 	{
@@ -675,10 +678,7 @@ public:
 	/*	K-Mod: more reliable versions of the 'gDLL->xxxKey' functions
 		NOTE: I've replaced all calls to the gDLL key functions with calls to these functions. */
 	// advc: Helper function (let's make it public; why not).
-	bool isKeyDown(int iVirtualKey) const
-	{
-		return (GetKeyState(iVirtualKey) & 0x8000);
-	}
+	bool isKeyDown(int iVirtualKey) const { return (GetKeyState(iVirtualKey) & 0x8000); }
 	bool altKey() const { return isKeyDown(VK_MENU); }
 	bool ctrlKey() const { return isKeyDown(VK_CONTROL); }
 	bool shiftKey() const { return isKeyDown(VK_SHIFT); }
@@ -977,15 +977,9 @@ extern CvGlobals gGlobals;	// for debugging
 
 // inlines ...
 
-__inline CvGlobals& CvGlobals::getInstance()
-{
-	return gGlobals;
-}
+__inline CvGlobals& CvGlobals::getInstance() { return gGlobals; }
 // advc:
-__inline CvGlobals const& CvGlobals::getConstInstance()
-{
-	return gGlobals;
-}
+__inline CvGlobals const& CvGlobals::getConstInstance() { return gGlobals; }
 
 
 // helpers ...

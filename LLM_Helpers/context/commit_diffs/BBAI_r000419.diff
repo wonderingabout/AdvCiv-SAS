@@ -1,0 +1,145 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 419
+# Author: jdog5000
+# Date: 2009-01-03T01:21:04.048665Z
+# Coverage: full
+# Message:
+#   0.50D
+#   
+#   Small tweaks and bug fixes
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@418
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@419
+@@ -4171,7 +4171,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.50B");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.50D");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@418
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@419
+@@ -5814,9 +5814,13 @@
+ 
+ 					if (!bValid && !bLosingBig && bWinningBig)
+ 					{
+-						if (bWarmongerRoll)
++						// Can we continue this war with defiance penalties?
++						if( !AI_isFinancialTrouble() )
+ 						{
+-							bDefy = true;
++							if (bWarmongerRoll)
++							{
++								bDefy = true;
++							}
+ 						}
+ 					}
+ 				}
+@@ -5834,9 +5838,27 @@
+ 						bValid = bWinningBig || (iWarsWinning > iWarsLosing) || (GET_TEAM(getTeam()).getAtWarCount(true) > 1);
+ 					}
+ 
+-					if( !bValid )
+-					{
+-						if( bPropose || (GET_TEAM(getTeam()).AI_getAttitude(ePeaceTeam) > GC.getLeaderHeadInfo(getPersonalityType()).getVassalRefuseAttitudeThreshold()) )
++					if (!bValid && bThisPlayerWinning && (iWarsLosing >= iWarsWinning) )
++					{
++						if( (GET_TEAM(getTeam()).getAtWarCount(true) == 1) || bLosingBig )
++						{
++							// Can we continue this war with defiance penalties?
++							if( !AI_isFinancialTrouble() )
++							{
++								int iDefyRand = GC.getLeaderHeadInfo(getPersonalityType()).getBasePeaceWeight();
++								iDefyRand /= (bAggressiveAI ? 2 : 1);
++
++								if (GC.getGame().getSorenRandNum(iDefyRand, "AI Erratic Defiance (Force Peace)") == 0)
++								{
++									bDefy = true;
++								}
++							}
++						}
++					}
++
++					if( !bValid && !bDefy && !bPropose )
++					{
++						if((GET_TEAM(getTeam()).AI_getAttitude(eSecretaryGeneral) > GC.getLeaderHeadInfo(getPersonalityType()).getVassalRefuseAttitudeThreshold()) )
+ 						{
+ 							// Influence by secretary
+ 							if( NO_DENIAL == GET_TEAM(getTeam()).AI_makePeaceTrade(ePeaceTeam, eSecretaryGeneral) )
+@@ -5846,20 +5868,6 @@
+ 							else if( eSecretaryGeneral != NO_TEAM && GET_TEAM(getTeam()).isVassal(eSecretaryGeneral) )
+ 							{
+ 								bValid = true;
+-							}
+-						}
+-					}
+-
+-					if (!bValid && bThisPlayerWinning && (iWarsLosing <= iWarsWinning) )
+-					{
+-						if( (GET_TEAM(getTeam()).getAtWarCount(true) == 1) || bLosingBig )
+-						{
+-							int iDefyRand = GC.getLeaderHeadInfo(getPersonalityType()).getBasePeaceWeight();
+-							iDefyRand /= (bAggressiveAI ? 2 : 1);
+-
+-							if (GC.getGame().getSorenRandNum(iDefyRand, "AI Erratic Defiance (Force Peace)") == 0)
+-							{
+-								bDefy = true;
+ 							}
+ 						}
+ 					}
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@418
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@419
+@@ -3706,8 +3706,16 @@
+ 					}
+ 				}
+ 			}
+-			else if ((bFinancesProMaxWar || !bFinancesOpposeWar) &&
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      01/02/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++			else if ((bFinancesProLimitedWar || !bFinancesOpposeWar) &&
+ 				(GC.getGameINLINE().getSorenRandNum(iLimitedWarRand, "AI Limited War") == 0))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 			{
+ 				iNoWarRoll = GC.getGameINLINE().getSorenRandNum(100, "AI No War") - 10;
+ 				iNoWarRoll = range(iNoWarRoll + (bAggressive ? 10 : 0) + (bFinancesProLimitedWar ? 10 : 0), 0, 99);
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@418
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@419
+@@ -14433,7 +14433,7 @@
+ /* original bts code
+ 				getGroup()->pushMission(MISSION_MOVE_TO, pBestAssaultPlot->getX_INLINE(), pBestAssaultPlot->getY_INLINE(), 0, false, false, MISSIONAI_ASSAULT, pBestAssaultPlot);
+ */
+-				getGroup()->pushMission(MISSION_MOVE_TO, pBestAssaultPlot->getX_INLINE(), pBestAssaultPlot->getY_INLINE(), MOVE_AVOID_ENEMY_WEIGHT_2, false, false, MISSIONAI_ASSAULT, pBestAssaultPlot);
++				getGroup()->pushMission(MISSION_MOVE_TO, pBestAssaultPlot->getX_INLINE(), pBestAssaultPlot->getY_INLINE(), MOVE_AVOID_ENEMY_WEIGHT_3, false, false, MISSIONAI_ASSAULT, pBestAssaultPlot);
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+@@ -14451,7 +14451,7 @@
+ /* original bts code
+ 			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_ASSAULT, pBestAssaultPlot);
+ */
+-			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), MOVE_AVOID_ENEMY_WEIGHT_2, false, false, MISSIONAI_ASSAULT, pBestAssaultPlot);
++			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), MOVE_AVOID_ENEMY_WEIGHT_3, false, false, MISSIONAI_ASSAULT, pBestAssaultPlot);
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+

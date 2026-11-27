@@ -16,26 +16,17 @@
 		<Italian>Promemoria [ALT + M]</Italian>
 		<Spanish>Recordatorios [ALT + M]</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: rewritten (English, German) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_REMINDER__ENABLED_HOVER</Tag>
 		<English>When checked, the key combination [ALT + M] allows you to set a reminder for yourself.</English>
 		<French>En activant, vous pourrez créer des messages avec [ALT + M] qui réapparaîtront un nombre de tours spécifiés plus tard, grâce au mod Reminders de eotinb.</French>
-		<German>Aktiviert die Erinnern-Funktion: Sie können sich selbst mit der Tastenkombination [ALT + M] eine Nachricht schreiben, die das Spiel dann nach einer bestimmten Anzahl von Zügen anzeigt.</German>
+		<German>Aktiviert die Erinnern-Funktion: Sie können sich selbst mit der Tastenkombination [ALT + M] eine Nachricht schreiben, die das Spiel dann nach einer bestimmten Anzahl von Zÿgen anzeigt.</German>
 		<Italian>Quando è selezionato, usando [ALT + M] durante il gioco potrai creare messaggi che appariranno dopo un numero definito di turni (utilizzando il Reminders Mod di Eotinb).</Italian>
 		<Spanish>Permite crear recordatorios que aparecen tras un número determinado de turnos usando [ALT + M] empleando el mod Reminders de eotinb.</Spanish>
 	</TEXT>
-
-	<!-- advc.004: Merged into the key below -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_REMINDER__DISPLAYMETHOD_TEXT</Tag>
-		<English>Display Method</English>
-		<French>Méthode d'affichage</French>
-		<German>Anzeigemethode</German>
-		<Italian>Modalità di visualizzazione</Italian>
-		<Spanish>Visualización</Spanish>
-	</TEXT-->
+	<!-- custom: Long_Comments_XML.txt #257 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_REMINDER__DISPLAYMETHOD_HOVER</Tag>
 		<English>Display method:[NEWLINE][COLOR_HIGHLIGHT_TEXT]Message[COLOR_REVERT] - On-screen message with entry in the Event log[NEWLINE][COLOR_HIGHLIGHT_TEXT]Popup[COLOR_REVERT] - Popup with an option to resend the reminder on the next turn[NEWLINE][COLOR_HIGHLIGHT_TEXT]Both[COLOR_REVERT] - Both the on-screen message and the popup are displayed</English>
@@ -52,16 +43,7 @@
 		<Italian>Messaggio|Popup|Entrambe</Italian>
 		<Spanish>Mensaje|Popup|Ambos</Spanish>
 	</TEXT>
-	
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_REMINDER__AUTOLOG_TEXT</Tag>
-		<English>Log w. Autolog</English>
-		<French>Log avec Autolog</French>
-		<German>Mit Autolog protokollieren</German>
-		<Italian>Registra con Autolog</Italian>
-		<Spanish>Autoregistrado</Spanish>
-	</TEXT-->
-	<!-- advc.004: Replacing the above -->
+	<!-- custom: Long_Comments_XML.txt #258 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_REMINDER__AUTOLOG_TEXT</Tag>
 		<English>Autolog</English>

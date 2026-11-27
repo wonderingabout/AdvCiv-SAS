@@ -34,15 +34,21 @@ public:
 	/*	-1 if unreachable, 0 for cities of the cache owner's team
 		(and never for cities of other teams). */
 	int getDistance() const { return m_iDistance; }
+	// <!-- custom: Land-mode consumers need the qualifying land route's duration rather than the faster mixed land/sea duration. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int getDistanceByLand() const { return m_iDistanceByLand; }
 
 protected:
 	int m_iDistance;
+	// <!-- custom: Preserve a separate weighted land deployment distance because m_iDistance deliberately retains the fastest mixed route. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int m_iDistanceByLand;
 	int m_iAssetScore;
 	bool m_bCapitalArea;
 	bool m_bReachByLand;
 
+	// <!-- custom: Initialize the added route-specific cache member as unavailable until updateDistance supplies it. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	UWAICity()
-	:	m_iDistance(-1), m_iAssetScore(-1), m_bReachByLand(false), m_bCapitalArea(false)
+	:	m_iDistance(-1), m_iDistanceByLand(-1), m_iAssetScore(-1),
+		m_bReachByLand(false), m_bCapitalArea(false)
 	{}
 };
 
@@ -71,10 +77,7 @@ public:
 	void update(bool bNewPlayer = false);
 	void write(FDataStreamBase* pStream) const;
 	void read(FDataStreamBase* pStream);
-	int numReachableCities(PlayerTypes ePlayer) const
-	{
-		return m_aiReachableCities.get(ePlayer);
-	}
+	int numReachableCities(PlayerTypes ePlayer) const { return m_aiReachableCities.get(ePlayer); }
 	int numCities() const { return (int)m_cityList.size(); }
 	void sortCitiesByAttackPriority();
 	City& cityAt(int iAt) const
@@ -98,10 +101,7 @@ public:
 	bool hasDefensiveTrait() const { return m_bDefensiveTrait; }
 	bool canScrubFallout() const { return m_bCanScrub; }
 	// Units of the cache owner targeting the territory of ePlayer
-	int targetMissionCount(PlayerTypes ePlayer) const
-	{
-		return m_aiTargetMissions.get(ePlayer);
-	}
+	int targetMissionCount(PlayerTypes ePlayer) const { return m_aiTargetMissions.get(ePlayer); }
 	/*	Long-term military threat by ePlayer between 0 and 1. Can see it as
 		the probability of them hurting the cache owner substantially with
 		an invasion sometime within the next 50 to 100 turns. */
@@ -122,15 +122,9 @@ public:
 	int bountyAgainst(TeamTypes eTeam) const { return m_aiBounty.get(eTeam); }
 	// Identity of the sponsor who made the above payment
 	PlayerTypes sponsorAgainst(TeamTypes eTeam) const { return m_aeSponsorPerTarget.get(eTeam); }
-	int warUtilityIgnoringDistraction(TeamTypes eTeam) const
-	{
-		return leaderCache().m_aiWarUtilityIgnoringDistraction.get(eTeam);
-	}
+	int warUtilityIgnoringDistraction(TeamTypes eTeam) const { return leaderCache().m_aiWarUtilityIgnoringDistraction.get(eTeam); }
 	// Necessary (but not sufficient) condition for agreeing to a joint war
-	bool canBeHiredAgainst(TeamTypes eTeam) const
-	{
-		return leaderCache().m_abCanBeHiredAgainst.get(eTeam);
-	}
+	bool canBeHiredAgainst(TeamTypes eTeam) const { return leaderCache().m_abCanBeHiredAgainst.get(eTeam); }
 	void setCanBeHiredAgainst(TeamTypes eTeam, bool b);
 	void updateCanBeHiredAgainst(TeamTypes eTeam, int iWarUtility, int iUtilityThresh);
 	bool canTrainDeepSeaCargo() const { return m_bHaveDeepSeaTransports; }
@@ -140,7 +134,7 @@ public:
 	/*	Power values per military branch. The caller must not modify
 		the MilitaryBranch data; should work on copies instead. */
 	std::vector<MilitaryBranch*> const& getPowerValues() const { return m_militaryPower; }
-	// Counts only combatants
+	// <!-- custom: This Home Guard denominator counts conventional non-naval military units; nuclear weapons use their separate branch and must not change the conventional guard ratio. See KI#561. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	int numNonNavalUnits() const { return m_iNonNavalUnits; }
 	// Includes national wonders (which City::updateAssetScore does not count)
 	scaled totalAssetScore() const { return m_rTotalAssets; }
@@ -151,23 +145,31 @@ public:
 	void cacheCitiesAfterRead();
 	void reportUnitCreated(UnitTypes eUnit);
 	void reportUnitDestroyed(UnitTypes eUnit);
-	void reportWarEnding(TeamTypes eEnemy,
-			CLinkList<TradeData> const* pWeReceive = NULL,
-			CLinkList<TradeData> const* pWeGive = NULL);
+	// <!-- custom: Revival initializes an empty incremental military inventory after the reviving unit already exists; replay all owned units before immediate UWAI consumers run. See KI#548. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void rebuildMilitaryUnitCounts();
+	// <!-- custom: Refresh only the leader-derived military personality flags after a supported leader replacement; reinitializing UWAI would destroy persistent state. See KI#558. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void reportLeaderChanged();
+	// <!-- custom: Paid-war obligations end with their war even when full war-history evaluation is unavailable. See KI#562. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void clearWarSponsorship(TeamTypes eEnemy);
+	void reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive = NULL, CLinkList<TradeData> const* pWeGive = NULL);
+	// <!-- custom: Every major-civilization city creation can change surviving foreign target values, so rebuild the eligible observer snapshot rather than incrementally adding only the new wrapper. See KI#554, KI#556, KI#557 and KI#1038. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	void reportCityCreated(CvCity& kCity);
-	void reportCityDestroyed(CvCity const& kCity)
-	{	// No checks upfront; make sure we're not keeping any dangling pointer.
-		remove(kCity);
-	}
+	// <!-- custom: Remove the destroyed city's wrapper before its CvCity storage is freed, then rebuild city-derived cache state only through reportCitySetChanged after deletion and any capital replacement are complete. See KI#547. See KI#550. See KI#554. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void reportCityDestroyed(CvCity const& kCity);
+	// <!-- custom: Rebuild every eligible observer's city-derived state after destruction has fully changed the world state; non-capital changes also alter surviving target values. See KI#554, KI#557 and KI#1038. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void reportCitySetChanged();
 	/*	Would prefer to pass a CvDeal instance, but no suitable one is available
 		at the call location */
-	void reportSponsoredWar(CLinkList<TradeData> const& kWeReceive,
-			PlayerTypes eSponsor, TeamTypes eTarget);
+	void reportSponsoredWar(CLinkList<TradeData> const& kWeReceive, PlayerTypes eSponsor, TeamTypes eTarget);
 	bool isReadyToCapitulate(TeamTypes eMaster) const;
 	void setReadyToCapitulate(TeamTypes eMaster, bool b);
-	 // When forming a Permanent Alliance
+	// <!-- custom: Merge persistent history from the absorbed leader across every civilization-team key when forming a Permanent Alliance. See KI#539. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	void addTeam(PlayerTypes eOtherLeader);
-	// Moves data that is stored only at the team leader
+	// <!-- custom: Preserve outsiders' transient obligations before Permanent-Alliance player reassignment triggers absorbed-team war teardown. See KI#551. See KI#1045. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void onTargetTeamAboutToBeAbsorbed(TeamTypes eSurvivingTeam, TeamTypes eAbsorbedTeam);
+	// <!-- custom: After Permanent-Alliance teardown has finalized outsiders' war history, migrate that persistent history to the surviving target identity. See KI#551. See KI#1045. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void onTargetTeamAbsorbed(TeamTypes eSurvivingTeam, TeamTypes eAbsorbedTeam);
+	// <!-- custom: Move team-level leader-cache data and explicitly initialize planning-derived hireability when leadership changes. See KI#538. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	void onTeamLeaderChanged(PlayerTypes formerLeaderId);
 
 private:
@@ -176,10 +178,13 @@ private:
 	void createMilitaryBranches();
 	void deleteMilitaryBranches();
 	void deleteUWAICities();
+	// <!-- custom: Reconstruct the uniquely indexed city wrappers, reachability, target geometry/value, ordering and own asset aggregate as one coherent snapshot. See KI#554. See KI#557. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void rebuildCities();
 	void updateCities(TeamTypes eTeam, TeamPathFinders* pPathFinders);
 	void add(CvCity& kCity);
 	void add(City& kCacheCity);
-	void remove(CvCity const& kCity);
+	// <!-- custom: Tell the destruction callback whether this cache contained and erased the city, avoiding needless re-sorts for uninformed observers. See KI#550. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool remove(CvCity const& kCity);
 	TeamPathFinders* createTeamPathFinders() const;
 	static void deleteTeamPathFinders(TeamPathFinders& kPathFinders);
 	void resetTeamPathFinders(TeamPathFinders& kPathFinders, TeamTypes eWarTarget) const;
@@ -242,6 +247,7 @@ private:
 
 	CivTeamMap<int,short> m_aiPlotsLostAtWar; // advc.035
 	CivTeamMap<int> m_aiPastWarScore;
+	// <!-- custom: Sponsored-war utility remains compact, but its full-width producer is saturated before assignment so a legal overpayment cannot wrap negative. See KI#552. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	CivTeamMap<int,short> m_aiBounty; // Maps targets to sponsorship values
 	CivTeamMap<PlayerTypes> m_aeSponsorPerTarget; // Maps targets to sponsors
 	CivTeamMap<int,int,MIN_INT> m_aiWarUtilityIgnoringDistraction;
@@ -267,6 +273,7 @@ public:
 		void read(FDataStreamBase* pStream);
 
 	private:
+		// <!-- custom: Keep strategic land/sea reachability distinct from selecting the fastest pairwise deployment duration. See KI#549. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		void updateDistance(TeamPathFinders* pPathFinders, PlayerTypes eCacheOwner);
 		void updateAssetScore(PlayerTypes eCacheOwner);
 

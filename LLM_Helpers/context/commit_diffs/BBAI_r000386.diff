@@ -1,0 +1,492 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 386
+# Author: jdog5000
+# Date: 2008-09-05T23:58:00.405341Z
+# Coverage: full
+# Message:
+#   Update to version 0.37
+#   - changes/comments from Unofficial patch 0.19.1
+#   - roll back experimental changes to Combat Mechanics, Espionage AI to BTS defaults
+# Changed paths (8):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@385
++++ /trunk/CvGameCoreDLL/CvGame.cpp@386
+@@ -1079,6 +1079,8 @@
+ void CvGame::normalizeAddRiver()
+ {
+ 	CvPlot* pStartingPlot;
++	// Unofficial Patch Start
++	// * Rivers running through deserts will result in floodplains
+ 	CvPlot* pPlot;
+ 	int iI, iJ, iK;
+ 
+@@ -1126,6 +1128,7 @@
+ 							}
+ 						}
+ 					}
++					// Unofficial Patch End
+ 				}
+ 			}
+ 		}
+@@ -1441,7 +1444,9 @@
+ 
+ 						if (eBonus != NO_BONUS)
+ 						{
+-						    
++						    // Unofficial Patch Start
++						    // * Start location tweaks per SevenSpirits Pt 1/2
++						    // Ref: http://forums.civfanatics.com/showpost.php?p=6197765&postcount=1304
+ 							if (GC.getBonusInfo(eBonus).getYieldChange(YIELD_FOOD) > 0)
+ 							{
+ 								if ((GC.getBonusInfo(eBonus).getTechCityTrade() == NO_TECH) || (GC.getTechInfo((TechTypes)(GC.getBonusInfo(eBonus).getTechCityTrade())).getEra() <= getStartEra()))
+@@ -1460,6 +1465,7 @@
+ 						    {
+ 						        iGoodNatureTileCount++;
+ 						    }
++							// Unofficial Patch End
+ 						}
+ 						else
+ 						{
+@@ -1763,9 +1769,14 @@
+ 					{
+ 						if (pLoopPlot != pStartingPlot)
+ 						{
++						    // Unofficial Patch Start
++						    // * Fixed bug in the map generator with water starts
++						    // Ref: http://forums.civfanatics.com/showpost.php?p=6197765&postcount=1304
++						    // See also L3 entry in http://forums.civfanatics.com/showpost.php?p=6200320&postcount=1314
+ 							if (pLoopPlot->isWater())
+ 							{
+ 								iWaterCount++;
++								// Unofficial Patch End
+ 								if (pLoopPlot->getBonusType() != NO_BONUS)
+ 								{
+ 									if (pLoopPlot->isAdjacentToLand())
+@@ -1890,7 +1901,9 @@
+ 					}
+ 				}
+ 				
+-				// SevenSpirits
++				// Unofficial Patch Start
++				// * Start location tweaks per SevenSpirits Pt 2
++				// REF: http://forums.civfanatics.com/showpost.php?p=6197765&postcount=1304
+ 				shuffleArray(aiShuffle, NUM_CITY_PLOTS, getMapRand());
+ 
+ 				for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+@@ -1927,6 +1940,7 @@
+ 					}
+ 				}
+ 				
++				// Unofficial Patch End
+ 				int iHillsCount = 0;
+ 				
+ 				for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@385
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@386
+@@ -844,7 +844,10 @@
+ 			if (pUnit->getExtraCollateralDamage() == 0)
+ 			{
+ 				szString.append(NEWLINE);
++				// Unofficial Patch Start
++				// * Civilopedia and mouseover help for units that cause collateral damage will now show the collateral damage limit (50% for Catapults, etc.)
+ 				szString.append(gDLL->getText("TXT_KEY_UNIT_COLLATERAL_DAMAGE", ( 100 * pUnit->getUnitInfo().getCollateralDamageLimit() / GC.getMAX_HIT_POINTS())));
++				// Unofficial Patch End
+ 			}
+ 			else
+ 			{
+@@ -2241,7 +2244,10 @@
+ {
+ 	int iI;
+ 	szString.assign(L"!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[×]^_`abcdefghijklmnopqrstuvwxyz\n");
++	// Unofficial Patch Start
++	// (unsure on details of this change)
+ //	szString.append(L"{}~\\ßÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞŸßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ¿¡«»°ŠŒŽšœž™©®€£¢”‘“…’");
++	// Unofficial Patch End
+ 	for (iI=0;iI<NUM_YIELD_TYPES;++iI)
+ 		szString.append(CvWString::format(L"%c", GC.getYieldInfo((YieldTypes) iI).getChar()));
+ 
+@@ -6016,7 +6022,11 @@
+ 	if (GC.getUnitInfo(eUnit).getCollateralDamage() > 0)
+ 	{
+ 		szBuffer.append(NEWLINE);
++		// Unofficial Patch Start
++		// * Civilopedia and mouseover help for units that cause collateral damage will now show the collateral damage limit (50% for Catapults, etc.)
++		//szBuffer.append(gDLL->getText("TXT_KEY_UNIT_COLLATERAL_DAMAGE"));
+ 		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_COLLATERAL_DAMAGE", ( 100 * GC.getUnitInfo(eUnit).getCollateralDamageLimit() / GC.getMAX_HIT_POINTS())));
++		// Unofficial Patch End
+ 	}
+ 
+ 	for (iI = 0; iI < GC.getNumUnitCombatInfos(); ++iI)
+@@ -6891,6 +6901,8 @@
+ 		szBuffer.append(gDLL->getText("TXT_KEY_REPLACES_UNIT", GC.getBuildingInfo(eDefaultBuilding).getTextKeyWide()));
+ 	}
+ 
++	// Unofficial Patch Start
++	// * Civilopedia will now display "replaced by" lines for buildings that get replaced by UBs
+ 	if (bCivilopediaText)
+ 	{
+ 		if(NO_BUILDING != eDefaultBuilding && eDefaultBuilding == eBuilding)
+@@ -6910,6 +6922,7 @@
+ 			}
+ 		}
+ 	}
++	// Unofficial Patch End
+ 
+ 	if (bCivilopediaText)
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@385
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@386
+@@ -19339,7 +19339,10 @@
+ 				iBestValue = iValue;
+ 			}
+ 
++			// Unofficial Patch Start
++			// * Fixed bug that prevented random events that target a unit from triggering
+ 			apUnits.push_back(pLoopUnit);
++			// Unofficial Patch End
+ 		}
+ 	}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@385
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@386
+@@ -5289,6 +5289,8 @@
+ 		{
+ 			if (GC.getVoteInfo(eVote).isNoNukes())
+ 			{
++			    // Unofficial Patch Start
++			    // * AI logic on banning nukes tweaked to account for AI leader personality and the global situation
+ 				int iValue = 0;
+ 				bool bAnyHasSdi = false;
+ 
+@@ -5318,6 +5320,7 @@
+ 				}
+ 
+ 				bValid = GC.getGameINLINE().getSorenRandNum(100, "AI nuke ban vote") > iValue;
++				// Unofficial Patch End
+ 				
+ 				if (AI_isDoStrategy(AI_STRATEGY_OWABWNW))
+ 				{
+@@ -6916,7 +6919,10 @@
+ 
+ 	// XXX marble and stone???
+ 
++	// Unofficial Patch Start
++	// * Fixed bug where AI uses player's ID instead of attitude when evaluating deals. [DanF5571]
+ 	eAttitude = GET_PLAYER(getID()).AI_getAttitude(ePlayer);
++	// Unofficial Patch End
+ 
+ 	if (bStrategic)
+ 	{
+@@ -7308,7 +7314,10 @@
+ 		return DENIAL_JOKING;
+ 	}
+ 
++	// Unofficial Patch Start
++	// * Fixed bug where AI uses player's ID instead of attitude when evaluating deals. [DanF5571]
+ 	if (GET_PLAYER(getID()).AI_getAttitude(ePlayer) <= GC.getLeaderHeadInfo(getPersonalityType()).getAdoptCivicRefuseAttitudeThreshold())
++	// Unofficial Patch End
+ 	{
+ 		return DENIAL_ATTITUDE;
+ 	}
+@@ -7382,7 +7391,10 @@
+ 		}
+ 	}
+ 
++	// Unofficial Patch Start
++	// * Fixed bug where AI uses player's ID instead of attitude when evaluating deals. [DanF5571]
+ 	if (GET_PLAYER(getID()).AI_getAttitude(ePlayer) <= GC.getLeaderHeadInfo(getPersonalityType()).getConvertReligionRefuseAttitudeThreshold())
++	// Unofficial Patch End
+ 	{
+ 		return DENIAL_ATTITUDE;
+ 	}
+@@ -10610,7 +10622,7 @@
+ 		/**																				*/
+ 		/**		Espionage AI															*/
+ 		/********************************************************************************/
+-		/* original BTS code
++		// original BTS code
+ 		if (getCommercePercent(COMMERCE_ESPIONAGE) > 0)
+ 		{
+ 			setCommercePercent(COMMERCE_ESPIONAGE, 0);
+@@ -10622,25 +10634,21 @@
+ 
+ 			bReset = true;
+ 		}
++		
++		/*
++		// Reset espionage spending always
++		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
++		{
++			setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, 0);
++		}
++
++		if (getCommercePercent(COMMERCE_ESPIONAGE) > 0)
++		{
++			setCommercePercent(COMMERCE_ESPIONAGE, 0);
++
++			bReset = true;
++		}
+ 		*/
+-		
+-		// Reset espionage spending always
+-		/*for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+-		{
+-			setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, 0);
+-		}*/
+-
+-		if (getCommercePercent(COMMERCE_ESPIONAGE) > 0)
+-		{
+-			setCommercePercent(COMMERCE_ESPIONAGE, 0);
+-
+-			for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+-			{
+-				setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, 0);
+-			}
+-
+-			bReset = true;
+-		}
+ 		/********************************************************************************/
+ 		/**		BETTER_BTS_AI_MOD						END								*/
+ 		/********************************************************************************/
+@@ -10738,7 +10746,7 @@
+ 		/**																				*/
+ 		/**		Espionage AI															*/
+ 		/********************************************************************************/
+-		/* original BTS code
++		// original BTS code
+ 		int iEspionageTargetRate = 0;
+ 
+ 		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+@@ -10757,7 +10765,9 @@
+ 				}
+ 			}
+ 		}
+-		*/
++
++		/*
++		// TODO: Develop new system
+ 		int iEspionageTargetRate = 0;
+ 
+ 		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+@@ -10776,6 +10786,7 @@
+ 				}
+ 			}
+ 		}
++		*/
+ 		/********************************************************************************/
+ 		/**		BETTER_BTS_AI_MOD						END								*/
+ 		/********************************************************************************/
+@@ -10907,13 +10918,16 @@
+ 		return;
+ 	}
+ 
+-	if (getMaxAnarchyTurns() > 0)
++	// Unofficial Patch Start
++	// * AI will change religion during Golden Ages
++	/*if (getMaxAnarchyTurns() > 0)
+ 	{
+ 		if (isGoldenAge())
+ 		{
+ 			return;
+ 		}
+-	}
++	}*/
++	// Unofficial Patch End
+ 
+ 	if (!canChangeReligion())
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@385
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@386
+@@ -1220,6 +1220,9 @@
+ 		iValue /= 2;
+ 	}
+ 
++	// Unofficial Patch Start
++	// * Somewhat experimental AI change: Aggressive AI now considerably less likely to want peace 
++	// if it poses more of an immediate threat to enemy cities than it currently faces itself.
+ 	if (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI))
+ 	{
+ 		int iOurEndangeredCities = 0;
+@@ -1263,7 +1266,7 @@
+ 			iValue /= 3;
+ 		}
+ 	}
+-
++	// Unofficial Patch End
+ 
+ 	iValue -= (iValue % GC.getDefineINT("DIPLOMACY_VALUE_REMAINDER"));
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@385
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@386
+@@ -823,12 +823,13 @@
+ 	/**																				*/
+ 	/**		Combat mechanics														*/
+ 	/********************************************************************************/
+-	/* original BTS code
++	//original BTS code
+ 	int iTheirDamage = 0;
+ 	int iOurDamage = 0;
+ 
+ 	for (int iRound = 0; iRound < GC.getDefineINT("INTERCEPTION_MAX_ROUNDS"); ++iRound)
+-	*/
++	/*
++	// Change to strength based damage
+ 	int iMaxRounds = GC.getDefineINT("INTERCEPTION_MAX_ROUNDS");
+ 
+ 	// Fighter v fighter is not like other interceptions, more like standard comabt
+@@ -853,6 +854,7 @@
+ 	int iOurDamage = 0;
+ 
+ 	for (int iRound = 0; iRound < iMaxRounds; ++iRound)
++	*/
+ 	/********************************************************************************/
+ 	/**		BETTER_BTS_AI_MOD						END								*/
+ 	/********************************************************************************/
+@@ -6311,7 +6313,11 @@
+ 		return false;
+ 	}
+ 
++	// Unofficial Patch Start
++	// * Vassal's spies no longer caught in master's territory
++	//if (GET_TEAM(eLocalTeam).isVassal(getTeam()))
+ 	if (GET_TEAM(eLocalTeam).isVassal(getTeam()) || GET_TEAM(getTeam()).isVassal(eLocalTeam))
++	// Unofficial Patch End
+ 	{
+ 		return false;
+ 	}
+@@ -11555,7 +11561,10 @@
+ 
+ 	iCollateralStrength = ((((getDomainType() == DOMAIN_AIR) ? airBaseCombatStr() : baseCombatStr()) * collateralDamage()) / 100);
+ 
++	// Unofficial Patch Start
++	// * Barrage promotions made working again on Tanks and other units with no base collateral ability
+ 	if (iCollateralStrength == 0 && getExtraCollateralDamage() == 0)
++	// Unofficial Patch End
+ 	{
+ 		return;
+ 	}
+@@ -12384,10 +12393,13 @@
+ 		return MIN_INT;
+ 	}
+ 
++	// Unofficial Patch Start
++	// * Fixed bug that allowed an event to trigger on a unit who just died.
+ 	if (isDead())
+ 	{
+ 		return MIN_INT;
+ 	}
++	// Unofficial Patch End
+ 
+ 	if (!isEmpty(kTrigger.getPythonCanDoUnit()))
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@385
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@386
+@@ -1450,7 +1450,10 @@
+ 		}
+ 	}
+ 
++	// Unofficial Patch Start
++	// * Workers not as lazy, per Bhruic's patch
+ 	//if (isHuman() || (AI_getBirthmark() % 3) == 0)
++	// Unofficial Patch End
+ 	{
+ 		if (bCanRoute)
+ 		{
+@@ -5903,7 +5906,7 @@
+ 		}
+ 	}
+ 
+-		
++
+ 	if (AI_airBombDefenses())
+ 	{
+ 		return;
+@@ -6738,6 +6741,8 @@
+         }
+     }
+ 
++	// Unofficial Patch Start
++	// * AI may now try to use Warlords to create super-medic units Pt 1/2
+ 	if (GC.getPromotionInfo(ePromotion).getAdjacentTileHealChange() > 0 || GC.getPromotionInfo(ePromotion).getSameTileHealChange() > 0)
+ 	{
+ 		PromotionTypes eLeader = NO_PROMOTION;
+@@ -6754,6 +6759,7 @@
+ 			iValue += GC.getPromotionInfo(ePromotion).getAdjacentTileHealChange() + GC.getPromotionInfo(ePromotion).getSameTileHealChange();
+ 		}
+ 	}
++	// Unofficial Patch End
+ 
+ 	iTemp = GC.getPromotionInfo(ePromotion).getCombatPercent();
+ 	if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
+@@ -9586,6 +9592,8 @@
+ 	CvUnit* pBestUnit = NULL;
+ 	CvPlot* pBestPlot = NULL;
+ 
++	// Unofficial Patch Start
++	// * AI may now try to use Warlords to create super-medic units Pt 2/2
+ 	CvUnit* pBestStrUnit = NULL;
+ 	CvPlot* pBestStrPlot = NULL;
+ 
+@@ -9638,6 +9646,7 @@
+ 									{
+ 										pBestPlot = pBestHealPlot;
+ 										pBestUnit = pBestHealUnit;
++										// Unofficial Patch End
+ 									}
+ 								}
+ 							}
+@@ -9715,10 +9724,13 @@
+ 						if (canJoin(pLoopCity->plot(), ((SpecialistTypes)iI)))
+ 						{
+ 							iValue = pLoopCity->AI_specialistValue(((SpecialistTypes)iI), pLoopCity->AI_avoidGrowth(), false);
++							// Unofficial Patch Start
++							// * AI will no longer settle Great People in cities that are in danger of being captured
+ 							if (GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(pLoopCity->plot(), 2) > 0)
+ 							{
+ 								iValue = 0;
+ 							}
++							// Unofficial Patch End
+ 
+ 							if (iValue > iBestValue)
+ 							{
+@@ -15917,11 +15929,14 @@
+ 						{
+ 							//This should only be reached when the unit is desperate to die
+ 							iValue += AI_pillageValue(pLoopPlot);
++							// Unofficial Patch Start
++							// * AI guided missiles will lean towards destroying resource-producing tiles as opposed to improvements like Towns
+ 							if (pLoopPlot->getBonusType(pLoopPlot->getTeam()) != NO_BONUS)
+ 							{
+ 								//and even more so if it's a resource
+ 								iValue += GET_PLAYER(pLoopPlot->getOwnerINLINE()).AI_bonusVal(pLoopPlot->getBonusType(pLoopPlot->getTeam()));
+ 							}
++							// Unofficial Patch End
+ 						}
+ 
+ 						if (iValue > 0)
+

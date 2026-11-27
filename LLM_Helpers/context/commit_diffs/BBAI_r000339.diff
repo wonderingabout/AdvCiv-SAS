@@ -1,0 +1,154 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 339
+# Author: blakeciv
+# Date: 2007-02-02T12:50:41.821809Z
+# Coverage: full
+# Message:
+#   Tweaked bestBuild health.
+#   
+#   Governor food valuation tweaked - lower max cap for growth (avoid thing like 4f tile > 3f 3h 1c), turning on a yield emphasis also increases food value for growth (might need tweaking, has not been tested thoroughly)
+#   Now does a proper calculation for slavery hammers gained per food...
+#   Hammers are valued more when building a granary.
+#   
+#   
+#   For the Get Better Units strategy certain UU's now count as 2 units (needed love for Monty, mainly)
+#   
+#   Fixed reduntant workboat issue.
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@338
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@339
+@@ -4207,7 +4207,7 @@
+ 	int iBonusFoodDiff = ((iBonusFoodSurplus + iFeatureFoodSurplus) - iBonusFoodDeficit);
+ 
+ 	int iTargetSize = min(iGoodTileCount, getPopulation()+(happyLevel()-unhappyLevel()));
+-	iTargetSize = min(iTargetSize, getPopulation()+(healthRate()));
++	iTargetSize = min(iTargetSize, 1 + getPopulation() + goodHealth() - badHealth());
+ 
+ 	if (iBonusFoodDiff < 3)
+ 	{
+@@ -5793,16 +5793,28 @@
+ 						// (range 1-25) - we want to grow more if we have a lot of growth to do
+ 						// factor goes up like this: 0:1, 1:8, 2:9, 3:10, 4:11, 5:13, 6:14, 7:15, 8:16, 9:17, ... 17:25
+ 						int iFactorPopToGrow;
++//						if (iPopToGrow < 1 || bFillingBar)
++//							iFactorPopToGrow = 1;
++//						else if (iPopToGrow < 4)
++//							iFactorPopToGrow = 7 + iPopToGrow;
++//						else if (iPopToGrow < 6)
++//							iFactorPopToGrow = 3 + (2 * iPopToGrow);
++//						else if (iPopToGrow < 17)
++//							iFactorPopToGrow = 8 + iPopToGrow;
++//						else // iPopToGrow >= 17
++//							iFactorPopToGrow = 25;
++
+ 						if (iPopToGrow < 1 || bFillingBar)
+ 							iFactorPopToGrow = 1;
+-						else if (iPopToGrow < 4)
++						else if (iPopToGrow < 7)
+ 							iFactorPopToGrow = 7 + iPopToGrow;
+-						else if (iPopToGrow < 6)
+-							iFactorPopToGrow = 3 + (2 * iPopToGrow);
+-						else if (iPopToGrow < 17)
+-							iFactorPopToGrow = 8 + iPopToGrow;
+-						else // iPopToGrow >= 17
+-							iFactorPopToGrow = 25;
++						else
++							iFactorPopToGrow = 14;
++						
++						if (AI_isEmphasizeYield(YIELD_PRODUCTION) || AI_isEmphasizeYield(YIELD_COMMERCE))
++						{
++							iFactorPopToGrow *= 2;
++						}
+ 						// cap iFactorPopToGrow if this is a very poor tile
+ 						if (iFactorPopToGrow > 1 &&
+ 							aiYields[YIELD_FOOD] <= iConsumtionPerPop && (aiYields[YIELD_PRODUCTION] + aiYields[YIELD_COMMERCE]) < 1)
+@@ -5870,7 +5882,9 @@
+ 				//Slavery Override
+ 				if (bCanPopRush && (iHappinessLevel > 0) && (iHealthLevel > 0))
+ 				{
+-					iSlaveryValue = 25 * aiYields[YIELD_FOOD];
++					iSlaveryValue = 30 * 14 * aiYields[YIELD_FOOD];
++					iSlaveryValue /= max(10, (growthThreshold() * (100 - getMaxFoodKeptPercent())));
++					
+ 					iSlaveryValue *= 100;
+ 					iSlaveryValue /= getHurryCostModifier(true);
+ 					
+@@ -5958,10 +5972,12 @@
+ 	}
+ 	else
+ 	{
+-		iProductionValue *= (100 + AI_specialYieldMultiplier(YIELD_PRODUCTION));
+ 		iProductionValue *= iBaseProductionModifier;
+ 		iProductionValue /= (iBaseProductionModifier + iExtraProductionModifier);
+-		iProductionValue += 100 * iSlaveryValue;
++		
++		iProductionValue += iSlaveryValue;
++		iProductionValue *= (100 + AI_specialYieldMultiplier(YIELD_PRODUCTION));
++		
+ 		iProductionValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_PRODUCTION);
+ 	}
+ 	iValue += iProductionValue;
+@@ -7517,6 +7533,7 @@
+ 			m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 50;
+ 			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 25;					
+ 		}
++		m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += max(-25, GC.getBuildingInfo(eProductionBuilding).getFoodKept());
+ 	}
+ 	
+ 	// non-human production value increase
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@338
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@339
+@@ -10185,6 +10185,16 @@
+ 				if (getCapitalCity()->canTrain(eLoopUnit))
+ 				{
+ 					iAttackUnitCount++;
++					
++					//UU love
++					if ((GC.getUnitClassInfo((UnitClassTypes)iI).getDefaultUnitIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)))
++					{
++						if (GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_ATTACK_CITY)
++							|| (GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_ATTACK) && !GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_CITY_DEFENSE)))
++						{
++							iAttackUnitCount++;					
++						}
++					}
+ 				}
+ 			}
+ 		}
+@@ -10280,7 +10290,6 @@
+ 						if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() == NO_TECH)
+                         {
+                             iDagger += 20;
+-                            iAttackUnitCount += 1;
+                         }
+                     }
+                     else
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@338
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@339
+@@ -11784,7 +11784,14 @@
+ 								iValue *= 2;
+ 							}
+ 							
+-							if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup()) < min(3, (iValue / 10)))
++							int iMaxWorkers = 1;
++							if ((eBestTempBuild != NO_BUILD) && (!GC.getBuildInfo(eBestTempBuild).isKill()))
++							{
++								//allow teaming.
++								iMaxWorkers = min(3, (iValue / 10));
++							}
++							
++							if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup()) < iMaxWorkers)
+                         	{
+ 								if (bDoImprove)
+ 								{
+

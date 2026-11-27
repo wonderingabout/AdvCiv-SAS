@@ -1,0 +1,103 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 359
+# Author: iustus
+# Date: 2007-02-12T00:42:58.256139Z
+# Coverage: full
+# Message:
+#   fixed bug where a 5% chance of total war was actually a 95% chance for total war
+#   updated chipotle displays to show new war percentage based on previous change to war percentage based on unit cost percentage
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@358
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@359
+@@ -2873,15 +2873,15 @@
+ 					int iOtherValue = kTeam.AI_endWarVal(eLoopTeam);
+ 					int iTheirValue = kLoopTeam.AI_endWarVal(eTeam);
+ 					
+-					szBuffer += CvWString::format(SETCOLR L" %s " ENDCOLR SETCOLR L"(%d)" ENDCOLR SETCOLR L" with %s " ENDCOLR  SETCOLR L"(%d)\n" ENDCOLR, 
++					szBuffer += CvWString::format(SETCOLR L" %s " ENDCOLR SETCOLR L"(%d, %d)" ENDCOLR SETCOLR L" with %s " ENDCOLR  SETCOLR L"(%d, %d)\n" ENDCOLR, 
+ 						TEXT_COLOR((iOtherValue < iTheirValue) ? "COLOR_POSITIVE_TEXT" : "COLOR_NEGATIVE_TEXT"),
+ 						szWarplan.GetCString(),
+ 						TEXT_COLOR((iOtherValue < iTheirValue) ? "COLOR_POSITIVE_TEXT" : "COLOR_NEGATIVE_TEXT"),
+-						iOtherValue, 
++						iOtherValue, kTeam.AI_getWarSuccess(eLoopTeam),
+ 						TEXT_COLOR((iOtherValue < iTheirValue) ? "COLOR_POSITIVE_TEXT" : "COLOR_NEGATIVE_TEXT"),
+ 						kLoopTeam.getName().GetCString(),
+ 						TEXT_COLOR((iTheirValue < iOtherValue) ? "COLOR_POSITIVE_TEXT" : "COLOR_NEGATIVE_TEXT"),
+-						iTheirValue);
++						iTheirValue, kLoopTeam.AI_getWarSuccess(eTeam));
+ 				}
+ 			}
+ 		}
+@@ -2965,7 +2965,30 @@
+ 			}
+ 		}
+ 
+-	    // if random in this range is 0, we go to war of this type (so lower numbers are higher probablity)
++		// calculate unit spending for use in iTotalWarRandThreshold
++		int iNumMembers = kTeam.getNumMembers();
++		int iHighUnitSpendingPercent = 0;
++
++		for (iI = 0; iI < MAX_PLAYERS; iI++)
++		{
++			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes) iI);
++			if (kPlayer.isAlive())
++			{
++				if (kPlayer.getTeam() == eTeam)
++				{
++					int iUnitSpendingPercent = (kPlayer.calculateUnitCost() * 100) / max(1, kPlayer.calculatePreInflatedCosts());
++					iHighUnitSpendingPercent += (max(0, iUnitSpendingPercent - 7) / 2);
++				}			
++			}
++		}
++
++		iHighUnitSpendingPercent /= iNumMembers;
++
++		// calculate war threshold
++		int iTotalWarRandThreshold = iHighUnitSpendingPercent * (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 4 : 2);
++		iTotalWarRandThreshold /= 3;
++
++		// if random in this range is 0, we go to war of this type (so lower numbers are higher probablity)
+ 		// average of everyone on our team
+ 		int iMaxWarRand = kTeam.AI_maxWarRand();
+ 	    int iLimitedWarRand = kTeam.AI_limitedWarRand();
+@@ -3203,8 +3226,8 @@
+ 
+ 						if (bFirst)
+ 						{
+-							float fMaxWarPercentage = fOverallWarPercentage / iMaxWarRand;
+-							szBuffer += CvWString::format(SETCOLR L"%.2f%% Total War:\n" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), fMaxWarPercentage);
++							float fMaxWarPercentage = (fOverallWarPercentage * (iTotalWarRandThreshold + 1)) / iMaxWarRand;
++							szBuffer += CvWString::format(SETCOLR L"%.2f%% [%d/%d] Total War:\n" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), fMaxWarPercentage, (iTotalWarRandThreshold + 1), iMaxWarRand);
+ 							bFirst = false;
+ 						}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@358
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@359
+@@ -3203,8 +3203,8 @@
+ 	    iDogpileWarRand *= iNumMembers;
+ 	    iDogpileWarRand /= (iNumMembers + iNumVassals);
+ 	    
+-	    int iWarRandThreshold = iHighUnitSpendingPercent * (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 4 : 2);
+-	    iWarRandThreshold /= 3;
++	    int iTotalWarRandThreshold = iHighUnitSpendingPercent * (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 4 : 2);
++	    iTotalWarRandThreshold /= 3;
+ 		
+ 		// we oppose war if half the non-dagger teammates in financial trouble
+ 		bool bFinancesOpposeWar = false;
+@@ -3269,7 +3269,7 @@
+ 			}
+ 
+ 			if ((bFinancesProMaxWar || !bFinancesOpposeWar) &&
+-				(GC.getGameINLINE().getSorenRandNum(iMaxWarRand, "AI Maximum War") >= iWarRandThreshold))
++				(GC.getGameINLINE().getSorenRandNum(iMaxWarRand, "AI Maximum War") <= iTotalWarRandThreshold))
+ 			{
+ 				iNoWarRoll = GC.getGameINLINE().getSorenRandNum(100, "AI No War") - 0;
+ 				iNoWarRoll = range(iNoWarRoll + (bAggressive ? 10 : 0) + (bFinancesProMaxWar ? 10 : 0), 0, 99);
+

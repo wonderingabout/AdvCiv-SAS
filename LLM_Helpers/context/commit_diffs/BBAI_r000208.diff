@@ -1,0 +1,33 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 208
+# Author: iustus
+# Date: 2006-12-19T03:10:45.443663Z
+# Coverage: full
+# Message:
+#   fixed bug where it would not work good plots because it thought they were bad plots (new bug)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@207
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@208
+@@ -63,7 +63,7 @@
+ };
+ #endif
+ 
+-//#define DEBUG_CITY_BUILDS
++#define DEBUG_CITY_BUILDS
+ #ifdef DEBUG_CITY_BUILDS
+ inline void getBuildingFocusString(CvWString& szString, int iFocusFlags)
+ {
+@@ -5600,7 +5600,7 @@
+ 							iFactorPopToGrow = 25;
+ 						// cap iFactorPopToGrow if this is a very poor tile
+ 						if (iFactorPopToGrow > 1 &&
+-							aiYields[YIELD_FOOD] <= iConsumtionPerPop && (aiYields[YIELD_PRODUCTION] + aiYields[YIELD_COMMERCE]) < 2)
++							aiYields[YIELD_FOOD] <= iConsumtionPerPop && (aiYields[YIELD_PRODUCTION] + aiYields[YIELD_COMMERCE]) < 1)
+ 						{
+ 							iFactorPopToGrow = 1;
+ 						}
+

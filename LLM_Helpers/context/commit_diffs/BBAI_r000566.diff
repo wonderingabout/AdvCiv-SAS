@@ -1,0 +1,68 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 566
+# Author: jdog5000
+# Date: 2010-05-16T08:20:09.334887Z
+# Coverage: full
+# Message:
+#   Devel version 1.00d
+# Changed paths (3):
+#   M /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+#   M /trunk/Better BTS AI/readme.txt
+#   M /trunk/Better BTS AI/todo and ideas.txt
+
+Index: /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/readme.txt
+--- /trunk/Better BTS AI/readme.txt@565
++++ /trunk/Better BTS AI/readme.txt@566
+@@ -212,6 +212,10 @@
+ - AI Great Generals will no longer lead units which can't kill enemy units such as catapults
+ - Great Generals are always willing to lead units whose class has MaxGlobalInstances set regardless of UNITAI (for mods)
+ 
++Barbarian AI
++- No barb stacks sitting on goody huts, only single units
++- If barbs have upper hand in an area (like new world), then they'll group stacks more actively
++
+ General AI
+ - Changed player consistent random method for picking strategies from being based on capital city location to a stored rand, so AI player tendencies will be consistent even if capital moves
+ - Changed how building defense is handled when unit is estimating its defensive strength against unknown attacker (CvUnit::maxCombatStr(pPlot,NULL)).  Firaxis took conservative approach and always ignored defense in this case (so defensive strength could be considerably higher in castled low culture city).  This lead to AIs suiciding stacks on city walls in early/mid game.  New method is to use ignoreBuildingDefense flag of defender which should have fewer fatal side effects.
+
+Index: /trunk/Better BTS AI/todo and ideas.txt
+--- /trunk/Better BTS AI/todo and ideas.txt@565
++++ /trunk/Better BTS AI/todo and ideas.txt@566
+@@ -28,6 +28,10 @@
+ - Breakout power calculations into land, sea, air, production?
+ 	- Add power for promotions (and subtract on death)
+ 
++- High value unit preservation
++
++- AI willing to end wars earlier if it has a much higher value target
++
+ - DPII diplomacy changes?
+ 
+ -----------------------------------------------------------
+@@ -55,7 +59,7 @@
+ x Rush defenses just after being declared on if behind in power
+ - Settler production priority, adjust area city site values based on number of settlers in the field
+ - Cities build culture to grab bonuses
+-- Handle early choke better
++x Handle early choke better
+ 
+ Worker AI:
+ - Build railroads on mines etc with high priority to speed industrial revolution
+@@ -151,3 +155,12 @@
+ 2)  Better economic/production power understanding (can enemy out produce us?)
+ 3)  Better tech power understanding (do we need to catch up in military tech?)
+ 
++Centralized national wonder construction:
++0) Evaluate current war/economic climate, decide how many cities can be tied up with wonders
++1) Loop over all cities (skip small, crappy ones?), and all unbuilt national wonders, creating list for each wonder of its top cities and their computed values
++2) Discount values for nat wonders which cannot be built yet, especially those far away in tech tree
++3) Loop over wonders in order of top value and assign wonder to highest value city which still has slot open
++4) Before pushing construction, check for fast production boosting builds
++- Debug values can use Ctrl+Alt hover over city? Or override civics/techs during development
++- Make sure that certain wonder combos get boosts, wall street favored for holy city, etc
++
+

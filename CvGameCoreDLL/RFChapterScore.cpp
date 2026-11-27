@@ -1,4 +1,5 @@
 #include "CvGameCoreDLL.h"
+#include "SASSaveStreamFormat.h" // <!-- custom: Use the same compile-time write markers as the session diagnostic registry, avoiding duplicated version literals. (GPT-6.1-Sol) -->
 #include "RFChapterScore.h"
 #include "RiseFall.h"
 #include "RFChapter.h"
@@ -29,7 +30,8 @@ void RFChapterScore::reset() {
 
 void RFChapterScore::write(FDataStreamBase* pStream) {
 
-	int savegameVersion = 0;
+	// <!-- custom: Reuse the existing RFChapterScore write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
+	int savegameVersion = SASSaveStreamFormat::RF_CHAPTER_SCORE;
 	pStream->Write(savegameVersion);
 	pStream->Write(total);
 	pStream->Write(totalScaled);
@@ -87,8 +89,7 @@ void RFChapterScore::atChapterStart(RFChapter const& rfc) {
 	initialRivals = rank_rivals.second;
 }
 
-std::pair<int,int> RFChapterScore::computeRank(bool storeCivScores,
-		bool ignoreVictStage) {
+std::pair<int,int> RFChapterScore::computeRank(bool storeCivScores, bool ignoreVictStage) {
 
 	if(chapter == NULL) {
 		FAssert(chapter != NULL);

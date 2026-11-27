@@ -1,0 +1,105 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 95
+# Author: blakeciv
+# Date: 2006-11-17T22:39:06.880819Z
+# Coverage: full
+# Message:
+#   Artists are now weighted more appropriately during a cultural victory homerun.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@94
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@95
+@@ -323,13 +323,22 @@
+ 	int iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
+ 	int iNumCities = GET_PLAYER(getOwnerINLINE()).getNumCities();
+ 
++
++    int iCultureModifier = 1;
++    iCultureModifier += GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE2) ? 1 : 0;
++    iCultureModifier += GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3) ? 1 : 0;
++    
++    
+ 	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 	{
+ 		aiYields[iI] = GET_PLAYER(getOwnerINLINE()).specialistYield(eSpecialist, ((YieldTypes)iI));
+ 	}
++	
++	aiYields[YIELD_PRODUCTION] /= iCultureModifier;
+ 
+ 	iValue = AI_yieldValue(aiYields, bAvoidGrowth, bRemove);
+-
++	
++    
+ 	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 	{
+ 		iCommerce = GET_PLAYER(getOwnerINLINE()).specialistCommerce(eSpecialist, ((CommerceTypes)iI));
+@@ -342,28 +351,23 @@
+ 			
+ 			if (AI_isEmphasizeCommerce((CommerceTypes)iI) ||
+ 				// since the UI does not let you specify emp gold, let emp commerce include gold 
+-				((CommerceTypes)iI == COMMERCE_GOLD && AI_isEmphasizeYield(YIELD_COMMERCE)))
++				((iCultureModifier == 1) && ((CommerceTypes)iI == COMMERCE_GOLD) && AI_isEmphasizeYield(YIELD_COMMERCE)))
+ 			{
+ 				iTempValue += (iCommerce * 20);
+ 			}
+-
++			
+ 			if ((CommerceTypes)iI == COMMERCE_CULTURE)
+ 			{
+-			    if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE2))
+-			    {
+-			        //culture is valued very low so the increase needs to be high.
+-			        iTempValue *= 20;
+-			        if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3))
+-			        {
+-                        iTempValue *= 2;
+-                    }
+-			        		        
+-			    }
+-			    else
++			    iTempValue *= iCultureModifier;
++			    if (iCultureModifier == 0)
+ 			    {
+                     iTempValue *= (2 * (105 - calculateCulturePercent(getOwnerINLINE())));
+                     iTempValue /= 100;
+ 			    }
++			}
++			else
++			{
++			    iTempValue /= iCultureModifier;
+ 			}
+ 
+ 			iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_commerceWeight(((CommerceTypes)iI), this);
+@@ -3499,6 +3503,7 @@
+ 	int iPopulationRank;
+ 	bool bGrow;
+ 	bool bUrgentBuild;
++	bool bCultureVictory = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE2);
+ 	int iI;
+ 
+ 	bool bPopRush = false;
+@@ -3574,7 +3579,7 @@
+ 
+ 		if (GC.getEmphasizeInfo((EmphasizeTypes)iI).getCommerceChange(COMMERCE_RESEARCH) > 0)
+ 		{
+-			if (bFirstTech && !bUrgentBuild)
++			if (bFirstTech && !bUrgentBuild && !bCultureVictory)
+ 			{
+ 				if (iPopulationRank < ((GET_PLAYER(getOwnerINLINE()).getNumCities() / 4) + 1))
+ 				{
+@@ -3589,7 +3594,10 @@
+ 			{
+ 				if (iPopulationRank < ((GET_PLAYER(getOwnerINLINE()).getNumCities() / 5) + 1))
+ 				{
+-					bEmphasize = true;
++				    if (!bCultureVictory || findCommerceRateRank(COMMERCE_CULTURE) > 4)
++				    {
++                        bEmphasize = true;
++				    }
+ 				}
+ 			}
+ 		}
+

@@ -1,0 +1,754 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 451
+# Author: jdog5000
+# Date: 2009-06-05T03:08:22.531496Z
+# Coverage: full
+# Message:
+#   Version 0.76F
+#   
+#   Fixed several bugs
+#   Adjusted capitulation threshold calcs
+# Changed paths (13):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvArea.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.h
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvArea.cpp
+--- /trunk/CvGameCoreDLL/CvArea.cpp@450
++++ /trunk/CvGameCoreDLL/CvArea.cpp@451
+@@ -859,6 +859,7 @@
+ 	FAssertMsg(eIndex2 < NUM_UNITAI_TYPES, "eIndex2 is expected to be < NUM_UNITAI_TYPES");
+ 	m_aaiNumAIUnits[eIndex1][eIndex2] = (m_aaiNumAIUnits[eIndex1][eIndex2] + iChange);
+ 	FAssert(getNumAIUnits(eIndex1, eIndex2) >= 0);
++
+ }
+ 
+ 
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@450
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@451
+@@ -4270,7 +4270,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.76B");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.76F");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@450
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@451
+@@ -1722,6 +1722,7 @@
+ 	pSelectionGroup = ((CvSelectionGroup *)pointer);
+ 
+ 	// XXX might want to take this out...
++	// BBAI TODO: fix this check to allow all terrain sea units to move diagonally over land
+ 	if (pSelectionGroup->getDomainType() == DOMAIN_SEA)
+ 	{
+ 		if (pFromPlot->isWater() && pToPlot->isWater())
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@450
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@451
+@@ -1241,7 +1241,7 @@
+ 				// do not split groups that are in the midst of attacking
+ 				if (pLoopSelectionGroup->isForceUpdate() || !pLoopSelectionGroup->AI_isGroupAttack())
+ 				{
+-					pLoopSelectionGroup->AI_separate();	// pointers could become invalid...
++					pLoopSelectionGroup->AI_seperate();	// pointers could become invalid...
+ 				}
+ 			}
+ 		}
+@@ -8756,7 +8756,19 @@
+ 				if (GC.getUnitInfo(eUnit).getCorporationSpreads(iI) > 0)
+ 				{
+ 					iValue += (5 * GC.getUnitInfo(eUnit).getCorporationSpreads(iI)) / 2;
+-					iValue += 300 / std::max(1, pArea->countHasCorporation((CorporationTypes)iI, getID()));
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      06/03/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix				                                                                         */
++/*************************************************************************************************/
++					// Fix potential rare crash
++					if( pArea != NULL )
++					{
++						iValue += 300 / std::max(1, pArea->countHasCorporation((CorporationTypes)iI, getID()));
++					}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 				}
+ 			}
+ 		}
+@@ -8832,6 +8844,19 @@
+ 		{
+ 			iValue += 200;
+ 		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      06/03/09                                jdog5000      */
++/**                                                                                              */
++/** General AI                                                                                   */
++/*************************************************************************************************/
++		// Boats which can't be seen don't play defense, don't make good escorts
++		if (GC.getUnitInfo(eUnit).getInvisibleType() != NO_INVISIBLE)
++		{
++			iValue /= 2;
++		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		break;
+ 
+ 	case UNITAI_EXPLORE_SEA:
+@@ -8839,13 +8864,13 @@
+ 			int iExploreValue = 100;
+ 			if (pArea != NULL)
+ 			{
+-			if (pArea->isWater())
+-			{
+-				if (pArea->getUnitsPerPlayer(BARBARIAN_PLAYER) > 0)
+-				{
+-					iExploreValue += (2 * iCombatValue);
+-				}
+-			}
++				if (pArea->isWater())
++				{
++					if (pArea->getUnitsPerPlayer(BARBARIAN_PLAYER) > 0)
++					{
++						iExploreValue += (2 * iCombatValue);
++					}
++				}
+ 			}
+ 			iValue += (GC.getUnitInfo(eUnit).getMoves() * iExploreValue);
+ 			if (GC.getUnitInfo(eUnit).isAlwaysHostile())
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@450
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@451
+@@ -6947,7 +6947,22 @@
+ 
+ 		m_aiBlockadedCount[eTeam] += iChange;
+ 		FAssert(getBlockadedCount(eTeam) >= 0);
+-		FAssert(getBlockadedCount(eTeam) == 0 || isWater())
++		FAssert(getBlockadedCount(eTeam) == 0 || isWater());
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      06/01/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++		// Hack so that never get negative blockade counts as a result of fixing issue causing
++		// rare permanent blockades.
++		if( getBlockadedCount(eTeam) < 0 )
++		{
++			m_aiBlockadedCount[eTeam] = 0;
++		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 		CvCity* pWorkingCity = getWorkingCity();
+ 		if (NULL != pWorkingCity)
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@450
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@451
+@@ -2845,6 +2845,27 @@
+ 
+ 	return true;
+ }
++
++bool CvSelectionGroup::canMoveAllTerrain() const
++{
++	CLLNode<IDInfo>* pUnitNode;
++	CvUnit* pLoopUnit;
++
++	pUnitNode = headUnitNode();
++
++	while (pUnitNode != NULL)
++	{
++		pLoopUnit = ::getUnit(pUnitNode->m_data);
++		pUnitNode = nextUnitNode(pUnitNode);
++
++		if (!(pLoopUnit->canMoveAllTerrain()))
++		{
++			return false;
++		}
++	}
++
++	return true;
++}
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+@@ -3692,23 +3713,21 @@
+ 		}
+ 	}
+ }
++
++bool CvSelectionGroup::isAmphibPlot(const CvPlot* pPlot) const
++{
++	bool bFriendly = true;
++	CvUnit* pUnit = getHeadUnit();
++	if (NULL != pUnit)
++	{
++		bFriendly = pPlot->isFriendlyCity(*pUnit, true);
++	}
++
++	return ((getDomainType() == DOMAIN_SEA) && pPlot->isCoastalLand() && !bFriendly && !canMoveAllTerrain());
++}
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+-
+-
+-bool CvSelectionGroup::isAmphibPlot(const CvPlot* pPlot) const
+-{
+-	bool bFriendly = true;
+-	CvUnit* pUnit = getHeadUnit();
+-	if (NULL != pUnit)
+-	{
+-		bFriendly = pPlot->isFriendlyCity(*pUnit, true);
+-	}
+-
+-	return ((getDomainType() == DOMAIN_SEA) && pPlot->isCoastalLand() && !bFriendly);
+-}
+-
+ 
+ // Returns true if attempted an amphib landing...
+ bool CvSelectionGroup::groupAmphibMove(CvPlot* pPlot, int iFlags)
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.h@450
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.h@451
+@@ -73,12 +73,13 @@
+ 	bool canBombard(const CvPlot* pPlot);
+ 	bool visibilityRange();
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/01/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      06/02/09                                jdog5000      */
+ /**                                                                                              */
+ /** General AI                                                                                   */
+ /*************************************************************************************************/
+ 	int getBombardTurns( CvCity* pCity );
+ 	bool isStranded();
++	bool canMoveAllTerrain() const;
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+@@ -197,7 +198,7 @@
+ 
+ 	virtual void AI_init() = 0;
+ 	virtual void AI_reset() = 0;
+-	virtual void AI_separate() = 0;
++	virtual void AI_seperate() = 0;
+ 	virtual bool AI_update() = 0;
+ 	virtual int AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const = 0;
+ 	virtual CvUnit* AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, int& iUnitOdds, bool bForce = false, bool bNoBlitz = false) const = 0;
+@@ -220,10 +221,11 @@
+ 	virtual void AI_seperateNonAI(UnitAITypes eUnitAI) = 0;
+ 	virtual void AI_seperateAI(UnitAITypes eUnitAI) = 0;
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      11/30/08                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      06/02/09                                jdog5000      */
+ /**                                                                                              */
+ /** General AI                                                                                   */
+ /*************************************************************************************************/
++	virtual void AI_seperateImpassable() = 0;
+ 	virtual void AI_seperateEmptyTransports() = 0;
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@450
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@451
+@@ -58,7 +58,7 @@
+ }
+ 
+ 
+-void CvSelectionGroupAI::AI_separate()
++void CvSelectionGroupAI::AI_seperate()
+ {
+ 	CLLNode<IDInfo>* pEntityNode;
+ 	CvUnit* pLoopUnit;
+@@ -123,10 +123,33 @@
+ }
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      11/30/08                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      06/02/09                                jdog5000      */
+ /**                                                                                              */
+ /** General AI                                                                                   */
+ /*************************************************************************************************/
++void CvSelectionGroupAI::AI_seperateImpassable()
++{
++	CLLNode<IDInfo>* pEntityNode;
++	CvUnit* pLoopUnit;
++	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
++
++	pEntityNode = headUnitNode();
++
++	while (pEntityNode != NULL)
++	{
++		pLoopUnit = ::getUnit(pEntityNode->m_data);
++		pEntityNode = nextUnitNode(pEntityNode);
++		if( (kPlayer.AI_unitImpassableCount(pLoopUnit->getUnitType()) > 0) )
++		{
++			pLoopUnit->joinGroup(NULL);
++			if (plot()->getTeam() == getTeam())
++			{
++				pLoopUnit->getGroup()->pushMission(MISSION_SKIP);
++			}
++		}
++	}
++}
++
+ void CvSelectionGroupAI::AI_seperateEmptyTransports()
+ {
+ 	CLLNode<IDInfo>* pEntityNode;
+@@ -252,7 +275,7 @@
+ 		// (UnitAI of head unit may have changed)
+ 		if (!m_bGroupAttack && AI_isForceSeparate())
+ 		{
+-			AI_separate();	// pointers could become invalid...
++			AI_seperate();	// pointers could become invalid...
+ 			return true;
+ 		}
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.h@450
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.h@451
+@@ -19,14 +19,15 @@
+ 	void AI_uninit();
+ 	void AI_reset();
+ 
+-	void AI_separate();
++	void AI_seperate();
+ 	void AI_seperateNonAI(UnitAITypes eUnitAI);
+ 	void AI_seperateAI(UnitAITypes eUnitAI);
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      11/30/08                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      06/02/09                                jdog5000      */
+ /**                                                                                              */
+ /** General AI                                                                                   */
+ /*************************************************************************************************/
++	void AI_seperateImpassable();
+ 	void AI_seperateEmptyTransports();
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@450
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@451
+@@ -1828,8 +1828,41 @@
+ 			}
+ 		}
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      06/03/09                                jdog5000      */
++/**                                                                                              */
++/** War Strategy AI                                                                              */
++/*************************************************************************************************/
++/* original BTS code
+ 		int iTotalPower = GC.getGameINLINE().countTotalCivPower();
+ 		int iAveragePower = iTotalPower / std::max(1, GC.getGameINLINE().countCivTeamsAlive());
++*/
++
++		// Note to self:  Adapt this for Revolution
++
++		int iTotalPower = 0;
++		int iNumNonVassals = 0;
++		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
++		{
++			CvTeam& kTeam = GET_TEAM((TeamTypes) iI);
++			if (kTeam.isAlive() && !(kTeam.isMinorCiv()))
++			{
++				if( kTeam.isAVassal() && kTeam.isCapitulated() )
++				{
++					// Count capitulated vassals as a fractional add to their master's power
++					iTotalPower += (2*kTeam.getPower(false))/5;
++				}
++				else
++				{
++					iTotalPower += kTeam.getPower(false);
++					iNumNonVassals++;
++				}
++			}
++		}
++		int iAveragePower = iTotalPower / std::max(1, iNumNonVassals);
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		int iMasterPower = GET_TEAM(eTeam).getPower(false);
+ 		int iVassalPower = (getPower(true) * (iPowerMultiplier + iPersonalityModifier / std::max(1, iMembers))) / 100;
+ 
+@@ -1929,7 +1962,18 @@
+ 			return DENIAL_POWER_US;
+ 		}
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      06/02/09                                jdog5000      */
++/**                                                                                              */
++/** War Strategy AI                                                                              */
++/*************************************************************************************************/
++/* original bts code
+ 		if (iVassalPower > iAveragePower || 3 * iVassalPower > 2 * iMasterPower)
++*/
++		if (5*iVassalPower > 4*iAveragePower || 3 * iVassalPower > 2 * iMasterPower)
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		{
+ 			return DENIAL_POWER_US;
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@450
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@451
+@@ -2924,18 +2924,24 @@
+ 
+ 	case AUTOMATE_EXPLORE:
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/12/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      06/02/09                                jdog5000      */
+ /**                                                                                              */
+ /** Player Interface                                                                             */
+ /*************************************************************************************************/
+ 		// Enable exploration for air units
+ 		if ((!canFight() && (getDomainType() != DOMAIN_SEA) && (getDomainType() != DOMAIN_AIR)) || (getDomainType() == DOMAIN_IMMOBILE))
++		{
++			return false;
++		}
++
++		if( getDomainType() == DOMAIN_AIR && !canRecon(NULL) )
++		{
++			return false;
++		}
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/		
+-		{
+-			return false;
+-		}
++
+ 		break;
+ 
+ 	case AUTOMATE_RELIGION:
+@@ -4706,11 +4712,12 @@
+ 	bool bChanged = false;
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      12/08/08                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      06/01/09                                jdog5000      */
+ /**                                                                                              */
+ /** Bugfix                                                                                       */
+ /*************************************************************************************************/
+-	gDLL->getFAStarIFace()->ForceReset(&GC.getStepFinder());
++	//gDLL->getFAStarIFace()->ForceReset(&GC.getStepFinder());
++	bool bValid = false;
+ 	for (int i = -iBlockadeRange; i <= iBlockadeRange; ++i)
+ 	{
+ 		for (int j = -iBlockadeRange; j <= iBlockadeRange; ++j)
+@@ -4721,26 +4728,45 @@
+ 			{
+ 
+ 				int iPathDist = GC.getMapINLINE().calculatePathDistance(plot(),pLoopPlot);
++				
++				// BBAI NOTES:  There are rare issues where the path finder will return incorrect results
++				// for unknown reasons.  Seems to find a suboptimal path sometimes in partially repeatable 
++				// circumstances.  The fix below is a hack to address the permanent one or two tile blockades which 
++				// would appear randomly, it should cause extra blockade clearing only very rarely.
++				/*
+ 				if( iPathDist > iBlockadeRange )
+ 				{
+ 					// No blockading on other side of an isthmus
+ 					continue;
+ 				}
+-
+-				for (int iTeam = 0; iTeam < MAX_TEAMS; ++iTeam)
++				*/
++				
++				if( (iPathDist >= 0) && (iPathDist <= iBlockadeRange + 2) )
+ 				{
+-					if (isEnemy((TeamTypes)iTeam))
++					for (int iTeam = 0; iTeam < MAX_TEAMS; ++iTeam)
+ 					{
+-						if (!bChanged)
++						if (isEnemy((TeamTypes)iTeam))
+ 						{
+-							bOldTradeNet = pLoopPlot->isTradeNetwork((TeamTypes)iTeam);
+-						}
+-
+-						pLoopPlot->changeBlockadedCount((TeamTypes)iTeam, iChange);
+-
+-						if (!bChanged)
+-						{
+-							bChanged = (bOldTradeNet != pLoopPlot->isTradeNetwork((TeamTypes)iTeam));
++							bValid = (iPathDist <= iBlockadeRange);
++							if( !bValid && (iChange == -1 && pLoopPlot->getBlockadedCount((TeamTypes)iTeam) == 1) )
++							{
++								bValid = true;
++							}
++
++							if( bValid )
++							{
++								if (!bChanged)
++								{
++									bOldTradeNet = pLoopPlot->isTradeNetwork((TeamTypes)iTeam);
++								}
++
++								pLoopPlot->changeBlockadedCount((TeamTypes)iTeam, iChange);
++
++								if (!bChanged)
++								{
++									bChanged = (bOldTradeNet != pLoopPlot->isTradeNetwork((TeamTypes)iTeam));
++								}
++							}
+ 						}
+ 					}
+ 				}
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@450
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@451
+@@ -1786,7 +1786,7 @@
+ {
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      02/11/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      06/03/09                                jdog5000      */
+ /**                                                                                              */
+ /** Unit AI                                                                                      */
+ /*************************************************************************************************/
+@@ -1800,25 +1800,20 @@
+ 				// Should never have attack city group lead by attack unit
+ 				if( getGroup()->countNumUnitAIType(UNITAI_ATTACK_CITY) > 0 )
+ 				{
+-					getGroup()->AI_separate();
+-
+-					if( AI_getUnitAIType() != eGroupAI )
+-					{
+-						getGroup()->pushMission(MISSION_SKIP);
+-						return;
+-					}
++					getGroup()->AI_seperateAI(UNITAI_ATTACK_CITY); // will change group
++
++					// Since ATTACK can try to joing ATTACK_CITY again, need these units to
++					// take a break to let ATTACK_CITY group move and avoid hang
++					getGroup()->pushMission(MISSION_SKIP);
++					return;
+ 				}
+ 
+ 				// Shouldn't have groups of > 2 attack units
+ 				if( getGroup()->countNumUnitAIType(UNITAI_ATTACK) > 2 )
+ 				{
+-					getGroup()->AI_separate();
+-
+-					if( AI_getUnitAIType() != eGroupAI )
+-					{
+-						getGroup()->pushMission(MISSION_SKIP);
+-						return;
+-					}
++					getGroup()->AI_seperateAI(UNITAI_ATTACK); // will change group
++
++					FAssert( eGroupAI == getGroup()->getHeadUnitAI() );
+ 				}
+ 			}
+ 		}
+@@ -3185,12 +3180,9 @@
+ 		{
+ 			if( plot()->isCity() && plot()->getOwnerINLINE() == getOwnerINLINE() )
+ 			{
+-				getGroup()->AI_separate();
+-
+-				if( AI_getUnitAIType() != eGroupAI )
+-				{
+-					return;
+-				}
++				getGroup()->AI_seperate(); // will change group
++				FAssert(false);
++				return;
+ 			}
+ 		}
+ 	}
+@@ -5823,7 +5815,7 @@
+ /********************************************************************************/
+ 
+ /********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						01/22/09			jdog5000	*/
++/**		BETTER_BTS_AI_MOD						06/02/09			jdog5000	*/
+ /**																				*/
+ /**		Naval AI																*/
+ /********************************************************************************/
+@@ -5893,11 +5885,33 @@
+ 		}
+ 	}
+ 
+-	if (bIsCity)
+-	{
++	if (bIsCity )
++	{
++		CvCity* pCity = plot()->getPlotCity();
++
++		if( pCity != NULL && (plot()->getOwnerINLINE() == getOwnerINLINE()) ) 
++		{
++			// split out galleys from stack of ocean capable ships
++			if( GET_PLAYER(getOwnerINLINE()).AI_unitImpassableCount(getUnitType()) == 0 && getGroup()->getNumUnits() > 1 )
++			{
++				getGroup()->AI_seperateImpassable();
++			}
++
++			// galleys with upgrade available should get that ASAP
++			if( GET_PLAYER(getOwnerINLINE()).AI_unitImpassableCount(getUnitType()) > 0 )
++			{
++				CvCity* pUpgradeCity = getUpgradeCity(false);
++				if( pUpgradeCity != NULL && pUpgradeCity == pCity )
++				{
++					// Wait for upgrade, this unit is top upgrade priority
++					getGroup()->pushMission(MISSION_SKIP);
++					return;
++				}
++			}
++		}
++
+ 		if( (iCargo > 0) )
+ 		{
+-			CvCity* pCity = plot()->getPlotCity();
+ 			if( pCity != NULL )
+ 			{
+ 				if( (GC.getGameINLINE().getGameTurn() - pCity->getGameTurnAcquired()) <= 1 )
+@@ -6553,7 +6567,7 @@
+ /*************************************************************************************************/
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/14/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      06/02/09                                jdog5000      */
+ /**                                                                                              */
+ /** Settler AI                                                                                   */
+ /*************************************************************************************************/
+@@ -6561,7 +6575,7 @@
+ 	if( (iSettlerCount > 0) && (iSettlerCount + iWorkerCount == cargoSpace()) )
+ 	{
+ 		// No defenders for settler
+-		if( plot()->getOwnerINLINE() == getOwnerINLINE() )
++		if( plot()->isCity() && plot()->getOwnerINLINE() == getOwnerINLINE() )
+ 		{
+ 			getGroup()->unloadAll();
+ 			getGroup()->pushMission(MISSION_SKIP);
+@@ -9059,7 +9073,7 @@
+ }
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/11/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      06/02/09                                jdog5000      */
+ /**                                                                                              */
+ /** Unit AI                                                                                      */
+ /*************************************************************************************************/
+@@ -9171,6 +9185,13 @@
+ 																	{
+ 																		continue;
+ 																	}
++																	else if( AI_getUnitAIType() == UNITAI_ASSAULT_SEA )
++																	{
++																		if( iOurImpassableCount != iTheirImpassableCount )
++																		{
++																			continue;
++																		}
++																	}
+ 																}
+ 
+ 																iValue = 1000 * (iPathTurns + 1);
+@@ -9809,7 +9830,7 @@
+ 			// split up group if we are going to defend, so rest of group has opportunity to do something else
+ //			if (getGroup()->getNumUnits() > 1)
+ //			{
+-//				getGroup()->AI_separate();	// will change group
++//				getGroup()->AI_seperate();	// will change group
+ //			}
+ //
+ //			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_GUARD_CITY, pBestGuardPlot);
+@@ -19619,7 +19640,7 @@
+ }
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/12/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      06/02/09                                jdog5000      */
+ /**                                                                                              */
+ /** Player Interface                                                                             */
+ /*************************************************************************************************/
+@@ -19666,32 +19687,35 @@
+ 		{
+ 			pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+ 
+-			if( !pLoopPlot->isVisible(getTeam(),false) )
+-			{
+-				if (canReconAt(plot(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()))
+-				{
+-					int iValue = AI_exploreAirPlotValue( pLoopPlot );
+-
+-					for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++			if( pLoopPlot != NULL )
++			{
++				if( !pLoopPlot->isVisible(getTeam(),false) )
++				{
++					if (canReconAt(plot(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()))
+ 					{
+-						DirectionTypes eDirection = (DirectionTypes) iI;
+-						CvPlot* pAdjacentPlot = plotDirection(getX_INLINE(), getY_INLINE(), eDirection);
+-						if (pAdjacentPlot != NULL)
++						int iValue = AI_exploreAirPlotValue( pLoopPlot );
++
++						for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+ 						{
+-							if( !pAdjacentPlot->isVisible(getTeam(),false) )
++							DirectionTypes eDirection = (DirectionTypes) iI;
++							CvPlot* pAdjacentPlot = plotDirection(getX_INLINE(), getY_INLINE(), eDirection);
++							if (pAdjacentPlot != NULL)
+ 							{
+-								iValue += AI_exploreAirPlotValue( pAdjacentPlot );
++								if( !pAdjacentPlot->isVisible(getTeam(),false) )
++								{
++									iValue += AI_exploreAirPlotValue( pAdjacentPlot );
++								}
+ 							}
+ 						}
+-					}
+-
+-					iValue += GC.getGame().getSorenRandNum(25, "AI explore air");
+-					iValue *= std::min(7, plotDistance(getX_INLINE(), getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()));
+-	
+-					if (iValue > iBestValue)
+-					{
+-						iBestValue = iValue;
+-						pBestPlot = pLoopPlot;								
++
++						iValue += GC.getGame().getSorenRandNum(25, "AI explore air");
++						iValue *= std::min(7, plotDistance(getX_INLINE(), getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()));
++		
++						if (iValue > iBestValue)
++						{
++							iBestValue = iValue;
++							pBestPlot = pLoopPlot;								
++						}
+ 					}
+ 				}
+ 			}
+

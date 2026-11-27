@@ -1,0 +1,188 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 588
+# Author: jdog5000
+# Date: 2010-07-01T05:30:40.414760Z
+# Coverage: full
+# Message:
+#   version 1.01f
+#   
+#   More tweaks to target city values
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@587
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@588
+@@ -4557,7 +4557,7 @@
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v1.01e");
++	szTempBuffer.Format(L"%S", "Better BTS AI v1.01f");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@587
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@588
+@@ -3319,45 +3319,54 @@
+ 
+ 	iValue += ((pCity->getPopulation() * (50 + pCity->calculateCulturePercent(getID()))) / 100);
+ 
+-	if (pCity->getDefenseDamage() > 0)
+-	{
+-		iValue += ((pCity->getDefenseDamage() / 30) + 1);
+-	}
+-
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      06/27/10                     Mongoose & jdog5000      */
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      06/30/10                     Mongoose & jdog5000      */
+ /*                                                                                              */
+ /* War strategy AI                                                                              */
+ /************************************************************************************************/
++	// Prefer lower defense
++	iValue += std::max( 0, (100 - pCity->getDefenseModifier(false))/20 );
++	
++	if (pCity->getDefenseDamage() > 0)
++	{
++		iValue += ((pCity->getDefenseDamage() / 20) + 1);
++	}
++
+ 	// Significant amounting of borrowing/adapting from Mongoose AITargetCityValueFix
+ 	if (pCity->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+ 	{
+-		iValue += 3;
+-	}
+-
+-	iValue += 6*pCity->getNumActiveWorldWonders();
++		iValue += 2;
++	}
++
++	iValue += 4*pCity->getNumActiveWorldWonders();
+ 
+ 	for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
+ 	{
+ 		if (pCity->isHolyCity((ReligionTypes)iI))
+ 		{
+-			iValue += 3 + ((GC.getGameINLINE().calculateReligionPercent((ReligionTypes)iI)) / 5);
++			iValue += 2 + ((GC.getGameINLINE().calculateReligionPercent((ReligionTypes)iI)) / 5);
+ 
+ 			if (GET_PLAYER(pCity->getOwnerINLINE()).getStateReligion() == iI)
+ 			{
+-				iValue += 3;
++				iValue += 2;
+ 			}
+ 			if( getStateReligion() == iI )
+ 			{
+-				iValue += 6;
++				iValue += 8;
+ 			}
+ 		}
+ 	}
+ 
+ 	if (pCity->isEverOwned(getID()))
+ 	{
+-		iValue += 3;
+-	}
++		iValue += 4;
++
++		if( pCity->getOriginalOwner() == getID() )
++		{
++			iValue += 2;
++		}
++	}
++
+ 	if (!bIgnoreAttackers)
+ 	{
+ 		iValue += std::min( 8, (AI_adjacentPotentialAttackers(pCity->plot()) + 2)/3 );
+@@ -3390,11 +3399,11 @@
+ 	{
+ 		if( pCity->getCultureLevel() >= (GC.getGameINLINE().culturalVictoryCultureLevel() - 1) )
+ 		{
+-			iValue += 10;
++			iValue += 15;
+ 			
+ 			if( GET_PLAYER(pCity->getOwnerINLINE()).AI_isDoVictoryStrategy(AI_VICTORY_CULTURE4) )
+ 			{
+-				iValue += 10;
++				iValue += 25;
+ 
+ 				if( pCity->getCultureLevel() >= (GC.getGameINLINE().culturalVictoryCultureLevel()) )
+ 				{
+@@ -3412,7 +3421,7 @@
+ 
+ 			if( GET_PLAYER(pCity->getOwnerINLINE()).AI_isDoVictoryStrategy(AI_VICTORY_SPACE4) )
+ 			{
+-				iValue += 10;
++				iValue += 20;
+ 
+ 				if( GET_TEAM(pCity->getTeam()).getVictoryCountdown(GC.getGameINLINE().getSpaceVictory()) >= 0 )
+ 				{
+@@ -3426,7 +3435,12 @@
+ 
+ 	if (pNearestCity != NULL)
+ 	{
+-		iValue += std::max(1, ((GC.getMapINLINE().maxStepDistance() * 2) - GC.getMapINLINE().calculatePathDistance(pNearestCity->plot(), pCity->plot())));
++		// Now scales sensibly with map size, on large maps this term was incredibly dominant in magnitude
++		int iTempValue = 30;
++		iTempValue *= std::max(1, ((GC.getMapINLINE().maxStepDistance() * 2) - GC.getMapINLINE().calculatePathDistance(pNearestCity->plot(), pCity->plot())));
++		iTempValue /= std::max(1, (GC.getMapINLINE().maxStepDistance() * 2));
++
++		iValue += iTempValue;
+ 	}
+ 
+ 	if (bRandomize)
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@587
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@588
+@@ -3696,10 +3696,16 @@
+ 	}
+ 
+ /*************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       06/10/10                           LunarMongoose       */
++/* UNOFFICIAL_PATCH                       06/30/10                           LunarMongoose       */
+ /*                                                                                               */
+ /* Bugfix                                                                                        */
+ /*************************************************************************************************/
++/* original bts code
++	if (healRate(pPlot) <= 0)
++	{
++		return false;
++	}
++*/
+ 	// Mongoose FeatureDamageFix
+ 	if (healTurns(pPlot) == MAX_INT)
+ 	{
+@@ -3708,11 +3714,6 @@
+ /*************************************************************************************************/
+ /* UNOFFICIAL_PATCH                         END                                                  */
+ /*************************************************************************************************/
+-
+-	if (healRate(pPlot) <= 0)
+-	{
+-		return false;
+-	}
+ 
+ 	return true;
+ }
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@587
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@588
+@@ -14392,7 +14392,7 @@
+ 
+ 									if( pLoopCity == pTargetCity )
+ 									{
+-										iValue *= 3;
++										iValue *= 2;
+ 									}
+ 									
+ 									if ((area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE))
+

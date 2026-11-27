@@ -1,0 +1,704 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 44
+# Author: iustus
+# Date: 2006-11-08T07:35:46.572830Z
+# Coverage: full
+# Message:
+#   Integrate changes from trunk, revisions 30-42
+# Changed paths (6):
+#   M /branches/vanilla/CvGameCoreDLL/CvCity.h
+#   M /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvCityAI.h
+#   M /branches/vanilla/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /branches/vanilla/CvGameCoreDLL/CvCity.h
+--- /branches/vanilla/CvGameCoreDLL/CvCity.h@43
++++ /branches/vanilla/CvGameCoreDLL/CvCity.h@44
+@@ -52,7 +52,7 @@
+ 
+ 	DllExport void chooseProduction(UnitTypes eTrainUnit = NO_UNIT, BuildingTypes eConstructBuilding = NO_BUILDING, ProjectTypes eCreateProject = NO_PROJECT, bool bFinish = false, bool bFront = false);		// Exposed to Python
+ 
+-	DllExport int getCityPlotIndex(const CvPlot* pPlot) const;				// Exposed to Python 
++	DllExport int getCityPlotIndex(const CvPlot* pPlot) const;				// Exposed to Python
+ 	CvPlot* getCityIndexPlot(int iIndex);															// Exposed to Python
+ 
+ 	bool canWork(CvPlot* pPlot);																			// Exposed to Python
+@@ -231,7 +231,7 @@
+ 	{
+ 		return m_iY;
+ 	}
+-#endif	
++#endif
+ 	bool at(int iX, int iY);																				// Exposed to Python
+ 	bool at(CvPlot* pPlot);																					// Exposed to Python - atPlot
+ 	DllExport CvPlot* plot() const;																	// Exposed to Python
+@@ -260,13 +260,13 @@
+ 	void setHighestPopulation(int iNewValue);
+ 
+ 	int getWorkingPopulation();																			// Exposed to Python
+-	void changeWorkingPopulation(int iChange);														
++	void changeWorkingPopulation(int iChange);
+ 
+ 	int getSpecialistPopulation();																	// Exposed to Python
+-	void changeSpecialistPopulation(int iChange);													
++	void changeSpecialistPopulation(int iChange);
+ 
+ 	int getNumGreatPeople();																				// Exposed to Python
+-	void changeNumGreatPeople(int iChange);															
++	void changeNumGreatPeople(int iChange);
+ 
+ 	int getBaseGreatPeopleRate();																		// Exposed to Python
+ 	int getGreatPeopleRate();																				// Exposed to Python
+@@ -293,7 +293,7 @@
+ 
+ 	int getGovernmentCenterCount();																	
+ 	DllExport bool isGovernmentCenter();														// Exposed to Python
+-	void changeGovernmentCenterCount(int iChange);													
++	void changeGovernmentCenterCount(int iChange);
+ 
+ 	DllExport int getMaintenance();																	// Exposed to Python
+ 	void updateMaintenance();
+@@ -301,10 +301,10 @@
+ 	DllExport int calculateNumCitiesMaintenance();									// Exposed to Python
+ 	int calculateBaseMaintenance();																	// Exposed to Python
+ 	DllExport int getMaintenanceModifier();													// Exposed to Python
+-	void changeMaintenanceModifier(int iChange);													
++	void changeMaintenanceModifier(int iChange);
+ 
+ 	int getWarWearinessModifier();																	// Exposed to Python
+-	void changeWarWearinessModifier(int iChange);													
++	void changeWarWearinessModifier(int iChange);
+ 
+ 	int getHealRate();																							// Exposed to Python
+ 	void changeHealRate(int iChange);
+@@ -475,10 +475,10 @@
+ 	void setCitizensAutomated(bool bNewValue);											// Exposed to Python 
+ 
+ 	DllExport bool isProductionAutomated();													// Exposed to Python
+-	void setProductionAutomated(bool bNewValue);										// Exposed to Python 
++	void setProductionAutomated(bool bNewValue);										// Exposed to Python
+ 
+ 	/* allows you to programatically specify a cities walls rather than having them be generated automagically */
+-	DllExport bool isWallOverride() const; 
++	DllExport bool isWallOverride() const;
+ 	DllExport void setWallOverride(bool bOverride);
+ 
+ 	DllExport bool isInfoDirty();
+@@ -706,7 +706,7 @@
+ 	// fill the kVisible array with buildings that you want shown in city, as well as the number of generics
+ 	// This function is called whenever CvCity::setLayoutDirty() is called
+ 	DllExport void getVisibleBuildings(std::list<BuildingTypes>& kVisible, int& iNumGenerics);
+-	
++
+ 	// Fill the kEffectNames array with references to effects in the CIV4EffectInfos.xml to have a
+ 	// city play a given set of effects. This is called whenever the interface updates the city billboard
+ 	// or when the zoom level changes
+@@ -716,11 +716,11 @@
+ 	// Billboard appearance controls
+ 	DllExport void getCityBillboardSizeIconColors(NiColorA& kDotColor, NiColorA& kTextColor);
+ 	DllExport const TCHAR* getCityBillboardProductionIcon();
+-	
++
+ 	// Exposed to Python
+ 	DllExport void setWallOverridePoints(const std::vector< std::pair<float, float> >& kPoints); /* points are given in world space ... i.e. PlotXToPointX, etc */
+ 	DllExport const std::vector< std::pair<float, float> >& getWallOverridePoints() const;
+-	
++
+ 	void read(FDataStreamBase* pStream);
+ 	void write(FDataStreamBase* pStream);
+ 
+@@ -755,6 +755,8 @@
+ 	virtual int AI_totalBestBuildValue(CvArea* pArea) = 0;
+ 	virtual int AI_countBestBuilds(CvArea* pArea) = 0;													// Exposed to Python
+ 	virtual BuildTypes AI_getBestBuild(int iIndex) = 0;
++
++	virtual int AI_calculateCulturePressure(bool bGreatWork = false) = 0;
+ 
+ protected:
+ 
+
+Index: /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp@43
++++ /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp@44
+@@ -292,7 +292,7 @@
+ 	int iCommerce;
+ 	int iGreatPeopleRate;
+ 	int iValue;
+-	int iI;
++	int iI, iJ;
+ 	int iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
+ 	int iNumCities = GET_PLAYER(getOwnerINLINE()).getNumCities();
+ 
+@@ -318,6 +318,11 @@
+ 				iTempValue += (iCommerce * 16);
+ 			}
+ 
++			if ((CommerceTypes)iI == COMMERCE_CULTURE)
++			{
++                iTempValue *= (2 * (105 - calculateCulturePercent(getOwnerINLINE())));
++			}
++
+ 			iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_commerceWeight(((CommerceTypes)iI), this);
+ 			iTempValue /= 100;
+ 
+@@ -338,7 +343,38 @@
+ 			iTempValue += (iGreatPeopleRate * 16);
+ 		}
+ 
++		//gah. Shriiiineeee....
++		for (iJ = 0; iJ < GC.getNumReligionInfos(); iJ++)
++		{
++		    ReligionTypes eReligion = (ReligionTypes)iJ;
++
++		    if (isHolyCity(eReligion))
++		    {
++                PlayerTypes ePlayer = getOwnerINLINE();
++
++                UnitTypes eGreatPeopleUnit;
++                FAssert(ePlayer != NO_PLAYER);
++                FAssert(GC.getSpecialistInfo(eSpecialist).getGreatPeopleUnitClass() != NO_UNITCLASS);
++
++                eGreatPeopleUnit = ((UnitTypes)(GC.getCivilizationInfo(GET_PLAYER(ePlayer).getCivilizationType()).getCivilizationUnits(GC.getSpecialistInfo(eSpecialist).getGreatPeopleUnitClass())));
++
++                if ((eGreatPeopleUnit != NO_UNIT) && GC.getUnitInfo(eGreatPeopleUnit).getDefaultUnitAIType() == UNITAI_PROPHET)
++                {
++                    //urghhh... oh i'm sure he'll be good for something even if the shrine already exists or can't be built
++                    //don't wanna iterate over all builds and find something which smells like the shrine since
++                    //i bet this runs a lot...
++                    iTempValue += (iGreatPeopleRate * 4);
++                    if (AI_isEmphasizeGreatPeople())
++                    {
++                        iTempValue += (iGreatPeopleRate * 8);
++                    }
++                }
++            }
++		}
++
++
+ 		iValue += iTempValue;
++
+ 	}
+ 
+ 	return (iValue * 100);
+@@ -361,6 +397,7 @@
+ 	bool bChooseUnit;
+ 	int iProductionRank;
+ 	int iNeededMissionaries;
++	int iCulturePressure;
+ 	int iI;
+ 
+ 	AI_setChooseProductionDirty(false);
+@@ -412,6 +449,7 @@
+ 	bPrimaryArea = GET_PLAYER(getOwnerINLINE()).AI_isPrimaryArea(area());
+ 	bFinancialTrouble = GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble();
+ 	bDanger = AI_isDanger();
++	iCulturePressure = AI_calculateCulturePressure();
+ 
+ 	iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
+ 
+@@ -622,6 +660,15 @@
+ 				}
+ 			}
+ 		}
++
++		if (iCulturePressure > 90)
++		{
++			if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 20))
++			{
++				return;
++			}
++		}
++
+ 
+ 		if (pWaterArea != NULL)
+ 		{
+@@ -719,7 +766,7 @@
+ 
+     if (!bDanger)
+ 	{
+-	    if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Missionary") < 20)
++	    if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Missionary") < (isHolyCity() ? 30 : 15))
+ 	    {
+             for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
+             {
+@@ -741,6 +788,7 @@
+ 	    }
+ 	}
+ 
++
+ 	if (!bLandWar)
+ 	{
+ 		if (getMaintenance() >= 8)
+@@ -783,7 +831,7 @@
+ 			}
+ 		}
+ 
+-		if (plot()->calculateCulturePercent(getOwnerINLINE()) < 50)
++		if (iCulturePressure > 50)
+ 		{
+ 			if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 60))
+ 			{
+@@ -1912,6 +1960,16 @@
+ 						}
+ 
+ 						iValue++;
++
++						ReligionTypes eReligion = (ReligionTypes)(GC.getUnitInfo((UnitTypes)iI).getPrereqReligion());
++						if (eReligion != NO_RELIGION)
++						{
++						    //encouragement to get some minimal ability to train special units
++						    if (isHolyCity(eReligion) || isCapital())
++						    {
++						        iValue += (2 + area()->getCitiesPerPlayer(getOwnerINLINE()));
++                            }
++						}
+ 					}
+ 				}
+ 
+@@ -2014,7 +2072,14 @@
+ 						}
+ 					}
+ 
+-					iTempValue += ((kBuilding.getCommerceModifier(iI) * getBaseCommerceRate((CommerceTypes)iI)) / 15);
++					if ((CommerceTypes)iI == COMMERCE_CULTURE)
++					{
++					    iTempValue += (((kBuilding.getCommerceModifier(iI) * getBaseCommerceRate((CommerceTypes)iI)) / 15) * (100 - calculateCulturePercent(getOwnerINLINE())));
++					}
++					else
++					{
++                        iTempValue += ((kBuilding.getCommerceModifier(iI) * getBaseCommerceRate((CommerceTypes)iI)) / 15);
++					}
+ 					iTempValue += ((kBuilding.getGlobalCommerceModifier(iI) * iNumCities) / 4);
+ 					iTempValue += ((kBuilding.getSpecialistExtraCommerce(iI) * kOwner.getTotalPopulation()) / 3);
+ 
+@@ -2681,6 +2746,7 @@
+ 	int iFoodPriority = 0;
+ 	int iCommercePriority = 0;
+ 	int iProductionPriority = 0;
++	int iWorkerCount = 0;
+ 
+ 	bool bChop = false;
+ 
+@@ -2702,8 +2768,10 @@
+ 					//determine if the tile is being improved.
+ 					if (m_aiBestBuildValue[iI] > 0)
+ 					{
++					    int iCount = (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD));
++					    iWorkerCount += iCount;
+ 						//check if the tile is being improved
+-						if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD) > 0)
++						if (iCount > 0)
+ 						{
+ 							//we can't really assume this.. but lets assume the BestBuild is what is being built
+ 							BuildTypes eBuild = m_aeBestBuild[iI];
+@@ -2731,7 +2799,7 @@
+ 				if (((aiFinalYields[YIELD_FOOD]*10) + (aiFinalYields[YIELD_PRODUCTION]*6) + (aiFinalYields[YIELD_COMMERCE]*4)) > 21)
+ 				{
+ 					iGoodTileCount++;
+-                    iFoodTotal += ((aiFinalYields[YIELD_FOOD] >= GC.getFOOD_CONSUMPTION_PER_POPULATION()) ? aiFinalYields[YIELD_FOOD] : 0);
++                    iFoodTotal += aiFinalYields[YIELD_FOOD];
+                     iProductionTotal += aiFinalYields[YIELD_PRODUCTION];
+ 				}
+ 
+@@ -2767,10 +2835,15 @@
+ 		iFoodPriority = max(1, 1 - (iBonusFoodDiff / 3));
+ 	}
+ 
+-	if (iFoodTotal < ((iTargetSize + 1) * GC.getFOOD_CONSUMPTION_PER_POPULATION() + iBonusFoodDeficit))
+-	{
+-		iFoodPriority += 1;
+-	}
++	if (iFoodTotal < ((iTargetSize + ((getPopulation() < iTargetSize) ? 1 : 0)) * GC.getFOOD_CONSUMPTION_PER_POPULATION()))
++	{
++		iFoodPriority ++;
++	}
++
++//    else if ((getPopulation() >= NUM_CITY_PLOTS) && (iFoodTotal > iFoodEaten))
++//    {
++//        iFoodPriority--;
++//    }
+ //	else
+ //	{
+ //	    iCommercePriority += 1;
+@@ -2835,6 +2908,8 @@
+ 			if (NULL != pLoopPlot && pLoopPlot->getWorkingCity() == this)
+ 			{
+ 				AI_bestPlotBuild(pLoopPlot, &(m_aiBestBuildValue[iI]), &(m_aeBestBuild[iI]), iFoodPriority, iProductionPriority, iCommercePriority, bChop);
++				m_aiBestBuildValue[iI] *= 4;
++				m_aiBestBuildValue[iI] /= (4 + iWorkerCount);
+ 				FAssert(AI_getBestBuildValue(iI) >= 0);
+ 			}
+ 		}
+@@ -4516,6 +4591,7 @@
+ 							}
+ 							else
+ 							{
++							    iValue /= 2;
+ 								iValue -= 50;
+ 							}
+ 						}
+@@ -4541,6 +4617,7 @@
+ 		}
+ 	}
+ 
++    //clear jungle
+ 	if (eBestBuild == NO_BUILD)
+ 	{
+ 		if (pPlot->getFeatureType() != NO_FEATURE)
+@@ -4585,7 +4662,8 @@
+ 		}
+ 	}
+ 
+-	//Chop - maybe integrate this better with the other feature-clear code
++	//Chop - maybe integrate this better with the other feature-clear code tho the logic
++	//is kinda different
+     if (bChop && (eBonus == NO_BONUS) && (pPlot->getFeatureType() != NO_FEATURE) &&
+         (pPlot->getImprovementType() == NO_IMPROVEMENT) && !(GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_LEAVE_FORESTS)))
+     {
+@@ -4630,6 +4708,50 @@
+     }
+ 
+ 
++    for (iI = 0; iI < GC.getNumRouteInfos(); iI++)
++    {
++        RouteTypes eRoute = (RouteTypes)iI;
++        RouteTypes eOldRoute = pPlot->getRouteType();
++
++        if (eRoute != eOldRoute)
++        {
++            if (pPlot->getImprovementType() != NO_IMPROVEMENT)
++            {
++                if ((eOldRoute == NO_ROUTE) || (GC.getRouteInfo(eRoute).getValue() > GC.getRouteInfo(eOldRoute).getValue()))
++                {
++                    int iTempValue = 0;
++                    iTempValue += ((GC.getImprovementInfo(pPlot->getImprovementType()).getRouteYieldChanges(eRoute, YIELD_FOOD)) * 100);
++                    iTempValue += ((GC.getImprovementInfo(pPlot->getImprovementType()).getRouteYieldChanges(eRoute, YIELD_PRODUCTION)) * 60);
++                    iTempValue += ((GC.getImprovementInfo(pPlot->getImprovementType()).getRouteYieldChanges(eRoute, YIELD_COMMERCE)) * 40);
++                    if (iTempValue > 0)
++                    {
++                        for (iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
++                        {
++                            eBuild = ((BuildTypes)iJ);
++                            if (GC.getBuildInfo(eBuild).getRoute() == eRoute)
++                            {
++                                if (GET_PLAYER(getOwnerINLINE()).canBuild(pPlot, eBuild, false))
++                                {
++                                    //the value multiplier is based on the default time...
++                                    iValue = iTempValue * 5 * 300;
++                                    iValue /= GC.getBuildInfo(eBuild).getTime();
++
++                                    if (iValue > iBestValue)
++                                    {
++                                        iBestValue = iValue;
++                                        eBestBuild = eBuild;
++                                    }
++                                }
++                            }
++                        }
++                    }
++                }
++            }
++        }
++    }
++
++
++
+ 	if (eBestBuild != NO_BUILD)
+ 	{
+ 		FAssertMsg(iBestValue > 0, "iBestValue is expected to be greater than 0");
+@@ -4675,6 +4797,73 @@
+ int CvCityAI::AI_getHappyFromHurry(HurryTypes eHurry, BuildingTypes eBuilding, bool bIgnoreNew)
+ {
+ 	return AI_getHappyFromHurry(getHurryPopulation(eHurry, getHurryCost(true, eBuilding, bIgnoreNew)));
++}
++
++int CvCityAI::AI_calculateCulturePressure(bool bGreatWork)
++{
++    CvPlot* pLoopPlot;
++    BonusTypes eNonObsoleteBonus;
++    int iValue;
++    int iTempValue;
++    int iI;
++
++    iValue = 0;
++    for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++    {
++        pLoopPlot = plotCity(getX_INLINE(), getY_INLINE(), iI);
++		if (pLoopPlot != NULL)
++		{
++			iTempValue = pLoopPlot->calculateCulturePercent(getOwnerINLINE());
++			if (iTempValue == 100)
++			{
++				//do nothing
++			}
++			else if ((iTempValue == 0) || (iTempValue > 75))
++			{
++				iValue++;
++			}
++			else
++			{
++				iTempValue = (100 - iTempValue);
++				FAssert(iTempValue > 0);
++				FAssert(iTempValue <= 100);
++
++				if (iI != CITY_HOME_PLOT)
++				{
++					iTempValue *= 4;
++					iTempValue /= NUM_CITY_PLOTS;
++				}
++
++				eNonObsoleteBonus = pLoopPlot->getNonObsoleteBonusType(getTeam());
++
++				if (eNonObsoleteBonus != NO_BONUS)
++				{
++					iTempValue += (GET_PLAYER(getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus) * ((GET_PLAYER(getOwnerINLINE()).getNumTradeableBonuses(eNonObsoleteBonus) == 0) ? 4 : 2));
++				}
++
++				if (pLoopPlot->getTeam() == getTeam())
++				{
++					iTempValue /= (bGreatWork ? 10 : 2);
++				}
++				else
++				{
++					iTempValue *= 2;
++					if (bGreatWork)
++					{
++						if (GET_PLAYER(getOwnerINLINE()).AI_getAttitude(pLoopPlot->getOwnerINLINE()) == ATTITUDE_FRIENDLY)
++						{
++							iValue /= 10;
++						}
++					}
++				}
++
++				iValue += iTempValue;
++			}
++		}
++    }
++
++
++    return iValue;
+ }
+ 
+ 
+
+Index: /branches/vanilla/CvGameCoreDLL/CvCityAI.h
+--- /branches/vanilla/CvGameCoreDLL/CvCityAI.h@43
++++ /branches/vanilla/CvGameCoreDLL/CvCityAI.h@44
+@@ -80,6 +80,8 @@
+ 	DllExport int AI_countBestBuilds(CvArea* pArea);
+ 	DllExport void AI_updateBestBuild();
+ 
++    int AI_calculateCulturePressure(bool bGreatWork = false);
++
+ 	DllExport void read(FDataStreamBase* pStream);
+ 	DllExport void write(FDataStreamBase* pStream);
+ 
+
+Index: /branches/vanilla/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvGameTextMgr.cpp@43
++++ /branches/vanilla/CvGameCoreDLL/CvGameTextMgr.cpp@44
+@@ -1315,21 +1315,26 @@
+ 	}
+ 	else if (!bShift && bAlt && (gDLL->getChtLvl() > 0))
+ 	{
+-	    //
+-        szTempBuffer.Format(L"\nThis player has %d area cities", pPlot->area()->getCitiesPerPlayer(pPlot->getOwnerINLINE()));
+-        szString+=szTempBuffer;
+-
+-
+-        for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
+-        {
+-            int iNeededMissionaries = GET_PLAYER(pPlot->getOwnerINLINE()).AI_neededMissionaries(pPlot->area(), ((ReligionTypes)iI));
+-
+-//            if (iNeededMissionaries > 0)
+-//            {
+-                szTempBuffer.Format(L"\nNeeded %c missionaries = %d", GC.getReligionInfo((ReligionTypes)iI).getChar(), iNeededMissionaries);
+-                szString+=szTempBuffer;
+-//            }
+-        }
++	    if (pPlot->isOwned())
++	    {
++            szTempBuffer.Format(L"\nThis player has %d area cities", pPlot->area()->getCitiesPerPlayer(pPlot->getOwnerINLINE()));
++            szString+=szTempBuffer;
++            for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
++            {
++                int iNeededMissionaries = GET_PLAYER(pPlot->getOwnerINLINE()).AI_neededMissionaries(pPlot->area(), ((ReligionTypes)iI));
++                if (iNeededMissionaries > 0)
++                {
++                    szTempBuffer.Format(L"\nNeeded %c missionaries = %d", GC.getReligionInfo((ReligionTypes)iI).getChar(), iNeededMissionaries);
++                    szString+=szTempBuffer;
++                }
++            }
++	    }
++
++	    if (pPlot->getPlotCity() != NULL)
++	    {
++            szTempBuffer.Format(L"\n\nCulture Pressure Value = %d", pPlot->getPlotCity()->AI_calculateCulturePressure());
++            szString+=szTempBuffer;
++	    }
+ 	}
+ 	else
+ 	{
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp@43
++++ /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp@44
+@@ -4505,15 +4505,21 @@
+ 		}
+ 	}
+ 
++    RouteTypes eBestRoute = getBestRoute();
+ 	for (iI = 0; iI < GC.getNumBuildInfos(); iI++)
+ 	{
+         RouteTypes eRoute = (RouteTypes)(GC.getBuildInfo((BuildTypes)iI).getRoute());
++
+ 
+         if ((eRoute != NO_ROUTE) && (GC.getRouteInfo(eRoute).getPrereqBonus() == eBonus))
+         {
+-            if (GC.getRouteInfo(getBestRoute()).getValue() <= GC.getRouteInfo(eRoute).getValue())
++            if ((eBestRoute != NO_ROUTE) && (GC.getRouteInfo(getBestRoute()).getValue() <= GC.getRouteInfo(eRoute).getValue()))
+             {
+                 iTempValue = 100;
++            }
++            else
++            {
++                iTempValue += 40;
+             }
+         }
+ 
+
+Index: /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp@43
++++ /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp@44
+@@ -734,21 +734,26 @@
+ 									if (!(pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+ 									{
+ 										// XXX take advantage of range (warning... this could lead to some units doing nothing...)
+-										iValue /= max(1, (1 + GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup())));
+-
+-                                        if (generatePath(pLoopPlot, 0, true))
++										int iWorkerCount = GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup());
++                                        if (iWorkerCount <= 2)
+                                         {
+-                                            iBestValue = iValue;
+-                                            if (ppBestPlot != NULL)
++                                            iValue /= max(1, (1 + iWorkerCount));
++
++
++                                            if (generatePath(pLoopPlot, 0, true))
+                                             {
+-                                                *ppBestPlot = pLoopPlot;
++                                                iBestValue = iValue;
++                                                if (ppBestPlot != NULL)
++                                                {
++                                                    *ppBestPlot = pLoopPlot;
++                                                }
++                                                if (peBestBuild != NULL)
++                                                {
++                                                    *peBestBuild = eBuild;
++                                                }
++
++                                                bBuild = true;
+                                             }
+-                                            if (peBestBuild != NULL)
+-                                            {
+-                                                *peBestBuild = eBuild;
+-                                            }
+-
+-                                            bBuild = true;
+                                         }
+ 									}
+ 								}
+@@ -3884,7 +3889,7 @@
+ 			(AI_getUnitAIType() == UNITAI_RESERVE_SEA) ||
+ 			(AI_getUnitAIType() == UNITAI_CARRIER_SEA))
+ 	{
+-		iValue += (iTemp * 20);
++		iValue += (iTemp * 15);
+ 	}
+ 	else
+ 	{
+@@ -4022,7 +4027,6 @@
+ 
+ 	iTemp = GC.getPromotionInfo(ePromotion).getCityDefensePercent() + getExtraCityDefensePercent();
+ 	if ((AI_getUnitAIType() == UNITAI_CITY_DEFENSE) ||
+-		  (AI_getUnitAIType() == UNITAI_CITY_COUNTER) ||
+ 		  (AI_getUnitAIType() == UNITAI_CITY_SPECIAL))
+ 	{
+ 		iValue += (iTemp * 2);
+@@ -4035,7 +4039,14 @@
+ 	iTemp = GC.getPromotionInfo(ePromotion).getHillsDefensePercent() + getExtraHillsDefensePercent();
+ 	if (AI_getUnitAIType() == UNITAI_COUNTER)
+ 	{
+-		iValue += (iTemp / 4);
++	    if (plot()->isHills())
++	    {
++            iValue += (iTemp / 4);
++	    }
++	    else
++	    {
++	        iValue++;
++	    }
+ 	}
+ 	else
+ 	{
+@@ -4047,7 +4058,14 @@
+ 		iTemp = GC.getPromotionInfo(ePromotion).getTerrainDefensePercent(iI);
+ 		if (AI_getUnitAIType() == UNITAI_COUNTER)
+ 		{
+-			iValue += (iTemp / 4);
++		    if (plot()->getTerrainType() == (TerrainTypes)iI)
++		    {
++                iValue += (iTemp / 4);
++		    }
++		    else
++            {
++                iValue++;
++            }
+ 		}
+ 		else
+ 		{
+@@ -4074,7 +4092,14 @@
+ 		{
+ 			if (AI_getUnitAIType() == UNITAI_COUNTER)
+ 			{
+-				iValue += (iTemp / 4);
++			    if (plot()->getFeatureType() == (FeatureTypes)iI)
++			    {
++                    iValue += (iTemp / 4);
++			    }
++                else
++                {
++                    iValue++;
++                }
+ 			}
+ 			else
+ 			{
+@@ -5152,6 +5177,8 @@
+ 
+ 	bRetreat = false;
+ 
++	iMaxPath = min(iMaxPath, 9);
++
+ 	pEntityNode = getGroup()->headUnitNode();
+ 
+ 	while (pEntityNode != NULL)
+@@ -5788,12 +5815,10 @@
+ 					{
+ 						if (generatePath(pLoopCity->plot(), 0, true))
+ 						{
+-							iValue = max(0, (60 - pLoopCity->plot()->calculateTeamCulturePercent(getTeam())));
+-
++							iValue = pLoopCity->AI_calculateCulturePressure(true);
++							iValue -= ((100 * pLoopCity->getCulture(pLoopCity->getOwnerINLINE())) / max(1, getGreatWorkCulture(pLoopCity->plot())));
+ 							if (iValue > 0)
+ 							{
+-								iValue += (pLoopCity->getPopulation() * 2);
+-
+ 								if (iValue > iBestValue)
+ 								{
+ 									iBestValue = iValue;
+

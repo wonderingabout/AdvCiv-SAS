@@ -1,0 +1,104 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 596
+# Author: jdog5000
+# Date: 2010-09-04T18:18:29.239499Z
+# Coverage: full
+# Message:
+#   Last tweaks I had sitting around
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@595
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@596
+@@ -1664,7 +1664,7 @@
+ }
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      05/16/10                              jdog5000        */
++/* BETTER_BTS_AI_MOD                      07/05/10                              jdog5000        */
+ /*                                                                                              */
+ /* War tactics AI                                                                               */
+ /************************************************************************************************/
+@@ -1686,16 +1686,19 @@
+ 			int iLoop;
+ 			int iHighCultureCount = 1;
+ 
+-			for( pLoopCity = GET_PLAYER(pCity->getPreviousOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(pCity->getPreviousOwner()).nextCity(&iLoop) )
+-			{
+-				if( 2*pLoopCity->getCulture(pCity->getPreviousOwner()) > pLoopCity->getCultureThreshold(GC.getGameINLINE().culturalVictoryCultureLevel()) )
+-				{
+-					iHighCultureCount++;
+-					if( iHighCultureCount >= GC.getGameINLINE().culturalVictoryNumCultureCities() )
+-					{
+-						//Raze city enemy needs for cultural victory unless we greatly over power them
+-						logBBAI( "  Razing enemy cultural victory city" );
+-						bRaze = true;
++			if( GET_TEAM(getTeam()).AI_getEnemyPowerPercent(false) > 75 )
++			{
++				for( pLoopCity = GET_PLAYER(pCity->getPreviousOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(pCity->getPreviousOwner()).nextCity(&iLoop) )
++				{
++					if( 2*pLoopCity->getCulture(pCity->getPreviousOwner()) > pLoopCity->getCultureThreshold(GC.getGameINLINE().culturalVictoryCultureLevel()) )
++					{
++						iHighCultureCount++;
++						if( iHighCultureCount >= GC.getGameINLINE().culturalVictoryNumCultureCities() )
++						{
++							//Raze city enemy needs for cultural victory unless we greatly over power them
++							logBBAI( "  Razing enemy cultural victory city" );
++							bRaze = true;
++						}
+ 					}
+ 				}
+ 			}
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@595
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@596
+@@ -2647,40 +2647,14 @@
+ 
+ 			if (bAttack)
+ 			{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      06/14/10                                jdog5000      */
+-/*                                                                                              */
+-/* Efficiency                                                                                   */
+-/************************************************************************************************/
+-				// From Lead From Behind by UncutDragon
+-				// original
+-				//CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), this, true);
+-				//if (NULL != pDefender)
+-				//{
+-				//	if (!canAttack(*pDefender))
+-				//	{
+-				//		return false;
+-				//	}
+-				//}
+-				// modified
+-				if( combatLimit() < 100 )
++				CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), this, true);
++				if (NULL != pDefender)
+ 				{
+-					CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), this, true);
+-					if (NULL != pDefender)
++					if (!canAttack(*pDefender))
+ 					{
+-						if (!canAttack(*pDefender))
+-						{
+-							return false;
+-						}
++						return false;
+ 					}
+ 				}
+-				else if (!pPlot->hasDefender(true, NO_PLAYER, getOwnerINLINE(), this, true))
+-				{
+-					return false;
+-				}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 			}
+ 		}
+ 		else
+

@@ -1,0 +1,1007 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 390
+# Author: jdog5000
+# Date: 2008-09-18T06:37:33.479209Z
+# Coverage: full
+# Message:
+#   Gold AI
+#   - AI now has a budget for troop upgrades each turn based on how much gold it wants to have, it won't spend more than this budget on non-critical units when at peace
+#   - AI now prioritizes upgrading escort ships to same extent as transports
+#   
+#   Naval AI
+#   - Galleons assigned escort roles before Frigates are available will now change their UnitAI type to assault transport instead of getting stuck in their role after better escorts come along
+#   
+#   Air Ai
+#   - Many improvements to better handle damaged planes in threatened cities
+#   - Added two functions for defensive airstrikes to make air units more directly aid in defending cities from enemy stacks
+#   
+#   Espionage AI
+#   - Revamped desired Espionage rate and priority weighting calculations, AI now always update weights, relations play a larger role
+#   - Neutral priority weighting is now 10 instead of 0, differentiates between 
+#   - When AI starts preparing for war against another player they will heavily shift their espionage spending towards that player
+#   - AI will attempt to gain passive mission levels against adversaries
+#   
+#   Bugfix
+#   - Fixed bug stopping Aggressive AI from using espionage against enemies they were Pleased towards as intended
+#   
+#   General AI
+#   - Removed the unused partial implementation of a new A* solver for closeness
+# Changed paths (10):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.h
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@389
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@390
+@@ -17,7 +17,6 @@
+ #include "CvDLLPythonIFaceBase.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvDLLFAStarIFaceBase.h"
+-#include "FAStarNode.h"
+ 
+ 
+ #define BUILDINGFOCUS_FOOD					(1 << 1)
+@@ -9182,13 +9181,7 @@
+ 	/**		BETTER_BTS_AI_MOD						6/17/08				jdog5000	*/
+ 	/**																				*/
+ 	/**		General AI																*/
+-	/********************************************************************************/
+-	// New A* solver for closeness not yet operational
+-	FAStar* pCloseFinder = gDLL->getFAStarIFace()->create();
+-	//FAStarNode* pNode = NULL;
+-
+-	gDLL->getFAStarIFace()->Initialize(pCloseFinder, GC.getMapINLINE().getGridWidthINLINE(), GC.getMapINLINE().getGridHeightINLINE(), false, false, NULL, closeHeuristic, closeCost, closeValid, closeAdd, NULL, NULL);
+-	
++	/********************************************************************************/	
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive() && 
+@@ -9198,19 +9191,6 @@
+ 			iBestValue = 0;
+ 			for (pLoopCity = GET_PLAYER((PlayerTypes)iI).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iI).nextCity(&iLoop))
+ 			{
+-				/*int iDistance2 = -1;
+-				CvArea* pSharedWaterArea = sharedWaterArea( pLoopCity );
+-				gDLL->getFAStarIFace()->SetData(pCloseFinder, pSharedWaterArea);
+-
+-				if (gDLL->getFAStarIFace()->GeneratePath(pCloseFinder, getX_INLINE(), getY_INLINE(), pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE(), false, 0, true))
+-				{
+-					pNode = gDLL->getFAStarIFace()->GetLastNode(pCloseFinder);
+-
+-					if (pNode != NULL)
+-					{
+-						iDistance2 = pNode->m_iData1;
+-					}
+-				}*/
+ 
+ 				int iDistance = stepDistance(getX_INLINE(), getY_INLINE(), pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE());
+ 				
+@@ -9260,8 +9240,6 @@
+ 			m_aiPlayerCloseness[iI] = (iBestValue + iValue / 4);
+ 		}
+ 	}
+-
+-	gDLL->getFAStarIFace()->destroy(pCloseFinder);
+ 	/********************************************************************************/
+ 	/**		BETTER_BTS_AI_MOD						END								*/
+ 	/********************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@389
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@390
+@@ -3523,7 +3523,7 @@
+ 	/**																				*/
+ 	/********************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.40c");
++	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.40e");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szTempBuffer.Format(L"%S", "==========================");
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@389
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@390
+@@ -1286,113 +1286,6 @@
+ 
+ 	return 1;
+ }
+-
+-/********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						6/17/08				jdog5000	*/
+-/**																				*/
+-/**		General AI																*/
+-/********************************************************************************/
+-// New A* path solver specifically for finding city closeness
+-// Not finished
+-int closeDestValid(int iToX, int iToY, const void* pointer, FAStar* finder)
+-{
+-	PROFILE_FUNC();
+-
+-	CvPlot* pFromPlot;
+-	CvPlot* pToPlot;
+-
+-	CvArea* pWaterArea = ((CvArea *)pointer);
+-
+-	pFromPlot = GC.getMapINLINE().plotSorenINLINE(gDLL->getFAStarIFace()->GetStartX(finder), gDLL->getFAStarIFace()->GetStartY(finder));
+-	FAssert(pFromPlot != NULL);
+-	pToPlot = GC.getMapINLINE().plotSorenINLINE(iToX, iToY);
+-	FAssert(pToPlot != NULL);
+-
+-	// Allow hopping into/out of water area shared by cities
+-	if (pFromPlot->area() != pToPlot->area() )
+-	{
+-		return FALSE;
+-	}
+-
+-	return TRUE;
+-}
+-
+-int closeHeuristic(int iFromX, int iFromY, int iToX, int iToY)
+-{
+-	return stepDistance(iFromX, iFromY, iToX, iToY);
+-}
+-
+-
+-int closeCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder)
+-{
+-	CvPlot* pFromPlot = GC.getMapINLINE().plotINLINE(parent->m_iX, parent->m_iY);
+-	FAssert(pFromPlot != NULL);
+-	CvPlot* pToPlot = GC.getMapINLINE().plotINLINE(node->m_iX, node->m_iY);
+-	FAssert(pToPlot != NULL);
+-
+-	return 1;
+-}
+-
+-
+-int closeValid(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder)
+-{
+-	CvPlot* pNewPlot;
+-	CvPlot* pFromPlot;
+-
+-	if (parent == NULL)
+-	{
+-		return TRUE;
+-	}
+-
+-	pFromPlot = GC.getMapINLINE().plotSorenINLINE(parent->m_iX, parent->m_iY);
+-	pNewPlot = GC.getMapINLINE().plotSorenINLINE(node->m_iX, node->m_iY);
+-
+-	if (pNewPlot->isImpassable())
+-	{
+-		return FALSE;
+-	}
+-
+-	if (pFromPlot->area() != pNewPlot->area() )
+-	{
+-		return FALSE;
+-	}
+-
+-	return TRUE;
+-}
+-
+-
+-int closeAdd(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder)
+-{
+-	if (data == ASNC_INITIALADD)
+-	{
+-		node->m_iData1 = 0;
+-	}
+-	else
+-	{
+-		CvPlot* pFromPlot = GC.getMapINLINE().plotSorenINLINE(parent->m_iX, parent->m_iY);
+-		FAssertMsg(pFromPlot != NULL, "FromPlot is not assigned a valid value");
+-		CvPlot* pToPlot = GC.getMapINLINE().plotSorenINLINE(node->m_iX, node->m_iY);
+-		FAssertMsg(pToPlot != NULL, "ToPlot is not assigned a valid value");
+-
+-		CvArea* pWaterArea = ((CvArea *)pointer);
+-
+-		if( pFromPlot->area() == pWaterArea && pToPlot->area() == pWaterArea )
+-		{
+-			node->m_iData1 = (parent->m_iData1 + 1);
+-		}
+-		else
+-		{
+-			node->m_iData1 = (parent->m_iData1 + 2);
+-		}
+-	}
+-
+-	FAssertMsg(node->m_iData1 >= 0, "node->m_iData1 is expected to be non-negative (invalid Index)");
+-
+-	return 1;
+-}
+-/********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						END								*/
+-/********************************************************************************/
+ 
+ int pathDestValid(int iToX, int iToY, const void* pointer, FAStar* finder)
+ {
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.h@389
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.h@390
+@@ -333,18 +333,6 @@
+ DllExport int potentialIrrigation(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+ DllExport int checkFreshWater(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+ DllExport int changeIrrigated(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+-/********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						6/17/08				jdog5000	*/
+-/**																				*/
+-/**																				*/
+-/********************************************************************************/
+-int closeHeuristic(int iFromX, int iFromY, int iToX, int iToY);
+-int closeCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+-int closeValid(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+-int closeAdd(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+-/********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						END								*/
+-/********************************************************************************/
+ DllExport int pathDestValid(int iToX, int iToY, const void* pointer, FAStar* finder);
+ DllExport int pathHeuristic(int iFromX, int iFromY, int iToX, int iToY);
+ DllExport int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@389
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@390
+@@ -84,13 +84,13 @@
+ 	m_ppaaiImprovementYieldChange = NULL;
+ 
+ /*************************************************************************************************/
+-/** AI_AUTO_PLAY                            09/01/07                                MRGENIE      */
++/** AI_AUTO_PLAY_MOD                        09/01/07                                MRGENIE      */
+ /**                                                                                              */
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	m_bDisableHuman = false;
+ /*************************************************************************************************/
+-/** AI_AUTO_PLAY                            END                                                  */
++/** AI_AUTO_PLAY_MOD                        END                                                  */
+ /*************************************************************************************************/
+ 
+ 	reset(NO_PLAYER, true);
+@@ -488,13 +488,13 @@
+ 	m_bStrike = false;
+ 
+ /*************************************************************************************************/
+-/** AI_AUTO_PLAY                            09/01/07                            MRGENIE          */
++/** AI_AUTO_PLAY_MOD                        09/01/07                            MRGENIE          */
+ /**                                                                                              */
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	m_bDisableHuman = false;
+ /*************************************************************************************************/
+-/** AI_AUTO_PLAY                            END                                                  */
++/** AI_AUTO_PLAY_MOD                        END                                                  */
+ /*************************************************************************************************/
+ 
+ 
+@@ -2692,7 +2692,7 @@
+ 	else
+ 	{
+ /*************************************************************************************************/
+-/**	AI_AUTO_PLAY								09/01/07							MRGENIE      */
++/**	AI_AUTO_PLAY_MOD							09/01/07							MRGENIE      */
+ /**					                                                                             */
+ /**                                                                                              */
+ /*************************************************************************************************/
+@@ -2708,7 +2708,7 @@
+ 			m_bHuman = GC.getInitCore().getHuman(getID());
+ 		}
+ /*************************************************************************************************/
+-/**	AI_AUTO_PLAY							END												   ***/
++/**	AI_AUTO_PLAY_MOD						END												   ***/
+ /*************************************************************************************************/	
+ 	}
+ }
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.h
+--- /trunk/CvGameCoreDLL/CvPlayer.h@389
++++ /trunk/CvGameCoreDLL/CvPlayer.h@390
+@@ -85,14 +85,14 @@
+ 
+ 	bool hasTrait(TraitTypes eTrait) const;																																			// Exposed to Python						
+ /*************************************************************************************************/
+-/** AI_AUTO_PLAY                           07/09/08                                jdog5000      */
++/** AI_AUTO_PLAY_MOD                       07/09/08                                jdog5000      */
+ /**                                                                                              */
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	void setHumanDisabled( bool newVal );
+ 	bool isHumanDisabled( );
+ /*************************************************************************************************/
+-/** AI_AUTO_PLAY                            END                                                  */
++/** AI_AUTO_PLAY_MOD                        END                                                  */
+ /*************************************************************************************************/
+ 	DllExport bool isHuman() const;																																							// Exposed to Python						
+ 	DllExport void updateHuman();
+@@ -1169,13 +1169,13 @@
+ 	bool m_bHuman;
+ 
+ /*************************************************************************************************/
+-/** AI_AUTO_PLAY                            09/01/07                            MRGENIE          */
++/** AI_AUTO_PLAY_MOD                        09/01/07                            MRGENIE          */
+ /**                                                                                              */
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	bool m_bDisableHuman;				// Set to true to disable isHuman() check
+ /*************************************************************************************************/
+-/** AI_AUTO_PLAY                            END                                                  */
++/** AI_AUTO_PLAY_MOD                        END                                                  */
+ /*************************************************************************************************/
+ 
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@389
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@390
+@@ -420,6 +420,31 @@
+ 		return;
+ 	}
+ 
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						9/15/08			jdog5000		*/
++	/**																				*/
++	/**		Gold AI																	*/
++	/********************************************************************************/
++	bool bAnyWar = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
++	int iStartingGold = getGold();
++	int iTargetGold = AI_goldTarget();
++	int iUpgradeBudget = (AI_goldToUpgradeAllUnits() / (bAnyWar ? 1 : 2));
++
++	iUpgradeBudget = std::min(iUpgradeBudget, iStartingGold - (iTargetGold - iUpgradeBudget));
++
++	if( AI_isFinancialTrouble() )
++	{
++		iUpgradeBudget /= 3;
++	}
++
++	// Always willing to upgrade 1 unit if we have the money
++	iUpgradeBudget = std::max(iUpgradeBudget,1);
++
++	bool bUnderBudget = true;
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						END								*/
++	/********************************************************************************/
++
+ 	CvPlot* pLastUpgradePlot = NULL;
+ 	for (iPass = 0; iPass < 4; iPass++)
+ 	{
+@@ -431,6 +456,8 @@
+ 			switch (iPass)
+ 			{
+ 			case 0:
++				// BBAI note:  Effectively only for galleys, triremes, and ironclads ... unit types limited in
++				// what terrain they can operate in
+ 				if (AI_unitImpassableCount(pLoopUnit->getUnitType()) > 0)
+ 				{
+ 					bValid = true;
+@@ -457,13 +484,50 @@
+ 				}
+ 				break;
+ 			case 2:
++				/********************************************************************************/
++				/**		BETTER_BTS_AI_MOD						9/15/08			jdog5000		*/
++				/**																				*/
++				/**		Gold AI																	*/
++				/********************************************************************************/
++				/* original BTS code
+ 				if (pLoopUnit->cargoSpace() > 0)
+ 				{
+ 					bValid = true;
+ 				}
++				*/
++				bUnderBudget = (iStartingGold - getGold()) < iUpgradeBudget;
++
++				// Only normal transports
++				if ( (pLoopUnit->cargoSpace() > 0) && (pLoopUnit->specialCargo() == NO_SPECIALUNIT) )
++				{
++					bValid = (bAnyWar || bUnderBudget);
++				}
++				// Also upgrade escort ships
++				if ( pLoopUnit->AI_getUnitAIType() == UNITAI_ESCORT_SEA )
++				{
++					bValid = (bAnyWar || bUnderBudget);
++				}
++				/********************************************************************************/
++				/**		BETTER_BTS_AI_MOD						END								*/
++				/********************************************************************************/
++				
+ 				break;
+ 			case 3:
++				/********************************************************************************/
++				/**		BETTER_BTS_AI_MOD						9/15/08			jdog5000		*/
++				/**																				*/
++				/**		Gold AI																	*/
++				/********************************************************************************/
++				/* original BTS code
+ 				bValid = true;
++				*/
++				bUnderBudget = (iStartingGold - getGold()) < iUpgradeBudget;
++
++				bValid = (bAnyWar || bUnderBudget);
++				/********************************************************************************/
++				/**		BETTER_BTS_AI_MOD						END								*/
++				/********************************************************************************/
++				
+ 				break;
+ 			default:
+ 				FAssert(false);
+@@ -493,15 +557,15 @@
+ 									{
+ 										if ((pLoopUnit->getDomainType() != DOMAIN_LAND) || pLoopUnit->plot()->plotCount(PUF_isMilitaryHappiness, -1, -1, getID()) > 1)
+ 										{
+-										pLoopUnit->kill(false);
+-										bKilled = true;
+-										pLastUpgradePlot = NULL;
++											pLoopUnit->kill(false);
++											bKilled = true;
++											pLastUpgradePlot = NULL;
++										}
+ 									}
+ 								}
+ 							}
+ 						}
+ 					}
+-				}
+ 				}
+ 				if (!bKilled)
+ 				{
+@@ -10792,7 +10856,6 @@
+ 		}
+ 		*/
+ 		
+-		// TODO: Develop new system
+ 		int iEspionageTargetRate = 0;
+ 		int* piTarget = new int[MAX_CIV_TEAMS];
+ 		int* piWeight = new int[MAX_CIV_TEAMS];
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@389
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@390
+@@ -4652,7 +4652,7 @@
+ 	/********************************************************************************/
+ 	/**		BETTER_BTS_AI_MOD						7/28/08		Solver & jdog5000	*/
+ 	/**																				*/
+-	/**		Solver AI																*/
++	/**		Naval AI																*/
+ 	/********************************************************************************/
+ 	if (plot()->isCity(true)) //prioritize getting outta there
+ 	{
+@@ -4695,6 +4695,44 @@
+ 	{
+ 		return;
+ 	}
++
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						9/14/08			jdog5000		*/
++	/**																				*/
++	/**		Naval AI																*/
++	/********************************************************************************/
++	// Galleons can get stuck with this AI type since they don't upgrade to any escort unit
++	// Galleon escorts are much less useful once Frigates or later are available
++	if (!isHuman() && !isBarbarian())
++	{
++		if( getCargo() > 0 && (GC.getUnitInfo(getUnitType()).getSpecialCargo() == NO_SPECIALUNIT) )
++		{
++			//Obsolete?
++			int iValue = GET_PLAYER(getOwnerINLINE()).AI_unitValue(getUnitType(), AI_getUnitAIType(), area());
++			int iBestValue = GET_PLAYER(getOwnerINLINE()).AI_bestAreaUnitAIValue(AI_getUnitAIType(), area());
++			
++			if (iValue < iBestValue)
++			{
++				
++				if (GET_PLAYER(getOwnerINLINE()).AI_unitValue(getUnitType(), UNITAI_ASSAULT_SEA, area()) > 0)
++				{
++					AI_setUnitAIType(UNITAI_ASSAULT_SEA);
++					return;
++				}
++
++				if (GET_PLAYER(getOwnerINLINE()).AI_unitValue(getUnitType(), UNITAI_SETTLER_SEA, area()) > 0)
++				{
++					AI_setUnitAIType(UNITAI_SETTLER_SEA);
++					return;
++				}
++
++				scrap();
++			}
++		}
++	}	
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						END								*/
++	/********************************************************************************/
+ 	
+ 	if (AI_group(UNITAI_CARRIER_SEA, -1, /*iMaxOwnUnitAI*/ 0, -1, /*bIgnoreFaster*/ true))
+ 	{
+@@ -5800,7 +5838,7 @@
+ 	bool bSkiesClear = true;
+ 	int iDX, iDY;
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/28/08		Solver & jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						9/16/08		Solver & jdog5000	*/
+ 	/**																				*/
+ 	/**		Air AI																	*/
+ 	/********************************************************************************/
+@@ -5811,6 +5849,7 @@
+ 
+ 		if (iEnemyOffense > iOurDefense)
+ 		{
++			// Too risky, pull back
+ 			if (AI_airOffensiveCity())
+ 			{
+ 				return;
+@@ -5823,29 +5862,56 @@
+ 		}
+ 		else if( iEnemyOffense > iOurDefense/3 )
+ 		{
+-			// Attack the invaders!
+-			// TODO: Add defensive air strikes function which ignores ships
+-			if (AI_airStrike())
+-			{
+-				return;
+-			}
+-
+-			// Should always be able to strike the invaders, but if not then no sense staying in risky place
+-			if (AI_airOffensiveCity())
+-			{
+-				return;
++			if( getDamage() == 0 )
++			{
++				// Attack the invaders!
++				if (AI_defendBaseAirStrike())
++				{
++					return;
++				}
++				
++				if (AI_defensiveAirStrike())
++				{
++					return;
++				}
++
++				if (AI_airStrike())
++				{
++					return;
++				}
++
++				// If no targets, no sense staying in risky place
++				if (AI_airOffensiveCity())
++				{
++					return;
++				}
++				
++				if (AI_airDefensiveCity())
++				{
++					return;
++				}
++			}
++
++			if( healTurns(plot()) > 1 )
++			{
++				// If very damaged, no sense staying in risky place
++				if (AI_airOffensiveCity())
++				{
++					return;
++				}
++				
++				if (AI_airDefensiveCity())
++				{
++					return;
++				}
+ 			}
+ 			
+-			if (AI_airDefensiveCity())
+-			{
+-				return;
+-			}
+ 		}
+ 	}
+ 
+ 	if( getDamage() > 0 )
+ 	{
+-		if ((currHitPoints() / maxHitPoints() * 100) < 40)
++		if (((100*currHitPoints()) / maxHitPoints()) < 40)
+ 		{
+ 			getGroup()->pushMission(MISSION_SKIP);
+ 			return;
+@@ -5918,6 +5984,27 @@
+ 		}
+ 	}
+ 
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						9/14/08			jdog5000		*/
++	/**																				*/
++	/**		Air AI																	*/
++	/********************************************************************************/
++	if( pArea != NULL )
++	{
++		if( pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE )
++		{
++			if (GC.getGameINLINE().getSorenRandNum(3, "AI Air Attack Move") == 0)
++			{
++				if( AI_defensiveAirStrike() )
++				{
++					return;
++				}
++			}
++		}
++	}
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						END								*/
++	/********************************************************************************/
+ 
+ 	if (AI_airBombDefenses())
+ 	{
+@@ -5967,7 +6054,7 @@
+ void CvUnitAI::AI_defenseAirMove()
+ {
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/28/08		Solver & jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						9/16/08		Solver & jdog5000	*/
+ 	/**																				*/
+ 	/**		Air AI																	*/
+ 	/********************************************************************************/
+@@ -5981,6 +6068,8 @@
+ 	
+ 		if (3*iEnemyOffense > 4*iOurDefense)
+ 		{
++			// Too risky, pull out
++			// Undamaged fighters running air patrol don't wake up, so won't leave
+ 			if (AI_airDefensiveCity())
+ 			{
+ 				return;
+@@ -5988,25 +6077,57 @@
+ 		}
+ 		else if ( iEnemyOffense > iOurDefense/3 )
+ 		{
+-			if( (pCity == NULL) || pCity->AI_isAirDefended(0) )
+-			{
+-				if ((GC.getGameINLINE().getSorenRandNum(2, "AI Air Defense Move") == 0))
+-				{
+-					// Attack the invaders!
+-					// TODO: Add defensive air strikes function which ignores ships
+-					if (AI_airStrike())
++			if (getDamage() > 0)
++			{
++				if( healTurns(plot()) > 1 + GC.getGameINLINE().getSorenRandNum(2, "AI Air Defense Move") )
++				{
++					// Can't help current situation, only risk losing unit
++					if (AI_airDefensiveCity())
+ 					{
+ 						return;
+ 					}
+ 				}
+-			}
+-
+-			if (canAirDefend())
+-			{
+-				getGroup()->pushMission(MISSION_AIRPATROL);
++
++				// Stay to defend in the future
++				getGroup()->pushMission(MISSION_SKIP);
+ 				return;
+ 			}
++
++			if (canAirDefend() && pCity != NULL)
++			{
++				// Check for whether city needs more air defenses
++				if( !(pCity->AI_isAirDefended(0)) )
++				{
++					getGroup()->pushMission(MISSION_AIRPATROL);
++					return;
++				}
++
++				if( !(pCity->AI_isAirDefended(-1)) )
++				{
++					if ((GC.getGameINLINE().getSorenRandNum(3, "AI Air Defense Move") == 0))
++					{
++						getGroup()->pushMission(MISSION_AIRPATROL);
++						return;
++					}
++				}
++			}
++
++			// Attack the invaders!
++			if (AI_defendBaseAirStrike())
++			{
++				return;
++			}
+ 			
++			if (AI_defensiveAirStrike())
++			{
++				return;
++			}
++
++			if (AI_airStrike())
++			{
++				return;
++			}
++
+ 			if (AI_airDefensiveCity())
+ 			{
+ 				return;
+@@ -6028,6 +6149,18 @@
+ 	{
+ 		if ((pCity != NULL) && pCity->AI_isDanger())
+ 		{
++			/********************************************************************************/
++			/**		BETTER_BTS_AI_MOD						9/14/08			jdog5000		*/
++			/**																				*/
++			/**		Air AI																	*/
++			/********************************************************************************/
++			if (AI_defensiveAirStrike())
++			{
++				return;
++			}
++			/********************************************************************************/
++			/**		BETTER_BTS_AI_MOD						END								*/
++			/********************************************************************************/
+ 			if (AI_airStrike())
+ 			{
+ 				return;
+@@ -6039,6 +6172,22 @@
+ 			{
+ 				return;
+ 			}
++
++			/********************************************************************************/
++			/**		BETTER_BTS_AI_MOD						9/14/08			jdog5000		*/
++			/**																				*/
++			/**		Air AI																	*/
++			/********************************************************************************/
++			if (GC.getGameINLINE().getSorenRandNum(3, "AI Air Defense Move") == 0)
++			{
++				if (AI_defensiveAirStrike())
++				{
++					return;
++				}
++			}
++			/********************************************************************************/
++			/**		BETTER_BTS_AI_MOD						END								*/
++			/********************************************************************************/
+ 
+ 			if (AI_airStrike())
+ 			{
+@@ -15899,6 +16048,210 @@
+ 	return false;
+ }
+ 
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						9/16/08			jdog5000		*/
++/**																				*/
++/**		Air AI																	*/
++/********************************************************************************/
++// Air strike focused on weakening enemy stacks threatening our cities
++// Returns true if a mission was pushed...
++bool CvUnitAI::AI_defensiveAirStrike()
++{
++	PROFILE_FUNC();
++
++	CvUnit* pDefender;
++	CvUnit* pInterceptor;
++	CvPlot* pLoopPlot;
++	CvPlot* pBestPlot;
++	int iSearchRange;
++	int iDamage;
++	int iInterceptProb;
++	int iValue;
++	int iBestValue;
++	int iDX, iDY;
++
++	iSearchRange = airRange();
++
++	iBestValue = (isSuicide() && m_pUnitInfo->getProductionCost() > 0) ? (60 * m_pUnitInfo->getProductionCost()) : 0;
++	pBestPlot = NULL;
++
++	for (iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
++	{
++		for (iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
++		{
++			pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++
++			if (pLoopPlot != NULL)
++			{
++				if (canMoveInto(pLoopPlot, true)) // Only true of plots this unit can airstrike
++				{
++					// Only attack enemy land units near our cities
++					if( pLoopPlot->isPlayerCityRadius(getOwnerINLINE()) && !pLoopPlot->isWater() )
++					{
++						CvCity* pClosestCity = GC.getMapINLINE().findCity(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), getOwnerINLINE(), getTeam(), true, false);
++
++						if( pClosestCity != NULL )
++						{
++							// City and pLoopPlot forced to be in same area, check they're still close
++							int iStepDist = stepDistance(pClosestCity->getX_INLINE(), pClosestCity->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
++
++							if( iStepDist < 3 )
++							{
++								iValue = 0;
++
++								pDefender = pLoopPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), this, true);
++
++								FAssert(pDefender != NULL);
++								FAssert(pDefender->canDefend());
++
++								iDamage = airCombatDamage(pDefender);
++
++								iValue = std::max(0, (std::min((pDefender->getDamage() + iDamage), airCombatLimit()) - pDefender->getDamage()));
++
++								iValue += ((((iDamage * collateralDamage()) / 100) * std::min((pLoopPlot->getNumVisibleEnemyDefenders(this) - 1), collateralDamageMaxUnits())) / 2);
++
++								iValue *= GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(pClosestCity->plot(),2,false,false);
++								iValue /= std::max(1, GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(pClosestCity->plot(),-1,true,false));
++
++								if( iStepDist == 1 )
++								{
++									iValue *= 5;
++									iValue /= 4;
++								}
++
++								pInterceptor = bestInterceptor(pLoopPlot);
++
++								if (pInterceptor != NULL)
++								{
++									iInterceptProb = isSuicide() ? 100 : pInterceptor->currInterceptionProbability();
++
++									iInterceptProb *= std::max(0, (100 - evasionProbability()));
++									iInterceptProb /= 100;
++
++									iValue *= std::max(0, 100 - iInterceptProb / 2);
++									iValue /= 100;
++								}
++
++								if (iValue > iBestValue)
++								{
++									iBestValue = iValue;
++									pBestPlot = pLoopPlot;
++									FAssert(!atPlot(pBestPlot));
++								}
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++
++	if (pBestPlot != NULL)
++	{
++		FAssert(!atPlot(pBestPlot));
++		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE());
++		return true;
++	}
++
++	return false;
++}
++
++// Air strike around base city
++// Returns true if a mission was pushed...
++bool CvUnitAI::AI_defendBaseAirStrike()
++{
++	PROFILE_FUNC();
++
++	CvUnit* pDefender;
++	CvUnit* pInterceptor;
++	CvPlot* pLoopPlot;
++	CvPlot* pBestPlot;
++	int iDamage;
++	int iInterceptProb;
++	int iValue;
++	int iBestValue;
++	int iDX, iDY;
++
++	// Only search around base
++	int iSearchRange = 2;
++
++	iBestValue = (isSuicide() && m_pUnitInfo->getProductionCost() > 0) ? (15 * m_pUnitInfo->getProductionCost()) : 0;
++	pBestPlot = NULL;
++
++	for (iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
++	{
++		for (iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
++		{
++			pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++
++			if (pLoopPlot != NULL)
++			{
++				if (canMoveInto(pLoopPlot, true) && !pLoopPlot->isWater()) // Only true of plots this unit can airstrike
++				{
++					if( plot()->area() == pLoopPlot->area() )
++					{
++						iValue = 0;
++
++						pDefender = pLoopPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), this, true);
++
++						FAssert(pDefender != NULL);
++						FAssert(pDefender->canDefend());
++
++						iDamage = airCombatDamage(pDefender);
++
++						iValue = std::max(0, (std::min((pDefender->getDamage() + iDamage), airCombatLimit()) - pDefender->getDamage()));
++
++						iValue += ((((iDamage * collateralDamage()) / 100) * std::min((pLoopPlot->getNumVisibleEnemyDefenders(this) - 1), collateralDamageMaxUnits())) / 2);
++
++						// Weight towards stronger units
++						iValue *= (pDefender->currCombatStr(NULL,NULL,NULL) + 2000);
++						iValue /= 2000;
++
++						// Weight towards adjacent stacks
++						if( stepDistance(plot()->getX_INLINE(), plot()->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()) == 1 )
++						{
++							iValue *= 5;
++							iValue /= 4;
++						}
++
++						pInterceptor = bestInterceptor(pLoopPlot);
++
++						if (pInterceptor != NULL)
++						{
++							iInterceptProb = isSuicide() ? 100 : pInterceptor->currInterceptionProbability();
++
++							iInterceptProb *= std::max(0, (100 - evasionProbability()));
++							iInterceptProb /= 100;
++
++							iValue *= std::max(0, 100 - iInterceptProb / 2);
++							iValue /= 100;
++						}
++
++						if (iValue > iBestValue)
++						{
++							iBestValue = iValue;
++							pBestPlot = pLoopPlot;
++							FAssert(!atPlot(pBestPlot));
++						}
++					}
++				}
++			}
++		}
++	}
++
++	if (pBestPlot != NULL)
++	{
++		FAssert(!atPlot(pBestPlot));
++		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE());
++		return true;
++	}
++
++	return false;
++}
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
++
+ bool CvUnitAI::AI_airBombPlots()
+ {
+ 	PROFILE_FUNC();
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@389
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@390
+@@ -185,6 +185,16 @@
+ 	bool AI_airCarrier();
+ 	bool AI_missileLoad(UnitAITypes eTargetUnitAI, int iMaxOwnUnitAI = -1, bool bStealthOnly = false);
+ 	bool AI_airStrike();
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						9/14/08			jdog5000		*/
++/**																				*/
++/**		Air AI																	*/
++/********************************************************************************/
++	bool AI_defensiveAirStrike();
++	bool AI_defendBaseAirStrike();
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
+ 	bool AI_airBombPlots();
+ 	bool AI_airBombDefenses();	
+ 	bool AI_exploreAir();
+

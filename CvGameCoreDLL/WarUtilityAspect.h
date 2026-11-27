@@ -5,10 +5,11 @@
 
 #include "UWAI.h"
 #include "AIStrategies.h"
+#include "UWAISets.h" // <!-- custom: Kingmaking now stores team-owned victory candidates as TeamSet. See KI#433. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 
 class MilitaryAnalyst;
+class UWAILogMuteState; // <!-- custom: Nested mute depth shared by UWAI diagnostic sub-evaluations; not a logger. See KI#505.3. (ChatGPT-5.6-Sol) -->
 class WarEvalParameters;
-class UWAIReport;
 class UWAI::Player;
 class UWAI::Team;
 class UWAICache;
@@ -19,11 +20,13 @@ class UWAICache;
 class WarUtilityAspect
 {
 public:
-	virtual ~WarUtilityAspect() {}
 	/*	Returns the computed utility (same as calling the utility accessor
 		afterwards). Sets some protected data members that derived classes should
 		find useful; concrete derived classes should override evaluate(void) instead. */
 	virtual int evaluate(MilitaryAnalyst const& kMilitaryAnalyst);
+	// <!-- custom: WarEvaluator deletes concrete aspects through WarUtilityAspect pointers.
+	// A virtual destructor makes those polymorphic deletions defined and releases derived containers. See KI#464. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	virtual ~WarUtilityAspect() {}
 	char const* aspectName() const;
 	int utility() const { return m_iU; }
 
@@ -31,13 +34,6 @@ protected:
 	WarUtilityAspect(WarEvalParameters const& kParams);
 	// Class to enum mapping
 	virtual UWAI::AspectTypes xmlID() const=0;
-	// Just for convenience (replacing m_kReport.log)
-	void log(char const* fmt, ...) const
-	#if DISABLE_UWAI_REPORT
-		{}
-	#else
-		;
-	#endif
 	/*	What can m_pAgentPlayer gain from or lose to m_pRivalPlayer
 		(both set by evaluate(MilitaryAnalyst const&)). Note that m_kRivalPlayer
 		is not necessarily a war enemy of the m_kAgentPlayer; it can be
@@ -60,7 +56,8 @@ protected:
 		the compiler won't warn about it. */
 	WarEvalParameters const& m_kParams;
 	int m_iU;
-	mutable UWAIReport& m_kReport;
+	// <!-- custom: Shared nested mute state inherited from WarEvalParameters; no dedicated UWAI logger remains. (ChatGPT-5.6-Sol) -->
+	UWAILogMuteState& m_kLogMuteState;
 	CvGameAI const& m_kGame;
 	EraTypes const m_eGameEra;
 	scaled const m_rGameEraAIFactor;
@@ -70,37 +67,22 @@ protected:
 	// Eval helpers - start
 	// Between the agent team and eOther - or m_kRivalTeam if eOther=NO_TEAM.
 	scaled normalizeUtility(scaled rUtilityTeamOnTeam, TeamTypes eOther = NO_TEAM) const;
-	/*	Score for assets of m_pRivalPlayer gained from and/or lost to eTo,
-		or to any player (eTo=NO_PLAYER). If eIgnoreGainsFrom is used, then assets
-		gained from that team are ignored.
-		Always computed based on the agent's knowledge.
-		The score total for all of the rival's present assets (lost or not)
-		can be obtained by passing a scaled pointer.
-		(Shouldn't call totalAssetScore() on the rival cache instead b/c that
-		includes data about cities that the agent may not know of.)
-		Update: Now also subtracts score for assets conquered by them from eTo
-		(or from any player); i.e. calculates a net loss (or gain) of assets.
-		Gains from team eIgnoreGains aren't counted. */
-	 scaled netLostRivalAssetScore(PlayerTypes eTo = NO_PLAYER,
-			scaled* prTotalScore = NULL, // out-param
-			TeamTypes eIgnoreGainsFrom = NO_TEAM) const;
+	// <!-- custom: Compute eVictim's net asset loss to eTo, or to every player when eTo is NO_PLAYER, from the agent's knowledge.
+	// Ignore gains from eIgnoreGainsFrom when requested, and return eVictim's total present asset score through prTotalScore when requested; using the victim cache's totalAssetScore would expose cities the agent may not know.
+	// Requiring eVictim explicitly prevents loops over teammates and vassals from silently reusing the aspect rival's assets. See KI#432. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	 scaled netLostAssetScore(PlayerTypes eVictim, PlayerTypes eTo = NO_PLAYER, scaled* prTotalScore = NULL, TeamTypes eIgnoreGainsFrom = NO_TEAM) const;
 	 scaled lossesFromBlockade(PlayerTypes eVictim, PlayerTypes eTo) const;
 	 scaled lossesFromNukes(PlayerTypes eVictim, PlayerTypes eSource) const;
+	 // <!-- custom: Return the victim player's apportioned total exclusive-radius land-asset category so flipped-tile losses and ratio denominators use the same measurement domain. See KI#456. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	 scaled flippedTileAssetScore(PlayerTypes eVictim) const;
 	 // <advc.035>
-	 scaled lossesFromFlippedTiles(PlayerTypes eVictim,
-			PlayerTypes eTo = NO_PLAYER) const; // </advc.035>
+	 scaled lossesFromFlippedTiles(PlayerTypes eVictim, PlayerTypes eTo = NO_PLAYER) const; // </advc.035>
 	 /* Score for assets conquered by the agent player from the rival player
 		(as set by evaluate(void)). bMute disables logging within the function body. */
 	 scaled conqAssetScore(bool bMute = true) const;
 	 // Portion of cities of ePlayer that aren't lost in the war
 	 scaled remainingCityRatio(PlayerTypes ePlayer) const; 
-	 template<bool bCHECK_HAS_MET>
-	 int countFreeRivals() const
-	 {
-		 return PlayerIter<FREE_MAJOR_CIV, bCHECK_HAS_MET ?
-				KNOWN_POTENTIAL_ENEMY_OF : POTENTIAL_ENEMY_OF>::
-				count(m_kAgentTeam.getID());
-	 }
+	 template<bool bCHECK_HAS_MET> int countFreeRivals() const { return PlayerIter<FREE_MAJOR_CIV, bCHECK_HAS_MET ? KNOWN_POTENTIAL_ENEMY_OF : POTENTIAL_ENEMY_OF>::count(m_kAgentTeam.getID()); }
 	/*	Evaluation of m_pRivalPlayer's usefulness as m_pAgentPlayer's trade partner.
 		Would prefer this to be computed just once by UWAICache (the computations
 		aren't totally cheap), but I also want the log output. They're not called
@@ -116,10 +98,7 @@ protected:
 	/*	For brevity, these function names refer to the agent as "we"/ "us"
 		and to the rival player as "them". */
 	UWAICache const& ourCache() const { return *m_pAgentCache; }
-	std::vector<PlotNumTypes> const& ourConquestsFromThem() const
-	{
-		return m_aeAgentConquersFromRival;
-	}
+	std::vector<PlotNumTypes> const& ourConquestsFromThem() const { return m_aeAgentConquersFromRival; }
 	// Agent player's current attitude toward the rival player and vice versa
 	AttitudeTypes towardThem() const { return m_eTowardRival; }
 	AttitudeTypes towardUs() const { return m_eTowardAgent; }
@@ -194,8 +173,18 @@ class GreedForSpace : public WarUtilityAspect
 public:
 	GreedForSpace(WarEvalParameters const& kParams)
 	:	WarUtilityAspect(kParams) {}
+	// <!-- custom: Start each agent teammate with local rival-cache dedup state; deterministic physical-site ownership prevents the same opportunity from then being valued by another teammate. See KI#1050. (GPT-5.6-Sol) -->
+	int preEvaluate();
 	void evaluate();
 	UWAI::AspectTypes xmlID() const { return UWAI::GREED_FOR_SPACE; }
+private:
+	// <!-- custom: Rival teammates can cache the same physical settlement plot independently.
+	// Preserve plot identity across this agent member's rival passes, while nearest-city ownership coordinates the opportunity across agent teammates. See KI#454 and KI#1050. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	std::set<PlotNumTypes> m_countedSites;
+	// <!-- custom: Select the one agent teammate allowed to value a physical site instead of letting aspect iteration order claim it. See KI#1050. (GPT-5.6-Sol) -->
+	PlayerTypes siteOwner(CvPlot const& kSite) const;
+	// <!-- custom: Preserve AdvCiv's eliminated-rival adjacency gate at team scope now that site ownership is explicitly coordinated across agent teammates. See KI#1050. (GPT-5.6-Sol) -->
+	bool agentTeamAdjacentTo(PlayerTypes eRival) const;
 };
 
 
@@ -235,8 +224,7 @@ private:
 	scaled progressRatingConquest() const;
 	scaled progressRatingDomination() const;
 	scaled progressRatingDiplomacy() const;
-	void addConquestsByPartner(std::map<PlotNumTypes,scaled>& kWeightedConquests,
-			AttitudeTypes eAttitudeThresh, scaled rWeight) const;
+	void addConquestsByPartner(std::map<PlotNumTypes, scaled>& kWeightedConquests, AttitudeTypes eAttitudeThresh, scaled rWeight) const;
 };
 
 
@@ -319,8 +307,13 @@ class PreEmptiveWar : public WarUtilityBroaderAspect
 public:
 	PreEmptiveWar(WarEvalParameters const& kParams)
 	:	WarUtilityBroaderAspect(kParams) {}
+	// <!-- custom: Clear the evaluated-team set before the generic rival callbacks begin for each agent member. See KI#460. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int preEvaluate();
 	void evaluate();
 	UWAI::AspectTypes xmlID() const { return UWAI::PREEMPTIVE_WAR; }
+private:
+	// <!-- custom: Track rival teams already evaluated for their shared long-term threat forecast. See KI#460. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamSet m_evaluatedThreatTeams;
 };
 
 
@@ -334,13 +327,15 @@ public:
 	UWAI::AspectTypes xmlID() const { return UWAI::KING_MAKING; }
 private:
 	static scaled const m_rScoreMargin;
-	std::set<PlayerTypes> m_winningFuture;
-	std::set<PlayerTypes> m_winningPresent;
-	void addWinning(std::set<PlayerTypes>& kWinning, bool bPredict) const;
-	bool anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iStage,
-			bool bPredict = true) const;
-	void addLeadingPlayers(std::set<PlayerTypes>& kLeading, scaled rMargin,
-			bool bPredict = true) const;
+	// <!-- custom: Civ4 awards victories to teams.
+	// Store each likely winning team once while player-local victory inputs remain evaluated through anyVictory. See KI#433. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamSet m_winningFuture;
+	TeamSet m_winningPresent;
+	void addWinning(TeamSet& kWinning, bool bPredict) const;
+	bool anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iStage, bool bPredict = true) const;
+	// <!-- custom: Sum the same commerce/overseas-adjusted member scores into the actual team-owned Score/Time contender quantity. See KI#429 and KI#433. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled adjustedContenderScore(TeamTypes eTeam, bool bPredict) const;
+	void addLeadingTeams(TeamSet& kLeading, scaled rMargin, bool bPredict = true) const;
 	scaled theirRelativeLoss() const;
 };
 
@@ -359,11 +354,14 @@ public:
 class Risk : public WarUtilityAspect
 {
 public:
-	Risk(WarEvalParameters const& kParams)
-	:	WarUtilityAspect(kParams) {}
+	// <!-- custom: Initialize the one-shot team contact-gate latch for each war or peace scenario evaluation. See KI#425. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	Risk(WarEvalParameters const& kParams) : WarUtilityAspect(kParams), m_bSASContactGateEvaluated(false) {}
 	int preEvaluate();
 	void evaluate();
 	UWAI::AspectTypes xmlID() const { return UWAI::RISK; }
+private:
+	// <!-- custom: Prevent the team-wide SAS contact gate from being added once per teammate to the shared Risk utility. See KI#425. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool m_bSASContactGateEvaluated;
 };
 
 
@@ -402,8 +400,13 @@ class Distraction : public WarUtilityAspect
 public:
 	Distraction(WarEvalParameters const& kParams)
 	:	WarUtilityAspect(kParams) {}
+	// <!-- custom: Clear team ownership before the generic rival callbacks begin for each agent member. See KI#449. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int preEvaluate();
 	void evaluate();
 	UWAI::AspectTypes xmlID() const { return UWAI::DISTRACTION; }
+private:
+	// <!-- custom: Track hostile teams already charged for their shared alternative-war opportunity cost. See KI#449. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamSet m_evaluatedTeams;
 };
 
 
@@ -422,10 +425,11 @@ class Revolts : public WarUtilityAspect
 public:
 	Revolts(WarEvalParameters const& kParams)
 	:	WarUtilityAspect(kParams) {}
+	// <!-- custom: Revolt exposure is a scenario-wide union of the agent's cities across every rival's relevant areas; preEvaluate supplies one matching numerator and denominator instead of per-rival ratios over persistent city identity.
+	// The union is local to each evaluation, so the old private m_countedCities member is no longer needed and cannot leak identities into another agent member's evaluation. See KI#455. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int preEvaluate();
 	void evaluate();
 	UWAI::AspectTypes xmlID() const { return UWAI::REVOLTS; }
-private:
-	std::set<PlotNumTypes> m_countedCities;
 };
 
 // BroaderAspect: Need to cover the sponsor, which may not be a war party.
@@ -464,11 +468,16 @@ public:
 class TacticalSituation : public WarUtilityAspect
 {
 public:
+	// <!-- custom: Initialize the one-shot target-team readiness latch. See KI#461. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	TacticalSituation(WarEvalParameters const& kParams)
-	:	WarUtilityAspect(kParams) {}
+	:	WarUtilityAspect(kParams), m_bOperationalEvaluated(false) {}
+	// <!-- custom: Reset the latch before evaluating each agent member's distinct unit inventory. See KI#461. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int preEvaluate();
 	void evaluate();
 	UWAI::AspectTypes xmlID() const { return UWAI::TACTICAL_SITUATION; }
 private:
+	// <!-- custom: One agent member has one operational-readiness state for the configured target team. See KI#461. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool m_bOperationalEvaluated;
 	void evalEngagement();
 	void evalOperational();
 	int evacPop(PlayerTypes eOwner, PlayerTypes eInvader) const;

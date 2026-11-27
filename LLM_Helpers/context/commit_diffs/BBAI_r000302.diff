@@ -1,0 +1,435 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 302
+# Author: blakeciv
+# Date: 2007-01-26T23:51:17.972051Z
+# Coverage: full
+# Message:
+#   Made changes to Aggressive AI vs Non-Aggressive AI for unit training and wonder building.
+#   Unit training will be largely switched off once unit expenses become too high.
+#   Agg AI no longer causes a diplo penalty with humans.
+#   Agg AI less likely to pursue culture.
+#   
+#   Dagger Strategy algorithm revised to better reflect personalities and some oddities fixed.
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@301
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@302
+@@ -795,6 +795,7 @@
+     int iCulturalVictoryNumCultureCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
+     
+     bool bGetBetterUnits = GET_PLAYER(getOwner()).AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS);
++    bool bAggressiveAI = GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI);
+ 
+ 	int iUnitCostPercentage = (kPlayer.calculateUnitCost() * 100) / max(1, kPlayer.calculatePreInflatedCosts());
+ 
+@@ -895,8 +896,8 @@
+     //this can be overridden by "wait and grow more"
+     if (!bDanger && (iExistingWorkers == 0) && isCapital())
+     {
+-	if ((AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ true, /*bIncludeNeutral*/ true, -1, /*bLand*/ true, /*bWater*/ false) > 0) || 
+-		(getPopulation() > 3))
++		if ((AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ true, /*bIncludeNeutral*/ true, -1, /*bLand*/ true, /*bWater*/ false) > 0) || 
++			(getPopulation() > 3))
+     	{
+ 			if (AI_chooseUnit(UNITAI_WORKER))
+ 			{
+@@ -912,7 +913,7 @@
+ 		}
+     }
+     
+-    if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 5, 33))
++    if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 6, 33))
+     {
+     	return;
+     }
+@@ -928,34 +929,6 @@
+ 			}
+ 		}
+ 	}
+-//	else
+-//	{
+-//        if (!AI_isDefended(plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwnerINLINE()))) // XXX check for other team's units?
+-//        {
+-//            if (AI_chooseDefender())
+-//            {
+-//                return;
+-//            }
+-//
+-//            if (AI_chooseUnit(UNITAI_ATTACK))
+-//            {
+-//                return;
+-//            }
+-//        }
+-//
+-//
+-//		if (plot()->plotCheck(PUF_isUnitAIType, UNITAI_SETTLE, -1, getOwnerINLINE()) != NULL)
+-//		{
+-//			if (!AI_isDefended())
+-//			{
+-//				if (AI_chooseDefender())
+-//				{
+-//					return;
+-//				}
+-//			}
+-//		}
+-//	}
+-	
+ 	
+ 	int iNeededFloatingDefenders = GET_PLAYER(getOwner()).AI_getTotalFloatingDefendersNeeded(area());
+  	int iTotalFloatingDefenders = GET_PLAYER(getOwner()).AI_getTotalFloatingDefenders(area());
+@@ -1045,17 +1018,6 @@
+             }
+         }
+     }
+-	
+-//    if (isHuman())
+-//    {
+-//        if (plot()->plotCheck(PUF_canDefend, -1, -1, getOwnerINLINE()) == NULL)
+-//        {
+-//            if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+-//            {
+-//                return;
+-//            }
+-//        }
+-//    }
+ 
+ 	// don't build frivilious things if this is an imporant city unless we at war
+     if (!bImportantCity || bLandWar || bAssault)
+@@ -1085,16 +1047,16 @@
+             }
+         }
+ 
+-        if (bDanger)
+-        {
+-            if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_ATTACK) < (iNumCitiesInArea + 2))
+-            {
+-                if (AI_chooseUnit(UNITAI_ATTACK))
+-                {
+-                    return;
+-                }
+-            }
+-        }
++//        if (bDanger)
++//        {
++//            if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_ATTACK) < (iNumCitiesInArea + 2))
++//            {
++//                if (AI_chooseUnit(UNITAI_ATTACK))
++//                {
++//                    return;
++//                }
++//            }
++//        }
+         
+         // if we already choose to build a sea transport, then finish the stack
+ 		if (bAssault)
+@@ -1253,7 +1215,7 @@
+ 
+         if (!bFinancialTrouble && !bGetBetterUnits && kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER))
+         {
+-            if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Train Unit") > 25)
++            if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Train Unit") > (bAggressiveAI ? 25 : 40))
+             {
+ 
+                 int iBestFoundValue = area()->getBestFoundValue(getOwnerINLINE());
+@@ -1268,52 +1230,55 @@
+ 						}
+ 					}
+                 }
+-				if (iWaterPercent > 50 && !bLandWar)
++                if (iUnitCostPercentage < 20)
+                 {
+-                    if (GC.getGameINLINE().getSorenRandNum(50, "AI Dagger Sea Unit") < (iWaterPercent / 2))
+-                    {
+-						if (GC.getGameINLINE().getSorenRandNum(100, "AI Sea Attack") < 10)
++					if (iWaterPercent > 50 && !bLandWar)
++					{
++						if (GC.getGameINLINE().getSorenRandNum(50, "AI Dagger Sea Unit") < (iWaterPercent / 2))
+ 						{
+-							AI_chooseUnit(UNITAI_ATTACK_SEA);
++							if (GC.getGameINLINE().getSorenRandNum(100, "AI Sea Attack") < 10)
++							{
++								AI_chooseUnit(UNITAI_ATTACK_SEA);
++							}
++							else
++							{
++								AI_chooseUnit(UNITAI_ASSAULT_SEA);
++							}
++							AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA, 20);
+ 						}
+-						else
++					}
++					int iPillagerCount = (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_PILLAGE));
++					if (iPillagerCount <= ((iNumCitiesInArea + 1) / 2))
++					{
++						if (GC.getGameINLINE().getSorenRandNum(iPillagerCount + 2, "AI Dagger Choose Pillager") == 0)
+ 						{
+-							AI_chooseUnit(UNITAI_ASSAULT_SEA);
++							if (AI_chooseUnit(UNITAI_PILLAGE))
++							{
++								return;							
++							}
+ 						}
+-						AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA, 20);
+-                    }
+-                }
+-                int iPillagerCount = (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_PILLAGE));
+-                if (iPillagerCount <= ((iNumCitiesInArea + 1) / 2))
+-                {
+-                	if (GC.getGameINLINE().getSorenRandNum(iPillagerCount + 2, "AI Dagger Choose Pillager") == 0)
+-                	{
+-						if (AI_chooseUnit(UNITAI_PILLAGE))
++					}
++					
++					if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Choose Unit") > 40)
++					{
++						if (AI_chooseUnit(UNITAI_ATTACK_CITY))
+ 						{
+-							return;							
++							AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20);
++							return;
+ 						}
+-                	}
+-                }
+-                
+-                if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Choose Unit") > 40)
+-                {
+-                    if (AI_chooseUnit(UNITAI_ATTACK_CITY))
++					}
++					
++					if (AI_chooseUnit(UNITAI_COUNTER))
+ 					{
+ 						AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20);
+ 						return;
+ 					}
+-                }
+-                
+-				if (AI_chooseUnit(UNITAI_COUNTER))
+-				{
+-					AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20);
+-					return;
+-				}
+-                
+-				if (AI_chooseUnit(UNITAI_ATTACK_CITY))
+-				{
+-					AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20);
+-					return;
++					
++					if (AI_chooseUnit(UNITAI_ATTACK_CITY))
++					{
++						AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20);
++						return;
++					}
+ 				}
+             }
+         }
+@@ -1350,9 +1315,12 @@
+     
+ 	if (iTotalFloatingDefenders < iNeededFloatingDefenders)
+ 	{
+-		if (AI_chooseFloatingDefender(iNeededFloatingDefenders))
+-		{
+-			return;
++		if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Floating Defender") < 50)
++		{
++			if (AI_chooseFloatingDefender(iNeededFloatingDefenders))
++			{
++				return;
++			}
+ 		}
+ 	}
+ 	if (bLandWar)
+@@ -1455,6 +1423,12 @@
+ 		{
+ 			iWonderRand *= 25;
+ 			iWonderRand /= 100;
++		}
++		
++		if (bAggressiveAI)
++		{
++			iWonderRand *= 2;
++			iWonderRand /= 3;
+ 		}
+ 		
+ 		int iWonderRoll = GC.getGameINLINE().getSorenRandNum(100, "Wonder Build Rand");
+@@ -1746,17 +1720,20 @@
+ 		}
+ 	}
+ 
+-	if ((bLandWar) ||
+-		  ((kPlayer.getNumCities() <= 3) && (GC.getGameINLINE().getElapsedGameTurns() < 60)) ||
+-		  (GC.getGameINLINE().getSorenRandNum(100, "AI Build Unit Production") < AI_buildUnitProb()) ||
+-			(isHuman() && (getGameTurnFounded() == GC.getGameINLINE().getGameTurn())))
+-	{
+-		if (AI_chooseUnit())
+-		{
+-			return;
+-		}
+-
+-		bChooseUnit = true;
++	if (iUnitCostPercentage < 10)
++	{
++		if ((bLandWar) ||
++			  ((kPlayer.getNumCities() <= 3) && (GC.getGameINLINE().getElapsedGameTurns() < 60)) ||
++			  (GC.getGameINLINE().getSorenRandNum(100, "AI Build Unit Production") < AI_buildUnitProb()) ||
++				(isHuman() && (getGameTurnFounded() == GC.getGameINLINE().getGameTurn())))
++		{
++			if (AI_chooseUnit())
++			{
++				return;
++			}
++
++			bChooseUnit = true;
++		}
+ 	}
+ 
+ 	if (AI_chooseProject())
+@@ -1780,9 +1757,12 @@
+ 
+ 	if (!bChooseUnit)
+ 	{
+-		if (AI_chooseUnit())
+-		{
+-			return;
++		if (iUnitCostPercentage < 20)
++		{
++			if (AI_chooseUnit())
++			{
++				return;
++			}
+ 		}
+ 	}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@301
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@302
+@@ -4008,13 +4008,13 @@
+ 
+ 	iAttitude += GC.getHandicapInfo(GET_PLAYER(ePlayer).getHandicapType()).getAttitudeChange();
+ 
+-	if (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI))
+-	{
+-		if (GET_PLAYER(ePlayer).isHuman())
+-		{
+-			iAttitude -= 2;
+-		}
+-	}
++//	if (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI))
++//	{
++//		if (GET_PLAYER(ePlayer).isHuman())
++//		{
++//			iAttitude -= 2;
++//		}
++//	}
+ 
+ 	if (!(GET_PLAYER(ePlayer).isHuman()))
+ 	{
+@@ -9932,7 +9932,7 @@
+         }
+     }
+     
+-    
++    iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? -3 : 0);
+ 	
+ 	CivicTypes eCivic = (CivicTypes)GC.getLeaderHeadInfo(getPersonalityType()).getFavoriteCivic();
+ 	if ((eCivic != NO_CIVIC) && (GC.getCivicInfo(eCivic).isNoNonStateReligionSpread()))
+@@ -10201,8 +10201,10 @@
+      && ((iCurrentEra <= (2+(iNonsense%2)) && (iMetCount > 0)) && (iParanoia > 0)))
+     {	    
+ 	    int iDagger = 0;
+-	    iDagger += 3000 / max(100, (50 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand()));
+-	    iDagger += 5 * AI_getFlavorValue(AI_FLAVOR_MILITARY);
++	    iDagger += 12000 / max(100, (50 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand()));
++	    iDagger *= (iNonsense % 11);
++	    iDagger /= 10;
++	    iDagger += 5 * min(8, AI_getFlavorValue(AI_FLAVOR_MILITARY));
+ 	    
+         for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+         {
+@@ -10212,41 +10214,39 @@
+             {
+                 if ((GC.getUnitClassInfo((UnitClassTypes)iI).getDefaultUnitIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)))
+                 {
+-                    if (GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_ATTACK_CITY))
+-                    {
+-                        iDagger += 10;
+-                    }
+-                    else if (GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_CITY_DEFENSE))
+-                    {
+-                        iDagger -= 20;
+-                    }
++                	bool bIsDefensive = (GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_CITY_DEFENSE) &&
++                		!GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_RESERVE));
++					
++					iDagger += bIsDefensive ? -10 : 0;
+                        
+                     if (getCapitalCity()->canTrain(eLoopUnit))
+                     {
+-                        iDagger += 40;
++                        iDagger += bIsDefensive ? 10 : 40;
+                         
+                         int iUUStr = GC.getUnitInfo(eLoopUnit).getCombat();
+                         int iNormalStr = GC.getUnitInfo((UnitTypes)(GC.getUnitClassInfo((UnitClassTypes)iI).getDefaultUnitIndex())).getCombat();
+                         iDagger += 20 * max(0, (iUUStr - iNormalStr));
++						if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() == NO_TECH)
++                        {
++                            iDagger += 20;
++                            iAttackUnitCount += 1;
++                        }
+                     }
+                     else
+                     {
+-                        if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() == NO_TECH)
+-                        {
+-                            iDagger += 40;
+-                            iAttackUnitCount++;
+-                        }
+-                        else
++                        if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() != NO_TECH)
+                         {
+                             if (GC.getTechInfo((TechTypes)(GC.getUnitInfo(eLoopUnit).getPrereqAndTech())).getEra() <= (iCurrentEra + 1))
+                             {
+                                 if (GET_TEAM(getTeam()).isHasTech((TechTypes)GC.getUnitInfo(eLoopUnit).getPrereqAndTech()))
+                                 {
+-                                    iDagger += 40;
++                                	//we have the tech but can't train the unit, dejection.
++                                    iDagger += 10;
+                                 }
+                                 else
+                                 {
+-                                    iDagger += 25;
++                                	//we don't have the tech, it's understandable we can't train.
++                                    iDagger += 30;
+                                 }
+                             }
+                         }
+@@ -10297,9 +10297,8 @@
+             }
+         }
+         
+-        iDagger += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 20 : 0);
+-        iDagger += ((iNonsense % 6) * 10);
+-        iDagger -= ((iAttackUnitCount == 0) ? 60 : 0);
++        //iDagger += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 20 : 0);
++        iDagger -= ((iAttackUnitCount == 0) ? 40 : 0);
+         
+         if ((getCapitalCity()->area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (getCapitalCity()->area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE))
+         {
+@@ -11026,6 +11025,12 @@
+ 		iDefenders /= 2;
+ 	}
+ 	
++	if (!GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI))
++	{
++		iDefenders *= 2;
++		iDefenders /= 3;
++	}
++	
+ 	if ((iCurrentEra < 3) && (GC.getGameINLINE().isOption(GAMEOPTION_RAGING_BARBARIANS)))
+ 	{
+ 		iDefenders += 2;
+

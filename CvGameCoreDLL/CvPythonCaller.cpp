@@ -240,14 +240,14 @@ void CvPythonCaller::jumpToPediaDescription(int iEntryData1, int iEntryData2) co
 
 bool CvPythonCaller::updateColoredPlots() const
 {
-	long lResult;
+	// <!-- custom: AdvCiv practical 1648 removed the inherited zero initialization, so a failed Python call could make Release consume indeterminate storage and randomly skip native colored-plot generation.
+	// Restore the deterministic false fallback locally. See KI#601. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	long lResult = 0;
 	call("updateColoredPlots", lResult);
 	return toBool(lResult);
 }
 
-void CvPythonCaller::call(char const* szFunctionName, CyArgsList& kArgsList,
-	long& lResult, char const* szModuleName, bool bAssertSuccess,
-	bool bCheckExists) const
+void CvPythonCaller::call(char const* szFunctionName, CyArgsList& kArgsList, long& lResult, char const* szModuleName, bool bAssertSuccess, bool bCheckExists) const
 {
 	/*	Not sure how expensive this check is; otherwise, I'd just always perform it.
 		bLoadIfNecessary: Generally won't help I think, except after having run
@@ -264,8 +264,7 @@ void CvPythonCaller::call(char const* szFunctionName, CyArgsList& kArgsList,
 	FAssert(!bAssertSuccess || m_bLastCallSuccessful);
 }
 
-void CvPythonCaller::call(char const* szFunctionName, long& lResult,
-	char const* szModuleName, bool bAssertSuccess, bool bCheckExists) const
+void CvPythonCaller::call(char const* szFunctionName, long& lResult, char const* szModuleName, bool bAssertSuccess, bool bCheckExists) const
 {
 	if (bCheckExists && !m_python.moduleExists(szModuleName, true))
 		m_bLastCallSuccessful = false;
@@ -277,8 +276,7 @@ void CvPythonCaller::call(char const* szFunctionName, long& lResult,
 	FAssert(!bAssertSuccess || m_bLastCallSuccessful);
 }
 
-void CvPythonCaller::call(char const* szFunctionName, CyArgsList& kArgsList,
-	char const* szModuleName, bool bAssertSuccess, bool bCheckExists) const
+void CvPythonCaller::call(char const* szFunctionName, CyArgsList& kArgsList, char const* szModuleName, bool bAssertSuccess, bool bCheckExists) const
 {
 	if (bCheckExists && !m_python.moduleExists(szModuleName, true))
 		m_bLastCallSuccessful = false;
@@ -290,8 +288,7 @@ void CvPythonCaller::call(char const* szFunctionName, CyArgsList& kArgsList,
 	FAssert(!bAssertSuccess || m_bLastCallSuccessful);
 }
 
-void CvPythonCaller::call(char const* szFunctionName,
-	char const* szModuleName, bool bAssertSuccess, bool bCheckExists) const
+void CvPythonCaller::call(char const* szFunctionName, char const* szModuleName, bool bAssertSuccess, bool bCheckExists) const
 {
 	if (bCheckExists && !m_python.moduleExists(szModuleName, true))
 		m_bLastCallSuccessful = false;
@@ -378,8 +375,7 @@ bool CvPythonCaller::canPickRevealedPlot(CvPlot const& kPlot) const
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::cannotSelectionListMoveOverride(CvPlot const& kPlot,
-	bool bAlt, bool bShift, bool bCtrl) const
+bool CvPythonCaller::cannotSelectionListMoveOverride(CvPlot const& kPlot, bool bAlt, bool bShift, bool bCtrl) const
 {
 	ARGSLIST(false);
 	CyPlot* pyPlot = new CyPlot(kPlot);
@@ -392,8 +388,7 @@ bool CvPythonCaller::cannotSelectionListMoveOverride(CvPlot const& kPlot,
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::cannotSelectionListNetOverride(GameMessageTypes eMessage,
-	int aiData[3], int iFlags, bool bAlt, bool bShift) const
+bool CvPythonCaller::cannotSelectionListNetOverride(GameMessageTypes eMessage, int aiData[3], int iFlags, bool bAlt, bool bShift) const
 {
 	ARGSLIST(false);
 	argsList.add(eMessage);
@@ -406,8 +401,7 @@ bool CvPythonCaller::cannotSelectionListNetOverride(GameMessageTypes eMessage,
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::cannotHandleActionOverride(CvPlot* pPlot, int iAction,
-	bool bTestVisible) const
+bool CvPythonCaller::cannotHandleActionOverride(CvPlot* pPlot, int iAction, bool bTestVisible) const
 {
 	if (!isUse(CANNOT_HANDLE_ACTION))
 		return false;
@@ -496,10 +490,7 @@ CvWString CvPythonCaller::eventHelp(EventTypes eEvent, EventTriggeredData const*
 	return szResult;
 }
 
-bool CvPythonCaller::doEventTrigger(PlayerTypes ePlayer, EventTriggeredData const& kTriggered,
-	CvCity*& pCity, CvPlot*& pPlot, CvUnit*& pUnit, PlayerTypes& eOtherPlayer,
-	CvCity*& pOtherPlayerCity, ReligionTypes& eReligion,
-	CorporationTypes& eCorporation, BuildingTypes& eBuilding) const
+bool CvPythonCaller::doEventTrigger(PlayerTypes ePlayer, EventTriggeredData const& kTriggered, CvCity*& pCity, CvPlot*& pPlot, CvUnit*& pUnit, PlayerTypes& eOtherPlayer, CvCity*& pOtherPlayerCity, ReligionTypes& eReligion, CorporationTypes& eCorporation, BuildingTypes& eBuilding) const
 {
 	char const* szFunctionName = GC.getInfo(kTriggered.m_eTrigger).
 			getPythonCanDo();
@@ -585,8 +576,13 @@ bool CvPythonCaller::isCitiesDestroyFeatures(int iX, int iY) const
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::canTrainOverride(CvCity const& kCity, UnitTypes eUnit,
-	bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const
+// <!-- custom: Read the same cached switches used by canTrainOverride/cannotTrainOverride, rather than rereading XML or invoking Python solely for diagnostics. (GPT-6.1-Sol) -->
+bool CvPythonCaller::isUseTrainCallbacks() const
+{
+	return (isUse(CAN_TRAIN) || isUse(CANNOT_TRAIN));
+}
+
+bool CvPythonCaller::canTrainOverride(CvCity const& kCity, UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const
 {
 	if (!isUse(CAN_TRAIN))
 		return false;
@@ -605,8 +601,7 @@ bool CvPythonCaller::canTrainOverride(CvCity const& kCity, UnitTypes eUnit,
 /*  Could easily combine the "can" and "cannot" functions into a single function
 	with a bool& parameter, but then a Python modder who just needs either function
 	would have to "pay" for two DLL-to-Python calls instead of one. */
-bool CvPythonCaller::cannotTrainOverride(CvCity const& kCity, UnitTypes eUnit,
-	bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const
+bool CvPythonCaller::cannotTrainOverride(CvCity const& kCity, UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const
 {
 	if (!isUse(CANNOT_TRAIN))
 		return false;
@@ -623,8 +618,7 @@ bool CvPythonCaller::cannotTrainOverride(CvCity const& kCity, UnitTypes eUnit,
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::canConstructOverride(CvCity const& kCity, BuildingTypes eBuilding,
-	bool bContinue, bool bTestVisible, bool bIgnoreCost) const
+bool CvPythonCaller::canConstructOverride(CvCity const& kCity, BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost) const
 {
 	if (!isUse(CAN_CONSTRUCT))
 		return false;
@@ -640,8 +634,7 @@ bool CvPythonCaller::canConstructOverride(CvCity const& kCity, BuildingTypes eBu
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::cannotConstructOverride(CvCity const& kCity, BuildingTypes eBuilding,
-	bool bContinue, bool bTestVisible, bool bIgnoreCost) const
+bool CvPythonCaller::cannotConstructOverride(CvCity const& kCity, BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost) const
 {
 	if (!isUse(CANNOT_CONSTRUCT))
 		return false;
@@ -657,8 +650,7 @@ bool CvPythonCaller::cannotConstructOverride(CvCity const& kCity, BuildingTypes 
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::canCreateOverride(CvCity const& kCity, ProjectTypes eProject,
-	bool bContinue, bool bTestVisible) const
+bool CvPythonCaller::canCreateOverride(CvCity const& kCity, ProjectTypes eProject, bool bContinue, bool bTestVisible) const
 {
 	if (!isUse(CAN_CREATE))
 		return false;
@@ -673,8 +665,7 @@ bool CvPythonCaller::canCreateOverride(CvCity const& kCity, ProjectTypes eProjec
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::cannotCreateOverride(CvCity const& kCity, ProjectTypes eProject,
-	bool bContinue, bool bTestVisible) const
+bool CvPythonCaller::cannotCreateOverride(CvCity const& kCity, ProjectTypes eProject, bool bContinue, bool bTestVisible) const
 {
 	if (!isUse(CANNOT_CREATE))
 		return false;
@@ -689,8 +680,7 @@ bool CvPythonCaller::cannotCreateOverride(CvCity const& kCity, ProjectTypes ePro
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::canMaintainOverride(CvCity const& kCity, ProcessTypes eProcess,
-	bool bContinue) const
+bool CvPythonCaller::canMaintainOverride(CvCity const& kCity, ProcessTypes eProcess, bool bContinue) const
 {
 	if (!isUse(CAN_MAINTAIN))
 		return false;
@@ -704,8 +694,7 @@ bool CvPythonCaller::canMaintainOverride(CvCity const& kCity, ProcessTypes eProc
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::cannotMaintainOverride(CvCity const& kCity, ProcessTypes eProcess,
-	bool bContinue) const
+bool CvPythonCaller::cannotMaintainOverride(CvCity const& kCity, ProcessTypes eProcess, bool bContinue) const
 {
 	if (!isUse(CANNOT_MAINTAIN))
 		return false;
@@ -765,8 +754,7 @@ bool CvPythonCaller::doCulture(CvCity const& kCity) const
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::doPlotCultureTimes100(CvCity const& kCity, PlayerTypes ePlayer,
-	bool bUpdate,int iCultureRateTimes100) const
+bool CvPythonCaller::doPlotCultureTimes100(CvCity const& kCity, PlayerTypes ePlayer, bool bUpdate, int iCultureRateTimes100) const
 {
 	if (!isUse(DO_PLOT_CULTURE))
 		return false;
@@ -875,8 +863,7 @@ bool CvPythonCaller::canRaze(CvCity const& kCity, PlayerTypes eNewOwner) const
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::canBuild(CvPlot const& kPlot, BuildTypes eBuild, PlayerTypes ePlayer,
-	bool& bOverride) const
+bool CvPythonCaller::canBuild(CvPlot const& kPlot, BuildTypes eBuild, PlayerTypes ePlayer, bool& bOverride) const
 {
 	bOverride = false;
 	if (!isUse(CAN_BUILD))
@@ -891,8 +878,10 @@ bool CvPythonCaller::canBuild(CvPlot const& kPlot, BuildTypes eBuild, PlayerType
 	if (lResult == -1)
 		return false;
 	bOverride = true;
-	FAssertBounds(-1, 2, lResult);
-	return toBool(lResult);
+	// <!-- custom: Preserve the documented numeric callback contract: every positive result permits the Build, not only exactly 1.
+	// Keep this local rather than loosening the shared Boolean converter. See KI#598. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	FAssert(lResult >= 0);
+	return (lResult >= 1);
 }
 
 bool CvPythonCaller::doGoody(CvPlot const& kPlot, CvUnit const* pUnit, PlayerTypes ePlayer) const
@@ -904,7 +893,9 @@ bool CvPythonCaller::doGoody(CvPlot const& kPlot, CvUnit const* pUnit, PlayerTyp
 	CyPlot* pyPlot = new CyPlot(kPlot);
 	argsList.add(m_python.makePythonObject(pyPlot));
 	// Note: pUnit can be NULL, but pyUnit can still be initialized (and is expected by Python).
-	CyUnit* pyUnit = new CyUnit(*pUnit);
+	// <!-- custom: AdvCiv practical 2066 changed the nullable pointer construction into an unconditional dereference.
+	// Restore a real CyUnit Python object whose internal unit pointer can remain NULL when plot ownership absorbs a goody hut. See KI#597. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CyUnit* pyUnit = new CyUnit(const_cast<CvUnit*>(pUnit));
 	argsList.add(m_python.makePythonObject(pyUnit));
 	call("doGoody", argsList, lResult);
 	delete pyPlot;
@@ -1033,7 +1024,8 @@ bool CvPythonCaller::doResearch(PlayerTypes ePlayer) const
 	return toBool(lResult);
 }
 
-short CvPythonCaller::AI_foundValue(PlayerTypes ePlayer, CvPlot const& kPlot) const
+// <!-- custom: Keep the Python found-value callback on the migrated int contract throughout; the old body still narrowed the result to short. See KI#304. (GPT-5.2-Codex (summarized) + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+int CvPythonCaller::AI_foundValue(PlayerTypes ePlayer, CvPlot const& kPlot) const
 {
 	if (!isUse(GET_CITY_FOUND_VALUE))
 		return -1;
@@ -1042,8 +1034,7 @@ short CvPythonCaller::AI_foundValue(PlayerTypes ePlayer, CvPlot const& kPlot) co
 	argsList.add(kPlot.getX());
 	argsList.add(kPlot.getY());
 	call("getCityFoundValue", argsList, lResult);
-	FAssert(lResult <= MAX_SHORT); // K-Mod
-	return safeIntCast<short>(lResult);
+	return toInt(lResult);
 }
 
 TechTypes CvPythonCaller::AI_chooseTech(PlayerTypes ePlayer, bool bFree) const
@@ -1077,8 +1068,7 @@ bool CvPythonCaller::AI_doWar(TeamTypes eTeam) const
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::doOrganizationTech(TeamTypes eTechTeam, PlayerTypes eTechPlayer,
-	TechTypes eTech) const
+bool CvPythonCaller::doOrganizationTech(TeamTypes eTechTeam, PlayerTypes eTechPlayer, TechTypes eTech) const
 {
 	if (!isUse(DO_HOLY_CITY_TECH))
 		return false;
@@ -1170,9 +1160,14 @@ bool CvPythonCaller::doPillageGold(CvUnit const& kUnit, CvPlot const& kPlot, int
 	call("doPillageGold", argsList, lResult);
 	delete pyPlot;
 	delete pyUnit;
-	if (lResult != iError)
-		iPillageGold = toInt(lResult);
-	else FAssert(lResult != iError);
+	// <!-- custom: K-Mod treats every negative callback result as a request for the native C++ calculation.
+	// AdvCiv's wrapper instead reported success even for that sentinel or a failed Python call, suppressing the fallback and awarding no gold. See KI#599. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (lResult < 0)
+	{
+		FAssert(lResult != iError);
+		return false;
+	}
+	iPillageGold = toInt(lResult);
 	return true;
 }
 
@@ -1235,8 +1230,7 @@ CustomMapOptionTypes CvPythonCaller::customMapOptionDefault(char const* szMapScr
 	return (CustomMapOptionTypes)toInt(lResult);
 }
 // advc.004:
-CvWString CvPythonCaller::customMapOptionDescription(char const* szMapScriptName,
-	int iOption, CustomMapOptionTypes eOptionValue) const
+CvWString CvPythonCaller::customMapOptionDescription(char const* szMapScriptName, int iOption, CustomMapOptionTypes eOptionValue) const
 {
 	CvWString szResult;
 	CyArgsList argsList;
@@ -1315,8 +1309,7 @@ void CvPythonCaller::mapWraps(bool& bWrapX, bool& bWrapY) const
 }
 
 // advc.194:
-void CvPythonCaller::mapDefaultOptionAvailability(bool& bClimateFlexible,
-	bool& bSeaLevelFlexible) const
+void CvPythonCaller::mapDefaultOptionAvailability(bool& bClimateFlexible, bool& bSeaLevelFlexible) const
 {
 	long lResult = 1;
 	call("isClimateMap", lResult, m_python.getMapScriptModule(), false);
@@ -1337,11 +1330,10 @@ bool CvPythonCaller::generatePlotTypes(int* aiPlotTypes, size_t uiSize) const
 	std::vector<int> result;
 	m_bLastCallSuccessful = m_python.callFunction(m_python.getMapScriptModule(),
 			"generatePlotTypes", NULL, &result);
+	// <!-- custom: A missing/default plot generator validly requests CvMapGenerator's native all-land fallback.
+	// AdvCiv practical 1648 made that inherited state assert; only malformed actual override sizes remain errors. See KI#600. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (!isOverride())
-	{
-		FErrorMsg("Map script has to override generatePlotTypes and mustn't call usingDefaultImpl");
 		return false;
-	}
 	if (result.size() != uiSize)
 	{
 		FErrorMsg("Need to set a plot type for every plot");
@@ -1357,9 +1349,10 @@ bool CvPythonCaller::generateTerrainTypes(std::vector<int>& r, size_t uiTargetSi
 	r.reserve(uiTargetSize);
 	m_bLastCallSuccessful = m_python.callFunction(m_python.getMapScriptModule(),
 			"generateTerrainTypes", NULL, &r);
+	// <!-- custom: A missing/default terrain generator validly keeps the terrain established by native plot generation.
+	// AdvCiv practical 1648 made that inherited state assert; only malformed actual override sizes remain errors. See KI#600. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (!isOverride())
 	{	// PlantGenerator seems to generate terrain in addFeatures, but that's highly irregular.
-		FErrorMsg("Map script has to override generateTerrainTypes and mustn't call usingDefaultImpl");
 		return false;
 	}
 	if (r.size() != uiTargetSize)
@@ -1407,20 +1400,21 @@ bool CvPythonCaller::canPlaceItemAt(char const* szItemName, CvPlot const& kPlot,
 		bOverride = false;
 		return false;
 	}
-	return toBool(lResult);
+	// <!-- custom: Preserve the inherited map-callback contract: after negative fallback results are removed above, every positive value permits placement rather than only exactly 1. See KI#598. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	return (lResult > 0);
 }
 
 int CvPythonCaller::riverValue(CvPlot const& kPlot, bool& bOverride) const
 {
-	ARGSLIST(-1);
+	// <!-- custom: AdvCiv's callback refactor discarded numeric getRiverAltitude results whenever Python also requested the default implementation.
+	// Start from the original additive default of zero and preserve hybrid modifiers while retaining validation for a full override. See KI#570. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	ARGSLIST(0);
 	CyPlot* pyPlot = new CyPlot(kPlot);
 	argsList.add(m_python.makePythonObject(pyPlot));
 	call("getRiverAltitude", argsList, lResult, m_python.getMapScriptModule(), false);
 	delete pyPlot;
 	bOverride = isOverride();
-	if (!bOverride)
-		return 0;
-	if (lResult < 0)
+	if (bOverride && lResult < 0)
 	{
 		FAssert(lResult >= 0);
 		bOverride = false;
@@ -1443,7 +1437,9 @@ bool CvPythonCaller::addGoodies() const
 
 bool CvPythonCaller::addFeatures() const
 {
-	call("addFeatures", m_python.getMapScriptModule());
+	// <!-- custom: Feature generation is an optional map hook with a native C++ fallback, like the neighboring map phases.
+	// Do not assert when a supported minimal script omits it. See KI#600. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	call("addFeatures", m_python.getMapScriptModule(), false);
 	return isOverride();
 }
 
@@ -1459,8 +1455,7 @@ bool CvPythonCaller::addRivers() const
 	return isOverride();
 }
 
-void CvPythonCaller::riverStartCardinalDirection(CvPlot const& kPlot,
-	CardinalDirectionTypes& r) const
+void CvPythonCaller::riverStartCardinalDirection(CvPlot const& kPlot, CardinalDirectionTypes& r) const
 {
 	ARGSLIST(NO_CARDINALDIRECTION);
 	CyPlot* pyPlot = new CyPlot(kPlot);
@@ -1490,7 +1485,9 @@ int CvPythonCaller::minStartingDistanceMod() const
 {
 	long lResult = 0;
 	call("minStartingDistanceModifier", lResult, m_python.getMapScriptModule(), false);
-	return std::max(0, toInt(lResult));
+	// <!-- custom: AdvCiv's callback extraction clamped negative script modifiers to 0 before CvGame added 100, turning inherited values such as -95 into neutral 100% instead of 5%.
+	// Restore BtS's -100 lower bound while preserving positive modifiers. See KI#285. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	return std::max(-100, toInt(lResult));
 }
 
 CvArea* CvPythonCaller::findStartingArea(PlayerTypes eStartingPlayer) const

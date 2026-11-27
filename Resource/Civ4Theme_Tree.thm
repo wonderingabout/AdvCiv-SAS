@@ -38,7 +38,7 @@ with GFC_Control_Tree
 			.Item									=	GFC_CtrlTheme_Bitmap_Control_Tree_Renderer_Item;
 			.Indent									=	GFC_CtrlTheme_Bitmap_Control_Tree_Renderer_Indent;
 		}										
-													
+
 		with GFC_Control_Flag
 		{										
 			// Base control flags									
@@ -52,7 +52,7 @@ with GFC_Control_Tree
 			.TopLayer						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap				=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-											
+
 			// Control flag change masks	
 			.Mask_InvalidateControl			=	GFlags(GCtrl, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
 		}
@@ -65,17 +65,17 @@ with GFC_Control_Tree
 			// Tree flag change masks		
 			//.TreeMask_InvalidateControl	=	GFlags(GTreeCtrl);
 		}										
-													
+
 		with .Size
 		{
 			.IndentWidth					=	GFC_Control_Size_ListItem;
 			.IndentHeight					=	GFC_Control_Size_ListItem;
-												
+
 			.ItemSpace						=	GFC_Control_Table_Size_CellItemSpace;
 			.ItemContentMargin				=	GRectMargin(0);
 			.ItemTextMargin					=	GRectMargin(2,3,2,0);
 		}
-				
+
 		with .Color
 		{
 
@@ -93,7 +93,7 @@ with GFC_Control_Tree
 				.Connector_DisableSelect			=	GFC_Control_Color_3DLook_Light;
 				.Connector_DisableOffselect			=	GFC_Control_Tree_Color_Indent_Connector_Default;
 				.Connector_DisableMultiselect		=	GFC_Control_Tree_Color_Indent_Connector_Select;
-				
+
 				.ExpandImage_Default					=	GFC_Control_Color_3DLook_Dark;
 				.ExpandImage_Select					=	GFC_Control_Color_3DLook_Light;
 				.ExpandImage_Offselect				=	GFC_Control_Tree_Color_Indent_Connector_Default;
@@ -141,7 +141,7 @@ with GFC_Control_Tree
 				.Connector_DisableSelect			=	GFC_Control_Combine_Inner_Select;
 				.Connector_DisableOffselect			=	GFC_Control_Combine_Surface;
 				.Connector_DisableMultiselect		=	GFC_Control_Combine_Inner_Select;
-					
+
 				.ExpandImage_Default				=	GFC_Control_Combine_Surface;
 				.ExpandImage_Select					=	GFC_Control_Combine_Inner_Select;
 				.ExpandImage_Offselect				=	GFC_Control_Combine_Surface;
@@ -167,7 +167,7 @@ with GFC_Control_Tree
 				.Offselect_Factor					=	GFC_Control_Combine_Image_Default_Factor;
 				.Multiselect_Dest					=	GFC_Control_Combine_Image_Default_Dest;
 				.Multiselect_Factor					=	GFC_Control_Combine_Image_Default_Factor;
-													
+
 				.Inactive_Dest						=	GFC_Control_Combine_Image_Default_Dest;
 				.Inactive_Factor					=	GFC_Control_Combine_Image_Default_Factor;
 				.InactiveSelect_Dest				=	GFC_Control_Combine_Image_Select_Dest;
@@ -176,7 +176,7 @@ with GFC_Control_Tree
 				.InactiveOffselect_Factor			=	GFC_Control_Combine_Image_Default_Factor;
 				.InactiveMultiselect_Dest			=	GFC_Control_Combine_Image_Select_Dest;
 				.InactiveMultiselect_Factor			=	GFC_Control_Combine_Image_Select_Factor;
-													
+
 				.Disable_Dest						=	GFC_Control_Combine_Image_Disable_Dest;
 				.Disable_Factor						=	GFC_Control_Combine_Image_Disable_Factor;
 				.DisableSelect_Dest					=	GFC_Control_Combine_Image_DisableSelect_Dest;
@@ -190,14 +190,14 @@ with GFC_Control_Tree
 
 
 		// ******* Initialize all the Bitmap theme Tree properties to avoid inheritance problems
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Tree_Skin
 		{
 			// Tree control box skins																
 			.Indent_None_Default					=	0;
 			.Indent_None_Select						=	0;
 
-			
+
 			.Indent_Empty_Default					=	0;
 			.Indent_Empty_Select					=	0;
 			.Indent_EmptyUp_Default					=	0;
@@ -225,7 +225,7 @@ with GFC_Control_Tree
 			.Indent_ClosedBoxDown_Select			=	0;
 			.Indent_ClosedBoxUpDown_Default			=	0;
 			.Indent_ClosedBoxUpDown_Select			=	0;
-			
+
 			.Indent_ClosedBox_Disable				=	0;
 			.Indent_ClosedBox_DisableSelect			=	0;
 			.Indent_ClosedBoxUp_Disable				=	0;
@@ -234,8 +234,8 @@ with GFC_Control_Tree
 			.Indent_ClosedBoxDown_DisableSelect		=	0;			
 			.Indent_ClosedBoxUpDown_Disable			=	0;
 			.Indent_ClosedBoxUpDown_DisableSelect	=	0;			
-			
-			
+
+
 			.Indent_OpenBox_Default					=	0;
 			.Indent_OpenBox_Select					=	0;
 			.Indent_OpenBoxUp_Default				=	0;
@@ -244,7 +244,7 @@ with GFC_Control_Tree
 			.Indent_OpenBoxDown_Select				=	0;
 			.Indent_OpenBoxUpDown_Default			=	0;
 			.Indent_OpenBoxUpDown_Select			=	0;
-			
+
 			.Indent_OpenBox_Disable					=	0;
 			.Indent_OpenBox_DisableSelect			=	0;
 			.Indent_OpenBoxUp_Disable				=	0;
@@ -256,10 +256,10 @@ with GFC_Control_Tree
 		}
 
 		// NOTE: These are bypassed by the direct mapping to StandardTable_Style below in StandardTreeTable.
-		
+
 		map GFC_CtrlTheme_Bitmap_Control_Table		=	GFC_Control_StandardTable_Style;
 		map GFC_Control								=	GFC_Control_StandardTable_Style;
-		
+
 	} // end GFC_Control_DefaultTreeTable_Style
 
 
@@ -269,12 +269,12 @@ with GFC_Control_Tree
 	GFC_Control_StandardTreeTable_Style
 	{
 		// Tree control indent skins
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Tree_Skin_Indent
 		{
-	
+
 	// *** Empty Box
-	
+
 			.None_Default					=	SF_CtrlTheme_Civ4_Control_Skin_Blank;
 			.None_Select					=	.None_Default;
 			.None_Disable					=	.None_Default;
@@ -296,8 +296,8 @@ with GFC_Control_Tree
 			.EmptyDown_DisableSelect		=	.Empty_Disable;
 			.EmptyUpDown_Disable			=	.Empty_Disable;
 			.EmptyUpDown_DisableSelect		=	.Empty_Disable;
-		
-			
+
+
 	// *** Closed Box
 
 			.ClosedBox_Default
@@ -331,7 +331,7 @@ with GFC_Control_Tree
 
 
 	// *** Open Box
-		
+
 			.OpenBox_Default
 			{
 				layer {

@@ -1,0 +1,65 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 162
+# Author: iustus
+# Date: 2006-12-10T18:31:30.885243Z
+# Coverage: full
+# Message:
+#   Extra data saved to savefiles fix, city data was not being saved with the correct ID
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvExtraSaveData.cpp
+
+Index: /trunk/CvGameCoreDLL/CvExtraSaveData.cpp
+--- /trunk/CvGameCoreDLL/CvExtraSaveData.cpp@161
++++ /trunk/CvGameCoreDLL/CvExtraSaveData.cpp@162
+@@ -6,6 +6,7 @@
+ #include "CvPlot.h"
+ #include "CvTeamAI.h"
+ #include "CvPlayerAI.h"
++#include "FFreeListTrashArray.h"
+ 
+ // Public Functions...
+ 
+@@ -637,17 +638,18 @@
+ 	{
+ 		for (int iCityIndex = 0; iCityIndex < m_cityDataArray.m_cityDataCount[iPlayerIndex]; iCityIndex++)
+ 		{
+-			nodeHeader.iID = iCityIndex;
++			CvExtraCityData& kCity = m_cityDataArray.m_cityData[iPlayerIndex][iCityIndex];
++			nodeHeader.iID = kCity.iCityID;
+ 			nodeHeader.iOwner = iPlayerIndex;
+ 			nodeHeader.eType = EXTRASAVEDATA_CITY;
+-			nodeHeader.iCount = m_cityDataArray.m_cityData[iPlayerIndex][iCityIndex].iNodeCount;
++			nodeHeader.iCount = kCity.iNodeCount;
+ 			bValid = pushNodeHeader(kMap, iIndex, nodeHeader);
+ 			iIndex += header.iNodeHeaderSize;
+ 			
+ 			// write out the nodes
+ 			for (int iI = 0; bValid && iI < nodeHeader.iCount; iI++)
+ 			{
+-				bValid = pushNode(kMap, iIndex, m_cityDataArray.m_cityData[iPlayerIndex][iCityIndex].aNodes[iI]);
++				bValid = pushNode(kMap, iIndex, kCity.aNodes[iI]);
+ 				iIndex += header.iNodeSize;
+ 			}
+ 		}
+@@ -840,6 +842,9 @@
+ 		FAssertMsg(iOwner >= 0 && iOwner < MAX_PLAYERS, "city owner out of range");
+ 		FAssertMsg(iIndex >= 0 && iIndex < EXTRASAVEDATA_MAX_CITY_VALUES, "city value index out of range");
+ 		
++		// cityIDs are huge numbers, but we know they are a FFreeListTrashArray ID, so just take the index, which is 12 bits
++		iID = (iID & FLTA_INDEX_MASK);
++
+ 		CvExtraSaveDataNode* pNode;
+ 		pNode = m_cityDataArray.getCityExtraDataNode(iID, iOwner, iIndex);
+ 		// do we now have a valid item
+@@ -961,6 +966,9 @@
+ 		FAssertMsg(iOwner >= 0 && iOwner < MAX_PLAYERS, "city owner out of range");
+ 		FAssertMsg(iIndex >= 0 && iIndex < EXTRASAVEDATA_MAX_CITY_VALUES, "city value index out of range");
+ 		
++		// cityIDs are huge numbers, but we know they are a FFreeListTrashArray ID, so just take the index, which is 12 bits
++		iID = (iID & FLTA_INDEX_MASK);
++
+ 		// get the node, creating if necessary
+ 		CvExtraSaveDataNode* pNode;
+ 		pNode = m_cityDataArray.getCityExtraDataNode(iID, iOwner, iIndex, /*bCreate*/ true);
+

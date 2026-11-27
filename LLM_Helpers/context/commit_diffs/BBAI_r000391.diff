@@ -1,0 +1,1851 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 391
+# Author: jdog5000
+# Date: 2008-10-13T16:56:54.468083Z
+# Coverage: full
+# Message:
+#   0.40 revision j
+#   
+#   Major changes to offensive air base selection
+#   All defensive airplanes reconsider missions every turn instead of getting locked into air patrols
+#   Barbarian ship generation throttle back in early game
+# Changed paths (12):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvCity.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvCity.h
+--- /trunk/CvGameCoreDLL/CvCity.h@390
++++ /trunk/CvGameCoreDLL/CvCity.h@391
+@@ -881,7 +881,18 @@
+ 	virtual int AI_projectValue(ProjectTypes eProject) = 0;
+ 	virtual int AI_neededSeaWorkers() = 0;
+ 	virtual bool AI_isDefended(int iExtra = 0) = 0;
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD							9/19/08		jdog5000		*/
++/**																				*/
++/**		Air AI																	*/
++/********************************************************************************/
++/* original BTS code
+ 	virtual bool AI_isAirDefended(int iExtra = 0) = 0;
++*/
++	virtual bool AI_isAirDefended(bool bCountLand = 0, int iExtra = 0) = 0;
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
+ 	virtual bool AI_isDanger() = 0;
+ 	virtual int AI_neededDefenders() = 0;
+ 	virtual int AI_neededAirDefenders() = 0;
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@390
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@391
+@@ -4521,13 +4521,78 @@
+ 	return ((plot()->plotCount(PUF_canDefendGroupHead, -1, -1, getOwnerINLINE(), NO_TEAM, PUF_isCityAIType) + iExtra) >= AI_neededDefenders()); // XXX check for other team's units?
+ }
+ 
+-
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD							9/19/08		jdog5000		*/
++/**																				*/
++/**		Air AI																	*/
++/********************************************************************************/
++/* original BTS code
+ bool CvCityAI::AI_isAirDefended(int iExtra)
+ {
+ 	PROFILE_FUNC();
+-
++	
+ 	return ((plot()->plotCount(PUF_canAirDefend, -1, -1, getOwnerINLINE(), NO_TEAM, PUF_isDomainType, DOMAIN_AIR) + iExtra) >= AI_neededAirDefenders()); // XXX check for other team's units?
+ }
++*/
++//
++bool CvCityAI::AI_isAirDefended(bool bCountLand, int iExtra)
++{
++	PROFILE_FUNC();
++	
++	int iAirDefenders = iExtra;
++	int iAirIntercept = 0;
++	int iLandIntercept = 0;
++
++	CvUnit* pLoopUnit;
++	CLLNode<IDInfo>* pUnitNode = plot()->headUnitNode();
++
++	while (pUnitNode != NULL)
++	{
++		pLoopUnit = ::getUnit(pUnitNode->m_data);
++		pUnitNode = plot()->nextUnitNode(pUnitNode);
++
++		if ((pLoopUnit->getOwnerINLINE() == getOwnerINLINE()))
++		{
++			if ( pLoopUnit->canAirDefend() )
++			{
++				if( pLoopUnit->getDomainType() == DOMAIN_AIR )
++				{
++					// can find units which are already air patrolling using group activity
++					if( pLoopUnit->getDamage() == 0 && !pLoopUnit->hasMoved() )
++					{
++						if( pLoopUnit->AI_getUnitAIType() == UNITAI_DEFENSE_AIR )
++						{
++							iAirIntercept += pLoopUnit->currInterceptionProbability();
++						}
++						else
++						{
++							iAirIntercept += pLoopUnit->currInterceptionProbability()/3;
++						}
++					}
++				}
++				else if( pLoopUnit->getDomainType() == DOMAIN_LAND )
++				{
++					iLandIntercept += pLoopUnit->currInterceptionProbability();
++				}
++			}
++		}
++	}
++
++	iAirDefenders += (iAirIntercept/100);
++
++	if( bCountLand )
++	{
++		iAirDefenders += (iLandIntercept/100);
++	}
++
++	int iNeededAirDefenders = AI_neededAirDefenders();
++	bool bHaveEnough = (iAirDefenders >= iNeededAirDefenders);
++
++	return bHaveEnough;
++}
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
+ 
+ 
+ int CvCityAI::AI_neededDefenders()
+@@ -9180,7 +9245,7 @@
+ 	/********************************************************************************/
+ 	/**		BETTER_BTS_AI_MOD						6/17/08				jdog5000	*/
+ 	/**																				*/
+-	/**		General AI																*/
++	/**		General AI, closeness changes											*/
+ 	/********************************************************************************/	
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@390
++++ /trunk/CvGameCoreDLL/CvCityAI.h@391
+@@ -52,7 +52,18 @@
+ 	DllExport int AI_neededSeaWorkers();
+ 
+ 	DllExport bool AI_isDefended(int iExtra = 0);
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD							9/19/08		jdog5000		*/
++/**																				*/
++/**		Air AI																	*/
++/********************************************************************************/
++/* original BTS code
+ 	DllExport bool AI_isAirDefended(int iExtra = 0);
++*/
++	DllExport bool AI_isAirDefended(bool bCountLand = false, int iExtra = 0);
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
+ 	DllExport bool AI_isDanger();
+ 
+ 	DllExport int AI_neededDefenders();
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@390
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@391
+@@ -3518,12 +3518,12 @@
+ 	CvWString szTempBuffer;
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						9/7/08				jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/7/08				jdog5000	*/
+ 	/**																				*/
+ 	/**																				*/
+ 	/********************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.40e");
++	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.40i");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szTempBuffer.Format(L"%S", "==========================");
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@390
++++ /trunk/CvGameCoreDLL/CvGame.cpp@391
+@@ -6391,6 +6391,36 @@
+ 				{
+ 					iNeededBarbs = ((iNeededBarbs / 4) + 1);
+ 
++					/********************************************************************************/
++					/**		BETTER_BTS_AI_MOD						9/25/08				jdog5000	*/
++					/**																				*/
++					/**		Barbarian AI															*/
++					/********************************************************************************/
++					// Limit construction of barb ships based on player navies
++					// Keeps barb ship count in check in early game since generation is greatly increased for BTS 3.17
++					if( pLoopArea->isWater() )
++					{
++						int iPlayerSeaUnits = 0;
++						for( int iI = 0; iI < MAX_CIV_PLAYERS; iI++ )
++						{
++							if( GET_PLAYER((PlayerTypes)iI).isAlive() )
++							{
++								iPlayerSeaUnits += GET_PLAYER((PlayerTypes)iI).AI_totalWaterAreaUnitAIs(pLoopArea,UNITAI_ATTACK_SEA);
++								iPlayerSeaUnits += GET_PLAYER((PlayerTypes)iI).AI_totalWaterAreaUnitAIs(pLoopArea,UNITAI_EXPLORE_SEA);
++								iPlayerSeaUnits += GET_PLAYER((PlayerTypes)iI).AI_totalWaterAreaUnitAIs(pLoopArea,UNITAI_ASSAULT_SEA);
++								iPlayerSeaUnits += GET_PLAYER((PlayerTypes)iI).AI_totalWaterAreaUnitAIs(pLoopArea,UNITAI_SETTLER_SEA);
++							}
++						}
++
++						if( pLoopArea->getUnitsPerPlayer(BARBARIAN_PLAYER) > (iPlayerSeaUnits/3 + 1) )
++						{
++							iNeededBarbs = 0;
++						}
++					}
++					/********************************************************************************/
++					/**		BETTER_BTS_AI_MOD						END								*/
++					/********************************************************************************/
++
+ 					for (iI = 0; iI < iNeededBarbs; iI++)
+ 					{
+ 						pPlot = GC.getMapINLINE().syncRandPlot((RANDPLOT_NOT_VISIBLE_TO_CIV | RANDPLOT_ADJACENT_LAND | RANDPLOT_PASSIBLE), pLoopArea->getID(), GC.getDefineINT("MIN_BARBARIAN_STARTING_DISTANCE"));
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@390
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@391
+@@ -456,7 +456,7 @@
+ 			switch (iPass)
+ 			{
+ 			case 0:
+-				// BBAI note:  Effectively only for galleys, triremes, and ironclads ... unit types limited in
++				// BBAI note:  Effectively only for galleys, triremes, and ironclads ... unit types which are limited in
+ 				// what terrain they can operate in
+ 				if (AI_unitImpassableCount(pLoopUnit->getUnitType()) > 0)
+ 				{
+@@ -6587,6 +6587,20 @@
+ 				if (iTempValue > 0)
+ 				{
+ 					bool bIsWater = (kLoopUnit.getDomainType() == DOMAIN_SEA);
++					/********************************************************************************/
++					/**		BETTER_BTS_AI_MOD						9/25/08			jdog5000		*/
++					/**																				*/
++					/**		General AI																*/
++					/********************************************************************************/
++					if( (GC.getUnitClassInfo((UnitClassTypes)kLoopUnit.getUnitClassType()).getDefaultUnitIndex()) != eLoopUnit )
++					{
++						// Extra weight if this bonus enables unique unit
++						iTempValue *= 4;
++						iTempValue /= 3;
++					}
++					/********************************************************************************/
++					/**		BETTER_BTS_AI_MOD						END								*/
++					/********************************************************************************/
+ 					
+ 					// if non-limited water unit, weight by coastal cities
+ 					if (bIsWater && !isLimitedUnitClass((UnitClassTypes)(kLoopUnit.getUnitClassType())))
+@@ -15217,7 +15231,7 @@
+ 	/********************************************************************************/
+ 	/**		BETTER_BTS_AI_MOD						6/17/08				jdog5000	*/
+ 	/**																				*/
+-	/**		Bug fix																	*/
++	/**		Bug fix, closeness changes												*/
+ 	/********************************************************************************/
+ 	iValue = 0;
+ 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@390
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@391
+@@ -180,6 +180,19 @@
+ 		{
+ 			setActivityType(ACTIVITY_AWAKE);
+ 		}
++		/********************************************************************************/
++		/**		BETTER_BTS_AI_MOD							9/21/08		jdog5000		*/
++		/**																				*/
++		/**		Air AI																	*/
++		/********************************************************************************/
++		// with improvements to launching air patrols, now can wake every turn
++		if ( (eActivityType == ACTIVITY_INTERCEPT) && !isHuman() )
++		{
++			setActivityType(ACTIVITY_AWAKE);
++		}
++		/********************************************************************************/
++		/**		BETTER_BTS_AI_MOD						END								*/
++		/********************************************************************************/
+ 
+ 		if (AI_isControlled())
+ 		{
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@390
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@391
+@@ -194,6 +194,34 @@
+ 		}
+ 	}
+ }
++
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						10/6/08				jdog5000	*/
++/**																				*/
++/**		General AI																*/
++/********************************************************************************/
++// Find plot strength of teammates and potentially vassals
++int CvTeamAI::AI_getOurPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves, bool bIncludeVassals)
++{
++	int iI;
++	int iPlotStrength = 0;
++
++	for (iI = 0; iI < MAX_PLAYERS; iI++)
++	{
++		if (GET_PLAYER((PlayerTypes)iI).isAlive())
++		{
++			if (GET_PLAYER((PlayerTypes)iI).getTeam() == getID() || (bIncludeVassals && GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isVassal(getID())) )
++			{
++				iPlotStrength += GET_PLAYER((PlayerTypes)iI).AI_getOurPlotStrength(pPlot,iRange,bDefensiveBonuses,bTestMoves);
++			}
++		}
++	}
++
++	return iPlotStrength;
++}
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
+ 
+ 
+ void CvTeamAI::AI_updateAreaStragies(bool bTargets)
+@@ -1004,7 +1032,7 @@
+ 	/********************************************************************************/
+ 	/**		BETTER_BTS_AI_MOD						7/10/08				jdog5000	*/
+ 	/**																				*/
+-	/**		War Strategy AI															*/
++	/**		War Strategy AI, closeness changes										*/
+ 	/********************************************************************************/
+ 	// Dividing iValue by 4 is a drastic move, will result in more backstabbing between friendly neighbors
+ 	// which is appropriate for Aggressive
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.h
+--- /trunk/CvGameCoreDLL/CvTeamAI.h@390
++++ /trunk/CvGameCoreDLL/CvTeamAI.h@391
+@@ -38,6 +38,16 @@
+ 
+ 	void AI_makeAssignWorkDirty();
+ 
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						10/6/08				jdog5000	*/
++/**																				*/
++/**																				*/
++/********************************************************************************/
++	int AI_getOurPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves, bool bIncludeVassals = false);
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
++
+ 	void AI_updateAreaStragies(bool bTargets = true);
+ 	void AI_updateAreaTargets();
+ 
+@@ -52,15 +62,15 @@
+ 	int AI_calculateAdjacentLandPlots(TeamTypes eTeam) const;
+ 	int AI_calculateCapitalProximity(TeamTypes eTeam) const;
+ 	int AI_calculatePlotWarValue(TeamTypes eTeam) const;
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/10/08				jdog5000	*/
+-	/**																				*/
+-	/**																				*/
+-	/********************************************************************************/
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						7/10/08				jdog5000	*/
++/**																				*/
++/**																				*/
++/********************************************************************************/
+ 	int AI_calculateBonusWarValue(TeamTypes eTeam) const;
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						END								*/
+-	/********************************************************************************/
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
+ 
+ 	bool AI_isWarPossible() const;
+ 	bool AI_isLandTarget(TeamTypes eTeam) const;
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@390
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@391
+@@ -4138,36 +4138,64 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-	if (GC.getGameINLINE().getSorenRandNum(2, "AI Barb") == 0)
+-	{
+-		if (AI_pillageRange(1))
+-		{
+-			return;
+-		}
+-	}
+-
+-	if (AI_anyAttack(2, 25))
+-	{
+-		return;
+-	}
+-
+-	if (AI_pillageRange(4))
+-	{
+-		return;
+-	}
+-
+-	if (AI_heal())
+-	{
+-		return;
+-	}
+-
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						6/24/08				jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						9/25/08				jdog5000	*/
+ 	/**																				*/
+ 	/**		Barbarian AI															*/
+ 	/********************************************************************************/
++	/* original BTS code
++	if (GC.getGameINLINE().getSorenRandNum(2, "AI Barb") == 0)
++	{
++		if (AI_pillageRange(1))
++		{
++			return;
++		}
++	}
++
++	if (AI_anyAttack(2, 25))
++	{
++		return;
++	}
++
++	if (AI_pillageRange(4))
++	{
++		return;
++	}
++
++	if (AI_heal())
++	{
++		return;
++	}
++	*/
++	// Less suicide, always chase good targets
++	if( AI_anyAttack(2,51) )
++	{
++		return;
++	}
++
++	if (AI_pillageRange(1))
++	{
++		return;
++	}
++
++	if( AI_anyAttack(1,34) )
++	{
++		return;
++	}
++
++	// We're easy to take out if wounded
++	if (AI_heal())
++	{
++		return;
++	}
++
++	if (AI_pillageRange(3))
++	{
++		return;
++	}
++
+ 	// Barb ships will often hang out for a little while blockading before moving on
+-	if( GC.getGameINLINE().getSorenRandNum(4, "AI Barbarian blockade") != 0 )
++	if( (GC.getGame().getGameTurn() + getID())%12 > 5 )
+ 	{
+ 		if( AI_pirateBlockade())
+ 		{
+@@ -4336,13 +4364,13 @@
+ 	PROFILE_FUNC();
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/28/08		Solver & jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/6/08		Solver & jdog5000	*/
+ 	/**																				*/
+ 	/**		Naval AI																*/
+ 	/********************************************************************************/
+ 	if (plot()->isCity(true))
+ 	{
+-		int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),0,true,false);
++		int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
+ 		int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
+ 
+ 		if( getDamage() > 0 )	// extra risk to leaving when wounded
+@@ -4487,13 +4515,13 @@
+ 	PROFILE_FUNC();
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/28/08		Solver & jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/6/08		Solver & jdog5000	*/
+ 	/**																				*/
+ 	/**		Naval AI																*/
+ 	/********************************************************************************/
+ 	if (plot()->isCity(true))
+ 	{
+-		int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),0,true,false);
++		int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
+ 		int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
+ 
+ 		if( getDamage() > 0 )	// extra risk to leaving when wounded
+@@ -4650,13 +4678,13 @@
+ //	}
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/28/08		Solver & jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/6/08		Solver & jdog5000	*/
+ 	/**																				*/
+ 	/**		Naval AI																*/
+ 	/********************************************************************************/
+ 	if (plot()->isCity(true)) //prioritize getting outta there
+ 	{
+-		int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),0,true,false);
++		int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
+ 		int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
+ 
+ 		if( getDamage() > 0 )	// extra risk to leaving when wounded
+@@ -4809,13 +4837,13 @@
+ 	PROFILE_FUNC();
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/28/08		Solver & jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/6/08		Solver & jdog5000	*/
+ 	/**																				*/
+ 	/**		Naval AI																*/
+ 	/********************************************************************************/
+ 	if (plot()->isCity(true)) //prioritize getting outta there
+ 	{
+-		int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),0,true,false);
++		int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
+ 		int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
+ 
+ 		if( getDamage() > 0 )	// extra risk to leaving when wounded
+@@ -4991,13 +5019,13 @@
+ 	bool bEmpty = !getGroup()->hasCargo();
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/28/08		Solver & jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/6/08		Solver & jdog5000	*/
+ 	/**																				*/
+ 	/**		Naval AI																*/
+ 	/********************************************************************************/
+ 	if (plot()->isCity(true))
+ 	{
+-		int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),0,true,false);
++		int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
+ 		int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
+ 
+ 		if( getDamage() > 0 )	// extra risk to leaving when wounded
+@@ -5291,13 +5319,13 @@
+ 	bool bEmpty = !getGroup()->hasCargo();
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/28/08		Solver & jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/6/08		Solver & jdog5000	*/
+ 	/**																				*/
+ 	/**		Naval AI																*/
+ 	/********************************************************************************/
+ 	if (plot()->isCity(true))
+ 	{
+-		int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),0,true,false);
++		int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
+ 		int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
+ 
+ 		if( getDamage() > 0 )	// extra risk to leaving when wounded
+@@ -5450,13 +5478,13 @@
+ 	PROFILE_FUNC();
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/28/08		Solver & jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/6/08		Solver & jdog5000	*/
+ 	/**																				*/
+ 	/**		Naval AI																*/
+ 	/********************************************************************************/
+ 	if (plot()->isCity(true))
+ 	{
+-		int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),0,true,false);
++		int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
+ 		int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
+ 
+ 		if( getDamage() > 0 )	// extra risk to leaving when wounded
+@@ -5539,13 +5567,13 @@
+ 	CvCity* pCity;
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/28/08		Solver & jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/6/08		Solver & jdog5000	*/
+ 	/**																				*/
+ 	/**		Naval AI																*/
+ 	/********************************************************************************/
+ 	if (plot()->isCity(true))
+ 	{
+-		int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),0,true,false);
++		int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
+ 		int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
+ 
+ 		if( getDamage() > 0 )	// extra risk to leaving when wounded
+@@ -5630,13 +5658,13 @@
+ void CvUnitAI::AI_carrierSeaMove()
+ {
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/28/08		Solver & jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/6/08		Solver & jdog5000	*/
+ 	/**																				*/
+ 	/**		Naval AI																*/
+ 	/********************************************************************************/
+ 	if (plot()->isCity(true))
+ 	{
+-		int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),0,true,false);
++		int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
+ 		int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
+ 
+ 		if( getDamage() > 0 )	// extra risk to leaving when wounded
+@@ -5753,13 +5781,13 @@
+ 	bool bIsStealth = (getInvisibleType() != NO_INVISIBLE);
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/28/08		Solver & jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/6/08		Solver & jdog5000	*/
+ 	/**																				*/
+ 	/**		Naval AI																*/
+ 	/********************************************************************************/
+ 	if (plot()->isCity(true))
+ 	{
+-		int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),0,true,false);
++		int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
+ 		int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
+ 
+ 		if( getDamage() > 0 )	// extra risk to leaving when wounded
+@@ -5838,13 +5866,46 @@
+ 	bool bSkiesClear = true;
+ 	int iDX, iDY;
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						9/16/08		Solver & jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/12/08	Solver & jdog5000	*/
+ 	/**																				*/
+ 	/**		Air AI																	*/
+ 	/********************************************************************************/
++	// Check for sufficient defenders to stay
++	int iDefenders = plot()->plotCount(PUF_canDefend, -1, -1, getOwner());
++
++	int iAttackAirCount = plot()->plotCount(PUF_canAirAttack, -1, -1, NO_PLAYER, getTeam());
++	iAttackAirCount += 2 * plot()->plotCount(PUF_isUnitAIType, UNITAI_ICBM, -1, NO_PLAYER, getTeam());
++
++	if( plot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) )
++	{
++		iDefenders -= 1;
++	}
++
++	if( pCity != NULL )
++	{
++		if( pCity->getDefenseModifier(true) < 40 )
++		{
++			iDefenders -= 1;
++		}
++
++		if( pCity->getOccupationTimer() > 1 )
++		{
++			iDefenders -= 1;
++		}
++	}
++
++	if( iAttackAirCount > iDefenders )
++	{
++		if (AI_airOffensiveCity())
++		{
++			return;
++		}
++	}
++
++	// Check for direct threat to current base
+ 	if (plot()->isCity(true))
+ 	{
+-		int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),0,true,false);
++		int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
+ 		int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
+ 
+ 		if (iEnemyOffense > iOurDefense)
+@@ -5854,16 +5915,32 @@
+ 			{
+ 				return;
+ 			}
+-			
+-			if (AI_airDefensiveCity())
+-			{
+-				return;
++
++			if( canAirDefend() )
++			{
++				if (AI_airDefensiveCity())
++				{
++					return;
++				}
+ 			}
+ 		}
+ 		else if( iEnemyOffense > iOurDefense/3 )
+ 		{
+ 			if( getDamage() == 0 )
+ 			{
++				if( collateralDamage() == 0 && canAirDefend() )
++				{
++					if (pCity != NULL)
++					{
++						// Check for whether city needs this unit to air defend
++						if( !(pCity->AI_isAirDefended(true,-1)) )
++						{
++							getGroup()->pushMission(MISSION_AIRPATROL);
++							return;
++						}
++					}
++				}
++
+ 				// Attack the invaders!
+ 				if (AI_defendBaseAirStrike())
+ 				{
+@@ -5885,10 +5962,13 @@
+ 				{
+ 					return;
+ 				}
+-				
+-				if (AI_airDefensiveCity())
+-				{
+-					return;
++
++				if( canAirDefend() )
++				{
++					if (AI_airDefensiveCity())
++					{
++						return;
++					}
+ 				}
+ 			}
+ 
+@@ -5899,10 +5979,13 @@
+ 				{
+ 					return;
+ 				}
+-				
+-				if (AI_airDefensiveCity())
+-				{
+-					return;
++
++				if( canAirDefend() )
++				{
++					if (AI_airDefensiveCity())
++					{
++						return;
++					}
+ 				}
+ 			}
+ 			
+@@ -5985,20 +6068,114 @@
+ 	}
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						9/14/08			jdog5000		*/
++	/**		BETTER_BTS_AI_MOD						10/6/08			jdog5000		*/
+ 	/**																				*/
+ 	/**		Air AI																	*/
+ 	/********************************************************************************/
++	/* original BTS code
++	if (AI_airBombDefenses())
++	{
++		return;
++	}
++
++	if (GC.getGameINLINE().getSorenRandNum(4, "AI Air Attack Move") == 0)
++	{
++		if (AI_airBombPlots())
++		{
++			return;
++		}
++	}
++
++	if (AI_airStrike())
++	{
++		return;
++	}
++	
++	if (canAirAttack())
++	{
++		if (AI_airOffensiveCity())
++		{
++			return;
++		}
++	}
++	
++	if (canRecon(plot()))
++	{
++		if (AI_exploreAir())
++		{
++			return;
++		}
++	}
++	*/
++	bool bDefensive = false;
+ 	if( pArea != NULL )
+ 	{
+-		if( pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE )
+-		{
+-			if (GC.getGameINLINE().getSorenRandNum(3, "AI Air Attack Move") == 0)
+-			{
+-				if( AI_defensiveAirStrike() )
+-				{
+-					return;
+-				}
++		bDefensive = pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE;
++	}
++
++	if (GC.getGameINLINE().getSorenRandNum(bDefensive ? 3 : 6, "AI Air Attack Move") == 0)
++	{
++		if( AI_defensiveAirStrike() )
++		{
++			return;
++		}
++	}
++
++	if (GC.getGameINLINE().getSorenRandNum(4, "AI Air Attack Move") == 0)
++	{
++		// only moves unit in a fort
++		if (AI_travelToUpgradeCity())
++		{
++			return;
++		}
++	}
++
++	// Support ground attacks
++	if (AI_airBombDefenses())
++	{
++		return;
++	}
++
++	if (GC.getGameINLINE().getSorenRandNum(bDefensive ? 6 : 4, "AI Air Attack Move") == 0)
++	{
++		if (AI_airBombPlots())
++		{
++			return;
++		}
++	}
++
++	if (AI_airStrike())
++	{
++		return;
++	}
++	
++	if (canAirAttack())
++	{
++		if (AI_airOffensiveCity())
++		{
++			return;
++		}
++	}
++	else
++	{
++		if( canAirDefend() )
++		{
++			if (AI_airDefensiveCity())
++			{
++				return;
++			}
++		}
++	}
++
++	// TODO: Support friendly attacks on common enemies, if low risk?
++	
++	if (canRecon(plot()))
++	{
++		if( !bDefensive || GC.getGameINLINE().getSorenRandNum(2, "AI Air Attack Move") == 0 )
++		{
++			if (AI_exploreAir())
++			{
++				return;
+ 			}
+ 		}
+ 	}
+@@ -6006,40 +6183,6 @@
+ 	/**		BETTER_BTS_AI_MOD						END								*/
+ 	/********************************************************************************/
+ 
+-	if (AI_airBombDefenses())
+-	{
+-		return;
+-	}
+-
+-	if (GC.getGameINLINE().getSorenRandNum(4, "AI Air Attack Move") == 0)
+-	{
+-		if (AI_airBombPlots())
+-		{
+-			return;
+-		}
+-	}
+-
+-	if (AI_airStrike())
+-	{
+-		return;
+-	}
+-	
+-	if (canAirAttack())
+-	{
+-		if (AI_airOffensiveCity())
+-		{
+-			return;
+-		}
+-	}
+-	
+-	if (canRecon(plot()))
+-	{
+-		if (AI_exploreAir())
+-		{
+-			return;
+-		}
+-	}
+-
+ 	if (canAirDefend())
+ 	{
+ 		getGroup()->pushMission(MISSION_AIRPATROL);
+@@ -6054,22 +6197,23 @@
+ void CvUnitAI::AI_defenseAirMove()
+ {
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						9/16/08		Solver & jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/6/08		Solver & jdog5000	*/
+ 	/**																				*/
+ 	/**		Air AI																	*/
+ 	/********************************************************************************/
+ 	CvCity* pCity = plot()->getPlotCity();
++
++	int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
+ 	
+ 	// includes forts
+ 	if (plot()->isCity(true))
+ 	{
+-		int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),0,true,false);
+-		int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
++		int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
+ 	
+ 		if (3*iEnemyOffense > 4*iOurDefense)
+ 		{
+ 			// Too risky, pull out
+-			// Undamaged fighters running air patrol don't wake up, so won't leave
++			// AI_airDefensiveCity will leave some air defense, pull extras out
+ 			if (AI_airDefensiveCity())
+ 			{
+ 				return;
+@@ -6095,16 +6239,17 @@
+ 
+ 			if (canAirDefend() && pCity != NULL)
+ 			{
+-				// Check for whether city needs more air defenses
+-				if( !(pCity->AI_isAirDefended(0)) )
++				// Check for whether city needs this unit to air defend
++				if( !(pCity->AI_isAirDefended(true,-1)) )
+ 				{
+ 					getGroup()->pushMission(MISSION_AIRPATROL);
+ 					return;
+ 				}
+ 
+-				if( !(pCity->AI_isAirDefended(-1)) )
+-				{
+-					if ((GC.getGameINLINE().getSorenRandNum(3, "AI Air Defense Move") == 0))
++				// Consider adding extra defenders
++				if( collateralDamage() == 0 && (!pCity->AI_isAirDefended(false,-2)) )
++				{
++					if( GC.getGameINLINE().getSorenRandNum(3, "AI Air Defense Move") == 0 || currInterceptionProbability() > 100 )
+ 					{
+ 						getGroup()->pushMission(MISSION_AIRPATROL);
+ 						return;
+@@ -6144,50 +6289,27 @@
+ 		return;
+ 	}
+ 	
+-
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						9/21/08		Solver & jdog5000	*/
++	/**																				*/
++	/**		Air AI																	*/
++	/********************************************************************************/
++	/* original BTS code
+ 	if ((GC.getGameINLINE().getSorenRandNum(2, "AI Air Defense Move") == 0))
+ 	{
+ 		if ((pCity != NULL) && pCity->AI_isDanger())
+ 		{
+-			/********************************************************************************/
+-			/**		BETTER_BTS_AI_MOD						9/14/08			jdog5000		*/
+-			/**																				*/
+-			/**		Air AI																	*/
+-			/********************************************************************************/
+-			if (AI_defensiveAirStrike())
++			if (AI_airStrike())
+ 			{
+ 				return;
+ 			}
+-			/********************************************************************************/
+-			/**		BETTER_BTS_AI_MOD						END								*/
+-			/********************************************************************************/
+-			if (AI_airStrike())
++		}
++		else
++		{
++			if (AI_airBombDefenses())
+ 			{
+ 				return;
+ 			}
+-		}
+-		else
+-		{
+-			if (AI_airBombDefenses())
+-			{
+-				return;
+-			}
+-
+-			/********************************************************************************/
+-			/**		BETTER_BTS_AI_MOD						9/14/08			jdog5000		*/
+-			/**																				*/
+-			/**		Air AI																	*/
+-			/********************************************************************************/
+-			if (GC.getGameINLINE().getSorenRandNum(3, "AI Air Defense Move") == 0)
+-			{
+-				if (AI_defensiveAirStrike())
+-				{
+-					return;
+-				}
+-			}
+-			/********************************************************************************/
+-			/**		BETTER_BTS_AI_MOD						END								*/
+-			/********************************************************************************/
+ 
+ 			if (AI_airStrike())
+ 			{
+@@ -6221,11 +6343,136 @@
+ 			}
+ 		}
+ 	}
+-	
++
+ 	if (AI_airDefensiveCity())
+ 	{
+ 		return;
+ 	}
++	*/
++	if((GC.getGameINLINE().getSorenRandNum(4, "AI Air Defense Move") == 0))
++	{
++		// only moves unit in a fort
++		if (AI_travelToUpgradeCity())
++		{
++			return;
++		}
++	}
++
++	if( canAirDefend() )
++	{
++		if( pCity != NULL )
++		{
++			// Check for whether city needs this unit to air defend
++			if( !(pCity->AI_isAirDefended(true,0)) )
++			{
++				getGroup()->pushMission(MISSION_AIRPATROL);
++				return;
++			}
++		}
++	}
++
++	CvArea* pArea = area();
++	bool bDefensive = false;
++	bool bOffensive = false;
++
++	if( pArea != NULL )
++	{
++		bDefensive = (pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE);
++		bOffensive = (pArea->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE);
++	}
++
++	if( (iEnemyOffense > 0) || bDefensive )
++	{
++		if( canAirDefend() )
++		{
++			if( pCity != NULL )
++			{
++				// Consider adding extra defenders
++				if( !(pCity->AI_isAirDefended(false,-1)) )
++				{
++					if ((GC.getGameINLINE().getSorenRandNum((bOffensive ? 3 : 2), "AI Air Defense Move") == 0) || currInterceptionProbability() > 100)
++					{
++						getGroup()->pushMission(MISSION_AIRPATROL);
++						return;
++					}
++				}
++			}
++			else
++			{
++				if ((GC.getGameINLINE().getSorenRandNum((bOffensive ? 3 : 2), "AI Air Defense Move") == 0) || currInterceptionProbability() > 100)
++				{
++					getGroup()->pushMission(MISSION_AIRPATROL);
++					return;
++				}
++			}
++		}
++
++		if((GC.getGameINLINE().getSorenRandNum(3, "AI Air Defense Move") > 0))
++		{
++			if (AI_defensiveAirStrike())
++			{
++				return;
++			}
++
++			if (AI_airStrike())
++			{
++				return;
++			}
++		}
++	}
++	else
++	{
++		if ((GC.getGameINLINE().getSorenRandNum(3, "AI Air Defense Move") > 0))
++		{
++			// Support offensive units
++			if (AI_airBombDefenses())
++			{
++				return;
++			}
++
++			if (GC.getGameINLINE().getSorenRandNum(bOffensive ? 3 : 2, "AI Air Defense Move") == 0)
++			{
++				// Hit enemy land stacks near our cities
++				if (AI_defensiveAirStrike())
++				{
++					return;
++				}
++			}
++
++			if (AI_airStrike())
++			{
++				return;
++			}
++			
++			if (AI_getBirthmark() % 2 == 0 || bOffensive)
++			{
++				if (AI_airBombPlots())
++				{
++					return;
++				}
++			}
++		}
++	}
++
++	if (AI_airDefensiveCity())
++	{
++		return;
++	}
++
++	// TODO: how valuable is recon information to AI in war time?	
++	if (canRecon(plot()))
++	{
++		if (GC.getGame().getSorenRandNum(bDefensive ? 4 : 2, "AI defensive air recon") == 0)
++		{
++			if (AI_exploreAir())
++			{
++				return;
++			}
++		}
++	}
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						END								*/
++	/********************************************************************************/
+ 
+ 	if (canAirDefend())
+ 	{
+@@ -6326,14 +6573,14 @@
+ 	CvCity* pCity = plot()->getPlotCity();
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/28/08		Solver & jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/6/08		Solver & jdog5000	*/
+ 	/**																				*/
+ 	/**		Air AI																	*/
+ 	/********************************************************************************/
+ 	// includes forts
+ 	if (!isCargo() && plot()->isCity(true))
+ 	{
+-		int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),0,true,false);
++		int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
+ 		int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
+ 		
+ 		if (iEnemyOffense > (iOurDefense/2))
+@@ -10379,7 +10626,7 @@
+ 						/**																				*/
+ 						/**		Unit AI, bugfix															*/
+ 						/********************************************************************************/
+-						// Bonus values for bonuses the AI has are often less than 10 ... since this is
++						// Bonus values for bonuses the AI has are less than 10 for non-strategic resources... since this is
+ 						// in the AI territory they probably have it
+ 						if (NO_BONUS != pLoopPlot->getNonObsoleteBonusType(getTeam()))
+ 						{
+@@ -15581,7 +15828,6 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvCity* pNearestEnemyCity;
+ 	CvPlot* pBestPlot;
+ 	int iValue;
+ 	int iBestValue;
+@@ -15593,103 +15839,135 @@
+ 	pBestPlot = NULL;
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/29/08				jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/6/08				jdog5000	*/
+ 	/**																				*/
+ 	/**		Air AI																	*/
+ 	/********************************************************************************/
++	/* original BTS code
++
++	*/
+ 	for (iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+ 	{
+ 		CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+ 
+-		// Limit to cities and forts
++		// Limit to cities and forts, true for any city but only this team's forts
+ 		if (pLoopPlot->isCity(true, getTeam()))
+ 		{
+-			// TODO: Base planes in vassal cities?  Open borders probably to hard to check if sufficient defenders
+-			if (pLoopPlot->getTeam() == getTeam())
+-			{
+-				CvCity* pLoopCity = pLoopPlot->getPlotCity();
+-				bool bValid = false;
+-				
+-				int iAirBaseValue = (pLoopCity != NULL) ? 0 : GET_PLAYER(getOwnerINLINE()).AI_getPlotAirbaseValue(pLoopPlot);
+-				iAirBaseValue /= 6;
+-				
+-				int iDefenders = pLoopPlot->plotCount(PUF_canDefend, -1, -1, getOwner());
+-				
+-				if ( (pLoopCity != NULL) && (iDefenders > 1) )
+-				{
+-					bValid = true;
+-				}
+-				else if( (iAirBaseValue > 0) && (iDefenders > 0) )
+-				{
+-					bValid = true;
+-				}
+-				
+-				if (bValid)
+-				{
+-					if (atPlot(pLoopPlot) || canMoveInto(pLoopPlot))
++			if (pLoopPlot->getTeam() == getTeam() || GET_TEAM(pLoopPlot->getTeam()).isVassal(getTeam()))
++			{
++				if (atPlot(pLoopPlot) || canMoveInto(pLoopPlot))
++				{
++					iValue = AI_airOffenseBaseValue( pLoopPlot );
++
++					if (iValue > iBestValue)
+ 					{
+-						int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),0,true,false);
+-						int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
+-
+-						if( iEnemyOffense == 0 )
++						iBestValue = iValue;
++						pBestPlot = pLoopPlot;
++					}
++				}
++			}
++		}
++	}
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						END								*/
++	/********************************************************************************/
++
++	if (pBestPlot != NULL)
++	{
++		if (!atPlot(pBestPlot))
++		{
++			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE());
++			return true;
++		}
++	}
++
++	return false;
++}
++
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						10/11/08			jdog5000	*/
++/**																				*/
++/**		Air AI																	*/
++/********************************************************************************/
++// Function for ranking the value of a plot as a base for offensive air units
++int CvUnitAI::AI_airOffenseBaseValue( CvPlot* pPlot )
++{
++	if( pPlot == NULL || pPlot->area() == NULL )
++	{
++		return 0;
++	}
++
++	CvCity* pNearestEnemyCity = NULL;
++	int iRange = 0;
++	int iTempValue = 0;
++	int iOurDefense = 0;
++	int iOurOffense = 0;
++	int iEnemyOffense = 0;
++	int iEnemyDefense = 0;
++	int iDistance = 0;
++
++	CvPlot* pLoopPlot = NULL;
++	CvCity* pCity = pPlot->getPlotCity();
++
++	int iDefenders = pPlot->plotCount(PUF_canDefend, -1, -1, getOwner());
++
++	int iAttackAirCount = pPlot->plotCount(PUF_canAirAttack, -1, -1, NO_PLAYER, getTeam());
++	iAttackAirCount += 2 * pPlot->plotCount(PUF_isUnitAIType, UNITAI_ICBM, -1, NO_PLAYER, getTeam());
++	if (atPlot(pPlot))
++	{
++		iAttackAirCount += canAirAttack() ? -1 : 0;
++		iAttackAirCount += (nukeRange() >= 0) ? -2 : 0;
++	}
++
++	if( pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) )
++	{
++		iDefenders -= 1;
++	}
++
++	if( pCity != NULL )
++	{
++		if( pCity->getDefenseModifier(true) < 40 )
++		{
++			iDefenders -= 1;
++		}
++
++		if( pCity->getOccupationTimer() > 1 )
++		{
++			iDefenders -= 1;
++		}
++	}
++
++	// Consider threat from nearby enemy territory
++	iRange = 1;
++	int iBorderDanger = 0;
++
++	for (int iDX = -(iRange); iDX <= iRange; iDX++)
++	{
++		for (int iDY = -(iRange); iDY <= iRange; iDY++)
++		{
++			pLoopPlot = plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY);
++
++			if (pLoopPlot != NULL)
++			{
++				if (pLoopPlot->area() == pPlot->area() && pLoopPlot->isOwned())
++				{
++				    iDistance = stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
++				    if( pLoopPlot->getTeam() != getTeam() && !(GET_TEAM(pLoopPlot->getTeam()).isVassal(getTeam())) )
++					{
++						if( iDistance == 1 )
+ 						{
+-							iDefenders += 2;
++							iBorderDanger++;
+ 						}
+ 
+-						// TODO: City threat is not the best way to choose an offensive base
+-						// Doesn't use planes operational range, consider importance of targets in range
+-						iValue = iAirBaseValue;
+-						if (pLoopCity != NULL)
++						if (atWar(pLoopPlot->getTeam(), getTeam()))
+ 						{
+-							iValue = (pLoopCity->getPopulation() + 20);
+-							iValue += pLoopCity->AI_cityThreat();
+-						}
+-
+-						if (pLoopPlot->getOwnerINLINE() == getOwnerINLINE())
+-						{
+-							iValue *= 3;
+-							iValue /= 2;
+-						}
+-					
+-						iValue *= 1000;
+-
+-						// Reduce value of endangered city
+-						if( 3*iEnemyOffense > iOurDefense )
+-						{
+-							iValue *= iOurDefense;
+-							iValue /= 3*iEnemyOffense;
+-						}
+-
+-						pNearestEnemyCity = GC.getMapINLINE().findCity(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), NO_PLAYER, NO_TEAM, false, false, getTeam());
+-
+-						if (pNearestEnemyCity != NULL)
+-						{
+-							int iDistance = plotDistance(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), pNearestEnemyCity->getX_INLINE(), pNearestEnemyCity->getY_INLINE());
+-							if (iDistance > airRange())
++							if (iDistance == 1)
+ 							{
+-								iValue /= 10 * (2 + airRange());
++								iBorderDanger += 2;
+ 							}
+-							else
++							else if ((iDistance == 2) && (pLoopPlot->isRoute()))
+ 							{
+-								iValue /= 2 + iDistance;
+-							}
+-						}
+-						
+-						int iAttackAirCount = pLoopPlot->plotCount(PUF_canAirAttack, -1, -1, NO_PLAYER, getTeam());
+-						iAttackAirCount += 2 * pLoopPlot->plotCount(PUF_isUnitAIType, UNITAI_ICBM, -1, NO_PLAYER, getTeam());
+-						if (atPlot(pLoopPlot))
+-						{
+-							iAttackAirCount += canAirAttack() ? -1 : 0;
+-							iAttackAirCount += (nukeRange() >= 0) ? -2 : 0;
+-						}
+-						
+-						
+-						if (iAttackAirCount <= iDefenders)
+-						{
+-							if (iValue > iBestValue)
+-							{
+-								iBestValue = iValue;
+-								pBestPlot = pLoopPlot;
++								iBorderDanger += 2;
+ 							}
+ 						}
+ 					}
+@@ -15697,22 +15975,247 @@
+ 			}
+ 		}
+ 	}
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						END								*/
+-	/********************************************************************************/
+-
+-	if (pBestPlot != NULL)
+-	{
+-		if (!atPlot(pBestPlot))
+-		{
+-			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE());
+-			return true;
+-		}
+-	}
+-
+-	return false;
++
++	iDefenders -= std::min(2,(iBorderDanger + 1)/3);
++	
++	// Don't put more attack air units on plot than effective land defenders ... too large a risk
++	if (iAttackAirCount >= (iDefenders))
++	{
++		return 0;
++	}
++	
++	bool bAnyWar = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
++
++	int iValue = 0;
++
++	if( bAnyWar && canAirAttack() )
++	{
++		// Don't count assault assist, don't want to weight defending colonial coasts when homeland might be under attack
++		bool bAssault = (pPlot->area()->getAreaAIType(getTeam()) == AREAAI_ASSAULT) || (pPlot->area()->getAreaAIType(getTeam()) == AREAAI_ASSAULT_MASSING);
++
++		// Loop over operational range
++		iRange = airRange();
++
++		for (int iDX = -(iRange); iDX <= iRange; iDX++)
++		{
++			for (int iDY = -(iRange); iDY <= iRange; iDY++)
++			{
++				pLoopPlot = plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY);
++				
++				if ((pLoopPlot != NULL && pLoopPlot->area() != NULL))
++				{
++					iDistance = plotDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
++
++					if( iDistance <= iRange )
++					{
++						bool bDefensive = pLoopPlot->area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE;
++						bool bOffensive = pLoopPlot->area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE;
++
++						// Value system is based around 1 enemy military unit in our territory = 10 pts
++						iTempValue = 0;					
++
++						if( pLoopPlot->isWater() )
++						{
++							if( pLoopPlot->isVisible(getTeam(),false) && !pLoopPlot->area()->isLake()  )
++							{
++								// Defend ocean
++								iTempValue = 1;
++								
++								if( pLoopPlot->isOwned() )
++								{
++									if( pLoopPlot->getTeam() == getTeam() )
++									{
++										iTempValue += 1;
++									}
++									else if ((pLoopPlot->getTeam() != getTeam()) && GET_TEAM(getTeam()).AI_getWarPlan(pLoopPlot->getTeam()) != NO_WARPLAN)
++									{
++										iTempValue += 1;
++									}
++								}
++
++								// Low weight for visible ships cause they will probably move
++								iTempValue += 2*pLoopPlot->getNumVisibleEnemyDefenders(this);
++
++								if( bAssault )
++								{
++									iTempValue *= 2;
++								}
++							}
++						}
++						else 
++						{
++							if( !(pLoopPlot->isOwned()) )
++							{
++								if( iDistance < (iRange - 2) )
++								{
++									// Target enemy troops in neutral territory
++									iTempValue += 4*pLoopPlot->getNumVisibleEnemyDefenders(this);
++								}
++							}
++							else if( pLoopPlot->getTeam() == getTeam() )
++							{
++								iTempValue = 0;
++
++								if( iDistance < (iRange - 2) )
++								{
++									// Target enemy troops in our territory
++									iTempValue += 5*pLoopPlot->getNumVisibleEnemyDefenders(this);
++
++									if( pLoopPlot->getOwnerINLINE() == getOwnerINLINE() )
++									{
++										iTempValue *= 2;
++									}
++
++									if( bDefensive )
++									{
++										iTempValue *= 2;
++									}
++								}
++							}
++							else if ((pLoopPlot->getTeam() != getTeam()) && GET_TEAM(getTeam()).AI_getWarPlan(pLoopPlot->getTeam()) != NO_WARPLAN)
++							{
++								// Attack opponents land territory
++								iTempValue = 3;
++
++								CvCity* pLoopCity = pLoopPlot->getPlotCity();
++
++								if (pLoopCity != NULL)
++								{
++									// Target enemy cities
++									iTempValue += (3*pLoopCity->getPopulation() + 30);
++
++									if( canAirBomb(pPlot) && pLoopCity->isBombardable(this) )
++									{
++										iTempValue *= 2;
++									}
++
++									if( pLoopPlot->area()->getTargetCity(getOwnerINLINE()) == pLoopCity )
++									{
++										iTempValue *= 2;
++									}
++
++									if( pLoopCity->AI_isDanger() )
++									{
++										// Multiplier for nearby troops, ours, teammate's, and any other enemy of city
++										iTempValue *= 3;
++									}
++								}
++								else
++								{
++									if( iDistance < (iRange - 2) )
++									{
++										// Support our troops in enemy territory
++										iTempValue += 15*pLoopPlot->getNumDefenders(getOwnerINLINE());
++
++										// Target enemy troops adjacent to our territory
++										if( pLoopPlot->isAdjacentTeam(getTeam(),true) )
++										{
++											iTempValue += 7*pLoopPlot->getNumVisibleEnemyDefenders(this);
++										}
++									}
++
++									// Weight resources
++									if (canAirBombAt(pPlot, pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()))
++									{
++										if (pLoopPlot->getBonusType(getTeam()) != NO_BONUS)
++										{
++											iTempValue += 8*std::max(2, GET_PLAYER(pLoopPlot->getOwnerINLINE()).AI_bonusVal(pLoopPlot->getBonusType(pLoopPlot->getTeam()))/10);
++										}
++									}
++								}
++
++								if( pLoopPlot->isBarbarian() )
++								{
++									iTempValue /= 2;
++								}
++
++								if( (pLoopPlot->area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) )
++								{
++									// Extra weight for enemy territory in offensive areas
++									iTempValue *= 2;
++								}
++							}
++						}
++
++						iValue += iTempValue;
++					}
++				}
++			}
++		}
++
++		// Consider available defense, direct threat to potential base
++		iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(pPlot,0,true,false,true);	
++		iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(pPlot,2,false,false);
++
++		if( 3*iEnemyOffense > iOurDefense )
++		{
++			iValue *= iOurDefense;
++			iValue /= std::max(1,3*iEnemyOffense);
++		}
++
++		// Value forts less, they are generally riskier bases
++		if( pCity == NULL )
++		{
++			iValue *= 2;
++			iValue /= 3;
++		}
++	}
++	else
++	{
++		if( pPlot->getOwnerINLINE() != getOwnerINLINE() )
++		{
++			// Keep planes at home when not in real wars
++			return 0;
++		}
++
++		// If no wars, use prior logic with added value to keeping planes safe from sneak attack
++		if (pCity != NULL)
++		{
++			iValue = (pCity->getPopulation() + 20);
++			iValue += pCity->AI_cityThreat();
++		}
++		else
++		{
++			iValue = (pCity != NULL) ? 0 : GET_PLAYER(getOwnerINLINE()).AI_getPlotAirbaseValue(pPlot);
++			iValue /= 6;
++		}
++
++		iValue += std::min(24, 3*(iDefenders - iAttackAirCount));
++
++		// No real enemies, check for minor civ or barbarian cities where attacks could be supported
++		pNearestEnemyCity = GC.getMapINLINE().findCity(pPlot->getX_INLINE(), pPlot->getY_INLINE(), NO_PLAYER, NO_TEAM, false, false, getTeam());
++
++		if (pNearestEnemyCity != NULL)
++		{
++			iDistance = plotDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pNearestEnemyCity->getX_INLINE(), pNearestEnemyCity->getY_INLINE());
++			if (iDistance > airRange())
++			{
++				iValue /= 10 * (2 + airRange());
++			}
++			else
++			{
++				iValue /= 2 + iDistance;
++			}
++		}
++	}
++	
++	if (pPlot->getOwnerINLINE() == getOwnerINLINE())
++	{
++		// Bases in our territory better than teammate's
++		iValue *= 2;
++	}
++	else if( pPlot->getTeam() == getTeam() )
++	{
++		// Our team's bases are better than vassal plots
++		iValue *= 3;
++		iValue /= 2;
++	}
++
++	return iValue;
+ }
+-
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
+ 
+ // Returns true if a mission was pushed...
+ bool CvUnitAI::AI_airDefensiveCity()
+@@ -15730,12 +16233,11 @@
+ 	FAssert(canAirDefend());
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/28/08				jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/6/08				jdog5000	*/
+ 	/**																				*/
+ 	/**		Air AI																	*/
+ 	/********************************************************************************/
+-	//if (canAirDefend())
+-	if (canAirDefend(plot()))
++	if (canAirDefend() && getDamage() == 0)
+ 	{
+ 		pCity = plot()->getPlotCity();
+ 
+@@ -15743,22 +16245,26 @@
+ 		{
+ 			if (pCity->getOwnerINLINE() == getOwnerINLINE())
+ 			{
+-				if ( !(pCity->AI_isAirDefended(1)) )
+-				{
+-					// Stay if really short on air defense
++				if ( !(pCity->AI_isAirDefended(false,+1)) )
++				{
++					// Stay if very short on planes, regardless of situation
+ 					getGroup()->pushMission(MISSION_AIRPATROL);
+ 					return true;
+ 				}
+-				else if( !(pCity->AI_isAirDefended(-1)) )
+-				{
+-					// Only stay if city is not seriously threatened
+-					int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),0,true,false);
++				
++				if( !(pCity->AI_isAirDefended(true,-1)) )
++				{
++					// Stay if city is threatened but not seriously threatened
+ 					int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
+ 				
+-					if (3*iEnemyOffense < 4*iOurDefense)
++					if (iEnemyOffense > 0)
+ 					{
+-						getGroup()->pushMission(MISSION_AIRPATROL);
+-						return true;
++						int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
++						if( 3*iEnemyOffense < 4*iOurDefense )
++						{
++							getGroup()->pushMission(MISSION_AIRPATROL);
++							return true;
++						}
+ 					}
+ 				}
+ 			}
+@@ -15772,23 +16278,26 @@
+ 	{
+ 		if (canAirDefend(pLoopCity->plot()))
+ 		{
+-			if (!(pLoopCity->AI_isAirDefended()))
++			if (!(pLoopCity->AI_isAirDefended(false,0)))
+ 			{
+ 				if (!atPlot(pLoopCity->plot()) && canMoveInto(pLoopCity->plot()))
+ 				{
+ 					iValue = pLoopCity->getPopulation() + pLoopCity->AI_cityThreat();
+ 
+-					int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(pLoopCity->plot(),0,true,false);
++					int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(pLoopCity->plot(),0,true,false,true);
+ 					int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(pLoopCity->plot(),2,false,false);
+ 				
++					iValue *= 100;
++
+ 					// Reduce value of endangered city
+ 					if (3*iEnemyOffense > iOurDefense)
+ 					{
+ 						iValue *= iOurDefense;
+-						iValue /= 3*iEnemyOffense;
++						iValue /= std::max(1,3*iEnemyOffense);
+ 					}
+ 
+-					iValue += 1;  // Never have value of 0
++					// Increase value of cities needing air defense more
++					iValue *= (4 + pLoopCity->AI_neededAirDefenders() - pLoopCity->plot()->plotCount(PUF_canAirDefend, -1, -1, pLoopCity->getOwnerINLINE(), NO_TEAM, PUF_isDomainType, DOMAIN_AIR));
+ 
+ 					if (iValue > iBestValue)
+ 					{
+@@ -15990,7 +16499,21 @@
+ 					{
+ 						iPotentialAttackers += GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_ASSAULT, getGroup(), 1) * 2;							
+ 					}
++					/********************************************************************************/
++					/**		BETTER_BTS_AI_MOD						10/13/08		jdog5000		*/
++					/**																				*/
++					/**		Air AI																	*/
++					/********************************************************************************/
++					/* original BTS code
+ 					if (pLoopPlot->isWater() || (iPotentialAttackers > 0) || pLoopPlot->isAdjacentTeam(getTeam()))
++					*/
++					// Bombers will always consider striking units adjacent to this team's territory
++					// to soften them up for potential attack.  This situation doesn't apply if this team's adjacent
++					// territory is water, land units won't be able to reach easily for attack
++					if (pLoopPlot->isWater() || (iPotentialAttackers > 0) || pLoopPlot->isAdjacentTeam(getTeam(),true))
++					/********************************************************************************/
++					/**		BETTER_BTS_AI_MOD						END								*/
++					/********************************************************************************/
+ 					{
+ 						pDefender = pLoopPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), this, true);
+ 
+@@ -16093,7 +16616,7 @@
+ 						if( pClosestCity != NULL )
+ 						{
+ 							// City and pLoopPlot forced to be in same area, check they're still close
+-							int iStepDist = stepDistance(pClosestCity->getX_INLINE(), pClosestCity->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
++							int iStepDist = plotDistance(pClosestCity->getX_INLINE(), pClosestCity->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
+ 
+ 							if( iStepDist < 3 )
+ 							{
+@@ -16111,7 +16634,7 @@
+ 								iValue += ((((iDamage * collateralDamage()) / 100) * std::min((pLoopPlot->getNumVisibleEnemyDefenders(this) - 1), collateralDamageMaxUnits())) / 2);
+ 
+ 								iValue *= GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(pClosestCity->plot(),2,false,false);
+-								iValue /= std::max(1, GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(pClosestCity->plot(),-1,true,false));
++								iValue /= std::max(1, GET_TEAM(getTeam()).AI_getOurPlotStrength(pClosestCity->plot(),0,true,false,true));
+ 
+ 								if( iStepDist == 1 )
+ 								{
+@@ -16201,14 +16724,14 @@
+ 
+ 						iValue = std::max(0, (std::min((pDefender->getDamage() + iDamage), airCombatLimit()) - pDefender->getDamage()));
+ 
+-						iValue += ((((iDamage * collateralDamage()) / 100) * std::min((pLoopPlot->getNumVisibleEnemyDefenders(this) - 1), collateralDamageMaxUnits())) / 2);
++						iValue += ((iDamage * collateralDamage()) * std::min((pLoopPlot->getNumVisibleEnemyDefenders(this) - 1), collateralDamageMaxUnits())) / (2*100);
+ 
+ 						// Weight towards stronger units
+ 						iValue *= (pDefender->currCombatStr(NULL,NULL,NULL) + 2000);
+ 						iValue /= 2000;
+ 
+ 						// Weight towards adjacent stacks
+-						if( stepDistance(plot()->getX_INLINE(), plot()->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()) == 1 )
++						if( plotDistance(plot()->getX_INLINE(), plot()->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()) == 1 )
+ 						{
+ 							iValue *= 5;
+ 							iValue /= 4;
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@390
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@391
+@@ -186,10 +186,11 @@
+ 	bool AI_missileLoad(UnitAITypes eTargetUnitAI, int iMaxOwnUnitAI = -1, bool bStealthOnly = false);
+ 	bool AI_airStrike();
+ /********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						9/14/08			jdog5000		*/
++/**		BETTER_BTS_AI_MOD						9/26/08				jdog5000	*/
+ /**																				*/
+ /**		Air AI																	*/
+ /********************************************************************************/
++	int AI_airOffenseBaseValue( CvPlot* pPlot );
+ 	bool AI_defensiveAirStrike();
+ 	bool AI_defendBaseAirStrike();
+ /********************************************************************************/
+

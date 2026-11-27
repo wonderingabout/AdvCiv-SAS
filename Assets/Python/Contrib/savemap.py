@@ -4,7 +4,17 @@
 # creates a mapscript from the currently shown map.
 # this is based on the savemap script by tywiggins
 # https://apolyton.net/forum/civilization-iv/civilization-iv-creation/165900-python-save-map
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party savemap file.
+# Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups, hoists). (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
+# <!-- custom: SASTextScale's addMessage and addImmediateMessage give Python's messages the label font the DLL gives its own, as CyInterface()'s went to the EXE at the stock size. See KI#117.2. (Claude code Opus 5.5) -->
+import SASTextScale
+from SASUtils import getInfoTypeOrFail
 import os
 # <advc.savem>
 import BugPath
@@ -68,6 +78,8 @@ def savemap(argsList=None):
 	startingPlots = []
 	startingPlotsXY = []
 
+	# <!-- custom: hoist out of nested per-player per-unit loop. (Claude code Opus 4.7) -->
+	eUnitClassSettler = getInfoTypeOrFail("UNITCLASS_SETTLER")
 	for i in range(numPlayers):
 		player = gc.getPlayer(i)
 		pIndex = 0
@@ -77,7 +89,7 @@ def savemap(argsList=None):
 			if(player.getNumUnits() > 0):
 				for j in range(player.getNumUnits()):
 					unit = player.getUnit(j)
-					if(unit.getUnitClassType() == gc.getInfoTypeForString("UNITCLASS_SETTLER")):
+					if(unit.getUnitClassType() == eUnitClassSettler):
 						pPlot = unit.plot()
 						if(pPlot.isWater() == 0):
 							pIndex = map.plotNum(pPlot.getX(), pPlot.getY()) + (extraWidth * pPlot.getY())
@@ -96,13 +108,13 @@ def savemap(argsList=None):
 				startingPlots.append(pIndex)
 				civs.append(int(player.getCivilizationType()))
 				civsDesc.append(civInfo.getType())
-			elif(player.getCapitalCity().plot() != None):
+			elif(player.getCapitalCity().plot() is not None):
 				pPlot = player.getCapitalCity().plot()
 				pIndex = map.plotNum(pPlot.getX(), pPlot.getY()) + (extraWidth * pPlot.getY())
 				startingPlots.append(pIndex)
 				civs.append(int(player.getCivilizationType()))
 				civsDesc.append(civInfo.getType())
-			elif((player.getCapitalCity().plot() == None) and (player.getNumCities() > 0)):
+			elif((player.getCapitalCity().plot() is None) and (player.getNumCities() > 0)):
 				pPlot = player.getCity(0).plot()
 				pIndex = map.plotNum(pPlot.getX(), pPlot.getY()) + (extraWidth * pPlot.getY())
 				startingPlots.append(pIndex)
@@ -147,7 +159,6 @@ def savemap(argsList=None):
 				riverwe[pIndex] = int(pPlot.getRiverWEDirection())
 			if(pPlot.isWOfRiver()):
 				riverns[pIndex] = int(pPlot.getRiverNSDirection())
-
 
 	# write mapscript
 	# <advc.savem>
@@ -535,5 +546,5 @@ def _showOnScreenMessage(msg, bExtraLong = False):
 	szMsgTime = "EVENT_MESSAGE_TIME"
 	if bExtraLong:
 		szMsgTime += "_LONG"
-	CyInterface().addMessage(CyGame().getActivePlayer(), True, gc.getDefineINT(szMsgTime), msg, None, InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, ColorTypes(-1), 0, 0, False, False)
+	SASTextScale.addMessage(CyGame().getActivePlayer(), True, gc.getDefineINT(szMsgTime), msg, None, InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, ColorTypes(-1), 0, 0, False, False)
 # </advc.savem>

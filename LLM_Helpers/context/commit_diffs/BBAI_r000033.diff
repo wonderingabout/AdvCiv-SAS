@@ -1,0 +1,53 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 33
+# Author: blakeciv
+# Date: 2006-11-06T04:15:42.374474Z
+# Coverage: full
+# Message:
+#   Added railroad evaluation and poked around in missionary code.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@32
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@33
+@@ -4691,6 +4691,20 @@
+ 		}
+ 	}
+ 
++	for (iI = 0; iI < GC.getNumBuildInfos(); iI++)
++	{
++        RouteTypes eRoute = ((RouteTypes)(GC.getBuildInfo(eBuild).getRoute()));
++
++
++        if ((eRoute != NO_ROUTE) && (GC.getRouteInfo(eRoute).getPrereqBonus() == eBonus))
++        {
++            if (GC.getRouteInfo(getBestRoute()).getValue() >= GC.getRouteInfo(eRoute).getValue());
++            {
++                iTempValue += 100;
++            }
++        }
++	}
++
+ 	iValue /= 10;
+ 
+ 	return iValue;
+@@ -6027,7 +6041,7 @@
+ {
+ 	int iCount;
+ 
+-	if (!hasHolyCity(eReligion) || (getStateReligion() != eReligion))
++	if (!(hasHolyCity(eReligion) || (getStateReligion() == eReligion)))
+ 	{
+ 		return 0;
+ 	}
+@@ -6052,6 +6066,7 @@
+         {
+             iCount = max(1, iCount / 3);
+         }
++
+     }
+     // needs better logic
+ 
+

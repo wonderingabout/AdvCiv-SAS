@@ -1,0 +1,262 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 237
+# Author: blakeciv
+# Date: 2007-01-02T03:50:28.282286Z
+# Coverage: full
+# Message:
+#   Improved AI resource-roading.
+#   Fixed a daft (and critical) bug with the needed defenders.
+#   Encouraged early barracks building.
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@236
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@237
+@@ -892,6 +892,11 @@
+ 			}
+ 		}
+     }
++    
++    if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 5, 33))
++    {
++    	return;
++    }
+ 	
+ 
+ 	if (isHuman())
+@@ -936,7 +941,7 @@
+ 	int iNeededFloatingDefenders = GET_PLAYER(getOwner()).AI_getTotalFloatingDefendersNeeded(area());
+  	int iTotalFloatingDefenders = GET_PLAYER(getOwner()).AI_getTotalFloatingDefenders(area());
+ 	
+-	if (iNeededFloatingDefenders < iTotalFloatingDefenders)
++	if (iTotalFloatingDefenders < iNeededFloatingDefenders)
+ 	{
+ 		if (AI_chooseFloatingDefender(iNeededFloatingDefenders))
+ 		{
+@@ -2686,7 +2691,7 @@
+ 
+ 			if ((iFocusFlags & BUILDINGFOCUS_EXPERIENCE) || (iPass > 0))
+ 			{
+-				iValue += (kBuilding.getFreeExperience() * ((iHasMetCount > 0) ? 10 : 5));
++				iValue += (kBuilding.getFreeExperience() * ((iHasMetCount > 0) ? 12 : 6));
+ 
+ 				for (iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
+ 				{
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@236
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@237
+@@ -9887,6 +9887,7 @@
+ 	int iBestValue;
+ 	int iBestTempBuildValue;
+ 	int iI, iJ;
++	bool bBestBuildIsRoute;
+ 
+ 	bool bCanRoute;
+ 	bool bIsConnected;
+@@ -9905,6 +9906,8 @@
+ 		{
+ 			if (pLoopPlot->getOwnerINLINE() == getOwnerINLINE()) // XXX team???
+ 			{
++				
++				
+ 				eNonObsoleteBonus = pLoopPlot->getNonObsoleteBonusType(getTeam());
+ 
+ 				if (eNonObsoleteBonus != NO_BONUS)
+@@ -9972,84 +9975,80 @@
+                                 }
+                             }
+                         }
+-
+-                        if (eBestTempBuild == NO_BUILD && !bIsConnected && bCanRoute)
++                        if (eBestTempBuild == NO_BUILD)
+                         {
+-                            for (iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
+-                            {
+-                                eBuild = ((BuildTypes)iJ);
+-                                if (GC.getBuildInfo(eBuild).getRoute() != NO_ROUTE)
+-                                {
+-                                    if ((eImprovement != NO_IMPROVEMENT) && (GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus)))
+-                                    {
+-                                        if (!pLoopPlot->isRoute())
+-                                        {
+-                                            if (canBuild(pLoopPlot, eBuild))
+-                                            {
+-                                                iValue = 2000;
+-
+-                                                iValue /= (GC.getBuildInfo(eBuild).getTime() + 1);
+-
+-                                                if (iValue < iBestTempBuildValue)
+-                                                {
+-                                                    iBestTempBuildValue = iValue;
+-                                                    eBestTempBuild = eBuild;
+-                                                }
+-                                            }
+-                                        }
+-                                    }
+-                                }
+-                            }
++                        	bDoImprove = false;
+                         }
+ 
+-                        if (eBestTempBuild != NO_BUILD)
++                        if ((eBestTempBuild != NO_BUILD) || (bCanRoute && !bIsConnected))
+                         {
+-                            //if (!(pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+-                            {
+-                                if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup()) == 0)
+-                                {
+-                                    if (generatePath(pLoopPlot, 0, true, &iPathTurns)) // XXX should this actually be at the top of the loop? (with saved paths and all...)
+-                                    {
+-                                        iValue = GET_PLAYER(getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus);
++                        	iValue = GET_PLAYER(getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus);
+                                         
+-                                        if (bDoImprove)
+-                                        {
+-                                            eImprovement = (ImprovementTypes)GC.getBuildInfo(eBestTempBuild).getImprovement();
+-                                            FAssert(eImprovement != NO_IMPROVEMENT);
+-                                            //iValue += (GC.getImprovementInfo((ImprovementTypes) GC.getBuildInfo(eBestTempBuild).getImprovement()))
+-                                            iValue += 5 * pLoopPlot->calculateImprovementYieldChange(eImprovement, YIELD_FOOD, getOwner(), false);
+-                                            iValue += 5 * pLoopPlot->calculateNatureYield(YIELD_FOOD, getTeam(), (pLoopPlot->getFeatureType() == NO_FEATURE) ? true : GC.getBuildInfo(eBestTempBuild).isFeatureRemove(pLoopPlot->getFeatureType()));
+-                                        }
+-
+-                                        iValue += max(0, 100 * GC.getBonusInfo(eNonObsoleteBonus).getAIObjective());
+-
+-
+-                                        if (GET_PLAYER(getOwnerINLINE()).getNumTradeableBonuses(eNonObsoleteBonus) == 0)
+-                                        {
+-                                            iValue *= 2;
+-                                        }
+-
+-                                        if (iValue > iMinValue)
+-                                        {
+-                                            iValue *= 1000;
+-
+-                                            iValue /= (iPathTurns + 1);
+-
+-                                            if (pLoopPlot->isCityRadius())
+-                                            {
+-                                                iValue *= 2;
+-                                            }
+-
+-                                            if (iValue > iBestValue)
+-                                            {
+-                                                iBestValue = iValue;
+-                                                eBestBuild = eBestTempBuild;
+-                                                pBestPlot = pLoopPlot;
+-                                            }
+-                                        }
+-                                    }
+-                                }
+-                            }
++							if (bDoImprove)
++							{
++								eImprovement = (ImprovementTypes)GC.getBuildInfo(eBestTempBuild).getImprovement();
++								FAssert(eImprovement != NO_IMPROVEMENT);
++								//iValue += (GC.getImprovementInfo((ImprovementTypes) GC.getBuildInfo(eBestTempBuild).getImprovement()))
++								iValue += 5 * pLoopPlot->calculateImprovementYieldChange(eImprovement, YIELD_FOOD, getOwner(), false);
++								iValue += 5 * pLoopPlot->calculateNatureYield(YIELD_FOOD, getTeam(), (pLoopPlot->getFeatureType() == NO_FEATURE) ? true : GC.getBuildInfo(eBestTempBuild).isFeatureRemove(pLoopPlot->getFeatureType()));
++							}
++
++							iValue += max(0, 100 * GC.getBonusInfo(eNonObsoleteBonus).getAIObjective());
++
++							if (GET_PLAYER(getOwnerINLINE()).getNumTradeableBonuses(eNonObsoleteBonus) == 0)
++							{
++								iValue *= 2;
++							}
++							
++							if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup()) == 0)
++                        	{
++								if (bDoImprove)
++								{
++									if (generatePath(pLoopPlot, 0, true, &iPathTurns)) // XXX should this actually be at the top of the loop? (with saved paths and all...)
++									{
++										if (iValue > iMinValue)
++										{
++											iValue *= 1000;
++
++											iValue /= (iPathTurns + 1);
++
++											if (pLoopPlot->isCityRadius())
++											{
++												iValue *= 2;
++											}
++
++											if (iValue > iBestValue)
++											{
++												iBestValue = iValue;
++												eBestBuild = eBestTempBuild;
++												pBestPlot = pLoopPlot;
++												bBestBuildIsRoute = false;
++											}
++										}
++									}
++								}
++								else
++								{
++									FAssert(bCanRoute && !bIsConnected);
++									eImprovement = pLoopPlot->getImprovementType();
++									if ((eImprovement != NO_IMPROVEMENT) && (GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus)))
++									{
++										if (generatePath(pLoopPlot, MOVE_SAFE_TERRITORY, true, &iPathTurns))
++										{
++											iValue *= 1000;
++											iValue /= (iPathTurns + 1);
++											
++											if (iValue > iBestValue)
++											{
++												iBestValue = iValue;
++												eBestBuild = NO_BUILD;
++												pBestPlot = pLoopPlot;
++												bBestBuildIsRoute = true;
++											}
++										}
++									}
++								}
++                        	}
+                         }
+                     }
+ 				}
+@@ -10059,13 +10058,31 @@
+ 
+ 	if (pBestPlot != NULL)
+ 	{
+-		FAssertMsg(eBestBuild != NO_BUILD, "BestBuild is not assigned a valid value");
+-		FAssertMsg(eBestBuild < GC.getNumBuildInfos(), "BestBuild is assigned a corrupt value");
+-
+-		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_BUILD, pBestPlot);
+-		getGroup()->pushMission(MISSION_BUILD, eBestBuild, -1, 0, (getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
+-
+-		return true;
++		if (eBestBuild != NO_BUILD)
++		{
++			FAssertMsg(!bBestBuildIsRoute, "BestBuild should not be a route");
++			FAssertMsg(eBestBuild < GC.getNumBuildInfos(), "BestBuild is assigned a corrupt value");
++
++			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_BUILD, pBestPlot);
++			getGroup()->pushMission(MISSION_BUILD, eBestBuild, -1, 0, (getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
++
++			return true;
++		}
++		else if (bBestBuildIsRoute)
++		{
++			if (AI_connectPlot(pBestPlot))
++			{
++				return true;
++			}
++			else
++			{
++				FAssertMsg(false, "Expected that a route could be built to eBestPlot");
++			}
++		}
++		else
++		{
++			FAssert(false);
++		}
+ 	}
+ 
+ 	return false;
+

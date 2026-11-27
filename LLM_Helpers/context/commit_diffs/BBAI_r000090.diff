@@ -1,0 +1,664 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 90
+# Author: blakeciv
+# Date: 2006-11-17T17:49:26.348374Z
+# Coverage: full
+# Message:
+#   A little tactical stuff...
+#   Lots of cultural victory stuff.
+# Changed paths (7):
+#   M /trunk/CvGameCoreDLL/AI_Defines.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/AI_Defines.h
+--- /trunk/CvGameCoreDLL/AI_Defines.h@89
++++ /trunk/CvGameCoreDLL/AI_Defines.h@90
+@@ -7,9 +7,9 @@
+ #define AI_STRATEGY_CASTLE              (0x00000008)
+ #define AI_STRATEGY_FASTMOVERS          (0x00000010)
+ #define AI_STRATEGY_SLOWMOVERS          (0x00000020)
+-#define AI_STRATEGY_IHATEYOU            (0x00000040)
+-#define AI_STRATEGY_MUSICAL_PALACES     (0x00000080)
+-
++#define AI_STRATEGY_CULTURE1            (0x00000040)  //religions and wonders
++#define AI_STRATEGY_CULTURE2            (0x00000080)  //mass culture buildings
++#define AI_STRATEGY_CULTURE3            (0x00000100)  //culture slider
+ 
+ 
+ #endif // AI_DEFINES_H
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@89
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@90
+@@ -349,8 +349,21 @@
+ 
+ 			if ((CommerceTypes)iI == COMMERCE_CULTURE)
+ 			{
+-                iTempValue *= (2 * (105 - calculateCulturePercent(getOwnerINLINE())));
+-				iTempValue /= 100;
++			    if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE2))
++			    {
++			        //culture is valued very low so the increase needs to be high.
++			        iTempValue *= 20;
++			        if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++			        {
++                        iTempValue *= 2;
++                    }
++			        		        
++			    }
++			    else
++			    {
++                    iTempValue *= (2 * (105 - calculateCulturePercent(getOwnerINLINE())));
++                    iTempValue /= 100;
++			    }
+ 			}
+ 
+ 			iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_commerceWeight(((CommerceTypes)iI), this);
+@@ -373,7 +386,7 @@
+ 			iTempValue += (iGreatPeopleRate * 32);
+ 		}
+ 
+-        if (!isHuman())
++        if (!isHuman() && (GET_PLAYER(getOwnerINLINE()).getCurrentEra() <= (GC.getNumEraInfos() / 2)))
+         {
+             // try to spawn a prophet for any shrines we have yet to build
+             bool bNeedProphet = false;
+@@ -738,7 +751,7 @@
+ 			}
+ 		}
+ 
+-		if (iCulturePressure > 90)
++		if ((iCulturePressure > 90) || GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE2))
+ 		{
+ 			if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 20))
+ 			{
+@@ -843,7 +856,7 @@
+ 
+     if (!bDanger)
+ 	{
+-	    if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Missionary") < (isHolyCity() ? 30 : 15))
++	    if  (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE2) || (GC.getGameINLINE().getSorenRandNum(100, "AI Build Missionary") < (isHolyCity() ? 30 : 15)))
+ 	    {
+             for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
+             {
+@@ -2151,6 +2164,14 @@
+ 
+ 					iTempValue += (kBuilding.getCommerceChange(iI) * 4);
+ 					iTempValue += (kBuilding.getObsoleteSafeCommerceChange(iI) * 4);
++					
++					if ((CommerceTypes)iI == COMMERCE_CULTURE)
++					{
++					    if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE1))
++					    {
++					        iTempValue *= 2;					        
++					    }
++					}
+ 
+ 					if (kBuilding.getCommerceChangeDoubleTime(iI) > 0)
+ 					{
+@@ -2162,7 +2183,23 @@
+ 
+ 					if ((CommerceTypes)iI == COMMERCE_CULTURE)
+ 					{
+-					    iTempValue += (((kBuilding.getCommerceModifier(iI) * getBaseCommerceRate((CommerceTypes)iI)) / 15) * (100 - calculateCulturePercent(getOwnerINLINE())));
++					    if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE1))
++					    {
++					        int iCultureModifier = kBuilding.getCommerceModifier(iI);
++					        //don't be lazy, find the city count needed...??
++					        if (findCommerceRateRank(COMMERCE_CULTURE) < 4)
++					        {					        
++                                iTempValue += ((iCultureModifier * getBaseCommerceRate((CommerceTypes)iI)) / 3);					        
++					        }
++					        else
++					        {
++					            iTempValue += ((iCultureModifier * getBaseCommerceRate((CommerceTypes)iI)) / 18);	
++					        }
++					    }
++					    else
++					    {
++                            iTempValue += (((kBuilding.getCommerceModifier(iI) * getBaseCommerceRate((CommerceTypes)iI)) / 15) * (100 - calculateCulturePercent(getOwnerINLINE())));
++					    }
+ 					}
+ 					else
+ 					{
+@@ -2432,6 +2469,11 @@
+ 		iTempValue = GC.getProcessInfo(eProcess).getProductionToCommerceModifier(iI);
+ 
+ 		iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_commerceWeight(((CommerceTypes)iI), this);
++		if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++		{
++		    iTempValue *= 3;
++		}
++		
+ 		iTempValue /= 100;
+ 
+ 		iValue += iTempValue;
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@89
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@90
+@@ -1711,6 +1711,21 @@
+             if (GET_PLAYER(pPlot->getOwner()).AI_isDoStrategy(AI_STRATEGY_DAGGER))
+             {
+                 szTempBuffer.Format(L"\n AI Dagger Strategy");
++                szString+=szTempBuffer;
++            }
++            if (GET_PLAYER(pPlot->getOwner()).AI_isDoStrategy(AI_STRATEGY_CULTURE1))
++            {
++                szTempBuffer.Format(L"\n AI Culture1 Strategy");
++                szString+=szTempBuffer;
++            }
++            if (GET_PLAYER(pPlot->getOwner()).AI_isDoStrategy(AI_STRATEGY_CULTURE2))
++            {
++                szTempBuffer.Format(L"\n AI Culture2 Strategy");
++                szString+=szTempBuffer;
++            }
++            if (GET_PLAYER(pPlot->getOwner()).AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++            {
++                szTempBuffer.Format(L"\n AI Culture3 Strategy");
+                 szString+=szTempBuffer;
+             }
+             
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@89
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@90
+@@ -2813,13 +2813,14 @@
+ 											ReligionTypes eReligion = (ReligionTypes) GC.getBuildingInfo(eLoopBuilding).getReligionType();
+ 											if (eReligion != NO_RELIGION)
+ 											{
++											    
+ 												// reduce by a factor based on how many cities we have with that relgion
+ 												if (iCityCount > 0)
+ 												{
+ 													int iCitiesWithReligion = GET_TEAM(getTeam()).getHasReligionCount(eReligion);
+ 													
+-													iBuildingValue *= max(1, iCitiesWithReligion);
+-													iBuildingValue /= iCityCount;
++													iBuildingValue *= (4 + iCitiesWithReligion);
++													iBuildingValue /= (4 + iCityCount);
+ 												}
+ 
+ 												// if this building requires a religion, then only count it as 1/7th as much
+@@ -2838,7 +2839,12 @@
+ 														{
+ 															if (!(GC.getGameINLINE().isBuildingClassMaxedOut((BuildingClassTypes)iJ)))
+ 															{
++															    
+ 																iValue += ((bAsync) ? GC.getASyncRand().get(800, "AI Research Wonder Building ASYNC") : GC.getGameINLINE().getSorenRandNum(800, "AI Research Wonder Building"));
++																if (AI_isDoStrategy(AI_STRATEGY_CULTURE1))
++																{
++																    iValue += 400;
++																}
+ 
+ 																if (bCapitalAlone)
+ 																{
+@@ -2927,7 +2933,14 @@
+ 												if (!(GC.getGameINLINE().isReligionFounded((ReligionTypes)iJ)))
+ 												{
+ 													int iReligionValue = ((bAsync) ? GC.getASyncRand().get(2400, "AI Research Religion ASYNC") : GC.getGameINLINE().getSorenRandNum(2400, "AI Research Religion"));
+-													iReligionValue /= (1 + countHolyCities());
++                                                    if (AI_isDoStrategy(AI_STRATEGY_CULTURE1))
++                                                    {
++                                                        iValue += 500;
++                                                    }
++                                                    else
++                                                    {
++                                                        iReligionValue /= (1 + countHolyCities());
++                                                    }
+ 
+ 													if (countTotalHasReligion() == 0)
+ 													{
+@@ -6113,19 +6126,24 @@
+ 
+ int CvPlayerAI::AI_neededMissionaries(CvArea* pArea, ReligionTypes eReligion)
+ {
++    PROFILE_FUNC();
+ 	int iCount;
+ 	bool bHoly;
++	bool bCultureVictory = AI_isDoStrategy(AI_STRATEGY_CULTURE2);
+ 
+ 	bHoly = hasHolyCity(eReligion);
+ 
+ 	iCount = 0;
+ 
+-    if (getStateReligion() == eReligion)
++    if (bCultureVictory || (getStateReligion() == eReligion))
+     {
+         iCount = max(iCount, (pArea->getCitiesPerPlayer(getID()) - pArea->countHasReligion(eReligion, getID())));
+         if (iCount > 0)
+         {
+-            iCount = max(1, iCount / (bHoly ? 2 : 4));
++            if (!bCultureVictory)
++            {          
++                iCount = max(1, iCount / (bHoly ? 2 : 4));
++            }
+             return iCount;
+         }
+     }
+@@ -6450,7 +6468,7 @@
+ 		iTempValue = 0;
+ 
+ 		iTempValue += ((GC.getCivicInfo(eCivic).getYieldModifier(iI) * getNumCities()) / 2);
+-		iTempValue += ((GC.getCivicInfo(eCivic).getCapitalYieldModifier(iI) * 3) / 4);
++		//iTempValue += ((GC.getCivicInfo(eCivic).getCapitalYieldModifier(iI)) / 2);
+ 		CvCity* pCapital = getCapitalCity();
+ 		if (pCapital)
+ 		{
+@@ -6488,6 +6506,14 @@
+ 		iTempValue += ((GC.getCivicInfo(eCivic).getSpecialistExtraCommerce(iI) * getTotalPopulation()) / 15);
+ 
+ 		iTempValue *= AI_commerceWeight((CommerceTypes)iI);
++		if (AI_isDoStrategy(AI_STRATEGY_CULTURE2))
++		{
++		    iTempValue *= 4;
++		    if (AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++		    {
++		        iTempValue *= 4;		        
++		    }
++		}
+ 		iTempValue /= 100;
+ 
+ 		iValue += iTempValue;
+@@ -7199,6 +7225,11 @@
+ 			iIdealPercent -= (iIdealPercent % GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"));
+ 
+ 			iIdealPercent = min(iIdealPercent, 20);
++			
++			if (AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++			{
++			    iIdealPercent = 100;
++			}
+ 
+ 			setCommercePercent(COMMERCE_CULTURE, iIdealPercent);
+ 		}
+@@ -7206,7 +7237,7 @@
+ 
+ 	if (isCommerceFlexible(COMMERCE_RESEARCH))
+ 	{
+-		if (isNoResearchAvailable())
++		if (isNoResearchAvailable() || AI_isDoStrategy(AI_STRATEGY_CULTURE3))
+ 		{
+ 			setCommercePercent(COMMERCE_RESEARCH, 0);
+ 		}
+@@ -8810,7 +8841,6 @@
+ 
+     for (iI = 0; iI < GC.getNumVictoryInfos(); iI++)
+     {
+-
+         eVictory = (VictoryTypes)iI;
+         if (GC.getGame().isVictoryValid(eVictory))
+         {
+@@ -8864,8 +8894,12 @@
+     {
+         return 0;
+     }
+-
+-	if (getCurrentEra() > ((GC.getNumEraInfos() / 2) + iNonsense % 2))
++    
++    if (getCurrentEra() >= (GC.getNumEraInfos() - (2 + iNonsense % 2)))
++    {
++        return 3;   
++    }
++	else if (getCurrentEra() >= ((GC.getNumEraInfos() / 3) + iNonsense % 2))
+ 	{
+ 	    return 2;
+ 	}
+@@ -8873,6 +8907,7 @@
+ 	{
+         return 1;
+ 	}
++	FAssert(false);
+ }
+ 
+ 
+@@ -8925,6 +8960,10 @@
+             {
+                 if ((GC.getUnitClassInfo((UnitClassTypes)iI).getDefaultUnitIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)))
+                 {
++                    if (GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_CITY_DEFENSE))
++                    {               
++                        iDagger -= 20;
++                    }
+                     if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() == NO_TECH)
+                     {
+                         iDagger += 50;
+@@ -8975,6 +9014,7 @@
+                             }
+                         }
+                     }
++                    
+                     
+                     iDagger += 20;
+                     if (bNeedsAndBonus)
+@@ -9015,7 +9055,21 @@
+         {
+             m_iStrategyHash |= AI_STRATEGY_DAGGER;            
+         }
+-	} 
++	}
++	
++	int iCultureStage = AI_getCultureVictoryStage();
++	if (iCultureStage > 0)
++	{
++	    m_iStrategyHash |= AI_STRATEGY_CULTURE1;
++	    if (iCultureStage > 1)
++	    {
++	        m_iStrategyHash |= AI_STRATEGY_CULTURE2;	        
++            if (iCultureStage > 2)
++            {
++                m_iStrategyHash |= AI_STRATEGY_CULTURE3;                
++            }
++	    }
++	}
+ 	return m_iStrategyHash;   
+ }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@89
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@90
+@@ -6782,7 +6782,9 @@
+ 	// do not allow someone to join a group that is about to be split apart
+ 	// this prevents a case of a never-ending turn
+ 	if (pSelectionGroup->AI_isForceSeparate())
+-		return false;
++	{
++		return false;
++	}
+ 	
+ 	if (pSelectionGroup->getOwnerINLINE() == NO_PLAYER)
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@89
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@90
+@@ -1525,10 +1525,14 @@
+         getGroup()->pushMission(MISSION_SKIP);
+     }
+ 	
+-    if (AI_moveIntoCity(2))
+-    {
+-        return;        
+-    }
++//    if (!getGroup()->getMissionType() == MISSION_MOVE_TO)
++//    {
++//        if (AI_moveIntoCity(1))
++//        {
++//            return;        
++//        }
++//    }
++
+ 
+ 	if (AI_guardCity(false, true, 1))
+ 	{
+@@ -1536,7 +1540,7 @@
+ 	}
+ 
+ 
+-    if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 0, true, true))
++    if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 0, true, false))
+     {
+         return;
+     }
+@@ -1566,7 +1570,7 @@
+ 		return;
+ 	}
+ 	
+-    if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 2, true, true))
++    if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 2, true, false))
+     {
+         return;
+     }
+@@ -2442,6 +2446,11 @@
+ void CvUnitAI::AI_artistMove()
+ {
+ 	PROFILE_FUNC();
++	
++	if (AI_artistCultureVictoryMove())
++	{
++	    return;
++	}
+ 
+ 	if (AI_discover(true, true))
+ 	{
+@@ -4665,10 +4674,12 @@
+ 		
+ 		// special case the 0 range, so the math works out
+ 		if (iRange == 0)
++		{
+ 			iPlotsAtThisRange = 0;
++		}
+ 
+ 		// at each higher range, there are 8 more plots
+-		iPlotsAtThisRange += 8; 		
++		iPlotsAtThisRange += 8;
+ 	}
+ 
+ 	if (pBestUnit != NULL)
+@@ -5735,6 +5746,8 @@
+ 	int iLoop;
+ 	int iI;
+ 
++
++    bool bCultureVictory = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE2);
+ 	eReligion = NO_RELIGION;
+ 
+ 	if (eReligion == NO_RELIGION)
+@@ -5752,7 +5765,7 @@
+ 	{
+ 		for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
+ 		{
+-			if (GET_TEAM(getTeam()).hasHolyCity((ReligionTypes)iI))
++			if (bCultureVictory || GET_TEAM(getTeam()).hasHolyCity((ReligionTypes)iI))
+ 			{
+ 				if (GC.getUnitInfo(getUnitType()).getReligionSpreads((ReligionTypes)iI))
+ 				{
+@@ -5777,7 +5790,7 @@
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 		{
+ 		    iPlayerMultiplierPercent = 100;
+-		    if (eReligion = GET_PLAYER(getOwnerINLINE()).getStateReligion())
++		    if (!bCultureVictory || (eReligion == GET_PLAYER(getOwnerINLINE()).getStateReligion()))
+ 		    {
+                 if (GET_PLAYER((PlayerTypes)iI).getStateReligion() == NO_RELIGION)
+                 {
+@@ -5789,7 +5802,6 @@
+                 else if (GET_PLAYER((PlayerTypes)iI).getStateReligion() == eReligion)
+                 {
+                     iPlayerMultiplierPercent += 200;
+-
+                 }
+                 else
+                 {
+@@ -5822,7 +5834,7 @@
+ 
+ 									if (pLoopCity->getOwnerINLINE() == getOwnerINLINE())
+ 									{
+-										iValue *= 4;
++										iValue *= (bCultureVictory ? 10 : 4);
+ 									}
+ 									else if (pLoopCity->getTeam() == getTeam())
+ 									{
+@@ -7227,7 +7239,7 @@
+ 
+ 								iValue *= 1000;
+ 
+-								iValue /= (iPathTurns + 1);
++								iValue /= (4 + iPathTurns*iPathTurns);
+ 
+ 								if (iValue > iBestValue)
+ 								{
+@@ -10586,6 +10598,7 @@
+ 
+ bool CvUnitAI::AI_stackAttackCity(int iRange, int iPowerThreshold, bool bFollow)
+ {
++    PROFILE_FUNC();
+ 	CvPlot* pLoopPlot;
+ 	CvPlot* pBestPlot;
+ 	int iSearchRange;
+@@ -10720,6 +10733,144 @@
+ 	return false;
+ }
+ 
++bool CvUnitAI::AI_artistCultureVictoryMove()
++{
++    bool bGreatWork = false;
++    bool bJoin = true;
++
++    if (!GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE1))
++    {
++        return false;        
++    }
++    
++    if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++    {
++        //Great Work
++        bool bGreatWork = true;
++    }
++    
++    //Find the culture victory type
++    VictoryTypes eVictory;
++    VictoryTypes eCultureVictory;
++    int iI;
++
++    for (iI = 0; iI < GC.getNumVictoryInfos(); iI++)
++    {
++        eVictory = (VictoryTypes)iI;
++        if (GC.getGame().isVictoryValid(eVictory))
++        {
++            if (GC.getVictoryInfo(eVictory).getCityCulture() > 0)
++            {
++                eCultureVictory = eVictory;
++                break;
++            }
++        }
++    }
++
++    if (eCultureVictory == NO_VICTORY)
++    {
++        FAssertMsg(false, "CultureVictory Strategy should not be true");
++    }
++    
++    int iCultureCitiesNeeded = GC.getVictoryInfo(eVictory).getNumCultureCities();
++
++	CvCity* pLoopCity;
++	CvPlot* pBestPlot;
++	CvCity* pBestCity;
++	SpecialistTypes eBestSpecialist;
++	int iLoop, iValue, iBestValue;
++
++	pBestPlot = NULL;
++	eBestSpecialist = NO_SPECIALIST;
++
++	pBestCity = NULL;
++	
++	for (pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
++	{
++		if (AI_plotValid(pLoopCity->plot()))
++		{
++		    //instead of commerce rate rank should use the culture on tile...
++		    if (pLoopCity->findCommerceRateRank(COMMERCE_CULTURE) == iCultureCitiesNeeded)
++            {
++                if (generatePath(pLoopCity->plot(), 0, true))
++                {
++                    pBestCity = pLoopCity;
++                    pBestPlot = pLoopCity->plot();
++                    if (bGreatWork)
++                    {
++                        if (canGreatWork(pBestPlot))
++                        {
++                            break;
++                        }
++                    }
++
++                    for (iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
++                    {
++                        if (canJoin(pBestPlot, ((SpecialistTypes)iI)))
++                        {
++                            iValue = pLoopCity->AI_specialistValue(((SpecialistTypes)iI), pLoopCity->AI_avoidGrowth(), false);
++
++                            if (iValue > iBestValue)
++                            {
++                                iBestValue = iValue;
++                                eBestSpecialist = ((SpecialistTypes)iI);
++                            }
++                        }
++                    }
++
++                    if (eBestSpecialist == NO_SPECIALIST)
++                    {
++                        bJoin = false;
++                        if (canGreatWork(pBestPlot))
++                        {
++                            bGreatWork = true; 
++                            break;                        
++                        }
++                        bGreatWork = false;
++                    }
++                    break;
++                }
++			}
++		}
++	}
++	if (!bGreatWork && !bJoin)
++	{
++	    FAssertMsg(false, "This wasn't a Great Artist");
++	}
++	if (pBestCity == NULL)
++	{
++	    //should try to airlift there...
++	    return false;
++	}
++
++    {
++		if (atPlot(pBestPlot))
++		{
++		    if (bGreatWork)
++		    {
++                getGroup()->pushMission(MISSION_GREAT_WORK);
++                return true;
++		    }
++		    if (bJoin)
++		    {
++                getGroup()->pushMission(MISSION_JOIN, eBestSpecialist);
++		        return true;
++		    }
++		    FAssert(false);
++		    return false;		    
++		}
++		else
++		{
++			FAssert(!atPlot(pBestPlot));
++            getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE());
++            return true;
++		}
++	}
++
++	return false;
++}    
++
++
+ 
+ void CvUnitAI::read(FDataStreamBase* pStream)
+ {
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@89
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@90
+@@ -179,6 +179,8 @@
+     bool AI_stackAttackCity(int iRange, int iPowerThreshold, bool bFollow = true);
+     bool AI_moveIntoCity(int iRange);
+     bool AI_groupMergeRange(UnitAITypes eUnitAI, int iRange, bool bBiggerOnly = true, bool bAllowRegrouping = false);
++    
++    bool AI_artistCultureVictoryMove();
+ 
+ };
+ 
+

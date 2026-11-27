@@ -1,0 +1,38 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 571
+# Author: jdog5000
+# Date: 2010-05-17T07:19:05.795003Z
+# Coverage: full
+# Message:
+#   barb conquest tweak
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@570
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@571
+@@ -1701,6 +1701,14 @@
+ 				logBBAI("    Player %d (%S) decides not to raze %S because they're going for domination", getID(), getCivilizationDescription(0), pCity->getName().GetCString() );
+ 			}
+ 		}
++		else if( isBarbarian() )
++		{
++			if( (pCity->getPreviousOwner() != BARBARIAN_PLAYER) && (pCity->getOriginalOwner() != BARBARIAN_PLAYER) )
++			{
++				iRazeValue += GC.getLeaderHeadInfo(getPersonalityType()).getRazeCityProb();
++				iRazeValue -= iCloseness;
++			}
++		}
+ 		else
+ 		{
+ 			bool bFinancialTrouble = AI_isFinancialTrouble();
+@@ -1852,6 +1860,7 @@
+ 			{
+ 				bRaze = true;
+ 				pCity->doTask(TASK_RAZE);
++				logBBAI("    Player %d (%S) decides to to raze city %S!!!", getID(), getCivilizationDescription(0), pCity->getName().GetCString() );
+ 			}
+ 		}		
+ 	}
+

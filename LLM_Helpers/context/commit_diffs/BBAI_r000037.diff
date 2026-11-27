@@ -1,0 +1,106 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 37
+# Author: iustus
+# Date: 2006-11-06T17:53:50.857523Z
+# Coverage: full
+# Message:
+#   Overflow research bugfix (from Warlords 2.08)
+# Changed paths (2):
+#   M /branches/vanilla/CvGameCoreDLL/CvPlayer.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvTeam.cpp
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlayer.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvPlayer.cpp@36
++++ /branches/vanilla/CvGameCoreDLL/CvPlayer.cpp@37
+@@ -1836,7 +1836,7 @@
+ 			{
+ 				if (!bWorkers || pLoopSelectionGroup->hasWorker())
+ 				{
+-					if (pLoopSelectionGroup == pUnit->getGroup())
++					if (pUnit && pLoopSelectionGroup == pUnit->getGroup())
+ 					{
+ 						if (pbWrap != NULL)
+ 						{
+@@ -2097,7 +2097,7 @@
+ 	{
+ 		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 		{
+-			eBestUnit = pCapitalCity->AI_bestUnitAI(UNITAI_ATTACK, true);
++			eBestUnit = pLoopCity->AI_bestUnitAI(UNITAI_ATTACK, true);
+ 
+ 			if (eBestUnit != NO_UNIT)
+ 			{
+@@ -6371,6 +6371,7 @@
+ 
+ 	iThreshold *= GC.getEraInfo(GC.getGameINLINE().getStartEra()).getGreatPeoplePercent();
+ 	iThreshold /= 100;
++
+ 
+ 	return max(1, iThreshold);
+ }
+@@ -10966,15 +10967,17 @@
+ 			}
+ 		}
+ 
+-		if (getCurrentResearch() == NO_TECH)
+-		{
+-			changeOverflowResearch(calculateResearchRate());
++		TechTypes eCurrentTech = getCurrentResearch();
++		if (eCurrentTech == NO_TECH)
++		{
++			int iOverflow = (100 * calculateResearchRate()) / max(1, calculateResearchModifier(eCurrentTech));
++			changeOverflowResearch(iOverflow);
+ 		}
+ 		else
+ 		{
+-			iOverflowResearch = getOverflowResearch();
++			iOverflowResearch = (getOverflowResearch() * calculateResearchModifier(eCurrentTech)) / 100;
+ 			setOverflowResearch(0);
+-			GET_TEAM(getTeam()).changeResearchProgress(getCurrentResearch(), (calculateResearchRate() + iOverflowResearch), getID());
++			GET_TEAM(getTeam()).changeResearchProgress(eCurrentTech, (calculateResearchRate() + iOverflowResearch), getID());
+ 		}
+ 
+ 		if (bForceResearchChoice)
+
+Index: /branches/vanilla/CvGameCoreDLL/CvTeam.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvTeam.cpp@36
++++ /branches/vanilla/CvGameCoreDLL/CvTeam.cpp@37
+@@ -3127,7 +3127,7 @@
+ 
+ 		if (getResearchProgress(eIndex) >= getResearchCost(eIndex))
+ 		{
+-			int iOverflow = (100 * (getResearchProgress(eIndex) - getResearchCost(eIndex))) / GET_PLAYER(ePlayer).calculateResearchModifier(eIndex);
++			int iOverflow = (100 * (getResearchProgress(eIndex) - getResearchCost(eIndex))) / max(1, GET_PLAYER(ePlayer).calculateResearchModifier(eIndex));
+ 			GET_PLAYER(ePlayer).changeOverflowResearch(iOverflow);
+ 			setHasTech(eIndex, true, ePlayer, true, true);
+ 			if (!(GC.getGameINLINE().isMPOption(MPOPTION_SIMULTANEOUS_TURNS)))
+@@ -4060,14 +4060,19 @@
+ 				if (pNode->m_data.m_eItemType == TRADE_DEFENSIVE_PACT)
+ 				{
+ 					bCancelDeal = true;
+-				}
+-			}
+-
+-			for (pNode = pLoopDeal->headSecondTradesNode(); (pNode != NULL); pNode = pLoopDeal->nextSecondTradesNode(pNode))
+-			{
+-				if (pNode->m_data.m_eItemType == TRADE_DEFENSIVE_PACT)
+-				{
+-					bCancelDeal = true;
++					break;
++				}
++			}
++
++			if (!bCancelDeal)
++			{
++				for (pNode = pLoopDeal->headSecondTradesNode(); (pNode != NULL); pNode = pLoopDeal->nextSecondTradesNode(pNode))
++				{
++					if (pNode->m_data.m_eItemType == TRADE_DEFENSIVE_PACT)
++					{
++						bCancelDeal = true;
++						break;
++					}
+ 				}
+ 			}
+ 		}
+

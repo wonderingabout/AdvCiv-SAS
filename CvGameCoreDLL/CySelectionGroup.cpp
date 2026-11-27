@@ -18,9 +18,12 @@ void CySelectionGroup::pushMission(MissionTypes eMission, int iData1, int iData2
 {
 	if (m_pSelectionGroup)
 	{
+		// <!-- custom: Python's None reached here as a null pointer and was dereferenced; the window's own orders pass no mission AI plot or unit (CvNetPushMission), so SASPilot needs None to issue them the same way.
+		// Its first version passed the unit's plot instead, and a Work Boat's fishing boats queued after a move were then cancelled by the KI#176 stale-target guard, as the boat was not on that plot (2026-11-13).
+		// Present in the vanilla Civ IV SDK. See KI#1091. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 		return m_pSelectionGroup->pushMission(eMission, iData1, iData2,
 				(MovementFlags)iFlags, bAppend, bManual, eMissionAI,
-				pMissionAIPlot->getPlot(), pMissionAIUnit->getUnit());
+				pMissionAIPlot == NULL ? NULL : pMissionAIPlot->getPlot(), pMissionAIUnit == NULL ? NULL : pMissionAIUnit->getUnit());
 	}
 }
 
@@ -43,8 +46,9 @@ CyPlot* CySelectionGroup::lastMissionPlot()
 
 bool CySelectionGroup::canStartMission(int iMission, int iData1, int iData2, CyPlot* pPlot, bool bTestVisible)
 {
+	// <!-- custom: Python's None now passes as NULL, as the native function allows; it was dereferenced. See KI#1091.2. (Claude code Opus 5.5) -->
 	return m_pSelectionGroup ? m_pSelectionGroup->canStartMission((MissionTypes)iMission,
-			iData1, iData2, pPlot->getPlot(), bTestVisible) : false;
+			iData1, iData2, (pPlot == NULL ? NULL : pPlot->getPlot()), bTestVisible) : false;
 }
 
 bool CySelectionGroup::canDoInterfaceMode(InterfaceModeTypes eInterfaceMode)
@@ -264,8 +268,7 @@ CyPlot* CySelectionGroup::getPathEndTurnPlot()
 	return m_pSelectionGroup ? new CyPlot(m_pSelectionGroup->getPathEndTurnPlot()) : NULL;
 }
 
-bool CySelectionGroup::generatePath(CyPlot* pFromPlot, CyPlot* pToPlot, int iFlags,
-	bool bReuse, int* piPathTurns)
+bool CySelectionGroup::generatePath(CyPlot* pFromPlot, CyPlot* pToPlot, int iFlags, bool bReuse, int* piPathTurns)
 {
 	if (m_pSelectionGroup == NULL ||
 		pFromPlot->getPlot() == NULL || pToPlot->getPlot() == NULL)
@@ -293,9 +296,12 @@ int CySelectionGroup::getLengthMissionQueue()
 	return m_pSelectionGroup ? m_pSelectionGroup->getLengthMissionQueue() : -1;
 }
 
+// <!-- custom: Firaxis exposed mission-queue node storage through a manage_new_object binding, making Python delete memory it did not own or retain a dangling object after queue mutation.
+// Return an independent copy that truthfully matches the owning binding. See KI#480. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 MissionData* CySelectionGroup::getMissionFromQueue(int iIndex)
 {
-	return m_pSelectionGroup ? m_pSelectionGroup->getMissionFromQueue(iIndex) : NULL;
+	MissionData const* pMission = m_pSelectionGroup ? m_pSelectionGroup->getMissionFromQueue(iIndex) : NULL;
+	return pMission == NULL ? NULL : new MissionData(*pMission);
 }
 
 CyUnit* CySelectionGroup::getHeadUnit()

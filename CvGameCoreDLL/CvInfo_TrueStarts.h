@@ -42,10 +42,7 @@ public:
 		Bias,
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	}
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); }
 	CvTruCivInfo() : m_eCiv(NO_CIVILIZATION), m_eGeoRegion(NO_ARTSTYLE) {}
 	CivilizationTypes getCiv() const { return m_eCiv; }
 	ArtStyleTypes getGeoRegion() const { return m_eGeoRegion; }
@@ -79,10 +76,7 @@ public:
 		Bias,
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	}
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); }
 	CvTruLeaderInfo() : m_eLeader(NO_LEADER) {}
 	LeaderHeadTypes getLeader() const { return m_eLeader; }
 	bool read(CvXMLLoadUtility* pXML);
@@ -107,10 +101,7 @@ public:
 		LandOnly = base_t::NUM_BOOL_ELEMENT_TYPES,
 		NUM_BOOL_ELEMENT_TYPES
 	};
-	int get(BoolElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::BoolElementTypes>(e));
-	}
+	int get(BoolElementTypes e) const { return base_t::get(static_cast<base_t::BoolElementTypes>(e)); }
 	CvTruBonusInfo() : m_eBonus(NO_BONUS) {}
 	BonusTypes getBonus() const { return m_eBonus; }
 	DEF_INFO_ENUM2ENUM_MAP_DEFAULT(RegionDiscouragedUntil, ArtStyle, Era, ArrayEnumMap, (EraTypes)0);

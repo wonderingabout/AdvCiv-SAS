@@ -14,10 +14,7 @@
 // advc: Let's make this the place for string utility functions (from Taurus mod)
 namespace cstring
 {
-	inline bool empty(char const* szString)
-	{
-		return (szString[0] == '\0');
-	}
+	inline bool empty(char const* szString) { return (szString[0] == '\0'); }
 	// Uses a C function, so it kind of fits here.
 	inline std::string& tolower(std::string& s)
 	{
@@ -111,20 +108,11 @@ public:
 
 	void append(const wchar *szCharacters); // advc: Definition moved into implementation file
 
-	void append(const CvWString &szString)
-	{
-		append(szString.GetCString());
-	}
+	void append(const CvWString &szString) { append(szString.GetCString()); }
 
-	void append(const CvWStringBuffer &szStringBuffer)
-	{
-		append(szStringBuffer.m_pBuffer);
-	}
+	void append(const CvWStringBuffer &szStringBuffer) { append(szStringBuffer.m_pBuffer); }
 
-	void assign(const CvWString &szString)
-	{
-		assign(szString.GetCString());
-	}
+	void assign(const CvWString &szString) { assign(szString.GetCString()); }
 
 	void assign(const wchar *szCharacters)
 	{
@@ -141,10 +129,7 @@ public:
 		}
 	}
 
-	bool isEmpty() const
-	{
-		return (m_iLength == 0);
-	}
+	bool isEmpty() const { return (m_iLength == 0); }
 
 	const wchar *getCString()
 	{

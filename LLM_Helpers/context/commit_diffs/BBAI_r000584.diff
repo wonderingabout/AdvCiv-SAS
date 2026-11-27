@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 584
+# Author: jdog5000
+# Date: 2010-06-28T06:52:28.526772Z
+# Coverage: full
+# Message:
+#   1.01d
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@583
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@584
+@@ -4557,7 +4557,7 @@
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v1.01c");
++	szTempBuffer.Format(L"%S", "Better BTS AI v1.01d");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+

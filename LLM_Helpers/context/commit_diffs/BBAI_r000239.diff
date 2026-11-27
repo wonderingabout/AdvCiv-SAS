@@ -1,0 +1,244 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 239
+# Author: blakeciv
+# Date: 2007-01-04T20:33:58.063459Z
+# Coverage: full
+# Message:
+#   Increased numbers of defenders trained and used in interior cities.
+#   Increased the weighting on defenders for nearby hostile units.
+#   Improved the AI's assessment of whether or not it's safe to leave a city to kill interlopers.
+#   
+#   Fixed the bug with governor and expansive workers.
+#   Wrote new logic for valuing the cottage-upgrading process when selecting what to work - should now prefer hamlet over cottage and town over village.
+#   
+#   Improved Cultural AI's war-making habits, in the final stage they'll be very reluctant to declare war and they'll outright refuse to be bribed into war.
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@238
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@239
+@@ -3682,8 +3682,24 @@
+ 		iDefenders++;
+ 	}
+ 	
++	iDefenders += max(0, (getPopulation() / 6) - (getGameTurnFounded() % 3));
++	
+ 	iDefenders += AI_neededFloatingDefenders();
+ 	
++
++	if (hasActiveWorldWonder() || isCapital())
++	{
++		iDefenders++;
++	}
++	
++	
++	if (bDefenseWar)
++	{
++		if (plot()->isHills())
++		{
++			iDefenders++;
++		}		
++	}
+ 	
+ 	/*
+ 
+@@ -3701,17 +3717,6 @@
+ 	
+ 	iDefenders = min(iDefenders, 1 + (1 + GET_PLAYER(getOwnerINLINE()).getCurrentEra()) / 2);
+ 	
+-	if (bDefenseWar)
+-	{
+-		if (!plot()->isHills())
+-		{
+-			iDefenders++;
+-		}
+-		if (hasActiveWorldWonder())
+-		{
+-			iDefenders++;
+-		}
+-	}
+ 	
+ 	
+ 	
+@@ -5942,10 +5947,19 @@
+ 	//and such while preventing an "out to lunch smoking weed" scenario with
+ 	//unusually high transient production modifiers.
+ 	//Other yields don't have transient bonuses in quite the same way.
+-	iProductionValue *= (100 + AI_specialYieldMultiplier(YIELD_PRODUCTION));
+-	iProductionValue *= iBaseProductionModifier;
+-	iProductionValue /= (iBaseProductionModifier + iExtraProductionModifier);
+-	iProductionValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_PRODUCTION);
++
++	if (isFoodProduction())
++	{
++		iProductionValue *= 100 + AI_specialYieldMultiplier(YIELD_PRODUCTION);
++		iProductionValue /= 100;		
++	}
++	else
++	{
++		iProductionValue *= (100 + AI_specialYieldMultiplier(YIELD_PRODUCTION));
++		iProductionValue *= iBaseProductionModifier;
++		iProductionValue /= (iBaseProductionModifier + iExtraProductionModifier);
++		iProductionValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_PRODUCTION);
++	}
+ 	iValue += iProductionValue;
+ 	
+ 	
+@@ -6149,8 +6163,10 @@
+ 	int iYieldDiff;
+ 	int iValue;
+ 	int iI;
++	int iTotalDiff;
+ 
+ 	iValue = 0;
++	iTotalDiff = 0;
+ 
+ 	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 	{
+@@ -6169,16 +6185,19 @@
+ 	if (eCurrentImprovement != NO_IMPROVEMENT)
+ 	{
+ 		eFinalImprovement = finalImprovementUpgrade(eCurrentImprovement);
++		
+ 
+ 		if ((eFinalImprovement != NO_IMPROVEMENT) && (eFinalImprovement != eCurrentImprovement))
+ 		{
+ 			for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 			{
+ 				iYieldDiff = (pPlot->calculateImprovementYieldChange(eFinalImprovement, ((YieldTypes)iI), getOwnerINLINE()) - pPlot->calculateImprovementYieldChange(eCurrentImprovement, ((YieldTypes)iI), getOwnerINLINE()));
+-				aiYields[iI] += (iYieldDiff + 1)/ 2;
+-			}
+-		}
+-	}
++				aiYields[iI] += (iYieldDiff + 1) / 2;
++				iTotalDiff += iYieldDiff;
++			}
++		}
++	}
++	
+ 	
+ 	int iYieldValue = (AI_yieldValue(aiYields, bAvoidGrowth, bRemove, bIgnoreFood, bIgnoreGrowth) * 100);
+ 	// unless we are emph food (and also food not production)
+@@ -6208,9 +6227,13 @@
+ 
+ 	if ((eCurrentImprovement != NO_IMPROVEMENT) && (GC.getImprovementInfo(pPlot->getImprovementType()).getImprovementUpgrade() != NO_IMPROVEMENT))
+ 	{
+-		iValue += 50;
+-
+-		iValue += pPlot->getUpgradeProgress();
++		int iUpgradeTime = (GC.getGameINLINE().getImprovementUpgradeTime(eCurrentImprovement));
++		if (iUpgradeTime > 0) //assert this?
++		{
++			iTotalDiff = (iTotalDiff + 1) / 2;
++			iValue -= iTotalDiff * 50;
++			iValue += (50 * pPlot->getUpgradeProgress()) / iUpgradeTime ;
++		}
+ 		
+ 		if (GET_PLAYER(getOwnerINLINE()).AI_isCommercePlot(pPlot))
+ 		{
+@@ -7654,7 +7677,7 @@
+ 		}
+ 	}
+ 	
+-	iValue += GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot(), 3, false);
++	iValue += 2 * GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot(), 3, false);
+ 	
+ 	return iValue;
+ }
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@238
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@239
+@@ -911,6 +911,26 @@
+ 		FAssert(false);
+ 		break;
+ 	}
++	
++	int iMaxCultureVictoryAdjustment = 1;
++	for (int iI = 0; iI < MAX_PLAYERS; iI++)
++	{
++		if (GET_PLAYER((PlayerTypes)iI).isAlive())
++		{
++			if  (GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
++			{
++				if  (GET_PLAYER((PlayerTypes)iI).AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++				{
++					iMaxCultureVictoryAdjustment = max(iMaxCultureVictoryAdjustment, 8);
++				}
++				else if  (GET_PLAYER((PlayerTypes)iI).AI_isDoStrategy(AI_STRATEGY_CULTURE2))
++				{
++					iMaxCultureVictoryAdjustment = max(iMaxCultureVictoryAdjustment, 3);
++				}
++			}
++		}
++	}	
++	iValue /= iMaxCultureVictoryAdjustment;
+ 
+ 	return iValue;
+ }
+@@ -1841,6 +1861,20 @@
+ 	if (getAnyWarPlanCount(true) > 0)
+ 	{
+ 		return DENIAL_TOO_MANY_WARS;
++	}
++	
++	for (iI = 0; iI < MAX_PLAYERS; iI++)
++	{
++		if (GET_PLAYER((PlayerTypes)iI).isAlive())
++		{
++			if  (GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
++			{
++				if  (GET_PLAYER((PlayerTypes)iI).AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++				{
++					return DENIAL_NO_GAIN;
++				}
++			}
++		}
+ 	}
+ 
+ 	if (bConsiderPower)
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@238
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@239
+@@ -1962,7 +1962,7 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-	if (AI_leaveAttack(2, 55, 180))
++	if (AI_leaveAttack(2, 55, 130))
+ 	{
+ 		return;
+ 	}
+@@ -2170,7 +2170,7 @@
+ 	}
+ #endif
+ 
+-	if (AI_leaveAttack(2, 70, 225))
++	if (AI_leaveAttack(1, 70, 175))
+ 	{
+ 		return;
+ 	}
+@@ -2258,7 +2258,7 @@
+ 
+ 	CvCity* pCity;
+ 
+-	if (AI_leaveAttack(2, 55, 200))
++	if (AI_leaveAttack(2, 55, 150))
+ 	{
+ 		return;
+ 	}
+@@ -8227,7 +8227,7 @@
+ 	
+ 	if ((pCity != NULL) && (pCity->getOwner() == getOwner()))
+ 	{
+-    	int iOurStrength = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(), 0, true, false);
++    	int iOurStrength = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(), 0, false, false);
+     	int iEnemyStrength = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(), iRange, false, false);
+ 		if (iEnemyStrength > 0)
+ 		{
+

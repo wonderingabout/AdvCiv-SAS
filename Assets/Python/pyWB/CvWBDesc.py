@@ -7,7 +7,13 @@
 # Author -	Mustafa Thamer
 #
 
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md).
+#
+
 from CvPythonExtensions import *
+# <!-- custom: SASCurrentDefines reads the defines this module reads by name: one cache for every module, emptied on a live override, about 80 ns a read under Python 2.4, against 279 ns through gc in game. See KI#128.9. (Claude code Opus 5.5) -->
+import SASCurrentDefines
 import os
 import sys
 import CvUtil
@@ -20,7 +26,8 @@ fileencoding = "latin_1"	# aka "iso-8859-1"
 
 #############
 def getPlayer(idx):
-	"helper function which wraps get player in case of bad index"
+	# helper function which wraps get player in case of bad index
+	#
 	#if (gc.getPlayer(idx).isAlive()):
 	#	return gc.getPlayer(idx)
 	#return None
@@ -32,10 +39,12 @@ def getPlayer(idx):
 
 #############
 class CvWBParser:
-	"parser functions for WB desc"
+	# parser functions for WB desc
+	#
 	def getTokens(self, line):
-		"return a list of (comma separated) tokens from the line.  Strip whitespace on each token"
-		if line==None:
+		# return a list of (comma separated) tokens from the line.  Strip whitespace on each token
+		#
+		if line is None:
 			return list()
 		toks=line.split(",")
 		toksOut=list()
@@ -44,14 +53,16 @@ class CvWBParser:
 		return toksOut
 
 	def findToken(self, toks, item):
-		"return true if item exists in list of tokens"
+		# return true if item exists in list of tokens
+		#
 		for tok in toks:
 			if (tok==item):
 				return true
 		return false
 
 	def findTokenValue(self, toks, item):
-		"Search for a token of the form item=value in the list of toks, and return value, or -1 if not found"
+		# Search for a token of the form item=value in the list of toks, and return value, or -1 if not found
+		#
 		for tok in toks:
 			l=tok.split("=")
 			if (item==l[0]):
@@ -61,11 +72,13 @@ class CvWBParser:
 		return -1		# failed
 
 	def getNextLine(self, f):
-		"return the next line from the list of lines"
+		# return the next line from the list of lines
+		#
 		return f.readline()
 
 	def findNextToken(self, f, item):
-		"Find the next line that contains the token item, return false if not found"
+		# Find the next line that contains the token item, return false if not found
+		#
 		while True:
 			line = self.getNextLine(f)
 			if (not line):
@@ -76,7 +89,8 @@ class CvWBParser:
 		return false
 
 	def findNextTokenValue(self, f, item):
-		"Find the next line that contains item=value, return value or -1 if not found"
+		# Find the next line that contains item=value, return value or -1 if not found
+		#
 		while True:
 			line = self.getNextLine(f)
 			if (not line):
@@ -89,7 +103,8 @@ class CvWBParser:
 
 #############
 class CvGameDesc:
-	"class for serializing game data"
+	# class for serializing game data
+	#
 	def __init__(self):
 		self.eraType = "NONE"
 		self.speedType = "NONE"
@@ -109,11 +124,13 @@ class CvGameDesc:
 		self.iRandom = 0
 
 	def apply(self):
-		"after reading, apply the game data"
+		# after reading, apply the game data
+		#
 		gc.getGame().setStartYear(self.iStartYear)
 
 	def write(self, f):
-		"write out game data"
+		# write out game data
+		#
 		f.write("BeginGame\n")
 		f.write("\tEra=%s\n" %(gc.getEraInfo(gc.getGame().getStartEra()).getType(),))
 		f.write("\tSpeed=%s\n" %(gc.getGameSpeedInfo(gc.getGame().getGameSpeedType()).getType(),))
@@ -152,7 +169,8 @@ class CvGameDesc:
 		f.write("EndGame\n")
 
 	def read(self, f):
-		"read in game data"
+		# read in game data
+		#
 		self.__init__()
 
 		parser = CvWBParser()
@@ -264,7 +282,8 @@ class CvTeamDesc:
 		self.iEspionageEver = 0
 
 	def write(self, f, idx):
-		"write out team data"
+		# write out team data
+		#
 		f.write("BeginTeam\n")
 
 		# Team ID (to make things easier to mess with in the text)
@@ -331,7 +350,8 @@ class CvTeamDesc:
 		f.write("EndTeam\n")
 
 	def read(self, f):
-		"read in team data"
+		# read in team data
+		#
 		self.__init__()
 
 		parser = CvWBParser()
@@ -446,7 +466,8 @@ class CvPlayerDesc:
 		self.aszCityList = []
 
 	def write(self, f, idx):
-		"write out player data"
+		# write out player data
+		#
 		f.write("BeginPlayer\n")
 
 		# write team
@@ -510,14 +531,15 @@ class CvPlayerDesc:
 				f.write("\tCityList=%s\n" %(gc.getPlayer(idx).getCityName(i)))
 
 		if (gc.getPlayer(idx).getHandicapType() == HandicapTypes.NO_HANDICAP):
-			f.write("\tHandicap=%s\n" %(gc.getHandicapInfo(gc.getDefineINT("STANDARD_HANDICAP")).getType()))
+			f.write("\tHandicap=%s\n" %(gc.getHandicapInfo(SASCurrentDefines.getInt("STANDARD_HANDICAP")).getType()))
 		else:
 			f.write("\tHandicap=%s\n" %(gc.getHandicapInfo(gc.getPlayer(idx).getHandicapType()).getType()))
 
 		f.write("EndPlayer\n")
 
 	def read(self, f):
-		"read in player data"
+		# read in player data
+		#
 		self.__init__()
 		parser = CvWBParser()
 		if (parser.findNextTokenValue(f, "BeginPlayer")!=-1):
@@ -659,7 +681,8 @@ class CvPlayerDesc:
 
 #############
 class CvUnitDesc:
-	"unit WB serialization"
+	# unit WB serialization
+	#
 	def __init__(self):
 		self.plotX = -1
 		self.plotY = -1
@@ -671,7 +694,7 @@ class CvUnitDesc:
 		self.level = -1
 		self.experience = -1
 		self.promotionType = []
-		self.facingDirection = DirectionTypes.NO_DIRECTION;
+		self.facingDirection = DirectionTypes.NO_DIRECTION
 		self.isSleep = False
 		self.isIntercept = False
 		self.isPatrol = False
@@ -680,7 +703,8 @@ class CvUnitDesc:
 		self.szScriptData = "NONE"
 
 	def apply(self):
-		"after reading, this will actually apply the data"
+		# after reading, this will actually apply the data
+		#
 		player = getPlayer(self.owner)
 		if (player):
 			# print ("unit apply %d %d" %(self.plotX, self.plotY))
@@ -696,13 +720,13 @@ class CvUnitDesc:
 
 				unit = player.initUnit(unitTypeNum, self.plotX, self.plotY, UnitAITypes(eUnitAI), self.facingDirection)
 			if (unit):
-				if (self.szName != None):
+				if (self.szName is not None):
 					unit.setName(self.szName)
 				#leader unit type
-				if(self.leaderUnitType != None):
+				if(self.leaderUnitType is not None):
 					leaderUnitTypeNum = CvUtil.findInfoTypeNum(gc.getUnitInfo, gc.getNumUnitInfos(), self.leaderUnitType)
 					if leaderUnitTypeNum >= 0:
-						unit.setLeaderUnitType(leaderUnitTypeNum);
+						unit.setLeaderUnitType(leaderUnitTypeNum)
 
 				#other properties
 				if self.damage != 0:
@@ -726,7 +750,8 @@ class CvUnitDesc:
 					unit.setScriptData(self.szScriptData)
 
 	def read(self, f, pX, pY):
-		"read in unit data - at this point the first line 'BeginUnit' has already been read"
+		# read in unit data - at this point the first line 'BeginUnit' has already been read
+		#
 		self.__init__()
 		self.plotX = pX
 		self.plotY = pY
@@ -801,7 +826,7 @@ class CvUnitDesc:
 
 			v = parser.findTokenValue(toks, "ScriptData")
 			if v!=-1:
-				print("found script data: %s" %(v))
+				CvUtil.pyPrintRecord("WB_UNIT_SCRIPT_DATA_FOUND", "data=%s" % v)
 				self.szScriptData = v
 				continue
 
@@ -809,7 +834,8 @@ class CvUnitDesc:
 				break
 
 	def write(self, f, unit, plot):
-		"save unit desc to a file"
+		# save unit desc to a file
+		#
 		unitType = gc.getUnitInfo(unit.getUnitType()).getType()
 		unitOwner= unit.getOwner()
 		f.write("\tBeginUnit\n")
@@ -840,7 +866,8 @@ class CvUnitDesc:
 
 ############
 class CvCityDesc:
-	"serializes city data"
+	# serializes city data
+	#
 	def __init__(self):
 		self.city = None
 		self.owner = None
@@ -865,16 +892,17 @@ class CvCityDesc:
 			self.aiPlayerCulture.append(0)
 
 	def apply(self):
-		"after reading, this will actually apply the data"
+		# after reading, this will actually apply the data
+		#
 		player = getPlayer(self.owner)
 		# <advc.056>
 		if player is None:
-			CvUtil.pyPrint("Error: City owner %d not alive" %(self.owner))
+			CvUtil.pyPrintRecord("WB_CITY_APPLY", "outcome=OWNER_NOT_ALIVE ownerId=%d" % self.owner)
 			return # </advc.056>
 
 		self.city = player.initCity(self.plotX, self.plotY)
 
-		if (self.name != None):
+		if (self.name is not None):
 			self.city.setName(self.name, False)
 
 		if (self.population):
@@ -931,7 +959,8 @@ class CvCityDesc:
 			self.city.setScriptData(self.szScriptData)
 
 	def write(self, f, plot):
-		"write out city data"
+		# write out city data
+		#
 		city = plot.getPlotCity()
 		CvUtil.pyAssert(city.isNone()==0, "null city?")
 		f.write("\tBeginCity\n")
@@ -980,7 +1009,8 @@ class CvCityDesc:
 		f.write("\tEndCity\n")
 
 	def read(self, f, iX, iY):
-		"read in city data - at this point the first line 'BeginCity' has already been read"
+		# read in city data - at this point the first line 'BeginCity' has already been read
+		#
 		self.__init__()
 		self.plotX=iX
 		self.plotY=iY
@@ -1094,7 +1124,8 @@ class CvCityDesc:
 
 ###########
 class CvPlotDesc:
-	"serializes plot data"
+	# serializes plot data
+	#
 	def __init__(self):
 		self.iX = -1
 		self.iY = -1
@@ -1117,11 +1148,13 @@ class CvPlotDesc:
 		self.abTeamPlotRevealed = [0]*gc.getMAX_CIV_TEAMS()
 
 	def needToWritePlot(self, plot):
-		"returns true if this plot needs to be written out."
+		# returns true if this plot needs to be written out.
+		#
 		return True
 
 	def preApply(self):
-		"apply plot and terrain type"
+		# apply plot and terrain type
+		#
 		plot = CyMap().plot(self.iX, self.iY)
 		if (self.plotType != PlotTypes.NO_PLOT):
 			plot.setPlotType(self.plotType, False, False)
@@ -1130,7 +1163,8 @@ class CvPlotDesc:
 			plot.setTerrainType(terrainTypeNum, False, False)
 
 	def apply(self):
-		"after reading, this will actually apply the data"
+		# after reading, this will actually apply the data
+		#
 		#print("apply plot %d %d" %(self.iX, self.iY))
 		plot = CyMap().plot(self.iX, self.iY)
 		plot.setNOfRiver(self.isNOfRiver, self.riverWEDirection)
@@ -1166,7 +1200,8 @@ class CvPlotDesc:
 			self.cityDesc.apply()
 
 	def write(self, f, plot):
-		"save plot desc to a file"
+		# save plot desc to a file
+		#
 		f.write("BeginPlot\n")
 		f.write("\tx=%d,y=%d\n" %(plot.getX(), plot.getY()))
 
@@ -1190,8 +1225,7 @@ class CvPlotDesc:
 		if (plot.getImprovementType()!=-1):
 			f.write("\tImprovementType=%s\n" %(gc.getImprovementInfo(plot.getImprovementType()).getType()) )
 		if (plot.getFeatureType()!=-1):
-			f.write("\tFeatureType=%s, FeatureVariety=%d\n"
-			%(gc.getFeatureInfo(plot.getFeatureType()).getType(), plot.getFeatureVariety(), ) )
+			f.write("\tFeatureType=%s, FeatureVariety=%d\n" %(gc.getFeatureInfo(plot.getFeatureType()).getType(), plot.getFeatureVariety(), ) )
 		if (plot.getRouteType()!=-1):
 			f.write("\tRouteType=%s\n" %(gc.getRouteInfo(plot.getRouteType()).getType()) )
 		if (plot.getTerrainType()!=-1):
@@ -1225,7 +1259,8 @@ class CvPlotDesc:
 		f.write("EndPlot\n")
 
 	def read(self, f):
-		"read in a plot desc"
+		# read in a plot desc
+		#
 		self.__init__()
 		parser = CvWBParser()
 		if parser.findNextToken(f, "BeginPlot")==false:
@@ -1340,7 +1375,8 @@ class CvPlotDesc:
 
 ################
 class CvMapDesc:
-	"serialize map data"
+	# serialize map data
+	#
 	def __init__(self):
 		self.iGridW = 0
 		self.iGridH = 0
@@ -1356,7 +1392,8 @@ class CvMapDesc:
 		self.bRandomizeResources = "false"
 
 	def write(self, f):
-		"write map data"
+		# write map data
+		#
 		map = CyMap()
 		iGridW = map.getGridWidth()
 		iGridH = map.getGridHeight()
@@ -1379,11 +1416,12 @@ class CvMapDesc:
 		f.write("EndMap\n")
 
 	def read(self, f):
-		"read map data"
+		# read map data
+		#
 		self.__init__()
 		parser = CvWBParser()
 		if parser.findNextToken(f, "BeginMap")==false:
-			print "can't find map"
+			CvUtil.pyPrintRecord("WB_READ_SECTION", "section=MAP outcome=BEGIN_TOKEN_NOT_FOUND")
 			return
 		while (true):
 			nextLine = parser.getNextLine(f)
@@ -1456,7 +1494,8 @@ class CvMapDesc:
 
 ################
 class CvSignDesc:
-	"serialize map data"
+	# serialize map data
+	#
 	def __init__(self):
 		self.iPlotX = 0
 		self.iPlotY = 0
@@ -1468,7 +1507,8 @@ class CvSignDesc:
 		CyEngine().addSign(plot, self.playerType, self.szCaption)
 
 	def write(self, f, sign):
-		"write sign data"
+		# write sign data
+		#
 		f.write("BeginSign\n")
 		f.write("\tplotX=%d\n" %(sign.getPlot().getX(),))
 		f.write("\tplotY=%d\n" %(sign.getPlot().getY(),))
@@ -1480,11 +1520,12 @@ class CvSignDesc:
 		f.write("EndSign\n")
 
 	def read(self, f):
-		"read sign data"
+		# read sign data
+		#
 		self.__init__()
 		parser = CvWBParser()
 		if parser.findNextToken(f, "BeginSign")==false:
-			print "can't find sign"
+			CvUtil.pyPrintRecord("WB_READ_SECTION", "section=SIGN outcome=BEGIN_TOKEN_NOT_FOUND")
 			return
 		while (true):
 			nextLine = parser.getNextLine(f)
@@ -1518,7 +1559,8 @@ class CvSignDesc:
 		return True
 
 class CvWBDesc:
-	"handles saving/loading a worldbuilder description file"
+	# handles saving/loading a worldbuilder description file
+	#
 	def __init__(self):
 		# game data
 		self.gameDesc = CvGameDesc()
@@ -1534,10 +1576,12 @@ class CvWBDesc:
 		return fileName+getWBSaveExtension()
 
 	def write(self, fileName):
-		"Save out a high-level desc of the world, and height/terrainmaps"
+		# Save out a high-level desc of the world, and height/terrainmaps
+		#
 		fileName = os.path.normpath(fileName)
 		fileName,ext = os.path.splitext(fileName)
-		CvUtil.pyPrint( 'saveDesc:%s, curDir:%s' %(fileName,os.getcwd()) )
+		# <!-- custom: Preserve the existing WorldBuilder path context but give save/load/apply lifecycle rows stable record names and fields. (ChatGPT-5.6-Sol) -->
+		CvUtil.pyPrintRecord("WB_SAVE_BEGIN", "file=%s currentDir=%s" % (fileName, os.getcwd()))
 
 		f = file(self.getDescFileName(fileName), "w")		# open text file
 		f.write("Version=%d\n" %(self.getVersion(),))
@@ -1570,49 +1614,51 @@ class CvWBDesc:
 
 		f.close()
 
-		print("WBSave done\n")
+		CvUtil.pyPrintRecord("WB_SAVE_END", "outcome=SUCCEEDED")
 		return 0	# success
 
 	def applyMap(self):
-		"after reading setup the map"
-
+		# after reading setup the map
+		#
 		self.gameDesc.apply()
 
 		# recreate map
-		print("map rebuild. gridw=%d, gridh=%d" %(self.mapDesc.iGridW, self.mapDesc.iGridH))
+		CvUtil.pyPrintRecord("WB_MAP_APPLY_BEGIN", "gridWidth=%d gridHeight=%d" % (self.mapDesc.iGridW, self.mapDesc.iGridH))
 		worldSizeType = CvUtil.findInfoTypeNum(gc.getWorldInfo, gc.getNumWorldInfos(), self.mapDesc.worldSize)
 		climateType = CvUtil.findInfoTypeNum(gc.getClimateInfo, gc.getNumClimateInfos(), self.mapDesc.climate)
 		seaLevelType = CvUtil.findInfoTypeNum(gc.getSeaLevelInfo, gc.getNumSeaLevelInfos(), self.mapDesc.seaLevel)
 		CyMap().rebuild(self.mapDesc.iGridW, self.mapDesc.iGridH, self.mapDesc.iTopLatitude, self.mapDesc.iBottomLatitude, self.mapDesc.bWrapX, self.mapDesc.bWrapY, WorldSizeTypes(worldSizeType), ClimateTypes(climateType), SeaLevelTypes(seaLevelType), 0, None)
 
-		print "preapply plots"
+		CvUtil.pyPrintRecord("WB_MAP_APPLY_STAGE", "stage=PREAPPLY_PLOTS")
 		for pDesc in self.plotDesc:
 			pDesc.preApply()	# set plot type / terrain type
 
-		print("map apply - recalc areas/regions")
+		CvUtil.pyPrintRecord("WB_MAP_APPLY_STAGE", "stage=RECALCULATE_AREAS")
 		CyMap().recalculateAreas()
 
-		print "apply plots"
+		CvUtil.pyPrintRecord("WB_MAP_APPLY_STAGE", "stage=APPLY_PLOTS")
 		for pDesc in self.plotDesc:
 			pDesc.apply()
 
-		print "apply signs"
+		CvUtil.pyPrintRecord("WB_MAP_APPLY_STAGE", "stage=APPLY_SIGNS")
 		for pDesc in self.signDesc:
 			pDesc.apply()
 
-		print "Randomize Resources"
+		# <!-- custom: sas-ci-string-compare-exemption: the WorldBuilder file stores its flags as the text "true" or "false". (Claude code Opus 5.5) -->
+		CvUtil.pyPrintRecord("WB_MAP_APPLY_STAGE", "stage=RANDOMIZE_RESOURCES enabled=%d" % (self.mapDesc.bRandomizeResources != "false"))
+		# <!-- custom: sas-ci-string-compare-exemption: as above. (Claude code Opus 5.5) -->
 		if (self.mapDesc.bRandomizeResources != "false"):
 			for iPlotLoop in range(CyMap().numPlots()):
 				pPlot = CyMap().plotByIndex(iPlotLoop)
 				pPlot.setBonusType(BonusTypes.NO_BONUS)
 			CyMapGenerator().addBonuses()
 
-		print ("WB apply done\n")
+		CvUtil.pyPrintRecord("WB_MAP_APPLY_END", "outcome=SUCCEEDED")
 		return 0	# ok
 
 	def getAssignedStartingPlots(self):
-		"add player starting plots if using random civs"
-
+		# add player starting plots if using random civs
+		#
 		# Player stuff
 		for iPlayerLoop in range(gc.getMAX_CIV_PLAYERS()):
 
@@ -1622,6 +1668,7 @@ class CvWBDesc:
 			if pWBPlayer.bNeverAlive:
 				continue # </advc.056>
 			# Random Start Location
+			# <!-- custom: sas-ci-string-compare-exemption: the WorldBuilder file's "true" or "false", as for the resources above. (Claude code Opus 5.5) -->
 			if (pPlayer.getLeaderType() != -1 and pWBPlayer.bRandomStartLocation != "false"):
 				#pPlayer.setStartingPlot(pPlayer.findStartingPlot(True), True)
 				# advc.027: Let the DLL find a starting plot later; but make sure that the DLL won't simply assign one of the plots marked with "StartingPlot".
@@ -1635,8 +1682,8 @@ class CvWBDesc:
 		return 0	# ok
 
 	def applyInitialItems(self):
-		"add player objects in a last pass"
-
+		# add player objects in a last pass
+		#
 		# Team stuff
 		if (len(self.teamsDesc)) :
 			for iTeamLoop in range(gc.getMAX_CIV_TEAMS()):
@@ -1715,9 +1762,10 @@ class CvWBDesc:
 						pPlayer.setCurrentEra(iStartingEra)
 
 					# Random Start Location
+					# <!-- custom: sas-ci-string-compare-exemption: as above. (Claude code Opus 5.5) -->
 					if (pWBPlayer.bRandomStartLocation != "false"):
 						pPlayer.setStartingPlot(pPlayer.findStartingPlot(true), True)
-						print("Setting player %d starting location to (%d,%d)" % (pPlayer.getID(), pPlayer.getStartingPlot().getX(), pPlayer.getStartingPlot().getY()))
+						CvUtil.pyPrintRecord("WB_STARTING_PLOT_ASSIGNED", "playerId=%d x=%d y=%d" % (pPlayer.getID(), pPlayer.getStartingPlot().getX(), pPlayer.getStartingPlot().getY()))
 
 					# Civics
 					for iCivicLoop in range(len(pWBPlayer.aaiCivics)):
@@ -1753,8 +1801,8 @@ class CvWBDesc:
 
 						for iPlotX in range(CyMap().getGridWidth()):
 							for iPlotY in range(CyMap().getGridHeight()):
-							    pPlot = CyMap().plot(iPlotX,iPlotY)
-							    pPlot.setRevealed(pTeam.getID(), True, False, TeamTypes.NO_TEAM)
+								pPlot = CyMap().plot(iPlotX,iPlotY)
+								pPlot.setRevealed(pTeam.getID(), True, False, TeamTypes.NO_TEAM)
 
 					# Vassal
 					if (pWBTeam.iVassalPower != 0):
@@ -1782,19 +1830,21 @@ class CvWBDesc:
 		# units
 		for pDesc in self.plotDesc:
 			pDesc.applyUnits()
-		CvUtil.pyPrint("applyInitialItems: done") # advc.056
+		# <!-- custom: Keep advc.056's completion notice but identify the completed WorldBuilder phase explicitly. (ChatGPT-5.6-Sol) -->
+		CvUtil.pyPrintRecord("WB_INITIAL_ITEMS_APPLY_END", "outcome=SUCCEEDED") # advc.056
 		return 0	# ok
 
 	def read(self, fileName):
-		"Load in a high-level desc of the world, and height/terrainmaps"
+		# Load in a high-level desc of the world, and height/terrainmaps
+		#
 		fileName = os.path.normpath(fileName)
 		fileName,ext=os.path.splitext(fileName)
 		if len(ext) == 0:
 			ext = getWBSaveExtension()
-		CvUtil.pyPrint( 'loadDesc:%s, curDir:%s' %(fileName,os.getcwd()) )
+		CvUtil.pyPrintRecord("WB_READ_BEGIN", "file=%s currentDir=%s" % (fileName, os.getcwd()))
 
 		if (not os.path.isfile(fileName+ext)):
-			CvUtil.pyPrint("Error: file %s does not exist" %(fileName+ext,))
+			CvUtil.pyPrintRecord("WB_READ_END", "outcome=FILE_NOT_FOUND file=%s" % (fileName + ext))
 			return -1	# failed
 
 		f=file(fileName+ext, "r")		# open text file
@@ -1802,16 +1852,16 @@ class CvWBDesc:
 		parser = CvWBParser()
 		version = int(parser.findNextTokenValue(f, "Version"))
 		if (version != self.getVersion()):
-			CvUtil.pyPrint("Error: wrong WorldBuilder save version.  Expected %d, got %d" %(self.getVersion(), version))
+			CvUtil.pyPrintRecord("WB_READ_END", "outcome=VERSION_MISMATCH expected=%d actual=%d" % (self.getVersion(), version))
 			return -1	# failed
 
-		print "Reading game desc"
+		CvUtil.pyPrintRecord("WB_READ_SECTION", "section=GAME")
 		self.gameDesc.read(f)	# read game info
-		print "Reading teams desc"
+		CvUtil.pyPrintRecord("WB_READ_SECTION", "section=TEAMS")
 		filePos = f.tell()
 		self.teamsDesc = []
 		for i in range(gc.getMAX_CIV_TEAMS()):
-			print ("reading team %d" %(i))
+			CvUtil.pyPrintRecord("WB_READ_SECTION", "section=TEAM teamId=%d" % i)
 			teamsDesc = CvTeamDesc()
 			if teamsDesc.read(f)==False:
 				f.seek(filePos)	# abort and backup
@@ -1821,7 +1871,7 @@ class CvWBDesc:
 		for i in range(len(self.teamsDesc), gc.getMAX_CIV_TEAMS()):
 			self.teamsDesc.append(CvTeamDesc()) # </advc.056>
 
-		print "Reading players desc"
+		CvUtil.pyPrintRecord("WB_READ_SECTION", "section=PLAYERS")
 		filePos = f.tell() # advc.056
 		self.playersDesc = []
 		for i in range(gc.getMAX_CIV_PLAYERS()):
@@ -1837,13 +1887,15 @@ class CvWBDesc:
 			# (Not sure if it's necessary to assign a team)
 			deadPlayer.team = len(self.playersDesc)
 			deadPlayer.isPlayableCiv = 0
-			deadPlayer.neverAlive = True
+			# <!-- custom: Was deadPlayer.neverAlive, a name nothing reads: the flag advc.056 checks when applying players is bNeverAlive, so the slots padded after a file with fewer players (18 in a 4986 world, 48 now) were not skipped.
+			# Found and fixed by ChatGPT-5.6-Sol while tracing SASSaveTransplanter's path. See KI#1095. (ChatGPT-5.6-Sol + Claude code Fable 5.2) -->
+			deadPlayer.bNeverAlive = True
 			self.playersDesc.append(deadPlayer)
 		# </advc.056>
-		print "Reading map desc"
+		CvUtil.pyPrintRecord("WB_READ_SECTION", "section=MAP")
 		self.mapDesc.read(f)	# read map info
 
-		print("Reading/creating %d plot descs" %(self.mapDesc.numPlotsWritten,))
+		CvUtil.pyPrintRecord("WB_READ_SECTION", "section=PLOTS count=%d" % self.mapDesc.numPlotsWritten)
 		self.plotDesc = []
 		for i in range(self.mapDesc.numPlotsWritten):
 			pDesc = CvPlotDesc()
@@ -1852,7 +1904,7 @@ class CvWBDesc:
 			else:
 				break
 
-		print("Reading/creating %d sign descs" %(self.mapDesc.numSignsWritten,))
+		CvUtil.pyPrintRecord("WB_READ_SECTION", "section=SIGNS count=%d" % self.mapDesc.numSignsWritten)
 		self.signDesc = []
 		for i in range(self.mapDesc.numSignsWritten):
 			pDesc = CvSignDesc()
@@ -1862,5 +1914,5 @@ class CvWBDesc:
 				break
 
 		f.close()
-		print ("WB read done\n")
+		CvUtil.pyPrintRecord("WB_READ_END", "outcome=SUCCEEDED")
 		return 0

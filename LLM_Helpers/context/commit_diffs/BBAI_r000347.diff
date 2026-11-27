@@ -1,0 +1,29 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 347
+# Author: iustus
+# Date: 2007-02-08T01:25:27.666609Z
+# Coverage: full
+# Message:
+#   revisited the fix to warplans with vassals, now clear both sides of the warplan, so not only will a vassal's warplans all get cleared, but anyone planning a war on a vassal will cancel their plan, now that they have to deal with the master as well
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@346
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@347
+@@ -3340,9 +3340,10 @@
+ 			// clear warplans for wars that are not already started
+ 			for (int iI = 0; iI < MAX_TEAMS; iI++)
+ 			{
+-				if (!isAtWar((TeamTypes)iI) && AI_getWarPlan((TeamTypes)iI) != NO_WARPLAN)
+-				{
+-					AI_setWarPlan((TeamTypes)iI, NO_WARPLAN);
++				if (!isAtWar((TeamTypes)iI))
++				{
++					AI_setWarPlan((TeamTypes) iI, NO_WARPLAN);
++					GET_TEAM((TeamTypes) iI).AI_setWarPlan(getID(), NO_WARPLAN);
+ 				}
+ 			}
+ 
+

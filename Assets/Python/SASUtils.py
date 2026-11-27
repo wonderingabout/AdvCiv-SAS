@@ -1,0 +1,327 @@
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+
+from CvPythonExtensions import *
+import CvUtil
+# <!-- custom: Consume the surviving shared helper directly after retiring the overlapping SASUIResources dependency; avoid keeping a redundant visual-resource facade. (ChatGPT-5.6-Sol) -->
+import SASTextScale
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
+
+gc = CyGlobalContext()
+localText = CyTranslator()
+
+# <!-- custom: lazy-init cache for SAS_SHOW_LEGEND_LINK GlobalDefine.
+# Cannot be resolved at module import time because SASUtils is imported before CyGlobalContext finishes loading XML defines (eager init returns False and the legend link silently disappears).
+# Resolved on first use via _isLegendLinkEnabled, matching the lazy-init-to-None approach used by other AdvCiv-SAS advisors.
+# The setting now lives in SASSessionTunables.py, which import time could read; the lazy read is kept as it was. (Claude code Opus 4.7 + Claude code Opus 5.5) -->
+_IS_SAS_SHOW_LEGEND_LINK = None
+def _isLegendLinkEnabled():
+	global _IS_SAS_SHOW_LEGEND_LINK
+	if _IS_SAS_SHOW_LEGEND_LINK is None:
+		_IS_SAS_SHOW_LEGEND_LINK = (SASSessionTunables.SAS_SHOW_LEGEND_LINK > 0)
+	return _IS_SAS_SHOW_LEGEND_LINK
+
+_IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE = None
+def _isAdvisorVassalPerspectiveEnabled():
+	global _IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE
+	if _IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE is None:
+		_IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE = (SASSessionTunables.SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE > 0)
+	return _IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE
+
+# <advc.077>
+# <!-- custom: shared thousands formatter used by Info Screen and Victory Screen.
+# The separator is passed by the caller so callers can use XML text, spaces, dots, or another context-specific separator without hidden module state. (Claude Opus 4.5 + GPT-5.5) -->
+def separateThousands(iValue, szSeparator):
+	# The rest of the function is adopted from this StackOverflow answer by Nadia Alramli: https://stackoverflow.com/posts/1823189/revisions
+	s = '%d' % iValue
+	groups = []
+	while s and s[-1].isdigit():
+		groups.append(s[-3:])
+		s = s[:-3]
+	return s + szSeparator.join(reversed(groups))
+# </advc.077>
+
+# <!-- custom: Shared exact times-100 formatter: omit redundant .00 while retaining nonzero hundredths without approximation.
+# First used by the Culture Breakdown. See KI#1063. (GPT-5.6-Sol) -->
+def formatExactHundredths(iValue):
+	szSign = u""
+	if iValue < 0:
+		szSign = u"-"
+	iAbsValue = abs(iValue)
+	if iAbsValue % 100 == 0:
+		return u"%s%d" % (szSign, iAbsValue / 100)
+	return u"%s%d.%02d" % (szSign, iAbsValue / 100, iAbsValue % 100)
+
+# <!-- custom: shared advisor layout constants that are screen-independent (safe to read in __init__); runtime screen-dependent geometry is derived per screen from current resolution in interfaceScreen. (GPT-5.3-Codex) -->
+# <!-- custom: as part of upscaling text code changes, now that commerce sliders are on the right-side, reduce left-space (from 172).
+# Increase right-space for scoreboard (from 390) to give more room for anarchy and golden age button and just in case here.
+# Increase top space (from 28). -->
+SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS = 0
+# <!-- custom: The widths advisors leave for the scoreboard on their right; getAdvisorScoreboardSpace below picks one.
+# Testing showed that with text upscaling, the scoreboard needs more room at larger fonts: a turn-380 SAS24 scoreboard with war, attitude, vassal and research markers took about 394 px at font 3, the usual one, and 448 at font 4 (2026-11-19).
+# 393 px currently fits the font-3 scoreboard, and there advisors end where the top bar's commerce panel currently begins; both are laid out from the screen's right edge, so they line up at every resolution.
+# 455 px currently fits the font-4 scoreboard's 448 px, with a few px to spare.
+# Note: the scoreboard's war and golden-age dots start about 6 px right of the advisors' edge; a double-digit power ratio does not hide them, as the scoreboard measures its columns at each draw and shortens leader names a little more instead (the user, 2026-11-20). (Claude code Opus 5.5) -->
+SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD_FONT_3 = 393
+SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD_FONT_4 = 455
+SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR = 32
+SAS_ADVISOR_BOTTOM_SPACE = 0
+
+# <!-- custom: Advisors need as much width as possible; their only constraint is the width they leave for the scoreboard.
+# That room goes to font 3 at 1920 x 1080 and up to font 4 at 2560 x 1440, and the rare font 4 at 1920 x 1080 is worked around by the scoreboard shortening leader names; the reasoning and measurements are in KI#1103.
+# Takes the width and the scoreboard's font size, currently SAS_UI_FONT_LABEL, not the screen, as SevoPediaMediaPlayer's layout helpers take iScreenW: a resolution read in __init__ can come before the screen is ready and goes stale on a resolution change, as CvInfoScreen's runtime geometry notes.
+# Each advisor reads screen.getXResolution() and that font size when it draws, so a change applies on the next draw, and this stays a pure function of its inputs: SASUtils need not know about screens or when they are ready (the user, 2026-11-20). (Claude code Opus 5.5) -->
+def getAdvisorScoreboardSpace(iXResolution, iFontSize):
+	if iXResolution > 1920 and iFontSize >= 4:
+		return SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD_FONT_4
+	return SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD_FONT_3
+
+# <!-- custom: shared advisor title Y is screen-independent and unified for migrated advisors to reduce per-file noise; older per-screen values were close (e.g. 8/12), so use one midpoint default (10).
+# Keep screen-dependent anchors computed at runtime. (GPT-5.3-Codex) -->
+SAS_ADVISOR_TITLE_Y = 10
+# <!-- custom: shared offsets/divisors for runtime screen-dependent anchor formulas (title/exit/link/footer) derived from each advisor's current panel width/height in interfaceScreen. (GPT-5.3-Codex) -->
+SAS_ADVISOR_TITLE_X_DIVISOR = 2
+SAS_ADVISOR_EXIT_X_OFFSET = 30
+SAS_ADVISOR_EXIT_Y_OFFSET = 42
+SAS_ADVISOR_BOTTOM_PANEL_Y_OFFSET = 55
+
+# <!-- custom: shared runtime advisor bounds (screen-dependent) and shared title/exit/link anchors; callers pass screen and configured margins from __init__. (GPT-5.3-Codex) -->
+def getAdvisorRuntimeBounds(screen, iLeftSpace, iRightSpace, iTopSpace, iBottomSpace):
+	iXScreen = iLeftSpace
+	iWScreen = screen.getXResolution() - iLeftSpace - iRightSpace
+	iYScreen = iTopSpace
+	iHScreen = screen.getYResolution() - iTopSpace - iBottomSpace
+	return (iXScreen, iYScreen, iWScreen, iHScreen)
+
+def getAdvisorRuntimeAnchors(iWScreen, iHScreen):
+	iXTitle = iWScreen / SAS_ADVISOR_TITLE_X_DIVISOR
+	iXExit = iWScreen - SAS_ADVISOR_EXIT_X_OFFSET
+	iYExit = iHScreen - SAS_ADVISOR_EXIT_Y_OFFSET
+	iYLink = iYExit
+	iYBottomPanel = iHScreen - SAS_ADVISOR_BOTTOM_PANEL_Y_OFFSET
+	return (iXTitle, iXExit, iYExit, iYLink, iYBottomPanel)
+
+# <!-- custom: shared "maximized" panel/table layout for advisor tabs that want to fill the area between top and bottom bars (Domestic Overview tabs, Military Advisor Battles tab).
+# The Y bleed lets the panel slide a few pixels under the top/bottom bars to hide thin seams; the inner table margin and top visual adjust account for TABLE_STYLE_STANDARD drawing the header slightly above its anchor.
+# Returns two (x, y, w, h) tuples so callers can unpack directly into addPanel / addTableControlGFC. (GPT-5.3-Codex + Claude code Opus 4.7) -->
+def getAdvisorMaximizedPanelLayout(iWScreen, iYBottomPanel):
+	iMainPanelYBleed = 10
+	iMainPanelX = 0
+	iMainPanelY = 55 - iMainPanelYBleed
+	iMainPanelW = iWScreen
+	iMainPanelH = (iYBottomPanel - iMainPanelY) + iMainPanelYBleed
+	iTableMargin = 8
+	iTableTopVisualAdjust = 6
+	iTableX = iMainPanelX + iTableMargin
+	iTableY = iMainPanelY + iTableMargin + iTableTopVisualAdjust
+	iTableW = iMainPanelW - 2 * iTableMargin
+	iTableH = iMainPanelH - 2 * iTableMargin - iTableTopVisualAdjust
+	return ((iMainPanelX, iMainPanelY, iMainPanelW, iMainPanelH), (iTableX, iTableY, iTableW, iTableH))
+
+# <!-- custom: One width rule for advisor number columns, which each screen used to guess, such as 38 px for "2 digits": digits times a digit's width, plus a decimal point and cell padding.
+# Sized for font 4 at every font, so advisors keep one layout: at font 3 the columns have room to spare, which reads more easily than a tight cell, while the unit names that give up that room are not essential, as each row also shows the unit's icon (the user, 2026-11-20).
+# Measured with CyInterface().determineWidth at font 4: "8" is 11 px and the decimal point 6.
+# A cell needs about 18 px beyond its text: 15 cut "12750 BC" to "12750 ..." and a 3-digit X to "1...", while 18 fit (2026-11-20).
+# A per-font version, with 9 px digits at font 3, cut the same values there with 12 px padding and fit them with 18; at 1920 px and font 3 it left the Battles tab's unit columns about 140 px each, mostly full names, against about 70 now, an icon and a letter or two.
+# One layout was preferred over that gain. (Claude code Opus 5.5) -->
+SAS_ADVISOR_DIGIT_W = 11
+SAS_ADVISOR_DOT_W = 6
+SAS_ADVISOR_TABLE_CELL_PAD = 18
+
+# <!-- custom: A column for numbers of up to iDigits digits, plus a decimal point with bDecimal, as in "88.88". (Claude code Opus 5.5) -->
+def getAdvisorNumberColW(iDigits, bDecimal=False):
+	iW = iDigits * SAS_ADVISOR_DIGIT_W + SAS_ADVISOR_TABLE_CELL_PAD
+	if bDecimal:
+		iW += SAS_ADVISOR_DOT_W
+	return iW
+
+# <!-- custom: shared weighted tab-link width helper used by advisor tab bars; weights by text width and scales to runtime X_EXIT. (GPT-5.3-Codex) -->
+def getAdvisorRuntimeLinkWidths(cyInterface, aszLabels, szExitLabel, iXExit):
+	aiLabelWidths = []
+	for szLabel in aszLabels:
+		aiLabelWidths.append(cyInterface.determineWidth(szLabel) + 20)
+	iTotalWidth = sum(aiLabelWidths) + cyInterface.determineWidth(szExitLabel) + 20
+	aiLinkWidths = []
+	for iWidth in aiLabelWidths:
+		aiLinkWidths.append((iXExit * iWidth + iTotalWidth/2) / iTotalWidth)
+	return aiLinkWidths
+
+# <!-- custom: shared footer-tab renderer for advisor screens.
+# Use non-bold title-sized links like Foreign/Info/Sevopedia footer navigation.
+# Each row is (widget, label, width, page_id); page_id can be a simple 0/1/2 tab id, a Victory screen id, or a Foreign SCREEN_DICT id, so oddball advisors still use the same reliable pattern.
+# Active tabs are colored yellow and emitted as inert WIDGET_GENERAL, -1/-1 labels.
+# Use this helper only for screens where active-tab clicks can safely do nothing; inactive tabs keep routing through the caller-supplied ids. (GPT-5.5 + GPT-5.5-Thinking review) -->
+def drawAdvisorFooterTabRows(screen, aTabRows, iActivePageID, iYLink, iZ, iColorYellow, eInactiveWidget=WidgetTypes.WIDGET_GENERAL, iInactiveData2=-1, iXStart=0):
+	iX = iXStart
+	for iPage in range(len(aTabRows)):
+		szWidgetID, szLabel, iWidth, iData1 = aTabRows[iPage]
+		eWidget = eInactiveWidget
+		iData2 = iInactiveData2
+		if iData1 == iActivePageID:
+			szLabel = localText.changeTextColor(szLabel, iColorYellow)
+			eWidget = WidgetTypes.WIDGET_GENERAL
+			iData1 = -1
+			iData2 = -1
+		screen.setText(szWidgetID, "", SASTextScale.sasFontTagTitle + szLabel + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, iX + iWidth / 2, iYLink, iZ, FontTypes.TITLE_FONT, eWidget, iData1, iData2)
+		iX += iWidth
+
+def drawAdvisorFooterTabs(screen, aWidgetIDs, aLabels, aiWidths, iActivePageID, iYLink, iZ, iColorYellow, eInactiveWidget=WidgetTypes.WIDGET_GENERAL, aiInactiveData1=None, iInactiveData2=-1, iXStart=0):
+	aTabRows = []
+	for iPage in range(len(aLabels)):
+		iData1 = iPage
+		if aiInactiveData1 is not None:
+			iData1 = aiInactiveData1[iPage]
+		aTabRows.append((aWidgetIDs[iPage], aLabels[iPage], aiWidths[iPage], iData1))
+	drawAdvisorFooterTabRows(screen, aTabRows, iActivePageID, iYLink, iZ, iColorYellow, eInactiveWidget, iInactiveData2, iXStart)
+
+# <!-- custom: invisible sort key for advisor icon-only table cells. GameFont chars (religion, attitude, trade icons, etc.) already sort as text; this is only for separate icon-button cells where the visible text is otherwise empty. Usually skip this when an icon button is immediately followed by matching text in the next column (e.g. Info Screen Wonders), because that text column already gives the useful sort path. Keep hardcoded font=1 unscaled so the sort key stays invisible and does not affect row height. Pattern based on Sevopedia chart icon sorting. (GPT-5.5) -->
+def getAdvisorIconSortKey(iGroup, iRow):
+	aDigits = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")
+	aParts = []
+	iValue = int(iGroup)
+	for _ in xrange(4):
+		aParts.insert(0, aDigits[iValue % 5])
+		iValue = iValue / 5
+	iValue = int(iRow)
+	for _ in xrange(6):
+		aParts.insert(4, aDigits[iValue % 5])
+		iValue = iValue / 5
+	return u"<font=1>" + u"".join(aParts) + u"</font>"
+
+# <!-- custom: Location controls in Changes, Battles and Wonders share a coordinate/camera hint, not reconstructed historical plot contents.
+# Allocate BUG widgets lazily on first use: SASUtils also loads at early initialization, so importing WidgetUtil eagerly would add its dispatcher dependencies to that path. (GPT-6.1-Sol) -->
+_ADVISOR_LOCATION_WIDGETS = {}
+
+def getAdvisorLocationWidget(bCity=False):
+	if bCity not in _ADVISOR_LOCATION_WIDGETS:
+		# <!-- custom: Reuse BUG's named help dispatcher without introducing numeric widget IDs or loading it before an advisor actually needs these controls. (GPT-6.1-Sol) -->
+		import WidgetUtil
+		szName = "WIDGET_SAS_ADVISOR_PLOT_LOCATION"
+		fnHelp = _getAdvisorPlotLocationHelp
+		if bCity:
+			szName = "WIDGET_SAS_ADVISOR_CITY_LOCATION"
+			fnHelp = _getAdvisorCityLocationHelp
+		eWidget = WidgetUtil.createWidget(szName)
+		WidgetUtil.setWidgetHelpFunction(eWidget, fnHelp)
+		_ADVISOR_LOCATION_WIDGETS[bCity] = eWidget
+	return _ADVISOR_LOCATION_WIDGETS[bCity]
+
+# <!-- custom: Plot callers pass coordinates already filtered for their historical-row perspective; the hint adds no current terrain, resource or occupant lookup that could reveal additional information. (GPT-6.1-Sol) -->
+def _getAdvisorPlotLocationHelp(eWidget, iX, iY, bOption):
+	if not (0 <= iX < CyMap().getGridWidth() and 0 <= iY < CyMap().getGridHeight()):
+		return u""
+	# <!-- custom: Custom BUG help is returned verbatim; apply the shared hover font explicitly instead of leaving these advisor hints at the EXE default size. (GPT-6.1-Sol) -->
+	# <!-- custom: The hover font is the label size since 2026-11-26. (Claude code Opus 5.5) -->
+	return SASTextScale.sasFontTagLabel + localText.getText("TXT_KEY_SAS_ADVISOR_PLOT_LOCATION_HELP", (iX, iY)) + SASTextScale.SAS_FONT_TAG_CLOSE
+
+# <!-- custom: Wonders links identify a live owner/city, unlike historical battle/edit locations.
+# Validate that identity and current observer knowledge before either hover or camera movement; hidden/removed cities must not become a location side channel. (GPT-6.1-Sol) -->
+def getAdvisorCityLocation(iPlayer, iCityId):
+	if not (0 <= iPlayer < gc.getMAX_PLAYERS()) or iCityId < 0:
+		return None
+	pCity = gc.getPlayer(iPlayer).getCity(iCityId)
+	if pCity.isNone():
+		return None
+	game = CyGame()
+	if not game.isDebugMode() and game.getGameState() != GameStateTypes.GAMESTATE_OVER:
+		iTeam = game.getActiveTeam()
+		if iTeam < 0 or not pCity.isRevealed(iTeam, False):
+			return None
+	return (pCity.getX(), pCity.getY())
+
+def _getAdvisorCityLocationHelp(eWidget, iPlayer, iCityId, bOption):
+	tPlot = getAdvisorCityLocation(iPlayer, iCityId)
+	if tPlot is None:
+		return u""
+	return _getAdvisorPlotLocationHelp(eWidget, tPlot[0], tPlot[1], bOption)
+
+# <!-- custom: shared debug/vassal player dropdown for advisors.
+# Debug mode keeps each legacy advisor's MAX_PLAYERS vs MAX_CIV_PLAYERS and active-row preselection behavior.
+# Outside debug, selected advisors may inspect only the current active player plus alive vassals of the active player's team, not a hardcoded human slot; vassals are subordinate enough to make their domestic/world/policy state relevant, but this remains perspective-only UI access and does not reveal unrelated players or hidden map data. (GPT-5.5) -->
+def addAdvisorDebugDropdown(screen, szDropdownName, iActivePlayer, bIncludeBarbarians=False, bSelectActive=True, iX=22, iY=12, iW=300, eFont=FontTypes.GAME_FONT, bAllowVassalPerspective=False):
+	aiPlayers = getAdvisorPerspectivePlayerIDs(bIncludeBarbarians, bAllowVassalPerspective)
+	if len(aiPlayers) <= 0:
+		return False
+	bDebug = CyGame().isDebugMode()
+	screen.addDropDownBoxGFC(szDropdownName, iX, iY, iW, WidgetTypes.WIDGET_GENERAL, -1, -1, eFont)
+	for iPlayer in aiPlayers:
+		screen.addPullDownString(szDropdownName, gc.getPlayer(iPlayer).getName(), iPlayer, iPlayer, iPlayer == iActivePlayer and (bSelectActive or not bDebug))
+	return True
+
+def getAdvisorPerspectivePlayerIDs(bIncludeBarbarians=False, bAllowVassalPerspective=False):
+	if CyGame().isDebugMode():
+		aiPlayers = []
+		iMaxPlayers = gc.getMAX_CIV_PLAYERS()
+		if bIncludeBarbarians:
+			iMaxPlayers = gc.getMAX_PLAYERS()
+		for iPlayer in range(iMaxPlayers):
+			if gc.getPlayer(iPlayer).isAlive():
+				aiPlayers.append(iPlayer)
+		return aiPlayers
+	if not bAllowVassalPerspective or not _isAdvisorVassalPerspectiveEnabled():
+		return []
+	iActivePlayer = CyGame().getActivePlayer()
+	if iActivePlayer < 0 or not gc.getPlayer(iActivePlayer).isAlive():
+		return []
+	iActiveTeam = gc.getPlayer(iActivePlayer).getTeam()
+	aiPlayers = [iActivePlayer]
+	for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
+		if iPlayer != iActivePlayer and gc.getPlayer(iPlayer).isAlive() and gc.getTeam(gc.getPlayer(iPlayer).getTeam()).isVassal(iActiveTeam):
+			aiPlayers.append(iPlayer)
+	if len(aiPlayers) <= 1:
+		return []
+	return aiPlayers
+
+def getAdvisorValidPerspectivePlayer(iPlayer, bIncludeBarbarians=False, bAllowVassalPerspective=False):
+	if iPlayer in getAdvisorPerspectivePlayerIDs(bIncludeBarbarians, bAllowVassalPerspective):
+		return iPlayer
+	return CyGame().getActivePlayer()
+
+def isAdvisorReadOnlyPerspective(iPlayer):
+	return not CyGame().isDebugMode() and iPlayer != CyGame().getActivePlayer()
+
+def getAdvisorDebugDropdownSelectedPlayer(screen, szDropdownName):
+	iIndex = screen.getSelectedPullDownID(szDropdownName)
+	return screen.getPullDownData(szDropdownName, iIndex)
+
+# <!-- custom: shared strict XML lookup helper for maps/screens; raise loudly instead of silently accepting missing tags. (GPT-5.3-Codex) -->
+# <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1, so summoning wrong asset for example as is done in sevopedia bonus's placeRelevantUnits panel as of now should raise an error not silently pass; also useful to access any asset id safely such as hills or peak terrains 's id, or hills's button for example too; is also useful to detect and signal loudly errors such as using wrong "TERRAIN_FOREST" as part of copy pasting terrain code into features code of the placeUnits method there as of now instead of "FEATURE_FOREST", and we get a nice error instead of what i assume would be a silent pass; done with the help of chatgpt thanks -->
+def getInfoTypeOrFail(tag):
+	iType = gc.getInfoTypeForString(tag)
+	if iType == -1:
+		raise ValueError("Missing XML tag: '%s'" % tag)
+	return iType
+
+# <!-- custom: strict variant of CvUtil.findInfoTypeNum for older Python callsites that pass info getter/count functions instead of using gc.getInfoTypeForString directly.
+# Keep missing static XML tags loud like getInfoTypeOrFail. (GPT-5.5) -->
+def findInfoTypeNumOrFail(infoGetter, numInfosGetter, tag):
+	iType = CvUtil.findInfoTypeNum(infoGetter, numInfosGetter, tag)
+	if iType == -1:
+		raise ValueError("Missing XML tag: '%s'" % tag)
+	return iType
+
+# <!-- custom: shared helper to resolve NewConcept IDs by XML type (e.g. "CONCEPT_SAS_SCORE_TAB_COLUMNS" for the Score-tab Legend clickable Sevopedia/NewConcept entry).
+# Returns -1 when missing so callers can skip optional links safely. (GPT-5.3-Codex) -->
+def getNewConceptID(szConceptType):
+	for i in range(gc.getNumNewConceptInfos()):
+		if gc.getNewConceptInfo(i).getType() == szConceptType:
+			return i
+	return -1
+
+# <!-- custom: shared advisor "Legend" link helper, factored from CvInfoScreen's Score-tab pattern so any AdvCiv-SAS advisor can drop a Sevopedia legend link with one call.
+# Advisor legend links use smaller SASTextScale.sasFontTagLabel rather than Sevopedia's footer-sized SASTextScale.sasFontTagTitle because an in-game screen link should stay quiet.
+# Caller passes the screen object (must expose getScreen, getNextWidgetName, Z_CONTROLS), the NewConcept XML type, and the (X,Y) anchor in screen coords.
+# Skips silently when the SAS_SHOW_LEGEND_LINK setting is off or the concept is missing.
+# setText params mirror the Score-tab call exactly: WIDGET_PEDIA_DESCRIPTION + CIVILOPEDIA_PAGE_CONCEPT_NEW + concept ID is the pedia jump that actually resolves through SevoPediaMain.pediaJump. (Claude code Opus 4.7 + GPT-5.5) -->
+def placeAdvisorLegendLink(top, szConceptType, iX, iY, eJustify=None):
+	if not _isLegendLinkEnabled():
+		return
+	iConcept = getNewConceptID(szConceptType)
+	if iConcept < 0:
+		return
+	if eJustify is None:
+		eJustify = CvUtil.FONT_RIGHT_JUSTIFY
+	screen = top.getScreen()
+	szLabel = SASTextScale.sasFontTagLabel + "Legend" + SASTextScale.SAS_FONT_TAG_CLOSE
+	screen.setText(top.getNextWidgetName(), "Background", szLabel, eJustify, iX, iY, top.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iConcept)

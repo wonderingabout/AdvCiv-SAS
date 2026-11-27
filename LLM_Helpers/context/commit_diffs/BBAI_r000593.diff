@@ -1,0 +1,26 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 593
+# Author: jdog5000
+# Date: 2010-07-05T06:29:06.117096Z
+# Coverage: full
+# Message:
+#   Little raze tweaks
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@592
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@593
+@@ -1871,7 +1871,9 @@
+ 					}
+ 				}
+ 
+-				iRazeValue -= 15 * pCity->getNumActiveWorldWonders();
++				iRazeValue -= 25 * pCity->getNumActiveWorldWonders();
++
++				iRazeValue -= pCity->calculateTeamCulturePercent(getTeam());
+ 
+ 				CvPlot* pLoopPlot = NULL;
+ 				for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
+

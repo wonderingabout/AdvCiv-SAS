@@ -1,0 +1,96 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 344
+# Author: iustus
+# Date: 2007-02-07T10:11:35.900884Z
+# Coverage: full
+# Message:
+#   added some more profiler frames, to track the new functions (getting almost a 40 fold increase in speed of CvCityAI::AI_assignWorkingPlots in tests so far)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@343
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@344
+@@ -422,6 +422,8 @@
+ 
+ void CvCityAI::test_AI_AssignWorkingPlots()
+ {
++	PROFILE_FUNC();
++
+ 	//update the special yield multiplier to be current
+ 	AI_updateSpecialYieldMultiplier();
+ 
+@@ -470,6 +472,8 @@
+ 
+ bool CvCityAI::test_AI_AddBestCitizen(bool bWorkers, bool bSpecialists)
+ {
++	PROFILE_FUNC();
++
+ 	// do recalcs if needed
+ 	bool bIsAssignWorkDirty = AI_isAssignWorkDirty();
+ 	if (!m_governorValues.bInitialized || bIsAssignWorkDirty)
+@@ -501,6 +505,8 @@
+ 
+ bool CvCityAI::test_AI_removeWorstCitizen(SpecialistTypes eIgnoreSpecialist)
+ {
++	PROFILE_FUNC();
++
+ 	// do recalcs if needed
+ 	bool bIsAssignWorkDirty = AI_isAssignWorkDirty();
+ 	if (!m_governorValues.bInitialized || bIsAssignWorkDirty)
+@@ -533,6 +539,8 @@
+ // counts the workers already assigned, assigns forced specialists, returns forced specialist count
+ void CvCityAI::AI_initializeGovernorWork(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens, bool bDoForced)
+ {
++	PROFILE_FUNC();
++
+ 	// counters to keep track what needs to be done
+ 	governorWork.iWorkablePopulation = getPopulation() - angryPopulation();
+ 	governorWork.iTotalFreeSpecialists = totalFreeSpecialists();
+@@ -577,6 +585,8 @@
+ 
+ int CvCityAI::AI_workMoreCitizens(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens, int iCountToAdd, bool bIgnoreForced)
+ {
++	PROFILE_FUNC();
++
+ 	// how many we have left to remove
+ 	int iPopulationToAdd = iCountToAdd;
+ 
+@@ -703,6 +713,8 @@
+ 
+ int CvCityAI::AI_workLessCitizens(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens, int iCountToRemove)
+ {
++	PROFILE_FUNC();
++
+ 	// how many we have left to remove
+ 	int iPopulationToRemove = iCountToRemove;
+ 
+@@ -817,6 +829,8 @@
+ 
+ int CvCityAI::AI_foodAdjustCitizens(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens, CvGovernorValues& governorValues)
+ {
++	PROFILE_FUNC();
++
+ 	// how many were changed? (return result)
+ 	int iTotalChangeCount = 0;
+ 	
+@@ -871,6 +885,8 @@
+ 
+ int CvCityAI::swapHigherFoodCitizen(CvCitizensReverseIterator ir, int& iFoodDifference, int iMinDifference, int& iLowestFood, CvCitizensReverseIterator& irLowestFood, CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens)
+ {
++	PROFILE_FUNC();
++
+ 	int iTotalChangeCount = 0;
+ 	
+ 	CvGovernorCitizen* pCitizen = getCitizen(ir);
+@@ -1068,6 +1084,8 @@
+ 
+ int CvCityAI::AI_countMaximumCitizenFood(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens)
+ {
++	PROFILE_FUNC();
++
+ 	int iMaxFood = 0;
+ 	
+ 	// make a new list, food sorted
+

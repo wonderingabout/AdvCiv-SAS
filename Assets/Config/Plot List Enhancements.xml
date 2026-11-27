@@ -11,7 +11,7 @@
 	 version="2.03" 
 	 date="04/14/2006"
 	 url="http://forums.civfanatics.com/showthread.php?t=149572">
-	
+
 	<options id="PLE" file="Plot List Enhancements.ini">
 		<section id="PlotList">
 			<!-- advc.069: unused -->
@@ -29,7 +29,7 @@
 			<option id="BUG_Style" key="BUG Style" 
 					type="boolean" default="False"
 					get="isBUG_Style" dirtyBit="PlotListButtons"/>
-			
+
 			<!-- Modes and Filters -->
 			<option id="Show_Buttons" key="Show Buttons" 
 					type="boolean" default="False" 
@@ -51,7 +51,7 @@
 				<choice id="BUG" get="isBugFilterBehavior"/>
 				<choice id="PLE" get="isPleFilterBehavior"/>
 			</list>
-			
+
 			<!-- Health Bar -->
 			<!-- advc.069: default was False -->
 			<option id="Health_Bar" key="Health Bar" 
@@ -72,7 +72,7 @@
 					get="getWoundedColor" dirtyBit="PlotListButtons">
 				<change module="PlotListEnhancements" function="resetUnitPlotListStackedBarColors"/>
 			</option>
-			
+
 			<!-- Move Bar -->
 			<option id="Move_Bar" key="Move Bar" 
 					type="boolean" default="False" 
@@ -92,7 +92,7 @@
 					get="getNoMovementColor" dirtyBit="PlotListButtons">
 				<change module="PlotListEnhancements" function="resetUnitPlotListStackedBarColors"/>
 			</option>
-			
+
 			<!-- Indicators -->
 			<option id="Wounded_Indicator" key="Wounded Indicator" 
 					type="boolean" default="False" 
@@ -100,23 +100,23 @@
 			<option id="Lead_By_GG_Indicator" key="Great General Indicator" 
 					type="boolean" default="True" 
 					get="isShowGreatGeneralIndicator" dirtyBit="PlotListButtons"/>
-					
+
 			<!-- advc.069: default was True -->
 			<option id="Promotion_Indicator" key="Promotion Indicator" 
 					type="boolean" default="False" 
 					get="isShowPromotionIndicator" dirtyBit="PlotListButtons"/>
-			
+
 			<!-- advc.002e -->
 			<option id="ShowPromotionGlow" key="Show Promotion Glow" 
 					type="boolean" default="False"/>
-					
+
 			<option id="Upgrade_Indicator" key="Upgrade Indicator" 
 					type="boolean" default="False" 
 					get="isShowUpgradeIndicator" dirtyBit="PlotListButtons"/>
 			<option id="Mission_Info" key="Mission Info" 
 					type="boolean" default="False" 
 					get="isShowMissionInfo" dirtyBit="PlotListButtons"/>
-			
+
 			<!-- Button Spacing -->
 			<!-- advc.092: Don't want this to be configurable -->
 			<!--option id="Horizontal_Spacing" key="Horizontal Item Spacing" 
@@ -125,7 +125,7 @@
 			<option id="Vertical_Spacing" key="Vertical Item Spacing" 
 					type="int" default="42" 
 					get="getVerticalSpacing" dirtyBit="PlotListButtons"/-->
-			
+
 			<!-- Unit Info Hover Pane -->
 			<!-- advc: Option unused (but I think its effect is enabled) -->
 			<!--option id="Info_Pane" key="Unit Info Hover" 
@@ -158,7 +158,7 @@
 					type="int" default="0" 
 					values="10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10" 
 					get="getInfoPanePromoIconOffsetY"/-->
-			
+
 			<option id="Unit_Name_Color" key="Unit Name Color" 
 					type="color" default="COLOR_UNIT_TEXT" 
 					get="getUnitNameColor"/>
@@ -174,37 +174,14 @@
 			<option id="Promotion_Specialties_Color" key="Promotion Specialties Color" 
 					type="color" default="COLOR_BUILDING_TEXT" 
 					get="getPromotionSpecialtiesColor"/>
-			
+
 			<!-- Move Highlighter -->
 			<option id="Move_Highlighter" key="Move Highlighter" 
 					type="boolean" default="False" 
 					get="isShowMoveHighlighter"/>
-			
+
 			<!-- advc.069 These are unused -->
-			<!--option id="MH_Color_Impassable_Terrain" key="Color Impassable Terrain" 
-					type="color" default="COLOR_CLEAR" 
-					get="getImpassableTerrainColor"/>
-			<option id="MH_Color_Passable_Terrain" key="Color Passable Terrain" 
-					type="color" default="COLOR_WHITE" 
-					get="getPassableTerrainColor"/>
-			<option id="MH_Color_Passable_Neutral_Territory" key="Color Passable Neutral Territory" 
-					type="color" default="COLOR_PLAYER_DARK_YELLOW" 
-					get="getNeutralTerritoryColor"/>
-			<option id="MH_Color_Passable_Enemy_Territory" key="Color Passable Enemy Territory" 
-					type="color" default="COLOR_PLAYER_DARK_RED" 
-					get="getEnemyTerritoryColor"/>
-			<option id="MH_Color_Passable_Barbarian_Territory" key="Color Passable Barbarian Territory" 
-					type="color" default="COLOR_PLAYER_DARK_CYAN" 
-					get="getBarbarianTerritoryColor"/>
-			<option id="MH_Color_Neutral_Unit" key="Color Neutral Unit" 
-					type="color" default="COLOR_YELLOW" 
-					get="getNeutralUnitColor"/>
-			<option id="MH_Color_Enemy_Unit" key="Color Enemy Unit" 
-					type="color" default="COLOR_RED" 
-					get="getEnemyUnitColor"/>
-			<option id="MH_Color_Barbarian_Unit" key="Color Barbarian Unit" 
-					type="color" default="COLOR_CYAN" 
-					get="getBarbarianUnitColor"/-->
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #1 -->
 		</section>
 	</options>
 </mod>

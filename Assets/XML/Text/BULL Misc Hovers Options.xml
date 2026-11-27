@@ -5,88 +5,21 @@
 
 	Copyright (c) 2009 The BUG Mod.
 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <Civ4GameText xmlns="http://www.firaxis.com">
 
 <!-- Leaderhead -->
 
 	<!-- advc.sha: Permanently disabled (won't merge this from BULL) -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADHIDDENATTITUDE_TEXT</Tag>
-		<English>Hidden Attitude</English>
-		<German>Verborgene Modifikatoren</German>
-		<Italian>Hidden Attitude</Italian>
-		<Spanish>Actitud Oculta</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADHIDDENATTITUDE_HOVER</Tag>
-		<English>When checked, displays the hidden attitude modifiers (possibly spoiler).</English>
-		<German>Zeigt die verborgenen Beziehungsmodifikatoren anderer Oberhäupter an (möglicher Spoiler)</German>
-		<Italian>When checked, displays the hidden attitude modifiers (possibly spoiler).</Italian>
-		<Spanish>Permite mostrar los modificadores de actitud ocultos (posibles spoilers).</Spanish>
-	</TEXT>
-
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADWORSTENEMY_TEXT</Tag>
-		<English>Worst Enemy</English>
-		<German>Erzfeind</German>
-		<Italian>Worst Enemy</Italian>
-		<Spanish>Peor Enemigo</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADWORSTENEMY_HOVER</Tag>
-		<English>When checked, the worst enemy of each AI rival is shown in the hover text for their icon.</English>
-		<German>Zeigt den Erzfeind jedes Gegenspielers an, wenn der Mauszeiger über desssen Symbol bewegt wird</German>
-		<Italian>When checked, the worst enemy of each AI rival is shown in the hover text for their icon.</Italian>
-		<Spanish>Se muestra el peor enemigo de cada rival IA en el texto flotante para su icono.</Spanish>
-	</TEXT>
-
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADDEFENSIVEPACTS_TEXT</Tag>
-		<English>Defensive Pacts</English>
-		<German>Verteidigungsbündnisse</German>
-		<Italian>Defensive Pacts</Italian>
-		<Spanish>Acuerdos de Protección</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADDEFENSIVEPACTS_HOVER</Tag>
-		<English>When checked, the defensive pacts of each rival are shown in the hover text for their icon.</English>
-		<German>Zeigt die Verteidigungsbündnisse jedes Gegenspielers an, wenn der Mauszeiger über desssen Symbol bewegt wird</German>
-		<Italian>When checked, the defensive pacts of each rival are shown in the hover text for their icon.</Italian>
-		<Spanish>Permite mostrar los acuerdos de protección de cada rival en su texto flotante.</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #57 -->
 
 <!-- Plot -->
 
 	<!-- advc.004: Permanently disabled (won't merge this from BULL) -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LATLONGCOORDS_TEXT</Tag>
-		<English>Longitude / Latitude</English>
-		<German>Längengrad / Breitengrad</German>
-		<Italian>Longitude / Latitude</Italian>
-		<Spanish>Longitud / Latitud</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LATLONGCOORDS_HOVER</Tag>
-		<English>When checked, the longitude and latitude are shown when hovering over a plot once you have centered the map.</English>
-		<German>Zeigt bei zentrierter Karte den Längen- und Breitengrad eines Geländefeldes an, wenn der Mauszeiger darüber bewegt wird</German>
-		<Italian>When checked, the longitude and latitude are shown when hovering over a plot once you have centered the map.</Italian>
-		<Spanish>Muestra la latitud y longitud cuando se deje el ratón sobre una casilla una vez esté centrado el mapa.</Spanish>
-	</TEXT>
-
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__PARTIALBUILDS_TEXT</Tag>
-		<English>Partial Builds</English>
-		<German>Unvollständige Bauten</German>
-		<Italian>Costruzione parziale</Italian>
-		<Spanish>Construcción Parcial</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__PARTIALBUILDS_HOVER</Tag>
-		<English>When checked, hovering over a plot that has partially-completed builds (improvements, routes, and chops) will show how many worker turns are required to complete them as long as your workers can actually do so.</English>
-		<German>Zeigt, wenn der Mauszeiger über ein Geländefeld mit teilweise fertig gestellten Bauten (Modernisierungen, Straßen und Waldrodungen) bewegt wird, an, wie viele Runden ein Bautrupp noch benötigt, um sie fertig zu stellen, wenn der Bautrupp diese Aktionen beherrscht</German>
-		<Italian>Quando è selezionato, posizionare il cursore su una casella che contiene costruzioni (miglioramenti, strade, eccetera) parzialmente completate mostrerà quanti turni di lavoro sono necessari per completare l'opera.</Italian>
-		<Spanish>Dejar el ratón sobre una casilla con mejoras no terminadas mostarará el número de turnos necesarios para terminar.</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #58 -->
 	<!-- advc.011b (German: not enough room for "stets anzeigen") -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__PARTIALBUILDSALWAYS_TEXT</Tag>
@@ -104,20 +37,7 @@
 	</TEXT>
 
 	<!-- advc.099f (always enabled as of AdvCiv v1.0) -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__CULTUREINUNOWNEDTILES_TEXT</Tag>
-		<English>Always Show Tile Culture</English>
-		<German>Kulturanteile stets anzeigen</German>
-		<Italian>Always Show Tile Culture</Italian>
-		<Spanish>Always Show Tile Culture</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__CULTUREINUNOWNEDTILES_HOVER</Tag>
-		<English>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [COLOR_HIGHLIGHT_TEXT]Shift[COLOR_REVERT] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</English>
-		<German>Zeigt Kulturanteile im Hilfetext aller einsehbaren Felder an. Wenn diese Option nicht angekreuzt ist, werden Kulturanteile neutraler Felder nur bei gedrückter [COLOR_HIGHLIGHT_TEXT]Umschalt[COLOR_REVERT]taste angezeigt.</German>
-		<Italian>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [COLOR_HIGHLIGHT_TEXT]Shift[COLOR_REVERT] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</Italian>
-		<Spanish>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [COLOR_HIGHLIGHT_TEXT]Shift[COLOR_REVERT] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #59 -->
 
 <!-- Unit -->
 	<!-- advc (tbd.): Move this to 'Unit Naming Options.xml' -->
@@ -135,7 +55,7 @@
 		<Italian>Quando è selezionato, se il nome di una Unità contiene il suo tipo (p. es. "Arciere I di Roma"), questo viene rimpiazzato dal nuovo tipo quando l'Unità viene aggiornata (p. es. "Balestriere I di Roma").</Italian>
 		<Spanish>Si se activa esta opción, al actualizar una unidad se actualiza también su nombre.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__UNITEXPERIENCE_TEXT</Tag>
 		<English>Starting Experience</English>
@@ -166,7 +86,7 @@
 	</TEXT>
 
 <!-- Building -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BUILDINGACTUALEFFECTS_TEXT</Tag>
 		<English>Building</English>
@@ -204,58 +124,19 @@
 	<!-- advc.063: end -->
 
 <!-- Tech -->
-	
+
 	<!-- advc.910: Permanently disabled (won't merge this from BULL) -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__SPEDUPTECHS_TEXT</Tag>
-		<English>Speeds Up ...</English>
-		<German>Beschleunigt ...</German>
-		<Italian>Accelera ...</Italian>
-		<Spanish>Acelera...</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__SPEDUPTECHS_HOVER</Tag>
-		<English>When checked, displays the technologies that will be sped up by acquiring the technology you are hovering over (e.g. Animal Husbandry would be shown for Agriculture once you have acquired Hunting).</English>
-		<German>Zeigt Technologien an, die durch das Vorhandensein der Technologie beschleunigt würden, über der sich der Mauszeiger befindet (beispielsweise würde "Tierzucht" bei "Landwirtschaft" erscheinen, wenn bereits "Jagd" erforscht wäre)</German>
-		<Italian>Quando è selezionato, nel testo a comparsa di una Tecnologia vengono mostrate le Tecnologie che risultano accelerate dall'acquisizione della Tecnologia in questione (p. es. una volta acquisita la tecnologia 'Caccia', se posizionerete il cursore sulla tecnologia 'Agricoltura' vi verrà ricordato che questa accelererà la tecnologia 'Allevamento di animali').</Italian>
-		<Spanish>Permite mostrar las tecnologías cuyo avance será acelerado una vez adquieras la tecnología sobre la cual mantienes el ratón (por ejemplo, Ganadería se mostraría para Agricultura una vez que adquieras Caza).</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #60 -->
 	<!-- advc.073: Not going to make this optional -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__TECHTRADEDENIAL_TEXT</Tag>
-		<English>Technology Trade Denial</English>
-		<German>Verweigerung von Technologien</German>
-		<Italian>Rifiuto di commercio di Tecnologie</Italian>
-		<Spanish>Intercambios de Tecnología</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__TECHTRADEDENIAL_HOVER</Tag>
-		<English>When checked, hovering over a technology in the "Won't Trade" column of the Foreign Advisor's TECHS page will show you the AI's reason for denying the trade.</English>
-		<German>Zeigt die Gründe für die Verweigerung eines Handels an, wenn der Mauszeiger über eine Technologie in der Spalte "Unverhandelbar" auf der Seite "Technologien" des Auslandsberaters bewegt wird</German>
-		<Italian>Quando è selezionato, posizionando il cursore su una Tecnologia nella colonna 'Non commercia' della pagina delle Tecnologie del Consigliere Estero verrà visualizzata la ragione per cui l'AI rifiuta di commerciare tale Tecnologia.</Italian>
-		<Spanish>Si se activa, dejar el ratón sobre una tecnología de la columna "No intercambia" de la ventana del Consejero de Asuntos Exteriores mostrará las razones de la IA para negarse a ese intercambio.</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #61 -->
 
 <!-- Bonus -->
 	<!-- advc.073: Not going to make this optional -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BONUSTRADEDENIAL_TEXT</Tag>
-		<English>Resource Trade Denial</English>
-		<German>Verweigerung von Ressourcen</German>
-		<Italian>Rifiuto di commercio di Risosre</Italian>
-		<Spanish>Intercambios de Recursos</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BONUSTRADEDENIAL_HOVER</Tag>
-		<English>When checked, hovering over a resource in the "Won't Trade" column of the Foreign Advisor's RESOURCES page will show you the AI's reason for denying the trade.</English>
-		<German>Zeigt die Gründe für die Verweigerung eines Handels an, wenn der Mauszeiger über eine Ressource in der Spalte "Unverhandelbar" auf der Seite "Ressourcen" des Auslandsberaters bewegt wird</German>
-		<Italian>Quando è selezionato, posizionando il cursore su una Risorsa nella colonna 'Non commercia' della pagina delle Risorse del Consigliere Estero verrà visualizzata la ragione per cui l'AI rifiuta di commerciare tale Risorsa.</Italian>
-		<Spanish>Si se activa, dejar el ratón sobre un recurso de la columna "No intercambia" de la ventana del Consejero de Asuntos Exteriores mostrará las razones de la IA para negarse a ese intercambio.</Spanish>
-	</TEXT-->
-	
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #62 -->
+
 
 <!-- City Screen -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BASECOMMERCE_TEXT</Tag>
 		<English>Commerce Subtotals</English>
@@ -270,22 +151,8 @@
 		<Italian>Quando è selezionato, nel testo a comparsa di ogni tipo di Commercio viene mostrato (quando necessario) il relativo subtotale (il totale prima dei modificatori).</Italian>
 		<Spanish>Muestra el subtotal para cada tipo de comercio en su texto flotante.</Spanish>
 	</TEXT>
-	<!-- advc.078: Not optional -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__GREATPEOPLERATEBREAKDOWN_TEXT</Tag>
-		<English>Rate Breakdown</English>
-		<German>Aufschlüsselung der Rate</German>
-		<Italian>Natalità dei Grandi Personaggi</Italian>
-		<Spanish>Detalle de probabilidades</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__GREATPEOPLERATEBREAKDOWN_HOVER</Tag>
-		<English>When checked, displays the individual [ICON_GREATPEOPLE] rate per turn for each type in the hover.</English>
-		<German>Zeigt im Tooltip die [ICON_GREATPEOPLE]/Runde für jede einzelne Art Große Persönlichkeit an</German>
-		<Italian>Quando è selezionato, nel testo a comparsa di ogni tipo di Grande Personaggio viene mostrato il tasso individuale di [ICON_GREATPEOPLE] per turno.</Italian>
-		<Spanish>Permite consultar información individual de cada tipo de [ICON_GREATPEOPLE] en el texto flotante.</Spanish>
-	</TEXT-->
-	
+	<!-- custom: Long_Comments_XML.txt #263 -->
+
 	<!-- advc.004: German shortened -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BUILDINGSAVEDMAINTENANCE_TEXT</Tag>
@@ -378,8 +245,8 @@
 		<Italian>Quando è selezionato, vengono visualizzati gli edifici che influenzano il gradimento ([ICON_HAPPY] e [ICON_UNHAPPY]) e l'ammontare con cui lo fanno.</Italian>
 		<Spanish>Muestra los edificios que afectan a la cantidad de [ICON_HAPPY] y [ICON_UNHAPPY].</Spanish>
 	</TEXT>
-	
-	<!-- advc.004: German abbreviated; it's in the widest row.  -->
+
+	<!-- advc.004: German abbreviated; it's in the widest row. -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BUILDINGADDITIONALGREATPEOPLE_TEXT</Tag>
 		<English>Great People</English>
@@ -387,7 +254,7 @@
 		<Italian>Grandi Personaggi</Italian>
 		<Spanish>Grandes Personajes</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.063: English and German rewritten -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BUILDINGADDITIONALGREATPEOPLE_HOVER</Tag>
@@ -413,7 +280,7 @@
 
 
 <!-- Action Buttons -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__CONSCRIPTUNIT_TEXT</Tag>
 		<English>Draft Unit Details</English>
@@ -452,7 +319,7 @@
 		<Italian>Bottone dei sacrifici</Italian>
 		<Spanish>Sacrificio</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.064: Explain "whip" button -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__HURRYOVERFLOW_HOVER</Tag>
@@ -461,7 +328,7 @@
 		<Italian>Quando è selezionato, il testo a comparsa del Bottone dei Sacrifici mostra il surplus ([ICON_PRODUCTION] e [ICON_GOLD]) generato dall'accelerazione mediante sacrifici.</Italian>
 		<Spanish>El texto flotante del botón de Sacrificio incluye el excedente ([ICON_PRODUCTION] y [ICON_GOLD]) creado al emplearlo.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__HURRYOVERFLOWINCLUDECURRENT_TEXT</Tag>
 		<English>Include Current</English>
@@ -479,7 +346,7 @@
 		<Italian>Includi corrente</Italian>
 		<Spanish>Incluir Actual</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.064: Made the caveat about lost population clearer. In German, it
 		 was wrong/incomprehensible. -->
 	<TEXT>
@@ -489,7 +356,7 @@
 		<Italian>Quando è selezionato, il calcolo del surplus da sacrifici include il tasso di produzione ([ICON_PRODUCTION]) corrente. Poichè l'accelerazione solitamente influenza tale tasso, il surplus effettivo può differire da quello mostrato.</Italian>
 		<Spanish>Incluye el [ICON_PRODUCTION] actual al calcular excedentes de sacrificio. Como usar sacrificio afecta a la producción, el resultado final puede ser diferente.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.064: Moved from 'BUG City Screen Options.xml'. Now says the exact
 		 same thing as HURRYOVERFLOWINCLUDECURRENT above b/c it's the same
 		 functionality (even using the same C++ code now). -->
@@ -510,7 +377,7 @@
 		<Italian>Barra di Produzione</Italian>
 		<Spanish>Barra de Producción</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.064: Moved from 'BUG City Screen Options.xml' and made some changes.
 		 advc.186: Also affects city bars now. -->
 	<TEXT>
@@ -520,7 +387,7 @@
 		<Italian>Quando è selezionato, la Barra della Pruduzione della Schermata Cittadina mostra il costo in popolazione ed il surplus di produzione per l'accelerazione di produzione mediante sacrifici e il costo in oro per l'accelerazione di produzione mediante pagamenti relativi all'oggetto attualmente costruito.</Italian>
 		<Spanish>Si se activa, muestra el coste en población y el excedente de [ICON_PRODUCTION]/[ICON_GOLD] por usar sacrificios y/o el coste en [ICON_GOLD] por comprar la producción mostrada en la barra de producción.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.064: New option. Same label as TXT_KEY_BUG_OPT_MAININTERFACE__
 		 PROGRESSBARSTICKMARKS_TEXT (BUG Main Interface Options.xml), but
 		 the IT, SP translations are no help here; too long. -->
@@ -534,8 +401,8 @@
 		<English>When checked, yellow tick marks on the production bar show how much production is needed to reduce the population loss from hurrying. This option works with and without the [COLOR_HIGHLIGHT_TEXT]Tick Marks[COLOR_REVERT] option on the "General" tab (which shows blue tick marks on the production bar).</English>
 		<German>Zeigt durch kurze, gelbe Striche auf dem Produktionsbalken an, wie viel Produktion erforderlich ist, um den Bevölkerungsverlust bei Beschleunigung zu verringern. Funktioniert mit und ohne die Option [COLOR_HIGHLIGHT_TEXT]Teilstriche[COLOR_REVERT] auf dem Reiter "Allgemein" (welche blaue Striche auf dem Produktionsbalken anzeigt).</German>
 	</TEXT>
-	
-	
+
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__REMOVESPECIALIST_TEXT</Tag>
 		<English>Remove Specialist Button</English>

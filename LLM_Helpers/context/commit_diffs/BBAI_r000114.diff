@@ -1,0 +1,30 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 114
+# Author: blakeciv
+# Date: 2006-11-22T13:41:06.699006Z
+# Coverage: full
+# Message:
+#   - Added a chance to build a cheap building. As a side effect results in MUCH earlier wonder builds (if the wonder is dirt cheap). I like it a lot.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@113
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@114
+@@ -713,6 +713,14 @@
+ 				}
+ 			}
+ 		}
++	}
++
++	if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Cheap Building") >= 75)
++	{
++        if (AI_chooseBuilding(0, 10))
++        {
++            return;
++        }
+ 	}
+ 
+     if (!bFinancialTrouble && GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_DAGGER))
+

@@ -1,0 +1,1937 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 184
+# Author: iustus
+# Date: 2006-12-14T22:52:22.730017Z
+# Coverage: full
+# Message:
+#   big sea assault changes:
+#   - cities build transports and escorts more often when in sea war, also building units to go on them when needed
+#   - CvSelectionGroup::isFull returns true if there are some units in the group which do not transport special units (catches case where a caravel has escort sea missionAI, so an assault stack is never full)
+#   - new CvSelectionGroup::setTransportUnit, splits the group and loads multiple units
+#   - new CvSelectionGroup::splitGroup, splits group into two new groups, trying to keep unitAIs even in both
+#   - CvSelectionGroup::mergeIntoGroup now changes the unitAI of a unit, if it is becoming the new head, and doing so would change the unitAI of the group, if the new head can take the old head's unitAI
+#   - new version of AI_unitTargetMissionAIs which takes an array of missionAIs to compare against
+#   - AI_group and AI_groupMergeRange do not group if the unit is on a transport
+#   - AI_load splits the group and loads the whole group that can fit onto the transport, it prefers transports that have enough room for as much of the group as possible
+#   - AI_assaultSeaMove waits if any units are headed toward the transport
+#   - AI_assaultSeaMove makes larget stacks
+#   
+#   chipotle changes: ctrl mouse over units gives much more information about the group and its mission
+# Changed paths (11):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@183
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@184
+@@ -31,8 +31,9 @@
+ #define BUILDINGFOCUS_EXPERIENCE			(1 << 9)
+ #define BUILDINGFOCUS_MAINTENANCE			(1 << 10)
+ #define BUILDINGFOCUS_SPECIALIST			(1 << 11)
+-#define BUILDINGFOCUS_BIGCULTURE            (1 << 12)
+-#define BUILDINGFOCUS_WORLDWONDER           (1 << 13)
++#define BUILDINGFOCUS_BIGCULTURE			(1 << 12)
++#define BUILDINGFOCUS_WORLDWONDER			(1 << 13)
++#define BUILDINGFOCUS_DOMAINSEA				(1 << 14)
+ 
+ // for testing only
+ #ifndef FINAL_RELEASE
+@@ -78,6 +79,9 @@
+ 	if (iFocusFlags & BUILDINGFOCUS_EXPERIENCE) {szString+=L"experience"; if (!bFirst){szString+=L", ";} bFirst = false;}
+ 	if (iFocusFlags & BUILDINGFOCUS_MAINTENANCE) {szString+=L"maintenance"; if (!bFirst){szString+=L", ";} bFirst = false;}
+ 	if (iFocusFlags & BUILDINGFOCUS_SPECIALIST) {szString+=L"specialist"; if (!bFirst){szString+=L", ";} bFirst = false;}
++	if (iFocusFlags & BUILDINGFOCUS_BIGCULTURE) {szString+=L"big culture"; if (!bFirst){szString+=L", ";} bFirst = false;}
++	if (iFocusFlags & BUILDINGFOCUS_WORLDWONDER) {szString+=L"world wonder"; if (!bFirst){szString+=L", ";} bFirst = false;}
++	if (iFocusFlags & BUILDINGFOCUS_DOMAINSEA) {szString+=L"domain sea"; if (!bFirst){szString+=L", ";} bFirst = false;}
+ 	if (bFirst) {szString+=L"none";}
+ }
+ #endif
+@@ -663,14 +667,17 @@
+ 	bool bBigCultureCity = false;
+ 	int iCultureRateRank = findCommerceRateRank(COMMERCE_CULTURE);
+     int iCulturalVictoryNumCultureCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
++
++	int iSeaAssaultUnits = -1;
+     
+     int iExistingWorkers = (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_WORKER));
+     int iNeededWorkers = (GET_PLAYER(getOwnerINLINE()).AI_neededWorkers(area()));
+-            
++
++	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
+ 	
+ 	if (iNumCitiesInArea > 2)
+ 	{	
+-        if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE2))
++        if (kPlayer.AI_isDoStrategy(AI_STRATEGY_CULTURE2))
+         {
+             if (iCultureRateRank <= iCulturalVictoryNumCultureCities + 1)
+             {
+@@ -764,7 +771,7 @@
+ 
+ 	if (isHuman())
+ 	{
+-		if (GET_PLAYER(getOwnerINLINE()).AI_totalUnitAIs(UNITAI_ATTACK) < 2)
++		if (kPlayer.AI_totalUnitAIs(UNITAI_ATTACK) < 2)
+ 		{
+ 			if (AI_chooseUnit(UNITAI_ATTACK))
+ 			{
+@@ -813,7 +820,7 @@
+ 
+ 	if (pWaterArea != NULL)
+ 	{
+-		if (GET_PLAYER(getOwnerINLINE()).AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_WORKER_SEA) == 0)
++		if (kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_WORKER_SEA) == 0)
+ 		{
+ 			if (AI_neededSeaWorkers() > 0)
+ 			{
+@@ -849,23 +856,23 @@
+         }
+     }
+ 	
+-	//don't build frivilious crap
+-    if (!bImportantCity)
++    if (isHuman())
+     {
+-        if (isHuman())
++        if (plot()->plotCheck(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwnerINLINE()) == NULL)
+         {
+-            if (plot()->plotCheck(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwnerINLINE()) == NULL)
++            if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+             {
+-                if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+-                {
+-                    return;
+-                }
++                return;
+             }
+         }
+-
++    }
++
++	// don't build frivilious things if this is an imporant city unless we at war
++    if (!bImportantCity || bLandWar || bAssault)
++    {
+         if (bPrimaryArea)
+         {
+-            if (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_ATTACK) == 0)
++            if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_ATTACK) == 0)
+             {
+                 if (AI_chooseUnit(UNITAI_ATTACK))
+                 {
+@@ -878,7 +885,7 @@
+         {
+             if (GC.getGameINLINE().getElapsedGameTurns() < 50)
+             {
+-                if (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_EXPLORE) < (GET_PLAYER(getOwnerINLINE()).AI_neededExplorers(area())))
++                if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_EXPLORE) < (kPlayer.AI_neededExplorers(area())))
+                 {
+                     if (AI_chooseUnit(UNITAI_EXPLORE))
+                     {
+@@ -890,7 +897,7 @@
+ 
+         if (bDanger)
+         {
+-            if (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_ATTACK) < (iNumCitiesInArea + 2))
++            if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_ATTACK) < (iNumCitiesInArea + 2))
+             {
+                 if (AI_chooseUnit(UNITAI_ATTACK))
+                 {
+@@ -899,48 +906,93 @@
+             }
+         }
+         
++        // if we already choose to build a sea transport, then finish the stack
++		if (bAssault)
++        {
++			if (iSeaAssaultUnits == -1)
++			{
++				iSeaAssaultUnits = plot()->plotCount(PUF_isUnitAIType, UNITAI_ASSAULT_SEA, -1, getOwnerINLINE());
++			}
++
++			if (iSeaAssaultUnits > 0 && GC.getGameINLINE().getSorenRandNum(100, "AI Finish Sea Stack") < 33)
++			{
++				// if there are transports waiting on units, build a unit
++				int iTransportGroupsNeedingUnits = kPlayer.AI_plotTargetMissionAIs(plot(), MISSIONAI_PICKUP);
++
++				if (iTransportGroupsNeedingUnits > 0 && GC.getGameINLINE().getSorenRandNum(100, "AI Finish Sea Stack") < 50)
++				{
++					if (GC.getGameINLINE().getSorenRandNum(100, "AI Assault Choose Unit") < 70)
++					{
++						if (AI_chooseUnit(UNITAI_ATTACK_CITY))
++						{
++							return;
++						}
++					}
++
++					if (AI_chooseUnit(UNITAI_COUNTER))
++					{
++						return;
++					}
++	                
++					if (AI_chooseUnit(UNITAI_ATTACK))
++					{
++						return;
++					}
++				}
++				
++				if (AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA, 25))
++				{
++					return;
++				}
++
++				int iSeaEscortUnits = plot()->plotCount(PUF_isUnitAIType, UNITAI_ESCORT_SEA, -1, getOwnerINLINE());
++
++				if (iSeaAssaultUnits > iSeaEscortUnits)
++				{
++                    if (AI_chooseUnit(UNITAI_ESCORT_SEA))
++                    {
++                        return;
++                    }
++				}
++
++				if (iSeaAssaultUnits < 4)
++				{
++					if (AI_chooseUnit(UNITAI_ASSAULT_SEA))
++					{
++						return;
++					}
++				}
++			}
++        }
++
+         if (bAssault && (GC.getGameINLINE().getSorenRandNum(100, "AI Choose Sea Unit") < iWaterPercent))
+         {
+             if (pWaterArea != NULL)
+             {
+                 if (bPrimaryArea)
+                 {
+-                    if (GET_PLAYER(getOwnerINLINE()).AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_ASSAULT_SEA) == 0)
++                    if (kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_ASSAULT_SEA) == 0)
+                     {
+                         if (AI_chooseUnit(UNITAI_ASSAULT_SEA))
+                         {
+-                            return;
++                            AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA, 15);
++							return;
+                         }
+                     }
+ 
+-                    if (plot()->plotCount(PUF_isUnitAIType, UNITAI_ASSAULT_SEA, -1, getOwnerINLINE()) == 1)
+-                    {
+-                        if (AI_chooseUnit(UNITAI_ASSAULT_SEA))
+-                        {
+-                            return;
+-                        }
+-                    }
+-
+-                    if (GET_PLAYER(getOwnerINLINE()).AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_ESCORT_SEA) < (GET_PLAYER(getOwnerINLINE()).AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_ASSAULT_SEA) + GET_PLAYER(getOwnerINLINE()).AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_CARRIER_SEA)))
++                    if (kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_ESCORT_SEA) < (kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_ASSAULT_SEA) + kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_CARRIER_SEA)))
+                     {
+                         if (AI_chooseUnit(UNITAI_ESCORT_SEA))
+                         {
+-                            return;
++                            AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA, 15);
++							return;
+                         }
+                     }
+                 }
+             }
+         }
+ 
+-        if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Cheap Building") >= 85)
+-        {
+-            if (AI_chooseBuilding(0, 8))
+-            {
+-                return;
+-            }
+-        }
+-
+-        if (!bFinancialTrouble && GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_DAGGER))
++        if (!bFinancialTrouble && kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER))
+         {
+             if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Train Unit") > 25)
+             {
+@@ -949,8 +1001,10 @@
+                     if (GC.getGameINLINE().getSorenRandNum(50, "AI Dagger Sea Unit") < (iWaterPercent / 2))
+                     {
+                         AI_chooseUnit(UNITAI_ASSAULT_SEA);                    
++						AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA, 20);
+                     }
+                 }
++
+                 if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20))
+                 {
+                     return;
+@@ -969,17 +1023,36 @@
+                 }
+                 if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Choose Unit") > 30)
+                 {
+-                    AI_chooseUnit(UNITAI_ATTACK_CITY);
+-                    return;
++                    if (AI_chooseUnit(UNITAI_ATTACK_CITY))
++					{
++						return;
++					}
+                 }
+-                else
+-                {
+-                    AI_chooseUnit(UNITAI_COUNTER);
+-                    return;
+-                }
++                
++				if (AI_chooseUnit(UNITAI_COUNTER))
++				{
++					return;
++				}
++                
++				if (AI_chooseUnit(UNITAI_ATTACK_CITY))
++				{
++					return;
++				}
+             }
+         }
+-        
++	}
++
++ 	// don't build frivilious things if this is an imporant city
++    if (!bImportantCity)
++    {
++       if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Cheap Building") >= 85)
++        {
++            if (AI_chooseBuilding(0, 8))
++            {
++                return;
++            }
++        }
++
+         if (iProductionRank <= 2)
+         {
+             int iWonderRand = 2 + GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
+@@ -997,13 +1070,13 @@
+         
+         if (!bLandWar)
+         {
+-            if (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) == 0)
++            if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) == 0)
+             {
+                 if (!bFinancialTrouble)
+                 {
+                     if (area()->getBestFoundValue(getOwnerINLINE()) > 0)
+                     {
+-                        if ((GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_CITY_DEFENSE) + GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_ATTACK)) < (AI_neededDefenders() + iNumCitiesInArea))
++                        if ((kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_CITY_DEFENSE) + kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_ATTACK)) < (AI_neededDefenders() + iNumCitiesInArea))
+                         {
+                             if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+                             {
+@@ -1028,17 +1101,17 @@
+ 	
+ 	if (!bLandWar)
+ 	{		
+-		if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_MISSIONARY) && (iNumCitiesInArea > 1))
+-		{
+-		    ReligionTypes eStateReligion = GET_PLAYER(getOwnerINLINE()).getStateReligion();
++		if (kPlayer.AI_isDoStrategy(AI_STRATEGY_MISSIONARY) && (iNumCitiesInArea > 1))
++		{
++		    ReligionTypes eStateReligion = kPlayer.getStateReligion();
+             if ((eStateReligion != NO_RELIGION) && isHasReligion(eStateReligion))
+             {
+                 if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Missionary") < 30)
+                 {
+-                    iNeededMissionaries = GET_PLAYER(getOwnerINLINE()).AI_neededMissionaries(area(), eStateReligion);
++                    iNeededMissionaries = kPlayer.AI_neededMissionaries(area(), eStateReligion);
+                     if (iNeededMissionaries > 0)
+                     {
+-                        if (iNeededMissionaries > GET_PLAYER(getOwnerINLINE()).countReligionSpreadUnits(area(), eStateReligion))
++                        if (iNeededMissionaries > kPlayer.countReligionSpreadUnits(area(), eStateReligion))
+                         {
+                             if (AI_chooseUnit(UNITAI_MISSIONARY))
+                             {
+@@ -1050,7 +1123,7 @@
+             }
+ 		}
+ 
+-		if ((iCulturePressure > 90) || GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE2))
++		if ((iCulturePressure > 90) || kPlayer.AI_isDoStrategy(AI_STRATEGY_CULTURE2))
+ 		{
+ 			if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 20))
+ 			{
+@@ -1058,14 +1131,13 @@
+ 			}
+ 		}
+ 
+-
+ 		if (pWaterArea != NULL)
+ 		{
+ 			if (bPrimaryArea && !bFinancialTrouble)
+ 			{
+-				if (GET_PLAYER(getOwnerINLINE()).AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_SETTLER_SEA) == 0)
+-				{
+-					if (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) > 0)
++				if (kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_SETTLER_SEA) == 0)
++				{
++					if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) > 0)
+ 					{
+ 						if ((area()->getBestFoundValue(getOwnerINLINE()) == 0) || (GC.getGameINLINE().getSorenRandNum(10, "AI Build Settler Sea") == 0))
+ 						{
+@@ -1078,9 +1150,9 @@
+ 				}
+ 			}
+ 
+-			if (GET_PLAYER(getOwnerINLINE()).AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_MISSIONARY_SEA) == 0)
+-			{
+-				if (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_MISSIONARY) > 0)
++			if (kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_MISSIONARY_SEA) == 0)
++			{
++				if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_MISSIONARY) > 0)
+ 				{
+ 					if (AI_chooseUnit(UNITAI_MISSIONARY_SEA))
+ 					{
+@@ -1153,7 +1225,7 @@
+ 		}
+ 	}
+ 
+-	if (iProductionRank <= ((GET_PLAYER(getOwnerINLINE()).getNumCities() / 3) + 1))
++	if (iProductionRank <= ((kPlayer.getNumCities() / 3) + 1))
+ 	{
+ 		if (AI_chooseProject())
+ 		{
+@@ -1163,16 +1235,16 @@
+ 
+     if (!bDanger)
+ 	{
+-	    if  (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE2) || (GC.getGameINLINE().getSorenRandNum(100, "AI Build Missionary") < (isHolyCity() ? 30 : 15)))
++	    if  (kPlayer.AI_isDoStrategy(AI_STRATEGY_CULTURE2) || (GC.getGameINLINE().getSorenRandNum(100, "AI Build Missionary") < (isHolyCity() ? 30 : 15)))
+ 	    {
+             for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
+             {
+                 if (isHasReligion((ReligionTypes)iI))
+                 {
+-                    iNeededMissionaries = GET_PLAYER(getOwnerINLINE()).AI_neededMissionaries(area(), ((ReligionTypes)iI));
++                    iNeededMissionaries = kPlayer.AI_neededMissionaries(area(), ((ReligionTypes)iI));
+                     if (iNeededMissionaries > 0)
+                     {
+-                        if (iNeededMissionaries > GET_PLAYER(getOwnerINLINE()).countReligionSpreadUnits(area(), ((ReligionTypes)iI)))
++                        if (iNeededMissionaries > kPlayer.countReligionSpreadUnits(area(), ((ReligionTypes)iI)))
+                         {
+                             if (AI_chooseUnit(UNITAI_MISSIONARY))
+                             {
+@@ -1189,7 +1261,7 @@
+ 	{
+ 		if (bFinancialTrouble && iBaseGoldRate >= 12)
+ 		{
+-			if (AI_chooseBuilding(BUILDINGFOCUS_GOLD, 40 + GET_PLAYER(getOwnerINLINE()).getCommercePercent(COMMERCE_GOLD)))
++			if (AI_chooseBuilding(BUILDINGFOCUS_GOLD, 40 + kPlayer.getCommercePercent(COMMERCE_GOLD)))
+ 			{
+ 				return;
+ 			}
+@@ -1265,7 +1337,7 @@
+ 			}
+ 		}
+ 
+-		if (!(GET_PLAYER(getOwnerINLINE()).AI_avoidScience()))
++		if (!(kPlayer.AI_avoidScience()))
+ 		{
+ 			if (iBaseResearchRate >= 12)
+ 			{
+@@ -1282,7 +1354,7 @@
+ 			{
+ 				if (plot()->plotCheck(PUF_isUnitAIType, UNITAI_WORKER, -1, getOwnerINLINE()) == NULL)
+ 				{
+-					if (GET_PLAYER(getOwnerINLINE()).AI_neededWorkers(area()) > (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_WORKER) * 2))
++					if (kPlayer.AI_neededWorkers(area()) > (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_WORKER) * 2))
+ 					{
+ 						if (AI_chooseUnit(UNITAI_WORKER))
+ 						{
+@@ -1297,7 +1369,7 @@
+ 		{
+ 			if (bPrimaryArea)
+ 			{
+-				if (GET_PLAYER(getOwnerINLINE()).AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_EXPLORE_SEA) < min(1, GET_PLAYER(getOwnerINLINE()).AI_neededExplorers(pWaterArea)))
++				if (kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_EXPLORE_SEA) < min(1, kPlayer.AI_neededExplorers(pWaterArea)))
+ 				{
+ 					if (AI_chooseUnit(UNITAI_EXPLORE_SEA))
+ 					{
+@@ -1315,11 +1387,11 @@
+ 			}
+ 		}
+ 
+-		if (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) == 0)
++		if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) == 0)
+ 		{
+ 			if (!bFinancialTrouble)
+ 			{
+-				if (bPrimaryArea && (GET_PLAYER(getOwnerINLINE()).findBestFoundValue() > 0))
++				if (bPrimaryArea && (kPlayer.findBestFoundValue() > 0))
+ 				{
+ 					if (AI_chooseUnit(UNITAI_SETTLE))
+ 					{
+@@ -1330,7 +1402,7 @@
+ 		}
+ 	}
+ 
+-	if (iProductionRank <= ((GET_PLAYER(getOwnerINLINE()).getNumCities() / 2) + 1))
++	if (iProductionRank <= ((kPlayer.getNumCities() / 2) + 1))
+ 	{
+ 		if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 40))
+ 		{
+@@ -1360,9 +1432,9 @@
+ 
+ 	if (bPrimaryArea)
+ 	{
+-		if (GET_PLAYER(getOwnerINLINE()).getNumCities() > 2)
+-		{
+-			if (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_RESERVE) == 0)
++		if (kPlayer.getNumCities() > 2)
++		{
++			if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_RESERVE) == 0)
+ 			{
+ 				if (AI_chooseUnit(UNITAI_RESERVE))
+ 				{
+@@ -1376,9 +1448,15 @@
+ 	{
+ 		if (bPrimaryArea)
+ 		{
+-			if (plot()->plotCount(PUF_isUnitAIType, UNITAI_ASSAULT_SEA, -1, getOwnerINLINE()) > 0)
+-			{
+-				if (plot()->plotCount(PUF_isUnitAIType, UNITAI_ESCORT_SEA, -1, getOwnerINLINE()) == 0)
++			if (iSeaAssaultUnits == -1)
++			{
++				iSeaAssaultUnits = plot()->plotCount(PUF_isUnitAIType, UNITAI_ASSAULT_SEA, -1, getOwnerINLINE());
++			}
++
++			int iUnitsToEscort = iSeaAssaultUnits + plot()->plotCount(PUF_isUnitAIType, UNITAI_CARRIER_SEA, -1, getOwnerINLINE());
++			if (iUnitsToEscort > 0)
++			{
++				if (plot()->plotCount(PUF_isUnitAIType, UNITAI_ESCORT_SEA, -1, getOwnerINLINE()) < (2 * iUnitsToEscort))
+ 				{
+ 					if (AI_chooseUnit(UNITAI_ESCORT_SEA))
+ 					{
+@@ -1391,7 +1469,7 @@
+ 
+ 	if (GC.getGameINLINE().getSorenRandNum(10, "AI Build Spy") == 0)
+ 	{
+-		if (GET_PLAYER(getOwnerINLINE()).AI_totalUnitAIs(UNITAI_SPY) < ((GET_PLAYER(getOwnerINLINE()).getNumCities() / 4) + 1))
++		if (kPlayer.AI_totalUnitAIs(UNITAI_SPY) < ((kPlayer.getNumCities() / 4) + 1))
+ 		{
+ 			if (AI_chooseUnit(UNITAI_SPY))
+ 			{
+@@ -1404,9 +1482,9 @@
+ 	{
+ 		if (pWaterArea != NULL)
+ 		{
+-			if (GET_PLAYER(getOwnerINLINE()).AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_SPY_SEA) == 0)
+-			{
+-				if (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_SPY) > 0)
++			if (kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_SPY_SEA) == 0)
++			{
++				if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_SPY) > 0)
+ 				{
+ 					if (AI_chooseUnit(UNITAI_SPY_SEA))
+ 					{
+@@ -1418,7 +1496,7 @@
+ 	}
+ 
+ 	if ((bLandWar) ||
+-		  ((GET_PLAYER(getOwnerINLINE()).getNumCities() <= 3) && (GC.getGameINLINE().getElapsedGameTurns() < 60)) ||
++		  ((kPlayer.getNumCities() <= 3) && (GC.getGameINLINE().getElapsedGameTurns() < 60)) ||
+ 		  (GC.getGameINLINE().getSorenRandNum(100, "AI Build Unit Production") < AI_buildUnitProb()) ||
+ 			(isHuman() && (getGameTurnFounded() == GC.getGameINLINE().getGameTurn())))
+ 	{
+@@ -2306,6 +2384,26 @@
+ 				{
+ 					iValue += (kBuilding.getDomainFreeExperience(iI) * ((iHasMetCount > 0) ? 8 : 4));
+ 				}
++			}
++			
++			// since this duplicates BUILDINGFOCUS_EXPERIENCE checks, do not repeat on pass 1
++			if ((iFocusFlags & BUILDINGFOCUS_DOMAINSEA))
++			{
++				iValue += (kBuilding.getFreeExperience() * ((iHasMetCount > 0) ? 16 : 8));
++
++				for (int iUnitIndex = 0; iUnitIndex < GC.getNumUnitInfos(); iUnitIndex++)
++				{
++					CvUnitInfo& kUnitInfo = GC.getUnitInfo((UnitTypes) iUnitIndex);
++					int iCombatType = kUnitInfo.getUnitCombatType();
++					if (kUnitInfo.getDomainType() == DOMAIN_SEA && canTrain((UnitTypes) iUnitIndex) && iCombatType != NO_UNITCOMBAT)
++					{
++						iValue += (kBuilding.getUnitCombatFreeExperience(iCombatType) * ((iHasMetCount > 0) ? 6 : 3));
++					}
++				}
++
++				iValue += (kBuilding.getDomainFreeExperience(DOMAIN_SEA) * ((iHasMetCount > 0) ? 16 : 8));
++
++				iValue += (kBuilding.getDomainProductionModifier(DOMAIN_SEA) / 4);
+ 			}
+ 
+ 			if ((iFocusFlags & BUILDINGFOCUS_MAINTENANCE) || (iFocusFlags & BUILDINGFOCUS_GOLD) || (iPass > 0))
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@183
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@184
+@@ -1849,3 +1849,179 @@
+ 	}
+ }
+ 
++// these string functions should only be used under chipotle cheat code (not internationalized)
++
++void getCardinalDirectionTypeString(CvWString& szString, CardinalDirectionTypes eDirectionType)
++{
++	getDirectionTypeString(szString, cardinalDirectionToDirection(eDirectionType));
++}
++
++void getDirectionTypeString(CvWString& szString, DirectionTypes eDirectionType)
++{
++	switch (eDirectionType)
++	{
++	case NO_DIRECTION: szString = L"NO_DIRECTION"; break;
++
++	case DIRECTION_NORTH: szString = L"north"; break;
++	case DIRECTION_NORTHEAST: szString = L"northeast"; break;
++	case DIRECTION_EAST: szString = L"east"; break;
++	case DIRECTION_SOUTHEAST: szString = L"southeast"; break;
++	case DIRECTION_SOUTH: szString = L"south"; break;
++	case DIRECTION_SOUTHWEST: szString = L"southwest"; break;
++	case DIRECTION_WEST: szString = L"west"; break;
++	case DIRECTION_NORTHWEST: szString = L"northwest"; break;
++
++	default: szString = CvWString::format(L"UNKNOWN_DIRECTION(%d)", eDirectionType); break;
++	}
++}
++
++void getActivityTypeString(CvWString& szString, ActivityTypes eActivityType)
++{
++	switch (eActivityType)
++	{
++	case NO_ACTIVITY: szString = L"NO_ACTIVITY"; break;
++
++	case ACTIVITY_AWAKE: szString = L"ACTIVITY_AWAKE"; break;
++	case ACTIVITY_HOLD: szString = L"ACTIVITY_HOLD"; break;
++	case ACTIVITY_SLEEP: szString = L"ACTIVITY_SLEEP"; break;
++	case ACTIVITY_HEAL: szString = L"ACTIVITY_HEAL"; break;
++	case ACTIVITY_SENTRY: szString = L"ACTIVITY_SENTRY"; break;
++	case ACTIVITY_INTERCEPT: szString = L"ACTIVITY_SENTRY"; break;
++	case ACTIVITY_MISSION: szString = L"ACTIVITY_MISSION"; break;
++
++	default: szString = CvWString::format(L"UNKNOWN_ACTIVITY(%d)", eActivityType); break;
++	}
++}
++
++void getMissionTypeString(CvWString& szString, MissionTypes eMissionType)
++{
++	switch (eMissionType)
++	{
++	case NO_MISSION: szString = L"NO_MISSION"; break;
++
++	case MISSION_MOVE_TO: szString = L"MISSION_MOVE_TO"; break;
++	case MISSION_ROUTE_TO: szString = L"MISSION_ROUTE_TO"; break;
++	case MISSION_MOVE_TO_UNIT: szString = L"MISSION_MOVE_TO_UNIT"; break;
++	case MISSION_SKIP: szString = L"MISSION_SKIP"; break;
++	case MISSION_SLEEP: szString = L"MISSION_SLEEP"; break;
++	case MISSION_FORTIFY: szString = L"MISSION_FORTIFY"; break;
++	case MISSION_AIRPATROL: szString = L"MISSION_AIRPATROL"; break;
++	case MISSION_HEAL: szString = L"MISSION_HEAL"; break;
++	case MISSION_SENTRY: szString = L"MISSION_SENTRY"; break;
++	case MISSION_AIRLIFT: szString = L"MISSION_AIRLIFT"; break;
++	case MISSION_NUKE: szString = L"MISSION_NUKE"; break;
++	case MISSION_RECON: szString = L"MISSION_RECON"; break;
++	case MISSION_AIRBOMB: szString = L"MISSION_AIRBOMB"; break;
++	case MISSION_BOMBARD: szString = L"MISSION_BOMBARD"; break;
++	case MISSION_PILLAGE: szString = L"MISSION_PILLAGE"; break;
++	case MISSION_SABOTAGE: szString = L"MISSION_SABOTAGE"; break;
++	case MISSION_DESTROY: szString = L"MISSION_DESTROY"; break;
++	case MISSION_STEAL_PLANS: szString = L"MISSION_STEAL_PLANS"; break;
++	case MISSION_FOUND: szString = L"MISSION_FOUND"; break;
++	case MISSION_SPREAD: szString = L"MISSION_SPREAD"; break;
++	case MISSION_JOIN: szString = L"MISSION_JOIN"; break;
++	case MISSION_CONSTRUCT: szString = L"MISSION_CONSTRUCT"; break;
++	case MISSION_DISCOVER: szString = L"MISSION_DISCOVER"; break;
++	case MISSION_HURRY: szString = L"MISSION_HURRY"; break;
++	case MISSION_TRADE: szString = L"MISSION_TRADE"; break;
++	case MISSION_GREAT_WORK: szString = L"MISSION_GREAT_WORK"; break;
++	case MISSION_GOLDEN_AGE: szString = L"MISSION_GOLDEN_AGE"; break;
++	case MISSION_BUILD: szString = L"MISSION_BUILD"; break;
++	case MISSION_LEAD: szString = L"MISSION_LEAD"; break;
++
++	case MISSION_BEGIN_COMBAT: szString = L"MISSION_BEGIN_COMBAT"; break;
++	case MISSION_END_COMBAT: szString = L"MISSION_END_COMBAT"; break;
++	case MISSION_AIRSTRIKE: szString = L"MISSION_AIRSTRIKE"; break;
++	case MISSION_SURRENDER: szString = L"MISSION_SURRENDER"; break;
++	case MISSION_CAPTURED: szString = L"MISSION_CAPTURED"; break;
++	case MISSION_IDLE: szString = L"MISSION_IDLE"; break;
++	case MISSION_DIE: szString = L"MISSION_DIE"; break;
++	case MISSION_DAMAGE: szString = L"MISSION_DAMAGE"; break;
++	case MISSION_MULTI_SELECT: szString = L"MISSION_MULTI_SELECT"; break;
++	case MISSION_MULTI_DESELECT: szString = L"MISSION_MULTI_DESELECT"; break;
++
++	default: szString = CvWString::format(L"UNKOWN_MISSION(%d)", eMissionType); break;
++	}
++}
++
++void getMissionAIString(CvWString& szString, MissionAITypes eMissionAI)
++{
++	switch (eMissionAI)
++	{
++	case NO_MISSIONAI: szString = L"NO_MISSIONAI"; break;
++
++	case MISSIONAI_SHADOW: szString = L"MISSIONAI_SHADOW"; break;
++	case MISSIONAI_GROUP: szString = L"MISSIONAI_GROUP"; break;
++	case MISSIONAI_LOAD_ASSAULT: szString = L"MISSIONAI_LOAD_ASSAULT"; break;
++	case MISSIONAI_LOAD_SETTLER: szString = L"MISSIONAI_LOAD_SETTLER"; break;
++	case MISSIONAI_LOAD_SPECIAL: szString = L"MISSIONAI_LOAD_SPECIAL"; break;
++	case MISSIONAI_GUARD_CITY: szString = L"MISSIONAI_GUARD_CITY"; break;
++	case MISSIONAI_GUARD_BONUS: szString = L"MISSIONAI_GUARD_BONUS"; break;
++	case MISSIONAI_GUARD_SPY: szString = L"MISSIONAI_GUARD_SPY"; break;
++	case MISSIONAI_ATTACK_SPY: szString = L"MISSIONAI_ATTACK_SPY"; break;
++	case MISSIONAI_SPREAD: szString = L"MISSIONAI_SPREAD"; break;
++	case MISSIONAI_CONSTRUCT: szString = L"MISSIONAI_CONSTRUCT"; break;
++	case MISSIONAI_HURRY: szString = L"MISSIONAI_HURRY"; break;
++	case MISSIONAI_GREAT_WORK: szString = L"MISSIONAI_GREAT_WORK"; break;
++	case MISSIONAI_EXPLORE: szString = L"MISSIONAI_EXPLORE"; break;
++	case MISSIONAI_BLOCKADE: szString = L"MISSIONAI_BLOCKADE"; break;
++	case MISSIONAI_PILLAGE: szString = L"MISSIONAI_PILLAGE"; break;
++	case MISSIONAI_FOUND: szString = L"MISSIONAI_FOUND"; break;
++	case MISSIONAI_BUILD: szString = L"MISSIONAI_BUILD"; break;
++	case MISSIONAI_ASSAULT: szString = L"MISSIONAI_ASSAULT"; break;
++	case MISSIONAI_CARRIER: szString = L"MISSIONAI_CARRIER"; break;
++	case MISSIONAI_PICKUP: szString = L"MISSIONAI_PICKUP"; break;
++
++	default: szString = CvWString::format(L"UNKOWN_MISSION_AI(%d)", eMissionAI); break;
++	}
++}
++
++void getUnitAIString(CvWString& szString, UnitAITypes eUnitAI)
++{
++	// note, GC.getUnitAIInfo(eUnitAI).getDescription() is a international friendly way to get string (but it will be longer)
++	
++	switch (eUnitAI)
++	{
++	case NO_UNITAI: szString = L"no unitAI"; break;
++
++	case UNITAI_UNKNOWN: szString = L"unknown"; break;
++	case UNITAI_ANIMAL: szString = L"animal"; break;
++	case UNITAI_SETTLE: szString = L"settle"; break;
++	case UNITAI_WORKER: szString = L"worker"; break;
++	case UNITAI_ATTACK: szString = L"attack"; break;
++	case UNITAI_ATTACK_CITY: szString = L"attack city"; break;
++	case UNITAI_COLLATERAL: szString = L"collateral"; break;
++	case UNITAI_PILLAGE: szString = L"pillage"; break;
++	case UNITAI_RESERVE: szString = L"reserve"; break;
++	case UNITAI_COUNTER: szString = L"counter"; break;
++	case UNITAI_CITY_DEFENSE: szString = L"city defense"; break;
++	case UNITAI_CITY_COUNTER: szString = L"city counter"; break;
++	case UNITAI_CITY_SPECIAL: szString = L"city special"; break;
++	case UNITAI_EXPLORE: szString = L"explore"; break;
++	case UNITAI_MISSIONARY: szString = L"missionary"; break;
++	case UNITAI_PROPHET: szString = L"prophet"; break;
++	case UNITAI_ARTIST: szString = L"artist"; break;
++	case UNITAI_SCIENTIST: szString = L"scientist"; break;
++	case UNITAI_GENERAL: szString = L"general"; break;
++	case UNITAI_MERCHANT: szString = L"merchant"; break;
++	case UNITAI_ENGINEER: szString = L"engineer"; break;
++	case UNITAI_SPY: szString = L"spy"; break;
++	case UNITAI_ICBM: szString = L"icbm"; break;
++	case UNITAI_WORKER_SEA: szString = L"worker sea"; break;
++	case UNITAI_ATTACK_SEA: szString = L"attack sea"; break;
++	case UNITAI_RESERVE_SEA: szString = L"reserve sea"; break;
++	case UNITAI_ESCORT_SEA: szString = L"escort sea"; break;
++	case UNITAI_EXPLORE_SEA: szString = L"explore sea"; break;
++	case UNITAI_ASSAULT_SEA: szString = L"assault sea"; break;
++	case UNITAI_SETTLER_SEA: szString = L"settler sea"; break;
++	case UNITAI_MISSIONARY_SEA: szString = L"missionary sea"; break;
++	case UNITAI_SPY_SEA: szString = L"spy sea"; break;
++	case UNITAI_CARRIER_SEA: szString = L"carrier sea"; break;
++	case UNITAI_ATTACK_AIR: szString = L"attack air"; break;
++	case UNITAI_DEFENSE_AIR: szString = L"defense air"; break;
++	case UNITAI_CARRIER_AIR: szString = L"carrier air"; break;
++
++	default: szString = CvWString::format(L"unknown(%d)", eUnitAI); break;
++	}
++}
++
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.h@183
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.h@184
+@@ -319,82 +319,49 @@
+ 	}
+ }
+ 
++inline bool getBit(unsigned int bitField, int bit)
++{
++	if (bit >= 0 && bit < 32)
++	{
++		return (bitField & (((unsigned int)1) << bit));
++	}
++
++	return false;
++}
++
++inline void setBit(unsigned int& bitField, int bit)
++{
++	if (bit >= 0 && bit < 32)
++	{
++		bitField |= (((unsigned int)1) << bit);
++	}
++}
++
++inline void clearBit(unsigned int& bitField, int bit)
++{
++	if (bit >= 0 && bit < 32)
++	{
++		bitField &= ~(((unsigned int)1) << bit);
++	}
++}
++
++// to be used for display purposes only! IDs could overlap
++inline int shortenID(int iID)
++{
++	return (iID & 0xFFF) + 1;
++	//return (((iID/1000)/1459) + (iID%1000));
++}
++
++// these string functions should only be used under chipotle cheat code (not internationalized)
++void getCardinalDirectionTypeString(CvWString& szString, CardinalDirectionTypes eDirectionType);
++void getDirectionTypeString(CvWString& szString, DirectionTypes eDirectionType);
++void getActivityTypeString(CvWString& szString, ActivityTypes eActivityType);
++void getMissionTypeString(CvWString& szString, MissionTypes eMissionType);
++void getMissionAIString(CvWString& szString, MissionAITypes eMissionAI);
++void getUnitAIString(CvWString& szString, UnitAITypes eUnitAI);
++
+ #ifdef FASSERT_ENABLE
+ //#define DEBUG_AI_UPDATE_GROUPS
+-inline void getActivityTypeString(CvWString& szString, ActivityTypes eActivityType)
+-{
+-	switch (eActivityType)
+-	{
+-	case NO_MISSION: szString = L"NO_ACTIVITY"; break;
+-
+-	case ACTIVITY_AWAKE: szString = L"ACTIVITY_AWAKE"; break;
+-	case ACTIVITY_HOLD: szString = L"ACTIVITY_HOLD"; break;
+-	case ACTIVITY_SLEEP: szString = L"ACTIVITY_SLEEP"; break;
+-	case ACTIVITY_HEAL: szString = L"ACTIVITY_HEAL"; break;
+-	case ACTIVITY_SENTRY: szString = L"ACTIVITY_SENTRY"; break;
+-	case ACTIVITY_INTERCEPT: szString = L"ACTIVITY_SENTRY"; break;
+-	case ACTIVITY_MISSION: szString = L"ACTIVITY_MISSION"; break;
+-
+-	default: szString = CvWString::format(L"UNKNOWN_ACTIVITY(%d)", eActivityType); break;
+-	}
+-}
+-
+-inline void getMissionTypeString(CvWString& szString, MissionTypes eMissionType)
+-{
+-	switch (eMissionType)
+-	{
+-	case NO_MISSION: szString = L"NO_MISSION"; break;
+-
+-	case MISSION_MOVE_TO: szString = L"MISSION_MOVE_TO"; break;
+-	case MISSION_ROUTE_TO: szString = L"MISSION_ROUTE_TO"; break;
+-	case MISSION_MOVE_TO_UNIT: szString = L"MISSION_MOVE_TO_UNIT"; break;
+-	case MISSION_SKIP: szString = L"MISSION_SKIP"; break;
+-	case MISSION_SLEEP: szString = L"MISSION_SLEEP"; break;
+-	case MISSION_FORTIFY: szString = L"MISSION_FORTIFY"; break;
+-	case MISSION_AIRPATROL: szString = L"MISSION_AIRPATROL"; break;
+-	case MISSION_HEAL: szString = L"MISSION_HEAL"; break;
+-	case MISSION_SENTRY: szString = L"MISSION_SENTRY"; break;
+-	case MISSION_AIRLIFT: szString = L"MISSION_AIRLIFT"; break;
+-	case MISSION_NUKE: szString = L"MISSION_NUKE"; break;
+-	case MISSION_RECON: szString = L"MISSION_RECON"; break;
+-	case MISSION_AIRBOMB: szString = L"MISSION_AIRBOMB"; break;
+-	case MISSION_BOMBARD: szString = L"MISSION_BOMBARD"; break;
+-	case MISSION_PILLAGE: szString = L"MISSION_PILLAGE"; break;
+-	case MISSION_SABOTAGE: szString = L"MISSION_SABOTAGE"; break;
+-	case MISSION_DESTROY: szString = L"MISSION_DESTROY"; break;
+-	case MISSION_STEAL_PLANS: szString = L"MISSION_STEAL_PLANS"; break;
+-	case MISSION_FOUND: szString = L"MISSION_FOUND"; break;
+-	case MISSION_SPREAD: szString = L"MISSION_SPREAD"; break;
+-	case MISSION_JOIN: szString = L"MISSION_JOIN"; break;
+-	case MISSION_CONSTRUCT: szString = L"MISSION_CONSTRUCT"; break;
+-	case MISSION_DISCOVER: szString = L"MISSION_DISCOVER"; break;
+-	case MISSION_HURRY: szString = L"MISSION_HURRY"; break;
+-	case MISSION_TRADE: szString = L"MISSION_TRADE"; break;
+-	case MISSION_GREAT_WORK: szString = L"MISSION_GREAT_WORK"; break;
+-	case MISSION_GOLDEN_AGE: szString = L"MISSION_GOLDEN_AGE"; break;
+-	case MISSION_BUILD: szString = L"MISSION_BUILD"; break;
+-	case MISSION_LEAD: szString = L"MISSION_LEAD"; break;
+-
+-	case MISSION_BEGIN_COMBAT: szString = L"MISSION_BEGIN_COMBAT"; break;
+-	case MISSION_END_COMBAT: szString = L"MISSION_END_COMBAT"; break;
+-	case MISSION_AIRSTRIKE: szString = L"MISSION_AIRSTRIKE"; break;
+-	case MISSION_SURRENDER: szString = L"MISSION_SURRENDER"; break;
+-	case MISSION_CAPTURED: szString = L"MISSION_CAPTURED"; break;
+-	case MISSION_IDLE: szString = L"MISSION_IDLE"; break;
+-	case MISSION_DIE: szString = L"MISSION_DIE"; break;
+-	case MISSION_DAMAGE: szString = L"MISSION_DAMAGE"; break;
+-	case MISSION_MULTI_SELECT: szString = L"MISSION_MULTI_SELECT"; break;
+-	case MISSION_MULTI_DESELECT: szString = L"MISSION_MULTI_DESELECT"; break;
+-
+-	default: szString = CvWString::format(L"UNKOWN_MISSION(%d)", eMissionType); break;
+-	}
+-}
+-
+-inline int ShortenID(int iID)
+-{
+-	return (((iID/1000)/1459) + (iID%1000));
+-}
+-
+ inline void DEBUGLOG(const char* format, ...)
+ {
+ 	char temp[256];
+@@ -406,9 +373,6 @@
+ 	OutputDebugString(temp);
+ }
+ #else
+-#define getActivityTypeString(x)
+-#define getMissionTypeString(x)
+-#define ShortenID(x)
+ #define DEBUGLOG(x)
+ #endif
+ 
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@183
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@184
+@@ -1001,6 +1001,188 @@
+ void CvGameTextMgr::setPlotListHelp(CvWString &szString, CvPlot* pPlot, bool bOneLine, bool bShort)
+ {
+ 	PROFILE_FUNC();
++	
++	// if cheatmode and ctrl, display grouping info instead
++	if ((gDLL->getChtLvl() > 0) && gDLL->ctrlKey())
++	{
++		if (pPlot->isVisible(GC.getGameINLINE().getActiveTeam(), GC.getGameINLINE().isDebugMode()))
++		{
++			CvWString szTempString;
++
++			for (int i = 0; i < pPlot->getNumUnits(); i++)
++			{
++				CvUnit* pHeadUnit = pPlot->getUnit(i);
++				// is this unit the head of a group, not cargo, and visible?
++				if (pHeadUnit && pHeadUnit->isGroupHead() && !pHeadUnit->isCargo() && !pHeadUnit->isInvisible(GC.getGameINLINE().getActiveTeam(), GC.getGameINLINE().isDebugMode()))
++				{
++					// head unit name and unitai
++					szString += CvWString::format(SETCOLR L"%s" ENDCOLR, 255,190,0,255, pHeadUnit->getName().GetCString());
++					szString += CvWString::format(L" (%d)", shortenID(pHeadUnit->getID()));
++					getUnitAIString(szTempString, pHeadUnit->AI_getUnitAIType());
++					szString += CvWString::format(SETCOLR L" %s" ENDCOLR, GET_PLAYER(pHeadUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pHeadUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pHeadUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pHeadUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString());
++					
++					// group
++					CvSelectionGroup* pHeadGroup = pHeadUnit->getGroup();
++					FAssertMsg(pHeadGroup != NULL, "unit has NULL group");
++					if (pHeadGroup->getNumUnits() > 1)
++					{
++						szString += CvWString::format(L"\nGroup:%d [%d units]", shortenID(pHeadGroup->getID()), pHeadGroup->getNumUnits());
++					}
++					
++					// mission ai
++					MissionAITypes eMissionAI = pHeadGroup->AI_getMissionAIType();
++					if (eMissionAI != NO_MISSIONAI)
++					{
++						getMissionAIString(szTempString, eMissionAI);
++						szString += CvWString::format(SETCOLR L"\n%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szTempString.GetCString());
++					}
++
++					// mission
++					MissionTypes eMissionType = (MissionTypes) pHeadGroup->getMissionType(0);
++					if (eMissionType != NO_MISSION)
++					{
++						getMissionTypeString(szTempString, eMissionType);
++						szString += CvWString::format(SETCOLR L"\n%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szTempString.GetCString());
++
++						CvUnit* pMissionUnit = pHeadGroup->AI_getMissionAIUnit();
++						if (pMissionUnit != NULL)
++						{
++							// mission unit
++							szString += L"\n to ";
++							szString += CvWString::format(SETCOLR L"%s" ENDCOLR, GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorA(), pMissionUnit->getName().GetCString());
++							szString += CvWString::format(L"(%d) G:%d", shortenID(shortenID(pMissionUnit->getID())), shortenID(pMissionUnit->getGroupID()));
++							getUnitAIString(szTempString, pMissionUnit->AI_getUnitAIType());
++							szString += CvWString::format(SETCOLR L" %s" ENDCOLR, GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString());
++						}
++						
++						// first try the plot from the missionAI
++						CvPlot* pMissionPlot = pHeadGroup->AI_getMissionAIPlot();
++						
++						// if MissionAI does not have a plot, get one from the mission itself
++						if (pMissionPlot == NULL)
++						{
++							switch (eMissionType)
++							{
++							case MISSION_MOVE_TO:
++							case MISSION_ROUTE_TO:
++								pMissionPlot =  GC.getMapINLINE().plotINLINE(pHeadGroup->getMissionData1(0), pHeadGroup->getMissionData2(0));
++								break;
++
++							case MISSION_MOVE_TO_UNIT:
++								if (pMissionUnit != NULL)
++								{
++									pMissionPlot = pMissionUnit->plot();
++								}
++								break;
++							}
++						}
++
++						if (pMissionPlot != NULL)
++						{
++							szString += CvWString::format(L"\n [%d,%d]", pMissionPlot->getX_INLINE(), pMissionPlot->getY_INLINE());
++							
++							CvCity* pCity = pMissionPlot->getWorkingCity();
++							if (pCity != NULL)
++							{
++								szString += L" (";
++
++								if (!pMissionPlot->isCity())
++								{
++									DirectionTypes eDirection = estimateDirection(dxWrap(pMissionPlot->getX_INLINE() - pCity->plot()->getX_INLINE()), dyWrap(pMissionPlot->getY_INLINE() - pCity->plot()->getY_INLINE()));
++
++									getDirectionTypeString(szTempString, eDirection);
++									szString += CvWString::format(L"%s of ", szTempString.GetCString());
++								}
++
++								szString += CvWString::format(SETCOLR L"%s" ENDCOLR L")", GET_PLAYER(pCity->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pCity->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pCity->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pCity->getOwnerINLINE()).getPlayerTextColorA(), pCity->getName().GetCString());
++							}
++							else
++							{
++								if (pMissionPlot != pPlot)
++								{
++									DirectionTypes eDirection = estimateDirection(dxWrap(pMissionPlot->getX_INLINE() - pPlot->getX_INLINE()), dyWrap(pMissionPlot->getY_INLINE() - pPlot->getY_INLINE()));
++
++									getDirectionTypeString(szTempString, eDirection);
++									szString += CvWString::format(L" (%s)", szTempString.GetCString());								
++								}
++
++								PlayerTypes eMissionPlotOwner = pMissionPlot->getOwnerINLINE();
++								if (eMissionPlotOwner != NO_PLAYER)
++								{
++									szString += CvWString::format(L", " SETCOLR L"%s" ENDCOLR, GET_PLAYER(eMissionPlotOwner).getPlayerTextColorR(), GET_PLAYER(eMissionPlotOwner).getPlayerTextColorG(), GET_PLAYER(eMissionPlotOwner).getPlayerTextColorB(), GET_PLAYER(eMissionPlotOwner).getPlayerTextColorA(), GET_PLAYER(eMissionPlotOwner).getName());
++								}
++							}
++						}
++					}
++
++					// display cargo for head unit
++					for (int k = 0; k < pPlot->getNumUnits(); k++)
++					{
++						CvUnit* pCargoUnit = pPlot->getUnit(k);
++						// is this unit visible?
++						if (pCargoUnit && (pCargoUnit != pHeadUnit) && !pCargoUnit->isInvisible(GC.getGameINLINE().getActiveTeam(), GC.getGameINLINE().isDebugMode()))
++						{
++							// is this unit in cargo of the headunit?
++							if (pCargoUnit->getTransportUnit() == pHeadUnit)
++							{
++								// name and unitai
++								szString += CvWString::format(SETCOLR L"\n %s" ENDCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"), pCargoUnit->getName().GetCString());
++								szString += CvWString::format(L"(%d)", shortenID(pCargoUnit->getID()));
++								getUnitAIString(szTempString, pCargoUnit->AI_getUnitAIType());
++								szString += CvWString::format(SETCOLR L" %s" ENDCOLR, GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString());
++							}
++						}
++					}
++					
++					// display grouped units
++					for (int j = 0; j < pPlot->getNumUnits(); j++)
++					{
++						CvUnit* pUnit = pPlot->getUnit(j);
++						// is this unit not head, in head's group and visible?
++						if (pUnit && (pUnit != pHeadUnit) && (pUnit->getGroupID() == pHeadUnit->getGroupID()) && !pUnit->isInvisible(GC.getGameINLINE().getActiveTeam(), GC.getGameINLINE().isDebugMode()))
++						{
++							FAssertMsg(!pUnit->isCargo(), "unit is cargo but head unit is not cargo");
++							// name and unitai
++							szString += CvWString::format(SETCOLR L"\n-%s" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), pUnit->getName().GetCString());
++							szString += CvWString::format(L" (%d)", shortenID(pUnit->getID()));
++							getUnitAIString(szTempString, pUnit->AI_getUnitAIType());
++							szString += CvWString::format(SETCOLR L" %s" ENDCOLR, GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString());
++
++							// display cargo for loop unit
++							for (int k = 0; k < pPlot->getNumUnits(); k++)
++							{
++								CvUnit* pCargoUnit = pPlot->getUnit(k);
++								// is this unit visible?
++								if (pCargoUnit && (pCargoUnit != pUnit) && !pCargoUnit->isInvisible(GC.getGameINLINE().getActiveTeam(), GC.getGameINLINE().isDebugMode()))
++								{
++									// is this unit in cargo of unit?
++									if (pCargoUnit->getTransportUnit() == pUnit)
++									{
++										// name and unitai
++										szString += CvWString::format(SETCOLR L"\n %s" ENDCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"), pCargoUnit->getName().GetCString());
++										szString += CvWString::format(L"(%d)", shortenID(pCargoUnit->getID()));
++										getUnitAIString(szTempString, pCargoUnit->AI_getUnitAIType());
++										szString += CvWString::format(SETCOLR L" %s" ENDCOLR, GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString());
++									}
++								}
++							}
++						}
++					}
++					
++					// double space non-empty groups
++					if (pHeadGroup->getNumUnits() > 1 || pHeadUnit->hasCargo())
++					{
++						szString += NEWLINE;
++					}
++
++					szString += NEWLINE;
++				}
++			}
++		}
++		
++		return;
++	}
++
+ 
+ 	CvUnit* pLoopUnit;
+ 	static const uint iMaxNumUnits = 15;
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@183
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@184
+@@ -7093,6 +7093,11 @@
+ 
+ int CvPlayerAI::AI_unitTargetMissionAIs(CvUnit* pUnit, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup)
+ {
++	return AI_unitTargetMissionAIs(pUnit, &eMissionAI, 1, pSkipSelectionGroup);
++}
++
++int CvPlayerAI::AI_unitTargetMissionAIs(CvUnit* pUnit, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup)
++{
+ 	PROFILE_FUNC();
+ 
+ 	CvSelectionGroup* pLoopSelectionGroup;
+@@ -7105,19 +7110,30 @@
+ 	{
+ 		if (pLoopSelectionGroup != pSkipSelectionGroup)
+ 		{
+-			if (pLoopSelectionGroup->AI_getMissionAIType() == eMissionAI)
+-			{
+-				if (pLoopSelectionGroup->AI_getMissionAIUnit() == pUnit)
++			if (pLoopSelectionGroup->AI_getMissionAIUnit() == pUnit)
++			{
++				// only valid to pass NO_MISSIONAI as the first MissionAI
++				if (aeMissionAI[0] == NO_MISSIONAI)
+ 				{
+ 					iCount += pLoopSelectionGroup->getNumUnits();
+ 				}
++				else
++				{
++					MissionAITypes eGroupMissionAI = pLoopSelectionGroup->AI_getMissionAIType();
++					for (int iMissionAIIndex = 0; iMissionAIIndex < iMissionAICount; iMissionAIIndex++)
++					{
++						if (eGroupMissionAI == aeMissionAI[iMissionAIIndex])
++						{
++							iCount += pLoopSelectionGroup->getNumUnits();
++						}
++					}
++				}
+ 			}
+ 		}
+ 	}
+ 
+ 	return iCount;
+ }
+-
+ 
+ CivicTypes CvPlayerAI::AI_bestCivic(CivicOptionTypes eCivicOption)
+ {
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.h
+--- /trunk/CvGameCoreDLL/CvPlayerAI.h@183
++++ /trunk/CvGameCoreDLL/CvPlayerAI.h@184
+@@ -160,6 +160,7 @@
+ 	int AI_areaMissionAIs(CvArea* pArea, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL);
+ 	int AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = 0);
+ 	int AI_unitTargetMissionAIs(CvUnit* pUnit, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL);
++	int AI_unitTargetMissionAIs(CvUnit* pUnit, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL);
+ 
+ 	CivicTypes AI_bestCivic(CivicOptionTypes eCivicOption);
+ 	int AI_civicValue(CivicTypes eCivic);
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@183
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@184
+@@ -348,7 +348,7 @@
+ 		if (pHeadUnit != NULL)
+ 		{
+ 			CvWString szUnitName = GC.getUnitInfo(pHeadUnit->getUnitType()).getDescription();
+-			szUnitString.Format(L"%s(%d)", szUnitName.GetCString(), ShortenID(pHeadUnit->getID()));
++			szUnitString.Format(L"%s(%d)", szUnitName.GetCString(), shortenID(pHeadUnit->getID()));
+ 		}
+ 		else
+ 			szUnitString.Format(L"--no unit--");
+@@ -358,7 +358,7 @@
+ 		getActivityTypeString(szActivityString, m_eActivityType);
+ 
+ 		DEBUGLOG("    pushMission(%S): group(%d,%S), lead by %S [size %d%s%s]\n", szMissionString.GetCString(),
+-			ShortenID(getID()), szActivityString.GetCString(), szUnitString.GetCString(), getNumUnits(), 
++			shortenID(getID()), szActivityString.GetCString(), szUnitString.GetCString(), getNumUnits(), 
+ 			AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
+ 			isForceUpdate() ? ",WILL_FORCE_UPDATE" : "");
+ 	}
+@@ -1779,16 +1779,45 @@
+ 
+ 	if (getNumUnits() > 0)
+ 	{
++		// do two passes, the first pass, we ignore units with speical cargo
++		int iSpecialCargoCount = 0;
++		int iCargoCount = 0;
++		
++		// first pass, count but ignore special cargo units
+ 		pUnitNode = headUnitNode();
+-
+ 		while (pUnitNode != NULL)
+ 		{
+ 			pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 			pUnitNode = nextUnitNode(pUnitNode);
+-
+-			if (!(pLoopUnit->isFull()))
++			
++			if (pLoopUnit->cargoSpace() > 0)
++			{
++				iCargoCount++;
++			}
++
++			if (pLoopUnit->specialCargo() != NO_SPECIALUNIT)
++			{
++				iSpecialCargoCount++;
++			}
++			else if (!(pLoopUnit->isFull()))
+ 			{
+ 				return false;
++			}
++		}
++		
++		// if every unit in the group has special cargo, then check those, otherwise, consider ourselves full
++		if (iSpecialCargoCount >= iCargoCount)
++		{
++			pUnitNode = headUnitNode();
++			while (pUnitNode != NULL)
++			{
++				pLoopUnit = ::getUnit(pUnitNode->m_data);
++				pUnitNode = nextUnitNode(pUnitNode);
++				
++				if (!(pLoopUnit->isFull()))
++				{
++					return false;
++				}
+ 			}
+ 		}
+ 
+@@ -2644,6 +2673,81 @@
+ 	return bContinue;
+ }
+ 
++void CvSelectionGroup::setTransportUnit(CvUnit* pTransportUnit)
++{
++	// if we are loading
++	if (pTransportUnit != NULL)
++	{
++		CvUnit* pHeadUnit = getHeadUnit();
++		FAssertMsg(pHeadUnit != NULL, "non-zero group without head unit");
++		
++		int iCargoSpaceAvailable = pTransportUnit->cargoSpaceAvailable(pHeadUnit->getSpecialUnitType(), pHeadUnit->getDomainType());
++		
++		// if no space at all, give up
++		if (iCargoSpaceAvailable < 1)
++		{
++			return;
++		}
++
++		// if there is space, but not enough to fit whole group, then split us, and set on the new group
++		if (iCargoSpaceAvailable < getNumUnits())
++		{
++			CvSelectionGroup* pSplitGroup = splitGroup(iCargoSpaceAvailable);
++			pSplitGroup->setTransportUnit(pTransportUnit);
++			return;
++		}
++		
++		FAssertMsg(iCargoSpaceAvailable >= getNumUnits(), "cargo size too small");
++		
++		// setTransportUnit removes the unit from the current group (at least currently), so we have to be careful in the loop here
++		// so, loop until we do not load one
++		bool bLoadedOne;
++		do
++		{
++			bLoadedOne = false;
++
++			// loop over all the units, finding one to load
++			CLLNode<IDInfo>* pUnitNode = headUnitNode();
++			while (pUnitNode != NULL && !bLoadedOne)
++			{
++				CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++				pUnitNode = nextUnitNode(pUnitNode);
++				
++				// just in case implementation of setTransportUnit changes, check to make sure this unit is not already loaded
++				if (pLoopUnit != NULL && pLoopUnit->getTransportUnit() != pTransportUnit)
++				{
++					// if there is room, load the unit and stop the loop (since setTransportUnit ungroups this unit currently)
++					bool bSpaceAvailable = pTransportUnit->cargoSpaceAvailable(pLoopUnit->getSpecialUnitType(), pLoopUnit->getDomainType());
++					if (bSpaceAvailable)
++					{
++						pLoopUnit->setTransportUnit(pTransportUnit);
++						bLoadedOne = true;
++
++					}
++				}
++			}
++		}
++		while (bLoadedOne);
++	}
++	// otherwise we are unloading
++	else
++	{
++		// loop over all the units, unloading them
++		CLLNode<IDInfo>* pUnitNode = headUnitNode();
++		while (pUnitNode != NULL)
++		{
++			CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++			pUnitNode = nextUnitNode(pUnitNode);
++			
++			if (pLoopUnit != NULL)
++			{
++				// unload unit
++				pLoopUnit->setTransportUnit(NULL);
++			}
++		}
++	}
++}
++
+ 
+ bool CvSelectionGroup::isAmphibPlot(CvPlot* pPlot)
+ {
+@@ -3146,17 +3250,193 @@
+ 	return m_units.getLength();
+ }
+ 
+-void CvSelectionGroup::mergeIntoGroup(CvSelectionGroup* pSelectionGroup, bool bRemoveSelected, bool bRejoin)
+-{
++void CvSelectionGroup::mergeIntoGroup(CvSelectionGroup* pSelectionGroup)
++{
++	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
++
++	// merge groups, but make sure we do not change the head unit AI
++	// this means that if a new unit is going to become the head, change its AI to match, if possible
++	// AI_setUnitAIType removes the unit from the current group (at least currently), so we have to be careful in the loop here
++	// so, loop until we have not changed unit AIs
++	bool bChangedUnitAI;
++	do
++	{
++		bChangedUnitAI = false;
++
++		// loop over all the units, moving them to the new group, 
++		// stopping if we had to change a unit AI, because doing so removes that unit from our group, so we have to start over
++		CLLNode<IDInfo>* pUnitNode = headUnitNode();
++		while (pUnitNode != NULL && !bChangedUnitAI)
++		{
++			CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++			pUnitNode = nextUnitNode(pUnitNode);
++			
++			if (pLoopUnit != NULL)
++			{
++				UnitAITypes eUnitAI = pLoopUnit->AI_getUnitAIType();
++
++				// if the unitAIs are different, and the loop unit has a higher val, then the group unitAI would change
++				// change this UnitAI to the old group UnitAI if possible
++				CvUnit* pNewHeadUnit = pSelectionGroup->getHeadUnit();
++				UnitAITypes eNewHeadUnitAI = pSelectionGroup->getHeadUnitAI();
++				if (pNewHeadUnit!= NULL && eUnitAI != eNewHeadUnitAI && pLoopUnit->AI_groupFirstVal() > pNewHeadUnit->AI_groupFirstVal())
++				{
++					// non-zero AI_unitValue means that this UnitAI is valid for this unit (that is the check used everywhere)
++					if (kPlayer.AI_unitValue(pLoopUnit->getUnitType(), eNewHeadUnitAI, NULL) > 0)
++					{
++						// this will remove pLoopUnit from the current group
++						pLoopUnit->AI_setUnitAIType(eNewHeadUnitAI);
++
++						bChangedUnitAI = true;
++					}
++				}
++
++				pLoopUnit->joinGroup(pSelectionGroup);
++			}
++		}
++	}
++	while (bChangedUnitAI);
++}
++
++// split this group into two new groups, one of iSplitSize, the other the remaining units
++// split up each unit AI type as evenly as possible
++CvSelectionGroup* CvSelectionGroup::splitGroup(int iSplitSize, CvUnit* pNewHeadUnit)
++{
++	FAssertMsg(iSplitSize > 0, "non-positive splitGroup size");
++	if (!(iSplitSize > 0))
++	{
++		return NULL;
++	}
++
++	// are we already small enough?
++	if (getNumUnits() <= iSplitSize)
++	{
++		return this;
++	}
++	
+ 	CLLNode<IDInfo>* pUnitNode = headUnitNode();
+-	while (pUnitNode != NULL)
+-	{
+-		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-		pUnitNode = nextUnitNode(pUnitNode);
++	CvUnit* pOldHeadUnit = ::getUnit(pUnitNode->m_data);
++	FAssertMsg(pOldHeadUnit != NULL, "non-zero group without head unit");
++	if (pOldHeadUnit == NULL)
++	{
++		return NULL;
++	}
++
++	UnitAITypes eOldHeadAI = pOldHeadUnit->AI_getUnitAIType();
++
++	// if pNewHeadUnit NULL, then we will use our current head to head the new split group of target size
++	if (pNewHeadUnit == NULL)
++	{
++		pNewHeadUnit = pOldHeadUnit;
++	}
++
++	// the AI of the new head (the remainder will get the AI of the old head)
++	UnitAITypes eNewHeadAI = pNewHeadUnit->AI_getUnitAIType();
++
++	// pRemainderHeadUnit is the head unit of the group that contains the remainder of units 
++	CvUnit* pRemainderHeadUnit = NULL;
++
++	// if the new head is not the old head, then make the old head the remainder head
++	bool bSplitingHead = (pOldHeadUnit == pNewHeadUnit);
++	if (!bSplitingHead)
++	{
++		pRemainderHeadUnit = pOldHeadUnit;
++	}
++	
++	// try to find remainder head with same AI as head, if we cannot find one, we will split the rest of the group up
++	if (pRemainderHeadUnit == NULL)
++	{
++		// loop over all the units
++		pUnitNode = headUnitNode();
++		while (pUnitNode != NULL && pRemainderHeadUnit == NULL)
++		{
++			CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++			pUnitNode = nextUnitNode(pUnitNode);
++			
++			if (pLoopUnit != NULL && pLoopUnit != pNewHeadUnit)
++			{
++				UnitAITypes eLoopUnitAI = pLoopUnit->AI_getUnitAIType();
++				if (eLoopUnitAI == eOldHeadAI)
++				{
++					pRemainderHeadUnit = pLoopUnit;
++				}
++			}
++		}
++	}
++	
++	CvSelectionGroup* pSplitGroup = NULL;
++	CvSelectionGroup* pRemainderGroup = NULL;
++	
++	// make the new group for the new head
++	pNewHeadUnit->joinGroup(NULL);
++	pSplitGroup = pNewHeadUnit->getGroup();
++	FAssertMsg(pSplitGroup != NULL, "join resulted in NULL group");
++
++	// make a new group for the remainder, if non-null
++	if (pRemainderHeadUnit != NULL)
++	{
++		pRemainderHeadUnit->joinGroup(NULL);
++		pRemainderGroup = pRemainderHeadUnit->getGroup();
++		FAssertMsg(pRemainderGroup != NULL, "join resulted in NULL group");
++	}
++
++	// loop until this group is empty, trying to move different AI types each time
++	unsigned int unitAIBitField = 0;
++	setBit(unitAIBitField, eNewHeadAI);
++	while (getNumUnits())
++	{
++		UnitAITypes eTargetUnitAI = NO_UNITAI;
++	
++		// loop over all the units, find the next different UnitAI and move one of each
++		bool bDestinationSplit = (pSplitGroup->getNumUnits() < iSplitSize);
++		pUnitNode = headUnitNode();
++		while (pUnitNode != NULL)
++		{
++			CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++			pUnitNode = nextUnitNode(pUnitNode);
++			
++			if (pLoopUnit != NULL)
++			{
++				UnitAITypes eLoopUnitAI = pLoopUnit->AI_getUnitAIType();
++				
++				// if we have not found a new type to move, is this a new unitai?
++				// note, if there eventually are unitAIs above 31, we will just always move those, which is fine
++				if (eTargetUnitAI == NO_UNITAI && !getBit(unitAIBitField, eLoopUnitAI))
++				{
++					eTargetUnitAI =  eLoopUnitAI;
++					setBit(unitAIBitField, eLoopUnitAI);
++				}
++				
++				// is this the right UnitAI?
++				if (eLoopUnitAI == eTargetUnitAI)
++				{
++					// move this unit to the appropriate group (if pRemainderGroup NULL, it gets its own group)
++					pLoopUnit->joinGroup(bDestinationSplit ? pSplitGroup : pRemainderGroup);
++					
++					// if we moved to remainder, try for next unit AI
++					if (!bDestinationSplit)
++					{
++						eTargetUnitAI = NO_UNITAI;
++
++						bDestinationSplit = (pSplitGroup->getNumUnits() < iSplitSize);
++					}
++					else
++					{
++						// next unit goes to the remainder group
++						bDestinationSplit = false;
++					}
++				}
++			}
++
++		}
+ 		
+-		if (pLoopUnit != NULL)
+-			pLoopUnit->joinGroup(pSelectionGroup, bRemoveSelected, bRejoin);
+-	}
++		// clear bitfield, all types are valid again
++		unitAIBitField = 0;
++	}
++
++	FAssertMsg(pSplitGroup->getNumUnits() <= iSplitSize, "somehow our split group is too large");
++	
++	return pSplitGroup;
+ }
+ 
+ 
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.h@183
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.h@184
+@@ -87,6 +87,7 @@
+ 	bool groupPathTo(int iX, int iY, int iFlags);
+ 	bool groupRoadTo(int iX, int iY, int iFlags);
+ 	bool groupBuild(BuildTypes eBuild);
++	void setTransportUnit(CvUnit* pTransportUnit);
+ 
+ 	bool isAmphibPlot(CvPlot* pPlot);																																		// Exposed to Python
+ 	bool groupAmphibMove(CvPlot* pPlot, int iFlags);
+@@ -131,7 +132,9 @@
+ 	DllExport void clearUnits();
+ 	DllExport bool addUnit(CvUnit* pUnit);
+ 	void removeUnit(CvUnit* pUnit);
+-	void mergeIntoGroup(CvSelectionGroup* pSelectionGroup, bool bRemoveSelected = false, bool bRejoin = true);
++	void mergeIntoGroup(CvSelectionGroup* pSelectionGroup);
++	CvSelectionGroup* splitGroup(int iSplitSize, CvUnit* pNewHeadUnit = NULL);
++
+ 	DllExport CLLNode<IDInfo>* deleteUnitNode(CLLNode<IDInfo>* pNode);
+ 	DllExport CLLNode<IDInfo>* nextUnitNode(CLLNode<IDInfo>* pNode) const;
+ 	DllExport int getNumUnits() const;																												// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@183
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@184
+@@ -63,7 +63,7 @@
+ 	// debugging
+ 	if (true)
+ 	{
+-		DEBUGLOG("AI_separate(%d) [size %d]\n", ShortenID(m_iID), getNumUnits());
++		DEBUGLOG("AI_separate(%d) [size %d]\n", shortenID(m_iID), getNumUnits());
+ 	}
+ #endif
+ 
+@@ -112,7 +112,7 @@
+ 		if (pHeadUnit != NULL)
+ 		{
+ 			CvWString szUnitName = GC.getUnitInfo(pHeadUnit->getUnitType()).getDescription();
+-			szUnitString.Format(L"%s(%d)", szUnitName.GetCString(), ShortenID(pHeadUnit->getID()));
++			szUnitString.Format(L"%s(%d)", szUnitName.GetCString(), shortenID(pHeadUnit->getID()));
+ 		}
+ 		else
+ 			szUnitString.Format(L"--no unit--");
+@@ -121,7 +121,7 @@
+ 		getActivityTypeString(szActivityString, m_eActivityType);
+ 
+ 		DEBUGLOG("AI_update:%S group(%d,%S), lead by %S [size %d%s%s]\n", szPlayerName.GetCString(),
+-			ShortenID(getID()), szActivityString.GetCString(), szUnitString.GetCString(), getNumUnits(), 
++			shortenID(getID()), szActivityString.GetCString(), szUnitString.GetCString(), getNumUnits(), 
+ 			AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
+ 			isForceUpdate() ? ",WILL_FORCE_UPDATE" : "");
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@183
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@184
+@@ -6914,7 +6914,7 @@
+ 				if (pOldSelectionGroup != NULL)
+ 				{
+ 					szOldGroupString.Format(L"left group(%d) [size %d%s] to join", 
+-						ShortenID(pOldSelectionGroup->getID()), pOldSelectionGroup->getNumUnits(), 
++						shortenID(pOldSelectionGroup->getID()), pOldSelectionGroup->getNumUnits(), 
+ 						pOldSelectionGroup->AI_isForceSeparate() ? L",WILL_SEPARATE" : L"");
+ 				}
+ 				else
+@@ -6927,20 +6927,20 @@
+ 					if (pHeadUnit != NULL)
+ 					{
+ 						CvWString szHeadUnitName = GC.getUnitInfo(pHeadUnit->getUnitType()).getDescription();
+-						szUnitString.Format(L"%s(%d)", szHeadUnitName.GetCString(), ShortenID(pHeadUnit->getID()));
++						szUnitString.Format(L"%s(%d)", szHeadUnitName.GetCString(), shortenID(pHeadUnit->getID()));
+ 					}
+ 					else
+ 						szUnitString.Format(L"--no unit--");
+ 
+ 					szNewGroupString.Format(L"%s's group(%d) [size %d%s]", szUnitString.GetCString(),
+-						ShortenID(pNewSelectionGroup->getID()), pNewSelectionGroup->getNumUnits(), 
++						shortenID(pNewSelectionGroup->getID()), pNewSelectionGroup->getNumUnits(), 
+ 						pNewSelectionGroup->AI_isForceSeparate() ? L",WILL_SEPARATE" : L"");
+ 				}
+ 				else
+ 					szNewGroupString.Format(L"--no group--");
+ 
+ 				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
+-				DEBUGLOG("%S(%d) %S %S\n", szUnitName.GetCString(), ShortenID(m_iID), 
++				DEBUGLOG("%S(%d) %S %S\n", szUnitName.GetCString(), shortenID(m_iID), 
+ 					szOldGroupString.GetCString(), szNewGroupString.GetCString());
+ 			}
+ #endif
+@@ -7375,8 +7375,8 @@
+ 			{
+ 				CvSelectionGroup* pCurrentGroup = getGroup();
+ 				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
+-				DEBUGLOG("setXY:%S(%d) group(%d) [size %d%s] moving cargo units\n", szUnitName.GetCString(), ShortenID(m_iID), 
+-					ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++				DEBUGLOG("setXY:%S(%d) group(%d) [size %d%s] moving cargo units\n", szUnitName.GetCString(), shortenID(m_iID), 
++					shortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
+ 			}
+ #endif
+ 
+@@ -8506,6 +8506,8 @@
+ 	}
+ 	else
+ 	{
++		// commented out these asserts, they are not true when capturing a worker/settler
++		// this is the "if (pDefender == NULL)" case in updateCombat
+ 		FAssertMsg(getCombatUnit() != NULL, "getCombatUnit() is not expected to be equal with NULL");
+ 		FAssertMsg(plot()->isFighting(), "plot()->isFighting is expected to be true");
+ 		m_bCombatFocus = false;
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@183
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@184
+@@ -24,7 +24,6 @@
+ #define FOUND_RANGE				(6)
+ 
+ //#define DEBUG_WAR_ACTIONS
+-
+ 
+ // Public Functions...
+ 
+@@ -1626,7 +1625,7 @@
+ 
+ 	if (plot()->getOwnerINLINE() == getOwnerINLINE())
+ 	{
+-		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, UNITAI_ATTACK, -1, -1, -1, -1, MOVE_SAFE_TERRITORY, 4))
++		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_SAFE_TERRITORY, 4))
+ 		{
+ 			return;
+ 		}
+@@ -2056,6 +2055,11 @@
+ 
+ 	if (plot()->getOwnerINLINE() == getOwnerINLINE())
+ 	{
++		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, UNITAI_ATTACK_CITY, -1, -1, -1, -1, MOVE_SAFE_TERRITORY, 4))
++		{
++			return;
++		}
++
+ 		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, UNITAI_ATTACK, -1, -1, -1, -1, MOVE_SAFE_TERRITORY, 4))
+ 		{
+ 			return;
+@@ -3291,6 +3295,26 @@
+ 		return;
+ 	}
+ 
++	if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ 5, /*iMinUnitAI*/ 3, /*bIgnoreFaster*/ true))
++	{
++		return;
++	}
++
++	if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ 3, /*iMinUnitAI*/ 2, /*bIgnoreFaster*/ true))
++	{
++		return;
++	}
++
++	if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ 1, /*iMinUnitAI*/ 1, /*bIgnoreFaster*/ true))
++	{
++		return;
++	}
++
++	if (AI_group(UNITAI_CARRIER_SEA, -1, /*iMaxOwnUnitAI*/ 3, /*iMinUnitAI*/ 2, /*bIgnoreFaster*/ true))
++	{
++		return;
++	}
++
+ 	if (AI_group(UNITAI_CARRIER_SEA, -1, /*iMaxOwnUnitAI*/ 1, -1, /*bIgnoreFaster*/ true))
+ 	{
+ 		return;
+@@ -3407,7 +3431,11 @@
+ 
+ 	if (plot()->isCity())
+ 	{
+-		if (GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(this, MISSIONAI_GROUP) > 0)
++		const int iMissionAICount = 5;
++		MissionAITypes aeMissionAI[iMissionAICount] = 
++			{MISSIONAI_GROUP, MISSIONAI_LOAD_ASSAULT, MISSIONAI_LOAD_SETTLER, MISSIONAI_LOAD_SPECIAL, MISSIONAI_ATTACK_SPY};
++		
++		if (GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(this, aeMissionAI, iMissionAICount) > 0)
+ 		{
+ 			getGroup()->pushMission(MISSION_SKIP);
+ 			return;
+@@ -3438,8 +3466,14 @@
+ 
+ 		if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ 1))
+ 		{
++			FAssertMsg(false, "somehow there was a group that didnt fit max of 2, but max of 1 was ok");
+ 			return;
+ 		}
++	}
++
++	if (AI_pickup(UNITAI_ATTACK_CITY))
++	{
++		return;
+ 	}
+ 
+ 	if (AI_pickup(UNITAI_ATTACK))
+@@ -3647,6 +3681,11 @@
+ 		{
+ 			return;
+ 		}
++	}
++
++	if (AI_group(UNITAI_CARRIER_SEA, -1, /*iMaxOwnUnitAI*/ 1))
++	{
++		return;
+ 	}
+ 
+ 	if (AI_retreatToCity(true))
+@@ -4610,6 +4649,12 @@
+ 	int iValue;
+ 	int iBestValue;
+ 	int iLoop;
++
++	// if we are on a transport, then do not regroup
++	if (isCargo())
++	{
++		return false;
++	}
+ 
+ 	if (!bAllowRegrouping)
+ 	{
+@@ -4698,10 +4743,10 @@
+ 				CvSelectionGroup* pCurrentGroup = getGroup();
+ 				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
+ 				CvWString szBestUnitName = GC.getUnitInfo(pBestUnit->getUnitType()).getDescription();
+-				DEBUGLOG("AI_group:%S(%d) leaving group(%d) [size %d%s] to switch into %S(%d)'s group(%d) [size %d%s]\n", szUnitName.GetCString(), ShortenID(m_iID), 
+-					ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
+-					szBestUnitName.GetCString(), ShortenID(pBestUnit->getID()), 
+-					ShortenID(pBestGroup->getID()), pBestGroup->getNumUnits(), pBestGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++				DEBUGLOG("AI_group:%S(%d) leaving group(%d) [size %d%s] to switch into %S(%d)'s group(%d) [size %d%s]\n", szUnitName.GetCString(), shortenID(m_iID), 
++					shortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
++					szBestUnitName.GetCString(), shortenID(pBestUnit->getID()), 
++					shortenID(pBestGroup->getID()), pBestGroup->getNumUnits(), pBestGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
+ 			}
+ 			CvCity* pCity = plot()->getPlotCity();
+ #endif
+@@ -4723,7 +4768,13 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-    if (!bAllowRegrouping)
++ 	// if we are on a transport, then do not regroup
++	if (isCargo())
++	{
++		return false;
++	}
++
++   if (!bAllowRegrouping)
+ 	{
+ 		if (getGroup()->getNumUnits() > 1)
+ 		{
+@@ -4819,10 +4870,10 @@
+ 				CvSelectionGroup* pCurrentGroup = getGroup();
+ 				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
+ 				CvWString szBestUnitName = GC.getUnitInfo(pBestUnit->getUnitType()).getDescription();
+-				DEBUGLOG("AI_groupMergeRange:%S(%d)'s group(%d) [size %d%s] merging into %S(%d)'s group(%d) [size %d%s]\n", szUnitName.GetCString(), ShortenID(m_iID), 
+-					ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
+-					szBestUnitName.GetCString(), ShortenID(pBestUnit->getID()), 
+-					ShortenID(pBestGroup->getID()), pBestGroup->getNumUnits(), pBestGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++				DEBUGLOG("AI_groupMergeRange:%S(%d)'s group(%d) [size %d%s] merging into %S(%d)'s group(%d) [size %d%s]\n", szUnitName.GetCString(), shortenID(m_iID), 
++					shortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
++					szBestUnitName.GetCString(), shortenID(pBestUnit->getID()), 
++					shortenID(pBestGroup->getID()), pBestGroup->getNumUnits(), pBestGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
+ 			}
+ 			CvCity* pCity = plot()->getPlotCity();
+ #endif
+@@ -4871,6 +4922,11 @@
+ 
+ 	iBestValue = MAX_INT;
+ 	pBestUnit = NULL;
++	
++	const int iLoadMissionAICount = 4;
++	MissionAITypes aeLoadMissionAI[iLoadMissionAICount] = {MISSIONAI_LOAD_ASSAULT, MISSIONAI_LOAD_SETTLER, MISSIONAI_LOAD_SPECIAL, MISSIONAI_ATTACK_SPY};
++
++	int iCurrentGroupSize = getGroup()->getNumUnits();
+ 
+ 	for(pLoopUnit = GET_PLAYER(getOwnerINLINE()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(getOwnerINLINE()).nextUnit(&iLoop))
+ 	{
+@@ -4880,9 +4936,14 @@
+ 			{
+ 				if (canLoadUnit(pLoopUnit, pLoopUnit->plot()))
+ 				{
+-					if (pLoopUnit->AI_getUnitAIType() == eUnitAI)
++					// special case ASSAULT_SEA UnitAI, so that, if a unit is marked escort, but can load units, it will load them
++					// transport units might have been built as escort, this most commonly happens with galleons
++					UnitAITypes eLoopUnitAI = pLoopUnit->AI_getUnitAIType();
++					if (eLoopUnitAI == eUnitAI || (eUnitAI == UNITAI_ASSAULT_SEA && eLoopUnitAI == UNITAI_ESCORT_SEA))
+ 					{
+-						if (pLoopUnit->cargoSpaceAvailable(getSpecialUnitType(), getDomainType()) > GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(pLoopUnit, eMissionAI, getGroup()))
++						int iCargoSpaceAvailable = pLoopUnit->cargoSpaceAvailable(getSpecialUnitType(), getDomainType());
++						iCargoSpaceAvailable -= GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(pLoopUnit, aeLoadMissionAI, iLoadMissionAICount, getGroup());
++						if (iCargoSpaceAvailable > 0)
+ 						{
+ 							if ((eTransportedUnitAI == NO_UNITAI) || (pLoopUnit->getUnitAICargo(eTransportedUnitAI) > 0))
+ 							{
+@@ -4900,7 +4961,8 @@
+ 													{
+ 														if (iPathTurns <= iMaxPath)
+ 														{
+-															iValue = iPathTurns;
++															// prefer a transport that can hold as much of our group as possible 
++															iValue = (max(0, iCurrentGroupSize - iCargoSpaceAvailable) * 5) + iPathTurns;
+ 
+ 															if (iValue < iBestValue)
+ 															{
+@@ -4924,15 +4986,51 @@
+ 
+ 	if (pBestUnit != NULL)
+ 	{
++#ifdef DEBUG_AI_UPDATE_GROUPS
++		CvSelectionGroup* pCurrentGroup = getGroup();
++		CvSelectionGroup* pBestGroup = pBestUnit->getGroup();
++		CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
++		CvWString szBestUnitName = GC.getUnitInfo(pBestUnit->getUnitType()).getDescription();
++		CvCity* pCity = plot()->getPlotCity();
++#endif
++
+ 		if (atPlot(pBestUnit->plot()))
+ 		{
+-			setTransportUnit(pBestUnit); // XXX is this dangerous (not pushing a mission...) XXX air units?
++#ifdef DEBUG_AI_UPDATE_GROUPS
++			DEBUGLOG("AI_load:%S(%d) in group(%d) [size %d%s] loading onto %S(%d)'s group(%d) [size %d%s]\n", 
++				szUnitName.GetCString(), shortenID(m_iID), 
++				shortenID(m_iGroupID), iCurrentGroupSize, pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
++				szBestUnitName.GetCString(), shortenID(pBestUnit->getID()), 
++				shortenID(pBestGroup->getID()), pBestGroup->getNumUnits(), pBestGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++#endif
++
++			getGroup()->setTransportUnit(pBestUnit); // XXX is this dangerous (not pushing a mission...) XXX air units?
+ 			return true;
+ 		}
+ 		else
+ 		{
+-			getGroup()->pushMission(MISSION_MOVE_TO_UNIT, pBestUnit->getOwnerINLINE(), pBestUnit->getID(), iFlags, false, false, eMissionAI, NULL, pBestUnit);
+-			return true;
++			int iCargoSpaceAvailable = pBestUnit->cargoSpaceAvailable(getSpecialUnitType(), getDomainType());
++			FAssertMsg(iCargoSpaceAvailable > 0, "best unit has no space");
++
++			// split our group to fit on the transport
++			CvSelectionGroup* pSplitGroup = getGroup()->splitGroup(iCargoSpaceAvailable, this);			
++			FAssertMsg(pSplitGroup != NULL, "splitGroup failed");
++			FAssertMsg(m_iGroupID == pSplitGroup->getID(), "splitGroup failed to put unit in the new group");
++
++#ifdef DEBUG_AI_UPDATE_GROUPS
++			DEBUGLOG("AI_load:%S(%d) split from group (%d) [size %d], to group(%d) [size %d%s] headed to to load %S(%d)'s group(%d) [size %d%s]\n", 
++				szUnitName.GetCString(), shortenID(m_iID), 
++				shortenID(pCurrentGroup->getID()), iCurrentGroupSize,
++				shortenID(pSplitGroup->getID()), pSplitGroup->getNumUnits(), pSplitGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
++				szBestUnitName.GetCString(), shortenID(pBestUnit->getID()), 
++				shortenID(pBestGroup->getID()), pBestGroup->getNumUnits(), pBestGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++#endif
++
++			if (pSplitGroup != NULL)
++			{
++				pSplitGroup->pushMission(MISSION_MOVE_TO_UNIT, pBestUnit->getOwnerINLINE(), pBestUnit->getID(), iFlags, false, false, eMissionAI, NULL, pBestUnit);
++				return true;
++			}
+ 		}
+ 	}
+ 
+@@ -5779,8 +5877,8 @@
+ 			{
+ 				CvSelectionGroup* pCurrentGroup = getGroup();
+ 				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
+-				DEBUGLOG("AI_heal:%S(%d) leaving group(%d) [size %d%s] to heal solo\n", szUnitName.GetCString(), ShortenID(m_iID), 
+-					ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++				DEBUGLOG("AI_heal:%S(%d) leaving group(%d) [size %d%s] to heal solo\n", szUnitName.GetCString(), shortenID(m_iID), 
++					shortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
+ 			}
+ #endif
+ 			CvUnit* pUnitToHeal = aeDamagedUnits[iI];
+@@ -7513,9 +7611,9 @@
+ 				{
+ 					CvSelectionGroup* pCurrentGroup = getGroup();
+ 					CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
+-					DEBUGLOG("AI_targetCity: %S(%d) headed to %S. Group(%d) [size %d%s]\n", szUnitName.GetCString(), ShortenID(m_iID), 
++					DEBUGLOG("AI_targetCity: %S(%d) headed to %S. Group(%d) [size %d%s]\n", szUnitName.GetCString(), shortenID(m_iID), 
+ 						pBestCity->getName().GetCString(),
+-						ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++						shortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
+ 				}
+ #endif
+ 				getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE());
+@@ -8239,12 +8337,27 @@
+ 	int iBestValue;
+ 	int iI, iJ;
+ 
++	bool bIsAttackCity = (getUnitAICargo(UNITAI_ATTACK_CITY) > 0);
++	
+ 	FAssert(getCargo() > 0);
+-	FAssert(getUnitAICargo(UNITAI_ATTACK) > 0);
++	FAssert(bIsAttackCity || getUnitAICargo(UNITAI_ATTACK) > 0);
+ 
+ 	if (!canCargoAllMove())
+ 	{
+ 		return false;
++	}
++	
++	// make sure attack city transports in cities are defended by at least one non-transport unit, if we can build one
++	if (bIsAttackCity)
++	{
++		pCity = plot()->getPlotCity();
++		if (pCity != NULL && pCity->AI_bestUnitAI(UNITAI_ESCORT_SEA) != NO_UNIT)
++		{
++			if (getGroup()->countNumUnitAIType(UNITAI_ESCORT_SEA) < 1)
++			{
++				return false;
++			}
++		}
+ 	}
+ 
+ 	iBestValue = 0;
+@@ -9731,8 +9844,8 @@
+ 							{
+ 								CvSelectionGroup* pCurrentGroup = getGroup();
+ 								CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
+-								DEBUGLOG("AI_retreatToCity:%S(%d) already in city, will skip. Group(%d) [size %d%s]\n", szUnitName.GetCString(), ShortenID(m_iID), 
+-									ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++								DEBUGLOG("AI_retreatToCity:%S(%d) already in city, will skip. Group(%d) [size %d%s]\n", szUnitName.GetCString(), shortenID(m_iID), 
++									shortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
+ 							}
+ #endif
+ 							getGroup()->pushMission(MISSION_SKIP);
+

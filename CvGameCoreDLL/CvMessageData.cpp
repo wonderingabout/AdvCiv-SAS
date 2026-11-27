@@ -5,6 +5,7 @@
 #include "CvCity.h"
 #include "CvUnit.h"
 #include "CvSelectionGroup.h"
+#include "SASGameRecordLog.h" // <!-- custom: Native research, production, city-task and unit-command messages provide typed command evidence as well as research-target redirection causes for SASGameRecord; the recorder owns formatting. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 
 
 CvMessageData* CvMessageData::createMessage(GameMessageTypes eType)
@@ -189,6 +190,8 @@ void CvNetPushOrder::Execute()
 		CvCity* pCity = GET_PLAYER(m_ePlayer).getCity(m_iCityID);
 		if (pCity != NULL)
 		{
+			// <!-- custom: Observe the typed command before queue application so popup and normal city-screen selections share one readable trace; gate all diagnostic work before the helper call. (GPT-6.1-Sol) -->
+			if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerProductionChoice(*pCity, m_eOrder, m_iData, m_bSave, m_bPop, m_iPosition);
 			//pCity->pushOrder(m_eOrder, m_iData, -1, m_bAlt, !(m_bShift || m_bCtrl), m_bShift);
 			pCity->pushOrder(m_eOrder, m_iData, -1, m_bSave, m_bPop, m_iPosition); // K-Mod
 			// K-Mod. We don't want automated cities to overrule our production choice.
@@ -261,7 +264,11 @@ void CvNetPopOrder::Execute()
 	{
 		CvCity* pCity = GET_PLAYER(m_ePlayer).getCity(m_iCityID);
 		if (pCity != NULL)
+		{
+			// <!-- custom: Preserve the requested item's identity before removal; command observation does not claim that the queue mutation will succeed. (GPT-6.1-Sol) -->
+			if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerProductionRemoval(*pCity, m_iNum);
 			pCity->popOrder(m_iNum);
+		}
 		if (GC.getGame().getActivePlayer() == m_ePlayer)
 			gDLL->UI().updatePythonScreens();
 	}
@@ -291,8 +298,7 @@ CvNetDoTask::CvNetDoTask() :
 {
 }
 
-CvNetDoTask::CvNetDoTask(PlayerTypes ePlayer, int iCityID, TaskTypes eTask,
-	int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl) :
+CvNetDoTask::CvNetDoTask(PlayerTypes ePlayer, int iCityID, TaskTypes eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl) :
 	CvMessageData(GAMEMESSAGE_DO_TASK),
 	m_ePlayer(ePlayer),
 	m_iCityID(iCityID),
@@ -314,6 +320,8 @@ void CvNetDoTask::Execute()
 		CvCity* pCity = GET_PLAYER(m_ePlayer).getCity(m_iCityID);
 		if (pCity != NULL)
 		{
+			// <!-- custom: Observe the exact native city task before CvCity applies it; the recorder decodes only direct payload identities/plots and does not claim the task will succeed. (ChatGPT-5.6-Sol) -->
+			if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerCityTask(*pCity, m_eTask, m_iData1, m_iData2, m_bOption, m_bAlt, m_bShift, m_bCtrl);
 			pCity->doTask(m_eTask, m_iData1, m_iData2,
 					m_bOption, m_bAlt, m_bShift, m_bCtrl);
 		}
@@ -396,8 +404,7 @@ CvNetResearch::CvNetResearch() :
 {
 }
 
-CvNetResearch::CvNetResearch(PlayerTypes ePlayer, TechTypes eTech,
-	int iDiscover, bool bShift) :
+CvNetResearch::CvNetResearch(PlayerTypes ePlayer, TechTypes eTech, int iDiscover, bool bShift) :
 	CvMessageData(GAMEMESSAGE_RESEARCH),
 	m_ePlayer(ePlayer),
 	m_iDiscover(iDiscover),
@@ -415,10 +422,12 @@ void CvNetResearch::Execute()
 {
 	if (m_ePlayer != NO_PLAYER)
 	{
+		// <!-- custom: The game message already disambiguates selected research from a free-tech choice and queue clearing; observe it without guessing whether a popup, ordinary widget, Python or automation initiated the request. (GPT-6.1-Sol) -->
+		if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerResearchChoice(m_ePlayer, m_eTech, m_iDiscover, m_bShift);
 		CvPlayer& kPlayer = GET_PLAYER(m_ePlayer);
 		if (m_iDiscover > 0)
 		{
-			GET_TEAM(kPlayer.getTeam()).setHasTech(m_eTech, true, m_ePlayer, true, true);
+			GET_TEAM(kPlayer.getTeam()).setHasTech(m_eTech, true, m_ePlayer, true, true, false, TECH_ACQUISITION_FREE_CHOICE);
 			if (m_iDiscover > 1)
 			{
 				if (m_ePlayer == GC.getGame().getActivePlayer())
@@ -427,6 +436,9 @@ void CvNetResearch::Execute()
 		}
 		else
 		{
+			// <!-- custom: This is the authoritative player research command boundary.
+			// Tag it before any clear/push work; the SASGameRecord observer emits the cause only if the command actually redirects an invested incomplete technology. (ChatGPT-5.6-Sol) -->
+			if (gGameRecordLogLevel >= 2) noteSASGameRecordResearchTargetChangeCause(m_ePlayer, RESEARCH_TARGET_CHANGE_PLAYER_RESEARCH_COMMAND);
 			if (m_eTech == NO_TECH)
 				kPlayer.clearResearchQueue();
 			else if (kPlayer.canEverResearch(m_eTech))
@@ -468,8 +480,7 @@ CvNetEspionageChange::CvNetEspionageChange() :
 {
 }
 
-CvNetEspionageChange::CvNetEspionageChange(PlayerTypes ePlayer,
-	TeamTypes eTargetTeam, int iChange) :
+CvNetEspionageChange::CvNetEspionageChange(PlayerTypes ePlayer, TeamTypes eTargetTeam, int iChange) :
 	CvMessageData(GAMEMESSAGE_ESPIONAGE_CHANGE),
 	m_ePlayer(ePlayer),
 	m_eTargetTeam(eTargetTeam),
@@ -505,8 +516,7 @@ void CvNetEspionageChange::SetFromBuffer(FDataStreamBase* pStream)
 	pStream->Read(&m_iChange);
 }
 
-CvNetAdvancedStartAction::CvNetAdvancedStartAction(AdvancedStartActionTypes eAction,
-	PlayerTypes ePlayer, int iX, int iY, int iData, bool bAdd) :
+CvNetAdvancedStartAction::CvNetAdvancedStartAction(AdvancedStartActionTypes eAction, PlayerTypes ePlayer, int iX, int iY, int iData, bool bAdd) :
 	CvMessageData(GAMEMESSAGE_ADVANCED_START_ACTION),
 	m_eAction(eAction),
 	m_ePlayer(ePlayer),
@@ -525,7 +535,12 @@ void CvNetAdvancedStartAction::Debug(char* szAddendum)
 void CvNetAdvancedStartAction::Execute()
 {
 	if (m_ePlayer != NO_PLAYER && !gDLL->UI().isExitingToMainMenu())
+	{
+		// <!-- custom: The network message is the authoritative submitted human Advanced Start choice; record it before gameplay handling so rejected/failed commands remain distinguishable from applied results.
+		// AI/automation purchases bypass this network path and are captured separately at CvPlayer::doAdvancedStartAction's successful mutation points. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordAdvancedStartChoice(m_ePlayer, m_eAction, m_iX, m_iY, m_iData, m_bAdd);
 		GET_PLAYER(m_ePlayer).doAdvancedStartAction(m_eAction, m_iX, m_iY, m_iData, m_bAdd);
+	}
 }
 
 void CvNetAdvancedStartAction::PutInBuffer(FDataStreamBase* pStream)
@@ -548,8 +563,7 @@ void CvNetAdvancedStartAction::SetFromBuffer(FDataStreamBase* pStream)
 	pStream->Read(&m_bAdd);
 }
 
-CvNetModNetMessage::CvNetModNetMessage(int iData1, int iData2, int iData3,
-	int iData4, int iData5) :
+CvNetModNetMessage::CvNetModNetMessage(int iData1, int iData2, int iData3, int iData4, int iData5) :
 	CvMessageData(GAMEMESSAGE_MOD_NET_MESSAGE),
 	m_iData1(iData1), m_iData2(iData2), m_iData3(iData3), m_iData4(iData4), m_iData5(iData5)
 {
@@ -646,8 +660,7 @@ void CvNetEmpireSplit::SetFromBuffer(FDataStreamBase* pStream)
 	pStream->Read(&m_iAreaId);
 }
 
-CvNetFoundReligion::CvNetFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion,
-	ReligionTypes eSlotReligion) :
+CvNetFoundReligion::CvNetFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, ReligionTypes eSlotReligion) :
 	CvMessageData(GAMEMESSAGE_FOUND_RELIGION),
 	m_ePlayer(ePlayer),
 	m_eReligion(eReligion),
@@ -714,8 +727,7 @@ void CvNetLaunchSpaceship::SetFromBuffer(FDataStreamBase* pStream)
 	pStream->Read((int*)&m_eVictory);
 }
 
-CvNetEventTriggered::CvNetEventTriggered(PlayerTypes ePlayer, EventTypes eEvent,
-	int iEventTriggeredId) :
+CvNetEventTriggered::CvNetEventTriggered(PlayerTypes ePlayer, EventTypes eEvent, int iEventTriggeredId) :
 	CvMessageData(GAMEMESSAGE_EVENT_TRIGGERED),
 	m_ePlayer(ePlayer), m_eEvent(eEvent),
 	m_iEventTriggeredId(iEventTriggeredId)
@@ -772,6 +784,8 @@ void CvNetJoinGroup::Execute()
 		if (pUnit != NULL)
 		{
 			CvUnit* pHeadUnit = GET_PLAYER(m_ePlayer).getUnit(m_iHeadID);
+			// <!-- custom: Group joins/splits are native unit commands too; preserve the requested head and its pre-change group when present without inferring later group state. (ChatGPT-5.6-Sol) -->
+			if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerUnitGroupCommand(*pUnit, m_iHeadID, pHeadUnit);
 			if (pHeadUnit != NULL)
 			{
 				pUnit->joinGroup(pHeadUnit->getGroup());
@@ -805,10 +819,7 @@ CvNetPushMission::CvNetPushMission() :
 	m_bModified(false) // advc.011b
 {}
 
-CvNetPushMission::CvNetPushMission(PlayerTypes ePlayer, int iUnitID,
-	MissionTypes eMission, int iData1, int iData2, MovementFlags eFlags,
-	bool bShift,
-	bool bModified) // advc.011b
+CvNetPushMission::CvNetPushMission(PlayerTypes ePlayer, int iUnitID, MissionTypes eMission, int iData1, int iData2, MovementFlags eFlags, bool bShift, bool bModified) // advc.011b
 :	CvMessageData(GAMEMESSAGE_PUSH_MISSION), m_ePlayer(ePlayer), m_iUnitID(iUnitID),
 	m_eMission(eMission), m_iData1(iData1), m_iData2(iData2), m_eFlags(eFlags),
 	m_bShift(bShift),
@@ -830,6 +841,8 @@ void CvNetPushMission::Execute()
 			CvSelectionGroup* pSelectionGroup = pUnit->getGroup();
 			if (pSelectionGroup != NULL)
 			{
+				// <!-- custom: Record the submitted mission payload at the network-message boundary; queue insertion/execution remains separate factual evidence. (ChatGPT-5.6-Sol) -->
+				if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerUnitMissionPush(*pUnit, m_eMission, m_iData1, m_iData2, m_eFlags, m_bShift, m_bModified);
 				pSelectionGroup->pushMission(m_eMission, m_iData1, m_iData2,
 						m_eFlags, m_bShift, true,
 						NO_MISSIONAI, NULL, NULL, m_bModified); // advc.011b
@@ -887,6 +900,8 @@ void CvNetAutoMission::Execute()
 			CvSelectionGroup* pSelectionGroup = pUnit->getGroup();
 			if (pSelectionGroup != NULL)
 			{
+				// <!-- custom: Auto-mission dispatch invokes the group handler, so capture the queued head before the handler can advance or clear it. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+				if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerUnitAutoMission(*pUnit);
 				pSelectionGroup->autoMission();
 			}
 		}
@@ -915,8 +930,7 @@ CvNetDoCommand::CvNetDoCommand() :
 {
 }
 
-CvNetDoCommand::CvNetDoCommand(PlayerTypes ePlayer, int iUnitID,
-	CommandTypes eCommand, int iData1, int iData2, bool bAlt) :
+CvNetDoCommand::CvNetDoCommand(PlayerTypes ePlayer, int iUnitID, CommandTypes eCommand, int iData1, int iData2, bool bAlt) :
 	CvMessageData(GAMEMESSAGE_DO_COMMAND),
 	m_ePlayer(ePlayer),
 	m_iUnitID(iUnitID),
@@ -938,6 +952,8 @@ void CvNetDoCommand::Execute()
 		CvUnit* pUnit = GET_PLAYER(m_ePlayer).getUnit(m_iUnitID);
 		if (pUnit != NULL)
 		{
+			// <!-- custom: Preserve the exact native command before canDoCommand/application; alt/all semantics and safe typed payload identities come from already-loaded command data only. (ChatGPT-5.6-Sol) -->
+			if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerUnitCommand(*pUnit, m_eCommand, m_iData1, m_iData2, m_bAlt);
 			if (m_bAlt && GC.getInfo(m_eCommand).getAll())
 			{
 				/*FOR_EACH_UNIT_VAR(pLoopUnit, GET_PLAYER(m_ePlayer)) // BtS
@@ -990,8 +1006,7 @@ CvNetPercentChange::CvNetPercentChange() :
 {
 }
 
-CvNetPercentChange::CvNetPercentChange(PlayerTypes ePlayer,
-	CommerceTypes eCommerce, int iChange) :
+CvNetPercentChange::CvNetPercentChange(PlayerTypes ePlayer, CommerceTypes eCommerce, int iChange) :
 	CvMessageData(GAMEMESSAGE_PERCENT_CHANGE),
 	m_ePlayer(ePlayer),
 	m_iChange(iChange),
@@ -1035,8 +1050,7 @@ CvNetChangeVassal::CvNetChangeVassal() :
 {
 }
 
-CvNetChangeVassal::CvNetChangeVassal(PlayerTypes ePlayer, TeamTypes eMasterTeam,
-	bool bVassal, bool bCapitulated) :
+CvNetChangeVassal::CvNetChangeVassal(PlayerTypes ePlayer, TeamTypes eMasterTeam, bool bVassal, bool bCapitulated) :
 	CvMessageData(GAMEMESSAGE_CHANGE_VASSAL),
 	m_ePlayer(ePlayer),
 	m_eMasterTeam(eMasterTeam),
@@ -1276,8 +1290,7 @@ void CvNetFPTest::Execute()
 	GC.getGame().doFPCheck(m_iResult, m_ePlayer);
 } // </advc.003g>
 // <advc.190c>
-CvNetCivLeaderSetup::CvNetCivLeaderSetup(PlayerTypes ePlayer,
-	CvInitCore const* pInitCore)
+CvNetCivLeaderSetup::CvNetCivLeaderSetup(PlayerTypes ePlayer, CvInitCore const* pInitCore)
 :	CvMessageData(GAMEMESSAGE_CIV_LEADER_SETUP),
 	m_ePlayer(ePlayer)
 {

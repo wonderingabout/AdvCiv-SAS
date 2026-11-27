@@ -1,0 +1,91 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 100
+# Author: iustus
+# Date: 2006-11-18T18:50:52.495000Z
+# Coverage: full
+# Message:
+#   DEBUG_AI_UPDATE_GROUPS: added some more logging (activity type)
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.h@99
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.h@100
+@@ -321,6 +321,48 @@
+ 
+ #ifdef FASSERT_ENABLE
+ //#define DEBUG_AI_UPDATE_GROUPS
++inline void getActivityTypeString(CvWString& szString, ActivityTypes eActivityType)
++{
++	switch (eActivityType)
++	{
++	case NO_ACTIVITY:
++		szString = L"NO_ACTIVITY";
++		break;
++
++	case ACTIVITY_AWAKE:
++		szString = L"ACTIVITY_AWAKE";
++		break;
++
++	case ACTIVITY_HOLD:
++		szString = L"ACTIVITY_HOLD";
++		break;
++
++	case ACTIVITY_SLEEP:
++		szString = L"ACTIVITY_SLEEP";
++		break;
++
++	case ACTIVITY_HEAL:
++		szString = L"ACTIVITY_HEAL";
++		break;
++
++	case ACTIVITY_SENTRY:
++		szString = L"xxx";
++		break;
++
++	case ACTIVITY_INTERCEPT:
++		szString = L"ACTIVITY_SENTRY";
++		break;
++
++	case ACTIVITY_MISSION:
++		szString = L"ACTIVITY_MISSION";
++		break;
++
++	default:
++		szString = CvWString::format(L"UNKOWN_ACTIVITY(%d)", eActivityType);
++		break;
++	}
++}
++
+ inline int ShortenID(int iID)
+ {
+ 	return (((iID/1000)/1459) + (iID%1000));
+@@ -337,6 +379,7 @@
+ 	OutputDebugString(temp);
+ }
+ #else
++#define getActivityTypeString(x)
+ #define ShortenID(x)
+ #define DEBUGLOG(x)
+ #endif
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@99
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@100
+@@ -116,8 +116,11 @@
+ 		else
+ 			szUnitString.Format(L"--no unit--");
+ 
+-		DEBUGLOG("AI_update:%S group(%d), lead by %S [size %d%s%s]\n", szPlayerName.GetCString(),
+-			ShortenID(getID()), szUnitString.GetCString(), getNumUnits(), 
++		CvWString szActivityString;
++		getActivityTypeString(szActivityString, m_eActivityType);
++
++		DEBUGLOG("AI_update:%S group(%d,%S), lead by %S [size %d%s%s]\n", szPlayerName.GetCString(),
++			ShortenID(getID()), szActivityString.GetCString(), szUnitString.GetCString(), getNumUnits(), 
+ 			AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
+ 			isForceUpdate() ? ",WILL_FORCE_UPDATE" : "");
+ 	}
+

@@ -1,0 +1,315 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 323
+# Author: blakeciv
+# Date: 2007-01-29T22:39:28.110781Z
+# Coverage: full
+# Message:
+#   AI puts more focus on Economy builds when it is wise to do so.
+#   AI less likely to build useless buildings.
+#   Trade Routes on buildings properly valued.
+#   Experience buildings FINALLY valued correctly (sorry it took so long)
+#   Processes valued more appropriately, especially Build Culture for popping borders (the workers will be allocated better).
+#   
+#   Warmongery leaders now "Dagger Harder" (more likely to train units)
+#   Barbarians wont whip or draft.
+#   Build Governor will train workers if there is dire need for them.
+#   Fixed a bug in the build governor with inserting an extra build.
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@322
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@323
+@@ -40,7 +40,7 @@
+ // for testing only
+ #ifndef FINAL_RELEASE
+ //#define TESTING_EXTRA_SAVE_DATA
+-//#define DEBUG_OUT_OF_SYNCS
++#define DEBUG_OUT_OF_SYNCS
+ #endif
+ 
+ // our own version number on our extra data
+@@ -202,6 +202,9 @@
+ 	PROFILE_FUNC();
+ 
+ 	int iI;
++	
++	
++	
+ 
+ 	if (!isHuman())
+ 	{
+@@ -801,9 +804,18 @@
+ 	int iUnitCostPercentage = (kPlayer.calculateUnitCost() * 100) / max(1, kPlayer.calculatePreInflatedCosts());
+ 
+ 	int iSeaAssaultUnits = -1;
++	int iBuildUnitProb = AI_buildUnitProb();
+     
+     int iExistingWorkers = kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_WORKER);
+     int iNeededWorkers = kPlayer.AI_neededWorkers(area());
++    
++	int iEconomyFlags = 0;
++	iEconomyFlags |= BUILDINGFOCUS_GOLD;
++	iEconomyFlags |= BUILDINGFOCUS_RESEARCH;
++	iEconomyFlags |= BUILDINGFOCUS_MAINTENANCE;
++	iEconomyFlags |= BUILDINGFOCUS_HAPPY;
++	iEconomyFlags |= BUILDINGFOCUS_HEALTHY;
++	iEconomyFlags |= BUILDINGFOCUS_SPECIALIST;
+ 
+ 	if (iNumCitiesInArea > 2)
+ 	{	
+@@ -1249,10 +1261,16 @@
+ 				return;
+ 			}
+         }
++        
++		//essential economic builds
++		if (AI_chooseBuilding(iEconomyFlags, 9, 30))
++		{
++			return;
++		}
+ 
+         if (!bFinancialTrouble && !bGetBetterUnits && kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER))
+         {
+-            if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Train Unit") > (bAggressiveAI ? 25 : 40))
++            if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Train Unit") > (bAggressiveAI ? 60 - iBuildUnitProb : 80 - iBuildUnitProb))
+             {
+ 
+                 int iBestFoundValue = area()->getBestFoundValue(getOwnerINLINE());
+@@ -1324,13 +1342,13 @@
+  	// don't build frivilious things if this is an imporant city
+     if (!bImportantCity)
+     {
+-        if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Cheap Building") >= 85)
+-        {
+-            if (AI_chooseBuilding(0, 8))
+-            {
+-                return;
+-            }
+-        }
++//        if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Cheap Building") >= 85)
++//        {
++//            if (AI_chooseBuilding(0, 8))
++//            {
++//                return;
++//            }
++//        }
+ 
+        if (!bLandWar)
+         {
+@@ -1572,14 +1590,6 @@
+ 	    }
+ 	}
+ 	
+-
+-	int iEconomyFlags = 0;
+-	iEconomyFlags |= BUILDINGFOCUS_GOLD;
+-	iEconomyFlags |= BUILDINGFOCUS_RESEARCH;
+-	iEconomyFlags |= BUILDINGFOCUS_MAINTENANCE;
+-	iEconomyFlags |= BUILDINGFOCUS_HAPPY;
+-	iEconomyFlags |= BUILDINGFOCUS_HEALTHY;
+-	iEconomyFlags |= BUILDINGFOCUS_SPECIALIST;
+ 	
+ 	//20 means 5g or ~2 happiness...
+ 	if (AI_chooseBuilding(iEconomyFlags, 15, 20))
+@@ -2459,6 +2469,7 @@
+ 	int iHappyModifier = (iHappinessLevel >= iHealthLevel && iHappinessLevel <= 6) ? 2 : 1;
+ 	int iHealthModifier = (iHealthLevel > iHappinessLevel && iHealthLevel <= 4) ? 2 : 1;
+ 	
++	int iTotalPopulation = kOwner.getTotalPopulation();
+ 	int iNumCities = kOwner.getNumCities();
+ 	int iNumCitiesInArea = area()->getCitiesPerPlayer(getOwnerINLINE());
+ 	
+@@ -2676,7 +2687,20 @@
+ 
+ 				for (iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+ 				{
+-					iValue += (kBuilding.getDomainFreeExperience(iI) * ((iHasMetCount > 0) ? 8 : 4));
++					int iDomainExpValue = 0;
++					if (iI == DOMAIN_SEA)
++					{
++						iDomainExpValue = 7;
++					} 
++					else if (iI == DOMAIN_LAND)
++					{
++						iDomainExpValue = 12;
++					}
++					else
++					{
++						iDomainExpValue = 6;
++					}
++					iValue += (kBuilding.getDomainFreeExperience(iI) * ((iHasMetCount > 0) ? iDomainExpValue : iDomainExpValue / 2));
+ 				}
+ 			}
+ 			
+@@ -2725,6 +2749,29 @@
+ 						iValue += (iTempValue / 100);
+ 					}
+ 				}
++			}
++			
++			if ((iFocusFlags & (BUILDINGFOCUS_GOLD | BUILDINGFOCUS_RESEARCH)) || iPass > 0)
++			{
++				// trade routes
++				iTempValue = ((kBuilding.getTradeRoutes() * ((8 * max(0, (totalTradeModifier() + 100))) / 100))
++								* (getPopulation() / 5 + 1));
++				int iGlobalTradeValue = (((6 * iTotalPopulation) / 5) / iNumCities);
++				iTempValue += (kBuilding.getCoastalTradeRoutes() * kOwner.countNumCoastalCities() * iGlobalTradeValue);
++				iTempValue += (kBuilding.getGlobalTradeRoutes() * iNumCities * iGlobalTradeValue);
++				
++				if (bFinancialTrouble)
++				{
++					iTempValue *= 2;
++				}
++					
++				if (kOwner.isNoForeignTrade())
++				{
++					iTempValue /= 3;
++				}
++				
++
++				iValue += iTempValue;
+ 			}
+ 
+ 			if (iPass > 0)
+@@ -2813,7 +2860,7 @@
+ 					iValue += kBuilding.getFoodKept() / 2;
+ 				}
+ 
+-				iValue += (kBuilding.getAirlift() * getPopulation() * 4);
++				iValue += (kBuilding.getAirlift() * getPopulation() * 3 + 10);
+ 
+ 				iValue += (-(kBuilding.getAirModifier()) / ((iHasMetCount > 0) ? 9 : 18));
+ 
+@@ -2860,17 +2907,6 @@
+ 				iValue += (kBuilding.getSpaceProductionModifier() / 5);
+ 				iValue += ((kBuilding.getGlobalSpaceProductionModifier() * iNumCities) / 20);
+ 				
+-				{
+-				// trade routes
+-				iTempValue = (kBuilding.getTradeRoutes() * ((10 * max(0, (totalTradeModifier() + 100))) / 100));
+-				iTempValue += (kBuilding.getCoastalTradeRoutes() * kOwner.countNumCoastalCities() * 8);
+-				iTempValue += (kBuilding.getGlobalTradeRoutes() * iNumCities * 8);
+-				
+-				if (iFocusFlags & BUILDINGFOCUS_GOLD || bFinancialTrouble)
+-					iTempValue *= 2;
+-
+-				iValue += iTempValue;
+-				}
+ 
+ 				if (kBuilding.getGreatPeopleUnitClass() != NO_UNITCLASS)
+ 				{
+@@ -3273,6 +3309,7 @@
+ 			}
+ 			else
+ 			{
++				
+ 				if (iFocusFlags & BUILDINGFOCUS_GOLD)
+ 				{
+ 					iTempValue = ((kBuilding.getCommerceModifier(COMMERCE_GOLD) * getBaseCommerceRate(COMMERCE_GOLD)) / 40);
+@@ -3592,6 +3629,7 @@
+ 	if ((plot()->calculateCulturePercent(getOwnerINLINE()) < 50) || (getCultureLevel() <= (CultureLevelTypes) 1))
+ 	{
+ 		iValue += GC.getProcessInfo(eProcess).getProductionToCommerceModifier(COMMERCE_CULTURE);
++		
+ 	}
+ 
+ 	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+@@ -4284,6 +4322,10 @@
+ 	PROFILE_FUNC();
+ 
+ 	FAssert(!isHuman());
++	if (isBarbarian())
++	{
++		return;
++	}
+ 
+ 	if (canConscript())
+ 	{
+@@ -4351,6 +4393,11 @@
+ 	int iI, iJ;
+ 
+ 	FAssert(!isHuman() || isProductionAutomated());
++	
++	if (isBarbarian())
++	{
++		return;
++	}
+ 
+ 	if ((getProduction() == 0) && !bForce)
+ 	{
+@@ -5852,7 +5899,8 @@
+ 
+ 	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 	{
+-		iCommerceValue += ((iCommerceYields[iI] * 5) * GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI)) / 100;
++		int iCommerceWeight = GET_PLAYER(getOwnerINLINE()).AI_commerceWeight((CommerceTypes)iI);
++		iCommerceValue += (iCommerceWeight * (iCommerceYields[iI] * 5) * GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI)) / 10000;
+ 	}
+ 
+ 	if (bEmphasizeFood)
+@@ -7060,6 +7108,7 @@
+ 		if (getCommerceRate(COMMERCE_CULTURE) == 0)
+ 		{
+ 			AI_chooseBuilding(BUILDINGFOCUS_CULTURE);
++			return;
+ 		}
+ 	}
+ 
+@@ -7111,6 +7160,17 @@
+ 	{
+ 		return;
+ 	}
++	
++	int iExistingWorkers = GET_PLAYER(getOwner()).AI_totalAreaUnitAIs(area(), UNITAI_WORKER);
++    int iNeededWorkers = GET_PLAYER(getOwner()).AI_neededWorkers(area());
++    
++	if (!bDanger && (iExistingWorkers < ((iNeededWorkers + 1) / 2)))
++	{
++		if (AI_chooseUnit(UNITAI_WORKER))
++		{
++			return;
++		}
++	}	    
+ 
+     if (GC.getDefineINT("DEFAULT_SPECIALIST") != NO_SPECIALIST)
+     {
+@@ -7123,10 +7183,18 @@
+         }
+     }
+     
++    
++    
+ 	if (AI_chooseBuilding(iEconomyFlags, 40, 15))
+ 	{
+ 		return;
+ 	}
++	
++	if (AI_chooseBuilding(iEconomyFlags | BUILDINGFOCUS_CULTURE, 10, 10))
++	{
++		return;
++	}
++
+ 
+ 	if (AI_chooseProcess())
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@322
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@323
+@@ -1347,6 +1347,11 @@
+ 			}
+ 			
+ 			iWeight += (100 - pCity->plot()->calculateCulturePercent(getID()));
++			
++			if (pCity->getCultureLevel() <= (CultureLevelTypes) 1)
++			{
++				iWeight = max(iWeight, 400);				
++			}
+ 		}
+ 		// pCity == NULL
+ 		else
+

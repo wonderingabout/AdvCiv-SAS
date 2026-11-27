@@ -1,0 +1,27 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 365
+# Author: iustus
+# Date: 2007-02-15T03:47:39.506588Z
+# Coverage: full
+# Message:
+#   check for NO_UNIT in AI_getStrategyHash when doing unit analysis
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@364
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@365
+@@ -10210,8 +10210,9 @@
+ 	{
+ 		eLoopUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)));
+ 
+-		if (GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_RESERVE) || GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_ATTACK_CITY)
+-			|| GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_COUNTER) || GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_PILLAGE))
++		if (eLoopUnit != NO_UNIT && 
++			(GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_RESERVE) || GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_ATTACK_CITY)
++			|| GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_COUNTER) || GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_PILLAGE)))
+ 		{
+ 			if (getCapitalCity() != NULL)
+ 			{
+

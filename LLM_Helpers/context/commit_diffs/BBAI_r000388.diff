@@ -1,0 +1,11 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 388
+# Author: jdog5000
+# Date: 2008-09-07T21:08:12.344494Z
+# Coverage: full
+# Message:
+#   Removed unneeded xml file
+# Changed paths (1):
+#   D /trunk/Better BTS AI/Assets/XML/Terrain
+

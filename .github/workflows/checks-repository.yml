@@ -1,0 +1,142 @@
+name: Checks - Repository
+
+on:
+  push:
+  pull_request:
+    # <!-- custom: Explicit squash-intent label changes must rerun the compiled Runtime rebuild policy, matching the diagnostics workflow. (GPT-6.1-Sol) -->
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+    # <!-- custom: Ignore the long-lived reference compare from main to the mirrored base AdvCiv release branch, named by its version, such as 1.14.
+    # Keep it open so GitHub tracks the diff, but do not run duplicate PR checks for it.
+    # The pattern matches any version, so a newer AdvCiv's branch needs no edit here (2026-11-22). (ChatGPT-5.5 + Claude code Opus 5.5) -->
+    branches-ignore:
+      - "[0-9]+.[0-9]+"
+  workflow_dispatch:
+
+jobs:
+  repository:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # <!-- custom: Full checkout took 5m06s in the first category-split run; the repository checks themselves finished almost immediately.
+          # Keep complete commit/tree metadata for push/PR/force-push coverage, but omit historical file contents, including old DLLs.
+          # Intent checking reads paths/messages; matching build reports additionally fetch the JSON and changed DLL bytes required by selected commits. Checkout materializes the selected revision's files. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+          fetch-depth: 0
+          filter: blob:none
+      - uses: actions/setup-python@v7
+        # <!-- custom: Each check runs even when an earlier one failed, so one push reports every failure at once rather than stopping at the first; the job still fails, and a setup failure still stops the checks. (Claude code Opus 5.5) -->
+        id: setup
+        with:
+          python-version: "3.x"
+
+      - name: Workflow steps keep going after a failure
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/workflow_keep_going.py
+
+      - name: Every check script is run by a workflow
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/workflow_script_coverage.py
+
+      - name: Temporary files
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/temp_files.py
+
+      - name: Example archive size
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/examples_archive_size.py
+
+      # <!-- custom: The UI map's JSON must be what its generator writes, including the Simple Game map list it derives from the map scripts. (Claude code Opus 5.5) -->
+      - name: UI map JSON matches its generator
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/ui_map_sync.py
+
+      # <!-- custom: Check both map files whose writers use the shared formatter: the window layouts, in LLM_Helpers/desktop/layouts since 2026-11-15, and the Sevopedia map. app_layouts.json and civ4_points.json have hand-aligned sections. (GPT-6.1-Sol + Claude code Opus 5.5) -->
+      - name: Window layout and Sevopedia JSON formatting
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: |
+          python LLM_Helpers/formatting/json_format.py --indent 1 --check LLM_Helpers/desktop/layouts/window_positions.json
+          python LLM_Helpers/formatting/json_format.py --indent 1 --check LLM_Helpers/game_runs/ui_maps/civ4_sevopedia_map.json
+
+      - name: Makefile calls Windows tools by their System32 path
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/makefile_windows_tools.py
+
+      - name: IDE source/header coverage
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/project_sources.py
+
+      - name: Shipped DLL layout
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/assets_dlls.py
+
+      - name: DLL update intent and build evidence
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/dll_commit_message.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+
+      - name: Known Issue numbers in commit titles
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/ki_commit_titles.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+
+      # <!-- custom: Lists what a squash merge's message must name, as a warning on the PR page, since that message is only written at the merge. (Claude code Opus 5.5) -->
+      - name: Squash message checklist
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/squash_message.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+
+      # <!-- custom: After the merge, a squash commit on main, known by the [ci_squash_pr] it keeps, must end its title with its PR number. (Claude code Opus 5.5) -->
+      - name: Squash commits name their PR
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/squash_pr_number.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+
+      - name: No Co-authored-by trailers in commit messages
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/commit_trailers.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+
+      - name: Dev logs keep hand edits and hidden authors
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/dev_logs.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+
+      - name: No dates later than the commit that adds them
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/future_dates.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+
+      - name: No new duplicate code lines or C++ includes
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/adjacent_duplicate_lines.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+
+      - name: DLL rebuild for structural XML define changes
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/dll_define_changes.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+
+      - name: Release DLL provenance for native Runtime changes
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/dll_runtime_revision.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+
+      - name: Version metadata
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/version_metadata.py
+
+      - name: DLL rebuild for Python method/function binding changes
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/dll_python_bindings.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}

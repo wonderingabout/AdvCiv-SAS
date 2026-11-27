@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 306
+# Author: iustus
+# Date: 2007-01-27T17:33:29.326649Z
+# Coverage: full
+# Message:
+#   removed erroneous assert
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@305
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@306
+@@ -3098,8 +3098,6 @@
+ 			{
+ 				if (GET_TEAM(getTeam()).isFreeTrade((TeamTypes)iI))
+ 				{
+-					FAssert(iI != getID());
+-
+ 					iTempValue = GET_TEAM((TeamTypes)iI).getNumCities();
+ 
+ 					if (pIgnoreArea != NULL)
+

@@ -16,9 +16,7 @@ CvDLLLogger::CvDLLLogger(bool bEnabled, bool bRandEnabled)
 :	m_bEnabled(bEnabled), m_bRandEnabled(bRandEnabled) {}
 
 // Cut from CvRandom::getInt
-void CvDLLLogger::logRandomNumber(const TCHAR* szMsg, unsigned short usNum,
-	unsigned int uiSeed, int iData1, int iData2,
-	CvString const* pszFileName) // advc.007b
+void CvDLLLogger::logRandomNumber(const TCHAR* szMsg, unsigned short usNum, unsigned int uiSeed, int iData1, int iData2, CvString const* pszFileName) // advc.007b
 {
 	FAssert(isEnabledRand()); // Caller should handle this, for performance reasons.
 	if (szMsg == NULL)
@@ -130,6 +128,7 @@ void appendPercentage(std::ostringstream& os, wchar const* szLabel, int iAbsolut
 
 void CvDLLLogger::logMapStats(bool bAfterNormalization)
 {
+	// <!-- custom: ci_define_uncached: runs once after map generation and once after normalization; nothing sets LOG_MAP_STATS during play, so a static would be safe but would save nothing. (Claude code Opus 5.5) -->
 	if (!isEnabled() || !GC.getDefineBOOL("LOG_MAP_STATS"))
 		return;
 	std::ostringstream out;

@@ -21,7 +21,7 @@
 		<Key>%CAMERA_MAX_DISTANCE, 1.00</Key>
 	</Fader>
 	<!-- advc.004m: Was also 6000,0.00;6400,1.0. I'd rather set this to a lower
-		 value, which results in a more top down angle, but this causes artifacts: one zoom level getting skipped depending on whether one 
+		 value, which results in a more top down angle, but this causes artifacts: one zoom level getting skipped depending on whether one
 		 zooms in or out, flickering Mine improvements when moving the camera
 		 by left-clicking a tile or even a black flash when entering globe
 		 view. In fact, 7680 for the second value also gives me that black flash. -->
@@ -97,13 +97,14 @@
 		<!-- advc.002b: Was (700, 1.5), (2500, 1.0), (6000, 0.67).
 			 Some 10% bigger for the medium distances to accommodate large
 			 displays better. More enlargement close up. -->
-		<Key>500,    1.72</Key>
-		<Key>2500,   1.18</Key>
-		<Key>3800,   1.06</Key>
-		<Key>6000,   0.81</Key>
-		<Key>8500,   0.75</Key>
-		<Key>11500,  0.70</Key>
-		<Key>13500,  0.67</Key>
+		<!-- custom: See also Assets/Python/SASBillboardScale.py for define-driven CITYBILLBOARD_SCALE profile application on load. (GPT-5.3-Codex) -->
+		<Key>500,    2.06</Key>
+		<Key>2500,    1.42</Key>
+		<Key>3800,    1.27</Key>
+		<Key>6000,    0.97</Key>
+		<Key>8500,    0.90</Key>
+		<Key>11500,    0.84</Key>
+		<Key>13500,    0.80</Key>
 	</Fader>
 	<Fader>
 		<Name>CITYBILLBOARD_HEIGHT</Name>
@@ -304,7 +305,7 @@
 	     X values are the "world size" and the Y values are the resulting value for that world size.
 	     Generally speaking, common values for world sizes are 7000 in the case of small maps to 15000 for large maps.
 	     The general rule, however, is hand-tuning: just tweak these numbers for different keyings to get the effect you want
-	     -->
+	    -->
 	<Fader>
 		<!-- maps from current globe radius to lighting angle -->
 		<Name>GLOBE_SPOTLIGHT_ANGLE</Name>
@@ -421,7 +422,7 @@
 		<Value>100</Value>
 	</Fader>
 
-	<!-- controllers for how the path between source and sink is found ... 
+	<!-- controllers for how the path between source and sink is found ...
 		we recursively split the line between source and sink until it reaches and ideal length,
 		adding noise to each split vertex in the tangent (X) and normal (Y) directions -->
 	<Fader>

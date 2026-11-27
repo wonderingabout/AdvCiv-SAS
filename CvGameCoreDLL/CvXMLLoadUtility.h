@@ -41,7 +41,7 @@ public:
 	bool LoadThroneRoomInfo(); // </advc.003v>
 
 	bool ReadGlobalDefines(TCHAR const* szXMLFileName, CvCacheObject* cache);
-	
+
 	DllExport bool SetGlobalDefines();
 	DllExport bool SetGlobalTypes();
 	// advc.003j: Unused and has no definition
@@ -70,24 +70,17 @@ public:
 	bool GetChildXmlValByName(wchar* r, TCHAR const* szName, wchar const* szDefault = NULL);
 	/*  (advc: Returning by reference would be nicer than by pointer, but I don't want to change
 		hundreds of call locations.) */
-	bool GetChildXmlValByName(int* r, TCHAR const* szName,
-			/*  advc.006b: Was 0. Instead use a value that no one wants to use so that
-				the callee can check if the param was set. */
-			int iDefault = MIN_INT);
-	bool GetChildXmlValByName(float* r, TCHAR const* szName,
-			float fDefault = arithm_traits<float>::min); // advc.006b: was 0.0f
-	bool GetChildXmlValByName(bool* r, TCHAR const* szName,
-			/*  advc.006b: Caller will have to set this to false to avoid an error
-				if szName isn't found */
-			bool bMandatory = true,
-			bool bDefault = false);
+	// advc.006b: Was 0. Instead use a value that no one wants to use so that the callee can check if the param was set.
+	// <!-- custom: hoisted from multiline signature between `szName` and `iDefault` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	bool GetChildXmlValByName(int* r, TCHAR const* szName, int iDefault = MIN_INT);
+	bool GetChildXmlValByName(float* r, TCHAR const* szName, float fDefault = arithm_traits<float>::min); // advc.006b: was 0.0f
+	// advc.006b: Caller will have to set this to false to avoid an error if szName isn't found
+	// <!-- custom: hoisted from multiline signature between `szName` and `bMandatory` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	bool GetChildXmlValByName(bool* r, TCHAR const* szName, bool bMandatory = true, bool bDefault = false);
 	/*	advc.006j: Had required int type; can now work with enum types too,
 		and will assert their bounds. */
-	template<typename T>
-	void SetInfoIDFromChildXmlVal(T& tResult, TCHAR const* szName)
-	{	// Needs to go through a struct b/c functions can't be partially specialized
-		InfoIDFromChild<T>::set(*this, tResult, szName);
-	}
+	// Needs to go through a struct b/c functions can't be partially specialized
+	template<typename T> void SetInfoIDFromChildXmlVal(T& tResult, TCHAR const* szName) { InfoIDFromChild<T>::set(*this, tResult, szName); }
 	// <advc.xmldefault>
 	void SetGlobalTypeFromChildXmlVal(int& iR, TCHAR const* szName, bool bInfoType = false);
 	int GetChildTypeIndex(); // </advc.xmldefault>
@@ -122,14 +115,8 @@ public:
 	template<typename T>
 	bool GetNextXmlVal(T& r, T tDefault = (T)-1);
 	// Need to make these casts explicit to avoid matching the template
-	bool GetNextXmlVal(CvString& r, char const* szDefault = NULL)
-	{
-		return GetNextXmlVal(static_cast<std::string&>(r), szDefault);
-	}
-	bool GetNextXmlVal(CvWString& r, wchar const* szDefault = NULL)
-	{
-		return GetNextXmlVal(static_cast<std::wstring&>(r), szDefault);
-	} // </advc.enum>
+	bool GetNextXmlVal(CvString& r, char const* szDefault = NULL) { return GetNextXmlVal(static_cast<std::string&>(r), szDefault); }
+	bool GetNextXmlVal(CvWString& r, wchar const* szDefault = NULL) { return GetNextXmlVal(static_cast<std::wstring&>(r), szDefault); } // </advc.enum>
 
 	bool GetChildXmlVal(std::string& r, char const* szDefault = NULL);
 	bool GetChildXmlVal(std::wstring& r, wchar const* szDefault = NULL);
@@ -147,16 +134,20 @@ public:
 		unchanged - to avoid breaking XML loading code in mod-mods. Such errors
 		would be difficult to debug b/c the parser level is stored in the EXE. */
 	int SetYieldArray(int** ppiYield);
+	// <!-- custom: Preserve the inherited cursor contract, but bound numeric reads/returned counts to the fixed allocation after reporting excess XML children. See KI#3.3. (GPT-6.1-Sol) -->
 	int SetYields(int** ppiYield); // (advc: deprecated)
 	#ifdef _USRDLL
 	// <advc> See comment above
 	template <class T>
 	int SetCommerceArray(T** ppiCommerce); // </advc>
+	// <!-- custom: Like SetYields, an ignored diagnostic must not permit writes or a returned count beyond the fixed commerce allocation. See KI#3.3. (GPT-6.1-Sol) -->
 	template <class T>
 	int SetCommerce(T** ppiCommerce); // (advc: deprecated)
 	#endif
 
+	// <!-- custom: Invalid feature keys are diagnosed and skipped before indexing any output array, even if the user ignores the XML error. See KI#3.3. (GPT-6.1-Sol) -->
 	void SetFeatureStruct(int** ppiFeatureTech, int** ppiFeatureTime, int** ppiFeatureProduction, bool** ppbFeatureRemove);
+	// <!-- custom: Invalid positive bonus keys are diagnosed and skipped before touching the fixed bonus allocation; negative/no-entry handling is retained. See KI#3.3. (GPT-6.1-Sol) -->
 	void SetImprovementBonuses(CvImprovementBonusInfo** ppImprovementBonus);
 
 	static int FindInInfoClass(TCHAR const* szType, bool hideAssert = false);
@@ -183,10 +174,8 @@ public:
 	int GetHotKeyInt(TCHAR const* pszHotKeyVal);
 
 	// allocate and initialize a list from a tag pair in the xml
-	void SetVariableListTagPair(CvString** ppszList, TCHAR const* szRootTagName,
-			int iInfoBaseLength, CvString szDefaultListVal = "");
-	void SetVariableListTagPairForAudioScripts(int **ppiList, TCHAR const* szRootTagName,
-			int iInfoBaseLength, int iDefaultListVal = -1);
+	void SetVariableListTagPair(CvString** ppszList, TCHAR const* szRootTagName, int iInfoBaseLength, CvString szDefaultListVal = "");
+	void SetVariableListTagPairForAudioScripts(int **ppiList, TCHAR const* szRootTagName, int iInfoBaseLength, int iDefaultListVal = -1);
 	/*	advc (19 Feb 2021): Deleted four versions (a fifth - AudioScripts - deleted
 		much earlier) that took a param CvString* m_paszTagList.
 		Those functions were for global non-info types. Now the versions above
@@ -225,10 +214,7 @@ public:
 		int m_iSiblingIndex;
 		int m_iSiblings;
 		TCHAR m_acTextVal[256]; // (Tbd.: Could we just use a CvString?)
-		static std::pair<int,T> noPair()
-		{
-			return std::pair<int,T>(iNO_KEY, (T)0);
-		}
+		static std::pair<int,T> noPair() { return std::pair<int,T>(iNO_KEY, (T)0); }
 	};
 	/*	advc.enum: Load mapping from an enum key to a list of yield or commerce rates.
 		Based on BtS code repeated in the CvInfo classes, e.g. CvInfo_Building. */
@@ -243,6 +229,7 @@ public:
 			if (m_aiRates != NULL)
 				delete[] m_aiRates;
 		}
+		// <!-- custom: Reject out-of-range rate slots and restore a flat record's parser level even when its key is rejected, so the following entry remains readable. See KI#3.3. (GPT-6.1-Sol) -->
 		std::pair<int,typename EncodableMap::enc_t> next();
 	private:
 		static int const iENUM_LEN = enum_traits<typename EncodableMap::EnumType>::len;
@@ -253,18 +240,15 @@ public:
 		CvString m_szRateTagName;
 		CvString m_szTextVal;
 		int* m_aiRates;
-		static std::pair<int,typename EncodableMap::enc_t> noPair()
-		{
-			return std::pair<int,typename EncodableMap::enc_t>(iNO_KEY, 0);
-		}
+		static std::pair<int,typename EncodableMap::enc_t> noPair() { return std::pair<int,typename EncodableMap::enc_t>(iNO_KEY, 0); }
 	};
 	/*  advc.003t (note): Will set the array that pptList points to to NULL if
 		tDefaultListVal is 0 and no pairs are found or if all (index,value) pairs
 		have the value 0. */
 	template<typename T>
-	void SetVariableListTagPair(T** pptList, TCHAR const* szRootTagName,
-		// advc.003x: Unused param iInfoBaseSize removed
-		int iInfoBaseLength, T tDefaultListVal = 0)
+	// advc.003x: Unused param iInfoBaseSize removed
+	// <!-- custom: hoisted from multiline signature between `szRootTagName` and `iInfoBaseLength` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void SetVariableListTagPair(T** pptList, TCHAR const* szRootTagName, int iInfoBaseLength, T tDefaultListVal = 0)
 	{
 		if (iInfoBaseLength <= 0)
 		{
@@ -273,13 +257,17 @@ public:
 					"Allocating zero or less memory.\nCurrent XML file is: %s",
 					GC.getCurrentXMLFile().GetCString());
 			errorMessage(szMessage);
+			// <!-- custom: Reporting invalid capacity must not proceed into allocation/indexing if the XML error is ignored. See KI#3.3. (GPT-6.1-Sol) -->
+			return;
 		}
 		bool bListModified = (*pptList != NULL); // advc.003t
 		InitList(pptList, iInfoBaseLength, tDefaultListVal);
 		XMLTagPairIterator<T> it(*this, szRootTagName);
 		for (std::pair<int,T> pair = it.next(); pair.first != -1; pair = it.next())
 		{
-			if (pair.first >= iInfoBaseLength)
+			// <!-- custom: The album's Queue 028 recorded that this diagnostic still fell through into an out-of-range write.
+			// Reject the malformed key after reporting it, including in Release or after Ignore Once/Always. See KI#3.3. (GPT-6.1-Sol) -->
+			if (pair.first < 0 || pair.first >= iInfoBaseLength)
 			{
 				FErrorMsg("Key tag out of bounds"); // advc.006
 				char szMessage[1024];
@@ -291,6 +279,7 @@ public:
 						"Key tag out of bounds.\nCurrent XML file is: %s",
 						GC.getCurrentXMLFile().GetCString());
 				errorMessage(szMessage);
+				continue;
 			}
 			(*pptList)[pair.first] = pair.second;
 			// <advc.003t>
@@ -329,7 +318,8 @@ public:
 				int iVal = piTmp[eLoopYield];
 				kMap.insert(eLoopYield, safeIntCast<typename kMap::ValueType>(iVal));
 			}
-			delete piTmp;
+			// <!-- custom: AdvCiv commit 0e04fd7f79 (2021-06-04, advc.003t) introduced this temporary enum-map conversion with scalar delete; InitList allocates the SetYieldArray storage with new[], so use delete[] to preserve the array allocation/deallocation contract. See KI#979. (ChatGPT-5.6-Sol) -->
+			delete[] piTmp;
 		}
 	}
 	template<class InfoMap>
@@ -348,13 +338,13 @@ public:
 						break;
 					kMap.insert(eLoopCommerce, pbTmp[eLoopCommerce]);
 				}
-				delete pbTmp;
+				// <!-- custom: AdvCiv commit 0e04fd7f79 (2021-06-04, advc.003t) introduced this temporary enum-map conversion with scalar delete; InitList allocates the SetCommerceArray storage with new[], so use delete[] to preserve the array allocation/deallocation contract. See KI#979. (ChatGPT-5.6-Sol) -->
+				delete[] pbTmp;
 			}
 		}
 	}
 	template<class EncodableMap>
-	void SetVariableListTagRate(EncodableMap& kMap, TCHAR const* szTagName,
-		TCHAR const* szKeyTagName = NULL, TCHAR const* szRateTagName = NULL)
+	void SetVariableListTagRate(EncodableMap& kMap, TCHAR const* szTagName, TCHAR const* szKeyTagName = NULL, TCHAR const* szRateTagName = NULL)
 	{
 		XMLTagPairRateIterator<EncodableMap::enc_map_t> it(
 				*this, szTagName, szKeyTagName, szRateTagName);
@@ -387,16 +377,8 @@ public:
 			delete[] piArray;
 		}
 	}
-	template<typename MapType>
-	void SetYieldList(MapType& kMap, TCHAR const* szTagName)
-	{
-		SetRateTagList<true>(kMap, szTagName);
-	}
-	template<typename MapType>
-	void SetCommerceList(MapType& kMap, TCHAR const* szTagName)
-	{
-		SetRateTagList<false>(kMap, szTagName);
-	}
+	template<typename MapType> void SetYieldList(MapType& kMap, TCHAR const* szTagName) { SetRateTagList<true>(kMap, szTagName); }
+	template<typename MapType> void SetCommerceList(MapType& kMap, TCHAR const* szTagName) { SetRateTagList<false>(kMap, szTagName); }
 	// </advc.003t>
 
 private:
@@ -423,10 +405,8 @@ private:
 	template<typename T>
 	struct InfoIDFromChild<T, false>
 	{
-		static void set(CvXMLLoadUtility& kUtil, T& tValue, TCHAR const* szName)
-		{	// advc.xmldefault:
-			kUtil.SetGlobalTypeFromChildXmlVal(static_cast<int&>(tValue), szName, true);
-		}
+		// advc.xmldefault:
+		static void set(CvXMLLoadUtility& kUtil, T& tValue, TCHAR const* szName) { kUtil.SetGlobalTypeFromChildXmlVal(static_cast<int&>(tValue), szName, true); }
 	};
 	template<typename T>
 	struct InfoIDFromChild<T, true>
@@ -460,25 +440,19 @@ private:
 	// template which can handle all info classes
 	// a dynamic value for the list size
 	template <class T>
-	void LoadGlobalClassInfo(std::vector<T*>& aInfos, const char* szFileRoot,
-			const char* szFileDirectory, const char* szXmlPath, bool bTwoPass,
-			CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction)(TCHAR const*) = NULL);
+	void LoadGlobalClassInfo(std::vector<T*>& aInfos, const char* szFileRoot, const char* szFileDirectory, const char* szXmlPath, bool bTwoPass, CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction)(TCHAR const*) = NULL);
 	template <class T>
-	void SetGlobalClassInfo(std::vector<T*>& aInfos, const char* szTagName, bool bTwoPass,
-			bool bFinalCall = false); // advc.xmldefault
+	void SetGlobalClassInfo(std::vector<T*>& aInfos, const char* szTagName, bool bTwoPass, bool bFinalCall = false); // advc.xmldefault
 	#endif
 	void SetDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfos, const char* szTagName);
-	void LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfos, const char* szFileRoot,
-			const char* szFileDirectory, const char* szXmlPath,
-			CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (TCHAR const*));
+	void LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfos, const char* szFileRoot, const char* szFileDirectory, const char* szXmlPath, CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (TCHAR const*));
 	//
 	// special cases of set class info which don't use the template because of extra code they have
 	//
 	void SetGlobalActionInfo();
 
 	void SetGlobalAnimationPathInfo(CvAnimationPathInfo** ppAnimationPathInfo, char* szTagName, int* iNumVals);
-	void SetGameText(const char* szTextGroup, const char* szTagName,
-			std::string const& sLanguageName); // K-Mod
+	void SetGameText(const char* szTextGroup, const char* szTagName, std::string const& sLanguageName); // K-Mod
 
 	/*	<advc.006g> (The BtS code sometimes said "XML Error", sometimes "XML Load Error"
 		not sure if that's meaningful, but I'm going to preserve it.)*/
@@ -489,7 +463,8 @@ private:
 	};
 	static void errorMessage(char const* szMessage, XMLErrorTypes eErrType = GENERAL_XML_ERROR);
 	// </advc.006g>
-	void logMsg(char* format, ...);
+	// <!-- custom: Added szRecord so each DLL-controlled xml.log row supplies one stable XML_* record name; format and its variadic arguments retain the inherited printf-style payload contract. (ChatGPT-5.6-Sol) -->
+	void logMsg(char const* szRecord, char* format, ...);
 };
 
 // Size 20 also seems OK, 28 definitely not, causes Wine to crash.
@@ -535,9 +510,12 @@ int CvXMLLoadUtility::SetCommerce(T** ppbCommerce)
 	{
 		if (GetChildXmlVal(pbCommerce[0]))
 		{
-			FAssertMsg((iNumSibs <= NUM_COMMERCE_TYPES) , "For loop iterator is greater than array size");
+			// <!-- custom: The inherited assertion alone left the following writes unbounded in Release or after an ignored assertion.
+			// Match SetYields: report malformed input and cap indexing at the allocated commerce capacity in every build. See KI#3.3. (GPT-6.1-Sol) -->
+			if (iNumSibs > NUM_COMMERCE_TYPES)
+				errorMessage(CvString::format("XML commerce array exceeds capacity: children=%d capacity=%d XML=%s; excess values ignored", iNumSibs, NUM_COMMERCE_TYPES, GC.getCurrentXMLFile().GetCString()).c_str());
 			// loop through all the siblings, we start at 1 since we already have the first value
-			for (int i = 1; i < iNumSibs; i++)
+			for (int i = 1; i < std::min(iNumSibs, (int)NUM_COMMERCE_TYPES); i++)
 			{
 				if (!GetNextXmlVal(pbCommerce[i]))
 					break;
@@ -545,7 +523,8 @@ int CvXMLLoadUtility::SetCommerce(T** ppbCommerce)
 			gDLL->getXMLIFace()->SetToParent(m_pFXml);
 		}
 	}
-	return iNumSibs;
+	// <!-- custom: Bound the reported count too, so callers cannot treat an oversized XML child count as the number of allocated commerce slots. See KI#3.3. (GPT-6.1-Sol) -->
+	return std::min(iNumSibs, (int)NUM_COMMERCE_TYPES);
 }
 #endif // _USRDLL
 

@@ -1,0 +1,1083 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 255
+# Author: iustus
+# Date: 2007-01-10T07:16:48.916707Z
+# Coverage: full
+# Message:
+#   moved the visibility stuff used for new explorer code into CvPlot where it belongs (CvPlot::getVisiblePlotsList)
+#   used said new visibility stuff to implement fogbusting
+#   removed blue circle suggestions for explorers
+#   display fogbusting info under chipotle
+#   display slightly more unit information when possible under chipotle
+# Changed paths (6):
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@254
++++ /trunk/CvGameCoreDLL/CvGame.cpp@255
+@@ -2075,6 +2075,40 @@
+ 	}
+ 	else if (pHeadSelectedUnit != NULL)
+ 	{
++#ifdef ITS_FULL_OF_STARS
++		// testing
++		static bool bDrawVisibility = true;
++		if (bDrawVisibility)
++		{
++			TeamTypes eTeam = pHeadSelectedUnit->getTeam();
++			int iRange = pHeadSelectedUnit->visibilityRange();
++
++			CLinkList<CvPlot*> visiblePlotList;
++			pHeadSelectedUnit->plot()->getVisiblePlotsList(visiblePlotList, eTeam, iRange);
++			/*for (CLLNode<CvPlot*>* pNode = visiblePlotList.head(); (pNode != NULL); pNode = visiblePlotList.next(pNode))
++			{
++				CvPlot* pLoopPlot = pNode->m_data;
++				gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_UNIT_TEXT")).getColor(), PLOT_STYLE_BOX_OUTLINE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++			}*/
++
++			CLinkList<CvPlot*> furtherPlotList;
++			pHeadSelectedUnit->plot()->getVisiblePlotsList(furtherPlotList, eTeam, iRange + 2, &visiblePlotList);
++			for (CLLNode<CvPlot*>* pNode = furtherPlotList.head(); (pNode != NULL); pNode = furtherPlotList.next(pNode))
++			{
++				CvPlot* pLoopPlot = pNode->m_data;
++				gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_NEGATIVE_TEXT")).getColor(), PLOT_STYLE_BOX_OUTLINE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++			}
++
++			pHeadSelectedUnit->plot()->getVisiblePlotsList(furtherPlotList, eTeam, iRange + 1, &visiblePlotList);
++			for (CLLNode<CvPlot*>* pNode = furtherPlotList.head(); (pNode != NULL); pNode = furtherPlotList.next(pNode))
++			{
++				CvPlot* pLoopPlot = pNode->m_data;
++				gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_POSITIVE_TEXT")).getColor(), PLOT_STYLE_BOX_OUTLINE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++			}
++
++		}
++#endif
++
+ 		if (gDLL->getGraphicOption(GRAPHICOPTION_CITY_RADIUS))
+ 		{
+ 			if (gDLL->getInterfaceIFace()->canSelectionListFound())
+@@ -2206,6 +2240,7 @@
+ 				}
+ 			}
+ 
++#ifdef GIVE_EXPLORER_SUGGESTIONS
+ 			if (!bFoundRecommendation && (pHeadSelectedUnit->isNoBadGoodies() || pHeadSelectedUnit->getDomainType() == DOMAIN_SEA))
+ 			{
+ 				CvPlot* pBestExplorePlotThisTurn = NULL;
+@@ -2229,113 +2264,9 @@
+ #endif
+ 				}
+ 			}
+-		}
+-
+-#ifdef ITS_FULL_OF_STARS
+-		// testing
+-		static bool bDrawCircles = false;
+-		if (bDrawCircles)
+-		{
+-			TeamTypes eTeam = pHeadSelectedUnit->getTeam();
+-			int iRange = pHeadSelectedUnit->visibilityRange();
+-			int iCenterX = pHeadSelectedUnit->plot()->getX_INLINE();
+-			int iCenterY = pHeadSelectedUnit->plot()->getY_INLINE();
+-			for (int iDX = -(iRange + 1); iDX <= (iRange + 1); iDX++)
+-			{
+-				for (int iDY = -(iRange + 1); iDY <= (iRange + 1); iDY++)
+-				{
+-					CvPlot* pLoopPlot = plotXY(iCenterX, iCenterY, iDX, iDY);
+-					if (pLoopPlot != NULL)
+-					{
+-						bool bPlotVisible = false;
+-
+-						// if interior, then it is visible
+-						if (abs(iDX) <= abs(iRange) && abs(iDY) <= abs(iRange))
+-						{
+-							if (abs(iDX) == abs(iRange) || abs(iDY) == abs(iRange))
+-							{
+-								static bool bDrawEdge = false;
+-								if (bDrawEdge)
+-									bPlotVisible = true;
+-							}
+-						}
+-						// if outer edge, check if it would be visible
+-						// uses reverse of logic found in CvPlot::changeAdjacentSight
+-						else
+-						{
+-							int iEdgePlotSeeFromLevel = pLoopPlot->seeFromLevel(eTeam);
+-							
+-							// for every adjacent inner plot, check its adjacent inner plots
+-							CvPlot* pAdjacentPlot;
+-							int iAdjacentPlotIndex = 0;
+-							while (!bPlotVisible && (pAdjacentPlot = getIndexedInnerPlot(iCenterX, iCenterY, iDX, iDY, iAdjacentPlotIndex++)) != NULL)
+-							{
+-								int iAdjacentPlotSeeThroughLevel = pAdjacentPlot->seeThroughLevel();
+-
+-								CvPlot* pInnerPlot;
+-								int iInnerPlotIndex = 0;
+-								int iAdjacentDX = pAdjacentPlot->getX_INLINE() - iCenterX;
+-								int iAdjacentDY = pAdjacentPlot->getY_INLINE() - iCenterY;
+-								while (!bPlotVisible && (pInnerPlot = getIndexedInnerPlot(iCenterX, iCenterY, iAdjacentDX, iAdjacentDY, iInnerPlotIndex++, iDX, iDY)) != NULL)
+-								{
+-									// do not include the contrary direction for inner loop, visibility doesnt bend directions
+-									if (iInnerPlotIndex > 2)
+-									{
+-										break;
+-									}
+-
+-									int iInnerSeeFromLevel = pInnerPlot->seeFromLevel(eTeam);
+-									if ((iInnerSeeFromLevel > iAdjacentPlotSeeThroughLevel) ||
+-										(iInnerSeeFromLevel == iAdjacentPlotSeeThroughLevel && iEdgePlotSeeFromLevel > iInnerSeeFromLevel))
+-									{
+-										bPlotVisible = true;
+-									}
+-								}
+-							}
+-						}
+-						
+-						if (bPlotVisible)
+-						{
+-							gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_UNIT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+-						}
+-					}
+-				}
+-			}
+-		}
+-
+-		static bool bDrawMoreCircles = false;
+-		if (bDrawMoreCircles)
+-		{
+-			int iCenterX = GET_PLAYER(getActivePlayer()).getCapitalCity()->plot()->getX_INLINE();
+-			int iCenterY = GET_PLAYER(getActivePlayer()).getCapitalCity()->plot()->getY_INLINE();
+-			int iDX = pHeadSelectedUnit->plot()->getX_INLINE() - iCenterX;
+-			int iDY = pHeadSelectedUnit->plot()->getY_INLINE() - iCenterY;
+-
+-			CvPlot* pAdjacentPlot;
+-			int iAdjacentPlotIndex = 0;
+-			while ((pAdjacentPlot = getIndexedInnerPlot(iCenterX, iCenterY, iDX, iDY, iAdjacentPlotIndex++)) != NULL)
+-			{
+-				if ((iAdjacentPlotIndex == 1 && gDLL->altKey() && !gDLL->ctrlKey()) ||
+-					(iAdjacentPlotIndex == 2 && !gDLL->altKey() && gDLL->ctrlKey()) ||
+-					(iAdjacentPlotIndex == 3 && gDLL->altKey() && gDLL->ctrlKey()))
+-				gDLL->getEngineIFace()->addColoredPlot(pAdjacentPlot->getX_INLINE(), pAdjacentPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_BOX_OUTLINE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+-				
+-				CvPlot* pInnerPlot;
+-				int iInnerPlotIndex = 0;
+-				int iAdjacentDX = pAdjacentPlot->getX_INLINE() - iCenterX;
+-				int iAdjacentDY = pAdjacentPlot->getY_INLINE() - iCenterY;
+-				while ((pInnerPlot = getIndexedInnerPlot(iCenterX, iCenterY, iAdjacentDX, iAdjacentDY, iInnerPlotIndex++, iDX, iDY)) != NULL)
+-				{
+-					if ((iAdjacentPlotIndex == 1 && gDLL->altKey() && !gDLL->ctrlKey()) ||
+-						(iAdjacentPlotIndex == 2 && !gDLL->altKey() && gDLL->ctrlKey()) ||
+-						(iAdjacentPlotIndex == 3 && gDLL->altKey() && gDLL->ctrlKey()))
+-						gDLL->getEngineIFace()->addColoredPlot(pInnerPlot->getX_INLINE(), pInnerPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_BOX_OUTLINE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+-				}
+-
+-			}
+-		}
+ #endif
+ 
++		}
+ 	}
+ }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@254
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@255
+@@ -1069,23 +1069,28 @@
+ 					{
+ 						getMissionTypeString(szTempString, eMissionType);
+ 						szString += CvWString::format(SETCOLR L"\n%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szTempString.GetCString());
+-
+-						CvUnit* pMissionUnit = pHeadGroup->AI_getMissionAIUnit();
+-						if (pMissionUnit != NULL)
+-						{
+-							// mission unit
+-							szString += L"\n to ";
+-							szString += CvWString::format(SETCOLR L"%s" ENDCOLR, GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorA(), pMissionUnit->getName().GetCString());
+-							szString += CvWString::format(L"(%d) G:%d", shortenID(shortenID(pMissionUnit->getID())), shortenID(pMissionUnit->getGroupID()));
+-							getUnitAIString(szTempString, pMissionUnit->AI_getUnitAIType());
+-							szString += CvWString::format(SETCOLR L" %s" ENDCOLR, GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString());
+-						}
+-						
++					}
++
++					// mission unit
++					CvUnit* pMissionUnit = pHeadGroup->AI_getMissionAIUnit();
++					if (pMissionUnit != NULL && (eMissionAI != NO_MISSIONAI || eMissionType != NO_MISSION))
++					{
++						// mission unit
++						szString += L"\n to ";
++						szString += CvWString::format(SETCOLR L"%s" ENDCOLR, GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorA(), pMissionUnit->getName().GetCString());
++						szString += CvWString::format(L"(%d) G:%d", shortenID(shortenID(pMissionUnit->getID())), shortenID(pMissionUnit->getGroupID()));
++						getUnitAIString(szTempString, pMissionUnit->AI_getUnitAIType());
++						szString += CvWString::format(SETCOLR L" %s" ENDCOLR, GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString());
++					}
++					
++					// mission plot
++					if (eMissionAI != NO_MISSIONAI || eMissionType != NO_MISSION)
++					{
+ 						// first try the plot from the missionAI
+ 						CvPlot* pMissionPlot = pHeadGroup->AI_getMissionAIPlot();
+ 						
+ 						// if MissionAI does not have a plot, get one from the mission itself
+-						if (pMissionPlot == NULL)
++						if (pMissionPlot == NULL && eMissionType != NO_MISSION)
+ 						{
+ 							switch (eMissionType)
+ 							{
+@@ -2165,7 +2170,7 @@
+             }
+         }
+ 		
+-		// explore value
++		// explore and fogbusting value
+ 		if (gDLL->getInterfaceIFace()->getLengthSelectionList() > 0)
+ 		{
+ 			CvUnitAI* pHeadUnit = static_cast<CvUnitAI*>(gDLL->getInterfaceIFace()->getSelectionList()->getHeadUnit());
+@@ -2189,6 +2194,72 @@
+ 						szString += CvWString::format(SETCOLR L"\n\nExplore Value: %d (%d)" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), iExploreValue, iRawExploreValue);
+ 						
+ 					}
++				}
++
++				// fogbusting value
++				PlayerTypes ePlayer = pHeadUnit->getOwnerINLINE();
++				TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
++				int iRange = pHeadUnit->visibilityRange();
++				CLinkList<CvPlot*> visiblePlotList;
++				pHeadUnit->plot()->getVisiblePlotsList(visiblePlotList, eTeam, iRange);
++				int iPlotsWeFogbusting = 0;
++				for (CLLNode<CvPlot*>* pNode = visiblePlotList.head(); (pNode != NULL); pNode = visiblePlotList.next(pNode))
++				{
++					iPlotsWeFogbusting += pHeadUnit->AI_fogbustPlotValue(pNode->m_data);
++				}
++
++				int iFogbustingPlotsWeLost = 0;
++				int iFogbustingPlotsWeGain = 0;
++				pHeadUnit->AI_fogbustPlotDifference(pPlot, visiblePlotList, iFogbustingPlotsWeLost, iFogbustingPlotsWeGain);
++				
++				// get full further list, will remove all the plots that intersect later
++				CLinkList<CvPlot*> furtherAndVisiblePlotList;
++				pHeadUnit->plot()->getVisiblePlotsList(furtherAndVisiblePlotList, eTeam, iRange + 1);
++
++				// count our owned plots
++				int iOurTerritoryCount = 0;
++				for (CLLNode<CvPlot*>* pNode = furtherAndVisiblePlotList.head(); (pNode != NULL); pNode = furtherAndVisiblePlotList.next(pNode))
++				{
++					CvPlot* pLoopPlot = pNode->m_data;
++					if (pLoopPlot->getOwnerINLINE() == ePlayer)
++					{
++						iOurTerritoryCount++;
++					}
++				}
++				// get list of visible plots at new location, and remove overlap plots from lost further list
++				CLinkList<CvPlot*> newFurtherPlotList; 
++				pPlot->getVisiblePlotsList(newFurtherPlotList, eTeam, iRange + 1, &furtherAndVisiblePlotList, /*bXOrExcludeList*/ true);
++
++				// count our owned plots we lost
++				int iOurTerritoryCountLost = 0;
++				for (CLLNode<CvPlot*>* pNode = furtherAndVisiblePlotList.head(); (pNode != NULL); pNode = furtherAndVisiblePlotList.next(pNode))
++				{
++					CvPlot* pLoopPlot = pNode->m_data;
++					if (pLoopPlot->getOwnerINLINE() == ePlayer)
++					{
++						iOurTerritoryCountLost++;
++					}
++				}
++
++				// count our owned plots we gain
++				int iOurTerritoryCountGain = 0;
++				for (CLLNode<CvPlot*>* pNode = newFurtherPlotList.head(); (pNode != NULL); pNode = newFurtherPlotList.next(pNode))
++				{
++					CvPlot* pLoopPlot = pNode->m_data;
++					if (pLoopPlot->getOwnerINLINE() == ePlayer)
++					{
++						iOurTerritoryCountGain++;
++					}
++				}
++
++				if (iPlotsWeFogbusting > 0 || iFogbustingPlotsWeGain > 0)
++				{
++					szString += CvWString::format(SETCOLR L"\nFogbusting: %d, gain:%d lose:%d (of %d)" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), iPlotsWeFogbusting + iFogbustingPlotsWeGain - iFogbustingPlotsWeLost, iFogbustingPlotsWeGain, iFogbustingPlotsWeLost, iPlotsWeFogbusting);
++				}
++
++				if (iOurTerritoryCount > 0 || iOurTerritoryCountGain > 0)
++				{
++					szString += CvWString::format(SETCOLR L"\nTerritory: %d, gain:%d lose:%d (of %d)" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), iOurTerritoryCount + iOurTerritoryCountGain - iOurTerritoryCountLost, iOurTerritoryCountGain, iOurTerritoryCountLost, iOurTerritoryCount);
+ 				}
+ 			}
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@254
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@255
+@@ -1695,6 +1695,98 @@
+ 	}
+ }
+ 
++// allocates memory, you must dispose of the returned list
++void CvPlot::getVisiblePlotsList(CLinkList<CvPlot*>& plotsList, TeamTypes eTeam, int iRange, CLinkList<CvPlot*>* pExcludePlotsList, bool bXOrExcludeList) const
++{
++	PROFILE_FUNC();
++	
++	plotsList.clear();
++
++	// iterate over all the plots potentially visible
++	int iCenterX = getX_INLINE();
++	int iCenterY = getY_INLINE();
++	for (int iDX = -(iRange + 1); iDX <= (iRange + 1); iDX++)
++	{
++		for (int iDY = -(iRange + 1); iDY <= (iRange + 1); iDY++)
++		{
++			PROFILE("getVisiblePlotsList 1");
++
++			CvPlot* pLoopPlot = plotXY(iCenterX, iCenterY, iDX, iDY);
++			if (pLoopPlot != NULL)
++			{
++				bool bPlotVisible = false;
++
++				// exclude plots in exclude list
++				if (pExcludePlotsList != NULL)
++				{
++					bool bExcludePlot = false;
++					for (CLLNode<CvPlot*>* pNode = pExcludePlotsList->head(); (pNode != NULL); pNode = (pNode != NULL) ? pExcludePlotsList->next(pNode) : NULL)
++					{
++						CvPlot* pExcludePlot = pNode->m_data;
++						if (pLoopPlot == pExcludePlot)
++						{
++							bExcludePlot = true;
++
++							// remove from the exclude list if desired
++							if (bXOrExcludeList)
++							{
++								pNode = pExcludePlotsList->deleteNode(pNode);	// note, need to drop loop here, pNode may be NULL
++							}
++
++							break;
++						}
++					}
++					
++					// skip this plot if it is excluded
++					if (bExcludePlot)
++					{
++						continue;
++					}
++				}
++
++				// if interior, then it is visible
++				if (abs(iDX) <= abs(iRange) && abs(iDY) <= abs(iRange))
++				{
++					bPlotVisible = true;
++				}
++				// if outer edge, check if it would be visible
++				// uses reverse of logic found in CvPlot::changeAdjacentSight
++				else
++				{
++					int iEdgePlotSeeFromLevel = pLoopPlot->seeFromLevel(eTeam);
++					
++					// for every adjacent inner plot, check its adjacent inner plots
++					CvPlot* pAdjacentPlot;
++					int iAdjacentPlotIndex = 0;
++					while (!bPlotVisible && (pAdjacentPlot = getIndexedInnerPlot(iCenterX, iCenterY, iDX, iDY, iAdjacentPlotIndex++)) != NULL)
++					{
++						int iAdjacentPlotSeeThroughLevel = pAdjacentPlot->seeThroughLevel();
++
++						CvPlot* pInnerPlot;
++						int iInnerPlotIndex = 0;
++						int iAdjacentDX = pAdjacentPlot->getX_INLINE() - iCenterX;
++						int iAdjacentDY = pAdjacentPlot->getY_INLINE() - iCenterY;
++						while (!bPlotVisible && (pInnerPlot = getIndexedInnerPlot(iCenterX, iCenterY, iAdjacentDX, iAdjacentDY, iInnerPlotIndex++, iDX, iDY)) != NULL)
++						{
++							int iInnerSeeFromLevel = pInnerPlot->seeFromLevel(eTeam);
++
++							if ((iInnerSeeFromLevel > iAdjacentPlotSeeThroughLevel) ||
++								(iInnerSeeFromLevel == iAdjacentPlotSeeThroughLevel && iEdgePlotSeeFromLevel > iInnerSeeFromLevel))
++							{
++								bPlotVisible = true;
++							}
++						}
++					}
++				}
++
++				if (bPlotVisible)
++				{
++					plotsList.insertAtEnd(pLoopPlot);
++				}
++			}
++		}
++	}
++}
+ 
+ void CvPlot::updateSight(bool bIncrement)
+ {
+
+Index: /trunk/CvGameCoreDLL/CvPlot.h
+--- /trunk/CvGameCoreDLL/CvPlot.h@254
++++ /trunk/CvGameCoreDLL/CvPlot.h@255
+@@ -106,6 +106,7 @@
+ 	int seeThroughLevel() const;																																// Exposed to Python
+ 	void changeSeeFromSight(TeamTypes eTeam, DirectionTypes eDirection, int iFromLevel, bool bIncrement, InvisibleTypes eSeeInvisible);
+ 	void changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible);
++	void getVisiblePlotsList(CLinkList<CvPlot*>& plotsList, TeamTypes eTeam, int iRange, CLinkList<CvPlot*>* pExcludePlotsList = NULL, bool bXOrExcludeList = false) const;
+ 	void updateSight(bool bIncrement);
+ 	void updateSeeFromSight(bool bIncrement);
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@254
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@255
+@@ -155,6 +155,14 @@
+ 			}
+ 			else
+ 			{
++#ifdef TEST_FOGBUSTING
++				if (!AI_fogbust())
++				{
++					getGroup()->pushMission(MISSION_SKIP);
++				}
++				return;
++#endif
++
+ 				AI_exploreMove();
+ 			}
+ 			break;
+@@ -1557,6 +1565,11 @@
+ 			return;
+ 		}
+ 
++		if (AI_fogbust())
++		{
++			return;
++		}
++
+ 		if (AI_patrol())
+ 		{
+ 			return;
+@@ -2420,6 +2433,11 @@
+ 	}
+ 
+ 	if (AI_pillage())
++	{
++		return;
++	}
++
++	if (AI_fogbust())
+ 	{
+ 		return;
+ 	}
+@@ -3282,6 +3300,11 @@
+ 		return;
+ 	}
+ 
++	if (AI_fogbust())
++	{
++		return;
++	}
++
+ 	if (AI_patrol())
+ 	{
+ 		return;
+@@ -3505,6 +3528,11 @@
+ 	}
+ 
+ 	if (AI_pillage())
++	{
++		return;
++	}
++
++	if (AI_fogbust())
+ 	{
+ 		return;
+ 	}
+@@ -7105,6 +7133,437 @@
+ 	return false;
+ }
+ 
++// value of a plot for fogbusting
++int CvUnitAI::AI_fogbustPlotValue(const CvPlot* pPlot, int iObserverChange) const
++{
++	int iValue = 0;
++	
++	int iNewVisibilityCount = pPlot->getVisibilityCount(GET_PLAYER(getOwnerINLINE()).getTeam()) + iObserverChange;
++	if (iNewVisibilityCount == 1)
++	{
++		iValue ++;
++
++		if (!pPlot->isOwned())
++		{
++			iValue ++;
++		}
++
++		if (!pPlot->isImpassable())
++		{
++			iValue *= 4;
++
++			if ((getDomainType() == DOMAIN_SEA) || pPlot->getArea() == getArea())
++			{
++				iValue *= 2;
++			}
++		}
++	}
++	
++	return iValue;
++}
++
++// determines the change in fogbusting plot values by moving to new plot
++void CvUnitAI::AI_fogbustPlotDifference(CvPlot* pNewPlot, CLinkList<CvPlot*>& visiblePlotList, int& iFogbustingPlotsWeLose, int& iFogbustingPlotsWeGain)
++{
++	TeamTypes eTeam = GET_PLAYER(getOwnerINLINE()).getTeam();
++
++	int iRange = visibilityRange();
++	bool bSeaUnit = (getDomainType() == DOMAIN_SEA);
++
++	// copy full visible list, will remove all the plots that intersect later
++	CLinkList<CvPlot*> noLongerVisibleList;
++	for (CLLNode<CvPlot*>* pNode = visiblePlotList.head(); (pNode != NULL); pNode = visiblePlotList.next(pNode))
++	{
++		noLongerVisibleList.insertAtEnd(pNode->m_data);
++	}
++	
++	// get list of visible plots at new location, and remove overlap plots from no longer visible list
++	CLinkList<CvPlot*> newVisiblePlotList; 
++	pNewPlot->getVisiblePlotsList(newVisiblePlotList, eTeam, iRange, &noLongerVisibleList, /*bXOrExcludeList*/ true);
++
++	// count visible plots we lose
++	iFogbustingPlotsWeLose = 0;
++	for (CLLNode<CvPlot*>* pNode = noLongerVisibleList.head(); (pNode != NULL); pNode = noLongerVisibleList.next(pNode))
++	{
++		iFogbustingPlotsWeLose += AI_fogbustPlotValue(pNode->m_data);
++	}
++
++	// count visible plots we gain
++	iFogbustingPlotsWeGain = 0;
++	for (CLLNode<CvPlot*>* pNode = newVisiblePlotList.head(); (pNode != NULL); pNode = newVisiblePlotList.next(pNode))
++	{
++		iFogbustingPlotsWeGain += AI_fogbustPlotValue(pNode->m_data, /*iObserverChange*/ +1);
++	}
++}
++
++// Returns true if a mission was pushed...
++bool CvUnitAI::AI_fogbust()
++{
++	PROFILE_FUNC();
++
++	int iBestValue = 0;
++	CvPlot* pBestPlot = NULL;
++	CvPlot* pBestFogbustPlot = NULL;
++
++	PlayerTypes ePlayer = getOwnerINLINE();
++	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
++	TeamTypes eTeam = kPlayer.getTeam();
++	
++	int iRange = visibilityRange();
++	bool bSeaUnit = (getDomainType() == DOMAIN_SEA);
++
++	// are we already busting fog? check all the plots visible to us
++	int iOurTerritoryCount = 0;
++	int iPlotsWeFogbusting = 0;
++	int iEnemyPlots = 0;
++	CLinkList<CvPlot*> visiblePlotList;
++	plot()->getVisiblePlotsList(visiblePlotList, eTeam, iRange);
++	for (CLLNode<CvPlot*>* pNode = visiblePlotList.head(); (pNode != NULL); pNode = visiblePlotList.next(pNode))
++	{
++		CvPlot* pLoopPlot = pNode->m_data;
++
++		iPlotsWeFogbusting += AI_fogbustPlotValue(pLoopPlot);
++
++		if (pLoopPlot->getArea() == getArea() && pLoopPlot->isVisibleEnemyUnit(ePlayer))
++		{
++			iEnemyPlots++;
++		}
++
++		if (pLoopPlot->getOwnerINLINE() == ePlayer)
++		{
++			iOurTerritoryCount++;
++		}
++	}
++
++	// count the plots just outside our visibility that we own as well
++	CLinkList<CvPlot*> furtherPlotList;
++	plot()->getVisiblePlotsList(furtherPlotList, eTeam, iRange + 1, &visiblePlotList);
++	for (CLLNode<CvPlot*>* pNode = visiblePlotList.head(); (pNode != NULL); pNode = visiblePlotList.next(pNode))
++	{
++		CvPlot* pLoopPlot = pNode->m_data;
++
++		if (pLoopPlot->getOwnerINLINE() == ePlayer)
++		{
++			iOurTerritoryCount++;
++		}
++	}
++
++	bool bOurTerritoryInRange = (iOurTerritoryCount > 0);
++
++	// if still cannot find any plots owned by us, see if we can path through visible plots to our territory
++	//CvCity* pPathCity = NULL;
++	//if (!bOurTerritoryInRange && iPlotsWeFogbusting > 0)
++	//{
++	//	// search cities on this area for fog to bust
++	//	int iLoop;
++	//	for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); !bOurTerritoryInRange && pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
++	//	{
++	//		if (pLoopCity->getArea() == getArea())
++	//		{
++	//			if (generatePath(pLoopCity->plot(), 0, true))
++	//			{
++	//				// walk the path, checking to make sure each plot is visible by us
++	//				bool bPathVisible = true;
++	//				FAStarNode* pNode = getPathLastNode();
++	//				while (pNode != NULL && bPathVisible)
++	//				{
++	//					CvPlot* pPathPlot = GC.getMapINLINE().plotSorenINLINE(pNode->m_iX, pNode->m_iY);
++	//					
++	//					if (pPathPlot->getVisibilityCount(eTeam) <= 0)
++	//					{
++	//						bPathVisible = false;
++	//					}
++
++	//					pNode = pNode->m_pParent;
++	//				}
++
++	//				if (bPathVisible)
++	//				{
++	//					bOurTerritoryInRange = true;
++	//					pPathCity = pLoopCity;
++	//				}
++	//			}
++	//		}
++	//	}
++	//}
++
++
++	// if we are fogbusting some plots or enemy nearby, check adjacent plots for even better fogbusting
++	if (iPlotsWeFogbusting > 0 || iEnemyPlots > 0)
++	{
++		// if we cannot find a better plot, stay in place rather than searching other cities
++		if ((bOurTerritoryInRange && iPlotsWeFogbusting > 0) || iEnemyPlots > 0)
++		{
++			pBestFogbustPlot = pBestPlot = plot();
++		}
++		
++		// if there are enemies about, we will choose the best defensive plot
++		int iCurrCombatStr = 0;				
++		if (iEnemyPlots > 0)
++		{
++			FAssert(pBestPlot != NULL);
++			iCurrCombatStr = currCombatStr(pBestPlot, NULL);
++		}
++
++		// get full further list, will remove all the plots that intersect later
++		CLinkList<CvPlot*> furtherAndVisiblePlotList;
++		plot()->getVisiblePlotsList(furtherAndVisiblePlotList, eTeam, iRange + 1);
++
++		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++		{
++			// check non-impassable adjacent plots that do not have enemies in them
++			CvPlot* pAdjacentPlot = plotDirection(getX_INLINE(), getY_INLINE(), (DirectionTypes) iI);
++			if (pAdjacentPlot != NULL && !pAdjacentPlot->isImpassable() && !pAdjacentPlot->isVisibleEnemyUnit(ePlayer))
++			{
++				// count up fogbusting plots we lose and gain
++				int iFogbustingPlotsWeLose = 0;
++				int iFogbustingPlotsWeGain = 0;
++				AI_fogbustPlotDifference(pAdjacentPlot, visiblePlotList, iFogbustingPlotsWeLose, iFogbustingPlotsWeGain);
++
++				// copy full further list, will remove all the plots that intersect later
++				CLinkList<CvPlot*> lostFurtherPlotList;
++				for (CLLNode<CvPlot*>* pNode = furtherAndVisiblePlotList.head(); (pNode != NULL); pNode = furtherAndVisiblePlotList.next(pNode))
++				{
++					lostFurtherPlotList.insertAtEnd(pNode->m_data);
++				}
++				
++				// get list of visible plots at new location, and remove overlap plots from lost further list
++				CLinkList<CvPlot*> newFurtherPlotList; 
++				pAdjacentPlot->getVisiblePlotsList(newFurtherPlotList, eTeam, iRange + 1, &lostFurtherPlotList, /*bXOrExcludeList*/ true);
++
++				// count our owned plots we lost
++				int iOurTerritoryCountLost = 0;
++				for (CLLNode<CvPlot*>* pNode = lostFurtherPlotList.head(); (pNode != NULL); pNode = lostFurtherPlotList.next(pNode))
++				{
++					CvPlot* pLoopPlot = pNode->m_data;
++					if (pLoopPlot->getOwnerINLINE() == ePlayer)
++					{
++						iOurTerritoryCountLost++;
++					}
++				}
++
++				// count our owned plots we gain
++				int iOurTerritoryCountGain = 0;
++				for (CLLNode<CvPlot*>* pNode = newFurtherPlotList.head(); (pNode != NULL); pNode = newFurtherPlotList.next(pNode))
++				{
++					CvPlot* pLoopPlot = pNode->m_data;
++					if (pLoopPlot->getOwnerINLINE() == ePlayer)
++					{
++						iOurTerritoryCountGain++;
++					}
++				}
++
++				// if the new plot is in range of our territory
++				int iNewOurTerritoryCount = iOurTerritoryCount - iOurTerritoryCountLost + iOurTerritoryCountGain;
++				bool bNewOurTerritoryInRange = (iNewOurTerritoryCount > 0);
++
++				// is this new plot in range of our territory? (or enemy present)
++				if (bNewOurTerritoryInRange || (iEnemyPlots > 0))
++				{
++					int iFogbustingChange = iFogbustingPlotsWeGain - iFogbustingPlotsWeLose;
++					int iValue = iPlotsWeFogbusting + iFogbustingChange;
++
++					// if start not in range and we fogbust at all, or we gain at least one plot (or there are enemies about), 
++					// consider this as our best choice
++					if ((!bOurTerritoryInRange && iValue > 0) || iFogbustingChange > 0 || iEnemyPlots > 0)
++					{
++						if (canMoveInto(pAdjacentPlot, /*bAttack*/ false, /*bDeclareWar*/ false, /*bIgnoreLoad*/ true))
++						{
++							// if there is an enemy in our fogbusting area, move to the best defensive bonus
++							if (iEnemyPlots > 0)
++							{
++								int iAdjacentPlotCombatStr = currCombatStr(pAdjacentPlot, NULL);
++								int iCombatDifference = iAdjacentPlotCombatStr - iCurrCombatStr;
++
++								// if adjacent plot is better defensively (not checking for fogbusting in this case)
++								// or equal and we gain significant fogbusting ability
++								if ((iCombatDifference > 0) || 
++									(iCombatDifference == 0 && (iFogbustingChange > 2 || (iValue > 0 && iPlotsWeFogbusting == 0))))
++								{
++									iValue += (3 * iCombatDifference);
++								}
++								// adjacent plot is worse defensively, reject it
++								else
++								{
++									iValue = 0;
++								}
++							}
++
++							// if better, or equal and random chance choose this one
++							if (iValue > iBestValue || (iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI fogbust")))
++							{
++								iBestValue = iValue;
++								pBestFogbustPlot = pBestPlot = pAdjacentPlot;
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++	
++	// if there was nothing good nearby
++	if (pBestPlot == NULL)
++	{
++		// search cities on this area for fog to bust
++		int iLoop;
++		for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
++		{
++			if (bSeaUnit || pLoopCity->getArea() == getArea())
++			{
++				// for each city, test all 8 sides to see if there is a good fogbusting spot
++				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++				{
++					int iDistanceToGo = pLoopCity->getCultureLevel() + iRange + 1;
++					
++					// move up to iDistanceToGo from center, if possible
++					CvPlot* pPreviousCheckPlot = NULL;
++					CvPlot* pCheckPlot = NULL;
++					CvPlot* pNextPlot = pLoopCity->plot();
++					while (0 < iDistanceToGo-- &&
++						(pNextPlot = plotDirection(pNextPlot->getX_INLINE(), pNextPlot->getY_INLINE(), (DirectionTypes) iI)) != NULL)
++					{
++						// remember the last plot (only on our area for land units)
++						if (bSeaUnit || (pCheckPlot != NULL && pCheckPlot->getArea() == getArea()))
++						{
++							pPreviousCheckPlot = pCheckPlot;
++						}
++
++						pCheckPlot = pNextPlot;
++					}
++					
++					// try to find good plot (trying previous, left and right, double left and double right plots)
++					for (int iPass = 0; iPass <= 5; iPass++)
++					{
++						// if non-sea unit and wrong area, or cannot move into
++						if (pCheckPlot != NULL && ((!bSeaUnit && pCheckPlot->getArea() != getArea()) || 
++							!canMoveInto(pCheckPlot, /*bAttack*/ false, /*bDeclareWar*/ false, /*bIgnoreLoad*/ true)))
++						{
++							pCheckPlot = NULL;
++						}
++
++						// if good plot, we do not need to try any more
++						if (pCheckPlot != NULL && !pCheckPlot->isVisibleEnemyUnit(ePlayer))
++						{
++							break;
++						}
++						// if bad plot, try another
++						else
++						{
++							switch (iPass)
++							{
++							// first try the previous plot
++							case 0:
++								pCheckPlot = pPreviousCheckPlot;
++								break;
++							
++							// next try the left plot
++							case 1:
++								pPreviousCheckPlot = (pPreviousCheckPlot != NULL) ? pPreviousCheckPlot : pCheckPlot;
++								if (pPreviousCheckPlot != NULL)
++								{
++									pCheckPlot = plotDirection(pPreviousCheckPlot->getX_INLINE(), pPreviousCheckPlot->getY_INLINE(), GC.getTurnLeftDirection(iI));
++								}
++								break;
++
++							// next try the right plot
++							case 2:
++								if (pPreviousCheckPlot != NULL)
++								{
++									pCheckPlot = plotDirection(pPreviousCheckPlot->getX_INLINE(), pPreviousCheckPlot->getY_INLINE(), GC.getTurnRightDirection(iI));
++								}
++								break;
++
++							// next try the double left plot
++							case 3:
++								if (pPreviousCheckPlot != NULL)
++								{
++									CvPlot* pStepOnePlot = plotDirection(pPreviousCheckPlot->getX_INLINE(), pPreviousCheckPlot->getY_INLINE(), GC.getTurnLeftDirection(iI));
++									if (pStepOnePlot != NULL)
++									{
++										pCheckPlot = plotDirection(pStepOnePlot->getX_INLINE(), pStepOnePlot->getY_INLINE(), GC.getTurnLeftDirection(GC.getTurnLeftDirection(iI)));
++									}
++								}
++								break;
++
++							// next try the double right plot
++							case 4:
++								if (pPreviousCheckPlot != NULL)
++								{
++									CvPlot* pStepOnePlot = plotDirection(pPreviousCheckPlot->getX_INLINE(), pPreviousCheckPlot->getY_INLINE(), GC.getTurnRightDirection(iI));
++									if (pStepOnePlot != NULL)
++									{
++										pCheckPlot = plotDirection(pStepOnePlot->getX_INLINE(), pStepOnePlot->getY_INLINE(), GC.getTurnRightDirection(GC.getTurnRightDirection(iI)));
++									}
++								}
++								break;
++
++							// thats it, nothing found
++							case 5:
++								pCheckPlot = NULL;
++							}
++						}
++					}
++
++					// if we found a good plot
++					if (pCheckPlot != NULL)
++					{
++						// count up fogbusting plots we lose and gain
++						int iFogbustingPlotsWeLose = 0;
++						int iFogbustingPlotsWeGain = 0;
++						AI_fogbustPlotDifference(pCheckPlot, visiblePlotList, iFogbustingPlotsWeLose, iFogbustingPlotsWeGain);
++
++						// are any other units headed to the area?
++						int iMissionCount = kPlayer.AI_plotTargetMissionAIs(pCheckPlot, MISSIONAI_EXPLORE, getGroup(), iRange + 1);
++						//if (iMissionCount > 0)
++						//{
++						//	// if any units are headed to exactly the same plot, that counts way more
++						//	iMissionCount = 8 * kPlayer.AI_plotTargetMissionAIs(pCheckPlot, MISSIONAI_EXPLORE, getGroup(), 0);
++						//}
++
++						// if at least one plot, consider this as our best choice
++						int iValue = iPlotsWeFogbusting + iFogbustingPlotsWeGain - iFogbustingPlotsWeLose;
++						if (iValue > 0)
++						{
++							int iPathTurns = 0;
++							if (atPlot(pCheckPlot) || generatePath(pCheckPlot, 0, true, &iPathTurns))
++							{
++								iValue = (iValue * 128) / (8 + iPathTurns);
++								iValue /= ((8 * iMissionCount) + 1);
++								iValue = (iValue > 0) ? iValue : 1;
++								
++								// if better, or equal and random chance choose this one
++								if (iValue > iBestValue || (iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI fogbust")))
++								{
++									iBestValue = iValue;
++									pBestFogbustPlot = pCheckPlot;
++									pBestPlot = getPathEndTurnPlot();
++								}
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++
++	if (pBestPlot != NULL)
++	{
++		if (atPlot(pBestPlot))
++		{
++			getGroup()->pushMission(MISSION_SKIP, 0, 0, 0, false, false, MISSIONAI_EXPLORE, pBestPlot);
++			return true;
++		}
++		else
++		{
++			FAssert(!atPlot(pBestPlot));
++			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), MOVE_NO_ENEMY_TERRITORY, false, false, MISSIONAI_EXPLORE, pBestFogbustPlot);
++			return true;
++		}
++	}
++
++	return false;
++}
+ 
+ // Returns true if a mission was pushed...
+ bool CvUnitAI::AI_patrol()
+@@ -7632,94 +8091,44 @@
+ 	}
+ 	
+ 	// add value to all plots that would be visible from this one
+-	{
+-		PROFILE("AI_explorePlotValue 1");
+-		int iRange = visibilityRange();
+-		int iCenterX = pPlot->getX_INLINE();
+-		int iCenterY = pPlot->getY_INLINE();
+-		for (int iDX = -(iRange + 1); iDX <= (iRange + 1); iDX++)
+-		{
+-			for (int iDY = -(iRange + 1); iDY <= (iRange + 1); iDY++)
+-			{
+-				PROFILE("AI_explorePlotValue 2");
+-
+-				CvPlot* pLoopPlot = plotXY(iCenterX, iCenterY, iDX, iDY);
+-				if (pLoopPlot != NULL)
+-				{
+-					bool bPlotVisible = false;
+-
+-					// if interior, then it is visible
+-					if (abs(iDX) <= abs(iRange) && abs(iDY) <= abs(iRange))
+-					{
+-						bPlotVisible = true;
+-					}
+-					// if outer edge, check if it would be visible
+-					// uses reverse of logic found in CvPlot::changeAdjacentSight
+-					else
+-					{
+-						int iEdgePlotSeeFromLevel = pLoopPlot->seeFromLevel(eTeam);
+-						
+-						// for every adjacent inner plot, check its adjacent inner plots
+-						CvPlot* pAdjacentPlot;
+-						int iAdjacentPlotIndex = 0;
+-						while (!bPlotVisible && (pAdjacentPlot = getIndexedInnerPlot(iCenterX, iCenterY, iDX, iDY, iAdjacentPlotIndex++)) != NULL)
+-						{
+-							int iAdjacentPlotSeeThroughLevel = pAdjacentPlot->seeThroughLevel();
+-
+-							CvPlot* pInnerPlot;
+-							int iInnerPlotIndex = 0;
+-							int iAdjacentDX = pAdjacentPlot->getX_INLINE() - iCenterX;
+-							int iAdjacentDY = pAdjacentPlot->getY_INLINE() - iCenterY;
+-							while (!bPlotVisible && (pInnerPlot = getIndexedInnerPlot(iCenterX, iCenterY, iAdjacentDX, iAdjacentDY, iInnerPlotIndex++, iDX, iDY)) != NULL)
+-							{
+-								int iInnerSeeFromLevel = pInnerPlot->seeFromLevel(eTeam);
+-
+-								if ((iInnerSeeFromLevel > iAdjacentPlotSeeThroughLevel) ||
+-									(iInnerSeeFromLevel == iAdjacentPlotSeeThroughLevel && iEdgePlotSeeFromLevel > iInnerSeeFromLevel))
+-								{
+-									bPlotVisible = true;
+-								}
+-							}
+-						}
+-					}
+-					
+-					if (bPlotVisible)
+-					{
+-						if (!(pLoopPlot->isRevealed(getTeam(), false)))
+-						{
+-							iValue += 1000;
+-
+-							// explore nearby bonus resources (note this is not perfect, only catches bonuses in middle)
+-							if (ePlotBonus != NO_BONUS)
+-							{
+-								iValue += iBonusValue;
+-							}
+-
+-							// explore coasts
+-							if (pPlot->isWater() != pLoopPlot->isWater())
+-							{
+-								iValue += 3500;
+-							}
+-
+-							// try to explore other civs
+-							if (pLoopPlot->isOwned() && pLoopPlot->getOwnerINLINE() != getOwnerINLINE())
+-							{
+-								iValue += 2000;
+-							}
+-						}
+-						else
+-						{
+-							// try to follow rivers when possible
+-							if (pLoopPlot->isRiver())
+-							{
+-								iExtraValue += 2000 + (pStartPlot->getRiverID() == pLoopPlot->getRiverID()) ? 2000 : 0;
+-								bDestinationRiver = true;
+-							}
+-						}
+-					}
+-				}
+-			}
+-		}
++	int iRange = visibilityRange();
++	CLinkList<CvPlot*> visiblePlotList;
++	pPlot->getVisiblePlotsList(visiblePlotList, eTeam, iRange);
++	for (CLLNode<CvPlot*>* pNode = visiblePlotList.head(); (pNode != NULL); pNode = visiblePlotList.next(pNode))
++	{
++		CvPlot* pLoopPlot = pNode->m_data;
++
++		if (!(pLoopPlot->isRevealed(getTeam(), false)))
++		{
++			iValue += 1000;
++
++			// explore nearby bonus resources (note this is not perfect, only catches bonuses in middle)
++			if (ePlotBonus != NO_BONUS)
++			{
++				iValue += iBonusValue;
++			}
++
++			// explore coasts
++			if (pPlot->isWater() != pLoopPlot->isWater())
++			{
++				iValue += 3500;
++			}
++
++			// try to explore other civs
++			if (pLoopPlot->isOwned() && pLoopPlot->getOwnerINLINE() != getOwnerINLINE())
++			{
++				iValue += 2000;
++			}
++		}
++		else
++		{
++			// try to follow rivers when possible
++			if (pLoopPlot->isRiver())
++			{
++				iExtraValue += 2000 + (pStartPlot->getRiverID() == pLoopPlot->getRiverID()) ? 2000 : 0;
++				bDestinationRiver = true;
++			}
++		}					
+ 	}
+ 
+ 	if (iValue > 0)
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@254
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@255
+@@ -121,6 +121,9 @@
+ 	bool AI_greatWork();
+ 	bool AI_offensiveAirlift();
+ 	bool AI_protect(int iOddsThreshold);
++	int AI_fogbustPlotValue(const CvPlot* pPlot, int iObserverChange = 0) const;
++	void AI_fogbustPlotDifference(CvPlot* pNewPlot, CLinkList<CvPlot*>& visiblePlotList, int& iFogbustingPlotsWeLose, int& iFogbustingPlotsWeGain);
++	bool AI_fogbust();
+ 	bool AI_patrol();
+ 	bool AI_defend();
+ 	bool AI_safety();
+

@@ -43,8 +43,7 @@ namespace
 	}
 }
 
-void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
-	CvWidgetDataStruct &widgetDataExternal)
+void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &widgetDataExternal)
 {	// advc: Copy - to make sure not to write to the param
 	CvWidgetDataStruct widgetDataStruct(widgetDataExternal);
 	// <advc.085> Replacing a few sporadic tests in the parse... functions
@@ -55,8 +54,10 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 		WIDGET_HELP_FINANCE_FOREIGN_INCOME, WIDGET_HELP_FINANCE_INFLATED_COSTS,
 		WIDGET_HELP_FINANCE_NUM_UNITS, WIDGET_HELP_FINANCE_SPECIALISTS,
 		WIDGET_HELP_FINANCE_UNIT_COST,
+		WIDGET_HELP_FINANCE_UNIT_COST_AND_SUPPLY, // <!-- custom: Validate the combined Military Advisor hover's player payload like its two component finance widgets. See KI#390. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		WIDGET_LEADERHEAD, WIDGET_LEADERHEAD_RELATIONS, WIDGET_LEADER_LINE,
 		WIDGET_CONTACT_CIV, WIDGET_SCORE_BREAKDOWN, WIDGET_POWER_RATIO,
+		WIDGET_POWER_RATIO_INFO_SCREEN, // <!-- custom: Validate the Info Screen-specific power hover's player payload like the scoreboard original. See KI#388. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		WIDGET_GOLDEN_AGE, WIDGET_ANARCHY
 	};
 	for (int i = 0; i < ARRAYSIZE(aePlayerAsData1); i++)
@@ -69,6 +70,13 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 			return;
 		}
 	} // </advc.085>
+	// <!-- custom: The AdvCiv-SAS Info Screen Score tab's power widget carries its selected advisor perspective in data2 so its help does not silently fall back to the real active player. See KI#1059. (GPT-5.6-Sol) -->
+	if (widgetDataStruct.m_eWidgetType == WIDGET_POWER_RATIO_INFO_SCREEN &&
+		(widgetDataStruct.m_iData2 <= NO_PLAYER || widgetDataStruct.m_iData2 >= MAX_PLAYERS))
+	{
+		FErrorMsg("Info Screen perspective player id missing in widget data");
+		return;
+	}
 	/*	advc: (Note - Better not to assume that this is valid, widgets might perhaps
 		get triggered while returning to opening menu or sth. like that.) */
 	PlayerTypes const eActivePlayer = getActivePlayer();
@@ -79,10 +87,22 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 		break;
 
 	case WIDGET_PLOT_LIST_SHIFT:
-		szBuffer.assign(gDLL->getText("TXT_KEY_MISC_CTRL_SHIFT",
-				GC.getDefineINT("MAX_PLOT_LIST_SIZE") - 1));
-		break;
+	// <!-- custom: when making a static const here we got a compile error:
+	// 	1>..\CvDLLWidgetData.cpp(89): error C2360: initialization of 'iMaxPlotListSize' is skipped by 'case' label
+	// 	1>          ..\CvDLLWidgetData.cpp(83) : see declaration of 'iMaxPlotListSize'
+ 	// 
+	// So i  added braces here as recommended by chatgpt 5, check if accurate as i don't know a lot about these errors if at all -->
+	// You hit the classic MSVC “switch-init" rule. In old MSVC (and standard C++), a declaration with an initializer directly under a case label is illegal unless you introduce a new block. The compiler treats case labels like gotos; control can jump into the middle and “skip" the initialization → C2360.
+	//
+	// Fix (wrap the case in braces)
+	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iMaxPlotListSize = GC.getDefineINT("MAX_PLOT_LIST_SIZE");
 
+		szBuffer.assign(gDLL->getText("TXT_KEY_MISC_CTRL_SHIFT",
+				iMaxPlotListSize - 1));
+		break;
+	}
 	case WIDGET_CITY_SCROLL:
 		break;
 
@@ -470,6 +490,10 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 	case WIDGET_HELP_FINANCE_AWAY_SUPPLY:
 		parseFinanceAwaySupply(widgetDataStruct, szBuffer);
 		break;
+	// <!-- custom: The Military Advisor Total Cost + Supply row needs these two exact breakdowns, not the whole-expense inflation hover. See KI#390. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	case WIDGET_HELP_FINANCE_UNIT_COST_AND_SUPPLY:
+		parseFinanceUnitCostAndSupply(widgetDataStruct, szBuffer);
+		break;
 
 	case WIDGET_HELP_FINANCE_CITY_MAINT:
 		parseFinanceCityMaint(widgetDataStruct, szBuffer);
@@ -607,6 +631,61 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 	case WIDGET_PEDIA_JUMP_TO_FEATURE:
 		parseFeatureHelp(widgetDataStruct, szBuffer);
 		break;
+	// <!-- custom: Route links. See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_ROUTE:
+		parseRouteHelp(widgetDataStruct, szBuffer);
+		break;
+	// <!-- custom: Chart cells already show the name; say where clicking opens it. See KI#113. (GPT-6.1-Sol) -->
+	case WIDGET_PEDIA_JUMP_TO_ERA:
+		if (widgetDataStruct.m_iData1 >= 0 && widgetDataStruct.m_iData1 < GC.getNumEraInfos())
+			szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_OPEN_ERA_CHART", GC.getInfo((EraTypes)widgetDataStruct.m_iData1).getTextKeyWide()));
+		break;
+	case WIDGET_PEDIA_JUMP_TO_EVENT_TRIGGER:
+	{
+		if (widgetDataStruct.m_iData1 >= 0 && widgetDataStruct.m_iData1 < GC.getNumEventTriggerInfos())
+		{
+			CvEventTriggerInfo const& kTrigger = GC.getInfo((EventTriggerTypes)widgetDataStruct.m_iData1);
+			CvWString szName(kTrigger.getDescription());
+			// <!-- custom: Stock-style triggers often have no Description.
+			// Turn their XML ID into a readable name, as the Sevopedia list does. (GPT-6.1-Sol) -->
+			if (szName.find_first_not_of(L" \t\r\n") == CvWString::npos)
+			{
+				szName = CvWString(kTrigger.getType());
+				if (szName.find(L"EVENTTRIGGER_") == 0)
+					szName.erase(0, 13);
+				bool bWordStart = true;
+				for (CvWString::iterator it = szName.begin(); it != szName.end(); ++it)
+				{
+					if (*it == L'_')
+					{
+						*it = L' ';
+						bWordStart = true;
+						continue;
+					}
+					if (!bWordStart && *it >= L'A' && *it <= L'Z')
+						*it += L'a' - L'A';
+					bWordStart = false;
+				}
+			}
+			szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_OPEN_EVENT_TRIGGER", szName.GetCString()));
+		}
+		break;
+	}
+	// <!-- custom: Vote buttons show a vote source's building, so name the vote they open. See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_BUILD: // <!-- custom: See KI#113. (Claude code Opus 5.5) -->
+		parseBuildPediaHelp(widgetDataStruct, szBuffer);
+		break;
+	case WIDGET_PEDIA_JUMP_TO_TRAIT: // <!-- custom: See KI#113. (Claude code Opus 5.5) -->
+		parseTraitPediaHelp(widgetDataStruct, szBuffer);
+		break;
+	case WIDGET_PEDIA_JUMP_TO_VOTE:
+		if (widgetDataStruct.m_iData1 >= 0 && widgetDataStruct.m_iData1 < GC.getNumVoteInfos())
+			szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_OPEN_VOTE", GC.getInfo((VoteTypes)widgetDataStruct.m_iData1).getTextKeyWide()));
+		break;
+	// <!-- custom: The speeds chart link's hover names what it opens, the chart at that game speed, as the other Sevopedia jumps above name their page. See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_GAME_SPEED:
+		szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_OPEN_GAME_SPEED_CHART", GC.getInfo((GameSpeedTypes)widgetDataStruct.m_iData1).getTextKeyWide()));
+		break;
 
 	case WIDGET_PEDIA_DESCRIPTION:
 		parseDescriptionHelp(widgetDataStruct, szBuffer, false);
@@ -624,6 +703,32 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 		//parseDescriptionHelp(widgetDataStruct, szBuffer, true);
 		break;
 
+	// <!-- custom: See WIDGET_HELP_LEADER_HEAD in CvEnums.h. parseLeaderHeadHelp named the player, so the human's legend entry read "Pilot (Aggressive, Protective)", its chosen name, not its leader's (the user, 2026-11-20, Civ4ScreenShot0140).
+	// "Pilot" did not tell which leader it was without looking at the button, and some leader names are unfamiliar enough to need saying.
+	// The hover now names the leader, then the player's name when it differs and the civilization. (Claude code Opus 5.5) -->
+	case WIDGET_HELP_LEADER_HEAD:
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)widgetDataStruct.m_iData1;
+		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+		CvWString const szLeader = GC.getInfo(kPlayer.getLeaderType()).getDescription();
+		szBuffer.append(CvWString::format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szLeader.GetCString()));
+		GAMETEXT.parsePlayerTraits(szBuffer, ePlayer);
+		szBuffer.append(NEWLINE);
+		if (szLeader != kPlayer.getName())
+			szBuffer.append(CvWString::format(L"%s, ", kPlayer.getName()));
+		szBuffer.append(kPlayer.getCivilizationDescription());
+		GAMETEXT.getWarWearinessString(szBuffer, ePlayer, NO_PLAYER);
+		break;
+	}
+
+	// <!-- custom: See WIDGET_HELP_CIVIC in CvEnums.h. (Claude code Opus 5.5) -->
+	case WIDGET_HELP_CIVIC:
+		GAMETEXT.parseCivicInfo(szBuffer, (CivicTypes)widgetDataStruct.m_iData1);
+		break;
+	case WIDGET_HELP_CORPORATION:
+		GAMETEXT.setCorporationHelp(szBuffer, (CorporationTypes)widgetDataStruct.m_iData1);
+		break;
+
 	case WIDGET_MINIMAP_HIGHLIGHT:
 		// <advc.004> Leader help for Military Advisor
 		if (widgetDataStruct.m_iData1 == 2) // mode id
@@ -632,6 +737,26 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 			if (ePlayer > NO_PLAYER && ePlayer < MAX_CIV_PLAYERS)
 				GAMETEXT.parseLeaderHeadHelp(szBuffer, ePlayer, NO_PLAYER);
 		} // </advc.004>
+		// <!-- custom: The Map tab's unit, unit type and unit combat rows had no hover, only the Ctrl+click to their Sevopedia page (the user, 2026-11-21); they now show the same help as those pages' links, with the data of jumpToMinimapHighlightPedia. (Claude code Opus 5.5) -->
+		else if (widgetDataStruct.m_iData1 == 1 && widgetDataStruct.m_iData2 >= 0 && widgetDataStruct.m_iData2 < GC.getNumUnitInfos())
+			GAMETEXT.setUnitHelp(szBuffer, (UnitTypes)widgetDataStruct.m_iData2);
+		else if (widgetDataStruct.m_iData1 == 1 && widgetDataStruct.m_iData2 >= GC.getNumUnitInfos() &&
+			widgetDataStruct.m_iData2 - GC.getNumUnitInfos() < GC.getNumUnitCombatInfos())
+		{
+			GAMETEXT.setUnitCombatHelp(szBuffer, (UnitCombatTypes)(widgetDataStruct.m_iData2 - GC.getNumUnitInfos()));
+		}
+		else if (widgetDataStruct.m_iData1 <= 0 && widgetDataStruct.m_iData1 > -MAX_PLAYERS)
+		{
+			// <!-- custom: A recorded row can survive a unit moving into fog.
+			// Match the Map list's visibility rule and omit the owner as its unit text does. (GPT-6.2-Sol) -->
+			CvUnit const* pUnit = GET_PLAYER((PlayerTypes)-widgetDataStruct.m_iData1).getUnit(widgetDataStruct.m_iData2);
+			TeamTypes const eObserver = getActiveTeam();
+			if (pUnit != NULL && eObserver != NO_TEAM && pUnit->plot() != NULL &&
+				pUnit->plot()->isVisible(eObserver, true) && !pUnit->isInvisible(eObserver, true))
+			{
+				GAMETEXT.setUnitHelp(szBuffer, pUnit, false, false, false, true);
+			}
+		}
 		break;
 
 	case WIDGET_PRODUCTION_MOD_HELP:
@@ -639,20 +764,56 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 		break;
 
 	case WIDGET_LEADERHEAD:
+	{
 		parseLeaderheadHelp(widgetDataStruct, szBuffer);
+
+		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab -->
+		// <!-- custom: add tooltip in Foreign Advisor glance tab. Credit: Gemini 3 Pro. (Claude code Sonnet 4.5 (summarized)) -->
+		// Vassal Check for Leaderhead Widget (Column Headers / General)
+		// eRival = m_iData1 (The face we are hovering), ePlayer = Us
+		parseVassalWillingnessHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, getActivePlayer());
+		// End - Vassal Check for Leaderhead Widget (Column Headers / General)
+
 		break;
+	}
+
 	// <advc.152>
 	case WIDGET_LH_GLANCE:
+	{
 		//parseLeaderheadHelp(widgetDataStruct, szBuffer);
 		parseLeaderheadRelationsHelp(widgetDataStruct, szBuffer); // BULL - Leaderhead Relations
-		// Might as well call GAMETEXT right here
-		GAMETEXT.parseWarTradesHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1,
-				(PlayerTypes)widgetDataStruct.m_iData2);
+
+		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab -->
+		// <!-- custom: add tooltip in Foreign Advisor glance tab. Credit: Gemini 3 Pro. (Claude code Sonnet 4.5 (summarized)) -->
+		// Vassal Check for Glance Screen
+		// eRival = m_iData1 (Column), ePlayer = m_iData2 (Row)
+		// <!-- custom: The vassal-helper refactor accidentally removed AdvCiv's independent explanation for the optional War Trades fist.
+		// Restore it before appending vassal willingness so both visible statuses remain explained. See KI#383. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		GAMETEXT.parseWarTradesHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, (PlayerTypes)widgetDataStruct.m_iData2);
+		parseVassalWillingnessHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, (PlayerTypes)widgetDataStruct.m_iData2);
+		// End - Vassal Check for Glance Screen
+
 		break; // </advc.152>
+	}
 	// BULL - Leaderhead Relations - start
 	case WIDGET_LEADERHEAD_RELATIONS:
+	{
 		parseLeaderheadRelationsHelp(widgetDataStruct, szBuffer);
+
+		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab -->
+		// <!-- custom: add tooltip in Foreign Advisor glance tab. Credit: Gemini 3 Pro. (Claude code Sonnet 4.5 (summarized)) -->
+		// The issue is that the Glance screen uses two different widget types depending on your BUG Mod settings ("Show War Trades").
+		// 	1. WIDGET_LH_GLANCE: Used when "Show War Trades" is ON.
+		// 	2. WIDGET_LEADERHEAD_RELATIONS: Used when "Show War Trades" is OFF (or default).
+		// You added the code to the first one, but your game is likely using the second one. You need to add the same logic to case WIDGET_LEADERHEAD_RELATIONS in CvDLLWidgetData.cpp.
+		// Here is the corrected code block for CvDLLWidgetData.cpp
+		// Vassal Check for Glance Screen (Standard Widget)
+		// eRival = m_iData1 (Column), ePlayer = m_iData2 (Row)
+		parseVassalWillingnessHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, (PlayerTypes)widgetDataStruct.m_iData2);
+		// End - Vassal Check for Glance Screen
+
 		break; // BULL - Leaderhead Relations - end
+	}
 
 	case WIDGET_LEADER_LINE:
 		parseLeaderLineHelp(widgetDataStruct, szBuffer);
@@ -731,6 +892,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 	case WIDGET_EXPAND_SCORES:
 		break; // Handled below (not the only widget that expands the scoreboard)
 	case WIDGET_POWER_RATIO:
+	case WIDGET_POWER_RATIO_INFO_SCREEN: // <!-- custom: Preserve the power-ratio hover without importing the scoreboard widget's expansion state. See KI#388. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		parsePowerRatioHelp(widgetDataStruct, szBuffer);
 		break;
 	case WIDGET_GOLDEN_AGE:
@@ -742,6 +904,22 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 				widgetDataStruct.m_iData2, true, szBuffer);
 		break;
 	}
+	// <!-- custom: Optionally upscale hover help text via a SAS font define (Claude code Opus 4.6 + Claude code Opus 5.5) -->
+	if (!szBuffer.isEmpty())
+	{
+		// <!-- custom: Was a function-local static, which kept the first value, so a size set in SASLiveDefineOverrides.txt during play never showed; the enum cache, which the bridge's setDefineINT refreshes, brings it to the next hover. See KI#128.5. (Claude code Opus 5.5) -->
+		// <!-- custom: Reads the label size since 2026-11-26: hover text had its own define with the same value, retired as it named where text shows rather than its role.
+		// See Docs/Deprecated/global_define_names.md. (Claude code Opus 5.5) -->
+		int const iFontSize = GC.getDefineINT(CvGlobals::SAS_UI_FONT_LABEL);
+		if (iFontSize >= 1 && iFontSize <= 4)
+		{
+			CvWString szWrapped;
+			szWrapped.Format(L"<font=%d>", iFontSize);
+			szWrapped.append(szBuffer.getCString());
+			szWrapped.append(L"</font>");
+			szBuffer.assign(szWrapped);
+		}
+	} // <!-- custom: (Claude code Opus 4.6) -->
 	if (getActivePlayer() == NO_PLAYER)
 		return;
 	static WidgetTypes aeExpandTypes[] =
@@ -763,6 +941,30 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 	} // </advc.085>
 }
 
+
+// <!-- custom: The Military Advisor's Map tab draws its unit list rows as <img> text in a list box, kept because DDS icons lost the minimap highlight on click, so its icons had no Sevopedia link (screenshot Civ4ScreenShot0126).
+// A first version opened the page on a right click, through executeAltAction, but the EXE sends a list box row's right click nowhere, neither there nor to the screen's handleInput (SASPilot's uiprobe, 2026-11-20); a Ctrl+click arrives as the row's ordinary click, so it opens the page instead, while a right click still serves the leader buttons.
+// The data are those py.refreshMilitaryAdvisor reads: 1 with a unit type, or a unit combat past the unit types, or -1 for all units; 2 with a player, for the leader buttons; and minus the owner with a unit ID.
+// Returns false where there is no page, as for all units (the user, 2026-11-20). (Claude code Opus 5.5) -->
+static bool jumpToMinimapHighlightPedia(CvPythonCaller const& py, int iData1, int iData2)
+{
+	if (iData1 == 1 && iData2 >= 0 && iData2 < GC.getNumUnitInfos())
+		py.jumpToPedia(iData2, "Unit");
+	else if (iData1 == 1 && iData2 >= GC.getNumUnitInfos())
+		py.jumpToPedia(iData2 - GC.getNumUnitInfos(), "UnitChart");
+	else if (iData1 == 2)
+		py.jumpToPedia(GET_PLAYER((PlayerTypes)iData2).getLeaderType(), "Leader");
+	else if (iData1 <= 0 && iData1 > -MAX_PLAYERS)
+	{
+		// <!-- custom: A Map-tab row can outlive the unit it identified.
+		// Keep the click inert when the lookup finds no unit. (GPT-6.2-Sol) -->
+		CvUnit const* pUnit = GET_PLAYER((PlayerTypes)-iData1).getUnit(iData2);
+		if (pUnit != NULL)
+			py.jumpToPedia(pUnit->getUnitType(), "Unit");
+	}
+	else return false;
+	return true;
+}
 
 bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataExternal)
 {	// advc: Copy - to make sure not to write to the param
@@ -935,6 +1137,11 @@ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataExternal)
 	case WIDGET_PEDIA_JUMP_TO_DERIVED_TECH:
 		py.jumpToPedia(iData1, "Tech");
 		break;
+	// <!-- custom: AdvCiv's native trade-denial hover stopped using the ordinary Tech Pedia fallback and lost its click action.
+	// Restore the same target while retaining the richer hover. See KI#396. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	case WIDGET_PEDIA_JUMP_TO_TECH_TRADE:
+		py.jumpToPedia(iData1, "Tech");
+		break;
 
 	case WIDGET_PEDIA_BACK:
 		py.callScreenFunction("pediaBack");
@@ -945,6 +1152,10 @@ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataExternal)
 
 	case WIDGET_PEDIA_JUMP_TO_BONUS:
 		py.jumpToPedia(iData1, "Bonus");
+		break;
+	// <!-- custom: Restore the native trade-denial widget's old Bonus Pedia fallback action; the import column encodes its BonusTypes payload with +1000. See KI#396. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	case WIDGET_PEDIA_JUMP_TO_BONUS_TRADE:
+		py.jumpToPedia(iData1 >= 1000 ? iData1 - 1000 : iData1, "Bonus");
 		break;
 
 	case WIDGET_PEDIA_MAIN:
@@ -998,6 +1209,32 @@ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataExternal)
 	case WIDGET_PEDIA_JUMP_TO_FEATURE:
 		py.jumpToPedia(iData1, "Feature");
 		break;
+	// <!-- custom: Calls CvScreensInterface.pediaJumpToRoute, which opens the Sevopedia Routes page. See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_ROUTE:
+		py.jumpToPedia(iData1, "Route");
+		break;
+	// <!-- custom: The Python entry points select the era column or event page. See KI#113. (GPT-6.1-Sol) -->
+	case WIDGET_PEDIA_JUMP_TO_ERA:
+		py.jumpToPedia(iData1, "Era");
+		break;
+	case WIDGET_PEDIA_JUMP_TO_EVENT_TRIGGER:
+		py.jumpToPedia(iData1, "EventTrigger");
+		break;
+	// <!-- custom: Calls CvScreensInterface.pediaJumpToVote. See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_VOTE:
+		py.jumpToPedia(iData1, "Vote");
+		break;
+	// <!-- custom: Call CvScreensInterface.pediaJumpToBuild and pediaJumpToTrait. See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_BUILD:
+		py.jumpToPedia(iData1, "Build");
+		break;
+	case WIDGET_PEDIA_JUMP_TO_TRAIT:
+		py.jumpToPedia(iData1, "Trait");
+		break;
+	// <!-- custom: jumpToPedia passes one integer, so the speed and culture level travel packed as speed + numSpeeds * (level + 1); CvScreensInterface.pediaJumpToGameSpeed unpacks them. See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_GAME_SPEED:
+		py.jumpToPedia(iData1 + GC.getNumGameSpeedInfos() * (iData2 + 1), "GameSpeed");
+		break;
 
 	case WIDGET_PEDIA_DESCRIPTION:
 	case WIDGET_PEDIA_DESCRIPTION_NO_HELP:
@@ -1020,8 +1257,22 @@ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataExternal)
 		doDealKill(widgetDataStruct);
 		break;
 
+	// <!-- custom: The scoreboard's power ratio did nothing on click; it now opens the Info screen on its Score tab, whose power column compares every known rival (the user's idea).
+	// 1 is CvInfoScreen.iScoreID. (Claude code Opus 5.5) -->
+	case WIDGET_POWER_RATIO:
+		py.showInfoScreen(1);
+		break;
+
+	// <!-- custom: See WIDGET_HELP_LEADER_HEAD in CvEnums.h; a right click reaches neither the DLL nor the screen on a text widget, so Ctrl+click opens the Sevopedia. (Claude code Opus 5.5) -->
+	case WIDGET_HELP_LEADER_HEAD:
+		if (GC.ctrlKey())
+			py.jumpToPedia(GET_PLAYER((PlayerTypes)iData1).getLeaderType(), "Leader");
+		break;
+
 	case WIDGET_MINIMAP_HIGHLIGHT:
-		py.refreshMilitaryAdvisor(iData1, iData2);
+		// <!-- custom: Ctrl+click opens the entry's Sevopedia page instead of selecting it; see jumpToMinimapHighlightPedia. (Claude code Opus 5.5) -->
+		if (!GC.ctrlKey() || !jumpToMinimapHighlightPedia(py, iData1, iData2))
+			py.refreshMilitaryAdvisor(iData1, iData2);
 		break;
 
 	// <advc.706>
@@ -1053,6 +1304,12 @@ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataExternal)
 				(iData1 == 1 ? CONTROL_CYCLEWORKER : CONTROL_CYCLEUNIT_ALT));
 		break;
 	} // </advc.154>
+	// <!-- custom: The native scoreboard trade-routes hover replaced a WIDGET_CONTACT_CIV fallback and lost ordinary click-to-contact.
+	// data2 is the rival; keep the non-scoreboard widget hover-only. See KI#397. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	case WIDGET_TRADE_ROUTES_SCOREBOARD:
+		widgetDataStruct.m_iData1 = widgetDataStruct.m_iData2;
+		doContactCiv(widgetDataStruct);
+		break;
 	}
 
 	return bHandled;
@@ -1085,19 +1342,40 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataExternal)
 		break;
 	// K-Mod end
 	case WIDGET_TRAIN:
-		py.jumpToPedia(GC.getGame().getActiveCivilization()->
-				getUnit((UnitClassTypes)iData1), "Unit");
+	{
+		// <!-- custom: AdvCiv hoisted this lookup above the switch, forming an invalid reference for every opening-menu Pedia right click where no active player/civilization exists.
+		// Only class-based city-production widgets require it; fail explicitly if one somehow appears without an active civilization. See KI#384. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		CvCivilization const* pActiveCiv = GC.getGame().getActiveCivilization();
+		FAssert(pActiveCiv != NULL);
+		if (pActiveCiv == NULL)
+			bHandled = false;
+		else py.jumpToPedia(pActiveCiv->getUnit((UnitClassTypes)iData1), "Unit");
 		break;
+	}
 	case WIDGET_CONSTRUCT:
-		py.jumpToPedia(GC.getGame().getActiveCivilization()->
-				getBuilding((BuildingClassTypes)iData1), "Building");
+	{
+		// <!-- custom: Resolve the active civilization locally for the second class-based production widget too, leaving all direct Pedia links safe in opening-menu state. See KI#384. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		CvCivilization const* pActiveCiv = GC.getGame().getActiveCivilization();
+		FAssert(pActiveCiv != NULL);
+		if (pActiveCiv == NULL)
+			bHandled = false;
+		else py.jumpToPedia(pActiveCiv->getBuilding((BuildingClassTypes)iData1), "Building");
 		break;
+	}
 	case WIDGET_CREATE:
 		py.jumpToPedia(iData1, "Project");
 		break;
 	case WIDGET_PEDIA_JUMP_TO_UNIT:
 	case WIDGET_HELP_FREE_UNIT:
 		py.jumpToPedia(iData1, "Unit");
+		break;
+	// <!-- custom: See WIDGET_HELP_LEADER_HEAD in CvEnums.h. (Claude code Opus 5.5) -->
+	case WIDGET_HELP_LEADER_HEAD:
+		py.jumpToPedia(GET_PLAYER((PlayerTypes)iData1).getLeaderType(), "Leader");
+		break;
+	// <!-- custom: A right click opens the Military Advisor Map tab entry's Sevopedia page; see jumpToMinimapHighlightPedia. (Claude code Opus 5.5) -->
+	case WIDGET_MINIMAP_HIGHLIGHT:
+		bHandled = jumpToMinimapHighlightPedia(py, iData1, iData2);
 		break;
 	case WIDGET_HELP_FOUND_RELIGION:
 		py.jumpToPedia(iData2, "Religion");
@@ -1133,9 +1411,14 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataExternal)
 	case WIDGET_HELP_YIELD_CHANGE:
 		py.jumpToPedia(widgetDataStruct.m_iData2, "Improvement");
 		break;
+	// <!-- custom: after fixing the obsolete bonus buttons in tech advisor, it seems now that non obsolete ones (e.g. cattle or camel bonuses at tech_animal_husbandry) generate same error that obsolete tech had before, trying to fix it by reenabling old code for non-obsolete bonuses only; result: fixed the issue it seems!
+	// So left as such -->
 	case WIDGET_HELP_BONUS_REVEAL:
-	case WIDGET_HELP_OBSOLETE_BONUS:
 		py.jumpToPedia(widgetDataStruct.m_iData2, "Bonus");
+		break;
+	// <!-- custom: fix the obsolete bonus error of KI#22, replace line `py.jumpToPedia(widgetDataStruct.m_iData2, "Bonus");` with one using iData1 as obsolete buildings in tech advisor don't have the id bug, as advised by chatgpt also thanks to my prompt too, and it indeed fixed the issue now -->
+	case WIDGET_HELP_OBSOLETE_BONUS:
+		py.jumpToPedia(iData1, "Bonus");
 		break;
 	case WIDGET_CITIZEN:
 	case WIDGET_FREE_CITIZEN:
@@ -1148,6 +1431,9 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataExternal)
 	case WIDGET_HELP_CIVIC_REVEAL:
 		py.jumpToPedia(iData2, "Civic");
 		break;
+	// <!-- custom: AdvCiv's native relations hover replaced the WIDGET_LEADERHEAD fallback but omitted its right-click contact action.
+	// Restore that action through the same rival-in-data1 contract. See KI#397. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	case WIDGET_LEADERHEAD_RELATIONS:
 	case WIDGET_LH_GLANCE: // advc.152
 	case WIDGET_LEADERHEAD:
 		#ifdef ENABLE_REPRO_TEST
@@ -1200,6 +1486,9 @@ bool CvDLLWidgetData::isLink(const CvWidgetDataStruct &widgetDataStruct) const
 	case WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT:
 	case WIDGET_PEDIA_JUMP_TO_PROMOTION:
 	case WIDGET_PEDIA_JUMP_TO_BONUS:
+	// <!-- custom: Native trade-denial widgets retain their richer hover but should advertise the restored Pedia click like their old fallback widgets. See KI#396. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	case WIDGET_PEDIA_JUMP_TO_BONUS_TRADE:
+	case WIDGET_PEDIA_JUMP_TO_TECH_TRADE:
 	case WIDGET_PEDIA_JUMP_TO_IMPROVEMENT:
 	case WIDGET_PEDIA_JUMP_TO_CIVIC:
 	case WIDGET_PEDIA_JUMP_TO_CIV:
@@ -1210,6 +1499,14 @@ bool CvDLLWidgetData::isLink(const CvWidgetDataStruct &widgetDataStruct) const
 	case WIDGET_PEDIA_JUMP_TO_CORPORATION:
 	case WIDGET_PEDIA_JUMP_TO_TERRAIN:
 	case WIDGET_PEDIA_JUMP_TO_FEATURE:
+	case WIDGET_PEDIA_JUMP_TO_ROUTE: // <!-- custom: See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_ERA: // <!-- custom: See KI#113. (GPT-6.1-Sol) -->
+	case WIDGET_PEDIA_JUMP_TO_EVENT_TRIGGER: // <!-- custom: See KI#113. (GPT-6.1-Sol) -->
+	case WIDGET_PEDIA_JUMP_TO_VOTE: // <!-- custom: See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_BUILD: // <!-- custom: See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_TRAIT: // <!-- custom: See KI#113. (Claude code Opus 5.5) -->
+	// <!-- custom: The speeds chart link takes the link look on hover too, as every Sevopedia jump in this list does. See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_GAME_SPEED:
 	case WIDGET_PEDIA_FORWARD:
 	case WIDGET_PEDIA_BACK:
 	case WIDGET_PEDIA_MAIN:
@@ -1271,8 +1568,11 @@ void CvDLLWidgetData::doPlotListShift(int iChange, bool bMaxStep)
 	int iStep = 10;
 	if (gDLL->UI().isCityScreenUp())
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iMaxPlotListSize = GC.getDefineINT("MAX_PLOT_LIST_SIZE");
+
 		// (Not sure that this is really a maximal limit of anything)
-		int const iBigStep = GC.getDefineINT("MAX_PLOT_LIST_SIZE"); // 100
+		int const iBigStep = iMaxPlotListSize; // 100
 		/*	BUG drawing method will only ever show a single row on the city screen.
 			Don't want to expand rapidly upon the first right-shift then.
 			Instead, let the bMaxStep param jump to the final column. */
@@ -1985,7 +2285,10 @@ void CvDLLWidgetData::parseConscriptHelp(CvWidgetDataStruct &widgetDataStruct, C
 		}
 	}
 	{
-		int iMinCulturePercent = GC.getDefineINT("CONSCRIPT_MIN_CULTURE_PERCENT");
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iConscriptMinCulturePercent = GC.getDefineINT("CONSCRIPT_MIN_CULTURE_PERCENT");
+
+		int iMinCulturePercent = iConscriptMinCulturePercent;
 		if (pHeadSelectedCity->getPlot().calculateTeamCulturePercent(
 			pHeadSelectedCity->getTeam()) < iMinCulturePercent)
 		{
@@ -2012,15 +2315,34 @@ void CvDLLWidgetData::parseConscriptHelp(CvWidgetDataStruct &widgetDataStruct, C
 }
 
 
-void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvWString szTemp;
 	CvActionInfo const& kAction = GC.getActionInfo(widgetDataStruct.m_iData1);
-	szTemp.Format(SETCOLR L"%s" ENDCOLR , TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
+	szTemp.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
 			kAction.getHotKeyDescription().c_str());
 	szBuffer.assign(szTemp);
 	CvDLLInterfaceIFaceBase& kUI = *gDLL->getInterfaceIFace();
+	// <!-- custom: The minimap and globe toggles' hovers named the action but not whether it was on, so the player had to look at the map to tell; append (ON) or (OFF) from the same getters the control handlers read.
+	// Resource and unit icons have no engine getter, so they read advc.004m's tracked globe layer. (Claude code Opus 5.5) -->
+	ControlTypes const eSASControl = (ControlTypes)kAction.getControlType();
+	int iSASToggleOn = -1;
+	switch (eSASControl)
+	{
+	case CONTROL_GRID: iSASToggleOn = (gDLL->getEngineIFace()->GetGridMode() ? 1 : 0); break;
+	case CONTROL_BARE_MAP: iSASToggleOn = (kUI.isBareMapMode() ? 1 : 0); break;
+	case CONTROL_YIELDS: iSASToggleOn = (kUI.isShowYields() ? 1 : 0); break;
+	case CONTROL_SCORES: iSASToggleOn = (kUI.isScoresVisible() ? 1 : 0); break;
+	case CONTROL_GLOBELAYER: iSASToggleOn = (gDLL->getEngineIFace()->isGlobeviewUp() ? 1 : 0); break;
+	case CONTROL_RESOURCE_ALL: iSASToggleOn = (GC.getGame().getCurrentLayer() == GLOBE_LAYER_RESOURCE ? 1 : 0); break;
+	case CONTROL_UNIT_ICONS: iSASToggleOn = (GC.getGame().getCurrentLayer() == GLOBE_LAYER_UNIT ? 1 : 0); break;
+	default: break;
+	}
+	if (iSASToggleOn >= 0)
+	{
+		szBuffer.append(L" ");
+		szBuffer.append(gDLL->getText(iSASToggleOn > 0 ? "TXT_KEY_SAS_HOVER_TOGGLE_ON" : "TXT_KEY_SAS_HOVER_TOGGLE_OFF"));
+	}
 
 	CvUnit const* pHeadSelectedUnit = kUI.getHeadSelectedUnit();
 	if (pHeadSelectedUnit != NULL)
@@ -2208,12 +2530,16 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
 				FAssert(iCurrentExpenses == kActivePlayer.calculateInflatedCosts());
 				int iExtraCost = 0;
 				int iUnits = 0;
+				// <!-- custom: Count military-support units separately so deleting civilian units does not project false Pacifism savings. See KI#769. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				int iMilitaryUnits = 0;
 				for (CLLNode<IDInfo> const* pNode = kUI.headSelectionListNode();
 					pNode != NULL; pNode = kUI.nextSelectionListNode(pNode))
 				{
 					CvUnit const& kUnit = *::getUnit(pNode->m_data);
 					iExtraCost += kUnit.getUnitInfo().getExtraCost();
 					iUnits--;
+					if (kUnit.getUnitInfo().isMilitarySupport())
+						iMilitaryUnits--;
 					/*  No danger of double counting b/c it's not possible to select
 						a transport and its cargo at the same time */
 					std::vector<CvUnit*> apCargo;
@@ -2222,16 +2548,16 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
 					{
 						iExtraCost += apCargo[i]->getUnitInfo().getExtraCost();
 						iUnits--;
+						if (apCargo[i]->getUnitInfo().isMilitarySupport())
+							iMilitaryUnits--;
 					}
 				}
 				int iProjectedSupply = 0;
 				bool bSupply = (!pHeadSelectedUnit->getPlot().isActiveTeam());
 				iProjectedSupply = kActivePlayer.calculateUnitSupply(bSupply ? iUnits : 0);
-				int iProjectedUnitCost = kActivePlayer.calculateUnitCost(0, iUnits);
-				int iProjectedExpenses = iProjectedSupply + iProjectedUnitCost +
-						iOtherExpenses - iExtraCost;
-				iProjectedExpenses = (iProjectedExpenses *
-						(iInflationPercent + 100)) / 100;
+				int iProjectedUnitCost = kActivePlayer.calculateUnitCost(0, iUnits, iMilitaryUnits);
+				int iProjectedExpenses = iProjectedSupply + iProjectedUnitCost + iOtherExpenses - iExtraCost;
+				iProjectedExpenses = (iProjectedExpenses * (iInflationPercent + 100)) / 100;
 				FAssert(iExtraCost >= 0 && iProjectedExpenses >= 0);
 				int iGold = iCurrentExpenses - iProjectedExpenses;
 				if(iGold > 0)
@@ -2249,11 +2575,11 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
 					{
 						/*  Assume that the additional units are inside borders:
 							only recompute UnitCost. */
-						iProjectedExpenses = iProjectedSupply - iExtraCost +
-								iOtherExpenses;
-						iProjectedExpenses += kActivePlayer.calculateUnitCost(0, iUnits - i);
-						iProjectedExpenses = (iProjectedExpenses *
-								(iInflationPercent + 100)) / 100;
+						iProjectedExpenses = iProjectedSupply - iExtraCost + iOtherExpenses;
+						// <!-- custom: The future unit types are unknowable here; retain AdvCiv's best-case assumption that each hypothetical further deletion removes military support too.
+						// The actually selected units above now use their real types. See KI#769. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+						iProjectedExpenses += kActivePlayer.calculateUnitCost(0, iUnits - i, iMilitaryUnits - i);
+						iProjectedExpenses = (iProjectedExpenses * (iInflationPercent + 100)) / 100;
 						if(iProjectedExpenses < iOldProj)
 						{
 							iDeltaUnits = i;
@@ -2311,8 +2637,7 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 // advc: Cut from parseActionHelp, refactored.
-void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
-	CvUnit const& kUnit, MissionTypes eMission, CvWStringBuffer& szBuffer)
+void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction, CvUnit const& kUnit, MissionTypes eMission, CvWStringBuffer& szBuffer)
 {
 	CvGame const& kGame = GC.getGame();
 	CvPlayer const& kUnitOwner = GET_PLAYER(kUnit.getOwner());
@@ -2320,6 +2645,10 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
 	bool const bShift = GC.shiftKey();
 	CvWString szTempBuffer;
 	CvWString szFirstBuffer;
+	// <!-- custom: Retain the eligible Discover unit so its technology-path help does not fall back to the unrelated selection head. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvUnit const* pDiscoverUnit = NULL;
+	// <!-- custom: Remember the eligible-population result so the generic-help footer does not fall back to the unrelated selection head. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool bBombardHelpHandled = false;
 
 	CvPlot const& kMissionPlot = (
 			(bShift && gDLL->UI().mirrorsSelectionGroup()) ?
@@ -2366,8 +2695,21 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
 	}
 	case MISSION_PLUNDER:
 	{
+		// <!-- custom: A non-plundering selection head could report failure although another selected naval unit made Blockade executable.
+		// Test the selected mission population instead. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		bool bCanPlunder = false;
+		for (CLLNode<IDInfo> const* pNode = gDLL->UI().headSelectionListNode();
+			pNode != NULL; pNode = gDLL->UI().nextSelectionListNode(pNode))
+		{
+			CvUnit const& kSelectedUnit = *::getUnit(pNode->m_data);
+			if (kSelectedUnit.canPlunder(kMissionPlot) && kSelectedUnit.canMove())
+			{
+				bCanPlunder = true;
+				break;
+			}
+		}
 		//if (kMissionPlot.getTeam() == kUnitTeam.getID())
-		if(!kUnit.canPlunder(kMissionPlot)) // advc.033
+		if (!bCanPlunder) // advc.033
 		{
 			szBuffer.append(NEWLINE);
 			szBuffer.append(gDLL->getText("TXT_KEY_ACTION_PLUNDER_IN_BORDERS"));
@@ -2647,6 +2989,8 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
 			CvUnit const& kSelectedUnit = *::getUnit(pNode->m_data);
 			if (!kSelectedUnit.canDiscover(&kMissionPlot))
 				continue;
+			// <!-- custom: The eligible unit supplies both the bulb amount here and the Discover path appended below; previously the latter used the selection head and could disappear for a mixed selection. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			pDiscoverUnit = &kSelectedUnit;
 			TechTypes const eTech = kSelectedUnit.getDiscoveryTech();
 			int const iResearchLeft = GET_TEAM(kSelectedUnit.getTeam()).
 					getResearchLeft(eTech);
@@ -2775,7 +3119,8 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
 			pNode != NULL; pNode = gDLL->UI().nextSelectionListNode(pNode))
 		{
 			CvUnit const& kSelectedUnit = *::getUnit(pNode->m_data);
-			// advc.001 (from SAS): was canEspionage (and bTestVisible=false)
+			// <!-- custom: BtS tested the ordinary Spy espionage mission here, excluding Great Spies even when the Infiltrate action was valid.
+			// Use the mission's own visible-test predicate before displaying its espionage-point yield. See KI#386. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			if (!kSelectedUnit.canInfiltrate(&kMissionPlot, true))
 				continue;
 			szTempBuffer.Format(L"%s+%d%c", NEWLINE,
@@ -2804,22 +3149,37 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
 	}
 	case MISSION_LEAD:
 	{
-		if (kUnit.getUnitInfo().getLeaderExperience() > 0)
+		// <!-- custom: Lead can be exposed by a selected Great General while an ordinary combat unit is the selection head.
+		// Derive all mission help from the selected unit that can actually lead. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		CvUnit const* pLeader = NULL;
+		for (CLLNode<IDInfo> const* pNode = gDLL->UI().headSelectionListNode();
+			pNode != NULL; pNode = gDLL->UI().nextSelectionListNode(pNode))
 		{
-			int iNumUnits = kUnit.canGiveExperience(kUnit.plot());
+			CvUnit const& kSelectedUnit = *::getUnit(pNode->m_data);
+			if (kSelectedUnit.canLead(&kMissionPlot, kAction.getMissionData()) > 0)
+			{
+				pLeader = &kSelectedUnit;
+				break;
+			}
+		}
+		if (pLeader == NULL)
+			break;
+		if (pLeader->getUnitInfo().getLeaderExperience() > 0)
+		{
+			int iNumUnits = pLeader->canGiveExperience(&kMissionPlot);
 			if (iNumUnits > 0)
 			{
 				szBuffer.append(NEWLINE);
 				szBuffer.append(gDLL->getText("TXT_KEY_ACTION_LEAD_TROOPS",
-						kUnit.getStackExperienceToGive(iNumUnits)));
+						pLeader->getStackExperienceToGive(iNumUnits)));
 			}
 		}
-		if (kUnit.getUnitInfo().getLeaderPromotion() != NO_PROMOTION)
+		if (pLeader->getUnitInfo().getLeaderPromotion() != NO_PROMOTION)
 		{
 			szBuffer.append(NEWLINE);
 			szBuffer.append(gDLL->getText("TXT_KEY_PROMOTION_WHEN_LEADING"));
 			GAMETEXT.parsePromotionHelp(szBuffer, (PromotionTypes)
-				kUnit.getUnitInfo().getLeaderPromotion(), L"\n   ");
+				pLeader->getUnitInfo().getLeaderPromotion(), L"\n   ");
 		}
 		break;
 	}
@@ -2827,23 +3187,37 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
 	{
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_ACTION_ESPIONAGE_MISSION"));
-		GAMETEXT.setEspionageMissionHelp(szBuffer, &kUnit);
+		// <!-- custom: Show mission help for the selected Spy that makes Espionage executable, not an ordinary selection head that suppresses Spy-specific information. See KI#398. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		CvSelectionGroup const* pSelectionGroup = gDLL->UI().getSelectionList();
+		CvUnit const* pSpyUnit = (pSelectionGroup == NULL ? NULL : pSelectionGroup->getEspionageUnit());
+		if (pSpyUnit != NULL)
+			GAMETEXT.setEspionageMissionHelp(szBuffer, pSpyUnit);
 		break;
 	}
 	/*	<advc.004c> (Note: similar code in CvGameTextMgr::getAirBombPlotHelp
 		for air bomb mission) */
 	case MISSION_BOMBARD:
 	{
-		CvCity const* pBombardCity = kUnit.bombardTarget(kMissionPlot);
-		if (pBombardCity == NULL)
-			break;
-		int const iMaxDamage = pBombardCity->getDefenseModifier(
-				kUnit.ignoreBuildingDefense());
+		CvCity const* pBombardCity = NULL;
+		int iMaxDamage = 0;
 		int iDamage = 0;
 		for (CLLNode<IDInfo> const* pNode = gDLL->UI().headSelectionListNode();
 			pNode != NULL; pNode = gDLL->UI().nextSelectionListNode(pNode))
 		{
 			CvUnit const& kSelectedUnit = *::getUnit(pNode->m_data);
+			// <!-- custom: Preview only selected units that AdvCiv's executor can actually use now.
+			// Spent/ineligible siege formerly contributed nominal damage, and an ineligible head could suppress the preview entirely. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (!kSelectedUnit.canMove() || !kSelectedUnit.canBombard(kMissionPlot))
+				continue;
+			CvCity const* const pSelectedTarget = kSelectedUnit.bombardTarget(kMissionPlot);
+			if (pBombardCity == NULL)
+			{
+				pBombardCity = pSelectedTarget;
+				iMaxDamage = pBombardCity->getDefenseModifier(
+						kSelectedUnit.ignoreBuildingDefense());
+			}
+			if (pSelectedTarget != pBombardCity)
+				continue;
 			iDamage += kSelectedUnit.damageToBombardTarget(kMissionPlot);
 			if (iDamage >= iMaxDamage)
 			{
@@ -2851,6 +3225,10 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
 				break;
 			}
 		}
+		// <!-- custom: Without an eligible selected siege unit, leave the established generic mission help in control instead of marking the specialized preview as handled. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (pBombardCity == NULL)
+			break;
+		bBombardHelpHandled = true;
 		szBuffer.append(NEWLINE);
 		if (iDamage > 0)
 		{
@@ -3244,10 +3622,12 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
 
 	if (!CvWString(GC.getInfo(eMission).getHelp()).empty())
 	{	// <advc.004a>
-		if (eMission == MISSION_DISCOVER)
-			GAMETEXT.setDiscoverPathHelp(szBuffer, kUnit.getUnitType());
+		// <!-- custom: Append Discover-path help from the eligible selected Great Person retained above, not the unrelated selection head. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (eMission == MISSION_DISCOVER && pDiscoverUnit != NULL)
+			GAMETEXT.setDiscoverPathHelp(szBuffer, pDiscoverUnit->getUnitType());
 		else // </advc.004a>  <advc.004c>
-		if (eMission == MISSION_BOMBARD && kUnit.bombardTarget(kMissionPlot) != NULL)
+		// <!-- custom: Ground Bombard already supplied its full specialized preview only when an eligible selected siege unit was found above. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (eMission == MISSION_BOMBARD && bBombardHelpHandled)
 		{} // Fully handled in switch block above
 		else // </advc.004c>
 		{
@@ -3359,8 +3739,7 @@ void CvDLLWidgetData::parseAngryCitizenHelp(CvWidgetDataStruct &widgetDataStruct
 }
 
 
-void CvDLLWidgetData::parseChangeSpecialistHelp(
-	CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseChangeSpecialistHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity == NULL)
@@ -3369,8 +3748,11 @@ void CvDLLWidgetData::parseChangeSpecialistHelp(
 	int const iChange = widgetDataStruct.m_iData2;
 	if (iChange > 0)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+
 		GAMETEXT.parseSpecialistHelp(szBuffer, eSpecialist, pHeadSelectedCity);
-		if (widgetDataStruct.m_iData1 != GC.getDEFAULT_SPECIALIST())
+		if (widgetDataStruct.m_iData1 != eDefaultSpecialist)
 		{
 			if (!GET_PLAYER(pHeadSelectedCity->getOwner()).
 					isSpecialistValid((SpecialistTypes)widgetDataStruct.m_iData1))
@@ -3657,8 +4039,7 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct, 
 
 /*	K-Mod. The cheat mode text associated with parseContactCivHelp.
 	Mostly BBAI code. */
-void CvDLLWidgetData::parseScoreboardCheatText(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseScoreboardCheatText(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	PlayerTypes const ePlayer = (PlayerTypes)widgetDataStruct.m_iData1;
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
@@ -3718,119 +4099,27 @@ void CvDLLWidgetData::parseScoreboardCheatText(CvWidgetDataStruct &widgetDataStr
 	szBuffer.append(szTempBuffer);
 	// Victory strategies
 	szTempBuffer.clear();
-	/*  <advc.007> Reordered and "else" added so that only the highest stage is
-		displayed. */
-	if (kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE4))
-	{
-		szTempBuffer.Format(L"Culture4, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE3))
-	{
-		szTempBuffer.Format(L"Culture3, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE2))
-	{
-		szTempBuffer.Format(L"Culture2, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE1))
-	{
-		szTempBuffer.Format(L"Culture1, ");
-		szBuffer.append(szTempBuffer);
-	}
-
-	if (kPlayer.AI_atVictoryStage(AI_VICTORY_SPACE4))
-	{
-		szTempBuffer.Format(L"Space4, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_SPACE3))
-	{
-		szTempBuffer.Format(L"Space3, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_SPACE2))
-	{
-		szTempBuffer.Format(L"Space2, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_SPACE1))
-	{
-		szTempBuffer.Format(L"Space1, ");
-		szBuffer.append(szTempBuffer);
-	}
-
-	if (kPlayer.AI_atVictoryStage(AI_VICTORY_CONQUEST4))
-	{
-		szTempBuffer.Format(L"Conq4, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_CONQUEST3))
-	{
-		szTempBuffer.Format(L"Conq3, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_CONQUEST2))
-	{
-		szTempBuffer.Format(L"Conq2, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_CONQUEST1))
-	{
-		szTempBuffer.Format(L"Conq1, ");
-		szBuffer.append(szTempBuffer);
-	}
-
-	if (kPlayer.AI_atVictoryStage(AI_VICTORY_DOMINATION4))
-	{
-		szTempBuffer.Format(L"Dom4, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_DOMINATION3))
-	{
-		szTempBuffer.Format(L"Dom3, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_DOMINATION2))
-	{
-		szTempBuffer.Format(L"Dom2, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_DOMINATION1))
-	{
-		szTempBuffer.Format(L"Dom1, ");
-		szBuffer.append(szTempBuffer);
-	}
-
-	if (kPlayer.AI_atVictoryStage(AI_VICTORY_DIPLOMACY4))
-	{
-		szTempBuffer.Format(L"Diplo4, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_DIPLOMACY3))
-	{
-		szTempBuffer.Format(L"Diplo3, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_DIPLOMACY2))
-	{
-		szTempBuffer.Format(L"Diplo2, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_DIPLOMACY1))
-	{
-		szTempBuffer.Format(L"Diplo1, ");
-		szBuffer.append(szTempBuffer);
-	} // </advc.007>
+	// <!-- custom: Shared 0..4 helpers preserve AdvCiv's highest-stage-only display without five repeated 4-to-1 ladders. (GPT-5.6-Sol) -->
+	AIVictoryStage const eVictoryStageHash = kPlayer.AI_getVictoryStageHash();
+	int const iCultureStage = getSASCultureVictoryStageLevel(eVictoryStageHash);
+	int const iSpaceStage = getSASSpaceVictoryStageLevel(eVictoryStageHash);
+	int const iConquestStage = getSASConquestVictoryStageLevel(eVictoryStageHash);
+	int const iDominationStage = getSASDominationVictoryStageLevel(eVictoryStageHash);
+	int const iDiplomacyStage = getSASDiplomacyVictoryStageLevel(eVictoryStageHash);
+	if (iCultureStage > 0) szBuffer.append(CvWString::format(L"Culture%d, ", iCultureStage));
+	if (iSpaceStage > 0) szBuffer.append(CvWString::format(L"Space%d, ", iSpaceStage));
+	if (iConquestStage > 0) szBuffer.append(CvWString::format(L"Conq%d, ", iConquestStage));
+	if (iDominationStage > 0) szBuffer.append(CvWString::format(L"Dom%d, ", iDominationStage));
+	if (iDiplomacyStage > 0) szBuffer.append(CvWString::format(L"Diplo%d, ", iDiplomacyStage));
 	szBuffer.append(NEWLINE);
 	// Strategies (advc: Moved below victory stages)
 	szTempBuffer.clear();
 	// <advc> Refactored with a loop and switch
-	for (int iShift = 0; iShift < MAX_AI_STRATEGIES; iShift++)
+	// <!-- custom: Iterate the shared registered strategies instead of brute-forcing the former 32-bit MAX_AI_STRATEGIES bound; the same table now drives diagnostic identities and CI verifies complete enum coverage. (GPT-5.6-Sol) -->
+	int const iStrategyCount = getSASAIStrategyDescriptorCount();
+	for (int iI = 0; iI < iStrategyCount; iI++)
 	{
-		AIStrategy eStrat = (AIStrategy)(1 << iShift);
+		AIStrategy const eStrat = getSASAIStrategyDescriptor(iI).eStrategy;
 		if (!kPlayer.AI_isDoStrategy(eStrat,
 				true)) // advc.007: So that human strategies get shown as well
 		{
@@ -4621,8 +4910,7 @@ void CvDLLWidgetData::parseEmphasizeHelp(CvWidgetDataStruct &widgetDataStruct, C
 }
 
 
-void CvDLLWidgetData::parseTradeItem(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseTradeItem(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	szBuffer.clear();
 	CvGame& kGame = GC.getGame();
@@ -4657,6 +4945,8 @@ void CvDLLWidgetData::parseTradeItem(CvWidgetDataStruct &widgetDataStruct,
 		break;
 	}
 	case TRADE_PEACE:
+		// <!-- custom: GET_TEAM accepts this PlayerTypes value through CvGamePlay::getTeam(PlayerTypes), which converts it with TEAMID; an additional explicit conversion would be redundant.
+		// This is the non-AI counterpart of the CoreAI overload reviewed in KI#311. See KI#387. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_MAKE_PEACE",
 				GET_TEAM(eWhoFrom).getName().GetCString(),
 				GET_TEAM((TeamTypes)widgetDataStruct.m_iData2).getName().GetCString()));
@@ -4989,8 +5279,7 @@ void CvDLLWidgetData::parseHealthHelp(CvWidgetDataStruct &widgetDataStruct, CvWS
 }
 
 
-void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	wchar szTempBuffer[1024];
 
@@ -5124,8 +5413,7 @@ void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parseHappinessHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseHappinessHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity == NULL)
@@ -5146,8 +5434,7 @@ void CvDLLWidgetData::parseHappinessHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parsePopulationHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parsePopulationHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity != NULL)
@@ -5158,8 +5445,7 @@ void CvDLLWidgetData::parsePopulationHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parseProductionHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseProductionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity != NULL &&
@@ -5179,8 +5465,7 @@ void CvDLLWidgetData::parseProductionHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parseCultureHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseCultureHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity == NULL)
@@ -5212,8 +5497,7 @@ void CvDLLWidgetData::parseCultureHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parseGreatPeopleHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseGreatPeopleHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity != NULL)
@@ -5221,16 +5505,14 @@ void CvDLLWidgetData::parseGreatPeopleHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parseGreatGeneralHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseGreatGeneralHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	if (getActivePlayer() != NO_PLAYER)
 		GAMETEXT.parseGreatGeneralHelp(szBuffer, GET_PLAYER(getActivePlayer()));
 }
 
 
-void CvDLLWidgetData::parseSelectedHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseSelectedHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity == NULL)
@@ -5278,7 +5560,10 @@ void CvDLLWidgetData::parseTradeRouteCityHelp(CvWidgetDataStruct &widgetDataStru
 
 void CvDLLWidgetData::parseEspionageCostHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
-	CvUnit* pUnit = gDLL->UI().getHeadSelectedUnit();
+	// <!-- custom: Espionage popup cost help must use a selected Spy eligible for this exact mission/target; a generic first Spy can be unaffordable despite a later Spy's stationary discount. See KI#398. See KI#1058. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvSelectionGroup const* pSelectionGroup = gDLL->UI().getSelectionList();
+	CvUnit const* pUnit = (pSelectionGroup == NULL ? NULL : pSelectionGroup->getEspionageUnit(
+			(EspionageMissionTypes)widgetDataStruct.m_iData1, widgetDataStruct.m_iData2));
 	if (pUnit != NULL)
 	{
 		CvPlot* pPlot = pUnit->plot();
@@ -5323,6 +5608,108 @@ void CvDLLWidgetData::parseFeatureHelp(CvWidgetDataStruct &widgetDataStruct, CvW
 		GAMETEXT.setFeatureHelp(szBuffer, (FeatureTypes)widgetDataStruct.m_iData1);
 }
 
+// <!-- custom: New: the route's name, its two movement costs and the improvements whose yields it changes, the same summary the Sevopedia Routes page leads with.
+// The Python hover this replaces showed only in a loaded game. See KI#113. (Claude code Opus 5.5) -->
+void CvDLLWidgetData::parseRouteHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+{
+	int const iRoute = widgetDataStruct.m_iData1;
+	if (iRoute < 0 || iRoute >= GC.getNumRouteInfos())
+		return;
+	RouteTypes const eRoute = (RouteTypes)iRoute;
+	CvRouteInfo const& kRoute = GC.getInfo(eRoute);
+	int const iDenominator = GC.getMOVE_DENOMINATOR();
+	CvWString const szBullet = CvWString::format(L"%s%c", NEWLINE, gDLL->getSymbolID(BULLET_CHAR));
+	szBuffer.append(kRoute.getDescription());
+	szBuffer.append(szBullet);
+	szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_ROUTE_MOVE_COST", kRoute.getMovementCost(), iDenominator));
+	szBuffer.append(szBullet);
+	szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_ROUTE_FLAT_COST", kRoute.getFlatMovementCost(), iDenominator));
+	for (int iImprovement = 0; iImprovement < GC.getNumImprovementInfos(); iImprovement++)
+	{
+		CvImprovementInfo const& kImprovement = GC.getInfo((ImprovementTypes)iImprovement);
+		CvWString szYields;
+		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+		{
+			int const iChange = kImprovement.getRouteYieldChanges(iRoute, iYield);
+			if (iChange == 0)
+				continue;
+			if (!szYields.empty())
+				szYields.append(L" ");
+			szYields.append(CvWString::format(L"%+d%c", iChange, GC.getInfo((YieldTypes)iYield).getChar()));
+		}
+		if (szYields.empty())
+			continue;
+		szBuffer.append(szBullet);
+		szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_ROUTE_IMPROVEMENT_YIELDS", szYields.GetCString(), kImprovement.getDescription()));
+	}
+}
+
+
+// <!-- custom: New: with an unlocking tech, the same "Can Build ..." line as the Tech Advisor's old Build hover; otherwise the Build's name, its result (improvement, route or removed features), its tech and its base time. See KI#113. (Claude code Opus 5.5) -->
+void CvDLLWidgetData::parseBuildPediaHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+{
+	int const iBuild = widgetDataStruct.m_iData1;
+	if (iBuild < 0 || iBuild >= GC.getNumBuildInfos())
+		return;
+	BuildTypes const eBuild = (BuildTypes)iBuild;
+	int const iTech = widgetDataStruct.m_iData2;
+	// <!-- custom: Sevopedia lists pass 1 as data2, as BULL does, which is a valid tech ID; the hover then came out empty because that tech does not unlock the Build.
+	// Use the tech line only when it has text, otherwise the summary. See KI#113. (Claude code Opus 5.5) -->
+	if (iTech >= 0 && iTech < GC.getNumTechInfos())
+	{
+		CvWStringBuffer szTech;
+		GAMETEXT.buildImprovementString(szTech, (TechTypes)iTech, eBuild);
+		if (!szTech.isEmpty())
+		{
+			szBuffer.append(szTech);
+			return;
+		}
+	}
+	CvBuildInfo const& kBuild = GC.getInfo(eBuild);
+	CvWString const szBullet = CvWString::format(L"%s%c", NEWLINE, gDLL->getSymbolID(BULLET_CHAR));
+	szBuffer.append(kBuild.getDescription());
+	if (kBuild.getImprovement() != NO_IMPROVEMENT)
+	{
+		szBuffer.append(szBullet);
+		szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_BUILD_HOVER_CREATES", GC.getInfo(kBuild.getImprovement()).getTextKeyWide()));
+	}
+	if (kBuild.getRoute() != NO_ROUTE)
+	{
+		szBuffer.append(szBullet);
+		szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_BUILD_HOVER_CREATES", GC.getInfo(kBuild.getRoute()).getTextKeyWide()));
+	}
+	FOR_EACH_ENUM(Feature)
+	{
+		if (!kBuild.isFeatureRemove(eLoopFeature))
+			continue;
+		szBuffer.append(szBullet);
+		szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_BUILD_HOVER_REMOVES", GC.getInfo(eLoopFeature).getTextKeyWide()));
+	}
+	if (kBuild.getTechPrereq() != NO_TECH)
+	{
+		szBuffer.append(szBullet);
+		szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_BUILD_HOVER_TECH", GC.getInfo(kBuild.getTechPrereq()).getTextKeyWide()));
+	}
+	if (kBuild.getTime() > 0)
+	{
+		szBuffer.append(szBullet);
+		szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_BUILD_HOVER_TIME", kBuild.getTime()));
+	}
+}
+
+// <!-- custom: New: the trait's full help, as the Leader pages show it, without the leading blank line parseTraits starts with. See KI#113. (Claude code Opus 5.5) -->
+void CvDLLWidgetData::parseTraitPediaHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+{
+	int const iTrait = widgetDataStruct.m_iData1;
+	if (iTrait < 0 || iTrait >= GC.getNumTraitInfos())
+		return;
+	CvWStringBuffer szTrait;
+	GAMETEXT.parseTraits(szTrait, (TraitTypes)iTrait, NO_CIVILIZATION, false, false);
+	CvWString szText(szTrait.getCString());
+	if (szText.find(NEWLINE) == 0)
+		szText.erase(0, 1);
+	szBuffer.append(szText);
+}
 
 void CvDLLWidgetData::parseTechEntryHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {	/*  advc.085: 0 was unused, so this check wasn't needed for anything. Now 0
@@ -5350,8 +5737,7 @@ void CvDLLWidgetData::parseTechPrereqHelp(CvWidgetDataStruct &widgetDataStruct, 
 			GC.getInfo((TechTypes)widgetDataStruct.m_iData1).getTextKeyWide()));
 }
 
-void CvDLLWidgetData::parseTechTreePrereq(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer, bool bTreeInfo)
+void CvDLLWidgetData::parseTechTreePrereq(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer, bool bTreeInfo)
 {
 	GAMETEXT.setTechHelp(szBuffer, (TechTypes)widgetDataStruct.m_iData1, false,
 			false, false, bTreeInfo, (TechTypes)widgetDataStruct.m_iData2);
@@ -5576,6 +5962,16 @@ void CvDLLWidgetData::parseFinanceAwaySupply(CvWidgetDataStruct &widgetDataStruc
 		GAMETEXT.buildFinanceAwaySupplyString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
 }
 
+// <!-- custom: Append the established unit-cost and away-supply breakdowns to describe their combined Military Advisor subtotal exactly. See KI#390. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvDLLWidgetData::parseFinanceUnitCostAndSupply(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+{
+	if (widgetDataStruct.m_iData2 > 0)
+	{
+		GAMETEXT.buildFinanceUnitCostString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
+		GAMETEXT.buildFinanceAwaySupplyString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
+	}
+}
+
 void CvDLLWidgetData::parseFinanceCityMaint(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {	// advc.086: Disabled
 	//szBuffer.assign(gDLL->getText("TXT_KEY_ECON_AMOUNT_MONEY_CITY_MAINT"));
@@ -5676,10 +6072,10 @@ void CvDLLWidgetData::parseBonusTradeHelp(CvWidgetDataStruct &widgetDataStruct, 
 	else /* <advc.073> Hack. Need to distinguish between the import and export columns.
 			Too few iData parameters for that and widgetDataStruct.m_bOption
 			can't be set from Python (via setImageButton in the EXE).
-			I'm adding +1000 to the bonus id in Python (CvExoticForeignAdvisor.
+			I'm adding +1000 to the bonus id in Python (CvForeignAdvisor.
 			drawResourceDeals) to signal that the widget is in the import column,
 			Proper solution: Two separate widget types - probably wouldn't be that
-			much work to implement either. */
+			much work to implement either.; <!-- custom: removed "Exotic" since it is now unified in a single file --> */
 	{
 		bool bImport = false;
 		if(widgetDataStruct.m_iData1 >= 1000)
@@ -5767,13 +6163,67 @@ void CvDLLWidgetData::parseLeaderheadRelationsHelp(CvWidgetDataStruct &widgetDat
 	GAMETEXT.parseLeaderHeadRelationsHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1,
 			(PlayerTypes)widgetDataStruct.m_iData2);
 } // BULL - Leaderhead Relations - end
+
+// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab -->
+// <!-- custom: add tooltip in Foreign Advisor glance tab. Credit: Gemini 3 Pro. (Claude code Sonnet 4.5 (summarized)) -->
+// Helper for Vassal Willingness Tooltip
+// eRival  = The Foreign Leader we are hovering over (Potential Vassal)
+// ePlayer = The Active Player / Viewer (Potential Master)
+void CvDLLWidgetData::parseVassalWillingnessHelp(CvWStringBuffer &szBuffer, PlayerTypes eRival, PlayerTypes ePlayer)
+{
+	// 1. Safety Checks
+	if (eRival == NO_PLAYER || ePlayer == NO_PLAYER) return;
+
+	// 2. Spoiler Check: Only show this if WE (Active Player) are the potential master.
+	if (ePlayer != getActivePlayer()) return;
+
+	// 3. Don't check ourselves
+	if (eRival == ePlayer) return;
+
+	// 4. Index safety check
+	if (eRival >= MAX_CIV_PLAYERS || ePlayer >= MAX_CIV_PLAYERS) return;
+
+	CvPlayer& kRival = GET_PLAYER(eRival);
+
+	// 5. Check Voluntary Vassal (Peace)
+	TradeData itemVassal;
+	itemVassal.m_eItemType = TRADE_VASSAL;
+
+	// Can eRival trade it to ePlayer?
+	if (kRival.canTradeItem(ePlayer, itemVassal, false))
+	{
+		if (kRival.getTradeDenial(ePlayer, itemVassal) == NO_DENIAL)
+		{
+			szBuffer.append(NEWLINE);
+			szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_VOLUNTARY"));
+		}
+	}
+	// 6. Check Capitulation (War)
+	// Only check if eRival is at war with ePlayer's team
+	else if (GET_TEAM(kRival.getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+	{
+		TradeData itemSurrender;
+		itemSurrender.m_eItemType = TRADE_SURRENDER;
+
+		if (kRival.canTradeItem(ePlayer, itemSurrender, false))
+		{
+			if (kRival.getTradeDenial(ePlayer, itemSurrender) == NO_DENIAL)
+			{
+				szBuffer.append(NEWLINE);
+				szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_CAPITULATE"));
+			}
+		}
+	}
+}
+
 // advc.003j (comment): unused
 void CvDLLWidgetData::parseCloseScreenHelp(CvWStringBuffer& szBuffer)
 {
 	szBuffer.assign(gDLL->getText("TXT_KEY_MISC_CLOSE_SCREEN"));
 }
 
-namespace // advc: for parseDescriptionHelp
+// <!-- custom: AdvCiv shares the description-help logic across Pedia enum types so the dispatch only selects the page type. (GPT-6.2-Sol) -->
+namespace
 {
 	template <typename E>
 	void assignDescrHelp(int iVal, CvWStringBuffer& szBuffer, bool bHistorical = false)
@@ -5781,7 +6231,7 @@ namespace // advc: for parseDescriptionHelp
 		E eVal = static_cast<E>(iVal);
 		if (eVal == enum_traits<E>::none)
 			return;
-		// advc.cppstd: if/else instead of conditional operator
+		// <!-- custom: AdvCiv's advc.cppstd uses explicit branches for translated history text and plain descriptions. See KI#1099. (GPT-6.2-Sol) -->
 		if (bHistorical)
 			szBuffer.assign(gDLL->getText("TXT_KEY_MISC_HISTORICAL_INFO",
 					GC.getInfo(eVal).getTextKeyWide()));
@@ -5789,12 +6239,11 @@ namespace // advc: for parseDescriptionHelp
 	}
 }
 
-void CvDLLWidgetData::parseDescriptionHelp(CvWidgetDataStruct& widgetDataStruct,
-	CvWStringBuffer& szBuffer, bool bMinimal)
+void CvDLLWidgetData::parseDescriptionHelp(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer& szBuffer, bool bMinimal)
 {
 	CivilopediaPageTypes eType = (CivilopediaPageTypes)widgetDataStruct.m_iData1;
-	int const iData2 = widgetDataStruct.m_iData2; // abbreviate
-	switch (eType) // advc: Repetitive case handling moved into helper function
+	int const iData2 = widgetDataStruct.m_iData2;
+	switch (eType)
 	{
 	case CIVILOPEDIA_PAGE_TECH:
 		assignDescrHelp<TechTypes>(iData2, szBuffer, !bMinimal);
@@ -5848,8 +6297,7 @@ void CvDLLWidgetData::parseDescriptionHelp(CvWidgetDataStruct& widgetDataStruct,
 	}
 }
 
-void CvDLLWidgetData::parseKillDealHelp(CvWidgetDataStruct &widgetDataStruct,
-		CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseKillDealHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvWString szTemp = szBuffer.getCString();
 	CvDeal const* pDeal = GC.getGame().getDeal(widgetDataStruct.m_iData1);
@@ -5902,36 +6350,31 @@ void CvDLLWidgetData::parseProductionModHelp(CvWidgetDataStruct &widgetDataStruc
 		GAMETEXT.setProductionHelp(szBuffer, *pCity);
 }
 
-void CvDLLWidgetData::parseLeaderheadHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseLeaderheadHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	GAMETEXT.parseLeaderHeadHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1,
 			(PlayerTypes)widgetDataStruct.m_iData2);
 }
 
-void CvDLLWidgetData::parseLeaderLineHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseLeaderLineHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	GAMETEXT.parseLeaderLineHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1,
 			(PlayerTypes)widgetDataStruct.m_iData2);
 }
 
-void CvDLLWidgetData::parseCommerceModHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseCommerceModHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pCity = gDLL->UI().getHeadSelectedCity();
 	if (pCity != NULL)
 		GAMETEXT.setCommerceHelp(szBuffer, *pCity, (CommerceTypes)widgetDataStruct.m_iData1);
 }
 
-void CvDLLWidgetData::parseScoreHelp(CvWidgetDataStruct& widgetDataStruct,
-	CvWStringBuffer& szBuffer)
+void CvDLLWidgetData::parseScoreHelp(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer& szBuffer)
 {
 	GAMETEXT.setScoreHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
 }
 // BULL - Trade Hover - start
-void CvDLLWidgetData::parseTradeRoutes(CvWidgetDataStruct& widgetDataStruct,
-	CvWStringBuffer& szBuffer)
+void CvDLLWidgetData::parseTradeRoutes(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer& szBuffer)
 {
 	GAMETEXT.buildTradeString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1,
 			(PlayerTypes)widgetDataStruct.m_iData2);
@@ -5940,8 +6383,7 @@ void CvDLLWidgetData::parseTradeRoutes(CvWidgetDataStruct& widgetDataStruct,
 			true); // advc.087
 } // BULL - Trade Hover - end
 // BULL - Food Rate Hover - start
-void CvDLLWidgetData::parseFoodModHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseFoodModHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity const* pCity = gDLL->UI().getHeadSelectedCity();
 	if(pCity == NULL)
@@ -5952,7 +6394,11 @@ void CvDLLWidgetData::parseFoodModHelp(CvWidgetDataStruct &widgetDataStruct,
 void CvDLLWidgetData::parsePowerRatioHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)widgetDataStruct.m_iData1);
-	CvPlayer const& kActivePlayer = GET_PLAYER(getActivePlayer());
+	// <!-- custom: The ordinary scoreboard belongs to the real active player, while the AdvCiv-SAS Info Screen Score tab can show another permitted advisor perspective.
+	// Use that screen-specific payload for both ratio and espionage help. See KI#1059. (GPT-5.6-Sol) -->
+	PlayerTypes const ePerspective = (widgetDataStruct.m_eWidgetType == WIDGET_POWER_RATIO_INFO_SCREEN ?
+			(PlayerTypes)widgetDataStruct.m_iData2 : getActivePlayer());
+	CvPlayer const& kActivePlayer = GET_PLAYER(ePerspective);
 	bool bThemVsYou = (BUGOption::getValue("Scores__PowerFormula", 0, false) == 0);
 	int iPow = std::max(1, kPlayer.getPower());
 	int iActivePow = std::max(1, kActivePlayer.getPower());
@@ -5970,7 +6416,7 @@ void CvDLLWidgetData::parsePowerRatioHelp(CvWidgetDataStruct &widgetDataStruct, 
 	else szPowerRatioHelpTag += L"YOU_VS_THEM";
 	szBuffer.append(gDLL->getText(szPowerRatioHelpTag, kPlayer.getName(),
 			gDLL->getText(szCompareTag).GetCString()));
-	ColorTypes eRatioColor = widgetDataStruct.m_iData2 <= 0 ? NO_COLOR :
+	ColorTypes eRatioColor = (widgetDataStruct.m_eWidgetType == WIDGET_POWER_RATIO_INFO_SCREEN || widgetDataStruct.m_iData2 <= 0) ? NO_COLOR :
 			(ColorTypes)widgetDataStruct.m_iData2;
 	if(eRatioColor != NO_COLOR)
 	{
@@ -6005,8 +6451,7 @@ void CvDLLWidgetData::parsePowerRatioHelp(CvWidgetDataStruct &widgetDataStruct, 
 }
 
 
-void CvDLLWidgetData::parseGoldenAgeAnarchyHelp(PlayerTypes ePlayer, int iData2,
-	bool bAnarchy, CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseGoldenAgeAnarchyHelp(PlayerTypes ePlayer, int iData2, bool bAnarchy, CvWStringBuffer &szBuffer)
 {
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
 	if(bAnarchy)
@@ -6026,8 +6471,7 @@ void CvDLLWidgetData::parseGoldenAgeAnarchyHelp(PlayerTypes ePlayer, int iData2,
 } // </advc.085>
 
 // <K-Mod> 5/jan/11: Environmental advisor mouse-over text
-void CvDLLWidgetData::parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_OFFSETS_HELP"));
 	FOR_EACH_ENUM(Feature)
@@ -6042,8 +6486,7 @@ void CvDLLWidgetData::parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataSt
 	}
 }
 
-void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvPlayer::PollutionFlags eFlags = (CvPlayer::PollutionFlags)widgetDataStruct.m_iData1;
 
@@ -6051,39 +6494,50 @@ void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct,
 
 	if (eFlags & CvPlayer::POLLUTION_POPULATION)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iGlobalWarmingPopulationWeight = GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT");
+
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_POPULATION",
-				GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT")));
+				iGlobalWarmingPopulationWeight));
 	}
 	if (eFlags & CvPlayer::POLLUTION_BUILDINGS)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iGlobalWarmingBuildingWeight = GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT");
+
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_BUILDINGS",
-				GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT")));
+				iGlobalWarmingBuildingWeight));
 	}
 	if (eFlags & CvPlayer::POLLUTION_BONUSES)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iGlobalWarmingBonusWeight = GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT");
+
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_BONUSES",
-				GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT")));
+				iGlobalWarmingBonusWeight));
 	}
 	if (eFlags & CvPlayer::POLLUTION_POWER)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iGlobalWarmingPowerWeight = GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT");
+
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_POWER",
-				GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT")));
+				iGlobalWarmingPowerWeight));
 	}
 } // </K-Mod>
 
 // advc.ctr:
-bool CvDLLWidgetData::parseCityTradeHelp(CvWidgetDataStruct const& kWidget,
-	CvCity*& pCity, PlayerTypes& eWhoTo) const
+bool CvDLLWidgetData::parseCityTradeHelp(CvWidgetDataStruct const& kWidget, CvCity*& pCity, PlayerTypes& eWhoTo) const
 {
 	bool bListMore = false;
 	// bListMore, eOwner and eWhoTo are all folded into data1
 	int iPlayerCode = kWidget.m_iData1;
 	FAssert(iPlayerCode >= 100);
-	// Undo the computation in drawCityDeals (CvExoticForeignAdvisor.py)
+	// Undo the computation in drawCityDeals (CvForeignAdvisor.py); <!-- custom: removed "Exotic" since it is now unified in a single file -->
 	if (iPlayerCode >= 10000)
 	{
 		bListMore = true;

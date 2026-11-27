@@ -1,0 +1,153 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 53
+# Author: iustus
+# Date: 2006-11-09T04:20:31.680254Z
+# Coverage: full
+# Message:
+#   updated AI_sumStrength and AI_compareStacks to take additional parameters.
+# Changed paths (6):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.h
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@52
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@53
+@@ -1669,10 +1669,13 @@
+ 		}
+ 
+ 		{
+-			szTempBuffer.Format(L"\nStack Str: land=%d, sea=%d, air=%d", 
+-				pPlot->AI_sumStrength(NO_PLAYER, NO_PLAYER, DOMAIN_LAND, false, false),
+-				pPlot->AI_sumStrength(NO_PLAYER, NO_PLAYER, DOMAIN_SEA, false, false),
+-				pPlot->AI_sumStrength(NO_PLAYER, NO_PLAYER, DOMAIN_AIR, false, false));
++			szTempBuffer.Format(L"\nStack Str: land=%d(%d), sea=%d(%d), air=%d(%d)", 
++				pPlot->AI_sumStrength(NO_PLAYER, NO_PLAYER, DOMAIN_LAND, false, false, false),
++				pPlot->AI_sumStrength(NO_PLAYER, NO_PLAYER, DOMAIN_LAND, true, false, false),
++				pPlot->AI_sumStrength(NO_PLAYER, NO_PLAYER, DOMAIN_SEA, false, false, false),
++				pPlot->AI_sumStrength(NO_PLAYER, NO_PLAYER, DOMAIN_SEA, true, false, false),
++				pPlot->AI_sumStrength(NO_PLAYER, NO_PLAYER, DOMAIN_AIR, false, false, false),
++				pPlot->AI_sumStrength(NO_PLAYER, NO_PLAYER, DOMAIN_AIR, true, false, false));
+ 			szString+=szTempBuffer;
+ 		}
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@52
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@53
+@@ -2270,7 +2270,7 @@
+ }
+ 
+ // returns a sum of the strength (adjusted by firepower) of all the units on a plot
+-int CvPlot::AI_sumStrength(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, DomainTypes eDomainType, bool bTestAtWar, bool bTestPotentialEnemy) const
++int CvPlot::AI_sumStrength(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, DomainTypes eDomainType, bool bDefensiveBonuses, bool bTestAtWar, bool bTestPotentialEnemy) const
+ {
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+@@ -2295,7 +2295,12 @@
+ 						// somewhere we need to check to see if this is a city, if so, only land units can defend here, etc
+ 						if (eDomainType == NO_DOMAIN || (pLoopUnit->getDomainType() == eDomainType))
+ 						{
+-							strSum += pLoopUnit->currEffectiveStr(this, NULL);
++							const CvPlot* pPlot = NULL;
++							
++							if (bDefensiveBonuses)
++								pPlot = this;
++
++							strSum += pLoopUnit->currEffectiveStr(pPlot, NULL);
+ 						}
+ 					}
+ 				}
+
+Index: /trunk/CvGameCoreDLL/CvPlot.h
+--- /trunk/CvGameCoreDLL/CvPlot.h@52
++++ /trunk/CvGameCoreDLL/CvPlot.h@53
+@@ -116,7 +116,7 @@
+ 	DllExport int getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CvCity** ppCity) const;																// Exposed to Python
+ 
+ 	DllExport CvUnit* getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bTestPotentialEnemy = false, bool bTestCanMove = false) const;		// Exposed to Python
+-	int AI_sumStrength(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, DomainTypes eDomainType = NO_DOMAIN, bool bTestAtWar = false, bool bTestPotentialEnemy = false) const;	
++	int AI_sumStrength(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, DomainTypes eDomainType = NO_DOMAIN, bool bDefensiveBonuses = true, bool bTestAtWar = false, bool bTestPotentialEnemy = false) const;	
+ 	CvUnit* getSelectedUnit() const;																																// Exposed to Python				
+ 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;																					// Exposed to Python				
+ 
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.h@52
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.h@53
+@@ -163,8 +163,8 @@
+ 	virtual bool AI_update() = 0;
+ 	virtual int AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const = 0;
+ 	virtual CvUnit* AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce = false, bool bNoBlitz = false) const = 0;
+-	virtual int AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy) const = 0;
+-	virtual int AI_sumStrength(const CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false) const = 0;
++	virtual int AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy, bool bCheckCanAttack = false, bool bCheckCanMove = false) const = 0;
++	virtual int AI_sumStrength(const CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false, bool bCheckCanMove = false) const = 0;
+ 
+ 	virtual bool AI_isControlled() = 0;
+ 	virtual bool AI_isDeclareWar() = 0;
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@52
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@53
+@@ -276,7 +276,7 @@
+ 
+ // Returns ratio of strengths of stacks times 100 
+ // (so 100 is even ratio, numbers over 100 mean this group is more powerful than the stack on a plot)
+-int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy) const
++int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy, bool bCheckCanAttack, bool bCheckCanMove) const
+ {
+ 	FAssert(getOwnerINLINE() != NO_PLAYER);
+ 	FAssert(pPlot != NULL);
+@@ -294,15 +294,15 @@
+ 
+ 	}
+ 
+-	compareRatio = AI_sumStrength(pPlot, eDomainType, false);
++	compareRatio = AI_sumStrength(pPlot, eDomainType, bCheckCanAttack, bCheckCanMove);
+ 	compareRatio *= 100;
+ 
+-	compareRatio /= pPlot->AI_sumStrength(NO_PLAYER, getOwnerINLINE(), eDomainType, !bPotentialEnemy, bPotentialEnemy);
++	compareRatio /= pPlot->AI_sumStrength(NO_PLAYER, getOwnerINLINE(), eDomainType, true, !bPotentialEnemy, bPotentialEnemy);
+ 
+ 	return compareRatio;
+ }
+ 
+-int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot, DomainTypes eDomainType, bool bCheckCanAttack) const
++int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot, DomainTypes eDomainType, bool bCheckCanAttack, bool bCheckCanMove) const
+ // may want to add check on canMove and/or canMoveInto to AI_sumStrength (would add bool)
+ {
+ 	CLLNode<IDInfo>* pUnitNode;
+@@ -326,8 +326,10 @@
+ 
+ 			if (!bCheckCanAttack || bCanAttack)
+ 			{
+-				if (eDomainType == NO_DOMAIN || pLoopUnit->getDomainType() == eDomainType)
+-					strSum += pLoopUnit->currEffectiveStr(pAttackedPlot, pLoopUnit);
++				if (!bCheckCanMove || pLoopUnit->canMove())
++					if (!bCheckCanMove || pAttackedPlot == NULL || pLoopUnit->canMoveInto(pAttackedPlot, true))
++						if (eDomainType == NO_DOMAIN || pLoopUnit->getDomainType() == eDomainType)
++							strSum += pLoopUnit->currEffectiveStr(pAttackedPlot, pLoopUnit);
+ 			}
+ 		}
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.h@52
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.h@53
+@@ -23,8 +23,8 @@
+ 
+ 	int AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const;
+ 	CvUnit* AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce = false, bool bNoBlitz = false) const;
+-	int AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy) const;
+-	int AI_sumStrength(const CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false) const;
++	int AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy, bool bCheckCanAttack = false, bool bCheckCanMove = false) const;
++	int AI_sumStrength(const CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false, bool bCheckCanMove = false) const;
+ 
+ 	bool AI_isControlled();
+ 	bool AI_isDeclareWar();
+

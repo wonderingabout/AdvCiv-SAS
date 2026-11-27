@@ -1,8 +1,14 @@
 ## "not too Big or Small". A modified version of "big and small" to scale better with larger maps.
 ## by Karadoc. version 1.4
 # advc: Some tweaks; see in-inline comments. Changes tagged with "advc.mxc" were ported from Mixed_Continents.
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: Layout only: python_aligned_columns.py's sweep turned the double spaces and tab runs between this file's code tokens, mostly stray slips such as "x =  y" or one-column alignment, into one space; the code is unchanged. See KI#21.8. (Claude code Opus 5.5) -->
 
 from CvPythonExtensions import *
+from SAS_WorldSizeUtils import *
 import CvUtil
 import CvMapGeneratorUtil
 from CvMapGeneratorUtil import TerrainGenerator
@@ -17,12 +23,15 @@ def getNumPlotsPercent(argsList):
 	if iWorldSize < 0:
 		return 100
 	sizeModifiers = {
-		WorldSizeTypes.WORLDSIZE_DUEL:		100,
-		WorldSizeTypes.WORLDSIZE_TINY:		98,
-		WorldSizeTypes.WORLDSIZE_SMALL:		92,
-		WorldSizeTypes.WORLDSIZE_STANDARD:	87,
-		WorldSizeTypes.WORLDSIZE_LARGE:		83,
-		WorldSizeTypes.WORLDSIZE_HUGE:		79
+		# <!-- custom: Arena was absent from this direct dictionary, causing KeyError; the shifted length guard also bypassed the stored Huge value.
+		# Use the established Duel percentage for Arena. See KI#282.3. (GPT-5.6-Sol) -->
+		WorldSizeTypes.WORLDSIZE_ARENA: 100,
+		WorldSizeTypes.WORLDSIZE_DUEL: 100,
+		WorldSizeTypes.WORLDSIZE_TINY: 98,
+		WorldSizeTypes.WORLDSIZE_SMALL: 92,
+		WorldSizeTypes.WORLDSIZE_STANDARD: 87,
+		WorldSizeTypes.WORLDSIZE_LARGE: 83,
+		WorldSizeTypes.WORLDSIZE_HUGE: 79
 	}
 	if iWorldSize >= len(sizeModifiers):
 		return 75
@@ -38,50 +47,54 @@ def getNumCustomMapOptions():
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
-		0:	"TXT_KEY_MAP_SCRIPT_CONTINENTS_SIZE",
-		1:	"TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
-		2:	"TXT_KEY_MAP_WORLD_WRAP" # kekm.32
+		0: "TXT_KEY_MAP_SCRIPT_CONTINENTS_SIZE",
+		1: "TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
+		2: "TXT_KEY_MAP_WORLD_WRAP" # kekm.32
 		}
+	if not option_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
 
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
-		0:	3,
-		1:	2,
-		2:	3 # kekm.32
+		0: 3,
+		1: 2,
+		2: 3 # kekm.32
 		}
 	return option_values[iOption]
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
-		0:	{
+		0: {
 			0: "TXT_KEY_MAP_SCRIPT_MASSIVE_CONTINENTS",
 			1: "TXT_KEY_MAP_SCRIPT_NORMAL_CONTINENTS",
 			2: "TXT_KEY_MAP_SCRIPT_SNAKY_CONTINENTS"
 			},
-		1:	{
+		1: {
 			0: "TXT_KEY_MAP_SCRIPT_ISLANDS",
 			1: "TXT_KEY_MAP_SCRIPT_TINY_ISLANDS"
 			},
 		# <kekm.32>
-		2:	{
+		2: {
 			0: "TXT_KEY_MAP_WRAP_FLAT",
 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 			} # </kekm.32>
 		}
+	if not selection_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
 
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
-		0:	1,
-		1:	0,
-		2:	1 # kekm.32
+		0: 1,
+		1: 0,
+		2: 1 # kekm.32
 		}
 	return option_defaults[iOption]
 # <kekm.32>
@@ -137,17 +150,13 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				tinyWestLon = 0.01 * self.dice.get(85, "Tiny Longitude - Custom Continents PYTHON")
 				tinyWestX = int(self.iW * tinyWestLon)
 				tinySouthLat = 0.01 * self.dice.get(85, "Tiny Latitude - Custom Continents PYTHON")
-				tinySouthY = int(self.iH * tinyWestLon)
+				# <!-- custom: The inherited script rolled an independent latitude but derived Y from longitude, diagonally correlating supposedly random tiny-island patches.
+				# Use the latitude roll while preserving RNG order. See KI#262. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				tinySouthY = int(self.iH * tinySouthLat)
 				tinyWidth = int(self.iW * 0.15)
 				tinyHeight = int(self.iH * 0.15)
 				iHillGrain = 5 # advc.mxc: was 3
-				self.generatePlotsInRegion(iWater,
-				                           tinyWidth, tinyHeight,
-				                           tinyWestX, tinySouthY,
-				                           4, iHillGrain,
-				                           0, self.iTerrainFlags,
-				                           6, 5,
-				                           True, 3)
+				self.generatePlotsInRegion(iWater, tinyWidth, tinyHeight, tinyWestX, tinySouthY, 4, iHillGrain, 0, self.iTerrainFlags, 6, 5, True, 3)
 		# <K-Mod>
 		zone_types = [0] * iTotalZones
 		i = 0
@@ -184,46 +193,28 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 			if (zone_types[i] == 1):
 				# continent zone </K-Mod>
-				self.generatePlotsInRegion(iWater,
-										   iWidth, iHeight,
-										   iWestX, iSouthY,
-										   iContinentsGrain, 4,
-										   self.iRoundFlags, self.iTerrainFlags,
-										   xExp, 6,
-										   True, 15,
-										   -1, False,
-										   False
-										   )
+				self.generatePlotsInRegion(iWater, iWidth, iHeight, iWestX, iSouthY, iContinentsGrain, 4, self.iRoundFlags, self.iTerrainFlags, xExp, 6, True, 15, -1, False, False)
 			# <K-Mod>
 			else:
 				# islands zone # </K-Mod>
-				self.generatePlotsInRegion(iWater,
-										   iWidth, iHeight,
-										   iWestX, iSouthY,
-										   iIslandsGrain, 5,
-										   self.iRoundFlags, self.iTerrainFlags,
-										   xExp, 6,
-										   True, 15,
-										   -1, False,
-										   False
-										   )
+				self.generatePlotsInRegion(iWater, iWidth, iHeight, iWestX, iSouthY, iIslandsGrain, 5, self.iRoundFlags, self.iTerrainFlags, xExp, 6, True, 15, -1, False, False)
 
 		# All regions have been processed. Plot Type generation completed.
 		return self.wholeworldPlotTypes
 
-'''
-Regional Variables Key:
-
-iWaterPercent,
-iRegionWidth, iRegionHeight,
-iRegionWestX, iRegionSouthY,
-iRegionGrain, iRegionHillsGrain,
-iRegionPlotFlags, iRegionTerrainFlags,
-iRegionFracXExp, iRegionFracYExp,
-bShift, iStrip,
-rift_grain, has_center_rift,
-invert_heights
-'''
+#
+# Regional Variables Key:
+#
+# iWaterPercent,
+# iRegionWidth, iRegionHeight,
+# iRegionWestX, iRegionSouthY,
+# iRegionGrain, iRegionHillsGrain,
+# iRegionPlotFlags, iRegionTerrainFlags,
+# iRegionFracXExp, iRegionFracYExp,
+# bShift, iStrip,
+# rift_grain, has_center_rift,
+# invert_heights
+#
 
 def generatePlotTypes():
 	NiTextOut("Setting Plot Types (Python Custom Continents) ...")

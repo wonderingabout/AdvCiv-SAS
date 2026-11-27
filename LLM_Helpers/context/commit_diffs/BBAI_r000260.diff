@@ -1,0 +1,26 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 260
+# Author: iustus
+# Date: 2007-01-11T00:25:31.587243Z
+# Coverage: full
+# Message:
+#   allow non-forced specialists of the same type as forced specialists to be assigned over poor plots (vanilla logic said to never assign specialists once you force any unless all plots, no matter how bad are being worked)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@259
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@260
+@@ -318,8 +318,8 @@
+ 	// do we have population unassigned
+ 	while (extraPopulation() > 0)
+ 	{
+-		// (if we are forcing any specialists at all, then assign no more while we can work any plot)
+-		if (!AI_addBestCitizen(/*bWorkers*/ true, /*bSpecialists*/ !bIsSpecialistForced))
++		// (AI_addBestCitizen now handles forced specialist logic)
++		if (!AI_addBestCitizen(/*bWorkers*/ true, /*bSpecialists*/ true))
+ 		{
+ 			break;
+ 		}
+

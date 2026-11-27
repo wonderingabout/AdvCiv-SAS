@@ -91,6 +91,89 @@ public:
 	int getGameTurnYear();
 
 	int getElapsedGameTurns();
+	// <!-- custom: Use a Unicode root instead of narrow text and return checkpoint success instead of void; Python can preserve non-ASCII paths and detect failed live-inspection output. (GPT-6.1-Sol) -->
+	void setSASDiagnosticLogRoot(std::wstring szRootDirectory);
+	bool flushSASDiagnosticLogs();
+	// <!-- custom: A replay message from Python, visible only to iPlayer's team, so a screen that only that team saw, such as the Greatest Civilizations, is kept in the save and listed on that team's Timeline. (Claude code Opus 5.5) -->
+	void addSASTeamReplayMessage(int iPlayer, std::wstring szText);
+	// <!-- custom: Bridge screen show/hide through one cached native gate before inspecting editor/Advanced Start state; native code orders mode and visibility observations for either EXE callback ordering. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	void updateSASRuntimeStatusWorldBuilderScreen(bool bVisible);
+	void beginSASWorldBuilderBulkEdit();
+	void endSASWorldBuilderBulkReveal(int eTeam, bool bReveal, bool bCompleted);
+	// <!-- custom: Expose the cached native gate so Python can avoid diagnostic-only UI queries while recording is disabled. (GPT-6.1-Sol) -->
+	bool isSASRuntimeStatusRecordingEnabled() const;
+	// <!-- custom: Rare Python lifecycle/screen callbacks pass only already-observed primitives; native runtime helpers own default-off gating, deduplication and publication. (ChatGPT-5.6-Sol) -->
+	void updateSASRuntimeStatusMainMenuState(bool bInMainMenu);
+	void updateSASRuntimeStatusPreGameStart();
+	void updateSASRuntimeStatusCivilopedia(bool bVisible, bool bInMainMenu);
+	// <!-- custom: New lifecycle bridge records diagnostic settings after Python GameStart/OnLoad handlers finalize Autolog; it gathers no data when SASGameRecord is disabled. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	void logSASGameRecordDiagnosticContext(int iRenderQualityLevel, int iAntiAliasingIndex, int iAntiAliasingSamples, int iGlobeViewRenderLevel, int iMovieQualityLevel);
+	// <!-- custom: Session-configuration timeline bridge plus level-2+ native runtime-view snapshot and internal active-INI resolver; caller-side gates avoid Python collection work when SASGameRecord is disabled. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	void logSASGameRecordSessionSettings(std::string szEvent, std::string szReason, std::string szSource, std::string szGroup, int iCount, std::string szValues);
+	// <!-- custom: The recorder's effective level, 0 while SAS_SGR_LOG_ON is 0, so Python gates on the same value as the DLL rather than reading SAS_SGR_LOG itself, which alone no longer turns the record on or off. See SASGameRecord revision 214 (SGR214). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	int getSASGameRecordLogLevel() const;
+	void logSASGameRecordRuntimeViewStateSnapshot(std::string szReason);
+	// <!-- custom: Revision 151 bridges Python-owned screen/navigation and local interface state into the native recorder without exposing a generic arbitrary-log-string API.
+	// Callers still pre-gate level 2+. (ChatGPT-5.6-Sol) -->
+	void logSASGameRecordScreenAction(std::string szScreen, std::string szAction, int iPrimary, int iSecondary);
+	void logSASGameRecordInterfaceState(std::string szComponent, std::string szEvent, std::string szReason, int iCount, std::string szValues);
+	// <!-- custom: Map annotations are free-form user text owned by the EXE, so use a dedicated bridge with fixed metadata and an explicit content-withheld flag rather than the generic interface-state serializer. (ChatGPT-5.6-Sol) -->
+	void logSASGameRecordMapAnnotationSummary(std::string szEvent, std::string szReason, int iTotal, int iVisible, int iHidden, int iAdded, int iEdited, int iRemoved, bool bContentWithheld);
+	void logSASGameRecordMapAnnotation(std::string szEvent, std::string szReason, int iOwnerPlayer, int iX, int iY, bool bHidden, std::string szOldCaption, std::string szNewCaption, bool bContentWithheld);
+	// <!-- custom: Narrow DotMap bridge passes only persisted scalar marker state; color type/channels are resolved natively from the current XML ID. (ChatGPT-5.6-Sol) -->
+	void logSASGameRecordDotMapSummary(std::string szEvent, std::string szReason, int iTotal, bool bOverlayVisible, int iAdded, int iEdited, int iRemoved);
+	void logSASGameRecordDotMapMarker(std::string szEvent, std::string szReason, int iOwnerPlayer, int iX, int iY, int iOldColor, int iOldLayer, int iNewColor, int iNewLayer);
+	// <!-- custom: SASGameRecord rows for a Greatest Civilizations ranking; CvTopCivs.py pre-gates at level 1, and these check it again as a backstop. (Claude code Opus 5.5) -->
+	void logSASGameRecordTopCivs(std::string szCategory, std::wstring szHistorian, int iListed, int iRanked, int iUnknownListed, bool bShown);
+	void logSASGameRecordTopCivsRank(std::string szCategory, int iRank, int iPlayer, int iValue, bool bListed, bool bKnown);
+	std::string getSASGameRecordIniFileArgument() const;
+	// <!-- custom: Python diplomacy bridge for the exact package of AI ordinary offers rejected by a human.
+	// Raw item/data pairs are converted and logged only at SASGameRecord level 2+. (ChatGPT-5.6-Sol) -->
+	void logSASGameRecordRejectedAIOffer(int iProposer, int iResponder, boost::python::list& kProposerGives, boost::python::list& kResponderGives);
+	// <!-- custom: One-shot SASFastSave provenance bridge; Python already knows the exact chosen basename while CvGame::write owns the persisted checkpoint. (ChatGPT-5.6-Sol) -->
+	void setSASFastSaveContext(std::string szReason, std::string szOriginalBasename);
+	void clearSASFastSaveContext();
+	// <!-- custom: Expose persisted game-source history separately from current runtime source details so later Victory/Sevopedia UI can show creation and transition revisions. (ChatGPT-5.6-Sol) -->
+	int getNumSASVersionHistoryEntries() const;
+	int getSASVersionHistoryTurn(int iIndex) const;
+	std::string getSASVersionHistoryVersion(int iIndex) const;
+	std::string getSASVersionHistoryCommitHash(int iIndex) const;
+	int getSASVersionHistoryDirtyState(int iIndex) const;
+	// <!-- custom: Expose the ordered save-owned Advanced Start / WorldBuilder history read-only to World Advisor.
+	// Controlled tokens/numeric context survive reload independently of SGR; free-form editor content is never stored. (ChatGPT-5.6-Sol) -->
+	int getNumSASWorldChangesHistoryEntries() const;
+	int getSASWorldChangesHistorySource(int iIndex) const;
+	std::string getSASWorldChangesHistorySourceName(int iIndex) const;
+	int getSASWorldChangesHistoryCategory(int iIndex) const;
+	std::string getSASWorldChangesHistoryCategoryName(int iIndex) const;
+	int getSASWorldChangesHistoryActor(int iIndex) const;
+	int getSASWorldChangesHistoryActorTeam(int iIndex) const;
+	int getSASWorldChangesHistoryTargetPlayer(int iIndex) const;
+	int getSASWorldChangesHistoryTargetTeam(int iIndex) const;
+	int getSASWorldChangesHistoryTurn(int iIndex) const;
+	int getSASWorldChangesHistoryYear(int iIndex) const;
+	int getSASWorldChangesHistoryElapsedTurn(int iIndex) const;
+	int getSASWorldChangesHistoryVersionIndex(int iIndex) const;
+	int getSASWorldChangesHistoryX(int iIndex) const;
+	int getSASWorldChangesHistoryY(int iIndex) const;
+	int getSASWorldChangesHistoryCityId(int iIndex) const;
+	int getSASWorldChangesHistoryObjectId(int iIndex) const;
+	int getSASWorldChangesHistoryRequestedDataId(int iIndex) const;
+	int getSASWorldChangesHistoryResolvedDataId(int iIndex) const;
+	std::string getSASWorldChangesHistoryAction(int iIndex) const;
+	std::string getSASWorldChangesHistoryOperation(int iIndex) const;
+	std::string getSASWorldChangesHistoryTargetKind(int iIndex) const;
+	std::string getSASWorldChangesHistoryTarget(int iIndex) const;
+	bool getSASWorldChangesHistoryOldValueValid(int iIndex) const;
+	int getSASWorldChangesHistoryOldValue(int iIndex) const;
+	bool getSASWorldChangesHistoryNewValueValid(int iIndex) const;
+	int getSASWorldChangesHistoryNewValue(int iIndex) const;
+	bool getSASWorldChangesHistoryContentWithheld(int iIndex) const;
+	int getSASWorldChangesHistoryQuotedCost(int iIndex) const;
+	int getSASWorldChangesHistoryPointsBefore(int iIndex) const;
+	int getSASWorldChangesHistoryPointsAfter(int iIndex) const;
+	int getSASWorldChangesHistoryGoldBefore(int iIndex) const;
+	int getSASWorldChangesHistoryGoldAfter(int iIndex) const;
 	int getMaxTurns() const;
 	void setMaxTurns(int iNewValue);
 	void changeMaxTurns(int iChange);
@@ -138,6 +221,8 @@ public:
 
 	int getAIAutoPlay() const;
 	void setAIAutoPlay(int iNewValue);
+	// <!-- custom: Added for the Python AI Auto Play controller to report an explicit completion cause to the DLL/game record. See KI#203. (GPT-5.6-Sol) -->
+	void endAIAutoPlay(int iEndCause);
 
 	int getGlobalWarmingIndex() const;	// K-Mod
 	int getGlobalWarmingChances() const;	// K-Mod
@@ -164,6 +249,9 @@ public:
 	bool isSimultaneousTeamTurns();
 
 	bool isFinalInitialized();
+	// <!-- custom: expose the cached AI map heaviness classification so Python UI reports the same land/naval-heavy result used by DLL behavior and BBAI logging. (GPT-5.5) -->
+	bool isLandHeavyMapnameCached() const;
+	bool isNavalHeavyMapnameCached() const;
 	void setScreenDimensions(int iWidth, int iHeight); // advc.061
 	int /*PlayerTypes*/ getActivePlayer();
 	void setActivePlayer(int /*PlayerTypes*/ eNewValue, bool bForceHotSeat);
@@ -244,6 +332,12 @@ public:
 	void deleteDeal(int iID);
 	CvRandom& getMapRand();
 	int getMapRandNum(int iNum, TCHAR* pszLog);
+	// <!-- custom: Read the serialized initial active player so SAS Fast Save can keep a stable XML leader identity even if unattended autoplay later hands control to another player. (ChatGPT-5.6-Sol) -->
+	int /*PlayerTypes*/ getInitialActivePlayer() const;
+	// <!-- custom: Read the serialized initial map RNG seed for the stable map component of SAS fast-save filenames. (ChatGPT-5.6-Sol) -->
+	unsigned int getInitialMapRandSeed() const;
+	// <!-- custom: Read the serialized initial sync RNG seed for the stable gameplay-lineage component of SAS fast-save filenames. (ChatGPT-5.6-Sol) -->
+	unsigned int getInitialSyncRandSeed() const;
 	CvRandom& getSorenRand();
 	int getSorenRandNum(int iNum, TCHAR* pszLog);
 	int calculateSyncChecksum();

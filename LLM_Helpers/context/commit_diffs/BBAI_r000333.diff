@@ -1,0 +1,536 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 333
+# Author: iustus
+# Date: 2007-01-30T22:44:00.368183Z
+# Coverage: full
+# Message:
+#   merge from trunk, revs 328-332
+# Changed paths (4):
+#   M /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvCityAI.h
+#   M /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp@332
++++ /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp@333
+@@ -369,13 +369,11 @@
+ 		}
+ 	}
+ 	
+-#ifdef USE_JUGGLE_BANE_OF_BLAKE
+ 	// if automated, look for better choices than the current ones
+ 	if (!isHuman() || isCitizensAutomated())
+ 	{
+ 		AI_juggleCitizens();
+ 	}
+-#endif
+ 	
+ 	// at this point, we should not be over the limit
+ 	FAssert((getWorkingPopulation() + getSpecialistPopulation()) <= (totalFreeSpecialists() + getPopulation()));
+@@ -918,6 +916,21 @@
+ 		}
+ 	}
+ 	
++	if (isBarbarian())
++	{
++		if (!AI_isDefended(plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwnerINLINE()))) // XXX check for other team's units?
++		{
++			if (AI_chooseDefender())
++			{
++				return;
++			}
++
++			if (AI_chooseUnit(UNITAI_ATTACK))
++			{
++				return;
++			}
++		}
++	}
+     
+     //do a check for one tile island type thing?
+     //this can be overridden by "wait and grow more"
+@@ -957,8 +970,8 @@
+ 		}
+ 	}
+ 	
+-	int iNeededFloatingDefenders = GET_PLAYER(getOwner()).AI_getTotalFloatingDefendersNeeded(area());
+- 	int iTotalFloatingDefenders = GET_PLAYER(getOwner()).AI_getTotalFloatingDefenders(area());
++	int iNeededFloatingDefenders = isBarbarian() ?  0 : GET_PLAYER(getOwner()).AI_getTotalFloatingDefendersNeeded(area());
++ 	int iTotalFloatingDefenders = isBarbarian() ? 0 : GET_PLAYER(getOwner()).AI_getTotalFloatingDefenders(area());
+ 	
+ 	if (iTotalFloatingDefenders < ((iNeededFloatingDefenders + 1) / (bGetBetterUnits ? 3 : 2)))
+ 	{
+@@ -1241,7 +1254,7 @@
+         }
+         
+ 		//essential economic builds
+-		if (AI_chooseBuilding(iEconomyFlags, 9, 30))
++		if (AI_chooseBuilding(iEconomyFlags, 10, 20))
+ 		{
+ 			return;
+ 		}
+@@ -1320,14 +1333,6 @@
+  	// don't build frivilious things if this is an imporant city
+     if (!bImportantCity)
+     {
+-//        if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Cheap Building") >= 85)
+-//        {
+-//            if (AI_chooseBuilding(0, 8))
+-//            {
+-//                return;
+-//            }
+-//        }
+-
+         if (!bLandWar)
+         {
+             if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) == 0)
+@@ -1346,6 +1351,28 @@
+         }
+     }
+     
++	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_MISSIONARY) && (iNumCitiesInArea > 1))
++	{
++		ReligionTypes eStateReligion = kPlayer.getStateReligion();
++		if ((eStateReligion != NO_RELIGION) && isHasReligion(eStateReligion))
++		{
++			if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Missionary") < (bLandWar ? 25 : 50))
++			{
++				iNeededMissionaries = kPlayer.AI_neededMissionaries(area(), eStateReligion);
++				if (iNeededMissionaries > 0)
++				{
++					if (iNeededMissionaries > kPlayer.countReligionSpreadUnits(area(), eStateReligion))
++					{
++						if (AI_chooseUnit(UNITAI_MISSIONARY))
++						{
++							return;
++						}
++					}
++				}
++			}
++		}
++	}
++		
+ 	if (iTotalFloatingDefenders < iNeededFloatingDefenders)
+                             {
+ 		if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Floating Defender") < 50)
+@@ -1374,28 +1401,6 @@
+         }
+ 	if (!bLandWar)
+ 	{		
+-		if (kPlayer.AI_isDoStrategy(AI_STRATEGY_MISSIONARY) && (iNumCitiesInArea > 1))
+-		{
+-		    ReligionTypes eStateReligion = kPlayer.getStateReligion();
+-            if ((eStateReligion != NO_RELIGION) && isHasReligion(eStateReligion))
+-            {
+-                if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Missionary") < 30)
+-                {
+-                    iNeededMissionaries = kPlayer.AI_neededMissionaries(area(), eStateReligion);
+-                    if (iNeededMissionaries > 0)
+-                    {
+-                        if (iNeededMissionaries > kPlayer.countReligionSpreadUnits(area(), eStateReligion))
+-                        {
+-                            if (AI_chooseUnit(UNITAI_MISSIONARY))
+-                            {
+-                                return;
+-                            }
+-                        }
+-                    }
+-                }
+-            }
+-		}
+-
+ 		if ((iCulturePressure > 90) || kPlayer.AI_isDoStrategy(AI_STRATEGY_CULTURE2))
+ 		{
+ 			if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 20))
+@@ -1774,12 +1779,23 @@
+ 			return;
+ 		}
+ 	}
++	
++	if (iUnitCostPercentage < 15)
++	{
++		if (!AI_isDefended())
++		{
++			if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
++			{
++				return;
++			}
++		}
++	}
+ 
+ 	if (AI_chooseBuilding())
+ 	{
+ 		return;
+ 	}
+-
++	
+ 	if (!bChooseUnit)
+ 	{
+ 		if (iUnitCostPercentage < 20)
+@@ -2700,7 +2716,7 @@
+ 
+ 			if ((iFocusFlags & BUILDINGFOCUS_MAINTENANCE) || (iFocusFlags & BUILDINGFOCUS_GOLD) || (iPass > 0))
+ 			{
+-				iTempValue = ((iBaseMaintenance - ((iBaseMaintenance * max(0, (kBuilding.getMaintenanceModifier() + 100))) / 100)) * 4);
++				iTempValue = ((iBaseMaintenance - ((iBaseMaintenance * max(0, (kBuilding.getMaintenanceModifier() + 100))) / 100)) * 6);
+ 				if (bFinancialTrouble)
+ 				{
+ 					iTempValue *= 2;
+@@ -3655,6 +3671,14 @@
+ 	{
+ 		return 1;
+ 	}
++	
++	if (isBarbarian())
++	{
++		iDefenders = 2 + ((getPopulation() - 2) / 7);
++		return iDefenders;
++	}
++		
++		
+ 
+ 	iDefenders = 1;
+ 	
+@@ -3680,25 +3704,6 @@
+ 			iDefenders++;
+ 		}
+ 	}
+-
+-	if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3))
+-	{
+-		iDefenders++;
+-		
+-		iDefenders += getCommerceRateModifier(COMMERCE_CULTURE)/100;
+-		
+-		if (bDefenseWar || bOffenseWar)
+-		{
+-			if (getCultureLevel() >= (GC.getNumCultureLevelInfos() - 2))
+-			{
+-				iDefenders += 2;
+-				if (getCultureLevel() >= (GC.getNumCultureLevelInfos() - 1))
+-				{
+-					iDefenders += 2;
+-				}
+-			}
+-		}
+-	}		
+ 
+ 	if (isOccupation())
+ 	{
+@@ -5292,19 +5297,21 @@
+ 	bool bAvoidGrowth = AI_avoidGrowth();
+ 	bool bIgnoreGrowth = AI_ignoreGrowth();
+ 	bool bIsSpecialistForced = isSpecialistForced();
+-
+-	int iCount = 0; // XXX
++	bool bCompletedChecks;
++	int iCount;
++	int iPass;
+ 	
+ 	// one at a time, remove the worst citizen, then add the best citizen
+ 	// until we add back the same one we removed
+-	bool bCompletedStandardChecks = false;
+-	bool bCompletedIgnoreFoodChecks = true;
+-	while (!bCompletedStandardChecks || !bCompletedIgnoreFoodChecks)
+-	{
+-		int iLowestStandardValue = MAX_INT;
+-		int iLowestIgnoreFoodValue = MAX_INT;
+-		int iWorstStandardPlot = -1;
+-		int iWorstIgnoreFoodPlot = -1;
++	for (iPass = 0; iPass < 2; iPass++)
++	{
++		bCompletedChecks = false;
++		iCount = 0;
++		
++		while (!bCompletedChecks)
++		{
++			int iLowestValue = MAX_INT;
++			int iWorstPlot = -1;
+ 		int iValue;
+ 
+ 		for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+@@ -5317,76 +5324,49 @@
+ 
+ 					if (pLoopPlot != NULL)
+ 					{
+-						if (!bCompletedStandardChecks)
++							if (!bCompletedChecks)
+ 						{
+-							iValue = AI_plotValue(pLoopPlot, bAvoidGrowth, /*bRemove*/ true, /*bIgnoreFood*/ false, bIgnoreGrowth);
++								iValue = AI_plotValue(pLoopPlot, bAvoidGrowth, /*bRemove*/ true, /*bIgnoreFood*/ false, bIgnoreGrowth, (iPass == 0));
+ 
+ 							// use <= so that we pick the last one that is lowest, to avoid infinite loop with AI_addBestCitizen
+-							if (iValue <= iLowestStandardValue)
+-						{
+-								iLowestStandardValue = iValue;
+-								iWorstStandardPlot = iI;
++								if (iValue <= iLowestValue)
++								{
++									iLowestValue = iValue;
++									iWorstPlot = iI;
++								}
++							}
+ 						}
+ 					}
+-
+-						if (!bCompletedIgnoreFoodChecks)
+-						{
+-							iValue = AI_plotValue(pLoopPlot, bAvoidGrowth, /*bRemove*/ true, /*bIgnoreFood*/ true, bIgnoreGrowth);
+-
+-							// use <= so that we pick the last one that is lowest, to avoid infinite loop with AI_addBestCitizen
+-							if (iValue <= iLowestIgnoreFoodValue)
+-							{
+-								iLowestIgnoreFoodValue = iValue;
+-								iWorstIgnoreFoodPlot = iI;
+-				}
+-			}
+-		}
+-				}
+-			}
+-		}
+-		
+-		if (!bCompletedStandardChecks)
+-		{
+-			if (iWorstStandardPlot == -1)
+-				bCompletedStandardChecks = true;
+-			else
+-			{
+-				setWorkingPlot(iWorstStandardPlot, false);
+-
+-				if (AI_addBestCitizen(true, true))
+-		{
+-					if (isWorkingPlot(iWorstStandardPlot))
+-					{
+-						bCompletedStandardChecks = true;
+-		}
+-				}
+-			}
+-		}
+-
+-		if (!bCompletedIgnoreFoodChecks)
+-		{
+-			if (iWorstIgnoreFoodPlot == -1)
+-				bCompletedIgnoreFoodChecks = true;
+-			// do not do the same check on the same plot, but continue to loop
+-			else if (iWorstIgnoreFoodPlot != iWorstStandardPlot)
+-			{
+-				setWorkingPlot(iWorstIgnoreFoodPlot, false);
++				}
++				}
++			if (iWorstPlot == -1)
++		{
++				bCompletedChecks = true;
++			}
++			if (!bCompletedChecks)
++		{
++				setWorkingPlot(iWorstPlot, false);
+ 
+ 		if (AI_addBestCitizen(true, true))
+ 		{
+-					if (isWorkingPlot(iWorstIgnoreFoodPlot))
+-			{
+-						bCompletedIgnoreFoodChecks = true;
+-			}
+-		}
+-			}
+-		}
++					if (isWorkingPlot(iWorstPlot))
++			{
++						bCompletedChecks = true;
++			}
++		}
++			}
+ 
+ 		iCount++;
+-		if (iCount > (2 * (NUM_CITY_PLOTS + 1)))
+-		{
+-			FAssertMsg(false, "infinite loop");
++			if (iCount > (NUM_CITY_PLOTS + 1))
++		{
++				FAssertMsg(false, "infinite loop(!!!!!)");
+ 			break; // XXX
++		}
++	}
++		if ((iPass == 0) && (foodDifference(false) >= 0))
++		{
++			//good enough, the starvation code
++			break;
+ 		}
+ 	}
+ }
+@@ -5503,7 +5483,7 @@
+ }
+ 
+ 
+-int CvCityAI::AI_yieldValue(short* piYields, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood, bool bIgnoreGrowth)
++int CvCityAI::AI_yieldValue(short* piYields, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood, bool bIgnoreGrowth, bool bIgnoreStarvation)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -5607,6 +5587,8 @@
+ 		int iAdjustedFoodDifference = getYieldRate(YIELD_FOOD) - ((iPopulation + min(0, iHappinessLevel)) * iConsumtionPerPop);
+ 		
+ 			// if we not human, allow us to starve to half full if avoiding growth
++		if (!bIgnoreStarvation)
++		{
+ 		int iStarvingAllowance = 0;
+ 		if (bAvoidGrowth && !isHuman())
+ 			{
+@@ -5638,6 +5620,7 @@
+ 				// value food high(32), but not forced
+ 				iValue += aiYields[YIELD_FOOD] * 32;
+ 			}
++		}
+ 		}
+ 		
+ 		// if food isnt production, then adjust for growth
+@@ -6109,7 +6092,7 @@
+ }
+ 
+ 
+-int CvCityAI::AI_plotValue(CvPlot* pPlot, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood, bool bIgnoreGrowth)
++int CvCityAI::AI_plotValue(CvPlot* pPlot, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood, bool bIgnoreGrowth, bool bIgnoreStarvation)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -6161,7 +6144,7 @@
+ 	}
+ 	
+ 	
+-	int iYieldValue = (AI_yieldValue(aiYields, bAvoidGrowth, bRemove, bIgnoreFood, bIgnoreGrowth) * 100);
++	int iYieldValue = (AI_yieldValue(aiYields, bAvoidGrowth, bRemove, bIgnoreFood, bIgnoreGrowth, bIgnoreStarvation) * 100);
+ 	// unless we are emph food (and also food not production)
+ 	if (!(AI_isEmphasizeYield(YIELD_FOOD) && !isFoodProduction()))
+ 		// if this plot is super bad (less than 2 food and less than combined 2 prod/commerce
+@@ -7669,6 +7652,32 @@
+ 		}
+ 	}
+ 	
++	if (isCoastal())
++	{
++		CvArea* pWaterArea = waterArea();
++		if (pWaterArea != NULL && !pWaterArea->isLake())
++		{
++			int iCurrentEra = GET_PLAYER(getOwnerINLINE()).getCurrentEra();
++			iValue +=  ((10 * iCurrentEra) / 3) - 6; //there are better ways to do this
++		}
++	}
++	
++	iValue += getNumWorldWonders() * 5;
++	
++	if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++	{
++		iValue += 10;
++		iValue += getCommerceRateModifier(COMMERCE_CULTURE) / 20;
++		if (getCultureLevel() >= (GC.getNumCultureLevelInfos() - 2))
++		{
++			iValue += 20;
++			if (getCultureLevel() >= (GC.getNumCultureLevelInfos() - 1))
++			{
++				iValue += 30;
++			}
++		}
++	}
++	
+ 	iValue += 2 * GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot(), 3, false);
+ 	
+ 	return iValue;
+
+Index: /branches/vanilla/CvGameCoreDLL/CvCityAI.h
+--- /branches/vanilla/CvGameCoreDLL/CvCityAI.h@332
++++ /branches/vanilla/CvGameCoreDLL/CvCityAI.h@333
+@@ -165,9 +165,9 @@
+ 
+ 	bool AI_potentialPlot(short* piYields);
+ 	bool AI_foodAvailable(int iExtra = 0);
+-	int AI_yieldValue(short* piYields, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood = false, bool bIgnoreGrowth = false);
++	int AI_yieldValue(short* piYields, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood = false, bool bIgnoreGrowth = false, bool bIgnoreStarvation = false);
+ 	int AI_unifiedYieldValue(short* piYields, short* piCommerce, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood, bool bIgnoreGrowth);
+-	int AI_plotValue(CvPlot* pPlot, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood = false, bool bIgnoreGrowth = false);
++	int AI_plotValue(CvPlot* pPlot, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood = false, bool bIgnoreGrowth = false, bool bIgnoreStarvation = false);
+ 
+ 	int AI_experienceWeight();
+ 	int AI_buildUnitProb();
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp@332
++++ /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp@333
+@@ -1055,7 +1055,7 @@
+                         {
+                             iRazeValue += (70 - 15 * pCity->getPopulation());
+                         }
+-                    }                    
++                    }
+                     
+                     if (getStateReligion() != NO_RELIGION)
+                     {
+@@ -1063,6 +1063,17 @@
+                         {
+                             iRazeValue -= 50;                            
+                         }
++                    }
++                    
++                    int iCloseness = pCity->AI_playerCloseness(getID());
++                    if (iCloseness > 0)
++                    {
++                    	iRazeValue -= 25;
++                    	iRazeValue -= iCloseness * 2;
++                    }
++                    else
++                    {
++                    	iRazeValue += 60;
+                     }
+                     
+                     if (pCity->area()->getCitiesPerPlayer(getID()) > 0)
+@@ -10600,6 +10611,7 @@
+ 	iDefenders = 1 + ((iCurrentEra + 2) * pArea->getCitiesPerPlayer(getID()));
+ 	iDefenders /= 3;
+ 	iDefenders += pArea->getPopulationPerPlayer(getID()) / 5;
++	iDefenders += countHolyCities();
+ 	
+ 	iDefenders *= 100;
+ 	iDefenders /= GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAITrainPercent();
+@@ -10624,6 +10636,15 @@
+ 		iDefenders *= 2;
+ 		iDefenders /= 3;
+ 	}
++	
++	if (AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++	{
++		iDefenders += 5 + getNumCities();
++		if (pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE)
++		{
++			iDefenders *= 2; //go crazy
++		}
++	}	
+ 	
+ 	if ((iCurrentEra < 3) && (GC.getGameINLINE().isOption(GAMEOPTION_RAGING_BARBARIANS)))
+ 	{
+
+Index: /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp@332
++++ /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp@333
+@@ -9867,9 +9867,8 @@
+ 				getGroup()->pushMission(MISSION_BOMBARD, -1, -1, 0, false, false, MISSIONAI_BLOCKADE, pBestBombardPlot);
+ 
+ 				// if city bombarded enough, wake up any units that were waiting to bombard this city
+-				CvCity* pBombardCity = bombardTarget(pBestBombardPlot);
+-				FAssert(pBombardCity != NULL);
+-				if (pBombardCity->getDefenseDamage() < ((GC.getMAX_CITY_DEFENSE_DAMAGE()*5)/6))
++				CvCity* pBombardCity = bombardTarget(pBestBombardPlot); // is NULL if city cannot be bombarded any more
++				if (pBombardCity == NULL || pBombardCity->getDefenseDamage() < ((GC.getMAX_CITY_DEFENSE_DAMAGE()*5)/6))
+ 				{
+ 					kPlayer.AI_wakePlotTargetMissionAIs(pBestBombardPlot, MISSIONAI_BLOCKADE, getGroup());
+ 				}
+@@ -12964,7 +12963,7 @@
+ 
+ int CvUnitAI::AI_stackOfDoomExtra()
+ {
+-	return ((AI_getBirthmark() % (1 + GET_PLAYER(getOwnerINLINE()).getCurrentEra() * 2)) + 2);
++	return ((AI_getBirthmark() % (1 + GET_PLAYER(getOwnerINLINE()).getCurrentEra() * 2)) + 4);
+ }
+ 
+ bool CvUnitAI::AI_stackAttackCity(int iRange, int iPowerThreshold, bool bFollow)
+

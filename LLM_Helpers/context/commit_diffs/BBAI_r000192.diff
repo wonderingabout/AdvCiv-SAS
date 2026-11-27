@@ -1,0 +1,43 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 192
+# Author: iustus
+# Date: 2006-12-16T08:27:55.382004Z
+# Coverage: full
+# Message:
+#   chipotle war, correctly handle aggressive AIs game option
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@191
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@192
+@@ -2933,6 +2933,16 @@
+ 		float fOverallWarPercentage = 0;
+ 		bool bAggressive = GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI);
+ 		
++		// team power (if agressive, we use higher value)
++		int iTeamPower = kTeam.getPower(true);
++		if (bAggressive)
++		{
++			iTeamPower *= 4;
++			iTeamPower /= 3;
++		}
++		
++		bool bIsAnyCapitalAreaAlone = kTeam.AI_isAnyCapitalAreaAlone();
++
+ 		int iFinancialTroubleCount = 0;
+ 		int iDaggerCount = 0;
+ 		for (int iI = 0; iI < MAX_PLAYERS; iI++)
+@@ -3007,10 +3017,6 @@
+ 			}
+ 		}
+ 		
+-		// values for this team
+-		int iTeamPower = kTeam.getPower(true);
+-		bool bIsAnyCapitalAreaAlone = kTeam.AI_isAnyCapitalAreaAlone();
+-
+ 		// we will put the values into an array, then sort it for display
+ 		int iBestPossibleMaxWarPass = MAX_INT;
+ 		struct CvStartWarInfo
+

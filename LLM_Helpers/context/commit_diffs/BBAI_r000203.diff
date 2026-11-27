@@ -1,0 +1,51 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 203
+# Author: iustus
+# Date: 2006-12-19T01:16:04.380521Z
+# Coverage: full
+# Message:
+#   updated AI_groupMergeRange to use the improved rangeIndexToXY 
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@202
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@203
+@@ -4860,15 +4860,12 @@
+ 	int iBestValue = MAX_INT;
+ 	int iBestRange = -1;
+ 	
+-	// iterator
+-	int iPlotsAtThisRange = 1;
++	// iterate over plots at each range
+ 	for (int iRange = 0; iRange <= iMaxRange && iBestValue == MAX_INT; iRange++)
+ 	{
+-		for (int iIndex = 0; iIndex < iPlotsAtThisRange; iIndex++)
+-		{
+-			int iDX = 0, iDY = 0;
+-			rangeIndexToXY(iRange, iIndex, iDX, iDY);
+-			
++		int iDX, iDY;
++		for (int iIndex = 0; rangeIndexToXY(iRange, iIndex, iDX, iDY); iIndex++)
++		{
+ 			CvPlot* pLoopPlot = plotXY(plot()->getX_INLINE(), plot()->getY_INLINE(), iDX, iDY);
+ 			if (pLoopPlot != NULL && pLoopPlot->getArea() == pPlot->getArea())
+ 			{
+@@ -4915,15 +4912,6 @@
+ 				}
+ 			}
+ 		}
+-		
+-		// special case the 0 range, so the math works out
+-		if (iRange == 0)
+-		{
+-			iPlotsAtThisRange = 0;
+-		}
+-
+-		// at each higher range, there are 8 more plots
+-		iPlotsAtThisRange += 8;
+ 	}
+ 
+ 	if (pBestUnit != NULL)
+

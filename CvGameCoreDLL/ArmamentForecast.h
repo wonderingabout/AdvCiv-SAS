@@ -7,7 +7,7 @@
 #include "UWAICache.h"
 
 class MilitaryAnalyst;
-class UWAIReport;
+class UWAILogMuteState; // <!-- custom: Nested mute depth shared by UWAI diagnostic sub-evaluations; not a logger. See KI#505.3. (ChatGPT-5.6-Sol) -->
 class CvArea;
 
 
@@ -45,7 +45,8 @@ private:
 	PlayerTypes m_ePlayer;
 	MilitaryAnalyst const& m_kMA;
 	PlayerTypes m_eAnalyst;
-	UWAIReport& m_kReport;
+	// <!-- custom: Shared nested mute state from this forecast's WarEvalParameters; diagnostics themselves go directly to BBAI. (ChatGPT-5.6-Sol) -->
+	UWAILogMuteState& m_kLogMuteState;
 	std::vector<MilitaryBranch*>& m_kMilitary;
 	int m_iTimeHorizon;
 	scaled m_rProductionInvested;
@@ -57,16 +58,15 @@ private:
 		INCREASED,
 		FULL,
 	};
-	static char const* strIntensity(Intensity eIntensity); // for report
+	// <!-- custom: Text label is now used by direct BBAI diagnostics after removal of the inherited UWAI report logger. (ChatGPT-5.6-Sol) -->
+	static char const* strIntensity(Intensity eIntensity);
 	/*	Can eFirst reach eSecond or vice versa. Based on the two teams'
 		UWAICache, i.e. a cheat. */
 	bool canReachEither(TeamTypes eFirst, TeamTypes eSecond) const;
 	// Both directly increase the power values in m_kMilitary
-	void predictArmament(int iTurnsBuildUp, scaled rPerTurnProduction,
-			/* rAdditionalProduction: Currently, that's unit upgrades converted
-			   into production. */
-			scaled rAdditionalProduction, Intensity eIntensity, bool bDefensive,
-			bool bNavalArmament);
+	// rAdditionalProduction: Currently, that's unit upgrades converted into production.
+	// <!-- custom: hoisted from multiline signature between `rPerTurnProduction` and `rAdditionalProduction` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void predictArmament(int iTurnsBuildUp, scaled rPerTurnProduction, scaled rAdditionalProduction, Intensity eIntensity, bool bDefensive, bool bNavalArmament);
 	scaled productionFromUpgrades();
 	/*	The Area AI differentiates between continents, the forecast doesn't
 		(perhaps it should ...). Only considers the Area AI for the home area --

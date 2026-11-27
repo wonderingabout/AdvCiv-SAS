@@ -1,0 +1,286 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 103
+# Author: iustus
+# Date: 2006-11-18T21:23:29.361595Z
+# Coverage: full
+# Message:
+#   MergeMerge from trunk, rev 99-102 included.
+# Changed paths (4):
+#   M /branches/vanilla/CvGameCoreDLL/CvGameCoreUtils.h
+#   M /branches/vanilla/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /branches/vanilla/CvGameCoreDLL/CvGameCoreUtils.h
+--- /branches/vanilla/CvGameCoreDLL/CvGameCoreUtils.h@102
++++ /branches/vanilla/CvGameCoreDLL/CvGameCoreUtils.h@103
+@@ -321,6 +321,75 @@
+ 
+ #ifdef FASSERT_ENABLE
+ //#define DEBUG_AI_UPDATE_GROUPS
++inline void getActivityTypeString(CvWString& szString, ActivityTypes eActivityType)
++{
++	switch (eActivityType)
++	{
++	case NO_MISSION: szString = L"NO_ACTIVITY"; break;
++
++	case ACTIVITY_AWAKE: szString = L"ACTIVITY_AWAKE"; break;
++	case ACTIVITY_HOLD: szString = L"ACTIVITY_HOLD"; break;
++	case ACTIVITY_SLEEP: szString = L"ACTIVITY_SLEEP"; break;
++	case ACTIVITY_HEAL: szString = L"ACTIVITY_HEAL"; break;
++	case ACTIVITY_SENTRY: szString = L"ACTIVITY_SENTRY"; break;
++	case ACTIVITY_INTERCEPT: szString = L"ACTIVITY_SENTRY"; break;
++	case ACTIVITY_MISSION: szString = L"ACTIVITY_MISSION"; break;
++
++	default: szString = CvWString::format(L"UNKNOWN_ACTIVITY(%d)", eActivityType); break;
++	}
++}
++
++inline void getMissionTypeString(CvWString& szString, MissionTypes eMissionType)
++{
++	switch (eMissionType)
++	{
++	case NO_MISSION: szString = L"NO_MISSION"; break;
++
++	case MISSION_MOVE_TO: szString = L"MISSION_MOVE_TO"; break;
++	case MISSION_ROUTE_TO: szString = L"MISSION_ROUTE_TO"; break;
++	case MISSION_MOVE_TO_UNIT: szString = L"MISSION_MOVE_TO_UNIT"; break;
++	case MISSION_SKIP: szString = L"MISSION_SKIP"; break;
++	case MISSION_SLEEP: szString = L"MISSION_SLEEP"; break;
++	case MISSION_FORTIFY: szString = L"MISSION_FORTIFY"; break;
++	case MISSION_AIRPATROL: szString = L"MISSION_AIRPATROL"; break;
++	case MISSION_HEAL: szString = L"MISSION_HEAL"; break;
++	case MISSION_SENTRY: szString = L"MISSION_SENTRY"; break;
++	case MISSION_AIRLIFT: szString = L"MISSION_AIRLIFT"; break;
++	case MISSION_NUKE: szString = L"MISSION_NUKE"; break;
++	case MISSION_RECON: szString = L"MISSION_RECON"; break;
++	case MISSION_AIRBOMB: szString = L"MISSION_AIRBOMB"; break;
++	case MISSION_BOMBARD: szString = L"MISSION_BOMBARD"; break;
++	case MISSION_PILLAGE: szString = L"MISSION_PILLAGE"; break;
++	case MISSION_SABOTAGE: szString = L"MISSION_SABOTAGE"; break;
++	case MISSION_DESTROY: szString = L"MISSION_DESTROY"; break;
++	case MISSION_STEAL_PLANS: szString = L"MISSION_STEAL_PLANS"; break;
++	case MISSION_FOUND: szString = L"MISSION_FOUND"; break;
++	case MISSION_SPREAD: szString = L"MISSION_SPREAD"; break;
++	case MISSION_JOIN: szString = L"MISSION_JOIN"; break;
++	case MISSION_CONSTRUCT: szString = L"MISSION_CONSTRUCT"; break;
++	case MISSION_DISCOVER: szString = L"MISSION_DISCOVER"; break;
++	case MISSION_HURRY: szString = L"MISSION_HURRY"; break;
++	case MISSION_TRADE: szString = L"MISSION_TRADE"; break;
++	case MISSION_GREAT_WORK: szString = L"MISSION_GREAT_WORK"; break;
++	case MISSION_GOLDEN_AGE: szString = L"MISSION_GOLDEN_AGE"; break;
++	case MISSION_BUILD: szString = L"MISSION_BUILD"; break;
++	case MISSION_LEAD: szString = L"MISSION_LEAD"; break;
++
++	case MISSION_BEGIN_COMBAT: szString = L"MISSION_BEGIN_COMBAT"; break;
++	case MISSION_END_COMBAT: szString = L"MISSION_END_COMBAT"; break;
++	case MISSION_AIRSTRIKE: szString = L"MISSION_AIRSTRIKE"; break;
++	case MISSION_SURRENDER: szString = L"MISSION_SURRENDER"; break;
++	case MISSION_CAPTURED: szString = L"MISSION_CAPTURED"; break;
++	case MISSION_IDLE: szString = L"MISSION_IDLE"; break;
++	case MISSION_DIE: szString = L"MISSION_DIE"; break;
++	case MISSION_DAMAGE: szString = L"MISSION_DAMAGE"; break;
++	case MISSION_MULTI_SELECT: szString = L"MISSION_MULTI_SELECT"; break;
++	case MISSION_MULTI_DESELECT: szString = L"MISSION_MULTI_DESELECT"; break;
++
++	default: szString = CvWString::format(L"UNKOWN_MISSION(%d)", eMissionType); break;
++	}
++}
++
+ inline int ShortenID(int iID)
+ {
+ 	return (((iID/1000)/1459) + (iID%1000));
+@@ -337,6 +406,8 @@
+ 	OutputDebugString(temp);
+ }
+ #else
++#define getActivityTypeString(x)
++#define getMissionTypeString(x)
+ #define ShortenID(x)
+ #define DEBUGLOG(x)
+ #endif
+
+Index: /branches/vanilla/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvSelectionGroup.cpp@102
++++ /branches/vanilla/CvGameCoreDLL/CvSelectionGroup.cpp@103
+@@ -97,7 +97,6 @@
+ 
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+-	bool bHurt;
+ 	int iWaitTurns;
+ 	int iBestWaitTurns;
+ 
+@@ -105,10 +104,10 @@
+ 
+ 	if (getNumUnits() > 0)
+ 	{
+-		bHurt = false;
+-
++		bool bHurt = false;
++		
++		// do unit's turns (checking for damage)
+ 		pUnitNode = headUnitNode();
+-
+ 		while (pUnitNode != NULL)
+ 		{
+ 			pLoopUnit = ::getUnit(pUnitNode->m_data);
+@@ -121,10 +120,14 @@
+ 				bHurt = true;
+ 			}
+ 		}
+-
+-		if ((getActivityType() == ACTIVITY_HOLD) ||
+-			  ((getActivityType() == ACTIVITY_HEAL) && !bHurt) ||
+-			  ((getActivityType() == ACTIVITY_SENTRY) && (GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot(), 1) > 0)))
++		
++		// wake unit if skipped last turn 
++		//		or healing and automated or no longer hurt (automated healing is one turn at a time)
++		//		or on sentry and there is danger
++		int eActivityType = getActivityType();
++		if ((eActivityType == ACTIVITY_HOLD) ||
++			((eActivityType == ACTIVITY_HEAL) && (AI_isControlled() || !bHurt)) ||
++			((eActivityType == ACTIVITY_SENTRY) && (GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot(), 1) > 0)))
+ 		{
+ 			setActivityType(ACTIVITY_AWAKE);
+ 		}
+@@ -321,6 +324,34 @@
+ 	AI_setMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
+ 
+ 	insertAtEndMissionQueue(mission, !bAppend);
++
++#ifdef DEBUG_AI_UPDATE_GROUPS
++	// debugging
++	if (true)
++	{
++		CvWString szMissionString;
++		getMissionTypeString(szMissionString, eMission);
++
++		CvWString szUnitString;
++		CvUnit* pHeadUnit = getHeadUnit();
++		if (pHeadUnit != NULL)
++		{
++			CvWString szUnitName = GC.getUnitInfo(pHeadUnit->getUnitType()).getDescription();
++			szUnitString.Format(L"%s(%d)", szUnitName.GetCString(), ShortenID(pHeadUnit->getID()));
++		}
++		else
++			szUnitString.Format(L"--no unit--");
++
++
++		CvWString szActivityString;
++		getActivityTypeString(szActivityString, m_eActivityType);
++
++		DEBUGLOG("    pushMission(%S): group(%d,%S), lead by %S [size %d%s%s]\n", szMissionString.GetCString(),
++			ShortenID(getID()), szActivityString.GetCString(), szUnitString.GetCString(), getNumUnits(), 
++			AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
++			isForceUpdate() ? ",WILL_FORCE_UPDATE" : "");
++	}
++#endif
+ 
+ 	if (bManual)
+ 	{
+
+Index: /branches/vanilla/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvSelectionGroupAI.cpp@102
++++ /branches/vanilla/CvGameCoreDLL/CvSelectionGroupAI.cpp@103
+@@ -116,8 +116,11 @@
+ 		else
+ 			szUnitString.Format(L"--no unit--");
+ 
+-		DEBUGLOG("AI_update:%S group(%d), lead by %S [size %d%s%s]\n", szPlayerName.GetCString(),
+-			ShortenID(getID()), szUnitString.GetCString(), getNumUnits(), 
++		CvWString szActivityString;
++		getActivityTypeString(szActivityString, m_eActivityType);
++
++		DEBUGLOG("AI_update:%S group(%d,%S), lead by %S [size %d%s%s]\n", szPlayerName.GetCString(),
++			ShortenID(getID()), szActivityString.GetCString(), szUnitString.GetCString(), getNumUnits(), 
+ 			AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
+ 			isForceUpdate() ? ",WILL_FORCE_UPDATE" : "");
+ 	}
+
+Index: /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp@102
++++ /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp@103
+@@ -1514,10 +1514,13 @@
+ {
+ 	PROFILE_FUNC();
+ 	
++	// force heal if we in our own city and damaged
++	// can we remove this or call AI_heal here?
+ 	if ((getGroup()->getNumUnits() == 1) && (getDamage() > 0) && 
+         plot()->getOwnerINLINE() == getOwnerINLINE() && plot()->isCity())
+     {
+-        getGroup()->pushMission(MISSION_SKIP);
++        getGroup()->pushMission(MISSION_HEAL);
++		return;
+     }
+ 	
+ //    if (!getGroup()->getMissionType() == MISSION_MOVE_TO)
+@@ -4375,7 +4378,10 @@
+ 						    if (!atWar(pPlot->getTeam(), getTeam()))
+ 						    {
+ 								CvSelectionGroup* pLoopGroup = pLoopUnit->getGroup();
+-								if (canJoinGroup(pPlot, pLoopGroup))
++
++								// do not attempt to join groups which are healing this turn
++								// (healing is cleared every turn for automated groups, so we know we pushed a heal this turn)
++								if (pLoopGroup->getActivityType() != ACTIVITY_HEAL && canJoinGroup(pPlot, pLoopGroup))
+                                 {
+                                     if ((iMaxGroup == -1) || ((pLoopGroup->getNumUnits() + GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(pLoopUnit, MISSIONAI_GROUP, getGroup())) <= (iMaxGroup + ((bStackOfDoom) ? AI_stackOfDoomExtra() : 0))))
+                                     {
+@@ -5432,7 +5438,7 @@
+             {
+                 if (!(isAlwaysHeal()))
+                 {
+-                    getGroup()->pushMission(MISSION_SKIP);
++                    getGroup()->pushMission(MISSION_HEAL);
+                     return true;
+                 }
+             }
+@@ -5482,16 +5488,31 @@
+ 	    return false;
+ 	}
+ 	
++	bool bPushedMission = false;
+     if (plot()->isCity() && (plot()->getOwnerINLINE() == getOwnerINLINE()))
+ 	{
+ 		FAssertMsg(((int) aeDamagedUnits.size()) <= iHurtUnitCount, "damaged units array is larger than our hurt unit count");
+ 
+ 		for (unsigned int iI = 0; iI < aeDamagedUnits.size(); iI++)
+ 		{
+-			//FAssert(aeDamagedUnits[iI] != this); 
+-			// note, removing the head unit from a group will force the group to be completely set if non-human
+-			aeDamagedUnits[iI]->joinGroup(NULL);
+-			aeDamagedUnits[iI]->getGroup()->pushMission(MISSION_SKIP);
++#ifdef DEBUG_AI_UPDATE_GROUPS
++			// debugging
++			if (true)
++			{
++				CvSelectionGroup* pCurrentGroup = getGroup();
++				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
++				DEBUGLOG("AI_heal:%S(%d) leaving group(%d) [size %d%s] to heal solo\n", szUnitName.GetCString(), ShortenID(m_iID), 
++					ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++			}
++#endif
++			CvUnit* pUnitToHeal = aeDamagedUnits[iI];
++			pUnitToHeal->joinGroup(NULL);
++			pUnitToHeal->getGroup()->pushMission(MISSION_HEAL);
++
++			// note, removing the head unit from a group will force the group to be completely split if non-human
++			if (pUnitToHeal == this)
++				bPushedMission = true;
++
+ 			iHurtUnitCount--;	    
+ 		}
+ 	}
+@@ -5511,7 +5532,7 @@
+ 		}
+ 	}
+ 	
+-	return false;
++	return bPushedMission;
+ }
+ 
+ 
+

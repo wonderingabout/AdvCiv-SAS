@@ -1,4 +1,5 @@
 #include "CvGameCoreDLL.h"
+#include "SASSaveStreamFormat.h" // <!-- custom: Use the same compile-time write markers as the session diagnostic registry, avoiding duplicated version literals. (GPT-6.1-Sol) -->
 #include "CvGameAI.h"
 #include "CoreAI.h"
 #include "CvCityAI.h"
@@ -10,7 +11,6 @@
 // <advc.007c>
 #undef CVGAME_INSTANCE_FOR_RNG
 #define CVGAME_INSTANCE_FOR_RNG (*this) // </advc.007c>
-
 
 
 CvGameAI::CvGameAI()
@@ -76,20 +76,32 @@ void CvGameAI::AI_initScenario()
 	options because UWAI implies Aggressive AI. */
 void CvGameAI::AI_sortOutUWAIOptions(bool bFromSaveGame)
 {
-	if(GC.getDefineINT("USE_KMOD_AI_NONAGGRESSIVE"))
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iUSE_KMOD_AI_NONAGGRESSIVE = GC.getDefineINT("USE_KMOD_AI_NONAGGRESSIVE");
+
+	if (iUSE_KMOD_AI_NONAGGRESSIVE)
 	{
 		m_uwai.setUseLegacyAI(true);
 		setOption(GAMEOPTION_AGGRESSIVE_AI, false);
 		return;
 	}
-	if(GC.getDefineINT("DISABLE_UWAI"))
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iDISABLE_UWAI = GC.getDefineINT("DISABLE_UWAI");
+
+	if (iDISABLE_UWAI)
 	{
 		m_uwai.setUseLegacyAI(true);
 		setOption(GAMEOPTION_AGGRESSIVE_AI, true);
 		return;
 	}
-	m_uwai.setInBackground(GC.getDefineINT("UWAI_IN_BACKGROUND") > 0);
-	if(bFromSaveGame)
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iUWAI_IN_BACKGROUND = GC.getDefineINT("UWAI_IN_BACKGROUND");
+
+	m_uwai.setInBackground(iUWAI_IN_BACKGROUND > 0);
+
+	if (bFromSaveGame)
 	{
 		if(m_uwai.isEnabled() || m_uwai.isEnabled(true))
 			setOption(GAMEOPTION_AGGRESSIVE_AI, true);
@@ -98,7 +110,7 @@ void CvGameAI::AI_sortOutUWAIOptions(bool bFromSaveGame)
 	// If still not returned: settings according to Custom Game screen
 	bool bUseKModAI = isOption(GAMEOPTION_AGGRESSIVE_AI);
 	m_uwai.setUseLegacyAI(bUseKModAI);
-	if(!bUseKModAI)
+	if (!bUseKModAI)
 		setOption(GAMEOPTION_AGGRESSIVE_AI, true);
 }
 
@@ -300,14 +312,12 @@ void CvGameAI::read(FDataStreamBase* pStream)
 {
 	CvGame::read(pStream);
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag;
+
 	pStream->Read(&uiFlag);
-	// <advc>
-	if (uiFlag < 1)
-	{
-		int iPad;
-		pStream->Read(&iPad);
-	} // </advc>
+
 	// <advc.104>
 	m_uwai.read(pStream);
 	AI_sortOutUWAIOptions(true); // </advc.104>
@@ -318,8 +328,12 @@ void CvGameAI::write(FDataStreamBase* pStream)
 {
 	CvGame::write(pStream);
 
-	uint uiFlag = 0;
-	uiFlag = 1; // advc: Remove m_iPad
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+	uint uiFlag;
+	// <!-- custom: Reuse the existing CvGameAI write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
+	uiFlag = SASSaveStreamFormat::CV_GAME_AI; // advc: Remove m_iPad
+
 	pStream->Write(uiFlag);
 
 	//pStream->Write(m_iPad); // advc: unused

@@ -1,7 +1,9 @@
 #include "CvGameCoreDLL.h"
+#include "SASSaveStreamFormat.h" // <!-- custom: Use the same compile-time write markers as the session diagnostic registry, avoiding duplicated version literals. (GPT-6.1-Sol) -->
 #include "CvInitCore.h"
 #include "CvPlayer.h"
 #include "CvInfo_GameOption.h"
+#include "SASGameRecordLog.h" // <!-- custom: getSASGameRecordIniFileArgument, the shared ini= command-line parser, finds the [SASAutoplay] request for applySASRequestedLeaders. (Claude Code Opus 5.5) -->
 
 
 CvInitCore::CvInitCore()
@@ -230,7 +232,6 @@ PlayerTypes CvInitCore::getAvailableSlot()
 	return NO_PLAYER; // None available at all...
 }
 
-// advc (note): When is this called? Never?
 void CvInitCore::reassignPlayer(PlayerTypes eOldID, PlayerTypes eNewID)
 {
 	FAssertBounds(0, MAX_CIV_PLAYERS, eOldID);
@@ -251,6 +252,7 @@ void CvInitCore::reassignPlayer(PlayerTypes eOldID, PlayerTypes eNewID)
 	LeaderHeadTypes eLeader = m_aeLeader.get(eNewID);
 	// <advc.190c>
 	bool bRandomCiv = m_abCivChosenRandomly.get(eNewID);
+	// <!-- custom: Fix inherited Base AdvCiv copy-paste bug: preserve random-leader state independently. See KI#209. (ChatGPT-5.6-Sol) -->
 	bool bRandomLeader = m_abLeaderChosenRandomly.get(eNewID);
 	// </advc.190c>
 	TeamTypes eTeam = m_aeTeam.get(eNewID);
@@ -420,7 +422,7 @@ void CvInitCore::resetGame(/* advc.enum: */ bool bBeforeRead)
 
 	// Standard game parameters
 	m_eWorldSize = NO_WORLDSIZE;		// STANDARD_ option?
-	
+
 	if (!bBeforeRead) // advc.enum (doesn't really matter ...)
 	/*  <advc.003c> This function is called multiple times before XML is loaded.
 		GC.getDefineINT returns 0 then, which is fine, but now also triggers
@@ -430,13 +432,41 @@ void CvInitCore::resetGame(/* advc.enum: */ bool bBeforeRead)
 		If I'd just set everything to NO_..., I'd have to set proper values at
 		some later point though. */
 	{
-		bool cd = GC.isCachingDone();
-		m_eClimate = cd ? (ClimateTypes)GC.getDefineINT("STANDARD_CLIMATE") : NO_CLIMATE;			// NO_ option?
-		m_eSeaLevel = cd ? (SeaLevelTypes)GC.getDefineINT("STANDARD_SEALEVEL") : NO_SEALEVEL;		// NO_ option?
-		m_eEra = cd ? (EraTypes)GC.getDefineINT("STANDARD_ERA") : NO_ERA;							// NO_ option?
-		m_eGameSpeed = cd ? (GameSpeedTypes)GC.getDefineINT("STANDARD_GAMESPEED") : NO_GAMESPEED;	// NO_ option?
-		m_eTurnTimer = cd ? (TurnTimerTypes)GC.getDefineINT("STANDARD_TURNTIMER") : NO_TURNTIMER;	// NO_ option?
-		m_eCalendar = cd ? (CalendarTypes)GC.getDefineINT("STANDARD_CALENDAR") : NO_CALENDAR;		// NO_ option?
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: doesn't seem safe to static const these if XML is not loaded as per the base advciv code comment, so using an if else instead; done with the help of chatgpt 5, check if accurate -->
+		// bool cd = GC.isCachingDone();
+		// m_eClimate = cd ? (ClimateTypes)GC.getDefineINT("STANDARD_CLIMATE") : NO_CLIMATE;			// NO_ option?
+		// m_eSeaLevel = cd ? (SeaLevelTypes)GC.getDefineINT("STANDARD_SEALEVEL") : NO_SEALEVEL;		// NO_ option?
+		// m_eEra = cd ? (EraTypes)GC.getDefineINT("STANDARD_ERA") : NO_ERA;							// NO_ option?
+		// m_eGameSpeed = cd ? (GameSpeedTypes)GC.getDefineINT("STANDARD_GAMESPEED") : NO_GAMESPEED;	// NO_ option?
+		// m_eTurnTimer = cd ? (TurnTimerTypes)GC.getDefineINT("STANDARD_TURNTIMER") : NO_TURNTIMER;	// NO_ option?
+		// m_eCalendar = cd ? (CalendarTypes)GC.getDefineINT("STANDARD_CALENDAR") : NO_CALENDAR;		// NO_ option?
+		const bool cd = GC.isCachingDone();
+		if (cd)
+		{
+			static const ClimateTypes    eStdClimate   = (ClimateTypes)GC.getDefineINT("STANDARD_CLIMATE");
+			static const SeaLevelTypes   eStdSeaLevel  = (SeaLevelTypes)GC.getDefineINT("STANDARD_SEALEVEL");
+			static const EraTypes        eStdEra       = (EraTypes)GC.getDefineINT("STANDARD_ERA");
+			static const GameSpeedTypes  eStdSpeed     = (GameSpeedTypes)GC.getDefineINT("STANDARD_GAMESPEED");
+			static const TurnTimerTypes  eStdTimer     = (TurnTimerTypes)GC.getDefineINT("STANDARD_TURNTIMER");
+			static const CalendarTypes   eStdCalendar  = (CalendarTypes)GC.getDefineINT("STANDARD_CALENDAR");
+
+			m_eClimate   = eStdClimate;
+			m_eSeaLevel  = eStdSeaLevel;
+			m_eEra       = eStdEra;
+			m_eGameSpeed = eStdSpeed;
+			m_eTurnTimer = eStdTimer;
+			m_eCalendar  = eStdCalendar;
+		}
+		else
+		{
+			m_eClimate   = NO_CLIMATE;
+			m_eSeaLevel  = NO_SEALEVEL;
+			m_eEra       = NO_ERA;
+			m_eGameSpeed = NO_GAMESPEED;
+			m_eTurnTimer = NO_TURNTIMER;
+			m_eCalendar  = NO_CALENDAR;
+		}
 	} // </advc.003c>
 	// Map-specific custom parameters
 	clearCustomMapOptions();
@@ -578,8 +608,7 @@ void CvInitCore::resetPlayers(CvInitCore * pSource, bool bClear, bool bSaveSlotI
 	}
 }
 
-void CvInitCore::resetPlayer(PlayerTypes eID,
-	bool bBeforeRead) // advc.enum
+void CvInitCore::resetPlayer(PlayerTypes eID, bool bBeforeRead) // advc.enum
 {
 	FAssertBounds(0, MAX_PLAYERS, eID);
 
@@ -603,10 +632,23 @@ void CvInitCore::resetPlayer(PlayerTypes eID,
 	m_abLeaderChosenRandomly.resetVal(eID);
 	// </advc.190c>
 	m_aeTeam.set(eID, static_cast<TeamTypes>(eID));
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: doesn't seem safe to static const these if XML is not loaded as per the base advciv code comment, so using an if else instead; done with the help of chatgpt 5, check if accurate -->
 	// <advc.003c> See comment in resetGame
-	m_aeHandicap.set(eID, GC.isCachingDone() ?
-			(HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP") : NO_HANDICAP);
-	// </advc.003c>
+	// m_aeHandicap.set(eID, GC.isCachingDone() ?
+	// 		(HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP") : NO_HANDICAP);
+	// // </advc.003c>
+    if (GC.isCachingDone())
+    {
+        static const HandicapTypes eStdHandicap = (HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP");
+        m_aeHandicap.set(eID, eStdHandicap);
+    }
+    else
+    {
+        m_aeHandicap.set(eID, NO_HANDICAP);
+    }
+
 	m_aeColor.resetVal(eID);
 	m_aeArtStyle.resetVal(eID);
 
@@ -935,8 +977,7 @@ void CvInitCore::updatePangaea()
 	m_bPangaea = (getMapScriptName().compare(L"Pangaea") == 0);
 }
 
-void CvInitCore::setCustomMapOptions(int iNumCustomMapOptions,
-	CustomMapOptionTypes const* aeCustomMapOptions)
+void CvInitCore::setCustomMapOptions(int iNumCustomMapOptions, CustomMapOptionTypes const* aeCustomMapOptions)
 {
 	clearCustomMapOptions();
 	if (iNumCustomMapOptions > 0)
@@ -1680,6 +1721,87 @@ void CvInitCore::setLeaderExternal(PlayerTypes eID, LeaderHeadTypes eLeader)
 		}
 		// All random leaders have been assigned
 		reRandomizeCivsAndLeaders();
+		// <!-- custom: Requested leaders replace the random ones only now that every random leader is known, so a requested leader already drawn for another player can be swapped instead of duplicated. (Claude Code Opus 5.5) -->
+		applySASRequestedLeaders();
+	}
+}
+
+
+// <!-- custom: A new game started from the command line (QuickStart = 1 in an ini= file, as LLM_Helpers/game_runs/run_autoplay.py --leaders writes) could only have random civilizations: the INI has no civilization or leader keys.
+// An [SASAutoplay] Leaders key, e.g. "LEADER_ALEXANDER,-,LEADER_MANSA_MUSA", names a leader for each civ slot in order, with "-" keeping the random one; each leader brings the first playable civilization that lists it.
+// A requested leader already drawn for another slot is swapped with that slot, so leaders stay unique. Unknown or civ-less names are skipped with an assertion; Python's SASAutoplayRequest compares the result with the request and reports a mismatch.
+// Ordinary launches pass no ini= file and are unaffected. (Claude Code Opus 5.5) -->
+void CvInitCore::applySASRequestedLeaders()
+{
+	std::string const szArgument = getSASGameRecordIniFileArgument();
+	if (szArgument.empty())
+		return;
+	std::string szPath = szArgument;
+	if (!(szArgument.length() >= 2 && szArgument[1] == ':') && szArgument[0] != '\\')
+	{
+		// <!-- custom: GetPrivateProfileString looks for a relative name in the Windows folder, so resolve it beside the EXE, where Civ4 found the ini= file. (Claude Code Opus 5.5) -->
+		char szExe[MAX_PATH];
+		DWORD const iLength = GetModuleFileNameA(NULL, szExe, MAX_PATH);
+		std::string szDirectory(szExe, iLength);
+		szPath = szDirectory.substr(0, szDirectory.find_last_of('\\') + 1) + szArgument;
+	}
+	char szLeaders[2048];
+	GetPrivateProfileStringA("SASAutoplay", "Leaders", "", szLeaders, sizeof(szLeaders), szPath.c_str());
+	if (szLeaders[0] == '\0')
+		return;
+	std::vector<PlayerTypes> aeSlots;
+	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)i;
+		if (!getMinorNationCiv(ePlayer) && (getSlotStatus(ePlayer) == SS_TAKEN || getSlotStatus(ePlayer) == SS_COMPUTER))
+			aeSlots.push_back(ePlayer);
+	}
+	std::string const szList(szLeaders);
+	size_t iStart = 0;
+	for (size_t iSlot = 0; iSlot < aeSlots.size() && iStart <= szList.length(); iSlot++)
+	{
+		size_t iEnd = szList.find(',', iStart);
+		if (iEnd == std::string::npos)
+			iEnd = szList.length();
+		std::string szToken = szList.substr(iStart, iEnd - iStart);
+		iStart = iEnd + 1;
+		size_t const iFirst = szToken.find_first_not_of(" \t");
+		size_t const iLast = szToken.find_last_not_of(" \t");
+		szToken = (iFirst == std::string::npos ? "" : szToken.substr(iFirst, iLast - iFirst + 1));
+		if (szToken.empty() || szToken == "-")
+			continue;
+		// <!-- custom: getInfoTypeForString searches every XML type, so a civilization or unit name would return another table's index; require a leader whose own type matches. (Claude Code Opus 5.5) -->
+		int const iLeader = GC.getInfoTypeForString(szToken.c_str(), true);
+		LeaderHeadTypes const eLeader = ((iLeader >= 0 && iLeader < GC.getNumLeaderHeadInfos() && szToken == GC.getInfo((LeaderHeadTypes)iLeader).getType()) ? (LeaderHeadTypes)iLeader : NO_LEADER);
+		CivilizationTypes eCiv = NO_CIVILIZATION;
+		if (eLeader != NO_LEADER)
+		{
+			FOR_EACH_ENUM2(Civilization, eLoopCiv)
+			{
+				if (GC.getInfo(eLoopCiv).isPlayable() && GC.getInfo(eLoopCiv).isLeaders(eLeader))
+				{
+					eCiv = eLoopCiv;
+					break;
+				}
+			}
+		}
+		if (eCiv == NO_CIVILIZATION)
+		{
+			FErrorMsg("[SASAutoplay] Leaders names an unknown leader or one no playable civilization lists");
+			continue;
+		}
+		PlayerTypes const ePlayer = aeSlots[iSlot];
+		for (size_t j = 0; j < aeSlots.size(); j++)
+		{
+			if (aeSlots[j] != ePlayer && getLeader(aeSlots[j]) == eLeader)
+			{
+				setCiv(aeSlots[j], getCiv(ePlayer));
+				setLeader(aeSlots[j], getLeader(ePlayer));
+			}
+		}
+		setCiv(ePlayer, eCiv);
+		setLeader(ePlayer, eLeader);
+		setCivLeaderRandomlyChosen(ePlayer, false, false);
 	}
 }
 
@@ -1692,8 +1814,8 @@ void CvInitCore::reRandomizeCivsAndLeaders()
 		delivered until CvGame takes over the setup procedure. */
 	if (getOption(GAMEOPTION_LEAD_ANY_CIV))
 		return;
-	int const iPER_EXTRA_LEADER_CIV_SELECTION_WEIGHT = GC.getDefineINT(
-			"PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT");
+	// <!-- custom: ci_define_uncached: runs once at game setup, on the host. (Claude code Opus 5.5) -->
+	int const iPER_EXTRA_LEADER_CIV_SELECTION_WEIGHT = GC.getDefineINT("PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT");
 	if (iPER_EXTRA_LEADER_CIV_SELECTION_WEIGHT == 0) // BtS behavior
 		return;
 	FOR_EACH_ENUM2(Civilization, eCiv)
@@ -1863,7 +1985,10 @@ void CvInitCore::read(FDataStreamBase* pStream)
 	resetGame(true);
 	resetPlayers(true); // </advc.enum>
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 
 	// GAME DATA
@@ -1872,10 +1997,11 @@ void CvInitCore::read(FDataStreamBase* pStream)
 	pStream->ReadString(m_szGamePassword);
 	pStream->ReadString(m_szAdminPassword);
 	pStream->ReadString(m_szMapScriptName);
+
 	// <advc>
-	if (uiFlag >= 3)
-		pStream->Read(&m_bPangaea);
-	else updatePangaea(); // </advc>
+	pStream->Read(&m_bPangaea);
+	// </advc>
+
 	pStream->Read(&m_bWBMapNoPlayers);
 
 	pStream->Read((int*)&m_eWorldSize);
@@ -1902,27 +2028,11 @@ void CvInitCore::read(FDataStreamBase* pStream)
 		pStream->Read(m_iNumVictories, m_abVictories);
 	}
 	// <advc.enum>
-	if (uiFlag >= 6)
-		m_abOptions.read(pStream);
-	else if (uiFlag >= 4)
-		m_abOptions.readArray<int>(pStream, 1);
-	else // </advc.enum>
-	{
-		bool abOptions[NUM_GAMEOPTION_TYPES] = {};
-		// <advc.912d>
-		if (uiFlag <= 1)
-		{
-			if (uiFlag == 1)
-				pStream->Read(NUM_GAMEOPTION_TYPES - 2, abOptions);
-			else pStream->Read(NUM_GAMEOPTION_TYPES - 3, abOptions);
-		}
-		else pStream->Read(NUM_GAMEOPTION_TYPES - 1, abOptions);
-		FOR_EACH_ENUM(GameOption)
-			m_abOptions.set(eLoopGameOption, abOptions[eLoopGameOption]);
-	} // </advc.912d>
-	if (uiFlag >= 6)
-		m_abMPOptions.read(pStream);
-	else m_abMPOptions.readArray<bool>(pStream);
+
+	m_abOptions.read(pStream);
+
+	m_abMPOptions.read(pStream);
+
 	pStream->Read(&m_bStatReporting);
 
 	pStream->Read(&m_iGameTurn);
@@ -1942,62 +2052,23 @@ void CvInitCore::read(FDataStreamBase* pStream)
 	pStream->ReadString(MAX_PLAYERS, m_aszEmail);
 	pStream->ReadString(MAX_PLAYERS, m_aszSmtpHost);
 
-	if (uiFlag >= 6)
-		m_abWhiteFlag.read(pStream);
-	else m_abWhiteFlag.readArray<bool>(pStream);
+	m_abWhiteFlag.read(pStream);
+
 	pStream->ReadString(MAX_PLAYERS, m_aszFlagDecal);
 
-	if (uiFlag >= 6)
-	{
-		m_aeCiv.read(pStream);
-		m_aeLeader.read(pStream);
-		m_aeTeam.read(pStream);
-		m_aeHandicap.read(pStream);
-		m_aeColor.read(pStream);
-		m_aeArtStyle.read(pStream);
-	}
-	else
-	{
-		m_aeCiv.readArray<int>(pStream);
-		m_aeLeader.readArray<int>(pStream);
-		m_aeTeam.readArray<int>(pStream);
-		m_aeHandicap.readArray<int>(pStream);
-		m_aeColor.readArray<int>(pStream);
-		m_aeArtStyle.readArray<int>(pStream);
-	}
-	/*	<advc.250a> Looks like I hadn't taken care of save compatibility
-		when I did away with the "King" handicap. Game handicap will have to be
-		handled by CvGame. */
-	if (uiFlag <= 1)
-	{
-		FOR_EACH_ENUM(Player)
-		{
-			if (getHandicap(eLoopPlayer) >= GC.getNumHandicapInfos())
-			{
-				FErrorMsg("Invalid handicap ID loaded");
-				HandicapTypes eReplacement = (HandicapTypes)
-						GC.getInfoTypeForString("HANDICAP_EMPEROR");
-				if (eReplacement == NO_HANDICAP)
-					eReplacement = (HandicapTypes)(GC.getNumHandicapInfos() - 1);
-				setHandicap(eLoopPlayer, eReplacement);
-			}
-		}
-	} // </advc.250a>
+	m_aeCiv.read(pStream);
+	m_aeLeader.read(pStream);
+	m_aeTeam.read(pStream);
+	m_aeHandicap.read(pStream);
+	m_aeColor.read(pStream);
+	m_aeArtStyle.read(pStream);
+
 	// <advc.190c>
-	if (uiFlag >= 5)
-	{
-		if (uiFlag >= 6)
-		{
-			m_abCivChosenRandomly.read(pStream);
-			m_abLeaderChosenRandomly.read(pStream);
-		}
-		else
-		{
-			m_abCivChosenRandomly.readArray<bool>(pStream);
-			m_abLeaderChosenRandomly.readArray<bool>(pStream);
-		}
-		pStream->Read(&m_bCivLeaderSetupKnown);
-	} // </advc.190c>
+	m_abCivChosenRandomly.read(pStream);
+	m_abLeaderChosenRandomly.read(pStream);
+
+	pStream->Read(&m_bCivLeaderSetupKnown);
+	// </advc.190c>
 
 	pStream->Read(MAX_PLAYERS, (int*)m_aeSlotStatus);
 	pStream->Read(MAX_PLAYERS, (int*)m_aeSlotClaim);
@@ -2007,16 +2078,10 @@ void CvInitCore::read(FDataStreamBase* pStream)
 		if (m_aeSlotClaim[i] == SLOTCLAIM_ASSIGNED)
 			m_aeSlotClaim[i] = SLOTCLAIM_RESERVED;
 	}
-	if (uiFlag >= 6)
-	{
-		m_abPlayableCiv.read(pStream);
-		m_abMinorNationCiv.read(pStream);
-	}
-	else
-	{
-		m_abPlayableCiv.readArray<bool>(pStream);
-		m_abMinorNationCiv.readArray<bool>(pStream);
-	}
+
+	m_abPlayableCiv.read(pStream);
+	m_abMinorNationCiv.read(pStream);
+
 	if (CvPlayer::areStaticsInitialized())
 	{
 		for (int i = 0; i < MAX_PLAYERS; i++)
@@ -2041,14 +2106,12 @@ void CvInitCore::read(FDataStreamBase* pStream)
 void CvInitCore::write(FDataStreamBase* pStream)
 {
 	REPRO_TEST_BEGIN_WRITE("InitCore");
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag;
-	//uiFlag = 1; // BtS
-	//uiFlag = 2; // advc.912d
-	//uiFlag = 3; // advc: m_bPangaea
-	//uiFlag = 4; // advc.enum: m_abOptions as byte map
-	//uiFlag = 5; // advc.190c
-	//uiFlag = 6; // advc.enum: new enum map save behavior
-	uiFlag = 7; // advc.tsl: Additional game option
+	// <!-- custom: Reuse the existing CvInitCore write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
+	uiFlag = SASSaveStreamFormat::CV_INIT_CORE; // advc.tsl: Additional game option
 
 	pStream->Write(uiFlag);
 

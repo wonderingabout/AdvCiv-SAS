@@ -1,0 +1,159 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 210
+# Author: iustus
+# Date: 2006-12-19T07:22:41.015965Z
+# Coverage: full
+# Message:
+#   normalizeAddRiver uses new function addRiver, which actually adds a river that will give fresh water to the given plot, rather than starting a river at the given plot, which does _not_ give fresh water all the time, even when it succeeds. (The source plot of a river does not have fresh water if the river chooses to flow east or south, so in those cases, you would have to get lucky with the river bending back toward the start plot)
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvMapGenerator.cpp
+#   M /trunk/CvGameCoreDLL/CvMapGenerator.h
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@209
++++ /trunk/CvGameCoreDLL/CvGame.cpp@210
+@@ -978,7 +978,7 @@
+ 			{
+ 				if (!pStartingPlot->isFreshWater())
+ 				{
+-					CvMapGenerator::GetInstance().doRiver(pStartingPlot);
++					CvMapGenerator::GetInstance().addRiver(pStartingPlot);
+ 				}
+ 			}
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvMapGenerator.cpp
+--- /trunk/CvGameCoreDLL/CvMapGenerator.cpp@209
++++ /trunk/CvGameCoreDLL/CvMapGenerator.cpp@210
+@@ -500,6 +500,116 @@
+ 	}
+ }
+ 
++// pFreshWaterPlot = the plot we want to give a fresh water river
++// 
++bool CvMapGenerator::addRiver(CvPlot* pFreshWaterPlot)
++{
++	FAssertMsg(pFreshWaterPlot != NULL, "NULL plot parameter");
++	
++	// cannot have a river flow next to water
++	if (pFreshWaterPlot->isWater())
++	{
++		return false;
++	}
++	
++	// if it already has a fresh water river, then success! we done
++	if (pFreshWaterPlot->isRiver())
++	{
++		return true;
++	}
++	
++	bool bSuccess = false;
++
++	// randomize the order of directions
++	int aiShuffle[NUM_CARDINALDIRECTION_TYPES];
++	shuffleArray(aiShuffle, NUM_CARDINALDIRECTION_TYPES, GC.getGameINLINE().getMapRand());
++
++	// make two passes, once for each flow direction of the river
++	int iNWFlowPass = GC.getGameINLINE().getMapRandNum(2, "addRiver");
++	for (int iPass = 0; !bSuccess && iPass <= 1; iPass++)
++	{
++		// try placing a river edge in each direction, in random order
++		for (int iI = 0; !bSuccess && iI < NUM_CARDINALDIRECTION_TYPES; iI++)
++		{
++			CardinalDirectionTypes eRiverDirection = NO_CARDINALDIRECTION;
++			CvPlot *pRiverPlot = NULL;
++			
++			switch (aiShuffle[iI])
++			{
++			case CARDINALDIRECTION_NORTH:
++				if (iPass == iNWFlowPass)
++				{
++					pRiverPlot = plotDirection(pFreshWaterPlot->getX_INLINE(), pFreshWaterPlot->getY_INLINE(), DIRECTION_NORTH);
++					eRiverDirection = CARDINALDIRECTION_WEST;
++				}
++				else 
++				{
++					pRiverPlot = plotDirection(pFreshWaterPlot->getX_INLINE(), pFreshWaterPlot->getY_INLINE(), DIRECTION_NORTHWEST);
++					eRiverDirection = CARDINALDIRECTION_EAST;
++				}
++				break;
++
++			case CARDINALDIRECTION_EAST:
++				if (iPass == iNWFlowPass)
++				{
++					pRiverPlot = pFreshWaterPlot;
++					eRiverDirection = CARDINALDIRECTION_NORTH;
++				}
++				else 
++				{
++					pRiverPlot = plotDirection(pFreshWaterPlot->getX_INLINE(), pFreshWaterPlot->getY_INLINE(), DIRECTION_NORTH);
++					eRiverDirection = CARDINALDIRECTION_SOUTH;
++				}
++				break;
++
++			case CARDINALDIRECTION_SOUTH:
++				if (iPass == iNWFlowPass)
++				{
++					pRiverPlot = pFreshWaterPlot;
++					eRiverDirection = CARDINALDIRECTION_WEST;
++				}
++				else 
++				{
++					pRiverPlot = plotDirection(pFreshWaterPlot->getX_INLINE(), pFreshWaterPlot->getY_INLINE(), DIRECTION_WEST);
++					eRiverDirection = CARDINALDIRECTION_EAST;
++				}
++				break;
++
++			case CARDINALDIRECTION_WEST:
++				if (iPass == iNWFlowPass)
++				{
++					pRiverPlot = plotDirection(pFreshWaterPlot->getX_INLINE(), pFreshWaterPlot->getY_INLINE(), DIRECTION_WEST);
++					eRiverDirection = CARDINALDIRECTION_NORTH;
++				}
++				else 
++				{
++					pRiverPlot = plotDirection(pFreshWaterPlot->getX_INLINE(), pFreshWaterPlot->getY_INLINE(), DIRECTION_NORTHWEST);
++					eRiverDirection = CARDINALDIRECTION_SOUTH;
++				}
++				break;
++
++			default:
++				FAssertMsg(false, "invalid cardinal direction");
++			}
++			
++			if (pRiverPlot != NULL && !pRiverPlot->hasCoastAtSECorner())
++			{
++				// try to make the river
++				doRiver(pRiverPlot, eRiverDirection, eRiverDirection, -1);
++
++				// if it succeeded, then we will be a river now!
++				if (pFreshWaterPlot->isRiver())
++				{
++					bSuccess = true;
++				}
++			}
++		}
++	}
++
++	return bSuccess;
++}
++
++
+ void CvMapGenerator::addFeatures()
+ {
+ 	PROFILE("CvMapGenerator::addFeatures");
+
+Index: /trunk/CvGameCoreDLL/CvMapGenerator.h
+--- /trunk/CvGameCoreDLL/CvMapGenerator.h@209
++++ /trunk/CvGameCoreDLL/CvMapGenerator.h@210
+@@ -26,6 +26,7 @@
+ 	void addLakes();																			// Exposed to Python
+ 	DllExport void addRivers();														// Exposed to Python
+ 	void doRiver(CvPlot* pStartPlot, CardinalDirectionTypes eLastCardinalDirection=NO_CARDINALDIRECTION, CardinalDirectionTypes eOriginalCardinalDirection=NO_CARDINALDIRECTION, int iThisRiverID=-1);	// Exposed to Python
++	bool addRiver(CvPlot *pFreshWaterPlot);
+ 	DllExport void addFeatures();													// Exposed to Python
+ 	DllExport void addBonuses();													// Exposed to Python
+ 	void addUniqueBonusType(BonusTypes eBonusType);				// Exposed to Python
+

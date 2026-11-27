@@ -1,0 +1,50 @@
+name: Checks - Hygiene
+
+on:
+  push:
+  pull_request:
+    # <!-- custom: Ignore the long-lived reference compare from main to the mirrored base AdvCiv release branch, named by its version, such as 1.14.
+    # Keep it open so GitHub tracks the diff, but do not run duplicate PR checks for it.
+    # The pattern matches any version, so a newer AdvCiv's branch needs no edit here (2026-11-22). (ChatGPT-5.5 + Claude code Opus 5.5) -->
+    branches-ignore:
+      - "[0-9]+.[0-9]+"
+  workflow_dispatch:
+
+jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    env:
+      BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
+      EVENT_NAME: ${{ github.event_name }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # <!-- custom: Diff-only text spacing needs the PR/push base; retain full metadata while filtering historical file blobs. (GPT-6.1-Sol) -->
+          fetch-depth: 0
+          filter: blob:none
+      - uses: actions/setup-python@v7
+        # <!-- custom: Each check runs even when an earlier one failed, so one push reports every failure at once rather than stopping at the first; the job still fails, and a setup failure still stops the checks. (Claude code Opus 5.5) -->
+        id: setup
+        with:
+          python-version: "3.x"
+
+      - name: BOMs, filename and installation-path limits
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/hygiene/repository_hygiene.py
+
+      - name: New text blank separators
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/hygiene/text_blank_lines.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
+
+      - name: Text line endings
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/hygiene/line_endings.py
+
+      # <!-- custom: A file switched whole between LF and CRLF has no mixed endings, so line_endings.py passes it, while its diff shows every line as changed. See KI#1097. (Claude code Opus 5.5) -->
+      - name: Line ending switches in commits
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/hygiene/line_ending_churn.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+
+      - name: Text control characters
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/hygiene/control_characters.py

@@ -1,0 +1,65 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 109
+# Author: iustus
+# Date: 2006-11-22T06:12:18.924523Z
+# Coverage: full
+# Message:
+#   added some tech preferences if we are in financial trouble, go for techs that will help it.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@108
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@109
+@@ -2819,9 +2819,10 @@
+ 									{
+ 										if (isTechRequiredForBuilding(((TechTypes)iI), eLoopBuilding))
+ 										{
++											CvBuildingInfo& kBuilding = GC.getBuildingInfo(eLoopBuilding);
+ 											int iBuildingValue = 0;
+ 											
+-											if (GC.getBuildingInfo(eLoopBuilding).getSpecialBuildingType() != NO_BUILDING)
++											if (kBuilding.getSpecialBuildingType() != NO_BUILDING)
+ 											{
+ 												iBuildingValue += ((bCapitalAlone) ? 100 : 25);
+ 											}
+@@ -2831,9 +2832,9 @@
+ 											}
+ 
+ 											//the granary effect is SO powerful it deserves special code
+-											if (GC.getBuildingInfo(eLoopBuilding).getFoodKept() > 0)
++											if (kBuilding.getFoodKept() > 0)
+ 											{
+-												iBuildingValue += (10 * GC.getBuildingInfo(eLoopBuilding).getFoodKept());
++												iBuildingValue += (10 * kBuilding.getFoodKept());
+ 											}
+ 
+ 											iBuildingValue += 300;
+@@ -2844,8 +2845,15 @@
+                                                 iBuildingValue += 600;
+                                             }
+ 											
++											if (bFinancialTrouble)
++											{
++												iBuildingValue += kBuilding.getMaintenanceModifier() * 10;
++												iBuildingValue += kBuilding.getYieldModifier(YIELD_COMMERCE) * 5;
++												iBuildingValue += kBuilding.getCommerceModifier(COMMERCE_GOLD) * 10;
++											}
++
+ 											// if this is a religious building, its not as useful
+-											ReligionTypes eReligion = (ReligionTypes) GC.getBuildingInfo(eLoopBuilding).getReligionType();
++											ReligionTypes eReligion = (ReligionTypes) kBuilding.getReligionType();
+ 											if (eReligion != NO_RELIGION)
+ 											{
+ 											    
+@@ -2864,7 +2872,7 @@
+                                                 iBuildingValue /= max (1, GC.getNumReligionInfos());
+ 											}
+ 
+-											if (GC.getBuildingInfo(eLoopBuilding).getPrereqAndTech() == iI)
++											if (kBuilding.getPrereqAndTech() == iI)
+ 											{
+ 												if (iPathLength <= 1)
+ 												{
+

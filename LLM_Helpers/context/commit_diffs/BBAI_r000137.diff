@@ -1,0 +1,85 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 137
+# Author: blakeciv
+# Date: 2006-12-01T07:05:02.070506Z
+# Coverage: full
+# Message:
+#   Assorted bugfixes and minor tweaks to the code in the last submit.
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@136
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@137
+@@ -1759,25 +1759,23 @@
+                 szString+=szTempBuffer;
+             }
+ 	    }
+-	    else
+-	    {
+-            for (iI = 0; iI < MAX_PLAYERS; iI++)
++
++        for (iI = 0; iI < MAX_PLAYERS; iI++)
++        {
++            if (GET_PLAYER((PlayerTypes)iI).isAlive())
+             {
+-                if (GET_PLAYER((PlayerTypes)iI).isAlive())
++                int iFoundValue = (GET_PLAYER((PlayerTypes)iI).AI_foundValue(pPlot->getX_INLINE(),pPlot->getY_INLINE()));
++                if (iFoundValue > 0)
+                 {
+-                    int iFoundValue = (GET_PLAYER((PlayerTypes)iI).AI_foundValue(pPlot->getX_INLINE(),pPlot->getY_INLINE()));
+-                    if (iFoundValue > 0)
+-                    {
+-                        szTempBuffer.Format(L"\n%s Found Value = %d", GET_PLAYER((PlayerTypes)iI).getName(), iFoundValue);
+-                        szString+=szTempBuffer;
+-        
+-                        int iDeadlockCount = GET_PLAYER((PlayerTypes)iI).AI_countDeadlockedBonuses(pPlot);
+-                        szTempBuffer.Format(L"\n %d Deadlocked Bonuses", iDeadlockCount);
+-                        szString+=szTempBuffer;
+-                    }
++                    szTempBuffer.Format(L"\n%s Found Value = %d", GET_PLAYER((PlayerTypes)iI).getName(), iFoundValue);
++                    szString+=szTempBuffer;
++    
++                    int iDeadlockCount = GET_PLAYER((PlayerTypes)iI).AI_countDeadlockedBonuses(pPlot);
++                    szTempBuffer.Format(L"\n %d Deadlocked Bonuses", iDeadlockCount);
++                    szString+=szTempBuffer;
+                 }
+             }
+-		}
++        }
+ 	}
+ 	else if (bShift && bAlt && (gDLL->getChtLvl() > 0))
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@136
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@137
+@@ -1558,14 +1558,14 @@
+ 			eBonusImprovement = NO_IMPROVEMENT;
+ 			
+ 			int iCultureMultiplier;
+-            if (!pLoopPlot->isOwned() || pPlot->getOwnerINLINE() == getID())
++            if (!pLoopPlot->isOwned() || (pLoopPlot->getOwnerINLINE() == getID()))
+             {	
+                 iCultureMultiplier = 100;    
+             }
+             else
+             {
+                 int iOurCulture = pLoopPlot->getCulture(getID());
+-                int iOtherCulture = max(1, pLoopPlot->getCulture(pPlot->getOwnerINLINE()));
++                int iOtherCulture = max(1, pLoopPlot->getCulture(pLoopPlot->getOwnerINLINE()));
+                 iCultureMultiplier = 100 * (iOurCulture + iClaimThreshold);
+                 iCultureMultiplier /= (iOtherCulture + iClaimThreshold);
+                 iCultureMultiplier = min(100, iCultureMultiplier);
+@@ -9507,7 +9507,7 @@
+ 
+                 if (pLoopPlot != NULL)
+                 {
+-                    if (pLoopPlot->getBonusType() != NO_BONUS)
++                    if (pLoopPlot->getBonusType(getTeam()) != NO_BONUS)
+                     {
+                         if (!pLoopPlot->isCityRadius() && ((pLoopPlot->area() == pPlot->area()) || pLoopPlot->isWater()))
+                         {
+

@@ -84,6 +84,94 @@ void CyGamePythonInterface()
 		.def("getTurnYear", &CyGame::getTurnYear, "int (iGameTurn) - turn Time")
 		.def("getGameTurnYear", &CyGame::getGameTurnYear)
 		.def("getElapsedGameTurns", &CyGame::getElapsedGameTurns, "int () - Elapsed turns thus far")
+		// <!-- custom: Let BUG supply its resolved user root and expose a deliberate live-inspection flush for the shared native BBAI/SASGameRecord writer. (ChatGPT-5.6-Sol) -->
+		.def("setSASDiagnosticLogRoot", &CyGame::setSASDiagnosticLogRoot)
+		.def("flushSASDiagnosticLogs", &CyGame::flushSASDiagnosticLogs, "bool () - publish pending diagnostics; false indicates failed output")
+		// <!-- custom: Python needs to keep a screen only one team saw, such as the Greatest Civilizations, in the save and on that team's Timeline; replay messages are both, and none could be added from Python before. (Claude code Opus 5.5) -->
+		.def("addSASTeamReplayMessage", &CyGame::addSASTeamReplayMessage, "void (int iPlayer, wstring text) - add a coordinate-less replay message visible only to iPlayer's team")
+		// <!-- custom: Python owns WorldBuilder screen show/hide callbacks; expose their literal visibility notification so the native recorder can distinguish screen visibility from mode and filter Advanced Start behind its cached enable gate. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		.def("updateSASRuntimeStatusWorldBuilderScreen", &CyGame::updateSASRuntimeStatusWorldBuilderScreen, "void (bool) - report observed WorldBuilder Python screen visibility")
+		// <!-- custom: The Python WorldBuilder reveal-all loop brackets its many plot setters so save history records one bulk mutation instead of thousands of duplicate per-plot entries. (ChatGPT-5.6-Sol) -->
+		.def("beginSASWorldBuilderBulkEdit", &CyGame::beginSASWorldBuilderBulkEdit, "void () - suppress per-plot save history during a known WorldBuilder bulk operation")
+		// <!-- custom: The matching close bridge now distinguishes no-op, completed and partially applied reveal loops using native changed-plot accounting. (ChatGPT-5.6-Sol) -->
+		.def("endSASWorldBuilderBulkReveal", &CyGame::endSASWorldBuilderBulkReveal, "void (int TeamTypes, bool reveal, bool completed) - close reveal-all suppression and record actual completed/partial changes")
+		// <!-- custom: Python owns menu/screen observations and PreGameStart; expose literal notifications plus the native cached gate so disabled recording skips their diagnostic-only queries. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		.def("isSASRuntimeStatusRecordingEnabled", &CyGame::isSASRuntimeStatusRecordingEnabled, "bool () - cached runtime recording gate for Python observation callers")
+		.def("updateSASRuntimeStatusMainMenuState", &CyGame::updateSASRuntimeStatusMainMenuState, "void (bool) - report an event-driven main-menu state sample")
+		.def("updateSASRuntimeStatusPreGameStart", &CyGame::updateSASRuntimeStatusPreGameStart, "void () - report the EXE-driven Python PreGameStart lifecycle boundary")
+		.def("updateSASRuntimeStatusCivilopedia", &CyGame::updateSASRuntimeStatusCivilopedia, "void (bool visible, bool inMainMenu) - report observed Civilopedia visibility and its menu/game context")
+		// <!-- custom: Expose the post-GameStart/OnLoad diagnostic hook; Python invokes it after event dispatch and only while SASGameRecord is enabled. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		.def("logSASGameRecordDiagnosticContext", &CyGame::logSASGameRecordDiagnosticContext, "void (int renderQualityLevel, int antiAliasingIndex, int antiAliasingSamples, int globeViewRenderLevel, int movieQualityLevel) - record finalized session diagnostic settings")
+		// <!-- custom: Compact configuration baseline/change rows, native runtime-view baseline and internal alternate-INI discovery for SASGameRecord; the INI path itself is not logged. (ChatGPT-5.6-Sol) -->
+		.def("logSASGameRecordSessionSettings", &CyGame::logSASGameRecordSessionSettings)
+		// <!-- custom: Python's SASGameRecordConfig reads the recorder's effective level here, so it agrees with the DLL now that SAS_SGR_LOG_ON is the master. See SASGameRecord revision 214 (SGR214). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		.def("getSASGameRecordLogLevel", &CyGame::getSASGameRecordLogLevel, "int () - SASGameRecord's effective level, 0 when off")
+		.def("logSASGameRecordRuntimeViewStateSnapshot", &CyGame::logSASGameRecordRuntimeViewStateSnapshot)
+		// <!-- custom: Narrow revision-151 UI bridges accept only controlled screen/action labels or pre-serialized scalar interface state; no arbitrary user text crosses into the recorder. (ChatGPT-5.6-Sol) -->
+		.def("logSASGameRecordScreenAction", &CyGame::logSASGameRecordScreenAction)
+		.def("logSASGameRecordInterfaceState", &CyGame::logSASGameRecordInterfaceState)
+		// <!-- custom: Map-caption text is a separate reviewed bridge because arbitrary user-authored text is withheld by default and must not become a generic Python-to-SGR logging API. (ChatGPT-5.6-Sol) -->
+		.def("logSASGameRecordMapAnnotationSummary", &CyGame::logSASGameRecordMapAnnotationSummary)
+		.def("logSASGameRecordMapAnnotation", &CyGame::logSASGameRecordMapAnnotation)
+		// <!-- custom: Persisted BUG DotMap planning markers use a typed scalar bridge, distinct from free-form text annotations and generic Python log strings. (ChatGPT-5.6-Sol) -->
+		.def("logSASGameRecordDotMapSummary", &CyGame::logSASGameRecordDotMapSummary)
+		.def("logSASGameRecordDotMapMarker", &CyGame::logSASGameRecordDotMapMarker)
+		// <!-- custom: CvTopCivs.py computes each Greatest Civilizations ranking in Python, so the SASGameRecord rows for it come from there. (Claude code Opus 5.5) -->
+		.def("logSASGameRecordTopCivs", &CyGame::logSASGameRecordTopCivs, "void (string category, wstring historian, int listed, int ranked, int unknownListed, bool shown) - SASGameRecord summary row of a Greatest Civilizations ranking")
+		.def("logSASGameRecordTopCivsRank", &CyGame::logSASGameRecordTopCivsRank, "void (string category, int rank, int player, int value, bool listed, bool known) - SASGameRecord row of one player in that ranking")
+		.def("getSASGameRecordIniFileArgument", &CyGame::getSASGameRecordIniFileArgument)
+		// <!-- custom: Internal BUG diplomacy bridge; captures only resolved AI->human ordinary offers rejected at the UI boundary. (ChatGPT-5.6-Sol) -->
+		.def("logSASGameRecordRejectedAIOffer", &CyGame::logSASGameRecordRejectedAIOffer)
+		// <!-- custom: Expose only one-shot SASFastSave basename/reason context; filename construction remains in Python so the DLL cannot drift from BugPath/collision behavior. (ChatGPT-5.6-Sol) -->
+		.def("setSASFastSaveContext", &CyGame::setSASFastSaveContext)
+		.def("clearSASFastSaveContext", &CyGame::clearSASFastSaveContext)
+		// <!-- custom: Read-only persistent source-history API for later game-version UI/replay presentation. (ChatGPT-5.6-Sol) -->
+		.def("getNumSASVersionHistoryEntries", &CyGame::getNumSASVersionHistoryEntries)
+		.def("getSASVersionHistoryTurn", &CyGame::getSASVersionHistoryTurn)
+		.def("getSASVersionHistoryVersion", &CyGame::getSASVersionHistoryVersion)
+		.def("getSASVersionHistoryCommitHash", &CyGame::getSASVersionHistoryCommitHash)
+		.def("getSASVersionHistoryDirtyState", &CyGame::getSASVersionHistoryDirtyState)
+		// <!-- custom: The Changes tab reads shared Advanced Start/editor history through these SASWorldChangesHistory APIs; their data-model name is independent of the tab label.
+		// Expose saved fields through this read-only bridge so the advisor does not require the original SGR file. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		.def("getNumSASWorldChangesHistoryEntries", &CyGame::getNumSASWorldChangesHistoryEntries)
+		.def("getSASWorldChangesHistorySource", &CyGame::getSASWorldChangesHistorySource)
+		.def("getSASWorldChangesHistorySourceName", &CyGame::getSASWorldChangesHistorySourceName)
+		.def("getSASWorldChangesHistoryCategory", &CyGame::getSASWorldChangesHistoryCategory)
+		.def("getSASWorldChangesHistoryCategoryName", &CyGame::getSASWorldChangesHistoryCategoryName)
+		// <!-- custom: Actor/target identities retain synchronized player/team context so advisor filtering can avoid reconstructing historical ownership from current state. (ChatGPT-5.6-Sol) -->
+		.def("getSASWorldChangesHistoryActor", &CyGame::getSASWorldChangesHistoryActor)
+		.def("getSASWorldChangesHistoryActorTeam", &CyGame::getSASWorldChangesHistoryActorTeam)
+		.def("getSASWorldChangesHistoryTargetPlayer", &CyGame::getSASWorldChangesHistoryTargetPlayer)
+		.def("getSASWorldChangesHistoryTargetTeam", &CyGame::getSASWorldChangesHistoryTargetTeam)
+		// <!-- custom: Historical turn/year/version context is stored with each event so later calendar or source changes cannot rewrite when that edit occurred. (ChatGPT-5.6-Sol) -->
+		.def("getSASWorldChangesHistoryTurn", &CyGame::getSASWorldChangesHistoryTurn)
+		.def("getSASWorldChangesHistoryYear", &CyGame::getSASWorldChangesHistoryYear)
+		.def("getSASWorldChangesHistoryElapsedTurn", &CyGame::getSASWorldChangesHistoryElapsedTurn)
+		.def("getSASWorldChangesHistoryVersionIndex", &CyGame::getSASWorldChangesHistoryVersionIndex)
+		// <!-- custom: Coordinates and object/data IDs preserve the applied target without exposing free-form editor text. (ChatGPT-5.6-Sol) -->
+		.def("getSASWorldChangesHistoryX", &CyGame::getSASWorldChangesHistoryX)
+		.def("getSASWorldChangesHistoryY", &CyGame::getSASWorldChangesHistoryY)
+		.def("getSASWorldChangesHistoryCityId", &CyGame::getSASWorldChangesHistoryCityId)
+		.def("getSASWorldChangesHistoryObjectId", &CyGame::getSASWorldChangesHistoryObjectId)
+		.def("getSASWorldChangesHistoryRequestedDataId", &CyGame::getSASWorldChangesHistoryRequestedDataId)
+		.def("getSASWorldChangesHistoryResolvedDataId", &CyGame::getSASWorldChangesHistoryResolvedDataId)
+		// <!-- custom: Fixed action/operation tokens and typed targets remain machine-readable; script targets may contain applied text under the save producer's XML policy, while names remain withheld. (GPT-6.1-Sol) (ChatGPT-5.6-Sol) -->
+		.def("getSASWorldChangesHistoryAction", &CyGame::getSASWorldChangesHistoryAction)
+		.def("getSASWorldChangesHistoryOperation", &CyGame::getSASWorldChangesHistoryOperation)
+		.def("getSASWorldChangesHistoryTargetKind", &CyGame::getSASWorldChangesHistoryTargetKind)
+		.def("getSASWorldChangesHistoryTarget", &CyGame::getSASWorldChangesHistoryTarget)
+		.def("getSASWorldChangesHistoryOldValueValid", &CyGame::getSASWorldChangesHistoryOldValueValid)
+		.def("getSASWorldChangesHistoryOldValue", &CyGame::getSASWorldChangesHistoryOldValue)
+		// <!-- custom: Explicit validity/content flags distinguish absent values and withheld content from legitimate numeric sentinels. (ChatGPT-5.6-Sol) -->
+		.def("getSASWorldChangesHistoryNewValueValid", &CyGame::getSASWorldChangesHistoryNewValueValid)
+		.def("getSASWorldChangesHistoryNewValue", &CyGame::getSASWorldChangesHistoryNewValue)
+		.def("getSASWorldChangesHistoryContentWithheld", &CyGame::getSASWorldChangesHistoryContentWithheld)
+		.def("getSASWorldChangesHistoryQuotedCost", &CyGame::getSASWorldChangesHistoryQuotedCost)
+		// <!-- custom: Advanced Start budget transitions share the same persisted action record while ordinary WorldBuilder events leave these fixed numeric fields unused. (ChatGPT-5.6-Sol) -->
+		.def("getSASWorldChangesHistoryPointsBefore", &CyGame::getSASWorldChangesHistoryPointsBefore)
+		.def("getSASWorldChangesHistoryPointsAfter", &CyGame::getSASWorldChangesHistoryPointsAfter)
+		.def("getSASWorldChangesHistoryGoldBefore", &CyGame::getSASWorldChangesHistoryGoldBefore)
+		.def("getSASWorldChangesHistoryGoldAfter", &CyGame::getSASWorldChangesHistoryGoldAfter)
 		.def("getMaxTurns", &CyGame::getMaxTurns)
 		.def("setMaxTurns", &CyGame::setMaxTurns)
 		.def("changeMaxTurns", &CyGame::changeMaxTurns)
@@ -131,6 +219,8 @@ void CyGamePythonInterface()
 
 		.def("getAIAutoPlay", &CyGame::getAIAutoPlay)
 		.def("setAIAutoPlay", &CyGame::setAIAutoPlay)
+		// <!-- custom: Expose the AdvCiv-SAS cause-aware stop method used by AIAutoPlay.py; the legacy setter remains available for compatibility. See KI#203. (GPT-5.6-Sol) -->
+		.def("endAIAutoPlay", &CyGame::endAIAutoPlay)
 
 		.def("getGlobalWarmingIndex", &CyGame::getGlobalWarmingIndex)	// K-Mod
 		.def("getGlobalWarmingChances", &CyGame::getGlobalWarmingChances)	// K-Mod
@@ -157,6 +247,9 @@ void CyGamePythonInterface()
 		.def("isSimultaneousTeamTurns", &CyGame::isSimultaneousTeamTurns, "bool ()")
 
 		.def("isFinalInitialized", &CyGame::isFinalInitialized, "bool () - Returns whether or not the game initialization process has ended (game has started)")
+		// <!-- custom: expose the cached AI map heaviness classification to Python UI without duplicating map-name/start-area logic there. (GPT-5.5) -->
+		.def("isLandHeavyMapnameCached", &CyGame::isLandHeavyMapnameCached, "bool ()")
+		.def("isNavalHeavyMapnameCached", &CyGame::isNavalHeavyMapnameCached, "bool ()")
 		// advc.061:
 		.def("setScreenDimensions", &CyGame::setScreenDimensions, "void (int iWidth, int iHeight)")
 		.def("getActivePlayer", &CyGame::getActivePlayer, "returns index of the active player")
@@ -239,6 +332,12 @@ void CyGamePythonInterface()
 		.def("addDeal", &CyGame::addDeal, python::return_value_policy<python::manage_new_object>())
 		.def("getMapRand", &CyGame::getMapRand, python::return_value_policy<python::reference_existing_object>())
 		.def("getMapRandNum", &CyGame::getMapRandNum)
+		// <!-- custom: Expose the serialized initial active player read-only so Fast Save filenames keep the original XML leader identity across autoplay handoffs. (ChatGPT-5.6-Sol) -->
+		.def("getInitialActivePlayer", &CyGame::getInitialActivePlayer)
+		// <!-- custom: Expose the serialized initial map RNG seed read-only for the stable map component of SAS fast-save filenames. (ChatGPT-5.6-Sol) -->
+		.def("getInitialMapRandSeed", &CyGame::getInitialMapRandSeed)
+		// <!-- custom: Expose the serialized initial sync RNG seed read-only for the stable gameplay-lineage component of SAS fast-save filenames. (ChatGPT-5.6-Sol) -->
+		.def("getInitialSyncRandSeed", &CyGame::getInitialSyncRandSeed)
 		.def("getSorenRand", &CyGame::getSorenRand, python::return_value_policy<python::reference_existing_object>())
 		.def("getSorenRandNum", &CyGame::getSorenRandNum)
 		.def("calculateSyncChecksum", &CyGame::calculateSyncChecksum)

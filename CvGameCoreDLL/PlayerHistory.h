@@ -31,7 +31,8 @@ public:
 		return get(iTurn);
 	}
 	void set(int iTurn, int iValue);
-	void read(FDataStreamBase* pStream, PlayerTypes eOwner, bool bLegacy = false);
+	// <!-- custom: The current writer stores a vector, so the reader needs no legacy-layout argument. See KI#46.2. (GPT-6.2-Sol) -->
+	void read(FDataStreamBase* pStream, PlayerTypes eOwner);
 	void write(FDataStreamBase* pStream);
 
 private:

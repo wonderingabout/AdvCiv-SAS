@@ -1,0 +1,94 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 236
+# Author: blakeciv
+# Date: 2007-01-01T23:03:19.242921Z
+# Coverage: full
+# Message:
+#   AI now mounts a stronger defense in response to being attacked.
+#   
+#   Better working/settler training behaviors.
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@235
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@236
+@@ -874,7 +874,7 @@
+     
+     //do a check for one tile island type thing?
+     //this can be overridden by "wait and grow more"
+-    if ((iExistingWorkers == 0) && isCapital())
++    if (!bDanger && (iExistingWorkers == 0) && isCapital())
+     {
+ 	if ((AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ true, /*bIncludeNeutral*/ true, -1, /*bLand*/ true, /*bWater*/ false) > 0) || 
+ 		(getPopulation() > 3))
+@@ -932,6 +932,7 @@
+ 		}
+ 	}
+ 	
++	
+ 	int iNeededFloatingDefenders = GET_PLAYER(getOwner()).AI_getTotalFloatingDefendersNeeded(area());
+  	int iTotalFloatingDefenders = GET_PLAYER(getOwner()).AI_getTotalFloatingDefenders(area());
+ 	
+@@ -953,6 +954,27 @@
+ 			}
+ 		}
+ 	}
++	
++	    //do a check for one tile island type thing?
++    //this can be overridden by "wait and grow more"
++    if (bDanger && (iExistingWorkers == 0) && isCapital())
++    {
++	if ((AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ true, /*bIncludeNeutral*/ true, -1, /*bLand*/ true, /*bWater*/ false) > 0) || 
++		(getPopulation() > 3))
++    	{
++			if (AI_chooseUnit(UNITAI_WORKER))
++			{
++				return;
++			}
++    	}
++		if (AI_neededSeaWorkers() > 0)
++		{
++			if (AI_chooseUnit(UNITAI_WORKER_SEA))
++			{
++				return;
++			}
++		}
++    }
+ 
+ 	if (pWaterArea != NULL)
+ 	{
+@@ -7421,7 +7443,8 @@
+ 			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 50;				
+ 		}
+ 		if ((GC.getUnitInfo(eProductionUnit).getDefaultUnitAIType() == UNITAI_WORKER) ||
+-			(GC.getUnitInfo(eProductionUnit).getDefaultUnitAIType() == UNITAI_WORKER))
++			(GC.getUnitInfo(eProductionUnit).getDefaultUnitAIType() == UNITAI_SETTLE))
++		
+ 		{
+ 			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 50;			
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@235
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@236
+@@ -10594,6 +10594,16 @@
+ 	{
+ 		iDefenders /= 2;
+ 	}
++	
++	if (pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE)
++	{
++		iDefenders *= 2;
++	}
++	else if (pArea->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE)
++	{
++		iDefenders *= 2;
++		iDefenders /= 3;		
++	}
+ 		
+ 	iDefenders = max(iDefenders, AI_countNumAreaHostileUnits(pArea));
+ 	
+

@@ -7,7 +7,13 @@
 ##
 ## Author: Ruff_Hi
 
+
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+
 from CvPythonExtensions import *
+# <!-- custom: Route shared visual resources through the centralized SASVisualUtils namespace after retiring overlapping helper/cache imports; keep one canonical visual-resource boundary. (ChatGPT-5.6-Sol) -->
+import SASVisualUtils as SASVisuals
 import BugUtil
 
 # Constants
@@ -16,11 +22,9 @@ SOLID_MARKS = 0
 TICK_MARKS = 1
 CENTER_MARKS = 2
 
-
 # Globals
 
 ArtFileMgr = CyArtFileMgr()
-
 
 # ProgressBar Class
 
@@ -37,7 +41,6 @@ class ProgressBar:
 
 #		BugUtil.info("drawTickMarks: %s %i %i %i %i %s %i %s", id, x, y, w, h, color, marks, forward)
 
-		self.BG = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTON_NULL").getPath()
 
 		if self.marks == SOLID_MARKS:
 			self.m_y1 = 4
@@ -62,7 +65,7 @@ class ProgressBar:
 		self.line_cnt = 0
 		self.bVisible = False
 		self.barItems = []
-	
+
 	def addBarItem(self, item):
 		self.barItems.append(item)
 
@@ -85,7 +88,6 @@ class ProgressBar:
 			self._resetLineCount()
 			self._setVisible(False)
 
-
 	def hide(self, screen):
 		screen.hide(self.id)
 
@@ -95,7 +97,7 @@ class ProgressBar:
 
 		self._deleteCanvas(screen)
 
-		screen.addDrawControl(self.id, self.BG, self.x, self.y, self.w, self.h, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDrawControl(self.id, SASVisuals.InterfaceArt.INTERFACE_BUTTON_NULL, self.x, self.y, self.w, self.h, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		self._setVisible(True)
 
 		if self.forward:
@@ -106,16 +108,14 @@ class ProgressBar:
 		for item in self.barItems:
 			screen.moveToFront(item)
 
-
-
 	def _drawTickMarks_Forward(self, screen, iCurr, iTotal, iFirst, iRate, bDouble):
 		i = 1
 		iXPrev = self.w * (iCurr + iFirst) / iTotal
 		while True:
 			iX = self.w * (iCurr + iFirst + i * iRate) / iTotal
 
-			if (iX > self.w
-			or  abs(iX - iXPrev) < 5): break
+			if (iX > self.w or abs(iX - iXPrev) < 5):
+				break
 
 			self._drawline(screen, self.id, iX, self.m_y1, iX, self.m_y2, self.color, bDouble)
 			if self.marks == TICK_MARKS:
@@ -123,7 +123,6 @@ class ProgressBar:
 
 			i += 1
 			iXPrev = iX
-
 
 	def _drawTickMarks_Backward(self, screen, iCurr, iTotal, iFirst, iRate, bDouble):
 		i = 1
@@ -134,8 +133,8 @@ class ProgressBar:
 			iX = self.w * (iTotal - i * iRate) / iTotal
 #			BugUtil.debug("tick marks: %i %i %i %i %i %i", iCurr, iTotal, iFirst, iRate, iX, iMin)
 
-			if (iX < iMin
-			or  abs(iX - iXPrev) < 5): break
+			if (iX < iMin or abs(iX - iXPrev) < 5):
+				break
 
 			self._drawline(screen, self.id, iX, self.m_y1, iX, self.m_y2, self.color, bDouble)
 			if self.marks == TICK_MARKS:

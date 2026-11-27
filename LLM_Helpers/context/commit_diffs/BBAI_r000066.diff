@@ -1,0 +1,42 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 66
+# Author: iustus
+# Date: 2006-11-12T11:09:47.008445Z
+# Coverage: full
+# Message:
+#   Adjusted governor code some more
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@65
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@66
+@@ -4129,10 +4129,15 @@
+ 					int iFactorUnhealth = 51 + max(0, 49 - iUnhealthLosses);
+ 					iTempValue *= iFactorUnhealth;
+ 					iTempValue /= 100;
++					
++					// (range 8-20ish)[20ish = (6*iConsumtionPerPop)+8 - less than (2*iConsumtionPerPop) will get a big bonus
++					int iFactorSlowRate = 8 + (3 * max(0, (2 * iConsumtionPerPop) - iFoodPerTurn));
++					iTempValue *= iFactorUnhealth;
++					iTempValue /= (3 * iConsumtionPerPop) + 4;
+ 
+ 					// (range 71-100) - the faster our current rate, the less valueble adding more is
+-					int iFactorCurrentRate = 71 + max(0, 19 - iFoodPerTurn) + max(0, 10 - (2 * iFoodPerTurn));
+-					iTempValue *= iFactorCurrentRate;
++					int iFactorFastRate = 71 + max(0, 19 - iFoodPerTurn) + max(0, 10 - (2 * iFoodPerTurn));
++					iTempValue *= iFactorFastRate;
+ 					iTempValue /= 100;
+ 					
+ 					// (range 2-5ish)[5ish = iConsumtionPerPop+3] - yields less than 3 will not help us grow much
+@@ -4149,7 +4154,7 @@
+ 					iTempValue *= iFactorPop;
+ 					iTempValue /= 100;
+ 
+-					// (range 0-114) * yield
++					// (range 0-225) * yield
+ 					iValue += iTempValue;
+ 				}
+ 			}
+

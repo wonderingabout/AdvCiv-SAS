@@ -30,7 +30,7 @@ def combine():
 	for name in sortedItems:
 		if name in items:
 			values = items[name]
-			if values == None:
+			if values is None:
 				values = []
 			elif not isinstance(values, types.ListType):
 				values = [values]

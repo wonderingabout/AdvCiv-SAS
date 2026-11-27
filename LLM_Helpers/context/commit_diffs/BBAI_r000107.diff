@@ -1,0 +1,970 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 107
+# Author: iustus
+# Date: 2006-11-22T05:50:53.110095Z
+# Coverage: full
+# Message:
+#   playerAI finance changes: it no longer runs 90% research almost all the time. It will again try to keep AI_goldTarget gold on hand, but it is willing to spend 2/3rds of it if doing so will finish the current tech research. 
+#   bunch of additions so that when isFinancialTrouble it will prefer buildings that will help it. It does not build dagger units when in financial trouble. 
+#   
+#   changed some area == area checks to getArea == getArea (area IDs), this avoids a hash table lookup, which may speed up some of the pathfinding a little. When comparing areas, it is fine to compare areaIDs, there is no need to do the lookup to find the actual area classes and compare pointers.
+# Changed paths (16):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvCity.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.h
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.h
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@106
++++ /trunk/CvGameCoreDLL/CvCity.cpp@107
+@@ -4627,6 +4627,11 @@
+ }
+ 
+ 
++int CvCity::getArea() const
++{
++	return plot()->getArea();
++}
++
+ CvArea* CvCity::area() const
+ {
+ 	return plot()->area();
+@@ -9197,8 +9202,8 @@
+ 		pOrderNode = nextOrderQueueNode(pOrderNode);
+ 	}
+ 
+-  if (pOrderNode == NULL)
+-  {
++	if (pOrderNode == NULL)
++	{
+ 		return;
+ 	}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvCity.h
+--- /trunk/CvGameCoreDLL/CvCity.h@106
++++ /trunk/CvGameCoreDLL/CvCity.h@107
+@@ -232,6 +232,7 @@
+ 	CvPlotGroup* plotGroup(PlayerTypes ePlayer) const;
+ 	bool isConnectedTo(CvCity* pCity) const;															// Exposed to Python
+ 	DllExport bool isConnectedToCapital(PlayerTypes ePlayer = NO_PLAYER) const;			// Exposed to Python
++	int getArea() const;
+ 	DllExport CvArea* area() const;																						// Exposed to Python
+ 	CvArea* waterArea() const;																			// Exposed to Python
+ 
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@106
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@107
+@@ -481,33 +481,34 @@
+ 	int iCulturePressure;
+ 	int iI;
+ 
++	if (isProduction())
++	{
++		if (getProduction() > 0)
++		{
++			if (getProductionTurnsLeft() <= 3)
++			{
++				return;
++			}
++
++			if (plot()->getNumDefenders(getOwnerINLINE()) == 0)
++			{
++				eProductionUnit = getProductionUnit();
++
++				if (eProductionUnit != NO_UNIT)
++				{
++					if (GC.getUnitInfo(eProductionUnit).getCombat() > 0)
++					{
++						return;
++					}
++				}
++			}
++		}
++
++		clearOrderQueue();
++	}
++	
++	// only clear the dirty bit if we actually do a check, multiple items might be queued
+ 	AI_setChooseProductionDirty(false);
+-
+-	if (isProduction())
+-	{
+-		if (getProduction() > 0)
+-		{
+-			if (getProductionTurnsLeft() <= 3)
+-			{
+-				return;
+-			}
+-
+-			if (plot()->getNumDefenders(getOwnerINLINE()) == 0)
+-			{
+-				eProductionUnit = getProductionUnit();
+-
+-				if (eProductionUnit != NO_UNIT)
+-				{
+-					if (GC.getUnitInfo(eProductionUnit).getCombat() > 0)
+-					{
+-						return;
+-					}
+-				}
+-			}
+-		}
+-
+-		clearOrderQueue();
+-	}
+ 
+ 	// allow python to handle it
+ 	CyCity* pyCity = new CyCity(this);
+@@ -534,6 +535,9 @@
+ 
+ 	iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
+ 
++	int iBaseGoldRate = getBaseCommerceRate(COMMERCE_GOLD);
++	int iBaseResearchRate = getBaseCommerceRate(COMMERCE_RESEARCH);
++
+ 	bChooseUnit = false;
+ 
+ 	clearOrderQueue();
+@@ -677,7 +681,7 @@
+ 			}
+ 		}
+ 	}
+-
++	
+ 	if (bAssault)
+ 	{
+ 		if (pWaterArea != NULL)
+@@ -711,7 +715,7 @@
+ 		}
+ 	}
+ 
+-    if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_DAGGER))
++    if (!bFinancialTrouble && GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_DAGGER))
+     {
+         if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Train Unit") > 25)
+         {
+@@ -766,7 +770,7 @@
+ 
+ 		if (pWaterArea != NULL)
+ 		{
+-			if (bPrimaryArea)
++			if (bPrimaryArea && !bFinancialTrouble)
+ 			{
+ 				if (GET_PLAYER(getOwnerINLINE()).AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_SETTLER_SEA) == 0)
+ 				{
+@@ -884,7 +888,15 @@
+ 
+ 	if (!bLandWar)
+ 	{
+-		if (getMaintenance() >= 8)
++		if (bFinancialTrouble && iBaseGoldRate >= 12)
++		{
++			if (AI_chooseBuilding(BUILDINGFOCUS_GOLD, 40 + GET_PLAYER(getOwnerINLINE()).getCommercePercent(COMMERCE_GOLD)))
++			{
++				return;
++			}
++		}
++
++		if (getMaintenance() >= (bFinancialTrouble ? 6 : 8))
+ 		{
+ 			if (AI_chooseBuilding(BUILDINGFOCUS_MAINTENANCE, 40))
+ 			{
+@@ -916,7 +928,7 @@
+ 			}
+ 		}
+ 
+-		if (getMaintenance() >= 6)
++		if (getMaintenance() >= (bFinancialTrouble ? 4 : 6))
+ 		{
+ 			if (AI_chooseBuilding(BUILDINGFOCUS_MAINTENANCE, 60))
+ 			{
+@@ -943,11 +955,11 @@
+ 			}
+ 		}
+ 
+-		if (bFinancialTrouble)
+-		{
+-			if (getBaseCommerceRate(COMMERCE_GOLD) >= 12)
+-			{
+-				if (AI_chooseBuilding(BUILDINGFOCUS_GOLD, 40))
++		if (bFinancialTrouble || (iBaseGoldRate > 25))
++		{
++			if (iBaseGoldRate >= 12)
++			{
++				if (AI_chooseBuilding(BUILDINGFOCUS_GOLD, 30 + iBaseGoldRate))
+ 				{
+ 					return;
+ 				}
+@@ -956,9 +968,9 @@
+ 
+ 		if (!(GET_PLAYER(getOwnerINLINE()).AI_avoidScience()))
+ 		{
+-			if (getBaseCommerceRate(COMMERCE_RESEARCH) >= 12)
+-			{
+-				if (AI_chooseBuilding(BUILDINGFOCUS_RESEARCH, 40))
++			if (iBaseResearchRate >= 12)
++			{
++				if (AI_chooseBuilding(BUILDINGFOCUS_RESEARCH, 30 + iBaseResearchRate))
+ 				{
+ 					return;
+ 				}
+@@ -1043,6 +1055,15 @@
+ 		}
+ 	}
+ 
++	// we do a similar check lower, in the landwar case
++	if (!bLandWar && bFinancialTrouble)
++	{
++		if (AI_chooseBuilding(BUILDINGFOCUS_GOLD))
++		{
++			return;
++		}
++	}
++
+ 	if (bPrimaryArea)
+ 	{
+ 		if (GET_PLAYER(getOwnerINLINE()).getNumCities() > 2)
+@@ -1118,6 +1139,15 @@
+ 	if (AI_chooseProject())
+ 	{
+ 		return;
++	}
++
++	// we did the same check above if not landwar, do not repeat it here
++	if (bLandWar && bFinancialTrouble)
++	{
++		if (AI_chooseBuilding(BUILDINGFOCUS_GOLD))
++		{
++			return;
++		}
+ 	}
+ 
+ 	if (AI_chooseBuilding())
+@@ -1728,6 +1758,8 @@
+ 	iProductionRank = findBaseYieldRateRank(YIELD_PRODUCTION);
+ 	iNumCities = kOwner.getNumCities();
+ 
++	bool bFinancialTrouble = GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble();
++
+ 	bCanPopRush = false;
+ 	for (iI = 0; iI < GC.getNumHurryInfos(); ++iI)
+ 	{
+@@ -1904,9 +1936,15 @@
+ 				}
+ 			}
+ 
+-			if ((iFocusFlags & BUILDINGFOCUS_MAINTENANCE) || (iPass > 0))
+-			{
+-				iValue += ((iBaseMaintenance - ((iBaseMaintenance * max(0, (kBuilding.getMaintenanceModifier() + 100))) / 100)) * 8);
++			if ((iFocusFlags & BUILDINGFOCUS_MAINTENANCE) || (iFocusFlags & BUILDINGFOCUS_GOLD) || (iPass > 0))
++			{
++				iTempValue = ((iBaseMaintenance - ((iBaseMaintenance * max(0, (kBuilding.getMaintenanceModifier() + 100))) / 100)) * 8);
++				if (bFinancialTrouble)
++				{
++					iTempValue *= 2;
++				}
++
++				iValue += iTempValue;
+ 			}
+ 
+ 			if ((iFocusFlags & BUILDINGFOCUS_SPECIALIST) || (iPass > 0))
+@@ -2017,10 +2055,18 @@
+ 
+ 				iValue += (kBuilding.getSpaceProductionModifier() / 5);
+ 				iValue += ((kBuilding.getGlobalSpaceProductionModifier() * iNumCities) / 20);
+-
+-				iValue += (kBuilding.getTradeRoutes() * ((10 * max(0, (totalTradeModifier() + 100))) / 100));
+-				iValue += (kBuilding.getCoastalTradeRoutes() * kOwner.countNumCoastalCities() * 8);
+-				iValue += (kBuilding.getGlobalTradeRoutes() * iNumCities * 8);
++				
++				{
++				// trade routes
++				iTempValue = (kBuilding.getTradeRoutes() * ((10 * max(0, (totalTradeModifier() + 100))) / 100));
++				iTempValue += (kBuilding.getCoastalTradeRoutes() * kOwner.countNumCoastalCities() * 8);
++				iTempValue += (kBuilding.getGlobalTradeRoutes() * iNumCities * 8);
++				
++				if (iFocusFlags & BUILDINGFOCUS_GOLD || bFinancialTrouble)
++					iTempValue *= 2;
++
++				iValue += iTempValue;
++				}
+ 
+ 				if (kBuilding.getGreatPeopleUnitClass() != NO_UNITCLASS)
+ 				{
+@@ -2127,6 +2173,11 @@
+ 						}
+ 					}
+ 
++					if (bFinancialTrouble && iI == YIELD_COMMERCE)
++					{
++						iTempValue *= 2;
++					}
++
+ 					iTempValue *= kOwner.AI_yieldWeight((YieldTypes)iI);
+ 					iTempValue /= 100;
+ 
+@@ -2157,6 +2208,21 @@
+ 					{
+ 						iValue += ((getPowerYieldRateModifier(YIELD_PRODUCTION) * getBaseYieldRate(YIELD_PRODUCTION)) / 12);
+ 					}
++				}
++
++				if (iFocusFlags & BUILDINGFOCUS_GOLD)
++				{
++					iTempValue = ((kBuilding.getYieldModifier(YIELD_COMMERCE) * getBaseYieldRate(YIELD_COMMERCE)));
++					iTempValue *= kOwner.getCommercePercent(COMMERCE_GOLD);
++					
++					if (bFinancialTrouble)
++					{
++						iTempValue *= 2;
++					}
++					
++					iTempValue /= 1000;
++
++					iValue += iTempValue;
+ 				}
+ 			}
+ 
+@@ -2242,6 +2308,11 @@
+ 						}
+ 					}
+ 
++					if (bFinancialTrouble && iI == COMMERCE_GOLD)
++					{
++						iTempValue *= 2;
++					}
++
+ 					iTempValue *= kOwner.AI_commerceWeight(((CommerceTypes)iI), this);
+ 					iTempValue /= 100;
+ 
+@@ -2263,7 +2334,14 @@
+ 			{
+ 				if (iFocusFlags & BUILDINGFOCUS_GOLD)
+ 				{
+-					iValue += ((kBuilding.getCommerceModifier(COMMERCE_GOLD) * getBaseCommerceRate(COMMERCE_GOLD)) / 15);
++					iTempValue = ((kBuilding.getCommerceModifier(COMMERCE_GOLD) * getBaseCommerceRate(COMMERCE_GOLD)) / 15);
++
++					if (bFinancialTrouble)
++					{
++						iTempValue *= 2;
++					}
++
++					iValue += iTempValue;
+ 				}
+ 
+ 				if (iFocusFlags & BUILDINGFOCUS_RESEARCH)
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@106
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@107
+@@ -1103,9 +1103,10 @@
+ 
+ 		if (pSelectionGroup->getDomainType() == DOMAIN_LAND)
+ 		{
+-			if (pToPlot->area() != pSelectionGroup->area())
++			int iGroupAreaID = pSelectionGroup->getArea();
++			if (pToPlot->getArea() != iGroupAreaID)
+ 			{
+-				if (!(pToPlot->isAdjacentToArea(pSelectionGroup->area())))
++				if (!(pToPlot->isAdjacentToArea(iGroupAreaID)))
+ 				{
+ 					return FALSE;
+ 				}
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@106
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@107
+@@ -857,7 +857,7 @@
+ 
+ 						if (pLoopPlot != NULL)
+ 						{
+-							if (pLoopPlot->area() == pStartingPlot->area())
++							if (pLoopPlot->getArea() == pStartingPlot->getArea())
+ 							{
+ 								if (!(pLoopPlot->isImpassable()))
+ 								{
+@@ -934,7 +934,7 @@
+ 
+ 	if (pStartingPlot != NULL)
+ 	{
+-		if (pStartingPlot->area() == pPlot->area())
++		if (pStartingPlot->getArea() == pPlot->getArea())
+ 		{
+ 			if (GC.getGameINLINE().isTeamGame())
+ 			{
+@@ -2776,7 +2776,7 @@
+ 
+ 	for (pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+ 	{
+-		if (pLoopUnit->area() == pArea)
++		if (pLoopUnit->getArea() == pArea->getID())
+ 		{
+ 			if (GC.getUnitInfo(pLoopUnit->getUnitType()).getReligionSpreads(eReligion))
+ 			{
+@@ -2816,12 +2816,13 @@
+ 	int iLoop;
+ 
+ 	iCount = 0;
+-
++	
++	int iAreaID = pArea->getID();
+ 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 	{
+ 		if (pLoopCity->isCoastal(GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN")))
+ 		{
+-			if ((pLoopCity->area() == pArea) || pLoopCity->plot()->isAdjacentToArea(pArea))
++			if ((pLoopCity->getArea() == iAreaID) || pLoopCity->plot()->isAdjacentToArea(iAreaID))
+ 			{
+ 				iCount++;
+ 			}
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@106
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@107
+@@ -182,6 +182,8 @@
+ 	}
+ 	
+ 	m_iStrategyHash = 0;
++
++	m_bWasFinancialTrouble = false;
+ }
+ 
+ 
+@@ -217,6 +219,29 @@
+ 	AI_doCivics();
+ 
+ 	AI_doReligion();
++
++	AI_doCheckFinancialTrouble();
++
++#ifdef NO_WAY_THIS_DEFINED
++	// debugging
++	if (false)
++	{
++		// finish all builds
++		if (false)
++		{
++			int iLoop = 0;
++			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++			{
++				pLoopCity->changeProduction(pLoopCity->productionLeft());
++			}
++		}
++
++		if (false)
++		{
++			AI_makeProductionDirty();
++		}
++	}
++#endif
+ 
+ 	if (isBarbarian())
+ 	{
+@@ -7217,7 +7242,25 @@
+ 
+     if (isCommerceFlexible(COMMERCE_RESEARCH) && !AI_avoidScience())
+ 	{
+-        setCommercePercent(COMMERCE_RESEARCH, 100);
++        // set research rate to 90%
++		setCommercePercent(COMMERCE_RESEARCH, 100 - (GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")));
++		
++		// if the gold rate is under 0 at 90% research
++		int iGoldRate = calculateGoldRate();
++		if (iGoldRate < 0)
++		{
++			TechTypes eCurrentResearch = getCurrentResearch();
++			if (eCurrentResearch != NO_TECH)
++			{
++				int iResearchTurnsLeft = getResearchTurnsLeft(eCurrentResearch, true);
++				
++				// if we can finish the current research without running out of gold, let us spend 2/3rds of our gold 
++				if (getGold() >= iResearchTurnsLeft * iGoldRate)
++				{
++					iGoldTarget /= 3;
++				}
++			}
++		}
+ 	}
+ 
+ 	if (isCommerceFlexible(COMMERCE_CULTURE))
+@@ -7280,7 +7323,7 @@
+ 				{
+ 					changeCommercePercent(COMMERCE_RESEARCH, -(GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")));
+ 
+-					if ((getCommercePercent(COMMERCE_RESEARCH) == 0) || !AI_avoidScience())
++					if ((getCommercePercent(COMMERCE_RESEARCH) == 0))
+ 					{
+ 						break;
+ 					}
+@@ -7305,6 +7348,9 @@
+ 			}
+ 		}
+ 	}
++	
++	// this is called on doTurn, so make sure our gold is high enough keep us above zero gold.
++	verifyGoldCommercePercent();
+ }
+ 
+ 
+@@ -8852,6 +8898,22 @@
+ 	}
+ }
+ 
++
++void CvPlayerAI::AI_doCheckFinancialTrouble()
++{
++	// if we just ran into financial trouble this turn
++	bool bFinancialTrouble = AI_isFinancialTrouble();
++	if (bFinancialTrouble != m_bWasFinancialTrouble)
++	{
++		if (bFinancialTrouble)
++		{
++			// redeterimine the best things to build
++			AI_makeProductionDirty();
++		}
++		
++		m_bWasFinancialTrouble = bFinancialTrouble;
++	}
++}
+ 
+ int CvPlayerAI::AI_getCultureVictoryStage()
+ {
+@@ -9095,6 +9157,23 @@
+ }
+ 
+ 
++void CvPlayerAI::AI_nowHasTech(TechTypes eTech)
++{
++	// while its _possible_ to do checks, for financial trouble, and this tech adds financial buildings
++	// if in war and this tech adds important war units
++	// etc
++	// it makes more sense to just redetermine what to produce
++	// that is already done every time a civ meets a new civ, it makes sense to do it when a new tech is learned
++	// if this is changed, then at a minimum, AI_isFinancialTrouble should be checked
++	if (!isHuman())
++	{
++		// redeterimine the best things to build in each city
++		AI_makeProductionDirty();
++	}
++
++}
++
++
+ //
+ // read object from a stream
+ // used during load
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.h
+--- /trunk/CvGameCoreDLL/CvPlayerAI.h@106
++++ /trunk/CvGameCoreDLL/CvPlayerAI.h@107
+@@ -225,6 +225,8 @@
+ 	int AI_getCultureVictoryStage();
+ 	
+ 	bool AI_isDoStrategy(int iStrategy);
++
++	void AI_nowHasTech(TechTypes eTech);
+ 	
+ 	
+ 
+@@ -260,12 +262,15 @@
+ 	int** m_aaiContactTimer;
+ 	int** m_aaiMemoryCount;
+ 
++	bool m_bWasFinancialTrouble;
++
+ 	void AI_doCounter();
+ 	void AI_doMilitary();
+ 	void AI_doResearch();
+ 	void AI_doCivics();
+ 	void AI_doReligion();
+ 	void AI_doDiplo();
++	void AI_doCheckFinancialTrouble();
+ 	
+ 	int AI_getStrategyHash();
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@106
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@107
+@@ -1087,7 +1087,7 @@
+ }
+ 
+ 
+-bool CvPlot::isAdjacentToArea(const CvArea* pArea) const
++bool CvPlot::isAdjacentToArea(int iAreaID) const
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -1100,7 +1100,7 @@
+ 
+ 		if (pAdjacentPlot != NULL)
+ 		{
+-			if (pAdjacentPlot->area() == pArea)
++			if (pAdjacentPlot->getArea() == iAreaID)
+ 			{
+ 				return true;
+ 			}
+@@ -1110,17 +1110,22 @@
+ 	return false;
+ }
+ 
++bool CvPlot::isAdjacentToArea(const CvArea* pArea) const
++{
++	return isAdjacentToArea(pArea->getID());
++}
++
+ 
+ bool CvPlot::shareAdjacentArea(const CvPlot* pPlot) const
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvArea* pCurrArea;
+-	CvArea* pLastArea;
++	int iCurrArea;
++	int iLastArea;
+ 	CvPlot* pAdjacentPlot;
+ 	int iI;
+ 
+-	pLastArea = NULL;
++	iLastArea = FFreeList::INVALID_INDEX;
+ 
+ 	for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+ 	{
+@@ -1128,23 +1133,22 @@
+ 
+ 		if (pAdjacentPlot != NULL)
+ 		{
+-			pCurrArea = pAdjacentPlot->area();
+-
+-			if (pCurrArea != pLastArea)
+-			{
+-				if (pPlot->isAdjacentToArea(pCurrArea))
++			iCurrArea = pAdjacentPlot->getArea();
++
++			if (iCurrArea != iLastArea)
++			{
++				if (pPlot->isAdjacentToArea(iCurrArea))
+ 				{
+ 					return true;
+ 				}
+ 
+-				pLastArea = pCurrArea;
++				iLastArea = iCurrArea;
+ 			}
+ 		}
+ 	}
+ 
+ 	return false;
+ }
+-
+ 
+ bool CvPlot::isAdjacentToLand() const
+ {
+
+Index: /trunk/CvGameCoreDLL/CvPlot.h
+--- /trunk/CvGameCoreDLL/CvPlot.h@106
++++ /trunk/CvGameCoreDLL/CvPlot.h@107
+@@ -76,6 +76,7 @@
+ 	DllExport bool isAdjacentPlotGroupConnectedBonus(PlayerTypes ePlayer, BonusTypes eBonus) const;				// Exposed to Python
+ 	void updatePlotGroupBonus(bool bAdd);
+ 
++	bool isAdjacentToArea(int iAreaID) const;
+ 	bool isAdjacentToArea(const CvArea* pArea) const;																						// Exposed to Python
+ 	bool shareAdjacentArea( const CvPlot* pPlot) const;																					// Exposed to Python
+ 	bool isAdjacentToLand() const;																															// Exposed to Python 
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@106
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@107
+@@ -2243,6 +2243,22 @@
+ }
+ 
+ 
++int CvSelectionGroup::getArea() const
++{
++	CvUnit* pHeadUnit;
++
++	pHeadUnit = getHeadUnit();
++
++	if (pHeadUnit != NULL)
++	{
++		return getHeadUnit()->getArea();
++	}
++	else
++	{
++		return NULL;
++	}
++}
++
+ CvArea* CvSelectionGroup::area() const
+ {
+ 	CvUnit* pHeadUnit;
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.h@106
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.h@107
+@@ -75,6 +75,7 @@
+ 	bool at(int iX, int iY) const;																																								// Exposed to Python
+ 	bool atPlot(const CvPlot* pPlot) const;																																				// Exposed to Python
+ 	DllExport CvPlot* plot() const;																																								// Exposed to Python
++	int getArea() const;
+ 	CvArea* area() const;																																													// Exposed to Python
+ 	DomainTypes getDomainType() const;
+ 
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@106
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@107
+@@ -4113,6 +4113,9 @@
+ 					{
+ 						GET_PLAYER((PlayerTypes)iI).popResearch(eIndex);
+ 					}
++					
++					// notify the player they now have the tech, if they want to make immediate changes
++					GET_PLAYER((PlayerTypes)iI).AI_nowHasTech(eIndex);
+ 				}
+ 			}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@106
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@107
+@@ -2453,7 +2453,7 @@
+ 		}
+ 	}
+ 
+-	if (iCount > 0)
++	if (iCount > 1)
+ 	{
+ 		iRand /= iCount;
+ 	}
+@@ -2483,7 +2483,7 @@
+ 		}
+ 	}
+ 
+-	if (iCount > 0)
++	if (iCount > 1)
+ 	{
+ 		iRand /= iCount;
+ 	}
+@@ -2663,7 +2663,7 @@
+ 		}
+ 	}
+ 
+-	if (iCount > 0)
++	if (iCount > 1)
+ 	{
+ 		iProb /= iCount;
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@106
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@107
+@@ -7434,11 +7434,16 @@
+ }
+ 
+ 
++int CvUnit::getArea() const
++{
++	return plot()->getArea();
++}
++
++
+ CvArea* CvUnit::area() const
+ {
+ 	return plot()->area();
+ }
+-
+ 
+ bool CvUnit::onMap() const
+ {
+
+Index: /trunk/CvGameCoreDLL/CvUnit.h
+--- /trunk/CvGameCoreDLL/CvUnit.h@106
++++ /trunk/CvGameCoreDLL/CvUnit.h@107
+@@ -394,6 +394,7 @@
+ 	bool at(int iX, int iY) const;																														// Exposed to Python
+ 	DllExport bool atPlot(const CvPlot* pPlot) const;																					// Exposed to Python
+ 	DllExport CvPlot* plot() const;																														// Exposed to Python
++	int getArea() const;																																			// Exposed to Python
+ 	CvArea* area() const;																																			// Exposed to Python
+ 	bool onMap() const;
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@106
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@107
+@@ -2092,6 +2092,21 @@
+ void CvUnitAI::AI_cityDefenseMove()
+ {
+ 	PROFILE_FUNC();
++	
++#ifdef NO_WAY_THIS_IS_DEFINED
++	// debugging
++	if (true)
++	{
++		CvSelectionGroup* pThisGroup = getGroup();
++		int iCount = pThisGroup->getNumUnits();
++		CvUnit* pHeadUnit = pThisGroup->getHeadUnit();
++		CvCity* pCity = plot()->getPlotCity();
++
++		if (pThisGroup == NULL)
++			iCount *= 1;
++	}
++#endif
++
+ 
+ 	if (AI_chokeDefend())
+ 	{
+@@ -4558,57 +4573,60 @@
+ 	iBestValue = MAX_INT;
+ 	pBestUnit = NULL;
+ 
++	CvSelectionGroup* pThisGroup = getGroup();
+ 	for(pLoopUnit = GET_PLAYER(getOwnerINLINE()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(getOwnerINLINE()).nextUnit(&iLoop))
+ 	{
+ 		if (pLoopUnit != this)
+ 		{
+-			CvPlot* pPlot = pLoopUnit->plot();
+-			if (AI_plotValid(pPlot))
+-			{
+-			    if (((iMaxPath > 0) || (pPlot == plot())) && (pLoopUnit->isGroupHead()))
++			CvSelectionGroup* pLoopGroup = pLoopUnit->getGroup();
++			if (pLoopGroup != pThisGroup)
++			{
++				CvPlot* pPlot = pLoopUnit->plot();
++				if (AI_plotValid(pPlot))
+ 				{
+-					if (!(pLoopUnit->isCargo()))
++					if (((iMaxPath > 0) || (pPlot == plot())) && (pLoopUnit->isGroupHead()))
+ 					{
+-						if (pLoopUnit->AI_getUnitAIType() == eUnitAI)
++						if (!(pLoopUnit->isCargo()))
+ 						{
+-						    if (!atWar(pPlot->getTeam(), getTeam()))
+-						    {
+-								CvSelectionGroup* pLoopGroup = pLoopUnit->getGroup();
+-
+-								// do not attempt to join groups which are healing this turn
+-								// (healing is cleared every turn for automated groups, so we know we pushed a heal this turn)
+-								if (pLoopGroup->getActivityType() != ACTIVITY_HEAL && canJoinGroup(pPlot, pLoopGroup))
+-                                {
+-                                    if ((iMaxGroup == -1) || ((pLoopGroup->getNumUnits() + GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(pLoopUnit, MISSIONAI_GROUP, getGroup())) <= (iMaxGroup + ((bStackOfDoom) ? AI_stackOfDoomExtra() : 0))))
+-                                    {
+-                                        if ((iMaxOwnUnitAI == -1) || (pLoopGroup->countNumUnitAIType(AI_getUnitAIType()) <= (iMaxOwnUnitAI + ((bStackOfDoom) ? AI_stackOfDoomExtra() : 0))))
+-                                        {
+-                                            if ((iMinUnitAI == -1) || (pLoopGroup->countNumUnitAIType(eUnitAI) >= iMinUnitAI))
+-                                            {
+-                                                if (!bIgnoreFaster || (pLoopGroup->baseMoves() <= baseMoves()))
+-                                                {
+-                                                    if (!bIgnoreOwnUnitType || (pLoopUnit->getUnitType() != getUnitType()))
+-                                                    {
+-                                                        if (!(pPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+-                                                        {
+-                                                            if (generatePath(pPlot, 0, true, &iPathTurns))
+-                                                            {
+-                                                                if (iPathTurns <= iMaxPath)
+-                                                                {
+-                                                                    iValue = iPathTurns;
+-
+-                                                                    if (iValue < iBestValue)
+-                                                                    {
+-																		iBestValue = iValue;
+-                                                                        pBestUnit = pLoopUnit;
+-                                                                    }
+-                                                                }
+-                                                            }
+-                                                        }
+-                                                    }
+-                                                }
+-                                            }
+-                                        }
++							if (pLoopUnit->AI_getUnitAIType() == eUnitAI)
++							{
++								if (!atWar(pPlot->getTeam(), getTeam()))
++								{
++									// do not attempt to join groups which are healing this turn
++									// (healing is cleared every turn for automated groups, so we know we pushed a heal this turn)
++									if (pLoopGroup->getActivityType() != ACTIVITY_HEAL && canJoinGroup(pPlot, pLoopGroup))
++									{
++										if ((iMaxGroup == -1) || ((pLoopGroup->getNumUnits() + GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(pLoopUnit, MISSIONAI_GROUP, getGroup())) <= (iMaxGroup + ((bStackOfDoom) ? AI_stackOfDoomExtra() : 0))))
++										{
++											if ((iMaxOwnUnitAI == -1) || (pLoopGroup->countNumUnitAIType(AI_getUnitAIType()) <= (iMaxOwnUnitAI + ((bStackOfDoom) ? AI_stackOfDoomExtra() : 0))))
++											{
++												if ((iMinUnitAI == -1) || (pLoopGroup->countNumUnitAIType(eUnitAI) >= iMinUnitAI))
++												{
++													if (!bIgnoreFaster || (pLoopGroup->baseMoves() <= baseMoves()))
++													{
++														if (!bIgnoreOwnUnitType || (pLoopUnit->getUnitType() != getUnitType()))
++														{
++															if (!(pPlot->isVisibleEnemyUnit(getOwnerINLINE())))
++															{
++																if (generatePath(pPlot, 0, true, &iPathTurns))
++																{
++																	if (iPathTurns <= iMaxPath)
++																	{
++																		iValue = iPathTurns;
++
++																		if (iValue < iBestValue)
++																		{
++																			iBestValue = iValue;
++																			pBestUnit = pLoopUnit;
++																		}
++																	}
++																}
++															}
++														}
++													}
++												}
++											}
++										}
+ 									}
+ 								}
+ 							}
+@@ -4636,7 +4654,9 @@
+ 					szBestUnitName.GetCString(), ShortenID(pBestUnit->getID()), 
+ 					ShortenID(pBestGroup->getID()), pBestGroup->getNumUnits(), pBestGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
+ 			}
++			CvCity* pCity = plot()->getPlotCity();
+ #endif
++
+ 			joinGroup(pBestUnit->getGroup());
+ 			return true;
+ 		}
+@@ -4755,8 +4775,10 @@
+ 					szBestUnitName.GetCString(), ShortenID(pBestUnit->getID()), 
+ 					ShortenID(pBestGroup->getID()), pBestGroup->getNumUnits(), pBestGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
+ 			}
++			CvCity* pCity = plot()->getPlotCity();
+ #endif
+-			pGroup->mergeIntoGroup(pBestUnit->getGroup()); // note, this moves just us, not our whole group into the new group, is this intended??
++
++			pGroup->mergeIntoGroup(pBestUnit->getGroup()); 
+ 			return true;
+ 		}
+ 		else
+@@ -10632,7 +10654,7 @@
+ 		break;
+ 
+ 	case DOMAIN_LAND:
+-		if (pPlot->area() == area())
++		if (pPlot->getArea() == getArea())
+ 		{
+ 			return true;
+ 		}
+

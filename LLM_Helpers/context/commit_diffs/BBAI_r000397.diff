@@ -1,0 +1,57 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 397
+# Author: jdog5000
+# Date: 2008-10-26T06:43:49.944391Z
+# Coverage: full
+# Message:
+#   (no message)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@396
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@397
+@@ -1192,29 +1192,25 @@
+     		return;
+     	}
+     }
+-    /********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						10/25/08		jdog5000		*/
+-	/**																				*/
+-	/**		City AI																	*/
+-	/********************************************************************************/
+-	/* original BTS code
+-	if (bMaybeWaterArea)
++    
++    if (bMaybeWaterArea)
+ 	{
+ 		if (kPlayer.AI_getNumTrainAIUnits(UNITAI_ATTACK_SEA) + kPlayer.AI_getNumTrainAIUnits(UNITAI_PIRATE_SEA) + kPlayer.AI_getNumTrainAIUnits(UNITAI_RESERVE_SEA) < 3)
+ 		{
++			/********************************************************************************/
++			/**		BETTER_BTS_AI_MOD						10/25/08		jdog5000		*/
++			/**																				*/
++			/**		City AI																	*/
++			/********************************************************************************/
++			/* original BTS code
+ 			if ((bMaybeWaterArea && kPlayer.AI_getWaterDanger(plot(), 4) > 0)
+ 				|| (pWaterArea != NULL && bPrimaryArea && kPlayer.AI_countNumAreaHostileUnits(pWaterArea, true, false, false, false) > 0))
+-
+-	*/
+-    if (bMaybeWaterArea)
+-	{
+-		if (kPlayer.AI_getNumTrainAIUnits(UNITAI_ATTACK_SEA) + kPlayer.AI_getNumTrainAIUnits(UNITAI_PIRATE_SEA) + kPlayer.AI_getNumTrainAIUnits(UNITAI_RESERVE_SEA) < 3)
+-		{
++			*/
+ 			if ((bMaybeWaterArea && bWaterDanger)
+ 				|| (pWaterArea != NULL && bPrimaryArea && kPlayer.AI_countNumAreaHostileUnits(pWaterArea, true, false, false, false) > 0))
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						END								*/
+-	/********************************************************************************/	
++			/********************************************************************************/
++			/**		BETTER_BTS_AI_MOD						END								*/
++			/********************************************************************************/	
+ 			{
+ 				if (AI_chooseUnit(UNITAI_ATTACK_SEA))
+ 				{
+

@@ -1,0 +1,50 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 364
+# Author: iustus
+# Date: 2007-02-15T03:10:42.888252Z
+# Coverage: full
+# Message:
+#   new governor changes (still disabled)
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@363
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@364
+@@ -925,7 +925,7 @@
+ 	int iCanChangeMax = pCitizen->iMax - iCannotChangeCount;
+ 
+ 	// is this the worst food we can remove? (once we remove one, do not look at lower values for low food)
+-	if (iCanChangeCount > 0 && (iLowestFood < 0 || iFood < iLowestFood))
++	if (iCanChangeCount > 0 && (iLowestFood < 0 || iFood <= iLowestFood))
+ 	{
+ 		iLowestFood = iFood;
+ 		irLowestFood = ir;
+@@ -1416,7 +1416,7 @@
+ 			int iHurryCostModifier = getHurryCostModifier(/*bIgnoreNew*/ true);
+ 			int iSlaveryValue = iGovernor_ProductionWeight * iBestProductionPerPopulation * iConsumtionPerPop * iPopulation * 100;
+ 			iSlaveryValue *= bIsNoUnhappiness ? 125 : 100;
+-			iSlaveryValue /= iFoodToGrow * iFoodConsumption * iHurryCostModifier * 100;
++			iSlaveryValue /= iFoodToGrow * max(1, iFoodConsumption) * iHurryCostModifier * 100;
+ 			
+ 			// if we have to grow too much to actually use slavery on this build, then value slavery bonus much less
+ 			int iExtraPopNeeded = max(0, (iHurryPopulation * 2) - iPopulation);
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@363
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@364
+@@ -2633,6 +2633,11 @@
+ 
+ #ifdef NEW_CITY_GOVERNOR
+ 	CvGovernorValues& governorValues = pCityAI->m_governorValues;
++
++	szString += CvWString::format(L"%df, %dp, %dc(%dg,%dr,%dc)\n", governorValues.yieldModifiers.aiYield[YIELD_FOOD], 
++		governorValues.yieldModifiers.aiYield[YIELD_PRODUCTION], governorValues.yieldModifiers.aiYield[YIELD_COMMERCE], 
++		governorValues.yieldModifiers.aiCommerce[COMMERCE_GOLD], governorValues.yieldModifiers.aiCommerce[COMMERCE_RESEARCH], 
++		governorValues.yieldModifiers.aiCommerce[COMMERCE_CULTURE]);
+ 
+ 	szString += CvWString::format(L"%df", governorValues.yieldValues.aiYield[YIELD_FOOD]);
+ 	if (governorValues.iExtraFoodValue > 0)
+

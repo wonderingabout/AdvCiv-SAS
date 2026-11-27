@@ -35,7 +35,7 @@
 		<Italian>%s1_Player ha fondato %s2_City in una terra lontana.</Italian>
 		<Spanish>%s1_Player ha fundado %s2_City en una tierra lejana.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_MORECIV4LERTS_POP_EXCEEDS_LIMIT</Tag>
 		<English>[COLOR_WARNING_TEXT]Your population: %d1 (%s2) exceeds the Domination Limit: %d3 (%s4)[COLOR_REVERT]</English>
@@ -84,7 +84,7 @@
 		<Italian>[COLOR_WARNING_TEXT]Il tuo territorio: %d1 (%s2) è vicino al limite di dominazione: %d3 (%s4)[COLOR_REVERT]</Italian>
 		<Spanish>[COLOR_WARNING_TEXT]Tu territorio: %d1 (%s2) está cerca del límite de dominación: %d3 (%s4)[COLOR_REVERT]</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_MORECIV4LERTS_NEW_TECH_AVAIL</Tag>
 		<English>[COLOR_TECH_TEXT]%s1 will trade %s2[COLOR_REVERT]</English>
@@ -139,7 +139,7 @@
 		<Italian>[COLOR_TECH_TEXT]Commercerà la mappa: %s1[COLOR_REVERT]</Italian>
 		<Spanish>[COLOR_TECH_TEXT]%s1 comerciará su mapa[COLOR_REVERT]</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_MORECIV4LERTS_OPEN_BORDERS</Tag>
 		<English>[COLOR_TECH_TEXT]Will Sign Open Borders: %s1[COLOR_REVERT]</English>

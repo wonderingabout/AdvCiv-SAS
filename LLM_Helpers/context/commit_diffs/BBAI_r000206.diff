@@ -1,0 +1,161 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 206
+# Author: blakeciv
+# Date: 2006-12-19T02:37:20.482624Z
+# Coverage: full
+# Message:
+#   Refined the CvCityAI aspect of AI_yieldMultipliers, it now properly caches the stuff. Moved the war-hammer priortizing to the appropriate place.
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@205
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@206
+@@ -242,6 +242,9 @@
+ 			setWorkingPlot(iI, false);
+ 		}
+ 	}
++	
++	//update the special yield multiplier to be current
++	AI_updateSpecialYieldMultiplier();
+ 	
+ 	// remove any plots we can no longer work for any reason
+ 	verifyWorkingPlots();
+@@ -5659,19 +5662,6 @@
+ 
+ 	// value production medium(15)
+ 	iProductionValue += (adjustedYIELD_PRODUCTION * 15);
+-	
+-	// non-human production value increase
+-	if (adjustedYIELD_PRODUCTION != 0 && !isHuman())
+-	{
+-		AreaAITypes eAreaAIType = area()->getAreaAIType(getTeam());
+-		
+-		if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_DAGGER)
+-			|| (eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) 
+-			|| (eAreaAIType == AREAAI_MASSING) || (eAreaAIType == AREAAI_ASSAULT))
+-		{
+-			iProductionValue += (adjustedYIELD_PRODUCTION * 9);
+-		}
+-	}
+ 	
+ 	// value commerce low(4)
+ 	iCommerceValue += (aiYields[YIELD_COMMERCE] * 4);
+@@ -6996,56 +6986,55 @@
+ 	
+ 	return iMultiplier;	
+ }
++//this should be called before doing governor stuff.
++void CvCityAI::AI_updateSpecialYieldMultiplier()
++{
++	PROFILE_FUNC();
++	int m_aiSpecialYieldMultiplier[NUM_YIELD_TYPES];
++	
++	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
++	{
++		m_aiSpecialYieldMultiplier[iI] = 0;
++	}
++	
++	UnitAITypes eProductionUnitAI = getProductionUnitAI();
++	if (eProductionUnitAI != NO_UNITAI)
++	{
++		if (eProductionUnitAI == UNITAI_WORKER_SEA)
++		{
++			m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 100;
++			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 50;				
++		}
++	}
++
++	BuildingTypes eProductionBuilding = getProductionBuilding();
++	if (eProductionBuilding != NO_BUILDING)
++	{
++		if (isWorldWonderClass((BuildingClassTypes)(GC.getBuildingInfo(eProductionBuilding).getBuildingClassType())))
++		{
++			m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 50;
++			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 25;					
++		}
++	}
++	
++	// non-human production value increase
++	if (!isHuman())
++	{
++		AreaAITypes eAreaAIType = area()->getAreaAIType(getTeam());
++		
++		if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_DAGGER)
++			|| (eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) 
++			|| (eAreaAIType == AREAAI_MASSING) || (eAreaAIType == AREAAI_ASSAULT))
++		{
++			m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 40;
++			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 30;	
++		}
++	}
++}
+ 
+ int CvCityAI::AI_specialYieldMultiplier(YieldTypes eYield)
+ {
+-	PROFILE_FUNC();
+-	int iMultiplier = 0;
+-
+-	if (eYield == YIELD_PRODUCTION)
+-	{
+-		UnitAITypes eProductionUnitAI = getProductionUnitAI();
+-		if (eProductionUnitAI != NO_UNITAI)
+-		{
+-			if (eProductionUnitAI == UNITAI_WORKER_SEA)
+-			{
+-				iMultiplier += 100;				
+-			}
+-		}
+-		
+-		BuildingTypes eProductionBuilding = getProductionBuilding();
+-		if (eProductionBuilding != NO_BUILDING)
+-		{
+-			if (isWorldWonderClass((BuildingClassTypes)(GC.getBuildingInfo(eProductionBuilding).getBuildingClassType())))
+-			{
+-				iMultiplier += 50;				
+-			}
+-		}
+-	}
+-	else if (eYield == YIELD_COMMERCE)
+-	{
+-		UnitAITypes eProductionUnitAI = getProductionUnitAI();
+-		if (eProductionUnitAI != NO_UNITAI)
+-		{
+-			if (eProductionUnitAI == UNITAI_WORKER_SEA)
+-			{
+-				iMultiplier -= 60;				
+-			}
+-		}
+-		
+-		BuildingTypes eProductionBuilding = getProductionBuilding();
+-		if (eProductionBuilding != NO_BUILDING)
+-		{
+-			if (isWorldWonderClass((BuildingClassTypes)(GC.getBuildingInfo(eProductionBuilding).getBuildingClassType())))
+-			{
+-				iMultiplier -= 25;				
+-			}
+-		}
+-	}
+-	
+-	
+-	return iMultiplier;	
+-	
++	return m_aiSpecialYieldMultiplier[eYield];
+ }
+ 
+ 
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@205
++++ /trunk/CvGameCoreDLL/CvCityAI.h@206
+@@ -96,6 +96,7 @@
+     int AI_getCityImportance(bool bEconomy, bool bMilitary);
+     
+     int AI_yieldMultiplier(YieldTypes eYield);
++    void AI_updateSpecialYieldMultiplier();
+     int AI_specialYieldMultiplier(YieldTypes eYield);
+     
+     int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold, bool bLand = true, bool bWater = true);
+

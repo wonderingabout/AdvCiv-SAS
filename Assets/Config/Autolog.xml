@@ -12,12 +12,12 @@
 	 version="1.2" 
 	 date="12/06/2005"
 	 url="http://forums.civfanatics.com/showthread.php?t=141164">
-	 
+
 	<options id="Autolog" file="Autolog.ini">
 		<section id="Autolog">
 			<!-- Move this outside of INI once Mod objects hold options -->
 			<option id="LoggingOn" type="boolean" default="False"/>
-			
+
 			<option id="Enabled" key="Enabled" 
 					type="boolean" default="False" 
 					get="isEnabled" set="setEnabled" 
@@ -28,7 +28,7 @@
 					get="isSilent" set="setSilent" 
 					label="Start Automatically" 
 					help="When checked, the logger is automatically started with no in-game message."/>
-			
+
 			<!-- Log file -->
 			<option id="DefaultFileName" key="Default File Name" 
 					type="boolean" default="True" 
@@ -51,7 +51,7 @@
 					help="Name of log file. If there is no file of this name in the directory above, one will be created.">
 				<change module="autologEventManager" function="setFileName"/>
 			</option>
-			
+
 			<!-- Log format -->
 			<list   id="Format" key="Format Style" 
 					type="int" default="2" listType="string" 
@@ -81,9 +81,9 @@
 					get="getPrefix" set="setPrefix" 
 					label="Prefix" 
 					help="Used as a prefix before user entries in the log [use ALT + E], e.g. your nick."/>
-			
+
 			<!-- Events to log -->
-			
+
 			<!-- Research and Builds -->
 			<option id="LogTech" key="Tech" 
 					type="boolean" default="True" and="LoggingOn" 
@@ -116,7 +116,7 @@
 					get="isLogSliders" set="setLogSliders" 
 					label="Sliders" 
 					help="When checked, will log the sliders each turn."/>
-			
+
 			<!-- Cities -->
 			<option id="LogCityFounded" key="City Founded" 
 					type="boolean" default="True" and="LoggingOn" 
@@ -148,7 +148,7 @@
 					get="isLogCityWhipStatus" set="setLogCityWhipStatus" 
 					label="City Whip" 
 					help="When checked, will log when you whip a city or when the whip anger decreases in a city."/>
-			
+
 			<!-- Game Events -->
 			<option id="LogGoodies" key="Goodies" 
 					type="boolean" default="True" and="LoggingOn" 
@@ -175,7 +175,7 @@
 					get="isLogGoldenAge" set="setLogGoldenAge" 
 					label="Golden Age" 
 					help="When checked, will log begin and end of your Golden Ages."/>
-			
+
 			<!-- Politics -->
 			<option id="LogContact" key="Contact" 
 					type="boolean" default="True" and="LoggingOn" 
@@ -202,7 +202,7 @@
 					get="isLogCivics" set="setLogCivics" 
 					label="Civics" 
 					help="When checked, will log any change in civics of civs known to you."/>
-			
+
 			<!-- Combat -->
 			<option id="LogCombat" key="Combat" 
 					type="boolean" default="True" and="LoggingOn" 
@@ -253,12 +253,12 @@
 					help="When checked, will log AI requests to stop trading with a third party and your responses."/>
 		</section>
 	</options>
-	
+
 	<events>
 		<!--arg name="toggleKey" type="key" value="Alt L"/>
 		<arg name="entryKey" type="key" value="Alt E"/-->
 	</events>
-	
+
 	<gameutils listener="doPillageGoldListener"/>
-	
+
 </mod>

@@ -1,0 +1,224 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 81
+# Author: iustus
+# Date: 2006-11-15T16:04:03.339035Z
+# Coverage: full
+# Message:
+#   Governor tweaks, all the emphasize buttons should now work better, including how they affect specialists
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@80
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@81
+@@ -344,7 +344,7 @@
+ 				// since the UI does not let you specify emp gold, let emp commerce include gold 
+ 				((CommerceTypes)iI == COMMERCE_GOLD && AI_isEmphasizeYield(YIELD_COMMERCE)))
+ 			{
+-				iTempValue += (iCommerce * 16);
++				iTempValue += (iCommerce * 20);
+ 			}
+ 
+ 			if ((CommerceTypes)iI == COMMERCE_CULTURE)
+@@ -370,7 +370,7 @@
+ 
+ 		if (AI_isEmphasizeGreatPeople())
+ 		{
+-			iTempValue += (iGreatPeopleRate * 16);
++			iTempValue += (iGreatPeopleRate * 32);
+ 		}
+ 
+         if (!isHuman())
+@@ -3973,7 +3973,7 @@
+ {
+ 	int iNetFood = piYields[YIELD_FOOD] - GC.getFOOD_CONSUMPTION_PER_POPULATION();
+ 
+-	if (iNetFood <= 0)
++	if (iNetFood < 0)
+ 	{
+  		if (piYields[YIELD_FOOD] == 0)
+ 		{
+@@ -4090,6 +4090,10 @@
+ 	int iValue;
+ 	int iI;
+ 
++	int iYieldResearch = 0;
++	bool bEmphasizeFood = AI_isEmphasizeYield(YIELD_FOOD);
++	bool bFoodIsProduction = isFoodProduction();
++
+ 	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 	{
+ 		if (piYields[iI] == 0)
+@@ -4113,15 +4117,21 @@
+ 
+ 			if (iI == YIELD_COMMERCE)
+ 			{
+-				int iNewCommerceComponent = 0;
+-				int iOldCommerceComponent = 0;
++				int iNewCommerceSum = 0;
++				int iOldCommerceSum = 0;
+ 				for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
+ 				{
+-					iNewCommerceComponent += (getCommerceFromPercent((CommerceTypes)iJ, iNewCityYield) * getTotalCommerceRateModifier((CommerceTypes)iJ)) / 100;
+-					iOldCommerceComponent += (getCommerceFromPercent((CommerceTypes)iJ, iOldCityYield) * getTotalCommerceRateModifier((CommerceTypes)iJ)) / 100;
+-				}
+-
+-				aiYields[iI] = (bRemove ? (iOldCommerceComponent - iNewCommerceComponent) : (iNewCommerceComponent - iOldCommerceComponent));
++					int iNewCommerceComponent = (getCommerceFromPercent((CommerceTypes)iJ, iNewCityYield) * getTotalCommerceRateModifier((CommerceTypes)iJ)) / 100;
++					int iOldCommerceComponent = (getCommerceFromPercent((CommerceTypes)iJ, iOldCityYield) * getTotalCommerceRateModifier((CommerceTypes)iJ)) / 100;
++
++					if (iJ == COMMERCE_RESEARCH)
++						iYieldResearch = (bRemove ? (iOldCommerceComponent - iNewCommerceComponent) : (iNewCommerceComponent - iOldCommerceComponent));
++
++					iNewCommerceSum += iNewCommerceComponent;
++					iOldCommerceSum += iOldCommerceComponent;
++				}
++
++				aiYields[iI] = (bRemove ? (iOldCommerceSum - iNewCommerceSum) : (iNewCommerceSum - iOldCommerceSum));
+ 			}
+ 			else
+ 			{
+@@ -4140,7 +4150,9 @@
+ 		int iFoodPerTurn = (foodDifference(false) - ((bRemove) ? aiYields[YIELD_FOOD] : 0));
+ 		int iFoodLevel = getFood();
+ 		int iFoodToGrow = growthThreshold();
+-		int	iExtraPopulation = extraPopulation();
++		int iHappinessLevel = happyLevel() - unhappyLevel(0);
++		int iPopulation = getPopulation();
++		int	iExtraPopulationThatCanWork = min(NUM_CITY_PLOTS, iPopulation) - range(-iHappinessLevel, 0, iPopulation) - getWorkingPopulation() + min(0, extraFreeSpecialists());
+ 
+ 		if (bAvoidGrowth)
+ 		{
+@@ -4155,7 +4167,7 @@
+ 		if (iFoodPerTurn < 0)
+ 		{
+ 			// if working plots all like this one will save us from starving
+-			if (max(0, iExtraPopulation * aiYields[YIELD_FOOD]) >= -iFoodPerTurn)
++			if (max(0, iExtraPopulationThatCanWork * aiYields[YIELD_FOOD]) >= -iFoodPerTurn)
+ 			{
+ 				// if this plot alone will not save us from starving
+ 				if (aiYields[YIELD_FOOD] <= -iFoodPerTurn)
+@@ -4177,23 +4189,23 @@
+ 		}
+ 		
+ 		// if food isnt production, then adjust for growth
+-		if (!isFoodProduction())
++		if (!bFoodIsProduction)
+ 		{
+ 			if (!bAvoidGrowth)
+ 			{
+ 				// value food low(5)
+ 				iValue += (aiYields[YIELD_FOOD] * 5);
+-
+-				if (!bIgnoreGrowth)
+-				{
+-					int iHappinessLevel = happyLevel() - unhappyLevel(0);
+-					int iPopulation = getPopulation();
++				
++				// only do relative checks on food if we want to grow AND we not emph food
++				// the emp food case will just give a big boost to all food under all circumstances
++				if (!bIgnoreGrowth && !bEmphasizeFood)
++				{
+ 					int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+ 					// also avail: iFoodLevel, iFoodToGrow
+ 					
+-					// adjust iFoodPerTurn assuming that we work this plot plus plots all equal to iConsumtionPerPop
++					// adjust iFoodPerTurn assuming that we plots all equal to iConsumtionPerPop
+ 					// that way it is our guesstimate of how much excess food we will have
+-					iFoodPerTurn += ((iExtraPopulation > 1) ? ((iExtraPopulation - 1) * iConsumtionPerPop) : 0);
++					iFoodPerTurn += (iExtraPopulationThatCanWork * iConsumtionPerPop);
+ 					
+ 					// we have less than 10 extra happy, do some checks to see if we can increase it
+ 					if (iHappinessLevel < 10)
+@@ -4209,7 +4221,7 @@
+ 						const int kMaxHappyIncrease = 2;
+ 
+ 						// if happy is large enough so that it will be over zero after we do the checks
+-						int iNewFoodPerTurn = iFoodPerTurn + aiYields[YIELD_FOOD];
++						int iNewFoodPerTurn = iFoodPerTurn + aiYields[YIELD_FOOD] - iConsumtionPerPop;
+ 						if ((iHappinessLevel + kMaxHappyIncrease) > 0 && iNewFoodPerTurn > 0)
+ 						{
+ 							int iApproxTurnsToGrow = (iFoodPerTurn > 0) ? ((iFoodToGrow - iFoodLevel) / iNewFoodPerTurn) : MAX_INT;
+@@ -4288,22 +4300,18 @@
+ 						iTempValue *= iFactorFastRate;
+ 						iTempValue /= 100;
+ 						
+-						// (range 2-5ish)[5ish = iConsumtionPerPop+3] - yields less than 3 will not help us grow much
++						// (range 4-7ish)[7ish = iConsumtionPerPop+5] - yields less than 3 will not help us grow much
+ 						//												use the minimum (2) if we do not have at least 2 to grow
+-						int iFactorLowYield = 2 + ((iPopToGrow > 1) ? (min((iConsumtionPerPop+1), max(0, aiYields[YIELD_FOOD]))) : 0);
+-						iTempValue *= iFactorLowYield * 3;
+-						iTempValue /= (iConsumtionPerPop + 1); // if (iConsumtionPerPop == 2), this cancels out with the 3 above
+-
+-						// (range 2-3) - give a 50% bonus if we are emph food
+-						int iFactorEmp = 2 + (AI_isEmphasizeYield(YIELD_FOOD) ? 1 : 0);
+-						iTempValue *= iFactorEmp;
++						int iFactorLowYield = 4 + ((iPopToGrow > 1) ? (min((iConsumtionPerPop+1), max(0, aiYields[YIELD_FOOD]))) : 0);
++						iTempValue *= iFactorLowYield * 5;
++						iTempValue /= (iConsumtionPerPop + 3); // if (iConsumtionPerPop == 2), this cancels out with the 5 above
+ 
+ 						// (range 76-100) - exclusively growing is less important in big cities
+ 						int	iFactorPopulation = 75 + max(0, 25 - max(0, iPopulation - 10));
+ 						iTempValue *= iFactorPopulation;
+-						iTempValue /= 800;
+-
+-						// (range 0-93) * yield
++						iTempValue /= 500;
++
++						// (range 0-69) * yield
+ 						iValue += iTempValue;
+ 					}
+ 				}
+@@ -4312,7 +4320,7 @@
+ 	}
+ 	
+ 	// if food is production, the count it
+-	int adjustedYIELD_PRODUCTION = (((isFoodProduction()) ? aiYields[YIELD_FOOD] : 0) + aiYields[YIELD_PRODUCTION]);
++	int adjustedYIELD_PRODUCTION = (((bFoodIsProduction) ? aiYields[YIELD_FOOD] : 0) + aiYields[YIELD_PRODUCTION]);
+ 
+ 	// value production medium(16)
+ 	iValue += (adjustedYIELD_PRODUCTION * 16);
+@@ -4320,25 +4328,31 @@
+ 	// value commerce low(4)
+ 	iValue += (aiYields[YIELD_COMMERCE] * 4);
+ 
+-	if (AI_isEmphasizeYield(YIELD_FOOD))
+-	{
+-		if (!isFoodProduction())
+-		{
+-			// value food very high(64)
+-			iValue += (aiYields[YIELD_FOOD] * 64);
++	if (bEmphasizeFood)
++	{
++		if (!bFoodIsProduction)
++		{
++			// value food very high(120)
++			iValue += (aiYields[YIELD_FOOD] * 120);
+ 		}
+ 	}
+ 
+ 	if (AI_isEmphasizeYield(YIELD_PRODUCTION))
+ 	{
+-		// value production high(32)
+-		iValue += (adjustedYIELD_PRODUCTION * 32);
++		// value production high(40)
++		iValue += (adjustedYIELD_PRODUCTION * 40);
+ 	}
+ 
+ 	if (AI_isEmphasizeYield(YIELD_COMMERCE))
+ 	{
+-		// value commerce medium(16)
+-		iValue += (aiYields[YIELD_COMMERCE] * 16);
++		// value commerce medium(20)
++		iValue += (aiYields[YIELD_COMMERCE] * 20);
++	}
++
++	if (AI_isEmphasizeCommerce(COMMERCE_RESEARCH))
++	{
++		// value the part of our commerce that goes to research medium (20)
++		iValue += (iYieldResearch * 20);
+ 	}
+ 
+ 	return iValue;
+

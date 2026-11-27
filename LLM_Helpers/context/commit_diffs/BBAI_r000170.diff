@@ -1,0 +1,28 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 170
+# Author: iustus
+# Date: 2006-12-11T19:17:53.806123Z
+# Coverage: full
+# Message:
+#   AI_bestTech, per request, took out the last of the maphacking, I think some more refinements are needed to make up for this
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@169
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@170
+@@ -2881,9 +2881,9 @@
+ 													}
+ 													else 
+ 													{
+-														// weight based on how common the resource is (rare bonuses likely are not close)
+-														iBonusValue *= GC.getMapINLINE().getNumBonuses((BonusTypes)iK);
+-														iBonusValue /= GC.getMapINLINE().numPlotsINLINE() / 512;
++														//// weight based on how common the resource is (rare bonuses likely are not close)
++														//iBonusValue *= GC.getMapINLINE().getNumBonuses((BonusTypes)iK);
++														//iBonusValue /= GC.getMapINLINE().numPlotsINLINE() / 512;
+ 														
+ 														if (iBonusValue > iBestUnownedBonusValue)
+ 														{
+

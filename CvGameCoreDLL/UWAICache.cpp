@@ -1,17 +1,20 @@
 #include "CvGameCoreDLL.h"
+#include "SASSaveStreamFormat.h" // <!-- custom: Use the same compile-time write markers as the session diagnostic registry, avoiding duplicated version literals. (GPT-6.1-Sol) -->
 #include "UWAICache.h"
 #include "UWAIAgent.h"
-#include "UWAIReport.h"
+#include "UWAILogMuteState.h" // <!-- custom: Silent cache-side WarEvaluator probes use the shared nested diagnostic mute state rather than a standalone UWAI report object. See KI#505.3. (ChatGPT-5.6-Sol) -->
 #include "MilitaryBranch.h"
 #include "WarEvalParameters.h"
 #include "WarEvaluator.h"
 #include "CoreAI.h"
 #include "TeamPathFinder.h"
 #include "CvSelectionGroupAI.h"
+#include "CvUnit.h" // <!-- custom: Needed to distinguish loaded cargo from non-cargo group members in the physical target-mission census. See KI#544. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 #include "CityPlotIterator.h"
 #include "CvArea.h"
 #include "CvInfo_City.h"
 #include "CvInfo_Terrain.h"
+#include "CvInfo_GameOption.h" // <!-- custom: Needed for CvGameSpeedInfo::getTrainPercent in the bounded startup clock; CvGlobals only forward-declares the info type. See KI#444. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 
 
 UWAICache::UWAICache()
@@ -107,6 +110,9 @@ void UWAICache::clear(bool bBeforeUpdate)
 		m_aiBounty.reset();
 		m_aeSponsorPerTarget.reset();
 		m_abCanBeHiredAgainst.reset();
+		// <!-- custom: Full init/read/uninit resets previously left serialized human-capitulation authorization in the reused cache.
+		// Erase it here, while preserving it across the ordinary clear(true) turn refresh. See KI#536. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		m_readyToCapitulateTo.clear();
 	}
 }
 
@@ -123,7 +129,8 @@ void UWAICache::write(FDataStreamBase* pStream) const
 	//iSaveVersion = 6; // advc.enum: Store as float
 	//iSaveVersion = 7; // remove latestTurnReachableBySea
 	//iSaveVersion = 8; // advc.fract: Store as scaled (not float)
-	iSaveVersion = 9; // advc.enum: new enum map save behavior
+	// <!-- custom: Reuse the existing UWAICache write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
+	iSaveVersion = SASSaveStreamFormat::UWAI_CACHE; // advc.enum: new enum map save behavior
 	/*	I hadn't thought of a version number in the initial release. Need
 		to fold it into ownerId now to avoid breaking compatibility. */
 	pStream->Write(m_eOwner + 100 * iSaveVersion);
@@ -167,13 +174,11 @@ void UWAICache::write(FDataStreamBase* pStream) const
 
 void UWAICache::read(FDataStreamBase* pStream)
 {
-	int iSaveVersion=-1;
-	{
-		int iTmp;
-		pStream->Read(&iTmp);
-		iSaveVersion = iTmp / 100;
-		m_eOwner = (PlayerTypes)(iTmp % 100);
-	}
+	// <!-- custom: Keep AdvCiv's packed owner field so the reader matches the current writer.
+	// The version portion is unnecessary for dispatch because SAS reads only the current cache layout. See KI#46.2. (GPT-6.2-Sol) -->
+	int iPackedOwner;
+	pStream->Read(&iPackedOwner);
+	m_eOwner = (PlayerTypes)(iPackedOwner % 100);
 	// Important to set owner first b/c clear uses it
 	clear();
 	{
@@ -186,125 +191,31 @@ void UWAICache::read(FDataStreamBase* pStream)
 			m_cityMap.insert(std::make_pair(m_cityList[i]->getID(), m_cityList[i]));
 		}
 	}
-	if (iSaveVersion >= 9)
-	{
-		m_aiReachableCities.read(pStream);
-		m_aiTargetMissions.read(pStream);
-	}
-	else
-	{
-		m_aiReachableCities.readArray<int>(pStream);
-		m_aiTargetMissions.readArray<int>(pStream);
-	}
-	if (iSaveVersion >= 8)
-	{
-		if (iSaveVersion >= 9)
-			m_arThreatRating.read(pStream);
-		else m_arThreatRating.readArray<scaled>(pStream);
-	}
-	else
-	{
-		CivPlayerMap<float> afThreatRating;
-		if (iSaveVersion >= 6)
-			afThreatRating.readArray<float>(pStream);
-		else afThreatRating.readArray<double>(pStream);
-		FOR_EACH_ENUM(CivPlayer)
-		{
-			m_arThreatRating.set(eLoopCivPlayer, scaled::fromDouble(
-					afThreatRating.get(eLoopCivPlayer)));
-		}
-	}
-	if (iSaveVersion >= 9)
-	{
-		m_aiVassalTechScore.read(pStream);
-		m_aiVassalResourceScore.read(pStream);
-		m_aiAdjLandPlots.read(pStream);
-	}
-	else
-	{
-		m_aiVassalTechScore.readArray<int>(pStream);
-		m_aiVassalResourceScore.readArray<int>(pStream);
-		m_aiAdjLandPlots.readArray<int>(pStream);
-	}
-	if (iSaveVersion >= 1)
-	{
-		if (iSaveVersion >= 8)
-		{
-			if (iSaveVersion >= 9)
-				m_arRelativeNavyPow.read(pStream);
-			else m_arRelativeNavyPow.readArray<scaled>(pStream);
-		}
-		else
-		{
-			CivPlayerMap<float> afRelativeNavyPow;
-			if (iSaveVersion >= 6)
-				afRelativeNavyPow.readArray<float>(pStream);
-			else afRelativeNavyPow.readArray<double>(pStream);
-			FOR_EACH_ENUM(CivPlayer)
-			{
-				m_arRelativeNavyPow.set(eLoopCivPlayer, scaled::fromDouble(
-						afRelativeNavyPow.get(eLoopCivPlayer)));
-			}
-		}
-	}
-	if (iSaveVersion >= 8)
-	{
-		if (iSaveVersion >= 9)
-			m_arWarAnger.read(pStream);
-		else m_arWarAnger.readArray<scaled>(pStream);
-	}
-	else
-	{
-		CivPlayerMap<float> afWarAnger;
-		if (iSaveVersion >= 6)
-			afWarAnger.readArray<float>(pStream);
-		else afWarAnger.readArray<double>(pStream);
-		FOR_EACH_ENUM(CivPlayer)
-		{
-			m_arWarAnger.set(eLoopCivPlayer, scaled::fromDouble(
-					afWarAnger.get(eLoopCivPlayer)));
-		}
-	}
-	// <advc.035>
-	if (iSaveVersion >= 2)
-	{
-		if (iSaveVersion >= 9)
-			m_aiPlotsLostAtWar.read(pStream);
-		else m_aiPlotsLostAtWar.readArray<int>(pStream);
-	} // </advc.035>
-	if (iSaveVersion >= 9)
-		m_aiPastWarScore.read(pStream);
-	else m_aiPastWarScore.readArray<int>(pStream);
-	if (iSaveVersion < 4)
-	{
-		for (TeamIter<CIV_ALIVE> it; it.hasNext(); ++it)
-			m_aiPastWarScore.multiply(it->getID(), 100);
-	}
-	if (iSaveVersion >= 9)
-	{
-		m_aiBounty.read(pStream);
-		m_aeSponsorPerTarget.read(pStream);
-		m_aiWarUtilityIgnoringDistraction.read(pStream);
-	}
-	else
-	{
-		m_aiBounty.readArray<int>(pStream);
-		m_aeSponsorPerTarget.readArray<int>(pStream);
-		m_aiWarUtilityIgnoringDistraction.readArray<int>(pStream);
-	}
-	if (iSaveVersion >= 3)
-	{
-		if (iSaveVersion >= 9)
-			m_abCanBeHiredAgainst.read(pStream);
-		else m_abCanBeHiredAgainst.readArray<bool>(pStream);
-	}
+	// <!-- custom: The current UWAI_CACHE writer stores enum maps and scaled values in this order.
+	// Older layouts used arrays, floats or doubles, including the old advc.035 war-loss counter encoding.
+	// The pre-7 reader also consumed and discarded latestTurnReachableBySea.
+	// The current writer omits it. See KI#46.2. (GPT-6.2-Sol) -->
+	m_aiReachableCities.read(pStream);
+	m_aiTargetMissions.read(pStream);
+	m_arThreatRating.read(pStream);
+	m_aiVassalTechScore.read(pStream);
+	m_aiVassalResourceScore.read(pStream);
+	m_aiAdjLandPlots.read(pStream);
+	m_arRelativeNavyPow.read(pStream);
+	m_arWarAnger.read(pStream);
+	m_aiPlotsLostAtWar.read(pStream);
+	m_aiPastWarScore.read(pStream);
+	m_aiBounty.read(pStream);
+	m_aeSponsorPerTarget.read(pStream);
+	m_aiWarUtilityIgnoringDistraction.read(pStream);
+	m_abCanBeHiredAgainst.read(pStream);
+
 	pStream->Read(&m_bOffensiveTrait);
 	pStream->Read(&m_bDefensiveTrait);
 	pStream->Read(&m_bCanScrub);
 	pStream->Read(&m_bHaveDeepSeaTransports);
 	pStream->Read(&m_bHaveAnyTransports);
-	if (iSaveVersion >= 5)
-		pStream->Read(&m_bFocusOnPeacefulVictory);
+	pStream->Read(&m_bFocusOnPeacefulVictory);
 	{
 		int iSize;
 		pStream->Read(&iSize);
@@ -316,40 +227,12 @@ void UWAICache::read(FDataStreamBase* pStream)
 			m_readyToCapitulateTo.insert(eMaster);
 		}
 	}
-	if (iSaveVersion < 7)
-	{
-		int iSize;
-		pStream->Read(&iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			int iKey, iFirstVal, iSecondVal;
-			pStream->Read(&iKey);
-			pStream->Read(&iFirstVal);
-			pStream->Read(&iSecondVal);
-			// No longer used; just discard the data.
-			//latestTurnReachableBySea[iKey] = std::make_pair(iFirstVal, iSecondVal);
-		}
-	}
 	createMilitaryBranches();
 	for (size_t i = 0; i < m_militaryPower.size(); i++)
 		m_militaryPower[i]->read(pStream);
 	pStream->Read(&m_iNonNavalUnits);
-	if (iSaveVersion < 8)
-	{
-		double dTotalAssets;
-		pStream->Read(&dTotalAssets);
-		double dGoldPerProduction;
-		pStream->Read(&dGoldPerProduction);
-		m_rTotalAssets = scaled::fromDouble(dTotalAssets);
-		m_rGoldPerProduction = scaled::fromDouble(dGoldPerProduction);
-	}
-	else
-	{
-		m_rTotalAssets.read(pStream);
-		m_rGoldPerProduction.read(pStream);
-	}
-	if (iSaveVersion < 1)
-		updateRelativeNavyPower();
+	m_rTotalAssets.read(pStream);
+	m_rGoldPerProduction.read(pStream);
 }
 
 /*	Called each turn. Some data are also updated throughout the turn, e.g. through
@@ -419,8 +302,7 @@ void UWAICache::deleteTeamPathFinders(TeamPathFinders& kPathFinders)
 }
 
 
-void UWAICache::resetTeamPathFinders(TeamPathFinders& kPathFinders,
-	TeamTypes eWarTarget) const
+void UWAICache::resetTeamPathFinders(TeamPathFinders& kPathFinders, TeamTypes eWarTarget) const
 {
 	int const iSeaLimit = getUWAI().maxSeaDist() * shipSpeed();
 	int const iLandLimit = getUWAI().maxLandDist();
@@ -457,8 +339,17 @@ void UWAICache::updateCities(TeamTypes eTeam, TeamPathFinders* pPathFinders)
 
 void UWAICache::add(City& kCacheCity)
 {
+	// <!-- custom: Establish map ownership before exposing the wrapper through the vector.
+	// Duplicate plot keys must fail loudly instead of creating an unreachable second owner that can later dangle. See KI#557. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	std::pair<std::map<PlotNumTypes,City*>::iterator,bool> const kInserted =
+			m_cityMap.insert(std::make_pair(kCacheCity.getID(), &kCacheCity));
+	FAssertMsg(kInserted.second, "Duplicate city in UWAICache");
+	if (!kInserted.second)
+	{
+		delete &kCacheCity;
+		return;
+	}
 	m_cityList.push_back(&kCacheCity);
-	m_cityMap.insert(std::make_pair(kCacheCity.getID(), &kCacheCity));
 	PlayerTypes eCityOwner = kCacheCity.city().getOwner();
 	if (TEAMID(eCityOwner) != TEAMID(m_eOwner) && kCacheCity.canReach())
 		m_aiReachableCities.add(eCityOwner, 1);
@@ -481,27 +372,30 @@ void UWAICache::add(CvCity& kCity)
 }
 
 
-void UWAICache::remove(CvCity const& kCity)
+// <!-- custom: Return whether this cache actually erased the city so the destruction callback re-sorts only affected caches.
+// Validate both indexed containers before changing either one, avoiding a partial removal if their entries are unexpectedly inconsistent. See KI#550. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+bool UWAICache::remove(CvCity const& kCity)
 {
 	City* pCacheCity = NULL;
 	std::map<PlotNumTypes,City*>::iterator posMap = m_cityMap.find(kCity.plotNum());
 	if (posMap != m_cityMap.end())
 		pCacheCity = posMap->second;
 	if (pCacheCity == NULL) // OK, caller doesn't need to rule this out.
-		return;
-	PlayerTypes eOldCityOwner = pCacheCity->city().getOwner();
-	if (TEAMID(eOldCityOwner) != TEAMID(m_eOwner) && pCacheCity->canReach())
-		m_aiReachableCities.add(eOldCityOwner, -1);
-	m_cityMap.erase(posMap);
+		return false;
 	std::vector<City*>::iterator posVector = std::find(
 			m_cityList.begin(), m_cityList.end(), pCacheCity);
 	if (posVector == m_cityList.end())
 	{
 		FAssert(posVector != m_cityList.end());
-		return;
+		return false;
 	}
+	PlayerTypes eOldCityOwner = pCacheCity->city().getOwner();
+	if (TEAMID(eOldCityOwner) != TEAMID(m_eOwner) && pCacheCity->canReach())
+		m_aiReachableCities.add(eOldCityOwner, -1);
+	m_cityMap.erase(posMap);
 	delete *posVector;
 	m_cityList.erase(posVector);
+	return true;
 }
 
 
@@ -641,7 +535,9 @@ scaled UWAICache::goldPerProdSites()
 		/*	Once the settlers have been used, the found value of more remote sites
 			may increase a bit
 			(see rShapeWeight in AIFoundValue::adjustToCivSurroundings) */
-		rSiteScore += (aiFoundVals[i] * (arSiteWeights[i] + iSettlers) / 10) / 2500;
+		// <!-- custom: AdvCiv's ScaledNum rewrite divided the fixed site weight by 10 along with the Settler adjustment.
+		// Restore the original siteWeight + settlers / 10 algebra so good expansion sites retain their intended opportunity value. See KI#545. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		rSiteScore += aiFoundVals[i] * (arSiteWeights[i] + scaled(iSettlers, 10)) / 2500;
 	}
 	/*	Don't want to count faraway Barbarian cities. Reference value set after
 		looking at some sample targetCityValues; let's hope these generalize. */
@@ -702,10 +598,12 @@ scaled UWAICache::goldPerProdVictory()
 {
 	CvTeamAI const& kOwnerTeam = GET_TEAM(m_eOwner);
 	int iOwnerVictoryStage = 0;
-	if (kOwnerTeam.AI_anyMemberAtVictoryStage(AI_VICTORY_CULTURE3 | AI_VICTORY_SPACE3))
-		iOwnerVictoryStage = 3;
-	else if(kOwnerTeam.AI_anyMemberAtVictoryStage(AI_VICTORY_CULTURE4 | AI_VICTORY_SPACE4))
+	// <!-- custom: Victory-stage bits are cumulative, so checking stage 3 first made the stage-4 branch unreachable and distorted UWAI production opportunity costs.
+	// Query from highest to lowest for both sides. See KI#542. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (kOwnerTeam.AI_anyMemberAtVictoryStage(AI_VICTORY_CULTURE4 | AI_VICTORY_SPACE4))
 		iOwnerVictoryStage = 4;
+	else if (kOwnerTeam.AI_anyMemberAtVictoryStage(AI_VICTORY_CULTURE3 | AI_VICTORY_SPACE3))
+		iOwnerVictoryStage = 3;
 	if (iOwnerVictoryStage < 3)
 	{
 		if (kOwnerTeam.AI_anyMemberAtVictoryStage(AI_VICTORY_CULTURE2 | AI_VICTORY_SPACE2))
@@ -717,10 +615,10 @@ scaled UWAICache::goldPerProdVictory()
 		itRival.hasNext(); ++itRival)
 	{
 		int iRivalVictoryStage = 0;
-		if (itRival->AI_anyMemberAtVictoryStage3())
-			iRivalVictoryStage = 3;
-		else if (itRival->AI_anyMemberAtVictoryStage4())
+		if (itRival->AI_anyMemberAtVictoryStage4())
 			iRivalVictoryStage = 4;
+		else if (itRival->AI_anyMemberAtVictoryStage3())
+			iRivalVictoryStage = 3;
 		if (iRivalVictoryStage >= iOwnerVictoryStage)
 			r--;
 		if (iRivalVictoryStage > iOwnerVictoryStage)
@@ -755,8 +653,9 @@ void UWAICache::updateWarUtilityIgnDistraction(TeamTypes eTarget)
 		m_aiWarUtilityIgnoringDistraction.set(eTarget, 0);
 		return;
 	}
-	UWAIReport report(true); // silent
-	WarEvalParameters params(kOwnerTeam.getID(), eTarget, report,
+	// <!-- custom: This cache refresh needs the utility result, not a duplicate nested UWAI diagnostic trace. (ChatGPT-5.6-Sol) -->
+	UWAILogMuteState silentLogMuteState(true);
+	WarEvalParameters params(kOwnerTeam.getID(), eTarget, silentLogMuteState,
 			true); // Ignore distraction cost
 	WarEvaluator eval(params);
 	WarPlanTypes eWP = kOwnerTeam.AI_getWarPlan(eTarget);
@@ -778,22 +677,15 @@ void UWAICache::updateWarAnger()
 	CvPlayerAI const& kOwner = GET_PLAYER(m_eOwner);
 	if (kOwner.isAnarchy())
 		return;
-	/*	Would be interesting to know the hypothetical anger from war weariness,
-		i.e. assuming that war breaks out. Currently, we only consider anger
-		from ongoing wars. */
+	// Would be interesting to know the hypothetical anger from war weariness, i.e. assuming that war breaks out. Currently, we only consider anger from ongoing wars.
 	scaled rAngerScore;
 	FOR_EACH_CITY(pCity, kOwner)
 	{
 		if (pCity->isDisorder())
 			continue;
-		/*	Disregard happiness from culture rate unless we need culture
-			regardless of happiness */
-		int iAngry = pCity->angryPopulation(0,
-				!kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3) &&
-				!kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE4));
-		rAngerScore += scaled::min(iAngry, scaled(
-				pCity->getWarWearinessPercentAnger() * pCity->getPopulation(),
-				GC.getPERCENT_ANGER_DIVISOR()));
+		// Disregard happiness from culture rate unless we need culture regardless of happiness
+		int iAngry = pCity->angryPopulation(0, !kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3) && !kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE4));
+		rAngerScore += scaled::min(iAngry, scaled(pCity->getWarWearinessPercentAnger() * pCity->getPopulation(), GC.getPERCENT_ANGER_DIVISOR()));
 	}
 	if (rAngerScore <= 0)
 		return;
@@ -803,10 +695,8 @@ void UWAICache::updateWarAnger()
 	for (TeamIter<MAJOR_CIV,ENEMY_OF> itEnemy(kOwner.getTeam());
 		itEnemy.hasNext(); ++itEnemy)
 	{
-		/*	Never mind all the modifiers in CvPlayer::updateWarWearinessPercentAnger;
-			they apply equally to each contribution. */
-		int iContrib = GET_TEAM(kOwner.getTeam()).
-				getWarWeariness(itEnemy->getID(), true);
+		// Never mind all the modifiers in CvPlayer::updateWarWearinessPercentAnger; they apply equally to each contribution.
+		int iContrib = GET_TEAM(kOwner.getTeam()).getWarWeariness(itEnemy->getID(), true);
 		aiAngerContrib.set(itEnemy->getID(), iContrib);
 		iTotalAngerContribs += iContrib;
 	}
@@ -815,28 +705,22 @@ void UWAICache::updateWarAnger()
 	for (PlayerIter<CIV_ALIVE,ENEMY_OF> itEnemy(kOwner.getTeam());
 		itEnemy.hasNext(); ++itEnemy)
 	{
-		m_arWarAnger.set(itEnemy->getID(), rAngerScore *
-				// Turn per-team into per-civ
-				scaled(aiAngerContrib.get(itEnemy->getTeam()), iTotalAngerContribs) /
-				GET_TEAM(kOwner.getTeam()).getNumMembers());
+		// <!-- custom: aiAngerContrib is keyed by the enemy team and consumed once per living enemy player.
+		// Split it by that enemy team's living members; AdvCiv divided by our team size instead. See KI#435. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int const iEnemyTeamMembers = PlayerIter<CIV_ALIVE,MEMBER_OF>::count(itEnemy->getTeam());
+		FAssert(iEnemyTeamMembers > 0);
+		// Turn per-team into per-civ
+		m_arWarAnger.set(itEnemy->getID(), rAngerScore * scaled(aiAngerContrib.get(itEnemy->getTeam()), iTotalAngerContribs) / iEnemyTeamMembers);
 	}
 }
 
 
 void UWAICache::updateCanScrub()
 {
-	static FeatureTypes eFallout = NO_FEATURE; // why not cache it
-	if (eFallout == NO_FEATURE)
-	{
-		FOR_EACH_ENUM(Feature)
-		{
-			if (GC.getInfo(eLoopFeature).getHealthPercent() <= -50)
-			{
-				eFallout = eLoopFeature;
-				break;
-			}
-		}
-	}
+	// <!-- custom: The inherited health-threshold search selected SAS Jungle, which now precedes Fallout and also has -50 health, so Metal Casting falsely enabled the UWAI Fallout-cleanup estimate.
+	// Identify the exact feature independently of balance values and XML order. See KI#540. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	static const FeatureTypes eFallout = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FALLOUT");
+	FAssert(eFallout != NO_FEATURE);
 	FOR_EACH_ENUM(Build)
 	{
 		TechTypes eFeatureTech = GC.getInfo(eLoopBuild).getFeatureTech(eFallout);
@@ -858,11 +742,26 @@ void UWAICache::updateTransports()
 	{
 		UnitTypes const eUnit = kOwnerCiv.unitAt(i);
 		CvUnitInfo const& kUnit = GC.getInfo(eUnit);
-		if (kUnit.getUnitAIType(UNITAI_ASSAULT_SEA) && kOwner.canTrain(eUnit))
+		if (!kUnit.getUnitAIType(UNITAI_ASSAULT_SEA) || !kOwner.canTrain(eUnit))
+			continue;
+		// <!-- custom: CvPlayer::canTrain ignores city resources and placement.
+		// Require one real city that can train the transport so SAS's obsolete resource-free ships do not make an Oil-less post-Combustion empire appear to retain naval lift production. See KI#541. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		bool bCityCanTrain = false;
+		FOR_EACH_CITY(pCity, kOwner)
 		{
-			m_bHaveAnyTransports = true;
-			if (!kOwner.AI_isAnyImpassable(eUnit))
-				m_bHaveDeepSeaTransports = true;
+			if (pCity->canTrain(eUnit))
+			{
+				bCityCanTrain = true;
+				break;
+			}
+		}
+		if (!bCityCanTrain)
+			continue;
+		m_bHaveAnyTransports = true;
+		if (!kOwner.AI_isAnyImpassable(eUnit))
+		{
+			m_bHaveDeepSeaTransports = true;
+			break;
 		}
 	}
 }
@@ -925,14 +824,15 @@ void UWAICache::setCanBeHiredAgainst(TeamTypes eTeam, bool b)
 }
 
 
-void UWAICache::updateCanBeHiredAgainst(TeamTypes eTeam,
-	int iWarUtility, int iUtilityThresh)
+void UWAICache::updateCanBeHiredAgainst(TeamTypes eTeam, int iWarUtility, int iUtilityThresh)
 {
 	// (Part of the update happens in UWAI::Team::doWar)
 	scaled rProb = -1;
 	if (!m_abCanBeHiredAgainst.get(eTeam))
 		rProb = std::min(fixp(0.58), (iWarUtility - fixp(1.5) * iUtilityThresh) / 100);
-	else rProb = scaled(1 - (iUtilityThresh - iWarUtility), 100);
+	// <!-- custom: AdvCiv's ScaledNum rewrite changed 1 - delta / 100 into (1 - delta) / 100, collapsing the persistence probability intended to prevent war-trade availability flicker.
+	// Restore the original algebra without changing the threshold or FALSE-to-TRUE branch. See KI#546. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	else rProb = 1 - scaled(iUtilityThresh - iWarUtility, 100);
 	m_abCanBeHiredAgainst.set(eTeam, SyncRandSuccess(rProb));
 }
 
@@ -1012,6 +912,38 @@ void UWAICache::updateTraits()
 				m_bDefensiveTrait = true;
 		}
 	}
+}
+
+
+// <!-- custom: City creation/destruction changes the source set used to derive every surviving target's deployment geometry, reachability and value.
+// Rebuild those fields together rather than mixing incremental and full-refresh snapshots. See KI#554. See KI#557. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAICache::rebuildCities()
+{
+	deleteUWAICities();
+	m_cityMap.clear();
+	m_aiReachableCities.reset();
+	m_aiReachableCities.set(m_eOwner, GET_PLAYER(m_eOwner).getNumCities());
+	if (GET_PLAYER(m_eOwner).getNumCities() <= 0)
+	{
+		m_rTotalAssets = 0;
+		return;
+	}
+	TeamPathFinders* pPathFinders = NULL;
+	if (TeamIter<MAJOR_CIV,OTHER_KNOWN_TO>::count(TEAMID(m_eOwner)) > 0)
+		pPathFinders = createTeamPathFinders();
+	for (TeamIter<MAJOR_CIV,KNOWN_TO> it(TEAMID(m_eOwner)); it.hasNext(); ++it)
+		updateCities(it->getID(), pPathFinders);
+	if (pPathFinders != NULL)
+		deleteTeamPathFinders(*pPathFinders);
+	sortCitiesByAttackPriority();
+	updateTotalAssetScore();
+}
+
+
+// <!-- custom: True Starts can replace the leader after UWAI initialization; recomputing these two derived flags fixed the former leader's military personality persisting indefinitely. See KI#558. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAICache::reportLeaderChanged()
+{
+	updateTraits();
 }
 
 
@@ -1146,8 +1078,15 @@ void UWAICache::updateTargetMissionCount(PlayerTypes ePlayer)
 			pMissionPlot = pGroup->plot();
 		if (pMissionPlot->getOwner() == ePlayer)
 		{
-			iMissions += pGroup->getNumUnits();
-			iMissions += pGroup->getCargo();
+			// <!-- custom: K-Mod keeps loaded units in their own boarded groups while their transport group also reports them through getCargo.
+			// Count carried cargo through the transport and only non-cargo members through each group's own unit list, so every physical unit contributes once. See KI#544. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			int iGroupMissions = pGroup->getCargo();
+			FOR_EACH_UNIT_IN(pUnit, *pGroup)
+			{
+				if (!pUnit->isCargo())
+					iGroupMissions++;
+			}
+			iMissions += iGroupMissions;
 		}
 	}
 	m_aiTargetMissions.set(ePlayer, iMissions);
@@ -1156,17 +1095,19 @@ void UWAICache::updateTargetMissionCount(PlayerTypes ePlayer)
 
 scaled UWAICache::calculateThreatRating(PlayerTypes eRival) const
 {
-	// Can't reliably estimate yield rates in the early game
-	if (GC.getGame().getCurrentEra() <= GC.getGame().getStartEra())
+	// <!-- custom: Yield rates are unreliable off the bat, but waiting to leave the starting era never ends for a terminal-era start.
+	// Keep the era-advance shortcut and bound the grace period to 25 normalized turns, matching DramaticArc's startup clock. See KI#444. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvGame const& kGame = GC.getGame();
+	CvGameSpeedInfo const& kSpeed = GC.getInfo(kGame.getGameSpeedType());
+	scaled const rStartupSpeed = 2 / per100(kGame.getSpeedPercent() + kSpeed.getTrainPercent());
+	if (kGame.getCurrentEra() <= kGame.getStartEra() && kGame.getElapsedGameTurns() * rStartupSpeed < 25)
 		return 0;
-	/*	Check rival's cache to see if cache owner's capital is reachable
-		for rival (mild cheat) */
+	// Check rival's cache to see if cache owner's capital is reachable for rival (mild cheat)
 	CvCity const* pCapital = GET_PLAYER(m_eOwner).getCapital();
 	City const* pCacheCapital = NULL;
 	if (pCapital != NULL)
 	{
-		pCacheCapital = GET_PLAYER(eRival).uwai().getCache().lookupCity(
-				pCapital->plotNum());
+		pCacheCapital = GET_PLAYER(eRival).uwai().getCache().lookupCity(pCapital->plotNum());
 	}
 	if (pCacheCapital != NULL && !pCacheCapital->canReach())
 		return 0;
@@ -1188,7 +1129,9 @@ scaled UWAICache::teamThreat(TeamTypes eRival) const
 		return 0;
 	}
 	scaled rRivalPow = longTermPower(eRival);
-	scaled rOwnerPow = longTermPower(GET_TEAM(eOwnerTeam).getMasterTeam(), true);
+	// <!-- custom: Cache the owner's master team because both defensive power and nuclear deterrence must use this same war-side scope. See KI#543. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamTypes const eOwnerMaster = GET_TEAM(eOwnerTeam).getMasterTeam();
+	scaled rOwnerPow = longTermPower(eOwnerMaster, true);
 	if (kRival.isHuman())
 		rOwnerPow *= GET_PLAYER(m_eOwner).uwai().confidenceAgainstHuman();
 	rOwnerPow.increaseTo(scaled::epsilon());
@@ -1204,8 +1147,8 @@ scaled UWAICache::teamThreat(TeamTypes eRival) const
 		rDiploFactor += fixp(0.15);
 	else if (kRival.AI_anyMemberAtVictoryStage(AI_VICTORY_DIPLOMACY2))
 		rDiploFactor += fixp(0.1);
-	// Nuclear deterrent
-	if (GET_PLAYER(m_eOwner).getNumNukeUnits() > 0)
+	// <!-- custom: The inherited deterrent checked only this cache-owning player and ignored teammate/master-side nukes. See KI#543. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (GET_TEAM(eOwnerMaster).getNumNukeUnits() > 0)
 		rDiploFactor -= fixp(0.2);
 	rDiploFactor.clamp(0, 1);
 	// Less likely to attack us if there are many targets to choose from
@@ -1313,6 +1256,18 @@ void UWAICache::reportUnitDestroyed(UnitTypes eUnit)
 }
 
 
+// <!-- custom: A unit can revive its dead owner before the newly initialized UWAI cache has retained that unit's earlier creation callback.
+// Reconstruct the exceptional revival inventory once instead of burdening ordinary per-turn updates with a full unit scan. See KI#548. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAICache::rebuildMilitaryUnitCounts()
+{
+	FAssert(m_iNonNavalUnits == 0);
+	for (size_t i = 0; i < m_militaryPower.size(); i++)
+		FAssert(m_militaryPower[i]->numUnits() == 0);
+	FOR_EACH_UNIT(pUnit, GET_PLAYER(m_eOwner))
+		reportUnitCreated(pUnit->getUnitType());
+}
+
+
 void UWAICache::reportUnit(UnitTypes eUnit, int iChange)
 {
 	/*	i=1: skip HOME_GUARD. Potential guard units are counted as Army and
@@ -1320,21 +1275,27 @@ void UWAICache::reportUnit(UnitTypes eUnit, int iChange)
 	for (size_t i = 1; i < m_militaryPower.size(); i++)
 		m_militaryPower[i]->reportUnit(eUnit, iChange);
 	CvUnitInfo const& kUnit = GC.getInfo(eUnit);
+	// <!-- custom: Nuclear power is removed before Home Guard partitions conventional Army power, so exclude nuclear weapons from that ratio's unit-count denominator too. See KI#561. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (kUnit.getDomainType() != DOMAIN_SEA && kUnit.isMilitaryProduction() &&
-		kUnit.getDefaultUnitAIType() != UNITAI_EXPLORE) // exclude Recon
+		kUnit.getDefaultUnitAIType() != UNITAI_EXPLORE && !kUnit.isNuke()) // exclude Recon and nukes
 	{
 		m_iNonNavalUnits += iChange;
 	}
 }
 
 
-void UWAICache::reportWarEnding(TeamTypes eEnemy,
-	CLinkList<TradeData> const* pWeReceive,
-	CLinkList<TradeData> const* pWeGive)
+// <!-- custom: Separate paid-war cleanup from war-history evaluation so every real war ending can discard its transient obligation even when UWAI is not ready. See KI#562. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAICache::clearWarSponsorship(TeamTypes eEnemy)
 {
-	// Forget sponsorship once a war ends
 	m_aiBounty.set(eEnemy, 0);
 	m_aeSponsorPerTarget.set(eEnemy, NO_PLAYER);
+}
+
+
+void UWAICache::reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive, CLinkList<TradeData> const* pWeGive)
+{
+	// <!-- custom: Reuse the unconditional obligation cleanup shared with early-scenario and elimination war endings. See KI#562. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	clearWarSponsorship(eEnemy);
 	// Evaluate reparations
 	bool bForceSuccess = false;
 	bool bForceFailure = false;
@@ -1425,17 +1386,28 @@ void UWAICache::reportCityCreated(CvCity& kCity)
 		then trying to add the city to the cache will lead to problems. */
 	if (GET_PLAYER(m_eOwner).getNumCities() <= 0)
 		return;
-	if (kCity.getTeam() == TEAMID(m_eOwner) ||
-		GET_TEAM(m_eOwner).AI_deduceCitySite(kCity))
-	{
-		add(kCity);
-		sortCitiesByAttackPriority();
-	}
+	// <!-- custom: Remove KI#554's owner-only rebuild plus inherited incremental observer insertion.
+	// Any major-civilization city creation changes city-count and production-rank inputs used by surviving foreign target values, so rebuild the coherent snapshot for every eligible observer after creation is stable.
+	// Full reconstruction retains KI#556's known-city membership and KI#557's unique wrapper ownership. See KI#554, KI#556, KI#557 and KI#1038. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	rebuildCities();
 }
 
 
-void UWAICache::reportSponsoredWar(CLinkList<TradeData> const& kWeReceive,
-	PlayerTypes eSponsor, TeamTypes eTarget)
+void UWAICache::reportCityDestroyed(CvCity const& kCity)
+{
+	bool const bOwnCity = (kCity.getOwner() == m_eOwner);
+	if (!remove(kCity))
+		return;
+	// <!-- custom: The greedy attack-priority order depends on the previously selected city's area, so erasing a city does not necessarily leave the surviving vector in the order a fresh cache would produce.
+	// Re-sort after each actual removal, including a raze with no later creation callback. See KI#550. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	sortCitiesByAttackPriority();
+	// <!-- custom: Keep the cache owner's total assets coherent with its mid-turn city removal; observers' own holdings did not change and need no aggregate refresh. See KI#547. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (bOwnCity)
+		updateTotalAssetScore();
+}
+
+
+void UWAICache::reportSponsoredWar(CLinkList<TradeData> const& kWeReceive, PlayerTypes eSponsor, TeamTypes eTarget)
 {
 	if (eTarget == NO_TEAM || eSponsor == NO_PLAYER)
 	{
@@ -1443,13 +1415,16 @@ void UWAICache::reportSponsoredWar(CLinkList<TradeData> const& kWeReceive,
 		return;
 	}
 	CvPlayerAI const& kOwner = GET_PLAYER(m_eOwner);
-	m_aiBounty.set(eTarget, (kOwner.uwai().
+	int const iBounty = (kOwner.uwai().
 			/*	Need to remember the utility. The deal value may not seem much
 				10 turns from now if our economy grows.
 				Should perhaps cap the deal val at AI_declareWarTradeVal.
 				As it is now, paying more than the AI demands makes it a bit
 				more reluctant to end the war. */
-			tradeValToUtility(kOwner.AI_dealVal(eSponsor, kWeReceive))).round());
+			tradeValToUtility(kOwner.AI_dealVal(eSponsor, kWeReceive))).round();
+	// <!-- custom: Practical 3183 compacted this formerly full-width value to signed short without bounding its legal int producer.
+	// Saturating before assignment preserves the intended monotonic obligation instead of letting a sufficiently large positive payment wrap negative and erase its sponsor. See KI#552. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	m_aiBounty.set(eTarget, ::range(iBounty, 0, MAX_SHORT));
 	if (m_aiBounty.get(eTarget) > 0)
 		m_aeSponsorPerTarget.set(eTarget, eSponsor);
 	else
@@ -1492,10 +1467,11 @@ void UWAICache::addTeam(PlayerTypes eOtherLeader)
 {
 	// Get the team-related data from the other team's leader
 	UWAICache& kOther = GET_PLAYER(eOtherLeader).uwai().getCache();
-	// Fairly unimportant data ...
-	for (TeamIter<MAJOR_CIV> itTeam; itTeam.hasNext(); ++itTeam)
+	// <!-- custom: Persistent history can remain meaningful for a dead civilization team if it is later revived.
+	// Merge the full key domain rather than only currently alive major teams; the caller separately restores the original pre-merge recipient boundary. See KI#539. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	FOR_EACH_ENUM(CivTeam)
 	{
-		TeamTypes const eTeam = itTeam->getID();
+		TeamTypes const eTeam = (TeamTypes)eLoopCivTeam;
 		m_aiPastWarScore.add(eTeam, kOther.m_aiPastWarScore.get(eTeam));
 		if (kOther.m_aeSponsorPerTarget.get(eTeam) != NO_PLAYER)
 		{
@@ -1510,6 +1486,39 @@ void UWAICache::addTeam(PlayerTypes eOtherLeader)
 }
 
 
+// <!-- custom: Player reassignment during a Permanent Alliance tears down the absorbed team's wars and clears outsiders' paid-war and human-capitulation state.
+// Move those live obligations first, while excluding both merging teams; consider either team's humans because the survivor can become human only after reassignment. See KI#551. See KI#1045. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAICache::onTargetTeamAboutToBeAbsorbed(TeamTypes eSurvivingTeam, TeamTypes eAbsorbedTeam)
+{
+	FAssert(eSurvivingTeam != NO_TEAM && eAbsorbedTeam != NO_TEAM && eSurvivingTeam != eAbsorbedTeam);
+	PlayerTypes const eAbsorbedSponsor = m_aeSponsorPerTarget.get(eAbsorbedTeam);
+	int const iAbsorbedBounty = m_aiBounty.get(eAbsorbedTeam);
+	if (eAbsorbedSponsor != NO_PLAYER && iAbsorbedBounty > 0 &&
+		(m_aeSponsorPerTarget.get(eSurvivingTeam) == NO_PLAYER ||
+		iAbsorbedBounty > m_aiBounty.get(eSurvivingTeam)))
+	{
+		m_aeSponsorPerTarget.set(eSurvivingTeam, eAbsorbedSponsor);
+		m_aiBounty.set(eSurvivingTeam, iAbsorbedBounty);
+	}
+	m_aeSponsorPerTarget.set(eAbsorbedTeam, NO_PLAYER);
+	m_aiBounty.set(eAbsorbedTeam, 0);
+
+	if (m_readyToCapitulateTo.erase(eAbsorbedTeam) > 0 &&
+		(GET_TEAM(eSurvivingTeam).isHuman() || GET_TEAM(eAbsorbedTeam).isHuman()))
+		m_readyToCapitulateTo.insert(eSurvivingTeam);
+}
+
+
+// <!-- custom: The absorbed team's final alive-count transition records the completed war before clearing it.
+// Migrate that now-final past-war score afterward instead of moving a premature snapshot. See KI#551. See KI#1045. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAICache::onTargetTeamAbsorbed(TeamTypes eSurvivingTeam, TeamTypes eAbsorbedTeam)
+{
+	FAssert(eSurvivingTeam != NO_TEAM && eAbsorbedTeam != NO_TEAM && eSurvivingTeam != eAbsorbedTeam);
+	m_aiPastWarScore.add(eSurvivingTeam, m_aiPastWarScore.get(eAbsorbedTeam));
+	m_aiPastWarScore.set(eAbsorbedTeam, 0);
+}
+
+
 void UWAICache::onTeamLeaderChanged(PlayerTypes eFormerLeader)
 {
 	if (eFormerLeader == NO_PLAYER)
@@ -1517,6 +1526,10 @@ void UWAICache::onTeamLeaderChanged(PlayerTypes eFormerLeader)
 	PlayerTypes const eLeader = GET_TEAM(m_eOwner).getLeaderID();
 	if (eLeader == NO_PLAYER || eFormerLeader == eLeader)
 		return;
+	// <!-- custom: CanBeHired is team-level state stored in the leader's player cache, whose private default is true while another player leads.
+	// AdvCiv's migration comment requires a promoted leader to start false until war planning recomputes it; initialize that state explicitly. See KI#538. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	FOR_EACH_ENUM(CivTeam)
+		m_abCanBeHiredAgainst.set((TeamTypes)eLoopCivTeam, false);
 	for (TeamIter<MAJOR_CIV> itTeam; itTeam.hasNext(); ++itTeam)
 	{
 		TeamTypes const eTeam = itTeam->getID();
@@ -1530,8 +1543,15 @@ void UWAICache::onTeamLeaderChanged(PlayerTypes eFormerLeader)
 				m_aiWarUtilityIgnoringDistraction.set(eTeam, GET_PLAYER(eFormerLeader).
 				uwai().getCache().m_aiWarUtilityIgnoringDistraction.get(eTeam));
 	}
-	/*	(CanBeHired and ReadyToCapitulate will get updated soon enough.
-		Start out as false for the new leader.) */
+	// <!-- custom: ReadyToCapitulate is copied above; only CanBeHired starts false until normal war planning updates it.
+	// This corrects the old comment that grouped both states together. See KI#538. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+}
+
+
+// <!-- custom: Remove KI#554's owner-or-capital-only rebuild optimization; any major-civilization city loss changes city-count and production-rank inputs used by surviving foreign target values, so every eligible observer needs one coherent post-destruction snapshot. See KI#554 and KI#1038. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAICache::reportCitySetChanged()
+{
+	rebuildCities();
 }
 
 
@@ -1542,8 +1562,7 @@ void UWAICache::updateTypicalUnits()
 }
 
 
-UWAICache::City::City(PlayerTypes eCacheOwner, CvCity& kCity,
-	TeamPathFinders* pPathFinders)
+UWAICache::City::City(PlayerTypes eCacheOwner, CvCity& kCity, TeamPathFinders* pPathFinders)
 {
 	m_pCity = &kCity;
 	m_ePlot = kCity.plotNum();
@@ -1577,16 +1596,20 @@ void UWAICache::City::write(FDataStreamBase* pStream) const
 	//iSaveVersion = 1; // canDeduce
 	//iSaveVersion = 2; // take out can canDeduce again
 	//iSaveVersion = 3; // reachBySea removed
-	iSaveVersion = 4; // capitalArea added
+	//iSaveVersion = 4; // capitalArea added
+	// <!-- custom: Version 5 adds distanceByLand for route-specific UWAI deployment estimates. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: Reuse the existing UWAICache::City write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
+	iSaveVersion = SASSaveStreamFormat::UWAI_CACHE_CITY;
 	pStream->Write(m_ePlot);
 	pStream->Write(m_iAssetScore);
 	/*	I hadn't thought of a version number in the initial release.
 		Fold it into m_iDistance to avoid breaking compatibility. */
-	FAssertMsg(m_iDistance >= -1 && m_iDistance < 10000,
-			"-2 is OK if loaded from an old savegame version");
+	FAssert(m_iDistance >= -1 && m_iDistance < 10000);
 	int iDistance = ::range(m_iDistance, -1, 9999);
 	// Add 1 b/c distance can be -1
 	pStream->Write(iDistance + 1 + 10000 * iSaveVersion);
+	// <!-- custom: Write the current-format land-only distance directly; AdvCiv-SAS does not support older saves. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	pStream->Write(m_iDistanceByLand);
 	pStream->Write(m_iTargetValue);
 	pStream->Write(m_bReachByLand);
 	pStream->Write(m_bCapitalArea);
@@ -1597,28 +1620,16 @@ void UWAICache::City::read(FDataStreamBase* pStream)
 {
 	pStream->Read((int*)&m_ePlot);
 	pStream->Read(&m_iAssetScore);
-	int iSaveVersion=-1;
-	{
-		int iTmp;
-		pStream->Read(&iTmp);
-		iSaveVersion = iTmp / 10000;
-		m_iDistance = (iTmp % 10000) - 1;
-	}
+	// <!-- custom: Consume AdvCiv's packed distance field and reverse the writer's +1 offset.
+	// Read land distance and capital-area status directly from the current city layout.
+	// SAS does not read the older layouts with missing or retired fields. See KI#591 and KI#46.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol + GPT-6.2-Sol) -->
+	int iPackedDistance;
+	pStream->Read(&iPackedDistance);
+	m_iDistance = (iPackedDistance % 10000) - 1;
+	pStream->Read(&m_iDistanceByLand);
 	pStream->Read(&m_iTargetValue);
 	pStream->Read(&m_bReachByLand);
-	if (iSaveVersion >= 4)
-		pStream->Read(&m_bCapitalArea);
-	else m_bCapitalArea = m_bReachByLand;
-	if (iSaveVersion < 3)
-	{
-		bool bReachBySea; // discard
-		pStream->Read(&bReachBySea);
-	}
-	if (iSaveVersion == 1)
-	{
-		bool bCanDeduce; // discard
-		pStream->Read(&bCanDeduce);
-	}
+	pStream->Read(&m_bCapitalArea);
 }
 
 
@@ -1635,16 +1646,18 @@ scaled UWAICache::City::attackPriority() const
 }
 
 
-void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders,
-	PlayerTypes eCacheOwner)
+void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders, PlayerTypes eCacheOwner)
 {
 	PROFILE_FUNC();
 	CvCity const& kTargetCity = city();
+	// <!-- custom: Extend the inherited producer description to distinguish the existing fastest mixed metric from the new qualifying land-only metric. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	/*	For each city of the cache owner, compute a path to the target city
 		assuming that war is declared. Derive from that length an estimated travel
 		duration based on the typical speed of units and time for loading and
 		unloading (iSeaPenalty).
-		Set m_iDistance to a weighted average of the pairwise travel durations.
+		Set m_iDistance to a weighted average of the fastest pairwise travel
+		durations, and m_iDistanceByLand to the matching qualifying land-only
+		durations.
 		The average gives the cache owner's cities nearest to the target city
 		the greatest weight. Some cities of the cache owner are skipped, both
 		for performance reasons (the pathfinding is computationally expensive)
@@ -1665,10 +1678,14 @@ void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders,
 		m_bReachByLand = kTargetPlayer.AI_isPrimaryArea(kTargetArea);
 		m_bCapitalArea = (kTargetPlayer.hasCapital() &&
 				kTargetPlayer.getCapital()->isArea(kTargetArea));
+		// <!-- custom: Own-team cities have zero land deployment distance only when their area qualifies as land-reachable. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		m_iDistanceByLand = (m_bReachByLand ? 0 : -1);
 		return;
 	}
 	CvPlayerAI const& kCacheOwner = GET_PLAYER(eCacheOwner);
+	// <!-- custom: Initialize the added land-only metric independently because a target may have only a mixed/sea route. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	m_iDistance = -1;
+	m_iDistanceByLand = -1;
 	m_bReachByLand = false;
 	m_bCapitalArea = false;
 	bool bReachBySea = false;
@@ -1678,6 +1695,8 @@ void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders,
 	bool const bAnyTransports = kCacheOwner.uwai().getCache().canTrainAnyCargo();
 	int const iSeaPenalty = (bHuman ? 2 : 4);
 	std::vector<int> aiPairwDurations;
+	// <!-- custom: Retain qualifying land durations before a faster sea route can replace the mixed pairwise value. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	std::vector<int> aiPairwLandDurations;
 	/*	If we find no land path and no sea path from a city c to the target,
 		but at least one other city that does have a path to the target, then there
 		is most likely also some mixed path from c to the target. */
@@ -1697,6 +1716,9 @@ void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders,
 		}
 		CvPlot const& kStart = pCity->getPlot();
 		int iPairwDuration = MAX_INT; // pairwise travel duration
+		// <!-- custom: Track whether this source's land route establishes strategic reachability separately from its deployment duration.
+		// A secondary-area route remains useful for duration, but must not suppress the independent sea-route existence test. See KI#549. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		bool bQualifyingLandRoute = false;
 		/*	Search from target to source. TeamStepMetric is symmetrical in that regard.
 			Doing it backwards allows intermediate results to be reused. */
 		if (pPathFinders->landFinder().generatePath(kTargetCity.getPlot(), kStart))
@@ -1705,16 +1727,23 @@ void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders,
 					GC.getMOVE_DENOMINATOR());
 			if (iPairwDuration == 0) // Make sure 0 is reserved for own cities
 				iPairwDuration = 1;
-			if (kCacheOwner.AI_isPrimaryArea(pCity->getArea()))
+			bQualifyingLandRoute = kCacheOwner.AI_isPrimaryArea(pCity->getArea());
+			// <!-- custom: Cache each qualifying land duration before a faster sea route can replace the mixed value, including the inherited extra capital weight. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (bQualifyingLandRoute)
+			{
 				m_bReachByLand = true;
+				aiPairwLandDurations.push_back(iPairwDuration);
+				if (pCity == pCapital)
+					aiPairwLandDurations.push_back(iPairwDuration);
+			}
 			if (pCity->isCapital())
 				m_bCapitalArea = true;
 		}
+		bool const bNeedSeaRouteCheck = (!bQualifyingLandRoute || iPairwDuration > iSeaPenalty + 2);
 		if (bAnyTransports &&
 			// This ignores cities that can access the ocean only through a canal
 			kStart.isCoastalLand(-1) &&
-			// Don't bother with a naval path if it's at best a couple turns faster
-			iPairwDuration > iSeaPenalty + 2)
+			bNeedSeaRouteCheck)
 		{
 			CvPlot const* pTransportDest = kTargetCity.plot();
 			if (!kTargetCity.isCoastal(-1))
@@ -1754,15 +1783,15 @@ void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders,
 				}
 				if (iPathLength > 0)
 				{
+					// <!-- custom: A valid sea route establishes reachability independently of whether it beats the current pairwise duration.
+					// Retain the faster route only for the numeric estimate. See KI#549. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					bReachBySea = true;
 					int iPathTurns = iSeaPenalty +
 							intdiv::uceil(iPathLength,
 							GC.getMOVE_DENOMINATOR() *
 							kCacheOwner.uwai().getCache().shipSpeed());
 					if (iPathTurns < iPairwDuration)
-					{
 						iPairwDuration = iPathTurns;
-						bReachBySea = true;
-					}
 				}
 			}
 		}
@@ -1807,6 +1836,23 @@ void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders,
 			(rWeightedSum +
 			scaled(4 * iMixedPaths, iMixedPaths + (int)aiPairwDurations.size())
 			)).uround();
+	// <!-- custom: Mirror the mixed cache's weighting/cap policy without its sea substitutions or assumed mixed paths. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (!aiPairwLandDurations.empty())
+	{
+		std::sort(aiPairwLandDurations.begin(), aiPairwLandDurations.end());
+		scaled rLandWeightedSum;
+		scaled rLandSumOfWeights;
+		int iLandCap = aiPairwLandDurations[0];
+		for (size_t i = 0; i < aiPairwLandDurations.size(); i++)
+		{
+			scaled rWeight(2, 3 * ((int)i + 1) - 1);
+			rLandSumOfWeights += rWeight;
+			int iPairwDuration = std::min(aiPairwLandDurations[i], iLandCap);
+			iLandCap = iPairwDuration + 10;
+			rLandWeightedSum += iPairwDuration * rWeight;
+		}
+		m_iDistanceByLand = (rLandWeightedSum / rLandSumOfWeights).uround();
+	}
 }
 
 

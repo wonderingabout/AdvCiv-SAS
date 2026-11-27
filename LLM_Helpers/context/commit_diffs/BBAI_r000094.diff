@@ -1,0 +1,97 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 94
+# Author: blakeciv
+# Date: 2006-11-17T21:07:33.274187Z
+# Coverage: full
+# Message:
+#   Tweaked stuff for cultural victory.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@93
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@94
+@@ -6138,37 +6138,46 @@
+ {
+     PROFILE_FUNC();
+ 	int iCount;
+-	bool bHoly;
++	bool bHoly, bState, bHolyState;
+ 	bool bCultureVictory = AI_isDoStrategy(AI_STRATEGY_CULTURE2);
+ 
+ 	bHoly = hasHolyCity(eReligion);
++	bState = (getStateReligion() == eReligion);
++	bHolyState = ((getStateReligion() != NO_RELIGION) && hasHolyCity(getStateReligion()));
+ 
+ 	iCount = 0;
+-
+-    if (bCultureVictory || (getStateReligion() == eReligion))
++	
++	
++
++    //internal spread.
++    if (bCultureVictory || bState || bHoly)
+     {
+         iCount = max(iCount, (pArea->getCitiesPerPlayer(getID()) - pArea->countHasReligion(eReligion, getID())));
+         if (iCount > 0)
+         {
+             if (!bCultureVictory)
+-            {          
++            {
+                 iCount = max(1, iCount / (bHoly ? 2 : 4));
+             }
+             return iCount;
+         }
+     }
+ 
+-    if (bHoly)
++    //external spread.
++    if ((bHoly && bState) || (bHoly && !bHolyState && (getStateReligion() != NO_RELIGION)))
+     {
+-        iCount += (pArea->getNumCities() - pArea->countHasReligion(eReligion));
+-        iCount /= 4;
++        iCount += ((pArea->getNumCities() * 2) - (pArea->countHasReligion(eReligion) * 3));
++        iCount /= 8;
++        
++        iCount = max(0, iCount);
++        
+         if (AI_isPrimaryArea(pArea))
+         {
+             iCount++;
+         }
+     }
+ 
+-    // needs better logic
++
+ 	return iCount;
+ }
+ 
+@@ -6402,6 +6411,8 @@
+ 	int iValue;
+ 	int iTempValue;
+ 	int iI, iJ;
++	
++	bool bCultureVictory3 = AI_isDoStrategy(AI_STRATEGY_CULTURE3);
+ 
+ 	FAssertMsg(eCivic < GC.getNumCivicInfos(), "eCivic is expected to be within maximum bounds (invalid Index)");
+ 	FAssertMsg(eCivic >= 0, "eCivic is expected to be non-negative (invalid Index)");
+@@ -6454,7 +6465,7 @@
+ 	iValue += (GC.getCivicInfo(eCivic).getFreeSpecialist() * getNumCities() * 12);
+ 	iValue += ((GC.getCivicInfo(eCivic).getTradeRoutes() * max(0, iConnectedForeignCities - getNumCities() * 3) * 6) + (getNumCities() * 2));
+ 	iValue += -((GC.getCivicInfo(eCivic).isNoForeignTrade()) ? (iConnectedForeignCities * 3) : 0);
+-	iValue += ((GC.getCivicInfo(eCivic).getCivicPercentAnger() * (GC.getGameINLINE().getNumCities() - getNumCities())) / 10);
++	iValue += (min(20, ((GC.getCivicInfo(eCivic).getCivicPercentAnger() * (GC.getGameINLINE().getNumCities() - getNumCities())) / 10)) / (bCultureVictory3 ? 5 : 1));
+ 	iValue += (GC.getCivicInfo(eCivic).getNonStateReligionHappiness() * (iTotalReligonCount - iHighestReligionCount) * 5);
+ 
+ 	if (GC.getCivicInfo(eCivic).isStateReligion())
+@@ -6575,7 +6586,7 @@
+ 		iTempValue = 0;
+ 		if (GC.getCivicInfo(eCivic).isSpecialistValid(iI))
+ 		{
+-			iTempValue += ((getNumCities()) + 6); // XXX
++			iTempValue += ((getNumCities() *  (bCultureVictory3 ? 10 : 1)) + 6); // XXX
+ 		}
+ 		iValue += (iTempValue / 2);
+ 	}
+

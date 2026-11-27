@@ -17,8 +17,7 @@ public:
 
 protected:
 	virtual void check()=0;
-	void showMessage(CvWString szMsg, char const* szIcon = NULL, int iX = -1, int iY = -1,
-			ColorTypes eColor = NO_COLOR) const;
+	void showMessage(CvWString szMsg, char const* szIcon = NULL, int iX = -1, int iY = -1, ColorTypes eColor = NO_COLOR) const;
 	PlayerTypes m_eOwner;
 	bool m_bSilent;
 	bool m_bDebug;
@@ -32,8 +31,7 @@ public:
 protected:
 	void check();
 private:
-	void showMessage(TeamTypes eHireling, std::vector<TeamTypes> aeTargets,
-			bool bTrade) const;
+	void showMessage(TeamTypes eHireling, std::vector<TeamTypes> aeTargets, bool bTrade) const;
 	void showMessage(TeamTypes eHireling, bool bNowTooManyWars) const;
 	void showMessage(CvWString szMsg, TeamTypes eHireling) const;
 	ArrayEnumMap2D<TeamTypes,TeamTypes,bool> m_willWar;
@@ -60,10 +58,8 @@ public:
 protected:
 	void check();
 private:
-	void getExportData(CLinkList<TradeData> const& kList, PlayerTypes eTo,
-			std::vector<int>& kResult) const;
-	void showMessage(PlayerTypes eFrom, int iData, int iNewQuantity,
-			int iOldQuantity);
+	void getExportData(CLinkList<TradeData> const& kList, PlayerTypes eTo, std::vector<int>& kResult) const;
+	void showMessage(PlayerTypes eFrom, int iData, int iNewQuantity, int iOldQuantity);
 	std::multiset<int> m_exportDeals[MAX_CIV_PLAYERS];
 };
 
@@ -77,10 +73,8 @@ public:
 protected:
 	void check();
 private:
-	void msgWilling(std::vector<CvCity const*> const& kCities,
-			PlayerTypes ePlayer, bool bCede) const;
-	void msgLiberate(std::vector<CvCity const*> const& kCities,
-			PlayerTypes ePlayer) const;
+	void msgWilling(std::vector<CvCity const*> const& kCities, PlayerTypes ePlayer, bool bCede) const;
+	void msgLiberate(std::vector<CvCity const*> const& kCities, PlayerTypes ePlayer) const;
 	std::vector<int> m_willCede[MAX_CIV_PLAYERS];
 	std::vector<int> m_willBuy[MAX_CIV_PLAYERS];
 	std::vector<int> m_canLiberate[MAX_CIV_PLAYERS];

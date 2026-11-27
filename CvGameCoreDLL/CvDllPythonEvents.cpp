@@ -752,6 +752,23 @@ void CvDllPythonEvents::reportUnitLost(CvUnit* pUnit)
 	}
 }
 
+void CvDllPythonEvents::reportUnitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit* pNewUnit)
+{
+	// <!-- custom: include old owner/type plus the new captured unit; Python uses this to patch the matching Military Advisor battle row with Cap# and unit icon. (GPT-5.5) -->
+	if (preEvent())
+	{
+		CyArgsList eventData;
+		eventData.add("unitCaptured");
+		eventData.add(eOldOwner);
+		eventData.add(eOldUnitType);
+
+		CyUnit* pyu = new CyUnit(pNewUnit);
+		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
+		postEvent(eventData);
+		delete pyu;
+	}
+}
+
 void CvDllPythonEvents::reportUnitPromoted(CvUnit* pUnit, PromotionTypes ePromotion)
 {
 	if (preEvent())

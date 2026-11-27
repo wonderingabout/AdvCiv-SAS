@@ -5,10 +5,10 @@
 
 #include "MilitaryBranch.h"
 #include "UWAICache.h"
-#include "UWAIReport.h"
 #include "UWAISets.h"
 
 class MilitaryAnalyst;
+class UWAILogMuteState; // <!-- custom: Nested mute depth shared by UWAI diagnostic sub-evaluations; not a logger. See KI#505.3. (ChatGPT-5.6-Sol) -->
 class SimulationStep;
 class CvArea;
 
@@ -73,21 +73,17 @@ public:
 		size_t findCycle(std::vector<Node*>& kPath);
 		// Won't terminate when called on a Node that's part of a cycle
 		Node& findSink();
-		bool hasLost(PlotNumTypes eCityPlot) const
-		{
-			return (m_cityLosses.count(eCityPlot) > 0);
-		}
+		bool hasLost(PlotNumTypes eCityPlot) const { return (m_cityLosses.count(eCityPlot) > 0); }
 		// Updates adjacency lists. NULL deletes an edge.
 		void changePrimaryTarget(Node* pNewTarget);
 		InvasionGraph::Node* getPrimaryTarget() const { return m_pPrimaryTarget; }
 		PlyrSet const& getTargetedBy() const { return m_targetedBy; }
 		/*	To be called on the attacker. Caller needs to delete the result.
 			Last two parameters only for clash steps */
-		SimulationStep* step(scaled rArmyPortionDefender = 0,
-				scaled rArmyPortionAttacker = 1, bool bClashOnly = false,
-				bool bUniformGarrisons = false) const;
+		SimulationStep* step(scaled rArmyPortionDefender = 0, scaled rArmyPortionAttacker = 1, bool bClashOnly = false, bool bUniformGarrisons = false) const;
 		void applyStep(SimulationStep const& kStep); // To be called on the defender
-		void setEliminated(bool b) { m_bEliminated = b; }
+		// <!-- custom: A terminal simulated node must also remove its outgoing invasion edge from both adjacency lists. See KI#574. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		void setEliminated(bool b);
 		bool isEliminated() const { return m_bEliminated; }
 		void resolveLosses();
 		/*	Simulates a clash of armies of two Nodes targeting each other.
@@ -100,15 +96,9 @@ public:
 		/*	The rest of the public functions are not to be used
 			until the simulation has finished ... */
 		// Lost power minus shifted power
-		scaled getLostPower(MilitaryBranchTypes eBranch) const
-		{
-			return m_arLostPower[eBranch] - m_arShiftedPower[eBranch];
-		}
+		scaled getLostPower(MilitaryBranchTypes eBranch) const { return m_arLostPower[eBranch] - m_arShiftedPower[eBranch]; }
 		// Power after simulation minus initial power
-		scaled getGainedPower(MilitaryBranchTypes eBranch) const
-		{
-			return m_military[eBranch]->power() - m_arCurrentPow[eBranch];
-		}
+		scaled getGainedPower(MilitaryBranchTypes eBranch) const { return m_military[eBranch]->power() - m_arCurrentPow[eBranch]; }
 		// Invested during the build-up phases
 		scaled getProductionInvested() const { return m_rProductionInvested; }
 		/*	City plots included in the conquest and loss sets are guaranteed to exist
@@ -126,7 +116,8 @@ public:
 
 	private:
 		InvasionGraph const& m_kOuter;
-		UWAIReport& m_kReport;
+		// <!-- custom: Shared nested mute state from the outer graph; diagnostics themselves go directly to BBAI. (ChatGPT-5.6-Sol) -->
+		UWAILogMuteState& m_kLogMuteState;
 		PlayerTypes m_ePlayer;
 		PlayerTypes m_eAgent;
 		PlyrSet m_warOpponents;
@@ -142,7 +133,8 @@ public:
 
 		void initMilitary();
 		int countUnitsWithAI(std::vector<UnitAITypes> aeAITypes) const;
-		void logPower(char const* szMsg) const;
+		// <!-- custom: Structured BBAI power rows use a stable stage token (e.g. CURRENT/PREDICTED) instead of the inherited free-form message prefix. (ChatGPT-5.6-Sol) -->
+		void logPower(char const* szStage) const;
 		/*	eExtra: Team (and its vassals) to be considered as the target
 			(in addition to m_warOpponents). */
 		PlayerTypes findTarget(TeamTypes eExtra = NO_TEAM) const;
@@ -175,17 +167,20 @@ public:
 		scaled m_rDistractionByDefense;
 
 		scaled productionPortion() const; // Remaining production capacity after losses
-		UWAICache::City const* targetCity(
-				// Default: based on m_pPrimaryTarget
-				PlayerTypes eTargetOwner = NO_PLAYER) const;
+		// <!-- custom: Real CvArea counts do not reflect hypothetical conquests.
+		// Count this node's remaining simulated cities for spatial Army and garrison allocation. See KI#592. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int remainingCitiesInArea(CvArea const& kArea) const;
+		// Default: based on m_pPrimaryTarget
+		// <!-- custom: hoisted from multiline signature before `eTargetOwner` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+		UWAICache::City const* targetCity(PlayerTypes eTargetOwner = NO_PLAYER) const;
 		void addConquest(UWAICache::City const& kConqCity);
-		void addCityLoss(UWAICache::City const& kLostCity)
-		{
-			m_cityLosses.insert(kLostCity.getID());
-		}
+		void addCityLoss(UWAICache::City const& kLostCity) { m_cityLosses.insert(kLostCity.getID()); }
+		// <!-- custom: Keep losses of simulated emergency defenders out of original Home Guard loss reporting while still consuming their availability. See KI#589. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		void applyPowerLoss(MilitaryBranchTypes eBranch, scaled rLostPower);
 		// (Vassals that break free are not modeled)
 		void setCapitulated(TeamTypes eMaster);
-		scaled clashDistance(Node const& kOther) const;
+		// <!-- custom: Select each side's available route-specific distance for an overland or fleet-only clash. See KI#591 and KI#1044. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		scaled clashDistance(Node const& kOther, bool bNaval) const;
 		bool isSneakAttack(Node const& kOther, bool bClash) const;
 		bool isContinuedWar(Node const& kOther) const;
 		bool canReachByLand(PlotNumTypes eCityPlot, bool bFromCapital) const;
@@ -194,34 +189,17 @@ public:
 		/*	Tbd.: Should create a small class for this stuff. Related:
 			Losses from city attack. */
 		static scaled const m_rClashPortion;
-		static std::pair<scaled,scaled> clashLossesWinnerLoser(
-				scaled rPowAtt, scaled rPowDef,
-				bool bNearCity = true, bool bNaval = false);
-		static scaled clashLossesTemporary(scaled rPowAtt, scaled rPowDef)
-		{
-			return m_rClashPortion * std::min(rPowAtt, rPowDef) / 3;
-		}
-		static scaled stake(scaled rPowAtt, scaled rPowDef)
-		{
-			return m_rClashPortion * scaled::min(1, fixp(1.6) *
-					powRatio(rPowAtt, rPowDef));
-		}
-		static scaled powRatio(scaled rFirstPow, scaled rSecondPow)
-		{
-			return std::min(rFirstPow, rSecondPow) /
-					std::max(std::max(rFirstPow, rSecondPow), scaled::epsilon());
-		}
+		static std::pair<scaled,scaled> clashLossesWinnerLoser(scaled rPowAtt, scaled rPowDef, bool bNearCity = true, bool bNaval = false);
+		static scaled clashLossesTemporary(scaled rPowAtt, scaled rPowDef) { return m_rClashPortion * std::min(rPowAtt, rPowDef) / 3; }
+		static scaled stake(scaled rPowAtt, scaled rPowDef) { return m_rClashPortion * scaled::min(1, fixp(1.6) * powRatio(rPowAtt, rPowDef)); }
+		static scaled powRatio(scaled rFirstPow, scaled rSecondPow) { return std::min(rFirstPow, rSecondPow) / std::max(std::max(rFirstPow, rSecondPow), scaled::epsilon()); }
 	};
 
 public:
 	InvasionGraph(MilitaryAnalyst& kMilitaryAnalyst, PlyrSet const& kWarParties,
 			bool bPeaceScenario = false);
 	~InvasionGraph();
-	Node* getNode(PlayerTypes ePlayer) const
-	{
-		FAssertBounds(0, MAX_PLAYERS, ePlayer);
-		return m_nodeMap[ePlayer];
-	}
+	Node* getNode(PlayerTypes ePlayer) const { FAssertBounds(0, MAX_PLAYERS, ePlayer); return m_nodeMap[ePlayer]; }
 	/*	No military build-up is estimated by simulate(int) until
 		this function is called. Intended to be called exactly once.
 		"Our side" being the agent (military analyst). */
@@ -247,7 +225,8 @@ private:
 	std::vector<Node*> m_nodeMap;
 	MilitaryAnalyst& m_kMA;
 	PlayerTypes m_eAgent;
-	UWAIReport& m_kReport;
+	// <!-- custom: Shared nested mute state from the MilitaryAnalyst evaluation; not a logger or formatter. (ChatGPT-5.6-Sol) -->
+	UWAILogMuteState& m_kLogMuteState;
 	bool m_bAllWarPartiesKnown;
 	int m_iTimeLimit; // for simulateLosses
 	bool m_bPeaceScenario;

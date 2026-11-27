@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+
+# <!-- custom: argparse/json read the same explicit workflow event boundaries as the SASGameRecord check; pathlib locates source/history, re recognizes labels, and subprocess inspects Git diffs. (GPT-6.1-Sol) -->
+import argparse
+import json
+from pathlib import Path
+import re
+import subprocess
+# <!-- custom: Parse the current XML revision structurally while retaining the compiled reader for immutable pre-migration commits. (GPT-6.1-Sol) -->
+import xml.etree.ElementTree as ET
+# <!-- custom: Reuse the established push/PR/default-branch range selection and Git readers so runtime revisions follow the same commit or explicit squash boundaries as SASGameRecord.
+# title_label_error shares the rule that a bumping commit's title names its revision. (GPT-6.1-Sol + Claude code Opus 5.5) -->
+from sas_revision_history import ROOT, changed_paths, git_show, revision_transitions, resolve_default_branch, title_label_error
+# <!-- custom: SASGameRecord's shared-helper path setup also exposes the common entry parser; both histories require real Change text while retaining their distinct bump policies. (GPT-6.1-Sol) -->
+# <!-- custom: functional_errors requires each history entry's Functional Yes/No line, beside its Change text; FUNCTIONAL_SINCE is the last revision written before it, so older commits are not judged by it.
+# change_layout_errors keeps an entry's text in its list, checked on the working tree. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+from revision_history import FUNCTIONAL_SINCE, change_errors, change_layout_errors, functional_errors, revision_entries
+
+SOURCE = "CvGameCoreDLL/SASRuntimeStatus.cpp"
+DEFINES = "Assets/XML/GlobalDefines_advciv_sas.xml"
+HISTORY = "_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md"
+# <!-- custom: The shipped external observer and its dialog companion also change runtime output/lifecycle semantics; its edits follow the same recorder-revision policy as the native publisher. (GPT-6.1-Sol) -->
+DEDICATED = {SOURCE, "CvGameCoreDLL/SASRuntimeStatusReasons.h", "Assets/SASRuntimeExitObserver.ps1", "Assets/SASRuntimeDialogObserver.cs", "Assets/SASRuntimeSourceObserver.ps1", "Assets/SASRuntimeScreenshotObserver.ps1", "Assets/SASRuntimeObserverEnvironment.ps1"}
+MARKER = re.compile(r"SASRuntime|SAS_RUNTIME|SASDllRuntimeIdentity")
+
+
+# <!-- custom: XML owns the current label; old commits still identify revisions 1-15 through their compiled marker.
+# Once the XML key exists, malformed/duplicate values fail rather than falling back to a misleading native label. (GPT-6.1-Sol) -->
+def revision(source, defines=""):
+    if "SAS_RUNTIME_REVISION" in defines:
+        try:
+            root = ET.fromstring(defines)
+            values = []
+            for node in root.iter():
+                if node.tag.rsplit("}", 1)[-1] != "Define":
+                    continue
+                fields = {child.tag.rsplit("}", 1)[-1]: (child.text or "").strip() for child in node}
+                if fields.get("DefineName") == "SAS_RUNTIME_REVISION":
+                    values.append(int(fields.get("iDefineIntVal")))
+        except (ET.ParseError, TypeError, ValueError):
+            return None
+        return values[0] if len(values) == 1 else None
+    values = re.findall(r"\bSAS_RUNTIME_REVISION\s*=\s*(\d+)\b", source)
+    return int(values[0]) if len(values) == 1 else None
+
+
+# <!-- custom: Accept the XML snapshot alongside native source so current labels and historical compiled revisions share the same history validation. (GPT-6.1-Sol) -->
+# <!-- custom: functional_above added on 2026-11-25: Functional lines are required only on revisions after it, FUNCTIONAL_SINCE for a commit and 0, every entry, for the working tree. (Claude code Opus 5.5) -->
+def history_errors(source, history, defines="", functional_above=0):
+    value = revision(source, defines)
+    entries = [number for number, _body in revision_entries(history)]
+    if value is None or value < 1:
+        return ["missing positive SAS_RUNTIME_REVISION"]
+    if entries != list(range(value, 0, -1)):
+        return [f"runtime history must contain revisions {value} through 1 exactly once, latest first"]
+    return change_errors(history) + functional_errors(history, above=functional_above) + (change_layout_errors(history) if functional_above == 0 else [])
+
+
+def read(repo, commit, path):
+    if commit is None:
+        file = repo / path
+        # <!-- custom: Read the working copy as leniently as a committed blob below: many inherited BUG and AdvCiv text files are Windows-1252, and renaming them back to base AdvCiv's names made this strict read fail with "'utf-8' codec can't decode byte 0xe0" (2026-11-22). (Claude code Opus 5.5) -->
+        return file.read_text(encoding="utf-8", errors="replace") if file.is_file() else ""
+    data = git_show(repo, commit, path)
+    return "" if data is None else data.decode("utf-8", "replace")
+
+
+# <!-- custom: Dedicated recorder edits always qualify, including implementation comments; shared source/config changes qualify through changed runtime symbols.
+# Pure CI, test and documentation maintenance does not change the loaded recorder, so it must not force a recorder revision change; unusual shared-code refactors still need manual review. (GPT-6.1-Sol + ChatGPT) -->
+def qualifies(repo, parent, commit):
+    paths = changed_paths(repo, parent, commit) if commit is not None else subprocess.check_output(["git", "diff", "--name-only", parent, "--"], cwd=repo, text=True).splitlines()
+    paths = set(paths)
+    if commit is None:
+        # <!-- custom: Git's diff handles line-ending normalization; comparing decoded blobs with text-mode working files falsely classified clean CRLF checkouts as implementation edits.
+        # Add untracked paths explicitly so new draft source files are still checked before staging. (GPT-6.1-Sol) -->
+        paths.update(subprocess.check_output(["git", "ls-files", "--others", "--exclude-standard"], cwd=repo, text=True).splitlines())
+    if paths & DEDICATED:
+        return True
+    for path in paths:
+        # <!-- custom: LLM_Helpers/ holds local tooling the game never loads; toggle_dev_diagnostics.py naming SAS_RUNTIME_* defines was miscounted as a Runtime implementation change. (Claude code Opus 5.5) -->
+        if path.startswith(("tests/", ".github/", "LLM_Helpers/")) or Path(path).suffix.lower() not in {".cpp", ".h", ".py", ".xml"}:
+            continue
+        args = ["git", "diff", "--unified=0", "--ignore-cr-at-eol", parent]
+        if commit is not None:
+            args.append(commit)
+        diff = subprocess.check_output(args + ["--", path], cwd=repo, text=True, encoding="utf-8", errors="replace")
+        if commit is None and git_show(repo, parent, path) is None:
+            diff = "\n".join("+" + line for line in read(repo, None, path).splitlines())
+        if any(MARKER.search(line[1:]) for line in diff.splitlines() if line.startswith(("+", "-")) and not line.startswith(("+++", "---"))):
+            return True
+    return False
+
+
+def transition_errors(repo, parent, commit):
+    source = read(repo, commit, SOURCE)
+    previous_source = read(repo, parent, SOURCE) if parent else ""
+    if not source and not previous_source:
+        return []
+    # <!-- custom: The working tree needs every entry labeled; a commit, only the revisions after the label's start, so older commits in a pushed range pass while a new revision must be labeled where it is added. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+    errors = history_errors(source, read(repo, commit, HISTORY), read(repo, commit, DEFINES), 0 if commit is None else FUNCTIONAL_SINCE["Runtime"])
+    previous = revision(previous_source, read(repo, parent, DEFINES)) if previous_source else 0
+    current = revision(source, read(repo, commit, DEFINES))
+    if previous is None or current is None:
+        return errors + ["cannot resolve runtime revision progression"]
+    expected = previous + int(qualifies(repo, parent, commit)) if parent else 1
+    if current != expected:
+        errors.append(f"runtime revision {previous}->{current}: expected {expected} (exactly +1 for implementation changes, otherwise unchanged)")
+    # <!-- custom: A bumped Runtime revision must be named in the commit title, as the SGR check requires for SGR; see title_label_error. (Claude code Opus 5.5) -->
+    elif parent and current == previous + 1:
+        title_error = title_label_error(repo, parent, commit, f"Runtime{current}")
+        if title_error:
+            errors.append(title_error)
+    return errors
+
+
+# <!-- custom: The squash option checks the complete candidate once; ordinary calls retain per-commit and pending-draft validation. (GPT-6.1-Sol) -->
+def check(repo, default_branch_ref=None, event_name="local", event_data=None, squash=False):
+    _, base = resolve_default_branch(repo, default_branch_ref)
+    errors = []
+    transitions = revision_transitions(repo, base, event_name, event_data, squash)
+    for parent, commit in transitions:
+        label = commit[:12] if commit else "working-tree"
+        errors.extend(f"commit {label}: {error}" for error in transition_errors(repo, parent, commit))
+    # <!-- custom: Check an ordinary draft separately; squash mode already includes the working candidate in its one aggregate transition. (GPT-6.1-Sol) -->
+    if not any(commit is None for _parent, commit in transitions):
+        errors.extend(f"working tree: {error}" for error in transition_errors(repo, "HEAD", None))
+    return errors
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Check runtime revision/history per implementation commit or explicit squash candidate.")
+    parser.add_argument("--repo-root", type=Path, default=ROOT)
+    parser.add_argument("--default-branch-ref")
+    parser.add_argument("--event-name", choices=("local", "push", "pull_request", "workflow_dispatch"), default="local")
+    parser.add_argument("--event-path", type=Path)
+    parser.add_argument("--squash", action="store_true", help="Locally check the complete squash candidate instead of intermediate commits")
+    args = parser.parse_args()
+    event = None
+    if args.event_name in ("push", "pull_request"):
+        if args.event_path is None:
+            parser.error("push/PR checks require --event-path")
+        event = json.loads(args.event_path.read_text(encoding="utf-8"))
+        if not isinstance(event, dict):
+            parser.error("revision-check event must be a JSON object")
+    try:
+        errors = check(args.repo_root, args.default_branch_ref, args.event_name, event, args.squash)
+    except (ValueError, OSError, subprocess.CalledProcessError) as error:
+        errors = [str(error)]
+    print("FAIL runtime recorder revisions" if errors else "PASS runtime recorder revisions")
+    for error in errors:
+        print("  - " + error)
+    return int(bool(errors))
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

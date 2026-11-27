@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 118
+# Author: blakeciv
+# Date: 2006-11-24T19:37:43.594871Z
+# Coverage: full
+# Message:
+#   typo :P
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@117
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@118
+@@ -2237,7 +2237,7 @@
+ 			{
+ 				if (iFoodDifference > 0)
+ 				{
+-					iValue += ((kBuilding.getFoodKept() / 2);
++					iValue += (kBuilding.getFoodKept() / 2);
+ 				}
+ 
+ 				if (iFocusFlags & BUILDINGFOCUS_FOOD)
+

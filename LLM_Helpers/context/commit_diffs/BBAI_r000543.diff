@@ -1,0 +1,94 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 543
+# Author: jdog5000
+# Date: 2010-03-26T21:40:37.111758Z
+# Coverage: full
+# Message:
+#   Fix a couple important bugs in new victory strategy logic effects on war odds
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@542
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@543
+@@ -17040,7 +17040,7 @@
+ 	}
+     
+ 	// Turtle strategy
+-	if( GET_TEAM(getTeam()).getAtWarCount(true) > 0 )
++	if( GET_TEAM(getTeam()).getAtWarCount(true) > 0 && getNumCities() > 0 )
+ 	{
+ 		int iMaxWarCounter = 0;
+ 		for( int iTeam = 0; iTeam < MAX_CIV_TEAMS; iTeam++ )
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@542
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@543
+@@ -2613,7 +2613,10 @@
+ 	iLimitedWarRand = AI_limitedWarRand();
+ 	iDogpileWarRand = AI_dogpileWarRand();
+ 
+-	bool bCult4, bSpace4, bCult3, bFinalWar = false;
++	bool bCult4 = false;
++	bool bSpace4 = false;
++	bool bCult3 = false;
++	bool bFinalWar = false;
+ 
+ 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+@@ -2694,7 +2697,8 @@
+ 	iDogpileWarThreshold = 0;
+ 
+ 	int iHighUnitSpendingPercent = 0;
+-	bool bConq2, bDom3 = false;
++	bool bConq2 = false;
++	bool bDom3 = false;
+ 	bool bAggressive = GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI);
+ 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+@@ -4630,7 +4634,7 @@
+ 					{
+ 						if( gTeamLogLevel >= 1 )
+ 						{
+-							logBBAI("    Team %d (%S) starting TOTAL war preparations against team %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eBestTeam );
++							logBBAI("    Team %d (%S) starting TOTAL war preparations against team %d on pass %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eBestTeam, iPass );
+ 						}
+ 
+ 						AI_setWarPlan(eBestTeam, (iDaggerCount > 0) ? WARPLAN_TOTAL : WARPLAN_PREPARING_TOTAL);
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@542
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@543
+@@ -2694,20 +2694,20 @@
+ 		}
+ 		else
+ 		{
+-			if( !isBarbarian() && ((eAreaAIType == AREAAI_DEFENSIVE) || bTurtle) )
++			if( !isBarbarian() && (eAreaAIType == AREAAI_DEFENSIVE) )
+ 			{
+ 				// Use smaller attack city stacks on defense
+ 				if (AI_guardCity(false, true, 3))
+ 				{
+ 					return;
+ 				}
+-
+-				if( bTurtle )
+-				{
+-					if (AI_guardCity(false, true, 7))
+-					{
+-						return;
+-					}
++			}
++
++			if( bTurtle )
++			{
++				if (AI_guardCity(false, true, 7))
++				{
++					return;
+ 				}
+ 			}
+ 
+

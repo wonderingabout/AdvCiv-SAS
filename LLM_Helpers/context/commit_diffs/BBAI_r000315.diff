@@ -1,0 +1,38 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 315
+# Author: iustus
+# Date: 2007-01-28T02:43:45.844203Z
+# Coverage: full
+# Message:
+#   turned off sync checking
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@314
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@315
+@@ -40,7 +40,7 @@
+ // for testing only
+ #ifndef FINAL_RELEASE
+ #define TESTING_EXTRA_SAVE_DATA
+-#define DEBUG_OUT_OF_SYNCS
++//#define DEBUG_OUT_OF_SYNCS
+ #endif
+ 
+ // our own version number on our extra data
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@314
++++ /trunk/CvGameCoreDLL/CvGame.cpp@315
+@@ -32,7 +32,7 @@
+ 
+ // for testing only
+ #ifndef FINAL_RELEASE
+-#define DEBUG_OUT_OF_SYNCS
++//#define DEBUG_OUT_OF_SYNCS
+ #endif
+ 
+ 
+

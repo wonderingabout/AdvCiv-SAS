@@ -23,47 +23,26 @@ void AIStrengthMemoryMap::reset()
 }
 
 
-void AIStrengthMemoryMap::read(FDataStreamBase* pStream, uint uiFlag, TeamTypes eTeam)
+// <!-- custom: KI#46 removed the old layouts and left the stream flag argument unused.
+// CvTeamAI still consumes its marker before the map fields. See KI#46.2. (GPT-6.2-Sol) -->
+void AIStrengthMemoryMap::read(FDataStreamBase* pStream, TeamTypes eTeam)
 {
 	m_eTeam = eTeam;
-	if (uiFlag >= 4)
+
+	size_t iSize;
+	pStream->Read(&iSize);
+	if (iSize > 0)
 	{
-		size_t iSize;
-		pStream->Read(&iSize);
-		if (iSize > 0)
+		/*FAssert(GC.getMap().numPlots() == (int)iSize);
+		m_aiMap.resize(iSize, 0);
+		pStream->Read(m_aiMap.size(), &m_aiMap[0]);*/
+		for (size_t i = 0; i < iSize; i++)
 		{
-			/*FAssert(GC.getMap().numPlots() == (int)iSize);
-			m_aiMap.resize(iSize, 0);
-			pStream->Read(m_aiMap.size(), &m_aiMap[0]);*/
-			for (size_t i = 0; i < iSize; i++)
-			{
-				PlotNumTypes ePlot;
-				pStream->Read((int*)&ePlot);
-				int iStrength;
-				pStream->Read(&iStrength);
-				m_map[ePlot] = iStrength;
-			}
-		}
-	}
-	else 
-	{
-		/*std::vector<int> aiDummy;
-		std::vector<int>& aiMap = (CvTeam::getTeam(m_eTeam).isAlive() ?
-				m_aiMap : aiDummy);
-		aiMap.resize(GC.getMap().numPlots(), 0);
-		if (uiFlag >= 1)
-			pStream->Read(aiMap.size(), &aiMap[0]);*/
-		std::vector<int> aiTmp;
-		aiTmp.resize(GC.getMap().numPlots(), 0);
-		if (uiFlag >= 1) // (Guaranteed b/c we can't load BtS saves)
-			pStream->Read(aiTmp.size(), &aiTmp[0]);
-		for (size_t i = 0; i < aiTmp.size(); i++)
-		{
-			if (aiTmp[i] != 0)
-			{
-				FAssert(aiTmp[i] > 0);
-				m_map[(PlotNumTypes)i] = aiTmp[i];
-			}
+			PlotNumTypes ePlot;
+			pStream->Read((int*)&ePlot);
+			int iStrength;
+			pStream->Read(&iStrength);
+			m_map[ePlot] = iStrength;
 		}
 	}
 }

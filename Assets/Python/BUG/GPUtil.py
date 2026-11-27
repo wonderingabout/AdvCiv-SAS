@@ -1,124 +1,56 @@
-## GPUtil
-##
-## Utilities for dealing with Great People.
-##
-## MODDERS
-##
-##   There are four places where you must add information about your new great people.
-##   This is also necessary if you assign GP points to buildings that don't normally get them,
-##   for example GG points to Heroic Epic.
-##
-##     1. Unit Type
-##     2. Named constant
-##     3. Color
-##     4. Icon (font glyph or string)
-##
-## Notes
-##   - Must be initialized externally by calling init()
-##
-## Copyright (c) 2007-2009 The BUG Mod.
-##
-## Author: EmperorFool
+# <!-- custom: GPUtil retains BUG Great Person gameplay/progress utilities; the former four-place type/constant/color/icon extension instructions are superseded by the SAS setup note below.
+# External initialization through init() remains required. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+
+# Copyright (c) 2007-2009 The BUG Mod.
+# Author: EmperorFool
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+# <!-- custom: AdvCiv-SAS keeps GP gameplay/progress behavior here while the complete live GP unit/icon/color inventory is centralized in SASVisualUtils.GreatPeople. (ChatGPT-5.6-Sol) -->
+# <!-- custom: Modder setup replaces the inherited four-place type/constant/color/icon instructions: add a supported GP record to SAS_GREAT_PERSON_VISUAL_SPECS inside SASVisualUtils._GreatPeopleResources.init(), then extend the legacy named-constant unpack below in the same order.
+# g_gpBarList, NUM_GP and GP_GREAT_* become available after BUG calls init(), not at module import; current SAS configuration initializes the shared XML resources immediately before this module.
+# Live probability calculation still scans XML unit IDs rather than these legacy indices. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 
 from CvPythonExtensions import *
 import BugUtil
-import FontUtil
+import SASVisualUtils as SASVisuals
 import PlayerUtil
+import SASTextScale # <!-- custom: Measure Maximum-types candidates in the same configurable Label font used by both GP-bar callers. See KI#1066. (GPT-5.6-Sol) -->
 
 gc = CyGlobalContext()
 
-# Generic GP icon
-g_gpIcon = None
-
-# Unit Type of each great person that can gain GP points
-g_gpBarList = (
-	"UNIT_GREAT_SPY",
-	"UNIT_ENGINEER",
-	"UNIT_MERCHANT",
-	"UNIT_SCIENTIST",
-	"UNIT_ARTIST",
-	"UNIT_PROPHET",
-	"UNIT_GREAT_GENERAL",
-# MOD: specify the unit type (XML key) for each new great person (1)
-	#"UNIT_DOCTOR",
-)
-
-# Named constants for each great person and total number of GP types
-# These must be in the exact same order as the list above
-NUM_GP = len(g_gpBarList)
-(
-	GP_SPY,
-	GP_ENGINEER,
-	GP_MERCHANT,
-	GP_SCIENTIST,
-	GP_ARTIST,
-	GP_PROPHET,
-	GP_GENERAL,
-# MOD: define a constant for each new great person in same order as above (2)
-	#GP_DOCTOR,
-) = range(NUM_GP)
-
-# Map each GP type to unit ID, color, and icon to show in GP Bar
-g_gpUnitTypes = None
-g_gpColors = None
-g_unitIcons = None
-
-
 # Information
 
+# <!-- custom: Keep the inherited GP_GREAT_* index/helper API in its historical order, but initialize its names/count from the resolved SASVisualUtils cache at BUG's XML-ready init stage.
+# This avoids retaining the GP construction records or performing XML lookups at module import; the live calcPercentages path independently scans XML unit IDs. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 def init():
-	global g_gpIcon
-	g_gpIcon = FontUtil.getChar("greatpeople")
-	
-	global g_gpUnitTypes
-	g_gpUnitTypes = [None] * NUM_GP
-	for i, s in enumerate(g_gpBarList):
-		g_gpUnitTypes[i] = gc.getInfoTypeForString(s)
-	
-	global g_gpColors
-	g_gpColors = [None] * NUM_GP
-	g_gpColors[GP_SPY] = gc.getInfoTypeForString("COLOR_WHITE")
-	g_gpColors[GP_ENGINEER] = gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getColorType()
-	g_gpColors[GP_MERCHANT] = gc.getInfoTypeForString("COLOR_YELLOW")
-	g_gpColors[GP_SCIENTIST] = gc.getInfoTypeForString("COLOR_RESEARCH_STORED")
-	g_gpColors[GP_ARTIST] = gc.getInfoTypeForString("COLOR_CULTURE_STORED")
-	g_gpColors[GP_PROPHET] = gc.getInfoTypeForString("COLOR_BLUE")
-	g_gpColors[GP_GENERAL] = gc.getInfoTypeForString("COLOR_RED")
-	# MOD: specify color for each new great person (3)
-	#g_gpColors[GP_DOCTOR] = gc.getInfoTypeForString("COLOR_WHITE")
-	
-	global g_unitIcons
-	g_unitIcons = {}
-	g_unitIcons[g_gpUnitTypes[GP_SPY]] = FontUtil.getChar(FontSymbols.COMMERCE_ESPIONAGE_CHAR)
-	g_unitIcons[g_gpUnitTypes[GP_ENGINEER]] = FontUtil.getChar(FontSymbols.YIELD_PRODUCTION_CHAR)
-	g_unitIcons[g_gpUnitTypes[GP_MERCHANT]] = FontUtil.getChar(FontSymbols.COMMERCE_GOLD_CHAR)
-	g_unitIcons[g_gpUnitTypes[GP_SCIENTIST]] = FontUtil.getChar(FontSymbols.COMMERCE_RESEARCH_CHAR)
-	g_unitIcons[g_gpUnitTypes[GP_ARTIST]] = FontUtil.getChar(FontSymbols.COMMERCE_CULTURE_CHAR)
-	g_unitIcons[g_gpUnitTypes[GP_PROPHET]] = FontUtil.getChar(FontSymbols.RELIGION_CHAR)
-	g_unitIcons[g_gpUnitTypes[GP_GENERAL]] = FontUtil.getChar(FontSymbols.GREAT_GENERAL_CHAR)
-	# MOD: specify icon (font glyph) for each new great person (4)
-	#g_unitIcons[g_gpUnitTypes[GP_DOCTOR]] = FontUtil.getChar(FontSymbols.HEALTHY_CHAR)
+	global g_gpBarList, NUM_GP
+	global GP_GREAT_SPY, GP_GREAT_ENGINEER, GP_GREAT_MERCHANT, GP_GREAT_SCIENTIST, GP_GREAT_ARTIST, GP_GREAT_PROPHET, GP_GREAT_GENERAL
+	g_gpBarList = SASVisuals.GreatPeople.unitTypeNames()
+	NUM_GP = len(g_gpBarList)
+	# <!-- custom: Extending the inherited MOD example (GP_DOCTOR) requires a matching visual-spec record and named constant in this same order. (GPT-6.1-Sol) -->
+	(GP_GREAT_SPY, GP_GREAT_ENGINEER, GP_GREAT_MERCHANT, GP_GREAT_SCIENTIST, GP_GREAT_ARTIST, GP_GREAT_PROPHET, GP_GREAT_GENERAL) = range(NUM_GP)
+
 
 def getUnitType(gpType):
-	return g_gpUnitTypes[gpType]
+	return SASVisuals.GreatPeople.unitTypes()[gpType]
+
 
 def getColor(gpType):
-	return g_gpColors[gpType]
+	return SASVisuals.GreatPeople.unitColors()[gpType]
+
 
 def getUnitIcon(iUnit):
-	try:
-		return g_unitIcons[iUnit]
-	except:
+	if not SASVisuals.GreatPeople.hasUnitIcon(iUnit):
 		BugUtil.warn("no GP icon for unit %d", iUnit)
-		return u"%c" % CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)
-
+	return SASVisuals.GreatPeople.getUnitIcon(iUnit)
 
 # Getting Progress
 
 def getDisplayCity():
-	"""
-	Returns the city to display in the progress bar.
-	"""
+	# Returns the city to display in the progress bar.
+	#
 	pHeadSelectedCity = CyInterface().getHeadSelectedCity()
 	if (pHeadSelectedCity and pHeadSelectedCity.getTeam() == gc.getGame().getActiveTeam()):
 		city = pHeadSelectedCity
@@ -199,7 +131,6 @@ def calcPercentages(city):
 		#	percents[0] = (percents[0][0] + iLeftover, percents[0][1])
 	return percents
 
-
 # Displaying Progress
 
 def getHoverText(eWidgetType, iData1, iData2, bOption):
@@ -216,9 +147,9 @@ def getHoverText(eWidgetType, iData1, iData2, bOption):
 	szText += u"\n"
 	szText += BugUtil.getText("TXT_KEY_MISC_GREAT_PERSON", (iProgress, iThreshold))
 	if (iRate > 0):
-		szText += u"\n%d%s%s " % (iRate, g_gpIcon, BugUtil.getPlainText("TXT_KEY_PER_TURN"))
+		szText += u"\n%d%s%s " % (iRate, SASVisuals.GreatPeople.getDefaultIcon(), BugUtil.getPlainText("TXT_KEY_PER_TURN"))
 		szText += BugUtil.getText("INTERFACE_CITY_TURNS", (iTurns,))
-	
+
 	percents = calcPercentages(city)
 	if (len(percents) > 0):
 		percents.sort()
@@ -230,7 +161,7 @@ def getHoverText(eWidgetType, iData1, iData2, bOption):
 	return szText
 
 def getGreatPeopleText(city, iGPTurns, iGPBarWidth, bGPBarTypesNone, bGPBarTypesOne, bIncludeCityName):
-	sGreatPeopleChar = u"%c" % CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)
+	sGreatPeopleChar = SASVisuals.GreatPeople.getDefaultIcon()
 	if (not city):
 		szText = BugUtil.getText("INTERFACE_GREAT_PERSON_NONE", (sGreatPeopleChar, ))
 	elif (bGPBarTypesNone):
@@ -273,6 +204,12 @@ def getGreatPeopleText(city, iGPTurns, iGPBarWidth, bGPBarTypesNone, bGPBarTypes
 						szText = BugUtil.getText("INTERFACE_GREAT_PERSON_CITY", (pInfo.getDescription(), city.getName()))
 					else:
 						szText = unicode(pInfo.getDescription())
+				# <!-- custom: show chars in the GP bar even if 100% (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`). (GPT-5.2-Codex) -->
+				# <!-- custom: BUG's One option also takes this branch when several types are possible.
+				# Show the leading type's actual odds. (GPT-6.2-Sol) -->
+				szText = u"%s - %s%d%%" % (szText, getUnitIcon(iUnit), iPercent)
+				# <!-- custom: The Great People icon leads the text when the type is certain too, as it does when several types are possible, so the bar scans the same way in both cases (the user, 2026-11-21, Civ4ScreenShot0185). (Claude code Opus 5.5) -->
+				szText = u"%s %s" % (sGreatPeopleChar, szText)
 			else:
 				if (iGPTurns):
 					if (bIncludeCityName):
@@ -287,13 +224,14 @@ def getGreatPeopleText(city, iGPTurns, iGPBarWidth, bGPBarTypesNone, bGPBarTypes
 				szTypes = ""
 				for iPercent, iUnit in lPercents:
 					szNewTypes = szTypes + u" %c%d%%" % (getUnitIcon(iUnit), iPercent)
-					# advc (note, based on SAS): Should perhaps be %szNewTypes for a more
-					# accurate width test, but a little extra reluctance to drop text
-					# doesn't seem wrong to me.
-					szNewText = szText + u"<font=2> -%s</font>" % szTypes
-					if (CyInterface().determineWidth(szNewText) > iGPBarWidth - 10):
-						break # Keep under width
+					# <!-- custom: Maximum-types measured the previously accepted list, so the first candidate exceeding the GP bar width was still appended.
+					# Measure the candidate list before accepting it. See KI#237. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					szNewText = szText + u" -%s" % szNewTypes
+					# <!-- custom: SAS moved font ownership to both callers, but untagged measurement could disagree with their configurable Label-font rendering; wrap only the temporary candidate used for width measurement so returned text remains unnested. See KI#1066. (GPT-5.6-Sol) -->
+					if (CyInterface().determineWidth(SASTextScale.labelText(szNewText)) > iGPBarWidth - 10):
+						# Keep under width
+						break
 					szTypes = szNewTypes
 				if (len(szTypes) > 0):
-					szText += u"<font=2> -%s</font>" % szTypes
+					szText += u" -%s" % szTypes
 	return szText

@@ -12,7 +12,7 @@
 	 version="1.0" 
 	 date="11/29/2005"
 	 url="http://forums.civfanatics.com/showthread.php?t=144612">
-	 
+
 	<options id="Reminder" file="Reminder.ini">
 		<section id="Reminder">
 			<option id="Enabled" 
@@ -34,10 +34,10 @@
 					get="isAutolog" set="setAutolog"/>
 		</section>
 	</options>
-	
+
 	<events/>
 	<!-- advc.007b: Was "Alt Ctrl R | Alt M", but Alt+Ctrl+R is used for
 		 reloading Art Defines when cheats are enabled. -->
 	<shortcut key="Alt M" function="createReminder"/>
-	
+
 </mod>

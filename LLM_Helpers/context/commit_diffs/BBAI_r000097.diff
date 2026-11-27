@@ -1,0 +1,116 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 97
+# Author: iustus
+# Date: 2006-11-18T04:31:55.640235Z
+# Coverage: full
+# Message:
+#   Some whitespace cleanup that I came across while doing the vanilla merge
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@96
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@97
+@@ -1540,12 +1540,12 @@
+ 	}
+ 
+ 
+-    if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 0, true, true))
+-    {
+-        return;
+-    }
+-    
+-    if (AI_cityAttack(1, 100))
++	if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 0, true, true))
++	{
++		return;
++	}
++
++	if (AI_cityAttack(1, 100))
+ 	{
+ 		return;
+ 	}
+@@ -1554,26 +1554,26 @@
+ 	{
+ 		return;
+ 	}
+-    
+-    //stack attack
+-    if (getGroup()->getNumUnits() > 1)
+-    {
+-        if (AI_stackAttackCity(1, 100, true))
+-        {
+-            return ;
+-        }
+-    }    
+-
+-    
+-    if (AI_cityAttack(1, 70))
+-	{
+-		return;
+-	}
+-	
+-    if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 2, true, true))
+-    {
+-        return;
+-    }
++
++	//stack attack
++	if (getGroup()->getNumUnits() > 1)
++	{
++		if (AI_stackAttackCity(1, 100, true))
++		{
++			return ;
++		}
++	}    
++
++
++	if (AI_cityAttack(1, 70))
++	{
++		return;
++	}
++
++	if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 2, true, true))
++	{
++		return;
++	}
+ 
+ 	if (AI_heal(30, 1))
+ 	{
+@@ -1587,14 +1587,14 @@
+ 			return;
+ 		}
+ 
+-        int iTargetCount = GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(this, MISSIONAI_GROUP);
+-        if ((iTargetCount * 5) > getGroup()->getNumUnits())
+-		{
+-		    if (GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot()) > 0)
+-		    {
+-                getGroup()->pushMission(MISSION_SKIP);
+-                return;
+-		    }
++		int iTargetCount = GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(this, MISSIONAI_GROUP);
++		if ((iTargetCount * 5) > getGroup()->getNumUnits())
++		{
++			if (GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot()) > 0)
++			{
++				getGroup()->pushMission(MISSION_SKIP);
++				return;
++			}
+ 		}
+ 	}
+ 
+@@ -1653,9 +1653,8 @@
+ //	if ((area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) ||
+ //		  (atWar(getTeam(), plot()->getTeam())) ||
+ //			((area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE) && (getGroup()->getNumUnits() >= AI_stackOfDoomExtra())))
+-//	{
+-    if ((getGroup()->getNumUnits() >= AI_stackOfDoomExtra()))
+-    {
++	if ((getGroup()->getNumUnits() >= AI_stackOfDoomExtra()))
++	{
+ 		if (AI_targetCity())
+ 		{
+ 			return;
+

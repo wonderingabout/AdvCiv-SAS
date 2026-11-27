@@ -174,29 +174,13 @@ struct enum_traits<PlayerVoteTypes,false,false,false> : enum_trait_base
 /*	Neither cast nor assignment operator can be defined out of class,
 	so I don't think we can somehow allow e.g. an enum to short assignment.
 	This seems like the next best thing: */
-template<typename E>
-__inline typename enum_traits<E>::compact_t compactEnum(E e)
-{
-	return static_cast<enum_traits<E>::compact_t>(e);
-}
+template<typename E> __inline typename enum_traits<E>::compact_t compactEnum(E e) { return static_cast<enum_traits<E>::compact_t>(e); }
 
-template<typename E>
-bool checkEnumBounds(E eIndex)
-{
-	return (eIndex >= 0 && eIndex < enum_traits<E>::length());
-}
+template<typename E> bool checkEnumBounds(E eIndex) { return (eIndex >= 0 && eIndex < enum_traits<E>::length()); }
 namespace enum_traits_detail
 {
-	template<typename E>
-	void assertEnumBounds(E eIndex)
-	{
-		FAssertBounds(0, enum_traits<E>::length(), eIndex);
-	}
-	template<typename E>
-	void assertInfoEnum(E eIndex)
-	{
-		FAssertBounds(-1, enum_traits<E>::length(), eIndex);
-	}
+	template<typename E> void assertEnumBounds(E eIndex) { FAssertBounds(0, enum_traits<E>::length(), eIndex); }
+	template<typename E> void assertInfoEnum(E eIndex) { FAssertBounds(-1, enum_traits<E>::length(), eIndex); }
 };
 #ifdef FASSERT_ENABLE
 #define FAssertEnumBounds(eIndex) enum_traits_detail::assertEnumBounds(eIndex)

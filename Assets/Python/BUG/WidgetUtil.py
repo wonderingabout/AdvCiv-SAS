@@ -43,18 +43,16 @@ import BugConfig
 import BugUtil
 import BugGameUtils # kmodx
 
-
 ## Widget Types
 
 g_nextWidget = WidgetTypes.NUM_WIDGET_TYPES
 
 def createWidget(name):
-	"""
-	Creates and returns the next unique WidgetTypes constant to be used with custom UI widgets.
-	
-	If <name> already exists, a warning is logged and the widget is returned.
-	Otherwise the new widget is assigned to WidgetTypes.<name> and returned.
-	"""
+	# Creates and returns the next unique WidgetTypes constant to be used with custom UI widgets.
+	#
+	# If <name> already exists, a warning is logged and the widget is returned.
+	# Otherwise the new widget is assigned to WidgetTypes.<name> and returned.
+	#
 	if hasattr(WidgetTypes, name):
 		BugUtil.warn("WidgetTypes.%s already exists", name)
 		return getattr(WidgetTypes, name)
@@ -66,58 +64,51 @@ def createWidget(name):
 		g_nextWidget += 1
 		return widget
 
-
 ## Hover Help Text
 
 g_widgetHelp = {}
 
 def setWidgetHelpText(widget, text):
-	"""
-	Assigns the literal <text> to be used as the hover text for <widget>.
-	"""
+	# Assigns the literal <text> to be used as the hover text for <widget>.
+	#
 	_setWidgetHelp(widget, "Text", lambda *ignored: text)
 
 def setWidgetHelpXml(widget, key):
-	"""
-	Assigns the XML <key> to be used to lookup the translated hover text for <widget>.
-	"""
+	# Assigns the XML <key> to be used to lookup the translated hover text for <widget>.
+	#
 	_setWidgetHelp(widget, "XML", lambda *ignored: BugUtil.getPlainText(key))
 
 def setWidgetHelpFunction(widget, func):
-	"""
-	Assigns the function <func> to be called to get the hover text for <widget>.
-	
-	The function will be called each time the hover text is needed with these parameters:
-	
-		eWidgetType         WidgetTypes constant
-		data1               int
-		data2               int
-		bOption             boolean
-	
-	The first three are the ones used when creating the UI widget.
-	I have no idea what <bOption> is or where it comes from as it's supplied by the EXE.
-	"""
+	# Assigns the function <func> to be called to get the hover text for <widget>.
+	#
+	# The function will be called each time the hover text is needed with these parameters:
+	#
+	# 	eWidgetType         WidgetTypes constant
+	# 	data1               int
+	# 	data2               int
+	# 	bOption             boolean
+	#
+	# The first three are the ones used when creating the UI widget.
+	# I have no idea what <bOption> is or where it comes from as it's supplied by the EXE.
+	#
 	_setWidgetHelp(widget, "Function", func)
 
 def _setWidgetHelp(widget, type, func):
-	"""
-	Registers the hover text <func> for <widget> if it hasn't been already.
-	
-	Do not call this function as it is used internally by the registration functions above.
-	"""
+	# Registers the hover text <func> for <widget> if it hasn't been already.
+	#
+	# Do not call this function as it is used internally by the registration functions above.
+	#
 	if widget in g_widgetHelp:
 		BugUtil.warn("WidgetTypes %d help already registered", widget)
 	else:
 		BugUtil.debug("WidgetUtil - registering %s hover help for WidgetTypes %d: %s", type, widget, func)
 		g_widgetHelp[widget] = func
 
-	
 def getWidgetHelp(argsList):
-	"""
-	Returns the hover help text for <eWidgetType> if registered, otherwise returns an empty string.
-	
-	This function is a BugGameUtils handler registered in init.xml.
-	"""
+	# Returns the hover help text for <eWidgetType> if registered, otherwise returns an empty string.
+	#
+	# This function is a BugGameUtils handler registered in init.xml.
+	#
 	eWidgetType, iData1, iData2, bOption = argsList
 	func = g_widgetHelp.get(eWidgetType)
 	if func:
@@ -128,13 +119,12 @@ def getWidgetHelp(argsList):
 	# </kmodx>
 	return u""
 
-
 ## Configuration Handler
 
 class WidgetHandler(BugConfig.Handler):
-	
+
 	TAG = "widget"
-	
+
 	def __init__(self):
 		BugConfig.Handler.__init__(self, WidgetHandler.TAG, "name text xml module function")
 		self.addAttribute("name", True)
@@ -142,7 +132,7 @@ class WidgetHandler(BugConfig.Handler):
 		self.addAttribute("xml")
 		self.addAttribute("module", False, True)
 		self.addAttribute("function")
-	
+
 	def handle(self, element, name, text, xml, module, function):
 		widget = createWidget(name)
 		if text:

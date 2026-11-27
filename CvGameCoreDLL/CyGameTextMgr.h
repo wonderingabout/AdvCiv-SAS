@@ -34,6 +34,9 @@ public:
 	// advc.069:
 	std::wstring getBasicUnitHelp(int iUnit, bool bCivilopediaText);
 	std::wstring getSpecificUnitHelp(CyUnit* pUnit, bool bOneLine, bool bShort);
+	// <!-- custom: Expose the existing omit-owner setUnitHelp path to Python for Military Advisor Map-tab unit rows; see KI#130. (GPT-5.5) -->
+	// <!-- custom: Also pass promotion icon size through to avoid hardcoded DLL image sizing when an advisor needs larger inline icons. (GPT-5.5) -->
+	std::wstring getSpecificUnitHelpOmitOwner(CyUnit* pUnit, bool bOneLine, bool bShort, int iPromotionIconSize);
 	std::wstring getHurtUnitStrength(CyUnit* pUnit); // advc.004
 	std::wstring getBuildingHelp(int iBuilding, bool bCivilopediaText, bool bStrategyText, bool bTechChooserText, CyCity* pCity);
 	std::wstring getProjectHelp(int iProject, bool bCivilopediaText, CyCity* pCity);
@@ -44,6 +47,8 @@ public:
 	std::wstring getImprovementHelp(int iImprovement, bool bCivilopediaText);
 	std::wstring getTerrainHelp(int iTerrain, bool bCivilopediaText);
 	std::wstring getFeatureHelp(int iFeature, bool bCivilopediaText);
+	// <!-- custom: Build panels reuse the discovery text without repeating the rest of the Feature help. See KI#1078. (GPT-6.1-Sol) -->
+	std::wstring getFeatureRemovalDiscoveryHelp(int iFeature);
 	std::wstring parseCivicInfo(int /*CivicTypes*/ iCivicType, bool bCivilopediaText, bool bPlayerContext, bool bSkipName);
 	std::wstring parseReligionInfo(int /*ReligionTypes*/ iReligionType, bool bCivilopediaText);
 	std::wstring parseCorporationInfo(int /*CorporationTypes*/ iCorporationType, bool bCivilopediaText);

@@ -1,0 +1,43 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 355
+# Author: iustus
+# Date: 2007-02-09T21:05:55.545247Z
+# Coverage: full
+# Message:
+#   adjust previous fix to avoiding anarchy when negative trade and low gold, now checks actual length of the anarchy, also sets gold target to 5 turns worth of anarchy
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@354
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@355
+@@ -2592,7 +2592,7 @@
+ int CvPlayerAI::AI_goldTarget()
+ {
+ 	// if we have negative trade deals, we need at least enough to keep us solvent during anarchy
+-	int iGold = max(0, -getGoldPerTurn());
++	int iGold = (getMaxAnarchyTurns() > 0) ? max(0, -getGoldPerTurn() * 5) : 0;
+ 
+ 	if (GC.getGameINLINE().getElapsedGameTurns() < 40)
+ 	{
+@@ -8352,7 +8352,8 @@
+ 	}
+ 
+ 	// XXX AI skips revolution???
+-	if (canRevolution(paeBestCivic))
++	// check again for real anarchy length, to make sure we will not become insolvent (getGoldPerTurn is just our trade deals)
++	if (canRevolution(paeBestCivic) && (getGold() + (getCivicAnarchyLength(paeBestCivic)* getGoldPerTurn()) > 0))
+ 	{
+ 		revolution(paeBestCivic);
+ 		AI_setCivicTimer((getMaxAnarchyTurns() == 0) ? (GC.getDefineINT("MIN_REVOLUTION_TURNS") * 2) : CIVIC_CHANGE_DELAY);
+@@ -8382,7 +8383,7 @@
+ 		}
+ 		
+ 		// if we will become insolvent during anarchy, wait (getGoldPerTurn is just our trade deals)
+-		if (getGold() + getGoldPerTurn() < 0)
++		if (getGold() + (getReligionAnarchyLength() * getGoldPerTurn()) < 0)
+ 		{
+ 			return;
+ 		}
+

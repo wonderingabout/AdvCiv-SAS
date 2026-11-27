@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 283
+# Author: iustus
+# Date: 2007-01-22T14:05:30.298948Z
+# Coverage: full
+# Message:
+#   added assert for case I think never happens, can speed up turn slightly by removing this
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@282
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@283
+@@ -2327,6 +2327,8 @@
+ 	{
+ 		if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, UNITAI_SETTLE, 3, -1, -1, -1, MOVE_SAFE_TERRITORY))
+ 		{
++			// does this ever occur? the previous settler check is less strict, this one should never be true (I think)
++			FAssertMsg(false, "unexpected settler load (non-fatal)");
+ 			return;
+ 		}
+ 	}
+

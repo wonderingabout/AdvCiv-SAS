@@ -1,0 +1,29 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 589
+# Author: jdog5000
+# Date: 2010-07-01T07:11:15.710568Z
+# Coverage: full
+# Message:
+#   last 1.01f tweaks
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@588
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@589
+@@ -3325,11 +3325,11 @@
+ /* War strategy AI                                                                              */
+ /************************************************************************************************/
+ 	// Prefer lower defense
+-	iValue += std::max( 0, (100 - pCity->getDefenseModifier(false))/20 );
++	iValue += std::max( 0, (100 - pCity->getDefenseModifier(false))/30 );
+ 	
+ 	if (pCity->getDefenseDamage() > 0)
+ 	{
+-		iValue += ((pCity->getDefenseDamage() / 20) + 1);
++		iValue += ((pCity->getDefenseDamage() / 30) + 1);
+ 	}
+ 
+ 	// Significant amounting of borrowing/adapting from Mongoose AITargetCityValueFix
+

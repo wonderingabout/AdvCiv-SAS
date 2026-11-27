@@ -1,0 +1,369 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 8
+# Author: iustus
+# Date: 2006-10-15T01:45:04.702037Z
+# Coverage: summary-only
+# Message:
+#   Initial check in, Firaxis 1.61 drop (python)
+# Changed paths (92):
+#   A /branches/firaxis/CvGameCoreDLL/Python24
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/Python.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/abstract.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/bitset.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/boolobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/bufferobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/cStringIO.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/cellobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/ceval.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/classobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/cobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/codecs.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/compile.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/complexobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/datetime.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/descrobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/dictobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/enumobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/errcode.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/eval.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/fileobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/floatobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/frameobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/funcobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/genobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/graminit.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/grammar.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/import.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/intobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/intrcheck.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/iterobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/listobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/longintrepr.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/longobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/marshal.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/metagrammar.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/methodobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/modsupport.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/moduleobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/node.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/object.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/objimpl.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/opcode.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/osdefs.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/parsetok.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/patchlevel.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/pgen.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/pgenheaders.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/py_curses.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/pyconfig.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/pydebug.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/pyerrors.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/pyfpe.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/pygetopt.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/pymactoolbox.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/pymem.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/pyport.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/pystate.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/pystrtod.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/pythonrun.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/pythread.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/rangeobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/setobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/sliceobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/stringobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/structmember.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/structseq.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/symtable.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/sysmodule.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/timefuncs.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/token.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/traceback.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/tupleobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/ucnhash.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/unicodeobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/include/weakrefobject.h
+#   A /branches/firaxis/CvGameCoreDLL/Python24/libs
+#   A /branches/firaxis/CvGameCoreDLL/Python24/libs/_bsddb.lib
+#   A /branches/firaxis/CvGameCoreDLL/Python24/libs/_socket.lib
+#   A /branches/firaxis/CvGameCoreDLL/Python24/libs/_ssl.lib
+#   A /branches/firaxis/CvGameCoreDLL/Python24/libs/_testcapi.lib
+#   A /branches/firaxis/CvGameCoreDLL/Python24/libs/_tkinter.lib
+#   A /branches/firaxis/CvGameCoreDLL/Python24/libs/bz2.lib
+#   A /branches/firaxis/CvGameCoreDLL/Python24/libs/libpython24.a
+#   A /branches/firaxis/CvGameCoreDLL/Python24/libs/pyexpat.lib
+#   A /branches/firaxis/CvGameCoreDLL/Python24/libs/python24.dll
+#   A /branches/firaxis/CvGameCoreDLL/Python24/libs/python24.lib
+#   A /branches/firaxis/CvGameCoreDLL/Python24/libs/select.lib
+#   A /branches/firaxis/CvGameCoreDLL/Python24/libs/unicodedata.lib
+#   A /branches/firaxis/CvGameCoreDLL/Python24/libs/winsound.lib
+#   A /branches/firaxis/CvGameCoreDLL/Python24/libs/zlib.lib
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/Python.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/abstract.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/bitset.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/boolobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/bufferobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/cStringIO.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/cellobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/ceval.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/classobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/cobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/codecs.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/compile.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/complexobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/datetime.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/descrobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/dictobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/enumobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/errcode.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/eval.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/fileobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/floatobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/frameobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/funcobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/genobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/graminit.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/grammar.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/import.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/intobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/intrcheck.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/iterobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/listobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/longintrepr.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/longobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/marshal.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/metagrammar.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/methodobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/modsupport.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/moduleobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/node.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/object.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/objimpl.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/opcode.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/osdefs.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/parsetok.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/patchlevel.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/pgen.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/pgenheaders.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/py_curses.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/pyconfig.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/pydebug.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/pyerrors.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/pyfpe.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/pygetopt.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/pymactoolbox.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/pymem.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/pyport.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/pystate.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/pystrtod.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/pythonrun.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/pythread.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/rangeobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/setobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/sliceobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/stringobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/structmember.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/structseq.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/symtable.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/sysmodule.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/timefuncs.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/token.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/traceback.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/tupleobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/ucnhash.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/unicodeobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/include/weakrefobject.h
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/libs/_bsddb.lib
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/libs/_socket.lib
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/libs/_ssl.lib
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/libs/_testcapi.lib
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/libs/_tkinter.lib
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/libs/bz2.lib
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/libs/libpython24.a
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/libs/pyexpat.lib
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/libs/python24.dll
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/libs/python24.lib
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/libs/select.lib
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/libs/unicodedata.lib
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/libs/winsound.lib
+# Omitted: matches --summarize
+
+Index: /branches/firaxis/CvGameCoreDLL/Python24/libs/zlib.lib
+# Omitted: matches --summarize
+

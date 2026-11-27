@@ -197,6 +197,14 @@
 	<ElementType name="DiplomacyIntroMusicWar" content="eltOnly">
 		<element type="DiploMusicWarEra" minOccurs="0" maxOccurs="*"/>
 	</ElementType>
+	<!-- custom: per-era leader art define tag (Claude code Opus 4.7) -->
+	<ElementType name="EraArtDefineTag" content="eltOnly">
+		<element type="EraType"/>
+		<element type="ArtDefineTag"/>
+	</ElementType>
+	<ElementType name="EraArtDefineTags" content="eltOnly">
+		<element type="EraArtDefineTag" minOccurs="0" maxOccurs="*"/>
+	</ElementType>
 	<!-- advc.xmldefault: Made many subelements optional (minOccurs 0).
 		 None were optional before except the ones added by advc.ctr. -->
 	<ElementType name="LeaderHeadInfo" content="eltOnly">
@@ -204,6 +212,8 @@
 		<element type="Description"/>
 		<element type="Civilopedia"/>
 		<element type="ArtDefineTag"/>
+		<!-- custom: optional per-era leader art (one entry per era you want to override) (Claude code Opus 4.7) -->
+		<element type="EraArtDefineTags" minOccurs="0"/>
 		<element type="iWonderConstructRand"/>
 		<element type="iBaseAttitude"/>
 		<element type="iBasePeaceWeight"/>

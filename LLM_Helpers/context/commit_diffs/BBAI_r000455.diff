@@ -1,0 +1,136 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 455
+# Author: jdog5000
+# Date: 2009-06-06T00:28:44.032110Z
+# Coverage: full
+# Message:
+#   Version 0.76G
+# Changed paths (4):
+#   M /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+#   M /trunk/Better BTS AI/Better BTS AI sources for 0.76.zip
+#   M /trunk/Better BTS AI/readme.txt
+#   M /trunk/Better BTS AI/todo and ideas.txt
+
+Index: /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/Better BTS AI sources for 0.76.zip
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/readme.txt
+--- /trunk/Better BTS AI/readme.txt@454
++++ /trunk/Better BTS AI/readme.txt@455
+@@ -65,7 +65,11 @@
+ - Fixed bug where AI would demand tribute when about to declare war, potentially screwing up its war plans
+ - Fixed bug where AI units would head off to attack an enemy when they were not yet able to declare war, causing them to eventually get bumped out of enemy territory once the temporary peace treaty ended.
+ - Fixed bug (introduced) leading to very long loops and debug asserts for UNITAI_SETTLER_SEA units in certain circumstances
+-- Improved handling of determining which tiles are under blockade which appears to address issue (introduced) leading to tiles being under permanent blockade in rare circumstances.  (Bug stems from very rare incorrect returns from A* step finder, now at least seem to get consistent results)
++- Added workaround for bug in determining which tiles are under blockade that led to tiles being under permanent blockade in rare circumstances.  (Bug stems from very rare incorrect returns from A* step finder)
++- Fixed bug (introduced) causing crash if automating an air unit whose range extend beyond edge of map
++- Fixed bug (introduced) allowing tactical nukes to do AUTOMATE_EXPLORE, leading to crash if selected
++- Improved handling of splitting of splitting stacks of units under a variety of circumstances to more robustly avoid potential infinite loops ("Waiting for ...").  Applies mainly to mods, particularly those using Revolution.
++- Fixed potential crash bug in looking up AI_unitValue for UNITAI_MISSIONARY units without passing a valid CvArea*
+ 
+ War strategy AI
+ - Modified how closeness is used for determining who to attack, different settings for regular and Aggressive AI
+@@ -75,6 +79,8 @@
+ - AIs will no longer declare war on faraway vassals of their neighbors
+ - Added function AI_getWarSuccessCapitulationRatio to measure how well a team is doing in war
+ - If team is losing a land war badly, they will now use defensive area AI in all areas where there is significant enemy presence
++- Modified a losing civs decision to offer capitulation, prior method made capitulation less likely if there were many small capitulated vassals on the map
++- Adjusted threshold for offering capitulation based on above change
+ 
+ War tactics AI
+ - Attack city stacks will now reduce the distance they travel in enemy territory so the enemy has less time to prepare or hit them with suicide siege
+@@ -203,6 +209,9 @@
+ - Transports no longer attempt to pickup attack city units recovering in recently captured cities
+ - Second waves of invasions will now more likely target areas where AI already has captured some cities
+ - AI transports now scrap or switch UNITAI type if owner can build better transports but unit can't upgrade to them (half of fix for Galley->Carrack->Galleon issues)
++- AI ocean-capable transport groups now split off galleys
++- AI galley assault transports which can upgrade now wait in cities to be upgraded
++
+ 
+ Air AI
+ - Modified and expanded Solver's changes to retreat from city/fort AI to be more specialized for various unit AI types, only move if there's a real threat
+@@ -252,6 +261,7 @@
+ - Attack city stacks will now wait for units just about to join them
+ - AI will no longer send missionaries, execs, most great people through enemy territory
+ - AI great generals now strongly avoid traveling in enemy territory when joining units
++- Transports will now avoid grouping with those that have different impassability counts (galley vs galleon)
+ 
+ Barbarian AI
+ - Barb ships will now often blockade cities for a few turns before moving on if they have no nearby targets
+@@ -286,6 +296,9 @@
+ - Added new version of CvPlayerAI::AI_unitTargetMissionAIs which counts how many unit target mission AIs are within a certain range (for detecting units wanting to load on transports)
+ - Added function PUF_isFiniteRangeAndNotJustProduced to allow counting of units who have had at least one turn of their own to move
+ - Units using path flags MOVE_AVOID_ENEMY_WEIGHT_x now will also try to end each turn not in/adjacent to enemy territory when possible, used by AI transports to there's less likely to be a turn of exposure before invasion
++- Added CvSelectionGroup::canMoveAllTerrain to fix issue with all terrain transports in mods
++- Added CvSelectionGroupAI::AI_seperateLimitedTransports to fix issue with AI using stacks of mixed galley and galleon transports
++- AI will now avoid building invisible escorts since they cannot defend
+ 
+ Combat Mechanics
+ - Modification for air v air combat to make veteran units more valuable, especially when wounded.  Air v air combat is now more much more similar to land combat.  This change can be disabled/enabled using BBAI_AIR_COMBAT in GlobalDefinesAlt.xml
+
+Index: /trunk/Better BTS AI/todo and ideas.txt
+--- /trunk/Better BTS AI/todo and ideas.txt@454
++++ /trunk/Better BTS AI/todo and ideas.txt@455
+@@ -12,13 +12,14 @@
+ - Better logic (centralized) for determining when to relocate capital
+ x Rework "early" city hunting stack logic
+ - Build CARRIER_AIR if at war based on empty slots, regardless of area ai
+-- Block more superfluous builds in defensive areas
++- Block more superfluous builds in defensive areas (executives)
+ 
+ War strategy AI:
+ - Target cities to stop potential victory - capital for space, high culture cities for cultural.  Use war declaration code as a guide for how to determine if other player is close
+ - Consider closeness to cultural victory?
+ - War alliances:  If want to declare war on a civ, but simply not powerful enough, check for other AIs who want to join right from the beginning?  Would have to skip the preparing phase, just set Dogpile or something ... any way to make them all declare on the same turn?  Some new ALLIED ATTACK war plan or something?
+ - Divide war success by two if recaptuing own city previously lost?
++- Cut preparing time in 2 if have 50% more power?
+ 
+ Unit AI:
+ - City defense axemen don't upgrade to Macemen since Macemen don't have that UNITAI ... switch to city counter under some circumstances?
+@@ -28,8 +29,7 @@
+ - If sending an attack load with no attack city units, change at least one unit ai
+ - When pillaging, have fast units pillage once each and then slow units/second pillage so that group can still move
+ - Stranded move to city with good closeness
+-- Generals spawned in enemy territory -> lead
+-- Stealth Destroyers ... don't run escort AI
++- Generals spawned in enemy territory (mods) -> lead
+ 
+ Naval AI:
+ x Have AI transfer troops from Assault to Defensive and Offensive areas if it is out-gunned
+@@ -37,6 +37,8 @@
+ - Block transports from grouping with transports running MISSIONAI_ASSAULT
+ - When transport heads out on assault mission, clear missions for all those coming to join with it
+ - Escorts for picking up stranded
++x Stealth Destroyers ... don't run escort AI
++x Check out Maniac's changes for all terrain ships/transports
+ 
+ Great people AI
+ - If losing war or on defensive, up value of Golden Age (so can switch to drafting civics)
+@@ -63,7 +65,8 @@
+ 
+ General AI:
+ - XML option for tech beelining length
+-- Issue with tactical nukes being able to auto explore (also, range causing crashes?)
++x Issue with tactical nukes being able to auto explore (also, range causing crashes?)
++x Block AI from building UNITAI_ESCORT_SEA which are invisible
+ 
+ -----------------------------------------------------------
+ 
+@@ -79,10 +82,10 @@
+ 
+ Check decisions about making amphibious assaults versus landing next to city.  Also, separate off attack ships and have them bombard before invasion?
+ 
+-Why do blockades not get properly set some times?  Seems to happen when a city is captured same turn blockade starts.  Also, problem with not clearing all plots.
+-
+ Active defense, both shifting defenders around plus forming a stack to attack invaders.  See Version 0.50 thread.
+ 
+ Guard city logic causes cycles due to inconsistent counting of units.
+ 
+ Spaceship_1, Spaceship_2, etc strategies, Domination_1, Domination_2.  Diplo??
++
++How to get early rushes ready?  Early rush defense too.
+

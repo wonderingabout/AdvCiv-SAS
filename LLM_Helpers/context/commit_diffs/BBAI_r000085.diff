@@ -1,0 +1,55 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 85
+# Author: blakeciv
+# Date: 2006-11-16T16:04:19.555540Z
+# Coverage: full
+# Message:
+#   Force units healing in a city to skip turn.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@84
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@85
+@@ -1519,6 +1519,12 @@
+ {
+ 	PROFILE_FUNC();
+ 	
++	if ((getGroup()->getNumUnits() == 1) && (getDamage() > 0) && 
++        plot()->getOwnerINLINE() == getOwnerINLINE() && plot()->isCity())
++    {
++        getGroup()->pushMission(MISSION_SKIP);
++    }
++	
+     if (AI_moveIntoCity(2))
+     {
+         return;        
+@@ -1530,7 +1536,7 @@
+ 	}
+ 
+ 
+-    if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 0, true))
++    if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 0, true, true))
+     {
+         return;
+     }
+@@ -1560,7 +1566,7 @@
+ 		return;
+ 	}
+ 	
+-    if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 2))
++    if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 2, true, true))
+     {
+         return;
+     }
+@@ -4509,7 +4515,7 @@
+ 
+ 	for(pLoopUnit = GET_PLAYER(getOwnerINLINE()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(getOwnerINLINE()).nextUnit(&iLoop))
+ 	{
+-		if ((pLoopUnit != this) && (pLoopUnit->getGroup() != getGroup()))
++		if (pLoopUnit != this)
+ 		{
+ 			if (AI_plotValid(pLoopUnit->plot()))
+ 			{
+

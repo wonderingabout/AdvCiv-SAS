@@ -1,0 +1,109 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 252
+# Author: blakeciv
+# Date: 2007-01-08T21:49:49.372357Z
+# Coverage: full
+# Message:
+#   Added function CvPlayerAI::AI_forceUpdateStrategies which does what you'd expect.
+#   
+#   Fixed and tweaked the Cultural AI late game research stuff.
+#   
+#   Reduced the chance of vassals pursuing Cultural Victory.
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.h
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@251
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@252
+@@ -251,7 +251,7 @@
+ 	}
+ 
+ 	AI_doResearch();
+-
++	
+ 	AI_doCommerce();
+ 
+ 	AI_doMilitary();
+@@ -3783,7 +3783,10 @@
+ 
+ 		if (eBestTech == NO_TECH)
+ 		{
+-			eBestTech = AI_bestTech((isHuman()) ? 1 : 3);
++			int iAIResearchDepth;
++			iAIResearchDepth = AI_isDoStrategy(AI_STRATEGY_CULTURE3) ? 1 : 3;
++			
++			eBestTech = AI_bestTech((isHuman()) ? 1 : iAIResearchDepth);
+ 		}
+ 
+ 		if (eBestTech != NO_TECH)
+@@ -8079,6 +8082,7 @@
+ 	if (getCurrentResearch() == NO_TECH)
+ 	{
+ 		AI_chooseResearch();
++		AI_forceUpdateStrategies(); //to account for current research.
+ 	}
+ }
+ 
+@@ -9799,6 +9803,7 @@
+ 	}
+ 	
+ 	//units
++	bool bAnyWarplan = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
+ 	int iBestUnitValue = 0;
+ 	for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+ 	{
+@@ -9809,6 +9814,7 @@
+ 			if (isTechRequiredForUnit((eTech), eLoopUnit))
+ 			{
+ 				int iTempValue = (GC.getUnitInfo(eLoopUnit).getCombat() * 100) / max(1, (GC.getGame().getBestLandUnitCombat()));
++				iTempValue *= bAnyWarplan ? 2 : 1;
+ 				
+ 				iValue += iTempValue / 3;
+ 				iBestUnitValue = max(iBestUnitValue, iTempValue);
+@@ -9910,10 +9916,14 @@
+ 	}
+ 	
+ 	iValue += countHolyCities();
+-	if (GET_TEAM(getTeam()).isAVassal())
+-	{
+-		iValue += 2;
+-		iValue += ((2 * countTotalHasReligion()) + 1) / getNumCities();
++	if ((GET_TEAM(getTeam()).isAVassal()) && (getNumCities() > 5))
++	{
++		int iReligionCount = countTotalHasReligion();
++		if (((iReligionCount() * 100) / getNumCities()) > 250)
++		{
++			iValue += 1;
++			iValue += ((2 * countTotalHasReligion()) + 1) / getNumCities();
++		}
+ 	}
+ 
+     //atleast I'm honest
+@@ -9979,6 +9989,12 @@
+         return false;
+     }
+     return (iStrategy & AI_getStrategyHash());
++}
++
++void CvPlayerAI::AI_forceUpdateStrategies()
++{
++	//this forces a recache.
++	m_iStrategyHashCacheTurn = -1;
+ }
+ 
+ int CvPlayerAI::AI_getStrategyHash()
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.h
+--- /trunk/CvGameCoreDLL/CvPlayerAI.h@251
++++ /trunk/CvGameCoreDLL/CvPlayerAI.h@252
+@@ -231,6 +231,7 @@
+ 	int AI_cultureVictoryTechValue(TechTypes eTech);
+ 	
+ 	bool AI_isDoStrategy(int iStrategy);
++	void AI_forceUpdateStrategies();
+ 
+ 	void AI_nowHasTech(TechTypes eTech);
+ 	
+

@@ -1,0 +1,29 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 301
+# Author: iustus
+# Date: 2007-01-26T22:32:52.583507Z
+# Coverage: full
+# Message:
+#   turning off the juggle in the governor, blake is singing hosanas
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@300
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@301
+@@ -373,11 +373,13 @@
+ 		}
+ 	}
+ 	
++#ifdef USE_JUGGLE_BANE_OF_BLAKE
+ 	// if automated, look for better choices than the current ones
+ 	if (!isHuman() || isCitizensAutomated())
+ 	{
+ 		AI_juggleCitizens();
+ 	}
++#endif
+ 	
+ 	// at this point, we should not be over the limit
+ 	FAssert((getWorkingPopulation() + getSpecialistPopulation()) <= (totalFreeSpecialists() + getPopulation()));
+

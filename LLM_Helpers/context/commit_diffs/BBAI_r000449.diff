@@ -1,0 +1,218 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 449
+# Author: jdog5000
+# Date: 2009-05-31T19:03:22.019765Z
+# Coverage: full
+# Message:
+#   Version 0.76B
+#   
+#   Fix for bug in new galley->carrack logic
+#   Improvement to blockade tile choices, may address issue with blockade tiles not clearing correctly
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.ncb
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.ncb
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@448
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@449
+@@ -4270,7 +4270,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.75F");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.76B");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@448
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@449
+@@ -4705,31 +4705,32 @@
+ 	bool bOldTradeNet;
+ 	bool bChanged = false;
+ 
+-	for (int iTeam = 0; iTeam < MAX_TEAMS; ++iTeam)
+-	{
+-		if (isEnemy((TeamTypes)iTeam))
+-		{
+-			for (int i = -iBlockadeRange; i <= iBlockadeRange; ++i)
+-			{
+-				for (int j = -iBlockadeRange; j <= iBlockadeRange; ++j)
+-				{
+-					CvPlot* pLoopPlot = ::plotXY(getX_INLINE(), getY_INLINE(), i, j);
+-
+-					if (NULL != pLoopPlot && pLoopPlot->isWater() && pLoopPlot->area() == area())
+-					{
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                      12/08/08                                jdog5000      */
+ /**                                                                                              */
+ /** Bugfix                                                                                       */
+ /*************************************************************************************************/
+-						if( GC.getMapINLINE().calculatePathDistance(plot(),pLoopPlot) > iBlockadeRange )
+-						{
+-							// No blockading on other side of an isthmus
+-							continue;
+-						}
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                       END                                                  */
+-/*************************************************************************************************/
++	gDLL->getFAStarIFace()->ForceReset(&GC.getStepFinder());
++	for (int i = -iBlockadeRange; i <= iBlockadeRange; ++i)
++	{
++		for (int j = -iBlockadeRange; j <= iBlockadeRange; ++j)
++		{
++			CvPlot* pLoopPlot = ::plotXY(getX_INLINE(), getY_INLINE(), i, j);
++
++			if (NULL != pLoopPlot && pLoopPlot->isWater() && pLoopPlot->area() == area())
++			{
++
++				int iPathDist = GC.getMapINLINE().calculatePathDistance(plot(),pLoopPlot);
++				if( iPathDist > iBlockadeRange )
++				{
++					// No blockading on other side of an isthmus
++					continue;
++				}
++
++				for (int iTeam = 0; iTeam < MAX_TEAMS; ++iTeam)
++				{
++					if (isEnemy((TeamTypes)iTeam))
++					{
+ 						if (!bChanged)
+ 						{
+ 							bOldTradeNet = pLoopPlot->isTradeNetwork((TeamTypes)iTeam);
+@@ -4756,6 +4757,9 @@
+ 			GC.getGameINLINE().updatePlotGroups();
+ 		}
+ 	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ }
+ 
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@448
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@449
+@@ -6681,7 +6681,7 @@
+ 		}
+ 	}
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      05/19/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      05/23/09                                jdog5000      */
+ /**                                                                                              */
+ /** Naval AI                                                                                     */
+ /*************************************************************************************************/
+@@ -6730,13 +6730,15 @@
+ 			{
+ 				if( eBestSettlerTransport != getUnitType() && GET_PLAYER(getOwnerINLINE()).AI_unitImpassableCount(eBestSettlerTransport) == 0 )
+ 				{
+-					if( !hasUpgrade(eBestSettlerTransport) )
++					UnitClassTypes ePotentialUpgradeClass = (UnitClassTypes)GC.getUnitInfo(eBestSettlerTransport).getUnitClassType();
++					if( !upgradeAvailable(getUnitType(), ePotentialUpgradeClass) )
+ 					{
+ 						getGroup()->unloadAll();
+ 
+ 						if( GET_PLAYER(getOwnerINLINE()).AI_unitImpassableCount(getUnitType()) > 0 )
+ 						{
+ 							scrap();
++							return;
+ 						}
+ 						else
+ 						{
+@@ -6744,7 +6746,7 @@
+ 							FAssert(pWaterArea != NULL);
+ 							if (pWaterArea != NULL)
+ 							{
+-								if( AI_getBirthmark()%3 == 0 )
++								if( GET_PLAYER(getOwnerINLINE()).AI_totalUnitAIs(UNITAI_EXPLORE_SEA) == 0 )
+ 								{
+ 									if (GET_PLAYER(getOwnerINLINE()).AI_unitValue(getUnitType(), UNITAI_EXPLORE_SEA, pWaterArea) > 0)
+ 									{
+@@ -6754,12 +6756,22 @@
+ 									}
+ 								}
+ 
+-								if( AI_getBirthmark()%3 == 1 )
++								if( GET_PLAYER(getOwnerINLINE()).AI_totalUnitAIs(UNITAI_SPY_SEA) == 0 )
+ 								{
+-									if (GET_PLAYER(getOwnerINLINE()).AI_unitValue(getUnitType(), UNITAI_RESERVE_SEA, area()) > 0)
++									if (GET_PLAYER(getOwnerINLINE()).AI_unitValue(getUnitType(), UNITAI_SPY_SEA, area()) > 0)
+ 									{
+-										AI_setUnitAIType(UNITAI_RESERVE_SEA);
+-										AI_reserveSeaMove();
++										AI_setUnitAIType(UNITAI_SPY_SEA);
++										AI_spySeaMove();
++										return;
++									}
++								}
++
++								if( GET_PLAYER(getOwnerINLINE()).AI_totalUnitAIs(UNITAI_MISSIONARY_SEA) == 0 )
++								{
++									if (GET_PLAYER(getOwnerINLINE()).AI_unitValue(getUnitType(), UNITAI_MISSIONARY_SEA, area()) > 0)
++									{
++										AI_setUnitAIType(UNITAI_MISSIONARY_SEA);
++										AI_missionarySeaMove();
+ 										return;
+ 									}
+ 								}
+@@ -6772,7 +6784,6 @@
+ 								}
+ 							}
+ 						}
+-						return;
+ 					}
+ 				}
+ 			}
+@@ -9676,8 +9687,19 @@
+ 										{
+ 											if (pLoopUnit->isWaiting())
+ 											{
+-												FAssert(pLoopUnit != this);
+-												iCount++;
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      05/24/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI				                                                                         */
++/*************************************************************************************************/
++												//FAssert(pLoopUnit != this);
++												if( pLoopUnit != this )
++												{
++													iCount++;
++												}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 											}
+ 										}
+ 									}
+@@ -17942,7 +17964,7 @@
+ 											// for first node in path so m_iData2 (turns) incremented
+ 											if( atPlot(pBestPlot) )
+ 											{
+-												FAssert(false);
++												//FAssert(false);
+ 												pBestPlot = getGroup()->getPathFirstPlot();
+ 												FAssert(!atPlot(pBestPlot));
+ 											}
+@@ -18229,7 +18251,7 @@
+ 
+ 											if( pBestPlot == NULL || atPlot(pBestPlot) )
+ 											{
+-												FAssert(false);
++												//FAssert(false);
+ 												pBestPlot = pBestPickupPlot;
+ 											}
+ 										}
+

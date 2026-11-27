@@ -1,0 +1,33 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 368
+# Author: iustus
+# Date: 2007-03-11T17:54:47.849288Z
+# Coverage: full
+# Message:
+#   removed verification check from regionUnion
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlotRegion.h
+
+Index: /trunk/CvGameCoreDLL/CvPlotRegion.h
+--- /trunk/CvGameCoreDLL/CvPlotRegion.h@367
++++ /trunk/CvGameCoreDLL/CvPlotRegion.h@368
+@@ -43,7 +43,7 @@
+ template <class _RegionClass>
+ void regionUnion(_RegionClass& regionToAddTo, const _RegionClass& regionToAdd)
+ { 
+-#ifndef check_our_work
++#ifdef check_our_work
+ 	_RegionClass addToCopy = regionToAddTo;
+ #endif
+ 
+@@ -82,7 +82,7 @@
+ 		}
+ 	}
+ 
+-#ifndef check_our_work
++#ifdef check_our_work
+ 	for (_RegionClass::const_iterator it = regionToAdd.begin(); it != regionToAdd.end(); it++)
+ 	{
+ 		addToCopy.insert((*it));
+

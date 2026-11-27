@@ -1,0 +1,38 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 214
+# Author: blakeciv
+# Date: 2006-12-19T17:50:28.943033Z
+# Coverage: full
+# Message:
+#   Updated WaterWorldPercent to account for possible local targets better.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@213
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@214
+@@ -6739,7 +6739,7 @@
+ 	    else
+ 	    {
+             iOtherCityCount += GET_TEAM((TeamTypes)iI).countNumCitiesByArea(area());
+-	    }	    
++	    }
+ 	}
+ 
+     if (iOtherCityCount == 0)
+@@ -6751,7 +6751,12 @@
+         iWaterPercent = 100 - ((iTeamCityCount + iOtherCityCount) * 100) / max(1, (GC.getGame().getNumCities()));
+     }
+     
+-    iWaterPercent = max(20, iWaterPercent);
++    iWaterPercent *= 50;
++    iWaterPercent /= 100;
++    
++    iWaterPercent += (50 * iTeamCityCount) / (iTeamCityCount + iOtherCityCount);
++    
++    iWaterPercent = max(1, iWaterPercent);
+     
+     
+     return iWaterPercent;
+

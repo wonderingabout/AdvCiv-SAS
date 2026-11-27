@@ -1,0 +1,11 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 18
+# Author: iustus
+# Date: 2006-11-01T05:33:28.618627Z
+# Coverage: full
+# Message:
+#   Creating trunk, starting from Firaxis Warlords 2.08 drop
+# Changed paths (1):
+#   A /trunk/CvGameCoreDLL (from /branches/firaxis/CvGameCoreDLL@17)
+

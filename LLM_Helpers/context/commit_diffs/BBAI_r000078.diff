@@ -1,0 +1,26 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 78
+# Author: iustus
+# Date: 2006-11-15T04:18:33.934019Z
+# Coverage: full
+# Message:
+#   Was using a pointer before checking for NULL (crash bug)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@77
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@78
+@@ -4550,9 +4550,9 @@
+                             for (iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
+                             {
+                                 pAdjacantPlot2 = plotDirection(pAdjacantPlot->getX_INLINE(), pAdjacantPlot->getY_INLINE(), ((DirectionTypes)iJ));
+-                                eTempBonus = pAdjacantPlot2->getNonObsoleteBonusType(getTeam());
+                                 if ((pAdjacantPlot2 != NULL) && (pAdjacantPlot2->getOwner() == getOwner()))
+                                 {
++	                                eTempBonus = pAdjacantPlot2->getNonObsoleteBonusType(getTeam());
+                                     if (pAdjacantPlot->isIrrigated())
+                                     {
+                                         //the irrigation has to be coming from somewhere
+

@@ -1,0 +1,101 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 110
+# Author: blakeciv
+# Date: 2006-11-22T07:06:24.907605Z
+# Coverage: full
+# Message:
+#   AI should now attack with more focus.
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@109
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@110
+@@ -466,15 +466,15 @@
+ 			case UNITAI_ANIMAL:
+ 			case UNITAI_SETTLE:
+ 			case UNITAI_WORKER:
++			case UNITAI_ATTACK:
++                break;
++
++			case UNITAI_ATTACK_CITY:
++				return true;
+ 				break;
+ 
+-			case UNITAI_ATTACK:
+-			case UNITAI_ATTACK_CITY:
+ 			case UNITAI_COLLATERAL:
+ 			case UNITAI_PILLAGE:
+-				return true;
+-				break;
+-
+ 			case UNITAI_RESERVE:
+ 			case UNITAI_COUNTER:
+ 			case UNITAI_CITY_DEFENSE:
+@@ -494,7 +494,7 @@
+ 				break;
+ 
+ 			case UNITAI_ATTACK_SEA:
+-				return true;
++//				return true;
+ 				break;
+ 
+ 			case UNITAI_RESERVE_SEA:
+@@ -596,7 +596,7 @@
+ 	FAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
+ 
+ 	bStack = (isHuman() && ((getDomainType() == DOMAIN_AIR) || GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_STACK_ATTACK)));
+-
++    bStack = true;
+ 	bAttack = false;
+ 
+ 	if (getNumUnits() > 0)
+@@ -651,7 +651,7 @@
+ 							{
+ 								break;
+ 							}
+-							pBestAttackUnit->attack(pDestPlot, bStack);
++							pBestAttackUnit->attack(pDestPlot, false);
+ 						}
+ 						else
+ 						{
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@109
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@110
+@@ -1548,10 +1548,10 @@
+ 		return;
+ 	}
+ 
+-	if (AI_cityAttack(1, 100))
+-	{
+-		return;
+-	}
++//	if (AI_cityAttack(1, 100))
++//	{
++//		return;
++//	}
+ 
+ 	if (AI_bombardCity())
+ 	{
+@@ -1565,7 +1565,7 @@
+ 		{
+ 			return ;
+ 		}
+-	}    
++	}
+ 
+ 
+ 	if (AI_cityAttack(1, 70))
+@@ -10758,7 +10758,7 @@
+ 	{
+ 		for (iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
+ 		{
+-			pLoopPlot	= plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++			pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+ 
+ 			if (pLoopPlot != NULL)
+ 			{
+

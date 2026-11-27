@@ -1,0 +1,110 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 245
+# Author: iustus
+# Date: 2007-01-06T10:03:47.426587Z
+# Coverage: full
+# Message:
+#   when leader flavor likes production, added strategy for it, which is used to have cities slightly prefer higher production plot improvements
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/AI_Defines.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/AI_Defines.h
+--- /trunk/CvGameCoreDLL/AI_Defines.h@244
++++ /trunk/CvGameCoreDLL/AI_Defines.h@245
+@@ -3,18 +3,18 @@
+ 
+ #define DEFAULT_PLAYER_CLOSENESS 6
+ 
+-#define AI_DEFAULT_STRATEGY             (0x00000001)
+-#define AI_STRATEGY_DAGGER              (0x00000002)
+-#define AI_STRATEGY_SLEDGEHAMMER        (0x00000004)
+-#define AI_STRATEGY_CASTLE              (0x00000008)
+-#define AI_STRATEGY_FASTMOVERS          (0x00000010)
+-#define AI_STRATEGY_SLOWMOVERS          (0x00000020)
+-#define AI_STRATEGY_CULTURE1            (0x00000040)  //religions and wonders
+-#define AI_STRATEGY_CULTURE2            (0x00000080)  //mass culture buildings
+-#define AI_STRATEGY_CULTURE3            (0x00000100)  //culture slider
+-#define AI_STRATEGY_MISSIONARY          (0x00000200)
+-#define AI_STRATEGY_CRUSH				(0x00000400)  //convert units to City Attack
+-
++#define AI_DEFAULT_STRATEGY             (1 << 0)
++#define AI_STRATEGY_DAGGER              (1 << 1)
++#define AI_STRATEGY_SLEDGEHAMMER        (1 << 2)
++#define AI_STRATEGY_CASTLE              (1 << 3)
++#define AI_STRATEGY_FASTMOVERS          (1 << 4)
++#define AI_STRATEGY_SLOWMOVERS          (1 << 5)
++#define AI_STRATEGY_CULTURE1            (1 << 6)  //religions and wonders
++#define AI_STRATEGY_CULTURE2            (1 << 7)  //mass culture buildings
++#define AI_STRATEGY_CULTURE3            (1 << 8)  //culture slider
++#define AI_STRATEGY_MISSIONARY          (1 << 9)
++#define AI_STRATEGY_CRUSH				(1 << 10)  //convert units to City Attack
++#define AI_STRATEGY_PRODUCTION          (1 << 11)
+ 
+ #define AI_CITY_ROLE_VALID              (1 <<  1)    //zero is bad
+ #define AI_CITY_ROLE_BIG_CULTURE        (1 <<  2)    //culture victory, probably
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@244
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@245
+@@ -4281,6 +4281,13 @@
+ 	iCommerceMultiplier /= iGreatPeopleAdvantage;
+ 	iFoodMultiplier *= iGreatPeopleAdvantage;
+ 	iFoodMultiplier /= 100;	
++	
++	// if leader flavor likes production, increase production, reduce commerce
++	if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_PRODUCTION))
++	{
++		iProductionMultiplier += 10;
++		iCommerceMultiplier -= 16;
++	}
+ 
+     if (!bChop)
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@244
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@245
+@@ -2061,6 +2061,11 @@
+             {
+                 szTempBuffer.Format(L"\n AI Crush Strategy");
+                 szString+=szTempBuffer;
++			}
++            if (GET_PLAYER(pPlot->getOwner()).AI_isDoStrategy(AI_STRATEGY_PRODUCTION))
++            {
++                szTempBuffer.Format(L"\n AI Production Strategy");
++                szString+=szTempBuffer;
+             }
+             
+             //Area battle plans.
+@@ -2070,7 +2075,7 @@
+             }
+             else if (pPlot->area()->getAreaAIType(pPlot->getTeam()) == AREAAI_DEFENSIVE)
+             {
+-					szTempBuffer.Format(L"\n Area AI = DEFENSIVE");
++				szTempBuffer.Format(L"\n Area AI = DEFENSIVE");
+             }
+             else if (pPlot->area()->getAreaAIType(pPlot->getTeam()) == AREAAI_MASSING)
+             {
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@244
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@245
+@@ -9920,7 +9920,12 @@
+     m_iStrategyHash = AI_DEFAULT_STRATEGY;
+     m_iStrategyHashCacheTurn = GC.getGameINLINE().getGameTurn();
+     
+-    if (getCapitalCity() == NULL)
++	if (AI_getFlavorValue(AI_FLAVOR_PRODUCTION) >= 2) // 0, 2, 5 or 10 in default xml [augustus 5, frederick 10, huayna 2, jc 2, chinese leader 2, qin 5, ramsess 2, roosevelt 5, stalin 2]
++	{
++		m_iStrategyHash |= AI_STRATEGY_PRODUCTION;
++	}
++	
++	if (getCapitalCity() == NULL)
+     {
+         return m_iStrategyHash;
+     }
+

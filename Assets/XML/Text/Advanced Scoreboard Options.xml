@@ -5,6 +5,10 @@
 
 	Copyright (c) 2009 The BUG Mod.
 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <Civ4GameText xmlns="http://www.firaxis.com">
 
 	<!-- advc.004: German was "Unbedeutende Zivilisationen" -->
@@ -16,7 +20,7 @@
 		<Italian>Mostra Civiltà Minori</Italian>
 		<Spanish>Mostrar Civilizaciones Menores</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__SHOWMINOR_HOVER</Tag>
@@ -26,18 +30,8 @@
 		<Italian>Quando è selezionato, vengono visualizzate anche le Civiltà Minori (certi Scenari considerano alcune Civiltà come minori).</Italian>
 		<Spanish>Cuando está activada, las civilizaciones menores son mostradas (algunos escenarios consideran a ciertas civilizaciones como menores).</Spanish>
 	</TEXT>
-	
-	<!-- [advc.099] -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_SCORES__SHOWDEAD_TEXT</Tag>
-		<English>Show</English>
-		<French>Montrer</French>
-		<German>Anzeigen</German>
-		<Italian>Mostra</Italian>
-		<Spanish>Mostrar</Spanish>
-	</TEXT-->
-	<!-- Replacing the above (and TXT_KEY_BUG_OPTLABEL_SCORES_DEAD_CIVS in BUG
-		 Options Screen.xml) -->
+
+	<!-- custom: Long_Comments_XML.txt #237 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__SHOWDEAD_TEXT</Tag>
 		<English>Show Defeated</English>
@@ -88,7 +82,7 @@
 		<Spanish>Cuando está activa, las civilizaciones eliminadas usarán el gris cuando sean mostradas.</Spanish>
 	</TEXT>
 	<!-- [/advc.099] -->
-	
+
 	<!-- advc.004: German was "Wertungstrend" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__DELTA_TEXT</Tag>
@@ -106,7 +100,7 @@
 		<Italian>Quando è selezionato, mostra la variazione del punteggio della Civiltà rispetto al turno precedente.</Italian>
 		<Spanish>Cuando está activa, permite mostrar el cambio en puntuaciones con respecto al anterior turno.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: German was too long. "Include Current Turn" is also a bit
 		 long. "Up to Now"? -->
 	<TEXT>
@@ -117,7 +111,7 @@
 		<Italian>Includere turno corrente</Italian>
 		<Spanish>Incluir Turno Actual</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: "includes the current turn's change in the score change" -
 		 let's change that a bit: -->
 	<TEXT>
@@ -128,7 +122,7 @@
 		<Italian>Quando è selezionato, include anche la variazione di punteggio relativa al turno corrente.</Italian>
 		<Spanish>Cuando está activa, incluye los cambios del turno actual al mostrar cambios de puntuaciones.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__DISPLAYNAME_TEXT</Tag>
 		<English>Display Name</English>
@@ -137,7 +131,7 @@
 		<Italian>Identifica con nome</Italian>
 		<Spanish>Nombre a Mostrar</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: This was pretty carefully described, but not quite
 		 consistent with other options (which I suppose had been added later).
 		 -->
@@ -157,7 +151,7 @@
 		<Italian>Leader|Civiltà|Civ Corta|Leader + Civ|Leader + Civ Corta</Italian>
 		<Spanish>Líder|Civilización|Descripción|Líder / Civ|Líder / Desc</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Was "Use Player Name" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__USEPLAYERNAME_TEXT</Tag>
@@ -175,7 +169,7 @@
 		<Italian>Quando è selezionato, nel Pannello del Punteggio viene utilizzato il nome del giocatore invece di quello del Leader della Civiltà da lui utilizzata.</Italian>
 		<Spanish>Cuando está activa, se usa el nombre de los jugadores humanos en lugar del de los líderes que están usando.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: was "Attitude Icons" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__ATTITUDE_TEXT</Tag>
@@ -193,7 +187,7 @@
 		<Italian>Quando è selezionato, nel Pannello del Punteggio vengono mostrate delle emoticons che rappresentano l'atteggiamento delle altre Civiltà verso di te.</Italian>
 		<Spanish>Si se activa, se muestran caras que indican la actitud de cada IA hacia tí.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: was "Worst Enemy Icons" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__WORSTENEMY_TEXT</Tag>
@@ -203,7 +197,7 @@
 		<Italian>Icone del Peggior Nemico</Italian>
 		<Spanish>Iconos de Peor Enemigo</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: ICON added -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__WORSTENEMY_HOVER</Tag>
@@ -215,23 +209,8 @@
 	</TEXT>
 
 	<!-- advc.104: Disabled this checkbox -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_SCORES__WHEOOH_TEXT</Tag>
-		<English>War Mobilization Icons</English>
-		<French>War Mobilization Icons</French>
-		<German>Kriegsvorbereitungen</German>
-		<Italian>Icone di Mobilitazione</Italian>
-		<Spanish>Icono de Mobilización</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_SCORES__WHEOOH_HOVER</Tag>
-		<English>When checked, shows an orange fist icon when the AI is mobilizing for war (We Have Enough on Our Hands).</English>
-		<French>When checked, shows an orange fist icon when the AI is mobilizing for war (We Have Enough on Our Hands).</French>
-		<German>Zeigt ein orangenes Faust-Symbol an, wenn sich eine Zivilisation auf einen Krieg vorbereitet (engl. "We Have Enough on Our Hands")</German>
-		<Italian>Quando è selezionato, mostra un'apposita icona quando la Civiltà si sta mobilitando per la guerra ('We Have Enough on Our Hands', WHEOH).</Italian>
-		<Spanish>Cuando se activa, muestra un puño naranja cuando la IA se está preparando para la guerra.</Spanish>
-	</TEXT-->
-	
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #37 -->
+
 	<!-- advc.004: was "Number of Cities" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__CITIES_TEXT</Tag>
@@ -241,7 +220,7 @@
 		<Italian>Numero di Citt&#224;</Italian>
 		<Spanish>Número de Ciudades</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Mention that only revealed cities count -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__CITIES_HOVER</Tag>
@@ -251,7 +230,7 @@
 		<Italian>Quando è selezionato, mostra il numero di Città per ogni Civiltà.</Italian>
 		<Spanish>Cuando está activo, muestra el número de ciudades de cada líder.</Spanish>
 	</TEXT>
-	
+
 	<!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__ALIGNICONS_TEXT</Tag>
 		<English>Enabled</English>
@@ -270,7 +249,7 @@
 		<Italian>Attiva layout tabulare</Italian>
 		<Spanish>Activar layout tabular</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: "shown as a grid" sounds like there would be gridlines -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__ALIGNICONS_HOVER</Tag>
@@ -280,7 +259,7 @@
 		<Italian>Quando è selezionato, il Pannello del Punteggio viene strutturato come griglia (vedi l'opzione seguente).</Italian>
 		<Spanish>Si se activa, se muestra la tabla de puntuaciones como una rejilla, y el resto de opciones en esta sección afectan a la tabla.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.085 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__EXPANDONHOVER_TEXT</Tag>
@@ -298,7 +277,7 @@
 		<Italian>Allows additional columns to appear when the cursor hovers over the scoreboard. In the [COLOR_HIGHLIGHT_TEXT]Column Order[COLOR_REVERT] box on the right, place an underscore before a column letter to make that column appear only on mouse-over. Recommendation: Place all underscored letters on the left.</Italian>
 		<Spanish>Allows additional columns to appear when the cursor hovers over the scoreboard. In the [COLOR_HIGHLIGHT_TEXT]Column Order[COLOR_REVERT] box on the right, place an underscore before a column letter to make that column appear only on mouse-over. Recommendation: Place all underscored letters on the left.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: was "Maximum Civilizations" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__MAXPLAYERS_TEXT</Tag>
@@ -308,7 +287,7 @@
 		<Italian>Massimo di Civilt&#224;</Italian>
 		<Spanish>Máximo de Civilizaciones</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: rewritten (English, German) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__MAXPLAYERS_HOVER</Tag>
@@ -318,7 +297,7 @@
 		<Italian>Seleziona il massimo numero di Civiltà che verranno mostrate (0 significa illimitate).</Italian>
 		<Spanish>Permite seleccionar el máximo número de civilizaciones a mostrar (0 indica que no hay límite).</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__DISPLAYORDER_TEXT</Tag>
 		<English>Column Order:</English>
@@ -327,7 +306,7 @@
 		<Italian>Ordine delle colonne:</Italian>
 		<Spanish>Orden de Columnas:</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: New key. Not a very elegant solution. Romance languages
 		 tbd. -->
 	<TEXT>
@@ -352,7 +331,7 @@
 		<Italian>Determina l'ordine in base al quale vengono visualizzate le colonne del Pannello del Punteggio:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - sei in guerra o hai un trattato di pace con la Civiltà;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - il Punteggio della Civiltà;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - la variazione nel punteggio rispetto al turno precedente;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - La posizione della Civiltà in base al punteggio.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - Il munero delle città della Civiltà.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - mostra l'icona di una stella argentata se la Civiltà ha dei Vassalli;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - il numero di identificazione della Civiltà;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Icona del leader[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Icona di civilt&#224;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - il Nome della Civiltà/del Leader della Civiltà;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - non hai ancora incontrato questa Civiltà;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Il Leader della Civiltà rifiuta di parlarti.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - hai un Rapporto di Spionaggio positivo verso la Civiltà;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - la Potenza della Civiltà rispetto alla tua (o viceversa);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - la Tecnologia che la Civiltà sta ricercando (nota per Vassalli e Alleati o mediante Spionaggio);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - il numero di Turni di Ricerca rimasti alla Civiltà;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - la Civiltà è connessa alla tua rete commerciale;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - hai un accordo di Libero Scambio con la Civiltà;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - hai un Patto Difensivo con la Civiltà;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - la Religione di Stato della Civiltà;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - l'atteggiamento della Civiltà verso di te;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - siete il Peggior Nemico della Civiltà;[NEWLINE][COLOR_HIGHLIGHT_TEXT]M[COLOR_REVERT] - (only with legacy AI) [ICON_OCCUPATION] icon if they give away war preparations through "too much on our hands"[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - sei in attesa che questa Civiltà finisca il suo turno;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - le statistiche di connessione del giocatore della Civiltà (ping);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - il giocatore di questa Civiltà è "out-of-sync".[NEWLINE][NEWLINE]Un numero definisce la spaziatura (in pixel) che deve seguire la colonna precedente (se visualizzata), prevalendo sulla spaziatura di default; un numero negativo comporta il ravvicinamento (ed al limite anche la sovrapposizione) fra le due colonne.[NEWLINE]Gli spazi vengono ignorati, per cui possono essere utilizzati per semplificare la lettura della stringa di codici.</Italian>
 		<Spanish>Determina el orden en el que las distintas columnas aparecen.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Estás en guerra o tienes un tratado de paz con esta civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Puntuación de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Cambios en puntuación desde el último turno.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Rango de la civ basado en su puntuación.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - Número de ciudades de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - La civ tiene al menos un vasallo.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - ID de jugador de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Icono de l&#237;der[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Icono de la civilizaci&#243;n[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Nombre de civ / líder / jugador.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Aún no te has encontrado con la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - La civ se niega a hablar.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - Tienes una proporción positiva de puntos de espionaje contra esta civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Proporción de fuerza de la civ comparada contigo.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Tecnología que está siendo investigada (vasallos, equipo y espionajes).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - Número de turnos de investigación restantes.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - La civ está conectada a tu red de comercio.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - Tienes apertura de fronteras con la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - Tienes un acuerdo de protección con la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Religión oficial de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Actitud de la civ hacia ti.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - Eres el peor enemigo de esta civ.[NEWLINE][COLOR_HIGHLIGHT_TEXT]M[COLOR_REVERT] - (only with legacy AI) [ICON_OCCUPATION] icon if they give away war preparations through "too much on our hands"[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - Esta civ espera a que termines tu turno.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Estado de la conexión de esta civ (ping)..[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - Este jugador está fuera de línea.[NEWLINE][NEWLINE]Puedes colocar un número (positivo o negativo) entre códigos de columna para reemplazar el espaciado por defecto.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__GROUPVASSALS_TEXT</Tag>
 		<English>Group Vassals</English>
@@ -361,7 +340,7 @@
 		<Italian>Raggruppa Vassalli</Italian>
 		<Spanish>Agrupar Vasallos</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__GROUPVASSALS_HOVER</Tag>
@@ -371,7 +350,7 @@
 		<Italian>Quando è selezionato, le Civiltà Vassalle sono elencate (rientranti) sotto alla Civiltà di cui sono Vassalli.</Italian>
 		<Spanish>Si se activa, los vasallos aparecen en un grupo debajo de su señor.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.155: Translations tbd. (though I don't intend to do them) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__COLORCODETEAMSCORE_TEXT</Tag>
@@ -389,7 +368,7 @@
 		<Italian>When checked, the score values of all civilizations of the same team are displayed in the team leader's color. Exception: Score values of civilizations without any teammates are displayed in white as normal.</Italian>
 		<Spanish>When checked, the score values of all civilizations of the same team are displayed in the team leader's color. Exception: Score values of civilizations without any teammates are displayed in white as normal.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__LEFTALIGNNAME_TEXT</Tag>
 		<English>Left-Align Name</English>
@@ -398,7 +377,7 @@
 		<Italian>Nome a sinistra</Italian>
 		<Spanish>Alinear nombre a la izquierda</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__LEFTALIGNNAME_HOVER</Tag>
@@ -408,7 +387,7 @@
 		<Italian>Quando è selezionato, il nome della Civiltà/del Leader nel Pannello del Punteggio viene allineato a sinistra invece che a destra.</Italian>
 		<Spanish>Cuando está activada, el nombre de civilización/líder se alinea a la izquierda en vez de a la derecha.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__RESEARCHICONS_TEXT</Tag>
 		<English>Research Icons</English>
@@ -417,7 +396,7 @@
 		<Italian>Icone di Ricerca</Italian>
 		<Spanish>Iconos de Investigación</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: rewritten (English, German) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__RESEARCHICONS_HOVER</Tag>
@@ -507,7 +486,7 @@
 		<Italian>Rap. Forza</Italian>
 		<Spanish>Proporción de Fuerza</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__POWER_HOVER</Tag>
@@ -517,7 +496,7 @@
 		<Italian>Quando è selezionato, mostra il rapporto fra la tua Potenza e quella della Civiltà verso cui hai accumulato abbastanza Punti Spionaggio.</Italian>
 		<Spanish>Cuando está activada, muestra la proporción de tu fuerza con respecto a la fuerza de aquellas civilizaciones contra las que tengas suficiente espionaje.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: unused -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__POWERFORMULA_TEXT</Tag>
@@ -527,7 +506,7 @@
 		<Italian>Rapporto di Forza</Italian>
 		<Spanish>Fórmula de fuerza</Spanish>
 	</TEXT>
-	
+
 	<!-- Flipped German Standard/Kehrwert to match the default in
 		 Advanced Scoreboard.xml -->
 	<TEXT>
@@ -538,7 +517,7 @@
 		<Italian>Altri/Giocatore|Giocatore/Altri</Italian>
 		<Spanish>Rival contra tí|Tu contra Rival</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__POWERFORMULA_HOVER</Tag>
@@ -558,7 +537,7 @@
 		<Italian>Cifre decimali</Italian>
 		<Spanish>Número de Decimales</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__POWERDECIMALS_HOVER</Tag>
@@ -568,7 +547,7 @@
 		<Italian>Indica il numero di cifre decimali con cui il Rapporto di Forza viene visualizzato nel Pannello del Punteggio.</Italian>
 		<Spanish>Número de decimales a mostrar en la proporción de fuerza.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__POWERCOLOR_TEXT</Tag>
 		<English>Default Color</English>
@@ -577,7 +556,7 @@
 		<Italian>Colore standard</Italian>
 		<Spanish>Color por Defecto</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__POWERCOLOR_HOVER</Tag>
@@ -587,7 +566,7 @@
 		<Italian>Colore predefinito per i Rapporti di Forza.</Italian>
 		<Spanish>Color a emplear en la proporción de fuerza.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Was "High Ratio Cutoff", which isn't quite the right term.
 		 "Threshold" is a bit long. -->
 	<TEXT>
@@ -622,7 +601,7 @@
 		<Italian>Consente di selezionare il valore limite perchè un Rapporto di Forza venga considerato "basso" (e quindi visualizzato col relativo colore).</Italian>
 		<Spanish>Proporciones de fuerza menores o iguales a este número se muestran con un color específico.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__POWERHIGHCOLOR_TEXT</Tag>
 		<English>High Color</English>
@@ -639,7 +618,7 @@
 		<Italian>Colore rapporto basso</Italian>
 		<Spanish>Color Inferior</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__POWERHIGHCOLOR_HOVER</Tag>

@@ -1,0 +1,158 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 212
+# Author: iustus
+# Date: 2006-12-19T16:25:13.003202Z
+# Coverage: full
+# Message:
+#   changed the addRiver usage, so that it almost never is called, 90% of the time, the old logic is unchanged. The only changed case is when it will fail to add a lake, in which case, it tries harder to add a river
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.h
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@211
++++ /trunk/CvGameCoreDLL/CvGame.cpp@212
+@@ -978,7 +978,16 @@
+ 			{
+ 				if (!pStartingPlot->isFreshWater())
+ 				{
+-					CvMapGenerator::GetInstance().addRiver(pStartingPlot);
++					// if we will be able to add a lake, then use old river code
++					if (normalizeFindLakePlot((PlayerTypes)iI) != NULL)
++					{
++						CvMapGenerator::GetInstance().doRiver(pStartingPlot);
++					}
++					// otherwise, use new river code which is much more likely to succeed
++					else
++					{
++						CvMapGenerator::GetInstance().addRiver(pStartingPlot);
++					}
+ 				}
+ 			}
+ 		}
+@@ -1024,58 +1033,64 @@
+ 	}
+ }
+ 
+-
+ void CvGame::normalizeAddLakes()
+ {
+-	CvPlot* pStartingPlot;
+-	CvPlot* pLoopPlot;
+-	bool bStartingPlot;
+-	int iI, iJ, iK;
+-
+-	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 		{
+-			pStartingPlot = GET_PLAYER((PlayerTypes)iI).getStartingPlot();
+-
+-			if (pStartingPlot != NULL)
+-			{
+-				if (!(pStartingPlot->isFreshWater()))
+-				{
+-					for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
++			CvPlot* pLakePlot = normalizeFindLakePlot((PlayerTypes)iI);
++			if (pLakePlot != NULL)
++			{
++				pLakePlot->setPlotType(PLOT_OCEAN);
++			}
++		}
++	}
++}
++
++CvPlot* CvGame::normalizeFindLakePlot(PlayerTypes ePlayer)
++{
++	if (!GET_PLAYER(ePlayer).isAlive())
++	{
++		return NULL;
++	}
++
++	CvPlot* pStartingPlot = GET_PLAYER(ePlayer).getStartingPlot();
++	if (pStartingPlot != NULL)
++	{
++		if (!(pStartingPlot->isFreshWater()))
++		{
++			for (int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
++			{
++				CvPlot* pLoopPlot = plotCity(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), iJ);
++
++				if (pLoopPlot != NULL)
++				{
++					if (!(pLoopPlot->isWater()))
+ 					{
+-						pLoopPlot = plotCity(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), iJ);
+-
+-						if (pLoopPlot != NULL)
++						if (!(pLoopPlot->isCoastalLand()))
+ 						{
+-							if (!(pLoopPlot->isWater()))
++							if (!(pLoopPlot->isRiver()))
+ 							{
+-								if (!(pLoopPlot->isCoastalLand()))
++								if (pLoopPlot->getBonusType() == NO_BONUS)
+ 								{
+-									if (!(pLoopPlot->isRiver()))
++									bool bStartingPlot = false;
++
++									for (int iK = 0; iK < MAX_CIV_PLAYERS; iK++)
+ 									{
+-										if (pLoopPlot->getBonusType() == NO_BONUS)
++										if (GET_PLAYER((PlayerTypes)iK).isAlive())
+ 										{
+-											bStartingPlot = false;
+-
+-											for (iK = 0; iK < MAX_CIV_PLAYERS; iK++)
++											if (GET_PLAYER((PlayerTypes)iK).getStartingPlot() == pLoopPlot)
+ 											{
+-												if (GET_PLAYER((PlayerTypes)iK).isAlive())
+-												{
+-													if (GET_PLAYER((PlayerTypes)iK).getStartingPlot() == pLoopPlot)
+-													{
+-														bStartingPlot = true;
+-														break;
+-													}
+-												}
+-											}
+-
+-											if (!bStartingPlot)
+-											{
+-												pLoopPlot->setPlotType(PLOT_OCEAN);
++												bStartingPlot = true;
+ 												break;
+ 											}
+ 										}
++									}
++
++									if (!bStartingPlot)
++									{
++										return pLoopPlot;
+ 									}
+ 								}
+ 							}
+@@ -1085,6 +1100,8 @@
+ 			}
+ 		}
+ 	}
++
++	return NULL;
+ }
+ 
+ 
+
+Index: /trunk/CvGameCoreDLL/CvGame.h
+--- /trunk/CvGameCoreDLL/CvGame.h@211
++++ /trunk/CvGameCoreDLL/CvGame.h@212
+@@ -555,6 +555,8 @@
+ 	CultureLevelTypes culturalVictoryCultureLevel();
+ 
+ protected:
++	CvPlot* normalizeFindLakePlot(PlayerTypes ePlayer);
++
+ 	int		m_iShrineBuildingCount;
+ 	int*	m_aiShrineBuilding;
+ 	int*	m_aiShrineReligion;
+

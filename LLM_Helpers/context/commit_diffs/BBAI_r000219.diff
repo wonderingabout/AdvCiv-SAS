@@ -1,0 +1,59 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 219
+# Author: iustus
+# Date: 2006-12-20T21:21:34.809498Z
+# Coverage: full
+# Message:
+#   Fixed AI_getOurPlotStrength was not working (always returning zero), because canMoveInto returns false if a unit is already at that plot. Additionally, if there is an enemy unit in that plot, then you need to pass true to bAttack. 
+#   changed chipotle stuff to show the panic value cities use when alt over any owned plot plus cleanup
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@218
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@219
+@@ -1767,11 +1767,11 @@
+ 				
+ 				int iOurStrengthDefense = GET_PLAYER(GC.getGameINLINE().getActivePlayer()).AI_getOurPlotStrength(pPlot, 1, true, false);
+ 				int iOurStrengthOffense = GET_PLAYER(GC.getGameINLINE().getActivePlayer()).AI_getOurPlotStrength(pPlot, 1, false, false);
+-				szTempBuffer.Format(L"\nStrength(2)Ours= d%d, o%d", iOurStrengthDefense, iOurStrengthOffense);
++				szTempBuffer.Format(L"\nPlot Strength(Ours)= d%d, o%d", iOurStrengthDefense, iOurStrengthOffense);
+ 				szString += szTempBuffer;
+ 				int iEnemyStrengthDefense = GET_PLAYER(GC.getGameINLINE().getActivePlayer()).AI_getEnemyPlotStrength(pPlot, 1, true, false);
+ 				int iEnemyStrengthOffense = GET_PLAYER(GC.getGameINLINE().getActivePlayer()).AI_getEnemyPlotStrength(pPlot, 1, false, false);
+-				szTempBuffer.Format(L"\nStrength(2)Ours= d%d, o%d", iEnemyStrengthDefense, iEnemyStrengthOffense);
++				szTempBuffer.Format(L"\nPlot Strength(Enemy)= d%d, o%d", iEnemyStrengthDefense, iEnemyStrengthOffense);
+ 				szString += szTempBuffer;
+ 			}
+ 
+@@ -1959,6 +1959,14 @@
+                 }
+             }
+ 
++			int iOurDefense = GET_PLAYER(pPlot->getOwnerINLINE()).AI_getOurPlotStrength(pPlot, 0, true, false);
++			int iEnemyOffense = GET_PLAYER(pPlot->getOwnerINLINE()).AI_getEnemyPlotStrength(pPlot, 2, false, false);
++			if (iEnemyOffense > 0)
++			{
++				szString += CvWString::format(SETCOLR L"\nDanger: %.2f (%d/%d)" ENDCOLR, TEXT_COLOR("COLOR_NEGATIVE_TEXT"), 
++					(iEnemyOffense * 1.0f) / max(1, iOurDefense), iEnemyOffense, iOurDefense);
++			}
++			
+ 			CvCity* pCity = pPlot->getPlotCity();
+             if (pCity != NULL)
+             {
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@218
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@219
+@@ -10226,7 +10226,7 @@
+ 							{
+ 								if (!(pLoopUnit->isInvisible(getTeam(), false)))
+ 								{
+-								    if (pLoopUnit->canMoveInto(pPlot))
++								    if (pLoopUnit->atPlot(pPlot) || pLoopUnit->canMoveInto(pPlot, /*bAttack*/ true))
+ 								    {
+                                         if (!bTestMoves)
+                                         {
+

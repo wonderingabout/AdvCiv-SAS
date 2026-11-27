@@ -1,0 +1,45 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 71
+# Author: blakeciv
+# Date: 2006-11-14T06:02:05.640123Z
+# Coverage: full
+# Message:
+#   Now shows found values for all players on neutral plots when holding down alt-cheatmode.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@70
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@71
+@@ -1708,13 +1708,24 @@
+                     szString += szTempBuffer;
+                 }
+             }
++
++            if (pPlot->getPlotCity() != NULL)
++            {
++                szTempBuffer.Format(L"\n\nCulture Pressure Value = %d", pPlot->getPlotCity()->AI_calculateCulturePressure());
++                szString+=szTempBuffer;
++            }
+ 	    }
+-
+-	    if (pPlot->getPlotCity() != NULL)
++	    else
+ 	    {
+-            szTempBuffer.Format(L"\n\nCulture Pressure Value = %d", pPlot->getPlotCity()->AI_calculateCulturePressure());
+-            szString+=szTempBuffer;
+-	    }
++            for (iI = 0; iI < MAX_PLAYERS; iI++)
++            {
++                if (GET_PLAYER((PlayerTypes)iI).isAlive())
++                {
++                    szTempBuffer.Format(L"\n%s Found Value = %d", GET_PLAYER((PlayerTypes)iI).getName(), GET_PLAYER((PlayerTypes)iI).AI_foundValue(pPlot->getX_INLINE(),pPlot->getY_INLINE()));
++                    szString+=szTempBuffer;
++                }
++            }
++		}
+ 	}
+ 	else if (bShift && bAlt && (gDLL->getChtLvl() > 0))
+ 	{
+

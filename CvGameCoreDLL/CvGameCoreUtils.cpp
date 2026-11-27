@@ -1,11 +1,1650 @@
 #include "CvGameCoreDLL.h"
 #include "CvGameCoreUtils.h"
+#include "SASBuildProvenance.generated.h" // <!-- custom: Generated in the active target's temp directory before precompilation; embeds pre-build evidence so copying the DLL alone preserves it, with no sidecar dependency. (GPT-6.1-Sol) -->
+#include <winver.h> // <!-- custom: VS_FIXEDFILEINFO describes the binary resource version; version.dll APIs are resolved dynamically for optional diagnostics without a linker dependency. (GPT-6.1-Sol) -->
+#include <map> // <!-- custom: Index diagnostic buffers by filename so repeated loads do not add a linear history scan to every logged row; map nodes also avoid copying existing pending batches. (GPT-6.1-Sol) -->
+#include "ReproTest.h" // <!-- custom: Read ENABLE_REPRO_TEST from its owning header so DLL diagnostics report the actual serialization instrumentation switch, including a source-enabled build. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 #include "CoreAI.h"
 #include "CvUnitAI.h"
 #include "CvSelectionGroupAI.h"
+#include "CvDeal.h" // <!-- custom: Shared finalized-initial-state diagnostics include surviving starting deals. (ChatGPT-5.6-Sol) -->
+#include "CvCity.h" // <!-- custom: Resolve city trade items in shared diagnostic trade-list text. (ChatGPT-5.6-Sol) -->
 #include "CityPlotIterator.h"
 #include "BBAILog.h" // advc.007
 #include "CvInfo_GameOption.h"
+#include "CvInfo_Command.h" // <!-- custom: CvGlobals only forward-declares CvMissionInfo, so the shared mission label needs its definition here to read the XML type. (GPT-6.1-Sol) -->
+#include "CvInfo_Building.h" // <!-- custom: getSASTeamSpaceshipPartsBuilt needs CvProjectInfo::isSpaceship for Space-victory denial checks. (GPT-5.5) -->
+#include "CvInfo_Tech.h" // <!-- custom: Shared initial-team/deal diagnostics use stable technology type names. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Terrain.h" // <!-- custom: Shared trade serialization resolves CvBonusInfo type names; CvGlobals only forward-declares the info class. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Civics.h" // <!-- custom: Shared trade serialization resolves CvCivicInfo type names; CvGlobals only forward-declares the info class. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Organization.h" // <!-- custom: Shared diagnostic trade-list text resolves religion trade items. (ChatGPT-5.6-Sol) -->
+
+// <!-- custom: Centralize second-precision UTC formatting for diagnostic identities and filenames.
+// The explicit-time overload lets a caller reuse one sampled clock reading; the no-argument overload samples it here. See KI#629. (GPT-5.6-Sol) -->
+CvString createSASUtcTimestamp(const time_t kTime)
+{
+	CvString szTimestamp;
+	char szBuffer[32];
+	struct tm* pUtcTime = gmtime(&kTime);
+	if (pUtcTime != NULL && strftime(szBuffer, sizeof(szBuffer), "%Y%m%dT%H%M%SZ", pUtcTime) > 0)
+		szTimestamp = szBuffer;
+	else szTimestamp = "unknown_time";
+	return szTimestamp;
+}
+
+CvString createSASUtcTimestamp()
+{
+	time_t kNow;
+	time(&kNow);
+	return createSASUtcTimestamp(kNow);
+}
+
+// <!-- custom: SYSTEMTIME is the common millisecond-precision UTC representation used both for a live UTC sample and for Win32 FILETIME conversion.
+// Keep formatting centralized here. (ChatGPT-5.6-Sol) -->
+static CvString formatSASUtcSystemTime(SYSTEMTIME const& kUtcTime)
+{
+	CvString szTimestamp;
+	szTimestamp.Format("%04d%02d%02dT%02d%02d%02d.%03dZ", (int)kUtcTime.wYear, (int)kUtcTime.wMonth, (int)kUtcTime.wDay, (int)kUtcTime.wHour, (int)kUtcTime.wMinute, (int)kUtcTime.wSecond, (int)kUtcTime.wMilliseconds);
+	return szTimestamp;
+}
+
+CvString createSASUtcTimestampMilliseconds()
+{
+	SYSTEMTIME kUtcTime;
+	GetSystemTime(&kUtcTime);
+	return formatSASUtcSystemTime(kUtcTime);
+}
+
+// <!-- custom: Centralize the compact UTC + record prefix for DLL-owned rows in inherited fixed-name logs; NULL szMessage becomes an empty payload.
+// Forward bEngineTimestamp unchanged to gDLL->logMsg so engine logs such as xml.log can retain the native elapsed prefix while direct PythonDbg rows can suppress it. (ChatGPT-5.6-Sol) -->
+void logSASCiv4LegacyLogRow(char const* szLogFileName, char const* szRecord, char const* szMessage, bool bEngineTimestamp)
+{
+	CvString szRow;
+	szRow.Format("utc=%s record=%s %s", createSASUtcTimestampMilliseconds().GetCString(), szRecord, (szMessage == NULL ? "" : szMessage));
+	gDLL->logMsg(szLogFileName, szRow.c_str(), false, bEngineTimestamp);
+}
+
+// <!-- custom: SAS diagnostic wall-duration fields use timeGetTime rather than calendar time so OS clock corrections cannot change elapsed durations.
+// Centralize sampling and unsigned subtraction; modulo subtraction also preserves the established single-rollover behavior of the Win32 32-bit millisecond counter. (ChatGPT-5.6-Sol) -->
+uint getSASMonotonicMilliseconds()
+{
+	return timeGetTime();
+}
+
+uint getSASElapsedMilliseconds(uint uiStartMilliseconds, uint uiEndMilliseconds)
+{
+	return uiEndMilliseconds - uiStartMilliseconds;
+}
+
+// <!-- custom: One DLL-load value ensures BBAI and SASGameRecord share the same process identity instead of drifting across a UTC-second boundary. See KI#629. (GPT-5.6-Sol) -->
+static const CvString g_szSASProcessUtcTimestamp = createSASUtcTimestamp();
+
+CvString const& getSASProcessUtcTimestamp()
+{
+	return g_szSASProcessUtcTimestamp;
+}
+
+// <!-- custom: The existing processUtc value is sampled when this DLL initializes; external agents also benefit from the actual Civ4 process creation time so a stale status file cannot be confused with a later PID reuse.
+// GetProcessTimes gives the executable-process creation FILETIME without filesystem queries. (ChatGPT-5.6-Sol) -->
+// <!-- custom: The creation-time read now takes any process handle, so SGR can also give the start time of the other Civ4 clients it lists. (Claude Code Opus 5.5) -->
+static CvString formatSASProcessStartUtc(HANDLE hProcess, FILETIME const* pNotAfter = NULL)
+{
+	FILETIME kCreationTime, kExitTime, kKernelTime, kUserTime;
+	if (!GetProcessTimes(hProcess, &kCreationTime, &kExitTime, &kKernelTime, &kUserTime))
+		return "unknown_time";
+	// <!-- custom: A process created after pNotAfter cannot be the one a caller listed at that moment; its ID was reused in between. (Claude Code Opus 5.5) -->
+	if (pNotAfter != NULL && CompareFileTime(&kCreationTime, pNotAfter) > 0)
+		return "unknown_time";
+	SYSTEMTIME kUtcTime;
+	if (!FileTimeToSystemTime(&kCreationTime, &kUtcTime))
+		return "unknown_time";
+	return formatSASUtcSystemTime(kUtcTime);
+}
+
+static CvString createSASExecutableProcessStartUtc()
+{
+	return formatSASProcessStartUtc(GetCurrentProcess());
+}
+
+// <!-- custom: Another process's start time pairs with its ID to tell a client from a later process that reuses the ID; PROCESS_QUERY_INFORMATION suffices for the user's own processes, and an unopenable one reports unknown_time. (Claude Code Opus 5.5) -->
+CvString getSASProcessStartUtc(DWORD dwProcessId, FILETIME const* pNotAfter)
+{
+	HANDLE const hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, dwProcessId);
+	if (hProcess == NULL)
+		return "unknown_time";
+	CvString const szStartUtc = formatSASProcessStartUtc(hProcess, pNotAfter);
+	CloseHandle(hProcess);
+	return szStartUtc;
+}
+
+CvString const& getSASExecutableProcessStartUtc()
+{
+	// <!-- custom: Keep the optional status feature fully lazy when disabled; process creation time is sampled only if an enabled status write actually needs it. (ChatGPT-5.6-Sol) -->
+	static CvString const szProcessStartUtc = createSASExecutableProcessStartUtc();
+	return szProcessStartUtc;
+}
+
+// <!-- custom: BBAI and SASGameRecord need live-readable files during long autoplay runs; Civ4's EXE logger exposes no flush operation and can keep its file handles/buffers opaque until reload or exit.
+// Our uncommitted turn-batched draft made live reads possible but could lose the current turn's final evidence on a crash, which matters for investigations such as KI#895/KI#896.
+// Submit each row to Windows immediately using a persistent read/write/delete-shared handle; Windows owns normal disk caching, so no per-row open/close or forced physical-disk flush is needed.
+// Only pre-BUG startup output and failed writes wait in our bounded retry buffers; completed writes survive ordinary process termination, while incomplete writes and machine/power failure remain outside that guarantee.
+// Direct writing also removes the EXE logger's second printf interpretation, so already-formatted percent signs must pass through unchanged. See KI#375.3. (ChatGPT-5.6-Sol + GPT-5.6-Sol + GPT-6.1-Sol) -->
+struct SASDiagnosticLogBuffer
+{
+	SASDiagnosticLogBuffer() : eFamily(SAS_DIAGNOSTIC_LOG_OTHER), hFile(INVALID_HANDLE_VALUE), bFileInitialized(false), bAutoFlushBlocked(false), uiDroppedRows(0), uiDroppedBytes(0), dwLastError(NO_ERROR) {}
+	SASDiagnosticLogFamily eFamily;
+	CvString szLogName;
+	// <!-- custom: Keep the OS handle across successful rows to avoid opening/seeking/closing for every message; session release closes it, while failed writes close it before checkpoint retry. (GPT-6.1-Sol) -->
+	HANDLE hFile;
+	std::string szData;
+	// <!-- custom: Preserve fixed-name OverwriteLogs behavior across sessions; failed I/O blocks automatic per-row retries until the next explicit checkpoint. (GPT-6.1-Sol) -->
+	bool bFileInitialized;
+	bool bAutoFlushBlocked;
+	// <!-- custom: After the shared payload budget is exhausted, count rejected complete rows rather than letting diagnostic failure exhaust the game's 32-bit address space; report the gap when this file becomes writable. (GPT-6.1-Sol) -->
+	unsigned __int64 uiDroppedRows;
+	unsigned __int64 uiDroppedBytes;
+	DWORD dwLastError;
+};
+
+// <!-- custom: Retain lightweight filename/status history to preserve OverwriteLogs if a name is reused, including a timestamp collision.
+// ChatGPT's repeated-load review identified that the draft list searched all historical names for each row; indexed lookup avoids that growing linear cost without forgetting first-open state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+typedef std::map<CvString, SASDiagnosticLogBuffer> SASDiagnosticLogBuffers;
+static SASDiagnosticLogBuffers g_aSASDiagnosticLogBuffers;
+static std::wstring g_szSASDiagnosticLogRootDirectory;
+static bool g_bSASDiagnosticLogRootResolved = false;
+static bool g_bSASDiagnosticLogWriteStarted = false;
+static size_t g_iSASDiagnosticBufferedBytes = 0;
+// <!-- custom: Keep process-lifetime writer health beside the shared pending-byte accounting so enabled diagnostics add only increments/comparisons on operations the writer already performs.
+// These counters intentionally do not query file sizes or string capacity: pending text is queued payload, while actual allocator/bookkeeping RAM can be larger. (ChatGPT-5.6-Sol) -->
+static size_t g_iSASDiagnosticPeakBufferedBytes = 0;
+static unsigned __int64 g_uiSASDiagnosticOutputFailures = 0;
+static unsigned __int64 g_uiSASDiagnosticRetryAttempts = 0;
+static unsigned __int64 g_uiSASDiagnosticRetrySuccesses = 0;
+static unsigned __int64 g_uiSASDiagnosticDroppedRows = 0;
+static unsigned __int64 g_uiSASDiagnosticDroppedBytes = 0;
+static unsigned __int64 g_uiSASDiagnosticWrittenBytes = 0;
+static unsigned __int64 g_uiSASDiagnosticBBAIWrittenBytes = 0;
+static unsigned __int64 g_uiSASDiagnosticGameRecordWrittenBytes = 0;
+static unsigned __int64 g_uiSASDiagnosticOtherWrittenBytes = 0;
+static int g_iSASDiagnosticBlockedFiles = 0;
+// <!-- custom: This is a shared pending-text budget across all current/failed files, including pre-BUG startup output; a per-file limit would still grow with repeated failed loads. (GPT-6.1-Sol) -->
+static size_t const SAS_DIAGNOSTIC_MAX_BUFFERED_BYTES = 16 * 1024 * 1024;
+
+static std::wstring trimSASDiagnosticDirectory(std::wstring szDirectory)
+{
+	while (szDirectory.length() > 3)
+	{
+		size_t const iLast = szDirectory.length() - 1;
+		if (szDirectory[iLast] != L'\\' && szDirectory[iLast] != L'/')
+			break;
+		szDirectory.erase(iLast, 1);
+	}
+	return szDirectory;
+}
+
+static std::wstring getSASDiagnosticExecutableFolder()
+{
+	wchar_t szExePath[MAX_PATH];
+	DWORD const iLength = GetModuleFileNameW(NULL, szExePath, MAX_PATH);
+	if (iLength == 0 || iLength >= MAX_PATH)
+		return L"Beyond the Sword";
+	std::wstring const szPath(szExePath);
+	size_t const iFileSlash = szPath.find_last_of(L"\\/");
+	if (iFileSlash == std::wstring::npos)
+		return L"Beyond the Sword";
+	std::wstring const szDirectory = szPath.substr(0, iFileSlash);
+	size_t const iDirectorySlash = szDirectory.find_last_of(L"\\/");
+	if (iDirectorySlash == std::wstring::npos || iDirectorySlash + 1 >= szDirectory.length())
+		return L"Beyond the Sword";
+	return szDirectory.substr(iDirectorySlash + 1);
+}
+
+// <!-- custom: Share native user-root discovery across SAS diagnostic publishers, including startup-safe assertion logging; BUG still supplies the authoritative CvAltRoot later. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
+bool getSASNativeDefaultRootDirectory(std::wstring& szRootDirectory)
+{
+	wchar_t szDocuments[MAX_PATH];
+	szDocuments[0] = L'\0';
+	// <!-- custom: Resolve Documents through the wide API without adding a shell32 linker dependency; BUG remains the authoritative CvAltRoot source for diagnostic logs. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
+	typedef HRESULT (WINAPI *SHGetFolderPathWFunction)(HWND, int, HANDLE, DWORD, LPWSTR);
+	HMODULE const hShell = LoadLibraryW(L"shell32.dll");
+	if (hShell != NULL)
+	{
+		SHGetFolderPathWFunction const pGetFolder = (SHGetFolderPathWFunction)GetProcAddress(hShell, "SHGetFolderPathW");
+		if (pGetFolder != NULL && pGetFolder(NULL, 0x0005, NULL, 0, szDocuments) != 0)
+			szDocuments[0] = L'\0';
+		FreeLibrary(hShell);
+	}
+	std::wstring szDocumentsPath(szDocuments);
+	if (szDocumentsPath.empty())
+	{
+		wchar_t szUserProfile[MAX_PATH];
+		DWORD const iLength = GetEnvironmentVariableW(L"USERPROFILE", szUserProfile, MAX_PATH);
+		if (iLength == 0 || iLength >= MAX_PATH)
+			return false;
+		szDocumentsPath = std::wstring(szUserProfile) + L"\\Documents";
+	}
+	szRootDirectory = trimSASDiagnosticDirectory(szDocumentsPath + L"\\My Games\\" + getSASDiagnosticExecutableFolder());
+	return !szRootDirectory.empty();
+}
+
+static bool resolveSASDiagnosticDefaultRootDirectory()
+{
+	if (g_bSASDiagnosticLogRootResolved)
+		return !g_szSASDiagnosticLogRootDirectory.empty();
+	if (!getSASNativeDefaultRootDirectory(g_szSASDiagnosticLogRootDirectory))
+		return false;
+	g_bSASDiagnosticLogRootResolved = true;
+	return true;
+}
+
+// <!-- custom: Retain the caller-supplied family with the filename history; all producers sharing a physical file must agree on its family. (GPT-6.1-Sol) -->
+static SASDiagnosticLogBuffer& getSASDiagnosticLogBuffer(char const* szLogName, SASDiagnosticLogFamily eFamily)
+{
+	SASDiagnosticLogBuffer& kBuffer = g_aSASDiagnosticLogBuffers[szLogName];
+	if (kBuffer.szLogName.empty())
+	{
+		kBuffer.szLogName = szLogName;
+		kBuffer.eFamily = eFamily;
+	}
+	FAssert(kBuffer.eFamily == eFamily);
+	return kBuffer;
+}
+
+static bool closeSASDiagnosticLogFile(SASDiagnosticLogBuffer& kBuffer)
+{
+	if (kBuffer.hFile == INVALID_HANDLE_VALUE)
+		return true;
+	BOOL const bClosed = CloseHandle(kBuffer.hFile);
+	kBuffer.hFile = INVALID_HANDLE_VALUE;
+	return bClosed != FALSE;
+}
+
+static bool failSASDiagnosticWrite(SASDiagnosticLogBuffer& kBuffer, DWORD dwError)
+{
+	g_uiSASDiagnosticOutputFailures++;
+	if (!kBuffer.bAutoFlushBlocked)
+	{
+		g_iSASDiagnosticBlockedFiles++;
+		OutputDebugStringA("AdvCiv-SAS diagnostic append failed; checkpoint retry and bounded loss reporting are active.\n");
+	}
+	closeSASDiagnosticLogFile(kBuffer);
+	kBuffer.dwLastError = dwError;
+	kBuffer.bAutoFlushBlocked = true;
+	return false;
+}
+
+static bool writeSASDiagnosticBuffer(HANDLE hFile, SASDiagnosticLogBuffer& kBuffer)
+{
+	size_t iWrittenTotal = 0;
+	DWORD dwError = NO_ERROR;
+	while (iWrittenTotal < kBuffer.szData.size())
+	{
+		size_t const iRemaining = kBuffer.szData.size() - iWrittenTotal;
+		DWORD const iChunk = (DWORD)std::min(iRemaining, (size_t)(1024 * 1024));
+		DWORD iWritten = 0;
+		BOOL const bWritten = WriteFile(hFile, kBuffer.szData.data() + iWrittenTotal, iChunk, &iWritten, NULL);
+		// <!-- custom: Retire bytes acknowledged even by a failed partial write; retrying those bytes would duplicate output.
+		// Zero progress must stop rather than spin. (GPT-6.1-Sol) -->
+		iWrittenTotal += iWritten;
+		if (!bWritten || iWritten == 0)
+		{
+			dwError = (bWritten ? ERROR_WRITE_FAULT : GetLastError());
+			break;
+		}
+	}
+	if (iWrittenTotal > 0)
+	{
+		kBuffer.szData.erase(0, iWrittenTotal);
+		g_iSASDiagnosticBufferedBytes -= iWrittenTotal;
+		g_uiSASDiagnosticWrittenBytes += iWrittenTotal;
+		if (kBuffer.eFamily == SAS_DIAGNOSTIC_LOG_BBAI)
+			g_uiSASDiagnosticBBAIWrittenBytes += iWrittenTotal;
+		else if (kBuffer.eFamily == SAS_DIAGNOSTIC_LOG_GAME_RECORD)
+			g_uiSASDiagnosticGameRecordWrittenBytes += iWrittenTotal;
+		else g_uiSASDiagnosticOtherWrittenBytes += iWrittenTotal;
+	}
+	if (dwError != NO_ERROR)
+		return failSASDiagnosticWrite(kBuffer, dwError);
+	return true;
+}
+
+static bool queueSASDiagnosticLossNotice(SASDiagnosticLogBuffer& kBuffer)
+{
+	CvString szNotice;
+	szNotice.Format("SAS_DIAGNOSTIC_DATA_LOSS droppedRows=%I64u droppedBytes=%I64u lastWriteError=%lu\r\n", kBuffer.uiDroppedRows, kBuffer.uiDroppedBytes, kBuffer.dwLastError);
+	if (szNotice.size() > SAS_DIAGNOSTIC_MAX_BUFFERED_BYTES - g_iSASDiagnosticBufferedBytes)
+		return false;
+	// <!-- custom: Queue the notice as ordinary pending bytes before resetting counters; if its write fails, its unwritten suffix survives like any other batch. (GPT-6.1-Sol) -->
+	kBuffer.szData += szNotice;
+	g_iSASDiagnosticBufferedBytes += szNotice.size();
+	g_iSASDiagnosticPeakBufferedBytes = std::max(g_iSASDiagnosticPeakBufferedBytes, g_iSASDiagnosticBufferedBytes);
+	kBuffer.uiDroppedRows = 0;
+	kBuffer.uiDroppedBytes = 0;
+	return true;
+}
+
+static bool flushSASDiagnosticLogBuffer(SASDiagnosticLogBuffer& kBuffer)
+{
+	// <!-- custom: A failed session close or a fully acknowledged but failed write can block a drained file; retry its open even without pending text so the live blocked-file count can recover. (GPT-6.1-Sol) -->
+	if (kBuffer.szData.empty() && kBuffer.uiDroppedRows == 0 && !kBuffer.bAutoFlushBlocked)
+		return true;
+	bool const bRetry = kBuffer.bAutoFlushBlocked;
+	if (bRetry)
+		g_uiSASDiagnosticRetryAttempts++;
+	if (!resolveSASDiagnosticDefaultRootDirectory())
+		return failSASDiagnosticWrite(kBuffer, ERROR_PATH_NOT_FOUND);
+	if (kBuffer.hFile == INVALID_HANDLE_VALUE)
+	{
+		std::wstring const szLogDirectory = g_szSASDiagnosticLogRootDirectory + L"\\Logs";
+		if (!CreateDirectoryW(szLogDirectory.c_str(), NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
+			return failSASDiagnosticWrite(kBuffer, GetLastError());
+		std::wstring szPath = szLogDirectory + L"\\";
+		// <!-- custom: Diagnostic filenames are generated ASCII identifiers; retain their bytes while keeping the supplied directory Unicode. (GPT-6.1-Sol) -->
+		for (size_t iI = 0; iI < kBuffer.szLogName.size(); iI++)
+			szPath += (wchar_t)(unsigned char)kBuffer.szLogName[iI];
+		DWORD const iCreationDisposition = (!kBuffer.bFileInitialized && GC.isOverwriteLogs() ? CREATE_ALWAYS : OPEN_ALWAYS);
+		kBuffer.hFile = CreateFileW(szPath.c_str(), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, iCreationDisposition, FILE_ATTRIBUTE_NORMAL, NULL);
+		if (kBuffer.hFile == INVALID_HANDLE_VALUE)
+			return failSASDiagnosticWrite(kBuffer, GetLastError());
+		kBuffer.bFileInitialized = true;
+		LONG iHigh = 0;
+		SetLastError(NO_ERROR);
+		if (SetFilePointer(kBuffer.hFile, 0, &iHigh, FILE_END) == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
+		{
+			DWORD const dwError = GetLastError();
+			return failSASDiagnosticWrite(kBuffer, dwError);
+		}
+	}
+	g_bSASDiagnosticLogWriteStarted = true;
+	bool bSuccess = writeSASDiagnosticBuffer(kBuffer.hFile, kBuffer);
+	if (bSuccess && kBuffer.uiDroppedRows > 0)
+	{
+		bSuccess = queueSASDiagnosticLossNotice(kBuffer);
+		if (bSuccess)
+			bSuccess = writeSASDiagnosticBuffer(kBuffer.hFile, kBuffer);
+	}
+	if (bSuccess)
+	{
+		if (bRetry)
+		{
+			g_uiSASDiagnosticRetrySuccesses++;
+			FAssert(g_iSASDiagnosticBlockedFiles > 0);
+			if (g_iSASDiagnosticBlockedFiles > 0)
+				g_iSASDiagnosticBlockedFiles--;
+		}
+		kBuffer.dwLastError = NO_ERROR;
+		kBuffer.bAutoFlushBlocked = false;
+	}
+	return bSuccess;
+}
+
+// <!-- custom: Return append success to Python/manual callers instead of an unobservable void result; lifecycle callers may ignore it.
+// Session boundaries close handles and release drained storage; ordinary checkpoints retry failed/pre-root output without delaying successful rows.
+// Terminal destruction additionally permits fallback root discovery because no later BUG handoff remains. (GPT-6.1-Sol) -->
+bool flushSASDiagnosticLogs(bool bReleaseStorage, bool bTerminal)
+{
+	bool bSuccess = true;
+	for (SASDiagnosticLogBuffers::iterator it = g_aSASDiagnosticLogBuffers.begin(); it != g_aSASDiagnosticLogBuffers.end(); ++it)
+	{
+		SASDiagnosticLogBuffer& kBuffer = it->second;
+		// <!-- custom: Native reset/load finalization can precede BUG initialization; keep those early batches pending instead of binding a default root before CvAltRoot can be supplied. (GPT-6.1-Sol) -->
+		if (bReleaseStorage && !bTerminal && !g_bSASDiagnosticLogRootResolved && (!kBuffer.szData.empty() || kBuffer.uiDroppedRows > 0))
+			bSuccess = false;
+		else if (!flushSASDiagnosticLogBuffer(kBuffer))
+			bSuccess = false;
+		if (bReleaseStorage)
+		{
+			if (!closeSASDiagnosticLogFile(kBuffer))
+			{
+				failSASDiagnosticWrite(kBuffer, GetLastError());
+				bSuccess = false;
+			}
+			if (kBuffer.szData.empty())
+				std::string().swap(kBuffer.szData);
+		}
+	}
+	return bSuccess;
+}
+
+// <!-- custom: Expose compact process-lifetime writer health to SASGameRecord at existing checkpoints.
+// Per-family byte totals and the live blocked-file count are maintained by the writer, so health snapshots are constant-time and add no filesystem stat/seek or historical filename scan.
+// A health row snapshots counters before writing itself, and a writer failure can also prevent that row from reaching disk, so SAS_DIAGNOSTIC_DATA_LOSS remains the direct gap marker. (ChatGPT-5.6-Sol) -->
+CvString getSASDiagnosticWriterHealthFields()
+{
+	CvString szFields;
+	szFields.Format("pendingTextBytes=%u processPeakPendingTextBytes=%u blockedFiles=%d processOutputFailures=%I64u processRetryAttempts=%I64u processRetrySuccesses=%I64u processDroppedRows=%I64u processDroppedBytes=%I64u processWrittenBytes=%I64u bbaiProcessWrittenBytes=%I64u gameRecordProcessWrittenBytes=%I64u otherProcessWrittenBytes=%I64u",
+		(unsigned int)g_iSASDiagnosticBufferedBytes, (unsigned int)g_iSASDiagnosticPeakBufferedBytes, g_iSASDiagnosticBlockedFiles,
+		g_uiSASDiagnosticOutputFailures, g_uiSASDiagnosticRetryAttempts, g_uiSASDiagnosticRetrySuccesses,
+		g_uiSASDiagnosticDroppedRows, g_uiSASDiagnosticDroppedBytes, g_uiSASDiagnosticWrittenBytes, g_uiSASDiagnosticBBAIWrittenBytes,
+		g_uiSASDiagnosticGameRecordWrittenBytes, g_uiSASDiagnosticOtherWrittenBytes);
+	return szFields;
+}
+
+// <!-- custom: Accept a wide root instead of ANSI text so BUG's Unicode user/CvAltRoot paths reach the same Windows directory without a code-page conversion. (GPT-6.1-Sol) -->
+void setSASDiagnosticLogRootDirectory(wchar_t const* szRootDirectory)
+{
+	if (szRootDirectory == NULL || szRootDirectory[0] == L'\0')
+		return;
+	std::wstring const szRoot = trimSASDiagnosticDirectory(szRootDirectory);
+	if (szRoot.empty())
+		return;
+	// <!-- custom: Assertion logging is deliberately independent of BBAI/SASGameRecord/runtime toggles, but it should honor BUG's Unicode/CvAltRoot when that root is known before the first failed assertion. (ChatGPT-5.6-Sol) -->
+	#if defined(FASSERT_ENABLE) && defined(WIN32)
+	setSASAssertionLogRootDirectory(szRoot.c_str());
+	#endif
+	// <!-- custom: Status may replace its current-state root even after the historical log writer has committed to a path; keep these contracts independent. (GPT-6.1-Sol) -->
+	setSASRuntimeStatusRootDirectory(szRoot);
+	// <!-- custom: Changing roots after a successful append would split a logical log; permit BUG to replace a fallback root only before writing starts. (GPT-6.1-Sol) -->
+	if (g_bSASDiagnosticLogWriteStarted)
+		return;
+	g_szSASDiagnosticLogRootDirectory = szRoot;
+	g_bSASDiagnosticLogRootResolved = true;
+	// <!-- custom: Publish rows collected before BUG immediately when its authoritative root arrives, rather than leaving startup evidence waiting for the next game turn. (GPT-6.1-Sol) -->
+	flushSASDiagnosticLogs(false, false);
+}
+
+// <!-- custom: Use explicit producer metadata for accounting rather than inferring a family from the output filename. (GPT-6.1-Sol) -->
+void logSASDiagnosticLiteralLine(char const* szLogName, char const* szLine, SASDiagnosticLogFamily eFamily)
+{
+	FAssert(szLogName != NULL);
+	FAssert(szLine != NULL);
+	if (szLogName == NULL || szLine == NULL)
+		return;
+	SASDiagnosticLogBuffer& kBuffer = getSASDiagnosticLogBuffer(szLogName, eFamily);
+	size_t const iLineBytes = strlen(szLine);
+	unsigned __int64 const uiRowBytes = (unsigned __int64)iLineBytes + 2;
+	if (g_bSASDiagnosticLogRootResolved && uiRowBytes <= SAS_DIAGNOSTIC_MAX_BUFFERED_BYTES && uiRowBytes > SAS_DIAGNOSTIC_MAX_BUFFERED_BYTES - g_iSASDiagnosticBufferedBytes && !kBuffer.bAutoFlushBlocked && !kBuffer.szData.empty())
+		flushSASDiagnosticLogBuffer(kBuffer);
+	// <!-- custom: Another file can exhaust the shared budget, leaving this file with loss counters but no pending text; a checkpoint may visit it before the other file frees storage.
+	// The harness reproduced a later row appearing before the earlier loss notice; queueing the outstanding gap after older pending bytes and before accepting any later row fixed this.
+	// If the notice cannot fit, count that row as dropped too so recovery cannot place new evidence ahead of its gap marker. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	if ((kBuffer.uiDroppedRows > 0 && !queueSASDiagnosticLossNotice(kBuffer)) || uiRowBytes > SAS_DIAGNOSTIC_MAX_BUFFERED_BYTES - g_iSASDiagnosticBufferedBytes)
+	{
+		kBuffer.uiDroppedRows++;
+		kBuffer.uiDroppedBytes += uiRowBytes;
+		g_uiSASDiagnosticDroppedRows++;
+		g_uiSASDiagnosticDroppedBytes += uiRowBytes;
+		return;
+	}
+	kBuffer.szData.append(szLine, iLineBytes);
+	kBuffer.szData += "\r\n";
+	g_iSASDiagnosticBufferedBytes += (size_t)uiRowBytes;
+	g_iSASDiagnosticPeakBufferedBytes = std::max(g_iSASDiagnosticPeakBufferedBytes, g_iSASDiagnosticBufferedBytes);
+	// <!-- custom: Submit successful rows now so a crash cannot discard a turn-sized private batch; keep failed output in order and retry at explicit checkpoints instead of hammering an unavailable path per row.
+	// Before BUG supplies CvAltRoot, retain bounded startup output without selecting a fallback directory automatically. (GPT-6.1-Sol) -->
+	if (g_bSASDiagnosticLogRootResolved && !kBuffer.bAutoFlushBlocked)
+		flushSASDiagnosticLogBuffer(kBuffer);
+}
+
+// <!-- custom: The Makefile stamps the real nmake target through /DSAS_DLL_BUILD_CONFIGURATION; keep 0 only as an UNKNOWN fallback for alternate or legacy build paths that do not inject it.
+// This lives in shared diagnostics code because BBAI and SASGameRecord both report the same compiled binary. (ChatGPT-5.6-Sol) -->
+#ifndef SAS_DLL_BUILD_CONFIGURATION
+#define SAS_DLL_BUILD_CONFIGURATION 0
+#endif
+
+// <!-- custom: Shared machine-readable quoting for diagnostic free-text values.
+// Keep narrow/wide escaping identical so BBAI, SASGameRecord and future shared diagnostic rows cannot drift.
+// NULL is represented as the unquoted missing-value token "-" rather than as an empty string. (ChatGPT-5.6-Sol) -->
+CvString getSASDiagnosticQuoted(char const* szValue)
+{
+	if (szValue == NULL)
+		return CvString("-");
+	CvString szQuoted = "\"";
+	for (char const* p = szValue; *p != '\0'; p++)
+	{
+		switch (*p)
+		{
+		case '\\': szQuoted += "\\\\"; break;
+		case '"': szQuoted += "\\\""; break;
+		case '\r': szQuoted += "\\r"; break;
+		case '\n': szQuoted += "\\n"; break;
+		case '\t': szQuoted += "\\t"; break;
+		default: szQuoted += *p; break;
+		}
+	}
+	szQuoted += "\"";
+	return szQuoted;
+}
+
+CvWString getSASDiagnosticQuoted(wchar const* szValue)
+{
+	if (szValue == NULL)
+		return CvWString(L"-");
+	CvWString szQuoted = L"\"";
+	for (wchar const* p = szValue; *p != L'\0'; p++)
+	{
+		switch (*p)
+		{
+		case L'\\': szQuoted += L"\\\\"; break;
+		case L'"': szQuoted += L"\\\""; break;
+		case L'\r': szQuoted += L"\\r"; break;
+		case L'\n': szQuoted += L"\\n"; break;
+		case L'\t': szQuoted += L"\\t"; break;
+		default: szQuoted += *p; break;
+		}
+	}
+	szQuoted += L"\"";
+	return szQuoted;
+}
+
+CvString getSASModContextFields()
+{
+	CvString const szDisplayName = getSASDiagnosticQuoted(GC.getModName().getDisplayName());
+	CvString const szFolderName = getSASDiagnosticQuoted(GC.getModName().getName());
+	CvString const szModPath = getSASDiagnosticQuoted(GC.getModName().getPathInRoot());
+	CvString szContext;
+	szContext.Format("displayName=%s folderName=%s modPath=%s", szDisplayName.GetCString(), szFolderName.GetCString(), szModPath.GetCString());
+	return szContext;
+}
+
+// <!-- custom: Keep source/version fields centralized beside mod/DLL provenance so BBAI and SASGameRecord use identical names, quoting, and unavailable/dirty semantics.
+// ModName resolves lazily and caches the expensive filesystem/Git work once per loaded mod path. (ChatGPT-5.6-Sol) -->
+CvString getSASSourceContextFields()
+{
+	ModName const& kMod = GC.getModName();
+	CvString const szVersion = getSASDiagnosticQuoted(kMod.getVersion());
+	CvString const szCommitHash = kMod.getCommitHash();
+	CvString szShortCommitHash = szCommitHash;
+	if (szShortCommitHash.length() > 10)
+		szShortCommitHash = szShortCommitHash.substr(0, 10);
+	CvString const szCommit = getSASDiagnosticQuoted(szCommitHash.GetCString());
+	CvString const szShortCommit = getSASDiagnosticQuoted(szShortCommitHash.GetCString());
+	CvString const szBranch = getSASDiagnosticQuoted(kMod.getBranch());
+	CvString const szCommitDate = getSASDiagnosticQuoted(kMod.getCommitDate());
+	CvString const szMetadataSource = getSASDiagnosticQuoted(kMod.getSourceMetadataType());
+	CvString const szDefaultBranch = getSASDiagnosticQuoted(kMod.getSourceDefaultBranch());
+	CvString const szDefaultCommit = getSASDiagnosticQuoted(kMod.getSourceDefaultCommitHash());
+	CvString const szDefaultVersion = getSASDiagnosticQuoted(kMod.getSourceDefaultVersion());
+	CvString const szDefaultRefSource = getSASDiagnosticQuoted(kMod.getSourceDefaultRefSource());
+	CvString const szMergeBaseCommit = getSASDiagnosticQuoted(kMod.getSourceMergeBaseCommitHash());
+	CvString const szMergeBaseVersion = getSASDiagnosticQuoted(kMod.getSourceMergeBaseVersion());
+	CvString const szBranchRelation = getSASDiagnosticQuoted(kMod.getSourceBranchRelation());
+	CvString const szDirtyFiles = getSASDiagnosticQuoted(kMod.getSourceDirtyFiles());
+	CvString const szCodeRulesDiffFingerprint = getSASDiagnosticQuoted(kMod.getSourceCodeRulesDiffFingerprint());
+	CvString const szStagedCodeRulesDiffFingerprint = getSASDiagnosticQuoted(kMod.getSourceStagedCodeRulesDiffFingerprint());
+	CvString const szUnstagedCodeRulesDiffFingerprint = getSASDiagnosticQuoted(kMod.getSourceUnstagedCodeRulesDiffFingerprint());
+	CvString szContext;
+	szContext.Format("version=%s commit=%s shortCommit=%s branch=%s commitDate=%s metadataSource=%s defaultBranch=%s defaultCommit=%s defaultVersion=%s defaultRefSource=%s mergeBaseCommit=%s mergeBaseVersion=%s branchRelation=%s currentOnlyCommits=%d defaultOnlyCommits=%d dirty=%d dirtyTrackedCount=%d sourceDiffDetailsAvailable=%d sourceDiffEntries=%d trackedCodeRulesDiffBytes=%I64d trackedCodeRulesDiffFingerprint=%s stagedCodeRulesDiffBytes=%I64d stagedCodeRulesDiffFingerprint=%s unstagedCodeRulesDiffBytes=%I64d unstagedCodeRulesDiffFingerprint=%s dirtyFiles=%s",
+			szVersion.GetCString(), szCommit.GetCString(), szShortCommit.GetCString(),
+			szBranch.GetCString(), szCommitDate.GetCString(), szMetadataSource.GetCString(),
+			szDefaultBranch.GetCString(), szDefaultCommit.GetCString(), szDefaultVersion.GetCString(), szDefaultRefSource.GetCString(),
+			szMergeBaseCommit.GetCString(), szMergeBaseVersion.GetCString(), szBranchRelation.GetCString(),
+			kMod.getSourceCurrentOnlyCommitCount(), kMod.getSourceDefaultOnlyCommitCount(),
+			kMod.getSourceDirtyState(), kMod.getSourceDirtyFileCount(), kMod.isSourceDiffDetailsAvailable() ? 1 : 0, kMod.getSourceDiffFileCount(),
+			kMod.getSourceCodeRulesDiffBytes(), szCodeRulesDiffFingerprint.GetCString(),
+			kMod.getSourceStagedCodeRulesDiffBytes(), szStagedCodeRulesDiffFingerprint.GetCString(),
+			kMod.getSourceUnstagedCodeRulesDiffBytes(), szUnstagedCodeRulesDiffFingerprint.GetCString(),
+			szDirtyFiles.GetCString());
+	return szContext;
+}
+
+// <!-- custom: Runtime JSON keeps the branch/dirty summary needed by external agents while SGR/build reports retain the heavier per-file patch evidence.
+// Enabled runtime publishers request this helper after their gate; the separately lazy ModName snapshot performs no fetch or repeated per-transition Git work.
+// Per-file completeness is explicit because aggregate hashes can remain valid when detail enumeration failed. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+CvString getSASSourceRuntimeIdentityJson(bool bIndented)
+{
+	ModName const& kMod = GC.getModName();
+	CvString const szVersion = getSASDiagnosticQuoted(kMod.getVersion());
+	CvString const szCommit = getSASDiagnosticQuoted(kMod.getCommitHash());
+	CvString const szBranch = getSASDiagnosticQuoted(kMod.getBranch());
+	CvString const szMetadataSource = getSASDiagnosticQuoted(kMod.getSourceMetadataType());
+	CvString const szDefaultBranch = getSASDiagnosticQuoted(kMod.getSourceDefaultBranch());
+	CvString const szDefaultCommit = getSASDiagnosticQuoted(kMod.getSourceDefaultCommitHash());
+	CvString const szDefaultVersion = getSASDiagnosticQuoted(kMod.getSourceDefaultVersion());
+	CvString const szDefaultRefSource = getSASDiagnosticQuoted(kMod.getSourceDefaultRefSource());
+	CvString const szMergeBaseCommit = getSASDiagnosticQuoted(kMod.getSourceMergeBaseCommitHash());
+	CvString const szMergeBaseVersion = getSASDiagnosticQuoted(kMod.getSourceMergeBaseVersion());
+	CvString const szBranchRelation = getSASDiagnosticQuoted(kMod.getSourceBranchRelation());
+	CvString const szCombinedFingerprint = getSASDiagnosticQuoted(kMod.getSourceCodeRulesDiffFingerprint());
+	CvString const szStagedFingerprint = getSASDiagnosticQuoted(kMod.getSourceStagedCodeRulesDiffFingerprint());
+	CvString const szUnstagedFingerprint = getSASDiagnosticQuoted(kMod.getSourceUnstagedCodeRulesDiffFingerprint());
+	CvString szJson;
+	if (bIndented)
+	{
+		szJson.Format("{\r\n    \"version\": %s,\r\n    \"commit\": %s,\r\n    \"branch\": %s,\r\n    \"metadataSource\": %s,\r\n    \"defaultBranch\": %s,\r\n    \"defaultCommit\": %s,\r\n    \"defaultVersion\": %s,\r\n    \"defaultRefSource\": %s,\r\n    \"mergeBaseCommit\": %s,\r\n    \"mergeBaseVersion\": %s,\r\n    \"branchRelation\": %s,\r\n    \"currentOnlyCommits\": %d,\r\n    \"defaultOnlyCommits\": %d,\r\n    \"dirty\": %d,\r\n    \"dirtyTrackedCount\": %d,\r\n    \"sourceDiffDetailsAvailable\": %d,\r\n    \"sourceDiffEntries\": %d,\r\n    \"trackedCodeRulesDiffBytes\": %I64d,\r\n    \"trackedCodeRulesDiffFingerprint\": %s,\r\n    \"stagedCodeRulesDiffBytes\": %I64d,\r\n    \"stagedCodeRulesDiffFingerprint\": %s,\r\n    \"unstagedCodeRulesDiffBytes\": %I64d,\r\n    \"unstagedCodeRulesDiffFingerprint\": %s\r\n  }",
+			szVersion.GetCString(), szCommit.GetCString(), szBranch.GetCString(), szMetadataSource.GetCString(),
+			szDefaultBranch.GetCString(), szDefaultCommit.GetCString(), szDefaultVersion.GetCString(), szDefaultRefSource.GetCString(),
+			szMergeBaseCommit.GetCString(), szMergeBaseVersion.GetCString(), szBranchRelation.GetCString(),
+			kMod.getSourceCurrentOnlyCommitCount(), kMod.getSourceDefaultOnlyCommitCount(), kMod.getSourceDirtyState(), kMod.getSourceDirtyFileCount(), kMod.isSourceDiffDetailsAvailable() ? 1 : 0, kMod.getSourceDiffFileCount(),
+			kMod.getSourceCodeRulesDiffBytes(), szCombinedFingerprint.GetCString(),
+			kMod.getSourceStagedCodeRulesDiffBytes(), szStagedFingerprint.GetCString(),
+			kMod.getSourceUnstagedCodeRulesDiffBytes(), szUnstagedFingerprint.GetCString());
+	}
+	else
+	{
+		szJson.Format("{\"version\":%s,\"commit\":%s,\"branch\":%s,\"metadataSource\":%s,\"defaultBranch\":%s,\"defaultCommit\":%s,\"defaultVersion\":%s,\"defaultRefSource\":%s,\"mergeBaseCommit\":%s,\"mergeBaseVersion\":%s,\"branchRelation\":%s,\"currentOnlyCommits\":%d,\"defaultOnlyCommits\":%d,\"dirty\":%d,\"dirtyTrackedCount\":%d,\"sourceDiffDetailsAvailable\":%d,\"sourceDiffEntries\":%d,\"trackedCodeRulesDiffBytes\":%I64d,\"trackedCodeRulesDiffFingerprint\":%s,\"stagedCodeRulesDiffBytes\":%I64d,\"stagedCodeRulesDiffFingerprint\":%s,\"unstagedCodeRulesDiffBytes\":%I64d,\"unstagedCodeRulesDiffFingerprint\":%s}",
+			szVersion.GetCString(), szCommit.GetCString(), szBranch.GetCString(), szMetadataSource.GetCString(),
+			szDefaultBranch.GetCString(), szDefaultCommit.GetCString(), szDefaultVersion.GetCString(), szDefaultRefSource.GetCString(),
+			szMergeBaseCommit.GetCString(), szMergeBaseVersion.GetCString(), szBranchRelation.GetCString(),
+			kMod.getSourceCurrentOnlyCommitCount(), kMod.getSourceDefaultOnlyCommitCount(), kMod.getSourceDirtyState(), kMod.getSourceDirtyFileCount(), kMod.isSourceDiffDetailsAvailable() ? 1 : 0, kMod.getSourceDiffFileCount(),
+			kMod.getSourceCodeRulesDiffBytes(), szCombinedFingerprint.GetCString(),
+			kMod.getSourceStagedCodeRulesDiffBytes(), szStagedFingerprint.GetCString(),
+			kMod.getSourceUnstagedCodeRulesDiffBytes(), szUnstagedFingerprint.GetCString());
+	}
+	return szJson;
+}
+
+// <!-- custom: Keep compact C++ UI/replay-settings formatting identical to CvModName.py: practical version first, 10-char SHA in parentheses when known, and only a verified dirty worktree gets the "dirty" marker. (ChatGPT-5.6-Sol) -->
+CvWString getSASCompactSourceVersion(char const* szVersion, char const* szCommitHash, int iDirtyState)
+{
+	CvString szShortCommit;
+	if (szCommitHash != NULL)
+	{
+		szShortCommit = szCommitHash;
+		if (szShortCommit.length() > 10)
+			szShortCommit = szShortCommit.substr(0, 10);
+	}
+	CvWString szDetails;
+	bool const bHasVersion = (szVersion != NULL && szVersion[0] != '\0');
+	bool const bHasCommit = !szShortCommit.empty();
+	if (bHasVersion)
+		szDetails = CvWString(szVersion);
+	if (bHasCommit)
+	{
+		if (!szDetails.empty())
+			szDetails += L" ";
+		szDetails += L"(";
+		szDetails += CvWString(szShortCommit.GetCString());
+		if (iDirtyState == 1)
+			szDetails += L", dirty";
+		szDetails += L")";
+	}
+	else if (bHasVersion && iDirtyState == 1)
+		szDetails += L" (dirty)";
+	return szDetails;
+}
+
+// <!-- custom: Combine the configured display name with the same compact runtime source details used elsewhere, so replay metadata does not duplicate ModName formatting. (ChatGPT-5.6-Sol) -->
+CvWString getSASRuntimeDisplayNameAndVersion()
+{
+	ModName const& kMod = GC.getModName();
+	CvWString szName(kMod.getDisplayName());
+	CvWString const szDetails = getSASCompactSourceVersion(kMod.getVersion(), kMod.getCommitHash(), kMod.getSourceDirtyState());
+	if (!szDetails.empty())
+	{
+		if (!szName.empty())
+			szName += L" ";
+		szName += szDetails;
+	}
+	return szName;
+}
+
+// <!-- custom: Distinguish the exact loaded DLL and Civ4 executable candidates from source/version identity.
+// The nmake target is embedded at compile time; size, linker timestamp, last-write time and FNV-1a fingerprints come from the files backing the loaded modules.
+// FNV-1a is a compact diagnostic fingerprint rather than a security hash, but it is strong enough to tell different local DLL/EXE candidates apart without adding a CryptoAPI/library dependency.
+// Cache each once because neither loaded image can change within this process. (ChatGPT-5.6-Sol) -->
+struct SASBinaryDiagnosticContext
+{
+	SASBinaryDiagnosticContext() : bModuleFound(false), bFileReadable(false), iFileSize(-1), uiPETimestamp(0), iLargeAddressAware(-1), uiFingerprint(0), szLastWriteUtc("-"), szPath("-"), szFileVersion("-"), szProductVersion("-") {}
+	bool bModuleFound;
+	bool bFileReadable;
+	__int64 iFileSize;
+	DWORD uiPETimestamp;
+	// <!-- custom: Read this flag from the loaded PE header; the EXE flag affects process address-space eligibility, independently of signed integer limits. (GPT-6.1-Sol) -->
+	int iLargeAddressAware;
+	unsigned __int64 uiFingerprint;
+	CvString szLastWriteUtc;
+	CvString szPath;
+	CvString szFileVersion;
+	CvString szProductVersion;
+};
+
+static char const* getSASDllBuildConfiguration()
+{
+	switch (SAS_DLL_BUILD_CONFIGURATION)
+	{
+	case 1: return "Debug";
+	case 2: return "Debug-opt";
+	case 3: return "Release";
+	case 4: return "Assert";
+	case 5: return "Profile";
+	case 6: return "Final_Release";
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: FILETIME uses the Win32 epoch, so keep only the type conversion local; once converted, reuse the shared millisecond UTC formatter. (ChatGPT-5.6-Sol) -->
+static CvString getSASFileTimeUtc(FILETIME const& kFileTime)
+{
+	SYSTEMTIME kUtcTime;
+	if (!FileTimeToSystemTime(&kFileTime, &kUtcTime))
+		return CvString("-");
+	return formatSASUtcSystemTime(kUtcTime);
+}
+
+// <!-- custom: Read the backing DLL/EXE's numeric VERSIONINFO rather than duplicating AdvCiv's resource literals in recorder code.
+// These are binary metadata, not the mod source revision or save-layout markers; builds without a version resource retain explicit unknown fields.
+// AdvCiv's Makefile links CvGameCoreDLL.rc only for Final_Release, so an absent version in Debug-opt/Release is expected.
+// Resolve version.dll only on this enabled, cached diagnostic path; release the temporary library handle after querying both versions. (GPT-6.1-Sol) -->
+static void resolveSASBinaryResourceVersions(SASBinaryDiagnosticContext& kContext)
+{
+	typedef DWORD (WINAPI* VersionSizeFunction)(LPCSTR, LPDWORD);
+	typedef BOOL (WINAPI* VersionInfoFunction)(LPCSTR, DWORD, DWORD, LPVOID);
+	typedef BOOL (WINAPI* VersionQueryFunction)(LPCVOID, LPCSTR, LPVOID*, PUINT);
+	HMODULE const hVersion = LoadLibraryA("version.dll");
+	if (hVersion == NULL)
+		return;
+	VersionSizeFunction const pSize = (VersionSizeFunction)GetProcAddress(hVersion, "GetFileVersionInfoSizeA");
+	VersionInfoFunction const pInfo = (VersionInfoFunction)GetProcAddress(hVersion, "GetFileVersionInfoA");
+	VersionQueryFunction const pQuery = (VersionQueryFunction)GetProcAddress(hVersion, "VerQueryValueA");
+	if (pSize != NULL && pInfo != NULL && pQuery != NULL)
+	{
+		DWORD uiIgnored = 0;
+		DWORD const uiBytes = pSize(kContext.szPath.GetCString(), &uiIgnored);
+		if (uiBytes > 0)
+		{
+			std::vector<BYTE> aVersion(uiBytes);
+			if (pInfo(kContext.szPath.GetCString(), 0, uiBytes, &aVersion[0]))
+			{
+				VS_FIXEDFILEINFO* pFixed = NULL;
+				UINT uiFixedBytes = 0;
+				if (pQuery(&aVersion[0], "\\", (LPVOID*)&pFixed, &uiFixedBytes) &&
+					pFixed != NULL && uiFixedBytes >= sizeof(VS_FIXEDFILEINFO) && pFixed->dwSignature == VS_FFI_SIGNATURE)
+				{
+					kContext.szFileVersion.Format("%u.%u.%u.%u", (uint)HIWORD(pFixed->dwFileVersionMS), (uint)LOWORD(pFixed->dwFileVersionMS), (uint)HIWORD(pFixed->dwFileVersionLS), (uint)LOWORD(pFixed->dwFileVersionLS));
+					kContext.szProductVersion.Format("%u.%u.%u.%u", (uint)HIWORD(pFixed->dwProductVersionMS), (uint)LOWORD(pFixed->dwProductVersionMS), (uint)HIWORD(pFixed->dwProductVersionLS), (uint)LOWORD(pFixed->dwProductVersionLS));
+				}
+			}
+		}
+	}
+	FreeLibrary(hVersion);
+}
+
+static void resolveSASBinaryDiagnosticContext(HMODULE hModule, SASBinaryDiagnosticContext& kContext)
+{
+	if (hModule == NULL)
+		return;
+	kContext.bModuleFound = true;
+
+	IMAGE_DOS_HEADER const* pDosHeader = (IMAGE_DOS_HEADER const*)hModule;
+	if (pDosHeader->e_magic == IMAGE_DOS_SIGNATURE)
+	{
+		IMAGE_NT_HEADERS const* pNtHeaders = (IMAGE_NT_HEADERS const*)((BYTE const*)hModule + pDosHeader->e_lfanew);
+		if (pNtHeaders->Signature == IMAGE_NT_SIGNATURE)
+		{
+			kContext.uiPETimestamp = pNtHeaders->FileHeader.TimeDateStamp;
+			// <!-- custom: Reuse the existing one-time loaded-module PE inspection rather than rereading or inferring the EXE's Large Address Aware setting from its filename. (GPT-6.1-Sol) -->
+			kContext.iLargeAddressAware = ((pNtHeaders->FileHeader.Characteristics & IMAGE_FILE_LARGE_ADDRESS_AWARE) != 0 ? 1 : 0);
+		}
+	}
+
+	char szPath[MAX_PATH];
+	DWORD const uiPathLength = GetModuleFileNameA(hModule, szPath, MAX_PATH);
+	if (uiPathLength == 0 || uiPathLength >= MAX_PATH)
+		return;
+	kContext.szPath = szPath;
+	resolveSASBinaryResourceVersions(kContext);
+
+	HANDLE const hFile = CreateFileA(szPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return;
+
+	DWORD uiSizeHigh = 0;
+	SetLastError(NO_ERROR);
+	DWORD const uiSizeLow = GetFileSize(hFile, &uiSizeHigh);
+	if (uiSizeLow != INVALID_FILE_SIZE || GetLastError() == NO_ERROR)
+		kContext.iFileSize = (__int64)(((unsigned __int64)uiSizeHigh << 32) | uiSizeLow);
+
+	FILETIME kLastWriteTime;
+	if (GetFileTime(hFile, NULL, NULL, &kLastWriteTime))
+		kContext.szLastWriteUtc = getSASFileTimeUtc(kLastWriteTime);
+
+	unsigned __int64 uiHash = ((unsigned __int64)0xCBF29CE4 << 32) | 0x84222325;
+	unsigned __int64 const uiPrime = ((unsigned __int64)0x00000100 << 32) | 0x000001B3;
+	BYTE aucBuffer[64 * 1024];
+	DWORD uiRead = 0;
+	bool bReadOk = true;
+	for (;;)
+	{
+		if (!ReadFile(hFile, aucBuffer, sizeof(aucBuffer), &uiRead, NULL))
+		{
+			bReadOk = false;
+			break;
+		}
+		if (uiRead == 0)
+			break;
+		for (DWORD iI = 0; iI < uiRead; iI++)
+		{
+			uiHash ^= aucBuffer[iI];
+			uiHash *= uiPrime;
+		}
+	}
+	CloseHandle(hFile);
+	if (bReadOk)
+	{
+		kContext.bFileReadable = true;
+		kContext.uiFingerprint = uiHash;
+	}
+}
+
+static SASBinaryDiagnosticContext const& getSASDllDiagnosticContext()
+{
+	static SASBinaryDiagnosticContext kContext;
+	static bool bInitialized = false;
+	if (!bInitialized)
+	{
+		bInitialized = true;
+		resolveSASBinaryDiagnosticContext(GetModuleHandleA("CvGameCoreDLL.dll"), kContext);
+	}
+	return kContext;
+}
+
+static SASBinaryDiagnosticContext const& getSASExeDiagnosticContext()
+{
+	static SASBinaryDiagnosticContext kContext;
+	static bool bInitialized = false;
+	if (!bInitialized)
+	{
+		bInitialized = true;
+		resolveSASBinaryDiagnosticContext(GetModuleHandleA(NULL), kContext);
+	}
+	return kContext;
+}
+
+// <!-- custom: Query only the already-loaded Direct3D 9 module; never LoadLibrary a graphics wrapper merely for diagnostics.
+// The display logger calls this after Civ4 reports graphics initialized, so the cached module identity corresponds to the live D3D9 path used by this process. (ChatGPT-5.6-Sol) -->
+static SASBinaryDiagnosticContext const& getSASD3D9DiagnosticContext()
+{
+	static SASBinaryDiagnosticContext kContext;
+	static bool bInitialized = false;
+	if (!bInitialized)
+	{
+		HMODULE const hD3D9 = GetModuleHandleA("d3d9.dll");
+		if (hD3D9 != NULL)
+		{
+			bInitialized = true;
+			resolveSASBinaryDiagnosticContext(hD3D9, kContext);
+		}
+	}
+	return kContext;
+}
+
+static CvString getSASPETimestampUtc(DWORD uiTimestamp)
+{
+	if (uiTimestamp == 0)
+		return CvString("-");
+	CvString const szTimestamp = createSASUtcTimestamp((time_t)uiTimestamp);
+	return (szTimestamp == "unknown_time" ? CvString("-") : szTimestamp);
+}
+
+static CvString getSASBinaryFingerprint(SASBinaryDiagnosticContext const& kContext)
+{
+	CvString szFingerprint = "-";
+	if (kContext.bFileReadable)
+		szFingerprint.Format("FNV1A64:%016I64X", kContext.uiFingerprint);
+	return szFingerprint;
+}
+
+// <!-- custom: DLL and EXE diagnostics share one binary-identity schema, including unavailable version-resource fields.
+// Keep their established fingerprint/time field prefixes while avoiding two independently maintained copies of the common payload. (GPT-6.1-Sol) -->
+static CvString getSASBinaryContextFields(SASBinaryDiagnosticContext const& kContext, char const* szKind)
+{
+	CvString szContext;
+	szContext.Format("moduleFound=%d fileReadable=%d fileSizeBytes=%I64d %sFingerprint=%s %sLastWriteUtc=%s peTimestampRaw=%u peTimestampUtc=%s resourceFileVersion=%s resourceProductVersion=%s",
+		kContext.bModuleFound, kContext.bFileReadable, kContext.iFileSize,
+		szKind, getSASBinaryFingerprint(kContext).GetCString(), szKind, kContext.szLastWriteUtc.GetCString(),
+		kContext.uiPETimestamp, getSASPETimestampUtc(kContext.uiPETimestamp).GetCString(), kContext.szFileVersion.GetCString(), kContext.szProductVersion.GetCString());
+	return szContext;
+}
+
+// <!-- custom: Observe current build outputs independently of the pre-build facts embedded in the running DLL.
+// Size/FNV equality is practical identity evidence, not byte-by-byte comparison or cryptographic authentication. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+struct SASFileFingerprintContext
+{
+	SASFileFingerprintContext() : bExists(false), bReadable(false), iFileSize(-1), uiFingerprint(0) {}
+	bool bExists;
+	bool bReadable;
+	__int64 iFileSize;
+	unsigned __int64 uiFingerprint;
+};
+
+static SASFileFingerprintContext getSASFileFingerprintContext(CvString const& szPath)
+{
+	SASFileFingerprintContext kContext;
+	if (szPath.empty() || szPath == "-")
+		return kContext;
+	DWORD const uiAttributes = GetFileAttributesA(szPath.GetCString());
+	if (uiAttributes == INVALID_FILE_ATTRIBUTES || (uiAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+		return kContext;
+	kContext.bExists = true;
+	HANDLE const hFile = CreateFileA(szPath.GetCString(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return kContext;
+	DWORD uiSizeHigh = 0;
+	SetLastError(NO_ERROR);
+	DWORD const uiSizeLow = GetFileSize(hFile, &uiSizeHigh);
+	if (uiSizeLow != INVALID_FILE_SIZE || GetLastError() == NO_ERROR)
+		kContext.iFileSize = (__int64)(((unsigned __int64)uiSizeHigh << 32) | uiSizeLow);
+	unsigned __int64 uiHash = ((unsigned __int64)0xCBF29CE4 << 32) | 0x84222325;
+	unsigned __int64 const uiPrime = ((unsigned __int64)0x00000100 << 32) | 0x000001B3;
+	BYTE aucBuffer[64 * 1024];
+	DWORD uiRead = 0;
+	bool bReadOk = true;
+	for (;;)
+	{
+		if (!ReadFile(hFile, aucBuffer, sizeof(aucBuffer), &uiRead, NULL))
+		{
+			bReadOk = false;
+			break;
+		}
+		if (uiRead == 0)
+			break;
+		for (DWORD iI = 0; iI < uiRead; iI++)
+		{
+			uiHash ^= aucBuffer[iI];
+			uiHash *= uiPrime;
+		}
+	}
+	CloseHandle(hFile);
+	if (bReadOk)
+	{
+		kContext.bReadable = true;
+		kContext.uiFingerprint = uiHash;
+	}
+	return kContext;
+}
+
+static bool isSASDirectory(CvString const& szPath)
+{
+	DWORD const uiAttributes = GetFileAttributesA(szPath.GetCString());
+	return (uiAttributes != INVALID_FILE_ATTRIBUTES && (uiAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0);
+}
+
+static int countSASFilesWithSuffixRecursive(CvString const& szDirectory, char const* szSuffix)
+{
+	CvString szSearch = szDirectory + "\\*";
+	WIN32_FIND_DATAA kFindData;
+	HANDLE const hFind = FindFirstFileA(szSearch.GetCString(), &kFindData);
+	if (hFind == INVALID_HANDLE_VALUE)
+		return 0;
+	int iCount = 0;
+	do
+	{
+		if (strcmp(kFindData.cFileName, ".") == 0 || strcmp(kFindData.cFileName, "..") == 0)
+			continue;
+		CvString const szChild = szDirectory + "\\" + kFindData.cFileName;
+		if ((kFindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+		{
+			if ((kFindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0)
+				iCount += countSASFilesWithSuffixRecursive(szChild, szSuffix);
+		}
+		else
+		{
+			size_t const iLength = strlen(kFindData.cFileName);
+			size_t const iSuffixLength = strlen(szSuffix);
+			if (iLength >= iSuffixLength && stricmp(kFindData.cFileName + iLength - iSuffixLength, szSuffix) == 0)
+				iCount++;
+		}
+	} while (FindNextFileA(hFind, &kFindData));
+	FindClose(hFind);
+	return iCount;
+}
+
+static CvString getSASBuildProjectRoot()
+{
+	CvString szDllPath = getSASDllDiagnosticContext().szPath;
+	size_t const iDllSlash = szDllPath.find_last_of("\\/");
+	if (iDllSlash == CvString::npos)
+		return CvString("-");
+	CvString const szDllDirectory = szDllPath.substr(0, iDllSlash);
+	size_t const iAssetsSlash = szDllDirectory.find_last_of("\\/");
+	if (iAssetsSlash == CvString::npos)
+		return CvString("-");
+	CvString const szAssetsName = szDllDirectory.substr(iAssetsSlash + 1);
+	if (stricmp(szAssetsName.GetCString(), "Assets") != 0)
+		return CvString("-");
+	return CvString(szDllDirectory.substr(0, iAssetsSlash) + "\\CvGameCoreDLL\\Project");
+}
+
+static char const* getSASDllCandidateState(SASFileFingerprintContext const& kCandidate, SASBinaryDiagnosticContext const& kLoaded)
+{
+	if (!kCandidate.bExists)
+		return "MISSING";
+	if (!kCandidate.bReadable)
+		return "UNREADABLE";
+	if (!kLoaded.bFileReadable)
+		return "UNVERIFIABLE";
+	return (kCandidate.iFileSize == kLoaded.iFileSize && kCandidate.uiFingerprint == kLoaded.uiFingerprint ? "FINGERPRINT_MATCH" : "DIFFERENT_DLL");
+}
+
+static CvString getSASDllBuildProvenanceFields(SASBinaryDiagnosticContext const& kLoaded)
+{
+	// <!-- custom: The first candidate required manually copying/authenticating a text sidecar; embed only pre-build facts instead, using the existing DLL build configuration/compiler identity for the rest.
+	// These values survive deleting build artifacts; current tree observations below remain independent and cannot retroactively certify compiler reuse or a successful build invocation. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	int const iObjects = SAS_BUILD_PREEXISTING_OBJECT_COUNT;
+	int const iIncomplete = SAS_BUILD_PREEXISTING_INCOMPLETE_MARKER_COUNT;
+	int const iPch = SAS_BUILD_PREEXISTING_PCH;
+	char const* const szBaseline = (iObjects == 0 && iPch == 0 ? "CLEAN" : "REUSABLE_ARTIFACTS_PRESENT");
+
+	CvString const szProjectRoot = getSASBuildProjectRoot();
+	bool const bProjectTreePresent = (szProjectRoot != "-" && isSASDirectory(szProjectRoot));
+	CvString const szTargetDirectory = (bProjectTreePresent ? CvString(szProjectRoot + "\\" + getSASDllBuildConfiguration()) : CvString("-"));
+	CvString const szTempDirectory = (bProjectTreePresent ? CvString(szProjectRoot + "\\temp_files\\" + getSASDllBuildConfiguration()) : CvString("-"));
+	bool const bTempDirPresent = (bProjectTreePresent && isSASDirectory(szTempDirectory));
+	SASFileFingerprintContext const kBuildOutput = getSASFileFingerprintContext(bProjectTreePresent ? CvString(szTargetDirectory + "\\CvGameCoreDLL.dll") : CvString("-"));
+	SASFileFingerprintContext const kTempDll = getSASFileFingerprintContext(bTempDirPresent ? CvString(szTempDirectory + "\\CvGameCoreDLL.dll") : CvString("-"));
+	char const* const szBuildOutputState = (bProjectTreePresent ? getSASDllCandidateState(kBuildOutput, kLoaded) : "UNAVAILABLE");
+	char const* const szTempDllState = (bProjectTreePresent ? (bTempDirPresent ? getSASDllCandidateState(kTempDll, kLoaded) : "MISSING") : "UNAVAILABLE");
+
+	int const iTempObjectCount = (bTempDirPresent ? countSASFilesWithSuffixRecursive(szTempDirectory, ".obj") : -1);
+	int const iTempIncompleteMarkerCount = (bTempDirPresent ? countSASFilesWithSuffixRecursive(szTempDirectory, ".@") : -1);
+	// <!-- custom: MSVC 7.1 failed with C2039 because CvString + a string literal returns std::string, which has no GetCString(); use standard c_str() on these concatenated paths. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	int const iTempPchPresent = (bTempDirPresent ? (GetFileAttributesA((szTempDirectory + "\\CvGameCoreDLL.pch").c_str()) != INVALID_FILE_ATTRIBUTES ? 1 : 0) : -1);
+	int const iTempPdbPresent = (bTempDirPresent ? (GetFileAttributesA((szTempDirectory + "\\CvGameCoreDLL.pdb").c_str()) != INVALID_FILE_ATTRIBUTES ? 1 : 0) : -1);
+	CvString szFields;
+	szFields.Format("buildEvidence=EMBEDDED buildRequest=%s preexistingObjectCount=%d preexistingIncompleteMarkerCount=%d preexistingPch=%d reusableArtifactBaseline=%s projectTreePresent=%d buildOutputDllState=%s tempDirPresent=%d tempDllState=%s tempObjectCount=%d tempIncompleteMarkerCount=%d tempPchPresent=%d tempPdbPresent=%d",
+		SAS_BUILD_REQUEST, iObjects, iIncomplete, iPch, szBaseline,
+		bProjectTreePresent, szBuildOutputState, bProjectTreePresent ? (bTempDirPresent ? 1 : 0) : -1, szTempDllState, iTempObjectCount, iTempIncompleteMarkerCount, iTempPchPresent, iTempPdbPresent);
+	return szFields;
+}
+
+// <!-- custom: Assertion failures need exact binary/build identity too, but their exceptional path should not recursively walk temp_files or fingerprint build-output candidates.
+// Reuse the cached loaded-module identity and compile-time target only; the full BBAI/SASGameRecord context below remains richer. (ChatGPT-5.6-Sol) -->
+CvString getSASDllRuntimeContextFields()
+{
+	SASBinaryDiagnosticContext const& kContext = getSASDllDiagnosticContext();
+#ifdef FASSERT_ENABLE
+	int const iFAssertEnabled = 1;
+#else
+	int const iFAssertEnabled = 0;
+#endif
+	CvString szContext;
+	szContext.Format("build=%s %s fassertEnabled=%d", getSASDllBuildConfiguration(), getSASBinaryContextFields(kContext, "dll").GetCString(), iFAssertEnabled);
+	return szContext;
+}
+
+CvString getSASDllContextFields()
+{
+	SASBinaryDiagnosticContext const& kContext = getSASDllDiagnosticContext();
+#ifdef FASSERT_ENABLE
+	int const iFAssertEnabled = 1;
+#else
+	int const iFAssertEnabled = 0;
+#endif
+#ifdef _DEBUG
+	int const iDebugDefine = 1;
+#else
+	int const iDebugDefine = 0;
+#endif
+#ifdef NDEBUG
+	int const iNDebugDefine = 1;
+#else
+	int const iNDebugDefine = 0;
+#endif
+#ifdef _MSC_VER
+	int const iMsvcVersion = _MSC_VER;
+#else
+	int const iMsvcVersion = -1;
+#endif
+#ifdef _MSC_FULL_VER
+	int const iMsvcFullVersion = _MSC_FULL_VER;
+#else
+	int const iMsvcFullVersion = -1;
+#endif
+#ifdef USE_INTERNAL_PROFILER
+	int const iInternalProfilerCompiled = 1;
+#else
+	int const iInternalProfilerCompiled = 0;
+#endif
+#ifdef USE_TSC_PROFILER
+	int const iTscProfilerCompiled = 1;
+#else
+	int const iTscProfilerCompiled = 0;
+#endif
+#ifdef PROFILE_AI_AUTO_PLAY
+	int const iProfileAIAutoPlayCompiled = 1;
+#else
+	int const iProfileAIAutoPlayCompiled = 0;
+#endif
+#ifdef ENABLE_REPRO_TEST
+	int const iReproTestCompiled = 1;
+#else
+	int const iReproTestCompiled = 0;
+#endif
+	CvString szContext;
+	// <!-- custom: Build configuration already distinguishes Debug-opt/Release/Profile.
+	// Add the actual compiler identity and profiler/ReproTest compile switches because they can materially affect performance comparisons even when runtime logging settings match. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	szContext.Format("build=%s %s %s fassertEnabled=%d debugDefine=%d ndebugDefine=%d msvcVersion=%d msvcFullVersion=%d internalProfilerCompiled=%d tscProfilerCompiled=%d profileAIAutoPlayCompiled=%d reproTestCompiled=%d",
+			getSASDllBuildConfiguration(), getSASBinaryContextFields(kContext, "dll").GetCString(), getSASDllBuildProvenanceFields(kContext).GetCString(), iFAssertEnabled, iDebugDefine, iNDebugDefine,
+			iMsvcVersion, iMsvcFullVersion, iInternalProfilerCompiled, iTscProfilerCompiled, iProfileAIAutoPlayCompiled, iReproTestCompiled);
+	return szContext;
+}
+
+// <!-- custom: Runtime status must identify its loaded DLL independently of SASGameRecord; a live status file previously hid that an older DLL was running after a newer build.
+// Reuse the log diagnostics' cached module-backed file identity, not the build sidecar or current source revision; only controlled labels/numeric fields enter JSON, with no machine paths.
+// This fingerprints the backing file observed on first use, not a hash of mapped memory; readers compare it with build evidence rather than assuming current source was compiled. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+CvString getSASDllRuntimeIdentityJson(bool bIndented)
+{
+	SASBinaryDiagnosticContext const& kContext = getSASDllDiagnosticContext();
+	// <!-- custom: Share one field list between the readable nested snapshot and compact JSONL identity; only whitespace differs, so timeline rows remain single-line and their metadata cannot drift. (GPT-6.1-Sol) -->
+	char const* const szFieldPrefix = (bIndented ? "\r\n    " : "");
+	char const* const szValuePrefix = (bIndented ? " " : "");
+	CvString szJson;
+	szJson.Format("{%s\"buildConfiguration\":%s\"%s\","
+		"%s\"moduleFound\":%s%d,"
+		"%s\"fileReadable\":%s%d,"
+		"%s\"fileSizeBytes\":%s%I64d,"
+		"%s\"fingerprint\":%s\"%s\","
+		"%s\"lastWriteUtc\":%s\"%s\","
+		"%s\"peTimestampRaw\":%s%lu%s}",
+		szFieldPrefix, szValuePrefix, getSASDllBuildConfiguration(),
+		szFieldPrefix, szValuePrefix, kContext.bModuleFound,
+		szFieldPrefix, szValuePrefix, kContext.bFileReadable,
+		szFieldPrefix, szValuePrefix, kContext.iFileSize,
+		szFieldPrefix, szValuePrefix, getSASBinaryFingerprint(kContext).GetCString(),
+		szFieldPrefix, szValuePrefix, kContext.szLastWriteUtc.GetCString(),
+		szFieldPrefix, szValuePrefix, (unsigned long)kContext.uiPETimestamp, (bIndented ? "\r\n  " : ""));
+	return szJson;
+}
+
+// <!-- custom: Add the loaded EXE's Large Address Aware flag beside its existing identity.
+// It permits extra virtual address space on supporting Windows configurations; it does not enlarge C++ int or guarantee allocatable/free RAM. (GPT-6.1-Sol) -->
+CvString getSASExeContextFields()
+{
+	SASBinaryDiagnosticContext const& kContext = getSASExeDiagnosticContext();
+	CvString szContext;
+	szContext.Format("%s exeLargeAddressAware=%d", getSASBinaryContextFields(kContext, "exe").GetCString(), kContext.iLargeAddressAware);
+	return szContext;
+}
+
+static char getSASLowerAscii(char c)
+{
+	return (c >= 'A' && c <= 'Z' ? (char)(c - 'A' + 'a') : c);
+}
+
+static CvString getSASLowerAscii(CvString const& szValue)
+{
+	CvString szLower = szValue;
+	for (int i = 0; i < (int)szLower.length(); i++)
+		szLower[i] = getSASLowerAscii(szLower[i]);
+	return szLower;
+}
+
+// <!-- custom: Classify the loaded D3D9 path without exposing an absolute path unless the caller explicitly permits it.
+// EXE_DIRECTORY is especially useful for identifying proxy/wrapper installs; WINDOWS_SYSTEM is the ordinary system Direct3D location, while OTHER avoids guessing at a product name. (ChatGPT-5.6-Sol) -->
+static CvString getSASParentDirectoryLower(CvString const& szPath)
+{
+	size_t const iSlash = szPath.find_last_of("\\/");
+	if (iSlash == CvString::npos)
+		return CvString("-");
+	CvString szDirectory = getSASLowerAscii(szPath.substr(0, iSlash));
+	for (int i = 0; i < (int)szDirectory.length(); i++)
+	{
+		if (szDirectory[i] == '/')
+			szDirectory[i] = '\\';
+	}
+	return szDirectory;
+}
+
+// <!-- custom: Replace the detail-level parameter with explicit path permission; the recorder owns the combined level/opt-in gate. (GPT-6.1-Sol) -->
+CvString getSASD3D9ContextFields(bool bIncludeExactPath)
+{
+	SASBinaryDiagnosticContext const& kContext = getSASD3D9DiagnosticContext();
+	CvString szLocation = "UNKNOWN";
+	if (kContext.bModuleFound && kContext.szPath != "-")
+	{
+		CvString const szD3DDirectory = getSASParentDirectoryLower(kContext.szPath);
+		CvString const szExeDirectory = getSASParentDirectoryLower(getSASExeDiagnosticContext().szPath);
+		char szSystemDirectory[MAX_PATH];
+		UINT const uiSystemLength = GetSystemDirectoryA(szSystemDirectory, MAX_PATH);
+		CvString szSystem = "-";
+		if (uiSystemLength > 0 && uiSystemLength < MAX_PATH)
+			szSystem = getSASLowerAscii(CvString(szSystemDirectory));
+		char szWindowsDirectory[MAX_PATH];
+		UINT const uiWindowsLength = GetWindowsDirectoryA(szWindowsDirectory, MAX_PATH);
+		CvString szSystem32 = "-";
+		CvString szSysWow64 = "-";
+		if (uiWindowsLength > 0 && uiWindowsLength < MAX_PATH)
+		{
+			CvString const szWindows = getSASLowerAscii(CvString(szWindowsDirectory));
+			szSystem32 = szWindows + "\\system32";
+			szSysWow64 = szWindows + "\\syswow64";
+		}
+		if (szD3DDirectory == szExeDirectory && szExeDirectory != "-")
+			szLocation = "EXE_DIRECTORY";
+		else if ((szD3DDirectory == szSystem && szSystem != "-") || szD3DDirectory == szSystem32 || szD3DDirectory == szSysWow64)
+			szLocation = "WINDOWS_SYSTEM";
+		else
+			szLocation = "OTHER";
+	}
+	CvString const szExactPath = (bIncludeExactPath && kContext.szPath != "-" ? getSASDiagnosticQuoted(kContext.szPath.GetCString()) : CvString("-"));
+	CvString szFields;
+	szFields.Format("%s location=%s exactPath=%s", getSASBinaryContextFields(kContext, "d3d9").GetCString(), szLocation.GetCString(), szExactPath.GetCString());
+	return szFields;
+}
+
+static bool isSASAbsoluteWindowsPath(CvString const& szPath)
+{
+	return ((szPath.length() >= 3 && szPath[1] == ':' && (szPath[2] == '\\' || szPath[2] == '/')) ||
+			(szPath.length() >= 2 && ((szPath[0] == '\\' && szPath[1] == '\\') || (szPath[0] == '/' && szPath[1] == '/'))));
+}
+
+static CvString getSASAbsoluteModPathForDiagnostics()
+{
+	CvString szPath = GC.getModName().getFullPath();
+	if (!isSASAbsoluteWindowsPath(szPath))
+	{
+		SASBinaryDiagnosticContext const& kExeContext = getSASExeDiagnosticContext();
+		if (kExeContext.szPath == "-")
+			return CvString("-");
+		size_t const iSlash = kExeContext.szPath.find_last_of("\\/");
+		if (iSlash == CvString::npos)
+			return CvString("-");
+		szPath = kExeContext.szPath.substr(0, iSlash + 1) + GC.getModName().getPathInRoot();
+	}
+	while (szPath.length() > 3)
+	{
+		int const iLast = (int)szPath.length() - 1;
+		if (szPath[iLast] != '\\' && szPath[iLast] != '/')
+			break;
+		szPath.erase(iLast, 1);
+	}
+	return szPath;
+}
+
+static CvString getSASNumericEnvironmentValue(char const* szName)
+{
+	char szValue[64];
+	DWORD const iLength = GetEnvironmentVariableA(szName, szValue, sizeof(szValue));
+	if (iLength == 0 || iLength >= sizeof(szValue))
+		return CvString("-");
+	for (DWORD i = 0; i < iLength; i++)
+	{
+		if (szValue[i] < '0' || szValue[i] > '9')
+			return CvString("-");
+	}
+	return CvString(szValue);
+}
+
+static bool hasSASFilePattern(CvString const& szDirectory, char const* szPattern)
+{
+	CvString szSearch = szDirectory;
+	if (!szSearch.empty() && szSearch[(int)szSearch.length() - 1] != '\\' && szSearch[(int)szSearch.length() - 1] != '/')
+		szSearch += "\\";
+	szSearch += szPattern;
+	WIN32_FIND_DATAA kFindData;
+	HANDLE const hFind = FindFirstFileA(szSearch.GetCString(), &kFindData);
+	if (hFind == INVALID_HANDLE_VALUE)
+		return false;
+	FindClose(hFind);
+	return true;
+}
+
+static bool hasSASGogInstallMarker(CvString const& szExePath)
+{
+	size_t const iSlash = szExePath.find_last_of("\\/");
+	if (iSlash == CvString::npos)
+		return false;
+	CvString const szExeDirectory = szExePath.substr(0, iSlash);
+	if (hasSASFilePattern(szExeDirectory, "goggame-*.info"))
+		return true;
+	size_t const iParentSlash = szExeDirectory.find_last_of("\\/");
+	return (iParentSlash != CvString::npos && hasSASFilePattern(szExeDirectory.substr(0, iParentSlash), "goggame-*.info"));
+}
+
+static bool readSASSmallTextFile(CvString const& szPath, CvString& szContents)
+{
+	HANDLE const hFile = CreateFileA(szPath.GetCString(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return false;
+	DWORD uiSizeHigh = 0;
+	SetLastError(NO_ERROR);
+	DWORD const uiSizeLow = GetFileSize(hFile, &uiSizeHigh);
+	if (uiSizeHigh != 0 || uiSizeLow == INVALID_FILE_SIZE || GetLastError() != NO_ERROR || uiSizeLow > 1024 * 1024)
+	{
+		CloseHandle(hFile);
+		return false;
+	}
+	std::vector<char> aBuffer(uiSizeLow + 1, '\0');
+	DWORD uiRead = 0;
+	bool const bRead = (ReadFile(hFile, &aBuffer[0], uiSizeLow, &uiRead, NULL) != FALSE && uiRead == uiSizeLow);
+	CloseHandle(hFile);
+	if (!bRead)
+		return false;
+	szContents = &aBuffer[0];
+	return true;
+}
+
+static CvString getSASAcfValue(CvString const& szContents, char const* szKey)
+{
+	CvString const szLowerContents = getSASLowerAscii(szContents);
+	CvString szPattern;
+	szPattern.Format("\"%s\"", getSASLowerAscii(CvString(szKey)).GetCString());
+	size_t const iKey = szLowerContents.find(szPattern);
+	if (iKey == CvString::npos)
+		return CvString("-");
+	size_t const iValueStartQuote = szContents.find('"', iKey + szPattern.length());
+	if (iValueStartQuote == CvString::npos)
+		return CvString("-");
+	size_t const iValueEndQuote = szContents.find('"', iValueStartQuote + 1);
+	if (iValueEndQuote == CvString::npos || iValueEndQuote <= iValueStartQuote + 1)
+		return CvString("-");
+	return szContents.substr(iValueStartQuote + 1, iValueEndQuote - iValueStartQuote - 1);
+}
+
+static void getSASSteamManifestContext(CvString const& szExePath, CvString const& szSteamAppId, CvString& szBuildId, CvString& szBetaKey)
+{
+	szBuildId = "-";
+	szBetaKey = "-";
+	if (szSteamAppId == "-")
+		return;
+	CvString const szLowerExePath = getSASLowerAscii(szExePath);
+	char const* const szSteamCommonMarker = "\\steamapps\\common\\";
+	size_t const iSteamApps = szLowerExePath.find(szSteamCommonMarker);
+	if (iSteamApps == CvString::npos)
+		return;
+	CvString const szSteamAppsDirectory = szExePath.substr(0, iSteamApps + strlen("\\steamapps"));
+	CvString szManifestPath;
+	szManifestPath.Format("%s\\appmanifest_%s.acf", szSteamAppsDirectory.GetCString(), szSteamAppId.GetCString());
+	CvString szManifest;
+	if (!readSASSmallTextFile(szManifestPath, szManifest))
+		return;
+	CvString const szRawBuildId = getSASAcfValue(szManifest, "buildid");
+	bool bNumericBuildId = (szRawBuildId != "-");
+	for (int i = 0; bNumericBuildId && i < (int)szRawBuildId.length(); i++)
+		bNumericBuildId = (szRawBuildId[i] >= '0' && szRawBuildId[i] <= '9');
+	if (bNumericBuildId)
+		szBuildId = szRawBuildId;
+	CvString const szRawBetaKey = getSASAcfValue(szManifest, "betakey");
+	if (szRawBetaKey != "-")
+		szBetaKey = getSASDiagnosticQuoted(szRawBetaKey.GetCString());
+}
+
+// <!-- custom: Add independent exact-path permission so coarse distribution context remains available without absolute paths. (GPT-6.1-Sol) -->
+CvString getSASInstallContextFields(int iSystemContextLevel, bool bIncludeExactPaths)
+{
+	CvString szDistribution = "-";
+	CvString szSteamAppId = "-";
+	CvString szSteamBuildId = "-";
+	CvString szSteamBetaKey = "-";
+	CvString szExePath = "-";
+	CvString szModPath = "-";
+	if (iSystemContextLevel >= 2)
+	{
+		SASBinaryDiagnosticContext const& kExeContext = getSASExeDiagnosticContext();
+		CvString const szLowerExePath = getSASLowerAscii(kExeContext.szPath);
+		szSteamAppId = getSASNumericEnvironmentValue("SteamAppId");
+		if (szSteamAppId == "-")
+			szSteamAppId = getSASNumericEnvironmentValue("SteamGameId");
+		if (szSteamAppId != "-" || szLowerExePath.find("\\steamapps\\common\\") != CvString::npos || szLowerExePath.find("/steamapps/common/") != CvString::npos)
+		{
+			szDistribution = "STEAM";
+			getSASSteamManifestContext(kExeContext.szPath, szSteamAppId, szSteamBuildId, szSteamBetaKey);
+		}
+		else if (kExeContext.szPath == "-")
+			szDistribution = "UNKNOWN";
+		else if (szLowerExePath.find("\\gog games\\") != CvString::npos || szLowerExePath.find("/gog games/") != CvString::npos || hasSASGogInstallMarker(kExeContext.szPath))
+			szDistribution = "GOG";
+		else if (szLowerExePath.find("\\firaxis games\\") != CvString::npos || szLowerExePath.find("/firaxis games/") != CvString::npos)
+			szDistribution = "FIRAXIS_RETAIL";
+		else szDistribution = "RETAIL_OR_OTHER";
+		if (iSystemContextLevel >= 3 && bIncludeExactPaths)
+		{
+			if (kExeContext.szPath != "-")
+				szExePath = getSASDiagnosticQuoted(kExeContext.szPath.GetCString());
+			CvString const szAbsoluteModPath = getSASAbsoluteModPathForDiagnostics();
+			if (szAbsoluteModPath != "-")
+				szModPath = getSASDiagnosticQuoted(szAbsoluteModPath.GetCString());
+		}
+	}
+	CvString szContext;
+	szContext.Format("distributionHint=%s steamAppId=%s steamBuildId=%s steamBetaKey=%s absoluteExePath=%s absoluteModPath=%s",
+			szDistribution.GetCString(), szSteamAppId.GetCString(), szSteamBuildId.GetCString(), szSteamBetaKey.GetCString(),
+			szExePath.GetCString(), szModPath.GetCString());
+	return szContext;
+}
+
+
+void appendSASDiagnosticListValue(CvString& szList, char const* szValue, char const* szSeparator)
+{
+	FAssert(szValue != NULL && szSeparator != NULL);
+	if (!szList.empty()) szList += szSeparator;
+	szList += szValue;
+}
+
+// <!-- custom: Build comma-separated integer relation/member lists once for shared BBAI/SASGameRecord finalized-initial-state rows. (ChatGPT-5.6-Sol) -->
+void appendSASDiagnosticIntListValue(CvString& szList, int iValue)
+{
+	CvString szItem;
+	szItem.Format("%d", iValue);
+	appendSASDiagnosticListValue(szList, szItem.GetCString());
+}
+
+CvString getSASDiagnosticOrDash(CvString const& szValue)
+{
+	return szValue.empty() ? CvString("-") : szValue;
+}
+
+// <!-- custom: BBAI and SASGameRecord use the same timestamp/context/active-player filename rules.
+// Centralize the filename construction while each log keeps its own session state and rollover timing. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Timestamped names now carry the Windows process ID after the second-resolution timestamp, e.g. SASGameRecord_20261110T163126Z_3104_load1.log.
+// Two single-player clients launched in the same second would otherwise have opened the same file, and in network multiplayer the ID replaces the active player's seat number, which told two local clients apart but not two separate matches.
+// Fixed-name logs keep the seat number in multiplayer, since without a timestamp it is what keeps two seats' files apart. See KI#1081. (Claude Code Opus 5.5) -->
+CvString getSASDiagnosticLogName(char const* szBaseName, CvString const& szTimestamp, CvString const& szContext, bool bTimestamped)
+{
+	CvString szLogName;
+	if (bTimestamped)
+	{
+		if (!szContext.empty())
+			szLogName.Format("%s_%s_%u_%s.log", szBaseName, szTimestamp.GetCString(), (uint)GetCurrentProcessId(), szContext.GetCString());
+		else szLogName.Format("%s_%s_%u.log", szBaseName, szTimestamp.GetCString(), (uint)GetCurrentProcessId());
+	}
+	else if (GC.getGame().isNetworkMultiPlayer())
+		szLogName.Format("%s%d.log", szBaseName, (int)GC.getGame().getActivePlayer());
+	else szLogName.Format("%s.log", szBaseName);
+	return szLogName;
+}
+
+CvString getSASInitialTeamStateFields(TeamTypes eTeam)
+{
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	CvString szMembers, szAliveMembers, szMet, szWars, szOpenBorders, szDefensivePacts, szForcePeace, szPermanentWarPeace, szVassals;
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)iI;
+		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+		if (!kPlayer.isEverAlive() || kPlayer.getTeam() != eTeam)
+			continue;
+		appendSASDiagnosticIntListValue(szMembers, ePlayer);
+		if (kPlayer.isAlive())
+			appendSASDiagnosticIntListValue(szAliveMembers, ePlayer);
+	}
+	for (int iI = 0; iI < MAX_TEAMS; iI++)
+	{
+		TeamTypes const eOther = (TeamTypes)iI;
+		if (eOther == eTeam || !GET_TEAM(eOther).isEverAlive())
+			continue;
+		if (kTeam.isHasMet(eOther)) appendSASDiagnosticIntListValue(szMet, eOther);
+		if (kTeam.isAtWar(eOther)) appendSASDiagnosticIntListValue(szWars, eOther);
+		if (kTeam.isOpenBorders(eOther)) appendSASDiagnosticIntListValue(szOpenBorders, eOther);
+		if (kTeam.isDefensivePact(eOther)) appendSASDiagnosticIntListValue(szDefensivePacts, eOther);
+		if (kTeam.isForcePeace(eOther)) appendSASDiagnosticIntListValue(szForcePeace, eOther);
+		if (kTeam.isPermanentWarPeace(eOther)) appendSASDiagnosticIntListValue(szPermanentWarPeace, eOther);
+		if (GET_TEAM(eOther).isVassal(eTeam)) appendSASDiagnosticIntListValue(szVassals, eOther);
+	}
+	TeamTypes const eMaster = (kTeam.isAVassal() ? kTeam.getMasterTeam() : NO_TEAM);
+	CvString szFields;
+	szFields.Format("team=%d members=%s aliveMembers=%s alive=%d major=%d minor=%d barbarian=%d cities=%d population=%d land=%d metTeams=%s wars=%s openBorders=%s defensivePacts=%s forcePeace=%s permanentWarPeace=%s vassals=%s master=%d capitulated=%d mapTrading=%d techTrading=%d goldTrading=%d openBordersTrading=%d defensivePactTrading=%d permanentAllianceTrading=%d vassalStateTrading=%d",
+			eTeam, getSASDiagnosticOrDash(szMembers).GetCString(), getSASDiagnosticOrDash(szAliveMembers).GetCString(), kTeam.isAlive(), kTeam.isMajorCiv(), kTeam.isMinorCiv(), kTeam.isBarbarian(), kTeam.getNumCities(), kTeam.getTotalPopulation(), kTeam.getTotalLand(),
+			getSASDiagnosticOrDash(szMet).GetCString(), getSASDiagnosticOrDash(szWars).GetCString(), getSASDiagnosticOrDash(szOpenBorders).GetCString(), getSASDiagnosticOrDash(szDefensivePacts).GetCString(), getSASDiagnosticOrDash(szForcePeace).GetCString(), getSASDiagnosticOrDash(szPermanentWarPeace).GetCString(), getSASDiagnosticOrDash(szVassals).GetCString(), eMaster, kTeam.isCapitulated(),
+			kTeam.isMapTrading(), kTeam.isTechTrading(), kTeam.isGoldTrading(), kTeam.isOpenBordersTrading(), kTeam.isDefensivePactTrading(), kTeam.isPermanentAllianceTrading(), kTeam.isVassalStateTrading());
+	return szFields;
+}
+
+CvString getSASInitialTeamTechLevelFields(TeamTypes eTeam)
+{
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	CvString szTechs;
+	int iTechTypes = 0;
+	int iTechLevels = 0;
+	FOR_EACH_ENUM(Tech)
+	{
+		CvTechInfo const& kTech = GC.getInfo(eLoopTech);
+		// <!-- custom: Ordinary technologies live in m_abHasTech, whereas repeat technologies increment m_aiTechCount without setting that bit.
+		// Normalize both storage forms into one exact TYPE:level list. (ChatGPT-5.6-Sol) -->
+		int const iCount = (kTech.isRepeat() ? kTeam.getTechCount(eLoopTech) : (kTeam.isHasTech(eLoopTech) ? 1 : 0));
+		if (iCount <= 0)
+			continue;
+		CvString szItem;
+		szItem.Format(szTechs.empty() ? "%s:%d" : ",%s:%d", kTech.getType(), iCount);
+		szTechs += szItem;
+		iTechTypes++;
+		iTechLevels += iCount;
+	}
+	CvString szFields;
+	szFields.Format("techTypeCount=%d totalTechLevels=%d techLevels=%s", iTechTypes, iTechLevels, getSASDiagnosticOrDash(szTechs).GetCString());
+	return szFields;
+}
+
+CvString getSASInitialTeamTechFields(TeamTypes eTeam)
+{
+	CvString szFields;
+	szFields.Format("team=%d %s", eTeam, getSASInitialTeamTechLevelFields(eTeam).GetCString());
+	return szFields;
+}
+
+char const* getSASDenialType(DenialTypes eDenial)
+{
+	return (eDenial == NO_DENIAL ? "NO_DENIAL" : GC.getInfo(eDenial).getType());
+}
+
+CvString getSASDiagnosticIntText(int iValue)
+{
+	CvString szValue;
+	szValue.Format("%d", iValue);
+	return szValue;
+}
+
+CvString getSASTeamDiagnosticText(TeamTypes eTeam)
+{
+	if (eTeam == NO_TEAM)
+		return CvString("-");
+	CvString szValue;
+	szValue.Format("TEAM_%d", eTeam);
+	return szValue;
+}
+
+CvString getSASTradeDataText(TradeData const& kItem, PlayerTypes eFromPlayer)
+{
+	switch (kItem.m_eItemType)
+	{
+	case TRADE_GOLD:
+	case TRADE_GOLD_PER_TURN:
+		return getSASDiagnosticIntText(kItem.m_iData);
+	case TRADE_TECHNOLOGIES:
+		if (kItem.m_iData >= 0 && kItem.m_iData < GC.getNumTechInfos())
+			return CvString(GC.getInfo((TechTypes)kItem.m_iData).getType());
+		break;
+	case TRADE_RESOURCES:
+		if (kItem.m_iData >= 0 && kItem.m_iData < GC.getNumBonusInfos())
+			return CvString(GC.getInfo((BonusTypes)kItem.m_iData).getType());
+		break;
+	case TRADE_CITIES:
+	{
+		CvString szValue;
+		CvCity* pCity = GET_PLAYER(eFromPlayer).getCity(kItem.m_iData);
+		szValue.Format("cityId=%d", pCity == NULL ? kItem.m_iData : pCity->getID());
+		return szValue;
+	}
+	case TRADE_PEACE:
+	case TRADE_WAR:
+	case TRADE_EMBARGO:
+		return getSASTeamDiagnosticText((TeamTypes)kItem.m_iData);
+	case TRADE_CIVIC:
+		if (kItem.m_iData >= 0 && kItem.m_iData < GC.getNumCivicInfos())
+			return CvString(GC.getInfo((CivicTypes)kItem.m_iData).getType());
+		break;
+	case TRADE_RELIGION:
+		if (kItem.m_iData >= 0 && kItem.m_iData < GC.getNumReligionInfos())
+			return CvString(GC.getInfo((ReligionTypes)kItem.m_iData).getType());
+		break;
+	default:
+		return CvString("-");
+	}
+	return getSASDiagnosticIntText(kItem.m_iData);
+}
+
+CvString getSASTradeListText(CLinkList<TradeData> const& kList, PlayerTypes eFromPlayer)
+{
+	CvString szList;
+	FOR_EACH_TRADE_ITEM(kList)
+	{
+		CvString szItem;
+		szItem.Format(szList.empty() ? "%s:%s" : ",%s:%s", getSASTradeItemType(pItem->m_eItemType), getSASTradeDataText(*pItem, eFromPlayer).GetCString());
+		szList += szItem;
+	}
+	return getSASDiagnosticOrDash(szList);
+}
+
+// <!-- custom: Ordinary non-scenario Advanced Start creates one reciprocal peace-treaty deal for every eligible player pair.
+// Their effective team relation is already exact in INITIAL_TEAM_STATE forcePeace; recognize this deterministic Advanced-Start-shaped form so callers can collapse it instead of emitting O(players^2) deal rows.
+// The final CvDeal object cannot prove which code path created an otherwise identical deal, so the diagnostic names describe the collapse rather than claiming exact origin; arbitrary scenario/WB deals are never collapsed. (ChatGPT-5.6-Sol) -->
+bool isSASCollapsibleAdvancedStartPeaceDeal(CvDeal const& kDeal)
+{
+	CvGame const& kGame = GC.getGame();
+	if (kGame.isScenario() || !kGame.isOption(GAMEOPTION_ADVANCED_START) || kGame.isOption(GAMEOPTION_SPAH))
+		return false;
+	if (kDeal.getLengthFirst() != 1 || kDeal.getLengthSecond() != 1)
+		return false;
+	bool bFirstPeaceTreaty = false;
+	{
+		CLinkList<TradeData> const& kList = kDeal.getFirstList();
+		FOR_EACH_TRADE_ITEM(kList)
+			bFirstPeaceTreaty = (pItem->m_eItemType == TRADE_PEACE_TREATY);
+	}
+	bool bSecondPeaceTreaty = false;
+	{
+		CLinkList<TradeData> const& kList = kDeal.getSecondList();
+		FOR_EACH_TRADE_ITEM(kList)
+			bSecondPeaceTreaty = (pItem->m_eItemType == TRADE_PEACE_TREATY);
+	}
+	if (!bFirstPeaceTreaty || !bSecondPeaceTreaty)
+		return false;
+	PlayerTypes const eFirst = kDeal.getFirstPlayer();
+	PlayerTypes const eSecond = kDeal.getSecondPlayer();
+	return (eFirst != NO_PLAYER && eSecond != NO_PLAYER && GET_PLAYER(eFirst).isMajorCiv() && GET_PLAYER(eSecond).isMajorCiv());
+}
+
+CvString getSASInitialDealSummaryFields(bool bDealDetailEnabled, int iLoggedDealRows)
+{
+	if (!bDealDetailEnabled)
+		return CvString("dealDetailEnabled=0 initialDeals=-1 loggedDealRows=0 collapsedAdvancedStartPeaceDeals=-1 collapsedAdvancedStartPeaceCancelTurnsMin=-1 collapsedAdvancedStartPeaceCancelTurnsMax=-1");
+	int iInitialDeals = 0;
+	int iCollapsedAdvancedStartPeaceDeals = 0;
+	int iCollapsedAdvancedStartPeaceCancelTurnsMin = -1;
+	int iCollapsedAdvancedStartPeaceCancelTurnsMax = -1;
+	int iLoop = 0;
+	for (CvDeal const* pDeal = GC.getGame().firstDeal(&iLoop); pDeal != NULL; pDeal = GC.getGame().nextDeal(&iLoop))
+	{
+		iInitialDeals++;
+		if (!isSASCollapsibleAdvancedStartPeaceDeal(*pDeal))
+			continue;
+		iCollapsedAdvancedStartPeaceDeals++;
+		int const iFirstTurns = pDeal->turnsToCancel(pDeal->getFirstPlayer());
+		int const iSecondTurns = pDeal->turnsToCancel(pDeal->getSecondPlayer());
+		int const iDealMin = std::min(iFirstTurns, iSecondTurns);
+		int const iDealMax = std::max(iFirstTurns, iSecondTurns);
+		if (iCollapsedAdvancedStartPeaceCancelTurnsMin < 0 || iDealMin < iCollapsedAdvancedStartPeaceCancelTurnsMin) iCollapsedAdvancedStartPeaceCancelTurnsMin = iDealMin;
+		if (iDealMax > iCollapsedAdvancedStartPeaceCancelTurnsMax) iCollapsedAdvancedStartPeaceCancelTurnsMax = iDealMax;
+	}
+	FAssertMsg(iLoggedDealRows == iInitialDeals - iCollapsedAdvancedStartPeaceDeals, "Initial-deal normalization row count mismatch");
+	CvString szFields;
+	szFields.Format("dealDetailEnabled=1 initialDeals=%d loggedDealRows=%d collapsedAdvancedStartPeaceDeals=%d collapsedAdvancedStartPeaceCancelTurnsMin=%d collapsedAdvancedStartPeaceCancelTurnsMax=%d", iInitialDeals, iLoggedDealRows, iCollapsedAdvancedStartPeaceDeals, iCollapsedAdvancedStartPeaceCancelTurnsMin, iCollapsedAdvancedStartPeaceCancelTurnsMax);
+	return szFields;
+}
+
+CvString getSASInitialDealStateFields(CvDeal const& kDeal)
+{
+	PlayerTypes const eFirst = kDeal.getFirstPlayer();
+	PlayerTypes const eSecond = kDeal.getSecondPlayer();
+	TeamTypes const eFirstTeam = (eFirst == NO_PLAYER ? NO_TEAM : GET_PLAYER(eFirst).getTeam());
+	TeamTypes const eSecondTeam = (eSecond == NO_PLAYER ? NO_TEAM : GET_PLAYER(eSecond).getTeam());
+	CvString szFields;
+	szFields.Format("dealId=%d initialTurn=%d age=%d firstPlayer=%d firstTeam=%d secondPlayer=%d secondTeam=%d peaceDeal=%d vassalDeal=%d disengage=%d firstTurnsToCancel=%d secondTurnsToCancel=%d firstGives=%s secondGives=%s",
+			kDeal.getID(), kDeal.getInitialGameTurn(), kDeal.getAge(), eFirst, eFirstTeam, eSecond, eSecondTeam, kDeal.isPeaceDeal(), kDeal.isVassalDeal(), kDeal.isDisengage(), kDeal.turnsToCancel(eFirst), kDeal.turnsToCancel(eSecond),
+			getSASTradeListText(kDeal.getFirstList(), eFirst).GetCString(), getSASTradeListText(kDeal.getSecondList(), eSecond).GetCString());
+	return szFields;
+}
 
 // advc.035:
 void contestedPlots(std::vector<CvPlot*>& r, TeamTypes t1, TeamTypes t2)
@@ -74,6 +1713,26 @@ float colorDifference(NiColorA const& c1, NiColorA const& c2)
 	return fDiff;
 }
 
+// <!-- custom: iDifficulty is a score/rating in XML, not always enum index * 10 after AdvCiv-SAS adds Rookie and Deity+. (ChatGPT-5.5) -->
+HandicapTypes handicapFromDifficulty(int iDifficulty)
+{
+	static const HandicapTypes eSTANDARD_HANDICAP = (HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP");
+	HandicapTypes eBestHandicap = NO_HANDICAP;
+	int iBestDelta = MAX_INT;
+	for (int i = 0; i < GC.getNumHandicapInfos(); i++)
+	{
+		HandicapTypes const eLoopHandicap = (HandicapTypes)i;
+		int const iDelta = std::abs(GC.getInfo(eLoopHandicap).getDifficulty() - iDifficulty);
+		if (iDelta < iBestDelta)
+		{
+			iBestDelta = iDelta;
+			eBestHandicap = eLoopHandicap;
+		}
+	}
+	FAssert(eBestHandicap != NO_HANDICAP);
+	return (eBestHandicap == NO_HANDICAP ? eSTANDARD_HANDICAP : eBestHandicap);
+}
+
 DirectionTypes cardinalDirectionToDirection(CardinalDirectionTypes eCard)
 {
 	switch (eCard)
@@ -121,8 +1780,7 @@ DirectionTypes estimateDirection(const CvPlot* pFromPlot, const CvPlot* pToPlot)
 
 /*	advc: Cut from CvXMLLoadUtility.cpp, renamed
 	from "CreateHotKeyFromDescription"; nothing is "created" here. */
-CvWString hotkeyDescr::hotKeyFromDescription(TCHAR const* szDescr,
-	bool bShift, bool bAlt, bool bCtrl)
+CvWString hotkeyDescr::hotKeyFromDescription(TCHAR const* szDescr, bool bShift, bool bAlt, bool bCtrl)
 {
 	// Example: "Delete <COLOR:140,255,40,255>Shift+Delete</COLOR>"
 	CvWString szHotKey;
@@ -287,6 +1945,703 @@ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
 {
 	return (eTeamA != NO_TEAM && eTeamB != NO_TEAM && GET_TEAM(eTeamA).isAtWar(eTeamB));
 }
+
+SASWarPowerContext::SASWarPowerContext(CvTeamAI const& kTeam)
+:	iEnemyPowerPercent(kTeam.AI_getEnemyPowerPercent(true)),
+	bAtWar(kTeam.getNumWars() > 0),
+	bEnemyStrong(isEnemyStrong(iEnemyPowerPercent)),
+	bEnemyWeakRaw(isEnemyWeak(iEnemyPowerPercent)),
+	bEnemyWeakNonZero(iEnemyPowerPercent > 0 && bEnemyWeakRaw),
+	bAtWarAndEnemyWeak(bAtWar && bEnemyWeakRaw)
+{}
+
+int SASWarPowerContext::enemyStrongThreshold()
+{
+	static int const iThreshold = GC.getDefineINT("SAS_ENEMY_STRONG_PWR_THRESH"); // e.g. 120
+	return iThreshold;
+}
+
+int SASWarPowerContext::enemyWeakThreshold()
+{
+	static int const iThreshold = GC.getDefineINT("SAS_ENEMY_WEAK_PWR_THRESH"); // e.g. 80
+	return iThreshold;
+}
+
+bool SASWarPowerContext::isEnemyStrong(int iEnemyPowerPercent)
+{
+	return (iEnemyPowerPercent >= enemyStrongThreshold());
+}
+
+bool SASWarPowerContext::isEnemyWeak(int iEnemyPowerPercent)
+{
+	return (iEnemyPowerPercent <= enemyWeakThreshold());
+}
+
+char const* getSASDiploEventType(DiploEventTypes eDiploEvent)
+{
+	switch (eDiploEvent)
+	{
+	case DIPLOEVENT_CONTACT: return "DIPLOEVENT_CONTACT";
+	case DIPLOEVENT_AI_CONTACT: return "DIPLOEVENT_AI_CONTACT";
+	case DIPLOEVENT_FAILED_CONTACT: return "DIPLOEVENT_FAILED_CONTACT";
+	case DIPLOEVENT_GIVE_HELP: return "DIPLOEVENT_GIVE_HELP";
+	case DIPLOEVENT_REFUSED_HELP: return "DIPLOEVENT_REFUSED_HELP";
+	case DIPLOEVENT_ACCEPT_DEMAND: return "DIPLOEVENT_ACCEPT_DEMAND";
+	case DIPLOEVENT_REJECTED_DEMAND: return "DIPLOEVENT_REJECTED_DEMAND";
+	case DIPLOEVENT_DEMAND_WAR: return "DIPLOEVENT_DEMAND_WAR";
+	case DIPLOEVENT_CONVERT: return "DIPLOEVENT_CONVERT";
+	case DIPLOEVENT_NO_CONVERT: return "DIPLOEVENT_NO_CONVERT";
+	case DIPLOEVENT_REVOLUTION: return "DIPLOEVENT_REVOLUTION";
+	case DIPLOEVENT_NO_REVOLUTION: return "DIPLOEVENT_NO_REVOLUTION";
+	case DIPLOEVENT_JOIN_WAR: return "DIPLOEVENT_JOIN_WAR";
+	case DIPLOEVENT_NO_JOIN_WAR: return "DIPLOEVENT_NO_JOIN_WAR";
+	case DIPLOEVENT_STOP_TRADING: return "DIPLOEVENT_STOP_TRADING";
+	case DIPLOEVENT_NO_STOP_TRADING: return "DIPLOEVENT_NO_STOP_TRADING";
+	case DIPLOEVENT_ASK_HELP: return "DIPLOEVENT_ASK_HELP";
+	case DIPLOEVENT_MADE_DEMAND: return "DIPLOEVENT_MADE_DEMAND";
+	case DIPLOEVENT_RESEARCH_TECH: return "DIPLOEVENT_RESEARCH_TECH";
+	case DIPLOEVENT_TARGET_CITY: return "DIPLOEVENT_TARGET_CITY";
+	case DIPLOEVENT_MADE_DEMAND_VASSAL: return "DIPLOEVENT_MADE_DEMAND_VASSAL";
+	case DIPLOEVENT_SET_WARPLAN: return "DIPLOEVENT_SET_WARPLAN";
+	default: return "UNKNOWN_DIPLOEVENT";
+	}
+}
+
+char const* getSASContactType(ContactTypes eContact)
+{
+	switch (eContact)
+	{
+	case CONTACT_RELIGION_PRESSURE: return "CONTACT_RELIGION_PRESSURE";
+	case CONTACT_CIVIC_PRESSURE: return "CONTACT_CIVIC_PRESSURE";
+	case CONTACT_JOIN_WAR: return "CONTACT_JOIN_WAR";
+	case CONTACT_STOP_TRADING: return "CONTACT_STOP_TRADING";
+	case CONTACT_GIVE_HELP: return "CONTACT_GIVE_HELP";
+	case CONTACT_ASK_FOR_HELP: return "CONTACT_ASK_FOR_HELP";
+	case CONTACT_DEMAND_TRIBUTE: return "CONTACT_DEMAND_TRIBUTE";
+	case CONTACT_OPEN_BORDERS: return "CONTACT_OPEN_BORDERS";
+	case CONTACT_DEFENSIVE_PACT: return "CONTACT_DEFENSIVE_PACT";
+	case CONTACT_PERMANENT_ALLIANCE: return "CONTACT_PERMANENT_ALLIANCE";
+	case CONTACT_PEACE_TREATY: return "CONTACT_PEACE_TREATY";
+	case CONTACT_TRADE_TECH: return "CONTACT_TRADE_TECH";
+	case CONTACT_TRADE_BONUS: return "CONTACT_TRADE_BONUS";
+	case CONTACT_TRADE_MAP: return "CONTACT_TRADE_MAP";
+	default: return "UNKNOWN_CONTACT";
+	}
+}
+
+char const* getSASMemoryType(MemoryTypes eMemory)
+{
+	switch (eMemory)
+	{
+	case MEMORY_DECLARED_WAR: return "MEMORY_DECLARED_WAR";
+	case MEMORY_DECLARED_WAR_ON_FRIEND: return "MEMORY_DECLARED_WAR_ON_FRIEND";
+	case MEMORY_HIRED_WAR_ALLY: return "MEMORY_HIRED_WAR_ALLY";
+	case MEMORY_NUKED_US: return "MEMORY_NUKED_US";
+	case MEMORY_NUKED_FRIEND: return "MEMORY_NUKED_FRIEND";
+	case MEMORY_RAZED_CITY: return "MEMORY_RAZED_CITY";
+	case MEMORY_RAZED_HOLY_CITY: return "MEMORY_RAZED_HOLY_CITY";
+	case MEMORY_SPY_CAUGHT: return "MEMORY_SPY_CAUGHT";
+	case MEMORY_GIVE_HELP: return "MEMORY_GIVE_HELP";
+	case MEMORY_REFUSED_HELP: return "MEMORY_REFUSED_HELP";
+	case MEMORY_ACCEPT_DEMAND: return "MEMORY_ACCEPT_DEMAND";
+	case MEMORY_REJECTED_DEMAND: return "MEMORY_REJECTED_DEMAND";
+	case MEMORY_ACCEPTED_RELIGION: return "MEMORY_ACCEPTED_RELIGION";
+	case MEMORY_DENIED_RELIGION: return "MEMORY_DENIED_RELIGION";
+	case MEMORY_ACCEPTED_CIVIC: return "MEMORY_ACCEPTED_CIVIC";
+	case MEMORY_DENIED_CIVIC: return "MEMORY_DENIED_CIVIC";
+	case MEMORY_ACCEPTED_JOIN_WAR: return "MEMORY_ACCEPTED_JOIN_WAR";
+	case MEMORY_DENIED_JOIN_WAR: return "MEMORY_DENIED_JOIN_WAR";
+	case MEMORY_ACCEPTED_STOP_TRADING: return "MEMORY_ACCEPTED_STOP_TRADING";
+	case MEMORY_DENIED_STOP_TRADING: return "MEMORY_DENIED_STOP_TRADING";
+	case MEMORY_STOPPED_TRADING: return "MEMORY_STOPPED_TRADING";
+	case MEMORY_STOPPED_TRADING_RECENT: return "MEMORY_STOPPED_TRADING_RECENT";
+	case MEMORY_HIRED_TRADE_EMBARGO: return "MEMORY_HIRED_TRADE_EMBARGO";
+	case MEMORY_MADE_DEMAND: return "MEMORY_MADE_DEMAND";
+	case MEMORY_CANCELLED_VASSAL_AGREEMENT: return "MEMORY_CANCELLED_VASSAL_AGREEMENT";
+	case MEMORY_MADE_DEMAND_RECENT: return "MEMORY_MADE_DEMAND_RECENT";
+	case MEMORY_CANCELLED_OPEN_BORDERS: return "MEMORY_CANCELLED_OPEN_BORDERS";
+	case MEMORY_CANCELLED_DEFENSIVE_PACT: return "MEMORY_CANCELLED_DEFENSIVE_PACT";
+	case MEMORY_TRADED_TECH_TO_US: return "MEMORY_TRADED_TECH_TO_US";
+	case MEMORY_RECEIVED_TECH_FROM_ANY: return "MEMORY_RECEIVED_TECH_FROM_ANY";
+	case MEMORY_VOTED_AGAINST_US: return "MEMORY_VOTED_AGAINST_US";
+	case MEMORY_VOTED_FOR_US: return "MEMORY_VOTED_FOR_US";
+	case MEMORY_EVENT_GOOD_TO_US: return "MEMORY_EVENT_GOOD_TO_US";
+	case MEMORY_EVENT_BAD_TO_US: return "MEMORY_EVENT_BAD_TO_US";
+	case MEMORY_LIBERATED_CITIES: return "MEMORY_LIBERATED_CITIES";
+	case MEMORY_INDEPENDENCE: return "MEMORY_INDEPENDENCE";
+	case MEMORY_DECLARED_WAR_RECENT: return "MEMORY_DECLARED_WAR_RECENT";
+	default: return "UNKNOWN_MEMORY";
+	}
+}
+
+char const* getSASTradeItemType(TradeableItems eItem)
+{
+	switch (eItem)
+	{
+	case NO_TRADE_ITEM: return "-";
+	case TRADE_GOLD: return "TRADE_GOLD";
+	case TRADE_GOLD_PER_TURN: return "TRADE_GOLD_PER_TURN";
+	case TRADE_MAPS: return "TRADE_MAPS";
+	case TRADE_VASSAL: return "TRADE_VASSAL";
+	case TRADE_SURRENDER: return "TRADE_SURRENDER";
+	case TRADE_OPEN_BORDERS: return "TRADE_OPEN_BORDERS";
+	case TRADE_DEFENSIVE_PACT: return "TRADE_DEFENSIVE_PACT";
+	case TRADE_PERMANENT_ALLIANCE: return "TRADE_PERMANENT_ALLIANCE";
+	case TRADE_PEACE_TREATY: return "TRADE_PEACE_TREATY";
+	case TRADE_TECHNOLOGIES: return "TRADE_TECHNOLOGIES";
+	case TRADE_RESOURCES: return "TRADE_RESOURCES";
+	case TRADE_CITIES: return "TRADE_CITIES";
+	case TRADE_PEACE: return "TRADE_PEACE";
+	case TRADE_WAR: return "TRADE_WAR";
+	case TRADE_EMBARGO: return "TRADE_EMBARGO";
+	case TRADE_CIVIC: return "TRADE_CIVIC";
+	case TRADE_RELIGION: return "TRADE_RELIGION";
+	case TRADE_DISENGAGE: return "TRADE_DISENGAGE";
+	default: return "UNKNOWN_TRADE_ITEM";
+	}
+}
+
+char const* getSASPlotType(PlotTypes ePlotType)
+{
+	switch (ePlotType)
+	{
+	case NO_PLOT: return "NO_PLOT";
+	case PLOT_PEAK: return "PLOT_PEAK";
+	case PLOT_HILLS: return "PLOT_HILLS";
+	case PLOT_LAND: return "PLOT_LAND";
+	case PLOT_OCEAN: return "PLOT_OCEAN";
+	default: FErrorMsg("Unknown PlotTypes"); return "UNKNOWN_PLOT";
+	}
+}
+
+char const* getSASWarPlanType(WarPlanTypes eWarPlan)
+{
+	switch (eWarPlan)
+	{
+	case NO_WARPLAN: return "NO_WARPLAN";
+	case WARPLAN_ATTACKED_RECENT: return "WARPLAN_ATTACKED_RECENT";
+	case WARPLAN_ATTACKED: return "WARPLAN_ATTACKED";
+	case WARPLAN_PREPARING_LIMITED: return "WARPLAN_PREPARING_LIMITED";
+	case WARPLAN_PREPARING_TOTAL: return "WARPLAN_PREPARING_TOTAL";
+	case WARPLAN_LIMITED: return "WARPLAN_LIMITED";
+	case WARPLAN_TOTAL: return "WARPLAN_TOTAL";
+	case WARPLAN_DOGPILE: return "WARPLAN_DOGPILE";
+	default: return "UNKNOWN_WARPLAN";
+	}
+}
+
+char const* getSASGameType(GameType eType)
+{
+	switch (eType)
+	{
+	case GAME_NONE: return "GAME_NONE";
+	case GAME_SP_NEW: return "GAME_SP_NEW";
+	case GAME_SP_SCENARIO: return "GAME_SP_SCENARIO";
+	case GAME_SP_LOAD: return "GAME_SP_LOAD";
+	case GAME_MP_NEW: return "GAME_MP_NEW";
+	case GAME_MP_SCENARIO: return "GAME_MP_SCENARIO";
+	case GAME_MP_LOAD: return "GAME_MP_LOAD";
+	case GAME_HOTSEAT_NEW: return "GAME_HOTSEAT_NEW";
+	case GAME_HOTSEAT_SCENARIO: return "GAME_HOTSEAT_SCENARIO";
+	case GAME_HOTSEAT_LOAD: return "GAME_HOTSEAT_LOAD";
+	case GAME_PBEM_NEW: return "GAME_PBEM_NEW";
+	case GAME_PBEM_SCENARIO: return "GAME_PBEM_SCENARIO";
+	case GAME_PBEM_LOAD: return "GAME_PBEM_LOAD";
+	case GAME_REPLAY: return "GAME_REPLAY";
+	default: return "UNKNOWN_GAME_TYPE";
+	}
+}
+
+char const* getSASGameMode(GameMode eMode)
+{
+	switch (eMode)
+	{
+	case NO_GAMEMODE: return "NO_GAMEMODE";
+	case GAMEMODE_NORMAL: return "GAMEMODE_NORMAL";
+	case GAMEMODE_PITBOSS: return "GAMEMODE_PITBOSS";
+	default: return "UNKNOWN_GAME_MODE";
+	}
+}
+
+char const* getSASCalendarType(CalendarTypes eCalendar)
+{
+	switch (eCalendar)
+	{
+	case NO_CALENDAR: return "NO_CALENDAR";
+	case CALENDAR_DEFAULT: return "CALENDAR_DEFAULT";
+	case CALENDAR_BI_YEARLY: return "CALENDAR_BI_YEARLY";
+	case CALENDAR_YEARS: return "CALENDAR_YEARS";
+	case CALENDAR_TURNS: return "CALENDAR_TURNS";
+	case CALENDAR_SEASONS: return "CALENDAR_SEASONS";
+	case CALENDAR_MONTHS: return "CALENDAR_MONTHS";
+	case CALENDAR_WEEKS: return "CALENDAR_WEEKS";
+	default: return "UNKNOWN_CALENDAR";
+	}
+}
+
+// <!-- custom: Generate the previous cause-to-text mapping from SAS_WAR_DECLARATION_CAUSE_ROWS; retain VOTE -> DIPLOMATIC_VOTE and the UNKNOWN fallback. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASWarDeclarationCause(WarDeclarationCause eCause)
+{
+	switch (eCause)
+	{
+#define SAS_DIAGNOSTIC_LABEL(NAME, LABEL) case NAME: return #LABEL;
+	SAS_WAR_DECLARATION_CAUSE_ROWS(SAS_DIAGNOSTIC_LABEL)
+#undef SAS_DIAGNOSTIC_LABEL
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: Generate the previous cause-to-text mapping from SAS_TECH_ACQUISITION_CAUSE_ROWS; legitimate UNKNOWN causes and invalid-value fallback still emit UNKNOWN. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASTechAcquisitionCause(TechAcquisitionCause eCause)
+{
+	switch (eCause)
+	{
+#define SAS_DIAGNOSTIC_LABEL(NAME, LABEL) case NAME: return #LABEL;
+	SAS_TECH_ACQUISITION_CAUSE_ROWS(SAS_DIAGNOSTIC_LABEL)
+#undef SAS_DIAGNOSTIC_LABEL
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: Generate the previous cause-to-text mapping from SAS_RESEARCH_TARGET_CHANGE_CAUSE_ROWS; legitimate UNKNOWN causes and invalid-value fallback still emit UNKNOWN. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASResearchTargetChangeCause(ResearchTargetChangeCause eCause)
+{
+	switch (eCause)
+	{
+#define SAS_DIAGNOSTIC_LABEL(NAME, LABEL) case NAME: return #LABEL;
+	SAS_RESEARCH_TARGET_CHANGE_CAUSE_ROWS(SAS_DIAGNOSTIC_LABEL)
+#undef SAS_DIAGNOSTIC_LABEL
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: Stringify the labels registered beside SASAutoPlayEndCause instead of maintaining a second switch list; fallback behavior is unchanged. (GPT-6.1-Sol) -->
+char const* getSASAutoPlayEndCause(SASAutoPlayEndCause eCause)
+{
+	switch (eCause)
+	{
+#define SAS_DIAGNOSTIC_LABEL(NAME, LABEL) case NAME: return #LABEL;
+	SAS_AUTOPLAY_END_CAUSE_ROWS(SAS_DIAGNOSTIC_LABEL)
+#undef SAS_DIAGNOSTIC_LABEL
+	default: return "-";
+	}
+}
+
+// <!-- custom: Keep one iterable source of truth for the static AIStrategy bitfield values and their machine-readable names.
+// SASGameRecord previously repeated a lowest/highest-bit shift range beside this translator; a descriptor table prevents a future strategy addition or gap from silently disappearing from hashes, checkpoints or transition rows.
+// Player-facing widget labels remain separate translated/prose presentation. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+// <!-- custom: Reuse AIStrategies.h's enum source list and stringify each token for the existing descriptor API; repeated handwritten labels can no longer diverge from the enum.
+// NO_AI_STRATEGY still uses the explicit zero-sentinel branch in getSASAIStrategyType. (GPT-6.1-Sol) -->
+static SASAIStrategyDescriptor const aSASAIStrategyDescriptors[] =
+{
+#define SAS_AI_STRATEGY_DESCRIPTOR(NAME, BIT) { NAME, #NAME },
+	SAS_AI_STRATEGY_ROWS(SAS_AI_STRATEGY_DESCRIPTOR)
+#undef SAS_AI_STRATEGY_DESCRIPTOR
+};
+
+// <!-- custom: Advanced Start actions are shared game vocabulary rather than recorder state; keep one translator beside the other common enum helpers.
+// The inherited Civ4 enum remains authoritative. Stringify its token suffixes here instead of duplicating each spelling or reorganizing legacy enum values solely for logging; POP retains the explanatory POPULATION label.
+// SGR separately labels EXIT as operation=BEGIN_GAME for its player-facing meaning. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASAdvancedStartActionType(AdvancedStartActionTypes eAction)
+{
+	switch (eAction)
+	{
+#define SAS_ADVANCED_START_ACTION_NAME(NAME) case ADVANCEDSTARTACTION_##NAME: return #NAME;
+	SAS_ADVANCED_START_ACTION_NAME(EXIT)
+	SAS_ADVANCED_START_ACTION_NAME(UNIT)
+	SAS_ADVANCED_START_ACTION_NAME(CITY)
+	case ADVANCEDSTARTACTION_POP: return "POPULATION";
+	SAS_ADVANCED_START_ACTION_NAME(CULTURE)
+	SAS_ADVANCED_START_ACTION_NAME(BUILDING)
+	SAS_ADVANCED_START_ACTION_NAME(IMPROVEMENT)
+	SAS_ADVANCED_START_ACTION_NAME(ROUTE)
+	SAS_ADVANCED_START_ACTION_NAME(TECH)
+	SAS_ADVANCED_START_ACTION_NAME(VISIBILITY)
+	SAS_ADVANCED_START_ACTION_NAME(AUTOMATE)
+#undef SAS_ADVANCED_START_ACTION_NAME
+	default: return "UNKNOWN_ADVANCED_START_ACTION";
+	}
+}
+
+// <!-- custom: GameStateTypes is an existing game enum, not recorder-owned state; keep its reusable readable mapping with the other enum naming helpers.
+// Stringify the enum suffix at compile time, matching the adjacent Advanced Start helper; SGR allocates no new string and the authoritative enum values stay unchanged. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASGameStateTypeName(GameStateTypes eState)
+{
+	switch (eState)
+	{
+#define SAS_GAME_STATE_NAME(NAME) case GAMESTATE_##NAME: return #NAME;
+	SAS_GAME_STATE_NAME(ON)
+	SAS_GAME_STATE_NAME(OVER)
+	SAS_GAME_STATE_NAME(EXTENDED)
+#undef SAS_GAME_STATE_NAME
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: Share one fixed machine-readable ButtonPopupTypes vocabulary between popup consumers, including runtime status and SASGameRecord; the vocabulary describes the existing UI enum rather than either recorder.
+// Do not use localized popup text: some popup families contain names, passwords or other user-entered/free-form content. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASButtonPopupTypeName(ButtonPopupTypes eType)
+{
+	switch (eType)
+	{
+	case NO_BUTTONPOPUP: return "NONE";
+#define SAS_POPUP_NAME(TYPE) case TYPE: return #TYPE;
+	SAS_POPUP_NAME(BUTTONPOPUP_TEXT)
+	SAS_POPUP_NAME(BUTTONPOPUP_MAIN_MENU)
+	SAS_POPUP_NAME(BUTTONPOPUP_CONFIRM_MENU)
+	SAS_POPUP_NAME(BUTTONPOPUP_DECLAREWARMOVE)
+	SAS_POPUP_NAME(BUTTONPOPUP_CONFIRMCOMMAND)
+	SAS_POPUP_NAME(BUTTONPOPUP_LOADUNIT)
+	SAS_POPUP_NAME(BUTTONPOPUP_LEADUNIT)
+	SAS_POPUP_NAME(BUTTONPOPUP_DOESPIONAGE)
+	SAS_POPUP_NAME(BUTTONPOPUP_DOESPIONAGE_TARGET)
+	SAS_POPUP_NAME(BUTTONPOPUP_CHOOSETECH)
+	SAS_POPUP_NAME(BUTTONPOPUP_RAZECITY)
+	SAS_POPUP_NAME(BUTTONPOPUP_DISBANDCITY)
+	SAS_POPUP_NAME(BUTTONPOPUP_CHOOSEPRODUCTION)
+	SAS_POPUP_NAME(BUTTONPOPUP_CHANGECIVIC)
+	SAS_POPUP_NAME(BUTTONPOPUP_CHANGERELIGION)
+	SAS_POPUP_NAME(BUTTONPOPUP_CHOOSEELECTION)
+	SAS_POPUP_NAME(BUTTONPOPUP_DIPLOVOTE)
+	SAS_POPUP_NAME(BUTTONPOPUP_ALARM)
+	SAS_POPUP_NAME(BUTTONPOPUP_DEAL_CANCELED)
+	SAS_POPUP_NAME(BUTTONPOPUP_PYTHON)
+	SAS_POPUP_NAME(BUTTONPOPUP_PYTHON_SCREEN)
+	SAS_POPUP_NAME(BUTTONPOPUP_DETAILS)
+	SAS_POPUP_NAME(BUTTONPOPUP_ADMIN)
+	SAS_POPUP_NAME(BUTTONPOPUP_ADMIN_PASSWORD)
+	SAS_POPUP_NAME(BUTTONPOPUP_EXTENDED_GAME)
+	SAS_POPUP_NAME(BUTTONPOPUP_DIPLOMACY)
+	SAS_POPUP_NAME(BUTTONPOPUP_ADDBUDDY)
+	SAS_POPUP_NAME(BUTTONPOPUP_FORCED_DISCONNECT)
+	SAS_POPUP_NAME(BUTTONPOPUP_PITBOSS_DISCONNECT)
+	SAS_POPUP_NAME(BUTTONPOPUP_KICKED)
+	SAS_POPUP_NAME(BUTTONPOPUP_VASSAL_DEMAND_TRIBUTE)
+	SAS_POPUP_NAME(BUTTONPOPUP_VASSAL_GRANT_TRIBUTE)
+	SAS_POPUP_NAME(BUTTONPOPUP_EVENT)
+	SAS_POPUP_NAME(BUTTONPOPUP_FREE_COLONY)
+	SAS_POPUP_NAME(BUTTONPOPUP_LAUNCH)
+	SAS_POPUP_NAME(BUTTONPOPUP_FOUND_RELIGION)
+	SAS_POPUP_NAME(BUTTONPOPUP_RF_CHOOSECIV)
+	SAS_POPUP_NAME(BUTTONPOPUP_RF_DEFEAT)
+	SAS_POPUP_NAME(BUTTONPOPUP_RF_RETIRE)
+#undef SAS_POPUP_NAME
+	default: return "UNKNOWN_BUTTONPOPUP";
+	}
+}
+
+// <!-- custom: Share confirmation-action names with SGR while gameplay dispatch uses the same catalog's explicit payload values; this helper formats no dynamic text and changes no popup behavior. (GPT-6.1-Sol) -->
+char const* getSASPopupConfirmActionName(int iAction)
+{
+	switch (iAction)
+	{
+#define SAS_POPUP_CONFIRM_NAME(NAME, VALUE) case SAS_POPUP_CONFIRM_##NAME: return #NAME;
+	SAS_POPUP_CONFIRM_ACTION_ROWS(SAS_POPUP_CONFIRM_NAME)
+#undef SAS_POPUP_CONFIRM_NAME
+	default: return NULL;
+	}
+}
+
+// <!-- custom: Generate readable main-menu actions from the same shared IDs used by its native button creation and handler; naming a selected action does not claim it succeeded. (GPT-6.1-Sol) -->
+char const* getSASPopupMenuActionName(int iAction)
+{
+	switch (iAction)
+	{
+#define SAS_POPUP_MENU_NAME(NAME, VALUE) case SAS_POPUP_MENU_##NAME: return #NAME;
+	SAS_POPUP_MENU_ACTION_ROWS(SAS_POPUP_MENU_NAME)
+#undef SAS_POPUP_MENU_NAME
+	default: return NULL;
+	}
+}
+
+// <!-- custom: Stringify the same civic choice catalog used by native button creation/dispatch; no log-only numeric/name mapping is maintained. (GPT-6.1-Sol) -->
+char const* getSASPopupCivicChoiceName(int iButton)
+{
+	switch (iButton)
+	{
+#define SAS_POPUP_CIVIC_NAME(NAME, VALUE) case SAS_POPUP_CIVIC_##NAME: return #NAME;
+	SAS_POPUP_CIVIC_CHOICE_ROWS(SAS_POPUP_CIVIC_NAME)
+#undef SAS_POPUP_CIVIC_NAME
+	default: return NULL;
+	}
+}
+
+// <!-- custom: Stringify the same religion choice catalog used by native button creation/dispatch; no log-only numeric/name mapping is maintained. (GPT-6.1-Sol) -->
+char const* getSASPopupReligionChoiceName(int iButton)
+{
+	switch (iButton)
+	{
+#define SAS_POPUP_RELIGION_NAME(NAME, VALUE) case SAS_POPUP_RELIGION_##NAME: return #NAME;
+	SAS_POPUP_RELIGION_CHOICE_ROWS(SAS_POPUP_RELIGION_NAME)
+#undef SAS_POPUP_RELIGION_NAME
+	default: return NULL;
+	}
+}
+
+int getSASAIStrategyDescriptorCount()
+{
+	return (int)(sizeof(aSASAIStrategyDescriptors) / sizeof(aSASAIStrategyDescriptors[0]));
+}
+
+SASAIStrategyDescriptor const& getSASAIStrategyDescriptor(int iIndex)
+{
+	FAssertBounds(0, getSASAIStrategyDescriptorCount(), iIndex);
+	return aSASAIStrategyDescriptors[iIndex];
+}
+
+char const* getSASAIStrategyType(AIStrategy eStrategy)
+{
+	if (eStrategy == NO_AI_STRATEGY)
+		return "NO_AI_STRATEGY";
+	int const iStrategyCount = getSASAIStrategyDescriptorCount();
+	for (int iI = 0; iI < iStrategyCount; iI++)
+	{
+		SASAIStrategyDescriptor const& kDescriptor = getSASAIStrategyDescriptor(iI);
+		if (kDescriptor.eStrategy == eStrategy)
+			return kDescriptor.szType;
+	}
+	return "UNKNOWN_AI_STRATEGY";
+}
+
+// <!-- custom: AI, map, UI and recorder paths share this Found-context vocabulary, so keep its canonical text mapping beside the other getSAS*Type helpers.
+// The enum is used across files; the conversion itself currently has one caller in CitySiteEvaluator's enabled Found output.
+// A file-local converter would also work, but this placement follows the shared diagnostic-enum convention without duplicating labels.
+// Preserve the existing labels; invalid values assert and print an explicit error marker.
+// This is diagnostic metadata, not a gameplay rule. See KI#505.2. (GPT-6.1-Sol) -->
+// <!-- custom: Stringify the labels registered beside SASFoundLogContextTypes instead of maintaining a second switch list; fallback behavior is unchanged. (GPT-6.1-Sol) -->
+char const* getSASFoundLogContextType(SASFoundLogContextTypes eContext)
+{
+	switch (eContext)
+	{
+#define SAS_DIAGNOSTIC_LABEL(NAME, LABEL) case NAME: return #LABEL;
+	SAS_FOUND_LOG_CONTEXT_ROWS(SAS_DIAGNOSTIC_LABEL)
+#undef SAS_DIAGNOSTIC_LABEL
+	default:
+		FErrorMsg("Invalid Found diagnostic context");
+		return "INVALID_FOUND_LOG_CONTEXT";
+	}
+}
+
+// <!-- custom: SGR and BBAI use the same XML mission token and "-" fallback.
+// NO_MISSION already maps to "-" by the lower-bound check.
+// Check the upper bound too because native dispatch can carry an unrecognized positive ID.
+// MissionAITypes describes the AI purpose of a mission and uses getMissionAIString. (GPT-6.1-Sol) -->
+char const* getSASMissionTypeName(MissionTypes eMission)
+{
+	return (eMission >= 0 && eMission < NUM_MISSION_TYPES ? GC.getInfo(eMission).getType() : "-");
+}
+
+// <!-- custom: Moved from SASGameRecordLog.cpp, which had the same switch as CvGame.cpp's World Changes history copy, so a new Advanced Start action could reach one and not the other; both now call this.
+// Resolve only fixed XML identities already carried by the Advanced Start command/result; coordinates and city/object IDs remain separate fields.
+// Target-kind labels describe the logged payload rather than another gameplay enum: a CITY action targets a plot, while POP/CULTURE target an existing city.
+// These literals are output only, not string-based dispatch.
+// Bounds-check command payload before indexing XML because a network response is evidence, not permission for diagnostics to assume valid enum storage. (ChatGPT-5.6-Sol + GPT-6.1-Sol + Claude code Opus 5.5) -->
+char const* getSASAdvancedStartTarget(AdvancedStartActionTypes eAction, int iData, char const*& szTargetKind)
+{
+	szTargetKind = "NONE";
+	switch (eAction)
+	{
+	case ADVANCEDSTARTACTION_UNIT:
+		szTargetKind = "UNIT";
+		return getSASInfoTypeInBounds<UnitTypes>(iData);
+	case ADVANCEDSTARTACTION_BUILDING:
+		szTargetKind = "BUILDING";
+		return getSASInfoTypeInBounds<BuildingTypes>(iData);
+	case ADVANCEDSTARTACTION_IMPROVEMENT:
+		szTargetKind = "IMPROVEMENT";
+		return getSASInfoTypeInBounds<ImprovementTypes>(iData);
+	case ADVANCEDSTARTACTION_ROUTE:
+		szTargetKind = "ROUTE";
+		return getSASInfoTypeInBounds<RouteTypes>(iData);
+	case ADVANCEDSTARTACTION_TECH:
+		szTargetKind = "TECH";
+		return getSASInfoTypeInBounds<TechTypes>(iData);
+	case ADVANCEDSTARTACTION_CITY:
+	case ADVANCEDSTARTACTION_VISIBILITY:
+		szTargetKind = "PLOT";
+		break;
+	case ADVANCEDSTARTACTION_POP:
+	case ADVANCEDSTARTACTION_CULTURE:
+		szTargetKind = "CITY";
+		break;
+	default:
+		break;
+	}
+	return "-";
+}
+
+// <!-- custom: Keep one canonical machine-readable name for AreaAI theater posture; these raw tokens intentionally match the C++ enum rather than player-facing prose. (ChatGPT-5.6-Sol) -->
+char const* getSASAreaAIType(AreaAITypes eAreaAI)
+{
+	switch (eAreaAI)
+	{
+	case NO_AREAAI: return "NO_AREAAI";
+	case AREAAI_OFFENSIVE: return "AREAAI_OFFENSIVE";
+	case AREAAI_DEFENSIVE: return "AREAAI_DEFENSIVE";
+	case AREAAI_MASSING: return "AREAAI_MASSING";
+	case AREAAI_ASSAULT: return "AREAAI_ASSAULT";
+	case AREAAI_ASSAULT_MASSING: return "AREAAI_ASSAULT_MASSING";
+	case AREAAI_ASSAULT_ASSIST: return "AREAAI_ASSAULT_ASSIST";
+	case AREAAI_NEUTRAL: return "AREAAI_NEUTRAL";
+	default: return "UNKNOWN_AREAAI";
+	}
+}
+
+// <!-- custom: Victory-stage state is a bitfield; share this helper because BBAI/game-record diagnostics and AI logic all need the same compact 0..4 level without repeating four AI_atVictoryStage-style checks. (GPT-5.5) -->
+int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4)
+{
+	if ((eVictoryStageHash & eStage4) != 0)
+		return 4;
+	if ((eVictoryStageHash & eStage3) != 0)
+		return 3;
+	if ((eVictoryStageHash & eStage2) != 0)
+		return 2;
+	if ((eVictoryStageHash & eStage1) != 0)
+		return 1;
+	return 0;
+}
+
+int getSASCultureVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CULTURE1, AI_VICTORY_CULTURE2, AI_VICTORY_CULTURE3, AI_VICTORY_CULTURE4); }
+int getSASSpaceVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_SPACE1, AI_VICTORY_SPACE2, AI_VICTORY_SPACE3, AI_VICTORY_SPACE4); }
+int getSASConquestVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4); }
+int getSASDominationVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4); }
+int getSASDiplomacyVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4); }
+int getSASTeamMaxVictoryStage(TeamTypes eTeam)
+{
+	int iMaxVictoryStage = 0;
+	for (MemberAIIter it(eTeam); it.hasNext(); ++it)
+	{
+		AIVictoryStage const eVictoryStageHash = it->AI_getVictoryStageHash();
+		int const iMemberMaxVictoryStage = std::max(std::max(getSASCultureVictoryStageLevel(eVictoryStageHash), getSASSpaceVictoryStageLevel(eVictoryStageHash)), std::max(std::max(getSASConquestVictoryStageLevel(eVictoryStageHash), getSASDominationVictoryStageLevel(eVictoryStageHash)), getSASDiplomacyVictoryStageLevel(eVictoryStageHash)));
+		iMaxVictoryStage = std::max(iMaxVictoryStage, iMemberMaxVictoryStage);
+	}
+	return iMaxVictoryStage;
+}
+
+int getSASTeamSpaceVictoryStage(TeamTypes eTeam)
+{
+	int iMaxSpaceStage = 0;
+	for (MemberAIIter it(eTeam); it.hasNext(); ++it)
+		iMaxSpaceStage = std::max(iMaxSpaceStage, getSASSpaceVictoryStageLevel(it->AI_getVictoryStageHash()));
+	return iMaxSpaceStage;
+}
+
+int getSASTeamSpaceshipPartsBuilt(TeamTypes eTeam)
+{
+	int iPartsBuilt = 0;
+	CvTeamAI const& kTeam = GET_TEAM(eTeam);
+	for (int iProject = 0; iProject < GC.getNumProjectInfos(); iProject++)
+	{
+		CvProjectInfo const& kProject = GC.getInfo((ProjectTypes)iProject);
+		if (kProject.isSpaceship())
+			iPartsBuilt += kTeam.getProjectCount((ProjectTypes)iProject);
+	}
+	return iPartsBuilt;
+}
+
+int getSASSpaceshipPartsRequired()
+{
+	static int iPartsRequired = -1;
+	if (iPartsRequired < 0)
+	{
+		iPartsRequired = 0;
+		for (int iProject = 0; iProject < GC.getNumProjectInfos(); iProject++)
+		{
+			CvProjectInfo const& kProject = GC.getInfo((ProjectTypes)iProject);
+			if (kProject.isSpaceship())
+				iPartsRequired += std::max(0, kProject.getMaxTeamInstances());
+		}
+	}
+	return iPartsRequired;
+}
+
+int getSASTeamSpaceshipPartsPercent(TeamTypes eTeam)
+{
+	int const iPartsRequired = getSASSpaceshipPartsRequired();
+	return (iPartsRequired <= 0 ? 0 : getSASTeamSpaceshipPartsBuilt(eTeam) * 100 / iPartsRequired);
+}
+
+// <!-- custom: Victory countdown lengths themselves use VictoryDelayPercent, so SAS countdown gates expressed in Normal-speed turns must use the same scale.
+// Keep the adjusted value per call rather than static so starting a different game speed in the same Civ4 process cannot reuse a stale result. (GPT-5.6 Thinking) -->
+int getSASVictoryDelayTurnsFromNormalGameSpeed(int iNormalTurns)
+{
+	if (iNormalTurns <= 0)
+		return 0;
+	int const iVictoryDelayPercent = GC.getInfo(GC.getGame().getGameSpeedType()).getVictoryDelayPercent();
+	return std::max(1, (iNormalTurns * iVictoryDelayPercent + 50) / 100);
+}
+
+int getSASLeadingSpaceshipPartsBuilt()
+{
+	int iLeadingParts = 0;
+	for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
+		iLeadingParts = std::max(iLeadingParts, getSASTeamSpaceshipPartsBuilt(itTeam->getID()));
+	return iLeadingParts;
+}
+
+bool isSASTeamStage3SpaceVictoryThreat(TeamTypes eTeam)
+{
+	static const int iStage3SpacePercentThreshold = GC.getDefineINT("SAS_UWAI_VICT_DENY_S3_SPACE_MIN_PARTS_PCT");
+	if (iStage3SpacePercentThreshold <= 0 || getSASTeamSpaceVictoryStage(eTeam) < 3)
+		return false;
+	int const iPartsBuilt = getSASTeamSpaceshipPartsBuilt(eTeam);
+	static const int iLeaderPartMargin = GC.getDefineINT("SAS_UWAI_VICT_DENY_S3_SPACE_LEADER_MARGIN");
+	// <!-- custom: Save-file 452 showed raw part count was too crude: England and Egypt were both major Space threats at 8/16 parts, but every Apollo builder should not trigger emergency wars.
+	// Require enough completion and near-leader Space progress. (GPT-5.5) -->
+	return (iPartsBuilt * 100 >= getSASSpaceshipPartsRequired() * iStage3SpacePercentThreshold && getSASLeadingSpaceshipPartsBuilt() - iPartsBuilt <= iLeaderPartMargin);
+}
+
+// <!-- custom: Victory-denial peace refusal was implemented only as a final CvDeal guard.
+// A fresh Pangaea diagnostic run logged 57 negotiations that returned success although the guard kept the teams at war, causing repeated ineffective treaties.
+// Share the exact threat test so UWAI can reject those negotiations before building a deal while CvDeal retains its safety net. (GPT-5.6-Sol) -->
+bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown, int* piMaxVictoryStage)
+{
+	const bool bSASUWAIVictoryDenialOn = GC.getDefineBOOL(CvGlobals::SAS_UWAI_VICT_DENY_ON);
+	if (!bSASUWAIVictoryDenialOn)
+		return false;
+	const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT(CvGlobals::SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS);
+	int const iMaxVictoryDenialPeaceCountdown = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxVictoryDenialPeaceCountdownNormal);
+	int const iCountdown = GET_TEAM(eTeam).AI_getLowestVictoryCountdown();
+	int const iMaxVictoryStage = getSASTeamMaxVictoryStage(eTeam);
+	if (piVictoryCountdown != NULL)
+		*piVictoryCountdown = iCountdown;
+	if (piMaxVictoryStage != NULL)
+		*piMaxVictoryStage = iMaxVictoryStage;
+	const bool bRefuseStage4Peace = GC.getDefineBOOL(CvGlobals::SAS_UWAI_VICT_DENY_REFUSE_STAGE4_PEACE_ON);
+	const bool bRefuseStage3SpacePeace = GC.getDefineBOOL(CvGlobals::SAS_UWAI_VICT_DENY_REFUSE_S3_SPACE_ON);
+	return (iCountdown >= 0 && iCountdown <= iMaxVictoryDenialPeaceCountdown) || (bRefuseStage4Peace && iMaxVictoryStage >= 4) || (bRefuseStage3SpacePeace && isSASTeamStage3SpaceVictoryThreat(eTeam));
+}
+
+// <!-- custom: Whether a deal between two teams at war is a non-surrender peace treaty that the victory-denial rule keeps from taking effect: CvDeal::addTradeItems returns before making such a peace.
+// The AI's counter-proposal to a human's "Suggest peace" did not ask, so it offered the treaty, the screen answered "We're glad you accepted our offer.", and the war went on (Kublai Khan, turns 291-292 of a SASPilot game, 2026-11-14).
+// Shared by AI_counterPropose and AI_considerOffer, so the AI refuses such peace on the screen instead, as CvDeal would; surrender keeps its exception. See KI#1094. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+bool isSASVictoryDenialPeaceBundleBlocked(TeamTypes eFirstTeam, TeamTypes eSecondTeam, CLinkList<TradeData> const& kFirstList, CLinkList<TradeData> const& kSecondList)
+{
+	if (!::atWar(eFirstTeam, eSecondTeam))
+		return false;
+	if (CvDeal::isVassalTrade(kFirstList) || CvDeal::isVassalTrade(kSecondList))
+		return false;
+	bool bPeaceTreaty = false;
+	FOR_EACH_TRADE_ITEM(kFirstList)
+	{
+		if (pItem->m_eItemType == TRADE_PEACE_TREATY)
+			bPeaceTreaty = true;
+	}
+	FOR_EACH_TRADE_ITEM(kSecondList)
+	{
+		if (pItem->m_eItemType == TRADE_PEACE_TREATY)
+			bPeaceTreaty = true;
+	}
+	if (!bPeaceTreaty)
+		return false;
+	return (isSASUWAIVictoryDenialPeaceThreat(eFirstTeam) || isSASUWAIVictoryDenialPeaceThreat(eSecondTeam));
+}
+
+int getSASTeamStage3SpaceLeaderPartGap(TeamTypes eTeam)
+{
+	return getSASLeadingSpaceshipPartsBuilt() - getSASTeamSpaceshipPartsBuilt(eTeam);
+}
+
 // advc: No longer needed
 /*bool isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam)
 {
@@ -298,8 +2653,7 @@ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
 }*/
 
 // K-Mod: (advc - Where do we move this? Should not be global.)
-int estimateCollateralWeight(CvPlot const* pPlot, TeamTypes eAttackTeam,
-	TeamTypes eDefenseTeam)
+int estimateCollateralWeight(CvPlot const* pPlot, TeamTypes eAttackTeam, TeamTypes eDefenseTeam)
 {
 	int iBaseCollateral = GC.getDefineINT(CvGlobals::COLLATERAL_COMBAT_DAMAGE); // normally 10
 	if (pPlot == NULL)
@@ -367,8 +2721,7 @@ void setTradeItem(TradeData* pItem, TradeableItems eItemType, int iData)
 }
 
 
-void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
-	wchar const* szSeparator, bool& bFirst) // advc: bool&
+void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, bool& bFirst) // advc: bool&
 {
 	if (bFirst)
 		szBuffer += szStart;
@@ -378,8 +2731,7 @@ void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
 }
 
 
-void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem,
-	wchar const* szSeparator, bool& bFirst) // advc: bool&
+void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, bool& bFirst) // advc: bool&
 {
 	if (bFirst)
 		szBuffer.append(szStart);
@@ -389,8 +2741,7 @@ void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* s
 }
 
 // <advc> Based on the above
-void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
-	wchar const* szSeparator, int& iLastListID, int iListID)
+void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, int& iLastListID, int iListID)
 {
 	if (iLastListID != iListID)
 		szBuffer += szStart;
@@ -399,8 +2750,7 @@ void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
 	iLastListID = iListID; // advc: And deleted this line from every call location
 }
 
-void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem,
-	wchar const* szSeparator, int& iLastListID, int iListID)
+void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, int& iLastListID, int iListID)
 {
 	if (iLastListID != iListID)
 		szBuffer.append(szStart);
@@ -744,7 +3094,10 @@ bool PUF_makeInfoBarDirty(CvUnit* pUnit, int iDummy1, int iDummy2)
 // advc.003j (comment): Unused
 int baseYieldToSymbol(int iNumYieldTypes, int iYieldStack)
 {
-	return iNumYieldTypes * GC.getDefineINT("MAX_YIELD_STACK") + iYieldStack;
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iMAX_YIELD_STACK = GC.getDefineINT("MAX_YIELD_STACK");
+
+	return iNumYieldTypes * iMAX_YIELD_STACK + iYieldStack;
 }
 /*  advc.003j: Vanilla Civ 4 function that used to be a DLLExport;
 	certainly unused since BtS, and doesn't sound too useful. */
@@ -786,26 +3139,32 @@ int intHash(std::vector<int> const& kInputs, PlayerTypes ePlayer)
 }
 
 
-int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
-	GameSpeedTypes eSpeed)
+int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed)
 {
-	return getTurnMonthForGame(iGameTurn, iStartYear, eCalendar, eSpeed) /
-			std::max(1, GC.getNumMonthInfos()); // advc: max
+	// <!-- custom: Signed C++ division truncated negative fractional BC years toward AD.
+	// Subtract AdvCiv's nonnegative calendar remainder first to obtain the mathematical floor year, matching its sibling BC-month correction. See KI#594. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int const iMonthsPerYear = std::max(1, GC.getNumMonthInfos()); // advc: max
+	int const iTurnMonth = getTurnMonthForGame(iGameTurn, iStartYear, eCalendar, eSpeed);
+	return (iTurnMonth - intdiv::umodulo(iTurnMonth, iMonthsPerYear)) / iMonthsPerYear;
 }
 
 
-int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
-	GameSpeedTypes eSpeed)
+int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed)
 {
 	int iTurnMonth = iStartYear * GC.getNumMonthInfos();
 	switch (eCalendar)
 	{
 	case CALENDAR_DEFAULT:
 	{
+		// <!-- custom: performance optimizations as recommended as well by chatgpt 5 thanks, check if accurate -->
+		// <!-- custom: code/performance optimization: hoist -->
+        const CvGameSpeedInfo& kSpeed = GC.getInfo(eSpeed);
+        int const n = kSpeed.getNumTurnIncrements();
+
 		int iTurnCount = 0;
-		for (int i = 0; i < GC.getInfo(eSpeed).getNumTurnIncrements(); i++)
+		for (int i = 0; i < n; i++)
 		{
-			GameTurnInfo const& kGameTurn = GC.getInfo(eSpeed).getGameTurnInfo(i);
+			GameTurnInfo const& kGameTurn = kSpeed.getGameTurnInfo(i);
 			if (iGameTurn > iTurnCount + kGameTurn.iNumGameTurnsPerIncrement)
 			{
 				iTurnMonth += kGameTurn.iMonthIncrement *
@@ -821,8 +3180,8 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
 		}
 		if (iGameTurn > iTurnCount)
 		{
-			iTurnMonth += GC.getInfo(eSpeed).getGameTurnInfo(
-					GC.getInfo(eSpeed).getNumTurnIncrements() - 1).
+			iTurnMonth += kSpeed.getGameTurnInfo(
+					n - 1).
 					iMonthIncrement * (iGameTurn - iTurnCount);
 		}
 		break;
@@ -846,9 +3205,14 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
 		break;
 
 	case CALENDAR_WEEKS:
+	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iWEEKS_PER_MONTHS = GC.getDefineINT("WEEKS_PER_MONTHS");
+
 		iTurnMonth += iGameTurn /
-				std::max(1, GC.getDefineINT("WEEKS_PER_MONTHS")); // advc: max
+				std::max(1, iWEEKS_PER_MONTHS); // advc: max
 		break;
+	}
 
 	default:
 		FAssert(false);
@@ -857,6 +3221,43 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
 	return iTurnMonth;
 }
 
+
+// <!-- custom: Name existing city-safety values without creating a second enum or recorder-owned vocabulary. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASCitySafetyTypeName(CitySafetyTypes eSafety)
+{
+	switch (eSafety)
+	{
+	case CITYSAFETY_EVACUATING: return "EVACUATING";
+	case CITYSAFETY_THREATENED: return "THREATENED";
+	case CITYSAFETY_SAFE: return "SAFE";
+	case CITYSAFETY_PERFECT: return "PERFECT";
+	}
+	return "UNKNOWN";
+}
+
+// <!-- custom: Stringify the shared retreat outcome once; labels are compile-time literals, with no heap allocation or string comparison. (GPT-6.1-Sol) -->
+char const* getSASRetreatResultName(SASRetreatResult eResult)
+{
+	switch (eResult)
+	{
+#define SAS_RETREAT_RESULT_NAME(NAME, BBAI_NAME) case SAS_RETREAT_RESULT_##NAME: return #NAME;
+	SAS_RETREAT_RESULT_ROWS(SAS_RETREAT_RESULT_NAME)
+#undef SAS_RETREAT_RESULT_NAME
+	}
+	return "UNKNOWN";
+}
+
+// <!-- custom: Preserve BBAI's historical retreat action tokens while both sinks consume the same typed outcome. (GPT-6.1-Sol) -->
+char const* getSASRetreatResultBBAIName(SASRetreatResult eResult)
+{
+	switch (eResult)
+	{
+#define SAS_RETREAT_RESULT_BBAI_NAME(NAME, BBAI_NAME) case SAS_RETREAT_RESULT_##NAME: return BBAI_NAME;
+	SAS_RETREAT_RESULT_ROWS(SAS_RETREAT_RESULT_BBAI_NAME)
+#undef SAS_RETREAT_RESULT_BBAI_NAME
+	}
+	return "unknown";
+}
 
 void getDirectionTypeString(CvWString& szString, DirectionTypes eDirectionType)
 {
@@ -1053,12 +3454,12 @@ void getUnitAIString(CvWString& szString, UnitAITypes eUnitAI)
 	case UNITAI_CITY_SPECIAL: szString = L"city special"; break;
 	case UNITAI_EXPLORE: szString = L"explore"; break;
 	case UNITAI_MISSIONARY: szString = L"missionary"; break;
-	case UNITAI_PROPHET: szString = L"prophet"; break;
-	case UNITAI_ARTIST: szString = L"artist"; break;
-	case UNITAI_SCIENTIST: szString = L"scientist"; break;
-	case UNITAI_GENERAL: szString = L"general"; break;
-	case UNITAI_MERCHANT: szString = L"merchant"; break;
-	case UNITAI_ENGINEER: szString = L"engineer"; break;
+	case UNITAI_GREAT_PROPHET: szString = L"prophet"; break;
+	case UNITAI_GREAT_ARTIST: szString = L"artist"; break;
+	case UNITAI_GREAT_SCIENTIST: szString = L"scientist"; break;
+	case UNITAI_GREAT_GENERAL: szString = L"general"; break;
+	case UNITAI_GREAT_MERCHANT: szString = L"merchant"; break;
+	case UNITAI_GREAT_ENGINEER: szString = L"engineer"; break;
 	case UNITAI_GREAT_SPY: szString = L"great spy"; break; // K-Mod
 	case UNITAI_SPY: szString = L"spy"; break;
 	case UNITAI_ICBM: szString = L"icbm"; break;

@@ -1,14 +1,14 @@
 #include "CvGameCoreDLL.h"
 #include "MilitaryAnalyst.h"
 #include "WarEvalParameters.h"
+#include "UWAILogMuteState.h" // <!-- custom: Concrete nested-mute state is needed because MilitaryAnalyst queries it while the evaluation tree shares the same mute depth. (ChatGPT-5.6-Sol) -->
 #include "UWAIAgent.h"
 #include "InvasionGraph.h"
 #include "CoreAI.h"
 #include "CvCity.h"
 #include "CvPlot.h"
 #include "CvInfo_GameOption.h"
-
-using std::ostringstream;
+#include "BBAILog.h" // <!-- custom: Cached SAS_BBAI UWAI subsystem levels pre-gate inherited diagnostic work before argument/setup cost. See KI#505.3. (ChatGPT-5.6-Sol) -->
 
 
 // empty sets (static)
@@ -17,15 +17,16 @@ PlyrSet MilitaryAnalyst::m_emptyPlayerSet;
 
 namespace
 {
-	scaled nukeChanceToHit(TeamTypes eTeam)
+	// <!-- custom: Interception belongs to the defending team, while the assumed Tactical-Nuke share belongs to the firing team. See KI#966. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled nukeChanceToHit(TeamTypes eAttacker, TeamTypes eDefender)
 	{
 		scaled const rInterceptionProb = per100(std::max(
-				GET_TEAM(eTeam).getNukeInterception(),
+				GET_TEAM(eDefender).getNukeInterception(),
 				// advc.143b:
-				GET_TEAM(GET_TEAM(eTeam).getMasterTeam()).getNukeInterception()));
+				GET_TEAM(GET_TEAM(eDefender).getMasterTeam()).getNukeInterception()));
 		scaled const rEvasionProb = fixp(0.5); // Fixme: Shouldn't hardcode this
 		// Percentage of Tactical Nukes
-		scaled rTactRatio = (GET_TEAM(eTeam).isHuman() ? fixp(0.5) : fixp(1/3.));
+		scaled rTactRatio = (GET_TEAM(eAttacker).isHuman() ? fixp(0.5) : fixp(1/3.));
 		scaled rHitProb = 1 - (rInterceptionProb *
 				((1 - rTactRatio) + rTactRatio * (1 - rEvasionProb)));
 		rHitProb.clamp(0, 1);
@@ -45,18 +46,22 @@ namespace
 }
 
 
-MilitaryAnalyst::MilitaryAnalyst(PlayerTypes eAgentPlayer,
-	WarEvalParameters& kWarEvalParams, bool bPeaceScenario)
-:	m_kWarEvalParams(kWarEvalParams), m_kReport(kWarEvalParams.getReport()),
+MilitaryAnalyst::MilitaryAnalyst(PlayerTypes eAgentPlayer, WarEvalParameters& kWarEvalParams, bool bPeaceScenario)
+// <!-- custom: Share one nested mute state across MilitaryAnalyst and its InvasionGraph/forecast descendants; output itself is ordinary BBAI. (ChatGPT-5.6-Sol) -->
+:	m_kWarEvalParams(kWarEvalParams), m_kLogMuteState(kWarEvalParams.getLogMuteState()),
 	m_eWe(eAgentPlayer), m_eTarget(kWarEvalParams.getTarget()),
 	m_bPeaceScenario(bPeaceScenario), m_iTurnsSimulated(0)
 {
 	PROFILE_FUNC();
+	// <!-- custom: Mute depth is stable across this constructor; nested descendants may push/pop it only in balanced scopes.
+	// Reuse one descriptive level-2 gate for the constructor's scenario-context rows. (ChatGPT-5.6-Sol) -->
+	bool const bLogMilitaryAnalystContext = (gUWAIMilitaryAnalystLogLevel >= 2 && !m_kLogMuteState.isMuted());
 	m_playerResults.resize(MAX_CIV_PLAYERS, NULL);
 	m_warTable.resize(MAX_CIV_PLAYERS, std::vector<bool>(MAX_CIV_PLAYERS, false));
 	m_nukedCities.resize(MAX_CIV_PLAYERS, std::vector<scaled>(MAX_CIV_PLAYERS, 0));
 	m_capitulationsAcceptedPerTeam.resize(MAX_CIV_TEAMS);
-	m_kReport.log("Military analysis from the pov of %s", m_kReport.leaderName(m_eWe));
+	if (gUWAIMilitaryAnalystLogLevel >= 1 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_MILITARY_ANALYSIS_BEGIN turn=%d agentPlayer=%d agentTeam=%d targetTeam=%d scenario=%s",
+			GC.getGame().getGameTurn(), m_eWe, TEAMID(m_eWe), m_eTarget, m_bPeaceScenario ? "PEACE" : "WAR");
 	CvTeamAI const& kAgent = GET_TEAM(m_eWe);
 	PlyrSet currentlyAtWar; // ("atWar" is already a name of a global function)
 	PlyrSet ourFutureOpponents;
@@ -215,18 +220,18 @@ MilitaryAnalyst::MilitaryAnalyst(PlayerTypes eAgentPlayer,
 		will still read the actual prep time from the WarEvalParameters) */
 	if (iPrepTime < 4)
 	{
-		if (iPrepTime > 0)
-			m_kReport.log("Skipping short prep. time (%d turns):", iPrepTime);
+		if (bLogMilitaryAnalystContext && iPrepTime > 0) logBBAI("UWAI_MILITARY_ANALYSIS_PREP_SKIPPED turn=%d agentPlayer=%d targetTeam=%d scenario=%s prepTurns=%d",
+				GC.getGame().getGameTurn(), m_eWe, m_eTarget, m_bPeaceScenario ? "PEACE" : "WAR", iPrepTime);
 		iTimeHorizon += iPrepTime; // Prolong 2nd phase instead
 		iPrepTime = 0;
 	}
 	else
 	{
-		m_kReport.log("Phase 1%s%s%s (%d turns)",
-				m_bPeaceScenario ? "" : ": Prolog of simulation; ",
-				m_bPeaceScenario ? "" : m_kReport.leaderName(m_eWe),
-				m_bPeaceScenario ? "": " is preparing war",
-				iPrepTime);
+		// <!-- custom: Keep %S player-name arguments out of narrow-string ternaries; CvPlayer::getName(0) is wchar const* on the Civ4 toolchain. (ChatGPT-5.6-Sol) -->
+		if (bLogMilitaryAnalystContext && m_bPeaceScenario) logBBAI("UWAI_MILITARY_ANALYSIS_PHASE1_PEACE turn=%d agentPlayer=%d targetTeam=%d turns=%d",
+			GC.getGame().getGameTurn(), m_eWe, m_eTarget, iPrepTime);
+		else if (bLogMilitaryAnalystContext) logBBAI("UWAI_MILITARY_ANALYSIS_PHASE1_WAR_PREPARATION turn=%d agentPlayer=%d targetTeam=%d turns=%d",
+			GC.getGame().getGameTurn(), m_eWe, m_eTarget, iPrepTime);
 		m_pInvGraph->simulate(iPrepTime);
 		m_iTurnsSimulated += iPrepTime;
 	}
@@ -236,11 +241,10 @@ MilitaryAnalyst::MilitaryAnalyst(PlayerTypes eAgentPlayer,
 		defeats in phase I. */
 	if (m_bPeaceScenario)
 		m_pInvGraph->updateTargets();
-	m_kReport.log("Phase 2%s%s (%d turns)",
-			(!m_bPeaceScenario && !kAgent.isAtWar(m_eTarget) ?
-			": Simulation assuming DoW by " : ""),
-			(!m_bPeaceScenario && !kAgent.isAtWar(m_eTarget) ?
-			m_kReport.leaderName(m_eWe) : ""), iTimeHorizon);
+	if (bLogMilitaryAnalystContext && !m_bPeaceScenario && !kAgent.isAtWar(m_eTarget)) logBBAI("UWAI_MILITARY_ANALYSIS_PHASE2_ASSUMED_DOW turn=%d agentPlayer=%d targetTeam=%d turns=%d",
+		GC.getGame().getGameTurn(), m_eWe, m_eTarget, iTimeHorizon);
+	else if (bLogMilitaryAnalystContext) logBBAI("UWAI_MILITARY_ANALYSIS_PHASE2 turn=%d agentPlayer=%d targetTeam=%d scenario=%s turns=%d",
+		GC.getGame().getGameTurn(), m_eWe, m_eTarget, m_bPeaceScenario ? "PEACE" : "WAR", iTimeHorizon);
 	m_pInvGraph->simulate(iTimeHorizon);
 	m_iTurnsSimulated += iTimeHorizon;
 	prepareResults(); // ... of conventional war
@@ -312,7 +316,8 @@ void MilitaryAnalyst::simulateNuclearWar()
 	// Only simulates nukes fired by or on us
 	PlayerTypes const eWe = m_eWe; // abbreviate
 	CvPlayerAI const& kWe = GET_PLAYER(eWe);
-	if (isEliminated(eWe) || kWe.getNumCities() <= 0)
+	// <!-- custom: Conventional simulation runs first; use its remaining-city state throughout the later nuclear exchange so eliminated players cannot fire, receive or dilute nukes. See KI#967. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (simulatedRemainingCities(eWe) <= 0)
 		return; // Who cares then
 	CvTeamAI const& kAgent = GET_TEAM(eWe);
 	UWAICache const& kOurCache = kWe.uwai().getCache();
@@ -322,13 +327,13 @@ void MilitaryAnalyst::simulateNuclearWar()
 	scaled rOurTargets;
 	for (PlayerIter<MAJOR_CIV> itEnemy; itEnemy.hasNext(); ++itEnemy)
 	{
-		if (isWar(eWe, itEnemy->getID()))
+		if (isWar(eWe, itEnemy->getID()) && simulatedRemainingCities(itEnemy->getID()) > 0)
 			rOurTargets += (itEnemy->isAVassal() ? fixp(0.5) : 1);
 	}
 	for (PlayerAIIter<MAJOR_CIV> itEnemy; itEnemy.hasNext(); ++itEnemy)
 	{
 		CvPlayerAI const& kEnemy = *itEnemy;
-		if (!isWar(eWe, kEnemy.getID()))
+		if (!isWar(eWe, kEnemy.getID()) || simulatedRemainingCities(kEnemy.getID()) <= 0)
 			continue;
 		int iEnemyNukes = kEnemy.uwai().getCache().
 				getPowerValues()[NUCLEAR]->numUnits();
@@ -360,14 +365,17 @@ void MilitaryAnalyst::simulateNuclearWar()
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 		{
 			CvPlayer const& kEnemyOfEnemy = *it;
-			if (isWar(kEnemyOfEnemy.getID(), kEnemy.getID()))
+			if (isWar(kEnemyOfEnemy.getID(), kEnemy.getID()) &&
+				simulatedRemainingCities(kEnemyOfEnemy.getID()) > 0)
+			{
 				rEnemyTargets += (kEnemyOfEnemy.isAVassal() ? fixp(0.5) : 1);
+			}
 		}
 		scaled rFiredOnUs = rPortionFired * rOurVassalMult * rEnemyVassalMult *
 				/*  sqrt for pessimism - we may get hit worse than the
 					average target, and that worries us. */
 				(iEnemyNukes / rEnemyTargets.sqrt());
-		rFiredOnUs.decreaseTo(fixp(1.5) * kWe.getNumCities());
+		rFiredOnUs.decreaseTo(fixp(1.5) * simulatedRemainingCities(eWe));
 		scaled rFiredByUs;
 		if (rOurTargets > 0)
 		{
@@ -375,9 +383,9 @@ void MilitaryAnalyst::simulateNuclearWar()
 					(kWe.AI_isDoStrategy(AI_STRATEGY_OWABWNW) ? fixp(1.1) : fixp(0.9)) /
 					rOurTargets;
 		}
-		rFiredByUs.decreaseTo(fixp(1.5) * kEnemy.getNumCities());
-		scaled rHittingUs = rFiredOnUs * nukeChanceToHit(kAgent.getID());
-		scaled rHittingEnemy = rFiredByUs * nukeChanceToHit(kEnemy.getTeam());
+		rFiredByUs.decreaseTo(fixp(1.5) * simulatedRemainingCities(kEnemy.getID()));
+		scaled rHittingUs = rFiredOnUs * nukeChanceToHit(kEnemy.getTeam(), kAgent.getID());
+		scaled rHittingEnemy = rFiredByUs * nukeChanceToHit(kAgent.getID(), kEnemy.getTeam());
 		// Make sure not to allocate PlayerResult unnecessarily
 		if (rHittingUs > 0)
 		{
@@ -394,6 +402,14 @@ void MilitaryAnalyst::simulateNuclearWar()
 		if (rFiredOnUs > 0)
 			playerResult(kEnemy.getID()).addNukesFired(rFiredOnUs);
 	}
+}
+
+
+// <!-- custom: Nuclear exchange follows conventional simulation, so real city counts include cities already predicted lost.
+// Keep this analysis local and use the graph result instead. See KI#967. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+int MilitaryAnalyst::simulatedRemainingCities(PlayerTypes ePlayer) const
+{
+	return std::max(0, GET_PLAYER(ePlayer).getNumCities() - (int)lostCities(ePlayer).size());
 }
 
 
@@ -421,7 +437,9 @@ void MilitaryAnalyst::prepareResults()
 			pNode->getConquests(playerResult(ePlayer).getConqueredCities());
 		if (pNode->anyCityLosses())
 			pNode->getCityLosses(playerResult(ePlayer).getLostCities());
-		pNode->getCapitulationsAccepted(m_capitulationsAcceptedPerTeam[ePlayer]);
+		// <!-- custom: This raw vector is indexed by TeamTypes; unlike overloaded GET_TEAM(PlayerTypes), operator[] cannot convert a player ID.
+		// Union every member node's team-level result into its actual team slot. See KI#442. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		pNode->getCapitulationsAccepted(m_capitulationsAcceptedPerTeam[TEAMID(ePlayer)]);
 	}
 	// Predict scores as current game score modified based on gained/ lost population
 	CvGame const& kGame = GC.getGame();
@@ -447,7 +465,7 @@ void MilitaryAnalyst::prepareResults()
 			rPopIncrease -= kOurCache.lookupCity(*it)->city().getPopulation();
 		}
 		rPopIncrease /= std::max(1, iCurrTotalPop);
-		// This is just a (poor) starting point for predictedGameScore
+		// This is just a (poor) starting point for predictedMemberGameScore
 		playerResult(ePlayer).setGameScore(kGame.getPlayerScore(ePlayer) *
 				scaled::max(0, 1 + rPopIncrease));
 	}
@@ -467,7 +485,8 @@ void MilitaryAnalyst::prepareResults()
 }
 
 
-scaled MilitaryAnalyst::predictedGameScore(PlayerTypes ePlayer) const
+// <!-- custom: Return only this member's predicted score; Kingmaking adds any team-shared accepted-vassal score once after aggregating all members. See KI#433. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+scaled MilitaryAnalyst::predictedMemberGameScore(PlayerTypes ePlayer) const
 {
 	FAssertBounds(0, MAX_CIV_PLAYERS, ePlayer);
 	int const iCurrScore = GC.getGame().getPlayerScore(ePlayer);
@@ -480,11 +499,6 @@ scaled MilitaryAnalyst::predictedGameScore(PlayerTypes ePlayer) const
 	if (isEliminated(ePlayer))
 		return 0;
 	scaled rFromSim = pR->getGameScore();
-	TeamSet const& kCap = getCapitulationsAccepted(TEAMID(ePlayer));
-	for (TeamSetIter itVassal = kCap.begin(); itVassal != kCap.end(); ++itVassal)
-	{	// Use a fraction of the vassal's current score to keep it simple
-		rFromSim += fixp(0.4) * GC.getGame().getTeamScore(*itVassal);
-	}
 	if (rFromSim < iCurrScore)
 		r = (r + rFromSim) / 2;
 	else r.increaseTo(rFromSim);
@@ -527,8 +541,7 @@ bool MilitaryAnalyst::isEliminated(PlayerTypes ePlayer) const
 }
 
 
-scaled MilitaryAnalyst::lostPower(PlayerTypes ePlayer,
-	MilitaryBranchTypes eBranch) const
+scaled MilitaryAnalyst::lostPower(PlayerTypes ePlayer, MilitaryBranchTypes eBranch) const
 {
 	InvasionGraph::Node const* pNode = m_pInvGraph->getNode(ePlayer);
 	if (pNode == NULL)
@@ -537,8 +550,7 @@ scaled MilitaryAnalyst::lostPower(PlayerTypes ePlayer,
 }
 
 
-scaled MilitaryAnalyst::gainedPower(PlayerTypes ePlayer,
-	MilitaryBranchTypes eBranch) const
+scaled MilitaryAnalyst::gainedPower(PlayerTypes ePlayer, MilitaryBranchTypes eBranch) const
 {
 	InvasionGraph::Node const* pNode = m_pInvGraph->getNode(ePlayer);
 	if (pNode == NULL)
@@ -558,26 +570,27 @@ scaled MilitaryAnalyst::militaryProduction(PlayerTypes ePlayer) const
 
 void MilitaryAnalyst::logResults(PlayerTypes ePlayer)
 {
-	if (m_kReport.isMute())
-		return;
+	FAssert(gUWAIMilitaryAnalystLogLevel >= 1 && !m_kLogMuteState.isMuted());
 	// Not the best way to identify civs that weren't part of the simulation ...
 	if (militaryProduction(ePlayer).uround() == 0)
 		return;
-	m_kReport.log("Results about %s", m_kReport.leaderName(ePlayer));
-	m_kReport.log("\nbq.");
+	if (gUWAIMilitaryAnalystLogLevel >= 2)
+	{
+		logBBAI("UWAI_MILITARY_ANALYSIS_PLAYER_RESULT turn=%d agentPlayer=%d targetTeam=%d scenario=%s player=%d investedProduction=%d",
+				GC.getGame().getGameTurn(), m_eWe, m_eTarget, m_bPeaceScenario ? "PEACE" : "WAR", ePlayer, militaryProduction(ePlayer).uround());
+		logCities(ePlayer, true);
+		logCities(ePlayer, false);
+		logPower(ePlayer, false);
+		logPower(ePlayer, true);
+	}
 	logCapitulations(ePlayer);
-	logCities(ePlayer, true);
-	logCities(ePlayer, false);
-	logPower(ePlayer, false);
-	logPower(ePlayer, true);
-	m_kReport.log("Invested production: %d", militaryProduction(ePlayer).uround());
 	logDoW(ePlayer);
-	m_kReport.log("");
 }
 
 
 void MilitaryAnalyst::logCities(PlayerTypes ePlayer, bool bConquests)
 {
+	FAssert(gUWAIMilitaryAnalystLogLevel >= 2 && !m_kLogMuteState.isMuted());
 	PlayerResult const* pResult = m_playerResults[ePlayer];
 	if (pResult == NULL)
 		return;
@@ -585,92 +598,111 @@ void MilitaryAnalyst::logCities(PlayerTypes ePlayer, bool bConquests)
 			pResult->getLostCities());
 	if (kCities.empty())
 		return;
-	m_kReport.log("Cities %s:", bConquests ? "conquered" : "lost");
 	for (CitySetIter it = kCities.begin(); it != kCities.end(); ++it)
-	{
-		m_kReport.log("%s", m_kReport.cityName(UWAICache::cvCityById(*it)));
-	}
+		logBBAI("UWAI_MILITARY_ANALYSIS_CITY turn=%d agentPlayer=%d targetTeam=%d scenario=%s player=%d result=%s city=%S",
+				GC.getGame().getGameTurn(), m_eWe, m_eTarget, m_bPeaceScenario ? "PEACE" : "WAR", ePlayer,
+				bConquests ? "CONQUERED" : "LOST", getSASDiagnosticQuoted((UWAICache::cvCityById(*it)).getName().GetCString()).GetCString());
 }
 
 
 void MilitaryAnalyst::logCapitulations(PlayerTypes ePlayer)
 {
+	FAssert(gUWAIMilitaryAnalystLogLevel >= 1 && !m_kLogMuteState.isMuted());
 	if (isEliminated(ePlayer))
 	{
-		m_kReport.log("Eliminated");
+		logBBAI("UWAI_MILITARY_ANALYSIS_PLAYER_ELIMINATED turn=%d agentPlayer=%d targetTeam=%d scenario=%s player=%d",
+			GC.getGame().getGameTurn(), m_eWe, m_eTarget, m_bPeaceScenario ? "PEACE" : "WAR", ePlayer);
 		return;
 	}
 	TeamTypes const eTeam = TEAMID(ePlayer);
 	if (hasCapitulated(eTeam))
 	{
-		m_kReport.log("Team has capitulated");
+		logBBAI("UWAI_MILITARY_ANALYSIS_TEAM_CAPITULATED turn=%d agentPlayer=%d targetTeam=%d scenario=%s player=%d team=%d",
+			GC.getGame().getGameTurn(), m_eWe, m_eTarget, m_bPeaceScenario ? "PEACE" : "WAR", ePlayer, eTeam);
 		return;
 	}
 	TeamSet const& kCaps = m_capitulationsAcceptedPerTeam[eTeam];
 	if (kCaps.empty())
 		return;
-	m_kReport.log("Capitulation accepted from:");
 	for (TeamSetIter it = kCaps.begin(); it != kCaps.end(); ++it)
 	{
+		logBBAI("UWAI_MILITARY_ANALYSIS_CAPITULATION_ACCEPTED turn=%d agentPlayer=%d targetTeam=%d scenario=%s accepterTeam=%d surrenderedTeam=%d",
+				GC.getGame().getGameTurn(), m_eWe, m_eTarget, m_bPeaceScenario ? "PEACE" : "WAR", eTeam, *it);
 		// The team name (e.g. Team1) would not be helpful
-		for (MemberIter itMember(*it); itMember.hasNext(); ++itMember)
-			m_kReport.log("%s", m_kReport.leaderName(itMember->getID()));
+		// <!-- custom: Structured team IDs identify the capitulation; level-2 player rows retain the member names previously printed by the report. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		if (gUWAIMilitaryAnalystLogLevel >= 2)
+		{
+			for (MemberIter itMember(*it); itMember.hasNext(); ++itMember)
+				logBBAI("UWAI_MILITARY_ANALYSIS_CAPITULATION_MEMBER turn=%d surrenderedTeam=%d player=%d name=%S",
+					GC.getGame().getGameTurn(), *it, itMember->getID(), getSASDiagnosticQuoted(GET_PLAYER(itMember->getID()).getName(0)).GetCString());
+		}
 	}
 }
 
 
 void MilitaryAnalyst::logDoW(PlayerTypes ePlayer)
 {
+	FAssert(gUWAIMilitaryAnalystLogLevel >= 1 && !m_kLogMuteState.isMuted());
 	PlayerResult const* pResult = m_playerResults[ePlayer];
 	if (pResult == NULL)
 		return;
 	PlyrSet const& DoWBy = pResult->getDoWBy();
 	if (!DoWBy.empty())
 	{
-		m_kReport.log("Wars declared by %s:",
-				m_kReport.leaderName(ePlayer));
-		for (PlyrSetIter it = DoWBy.begin(); it != DoWBy.end(); ++it)
-			m_kReport.log("%s", m_kReport.leaderName(*it));
+		logBBAI("UWAI_MILITARY_ANALYSIS_DOW_BY turn=%d agentPlayer=%d targetTeam=%d scenario=%s player=%d count=%d",
+			GC.getGame().getGameTurn(), m_eWe, m_eTarget, m_bPeaceScenario ? "PEACE" : "WAR", ePlayer, (int)DoWBy.size());
+		if (gUWAIMilitaryAnalystLogLevel >= 2)
+		{
+			for (PlyrSetIter it = DoWBy.begin(); it != DoWBy.end(); ++it)
+				logBBAI("UWAI_MILITARY_ANALYSIS_DOW_BY_TARGET turn=%d player=%d otherPlayer=%d otherName=%S", GC.getGame().getGameTurn(), ePlayer, *it, getSASDiagnosticQuoted(GET_PLAYER(*it).getName(0)).GetCString());
+		}
 	}
 	PlyrSet const& DoWOn = pResult->getDoWOn();
 	if (!DoWOn.empty())
 	{
-		m_kReport.log("Wars declared on %s:", m_kReport.leaderName(ePlayer));
-		for (PlyrSetIter it = DoWOn.begin(); it != DoWOn.end(); ++it)
-			m_kReport.log("%s", m_kReport.leaderName(*it));
+		logBBAI("UWAI_MILITARY_ANALYSIS_DOW_ON turn=%d agentPlayer=%d targetTeam=%d scenario=%s player=%d count=%d",
+			GC.getGame().getGameTurn(), m_eWe, m_eTarget, m_bPeaceScenario ? "PEACE" : "WAR", ePlayer, (int)DoWOn.size());
+		if (gUWAIMilitaryAnalystLogLevel >= 2)
+		{
+			for (PlyrSetIter it = DoWOn.begin(); it != DoWOn.end(); ++it)
+				logBBAI("UWAI_MILITARY_ANALYSIS_DOW_ON_SOURCE turn=%d player=%d otherPlayer=%d otherName=%S", GC.getGame().getGameTurn(), ePlayer, *it, getSASDiagnosticQuoted(GET_PLAYER(*it).getName(0)).GetCString());
+		}
 	}
 	PlyrSet const& kWarsCont = pResult->getWarsContinued();
 	if (!kWarsCont.empty())
 	{
-		m_kReport.log("Wars continued:");
-		for (PlyrSetIter it = kWarsCont.begin(); it != kWarsCont.end(); ++it)
-			m_kReport.log("%s", m_kReport.leaderName(*it));
+		logBBAI("UWAI_MILITARY_ANALYSIS_WAR_CONTINUED turn=%d agentPlayer=%d targetTeam=%d scenario=%s player=%d count=%d",
+			GC.getGame().getGameTurn(), m_eWe, m_eTarget, m_bPeaceScenario ? "PEACE" : "WAR", ePlayer, (int)kWarsCont.size());
+		if (gUWAIMilitaryAnalystLogLevel >= 2)
+		{
+			for (PlyrSetIter it = kWarsCont.begin(); it != kWarsCont.end(); ++it)
+				logBBAI("UWAI_MILITARY_ANALYSIS_WAR_CONTINUED_OPPONENT turn=%d player=%d otherPlayer=%d otherName=%S",
+					GC.getGame().getGameTurn(), ePlayer, *it, getSASDiagnosticQuoted(GET_PLAYER(*it).getName(0)).GetCString());
+		}
 	}
 }
 
 
 void MilitaryAnalyst::logPower(PlayerTypes ePlayer, bool bGained)
 {
+	FAssert(gUWAIMilitaryAnalystLogLevel >= 2 && !m_kLogMuteState.isMuted());
 	// Some overlap with InvasionGraph::Node::logPower
-	ostringstream out;
-	if (bGained)
-		out << "Net power gain (build-up minus losses): ";
-	else out << "Lost power from casualties: ";
+	// <!-- custom: Preserve the inherited distinction: the first measure is net build-up minus losses, while the second is power lost to casualties.
+	// A generic GAIN label obscured that the net value can be negative. (GPT-6.1-Sol) -->
+	char const* const szChange = (bGained ? "NET_BUILDUP_MINUS_LOSSES" : "CASUALTY_LOSS");
 	int iLogged = 0;
 	for (int i = 0; i < NUM_BRANCHES; i++)
 	{
 		MilitaryBranchTypes eBranch = (MilitaryBranchTypes)i;
 		int iPowChange = (bGained ?
-				gainedPower(ePlayer, eBranch) - lostPower(ePlayer, eBranch) :
-				lostPower(ePlayer, eBranch)).round();
+			gainedPower(ePlayer, eBranch) - lostPower(ePlayer, eBranch) :
+			lostPower(ePlayer, eBranch)).round();
 		if (iPowChange == 0)
 			continue;
-		if (iLogged > 0)
-			out << ", ";
-		out << MilitaryBranch::str(eBranch) << " " << iPowChange;
+		logBBAI("UWAI_MILITARY_ANALYSIS_POWER_CHANGE turn=%d agentPlayer=%d targetTeam=%d scenario=%s player=%d change=%s branch=%s power=%d",
+				GC.getGame().getGameTurn(), m_eWe, m_eTarget, m_bPeaceScenario ? "PEACE" : "WAR", ePlayer, szChange, MilitaryBranch::str(eBranch), iPowChange);
 		iLogged++;
 	}
-	if (iLogged == 0)
-		out << "none";
-	m_kReport.log("%s", out.str().c_str());
+	if (iLogged == 0) logBBAI("UWAI_MILITARY_ANALYSIS_POWER_CHANGE_NONE turn=%d agentPlayer=%d targetTeam=%d scenario=%s player=%d change=%s",
+			GC.getGame().getGameTurn(), m_eWe, m_eTarget, m_bPeaceScenario ? "PEACE" : "WAR", ePlayer, szChange);
 }

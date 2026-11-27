@@ -1,4 +1,5 @@
 #include "CvGameCoreDLL.h"
+#include "SASSaveStreamFormat.h" // <!-- custom: Use the same compile-time write markers as the session diagnostic registry, avoiding duplicated version literals. (GPT-6.1-Sol) -->
 #include "MilitaryBranch.h"
 #include "UWAIAgent.h"
 #include "CoreAI.h"
@@ -33,7 +34,8 @@ void MilitaryBranch::write(FDataStreamBase* pStream) const
 {
 	int iSaveVersion;
 	//iSaveVersion = 0;
-	iSaveVersion = 1; // scaled instead of double
+	// <!-- custom: Reuse the existing MilitaryBranch write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
+	iSaveVersion = SASSaveStreamFormat::MILITARY_BRANCH; // scaled instead of double
 	/*	I hadn't thought of a version number in the initial release. Need
 		to fold it into m_eTypicalUnit now to avoid breaking compatibility.
 		Add 1 b/c the typical unit can be -1. */
@@ -48,28 +50,13 @@ void MilitaryBranch::write(FDataStreamBase* pStream) const
 
 void MilitaryBranch::read(FDataStreamBase* pStream)
 {
-	int iSaveVersion;
-	{
-		int iTmp;
-		pStream->Read(&iTmp);
-		iSaveVersion = iTmp / 1000;
-		if (iSaveVersion <= 0)
-			m_eTypicalUnit = (UnitTypes)iTmp;
-		else m_eTypicalUnit = (UnitTypes)((iTmp % 1000) - 1);
-	}
-	if (iSaveVersion < 1)
-	{
-		double dTypicalPower, dTotalPower;
-		pStream->Read(&dTypicalPower);
-		pStream->Read(&dTotalPower);
-		m_rTypicalPower = scaled::fromDouble(dTypicalPower);
-		m_rTotalPower = scaled::fromDouble(dTotalPower);
-	}
-	else
-	{
-		m_rTypicalPower.read(pStream);
-		m_rTotalPower.read(pStream);
-	}
+	// <!-- custom: The current writer packs the unit ID with a +1 offset and stores power as scaled values.
+	// Read that layout directly because SAS does not load the old raw unit IDs or double-valued power fields. See KI#46.2. (GPT-6.2-Sol) -->
+	int iPackedTypicalUnit;
+	pStream->Read(&iPackedTypicalUnit);
+	m_eTypicalUnit = (UnitTypes)((iPackedTypicalUnit % 1000) - 1);
+	m_rTypicalPower.read(pStream);
+	m_rTotalPower.read(pStream);
 	pStream->Read(&m_iUnits);
 	pStream->Read(&m_bCanBombard);
 	pStream->Read(&m_bCanSoften);
@@ -80,6 +67,10 @@ void MilitaryBranch::updateTypicalUnit()
 {
 	PROFILE_FUNC();
 
+	// <!-- custom: Recompute from an explicit no-candidate state.
+	// Otherwise losing every currently trainable candidate left the prior unit and power cached, so UWAI forecast military production the owner could no longer build. See KI#537. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	m_eTypicalUnit = NO_UNIT;
+	m_rTypicalPower = 0;
 	CvPlayerAI const& kOwner = GET_PLAYER(m_eOwner);
 	scaled rBestValue;
 	CvCivilization const& kCiv = kOwner.getCivilization();
@@ -147,6 +138,9 @@ void MilitaryBranch::updateTypicalUnit()
 
 void MilitaryBranch::NuclearArsenal::updateTypicalUnit()
 {
+	// <!-- custom: This override does not call the base refresh; invalidate its own cached candidate before the no-capital return and current trainability scan. See KI#537. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	m_eTypicalUnit = NO_UNIT;
+	m_rTypicalPower = 0;
 	CvPlayerAI const& kOwner = GET_PLAYER(m_eOwner);
 	if (!kOwner.hasCapital())
 		return;
@@ -285,7 +279,10 @@ bool MilitaryBranch::canEmploy(UnitTypes eUnit) const
 void MilitaryBranch::reportUnit(UnitTypes eUnit, int iChange)
 {
 	// (Calling canEmploy could cause unitPower to be called twice)
-	if ((GC.getInfo(eUnit).getCombat() > 0 || GC.getInfo(eUnit).isNuke()) &&
+	// <!-- custom: Army explicitly includes air power, but this actual-unit census admitted only ground combat and nukes.
+	// Include ordinary aircraft while each branch still filters domain and positive power. See KI#560. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if ((GC.getInfo(eUnit).getCombat() > 0 || GC.getInfo(eUnit).getAirCombat() > 0 ||
+		GC.getInfo(eUnit).isNuke()) &&
 		isValidDomain(eUnit))
 	{
 		scaled rPowChange = unitPower(eUnit, false);
@@ -305,8 +302,7 @@ bool MilitaryBranch::isValidDomain(DomainTypes eDomain) const
 }
 
 
-scaled MilitaryBranch::HomeGuard::initTotals(int iNonNavalUnits,
-	scaled rNonNavalPower)
+scaled MilitaryBranch::HomeGuard::initTotals(int iNonNavalUnits, scaled rNonNavalPower)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(m_eOwner);
 	// Akin to list in CvUnitAI::AI_isCityAIType
@@ -511,8 +507,9 @@ void MilitaryBranch::Army::updateTypicalUnit()
 void MilitaryBranch::Fleet::updateTypicalUnit()
 {
 	MilitaryBranch::updateTypicalUnit();
-	if (getTypicalUnit() != NO_UNIT)
-		m_bCanBombard = (GC.getInfo(getTypicalUnit()).getBombardRate() > 0);
+	// <!-- custom: A Fleet with no newly valid typical unit must also forget the former ship's bombard capability. See KI#537. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	m_bCanBombard = (getTypicalUnit() != NO_UNIT &&
+		GC.getInfo(getTypicalUnit()).getBombardRate() > 0);
 }
 
 

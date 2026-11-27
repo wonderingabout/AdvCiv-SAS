@@ -1,4 +1,6 @@
 // advc: Rearranged a lot of things in this file
+// <!-- custom: The precompiled header already supplies CvGameCoreUtils.h for the structured legacy-log helper.
+// A redundant direct include with its trailing rationale reproduced a fastdep access violation here; removing it, retaining only the bare include or moving the rationale above the include passed. See KI#38.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 #include "CvGameCoreDLL.h"
 #include "CvGlobals.h"
 #include "FVariableSystem.h"
@@ -433,8 +435,13 @@ CvColorInfo& CvGlobals::getColorInfo(ColorTypes eColor)
 	if(eColor >= getNumColorInfos())
 	{
 		FAssert(m_bHoFScreenUp || eColor < getNumColorInfos());
-		// +7: Skip colors from COLOR_CLEAR to COLOR_LIGHT_GREY
-		eColor = (ColorTypes)((eColor + 7) % getNumColorInfos());
+		// <!-- custom: AdvCiv intended to skip system colors 0 through 6, but adding 7 before modulo allowed the highest accepted foreign replay IDs to wrap back into that prefix.
+		// Wrap within the usable suffix instead; retain a guarded whole-table fallback for malformed future color tables too small to have that suffix. See KI#595. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int const iNumColors = getNumColorInfos();
+		FAssertMsg(iNumColors > 7, "Foreign replay color remapping requires at least eight colors");
+		if (iNumColors > 7)
+			eColor = (ColorTypes)(7 + ((eColor - 7) % (iNumColors - 7)));
+		else eColor = (ColorTypes)(eColor % std::max(1, iNumColors));
 	} // </advc.106i>
 	return getInfo(eColor); // advc.enum
 }
@@ -580,7 +587,9 @@ CvString*& CvGlobals::getAutomateTypes()
 	return m_paszAutomateTypes;
 }
 
-CvString& CvGlobals::getAutomateTypes(AutomateTypes e)
+// <!-- custom: Expose the indexed automation token read-only through const GC.
+// The loader still uses the separate array accessor to populate the global types. (GPT-6.1-Sol) -->
+CvString const& CvGlobals::getAutomateTypes(AutomateTypes e) const
 {
 	FAssertEnumBounds(e);
 	return m_paszAutomateTypes[e];
@@ -758,13 +767,14 @@ void CvGlobals::cacheGlobalInts(char const* szChangedDefine, int iNewValue)
 		m_aiGlobalDefinesCache[i] = std::max(iLower,
 				getDefineINT(aszGlobalDefinesTagNames[i], iDefault));
 	}
+	// <!-- custom: ci_define_uncached: this fills the cache itself, when XML loads and whenever setDefineINT changes a define. (Claude code Opus 5.5) -->
 	m_iEventMessageTime = getDefineINT("EVENT_MESSAGE_TIME");
 } // </advc.opt>
 
-void CvGlobals::cacheGlobalFloats(
-	bool bAllowRecursion) // advc.004m: Probably not needed; feels safer.
+void CvGlobals::cacheGlobalFloats(bool bAllowRecursion) // advc.004m: Probably not needed; feels safer.
 {
 	//m_fFIELD_OF_VIEW = getDefineFLOAT("FIELD_OF_VIEW");
+	// <!-- custom: ci_define_uncached: this fills the float cache, when XML loads and whenever setDefineFLOAT changes a define, as the main interface's field-of-view slider does with FIELD_OF_VIEW (CvMainInterface.py, advc.004m). (Claude code Opus 5.5) -->
 	// <advc.004m>
 	float fNewFoV = getDefineFLOAT("FIELD_OF_VIEW");
 	if (fNewFoV != m_fFIELD_OF_VIEW)
@@ -835,9 +845,9 @@ int CvGlobals::getDefineINTExternal(char const* szName) const
 	return getDefineINT(szName);
 }
 
-int CvGlobals::getDefineINT(char const* szName,
-	// BETTER_BTS_AI_MOD, 02/21/10, jdog5000: START
-	int iDefault) const
+// BETTER_BTS_AI_MOD, 02/21/10, jdog5000: START
+// <!-- custom: hoisted from multiline signature between `szName` and `iDefault` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvGlobals::getDefineINT(char const* szName, int iDefault) const
 {
 	int iReturn = iDefault;
 	// BETTER_BTS_AI_MOD: END
@@ -846,7 +856,29 @@ int CvGlobals::getDefineINT(char const* szName,
 	bool bSuccess =
 	#endif // </advc.003c>
 	getDefinesVarSystem()->GetValue(szName, iReturn);
-	FAssert(bSuccess); // advc.003c
+	// <!-- custom: Preserve the richer missing-define diagnostic in every assertion-enabled build.
+	// `_DEBUG` omitted it from AdvCiv's optimized Assert target even though lookup success is captured under `FASSERT_ENABLE`. See KI#596. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// FAssert(bSuccess); // advc.003c
+	#ifdef FASSERT_ENABLE
+	if (!bSuccess)
+	{
+        char buf[256];
+        _snprintf(buf, sizeof(buf),
+                  "Missing INT define '%s' — using default=%d%s",
+                  szName, iDefault,
+                  getCurrentXMLFile() ? (CvString(" | XML=") + getCurrentXMLFile()).c_str() : "");
+        FAssertMsg(false, buf);
+		// <!-- custom: now with the info we can spot it -->
+		// Assert Failed
+		// File:  ..\.\CvGlobals.cpp
+		// Line:  858
+		// Func:  CvGlobals::getDefineINT
+		// Expression:  false
+		// Message:  Missing INT define 'INITIAL_MILITARY_UNITS_POPULATION_PERCENT' using default=0 | XML=xml\Events/CIV4EventTriggerInfos.xml
+		//
+		// <!-- custom: now fixed by renaming it to INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT (was a typo/bug i introduced while refactoring, still detailed assert is very helpful in identifying which and fixing the issue if possible i mean to me but) -->
+	}
+	#endif
 	return iReturn;
 }
 
@@ -859,9 +891,22 @@ float CvGlobals::getDefineFLOAT(char const* szName) const
 	bool bSuccess =
 	#endif // </advc.003c>
 	getDefinesVarSystem()->GetValue(szName, fReturn);
-	/*  advc.003c: The EXE queries CAMERA_MIN_DISTANCE during startup, which
-		fails but doesn't cause any problems. */
-	FAssert(bSuccess || std::strcmp("CAMERA_MIN_DISTANCE", szName) == 0);
+	// <!-- custom: Preserve this richer missing-FLOAT diagnostic in optimized Assert builds too. See KI#596. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	#ifdef FASSERT_ENABLE
+	const bool bAssertCondition = (bSuccess || std::strcmp("CAMERA_MIN_DISTANCE", szName) == 0);
+	if (!bAssertCondition)
+	{
+		// /*  advc.003c: The EXE queries CAMERA_MIN_DISTANCE during startup, which
+		// 	fails but doesn't cause any problems. */
+		// FAssert(bSuccess || std::strcmp("CAMERA_MIN_DISTANCE", szName) == 0);
+        char buf[256];
+        _snprintf(buf, sizeof(buf),
+                  "Missing FLOAT define '%s' — using default=%g%s",
+                  szName, fReturn,
+                  getCurrentXMLFile() ? (CvString(" | XML=") + getCurrentXMLFile()).c_str() : "");
+        FAssertMsg(bAssertCondition, buf);
+	}
+	#endif
 	return fReturn;
 }
 
@@ -873,7 +918,19 @@ char const* CvGlobals::getDefineSTRING(char const* szName) const
 	bool bSuccess =
 	#endif// </advc.003c>
 	getDefinesVarSystem()->GetValue(szName, szReturn);
-	FAssert(bSuccess); // advc.003c
+	// <!-- custom: Preserve this richer missing-STRING diagnostic in optimized Assert builds too. See KI#596. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// FAssert(bSuccess); // advc.003c
+	#ifdef FASSERT_ENABLE
+	if (!bSuccess)
+	{
+        char buf[256];
+        _snprintf(buf, sizeof(buf),
+                  "Missing STRING define '%s'%s",
+                  szName,
+                  getCurrentXMLFile() ? (CvString(" | XML=") + getCurrentXMLFile()).c_str() : "");
+        FAssertMsg(bSuccess, buf);
+	}
+	#endif
 	return szReturn;
 }
 
@@ -903,8 +960,8 @@ void CvGlobals::setDefineSTRING(char const* szName, char const* szValue, /* advc
 // <advc.004m>
 void CvGlobals::updateCameraStartDistance(bool bReset)
 {
-	static float m_fCAMERA_START_DISTANCE_Override = std::max(1000.f,
-			GC.getDefineFLOAT("CAMERA_START_DISTANCE"));
+	// <!-- custom: ci_define_uncached: FIELD_OF_VIEW is reread, as the main interface's slider changes it during play; the static below keeps CAMERA_START_DISTANCE's XML value on purpose, since BUG's default camera distance option overwrites that define (advc.004m, as in base AdvCiv). (ChatGPT-5 + Claude code Opus 5.5) -->
+	static float m_fCAMERA_START_DISTANCE_Override = std::max(1000.f, GC.getDefineFLOAT("CAMERA_START_DISTANCE"));
 	float fNewValue = m_fCAMERA_START_DISTANCE_Override;
 	if (!bReset)
 	{
@@ -930,6 +987,7 @@ void CvGlobals::updateCameraStartDistance(bool bReset)
 
 void CvGlobals::updateCityCamDist()
 {
+	// <!-- custom: ci_define_uncached: runs when the field of view or the screen resolution changes, not on a recurring path. (Claude code Opus 5.5) -->
 	float fCityCamDist = getDefineFLOAT("CAMERA_BASE_CITY_DISTANCE");
 	/*	Exponentiate to let the player yet exert _some_ control (through the FoV)
 		over the city-screen camera distance. */
@@ -1002,8 +1060,7 @@ bool CvGlobals::isDLLProfilerEnabled() const
 }
 
 
-int CvGlobals::getTypesEnum(const char* szType,
-	bool bHideAssert, bool bFromPython) const // advc.006
+int CvGlobals::getTypesEnum(const char* szType, bool bHideAssert, bool bFromPython) const // advc.006
 {
 	FAssertMsg(szType != NULL, "null type string");
 	TypesMap::const_iterator it = m_typesMap.find(szType);
@@ -1028,8 +1085,7 @@ void CvGlobals::setHoFScreenUp(bool b)
 }
 
 
-int CvGlobals::getInfoTypeForString(const char* szType, bool bHideAssert,
-	bool bFromPython) const // advc.006
+int CvGlobals::getInfoTypeForString(const char* szType, bool bHideAssert, bool bFromPython) const // advc.006
 {
 	FAssertMsg(szType != NULL, "null info type string");
 	InfosMap::const_iterator it = m_infosMap.find(szType);
@@ -1059,8 +1115,7 @@ void CvGlobals::infoTypeFromStringReset()
 
 /*	advc.006: Based on code cut from getInfoTypeForString --
 	also want this for non-info enum types. */
-void CvGlobals::handleUnknownTypeString(char const* szType,
-	bool bHideAssert, bool bFromPython) const
+void CvGlobals::handleUnknownTypeString(char const* szType, bool bHideAssert, bool bFromPython) const
 {
 	if (!bHideAssert && /* K-Mod: */ !(strcmp(szType, "") == 0 || strcmp(szType, "NONE") == 0))
 	{
@@ -1069,7 +1124,9 @@ void CvGlobals::handleUnknownTypeString(char const* szType,
 		{
 			char const* szCurrentXMLFile = getCurrentXMLFile().GetCString();
 			szError.Format("type %s not found, Current XML file is: %s", szType, szCurrentXMLFile);
-			gDLL->logMsg("xml.log", szError);
+			CvString szLogFields;
+			szLogFields.Format("type=%s currentFile=%s", szType, szCurrentXMLFile);
+			logSASCiv4LegacyLogRow("xml.log", "XML_UNKNOWN_TYPE", szLogFields.c_str());
 		}
 		else szError.Format("type %s not found", szType); // advc.006
 		FErrorMsg(szError.c_str());

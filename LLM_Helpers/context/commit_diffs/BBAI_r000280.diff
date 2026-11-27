@@ -1,0 +1,41 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 280
+# Author: iustus
+# Date: 2007-01-21T16:00:34.269880Z
+# Coverage: full
+# Message:
+#   fogbusting units will now correctly know the fortify bonus to staying put when an enemy is about
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@279
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@280
+@@ -7557,7 +7557,25 @@
+ 		if (iEnemyPlots > 0)
+ 		{
+ 			FAssert(pBestPlot != NULL);
++
++			// little hack to get combat str to include value if we stay put
++			// we cannot use changeFortifyTurns() because that updates the UI
++			bool bChangedFortifyTurns = false;
++			if (!hasMoved())
++			{
++				if (m_iFortifyTurns < GC.getDefineINT("MAX_FORTIFY_TURNS"))
++				{
++					m_iFortifyTurns++;
++					bChangedFortifyTurns = true;
++				}
++			}
++
+ 			iCurrCombatStr = currCombatStr(pBestPlot, NULL);
++
++			if (bChangedFortifyTurns)
++			{
++				m_iFortifyTurns--;
++			}
+ 		}
+ 		
+ 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+

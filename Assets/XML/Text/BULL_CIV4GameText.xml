@@ -3,46 +3,15 @@
 	Text strings for the BUG DLL
 
 	Copyright (c) 2009 The BUG Mod.
-  -->
+ -->
 <Civ4GameText xmlns="http://www.firaxis.com">
 
 <!-- City Bar Hover -->
 
 	<!-- Food Assist -->
 	<!-- advc.189: Handled through (less verbose) text in Civ4GameText_advc.xml -->
-	<!--TEXT>
-		<Tag>TXT_KEY_CITY_BAR_FOOD_GROW</Tag>
-		<English>[NEWLINE]%d1 [ICON_FOOD]/Turn[NEWLINE]Growing: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:Turn:Turns])</English>
-		<French>[NEWLINE]%d1 [ICON_FOOD]/tour[NEWLINE]Croissance : %d2/%d3 [ICON_FOOD] (%d4 [NUM4:tour:tours])</French>
-		<German>[NEWLINE]%d1 [ICON_FOOD]/Runde[NEWLINE]Wachstum: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:Runde:Runden])</German>
-		<Italian>[NEWLINE]%d1 [ICON_FOOD]/Turno[NEWLINE]Crescita: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turni])</Italian>
-		<Spanish>[NEWLINE]%d1 [ICON_FOOD]/turno[NEWLINE]Creciendo: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turnos])</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_CITY_BAR_FOOD_STAGNATE</Tag>
-		<English>[NEWLINE]Stagnant: %d1/%d2 [ICON_FOOD]</English>
-		<French>[NEWLINE]Pas de croissance : %d1/%d2 [ICON_FOOD]</French>
-		<German>[NEWLINE]Stagnation: %d1/%d2 [ICON_FOOD]</German>
-		<Italian>[NEWLINE]Stagnante: %d1/%d2 [ICON_FOOD]</Italian>
-		<Spanish>[NEWLINE]Estancada: %d1/%d2 [ICON_FOOD]</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_CITY_BAR_FOOD_SHRINK</Tag>
-		<English>[NEWLINE]%d1 [ICON_BAD_FOOD]/Turn[NEWLINE][COLOR_YELLOW]Shrinking: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:Turn:Turns])[COLOR_REVERT]</English>
-		<French>[NEWLINE]%d1 [ICON_BAD_FOOD]/tour[NEWLINE][COLOR_YELLOW]Rétrécissement : %d2/%d3 [ICON_FOOD] (%d4 [NUM4:tour:tours])[COLOR_REVERT]</French>
-		<German>[NEWLINE]%d1 [ICON_BAD_FOOD]/Runde[NEWLINE][COLOR_YELLOW]Schrumpfung: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:Runde:Runden])[COLOR_REVERT]</German>
-		<Italian>[NEWLINE]%d1 [ICON_BAD_FOOD]/Turno[NEWLINE][COLOR_YELLOW]Crescita: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turni])[COLOR_REVERT]</Italian>
-		<Spanish>[NEWLINE]%d1 [ICON_BAD_FOOD]/turno[NEWLINE][COLOR_YELLOW]Crecimiento: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turnos])[COLOR_REVERT]</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_CITY_BAR_FOOD_STARVE</Tag>
-		<English>[NEWLINE]%d1 [ICON_BAD_FOOD]/Turn[NEWLINE][COLOR_WARNING_TEXT]STARVATION: %d2/%d3 [ICON_FOOD][COLOR_REVERT]</English>
-		<French>[NEWLINE]%d1 [ICON_BAD_FOOD]/tour[NEWLINE][COLOR_WARNING_TEXT]FAMINE : %d2/%d3 [ICON_FOOD][COLOR_REVERT]</French>
-		<German>[NEWLINE]%d1 [ICON_BAD_FOOD]/Runde[NEWLINE][COLOR_WARNING_TEXT]HUNGERSNOT: %d2/%d3 [ICON_FOOD][COLOR_REVERT]</German>
-		<Italian>[NEWLINE]%d1 [ICON_BAD_FOOD]/Turno[NEWLINE][COLOR_WARNING_TEXT]CARESTIA: %d2/%d3 [ICON_FOOD][COLOR_REVERT]</Italian>
-		<Spanish>[NEWLINE]%d1 [ICON_BAD_FOOD]/turno[NEWLINE][COLOR_WARNING_TEXT]&#161;HAMBRUNA: %d2/%d3 [ICON_FOOD][COLOR_REVERT]</Spanish>
-	</TEXT-->
-	
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #63 -->
+
 	<!-- Base Production -->
 	<TEXT>
 		<Tag>TXT_KEY_CITY_BAR_CTRL_BASE_VALUES</Tag>
@@ -83,7 +52,7 @@
 		<Italian>[NEWLINE]%d1 [ICON_PRODUCTION] (%d2 [ICON_PRODUCTION]/Turno)</Italian>
 		<Spanish>[NEWLINE]%d1 [ICON_PRODUCTION] (%d2 [ICON_PRODUCTION]/turno)</Spanish>
 	</TEXT>
-	
+
 	<!-- Culture Turns --> <!-- advc.186: NEWLINE removed -->
 	<TEXT>
 		<Tag>TXT_KEY_CITY_BAR_CULTURE_NO_LEVEL</Tag>
@@ -93,7 +62,7 @@
 		<Italian>[ICON_CULTURE]: %d1/%d2</Italian>
 		<Spanish>[ICON_CULTURE]: %d1/%d2</Spanish>
 	</TEXT>
-	
+
 <!-- Finance Advisor -->
 	<!-- advc.086: These were headings; now directly state the numbers. -->
 	<TEXT>
@@ -112,15 +81,7 @@
 		<Italian>%d1[ICON_COMMERCE] da %d2 rotte commerciali estere</Italian>
 		<Spanish>%d1[ICON_COMMERCE] por %d2 rutas internacionales</Spanish>
 	</TEXT>
-	<!-- advc.086: Don't use this -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_FINANCIAL_ADVISOR_SPECIALISTS</Tag>
-		<English>The Total Gold from Specialists</English>
-		<French>The Total Gold from Specialists</French>
-		<German>Gesamteinkommen durch Spezialisten</German>
-		<Italian>Oro totale dagli Specialisti</Italian>
-		<Spanish>Oro total obtenido de especialistas</Spanish>
-	</TEXT-->
+	<!-- custom: Long_Comments_XML.txt #261 -->
 	<!-- advc.086: Leading NEWLINEs removed -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_FINANCIAL_ADVISOR_SPECIALIST_GOLD</Tag>
@@ -211,38 +172,7 @@
 	</TEXT>
 	<!-- advc: Color was cyan for peace and DP. But they're listed as
 		 active deals anyway, so these texts are redundant. -->
-	<!--TEXT>
-		<Tag>TXT_KEY_PEACE_TREATY_WITH</Tag>
-		<English>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Peace Treaty with %s1_player[COLOR_REVERT]</English>
-		<French>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Trait&#233; de paix avec %s1_player[COLOR_REVERT]</French>
-		<German>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Friedensvertrag mit %s1_player[COLOR_REVERT]</German>
-		<Italian>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Trattato di pace con %s1_player[COLOR_REVERT]</Italian>
-		<Spanish>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Tratado de paz con %s1_player[COLOR_REVERT]</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEACE_TREATY_WITH_YOU</Tag>
-		<English>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]You have a Peace Treaty[COLOR_REVERT]</English>
-		<French>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Vous disposez d'un trait&#233; de paix[COLOR_REVERT]</French>
-		<German>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ihr habt einen Friedensvertrag[COLOR_REVERT]</German>
-		<Italian>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Si dispone di un trattato di pace[COLOR_REVERT]</Italian>
-		<Spanish>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ustedes tiene un tratado de paz[COLOR_REVERT]</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_DEFENSIVE_PACT_WITH</Tag>
-		<English>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Defensive Pact with %s1_player[COLOR_REVERT]</English>
-		<French>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Défensive pacte avec %s1_player[COLOR_REVERT]</French>
-		<German>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Verteidigungsbündnis mit %s1_player[COLOR_REVERT]</German>
-		<Italian>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Difensive patto con %s1_player[COLOR_REVERT]</Italian>
-		<Spanish>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Pacto defensivo con %s1_player[COLOR_REVERT]</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_DEFENSIVE_PACT_WITH_YOU</Tag>
-		<English>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]You have a Defensive Pact[COLOR_REVERT]</English>
-		<French>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Vous disposez d'un pacte défensif[COLOR_REVERT]</French>
-		<German>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ihr habt ein Verteidigungsbündnis[COLOR_REVERT]</German>
-		<Italian>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Si dispone di un patto di difesa[COLOR_REVERT]</Italian>
-		<Spanish>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ustedes tiene un pacto defensivo[COLOR_REVERT]</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #64 -->
 	<!-- advc: Color was yellow in these three -->
 	<TEXT>
 		<Tag>TXT_KEY_WORST_ENEMY_OF</Tag>
@@ -252,15 +182,7 @@
 		<Italian>[ICON_BULLET][COLOR_YIELD_FOOD]Peggiore ostile di %s1_player[COLOR_REVERT]</Italian>
 		<Spanish>[ICON_BULLET][COLOR_YIELD_FOOD]Peor enemigo de %s1_player[COLOR_REVERT]</Spanish>
 	</TEXT>
-	<!-- advc: I'm not using this -->
-	<!--TEXT>
-		<Tag>TXT_KEY_WORST_ENEMY_IS</Tag>
-		<English>[ICON_BULLET][COLOR_YIELD_FOOD]%s1_player is Worst Enemy[COLOR_REVERT]</English>
-		<French>[ICON_BULLET][COLOR_YIELD_FOOD]%s1_player est pire ennemi[COLOR_REVERT]</French>
-		<German>[ICON_BULLET][COLOR_YIELD_FOOD]Erzfeind: %s1_player[COLOR_REVERT]</German>
-		<Italian>[ICON_BULLET][COLOR_YIELD_FOOD]%s1_player è peggiore ostile[COLOR_REVERT]</Italian>
-		<Spanish>[ICON_BULLET][COLOR_YIELD_FOOD]%s1_player es peor enemigo[COLOR_REVERT]</Spanish>
-	</TEXT-->
+	<!-- custom: Long_Comments_XML.txt #145 -->
 	<!-- advc: "the" added -->
 	<TEXT>
 		<Tag>TXT_KEY_WORST_ENEMY_IS_YOU</Tag>
@@ -273,7 +195,7 @@
 <!-- BULL - Leaderhead Relations - end -->
 
 <!-- Tech Hover -->
-<!-- advc.910: Handled by Civ4GameText_advc.xml  -->
+<!-- advc.910: Handled by Civ4GameText_advc.xml -->
 
 <!-- Actual Effects -->
 	<TEXT>
@@ -422,7 +344,7 @@
 		<Italian>-----------------------[NEWLINE]%s1_commerce_type totale: %s2%F3</Italian>
 		<Spanish>-----------------------[NEWLINE]Total %s1_commerce_type: %s2%F3</Spanish>
 	</TEXT>
-	
+
 	<!-- Defense Hover -->
 	<TEXT>
 		<Tag>TXT_KEY_MISC_HELP_BUILDING_DEFENSE</Tag>
@@ -480,7 +402,7 @@
 		<Italian>Difesa netto: %D1%%[ICON_DEFENSE]</Italian>
 		<Spanish>Defensa neta: %D1%%[ICON_DEFENSE]</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_MISC_HELP_TOTAL_BOMBARD_DEFENSE</Tag>
 		<English>Total Bombard Defense: %d1%%[ICON_DEFENSE]</English>
@@ -534,28 +456,7 @@
 		<Italian>Nessun commercio con %%s1_PlyrName</Italian>
 		<Spanish>No hay comercio con %s1_PlyrName</Spanish>
 	</TEXT>
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_TOTAL_TRADE_YIELD</Tag>
-		<English>[NEWLINE]Total Yield: %s1[ICON_COMMERCE]</English>
-		<German>[NEWLINE]Gesamteinkommen: %s1[ICON_COMMERCE]</German>
-		<Italian>[NEWLINE]Total Yield: %s1[ICON_COMMERCE]</Italian>
-		<Spanish>[NEWLINE]Beneficio total: %s1[ICON_COMMERCE]</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_TOTAL_TRADE_ROUTES</Tag>
-		<English>[NEWLINE]Number of Routes: %d1</English>
-		<German>[NEWLINE]Anzahl der Handelsverbindungen: %d1</German>
-		<Italian>[NEWLINE]Number of Routes: %d1</Italian>
-		<Spanish>[NEWLINE]Número de rutas: %d1</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_AVERAGE_TRADE_YIELD</Tag>
-		<English>[NEWLINE]Average Yield: %s1[ICON_COMMERCE]</English>
-		<German>[NEWLINE]Durchschnittliches Einkommen: %s1[ICON_COMMERCE]</German>
-		<Italian>[NEWLINE]Average Yield: %s1[ICON_COMMERCE]</Italian>
-		<Spanish>[NEWLINE]Beneficio medio: %s1[ICON_COMMERCE]</Spanish>
-	</TEXT-->
-	<!-- advc: Replacing the above. Akin to keys under "Finance Advisor". -->
+	<!-- custom: Long_Comments_XML.txt #146 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_COMMERCE_FROM_ROUTES</Tag>
 		<English>%d1[ICON_COMMERCE] from %d2 Trade Routes</English>
@@ -716,16 +617,7 @@
 	</TEXT>
 
 <!-- Feature Health -->
-	<!-- advc.059 handles this -->
-	<!--TEXT>
-		<Tag>TXT_KEY_ACTION_CHANGE_IN_CITY</Tag>
-		<English>[ICON_BULLET]%s1 in %s2_CityName</English>
-		<French>[ICON_BULLET]%s1 &#224; %s2_CityName</French>
-		<German>[ICON_BULLET]%s1 in %s2_CityName</German>
-		<Italian>[ICON_BULLET]%s1 a %s2_CityName</Italian>
-		<Spanish>[ICON_BULLET]%s1 en %s2_CityName</Spanish>
-	</TEXT-->
-
+	<!-- custom: Long_Comments_XML.txt #262 -->
 <!-- Delete/Fortify/Sleep All Units Actions -->
 	<TEXT>
 		<Tag>TXT_KEY_SAME_UNITS_TYPE</Tag>
@@ -762,46 +654,6 @@
 		<Italian>Fractional Trade Routes</Italian>
 		<Spanish>Rutas de Comercio Fraccionadas</Spanish>
 	</TEXT>
-	<!-- advc.004l: Likely won't need this -->
-	<!--TEXT>
-		<Tag>TXT_KEY_MOD_SENTRY</Tag>
-		<English>New Sentry Actions</English>
-		<German>Neue Wach-Befehle</German>
-		<Italian>New Sentry Actions</Italian>
-		<Spanish>Nuevas Acciones de Vigilancia</Spanish>
-	</TEXT-->
-	<!-- advc: Won't want this as a compile-time option -->
-	<!--TEXT>
-		<Tag>TXT_KEY_MOD_GOVWORKERS</Tag>
-		<English>City Governors Build Workers</English>
-		<German>Stadtverwalter: Bautrupp aufstellen</German>
-		<Italian>City Governors Build Workers</Italian>
-		<Spanish>Gobernadores de Ciudad Construyen trabajadores</Spanish>
-	</TEXT-->
-	<!-- advc.127: Won't need an option for this -->
-	<!--TEXT>
-		<Tag>TXT_KEY_MOD_AIAUTOPLAY</Tag>
-		<English>AI AutoPlay</English>
-		<French>AI AutoPlay</French>
-		<German>Selbstablaufende Partie</German>
-		<Italian>AI AutoPlay</Italian>
-		<Spanish>AI AutoPlay</Spanish>
-	</TEXT-->
-	<!-- advc: K-Mod handles GW -->
-	<!--TEXT>
-		<Tag>TXT_KEY_MOD_GWARM</Tag>
-		<English>Global Warming</English>
-		<German>Globale Erwärmung</German>
-		<Italian>Global Warming</Italian>
-		<Spanish>Calentamiento Global</Spanish>
-	</TEXT-->
-	<!-- advc.sha: Won't need this -->
-	<!--TEXT>
-		<Tag>TXT_KEY_MOD_SHAM_SPOILER</Tag>
-		<English>Show Hidden Attitudes [spoiler]</English>
-		<German>Verborgene Modifikatoren anzeigen [Spoiler]</German>
-		<Italian>Show Hidden Attitudes [spoiler]</Italian>
-		<Spanish>Mostrar Actitudes Ocultas [espoiler]</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #100 -->
 
 </Civ4GameText>

@@ -1,0 +1,424 @@
+#!/usr/bin/env python3
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+# <!-- custom: Resolve repository/shared-helper paths from this subject subfolder after the workflow-tool reorganization. (GPT-6.1-Sol) -->
+
+# <!-- custom: Validate finalized revision hashes against canonical default-branch history, then enforce one increment per qualifying integration unit: each ordinary commit, or the complete explicitly squash-bound PR.
+# Dedicated recorder/checker/helper files are explicit; other source/config bridges qualify when their diff contains SASGameRecord/GAME_RECORD markers.
+# This deliberately catches mechanically recognizable changes without pretending CI can infer every future semantic dependency; the written revision policy remains authoritative for unusual refactors. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+import argparse
+# <!-- custom: Compare comment-stripped Runtime-owned native snapshots with ordinary diff semantics so incidental SGR documentation links do not count as changes to that separate recorder. (GPT-6.1-Sol) -->
+import difflib
+# <!-- custom: Read explicit GitHub event boundaries from its JSON payload so pushes cover every submitted commit and real merges are not guessed to be synthetic PR merges. (GPT-6.1-Sol) -->
+import json
+from pathlib import Path
+import re
+import subprocess
+import sys
+# <!-- custom: Parse historical/current GlobalDefines structurally so revision/config comparisons do not depend on XML whitespace or element formatting. (ChatGPT-5.6-Sol) -->
+import xml.etree.ElementTree as ET
+
+# <!-- custom: Share visible history-entry parsing and Change-field checks with the current-default and runtime guards; per-commit validation also catches an explanation deferred to a later commit. (GPT-6.1-Sol) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+# <!-- custom: pull_request_squashes added, the squash-intent rule shared with dll_runtime_revision.py: [ci_squash_pr] in the PR's newest commit message. (Claude code Opus 5.5) -->
+# <!-- custom: functional_errors requires each history entry's Functional Yes/No line, beside its Change text; FUNCTIONAL_SINCE is the last revision written before it, so older commits are not judged by it.
+# change_layout_errors keeps an entry's text in its list, checked on the working tree. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+from revision_history import FUNCTIONAL_SINCE, change_errors, change_layout_errors, functional_errors, pull_request_squashes, revision_entries
+
+ROOT = Path(__file__).resolve().parents[4]
+HISTORY = Path("_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md")
+HEADER = "CvGameCoreDLL/SASGameRecordLog.h"
+DEFINES = "Assets/XML/GlobalDefines_advciv_sas.xml"
+DEFINE_FIRST_REVISION = 153
+REVISION_DEFINE = "SAS_SGR_REVISION"
+# <!-- custom: Read the former spelling in historical XML/enum snapshots as well as the shortened live key; renaming a Define does not rewrite its recorded Git history. (GPT-6.1-Sol) -->
+REVISION_NAMES = {REVISION_DEFINE, "SAS_GAME_RECORD_REVISION"}
+SOURCE_REVISION_RE = re.compile(rb"(?:SAS_GAME_RECORD_REVISION|SAS_SGR_REVISION)\s*=\s*(\d+)")
+
+# <!-- custom: Dedicated implementation/checker/helper files always count; tests/docs validate or describe the implementation but do not independently create a revision. (ChatGPT-5.6-Sol) -->
+DEDICATED_QUALIFYING = {
+    "CvGameCoreDLL/SASGameRecordLog.cpp",
+    "CvGameCoreDLL/SASGameRecordLog.h",
+    "Assets/Python/SASGameRecordSettings.py",
+    "Assets/Python/SASGameRecordConfig.py",
+    "Assets/Python/SASGameRecordActions.py",
+    ".github/workflows/build/diagnostics/sas_game_record_log.py",
+    ".github/workflows/build/diagnostics/sas_revision_history.py",
+    # <!-- custom: Keep the flat paths these helpers had until 2026-11-10 beside their LLM_Helpers/diagnostics paths, so older commits are still judged by the path they used. (Claude code Opus 5.5) -->
+    "LLM_Helpers/compare_sasgamerecord_rng.py",
+    "LLM_Helpers/expand_sasgamerecord_city_deltas.py",
+    "LLM_Helpers/diagnostics/compare_sasgamerecord_rng.py",
+    "LLM_Helpers/diagnostics/expand_sasgamerecord_city_deltas.py",
+}
+# <!-- custom: The packager moved from LLM_Helpers/ to LLM_Helpers/packaging/ on 2026-11-10; keep both so its exclusion still covers older commits. (Claude code Opus 5.5) -->
+PACKAGER_PATHS = {"LLM_Helpers/make_light_source_zip.py", "LLM_Helpers/packaging/make_light_source_zip.py"}
+IGNORED_SUFFIXES = {".md", ".txt", ".log", ".zip", ".png", ".jpg", ".jpeg", ".gif"}
+MARKER = re.compile(r"SASGameRecord|SAS_GAME_RECORD|SAS_SGR_|GAME_RECORD_")
+
+
+def revision_define(xml_bytes):
+    try:
+        root = ET.fromstring(xml_bytes)
+    except ET.ParseError:
+        return None
+    values = []
+    for define in root.iter():
+        if define.tag.rsplit("}", 1)[-1] != "Define":
+            continue
+        name = None
+        value = None
+        for child in list(define):
+            local = child.tag.rsplit("}", 1)[-1]
+            if local == "DefineName":
+                name = (child.text or "").strip()
+            elif local == "iDefineIntVal":
+                value = (child.text or "").strip()
+        if name in REVISION_NAMES:
+            try:
+                values.append(int(value))
+            except (TypeError, ValueError):
+                return None
+    return values[0] if len(values) == 1 else None
+
+
+def sas_game_record_define_values(xml_bytes):
+    try:
+        root = ET.fromstring(xml_bytes)
+    except ET.ParseError:
+        return None
+    values = {}
+    for define in root.iter():
+        if define.tag.rsplit("}", 1)[-1] != "Define":
+            continue
+        children = [(child.tag.rsplit("}", 1)[-1], (child.text or "").strip()) for child in list(define)]
+        name = next((value for tag, value in children if tag == "DefineName"), None)
+        if name and name.startswith(("SAS_GAME_RECORD_", "SAS_SGR_")) and name not in REVISION_NAMES:
+            values[name] = tuple((tag, value) for tag, value in children if tag != "DefineName")
+    return values
+
+
+def resolve_default_branch(repo, requested_ref=None):
+    candidates = [requested_ref] if requested_ref else []
+    if not requested_ref:
+        symbolic = subprocess.run(["git", "symbolic-ref", "--quiet", "refs/remotes/origin/HEAD"], cwd=repo, capture_output=True, text=True)
+        if symbolic.returncode == 0:
+            candidates.append(symbolic.stdout.strip())
+        candidates.extend(("refs/remotes/origin/main", "refs/heads/main"))
+    for candidate in candidates:
+        resolved = subprocess.run(["git", "rev-parse", "--verify", candidate + "^{commit}"], cwd=repo, capture_output=True, text=True)
+        if resolved.returncode == 0:
+            return candidate, resolved.stdout.strip()
+    return None, None
+
+
+# <!-- custom: None selects the working candidate for explicit local squash review; a commit still reads its immutable Git blob. (GPT-6.1-Sol) -->
+def git_show(repo, commit, path):
+    if commit is None:
+        target = repo / path
+        return target.read_bytes() if target.is_file() else None
+    result = subprocess.run(["git", "show", f"{commit}:{path}"], cwd=repo, capture_output=True)
+    return None if result.returncode else result.stdout
+
+
+def commit_revision(repo, commit):
+    xml = git_show(repo, commit, DEFINES)
+    if xml is not None:
+        value = revision_define(xml)
+        if value is not None:
+            return value
+    header = git_show(repo, commit, HEADER)
+    if header is not None:
+        marker = SOURCE_REVISION_RE.search(header)
+        if marker is not None:
+            return int(marker.group(1))
+    return None
+
+
+# <!-- custom: Commit fc663b10b bumped SGR197 and Runtime17 without naming either in its title, so finding a revision in `git log --oneline` meant opening commits; titles had carried them by convention, as in (SGR195) or (Runtime16, SGR182).
+# Require each bumped label as a word anywhere in the title, in any order; KI numbers stay optional.
+# Only a single real commit is checked: a squash candidate has no title yet, a squashed PR takes its title from the PR rather than from its tip commit, and a merge carries a bump its merged branch already named. (Claude code Opus 5.5) -->
+def title_label_error(repo, parent, commit, label):
+    if commit is None:
+        return None
+    parents = subprocess.check_output(["git", "rev-list", "--parents", "-n", "1", commit], cwd=repo).decode().split()[1:]
+    if parents != [parent]:
+        return None
+    title = subprocess.check_output(["git", "log", "-1", "--format=%s", commit], cwd=repo).decode("utf-8", "replace").strip()
+    if re.search(r"(?<![A-Za-z0-9])" + re.escape(label) + r"(?![0-9])", title):
+        return None
+    return f"title must name the bumped revision {label}, for example \"... ({label})\"; title was: {title}"
+
+
+def first_parent(repo, commit):
+    line = subprocess.check_output(["git", "rev-list", "--parents", "-n", "1", commit], cwd=repo).decode().strip().split()
+    return line[1] if len(line) > 1 else None
+
+
+# <!-- custom: Moving the LLM_Helpers helpers into folders by job renamed SGR helpers without changing what they do; a rename whose content is identical (R100) is no implementation change, so skip it and keep the new path of a rename that also edits the file. (Claude code Opus 5.5) -->
+# <!-- custom: The line-ending conversion commit restaged three GlobalDefines files whose only change was CRLF to LF, and this check demanded SGR203 for it, since their GAME_RECORD lines showed as changed.
+# --ignore-cr-at-eol drops such files from the list, which the Runtime check shares too. See KI#1097. (Claude code Opus 5.5) -->
+def changed_paths(repo, parent, commit):
+    output = subprocess.check_output(["git", "diff", "--name-status", "--find-renames", "--ignore-cr-at-eol", parent] + ([commit] if commit else []) + ["--"], cwd=repo).decode("utf-8", "replace")
+    paths = []
+    for line in output.splitlines():
+        fields = line.split("\t")
+        if len(fields) < 2 or fields[0] == "R100":
+            continue
+        paths.append(fields[-1])
+    return paths
+
+
+def global_define_change_qualifies(repo, parent, commit):
+    before = git_show(repo, parent, DEFINES)
+    after = git_show(repo, commit, DEFINES)
+    if before is None or after is None:
+        return False
+    before_values = sas_game_record_define_values(before)
+    after_values = sas_game_record_define_values(after)
+    return before_values is not None and after_values is not None and before_values != after_values
+
+
+def diff_mentions_recorder(repo, parent, commit, path):
+    # <!-- custom: Runtime16's comment comparing its XML label to SAS_SGR_REVISION falsely demanded SGR182.
+    # Ignore comments only in Runtime-owned native files; actual SGR calls/literals there still qualify, and shared gameplay-file comments retain the existing conservative policy. (GPT-6.1-Sol) -->
+    if re.fullmatch(r"CvGameCoreDLL/SASRuntime[^/]*\.(?:cpp|h)", path.replace("\\", "/")):
+        def code_lines(ref):
+            text = (git_show(repo, ref, path) or b"").decode("utf-8", "replace")
+            pattern = r'//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\''
+            return re.sub(pattern, lambda m: " " if m.group().startswith(("//", "/*")) else m.group(), text, flags=re.S).splitlines()
+        return any(MARKER.search(line[1:]) for line in difflib.unified_diff(code_lines(parent), code_lines(commit), n=0)
+                   if line.startswith(("+", "-")) and not line.startswith(("+++", "---")))
+    result = subprocess.run(["git", "diff", "--unified=0", "--ignore-cr-at-eol", parent] + ([commit] if commit else []) + ["--", path], cwd=repo, capture_output=True, text=True, encoding="utf-8", errors="replace")
+    if result.returncode != 0:
+        return False
+    for line in result.stdout.splitlines():
+        if not line.startswith(("+", "-")) or line.startswith(("+++", "---")):
+            continue
+        if MARKER.search(line[1:]):
+            return True
+    return False
+
+
+def commit_has_qualifying_change(repo, parent, commit):
+    for path in changed_paths(repo, parent, commit):
+        normalized = path.replace("\\", "/")
+        if normalized in DEDICATED_QUALIFYING:
+            return True
+        # <!-- custom: The light-source packager selects files for external review; it does not implement the recorder.
+        # Its screenshot-list/comment edit falsely requested SGR174 merely for mentioning SASGameRecord.
+        # Exclude that known packaging entry point only: other helpers retain conservative marker detection, and recorder-specific helpers below still qualify without requiring a marker in the diff. (GPT-6.1-Sol) -->
+        if normalized in PACKAGER_PATHS:
+            continue
+        if not normalized.startswith(("CvGameCoreDLL/", "Assets/", "PrivateMaps/", "LLM_Helpers/")):
+            continue
+        if normalized == DEFINES:
+            if global_define_change_qualifies(repo, parent, commit):
+                return True
+            continue
+        # <!-- custom: Shipped DLL reports contain source paths and recorded Git status; changing that evidence falsely requested revision 157 for a runtime-only commit.
+        # Exclude this artifact type from implementation detection without excluding JSON configuration files generally. (GPT-6.1-Sol) -->
+        if normalized.startswith(".github/workflows/tests/") or normalized.lower().endswith(".dll.build.json") or Path(normalized).suffix.lower() in IGNORED_SUFFIXES:
+            continue
+        if normalized.startswith("LLM_Helpers/") and "sasgamerecord" in Path(normalized).name.lower() and Path(normalized).suffix.lower() == ".py":
+            return True
+        if diff_mentions_recorder(repo, parent, commit, normalized):
+            return True
+    return False
+
+
+# <!-- custom: Previously only the tip was checked when HEAD matched main, missing earlier bad commits in a multi-commit push; ancestry guessing also treated real merges as synthetic PR merges.
+# Accept explicit event data: pushes check before..after, PRs check their authored head from the base/head merge base, and local/manual checks retain the default-branch comparison. (GPT-6.1-Sol) -->
+def progression_commits(repo, default_branch_commit, event_name="local", event_data=None):
+    event_data = event_data or {}
+    head_result = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True)
+    if head_result.returncode != 0:
+        return []
+    tip = head_result.stdout.strip()
+    base = None
+    if event_name == "push":
+        before = event_data.get("before")
+        after = event_data.get("after")
+        if not before or not after:
+            raise ValueError("push revision check requires the event's before and after commits")
+        tip = after
+        if before.strip("0"):
+            base = before
+        # <!-- custom: A new branch has an all-zero before SHA; use its default-branch divergence instead of asking Git to resolve a nonexistent commit. (GPT-6.1-Sol) -->
+    elif event_name == "pull_request":
+        pull = event_data.get("pull_request", {})
+        tip = pull.get("head", {}).get("sha")
+        target = pull.get("base", {}).get("sha")
+        if not tip or not target:
+            raise ValueError("PR revision check requires the event's base and head commits")
+        result = subprocess.run(["git", "merge-base", target, tip], cwd=repo, capture_output=True, text=True)
+        if result.returncode != 0:
+            raise ValueError("cannot resolve the PR revision-check merge base; fetch complete base/head history")
+        base = result.stdout.strip()
+    if base is None and default_branch_commit and tip != default_branch_commit:
+        result = subprocess.run(["git", "merge-base", default_branch_commit, tip], cwd=repo, capture_output=True, text=True)
+        if result.returncode == 0 and result.stdout.strip() != tip:
+            base = result.stdout.strip()
+    if base is None:
+        return [tip]
+    # <!-- custom: Enumerate the actual push range even after a force-push; each selected commit is checked against its own first parent, not against the event's old tip. (GPT-6.1-Sol) -->
+    result = subprocess.run(["git", "rev-list", "--reverse", "--first-parent", f"{base}..{tip}"], cwd=repo, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise ValueError("cannot resolve the revision-check commit range; fetch complete before/after history")
+    return result.stdout.splitlines()
+
+
+# <!-- custom: A PR whose newest commit message carries [ci_squash_pr] represents one eventual integration commit; a revision:squash label said so before 2026-11-22.
+# Compare its merge base with the complete candidate, allowing intermediate revision corrections without accepting a final jump or missing bump.
+# Ordinary PRs retain per-commit checks; feature-branch pushes defer progression to the PR because a push payload does not contain its merge intent. (GPT-6.1-Sol + Claude code Opus 5.5) -->
+def revision_transitions(repo, default_branch_commit, event_name="local", event_data=None, squash=False):
+    event = event_data or {}
+    if event_name == "push":
+        default_name = event.get("repository", {}).get("default_branch")
+        if default_name and event.get("ref") != "refs/heads/" + default_name:
+            return []
+    if event_name == "pull_request":
+        pull = event.get("pull_request", {})
+        # <!-- custom: [ci_squash_pr] in the newest commit marks squash intent; see pull_request_squashes. (Claude code Opus 5.5) -->
+        squash = pull_request_squashes(repo, pull)
+        if squash:
+            tip = pull.get("head", {}).get("sha")
+            target = pull.get("base", {}).get("sha")
+            if not tip or not target:
+                raise ValueError("squash revision check requires PR base/head commits")
+            base = subprocess.check_output(["git", "merge-base", target, tip], cwd=repo, text=True).strip()
+            return [(base, tip)]
+    if squash:
+        if not default_branch_commit:
+            raise ValueError("local squash revision check requires a default-branch ref")
+        base = subprocess.check_output(["git", "merge-base", default_branch_commit, "HEAD"], cwd=repo, text=True).strip()
+        return [(base, None)]
+    return [(first_parent(repo, commit), commit) for commit in progression_commits(repo, default_branch_commit, event_name, event)]
+
+
+# <!-- custom: Accept explicit squash intent alongside event boundaries; validate one aggregate transition in that mode and individual commits otherwise. (GPT-6.1-Sol) -->
+def check_progression(repo, default_branch_ref=None, event_name="local", event_data=None, squash=False):
+    _, branch_commit = resolve_default_branch(repo, default_branch_ref)
+    errors = []
+    try:
+        transitions = revision_transitions(repo, branch_commit, event_name, event_data, squash)
+    except ValueError as error:
+        return [str(error)]
+    for parent, commit in transitions:
+        if parent is None:
+            continue
+        # <!-- custom: A merge brings in both parents' revisions, so it is judged against the parent with the higher one, for its number and for whether it changes the recorder.
+        # Merging main into saspilot on 2026-11-17 failed as a jump from 202 to 204, as both branches had used 202 meanwhile: against main's 203, the merge adds saspilot's reflow, renumbered 204.
+        # A merge that only brings in a branch's own bump equals that parent and needs none; squash mode compares with the branch's base, not a parent, so it keeps that base. (Claude code Opus 5.5) -->
+        parents = subprocess.check_output(["git", "rev-list", "--parents", "-n", "1", commit], cwd=repo).decode().split()[1:] if commit else []
+        if len(parents) > 1 and parents[0] == parent:
+            ranked = [(commit_revision(repo, item), -index, item) for index, item in enumerate(parents)]
+            ranked = [entry for entry in ranked if entry[0] is not None]
+            if ranked:
+                parent = max(ranked)[2]
+        previous = commit_revision(repo, parent)
+        current = commit_revision(repo, commit)
+        short = commit[:12] if commit else "working-tree"
+        if previous is None or current is None:
+            errors.append(f"commit {short}: cannot resolve SASGameRecord revision in commit and first parent")
+            continue
+        delta = current - previous
+        if delta < 0:
+            errors.append(f"commit {short}: SASGameRecord revision regressed {previous}->{current}")
+            continue
+        if delta > 1:
+            errors.append(f"commit {short}: SASGameRecord revision jumped {previous}->{current}; at most one increment is allowed per commit")
+            continue
+        qualifies = commit_has_qualifying_change(repo, parent, commit)
+        if qualifies and delta != 1:
+            errors.append(f"commit {short}: qualifying SASGameRecord implementation change requires exactly one revision increment ({previous}->{previous + 1})")
+        elif not qualifies and delta != 0:
+            errors.append(f"commit {short}: SASGameRecord revision advanced {previous}->{current} without an automatically recognized qualifying implementation change")
+        if delta == 1:
+            history = git_show(repo, commit, HISTORY.as_posix())
+            errors.extend(f"commit {short}: {error}" for error in change_errors("" if history is None else history.decode("utf-8", "replace"), current))
+            # <!-- custom: A revision after the label's start must carry its Functional line in the commit that adds it, not in a later one, as Codex's review (GPT-6.2-Sol) reproduced. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+            errors.extend(f"commit {short}: {error}" for error in functional_errors("" if history is None else history.decode("utf-8", "replace"), current, FUNCTIONAL_SINCE["SASGameRecord"]))
+            title_error = title_label_error(repo, parent, commit, f"SGR{current}")
+            if title_error:
+                errors.append(f"commit {short}: {title_error}")
+    return errors
+
+
+def check_history(repo, default_branch_ref=None):
+    branch_ref, branch_commit = resolve_default_branch(repo, default_branch_ref)
+    if branch_commit is None:
+        print("NOTICE SASGameRecord revision default-branch ancestry unavailable; abstaining from that check")
+    if branch_commit and subprocess.check_output(["git", "rev-parse", "--is-shallow-repository"], cwd=repo).strip() != b"false":
+        return ["revision provenance requires full Git history (checkout fetch-depth: 0)"]
+    ancestors = None if branch_commit is None else set(subprocess.check_output(["git", "rev-list", branch_commit], cwd=repo).decode().splitlines())
+    # <!-- custom: A feature branch can contain several recorder commits before integration.
+    # Finalized new revisions may identify commits in its current HEAD lineage; revisions already on the default branch must retain canonical ancestry.
+    # Rebased/orphaned feature hashes still fail. (GPT-6.1-Sol) -->
+    default_revision = None if branch_commit is None else commit_revision(repo, branch_commit)
+    candidate_ancestors = set() if default_revision is None else set(subprocess.check_output(["git", "rev-list", "HEAD"], cwd=repo).decode().splitlines())
+    text = (repo / HISTORY).read_text("utf-8")
+    entries = revision_entries(text)
+    if not entries:
+        return ["no revision history entries"]
+    errors = change_errors(text) + functional_errors(text) + change_layout_errors(text)
+    for index, (revision, body) in enumerate(entries):
+        value = re.search(r"^- \*\*Git commit:\*\* (.+)$", body, re.MULTILINE)
+        if value is None:
+            errors.append(f"revision {revision}: missing Git commit field")
+            continue
+        commit = value.group(1).strip().strip("`")
+        if commit == "pending":
+            if index:
+                errors.append(f"revision {revision}: only the latest entry may remain pending")
+            continue
+        if not re.fullmatch(r"[0-9a-f]{40}", commit):
+            errors.append(f"revision {revision}: expected a full commit hash or latest-entry pending")
+            continue
+        is_new_candidate = default_revision is not None and revision > default_revision and commit in candidate_ancestors
+        if ancestors is not None and commit not in ancestors and not is_new_candidate:
+            errors.append(f"revision {revision}: {commit} is absent from default-branch ancestry ({branch_ref}); reconcile after amend/rebase")
+            continue
+        if revision >= DEFINE_FIRST_REVISION:
+            source = git_show(repo, commit, DEFINES)
+            marker = None if source is None else revision_define(source)
+            if marker != revision:
+                errors.append(f"revision {revision}: {commit} does not contain matching {REVISION_DEFINE}={revision}")
+        elif revision >= 69:
+            source = git_show(repo, commit, HEADER)
+            marker = None if source is None else SOURCE_REVISION_RE.search(source)
+            if marker is None or int(marker.group(1)) != revision:
+                errors.append(f"revision {revision}: {commit} does not contain its matching explicit source marker")
+    return errors
+
+
+# <!-- custom: Forward the squash option to progression while retaining canonical history provenance validation in either mode. (GPT-6.1-Sol) -->
+def check(repo, default_branch_ref=None, event_name="local", event_data=None, squash=False):
+    return check_history(repo, default_branch_ref) + check_progression(repo, default_branch_ref, event_name, event_data, squash)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Validate SASGameRecord history and one increment per qualifying commit or explicit squash candidate.")
+    parser.add_argument("--repo-root", type=Path, default=ROOT)
+    parser.add_argument("--default-branch-ref", help="Canonical default-branch ref; ancestry/range validation is reduced when it is unavailable")
+    parser.add_argument("--event-name", choices=("local", "push", "pull_request", "workflow_dispatch"), default="local", help="GitHub event type; local checks compare against the default branch")
+    parser.add_argument("--event-path", type=Path, help="GitHub event JSON containing explicit before/after or PR base/head commits")
+    parser.add_argument("--squash", action="store_true", help="Locally compare the whole candidate against its default-branch merge base as one squash commit")
+    args = parser.parse_args()
+    event_data = None
+    if args.event_name in ("push", "pull_request"):
+        if args.event_path is None:
+            parser.error("push/PR checks require --event-path")
+        try:
+            event_data = json.loads(args.event_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as error:
+            parser.error(f"cannot read revision-check event: {error}")
+        if not isinstance(event_data, dict):
+            parser.error("revision-check event must be a JSON object")
+    errors = check(args.repo_root, args.default_branch_ref, args.event_name, event_data, args.squash)
+    print("FAIL SASGameRecord revision provenance/progression" if errors else "PASS SASGameRecord revision provenance/progression")
+    for error in errors:
+        print("  - " + error)
+    return int(bool(errors))
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,74 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 113
+# Author: blakeciv
+# Date: 2006-11-22T12:12:15.835303Z
+# Coverage: full
+# Message:
+#   Some tweaks to the tactical side of things. I played for a couple hours with some heavy warfare and it seemed to work very well.
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@112
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@113
+@@ -635,7 +635,7 @@
+ 		}
+ 	}
+ 
+-	if (isHuman() || bHasMetHuman)
++	if (isHuman())
+ 	{
+ 		if (plot()->plotCheck(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwnerINLINE()) == NULL)
+ 		{
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@112
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@113
+@@ -916,10 +916,12 @@
+ 	if (!(isHuman()))
+ 	{
+ 	    int iLandRatio = ((getTotalLand(true) * 100) / max(20, GET_TEAM(eTeam).getTotalLand(true)));
+-	    if (iLandRatio > 125)
++	    if (iLandRatio > 120)
+ 	    {
+-	        iValue *= (iLandRatio - 25);
+-	        iValue /= 100;        
++	        iValue *= (iLandRatio - 20);
++	        iValue /= 100;
++	        iValue *= (iLandRatio - 20);
++	        iValue /= 100;
+ 	    }
+ 	}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@112
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@113
+@@ -1548,10 +1548,6 @@
+ 		return;
+ 	}
+ 
+-//	if (AI_cityAttack(1, 100))
+-//	{
+-//		return;
+-//	}
+ 
+ 	if (AI_bombardCity())
+ 	{
+@@ -1565,12 +1561,6 @@
+ 		{
+ 			return ;
+ 		}
+-	}
+-
+-
+-	if (AI_cityAttack(1, 70))
+-	{
+-		return;
+ 	}
+ 
+ 	if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 2, true, true))
+

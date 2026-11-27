@@ -1,0 +1,304 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 581
+# Author: jdog5000
+# Date: 2010-06-27T23:35:20.947637Z
+# Coverage: full
+# Message:
+#   Add laggy city screen UP fix
+#   Vassals go for space
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvInfos.cpp
+#   M /trunk/CvGameCoreDLL/CvInfos.h
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@580
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@581
+@@ -7893,7 +7893,12 @@
+ 			szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_ADJUST_COMM_RATE", GC.getCommerceInfo((CommerceTypes) iI).getChar()));
+ 		}
+ 	}
+-
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/27/10                    Afforess & jdog5000       */
++/*                                                                                              */
++/* Efficiency                                                                                   */
++/************************************************************************************************/
++/* original bts code
+ 	for (iI = 0; iI < GC.getNumSpecialistInfos(); ++iI)
+ 	{
+ 		szFirstBuffer = gDLL->getText("TXT_KEY_BUILDING_FROM_IN_ALL_CITIES", GC.getSpecialistInfo((SpecialistTypes) iI).getTextKeyWide());
+@@ -7905,6 +7910,27 @@
+ 		szFirstBuffer = gDLL->getText("TXT_KEY_BUILDING_WITH_BONUS", GC.getBonusInfo((BonusTypes) iI).getTextKeyWide());
+ 		setYieldChangeHelp(szBuffer, L"", L"", szFirstBuffer, kBuilding.getBonusYieldModifierArray(iI), true);
+ 	}
++*/
++	if( kBuilding.isAnySpecialistYieldChange() )
++	{
++		for (iI = 0; iI < GC.getNumSpecialistInfos(); ++iI)
++		{
++			szFirstBuffer = gDLL->getText("TXT_KEY_BUILDING_FROM_IN_ALL_CITIES", GC.getSpecialistInfo((SpecialistTypes) iI).getTextKeyWide());
++			setYieldChangeHelp(szBuffer, L"", L"", szFirstBuffer, kBuilding.getSpecialistYieldChangeArray(iI));
++		}
++	}
++
++	if( kBuilding.isAnyBonusYieldModifier() )
++	{
++		for (iI = 0; iI < GC.getNumBonusInfos(); ++iI)
++		{
++			szFirstBuffer = gDLL->getText("TXT_KEY_BUILDING_WITH_BONUS", GC.getBonusInfo((BonusTypes) iI).getTextKeyWide());
++			setYieldChangeHelp(szBuffer, L"", L"", szFirstBuffer, kBuilding.getBonusYieldModifierArray(iI), true);
++		}
++	}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 
+ 	for (iI = 0; iI < GC.getNumReligionInfos(); ++iI)
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvInfos.cpp
+--- /trunk/CvGameCoreDLL/CvInfos.cpp@580
++++ /trunk/CvGameCoreDLL/CvInfos.cpp@581
+@@ -6511,7 +6511,20 @@
+ m_pbCommerceChangeOriginalOwner(NULL),
+ m_pbBuildingClassNeededInCity(NULL),
+ m_ppaiSpecialistYieldChange(NULL),
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/27/10                    Afforess & jdog5000       */
++/*                                                                                              */
++/* Efficiency                                                                                   */
++/************************************************************************************************/
++/* original bts code
+ m_ppaiBonusYieldModifier(NULL)
++*/
++m_ppaiBonusYieldModifier(NULL),
++m_bAnySpecialistYieldChange(false),
++m_bAnyBonusYieldModifier(false)
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ {
+ }
+ 
+@@ -7509,6 +7522,24 @@
+ 	FAssertMsg(i > -1, "Index out of bounds");
+ 	return m_ppaiSpecialistYieldChange[i];
+ }
++
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/27/10                    Afforess & jdog5000       */
++/*                                                                                              */
++/* Efficiency                                                                                   */
++/************************************************************************************************/
++bool CvBuildingInfo::isAnySpecialistYieldChange() const
++{
++	return m_bAnySpecialistYieldChange;
++}
++
++bool CvBuildingInfo::isAnyBonusYieldModifier() const
++{
++	return m_bAnyBonusYieldModifier;
++}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 
+ int CvBuildingInfo::getBonusYieldModifier(int i, int j) const
+ {
+@@ -7861,6 +7892,27 @@
+ 		stream->Read(NUM_YIELD_TYPES, m_ppaiSpecialistYieldChange[i]);
+ 	}
+ 
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/27/10                    Afforess & jdog5000       */
++/*                                                                                              */
++/* Efficiency                                                                                   */
++/************************************************************************************************/
++	m_bAnySpecialistYieldChange = false;
++	for(i=0;(!m_bAnySpecialistYieldChange) && i<GC.getNumSpecialistInfos();i++)
++	{
++		for(int j=0; j < NUM_YIELD_TYPES; j++ )
++		{
++			if( m_ppaiSpecialistYieldChange[i][j] != 0 )
++			{
++				m_bAnySpecialistYieldChange = true;
++				break;
++			}
++		}
++	}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
++
+ 	if (m_ppaiBonusYieldModifier != NULL)
+ 	{
+ 		for(i=0;i<GC.getNumBonusInfos();i++)
+@@ -7876,6 +7928,27 @@
+ 		m_ppaiBonusYieldModifier[i]  = new int[NUM_YIELD_TYPES];
+ 		stream->Read(NUM_YIELD_TYPES, m_ppaiBonusYieldModifier[i]);
+ 	}
++
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/27/10                    Afforess & jdog5000       */
++/*                                                                                              */
++/* Efficiency                                                                                   */
++/************************************************************************************************/
++	m_bAnyBonusYieldModifier = false;
++	for(i=0;(!m_bAnyBonusYieldModifier) && i<GC.getNumBonusInfos();i++)
++	{
++		for(int j=0; j < NUM_YIELD_TYPES; j++ )
++		{
++			if( m_ppaiBonusYieldModifier[i][j] != 0 )
++			{
++				m_bAnyBonusYieldModifier = true;
++				break;
++			}
++		}
++	}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ }
+ 
+ //
+@@ -8530,6 +8603,12 @@
+ 	pXML->SetVariableListTagPair(&m_piPrereqNumOfBuildingClass, "PrereqBuildingClasses", sizeof(GC.getBuildingClassInfo((BuildingClassTypes)0)), GC.getNumBuildingClassInfos());
+ 	pXML->SetVariableListTagPair(&m_pbBuildingClassNeededInCity, "BuildingClassNeededs", sizeof(GC.getBuildingClassInfo((BuildingClassTypes)0)), GC.getNumBuildingClassInfos());
+ 
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/27/10                    Afforess & jdog5000       */
++/*                                                                                              */
++/* Efficiency                                                                                   */
++/************************************************************************************************/
++	m_bAnySpecialistYieldChange = false;
+ 	pXML->Init2DIntList(&m_ppaiSpecialistYieldChange, GC.getNumSpecialistInfos(), NUM_YIELD_TYPES);
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"SpecialistYieldChanges"))
+ 	{
+@@ -8563,6 +8642,18 @@
+ 				}
+ 			}
+ 
++			for(int ii=0;(!m_bAnySpecialistYieldChange) && ii<GC.getNumSpecialistInfos();ii++)
++			{
++				for(int ij=0; ij < NUM_YIELD_TYPES; ij++ )
++				{
++					if( m_ppaiSpecialistYieldChange[ii][ij] != 0 )
++					{
++						m_bAnySpecialistYieldChange = true;
++						break;
++					}
++				}
++			}
++
+ 			// set the current xml node to it's parent node
+ 			gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+ 		}
+@@ -8570,7 +8661,16 @@
+ 		// set the current xml node to it's parent node
+ 		gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+ 	}
+-
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
++
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/27/10                    Afforess & jdog5000       */
++/*                                                                                              */
++/* Efficiency                                                                                   */
++/************************************************************************************************/
++	m_bAnyBonusYieldModifier = false;
+ 	pXML->Init2DIntList(&m_ppaiBonusYieldModifier, GC.getNumBonusInfos(), NUM_YIELD_TYPES);
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"BonusYieldModifiers"))
+ 	{
+@@ -8605,6 +8705,18 @@
+ 				}
+ 			}
+ 
++			for(int ii=0;(!m_bAnyBonusYieldModifier) && ii<GC.getNumBonusInfos(); ii++)
++			{
++				for(int ij=0; ij < NUM_YIELD_TYPES; ij++ )
++				{
++					if( m_ppaiBonusYieldModifier[ii][ij] != 0 )
++					{
++						m_bAnyBonusYieldModifier = true;
++						break;
++					}
++				}
++			}
++
+ 			// set the current xml node to it's parent node
+ 			gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+ 		}
+@@ -8612,6 +8724,9 @@
+ 		// set the current xml node to it's parent node
+ 		gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+ 	}
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 
+ 	pXML->SetVariableListTagPair(&m_piFlavorValue, "Flavors", GC.getFlavorTypes(), GC.getNumFlavorTypes());
+ 	pXML->SetVariableListTagPair(&m_piImprovementFreeSpecialist, "ImprovementFreeSpecialists", sizeof(GC.getImprovementInfo((ImprovementTypes)0)), GC.getNumImprovementInfos());
+
+Index: /trunk/CvGameCoreDLL/CvInfos.h
+--- /trunk/CvGameCoreDLL/CvInfos.h@580
++++ /trunk/CvGameCoreDLL/CvInfos.h@581
+@@ -1726,6 +1726,17 @@
+ 	int getBonusYieldModifier(int i, int j) const;				// Exposed to Python
+ 	int* getBonusYieldModifierArray(int i) const;
+ 
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/27/10                    Afforess & jdog5000       */
++/*                                                                                              */
++/* Efficiency                                                                                   */
++/************************************************************************************************/
++	bool isAnySpecialistYieldChange() const;
++	bool isAnyBonusYieldModifier() const;
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
++
+ 	// Other
+ 
+ 	const CvArtInfoBuilding* getArtInfo() const;
+@@ -1900,7 +1911,16 @@
+ 
+ 	int** m_ppaiSpecialistYieldChange;
+ 	int** m_ppaiBonusYieldModifier;
+-
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/27/10                    Afforess & jdog5000       */
++/*                                                                                              */
++/* Efficiency                                                                                   */
++/************************************************************************************************/
++	bool m_bAnySpecialistYieldChange;
++	bool m_bAnyBonusYieldModifier;
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ };
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@580
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@581
+@@ -16472,7 +16472,12 @@
+ 		{
+     		iValue += 30;
+ 		}
+-		
++
++		if(GET_TEAM(getTeam()).isAVassal())
++		{
++			iValue += 20;
++		}
++
+ 		iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? -20 : 0);
+ 
+ 		int iNonsense = AI_getStrategyRand() + 50;
+

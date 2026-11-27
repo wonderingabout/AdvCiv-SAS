@@ -5,7 +5,7 @@
   - Example: The caption corresponding to the event with <type>EVENT_SALTPETER_1</type>
   -  in that file will be the entry here with tag TXT_KEY_SIGN_EVENT_SALTPETER_1
   - Non-English ranslations may be inaccurate as they came from guesses and babelfish.
-  -->
+ -->
 <Civ4GameText xmlns="http://www.firaxis.com">
 
 	<TEXT>

@@ -242,7 +242,7 @@ DEFINE_INCREMENT_OPERATORS(Name##Types)
 	recompile the EXE, let's not bother with that.) */
 
 // Macros for generating CvInfo accessor functions in CvGlobals ...
-	
+
 #define MAKE_INFO_ACCESSORS_DYN(Name, Dummy) \
 	inline int getNum##Name##Infos() const \
 	{ \

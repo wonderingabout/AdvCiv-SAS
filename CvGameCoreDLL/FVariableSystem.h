@@ -91,50 +91,30 @@ public:
 		m_wszValue = wcscpy(new wchar[wcslen(wsz) + 1], wsz);
 		m_eType = FVARTYPE_WSTRING;
 	}
-	void assertType(bool) const
+	// <!-- custom: AdvCiv's FVariableSystem refactor (practical 2572, 84fe6d9512) replaced BtS's separate SetValue functions with one template over these setValue overloads, but had none for char const*, so CvGlobals::setDefineSTRING, which passes one, picked setValue(bool) through the pointer-to-bool conversion: the define silently became a bool.
+	// Found on 2026-11-26 when the first string override from SASLiveDefineOverrides applied, then its next getDefineSTRING raised "unidentifiable C++ exception" reading that bool as a pointer; nothing had called setDefineSTRING before.
+	// BtS's own SetValue(char const*, char const*) copied the string, as these do. See KI#1109. (Claude code Opus 5.5) -->
+	void setValue(char const* sz)
 	{
-		FAssert(m_eType == FVARTYPE_BOOL);
+		m_szValue = strcpy(new char[strlen(sz) + 1], sz);
+		m_eType = FVARTYPE_STRING;
 	}
-	void assertType(char) const
+	void setValue(wchar const* wsz)
 	{
-		FAssert(m_eType == FVARTYPE_CHAR);
+		m_wszValue = wcscpy(new wchar[wcslen(wsz) + 1], wsz);
+		m_eType = FVARTYPE_WSTRING;
 	}
-	void assertType(byte) const
-	{
-		FAssert(m_eType == FVARTYPE_UCHAR);
-	}
-	void assertType(short) const
-	{
-		FAssert(m_eType == FVARTYPE_SHORT);
-	}
-	void assertType(word) const
-	{
-		FAssert(m_eType == FVARTYPE_USHORT);
-	}
-	void assertType(int) const
-	{
-		FAssert(m_eType == FVARTYPE_INT);
-	}
-	void assertType(uint) const
-	{
-		FAssert(m_eType == FVARTYPE_UINT);
-	}
-	void assertType(char*) const
-	{
-		FAssert(m_eType == FVARTYPE_STRING);
-	}
-	void assertType(wchar*) const
-	{
-		FAssert(m_eType == FVARTYPE_WSTRING);
-	}
-	void assertType(const char*) const
-	{
-		FAssert(m_eType == FVARTYPE_STRING);
-	}
-	void assertType(const wchar*) const
-	{
-		FAssert(m_eType == FVARTYPE_WSTRING);
-	} // </advc>
+	void assertType(bool) const { FAssert(m_eType == FVARTYPE_BOOL); }
+	void assertType(char) const { FAssert(m_eType == FVARTYPE_CHAR); }
+	void assertType(byte) const { FAssert(m_eType == FVARTYPE_UCHAR); }
+	void assertType(short) const { FAssert(m_eType == FVARTYPE_SHORT); }
+	void assertType(word) const { FAssert(m_eType == FVARTYPE_USHORT); }
+	void assertType(int) const { FAssert(m_eType == FVARTYPE_INT); }
+	void assertType(uint) const { FAssert(m_eType == FVARTYPE_UINT); }
+	void assertType(char*) const { FAssert(m_eType == FVARTYPE_STRING); }
+	void assertType(wchar*) const { FAssert(m_eType == FVARTYPE_WSTRING); }
+	void assertType(const char*) const { FAssert(m_eType == FVARTYPE_STRING); }
+	void assertType(const wchar*) const { FAssert(m_eType == FVARTYPE_WSTRING); } // </advc>
 
 	union
 	{

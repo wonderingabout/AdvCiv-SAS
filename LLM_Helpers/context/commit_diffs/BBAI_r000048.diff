@@ -1,0 +1,43 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 48
+# Author: blakeciv
+# Date: 2006-11-08T13:33:02.384797Z
+# Coverage: full
+# Message:
+#   Fixed a problem with safe automation and city ruins.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@47
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@48
+@@ -2516,15 +2516,23 @@
+ 
+ 	pPlot = plot();
+ 
+-	if (GC.getBuildInfo(eBuild).getImprovement() != NO_IMPROVEMENT)
++    ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild).getImprovement();
++	if (eImprovement != NO_IMPROVEMENT)
+ 	{
+ 		if (AI_isControlled())
+ 		{
+ 			if (GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_SAFE_AUTOMATION))
+ 			{
+-				if (pPlot->getImprovementType() != NO_IMPROVEMENT)
+-				{
+-					return false;
++				if ((pPlot->getImprovementType() != NO_IMPROVEMENT))
++				{
++				    BonusTypes eBonus = (BonusTypes)pPlot->getNonObsoleteBonusType();
++				    if ((eBonus == NO_BONUS) || !GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eBonus))
++				    {
++                        if (GC.getImprovementInfo(eImprovement).getImprovementPillage() != 0)
++                        {
++                            return false;
++                        }
++				    }
+ 				}
+ 			}
+ //
+

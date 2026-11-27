@@ -1,0 +1,1431 @@
+#!/usr/bin/env python3
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+# <!-- custom: Resolve repository/shared-helper paths from this subject subfolder after the workflow-tool reorganization. (GPT-6.1-Sol) -->
+# <!-- custom: Review repeatedly caught source-history mistakes that ordinary syntax checks cannot see: newly authored prose could look inherited, legacy comments could be silently rewritten, dependency changes could lose their rationale, and changed interfaces could omit why their parameters moved.
+# Compare the selected Git change range with its base so these provenance rules are checked from the diff itself rather than by linting the already-mixed current tree. (ChatGPT-6-Sol) -->
+
+from __future__ import annotations
+
+import argparse
+# <!-- custom: ast reads this file's own rule calls for the rule registry (rule_registry_errors). (Claude code Opus 5.5) -->
+import ast
+# <!-- custom: Counter tracks how many removed inherited blocks each header-free added block may still match. (Claude code Opus 5.5) -->
+from collections import Counter, defaultdict
+from dataclasses import dataclass
+import difflib
+from pathlib import Path
+import re
+import sys
+import tokenize
+from io import StringIO
+
+# <!-- custom: Git range resolution and historical text decoding are shared with the Markdown prose checker; import them from lib instead of making documentation depend on the source-provenance scanner. (GPT-6.1-Sol) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+from git_context import ensure_base, git_text, run_git
+# <!-- custom: Share comment and literal masking with the duplicate-include check so both inspect active C++ code. See KI#1098.2. (GPT-6.2-Sol) -->
+from cpp_lex import mask_cpp
+# <!-- custom: Reuse the extracted literal/ancestry-aware separator check; source spacing keeps its two-blank allowance while text hygiene supplies format-specific limits. (GPT-6.1-Sol) -->
+from blank_lines import blank_line_errors
+
+ROOT = Path(__file__).resolve().parents[4]
+
+CPP_SUFFIXES = {".c", ".cc", ".cpp", ".cxx", ".h", ".hh", ".hpp", ".hxx"}
+PY_SUFFIXES = {".py"}
+XML_SUFFIXES = {".xml"}
+SOURCE_SUFFIXES = CPP_SUFFIXES | PY_SUFFIXES | XML_SUFFIXES
+
+CUSTOM_OPEN = "<!-- custom:"
+CUSTOM_CLOSE = "-->"
+MODEL_CREDIT_RE = re.compile(
+    r"(?:ChatGPT|GPT(?:-\d)?|Codex|Claude|Gemini|DeepSeek|Grok|wonderingabout|AI/LLM)",
+    re.IGNORECASE,
+)
+REFERENCE_RE = re.compile(
+    r"\b(?:advc\.[A-Za-z0-9]+|KI#\d+(?:\.\d+)?|Long_Comments_[A-Za-z0-9_.-]+\s+#?\d+)\b",
+    re.IGNORECASE,
+)
+CPP_INCLUDE_RE = re.compile(r"^[ \t]*#[ \t]*include[ \t]+[<\"]([^>\"]+)[>\"]")
+PY_IMPORT_RE = re.compile(
+    r"^[ \t]*(?:from[ \t]+([A-Za-z_][\w.]*)[ \t]+import\b|import[ \t]+([A-Za-z_][\w.]*))"
+)
+SAS_FUNCTION_RE = re.compile(r"SAS")
+CONTROL_NAMES = {
+    "if", "for", "while", "switch", "catch", "sizeof", "alignof", "decltype",
+    "return", "new", "delete", "FAssert", "FAssertMsg",
+}
+
+# <!-- custom: Treat repository credit headers and machine directives as metadata rather than newly authored explanatory comments, so new files can keep required boilerplate without weakening provenance checks for ordinary prose.
+# For example, moving SevoScreenEnums.py's definitions into CvScreenEnums.py also carries "Copyright 2007 BUG Mod" there; that original notice needs no custom marker or model credit.
+# This is a comment-style exemption only; the separate changed-file check still requires the SAS modification copyright header. (ChatGPT-6-Sol + GPT-6.1-Sol) -->
+BOILERPLATE_COMMENT_RE = re.compile(
+    r"^(?:"
+    r"AI, UI, logging, or other modifications first developed in AdvCiv-SAS"
+    r"|\(c\)\s+2026\s+wonderingabout\b"
+    r"|Copyright\b"
+    r"|[-*]\s*-\*-\s*coding:"
+    r"|coding[:=]"
+    r"|noqa\b"
+    r"|type:\s*ignore\b"
+    r"|pylint:"
+    r"|fmt:"
+    r"|clang-format\b"
+    r"|NOLINT\b"
+    r")",
+    re.IGNORECASE,
+)
+
+
+@dataclass(frozen=True)
+class CommentBlock:
+    start: int
+    end: int
+    raw: str
+    text: str
+    normalized: str
+    custom: bool
+    credited: bool
+    references: tuple[str, ...]
+    standalone: bool
+
+
+@dataclass(frozen=True)
+class Signature:
+    name: str
+    params: str
+    start: int
+    end: int
+    return_type: str = ""
+    layout_start: int | None = None
+
+
+def changed_paths(repo: Path, base_ref: str) -> list[str]:
+    # <!-- custom: Compare the base with the current working tree, not only HEAD, so local pre-commit runs inspect staged/unstaged edits too; CI checkouts are clean, making this equivalent to base..HEAD there. (ChatGPT-6-Sol) -->
+    output = run_git(
+        repo,
+        "diff",
+        "--name-only",
+        "--diff-filter=ACDMRTUXB",
+        base_ref,
+        "--",
+    ).stdout.decode("utf-8", errors="replace")
+    return [line for line in output.splitlines() if maintained_source_path(line)]
+
+
+def maintained_source_path(path: str) -> bool:
+    posix = path.replace("\\", "/")
+    suffix = Path(posix).suffix.lower()
+    if suffix not in SOURCE_SUFFIXES:
+        return False
+    lower = posix.lower()
+    if "/context/" in lower or lower.startswith("_snapshot_context/"):
+        return False
+    # <!-- custom: Local game-code tests now live under tests/ rather than the helper folder; keep their Python runners and C++ fixtures covered by source-provenance review. (GPT-6.1-Sol) -->
+    if suffix in CPP_SUFFIXES:
+        return lower.startswith(("cvgamecoredll/", "tests/"))
+    if suffix in PY_SUFFIXES:
+        return (
+            lower.startswith("assets/python/")
+            or lower.startswith("privatemaps/")
+            or lower.startswith("llm_helpers/")
+            or lower.startswith("tests/")
+            or lower.startswith(".github/workflows/")
+        )
+    return lower.startswith("assets/xml/")
+
+
+def current_text(repo: Path, path: str) -> str | None:
+    target = repo / path
+    if not target.is_file():
+        return None
+    raw = target.read_bytes()
+    for encoding in ("utf-8-sig", "utf-8", "cp1252"):
+        try:
+            return raw.decode(encoding).replace("\r\n", "\n").replace("\r", "\n")
+        except UnicodeDecodeError:
+            pass
+    return raw.decode("utf-8", errors="replace").replace("\r\n", "\n").replace("\r", "\n")
+
+
+def normalize_comment_text(text: str) -> str:
+    text = text.replace(CUSTOM_OPEN, "").replace(CUSTOM_CLOSE, "")
+    text = re.sub(r"^[ \t]*(?://+|#+|/\*+|\*+)[ \t]?", "", text)
+    text = re.sub(r"\*/[ \t]*$", "", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def comment_payload(raw: str, suffix: str) -> str:
+    text = raw
+    if suffix in CPP_SUFFIXES:
+        if text.lstrip().startswith("//"):
+            pieces = []
+            for line in text.splitlines():
+                pieces.append(re.sub(r"^[ \t]*//[ \t]?", "", line))
+            return "\n".join(pieces)
+        text = re.sub(r"^[ \t]*/\*+", "", text)
+        text = re.sub(r"\*/[ \t]*$", "", text)
+        return "\n".join(re.sub(r"^[ \t]*\*[ \t]?", "", line) for line in text.splitlines())
+    if suffix in PY_SUFFIXES:
+        return "\n".join(re.sub(r"^[ \t]*#[ \t]?", "", line) for line in text.splitlines())
+    text = re.sub(r"^[ \t]*<!--", "", text)
+    text = re.sub(r"-->[ \t]*$", "", text)
+    return text
+
+
+def make_comment_block(start: int, end: int, raw: str, suffix: str, standalone: bool) -> CommentBlock:
+    payload = comment_payload(raw, suffix)
+    normalized = re.sub(r"\s+", " ", payload).strip()
+    custom = CUSTOM_OPEN in raw
+    tail = raw[-320:]
+    credited = bool(custom and CUSTOM_CLOSE in raw and MODEL_CREDIT_RE.search(tail))
+    refs = tuple(sorted({match.group(0) for match in REFERENCE_RE.finditer(payload)}, key=str.lower))
+    return CommentBlock(start, end, raw, payload.strip(), normalized, custom, credited, refs, standalone)
+
+
+def cpp_comment_tokens(text: str) -> list[tuple[int, int, str, bool, str]]:
+    # <!-- custom: Parse C/C++ comments outside strings/chars so comment provenance is based on actual source comments rather than `//` or `/*` text embedded in literals. (ChatGPT-6-Sol) -->
+    tokens = []
+    i = 0
+    line = 1
+    line_start = 0
+    n = len(text)
+    state = "code"
+    quote = ""
+    while i < n:
+        ch = text[i]
+        nxt = text[i + 1] if i + 1 < n else ""
+        if state == "code":
+            if ch in ('"', "'"):
+                state = "string"
+                quote = ch
+                i += 1
+                continue
+            if ch == "/" and nxt == "/":
+                start_i = i
+                start_line = line
+                end_i = text.find("\n", i)
+                if end_i < 0:
+                    end_i = n
+                raw = text[start_i:end_i]
+                standalone = not text[line_start:start_i].strip()
+                tokens.append((start_line, start_line, raw, standalone, "line"))
+                i = end_i
+                continue
+            if ch == "/" and nxt == "*":
+                start_i = i
+                start_line = line
+                standalone = not text[line_start:start_i].strip()
+                end_i = text.find("*/", i + 2)
+                if end_i < 0:
+                    end_i = n - 2
+                end_i += 2
+                raw = text[start_i:end_i]
+                end_line = start_line + raw.count("\n")
+                tokens.append((start_line, end_line, raw, standalone, "block"))
+                line += raw.count("\n")
+                last_nl = raw.rfind("\n")
+                if last_nl >= 0:
+                    line_start = end_i - (len(raw) - last_nl - 1)
+                i = end_i
+                continue
+        else:
+            if ch == "\\":
+                i += 2
+                continue
+            if ch == quote:
+                state = "code"
+        if ch == "\n":
+            line += 1
+            line_start = i + 1
+        i += 1
+    return tokens
+
+
+def group_line_comments(tokens, suffix: str) -> list[CommentBlock]:
+    result = []
+    i = 0
+    while i < len(tokens):
+        start, end, raw, standalone, kind = tokens[i]
+        if kind != "line" or not standalone:
+            result.append(make_comment_block(start, end, raw, suffix, standalone))
+            i += 1
+            continue
+        raws = [raw]
+        final = end
+        custom_mode = CUSTOM_OPEN in raw
+        if custom_mode and CUSTOM_CLOSE in raw:
+            result.append(make_comment_block(start, end, raw, suffix, True))
+            i += 1
+            continue
+        j = i + 1
+        while j < len(tokens):
+            ns, ne, nraw, nstandalone, nkind = tokens[j]
+            if nkind != "line" or not nstandalone or ns != final + 1:
+                break
+            if custom_mode:
+                raws.append(nraw)
+                final = ne
+                j += 1
+                if CUSTOM_CLOSE in nraw:
+                    break
+                continue
+            if CUSTOM_OPEN in nraw:
+                break
+            raws.append(nraw)
+            final = ne
+            j += 1
+        result.append(make_comment_block(start, final, "\n".join(raws), suffix, True))
+        i = j
+    return result
+
+
+def python_comments(text: str) -> list[CommentBlock]:
+    try:
+        toks = list(tokenize.generate_tokens(StringIO(text).readline))
+    except (tokenize.TokenError, IndentationError):
+        return []
+    raw_tokens = []
+    lines = text.splitlines()
+    for tok in toks:
+        if tok.type != tokenize.COMMENT:
+            continue
+        start_line, start_col = tok.start
+        line_text = lines[start_line - 1] if start_line - 1 < len(lines) else ""
+        standalone = not line_text[:start_col].strip()
+        raw_tokens.append((start_line, start_line, tok.string, standalone, "line"))
+    return group_line_comments(raw_tokens, ".py")
+
+
+def xml_comments(text: str) -> list[CommentBlock]:
+    result = []
+    for match in re.finditer(r"<!--.*?-->", text, flags=re.DOTALL):
+        start = text.count("\n", 0, match.start()) + 1
+        end = start + match.group(0).count("\n")
+        line_start = text.rfind("\n", 0, match.start()) + 1
+        standalone = not text[line_start:match.start()].strip()
+        result.append(make_comment_block(start, end, match.group(0), ".xml", standalone))
+    return result
+
+
+def comments(text: str, suffix: str) -> list[CommentBlock]:
+    if suffix in CPP_SUFFIXES:
+        return group_line_comments(cpp_comment_tokens(text), suffix)
+    if suffix in PY_SUFFIXES:
+        return python_comments(text)
+    if suffix in XML_SUFFIXES:
+        return xml_comments(text)
+    return []
+
+
+# <!-- custom: Appending a new marked explanation to disabled code left two comment prefixes on one line, obscuring which text was code and which was rationale.
+# Check actual comment tokens already extracted for provenance, and only newly added/rewritten blocks, so strings and unchanged inherited formatting do not become failures.
+# Recognize clear appended-prefix/same-line-block cases rather than guessing whether ordinary prose should be split; XML also forbids nested comment openers. (GPT-6.1-Sol) -->
+def cascading_comment_errors(path: str, block: CommentBlock, suffix: str) -> list[str]:
+    errors = []
+    if suffix in XML_SUFFIXES:
+        if block.raw.count("<!--") > 1:
+            errors.append("%s:%d: nested XML comment; close the existing comment and put the new explanation in a separate block" % (path, block.start))
+        return errors
+    prefix = "#" if suffix in PY_SUFFIXES else "//"
+    for offset, line in enumerate(block.raw.splitlines()):
+        payload = line.lstrip()
+        if payload.startswith(prefix):
+            payload = payload[len(prefix):]
+        appended = re.search(re.escape(prefix) + r"\s*<!-- custom:", payload)
+        # <!-- custom: Doubled prefixes alone also occur in BUG headers and whole disabled blocks; only an earlier payload makes the second prefix an appended explanation. (GPT-6.1-Sol) -->
+        appended_payload = appended and payload[:appended.start()].strip(" 	#/")
+        same_line = re.search(r"-->\s*(?:(?:#|//)\s*)?<!-- custom:", payload)
+        if appended_payload or same_line:
+            errors.append("%s:%d: cascading comment; put the appended custom explanation in a separate comment block" % (path, block.start + offset))
+    return errors
+
+
+# <!-- custom: Reject only known misspellings in the parenthesized credit before a custom block closes; names mentioned in prose and arbitrary other model names are outside this spelling check.
+# Case-insensitive matching catches the same typo regardless of capitalization, without an allowlist that would reject future models. (GPT-6.1-Sol) -->
+def credit_spelling_errors(path: str, block: CommentBlock) -> list[str]:
+    errors = []
+    for credit in re.finditer(r"\(([^()]*)\)\s*-->", block.raw):
+        for typo in re.finditer(r"\b(?:chat-gpt|catgpt)\b", credit.group(1), re.IGNORECASE):
+            line = block.start + block.raw.count("\n", 0, credit.start())
+            errors.append("%s:%d: misspelled model credit '%s'; use ChatGPT" % (path, line, typo.group(0)))
+    return errors
+
+
+# <!-- custom: A Claude model's name alone, such as "Opus 5.5" or "code Opus 5.5", leaves out which family and app wrote the comment, so the credit reads "Claude code Opus 5.5" in full.
+# On 2026-11-26 Claude Code Opus 5.5 wrote "(Claude code Opus 4.6 + Opus 5.5)" while restoring an earlier credit, which the user caught in review; the credit parser skipped "Opus 5.5" as no known family, so no rule saw it. (Claude code Opus 5.5) -->
+INCOMPLETE_CREDIT_RE = re.compile(r"^(?:code\s+)?(?:Opus|Sonnet|Haiku|Fable)\b", re.IGNORECASE)
+
+
+def incomplete_credit_errors(path: str, block: CommentBlock) -> list[str]:
+    errors = []
+    for credit in re.finditer(r"\(([^()]*)\)\s*-->", block.raw):
+        for part in re.split(r"\s*[+,;/]\s*|\s+(?:and|&)\s+", credit.group(1)):
+            if INCOMPLETE_CREDIT_RE.match(part.strip()):
+                line = block.start + block.raw.count("\n", 0, credit.start())
+                errors.append("%s:%d: model credit '%s' leaves out the model family; name it in full, such as Claude code Opus 5.5" % (path, line, part.strip()))
+    return errors
+
+
+SAS_HEADER_LINE_RE = re.compile(r"^(?:AI, UI, logging, or other modifications first developed in AdvCiv-SAS|\(c\)\s+2026\s+wonderingabout\b)", re.IGNORECASE)
+
+
+def without_sas_header(block: CommentBlock) -> str:
+    kept = [line for line in block.text.splitlines() if not SAS_HEADER_LINE_RE.match(normalize_comment_text(line))]
+    return normalize_comment_text("\n".join(kept))
+
+
+# <!-- custom: Porting Realism Invictus's world-picker patch, our custom comments restated RI's findings in our own voice under our model credit, which the user caught on 2026-11-12: paraphrase blurred whose finding it was, and reflow would have changed RI's wording.
+# So another mod's comment is quoted as is: every line starts with ">", directly under a custom line that says it is a quote, such as "Quoted from", and names the source, so the quote keeps the source's wording and layout and the credit marks only who quoted it. (Claude code Opus 5.5) -->
+# <!-- custom: Any wording that says it is a quote counts, "Quoted from", "Quote of" or "quoting", since "Quoted from" was only an example (the user, 2026-11-12). (Claude code Opus 5.5) -->
+QUOTE_INTRO_RE = re.compile(r"\bquot(?:e|ed|es|ing)\b", re.I)
+QUOTE_LINE_RE = re.compile(r"^[ \t]*(?://|#)[ \t]?>")
+
+
+def quoted_source_block(block: CommentBlock, new_comments: list[CommentBlock]) -> bool:
+    lines = [line for line in block.raw.splitlines() if line.strip()]
+    if not lines or not all(QUOTE_LINE_RE.match(line) for line in lines):
+        return False
+    return any(other.custom and other.end == block.start - 1 and QUOTE_INTRO_RE.search(other.raw) for other in new_comments)
+
+
+def exempt_new_comment(block: CommentBlock) -> bool:
+    payload = normalize_comment_text(block.text)
+    if not payload:
+        return True
+    if block.raw.lstrip().startswith("#!"):
+        return True
+    return bool(BOILERPLATE_COMMENT_RE.match(payload))
+
+
+# <!-- custom: Modernizing a disabled BBAI row, such as the commented-out GP slow modifier logBBAI call in CvUnitAI.cpp, failed as a "rewritten non-custom comment": commented-out code was protected like inherited prose.
+# Protect prose, not disabled code: a rewritten block passes only when every added or removed line is code-like and a new custom note sits beside it; changed prose still fails.
+# See disabled_code_exemptions. (Claude code Opus 5.5) -->
+CPP_CODE_END_RE = re.compile(r"[;{}]$")
+CPP_CODE_START_RE = re.compile(r"^(?:(?:if|for|while|switch)\s*\(|else\b|do\b|case\b|default\s*:|return\b|break\s*;|continue\s*;|[{}]|#\s*\w+)")
+CPP_CONTINUATION_RE = re.compile(r"(?:\w\s*\(|->|::|==|!=|<=|>=|&&|\|\|)")
+PY_CODE_START_RE = re.compile(r"^(?:if|elif|else|for|while|return|import|from|def|class|print|try|except|finally|pass|raise|with|global|del)\b")
+PY_ASSIGN_OR_CALL_RE = re.compile(r"^[A-Za-z_][\w.\[\]]*\s*(?:[-+*/%]?=[^=]|\()")
+
+
+def disabled_code_line(line: str, suffix: str) -> bool:
+    text = line.strip()
+    if suffix in XML_SUFFIXES:
+        return text.startswith("<") and text.endswith(">")
+    # <!-- custom: Disabled blocks often keep a second comment prefix, e.g. "// \tif (...)" after the first "//" is stripped. (Claude code Opus 5.5) -->
+    text = re.sub(r"^(?://+|#+)\s*", "", text)
+    if suffix in PY_SUFFIXES:
+        text = re.sub(r"\s+#.*$", "", text).strip()
+        return bool(PY_CODE_START_RE.match(text) or PY_ASSIGN_OR_CALL_RE.match(text) or text.endswith((":", ")", ",", "]")) and "(" in text)
+    text = re.sub(r"/\*.*?\*/", "", re.sub(r"\s+//.*$", "", text)).strip()
+    if not text:
+        return True
+    if CPP_CODE_END_RE.search(text) or CPP_CODE_START_RE.match(text):
+        return True
+    return bool(CPP_CONTINUATION_RE.search(text) and text.endswith((",", ")", "(", "&&", "||", "+", "-", "*", "/", "?", ":")))
+
+
+# <!-- custom: A closing "See KI#..." belongs at the end of the last prose line, as AGENTS.md's comment rules say; on a line of its own it reads as a stray fragment.
+# The Sevopedia scoreboard comment of 2026-11-21 had "See KI#1103 for ..." alone on its last line, which the user caught in review.
+# Before the rule, one scan of every custom comment in the repo found a single other case, CvDeal.cpp's KI#605 note, fixed with it; from then on only new or rewritten comments are checked. (Claude code Opus 5.5) -->
+STRANDED_REFERENCE_RE = re.compile(r"^(?:See |see )(?:KI#|also KI#)")
+
+
+def stranded_reference_errors(path: str, block: CommentBlock) -> list[str]:
+    lines = comment_payload_lines(block)
+    errors = []
+    for index, line in enumerate(lines):
+        if index > 0 and STRANDED_REFERENCE_RE.match(line.lstrip("#/ ")):
+            errors.append(f"{path}:{block.start + index}: a comment line starts with a KI reference; put it at the end of the line before, as the comment's closing note")
+    return errors
+
+
+def comment_payload_lines(block: CommentBlock) -> list[str]:
+    return [line.strip() for line in block.text.splitlines() if line.strip()]
+
+
+def disabled_code_exemptions(added_legacy: list[CommentBlock], removed_legacy: list[CommentBlock], added_custom: list[CommentBlock], opcodes, suffix: str, radius: int = 3) -> set[int]:
+    # <!-- custom: Compare each rewritten block with the old blocks mapped into its neighborhood: unchanged lines may be prose, but every line that appears or disappears must be code-like.
+    # Nested custom notes split a disabled block into several legacy blocks, so compare against the union of nearby new blocks rather than one counterpart. (Claude code Opus 5.5) -->
+    exempt = set()
+    mapped_old = [(map_old_line_to_new(block.start, opcodes), block) for block in removed_legacy]
+    for index, block in enumerate(added_legacy):
+        if not nearby_added_custom(added_custom, block.start, block.end, radius=radius):
+            continue
+        olds = [old for position, old in mapped_old if block.start - radius <= position <= block.end + radius]
+        old_lines = {line for old in olds for line in comment_payload_lines(old)}
+        new_lines = {line for other in added_legacy if other.end >= block.start - radius and other.start <= block.end + radius for line in comment_payload_lines(other)}
+        changed = [line for line in comment_payload_lines(block) if line not in old_lines]
+        changed += [line for line in old_lines if line not in new_lines]
+        if changed and all(disabled_code_line(line, suffix) for line in changed):
+            exempt.add(index)
+    return exempt
+
+
+def unmatched_blocks(old: list[CommentBlock], new: list[CommentBlock], custom: bool) -> tuple[list[CommentBlock], list[CommentBlock]]:
+    old_by = defaultdict(list)
+    new_by = defaultdict(list)
+    for block in old:
+        if block.custom == custom:
+            old_by[block.normalized].append(block)
+    for block in new:
+        if block.custom == custom:
+            new_by[block.normalized].append(block)
+    removed = []
+    added = []
+    for key in set(old_by) | set(new_by):
+        old_items = old_by.get(key, [])
+        new_items = new_by.get(key, [])
+        common = min(len(old_items), len(new_items))
+        removed.extend(old_items[common:])
+        added.extend(new_items[common:])
+    return removed, added
+
+
+# <!-- custom: A partial rewrite of the logging comments dropped one existing contributor while keeping another, so merely checking that some credit exists missed the loss.
+# Recognize the normal trailing parenthesized credit list separately from prose; do not treat model names mentioned in the explanation as authorship. (GPT-6.1-Sol) -->
+def comment_credit_parts(block: CommentBlock) -> tuple[dict[str, str], list[str]]:
+    payload = block.text.replace(CUSTOM_CLOSE, "").strip()
+    match = re.search(r"\(([^()]*(?:\([^()]*\)[^()]*)*)\)\s*$", payload)
+    credits = {}
+    if match:
+        for part in re.split(r"\s*\+\s*|,\s*|\s+(?:and|&)\s+", match.group(1)):
+            label = re.sub(r"\s*\([^()]*\)", "", part).strip()
+            if re.fullmatch(r"(?:ChatGPT|GPT|Codex|Claude|Gemini|DeepSeek|Grok|wonderingabout|AI/LLM)(?:[ \t-]+[A-Za-z0-9.]+)*", label, re.I):
+                credits[re.sub(r"\s+", " ", label).casefold()] = label
+        if credits:
+            payload = payload[:match.start()]
+    words = re.findall(r"[a-z0-9_]+", payload.replace(CUSTOM_OPEN, "").casefold())
+    return credits, words
+
+
+# <!-- custom: A generic model-family credit may later be refined to the exact model without losing authorship (for example ChatGPT -> ChatGPT-5.6-Sol); keep this one-way so replacing a specific credit with a generic family name still counts as lost precision. (ChatGPT-5.6-Sol) -->
+GENERIC_MODEL_CREDITS = frozenset(("chatgpt", "gpt", "codex", "claude", "gemini", "deepseek", "grok"))
+
+
+# <!-- custom: A credit names the model, not the app or family: "(Codex)" says which app wrote it but not which model, as GPT-5.3-Codex and GPT-6.1-Sol both ran in Codex.
+# The user spotted one in this check's own test on 2026-11-18; no real comment had one.
+# New custom prose must name the exact model, such as GPT-6.1-Sol or Claude code Opus 5.5; an existing comment copied or reflowed unchanged keeps its old credit. (Claude code Opus 5.5) -->
+GENERIC_ONLY_CREDITS = GENERIC_MODEL_CREDITS | frozenset(("claude code",))
+
+
+def generic_credit_errors(path: str, block: CommentBlock) -> list[str]:
+    credits, _ = comment_credit_parts(block)
+    return ["%s:%d: model credit '%s' names only the app or model family; name the exact model, such as GPT-6.1-Sol or Claude code Opus 5.5" % (path, block.start, label) for key, label in credits.items() if key in GENERIC_ONLY_CREDITS]
+
+
+def credit_preserved(old_key: str, new_credits: dict[str, str]) -> bool:
+    if old_key in new_credits:
+        return True
+    if old_key not in GENERIC_MODEL_CREDITS:
+        return False
+    return any(key.startswith(old_key + "-") or key.startswith(old_key + " ") for key in new_credits)
+
+
+# <!-- custom: Require identical prose or a mostly retained explanation with a substantial unchanged phrase; proximity alone would wrongly attribute an unrelated replacement to the deleted comment.
+# This is a conservative guard for clear credit loss, not a semantic authorship detector for complete rewrites. (GPT-6.1-Sol) -->
+def retained_comment_prose(old_words: list[str], new_words: list[str]) -> bool:
+    if old_words == new_words:
+        return bool(old_words)
+    matcher = difflib.SequenceMatcher(a=old_words, b=new_words, autojunk=False)
+    return matcher.ratio() >= 0.75 and matcher.find_longest_match().size >= 8
+
+
+def line_opcodes(old_text: str, new_text: str):
+    old_lines = old_text.splitlines()
+    new_lines = new_text.splitlines()
+    return old_lines, new_lines, difflib.SequenceMatcher(a=old_lines, b=new_lines, autojunk=False).get_opcodes()
+
+
+def map_old_line_to_new(line: int, opcodes) -> int:
+    index = max(0, line - 1)
+    for _tag, i1, i2, j1, j2 in opcodes:
+        if i1 <= index < i2:
+            if i2 == i1:
+                return j1 + 1
+            offset = min(index - i1, max(0, j2 - j1 - 1))
+            return j1 + offset + 1
+        if index < i1:
+            return j1 + 1
+    return (opcodes[-1][4] + 1) if opcodes else 1
+
+
+def nearby_added_custom(added_custom: list[CommentBlock], start: int, end: int, radius: int = 5) -> list[CommentBlock]:
+    low = max(1, start - radius)
+    high = end + radius
+    return [block for block in added_custom if block.end >= low and block.start <= high]
+
+
+def directive_kind(line: str, suffix: str):
+    if suffix in CPP_SUFFIXES:
+        match = CPP_INCLUDE_RE.match(line)
+        return ("include", match.group(1)) if match else None
+    if suffix in PY_SUFFIXES:
+        match = PY_IMPORT_RE.match(line)
+        if match:
+            return ("import", match.group(1) or match.group(2))
+    return None
+
+
+def import_include_changes(old_text: str, new_text: str, suffix: str):
+    old_lines, new_lines, opcodes = line_opcodes(old_text, new_text)
+    changes = []
+    for tag, i1, i2, j1, j2 in opcodes:
+        if tag == "equal":
+            continue
+        directives = []
+        for index in range(i1, i2):
+            found = directive_kind(old_lines[index], suffix)
+            if found:
+                directives.append(("removed", index + 1, found[0], found[1], old_lines[index].strip()))
+        for index in range(j1, j2):
+            found = directive_kind(new_lines[index], suffix)
+            if found:
+                directives.append(("added", index + 1, found[0], found[1], new_lines[index].strip()))
+        # <!-- custom: A removed and an added directive that differ only in whitespace are a layout change, not a new dependency: python_aligned_columns.py's sweep turned PerfectMongoose.py's "from array  import array" into "from array import array", which read as one import removed and another added (2026-11-22).
+        # Only whitespace between the directive's tokens counts: Codex's review (2026-11-23) found that collapsing it everywhere passed #include "foo  bar.h" becoming "foo bar.h" as unchanged, though it names another file. See KI#21.8. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+        def layout(text):
+            pieces = re.split(r"(\"[^\"]*\"|<[^>]*>)", text)
+            return "".join(piece if index % 2 else " ".join(piece.split()) for index, piece in enumerate(pieces))
+
+        removed = [layout(entry[4]) for entry in directives if entry[0] == "removed"]
+        added = [layout(entry[4]) for entry in directives if entry[0] == "added"]
+        same = [text for text in removed if text in added]
+        directives = [entry for entry in directives if layout(entry[4]) not in same]
+        if directives:
+            changes.append((j1 + 1, max(j1 + 1, j2), directives))
+    return changes
+
+
+def matching_paren(text: str, open_pos: int) -> int | None:
+    depth = 0
+    for index in range(open_pos, len(text)):
+        if text[index] == "(":
+            depth += 1
+        elif text[index] == ")":
+            depth -= 1
+            if depth == 0:
+                return index
+    return None
+
+
+def cpp_params_look_declarative(params: str) -> bool:
+    if not params or params == "void":
+        return True
+    pieces = []
+    depth = 0
+    start = 0
+    for index, ch in enumerate(params):
+        if ch in "(<[{":
+            depth += 1
+        elif ch in ")>]}":
+            depth = max(0, depth - 1)
+        elif ch == "," and depth == 0:
+            pieces.append(params[start:index].strip())
+            start = index + 1
+    pieces.append(params[start:].strip())
+    primitive = {"bool", "char", "short", "int", "long", "float", "double", "size_t", "wchar_t"}
+    for piece in pieces:
+        base = piece.split("=", 1)[0].strip()
+        if not base:
+            return False
+        if re.search(r"\s|[*&]|\.\.\.", base):
+            continue
+        bare = base.split("::")[-1]
+        if bare in primitive or bare.endswith("Types"):
+            continue
+        if re.match(r"^[A-Z][A-Za-z0-9_<>]*$", bare) and not bare.isupper():
+            continue
+        return False
+    return True
+
+
+def cpp_signatures(text: str) -> list[Signature]:
+    code = mask_cpp(text)
+    result = []
+    for match in re.finditer(r"\(", code):
+        open_pos = match.start()
+        close_pos = matching_paren(code, open_pos)
+        if close_pos is None:
+            continue
+        before = code[max(0, open_pos - 240):open_pos]
+        name_match = re.search(r"(operator\s*[^\s(]+|[A-Za-z_~][A-Za-z0-9_:~]*)\s*$", before)
+        if not name_match:
+            continue
+        name = re.sub(r"\s+", "", name_match.group(1))
+        short_name = name.split("::")[-1]
+        if short_name in CONTROL_NAMES:
+            continue
+        name_start = max(0, open_pos - 240) + name_match.start(1)
+        boundary = max(
+            code.rfind(";", 0, name_start),
+            code.rfind("{", 0, name_start),
+            code.rfind("}", 0, name_start),
+        )
+        prefix = code[boundary + 1:name_start].strip()
+        # <!-- custom: Require a declaration-like prefix because qualified calls such as std::min(...) otherwise look deceptively similar to out-of-class definitions. (ChatGPT-6-Sol) -->
+        if re.search(r"\b(?:return|if|for|while|switch|case|else|new|delete)\b", prefix):
+            continue
+        if re.search(r"(?:->|\.|=|\+|!|\?|\||/|%)", prefix):
+            continue
+        if "(" in prefix or ")" in prefix:
+            continue
+        after = code[close_pos + 1:close_pos + 220]
+        qualifier = after
+        # <!-- custom: Strip only common declaration qualifiers; this checker needs a conservative signature heuristic, not a full C++ parser. (ChatGPT-6-Sol) -->
+        qualifier = re.sub(r"^[ \t\r\n]+", "", qualifier)
+        consumed = True
+        while consumed:
+            old = qualifier
+            qualifier = re.sub(
+                r"^(?:const|volatile|override|final|noexcept(?:\s*\([^)]*\))?|"
+                r"throw\s*\([^)]*\)|__declspec\s*\([^)]*\)|=\s*(?:0|default|delete))\s*",
+                "",
+                qualifier,
+            )
+            consumed = qualifier != old
+        if not qualifier:
+            continue
+        if qualifier[0] not in "{;:":
+            continue
+        if not prefix:
+            # <!-- custom: Accept no-return-type qualified forms only for out-of-class constructors/destructors; ordinary qualified calls such as std::sort(...) stay outside the signature audit. (ChatGPT-6-Sol) -->
+            parts = name.split("::")
+            if len(parts) < 2 or parts[-1].lstrip("~") != parts[-2].lstrip("~") or qualifier[0] == ";":
+                continue
+        params = re.sub(r"\s+", " ", code[open_pos + 1:close_pos]).strip()
+        if qualifier[0] == ";" and not cpp_params_look_declarative(params):
+            continue
+        start_line = code.count("\n", 0, name_start) + 1
+        end_line = code.count("\n", 0, close_pos) + 1
+        # <!-- custom: Return types are interface facts too; compare tokens rather than physical wrapping or pointer/reference spacing.
+        # Access labels and storage/declaration qualifiers are not the return type. (GPT-6.1-Sol) -->
+        # <!-- custom: Removing the first function can bring preceding includes into the next function's prefix.
+        # Strip those directives so deleting a legacy helper does not look like a return-type change. (GPT-6.2-Sol) -->
+        return_prefix = re.sub(r"(?m)^\s*#[^\n]*", "", prefix)
+        return_prefix = re.sub(r"\b(?:public|private|protected)\s*:", "", return_prefix)
+        return_prefix = re.sub(r"\b(?:static|inline|virtual|explicit|friend|constexpr|extern|DllExport)\b", "", return_prefix)
+        return_type = " ".join(re.findall(r"[A-Za-z_]\w*|::|&&|[^\s]", return_prefix))
+        # <!-- custom: Include the return type so moving it above the name cannot evade the one-line check.
+        # Exclude standalone access labels, template lines and directives so their placement does not make a one-line signature appear wrapped. (GPT-6.2-Sol) -->
+        prefix_lines = code[boundary + 1:name_start].split("\n")
+        layout_start = start_line
+        if len(prefix_lines) > 1 and not prefix_lines[-1].strip():
+            for offset, line in enumerate(reversed(prefix_lines[:-1]), 1):
+                if line.strip():
+                    if not re.match(r"\s*(?:#|template\b|(?:public|private|protected)\s*:\s*$)", line):
+                        layout_start -= offset
+                    break
+        end_line += after[:len(after) - len(qualifier)].rstrip().count("\n")
+        result.append(Signature(name, params, start_line, end_line, return_type, layout_start))
+    # <!-- custom: Nested parentheses can generate duplicate heuristic candidates; keep only unique signature spans before comparing parameter lists. (ChatGPT-6-Sol) -->
+    unique = {}
+    for sig in result:
+        unique[(sig.name, sig.start, sig.end, sig.params)] = sig
+    return sorted(unique.values(), key=lambda sig: (sig.start, sig.end, sig.name))
+
+
+PY_DEF_RE = re.compile(r"(?m)^(?P<indent>[ \t]*)def[ \t]+(?P<name>[A-Za-z_]\w*)[ \t]*\(")
+
+
+def python_signatures(text: str) -> list[Signature]:
+    result = []
+    for match in PY_DEF_RE.finditer(text):
+        open_pos = text.find("(", match.start(), match.end() + 1)
+        close_pos = matching_paren(text, open_pos)
+        if close_pos is None:
+            continue
+        rest = text[close_pos + 1:close_pos + 50]
+        if not re.match(r"[ \t]*(?:->[^\n:]+)?[ \t]*:", rest):
+            continue
+        params = re.sub(r"\s+", " ", text[open_pos + 1:close_pos]).strip()
+        start = text.count("\n", 0, match.start()) + 1
+        end = text.count("\n", 0, close_pos) + 1
+        annotation = re.match(r"[ \t]*(?:->(?P<type>[^\n:]+))?[ \t]*:", rest)
+        return_type = re.sub(r"\s+", "", annotation.group("type") or "")
+        result.append(Signature(match.group("name"), params, start, end, return_type))
+    return result
+
+
+def signatures(text: str, suffix: str) -> list[Signature]:
+    if suffix in CPP_SUFFIXES:
+        return cpp_signatures(text)
+    if suffix in PY_SUFFIXES:
+        return python_signatures(text)
+    return []
+
+
+# <!-- custom: Compare parameter/return contracts and clear local renames using the caller's line diff. (GPT-6.1-Sol) -->
+# <!-- custom: Keep exact pairs too so a line split is reviewable even when the signature tokens stay the same. (GPT-6.2-Sol) -->
+def signature_pairs(old_text: str, new_text: str, suffix: str, opcodes=None):
+    old_by = defaultdict(list)
+    new_by = defaultdict(list)
+    for sig in signatures(old_text, suffix):
+        old_by[sig.name].append(sig)
+    for sig in signatures(new_text, suffix):
+        new_by[sig.name].append(sig)
+    pairs = []
+    for name in sorted(set(old_by) & set(new_by)):
+        old_list = old_by[name][:]
+        new_list = new_by[name][:]
+        # <!-- custom: Remove exact overload matches first so only unmatched overloads are paired as possible parameter/return-contract changes. (ChatGPT-6-Sol + GPT-6.1-Sol) -->
+        used_new = set()
+        remaining_old = []
+        for old_sig in old_list:
+            found = None
+            for index, new_sig in enumerate(new_list):
+                if index in used_new:
+                    continue
+                if (old_sig.params, old_sig.return_type) == (new_sig.params, new_sig.return_type):
+                    found = index
+                    break
+            if found is None:
+                remaining_old.append(old_sig)
+            else:
+                used_new.add(found)
+                pairs.append((old_sig, new_list[found]))
+        remaining_new = [sig for index, sig in enumerate(new_list) if index not in used_new]
+        pairs.extend(zip(remaining_old, remaining_new))
+    # <!-- custom: A name-only change otherwise disappears as one deletion plus one addition.
+    # Match only one removed and one added function in the same replacement hunk and scope; distant moves or ambiguous many-function rewrites remain manual review rather than guessed renames. (GPT-6.1-Sol) -->
+    removed = [sig for name in old_by.keys() - new_by.keys() for sig in old_by[name] if not SAS_FUNCTION_RE.search(name)]
+    added = [sig for name in new_by.keys() - old_by.keys() for sig in new_by[name]]
+    if not removed or not added:
+        return pairs
+    if opcodes is None:
+        opcodes = line_opcodes(old_text, new_text)[2]
+    for tag, old_start, old_end, new_start, new_end in opcodes:
+        if tag != "replace":
+            continue
+        before = [sig for sig in removed if old_start < sig.start <= old_end]
+        after = [sig for sig in added if new_start < sig.start <= new_end]
+        if len(before) == len(after) == 1:
+            old_sig, new_sig = before[0], after[0]
+            if old_sig.name.rpartition("::")[0] == new_sig.name.rpartition("::")[0]:
+                pairs.append((old_sig, new_sig))
+    return pairs
+
+
+def signature_interface_changed(old_sig: Signature, new_sig: Signature) -> bool:
+    if old_sig.name == new_sig.name and SAS_FUNCTION_RE.search(old_sig.name):
+        return False
+    return (old_sig.name, old_sig.params, old_sig.return_type) != (new_sig.name, new_sig.params, new_sig.return_type)
+
+
+def changed_signatures(old_text: str, new_text: str, suffix: str, opcodes=None):
+    return [pair for pair in signature_pairs(old_text, new_text, suffix, opcodes) if signature_interface_changed(*pair)]
+
+
+# <!-- custom: Boost.Python .def bindings are interfaces too; a help string describes usage but does not explain why Python needs the operation.
+# Recognize literal-named chained bindings and compare balanced calls so unchanged/reflowed bindings need no new comment; this is a conservative source check, not a C++ parser. (GPT-6.1-Sol) -->
+def python_bindings(text: str):
+    result = []
+    for match in re.finditer(r'^\s*\.def\s*\(\s*"([^"\n]+)"', text, re.MULTILINE):
+        start = text.index("(", match.start())
+        depth = 0
+        quote = None
+        escaped = False
+        end = start
+        for end in range(start, len(text)):
+            char = text[end]
+            if quote:
+                if escaped:
+                    escaped = False
+                elif char == "\\":
+                    escaped = True
+                elif char == quote:
+                    quote = None
+            elif char in ("'", '"'):
+                quote = char
+            elif char == "(":
+                depth += 1
+            elif char == ")":
+                depth -= 1
+                if depth == 0:
+                    break
+        line = text.count("\n", 0, start) + 1
+        result.append((match.group(1), re.sub(r"\s+", " ", text[start:end + 1]), line))
+    return result
+
+
+# <!-- custom: Check the leading comment metadata of changed Python/XML files, rather than requiring a bulk header edit across inherited source.
+# Keep original owners' notices; the SAS notice identifies our modifications and must not be satisfied by a string literal or a later explanatory comment. (GPT-6.1-Sol) -->
+def modification_header_errors(path: str, text: str) -> list[str]:
+    suffix = Path(path).suffix.lower()
+    if suffix not in PY_SUFFIXES | XML_SUFFIXES:
+        return []
+    remaining = text.lstrip("\ufeff \t\r\n")
+    header = []
+    if suffix in PY_SUFFIXES:
+        while remaining.startswith("#"):
+            line, _separator, remaining = remaining.partition("\n")
+            header.append(line)
+            remaining = remaining.lstrip()
+    else:
+        if remaining.startswith("<?xml"):
+            _declaration, _separator, remaining = remaining.partition("?>")
+            remaining = remaining.lstrip()
+        while remaining.startswith("<!--"):
+            block, separator, remaining = remaining.partition("-->")
+            if not separator:
+                break
+            header.append(block)
+            remaining = remaining.lstrip()
+    metadata = "\n".join(header)
+    if (
+        "modifications first developed in AdvCiv-SAS" in metadata
+        and re.search(r"(?:\(c\)|copyright)\s+\d{4}(?:\s*-\s*\d{4})?\s+wonderingabout\s*&\s*AI/LLM helpers", metadata, re.I)
+    ):
+        return []
+    return [f"{path}:1: changed Python/XML file lacks the SAS modification copyright header; preserve inherited notices and add our standard header"]
+
+
+# <!-- custom: Follow Python's indented-suite convention even for logging guards; the compact C++ if/log rule does not apply to Python.
+# Tokenization recognizes Python 2 source too and ignores colons in strings, dictionaries, slices and lambda expressions; compare added/rewritten lines so inherited inline suites do not require unrelated churn. (GPT-6.1-Sol) -->
+def python_inline_suite_errors(path: str, old: str, new: str) -> list[str]:
+    changed = set()
+    for action, _a, _b, start, end in difflib.SequenceMatcher(a=old.splitlines(), b=new.splitlines(), autojunk=False).get_opcodes():
+        if action != "equal":
+            changed.update(range(start + 1, end + 1))
+    errors = []
+    first = None
+    depth = 0
+    lambdas = defaultdict(int)
+    colon = None
+    try:
+        for token in tokenize.generate_tokens(StringIO(new).readline):
+            if token.type in (tokenize.COMMENT, tokenize.NL, tokenize.INDENT, tokenize.DEDENT, tokenize.ENCODING):
+                continue
+            if token.type in (tokenize.NEWLINE, tokenize.ENDMARKER):
+                first, colon = None, None
+                lambdas.clear()
+                continue
+            if first is None:
+                first = token.string
+            if colon is not None:
+                if colon in changed:
+                    errors.append(f"{path}:{colon}: E701 multiple statements on one line (colon); indent the Python suite, including logging guards")
+                colon = None
+            if token.type == tokenize.NAME and token.string == "lambda":
+                lambdas[depth] += 1
+            if token.type != tokenize.OP:
+                continue
+            if token.string in ("(", "[", "{"):
+                depth += 1
+            elif token.string in (")", "]", "}"):
+                depth -= 1
+            elif token.string == ":":
+                if lambdas[depth]:
+                    lambdas[depth] -= 1
+                elif depth == 0 and first in {"if", "elif", "else", "for", "while", "try", "except", "finally", "with", "async"}:
+                    colon = token.start[0]
+    except (tokenize.TokenError, IndentationError):
+        # <!-- custom: Python/Ruff owns syntax validation; do not infer style from incomplete tokens. (GPT-6.1-Sol) -->
+        pass
+    return errors
+
+
+# <!-- custom: A newly inserted SAS modification notice must follow pre-existing owners' header notices rather than precede them.
+# Put new XML SAS notices next to inherited owner credits, above explanatory comments; ignore empty XML separator blocks.
+# Preserve existing header layouts during unrelated edits. (GPT-6.1-Sol) -->
+def modification_header_order_errors(path: str, old: str, new: str) -> list[str]:
+    def owner_notices(text):
+        # <!-- custom: Mod-component credits such as "*ActualQuotes* by Willowmound, ver.
+        # 4.20" carry no "Copyright", so the SAS header had to sit before them; also accept "by <Name>, ver."
+        # as an owner notice. (Claude code Opus 5.5) -->
+        return [m.start() for m in re.finditer(r"(?im)^[ \t]*(?:#[ \t]*)?(?:copyright\b|\(c\)|author\s*:|©|.*\bby \S+, ver\.).*$", text)
+                if "wonderingabout" not in m.group(0).lower() and "AI/LLM helpers" not in m.group(0)]
+
+    def positions(text):
+        prose_gap = False
+        if Path(path).suffix.lower() in XML_SUFFIXES:
+            remaining = text.lstrip("\ufeff \t\r\n")
+            if remaining.startswith("<?xml"):
+                remaining = remaining.partition("?>")[2].lstrip()
+            blocks = []
+            while remaining.startswith("<!--"):
+                block, separator, remaining = remaining.partition("-->")
+                if not separator:
+                    break
+                blocks.append(block[4:])
+                remaining = remaining.lstrip()
+            header = "\n".join(blocks)
+            sas_block = next((i for i, block in enumerate(blocks)
+                              if "modifications first developed in AdvCiv-SAS" in block), None)
+            if sas_block is not None:
+                last_owner = max((i for i, block in enumerate(blocks[:sas_block])
+                                  if owner_notices(block)), default=-1)
+                prose_gap = any(block.strip() for block in blocks[last_owner + 1:sas_block])
+        else:
+            lines = []
+            for line in text.lstrip("\ufeff").splitlines():
+                if not line.strip() or line.lstrip().startswith("#"):
+                    lines.append(line)
+                else:
+                    break
+            header = "\n".join(lines)
+        sas = header.find("modifications first developed in AdvCiv-SAS")
+        owners = owner_notices(header)
+        return sas, owners, prose_gap
+    if Path(path).suffix.lower() not in PY_SUFFIXES | XML_SUFFIXES:
+        return []
+    sas, owners, prose_gap = positions(new)
+    old_sas, old_owners, old_prose_gap = positions(old)
+    if sas >= 0 and any(owner > sas for owner in owners) and not (old_sas >= 0 and any(owner > old_sas for owner in old_owners)):
+        return [f"{path}:1: place the SAS modification credit after existing owners' header notices"]
+    if prose_gap and not old_prose_gap:
+        return [f"{path}:1: place the SAS modification credit after inherited owner notices and before explanatory comments"]
+    return []
+
+
+# <!-- custom: Dense JSON key lists made Runtime field additions inconsistent to review; adjacent C++ literals keep one field per source fragment without changing emitted bytes or adding runtime concatenation.
+# Inspect direct literal Format/format arguments, skipping comments/chars and unchanged inherited groups; keys are discovered from the JSON syntax rather than a maintained field-name list. (GPT-6.1-Sol) -->
+def cpp_json_format_errors(path: str, old: str, new: str) -> list[str]:
+    lexer = re.compile(r'//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|[A-Za-z_]\w*|[^\s]', re.S)
+    def groups(text):
+        tokens = [m for m in lexer.finditer(text) if not m.group().startswith(("//", "/*"))]
+        for index in range(max(0, len(tokens) - 2)):
+            token = tokens[index]
+            if token.group() not in {"Format", "format"} or tokens[index + 1].group() != "(":
+                continue
+            literals = []
+            for next_index in range(index + 2, len(tokens)):
+                value = tokens[next_index]
+                if not value.group().startswith('"'):
+                    break
+                literals.append(value)
+            if literals:
+                yield literals
+    previous = defaultdict(int)
+    for values in groups(old):
+        previous[tuple(value.group() for value in values)] += 1
+    errors = []
+    for values in groups(new):
+        identity = tuple(value.group() for value in values)
+        if previous[identity]:
+            previous[identity] -= 1
+            continue
+        prefix = values[0].group()[1:-1]
+        if not re.match(r'^(?:%s)?(?:\{|\],|\\")', prefix):
+            continue
+        for value in values:
+            if len(re.findall(r'\\"[^"\\]*\\"\s*:', value.group())) > 1:
+                line = new.count("\n", 0, value.start()) + 1
+                errors.append(f"{path}:{line}: JSON format literal combines multiple fields; use one field per adjacent C++ literal")
+    return errors
+
+
+# <!-- custom: KI#46 removed old save-layout branches.
+# The AdvCiv 1.14 merge review exposed how easily uiFlag and m_uiSaveFlag gates can return.
+# Compare active thresholds against the base to catch added or changed gates while allowing writer markers. See KI#46.2. (GPT-6.2-Sol) -->
+def cpp_save_layout_gate_errors(path: str, old: str, new: str) -> list[str]:
+    flag = (r"\b(?:(?:m_)?(?:uiFlag|(?:i|ui)?Save(?:Game|Stream|Format)?(?:Flag|Version))\b"
+            r"|getLoadedSaveStreamFlag\s*\(\s*\))")
+    threshold = r"(?:-?\s*(?:0[xX][0-9a-f]+|\d+)[uUlL]*\b|(?:[A-Za-z_]\w*\s*::\s*)*[A-Za-z_]\w*\b)"
+    operator = r"(?:==|!=|<=|>=|(?<!<)<(?![<=])|(?<!>)>(?![>=]))"
+    comparison = re.compile(rf"({flag})\s*({operator})\s*({threshold})|({threshold})\s*({operator})\s*({flag})", re.IGNORECASE)
+    opposite = {"==": "==", "!=": "!=", "<": ">", ">": "<", "<=": ">=", ">=": "<="}
+    # <!-- custom: Some retired layouts had no version comparison at the call site.
+    # Catch these specific old readers and conversions without banning the generic EnumMap readArray machinery. (GPT-6.2-Sol) -->
+    legacy_helper = re.compile(
+        r"\b(?:(?:validateOwner|AI_finalizeInit)\s*\(\s*\)|setAlwaysShowPlotCulture\s*\("
+        r"|(?:MissionDataLegacy|bResetPlotExtraData)\b|LegacyArrayEnumMap\b(?=\s*<))"
+    )
+
+    def gates(text):
+        code = mask_cpp(text)
+        for match in comparison.finditer(code):
+            name, test, limit, reverse_limit, reverse_test, reverse_name = match.groups()
+            if reverse_name is not None:
+                name, test, limit = reverse_name, opposite[reverse_test], reverse_limit
+            expression = " ".join(re.sub(r"\s+", "", part) for part in (name, test, limit))
+            yield ("version gate", expression), match.start()
+        for match in legacy_helper.finditer(code):
+            yield ("compatibility helper", re.sub(r"\s+", "", match.group())), match.start()
+
+    previous = Counter(gate for gate, _ in gates(old))
+    errors = []
+    for gate, position in gates(new):
+        if previous[gate]:
+            previous[gate] -= 1
+            continue
+        line = new.count("\n", 0, position) + 1
+        kind, expression = gate
+        errors.append(f"{path}:{line}: new save-layout {kind} ({expression}); read the current layout directly (KI#46.2)")
+    return errors
+
+
+PREDUMP_GENERATOR_MARKER = "# Generated by: .github/workflows/build/runtime/aip_predump_values.py"
+
+
+# <!-- custom: Add an optional warnings collector so missing model credits remain advisory: Git cannot distinguish an uncredited user comment from an LLM comment.
+# Other provenance failures retain their blocking results. (GPT-6.1-Sol) -->
+# <!-- custom: Moving SAS text overrides that matched base AdvCiv back into the inherited CIV4GameText_advc.xml failed here, because restored AdvCiv comments such as "advc.005: was Asoka" looked newly authored in that file.
+# restored_comment lets check() accept a comment that existed verbatim earlier in the same file's history; rewritten wording still fails. (Claude code Opus 5.5) -->
+# <!-- custom: A base-game file SAS takes in whole, as KI#1104 asks, arrived with hundreds of Firaxis comments and imports that this check read as new and uncredited, so every push whose range held the copy failed, as main's did after the PR#50 squash and its amend (2026-11-22).
+# GitHub's runners have no Civ4 install to compare the copy with, so the copy's own SAS header is trusted when it names a base-game layer and the inherited-files manifest lists that file at the same path; its original comments and imports then count as inherited, while its custom notes and SAS headers are checked as usual. (Claude code Opus 5.5) -->
+# <!-- custom: XML copies too, whose note is an XML comment, as BtS's GlobalDefines.xml came in by the same rule; its Firaxis comments then failed here as new (KI#1104.2). (Claude code Opus 5.5) -->
+BASE_GAME_COPY = re.compile(r"^(?:#\s*|\s*)<!-- custom: Copied from (vanilla Civ4|Warlords|BtS)'s (.+?\.(?:py|xml))(?=\s|\.(?:\s|$)|$)")
+MANIFEST = Path("_0_Legacy/Docs/Manifests/inherited_files.tsv")
+BASE_GAME_LAYERS = {"vanilla Civ4": "vanilla", "Warlords": "warlords", "BtS": "bts"}
+EXPANSION_FOLDERS = {"warlords": "warlords", "bts": "beyond the sword"}
+
+
+def base_game_manifest_paths(repo: Path) -> dict[str, dict[str, str]]:
+    manifest = repo / MANIFEST
+    if not manifest.is_file():
+        return {}
+    paths = {}
+    for line in manifest.read_text(encoding="utf-8").splitlines()[1:]:
+        fields = line.split("\t")
+        if len(fields) != 4:
+            continue
+        path, layers, _, other_paths = fields
+        alternate = dict(item.split(":", 1) for item in other_paths.split(";") if ":" in item)
+        sources = {layer: alternate.get(layer, path) for layer in layers.split(",") if layer in BASE_GAME_LAYERS.values()}
+        if sources:
+            paths[path] = sources
+    return paths
+
+
+def has_base_game_copy_header(text: str, sources: dict[str, str]) -> bool:
+    # <!-- custom: Keep the original install path in the header for readers.
+    # Check the expansion folder and the path from Assets against the manifest so the prefix can vary by install. (GPT-6.2-Sol) -->
+    # <!-- custom: The header of an XML copy is its declaration and comments, so it ends at the first element rather than at the first line not starting with #. See KI#1104.2. (Claude code Opus 5.5) -->
+    xml_header = text.lstrip("\ufeff").startswith("<?xml")
+    for line in text.lstrip("\ufeff").splitlines():
+        stripped = line.strip()
+        if xml_header:
+            if stripped.startswith("<") and not stripped.startswith(("<?", "<!--")):
+                break
+        elif stripped and not line.startswith("#"):
+            break
+        match = BASE_GAME_COPY.match(line)
+        if not match:
+            continue
+        layer = BASE_GAME_LAYERS[match[1]]
+        expected = sources.get(layer)
+        prefix, separator, relative = match[2].replace("\\", "/").casefold().rpartition("/assets/")
+        if not expected or not separator or "assets/" + relative != expected.casefold():
+            continue
+        parent = prefix.rsplit("/", 1)[-1]
+        if layer == "vanilla":
+            if parent and parent not in EXPANSION_FOLDERS.values():
+                return True
+        elif parent == EXPANSION_FOLDERS[layer]:
+            return True
+    return False
+
+
+# <!-- custom: base_copy added: True for a file new in the range that is a manifest-listed base-game copy, whose original comments and imports are then not reported. (Claude code Opus 5.5) -->
+def check_change(path: str, old_text: str | None, new_text: str | None, warnings: list[str] | None = None, restored_comment=None, base_copy: bool = False) -> list[str]:
+    suffix = Path(path).suffix.lower()
+    if suffix not in SOURCE_SUFFIXES or new_text is None:
+        return []
+    errors = []
+    new_file = old_text is None
+    old_text = old_text or ""
+    errors.extend(blank_line_errors(path, old_text, new_text, suffix))
+    errors.extend(modification_header_order_errors(path, old_text, new_text))
+    if suffix in PY_SUFFIXES:
+        errors.extend(python_inline_suite_errors(path, old_text, new_text))
+    if suffix in CPP_SUFFIXES:
+        errors.extend(cpp_json_format_errors(path, old_text, new_text))
+        if Path(path).parts[0] == 'CvGameCoreDLL':
+            errors.extend(cpp_save_layout_gate_errors(path, old_text, new_text))
+    old_comments = comments(old_text, suffix)
+    new_comments = comments(new_text, suffix)
+    # <!-- custom: A KI#243.2 rationale used a multiline C++ block around its custom prose, unlike our per-line // convention.
+    # Check real comment tokens so quoted examples remain legal; compare raw occurrences so a delimiter-only conversion or duplicate cannot evade the rule through normalized prose matching.
+    # Existing untouched blocks remain outside this diff-aware check; inherited prose containing an inline custom fragment is not a dedicated custom block, and single-line annotations still fit between C++ tokens. (GPT-6.1-Sol) -->
+    if suffix in CPP_SUFFIXES:
+        old_multiline_custom = [block.raw for block in old_comments
+                                if block.text.startswith(CUSTOM_OPEN) and block.raw.startswith("/*") and "\n" in block.raw]
+        for block in new_comments:
+            if not (block.text.startswith(CUSTOM_OPEN) and block.raw.startswith("/*") and "\n" in block.raw):
+                continue
+            if block.raw in old_multiline_custom:
+                old_multiline_custom.remove(block.raw)
+            else:
+                errors.append(f"{path}:{block.start}: multiline custom C++ block comment; use // on each prose line instead of /* ... */")
+    removed_legacy, added_legacy = unmatched_blocks(old_comments, new_comments, custom=False)
+    removed_custom, added_custom = unmatched_blocks(old_comments, new_comments, custom=True)
+
+    for block in added_legacy + added_custom:
+        errors.extend(cascading_comment_errors(path, block, suffix))
+
+    _old_lines, _new_lines, opcodes = line_opcodes(old_text, new_text)
+    code_exempt = disabled_code_exemptions(added_legacy, removed_legacy, added_custom, opcodes, suffix)
+    # <!-- custom: Regenerating the AIP predump after the leader ID restoration changed its "Leader index:type pairs" header and failed as rewritten prose; that header is aip_predump_values.py output, not hand-written comment. (Claude code Opus 5.5) -->
+    generated_header = PREDUMP_GENERATOR_MARKER in new_text
+    # <!-- custom: Adding the SAS header to RandomNameUtils.py right under its inherited "Random Name Generator / By: The Lopez" lines failed here: touching comment lines form one block, so the unchanged inherited block looked rewritten.
+    # Only a blank line between them passed, which the user found needless, since inherited files such as AIAutoPlay.py already place the header that way.
+    # So an added block counts as unchanged when it matches a removed one after dropping just the two SAS header lines; other wording changes still fail. (Claude code Opus 5.5) -->
+    removed_without_header = Counter(without_sas_header(block) for block in removed_legacy)
+    for index, block in enumerate(added_legacy):
+        if generated_header:
+            continue
+        if base_copy or exempt_new_comment(block) or index in code_exempt or quoted_source_block(block, new_comments) or (restored_comment is not None and restored_comment(block.raw)):
+            continue
+        if removed_without_header[without_sas_header(block)] > 0:
+            removed_without_header[without_sas_header(block)] -= 1
+            continue
+        errors.append(
+            "%s:%d: new/rewritten non-custom comment; preserve inherited wording (reflow-only is allowed) "
+            "or use '<!-- custom: ... (model credit) -->'" % (path, block.start)
+        )
+    # <!-- custom: Copying an existing custom explanation to another matching data block does not create new prose, so an extra identical occurrence should not ask for a fresh model credit; genuinely new or rewritten uncredited text remains advisory. (ChatGPT-5.6-Sol) -->
+    old_custom_text = {block.normalized for block in old_comments if block.custom}
+    for block in added_custom:
+        errors.extend(credit_spelling_errors(path, block))
+        errors.extend(incomplete_credit_errors(path, block))
+        errors.extend(stranded_reference_errors(path, block))
+        if block.normalized not in old_custom_text:
+            errors.extend(generic_credit_errors(path, block))
+        if not block.credited and block.normalized not in old_custom_text and warnings is not None:
+            warnings.append(
+                "%s:%d: new/rewritten custom comment has no recognized model credit near its closing '-->'"
+                % (path, block.start)
+            )
+
+    for block in removed_custom:
+        old_credits, old_words = comment_credit_parts(block)
+        if not old_credits:
+            continue
+        mapped = map_old_line_to_new(block.start, opcodes)
+        for replacement in nearby_added_custom(added_custom, mapped, mapped, radius=6):
+            new_credits, new_words = comment_credit_parts(replacement)
+            if not retained_comment_prose(old_words, new_words):
+                continue
+            missing = [label for key, label in old_credits.items() if not credit_preserved(key, new_credits)]
+            if missing:
+                errors.append(
+                    "%s:%d: partially retained custom comment dropped existing credit(s): %s"
+                    % (path, replacement.start, ", ".join(missing))
+                )
+
+    for block in removed_legacy:
+        if not block.references:
+            continue
+        mapped = map_old_line_to_new(block.start, opcodes)
+        nearby = nearby_added_custom(added_custom, mapped, mapped, radius=6)
+        if not nearby:
+            continue
+        # <!-- custom: A rewritten disabled block keeps its markers in the code itself, e.g. /* advc.131: */ inside a commented-out condition; count nearby rewritten legacy blocks as carriers too. (Claude code Opus 5.5) -->
+        carriers = nearby + [item for item in added_legacy if item.end >= mapped - 6 and item.start <= mapped + 6]
+        combined = "\n".join(item.raw for item in carriers)
+        missing = [ref for ref in block.references if ref.lower() not in combined.lower()]
+        if missing:
+            errors.append(
+                "%s:%d: replacement custom comment near removed inherited comment dropped provenance reference(s): %s"
+                % (path, nearby[0].start, ", ".join(missing))
+            )
+
+    # <!-- custom: New files also introduce dependencies whose purpose must be recorded; only untouched inherited directives are outside this diff-aware rule.
+    # Check proximity to each directive, not the entire diff hunk: a new-file hunk spans the whole file and would otherwise accept an unrelated distant comment. (GPT-6.1-Sol) -->
+    if suffix in CPP_SUFFIXES | PY_SUFFIXES and not base_copy:
+        for _start, _end, directives in import_include_changes(old_text, new_text, suffix):
+            for action, line, _kind, target, _raw in directives:
+                position = line if action == "added" else map_old_line_to_new(line, opcodes)
+                nearby = nearby_added_custom(added_custom, position, position, radius=5)
+                if not nearby:
+                    errors.append(
+                        "%s:%d: include/import change lacks a nearby new custom rationale comment (%s %s)"
+                        % (path, position, action, target)
+                    )
+
+    if suffix in CPP_SUFFIXES:
+        old_bindings = python_bindings(old_text)
+        new_bindings = python_bindings(new_text)
+        old_keys = [(name, call) for name, call, _line in old_bindings]
+        new_keys = [(name, call) for name, call, _line in new_bindings]
+        matcher = difflib.SequenceMatcher(a=old_keys, b=new_keys, autojunk=False)
+        for action, old_start, old_end, new_start, new_end in matcher.get_opcodes():
+            if action == "equal":
+                continue
+            changed = [("added/changed", name, line) for name, _call, line in new_bindings[new_start:new_end]]
+            changed += [("removed/changed", name, map_old_line_to_new(line, opcodes)) for name, _call, line in old_bindings[old_start:old_end]]
+            for action, name, position in changed:
+                if not nearby_added_custom(added_custom, position, position, radius=5):
+                    errors.append("%s:%d: Python .def binding lacks a nearby new custom rationale comment (%s %s)" % (path, position, action, name))
+
+    if not new_file and suffix in CPP_SUFFIXES | PY_SUFFIXES:
+        changed_old_lines = {line for tag, start, end, _, _ in opcodes if tag != 'equal' for line in range(start + 1, end + 1)}
+        for old_sig, new_sig in signature_pairs(old_text, new_text, suffix, opcodes):
+            if (suffix in CPP_SUFFIXES and old_sig.layout_start == old_sig.end
+                    and old_sig.end in changed_old_lines and new_sig.layout_start < new_sig.end):
+                # <!-- custom: Keep the complete signature greppable through parameter edits and upstream merges. (GPT-6.2-Sol) -->
+                errors.append(f"{path}:{new_sig.layout_start}: keep the existing one-line C++ signature for {new_sig.name} on one line")
+            if not signature_interface_changed(old_sig, new_sig):
+                continue
+            nearby = nearby_added_custom(added_custom, new_sig.start, new_sig.end, radius=6)
+            if not nearby:
+                details = []
+                if old_sig.params != new_sig.params:
+                    details.append("parameters changed")
+                if old_sig.return_type != new_sig.return_type:
+                    details.append("return type changed")
+                if old_sig.name != new_sig.name:
+                    details.append("function renamed from " + old_sig.name)
+                errors.append(
+                    "%s:%d: %s for %s without a nearby new custom comment explaining the interface change"
+                    % (path, new_sig.start, "; ".join(details), new_sig.name)
+                )
+
+    return errors
+
+
+# <!-- custom: Restoring the checks moves files between folders; comparing their new paths against an absent old file falsely treats inherited comments as newly authored.
+# Follow Git's rename pairs to compare the original content, while still checking substantive edits made during a move. (GPT-6.1-Sol) -->
+def renamed_paths(repo: Path, base_ref: str) -> dict[str, str]:
+    fields = run_git(repo, "diff", "--name-status", "-z", "--find-renames", base_ref, "--").stdout.decode("utf-8").split("\0")
+    renamed = {}
+    index = 0
+    while index < len(fields) and fields[index]:
+        status = fields[index]
+        index += 1
+        if status.startswith("R"):
+            old_path, new_path = fields[index:index + 2]
+            renamed[new_path] = old_path
+            index += 2
+        else:
+            index += 1
+    return renamed
+
+
+# <!-- custom: Forward the optional warning collector across the Git range without treating user-optional model credits as CI failures.
+# Resolve renamed files to their old paths before applying the same provenance rules. (GPT-6.1-Sol) -->
+# <!-- custom: The AdvCiv 1.14 merge restored upstream's own comments word for word, such as PerfectMongoose.py's "# advc.oxi: New method to replace erroneous uses of getCirclePoints", and this check failed all 7 as new uncredited prose because it compared only with main.
+# Codex had first reworded such comments as custom ones to pass, which lost upstream's text; so a comment found exactly in a merged parent's copy of the file now counts as inherited.
+# Merged parents are the second and later parents of merge commits in the range, or MERGE_HEAD while a merge is being prepared. (Claude code Opus 5.5) -->
+def merged_parents(repo: Path, base: str) -> list[str]:
+    parents = []
+    for line in run_git(repo, "rev-list", "--merges", "--parents", "%s..HEAD" % base, check=False).stdout.decode("utf-8").splitlines():
+        parents.extend(line.split()[2:])
+    merge_head = run_git(repo, "rev-parse", "-q", "--verify", "MERGE_HEAD", check=False).stdout.decode("utf-8").strip()
+    if merge_head:
+        parents.append(merge_head)
+    return list(dict.fromkeys(parents))
+
+
+def check(repo: Path, base_ref: str | None, event_name: str | None = None, warnings: list[str] | None = None) -> tuple[list[str], int]:
+    base = ensure_base(repo, base_ref, event_name)
+    if base is None:
+        return [], 0
+    errors = []
+    count = 0
+    renamed = renamed_paths(repo, base)
+    upstream_parents = merged_parents(repo, base)
+    base_game_paths = base_game_manifest_paths(repo)
+    for path in changed_paths(repo, base):
+        old = git_text(repo, base, renamed.get(path, path))
+        new = current_text(repo, path)
+        if new is None:
+            # <!-- custom: Whole-file deletion cannot introduce a misleading new comment/dependency/interface, so only surviving current files need source-change provenance checks. (ChatGPT-6-Sol) -->
+            continue
+        count += 1
+        if old != new:
+            errors.extend(modification_header_errors(path, new))
+        history_path = renamed.get(path, path)
+        # <!-- custom: A multiline block's raw text joins its lines without their indentation, so PerfectMongoose.py's indented two-line getCirclePoints note never matched upstream byte for byte; compare stripped lines, which must still appear in the same order and next to each other.
+        # A comment after code on its line, such as "} // </advc.003p>", is matched as plain text instead. (Claude code Opus 5.5) -->
+        upstream_texts = [text for text in (git_text(repo, parent, path) for parent in upstream_parents) if text]
+        upstream_lines = ["\n" + "\n".join(line.strip() for line in text.splitlines()) + "\n" for text in upstream_texts]
+        # <!-- custom: Pickaxe search up to the base commit, so only wording this file already contained counts as restored. (Claude code Opus 5.5) -->
+        # <!-- custom: upstream_texts and upstream_lines were added beside history_path, as default arguments that bind this file's merged-parent copies to the closure. (Claude code Opus 5.5) -->
+        def restored_comment(raw: str, history_path: str = history_path, upstream_texts: list[str] = upstream_texts, upstream_lines: list[str] = upstream_lines) -> bool:
+            stripped = "\n" + "\n".join(line.strip() for line in raw.splitlines()) + "\n"
+            if any(raw in text for text in upstream_texts) or any(stripped in text for text in upstream_lines):
+                return True
+            # <!-- custom: Multiline comments are parsed with LF, so a CRLF file also needs the CRLF spelling to match. (Claude code Opus 5.5) -->
+            needles = list(dict.fromkeys((raw, raw.replace("\r\n", "\n").replace("\n", "\r\n"))))
+            # <!-- custom: Search the file's history under its current name too: giving 37 text files base AdvCiv's names back restored base comments such as "advc.064: Moved from 'BUG City Screen Options.xml'", which the file held under that same name before SAS renamed it to BULL_Misc_Hovers_Options.xml; the base-name history alone began at that rename, so all 8 failed as rewritten (2026-11-22). (Claude code Opus 5.5) -->
+            for needle in needles:
+                for searched_path in dict.fromkeys((history_path, path)):
+                    if run_git(repo, "log", "-1", "--format=%H", "-S", needle, base, "--", searched_path, check=False).stdout.strip():
+                        return True
+            return False
+        base_copy = old is None and path in base_game_paths and has_base_game_copy_header(new, base_game_paths[path])
+        errors.extend(check_change(path, old, new, warnings, restored_comment, base_copy))
+    return errors, count
+
+
+# <!-- custom: Every rule this check applies must hold across the whole repository from the commit that adds it, then it may be checked on changed files only; AGENTS.md said so, but the user did not trust a written rule alone (2026-11-21), so this enforces it.
+# Each *_errors rule that check_change or check calls is listed here, either as repo-wide, run over every tracked source file on each run, or as diff-only with the reason the whole repository does not meet it; an unlisted rule fails the check, so a new one cannot land without that decision.
+# The counts are from the scan of 2026-11-21.
+# Rules written inline in check_change, such as the interface and import comments, are not covered. (Claude code Opus 5.5) -->
+REPO_WIDE_RULES = ("stranded_reference_errors", "blank_line_errors", "credit_spelling_errors", "incomplete_credit_errors", "cascading_comment_errors")
+DIFF_ONLY_RULES = {
+    "generic_credit_errors": "4 older comments credit only 'ChatGPT', and which model wrote them is not recorded",
+    "modification_header_errors": "188 untouched inherited files carry no SAS header, which AGENTS.md allows until a file is changed",
+    "modification_header_order_errors": "8 older files place their header before the rule's order",
+    "python_inline_suite_errors": "6 inherited one-line suites stay as written until their code is edited",
+    "cpp_json_format_errors": "2 older JSON format strings predate the rule",
+    "cpp_save_layout_gate_errors": "compares a file's old and new save layout, so it needs a base",
+}
+
+
+def rule_registry_errors() -> list[str]:
+    tree = ast.parse(Path(__file__).read_text(encoding="utf-8"))
+    called = set()
+    for node in tree.body:
+        if isinstance(node, ast.FunctionDef) and node.name in ("check_change", "check"):
+            for call in ast.walk(node):
+                if isinstance(call, ast.Call) and isinstance(call.func, ast.Name) and call.func.id.endswith("_errors"):
+                    called.add(call.func.id)
+    errors = []
+    for name in sorted(called):
+        if name in REPO_WIDE_RULES and name in DIFF_ONLY_RULES:
+            errors.append(f"rule {name} is listed both as repo-wide and as diff-only")
+        elif name not in REPO_WIDE_RULES and name not in DIFF_ONLY_RULES:
+            errors.append(f"rule {name} is in neither REPO_WIDE_RULES nor DIFF_ONLY_RULES; run it over the whole repository first, then list it as repo-wide, or as diff-only with the reason")
+    return errors
+
+
+def repo_wide_rule_errors(repo: Path) -> list[str]:
+    # <!-- custom: The same files the diff-aware check covers (maintained_source_path), so a rule's scope does not change between the two modes. (Claude code Opus 5.5) -->
+    listed = run_git(repo, "ls-files", "-z").stdout.decode("utf-8").split("\0")
+    errors = []
+    for path in listed:
+        if not path or not maintained_source_path(path):
+            continue
+        suffix = Path(path).suffix.lower()
+        text = current_text(repo, path)
+        if text is None:
+            continue
+        errors.extend(blank_line_errors(path, "", text, suffix))
+        for block in comments(text, suffix):
+            errors.extend(cascading_comment_errors(path, block, suffix))
+            if block.custom:
+                errors.extend(stranded_reference_errors(path, block))
+                errors.extend(credit_spelling_errors(path, block))
+                errors.extend(incomplete_credit_errors(path, block))
+    return errors
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Validate diff-aware source comment, dependency and changed-interface provenance."
+    )
+    parser.add_argument("--repo-root", type=Path, default=ROOT)
+    parser.add_argument("--base-ref", help="PR base or push-before commit; defaults to HEAD^ for local/manual runs")
+    parser.add_argument("--event-name", choices=("push", "pull_request", "workflow_dispatch", "local"), default="local")
+    args = parser.parse_args()
+    warnings = []
+    try:
+        errors, files_checked = check(args.repo_root, args.base_ref, args.event_name, warnings)
+        # <!-- custom: The rule registry and the repo-wide rules run on every check, whatever the base; see REPO_WIDE_RULES. (Claude code Opus 5.5) -->
+        errors.extend(rule_registry_errors())
+        errors.extend(repo_wide_rule_errors(args.repo_root))
+    except (RuntimeError, OSError, ValueError) as exc:
+        print("FAIL source change provenance setup: %s" % exc)
+        return 1
+    print("FAIL source change provenance" if errors else "PASS source change provenance (%d changed source file(s) checked, repo-wide rules on all)" % files_checked)
+    for error in errors:
+        print("  - " + error)
+    for warning in warnings:
+        print("WARNING: " + warning)
+    return int(bool(errors))
+
+
+if __name__ == "__main__":
+    sys.exit(main())

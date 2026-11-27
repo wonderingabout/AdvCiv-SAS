@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 55
+# Author: iustus
+# Date: 2006-11-09T09:21:11.523411Z
+# Coverage: full
+# Message:
+#   fix typo in CvSelectionGroup::groupBuild, was using uninitialized value for getTeam()
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@54
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@55
+@@ -2525,7 +2525,7 @@
+ 			{
+ 				if ((pPlot->getImprovementType() != NO_IMPROVEMENT))
+ 				{
+-				    BonusTypes eBonus = (BonusTypes)pPlot->getNonObsoleteBonusType(pLoopUnit->getTeam());
++				    BonusTypes eBonus = (BonusTypes)pPlot->getNonObsoleteBonusType(GET_PLAYER(getOwnerINLINE()).getTeam());
+ 				    if ((eBonus == NO_BONUS) || !GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eBonus))
+ 				    {
+                         if (GC.getImprovementInfo(eImprovement).getImprovementPillage() != 0)
+

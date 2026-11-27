@@ -36,22 +36,11 @@ public:
 	void playerDefeated(PlayerTypes ePlayer);
 	void colonyCreated(PlayerTypes eNewPlayer);
 	void playerRevived(PlayerTypes ePlayer);
-	void teamCapitulated(TeamTypes eVassal, TeamTypes eMaster)
-	{
-		updateVassal(eVassal, eMaster, true); // sufficient for now
-	}
-	void voluntaryVassalAgreementSigned(TeamTypes eVassal, TeamTypes eMaster)
-	{
-		updateVassal(eVassal, eMaster, true);
-	}
-	void vassalFreed(TeamTypes eVassal, TeamTypes eMaster)
-	{
-		updateVassal(eVassal, eMaster, false);
-	}
-	void allianceFormed()
-	{
-		updateAllCachedSequences();
-	}
+	// sufficient for now
+	void teamCapitulated(TeamTypes eVassal, TeamTypes eMaster) { updateVassal(eVassal, eMaster, true); }
+	void voluntaryVassalAgreementSigned(TeamTypes eVassal, TeamTypes eMaster) { updateVassal(eVassal, eMaster, true); }
+	void vassalFreed(TeamTypes eVassal, TeamTypes eMaster) { updateVassal(eVassal, eMaster, false); }
+	void allianceFormed() { updateAllCachedSequences(); }
 
 	// Might be needed in the future
 	//void bordersOpened(TeamTypes eFirst, TeamTypes eSecond);
@@ -70,50 +59,18 @@ public:
 	template<class AgentType> std::vector<AgentType*> const* getNoAgents() const; // Currently unused
 	typedef std::vector<CvPlayerAI*> PlayerVector;
 	typedef std::vector<CvTeamAI*> TeamVector;
-	template<>
-	PlayerVector const* getAgentSeqCache<CvPlayerAI>(AgentSeqCache eCacheID) const
-	{
-		return &playerSeqCache(eCacheID);
-	}
-	template<>
-	PlayerVector const* getPerTeamSeqCache<CvPlayerAI>(AgentSeqCache eCacheID, TeamTypes eTeam) const
-	{
-		return &memberSeqCache(eCacheID, eTeam);
-	}
-	template<>
-	PlayerVector const* getNoAgents<CvPlayerAI>() const
-	{
-		return &m_noPlayers;
-	}
-	template<>
-	TeamVector const* getAgentSeqCache<CvTeamAI>(AgentSeqCache eCacheID) const
-	{
-		return &teamSeqCache(eCacheID);
-	}
-	template<>
-	TeamVector const* getPerTeamSeqCache<CvTeamAI>(AgentSeqCache eCacheID, TeamTypes eTeam) const
-	{
-		return &teamPerTeamSeqCache(eCacheID, eTeam);
-	}
-	template<>
-	TeamVector const* getNoAgents<CvTeamAI>() const
-	{
-		return &m_noTeams;
-	}
+	template<> PlayerVector const* getAgentSeqCache<CvPlayerAI>(AgentSeqCache eCacheID) const { return &playerSeqCache(eCacheID); }
+	template<> PlayerVector const* getPerTeamSeqCache<CvPlayerAI>(AgentSeqCache eCacheID, TeamTypes eTeam) const { return &memberSeqCache(eCacheID, eTeam); }
+	template<> PlayerVector const* getNoAgents<CvPlayerAI>() const { return &m_noPlayers; }
+	template<> TeamVector const* getAgentSeqCache<CvTeamAI>(AgentSeqCache eCacheID) const { return &teamSeqCache(eCacheID); }
+	template<> TeamVector const* getPerTeamSeqCache<CvTeamAI>(AgentSeqCache eCacheID, TeamTypes eTeam) const { return &teamPerTeamSeqCache(eCacheID, eTeam); }
+	template<> TeamVector const* getNoAgents<CvTeamAI>() const { return &m_noTeams; }
 
 
 	// For testing (see AgentIteratorTest) and other purposes perhaps ...
 
-	int playerCacheSize(AgentSeqCache eCacheID) const
-	{
-		FAssertBounds(0, m_playerSeqCache.size(), eCacheID);
-		return (int)m_playerSeqCache[eCacheID].size();
-	}
-	CvPlayerAI& playerCacheAt(AgentSeqCache eCacheID, int iAt) const
-	{
-		FAssertBounds(0, playerCacheSize(eCacheID), iAt);
-		return *m_playerSeqCache[eCacheID][iAt];
-	}
+	int playerCacheSize(AgentSeqCache eCacheID) const { FAssertBounds(0, m_playerSeqCache.size(), eCacheID); return (int)m_playerSeqCache[eCacheID].size(); }
+	CvPlayerAI& playerCacheAt(AgentSeqCache eCacheID, int iAt) const { FAssertBounds(0, playerCacheSize(eCacheID), iAt); return *m_playerSeqCache[eCacheID][iAt]; }
 	int memberCacheSize(AgentSeqCache eCacheID, TeamTypes eTeam) const
 	{
 		int const iCache = perTeamCacheIndex(eCacheID);
@@ -127,16 +84,8 @@ public:
 		FAssertBounds(0, memberCacheSize(eCacheID, eTeam), iAt);
 		return *m_memberSeqCache[iCache][eTeam][iAt];
 	}
-	int teamCacheSize(AgentSeqCache eCacheID) const
-	{
-		FAssertBounds(0, m_teamSeqCache.size(), eCacheID);
-		return (int)m_teamSeqCache[eCacheID].size();
-	}
-	CvTeamAI& teamCacheAt(AgentSeqCache eCacheID, int iAt) const
-	{
-		FAssertBounds(0, teamCacheSize(eCacheID), iAt);
-		return *m_teamSeqCache[eCacheID][iAt];
-	}
+	int teamCacheSize(AgentSeqCache eCacheID) const { FAssertBounds(0, m_teamSeqCache.size(), eCacheID); return (int)m_teamSeqCache[eCacheID].size(); }
+	CvTeamAI& teamCacheAt(AgentSeqCache eCacheID, int iAt) const { FAssertBounds(0, teamCacheSize(eCacheID), iAt); return *m_teamSeqCache[eCacheID][iAt]; }
 	int teamPerTeamCacheSize(AgentSeqCache eCacheID, TeamTypes eTeam) const
 	{
 		int const iCache = perTeamCacheIndex(eCacheID);
@@ -154,43 +103,16 @@ public:
 private:
 	/*  Could avoid this mapping by using separate enums for agent status and agent relation caches.
 		This would be awkward for AgentIterator though. */
-	int perTeamCacheIndex(AgentSeqCache eCacheID) const
-	{
-		return eCacheID - NUM_STATUS_CACHES;
-	}
-	PlayerVector& playerSeqCache(AgentSeqCache eCacheID)
-	{
-		return m_playerSeqCache[eCacheID];
-	}
-	TeamVector& teamSeqCache(AgentSeqCache eCacheID)
-	{
-		return m_teamSeqCache[eCacheID];
-	}
-	PlayerVector& memberSeqCache(AgentSeqCache eCacheID, TeamTypes eTeam)
-	{
-		return m_memberSeqCache[perTeamCacheIndex(eCacheID)][eTeam];
-	}
-	TeamVector& teamPerTeamSeqCache(AgentSeqCache eCacheID, TeamTypes eTeam)
-	{
-		return m_teamPerTeamSeqCache[perTeamCacheIndex(eCacheID)][eTeam];
-	}
+	int perTeamCacheIndex(AgentSeqCache eCacheID) const { return eCacheID - NUM_STATUS_CACHES; }
+	PlayerVector& playerSeqCache(AgentSeqCache eCacheID) { return m_playerSeqCache[eCacheID]; }
+	TeamVector& teamSeqCache(AgentSeqCache eCacheID) { return m_teamSeqCache[eCacheID]; }
+	PlayerVector& memberSeqCache(AgentSeqCache eCacheID, TeamTypes eTeam) { return m_memberSeqCache[perTeamCacheIndex(eCacheID)][eTeam]; }
+	TeamVector& teamPerTeamSeqCache(AgentSeqCache eCacheID, TeamTypes eTeam) { return m_teamPerTeamSeqCache[perTeamCacheIndex(eCacheID)][eTeam]; }
 	// The same with const
-	PlayerVector const& playerSeqCache(AgentSeqCache eCacheID) const
-	{
-		return m_playerSeqCache[eCacheID];
-	}
-	TeamVector const& teamSeqCache(AgentSeqCache eCacheID) const
-	{
-		return m_teamSeqCache[eCacheID];
-	}
-	PlayerVector const& memberSeqCache(AgentSeqCache eCacheID, TeamTypes eTeam) const
-	{
-		return m_memberSeqCache[perTeamCacheIndex(eCacheID)][eTeam];
-	}
-	TeamVector const& teamPerTeamSeqCache(AgentSeqCache eCacheID, TeamTypes eTeam) const
-	{
-		return m_teamPerTeamSeqCache[perTeamCacheIndex(eCacheID)][eTeam];
-	}
+	PlayerVector const& playerSeqCache(AgentSeqCache eCacheID) const { return m_playerSeqCache[eCacheID]; }
+	TeamVector const& teamSeqCache(AgentSeqCache eCacheID) const { return m_teamSeqCache[eCacheID]; }
+	PlayerVector const& memberSeqCache(AgentSeqCache eCacheID, TeamTypes eTeam) const { return m_memberSeqCache[perTeamCacheIndex(eCacheID)][eTeam]; }
+	TeamVector const& teamPerTeamSeqCache(AgentSeqCache eCacheID, TeamTypes eTeam) const { return m_teamPerTeamSeqCache[perTeamCacheIndex(eCacheID)][eTeam]; }
 
 	void updateAllCachedSequences();
 	void updateVassal(TeamTypes eVassal, TeamTypes eMaster, bool bVassal);

@@ -1,0 +1,327 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 126
+# Author: iustus
+# Date: 2006-11-27T09:58:49.901069Z
+# Coverage: full
+# Message:
+#   granaries get higher priority overall
+#   added some logging for debugging what gets queued when
+#   under cultural victory, great artists will not be settled in cities that are so new they have not popped their borders
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@125
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@126
+@@ -30,6 +30,31 @@
+ #define BUILDINGFOCUS_EXPERIENCE		(0x00000100)
+ #define BUILDINGFOCUS_MAINTENANCE		(0x00000200)
+ #define BUILDINGFOCUS_SPECIALIST		(0x00000400)
++
++//#define DEBUG_CITY_BUILDS
++#ifdef DEBUG_CITY_BUILDS
++inline void getBuildingFocusString(CvWString& szString, int iFocusFlags)
++{
++	bool bFirst = true; szString = "";
++	if (iFocusFlags & BUILDINGFOCUS_FOOD) {szString+=L"food"; if (!bFirst){szString+=L", ";} bFirst = false;}
++	if (iFocusFlags & BUILDINGFOCUS_PRODUCTION) {szString+=L"production"; if (!bFirst){szString+=L", ";} bFirst = false;}
++	if (iFocusFlags & BUILDINGFOCUS_GOLD) {szString+=L"gold"; if (!bFirst){szString+=L", ";} bFirst = false;}
++	if (iFocusFlags & BUILDINGFOCUS_RESEARCH) {szString+=L"research"; if (!bFirst){szString+=L", ";} bFirst = false;}
++	if (iFocusFlags & BUILDINGFOCUS_CULTURE) {szString+=L"culture"; if (!bFirst){szString+=L", ";} bFirst = false;}
++	if (iFocusFlags & BUILDINGFOCUS_DEFENSE) {szString+=L"defense"; if (!bFirst){szString+=L", ";} bFirst = false;}
++	if (iFocusFlags & BUILDINGFOCUS_HAPPY) {szString+=L"happy"; if (!bFirst){szString+=L", ";} bFirst = false;}
++	if (iFocusFlags & BUILDINGFOCUS_HEALTHY) {szString+=L"healthy"; if (!bFirst){szString+=L", ";} bFirst = false;}
++	if (iFocusFlags & BUILDINGFOCUS_EXPERIENCE) {szString+=L"experience"; if (!bFirst){szString+=L", ";} bFirst = false;}
++	if (iFocusFlags & BUILDINGFOCUS_MAINTENANCE) {szString+=L"maintenance"; if (!bFirst){szString+=L", ";} bFirst = false;}
++	if (iFocusFlags & BUILDINGFOCUS_SPECIALIST) {szString+=L"specialist"; if (!bFirst){szString+=L", ";} bFirst = false;}
++	if (bFirst) {szString+=L"none";}
++}
++
++inline void getBuildingString(CvWString& szString, BuildingTypes eBuilding)
++{
++
++}
++#endif
+ 
+ 
+ // Public Functions...
+@@ -577,6 +602,7 @@
+ 	bFinancialTrouble = GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble();
+ 	bDanger = AI_isDanger();
+ 	iCulturePressure = AI_calculateCulturePressure();
++	int iNumCitiesInArea = area()->getCitiesPerPlayer(getOwnerINLINE());
+ 
+ 	iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
+ 
+@@ -1327,7 +1353,8 @@
+ 
+ 	iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+ 	iMilitaryWeight = GET_PLAYER(getOwnerINLINE()).AI_militaryWeight(area());
+-	iNumCitiesInArea = area()->getCitiesPerPlayer(getOwnerINLINE());
++	int iNumCitiesInArea = area()->getCitiesPerPlayer(getOwnerINLINE());
++
+ 	if (pWaterArea != NULL)
+ 	{
+ 		iCoastalCities = GET_PLAYER(getOwnerINLINE()).countNumCoastalCitiesByArea(pWaterArea);
+@@ -1725,6 +1752,16 @@
+ 	iBestValue = 0;
+ 	eBestBuilding = NO_BUILDING;
+ 
++#ifdef DEBUG_CITY_BUILDS
++	bool bFirst = true;
++	CvWString szFocusString; 
++	getBuildingFocusString(szFocusString, iFocusFlags);
++	
++	DEBUGLOG("%S: AI_bestBuilding(%S,%d): ", getName().GetCString(), szFocusString.GetCString(), 
++		GC.getGameINLINE().AI_turnsPercent(iMaxTurns, GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getConstructPercent()));
++#endif
++
++
+ 	for (iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+ 	{
+ 		if (!(GET_PLAYER(getOwnerINLINE()).isBuildingClassMaxedOut(((BuildingClassTypes)iI), GC.getBuildingClassInfo((BuildingClassTypes)iI).getExtraPlayerInstances())))
+@@ -1751,6 +1788,13 @@
+ 						if (iValue > 0)
+ 						{
+ 							iTurnsLeft = getProductionTurnsLeft(eLoopBuilding, 0);
++
++#ifdef DEBUG_CITY_BUILDS
++							DEBUGLOG("%s%S(%d/%d)", (bFirst ? "" : ", "), 
++								GC.getBuildingInfo(eLoopBuilding).getDescription(), iValue, iTurnsLeft);
++
++							bFirst = false;
++#endif
+ 
+ 							if (isWorldWonderClass((BuildingClassTypes)iI))
+ 							{
+@@ -1831,6 +1875,10 @@
+ 		}
+ 	}
+ 
++#ifdef DEBUG_CITY_BUILDS
++	DEBUGLOG("\n");
++#endif
++
+ 	return eBestBuilding;
+ }
+ 
+@@ -2177,7 +2225,7 @@
+ 
+ 				if (bCanPopRush)
+ 				{
+-					iValue += kBuilding.getFoodKept() / 10;
++					iValue += kBuilding.getFoodKept() / 2;
+ 				}
+ 
+ 				iValue += (kBuilding.getAirlift() * getPopulation() * 4);
+@@ -2346,6 +2394,11 @@
+ 
+ 					iValue += ((kBuilding.getTradeRouteModifier() * getTradeYield((YieldTypes)iI)) / 12);
+ 
++					if (iFoodDifference > 0)
++					{
++						iValue += kBuilding.getFoodKept() / 2;
++					}
++
+ 					if (kBuilding.getSeaPlotYieldChange(iI) > 0)
+ 					{
+ 						iTempValue += (kBuilding.getSeaPlotYieldChange(iI) * countNumWaterPlots() * 4);
+@@ -2395,13 +2448,13 @@
+ 			}
+ 			else
+ 			{
+-				if (iFoodDifference > 0)
+-				{
+-					iValue += (kBuilding.getFoodKept() / 2);
+-				}
+-
+ 				if (iFocusFlags & BUILDINGFOCUS_FOOD)
+ 				{
++					if (iFoodDifference > 0)
++					{
++						iValue += kBuilding.getFoodKept();
++					}
++
+ 					if (kBuilding.getSeaPlotYieldChange(YIELD_FOOD) > 0)
+ 					{
+ 						iValue += (kBuilding.getSeaPlotYieldChange(YIELD_FOOD) * countNumWaterPlots() * 4);
+@@ -4086,6 +4139,10 @@
+ 
+ 	if (eBestUnit != NO_UNIT)
+ 	{
++#ifdef DEBUG_CITY_BUILDS
++		DEBUGLOG("%S: AI_chooseUnit(%S): choose %S\n", getName().GetCString(), GC.getUnitAIInfo(eUnitAI).getDescription(), GC.getUnitInfo(eBestUnit).getDescription());
++#endif
++
+ 		pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, false);
+ 		return true;
+ 	}
+@@ -4129,6 +4186,13 @@
+ 
+ 	if (eBestBuilding != NO_BUILDING)
+ 	{
++#ifdef DEBUG_CITY_BUILDS
++		CvWString szFocusString; 
++		getBuildingFocusString(szFocusString, iFocusFlags);
++
++		DEBUGLOG("%S: AI_chooseBuilding(%S,%d): choose %S\n", getName().GetCString(), szFocusString.GetCString(), iMaxTurns, GC.getBuildingInfo(eBestBuilding).getDescription());
++#endif
++
+ 		pushOrder(ORDER_CONSTRUCT, eBestBuilding, -1, false, false, false);
+ 		return true;
+ 	}
+@@ -4145,6 +4209,10 @@
+ 
+ 	if (eBestProject != NO_PROJECT)
+ 	{
++#ifdef DEBUG_CITY_BUILDS
++		DEBUGLOG("%S: AI_chooseProject: choose %S\n", getName().GetCString(), GC.getProjectInfo(eBestProject).getDescription());
++#endif
++
+ 		pushOrder(ORDER_CREATE, eBestProject, -1, false, false, false);
+ 		return true;
+ 	}
+@@ -4161,6 +4229,10 @@
+ 
+ 	if (eBestProcess != NO_PROCESS)
+ 	{
++#ifdef DEBUG_CITY_BUILDS
++		DEBUGLOG("%S: AI_chooseProcess: choose %S\n", getName().GetCString(), GC.getProcessInfo(eBestProcess).getDescription());
++#endif
++
+ 		pushOrder(ORDER_MAINTAIN, eBestProcess, -1, false, false, false);
+ 		return true;
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@125
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@126
+@@ -10929,58 +10929,73 @@
+ 	iBestValue = 0;
+ 	iLoop = 0;
+ 	
+-	for (pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
+-	{
+-		if (AI_plotValid(pLoopCity->plot()))
+-		{
+-		    //instead of commerce rate rank should use the culture on tile...
+-		    if (pLoopCity->findCommerceRateRank(COMMERCE_CULTURE) == iCultureCitiesNeeded)
+-            {
+-                if (generatePath(pLoopCity->plot(), 0, true))
+-                {
+-                    pBestCity = pLoopCity;
+-                    pBestPlot = pLoopCity->plot();
+-                    if (bGreatWork)
+-                    {
+-                        if (canGreatWork(pBestPlot))
+-                        {
+-                            break;
+-                        }
+-                    }
+-
+-                    for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+-                    {
+-                        if (canJoin(pBestPlot, ((SpecialistTypes)iI)))
+-                        {
+-                            iValue = pLoopCity->AI_specialistValue(((SpecialistTypes)iI), pLoopCity->AI_avoidGrowth(), false);
+-
+-                            if (iValue > iBestValue)
+-                            {
+-                                iBestValue = iValue;
+-                                eBestSpecialist = ((SpecialistTypes)iI);
+-                            }
+-                        }
+-                    }
+-
+-                    if (eBestSpecialist == NO_SPECIALIST)
+-                    {
+-                        bJoin = false;
+-                        if (canGreatWork(pBestPlot))
+-                        {
+-                            bGreatWork = true; 
+-                            break;                        
+-                        }
+-                        bGreatWork = false;
+-                    }
+-                    break;
+-                }
+-			}
+-		}
+-	}
+-	if (!bGreatWork && !bJoin)
+-	{
+-	    FAssertMsg(false, "This wasn't a Great Artist");
+-	}
++	int iTargetCultureRank = iCultureCitiesNeeded;
++	while (iTargetCultureRank > 0 && pBestCity == NULL)
++	{
++		for (pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
++		{
++			if (AI_plotValid(pLoopCity->plot()))
++			{
++				// instead of commerce rate rank should use the culture on tile...
++				if (pLoopCity->findCommerceRateRank(COMMERCE_CULTURE) == iTargetCultureRank)
++				{
++					// if the city is a fledgling, probably building culture, try next higher city
++					if (pLoopCity->getCultureLevel() < 2)
++					{
++						break;
++					}
++					
++					// if we cannot path there, try the next higher culture city
++					if (!generatePath(pLoopCity->plot(), 0, true))
++					{
++						break;
++					}
++
++					pBestCity = pLoopCity;
++					pBestPlot = pLoopCity->plot();
++					if (bGreatWork)
++					{
++						if (canGreatWork(pBestPlot))
++						{
++							break;
++						}
++					}
++
++					for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
++					{
++						if (canJoin(pBestPlot, ((SpecialistTypes)iI)))
++						{
++							iValue = pLoopCity->AI_specialistValue(((SpecialistTypes)iI), pLoopCity->AI_avoidGrowth(), false);
++
++							if (iValue > iBestValue)
++							{
++								iBestValue = iValue;
++								eBestSpecialist = ((SpecialistTypes)iI);
++							}
++						}
++					}
++
++					if (eBestSpecialist == NO_SPECIALIST)
++					{
++						bJoin = false;
++						if (canGreatWork(pBestPlot))
++						{
++							bGreatWork = true; 
++							break;                        
++						}
++						bGreatWork = false;
++					}
++					break;
++				}
++			}
++		}
++	
++		iTargetCultureRank--;
++	}
++
++
++	FAssertMsg(bGreatWork || bJoin, "This wasn't a Great Artist");
++	
+ 	if (pBestCity == NULL)
+ 	{
+ 	    //should try to airlift there...
+

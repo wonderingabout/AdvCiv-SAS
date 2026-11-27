@@ -1,0 +1,28 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 104
+# Author: iustus
+# Date: 2006-11-19T16:17:58.380448Z
+# Coverage: full
+# Message:
+#   AI_groupMergeRange also does not join groups that are healing
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@103
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@104
+@@ -4660,7 +4660,11 @@
+ 					CvSelectionGroup* pLoopGroup = pLoopUnit->getGroup();
+ 					if ((pLoopUnit != this) && (pLoopGroup != pGroup) && (pLoopGroup->AI_getMissionAIType() != MISSIONAI_GROUP))
+ 					{
+-						if (pLoopUnit->isGroupHead() && !(pLoopUnit->isCargo()))
++						// do not attempt to join groups which are healing this turn
++						// (healing is cleared every turn for automated groups, so we know we pushed a heal this turn)
++						//		do not check if the loop unit is not the head
++						//		do not check if the loop unit is on a transport
++						if (pLoopGroup->getActivityType() != ACTIVITY_HEAL && pLoopUnit->isGroupHead() && !(pLoopUnit->isCargo()))
+ 						{
+ 							if (pLoopUnit->AI_getUnitAIType() == eUnitAI)
+ 							{
+

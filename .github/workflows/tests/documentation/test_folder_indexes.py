@@ -1,0 +1,205 @@
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+
+# <!-- custom: pathlib, sys, tempfile and unittest build small fixture repositories for the checker. (Claude code Opus 5.5) -->
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / ".github/workflows/build/documentation"))
+# <!-- custom: folder_indexes is the checker module under test, imported as checker. (Claude code Opus 5.5) -->
+import folder_indexes as checker
+
+HELPERS_README = """# Helpers
+
+## Folders
+
+| Folder | Holds |
+| --- | --- |
+| `audits/` | reports |
+| `balance/` | tuning |
+
+### Why folders are named by job
+
+| Before | After |
+| --- | --- |
+| `xml/` | `audits/` |
+
+## `audits/`
+
+### `ci_report.py`
+
+## `balance/`
+
+### `speed.py`
+"""
+
+WORKFLOWS_README = """# Workflows
+
+| Helper/test area | Workflow |
+| --- | --- |
+| `build/assets/` | `checks-assets.yml` |
+| `build/xml/` | `checks-xml.yml` |
+
+## Helper reference
+
+### Assets
+
+#### `build/assets/fonts.py`
+
+#### `build/assets/tech_audio.py`
+
+### XML and rules
+
+#### `build/xml/launch_guard.py`
+
+## Run Locally
+"""
+
+
+class HelperDocOrderTests(unittest.TestCase):
+    def repository(self, folder, helpers=HELPERS_README, workflows=WORKFLOWS_README):
+        root = Path(folder)
+        for path, content in (("LLM_Helpers/README.md", helpers), ("LLM_Helpers/audits/ci_report.py", ""), ("LLM_Helpers/balance/speed.py", ""), (".github/workflows/README.md", workflows)):
+            (root / path).parent.mkdir(parents=True, exist_ok=True)
+            (root / path).write_text(content, encoding="utf-8")
+        (root / "LLM_Helpers/outputs").mkdir()
+        workflows_root = root / ".github/workflows"
+        (workflows_root / "build/xml").mkdir(parents=True)
+        (workflows_root / "build/README.md").write_text("- `xml/`: XML checks.\n", encoding="utf-8")
+        (workflows_root / "tests").mkdir()
+        (workflows_root / "tests/README.md").touch()
+        return root
+
+    def errors(self, root):
+        return checker.check_helpers(root) + checker.check_workflows(root)
+
+    def test_matching_layout_passes(self):
+        with tempfile.TemporaryDirectory() as folder:
+            self.assertEqual(self.errors(self.repository(folder)), [])
+
+    def test_check_script_without_a_section_fails(self):
+        # <!-- custom: A check script needs its own README section.
+        # The build/ scan skips "_" modules and library subdirectories. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+        with tempfile.TemporaryDirectory() as folder:
+            root = self.repository(folder)
+            for path in ("build/xml/launch_guard.py", "build/xml/new_check.py", "build/xml/lib/shared.py", "build/xml/_helpers.py"):
+                (root / ".github/workflows" / path).parent.mkdir(parents=True, exist_ok=True)
+                (root / ".github/workflows" / path).write_text("", encoding="utf-8")
+            errors = self.errors(root)
+            self.assertEqual(len(errors), 1)
+            self.assertIn("build/xml/new_check.py", errors[0])
+
+    def test_shared_lib_helper_without_a_section_fails(self):
+        # <!-- custom: A shared module was invisible to the menu when it had no heading.
+        # Require its entry in the helper reference. (GPT-6.2-Sol) -->
+        with tempfile.TemporaryDirectory() as folder:
+            workflows = WORKFLOWS_README.replace(
+                "### XML and rules",
+                "### Shared helpers\n\n#### `lib/cpp_lex.py`\n\n### XML and rules",
+            )
+            root = self.repository(folder, workflows=workflows)
+            library = root / ".github/workflows/lib"
+            library.mkdir()
+            (library / "cpp_lex.py").touch()
+            self.assertEqual(self.errors(root), [])
+            (library / "git_context.py").touch()
+            errors = self.errors(root)
+            self.assertEqual(len(errors), 1)
+            self.assertIn("lib/git_context.py", errors[0])
+
+    def test_workflow_subject_indexes_report_missing_and_stale_rows(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = self.repository(folder)
+            workflows = root / ".github/workflows"
+            (workflows / "build/exe_patches").mkdir()
+            (workflows / "tests/exe_patches").mkdir()
+            (workflows / "tests/__pycache__").mkdir()
+            (workflows / "tests/README.md").write_text("| `old_subject/` | Old tests |\n", encoding="utf-8")
+            self.assertEqual(self.errors(root), [
+                ".github/workflows/build/exe_patches/ is not listed in .github/workflows/build/README.md",
+                ".github/workflows/tests/exe_patches/ is not listed in .github/workflows/tests/README.md",
+                ".github/workflows/tests/README.md lists old_subject/, which does not exist",
+            ])
+
+    def test_loose_helper_and_undescribed_file_fail(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = self.repository(folder)
+            (root / "LLM_Helpers/loose.py").write_text("", encoding="utf-8")
+            (root / "LLM_Helpers/balance/new_tuning.py").write_text("", encoding="utf-8")
+            errors = self.errors(root)
+            self.assertTrue(any("loose.py" in error for error in errors))
+            self.assertTrue(any("new_tuning.py" in error for error in errors))
+
+    def test_unsorted_sections_and_missing_folder_fail(self):
+        with tempfile.TemporaryDirectory() as folder:
+            helpers = HELPERS_README.replace("## `audits/`\n\n### `ci_report.py`\n\n## `balance/`\n\n### `speed.py`\n", "## `balance/`\n\n### `speed.py`\n\n## `audits/`\n\n### `ci_report.py`\n")
+            root = self.repository(folder, helpers=helpers)
+            (root / "LLM_Helpers/diagnostics").mkdir()
+            errors = self.errors(root)
+            self.assertTrue(any("folder sections are not in alphabetical order" in error for error in errors))
+            self.assertTrue(any("diagnostics/ has no" in error for error in errors))
+
+    def test_guide_list_covers_its_folder(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            guides = root / checker.GUIDES
+            guides.mkdir(parents=True)
+            for name in ("README_Art_Tools.md", "README_DLL_Compilation.md", "README_New.md"):
+                (guides / name).write_text("# Guide\n", encoding="utf-8")
+            listing = "# Modding\n\n## Guides in this folder\n\n- [DLL](/%s/README_DLL_Compilation.md): build\n- [Art](/%s/README_Art_Tools.md): art\n\n## Next\n" % (checker.GUIDES, checker.GUIDES)
+            (guides / "README.md").write_text(listing, encoding="utf-8")
+            errors = checker.check_guides(root)
+            self.assertTrue(any("not in alphabetical order" in error for error in errors))
+            self.assertTrue(any("README_New.md is not listed" in error for error in errors))
+
+    def guide_documented(self, folder, section, guide_text):
+        # <!-- custom: A fixture with the real exe_analysis/ folder and its guide, whose README section and guide text each test varies. (Claude code Opus 5.5) -->
+        guide = checker.GUIDE_DOCUMENTED_FOLDERS["exe_analysis"][0]
+        helpers = HELPERS_README.replace("| `balance/` | tuning |", "| `balance/` | tuning |\n| `exe_analysis/` | EXE |") + "\n## `exe_analysis/`\n\n" + section
+        root = self.repository(folder, helpers=helpers)
+        for path in ("LLM_Helpers/exe_analysis/dump.py", "LLM_Helpers/exe_analysis/ghidra_scripts/Describe.java"):
+            (root / path).parent.mkdir(parents=True, exist_ok=True)
+            (root / path).write_text("", encoding="utf-8")
+        (root / guide).parent.mkdir(parents=True, exist_ok=True)
+        (root / guide).write_text(guide_text, encoding="utf-8")
+        return root, guide
+
+    def pointer(self):
+        guide, disclaimer = checker.GUIDE_DOCUMENTED_FOLDERS["exe_analysis"]
+        return "See the [guide](/%s) and the [disclaimer](%s).\n" % (guide, disclaimer)
+
+    def test_guide_documented_folder_passes_as_pointer(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root, _ = self.guide_documented(folder, self.pointer(), "# Guide\n\n`dump.py` and `Describe.java`\n")
+            self.assertEqual(self.errors(root), [])
+
+    def test_guide_documented_folder_rejects_subsections_and_unnamed_helpers(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root, _ = self.guide_documented(folder, self.pointer() + "\n### `dump.py`\n\nDetails.\n", "# Guide\n\n`dump.py` only\n")
+            errors = self.errors(root)
+            self.assertTrue(any("has subsection" in error for error in errors))
+            self.assertTrue(any("Describe.java: not described" in error for error in errors))
+
+    def test_guide_documented_folder_rejects_description_lines(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root, _ = self.guide_documented(folder, "Helpers that read the EXE.\n\n" + self.pointer(), "# Guide\n\n`dump.py` and `Describe.java`\n")
+            self.assertTrue(any("has 2 lines" in error for error in self.errors(root)))
+
+    def test_guide_documented_folder_needs_both_links(self):
+        with tempfile.TemporaryDirectory() as folder:
+            guide = checker.GUIDE_DOCUMENTED_FOLDERS["exe_analysis"][0]
+            root, _ = self.guide_documented(folder, "See the [guide](/%s).\n" % guide, "# Guide\n\n`dump.py` and `Describe.java`\n")
+            self.assertTrue(any("must link to /LICENSE.md" in error for error in self.errors(root)))
+
+    def test_unsorted_workflow_helpers_fail(self):
+        with tempfile.TemporaryDirectory() as folder:
+            workflows = WORKFLOWS_README.replace("#### `build/assets/fonts.py`\n\n#### `build/assets/tech_audio.py`", "#### `build/assets/tech_audio.py`\n\n#### `build/assets/fonts.py`")
+            errors = self.errors(self.repository(folder, workflows=workflows))
+            self.assertEqual(len(errors), 1)
+            self.assertIn("Assets helpers", errors[0])
+
+
+if __name__ == "__main__":
+    unittest.main()

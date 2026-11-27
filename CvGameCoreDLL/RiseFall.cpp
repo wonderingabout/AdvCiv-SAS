@@ -1,4 +1,5 @@
 #include "CvGameCoreDLL.h"
+#include "SASSaveStreamFormat.h" // <!-- custom: Use the same compile-time write markers as the session diagnostic registry, avoiding duplicated version literals. (GPT-6.1-Sol) -->
 #include "RiseFall.h"
 #include "CvInfo_GameOption.h"
 #include "CoreAI.h"
@@ -10,6 +11,7 @@
 #include "CvPopupInfo.h"
 #include "CvReplayInfo.h"
 #include "CvPlot.h"
+#include "SASGameRecordLog.h" // <!-- custom: Rise & Fall can force Bare Map outside CvGame controls; log that native view-state transition at its actual application point. (ChatGPT-5.6-Sol) -->
 
 using std::wstringstream;
 using std::vector;
@@ -79,6 +81,7 @@ void RiseFall::init() {
 			return;
 		}
 	}
+	// <!-- custom: ci_define_uncached: Rise and Fall's setup, once per game, like the reads below. (Claude code Opus 5.5) -->
 	int maxChapters = GC.getDefineINT("RF_CHAPTERS_BASE");
 	CvGameSpeedInfo& speed = GC.getInfo(g.getGameSpeedType());
 	double chapterModifier = (speed.getGoldenAgePercent() + 150) / 250.0;
@@ -172,6 +175,8 @@ void RiseFall::setPlayerHandicap(PlayerTypes civId, bool bHuman, bool bIncrease)
 			-eGameHandicap, GC.getNumHandicapInfos() - eGameHandicap - 1));
 	GC.getInitCore().setHandicap(civId, (HandicapTypes)(bHuman ?
 			eGameHandicap + iAdjust : GC.getGame().getAIHandicap() + iAdjust));
+	// <!-- custom: The cached founding-unit surcharge depends on handicap as well as human control, so refresh it after this direct Rise & Fall handicap change. See KI#771. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	GET_PLAYER(civId).updateFoundingUnitExtraCosts();
 	/*	(Caller will have to call CvGame::updateAIHandicap if several AI player
 		handicaps are changed, i.e. if the avg. handicap may have changed.) */
 	CvPlayerAI& kCiv = GET_PLAYER(civId);
@@ -182,7 +187,8 @@ void RiseFall::setPlayerHandicap(PlayerTypes civId, bool bHuman, bool bIncrease)
 
 void RiseFall::write(FDataStreamBase* pStream) {
 
-	int savegameVersion = 1; // For later changes that may break compatibility
+	// <!-- custom: Reuse the existing RiseFall write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
+	int savegameVersion = SASSaveStreamFormat::RISE_FALL; // For later changes that may break compatibility
 	pStream->Write(savegameVersion);
 	bool origNameGiven = (originalName != NULL);
 	pStream->Write(origNameGiven);
@@ -203,16 +209,16 @@ void RiseFall::write(FDataStreamBase* pStream) {
 void RiseFall::read(FDataStreamBase* pStream) {
 
 	reset();
-	int savegameVersion = -1;
+	// <!-- custom: Consume the Rise and Fall writer marker before the original-name field.
+	// SAS reads the layout that includes this field because saves from before it was added are unsupported. See KI#46.2. (GPT-6.2-Sol) -->
+	int savegameVersion;
 	pStream->Read(&savegameVersion);
-	if(savegameVersion >= 1) { // else leave it as NULL
-		bool origNameGiven = false;
-		pStream->Read(&origNameGiven);
-		if(origNameGiven) {
-			wchar* tmp = pStream->ReadWideString();
-			originalName = new CvWString(tmp);
-			delete tmp;
-		}
+	bool origNameGiven = false;
+	pStream->Read(&origNameGiven);
+	if(origNameGiven) {
+		wchar* tmp = pStream->ReadWideString();
+		originalName = new CvWString(tmp);
+		delete tmp;
 	}
 	pStream->Read(&interludeLength);
 	pStream->Read(&interludeCountdown);
@@ -375,7 +381,7 @@ void RiseFall::atTurnEnd(PlayerTypes civId) {
 		currentCh.setScoreAtEnd(currentCh.computeScore());
 		// Even if interludeLength is 0, parts of a round need to be skipped
 		interludeCountdown = interludeLength;
-		g.setAIAutoPlay(0); // In case that the player has retired
+		g.setAIAutoPlay(0, true, SAS_AUTOPLAY_END_RISE_FALL); // In case that the player has retired
 		setPlayerControl(currentCh.getCiv(), false);
 		abandonPlans(currentCh.getCiv());
 		CvWString replayText = gDLL->getText("TXT_KEY_RF_INTERLUDE_STARTED");
@@ -441,6 +447,7 @@ void RiseFall::atActiveTurnStart() {
 			chapters[i]->setScoreShown(true);
 		}
 	}
+	// <!-- custom: ci_define_uncached: the read below is reached only on a chapter's last turn, as the tests before it fail first otherwise. (Claude code Opus 5.5) -->
 	if(pos < ((int)chapters.size()) - 1 &&
 			gameTurn == currentCh.getEndTurn() &&
 			GC.getDefineINT("RF_ENABLE_FINAL_TURN_POPUP") > 0) {
@@ -525,8 +532,13 @@ void RiseFall::setPlayerControl(PlayerTypes civId, bool b) {
 
 void RiseFall::setUIHidden(bool b) {
 
-	if(gDLL->UI().isBareMapMode() != b)
+	bool const bOldBareMap = gDLL->UI().isBareMapMode();
+	if(bOldBareMap != b)
+	{
 		gDLL->UI().toggleBareMapMode();
+		// <!-- custom: This programmatic interlude transition bypasses CONTROL_BARE_MAP; sample its result only behind the level/initialization gate, without recurring UI sampling. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		if (gGameRecordLogLevel >= 2 && GC.getGame().isFinalInitialized()) logSASGameRecordRuntimeViewBoolChange("RISE_FALL_UI_HIDDEN", "bareMap", bOldBareMap, gDLL->UI().isBareMapMode());
+	}
 	/*  toggleScoresVisible(): Isn't actually hidden b/c CvMainInterface.py doesn't
 		update itself during interlude.
 		toggleTurnLog(): Can't check if it's open. */
@@ -690,13 +702,15 @@ void RiseFall::abandonPlans(PlayerTypes civId) {
 			gDLL->UI().lookAtSelectionPlot();
 		}
 		// Without this, units outside owner's borders don't appear on the main interface.
+		// <!-- custom: Retired KI#100's null-group guard, restoring base AdvCiv 1.14: a crash fix made without a matching PDB, so a recurrence should be traced with a Debug-opt dump. See KI#100 and KI#136. (Claude code Opus 4.5 + GPT-5.2-Codex + Claude code Opus 5.5) -->
 		if(gr->plot()->getOwner() != civId)
 			gr->plot()->updateCenterUnit();
 		/* ^Perhaps no longer needed due to a change in CvPlot::updateVisibility
 			(advc.061). Should test this some time. */
 	}
 	// Set research slider to a balanced-budget position
-	int incr = GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS");
+	// <!-- custom: Read through AdvCiv's enum cache, as CvPlayer and CvPlayerAI do. See KI#128.3. (Claude code Opus 5.5) -->
+	int incr = GC.getDefineINT(CvGlobals::COMMERCE_PERCENT_CHANGE_INCREMENTS);
 	civ.setCommercePercent(COMMERCE_RESEARCH, 100);
 	while(civ.calculateGoldRate() < 0 && civ.getCommercePercent(COMMERCE_RESEARCH) > 9)
 		civ.setCommercePercent(COMMERCE_RESEARCH,
@@ -961,7 +975,7 @@ void RiseFall::prepareForExtendedGame() {
 		chapters[pos]->setScored(GC.getGame().getGameTurn() - 1);
 		if(g.getAIAutoPlay()) {
 			abandonPlans(chapters[pos]->getCiv());
-			g.setAIAutoPlay(0);
+			g.setAIAutoPlay(0, true, SAS_AUTOPLAY_END_RISE_FALL);
 		}
 	}
 	else {
@@ -1070,8 +1084,7 @@ bool RiseFall::launchCivSelectionPopup(CvPopup* popup, CvPopupInfo& info) {
 	return true;
 }
 
-void RiseFall::assignCivSelectionHelp(CvWStringBuffer& szBuffer,
-		PlayerTypes selectedCiv) {
+void RiseFall::assignCivSelectionHelp(CvWStringBuffer& szBuffer, PlayerTypes selectedCiv) {
 
 	CvGame& g = GC.getGame();
 	wstringstream wss;
@@ -1363,8 +1376,7 @@ void RiseFall::handleCivSelection(PlayerTypes selectedCiv) {
 	chapters[pos]->setCiv(selectedCiv);
 }
 
-bool RiseFall::isSquareDeal(CLinkList<TradeData> const& humanReceives,
-			CLinkList<TradeData> const& aiReceives, PlayerTypes aiCiv) const {
+bool RiseFall::isSquareDeal(CLinkList<TradeData> const& humanReceives, CLinkList<TradeData> const& aiReceives, PlayerTypes aiCiv) const {
 
 	PlayerTypes human = getActivePlayer();
 		/*  Actually no problem if the human receives sth. non-dual, e.g. gold
@@ -1394,8 +1406,7 @@ bool RiseFall::isNeededWarTrade(CLinkList<TradeData> const& humanReceives) const
 	return false;
 }
 
-bool RiseFall::allSquare(CLinkList<TradeData> const& list, PlayerTypes from,
-		PlayerTypes to) const {
+bool RiseFall::allSquare(CLinkList<TradeData> const& list, PlayerTypes from, PlayerTypes to) const {
 
 	bool allVassal = true;
 	bool allDual = true;
@@ -1416,8 +1427,7 @@ bool RiseFall::allSquare(CLinkList<TradeData> const& list, PlayerTypes from,
 	return allDual || allVassal || allLiberation;
 }
 
-int RiseFall::pessimisticDealVal(PlayerTypes aiCivId, int dealVal,
-		CLinkList<TradeData> const& humanReceives) const {
+int RiseFall::pessimisticDealVal(PlayerTypes aiCivId, int dealVal, CLinkList<TradeData> const& humanReceives) const {
 
 	int r = dealVal;
 	PlayerTypes humanCivId = getActivePlayer();

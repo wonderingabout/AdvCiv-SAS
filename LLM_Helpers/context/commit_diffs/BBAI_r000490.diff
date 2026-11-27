@@ -1,0 +1,64 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 490
+# Author: jdog5000
+# Date: 2009-09-21T17:22:53.770039Z
+# Coverage: full
+# Message:
+#   0.81M
+#   
+#   Fixed new bug causing crashes when all player slots full
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@489
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@490
+@@ -4454,7 +4454,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.81L");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.81M");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /*************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@489
++++ /trunk/CvGameCoreDLL/CvGame.cpp@490
+@@ -5417,7 +5417,7 @@
+ 		AI_makeAssignWorkDirty();
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
++/** BETTER_BTS_AI_MOD                      09/20/09                       poyuzhe & jdog5000     */
+ /**                                                                                              */
+ /** Efficiency                                                                                   */
+ /*************************************************************************************************/
+@@ -5425,10 +5425,19 @@
+ 		// Attitude cache
+ 		for (int iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
+ 		{
+-			if (GET_PLAYER((PlayerTypes)iJ).isAlive() && GET_PLAYER((PlayerTypes)iI).getStateReligion() == eIndex)
+-			{
+-				GET_PLAYER(pNewValue->getOwnerINLINE()).AI_invalidateAttitudeCache((PlayerTypes)iJ);
+-				GET_PLAYER((PlayerTypes)iJ).AI_invalidateAttitudeCache(pNewValue->getOwnerINLINE());
++			if (GET_PLAYER((PlayerTypes)iJ).isAlive() && GET_PLAYER((PlayerTypes)iJ).getStateReligion() == eIndex)
++			{
++				if( pNewValue != NULL )
++				{
++					GET_PLAYER(pNewValue->getOwnerINLINE()).AI_invalidateAttitudeCache((PlayerTypes)iJ);
++					GET_PLAYER((PlayerTypes)iJ).AI_invalidateAttitudeCache(pNewValue->getOwnerINLINE());
++				}
++				
++				if( pOldValue != NULL )
++				{
++					GET_PLAYER(pOldValue->getOwnerINLINE()).AI_invalidateAttitudeCache((PlayerTypes)iJ);
++					GET_PLAYER((PlayerTypes)iJ).AI_invalidateAttitudeCache(pOldValue->getOwnerINLINE());
++				}
+ 			}
+ 		}
+ /*************************************************************************************************/
+

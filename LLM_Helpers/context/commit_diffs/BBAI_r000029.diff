@@ -1,0 +1,262 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 29
+# Author: blakeciv
+# Date: 2006-11-04T03:49:00.452498Z
+# Coverage: full
+# Message:
+#   Added a bunch of asserts to isolate a bug with corrupt build data, rearranged AI_improveBonus to fix the bug.
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@28
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@29
+@@ -711,10 +711,12 @@
+ 			break;
+ 
+ 		case MISSION_BUILD:
+-			if (pLoopUnit->canBuild(pPlot, ((BuildTypes)iData1), bTestVisible))
+-			{
+-				return true;
+-			}
++
++            FAssertMsg(((BuildTypes)iData1) < GC.getNumBuildInfos(), "Invalid Build");
++            if (pLoopUnit->canBuild(pPlot, ((BuildTypes)iData1), bTestVisible))
++            {
++                return true;
++            }
+ 			break;
+ 
+ 		case MISSION_LEAD:
+@@ -2508,6 +2510,7 @@
+ 	bool bContinue;
+ 
+ 	FAssert(getOwnerINLINE() != NO_PLAYER);
++	FAssertMsg(eBuild < GC.getNumBuildInfos(), "Invalid Build");
+ 
+ 	bContinue = false;
+ 
+@@ -2524,18 +2527,18 @@
+ 					return false;
+ 				}
+ 			}
+-
+-			if (AI_getMissionAIType() == MISSION_BUILD)
+-			{
+-                CvCity* pWorkingCity = pPlot->getWorkingCity();
+-                if ((pWorkingCity != NULL) && (AI_getMissionAIPlot() == pPlot))
+-                {
+-                    if (pWorkingCity->AI_getBestBuild(pWorkingCity->getCityPlotIndex(pPlot)) != eBuild)
+-                    {
+-                        return false;
+-                    }
+-                }
+-			}
++//
++//			if (AI_getMissionAIType() == MISSION_BUILD)
++//			{
++//                CvCity* pWorkingCity = pPlot->getWorkingCity();
++//                if ((pWorkingCity != NULL) && (AI_getMissionAIPlot() == pPlot))
++//                {
++//                    if (pWorkingCity->AI_getBestBuild(pWorkingCity->getCityPlotIndex(pPlot)) != eBuild)
++//                    {
++//                        return false;
++//                    }
++//                }
++//			}
+ 		}
+ 	}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@28
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@29
+@@ -1281,6 +1281,7 @@
+ 		{
+ 			eBuild = ((BuildTypes)(GC.getActionInfo(iAction).getMissionData()));
+ 			FAssert(eBuild != NO_BUILD);
++			FAssertMsg(eBuild < GC.getNumBuildInfos(), "Invalid Build");
+ 
+ 			if (canBuild(pPlot, eBuild))
+ 			{
+@@ -4805,6 +4806,7 @@
+ 
+ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible) const
+ {
++    FAssertMsg(eBuild < GC.getNumBuildInfos(), "Index out of bounds");
+ 	if (!(GC.getUnitInfo(getUnitType()).getBuilds(eBuild)))
+ 	{
+ 		return false;
+@@ -4828,6 +4830,8 @@
+ bool CvUnit::build(BuildTypes eBuild)
+ {
+ 	bool bFinished;
++
++	FAssertMsg(eBuild < GC.getNumBuildInfos(), "Invalid Build");
+ 
+ 	if (!canBuild(plot(), eBuild))
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@28
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@29
+@@ -730,6 +730,7 @@
+ 						if (iValue > iBestValue)
+ 						{
+ 							eBuild = pCity->AI_getBestBuild(iI);
++							FAssertMsg(eBuild < GC.getNumBuildInfos(), "Invalid Build");
+ 
+ 							if (eBuild != NO_BUILD)
+ 							{
+@@ -8454,6 +8455,7 @@
+ 	{
+ 		FAssertMsg(pBestPlot != NULL, "BestPlot is not assigned a valid value");
+ 		FAssertMsg(eBestBuild != NO_BUILD, "BestBuild is not assigned a valid value");
++		FAssertMsg(eBestBuild < GC.getNumBuildInfos(), "BestBuild is assigned a corrupt value");
+ 		if (plot()->getWorkingCity() != pCity)
+ 		{
+ 			eMission = MISSION_ROUTE_TO;
+@@ -8532,6 +8534,9 @@
+ 
+ 	if (pBestPlot != NULL)
+ 	{
++	    FAssertMsg(eBestBuild != NO_BUILD, "BestBuild is not assigned a valid value");
++	    FAssertMsg(eBestBuild < GC.getNumBuildInfos(), "BestBuild is assigned a corrupt value");
++
+ 		getGroup()->pushMission(MISSION_ROUTE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_BUILD, pBestPlot);
+ 		getGroup()->pushMission(MISSION_BUILD, eBestBuild, -1, 0, (getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
+ 		return true;
+@@ -8652,6 +8657,7 @@
+ 									for (iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
+ 									{
+ 										eBuild = ((BuildTypes)iJ);
++                                        FAssertMsg(eBuild < GC.getNumBuildInfos(), "Invalid Build");
+ 
+ 										if (GC.getBuildInfo(eBuild).getImprovement() != NO_IMPROVEMENT)
+ 										{
+@@ -8728,6 +8734,7 @@
+ 	if (pBestPlot != NULL)
+ 	{
+ 		FAssertMsg(eBestBuild != NO_BUILD, "BestBuild is not assigned a valid value");
++		FAssertMsg(eBestBuild < GC.getNumBuildInfos(), "BestBuild is assigned a corrupt value");
+ 
+ 		getGroup()->pushMission(MISSION_ROUTE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_BUILD, pBestPlot);
+ 		getGroup()->pushMission(MISSION_BUILD, eBestBuild, -1, 0, (getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
+@@ -8793,6 +8800,7 @@
+                                 for (iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
+                                 {
+                                     eBuild = ((BuildTypes)iJ);
++                                    FAssertMsg(eBuild < GC.getNumBuildInfos(), "Invalid Build");
+ 
+                                     if (GC.getBuildInfo(eBuild).getImprovement() != NO_IMPROVEMENT)
+                                     {
+@@ -8814,6 +8822,7 @@
+                                             }
+                                         }
+                                     }
++
+                                     if (!bIsConnected && bCanRoute && (GC.getBuildInfo(eBuild).getRoute() != NO_ROUTE))
+                                     {
+                                         if ((eImprovement != NO_IMPROVEMENT) && (GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus)))
+@@ -8836,48 +8845,48 @@
+                                         }
+                                     }
+                                 }
++
++                                if (eBestTempBuild != NO_BUILD)
++                                {
++                                    //if (!(pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
++                                    {
++                                        if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup()) == 0)
++                                        {
++                                            if (generatePath(pLoopPlot, 0, true, &iPathTurns)) // XXX should this actually be at the top of the loop? (with saved paths and all...)
++                                            {
++                                                iValue = GET_PLAYER(getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus);
++
++                                                iValue += max(0, 100 * GC.getBonusInfo(eNonObsoleteBonus).getAIObjective());
++
++
++                                                if (GET_PLAYER(getOwnerINLINE()).getNumTradeableBonuses(eNonObsoleteBonus) == 0)
++                                                {
++                                                    iValue *= 2;
++                                                }
++
++                                                if (iValue > iMinValue)
++                                                {
++                                                    iValue *= 1000;
++
++                                                    iValue /= (iPathTurns + 1);
++
++                                                    if (pLoopPlot->isCityRadius())
++                                                    {
++                                                        iValue *= 2;
++                                                    }
++
++                                                    if (iValue > iBestValue)
++                                                    {
++                                                        iBestValue = iValue;
++                                                        eBestBuild = eBestTempBuild;
++                                                        pBestPlot = pLoopPlot;
++                                                    }
++                                                }
++                                            }
++                                        }
++                                    }
++                                }
+ 						    }
+-
+-							if (eBestTempBuild != NO_BUILD)
+-							{
+-								//if (!(pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+-								{
+-									if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup()) == 0)
+-									{
+-										if (generatePath(pLoopPlot, 0, true, &iPathTurns)) // XXX should this actually be at the top of the loop? (with saved paths and all...)
+-										{
+-											iValue = GET_PLAYER(getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus);
+-
+-											iValue += max(0, 100 * GC.getBonusInfo(eNonObsoleteBonus).getAIObjective());
+-
+-
+-											if (GET_PLAYER(getOwnerINLINE()).getNumTradeableBonuses(eNonObsoleteBonus) == 0)
+-											{
+-												iValue *= 2;
+-											}
+-
+-											if (iValue > iMinValue)
+-											{
+-												iValue *= 1000;
+-
+-												iValue /= (iPathTurns + 1);
+-
+-												if (pLoopPlot->isCityRadius())
+-												{
+-													iValue *= 2;
+-												}
+-
+-												if (iValue > iBestValue)
+-												{
+-													iBestValue = iValue;
+-													eBestBuild = eBestTempBuild;
+-													pBestPlot = pLoopPlot;
+-												}
+-											}
+-										}
+-									}
+-								}
+-							}
+ 						}
+ 					}
+ 				}
+@@ -8888,6 +8897,7 @@
+ 	if (pBestPlot != NULL)
+ 	{
+ 		FAssertMsg(eBestBuild != NO_BUILD, "BestBuild is not assigned a valid value");
++		FAssertMsg(eBestBuild < GC.getNumBuildInfos(), "BestBuild is assigned a corrupt value");
+ 
+ 		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_BUILD, pBestPlot);
+ 		getGroup()->pushMission(MISSION_BUILD, eBestBuild, -1, 0, (getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
+

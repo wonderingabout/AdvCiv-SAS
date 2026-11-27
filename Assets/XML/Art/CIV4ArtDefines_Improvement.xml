@@ -2,6 +2,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Firaxis Games (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- Improvement art path information -->
 <Civ4ArtDefines xmlns="x-schema:CIV4ArtDefinesSchema.xml">
@@ -43,6 +47,7 @@
 			<KFM>Art/Structures/Improvements/TribalVillage/TribalVillage.kfm</KFM>
 			<Button>,Art/Interface/Buttons/Builds/BuildTribalVillage.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,4,10</Button>
 		</ImprovementArtInfo>
+		<!-- custom: IMPROVEMENT_WINERY was removed during the Grapes redesign; Grapes were later moved from Farm to IMPROVEMENT_PLANTATION. (ChatGPT-5.6-Sol) -->
 		<ImprovementArtInfo>
 			<Type>ART_DEF_IMPROVEMENT_FARM</Type>
 			<bExtraAnimations>1</bExtraAnimations>
@@ -133,6 +138,17 @@
 			<KFM>Art/Structures/Improvements/Quarry/Quarry.kfm</KFM>
 			<Button>,Art/Interface/Buttons/Builds/BuildQuarry.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,2,9</Button>
 		</ImprovementArtInfo>
+		<!-- custom: Imported from Caveman2Cosmos, thanks: the model and scale of its ART_DEF_IMPROVEMENT_PEAT_CUTTER (a gatherers' camp, whose textures load by name from the same folder) and its peat gatherer building's button of cut peat blocks.
+		The first version reused Quarry's model and button as placeholders, so Peat Works and Quarry looked the same in the Sevopedia. (Claude code Opus 5.5) -->
+		<ImprovementArtInfo>
+			<Type>ART_DEF_IMPROVEMENT_PEAT_WORKS</Type>
+			<bExtraAnimations>0</bExtraAnimations>
+			<fScale>0.6</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Improvements/Peat_Works/nif/camp_fx.nif</NIF>
+			<KFM>Art/AdvCiv_SAS/Improvements/Peat_Works/nif/camp.kfm</KFM>
+			<Button>Art/AdvCiv_SAS/Improvements/Peat_Works/Peat_Works_button.dds</Button>
+		</ImprovementArtInfo>
 		<ImprovementArtInfo>
 			<Type>ART_DEF_IMPROVEMENT_PASTURE</Type>
 			<bExtraAnimations>0</bExtraAnimations>
@@ -168,15 +184,6 @@
 			<NIF>Art/Structures/Improvements/OilRig/OilRig.nif</NIF>
 			<KFM>Art/Structures/Improvements/OilRig/OilRig.kfm</KFM>
 			<Button>,Art/Interface/Buttons/Builds/BuildOffshorePlatform.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,4,9</Button>
-		</ImprovementArtInfo>
-		<ImprovementArtInfo>
-			<Type>ART_DEF_IMPROVEMENT_WINERY</Type>
-			<bExtraAnimations>0</bExtraAnimations>
-			<fScale>1.0</fScale>
-			<fInterfaceScale>1.0</fInterfaceScale>
-			<NIF>Art/Structures/Improvements/Winery/Winery.nif</NIF>
-			<KFM>Art/Structures/Improvements/Winery/Winery.kfm</KFM>
-			<Button>,Art/Interface/Buttons/Builds/BuildWinery.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,6,8</Button>
 		</ImprovementArtInfo>
 		<ImprovementArtInfo>
 			<Type>ART_DEF_IMPROVEMENT_COTTAGE</Type>

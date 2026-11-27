@@ -1,0 +1,58 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 82
+# Author: blakeciv
+# Date: 2006-11-15T17:09:55.531981Z
+# Coverage: full
+# Message:
+#   Fixed problem in AI_heal with wild pointers to groups
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@81
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@82
+@@ -5516,18 +5516,19 @@
+ 
+ 	CLLNode<IDInfo>* pEntityNode;
+ 	std::vector<CvUnit*> aeDamagedUnits;
++	CvSelectionGroup* pGroup;
+ 	CvUnit* pLoopUnit;
+ 	int iTotalDamage;
+ 	int iTotalHitpoints;
+ 	int iHurtUnitCount;
+ 	bool bRetreat;
+ 	
++	pGroup = getGroup();
++	
+ 	if (iDamagePercent == 0)
+ 	{
+ 	    iDamagePercent = 10;	    
+-	}
+-	
+-	
++	}	
+ 
+ 	bRetreat = false;
+ 
+@@ -5602,16 +5603,17 @@
+ 	    }
+         for (unsigned int iI = 0; iI < aeDamagedUnits.size(); iI++)
+         {
++            //FAssert(aeDamagedUnits[iI] != this);
+             aeDamagedUnits[iI]->joinGroup(NULL);
+             iHurtUnitCount--;	    
+         }
+ 	}
+ 	
+-	if ((iHurtUnitCount * 3) > getGroup()->getNumUnits())
++	if ((iHurtUnitCount * 3) > pGroup->getNumUnits())
+ 	{
+ 	    if (healRate(plot()) >= 10)
+ 	    {
+-            getGroup()->pushMission(MISSION_SKIP);
++            pGroup->pushMission(MISSION_SKIP);
+             return true;
+ 	    }
+ 	    else if (AI_moveIntoCity(2))
+

@@ -1,0 +1,1259 @@
+# AGENTS
+
+## Menu
+
+- [Credit](#credit)
+- [General information](#general-information)
+- [git, GitHub, and git diff info](#git-github-and-git-diff-info)
+  - [Review and staging](#review-and-staging)
+  - [CI workflows](#ci-workflows)
+  - [Release preparation](#release-preparation)
+  - [DLL inclusion in commits](#dll-inclusion-in-commits)
+  - [Commit message writing](#commit-message-writing)
+- [Research and references](#research-and-references)
+  - [Source analysis](#source-analysis)
+  - [Information Fetching from other known helpful mods](#information-fetching-from-other-known-helpful-mods)
+  - [Local LLM working folder](#local-llm-working-folder)
+  - [Information Fetching locally (Dbg.log, Err.log, etc.)](#information-fetching-locally-dbglog-errlog-etc)
+    - [Comparison with Base AdvCiv 1.12's CvMainInterface.py processed to single-line](#comparison-with-base-advciv-112s-cvmaininterfacepy-processed-to-single-line)
+    - [Sevopedia debug dumps (Python API introspection)](#sevopedia-debug-dumps-python-api-introspection)
+  - [Information Fetching online](#information-fetching-online)
+  - [Suggesting tools and ideas](#suggesting-tools-and-ideas)
+- [Documentation editing](#documentation-editing)
+  - [Examples and historical records](#examples-and-historical-records)
+  - [Markdown structure and readability](#markdown-structure-and-readability)
+  - [Main Changes Guide](#main-changes-guide)
+- [Comment Editing Rules](#comment-editing-rules)
+  - [Comment markers and attribution](#comment-markers-and-attribution)
+  - [Preserving meaning and technical detail](#preserving-meaning-and-technical-detail)
+  - [Source context and issue references](#source-context-and-issue-references)
+  - [Rationale and presentation](#rationale-and-presentation)
+    - [Rationale, observed results and uncertainty](#rationale-observed-results-and-uncertainty)
+    - [Comment syntax and logical reflow](#comment-syntax-and-logical-reflow)
+    - [Comment Style Example](#comment-style-example)
+- [Coding Preferences](#coding-preferences)
+  - [General](#general)
+    - [Values and implementation choices](#values-and-implementation-choices)
+    - [Iterative/recursive development and review](#iterativerecursive-development-and-review)
+    - [Clarity and accuracy](#clarity-and-accuracy)
+    - [Unsupported and deprecated features](#unsupported-and-deprecated-features)
+    - [Assignments and gameplay rationale](#assignments-and-gameplay-rationale)
+    - [Code layout and collapsing](#code-layout-and-collapsing)
+    - [Lookup and caching review](#lookup-and-caching-review)
+    - [Naming, diagnostics and text encoding](#naming-diagnostics-and-text-encoding)
+    - [Verifying accessor semantics](#verifying-accessor-semantics)
+  - [Python (Civ4)](#python-civ4)
+    - [Runtime compatibility](#runtime-compatibility)
+    - [Visual resources and UI fonts](#visual-resources-and-ui-fonts)
+    - [Syntax checks and linting](#syntax-checks-and-linting)
+    - [UI identifiers and display text](#ui-identifiers-and-display-text)
+    - [XML lookup, caching and validation](#xml-lookup-caching-and-validation)
+    - [Modules, shared constants and helper ownership](#modules-shared-constants-and-helper-ownership)
+  - [XML](#xml)
+  - [C++](#c)
+    - [Defines and AI behavior](#defines-and-ai-behavior)
+    - [Signatures and preprocessor layout](#signatures-and-preprocessor-layout)
+    - [Caching and variable reuse](#caching-and-variable-reuse)
+    - [Diagnostic gating and output](#diagnostic-gating-and-output)
+    - [Interface, dependency and toolchain comments](#interface-dependency-and-toolchain-comments)
+- [Subsystem revision maintenance](#subsystem-revision-maintenance)
+- [DLL compilation](#dll-compilation)
+- [Runtime safety and diagnostics](#runtime-safety-and-diagnostics)
+- [File management](#file-management)
+
+## Credit
+
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+
+## General information
+
+This is the general guidelines to follow for this repo of our mod AdvCiv-SAS that is based on AdvCiv, for AI/LLM helpers. You don't need to look at files mentioned in this sub-section for now, just get aware of their existence if you need them later in our tasks.
+
+You can expand this [AGENTS.md](/AGENTS.md) freely as you see fit.
+
+Keep additions in this file as guidance, not a full spec. State the rule, why it exists and concrete example(s) (real names beat abstract prose) if it helps, and link to the detailed doc instead of repeating it unless part of the explanation or something otherwise helpful.
+
+Note: this file is written for local agents (e.g. Codex, Claude Code) working on this computer. If you are an external agent (e.g. ChatGPT, on the web browser), some steps differ: see [External agents (e.g. ChatGPT, on the web browser)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#external-agents).
+
+## git, GitHub, and git diff info
+
+Our mod is also on github, see [AdvCiv-SAS's github repo](https://github.com/wonderingabout/AdvCiv-SAS).
+
+### Review and staging
+
+Locally our project is a git repo too, generally with a fresh commit for each new main task, so feel free to git diff while doing your tasks to see your progress and analyze or such.
+
+- Generally leave staging/unstaging to the user during review; preserve the existing index and leave new edits unstaged unless asked otherwise or an explicitly approved commit is ready for final preparation.
+  - The staged/unstaged split supports iterative review of the same commit candidate, for example sharing only Codex's subsequent edits with ChatGPT, or vice versa. An already-staged file is not permission to stage its newer edits.
+  - Some changes are intentionally kept unstaged and are never meant for the commit. For example, `SAS_SGR_LOG_ON=1` with `SAS_SGR_LOG=3`, `SAS_RUNTIME_STATUS_ON=1` and `SAS_RUNTIME_SOURCE_WATCH_ON=1` are examples usually left enabled during development cycles as useful and usually wanted, and for no tedium, while shipped defaults are `0` to avoid unnecessary diagnostic overhead for regular users.
+    - A locally built test DLL, usually Debug-opt, likewise stays installed in `Assets/` and unstaged. This meets both needs at once: tests run the newest native code, while commits do not carry a binary each time, which would pollute the diff when the shipped DLL still works (see [DLL inclusion in commits](#dll-inclusion-in-commits)).
+      - Restoring the committed DLL before a commit only sends the next test back to old code.
+    - CI helps catch accidentally committed development settings; locally, the diagnostic-default checks accept [`--staged`](/.github/workflows/README.md#local---staged-option-for-diagnostic-defaults) to check staged content while unstaged development values stay enabled.
+    - [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) can switch the usual development diagnostics on or back to shipped defaults.
+    - Temporarily disabling local diagnostics can simplify committing, amending or rebasing; afterward restore the user's previous unstaged values, including BBAI or other diagnostics where applicable, before handing back for testing unless there is a specific reason to leave them disabled. Make that exception clear to the user, who may otherwise forget or not notice that diagnostics are off.
+- When a file holds work for more than one commit, stage its parts with [`stage_partial.py`](/LLM_Helpers/README.md#stage_partialpy) (`--drop`, `--head`, `--keep`, `--dry-run`) rather than building staged copies by hand: it leaves the working file as it is and stops on a marker found twice or not at all.
+  - Example (2026-11-23): splitting the Debug Info screen's commit ([KI#1105.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1105.2)) from the GameFont Display screen's (KI#1107), Claude Code Opus 5.5 staged three shared docs by hand with `git hash-object` and `git update-index`, not knowing the helper existed, as nothing here named it; its `--drop` dry run on the README then matched that staging line for line.
+- Do not commit changes without explicit user approval; leave the completed candidate for review first.
+- For a lengthy, iterative commit candidate, review and fix freely as you go, but leave final validation, meaning the full CI run, the demo screenshots for documentation and the Release DLL, until last, and do each once when everything is clear.
+  - All three go stale whenever the work changes direction, so redoing them at every iteration wastes time and tokens and pulls attention away from the work itself; done once at the end, they are quicker and the iterations get deeper focus.
+  - Example (2026-11-12): while curating the Simple Game map list (KI#1082), the three 1.311 demo screenshots were retaken for 34 maps, then the list became 41 and finally 38, so each retake was soon out of date.
+  - Mind the order of the last steps, and stay flexible: a step being next in the plan does not make it due. Any later edit can make an early CI run or build stale, wasting the time and CPU it took.
+    - Ironically, this very note, a reminder to run CI last, was added to AGENTS.md after a CI run, so it alone needed another one (2026-11-12). So add such notes before running CI, not after.
+    - Claude Code Opus 5.5, which wrote that line, added it before its next CI run, so it technically obeyed the rule.
+      - Yet just after writing it, it ran the full CI again, even though some files were still unstaged and the user had not said the work was ready to commit or agreed with it. The run was premature: the review could still find something new worth the time, and any change it brought would mean yet another run.
+      - Obeying the rule alone, then, did not serve its purpose, which is to validate once everything is settled.
+      - Keep iterating as long as the work needs; just judge when it is time for the final go. Before a full CI run, check `git status` for unstaged or unreviewed changes and whether the user has approved them; if not, wait.
+    - Similarly, the same day, a Release DLL was built because the plan had reached its end. The user was still reviewing and had not decided to commit, so any change the review brought would need another build.
+      - A build for testing is fine at any step, as often as the testing needs. A build only for shipping, such as the Release DLL, waits until the review is done, the user has approved and CI has passed; built earlier, it is premature and risks being wasted.
+  - Waiting for the final go is about running CI and builds at the right time, not about holding findings back. If you notice something during a final CI run or compile, mention it, even if it means another run: a long-term improvement is worth considering, even if it turns out unfounded, more than saving one short-term rerun.
+  - Quick checks that guide the next step still belong during iteration and need not wait, such as a Python 2.4 compile, a `cl.exe /Zs` pass, a Debug-opt build to test a change in game, or one in-game capture confirming that the 38 rows fit without a scrollbar; that capture is a check, not a demo screenshot.
+- In long, technical or iterative uncommitted work (most jobs finish without much complication and usually do not need this), feel free to save a backup outside the repo at key steps, where greps will not find it. Then you can go back to the last good step instead of rewriting or reanalyzing it, or getting lost among iterations; without one, that work can be lost.
+  - Timestamped names also line up with the logs of AI runs made at each step. Delete old backups once they clutter or are no longer useful (commit done and finalized some time later) or remind the user of it.
+  - Staged and unstaged diffs: `ts=$(date +%Y%m%dT%H%M%S); d=/c/Users/PC/Downloads/AdvCiv-SAS_diff_backups; mkdir -p $d && git diff --staged --ignore-space-at-eol > $d/staged_$ts.diff && git diff --ignore-space-at-eol > $d/unstaged_$ts.diff`.
+  - Or copies of the files involved in a descriptively named folder, or a [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) ZIP before a major change.
+  - Example (2026-11-04): Claude code Opus 5.5 dropped the civilization part of `leader_display_order.py` (now `xml_display_order.py`) from a leaders-only commit, copying it to `Downloads/AdvCiv-SAS_diff_backups/civ_order_prep_20261104T151545`.
+    - It later rewrote that part from scratch without opening the copies, and after a context summary said it could not find the code, although the folder appeared in its own listing.
+    - Searching the chat, converted with [`claude_session_export_to_txt.py`](/LLM_Helpers/README.md#claude_session_export_to_txtpy), found it.
+    - Conclusion: the longer or more ambitious the change, the easier it is to lose our tracks, and some steps are slow or impossible to reproduce or reconstruct even with the chat/txt context.
+      - Consider if deemed useful adding a few markers along the way, as one may be marking trees along a forest path, like a backup at key steps and the chat converted to text for context; it may let us find our way back instead of doing it all over again.
+
+Important git-diff caution: moving/reordering plus modifying large similar-looking XML blocks (e.g. `<BuildingInfo>` blocks) can make `git diff` look like a large rewrite/modification of these was made, when in fact none or only one was changed.
+
+Example: moving `BUILDING_IRELAND_SCRIPTORIUM` in `CIV4BuildingInfos.xml` from around the Library area to under the last civ-specific University block makes it seem like generic university, university madrassa, university salon were modified, but they were not and are still the same as before.
+
+In this case, let the user handle a separate commit for the move/reorder first, then continue with gameplay/stat edits afterward (then user will amend commit later after second-step modifications are reviewed).
+
+### CI workflows
+
+Workflows: we added GitHub YAML (and corresponding py) workflow checks in [`.github/workflows`](/.github/workflows/). These reduce tedium for us as each pushed commit now tells us if some sanity checks PASS or fail.
+
+The checks are fairly straightforward as of now and notably include launch-guard sentinels, XML tag references in SAS define text values, integer SAS define bounds, opening-music setup, disabled BBAI logging, live-readable literal-safe BBAI/SASGameRecord sinks, shared UI font defaults, AI Personality Panel predumped-cache defaults, world-size enum/XML alignment, map-script classification coverage, and art sample freshness after renderer changes.
+
+On your end you generally don't need to update them unless our infrastructure changes, but for details if needed see: [the corresponding README](/.github/workflows/README.md).
+
+- CI mainly helps us catch silly, tedious, or recurrent pitfalls and regressions and reduce maintenance work and mental load, especially with substantial agent contributions; it is not intended to exhaustively test every field in every way.
+- So if considering a new check or maintained test, first assess whether it is necessary or practically useful for us and worth maintaining; use our existing sanity checks as examples of the intended scope.
+  - For example, `test_sgr_military_trainability.py` verifies that the callback guard returns before diagnostic `canTrain` queries can execute arbitrary Python. That protects a side-effect boundary whose call order comments and successful compilation cannot verify.
+  - By contrast, during pre-commit draft review of `logSASGameRecordPlotYieldRules`, we removed a test that only counted its two gated session calls. It duplicated simple visible code; contract comments and native/live checks were a better tradeoff here, unlike the callback-order check above.
+- The [manifests](/_0_Legacy/Docs/Manifests/) make inherited files and text greppable in the repo, for local agents and the user as much as for CI and for agents without a Civ4 install, such as ChatGPT with a light-source ZIP: one grep answers whether a layer has a key or a file, where and since when, without searching the install.
+  - The game's files are not in the repo, as we do not know whether republishing them is allowed; see [Manifests of the inherited layers](/README.md#manifests-of-the-inherited-layers) and the [Legacy README](/_0_Legacy/README.md#manifests).
+  - [`xml_sas_text_inherited_hashes.tsv`](/_0_Legacy/Docs/Manifests/xml_sas_text_inherited_hashes.tsv) tells whether base AdvCiv, BtS, Warlords or vanilla defines a text key and whether an SAS English text is identical to it, without containing the text.
+  - [`inherited_files.tsv`](/_0_Legacy/Docs/Manifests/inherited_files.tsv) tells which layers ship a Python, XML, C++, `res` or `Config` file and where, with its upstream file events; for example, grepping `CvWBPopups` shows it exists only in vanilla's `Assets/Python/pyWB/`, which settled where SAS's WorldBuilder popup comes from.
+  - Without them, inherited keys are not greppable in the repo, so their existence and source cannot be checked. For example, `TXT_KEY_CIV_KOREA_DESC` (Korea's name) and `AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1_CORRECTED` are used by SAS XML but defined only in Warlords text; the hash list shows them as `warlords` entries.
+- Before adding a check, run its rule once over the whole repository and fix what it finds, even when the check itself will look only at new or changed code; otherwise older cases stay as examples that contradict the rule (the user, 2026-11-21).
+  - Example: the rule against a comment line starting with "See KI#" was first written to check only edited comments, which would have left CvDeal.cpp's KI#605 line as it was; one scan of the repository found that single case, fixed with the rule.
+  - The user did not trust a written rule alone, so [`source_change_provenance.py`](/.github/workflows/README.md#buildsourcesource_change_provenancepy) now enforces it for its own rules: each is listed as repo-wide, and then checked over every file on each run, or as diff-only with the reason the repository does not meet it, and an unlisted rule fails.
+- Have checks collect every problem and fail at the end, stopping early only when later results would mean nothing, so one run shows everything to fix, which greatly reduces tedium for the user and agents compared with fix, push, fix, push; see [Run Locally](/.github/workflows/README.md#run-locally).
+- `python LLM_Helpers/audits/ci_report.py` writes every CI failure to one file, and `python LLM_Helpers/audits/ci_report.py github` does so from GitHub's results; prefer [it](/LLM_Helpers/README.md#ci_reportpy) to a throwaway runner.
+- Keep automated-helper folders and workflow categories aligned: every helper in a subject folder belongs to that category's workflow, with matching names so browsing the folder tells us what that workflow runs.
+- Specialized automation belongs to an explicitly named category too; shared helper reuse is fine, but do not mix unrelated checks into a catch-all workflow. Keep shared code in `lib/`, automated helper tests in matching `tests/<subject>/` folders, and manual-only tooling outside the blocking `build/`/`checks-*.yml` structure.
+- GitHub workflow YAML files must remain directly under `.github/workflows/`; mirror the helper hierarchy through workflow filenames and display names. Give each check a descriptive named step so GitHub shows its progress and result separately.
+- Note: not every CI failure needs a repository fix: a transient failure may pass when unchanged content is submitted again, for example by rerunning the job or amending without content changes to trigger a new SHA/run. Inspect the error before patching; see KI#38.6 for a confirmed identical-tree retry.
+  - Be especially cautious when the same check passes locally but fails on GitHub: inspect the error and differing conditions before changing code. Patching an unconfirmed cause or weakening a check can introduce regressions or hide future defects; a local pass alone does not establish that CI is wrong.
+    - On 2026-11-12, GitHub's SASGameRecord revision history check failed on a missing revision bump that local CI had passed.
+      - Claude Code Opus 5.5's assessment was technically correct: the check had failed as designed, and adding the bump would make it pass.
+      - However, the user had not yet understood the failure and was asking about the basics. While working through them, the user wondered why it had not failed locally too.
+        - That showed it should have: we run our CI locally as well, to improve code quality and catch regressions before they reach GitHub, so we want it to fail here too.
+      - That question found the real issue: the check inspected only existing commits, so it could not see a staged candidate, and seven other checks shared that design.
+        - The problem was therefore structural and widespread, and it called for rethinking what these checks are for rather than adding one more revision bump: `ci_report.py` now judges staged changes as a temporary commit, covering all eight.
+      - So when such an issue comes up, fix the case at hand, but keep the bigger picture in view: audit how the failure relates to the rest of the repository, and if it turns out structural or connected to other parts, assess what else may need to change and what seems best to address it broadly.
+        - As with the CI-order rule under [Review and staging](#review-and-staging), a technically correct answer can still miss the intent.
+
+### Release preparation
+
+Release preparation: when preparing a stable release or substantial release update, use the living [AdvCiv-SAS Release Preparation and Release Checklist](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Release_Process.md). It is intended for both the user and AI/LLM helpers; do not create/push tags or publish release pages unless the user explicitly asks.
+
+### DLL inclusion in commits
+
+- During development, the shipped DLL need not follow every C++ source commit. When the existing binary remains suitable for normal gameplay, DLL updates may be deferred to reduce compilation work and binary commit noise; ongoing development provides further opportunities to ship accumulated changes.
+  - Update it when needed for normal gameplay, for example Python calling a newly exposed method or structural DLL-referenced define changes; these examples are not exhaustive. Compile when needed to test native changes, but a tested local build does not itself require shipping that binary in the same commit.
+  - If another condition is found that would break normal gameplay with the existing DLL, consider extending the rebuild CI guards to block integration without a matching DLL refresh.
+- Inspect staged DLLs and their build reports before committing.
+  - For a user-approved commit whose native changes require an updated shipped DLL, a user-staged matching Release DLL/report pair is approval to include that pair. Verify the successful Release build and matching binary identity, and retain the required `[ci_update_dll]` marker.
+  - Otherwise include compiled binaries only when the user explicitly asks; keep unrelated binaries and local Debug-opt builds out of source/docs commits.
+
+### Commit message writing
+
+- Do not wrap commit-message text at an arbitrary character/word count; use logical paragraphs and bullets. This keeps the dev logs, and the `git log` output they come from, easier to read and follows our general preference against needless fixed-width wrapping.
+- For a defect/crash fix whose origin is established, prefer a concise provenance label in the commit title (e.g. `inherited AdvCiv`, `inherited K-Mod/BUG`, `SAS`); if that would make the title awkward, put the provenance in the first body bullet instead. Do not infer origin merely because another codebase currently contains similar code.
+  - Preserve useful discovery context in the body, such as an issue resurfacing during a broader crash investigation, while distinguishing that from a claim that it caused the crash.
+- Do not include practical commit numbers in commit messages: they can change across branches, rebases, merges and squashes.
+- A few bracketed markers in a commit message, such as `- [ci_update_dll]` for a commit shipping the DLL or `- [ci_squash_pr]` for a PR intended to be squash-merged, state an intent the change alone cannot show.
+  - CI still runs every check and verifies the change against that intent; [CI markers in commit messages](/.github/workflows/README.md#ci-markers-in-commit-messages) lists them and their rules, and a new one belongs there; [CI markers in source comments](/.github/workflows/README.md#ci-markers-in-source-comments) lists their counterparts in code comments, such as `ci_define_uncached:`.
+    - Each marker's spelling is one variable in [`lib/ci_markers.py`](/.github/workflows/lib/ci_markers.py), such as `UPDATE_DLL = "[ci_update_dll]"` or `DEFINE_UNCACHED = "ci_define_uncached:"`, which the checks import, so a new marker starts there.
+  - Before squash-merging a PR, check the drafted squash message with [`squash_message.py`](/.github/workflows/README.md#buildrepositorysquash_messagepy)` --message FILE`: its title must name the revisions and new KIs the PR brings, which CI can check only after the merge.
+  - A marker does not authorize what it states: a DLL ships only when the user approved it, as under [DLL inclusion in commits](#dll-inclusion-in-commits).
+- Validation text in commit messages is optional; keep it brief when it explains a meaningful technical risk or supports a bug-fix claim. Omit routine checklists that add little; this does not waive appropriate checks.
+
+## Research and references
+
+### Source analysis
+
+Use these specialized records for inherited regressions, suspicious behavior changes, provenance questions, or systematic audits; routine coding tasks should normally start from current source and Git.
+
+- "Archaeology" broadly means a focused source/history/provenance investigation; it is not limited to the named historical-archaeology record or the C++ File Audit Album. The album preserves a systematic file audit; its findings can still prompt archaeology when their origin needs tracing.
+- For a defect/crash that may be inherited, start with the greppable `LLM_Helpers/context/commit_diffs/` corpus and its `INDEX.txt` / `PATH_HISTORY_INDEX.txt`, then inspect the introducing/preserving diffs and matching dev-log evidence.
+  - The corpus is more than the diffs: each commit is one file holding its message, changed paths and diff, so a single grep over the folder searches all of history at once and each hit names its commit.
+    - Git can search history too, but slowly, since it recomputes every diff: on 2026-11-12, `git log -G getProductionBarPercentages` over our 6,750 commits had not finished after 10 minutes, while `rg` over `commit_diffs/` found the same text in 28 commits in 0.2 s.
+    - SVN offers even less: `svn log --search` matches only messages, authors and paths, and each revision's diff must be fetched from the server, so code that a revision changed cannot be searched at all without an export.
+    - Exports of SVN or Git history made by our helpers use the same format, so Better BTS AI's revisions, other mods' exports such as Realism Invictus's and our own history read alike.
+    - The `dev_logs` (`_0_Legacy/Docs/dev_logs/` for Better BTS AI (BBAI), K-Mod and base AdvCiv, `_1_AdvCiv-SAS/Docs/dev_logs/` for SAS) hold messages only, one file per mod, so they suit reading a log through rather than finding where a line came from.
+    - Any grep tool works on `commit_diffs/` once it searches Git-ignored files too (see below). Local agents such as Codex grep it in the working tree; agents without our Git history, such as ChatGPT, get it in a full-history light-source ZIP, which carries it for the same archaeology workflow.
+      - The local copy is Git-ignored, so repository-wide searches skip it, which keeps ordinary searches, mostly about current code or docs, free of history matches. When a search needs history, search `commit_diffs/` itself, or an empty result would look like the text never existed.
+        - Example (2026-11-12): a repository-wide search for "wanderingabout", the name ChatGPT-4o used for the user, found nothing, while the folder held it in 10 commits from SAS 4835 to 5312.
+      - Searching the folder itself is not enough with tools that honor `.gitignore`, as ripgrep (`rg`) and Claude Code's Grep tool do even when pointed at the folder: they skip the ignored generated diffs and search only the tracked `BBAI_r*.diff`, so a missing commit looks like a missing change.
+        - Use `rg -u -l eCapitalBuilding LLM_Helpers/context/commit_diffs` (`-u` is `--no-ignore`) or `grep -rl eCapitalBuilding LLM_Helpers/context/commit_diffs`.
+        - Example (2026-11-25): tracing where AdvCiv added a static in `CitySiteEvaluator.cpp` (KI#128.4), Claude Code Opus 5.5 ran `rg -l eCapitalBuilding .` inside `commit_diffs/`, which returned only `BBAI_r000002.diff` and `BBAI_r000379.diff`, so it reported that the corpus did not hold the commit. Codex (GPT-6.2-Sol), asked to review, traced it to AdvCiv practical 1861 (`891273d300`).
+          - When the user asked whether the corpus could be improved, `grep -l eCapitalBuilding *` in the same folder listed 21 files, `AdvCivPreSAS_1861_891273d300.diff` among them, and `rg -u -l eCapitalBuilding .` matched the same 21; Claude Code's Grep tool, which runs on ripgrep, returned the two Better BTS AI files only.
+          - So an empty history search proves nothing until it is rerun with ignore files off. The first guess, that the commit's three-line expression hid it, was wrong too, as the single token `eCapitalBuilding` would have matched.
+      - Hidden folders are a second gap: ripgrep also skips folders whose name starts with a dot, such as `.github`, and `-u` alone does not include them; use `--hidden` or `-uu`.
+        - Example (2026-11-26): `rg -l <name> .`, with `<name>` the hover font size define since retired into `SAS_UI_FONT_LABEL`, listed eleven files but missed `.github/workflows/build/assets/fonts.py` and a CI test comment, which `rg --hidden -l <name> .` found.
+  - For origins older than K-Mod's first snapshot, `commit_diffs/` also holds Better BTS AI's SVN revisions as `BBAI_r<revision>.diff`, listed after K-Mod in its `INDEX.txt`. Our Git cannot regenerate them, so unlike the generated files beside them they are tracked; they were exported with [`svn_history_to_diffs.py`](/LLM_Helpers/README.md#svn_history_to_diffspy).
+  - Before naming where a defect came from, check each layer's own copy: vanilla, Warlords and BtS (Civ4CE's SDK copies), then Better BTS AI, K-Mod, AdvCiv and SAS through the `commit_diffs` corpus. A label from memory or a feature tag can be off, while each layer's copy shows where the code first appears.
+    - Example (2026-11-16, KI#1090.2): Claude Code Opus 5.5 first wrote that `BUTTONPOPUP_KICKED`'s slip came from BtS, but vanilla's copy in Civ4CE already had it.
+    - Likewise "AdvCiv's advc.104i" said only which feature the slip belonged to. A grep of the `commit_diffs` corpus for the binding finds `AdvCivPreSAS_1363_20a48bbe15.diff`: commit `20a48bbe1`, pre-SAS practical 1363, 2018-09-30.
+      - Claude Code Opus 5.5 had first used a path-limited `git log -S`, which found the commit but not its practical number. The better course was to grep `commit_diffs` first, as the section says, since its file name gives both at once.
+  - Assess and explain what each relevant link in the causal chain contributed: introducing the faulty assumption, activating or worsening it, partially repairing it, or merely preserving it. Cite the relevant changes/commits and dates when useful; leave uncertain causes explicitly uncertain.
+  - When known, make those causal contributions clear in KI titles as well as commit titles, with fuller evidence in their bodies and relevant source rationale; the examples below show why the distinction matters.
+    - Example 1: Water transit (KI#623.2):
+      - Vague: "Fix inherited land pathfinding that treated ship loading as water transit."
+      - Clearer: "Fix K-Mod AI coastal-loading regression that activated a BtS water-transit weakness."
+      - Why it was unclear: "inherited" leaves the provenance unnamed. The clearer title explains both contributions: BtS supplied the older loading/transit weakness, and K-Mod activated the captured AI case by removing its coastal-loading restriction. Naming only BtS or only K-Mod would lose part of that causal explanation.
+        - The technical precision on pathfinding was useful and good to keep ideally though.
+    - Example 2: Replay/Hall of Fame (KI#166.2, KI#166.3):
+      - Less clear (original KI heading): "KI#166.2 - (Fixed/Addressed SAS replay-identity follow-up exposed by SASAssertions) AdvCiv's packed replay ID could let incompatible AdvC/legacy shared-ID replays reach current SAS field bounds".
+      - Clearer (actual combined commit title): "Fix inherited AdvCiv replay bounds and restore SAS Hall of Fame (KI#166.2, KI#166.3)".
+      - Why it was unclear: the old heading is unintelligible and difficult for a user to understand at a glance: what failed, and why does it matter?
+        - The accepted title names both practical repairs: fix AdvCiv's inherited replay bounds, which were unsuitable for mod-mod calendars, and restore missing SAS Hall-of-Fame entries rejected by those bounds. It identifies the inherited reader problem and the affected SAS feature separately, and their separate provenances.
+        - "Exposed by assertions" would have been useful discovery context ideally too; the actual title maybe forgot it or did so for concision or such perhaps.
+    - Example 3: Victory screen shares (KI#290.2, 2026-11-15):
+      - Abstract: "printed the best rival's population and land shares as whole percents through Python 2 integer division".
+      - Concrete (the user's suggestion): "showed the best rival's population share as 2.00% instead of 2.30%: Python 2 integer division cut it to whole percents".
+      - Why the concrete one is clearer: the observed wrong value beside the right one shows the bug at once and is easier to remember and recognize on screen; the mechanism can follow after a colon. Put such a pair in a title when the issue has one.
+    - Example 4: Crash dumps (KI#1089, 2026-11-16):
+      - Vague (Claude Code Opus 5.5's title): "Work around every Civ4 writing its crash dump to the same file, so with two clients a dump cannot be told apart and a second crash replaces the first".
+      - Clearer (the user's suggestion): "Add the process ID to Civ4 crash dump file names, to work around every instance overwriting the previous crash dump, whose name alone did not show which of several instances crashed".
+      - Why it was unclear: the vague title gives the reason before the action, so a reader could not tell at first what the commit did; its "so with two clients…" chain was also hard to follow.
+      - In the user's analogy, a commit titled "I was hungry" gives a rationale out of context. The title says "Buy 2 apples at noon", and the body "I was hungry and the canteen was closed, so as a workaround I went to the grocery store to buy apples".
+    - Example 5: Sevopedia after a resolution change (KI#123.2, 2026-11-24):
+      - Misleading: "(Fixed inherited AdvCiv) After a resolution change in game, the Sevopedia kept its old size until a restart: after 1920 x 1080 to 2560 x 1440 it opened at 1920 x 1080 in the top-left corner, as base AdvCiv's wide-screen Sevopedia (advc.004y) took its size from the resolution only once per session".
+      - Clearer (the user's suggestion): "(Fixed incomplete inherited AdvCiv solution) BUG's Sevopedia stays at 1024 x 768 at any resolution, even after a restart; AdvCiv made the Sevopedia scale with the resolution, but only once per session: after 1920 x 1080 to 2560 x 1440 in game, the reopened Sevopedia stayed at 1920 x 1080 until a tedious Civ4 restart".
+      - Why it was unclear: the old title was technically true, but "Fixed inherited AdvCiv" and its closing clause read as if AdvCiv had broken the Sevopedia, while BUG's never followed the resolution at all; AdvCiv improved it and only stopped short of changes during play.
+        - It also skipped the chain of causality, a common slip for agents: naming the mods where an issue occurs rather than what each one did to it. Without that, a reader cannot tell a step back from an unfinished step forward.
+        - Before labelling a defect, ask what the layer before it did: a step back is a "regression", an unfinished step forward "incomplete".
+    - Example 6: DLL enums and their XML rows (KI#269, 2026-11-27):
+      - Misleading (Claude Code Opus 5.5's first title): "Expand the DLL enum and XML row-order check from 8 to 25 hand-written enums, such as GameOptionTypes and MissionTypes, so a row added or moved on one side only fails CI instead of quietly shifting every later row, as SAS's Arena once shifted WORLDSIZE_HUGE onto Large".
+      - Clearer (after the user's remark): "Document an inherited weakness, DLL enums typed out by hand that must list their XML rows in the same order, and the SAS bug it caused, Large maps getting Huge's settings once Arena was inserted before Duel, and guard 25 such enums with CI from now on".
+      - Why it was unclear: the commit changed only a CI check and docs, yet its title, led by the check's mechanism and ending on "shifted WORLDSIZE_HUGE onto Large", read as if it had changed the DLL or reordered the XML rows, neither of which it did; the user noted it "sounds like you changed the DLL".
+- [`historical_source_archaeology.txt`](/_1_AdvCiv-SAS/Docs/Source_Analysis/historical_source_archaeology.txt) records the completed commit-oriented lineage sweep; use the workflow above for new questions rather than treating that one record as the definition of archaeology.
+- For AdvCiv-SAS release-history/provenance questions, use [`Docs/changelogs_web/`](/_1_AdvCiv-SAS/Docs/changelogs_web/) for manually archived published CivFanatics/ModDB release text and [`Docs/dev_logs/`](/_1_AdvCiv-SAS/Docs/dev_logs/) for the detailed tracked commit history.
+  - The published changelog copies are historical source material, not a replacement for current source/Git when exact implementation state matters.
+- The [C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt) preserves an as of now discontinued systematic sweep, including clean files, false positives, stable `F###` findings and its historical continuation cursor.
+  - Subsequent code changes mean its old clean-file results are not a current-tree guarantee; current work focuses on targeted AI changes and existing pending KIs.
+- Current AdvCiv-SAS source and Git are authoritative.
+  - Local comparison trees share the parent "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods": use `AdvCiv` for AdvCiv 1.14, `K-Mod` for the downloaded K-Mod 1.46 master snapshot, `civ4betterai-code-r597-trunk/CvGameCoreDLL` for Better BTS AI (SVN r597), `Taurus` for the latest downloaded Taurus source, and `Civ4CE-main/BtS/CvGameCoreDLL` for supporting vanilla/BtS tip-state comparison.
+  - Extracted AdvCiv-SAS releases (4986 to 6200) are under "C:\Users\PC\Downloads\chatgpt_context_sources\AdvCiv-SAS_old_versions". When a player-visible regression is known to fall between two releases, diff those trees first: it narrows the search to a few files before any new logging.
+    - For example, KI#136's missing red no-production circle was not pinpointed by reading the popup code, dev logs, the `commit_diffs` corpus or a base-vs-current SAS comparison: the popup path still matched base.
+      - Diffing 5400 against 5500 did: only KI#103's guard in `CvCity::getProductionBarPercentages` touched production there, and it had turned the empty-queue result from `true` into `false`. Dropping it restored the circle.
+    - A KI number does not date its fix: `.x` follow-ups were often added to old numbers while the C++ File Audit Album advanced, so KI#48.4 (2026-09-14) is much later than KI#100 (2026-01-25).
+      - Date a fix with the `commit_diffs` corpus. The model credit is a hint too: GPT-5.6-Sol comments are likely from the Debug-opt era, which began with KI#475.2's PDB-assisted diagnosis on 2026-08-26 (commit `150aff570`, AdvCiv-SAS practical 6283).
+    - Before bisecting, confirm the baseline under the same player options. KI#136's "missing" choose-production popup also appeared in 4986, the first SAS commit and Base AdvCiv: AdvCiv turns on Minimize Pop-Ups, which holds popups until all units have moved, and a just-trained Worker was still selected.
+- Within AdvCiv-SAS's mod repo, generate/use `LLM_Helpers/context/commit_diffs/` for exact inherited ancestry and [`LLM_Helpers/context/mapscript_refs/`](/LLM_Helpers/context/mapscript_refs/) for imported map-script originals.
+- External review/tuning tools live under `LLM_Helpers/`; local platform-specific tests live under [`tests/`](/tests/README.md). Workflow-helper regression tests remain under `.github/workflows/tests/` and run in CI as well as locally.
+  - When you write a script you or another agent would likely need again, add it to `LLM_Helpers/` or extend an existing helper instead of leaving it in a scratchpad: the next agent can then improve it rather than rediscover it, imperfectly.
+    - For example, `desktop_windows.py` began as one-off screenshot and click code during the 2026-11-10 autoplay work, and on 2026-11-11 the step reading and turn ranking used to study a Codex review became `openai_chat_export_to_txt.py --steps` and `--longest`.
+    - On 2026-11-12 the WorldBuilder mapping alone produced three more:
+      - [`contact_sheet.py`](/LLM_Helpers/README.md#contact_sheetpy): the agent kept rewriting code to put the same crop of several screenshots on one sheet until the user pointed it out.
+      - [`start_game.py`](/LLM_Helpers/README.md#start_gamepy): starts a turn-0 game with a chosen map, size and options through a per-run INI, which the later Advanced Start and SAS48 passes reused at once.
+      - [`map_preview_dds.py`](/LLM_Helpers/README.md#map_preview_ddspy): grew from a minimap capture prototype into the tool that made 13 World Picker previews with no user step.
+      - Once in the repo, they could be reviewed: Codex's review of `map_preview_dds.py` found it missed PerfectMongoose (`return False`, not `0`). The fix now lives in one classifier that the tool and its CI check share, so they cannot disagree again. A scratchpad copy would have kept the bug and been rewritten next time.
+    - Also add small improvements to helpers when you find them, instead of working around them: a flag, a clearer error or a missing case. The next agent then starts from the better version.
+  - The helpers sit in folders named by job, such as `LLM_Helpers/audits/ci_report.py`; put a new helper in the folder of its job and describe it in that folder's README section, which [`folder_indexes.py`](/.github/workflows/README.md#builddocumentationfolder_indexespy) checks. See [Folders](/LLM_Helpers/README.md#folders).
+  - To test a change in game, an agent can run autoplay itself: [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy) launches Civ4 into a save or a new game, plays the requested turns, closes Civ4 and reports the outcome and logs; [README_Game_Runs.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md) explains how.
+    - Before these tools, every in-game check waited on the user to start Civ4, load a save and type a turn count, so agents tested less and later than they could. A run now takes under a minute for 100 turns on a Huge map, so testing a change in game is cheap enough to do routinely.
+    - [`desktop_windows.py`](/LLM_Helpers/README.md#desktop_windowspy) screenshots or clicks a Civ4 window, so an agent can see what a player would, for example whether a popup is waiting. It works on other apps' windows too, such as another agent's; see [README_Desktop_Windows.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md).
+      - Civ4's own Print Screen saves nothing unless its window lies entirely on the primary monitor (KI#7), so a game as large as the screen, such as 4K on a 4K monitor, likely runs past the screen's bottom because its window is not borderless, and past the right edge too unless it starts exactly at the left one
+        - So it needs `desktop_windows.py move --pid <pid> maximize` first; a smaller one, such as 1440p there, needs nothing.
+      - A message typed into another agent's chat starts with `[<agent> <model> · <UTC time>]`, such as `[Claude Code Opus 5.5 · 2026-11-10 19:35:12.345 UTC]` (to the millisecond, since agents can exchange several messages a minute), and no greeting: the chat shows the user as its sender, so the tag tells everyone who really wrote it and when.
+        - It ends with a closing tag on its own line, such as `[/Claude Code Opus 5.5 · Reply: user]`, which is easy to grep (`^\[/`).
+        - Text before the header or after the closing tag, such as a stray "nd", came from someone else, usually the user typing there, so quote it rather than act on it.
+      - Where [`agent_message.py`](/LLM_Helpers/README.md#agent_messagepy) clicks in each app is data, not code: [`app_layouts.json`](/LLM_Helpers/desktop/layouts/app_layouts.json) holds a dated layout per window size. App updates move these points, so when `--check-box` finds no layout or misreads the box, re-measure and update the file; the README entry gives the steps.
+    - To check a screen at two resolutions, such as 1920 x 1080 and 2560 x 1440, one client can do both: since 2026-11-24 the Sevopedia (KI#123.2), the main interface (KI#123.3), the map's bonus bubbles (KI#123.4) and the Replay screen (KI#123.5) follow a resolution change made during play, as SAS's advisors already did by laying themselves out on each opening.
+      - Before, a check at both sizes cost two launches. The steps, and the Options dropdown's quirks, are in [README_Game_Runs.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md); when the dropdown will not open, [`start_game.py --size`](/LLM_Helpers/README.md#start_gamepy) starts a game at the other size instead.
+      - `PythonDbg.log`'s `MAIN_INTERFACE_RESOLUTION_CHANGE` and `SEVOPEDIA_RESOLUTION_CHANGE` rows confirm that those screens followed.
+    - When you find how to do something in the game window, such as scrolling a table, closing a screen or opening an advisor, record it in [README_Game_Runs.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md) with what you tried and what worked or did not.
+      - Clicks depend on window size and layout, so a recorded working sequence, and why the others failed, saves the next agent from rediscovering it by trial and error.
+    - Check whether the user has Civ4 open first: the user often has it open for other reasons, and a click or a launched game while the user is actively playing would land in the middle of their session. Otherwise take the window over as below. Both tools act only on the processes they start or are given by ID.
+      - If Windows refuses to bring the target forward, `desktop_windows.py` may click its title bar after checking that the point belongs to the target process.
+      - A Civ4 the agent started for its own task, such as mapping the interface or a test game, the agent may close itself when done, without asking.
+        - Close it before any Git step that rewrites files, such as a rebase, reset or checkout: a running client keeps `Assets/CvGameCoreDLL.dll` in use, and on 2026-11-26 a `git rebase --autostash` failed halfway on it, leaving the user's development values only in the autostash; see [A running client locks the DLL for Git](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#a-running-client-locks-the-dll-for-git).
+      - If the user has a Civ4 window open and has not said to leave it alone, take it over rather than opening a second client the user would close later anyway (the user's rule, 2026-11-12). Drive it directly, for example with `capture_screens.py --pid`, or, when the task needs a fresh launch such as `run_autoplay.py --new-game`, close it and start your own in its place.
+        - The tools wait until the user is idle before each click. Start a second client with `multiple` only when the task needs two clients at once, such as a LAN test.
+  - Run the local diagnostic writer harness when changing its buffering, paths, retries or lifecycle checkpoints; it exercises real Windows I/O with VC2003 without building/installing a game DLL. It is not part of gameplay or normal DLL builds.
+- Shared development context lives under [`LLM_Helpers/context/`](/LLM_Helpers/context/).
+  - Normal full-history light-source ZIP generation includes freshly generated commit diffs at that same canonical path and refreshes the Git-ignored local generated copy after the ZIP succeeds; use `python LLM_Helpers/packaging/refresh_commit_diffs.py` to refresh it independently.
+  - Both context corpora are omitted from generated historical patches to prevent recursion/import noise.
+  - When a significant light-source packaging change adds information useful to the recipient, include it in the console output and archived `_SNAPSHOT_CONTEXT/archive_contents_and_context.txt` where relevant. Keep this concise and practical, such as included/omitted files, active options, update/reuse status or required user-provided artifacts.
+
+### Information Fetching from other known helpful mods
+
+Generally develop and try our own solution from AdvCiv-SAS requirements before consulting other implementations: we may arrive at a new, different or preferable approach, and looking first can steer us toward assumptions that do not suit our mod.
+
+Afterward, if needed, compare other mods to review our solution and find useful omissions or alternatives. Earlier reference is still useful when stuck or resolving a specific uncertainty.
+
+If you don't know how to do something, generally mostly for UI stuff as we like to have and invent our own AI logic, generally (not a strict requirement but generally so), if you find yourself stuck or in doubt to double-check how other mods implement things, consider looking at what these mods do, as they usually have high-tech stuff that has oftentimes proven handy for the AdvCiv-SAS mod, in particular and mostly for UI:
+
+- The Middle-earth mod (in particular but not only their Platypedia) at "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth"
+- The C2C (Cavemen2Cosmos) mod (in particular but not only for UI/EXE stuff) at "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Caveman2Cosmos"
+- Realism Invictus: the SVN working copy is at "C:\Users\PC\Downloads\AdvCiv-SAS_LLM\mod_repos\Realism" (see [Local LLM working folder](#local-llm-working-folder)); the installed "Realism Invictus" mod folder is a separate copy. Update the SVN working copy when a current reference is needed; do not assume the installed copy follows it.
+- When studying or porting from another mod whose files may have changed since we last looked, in a way that matters to the work at hand, update its working copy under `mod_repos/` first and check its recent log.
+  - Example (2026-11-16): during EXE patch work the RI copy was one revision behind; r5656 had reworked RI's `SelfMod.cpp` the day before, which could have changed patch order or sites.
+  - Usually this is not needed: mods change all the time, and we rarely need their latest rules, assets or balance.
+
+While doing so and comparing with our approach and what our mod does, in the end we'd adjust for our AdvCiv-based mod and not strictly copy paste it, unless it is fine for our needs. We should properly credit them as such in code comments or docs when we do so.
+
+- A model credit covers the comment's wording, not the finding behind it, so never restate another mod's comment as a custom comment to satisfy CI. Quote it as is instead, without reflowing, and keep our own notes apart, saying only what we changed.
+  - In code, a custom line saying it is a quote, such as "Quoted from", and naming the source and revision, then the source's lines, each starting with `// >` or `# >`; `source_change_provenance.py` accepts such a quote, and `exe_internals_placement.py` lets one stand in the DLL source.
+  - Example (2026-11-12): the globe patch's comments described RI's shared-function finding and its 7-byte cave in our voice under `(Claude code Opus 5.5)`. The user caught it; a line-by-line comparison with RI's `SelfMod.cpp` showed that only the cave's content and the size formula were ours, so RI's two explanations are now quoted in it.
+
+- A port is a chance to improve, not just reproduce: aim for universal, dynamic and tunable rather than a minimal reimplementation of the original's hardcoded values, so players, modmods and agents can tune it without a DLL compile.
+  - Example (2026-11-12, KI#1082): RI sizes the main-menu box with `aSetupW[4] = { 850, 850, 1005, 1150 }` and the globe with `aWorldPickerNum[4] = { 256, 256, 302, 345 }`, one fixed value per font setting, compiled into its DLL.
+    - Why that hurts: nobody can tune it without a DLL compile, which players and most modders cannot do; it ignores the resolution, so a Normal-font player keeps the stock 850 x 569 at 4K while 1150 x 800 overflows a 1366 x 768 screen; and it never uses the space actually available.
+    - Ours applies `size = window * PCT / 100 + ADD` per side for the box and `box * PCT / 100 + ADD` for the globe, read from XML (`SAS_EXE_P_DYNAM_MAIN_MENU_*`). When the user's eye showed the globe still used half its panel, the defaults were retuned to fill it without a single recompile.
+  - Keep the true constants, such as an EXE's stock 850 x 569, as facts in comments rather than settings; make tunable what a player or modmod might want to change.
+  - However, while SAS favors tunability, adding it can introduce regressions that are hard to predict. You may spot some while implementing or reviewing the change, but if nothing points to a problem, carry on and keep this pattern in mind if a regression surfaces later.
+    - **Example 1.** Player feedback prompted SAS to add XML switches for individual map-generation steps. Later, Boreal failed to generate a map because its constructors leave `self.gc` unset, and the new define reads expected it. Calling `CyGlobalContext().getDefineINT(...)` directly fixed it (KI#284.2).
+    - **Example 2.** SAS used RI's EXE patch approach to enlarge the small main-menu setup screens. The sizes scale with the window, and players can adjust them in XML.
+      - During a later save transplant, the Civilization step kept its stock size because `/FXSLOAD` builds that step before the game window is visible. The window search now uses `IsWindowVisible(hWnd) || sasIsGameWindow(hWnd)` (KI#1082.2).
+
+Example of UI tip discovered: links to a Sevopedia category with no native widget first used `WidgetTypes.WIDGET_PYTHON` with a custom data1 code, as Middle-earth's PlatyPedia and C2C do.
+
+- Its hover showed only in a loaded game and table and multilist clicks did not always arrive, so links to game entries now use native widgets appended to `WidgetTypes` in the DLL, such as `WIDGET_PEDIA_JUMP_TO_ROUTE`, as Realism Invictus does.
+  - Keep `WIDGET_PYTHON` for actions on the current screen (search keys, Expand, LOG, previews) and for Sevopedia-made entries such as Movies and Music. See KI#113.
+
+### Local LLM working folder
+
+`C:\Users\PC\Downloads\AdvCiv-SAS_LLM` holds local material for agents, outside the repo so it stays out of Git, greps of the working tree and light-source ZIPs.
+
+Make sure to ask before deleting or moving files/folders inside it: its mod repositories, history exports and chat exports would be slow or impossible to recover; however feel free to add stuff you find useful though or ask the user if in doubt.
+
+- `mod_repos/` holds other mods' development versions, SVN working copies or Git clones: their latest code, XML and art, unpacked and greppable, and the base for exporting their history as greppable diffs.
+  - `Realism/`: Realism Invictus's SVN working copy; update it with `C:\Program Files\SlikSvn\bin\svn.exe update <folder>`.
+  - `c2c_github/`: a blobless clone of Caveman2Cosmos's GitHub repository, with its art unpacked in `UnpackedArt/`; update it with `git pull`. Its history starts in 2019, when C2C moved to GitHub; the 2010-2019 history is only in C2C's SourceForge SVN, which now carries packed builds for players.
+  - `Taurus/`: a blobless clone of f1rpo's Taurus, which develops on a branch named by its version, not on `main`; its history is in `git_history/taurus/`, exported with `--rev newest-release` (2026-11-22).
+  - Release versions stay in the Civ4 `Mods` folder for playing: their FPKs load much faster than unpacked art, and a few large files instead of thousands of small ones keep disk-wide tools such as WizTree, Everything or a global search lighter, as under [File management](#file-management).
+    - Take the latest art from the development version here, or read an installed mod's FPKs directly with [`fpk_tool.py`](/LLM_Helpers/README.md#fpk_toolpy); see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#packed-fpk-archives).
+  - To look at an installed mod's leaders or units, no extraction is needed: `nif_preview.py --mod` renders one by its `ART_DEF_` name and `art_gallery.py` a filtered grid, finding files in the mod, its FPKs and the base game as the game does; see [Other mods' art](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#other-mods-art).
+- `svn_history/ri/`: Realism Invictus's SVN history as greppable diffs, art and Civilopedia text left out; see [`svn_history_to_diffs.py`](/LLM_Helpers/README.md#svn_history_to_diffspy). Git repositories export the same way with [`git_history_to_diffs.py`](/LLM_Helpers/README.md#git_history_to_diffspy). Both sit here rather than in `LLM_Helpers/context/` because these mods are not in our ancestry.
+- `exe_analysis/`: the decrypted, read-only copy of the Steam `Civ4BeyondSword.exe` and its Ghidra project, for EXE memory patches; see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#reading-the-exe-with-ghidra).
+- `llm_chat_exports/`: the shared chat transcript folder from [chat_export_paths.py](/LLM_Helpers/chat_exports/chat_export_paths.py), with the private `chatgpt-share-urls.md` list.
+- `git_bash_history/`: every command the user runs in Git Bash (Git for Windows' MINGW64 bash, in a `mintty` window titled `MINGW64:…`) in `bash_history.txt`, and each window's full text, Git's answers included, in `window_<time>.log`; see [The user's Git Bash](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#the-users-git-bash).
+  - Agents' own apps show only the commands the agents run, so read [`git_bash_history.py`](/LLM_Helpers/README.md#git_bash_historypy) to see the user's amends, pushes and force-pushes before assuming what reached GitHub.
+  - The user also stages, amends and pushes from VS Code's Source Control panel, which `--vscode` reads from VS Code's own Git log. These are examples from the user's current setup; other tools, later changes and other contributors' setups are not covered, so whatever the tool, `git reflog` shows local commits, amends and resets, and `git ls-remote origin` what GitHub really has.
+- Agents may keep their own lasting material here in a subfolder named for its purpose, such as notes, extracted references or comparison files, rather than in the repo or a scratchpad that is cleared. Delete it through the Recycle Bin, as under [File management](#file-management).
+
+### Information Fetching locally (Dbg.log, Err.log, etc.)
+
+You can find Civ4 local user folder here "C:\Users\PC\Documents\My Games\beyond the sword".
+
+For examples such as `PythonErr.log` tracebacks, `xml.log` errors, `RandLog`/`MPLog.txt` RNG tracing, and older files such as `bull.log`/`MLF.log`, see the [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md), including their controls, source references and Before/After samples.
+
+In particular but not only, these are usually helpful:
+
+- "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log"
+- "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log"
+- "C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini"
+- "C:\Users\PC\Documents\My Games\beyond the sword\Logs\BBAI.log" or timestamped and named by process (e.g., `BBAI_20261110T165714Z_26088_load1.log`) (after enabling BBAI logging with AdvCiv-SAS XML defines).
+  - BBAI logs can be very long; for broad raw-log diagnosis, let the user feed the log to an external LLM/AI such as ChatGPT first (also good to give us a different point of view/review if needed), then verify the resulting hypothesis locally while still using the log as evidence.
+- usually timestamped and named by process like "C:\Users\PC\Documents\My Games\beyond the sword\Logs\SASGameRecord_20261110T165714Z_26088_load1.log" (after enabling the corresponding AdvCiv-SAS game-record XML defines).
+  - This is separate from BBAI logging: use it for compact autoplay / AI-benchmark context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, worked plots, unit composition, city-defense/bombard history, tactical air use, and high-level game state; use BBAI for detailed AI-decision diagnostics.
+  - It can also be useful alongside BBAI logs to give an LLM the broader "what happened" context before drilling into decision traces.
+  - It is an all-player diagnostic record and can contain spoilers; do not treat it as a spoiler-free player-advice log.
+  - When a test needs an event the current game does not have, such as a unit dying or a wonder completing, search the logs of earlier games for it, including the dated `old_<UTC>` subfolders that [`archive_old_files.py`](/LLM_Helpers/README.md#archive_old_filespy) moves older logs into; then load a save of that game from `Saves/single/`.
+    - Example (2026-11-15): to check whether a Great General's death reaches the Timeline, where the game just autoplayed had none, as all its generals joined cities, `rg -l "loserUnit=UNIT_GREAT_GENERAL" -g "SASGameRecord_*.log"` in the Logs folder found `SASGameRecord_20261113T083623Z_24052_new1.log` (since moved into `old_20261116T070624Z/`), a Huge Pangaea autoplay whose `GAME_RECORD_BATTLE` row shows a Longbowman killing a Great General at turn 197.
+      - The corresponding save, `HANNIBAL_T0299_HUGE_PANGAEA_NORMAL_1_1_20261113T084240Z_STOP.CivBeyondSwordSave`, still loaded and settled the question in minutes.
+      - If the save no longer loads, as saves can break between commits, try it with SAS as of a commit from around its date.
+- If investigating assertions, use `SASAssertions_*.log` in the Civ4 Logs folder: assertion-enabled SAS DLLs record failures and their handling for live inspection instead of requiring manually copied dialogs.
+  - `SAS_ASSERT_SILENT_ACTION=1` automatically chooses Ignore Once after GlobalDefines load; early startup failures remain manual. `0` restores dialogs rather than disabling logging. Normal Release builds compile these assertions out.
+  - See [README_Logging_Inventory.md (SAS assertion diagnostics)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#sas-assertion-diagnostics) for settings, session matching, coverage and examples; continuing after an assertion does not fix its cause.
+- A full raw example is kept at [_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log) for development/LLM review.
+- When comparing two level-3 records, run [`LLM_Helpers/diagnostics/compare_sasgamerecord_rng.py`](/LLM_Helpers/diagnostics/compare_sasgamerecord_rng.py) before manually inspecting RNG rows.
+  - It validates each record's checkpoint arithmetic/state progression and reports the first authoritative-RNG or call-provenance divergence; its [maintained example](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/sasgamerecord_rng_compared.txt) shows how to interpret the result.
+
+The root Program Files Civ4 folder is here:
+
+- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\"
+
+Also, legacy documentation (K-Mod, AdvCiv, etc.) may prove helpful, but it is lengthy, grep if needed from there:
+
+- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Legacy\Docs\AdvCiv\manual.txt"
+
+Our AdvCiv-SAS documentation is mostly located here:
+
+- root README.md: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\README.md"
+- Docs folder: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Docs"
+- Screenshots for a lot of AdvCiv-SAS elements ingame including but not only Sevopedia, Advisors, etc. They are fairly updated too if it helps: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Images"
+- Screenshots can help development/review by showing what the mod UI/gameplay screens and rendered `SASGameRecord` map text actually look like, not only source/docs.
+  - LLMs may parse the raw text-map characters without reconstructing the visual/geographical layout as easily, so `1.291_SASGameRecord_map_text` screenshots are useful review context too.
+- Legacy/base-AdvCiv UI references are under `_0_Legacy/Images/` (see its [README](/_0_Legacy/Images/README.md) for naming and provenance): e.g. screenshots of the advisors, Sevopedia, diplomacy and other screens, plus stitched BtS and vanilla Civ4 tech trees from the web.
+  - They can be useful for example to compare how the old layout looked with what AdvCiv-SAS changed or improved, or as a historical/reference comparison.
+
+For finding key documentation, use grep/search as needed; documentation indexes like `# advc.004y: Restored (comment out to remove traits)` can also point to important details about a change. After finding an index entry, grep the tag itself (e.g. `004y`) in the manual or related docs.
+
+- Older identifiers and paths are looked up through the [Deprecated reference index](/_1_AdvCiv-SAS/Docs/Deprecated/README.md): we generally rename old references retroactively, so agents find the current name at once and are not confused by a former one, and the index alone maps the old names.
+  - Defines: [`global_define_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md) lists the pre-shortening SAS define names of KI#1001.2, such as `SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT`, now `SAS_COMMERCE_SLIDERS_FAST_INCR_PCT`. When renaming a significant define, add a row with both names and their byte lengths; the retired-name check then rejects the old spelling in active files.
+    - Example (2026-11-10): `SAS_UWAI_HIGH_UTILITY_LOG_THRESH` became `SAS_BBAI_UWAI_HIGH_UTILITY_LOG_THRESH`, since UWAI's reports had merged into BBAI logging as the `SAS_BBAI_UWAI_*` levels; the prefix groups it with the other logging defines instead of far down among the UWAI gameplay tunables, where it was hard to find.
+  - Folders and files: [`repository_paths.md`](/_1_AdvCiv-SAS/Docs/Deprecated/repository_paths.md) lists the renamed ones. Generally update records and audits too, so old paths remain only there.
+    - Example (2026-11-17): two weeks after `_0_Common_Docs` became `_0_Legacy/Docs` (2026-11-03), Claude Code Opus 5.5 did not know what the old folder was until the C++ File Audit Album still cited it. That is the intent: agents stay focused on the current, unified layout, so even historical records are updated when helpful or convenient, as the album then was.
+      - Similarly, we merged our Git and SVN history into the same folders: `git_logs` became `dev_logs`, which took Better BTS AI's SVN log too, and its `svn_history/bbai/` diffs moved into `commit_diffs/`, alongside K-Mod's, AdvCiv's and SAS's, with their old references renamed. One grep then covers every layer, and no agent overlooks a second folder.
+    - An example of exception is code matching paths inside old commits: the light-source ZIP still lists `/git_logs/` alongside `/dev_logs/`, since old commits contain that path, so their logs stay summarized rather than copied in full.
+
+Compile errors (e.g., for a "Debug-opt" build) at:
+
+- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\Debug-opt\AdvCiv.log"
+
+#### Comparison with Base AdvCiv 1.12's CvMainInterface.py processed to single-line
+
+For comparison purposes, as of 2026-06-10 we have also processed with the help of ChatGPT-5.5 thanks Base AdvCiv 1.12's `CvMainInterface.py` to single-line: [CvMainInterface_1_12_singleline.py](/_1_AdvCiv-SAS/Docs/examples/source_comparison/CvMainInterface_1_12_singleline.py). If you need to, you may find looking at this file much easier than the old multi-line/unprocessed file.
+
+See also if needed [the corresponding readme section](/LLM_Helpers/README.md#comparison-with-base-advciv-112s-main-interface-processed-similarly).
+
+#### Sevopedia debug dumps (Python API introspection)
+
+When a Python getter seems missing or unclear (e.g., the culture breakdown error where `CvCivicInfo` has no `getCommerceChange`), use Sevopedia debug dumps to verify what Python can actually access without having to guess if a getter is exposed in Python or requires DLL changes; these debug logs are usually our first and preferred source of truth since they are real inspect logs, although they might be slightly outdated if DLL changes were made since then.
+
+- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Docs\Sevopedia\Debug" (example file: [__SevoPediaCivic-gc-inner.txt](/_1_AdvCiv-SAS/Docs/Sevopedia/Debug/__SevoPediaCivic-gc-inner.txt)).
+
+Alternatively, the Civ4 BUG documentation is also provided as .txt, may be helpful, consider reading it for double check or grep needs if in doubt or such. It helped us find the `Destroy2DSound` python function for example, doc is helpful as reference (but lengthy):
+
+- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Legacy\Docs\Civ4BUG_Python_API\all_classes_web.txt"
+
+### Information Fetching online
+
+If you find yourself stuck like for audio stopping issues, feel free to ask the user to perform one or many web searches, maybe some solutions exist or insights on how solvable issues are.
+
+- Agents can often look things up themselves: for example, Claude Code has web search and a built-in browser kept apart from the user's, and Codex has web search.
+  - When a tool cannot fetch something or gives outdated or inaccurate data, for example `gh` when it is not signed in, or a search result indexed before a recent change or for another region, read the page instead, in your own browser first, or if that fails from the user's already open browser window, and ask the user only when neither works.
+    - Example 1 (2026-11-22): Claude Code Opus 5.5 had no working `gh` and asked the user for the `base-game-copies` pull request's link. The user suggested its own browser: the repository's pull request list, filtered by that branch, found [PR#50](https://github.com/wonderingabout/AdvCiv-SAS/pull/50) at once.
+    - Example 2 (2026-11-17): after a force-push, a screenshot of the user's GitHub tab checked CI's result on the commits page, with no browser extension connected; see [The user's Chrome](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#the-users-chrome).
+    - Example 3 (2026-11-10): the official pages, read in the agent's own browser, corrected the search tool's Claude and Codex plan prices for the user's region; see [Browsers for agents](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#browsers-for-agents).
+- Your training data stops at a cutoff date, often months before the session, so anything newer is missing from what you know: new models, app features, tool and library versions, game patches or mod releases. Do not tell the user something "does not exist yet", "is not released" or "is not visible" from memory alone; the user reports agents doing this often.
+  - Check first: compare the session's date with your cutoff, look at local evidence (installed programs, files, the app's own interface in a screenshot), and search the web. If you cannot check, say that it is unknown to you rather than denying it.
+  - Example (2026-11-10): Codex's model picker listed GPT-6.1 Sol, GPT-6 Astra, GPT-6.1 Terra and other models that an agent trained earlier would not know. The screenshot settled it; see the [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#codex-the-chatgpt-desktop-app).
+  - The same holds for interfaces: the Claude and Codex apps changed often enough that the guide dates every finding, and an agent's idea of where a button is can be months old. Look before assuming.
+  - A search tool's summaries can be wrong too: on 2026-11-10 they gave equal US dollar prices for two plans, while the official pages, read in the agent's own browser, showed different euro prices for the user's region.
+    - Read the original page for anything that changes or depends on the user's region, and treat search results as leads; see [Browsers for agents](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#browsers-for-agents).
+  - Likewise, open a web link in your own browser to check it rather than trusting its label or assuming it still works: a link can be stale, moved, or point somewhere other than its text says. For example, on 2026-11-11 the new `drive_links.py` check found the Modding Resources guide linking one Google Drive folder both as its impluvium example and as the whole Modding_Resources Drive.
+    - Opening both IDs in the agent's own browser showed their folder titles, "nif import from another mod (for example the impluvium's…)" and "Modding_Ressources", which settled which label was wrong without asking the user.
+
+### Suggesting tools and ideas
+
+If a program, package or other tool would help, suggest it to the user rather than silently working around its absence; the user may not know of it or think of it, and installing it is often trivial. The same goes for ideas in general: suggest them and let the user consider them with you.
+
+- Example 1: we worked for a long time without a local Python 2.4, although installing it was trivial. Until then, Python 2.4 errors were found by guesswork, launching the game and fixing them by hand; a native compile check now catches them before the game does (see [Syntax checks and linting](#syntax-checks-and-linting)).
+- Example 2: the user had long used markdownlint through its VS Code extension, but agents could not run it, since the command-line version needs Node.js. Node.js was installed only on 2026-11-03, after a Markdown issue passed a local Python-only check but failed on GitHub.
+- Example 3: Codex (GPT-6 Astra) drew SASGameRecord maps with Pillow, the Python imaging library, apparently from its own bundled Python, since none of the local Pythons had it.
+  - On 2026-11-08 Claude Code, lacking it, wrote [`gamefont_tga.py`](/LLM_Helpers/README.md#gamefont_tgapy) to work without it, then suggested installing it, which the user approved the same day.
+  - Installing it uncovered more: `.dds` buttons, which agents could not open before, open with Pillow too, so an agent can now look at a button as well as at the fonts.
+    - It was directly useful the same day: Peat Works had shipped with Quarry's button, and comparing Caveman2Cosmos's peat buttons side by side chose its own, while a new CI check now flags borrowed buttons; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md).
+    - Iterating on it the same day went further: packed `.FPK` archives, which only PakBuild and Dragon UnPACKer's windows could open, turned out simple enough to read directly.
+      - `.nif` models, shown before only in NifSkope's window, can now be drawn as pictures close to NifSkope's view.
+      - The same renderer then showed religion-founding scenes through their own camera, and ffmpeg, already installed, turned Bink wonder movies into frames and their sound into waveforms. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md) documents each step, including what failed first.
+- Example 4: knowing a tool exists matters as much as installing it. The VC2003 compiler was already installed for building the DLL, but running it as `cl.exe /Zs` on edited files lets an agent catch C++ errors before handing the change over, without building the DLL (see [DLL compilation](#dll-compilation)).
+  - Record such setups where future agents look, so the next one does not have to rediscover them.
+  - Say which is which: what you worked around, and what the tool would add, so the user can decide whether it is worth installing.
+- [Tools for AI/LLM helpers](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#tools-for-aillm-helpers) lists what is installed and what is worth suggesting; update it when a tool is added or proves useful.
+
+## Documentation editing
+
+- Explain what changed and why when it helps readers understand the feature or decision, including beginners and experienced users/developers; use related changes as examples of a shared intent rather than an unrelated list. State observed or established reasons, and do not invent a rationale when it is unknown.
+  - Use concrete examples where helpful, preferably real code or setting names: a named before/after comparison makes abstract guidance easier to understand and remember.
+  - Incomplete rationale: saying `SCALE` is clearer does not explain what it improves on.
+  - Clearer rationale: `SAS_SGR_MAP_ASCII_OVERVIEW_1_SCALE_PCT` became `SAS_SGR_MAP_ASCII_SCALE_1_PCT`; `MAP_ASCII` already identifies the text map, so removing `OVERVIEW` shortens the name and avoids confusion with the unrelated Domestic Advisor Overview tabs. The improvement comes from that comparison and retained context, not from `SCALE` alone.
+- Before adding or revising documentation, check that the destination and level of detail fit its purpose.
+  - When a subject has its own guide, its knowledge goes there and other documents only link to it. For example, everything about EXE memory patches, including the `LLM_Helpers/exe_analysis/` helpers and their pitfalls, lives in the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md).
+    - On 2026-11-12 the same Ghidra setup and pitfalls had been written in three places, the tools table, the helpers README and the guide, so a fix to one would have left the others stale; the tools table and helper entries became short links.
+    - Similarly, a few Known Issues need unusually short wording because their content lives in a guide kept apart for a reason: KI#1082.2 keeps only its title, Drive link, credit and a one-line pointer to the disclaimers and the EXE patches guide, which player archives leave out.
+  - For example, a Changes tab description in the root README should introduce what users can do. A `(Requires AdvCiv-SAS 6685+)` bullet followed by nested grouping conditions belongs in the Main Changes Guide; detailed LOG captures belong in `README_Logging_Inventory.md`. Keep a brief explanation and links in the root README instead of copying the same detail there.
+- Describe current behavior and limits without implying future commitments, for example "Performance was not measured" rather than "Performance has not yet been measured". Mention possible extensions only when useful, using wording such as "A possible extension would be..."; otherwise omit speculative plans.
+- Similarly, in documentation and code comments, prefer durable facts and rationale over vague progress labels such as "in progress" or "not yet". These add maintenance burden: we may forget to update them, as has happened before, and future work may change direction or never happen. When status matters, describe the concrete limitation or use a dated historical note.
+  - This applies to commit messages too. To still convey an issue and its progress without a promise, you can for example state what the change fixes, what earlier work fixed the same way, and what still has the issue.
+  - For example, in the City Center commit the Barbarian City Center has its own button and art, so in WorldBuilder, the Sevopedia and the advisors it is no longer tediously duplicated and thus visually indistinguishable from the generic building (without having to hover or such), as the old Barbarian Palace was with the regular Palace.
+    - The commit then states the remaining issue as current fact: the Barbarian Worker and the Barbarian Granary, among others, still share their generic asset's button and art, so they remain hard to tell apart.
+    - A draft line "other Barbarian assets can follow" was dropped, because it reads as a plan/promise. Describing what is fixed and what still has the issue, with any known fix, conveys an overview and potential progress if any, without burdening ourselves or having to make a promise or maintaining it.
+- Name and link SAS-branded gameplay source files beside their relevant features in both the root README and Main Changes Guide so contributors and LLMs can find the implementation; brief prose references are enough. The documentation check enforces explicit filename links for changed source files.
+
+### Examples and historical records
+
+- Reserve `_example` filenames for textual/code/data examples under `_1_AdvCiv-SAS/Docs/examples/`. Screenshots belong under `_1_AdvCiv-SAS/Images/` with descriptive names without `_example`. Imported/generated context and executable test modules are distinct from example artifacts; the documentation placement check uses filenames, not payload scans.
+- Keep quoted source/log excerpts faithful to their originals as much as possible, and do not invent, including in Markdown documentation. Instead, clarify and distinguish provenance, for example by putting explanatory labels in the surrounding prose, so reconstructed or illustrative examples are not misleadingly confused with the actual excerpts.
+  - For example, do not add `// CvUnitAI::AI_omniGroup` inside a quoted C++ sample that contained the real `FAssert(!kLoopPlot.isVisibleEnemyUnit(this));` (KI#49.3), because that comment was absent from the source: say the excerpt comes from `CvUnitAI::AI_omniGroup` in the prose above it instead.
+- Usually keep one representative example per output type under a stable, untimestamped `_example` filename, such as SASGameRecord or runtime JSON/JSONL examples; replace it when refreshing so Git tracks its history instead of accumulating redundant or confusing captures. Preserve real timestamps and identity inside the captured data, and keep companion files consistent.
+  - Refresh example captures when convenient or worthwhile, weighing their usefulness against commit noise and review effort; no per-commit refresh is required.
+- Preserve the chronology and original intent of historical or incremental documentation; append later developments with their date and explain how they follow from the earlier work.
+  - For Known Issues, append at the end of the relevant entry or add a relevant unused `.x` follow-up/new issue when warranted. Correct factual errors explicitly without rewriting the sequence of discovery.
+    - New findings and replay results go after the entry's existing reasoning and credits; inserting them between earlier paragraphs blurs the investigation's chronology. The KI chronology check catches clear paragraph insertions, while intent still needs review.
+    - Start decimal follow-ups at `.2`, not `.1`, because `.1` is ambiguous with the original issue (also confusing about if the first one was `.0` or unwritten `.1`).
+    - Before taking the next free number for a new issue, search the Known Issues for one in the same family and make it a `.x` follow-up there when they are related enough, so one grep for the number finds both.
+      - Search the KI bodies too, not only the headings, and the [C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt) and the archaeology record, by the code's own names (a variable, a function, the file): they may already hold the issue or a sibling, which a heading search misses.
+      - Example (2026-11-15): the Victory screen's `u""` icon was first filed under a new number, then moved to KI#118.2 at the user's suggestion, since KI#118 was another button path breaking in the UI: a different mechanism in the same family.
+      - Example 2 (the same day): three Victories tab slips were filed together as KI#115.2 after a heading search for "Victory". A body search found KI#290, angles truncated by Python 2 integer division, so the shares slip with that mechanism became KI#290.2.
+        - Prefer the family whose mechanism matches; the screen the bug shows on is a weaker tie.
+      - However, do not split off a finding just because it partly touches another issue, as that would be an overcorrection: give it a `.x` there only when it is an issue in that family itself. Otherwise keep it in its own entry, and add a dated note to the issue it touched.
+        - Example (2026-11-17): Claude Code Opus 5.5 filed `pushMission`'s binding, which rejected `None`, as KI#176.2, because its workaround had tripped KI#176's guard. Reviewing it, the user wondered whether it was really an issue of its own, which exposed that it was not, in game or otherwise, just one finding among related ones: the same defect as KI#1091's combat wrappers.
+          - So it joined KI#1091, whose account of how it was found mentions KI#176's guard, and KI#176 got a brief dated update note pointing to KI#1091, so each links to the other.
+    - When convenient, quote the full error verbatim in its KI, as KI#118.2 does with the Victory screen traceback: words such as `setTableText` or `did not match C++ signature` then make the issue easier to find again and to understand.
+  - Audit/archaeology records generally change only when their own documented investigation resumes; ordinary source changes do not refresh their findings or continuation cursors.
+    - Finished or discontinued records such as as of now `historical_source_archaeology.txt` and the C++ File Audit Album generally stay as audited. For example, the archaeology record says practical 4769 left no live `BONUS_WINE`; that was true then, so the 2026-11-04 `BONUS_WINE` restoration is not added there.
+      - An example of exception is the renamed paths they cite: they are generally updated, for easier grepping and archiving (see [Deprecated references](#information-fetching-locally-dbglog-errlog-etc)).
+    - An ongoing audit is a working document instead, so it is updated in place as its work proceeds; for example, as of 2026-11-04 is still ongoing `xml_asset_naming_and_taxonomy.md` records each identifier restoration and its follow-ups as they are made.
+  - Prefer dates for later follow-ups; practical commit-count versions can change across branches/rebases. Reserve those versions for documents that need them, such as the Main Changes Guide and SASGameRecord revision history; omit them from commit messages.
+
+### Markdown structure and readability
+
+- Give maintained Markdown documents a Menu/Contents section for navigation; the structure checker requires it unless the file/category has a documented exemption. Use `python .github/workflows/build/documentation/markdown_structure.py --refresh-menus` to create or refresh menus, then review the result.
+- Use repository-root links such as `/Assets/XML/GlobalDefines_advciv_sas.xml` for local Markdown destinations; avoid document-relative links such as `../README.md` or `revisions/SASRuntime.md`, which depend on the referring document's location. Moving the referring document then preserves the target; same-page anchors and external URLs are fine.
+  - Keep one style per file for links to its own anchors, either same-page `#anchor` or absolute `/file.md#anchor`, not both; the Markdown link check rejects a file that mixes them.
+- Prefer heading-generated Markdown anchors instead of explicit HTML `<a id="...">` / `<a name="...">` targets; a second naming scheme makes destinations harder to predict and maintain.
+  - Numbered `ki-N[.N...]` anchors in `README_Known_Issues.md` are the exception: their short, direct and predictable targets keep issue links stable even when KI heading wording changes.
+
+- For local image embeds, use HTML with an explicit positive pixel width (usually `width="250"`) and alt text equal to the exact filename, including its extension; for example `<img src="/path/1.295_SASRuntime_crash_dump_dialog.PNG" alt="1.295_SASRuntime_crash_dump_dialog.PNG" width="250">`. This keeps image size deliberate and renamed screenshots greppable.
+- For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user.
+  - markdownlint-cli2 is a Node.js tool, unlike the Python checks. Node.js LTS is installed locally (installed on 2026-11-03 with `winget install --id OpenJS.NodeJS.LTS`), so run the CI's own scope before committing Markdown edits: [`npx markdownlint-cli2@0.24.0`](/.github/workflows/README.md#markdown-lint-workflow) from the repo root. A summary of `0 issues in 0 files` means no file has an issue.
+  - A local Python-only CI run does not cover this workflow: on 2026-11-03 such a run passed while a compact `|---|` table separator and a doubled blank line still failed markdownlint on GitHub.
+- For long Markdown prose, preserve the wording but prefer semantic structure that also reads clearly in rendered Markdown.
+  - Use a blank line for a real new paragraph or thought chunk; a plain source newline normally renders as a space and should be used only when the text is intentionally still one paragraph.
+  - Do not use a trailing `\`/hard line break merely to make prose look chunked in source; if the thought is genuinely separate, use a blank-line paragraph instead.
+  - In list-heavy technical/rule documentation, prefer a parent bullet with two-space-indented `-` child bullets for distinct details, exceptions, evidence, validation, examples, updates, or follow-up parts of the same point.
+  - Keep peer/top-level bullets for independently trackable rules/features/changes rather than nesting merely for visual uniformity.
+  - Do not impose an arbitrary width: short paragraphs, single long sentences, tables, logs, code, URLs, and other structures can stay on one physical line.
+  - `LLM_Helpers/formatting/reflow_markdown_prose.py` can perform a conservative source-line-only sentence-boundary pass, but it deliberately does not decide visible paragraph/list structure; always review and add real paragraphs/sub-bullets where appropriate.
+
+### Main Changes Guide
+
+- Keep it a practical overview of current changes rather than a chronological changelog; rewrite, merge or reorder related entries as features evolve, preserving useful rationale and applicable version requirements.
+- In [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md), apply the same rule especially strictly: parent change/feature bullets should use real nested sub-bullets for distinct details, evidence, validation, updates, or part 2 of that same change.
+  - Plain continuation indentation does not create visible list structure.
+  - Keep a new top-level bullet for a separately trackable feature/change.
+- When adding doc entries in the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md), prefix bullet titles with `- (Requires AdvCiv-SAS X+)` where `X` is current latest commit + 1, since docs describe post-commit state for readers; for a PR intended to be squash-merged, `X` is main's count + 1, and [`requires_version_markers.py`](/.github/workflows/README.md#builddocumentationrequires_version_markerspy) checks it.
+  - Current rule of thumb: latest stable is 5500, so the first commit after it would be 5501+, 10 commits later would be 5510+, etc.
+- When a new stable release is made, then all these previous markers can be stripped (e.g. if next stable is AdvCiv-SAS 5560, then any requires <= 5559+ is stripped because players would have the changes in latest stable, so they don't need anymore the marker about a change they might not have yet (in main i.e. as of now our dev branch)).
+  - We don't need to mark other files since they are generally not player facing in that way and more general information on the mod (plus it's less tedious as such).
+
+## Comment Editing Rules
+
+### Comment markers and attribution
+
+- When adding or modifying Python/XML source, retain inherited copyright/author notices in their original order, then append our standard AdvCiv-SAS modification header (e.g. as of now `(c) 2026 wonderingabout & AI/LLM helpers`, with the root README Authors reference).
+  - In XML, put a new SAS header after the inherited owner notices and before explanatory comments. The source-provenance check enforces it on changed files; untouched inherited files do not need a bulk update.
+- When adding new comments, use the format `<!-- custom: ... (model credit) -->` (with `//` or `#` prefix as appropriate), and put the model credit in the suffix before `-->` (e.g., `(GPT-5.3-Codex) -->`, `GPT-5.5`, `(ChatGPT-5.6-Sol) -->`, `(Claude code Sonnet 4.5 (summarized)) -->`).
+  - For multiline custom C/C++ prose, use `//` on each line instead of enclosing it in `/* ... */`, so an isolated grep result identifies itself as a comment without surrounding context. Single-line inline annotations may use block syntax where needed between code tokens.
+  - Do not use other tags like `advc.` as the authorship marker (they do not belong to us: e.g., base AdvCiv uses `advc.sas` to reference our AdvCiv-SAS changes).
+  - When unsure which model to credit, the session logs of both apps recorded it when checked on 2026-11-18: `--list` on [`claude_session_export_to_txt.py`](/LLM_Helpers/README.md#claude_session_export_to_txtpy) or on [`openai_chat_export_to_txt.py codex`](/LLM_Helpers/README.md#codex-and-chatgpt-transcript-helper) shows the newest sessions' models.
+  - Model-authored comments need a model credit. User-authored comments may remain uncredited; do not add the user's name or bulk-clean existing uncredited comments. The automated source-provenance check reports missing model credits only as advisory warnings because Git cannot distinguish user and model authorship.
+- Place a change's comment immediately before its first changed line, including a newly added enclosing brace. If an unchanged gameplay line precedes a new hook, put the hook comment after that line: for example, leave `kUI.setEndTurnMessage(true);` above the comment for the added Runtime notification, so the marker does not imply we changed the inherited flag assignment.
+- Generally preserve model-name credits as context for chronology, authorship and intent, and prefer appending your own (e.g., `+ GPT-6.1-Sol`). Credits may be dropped when clearly stale, for example when a comment is removed or its explanation is entirely replaced.
+  - CI conservatively catches clear credit loss but can miss substantial rewording that retains earlier reasoning; review attribution manually rather than forcing old credits onto genuinely replaced explanations.
+  - Join contributors with a plain `+`, without role labels: a fix prompted by another agent's review is credited `(Claude code Opus 5.5 + GPT-6.1-Sol)`, not `+ GPT-6.1-Sol review`.
+    - Everyone contributed one way or another, and tracking who reviewed, drafted or fixed what is tedious for little gain; one consistent form keeps the focus on the work. When the comment says what a review found, the prose already tells that story, such as "Codex reproduced a `--reason` containing `--`..." (the user's preference, 2026-11-12).
+
+### Preserving meaning and technical detail
+
+- Simplify verbose comments without changing meaning or technical details.
+- Focus on rewording/rephrasing - the goal is to remove prose and conversational filler while preserving all technical information. Don't over-summarize to the point of losing important technical context.
+- Do not requalify subjective wording (e.g., keep "nicer display" instead of rephrasing as "tighter look") to avoid misinterpreting meaning.
+- Preserve important technical specifics verbatim (e.g., "0 / 0 / 0 / 0 / 100", "2 placeholders vs 3 substitutions", "remove the extra X starting position").
+- Preserve all technical qualifiers - e.g., "debug DLL" not just "DLL", "tech advisor screen height" not just "screen height", etc. These distinctions matter.
+- Preserve specific scope qualifiers in technical details; avoid vague rewrites that drop precise context (e.g., keep "tech advisor screen height" rather than just "screen height").
+- Avoid unclear wording where one word can mean several Civ4 things.
+  - For example, "citizen" can mean a population member assigned to a city plot or a `SPECIALIST_CITIZEN`; "worked" can mean a plot assigned by the city or a tile improvement or build or route or such made by a `UNITCLASS_WORKER` or `UNITCLASS_WORKBOAT` or such unit; "event" can mean a BBAI/SASGameRecord log row/action or an XML `EventInfo`/`EventTrigger`; "reserve" can mean remaining defenders or `UNITAI_RESERVE`; "warlord" can mean Great General attached-to-unit use or `HANDICAP_WARLORD`.
+  - Use the exact meaning instead, e.g. "remaining healthy defenders after giving one to the Settler"; additionally when writing user facing doc like in the `README_Main_Changes_Guide.md`, this helps make it clearer too.
+  - The same holds outside Civ4 terms. Example (2026-11-11): the two-client LAN walkthrough said "on one PC", which is vague, and "on the same Windows machine" could still read as identical hardware on separate computers; "on the same Windows computer" says plainly that both clients run on one physical computer.
+  - And for SAS's own terms: "record" suggests SASGameRecord, an action on e.g. the game or its logs, as if a commit made SGR log something new; adding a KI entry acts only on the docs, which a word such as "document" says.
+    - Example: two titles a few days apart. "Record peer Civ4 clients in SASGameRecord…" (SGR200, KI#38, 2026-11-11) was a real record, as SGR began logging those clients. "Record the open crash on leaving a Huge turn-305 game…" (KI#1084, 2026-11-16) only added a KI entry, so its "Record" misled or was confusing, so it became "Document the open crash…".
+- Keep exact technical phrasing; avoid substituting terms like "starting position" -> "start" or dropping modifiers like "vertically".
+- Preserve exact spacing/formatting in technical details (e.g., "- 30" vs "-30").
+- Preserve exact counts/quantities when they are mentioned (e.g., "3 strings").
+
+### Source context and issue references
+
+- Generally comment from the old/base AdvCiv perspective to explain what we changed.
+  - Some code we change is already AdvCiv-SAS custom code; when that is clear, try to convey it briefly so the comment stays accurate and shows the logic behind the change (e.g., `# <!-- custom: Manually positioning the mouse on footer Back/Next for each pedia link is tedious. After we added Up/Down item-list navigation, map Left/Right arrows to Sevopedia Back/Next history as the natural keyboard counterpart. (GPT-5.5) -->`).
+  - Tracing code origin is hard though and not critical, so do not overthink it; leave it to the user if in doubt.
+- Preserve contrast/difference phrasing when it carries technical meaning (e.g., "unlike in the foreign advisor").
+- Keep exact marker strings like "AdvCiv Mod" or "AdvCiv-SAS Mod" for later searches.
+- When a code comment explains a Known Issue, its cause, related behavior, constraints or a fix/prepared fix, include its exact greppable reference, such as `See KI#382.3.` for the startup-record fix. Treat it as a closing note: in a multiline comment, place it on the final line immediately before the model credit.
+  - For example, if a fix for KI#382.3 spanned five separate C++ locations, two Python locations and one XML setting, add `See KI#382.3.` to the relevant comment at each location. The same applies to related code explaining the cause or a constraint, so readers can find the issue's wider context; unrelated changes in the same commit do not need the reference.
+  - Do the same in documentation wherever a guide, the Main Changes Guide or the Logging Inventory describes an issue's cause, fix or workaround, linking the KI there.
+  - Why spray the reference this widely: one grep for the number then lists every place tied to that issue, in code and docs alike. A reader revisiting the issue, reviewing its fix or changing nearby code finds all of them at once instead of reconstructing them, and the KI entry gives the evidence behind each.
+    - Example: KI#1081 (shared `PythonErr.log` and autosaves between clients) is referenced from the runner and the autoplay request hook, the four per-process file-naming comments in the DLL and exit observer, and the Game Runs Guide and Logging Inventory, so a grep for `KI#1081` shows why each of those places names its files by process.
+    - For a short number, grep with a word boundary, such as `rg "KI#7\b"`, or a plain `KI#7` also finds `KI#70` to `KI#79` and beyond; the [Known Issues' Note 5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#known-issues) gives the patterns and why the numbers are not zero-padded.
+
+### Rationale and presentation
+
+#### Rationale, observed results and uncertainty
+
+- Preserve rationales (e.g., "it is distracting") when they explain why a change was made.
+- Preserve rationale clauses about why something is unnecessary (e.g., "we don't need to show beyond BFC").
+- Do not restate current gameplay or default values in comments, such as "culture toned down to 4" or "defaults make the catch-up Ancient-only": the XML or code beside the comment already shows them, and the statement goes stale on the next rebalance.
+  - Instead say how it was and why it changed, usually relative to base AdvCiv because we inherit from it, e.g. `<!-- custom: was 3, from the old SAS Barbarian Palace -->`.
+  - Mention earlier SAS values only when that change was significant; long term, each intermediate SAS retune does not matter. Omit the old value when it adds nothing to the rationale.
+- Be more verbose when explaining rationales - it's important to capture the intent behind the change while summarizing. The "why" is critical, so preserve problem descriptions, observed behavior, and intended fixes more fully than other commentary.
+- Do not soften observed or unknown or unclear behavior into hypothetical wording. For example, if a bug was empirically reproduced, say what happened rather than "could/may/might".
+- When a change empirically fixes an issue, include in the comment that this change fixed the issue.
+- When work trips over a non-obvious mistake once, add a concise nearby comment explaining the pitfall and the correct rationale or invariant because if we tripped once we could trip again here or in another code path, or this useful information could be lost during a later refactor, or it could be useful when designing or reviewing this or other code paths.
+  - Examples notably include compilation failures caused by an API, type or toolchain constraint; diagnostic bugs that could produce false conclusions; and logic flaws discovered after the initial implementation.
+  - Preserve the concrete trace: "the old code did X; we expected Y, but Z happened, so we changed W." Add brief context when useful, such as "while adding evacuation decision links, the draft..." This lets future readers follow what failed and why the correction was made without needing the original conversation.
+  - Example (XML text cleanup, 2026-11-04): we assumed BtS does not load Warlords text, so a SAS entry matching only Warlords looked necessary and a deleted Montezuma diplomacy line looked missing; we restored it.
+    - Then we found `TXT_KEY_CIV_KOREA_DESC` exists only in Warlords text, yet Korea shows its name in game, so Warlords is loaded.
+    - We deleted the entry again and recorded the trace at the Warlords layer in `xml_sas_text_inherited.py`; without it, the next reader could repeat the same assumption.
+  - Optionally explain why if you know, but the focus is on preserving evidence, accuracy of reasoning, and its progression the most.
+    - Less useful (our earlier evacuation-link explanation): "The bound queue entry already validates the planned waypoint; groupMove observes one intermediate tile, not necessarily the end-of-turn destination."
+    - Clearer before/failure: the old `iExpectedStepX/Y` actually held the planned destination `(32,40)`, but the unit's correct first step was `(30,39)`. Comparing them produced `EXPECTED_STEP_MISMATCH` and wrongly omitted its decision link.
+    - Clearer correction: because a correct first step need not reach the destination, remove that equality check. Instead validate the queued destination and require the same mission during movement, so legitimate intermediate steps keep their links; name its destination fields `iMissionTargetX/Y`. Unit movement remains unchanged.
+    - Why the earlier explanation is less useful: it seems clear while the conversation supplies the context, but future agents may have only a comment mostly repeating the current design, not what was wrong and why and so why it was changed.
+      - Without the original failure evidence and reasoning progression, they may be unable to recover what changed or why even if they try; preserve that context in the comment. What matters is not much what changed but moreso why and how so.
+      - Logical connectors like "because", "so", "therefore", "but", "however", "thus", and the like are an example of ways to help clarify our reasoning and its progression, rather than just plastering it bluntly which would not be as useful in the future, with or without context.
+- For the above 2 bullets: Example bad: `<!-- custom: use navigation-specific debounce because Back/Next can redraw another category, and category redraws reset search debounce state. (GPT-5.5) -->`.
+  - Example good: `# <!-- custom: Left/Right Back/Next worked one item at a time within the same category, but crossing back to another category jumped twice from one keypress. Category redraws reset search debounce state; keeping navigation debounce separate fixed this. (GPT-5.5) -->`.
+- Also, our inferred theory can be wrong or not relevant, or unneeded, and we may just not have found the solution yet, so omit theoretical inference rationales unless clearly obvious and stick to observed data and results rather generally.
+- For the above bullet: Example bad: `# <!-- custom: Late-game Battles tab is slow because the EXE rebuilds many table rows/cells. Data-layer and row-payload caching were tested first and did not significantly help; preserve the built table widget while this advisor stays open, then rebuild only when player/history/layout signature changes. (GPT-5.5) -->`.
+  - Example good: `# <!-- custom: Late-game Battles tab opened slowly in a sample with 710+ rows. Data-layer caching and fully prepared row-payload caching were tested first and did not significantly help; preserving the built table widget made same-advisor tab switches almost instant, and making the screen persistent preserves it across close/reopen too. Rebuild when player/history/layout signature changes. (GPT-5.5) -->`.
+- Appendix for uncertainty in comments: omit uncertain explanations by default rather than writing something that could be wrong.
+  - Include uncertainty only when it is useful technical context, and then state the uncertainty directly (e.g., "Not tested after changing screen resolution in-session") instead of implying a guessed mechanism.
+
+#### Comment syntax and logical reflow
+
+- Do not use `/*` or `"""` or `'''` or such docstrings or variants. Prefer `//` or `#` or similar so they are easier to manage/uncomment and less costly computationally. Keep existing ones as they are, as some `"""` docstrings seem functionally used in tests (do not modify these, only the new ones we create).
+- Preserve problem descriptions, observed behaviors, empirical results (e.g., "city C fully improved at turn 105"), and intended fixes while removing verbosity
+- Pattern: Keep technical details and "why" verbose, remove conversational filler
+- Preserve the existing physical line structure of pre-existing comments unless you are changing that comment for content/correctness, the user explicitly asks to reflow it, or a dedicated custom-comment logical-reflow pass is being run. Never join or split comment lines merely to satisfy a width target.
+- Do not silently rewrite inherited/non-custom comment wording. Pure reflow means changing only physical wrapping/whitespace while preserving the normalized wording and punctuation; it is allowed without changing authorship. Otherwise leave the inherited comment intact and add a separate custom note, or remove the inherited comment if it is stale.
+  - If a replacement custom comment supersedes an inherited comment that carries a provenance marker such as `advc.xxx`, `KI#...`, or `Long_Comments_... #N`, retain that reference in the new custom comment.
+- Keep distinct adjacent comments distinct, especially an untagged/base/upstream comment followed by an AdvCiv-SAS `<!-- custom: ... -->` comment; adjacency does not make them one comment.
+- Across languages, keep explanatory comments above the code they explain. Hoist an existing comment when relevant; otherwise add or adjust a comment as needed.
+- When replacing a stale or incorrect coding pattern, update relevant commented-out code too, across languages, so searches do not keep finding obsolete and now inconsistent usage. Preserve its rationale and disabled status.
+  - Put a custom note beside the rewritten disabled block, e.g. `// <!-- custom: Disabled row kept in the current BBAI record format so re-enabling it follows the same pattern; untested while disabled. (model credit) -->`. Disabled code is not compiled or run, so say so rather than implying it was tested.
+  - The source-provenance check accepts such rewrites only when every changed line is code-like and the custom note sits beside the block; inherited prose and provenance markers such as `advc.131` inside the block stay protected.
+- For AdvCiv-SAS `<!-- custom: ... -->` prose comments, physical lines follow logical sentences/clauses rather than character count. Wrap only at natural logical boundaries when needed (normally complete sentences or independent clauses), and do not arbitrarily split one sentence across `//`, `#`, or XML-comment lines.
+  - A reasonably readable long sentence can stay on one physical line; do not strand a short ending, `See KI#...`, or the model credit on its own line just to meet a width target.
+  - Do not normally place two substantial complete sentences on one physical custom-comment line. Put them on separate comment lines instead. If two short, closely related independent clauses read naturally together, prefer a semicolon on one line (e.g. `A is true; B follows.`); if that combined thought becomes clearly long, prefer a period and a new logical line.
+  - Short trailing provenance/configuration fragments can stay with the preceding thought when that reads better rather than becoming tiny standalone lines; e.g. `... See KI#48.5; was 70.`. Closing metadata such as `See KI#...`, a source/Long_Comments reference, or the model credit may remain on the final substantive line and does not itself force a new physical line.
+
+#### Comment Style Example
+
+The example preserves strategic reasoning and technical details while grouping comment lines by related thoughts rather than a width target.
+
+```cpp
+// <!-- custom: For AI stack attacks, spend expendable units first to preserve elite finishers. This is economically efficient: older/weaker units cost upkeep but scale poorly, while elite units are costly to lose and can secure the fight if early attacks go badly; keeping them as finishers preserves flexibility and escape odds.
+// Once bombard is done and we have decided to attack, siege/collateral units go first because they are less useful on defense and have already contributed their main value; this also front-loads collateral damage to soften the defenders.
+// Order by lowest effective power, then lowest XP; among healthy units (>= SAS_GROUP_ATK_LOW_PWR_MIN_HEALTH_PCT), lower health first. (GPT-5.3-Codex) -->
+```
+
+Note: as of now multi-line is fine for cpp files, we generally avoid it and prefer single-line for py for example.
+
+## Coding Preferences
+
+These are general guidelines, not irrevocable requirements; adjust based on task needs.
+
+### General
+
+#### Values and implementation choices
+
+- No approximations like `"%.1f"` or `%02d`; we want precision, no fluff. Use `%f` or `%d` instead. Example of exception: `%02d` as zero-padding for nicer ordering/alignment `(Calendar_01, Calendar_02, ...)`.
+- Prefer `const` for locals whenever possible to make intent clear and prevent accidental mutation.
+- Favor effectiveness and simplicity over complex heuristics; avoid overengineering.
+- Do not dismiss an effect because today's XML values make it small: they can change in a rebalance or a mod-mod. Ask what the effect would mean at other values, and where practical let the code scale with the actual value instead of assuming it stays negligible.
+  - Example (2026-11-07): Peat's `<iFeatureRemovalDiscoverPercent>5</iFeatureRemovalDiscoverPercent>` under `FeatureRemovalDiscoveries` first looked too small for the Worker or Settler AI to weigh, so we left it out. That was an oversight: at 50%-70% if not more, or for other bonuses in a mod-mod, it would be nearly as good as us always having the yield itself.
+  - The AI now multiplies each possible find by its chance, which works for any bonus, feature and percent without a Peat or Marsh rule. See KI#1078.
+  - Then follow the effect to every decision it reaches, not only the one in front of you. Valuing the find for the Worker and Settler still left the tech that unlocks the removal, war targets and city trades blind to it.
+    - Picture the extreme: a bonus unlocked later, with a 100% chance, 100 hammers and many plots. Land holding such finds is an unscratched lottery ticket, so it should raise that tech's value and make its cities worth conquering or asking for, and both now count it (and added BBAI/SGR or such logging too to track it ideally).
+- Scale the fix to the problem: we usually review or rework what we touch, but a limit that rarely matters can be kept and guarded instead of removed.
+  - Example: BtS caps a corporation at 5 inputs (`NUM_CORPORATION_PREREQ_BONUSES`); AdvCiv's DLL accepts more, but Python reads only 5. We could fixed/review/overhauled it possibly, but we have few bonuses (as compared to base AdvCiv), and corporations have few inputs, and fewer inputs also keep one from scaling too far for balance reasons too.
+    - So we kept the limit, but instead moved Peat to Aluminum Co rather than making it Mining Inc's 6th input, and added a CI check to enforce/guard this 5 limit. See KI#1079.
+  - Example 2: one GlobalDefine text value outgrew the inherited 256-byte buffer: `SAS_MAP_SCRIPT_NAMES_LAND_HEAVY` reached 297 bytes (298 with its terminator). Rather than rework the loader for one define, it was split into `SAS_MAP_SCRIPT_NAMES_LAND_HEAVY_PART_1` and `_PART_2`, of 143 and 153 bytes. See KI#1001.
+- In conditions, test the decisive gate first, usually a cached on/off define: when it is off the rest cannot matter, so evaluating it is wasted work, and leading with the switch shows what the condition is for. This applies to `&&` chains, and likewise to nested `if` blocks and early returns, where the switch belongs in the outer test.
+  - Example bad: `if (pOnlyPlot == NULL && GET_TEAM(getTeam()).isIrrigation() && bSAS_WORKER_IRRIG_ON)`
+  - Example good: `if (bSAS_WORKER_IRRIG_ON && pOnlyPlot == NULL && GET_TEAM(getTeam()).isIrrigation())` stops at the switch: when Worker irrigation is off, the other tests are skipped.
+  - Logging gates and their pre-gating in particular are a very common case too.
+  - Keep the original order where it matters, for example for side effects, null-safety or a prerequisite check.
+
+#### Iterative/recursive development and review
+
+- Before changing code, names or explanations, understand what the existing version does, why it is written that way and how the proposed change affects that intent.
+  - Inspect surrounding rules and callers rather than assuming a simpler name or wording preserves the same meaning; this helps avoid weaker solutions and accidental behavior changes. When changing a pattern or interface, also check its broader impact with a scoped search of related settings, callers, docs and CI expectations; do not stop at the first occurrence.
+  - For example, the Changes history draft mixed `SHOW_INTERMEDIATE` for World Builder with `HIDE_CANCELLED` for Advanced Start. Changing this to `SHOW_INTERMEDIATE`/`SHOW_CANCELLED` made the pair consistent and avoided the less intuitive negative wording of `HIDE`/`DISABLE`.
+    - That cleanup should also prompt a broader audit: here it found `SAS_MAIN_UI_CITY_HIDE_PLOT_LIST`, renamed to `SAS_MAIN_UI_CITY_SHOW_PLOT_LIST` because `SHOW=1` directly means visible, making it more intuitive and consistent with other positive toggles than `HIDE=0`. Inverting its value and condition preserves behavior.
+    - For example, replacing `SAS_SCRAP_ABSOLUTELY_DISABLE` with `SAS_SCRAP_AI_ENABLED` was wrong for several related reasons:
+      - `ABSOLUTELY` has a purpose: several softer scrap policies exist, while this switch is the strongest override. Dropping it loses that distinction.
+      - The overlapping scrap policies would ideally be refactored into simpler knobs and code. But until we do (and if we ever do), preserve their existing meaning when editing, unless it is incorrect or can be expressed better, or an opportunity to do such a refactor right now. Before choosing a convenient local fix, assess whether it fits the existing intent and conventions.
+      - `ENABLED` uses a past-participle form instead of our preferred present/action wording, making the name inconsistent with that convention.
+      - Merely changing `ENABLED` to `ENABLE` still misses the established style: the define-shortening rework standardized these switches on `_ON`/`_OFF`. `SAS_SCRAP_AI_ABSOLUTELY_ON` preserves both the meaning and that naming convention.
+      - A deeper audit of related names and the earlier rework would have identified `SAS_SCRAP_ABSOLUTELY_DISABLE` as an overlooked remnant of that define rename sweep. Check that context before making a quick local rename; invert the value and condition when changing polarity so behavior stays the same.
+  - Thorough, iterative and recursive review: iterate on the change, and revisit related assumptions or analogous cases when a finding raises another question.
+    - For example, the broader Python refactor consolidated scattered visual utilities into `SASVisualUtils.py`, but left `CITY_SPECIALIST_TYPES` hardcoded. After that was identified and replaced with XML-visible IDs, `GREAT_PERSON_UNIT_TYPES` still remained a fixed list; the analogous Great Person case needed review too.
+    - Looking beyond membership then exposed related presentation data split across `_SPECIALIST_ICON_SPECS`, `_GP_UNIT_ICON_SPECS` and `_GP_COLOR_SPECS`. The GP type/glyph/color choices can be expressed together in `SAS_GREAT_PERSON_VISUAL_SPECS`, naming each unit once; the specialist glyph map serves a different need from its XML-derived visibility and textures.
+    - The `SAS_GREAT_PERSON_VISUAL_SPECS` refactor was implemented before inspecting the earlier `SAS_CATEGORY_DEFS` table in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py) for comparison, but converged on the same useful structure: declare each record once and derive its lookup collections.
+    - Work from the actual needs, then compare relevant existing designs to review the result and find useful omissions. Independent convergence can reveal a reusable pattern; it does not mean every related subsystem needs the same abstraction.
+    - After retained GP construction records were identified, the first fix covered only GP; specialists and the other resource families were not reviewed until the user asked again. That was an incomplete review of the broader refactor. Check analogous cases before finishing, or explicitly identify the unchecked scope and useful follow-ups in the handoff.
+    - The subsequent audit found the same opportunity in specialist/trait mappings and attitude setup; their specifications now live inside initialization/configuration. Chart builders already use temporary locals.
+    - The follow-up `SAS_CATEGORY_DEFS` review also made full construction rows temporary, while preserving the display keys/order and resolved dispatch state needed later. This illustrates why the review should follow actual consumers before deciding what to retain, rather than treating every declarative table alike.
+    - Each pass can reveal a deeper issue: moving data into one file, removing one fixed list and simplifying the data model are different improvements. Reevaluate related cases as understanding develops; an inherited fixed-order API is a constraint to investigate, not proof that its hardcoding must remain.
+    - A defect can likewise be taken only part of the way each time. Example (2026-11-16): `ui_map_sync.py` failed on an unchanged UI map in the user's Windows clone, because Git checks text out there with CRLF while the generator writes LF, and the check compared bytes.
+      - First Claude Code Opus 5.5 restored the file and called the failure a false alarm to ignore, which silenced it rather than fixed it.
+      - When the user asked for a fix, it fixed only that check, then searched the other generated-file checks, found none affected, and added a test guarding that one file.
+      - Only when the user asked whether the safety still held did it add [`checkout_byte_compares.py`](/.github/workflows/README.md#buildsourcecheckout_byte_comparespy), which guards every CI build script against the same pattern, existing or future.
+      - Each step looked done when it was not, which was tedious for the user and incomplete on the agent's side. Take a defect to its end in one pass where practical: fix the cause rather than the symptom, check the analogous cases, and guard the pattern rather than the one instance, or say which of these is left out and why.
+      - A second case the same day (2026-11-16): while bringing the SASPilot work's fixes to main, KI#1090 was one Python binding, `.value("TASK_CONSCRIPT", TASK_HURRY)`, so a Python draft order hurried production instead, and Claude Code Opus 5.5 offered its one-line fix for commit.
+        - The user recalled that KI#122 had been a similar slip in the event trigger bindings, such as `.def("getReligionRequired", &CvEventTriggerInfo::getBonusRequired, "int (int)")`, so asking for a trigger's required religion returned its required bonus.
+        - With two cases it was likely a pattern rather than a one-off, so the better course was to search all the bindings for it; the search found three more enum names bound to the value on the line above (KI#1090.2), such as `.value("BUTTONPOPUP_KICKED", BUTTONPOPUP_PITBOSS_DISCONNECT)`.
+        - [`python_binding_targets.py`](/.github/workflows/README.md#buildsourcepython_binding_targetspy) then guards the pattern, so a new slip fails CI instead of waiting to be noticed.
+        - So a fix that looks finished may cover only the first case: when a defect resembles one seen before, search for the pattern and guard it with a check before calling the work done, else we risk missing related/similar issues.
+  - Evidence-led debugging: generally retain useful BBAI trails around investigated issues so later replays can re-audit the behavior. If important context or decision fields are missing, improve the diagnostics as understanding develops.
+    - Settler example (KI#144.6): several scouting experiments and analyses to a bad 1st city site chosen gave mixed capital choices, but final coordinates did not explain how direction, optimism, the time window or rival settlement were intertwined, and whether they caused the failures. Our breakthrough was when we realized we needed better evidence to identify which decisions went wrong.
+    - So we first added `FIRST_CITY_DECISION_CONTEXT` and `FIRST_CITY_RETURN_RESULT` to connect each choice to its prior mission and fallback.
+      - With those links, existing Found rows explained why `(8,10)` was abandoned: its score became zero at the 13-acceptable-plot cutoff.
+    - However, the jump from a probe at `(14,9)` to `(11,6)` remained unexplained, so we added `SETTLER_DISPLACEMENT` at the relocation routine.
+      - That trace confirmed three bumps during rival border expansion: `(14,9) -> (13,8) -> (12,7) -> (11,6)`. What looked like poor directional scouting included forced movement, so we could separate relocation from voluntary choices; the scouting policy itself remained unresolved.
+    - Once the bumps explained the small Arena map's sudden displacement, we asked whether its voluntary scouting steps (called probes here) were worthwhile. We added two BBAI row types: `FIRST_CITY_PROBE_STARTED` records the committed forecast, and `FIRST_CITY_PROBE_OBSERVED` records subsequent discoveries and target/fallback revaluations.
+      - Their fields, such as `newlyRevealedTargetPlots`, `targetValueBefore`, `targetValueNow` and `fallbackCanFound`, connect the scouting action to its next observation. This added instrumentation without changing the decision policy; the linked evidence then guided the gameplay correction below.
+      - In that Arena case, the pair followed the `(14,9)` probe and fallback `(12,9)` through rival settlement: both became illegal, and the Settler was bumped to `(11,6)`. This connected the attractive forecast to the loss of the settlement opportunity it relied on.
+      - Applying the same comparison to the separate Huge Korea map showed another weakness: `(49,25) -> (50,24) -> (49,25)` repeated a waypoint, with zero newly revealed target plots on the return. Tracing those decisions found that a visible-site recovery branch interrupted the active probe, then arrival admitted another probe through the previous waypoint.
+      - That gave us a focused correction to test: let active scouts reach the existing continuation-versus-return comparison before the earlier recovery branch diverts them. The Arena case meanwhile highlighted fallback risk during rival expansion; the shared scouting-versus-settlement question led to distinct causes on the two maps.
+      - The connected traces were now detailed enough to move from mixed final-city outcomes to specific code corrections and replay comparisons. Continue that cycle, adding diagnostics when another unanswered link prevents a useful diagnosis; interpret score changes alongside discoveries and intervening events.
+    - Even if this makes enabled logs heavier, useful telemetry is valuable, especially because our investigations rely heavily on LLMs/agents that can analyze it. As long as calls, arguments, snapshots and extra calculations are pre-gated by the relevant cached level, ordinary gameplay largely pays only cheap gate checks. Enabled observation must preserve gameplay behavior.
+    - If logs become too long or costly, split XML log levels by purpose. For example, first-capital scouting/founding has distinct logic and large traces, unlike later Settler decisions; separate controls allow focused replays without unrelated detail. SETTLER_1ST and SETTLER_2PL (2 plus, i.e. 2nd city and later ones) are illustrative names, not existing defines.
+    - Since BBAI provides detailed, usually disabled diagnostics, thorough chooser reasoning fits there, while SGR usually retains more compact factual history. Useful outcomes can be recorded in SGR too, but SGR level 3 alone must not activate BBAI-only work; see Diagnostic gating and output below. Keep gameplay computation independent of logging.
+    - Retain useful logging trails after the immediate investigation: broader Settler audits and future regression replays can recognize failures from their decision chains, or more confidently assess the absence of these. They can also reveal connected issues, as investigating scouting direction here led to forced displacement, fallback rejection and conflicting recovery/scouting decisions.
+  - Iterative review example (Runtime 12): the first solution manually listed Windows PowerShell `5.1.19041.6456` and .NET Framework `4.8.1` in a Markdown table. Another machine or update could differ, so maintaining that table as environment guidance was tedious and brittle; we recorded actual host metadata in the watcher JSON instead, with captured samples in the inventory.
+    - That prompted asking which other language/tool versions could usefully be recorded. C++ exposed a compiler-versus-IDE distinction: the real build used `VCExpress.exe` version `10.0.30319.1`, but `cl.exe` version `13.10.3077` (VC2003). Separate `invocation` and `toolchain` evidence preserved both instead of mistaking the IDE version for the compiler.
+    - Civ4's Python naturally followed: its running interpreter reported `2.4.1`, while the standalone syntax checker was `2.4.4`. Recording `sys.version` in SGR's `PYTHON_RUNTIME_CONTEXT` established which one actually executed the game code, rather than assuming that "Python 2.4" meant the checker and game matched.
+    - The external packaging helper's Python `3.12.3` was a different question: it did not identify Civ4's runtime or explain an in-game failure. We kept it as packaging provenance in `Packaging Python:` / the ZIP summary, rather than conflating it with the game's interpreter; this did not require recording every external helper's environment in game logs.
+    - Asking which other languages, program components or version information could be useful led to XML too. Its `version="1.0"` declaration described document syntax, not the parser software; Civ4's EXE XML interface exposed no parser-version getter. The useful outcome was documenting that distinction and limitation, rather than guessing a version or adding an uninformative field.
+    - Separately, a CivFanatics population-limit discussion prompted distinguishing integer range from process address space. The run reported `intMax=2147483647`, `processTotalVirtualBytes=4294836224` and `exeLargeAddressAware=1`: different facts that the phrase "32-bit limit" alone obscures.
+    - Remembering C2C hammer/output-limit reports prompted digging further. C2C issue #1604 reported city outputs failing around `210,000–220,000`; reviewing SAS then found compact `short` entries and times-100 commerce precision alongside 32-bit production values. This did not prove the same defect in SAS, but showed why logging `intMax` alone could not describe every field's ceiling.
+    - The point is the connected review: one implementation question prompted related questions, which exposed more distinctions and sent us back to the actual consumers/types. These are captured examples, not versions or limits to hardcode; pursue useful connections while keeping observed facts, unknowns and outside-mod leads distinct.
+  - Similarly, adding a Changes history LOG-button example to the root README, then noticing it is too verbose for the root README's role as a broad introduction to the mod and moving the detailed capture into `README_Logging_Inventory.md`, should prompt a wider documentation review.
+    - Are the other screen LOG buttons illustrated too, and at the appropriate level of detail?
+    - Move detailed captures from the root README into the inventory; add useful missing examples there too. Keep brief inline examples or small previews beside the relevant features in the root README and Main Changes Guide, with links to the inventory for detail.
+    - Adding a direct link to the new Changes LOG subsection should then prompt checking whether the Battles, Timeline and Sevopedia chart features also link to their corresponding inventory subsections. Follow useful connections as the work develops; each improvement may reveal another related gap.
+  - Barbarian buildings example (2026-11-05 to 2026-11-06): each step came from what the previous one exposed, rather than from a plan made up front.
+    - Assertions on the Barbarian Palace (added because they are faraway from each other in a decentralized way usually, akin to independent city-states) showed it was a poor fit for a national wonder, so the first idea was a Barbarian City Center as (the way `BUILDINGCLASS_JEWISH_TEMPLE` is its own class) a regular building with its own class.
+      - That then raised whether a City Center could be useful to other players too, so `BUILDINGCLASS_CITY_CENTER` got a generic (i.e. non-civ-specific) default building, a clean, optional government center for scenarios/WB/miscellaneous and modmods, which the previous Barbarian Palace implementation didn't have, and the Barbarian City Center became a civ-specific, Barbarian replacement.
+    - That exposed cost-only Barbarian copies, whose cheap cost was the real catch-up aid but was fixed, not flexible to balance changes or modmods. The civilian units came first, being the simpler case:
+      - the cost-only Barbarian Work Boat was retired for the ordinary one, as it had no significant effect otherwise, but the Barbarian Worker was kept because it had other genuine differences than just the ordinary base cost;
+      - so a per-era cost rule now gives the catch-up, excluding military production, because military pressure is the Barbarians' role and should cost the ordinary price.
+    - That rule then showed the same idea fits the cheap building copies (Walls, Castle, Lighthouse, Granary), that were delayed as more complex and since we were unsure as what to exactly do just yet for them before that.
+      - so they were retired for a mirrored per-era rule for regular buildings, excluding wonders, because a wonder discount could interfere with modmods or balance changes, for example by letting Barbarians race for world wonders as KI#3 recorded;
+      - while auditing that, we found that the Barbarian world-wonder check rejected a world wonder only after it had won the building choice, so the city lost that turn's building pick; so we also fixed that and as of now the check then moved into candidate selection, where the city takes its next-best building instead.
+    - Retiring the copies also prompted an audit of their old effects: we noticed some effects like the Barbarian Granary's extra food kept (40%->50%) were directly useful catch-up aid, so they could have been hosted directly by the Barbarian City Center (0%->+10%) and the Granary for example was otherwise no longer needed cleanly.
+      - We then also considered that some other effects should not be in the Barbarian City center: for example granting a later-game effect would be OP or unbalanced, or land cities having naval-only effects like water food (as of now from the harbor) would be awkward. So we accounted for that instead of moving every effect; production issues if any should be handled where relevant elsewhere.
+      - Further review of the Barbarian City Center's effects carried over from the old Barbarian Palace then found culture as too high (5 is as high a holy city's, so reduced it, and there was espionage for a player that never uses it), so removed it.
+      - Reviewing the other old fake barbarian buildings showed a likely stale remnant of the former Barbarian Castle having +3 culture instead of the usual +2 culture of the generic building, which was likely a mistake; removing this old fake building also served as a fix without having to port the effect to the Barbarian City Center.
+    - After deleting the old fake free-building chain, we moved to the DLL to grant the City Center to every Barbarian city more cleanly instead; but the new every-city grant had no knob to turn this Barbarian gifting behaviour off, which was brittle against balance/modmod changes or tedious, so we added the `SAS_BARB_FREE_BLDG_ALL_CITIES_ON` SAS define.
+    - But then, we also wondered about why not also adding one knob for real players, so barbarians-only, real-players-only, and all players, could be freely chosen (e.g. in rule changes or modmods or such): but the data showed that every civilization's only free building is the Palace, so a per-civilization XML field fits better and is also much cleaner than a DLL per-player-type switch hack.
+    - Back to other existing Barbarian behaviours/rules, we then noticed Barbarians not being allowed world wonders (KI#3) also had no knob, so we added the `SAS_BARB_WORLD_WONDER_ON` SAS define so it is now tunable as well.
+    - In conclusion, we did not just fix/patch/silence the issue just to fit or satisfy a request, but also wondered about what was done why, how it all fit together and how it could be better done, or if it had issues or such, so try to audit things broadly and iteratively/deeply in a similar manner when reworking stuff.
+  - Build-folder example (2026-11-11): a rule can change as needs change, so revisit it when a simpler way to meet its purpose appears, rather than keep defending its current form.
+    - Compiles sometimes failed or produced, back then Release-only, DLLs with strange errors that a clean recompile fixed (KI#38, KI#38.2). Stale intermediates were suspected, so the rule became: delete `temp_files/<target>` before every build.
+      - Target folders stayed visible in `git status` as a reminder, and a CI check failed on them, but they also cluttered VS Code's source-control list and every diff review with folders that were not changes.
+    - Local tests then moved to Debug-opt (due to having a PDB as well), whose folder must stay for its PDB, so it alone was git-ignored. Two rules for one folder were awkward, but the PDB was worth it.
+    - To check after the fact, the build report (`tempBefore`) and SGR (`reusableArtifactBaseline`) began recording whether a build started clean.
+    - Then the obvious step appeared: the build wrapper can simply refuse a `BUILD` while the folder holds files. Nobody has to remember to delete it, the distracting entries in `git status` and VS Code and the special case disappear, and every target folder can be ignored.
+    - Reviewing that diff, the user then noticed the zero-byte `temp_files/.gitkeep`, kept only so fresh clones had the folder for the old check. The agent had carried it into the new rules unquestioned, but a build with the folder moved away showed the Makefile creates it, so the marker, its `!` exception and its archive and ZIP rules went too.
+      - When a change removes a rule's reason, look for what else existed only for that reason, rather than keeping whatever was already there.
+    - Each step fit what was known at the time; the lesson is to ask, when a rule depends on memory or carries exceptions, whether the tool could enforce its purpose instead.
+    - A second case (2026-11-13): the DLL Compilation Guide said not to build from Git Bash, as the Makefile's bare `FIND` then runs Git's Unix `find`, which crawls all of C:. A Claude Code Opus 5.5 agent did it anyway two days after the first time, through `cmd.exe` started from Git Bash, which inherits Git Bash's `PATH`.
+      - Rather than a stronger warning, the Makefile now names `%SystemRoot%\System32\find.exe` and [`makefile_windows_tools.py`](/.github/workflows/README.md#buildrepositorymakefile_windows_toolspy) keeps it so, so the mistake no longer stalls a build whoever makes it.
+
+#### Clarity and accuracy
+
+Clear, accurate explanations help users and developers understand the code and its intent, making changes easier to review and supporting better solutions.
+
+- Across coding, comments, documentation and replies to the user, make your reasoning and explanations accurate and clear: distinguish an oversight from a deliberate choice, and avoid wording that suggests an intention the work does not support.
+  - Example bad: "and code could benefit from a simpler design, but that possible refactor does not make the current distinction disposable; dropping it from the name loses meaning." In the scrap-rename discussion, this could imply that dropping `ABSOLUTELY` was a considered simplification; it was an oversight from insufficient review.
+  - Example better: "But until we do (and if we ever do), preserve their existing meaning when editing, unless it is incorrect or can be expressed better. Do not just choose what seems convenient and effective to fast solve it; first assess if this fits." This advises checking the change without inventing a deliberate motive for the earlier mistake.
+
+#### Unsupported and deprecated features
+
+- Unsupported or deprecated features do not require maintenance merely because inherited code still contains them. See the root README's [support scope](/README.md#not-supported-in-advciv-sas) and [Deprecated references](/README.md#deprecated-references); the latter aids historical research, not current configuration.
+  - For example, resolutions below 1920 x 1080 are not supported: SAS puts a lot of information on screen, such as the AI Personality Panel and the Military Advisor's Battles tab, so don't spend effort making it fit smaller screens. Layouts stay dynamic, so a smaller window may still work; the README entry says what may not fit.
+- Save compatibility across commits is deliberately unsupported: any commit may break existing saves. We do not maintain compatibility for players continuing older games. See KI#46 for the original cleanup and KI#46.2 for the follow-up.
+  - The same holds for our own tools' outputs. When the autoplay runner's reports moved from per-run `summary.json` folders to `Logs/SASAutoplay_<UTC>_<pid>.json` on 2026-11-11, the old reports and screenshots were moved to the new layout once, and the tools read only the new one: supporting both layouts would cost code and upkeep for files nobody needs to produce again.
+- When a change is scoped to new output, keep the implementation focused on that format. For example, the autoplay runner now writes `SASAutoplay_<run id>.json` directly in `Logs` so reports sort with the game logs. Earlier run folders were local artifacts and stayed where they were, so the archive helper only needs to handle the current layout.
+- Inherited serialization numbers such as `uiFlag` and `UWAICache::City::iSaveVersion` are not maintained as a meaningful SAS compatibility/versioning scheme. Generally mirror the inherited AdvCiv numbers for consistency; do not increment them or add compatibility machinery merely because a SAS change affects saves.
+- If a change would disrupt pending analysis, tell the user before applying it and note the dependency in scratch files like `changes_new.md`: which change should wait, which analysis it depends on, and why. For example, keep a development save usable while it is still needed for AI comparisons or issue reproduction.
+
+#### Assignments and gameplay rationale
+
+- Prefer derived variables or an explicit `if/else` over assigning a value and then mutating it.
+  - Example problem: avoid setting `iPlotCol = iBaseCol` and later doing `iPlotCol += 3`, or setting a default like `iPlotCol = 19` and then overriding it later with `iPlotCol = 22`.
+  - Example solution: use `iContextColCount = 3` and `iPlotCol = iBaseCol + iContextColCount`, or set `iPlotCol` once in each branch when a SAS define changes the number of desired columns/parameters.
+  - An `if/else` is also good when the branches explain distinct layout or logic cases.
+- For AI or gameplay logic changes, include a slightly more verbose rationale (why it helps efficiency or outcomes), not just what changed.
+- When adding rationale, focus on the economic/strategic reasoning (efficiency, versatility, risk, maintenance) and capture the thought process behind the change.
+
+#### Code layout and collapsing
+
+- We prefer a call or expression on one physical line, especially in a higher-level language such as Python, whose calls are mostly simple, such as screen and API calls, and where most of our linting currently runs, Ruff being Python-only; it greps, compares and lints better: `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)` is found and read whole, carries no continuation-indent noise (Ruff/Pylance E101), shows a missing or swapped argument, and is seen whole by our own line-based CI checks, such as `float_format_int_division.py`, which reads one line at a time; the user reads with line wrap on in VS Code.
+  - Even a longish call, such as SevoPediaHistory's `getText` with 8 placeholder arguments, is clearer that way; only an overly long or complicated result reads better split.
+  - The preference covers the call, not its block: Python `if`/`for`/`while` bodies and logging guards keep their own lines (`if enabled: log(...)` violates Ruff E701), while the compact `if (bLog) log(...);` is a C++ convention.
+- Multi-line reads better, as judgement calls:
+  - for tables and long uniform listings, such as `SAS_CATEGORY_DEFS` in SevoPediaMain.py, `aSupport`/`aArmy` in CvMilitaryAdvisor.py, `field_specs`/`row_specs` chart tables, polygon `[x, y]` vertex lists, 2D matrices, dispatch dicts and per-row-documented config tables, and for long `or`/`and` chains such as those near `eComment == self.getCommentID(` in CvDiplomacy.py;
+  - for calls whose arguments carry inherited markers, such as AdvCiv's `# <advc.092>` ... `# </advc.092>` in BugUnitPlot.py or PLE.py, which say which arguments changed; other comments inside a call fit on one line above it;
+  - in C++, apart from function signatures, where we care more for the same grepping reasons, such as finding the right one of an overloaded function like `addMessage`: beyond simple expressions on cached variables we are more lax, as a multi-line layout often reads better there and also lets WinDbg isolate a failing access in a crash dump.
+- Where it applies:
+  - Runtime Python calls (`Assets/Python`, `PrivateMaps`): enforced by [`python_multiline_calls.py`](/.github/workflows/README.md#buildsourcepython_multiline_callspy), commented-out calls included, whose `--fix` collapses them; before that CI check, sweeps used scripts such as [collapse_multiline_calls.py](/LLM_Helpers/README.md#collapse_multiline_callspy), and what they fixed kept coming back (KI#21.7).
+  - C++ function signatures: strictly one line, since the whole signature is the grep key, commented-out ones included, which a grep finds just the same, and even a long one such as `SAS_logInheritedWonderValue`'s 35 parameters (see [Signatures and preprocessor layout](#signatures-and-preprocessor-layout)).
+    - At 740 characters it is admittedly on the long side, but it still greps better: a search for one parameter lands on the signature itself.
+  - The rest of C++ and tooling Python: a low-priority nicety in code already being edited; regex searches for `(\n\t`, `[\n\t` or `,\n\t` find candidates.
+- A collapse changes only layout, so its token sequence, or at least its `(`/`[`/`{` balance against `git show HEAD:<file>`, stays identical; that comparison works on Python 2 files, where Python 3's `ast.parse` fails on `print x`.
+- These are guidelines and repository preferences, not rules for their own sake: where collapsing would make code clearly worse, or leaving it split seems worse, use your judgement; where a pattern proves good, enforcing it with CI when convenient keeps it, as `python_multiline_calls.py` now does for runtime Python calls.
+
+#### Lookup and caching review
+
+- When doing performance optimizations, a local variable is enough, and best, when only one call needs the value; keep a longer-lived cache for values reused across calls.
+  - Example: `CvMainInterface.updatePercentButtons` holds both side by side.
+    - The local `iCommercePercentChangeIncrements = gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")` is read once per redraw and reused for every commerce type's +/- buttons, so a change to the define reaches the next redraw (KI#128.2).
+    - The instance cache `self.iSAS_COMMERCE_SLIDERS_FAST_INCR_PCT = SASSessionTunables.SAS_COMMERCE_SLIDERS_FAST_INCR_PCT` keeps a setting fixed for the whole session, which moved from the XML to [SASSessionTunables.py](/Assets/Python/SASSessionTunables.py) as only Python reads it.
+- Some reads are better left uncached: a value read once, where a cache would cost more than it saves, or, more rarely, one that may change between calls, where a cache keeps a stale value and so can cause bugs.
+  - Example (KI#243): `CvMapGenerator::addRivers` reads `const int iOriginalRiverSourceRange = kGlobals.getDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE");` on each map generation, lets a map script such as Water.py override it, then puts it back with `kGlobals.setDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE", iOriginalRiverSourceRange);`.
+    - An earlier SAS optimization had made these reads `static const`, so the first map generated fixed the river values for the rest of the session.
+    - `kGlobals` is `CvGlobals::getInstance()`, as the const `GC` cannot set a define.
+  - Say why beside such a read, or which runtime/map-generation boundary changes the value, so a later reader sees the read was weighed rather than forgotten.
+    - In C++, for a SAS define the DLL reads by name outside a static, that note is a `ci_define_uncached:` comment, which CI checks (see the C++ caching rules below).
+    - In Python, a read by name goes through `SASCurrentDefines` instead, even once per map or popup, about 80 ns a read against 279 ns through `gc`; only a define other code sets during play, which it would miss, keeps `gc` with that comment. [`python_define_reads_cached.py`](/.github/workflows/README.md#buildsourcepython_define_reads_cachedpy) checks both (KI#128.9).
+      - A kept `self.x` is faster still, 18 ns, so it stays the choice for a hot path, such as a loop over every plot.
+      - It is one or the other: a kept attribute is filled with `gc`, as `SASCurrentDefines` in front of it would be a second cache that also seems to follow overrides, which it does not; `python_define_reads_cached.py` fails on that mix (2026-11-27).
+
+#### Naming, diagnostics and text encoding
+
+- When consolidating an established subsystem, preserve its recognizable name when practical so history and search remain useful; for example, `CvScreenEnums.SevoScreenEnums`.
+- Prefer distinctive namespaces for shared APIs, such as `import SASVisualUtils as SASVisuals`, without restricting ordinary short local variables.
+- Prefer positive, consistent polarity for related toggles, such as `SHOW_INTERMEDIATE` and `SHOW_CANCELLED`, where `1` shows the named detail. Avoid mixing `SHOW_A` with `HIDE_B` or using `DISABLE` when `ENABLE`/`SHOW` expresses the same intent more directly.
+  - Preserve intent when renaming: replacing `SAS_SCRAP_ABSOLUTELY_DISABLE` with plain `SAS_SCRAP_AI_ENABLED` loses its stronger override distinction from softer scrap policies. `SAS_SCRAP_AI_ABSOLUTELY_ON` retains it while reversing the polarity; enabling it permits the other rules to decide, rather than forcing scrapping.
+- Preserve distinct concepts in names, including abbreviations; avoid overloading established Civ4 or SAS terminology when clearer wording fits.
+  - Distinguish `BuildTypes` worker actions from `BuildingTypes` buildings (`BLDG`), and avoid `FORT` for defensive-building production when it suggests the Fort improvement. Keep `DEF` for defense, not also deficit.
+  - Use text-map `SCALE_1/2` rather than `OVERVIEW_1/2`, which suggests Domestic Advisor Overview tabs. Qualify `BattleHistory` and `WorldChangesHistory` rather than bare `History`, which could suggest Sevopedia `placeHistory` or the Info Screen Timeline.
+- Group files by what they are for, not by what they are made of. Folders named after a language or file type collect unrelated jobs and leave new kinds of work with no clear home.
+  - Example (2026-11-10): `LLM_Helpers/` was first split into `cpp/`, `python/` and `xml/`. `xml/` then held both a define-key audit and game-speed tuning, and `python/` described nearly every helper.
+  - Folders named by job, such as `audits/`, `balance/` and `formatting/`, separated them, and building balance now has an obvious home. See the [before/after table](/LLM_Helpers/README.md#why-folders-are-named-by-job).
+- Use specific asset names whenever possibly to avoid likely reuse of an unknown BTS one that may not be listed in our mod's files. Example: `TXT_KEY_PEDIA_STATISTICS` to `TXT_KEY_PEDIA_SAS_STATISTICS`.
+- Choose diagnostic names according to their source and consumers; these are common patterns, not rigid rules:
+  - **XML-backed values:** usually use `CvInfo::getType()`, e.g. `GC.getInfo(eVictory).getType()`. Hardcoded catalogs would miss XML/mod-mod additions; translated UI labels serve a different purpose.
+  - **Existing enums without getters:** a shared mapping often avoids unnecessary enum refactoring. Real examples: `getSASWarPlanType(WARPLAN_TOTAL)` returns `"WARPLAN_TOTAL"`; `getSASGameType(GAME_SP_LOAD)` returns `"GAME_SP_LOAD"`. Preprocessor stringification of `eWarPlan` yields `"eWarPlan"`, not the plan stored in it.
+  - **Enums plus labels maintained together:** one X-macro catalog avoids duplicate lists drifting apart. In `SAS_BUILDING_FOCUS_ROWS`, `DO(FOOD, 1, "FOOD")` feeds both enum and descriptor generation; the getters read that table. Preserve numeric values/bitmasks when refactoring.
+    - Getters and catalogs can combine: `getSASAIStrategyType` is a runtime stringifier backed by catalog-generated descriptors, not an alternative to that pattern.
+  - **Output-only labels:** `"PRESERVED"` can stay a literal when only printed; comparisons/dispatch or shared vocabulary may justify an enum/catalog instead.
+  - **Placement aims for consistency and practicality**, but historical layouts or convenient interfaces may be retained to avoid blocking the current implementation/commit with a heavy refactor or additional audit. If improving those placements systematically is costly, consider that broader cleanup separately while still reviewing placement for the current change.
+    - For example, BuildingFocus flags drive gameplay and stay in `CvCityAI.cpp`. Scrap enums are purely diagnostic yet currently declared in `CvUnit.h`, whose overloads use them; their name getters are private to SGR. The diagnostic-only `SASGameRecordAIGreatGeneralStage` instead lives in SGR.
+    - Example: moving the draft's scrap-name getters into SGR as private helpers (`getSASGameRecordScrapContextName` and its companion) is a small pre-commit post-review cleanup. But moving the scrap enum API as well, or auditing all similar catalogs, would add scope and diff noise, so consider that in a separate pass if relevant.
+- For new structured Python log rows, use `CvUtil.pyPrintRecord(...)` when `CvUtil` is already a safe dependency, or `SASPythonLogging.writeRecord(...)` at leaf/early-startup boundaries where importing `CvUtil` would create a cycle.
+  - Pass a stable record name plus explicit `key=value` fields instead of hand-building `record=` text at each call site; keep inherited `CvUtil.pyPrint(...)` for intentional human prose/debug dumps.
+- Generally avoid decorative separators such as `================`, `////`, or `####` where they add noise. However they can be useful sometimes as greppable markers or such though, and if so feel free to use short, consistent markers when readers or agents need to search for record boundaries or where it can be otherwise helpful or convenient.
+  - For example, the [LLM transcript helper](/LLM_Helpers/README.md#codex-and-chatgpt-transcript-helper) uses numbered speaker markers such as `=== USER 00001 ===` so agents can grep long transcripts, which would be much harder to follow otherwise (who said what or to navigate or count easily).
+    - Note: this helper drops raw tool logs and keeps the chat text, including code pasted into messages, so the TXT is useful directly as handoff context.
+    - Save requested chat exports in the shared folder from [chat_export_paths.py](/LLM_Helpers/chat_exports/chat_export_paths.py), which defaults to `Downloads/AdvCiv-SAS_LLM/llm_chat_exports/` outside the repository. Honor `LLM_CHAT_EXPORT_DIR` when set.
+    - Keep reusable ChatGPT share URLs in the private local list `chatgpt-share-urls.md` under the configured chat export folder. Keep the list and its URLs out of Git, patches, light-source ZIPs and shared examples. This helps prevent private-urls (that become publicly-accessible after share) from leaking in chats needlessly or breaching privacy.
+    - Prefix filenames with `codex-`, `chatgpt-`, or `claude-` and include the thread ID when known. Use a timestamp when saving another snapshot of the same thread. Start the TXT with the first speaker marker and keep any title, counts, or export notes in your reply.
+    - For a Claude Code chat, run [`claude_session_export_to_txt.py`](/LLM_Helpers/README.md#claude_session_export_to_txtpy) with no argument to export this repository's latest session from its local log, or pass a specific `.jsonl` or export ZIP; no desktop export ZIP is needed.
+- Avoid silent fallbacks or placeholder defaults when data is missing: we want it to loudly fail so code is more robust rather.
+- Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
+- Write text that holds backslashes with the Edit or Write tool, not through a Bash heredoc, `python -c` or script text sent through Claude Code's Bash: there `\\` can arrive as `\`, so `\f`, `\n` and `\t` become control characters and `C:\\Users` becomes `C:\Users`.
+  - Example: seven slips over 2026-11-13 and 2026-11-14, among them `\System32\find.exe` becoming a form feed plus `ind.exe` in the Makefile (KI#38.7) and a verbatim JSON log sample losing half its backslashes.
+    - Knowing the rule did not stop agents from making the mistake again: three of the slips came from an agent that already knew it, and on 2026-11-18 Claude Code Opus 5.5, moving this very rule into place with a heredoc script, had `C:\\Program Files` reach Python as `C:\Program`.
+    - So take particular care whenever a script carries backslashes, and when a stray control character or a halved backslash turns up, suspect this first.
+  - After a script writes a file, run [`control_characters.py`](/.github/workflows/README.md#buildhygienecontrol_characterspy); it cannot see a halved backslash, so parse JSON back or grep for the doubled form. The Read tool does not show a form feed, so strip one by byte value (`bytes([12])`).
+  - For scripted replacements, write the old and new texts into a patch file with the Write tool and apply it with [`heredoc_safe_replace.py`](/LLM_Helpers/README.md#heredoc_safe_replacepy), which keeps backslashes, checks that each old text occurs once and keeps the file's line endings and encoding.
+    - Example (2026-11-23): a heredoc script meant to end a Known Issues menu line with a Markdown hard break, `"[...](...#ki-1107)\\\n[KI#1107.2 - ..."`, wrote a literal `\n` instead, `#ki-1107)\n[KI#1107.2`, so both entries shared one line and the link check failed with "KI#1107.2 heading is missing from the main menu".
+      - Later the same day, a README line about this very helper, written through a heredoc, lost its `\\` to `\`, and its `\n` and `\t` became a real line break and a tab.
+      - The cure: write the old and new texts into a patch file with the Write tool and pass only its path through the shell to `heredoc_safe_replace.py`, as shown in [its patch example](/LLM_Helpers/README.md#heredoc_safe_replacepy); a test patch holding `\\`, `\n`, `\t` and `[\BOLD]` came through as written.
+  - For staging one file's parts for separate commits, see [`stage_partial.py`](/LLM_Helpers/README.md#stage_partialpy) and the AGENTS.md note starting "When a file holds work for more than one commit".
+  - Seen with Claude Code's Bash tool; Codex's shell was not checked.
+- Windows PowerShell 5.1's `Get-Content` reads a UTF-8 file without a BOM as ANSI, and `Set-Content -Encoding utf8` writes a BOM: on 2026-11-15 a line removed from `changes_new.md` that way turned its `…` into `â€¦`. Edit such files with the Edit tool or Python reading `utf-8`.
+- Note: codex's shell/tool output likely sometimes displays mojibake for characters that look correct in VS Code or git diff (e.g., smart quotes shown as `â€œ` / `â€`) hence the user/LLM mismatch.
+  - Do not "fix" encoding based only on the terminal/tool rendering; rely on VS Code (user feedback) or git diff if they show the file cleanly.
+  - The user's IDE can show a wrong view too, so an odd issue the user reports may be fixed by closing and reopening the IDE rather than by a repository change.
+    - Example (2026-11-17): after Better BTS AI's 597 revision files were moved and all staged, VS Code's Source Control listed `BBAI_r000001.diff` to `BBAI_r000232.diff` as renamed (R) but `BBAI_r000233.diff` onward as untracked (U), while `git status` showed all 597 as staged renames. Reopening VS Code showed them all as renamed.
+- Encoding exception: preserve the inherited UTF-8 BOMs in Visual Studio `.sln` and `.vcxproj` files, including [AdvCiv.sln](/CvGameCoreDLL/Project/AdvCiv.sln) and [AdvCiv.vcxproj](/CvGameCoreDLL/Project/AdvCiv.vcxproj).
+  - Removing these BOMs stopped the SAS desktop project shortcut from opening through the installed VSLauncher; restoring them resolved the reported problem.
+  - Both files also have UTF-8 BOMs in the unmodified `AdvCiv_base_1.14_renamed` snapshot.
+  - Do not apply Civ4 XML/source BOM cleanup indiscriminately to development-tool formats; [repository_hygiene.py](/.github/workflows/build/hygiene/repository_hygiene.py) allows UTF-8 BOMs for these two Visual Studio formats while rejecting other BOMs.
+- Line endings: a tool that writes some lines of a file, or the whole file, in the other style (LF or CRLF) makes the next commit show unchanged lines as changed, which pollutes the diff and hides the real change; the game runs fine either way. KI#1097 holds the history and the causes found.
+  - Since 2026-11-17 each kind of text file has one style, stored and checked out alike: `.gitattributes` keeps theme, batch and Visual Studio files CRLF (`-text`) and all other text LF, normalizing a tool's ending when the file is staged.
+  - CI catches both cases: [`line_endings.py`](/.github/workflows/README.md#buildhygieneline_endingspy) a file with mixed endings or stored in the wrong style, [`line_ending_churn.py`](/.github/workflows/README.md#buildhygieneline_ending_churnpy) a commit switching a whole file. [`fix_line_endings.py`](/LLM_Helpers/formatting/fix_line_endings.py) restores a file's dominant style.
+  - Prefer edits that keep a file's style, such as the editing tools or LLM_Helpers' scripts; `sed -i` in Git Bash and PowerShell's `Set-Content` can switch it.
+    - So can Python's `Path.write_text` or `open(..., "w")` on Windows, which turn each `\n` into CRLF; use `write_bytes` or `newline=""`. Example (2026-11-25): rename passes written that way left six files all CRLF, which the user noticed in an exported diff. No check flagged them, as Git restores LF on staging and the files were not mixed.
+  - A warning such as `LF will be replaced by CRLF` is no reason to stop: review with `git diff --ignore-space-at-eol`, finish the task first, and fix the endings when convenient, as at worst a commit can be amended.
+
+#### Verifying accessor semantics
+
+- Before confirming an apparent enum/type mismatch through an accessor macro or helper, trace the active definition and overloads in the caller's include context.
+  - `GET_TEAM(PlayerTypes)` is deliberately valid: `CoreAI::getTeam(PlayerTypes)` and the parallel non-AI `CvGamePlay::getTeam(PlayerTypes)` resolve through `TEAMID(ePlayer)`.
+  - KI#311 and KI#387 record the respective rejected false positives and the `TEAMREF(PlayerTypes)` -> overloaded `GET_TEAM` lineage.
+
+### Python (Civ4)
+
+#### Runtime compatibility
+
+- Assume Python 2.4 constraints: avoid closures and ternary operators, define variables before use, and prefer tabs for indentation.
+- Python has no block scope: a name set in a loop, an `if` branch, a Python 2.4 list comprehension or an `except X, e` stays set until the function returns, so reusing a name for a similar but separate step can silently read the earlier step's value instead of failing.
+  - So in a function with several similar steps, give each its own names (e.g. `leader_type_1`, `leader_type_2`), so that a slip fails with `NameError`. This happened in the old `generate_leaders_data.py`, where a loop read the previous loop's last value (see KI#165.2).
+  - At module level, `import *` brings another module's names in the same silent way; see [Modules, shared constants and helper ownership](#modules-shared-constants-and-helper-ownership).
+
+#### Visual resources and UI fonts
+
+- Share reusable glyphs, colors and art through `import SASVisualUtils as SASVisuals`, keeping text scaling in `SASTextScale` and screen-dependent presentation with its caller. Reuse cached chars for display and ordinals where an API or calculation requires an integer.
+  - Reuse these resources even when the displayed game value changes: a current gold amount and its stable gold glyph are separate values. If a direct resource read is necessary, explain the reason beside it rather than recreating another local cache; CI catches recognizable bypasses but cannot prove all equivalent code patterns.
+  - Collections notably cover Font/DynamicFont, Yield/Commerce, Religion/Corporation/Bonus, Color/art, Trait/GreatPeople, Specialist and CityEmphasis. They replace `FontUtil`, `TraitUtil` and `GGUtil`, and centralize visual resources formerly held by helpers such as `GPUtil`; `GPUtil` retains its gameplay/progress logic.
+  - When membership is already data-defined by XML/runtime info (for example visible specialists), derive and cache the actual IDs instead of maintaining a second fixed type list or assuming list position equals an XML ID. Keep explicit ordered lists/maps only when order or presentation is itself part of the API, and document that contract.
+  - Fixed SAS-owned InterfaceArt should be consumed through cached `SASVisuals.InterfaceArt.<TYPE>` paths.
+    - APIs may still accept ArtDefine keys when the key is genuinely dynamic or inherited as part of that API; do not replace useful dynamic key selection with a blanket no-string rule.
+    - If an exact SAS-owned key literal itself must remain, use the nearby `resource-cache-direct:` reason convention so CI records the exception explicitly.
+- For UI text, do not hardcode font tags like `<font=2/3/4>`; use `SASTextScale` (`sasFontTag*` / `sasFontTag*.bold` / `SAS_FONT_TAG_CLOSE` / `getSASUIFont*`) so XML defines control scaling globally.
+  - Example good: `SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE` or `SASTextScale.sasFontTagTitle.bold + szText + SASTextScale.SAS_FONT_TAG_CLOSE`; avoid: `u"<font=3>%s</font>" % szText` or `u"<font=4b>%s</font>" % szText`.
+- Some rare exceptions exist where hard coded font size is necessary (e.g., as of now Foreign Advisor's Glance tab's diplomacy icons (else the cell's text clips horizontally)), some places where font size was not necessary to increase empirically to achieve the wanted result, or some places where upscaling was not implemented yet due to it being not possible (EXE-controlled or such) or not supported in AdvCiv-SAS (e.g., as of now Chat log, etc.).
+- Game-font glyphs (bonus, religion and other icons) live in `GameFont.tga` and `GameFont_75.tga` in [Assets/res/Fonts](/Assets/res/Fonts/), which agents' image readers cannot open. The user keeps Game Font Editor screenshots of both beside them, `advciv-sas_gamefont_tga.PNG` and `advciv-sas_gamefont_75_tga.PNG`.
+  - Other mods' fonts are kept only as PNG previews named the same way in `other_mods/` (e.g., base AdvCiv, C2C, HR, Middle-earth, Neoteric World, PAE, RI), not as `.tga` files.
+  - A screenshot is often too small to tell one glyph apart. [`gamefont_tga.py`](/LLM_Helpers/README.md#gamefont_tgapy) renders any region enlarged as a PNG the image reader can open, and can move glyphs between slots; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#game-font-glyphs).
+    - Example: on 2026-11-07 it confirmed Peat's glyph in the user's edit, and on 2026-11-08 it moved the Camel, Peat and Hit Movies glyphs into BonusInfo order in both fonts. Check a slot this way, or ask the user, before assuming what it holds.
+
+#### Syntax checks and linting
+
+- Local CPython 2.4.4 is installed at `C:\Python24\python.exe`; this is the usual local Codex setup for runtime-Python syntax checks, separate from modern Python tooling.
+  - From the repo root in PowerShell: `& 'C:\Python24\python.exe' .github/workflows/build/python/python24_compile.py --repo-root .`.
+  - For example, it caught the SASGameRecord revision 152 candidate's `",".join(missing) if missing else "-"` with `SyntaxError`; the explicit `if/else` fix passed, as did all 240 runtime Python files checked on 2026-10-15. Python 3 accepting a file does not prove Python 2.4 compatibility.
+  - The checker writes bytecode into a temporary directory and does not import Civ4 engine modules; syntax success still needs appropriate in-game testing.
+- Treat Ruff/lint output as hints only; Civ4 runs Python 2.4 and engine imports can look unused to modern linters.
+- Avoid `noqa` suppressions unless there is a strong reason; prefer fixing the underlying issue when practical. For each necessary suppression, name the specific rule and add a nearby comment explaining why it is needed; remove unnecessary suppressions in code being edited.
+  - For actual parser compatibility, GitHub Actions now runs [`python24-compile.yml`](/.github/workflows/python24-compile.yml), which uses the Docker image from [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) to compile-check `Assets/Python` and `PrivateMaps` with real CPython 2.4 syntax/bytecode rules.
+- We don't always need to use linters as part of our tasks, but if we do, among them, VS Code Ruff extension is useful for open-file Problems feedback; locally installed Ruff (`py -m ruff`) is better for broad audits, saved reports, and narrow rule-by-rule autofixes.
+- Example (Git Bash): `cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && mkdir -p LLM_Helpers/outputs && ts=$(date +%Y%m%d_%H%M%S) && out="LLM_Helpers/outputs/ruff_all_py_${ts}.txt" && { py -m ruff check . --output-format=grouped > "$out" 2>&1 || true; } && echo "wrote $out"`
+- Use Ruff `--fix` only for reviewed safe rules (e.g. `E713`); do not broad-autofix risky rules such as `F401`, `F841`, `E712`, old parser warnings, or anything touching Civ4 import/runtime assumptions.
+- Always review `git diff` before committing Ruff-driven changes.
+- Use the Python 2.4/3 print compatibility trick for debugging: `print("msg %s" % value)` is valid in both (single string only).
+  - For bulk cleanup of simple Python 2 bare prints, use [wrap_python2_prints_for_linting.py](/LLM_Helpers/formatting/wrap_python2_prints_for_linting.py), then manually review any comma-print cases that need `%` formatting so Ruff/Python 3 parsing can show real issues instead of print-syntax noise.
+- For Python 2 parser cleanup, start with the easy cases first, such as `print "x"` -> `print("x")` or `raise Error, value` -> `raise Error(value)`.
+  - Leave more complicated cases, such as old `except Error, e` syntax, tuple-unpacking `except`, re-raise changes, or compatibility fallbacks, for manual review or a later pass.
+
+#### UI identifiers and display text
+
+- Prefer robust UI identifiers: widget names can strip numeric suffixes, so use descriptive text suffixes and map widget IDs to data for event handling.
+- For Civ4 Python UI labels that pass through font-tagged/markup renderers (`screen.setText`, `screen.setLabel`, `SASTextScale.labelText`, etc.), keep raw text in state and escape only the display string: `szDisplay = szRaw.replace(u"&", u"&amp;").replace(u"<", u"&lt;").replace(u">", u"&gt;")`.
+  - This preserves clicked or keyboard-typed raw characters for logic/search while rendering them safely.
+  - Raw `&`, `<`, and `>` are XML/markup-sensitive and would normally break XML, so they are rarely useful for ordinary XML text-key search; this rule is mainly for Python UI rendering of dynamic/user-entered text.
+  - In the Sevopedia search bar, raw `<`/`>` corrupted the label with `/font`-like fragments, and raw `&` could be invisible and make following characters unclear, so they can be considered illegal for our needs too.
+- The engine sometimes expects unusual formats, so when a plausible-looking value fails or renders oddly, check what the receiving interface actually takes rather than only the value. Here in Python, and possibly in other languages too:
+  - For example, `setTableText` takes its icon as `char const*`, so a `szNameButton = u""` default that reached the call unchanged raised a Boost `ArgumentError` and broke the whole Victory screen; `szNameButton = ""` works (KI#118.2).
+    - CI now enforces it: `unicode_button_paths.py` fails on a `u""` button or icon path.
+  - Similarly, inline `<img=...>` parsing is stricter than the icon slots: in the Military Advisor, the Hajjan's `Art/AdvCiv_SAS/Units/Arabia_Hajjan/medium_cavalry_arabia (camel archer).dds` rendered magenta, while the same button showed fine in the Sevopedia. Renaming it to `medium_cavalry_arabia.dds` fixed it (KI#118).
+    - CI enforces it too: `art_button_paths.py` rejects whitespace in `.dds` paths under `Assets/Art`, but skips `nif` folders, since renaming a texture there would break the models that reference it.
+- In fragile Civ4 Python, wrap risky calls in try/except and trust UI state when engine state can drift.
+- When adding guidance, include at least one simple code example so other agents can copy the pattern.
+
+#### XML lookup, caching and validation
+
+- In Civ4 runtime Python, generally cache repeated define/XML reads for performance.
+  - Prefer lazy `None` initialization: capture the current value on first use after engine/XML setup, then reuse it to avoid needless repeated lookups. Typical patterns are module-level `global` with `if cachedValue is None`, or instance-level `self.cachedValue = None` resolved at use time.
+  - KI#128 recorded instability after live SAS XML UI-define edits; lazy initialization helped in that case. This is an additional reason to prefer the pattern over premature reads, alongside the performance benefit of caching.
+  - SAS define XML edits currently require restarting Civ4, so retaining resolved settings for the session should currently be appropriate.
+  - The exception is a define meant to change during play, such as the font sizes or BBAI's log categories: [`SASLiveDefineOverrides.txt`](/SASLiveDefineOverrides/SASLiveDefineOverrides.txt) overrides it while Civ4 runs, and its shipped lines win over the XML, so such a setting is changed there; deleting a line brings back the XML value.
+    - Why: BBAI's logs are on the heavier side of logging, sometimes several GB, and rarely used, so an agent can turn one category on for the stretch it audits; UI upscaling audits and tuning can try font sizes; both without a tedious restart each time.
+      - On top of the permanent ones, overrides may have other uses, such as temporarily setting an AI tunable live for fine-tuning or audits, toward its best value, without tedious restarts, then writing the settled value back to the XML; this works for a define whose code reads it at each use; once settled, delete the line, so the shipped file keeps live lines only.
+    - Only defines in [`SASLiveDefineOverridesAllowed.txt`](/SASLiveDefineOverrides/SASLiveDefineOverridesAllowed.txt) may change live (KI#128.7). Before adding one, check that every reader follows an override, as CI's reader scan does not follow calls or downstream caches; for a temporary AI-tuning experiment, keep the list entry local and the game single-player.
+    - [Live define overrides](/README.md#live-define-overrides) says how to use it and which defines it refuses; KI#128.5 records the design.
+    - Read such a define with `SASCurrentDefines.getInt("SAS_...")` at each use rather than keeping it in a module global or `self.` attribute, which CI rejects; it caches like an attribute and empties when an override changes.
+      - Code that builds something from a define, such as `SASTextScale`'s font tags, rebuilds when `SASLiveDefineOverridesBridge.getChangeCount()` moves. The DLL side is under [Caching and variable reuse](#caching-and-variable-reuse).
+    - A reader never calls `SASLiveDefineOverridesBridge.refresh()` itself, as the bridge alone applies and logs a change; a define that other code sets with `setDefine*`, such as `FIELD_OF_VIEW`, is read with `gc` at each use instead, as `SASCurrentDefines` empties only on the bridge's writes.
+    - Why two places: Civ4 reads the XML once at startup, and editing it while Civ4 runs seemed unstable (KI#128), though that was not confirmed, so the XML is edited with Civ4 closed, once a test or game is done; the overrides file is the one meant to change during play.
+      - So outside a running test, keep each line equal to its XML value, and always at commit, where CI checks it: the XML stays the one home of each setting and its shipped default, such as logging at 0, and a changed line is a local experiment that stays unstaged.
+  - Before caching a define with the lazy pattern above, consider whether caching is safe for the value and its uses; for example, it may not yet be available or may be changed/refreshed during the game. Adjust the approach when needed rather than applying the pattern mechanically.
+    - Example: C++ KI#243 retained the first map's river defines, altering later generations; `CvMapGenerator::addRivers()` now reads/restores overrides per generation.
+- It seems definebool does not exist in python, so use boolean comparison on int rather; e.g., `IS_SAS_UI_TOP_CIVS_ON = (gc.getDefineINT("SAS_UI_TOP_CIVS_ON") > 0)`. Does not apply to C++ though that has defineBOOL.
+- Avoid silent fallbacks or placeholder defaults when data is missing; prefer fatal errors with clear messages so issues surface early, and validate list structures (e.g., assert expected prefixes/types in debug checks).
+- Prefer strict XML lookup helpers from `SASUtils` over raw lookups for static/literal tags: use `getInfoTypeOrFail("TAG")` instead of raw `gc.getInfoTypeForString("TAG")`, and use `findInfoTypeNumOrFail(gc.getXInfo, gc.getNumXInfos, "TAG")` instead of raw `CvUtil.findInfoTypeNum(...)`.
+  - This keeps missing or renamed XML tags loud instead of silently returning `-1`; it helped catch incorrect direction-string usage in Planet Generator map (e.g., `getInfoTypeOrFail("DIRECTION_NORTH")` instead of `DirectionTypes.DIRECTION_NORTH*`) and incorrect plot/terrain-style lookups (e.g., `getInfoTypeOrFail("PLOT_PEAK")` instead of `PlotTypes.PLOT_PEAK` in Peirce map).
+  - Dynamic/guarded legacy lookups can stay raw when intentionally reviewed; the automated [`.github/workflows/build/source/raw_getinfotype.py`](/.github/workflows/README.md#buildsourceraw_getinfotypepy) check flags literal/static runtime lookups that should use the fail-fast policy.
+    - Example of exception: `CvWBInterface.py`'s WorldBuilder lookups stay raw because unused player slots write `NONE`, which the strict helper would raise on; being dynamic alone would not have been enough (KI#1104).
+- When parsing large structured data, validate against expected samples or assertions early, and log diagnostics to surface schema/list mistakes (e.g., missing commas or malformed enum lists).
+
+#### Modules, shared constants and helper ownership
+
+- Use `from module import *` for helper modules to reduce import tedium and make future additions seamless.
+- For map scripts, keep reusable helper modules outside `PrivateMaps` (e.g., in `Assets/Python/SAS_WorldSizeUtils.py`) when they define or might define names that Civ4 treats as map-script callbacks (`getGridSize`, `getNumPlotsPercent`, `getDescription`, etc.).
+  - The old playable `PrivateMaps/SAS_WorldSizes.py` helper leaked its compact `getGridSize` through `from SAS_WorldSizes import *`, making RandomScriptMap Huge generate empirically too small (`60 x 44`).
+  - Fix: moved helpers to `Assets/Python/SAS_WorldSizeUtils.py`; result: RandomScriptMap Huge returned to `120 x 84`.
+  - The playable sandbox wrapper is now `PrivateMaps/SAS_Simple_Flat_Grass.py`.
+- Keep caller-owned or volatile Civ4 UI/game objects as parameters when needed (e.g. `screen`, `top`, selected city/player objects, or a precomputed `kGame`) rather than hiding them inside helpers.
+  - Stable shared Civ4 globals such as `gc`, `localText`, and `ArtFileMgr` may live at helper-module scope when that matches the file's established pattern.
+  - This avoids circular dependencies while keeping high-use helpers practical.
+- Keep magic numbers/constants in [SASMagicNumbers.py](/Assets/Python/SASMagicNumbers.py) when they benefit from a named home, especially when they are imported across advisors, Sevopedia, and utilities.
+  - This module should stay import-free: no `CvPythonExtensions`, no `gc`, no screen helpers, and no `SASUtils`, so it remains a safe leaf module and does not create circular-dependency or load-order risk.
+    - Its comment carries `ci_pure_module:`, which [`python_pure_modules.py`](/.github/workflows/README.md#buildsourcepython_pure_modulespy) checks, as for [SASSessionTunables.py](/Assets/Python/SASSessionTunables.py), its sibling for player settings: a setting only Python reads lives there rather than in `GlobalDefines_advciv_sas.xml`, which keeps what the DLL or the EXE reads and the defines `SASLiveDefineOverrides.txt` may change during play (2026-11-27).
+      - The root README's [Tunability](/README.md#tunability) sets out the three homes of a setting and where a new one goes, and KI#128.11 names each setting only Python reads that stays in the XML, with why.
+  - Prefix exported names with `SAS_MAGIC_` to reduce accidental global-name collisions in files that use from-module import-star.
+  - Useful examples: `SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND = 6807` is shared by the expandable text panels of many Sevopedia pages instead of being defined in each; `SAS_MAGIC_PEDIA_PYTHON_LEADER_ATTITUDE = 6805` was originally local to Sevopedia Leader but also checked by Sevopedia Main, so centralizing avoids widget-id drift/collision.
+- When extracting shared code to helpers, group all patterns together if similar enough otherwise (e.g. all enum prefixes in one tuple) for simplicity, even if some prefixes are only used by one caller.
+- The same holds for our tooling: a value that several scripts need, such as a define's shipped value, lives once in a shared module, and the scripts import it. A change is then made and seen in one place, rather than in one copy while another goes stale; where practical, a CI check keeps it so.
+  - Example (2026-11-19): `SAS_UI_DAWN_OF_MAN_ON` alone stayed at its shipped `1` after a branch switch, so the Dawn of Man screen showed in agent test games.
+    - Claude Code Opus 5.5 first added only a warning for a partly enabled set. The user asked whether other defines could slip the same way, which led to the toggle itself: each shipped value was written twice, in a CI check and in `toggle_dev_diagnostics.py`, with nothing keeping the two in step.
+    - The shipped and development values now sit together in [`define_values.py`](/LLM_Helpers/README.md#define_valuespy), which the checks and the toggle import, and [`shared_define_values.py`](/.github/workflows/README.md#buildsourceshared_define_valuespy) fails when a script writes one of them again; the committed toggle would have failed it 9 times.
+  - A value only one script uses can stay beside its code. What matters is that each value has one home, so a later change is easy to find and nothing else needs to follow it by hand.
+
+### XML
+
+- In `Assets/XML/GlobalDefines_advciv_sas.xml`, keep related blocks adjacent or separate thematic groups with exactly three blank lines: users read and edit this configuration file directly, so the wider separators make its sections easier to scan. Preserve blank lines inside comments and text values. Other XML files retain their existing spacing conventions.
+  - Group by what a define is for, not by how it is used. For example, the recorders (assertions, BBAI, SASGameRecord, Runtime) observe the game and stay off for players, while the hands-free switches after them (`SAS_FAST_SAVE_GAME_END_ON`, `SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON`) change what a player sees or must click.
+    - Both serve unattended runs, so they sit next to each other, but they are different concepts, so three blank lines separate the two groups, while the hands-free switches stay adjacent to one another.
+- Any new XML text should go to our AdvCiv-SAS files such as [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml) (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG`), and only in `<English>`.
+- Example of exception: long Civilopedia blurbs (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG_PEDIA`) in [AdvCiv-SAS_Sevopedia_Lengthy.xml](/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml), even when it uses a stub (because it will be filled later with lengthy content).
+- Do not write gameplay values into pedia texts: the Sevopedia already lists an asset's effects next to its text, while a sentence such as "gives +1 happiness and +1 culture" silently goes stale on the next rebalance.
+  - SAS already replaced most Strategy texts with `TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY` for the same reason: they were maintenance-heavy, very brittle, and cluttered readability.
+  - Describe the asset and its role instead, for example the City Center's "cannot be built in a normal game; meant for scenarios, WorldBuilder and modmods", or if no specific role a broad/historical/usual or as desired description.
+- `AdvCiv-SAS_*.xml` text files hold only text SAS currently changes (new key, renamed key or different English), so SAS text stays separate from inherited text and could be lifted out as one set.
+  - Changed: move the entry into our SAS files, English only.
+  - Changed back, or its renamed key restored: move base AdvCiv's original block back into its inherited file (e.g. `CIV4GameText_advc.xml`), or delete the SAS entry if only BtS/Warlords/vanilla defines it identically or otherwise more correctly than we did.
+  - Examples:
+    - Changed back: SAS lengthened `TXT_KEY_LEADER_TOKUGAWA` to "Tokugawa Ieyasu" (2025-04-11), then shortened it back to "Tokugawa" (2026-05-04) because long names widened the scoreboard. The English matched AdvCiv again, so AdvCiv's block went back to `CIV4GameText_advc.xml`.
+    - Key restored: SAS had renamed the Montezuma keys to `MOCTEZUMA`. Once the inherited IDs returned (2026-11-04), the SAS copy of `AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1_CORRECTED` matched the Warlords text and was deleted, while `TXT_KEY_LEADER_MONTEZUMA` stays because its English "Moctezuma II" still differs.
+  - The [`xml_sas_text_inherited.py`](/.github/workflows/README.md#buildxmlxml_sas_text_inheritedpy) CI check flags identical entries strictly (a fixed hyphen counts as a change). It includes Warlords text, which the game loads too: `TXT_KEY_CIV_KOREA_DESC` exists only there.
+- Avoid to comment in deep-nested XML just in case. For example, comment before `<ObsoleteSafeCommerceChanges>`, not before its child `<iCommerce>`.
+- Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
+- Never put a double-hyphen `--` (or `---`, etc.) inside an XML comment `<!-- ... -->`: it is illegal per the XML spec and breaks parsing of the whole file (empirically broke `GlobalDefines_advciv_sas.xml` when a comment described scoreboard/commerce buttons as `"++"/"--"`).
+  - This applies to actual `.xml` files only, not Python `#`/C++ `//` comments.
+  - When describing `--`/`---` button glyphs in an XML comment, space them (`- -`, `- - -`) or use words (`minus minus`, `fast step`, `fast tier`, etc.) instead.
+- Prefer UTF-8 as it's simple and seemingly works well enough; avoid UTF-8 with BOM as it can cause actual mojibake artifacts like `â€”it` or `â€™` the user sees on VS Code or other issues.
+- Exception: preserve each XML file's existing encoding if it's not UTF-8; do not convert encodings unless explicitly requested for no tedium and as we have no reason to (e.g., keep legacy Windows-1252 files such as BUG XML files as-is), plus this would have a high chance of causing formatting errors otherwise.
+- Note and additional observation: the codex formatter seems unreliable and inconsistent with what users see (e.g., showing the LLM model a BOM text when user sees a non BOM one, causing mismatches and weird git diff: refer to git diff or what base AdvCiv mod uses as format if in doubt).
+
+### C++
+
+#### Defines and AI behavior
+
+- Prefer SAS defines for new AI toggles to allow quick testing without recompiles; avoid adding them for tiny features unlikely to need tuning.
+  - Name defines `SAS_<family>_<effect>` within the desired 42-byte maximum drawn from AdvCiv, rather than mechanically embedding the full function name. To that end, use shorter words or clear abbreviations such as `1ST` for `FIRST`, while preserving meaning and key technical terms such as `PCT`, `MIN` and `MAX`. See KI#1001.2.
+  - Abbreviate or omit less informative wording before changing a meaningful Civ4 term.
+  - Use consistent terms for greppability, so one grep finds related SAS defines: for example, keep `PWR` consistent instead of mixing it with `POWER`. Keep `SETTLER` consistent and retain `PROD` throughout its family unless necessary. Omit implicit qualifiers such as `AI` when the family is clear, and separate words with `_` when space permits.
+    - Other established short forms in reviewed families include `ATK` (attack), `VAL` (value), `CULT` (culture) and `DIST` (distance); reuse them for the same meanings.
+- Turn-valued SAS integer defines must make game-speed semantics explicit: use `T_NORM_GS` when the XML value is expressed at Normal speed and code scales it with the appropriate game-speed percentage, or `T_UNSCALED_GS` for intentional literal game/path turns such as movement distance.
+  - Per-turn rates and values are not turn counts and do not require these suffixes.
+  - The automated [`turn_define_gamespeed.py`](/.github/workflows/build/xml/turn_define_gamespeed.py) check flags inconsistent turn-unit naming/semantics.
+- Prefer minimalistic, simple AI changes that are easy to reason about and compile.
+- Discuss candidate locations and a minimal draft before coding larger AI behavior changes.
+- When changing attack logic, account for special unit roles (bombard/collateral) and UWAI expectations.
+- Prefer low-level entry points (e.g., `canScrap`, `canUpgrade`, `AI_chooseUnit` or equivalent) to avoid edge cases from higher-level callers; keep logic close to core decisions.
+  - Example: for attack order changes, hook `groupAttack`/`AI_getBestGroupAttacker` rather than odds-estimation helpers, so other functions or pieces of logic don't overlap with or override our code.
+
+#### Signatures and preprocessor layout
+
+- C++ signatures: prefer safe one-line function declarations/definitions for easier grep, diffs, and LLM-agent review, especially for overloaded functions like `void addMessage` where the whole signature is the useful search key.
+  - Example: a declaration like `void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bTeam, /* advc.036: */ bool bUpdateAttitude, PlayerTypes eCancelPlayer) // advc.130p` is easier to find and reason about than the old three-line equivalent.
+  - See also [collapse_cpp_signatures.py](/LLM_Helpers/README.md#collapse_cpp_signaturespy) if needed.
+  - Note: Since the C++ codebase is large, apply this as we go if deemed relevant rather than trying to fix them all right away.
+- Treat physical line breaks inside continued preprocessor directives/macros (`#define ... \`) as semantic: every continued physical line must retain its trailing `\`. Automated C++ reflow helpers should skip preprocessor/macro bodies unless they explicitly preserve and validate line-splicing.
+
+#### Caching and variable reuse
+
+- When doing performance optimizations, such as caching to `CvTeamAI const& kTeam = GET_TEAM(getTeam());` redundant definitions in a function, reuse existing variable names unless not relevant for our needs.
+  - It is fine if some functions have `kTeam` while others have `kOurTeam` in the same file, what matters is same function is consistent when using the same variable.
+  - This avoids errors too.
+  - Same reasoning with `kPlayer` and `kOwner`, etc.
+- In C++, recurring or hot-path string-backed GlobalDefine reads such as `GC.getDefineINT("...")` / `GC.getDefineBOOL("...")` should normally use a function-local `static const` when the define is intended to stay fixed for the process; this avoids repeated name lookup while keeping cache scope local.
+  - Example: `static const bool bSAS_GROUP_ATK_SAC_OBSOLETE_ON = GC.getDefineBOOL("SAS_GROUP_ATK_SAC_OBSOLETE_ON");`.
+  - If the same stable integer/bool define is consumed by several recurring functions/subsystems, prefer AdvCiv's `CvGlobals::GlobalDefines` enum-indexed cache instead of several local static string caches. Add it to the selective shared SAS block in `CvGlobals.h`, then use `GC.getDefineINT(CvGlobals::SAS_...)` / `getDefineBOOL(...)`; do not wrap that enum-backed read in another `static const`.
+    - Hotness alone is not a reason: a static reads as fast. Nor is centralizing the problem; the enum must live in `CvGlobals.h`, which nearly every file includes, so one ever-growing list of every define would rebuild the whole DLL for each new one and keep each value away from its code and comment. See KI#128.3.
+      - Python code has neither cost: its shared cache, `SASCurrentDefines`, needs no list of names and no compile; see [XML lookup, caching and validation](#xml-lookup-caching-and-validation) and KI#128.5.
+  - Keep one-shot/setup-only settings and caller-specific transformed caches local. Multiple uses inside one function alone are not a reason to promote a define globally; widen/reuse one local cache when practical.
+- A define read by name outside a `static`, SAS or inherited, even a one-shot setup or snapshot read, says why in its function with a `ci_define_uncached:` comment, which [`cpp_define_reads_cached.py`](/.github/workflows/README.md#buildsourcecpp_define_reads_cachedpy) checks; one comment covers the function, and enum-backed access needs none. It also keeps each `getDefineINT("NAME")` call on one line, so a grep for the name finds the read.
+- Do not add another function-local cache around enum-backed `GC.getDefineINT(CvGlobals::...)`: that overload already reads the global integer define cache. Likewise, do not cache one-shot reads or values intentionally expected to change during runtime/setup; read those directly so the code reflects their semantics.
+  - In the DLL, a define that [SASLiveDefineOverrides](#xml-lookup-caching-and-validation) may change during play belongs in the enum cache, even with one reader: `setDefineINT` refreshes its entry, and the read costs no more than a static. This is the C++ side of the live overrides; Python reads such a define through `SASCurrentDefines`, as that section says.
+    - Example: `CvDLLWidgetData.cpp` kept its hover text size in a `static`, so an override never showed; it now reads `GC.getDefineINT(CvGlobals::SAS_UI_FONT_LABEL)` at each hover. See KI#128.5.
+    - State built once from several defines, such as BBAI's category levels in `gSASBBAILogSettings`, is refilled from `CyGlobalContext::onSASLiveDefineOverridesApplied`, which the bridge calls after each applied change; a family adds its refill there rather than a binding of its own.
+
+#### Diagnostic gating and output
+
+- Usually pre-gate BBAI, SASGameRecord and Runtime diagnostics at the caller: `if (bLog) doFunction(arg1, arg2, ...)`. This is for performance and tidiness: skip the function, argument evaluation and diagnostic-only setup when logging is disabled, especially when arguments construct lengthy detail strings.
+  - For example, `if (gUnitLogLevel >= 2) logUnitDecision(computeDetail());` skips both the detail computation and helper call; an early return inside the helper cannot undo either cost.
+  - This also limits side-effect risks: argument evaluation can change caches/state or consume RNG before a callee can reject the log call. Reuse values already computed by the real gameplay path instead of repeating decisions or introducing logging-only computation outside the gate; do not move required gameplay work inside the gate.
+  - Enabled diagnostics must remain observational too: preserve scoring, information scope, cache policy and RNG. Any extra diagnostic calculation belongs behind the gate and must not supply a gameplay result or mutate gameplay state.
+  - Rare justified exceptions must explain why they differ from that usual rule. For example, `CvGame::~CvGame()` calls the no-argument `updateSASRuntimeStatusCleanExit()` directly; its internal `if (g_iSASRuntimeStatusEnabled <= 0) return;` uses cached state only.
+    - A normal lazy caller predicate could perform its first XML lookup during teardown. Comment this reason beside the call and guard, including the small call/comparison cost that remains; do not expect agents to remember the chat.
+  - As for asserts guarding this pre-gating preference, an example is how during pre-commit draft review of `logSASGameRecordPlotYieldRules`, we removed `FAssert(gGameRecordLogLevel >= 2)`: it would pass with logging on even if the caller failed to pre-gate or computed arguments too early. The caller/argument path must be reviewed instead.
+    - In contrast, `logSASGameRecordStateCheckpoint` saves both authoritative RNG seeds before computing its fingerprint, then asserts that they are unchanged. That checks whether observation consumed game RNG and could alter the game. Keep such checks on actual data or effects; if correctness requires runtime validation in Release, use an explicit check because assertions compile out there.
+  - Keep recorder-specific aggregation and output in `SASGameRecordLog.*`, with small pre-gated hooks in the observed code. For example, replay rejection hooks check a cached active-batch Boolean before passing failure facts, so disabled collection skips helper calls and diagnostic-only work.
+    - Keep shared enums and their stringifiers with their domain owner, such as replay rejection reasons in `CvReplayInfo.h`; genuinely general tools can live in `CvGameCoreUtils.*`. A value used by SGR does not automatically belong to the recorder.
+      - For example, popup types and confirmation-action IDs describe existing game UI, not concepts introduced by SGR or runtime status. Adding names or a shared enum/stringifier catalog for logging does not make that UI vocabulary recorder-owned; keep it with the UI domain or common helpers such as `CvGameCoreUtils.*`, where gameplay dispatch and both recorders can use it.
+        - SGR owns row formatting; runtime status owns observed wait state. Their own output/state enums can remain local.
+  - Prefer ordinary inline predicates and explicit `if` statements over logging macros that expand to control flow (for example the inherited found-value `IFLOG` pattern); hidden `if` macros obscure the caller-side pre-gate and compose poorly with `else` or extra semantic predicates.
+  - Keep domain logging helpers unguarded (a debug `FAssert` precondition is fine) and use e.g. `if (gUnitLogLevel >= 2) logUnitDecision(computeDetail());` at the caller. The final generic logger may retain a defensive disabled-log backstop, but it is not a substitute for caller pre-gating.
+  - When an independent logging gate shares an `&&` condition with diagnostic predicates, put it first: disabled logging means no output regardless of those predicates, so evaluating them is needless and likely inefficient. This also keeps the diagnostic boundary clear and consistent.
+    - Direct-attack probe example: change `if (!bDone && (missionData.eFlags & MOVE_DIRECT_ATTACK) && gUnitLogLevel >= 2)` to `if (gUnitLogLevel >= 2 && !bDone && (missionData.eFlags & MOVE_DIRECT_ATTACK))`.
+    - Apply this inside subconditions too: `iEvacuationLogLevel >= 3 || (bEvac && iEvacuationLogLevel >= 2)` becomes `iEvacuationLogLevel >= 3 || (iEvacuationLogLevel >= 2 && bEvac)`. The level-3 branch stays unchanged; only the inner level-2 gate moves before `bEvac`, which cannot produce logging below that threshold.
+    - Do not mechanically reorder conditions when evaluation order, side effects, null-safety, or prerequisite ordering could matter; use LLM/manual review rather than CI autofix.
+  - One outer enabled block can pre-gate an entire logging-only loop or helper chain; do not repeat the same check at every nested call.
+    - Comment reliance on that scope when easy to miss: `recordSASRuntimePlayerTurnSummary` needs no adjacent enabled check because `publishSASRuntimeStatus` already gates its call and arguments.
+  - Reuse a local `bLog...` when it protects several operations, but do not duplicate existing caches: BBAI `g*LogLevel` and `gGameRecordLogLevel` are direct cached reads; `isSASRuntimeStatusEnabled()` owns Runtime's private cached switch.
+  - For simple one-statement guards whose condition itself is the logging pre-gate, keep the guard on the log-call head (`if (bLog) logBBAI(...);`) while allowing a long argument tail to continue on following lines.
+  - Treat this as a logging-family convention rather than a `logBBAI` special case: the same compact head applies to `logSASGameRecord...`, domain `SAS_log...`/`log...` helpers, and similarly named project logging helpers when the condition itself is the explicit logging gate.
+  - Do not mechanically collapse semantic-only inner conditions such as `isDebug()`, `isNormalizing()`, `bCoastal`, or gameplay predicates merely because their body happens to log; an enclosing block may already perform the real logging pre-gate.
+  - Apply this formatting incrementally to touched code rather than creating whole-DLL cosmetic churn.
+  - Keep diagnostics observation-only: a logging-only rerun must never supply a gameplay result, mutate gameplay caches/state or consume synchronized RNG. If a rerun is needed only to expose selected detail, isolate it behind the logging gate and discard its result.
+  - Preserve documented log-level scope and cost: keep low levels compact, and reserve per-candidate/component detail for the documented higher levels. Keep each category's exact level meanings beside its XML setting; implementation history belongs in Known Issues (for example KI#505.2 and KI#505.3).
+  - Prefer direct pre-gated logger rows over temporary `ostringstream`/string aggregation when the same diagnostic can be expressed clearly as ordinary structured fields or rows. Use stream/string builders when one value genuinely needs variable-length aggregation or for non-diagnostic/user-facing text; in diagnostic code, keep that construction behind the relevant logging gate.
+  - Label hypothetical comparisons explicitly and keep them outside AI decisions. See KI#505.2.
+- BBAI and SASGameRecord rows share one greppable record format: an uppercase record ID first, then named `key=value` fields, with no indentation and no repeated keys.
+  - Log identities as XML types through narrow `%s` and `getType()`, e.g. `civ=CIVILIZATION_AMERICA` and `build=BUILD_COTTAGE`, not `getDescription()`: descriptions are translated display text, change with language or mod, and Build descriptions even carry Civilopedia `<link=...>` markup (from `[LINK=IMPROVEMENT_COTTAGE]` in the game text).
+  - For an enum value use `getSASInfoTypeOrNone(eX)`, which also writes `-` for `NO_...`, e.g. `unitAI=UNITAI_SETTLE` rather than `unitAI=1` or a `getUnitAIString` label such as `no unitAI`.
+    - When reviewing one duplicated lookup, search for its common shape. For example, `rg -n -F '? "-" : GC.getInfo(' CvGameCoreDLL` found the same pattern in SGR getters and BBAI call sites even when the enum or variable name differed.
+      - Before calling an audit done, also try other ways, including simpler or unusual ones. On 2026-11-11, after the agents thought the `NO_` fallback audit finished, the user's plain VS Code search for `? "NO_` still found SGR's denial getter to move to `CvGameCoreUtils` (see [VS Code](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#vs-code)).
+        - Searching other spellings, such as `== NO_IMPROVEMENT ? "NONE"`, then found 11 more fallbacks in five BBAI rows. Tokens such as `result=NO_UNIT` or `NO_SELECTION` name an outcome rather than a missing value, so they stay.
+    - Replace `eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()` with `getSASInfoTypeOrNone(eUnitAI)` and remove wrappers that only repeat that lookup. This gives both recorders one place to maintain the XML token and missing-value convention.
+    - Use a broad search to find candidates, then check what each match means and where its input comes from before generalizing. For example, the SGR and BBAI lookup audit found several cases that needed different treatment.
+      - A requested unit role can be `ANY`, meaning every role is eligible. Preserve that label because it answers a different question from a missing role.
+      - Explain non-obvious exceptions beside the code. For example, use the shared `getSASDiagnosticOrDash` to format an absent soundtrack script, but keep `findSASGameRecordPreviousSoundtrackScript` in SGR. Multiple era slots can resolve to the same audio ID, so this lookup reports a name only when one slot matches.
+      - Similar-looking expressions can do different work. In the missing-value cleanup, `szUnitContributors.empty() ? "-" : szUnitContributors.GetCString()` only formatted a list, so it could use the shared helper. The `pNearestEnemy` check also protected a dereference that happens before the enum formatter is called, so that check stayed at the call site.
+      - The audit found two kinds of mission names. Native dispatch carries a raw mission ID that needs an upper-bound check before indexing XML. `MissionAITypes` describes the AI purpose and has no XML table, so the existing `getMissionAIString` lookup still fits.
+  - Pass names that have no XML type through the shared escaper, e.g. `city=%S` with `getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString()`, giving `city="Angkor Thom"`; SGR uses the same helper and logs `playerName="PC"` beside `civType=CIVILIZATION_OTTOMAN`. Quotes written into the literal (`city=\"%S\"`) would leave a quote inside a human-renamed city unescaped.
+  - Keep an ID field beside display names (`player=`, `cityId=`, `unitId=`); [`diagnostic_record_format.py`](/.github/workflows/README.md#builddiagnosticsdiagnostic_record_formatpy) checks active BBAI and SGR rows.
+- For SASGameRecord collections, prefer ordinary repeated structured rows with fixed `key=value` fields over packing multiple logical records into one value such as `TYPE:count,TYPE:count` or `stored/needed@age`.
+  - Existing compact fields may remain for human readability/backward compatibility, but when a typed companion row exists treat that row as the machine-oriented contract; an empty structured collection is represented by zero companion rows plus the parent row's explicit count/context.
+  - Do not assign one global meaning to legacy `-` or `-1` sentinels. New fields should use an explicit validity/kind/count field whenever absence, unavailable, empty and not-applicable could otherwise be confused.
+  - This convention was strengthened after a Claude Sonnet 5.5 review identified parser drift risk in fields such as espionage spending, civic lists and parked-production inventories.
+- When changing BBAI/SASGameRecord output, preserve live readability, prompt submission of final crash evidence, bounded failure storage and literal text through the shared `logSASDiagnosticLiteralLine` sink.
+  - Producer format strings use ordinary printf escaping: for example, formatting `75%%` produces `75%`, which the shared sink writes literally without interpreting the percent sign again.
+  - Prefer structured field names (e.g. for SASGameRecord) such as `Percent`/`X100` when clearer for parsers; naming is not a substitute for safe text handling.
+  - The writer's rationale and constraints belong beside its implementation in `CvGameCoreUtils.cpp`; see [local diagnostic tests](/tests/README.md#diagnostic-writer) for verification. KI#375.3 explains the former EXE logger's percent-sign handling.
+
+#### Interface, dependency and toolchain comments
+
+- In C++ declarations and definitions, document new functions and changes to existing functions, including renames, parameters/defaults/return types and responsibilities.
+  - Explain the previous versus current contract and why it changed beside each affected declaration/definition; a header comment alone does not replace implementation context. Document new or changed structural members similarly so headers remain a concise interface summary.
+  - For new or changed Python bindings (`.def(...)`), explain why Python needs the exposed operation beside the binding; its Python help string describes usage but does not replace that rationale.
+- When changing an existing non-SAS function's name, return type or parameters, add a nearby custom comment explaining what changed in the interface and why. Do this beside each affected declaration/definition that is edited; clearly SAS-named helper functions are optional because their custom ownership is already explicit.
+- Explain every added, removed or changed C/C++ `#include` or Python `import`/`from ... import` with a nearby custom comment naming the dependency and its purpose, including in new files. One comment may cover a coherent group if it explains all of them; untouched inherited dependencies need no new annotation.
+  - For C++ includes, explain why a forward declaration is insufficient where relevant; do not bulk-annotate unrelated inherited includes.
+- If implementation encounters a compilation failure, preserve the verified pitfall and working correction in a nearby custom comment, including the exact API/type/toolchain constraint when useful. Put it beside the affected declaration, include or implementation; do not claim an untested theory as the cause.
+
+Example based on the inherited `WarEvaluator::evaluate(WarPlanTypes, bool, int)`: its implementation moved into `evaluateScenario` with a new diagnostic-only parameter. The original public overload remains a gameplay wrapper; the comment explains both the change and why the new parameter is internal.
+
+```cpp
+// <!-- custom: Extracted the inherited fixed-naval evaluate implementation into evaluateScenario and added bDiagnosticOnly for logging-only reruns; the original public evaluate overload remains a gameplay wrapper passing false.
+// Diagnostic passes bypass evaluator caches. Keep this mode internal so ordinary callers cannot accidentally use a diagnostic pass as a gameplay evaluator. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, bool bNaval, int iPreparationTime)
+```
+
+## Subsystem revision maintenance
+
+- Some SAS subsystems, such as SASGameRecord (`SAS_SGR_REVISION`) and Runtime (`SAS_RUNTIME_REVISION`), carry a revision that tells downstream copies the subsystem changed: a commit changing one, its code comments included, increments it once and adds a history entry, as the [shared rules](/_1_AdvCiv-SAS/Docs/revisions/README.md) say, and CI checks it.
+  - The entry's commit says `pending` until the next commit fills it in: an exception to avoiding vague progress labels, since a commit cannot contain its own SHA.
+  - What counts as a change to each subsystem is in its history doc, such as [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) and [`SASRuntime.md`](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md).
+
+## DLL compilation
+
+- By default, let the user compile the DLL; the local legacy Civ4 SDK toolchain is configured, and the user generally prefers to handle compilation to save agent time/tokens. Do not compile merely for routine verification when the user has said they will do it.
+- If compilation is needed or the user is fine with the agent doing it, follow the tested [AdvCiv-SAS DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md).
+- When running a task end to end or autonomously, such as testing with [unattended game runs](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md), compile yourself as often as the task needs rather than waiting on the user.
+  - The default above exists to save the user's time and the agent's tokens on routine checks. In an autonomous loop the agent compiling is what saves the user's time: stopping to ask for each build would bring back the waiting the loop removes.
+  - Prefer builds that spare the hardware: the parallel `-fast` builds push CPU use noticeably high to save about 80 seconds, needless strain for repeated compiles, which is why our Debug-opt build is sequential, unlike base AdvCiv's (KI#38.3). See the [Computer upkeep guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Computer_Upkeep.md).
+  - For local tests prefer `Debug-opt`, with assertions turned on when useful: it leaves a PDB, which helps if a test crashes.
+    - To read a crash, use its Full Dump with that PDB, as in the [DLL Debugging Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md). Do not plan on breakpoints: the Steam game's main thread, which runs the game code, is hidden from debuggers, so a breakpoint there ends the game instead of stopping it (tested 2026-11-18); use a probe in the DLL instead.
+    - Build `Release` when you specifically need it, for example to chase a crash only Release shows, or before a commit that must ship a DLL; [`dll_define_changes.py`](/.github/workflows/README.md#buildrepositorydll_define_changespy) and [`dll_python_bindings.py`](/.github/workflows/README.md#buildrepositorydll_python_bindingspy) flag the usual cases.
+  - Installing a DLL for a local test copies only the DLL into `Assets/`. Its `.build.json` joins it only for an intentional shipped `Release` update, as under [DLL inclusion in commits](#dll-inclusion-in-commits), because CI checks that a shipped DLL and its report change together.
+    - Never ship an assertion or Debug-opt DLL: players would get assertion logging and its slower code, and CI accepts only a `Release` report.
+- Focused local C++ checks can use VC2003 `cl.exe /Zs` with the project's include paths and defines: it checks real translation-unit syntax/types without producing objects, linking or replacing the DLL.
+  - The compiler is at `C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe`; the environment setup in [`run_writer_tests.py`](/tests/diagnostics/run_writer_tests.py) uses VS2010's `vcvars32.bat` while explicitly selecting VC2003.
+  - [`build_dll.py`](/LLM_Helpers/README.md#build_dllpy) does both from any shell: `syntax <files>` for `/Zs`, `build` for a Debug-opt rebuild. Before it (2026-11-13), each session wrote its own `vcvars32` `.bat` into its scratchpad, and a build started without one failed within seconds.
+  - Extracted production functions can also be compiled/run in a temporary executable with minimal fixtures for focused logic checks.
+    - Neither method replaces the appropriate DLL/link/in-game test.
+- Check current build reports first: `CvGameCoreDLL/Project/<target>/CvGameCoreDLL.dll.build.json` covers both Visual C++ 2010 Express and wrapper-driven terminal builds. The user compiles through VC2010 Express, not VS Code.
+  - Scan every configuration together with the wildcard below; do not open target folders individually. Inspect each report's `status`, `startedUtc`, `endedUtc` and configuration rather than only the newest report, since another target can be building.
+  - `RUNNING` means no completion was recorded; it can remain after a forcibly interrupted build. `SUCCEEDED`/`FAILED` with final fields confirms that recorded attempt ended, not that no later/direct build started.
+  - If a report is missing, unreadable, still `RUNNING`, or a new build is suspected, inspect the actual build session/workers (`nmake`, `jom`, `cl`, `link`) and their project context. For agent-started builds, track the command/session directly; raw `nmake` bypasses reporting.
+  - An open `VCExpress` window or lingering `MSBuild.exe` alone does not prove compilation is active; both have remained open after builds. Do not ask repeatedly when completion is already established; if status genuinely remains uncertain, leave build-sensitive files untouched until clarified.
+  - `AdvCiv.log` receives incremental compiler diagnostics: terminal builds flush each received line, while IDE builds use MSBuild's logger. Final success/failure comes from command exit codes and the completed build report, not merely from seeing output in the log.
+  - While compilation is running, do not modify C++ source/headers, project/build files, intermediates or DLL/PDB outputs. Documentation edits are safe.
+
+```powershell
+Get-ChildItem -Path 'CvGameCoreDLL/Project/*/CvGameCoreDLL.dll.build.json' -File | ForEach-Object {
+    $taskBuildReport = Get-Content -LiteralPath $_.FullName -Raw | ConvertFrom-Json
+    [PSCustomObject]@{Configuration=$taskBuildReport.configuration; Status=$taskBuildReport.status; StartedUtc=$taskBuildReport.startedUtc; EndedUtc=$taskBuildReport.endedUtc}
+}
+```
+
+- Light-source ZIP creation currently seems to fail with `PermissionError` while reading `CvGameCoreDLL/Project/AdvCiv.opensdf` with Visual C++ 2010 Express open, even without compilation running. This IDE database can remain locked while the IDE is open; close the IDE before retrying this packaging failure.
+- Core safety rule: every build starts from an empty `CvGameCoreDLL/Project/temp_files/<target>` folder, so the accepted DLL never resumes from stale or partial intermediates.
+  - Since 2026-11-11 `build_with_report.ps1` enforces it: a `BUILD` refuses while that folder holds files, so use `REBUILD`, which cleans first, or delete the folder. A rule left to habit could be overlooked.
+  - Target folders are isolated, so a retained Debug-opt folder does not affect a clean Release build.
+  - After a successful Debug-opt build, retain its ignored folder while its installed DLL is relevant so WinDbg can find the exact matching PDB path embedded in that DLL; delete it before the next Debug-opt build.
+  - The whole `temp_files` folder is git-ignored, since the refusal makes a visible reminder unnecessary, and the Makefile creates it when missing.
+
+## Runtime safety and diagnostics
+
+- Before editing runtime-sensitive files, check for Civ4 processes with PowerShell: `Get-Process -Name Civ4BeyondSword -ErrorAction SilentlyContinue`. Process presence confirms only that the executable has not exited; it does not prove a visible window, responsiveness, initialized gameplay or active autoplay.
+  - A process can be starting, hidden, unresponsive or stranded after a failure. Use available window/response evidence and status/log progression when assessing its condition; an unchanged status file alone does not prove a hang because idle play and long initialization need not publish updates.
+  - When the optional `Logs/SASRuntimeStatus.json` exists, use its DLL/process/session/autoplay fields as additional current-state evidence; verify the reported DLL identity against the intended build before treating a run as validation. Match `processId` and `processStartUtc` to the live process before trusting `RUNNING`: a crash can leave the last JSON behind.
+    - With several clients open, `SASRuntimeStatus.json` shows only the latest writer, so it can describe another client; read the process's own `SASRuntimeStatus_<processStartUtc>_<pid>.json` instead, whose name proves whose state it is. See KI#1081.
+  - Enabled runtime diagnostics use [SASRuntimeExitObserver.ps1](/Assets/SASRuntimeExitObserver.ps1) to record final process-handle exit evidence in `exitObservation` and a `process_exit` history row.
+    - Its matching `SASRuntimeExit_*.json` confirms attachment with WAITING, then records EXITED independently of the current snapshot; inspect `failureDialog` and `dialogObserverState` for a recognized runtime-error, crash-dump prompt or reviewed Gamebryo/NiDX9 video-allocation dialog while the process remains alive. Launch/attachment/I/O can fail, so retain the direct process check.
+      - For failure-time memory/context availability and coverage limits, see the [failure observations](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#sasruntimeexit_json-exit-observation); recorded measurements are context rather than a diagnosis.
+    - A nonzero exit code alone does not establish its cause.
+  - When optional `SAS_RUNTIME_SOURCE_WATCH_ON=1` is enabled, inspect `SASRuntimeSourceWatch_*.json` / `SASRuntimeSourceChanges_*.jsonl` for observed mod-source/configuration disk edits during the matching process run; the state file also records actual observer-host versions.
+    - Treat these as filesystem observations only: `engineReloadState=NOT_OBSERVED` means an edit does not prove Civ4 reloaded, parsed or executed it. C++ source edits never replace the loaded DLL. Missing watcher evidence can also mean disabled/failed observation rather than no edit.
+  - The file reports autoplay state, not an idle/busy lock: a manually advanced turn also runs with `autoplayActive=0`. Check `gameState` for initialization and do not infer XML/Python edit safety from the autoplay flag alone.
+  - Check Windows directly to establish whether the Civ4 process still exists; the JSON can outlive it. If no Civ4 process exists, no separate user confirmation of closure is needed. A lingering process can still retain runtime resources even without a visible window.
+  - The status feature is default-off and deliberately does not guess human idle/UI state. While Civ4 is running, an absent, stale or unmatched status file does not by itself establish that runtime-sensitive files are safe to edit.
+- A running Civ4 generally makes runtime-sensitive edits unsafe, but not always: the user often has Civ4 open for other reasons, so check before stopping work.
+  - Another mod may be running. The process command line names it: `(Get-CimInstance Win32_Process -Filter "Name='Civ4BeyondSword.exe'").CommandLine` ends with `"mod=\<name>"`. Another mod loads its own files, so editing AdvCiv-SAS files is safe.
+    - Example (2026-11-07): the command line showed `mod=\Realism Invictus`, while `SASRuntimeStatus.json` still described an earlier AdvCiv-SAS process that had exited cleanly; matching `processId` to the live process exposed the mismatch.
+  - The user may also be browsing the Sevopedia or playing casually, with no current test, autoplay or later replay depending on the files being edited.
+  - If AdvCiv-SAS itself is running, close it and go on, unless the user has said to leave it alone: the user's standing rule (2026-11-12) is that agents may close or reuse the user's Civ4 instances without asking, as under [Research and references](#source-analysis).
+    - [`desktop_windows.py close --mod AdvCiv-SAS --wait 30`](/LLM_Helpers/README.md#desktop_windowspy) closes every such client and waits for it to exit; add `--force` for one that ignores the close.
+      - A client hung at exit (KI#1102) stays listed and blocks new ones; `--force` and `start_game.py` end it with `TerminateProcess` on a handle of it, as `Stop-Process` and `taskkill` left one in place. See [A client that will not go away](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#a-client-that-will-not-go-away).
+    - Asking costs the user a round trip, and the result is the same as the user closing it. Reuse the open client when the task allows it, since that is cheaper than closing and relaunching.
+    - Example (2026-11-12): an agent found the user's AdvCiv-SAS client open, held a define rename and 18 preview runs, and asked twice; the user replied that agents do not need to ask.
+
+- While a validation autoplay is running:
+  - Documentation and C++ source/header edits are safe because the live game does not reload them.
+  - Do not edit runtime-sensitive files like XML or Python files during the run: as of now, this has produced live XML errors and Python errors/crashes.
+  - Active BBAI and SASGameRecord files are intentionally live-readable through the shared writer, so agents may inspect/copy them while Civ4/autoplay continues.
+    - A read can catch an append in progress, and file size/content can change immediately afterward; retry an incomplete trailing row and use completed output for final-size/full-run comparisons.
+    - A directory listing can report a stale size while the writer keeps its handle open. Read the file or query its size through a fresh handle before treating a zero listing as absent output; see the [logging inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#sas-ai-and-game-record-diagnostics).
+      - For example, the user observed `SASGameRecord_20261031T134838Z_load3.log` listed as zero bytes despite readable contents; a later fresh-handle check returned 249,018 bytes.
+    - Other inherited logs do not share this guarantee.
+- Note: these boundaries describe the current Civ4 runtime and can be revised if later testing proves different behavior.
+
+## File management
+
+- Delete files and folders the way a user would on this Windows machine: send them to the Recycle Bin instead of permanently deleting them with `rm`, `rmdir` or `Remove-Item`.
+  - Mistakes happen, and sometimes we simply want a deleted file back later; the Recycle Bin keeps that possible, while a permanent delete cannot be undone.
+  - Example (2026-11-07): a Claude Code Opus 5.5 agent confirmed that the transcript helpers' new shared `Downloads/llm_chat_exports/` default worked, then permanently deleted the exported transcript and the folder itself.
+    - The export was still useful, and the user could no longer find or open it; sending both to the Recycle Bin would have avoided that.
+    - Here only a test export was lost, but the same habit applied to an important or old file would have lost it for good.
+  - Do not remove a folder just because your own test file was its only content; the folder may be expected to exist.
+- PowerShell recipe, tested with a delete and restore round trip:
+
+```powershell
+Add-Type -AssemblyName Microsoft.VisualBasic
+[Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile($path, 'OnlyErrorDialogs', 'SendToRecycleBin')
+[Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory($folder, 'OnlyErrorDialogs', 'SendToRecycleBin')
+```
+
+- The Recycle Bin lists each item with its original folder, and Windows' Restore puts it back intact.
+- If `DeleteDirectory` refuses a folder with "This function is not supported by the system", recycle its contents one level down, then the emptied folder. On 2026-11-18 the folders left by uninstalling Python 3.12 and 3.13 failed that way, twice, while their subfolders and files recycled at once.
+- If an item cannot go to the Recycle Bin, for example because the call fails or Windows would delete it permanently, ask the user what to do instead of deleting it directly.
+- A direct delete is fine where you judge nothing of value can be lost, for example an agent's own temporary files in its session scratchpad; when in doubt, use the Recycle Bin.
+- A script that rewrites a file should check everything first and only then open the file for writing: opening it for writing empties it at once, so a check failing after that leaves an empty file.
+  - Example (2026-11-22): Claude Code Opus 5.5 ran `open(p, "w").write(apply(text))` on AGENTS.md; the open emptied the file, then `apply`'s count check failed, so nothing was written back and all 1,213 lines were gone from the working tree.
+    - It was lucky: the whole file was staged, so `git show :AGENTS.md` restored it.
+    - In a long iterative commit candidate, with hours of unstaged edits in a key code file and no diff backup taken, the index or HEAD would have brought back only an older version, losing those edits.
+  - So, to recover a file emptied or overwritten by mistake, try in this order:
+    - Git: `git show :<path>` for the staged version, `git show HEAD:<path>` for the committed one, then the diff backups of [Review and staging](#review-and-staging), which keep unstaged edits too.
+    - VS Code's Local History: each save in the editor leaves a copy under `%APPDATA%\Code\User\History\<id>\`, whose `entries.json` names the file and the time of each copy, so an agent can read the latest one directly. It holds only what the editor saved, not a script's writes.
+    - The user's open editor: if the file is open in VS Code, Ctrl+Z there can bring back the unsaved buffer, as the user did that day. Ask the user rather than typing into their editor.
+  - Better still, prevent the loss: in long, iterative or critical work, take a diff backup now and then, and before each risky step such as a scripted rewrite, a branch switch or a reset, as [Review and staging](#review-and-staging) describes; recovery then needs none of the above.
+    - Example (2026-11-22): before switching to main to amend the PR#50 squash commit, the unstaged KI#11 round was saved both as a diff in `Downloads/AdvCiv-SAS_diff_backups` and as a temporary commit on its own branch.
+- Keep folders that agents or the user open often to roughly 1,000 to 2,000 files, and move older files into a dated subfolder: every listing of a crowded folder strains the hardware needlessly, while moving old files keeps them all. On 2026-11-10 the Civ4 `ScreenShots` folder, with 3,000+ images, was slow to list even on an SSD.
+  - [`archive_old_files.py`](/LLM_Helpers/README.md#archive_old_filespy) does the moving, and the [Computer upkeep guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Computer_Upkeep.md) lists the folders that grow.
+    - `run_autoplay.py` runs it at the end of every run, so the folders it fills are tidied without anyone remembering; `archive_old_files.py --all --apply` checks every known folder by hand.

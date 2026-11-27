@@ -1,0 +1,176 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 358
+# Author: iustus
+# Date: 2007-02-10T08:46:18.951119Z
+# Coverage: full
+# Message:
+#   more tweaks to new governor (still disabled)
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@357
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@358
+@@ -1301,23 +1301,20 @@
+ 	governorValues.yieldModifiers.iBonusExperience = 100;
+ 	
+ 	// set initial yield values, based on constant weights
+-	const int iFoodWeight = 100;
+-	const int iProductionWeight = 65;
+-	const int iCommerceWeight = 40;
+ 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+ 	{
+ 		governorValues.yieldValues.aiYield[iYield] = 1;
+ 	}
+-	governorValues.yieldValues.aiYield[YIELD_FOOD] = iFoodWeight;
+-	governorValues.yieldValues.aiYield[YIELD_PRODUCTION] = iProductionWeight;
+-	governorValues.yieldValues.aiYield[YIELD_COMMERCE] = iCommerceWeight;
++	governorValues.yieldValues.aiYield[YIELD_FOOD] = iGovernor_FoodWeight;
++	governorValues.yieldValues.aiYield[YIELD_PRODUCTION] = iGovernor_ProductionWeight;
++	governorValues.yieldValues.aiYield[YIELD_COMMERCE] = iGovernor_CommerceWeight;
+ 
+ 	for (int iCommerce = 0; iCommerce < NUM_COMMERCE_TYPES; iCommerce++)
+ 	{
+-		governorValues.yieldValues.aiCommerce[iCommerce] = iCommerceWeight;
+-	}
+-
+-	governorValues.yieldValues.iGPPRate = iCommerceWeight / 2;
++		governorValues.yieldValues.aiCommerce[iCommerce] = iGovernor_CommerceWeight;
++	}
++
++	governorValues.yieldValues.iGPPRate = iGovernor_CommerceWeight / 2;
+ 	governorValues.yieldValues.iBonusExperience = 2;
+ 	
+ 	// now do the real work, modifying these values based on the situation
+@@ -1333,7 +1330,7 @@
+ 		// if emphasizing food, value food high in all cases, no need to do other checks
+ 		if (bEmphasizeFood)
+ 		{
+-			governorValues.yieldValues.aiYield[YIELD_FOOD] *= 16;
++			governorValues.yieldValues.aiYield[YIELD_FOOD] *= iGovernor_EmphasizeMultiplier;
+ 			governorValues.bGrowPastHappy = true;
+ 		}
+ 		// food value: if food isnt production, then adjust for growth
+@@ -1367,10 +1364,10 @@
+ 						}
+ 					}
+ 
+-					int iSlaveryValue = (2 * iProductionWeight * iBestProductionPerPopulation) / (iFoodToGrow * iConsumtionPerPop);
++					int iSlaveryValue = (2 * iGovernor_ProductionWeight * iBestProductionPerPopulation) / (iFoodToGrow * iConsumtionPerPop);
+ 					if (bEmphasizeProduction)
+ 					{
+-						iSlaveryValue *= 16;
++						iSlaveryValue *= iGovernor_EmphasizeMultiplier;
+ 					}
+ 
+ 					governorValues.yieldValues.aiYield[YIELD_FOOD] += iSlaveryValue;
+@@ -1385,7 +1382,7 @@
+ 				{
+ 					int iConscriptProduction = kPlayer.getProductionNeeded(eConscriptUnit);
+ 					int iConscriptPopulation = getConscriptPopulation();
+-					int iConscriptValue = iProductionWeight * iConscriptProduction * max(iMaxConscript * 3, iNumCities);
++					int iConscriptValue = iGovernor_ProductionWeight * iConscriptProduction * max(iMaxConscript * 3, iNumCities);
+ 					iConscriptValue /= iConscriptPopulation * iFoodToGrow * iConsumtionPerPop * iMaxConscript;
+ 					
+ 					governorValues.yieldValues.aiYield[YIELD_FOOD] += iConscriptValue;
+@@ -1404,7 +1401,7 @@
+ 				if (iHappyLevel > 0)
+ 				{
+ 					bool bUnhealthy = (iHealthLevel < 0);
+-					governorValues.yieldValues.aiYield[YIELD_FOOD] += (iFoodWeight * (bUnhealthy ? 4 : 5)) / 8;
++					governorValues.yieldValues.aiYield[YIELD_FOOD] += (iGovernor_FoodWeight * (bUnhealthy ? 4 : 5)) / 8;
+ 				}
+ 				
+ 				// if unhealthy, value food less
+@@ -1436,7 +1433,7 @@
+ 	
+ 	if (bEmphasizeProduction)
+ 	{
+-		governorValues.yieldValues.aiYield[YIELD_PRODUCTION] *= 16;
++		governorValues.yieldValues.aiYield[YIELD_PRODUCTION] *= iGovernor_EmphasizeMultiplier;
+ 	}
+ 
+ 	governorValues.yieldValues.aiYield[YIELD_PRODUCTION] /= kPlayer.AI_averageYieldMultiplier(YIELD_PRODUCTION);
+@@ -1495,7 +1492,7 @@
+ 		bool bEmphasizeThisCommerce = AI_isEmphasizeCommerce((CommerceTypes) iCommerce);
+ 		if (bEmphasizeCommerce || bEmphasizeThisCommerce)
+ 		{
+-			governorValues.yieldValues.aiCommerce[iCommerce] *= (bEmphasizeCommerce && bEmphasizeThisCommerce) ? 24 : 16;
++			governorValues.yieldValues.aiCommerce[iCommerce] *= (bEmphasizeCommerce && bEmphasizeThisCommerce) ? ((3 * iGovernor_EmphasizeMultiplier) / 2) : iGovernor_EmphasizeMultiplier;
+ 		}
+ 
+ 		governorValues.yieldValues.aiCommerce[iCommerce] *= kPlayer.AI_commerceWeight((CommerceTypes) iCommerce);
+@@ -1508,7 +1505,7 @@
+ 
+ 	if (AI_isEmphasizeGreatPeople())
+ 	{
+-		governorValues.yieldValues.iGPPRate *= 16;
++		governorValues.yieldValues.iGPPRate *= iGovernor_EmphasizeMultiplier;
+ 	}
+ 
+ 	// if non-human, value based on this cities progress toward a GPP
+@@ -2018,9 +2015,14 @@
+ 	std::set<int> differentPlots;
+ 	std::set<int> differentSpecialists;
+ 
++	bool bIsFoodProduction = isFoodProduction();
++
+ 	// compare
+ 	int iDifferentPlots = 0;
+ 	int iDifferentSpecialists = 0;
++	int iFoodDelta = 0;
++	int iProductionDelta = 0;
++	int iCommerceDelta = 0;
+ 	for (CvCitizensIterator it = m_governorCitizens.begin(); it != m_governorCitizens.end(); ++it)
+ 	{
+ 		CvGovernorCitizen* pCitizen = getCitizen(it);
+@@ -2041,8 +2043,17 @@
+ 		// plot
+ 		else
+ 		{
+-			if (isWorkingPlot(pCitizen->iIndex) != (pCitizen->iCount > 0 || pCitizen->iFreeCount > 0))
+-			{
++			int iPlotDelta = (pCitizen->iCount + pCitizen->iFreeCount) - (isWorkingPlot(pCitizen->iIndex) ? 1 : 0);
++			if (iPlotDelta != 0)
++			{
++				CvPlot* pPlot = getCityIndexPlot(pCitizen->iIndex);
++				if (pPlot != NULL)
++				{
++					iFoodDelta += bIsFoodProduction ? 0 : (iPlotDelta * pPlot->getYield(YIELD_FOOD));
++					iProductionDelta += iPlotDelta * ((bIsFoodProduction ? pPlot->getYield(YIELD_FOOD) : 0) + pPlot->getYield(YIELD_PRODUCTION));
++					iCommerceDelta += iPlotDelta * pPlot->getYield(YIELD_COMMERCE);
++				}
++				
+ 				if (m_lastDifferentPlots.find(pCitizen->iIndex) == m_lastDifferentPlots.end())
+ 				{
+ 					iDifferentPlots++;
+@@ -2057,8 +2068,8 @@
+ 	m_lastDifferentSpecialists = differentSpecialists;
+ 
+ 	TCHAR szAssertMessage[1024];
+-	sprintf(szAssertMessage, "%S assigned different plots (%d) and/or specialists (%d)", getName().GetCString(), iDifferentPlots, iDifferentSpecialists);
+-	FAssertMsg((iDifferentPlots == 0) && (iDifferentSpecialists == 0), szAssertMessage);
++	sprintf(szAssertMessage, "%S assigned different plots (%d) [%d,%d,%d] and/or specialists (%d)", getName().GetCString(), iDifferentPlots, iFoodDelta, iProductionDelta, iCommerceDelta, iDifferentSpecialists);
++	FAssertMsg((iDifferentPlots == 0 || (iFoodDelta == 0 && iProductionDelta == 0 && iCommerceDelta == 0)) && (iDifferentSpecialists == 0), szAssertMessage);
+ 
+ #endif	// FASSERT_ENABLE
+ }
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@357
++++ /trunk/CvGameCoreDLL/CvCityAI.h@358
+@@ -22,6 +22,11 @@
+ 
+ #ifdef NEW_CITY_GOVERNOR
+ #include <map>
++
++const int iGovernor_FoodWeight = 100;
++const int iGovernor_ProductionWeight = 65;
++const int iGovernor_CommerceWeight = 40;
++const int iGovernor_EmphasizeMultiplier = 3;
+ 
+ struct CvCompleteYield
+ {
+

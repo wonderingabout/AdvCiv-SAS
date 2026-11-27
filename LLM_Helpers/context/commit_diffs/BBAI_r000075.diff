@@ -1,0 +1,57 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 75
+# Author: blakeciv
+# Date: 2006-11-15T01:20:31.042166Z
+# Coverage: full
+# Message:
+#   Fixes to strategy stuff.
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/AI_Defines.h
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/AI_Defines.h
+--- /trunk/CvGameCoreDLL/AI_Defines.h@74
++++ /trunk/CvGameCoreDLL/AI_Defines.h@75
+@@ -8,6 +8,7 @@
+ #define AI_STRATEGY_FASTMOVERS          (0x00000010)
+ #define AI_STRATEGY_SLOWMOVERS          (0x00000020)
+ #define AI_STRATEGY_IHATEYOU            (0x00000040)
++#define AI_STRATEGY_MUSICAL_PALACES     (0x00000080)
+ 
+ 
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@74
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@75
+@@ -8888,8 +8888,9 @@
+     iNonsense += getCapitalCity()->getY();
+     
+     int iCurrentEra = getCurrentEra();
++    int iMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+     
+-    if (iCurrentEra <= (1+(iNonsense%2)) && (GET_TEAM(getTeam()).getHasMetCivCount(true) > 0))
++    if (iCurrentEra <= (1+(iNonsense%2)) && (iMetCount > 0))
+     {	    
+ 	    int iDagger = 0;
+ 	    iDagger += 5000 / max(100, (50 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand()));
+@@ -8898,7 +8899,7 @@
+         {
+             eLoopUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)));
+ 
+-            if (eLoopUnit != NO_UNIT)
++            if ((eLoopUnit != NO_UNIT) && (GC.getUnitInfo(eLoopUnit).getCombat() > 0))
+             {
+                 if ((GC.getUnitClassInfo((UnitClassTypes)iI).getDefaultUnitIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)))
+                 {
+@@ -8962,7 +8963,7 @@
+                         }
+                     }
+                 }
+-            }
++            }            
+         }
+         
+         iDagger += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 4 : 0);
+

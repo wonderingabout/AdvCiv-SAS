@@ -1,0 +1,7 @@
+A: SASGameRecord_20260910T153020Z_load2.log (105 RNG checkpoints, 105 state checkpoints, revision 71, valid)
+B: SASGameRecord_20260910T153117Z_load3.log (104 RNG checkpoints, 104 state checkpoints, revision 71, valid)
+RNG checkpoints are identical through all 104 comparable checkpoints; A alone has a trailing SESSION_FINALIZE checkpoint.
+State fingerprint cost A: total=86 ms median=1 ms p95=1 ms max=2 ms
+State fingerprint cost B: total=80 ms median=1.0 ms p95=1 ms max=1 ms
+State checkpoints are identical through all 104 comparable checkpoints; A alone has a trailing SESSION_FINALIZE checkpoint.
+Combined interpretation: authoritative RNG and semantic CORE state match at every comparable checkpoint.

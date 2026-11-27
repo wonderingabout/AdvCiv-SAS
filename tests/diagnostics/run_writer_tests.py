@@ -1,0 +1,391 @@
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+
+# <!-- custom: Manual-only Windows check of the actual diagnostic writer with the local Visual C++ Toolkit 2003 (VC2003) compiler.
+# Build a temporary executable instead of the game DLL; source extraction avoids maintaining a second buffering implementation that could pass while the real code regresses.
+# The VS2010 vcvars32.bat supplies environment setup only; compilation explicitly invokes the VC2003 cl.exe selected below. (GPT-6.1-Sol) -->
+import argparse
+import os
+# <!-- custom: Parse the actual emitted runtime-status snapshots with a standard JSON parser rather than duplicating the C++ formatter in assertions. (GPT-6.1-Sol) -->
+import json
+# <!-- custom: Read the compiled recorder revision for output comparisons so legitimate future increments do not require changing test expectations too. (GPT-6.1-Sol) -->
+import re
+from pathlib import Path
+import subprocess
+import tempfile
+# <!-- custom: The final integration case installs the real observer only beside the disposable fixture and waits for its final JSON, leaving earlier publication tests free of helper processes. (GPT-6.1-Sol) -->
+import shutil
+import time
+
+
+# <!-- custom: The runner now lives under tests/diagnostics; resolve the mod root two parent directories above this test folder. (GPT-6.1-Sol) -->
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def main():
+    program_files = Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)"))
+    parser = argparse.ArgumentParser(description="Exercise the current C++ diagnostic writer without building/installing a DLL (Windows, local VC2003 SDK required).")
+    parser.add_argument("--compiler", type=Path, default=program_files / "Civ4SDK/Microsoft Visual C++ Toolkit 2003/bin/cl.exe")
+    parser.add_argument("--vcvars", type=Path, default=program_files / "Microsoft Visual Studio 10.0/VC/bin/vcvars32.bat")
+    parser.add_argument("--sdk", type=Path, default=program_files / "Civ4SDK/WindowsSDK")
+    parser.add_argument("--export-runtime-examples", type=Path, help="Export illustrative runtime JSON/JSONL fixtures to this directory after the checks pass; these are not game measurements.")
+    args = parser.parse_args()
+    for path in (args.compiler, args.vcvars, args.sdk):
+        if not path.exists():
+            parser.error("required local compiler/SDK path missing: %s" % path)
+
+    # <!-- custom: Pass cmd one quoted command line; subprocess argv-list escaping inserted backslashes before the batch-path quotes and the setup failed. (GPT-6.1-Sol) -->
+    setup = subprocess.run('cmd.exe /d /s /c "call "%s" >nul && set"' % args.vcvars, capture_output=True, text=True, check=True)
+    environment = os.environ.copy()
+    for line in setup.stdout.splitlines():
+        key, separator, value = line.partition("=")
+        if separator and key:
+            environment[key.upper()] = value
+    toolkit = args.compiler.parent.parent
+    environment["PATH"] = str(args.compiler.parent) + os.pathsep + environment.get("PATH", "")
+    libraries = Path(os.environ.get("CIV4_LIB_INSTALL_PATH", str(program_files / "Civ4Libs")))
+    boost = libraries / "Boost-1.32.0/include"
+    if not (boost / "boost/static_assert.hpp").is_file():
+        parser.error("Civ4 Boost include path missing: %s" % boost)
+    environment["INCLUDE"] = os.pathsep.join((str(toolkit / "include"), str(args.sdk / "include"), str(boost), environment.get("INCLUDE", "")))
+    environment["LIB"] = os.pathsep.join((str(toolkit / "lib"), str(args.sdk / "lib"), environment.get("LIB", "")))
+
+    source = (ROOT / "CvGameCoreDLL/CvGameCoreUtils.cpp").read_text(encoding="utf-8")
+    start = source.index("struct SASDiagnosticLogBuffer\n")
+    end = source.index("// <!-- custom: The Makefile stamps", start)
+    with tempfile.TemporaryDirectory(prefix="sas-cpp-writer-") as directory:
+        temporary = Path(directory)
+        # <!-- custom: The first extracted fixture omitted the header default argument and VC2003 rejected no-argument calls with C2660; include the actual public declaration so the fixture follows the current interface too. (GPT-6.1-Sol) -->
+        header = (ROOT / "CvGameCoreDLL/CvGameCoreUtils.h").read_text(encoding="utf-8")
+        # <!-- custom: The writer now depends on the public producer-family enum; extracting only the struct caused VC2003 C2146/C2501 failures, so include the real header enum before its declarations. (GPT-6.1-Sol) -->
+        family_start = header.index("enum SASDiagnosticLogFamily\n")
+        family_end = header.index("};", family_start) + 2
+        event_start = header.index("enum SASRuntimeStatusReason\n")
+        event_end = header.index("};", event_start) + 2
+        enums = (ROOT / "CvGameCoreDLL/CvEnums.h").read_text(encoding="utf-8")
+        autoplay_enum = enums[enums.index("#define SAS_AUTOPLAY_END_CAUSE_ROWS"):enums.index("enum TradeableItems")]
+        # <!-- custom: Runtime revision 7 names native ButtonPopupTypes.
+        # Build the standalone fixture enum from the production CvEnums block so new popup values cannot silently drift from the test harness; retain explicit numeric assignments such as EXE-hardcoded DETAILS/ADMIN. (ChatGPT-5.6-Sol) -->
+        popup_block = enums[enums.index("ENUM_START(ButtonPopup, BUTTONPOPUP)"):enums.index("ENUM_END(ButtonPopup, BUTTONPOPUP)")]
+        popup_rows = []
+        # <!-- custom: Expected popup IDs follow the production enum too; a literal EVENT=32 would make the output assertion brittle if earlier values change. (GPT-6.1-Sol) -->
+        popup_values = {}
+        popup_value = -1
+        for line in popup_block.splitlines():
+            match = re.match(r"\s*(BUTTONPOPUP_[A-Z0-9_]+)(?:\s*=\s*(-?\d+))?\s*,", line)
+            if match:
+                popup_rows.append("\t%s%s," % (match.group(1), " = " + match.group(2) if match.group(2) else ""))
+                popup_value = int(match.group(2)) if match.group(2) else popup_value + 1
+                popup_values[match.group(1)] = popup_value
+        if not popup_rows:
+            raise RuntimeError("failed to extract ButtonPopupTypes fixture enum")
+        popup_enum = "enum ButtonPopupTypes\n{\n\tNO_BUTTONPOPUP = -1,\n" + "\n".join(popup_rows) + "\n\tNUM_BUTTONPOPUP_TYPES\n};\n"
+        declarations = [autoplay_enum, popup_enum, header[event_start:event_end], header[family_start:family_end]] + [line for line in header.splitlines() if line.startswith(("bool flushSASDiagnosticLogs(", "CvString getSASDiagnosticWriterHealthFields(", "void setSASRuntimeStatusRootDirectory(", "void updateSASRuntimeStatusAutoPlay("))]
+        (temporary / "writer_under_test.inc").write_text("\n".join(declarations) + "\n" + source[start:end], encoding="utf-8")
+        # <!-- custom: Status gained gameplay dependencies inside the extracted writer and VC2003 rejected the old fixture.
+        # Keep production services separate, then test both with explicit game scaffolding and real Win32 publication. (GPT-6.1-Sol) -->
+        status = (ROOT / "CvGameCoreDLL/SASRuntimeStatus.cpp").read_text(encoding="utf-8")
+        expected_revision = int(re.search(r"\bSAS_RUNTIME_REVISION\s*=\s*(\d+)", status).group(1))
+        # <!-- custom: Popup names belong to shared game utilities, so include that production helper explicitly in the isolated runtime fixture after moving it out of the recorder. (GPT-6.1-Sol) -->
+        popup_name_start = source.index("char const* getSASButtonPopupTypeName(")
+        popup_name_end = source.index("\n}", popup_name_start) + 2
+        # <!-- custom: Runtime owns the real group scanner above this marker; the I/O fixture substitutes deterministic counts because it tests timing, lifecycle and JSON rather than gameplay containers. (GPT-6.1-Sol) -->
+        status_start = status.index("// <!-- custom: Finite process/game/session states")
+        clock_start = source.index("// <!-- custom: SYSTEMTIME is the common")
+        # <!-- custom: Stop after the UTC getter itself; the former comment-to-comment range also captured the later legacy-log bridge and VC2003 failed with C2039 because RuntimeTestDLL has no logMsg.
+        # That EXE logging dependency does not belong to the writer/runtime fixture. (GPT-6.1-Sol) -->
+        clock_end = source.index("\n}", source.index("CvString createSASUtcTimestampMilliseconds()", clock_start)) + 2
+        identity_start = source.index("// <!-- custom: The existing processUtc value")
+        identity_end = source.index("// <!-- custom: BBAI and SASGameRecord need", identity_start)
+        # <!-- custom: Execute the actual CvGame hook condition without compiling the whole game; this catches duplicate countdown publications without maintaining a second predicate. (GPT-6.1-Sol) -->
+        game = (ROOT / "CvGameCoreDLL/CvGame.cpp").read_text(encoding="utf-8")
+        gate_line = next(line.strip() for line in game.splitlines() if line.strip().startswith("if (isSASRuntimeStatusEnabled() && iOldAIAutoPlay"))
+        gate = "\nstatic bool shouldPublishAutoplayChange(int iOldAIAutoPlay, int m_iAIAutoPlay, bool bChangePlayerStatus) { return " + gate_line[4:-1] + "; }\n"
+        # <!-- custom: Exercise the real DLL-identity formatter with a controlled module-context fixture; production keeps its existing Win32 resolver, while the fixture counts lookups to catch per-turn rehashing and disabled work. (GPT-6.1-Sol) -->
+        context_start = source.index("struct SASBinaryDiagnosticContext\n")
+        context_end = source.index("// <!-- custom: FILETIME uses", context_start)
+        fingerprint_start = source.index("static CvString getSASBinaryFingerprint(")
+        fingerprint_end = source.index("// <!-- custom: DLL and EXE diagnostics", fingerprint_start)
+        dll_start = source.index("CvString getSASDllRuntimeIdentityJson(")
+        dll_end = source.index("CvString getSASExeContextFields()", dll_start)
+        # <!-- custom: Keep executable fixture code in the C++ harness; Python only extracts the production binary context/formatter and supplies its resolver declaration in the temporary include. (GPT-6.1-Sol) -->
+        binary_fixture = source[context_start:context_end] + "static SASBinaryDiagnosticContext const& getSASDllDiagnosticContext();\n" + source[fingerprint_start:fingerprint_end] + source[dll_start:dll_end]
+        (temporary / "runtime_binary_context_under_test.inc").write_text(binary_fixture, encoding="utf-8")
+        cause_start = source.index("char const* getSASAutoPlayEndCause(")
+        cause_end = source.index("// <!-- custom: Keep one iterable source of truth", cause_start)
+        (temporary / "runtime_status_under_test.inc").write_text(source[cause_start:cause_end] + source[clock_start:clock_end] + source[identity_start:identity_end] + source[popup_name_start:popup_name_end] + status[status_start:] + gate, encoding="utf-8")
+        bridge = (ROOT / "CvGameCoreDLL/CyGame.cpp").read_text(encoding="utf-8")
+        bridge_start = bridge.index("void CyGame::updateSASRuntimeStatusWorldBuilderScreen(")
+        # <!-- custom: Extract just the runtime bridge methods; newer WorldBuilder bulk-edit functions between them need full game state and are outside this runtime fixture. (GPT-6.1-Sol) -->
+        bridge_methods = []
+        for method, result in (("updateSASRuntimeStatusWorldBuilderScreen", "void"), ("isSASRuntimeStatusRecordingEnabled", "bool"), ("updateSASRuntimeStatusMainMenuState", "void"), ("updateSASRuntimeStatusPreGameStart", "void"), ("updateSASRuntimeStatusCivilopedia", "void")):
+            method_start = bridge.index(result + " CyGame::" + method + "(")
+            method_end = bridge.index("\n}", method_start) + 2
+            bridge_methods.append(bridge[method_start:method_end])
+        (temporary / "runtime_world_builder_bridge_under_test.inc").write_text("\n".join(bridge_methods), encoding="utf-8")
+        # <!-- custom: Compile the actual recorder finalizer against small observation stubs, so startup/repeated-reset behavior and shared-writer retries are checked without building the game DLL. (GPT-6.1-Sol) -->
+        recorder = (ROOT / "CvGameCoreDLL/SASGameRecordLog.cpp").read_text(encoding="utf-8")
+        finalize_start = recorder.index("void finalizeSASGameRecordLogSession(char const* szReason)\n")
+        finalize_end = recorder.index("static void prepareSASGameRecordTurnChanges()", finalize_start)
+        marker = next(line for line in recorder.splitlines() if line.startswith("static bool g_bSASGameRecordSessionOpen ="))
+        (temporary / "record_finalization_under_test.inc").write_text(marker + "\n" + recorder[finalize_start:finalize_end], encoding="utf-8")
+        executable = temporary / "writer.exe"
+        subprocess.run([
+            str(args.compiler), "/nologo", "/EHsc", "/MT", "/W3", "/D_USRDLL",
+            "/I" + str(ROOT / "CvGameCoreDLL"), "/I" + str(temporary),
+            str(ROOT / "tests/diagnostics/sas_diagnostic_writer_harness.cpp"),
+            "/Fo" + str(temporary / "writer.obj"), "/Fe" + str(executable),
+            # <!-- custom: WM_CLOSE observation and the fixture window use User32; the standalone VC2003 link failed with LNK2019 until its import library was supplied explicitly. (GPT-6.1-Sol) -->
+            "/link", "user32.lib",
+        ], cwd=temporary, env=environment, check=True)
+        environment["SAS_DIAGNOSTIC_TEST_ROOT"] = str(temporary)
+        subprocess.run([str(executable)], cwd=temporary, env=environment, check=True)
+        subprocess.run([str(executable), "--record-finalization"], cwd=temporary, env=environment, check=True)
+        subprocess.run([str(executable), "--terminal-fallback"], cwd=temporary, env=environment, check=True)
+        subprocess.run([str(executable), "--runtime-status-disabled"], cwd=temporary, env=environment, check=True)
+        subprocess.run([str(executable), "--runtime-status"], cwd=temporary, env=environment, check=True)
+        subprocess.run([str(executable), "--runtime-player-turns"], cwd=temporary, env=environment, check=True)
+        subprocess.run([str(executable), "--runtime-presentation"], cwd=temporary, env=environment, check=True)
+        subprocess.run([str(executable), "--runtime-window-close"], cwd=temporary, env=environment, check=True)
+        subprocess.run([str(executable), "--runtime-status-output-failure"], cwd=temporary, env=environment, check=True)
+        subprocess.run([str(executable), "--runtime-session-metadata-retry"], cwd=temporary, env=environment, check=True)
+        subprocess.run([str(executable), "--runtime-history-uncertain-migration"], cwd=temporary, env=environment, check=True)
+        # <!-- custom: Runtime15 adds an accepted human end-turn snapshot without replacing Runtime13 timing: readiness is UI-message time, Skip is counted at MISSION_SKIP, and physical key/widget identity remains unknown. (ChatGPT-5.6-Sol) -->
+        end_turn_request = json.loads((temporary / "runtime_end_turn_request.json").read_text(encoding="utf-8"))
+        assert end_turn_request["updateReason"] == "END_TURN_REQUEST_ACCEPTED" and end_turn_request["endTurnRequestObserved"] == 1
+        assert end_turn_request["endTurnRequestControl"] == "FORCE_END_TURN" and end_turn_request["endTurnRequestUiReady"] == 1
+        assert end_turn_request["endTurnRequestReadyUiMilliseconds"] == 400 and end_turn_request["playerTurnSkipOrdersApplied"] == 2
+        assert end_turn_request["endTurnRequestOrderableGroups"] == 1 and end_turn_request["endTurnRequestOrderableUnits"] == 1
+        # <!-- custom: Runtime 13 player-turn fixture proves the live threshold/refresh/clear contract and the one-row completed-turn summary, including a fast AI that never caused a status write. (ChatGPT-5.6-Sol) -->
+        player_progress = json.loads((temporary / "runtime_player_turn_progress.json").read_text(encoding="utf-8"))
+        assert player_progress["playerTurnTimingMode"] == "SEQUENTIAL"
+        assert player_progress["playerTurnPlayer"] == 1 and player_progress["playerTurnTeam"] == 2 and player_progress["playerTurnCivilization"] == 5
+        assert player_progress["playerTurnControl"] == "AI" and player_progress["playerTurnPhase"] == "AI_MOVES"
+        assert player_progress["playerTurnElapsedMilliseconds"] == 3100 and player_progress["playerTurnPhaseElapsedMilliseconds"] == 3000
+        assert player_progress["updateReason"] == "PLAYER_TURN_PROGRESS"
+        player_cleared = json.loads((temporary / "runtime_player_turn_cleared.json").read_text(encoding="utf-8"))
+        assert player_cleared["playerTurnPlayer"] == -1 and player_cleared["playerTurnPhase"] == "NONE"
+        assert player_cleared["updateReason"] == "PLAYER_TURN_ENDED"
+        player_records = [json.loads(line) for line in (temporary / "runtime_player_turn_summary.jsonl").read_text(encoding="utf-8").splitlines()]
+        player_summaries = [row for row in player_records if row["record"] == "player_turn_summary"]
+        assert len(player_summaries) == 1 and player_summaries[0]["gameTurn"] == 12 and player_summaries[0]["complete"] == 1
+        assert [(row["player"], row["totalMilliseconds"], row["activatingMilliseconds"], row["mainMilliseconds"], row["endingMilliseconds"], row["completed"]) for row in player_summaries[0]["players"]] == [(0, 600, 100, 400, 100, 1), (1, 6500, 100, 6200, 200, 1)]
+        assert all("readyUiMilliseconds" in row and "skipOrdersApplied" in row and "endOrderableGroups" in row for row in player_summaries[0]["players"])
+        end_contexts = [row for row in player_records if row["record"] == "end_turn_context"]
+        assert len(end_contexts) == 1
+        end_context = end_contexts[0]
+        assert end_context["control"] == "FORCE_END_TURN" and end_context["physicalInput"] == "NOT_OBSERVED"
+        assert end_context["readyUiMilliseconds"] == 400 and end_context["skipOrdersAppliedThisTurn"] == 2
+        assert end_context["orderableGroups"] == 1 and end_context["automatedGroups"] == 1 and end_context["missionGroups"] == 1 and end_context["holdGroups"] == 1
+        player_transitions = [row for row in player_records if row["record"] == "transition"]
+        assert any(row["reason"] == "END_TURN_READY" for row in player_transitions)
+        assert any(row["reason"] == "END_TURN_REQUEST_ACCEPTED" for row in player_transitions)
+        assert not any(row["reason"] in ("PLAYER_TURN_PROGRESS", "PLAYER_TURN_ENDED") for row in player_transitions)
+
+        # <!-- custom: Ready-session context must retain the original turn/player after a failed write, including recovery after gameplay has reset; the current-state JSON must still report the later live values. (GPT-6.1-Sol) -->
+        retry_snapshot = json.loads((temporary / "runtime_session_retry.json").read_text(encoding="utf-8"))
+        retry_history = next((temporary / "session_metadata_retry/Logs").glob("SASRuntimeHistory_*.jsonl"))
+        retry_records = [json.loads(line) for line in retry_history.read_text(encoding="utf-8").splitlines()]
+        retry_sessions = [row for row in retry_records if row["record"] == "session"]
+        assert [(row["sessionSerial"], row["readyGameTurn"], row["readyActivePlayer"]) for row in retry_sessions] == [(1, 9, 0), (2, 20, 2), (3, 30, 3)]
+        assert retry_snapshot["gameTurn"] == 10 and retry_snapshot["activePlayer"] == 1
+        assert retry_sessions[0]["priorHistoryWriteFailures"] == 6 and retry_sessions[0]["priorStatusWriteFailures"] == 3
+        assert retry_sessions[1]["priorHistoryWriteFailures"] == 8 and retry_sessions[1]["priorStatusWriteFailures"] == 4
+        assert retry_sessions[1]["sessionKind"] == "LOAD_GAME" and retry_sessions[1]["nativeReadyUtc"] != "-"
+        assert retry_sessions[1]["loadedSaveCheckpointTurn"] == 7 and retry_sessions[1]["loadedSaveCheckpointUtc"] == "20261018T000000.000Z"
+        uncertain_session = json.loads((temporary / "runtime_session_uncertain.json").read_text(encoding="utf-8"))
+        assert uncertain_session["historyWriteFailures"] == 9 and uncertain_session["statusWriteFailures"] == 4
+        assert len(retry_records) == uncertain_session["historyRowsWritten"] + 1
+        presentation = json.loads((temporary / "runtime_presentation.json").read_text(encoding="utf-8"))
+        presentation_records = [json.loads(line) for line in (temporary / "runtime_presentation.jsonl").read_text(encoding="utf-8").splitlines()]
+        presentation_runs = [row for row in presentation_records if row["record"] == "run"]
+        presentation_sessions = [row for row in presentation_records if row["record"] == "session"]
+        presentation_timeline = [row for row in presentation_records if row["record"] == "transition"]
+        assert len(presentation_runs) == 1 and len(presentation_sessions) == 1
+        assert presentation_runs[0]["revision"] == expected_revision and presentation_runs[0]["dllIdentity"] == presentation["dllIdentity"]
+        assert presentation_sessions[0]["mapWidth"] == 120 and presentation_sessions[0]["mapHeight"] == 84
+        assert presentation["revision"] == expected_revision and presentation["gameState"] == "PLAYING" and presentation["extendedGame"] == 1
+        assert presentation["worldBuilderMode"] == 0 and presentation["worldBuilderScreenVisible"] == 0 and presentation["civilopediaVisible"] == 0
+        assert presentation["buttonPopupAwaitingInteraction"] == 0 and presentation["buttonPopupType"] == "BUTTONPOPUP_EVENT" and presentation["buttonPopupTypeId"] == popup_values["BUTTONPOPUP_EVENT"]
+        assert presentation["buttonPopupActivePlayer"] == 0 and presentation["buttonPopupResolution"] == "CANCELLED" and presentation["buttonPopupResponseButton"] == -1
+        assert presentation["mainMenuSceneRequestedUtc"] == "-" and presentation["mainMenuStateObservedUtc"] == "-" and presentation["loadingScreenAssetRequestedUtc"] != "-" and presentation["pythonPreGameStartUtc"] != "-"
+        presentation_reasons = [row["reason"] for row in presentation_timeline]
+        for reason in ("MAIN_MENU_SCENE_REQUESTED", "MAIN_MENU_STATE_OBSERVED", "CIVILOPEDIA_SHOWN", "CIVILOPEDIA_HIDDEN", "LOADING_SCREEN_ASSET_REQUESTED", "PYTHON_PRE_GAME_START", "BUTTON_POPUP_FOCUSED", "BUTTON_POPUP_RESPONDED", "BUTTON_POPUP_CANCELLED", "WORLD_BUILDER_MODE_ENTERED", "WORLD_BUILDER_SCREEN_SHOWN", "WORLD_BUILDER_SCREEN_HIDDEN", "WORLD_BUILDER_MODE_EXITED", "GAME_ENDED", "EXTENDED_GAME_STARTED"):
+            assert reason in presentation_reasons, reason
+        shown = next(row for row in presentation_timeline if row["reason"] == "WORLD_BUILDER_SCREEN_SHOWN")
+        mode_exit = next(row for row in presentation_timeline if row["reason"] == "WORLD_BUILDER_MODE_EXITED")
+        hidden = next(row for row in presentation_timeline if row["reason"] == "WORLD_BUILDER_SCREEN_HIDDEN")
+        extended = next(row for row in presentation_timeline if row["reason"] == "EXTENDED_GAME_STARTED")
+        assert shown["state"] == "WORLD_BUILDER" and mode_exit["previousState"] == "WORLD_BUILDER" and mode_exit["previousDurationMilliseconds"] == 2000
+        game_pedia = next(row for row in presentation_timeline if row["reason"] == "CIVILOPEDIA_SHOWN" and row["civilopediaContext"] == "IN_GAME")
+        assert game_pedia["civilopediaVisible"] == 1 and game_pedia["civilopediaActivePlayer"] == 0 and game_pedia["civilopediaActiveCivilization"] == 4
+        menu_pedia = next(row for row in presentation_timeline if row["reason"] == "CIVILOPEDIA_SHOWN" and row["civilopediaContext"] == "MAIN_MENU")
+        assert menu_pedia["civilopediaActivePlayer"] == -1 and menu_pedia["civilopediaActiveCivilization"] == -1
+        menu_state = next(row for row in presentation_timeline if row["reason"] == "MAIN_MENU_STATE_OBSERVED")
+        pedia_shown = next(row for row in presentation_timeline if row["reason"] == "CIVILOPEDIA_SHOWN")
+        pedia_hidden = next(row for row in presentation_timeline if row["reason"] == "CIVILOPEDIA_HIDDEN")
+        loading = next(row for row in presentation_timeline if row["reason"] == "LOADING_SCREEN_ASSET_REQUESTED")
+        pre_game = next(row for row in presentation_timeline if row["reason"] == "PYTHON_PRE_GAME_START")
+        creation = next(row for row in presentation_timeline if row["reason"] == "NEW_GAME_STARTED")
+        ready = next(row for row in presentation_timeline if row["reason"] == "NEW_GAME_NATIVE_READY")
+        assert menu_state["intervalStarted"] == 0 and pedia_shown["intervalStarted"] == 0 and pedia_hidden["intervalStarted"] == 0
+        popup_focus = next(row for row in presentation_timeline if row["reason"] == "BUTTON_POPUP_FOCUSED" and row["buttonPopupType"] == "BUTTONPOPUP_CHANGECIVIC")
+        # <!-- custom: The fixture also emits an earlier response without focus; select the civic response paired with popup_focus instead of assuming the first response belongs to that scenario. (GPT-6.1-Sol) -->
+        popup_response = next(row for row in presentation_timeline if row["reason"] == "BUTTON_POPUP_RESPONDED" and row["buttonPopupType"] == "BUTTONPOPUP_CHANGECIVIC")
+        popup_cancel = next(row for row in presentation_timeline if row["reason"] == "BUTTON_POPUP_CANCELLED")
+        assert popup_focus["buttonPopupAwaitingInteraction"] == 1 and popup_focus["buttonPopupActivePlayer"] == 0 and popup_focus["intervalStarted"] == 0 and popup_focus["state"] == "PLAYING"
+        assert popup_response["buttonPopupAwaitingInteraction"] == 0 and popup_response["buttonPopupResolution"] == "RESPONDED" and popup_response["buttonPopupResponseButton"] == 0 and popup_response["intervalStarted"] == 0
+        assert popup_cancel["buttonPopupAwaitingInteraction"] == 0 and popup_cancel["buttonPopupResolution"] == "CANCELLED" and popup_cancel["buttonPopupResponseButton"] == -1 and popup_cancel["intervalStarted"] == 0
+        assert loading["intervalStarted"] == 0 and loading["previousState"] == "NONE" and loading["previousDurationMilliseconds"] == -1
+        assert pre_game["intervalStarted"] == 0 and pre_game["stateStartedUtc"] == creation["stateStartedUtc"] and pre_game["stateElapsedMilliseconds"] == 500
+        assert loading["stateStartedUtc"] == creation["stateStartedUtc"] and loading["stateElapsedMilliseconds"] == 250
+        assert ready["intervalStarted"] == 1 and ready["previousDurationMilliseconds"] == 1000
+        assert hidden["intervalStarted"] == 0 and hidden["previousState"] == "NONE" and hidden["previousDurationMilliseconds"] == -1 and hidden["stateElapsedMilliseconds"] == 100
+        assert extended["state"] == "PLAYING" and extended["reason"] == "EXTENDED_GAME_STARTED"
+        window_close = json.loads((temporary / "runtime_window_close.json").read_text(encoding="utf-8"))
+        window_close_rows = [json.loads(line) for line in (temporary / "runtime_window_close.jsonl").read_text(encoding="utf-8").splitlines()]
+        window_close_transitions = [row for row in window_close_rows if row["record"] == "transition"]
+        close_rows = [row for row in window_close_transitions if row["reason"] == "WINDOW_CLOSE_MESSAGE_OBSERVED"]
+        assert len(close_rows) == 2
+        assert sum(row["reason"] == "WINDOW_CLOSE_COMMAND_OBSERVED" for row in window_close_transitions) == 1
+        dequeued = [row for row in window_close_transitions if row["reason"] in ("WINDOW_CLOSE_MESSAGE_DEQUEUED", "WINDOW_CLOSE_COMMAND_DEQUEUED")]
+        assert len(dequeued) == 2 and all(row["intervalStarted"] == 0 for row in dequeued)
+        assert close_rows[0]["intervalStarted"] == 1 and close_rows[0]["previousState"] == "AUTOPLAY" and close_rows[0]["state"] == "EXIT_REQUESTED"
+        assert close_rows[1]["intervalStarted"] == 0 and close_rows[1]["state"] == "EXIT_REQUESTED"
+        assert window_close["processState"] == "EXITED_CLEANLY" and window_close["windowCloseObservationArmed"] == 1
+        assert window_close["windowCloseRequestObservedUtc"] != "-"
+        recovered = json.loads((temporary / "runtime_failed_output.json").read_text(encoding="utf-8"))
+        assert recovered["previousActivityDurationMilliseconds"] == 5000 and recovered["historyWriteFailures"] == 2
+        assert recovered["historyRowsWritten"] == 3 and recovered["activitySerial"] == 3 and recovered["statusWriteFailures"] == 1
+        recovered_status = json.loads((temporary / "runtime_failed_status.json").read_text(encoding="utf-8"))
+        assert recovered_status["statusWriteFailures"] == 5 and recovered_status["historyWriteFailures"] == 3
+        assert recovered_status["historyRowsWritten"] == 3 and recovered_status["activitySerial"] == 4
+        failure_history_path = next((temporary / "status_failure/Logs").glob("SASRuntimeHistory_*.jsonl"))
+        failure_records = [json.loads(line) for line in failure_history_path.read_text(encoding="utf-8").splitlines()]
+        assert len([row for row in failure_records if row["record"] == "run"]) == 1
+        recovered_transition = next(row for row in failure_records if row.get("reason") == "NEW_GAME_NATIVE_READY")
+        assert recovered_transition["priorHistoryWriteFailures"] == 2 and recovered_transition["priorStatusWriteFailures"] == 1
+        snapshots = {path.stem: json.loads(path.read_text(encoding="utf-8")) for path in (temporary / "runtime_snapshots").glob("*.json")}
+        expected = {"no_game": ("NO_GAME", "NONE", 0), "starting": ("SESSION_STARTING", "NEW_GAME", 1), "ready": ("PLAYING", "NEW_GAME", 1), "autoplay": ("PLAYING", "NEW_GAME", 1), "turn": ("PLAYING", "NEW_GAME", 1), "interrupted": ("PLAYING", "NEW_GAME", 1), "menu_request": ("PLAYING", "NEW_GAME", 1), "menu_reset": ("NO_GAME", "NONE", 1), "exit_request": ("NO_GAME", "NONE", 2), "load_starting": ("SESSION_STARTING", "LOAD_GAME", 2), "loaded": ("PLAYING", "LOAD_GAME", 2), "ended": ("GAME_ENDED", "LOAD_GAME", 2), "reset": ("NO_GAME", "NONE", 2), "exit": ("NO_GAME", "NONE", 2)}
+        reasons = {"no_game": "ROOT_READY", "starting": "NEW_GAME_STARTED", "ready": "NEW_GAME_NATIVE_READY", "autoplay": "AUTOPLAY_STARTED", "turn": "TURN_COMPLETED", "interrupted": "AUTOPLAY_ENDED", "menu_request": "RETURN_TO_MENU_REQUESTED", "menu_reset": "GAME_RESET", "exit_request": "EXIT_REQUESTED", "load_starting": "LOAD_GAME_STARTED", "loaded": "LOAD_GAME_NATIVE_READY", "ended": "GAME_ENDED", "reset": "GAME_RESET", "exit": "PROCESS_EXIT"}
+        for name, values in expected.items():
+            row = snapshots[name]
+            if row["updateReason"] != reasons[name]:
+                raise RuntimeError("wrong serialized event name: " + name)
+            if (row["gameState"], row["sessionKind"], row["sessionSerial"]) != values:
+                raise RuntimeError("wrong runtime lifecycle snapshot: " + name)
+            if row["processId"] <= 0 or row["processStartUtc"] == "unknown_time":
+                raise RuntimeError("missing process identity: " + name)
+        # <!-- custom: Check the actual nested whitespace as well as parsed equality; valid JSON alone previously let a compact identity remain inside the indented status file. (GPT-6.1-Sol) -->
+        for path in (temporary / "runtime_snapshots").glob("*.json"):
+            text = path.read_text(encoding="utf-8")
+            assert '\n  "dllIdentity": {\n    "buildConfiguration": "Debug-opt",' in text
+            assert '\n    "peTimestampRaw": 42\n  },\n' in text
+        for row in snapshots.values():
+            assert row["revision"] == expected_revision and "schema" not in row
+            assert row["sourceIdentity"] == {"commit": "fixture"}
+            assert row["dllIdentity"] == {"buildConfiguration": "Debug-opt", "moduleFound": 1, "fileReadable": 1, "fileSizeBytes": 123456, "fingerprint": "FNV1A64:123456789ABCDEF0", "lastWriteUtc": "20261018T000000.000Z", "peTimestampRaw": 42}
+            assert row["buttonPopupAwaitingInteraction"] == 0 and row["buttonPopupType"] == "NONE" and row["buttonPopupTypeId"] == -1
+        assert snapshots["starting"]["gameTurn"] == -1 and snapshots["load_starting"]["loadedSaveCheckpointTurn"] == -1
+        assert snapshots["autoplay"]["autoplayActive"] == 1 and snapshots["turn"]["lastCompletedTurn"] == 4
+        assert snapshots["loaded"]["loadedSaveCheckpointTurn"] == 7 and snapshots["loaded"]["loadCount"] == 1
+        assert snapshots["exit"]["processState"] == "EXITED_CLEANLY"
+        assert snapshots["ready"]["previousActivity"] == "CREATING_GAME" and snapshots["ready"]["previousActivityDurationMilliseconds"] == 15800
+        assert snapshots["autoplay"]["previousActivityDurationMilliseconds"] == 3200
+        assert snapshots["turn"]["activityElapsedMilliseconds"] == 5900
+        assert snapshots["interrupted"]["previousActivity"] == "AUTOPLAY" and snapshots["interrupted"]["previousActivityDurationMilliseconds"] == 16000
+        assert snapshots["menu_reset"]["previousActivity"] == "RETURNING_TO_MENU" and snapshots["menu_reset"]["previousActivityDurationMilliseconds"] == 3800
+        assert snapshots["loaded"]["previousActivity"] == "LOADING_SAVE" and snapshots["loaded"]["previousActivityDurationMilliseconds"] == 3200
+        history_records = [json.loads(line) for line in (temporary / "runtime_snapshots/timeline.jsonl").read_text(encoding="utf-8").splitlines()]
+        run_records = [row for row in history_records if row["record"] == "run"]
+        session_records = [row for row in history_records if row["record"] == "session"]
+        timeline = [row for row in history_records if row["record"] == "transition"]
+        assert len(history_records) == snapshots["exit"]["historyRowsWritten"] and snapshots["exit"]["historyWriteFailures"] == 0
+        assert len(run_records) == 1 and len(session_records) == 2
+        first_ready_index = next(index for index, row in enumerate(history_records) if row.get("reason") == "NEW_GAME_NATIVE_READY")
+        first_session_index = next(index for index, row in enumerate(history_records) if row["record"] == "session" and row["sessionSerial"] == 1)
+        assert first_session_index < first_ready_index
+        run = run_records[0]
+        assert run["revision"] == expected_revision and run["processId"] == snapshots["exit"]["processId"] and run["processStartUtc"] == snapshots["exit"]["processStartUtc"]
+        assert run["sourceIdentity"] == snapshots["exit"]["sourceIdentity"]
+        assert run["dllIdentity"] == snapshots["exit"]["dllIdentity"] and run["run"] in snapshots["exit"]["historyFilename"]
+        assert [row["stateSerial"] for row in timeline] == list(range(1, snapshots["exit"]["activitySerial"] + 1))
+        assert timeline[0]["state"] == "NO_GAME" and timeline[-1]["state"] == "SHUTTING_DOWN"
+        assert all(row["revision"] == expected_revision and row["run"] == run["run"] and "dllIdentity" not in row for row in timeline)
+        assert all("priorStatusWriteFailures" in row and "priorHistoryWriteFailures" in row for row in timeline)
+        stop = next(row for row in timeline if row["reason"] == "AUTOPLAY_ENDED")
+        assert stop["autoplayEndCause"] == "USER_INTERRUPTED" and stop["previousRequestedAutoplayTurns"] == 5
+        loaded_context = next(row for row in session_records if row["sessionKind"] == "LOAD_GAME")
+        assert loaded_context["loadedSaveCheckpointTurn"] == 7 and loaded_context["loadedSaveCheckpointUtc"] == "20261018T000000.000Z"
+        assert loaded_context["mapWidth"] == 120 and loaded_context["mapHeight"] == 84 and loaded_context["gameSpeed"] == 2
+        assert loaded_context["readyGameTurn"] == snapshots["loaded"]["gameTurn"] and loaded_context["readyActivePlayer"] == snapshots["loaded"]["activePlayer"]
+        assert "gameTurn" not in loaded_context and "activePlayer" not in loaded_context
+        # <!-- custom: Export a matched snapshot/history prefix only on explicit request; use a portable companion basename and keep fixture data clearly separate from empirical Civ4 results. (GPT-6.1-Sol) -->
+        if args.export_runtime_examples is not None:
+            destination = args.export_runtime_examples.resolve()
+            destination.mkdir(parents=True, exist_ok=True)
+            example = dict(snapshots["loaded"])
+            example["historyFilename"] = "SASRuntimeHistory_example.jsonl"
+            rows = [row for row in history_records if row["record"] == "run" or (row["record"] == "session" and row["sessionSerial"] <= example["sessionSerial"]) or (row["record"] == "transition" and row["stateSerial"] <= example["activitySerial"])]
+            assert len(rows) == example["historyRowsWritten"]
+            (destination / "SASRuntimeStatus_example.json").write_text(json.dumps(example, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
+            (destination / example["historyFilename"]).write_text("".join(json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n" for row in rows), encoding="utf-8", newline="\n")
+            print("Exported illustrative fixture examples (controlled DLL/game/elapsed-clock data; not Civ4 benchmark measurements): " + str(destination))
+        print("PASS C++ runtime status: JSON/lifecycle/DLL identity, timed history/interruption, WM_CLOSE observation, root migration, partial append rollback and disabled no-I/O")
+        abrupt = subprocess.run([str(executable), "--abrupt-tail"], cwd=temporary, env=environment)
+        if abrupt.returncode != 73:
+            raise RuntimeError("abrupt writer fixture did not terminate at the expected point")
+        for filename, expected in (("BBAI_crash.log", b"BBAI last evidence 75%\r\nfinal BBAI tail\r\n"), ("SASGameRecord_crash.log", b"SGR last evidence 75%\r\nfinal SGR tail\r\n")):
+            if (temporary / "abrupt/Logs" / filename).read_bytes() != expected:
+                raise RuntimeError("last completed row lost after abrupt termination: " + filename)
+        print("PASS C++ diagnostic writer: both final rows survive abrupt process termination without cleanup")
+        shutil.copyfile(ROOT / "Assets/SASRuntimeExitObserver.ps1", temporary / "SASRuntimeExitObserver.ps1")
+        shutil.copyfile(ROOT / "Assets/SASRuntimeDialogObserver.cs", temporary / "SASRuntimeDialogObserver.cs")
+        shutil.copyfile(ROOT / "Assets/SASRuntimeSourceObserver.ps1", temporary / "SASRuntimeSourceObserver.ps1")
+        # <!-- custom: The production observers now share startup host metadata; copy the real dependency into the isolated launcher fixture too. (GPT-6.1-Sol) -->
+        shutil.copyfile(ROOT / "Assets/SASRuntimeObserverEnvironment.ps1", temporary / "SASRuntimeObserverEnvironment.ps1")
+        (temporary / "Python").mkdir(exist_ok=True)
+        (temporary / "XML").mkdir(exist_ok=True)
+        source_observed = subprocess.run([str(executable), "--runtime-source-observer"], cwd=temporary, env=environment)
+        if source_observed.returncode != 0:
+            raise RuntimeError("native Runtime source-observer launcher fixture failed")
+        source_deadline = time.monotonic() + 10
+        source_state = {}
+        while time.monotonic() < source_deadline:
+            candidates = list((temporary / "source_observer_Ж漢/Logs").glob("SASRuntimeSourceWatch_*.json"))
+            if candidates:
+                try:
+                    source_state = json.loads(candidates[0].read_text(encoding="utf-8-sig"))
+                except (OSError, ValueError):
+                    pass
+            if source_state.get("observerState") == "EXITED":
+                break
+            time.sleep(.05)
+        if source_state.get("observerState") != "EXITED":
+            raise RuntimeError("native Runtime source observer did not finish after fixture exit: %r" % source_state)
+        print("PASS C++ runtime source observer: default-off production launcher reaches WATCHING and exits with its target when explicitly enabled")
+        observed = subprocess.run([str(executable), "--runtime-exit-observer"], cwd=temporary, env=environment)
+        assert observed.returncode & 0xFFFFFFFF == 0xC0000005, observed.returncode
+        final_path = temporary / "observer_Ж漢/Logs/SASRuntimeStatus.json"
+        deadline = time.monotonic() + 15
+        final_status = {}
+        while time.monotonic() < deadline:
+            try:
+                final_status = json.loads(final_path.read_text(encoding="utf-8-sig"))
+            except (OSError, ValueError):
+                pass
+            if "exitObservation" in final_status:
+                break
+            time.sleep(.05)
+        assert final_status.get("processState") == "EXITED", final_status
+        assert final_status["exitObservation"]["exitCodeHex"] == "0xC0000005", final_status
+        assert final_status["exitObservation"]["historyAppend"] == "WRITTEN", final_status
+        exit_evidence = json.loads((final_path.parent / final_status["exitObservationFilename"]).read_text(encoding="utf-8-sig"))
+        assert exit_evidence["observerState"] == "EXITED" and exit_evidence["revision"] == expected_revision, exit_evidence
+        print("PASS native hidden observer launch/attachment and final process evidence (synthetic exit code)")
+    print("No game DLL or project intermediates were changed.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

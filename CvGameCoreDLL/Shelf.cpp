@@ -15,8 +15,7 @@ void Shelf::add(CvPlot* pPlot)
 }
 
 
-CvPlot* Shelf::randomPlot(RandPlotFlags eRestrictions, int iUnitDistance,
-	int* piValidCount, RandPlotWeightMap const* pWeights) const
+CvPlot* Shelf::randomPlot(RandPlotFlags eRestrictions, int iUnitDistance, int* piValidCount, RandPlotWeightMap const* pWeights) const
 {
 	LOCAL_REF(int, iValid, piValidCount, 0);
 	/*	Based on CvMap::syncRandPlot, but shelves are (normally) so small

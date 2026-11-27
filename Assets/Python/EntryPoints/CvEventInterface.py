@@ -9,12 +9,18 @@
 #
 # No other modules should import this
 
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
 
 # **********************************
 # GJD modifications start here
 # **********************************
 
 import BugEventManager
+import SASDefineGuard
+from CvPythonExtensions import CyGame, CyUserProfile # <!-- custom: Shared lazy caches replace the former CyGlobalContext define reads; retain the finalized diagnostic bridge and raw graphics-profile sampling. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+import SASGameRecordConfig # <!-- custom: Share lazy None-initialized level caches across recorder callbacks; disabled runs still avoid importing the settings collectors. (GPT-6.1-Sol) -->
 
 eventManager = BugEventManager.BugEventManager()
 
@@ -26,8 +32,69 @@ def getEventManager():
 # **********************************
 
 def onEvent(argsList):
-	"""Called when a game event happens - return 1 if the event was consumed."""
-	return getEventManager().handleEvent(argsList)
+	# Called when a game event happens - return 1 if the event was consumed.
+	#
+	tag = argsList[0]
+	# <!-- custom: Reuse only the event classification; keep it before the logging lookup so ordinary events never query the Define or construct a CyGame wrapper. (GPT-6.1-Sol) -->
+	bSessionEvent = (tag == "OnLoad" or tag == "GameStart")
+	if bSessionEvent:
+		SASDefineGuard.verify_or_raise("CvEventInterface.onEvent[%s]" % tag)
+	# <!-- custom: Reset action-baseline identity before session handlers can draw persistent UI objects; revision 151 also checks the cached action subject before importing its helper.
+	# Initialization checks still delay actual emission until the native session is ready. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
+	if bSessionEvent and SASGameRecordConfig.getLogLevel() >= 2 and SASGameRecordConfig.getActionTraceEnabled():
+		import SASGameRecordActions
+		SASGameRecordActions.resetSession()
+	result = getEventManager().handleEvent(argsList)
+	# <!-- custom: Autolog resets LoggingOn inside GameStart/OnLoad handlers; recording it from the earlier native session header reported pre-handler state.
+	# Emit once after all handlers return, with a caller gate before entering the DLL logger.
+	# UserProfile owns several active graphics dropdowns that the DLL cannot query; pass their raw values plus the derived AA sample count so reports can distinguish High/Medium/Low render behavior without per-turn polling. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	if bSessionEvent:
+		if SASGameRecordConfig.getLogLevel() > 0:
+			iRenderQuality = -1
+			iAntiAliasing = -1
+			iAntiAliasingSamples = -1
+			iGlobeViewRenderQuality = -1
+			iMovieQuality = -1
+			if SASGameRecordConfig.getSystemContextLevel() > 0:
+				profile = CyUserProfile()
+				iRenderQuality = profile.getRenderQualityLevel()
+				iAntiAliasing = profile.getAntiAliasing()
+				if iAntiAliasing == 0:
+					iAntiAliasingSamples = 0
+				elif iAntiAliasing > 0 and iAntiAliasing < 31:
+					iAntiAliasingSamples = 1 << iAntiAliasing
+				iGlobeViewRenderQuality = profile.getGlobeViewRenderLevel()
+				iMovieQuality = profile.getMovieQualityLevel()
+			CyGame().logSASGameRecordDiagnosticContext(iRenderQuality, iAntiAliasing, iAntiAliasingSamples, iGlobeViewRenderQuality, iMovieQuality)
+			# <!-- custom: Build the broader user/configuration baseline only after session handlers settle BUG/Autolog state.
+			# Lazy import plus the master caller gate means disabled runs pay no settings-module import/collection cost. (ChatGPT-5.6-Sol) -->
+			import SASGameRecordSettings
+			szSettingsReason = "ON_LOAD"
+			if tag == "GameStart":
+				szSettingsReason = "GAME_START"
+			SASGameRecordSettings.logSessionSettings(szSettingsReason)
+		# <!-- custom: Alt+S annotations are EXE-owned rather than gameplay objects; take one logical visible+hidden baseline after session handlers settle.
+		# OnLoad's StrategyOverlay handler restores SAS's hidden-sign cache through BugUtil.deferCall, so queue this observation behind that restoration rather than manufacturing later ADD rows from an early empty cache.
+		# GameStart has no saved hidden cache to restore and can observe immediately.
+		# The action helper owns its own level/action gate. (ChatGPT-5.6-Sol) -->
+		if SASGameRecordConfig.getLogLevel() >= 2 and SASGameRecordConfig.getActionTraceEnabled():
+			import SASGameRecordActions
+			import CvScreensInterface
+			import CvStrategyOverlay # <!-- custom: CvStrategyOverlay supplies the persisted DotMap dictionary for gated load/start/reload observations. (GPT-6.1-Sol) -->
+			if tag == "OnLoad":
+				import BugUtil
+				def observeLoadedMapAnnotations():
+					SASGameRecordActions.observeMapAnnotations(CvScreensInterface.mainInterface.getHiddenMapAnnotationSignsForSave(), szSettingsReason)
+					# <!-- custom: StrategyOverlay.read() restores DotMap persistence synchronously during OnLoad, so the same deferred boundary safely records the loaded planning-marker baseline after other annotation restoration too. (ChatGPT-5.6-Sol) -->
+					SASGameRecordActions.observeDotMapMarkers(CvStrategyOverlay.getDotMap(), szSettingsReason)
+				BugUtil.deferCall(observeLoadedMapAnnotations)
+			else:
+				SASGameRecordActions.observeMapAnnotations(CvScreensInterface.mainInterface.getHiddenMapAnnotationSignsForSave(), szSettingsReason)
+				SASGameRecordActions.observeDotMapMarkers(CvStrategyOverlay.getDotMap(), szSettingsReason)
+		# <!-- custom: Retry pending startup/failed writes after BUG/Autolog/settings handlers settle, including BBAI-only runs; successful rows are already submitted immediately, and keeping this outside the recorder gate covers either log.
+		# With no output, the checkpoint performs no path resolution or file I/O. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		CyGame().flushSASDiagnosticLogs()
+	return result
 
 def applyEvent(argsList):
 	context, playerID, netUserData, popupReturn = argsList
@@ -37,16 +104,17 @@ def beginEvent(context, argsList = -1):
 	return getEventManager().beginEvent(context, argsList)
 
 def initAfterReload():
-	"""
-	Initialize BUG and fires PythonReloaded event after reloading Python modules while game is still running.
-	
-	The first time this module is loaded after the game launches, the global context is not yet ready,
-	and thus BUG cannot be initialized. When the Python modules are reloaded after being changed, however,
-	this will reinitialize BUG and the main interface.
-	"""
+	# Initialize BUG and fires PythonReloaded event after reloading Python modules while game is still running.
+	#
+	# The first time this module is loaded after the game launches, the global context is not yet ready, and thus BUG cannot be initialized. When the Python modules are reloaded after being changed, however, this will reinitialize BUG and the main interface.
+	#
 	import BugInit
 	import BugPath
 	if not BugPath.isMac() and BugInit.init():
+		# <!-- custom: A Python reload replaces the main interface within the same native session; request a fresh resolved scoreboard baseline only when the action subject is enabled, as well as the independent settings baseline below. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
+		if SASGameRecordConfig.getLogLevel() >= 2 and SASGameRecordConfig.getActionTraceEnabled():
+			import SASGameRecordActions
+			SASGameRecordActions.resetSession()
 		try:
 			import CvScreensInterface
 			CvScreensInterface.reinitMainInterface()
@@ -54,5 +122,18 @@ def initAfterReload():
 			import BugUtil
 			BugUtil.error("BugInit - failure rebuilding main interface after reloading Python modules")
 		getEventManager().fireEvent("PythonReloaded")
+		# <!-- custom: Python reload resets/replaces module state while a game may remain active.
+		# Re-establish one explicit configuration baseline so later change-only callbacks do not compare against stale/pre-reload caches. (ChatGPT-5.6-Sol) -->
+		if SASGameRecordConfig.getLogLevel() > 0 and CyGame().isFinalInitialized():
+			import SASGameRecordSettings
+			SASGameRecordSettings.logSessionSettings("PYTHON_RELOAD")
+		if SASGameRecordConfig.getLogLevel() >= 2 and SASGameRecordConfig.getActionTraceEnabled() and CyGame().isFinalInitialized():
+			# <!-- custom: resetSession above deliberately clears annotation/planning-marker identity; rebuild explicit post-reload baselines after PythonReloaded handlers restore their persisted state. (ChatGPT-5.6-Sol) -->
+			import SASGameRecordActions
+			import CvScreensInterface
+			import CvStrategyOverlay # <!-- custom: CvStrategyOverlay supplies the persisted DotMap dictionary for gated load/start/reload observations. (GPT-6.1-Sol) -->
+			SASGameRecordActions.observeMapAnnotations(CvScreensInterface.mainInterface.getHiddenMapAnnotationSignsForSave(), "PYTHON_RELOAD")
+			SASGameRecordActions.observeDotMapMarkers(CvStrategyOverlay.getDotMap(), "PYTHON_RELOAD")
 
+# <!-- custom: ci_import_call: every define read below this call runs only once BugInit.init() succeeds, which needs CyGame().isFinalInitialized() and BUG not yet initialized, so not on the normal first import, while the game is still initializing, as the function's own note says; in practice that is after a Python reload in a running game, once defines are loaded. See KI#128.6. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 initAfterReload()

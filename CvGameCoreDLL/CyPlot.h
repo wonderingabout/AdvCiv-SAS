@@ -212,8 +212,7 @@ public:
 	int calculateNatureYield(YieldTypes eIndex, TeamTypes eTeam, bool bIgnoreFeature = false);
 	int calculateBestNatureYield(YieldTypes eIndex, TeamTypes eTeam);
 	int calculateTotalBestNatureYield(TeamTypes eTeam);
-	int calculateImprovementYieldChange(int /*ImprovementTypes*/ eImprovement, YieldTypes eYield,
-			int /*PlayerTypes*/ ePlayer, bool bOptimal);
+	int calculateImprovementYieldChange(int /*ImprovementTypes*/ eImprovement, YieldTypes eYield, int /*PlayerTypes*/ ePlayer, bool bOptimal);
 	int calculateYield(YieldTypes eIndex, bool bDisplay);
 	bool hasYield();
 

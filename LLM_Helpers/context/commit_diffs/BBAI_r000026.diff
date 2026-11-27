@@ -1,0 +1,158 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 26
+# Author: blakeciv
+# Date: 2006-11-03T05:22:26.599674Z
+# Coverage: full
+# Message:
+#   Chopping logic added - the AI will now perform pure chop actions (no associated improvement) to speed the completion of world wonders (only, for now).
+#   
+#   The AI will no longer pillage barbarian territory.
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@25
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@26
+@@ -2712,7 +2712,7 @@
+ 	int iCommercePriority = 0;
+ 	int iProductionPriority = 0;
+ 
+-
++	bool bChop = false;
+ 
+ 	int iGoodTileCount = 0;
+ 
+@@ -2830,6 +2830,24 @@
+ 	}
+ 
+ 
++    if (!bChop)
++	{
++		ProjectTypes eProductionProject = getProductionProject();
++		bChop = (eProductionProject != NO_PROJECT && AI_projectValue(eProductionProject) > 0);
++	}
++	if (!bChop)
++	{
++		BuildingTypes eProductionBuilding = getProductionBuilding();
++		bChop = (eProductionBuilding != NO_BUILDING && isWorldWonderClass((BuildingClassTypes)(GC.getBuildingInfo(eProductionBuilding).getBuildingClassType())));
++	}
++	if (!bChop)
++	{
++		UnitTypes eProductionUnit = getProductionUnit();
++		bChop = (eProductionUnit != NO_UNIT && GC.getUnitInfo(eProductionUnit).isFound());
++	}
++
++
++
+ 	for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 	{
+ 		m_aiBestBuildValue[iI] = 0;
+@@ -2841,7 +2859,7 @@
+ 
+ 			if (NULL != pLoopPlot && pLoopPlot->getWorkingCity() == this)
+ 			{
+-				AI_bestPlotBuild(pLoopPlot, &(m_aiBestBuildValue[iI]), &(m_aeBestBuild[iI]), iFoodPriority, iProductionPriority, iCommercePriority);
++				AI_bestPlotBuild(pLoopPlot, &(m_aiBestBuildValue[iI]), &(m_aeBestBuild[iI]), iFoodPriority, iProductionPriority, iCommercePriority, bChop);
+ 				FAssert(AI_getBestBuildValue(iI) >= 0);
+ 			}
+ 		}
+@@ -4140,7 +4158,7 @@
+ 
+ 
+ // Improved worker AI provided by Blake - thank you!
+-void CvCityAI::AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peBestBuild, int iFoodPriority, int iProductionPriority, int iCommercePriority)
++void CvCityAI::AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peBestBuild, int iFoodPriority, int iProductionPriority, int iCommercePriority, bool bChop)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -4604,6 +4622,51 @@
+ 		}
+ 	}
+ 
++	//Chop - maybe integrate this better with the other feature-clear code
++    if (bChop && (eBonus == NO_BONUS) && (pPlot->getFeatureType() != NO_FEATURE) &&
++        (pPlot->getImprovementType() == NO_IMPROVEMENT) && !(GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_LEAVE_FORESTS)))
++    {
++        for (iI = 0; iI < GC.getNumBuildInfos(); iI++)
++        {
++            eBuild = ((BuildTypes)iI);
++            if (GC.getBuildInfo(eBuild).getImprovement() == NO_IMPROVEMENT)
++            {
++                if (GC.getBuildInfo(eBuild).isFeatureRemove(pPlot->getFeatureType()))
++                {
++                    if (GET_PLAYER(getOwnerINLINE()).canBuild(pPlot, eBuild))
++                    {
++                        FAssert(pCity == this);
++                        iValue = (pPlot->getFeatureProduction(eBuild, getTeam(), &pCity)) * 10;
++
++                        if (iValue > 0)
++                        {
++                            int iHippyFactor = ((GC.getFeatureInfo(pPlot->getFeatureType()).getHealthPercent() * max(0, -healthRate(false, 6))));
++                            FAssert(iHippyFactor >= 0);
++                            iHippyFactor += (pPlot->isBeingWorked() ? 300 : 0);
++
++                            iValue *= (4 - (iHippyFactor / 100));
++                            iValue /= 4;
++                            iValue = max(0, iValue);
++
++                            if (iValue > 0)
++                            {
++                                iValue *= 400;
++                                iValue /= max(1, (GC.getBuildInfo(eBuild).getFeatureTime(pPlot->getFeatureType()) + 1));
++
++                                if (iValue > iBestValue)
++                                {
++                                    iBestValue = iValue;
++                                    eBestBuild = eBuild;
++                                }
++                            }
++                        }
++                    }
++                }
++            }
++        }
++    }
++
++
+ 	if (eBestBuild != NO_BUILD)
+ 	{
+ 		FAssertMsg(iBestValue > 0, "iBestValue is expected to be greater than 0");
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@25
++++ /trunk/CvGameCoreDLL/CvCityAI.h@26
+@@ -127,7 +127,7 @@
+ 	int AI_experienceWeight();
+ 	int AI_buildUnitProb();
+ 
+-	void AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peBestBuild, int iFoodPriority, int iProductionPriority, int iCommercePriority);
++	void AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peBestBuild, int iFoodPriority, int iProductionPriority, int iCommercePriority, bool bChop);
+ };
+ 
+ #endif
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@25
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@26
+@@ -7417,7 +7417,7 @@
+ 
+ 		if (AI_plotValid(pLoopPlot))
+ 		{
+-			if (atWar(getTeam(), pLoopPlot->getTeam()))
++			if (!(GET_TEAM(pLoopPlot->getTeam()).isBarbarian()) && atWar(getTeam(), pLoopPlot->getTeam()))
+ 			{
+ 				if (canPillage(pLoopPlot))
+ 				{
+@@ -7496,7 +7496,7 @@
+ 			{
+ 				if (AI_plotValid(pLoopPlot))
+ 				{
+-					if (atWar(getTeam(), pLoopPlot->getTeam()))
++					if (!(GET_TEAM(pLoopPlot->getTeam()).isBarbarian()) && atWar(getTeam(), pLoopPlot->getTeam()))
+ 					{
+ 						if (canPillage(pLoopPlot))
+ 						{
+

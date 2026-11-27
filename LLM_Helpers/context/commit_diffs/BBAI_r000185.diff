@@ -1,0 +1,606 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 185
+# Author: blakeciv
+# Date: 2006-12-15T12:21:43.142218Z
+# Coverage: full
+# Message:
+#   More starting point refinement and changes (both to placement and normalization)
+#   AI worker training changes... not working entirely.
+#   Workboat automation changed so they camp bonuses, if automated on or next to a bonus.
+#   Increased seafood value for bestTech.
+# Changed paths (7):
+#   M /trunk/CvGameCoreDLL/CvCity.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.h
+--- /trunk/CvGameCoreDLL/CvCity.h@184
++++ /trunk/CvGameCoreDLL/CvCity.h@185
+@@ -777,7 +777,7 @@
+ 
+ 	virtual int AI_calculateCulturePressure(bool bGreatWork = false) = 0;
+ 	virtual int AI_calculateWaterWorldPercent() = 0;
+-	virtual int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold) = 0;
++	virtual int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold, bool bLand = true, bool bWater = true) = 0;
+ 
+ protected:
+ 
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@184
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@185
+@@ -762,10 +762,20 @@
+     //this can be overridden by "wait and grow more"
+     if ((iExistingWorkers == 0) && isCapital())
+     {
+-        if (AI_chooseUnit(UNITAI_WORKER))
+-        {
+-            return;
+-        }
++    	if ((AI_countNumBonuses(NO_BONUS, true, true -1, true, false) > 0) || (getPopulation() > 3))
++    	{
++			if (AI_chooseUnit(UNITAI_WORKER))
++			{
++				return;
++			}
++    	}
++		if (AI_neededSeaWorkers() > 0)
++		{
++			if (AI_chooseUnit(UNITAI_WORKER_SEA))
++			{
++				return;
++			}
++		}
+     }
+ 	
+ 
+@@ -6587,7 +6597,7 @@
+ }
+ 
+ 
+-int CvCityAI::AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold)
++int CvCityAI::AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold, bool bLand, bool bWater)
+ {
+     CvPlot* pLoopPlot;
+     BonusTypes eLoopBonus;
+@@ -6599,28 +6609,31 @@
+         
+         if (pLoopPlot != NULL)
+         {
+-            eLoopBonus = pLoopPlot->getBonusType(getTeam());
+-            if (eLoopBonus != NO_BONUS)
+-            {
+-                if ((eBonus == NO_BONUS) || (eBonus == eLoopBonus))
+-                {
+-                    if (bIncludeOurs && (pLoopPlot->getOwnerINLINE() == getOwnerINLINE()))
+-                    {
+-                        iCount++;                    
+-                    }
+-                    else if (bIncludeNeutral && (!pLoopPlot->isOwned()))
+-                    {
+-                        iCount++;
+-                    }
+-                    else if ((iOtherCultureThreshold > 0) && (pLoopPlot->isOwned() && (pLoopPlot->getOwnerINLINE() != getOwnerINLINE())))
+-                    {
+-                        if ((pLoopPlot->getCulture(pLoopPlot->getOwnerINLINE()) - pLoopPlot->getCulture(getOwnerINLINE())) < iOtherCultureThreshold)
+-                        {
+-                            iCount++;
+-                        }                        
+-                    }
+-                }
+-            }
++        	if ((pLoopPlot->area() == area()) || (bWater && pLoopPlot->isWater()))
++        	{
++				eLoopBonus = pLoopPlot->getBonusType(getTeam());
++				if (eLoopBonus != NO_BONUS)
++				{
++					if ((eBonus == NO_BONUS) || (eBonus == eLoopBonus))
++					{
++						if (bIncludeOurs && (pLoopPlot->getOwnerINLINE() == getOwnerINLINE()))
++						{
++							iCount++;                    
++						}
++						else if (bIncludeNeutral && (!pLoopPlot->isOwned()))
++						{
++							iCount++;
++						}
++						else if ((iOtherCultureThreshold > 0) && (pLoopPlot->isOwned() && (pLoopPlot->getOwnerINLINE() != getOwnerINLINE())))
++						{
++							if ((pLoopPlot->getCulture(pLoopPlot->getOwnerINLINE()) - pLoopPlot->getCulture(getOwnerINLINE())) < iOtherCultureThreshold)
++							{
++								iCount++;
++							}                        
++						}
++					}
++				}
++        	}
+         }
+     }
+     
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@184
++++ /trunk/CvGameCoreDLL/CvCityAI.h@185
+@@ -95,7 +95,7 @@
+     void AI_resetCityRoles();
+     int AI_getCityImportance(bool bEconomy, bool bMilitary);
+     
+-    int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold);
++    int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold, bool bLand = true, bool bWater = true);
+ 
+ 	DllExport void read(FDataStreamBase* pStream);
+ 	DllExport void write(FDataStreamBase* pStream);
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@184
++++ /trunk/CvGameCoreDLL/CvGame.cpp@185
+@@ -1296,11 +1296,11 @@
+ 								{
+ 									if (pLoopPlot->isWater())
+ 									{
+-										iFoodBonus ++;
++										iFoodBonus += 2;
+ 									}
+ 									else
+ 									{
+-										iFoodBonus += 2;
++										iFoodBonus += 3;
+ 									}
+ 								}
+ 							}
+@@ -1315,8 +1315,8 @@
+ 					}
+ 				}
+ 				
+-				int iTargetFoodBonusCount = 2;
+-				iTargetFoodBonusCount += (iGoodNatureTileCount == 0) ? 1 : 0;
++				int iTargetFoodBonusCount = 3;
++				iTargetFoodBonusCount += (iGoodNatureTileCount == 0) ? 2 : 0;
+ 
+ 				for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+ 				{
+@@ -1348,11 +1348,11 @@
+ 														pLoopPlot->setBonusType((BonusTypes)iK);
+ 														if (pLoopPlot->isWater())
+ 														{
+-															iFoodBonus ++;
++															iFoodBonus += 2;
+ 														}
+ 														else
+ 														{
+-															iFoodBonus += 2;
++															iFoodBonus += 3;
+ 														}
+ 														break;
+ 													}
+@@ -1538,6 +1538,7 @@
+ 			{
+ 			    
+                 iCount = 0;
++				int iFeatureCount = 0;
+ 
+ 				for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+ 				{
+@@ -1545,6 +1546,8 @@
+ 					{
+ 						break;
+ 					}
++					
++
+ 
+ 					if (getSorenRandNum((iCount + 2), "Setting Feature Type") <= 1)
+ 					{
+@@ -1571,6 +1574,8 @@
+ 											}
+ 										}
+ 									}
++									
++									iFeatureCount += (pLoopPlot->getFeatureType() != NO_FEATURE) ? 1 : 0;
+ 								}
+ 							}
+ 						}
+@@ -1661,6 +1666,40 @@
+ 												}
+ 											}
+ 										}
++										
++										if (bLandBias && !(pLoopPlot->isWater()) && pLoopPlot->getBonusType() != NO_BONUS)
++										{
++											if (((iFeatureCount > 4) && (pLoopPlot->getFeatureType() != NO_FEATURE))
++												&& ((iCoastFoodCount + iOceanFoodCount) > 2))
++											{
++												pLoopPlot->setFeatureType(NO_FEATURE);
++												if (getSorenRandNum(2, "Clear feature do add bonus") == 0)
++												{
++													for (iK = 0; iK < GC.getNumBonusInfos(); iK++)
++													{
++														if (GC.getBonusInfo((BonusTypes)iK).isNormalize())
++														{
++															//???no bonuses with negative yields?
++															if ((GC.getBonusInfo((BonusTypes)iK).getYieldChange(YIELD_FOOD) >= 0) &&
++																  (GC.getBonusInfo((BonusTypes)iK).getYieldChange(YIELD_PRODUCTION) >= 0))
++															{
++																if ((GC.getBonusInfo((BonusTypes)iK).getTechCityTrade() == NO_TECH) || (GC.getTechInfo((TechTypes)(GC.getBonusInfo((BonusTypes)iK).getTechCityTrade())).getEra() <= getStartEra()))
++																{
++																	if ((iPass == 0) ? CvMapGenerator::GetInstance().canPlaceBonusAt(((BonusTypes)iK), pLoopPlot->getX(), pLoopPlot->getY(), bIgnoreLatitude) : pLoopPlot->canHaveBonus(((BonusTypes)iK), bIgnoreLatitude))
++																	{
++																		pLoopPlot->setBonusType((BonusTypes)iK);
++																		iCount++;
++																		iCoastFoodCount += bCoast ? 1 : 0;
++																		iOceanFoodCount += bOcean ? 1 : 0;
++																		break;
++																	}
++																}
++															}
++														}
++													}
++												}
++											}										
++										}
+ 									}
+ 								}
+ 							}
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@184
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@185
+@@ -930,7 +930,8 @@
+ 		return false;
+ 	}
+ 
+-	pStartingPlot = getStartingPlot();
++
++	pStartingPlot = getStartingPlot(); 
+ 
+ 	if (pStartingPlot != NULL)
+ 	{
+@@ -963,6 +964,8 @@
+ int CvPlayer::startingPlotClosenessPenalty(CvPlot* pPlot, PlayerTypes ePlayer, int iRange)
+ {
+ 	PROFILE_FUNC();
++	
++	FAssert(ePlayer != getID());
+ 
+ 	CvPlot* pStartingPlot;
+ 	
+@@ -982,7 +985,6 @@
+ 
+ 	if (pStartingPlot != NULL)
+ 	{
+-		if (pStartingPlot->getArea() == pPlot->getArea())
+ 		{
+ 			if (GC.getGameINLINE().isTeamGame())
+ 			{
+@@ -999,6 +1001,11 @@
+ 			}
+ 
+             int iDistance = plotDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE());
++            if (pStartingPlot->getArea() != pPlot->getArea())
++            {
++            	iDistance *= 5;            	
++            	iDistance /= 3;
++            }
+ 			if (iDistance <= iRange)
+ 			{
+ 			    iValue *= iDistance;
+@@ -1007,12 +1014,20 @@
+                 iValue *= (iDistance + (iRange / 2));
+ 			    iValue /= (iRange + 1 + (iRange / 2));
+ 			}
++//			if (iDistance < (iRange / 2))
++//			{
++//				iValue /= 2;
++//			}
++			if (iDistance <= CITY_PLOTS_RADIUS)
++			{
++				iValue /= 2;
++			}
+ 		}
+ 	}
+ 
+     iValue /= 100;
+     
+-	return iValue;
++	return max(1, iValue);
+ 
+ }
+ 
+@@ -1039,6 +1054,11 @@
+ 	int iBestArea = -1;
+ 	int iValue;
+ 	int iLoop = 0;
++	int iMinRange = startingPlotRange();
++	CvPlot* pPlotI;
++	CvPlot* pPlotJ;
++	
++	int iI, iJ;
+ 
+ 	CvArea *pLoopArea = NULL;
+ 
+@@ -1049,14 +1069,53 @@
+ 		{
+ 			// iNumPlayersOnArea is the number of players starting on the area, plus this player
+ 			int iNumPlayersOnArea = (pLoopArea->getNumStartingPlots() + 1);
+-			int iTileValue = ((pLoopArea->calculateTotalBestNatureYield() + (pLoopArea->countCoastalLand() * 2) + pLoopArea->getNumRiverEdges() + (pLoopArea->getNumTiles() / 2)) + 1);
++			int iTileValue = ((pLoopArea->calculateTotalBestNatureYield() + (pLoopArea->countCoastalLand() * 2) + pLoopArea->getNumRiverEdges() + (pLoopArea->getNumTiles())) + 1);
+ 			iValue = iTileValue / iNumPlayersOnArea;
+-
+-			if (iNumPlayersOnArea == 1)
++			
++			iValue *= min(NUM_CITY_PLOTS + 1, pLoopArea->getNumTiles() + 1);
++			iValue /= (NUM_CITY_PLOTS + 1);
++
++			if (iNumPlayersOnArea == 2)
+ 			{
+ 				iValue *= 4;
+ 				iValue /= 3;
+ 			}
++			
++
++//			//penalize for too-close starts
++//			for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++//			{
++//				if ((getID() != iI) && (GET_PLAYER((PlayerTypes)iI).isAlive()))
++//				{
++//					pPlotI = GET_PLAYER((PlayerTypes)iI).getStartingPlot();
++//					if (pPlotI != NULL)
++//					{
++//						if (pPlotI->area() == pLoopArea)
++//						{
++//							for (iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
++//							{
++//								if ((iJ != getID()) && (GET_PLAYER((PlayerTypes)iJ).isAlive()))
++//								{
++//									pPlotJ = GET_PLAYER((PlayerTypes)iJ).getStartingPlot();
++//									if (pPlotJ != NULL)
++//									{
++//										if (pPlotJ->area() == pLoopArea)
++//										{
++//											int iDistance = plotDistance(pPlotI->getX_INLINE(), pPlotI->getY_INLINE(), pPlotJ->getX_INLINE(), pPlotJ->getY_INLINE());
++//											if (iDistance <= ((iMinRange * 2) / 3))
++//											{
++//												iValue *= iDistance;
++//												iValue /= (1 + iMinRange);
++//											}
++//										}
++//									}
++//								}
++//							}
++//						}
++//					}
++//				}
++//			}
++			
+ 
+ 			if (iValue > iBestValue)
+ 			{
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@184
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@185
+@@ -1873,21 +1873,19 @@
+ 						{
+ 						    iTempValue = 0;
+ 							iTempValue += (pLoopPlot->getYield(YIELD_FOOD) * 15);
+-							iTempValue += (pLoopPlot->getYield(YIELD_PRODUCTION) * 10);
++							iTempValue += (pLoopPlot->getYield(YIELD_PRODUCTION) * 11);
+ 							iTempValue += (pLoopPlot->getYield(YIELD_COMMERCE) * 5);
+ 							iValue += iTempValue;
+-							if (iTempValue < 20)
++							if (iTempValue < 21)
+ 							{
+-							    if (eFeature == NO_FEATURE)
+-							    {
+-							        iGreaterBadTile += 2;
+-							    }
+-							    else 
+-							    {
+-							        if (pLoopPlot->calculateBestNatureYield((YIELD_FOOD), getTeam()) > 1)
+-							        {
+-							            iGreaterBadTile++;							            
+-							        }
++
++								iGreaterBadTile += 2;
++								if (pLoopPlot->getFeatureType() != NO_FEATURE)
++								{
++							    	if (pLoopPlot->calculateBestNatureYield(YIELD_FOOD,getTeam()) > 1)
++							    	{
++										iGreaterBadTile--;
++							    	}
+ 							    }
+ 							}
+ 						}
+@@ -1895,12 +1893,14 @@
+ 				}
+ 			}
+ 		}
+-		
+-		iGreaterBadTile /= 2;
+-		if (iGreaterBadTile > 8)
+-		{
+-		    iValue *= 9;
+-		    iValue /= iGreaterBadTile;
++		if (!pPlot->isStartingPlot())
++		{
++			iGreaterBadTile /= 2;
++			if (iGreaterBadTile > 12)
++			{
++				iValue *= 11;
++				iValue /= iGreaterBadTile;
++			}
+ 		}
+ 		
+ 		int iWaterCount = 0;
+@@ -1943,53 +1943,53 @@
+ 		{
+ 			iValue += (pPlot->getMinOriginalStartDist() * 100);
+ 		}
+-		
++//		
+ 		//nice hacky way to avoid this messing with normalizer, use elsewhere?
+ 		if (!pPlot->isStartingPlot())
+ 		{
+-		    int iTotalDist = 0;
+-		    int iTotalCount = 0;
+-		    int iMinDist = MAX_INT;
+-		    int iMinStartDist = startingPlotRange();
+-		    int iClosePenalty = 1000;
+-            for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+-            {
+-                if (GET_PLAYER((PlayerTypes)iI).isAlive())
+-                {
+-                    CvPlot* pStartingPlot = GET_PLAYER((PlayerTypes)iI).getStartingPlot();
+-
+-                    if (pStartingPlot != NULL)
+-                    {
+-                        int iDist = plotDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pStartingPlot->getX_INLINE(), pStartingPlot->getX_INLINE());
+-                        iDist *= (pStartingPlot->area() == pPlot->area()) ? 3 : 1;
+-                        iDist = min(iDist, iMinStartDist * 2);
+-                        iTotalDist += iDist;
+-                        iTotalCount++;
+-                        
+-                        iMinDist = min(iDist, iMinDist);
+-                        
+-                        iClosePenalty *= min(iDist, iMinStartDist);
+-                        iClosePenalty /= iMinStartDist;
+-                    }
+-                }
+-            }
+-            
+-            //This generally encourages distant starts
+-            iValue *= (iMinStartDist + iTotalDist);
+-            iValue /= (iMinStartDist + iMinStartDist * iTotalCount);
+-            
+-//            //This specifically pushes apart close starts
+-//            iValue *= iClosePenalty + 100;
+-//            iValue /= 1000 + 100;
+-//            iValue *= iClosePenalty + 100;
+-//            iValue /= 1000 + 100;
++//		    int iTotalDist = 0;
++//		    int iTotalCount = 0;
++//		    int iMinDist = MAX_INT;
++//		    int iMinStartDist = startingPlotRange();
++//		    int iClosePenalty = 1000;
++//            for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++//            {
++//                if (GET_PLAYER((PlayerTypes)iI).isAlive())
++//                {
++//                    CvPlot* pStartingPlot = GET_PLAYER((PlayerTypes)iI).getStartingPlot();
++//
++//                    if (pStartingPlot != NULL)
++//                    {
++//                        int iDist = plotDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pStartingPlot->getX_INLINE(), pStartingPlot->getX_INLINE());
++//                        iDist *= (pStartingPlot->area() == pPlot->area()) ? 3 : 1;
++//                        iDist = min(iDist, iMinStartDist * 2);
++//                        iTotalDist += iDist;
++//                        iTotalCount++;
++//                        
++//                        iMinDist = min(iDist, iMinDist);
++//                        
++//                        iClosePenalty *= min(iDist, iMinStartDist);
++//                        iClosePenalty /= iMinStartDist;
++//                    }
++//                }
++//            }
+ //            
+-//            //further decimate the value for very close starts.
+-//            if (iMinDist < 5)
+-//            {
+-//                iValue /= 10;
+-//            }
+-            
++//            //This generally encourages distant starts
++//            iValue *= (iMinStartDist + iTotalDist);
++//            iValue /= (iMinStartDist + iMinStartDist * iTotalCount);
++//            
++////            //This specifically pushes apart close starts
++////            iValue *= iClosePenalty + 100;
++////            iValue /= 1000 + 100;
++////            iValue *= iClosePenalty + 100;
++////            iValue /= 1000 + 100;
++////            
++////            //further decimate the value for very close starts.
++////            if (iMinDist < 5)
++////            {
++////                iValue /= 10;
++////            }
++//            
+             if (pPlot->getBonusType() != NO_BONUS)
+             {
+                 iValue /= 2;                
+@@ -2898,8 +2898,8 @@
+ 														iTempValue += (kImprovement.getImprovementBonusYield(iK, iL) * 300);
+ 														iTempValue += (kImprovement.getIrrigatedYieldChange(iL) * 200);
+ 
+-														// land food bonuses are more valueble
+-														if (iL == YIELD_FOOD && !kImprovement.isWater())
++														// food bonuses are more valueble
++														if (iL == YIELD_FOOD)
+ 														{
+ 															iTempValue *= 4;
+ 															iTempValue /= 3;
+@@ -2922,7 +2922,7 @@
+ 													if (iNumBonuses > 0)
+ 													{
+ 														iBonusValue *= (iNumBonuses + 3);
+-														iBonusValue /= kImprovement.isWater() ? 6 : 3;	// water resources are worth less
++														iBonusValue /= kImprovement.isWater() ? 4 : 3;	// water resources are worth less
+ 
+ 														iImprovementValue += iBonusValue;
+ 													}
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@184
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@185
+@@ -2975,6 +2975,8 @@
+ 	PROFILE_FUNC();
+ 
+ 	CvCity* pCity;
++	
++	int iI;
+ 
+ 	if (!(getGroup()->canDefend()))
+ 	{
+@@ -3001,6 +3003,36 @@
+ 	{
+ 		return;
+ 	}
++	
++	if (isHuman())
++	{
++		FAssert(isAutomated());
++		if (plot()->getBonusType() != NO_BONUS)
++		{
++			if ((plot()->getOwner() == getOwner()) || (!plot()->isOwned()))
++			{
++				getGroup()->pushMission(MISSION_SKIP);
++				return;
++			}
++		}
++		
++		for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++		{
++			CvPlot* pLoopPlot = plotDirection(getX_INLINE(), getY_INLINE(), (DirectionTypes)iI);
++			if (pLoopPlot != NULL)
++			{
++				if (pLoopPlot->getBonusType() != NO_BONUS)
++				{
++					if (pLoopPlot->isValidDomainForLocation(getDomainType()))
++					{
++						getGroup()->pushMission(MISSION_SKIP);
++						return;						
++					}					
++				}
++			}
++		}
++	}
++	
+ 
+ 	if (!(isHuman()) && (AI_getUnitAIType() == UNITAI_WORKER_SEA))
+ 	{
+

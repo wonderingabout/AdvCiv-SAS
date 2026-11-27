@@ -1,0 +1,47 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 242
+# Author: iustus
+# Date: 2007-01-06T08:13:56.469708Z
+# Coverage: full
+# Message:
+#   fix crash bug reported "http://forums.civfanatics.com/showpost.php?p=4923580&postcount=1157", caused by actually doing the non-combat move inside groupAttack. 
+#   this fix _may_ also fix some graphical ghosts during some moves that some people were seeing
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@241
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@242
+@@ -1156,6 +1156,14 @@
+ 		}
+ 	}
+ 
++	// extra crash protection, should never happen (but a previous bug in groupAttack was causing a NULL here)
++	// while that bug is fixed, no reason to not be a little more careful
++	if (headMissionQueueNode() == NULL)
++	{
++		setActivityType(ACTIVITY_AWAKE);
++		return;
++	}
++
+ 	if (canAllMove())
+ 	{
+ 		if (getNumUnits() > 0)
+@@ -2472,10 +2480,13 @@
+ 
+ 						if (pBestAttackUnit == NULL)
+ 						{
+-						    if (!atWar(getTeam(), pDestPlot->getTeam()))
++						    // Blake added this long ago, we do not need it any more (causes crash bug for human under some cases)
++							// caused because groupMove can separate the group, which can cause the mission queue to be cleared 
++							// when it is expected to be non-NULL
++							/*if (!atWar(getTeam(), pDestPlot->getTeam()))
+ 						    {
+ 						        groupMove(pDestPlot, false);
+-						    }
++						    }*/
+ 						    
+ 							break;
+ 						}
+

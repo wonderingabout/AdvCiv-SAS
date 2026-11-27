@@ -1,0 +1,59 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 325
+# Author: blakeciv
+# Date: 2007-01-29T22:50:02.123322Z
+# Coverage: full
+# Message:
+#   Some clean up I did but forgot to save (heh).
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@324
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@325
+@@ -40,7 +40,7 @@
+ // for testing only
+ #ifndef FINAL_RELEASE
+ //#define TESTING_EXTRA_SAVE_DATA
+-#define DEBUG_OUT_OF_SYNCS
++//#define DEBUG_OUT_OF_SYNCS
+ #endif
+ 
+ // our own version number on our extra data
+@@ -202,9 +202,6 @@
+ 	PROFILE_FUNC();
+ 
+ 	int iI;
+-	
+-	
+-	
+ 
+ 	if (!isHuman())
+ 	{
+@@ -3309,7 +3306,6 @@
+ 			}
+ 			else
+ 			{
+-				
+ 				if (iFocusFlags & BUILDINGFOCUS_GOLD)
+ 				{
+ 					iTempValue = ((kBuilding.getCommerceModifier(COMMERCE_GOLD) * getBaseCommerceRate(COMMERCE_GOLD)) / 40);
+@@ -3629,7 +3625,6 @@
+ 	if ((plot()->calculateCulturePercent(getOwnerINLINE()) < 50) || (getCultureLevel() <= (CultureLevelTypes) 1))
+ 	{
+ 		iValue += GC.getProcessInfo(eProcess).getProductionToCommerceModifier(COMMERCE_CULTURE);
+-		
+ 	}
+ 
+ 	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+@@ -7183,8 +7178,6 @@
+         }
+     }
+     
+-    
+-    
+ 	if (AI_chooseBuilding(iEconomyFlags, 40, 15))
+ 	{
+ 		return;
+

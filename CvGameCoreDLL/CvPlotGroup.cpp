@@ -1,9 +1,11 @@
 #include "CvGameCoreDLL.h"
+#include "SASSaveStreamFormat.h" // <!-- custom: Use the same compile-time write markers as the session diagnostic registry, avoiding duplicated version literals. (GPT-6.1-Sol) -->
 #include "CvPlotGroup.h"
 #include "CvPlayer.h"
 #include "CvCity.h"
 #include "CvMap.h"
 #include "DepthFirstPlotSearch.h" // advc.opt
+#include <memory> // <!-- custom: Own the reusable plot-group DFS checker so the captured cross-game crash fix can rebuild its undersized visited buffer when map size changes. See KI#243.2. (ChatGPT-5.6-Sol) -->
 
 int CvPlotGroup::m_iRecalculating = 0; // advc.064d
 
@@ -149,11 +151,20 @@ void CvPlotGroup::recalculatePlots(/* advc.064d: */ bool bVerifyProduction)
 				FAStar finder for this purpose. Semantically, it's the same check
 				as in BtS: whether all plots in the (old) group are still connected.
 				I guess expanding plot groups are handled by CvPlot::updatePlotGroup. */
-			// Static to avoid reallocating memory for visited flags
-			static CvPlotGroupSizeCheck check;
-			check.reset(GET_PLAYER(eOwner), iOldCount + 1);
-			DepthFirstPlotSearch<CvPlotGroupSizeCheck> dfs(kPlot, check);
-			int iCount = check.getCount();
+			// <!-- custom: A same-process Arena/Pangaea -> Huge T0 Debug-opt capture hit INVALID_POINTER_WRITE while this static checker's old PlotNum buffer was being reset; AdvCiv commit cf83cd90b3 (2022-11-11, advc.pf) introduced that reusable eager buffer.
+			// Its allocation is fixed at construction while reset uses the current map's PlotNum length, so a larger later map wrote past the old allocation.
+			// Reconstruct on plot-count change; this fixed the captured KI#243.2 write and known crash reproductions while retaining reuse within one size. See KI#243.2. (ChatGPT-5.6-Sol) -->
+			static std::auto_ptr<CvPlotGroupSizeCheck> pCheck;
+			static PlotNumTypes eCheckMapPlots = NO_PLOT_NUM;
+			PlotNumTypes const eMapPlots = GC.getMap().numPlots();
+			if (pCheck.get() == NULL || eCheckMapPlots != eMapPlots)
+			{
+				pCheck.reset(new CvPlotGroupSizeCheck(GET_PLAYER(eOwner), iOldCount + 1));
+				eCheckMapPlots = eMapPlots;
+			}
+			else pCheck->reset(GET_PLAYER(eOwner), iOldCount + 1);
+			DepthFirstPlotSearch<CvPlotGroupSizeCheck> dfs(kPlot, *pCheck);
+			int iCount = pCheck->getCount();
 			FAssert(iCount <= iOldCount); // </advc.pf>
 			if (iCount == iOldCount)
 				return;
@@ -277,22 +288,28 @@ void CvPlotGroup::read(FDataStreamBase* pStream)
 {
 	reset();
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 	pStream->Read(&m_iID);
 	pStream->Read((int*)&m_eOwner);
-	if (uiFlag >= 1)
-		m_aiNumBonuses.read(pStream);
-	else m_aiNumBonuses.readArray<int>(pStream);
+
+	m_aiNumBonuses.read(pStream);
+
 	m_plots.Read(pStream);
 }
 
 
 void CvPlotGroup::write(FDataStreamBase* pStream)
 {
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag;
-	//uiFlag = 0;
-	uiFlag = 1; // advc.enum: new enum map save behavior
+	// <!-- custom: Reuse the existing CvPlotGroup write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
+	uiFlag = SASSaveStreamFormat::CV_PLOT_GROUP; // advc.enum: new enum map save behavior
+
 	pStream->Write(uiFlag);
 	pStream->Write(m_iID);
 	pStream->Write(m_eOwner);

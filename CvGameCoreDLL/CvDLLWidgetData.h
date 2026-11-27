@@ -13,8 +13,7 @@ public:
 	DllExport static void freeInstance();
 
 	//	This will parse the help for the widget
-	DllExport void parseHelp(CvWStringBuffer &szBuffer,
-			CvWidgetDataStruct &widgetDataExternal);
+	DllExport void parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &widgetDataExternal);
 	//	This will execute the action for the widget
 	DllExport bool executeAction(CvWidgetDataStruct &widgetDataStructExternal);
 	//	This will execute an alternate action for the widget
@@ -74,8 +73,7 @@ protected:
 	void parseConscriptHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parseActionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	// <advc>
-	void parseActionHelp_Mission(CvActionInfo const& kAction, CvUnit const& kUnit,
-			MissionTypes eMission, CvWStringBuffer& szBuffer); // </advc>
+	void parseActionHelp_Mission(CvActionInfo const& kAction, CvUnit const& kUnit, MissionTypes eMission, CvWStringBuffer& szBuffer); // </advc>
 	void parseCitizenHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parseFreeCitizenHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parseDisabledCitizenHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
@@ -120,6 +118,11 @@ protected:
 	void parseProjectHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parseTerrainHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parseFeatureHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+	// <!-- custom: New: hover for WIDGET_PEDIA_JUMP_TO_ROUTE; iData1 is the route. See KI#113. (Claude code Opus 5.5) -->
+	void parseRouteHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+	// <!-- custom: New: hovers for WIDGET_PEDIA_JUMP_TO_BUILD and WIDGET_PEDIA_JUMP_TO_TRAIT. See KI#113. (Claude code Opus 5.5) -->
+	void parseBuildPediaHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+	void parseTraitPediaHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parseTechEntryHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	// BULL - Trade Denial - start
 	void parseTechTradeEntryHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
@@ -165,6 +168,8 @@ protected:
 	void parseFinanceNumUnits(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parseFinanceUnitCost(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parseFinanceAwaySupply(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+	// <!-- custom: Combine only the two finance breakdowns displayed by the Military Advisor subtotal. See KI#390. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void parseFinanceUnitCostAndSupply(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parseFinanceCityMaint(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parseFinanceCivicUpkeep(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parseFinanceForeignIncome(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
@@ -197,6 +202,12 @@ protected:
 	void parseLeaderHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	// BULL - Leaderhead Relations:
 	void parseLeaderheadRelationsHelp(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer &szBuffer);
+
+	// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab -->
+	// <!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro, check if accurate -->
+	// Helper for Vassal Willingness Tooltip
+	void parseVassalWillingnessHelp(CvWStringBuffer &szBuffer, PlayerTypes eRival, PlayerTypes ePlayer);
+
 	void parseDescriptionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer, bool bMinimal);
 	void parseCloseScreenHelp(CvWStringBuffer &szBuffer);
 	void parseKillDealHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
@@ -209,8 +220,7 @@ protected:
 	void parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	// K-Mod end  <advc.ctr>
-	bool parseCityTradeHelp(CvWidgetDataStruct const& kWidget, CvCity*& pCity,
-			PlayerTypes& eWhoTo) const; // </advc.ctr>
+	bool parseCityTradeHelp(CvWidgetDataStruct const& kWidget, CvCity*& pCity, PlayerTypes& eWhoTo) const; // </advc.ctr>
 };
 
 #endif
