@@ -18,8 +18,7 @@ from pathlib import Path
 # <!-- custom: SASPilotClient, as pilot, for the requests, logged as any SASPilotClient.py command is. (Claude code Opus 5.5) -->
 import SASPilotClient as pilot
 from SASPilotClient import PilotError, pick_pid
-# <!-- custom: desktop_windows, on the path SASPilotClient sets, closes the Python error dialogs for --dismiss. (Claude code Opus 5.5) -->
-import desktop_windows
+# <!-- custom: desktop_windows is no longer imported: --dismiss, its only use here, was removed on 2026-11-27. (Claude code Opus 5.5) -->
 
 # <!-- custom: The screens a player opens from the window, by 'uiopen''s short names; the Sevopedia browses by category rather than footer tabs, so it is left to a sweep of its own. (Claude code Opus 5.5) -->
 SCREENS = ("tech", "policy", "religion", "corporation", "foreigntrade", "foreigndiplomacy", "domestic", "military", "espionage", "info", "world", "victory", "halloffame", "pedia")
@@ -68,9 +67,9 @@ def pediaLinkKey(cell):
 
 
 class Sweep(object):
-	def __init__(self, pid, hover, dismiss=False):
+	# <!-- custom: Was (pid, hover, dismiss=False); dismiss went with --dismiss on 2026-11-27. (Claude code Opus 5.5) -->
+	def __init__(self, pid, hover):
 		self.pid = pid
-		self.dismiss = dismiss
 		self.hover = hover
 		self.problems = []
 		self.notes = []
@@ -85,38 +84,31 @@ class Sweep(object):
 			raise PilotError("%s %s: %s" % (command, arguments, str(reply.get("error")).splitlines()[0]))
 		return reply.get("result")
 
-	def pythonErrors(self, clear=True):
+	# <!-- custom: Was (clear=True); only the removed --dismiss path cleared the errors, so it now always reads without clearing (2026-11-27). (Claude code Opus 5.5) -->
+	def pythonErrors(self):
 		# <!-- custom: This client's own Python error output, from SASPilot's 'pyerrors'.
 		# The first version read PythonErr*.log, but that file is one for every client (KI#1081), and on 2026-11-20 a Civ4 stuck while exiting kept it locked, so no later client's traceback reached it: a probe error never showed, and the clean runs before it had checked nothing. (Claude code Opus 5.5) -->
-		reply = self.call("pyerrors", clear=int(clear), lines=400)
+		reply = self.call("pyerrors", clear=0, lines=400)
 		if not reply.get("writes"):
 			return ([], 0)
 		return (reply.get("lines") or [], reply["writes"])
 
 	def check(self, where):
-		# <!-- custom: After each press: new Python errors are a problem and the sweep goes on; a popup or the diplomacy screen is a modal the sweep did not expect, so it stops rather than press under it (Codex's advice). (Claude code Opus 5.5) -->
+		# <!-- custom: After each press: a popup or the diplomacy screen is a modal the sweep did not expect, so it stops rather than press under it (Codex's advice); a new Python error stops it too, since 2026-11-27, when it no longer goes on after one. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		# <!-- custom: A Python error stops the sweep too: with HidePythonExceptions 0, as SASPilot recommends, each error line opens an EXE dialog in the window, which Python cannot see or close, and a 120-line test write left 120 of them (2026-11-20). (Claude code Opus 5.5) -->
-		# <!-- custom: With --dismiss, the error is a problem and its dialogs are closed by their OK through desktop_windows.py, which the user suggested (2026-11-20), and the sweep goes on: one dialog per write 'pyerrors' counted. (Claude code Opus 5.5) -->
-		# <!-- custom: Game popups and diplomacy first, so no dialog is clicked while one of them is up, and only dialogs titled "Python Exception" are clicked; if one is left, the sweep stops (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		# <!-- custom: --dismiss, which closed those dialogs by their OK through desktop_windows.py and went on, was removed on 2026-11-27: testing it for main found its pixel match one pixel off and its two-look check never agreeing, as the see-through dialog shows the animated map, so it clicked nothing. (Claude code Opus 5.5) -->
 		self.modals(where)
 		self.errors(where)
 
 	def errors(self, where):
-		# <!-- custom: One path for the start and every check: read without clearing, stop or close the dialogs, check that none is left, and only then clear, so a run that stops leaves the errors for a rerun with --dismiss; the first version cleared on every read (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-		(lines, iWrites) = self.pythonErrors(False)
+		# <!-- custom: Read without clearing, so a run that stops leaves the errors for the next one to see; the first version cleared on every read (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		(lines, iWrites) = self.pythonErrors()
 		if not iWrites:
 			return
 		szLast = "-"
 		if lines:
 			szLast = lines[-1][:300]
-		if not self.dismiss:
-			raise Stop("%s: %d Python error writes, the last: %s; stopped, as the window shows their dialogs (--dismiss closes them and goes on)" % (where, iWrites, szLast))
-		self.problems.append("%s: Python error: %s" % (where, szLast))
-		desktop_windows.dismiss_dialogs(self.pid, iWrites)
-		desktop_windows.make_dpi_aware()
-		if desktop_windows.find_dialog_ok(desktop_windows.print_window_image(desktop_windows.find_window(self.pid))):
-			raise Stop("%s: a Python error dialog is still open after --dismiss (two at once, or one not found); stopped" % where)
-		self.pythonErrors()
+		raise Stop("%s: %d Python error writes, the last: %s; stopped; with HidePythonExceptions 0 their dialogs are open in the window too, and pyerrors clear=1 empties the record for a rerun" % (where, iWrites, szLast))
 
 	def modals(self, where):
 		popups = self.call("popups").get("popups") or []
@@ -376,7 +368,6 @@ def main():
 	parser.add_argument("--screens", default=",".join(SCREENS), help="comma-separated, from: %s" % ", ".join(SCREENS))
 	parser.add_argument("--hover", type=int, default=10, help="typed widgets to hover per tab (default 10; 0 for none)")
 	parser.add_argument("--dry-run", action="store_true", help="open each screen and list its tabs, or the Sevopedia's categories, pressing no tab or category")
-	parser.add_argument("--dismiss", action="store_true", help="on a Python error, close its dialogs in the window by their OK and go on, rather than stop")
 	parser.add_argument("--pedia-items", default="3", help="Sevopedia entries to open per category (default 3; all for every one)")
 	args = parser.parse_args()
 	pid = pick_pid(args.pid)
@@ -389,13 +380,13 @@ def main():
 	iItems = -1
 	if args.pedia_items != "all":
 		iItems = int(args.pedia_items)
-	sweep = Sweep(pid, args.hover, args.dismiss)
+	sweep = Sweep(pid, args.hover)
 	if sweep.call("uistate").get("openScreens"):
 		sys.exit("a screen is open; close it first, so the sweep starts from the map")
 	# <!-- custom: Checked before the first screen too, or an inactive main interface would be reported after every Exit, as if each screen had caused it (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	if not sweep.call("uistate").get("mainInterfaceActive"):
 		sys.exit("the main interface is inactive before the sweep; load the game again so the sweep starts from it")
-	# <!-- custom: Errors from before the start are looked at, not cleared unseen: in the first --dismiss test the error came just before the start, its dialog stayed open and the sweep pressed on under it (2026-11-20).
+	# <!-- custom: Errors from before the start are looked at, not cleared unseen: in a 2026-11-20 test of the since removed --dismiss, an error came just before the start, its dialog stayed open and the sweep pressed on under it (2026-11-20).
 	# They go through the same check as the sweep's, as Sweep.errors says. (Claude code Opus 5.5) -->
 	try:
 		sweep.check("before the start")

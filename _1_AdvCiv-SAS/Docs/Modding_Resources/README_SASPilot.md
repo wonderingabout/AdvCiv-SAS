@@ -861,7 +861,6 @@ On the SAS48 game at turn 0, 2026-11-20, one turn was played through the `ui` co
 [`SASPilotUISweep.py`](/SASPilot/SASPilotUISweep.py) opens every advisor and the Sevopedia through SASPilotUI and lists what went wrong, as a read-only regression check after a Python or DLL change. Codex (GPT-6.2-Sol) and Claude Code Opus 5.5 listed it as the next step after [`SASPilotSweep.py`](/SASPilot/SASPilotSweep.py) on 2026-11-20.
 
 ```text
-python SASPilot/SASPilotUISweep.py --dismiss
 python SASPilot/SASPilotUISweep.py --screens military,pedia --pedia-items all
 python SASPilot/SASPilotUISweep.py --dry-run
 ```
@@ -889,11 +888,11 @@ python SASPilot/SASPilotUISweep.py --dry-run
 - SASPilot now keeps its own client's error output: `sys.stderr` passes every write on as before and keeps the last 400, which `pyerrors` reads (`clear=1` empties it after the read).
 - With `HidePythonExceptions = 0`, as SASPilot recommends, every write to `sys.stderr` opens a "Python Exception" dialog in the window. Python cannot see or close it, as it is the EXE's and not a game popup, so `popups` does not list it.
   - A 120-line test write opened 120 of them; 122 clicks at one fixed point closed only 75, as stacked dialogs answer one at a time.
-  - [`desktop_windows.py dismiss --pid --count`](/LLM_Helpers/README.md#desktop_windowspy) finds each OK button from the window's pixels and clicks it, looking again after each click; it closed the remaining ones.
-  - It clicks only an OK under a title that matches a template of "Python Exception", cut from a real dialog, as a game popup has the same cream buttons (Codex's review); a game text popup was not matched.
-  - It clicks only when it finds exactly one such dialog: with two of different sizes, which is on top cannot be told from the pixels. Stacked dialogs of one size show one.
-- The sweep stops at the first Python error, with its dialog open, or with `--dismiss` records it, closes its dialogs and goes on, after checking that no game popup or diplomacy is up, and stops if a Python dialog is still open. Errors from before the start stop it too, or are closed with `--dismiss`.
-  - The errors are cleared only once handled, so a run that stopped leaves them for a rerun with `--dismiss`.
+  - Until 2026-11-27, `desktop_windows.py dismiss` found each OK button from the window's pixels, under a title matching a template of "Python Exception" cut from a real dialog, as a game popup has the same cream buttons (Codex's review), and clicked it; on 2026-11-20 it closed the remaining ones.
+  - Testing it on 2026-11-27, to bring it to main, found its title match one pixel off, and its check that two screenshots agree, added in a later Codex review, never agreeing, as the see-through dialog shows the animated map behind it. It clicked nothing, so it was removed from both branches, with the sweep's `--dismiss`.
+- The sweep stops at the first Python error, with its dialog open, after checking that no game popup or diplomacy is up. Errors from before the start stop it too.
+  - The errors are not cleared, so a run that stopped leaves them for the next one to see.
+  - To retry in the same game, read the error, close its dialogs by hand, then run `pyerrors clear=1`: closing a dialog alone leaves the record, so the next sweep stops on it again (Codex's review, 2026-11-27).
   - Tested by making the main interface's update raise once: before the start, and after a few screen updates, which the sweep caught at the Military Advisor's Battles tab.
 
 ### BUG's options screen, tested on a late game
@@ -932,7 +931,7 @@ Some of the window is drawn or read by the EXE, not by Python, so the widget rec
 | The diplomacy screen | The EXE's own screen. | `contact` or a scoreboard press (`uipress text=<leader>`) opens it; `diplo` reads it and `reply` answers. |
 | Alt+click on a leader (declare war) and Shift+clicks | `CvDLLWidgetData::doContactCiv` reads the real keyboard with `GC.altKey()`, which a press cannot set. | `contact` and `reply`, which declare war through the diplomacy screen as a player does. |
 | Game popups | Popup windows, not screens. | `popups` and `answer`, with popups held from the window while SASPilot drives. |
-| "Python Exception" dialogs | The EXE's, out of Python's reach. | `pyerrors` counts them; [`desktop_windows.py dismiss`](/LLM_Helpers/README.md#desktop_windowspy) closes them by their OK. |
+| "Python Exception" dialogs | The EXE's, out of Python's reach. | `pyerrors` counts them; they are closed by hand, as `desktop_windows.py dismiss` was removed on 2026-11-27 ([Python errors and their dialogs](#python-errors-and-their-dialogs)). |
 | BUG's options dialog | A modal `CyGTabCtrl`, not a screen. | `uioptions` and `uioption`. |
 | The main menu | Before a game, where SASPilot does not run. | The click maps of [README_Game_Runs.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md). |
 
@@ -944,7 +943,7 @@ Some of the window is drawn or read by the EXE, not by Python, so the widget rec
 - Some of `desktop_windows.py`'s clicks on the city screen's build bar did not reach the game (Bomb Shelter twice, a wrapped unit once), while the next ones did, on the 2026-11-20 tests; the cause was not found. SASPilotUI does not click, so this concerns only the real-click checks.
 - Widgets the recorder did not see can still be sent by hand with `uipress widget= widgettype= data1= data2=`, under the all role.
 - Popups are separate; see [Popups](#popups).
-- The EXE's "Python Exception" dialogs are out of Python's reach; `pyerrors` counts the writes that opened them and `desktop_windows.py dismiss` closes them by their OK. It finds only dialogs centred in the window, as all seen so far were.
+- The EXE's "Python Exception" dialogs are out of Python's reach; `pyerrors` counts the writes that opened them; `desktop_windows.py dismiss`, which closed them by their OK, was removed on 2026-11-27, see [Python errors and their dialogs](#python-errors-and-their-dialogs).
 
 ## Loading a save
 
