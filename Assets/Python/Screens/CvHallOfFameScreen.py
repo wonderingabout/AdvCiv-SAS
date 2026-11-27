@@ -385,13 +385,18 @@ class CvHallOfFameScreen:
 
 		self.infoList = [(-1,"",-1,"",-1,"","","","","",0,-1,-1,"","","")] * iNumGames
 		iItem = 0
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextUnknown = localText.getText("TXT_KEY_UNKNOWN", ())
+		szTextNone = localText.getText("TXT_KEY_NONE", ())
+		szTextHofWinlossWin = localText.getText("TXT_KEY_HOF_WINLOSS_WIN", ())
+		szTextHofWinlossLoss = localText.getText("TXT_KEY_HOF_WINLOSS_LOSS", ())
 		for i in range(self.hallOfFame.getNumGames()):
 			replayInfo = self.hallOfFame.getReplayInfo(i)
 			if self.isDisplayed(replayInfo):
-				szUnknown = localText.getText("TXT_KEY_UNKNOWN", ()) # advc.106i
+				szUnknown = szTextUnknown # advc.106i
 				szVictory = u""
 				if replayInfo.getVictoryType() <= 0:
-					szVictory = localText.getText("TXT_KEY_NONE", ())
+					szVictory = szTextNone
 				# <advc.106i>
 				elif replayInfo.getVictoryType() >= gc.getNumVictoryInfos():
 					szVictory = szUnknown # </advc.106i>
@@ -399,8 +404,8 @@ class CvHallOfFameScreen:
 					szVictory = gc.getVictoryInfo(replayInfo.getVictoryType()).getDescription()
 # BUG - Win/Loss Info - start
 				results = {
-					True: localText.getText("TXT_KEY_HOF_WINLOSS_WIN", ()),
-					False: localText.getText("TXT_KEY_HOF_WINLOSS_LOSS", ())
+					True: szTextHofWinlossWin,
+					False: szTextHofWinlossLoss
 				}
 				win, szType = self.isReplayWinner(replayInfo)
 				szVictory = results[win] + szType

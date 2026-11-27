@@ -633,11 +633,13 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		screen.attachLabel(panelName, "", "  ")
 		bButtonFound = False
 		bHasAnd = False
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextAnd = localText.getText("TXT_KEY_AND", ())
 		for j in range(gc.getNUM_AND_TECH_PREREQS()):
 			eTech = gc.getTechInfo(self.iTech).getPrereqAndTechs(j)
 			if (eTech > -1):
 				if bHasAnd:
-					screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_AND", ())))
+					screen.attachLabel(panelName, "", SASTextScale.labelText(szTextAnd))
 				else:
 					bHasAnd = True
 				screen.attachImageButton(panelName, "", gc.getTechInfo(eTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_REQUIRED_TECH, eTech, j, False)
@@ -657,11 +659,13 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		if len(szLeftDelimeter) > 0:
 			screen.attachLabel(panelName, "", SASTextScale.labelText(szLeftDelimeter))
 		bFirst = True
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextOr = localText.getText("TXT_KEY_OR", ())
 		for j in range(gc.getNUM_OR_TECH_PREREQS()):
 			eTech = gc.getTechInfo(self.iTech).getPrereqOrTechs(j)
 			if (eTech > -1):
 				if (not bFirst):
-					screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_OR", ())))
+					screen.attachLabel(panelName, "", SASTextScale.labelText(szTextOr))
 				else:
 					bFirst = False
 				screen.attachImageButton(panelName, "", gc.getTechInfo(eTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_REQUIRED_TECH, eTech, j, False)

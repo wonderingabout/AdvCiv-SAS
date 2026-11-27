@@ -227,6 +227,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#128.7 - (Improved SAS, guarded by CI) A user could not tell which defines SASLiveDefineOverrides.txt reaches: one that follows an override and one whose readers keep their first value look the same in the XML, and both logged APPLIED; SASLiveDefineOverridesAllowed.txt now lists the live ones, and the bridge refuses any other](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.7)\
 [KI#128.8 - (Fixed inherited Better BTS AI and BUG) Python read a define again at each pass of a loop: ChangePlayer read BARBARIAN_LEADER once per leader, and the Tech Window read its two tech-prerequisite counts once per tech; each is now read once before its loop](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.8)\
 [KI#128.9 - (Improved SAS and inherited, guarded by CI) Python read defines by name with no caching rule, unlike the DLL: a read through gc cost 279 ns, and five ran once per leader or per tech inside a loop; they now go through a cache, SASCurrentDefines' reads went from 167 ns to about 80 ns, while a kept self.x, at 18 ns, stays the faster choice for a hot path, and CI requires a cache or a stated reason for each read, as in C++](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.9)\
+[KI#128.10 - (Improved SAS and inherited, guarded by CI) Python looked the same fixed text up again at each pass of a loop, 93 times in 20 files, such as the Victory screen's "Unknown" team name once per vote source: a fixed-key getText cost about 0.8 microseconds in game against 0.02 for a kept local, and each is now read once before its loop](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.10)\
 [KI#129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-129)\
 [KI#130 - (Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-130)\
 [KI#131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-131)\
@@ -12676,6 +12677,42 @@ The five reads repeated at each pass of a loop, inherited from Better BTS AI and
 - The other reads stored again where they run again were no slip: Civ4lerts' `TEMP_HAPPY` and the Dawn of Man screen's `START_YEAR`, in an `init` from K-Mod's first asset commit, and SAS's six `CvInfoScreen.initText` switches, whose comment meant them to be computed "cheaply ... once", while `initText` runs at each opening of the Info screen; all now go through `SASCurrentDefines`.
 
 Implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol).
+
+<a id="ki-128.10"></a>
+
+## KI#128.10 - (Improved SAS and inherited, guarded by CI) Python looked the same fixed text up again at each pass of a loop, 93 times in 20 files, such as the Victory screen's "Unknown" team name once per vote source: a fixed-key getText cost about 0.8 microseconds in game against 0.02 for a kept local, and each is now read once before its loop
+
+Found on 2026-11-27, while the units-waiting count was added to the main interface: the user asked for its text to be read once and kept rather than looked up at each redraw, then for every fixed text key in `CvMainInterface.py` to be cached, then whether the rest of the Python needed the same.
+
+- Why under KI#128: the family began with restarts after live define edits, but its follow-ups grew into one question, a value looked up again where it could be kept; KI#128.8, a define read at each pass of a loop, is this issue's mechanism with defines rather than texts.
+
+- Measured first, as KI#128.9 did for defines: a temporary probe at game start timed 20,000 calls, best of 5 rounds.
+
+  | Call | Cost |
+  | --- | --- |
+  | `localText.getText("TXT_KEY_X", ())`, a fixed key, SAS's or BtS's | about 0.8 microseconds |
+  | `localText.getText("TXT_KEY_MAIN_CITY_DEFENSE", (iChar, 25))`, two arguments | about 3.6 microseconds |
+  | `CyTranslator().getText("TXT_KEY_X", ())`, a new translator each call | about 1.3 microseconds |
+  | `u"  (%d %s)" % (57, self.szText)`, a number formatted into a kept word | about 0.3 microseconds |
+  | a kept local or attribute | about 0.02 microseconds |
+
+- So a fixed lookup costs about three times a define read through `gc` (279 ns) and about 40 times a kept value. Most of the 1,243 fixed lookups in runtime Python run once when a screen or page opens, about 0.08 ms for 100, too little to be worth the churn; what adds up is a lookup inside a loop, run once per row, player or item for the same text.
+- [`python_text_lookups_cached.py`](/.github/workflows/README.md#buildsourcepython_text_lookups_cachedpy), run repo-wide first, found 93 such lookups in 20 files, inherited and SAS alike, among them 16 in `CvVictoryScreen.py`, 10 in `CvInfoScreen.py`, 9 in the Sevopedia's `_sevopedia_main_groupings.py` and 7 in `CvTopCivs.py`; where each line came from was not traced, as none gave a wrong result.
+- [`hoist_loop_text_lookups.py`](/LLM_Helpers/README.md#hoist_loop_text_lookupspy) read each once before the outermost loop of its function, in a local named after its key, such as `szTextTopcivsUnknown`, with a custom comment citing this KI; the check now fails on a new one.
+- The check does not see a lookup with arguments, which builds a new text each time, one in a list comprehension or a `while`'s condition, or one in a helper that a loop calls, as it does not follow calls.
+- The same work moved the folders the game runs Python from into one list, [`lib/runtime_python.py`](/.github/workflows/README.md#libruntime_pythonpy), which 14 runtime Python checks now share: each held its own copy before, and one still listed `LLM_Helpers/saspilot` after SASPilot's game files moved to the root `SASPilot/` folder on its branch.
+  - The user asked for an explicit list rather than a scan of every `.py` file, which would trip on code the game never runs, such as base AdvCiv 1.12's main interface collapsed to one line per call in the docs examples.
+
+Implemented with the help of Claude Code Opus 5.5.
+
+Update (2026-11-27): the other fixed lookups, outside loops, are left as they are for now. The user would rather cache them all, but set it aside for other work, as it looks tedious; leaving them is not judged the better choice, and what follows is kept for when it is taken up again.
+
+- In proportion the gain is clear: a kept text costs about 0.02 microseconds against 0.8 for a fixed lookup, about 40 times less per call; only in absolute terms is it small.
+- All of them together, about 1,150, cost about 0.9 ms if each ran once: 394 in the Sevopedia and 305 in the advisors, which run when a page opens or a tab is clicked, about 0.3 ms for an area if each of its lookups ran once, an estimate from the count of call sites rather than a measured cost per opening, against roughly 700 edits; profiling the real calls stays the next step.
+- Codex's review (GPT-6.2-Sol) found the main interface already handled, as its redraws run only when their part changed and its help strings copy the engine's text, and named the hover paths as the likelier candidates: the unit plot list's unit info pane (`PLE.py`'s `showUnitInfoPane`, with fixed Level, Experience and healing texts) when the mouse enters a unit icon, and BUG's widget hovers through `BugUtil.getText`, which also substitutes symbols.
+- So the next step, when taken, is to count the real calls per second while hovering units and cycling, then cache what shows up, extending the caches that already refresh on a language change, as the main interface's and the Foreign Advisor's do, rather than adding one per module.
+- The check stays lexical: following helpers that a loop calls would meet method overrides and aliasing for a sub-microsecond cost, so Codex advised a report-only pass first, should a repeated pattern turn up.
+- The same day, [`python_runtime_placement.py`](/.github/workflows/README.md#buildsourcepython_runtime_placementpy) began failing on game Python outside the folders `lib/runtime_python.py` lists, which would escape every runtime Python check at once.
 
 <a id="ki-129"></a>
 

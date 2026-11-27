@@ -2982,6 +2982,8 @@ class CvForeignAdvisor:
 				screen.setTableColumnHeader(szMissionsTable, 3, "", wTable3)
 
 				# Loop through all Missions
+				# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+				szTextEspionageSabotage = localText.getText("TXT_KEY_ESPIONAGE_SABOTAGE", ())
 				for iPass in range(3): # advc.120d
 					for iMissionLoop in range(gc.getNumEspionageMissionInfos()):
 
@@ -3059,7 +3061,7 @@ class CvForeignAdvisor:
 							# </advc.120d>
 							# <!-- custom: Choose the grouped Sabotage label before applying prerequisite tint, so the replacement keeps both the icon and the disabled styling. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 							if isSabotage and pMission.getDestroyProductionCostFactor() > 0:
-								szText = SASVisuals.Font.STRENGTH_CHAR + u" " + localText.getText("TXT_KEY_ESPIONAGE_SABOTAGE", ())
+								szText = SASVisuals.Font.STRENGTH_CHAR + u" " + szTextEspionageSabotage
 							else:
 								szText = self.getEspionageMissionChar(pMission) + pMission.getDescription() + szTechText
 

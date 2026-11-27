@@ -20,7 +20,10 @@ import sys
 import tokenize
 
 ROOT = Path(__file__).resolve().parents[4]
-SCANNED = ("Assets/Python", "PrivateMaps")
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+# <!-- custom: The folders the game runs Python from come from lib/runtime_python.py, one list for every runtime Python check, so a new one is added once (2026-11-27). (Claude code Opus 5.5) -->
+from runtime_python import RUNTIME_PYTHON_DIRS
+SCANNED = RUNTIME_PYTHON_DIRS
 API_REFERENCE = "_0_Legacy/Docs/Civ4BUG_Python_API/all_classes_web.txt"
 # <!-- custom: Python 2 built-ins Python 3's Ruff does not know.
 # A free self still needs a real receiver. (Claude code Opus 5.5 + GPT-6.2-Sol) -->

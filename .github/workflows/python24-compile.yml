@@ -7,6 +7,7 @@ on:
       - "PrivateMaps/**.py"
       - ".github/workflows/python24-compile.yml"
       - ".github/workflows/build/python/python24_compile.py"
+      - ".github/workflows/lib/runtime_python.py"
   pull_request:
     # <!-- custom: Ignore the long-lived reference compare from main to the mirrored base AdvCiv release branch, named by its version, such as 1.14.
     # Keep it open so GitHub tracks the diff, but do not run duplicate PR checks for it.
@@ -18,6 +19,7 @@ on:
       - "PrivateMaps/**.py"
       - ".github/workflows/python24-compile.yml"
       - ".github/workflows/build/python/python24_compile.py"
+      - ".github/workflows/lib/runtime_python.py"
   workflow_dispatch:
 
 permissions:

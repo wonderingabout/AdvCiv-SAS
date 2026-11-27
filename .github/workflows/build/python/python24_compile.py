@@ -13,10 +13,11 @@ import sys
 import tempfile
 
 
-SCAN_RELATIVE_DIRS = (
-	"Assets/Python",
-	"PrivateMaps",
-)
+# <!-- custom: The folders the game runs Python from come from lib/runtime_python.py, one list for every runtime Python check, so a new one is added once (2026-11-27).
+# This check runs under Python 2.4 itself, which has no pathlib, so the lib folder is found with os.path, and runtime_python.py stays a plain tuple Python 2.4 can import. (Claude code Opus 5.5) -->
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "lib"))
+from runtime_python import RUNTIME_PYTHON_DIRS
+SCAN_RELATIVE_DIRS = RUNTIME_PYTHON_DIRS
 
 IGNORED_DIR_NAMES = (
 	".git",

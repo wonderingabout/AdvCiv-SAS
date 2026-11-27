@@ -175,6 +175,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
     - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
     - [`heredoc_safe_replace.py`](#heredoc_safe_replacepy)
+    - [`hoist_loop_text_lookups.py`](#hoist_loop_text_lookupspy)
     - [`fix_line_endings.py`](#fix_line_endingspy)
     - [`rename_identifiers.py`](#rename_identifierspy)
   - [C++ source cleanup helpers](#c-source-cleanup-helpers)
@@ -1799,6 +1800,17 @@ Applies exact text replacements to one file from a patch file, for edits too man
 
 ```bash
 python ./LLM_Helpers/formatting/heredoc_safe_replace.py CvGameCoreDLL/CvPlayer.cpp patch.txt --dry-run
+```
+
+#### `hoist_loop_text_lookups.py`
+
+Reads each fixed-key text lookup that [`python_text_lookups_cached.py`](/.github/workflows/README.md#buildsourcepython_text_lookups_cachedpy) finds inside a loop once before the outermost loop of its function, as a local such as `szTextTopcivsUnknown`, with a custom comment above it, and uses that local in the loop.
+
+- Written on 2026-11-27 for the check's first repo-wide run, which found 93 lookups in 20 files; it imports the check, so the two cannot disagree on which lookups sit in a loop. See [KI#128.10](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.10).
+- It reports what it cannot do safely, a lookup split over lines or a local name already in the file, for a hand fix; it writes LF files only. Review the diff after use.
+
+```bash
+python ./LLM_Helpers/formatting/hoist_loop_text_lookups.py --dry-run
 ```
 
 #### `fix_line_endings.py`

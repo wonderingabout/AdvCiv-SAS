@@ -25,7 +25,9 @@ from xml_defines import get_default_repo_root
 from ci_markers import DEFINE_UNCACHED as MARKER
 
 
-SCAN_RELATIVE_DIRS = (Path("Assets/Python"), Path("PrivateMaps"))
+# <!-- custom: The folders the game runs Python from come from lib/runtime_python.py, one list for every runtime Python check, so a new one is added once (2026-11-27). (Claude code Opus 5.5) -->
+from runtime_python import RUNTIME_PYTHON_DIRS
+SCAN_RELATIVE_DIRS = tuple(Path(folder) for folder in RUNTIME_PYTHON_DIRS)
 READERS = ("getDefineINT", "getDefineFLOAT", "getDefineSTRING", "getDefineBOOL")
 
 

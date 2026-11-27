@@ -11,10 +11,12 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[4]
-SCAN = (Path("Assets/Python"), Path("PrivateMaps"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+# <!-- custom: The folders the game runs Python from come from lib/runtime_python.py, one list for every runtime Python check, so a new one is added once (2026-11-27). (Claude code Opus 5.5) -->
+from runtime_python import RUNTIME_PYTHON_DIRS
+SCAN = tuple(Path(folder) for folder in RUNTIME_PYTHON_DIRS)
 COMPARE = re.compile(r"""(?:==|!=)\s*u?(["'])[a-z][a-z_]*\1|u?(["'])[a-z][a-z_]*\2\s*(?:==|!=)""")
 # <!-- custom: The note's one spelling, kept in lib/ci_markers.py with the other CI markers since 2026-11-25. (Claude code Opus 5.5) -->
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 from ci_markers import STRING_COMPARE_EXEMPTION as NOTE
 # <!-- custom: Inherited files SAS does not extend: BUG's option-type core and unit-naming codes, which compare values read from option files or the player's naming pattern, and Planet Generator, a third-party map script whose options are its own string labels, where SAS only fixes bugs.
 # A file SAS edits stays checked with reason notes instead, so a label added there later is still caught: the Customizable Domestic Advisor was first skipped whole, though SAS works in it. (Claude code Opus 5.5) -->

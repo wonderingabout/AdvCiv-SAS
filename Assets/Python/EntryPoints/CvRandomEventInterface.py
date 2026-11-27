@@ -856,6 +856,8 @@ def applyVolcano1(argsList):
 	# zero - 50%, one - 25%, two - 25%
 	iCount = gc.getGame().getSorenRandNum(4, "Volcanic ash fertility bonus") - 1
 
+	# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+	szTextEventVolcanoFertility = localText.getText("TXT_KEY_EVENT_VOLCANO_FERTILITY", ())
 	for i in range(iCount):
 		if len(listPlots) <= 0:
 			break
@@ -868,7 +870,7 @@ def applyVolcano1(argsList):
 		else:
 			plot_owner = kTriggeredData.ePlayer
 		if (gc.getPlayer(plot_owner).isHuman()):
-			CyInterface().addMessage(plot_owner, false, gc.getEVENT_MESSAGE_TIME(), localText.getText("TXT_KEY_EVENT_VOLCANO_FERTILITY", ()), "", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, SASVisuals.Color.WHITE, plot.getX(), plot.getY(), true, true)
+			CyInterface().addMessage(plot_owner, false, gc.getEVENT_MESSAGE_TIME(), szTextEventVolcanoFertility, "", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, SASVisuals.Color.WHITE, plot.getX(), plot.getY(), true, true)
 		listPlots.remove(plot)
 # K-Mod end
 
@@ -1001,13 +1003,15 @@ def applySaltpeter(argsList):
 	listPlots.sort(key=itemgetter(0)) # K-Mod. Sorting by pointers can cause OOS.
 
 	iCount = getSaltpeterNumExtraPlots()
+	# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+	szTextEventSaltpeterDiscovered = localText.getText("TXT_KEY_EVENT_SALTPETER_DISCOVERED", ())
 	for loopPlot in listPlots:
 		if iCount == 0:
 			break
 		iCount -= 1
 		# advc.enum: was getGame()...
 		gc.getMap().setPlotExtraYield(loopPlot[1].getX(), loopPlot[1].getY(), YieldTypes.YIELD_COMMERCE, 1)
-		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), localText.getText("TXT_KEY_EVENT_SALTPETER_DISCOVERED", ()), "", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, SASVisuals.Color.WHITE, loopPlot[1].getX(), loopPlot[1].getY(), true, true)
+		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szTextEventSaltpeterDiscovered, "", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, SASVisuals.Color.WHITE, loopPlot[1].getX(), loopPlot[1].getY(), true, true)
 		# EventSigns start -- Add landmark for other plots, if there is still a yield change
 		placeLandmark(loopPlot[1], sEventType, 0, 0, 1, True, -1) # K-Mod. (originally it used iFood, iProd, iComm -- and that's not correct.)
 		# EventSigns end

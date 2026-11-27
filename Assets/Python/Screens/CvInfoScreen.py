@@ -1350,6 +1350,8 @@ class CvInfoScreen:
 				visiblePlayersByTeam[eLoopTeam] = []
 			visiblePlayersByTeam[eLoopTeam].append(eLoopPlayer)
 
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextTopcivsUnknown = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
 		for ePlayer in visiblePlayers:
 			pPlayer = gc.getPlayer(ePlayer)
 			eTeam = pPlayer.getTeam()
@@ -1374,7 +1376,7 @@ class CvInfoScreen:
 
 			szName = pPlayer.getName()
 			if not bMet:
-				szName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
+				szName = szTextTopcivsUnknown
 			SASTextScale.setTableTextLabel(screen, szTable, iColName, iRow, szName, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, pPlayer.getLeaderType(), pPlayer.getCivilizationType(), CvUtil.FONT_LEFT_JUSTIFY)
 			# <!-- custom: Score Tab trait columns (T1/T2): trait icon chars for compact readability next to leader identity data. (GPT-5.3-Codex) -->
 			iTrait1 = -1
@@ -3122,6 +3124,8 @@ class CvInfoScreen:
 
 		self.iNumCities = 0
 
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextUnknown = localText.getText("TXT_KEY_UNKNOWN", ())
 		for iRankLoop in range(5):
 
 			pCity = self.pCityPointers[iRankLoop]
@@ -3144,7 +3148,7 @@ class CvInfoScreen:
 					self.szCityNames[iRankLoop] = pCity.getName().upper()
 					self.szCityDescs[iRankLoop] = ("%s, %s" %(pPlayer.getCivilizationAdjective(0), localText.getText("TXT_KEY_MISC_FOUNDED_IN", (szTurnFounded,))))
 				else:
-					self.szCityNames[iRankLoop] = localText.getText("TXT_KEY_UNKNOWN", ()).upper()
+					self.szCityNames[iRankLoop] = szTextUnknown.upper()
 					self.szCityDescs[iRankLoop] = ("%s" %(localText.getText("TXT_KEY_MISC_FOUNDED_IN", (szTurnFounded,)), ))
 				self.iCitySizes[iRankLoop] = pCity.getPopulation()
 				self.aaCitiesXY[iRankLoop] = [pCity.getX(), pCity.getY()]
@@ -3522,6 +3526,8 @@ class CvInfoScreen:
 		#self.pActivePlayer = gc.getPlayer(CyGame().getActivePlayer())
 
 		# Loop through players to determine Wonders
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextUnknown = localText.getText("TXT_KEY_UNKNOWN", ())
 		for iPlayerLoop in range(gc.getMAX_PLAYERS()):
 
 			pPlayer = gc.getPlayer(iPlayerLoop)
@@ -3581,7 +3587,7 @@ class CvInfoScreen:
 									if (iPlayerTeam == gc.getPlayer(self.iActivePlayer).getTeam() or gc.getTeam(gc.getPlayer(self.iActivePlayer).getTeam()).isHasMet(iPlayerTeam)):								
 										self.aaWondersBuilt.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,pPlayer.getCivilizationShortDescription(0),szCityName])
 									else:
-										self.aaWondersBuilt.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop, localText.getText("TXT_KEY_UNKNOWN", ()), localText.getText("TXT_KEY_UNKNOWN", ())])
+										self.aaWondersBuilt.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop, szTextUnknown, szTextUnknown])
 	#								print("Adding World wonder to list: %s, %d, %s" %(pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,pPlayer.getCivilizationAdjective(0)))
 									self.iNumWonders += 1
 
@@ -3603,7 +3609,7 @@ class CvInfoScreen:
 									if (iPlayerTeam == gc.getPlayer(self.iActivePlayer).getTeam() or gc.getTeam(gc.getPlayer(self.iActivePlayer).getTeam()).isHasMet(iPlayerTeam)):								
 										self.aaWondersBuilt.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,pPlayer.getCivilizationShortDescription(0), szCityName])
 									else:
-										self.aaWondersBuilt.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop, localText.getText("TXT_KEY_UNKNOWN", ()), localText.getText("TXT_KEY_UNKNOWN", ())])
+										self.aaWondersBuilt.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop, szTextUnknown, szTextUnknown])
 									self.iNumWonders += 1
 
 		# This array used to store which players have already used up a team's slot so team projects don't get added to list more than once
@@ -3613,6 +3619,8 @@ class CvInfoScreen:
 		if (self.szWonderDisplayMode == self.szWDM_Project):
 
 			# Loop through players to determine Projects
+			# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+			szTextUnknown = localText.getText("TXT_KEY_UNKNOWN", ())
 			for iPlayerLoop in range(gc.getMAX_PLAYERS()):
 
 				pPlayer = gc.getPlayer(iPlayerLoop)
@@ -3634,7 +3642,7 @@ class CvInfoScreen:
 								if (iTeamLoop == gc.getPlayer(self.iActivePlayer).getTeam() or gc.getTeam(gc.getPlayer(self.iActivePlayer).getTeam()).isHasMet(iTeamLoop)):								
 									self.aaWondersBuilt.append([-9999,iProjectLoop,gc.getPlayer(iPlayerLoop).getCivilizationShortDescription(0),szCityName])
 								else:
-									self.aaWondersBuilt.append([-9999,iProjectLoop, localText.getText("TXT_KEY_UNKNOWN", ()), localText.getText("TXT_KEY_UNKNOWN", ())])
+									self.aaWondersBuilt.append([-9999,iProjectLoop, szTextUnknown, szTextUnknown])
 								self.iNumWonders += 1
 
 		# Sort wonders in order of date built
@@ -3654,6 +3662,8 @@ class CvInfoScreen:
 		bDebug = (CyGame().isDebugMode() or self.bRevealAll) and self.iActiveTeam == gc.getGame().getActiveTeam()
 
 		# Loop through players to determine Wonders
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextUnknown = localText.getText("TXT_KEY_UNKNOWN", ())
 		for iPlayerLoop in range(gc.getMAX_PLAYERS()):
 
 			pPlayer = gc.getPlayer(iPlayerLoop)
@@ -3723,7 +3733,7 @@ class CvInfoScreen:
 									if iPlayerTeam == self.iActiveTeam or bRevealed or self.pActiveTeam.isHasMet(iPlayerTeam) or bDebug:
 										self.aaWondersBuilt_BUG.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,True,pPlayer.getCivilizationShortDescription(0),pCity, iPlayerLoop])
 									else:
-										self.aaWondersBuilt_BUG.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,False, localText.getText("TXT_KEY_UNKNOWN", ()),pCity,gc.getBARBARIAN_PLAYER()])
+										self.aaWondersBuilt_BUG.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,False, szTextUnknown,pCity,gc.getBARBARIAN_PLAYER()])
 										# kekm: Replaced hardcoded 18 with barbarian player
 	#								print("Adding World wonder to list: %s, %d, %s" %(pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,pPlayer.getCivilizationAdjective(0)))
 									self.iNumWonders += 1
@@ -3760,6 +3770,8 @@ class CvInfoScreen:
 		if (self.szWonderDisplayMode == self.szWDM_Project):
 
 			# Loop through players to determine Projects
+			# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+			szTextUnknown = localText.getText("TXT_KEY_UNKNOWN", ())
 			for iPlayerLoop in range(gc.getMAX_PLAYERS()):
 
 				pPlayer = gc.getPlayer(iPlayerLoop)
@@ -3782,7 +3794,7 @@ class CvInfoScreen:
 									self.aaWondersBuilt_BUG.append([-9999,iProjectLoop,True,gc.getPlayer(iPlayerLoop).getCivilizationShortDescription(0),None, iPlayerLoop])
 								else:
 									# advc.001: Last param was 9999
-									self.aaWondersBuilt_BUG.append([-9999,iProjectLoop,False, localText.getText("TXT_KEY_UNKNOWN", ()), None, gc.getBARBARIAN_PLAYER()])
+									self.aaWondersBuilt_BUG.append([-9999,iProjectLoop,False, szTextUnknown, None, gc.getBARBARIAN_PLAYER()])
 								self.iNumWonders += 1
 
 		# Sort wonders in order of date built

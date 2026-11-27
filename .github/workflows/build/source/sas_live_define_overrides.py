@@ -25,7 +25,9 @@ from sas_live_define_overrides_file import ALLOWED_RELATIVE, VALUES_RELATIVE, XM
 from cpp_define_reads_cached import blank_source
 
 
-PYTHON_ROOTS = ("Assets/Python", "PrivateMaps")
+# <!-- custom: The folders the game runs Python from come from lib/runtime_python.py, one list for every runtime Python check, so a new one is added once (2026-11-27). (Claude code Opus 5.5) -->
+from runtime_python import RUNTIME_PYTHON_DIRS
+PYTHON_ROOTS = RUNTIME_PYTHON_DIRS
 
 
 def python_files(source: RepoSource):

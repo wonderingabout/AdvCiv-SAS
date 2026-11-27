@@ -156,6 +156,10 @@ class CvSpaceShipScreen:
 		if(not (((gameState == GameStateTypes.GAMESTATE_EXTENDED) and (victoryCountdown > 0)) or (victoryCountdown == 0))):
 
 			#loop through each panel
+			# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+			szTextSpaceShipScreenTypeButton = localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_TYPE_BUTTON", ())
+			szTextSpaceShipScreenZoomButton = localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_ZOOM_BUTTON", ())
+			szTextSpaceShipScreenAddButton = localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_ADD_BUTTON", ())
 			for i in range(self.numComponents):
 				index = self.componentProjects[i]
 				component = gc.getProjectInfo(index)
@@ -201,15 +205,15 @@ class CvSpaceShipScreen:
 
 				#type button if necessary
 				if(screen.spaceShipCanChangeType(index) and (victoryCountdown < 0)):
-					screen.setButtonGFC("ComponentTypeButton" + str(i), SASTextScale.labelText(localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_TYPE_BUTTON", ())), "", xPosition + self.componentTypeXOffset, yPosition + self.componentTypeYOffset, self.componentTypeWidth, self.componentTypeHeight, WidgetTypes.WIDGET_GENERAL, self.TYPE_BUTTON, i, ButtonStyles.BUTTON_STYLE_STANDARD )
+					screen.setButtonGFC("ComponentTypeButton" + str(i), SASTextScale.labelText(szTextSpaceShipScreenTypeButton), "", xPosition + self.componentTypeXOffset, yPosition + self.componentTypeYOffset, self.componentTypeWidth, self.componentTypeHeight, WidgetTypes.WIDGET_GENERAL, self.TYPE_BUTTON, i, ButtonStyles.BUTTON_STYLE_STANDARD )
 
 				#zoom button
 				if(victoryCountdown < 0):
-					screen.setButtonGFC("ComponentZoomButton" + str(i), SASTextScale.labelText(localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_ZOOM_BUTTON", ())), "", xPosition + self.componentZoomXOffset, yPosition + self.componentZoomYOffset, self.componentZoomWidth, self.componentZoomHeight, WidgetTypes.WIDGET_GENERAL, self.ZOOM_BUTTON, i, ButtonStyles.BUTTON_STYLE_STANDARD )
+					screen.setButtonGFC("ComponentZoomButton" + str(i), SASTextScale.labelText(szTextSpaceShipScreenZoomButton), "", xPosition + self.componentZoomXOffset, yPosition + self.componentZoomYOffset, self.componentZoomWidth, self.componentZoomHeight, WidgetTypes.WIDGET_GENERAL, self.ZOOM_BUTTON, i, ButtonStyles.BUTTON_STYLE_STANDARD )
 
 				#add button
 				if(index == self.activeProject):
-					screen.setButtonGFC("ComponentAddButton", SASTextScale.labelText(localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_ADD_BUTTON", ())), "", xPosition - xPositionOffset + self.componentAddXOffset, yPosition + self.componentAddYOffset, self.componentAddWidth, self.componentAddHeight, WidgetTypes.WIDGET_GENERAL, self.ADD_BUTTON, i, ButtonStyles.BUTTON_STYLE_STANDARD )
+					screen.setButtonGFC("ComponentAddButton", SASTextScale.labelText(szTextSpaceShipScreenAddButton), "", xPosition - xPositionOffset + self.componentAddXOffset, yPosition + self.componentAddYOffset, self.componentAddWidth, self.componentAddHeight, WidgetTypes.WIDGET_GENERAL, self.ADD_BUTTON, i, ButtonStyles.BUTTON_STYLE_STANDARD )
 
 				#component model
 				modelType = gc.getTeam(activeTeam).getProjectDefaultArtType(index)

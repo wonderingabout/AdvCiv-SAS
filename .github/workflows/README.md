@@ -112,6 +112,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`lib/git_context.py`](#libgit_contextpy)
     - [`lib/reference_spellings.py`](#libreference_spellingspy)
     - [`lib/revision_history.py`](#librevision_historypy)
+    - [`lib/runtime_python.py`](#libruntime_pythonpy)
     - [`lib/sas_live_define_overrides_file.py`](#libsas_live_define_overrides_filepy)
     - [`lib/xml_defines.py`](#libxml_definespy)
   - [Source](#source)
@@ -133,6 +134,8 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/python_multiline_calls.py`](#buildsourcepython_multiline_callspy)
     - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
+    - [`build/source/python_runtime_placement.py`](#buildsourcepython_runtime_placementpy)
+    - [`build/source/python_text_lookups_cached.py`](#buildsourcepython_text_lookups_cachedpy)
     - [`build/source/python_wrapper_null_args.py`](#buildsourcepython_wrapper_null_argspy)
     - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
     - [`build/source/sas_live_define_overrides.py`](#buildsourcesas_live_define_overridespy)
@@ -1388,6 +1391,15 @@ Holds the one-token spellings of numbered references, such as `PR#50`, `KI#1104`
 
 Parses diagnostic revision history entries and validates their Change fields for the SASGameRecord and Runtime checks, and reads `[ci_squash_pr]` to tell whether a PR is intended to be squash-merged.
 
+#### `lib/runtime_python.py`
+
+Lists the folders the game runs Python from, `Assets/Python` and `PrivateMaps`, which every runtime Python check scans, from the Python 2.4 compile to the define and text caching checks.
+
+- Each check held its own copy of the list until 2026-11-27, so a new runtime folder had to be added to each by hand: one check still listed `LLM_Helpers/saspilot` after SASPilot's game files moved to the root `SASPilot/` folder on its branch, while the others never had it. A branch that runs Python from another folder, such as SASPilot's `SASPilot/game`, now adds it here once.
+- Scanning every `.py` file instead would trip on code the game never runs, such as `_1_AdvCiv-SAS/Docs/examples/source_comparison/CvMainInterface_1_12_singleline.py`, base AdvCiv 1.12's main interface collapsed to one line per call for comparison; tooling Python in `LLM_Helpers` and `.github` runs under Python 3 outside the game, so it is not listed either.
+- A plain tuple, as `python24_compile.py` imports it under Python 2.4 itself.
+- `RUNTIME_PYTHON_FILES` lists single files the game runs from a folder of modern tooling, each with its reason, empty on main and so far read only as an allowance by the placement check, and `REFERENCE_PYTHON_PREFIXES` the reference copies never run; [`python_runtime_placement.py`](#buildsourcepython_runtime_placementpy) fails on game Python outside both lists.
+
 #### `lib/sas_live_define_overrides_file.py`
 
 Reads `SASLiveDefineOverrides/SASLiveDefineOverrides.txt` with the game's own parser: it loads `Assets/Python/SASLiveDefineOverridesBridge.py` with stand-ins for the two engine modules it imports, so CI and the game cannot disagree on what the file holds or which XML defines it may override.
@@ -1682,6 +1694,34 @@ Why logical lines rather than a width:
 - Runtime Python calls follow the same idea, one call per line, as [`python_multiline_calls.py`](#buildsourcepython_multiline_callspy) checks.
 
 Preview with `python LLM_Helpers/formatting/reflow_custom_comments.py --diff`, then use `--apply` on selected files and review the result. See [the helper documentation](/LLM_Helpers/README.md#custom-comment-logical-reflow) for scope and examples.
+
+#### `build/source/python_runtime_placement.py`
+
+Fails on a Python file outside the folders and files [`lib/runtime_python.py`](#libruntime_pythonpy) lists that imports `CvPythonExtensions`, the engine module only the game provides: such game Python would escape every runtime Python check at once, as SASPilot's game files did in `LLM_Helpers/saspilot`, scanned by one check and not the others.
+
+- It reads tokens, so a mention in a comment or a string, such as the CI stubs' `sys.modules["CvPythonExtensions"]`, does not count; it splits a line at `;` and after a one-line `if ...:`, and reads the module position, so `import os as CvPythonExtensions` is no hit.
+- It checks the files Git tracks, plus new ones it does not ignore, so a local `.venv` or ignored scratch is never walked, and skips the reference copies the lib file lists: without that list, 158 copies of game Python would hit, 131 in `LLM_Helpers/context`, mostly the original map scripts, and base AdvCiv 1.12's single-line main interface among them.
+- Codex's review (GPT-6.2-Sol) reproduced the first draft's misses, each now tested: `x = 1; import CvPythonExtensions`, `if enabled: from CvPythonExtensions import *`, a UTF-8 BOM before the first import, and the alias counted as a module.
+- The import is a one-way signal, as Codex's review (GPT-6.2-Sol) put it: a loader can run a payload that uses the engine without importing it, so a loader such as SASPilot's should point at listed paths too.
+- On main nothing outside `Assets/Python` and `PrivateMaps` imports it. On the branches, Codex found files the game runs from folders of modern tooling: SASPilot's `SASPilot/checks/trade_items_parity.py` and the transplanter's `SASSaveTransplanterExport.py` and `SASSaveTransplanterUnitState.py`, which go in the lib file's `RUNTIME_PYTHON_FILES` with their reasons rather than as whole folders. Added on 2026-11-27.
+  - That list is only an allowance for this check so far: the other runtime checks scan the folders alone, so a branch listing a file there also says what checks it, until they read the list too.
+
+```bash
+python .github/workflows/build/source/python_runtime_placement.py
+```
+
+#### `build/source/python_text_lookups_cached.py`
+
+The text counterpart of [KI#128.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.8)'s define reads in loops: fails when runtime Python looks a fixed text key up inside the body of a `for` or `while` loop, such as `localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())` once per vote source, as the text is the same at each pass.
+
+- Measured in game on 2026-11-27, best of 5 rounds of 20,000: a fixed-key `getText` cost about 0.8 microseconds, one with two arguments about 3.6, a fresh `CyTranslator()` each call about 1.3, and a kept local or attribute about 0.02.
+- So only lookups in loops are checked. Run repo-wide first, the check found 93 in 20 files, now each read once before the outermost loop of its function by [`hoist_loop_text_lookups.py`](/LLM_Helpers/README.md#hoist_loop_text_lookupspy); the other 1,150 or so fixed lookups run once per call, about 0.08 ms for 100, too little to be worth the churn.
+- Not seen: a lookup with arguments, which builds a new text each time; one in a list comprehension or a `while`'s condition; and one in a helper that a loop calls, as the check does not follow calls.
+- It scans the folders in [`lib/runtime_python.py`](/.github/workflows/lib/runtime_python.py), the shared list of folders the game runs Python from. See [KI#128.10](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.10).
+
+```bash
+python .github/workflows/build/source/python_text_lookups_cached.py
+```
 
 #### `build/source/python_wrapper_null_args.py`
 

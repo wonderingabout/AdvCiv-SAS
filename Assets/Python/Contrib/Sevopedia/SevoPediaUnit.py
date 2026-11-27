@@ -359,11 +359,13 @@ class SevoPediaUnit:
 			screen.attachLabel(panelName, "", SASTextScale.labelText(szLeftDelimeter))
 		bFirst = True
 
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextOr = localText.getText("TXT_KEY_OR", ())
 		for j in range(gc.getNUM_UNIT_PREREQ_OR_BONUSES()):
 			eBonus = gc.getUnitInfo(self.iUnit).getPrereqOrBonuses(j)
 			if eBonus > -1:
 				if not bFirst:
-					screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_OR", ())))
+					screen.attachLabel(panelName, "", SASTextScale.labelText(szTextOr))
 				else:
 					bFirst = False
 				screen.attachImageButton(panelName, "", gc.getBonusInfo(eBonus).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, eBonus, -1, False)
@@ -410,10 +412,12 @@ class SevoPediaUnit:
 					break
 		# Display all project requirements with "OR" text between them
 		bFirst = True
+		# <!-- custom: Fixed texts read once before the loop rather than at each pass, which cost about 0.8 microseconds a lookup. See KI#128.10. (Claude code Opus 5.5) -->
+		szTextOr = localText.getText("TXT_KEY_OR", ())
 		for iProject in projectsRequired:
 			if not bFirst:
 				# Add "OR" text between projects
-				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_OR", ())))
+				screen.attachLabel(panelName, "", SASTextScale.labelText(szTextOr))
 
 			screen.attachImageButton(panelName, "", gc.getProjectInfo(iProject).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iProject, -1, False)
 			bFirst = False

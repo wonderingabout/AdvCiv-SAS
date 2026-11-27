@@ -17,8 +17,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 from xml_defines import get_default_repo_root
 
 
-# <!-- custom: LLM_Helpers/saspilot holds SASPilotCommands.py, which runs inside the game's Python 2.4 too. (Claude code Opus 5.5) -->
-SCAN_RELATIVE_DIRS = (Path("Assets/Python"), Path("PrivateMaps"), Path("LLM_Helpers/saspilot"))
+# <!-- custom: The folders the game runs Python from come from lib/runtime_python.py, one list for every runtime Python check, so a new one is added once (2026-11-27). (Claude code Opus 5.5) -->
+from runtime_python import RUNTIME_PYTHON_DIRS
+SCAN_RELATIVE_DIRS = tuple(Path(folder) for folder in RUNTIME_PYTHON_DIRS)
 FLOAT_FORMAT_APPLIED = re.compile(r'%[-+ 0#]*\d*\.\d*f[^"\']*["\']\s*%\s*(.*)$')
 FLOAT_MARKER = re.compile(r'\d\.\d|\d\.(?!\w)|\bfloat\s*\(')
 DIVISION = re.compile(r'[\w)\]]\s*/\s*[\w(]')

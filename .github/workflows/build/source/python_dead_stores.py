@@ -21,7 +21,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 from xml_defines import get_default_repo_root
 
 
-SCAN_RELATIVE_DIRS = (Path("Assets/Python"), Path("PrivateMaps"))
+# <!-- custom: The folders the game runs Python from come from lib/runtime_python.py, one list for every runtime Python check, so a new one is added once (2026-11-27). (Claude code Opus 5.5) -->
+from runtime_python import RUNTIME_PYTHON_DIRS
+SCAN_RELATIVE_DIRS = tuple(Path(folder) for folder in RUNTIME_PYTHON_DIRS)
 STORE = re.compile(r"^(\s*)self\.(\w+)\s*=(?!=)")
 # <!-- custom: What may read the pending value without naming it: a method on self, self passed on or aliased, such as helper(self) or alias = self, or leaving the block early.
 # The argument pattern first took any "(self", so a bracketed sum such as (self.H_MAP_MINIMAP_MAX * iGridW) hid CvMilitaryAdvisor's dead X_TEXT; bare self must now stand alone between separators.

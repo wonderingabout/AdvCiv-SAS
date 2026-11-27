@@ -104,6 +104,14 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/python_define_reads_cached.py
 
+      - name: Runtime Python looks each fixed text key up once, not at each pass of a loop
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/python_text_lookups_cached.py
+
+      - name: Game Python lives in the folders the runtime Python checks scan
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/python_runtime_placement.py
+
       - name: Runtime Python aligns columns with tabs and leaves one space elsewhere
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/python_aligned_columns.py
