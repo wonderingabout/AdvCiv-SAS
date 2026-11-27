@@ -32,6 +32,24 @@ PAIRS = (
 	("Automate", GLOBAL_TYPES, "AutomateTypes"),
 	("Direction", GLOBAL_TYPES, "DirectionTypes"),
 	("Function", GLOBAL_TYPES, "FunctionTypes"),
+	# <!-- custom: The rest, found by a scan of every ENUM_START block against the repository's XML types: hand-written enums whose XML SAS carried before KI#1104.3 but no check compared. (Claude code Opus 5.5) -->
+	("InterfaceMode", "Assets/XML/Interface/CIV4InterfaceModeInfos.xml", "InterfaceModeInfo"),
+	("CityTab", "Assets/XML/BasicInfos/CIV4CityTabInfos.xml", "CityTabInfo"),
+	("Yield", "Assets/XML/Terrain/CIV4YieldInfos.xml", "YieldInfo"),
+	("Commerce", "Assets/XML/GameInfo/CIV4CommerceInfo.xml", "CommerceInfo"),
+	("GameOption", "Assets/XML/GameInfo/CIV4GameOptionInfos.xml", "GameOptionInfo"),
+	("MultiplayerOption", "Assets/XML/GameInfo/CIV4MPOptionInfos.xml", "MPOptionInfo"),
+	("PlayerOption", "Assets/XML/GameInfo/CIV4PlayerOptionInfos.xml", "PlayerOptionInfo"),
+	("GraphicOption", "Assets/XML/GameInfo/CIV4GraphicOptionInfos.xml", "GraphicOptionInfo"),
+	("Denial", "Assets/XML/BasicInfos/CIV4DenialInfos.xml", "DenialInfo"),
+	("UnitAI", "Assets/XML/BasicInfos/CIV4UnitAIInfos.xml", "UnitAIInfo"),
+	("Mission", "Assets/XML/Units/CIV4MissionInfos.xml", "MissionInfo"),
+	("Command", "Assets/XML/Units/CIV4CommandInfos.xml", "CommandInfo"),
+	("Control", "Assets/XML/Units/CIV4ControlInfos.xml", "ControlInfo"),
+	("Memory", "Assets/XML/BasicInfos/CIV4MemoryInfos.xml", "MemoryInfo"),
+	("CitySize", GLOBAL_TYPES, "CitySizeTypes"),
+	("Contact", GLOBAL_TYPES, "ContactTypes"),
+	("DiplomacyPower", GLOBAL_TYPES, "DiplomacyPowerTypes"),
 )
 # <!-- custom: Enum values with no XML row, inherited as they are: BtS's FunctionTypes has FUNC_STEPKEY, which its GlobalTypes.xml never listed; a value after the XML's last row shifts no row, so it is allowed here by name. (Claude code Opus 5.5) -->
 ENUM_ONLY = {"Function": ("FUNC_STEPKEY",)}
@@ -65,7 +83,9 @@ def enum_members(text: str, name: str) -> list[str] | None:
 			if equals:
 				if value.strip() == "-1" and not members:
 					continue
-				raise ValueError("%s = %s: an explicit value inside a row-indexed enum" % (member, value.strip()))
+				# <!-- custom: A value equal to the member's position shifts nothing: AdvCiv's GameOptionTypes pins GAMEOPTION_ADVANCED_START = 0, GAMEOPTION_LEAD_ANY_CIV = 7 and others where they already sit. (Claude code Opus 5.5) -->
+				if value.strip() != str(len(members)):
+					raise ValueError("%s = %s: an explicit value inside a row-indexed enum, at position %d" % (member, value.strip(), len(members)))
 			if directive:
 				raise ValueError("%s: a preprocessor line before the row %s" % (directive, member))
 			members.append(member)
@@ -79,10 +99,19 @@ def xml_types(repo_root: Path, rel: Path | str, element: str) -> list[str]:
 			if local_name(node.tag) == element:
 				return [(child.text or "").strip() for child in node]
 		return []
+	# <!-- custom: Rows are read as the DLL's loader reads them: from the first <element>, every sibling in order, whatever its tag, as SetGlobalClassInfo steps with NextSibling.
+	# Vanilla's CIV4GraphicOptionInfos.xml, copied by BtS and SAS, wraps its third row, GRAPHICOPTION_CITY_DETAIL, in <PlayerOptionInfo>; the game loads it as the third graphic option, while reading <GraphicOptionInfo> rows only had it missing. (Claude code Opus 5.5) -->
+	parents = {child: parent for parent in root.iter() for child in parent}
+	first = next((node for node in root.iter() if local_name(node.tag) == element), None)
+	if first is None:
+		return []
+	siblings = list(parents[first])
 	types = []
-	for node in root.iter():
-		if local_name(node.tag) == element:
-			types += [(child.text or "").strip() for child in node if local_name(child.tag) == "Type"]
+	# <!-- custom: From the first <element> forward, as the loader steps; the first version took the earlier siblings too, which Codex's review (GPT-6.2-Sol) reproduced passing a file whose first row was under the wrong tag, which the DLL skips.
+	# A later row without a <Type> is reported as such, as the loader would count it. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	for row in siblings[siblings.index(first):]:
+		row_types = [(child.text or "").strip() for child in row if local_name(child.tag) == "Type"]
+		types.append(row_types[0] if len(row_types) == 1 else "<row %s without one Type>" % local_name(row.tag))
 	return types
 
 

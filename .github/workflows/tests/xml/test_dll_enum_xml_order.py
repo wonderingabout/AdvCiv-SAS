@@ -70,6 +70,19 @@ class EnumOrderTests(unittest.TestCase):
 		self.enums("ENUM_START(AnimationPath, ANIMATIONPATH)\n\tANIMATIONPATH_NONE = -1,\n\tANIMATIONPATH_IDLE,\n#if 0\n\tANIMATIONPATH_OLD,\n#endif\n\tANIMATIONPATH_MOVE,\nENUM_END(AnimationPath, ANIMATIONPATH)\n")
 		self.assertEqual(len(checker.check(self.repo)), 1)
 
+	# <!-- custom: A value equal to its position shifts nothing, as in AdvCiv's GameOptionTypes, and a row under another tag still counts, as the loader steps through siblings, as in vanilla's CIV4GraphicOptionInfos.xml. (Claude code Opus 5.5) -->
+	def test_value_at_its_position_and_row_under_another_tag(self):
+		self.enums("ENUM_START(AnimationPath, ANIMATIONPATH)\n\tANIMATIONPATH_IDLE = 0,\n\tANIMATIONPATH_MOVE = 1,\nENUM_END(AnimationPath, ANIMATIONPATH)\n")
+		(self.repo / "Assets/XML/Units/Civ4AnimationPathInfos.xml").write_text("<Civ4AnimationPathInfos><AnimationPaths><AnimationPath><Type>ANIMATIONPATH_IDLE</Type></AnimationPath><OtherInfo><Type>ANIMATIONPATH_MOVE</Type></OtherInfo></AnimationPaths></Civ4AnimationPathInfos>", encoding="utf-8")
+		self.assertEqual(checker.check(self.repo), [])
+
+	# <!-- custom: Rows start at the first matching row, as the loader's do, so a mistagged earlier sibling is not counted, which Codex's review (GPT-6.2-Sol) reproduced passing; a later sibling without a Type is reported. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	def test_rows_start_at_the_first_matching_row(self):
+		(self.repo / "Assets/XML/Units/Civ4AnimationPathInfos.xml").write_text("<Civ4AnimationPathInfos><AnimationPaths><OtherInfo><Type>ANIMATIONPATH_IDLE</Type></OtherInfo><AnimationPath><Type>ANIMATIONPATH_MOVE</Type></AnimationPath></AnimationPaths></Civ4AnimationPathInfos>", encoding="utf-8")
+		self.assertTrue(checker.check(self.repo))
+		(self.repo / "Assets/XML/Units/Civ4AnimationPathInfos.xml").write_text("<Civ4AnimationPathInfos><AnimationPaths><AnimationPath><Type>ANIMATIONPATH_IDLE</Type></AnimationPath><AnimationPath/></AnimationPaths></Civ4AnimationPathInfos>", encoding="utf-8")
+		self.assertTrue(checker.check(self.repo))
+
 	def test_enum_members_stop_at_the_count(self):
 		text = "ENUM_START(Direction, DIRECTION)\n\tNO_DIRECTION = -1,\n\tDIRECTION_NORTH,\n\tDIRECTION_EAST,\n\tNUM_ENUM_TYPES(DIRECTION),\n\tDIRECTION_NORTH_MASK = 1 << DIRECTION_NORTH,\nENUM_END(Direction, DIRECTION)\n"
 		self.assertEqual(checker.enum_members(text, "Direction"), ["DIRECTION_NORTH", "DIRECTION_EAST"])

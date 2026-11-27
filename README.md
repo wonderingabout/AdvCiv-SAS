@@ -1334,6 +1334,8 @@ These are not final playable-plot counts; the map script controls their conversi
 
 Note 3: XXL map scripts also override grid sizes directly (e.g., XXL World Pangaea uses 16 x 10 for Standard and 40 x 25 for XXL in `PrivateMaps/Pangaea.py`), so the XML sizes aren’t the only source of truth; this keeps XXL maps smaller while still advertising higher default player counts.
 
+Note 4: the DLL also lists the world sizes by hand, in the XML's order; when Arena was inserted before Duel, that list was left behind, so Large maps got Huge's settings until AdvCiv-SAS later fixed that bug. CI now checks that list and 25 others like it; see [KI#269](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-269).
+
 See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
 
 ## Mapscripts

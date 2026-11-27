@@ -2000,15 +2000,18 @@ Verifies any SAS `DefineTextVal` token that looks like a known Civ4 XML tag (e.g
 
 #### `build/xml/dll_enum_xml_order.py`
 
-Checks that the DLL's hand-written enums in `CvEnums.h` list the same types, in the same order, as the carried XML they index ([KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3)): `ANIMATIONPATH_*` against `Civ4AnimationPathInfos.xml`, the attitudes, domains, calendars and force controls against their info files, and the automate, direction and function types against `GlobalTypes.xml`.
+Checks that the DLL's hand-written enums in `CvEnums.h` list the same types, in the same order, as the XML they index ([KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3)), 25 of them: `ANIMATIONPATH_*` against `Civ4AnimationPathInfos.xml`, the attitudes, domains, calendars and force controls against their carried info files, and the automate, direction and function types against `GlobalTypes.xml`.
+
+- A scan of every `ENUM_START` block against the repository's XML types then found 17 more whose XML SAS carried earlier but no check compared, such as `MissionTypes`, `UnitAITypes`, `GameOptionTypes` and `DenialTypes`; all match.
+- Rows are read as the DLL's loader reads them, from the first row forward, every sibling whatever its tag, a sibling without one `<Type>` being reported: vanilla's `CIV4GraphicOptionInfos.xml`, copied by BtS and SAS, wraps `GRAPHICOPTION_CITY_DETAIL` in `<PlayerOptionInfo>`, which the game still loads as the third graphic option.
 
 - Why: the DLL indexes the XML's rows by these enums, so a type added, removed or moved on one side only would shift every later row onto the wrong value without any load error. Until SAS carried these files, the XML side sat in the base game, out of reach of any check.
   - Codex's review (GPT-6.2-Sol) suggested the animation paths; the other hand-written enums whose XML SAS carries follow the same rule.
 - The `DO(...)` enums of `CvEnumMacros.h`, such as `EntityEventTypes`, are sized from the XML at load, so they cannot drift and are not checked.
-- One enum value has no XML row and is allowed by name: BtS's `FUNC_STEPKEY`, after the last row, where it shifts nothing.
-- An explicit value other than the leading `NONE = -1` fails, as it would shift the rows while the names still compared in order, and block comments are skipped; Codex's review (GPT-6.2-Sol) reproduced `ANIMATIONPATH_IDLE = 4` passing in the first version.
+- One enum value has no XML row and is allowed by name: BtS's `FUNC_STEPKEY`, after the last row, where it shifts nothing. An explicit value equal to its member's position shifts nothing either, as AdvCiv's `GAMEOPTION_LEAD_ANY_CIV = 7`.
+- Explicit values fail, except a leading `NONE = -1` and a value equal to its member's position, as any other would shift the rows while the names still compared in order; block comments are skipped; Codex's review (GPT-6.2-Sol) reproduced `ANIMATIONPATH_IDLE = 4` passing in the first version.
 - Comments are removed before the enum is found, so a comment naming `ENUM_END` cannot cut it short, and a preprocessor line before a row, such as `#if 0`, fails, while one guarding only the count, as `DirectionTypes`' `#ifdef _USRDLL` does, is allowed; Codex's second review reproduced both cases.
-- Seven tests: a matching list passes; swapped rows, a row the enum lacks, an enum value after the last row, an explicit value and a row under `#if 0` fail; the enum's `NONE`, comments, a comment naming `ENUM_END` and the masks after the count are skipped.
+- Eight tests: a matching list passes, as do values at their position and a row under another tag; swapped rows, a row the enum lacks, an enum value after the last row, an explicit value and a row under `#if 0` fail; the enum's `NONE`, comments, a comment naming `ENUM_END` and the masks after the count are skipped.
 
 #### `build/xml/feature_impassables.py`
 

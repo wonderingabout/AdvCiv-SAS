@@ -436,7 +436,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#266 - (Fixed inherited map-script bug) Custom Continents six-continent template shifted an inner layer on the wrong axis](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-266)\
 [KI#267 - (Fixed inherited map-script bug) Sparse player IDs lost handcrafted starts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-267)\
 [KI#268 - (Fixed inherited third-party BTG bug) Lagoon Top v Bottom could retry forever with unequal teams](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-268)\
-[KI#269 - (Fixed AdvCiv-SAS bug) Lagoon land-band widths used stale pre-Arena world-size indices](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-269)\
+[KI#269 - (Fixed SAS bugs on an inherited weakness, guarded by CI) Inserting Arena before Duel shifted every world size that code still counted in BtS's order, unnoticed at the time: Lagoon's land bands and, months earlier, the DLL's own world-size enum took the next-larger size's settings, such as Large getting Huge's](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-269)\
 [KI#270 - (Fixed inherited third-party BTG bug) Lagoon shifted wrapped geography without shifting fixed-coordinate follow-up logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-270)\
 [KI#271 - (Fixed AdvCiv-SAS bug) Cross reused physical hubs and could duplicate starts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-271)\
 [KI#272 - (Fixed AdvCiv-SAS bug) Cross exposed an unimplemented Crossed positioning choice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-272)\
@@ -13255,6 +13255,8 @@ File changed:
 
 Update: now added AdvCiv-SAS new worldsizes (as of now ARENA, SAS24, SAS32, SAS40,, SAS48) to DLL too.
 
+Update (2026-11-27): that DLL change realigned `WorldSizeTypes` after Arena's insertion had shifted `WORLDSIZE_HUGE` onto Large; see [KI#269](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-269)'s update, which also records the 25 other hand-written enums CI now checks.
+
 <a id="ki-139"></a>
 
 ## KI#139 - (Fixed) Base AdvCiv issue: Foreign Advisor BUG menu made Glance attitude dropdown look attached to Enhanced Info Tab
@@ -22718,7 +22720,7 @@ Found and investigated through the systematic AdvCiv-SAS archaeology with the he
 
 <a id="ki-269"></a>
 
-## KI#269 - (Fixed AdvCiv-SAS bug) Lagoon land-band widths used stale pre-Arena world-size indices
+## KI#269 - (Fixed SAS bugs on an inherited weakness, guarded by CI) Inserting Arena before Duel shifted every world size that code still counted in BtS's order, unnoticed at the time: Lagoon's land bands and, months earlier, the DLL's own world-size enum took the next-larger size's settings, such as Large getting Huge's
 
 BTG Lagoon's outer solid/partial land-band and bridge widths were derived by subtracting the raw world-size enum from a BTS-era bias.
 
@@ -22739,6 +22741,75 @@ The bridge option remains a separate one-tile addition, and no grid dimensions, 
 A Huge Lagoon game generated and completed an 11-turn autoplay with an empty refreshed `PythonErr.log`.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+Update (2026-11-27): while carrying base-game data XML into SAS ([KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3)), this issue arose again, not as an actual bug this time but as a weakness that showed up during the systematic [inherited files audit](/_1_AdvCiv-SAS/Docs/Source_Analysis/inherited_files_audit.md). It is now guarded by CI; here is why, below.
+
+- Reviewing the plan for that carry, Codex (GPT-6.2-Sol) suggested checking the order of the animation paths' rows against the DLL's `ANIMATIONPATH_*` enum; the carry added that check, [`dll_enum_xml_order.py`](/.github/workflows/README.md#buildxmldll_enum_xml_orderpy), for the 8 enums whose XML it brought in.
+  - Shortly after, a scan of every `ENUM_START` block in `CvEnums.h` against the repository's XML found 17 more such pairs, whose XML SAS had carried earlier, such as `MissionTypes`, `UnitAITypes`, `GameOptionTypes` and `DenialTypes`; all 25 match today.
+- The weakness: some lists exist twice, as the rows of an XML file and as a C++ enum typed out by hand in `CvEnums.h`, and the game finds an XML row by the enum's value, so both must list the same types in the same order. The hand-written enums come from vanilla's SDK, so the weakness is as old as Civ4.
+  - The user asked how these enums work in practice and how they relate to the game, and Claude Code Opus 5.5 explained it with the game options:
+
+`CIV4GameOptionInfos.xml` lists the options the setup screen shows, row by row:
+
+```xml
+<Type>GAMEOPTION_ADVANCED_START</Type>              <!-- row 0 -->
+<Type>GAMEOPTION_SPAH</Type>                        <!-- row 1 -->
+<Type>GAMEOPTION_NO_CITY_FLIPPING</Type>            <!-- row 2 -->
+<Type>GAMEOPTION_NO_FLIPPING_AFTER_CONQUEST</Type>  <!-- row 3 -->
+<Type>GAMEOPTION_NO_BARBARIANS</Type>               <!-- row 4 -->
+<Type>GAMEOPTION_RAGING_BARBARIANS</Type>           <!-- row 5 -->
+```
+
+`CvEnums.h` types the same list out by hand, each name standing for its position:
+
+```cpp
+GAMEOPTION_ADVANCED_START = 0,
+GAMEOPTION_SPAH,                       // 1
+GAMEOPTION_NO_CITY_FLIPPING,           // 2
+GAMEOPTION_NO_FLIPPING_AFTER_CONQUEST, // 3
+GAMEOPTION_NO_BARBARIANS,              // 4
+GAMEOPTION_RAGING_BARBARIANS,          // 5
+```
+
+The AI then asks, in `CvCityAI.cpp`:
+
+```cpp
+bool const bNoBarbarians = kGame.isOption(GAMEOPTION_NO_BARBARIANS);
+```
+
+To the compiled game, that means "is option 4 ticked?". The box the player ticked in the setup screen is the XML's row 4, so the two agree, but only because both lists are in the same order.
+
+Now say a modder adds a new option to the XML at row 2 and forgets `CvEnums.h`. No Barbarians moves down to row 5, while the C++ still asks about option 4, which is now No Flipping After Conquest.
+
+So the code reads the wrong option without any error: a player ticking No Barbarians still gets barbarians. With the check, CI now fails on such a slip and names the row:
+
+```text
+row 2 is GAMEOPTION_MY_NEW_OPTION, but GameOptionTypes in CvEnums.h has GAMEOPTION_NO_CITY_FLIPPING there
+```
+
+- The user then asked whether it deserved a KI of its own, and recalled the SAS48 world sizes, asking whether a KI recorded them not being in the DLL.
+- Looking into it confirmed that this was more than a weakness on paper: SAS had really hit it, with the DLL's own world-size enum, and nobody noticed at the time:
+  - SAS 5311 (`77dc1e64a7`, 2026-01-08) added Arena as row 0 of `CIV4WorldInfo.xml`, and SAS24 to SAS48 after Huge, while `CvEnums.h` kept BtS's Duel to Huge `WorldSizeTypes`.
+  - So `WORLDSIZE_HUGE` stayed 5, which now selected Large, and every other hard-coded size likewise pointed one row too low; the sizes appended after Huge shifted nothing.
+  - As the user recalled, it showed as Large maps getting Huge's settings, and was worked around in steps before the DLL itself was fixed (from the `commit_diffs` corpus):
+    - the release 5400, published on 2026-01-31, shipped with the shift, about three weeks after it came in;
+    - SAS 5406 to 5436 (from 2026-02-03) adapted the map scripts to the new sizes, `Highlands` first, converting the enum to plain integers for their own size tables;
+    - SAS 5855 (`63884cdbf7`, 2026-05-22) named the runtime indices `SAS_WORLDSIZE_ARENA` = 0 to Huge = 6 in Python, as "the old hardcoded WorldSizeTypes enum still has WORLDSIZE_HUGE=5", and fixed the map scripts found taking a neighbouring size's table, such as `Water.py` and `PerfectMongoose.py`; SAS 5864 moved them to `SASMagicNumbers.py` as `SAS_MAGIC_WORLDSIZE_*`;
+    - the release 5860, published on 2026-05-24, and its Update 4 of 2026-06-04 still had the DLL's enum shifted, with Python working around it.
+  - SAS 5971 (`c9e951c6d6`, 2026-06-24) realigned the C++ and Python enums, removed the `SAS_MAGIC_WORLDSIZE_*` numbers and made [`worldsizes.py`](/.github/workflows/README.md#buildruntimeworldsizespy) check their alignment, as `CvEnums.h`'s comment above `WorldSizeTypes` records; the release 6020, tagged on 2026-07-07 and published on 2026-07-08, was the first with it.
+  - [KI#138](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-138)'s closing update, "now added AdvCiv-SAS new worldsizes ... to DLL too", was its only trace in the Known Issues until now.
+- So the world sizes and the 25 other pairs are now guarded by CI: `worldsizes.py` and `dll_enum_xml_order.py` fail when a hand-written enum and its XML rows fall out of step.
+- Where it lives: Codex (GPT-6.2-Sol) first suggested a new KI#138.2, and Claude Code Opus 5.5 agreed.
+  - The user objected that KI#138 is about an inherited map script's own sizes, not world-size drift on an otherwise fine map, and recalled the issues where inherited maps came out too big or too small in SAS once Arena was inserted.
+  - That brought us back to this entry: Lagoon's land bands, above, were keyed on world-size numbers counted in BtS's order, so Arena's insertion gave each size the next-larger one's widths, the same drift as the DLL's enum, one layer up.
+  - It was first written as KI#269.2; the user then noted that nothing new broke today, the DLL's fix being SAS 5971's and only the guard new, so it became this update of KI#269.
+  - Its neighbours from the same insertion: [KI#282.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-282.3), five map scripts raising `KeyError` on Arena's sizes, and [KI#278.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-278.2), Arena Rainforest too small.
+- Two harmless oddities the check had to follow:
+  - vanilla's own `CIV4GraphicOptionInfos.xml`, copied by BtS and SAS, wraps its third row, `GRAPHICOPTION_CITY_DETAIL`, in `<PlayerOptionInfo>`, which the game still loads in its place, as the loader steps through sibling rows whatever their tag; the check reads rows the same way;
+  - AdvCiv pins some `GameOptionTypes` values, such as `GAMEOPTION_LEAD_ANY_CIV = 7`, where they already sit, which shifts nothing, so a value equal to its position is allowed.
+- Related, with another mechanism: [KI#1090](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090) and [KI#1090.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090.2), Python bindings that gave an enum name its neighbour's value, which `python_binding_targets.py` guards.
+
+Found by Claude Code Opus 5.5 with Codex (GPT-6.2-Sol), whose review suggested the check and found the commit that introduced the world-size shift; the precedent and this entry's place came from the user's questions.
 
 <a id="ki-270"></a>
 
@@ -40002,6 +40073,9 @@ Screenshots/files for this issue: none, as the copies change nothing on screen.
 - Tested in game: a new Standard Pangaea game started, with all 207 XML files, the 26 copies among them, logged `outcome=SUCCEEDED` in `xml.log`, an empty `PythonErr.log`, and the map, units and colors drawn as before.
 
 Prompted by the user's question whether the inherited data XML should come in too; implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol).
+
+- Update (2026-11-27): a scan of every `ENUM_START` block in `CvEnums.h` against the repository's XML types found 17 more hand-written enums whose XML SAS had carried earlier, such as `MissionTypes`, `UnitAITypes`, `GameOptionTypes` and `DenialTypes`; [`dll_enum_xml_order.py`](/.github/workflows/README.md#buildxmldll_enum_xml_orderpy) now checks all 25, and all match; it accepts only a leading `NONE = -1` and explicit values equal to their row's position, which shift nothing; [KI#269](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-269) records the check, with the world-size precedent.
+  - Reading the rows as the loader does showed vanilla's own `CIV4GraphicOptionInfos.xml` wrapping `GRAPHICOPTION_CITY_DETAIL` in `<PlayerOptionInfo>`, which the game still loads in its place.
 
 <a id="ki-1105"></a>
 

@@ -1479,6 +1479,7 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_L
 
 - **48 Civs DLL** is the **default and only bundled DLL**, supporting the larger SAS24/SAS32/SAS40/SAS48 world sizes and their higher default player counts. (Requires AdvCiv-SAS 6590+) One maintained DLL avoids switching builds during testing or playing; games with fewer civilizations are still supported.
   - The screens that adjust to its many players are listed in [UI (High player counts)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-high-player-counts).
+  - The DLL's hand-written world sizes follow the XML's order: Arena's insertion before Duel once had Large maps get Huge's settings, until AdvCiv-SAS later fixed that bug, and CI now checks such lists; see [KI#269](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-269).
 - Add a **notification at game start** (once per session) when the active DLL's **maximum civilization count** is lower than the selected world size's **default player count**.
   - (Requires AdvCiv-SAS 6590+) For example, a user compiling a custom 18-civ DLL and selecting SAS48 would receive a warning that the map may never be fully populated, with advice to use or compile a DLL with sufficient capacity and start a new game.
   - The check uses the active DLL's actual capacity and the current world-size XML values.
